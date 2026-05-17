@@ -1,10 +1,18 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createTurnState } from '../../../stores/game/types'
-import type { MapToken } from '../../../types/map'
+import type { GameMap, MapToken } from '../../../types/map'
 import TokenContextMenu from './TokenContextMenu'
 
-const mockStoreState = {
+const mockStoreState: {
+  updateToken: ReturnType<typeof vi.fn>
+  removeToken: ReturnType<typeof vi.fn>
+  addSidebarEntry: ReturnType<typeof vi.fn>
+  allies: unknown[]
+  enemies: unknown[]
+  maps: GameMap[]
+  turnStates: Record<string, unknown>
+} = {
   updateToken: vi.fn(),
   removeToken: vi.fn(),
   addSidebarEntry: vi.fn(),

@@ -17,7 +17,7 @@ vi.stubGlobal(
   class KeyboardEvent {
     key: string
     ctrlKey: boolean
-    constructor(type: string, init?: { key?: string; ctrlKey?: boolean }) {
+    constructor(_type: string, init?: { key?: string; ctrlKey?: boolean }) {
       this.key = init?.key ?? ''
       this.ctrlKey = init?.ctrlKey ?? false
     }

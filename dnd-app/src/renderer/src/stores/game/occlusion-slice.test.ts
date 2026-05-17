@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { create } from 'zustand'
+import type { GameMap, OcclusionTile } from '../../types/map'
 import { createOcclusionSlice } from './occlusion-slice'
 
 vi.stubGlobal('window', { api: { storage: {}, game: {} } })
@@ -15,12 +16,12 @@ function makeStore() {
   }))
 }
 
-function makeMap(overrides: Partial<any> = {}) {
-  return { id: 'map-1', name: 'Test', tokens: [], ...overrides }
+function makeMap(overrides: Partial<GameMap> = {}): GameMap {
+  return { id: 'map-1', name: 'Test', tokens: [], ...overrides } as unknown as GameMap
 }
 
-function makeTile(overrides: Partial<any> = {}) {
-  return { id: 'tile-1', x: 0, y: 0, width: 1, height: 1, ...overrides }
+function makeTile(overrides: Partial<OcclusionTile> = {}): OcclusionTile {
+  return { id: 'tile-1', x: 0, y: 0, width: 1, height: 1, ...overrides } as unknown as OcclusionTile
 }
 
 describe('createOcclusionSlice', () => {

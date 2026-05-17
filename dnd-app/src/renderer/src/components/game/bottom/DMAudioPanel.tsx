@@ -12,8 +12,8 @@ import {
   stopAmbient,
   stopCustomAudio
 } from '../../../services/sound-manager'
-import { useGameStore } from '../../../stores/use-game-store'
 import { useNetworkStore } from '../../../stores/network-store'
+import { useGameStore } from '../../../stores/use-game-store'
 
 type CustomAudioCategory = 'all' | 'ambient' | 'effect' | 'music'
 

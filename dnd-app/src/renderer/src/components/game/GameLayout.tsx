@@ -12,12 +12,12 @@ import { buildContentIndex } from '../../services/library/content-index'
 import { loadCategoryItems } from '../../services/library-service'
 import { executeMacro } from '../../services/macro-engine'
 import { buildMapLightSources, hasDarkvision, recomputeVision } from '../../services/map/vision-computation'
+import { useNetworkStore } from '../../stores/network-store'
 import { useAiDmStore } from '../../stores/use-ai-dm-store'
 import { useCharacterStore } from '../../stores/use-character-store'
 import { useGameStore } from '../../stores/use-game-store'
 import { useLobbyStore } from '../../stores/use-lobby-store'
 import { useMacroStore } from '../../stores/use-macro-store'
-import { useNetworkStore } from '../../stores/network-store'
 import type { Campaign } from '../../types/campaign'
 import type { Character } from '../../types/character'
 import { is5eCharacter } from '../../types/character'
@@ -275,7 +275,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
     }
   }, [sidebarCollapsed, sidebarWidth])
 
-  const handleLinkClick = useCallback((category: string, name: string) => {
+  const handleLinkClick = useCallback((_category: string, _name: string) => {
     // For now, just open the compendium modal
     // TODO: Could enhance to pre-select the specific item
     setActiveModal('compendium')
@@ -792,7 +792,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
             })
             setContextMenu(null)
           }}
-          onApplyCondition={(tokenId) => {
+          onApplyCondition={(tokenId: string) => {
             const targetToken = activeMap?.tokens.find((t) => t.id === tokenId)
             if (targetToken) {
               setConditionTargetEntityId(targetToken.entityId)

@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
+import { useNetworkStore } from '../../stores/network-store'
 import { useAiDmStore } from '../../stores/use-ai-dm-store'
 import { useCampaignStore } from '../../stores/use-campaign-store'
 import { useLobbyStore } from '../../stores/use-lobby-store'
-import { useNetworkStore } from '../../stores/network-store'
 
 export default function ReadyButton(): JSX.Element {
   const navigate = useNavigate()
@@ -19,7 +19,7 @@ export default function ReadyButton(): JSX.Element {
   const everyoneReady = allReady()
 
   const sendMessage = useNetworkStore((s) => s.sendMessage)
-  const connectedPeerIds = useNetworkStore((s) => s.connectedPeerIds)
+  const connectedPeerIds = useNetworkStore((s) => s.peers.map((p) => p.peerId))
 
   // Subscribe to the specific campaign so this button re-renders when its
   // aiDm.enabled flag (or any other field on the campaign) changes.

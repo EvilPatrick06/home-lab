@@ -264,7 +264,9 @@ export default function AbilityScoreModal(): JSX.Element {
                   />
                 )}
 
-                <div className="mt-1 text-amber-400 font-bold text-sm">{method === 'standard' && standardAssignments[ab] == null ? '--' : formatMod(mod)}</div>
+                <div className="mt-1 text-amber-400 font-bold text-sm">
+                  {method === 'standard' && standardAssignments[ab] == null ? '--' : formatMod(mod)}
+                </div>
                 {method === 'pointBuy' && (
                   <div className="text-xs text-gray-600 mt-0.5">{POINT_BUY_COSTS[score] ?? 0} pts</div>
                 )}

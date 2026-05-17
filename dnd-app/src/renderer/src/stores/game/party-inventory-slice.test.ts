@@ -84,7 +84,7 @@ describe('createPartyInventorySlice', () => {
       const log = store.getState().partyInventory.transactionLog
       const removeEntry = log.find((e: any) => e.type === 'remove')
       expect(removeEntry).toBeDefined()
-      expect(removeEntry.description).toContain('Axe')
+      expect(removeEntry!.description).toContain('Axe')
     })
 
     it('remove transaction uses "item" when id not found', () => {
@@ -198,8 +198,8 @@ describe('createPartyInventorySlice', () => {
       const log = store.getState().partyInventory.transactionLog
       const spendEntry = log.find((e: any) => e.description.startsWith('Spent'))
       expect(spendEntry).toBeDefined()
-      expect(spendEntry.description).toContain('10')
-      expect(spendEntry.description).toContain('gp')
+      expect(spendEntry!.description).toContain('10')
+      expect(spendEntry!.description).toContain('gp')
     })
 
     it('does not log on failure', () => {
@@ -245,7 +245,7 @@ describe('createPartyInventorySlice', () => {
       const log = store.getState().partyInventory.transactionLog
       const transferEntry = log.find((e: any) => e.type === 'transfer')
       expect(transferEntry).toBeDefined()
-      expect(transferEntry.description).toContain('Ring')
+      expect(transferEntry!.description).toContain('Ring')
     })
 
     it('does not affect other items', () => {
@@ -294,7 +294,7 @@ describe('createPartyInventorySlice', () => {
       const log = store.getState().partyInventory.transactionLog
       const splitEntry = log.find((e: any) => e.description.includes('Split'))
       expect(splitEntry).toBeDefined()
-      expect(splitEntry.description).toContain('3 players')
+      expect(splitEntry!.description).toContain('3 players')
     })
 
     it('off-by-one: 1 gp split among 2 players yields 0 each and 1 remainder', () => {

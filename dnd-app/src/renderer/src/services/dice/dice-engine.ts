@@ -46,7 +46,6 @@ export function rollFormula(formula: string): DiceRollResult | null {
   return { formula, total, rolls }
 }
 
-
 // ─── Extended expression parser ────────────────────────────────────────────────
 // Supports compound expressions: 1d20+1d6, 2d20+5-1d4, 1d20+1d20+1d20+5
 // Supports keep-highest/lowest: 2d20kh1 (advantage), 4d6kh3, 2d20kl1 (disadvantage)
@@ -191,8 +190,6 @@ export function evalDiceExpression(formula: string): DiceExpressionRoll | DiceEx
   }
 }
 
-export function isDiceExpressionError(
-  r: DiceExpressionRoll | DiceExpressionError
-): r is DiceExpressionError {
+export function isDiceExpressionError(r: DiceExpressionRoll | DiceExpressionError): r is DiceExpressionError {
   return (r as DiceExpressionError).error !== undefined
 }

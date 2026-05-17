@@ -37,9 +37,8 @@ export function parseRendererActions(text: string): AiRendererAction[] {
   const actions: AiRendererAction[] = []
   // Regex to find [ACTION:type ...params]
   const regex = /\[ACTION:(\S+)(.*?)\]/g
-  let match: RegExpExecArray | null
 
-  while ((match = regex.exec(text)) !== null) {
+  for (const match of text.matchAll(regex)) {
     const type = match[1]
     const paramStr = match[2].trim()
     const params = parseParams(paramStr)
@@ -137,8 +136,7 @@ function parseParams(str: string): Record<string, string> {
   //   - A JSON object: {...}
   //   - An unquoted word (no spaces)
   const regex = /(\w+)=(?:"([^"]*)"|\[([^\]]*)\]|\{([^}]*)\}|(\S+))/g
-  let match: RegExpExecArray | null
-  while ((match = regex.exec(str)) !== null) {
+  for (const match of str.matchAll(regex)) {
     const key = match[1]
     const value =
       match[2] !== undefined

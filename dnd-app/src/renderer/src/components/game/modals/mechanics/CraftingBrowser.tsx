@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { addToast } from '../../../../hooks/use-toast'
 import { load5eCrafting, loadJson } from '../../../../services/data-provider'
 import type { CraftingToolEntry } from '../../../../types/data'
@@ -65,7 +65,10 @@ export default function CraftingBrowser({ characterTools, onStartCrafting }: Cra
       })
   }, [])
 
-  const hasTool = (toolName: string): boolean => characterTools.some((t) => t.toLowerCase() === toolName.toLowerCase())
+  const hasTool = useCallback(
+    (toolName: string): boolean => characterTools.some((t) => t.toLowerCase() === toolName.toLowerCase()),
+    [characterTools]
+  )
 
   // Flatten all items with tool info
   const allItems = useMemo(() => {

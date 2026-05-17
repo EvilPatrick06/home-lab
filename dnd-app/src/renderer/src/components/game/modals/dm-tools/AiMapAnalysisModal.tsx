@@ -26,8 +26,8 @@ export default function AiMapAnalysisModal({ onClose }: AiMapAnalysisModalProps)
         maps: maps.map((m) => ({
           id: m.id,
           name: m.name,
-          gridWidth: m.gridWidth,
-          gridHeight: m.gridHeight,
+          gridWidth: m.grid?.cellSize ? Math.floor(m.width / m.grid.cellSize) : m.width,
+          gridHeight: m.grid?.cellSize ? Math.floor(m.height / m.grid.cellSize) : m.height,
           tokens: m.tokens.map((t) => ({
             entityId: t.entityId,
             label: t.label,
@@ -98,7 +98,10 @@ export default function AiMapAnalysisModal({ onClose }: AiMapAnalysisModalProps)
                 <>
                   <span className="font-medium text-gray-200">{activeMap.name}</span>
                   <span className="text-gray-500 ml-2">
-                    {activeMap.gridWidth}x{activeMap.gridHeight} grid
+                    {activeMap.grid?.cellSize
+                      ? `${Math.floor(activeMap.width / activeMap.grid.cellSize)}x${Math.floor(activeMap.height / activeMap.grid.cellSize)}`
+                      : `${activeMap.width}x${activeMap.height}`}{' '}
+                    grid
                   </span>
                   <span className="text-gray-500 ml-2">
                     {tokenCount} token{tokenCount !== 1 ? 's' : ''}

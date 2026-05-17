@@ -12,6 +12,7 @@ export type EffectType =
   | 'speed_bonus'
   | 'initiative_bonus'
   | 'save_bonus'
+  | 'saving_throw_bonus'
   | 'resistance'
   | 'immunity'
   | 'vulnerability'

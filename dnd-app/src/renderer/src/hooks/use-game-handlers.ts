@@ -6,12 +6,12 @@ import { createCompanionToken } from '../services/character/companion-service'
 import { load5eMonsterById } from '../services/data-provider'
 import { flushAutoSave } from '../services/io/game-auto-save'
 import { saveGameState } from '../services/io/game-state-saver'
+import { useNetworkStore } from '../stores/network-store'
 import { useAiDmStore } from '../stores/use-ai-dm-store'
 import { useCharacterStore } from '../stores/use-character-store'
 import { useGameStore } from '../stores/use-game-store'
 import type { ChatMessage } from '../stores/use-lobby-store'
 import { useLobbyStore } from '../stores/use-lobby-store'
-import { useNetworkStore } from '../stores/network-store'
 import type { Campaign } from '../types/campaign'
 import type { Character } from '../types/character'
 import { is5eCharacter } from '../types/character'
@@ -32,7 +32,16 @@ interface UseGameHandlersOptions {
   setNarrationText: (text: string | null) => void
   setLeaving: (v: boolean) => void
   setLongRestWarning: (v: boolean) => void
-  activeTool: 'select' | 'fog-reveal' | 'fog-hide' | 'wall'
+  activeTool:
+    | 'select'
+    | 'fog-reveal'
+    | 'fog-hide'
+    | 'wall'
+    | 'draw-free'
+    | 'draw-line'
+    | 'draw-rect'
+    | 'draw-circle'
+    | 'draw-text'
   fogBrushSize: number
 }
 

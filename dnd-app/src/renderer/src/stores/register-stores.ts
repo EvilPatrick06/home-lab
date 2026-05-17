@@ -3,11 +3,11 @@
  * stores without circular imports. Must run before any code that uses store-accessors.
  */
 
+import { useNetworkStore } from './network-store'
 import { setStoreAccessors } from './store-accessors'
 import { useAiDmStore } from './use-ai-dm-store'
 import { useGameStore } from './use-game-store'
 import { useLobbyStore } from './use-lobby-store'
-import { useNetworkStore } from './network-store'
 
 setStoreAccessors({
   getGameStore: () => useGameStore,

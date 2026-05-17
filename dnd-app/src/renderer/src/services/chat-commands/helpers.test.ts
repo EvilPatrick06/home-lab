@@ -68,10 +68,10 @@ vi.mock('../../types/character', () => ({
   )
 }))
 
+import { useNetworkStore } from '../../stores/network-store'
 import { useCharacterStore } from '../../stores/use-character-store'
 import { useGameStore } from '../../stores/use-game-store'
 import { useLobbyStore } from '../../stores/use-lobby-store'
-import { useNetworkStore } from '../../stores/network-store'
 import {
   broadcastDiceResult,
   findTokenByName,

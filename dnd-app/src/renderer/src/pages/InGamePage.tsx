@@ -4,11 +4,11 @@ import GameLayout from '../components/game/GameLayout'
 import { Spinner } from '../components/ui'
 import { LOADING_GRACE_PERIOD_MS } from '../constants'
 import { useAutoSaveGame } from '../hooks/use-auto-save'
+import { useNetworkStore } from '../stores/network-store'
 import { useBastionStore } from '../stores/use-bastion-store'
 import { useCampaignStore } from '../stores/use-campaign-store'
 import { useCharacterStore } from '../stores/use-character-store'
 import { useGameStore } from '../stores/use-game-store'
-import { useNetworkStore } from '../stores/network-store'
 import { totalSecondsFromDateTime } from '../utils/calendar-utils'
 
 export default function InGamePage(): JSX.Element {
@@ -85,8 +85,8 @@ export default function InGamePage(): JSX.Element {
       const saved = campaign.savedGameState
 
       // Ensure we don't overwrite a newer local auto-save with an older campaign state
-      const currentStoreState = useGameStore.getState()
-      const localTimestamp = (currentStoreState as any).lastSaveTimestamp || 0
+      const currentStoreState = useGameStore.getState() as unknown as { lastSaveTimestamp?: number }
+      const localTimestamp = currentStoreState.lastSaveTimestamp || 0
       const incomingTimestamp = saved?.lastSaveTimestamp || 0
 
       if (localTimestamp > 0 && incomingTimestamp > 0 && incomingTimestamp < localTimestamp) {
@@ -128,7 +128,7 @@ export default function InGamePage(): JSX.Element {
         sessionLog: saved?.sessionLog,
         sharedJournal: saved?.sharedJournal,
         lastSaveTimestamp: saved?.lastSaveTimestamp
-      } as any)
+      } as Parameters<typeof loadGameState>[0])
     }
   }, [campaign, gameCampaignId, loadGameState])
 

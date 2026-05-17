@@ -24,7 +24,10 @@ export async function withSaveLock<T>(scope: string, id: string, fn: () => Promi
   // The new promise resolves when `fn` settles (success or error). We chain
   // off `previous` so the next caller waits for the *previous* fn — but we
   // don't propagate the previous error to the new caller.
-  const next = previous.then(() => fn(), () => fn())
+  const next = previous.then(
+    () => fn(),
+    () => fn()
+  )
 
   // Store a never-rejecting handle so subsequent callers don't trip on error.
   queues.set(

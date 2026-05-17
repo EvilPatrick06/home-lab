@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
+import type { NetworkGameState } from '../../network'
 
 vi.stubGlobal('window', { api: { storage: {}, game: {} } })
 
@@ -65,8 +66,10 @@ describe('network store index', () => {
 })
 
 describe('filterGameStateForRole', () => {
-  // Minimal NetworkGameState shape — most fields are pass-through and irrelevant to the filter
-  const baseState = {
+  // Minimal NetworkGameState shape — most fields are pass-through and irrelevant to the filter.
+  // Using Record<string, unknown> so test cases can spread + extend with arbitrary array/object
+  // shapes; the production filter doesn't care about types beyond the keys it looks for.
+  const baseState: Record<string, unknown> = {
     activeMapId: 'map-1',
     maps: [],
     turnMode: 'free' as const,
@@ -91,7 +94,7 @@ describe('filterGameStateForRole', () => {
 
   it('returns state unchanged when isDM=true', async () => {
     const { filterGameStateForRole } = await import('./index')
-    const out = filterGameStateForRole(baseState, true)
+    const out = filterGameStateForRole(baseState as unknown as NetworkGameState, true)
     expect(out).toEqual(baseState)
   })
 
@@ -119,7 +122,7 @@ describe('filterGameStateForRole', () => {
         }
       ]
     }
-    const out = filterGameStateForRole(state, false)
+    const out = filterGameStateForRole(state as unknown as NetworkGameState, false)
     const tokens = (out.maps[0].tokens as Array<{ id: string }>).map((t) => t.id)
     expect(tokens).toEqual(['t-visible', 't-default'])
   })
@@ -133,7 +136,7 @@ describe('filterGameStateForRole', () => {
         { id: 'e2', name: 'Hidden Boss', visibleToPlayers: false, notes: 'spoiler' }
       ]
     }
-    const out = filterGameStateForRole(state, false)
+    const out = filterGameStateForRole(state as unknown as NetworkGameState, false)
     expect(out.enemies).toHaveLength(1)
     expect(out.enemies[0]).not.toHaveProperty('notes')
     expect((out.enemies[0] as { id: string }).id).toBe('e1')
@@ -155,7 +158,7 @@ describe('filterGameStateForRole', () => {
         { id: 'h2', visibility: 'dm-only' }
       ]
     }
-    const out = filterGameStateForRole(state, false)
+    const out = filterGameStateForRole(state as unknown as NetworkGameState, false)
     expect(out.handouts).toHaveLength(1)
     const h = out.handouts[0] as { id: string; pages: Array<{ id: string }> }
     expect(h.id).toBe('h1')
@@ -166,13 +169,9 @@ describe('filterGameStateForRole', () => {
     const { filterGameStateForRole } = await import('./index')
     const state = {
       ...baseState,
-      placedTraps: [
-        { id: 'tr1', revealed: true },
-        { id: 'tr2', revealed: false },
-        { id: 'tr3' }
-      ]
+      placedTraps: [{ id: 'tr1', revealed: true }, { id: 'tr2', revealed: false }, { id: 'tr3' }]
     }
-    const out = filterGameStateForRole(state, false)
+    const out = filterGameStateForRole(state as unknown as NetworkGameState, false)
     expect((out.placedTraps as Array<{ id: string }>).map((t) => t.id)).toEqual(['tr1'])
   })
 
@@ -200,7 +199,7 @@ describe('filterGameStateForRole', () => {
         }
       ]
     }
-    filterGameStateForRole(state, false)
+    filterGameStateForRole(state as unknown as NetworkGameState, false)
     expect(tokens).toHaveLength(2)
     expect(state.maps[0].tokens).toBe(tokens)
   })
@@ -244,7 +243,7 @@ describe('filterGameStateForRole', () => {
         round: 1
       }
     })
-    const out = filterGameStateForRole(state, false)
+    const out = filterGameStateForRole(state as unknown as NetworkGameState, false)
     const init = out.initiative as { entries: Array<{ id: string }> }
     expect(init.entries.map((e) => e.id)).toEqual(['e1'])
   })
@@ -257,7 +256,7 @@ describe('filterGameStateForRole', () => {
         'hidden-1': { actionUsed: false, isHidden: true }
       }
     })
-    const out = filterGameStateForRole(state, false)
+    const out = filterGameStateForRole(state as unknown as NetworkGameState, false)
     expect(Object.keys(out.turnStates)).toEqual(['visible-1'])
   })
 
@@ -269,7 +268,7 @@ describe('filterGameStateForRole', () => {
         { id: 'c2', entityId: 'hidden-1', condition: 'Frightened' }
       ]
     })
-    const out = filterGameStateForRole(state, false)
+    const out = filterGameStateForRole(state as unknown as NetworkGameState, false)
     expect((out.conditions as Array<{ id: string }>).map((c) => c.id)).toEqual(['c1'])
   })
 
@@ -281,7 +280,7 @@ describe('filterGameStateForRole', () => {
         { id: 'fx2', targetEntityId: 'hidden-1' }
       ]
     })
-    const out = filterGameStateForRole(state, false)
+    const out = filterGameStateForRole(state as unknown as NetworkGameState, false)
     expect((out.customEffects as Array<{ id: string }>).map((c) => c.id)).toEqual(['fx1'])
   })
 
@@ -290,7 +289,7 @@ describe('filterGameStateForRole', () => {
     const state = withHiddenToken({
       marchingOrder: ['visible-1', 'hidden-1', 'visible-2']
     })
-    const out = filterGameStateForRole(state, false)
+    const out = filterGameStateForRole(state as unknown as NetworkGameState, false)
     expect(out.marchingOrder).toEqual(['visible-1', 'visible-2'])
   })
 
@@ -310,7 +309,7 @@ describe('filterGameStateForRole', () => {
         }
       ]
     }
-    const out = filterGameStateForRole(state, false)
+    const out = filterGameStateForRole(state as unknown as NetworkGameState, false)
     expect(out.enemies).toHaveLength(1)
     const e = out.enemies[0] as Record<string, unknown>
     expect(e).not.toHaveProperty('notes')
@@ -430,11 +429,7 @@ describe('transformUpdatePayloadForPeer', () => {
       {
         addMap: {
           id: 'm',
-          tokens: [
-            { id: 'a', isHidden: false },
-            { id: 'b', isHidden: true },
-            { id: 'c' }
-          ]
+          tokens: [{ id: 'a', isHidden: false }, { id: 'b', isHidden: true }, { id: 'c' }]
         }
       },
       false,

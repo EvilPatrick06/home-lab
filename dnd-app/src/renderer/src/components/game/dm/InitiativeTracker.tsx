@@ -360,8 +360,9 @@ export default function InitiativeTracker({
                   onDelayTurn(e.entityId)
                 } else {
                   // Fallback to old behavior if no delay action provided
-                  setDelayedEntries((prev) => [...prev, e])
-                  onRemoveEntry(e.id)
+                  // (setDelayedEntries was removed in favor of the isDelaying flag below;
+                  // mark the entry as delayed via onUpdateEntry instead of the removed state setter)
+                  onUpdateEntry(e.id, { isDelaying: true })
                 }
               }}
               onCenterToken={onCenterToken}

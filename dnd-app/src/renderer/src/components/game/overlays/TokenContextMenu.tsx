@@ -26,6 +26,8 @@ interface TokenContextMenuProps {
   onOpenMountModal?: () => void
   onEditToken: (token: MapToken) => void
   onAddToInitiative: (token: MapToken) => void
+  /** Optional: production wires the apply-condition flow from GameLayout; tests omit. */
+  onApplyCondition?: (tokenId: string) => void
 }
 
 export default function TokenContextMenu({

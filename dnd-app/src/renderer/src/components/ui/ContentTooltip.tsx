@@ -5,7 +5,7 @@ import type { LibraryCategory } from '../../types/library'
 interface ContentTooltipProps {
   category: LibraryCategory
   name: string
-  children: ReactNode
+  children?: ReactNode
   renderPreview: (category: LibraryCategory, name: string) => ReactNode | null
 }
 

@@ -101,14 +101,9 @@ function getBundledOllamaPath(): string | undefined {
   // In packaged builds extraResources copies resources/ollama/windows/ to
   // <resources>/ollama/. In dev the layout lives in repo at
   // dnd-app/resources/ollama/windows/.
-  const platformDir =
-    process.platform === 'win32' ? 'windows' : process.platform === 'darwin' ? 'darwin' : 'linux'
+  const platformDir = process.platform === 'win32' ? 'windows' : process.platform === 'darwin' ? 'darwin' : 'linux'
   const binaryRelPath =
-    process.platform === 'linux'
-      ? join('bin', 'ollama')
-      : process.platform === 'win32'
-        ? 'ollama.exe'
-        : 'ollama' // darwin .tgz is single-binary at top level
+    process.platform === 'linux' ? join('bin', 'ollama') : process.platform === 'win32' ? 'ollama.exe' : 'ollama' // darwin .tgz is single-binary at top level
   const baseDirs = [
     join(process.resourcesPath ?? '', 'ollama'),
     join(app.getAppPath(), 'resources', 'ollama', platformDir)
@@ -154,12 +149,7 @@ function getPlatformInstallCandidates(): string[] {
   }
   // Linux + other POSIX
   const home = process.env.HOME || ''
-  return [
-    '/usr/local/bin/ollama',
-    '/usr/bin/ollama',
-    '/opt/ollama/bin/ollama',
-    join(home, '.local', 'bin', 'ollama')
-  ]
+  return ['/usr/local/bin/ollama', '/usr/bin/ollama', '/opt/ollama/bin/ollama', join(home, '.local', 'bin', 'ollama')]
 }
 
 /**
@@ -308,8 +298,7 @@ export async function downloadOllama(onProgress?: (percent: number) => void): Pr
 export async function installOllama(installerPath: string): Promise<void> {
   if (process.platform !== 'win32') {
     throw new Error(
-      'Ollama silent install is Windows-only. ' +
-        'See downloadOllama() error for per-platform install steps.'
+      'Ollama silent install is Windows-only. ' + 'See downloadOllama() error for per-platform install steps.'
     )
   }
   const resolvedPath = resolve(installerPath)

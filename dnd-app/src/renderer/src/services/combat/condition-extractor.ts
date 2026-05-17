@@ -54,9 +54,8 @@ export function extractConditionsFromDescription(description: string): Extracted
   const seen = new Set<string>()
 
   // Find all condition mentions
-  let match: RegExpExecArray | null
   const condRegex = new RegExp(CONDITION_PATTERN.source, CONDITION_PATTERN.flags)
-  while ((match = condRegex.exec(description)) !== null) {
+  for (const match of description.matchAll(condRegex)) {
     const condition = match[1]
     // Capitalize first letter for consistency
     const normalized = condition.charAt(0).toUpperCase() + condition.slice(1).toLowerCase()

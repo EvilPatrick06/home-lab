@@ -3,7 +3,7 @@ import { Button, Card, Modal } from '../../components/ui'
 import { addToast } from '../../hooks/use-toast'
 import { exportEntities, importEntities, reIdItems } from '../../services/io/entity-io'
 import type { Campaign } from '../../types/campaign'
-import type { GameMap } from '../../types/map'
+import type { GameMap, GridSettings } from '../../types/map'
 
 interface MapManagerProps {
   campaign: Campaign
@@ -12,12 +12,16 @@ interface MapManagerProps {
 
 export default function MapManager({ campaign, saveCampaign }: MapManagerProps): JSX.Element {
   const [showMapModal, setShowMapModal] = useState(false)
-  const [mapForm, setMapForm] = useState({ name: '', gridType: 'square' as 'square' | 'hex', cellSize: 40 })
+  const [mapForm, setMapForm] = useState({
+    name: '',
+    gridType: 'square' as GridSettings['type'],
+    cellSize: 40
+  })
 
   const [editingMapId, setEditingMapId] = useState<string | null>(null)
   const [mapEditForm, setMapEditForm] = useState({
     name: '',
-    gridType: 'square' as 'square' | 'hex',
+    gridType: 'square' as GridSettings['type'],
     cellSize: 40,
     gridColor: '#4b5563',
     gridOpacity: 0.4

@@ -752,12 +752,12 @@ export function validateStatChanges(items: unknown[]): {
  * Falls back to a minimal check (has string `action` field) for
  * plugin-prefixed actions or truly unknown types.
  */
-export function validateDmAction(item: unknown): z.SafeParseReturnType<unknown, unknown> {
+export function validateDmAction(item: unknown): z.ZodSafeParseResult<unknown> {
   if (!item || typeof item !== 'object' || !('action' in item)) {
     return {
       success: false,
       error: new z.ZodError([{ code: 'custom', path: ['action'], message: 'Missing action field' }])
-    } as z.SafeParseError<unknown>
+    } as z.ZodSafeParseError<unknown>
   }
 
   const actionName = (item as { action: unknown }).action
@@ -765,12 +765,12 @@ export function validateDmAction(item: unknown): z.SafeParseReturnType<unknown, 
     return {
       success: false,
       error: new z.ZodError([{ code: 'custom', path: ['action'], message: 'action must be a string' }])
-    } as z.SafeParseError<unknown>
+    } as z.ZodSafeParseError<unknown>
   }
 
   // Plugin actions bypass schema validation
   if (actionName.startsWith('plugin:')) {
-    return { success: true, data: item } as z.SafeParseSuccess<unknown>
+    return { success: true, data: item } as z.ZodSafeParseSuccess<unknown>
   }
 
   const schema = DM_ACTION_SCHEMAS[actionName]
@@ -778,7 +778,7 @@ export function validateDmAction(item: unknown): z.SafeParseReturnType<unknown, 
     return {
       success: false,
       error: new z.ZodError([{ code: 'custom', path: ['action'], message: `Unknown action type: ${actionName}` }])
-    } as z.SafeParseError<unknown>
+    } as z.ZodSafeParseError<unknown>
   }
 
   return schema.safeParse(item)
@@ -804,7 +804,7 @@ export function validateDmActions(items: unknown[]): {
         input: items[i],
         errors:
           'error' in result
-            ? result.error.issues.map((iss) => `${iss.path.join('.')}: ${iss.message}`)
+            ? result.error.issues.map((iss: z.ZodIssue) => `${iss.path.join('.')}: ${iss.message}`)
             : ['Unknown validation error']
       })
     }

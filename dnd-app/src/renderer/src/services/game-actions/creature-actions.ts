@@ -169,7 +169,7 @@ export function executeAddToInitiative(
 }
 
 export function executeNextTurn(
-  action: DmAction,
+  _action: DmAction,
   gameStore: GameStoreSnapshot,
   _activeMap: ActiveMap,
   stores: StoreAccessors

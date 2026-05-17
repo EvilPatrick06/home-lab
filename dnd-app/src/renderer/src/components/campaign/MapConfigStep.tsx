@@ -2,6 +2,7 @@ import builtInMapsJson from '@data/5e/world/built-in-maps.json'
 import { useCallback, useState } from 'react'
 import { load5eBuiltInMaps } from '../../services/data-provider'
 import type { GameMap } from '../../types/map'
+import { logger } from '../../utils/logger'
 import { Button, Input } from '../ui'
 
 interface MapConfigStepProps {

@@ -93,7 +93,7 @@ export interface ForcedDismountResult {
  * - If rider is knocked prone: automatic dismount
  */
 export function forceDismount(
-  riderId: string,
+  _riderId: string,
   reason: 'mount-died' | 'knocked-prone' | 'other',
   dexSaveResult?: number
 ): ForcedDismountResult {

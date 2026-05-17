@@ -616,6 +616,8 @@ export function describeChange(change: StatChange): string {
       return `Feature granted: ${change.name} (${change.reason})`
     case 'revoke_feature':
       return `Feature revoked: ${change.name} (${change.reason})`
+    default:
+      return `${(change as { type: string }).type} change`
   }
 }
 

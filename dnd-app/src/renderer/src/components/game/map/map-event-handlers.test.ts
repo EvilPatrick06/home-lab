@@ -221,7 +221,9 @@ describe('DragState interface', () => {
       startGridX: 3,
       startGridY: 4,
       offsetX: 0.5,
-      offsetY: 0.5
+      offsetY: 0.5,
+      selectedTokenIds: ['tok-abc'],
+      selectedStartPositions: [{ tokenId: 'tok-abc', gridX: 3, gridY: 4 }]
     }
     expect(drag.tokenId).toBe('tok-abc')
     expect(drag.startGridX).toBe(3)
@@ -238,6 +240,7 @@ describe('MapEventRefs interface', () => {
       panStart: makeRef({ x: 0, y: 0 }),
       spaceHeld: makeRef(false),
       drag: makeRef(null),
+      selectionBox: makeRef(null),
       isFogPainting: makeRef(false),
       lastFogCell: makeRef(null),
       measureStart: makeRef(null),
@@ -245,8 +248,12 @@ describe('MapEventRefs interface', () => {
       ghost: makeRef(null),
       world: makeRef(null),
       tokenContainer: makeRef(null),
+      selectionBoxGraphics: makeRef(null),
       measureGraphics: makeRef(null),
-      wallGraphics: makeRef(null)
+      wallGraphics: makeRef(null),
+      drawingStart: makeRef(null),
+      drawingPoints: makeRef([]),
+      drawingGraphics: makeRef(null)
     }
     expect(refs.zoom.current).toBe(1.0)
     expect(refs.pan.current.x).toBe(0)

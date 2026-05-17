@@ -52,7 +52,7 @@ export default defineConfig(async () => {
         rollupOptions: {
           output: {
             // Code-split heavy dependencies into separate chunks
-            manualChunks(id) {
+            manualChunks(id: string) {
               if (id.includes('node_modules/react-dom') || id.includes('node_modules/react/')) return 'vendor-react'
               if (id.includes('node_modules/react-router')) return 'vendor-router'
               if (

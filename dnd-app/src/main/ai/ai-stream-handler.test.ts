@@ -68,12 +68,13 @@ function makeConvMock() {
 function makeDeps(overrides?: Partial<StreamHandlerDeps>): StreamHandlerDeps {
   return {
     activeStreams: new Map(),
-    ollamaModel: 'llama3.1',
+    model: 'llama3.1',
+    streamChat: vi.fn(async () => {}),
     streamWithRetry: vi.fn(async (fn) => {
       await fn(new AbortController().signal)
     }),
     ...overrides
-  }
+  } as StreamHandlerDeps
 }
 
 describe('ai-stream-handler', () => {

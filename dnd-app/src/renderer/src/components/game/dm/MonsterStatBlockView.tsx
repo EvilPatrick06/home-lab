@@ -36,7 +36,15 @@ function renderInlineMarkdown(text: string): ReactNode {
   if (lastIndex < text.length) {
     parts.push(text.slice(lastIndex))
   }
-  return parts.length === 0 ? text : <>{parts.map((p, idx) => <Fragment key={idx}>{p}</Fragment>)}</>
+  return parts.length === 0 ? (
+    text
+  ) : (
+    <>
+      {parts.map((p, idx) => (
+        <Fragment key={idx}>{p}</Fragment>
+      ))}
+    </>
+  )
 }
 
 function formatModifier(score: number): string {

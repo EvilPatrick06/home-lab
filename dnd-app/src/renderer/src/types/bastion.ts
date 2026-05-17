@@ -381,9 +381,9 @@ export function migrateBastion(raw: Record<string, unknown>): Bastion {
   // Already new format
   if ('basicFacilities' in raw && 'specialFacilities' in raw) {
     const bastion = raw as unknown as Bastion
-    if (!('bastionPoints' in raw)) (bastion as Record<string, unknown>).bastionPoints = 0
-    if (!('factionRenown' in raw)) (bastion as Record<string, unknown>).factionRenown = {}
-    if (!('activeCharms' in raw)) (bastion as Record<string, unknown>).activeCharms = []
+    if (!('bastionPoints' in raw)) (bastion as unknown as Record<string, unknown>).bastionPoints = 0
+    if (!('factionRenown' in raw)) (bastion as unknown as Record<string, unknown>).factionRenown = {}
+    if (!('activeCharms' in raw)) (bastion as unknown as Record<string, unknown>).activeCharms = []
     return bastion
   }
 

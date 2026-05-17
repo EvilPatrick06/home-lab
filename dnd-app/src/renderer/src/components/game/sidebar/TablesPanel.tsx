@@ -26,7 +26,7 @@ export default function TablesPanel(): JSX.Element {
       const tableEntries: TableEntry[] = []
 
       // Process the random tables data
-      for (const [key, value] of Object.entries(data as RandomTableData)) {
+      for (const [key, value] of Object.entries(data as unknown as RandomTableData)) {
         if (Array.isArray(value)) {
           // Simple array table
           tableEntries.push({

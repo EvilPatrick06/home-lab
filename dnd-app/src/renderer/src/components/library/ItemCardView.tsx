@@ -36,7 +36,7 @@ function WeaponCard({ item }: { item: Record<string, unknown> }): JSX.Element {
           <span className="text-gray-300">{properties.join(', ')}</span>
         </div>
       )}
-      {item.mastery && <Stat label="Mastery" value={item.mastery} />}
+      {!!item.mastery && <Stat label="Mastery" value={item.mastery} />}
       <Stat label="Weight" value={item.weight ? `${item.weight} lb.` : undefined} />
       <Stat label="Cost" value={item.cost} />
     </div>
@@ -51,7 +51,7 @@ function ArmorCard({ item }: { item: Record<string, unknown> }): JSX.Element {
       {item.dexCap !== undefined && item.dexCap !== null && (
         <Stat label="DEX Cap" value={item.dexCap === 0 ? 'None' : `+${item.dexCap}`} />
       )}
-      {item.stealthDisadvantage && (
+      {!!item.stealthDisadvantage && (
         <div className="flex gap-1">
           <span className="text-amber-500 font-semibold">Stealth</span>
           <span className="text-red-400">Disadvantage</span>
@@ -69,7 +69,7 @@ function GearCard({ item }: { item: Record<string, unknown> }): JSX.Element {
     <div className="space-y-0.5 text-sm">
       <Stat label="Weight" value={item.weight ? `${item.weight} lb.` : undefined} />
       <Stat label="Cost" value={item.cost} />
-      {item.description && (
+      {!!item.description && (
         <>
           <div className="border-t border-amber-800/30 mt-2" />
           <div className="text-xs text-gray-300 mt-1">{String(item.description)}</div>
@@ -90,13 +90,13 @@ function MagicItemCard({ item }: { item: Record<string, unknown> }): JSX.Element
         <span className={`${rarityColor} capitalize`}>{rarity}</span>
       </div>
       <Stat label="Type" value={item.type} />
-      {item.attunement && (
+      {!!item.attunement && (
         <div className="flex gap-1">
           <span className="text-amber-500 font-semibold">Attunement</span>
           <span className="text-purple-400">Required</span>
         </div>
       )}
-      {item.description && (
+      {!!item.description && (
         <>
           <div className="border-t border-amber-800/30 mt-2" />
           <div className="text-xs text-gray-300 mt-1 whitespace-pre-wrap">{String(item.description)}</div>

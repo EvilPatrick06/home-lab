@@ -2,7 +2,7 @@ import { lazy, Suspense, useCallback, useState } from 'react'
 import * as UndoManager from '../../../../services/undo-manager'
 import { useGameStore } from '../../../../stores/use-game-store'
 import type { Campaign } from '../../../../types/campaign'
-import type { GameMap, TerrainCell } from '../../../../types/map'
+import type { GameMap, GridSettings, TerrainCell } from '../../../../types/map'
 import { DMToolbar, MapSelector } from '../../dm'
 import type { DmToolId } from '../../dm/DMToolbar'
 import MapCanvas from '../../map/MapCanvas'
@@ -58,8 +58,8 @@ export default function DMMapEditor({ campaign, onClose }: DMMapEditorProps): JS
     [activeMap, gameStore]
   )
 
-  const handleTokenSelect = useCallback((tokenId: string | null) => {
-    setSelectedTokenId(tokenId)
+  const handleTokenSelect = useCallback((tokenIds: string[]) => {
+    setSelectedTokenId(tokenIds[0] ?? null)
   }, [])
 
   const handleCellClick = useCallback(
@@ -99,7 +99,7 @@ export default function DMMapEditor({ campaign, onClose }: DMMapEditorProps): JS
         handleFogBrushClick(activeTool, activeMap.id, gridX, gridY, fogBrushSize)
       }
     },
-    [activeMap, activeTool, fogBrushSize, terrainPaintType, triggerRerender]
+    [activeMap, activeTool, fogBrushSize, terrainPaintType, triggerRerender, portalTarget]
   )
 
   const handleSelectMap = useCallback(
@@ -119,7 +119,7 @@ export default function DMMapEditor({ campaign, onClose }: DMMapEditorProps): JS
       width: number
       height: number
       cellSize: number
-      gridType: 'square' | 'hex'
+      gridType: 'square' | 'hex' | 'gridless'
       backgroundColor: string
       imageData?: string
     }) => {
@@ -137,7 +137,7 @@ export default function DMMapEditor({ campaign, onClose }: DMMapEditorProps): JS
           offsetY: 0,
           color: '#4b5563',
           opacity: 0.4,
-          type: mapConfig.gridType
+          type: mapConfig.gridType as GridSettings['type']
         },
         tokens: [],
         fogOfWar: { enabled: false, revealedCells: [] },
@@ -230,8 +230,8 @@ export default function DMMapEditor({ campaign, onClose }: DMMapEditorProps): JS
           <MapCanvas
             map={activeMap}
             isHost={true}
-            selectedTokenId={selectedTokenId}
-            activeTool={activeTool}
+            selectedTokenIds={selectedTokenId ? [selectedTokenId] : []}
+            activeTool={activeTool as React.ComponentProps<typeof MapCanvas>['activeTool']}
             fogBrushSize={fogBrushSize}
             onTokenMove={handleTokenMove}
             onTokenSelect={handleTokenSelect}

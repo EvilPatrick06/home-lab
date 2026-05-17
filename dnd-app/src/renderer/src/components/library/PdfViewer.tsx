@@ -1108,10 +1108,10 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
           if (!str.includes(query)) continue
 
           // Count matches in this item
-          let pos = 0
-          while ((pos = str.indexOf(query, pos)) !== -1) {
+          let pos = str.indexOf(query)
+          while (pos !== -1) {
             totalMatches++
-            pos += query.length
+            pos = str.indexOf(query, pos + query.length)
           }
 
           // Extract position from the transform matrix [scaleX, skewX, skewY, scaleY, tx, ty]

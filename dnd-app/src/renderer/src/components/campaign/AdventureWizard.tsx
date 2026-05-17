@@ -215,7 +215,7 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
     <div className="space-y-4">
       {/* Step Indicator */}
       <div className="flex items-center gap-1">
-        {steps.map((s, i) => (
+        {steps.map((_s, i) => (
           <button
             key={i}
             onClick={() => setStep(i)}

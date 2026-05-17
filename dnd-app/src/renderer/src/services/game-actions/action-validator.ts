@@ -39,8 +39,8 @@ function findTokenByLabel(
 
 function isInBounds(x: number, y: number, activeMap: ActiveMap): boolean {
   if (!activeMap) return false
-  const gridW = (activeMap as Record<string, unknown>).gridWidth as number | undefined
-  const gridH = (activeMap as Record<string, unknown>).gridHeight as number | undefined
+  const gridW = (activeMap as unknown as Record<string, unknown>).gridWidth as number | undefined
+  const gridH = (activeMap as unknown as Record<string, unknown>).gridHeight as number | undefined
   if (gridW == null || gridH == null) return true
   return x >= 0 && y >= 0 && x < gridW && y < gridH
 }
@@ -51,7 +51,7 @@ function validateOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: 
 
   switch (action.action) {
     case 'place_token': {
-      const a = action as { gridX: number; gridY: number; label: string }
+      const a = action as unknown as { gridX: number; gridY: number; label: string }
       if (!activeMap) return fail('No active map to place token on')
       if (!isInBounds(a.gridX, a.gridY, activeMap)) {
         return fail(`Grid position (${a.gridX}, ${a.gridY}) is out of map bounds`)
@@ -60,7 +60,7 @@ function validateOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: 
     }
 
     case 'place_creature': {
-      const a = action as { gridX: number; gridY: number }
+      const a = action as unknown as { gridX: number; gridY: number }
       if (!activeMap) return fail('No active map to place creature on')
       if (!isInBounds(a.gridX, a.gridY, activeMap)) {
         return fail(`Grid position (${a.gridX}, ${a.gridY}) is out of map bounds`)
@@ -69,7 +69,7 @@ function validateOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: 
     }
 
     case 'move_token': {
-      const a = action as { label: string; gridX: number; gridY: number }
+      const a = action as unknown as { label: string; gridX: number; gridY: number }
       if (!activeMap) return fail('No active map')
       const token = findTokenByLabel(activeMap, a.label)
       if (!token) return fail(`Token "${a.label}" not found on the active map`)
@@ -80,7 +80,7 @@ function validateOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: 
     }
 
     case 'remove_token': {
-      const a = action as { label: string }
+      const a = action as unknown as { label: string }
       if (!activeMap) return fail('No active map')
       if (!findTokenByLabel(activeMap, a.label)) {
         return fail(`Token "${a.label}" not found on the active map`)
@@ -89,7 +89,7 @@ function validateOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: 
     }
 
     case 'update_token': {
-      const a = action as { label: string }
+      const a = action as unknown as { label: string }
       if (!activeMap) return fail('No active map')
       if (!findTokenByLabel(activeMap, a.label)) {
         return fail(`Token "${a.label}" not found on the active map`)
@@ -98,10 +98,12 @@ function validateOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: 
     }
 
     case 'remove_from_initiative': {
-      const a = action as { label: string }
+      const a = action as unknown as { label: string }
       const initiative = gameStore.initiative
       if (!initiative || !Array.isArray(initiative.entries)) return fail('No active initiative')
-      const found = initiative.entries.some((e: { label?: string }) => e.label?.toLowerCase() === a.label.toLowerCase())
+      const found = initiative.entries.some(
+        (e) => (e as unknown as { label?: string }).label?.toLowerCase() === a.label.toLowerCase()
+      )
       if (!found) return fail(`"${a.label}" not found in initiative order`)
       return ok()
     }
@@ -124,7 +126,7 @@ function validateOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: 
 
     case 'reveal_fog':
     case 'hide_fog': {
-      const a = action as { cells: Array<{ x: number; y: number }> }
+      const a = action as unknown as { cells: Array<{ x: number; y: number }> }
       if (!activeMap) return fail('No active map for fog operations')
       const outOfBounds = a.cells.filter((c) => !isInBounds(c.x, c.y, activeMap))
       if (outOfBounds.length > 0) {
@@ -134,7 +136,7 @@ function validateOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: 
     }
 
     case 'apply_area_effect': {
-      const a = action as { originX: number; originY: number }
+      const a = action as unknown as { originX: number; originY: number }
       if (!activeMap) return fail('No active map for area effect')
       if (!isInBounds(a.originX, a.originY, activeMap)) {
         return fail(`Area effect origin (${a.originX}, ${a.originY}) is out of map bounds`)
@@ -144,7 +146,7 @@ function validateOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: 
 
     case 'use_legendary_action':
     case 'use_legendary_resistance': {
-      const a = action as { entityLabel: string }
+      const a = action as unknown as { entityLabel: string }
       if (!activeMap) return fail('No active map')
       if (!findTokenByLabel(activeMap, a.entityLabel)) {
         return fail(`Entity "${a.entityLabel}" not found on the active map`)
@@ -154,7 +156,7 @@ function validateOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: 
 
     case 'add_entity_condition':
     case 'remove_entity_condition': {
-      const a = action as { entityLabel: string }
+      const a = action as unknown as { entityLabel: string }
       if (!activeMap) return fail('No active map')
       if (!findTokenByLabel(activeMap, a.entityLabel)) {
         return fail(`Entity "${a.entityLabel}" not found on the active map`)
@@ -163,7 +165,7 @@ function validateOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: 
     }
 
     case 'switch_map': {
-      const a = action as { mapName: string }
+      const a = action as unknown as { mapName: string }
       const maps = gameStore.maps ?? []
       const found = maps.some((m: { name?: string }) => m.name?.toLowerCase() === a.mapName.toLowerCase())
       if (!found) return fail(`Map "${a.mapName}" not found in campaign`)

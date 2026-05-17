@@ -1335,7 +1335,13 @@ export default function SettingsPage(): JSX.Element {
               ] as const
             ).map((event) => (
               <label key={event} className="flex items-center justify-between cursor-pointer">
-                <span className="text-xs text-gray-300">{event.replace(/-/g, ' ').replace(/ai/gi, 'AI').replace(/^./, (c) => c.toUpperCase()).replace(/ (.)/g, (_, c) => ' ' + c.toUpperCase())}</span>
+                <span className="text-xs text-gray-300">
+                  {event
+                    .replace(/-/g, ' ')
+                    .replace(/\bai\b/gi, 'AI')
+                    .replace(/^./, (c) => c.toUpperCase())
+                    .replace(/ (.)/g, (_, c) => ` ${c.toUpperCase()}`)}
+                </span>
                 <input
                   type="checkbox"
                   checked={NotificationService.getConfig().enabledEvents.has(event)}

@@ -171,8 +171,8 @@ describe('useLobbyStore', () => {
   it('only persists dice colors for local player updates', () => {
     const setItemSpy = vi.mocked(localStorage.setItem)
     useNetworkStore.setState({ localPeerId: 'peer-local' })
-    const localColors = { primary: '#111111', secondary: '#222222' }
-    const remoteColors = { primary: '#aaaaaa', secondary: '#bbbbbb' }
+    const localColors = { bodyColor: '#111111', numberColor: '#222222' }
+    const remoteColors = { bodyColor: '#aaaaaa', numberColor: '#bbbbbb' }
 
     useLobbyStore.getState().setDiceColors('peer-remote', remoteColors)
     expect(setItemSpy).not.toHaveBeenCalled()

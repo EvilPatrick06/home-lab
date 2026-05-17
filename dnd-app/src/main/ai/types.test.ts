@@ -12,6 +12,8 @@ describe('types', () => {
 
   it('allows creating valid AiConfig objects', () => {
     const config: import('./types').AiConfig = {
+      provider: 'ollama',
+      model: 'llama3.1',
       ollamaModel: 'llama3.1',
       ollamaUrl: 'http://localhost:11434'
     }
@@ -44,7 +46,10 @@ describe('types', () => {
   it('allows creating valid ProviderStatus objects', () => {
     const status: import('./types').ProviderStatus = {
       ollama: true,
-      ollamaModels: ['llama3.1', 'mistral']
+      ollamaModels: ['llama3.1', 'mistral'],
+      claude: false,
+      openai: false,
+      gemini: false
     }
     expect(status.ollama).toBe(true)
     expect(status.ollamaModels).toHaveLength(2)

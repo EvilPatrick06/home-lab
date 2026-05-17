@@ -128,8 +128,13 @@ interface AiProviderStatus {
 }
 
 interface AiConfigData {
-  ollamaModel: string
-  ollamaUrl: string
+  ollamaModel?: string
+  ollamaUrl?: string
+  provider?: string
+  model?: string
+  claudeApiKey?: string
+  openaiApiKey?: string
+  geminiApiKey?: string
 }
 
 interface AiStatChange {
@@ -229,6 +234,10 @@ interface AiAPI {
   checkOllamaUpdate: () => Promise<{ success: boolean; data?: OllamaVersionInfo; error?: string }>
   updateOllama: () => Promise<{ success: boolean; error?: string }>
   deleteModel: (model: string) => Promise<{ success: boolean; error?: string }>
+  validateApiKey: (provider: string, apiKey: string) => Promise<{ success: boolean; valid?: boolean; error?: string }>
+  listCloudModels: (provider: string, apiKey?: string) => Promise<Array<{ id: string; name: string; desc?: string }>>
+  syncWorldState: (campaignId: string, worldState: unknown) => Promise<{ success: boolean; error?: string }>
+  syncCombatState: (campaignId: string, combatState: unknown) => Promise<{ success: boolean; error?: string }>
   getTokenBudget: () => Promise<{
     rulebookChunks: number
     srdData: number
@@ -350,7 +359,7 @@ interface AppSettingsData {
 }
 
 interface SettingsAPI {
-  saveSettings: (settings: AppSettingsData) => Promise<{ success: boolean }>
+  saveSettings: (settings: AppSettingsData) => Promise<{ success: boolean; error?: string }>
   loadSettings: () => Promise<AppSettingsData>
 }
 
@@ -600,10 +609,13 @@ interface AnnotationEntry {
 interface BookDataEntry {
   bookmarks: BookmarkEntry[]
   annotations: AnnotationEntry[]
+  drawings?: unknown
+  lastPage?: number
 }
 
 interface BooksAPI {
   loadConfig: () => Promise<BookConfigEntry[]>
+  list?: () => Promise<{ success: boolean; data?: BookConfigEntry[]; error?: string }>
   add: (config: BookConfigEntry) => Promise<{ success: boolean; error?: string }>
   remove: (bookId: string) => Promise<{ success: boolean; error?: string }>
   import: (
@@ -656,7 +668,7 @@ interface DiscordConfig {
 
 interface DiscordAPI {
   getConfig: () => Promise<DiscordConfig>
-  saveConfig: (config: DiscordConfig) => Promise<{ success: boolean }>
+  saveConfig: (config: DiscordConfig) => Promise<{ success: boolean; error?: string }>
   testConnection: () => Promise<{ success: boolean; error?: string }>
   sendMessage: (text: string, campaignName?: string) => Promise<{ success: boolean; error?: string }>
 }

@@ -41,7 +41,7 @@ export default function DiscordIntegrationSettings(): JSX.Element {
   useEffect(() => {
     const loadConfig = async () => {
       try {
-        const result = (await window.api.discord.getConfig()) as DiscordConfigResponse
+        const result = (await window.api.discord.getConfig()) as unknown as DiscordConfigResponse
         if (result.success && result.config) {
           setConfig({
             enabled: result.config.enabled,
@@ -66,7 +66,7 @@ export default function DiscordIntegrationSettings(): JSX.Element {
     setSaving(true)
     try {
       // Build the config to save - if field shows '[configured]', keep existing
-      const currentConfig = (await window.api.discord.getConfig()) as DiscordConfigResponse
+      const currentConfig = (await window.api.discord.getConfig()) as unknown as DiscordConfigResponse
       const configToSave: DiscordConfig = {
         ...config,
         webhookUrl: config.webhookUrl || (currentConfig.config?.webhookUrl === '[configured]' ? 'keep' : ''),
@@ -78,7 +78,7 @@ export default function DiscordIntegrationSettings(): JSX.Element {
         addToast('Discord settings saved', 'success')
         setHasChanges(false)
         // Reload to get the masked values
-        const refreshed = (await window.api.discord.getConfig()) as DiscordConfigResponse
+        const refreshed = (await window.api.discord.getConfig()) as unknown as DiscordConfigResponse
         if (refreshed.success && refreshed.config) {
           setConfig((prev) => ({
             ...prev,
@@ -87,7 +87,7 @@ export default function DiscordIntegrationSettings(): JSX.Element {
           }))
         }
       } else {
-        addToast(result.error || 'Failed to save Discord settings', 'error')
+        addToast((result as { error?: string }).error || 'Failed to save Discord settings', 'error')
       }
     } catch {
       addToast('Failed to save Discord settings', 'error')

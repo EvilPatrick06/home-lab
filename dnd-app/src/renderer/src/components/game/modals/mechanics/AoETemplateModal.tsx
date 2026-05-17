@@ -50,15 +50,18 @@ export default function AoETemplateModal({
 
   const currentShape = SHAPES.find((s) => s.id === shape)!
 
-  const config: AoEConfig = {
-    shape,
-    sizeFeet,
-    originX,
-    originY,
-    direction: currentShape.needsDirection ? direction : undefined,
-    widthFeet: shape === 'line' ? widthFeet : undefined,
-    entitySize: 1
-  }
+  const config: AoEConfig = useMemo(
+    () => ({
+      shape,
+      sizeFeet,
+      originX,
+      originY,
+      direction: currentShape.needsDirection ? direction : undefined,
+      widthFeet: shape === 'line' ? widthFeet : undefined,
+      entitySize: 1
+    }),
+    [shape, sizeFeet, originX, originY, currentShape.needsDirection, direction, widthFeet]
+  )
 
   // Preview: count affected cells and tokens
   const affectedCells = useMemo(() => getAoECells(config), [config])

@@ -189,7 +189,7 @@ export default function CoreBooksGrid({ onOpenBook }: CoreBooksGridProps): JSX.E
       <section>
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-lg font-bold text-gray-300">Custom Books</h3>
-          <Button variant="secondary" size="sm" onClick={handleImportBook}>
+          <Button variant="secondary" onClick={handleImportBook}>
             + Import PDF
           </Button>
         </div>

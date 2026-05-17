@@ -147,7 +147,9 @@ if (typeof window !== 'undefined' && typeof window.matchMedia === 'function' && 
     }
     if (typeof mq.addEventListener === 'function') {
       mq.addEventListener('change', listener)
-    } else if (typeof (mq as MediaQueryList & { addListener?: (l: typeof listener) => void }).addListener === 'function') {
+    } else if (
+      typeof (mq as MediaQueryList & { addListener?: (l: typeof listener) => void }).addListener === 'function'
+    ) {
       // Older WebKit
       ;(mq as MediaQueryList & { addListener: (l: typeof listener) => void }).addListener(listener)
     }

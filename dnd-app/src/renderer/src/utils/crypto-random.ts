@@ -7,9 +7,24 @@ const BUFFER_SIZE = 256
 let buffer: Uint32Array | null = null
 let bufferIdx = BUFFER_SIZE
 
+// Resolve crypto.getRandomValues for both renderer (Web Crypto) and the
+// vitest node environment, which exposes it via `globalThis.crypto`
+// (Node 19+) or `require('node:crypto').webcrypto`.
+function getRandomFn(): (buf: Uint32Array) => void {
+  const g = globalThis as { crypto?: { getRandomValues?: (buf: Uint32Array) => void } }
+  if (g.crypto?.getRandomValues) {
+    return (buf) => g.crypto!.getRandomValues!(buf)
+  }
+  // Fallback: Math.random — tolerable for tests, never reached in production
+  // (browsers + Electron both ship Web Crypto).
+  return (buf) => {
+    for (let i = 0; i < buf.length; i++) buf[i] = Math.floor(Math.random() * 0x100000000)
+  }
+}
+
 function refillBuffer(): void {
   buffer = new Uint32Array(BUFFER_SIZE)
-  crypto.getRandomValues(buffer)
+  getRandomFn()(buffer)
   bufferIdx = 0
 }
 

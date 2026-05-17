@@ -73,11 +73,16 @@ export default function AiProviderSetup({
   useEffect(() => {
     if (!enabled || !isCloud) return
     window.api.ai
-      .listCloudModels(provider)
-      .then((models: CloudModel[]) => {
-        setCloudModels(models)
-        if (models.length > 0 && !models.some((m) => m.id === model)) {
-          onChange({ enabled, provider, model: models[0].id, ollamaUrl, apiKey })
+      .listCloudModels(provider, apiKey)
+      .then((models) => {
+        const normalized: CloudModel[] = models.map((m) => ({
+          id: m.id,
+          name: m.name,
+          desc: m.desc ?? ''
+        }))
+        setCloudModels(normalized)
+        if (normalized.length > 0 && !normalized.some((m) => m.id === model)) {
+          onChange({ enabled, provider, model: normalized[0].id, ollamaUrl, apiKey })
         }
       })
       .catch(() => setCloudModels([]))
@@ -183,7 +188,7 @@ export default function AiProviderSetup({
     setKeyValid(null)
     try {
       const result = await window.api.ai.validateApiKey(provider, apiKey)
-      setKeyValid(result.valid)
+      setKeyValid(result.valid ?? null)
       if (result.valid) {
         setSetupPhase('ready')
         onProviderReady(true)

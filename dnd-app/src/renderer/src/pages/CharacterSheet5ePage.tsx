@@ -24,10 +24,10 @@ const PrintSheet = lazy(() => import('../components/sheet/shared/PrintSheet'))
 
 import { shouldLevelUp } from '../data/xp-thresholds'
 import { applyLongRest } from '../services/character/rest-service-5e'
+import { useNetworkStore } from '../stores/network-store'
 import { useBuilderStore } from '../stores/use-builder-store'
 import { useCharacterStore } from '../stores/use-character-store'
 import { useLobbyStore } from '../stores/use-lobby-store'
-import { useNetworkStore } from '../stores/network-store'
 import type { Character } from '../types/character'
 import { is5eCharacter } from '../types/character'
 import type { Character5e } from '../types/character-5e'

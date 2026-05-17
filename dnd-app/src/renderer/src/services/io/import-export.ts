@@ -157,10 +157,7 @@ const BACKUP_MIGRATIONS: Record<number, (raw: Record<string, unknown>) => Record
     imageLibrary: Array.isArray(raw.imageLibrary) ? raw.imageLibrary : [],
     mapLibrary: Array.isArray(raw.mapLibrary) ? raw.mapLibrary : [],
     shopTemplates: Array.isArray(raw.shopTemplates) ? raw.shopTemplates : [],
-    books:
-      raw.books && typeof raw.books === 'object'
-        ? raw.books
-        : { config: { customBooks: [] }, data: [] }
+    books: raw.books && typeof raw.books === 'object' ? raw.books : { config: { customBooks: [] }, data: [] }
   })
 }
 
@@ -279,7 +276,10 @@ export async function exportAllData(): Promise<BackupStats | null> {
     const state = await window.api.loadGameState(campaign.id).catch(() => null)
     if (state) gameStates.push({ ...state, campaignId: campaign.id })
 
-    const convoResult = (await window.api.ai.loadConversation(campaign.id).catch(() => ({ success: false }))) as any
+    const convoResult = (await window.api.ai.loadConversation(campaign.id).catch(() => ({ success: false }))) as {
+      success?: boolean
+      data?: unknown
+    }
     if (convoResult?.success && convoResult.data) {
       aiConversations.push({ data: convoResult.data, campaignId: campaign.id })
     }
@@ -287,7 +287,7 @@ export async function exportAllData(): Promise<BackupStats | null> {
 
   // Load raw image buffers and meta
   const imageLibrary: Record<string, unknown>[] = []
-  for (const imgMeta of Array.isArray(allImages) ? (allImages as any[]) : []) {
+  for (const imgMeta of Array.isArray(allImages) ? (allImages as Array<Record<string, unknown>>) : []) {
     if (!imgMeta.id) continue
     const imgResult = await window.api.imageLibrary.get(imgMeta.id as string).catch(() => null)
     if (imgResult?.success && imgResult.data?.path) {
@@ -397,7 +397,7 @@ export async function importAllData(): Promise<BackupStats | null> {
       return null
     }
     const normalized = parsed.version < BACKUP_VERSION ? migrateBackupPayload(parsed) : parsed
-    payload = normalized as BackupPayload
+    payload = normalized as unknown as BackupPayload
   } catch {
     return null
   }
@@ -430,16 +430,17 @@ export async function importAllData(): Promise<BackupStats | null> {
       const { campaignId, ...actualState } = gs
       return window.api.saveGameState(campId, actualState)
     }),
-    ...aiConvos.map((ac: any) => {
-      return window.api.ai.restoreConversation(String(ac.campaignId), ac.data as Record<string, unknown>)
+    ...aiConvos.map((ac) => {
+      const conv = ac as { campaignId: unknown; data: unknown }
+      return window.api.ai.restoreConversation(String(conv.campaignId), conv.data as Record<string, unknown>)
     }),
     ...maps.map((m) => window.api.mapLibrary.save(String(m.id), String(m.name), m as Record<string, unknown>)),
     ...shops.map((s) =>
       window.api.shopTemplates.save(s as { id: string; name: string; inventory: unknown[]; markup: number })
     ),
-    ...booksData.map((bd: any) => {
+    ...booksData.map((bd: Record<string, unknown>) => {
       const { id, ...data } = bd
-      return window.api.books.saveData(String(id), data as any)
+      return window.api.books.saveData(String(id), data as unknown as Parameters<typeof window.api.books.saveData>[1])
     })
   ])
 
@@ -451,12 +452,11 @@ export async function importAllData(): Promise<BackupStats | null> {
           typeof Buffer !== 'undefined'
             ? Buffer.from(String(img.bufferBase64), 'base64')
             : Uint8Array.from(atob(String(img.bufferBase64)), (c) => c.charCodeAt(0)).buffer
-        await window.api.imageLibrary.save(
-          String(img.id),
-          String(img.name),
-          buffer as any,
-          String(img.extension || 'png')
-        )
+        const ab =
+          buffer instanceof ArrayBuffer
+            ? buffer
+            : (buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength) as ArrayBuffer)
+        await window.api.imageLibrary.save(String(img.id), String(img.name), ab, String(img.extension || 'png'))
       } catch (e) {
         logger.warn(`[Import] Failed to save image ${img.id}`, e)
       }
@@ -467,7 +467,7 @@ export async function importAllData(): Promise<BackupStats | null> {
   if (booksConfig?.customBooks && Array.isArray(booksConfig.customBooks)) {
     for (const book of booksConfig.customBooks) {
       await window.api.books
-        .add(book as any)
+        .add(book as unknown as Parameters<typeof window.api.books.add>[0])
         .catch((e) => logger.warn(`[Import] Failed to add book config ${book.id}`, e))
     }
   }

@@ -25,7 +25,7 @@ export default function CreateCharacterPage(): JSX.Element {
         navigate('/characters', { replace: true })
         return
       }
-      loadCharacterForEdit(raw as Character)
+      loadCharacterForEdit(raw as unknown as Character)
     })
     return () => {
       cancelled = true

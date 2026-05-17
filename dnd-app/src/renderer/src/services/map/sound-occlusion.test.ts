@@ -107,7 +107,7 @@ describe('calculateSoundOcclusion', () => {
     expect(blocked.isOccluded).toBe(true)
     expect(blocked.lowPassFrequency).toBe(SOUND_OCCLUSION.OCCLUDED_LOW_PASS_FREQ)
     // Occluded volume is attenuated by OCCLUDED_VOLUME_MULTIPLIER
-    const expectedMax = open.volume * SOUND_OCCLUSION.OCCLUDED_VOLUME_MULTIPLIER
+    const _expectedMax = open.volume * SOUND_OCCLUSION.OCCLUDED_VOLUME_MULTIPLIER
     // The occluded result has different distance so we check the flag + low pass
     expect(blocked.lowPassFrequency).toBeLessThan(SOUND_OCCLUSION.NORMAL_LOW_PASS_FREQ)
   })

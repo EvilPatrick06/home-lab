@@ -116,7 +116,7 @@ const abilityCommand: ChatCommand = {
 
     if (abilityName && ctx.character) {
       // Auto-detect modifier from character ability scores
-      const char = ctx.character as { abilityScores?: Record<string, number> }
+      const char = ctx.character as unknown as { abilityScores?: Record<string, number> }
       const score = char.abilityScores?.[abilityName] ?? 10
       modifier = Math.floor((score - 10) / 2)
       // Allow manual override if a second arg is provided
@@ -178,7 +178,7 @@ const saveCommand: ChatCommand = {
       modifier = manualMod
     } else if (ctx.character) {
       // Auto-detect modifier from character ability scores + save proficiency
-      const char = ctx.character as {
+      const char = ctx.character as unknown as {
         abilityScores?: Record<string, number>
         level?: number
         proficiencies?: { savingThrows?: string[] }

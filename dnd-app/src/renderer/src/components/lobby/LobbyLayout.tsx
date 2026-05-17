@@ -1,9 +1,9 @@
 import { useParams } from 'react-router'
 import { setCharacterInfo } from '../../network'
+import { useNetworkStore } from '../../stores/network-store'
 import { useCampaignStore } from '../../stores/use-campaign-store'
 import { useCharacterStore } from '../../stores/use-character-store'
 import { useLobbyStore } from '../../stores/use-lobby-store'
-import { useNetworkStore } from '../../stores/network-store'
 import { CharacterSelector, ChatPanel, PlayerList, ReadyButton } from '.'
 import DiscordLink from './DiscordLink'
 

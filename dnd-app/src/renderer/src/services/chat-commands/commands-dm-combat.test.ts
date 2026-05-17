@@ -24,7 +24,7 @@ const mockGameState = {
   turnStates: {},
   flankingEnabled: false,
   groupInitiativeEnabled: false,
-  diagonalRule: 'standard' as const,
+  diagonalRule: 'standard' as 'standard' | 'alternate',
   stopTimer: vi.fn(),
   startTimer: vi.fn(),
   setPendingGroupRoll: vi.fn(),
@@ -49,7 +49,6 @@ vi.mock('./helpers', () => ({
 }))
 
 import { commands } from './commands-dm-combat'
-import { findTokenByName } from './helpers'
 
 describe('commands-dm-combat', () => {
   beforeEach(() => {

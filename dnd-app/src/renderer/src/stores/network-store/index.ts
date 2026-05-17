@@ -1,6 +1,13 @@
 import { create } from 'zustand'
 import { LAST_SESSION_KEY } from '../../constants'
-import type { ConnectionState, MessageType, NetworkGameState, NetworkMap, NetworkMessage, PeerInfo } from '../../network'
+import type {
+  ConnectionState,
+  MessageType,
+  NetworkGameState,
+  NetworkMap,
+  NetworkMessage,
+  PeerInfo
+} from '../../network'
 import {
   broadcastMessage,
   disconnect as clientDisconnect,
@@ -449,13 +456,7 @@ function filterSidebarForPlayer(entries: unknown[]): unknown[] {
     .map((e) => {
       if (!e || typeof e !== 'object') return e
       // Strip DM-only fields: notes, monster stat-block links, full embedded statBlock
-      const {
-        notes: _notes,
-        monsterStatBlockId: _msbId,
-        linkedMonsterId: _lmId,
-        statBlock: _sb,
-        ...rest
-      } = e
+      const { notes: _notes, monsterStatBlockId: _msbId, linkedMonsterId: _lmId, statBlock: _sb, ...rest } = e
       return rest
     })
 }

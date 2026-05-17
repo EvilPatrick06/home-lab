@@ -46,9 +46,7 @@ vi.mock('./host-state-sync', () => ({
   })),
   isRateLimited: vi.fn(() => false),
   isGlobalRateLimited: vi.fn(() => false),
-  loadPersistedBans: vi.fn(() =>
-    Promise.resolve({ legacyMigrationSkipped: false, legacyPeerCount: 0 })
-  ),
+  loadPersistedBans: vi.fn(() => Promise.resolve({ legacyMigrationSkipped: false, legacyPeerCount: 0 })),
   persistBans: vi.fn(),
   startHeartbeatCheck: vi.fn(),
   stopHeartbeatCheck: vi.fn()

@@ -4,6 +4,7 @@ import { load5eFeats } from '../../../services/data-provider'
 import type { Character5e } from '../../../types/character-5e'
 import type { FeatData } from '../../../types/data'
 import { meetsFeatPrerequisites } from '../../../utils/feat-prerequisites'
+import { logger } from '../../../utils/logger'
 import { FeatPickerRow } from './FeatureCard5e'
 
 interface FeatPickerProps {

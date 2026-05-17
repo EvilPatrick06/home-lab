@@ -17,6 +17,7 @@ interface MapEditorRightPanelProps {
   activeMap: GameMap | null
   activeTool: DmToolId
   setActiveTool: (tool: DmToolId) => void
+  fogBrushSize: number
   setFogBrushSize: (size: number) => void
   terrainPaintType: TerrainCell['type']
   setTerrainPaintType: (type: TerrainCell['type']) => void

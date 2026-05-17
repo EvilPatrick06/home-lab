@@ -92,7 +92,7 @@ export default function DMNotepad(): JSX.Element {
     scheduleAutoSave()
   }, [startNewSession, scheduleAutoSave])
 
-  const handleExportToJournal = useCallback(async (sessionId: string, entries: SessionLogEntry[], label: string) => {
+  const handleExportToJournal = useCallback(async (_sessionId: string, entries: SessionLogEntry[], label: string) => {
     const campaign = useCampaignStore.getState().getActiveCampaign()
     if (!campaign) return
 

@@ -291,7 +291,7 @@ export function registerAiHandlers(): void {
   ipcMain.handle(
     IPC_CHANNELS.AI_RESTORE_CONVERSATION,
     async (_event, campaignId: string, data: Record<string, unknown>) => {
-      const result = await saveConversation(campaignId, data as ConversationData)
+      const result = await saveConversation(campaignId, data as unknown as ConversationData)
       if (!result.success) return { success: false, error: result.error }
       return { success: true }
     }
@@ -388,7 +388,7 @@ export function registerAiHandlers(): void {
     async (_event, campaignId: string, state: Record<string, unknown>) => {
       try {
         const memMgr = getMemoryManager(campaignId)
-        await memMgr.updateCombatState(state as CombatState)
+        await memMgr.updateCombatState(state as unknown as CombatState)
         return { success: true }
       } catch (error) {
         logToFile('error', `[AI Memory] Failed to sync combat state: ${(error as Error).message}`)
@@ -557,7 +557,7 @@ export function registerAiHandlers(): void {
 
   ipcMain.handle(IPC_CHANNELS.AI_TRIGGER_STATE_UPDATE, async (_event, state: Record<string, unknown>) => {
     try {
-      const results = processStateUpdate(state as GameStateSnapshot)
+      const results = processStateUpdate(state as unknown as GameStateSnapshot)
       return { success: true, fired: results }
     } catch (error) {
       return { success: false, error: (error as Error).message }

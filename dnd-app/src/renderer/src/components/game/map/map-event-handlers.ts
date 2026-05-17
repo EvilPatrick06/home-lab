@@ -195,13 +195,12 @@ export function setupMouseHandlers(el: HTMLElement, opts: MouseHandlerOptions): 
     isHost,
     isInitiativeMode,
     turnState,
-    selectedTokenIds,
     applyTransform,
     drawingStrokeWidth = 3,
     drawingColor = '#ffffff',
     fogBrushSize = 1
   } = opts
-  const { onTokenMove, onTokenSelect, onCellClick, onWallPlace, onDoorToggle, renderTokens } = opts
+  const { onTokenMove, onTokenSelect, onCellClick, onWallPlace, onDoorToggle } = opts
 
   const onMouseDown = (e: MouseEvent): void => {
     // Middle button or space+left for panning
@@ -521,7 +520,7 @@ export function setupMouseHandlers(el: HTMLElement, opts: MouseHandlerOptions): 
       if (activeTool === 'draw-text') {
         const text = prompt('Enter text:')
         if (text?.trim()) {
-          drawingData.text = text.trim()
+          ;(drawingData as typeof drawingData & { text?: string }).text = text.trim()
           useGameStore.getState().addDrawing(map!.id, drawingData)
         }
       } else {

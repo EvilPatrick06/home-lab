@@ -2,8 +2,8 @@ import Placeholder from '@tiptap/extension-placeholder'
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { useCallback, useMemo, useState } from 'react'
-import { useGameStore } from '../../../stores/use-game-store'
 import { useNetworkStore } from '../../../stores/network-store'
+import { useGameStore } from '../../../stores/use-game-store'
 import type { SharedJournalEntry } from '../../../types/game-state'
 
 // ---------------------------------------------------------------------------
@@ -177,7 +177,7 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
     updateJournalEntry(selectedEntry.id, {
       title: editTitle.trim() || 'Untitled Entry',
       content: html
-    } as any)
+    } as Parameters<typeof updateJournalEntry>[1])
     setIsEditing(false)
     editor.setEditable(false)
   }

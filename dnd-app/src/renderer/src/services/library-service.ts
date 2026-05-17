@@ -365,7 +365,7 @@ export function summarizeItem(item: Record<string, unknown>, category: LibraryCa
     case 'spells':
       return `Level ${item.level ?? '?'} ${item.school ?? ''} - ${(item.spellList as string[])?.join(', ') ?? ''}`
     case 'classes':
-      return `${(item.coreTraits as Record<string, unknown>)?.hitPointDie ?? '?'} | ${((item.coreTraits as Record<string, unknown>)?.primaryAbility as string[])?.join(', ') ?? ''}`
+      return `${(item.coreTraits as unknown as Record<string, unknown>)?.hitPointDie ?? '?'} | ${((item.coreTraits as unknown as Record<string, unknown>)?.primaryAbility as string[])?.join(', ') ?? ''}`
     case 'subclasses':
       return `${((item.className as string) ?? '').charAt(0).toUpperCase() + ((item.className as string) ?? '').slice(1)} - Level ${item.level ?? '?'}`
     case 'species': {
@@ -453,7 +453,7 @@ export function summarizeItem(item: Record<string, unknown>, category: LibraryCa
     case 'planes':
       return `${((item.category as string) ?? '').replace(/^./, (c: string) => c.toUpperCase())} Plane`
     case 'npc-names': {
-      const nameData = item as Record<string, unknown>
+      const nameData = item as unknown as Record<string, unknown>
       const male = (nameData.male as string[] | undefined)?.length ?? 0
       const female = (nameData.female as string[] | undefined)?.length ?? 0
       const neutral = (nameData.neutral as string[] | undefined)?.length ?? 0
@@ -485,7 +485,7 @@ function toLibraryItems(
   source: 'official' | 'homebrew' = 'official'
 ): LibraryItem[] {
   return items.map((raw) => {
-    const item = (raw !== null && typeof raw === 'object' ? raw : {}) as Record<string, unknown>
+    const item = (raw !== null && typeof raw === 'object' ? raw : {}) as unknown as Record<string, unknown>
     return {
       id: (item.id as string) || (item.name as string) || category,
       name: (item.name as string) ?? 'Unknown',
@@ -638,7 +638,7 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
       // Trinkets are string arrays — convert to named objects
       const trinketItems = (data as unknown as string[]).map((t, i) => ({
         id: `trinket-${i}`,
-        name: typeof t === 'string' ? t : ((t as Record<string, unknown>).name ?? 'Unknown')
+        name: typeof t === 'string' ? t : ((t as unknown as Record<string, unknown>).name ?? 'Unknown')
       }))
       return [...toLibraryItems(trinketItems, category), ...hbItems]
     }
@@ -693,7 +693,11 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
       const data = await load5eTreasureTables()
       const tables = data as unknown as Record<string, unknown>
       return toLibraryItems(
-        Object.entries(tables).map(([key, val]) => ({ id: key, name: key, ...(val as Record<string, unknown>) })),
+        Object.entries(tables).map(([key, val]) => ({
+          id: key,
+          name: key,
+          ...(val as unknown as Record<string, unknown>)
+        })),
         category
       )
     }
@@ -701,7 +705,11 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
       const data = await load5eRandomTables()
       const tables = data as unknown as Record<string, unknown>
       return toLibraryItems(
-        Object.entries(tables).map(([key, val]) => ({ id: key, name: key, ...(val as Record<string, unknown>) })),
+        Object.entries(tables).map(([key, val]) => ({
+          id: key,
+          name: key,
+          ...(val as unknown as Record<string, unknown>)
+        })),
         category
       )
     }
@@ -709,7 +717,11 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
       const data = await load5eChaseTables()
       const tables = data as unknown as Record<string, unknown>
       return toLibraryItems(
-        Object.entries(tables).map(([key, val]) => ({ id: key, name: key, ...(val as Record<string, unknown>) })),
+        Object.entries(tables).map(([key, val]) => ({
+          id: key,
+          name: key,
+          ...(val as unknown as Record<string, unknown>)
+        })),
         category
       )
     }
@@ -867,7 +879,7 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
     case 'adventure-seeds': {
       const data = await load5eAdventureSeeds()
       const items: Record<string, unknown>[] = []
-      for (const [range, seeds] of Object.entries(data as Record<string, unknown>)) {
+      for (const [range, seeds] of Object.entries(data as unknown as Record<string, unknown>)) {
         if (!Array.isArray(seeds)) continue
         for (const [i, seed] of seeds.entries()) {
           items.push({
@@ -875,9 +887,10 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
             name:
               typeof seed === 'string'
                 ? seed.slice(0, 80)
-                : ((seed as Record<string, unknown>).name ?? `Seed ${i + 1}`),
+                : ((seed as unknown as Record<string, unknown>).name ?? `Seed ${i + 1}`),
             levelRange: range,
-            description: typeof seed === 'string' ? seed : ((seed as Record<string, unknown>).description ?? '')
+            description:
+              typeof seed === 'string' ? seed : ((seed as unknown as Record<string, unknown>).description ?? '')
           })
         }
       }
@@ -885,14 +898,16 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
     }
     case 'calendars': {
       const data = await load5eCalendarPresets()
-      const presets = (data as Record<string, unknown>).presets as Record<string, unknown> | undefined
+      const presets = (data as unknown as Record<string, unknown>).presets as unknown as
+        | Record<string, unknown>
+        | undefined
       if (!presets) return hbItems
       const items = Object.entries(presets).map(([key, val]) => ({
         id: key,
         name:
-          (val as Record<string, unknown>).name ??
+          (val as unknown as Record<string, unknown>).name ??
           key.replace(/-/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
-        ...(val as Record<string, unknown>)
+        ...(val as unknown as Record<string, unknown>)
       }))
       return [...toLibraryItems(items, category), ...hbItems]
     }
@@ -906,7 +921,7 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
     }
     case 'npc-names': {
       const data = await load5eNpcNames()
-      const nameData = data as Record<string, unknown>
+      const nameData = data as unknown as Record<string, unknown>
       const items = Object.entries(nameData).map(([species, names]) => {
         const nameObj = names as Record<string, string[]>
         return {
@@ -925,9 +940,9 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
       const items = Object.entries(data).map(([key, val]) => ({
         id: key,
         name:
-          (val as Record<string, unknown>).label ??
+          (val as unknown as Record<string, unknown>).label ??
           key.replace(/-/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
-        ...(val as Record<string, unknown>)
+        ...(val as unknown as Record<string, unknown>)
       }))
       return [...toLibraryItems(items, category), ...hbItems]
     }
@@ -940,7 +955,7 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
           .replace(/^./, (c: string) => c.toUpperCase())
           .trim(),
         entries: Array.isArray(val) ? val : [],
-        ...(typeof val === 'object' && !Array.isArray(val) ? (val as Record<string, unknown>) : {})
+        ...(typeof val === 'object' && !Array.isArray(val) ? (val as unknown as Record<string, unknown>) : {})
       }))
       return toLibraryItems(items, category)
     }
@@ -951,11 +966,11 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
         const presetMaps = await load5eBuiltInMaps()
         for (const m of presetMaps) {
           items.push({
-            id: ((m as Record<string, unknown>).id as string) ?? '',
-            name: ((m as Record<string, unknown>).name as string) ?? 'Unknown Map',
+            id: ((m as unknown as Record<string, unknown>).id as string) ?? '',
+            name: ((m as unknown as Record<string, unknown>).name as string) ?? 'Unknown Map',
             category: 'maps',
             source: 'official',
-            summary: ((m as Record<string, unknown>).preview as string) ?? 'Preset Map',
+            summary: ((m as unknown as Record<string, unknown>).preview as string) ?? 'Preset Map',
             data: m as unknown as Record<string, unknown>
           })
         }
@@ -966,7 +981,7 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
       try {
         const result = await window.api.mapLibrary.list()
         if (result?.success && Array.isArray(result.data)) {
-          for (const m of result.data as Record<string, unknown>[]) {
+          for (const m of result.data as unknown as Record<string, unknown>[]) {
             items.push({
               id: (m.id as string) ?? '',
               name: (m.name as string) ?? 'Unknown Map',

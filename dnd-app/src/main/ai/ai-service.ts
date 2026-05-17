@@ -263,7 +263,7 @@ export function getConfig(): AiConfig {
     try {
       const saved = JSON.parse(readFileSync(configPath, 'utf-8')) as Record<string, unknown>
       currentConfig = {
-        provider: (saved.provider as string) ?? 'ollama',
+        provider: ((saved.provider as string) ?? 'ollama') as AiProviderType,
         model: (saved.model as string) || (saved.ollamaModel as string) || 'llama3.1',
         ollamaUrl: (saved.ollamaUrl as string) || OLLAMA_BASE_URL,
         claudeApiKey: decryptOptional(saved.claudeApiKey as string | undefined),

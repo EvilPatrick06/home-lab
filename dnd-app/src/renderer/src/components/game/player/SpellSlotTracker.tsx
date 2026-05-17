@@ -61,7 +61,7 @@ export default function SpellSlotTracker({
         setLastCastMessage(`Level ${level} slot used — Action consumed`)
         // Auto-clear message after 3s
         setTimeout(() => setLastCastMessage(null), 3000)
-      } else if (ts && ts.actionUsed && !ts.bonusActionUsed) {
+      } else if (ts?.actionUsed && !ts.bonusActionUsed) {
         // If action already used, this might be a bonus action spell
         useGameStore.getState().useBonusAction(characterId)
         setLastCastMessage(`Level ${level} slot used — Bonus Action consumed`)

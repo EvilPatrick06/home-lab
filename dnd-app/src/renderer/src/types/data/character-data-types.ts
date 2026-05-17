@@ -213,6 +213,7 @@ export interface BackgroundData {
   feat: string
   equipment: BackgroundEquipmentOption[]
   source: string
+  startingGold?: number
 }
 
 // === class-features.json ===

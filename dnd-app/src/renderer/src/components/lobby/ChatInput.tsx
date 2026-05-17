@@ -1,8 +1,8 @@
 import { type ChangeEvent, type KeyboardEvent, useEffect, useRef, useState } from 'react'
 import type { ChatFilePayload } from '../../network'
 import { isModerationEnabled, setModerationEnabled } from '../../network'
-import { useLobbyStore } from '../../stores/use-lobby-store'
 import { useNetworkStore } from '../../stores/network-store'
+import { useLobbyStore } from '../../stores/use-lobby-store'
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024 // 5MB
 const MAX_FILE_SIZE = 2 * 1024 * 1024 // 2MB

@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { banPeer, chatMutePeer, kickPeer } from '../../network'
+import { useNetworkStore } from '../../stores/network-store'
 import { useCampaignStore } from '../../stores/use-campaign-store'
 import { useLobbyStore } from '../../stores/use-lobby-store'
-import { useNetworkStore } from '../../stores/network-store'
 import { PlayerCard } from '.'
 
 export default function PlayerList(): JSX.Element {

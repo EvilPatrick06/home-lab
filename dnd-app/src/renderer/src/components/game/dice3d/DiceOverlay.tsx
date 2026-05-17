@@ -61,9 +61,8 @@ function parseDiceGroups(formula: string): Array<{ type: DieType; count: number 
 
   const diceRegex = /(\d*)d(\d+)/gi
   const groups: Array<{ type: DieType; count: number }> = []
-  let match: RegExpExecArray | null
 
-  while ((match = diceRegex.exec(cleaned)) !== null) {
+  for (const match of cleaned.matchAll(diceRegex)) {
     const count = match[1] ? parseInt(match[1], 10) : 1
     const sides = parseInt(match[2], 10)
 

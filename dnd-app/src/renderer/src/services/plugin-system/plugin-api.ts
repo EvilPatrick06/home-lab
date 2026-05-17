@@ -272,7 +272,7 @@ export function createPluginAPI(
 
   // --- Game System API (only meaningful for game-system type plugins) ---
   const gameSystemApi: PluginGameSystemAPI = Object.freeze({
-    registerConfig: (config) => {
+    registerConfig: (config: Parameters<PluginGameSystemAPI['registerConfig']>[0]) => {
       if (manifest.type !== 'game-system') {
         throw new Error(`Only game-system plugins can call gameSystem.registerConfig()`)
       }

@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { useGameStore } from '../../../../stores/use-game-store'
 import { useNetworkStore } from '../../../../stores/network-store'
+import { useGameStore } from '../../../../stores/use-game-store'
 
 interface TimerModalProps {
   onClose: () => void

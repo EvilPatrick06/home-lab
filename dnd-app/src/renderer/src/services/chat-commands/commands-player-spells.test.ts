@@ -15,7 +15,7 @@ import {
   createCommandContext
 } from '../../test-helpers'
 import { commands } from './commands-player-spells'
-import type { CommandContext } from './types'
+import type { CommandContext, CommandMessage } from './types'
 
 function makeCtx(overrides: Partial<CommandContext> = {}): CommandContext {
   return createCommandContext({
@@ -90,42 +90,42 @@ describe('commands-player-spells', () => {
     const castCmd = commands.find((c) => c.name === 'cast')!
 
     it('returns error when no args', () => {
-      const result = castCmd.execute('', makeCtx())
+      const result = castCmd.execute('', makeCtx()) as CommandMessage
       expect(result.type).toBe('error')
     })
 
     it('returns error for whitespace-only args', () => {
-      const result = castCmd.execute('   ', makeCtx())
+      const result = castCmd.execute('   ', makeCtx()) as CommandMessage
       expect(result.type).toBe('error')
     })
 
     it('broadcasts basic spell cast', () => {
-      const result = castCmd.execute('Fireball', makeCtx())
+      const result = castCmd.execute('Fireball', makeCtx()) as CommandMessage
       expect(result.type).toBe('broadcast')
       expect(result.content).toContain('TestPlayer')
       expect(result.content).toContain('Fireball')
     })
 
     it('handles upcast with "at <level>"', () => {
-      const result = castCmd.execute('Fireball at 5', makeCtx())
+      const result = castCmd.execute('Fireball at 5', makeCtx()) as CommandMessage
       expect(result.type).toBe('broadcast')
       expect(result.content).toContain('upcast to level 5')
     })
 
     it('handles ritual flag', () => {
-      const result = castCmd.execute('Detect Magic ritual', makeCtx())
+      const result = castCmd.execute('Detect Magic ritual', makeCtx()) as CommandMessage
       expect(result.type).toBe('broadcast')
       expect(result.content).toContain('Ritual')
     })
 
     it('handles concentration flag', () => {
-      const result = castCmd.execute('Bless concentration', makeCtx())
+      const result = castCmd.execute('Bless concentration', makeCtx()) as CommandMessage
       expect(result.type).toBe('broadcast')
       expect(result.content).toContain('Concentration')
     })
 
     it('handles all modifiers combined', () => {
-      const result = castCmd.execute('Hold Person at 4 ritual concentration', makeCtx())
+      const result = castCmd.execute('Hold Person at 4 ritual concentration', makeCtx()) as CommandMessage
       expect(result.type).toBe('broadcast')
       expect(result.content).toContain('upcast to level 4')
       expect(result.content).toContain('Ritual')
@@ -133,14 +133,14 @@ describe('commands-player-spells', () => {
     })
 
     it('strips modifiers from spell name', () => {
-      const result = castCmd.execute('Shield at 3 ritual concentration', makeCtx())
+      const result = castCmd.execute('Shield at 3 ritual concentration', makeCtx()) as CommandMessage
       expect(result.content).toContain('Shield')
       // Should not have leftover keywords in the spell name portion
       expect(result.content).not.toMatch(/casts \*\*.*ritual.*\*\*/)
     })
 
     it('uses "a spell" as default name when only modifiers given', () => {
-      const result = castCmd.execute('at 5 ritual', makeCtx())
+      const result = castCmd.execute('at 5 ritual', makeCtx()) as CommandMessage
       expect(result.content).toContain('a spell')
     })
   })
@@ -155,26 +155,26 @@ describe('commands-player-spells', () => {
     })
 
     it('defaults to status when no args', () => {
-      const result = pactCmd.execute('', makeCtx())
+      const result = pactCmd.execute('', makeCtx()) as CommandMessage
       expect(result.type).toBe('system')
       expect(result.content).toContain('Pact Magic')
     })
 
     it('handles use subcommand', () => {
-      const result = pactCmd.execute('use', makeCtx())
+      const result = pactCmd.execute('use', makeCtx()) as CommandMessage
       expect(result.type).toBe('broadcast')
       expect(result.content).toContain('expends a Pact Magic slot')
     })
 
     it('handles restore subcommand', () => {
-      const result = pactCmd.execute('restore', makeCtx())
+      const result = pactCmd.execute('restore', makeCtx()) as CommandMessage
       expect(result.type).toBe('broadcast')
       expect(result.content).toContain('restores Pact Magic slots')
       expect(result.content).toContain('short rest')
     })
 
     it('defaults to status for unknown subcommand', () => {
-      const result = pactCmd.execute('foobar', makeCtx())
+      const result = pactCmd.execute('foobar', makeCtx()) as CommandMessage
       expect(result.type).toBe('system')
     })
   })
@@ -189,14 +189,14 @@ describe('commands-player-spells', () => {
     })
 
     it('rolls ability check when no level given', () => {
-      const result = csCmd.execute('', makeCtx())
+      const result = csCmd.execute('', makeCtx()) as CommandMessage
       expect(result.type).toBe('broadcast')
       expect(result.content).toContain('Ability check')
       expect(result.content).toContain('10') // mocked rollSingle returns 10
     })
 
     it('casts at specific level without ability check', () => {
-      const result = csCmd.execute('5 Fireball', makeCtx())
+      const result = csCmd.execute('5 Fireball', makeCtx()) as CommandMessage
       expect(result.type).toBe('broadcast')
       expect(result.content).toContain('level 5')
       expect(result.content).toContain('Fireball')
@@ -204,19 +204,19 @@ describe('commands-player-spells', () => {
     })
 
     it('includes target spell name when provided without level', () => {
-      const result = csCmd.execute('Fireball', makeCtx())
+      const result = csCmd.execute('Fireball', makeCtx()) as CommandMessage
       expect(result.type).toBe('broadcast')
       expect(result.content).toContain('Fireball')
     })
 
     it('rolls check for out-of-range level (0)', () => {
-      const result = csCmd.execute('0 Fireball', makeCtx())
+      const result = csCmd.execute('0 Fireball', makeCtx()) as CommandMessage
       expect(result.type).toBe('broadcast')
       expect(result.content).toContain('Ability check')
     })
 
     it('rolls check for out-of-range level (10)', () => {
-      const result = csCmd.execute('10 Shield', makeCtx())
+      const result = csCmd.execute('10 Shield', makeCtx()) as CommandMessage
       expect(result.type).toBe('broadcast')
       expect(result.content).toContain('Ability check')
     })
@@ -232,13 +232,13 @@ describe('commands-player-spells', () => {
     })
 
     it('rolls check when no level given', () => {
-      const result = dispelCmd.execute('', makeCtx())
+      const result = dispelCmd.execute('', makeCtx()) as CommandMessage
       expect(result.type).toBe('broadcast')
       expect(result.content).toContain('Ability check')
     })
 
     it('casts at specific level without check', () => {
-      const result = dispelCmd.execute('5 Curse', makeCtx())
+      const result = dispelCmd.execute('5 Curse', makeCtx()) as CommandMessage
       expect(result.type).toBe('broadcast')
       expect(result.content).toContain('level 5')
       expect(result.content).toContain('Curse')
@@ -246,19 +246,19 @@ describe('commands-player-spells', () => {
     })
 
     it('includes target when provided without level', () => {
-      const result = dispelCmd.execute('the barrier', makeCtx())
+      const result = dispelCmd.execute('the barrier', makeCtx()) as CommandMessage
       expect(result.type).toBe('broadcast')
       expect(result.content).toContain('the barrier')
     })
 
     it('rolls check for level below 3', () => {
-      const result = dispelCmd.execute('2 shield', makeCtx())
+      const result = dispelCmd.execute('2 shield', makeCtx()) as CommandMessage
       expect(result.type).toBe('broadcast')
       expect(result.content).toContain('Ability check')
     })
 
     it('rolls check for level above 9', () => {
-      const result = dispelCmd.execute('10 hex', makeCtx())
+      const result = dispelCmd.execute('10 hex', makeCtx()) as CommandMessage
       expect(result.type).toBe('broadcast')
       expect(result.content).toContain('Ability check')
     })
@@ -270,7 +270,7 @@ describe('commands-player-spells', () => {
     const idCmd = commands.find((c) => c.name === 'identify')!
 
     it('defaults target to "an item" when no args', () => {
-      const result = idCmd.execute('', makeCtx())
+      const result = idCmd.execute('', makeCtx()) as CommandMessage
       expect(result.type).toBe('broadcast')
       expect(result.content).toContain('an item')
       expect(result.content).toContain('Identify')
@@ -278,7 +278,7 @@ describe('commands-player-spells', () => {
     })
 
     it('uses provided target', () => {
-      const result = idCmd.execute('the mysterious sword', makeCtx())
+      const result = idCmd.execute('the mysterious sword', makeCtx()) as CommandMessage
       expect(result.type).toBe('broadcast')
       expect(result.content).toContain('the mysterious sword')
     })
@@ -294,47 +294,47 @@ describe('commands-player-spells', () => {
     })
 
     it('returns error when no args', () => {
-      const result = smiteCmd.execute('', makeCtx())
+      const result = smiteCmd.execute('', makeCtx()) as CommandMessage
       expect(result.type).toBe('error')
     })
 
     it('returns error for level 0', () => {
-      const result = smiteCmd.execute('0', makeCtx())
+      const result = smiteCmd.execute('0', makeCtx()) as CommandMessage
       expect(result.type).toBe('error')
     })
 
     it('returns error for level 6', () => {
-      const result = smiteCmd.execute('6', makeCtx())
+      const result = smiteCmd.execute('6', makeCtx()) as CommandMessage
       expect(result.type).toBe('error')
     })
 
     it('returns error for non-numeric args', () => {
-      const result = smiteCmd.execute('abc', makeCtx())
+      const result = smiteCmd.execute('abc', makeCtx()) as CommandMessage
       expect(result.type).toBe('error')
     })
 
     it('rolls correct dice for level 1 (2d8)', () => {
-      const result = smiteCmd.execute('1', makeCtx())
+      const result = smiteCmd.execute('1', makeCtx()) as CommandMessage
       expect(result.type).toBe('broadcast')
       expect(result.content).toContain('2d8')
       expect(result.content).toContain('radiant damage')
     })
 
     it('rolls correct dice for level 5 (6d8 base = capped at 5+1)', () => {
-      const result = smiteCmd.execute('5', makeCtx())
+      const result = smiteCmd.execute('5', makeCtx()) as CommandMessage
       expect(result.type).toBe('broadcast')
       expect(result.content).toContain('6d8')
     })
 
     it('adds +1d8 vs undead', () => {
-      const result = smiteCmd.execute('1 undead', makeCtx())
+      const result = smiteCmd.execute('1 undead', makeCtx()) as CommandMessage
       expect(result.type).toBe('broadcast')
       expect(result.content).toContain('3d8')
       expect(result.content).toContain('undead/fiend')
     })
 
     it('adds +1d8 vs fiend', () => {
-      const result = smiteCmd.execute('1 fiend', makeCtx())
+      const result = smiteCmd.execute('1 fiend', makeCtx()) as CommandMessage
       expect(result.type).toBe('broadcast')
       expect(result.content).toContain('3d8')
       expect(result.content).toContain('undead/fiend')
@@ -342,13 +342,13 @@ describe('commands-player-spells', () => {
 
     it('caps total dice at 6 for undead at high level', () => {
       // Level 5 = 6 base dice, +1 for undead = 7 but capped at min(7,6) = 6
-      const result = smiteCmd.execute('5 undead', makeCtx())
+      const result = smiteCmd.execute('5 undead', makeCtx()) as CommandMessage
       expect(result.type).toBe('broadcast')
       expect(result.content).toContain('6d8')
     })
 
     it('includes player name', () => {
-      const result = smiteCmd.execute('2', makeCtx({ playerName: 'Paladin' }))
+      const result = smiteCmd.execute('2', makeCtx({ playerName: 'Paladin' })) as CommandMessage
       expect(result.content).toContain('Paladin')
     })
   })
@@ -364,27 +364,27 @@ describe('commands-player-spells', () => {
     })
 
     it('returns error when no args', () => {
-      const result = saCmd.execute('', makeCtx())
+      const result = saCmd.execute('', makeCtx()) as CommandMessage
       expect(result.type).toBe('error')
     })
 
     it('returns error for 0 dice', () => {
-      const result = saCmd.execute('0', makeCtx())
+      const result = saCmd.execute('0', makeCtx()) as CommandMessage
       expect(result.type).toBe('error')
     })
 
     it('returns error for 21 dice', () => {
-      const result = saCmd.execute('21', makeCtx())
+      const result = saCmd.execute('21', makeCtx()) as CommandMessage
       expect(result.type).toBe('error')
     })
 
     it('returns error for non-numeric args', () => {
-      const result = saCmd.execute('abc', makeCtx())
+      const result = saCmd.execute('abc', makeCtx()) as CommandMessage
       expect(result.type).toBe('error')
     })
 
     it('rolls correct number of d6', () => {
-      const result = saCmd.execute('5', makeCtx())
+      const result = saCmd.execute('5', makeCtx()) as CommandMessage
       expect(result.type).toBe('broadcast')
       expect(result.content).toContain('5d6')
       expect(result.content).toContain('Sneak Attack')
@@ -392,12 +392,12 @@ describe('commands-player-spells', () => {
 
     it('calculates total from rolls', () => {
       // rollMultiple returns Array(5).fill(4), total = 20
-      const result = saCmd.execute('5', makeCtx())
+      const result = saCmd.execute('5', makeCtx()) as CommandMessage
       expect(result.content).toContain('20')
     })
 
     it('works at max dice (20)', () => {
-      const result = saCmd.execute('20', makeCtx())
+      const result = saCmd.execute('20', makeCtx()) as CommandMessage
       expect(result.type).toBe('broadcast')
       expect(result.content).toContain('20d6')
     })
@@ -414,23 +414,23 @@ describe('commands-player-spells', () => {
     })
 
     it('returns error when no args', () => {
-      const result = ccCmd.execute('', makeCtx())
+      const result = ccCmd.execute('', makeCtx()) as CommandMessage
       expect(result.type).toBe('error')
     })
 
     it('returns error for non-numeric args', () => {
-      const result = ccCmd.execute('abc', makeCtx())
+      const result = ccCmd.execute('abc', makeCtx()) as CommandMessage
       expect(result.type).toBe('error')
     })
 
     it('returns error for negative damage', () => {
-      const result = ccCmd.execute('-5', makeCtx())
+      const result = ccCmd.execute('-5', makeCtx()) as CommandMessage
       expect(result.type).toBe('error')
     })
 
     it('calculates DC as max(10, damage/2) for low damage', () => {
       // damage=10, DC=max(10,5)=10. rollSingle mock returns 10, so 10>=10 = MAINTAINED
-      const result = ccCmd.execute('10', makeCtx())
+      const result = ccCmd.execute('10', makeCtx()) as CommandMessage
       expect(result.type).toBe('broadcast')
       expect(result.content).toContain('DC 10')
       expect(result.content).toContain('MAINTAINED')
@@ -438,7 +438,7 @@ describe('commands-player-spells', () => {
 
     it('calculates DC for high damage', () => {
       // damage=30, DC=max(10,15)=15. rollSingle returns 10, so 10<15 = BROKEN
-      const result = ccCmd.execute('30', makeCtx())
+      const result = ccCmd.execute('30', makeCtx()) as CommandMessage
       expect(result.type).toBe('broadcast')
       expect(result.content).toContain('DC 15')
       expect(result.content).toContain('BROKEN')
@@ -446,13 +446,13 @@ describe('commands-player-spells', () => {
 
     it('calculates DC for 0 damage', () => {
       // damage=0, DC=max(10,0)=10
-      const result = ccCmd.execute('0', makeCtx())
+      const result = ccCmd.execute('0', makeCtx()) as CommandMessage
       expect(result.type).toBe('broadcast')
       expect(result.content).toContain('DC 10')
     })
 
     it('includes Concentration Check label', () => {
-      const result = ccCmd.execute('10', makeCtx())
+      const result = ccCmd.execute('10', makeCtx()) as CommandMessage
       expect(result.content).toContain('Concentration Check')
     })
   })
@@ -467,33 +467,33 @@ describe('commands-player-spells', () => {
     })
 
     it('returns error when no args', () => {
-      const result = wsCmd.execute('', makeCtx())
+      const result = wsCmd.execute('', makeCtx()) as CommandMessage
       expect(result.type).toBe('error')
     })
 
     it('announces transformation with creature name', () => {
-      const result = wsCmd.execute('Brown Bear', makeCtx())
+      const result = wsCmd.execute('Brown Bear', makeCtx()) as CommandMessage
       expect(result.type).toBe('broadcast')
       expect(result.content).toContain('Brown Bear')
       expect(result.content).toContain('Wild Shape')
     })
 
     it('includes HP when provided as last argument', () => {
-      const result = wsCmd.execute('Dire Wolf 37', makeCtx())
+      const result = wsCmd.execute('Dire Wolf 37', makeCtx()) as CommandMessage
       expect(result.type).toBe('broadcast')
       expect(result.content).toContain('Dire Wolf')
       expect(result.content).toContain('37 HP')
     })
 
     it('handles single-word creature without HP', () => {
-      const result = wsCmd.execute('Spider', makeCtx())
+      const result = wsCmd.execute('Spider', makeCtx()) as CommandMessage
       expect(result.type).toBe('broadcast')
       expect(result.content).toContain('Spider')
       expect(result.content).not.toContain('HP')
     })
 
     it('includes player name', () => {
-      const result = wsCmd.execute('Wolf', makeCtx({ playerName: 'Druid' }))
+      const result = wsCmd.execute('Wolf', makeCtx({ playerName: 'Druid' })) as CommandMessage
       expect(result.content).toContain('Druid')
     })
   })

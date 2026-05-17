@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { useLobbyStore } from '../../../../stores/use-lobby-store'
 import { useNetworkStore } from '../../../../stores/network-store'
+import { useLobbyStore } from '../../../../stores/use-lobby-store'
 
 interface WhisperModalProps {
   isDM?: boolean

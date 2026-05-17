@@ -58,6 +58,9 @@ type DataCategory =
   | 'effectDefinitions'
   | 'spellSlots'
   | 'trinkets'
+  | 'companions'
+  | 'deities'
+  | 'planes'
   | 'soundEvents'
   | 'speciesSpells'
   | 'classResources'
@@ -372,7 +375,10 @@ function categoryToHomebrewKey(category: DataCategory): string {
     ambientTracks: 'ambient-tracks',
     languageD12Table: 'language-d12-table',
     rarityOptions: 'rarity-options',
-    tools: 'tools'
+    tools: 'tools',
+    companions: 'companions',
+    deities: 'deities',
+    planes: 'planes'
   }
   return map[category]
 }

@@ -45,7 +45,7 @@ describe('getMountSpeed', () => {
 
   it('defaults to 40 when walkSpeed is undefined', () => {
     const mount = makeMountToken()
-    delete (mount as Record<string, unknown>).walkSpeed
+    delete (mount as unknown as Record<string, unknown>).walkSpeed
     expect(getMountSpeed(mount)).toBe(40)
   })
 
@@ -115,7 +115,7 @@ describe('calculateMountedMovement', () => {
   it('defaults mount speed to 40 for controlled mount with no walkSpeed', () => {
     const rider = makeTurnState({ movementMax: 30 })
     const mount = makeMountToken()
-    delete (mount as Record<string, unknown>).walkSpeed
+    delete (mount as unknown as Record<string, unknown>).walkSpeed
     expect(calculateMountedMovement(rider, mount, 'controlled')).toBe(40)
   })
 

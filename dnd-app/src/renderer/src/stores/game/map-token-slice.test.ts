@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { create } from 'zustand'
+import type { GameMap, MapToken } from '../../types/map'
 import { createMapTokenSlice } from './map-token-slice'
 
 vi.stubGlobal('window', { api: { storage: {}, game: {} } })
@@ -25,7 +26,7 @@ function makeStore() {
   }))
 }
 
-function makeMap(overrides: Partial<any> = {}) {
+function makeMap(overrides: Partial<GameMap> = {}): GameMap {
   return {
     id: 'map-1',
     name: 'Test Map',
@@ -35,10 +36,10 @@ function makeMap(overrides: Partial<any> = {}) {
     occlusionTiles: [],
     createdAt: new Date().toISOString(),
     ...overrides
-  }
+  } as GameMap
 }
 
-function makeToken(overrides: Partial<any> = {}) {
+function makeToken(overrides: Partial<MapToken> = {}): MapToken {
   return {
     id: 'tok-1',
     entityId: 'ent-1',
@@ -47,7 +48,7 @@ function makeToken(overrides: Partial<any> = {}) {
     gridY: 0,
     visibleToPlayers: false,
     ...overrides
-  }
+  } as MapToken
 }
 
 describe('createMapTokenSlice', () => {
@@ -297,21 +298,30 @@ describe('createMapTokenSlice', () => {
 
   describe('toggleEmitterPlaying', () => {
     it('toggles playing from false to true', () => {
-      const map = makeMap({ id: 'm1', audioEmitters: [{ id: 'e1', playing: false }] })
+      const map = makeMap({
+        id: 'm1',
+        audioEmitters: [{ id: 'e1', playing: false } as NonNullable<GameMap['audioEmitters']>[number]]
+      })
       store.getState().addMap(map)
       store.getState().toggleEmitterPlaying('m1', 'e1')
       expect(store.getState().maps[0].audioEmitters[0].playing).toBe(true)
     })
 
     it('toggles playing from true to false', () => {
-      const map = makeMap({ id: 'm1', audioEmitters: [{ id: 'e1', playing: true }] })
+      const map = makeMap({
+        id: 'm1',
+        audioEmitters: [{ id: 'e1', playing: true } as NonNullable<GameMap['audioEmitters']>[number]]
+      })
       store.getState().addMap(map)
       store.getState().toggleEmitterPlaying('m1', 'e1')
       expect(store.getState().maps[0].audioEmitters[0].playing).toBe(false)
     })
 
     it('handles emitter with no playing field (treated as false -> true)', () => {
-      const map = makeMap({ id: 'm1', audioEmitters: [{ id: 'e1' }] })
+      const map = makeMap({
+        id: 'm1',
+        audioEmitters: [{ id: 'e1' } as NonNullable<GameMap['audioEmitters']>[number]]
+      })
       store.getState().addMap(map)
       store.getState().toggleEmitterPlaying('m1', 'e1')
       expect(store.getState().maps[0].audioEmitters[0].playing).toBe(true)
@@ -383,7 +393,7 @@ describe('createMapTokenSlice', () => {
   // --- Wall segments ---
 
   describe('wall segment actions', () => {
-    const wall = { id: 'w1', x1: 0, y1: 0, x2: 10, y2: 0 }
+    const wall = { id: 'w1', x1: 0, y1: 0, x2: 10, y2: 0 } as unknown as import('../../types/map').WallSegment
 
     it('addWallSegment appends wall', () => {
       store.getState().addMap(makeMap({ id: 'm1' }))
@@ -392,14 +402,15 @@ describe('createMapTokenSlice', () => {
     })
 
     it('addWallSegment works when wallSegments is initially undefined', () => {
-      const map = { ...makeMap({ id: 'm1' }), wallSegments: undefined }
+      const map = { ...makeMap({ id: 'm1' }), wallSegments: undefined } as unknown as GameMap
       store.getState().addMap(map)
       store.getState().addWallSegment('m1', wall)
       expect(store.getState().maps[0].wallSegments).toHaveLength(1)
     })
 
     it('removeWallSegment removes by id', () => {
-      store.getState().addMap(makeMap({ id: 'm1', wallSegments: [wall, { id: 'w2', x1: 1, y1: 1, x2: 2, y2: 2 }] }))
+      const wall2 = { id: 'w2', x1: 1, y1: 1, x2: 2, y2: 2 } as unknown as import('../../types/map').WallSegment
+      store.getState().addMap(makeMap({ id: 'm1', wallSegments: [wall, wall2] }))
       store.getState().removeWallSegment('m1', 'w1')
       expect(store.getState().maps[0].wallSegments.map((w: any) => w.id)).toEqual(['w2'])
     })

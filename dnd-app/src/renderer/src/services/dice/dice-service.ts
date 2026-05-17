@@ -13,8 +13,8 @@ import {
   trigger3dDice
 } from '../../components/game/dice3d'
 import type { DiceResultPayload, DiceRevealPayload, DiceRollHiddenPayload } from '../../network'
-import { useLobbyStore } from '../../stores/use-lobby-store'
 import { useNetworkStore } from '../../stores/network-store'
+import { useLobbyStore } from '../../stores/use-lobby-store'
 import { cryptoRandom } from '../../utils/crypto-random'
 import type { DiceParsed, DiceRollResult as EngineRollResult } from './dice-engine'
 

@@ -4,10 +4,10 @@ import { addToast } from '../../../hooks/use-toast'
 import { speakNarrationThroughBmo } from '../../../services/bmo-narration'
 import { type CommandContext, executeCommand } from '../../../services/chat-commands'
 import { lookupContent } from '../../../services/library/content-index'
+import { useNetworkStore } from '../../../stores/network-store'
 import { useAiDmStore } from '../../../stores/use-ai-dm-store'
 import type { ChatMessage } from '../../../stores/use-lobby-store'
 import { useLobbyStore } from '../../../stores/use-lobby-store'
-import { useNetworkStore } from '../../../stores/network-store'
 import type { Campaign } from '../../../types/campaign'
 import type { Character } from '../../../types/character'
 import { is5eCharacter } from '../../../types/character'
@@ -241,7 +241,7 @@ export default function ChatPanel({
     inputRef.current?.focus()
   }
 
-  const renderPreview = useCallback((category: LibraryCategory, name: string): React.ReactNode | null => {
+  const renderPreview = useCallback((_category: LibraryCategory, name: string): React.ReactNode | null => {
     const ref = lookupContent(name)
     if (!ref) return null
     // Compact preview card

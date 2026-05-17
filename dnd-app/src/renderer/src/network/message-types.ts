@@ -8,6 +8,7 @@ export const MESSAGE_TYPES = [
   'player:haggle-request',
   'dm:haggle-response',
   'game:state-update',
+  'game:state-patch',
   'game:state-full',
   'game:dice-roll',
   'game:dice-result',
