@@ -142,14 +142,21 @@ class SceneService:
             self._active_scene = scene_name
             self._save_state()
 
-        # Apply scene settings
-        scene = all_scenes[scene_name]
-        self._apply_scene(scene)
-
+        # QA #13 (2026-05-17): emit BEFORE _apply_scene so the UI reflects
+        # the new active scene immediately, not after LED/TV transitions
+        # complete (which can take seconds). The full scenes list shape
+        # matches what /api/scenes returns so the client doesn't have to
+        # re-fetch.
         if self._socketio:
-            self._socketio.emit("scene_change", {"scene": scene_name, "active": True})
+            self._socketio.emit("scene_change", {
+                "scene": scene_name, "active": True,
+                "scenes": self.list_scenes(),
+            })
 
-        return True, f"{scene['label']} activated"
+        # Apply scene settings (slow path — LED, TV, music)
+        self._apply_scene(all_scenes[scene_name])
+
+        return True, f"{all_scenes[scene_name]['label']} activated"
 
     def deactivate(self) -> tuple[bool, str]:
         """Deactivate current scene and restore previous state."""
@@ -159,11 +166,17 @@ class SceneService:
             scene_name = self._active_scene
             all_scenes = _get_all_scenes()
             label = all_scenes.get(scene_name, {}).get("label", scene_name)
+            self._active_scene = None
+            self._save_state()
+
+        # QA #13: emit BEFORE the slow restore so UI flips immediately.
+        if self._socketio:
+            self._socketio.emit("scene_change", {
+                "scene": None, "active": False,
+                "scenes": self.list_scenes(),
+            })
 
         self._apply_deactivation(skip_restore=False)
-
-        if self._socketio:
-            self._socketio.emit("scene_change", {"scene": None, "active": False})
 
         return True, f"{label} deactivated — restored previous state"
 

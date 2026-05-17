@@ -12,6 +12,23 @@
 
 ---
 
+### [2026-05-17] Phase 31e — Scene state sync, Controls hydration skeleton, weather freshness, sticky mini-player
+
+- **Original QA bugs:** 2026-05-17 BMO QA report Problems #13, #14, #15, #16.
+- **Category:** bug, ux, hydration
+- **Domain:** bmo
+- **Resolved by:** Claude Opus (Phase 31e)
+- **Date resolved:** 2026-05-17
+- **Resolution:**
+  - **#13 (scene activation doesn't reflect in UI):** `services/scene_service.py:activate` / `deactivate` now emit `scene_change` BEFORE the slow `_apply_scene` work (which can take several seconds for LED/TV transitions). The emit payload includes the full `list_scenes()` so the client doesn't have to re-fetch. Frontend `socket.on('scene_change')` consumes the optional `data.scenes` array directly. The scene's active highlight now updates instantly.
+  - **#14 (Settings/Controls toggles flicker to defaults on load):** Added `controlsLoaded` state field — flips true only after `fetchControlsData()` resolves. Controls tab opens with a 3-card pulsing skeleton + "Loading current settings…" line; the System Status tile (most prominent flicker target) is now gated on `controlsLoaded`. Partial fix — other Controls subsections still hydrate independently, but the visible-on-open content is no longer wrong.
+  - **#15 (Home weather card renders inconsistently):** `weatherCardReady()` gates the full card render on having both temperature and icon (no more partial states with missing pieces). Skeleton card replaces it during load. New `weatherUpdatedAgo()` helper renders "just now" / "Xm ago" / "Yh ago" pinned to the top-right of the card, sourced from `_weatherFetchedAt` (set on both `weather_update` socket event + `fetchWeather()`).
+  - **#16 (mini-player hidden on small viewports / music tab):** The bottom Now-Playing bar now shows on EVERY tab (including music) and uses `min-h-[3.5rem] shrink-0` so it never collapses under flex pressure. Previously gated on `tab !== 'music'` AND used `h-14` which got crushed when the main content was tall.
+- **Verified:** `pytest tests/test_app_endpoints.py` → 31 passed (no regressions). Live: BMO restarted, `/health` ok. Manual smoke deferred to 31j.
+- **Touched files:** `bmo/pi/services/scene_service.py`, `bmo/pi/web/static/js/bmo.js`, `bmo/pi/web/templates/index.html`.
+
+---
+
 ### [2026-05-17] Phase 31d — TV pair flow safety, YouTube tile, _TV_WORKER path repair
 
 - **Original QA bugs:** 2026-05-17 BMO QA report Problems #11, #12. Discovered-while-testing: TV worker path constant pointed at a non-existent file, silently breaking ALL TV interactions.

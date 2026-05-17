@@ -115,6 +115,17 @@ function bmo() {
     healthSummary: 'BMO',
     _healthPoll: null,
 
+    // QA #14 (2026-05-17): Controls/Settings hydration gate. Templates show
+    // skeleton placeholders until controls fetch resolves, eliminating the
+    // toggle flicker where they render off then jump to true.
+    controlsLoaded: false,
+
+    // QA #15 (2026-05-17): track weather freshness for the "updated Xm ago" pill.
+    _weatherFetchedAt: 0,
+
+    // QA #16 (2026-05-17): persistent mini-player visibility derives from
+    // musicState.song existence; no separate state field needed.
+
     // Weather
     weather: { temperature: null, description: '', icon: 'clear', feels_like: null },
 
@@ -611,6 +622,7 @@ function bmo() {
       });
       this.socket.on('weather_update', (data) => {
         this.weather = data;
+        this._weatherFetchedAt = Date.now() / 1000;
         if (data.timezone) this.timezone = data.timezone;
         if (data.location_label) this.locationLabel = data.location_label;
       });
@@ -804,8 +816,16 @@ function bmo() {
       });
       this.socket.on('conversation_mode', (data) => { this.conversationActive = data.active; });
       this.socket.on('scene_change', (data) => {
+        // QA #13: backend now emits the full scenes list alongside the
+        // active name so the UI's `s.active` highlight stays in sync even
+        // if a list mutation (custom scene added/removed) crossed paths
+        // with the activation.
         this.activeScene = data.scene;
-        this.scenes = this.scenes.map(s => ({ ...s, active: s.name === data.scene }));
+        if (Array.isArray(data.scenes)) {
+          this.scenes = data.scenes;
+        } else {
+          this.scenes = this.scenes.map(s => ({ ...s, active: s.name === data.scene }));
+        }
       });
       this.socket.on('scenes_updated', (data) => {
         if (data.scenes) this.scenes = data.scenes;
@@ -2083,9 +2103,25 @@ function bmo() {
       try {
         const res = await fetch('/api/weather?force=1');
         this.weather = await res.json();
+        this._weatherFetchedAt = Date.now() / 1000;
         if (this.weather.timezone) this.timezone = this.weather.timezone;
         if (this.weather.location_label) this.locationLabel = this.weather.location_label;
       } catch {}
+    },
+
+    // QA #15: "updated 2m ago" pill on the weather card.
+    weatherUpdatedAgo() {
+      if (!this._weatherFetchedAt) return '';
+      const m = Math.floor((Date.now() / 1000 - this._weatherFetchedAt) / 60);
+      if (m < 1) return 'just now';
+      if (m < 60) return `${m}m ago`;
+      const h = Math.floor(m / 60);
+      return `${h}h ago`;
+    },
+
+    weatherCardReady() {
+      // QA #15: only render the full card once temperature + icon both present.
+      return this.weather && this.weather.temperature !== null && this.weather.icon;
     },
 
     _logGeolocationIssue(message) {
@@ -2560,6 +2596,10 @@ function bmo() {
     // ── Controls Tab ──────────────────────────────────────────
 
     async fetchControlsData() {
+      // QA #14 (2026-05-17): mark "loaded" only AFTER the API responses
+      // unpack. Templates gate toggles on `controlsLoaded` so they render
+      // as a skeleton until real values arrive — kills the on-load
+      // misclick where toggles render off then flip to true.
       try {
         const [ledRes, volRes, statusRes, notifRes, notifSettRes, scenesRes, audioRes, ttsOutRes] = await Promise.all([
           fetch('/api/led/status'),
@@ -2612,6 +2652,7 @@ function bmo() {
         this.fetchSmartDevices();
         this.fetchVoiceSettings();
         this.fetchWifiStatus();
+        this.controlsLoaded = true;
       } catch {}
     },
 
