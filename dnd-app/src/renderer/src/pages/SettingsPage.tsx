@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
+import MicrophoneSettings from '../components/settings/MicrophoneSettings'
 import DiscordIntegrationSettings from '../components/ui/DiscordIntegrationSettings'
 import OllamaManagement, { type AvailableModelList, type InstalledModelList } from '../components/ui/OllamaManagement'
 import { SETTINGS_KEYS } from '../constants'
@@ -1225,6 +1226,11 @@ export default function SettingsPage(): JSX.Element {
               <span className="text-xs text-gray-400 w-8 text-right">{Math.round(ambientVolume)}%</span>
             </div>
           </div>
+        </Section>
+
+        {/* Microphone (Phase 17r) */}
+        <Section title="Microphone">
+          <MicrophoneSettings />
         </Section>
 
         {/* Accessibility */}
