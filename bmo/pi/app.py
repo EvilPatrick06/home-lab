@@ -541,14 +541,29 @@ def init_services():
                 expression = _VOICE_STATE_TO_EXPRESSION.get(state)
                 if expression:
                     _sync_expression(expression)
-            # Save voice transcriptions (user messages) to chat history
+            # Save voice transcriptions (user messages) to chat history.
+            # Round 2 #16 (2026-05-17): only persist when the voice pipeline
+            # is genuinely listening (not muted) AND the transcription has
+            # non-empty text AND a recognized speaker. Earlier we persisted
+            # every "transcription" emit, which let STT/wake-word/false-
+            # positive turns pollute history as `role: user`.
             elif event == "transcription":
-                _save_chat_message({
-                    "role": "user",
-                    "text": data.get("text", ""),
-                    "speaker": data.get("speaker", "unknown"),
-                    "ts": time.time(),
-                })
+                text = (data.get("text") or "").strip()
+                speaker = data.get("speaker", "unknown")
+                mic_muted = bool(getattr(voice, "_mic_muted", False)) if voice else False
+                if not text:
+                    pass  # drop empty
+                elif mic_muted:
+                    log.info(f"[chat] dropped transcription while mic muted: speaker={speaker} text={text[:40]!r}")
+                elif speaker in ("", "unknown"):
+                    log.info(f"[chat] dropped transcription from unknown speaker: text={text[:40]!r}")
+                else:
+                    _save_chat_message({
+                        "role": "user",
+                        "text": text,
+                        "speaker": _normalize_chat_speaker(f"voice:{speaker}", source_voice=True),
+                        "ts": time.time(),
+                    })
             # Save voice responses (assistant messages) to chat history
             # and emit as chat_response so the frontend shows them
             elif event == "response":
@@ -3432,6 +3447,12 @@ def api_chat_clear():
         agent._dnd_pending = None
         agent._gamestate = None
 
+    # Round 2 #22 (2026-05-17): broadcast so every connected tab clears
+    # its message list without a manual refresh.
+    try:
+        socketio.emit("chat_cleared", {"ts": time.time(), "dnd_saved": dnd_was_active})
+    except Exception:
+        log.exception("[chat] failed to emit chat_cleared")
     return jsonify({"ok": True, "dnd_saved": dnd_was_active})
 
 
@@ -4887,6 +4908,13 @@ def _finish_chat_response(sid, result, model_override, voice, speaker):
             raw_text = "The Code Agent looked into it but didn't produce a summary. Try asking again or rephrasing."
         else:
             raw_text = "Hmm, BMO doesn't know what to say about that."
+
+    # Round 2 #15 (2026-05-17): strip leading agent-routing tags like
+    # `[conversation] ...` / `[plan] ...` / `[router] ...` that some
+    # router paths leak into the visible reply. Matches a single
+    # bracketed alphanumeric tag (≤16 chars) at the very start.
+    import re as _re
+    raw_text = _re.sub(r'^\s*\[[a-zA-Z0-9_-]{1,16}\]\s*', '', raw_text, count=1)
 
     clean_text = VoicePipeline._strip_markdown(raw_text)
 

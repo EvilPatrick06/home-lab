@@ -847,6 +847,18 @@ function bmo() {
         }
       });
       this.socket.on('conversation_mode', (data) => { this.conversationActive = data.active; });
+      // Round 2 #22 (2026-05-17): server broadcasts chat_cleared after
+      // /api/chat/clear so every connected tab refreshes its messages
+      // list without a manual reload.
+      this.socket.on('chat_cleared', (data) => {
+        this.messages = [];
+        this.status = 'idle';
+        const note = data?.dnd_saved
+          ? 'Campaign session saved! Chat cleared. Starting fresh.'
+          : 'Chat cleared.';
+        this.messages.push({ role: 'assistant', text: note });
+        this.scrollChat();
+      });
       this.socket.on('scene_change', (data) => {
         // QA #13: backend now emits the full scenes list alongside the
         // active name so the UI's `s.active` highlight stays in sync even
@@ -904,16 +916,35 @@ function bmo() {
 
     // ── Plan mode helpers ─────────────────────────────────
     _parsePlanSteps(planText) {
+      // Round 2 #18 (2026-05-17): relax the parser so plans with looser
+      // formatting (numbered list without [status] checkbox, or markdown
+      // bullets) still produce visible steps. Falls through to the strict
+      // form first to preserve status/agent metadata when available.
       const steps = [];
-      const re = /(\d+)\.\s*\[(.)\]\s*(.+?)(?:\(agent:\s*(\w+)\))?$/gm;
-      let match;
-      while ((match = re.exec(planText)) !== null) {
-        const statusChar = match[2];
+      const strict = /(\d+)\.\s*\[(.)\]\s*(.+?)(?:\(agent:\s*(\w+)\))?$/gm;
+      let m;
+      while ((m = strict.exec(planText)) !== null) {
+        const ch = m[2];
         let status = 'pending';
-        if (statusChar === 'x') status = 'done';
-        else if (statusChar === '~') status = 'running';
-        else if (statusChar === '!') status = 'failed';
-        steps.push({ num: parseInt(match[1]), desc: match[3].trim(), agent: match[4] || 'code', status });
+        if (ch === 'x') status = 'done';
+        else if (ch === '~') status = 'running';
+        else if (ch === '!') status = 'failed';
+        steps.push({ num: parseInt(m[1]), desc: m[3].trim(), agent: m[4] || 'code', status });
+      }
+      if (steps.length > 0) return steps;
+
+      // Fallback 1: plain numbered list ("1. <desc>" / "1) <desc>")
+      const numbered = /^[ \t]*(\d+)[\.\)]\s+(.+)$/gm;
+      while ((m = numbered.exec(planText)) !== null) {
+        steps.push({ num: parseInt(m[1]), desc: m[2].trim(), agent: 'code', status: 'pending' });
+      }
+      if (steps.length > 0) return steps;
+
+      // Fallback 2: markdown bullets ("- <desc>" / "* <desc>")
+      const bulleted = /^[ \t]*[-*]\s+(.+)$/gm;
+      let i = 1;
+      while ((m = bulleted.exec(planText)) !== null) {
+        steps.push({ num: i++, desc: m[1].trim(), agent: 'code', status: 'pending' });
       }
       return steps;
     },
