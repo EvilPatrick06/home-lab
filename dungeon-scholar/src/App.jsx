@@ -9798,16 +9798,26 @@ function MetadataEditModal({ tome, onSave, onClose }) {
   const [author, setAuthor] = useState(meta.author || '');
   const [difficulty, setDifficulty] = useState(meta.difficulty || 0);
   const [tagsText, setTagsText] = useState((meta.tags || []).join(', '));
+  // Phase 39d round-7 suggestion: track the original description so we can
+  // tell whether a legacy over-limit value was edited or untouched. If the
+  // user hasn't touched it, save preserves the original (over-limit) value
+  // so they can still update title/subject/author/etc. without being
+  // blocked. If they DID edit and it's still over, the existing block stays.
+  const [initialDescription] = useState(meta.description || '');
+  const descriptionUnchanged = description === initialDescription;
+  const descriptionOver = description.length > 600;
+  const descriptionBlocksSave = descriptionOver && !descriptionUnchanged;
 
   if (!tome) return null;
 
   const submit = () => {
     const tags = tagsText.split(',').map(t => t.trim()).filter(Boolean);
-    // Phase 30c QA #5: belt + suspenders on the length cap. The input also
-    // truncates on change, but defense-in-depth covers paste-from-devtools
-    // and previously-saved-too-long values reloaded from cloud.
+    // Phase 30c QA #5 / 39d round-7: belt + suspenders on title cap;
+    // description preserves legacy length when untouched.
     const cleanTitle = (title.trim() || meta.title || 'Untitled Tome').slice(0, 200);
-    const cleanDescription = description.trim().slice(0, 600);
+    const cleanDescription = descriptionUnchanged
+      ? description
+      : description.trim().slice(0, 600);
     onSave({
       title: cleanTitle,
       description: cleanDescription,
@@ -9877,11 +9887,29 @@ function MetadataEditModal({ tome, onSave, onClose }) {
             <div className="text-[10px] italic text-amber-100/60 mt-1 leading-relaxed">
               ⓘ Supported: <code className="text-amber-300">**bold**</code>, <code className="text-amber-300">*italic*</code>, <code className="text-amber-300">`inline code`</code>, <code className="text-amber-300">[link](url)</code>, <code className="text-amber-300">![alt](url)</code> images (data: or trusted hosts only), <code className="text-amber-300">$math$</code> (typeset via KaTeX, lazy-loaded on first use), and fenced <code className="text-amber-300">```code```</code> blocks. (Headings, lists, and tables render as plain text.)
             </div>
-            {/* Phase 35a QA P1: legacy descriptions can exceed the limit. Show
-                an inline error + one-click Trim so the user has an explicit
-                resolution path (the form was previously stuck in a red-counter
-                state with Save still enabled but undocumented auto-truncate). */}
-            {description.length > 600 && (
+            {/* Phase 35a QA P1 / 39d round-7: legacy descriptions can exceed
+                the limit. Show different messaging based on whether the user
+                touched it: untouched legacy = soft yellow notice + save still
+                allowed; edited-and-over = red error + save blocked + Trim
+                button. */}
+            {description.length > 600 && descriptionUnchanged && (
+              <div className="mt-2 p-2 rounded text-xs italic flex items-center gap-2 flex-wrap" style={{
+                background: 'rgba(120, 53, 15, 0.35)', border: '1px solid rgba(245, 158, 11, 0.55)', color: '#fde68a',
+              }}>
+                <span className="flex-1">
+                  ⓘ Legacy description ({description.length}/600). Save preserves it as-is; trim to make it editable.
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setDescription(description.slice(0, 600))}
+                  className="px-3 py-1 rounded border border-amber-400 text-amber-100 hover:bg-amber-900/40"
+                  style={{ background: 'rgba(120, 53, 15, 0.55)' }}
+                >
+                  Trim to 600
+                </button>
+              </div>
+            )}
+            {description.length > 600 && !descriptionUnchanged && (
               <div className="mt-2 p-2 rounded text-xs italic flex items-center gap-2 flex-wrap" style={{
                 background: 'rgba(127, 29, 29, 0.4)', border: '1px solid rgba(239, 68, 68, 0.6)', color: '#fecaca',
               }}>
@@ -9940,8 +9968,8 @@ function MetadataEditModal({ tome, onSave, onClose }) {
         <div className="p-4 border-t border-amber-700/50 flex gap-2">
           <button onClick={onClose} className="px-6 py-3 rounded border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(41, 24, 12, 0.7)' }} aria-label="Cancel metadata edit">Cancel</button>
           <button onClick={submit}
-            disabled={description.length > 600 || title.length > 200}
-            title={description.length > 600 ? `Trim description ${description.length - 600} chars before saving` : (title.length > 200 ? 'Trim title before saving' : undefined)}
+            disabled={descriptionBlocksSave || title.length > 200}
+            title={descriptionBlocksSave ? `Trim description ${description.length - 600} chars before saving` : (title.length > 200 ? 'Trim title before saving' : undefined)}
             className="flex-1 py-3 font-bold rounded flex items-center justify-center gap-2 text-amber-950 border-2 border-amber-300 italic disabled:opacity-40 disabled:cursor-not-allowed"
             style={{ background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)', boxShadow: '0 0 20px rgba(245, 158, 11, 0.5)' }}>
             <Check className="w-4 h-4" /> Save Metadata
