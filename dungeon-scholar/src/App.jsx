@@ -3146,7 +3146,22 @@ export default function DungeonScholarApp() {
             onOpenLibrary={() => setScreen('library')}
             onShowAchievements={() => setShowAchievements(true)}
             onEnterReviews={() => { setReviewMode(true); trackModeUse('flashcards'); setScreen('flashcards'); }}
-            onSetTheme={(t) => setPlayerState(prev => ({ ...prev, theme: t }))}
+            onSetTheme={(t) => {
+              // Phase 38h round-5 suggestion: explain the partial-theme
+              // intent on first switch into Light so users aren't surprised
+              // when the panels stay dark. Flag persists in playerState.
+              setPlayerState(prev => {
+                const next = { ...prev, theme: t };
+                if (t === 'light' && !prev.lightModeIntroShown) {
+                  next.lightModeIntroShown = true;
+                  setTimeout(() => showNotif(
+                    'Light mode is partial — only the page background changes. Dungeon panels stay dark by design.',
+                    'info',
+                  ), 100);
+                }
+                return next;
+              });
+            }}
             onRestartTutorial={() => {
               setPlayerState(prev => ({
                 ...prev,

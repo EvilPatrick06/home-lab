@@ -106,6 +106,61 @@ function OrgPicker({ orgs, onPick, onClose }) {
             </button>
           ))}
         </div>
+
+        {/* Phase 38h round-3 suggestion: "View schema" disclosure for power
+            users who want to author tomes from scratch without round-tripping
+            through an LLM. Collapsed by default. */}
+        <details className="mt-4 p-3 rounded border border-amber-700/40" style={{ background: 'rgba(10, 6, 4, 0.4)' }}>
+          <summary className="cursor-pointer text-xs italic text-amber-300 hover:text-amber-200">
+            ⓘ View tome JSON schema (for hand-authoring)
+          </summary>
+          <pre className="mt-3 text-[10px] overflow-x-auto whitespace-pre rounded p-3" style={{
+            background: 'rgba(0,0,0,0.45)',
+            border: '1px solid rgba(180, 83, 9, 0.4)',
+            color: '#fde68a',
+            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+          }}>
+{`{
+  "metadata": {
+    "title": "string (max 200)",
+    "description": "string (optional, max 600 — supports markdown)",
+    "subject": "string?", "author": "string?",
+    "difficulty": 0|1|2|3|4|5,
+    "tags": ["string"],
+    "domainWeights": { "Domain Name": <percent>, ... }
+  },
+  "flashcards": [
+    { "id": "fc1", "front": "...", "back": "...",
+      "domain": "Domain Name",
+      "bloomLevel": "Remember|Understand|Apply|Analyze|Evaluate|Create",
+      "difficulty": 1-5 }
+  ],
+  "quiz": [
+    { "id": "q1",
+      "type": "multiplechoice|truefalse|fillblank",
+      "question": "...",
+      "options": ["A","B","C","D"],     // multiplechoice
+      "correctIndex": 0,                // multiplechoice
+      "correctAnswer": true,            // truefalse
+      "correctAnswer": "expected text", // fillblank
+      "acceptedAnswers": ["alt1","alt2"], // fillblank (optional)
+      "explanation": "...",
+      "domain": "Domain Name",
+      "bloomLevel": "...", "difficulty": 1-5 }
+  ],
+  "labs": [
+    { "id": "lab1", "title": "...", "scenario": "...",
+      "steps": [
+        { "prompt": "...", "expected": "...",
+          "acceptedAnswers": [], "explanation": "..." }
+      ] }
+  ]
+}`}
+          </pre>
+          <p className="mt-2 text-[10px] italic text-amber-100/60">
+            Only <code className="text-amber-300">metadata.title</code> + at least one of <code className="text-amber-300">flashcards / quiz / labs</code> is required. The other fields are surfaced where present and gracefully skipped where missing.
+          </p>
+        </details>
       </div>
     </>
   );
