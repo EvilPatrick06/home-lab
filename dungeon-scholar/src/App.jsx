@@ -5184,39 +5184,48 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
         background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.85) 0%, rgba(15, 6, 20, 0.95) 100%)',
         border: '3px double rgba(126, 34, 206, 0.6)', boxShadow: '0 0 30px rgba(168, 85, 247, 0.25), inset 0 0 25px rgba(0,0,0,0.5)',
       }}>
-        {/* Phase 33f / 35c / 36b QA P6, P4, P2: always render the chip row so
-            users see which metadata slots exist. Each slot shows either the
-            real value or a muted placeholder explaining the absence, so the
-            information density is consistent across tomes regardless of how
-            thoroughly they were tagged. */}
-        <div className="flex items-center gap-2 flex-wrap mb-4 pb-3 border-b border-purple-700/40">
-          {q.domain ? (
-            <span className="text-[10px] italic uppercase tracking-wider px-2 py-0.5 rounded font-bold" style={{
-              background: 'rgba(126, 34, 206, 0.35)', border: '1px solid rgba(168, 85, 247, 0.6)', color: '#e9d5ff',
-            }}>{q.domain}</span>
-          ) : (
-            <span className="text-[10px] italic uppercase tracking-wider px-2 py-0.5 rounded" style={{
-              background: 'rgba(63, 63, 70, 0.25)', border: '1px dashed rgba(120, 113, 108, 0.45)', color: 'rgba(214, 211, 209, 0.7)',
-            }} title="No domain tagged on this riddle">domain —</span>
-          )}
-          {typeof q.difficulty === 'number' ? (
-            <span className="flex items-center gap-1 px-2 py-0.5 rounded" style={{ background: 'rgba(120, 53, 15, 0.35)', border: '1px solid rgba(245, 158, 11, 0.5)' }}>
-              <DifficultyStars value={q.difficulty} />
-            </span>
-          ) : (
-            <span className="flex items-center gap-1 px-2 py-0.5 rounded" style={{ background: 'rgba(63, 63, 70, 0.2)', border: '1px dashed rgba(120, 113, 108, 0.4)', color: 'rgba(214, 211, 209, 0.7)' }} title="Per-riddle difficulty not rated by the tome author">
-              <span className="text-xs tabular-nums">▱▱▱▱▱</span>
-              <span className="text-[9px] italic">not rated</span>
-            </span>
-          )}
-          {q.bloomLevel ? (
-            <BloomBadge level={q.bloomLevel} />
-          ) : (
-            <span className="text-[10px] uppercase tracking-wider italic px-2 py-0.5 rounded" style={{
-              background: 'rgba(63, 63, 70, 0.2)', border: '1px dashed rgba(120, 113, 108, 0.4)', color: 'rgba(214, 211, 209, 0.7)',
-            }} title="Bloom's-level not tagged on this riddle">bloom —</span>
-          )}
-        </div>
+        {/* Phase 33f / 35c / 36b / 40c QA P6, P4, P2, round-8: render the
+            chip row. 40c hides the difficulty + Bloom placeholders entirely
+            when BOTH are absent (was: always showing greyed-out placeholders
+            on every riddle, which the round-8 QA called visual noise). When
+            one of the two has data, the other still shows its placeholder
+            so the asymmetry is visible. Domain still shows a placeholder
+            when missing — it's a higher-signal slot. */}
+        {(() => {
+          const hasDifficulty = typeof q.difficulty === 'number';
+          const hasBloom = !!q.bloomLevel;
+          const hideOptionalChips = !hasDifficulty && !hasBloom;
+          return (
+            <div className="flex items-center gap-2 flex-wrap mb-4 pb-3 border-b border-purple-700/40">
+              {q.domain ? (
+                <span className="text-[10px] italic uppercase tracking-wider px-2 py-0.5 rounded font-bold" style={{
+                  background: 'rgba(126, 34, 206, 0.35)', border: '1px solid rgba(168, 85, 247, 0.6)', color: '#e9d5ff',
+                }}>{q.domain}</span>
+              ) : (
+                <span className="text-[10px] italic uppercase tracking-wider px-2 py-0.5 rounded" style={{
+                  background: 'rgba(63, 63, 70, 0.25)', border: '1px dashed rgba(120, 113, 108, 0.45)', color: 'rgba(214, 211, 209, 0.7)',
+                }} title="No domain tagged on this riddle">domain —</span>
+              )}
+              {hasDifficulty ? (
+                <span className="flex items-center gap-1 px-2 py-0.5 rounded" style={{ background: 'rgba(120, 53, 15, 0.35)', border: '1px solid rgba(245, 158, 11, 0.5)' }}>
+                  <DifficultyStars value={q.difficulty} />
+                </span>
+              ) : (!hideOptionalChips && (
+                <span className="flex items-center gap-1 px-2 py-0.5 rounded" style={{ background: 'rgba(63, 63, 70, 0.2)', border: '1px dashed rgba(120, 113, 108, 0.4)', color: 'rgba(214, 211, 209, 0.7)' }} title="Per-riddle difficulty not rated by the tome author">
+                  <span className="text-xs tabular-nums">▱▱▱▱▱</span>
+                  <span className="text-[9px] italic">not rated</span>
+                </span>
+              ))}
+              {hasBloom ? (
+                <BloomBadge level={q.bloomLevel} />
+              ) : (!hideOptionalChips && (
+                <span className="text-[10px] uppercase tracking-wider italic px-2 py-0.5 rounded" style={{
+                  background: 'rgba(63, 63, 70, 0.2)', border: '1px dashed rgba(120, 113, 108, 0.4)', color: 'rgba(214, 211, 209, 0.7)',
+                }} title="Bloom's-level not tagged on this riddle">bloom —</span>
+              ))}
+            </div>
+          );
+        })()}
         <RichContent as="div" text={q.question} className="text-lg text-amber-50 mb-6 italic" />
         {/* 26a: confidence calibration. Gate the answer choices behind a
             confidence rating so we can compare "how sure I was" vs "did I
