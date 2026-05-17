@@ -169,6 +169,26 @@
     amdRequire.config({
       paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.52.0/min/vs' }
     });
+
+    // Round 4 #20 (2026-05-17): Monaco's default worker loader does
+    // `new Worker(cdn-url)` which most browsers refuse under CF Access
+    // cross-origin restrictions. Provide a same-origin shim worker that
+    // importScripts() the CDN URL. Falls back to main-thread workers
+    // (slower but functional) if even the shim fails.
+    window.MonacoEnvironment = window.MonacoEnvironment || {
+      getWorkerUrl: function(_workerId, label) {
+        const cdnBase = 'https://cdn.jsdelivr.net/npm/monaco-editor@0.52.0/min/vs';
+        const code = `
+          self.MonacoEnvironment = { baseUrl: '${cdnBase}/' };
+          importScripts('${cdnBase}/base/worker/workerMain.js');
+        `;
+        try {
+          return URL.createObjectURL(new Blob([code], { type: 'text/javascript' }));
+        } catch (e) {
+          return '';
+        }
+      }
+    };
     
     amdRequire(['vs/editor/editor.main'], () => {
       // Define custom theme
@@ -399,14 +419,20 @@
   // ── File Operations ─────────────────────────────────────────
 
   async function openFile(path) {
-    // Round 3 #26 (2026-05-17): normalize paths so `~/home-lab/X` and
-    // `/home/patrick/home-lab/X` map to the same open-file entry.
-    // Previously each click could open a duplicate tab because the
-    // tree's relative path didn't match the backend's expanded path.
+    // Round 3 #26 + Round 4 #8 (2026-05-17): normalize paths AND track
+    // in-flight opens to dedupe near-simultaneous calls (e.g. double-
+    // click + Quick Open Enter racing). Without the in-flight Set, two
+    // calls each pass the "already open" check before either pushes.
     const norm = (p) => (p || '').replace(/^~/, '/home/patrick').replace(/\/{2,}/g, '/');
     const normalized = norm(path);
     const existing = state.openFiles.find(f => norm(f.path) === normalized);
     if (existing) { setActiveFile(existing.path); return; }
+    state._openingPaths = state._openingPaths || new Set();
+    if (state._openingPaths.has(normalized)) {
+      // Another call is mid-fetch for this same path; let it finish.
+      return;
+    }
+    state._openingPaths.add(normalized);
 
     try {
       const res = await fetch('/api/ide/file/read', {
@@ -441,6 +467,11 @@
       setActiveFile(path);
     } catch (e) {
       console.warn('[ide] Failed to open file:', e);
+    } finally {
+      // Round 4 #8 (2026-05-17): release the in-flight lock so future
+      // opens of the same path (e.g. after the user closes the tab
+      // and re-clicks) work normally.
+      if (state._openingPaths) state._openingPaths.delete(normalized);
     }
   }
 
@@ -1270,7 +1301,28 @@
       qoTimeout = setTimeout(() => quickOpenSearch(e.target.value), 200);
     });
     $('#quick-open-input').addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') hideQuickOpen();
+      if (e.key === 'Escape') { hideQuickOpen(); return; }
+      // Round 4 #7 (2026-05-17): arrow keys + Enter to navigate results
+      const items = Array.from(document.querySelectorAll('#quick-open-results .quick-open-item'));
+      if (items.length === 0) return;
+      let selected = items.findIndex(el => el.classList.contains('qo-selected'));
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (selected >= 0) items[selected].classList.remove('qo-selected');
+        const next = Math.min(items.length - 1, selected + 1);
+        items[next].classList.add('qo-selected');
+        items[next].scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (selected >= 0) items[selected].classList.remove('qo-selected');
+        const prev = Math.max(0, selected - 1);
+        items[prev].classList.add('qo-selected');
+        items[prev].scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        const target = selected >= 0 ? items[selected] : items[0];
+        if (target) target.click();
+      }
     });
 
     // Context menu actions

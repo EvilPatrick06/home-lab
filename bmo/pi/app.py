@@ -903,6 +903,41 @@ def _wifi_status() -> dict:
         except (OSError, subprocess.SubprocessError):
             pass
 
+    # Round 4 #14 (2026-05-17): wpa_cli + iwgetid both return empty on
+    # NetworkManager-managed setups. Fall back to `iw dev <iface> link`
+    # which reports the actual associated SSID regardless of who's
+    # managing the interface.
+    if not ssid and shutil.which("iw"):
+        try:
+            result = subprocess.run(
+                ["iw", "dev", iface, "link"],
+                capture_output=True, text=True, timeout=3,
+            )
+            if result.returncode == 0:
+                for line in result.stdout.splitlines():
+                    line = line.strip()
+                    if line.startswith("SSID:"):
+                        ssid = line.split(":", 1)[1].strip()
+                        break
+        except (OSError, subprocess.SubprocessError):
+            pass
+
+    # Try nmcli as a last resort (works on NetworkManager systems).
+    if not ssid and shutil.which("nmcli"):
+        try:
+            result = subprocess.run(
+                ["nmcli", "-t", "-f", "IN-USE,SSID,DEVICE", "dev", "wifi"],
+                capture_output=True, text=True, timeout=3,
+            )
+            if result.returncode == 0:
+                for line in result.stdout.splitlines():
+                    parts = line.split(":")
+                    if len(parts) >= 3 and parts[0] == "*" and parts[2] == iface:
+                        ssid = parts[1]
+                        break
+        except (OSError, subprocess.SubprocessError):
+            pass
+
     try:
         result = subprocess.run(
             ["ip", "-4", "-o", "addr", "show", iface],

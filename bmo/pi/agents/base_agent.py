@@ -73,6 +73,7 @@ class AgentResult:
     nested_results: list[AgentResult] = field(default_factory=list)  # Sub-agent results
     scratchpad_writes: list[str] = field(default_factory=list)  # Sections written to
     pending_confirmations: list[dict] = field(default_factory=list)  # Destructive ops awaiting user "yes"
+    failed: bool = False                          # Round 4 #1: agent caught its own error; suppress Approve/Cancel UI
 
 
 class BaseAgent:

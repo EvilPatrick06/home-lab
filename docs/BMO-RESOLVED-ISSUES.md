@@ -12,6 +12,29 @@
 
 ---
 
+### [2026-05-17] Phase 39 (BMO) — QA Round 4 bundle (25 problems, plan KeyError leak + real regressions + perf)
+
+- **Original QA bugs:** 2026-05-17 BMO QA Round 4 report. CRITICAL: `'state'` KeyError raw in chat. Plus real regressions where my Phase 38 fixes didn't take (verify-don't-assume failures).
+- **Category:** bug, ux, surface-leak, regression-sweep, perf
+- **Domain:** bmo
+- **Resolved by:** Claude Opus (BMO Phase 39 — 39a-39i; single commit per workflow)
+- **Date resolved:** 2026-05-17
+- **Final test sweep:** 815 passed, 6 skipped (added RAM hysteresis test). BMO restarted; scene deactivate now logs `party deactivate → stopping music` — proves the fix engages.
+- **Sub-phase summary:**
+  - **39a:** #1 orchestrator catches per-agent exceptions, surfaces friendly text (no bare Python keys); AgentResult gains `failed` flag; plan-mode enter bails out cleanly when explore/design fail (no Approve/Cancel for a plan that didn't build). #11 System Status detail pre-computes filtered service buckets (pi/svc/docker/api/net) in `fetchDetailedStatus` so the template stops re-running `Object.entries.filter` on every render — fixes the 15-20s "Loading detailed status…" delay. #12 `fetchControlsData` switched from `await Promise.all` (blocks on slowest) to per-endpoint `.then()` so `controlsLoaded` flips immediately and individual sections paint as they arrive.
+  - **39b — real regressions:** #3 found my Phase 37c bug — `_apply_deactivation` read `self._active_scene` AFTER `deactivate()` set it to None, so scene_cfg was None and `music.stop()` never fired. Fixed: `deactivating_scene` parameter captures the name before the clear. Verified: log now shows `party deactivate → stopping music`. #8 IDE openFile gains in-flight Set so near-simultaneous calls dedupe. #10 music search Enter handler gets `.stop` + `@input.debounce.250ms`. #22 server-side guard in `createAlarmFromTime` (defensive, template `:disabled` already in place). #23 TV pair overlay opacity bumped to full (was `/95` letting tiles peek through). #24 home green text already muted in 37h.
+  - **39c:** Mute banner now triggers on EITHER `wpctl muted` OR `system === 0` (was only the former). Copy adapts: "Master volume is 0%" vs "System audio is muted".
+  - **39d:** #5/#6 Camera overlay dropped enter transition (was 200ms semi-transparent fade letting chat behind catch clicks); z-50 ensures fullscreen mount. #21 toast styling differentiates errors (rose bg + white bold text) from info (accent green).
+  - **39e:** #7 Quick Open result rows boosted to font-weight 600 + dim-grey-not-near-black file path; `qo-selected` class for arrow-key nav (added `ArrowUp/Down/Enter` handler on the input). #9 Mini-player gets dismiss X (resets on new song).
+  - **39f:** #14 `_wifi_status` falls back to `iw dev <iface> link` then `nmcli -t -f IN-USE,SSID,DEVICE dev wifi` when wpa_cli + iwgetid both return empty. Smoke: `current_ssid: 'LAN of the Free'` now populated. #13 fixed downstream — WiFi card sees real SSID.
+  - **39g:** #16 RAM threshold hysteresis: enter degraded at >=90%, exit at <80%, between 80-90% stays in whichever state it was last in. New `test_ram_hysteresis_stays_degraded_between_thresholds` proves the behavior. #18 bell badge clears when `/api/notifications` returns empty + history empty. #25 Notifications "Clear" relabeled "Clear all" + tooltip on the enable toggle.
+  - **39h:** #19 bell-dropdown dismiss button bigger (`w-6 h-6 rounded` + hover bg). #20 `MonacoEnvironment.getWorkerUrl` provides same-origin Blob worker shim that `importScripts` the CDN URL — fixes the cross-origin "Could not create web worker(s)" warning under CF Access.
+  - **39i:** full pytest + smoke + log row + single commit.
+- **Touched files:** `bmo/pi/app.py`, `bmo/pi/agents/base_agent.py`, `bmo/pi/agents/orchestrator.py`, `bmo/pi/services/monitoring.py`, `bmo/pi/services/scene_service.py`, `bmo/pi/web/static/ide/ide.css`, `bmo/pi/web/static/ide/ide.js`, `bmo/pi/web/static/js/bmo.js`, `bmo/pi/web/templates/index.html`, `bmo/pi/tests/test_monitoring.py`.
+- **Pattern reminders applied:** Verify-don't-assume drove the #3 Party Mode fix (found the explicit scene_name capture bug by reading the code I'd written). Trust user bug reports — even when my prior fix looked correct in code, drove the actual flow before claiming "QA wrong".
+
+---
+
 ### [2026-05-17] Phase 38 (BMO) — QA Round 3 bundle (36 problems, surface leaks + regressions + new)
 
 - **Original QA bugs:** 2026-05-17 BMO QA Round 3 report. Critical: Anthropic provider URL was leaking raw into chat. Plus regressions from Phase 37 and net-new bugs.

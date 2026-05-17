@@ -133,7 +133,8 @@ class SceneService:
         with self._lock:
             # If already in a scene, deactivate first (don't overwrite saved state)
             if self._active_scene and self._active_scene != scene_name:
-                self._apply_deactivation(skip_restore=True)
+                prior = self._active_scene
+                self._apply_deactivation(skip_restore=True, deactivating_scene=prior)
 
             # Save current state before applying scene (only if not already in a scene)
             if not self._active_scene:
@@ -159,7 +160,13 @@ class SceneService:
         return True, f"{all_scenes[scene_name]['label']} activated"
 
     def deactivate(self) -> tuple[bool, str]:
-        """Deactivate current scene and restore previous state."""
+        """Deactivate current scene and restore previous state.
+
+        Round 4 #3 (2026-05-17): pass the captured scene_name to
+        _apply_deactivation so its music-reverse logic can look up the
+        scene config. Without the explicit pass, _apply_deactivation
+        read self._active_scene which we just cleared above — silently
+        skipped the music.stop call."""
         with self._lock:
             if not self._active_scene:
                 return False, "No scene is active"
@@ -176,7 +183,7 @@ class SceneService:
                 "scenes": self.list_scenes(),
             })
 
-        self._apply_deactivation(skip_restore=False)
+        self._apply_deactivation(skip_restore=False, deactivating_scene=scene_name)
 
         return True, f"{label} deactivated — restored previous state"
 
@@ -399,16 +406,21 @@ class SceneService:
             except Exception as e:
                 log.exception(f"[scene] Music play failed")
 
-    def _apply_deactivation(self, skip_restore: bool = False):
+    def _apply_deactivation(self, skip_restore: bool = False, deactivating_scene: str | None = None):
         """Deactivate the current scene.
 
-        Round 2 #3 (2026-05-17): reverse music effects from the scene that
-        was active. Party Mode previously started a playlist on activate but
-        left it playing on deactivate. If the deactivating scene had any
-        `music_playlist` or set music_stop=True (which we apply by stopping
-        playback), reverse it now."""
+        Round 4 #3 (2026-05-17): explicit `deactivating_scene` parameter
+        so callers can pass the scene name BEFORE they clear
+        self._active_scene. Round 2's fix read self._active_scene inside
+        the lock but the public deactivate() set it to None first — so
+        scene_cfg lookup returned None and music.stop never fired. This
+        is why Party Mode music kept playing across the deactivate call.
+
+        Reverses music side-effects (music_playlist scenes stop playback)."""
         with self._lock:
-            scene_name = self._active_scene
+            # Prefer the explicit param; fall back to whatever's in state
+            # (covers callers that don't pass it).
+            scene_name = deactivating_scene or self._active_scene
             self._active_scene = None
             self._save_state()
 

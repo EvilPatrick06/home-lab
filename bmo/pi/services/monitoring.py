@@ -739,14 +739,25 @@ class HealthChecker:
                     f"🌡️ CPU temperature elevated: {temp}°C",
                 )
 
-        # RAM usage thresholds
+        # RAM usage thresholds with hysteresis (Round 4 #16, 2026-05-17).
+        # Previously a single >85% threshold caused pi_resources to flap
+        # between degraded/healthy as RAM crossed back and forth. Now:
+        # enter degraded at >90, stay there until RAM drops below 80,
+        # so the header indicator doesn't oscillate.
         ram = stats.get("ram_percent")
-        if ram is not None and ram > 85.0:
-            self._service_status["pi_resources"]["status"] = "degraded"
-            self._emit_alert(
-                Severity.WARNING, "pi_ram",
-                f"🧠 RAM usage high: {ram}% — may cause OOM kills",
-            )
+        was_ram_degraded = self._service_status.get("pi_ram", {}).get("status") == "degraded"
+        if ram is not None:
+            warn_enter = 90.0
+            warn_exit = 80.0
+            if ram >= warn_enter or (was_ram_degraded and ram > warn_exit):
+                self._service_status["pi_resources"]["status"] = "degraded"
+                self._service_status["pi_ram"] = {"status": "degraded", "last_check": now}
+                self._emit_alert(
+                    Severity.WARNING, "pi_ram",
+                    f"🧠 RAM usage high: {ram}% — may cause OOM kills",
+                )
+            else:
+                self._service_status["pi_ram"] = {"status": "up", "last_check": now}
 
         # Disk usage thresholds
         disk = stats.get("disk_percent")

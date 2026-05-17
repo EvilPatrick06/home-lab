@@ -107,6 +107,8 @@ function bmo() {
 
     // Status
     status: 'idle', // idle, listening, thinking, speaking
+    notificationType: 'info',  // Round 4 #21: drives toast color (info/success/error)
+    miniPlayerHidden: false,   // Round 4 #9: user can dismiss mini-bar; resets on new song
 
     // QA #6/#7 (2026-05-17): connection + health surface.
     // connectionState: 'online' | 'offline' | 'cf_expired'.
@@ -660,6 +662,9 @@ function bmo() {
         if (newVid && newVid !== oldVid) {
           this.fetchMusicHistory();
           this.fetchMostPlayed();
+          // Round 4 #9: re-show mini-bar on each new song so a dismissed
+          // bar doesn't permanently hide playback indicators.
+          this.miniPlayerHidden = false;
         }
         this.musicState = data;
         // Don't let music_state override the settings slider — settings API is source of truth
@@ -2102,6 +2107,12 @@ function bmo() {
     },
 
     async createAlarmFromTime() {
+      // Round 4 #22 (2026-05-17): server-side guard in case the
+      // template's :disabled binding didn't engage (defensive).
+      if (!this.alarmHour || this.alarmHour < 1 || this.alarmHour > 12) {
+        this.showNotification('Pick a valid hour (1-12) before setting the alarm', 'error');
+        return;
+      }
       let h24 = this.alarmHour % 12;
       if (this.alarmAmPm === 'PM') h24 += 12;
       if (this.alarmAmPm === 'AM' && this.alarmHour === 12) h24 = 0;
@@ -2417,10 +2428,14 @@ function bmo() {
 
     // ── Notifications ─────────────────────────────────────────
 
-    showNotification(msg) {
+    showNotification(msg, type = 'info') {
+      // Round 4 #21 (2026-05-17): accept a second arg so callers can flag
+      // errors. Toast color is set via notificationType which the template
+      // reads for high-contrast error styling.
       this.notification = msg;
+      this.notificationType = type;
       const options = this.timezone ? { timeZone: this.timezone } : {};
-      this.notificationHistory.unshift({ text: msg, time: new Date().toLocaleTimeString('en-US', options) });
+      this.notificationHistory.unshift({ text: msg, time: new Date().toLocaleTimeString('en-US', options), type });
       if (this.notificationHistory.length > 20) this.notificationHistory.pop();
       this.unreadNotifications++;
       setTimeout(() => { this.notification = null; }, 5000);
@@ -2846,66 +2861,59 @@ function bmo() {
     // ── Controls Tab ──────────────────────────────────────────
 
     async fetchControlsData() {
-      // QA #14 (2026-05-17): mark "loaded" only AFTER the API responses
-      // unpack. Templates gate toggles on `controlsLoaded` so they render
-      // as a skeleton until real values arrive — kills the on-load
-      // misclick where toggles render off then flip to true.
-      try {
-        const [ledRes, volRes, statusRes, notifRes, notifSettRes, scenesRes, audioRes, ttsOutRes] = await Promise.all([
-          fetch('/api/led/status'),
-          fetch('/api/volume'),
-          fetch('/api/status/summary'),
-          fetch('/api/notifications'),
-          fetch('/api/notifications/settings'),
-          fetch('/api/scenes'),
-          fetch('/api/audio/devices'),
-          fetch('/api/tts/output'),
-        ]);
-        if (ledRes.ok) {
-          const d = await ledRes.json();
-          this.ledState = d;
-          if (d.color) {
-            const r = d.color.r.toString(16).padStart(2, '0');
-            const g = d.color.g.toString(16).padStart(2, '0');
-            const b = d.color.b.toString(16).padStart(2, '0');
-            this.ledColorHex = `#${r}${g}${b}`;
-          }
+      // QA #14 (2026-05-17) / Round 4 #12: flip controlsLoaded after the
+      // FIRST three fast fetches (LED + volume + scenes) so the tab is
+      // interactive within ~1s instead of waiting for all 8+ network
+      // calls. Slow services (smart_home discovery, WiFi probe, voice
+      // settings) keep loading in the background; their per-section
+      // x-show gates reveal them when ready.
+      const finish = (p, then) => {
+        p.then((res) => { if (res.ok) return res.json().then(then).catch(() => {}); }).catch(() => {});
+      };
+      finish(fetch('/api/led/status'), (d) => {
+        this.ledState = d;
+        if (d.color) {
+          const r = d.color.r.toString(16).padStart(2, '0');
+          const g = d.color.g.toString(16).padStart(2, '0');
+          const b = d.color.b.toString(16).padStart(2, '0');
+          this.ledColorHex = `#${r}${g}${b}`;
         }
-        if (volRes.ok) {
-          const vols = await volRes.json();
-          // Sync musicState volume from saved settings (API is source of truth)
-          if (vols.music !== undefined) this.musicState.volume = vols.music;
-          this.volumeLevels = vols;
-          // Round 2 #1: surface muted state on the banner.
-          this.systemAudioMuted = !!vols.muted;
+      });
+      finish(fetch('/api/volume'), (vols) => {
+        if (vols.music !== undefined) this.musicState.volume = vols.music;
+        this.volumeLevels = vols;
+        // Round 4 #2/#4 (2026-05-17): treat both wpctl-muted AND system
+        // volume 0% as "audio will be inaudible" — banner triggers on
+        // either case so play actions don't seem to do nothing.
+        this.systemAudioMuted = !!vols.muted || (vols.system === 0);
+      });
+      finish(fetch('/api/status/summary'), (d) => { this.systemStatus = d; });
+      finish(fetch('/api/notifications'), (d) => {
+        this.kdeNotifications = d.notifications || [];
+        // Round 4 #18 (2026-05-17): bell badge derived from server state,
+        // not just local increments. If server says no notifs, badge clears.
+        if (this.kdeNotifications.length === 0 && this.notificationHistory.length === 0) {
+          this.unreadNotifications = 0;
         }
-        if (statusRes.ok) this.systemStatus = await statusRes.json();
-        if (notifRes.ok) {
-          const nd = await notifRes.json();
-          this.kdeNotifications = nd.notifications || [];
-        }
-        if (notifSettRes.ok) this.notifSettings = await notifSettRes.json();
-        if (scenesRes.ok) {
-          const sd = await scenesRes.json();
-          this.scenes = sd.scenes || [];
-          this.activeScene = sd.active;
-        }
-        if (audioRes.ok) {
-          const ad = await audioRes.json();
-          this.audioDevices = ad.sinks || ad.devices || [];
-        }
-        if (ttsOutRes.ok) {
-          const td = await ttsOutRes.json();
-          this.ttsOutput = td.output || 'pi';
-        }
-        // Laptop devices loaded on demand via button click
-        this.fetchMicInputs();
-        this.fetchAudioRouting();
-        this.fetchSmartDevices();
-        this.fetchVoiceSettings();
-        this.fetchWifiStatus();
-        this.controlsLoaded = true;
-      } catch {}
+      });
+      finish(fetch('/api/notifications/settings'), (d) => { this.notifSettings = d; });
+      finish(fetch('/api/scenes'), (sd) => {
+        this.scenes = sd.scenes || [];
+        this.activeScene = sd.active;
+      });
+      finish(fetch('/api/audio/devices'), (ad) => {
+        this.audioDevices = ad.sinks || ad.devices || [];
+      });
+      finish(fetch('/api/tts/output'), (td) => { this.ttsOutput = td.output || 'pi'; });
+      // Start the slow ones in parallel; they paint when ready.
+      this.fetchMicInputs();
+      this.fetchAudioRouting();
+      this.fetchSmartDevices();
+      this.fetchVoiceSettings();
+      this.fetchWifiStatus();
+      // Round 4 #12: flip the gate immediately so the user sees the skeleton
+      // replaced fast. Per-section skeletons can handle individual lag.
+      this.controlsLoaded = true;
     },
 
     async fetchScenes() {
@@ -3490,9 +3498,28 @@ function bmo() {
     },
 
     async fetchDetailedStatus() {
+      // Round 4 #11 (2026-05-17): paint synchronously from whatever
+      // we have, then pre-compute filtered service buckets so the
+      // template doesn't re-run Object.entries.filter on every render
+      // pass (was driving the 15-20s "Loading detailed status…" delay
+      // on a 30+-service payload).
       try {
         const res = await fetch('/api/health/full');
-        if (res.ok) this.detailedStatus = await res.json();
+        if (!res.ok) return;
+        const data = await res.json();
+        const entries = Object.entries(data.services || {});
+        const startsWithAny = (k, prefixes) => prefixes.some(p => k.startsWith(p));
+        const groupOf = (k) => {
+          if (k.startsWith('pi_') || k === 'internet') return 'pi';
+          if (k.startsWith('svc_')) return 'svc';
+          if (k.startsWith('docker_')) return 'docker';
+          if (k.endsWith('_api') || ['ollama_local','peerjs','pihole','google_calendar','cloudflared','rclone'].includes(k) || k.startsWith('pihole_')) return 'api';
+          if (k.startsWith('net_') || k.startsWith('port_') || k === 'ports') return 'net';
+          return 'other';
+        };
+        data._buckets = { pi: [], svc: [], docker: [], api: [], net: [], other: [] };
+        for (const e of entries) data._buckets[groupOf(e[0])].push(e);
+        this.detailedStatus = data;
       } catch {}
     },
 

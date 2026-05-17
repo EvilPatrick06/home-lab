@@ -789,17 +789,27 @@ input:focus {
   overflow-y: auto;
 }
 
+/* Round 4 #7 (2026-05-17): boost contrast — file-name is now bold +
+   brighter, file-path is medium-dim (not near-black), background
+   alternates so rows are clearly delineated. Selected row (keyboard
+   nav) gets accent background. */
 .quick-open-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
+  gap: 10px;
+  padding: 10px 16px;
   cursor: pointer;
   transition: background var(--transition);
+  border-bottom: 1px solid var(--border);
 }
-.quick-open-item:hover { background: var(--bg-hover); }
-.quick-open-item .file-name { color: var(--text-primary); font-size: 13px; }
-.quick-open-item .file-path { color: var(--text-dim); font-size: 11px; flex: 1; overflow: hidden; text-overflow: ellipsis; }
+.quick-open-item:hover,
+.quick-open-item.qo-selected { background: var(--accent); color: var(--bg-base); }
+.quick-open-item:hover .file-name,
+.quick-open-item.qo-selected .file-name { color: var(--bg-base); font-weight: 600; }
+.quick-open-item:hover .file-path,
+.quick-open-item.qo-selected .file-path { color: var(--bg-base); opacity: 0.85; }
+.quick-open-item .file-name { color: var(--text-primary); font-size: 14px; font-weight: 600; }
+.quick-open-item .file-path { color: var(--text-secondary, #9ca3af); font-size: 12px; flex: 1; overflow: hidden; text-overflow: ellipsis; }
 
 
 /* ── Context Menu ──────────────────────────────────────────── */

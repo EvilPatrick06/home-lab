@@ -153,10 +153,23 @@ class AgentOrchestrator:
 
             return result
         except Exception as e:
+            # Round 4 #1 (2026-05-17): never leak the raw exception repr
+            # (KeyError comes through as bare `'state'`, ValueError comes
+            # through as `'x is not y'`, etc). Log the full exception
+            # internally and surface a clean user message that tells them
+            # what to do — never an internal Python key. Mark the result
+            # with `failed=True` so the orchestrator can suppress the
+            # Approve/Cancel UI in plan-mode review.
             log.exception(f"[orchestrator] Agent '{agent_name}' failed")
+            friendly = {
+                "plan": "I had trouble building that plan — try a different phrasing or be more specific about which part of BMO you want to change.",
+                "code": "The code agent ran into a problem. Try rephrasing or breaking the task into smaller steps.",
+                "dnd_dm": "BMO's D&D engine had trouble there. Try a simpler action.",
+            }.get(agent_name, f"BMO's {agent_name} agent had a problem — try rephrasing or try again in a moment.")
             return AgentResult(
-                text=f"BMO's {agent_name} agent had a problem: {e}",
+                text=friendly,
                 agent_name=agent_name,
+                failed=True,
             )
         finally:
             self._nesting_depth -= 1
@@ -203,6 +216,20 @@ class AgentOrchestrator:
         # After exploration, move to design phase
         self.mode = OrchestratorMode.PLAN_DESIGN
         design_result = self.run_agent("plan", task, history=history, context={"phase": "design"})
+
+        # Round 4 #1 (2026-05-17): if either phase failed, bail out of plan
+        # mode cleanly — don't show the user an Approve/Cancel for a plan
+        # that wasn't actually built.
+        if getattr(result, "failed", False) or getattr(design_result, "failed", False):
+            self.mode = OrchestratorMode.NORMAL
+            failed_text = design_result.text if getattr(design_result, "failed", False) else result.text
+            self._emit("plan_mode_exited", {"reason": "failed"})
+            return {
+                "text": failed_text,
+                "commands_executed": [],
+                "tags": {"emotion": "concerned"},
+                "agent_used": "plan",
+            }
 
         # Move to review — present the plan
         self.mode = OrchestratorMode.PLAN_REVIEW

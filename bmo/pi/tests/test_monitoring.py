@@ -162,12 +162,15 @@ class TestCpuThresholdAlerts:
 # ── RAM threshold alert tests ─────────────────────────────────────────────────
 
 class TestRamThresholdAlerts:
-    def test_ram_over_85_emits_warning(self, tmp_path):
+    def test_ram_over_90_emits_warning(self, tmp_path):
+        # Round 4 #16 (2026-05-17): threshold raised from >85 to >=90 with
+        # hysteresis (exit at <80) to stop pi_resources flapping. Test
+        # now uses 95 to be unambiguous.
         checker = _make_checker(tmp_path)
         alerts_emitted = []
         checker._emit_alert = lambda level, svc, msg: alerts_emitted.append((level, svc, msg))
 
-        stats = {"cpu_temp": 50.0, "cpu_percent": 20.0, "ram_percent": 90.0, "disk_percent": 30.0}
+        stats = {"cpu_temp": 50.0, "cpu_percent": 20.0, "ram_percent": 95.0, "disk_percent": 30.0}
         mock_psutil = MagicMock()
         mock_psutil.swap_memory.return_value = MagicMock(percent=5.0, used=0, total=1)
         mock_psutil.disk_partitions.return_value = []
@@ -179,7 +182,7 @@ class TestRamThresholdAlerts:
             checker._check_pi_resources()
 
         ram_alerts = [a for a in alerts_emitted if "ram" in a[1].lower() or "ram" in a[2].lower()]
-        assert len(ram_alerts) > 0, "Expected a RAM alert for ram_percent > 85"
+        assert len(ram_alerts) > 0, "Expected a RAM alert for ram_percent >= 90"
         # Must be WARNING or CRITICAL — not INFO
         assert all(
             a[0] in (mon_module.Severity.WARNING, mon_module.Severity.CRITICAL)
@@ -204,6 +207,42 @@ class TestRamThresholdAlerts:
 
         ram_alerts = [a for a in alerts_emitted if "ram" in a[1].lower()]
         assert len(ram_alerts) == 0
+
+    def test_ram_hysteresis_stays_degraded_between_thresholds(self, tmp_path):
+        """Round 4 #16 (2026-05-17): once pi_ram crosses into degraded at
+        90%, it stays degraded until RAM falls below the 80% exit
+        threshold. RAM bouncing between 81-89% should NOT clear the
+        warning (was causing the header pill to flap every poll)."""
+        checker = _make_checker(tmp_path)
+        # Seed degraded state directly
+        checker._service_status["pi_ram"] = {"status": "degraded", "last_check": 0}
+
+        def _check(ram_pct):
+            alerts = []
+            checker._emit_alert = lambda level, svc, msg: alerts.append((level, svc, msg))
+            stats = {"cpu_temp": 50.0, "cpu_percent": 20.0, "ram_percent": ram_pct, "disk_percent": 30.0}
+            mock_psutil = MagicMock()
+            mock_psutil.swap_memory.return_value = MagicMock(percent=5.0, used=0, total=1)
+            mock_psutil.disk_partitions.return_value = []
+            with patch("services.monitoring.get_pi_stats", return_value=stats), \
+                 patch("services.monitoring.PSUTIL_AVAILABLE", True), \
+                 patch.object(mon_module, "psutil", mock_psutil), \
+                 patch("os.getloadavg", return_value=(0.2, 0.2, 0.1), create=True), \
+                 patch("os.cpu_count", return_value=4):
+                checker._check_pi_resources()
+            return checker._service_status["pi_ram"]["status"], alerts
+
+        # At 85% (above exit, below enter) while in degraded → STAYS degraded
+        status, _alerts = _check(85.0)
+        assert status == "degraded", "Hysteresis: 85% with prior=degraded must stay degraded"
+
+        # At 75% (below exit) → CLEARS to up
+        status, _alerts = _check(75.0)
+        assert status == "up", "Hysteresis: 75% must clear the degraded state"
+
+        # At 85% AGAIN now that we cleared → STAYS up (was_degraded=False now)
+        status, _alerts = _check(85.0)
+        assert status == "up", "Hysteresis: 85% with prior=up must NOT re-enter degraded"
 
 
 # ── Normal readings — no alert ────────────────────────────────────────────────
