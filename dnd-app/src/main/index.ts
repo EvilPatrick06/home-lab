@@ -41,7 +41,13 @@ if (process.platform === 'linux' && !app.commandLine.hasSwitch('ozone-platform')
 
 const gotTheLock = app.requestSingleInstanceLock()
 if (!gotTheLock) {
-  app.quit()
+  // `app.quit()` is async — the rest of this module still loads, the
+  // `app.whenReady().then(...)` handler below still runs, `createWindow()`
+  // still creates a BrowserWindow, and `quit()` only takes effect after
+  // the window has briefly flashed on screen and then been torn down.
+  // `app.exit(0)` terminates the process synchronously so the secondary
+  // instance never gets that far.
+  app.exit(0)
 }
 
 function createWindow(): void {
