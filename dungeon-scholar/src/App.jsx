@@ -3870,6 +3870,8 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
             desc="Study sacred scrolls at your own pace. Rate your mastery to focus on what eludes you."
             icon={<Scroll className="w-8 h-8" />}
             color="sapphire"
+            disabled={(courseSet?.flashcards?.length || 0) === 0}
+            disabledReason="This tome has no scrolls — inscribe one with flashcards to enable."
             onClick={() => { trackModeUse('flashcards'); setScreen('flashcards'); }}
           />
           <ModeCard
@@ -3877,6 +3879,8 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
             desc="Test your wisdom against ancient riddles. Multiple paths, true judgment, and arcane fill-ins."
             icon={<Target className="w-8 h-8" />}
             color="purple"
+            disabled={(courseSet?.quiz?.length || 0) === 0}
+            disabledReason="This tome has no riddles — inscribe one with quiz items to enable."
             onClick={() => { trackModeUse('quiz'); setScreen('quiz'); }}
           />
           <ModeCard
@@ -3884,6 +3888,8 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
             desc="Face hands-on trials at your own pace. Step-by-step quests with validation by the ancients."
             icon={<FlaskConical className="w-8 h-8" />}
             color="rose"
+            disabled={(courseSet?.labs?.length || 0) === 0}
+            disabledReason="This tome has no trials — inscribe one with lab items to enable."
             onClick={() => { trackModeUse('lab'); setScreen('lab'); }}
           />
           <ModeCard
@@ -3905,6 +3911,8 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
             desc="Sit a timed full-length mock exam. Riddles are drawn in proportion to the blueprint, the sands cannot be paused, and a verdict is rendered when thou dost submit."
             icon={<Clock className="w-8 h-8" />}
             color="purple"
+            disabled={(courseSet?.quiz?.length || 0) < 5}
+            disabledReason="A trial needs at least 5 riddles — current tome has too few."
             onClick={() => { trackModeUse('practiceExam'); setScreen('practiceExam'); }}
           />
           <ModeCard
@@ -4154,7 +4162,7 @@ function FilteredModeBanner({ domainFilter, onExitFilter, accent = 'emerald' }) 
   );
 }
 
-function ModeCard({ title, desc, icon, color, onClick, featured }) {
+function ModeCard({ title, desc, icon, color, onClick, featured, disabled, disabledReason }) {
   const colorMap = {
     amber: { grad: 'from-amber-500 to-yellow-700', border: 'rgba(180, 83, 9, 0.6)', glow: 'rgba(245, 158, 11, 0.3)', text: 'text-amber-200' },
     red: { grad: 'from-red-500 to-red-800', border: 'rgba(185, 28, 28, 0.6)', glow: 'rgba(239, 68, 68, 0.3)', text: 'text-red-200' },
@@ -4166,12 +4174,15 @@ function ModeCard({ title, desc, icon, color, onClick, featured }) {
   const c = colorMap[color];
   return (
     <button
-      onClick={onClick}
-      className={`text-left rounded p-5 hover:scale-[1.02] transition-all group relative overflow-hidden ${featured ? 'md:col-span-2' : ''}`}
+      onClick={disabled ? undefined : onClick}
+      disabled={!!disabled}
+      title={disabled ? (disabledReason || 'Unavailable for the active tome') : undefined}
+      aria-disabled={!!disabled}
+      className={`text-left rounded p-5 transition-all group relative overflow-hidden ${featured ? 'md:col-span-2' : ''} ${disabled ? 'cursor-not-allowed opacity-50' : 'hover:scale-[1.02]'}`}
       style={{
         background: `linear-gradient(135deg, rgba(41, 24, 12, 0.85) 0%, rgba(10, 6, 4, 0.95) 100%)`,
         border: `2px solid ${c.border}`,
-        boxShadow: `0 0 20px ${c.glow}, inset 0 0 20px rgba(0,0,0,0.5)`,
+        boxShadow: disabled ? 'inset 0 0 20px rgba(0,0,0,0.5)' : `0 0 20px ${c.glow}, inset 0 0 20px rgba(0,0,0,0.5)`,
       }}
     >
       <div className="absolute top-1 left-1 text-amber-700/60 text-xs">⚜</div>
@@ -4314,12 +4325,22 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
             ? `No scrolls tagged "${domainFilter}" in this tome. Regenerate the tome with the updated prompt to populate flashcard domains.`
             : 'No scrolls in this tome.'}
       </div>
-      {reviewMode && (
+      {reviewMode ? (
         <button onClick={() => onExitReviewMode?.()}
           className="w-full py-3 px-4 rounded font-bold italic border-2 border-amber-400 text-amber-100"
           style={{ background: 'rgba(120, 53, 15, 0.7)' }}>
           <Home className="w-4 h-4 inline mr-2" /> Return Home
         </button>
+      ) : (
+        // Phase 30d QA #7: give the user a way out of an empty study screen
+        // beyond the header Hearth (which the QA report noted as easy to miss).
+        <div className="grid grid-cols-2 gap-3">
+          <button onClick={() => onExitFilter?.()} disabled={!onExitFilter}
+            className="py-3 px-4 rounded italic border-2 border-amber-700 text-amber-200 disabled:opacity-30 disabled:cursor-not-allowed"
+            style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
+            <ArrowLeft className="w-4 h-4 inline mr-2" /> {domainFilter ? 'Clear Filter' : 'Back'}
+          </button>
+        </div>
       )}
     </div>
   );
@@ -4525,6 +4546,14 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
           ? `No riddles tagged "${domainFilter}" in this tome.`
           : 'No riddles in this tome.'}
       </div>
+      {/* Phase 30d QA #7: explicit "back" affordance instead of just the header Hearth. */}
+      {domainFilter && (
+        <button onClick={() => onExitFilter?.()}
+          className="w-full py-3 px-4 rounded italic border-2 border-amber-700 text-amber-200"
+          style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
+          <ArrowLeft className="w-4 h-4 inline mr-2" /> Clear Filter
+        </button>
+      )}
     </div>
   );
 
@@ -5491,9 +5520,14 @@ function MistakeVault({ courseSet, tomeProgress, playerState, onRemove, checkAch
 
   return (
     <div className="space-y-3 max-w-3xl mx-auto">
-      <h2 className="text-2xl font-bold text-amber-200 mb-4 flex items-center gap-2 italic">
+      <h2 className="text-2xl font-bold text-amber-200 mb-1 flex items-center gap-2 italic">
         <Skull className="w-7 h-7 text-red-400" /> Tome of Failures ({vault.length})
       </h2>
+      {/* Phase 30d QA #18: the green check affordance was ambiguous —
+          unclear whether it marked resolved or required re-answering. */}
+      <p className="text-xs italic text-amber-100/70 mb-3">
+        Tap the green ✓ to mark a foe vanquished (grants +5 XP). Or revisit it in a study mode to clear it by answering correctly.
+      </p>
       {vault.map((item, i) => (
         <div key={i} className="p-4 rounded relative" style={{
           background: 'linear-gradient(135deg, rgba(41, 12, 12, 0.7) 0%, rgba(20, 6, 6, 0.9) 100%)',
@@ -5507,8 +5541,10 @@ function MistakeVault({ courseSet, tomeProgress, playerState, onRemove, checkAch
                 <div className="text-sm text-amber-100/70 mt-2 p-2 rounded italic" style={{ background: 'rgba(20, 12, 6, 0.6)', border: '1px solid rgba(120, 53, 15, 0.4)' }}>{item.explanation}</div>
               )}
             </div>
-            <button onClick={() => { onRemove(item.id); awardXP(5); }} className="px-3 py-1 rounded text-sm border-2 border-emerald-400 text-emerald-200" style={{ background: 'rgba(6, 78, 59, 0.5)' }} title="Vanquish this foe">
-              <Check className="w-4 h-4" />
+            <button onClick={() => { onRemove(item.id); awardXP(5); }} className="px-3 py-1 rounded text-sm border-2 border-emerald-400 text-emerald-200" style={{ background: 'rgba(6, 78, 59, 0.5)' }}
+              title="Mark vanquished (+5 XP) — dismisses this entry"
+              aria-label={`Mark vanquished and dismiss: ${(item.question || item.front || item.term || item.title || '').slice(0, 80)}`}>
+              <Check className="w-4 h-4" aria-hidden="true" />
             </button>
           </div>
         </div>
