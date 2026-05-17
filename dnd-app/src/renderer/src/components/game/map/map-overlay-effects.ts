@@ -252,7 +252,15 @@ export function useMapOverlayEffects(opts: OverlayEffectsOptions): void {
       }
       app.ticker.add(redraw)
       return () => {
-        app.ticker.remove(redraw)
+        // Guard against destroyed Application; React unmount may run
+        // after the parent effect already called app.destroy().
+        try {
+          if (!(app as unknown as { destroyed?: boolean }).destroyed && app.ticker) {
+            app.ticker.remove(redraw)
+          }
+        } catch {
+          // Ticker already torn down.
+        }
       }
     }
   }, [initialized, map, isHost, refs, currentFloor])

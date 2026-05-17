@@ -178,8 +178,16 @@ export function updateLightAnimations(dt: number): void {
  * Returns a cleanup function to remove the ticker.
  */
 export function installLightAnimationTicker(ticker: Ticker): () => void {
+  // Phase 13/v2.1.12: Ticker.remove walks an internal linked list and
+  // throws if `_head` is null (happens when the parent Application has
+  // already been destroyed). React useEffect cleanup ordering can run
+  // these removes after app.destroy(), so swallow the failure.
   if (tickerCallback) {
-    ticker.remove(tickerCallback)
+    try {
+      ticker.remove(tickerCallback)
+    } catch {
+      // Ticker already torn down.
+    }
   }
 
   tickerCallback = (t: Ticker) => {
@@ -192,7 +200,11 @@ export function installLightAnimationTicker(ticker: Ticker): () => void {
 
   return () => {
     if (tickerCallback) {
-      ticker.remove(tickerCallback)
+      try {
+        ticker.remove(tickerCallback)
+      } catch {
+        // Ticker already torn down.
+      }
       tickerCallback = null
     }
     clearAllAnimations()

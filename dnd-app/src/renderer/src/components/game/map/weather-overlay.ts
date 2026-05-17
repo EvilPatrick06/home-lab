@@ -134,7 +134,15 @@ export class WeatherOverlayLayer {
 
   private stopTicker(): void {
     if (this.tickerBound) {
-      this.app.ticker.remove(this.tickerBound)
+      // Guard against destroyed Application — useEffect cleanup can
+      // race with app.destroy() and crash on the linked-list walk.
+      try {
+        if (!(this.app as unknown as { destroyed?: boolean }).destroyed && this.app.ticker) {
+          this.app.ticker.remove(this.tickerBound)
+        }
+      } catch {
+        // Ticker already torn down.
+      }
       this.tickerBound = null
     }
   }

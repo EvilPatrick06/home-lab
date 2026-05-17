@@ -45,10 +45,24 @@ function tick(): void {
   }
 }
 
+function safeTickerRemove(app: Application | null, fn: (...args: unknown[]) => void): void {
+  // PixiJS Ticker.remove walks an internal linked list; if app.destroy()
+  // ran first, `_head` is null and .next throws. Guard + swallow so
+  // React useEffect cleanup ordering can't crash the renderer.
+  if (!app) return
+  try {
+    if (!(app as unknown as { destroyed?: boolean }).destroyed && app.ticker) {
+      app.ticker.remove(fn)
+    }
+  } catch {
+    // Ticker already torn down — nothing to do.
+  }
+}
+
 function ensureTicker(app: Application): void {
   if (tickerBound && appRef === app) return
   if (appRef && appRef !== app) {
-    appRef.ticker.remove(tick)
+    safeTickerRemove(appRef, tick as unknown as (...args: unknown[]) => void)
   }
   app.ticker.add(tick)
   appRef = app
@@ -104,9 +118,7 @@ export function cancelTokenAnimation(tokenId: string): void {
  */
 export function destroyTokenAnimations(): void {
   activeAnimations.clear()
-  if (appRef) {
-    appRef.ticker.remove(tick)
-    appRef = null
-  }
+  safeTickerRemove(appRef, tick as unknown as (...args: unknown[]) => void)
+  appRef = null
   tickerBound = false
 }

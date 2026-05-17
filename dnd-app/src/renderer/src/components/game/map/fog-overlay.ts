@@ -86,7 +86,15 @@ export function initFogAnimation(
 
   app.ticker.add(tickFn)
   fogAnimState.cleanup = () => {
-    app.ticker.remove(tickFn)
+    // Guard against destroyed Application; Ticker.remove walks a
+    // linked list that throws when the parent app was destroyed first.
+    try {
+      if (!(app as unknown as { destroyed?: boolean }).destroyed && app.ticker) {
+        app.ticker.remove(tickFn)
+      }
+    } catch {
+      // Ticker already torn down.
+    }
   }
 }
 
