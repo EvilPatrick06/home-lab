@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router'
 import { PRESET_LABELS } from '../../../data/calendar-presets'
 import { addToast } from '../../../hooks/use-toast'
 import {
@@ -226,6 +227,24 @@ function SoundCustomizationSection(): JSX.Element {
   )
 }
 
+// Phase 17u — small inline component so the navigate/location hooks
+// only run inside this scope (kept out of the top-level prop list).
+function GlobalSettingsLink(): JSX.Element {
+  const navigate = useNavigate()
+  const location = useLocation()
+  return (
+    <button
+      onClick={() => navigate('/settings', { state: { returnTo: location.pathname } })}
+      className="w-full px-4 py-2 text-left text-xs text-amber-300 hover:bg-gray-800 hover:text-amber-200 transition-colors cursor-pointer flex items-center justify-between"
+    >
+      <span>Global Settings</span>
+      <span aria-hidden className="text-gray-500">
+        &rarr;
+      </span>
+    </button>
+  )
+}
+
 function ThemeSection(): JSX.Element {
   const [expanded, setExpanded] = useState(false)
   return (
@@ -381,6 +400,12 @@ export default function SettingsDropdown({
 
           {/* Navigation */}
           <div className="py-1">
+            {/* Phase 17u — link to the global Settings page from inside the
+                in-game settings dropdown. Previously the global gear was
+                hidden on /game/ routes so users had no way to reach the
+                full Settings page (theme, accessibility, mic, etc.)
+                without leaving the game first. */}
+            <GlobalSettingsLink />
             {isDM && onCreateCharacter && (
               <button
                 onClick={onCreateCharacter}

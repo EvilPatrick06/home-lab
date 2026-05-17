@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 import DiscordIntegrationSettings from '../components/ui/DiscordIntegrationSettings'
 import OllamaManagement, { type AvailableModelList, type InstalledModelList } from '../components/ui/OllamaManagement'
 import { SETTINGS_KEYS } from '../constants'
@@ -1064,6 +1064,11 @@ export default function SettingsPage(): JSX.Element {
     localStorage.setItem(SETTINGS_KEYS.DICE_MODE, mode)
   }, [])
 
+  // Phase 17u — read returnTo state from the in-game Settings dropdown so
+  // we can surface a "Return to game" link at the top.
+  const location = useLocation()
+  const returnTo = (location.state as { returnTo?: string })?.returnTo
+
   return (
     <div className="h-screen bg-gray-950 text-gray-100 overflow-y-auto">
       {/* Header */}
@@ -1085,6 +1090,14 @@ export default function SettingsPage(): JSX.Element {
             </button>
             <h1 className="text-xl font-bold text-gray-100">Settings</h1>
           </div>
+          {returnTo?.startsWith('/game/') && (
+            <button
+              onClick={() => navigate(returnTo)}
+              className="px-3 py-1.5 text-sm bg-amber-600 hover:bg-amber-500 text-white rounded font-semibold transition-colors cursor-pointer"
+            >
+              Return to game
+            </button>
+          )}
         </div>
       </div>
 
