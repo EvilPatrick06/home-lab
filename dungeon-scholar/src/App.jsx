@@ -3155,7 +3155,7 @@ export default function DungeonScholarApp() {
                 if (t === 'light' && !prev.lightModeIntroShown) {
                   next.lightModeIntroShown = true;
                   setTimeout(() => showNotif(
-                    'Light mode is partial — only the page background changes. Dungeon panels stay dark by design.',
+                    'Light mode: off-white background + warmer panel tints. Dungeon aesthetic preserved.',
                     'info',
                   ), 100);
                 }
@@ -3474,18 +3474,23 @@ export default function DungeonScholarApp() {
 }
 
 function OrnatePanel({ children, color = 'amber', className = '', glow = true }) {
+  // Phase 38g: background swatch is sourced from a CSS variable so light
+  // mode can re-theme without a React subscription. Border + glow stay
+  // as hard-coded colors — they're tuned for visual punch and look the
+  // same under both themes. Fallback values match the original dark
+  // colors so non-CSS-var environments still render correctly.
   const colorMap = {
-    amber: { border: 'rgba(180, 83, 9, 0.6)', glow: 'rgba(245, 158, 11, 0.2)', bg: 'rgba(41, 24, 12, 0.85)' },
-    red: { border: 'rgba(185, 28, 28, 0.6)', glow: 'rgba(239, 68, 68, 0.2)', bg: 'rgba(41, 12, 12, 0.85)' },
-    emerald: { border: 'rgba(5, 150, 105, 0.6)', glow: 'rgba(16, 185, 129, 0.2)', bg: 'rgba(12, 41, 27, 0.85)' },
-    purple: { border: 'rgba(126, 34, 206, 0.6)', glow: 'rgba(168, 85, 247, 0.2)', bg: 'rgba(31, 12, 41, 0.85)' },
-    sapphire: { border: 'rgba(29, 78, 216, 0.6)', glow: 'rgba(59, 130, 246, 0.2)', bg: 'rgba(12, 24, 41, 0.85)' },
-    rose: { border: 'rgba(190, 24, 93, 0.6)', glow: 'rgba(244, 63, 94, 0.2)', bg: 'rgba(41, 12, 27, 0.85)' },
+    amber: { border: 'rgba(180, 83, 9, 0.6)', glow: 'rgba(245, 158, 11, 0.2)', bgVar: 'var(--panel-bg-amber, rgba(41, 24, 12, 0.85))' },
+    red: { border: 'rgba(185, 28, 28, 0.6)', glow: 'rgba(239, 68, 68, 0.2)', bgVar: 'var(--panel-bg-red, rgba(41, 12, 12, 0.85))' },
+    emerald: { border: 'rgba(5, 150, 105, 0.6)', glow: 'rgba(16, 185, 129, 0.2)', bgVar: 'var(--panel-bg-emerald, rgba(12, 41, 27, 0.85))' },
+    purple: { border: 'rgba(126, 34, 206, 0.6)', glow: 'rgba(168, 85, 247, 0.2)', bgVar: 'var(--panel-bg-purple, rgba(31, 12, 41, 0.85))' },
+    sapphire: { border: 'rgba(29, 78, 216, 0.6)', glow: 'rgba(59, 130, 246, 0.2)', bgVar: 'var(--panel-bg-sapphire, rgba(12, 24, 41, 0.85))' },
+    rose: { border: 'rgba(190, 24, 93, 0.6)', glow: 'rgba(244, 63, 94, 0.2)', bgVar: 'var(--panel-bg-rose, rgba(41, 12, 27, 0.85))' },
   };
   const c = colorMap[color] || colorMap.amber;
   return (
     <div className={`relative rounded p-5 ${className}`} style={{
-      background: `linear-gradient(135deg, ${c.bg} 0%, rgba(10, 6, 4, 0.9) 100%)`,
+      background: `linear-gradient(135deg, ${c.bgVar} 0%, var(--panel-end, rgba(10, 6, 4, 0.9)) 100%)`,
       border: `2px solid ${c.border}`,
       boxShadow: glow ? `0 0 25px ${c.glow}, inset 0 0 20px rgba(0,0,0,0.5)` : 'inset 0 0 20px rgba(0,0,0,0.5)',
     }}>
@@ -4403,7 +4408,7 @@ function AudioPanel() {
 function ThemePanel({ currentTheme, onSetTheme }) {
   const opts = [
     { id: 'dark', label: '🌙 Dark', desc: 'The default dungeon palette.' },
-    { id: 'light', label: '☀ Light', desc: 'Off-white background, dim-light reading. Panels stay dark.' },
+    { id: 'light', label: '☀ Light', desc: 'Off-white background, warmer panel tints. Dungeon aesthetic preserved.' },
     { id: 'system', label: '🖥 Match System', desc: 'Follows your OS color preference.' },
   ];
   return (
@@ -4432,7 +4437,9 @@ function ThemePanel({ currentTheme, onSetTheme }) {
         })}
       </div>
       <p className="text-[10px] italic text-amber-700/80 mt-3">
-        ⓘ Light mode is experimental — the dungeon panels keep their dark palette by design (they&apos;re part of the brand). Only the page background changes.
+        ⓘ Light mode pairs an off-white page with warmer panel tints. The
+        dungeon aesthetic is preserved — interiors stay dark-ish so the
+        ornate borders and glow effects still read.
       </p>
     </OrnatePanel>
   );
@@ -4514,7 +4521,9 @@ function ModeCard({ title, desc, icon, color, onClick, featured, disabled, disab
       aria-disabled={!!disabled}
       className={`text-left rounded p-5 transition-all group relative overflow-hidden ${featured ? 'md:col-span-2' : ''} ${disabled ? 'cursor-not-allowed opacity-50' : 'hover:scale-[1.02]'}`}
       style={{
-        background: `linear-gradient(135deg, rgba(41, 24, 12, 0.85) 0%, rgba(10, 6, 4, 0.95) 100%)`,
+        // Phase 38g: background sourced from CSS vars so light theme can
+        // re-theme without a React subscription. Border + glow stay solid.
+        background: `linear-gradient(135deg, var(--modecard-bg-start, rgba(41, 24, 12, 0.85)) 0%, var(--modecard-bg-end, rgba(10, 6, 4, 0.95)) 100%)`,
         border: `2px solid ${c.border}`,
         boxShadow: disabled ? 'inset 0 0 20px rgba(0,0,0,0.5)' : `0 0 20px ${c.glow}, inset 0 0 20px rgba(0,0,0,0.5)`,
       }}

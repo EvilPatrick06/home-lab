@@ -38,15 +38,31 @@
   box-shadow: 0 0 0 2px #92400e;
 }
 
-/* Phase 34b / 35f QA P10 + P6: light theme. PARTIAL — only swaps the
- * page-level background gradient + dims the noise/vignette overlays.
- * Dungeon panels stay dark by design (they're part of the brand identity).
+/* Phase 34b / 35f / 38g QA P10 + P6: light theme.
  *
- * Phase 35f / 36c toned the background WAY down from the 34b "amber-100 → amber-300"
- * gradient. The QA reporter said the bright yellow surrounding dark panels
- * was jarring and arguably worse for photosensitive users than full dark.
- * Now using stone-50 → stone-100 → stone-200 (neutral warm off-white) so
- * the panels read as deliberate dark cards on a paper-like background. */
+ * 38g added panel-color theming via CSS custom properties so OrnatePanel +
+ * ModeCard interiors actually re-theme under light mode — but the panels
+ * still keep a dungeon feel (dark-but-warmer browns/colors) because the
+ * brand identity depends on them. The effect: panels harmonize with the
+ * off-white body instead of clashing against bright yellow (the round-5
+ * P6 complaint).
+ *
+ * Each panel/card token has a default (dark-theme) value used as the
+ * inline-style fallback. The override block under [data-theme="light"]
+ * swaps to slightly-lighter, slightly-warmer variants. CSS vars in
+ * inline styles work natively in every modern browser; no React
+ * subscription overhead. */
+:root {
+  --panel-bg-amber: rgba(41, 24, 12, 0.85);
+  --panel-bg-red: rgba(41, 12, 12, 0.85);
+  --panel-bg-emerald: rgba(12, 41, 27, 0.85);
+  --panel-bg-purple: rgba(31, 12, 41, 0.85);
+  --panel-bg-sapphire: rgba(12, 24, 41, 0.85);
+  --panel-bg-rose: rgba(41, 12, 27, 0.85);
+  --panel-end: rgba(10, 6, 4, 0.9);
+  --modecard-bg-start: rgba(41, 24, 12, 0.85);
+  --modecard-bg-end: rgba(10, 6, 4, 0.95);
+}
 html[data-theme="light"] body {
   background: #fafaf9; /* stone-50 base — neutral warm off-white */
 }
@@ -58,4 +74,17 @@ html[data-theme="light"] .dungeon-bg-noise,
 html[data-theme="light"] .dungeon-bg-vignette,
 html[data-theme="light"] .dungeon-bg-corners {
   opacity: 0 !important;
+}
+/* Phase 38g: warmer / lighter panel + mode-card surfaces for light mode.
+ * Still dark-ish so the dungeon aesthetic survives. */
+html[data-theme="light"] {
+  --panel-bg-amber: rgba(120, 53, 15, 0.5);
+  --panel-bg-red: rgba(127, 29, 29, 0.5);
+  --panel-bg-emerald: rgba(6, 78, 59, 0.5);
+  --panel-bg-purple: rgba(91, 33, 182, 0.5);
+  --panel-bg-sapphire: rgba(30, 64, 175, 0.5);
+  --panel-bg-rose: rgba(190, 24, 93, 0.5);
+  --panel-end: rgba(41, 24, 12, 0.65);
+  --modecard-bg-start: rgba(120, 53, 15, 0.45);
+  --modecard-bg-end: rgba(41, 24, 12, 0.7);
 }
