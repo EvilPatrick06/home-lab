@@ -13,6 +13,22 @@
 
 ---
 
+### [2026-05-17] L6 — No keyboard focus ring (Tailwind defaults)
+
+- **Original category:** UX, a11y
+- **Original severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** Claude Code (Opus 4.7)
+- **During:** Phase 27 audit
+- **Resolved by:** Claude Code (Opus 4.7)
+- **Date resolved:** 2026-05-17 (Phase 30f)
+
+**Problem:** App relied on browser defaults; text inputs used `focus:outline-none` without a replacement ring. The 2026-05-17 Dungeon Scholar QA report (#13) re-confirmed that `outline-style: none` rendered focused buttons with no visible indicator.
+
+**Resolution:** Added a `@layer base *:focus-visible` rule to `dungeon-scholar/src/index.css` that paints a 2px amber-300 outline with 2px offset on every focused element. Uses `!important` to defeat Tailwind preflight's `outline: none` reset. Mouse clicks don't trigger the ring (`:focus-visible` only fires for keyboard / programmatic focus).
+
+---
+
 ### [2026-04-30] Vault deduplication inconsistency between per-stage and per-lab IDs
 
 - **Original category:** future-idea

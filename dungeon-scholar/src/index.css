@@ -1,3 +1,35 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Phase 30f QA #13: restore a visible focus indicator. Tailwind's preflight
+ * sets `outline: none` on all elements, which combined with custom buttons
+ * that don't reapply a ring meant the focused-button computed style was
+ * `outline-style: none` even though `outline-color` was set. Use
+ * :focus-visible so mouse clicks don't trigger the ring (only keyboard /
+ * programmatic focus). The amber-300 colour matches the theme; !important
+ * defeats the Tailwind preflight override. */
+@layer base {
+  *:focus-visible {
+    outline: 2px solid #fde047 !important;
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+/* Phase 30f QA #14: the "Skip to main content" link is normally hidden
+ * (sr-only utility) and slides into view when keyboard-focused so the
+ * first Tab on every page reaches the main landmark immediately. */
+.skip-to-main:focus {
+  position: fixed !important;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 100;
+  padding: 0.75rem 1rem;
+  background: #fde047;
+  color: #451a03;
+  font-weight: 700;
+  border-radius: 0.25rem;
+  text-decoration: none;
+  box-shadow: 0 0 0 2px #92400e;
+}

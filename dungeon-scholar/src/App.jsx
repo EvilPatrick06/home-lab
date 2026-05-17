@@ -2762,6 +2762,11 @@ export default function DungeonScholarApp() {
       )}
 
       <div className="relative max-w-6xl mx-auto p-6">
+        {/* Phase 30f QA #14: skip-to-main link for keyboard users. Hidden
+            until focused (.skip-to-main:focus rule in index.css). */}
+        <a href="#main-content" className="skip-to-main sr-only">
+          Skip to main content
+        </a>
         <header className="flex items-center justify-between mb-8 pb-4 border-b-2 border-amber-700/40">
           <div className="flex items-center gap-3">
             <div className="relative">
@@ -2780,7 +2785,8 @@ export default function DungeonScholarApp() {
               <p className="text-xs text-amber-700 tracking-[0.3em] italic">⚜ A SCHOLAR'S QUEST ⚜</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 text-sm">
+          {/* Phase 30f QA #14: navigation landmark for the action-button row. */}
+          <nav aria-label="Primary" className="flex items-center gap-3 text-sm">
             {/* Gold pill */}
             <div
               className="px-3 py-2 rounded border-2 border-amber-700/60 flex items-center gap-2"
@@ -2867,9 +2873,10 @@ export default function DungeonScholarApp() {
                 <Home className="w-4 h-4" /> Hearth
               </button>
             )}
-          </div>
+          </nav>
         </header>
 
+        <main id="main-content" tabIndex={-1}>
         <div className="mb-6 p-4 rounded relative" style={{
           background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.9) 0%, rgba(20, 12, 6, 0.9) 100%)',
           border: '2px solid rgba(180, 83, 9, 0.5)',
@@ -3253,6 +3260,7 @@ export default function DungeonScholarApp() {
             onClose={() => setShowTitles(false)}
           />
         )}
+        </main>
       </div>
     </div>
   );

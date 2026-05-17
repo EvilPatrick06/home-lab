@@ -254,20 +254,6 @@ When the page hides for an extended period, the AudioContext is suspended (brows
 
 ---
 
-### [2026-05-12] L6 — No keyboard focus ring (Tailwind defaults)
-
-- **Category:** UX, a11y
-- **Severity:** low
-- **Domain:** dungeon-scholar
-- **Discovered by:** Claude Code (Opus 4.7)
-- **During:** Phase 27 audit
-
-App relies on browser defaults; text inputs use `focus:outline-none` (App.jsx:4505) without a replacement ring. Keyboard users can't tell which control has focus. Phase 27e.
-
-**Files:** `dungeon-scholar/src/index.css`, all `focus:outline-none` call sites
-
----
-
 ### [2026-05-12] L5 — Exam timer has no `aria-live` announce
 
 - **Category:** UX, a11y
