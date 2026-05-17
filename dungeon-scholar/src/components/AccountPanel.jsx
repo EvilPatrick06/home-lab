@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LogOut, CloudOff, Trash2 } from 'lucide-react';
+import { LogOut, CloudOff, Trash2, RotateCcw } from 'lucide-react';
 import { signOut } from '../services/supabase.js';
 import { deleteCloudSave, deleteAccount } from '../services/cloudSync.js';
 
@@ -12,7 +12,7 @@ function relativeTimeFrom(date) {
   return `${Math.floor(sec / 3600)} hr ago`;
 }
 
-export function AccountPanel({ user, syncStatus, lastSyncedAt, onClose, onAfterDeleteCloud, onAfterDeleteAccount }) {
+export function AccountPanel({ user, syncStatus, lastSyncedAt, onClose, onAfterDeleteCloud, onAfterDeleteAccount, onResetProgress }) {
   const [confirmKind, setConfirmKind] = useState(null);
   const [typedConfirm, setTypedConfirm] = useState('');
   const [busy, setBusy] = useState(false);
@@ -69,6 +69,23 @@ export function AccountPanel({ user, syncStatus, lastSyncedAt, onClose, onAfterD
             <button onClick={doSignOut} disabled={busy} className="w-full px-3 py-2 rounded border-2 border-amber-700 text-amber-200 italic text-sm hover:bg-amber-900/30 flex items-center gap-2">
               <LogOut className="w-4 h-4" /> Sign out
             </button>
+            {/* Phase 46e: surface the safer "Begin Anew" reset above the
+                destructive cloud/account options. Hearth has the same
+                action buried at the bottom — promoting it here means
+                users see the local-only alternative before reaching for
+                the irreversible cloud/account deletions. */}
+            {onResetProgress && (
+              <button
+                onClick={() => { onClose(); onResetProgress(); }}
+                disabled={busy}
+                className="w-full px-3 py-2 rounded border-2 border-amber-700 text-amber-200 italic text-sm hover:bg-amber-900/30 flex items-center gap-2"
+                title="Reset local progress only — cloud save is untouched. Confirmation required."
+              >
+                <RotateCcw className="w-4 h-4" /> Begin Anew (reset local progress)
+              </button>
+            )}
+            <div className="h-px bg-amber-900/40 my-1" />
+            <div className="text-[10px] uppercase tracking-wider italic text-red-400/80 font-bold">⚠ Destructive · cloud</div>
             <button onClick={() => setConfirmKind('cloud')} disabled={busy} className="w-full px-3 py-2 rounded border-2 border-orange-700 text-orange-200 italic text-sm hover:bg-orange-900/30 flex items-center gap-2">
               <CloudOff className="w-4 h-4" /> Delete cloud save (keep this device)
             </button>

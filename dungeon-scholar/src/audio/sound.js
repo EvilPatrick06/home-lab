@@ -17,6 +17,11 @@ const DEFAULT_SETTINGS = {
   sfxVolume: 0.6,
 };
 
+// Phase 46g: exposed so the Bardic Settings "Reset to defaults" button
+// can restore the canonical volume mix without redefining the numbers
+// in two places. Returns a fresh object so callers can't mutate.
+export const getDefaultAudioSettings = () => ({ ...DEFAULT_SETTINGS });
+
 let ctx = null;
 let masterGain = null;
 let bgmGain = null;

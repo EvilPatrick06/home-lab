@@ -48,6 +48,9 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
   const [resultsSummary, setResultsSummary] = useState(null);
   const [textInput, setTextInput] = useState('');
+  // Phase 46c: Past Trials drill-in. Clicking a row opens a modal with
+  // the saved record's per-domain breakdown + status + duration.
+  const [selectedTrial, setSelectedTrial] = useState(null);
 
   const startedAtRef = useRef(null);
   const totalSecondsRef = useRef(0);
@@ -328,10 +331,17 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
                       (rec.totalCount ?? 0) >= 5
                     );
                     const isAbandoned = isExplicitAbandoned || looksAbandoned;
+                    // Phase 46c: rows are buttons so the drill-in modal can
+                    // surface the per-domain breakdown. Abandoned rows are
+                    // still clickable — the user can confirm the breakdown
+                    // contains no real answers.
                     return (
-                      <div
+                      <button
                         key={i}
-                        className={`flex items-center gap-3 text-amber-100 ${isAbandoned ? 'opacity-60 italic' : ''}`}
+                        type="button"
+                        onClick={() => setSelectedTrial({ ...rec, isAbandoned })}
+                        title="Click for breakdown"
+                        className={`w-full text-left flex items-center gap-3 text-amber-100 rounded px-1.5 py-1 hover:bg-amber-900/30 focus:bg-amber-900/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 ${isAbandoned ? 'opacity-60 italic' : ''}`}
                       >
                         <span className="text-amber-700 tabular-nums">{rec.startedAt ? new Date(rec.startedAt).toLocaleDateString() : '—'}</span>
                         <span>{rec.totalCount} riddles · {Math.floor((rec.durationSec || 0) / 60)}m {(rec.durationSec || 0) % 60}s</span>
@@ -345,21 +355,22 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
                           {isAbandoned ? '—' : `${rec.scorePct}%`}
                         </span>
                         {rec.status === 'timeout' && <span className="text-[10px] text-red-300 italic">timed out</span>}
-                        {/* Phase 36f / 39e QA round 5 + 7: distinct badge for
-                            abandoned trials so users can tell them apart from
-                            submitted-empty 0% records at a glance. */}
                         {isAbandoned && (
                           <span className="text-[10px] px-1.5 py-0.5 rounded not-italic" style={{
                             background: 'rgba(63, 63, 70, 0.4)', border: '1px solid rgba(120, 113, 108, 0.55)', color: 'rgba(214, 211, 209, 0.85)',
                           }}>abandoned</span>
                         )}
-                      </div>
+                        <span className="text-[10px] text-amber-700 not-italic" aria-hidden>›</span>
+                      </button>
                     );
                   })}
                 </div>
               </div>
             )}
           </>
+        )}
+        {selectedTrial && (
+          <TrialDetailModal rec={selectedTrial} onClose={() => setSelectedTrial(null)} />
         )}
       </div>
     );
@@ -689,4 +700,136 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
   }
 
   return null;
+}
+
+// Phase 46c: drill-in for Past Trials rows. Renders saved record's
+// per-domain breakdown + status/timing in an overlay. Escape + click-out
+// close. byDomain may be missing on legacy records (pre-26e) — render a
+// "no breakdown saved" notice in that case.
+function TrialDetailModal({ rec, onClose }) {
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  const byDomain = rec?.byDomain || {};
+  const domains = Object.keys(byDomain).sort((a, b) => (byDomain[b]?.total || 0) - (byDomain[a]?.total || 0));
+  const date = rec?.startedAt ? new Date(rec.startedAt) : null;
+  const dateLabel = date ? `${date.toLocaleDateString()} · ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : '—';
+  const durM = Math.floor((rec?.durationSec || 0) / 60);
+  const durS = (rec?.durationSec || 0) % 60;
+  const statusLabel = rec?.isAbandoned ? 'Abandoned' : rec?.status === 'timeout' ? 'Timed out' : 'Submitted';
+  const statusColor = rec?.isAbandoned ? 'rgba(214, 211, 209, 0.85)' : rec?.status === 'timeout' ? '#fecaca' : '#a7f3d0';
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: 'rgba(0,0,0,0.7)' }}
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Trial detail"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="max-w-2xl w-full rounded p-5 overflow-y-auto"
+        style={{
+          background: 'linear-gradient(135deg, rgba(67, 56, 202, 0.65) 0%, rgba(10, 6, 4, 0.97) 100%)',
+          border: '3px double rgba(129, 140, 248, 0.6)',
+          boxShadow: '0 0 32px rgba(129, 140, 248, 0.3), inset 0 0 24px rgba(0,0,0,0.5)',
+          maxHeight: 'min(82vh, 720px)',
+          overscrollBehavior: 'contain',
+        }}
+      >
+        <div className="flex items-center gap-3 mb-3">
+          <Award className="w-6 h-6 text-amber-300" />
+          <div className="flex-1">
+            <h3 className="text-base font-bold italic text-amber-200 tracking-wider">Trial Breakdown</h3>
+            <div className="text-[11px] italic text-amber-400">{dateLabel}</div>
+          </div>
+          <button
+            onClick={onClose}
+            className="px-3 py-1.5 rounded text-xs font-bold italic border-2 border-amber-700 text-amber-200"
+            style={{ background: 'rgba(41, 24, 12, 0.7)' }}
+            aria-label="Close trial breakdown"
+          >
+            Close
+          </button>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4 text-xs italic">
+          <div className="p-2 rounded" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(129, 140, 248, 0.4)' }}>
+            <div className="text-[10px] uppercase tracking-wider text-indigo-400">Score</div>
+            <div className="text-lg font-bold tabular-nums" style={{ color: statusColor }}>
+              {rec?.isAbandoned ? '—' : `${rec?.scorePct ?? 0}%`}
+            </div>
+          </div>
+          <div className="p-2 rounded" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(129, 140, 248, 0.4)' }}>
+            <div className="text-[10px] uppercase tracking-wider text-indigo-400">Answered</div>
+            <div className="text-lg font-bold tabular-nums text-amber-100">{rec?.answered ?? 0}/{rec?.totalCount ?? 0}</div>
+          </div>
+          <div className="p-2 rounded" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(129, 140, 248, 0.4)' }}>
+            <div className="text-[10px] uppercase tracking-wider text-indigo-400">Correct</div>
+            <div className="text-lg font-bold tabular-nums text-amber-100">{rec?.correct ?? 0}</div>
+          </div>
+          <div className="p-2 rounded" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(129, 140, 248, 0.4)' }}>
+            <div className="text-[10px] uppercase tracking-wider text-indigo-400">Duration</div>
+            <div className="text-lg font-bold tabular-nums text-amber-100">{durM}m {durS}s</div>
+          </div>
+        </div>
+
+        <div className="text-[11px] italic mb-3 px-2 py-1 rounded inline-block" style={{ background: 'rgba(0,0,0,0.4)', color: statusColor, border: `1px solid ${statusColor}` }}>
+          Status: {statusLabel}
+        </div>
+
+        <div className="mt-2">
+          <div className="text-xs italic font-bold text-amber-200 mb-2 tracking-wider">Per-domain</div>
+          {domains.length === 0 ? (
+            <div className="text-xs italic text-amber-700">
+              ✦ No per-domain breakdown saved on this record. Older trials (or abandoned ones) did not capture domain-level data.
+            </div>
+          ) : (
+            <div className="space-y-1.5">
+              {domains.map((d) => {
+                const agg = byDomain[d] || {};
+                const total = agg.total || 0;
+                const correct = agg.correct || 0;
+                const answered = agg.answered || 0;
+                const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
+                const color = pct >= 75 ? '#a7f3d0' : pct >= 60 ? '#fde68a' : '#fecaca';
+                return (
+                  <div key={d} className="p-2 rounded text-xs italic" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(129, 140, 248, 0.3)' }}>
+                    <div className="flex items-baseline justify-between gap-2 mb-1">
+                      <span className="text-amber-100 truncate">{d}</span>
+                      <span className="tabular-nums font-bold" style={{ color }}>
+                        {correct}/{total} · {pct}%
+                      </span>
+                    </div>
+                    <div className="h-1.5 rounded overflow-hidden" style={{ background: 'rgba(0,0,0,0.5)' }}>
+                      <div className="h-full" style={{ width: `${pct}%`, background: color }} />
+                    </div>
+                    {answered < total && (
+                      <div className="text-[10px] text-amber-700 mt-1">
+                        ✦ {total - answered} unanswered
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        <div className="text-[10px] italic text-amber-700 mt-4">
+          ✦ Trials don't archive individual riddle answers, so per-question detail isn't available here. Score, status, timing, and per-domain accuracy are preserved.
+        </div>
+      </div>
+    </div>
+  );
 }

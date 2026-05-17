@@ -23,7 +23,7 @@ const DungeonExplore = React.lazy(() => import('./components/DungeonExplore.jsx'
 import { Shield, Zap, Brain, FlaskConical, MessageSquare, Upload, Download, Trophy, Flame, Heart, Star, Target, BookOpen, ChevronRight, X, Check, RotateCcw, Sparkles, Lock, Award, TrendingUp, Clock, AlertTriangle, Skull, Crown, Eye, EyeOff, Play, Home, Settings, FileJson, Plus, Minus, ArrowLeft, Send, Loader2, HelpCircle, Calendar, Swords, Scroll, Wand2, Castle, Gem, Library, Trash2, Copy, Edit2, BookMarked, Share2, Tag, User, Hash, ChevronDown, ChevronUp, Compass, ScrollText, CheckCircle2, Gift, Coins, Package, ShoppingBag } from 'lucide-react';
 import { TUTORIAL_STEPS, snapshotBaselines, migrateTutorialIndex } from './tutorial';
 import { gradeAnswer } from './services/oracleGrader.js';
-import { getAudioSettings, setMuted, setBgmVolume, setSfxVolume, armOnFirstGesture, playSfx } from './audio/sound.js';
+import { getAudioSettings, setMuted, setBgmVolume, setSfxVolume, armOnFirstGesture, playSfx, getDefaultAudioSettings } from './audio/sound.js';
 import { PETS, PET_LEVEL_XP, PET_MAX_LEVEL, petLevelFromXp, findPet } from './services/pets.js';
 import { SPELLS, findSpell } from './services/spells.js';
 import { DAILY_REWARDS, todayDateStr, dayDiff } from './services/devotion.js';
@@ -33,20 +33,25 @@ import { computeExamPrediction, PREDICTION_HIGH_COVERAGE, PREDICTION_MEDIUM_COVE
 import { SRS_RATINGS, scheduleCard, dueCount, sortByDueness, filterDue } from './services/srs.js';
 import { computeRetentionCurve, computeMilestones } from './services/forgettingCurve.js';
 
+// Phase 46d: `theme` field added so the Choose Thy Title modal can
+// surface a short teaser on locked '???' rows (hover/focus title attr).
+// The theme is purely flavor — every rank title unlocks the same way
+// (reach the listed level) — but it lets a glance at the modal tell the
+// user "this one's scholarly" or "this one's martial".
 const TITLES = [
-  { min: 1, max: 4, name: 'Apprentice' },
-  { min: 5, max: 9, name: 'Squire' },
-  { min: 10, max: 14, name: 'Adventurer' },
-  { min: 15, max: 19, name: 'Scholar of the Arcane' },
-  { min: 20, max: 24, name: 'Loremaster' },
-  { min: 25, max: 29, name: 'Battle Mage' },
-  { min: 30, max: 39, name: 'Knight of the Codex' },
-  { min: 40, max: 49, name: 'Arcane Sage' },
-  { min: 50, max: 59, name: 'High Wizard' },
-  { min: 60, max: 74, name: 'Grand Magister' },
-  { min: 75, max: 89, name: 'Archmage' },
-  { min: 90, max: 99, name: 'Lord of the Tomes' },
-  { min: 100, max: 9999, name: 'Mythic Demigod' },
+  { min: 1, max: 4, name: 'Apprentice', theme: 'Novice rank' },
+  { min: 5, max: 9, name: 'Squire', theme: 'Martial novice' },
+  { min: 10, max: 14, name: 'Adventurer', theme: 'Dungeon delver' },
+  { min: 15, max: 19, name: 'Scholar of the Arcane', theme: 'Arcane learner' },
+  { min: 20, max: 24, name: 'Loremaster', theme: 'Keeper of lore' },
+  { min: 25, max: 29, name: 'Battle Mage', theme: 'Combat caster' },
+  { min: 30, max: 39, name: 'Knight of the Codex', theme: 'Battle-sworn guardian' },
+  { min: 40, max: 49, name: 'Arcane Sage', theme: 'Authority on the arcane' },
+  { min: 50, max: 59, name: 'High Wizard', theme: 'Master of the arts' },
+  { min: 60, max: 74, name: 'Grand Magister', theme: 'Wizardry leader' },
+  { min: 75, max: 89, name: 'Archmage', theme: 'Apex caster' },
+  { min: 90, max: 99, name: 'Lord of the Tomes', theme: 'Library lord' },
+  { min: 100, max: 9999, name: 'Mythic Demigod', theme: 'Transcendent — beyond mortal rank' },
 ];
 
 // === Daily Quest System ===
@@ -2964,6 +2969,7 @@ export default function DungeonScholarApp() {
           syncStatus={sync.status}
           lastSyncedAt={null}
           onClose={() => setShowAccountPanel(false)}
+          onResetProgress={resetProgress}
         />
       )}
 
@@ -3350,20 +3356,35 @@ export default function DungeonScholarApp() {
             onShowAchievements={() => setShowAchievements(true)}
             onEnterReviews={() => { setReviewMode(true); trackModeUse('flashcards'); setScreen('flashcards'); }}
             onSetTheme={(t) => {
-              // Phase 38h round-5 suggestion: explain the partial-theme
-              // intent on first switch into Light so users aren't surprised
-              // when the panels stay dark. Flag persists in playerState.
+              // Phase 38h round-5: explain the partial-theme intent on
+              // first switch into Light so users aren't surprised when
+              // panels stay dark. Phase 46h: every theme switch surfaces
+              // an Undo toast (Ctrl+Z compatible — the global hotkey
+              // from 45d invokes the active toast's onClick). Capturing
+              // prev.theme outside the updater keeps the closure stable
+              // for the undo callback.
+              const prevTheme = playerState.theme || 'dark';
+              if (prevTheme === t) return;
               setPlayerState(prev => {
                 const next = { ...prev, theme: t };
                 if (t === 'light' && !prev.lightModeIntroShown) {
                   next.lightModeIntroShown = true;
-                  setTimeout(() => showNotif(
-                    'Light mode: off-white background + warmer panel tints. Dungeon aesthetic preserved.',
-                    'info',
-                  ), 100);
                 }
                 return next;
               });
+              const labelOf = (id) => id === 'light' ? 'Light' : id === 'system' ? 'Match System' : 'Dark';
+              const introTail = (t === 'light' && !playerState.lightModeIntroShown)
+                ? ' (off-white background + warmer panel tints; panels stay dark by design)'
+                : '';
+              setTimeout(() => showNotif(
+                `Theme: ${labelOf(t)}${introTail} · Undo (Ctrl+Z)`,
+                'info',
+                () => {
+                  setPlayerState(prev => ({ ...prev, theme: prevTheme }));
+                  showNotif(`Theme reverted to ${labelOf(prevTheme)}`, 'info', null, 1800);
+                },
+                7000,
+              ), 50);
             }}
             onRestartTutorial={() => {
               setPlayerState(prev => ({
@@ -4472,12 +4493,17 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
             color="amber"
             onClick={() => setScreen('calendar')}
           />
+          {/* Phase 46b: expanded Ascension card copy. The single-line
+              "Reach level 50… Tokens earned: 0" reads as meaningless
+              without explaining what transcending does or what Tokens
+              unlock. Now spells out: reset/keep semantics + Celestial
+              shop unlock so users can decide whether to pursue it. */}
           <ModeCard
             title={(playerState?.ascensions || 0) > 0 ? `Ascension ×${playerState.ascensions}` : 'Path of Ascension'}
             desc={
               (playerState?.level || 1) >= 50
-                ? `The cycle stands ready to renew. Tokens: ${playerState?.ascensionTokens || 0}.`
-                : `Reach level 50 to transcend (current: ${playerState?.level || 1}). Tokens earned: ${playerState?.ascensionTokens || 0}.`
+                ? `The cycle stands ready to renew — reset level/gold/gear, keep identity/lore/stable, earn +1 Ascension Token. Tokens unlock Celestial shop (eternal boons). Current: ${playerState?.ascensionTokens || 0}.`
+                : `Transcend at L50 to reset level/gold/gear (keep identity/lore/stable) and earn an Ascension Token — Tokens unlock Celestial shop (eternal boons). Current: L${playerState?.level || 1} · Tokens: ${playerState?.ascensionTokens || 0}.`
             }
             icon={<Star className="w-8 h-8" />}
             color="amber"
@@ -4502,16 +4528,28 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
             color="emerald"
             onClick={() => setScreen('vault')}
           />
+          {/* Phase 46f: empty Chronicle / Bestiary cards now spell out
+              how entries arrive, since 0/0 + no hint reads as a broken
+              tab. Once entries exist, the unlock copy collapses to the
+              existing count + lore line. */}
           <ModeCard
             title="Chronicle of Delves"
-            desc={`Review past dungeon runs, personal records, and per-question reviews. ${(tomeProgress?.runHistory || []).length} delve${(tomeProgress?.runHistory || []).length === 1 ? '' : 's'} chronicled.`}
+            desc={
+              ((tomeProgress?.runHistory || []).length === 0)
+                ? `Each completed dungeon delve becomes a chronicled chapter — start a delve from the Dungeon to inscribe thy first.`
+                : `Review past dungeon runs, personal records, and per-question reviews. ${(tomeProgress?.runHistory || []).length} delve${(tomeProgress?.runHistory || []).length === 1 ? '' : 's'} chronicled.`
+            }
             icon={<Scroll className="w-8 h-8" />}
             color="purple"
             onClick={() => setScreen('history')}
           />
           <ModeCard
             title="Bestiary"
-            desc={`Lore on every foe felled in the dungeon. ${Object.keys(playerState?.bestiary || {}).length}/${20} entries unlocked.`}
+            desc={
+              (Object.keys(playerState?.bestiary || {}).length === 0)
+                ? `Defeat each foe at least once in the Dungeon to unlock its lore — entries unlock automatically as thou prevail.`
+                : `Lore on every foe felled in the dungeon. ${Object.keys(playerState?.bestiary || {}).length}/${20} entries unlocked.`
+            }
             icon={<Skull className="w-8 h-8" />}
             color="purple"
             onClick={() => setScreen('bestiary')}
@@ -4573,6 +4611,19 @@ function AudioPanel() {
   };
   const onBgm = (v) => { setBgmVolume(v); setLocalBgm(v); };
   const onSfx = (v) => { setSfxVolume(v); setLocalSfx(v); if (!muted) playSfx('click'); };
+  // Phase 46g: one-click recovery for "I slid these to 0 and now I can't
+  // hear anything". Restores both volumes; mute is left alone (default
+  // mute would silence the user a second time, which is the opposite of
+  // what they want when reaching for Reset).
+  const defaults = getDefaultAudioSettings();
+  const onReset = () => {
+    setBgmVolume(defaults.bgmVolume);
+    setSfxVolume(defaults.sfxVolume);
+    setLocalBgm(defaults.bgmVolume);
+    setLocalSfx(defaults.sfxVolume);
+    if (!muted) playSfx('click');
+  };
+  const atDefaults = bgm === defaults.bgmVolume && sfx === defaults.sfxVolume;
 
   return (
     <OrnatePanel color="sapphire">
@@ -4605,6 +4656,17 @@ function AudioPanel() {
               className="flex-1" />
             <span className="w-10 text-right tabular-nums text-amber-300 text-xs">{Math.round(sfx * 100)}%</span>
           </label>
+        </div>
+        <div className="flex items-center justify-end">
+          <button
+            onClick={onReset}
+            disabled={atDefaults}
+            title={`Reset Music to ${Math.round(defaults.bgmVolume * 100)}% and Effects to ${Math.round(defaults.sfxVolume * 100)}%`}
+            className="px-3 py-1.5 rounded text-xs italic border-2 border-amber-700 text-amber-200 hover:bg-amber-900/30 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
+            style={{ background: 'rgba(41, 24, 12, 0.7)' }}
+          >
+            <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" /> Reset to defaults
+          </button>
         </div>
       </div>
     </OrnatePanel>
@@ -7502,22 +7564,27 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
                   const correct = tile.correct;
                   const pct = total > 0 ? Math.round((correct / total) * 100) : null;
                   // Verdict: where does observed accuracy sit vs the ideal for this bucket?
-                  // Phase 45c: previous rule set had coverage gaps — Confident
-                  // at diff ∈ [-15, -5) and Uncertain at diff ∈ (5, 15] both
-                  // fell through to `verdict = null`, so a user with 5+
-                  // ratings still saw no label. Replaced with a single
-                  // |diff| ≤ 15 calibrated band per bucket so every sample
-                  // ≥5 ratings receives a verdict. Signed-diff branches
-                  // distinguish over/underconfident at the edges.
+                  // Phase 45c: replaced gappy if/else chain with a single
+                  // band. Phase 46a: tightened ±15 → ±10 (Confident at
+                  // diff=-12 was reading as "calibrated" — the user
+                  // expectation per the QA footnote is "within ±10%").
+                  // Same signed-diff edges classify over/underconfident.
+                  const CAL_BAND = 10;
                   let verdict = null;
                   if (pct !== null && total >= 5) {
                     const diff = pct - ideal;
-                    const within = Math.abs(diff) <= 15;
+                    const within = Math.abs(diff) <= CAL_BAND;
                     if (within) verdict = 'calibrated';
                     else if (key === 'high') verdict = 'overconfident'; // pct far below 90 → claimed Confident but missed
                     else if (key === 'low') verdict = diff > 0 ? 'underconfident' : 'calibrated'; // pct far above 50 with Uncertain = underconfident
                     else verdict = diff < 0 ? 'overconfident' : 'underconfident';
                   }
+                  // Phase 46a target-band overlay: 0-100% scale with an
+                  // emerald band marking ideal±CAL_BAND, plus a marker
+                  // for the observed pct. Lets the player see at a glance
+                  // whether they're inside the ideal range.
+                  const bandLo = Math.max(0, ideal - CAL_BAND);
+                  const bandHi = Math.min(100, ideal + CAL_BAND);
                   return (
                     <div key={key} className="p-2.5 rounded" style={{
                       background: palette.bg,
@@ -7532,6 +7599,38 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
                       <div className="text-[10px] italic" style={{ color: palette.text }}>
                         {correct}/{total} correct
                       </div>
+                      {pct !== null && (
+                        <div
+                          className="mt-1.5 relative"
+                          style={{ height: '8px', background: 'rgba(0,0,0,0.45)', borderRadius: '3px', overflow: 'hidden' }}
+                          title={`Ideal ${ideal}% · acceptable band ${bandLo}–${bandHi}% · observed ${pct}%`}
+                        >
+                          <div style={{
+                            position: 'absolute',
+                            left: `${bandLo}%`,
+                            width: `${bandHi - bandLo}%`,
+                            top: 0, bottom: 0,
+                            background: 'rgba(16, 185, 129, 0.45)',
+                          }} />
+                          <div style={{
+                            position: 'absolute',
+                            left: `${ideal}%`,
+                            top: 0, bottom: 0,
+                            width: '2px',
+                            background: 'rgba(16, 185, 129, 0.9)',
+                            transform: 'translateX(-1px)',
+                          }} />
+                          <div style={{
+                            position: 'absolute',
+                            left: `${Math.max(0, Math.min(100, pct))}%`,
+                            top: '-1px', bottom: '-1px',
+                            width: '3px',
+                            background: palette.text,
+                            transform: 'translateX(-1.5px)',
+                            boxShadow: '0 0 4px rgba(0,0,0,0.6)',
+                          }} />
+                        </div>
+                      )}
                       {verdict && (
                         <div className="text-[10px] italic mt-1.5 px-1.5 py-0.5 rounded text-center font-bold" style={{
                           background: verdict === 'calibrated' ? 'rgba(16, 185, 129, 0.35)'
@@ -7550,7 +7649,7 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
                 })}
               </div>
               <div className="text-[10px] italic text-emerald-700">
-                ✦ Ideal: Uncertain ≈ 50%, Likely ≈ 70%, Confident ≈ 90%. Verdicts appear after 5+ ratings per bucket.
+                ✦ Ideal: Uncertain ≈ 50%, Likely ≈ 70%, Confident ≈ 90%. Verdicts appear after 5+ ratings per bucket; calibrated = within ±10% of the ideal.
               </div>
             </div>
           )}
@@ -10718,16 +10817,31 @@ function TitlesModal({ playerState, onSelect, onClose }) {
               </button>
               {TITLES.map(t => {
                 const unlocked = currentLevel >= t.min;
+                // Phase 46d: locked rows surface the theme on hover/focus
+                // (via title attribute) so users can decide whether to
+                // chase this rank without seeing the actual name yet.
+                const hint = unlocked
+                  ? (t.theme || `Rank reached at level ${t.min}`)
+                  : `${t.theme || 'Rank title'} · unlocks at level ${t.min}`;
                 return (
-                  <div key={t.name} className="p-3 rounded border-2" style={{
-                    background: unlocked ? 'rgba(41, 24, 12, 0.5)' : 'rgba(20, 12, 6, 0.4)',
-                    borderColor: unlocked ? 'rgba(120, 53, 15, 0.5)' : 'rgba(45, 30, 20, 0.5)',
-                    opacity: unlocked ? 1 : 0.4,
-                  }}>
-                    <div className="flex justify-between">
+                  <div
+                    key={t.name}
+                    className="p-3 rounded border-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+                    tabIndex={unlocked ? -1 : 0}
+                    title={hint}
+                    style={{
+                      background: unlocked ? 'rgba(41, 24, 12, 0.5)' : 'rgba(20, 12, 6, 0.4)',
+                      borderColor: unlocked ? 'rgba(120, 53, 15, 0.5)' : 'rgba(45, 30, 20, 0.5)',
+                      opacity: unlocked ? 1 : 0.55,
+                    }}
+                  >
+                    <div className="flex justify-between items-baseline gap-2">
                       <div className="font-bold text-amber-100 italic">{unlocked ? t.name : '???'}</div>
-                      <div className="text-xs text-amber-700">Lvl {t.min}+</div>
+                      <div className="text-xs text-amber-700 shrink-0">Lvl {t.min}+</div>
                     </div>
+                    {!unlocked && t.theme && (
+                      <div className="text-[10px] italic text-amber-700/80 mt-0.5">{t.theme}</div>
+                    )}
                   </div>
                 );
               })}
