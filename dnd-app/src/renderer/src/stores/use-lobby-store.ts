@@ -192,10 +192,19 @@ export const useLobbyStore = create<LobbyState>((set, get) => ({
   addPlayer: (player) => {
     let shouldNotify = false
     set((state) => {
-      const exists = state.players.some((p) => p.peerId === player.peerId)
-      if (exists) {
+      // MP-2 (v2.1.31 QA): dedupe by clientId AND peerId. WebRTC reconnects
+      // change peerId every time even though clientId stays stable; without
+      // the clientId check, every reconnect was treated as a brand-new
+      // player and flooded chat with hundreds of `joined the lobby` /
+      // `left the lobby` lines.
+      const existingByPeerId = state.players.find((p) => p.peerId === player.peerId)
+      const existingByClientId = player.clientId ? state.players.find((p) => p.clientId === player.clientId) : undefined
+      const existing = existingByPeerId ?? existingByClientId
+      if (existing) {
         return {
-          players: state.players.map((p) => (p.peerId === player.peerId ? player : p))
+          players: state.players.map((p) =>
+            p === existing ? { ...existing, ...player, color: existing.color || player.color } : p
+          )
         }
       }
       shouldNotify = true
@@ -278,9 +287,12 @@ export const useLobbyStore = create<LobbyState>((set, get) => ({
     const { role, sendMessage } = useNetworkStore.getState()
     const isNetworked = role === 'host' || role === 'client'
 
-    // Handle /roll command
-    if (trimmed.startsWith('/roll ')) {
-      const formula = trimmed.slice(6).trim()
+    // Handle /roll command (and /r alias). L-2 (v2.1.31 QA): lobby chat
+    // was missing the /r short-form that the in-game ChatPanel supports.
+    const isRollLong = trimmed.startsWith('/roll ')
+    const isRollShort = trimmed.startsWith('/r ')
+    if (isRollLong || isRollShort) {
+      const formula = trimmed.slice(isRollLong ? 6 : 3).trim()
       const result = rollFormula(formula)
 
       if (result) {

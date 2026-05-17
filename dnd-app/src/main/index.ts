@@ -39,6 +39,19 @@ if (process.platform === 'linux' && !app.commandLine.hasSwitch('ozone-platform')
   app.commandLine.appendSwitch('ozone-platform', 'x11')
 }
 
+// MP-5 (v2.1.31 QA): allow software WebGL via SwiftShader when no GPU
+// is available. Hyper-V VMs and other headless-ish Linux environments
+// don't expose hardware GPU; without this flag, Chromium refuses to
+// initialize *any* WebGL context (even software-rasterized), and the
+// app's map renderer (PixiJS) hard-fails with "WebGL is not available."
+// SwiftShader is the software-rendering fallback Chromium ships — it's
+// slower than hardware but allows the map / dice / Three.js scenes to
+// actually paint. Hardware-GPU systems ignore this flag and continue
+// using their real driver.
+if (!app.commandLine.hasSwitch('enable-unsafe-swiftshader')) {
+  app.commandLine.appendSwitch('enable-unsafe-swiftshader')
+}
+
 const gotTheLock = app.requestSingleInstanceLock()
 if (!gotTheLock) {
   // `app.quit()` is async — the rest of this module still loads, the

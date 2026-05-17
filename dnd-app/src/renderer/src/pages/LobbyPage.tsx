@@ -27,7 +27,7 @@ export default function LobbyPage(): JSX.Element {
 
   const { setCampaignId, setIsHost, addPlayer, reset: resetLobby } = useLobbyStore()
   const { connectionState, inviteCode, localPeerId, displayName, role, disconnect, latencyMs } = useNetworkStore()
-  const { campaigns, loadCampaigns } = useCampaignStore()
+  const { campaigns, loadCampaigns, saveCampaign } = useCampaignStore()
 
   const [showLeaveModal, setShowLeaveModal] = useState(false)
   const [codeCopied, setCodeCopied] = useState(false)
@@ -74,10 +74,26 @@ export default function LobbyPage(): JSX.Element {
   useEffect(() => {
     if (connectionState === 'disconnected') {
       const reason = error || 'unknown'
-      if (reason === 'kicked' || reason === 'banned' || reason === 'host-closed' || role === 'host') {
+      const isIntentional =
+        reason === 'kicked' ||
+        reason === 'banned' ||
+        reason === 'host-closed' ||
+        // MP-8 (v2.1.31 QA): host's End Session broadcasts `dm:game-end` which
+        // sets error to "The game session has ended". Without this branch the
+        // player stays in the lobby on "Reconnecting…" forever after the host
+        // ends the session.
+        reason === 'The game session has ended' ||
+        role === 'host' ||
+        // P-1 (v2.1.31 QA): solo play has role === 'none' and never establishes
+        // a network connection at all. After Return-to-Lobby the lobby was
+        // showing "Reconnecting…" indefinitely because the disconnect branch
+        // didn't know solo wasn't trying to reconnect. Route the user back to
+        // the campaign overview where they can choose Solo / Host Game again.
+        role === 'none'
+      if (isIntentional) {
         logger.warn('Lobby disconnected with intentional reason:', reason)
         resetLobby()
-        navigate('/', { replace: true })
+        navigate(role === 'none' && campaignId ? `/campaigns/${campaignId}` : '/', { replace: true })
       } else {
         // Temporary disconnect — keep chat, show reconnecting UI
         setReconnecting(true)
@@ -85,7 +101,7 @@ export default function LobbyPage(): JSX.Element {
     } else if (connectionState === 'connected') {
       setReconnecting(false)
     }
-  }, [connectionState, error, navigate, resetLobby, role])
+  }, [connectionState, error, navigate, resetLobby, role, campaignId])
 
   // Initialize lobby state
   useEffect(() => {
@@ -343,11 +359,37 @@ export default function LobbyPage(): JSX.Element {
             {codeCopied && <span className="text-xs text-green-400 animate-pulse">Copied!</span>}
           </div>
         )}
-        {isHost && campaign?.settings?.isPrivate === false && (
+        {/* MP-7 (v2.1.31 QA): host can flip Public↔Private mid-session without
+            having to delete and recreate the campaign. */}
+        {isHost && campaign && (
           <div className="flex items-center gap-2">
-            <span className="text-[10px] uppercase tracking-wider bg-emerald-900/40 text-emerald-300 px-2 py-0.5 rounded-full">
-              Public — listed in browser
+            <span
+              className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                campaign.settings?.isPrivate ? 'bg-gray-800 text-gray-300' : 'bg-emerald-900/40 text-emerald-300'
+              }`}
+            >
+              {campaign.settings?.isPrivate ? 'Private — invite only' : 'Public — listed in browser'}
             </span>
+            <button
+              type="button"
+              onClick={() => {
+                const next: Campaign = {
+                  ...campaign,
+                  settings: {
+                    ...campaign.settings,
+                    isPrivate: !(campaign.settings?.isPrivate ?? false)
+                  },
+                  updatedAt: new Date().toISOString()
+                }
+                void saveCampaign(next)
+              }}
+              className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full
+                         bg-gray-800 border border-gray-700 text-gray-300
+                         hover:border-amber-500/60 hover:text-amber-300 cursor-pointer transition-colors"
+              title="Toggle whether this game is listed in the public browser"
+            >
+              {campaign.settings?.isPrivate ? 'Make Public' : 'Make Private'}
+            </button>
           </div>
         )}
       </div>

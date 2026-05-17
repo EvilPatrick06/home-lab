@@ -277,6 +277,39 @@ export function handleJoin(
     return
   }
 
+  // MP-1 (v2.1.31 QA): dedupe by clientId before insert. WebRTC reconnects
+  // mint a fresh transient peerId every time; without this dedupe the host's
+  // peerInfoMap accumulates a new entry per reconnect cycle ("phantom
+  // Patricks") which then cascade into MP-2 (join/leave chat spam), MP-6
+  // (color picker showing all colors taken because phantoms each claim one),
+  // and broadcast traffic getting routed to dead connections. Find any
+  // existing entry with the same clientId, close its connection, and drop
+  // it from all peer-keyed maps before we add the fresh one.
+  for (const [existingPeerId, existingPeer] of Array.from(state.peerInfoMap.entries())) {
+    if (existingPeer.clientId === joiningClientId && existingPeerId !== peerId) {
+      logger.debug(
+        '[HostManager] Replacing stale peer for clientId:',
+        joiningClientId,
+        '(old peerId:',
+        existingPeerId,
+        '→ new peerId:',
+        peerId,
+        ')'
+      )
+      const oldConn = state.connections.get(existingPeerId)
+      if (oldConn) {
+        try {
+          oldConn.close()
+        } catch {
+          /* connection already torn down — ignore */
+        }
+      }
+      state.connections.delete(existingPeerId)
+      state.peerInfoMap.delete(existingPeerId)
+      state.lastHeartbeat.delete(existingPeerId)
+    }
+  }
+
   state.connections.set(peerId, conn)
   const peerInfo: PeerInfo = {
     peerId,
