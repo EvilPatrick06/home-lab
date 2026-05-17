@@ -95,7 +95,7 @@ export default function AudioManager({ campaign, saveCampaign }: AudioManagerPro
                     onClick={() => handleDeleteAudioEntry(audio.id)}
                     className="text-xs text-gray-400 hover:text-red-400 cursor-pointer"
                   >
-                    Del
+                    Delete
                   </button>
                 </div>
               </div>

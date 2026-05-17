@@ -78,7 +78,7 @@ export default function RuleManager({ campaign, saveCampaign }: RuleManagerProps
                       onClick={() => handleDelete(rule.id)}
                       className="text-xs text-gray-400 hover:text-red-400 cursor-pointer"
                     >
-                      Del
+                      Delete
                     </button>
                   </div>
                 </div>

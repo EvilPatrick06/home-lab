@@ -139,7 +139,7 @@ export default function LoreManager({ campaign, saveCampaign }: LoreManagerProps
                       onClick={() => handleDelete(entry.id)}
                       className="text-xs text-gray-400 hover:text-red-400 cursor-pointer"
                     >
-                      Del
+                      Delete
                     </button>
                   </div>
                 </div>

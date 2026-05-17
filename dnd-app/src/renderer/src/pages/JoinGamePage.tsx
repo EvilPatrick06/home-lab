@@ -334,7 +334,14 @@ export default function JoinGamePage(): JSX.Element {
             />
           </div>
           <Button onClick={handleManualConnect} disabled={!manualValid || !displayName.trim() || isConnecting}>
-            Connect
+            {isConnecting ? (
+              <span className="flex items-center gap-2">
+                <Spinner size="sm" />
+                Connecting...
+              </span>
+            ) : (
+              'Connect'
+            )}
           </Button>
         </div>
       )}

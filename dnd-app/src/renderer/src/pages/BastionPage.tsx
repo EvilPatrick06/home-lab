@@ -109,8 +109,8 @@ export default function BastionPage(): JSX.Element {
 
   return (
     <div className="h-screen flex flex-col bg-gray-950">
-      {/* Toolbar */}
-      <div className="flex items-center justify-between px-4 py-2 bg-gray-900 border-b border-gray-800 shrink-0">
+      {/* Toolbar — pr-12 reserves space for the global settings gear icon overlay (top-right of app). */}
+      <div className="flex items-center justify-between px-4 py-2 pr-12 bg-gray-900 border-b border-gray-800 shrink-0">
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate('/')}
