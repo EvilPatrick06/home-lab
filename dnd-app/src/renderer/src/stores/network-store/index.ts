@@ -323,6 +323,18 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
         timestamp: Date.now(),
         sequence: 0
       }
+      // Phase 17ab — whispers must NOT be broadcast (every other peer
+      // would see them). Route the host's outgoing whisper directly to
+      // the named target via sendToPeer. The sender's own chat already
+      // has a local echo added by `sendChat` in use-lobby-store. If the
+      // target peerId isn't found in the connection map, drop the
+      // message rather than fan it out — better silent than leaked.
+      if (type === 'chat:whisper') {
+        const wpayload = payload as { targetPeerId?: string }
+        const targetPeerId = typeof wpayload?.targetPeerId === 'string' ? wpayload.targetPeerId : null
+        if (targetPeerId) sendToPeer(targetPeerId, message)
+        return
+      }
       // dm:character-update: broadcast to all peers so everyone has the latest
       // character data in remoteCharacters, but include targetPeerId in payload
       // so only the target player persists the update to disk
