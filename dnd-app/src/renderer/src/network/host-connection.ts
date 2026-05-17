@@ -168,6 +168,16 @@ export function handleNewConnection(conn: DataConnection, state: HostStateAccess
     if (message.type === 'ping') {
       state.lastHeartbeat.set(peerId, Date.now())
       state.sendToPeer(peerId, state.buildMessage('pong', {}))
+    } else {
+      // Phase 17f — count any non-ping message as proof of liveness so a
+      // peer that's actively sending chat / dice / player actions but
+      // whose ping path is somehow lossy doesn't get spuriously evicted
+      // by the heartbeat checker. Reverse of the half-open case (where
+      // pings work but chat fails) is a more useful liveness signal —
+      // and refreshing here doesn't hide the failure mode the user
+      // reported (chat-not-flowing surfaces as missing messages in
+      // chat, which the user sees directly).
+      state.lastHeartbeat.set(peerId, Date.now())
     }
   })
 
