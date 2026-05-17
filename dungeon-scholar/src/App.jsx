@@ -2500,6 +2500,17 @@ export default function DungeonScholarApp() {
 
   // ===== Library Operations =====
   const addTomeToLibrary = (data) => {
+    // Phase 30c QA #6: reject content-empty tomes. A tome with no scrolls,
+    // riddles, or labs creates dead-end study screens (see QA #7) and the
+    // auto-promotion below would have silently kicked the user's existing
+    // active tome out for it.
+    const flashcards = Array.isArray(data?.flashcards) ? data.flashcards : [];
+    const quiz = Array.isArray(data?.quiz) ? data.quiz : [];
+    const labs = Array.isArray(data?.labs) ? data.labs : [];
+    if (flashcards.length === 0 && quiz.length === 0 && labs.length === 0) {
+      showNotif('This tome has no scrolls, riddles, or labs — cannot inscribe', 'error');
+      return false;
+    }
     setPlayerState(prev => {
       const newEntry = {
         id: generateTomeId(),
@@ -2508,11 +2519,19 @@ export default function DungeonScholarApp() {
         lastOpened: Date.now(),
         progress: blankTomeProgress(),
       };
+      // Phase 30c QA #6: only auto-activate when the user has no active tome.
+      // Otherwise silently appending to library is the right default — a
+      // surprise activation kicks the player out of their in-progress tome.
+      const shouldActivate = !prev.activeTomeId;
       const next = {
         ...prev,
         library: [...prev.library, newEntry],
-        activeTomeId: newEntry.id,
+        activeTomeId: shouldActivate ? newEntry.id : prev.activeTomeId,
       };
+      if (!shouldActivate) {
+        const title = data?.metadata?.title || 'untitled';
+        setTimeout(() => showNotif(`Tome added: "${title}" — switch from the Library when ready.`, 'info'), 100);
+      }
       if (!next.achievements.includes('first_tome')) {
         next.achievements = [...next.achievements, 'first_tome'];
         setTimeout(() => showNotif(`Achievement Unlocked: Library Founded`, 'achievement'), 100);
@@ -2527,6 +2546,7 @@ export default function DungeonScholarApp() {
       }
       return next;
     });
+    return true;
   };
 
   const switchActiveTome = (tomeId) => {
@@ -2606,8 +2626,11 @@ export default function DungeonScholarApp() {
           showNotif('Invalid tome format', 'error');
           return;
         }
-        addTomeToLibrary(data);
-        showNotif(`Tome inscribed: ${data.metadata.title}`, 'success');
+        // Phase 30c QA #6: addTomeToLibrary now returns false on empty
+        // content — only celebrate when it actually inscribed.
+        if (addTomeToLibrary(data)) {
+          showNotif(`Tome inscribed: ${data.metadata.title}`, 'success');
+        }
       } catch (err) {
         showNotif('Failed to decipher the tome', 'error');
       }
@@ -2628,7 +2651,7 @@ export default function DungeonScholarApp() {
         showNotif('Invalid tome format — needs metadata and flashcards', 'error');
         return false;
       }
-      addTomeToLibrary(data);
+      if (!addTomeToLibrary(data)) return false;
       showNotif(`Tome inscribed: ${data.metadata.title}`, 'success');
       return true;
     } catch (err) {
@@ -2647,7 +2670,7 @@ export default function DungeonScholarApp() {
       showNotif('Share code decoded but tome is malformed', 'error');
       return false;
     }
-    addTomeToLibrary(data);
+    if (!addTomeToLibrary(data)) return false;
     showNotif(`Tome received: ${data.metadata.title}`, 'success');
     return true;
   };
@@ -8973,9 +8996,14 @@ function MetadataEditModal({ tome, onSave, onClose }) {
 
   const submit = () => {
     const tags = tagsText.split(',').map(t => t.trim()).filter(Boolean);
+    // Phase 30c QA #5: belt + suspenders on the length cap. The input also
+    // truncates on change, but defense-in-depth covers paste-from-devtools
+    // and previously-saved-too-long values reloaded from cloud.
+    const cleanTitle = (title.trim() || meta.title || 'Untitled Tome').slice(0, 200);
+    const cleanDescription = description.trim().slice(0, 600);
     onSave({
-      title: title.trim() || meta.title || 'Untitled Tome',
-      description: description.trim(),
+      title: cleanTitle,
+      description: cleanDescription,
       subject: subject.trim(),
       author: author.trim(),
       difficulty: difficulty || undefined,
@@ -9006,15 +9034,25 @@ function MetadataEditModal({ tome, onSave, onClose }) {
         <div className="p-4 overflow-y-auto flex-1 flex flex-col gap-3">
           <div>
             <label className="text-xs text-amber-600 tracking-wider italic mb-1 block">⚔ TITLE</label>
-            <input type="text" value={title} onChange={(e) => setTitle(e.target.value)}
+            <input type="text" value={title}
+              onChange={(e) => setTitle(e.target.value.slice(0, 200))}
+              maxLength={200}
               className="w-full p-2 rounded border-2 focus:outline-none italic text-amber-50"
               style={{ background: 'rgba(20, 12, 6, 0.7)', borderColor: 'rgba(180, 83, 9, 0.5)' }} />
+            <div className="text-[10px] italic text-amber-700/70 text-right mt-0.5 tabular-nums">
+              {title.length}/200
+            </div>
           </div>
           <div>
             <label className="text-xs text-amber-600 tracking-wider italic mb-1 block">⚔ DESCRIPTION</label>
-            <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2}
+            <textarea value={description}
+              onChange={(e) => setDescription(e.target.value.slice(0, 600))}
+              maxLength={600} rows={2}
               className="w-full p-2 rounded border-2 focus:outline-none italic text-amber-50"
               style={{ background: 'rgba(20, 12, 6, 0.7)', borderColor: 'rgba(180, 83, 9, 0.5)' }} />
+            <div className="text-[10px] italic text-amber-700/70 text-right mt-0.5 tabular-nums">
+              {description.length}/600
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -9168,7 +9206,7 @@ function PasteTomeModal({ onClose, onSubmit }) {
 
         <div className="p-4 border-b border-amber-700/50 flex justify-between items-center">
           <h3 className="text-xl font-bold text-amber-300 flex items-center gap-2 italic">
-            <Copy className="w-5 h-5" /> ✦ Inscribe Tome by Hand ✦
+            <Copy className="w-5 h-5" /> ✦ Paste Tome Text ✦
           </h3>
           <button onClick={onClose} className="p-2 hover:bg-amber-900/30 rounded text-amber-300">
             <X className="w-5 h-5" />
@@ -9211,13 +9249,14 @@ function PasteTomeModal({ onClose, onSubmit }) {
           <button
             onClick={handleSubmit}
             disabled={!text.trim()}
-            className="flex-1 py-3 font-bold rounded flex items-center justify-center gap-2 text-amber-950 border-2 border-amber-300 italic disabled:opacity-50 disabled:cursor-not-allowed"
+            title={text.trim() ? 'Inscribe the pasted tome' : 'Paste tome JSON to enable'}
+            className="flex-1 py-3 font-bold rounded flex items-center justify-center gap-2 text-amber-950 border-2 border-amber-300 italic disabled:opacity-40 disabled:cursor-not-allowed"
             style={{
               background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)',
               boxShadow: '0 0 20px rgba(245, 158, 11, 0.5)',
             }}
           >
-            <Scroll className="w-4 h-4" /> Inscribe the Tome
+            <Scroll className="w-4 h-4" /> {text.trim() ? 'Inscribe the Tome' : 'Paste JSON first'}
           </button>
         </div>
       </div>
