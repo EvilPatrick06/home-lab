@@ -4429,8 +4429,24 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
       <div className="flex justify-between items-center text-sm text-amber-600 italic flex-wrap gap-2">
         <span className="flex items-center gap-2 flex-wrap">
           📜 Scroll {index + 1} of {cards.length}
-          {typeof card.difficulty === 'number' && <DifficultyStars value={card.difficulty} />}
+          {/* Phase 32e QA #6: per-card difficulty + Bloom's badges. Falls
+              back to the tome's overall difficulty (metadata) when the
+              specific card doesn't carry one — at least gives the user a
+              difficulty signal instead of nothing. */}
+          {typeof card.difficulty === 'number'
+            ? <DifficultyStars value={card.difficulty} />
+            : (typeof courseSet?.metadata?.difficulty === 'number' && (
+              <span title="Tome's overall difficulty (this scroll has no per-item rating)">
+                <DifficultyStars value={courseSet.metadata.difficulty} />
+                <span className="text-[9px] italic text-amber-700/70 ml-1">tome avg</span>
+              </span>
+            ))}
           {card.bloomLevel && <BloomBadge level={card.bloomLevel} />}
+          {card.domain && (
+            <span className="text-[10px] italic uppercase tracking-wider text-sky-400" title={`Domain: ${card.domain}`}>
+              ✦ {card.domain}
+            </span>
+          )}
         </span>
         <span>Studied this session: {reviewed}</span>
       </div>
@@ -4690,7 +4706,17 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
       <div className="flex justify-between items-center text-sm text-amber-600 italic flex-wrap gap-2">
         <span className="flex items-center gap-2 flex-wrap">
           🔮 Riddle {index + 1} of {questions.length}
-          {typeof q.difficulty === 'number' && <DifficultyStars value={q.difficulty} />}
+          {/* Phase 32e QA #6: surface difficulty + Bloom's even when the
+              riddle lacks per-item fields — fall back to tome metadata so
+              the user always sees SOME difficulty signal. */}
+          {typeof q.difficulty === 'number'
+            ? <DifficultyStars value={q.difficulty} />
+            : (typeof courseSet?.metadata?.difficulty === 'number' && (
+              <span title="Tome's overall difficulty (this riddle has no per-item rating)">
+                <DifficultyStars value={courseSet.metadata.difficulty} />
+                <span className="text-[9px] italic text-amber-700/70 ml-1">tome avg</span>
+              </span>
+            ))}
           {q.bloomLevel && <BloomBadge level={q.bloomLevel} />}
         </span>
         <span className="flex items-center gap-1"><Flame className="w-4 h-4 text-orange-400" /> Streak: {streak}</span>
