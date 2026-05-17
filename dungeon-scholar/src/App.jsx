@@ -9591,6 +9591,11 @@ function MetadataEditModal({ tome, onSave, onClose }) {
             <div className={`text-xs italic text-right mt-1 tabular-nums ${description.length > 600 ? 'text-red-300 font-bold' : 'text-amber-300'}`}>
               {description.length}/600
             </div>
+            {/* Phase 36e QA P5 suggestion: surface the supported markdown
+                subset so authors don't have to guess what renders. */}
+            <div className="text-[10px] italic text-amber-100/60 mt-1 leading-relaxed">
+              ⓘ Supported: <code className="text-amber-300">**bold**</code>, <code className="text-amber-300">*italic*</code>, <code className="text-amber-300">`inline code`</code>, <code className="text-amber-300">[link](url)</code>, <code className="text-amber-300">$math$</code>, and fenced <code className="text-amber-300">```code```</code> blocks. (Headings, lists, tables, and images render as plain text.)
+            </div>
             {/* Phase 35a QA P1: legacy descriptions can exceed the limit. Show
                 an inline error + one-click Trim so the user has an explicit
                 resolution path (the form was previously stuck in a red-counter
