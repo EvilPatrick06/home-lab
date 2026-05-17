@@ -4490,38 +4490,41 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
   }, [baseDeck, domainFilter, reviewMode, reviewDeck]);
   const card = cards[index];
 
-  // Phase 33b QA P2: resume from session AFTER `cards` is populated, by
-  // cardId. Once restored, the ref short-circuits.
-  const restoredRef = useRef(false);
+  // Phase 33b/37a QA P2: resume from session. See QuizMode's restore for
+  // the full rationale on the `restored` state flag (prevents render-1
+  // persist from overwriting the saved session before render-2 restore).
+  const [restored, setRestored] = useState(false);
   useEffect(() => {
-    if (restoredRef.current) return;
-    if (reviewMode) return;
+    if (restored) return;
+    if (reviewMode) { setRestored(true); return; }
     if (!cards || cards.length === 0) return;
-    restoredRef.current = true;
-    if (domainFilter) return;
+    if (domainFilter) { setRestored(true); return; }
     const saved = loadSession(SESSION_KIND.FLASHCARDS);
-    if (!saved) return;
-    if (saved.tomeId && tomeId && saved.tomeId !== tomeId) return;
+    if (!saved) { setRestored(true); return; }
+    if (saved.tomeId && tomeId && saved.tomeId !== tomeId) { setRestored(true); return; }
+    let positioned = false;
     if (saved.cardId) {
       const pos = cards.findIndex(c => c?.id === saved.cardId);
-      if (pos >= 0) { setIndex(pos); return; }
+      if (pos >= 0) { setIndex(pos); positioned = true; }
     }
-    if (typeof saved.index === 'number' && saved.index >= 0 && saved.index < cards.length) {
+    if (!positioned && typeof saved.index === 'number' && saved.index >= 0 && saved.index < cards.length) {
       setIndex(saved.index);
     }
-  }, [cards, tomeId, reviewMode, domainFilter]);
+    setRestored(true);
+  }, [cards, tomeId, reviewMode, domainFilter, restored]);
 
-  // Phase 30b/33b QA P2: persist the current index + card id in non-review
-  // browse mode so a refresh resumes at the same scroll (by id, not just
-  // position). Review mode is skipped — its deck is a dynamic snapshot.
+  // Phase 30b/33b/37a QA P2: persist the current index + card id in
+  // non-review browse mode. Gated on `restored` so first-render-with-empty-
+  // cards doesn't overwrite the saved session with defaults.
   useEffect(() => {
+    if (!restored) return;
     if (reviewMode || domainFilter) return;
     saveSession(SESSION_KIND.FLASHCARDS, {
       tomeId: tomeId ?? null,
       index,
       cardId: cards[index]?.id ?? null,
     });
-  }, [index, tomeId, reviewMode, domainFilter, cards]);
+  }, [restored, index, tomeId, reviewMode, domainFilter, cards]);
 
   // 26g: 4-button SRS rating. Schedules the card and advances. In review
   // mode the index runs off the end of the (frozen) deck and we render
@@ -4716,47 +4719,62 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
   }, [baseDeck, domainFilter]);
   const q = questions[index];
 
-  // Phase 33b QA P2: resume from session AFTER `questions` is populated, by
-  // questionId rather than raw index — App.jsx reshuffles `questionsProp`
-  // every session, so saved index 3 may land on a different riddle. Saving
-  // the question's stable `id` and finding it in the new shuffle preserves
-  // continuity. Falls back to index if the id isn't found (e.g., deck
-  // membership changed). Once restored, the ref short-circuits so subsequent
-  // re-renders don't keep snapping back.
-  const restoredRef = useRef(false);
+  // Phase 33b/35d/37a QA P2/P3/round-6-P1: resume from session.
+  //
+  // The first version (33b) had a race: the persist effect ran on render 1
+  // when `questions` was still empty (parent's shuffle effect hadn't fired
+  // yet) and overwrote the saved session with defaults before the restore
+  // effect could run. The user observed a partial-restore on refresh: a
+  // different riddle (the next in the new queue, since `index=0` after
+  // overwrite), a reset progressCount/streak, but the confidence still
+  // intact (because confidence was set inside the restore's questionId
+  // branch which ran on render 2 after the deck arrived).
+  //
+  // Fix: introduce a `restored` state flag. The restore effect sets it
+  // AFTER applying all restore state updates. The persist effect waits
+  // until restored=true before saving anything — so render 1's persist is
+  // a no-op, render 2's restore applies the session state, and render 3's
+  // persist saves the actually-restored values. progressCount + streak are
+  // restored BEFORE the position branch so the questionId early-return
+  // doesn't skip them.
+  const [restored, setRestored] = useState(false);
   useEffect(() => {
-    if (restoredRef.current) return;
+    if (restored) return;
     if (!questions || questions.length === 0) return;
-    restoredRef.current = true;
-    if (domainFilter) return;
+    if (domainFilter) { setRestored(true); return; }
     const saved = loadSession(SESSION_KIND.QUIZ);
-    if (!saved) return;
-    if (saved.tomeId && tomeId && saved.tomeId !== tomeId) return;
+    if (!saved) { setRestored(true); return; }
+    if (saved.tomeId && tomeId && saved.tomeId !== tomeId) { setRestored(true); return; }
+    // Always-applies state first — these were missed by the prior version
+    // because the questionId branch early-returned.
+    if (saved.confidence) setConfidence(saved.confidence);
+    if (typeof saved.progressCount === 'number' && saved.progressCount >= 0) {
+      setProgressCount(saved.progressCount);
+    }
+    if (typeof saved.streak === 'number' && saved.streak >= 0) {
+      setStreak(saved.streak);
+    }
+    // Position: prefer questionId, fall back to raw index.
+    let positioned = false;
     if (saved.questionId) {
       const pos = questions.findIndex(q => q?.id === saved.questionId);
       if (pos >= 0) {
         setIndex(pos);
-        if (saved.confidence) setConfidence(saved.confidence);
-        return;
+        positioned = true;
       }
     }
-    if (typeof saved.index === 'number' && saved.index >= 0 && saved.index < questions.length) {
+    if (!positioned && typeof saved.index === 'number' && saved.index >= 0 && saved.index < questions.length) {
       setIndex(saved.index);
-      if (saved.confidence) setConfidence(saved.confidence);
     }
-    // Phase 35d QA P3: restore the session-progress counter too. If the
-    // saved session doesn't have it (legacy), default to 0 so the counter
-    // still shows "Riddle 1 of N" rather than jumping to a deck-position
-    // index that may have shifted in the new shuffle.
-    if (typeof saved.progressCount === 'number' && saved.progressCount >= 0) {
-      setProgressCount(saved.progressCount);
-    }
-  }, [questions, tomeId, domainFilter]);
+    setRestored(true);
+  }, [questions, tomeId, domainFilter, restored]);
 
-  // Phase 30b/33b/35d QA #2 + P3: persist the current index + question id +
-  // confidence + session-progress counter so a refresh-mid-quiz resumes
-  // both the exact question AND a stable user-facing counter.
+  // Phase 30b/33b/35d/37a QA #2/P3/round-6-P1: persist QUIZ session — but
+  // ONLY after the restore attempt has run (or been skipped). The `restored`
+  // flag is the gate; without it the render-1 persist would overwrite the
+  // saved session with default state before restore could read it.
   useEffect(() => {
+    if (!restored) return;
     if (domainFilter) return;
     saveSession(SESSION_KIND.QUIZ, {
       tomeId: tomeId ?? null,
@@ -4764,8 +4782,9 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
       questionId: questions[index]?.id ?? null,
       confidence,
       progressCount,
+      streak,
     });
-  }, [index, tomeId, domainFilter, questions, confidence, progressCount]);
+  }, [restored, index, tomeId, domainFilter, questions, confidence, progressCount, streak]);
 
   // Phase 30g QA #12: keyboard answers for Riddles. 1/2/3 picks confidence;
   // after confidence is set, 1-9 or A-Z indexes MC options, T/F picks
