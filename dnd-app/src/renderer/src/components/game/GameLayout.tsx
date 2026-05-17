@@ -628,6 +628,14 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
               ? (gridX, gridY, screenX, screenY) => setEmptyCellMenu({ gridX, gridY, screenX, screenY })
               : undefined
           }
+          // Phase 17v — drawing color + stroke width were declared in this
+          // component (lines ~178-179) and bound to the DrawingToolbar, but
+          // never plumbed through to MapCanvas. That meant the canvas always
+          // saw `undefined` and the event-handler default `'#ffffff'` /
+          // stroke 3 fell back in — "stuck on white, no matter what color
+          // is chosen" + the thickness slider had no visible effect.
+          drawingColor={drawingColor}
+          drawingStrokeWidth={drawingStrokeWidth}
         />
         {gameStore.ambientLight === 'dim' && (
           <div className="absolute inset-0 bg-amber-900/20 pointer-events-none z-[1]" />
