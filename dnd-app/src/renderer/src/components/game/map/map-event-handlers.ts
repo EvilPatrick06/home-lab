@@ -2,6 +2,7 @@ import { type Container, Graphics } from 'pixi.js'
 import { canMoveToPosition } from '../../../services/combat/combat-rules'
 import { isMovementBlockedByWall } from '../../../services/map/pathfinder'
 import { isMovementBlocked, wallsToSegments } from '../../../services/map/raycast-visibility'
+import { useNetworkStore } from '../../../stores/network-store'
 import { useGameStore } from '../../../stores/use-game-store'
 import type { TurnState } from '../../../types/game-state'
 import type { GameMap, MapToken } from '../../../types/map'
@@ -525,15 +526,35 @@ export function setupMouseHandlers(el: HTMLElement, opts: MouseHandlerOptions): 
         visibleToPlayers: true // All drawings are visible by default
       }
 
+      // Phase 17y — explicit broadcast belt-and-suspenders. The game-sync
+      // subscriber detects map.drawings changes and broadcasts
+      // dm:drawing-add, but multiple drawings made in rapid succession
+      // could merge into one Zustand subscription tick and lose the
+      // intermediate diff. Fire the broadcast directly from here so each
+      // drawing is guaranteed to reach clients. The handler on the client
+      // side is idempotent against duplicate IDs (drawing.id is a fresh
+      // crypto.randomUUID, so it's unique per add).
+      const broadcastDrawing = (final: typeof drawingData): void => {
+        const role = useNetworkStore.getState().role
+        if (role === 'host' && map) {
+          useNetworkStore.getState().sendMessage('dm:drawing-add', {
+            mapId: map.id,
+            drawing: final
+          })
+        }
+      }
+
       // For text tool, prompt for text input
       if (activeTool === 'draw-text') {
         const text = prompt('Enter text:')
         if (text?.trim()) {
           ;(drawingData as typeof drawingData & { text?: string }).text = text.trim()
           useGameStore.getState().addDrawing(map!.id, drawingData)
+          broadcastDrawing(drawingData)
         }
       } else {
         useGameStore.getState().addDrawing(map!.id, drawingData)
+        broadcastDrawing(drawingData)
       }
 
       // Reset drawing state
