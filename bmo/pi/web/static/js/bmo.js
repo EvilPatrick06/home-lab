@@ -3651,6 +3651,92 @@ function bmo() {
       }
     },
 
+    // ── BMO face renderer (31l, 2026-05-17) ─────────────────────────
+    // Mirrors the OLED 128×64 coordinate system exactly so the web
+    // ambient face and the physical OLED show the same expression with
+    // matching proportions. The OLED's `_render_<name>` in
+    // hardware/oled_face.py is the spec; methods here port each one to
+    // canvas via _logical*() helpers that scale 128×64 → 320×160 centered
+    // in the 240-tall canvas. To add a new expression: implement
+    // hardware/oled_face.py:_render_<name>, then mirror the same drawing
+    // commands here.
+    _faceLogical: { W: 128, H: 64, scaleX: 2.5, scaleY: 2.5, offY: 40 },
+
+    _logicalToCanvas(x, y) {
+      const f = this._faceLogical;
+      return [x * f.scaleX, y * f.scaleY + f.offY];
+    },
+
+    _logicalLine(ctx, x1, y1, x2, y2, color, width) {
+      const [cx1, cy1] = this._logicalToCanvas(x1, y1);
+      const [cx2, cy2] = this._logicalToCanvas(x2, y2);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = (width || 1) * this._faceLogical.scaleX * 0.4;
+      ctx.beginPath();
+      ctx.moveTo(cx1, cy1);
+      ctx.lineTo(cx2, cy2);
+      ctx.stroke();
+    },
+
+    _logicalRoundedRect(ctx, x, y, w, h, r, color, fill) {
+      const f = this._faceLogical;
+      const [cx, cy] = this._logicalToCanvas(x, y);
+      const cw = w * f.scaleX, ch = h * f.scaleY, cr = r * f.scaleX;
+      ctx.beginPath();
+      ctx.moveTo(cx + cr, cy);
+      ctx.lineTo(cx + cw - cr, cy);
+      ctx.quadraticCurveTo(cx + cw, cy, cx + cw, cy + cr);
+      ctx.lineTo(cx + cw, cy + ch - cr);
+      ctx.quadraticCurveTo(cx + cw, cy + ch, cx + cw - cr, cy + ch);
+      ctx.lineTo(cx + cr, cy + ch);
+      ctx.quadraticCurveTo(cx, cy + ch, cx, cy + ch - cr);
+      ctx.lineTo(cx, cy + cr);
+      ctx.quadraticCurveTo(cx, cy, cx + cr, cy);
+      if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+      if (color) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+    },
+
+    _logicalEllipse(ctx, x0, y0, x1, y1, color, fill) {
+      // Matches PIL.ImageDraw.ellipse — bounding-box form.
+      const f = this._faceLogical;
+      const [cx0, cy0] = this._logicalToCanvas(x0, y0);
+      const [cx1, cy1] = this._logicalToCanvas(x1, y1);
+      const cx = (cx0 + cx1) / 2;
+      const cy = (cy0 + cy1) / 2;
+      const rx = (cx1 - cx0) / 2;
+      const ry = (cy1 - cy0) / 2;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+      if (fill !== undefined && fill !== null) {
+        ctx.fillStyle = fill; ctx.fill();
+      }
+      if (color) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+    },
+
+    _logicalArc(ctx, x0, y0, x1, y1, startDeg, endDeg, color, width) {
+      // PIL arc: degrees, 0 is east, sweeps clockwise.
+      const f = this._faceLogical;
+      const [cx0, cy0] = this._logicalToCanvas(x0, y0);
+      const [cx1, cy1] = this._logicalToCanvas(x1, y1);
+      const cx = (cx0 + cx1) / 2, cy = (cy0 + cy1) / 2;
+      const rx = (cx1 - cx0) / 2, ry = (cy1 - cy0) / 2;
+      const startRad = startDeg * Math.PI / 180;
+      const endRad = endDeg * Math.PI / 180;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = (width || 1) * this._faceLogical.scaleX * 0.4;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, rx, ry, 0, startRad, endRad);
+      ctx.stroke();
+    },
+
     _renderFace() {
       const ctx = this._faceCtx;
       if (!ctx) return;
@@ -3662,47 +3748,45 @@ function bmo() {
       ctx.fillStyle = darkBg;
       ctx.fillRect(0, 0, W, H);
 
-      // Use emotion as override, otherwise use status state
-      const state = this._faceEmotion || this._faceState || 'idle';
+      // Unified state from face_state SocketIO event (31h) — falls back to
+      // legacy _faceState/_faceEmotion for back-compat with older clients.
+      const state = this._faceState || this._faceEmotion || 'idle';
 
       switch (state) {
-        case 'listening': this._drawListening(ctx, W, H, green, pupilColor); break;
-        case 'thinking':  this._drawThinking(ctx, W, H, green, pupilColor); break;
-        case 'speaking':  this._drawSpeaking(ctx, W, H, green); break;
-        case 'follow_up': this._drawListening(ctx, W, H, green, pupilColor); break;
-        case 'happy':     this._drawHappy(ctx, W, H, green); break;
-        case 'excited':   this._drawHappy(ctx, W, H, green); break;
-        case 'sad':       this._drawSad(ctx, W, H, green, pupilColor); break;
-        case 'scared':    this._drawScared(ctx, W, H, green, pupilColor); break;
-        case 'sleeping':  this._drawSleeping(ctx, W, H, green); break;
-        case 'error':     this._drawError(ctx, W, H, green); break;
-        case 'mischievous': this._drawMischievous(ctx, W, H, green, pupilColor); break;
-        default:          this._drawIdle(ctx, W, H, green, pupilColor); break;
+        case 'listening':       this._drawListening(ctx, green, pupilColor); break;
+        case 'thinking':        this._drawThinking(ctx, green, pupilColor); break;
+        case 'speaking':
+        case 'yapping':         this._drawSpeaking(ctx, green); break;
+        case 'follow_up':       this._drawListening(ctx, green, pupilColor); break;
+        case 'happy':           this._drawHappy(ctx, green); break;
+        case 'excited':         this._drawExcited(ctx, green, pupilColor); break;
+        case 'surprised':       this._drawSurprised(ctx, green, pupilColor); break;
+        case 'concerned':
+        case 'sad':             this._drawConcerned(ctx, green, pupilColor); break;
+        case 'scared':          this._drawScared(ctx, green, pupilColor); break;
+        case 'sleepy':
+        case 'sleeping':        this._drawSleepy(ctx, green); break;
+        case 'error':           this._drawError(ctx, green); break;
+        case 'mischievous':     this._drawMischievous(ctx, green, pupilColor); break;
+        case 'looking_around':  this._drawLookingAround(ctx, green, pupilColor); break;
+        default:                this._drawIdle(ctx, green, pupilColor); break;
       }
 
-      // Clear emotion after a few seconds
+      // Render BMO body frame outline (the show's pixel-accurate corners).
+      // The face itself sits inside this rounded screen rect.
+      // Clear ambient emotion after ~5s so face returns to baseline.
       if (this._faceEmotion && this._faceFrame % 300 === 299) {
         this._faceEmotion = null;
       }
     },
 
-    _drawFaceOutline(ctx, W, H, color) {
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 3;
-      const r = 20, x = 25, y = 10, w = W - 50, h = H - 20;
-      ctx.beginPath();
-      ctx.moveTo(x + r, y);
-      ctx.lineTo(x + w - r, y);
-      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-      ctx.lineTo(x + w, y + h - r);
-      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-      ctx.lineTo(x + r, y + h);
-      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-      ctx.lineTo(x, y + r);
-      ctx.quadraticCurveTo(x, y, x + r, y);
-      ctx.stroke();
+    // Compatibility wrappers — old _drawFaceOutline / _drawEllipse calls
+    // (kept for any external callers; new code should use _logical*).
+    _drawFaceOutline(ctx, _W, _H, color) {
+      // Canonical BMO screen outline — matches OLED's rounded_rectangle
+      // [10, 4, 118, 60] radius=8 exactly.
+      this._logicalRoundedRect(ctx, 10, 4, 108, 56, 8, color);
     },
-
     _drawEllipse(ctx, cx, cy, rx, ry, fill, stroke) {
       ctx.beginPath();
       ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
@@ -3710,10 +3794,11 @@ function bmo() {
       if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 2; ctx.stroke(); }
     },
 
-    _drawIdle(ctx, W, H, green, pupilColor) {
-      this._drawFaceOutline(ctx, W, H, green);
+    _drawIdle(ctx, green, pupilColor) {
+      // Mirrors hardware/oled_face.py:_render_idle exactly (128×64 coords).
+      this._logicalRoundedRect(ctx, 10, 4, 108, 56, 8, green);
 
-      // Blink every ~5 seconds (at ~60fps = 300 frames)
+      // Blink at ~60fps: open ~5s, closed ~12 frames (~200ms)
       this._faceBlink++;
       if (this._faceBlink >= 300) {
         this._faceBlinkState = true;
@@ -3723,7 +3808,7 @@ function bmo() {
         }
       }
 
-      // Look-around
+      // Look-around: target every ~8s, smooth interp toward it
       this._faceLookTimer++;
       if (this._faceLookTimer >= 480) {
         this._faceLookTarget = [-1, 0, 0, 1][Math.floor(Math.random() * 4)];
@@ -3732,194 +3817,219 @@ function bmo() {
       const diff = this._faceLookTarget - this._faceLookOffset;
       if (Math.abs(diff) > 0.05) this._faceLookOffset += diff * 0.08;
       else this._faceLookOffset = this._faceLookTarget;
-      const shift = this._faceLookOffset * 8;
+      const pupilShift = this._faceLookOffset * 3;  // OLED uses 3 logical px
 
       if (this._faceBlinkState) {
-        ctx.strokeStyle = green; ctx.lineWidth = 3;
-        ctx.beginPath(); ctx.moveTo(88, 80); ctx.lineTo(128, 80); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(192, 80); ctx.lineTo(232, 80); ctx.stroke();
+        // OLED blink: horizontal lines [35,25]→[50,25] and [78,25]→[93,25]
+        this._logicalLine(ctx, 35, 25, 50, 25, green, 2);
+        this._logicalLine(ctx, 78, 25, 93, 25, green, 2);
       } else {
-        this._drawEllipse(ctx, 108, 75, 20, 18, green);
-        this._drawEllipse(ctx, 212, 75, 20, 18, green);
-        this._drawEllipse(ctx, 103 + shift, 73, 7, 8, pupilColor);
-        this._drawEllipse(ctx, 207 + shift, 73, 7, 8, pupilColor);
+        // OLED open eyes: ellipse [35,18,50,32] filled, pupils shifted by look
+        const ps = pupilShift;
+        this._logicalEllipse(ctx, 35, 18, 50, 32, green, green);
+        this._logicalEllipse(ctx, 78, 18, 93, 32, green, green);
+        this._logicalEllipse(ctx, 40 + ps, 22, 45 + ps, 28, pupilColor, pupilColor);
+        this._logicalEllipse(ctx, 83 + ps, 22, 88 + ps, 28, pupilColor, pupilColor);
       }
 
-      // Mouth — small line
-      ctx.strokeStyle = green; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.moveTo(130, 150); ctx.lineTo(190, 150); ctx.stroke();
+      // OLED mouth: line [52,44]→[76,44]
+      this._logicalLine(ctx, 52, 44, 76, 44, green, 1);
     },
 
-    _drawListening(ctx, W, H, green, pupilColor) {
-      this._drawFaceOutline(ctx, W, H, green);
+    _drawListening(ctx, green, pupilColor) {
+      // Mirrors hardware/oled_face.py:_render_listening
+      this._logicalRoundedRect(ctx, 10, 4, 108, 56, 8, green);
 
-      // Wide eyes
-      this._drawEllipse(ctx, 105, 72, 25, 24, green);
-      this._drawEllipse(ctx, 215, 72, 25, 24, green);
-      this._drawEllipse(ctx, 105, 70, 10, 10, pupilColor);
-      this._drawEllipse(ctx, 215, 70, 10, 10, pupilColor);
+      // Wide open eyes [32,14,52,34] + [76,14,96,34] filled
+      this._logicalEllipse(ctx, 32, 14, 52, 34, green, green);
+      this._logicalEllipse(ctx, 76, 14, 96, 34, green, green);
+      // Large pupils [38,20,46,28] + [82,20,90,28]
+      this._logicalEllipse(ctx, 38, 20, 46, 28, pupilColor, pupilColor);
+      this._logicalEllipse(ctx, 82, 20, 90, 28, pupilColor, pupilColor);
 
-      // Small O mouth
-      this._drawEllipse(ctx, 160, 152, 15, 12, null, green);
+      // Small 'o' mouth [58,40,70,50] outline only
+      this._logicalEllipse(ctx, 58, 40, 70, 50, green, null);
+
+      // Ear dots (perked)
+      this._logicalEllipse(ctx, 14, 18, 18, 22, green, green);
+      this._logicalEllipse(ctx, 14, 26, 18, 30, green, green);
+      this._logicalEllipse(ctx, 110, 18, 114, 22, green, green);
+      this._logicalEllipse(ctx, 110, 26, 114, 30, green, green);
 
       // Pulsing mic arcs
-      const pulse = this._faceFrame % 60 < 30;
-      if (pulse) {
-        ctx.strokeStyle = green; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.arc(15, 120, 12, -Math.PI / 3, Math.PI / 3); ctx.stroke();
-        ctx.beginPath(); ctx.arc(305, 120, 12, Math.PI * 2 / 3, Math.PI * 4 / 3); ctx.stroke();
+      if (this._faceFrame % 10 < 5) {
+        this._logicalArc(ctx, 2, 20, 12, 44, 270, 450, green, 1);  // 270→90
+        this._logicalArc(ctx, 116, 20, 126, 44, 90, 270, green, 1);
       }
     },
 
-    _drawThinking(ctx, W, H, green, pupilColor) {
-      this._drawFaceOutline(ctx, W, H, green);
+    _drawThinking(ctx, green, pupilColor) {
+      // Mirrors hardware/oled_face.py:_render_thinking
+      this._logicalRoundedRect(ctx, 10, 4, 108, 56, 8, green);
 
-      // Eyes looking up-right
-      this._drawEllipse(ctx, 108, 75, 20, 18, green);
-      this._drawEllipse(ctx, 212, 75, 20, 18, green);
-      this._drawEllipse(ctx, 115, 68, 7, 8, pupilColor);
-      this._drawEllipse(ctx, 219, 68, 7, 8, pupilColor);
+      // Eyes looking up-right (filled ovals + pupils shifted up-right)
+      this._logicalEllipse(ctx, 35, 18, 50, 32, green, green);
+      this._logicalEllipse(ctx, 78, 18, 93, 32, green, green);
+      this._logicalEllipse(ctx, 43, 19, 48, 25, pupilColor, pupilColor);
+      this._logicalEllipse(ctx, 86, 19, 91, 25, pupilColor, pupilColor);
 
-      // Slight frown
-      ctx.strokeStyle = green; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.arc(160, 155, 25, 0.2, Math.PI - 0.2); ctx.stroke();
+      // Slight frown — OLED arc [50,44,78,54] 180→360
+      this._logicalArc(ctx, 50, 44, 78, 54, 180, 360, green, 1);
 
-      // Rotating dots
+      // Rotating dots — small circles orbiting (64,46) at logical r=8
       this._faceThinkAngle += 0.04;
-      const cx = 160, cy = 155, r = 20;
+      const cx = 64, cy = 46, orbit = 8;
       for (let i = 0; i < 3; i++) {
         const a = this._faceThinkAngle + (i * Math.PI * 2 / 3);
-        const x = cx + r * Math.cos(a);
-        const y = cy + r * Math.sin(a);
-        const sz = i === 0 ? 5 : 3;
-        this._drawEllipse(ctx, x, y, sz, sz, green);
+        const x = cx + orbit * Math.cos(a);
+        const y = cy + orbit * Math.sin(a);
+        const sz = i === 0 ? 2 : 1.5;
+        this._logicalEllipse(ctx, x - sz, y - sz, x + sz, y + sz, green, green);
       }
     },
 
-    _drawSpeaking(ctx, W, H, green) {
-      this._drawFaceOutline(ctx, W, H, green);
+    _drawSpeaking(ctx, green) {
+      // Mirrors hardware/oled_face.py:_render_speaking
+      this._logicalRoundedRect(ctx, 10, 4, 108, 56, 8, green);
 
-      // Happy squint eyes (arcs)
-      ctx.strokeStyle = green; ctx.lineWidth = 3;
-      ctx.beginPath(); ctx.arc(108, 82, 18, Math.PI + 0.5, -0.5); ctx.stroke();
-      ctx.beginPath(); ctx.arc(212, 82, 18, Math.PI + 0.5, -0.5); ctx.stroke();
+      // Happy squint arcs — OLED arcs 200→340 over eye area
+      this._logicalArc(ctx, 35, 22, 50, 32, 200, 340, green, 2);
+      this._logicalArc(ctx, 78, 22, 93, 32, 200, 340, green, 2);
 
-      // Animated mouth
-      const mouthSize = 8 + Math.abs(Math.sin(this._faceFrame * 0.15)) * 16;
-      this._drawEllipse(ctx, 160, 150, 25, mouthSize, null, green);
+      // Animated mouth — opens and closes
+      const m = Math.abs(Math.sin(this._faceFrame * 0.15)) * 5 + 3;
+      this._logicalEllipse(ctx, 56, 42 - m / 2, 72, 42 + m / 2, green, null);
     },
 
-    _drawHappy(ctx, W, H, green) {
-      this._drawFaceOutline(ctx, W, H, green);
+    _drawHappy(ctx, green) {
+      // Mirrors hardware/oled_face.py:_render_happy
+      this._logicalRoundedRect(ctx, 10, 4, 108, 56, 8, green);
 
-      // Squinted happy eyes
-      ctx.strokeStyle = green; ctx.lineWidth = 3;
-      ctx.beginPath(); ctx.arc(108, 80, 20, Math.PI + 0.4, -0.4); ctx.stroke();
-      ctx.beginPath(); ctx.arc(212, 80, 20, Math.PI + 0.4, -0.4); ctx.stroke();
+      // Happy curved eyes (squinted ^ ^)
+      this._logicalArc(ctx, 33, 18, 52, 32, 200, 340, green, 2);
+      this._logicalArc(ctx, 76, 18, 95, 32, 200, 340, green, 2);
 
-      // Big smile
-      ctx.beginPath(); ctx.arc(160, 130, 50, 0.15, Math.PI - 0.15); ctx.stroke();
+      // Big smile — wide arc
+      this._logicalArc(ctx, 38, 36, 90, 54, 20, 160, green, 2);
     },
 
-    _drawSad(ctx, W, H, green, pupilColor) {
-      this._drawFaceOutline(ctx, W, H, green);
-
-      // Droopy eyes
-      this._drawEllipse(ctx, 108, 80, 18, 14, green);
-      this._drawEllipse(ctx, 212, 80, 18, 14, green);
-      this._drawEllipse(ctx, 108, 82, 7, 7, pupilColor);
-      this._drawEllipse(ctx, 212, 82, 7, 7, pupilColor);
-
-      // Sad eyebrows
-      ctx.strokeStyle = green; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.moveTo(85, 58); ctx.lineTo(130, 62); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(235, 58); ctx.lineTo(190, 62); ctx.stroke();
-
-      // Frown
-      ctx.beginPath(); ctx.arc(160, 170, 30, Math.PI + 0.3, -0.3); ctx.stroke();
+    _drawExcited(ctx, green, pupilColor) {
+      // Wide open eyes + huge open mouth + bouncing accent
+      this._logicalRoundedRect(ctx, 10, 4, 108, 56, 8, green);
+      const bounce = Math.sin(this._faceFrame * 0.25) * 1.5;
+      this._logicalEllipse(ctx, 32, 14 + bounce, 52, 34 + bounce, green, green);
+      this._logicalEllipse(ctx, 76, 14 + bounce, 96, 34 + bounce, green, green);
+      this._logicalEllipse(ctx, 38, 20 + bounce, 46, 28 + bounce, pupilColor, pupilColor);
+      this._logicalEllipse(ctx, 82, 20 + bounce, 90, 28 + bounce, pupilColor, pupilColor);
+      // Wide open smile
+      this._logicalArc(ctx, 36, 36, 92, 56, 10, 170, green, 2);
     },
 
-    _drawScared(ctx, W, H, green, pupilColor) {
-      // Trembling outline
-      const off = this._faceFrame % 12 < 6 ? 2 : -2;
-      ctx.strokeStyle = green; ctx.lineWidth = 3;
-      const r = 20, x = 25 + off, y = 10, w = W - 50, h = H - 20;
-      ctx.beginPath();
-      ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y);
-      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-      ctx.lineTo(x + w, y + h - r);
-      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-      ctx.lineTo(x + r, y + h);
-      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-      ctx.lineTo(x, y + r);
-      ctx.quadraticCurveTo(x, y, x + r, y);
-      ctx.stroke();
+    _drawSurprised(ctx, green, pupilColor) {
+      // Big wide-open eyes + small 'o' mouth
+      this._logicalRoundedRect(ctx, 10, 4, 108, 56, 8, green);
+      this._logicalEllipse(ctx, 30, 12, 54, 36, green, green);
+      this._logicalEllipse(ctx, 74, 12, 98, 36, green, green);
+      this._logicalEllipse(ctx, 38, 20, 46, 28, pupilColor, pupilColor);
+      this._logicalEllipse(ctx, 82, 20, 90, 28, pupilColor, pupilColor);
+      // Small O mouth — circle
+      this._logicalEllipse(ctx, 60, 42, 68, 50, green, null);
+    },
 
-      // Wide scared eyes
-      this._drawEllipse(ctx, 105, 72, 28, 28, green);
-      this._drawEllipse(ctx, 215, 72, 28, 28, green);
-      this._drawEllipse(ctx, 105, 66, 7, 8, pupilColor);
-      this._drawEllipse(ctx, 215, 66, 7, 8, pupilColor);
+    _drawConcerned(ctx, green, pupilColor) {
+      // Droopy eyes + frown
+      this._logicalRoundedRect(ctx, 10, 4, 108, 56, 8, green);
+      // Droopy eyes (slightly closed bottom)
+      this._logicalEllipse(ctx, 35, 20, 50, 30, green, green);
+      this._logicalEllipse(ctx, 78, 20, 93, 30, green, green);
+      this._logicalEllipse(ctx, 40, 23, 45, 28, pupilColor, pupilColor);
+      this._logicalEllipse(ctx, 83, 23, 88, 28, pupilColor, pupilColor);
+      // Concerned brows — angled down toward center
+      this._logicalLine(ctx, 30, 14, 50, 18, green, 1);
+      this._logicalLine(ctx, 78, 18, 98, 14, green, 1);
+      // Frown — inverted arc
+      this._logicalArc(ctx, 50, 46, 78, 56, 180, 360, green, 1);
+    },
 
+    _drawScared(ctx, green, pupilColor) {
+      // Mirrors hardware/oled_face.py:_render_scared — trembling outline
+      const off = this._faceFrame % 12 < 6 ? 1 : -1;
+      this._logicalRoundedRect(ctx, 10 + off, 4, 108, 56, 8, green);
+      // Wide scared eyes (filled large)
+      this._logicalEllipse(ctx, 30, 14, 54, 38, green, green);
+      this._logicalEllipse(ctx, 74, 14, 98, 38, green, green);
+      this._logicalEllipse(ctx, 39, 18, 45, 26, pupilColor, pupilColor);
+      this._logicalEllipse(ctx, 83, 18, 89, 26, pupilColor, pupilColor);
       // Small O mouth
-      this._drawEllipse(ctx, 160, 158, 14, 12, null, green);
+      this._logicalEllipse(ctx, 58, 44, 70, 54, green, null);
     },
 
-    _drawSleeping(ctx, W, H, green) {
-      this._drawFaceOutline(ctx, W, H, green);
-
-      // Closed eyes
-      ctx.strokeStyle = green; ctx.lineWidth = 3;
-      ctx.beginPath(); ctx.moveTo(88, 80); ctx.lineTo(128, 80); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(192, 80); ctx.lineTo(232, 80); ctx.stroke();
-
+    _drawSleepy(ctx, green) {
+      // Mirrors hardware/oled_face.py:_render_sleeping — closed eyes + Zzz
+      this._logicalRoundedRect(ctx, 10, 4, 108, 56, 8, green);
+      // Closed eyes (horizontal lines)
+      this._logicalLine(ctx, 35, 25, 50, 25, green, 2);
+      this._logicalLine(ctx, 78, 25, 93, 25, green, 2);
       // Slight smile
-      ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.arc(160, 140, 25, 0.2, Math.PI - 0.2); ctx.stroke();
-
-      // Animated Zzz
+      this._logicalArc(ctx, 50, 40, 78, 50, 20, 160, green, 1);
+      // Animated Zzz — three Zs scaling up
       const phase = Math.floor(this._faceFrame / 50) % 3;
-      ctx.fillStyle = green; ctx.font = 'bold 16px monospace';
+      const ctxFont = ctx;
+      ctxFont.fillStyle = green;
       for (let i = 0; i <= phase; i++) {
-        const x = 240 + i * 15, y = 60 - i * 18;
-        const sz = 12 + i * 4;
-        ctx.font = `bold ${sz}px monospace`;
-        ctx.fillText('Z', x, y);
+        const [zx, zy] = this._logicalToCanvas(96 + i * 6, 20 - i * 8);
+        const sz = 14 + i * 5;
+        ctxFont.font = `bold ${sz}px monospace`;
+        ctxFont.fillText('Z', zx, zy);
       }
     },
 
-    _drawError(ctx, W, H, green) {
-      this._drawFaceOutline(ctx, W, H, green);
-
-      // X eyes
-      ctx.strokeStyle = green; ctx.lineWidth = 3;
-      ctx.beginPath(); ctx.moveTo(90, 60); ctx.lineTo(126, 96); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(126, 60); ctx.lineTo(90, 96); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(194, 60); ctx.lineTo(230, 96); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(230, 60); ctx.lineTo(194, 96); ctx.stroke();
-
+    _drawError(ctx, green) {
+      // Mirrors hardware/oled_face.py:_render_error — X eyes
+      this._logicalRoundedRect(ctx, 10, 4, 108, 56, 8, green);
+      this._logicalLine(ctx, 35, 18, 50, 32, green, 2);
+      this._logicalLine(ctx, 50, 18, 35, 32, green, 2);
+      this._logicalLine(ctx, 78, 18, 93, 32, green, 2);
+      this._logicalLine(ctx, 93, 18, 78, 32, green, 2);
       // Frown
-      ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.arc(160, 175, 35, Math.PI + 0.3, -0.3); ctx.stroke();
+      this._logicalArc(ctx, 50, 44, 78, 56, 180, 360, green, 2);
     },
 
-    _drawMischievous(ctx, W, H, green, pupilColor) {
-      this._drawFaceOutline(ctx, W, H, green);
-
+    _drawMischievous(ctx, green, pupilColor) {
+      this._logicalRoundedRect(ctx, 10, 4, 108, 56, 8, green);
       // Angled brows
-      ctx.strokeStyle = green; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.moveTo(80, 62); ctx.lineTo(130, 52); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(190, 52); ctx.lineTo(240, 62); ctx.stroke();
-
+      this._logicalLine(ctx, 32, 22, 50, 16, green, 1);
+      this._logicalLine(ctx, 78, 16, 96, 22, green, 1);
       // Narrowed eyes
-      this._drawEllipse(ctx, 108, 78, 18, 10, green);
-      this._drawEllipse(ctx, 212, 78, 18, 10, green);
-      this._drawEllipse(ctx, 108, 77, 6, 6, pupilColor);
-      this._drawEllipse(ctx, 212, 77, 6, 6, pupilColor);
-
+      this._logicalEllipse(ctx, 35, 22, 50, 30, green, green);
+      this._logicalEllipse(ctx, 78, 22, 93, 30, green, green);
+      this._logicalEllipse(ctx, 40, 24, 45, 28, pupilColor, pupilColor);
+      this._logicalEllipse(ctx, 83, 24, 88, 28, pupilColor, pupilColor);
       // Wide grin
-      ctx.strokeStyle = green; ctx.lineWidth = 3;
-      ctx.beginPath(); ctx.arc(160, 135, 55, 0.1, Math.PI - 0.1); ctx.stroke();
+      this._logicalArc(ctx, 36, 36, 92, 54, 5, 175, green, 2);
+    },
+
+    _drawLookingAround(ctx, green, pupilColor) {
+      // Procedural — explicit "looking around" with pronounced pupil drift,
+      // small head-tilt feel via slightly larger sweep than idle's subtle range.
+      this._logicalRoundedRect(ctx, 10, 4, 108, 56, 8, green);
+      // Faster look cycle than idle
+      this._faceLookTimer++;
+      if (this._faceLookTimer >= 180) {
+        this._faceLookTarget = [-1, 1, 0, -1, 1][Math.floor(Math.random() * 5)];
+        if (this._faceLookTimer >= 240) { this._faceLookTimer = 0; }
+      }
+      const diff = this._faceLookTarget - this._faceLookOffset;
+      if (Math.abs(diff) > 0.05) this._faceLookOffset += diff * 0.12;
+      else this._faceLookOffset = this._faceLookTarget;
+      const ps = this._faceLookOffset * 4;  // wider sweep than idle
+
+      this._logicalEllipse(ctx, 35, 18, 50, 32, green, green);
+      this._logicalEllipse(ctx, 78, 18, 93, 32, green, green);
+      this._logicalEllipse(ctx, 40 + ps, 22, 45 + ps, 28, pupilColor, pupilColor);
+      this._logicalEllipse(ctx, 83 + ps, 22, 88 + ps, 28, pupilColor, pupilColor);
+      // Same neutral mouth
+      this._logicalLine(ctx, 52, 44, 76, 44, green, 1);
     },
 
     // ── Lists ────────────────────────────────────────────────

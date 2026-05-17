@@ -12,6 +12,38 @@
 
 ---
 
+### [2026-05-17] Phase 31l — BMO face visual unification: web canvas mirrors OLED in shared coord space
+
+- **Original QA bug:** 2026-05-17 BMO QA report Problem #28 (visual side — state machine already unified in 31h, defer noted in 31j).
+- **Category:** ux, architecture
+- **Domain:** bmo
+- **Resolved by:** Claude Opus (Phase 31l)
+- **Date resolved:** 2026-05-17
+- **Resolution:** Closes the deferred visual-fidelity side of QA #28. The web canvas BMO face now renders in the same 128×64 logical coordinate space as `hardware/oled_face.py`, scaled 2.5× to 320×160 centered inside the 240-tall canvas. New helpers `_logicalLine`, `_logicalEllipse`, `_logicalRoundedRect`, `_logicalArc` are direct ports of PIL.ImageDraw's primitives. Every expression renderer was rewritten to mirror its OLED counterpart's exact coordinates and primitives:
+  - **Direct OLED ports (matching coords):** `_drawIdle`, `_drawListening`, `_drawThinking`, `_drawSpeaking`, `_drawHappy`, `_drawScared`, `_drawSleepy` (was `_drawSleeping`), `_drawError`, `_drawMischievous`.
+  - **New canonical expressions added to the web** (already in OLED + the unified `EXPRESSIONS` enum from 31h): `_drawSurprised`, `_drawConcerned` (replaces ad-hoc `_drawSad`), `_drawExcited` (now distinct from happy with bouncing accent), `_drawLookingAround` (faster look-cycle than idle's procedural drift).
+  - **Switch table extended** to dispatch all 11 canonical expressions: `idle / happy / surprised / sleepy / concerned / excited / thinking / speaking / listening / error / looking_around` + back-compat aliases (`sad → concerned`, `sleeping → sleepy`, `yapping → speaking`).
+  - **Compat wrappers** preserved (`_drawFaceOutline`, `_drawEllipse`) so any external caller that still uses the old API keeps working.
+- **Visual canonical look (matches the show):** rounded-rect screen outline at logical [10,4,118,60] radius=8; filled oval eyes with dark pupils that shift with the look-around offset; small flat line mouth. Each non-idle expression overrides eyes/mouth per OLED spec.
+- **Verified:** `node --check` passes on the JS bundle (caught + fixed a duplicate `} else {` left over from the edit). `pytest tests/test_face_state.py tests/test_app_endpoints.py` → 40 passed. BMO restarted, `/health` ok. Live JS reachable via `/static/js/bmo.js` with 46 `_logicalEllipse` references confirming the new renderer is served.
+- **Touched files:** `bmo/pi/web/static/js/bmo.js` (face renderer + helpers).
+- **Note:** The OLED+web now use the SAME coordinate space and SAME drawing commands per expression — adding a new expression means writing it once in each language with the same logical coords. A future further step (out of scope) would extract the per-expression drawing as a JSON/JS-shared asset; the current mirroring is the pragmatic path to identical visuals.
+
+---
+
+### [2026-05-17] Phase 31k — Controls tab full hydration wrapper (deferred follow-up to 31e)
+
+- **Original QA bug:** Deferred sub-tile flicker noted in 31e's resolution (QA #14 expanded scope).
+- **Category:** ux, hydration
+- **Domain:** bmo
+- **Resolved by:** Claude Opus (Phase 31k)
+- **Date resolved:** 2026-05-17
+- **Resolution:** The Controls tab body is now wrapped in a single `<div x-show="controlsLoaded">` (immediately after the 5-card pulsing skeleton). All ~40 subsections — system status, volume, smart-home devices, voice settings, BT, audio routing, scenes, notifications, alerts, routines — stay hidden until `fetchControlsData()` resolves. Previously only the first tile was gated; the rest rendered with stale defaults for ~500ms causing toggle flicker.
+- **Verified:** `pytest tests/test_app_endpoints.py` → 31 passed. BMO restarted, `/health` ok. Rendered HTML now shows 4 `controlsLoaded` references (skeleton + wrapper + 2 helpers).
+- **Touched files:** `bmo/pi/web/templates/index.html`.
+
+---
+
 ### [2026-05-17] Phase 31j — Full verification + couldn't-test carry-forward (BMO QA bundle close-out)
 
 - **Original QA bugs:** 2026-05-17 BMO QA report final pass.
