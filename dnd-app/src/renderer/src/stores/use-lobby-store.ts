@@ -2,7 +2,9 @@ import { create } from 'zustand'
 import type { DiceColors } from '../components/game/dice3d'
 import { DEFAULT_DICE_COLORS } from '../components/game/dice3d'
 import { MAX_CHAT_LENGTH } from '../constants'
+import { DEFAULT_BLOCKED_WORDS, filterMessage } from '../data/moderation'
 import { subscribeToSystemChat } from '../events/system-chat-bridge'
+import { getCustomBlockedWords, isModerationEnabled } from '../network/host-manager'
 import { PLAYER_COLORS } from '../network/types'
 import { rollFormula } from '../services/dice/dice-engine'
 import type { Character } from '../types/character'
@@ -413,18 +415,30 @@ export const useLobbyStore = create<LobbyState>((set, get) => ({
     }
 
     // Normal chat message
+    // Phase 17i — apply auto-moderation to the host's OWN outgoing chat.
+    // Previously the host's outgoing path bypassed `applyChatModeration`
+    // (that helper only fired on incoming chat from peers), so a host
+    // typing a blocked word saw + broadcast it unfiltered while peers'
+    // identical text got bleeped. Filter once here for symmetry, then
+    // both the local chat add AND the broadcast carry the filtered text.
+    let outgoing = trimmed
+    if (role === 'host' && isModerationEnabled()) {
+      const words = getCustomBlockedWords()
+      const wordList = words.length > 0 ? words : DEFAULT_BLOCKED_WORDS
+      outgoing = filterMessage(trimmed, wordList)
+    }
     const msg: ChatMessage = {
       id: generateMessageId(),
       senderId: 'local',
       senderName: 'You',
-      content: trimmed,
+      content: outgoing,
       timestamp: Date.now(),
       isSystem: false
     }
     get().addChatMessage(msg)
 
     if (isNetworked) {
-      sendMessage('chat:message', { message: trimmed, isSystem: false })
+      sendMessage('chat:message', { message: outgoing, isSystem: false })
     }
   },
 

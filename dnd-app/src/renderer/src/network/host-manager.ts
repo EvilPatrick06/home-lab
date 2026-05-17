@@ -576,6 +576,11 @@ export function isModerationEnabled(): boolean {
   return moderationEnabled
 }
 
+/** Read the current custom blocked-word list (empty = use defaults). */
+export function getCustomBlockedWords(): string[] {
+  return customBlockedWords
+}
+
 /** Set a game state provider callback for full syncs on new peer connections. */
 export function setGameStateProvider(provider: GameStateProvider | null): void {
   gameStateProvider = provider
