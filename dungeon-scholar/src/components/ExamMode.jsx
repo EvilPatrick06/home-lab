@@ -370,31 +370,42 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
           border: '3px double rgba(126, 34, 206, 0.6)',
           boxShadow: '0 0 24px rgba(168, 85, 247, 0.18), inset 0 0 24px rgba(0,0,0,0.5)',
         }}>
-          {/* Phase 33f / 35c QA P6 + P4: chip row above question text.
-              Per-riddle difficulty only — no tome-avg fallback (identical
-              across every question, implied false per-item granularity). */}
-          {(q.domain || typeof q.difficulty === 'number' || q.bloomLevel) && (
-            <div className="flex items-center gap-2 flex-wrap mb-3 pb-2 border-b border-purple-700/30">
-              {q.domain && (
-                <span className="text-[10px] italic uppercase tracking-wider px-2 py-0.5 rounded font-bold" style={{
-                  background: 'rgba(67, 56, 202, 0.35)', border: '1px solid rgba(129, 140, 248, 0.55)', color: '#c7d2fe',
-                }}>{q.domain}</span>
-              )}
-              {typeof q.difficulty === 'number' && (
-                <span className="flex items-center gap-1 px-2 py-0.5 rounded" style={{ background: 'rgba(120, 53, 15, 0.35)', border: '1px solid rgba(245, 158, 11, 0.5)' }}>
-                  <span className="text-xs italic tabular-nums" title={`Difficulty ${Math.min(5, Math.max(1, Math.round(q.difficulty)))}/5`}>
-                    <span style={{ color: '#fbbf24' }}>{'▰'.repeat(Math.min(5, Math.max(1, Math.round(q.difficulty))))}</span>
-                    <span style={{ color: 'rgba(120, 53, 15, 0.7)' }}>{'▱'.repeat(5 - Math.min(5, Math.max(1, Math.round(q.difficulty))))}</span>
-                  </span>
+          {/* Phase 33f / 35c / 36b QA P6, P4, P2: always render the chip row
+              with muted placeholders for any slot the tome author didn't
+              tag, so the information density is consistent across tomes. */}
+          <div className="flex items-center gap-2 flex-wrap mb-3 pb-2 border-b border-purple-700/30">
+            {q.domain ? (
+              <span className="text-[10px] italic uppercase tracking-wider px-2 py-0.5 rounded font-bold" style={{
+                background: 'rgba(67, 56, 202, 0.35)', border: '1px solid rgba(129, 140, 248, 0.55)', color: '#c7d2fe',
+              }}>{q.domain}</span>
+            ) : (
+              <span className="text-[10px] italic uppercase tracking-wider px-2 py-0.5 rounded" style={{
+                background: 'rgba(63, 63, 70, 0.25)', border: '1px dashed rgba(120, 113, 108, 0.45)', color: 'rgba(214, 211, 209, 0.7)',
+              }} title="No domain tagged on this riddle">domain —</span>
+            )}
+            {typeof q.difficulty === 'number' ? (
+              <span className="flex items-center gap-1 px-2 py-0.5 rounded" style={{ background: 'rgba(120, 53, 15, 0.35)', border: '1px solid rgba(245, 158, 11, 0.5)' }}>
+                <span className="text-xs italic tabular-nums" title={`Difficulty ${Math.min(5, Math.max(1, Math.round(q.difficulty)))}/5`}>
+                  <span style={{ color: '#fbbf24' }}>{'▰'.repeat(Math.min(5, Math.max(1, Math.round(q.difficulty))))}</span>
+                  <span style={{ color: 'rgba(120, 53, 15, 0.7)' }}>{'▱'.repeat(5 - Math.min(5, Math.max(1, Math.round(q.difficulty))))}</span>
                 </span>
-              )}
-              {q.bloomLevel && (
-                <span className="text-[10px] uppercase tracking-wider italic px-2 py-0.5 rounded font-bold" style={{
-                  background: 'rgba(6, 78, 59, 0.35)', border: '1px solid rgba(16, 185, 129, 0.5)', color: '#a7f3d0',
-                }}>{q.bloomLevel}</span>
-              )}
-            </div>
-          )}
+              </span>
+            ) : (
+              <span className="flex items-center gap-1 px-2 py-0.5 rounded" style={{ background: 'rgba(63, 63, 70, 0.2)', border: '1px dashed rgba(120, 113, 108, 0.4)', color: 'rgba(214, 211, 209, 0.7)' }} title="Per-riddle difficulty not rated by the tome author">
+                <span className="text-xs tabular-nums">▱▱▱▱▱</span>
+                <span className="text-[9px] italic">not rated</span>
+              </span>
+            )}
+            {q.bloomLevel ? (
+              <span className="text-[10px] uppercase tracking-wider italic px-2 py-0.5 rounded font-bold" style={{
+                background: 'rgba(6, 78, 59, 0.35)', border: '1px solid rgba(16, 185, 129, 0.5)', color: '#a7f3d0',
+              }}>{q.bloomLevel}</span>
+            ) : (
+              <span className="text-[10px] uppercase tracking-wider italic px-2 py-0.5 rounded" style={{
+                background: 'rgba(63, 63, 70, 0.2)', border: '1px dashed rgba(120, 113, 108, 0.4)', color: 'rgba(214, 211, 209, 0.7)',
+              }} title="Bloom's-level not tagged on this riddle">bloom —</span>
+            )}
+          </div>
           <RichContent as="div" text={q.question} className="text-lg text-amber-50 italic mb-4 leading-relaxed" />
           {/* Phase 30g QA #12: keyboard hotkey hint for the in-progress exam. */}
           <div className="text-[11px] italic text-amber-700/70 mb-3">
