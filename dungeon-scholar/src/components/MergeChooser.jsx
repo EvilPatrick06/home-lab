@@ -10,7 +10,7 @@ function summarize(state) {
   };
 }
 
-function Card({ heading, state, onPick, pickLabel, pickColor }) {
+function Card({ heading, state, onPick, pickLabel, pickColor, ariaLabel }) {
   const s = summarize(state);
   return (
     <div className="flex-1 p-4 rounded border-2 border-amber-700"
@@ -20,9 +20,13 @@ function Card({ heading, state, onPick, pickLabel, pickColor }) {
       <div className="text-sm text-amber-300 mt-2">📚 {s.tomes} tomes</div>
       <div className="text-sm text-amber-300">🎯 {s.totalCorrect} victories</div>
       <div className="text-sm text-amber-300">⭐ {s.totalXp.toLocaleString()} total XP</div>
+      {/* Phase 33e QA P5: each button gets a distinct, action-specific
+          aria-label (the previous identical `title=` made screen readers
+          + find-tooling resolve both buttons to the same accessible name). */}
       <button
         onClick={onPick}
-        title="The other side will be replaced."
+        title={ariaLabel}
+        aria-label={ariaLabel}
         className={`mt-4 w-full px-3 py-2 rounded border-2 italic text-sm hover:opacity-90 ${pickColor}`}
       >
         {pickLabel}
@@ -48,6 +52,7 @@ export function MergeChooser({ localState, cloudState, onResolve }) {
             heading="THIS DEVICE"
             state={localState}
             pickLabel="Use this device's progress"
+            ariaLabel="Keep this device's progress and overwrite the cloud copy"
             pickColor="border-amber-700 text-amber-200 bg-amber-900/30"
             onPick={() => onResolve('local')}
           />
@@ -55,12 +60,14 @@ export function MergeChooser({ localState, cloudState, onResolve }) {
             heading="YOUR CLOUD"
             state={cloudState}
             pickLabel="Use my cloud progress"
+            ariaLabel="Use the cloud progress and overwrite this device's copy"
             pickColor="border-purple-700 text-purple-200 bg-purple-900/30"
             onPick={() => onResolve('cloud')}
           />
         </div>
         <button
           onClick={() => onResolve('cancel')}
+          aria-label="Cancel sign-in and keep this device's progress unchanged"
           className="mt-5 w-full px-3 py-2 rounded border-2 border-stone-700 text-stone-300 italic text-sm hover:bg-stone-900/40"
         >
           Cancel sign-in (keep this device unchanged)
