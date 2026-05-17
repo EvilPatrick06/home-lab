@@ -20,6 +20,7 @@ import type {
   HandoutPayload,
   HandoutSharePayload,
   InspectResponsePayload,
+  JoinRejectedPayload,
   JournalAddPayload,
   JournalDeletePayload,
   JournalSyncPayload,
@@ -35,6 +36,7 @@ import type {
   PlayAmbientPayload,
   PlaySoundPayload,
   ReactionPromptPayload,
+  RoleChangePayload,
   RollRequestPayload,
   ShopUpdatePayload,
   SlowModePayload,
@@ -262,6 +264,39 @@ export function handleClientMessage(
         timestamp: Date.now(),
         isSystem: true
       })
+      break
+    }
+
+    case 'player:join-rejected': {
+      // Phase 29e: host refused our join (full / banned / spectator-cap /
+      // name-conflict / invalid). Surface the reason and disconnect.
+      const payload = message.payload as JoinRejectedPayload
+      const niceReason =
+        payload.reason === 'full'
+          ? 'The game is full.'
+          : payload.reason === 'spectator-cap'
+            ? 'All spectator slots are taken.'
+            : payload.reason === 'banned'
+              ? 'You are banned from this game.'
+              : payload.reason === 'name-conflict'
+                ? 'That display name is already in use.'
+                : 'Your join was rejected by the host.'
+      set({
+        connectionState: 'disconnected',
+        role: 'none',
+        campaignId: null,
+        peers: [],
+        error: payload.message || niceReason,
+        disconnectReason: 'rejected'
+      })
+      break
+    }
+
+    case 'dm:role-change': {
+      // Phase 29e: host changed a peer's role (promote/demote spectator).
+      const payload = message.payload as RoleChangePayload
+      get().updatePeer(payload.peerId, { role: payload.role })
+      useLobbyStore.getState().updatePlayer(payload.peerId, { role: payload.role })
       break
     }
 

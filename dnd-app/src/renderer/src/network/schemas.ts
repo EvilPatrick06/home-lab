@@ -223,6 +223,16 @@ const ColorRejectedPayloadSchema = z.object({
   reason: z.literal('taken')
 })
 
+const JoinRejectedPayloadSchema = z.object({
+  reason: z.enum(['full', 'banned', 'spectator-cap', 'name-conflict', 'invalid']),
+  message: z.string().max(200).optional()
+})
+
+const RoleChangePayloadSchema = z.object({
+  peerId: z.string().max(100),
+  role: z.enum(['player', 'spectator'])
+})
+
 const ChatFilePayloadSchema = z.object({
   fileName: z.string(),
   fileType: z.string(),
@@ -498,6 +508,8 @@ const PAYLOAD_SCHEMAS: Partial<Record<MessageTypeString, z.ZodType>> = {
   'player:color-change': ColorChangePayloadSchema,
   'player:color-confirm': ColorConfirmPayloadSchema,
   'player:color-rejected': ColorRejectedPayloadSchema,
+  'player:join-rejected': JoinRejectedPayloadSchema,
+  'dm:role-change': RoleChangePayloadSchema,
   'player:time-request': TimeRequestPayloadSchema,
   'player:turn-end': TurnEndPayloadSchema,
   'player:roll-result': RollResultPayloadSchema,

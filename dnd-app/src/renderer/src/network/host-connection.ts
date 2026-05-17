@@ -21,6 +21,10 @@ export interface HostStateAccessors {
   getCampaignId: () => string | null
   /** Host's stable per-installation UUID. Stamped onto the host peer's PeerInfo so clients see consistent identity. (Phase 29b) */
   getHostClientId: () => string
+  /** Phase 29e: max player slots (from `campaign.settings.maxPlayers`). Host rejects joins past this cap. */
+  getMaxPlayers: () => number
+  /** Phase 29e: max spectator slots (from `campaign.settings.maxSpectators`). Host rejects spectator joins past this cap. */
+  getMaxSpectators: () => number
   getModerationEnabled: () => boolean
   getCustomBlockedWords: () => string[]
   getGameStateProvider: () => ((peerInfo: PeerInfo) => unknown) | null
@@ -224,6 +228,40 @@ export function handleJoin(
     const banPayload: BanPayload = { peerId, reason: 'Banned by DM' }
     const banMsg = state.buildMessage('dm:ban-player', banPayload)
     state.disconnectPeer(peerId, banMsg)
+    return
+  }
+
+  // Phase 29e: enforce per-role caps (maxPlayers / maxSpectators).
+  const requestedRole: 'player' | 'spectator' = message.payload.role ?? 'player'
+  let currentPlayers = 0
+  let currentSpectators = 0
+  for (const existing of state.peerInfoMap.values()) {
+    if (existing.role === 'player') currentPlayers++
+    else if (existing.role === 'spectator') currentSpectators++
+  }
+  if (requestedRole === 'player' && currentPlayers >= state.getMaxPlayers()) {
+    logger.debug('[HostManager] Player cap reached:', currentPlayers, '/', state.getMaxPlayers(), '— rejecting', peerId)
+    const rejectMsg = state.buildMessage('player:join-rejected', {
+      reason: 'full' as const,
+      message: `Game is full (${currentPlayers}/${state.getMaxPlayers()} players).`
+    })
+    state.disconnectPeer(peerId, rejectMsg)
+    return
+  }
+  if (requestedRole === 'spectator' && currentSpectators >= state.getMaxSpectators()) {
+    logger.debug(
+      '[HostManager] Spectator cap reached:',
+      currentSpectators,
+      '/',
+      state.getMaxSpectators(),
+      '— rejecting',
+      peerId
+    )
+    const rejectMsg = state.buildMessage('player:join-rejected', {
+      reason: 'spectator-cap' as const,
+      message: `Spectator slots full (${currentSpectators}/${state.getMaxSpectators()}).`
+    })
+    state.disconnectPeer(peerId, rejectMsg)
     return
   }
 

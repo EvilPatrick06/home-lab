@@ -25,6 +25,9 @@ let displayName = ''
 let hostClientId = ''
 const sequenceCounter = { value: 0 }
 let campaignId: string | null = null
+/** Phase 29e: per-campaign caps applied to incoming joins (set via `setHostCaps`). */
+let maxPlayers = 8
+let maxSpectators = 5
 
 // Rate limiting
 const messageRates = new Map<string, number[]>()
@@ -165,6 +168,8 @@ function getStateAccessors(): HostStateAccessors {
     getDisplayName: () => displayName,
     getCampaignId: () => campaignId,
     getHostClientId: () => hostClientId,
+    getMaxPlayers: () => maxPlayers,
+    getMaxSpectators: () => maxSpectators,
     getModerationEnabled: () => moderationEnabled,
     getCustomBlockedWords: () => customBlockedWords,
     getGameStateProvider: () => gameStateProvider,
@@ -399,6 +404,12 @@ export function isHosting(): boolean {
 /** Get the current invite code. */
 export function getInviteCode(): string | null {
   return inviteCode
+}
+
+/** Phase 29e: configure the player / spectator caps the host enforces on new joins. */
+export function setHostCaps(nextMaxPlayers: number, nextMaxSpectators: number): void {
+  maxPlayers = Math.max(1, Math.floor(nextMaxPlayers))
+  maxSpectators = Math.max(0, Math.floor(nextMaxSpectators))
 }
 
 /** Set the campaign ID; also loads persisted bans. */

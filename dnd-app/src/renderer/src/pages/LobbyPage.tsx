@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router'
 import { LobbyLayout } from '../components/lobby'
 import { Button, Modal } from '../components/ui'
 import { JOINED_SESSIONS_KEY, LAST_SESSION_KEY, LOBBY_COPY_TIMEOUT_MS } from '../constants'
-import { onClientMessage, setHostCampaignId } from '../network'
+import { onClientMessage, setHostCampaignId, setHostCaps } from '../network'
 import { useNetworkStore } from '../stores/network-store'
 import { useAiDmStore } from '../stores/use-ai-dm-store'
 import { useCampaignStore } from '../stores/use-campaign-store'
@@ -125,6 +125,14 @@ export default function LobbyPage(): JSX.Element {
       setHostCampaignId(campaignId)
     }
   }, [isHost, campaignId])
+
+  // Phase 29e: push the campaign's player/spectator caps into the host
+  // manager so handleJoin can enforce them on incoming joins.
+  useEffect(() => {
+    if (isHost && campaign) {
+      setHostCaps(campaign.settings?.maxPlayers ?? 8, campaign.settings?.maxSpectators ?? 5)
+    }
+  }, [isHost, campaign])
 
   useEffect(() => {
     if (campaignId) {

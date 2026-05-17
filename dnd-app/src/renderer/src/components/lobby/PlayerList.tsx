@@ -29,8 +29,13 @@ export default function PlayerList(): JSX.Element {
   const sortedPlayers = useMemo(
     () =>
       [...players].sort((a, b) => {
+        // Phase 29e ordering: host → players (alphabetical) → spectators (alphabetical).
         if (a.isHost && !b.isHost) return -1
         if (!a.isHost && b.isHost) return 1
+        const aSpec = a.role === 'spectator'
+        const bSpec = b.role === 'spectator'
+        if (aSpec && !bSpec) return 1
+        if (!aSpec && bSpec) return -1
         return a.displayName.localeCompare(b.displayName)
       }),
     [players]
@@ -97,6 +102,16 @@ export default function PlayerList(): JSX.Element {
   const handleDemoteCoDM = (peerId: string): void => {
     updatePlayer(peerId, { isCoDM: false })
     sendMessage('dm:demote-codm', { peerId, isCoDM: false })
+  }
+
+  // Phase 29e: DM-only spectator/player role toggle (broadcasts dm:role-change).
+  const handlePromoteToPlayer = (peerId: string): void => {
+    updatePlayer(peerId, { role: 'player' })
+    sendMessage('dm:role-change', { peerId, role: 'player' })
+  }
+  const handleDemoteToSpectator = (peerId: string): void => {
+    updatePlayer(peerId, { role: 'spectator', isReady: false })
+    sendMessage('dm:role-change', { peerId, role: 'spectator' })
   }
 
   const handleColorChange = (color: string): void => {
@@ -168,6 +183,16 @@ export default function PlayerList(): JSX.Element {
                 }
                 onColorChange={isLocal ? handleColorChange : undefined}
                 usedByOtherPeers={isLocal ? usedByOthers : undefined}
+                onPromoteToPlayer={
+                  isHostView && !isLocal && !player.isHost && player.role === 'spectator'
+                    ? () => handlePromoteToPlayer(player.peerId)
+                    : undefined
+                }
+                onDemoteToSpectator={
+                  isHostView && !isLocal && !player.isHost && player.role !== 'spectator'
+                    ? () => handleDemoteToSpectator(player.peerId)
+                    : undefined
+                }
               />
             )
           })

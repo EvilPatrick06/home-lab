@@ -17,6 +17,10 @@ interface PlayerCardProps {
   onColorChange?: (color: string) => void
   /** Phase 29d: colors currently held by *other* peers — disable those in the picker. */
   usedByOtherPeers?: ReadonlySet<string>
+  /** Phase 29e: DM-only — promote a spectator to player. Only rendered for spectators in host view. */
+  onPromoteToPlayer?: () => void
+  /** Phase 29e: DM-only — demote a player to spectator. Only rendered for players in host view. */
+  onDemoteToSpectator?: () => void
 }
 
 export default memo(function PlayerCard({
@@ -32,8 +36,11 @@ export default memo(function PlayerCard({
   onPromoteCoDM,
   onDemoteCoDM,
   onColorChange,
-  usedByOtherPeers
+  usedByOtherPeers,
+  onPromoteToPlayer,
+  onDemoteToSpectator
 }: PlayerCardProps): JSX.Element {
+  const isSpectator = player.role === 'spectator'
   const avatarLetter = player.displayName.charAt(0).toUpperCase()
   const [showColorPicker, setShowColorPicker] = useState(false)
 
@@ -74,6 +81,11 @@ export default memo(function PlayerCard({
             {player.isCoDM && !player.isHost && (
               <span className="flex-shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded bg-purple-600/30 text-purple-400 uppercase tracking-wide">
                 Co-DM
+              </span>
+            )}
+            {isSpectator && (
+              <span className="flex-shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded bg-sky-700/40 text-sky-300 uppercase tracking-wide">
+                Spectator
               </span>
             )}
           </div>
@@ -251,6 +263,28 @@ export default memo(function PlayerCard({
               className="px-2 py-1 rounded text-xs font-medium transition-colors cursor-pointer bg-red-950/40 text-red-500 hover:bg-red-900/60 hover:text-red-300"
             >
               Ban
+            </button>
+          )}
+
+          {/* Phase 29e: spectator/player role toggle (DM-only) */}
+          {isSpectator && onPromoteToPlayer && (
+            <button
+              type="button"
+              onClick={onPromoteToPlayer}
+              title="Promote to player"
+              className="px-2 py-1 rounded text-xs font-medium transition-colors cursor-pointer bg-sky-900/40 text-sky-300 hover:bg-sky-900/60 hover:text-sky-200"
+            >
+              Promote
+            </button>
+          )}
+          {!isSpectator && onDemoteToSpectator && (
+            <button
+              type="button"
+              onClick={onDemoteToSpectator}
+              title="Demote to spectator"
+              className="px-2 py-1 rounded text-xs font-medium transition-colors cursor-pointer bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-gray-200"
+            >
+              Demote
             </button>
           )}
         </div>

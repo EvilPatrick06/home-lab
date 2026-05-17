@@ -38,6 +38,24 @@ import type { NetworkState } from './index'
 const pendingTrades = new Map<string, TradeRequestPayload>()
 
 /**
+ * Phase 29e: messages a spectator is allowed to send to the host. Anything
+ * else gets dropped with a warning. Keep this list narrow — read-only
+ * presence + chat is the spectator's surface; gameplay actions are not.
+ */
+const SPECTATOR_ALLOWED_TYPES = new Set<MessageType>([
+  'chat:message',
+  'chat:file',
+  'chat:whisper',
+  'player:typing',
+  'player:ready',
+  'player:color-confirm',
+  'player:color-change',
+  'player:character-select',
+  'ping',
+  'pong'
+])
+
+/**
  * Handle messages received by the host from connected peers.
  * Routes messages and rebroadcasts as needed.
  */
@@ -63,6 +81,15 @@ export function handleHostMessage(
       console.warn('[host-handlers] Invalid payload for', message.type, pr.error.issues)
       return
     }
+  }
+
+  // Phase 29e: spectators may only chat, type, and tweak their own lobby
+  // presence — they cannot perform gameplay actions. Drop gameplay-mutating
+  // messages from any peer whose `role === 'spectator'`.
+  const senderPeer = getPeerInfo(fromPeerId)
+  if (senderPeer?.role === 'spectator' && !SPECTATOR_ALLOWED_TYPES.has(message.type)) {
+    console.warn('[host-handlers] Dropping gameplay message from spectator:', message.type, fromPeerId)
+    return
   }
 
   switch (message.type) {

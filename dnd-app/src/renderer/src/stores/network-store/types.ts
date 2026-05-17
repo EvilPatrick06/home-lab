@@ -9,7 +9,7 @@ export interface NetworkState {
   displayName: string
   peers: PeerInfo[]
   error: string | null
-  disconnectReason: 'kicked' | 'banned' | null
+  disconnectReason: 'kicked' | 'banned' | 'rejected' | null
   latencyMs: number | null
 
   hostGame: (displayName: string, existingInviteCode?: string) => Promise<string>

@@ -65,6 +65,8 @@ export const MESSAGE_TYPES = [
   'player:color-change',
   'player:color-confirm',
   'player:color-rejected',
+  'player:join-rejected',
+  'dm:role-change',
   'player:time-request',
   'player:turn-end',
   'player:roll-result',
@@ -242,6 +244,26 @@ export interface ColorConfirmPayload {
 export interface ColorRejectedPayload {
   color: string
   reason: 'taken'
+}
+
+/**
+ * Phase 29e: host → client when a join attempt is refused. The client surfaces
+ * the reason in the UI and disconnects.
+ */
+export interface JoinRejectedPayload {
+  reason: 'full' | 'banned' | 'spectator-cap' | 'name-conflict' | 'invalid'
+  /** Optional human-readable detail. */
+  message?: string
+}
+
+/**
+ * Phase 29e: host → peers when a peer's role is changed (typically the DM
+ * promoting a spectator to player or demoting a player to spectator). The
+ * targeted client also receives this and updates its local role.
+ */
+export interface RoleChangePayload {
+  peerId: string
+  role: 'player' | 'spectator'
 }
 
 export interface ChatFilePayload {

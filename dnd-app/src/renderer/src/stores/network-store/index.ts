@@ -78,7 +78,7 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
               if (maps?.length) {
                 // The joining peer is by definition non-host — strip hidden tokens
                 // from each map's `tokens` array before shipping the image payload.
-                const transformed = transformUpdatePayloadForPeer({ mapsWithImages: maps }, false)
+                const transformed = transformUpdatePayloadForPeer({ mapsWithImages: maps }, 'player')
                 if (!transformed) return
                 const msg = {
                   type: 'game:state-update' as const,
@@ -104,7 +104,7 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
       // The host gets the unfiltered view; non-host peers get a player-view
       // with hidden tokens / unrevealed traps / DM-only handouts redacted.
       setGameStateProvider((peerInfo: PeerInfo) =>
-        filterGameStateForRole(buildNetworkGameState(), peerInfo.isHost === true)
+        filterGameStateForRole(buildNetworkGameState(), peerInfo.role ?? (peerInfo.isHost ? 'host' : 'player'))
       )
 
       set({
@@ -257,8 +257,8 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
           sequence: 0
         }
         for (const p of peers) {
-          const isDM = p.isHost === true // future co-DM peers can flip this
-          const transformed = transformUpdatePayloadForPeer(payload, isDM)
+          const role = p.role ?? (p.isHost ? 'host' : 'player')
+          const transformed = transformUpdatePayloadForPeer(payload, role)
           if (transformed === null) continue
           const message: NetworkMessage = {
             ...baseHeader,
@@ -498,8 +498,16 @@ function filterTrapsForPlayer(traps: unknown[] | undefined): unknown[] | undefin
  * - `combatLog` / `sessionLog` (player-readable game journal)
  * - `partyVisionCells` (computed from player tokens — the input)
  */
-export function filterGameStateForRole(state: NetworkGameState, isDM: boolean): NetworkGameState {
-  if (isDM) return state
+export function filterGameStateForRole(
+  state: NetworkGameState,
+  role: 'host' | 'player' | 'spectator'
+): NetworkGameState {
+  // Host (and Co-DM at the same trust level) sees the unfiltered state.
+  // Player + Spectator share the same view: DM-only data stripped, hidden
+  // tokens omitted, traps/handouts gated by isRevealed/visibility flags.
+  // Spectator-specific *action* gating happens in host-handlers (drop token
+  // moves, dice rolls, etc.) — the view itself doesn't differ from a player.
+  if (role === 'host') return state
 
   const hiddenIds = collectHiddenTokenIds(state.maps)
 
@@ -590,10 +598,14 @@ function lookupTokenInHostState(mapId: string, tokenId: string): unknown | null 
  */
 export function transformUpdatePayloadForPeer(
   payload: unknown,
-  isDM: boolean,
+  role: 'host' | 'player' | 'spectator' | boolean,
   lookupToken: (mapId: string, tokenId: string) => unknown | null = lookupTokenInHostState
 ): unknown | null {
-  if (isDM) return payload
+  // Phase 29e: accept `role` as either the new role string or the legacy boolean
+  // (true = host) for in-flight callers. Spectator sees the same filtered view
+  // as a player.
+  const isHost = role === true || role === 'host'
+  if (isHost) return payload
   if (!payload || typeof payload !== 'object') return payload
 
   const p = { ...(payload as Record<string, unknown>) }
