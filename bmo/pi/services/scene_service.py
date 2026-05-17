@@ -400,11 +400,32 @@ class SceneService:
                 log.exception(f"[scene] Music play failed")
 
     def _apply_deactivation(self, skip_restore: bool = False):
-        """Deactivate the current scene."""
+        """Deactivate the current scene.
+
+        Round 2 #3 (2026-05-17): reverse music effects from the scene that
+        was active. Party Mode previously started a playlist on activate but
+        left it playing on deactivate. If the deactivating scene had any
+        `music_playlist` or set music_stop=True (which we apply by stopping
+        playback), reverse it now."""
         with self._lock:
             scene_name = self._active_scene
             self._active_scene = None
             self._save_state()
+
+        # Reverse music side-effects from the scene that was active.
+        try:
+            all_scenes = _get_all_scenes()
+            scene_cfg = all_scenes.get(scene_name) if scene_name else None
+            if scene_cfg:
+                music = self._services.get("music")
+                if music and scene_cfg.get("music_playlist"):
+                    log.info(f"[scene] {scene_name} deactivate → stopping music (was playing playlist)")
+                    try:
+                        music.stop()
+                    except Exception:
+                        log.exception("[scene] music.stop on deactivate failed")
+        except Exception:
+            log.exception("[scene] reverse music side-effects failed")
 
         if not skip_restore:
             self._restore_state()
