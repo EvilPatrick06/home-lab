@@ -1326,21 +1326,28 @@
          :class="swipeDirection === 'left' ? 'tab-slide-enter-left' : swipeDirection === 'right' ? 'tab-slide-enter-right' : ''"
          class="h-full flex flex-col p-3 gap-3 overflow-y-auto">
 
-      <!-- QA #14 (2026-05-17): hydration skeleton until controlsLoaded.
-           Single wrapping x-show below gates EVERY control until the
-           initial /api/* round-trip finishes — eliminates the on-load
-           toggle flicker where switches render off then flip to true. -->
+      <!-- QA #14 (2026-05-17, expanded in 31k): hydration skeleton until
+           controlsLoaded. The single x-show="controlsLoaded" wrapper below
+           gates EVERY control subsection until the initial /api/* round-
+           trip finishes — eliminates the on-load toggle flicker where
+           switches render off then flip to true. Skeleton + wrapper give
+           the user a clear "loading" state instead of wrong defaults. -->
       <template x-if="!controlsLoaded">
         <div class="flex flex-col gap-3">
           <div class="bg-surface-light rounded-lg p-3 animate-pulse h-24"></div>
           <div class="bg-surface-light rounded-lg p-3 animate-pulse h-32"></div>
           <div class="bg-surface-light rounded-lg p-3 animate-pulse h-32"></div>
+          <div class="bg-surface-light rounded-lg p-3 animate-pulse h-24"></div>
+          <div class="bg-surface-light rounded-lg p-3 animate-pulse h-32"></div>
           <div class="text-center text-xs text-text-dim">Loading current settings…</div>
         </div>
       </template>
 
+      <!-- Full Controls body — gated on hydration (31k, 2026-05-17). -->
+      <div x-show="controlsLoaded" class="flex flex-col gap-3">
+
       <!-- System Status -->
-      <div class="bg-surface-light rounded-lg p-3" x-show="controlsLoaded">
+      <div class="bg-surface-light rounded-lg p-3">
         <div class="flex items-center justify-between mb-2">
           <h3 class="text-base font-bold cursor-pointer" @click="showStatusDetail = true; fetchDetailedStatus()">📊 System Status</h3>
           <button @click="refreshStatus()" class="text-sm text-accent">Refresh</button>
@@ -1882,6 +1889,8 @@
             <div x-show="routines.length === 0" class="text-sm text-text-dim text-center py-1">No routines configured</div>
           </div>
         </div>
+
+      </div><!-- /controlsLoaded wrapper (31k) -->
 
     </div>
   </main>
