@@ -1,6 +1,7 @@
 import { useGameStore } from '../../stores/use-game-store'
+import { evalDiceExpression, isDiceExpressionError } from '../dice/dice-engine'
 import { revealRoll, rollForDm } from '../dice/dice-service'
-import { broadcastDiceResult, getLastRoll, parseDiceFormula, rollDiceFormula, rollSingle, setLastRoll } from './helpers'
+import { broadcastDiceResult, getLastRoll, rollSingle, setLastRoll } from './helpers'
 import type { ChatCommand, CommandContext } from './types'
 
 function executeHiddenRoll(args: string, ctx: CommandContext) {
@@ -8,13 +9,12 @@ function executeHiddenRoll(args: string, ctx: CommandContext) {
     return { handled: false, error: 'Usage: /hdice <formula>  e.g. /hdice 1d20+5' }
   }
 
-  const formula = parseDiceFormula(args.trim())
-  if (!formula) {
-    return { handled: false, error: `Invalid dice formula: ${args.trim()}` }
-  }
-
   const formulaStr = args.trim()
-  const result = rollDiceFormula(formula)
+  const evalResult = evalDiceExpression(formulaStr)
+  if (isDiceExpressionError(evalResult)) {
+    return { handled: false, error: evalResult.error }
+  }
+  const result = { rolls: evalResult.rolls, total: evalResult.total }
   setLastRoll({ formula: formulaStr, rolls: result.rolls, total: result.total, rollerName: ctx.playerName })
 
   // Trigger 3D dice locally for DM + send hidden animation to players
@@ -47,16 +47,15 @@ export const commands: ChatCommand[] = [
     dmOnly: false,
     execute: (args: string, ctx: CommandContext) => {
       if (!args.trim()) {
-        return { handled: false, error: 'Usage: /roll <formula>  e.g. /roll 1d20+5' }
+        return { handled: false, error: 'Usage: /roll <formula>  e.g. /roll 1d20+5, /roll 2d20kh1 (advantage)' }
       }
 
       const formulaStr = args.trim()
-      const formula = parseDiceFormula(formulaStr)
-      if (!formula) {
-        return { handled: false, error: `Invalid dice formula: ${formulaStr}` }
+      const result = evalDiceExpression(formulaStr)
+      if (isDiceExpressionError(result)) {
+        return { handled: false, error: result.error }
       }
 
-      const result = rollDiceFormula(formula)
       setLastRoll({ formula: formulaStr, rolls: result.rolls, total: result.total, rollerName: ctx.playerName })
       broadcastDiceResult(formulaStr, result.rolls, result.total, ctx.playerName)
 
@@ -147,13 +146,12 @@ export const commands: ChatCommand[] = [
         return { handled: false, error: 'No previous roll to reroll.' }
       }
 
-      const formula = parseDiceFormula(lastRoll.formula)
-      if (!formula) {
+      const formulaStr = lastRoll.formula
+      const evalResult = evalDiceExpression(formulaStr)
+      if (isDiceExpressionError(evalResult)) {
         return { handled: false, error: 'Could not parse the last roll formula.' }
       }
-
-      const result = rollDiceFormula(formula)
-      const formulaStr = lastRoll.formula
+      const result = { rolls: evalResult.rolls, total: evalResult.total }
       setLastRoll({ formula: formulaStr, rolls: result.rolls, total: result.total, rollerName: ctx.playerName })
       broadcastDiceResult(`${formulaStr} (reroll)`, result.rolls, result.total, ctx.playerName)
 
@@ -185,14 +183,20 @@ export const commands: ChatCommand[] = [
       }
 
       const formulaStr = parts.slice(1).join('')
-      const formula = parseDiceFormula(formulaStr)
-      if (!formula) {
-        return { handled: false, error: `Invalid dice formula: ${formulaStr}` }
+      // Validate once upfront (will reject invalid formula before any rolls happen).
+      const probe = evalDiceExpression(formulaStr)
+      if (isDiceExpressionError(probe)) {
+        return { handled: false, error: probe.error }
       }
 
       const results: { rolls: number[]; total: number }[] = []
-      for (let i = 0; i < count; i++) {
-        results.push(rollDiceFormula(formula))
+      results.push({ rolls: probe.rolls, total: probe.total })
+      for (let i = 1; i < count; i++) {
+        const r = evalDiceExpression(formulaStr)
+        if (isDiceExpressionError(r)) {
+          return { handled: false, error: r.error }
+        }
+        results.push({ rolls: r.rolls, total: r.total })
       }
 
       const allRolls = results.flatMap((r) => r.rolls)
@@ -279,15 +283,19 @@ export const commands: ChatCommand[] = [
       }
       const formulaStr = parts[1]
       const label = parts.slice(2).join(' ') || 'Mass Roll'
-      const formula = parseDiceFormula(formulaStr)
-      if (!formula) {
-        return { handled: false, error: `Invalid dice formula: ${formulaStr}` }
+      const probe = evalDiceExpression(formulaStr)
+      if (isDiceExpressionError(probe)) {
+        return { handled: false, error: probe.error }
       }
 
       const results: string[] = []
-      for (let i = 0; i < count; i++) {
-        const result = rollDiceFormula(formula)
-        results.push(`#${i + 1}: [${result.rolls.join(', ')}] = ${result.total}`)
+      results.push(`#1: [${probe.rolls.join(', ')}] = ${probe.total}`)
+      for (let i = 1; i < count; i++) {
+        const r = evalDiceExpression(formulaStr)
+        if (isDiceExpressionError(r)) {
+          return { handled: false, error: r.error }
+        }
+        results.push(`#${i + 1}: [${r.rolls.join(', ')}] = ${r.total}`)
       }
 
       ctx.broadcastSystemMessage(

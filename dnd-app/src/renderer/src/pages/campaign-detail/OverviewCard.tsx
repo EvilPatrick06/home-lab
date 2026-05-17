@@ -125,12 +125,12 @@ export default function OverviewCard({ campaign, saveCampaign }: OverviewCardPro
               <input
                 type="number"
                 value={overviewForm.maxPlayers}
-                onChange={(e) =>
-                  setOverviewForm((f) => ({
-                    ...f,
-                    maxPlayers: Math.max(1, Math.min(8, parseInt(e.target.value, 10) || 1))
-                  }))
-                }
+                onChange={(e) => {
+                  const raw = parseInt(e.target.value, 10)
+                  const numeric = Number.isFinite(raw) ? raw : 1
+                  const clamped = numeric < 1 ? 1 : numeric > 8 ? 8 : numeric
+                  setOverviewForm((f) => ({ ...f, maxPlayers: clamped }))
+                }}
                 className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
                 min={1}
                 max={8}

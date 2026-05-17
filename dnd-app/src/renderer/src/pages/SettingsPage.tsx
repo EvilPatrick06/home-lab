@@ -224,7 +224,7 @@ function KeybindingEditor(): JSX.Element {
                   {isCustom(shortcut.action) && (
                     <button
                       onClick={() => resetKeybinding(shortcut.action)}
-                      className="px-2 py-0.5 text-[10px] bg-gray-700 border border-gray-600 rounded text-gray-400 hover:text-red-400 cursor-pointer"
+                      className="px-2 py-0.5 text-[10px] bg-gray-700 border border-gray-500 rounded text-gray-100 hover:text-red-300 cursor-pointer"
                     >
                       Reset
                     </button>
@@ -609,7 +609,7 @@ function CloudBackupSection(): JSX.Element {
         error: result.error
       }))
       if (!result.configured && result.error) {
-        setMessage({ text: `Pi unreachable: ${result.error}`, type: 'error' })
+        setMessage({ text: 'Could not reach the Pi. Check that it is online and the URL is correct.', type: 'error' })
       } else if (result.configured) {
         setMessage({ text: 'Connected to BMO Pi', type: 'success' })
       }
@@ -1020,7 +1020,7 @@ export default function SettingsPage(): JSX.Element {
                 handleMutedChange(false)
                 handleEnabledChange(true)
               }}
-              className="px-2 py-0.5 text-[10px] bg-gray-700 border border-gray-600 rounded text-gray-400 hover:text-red-400 cursor-pointer"
+              className="px-2 py-0.5 text-[10px] bg-gray-700 border border-gray-500 rounded text-gray-100 hover:text-red-300 cursor-pointer"
             >
               Reset Audio Defaults
             </button>
@@ -1094,7 +1094,7 @@ export default function SettingsPage(): JSX.Element {
                 setScreenReaderMode(false)
                 setTooltipsEnabled(true)
               }}
-              className="px-2 py-0.5 text-[10px] bg-gray-700 border border-gray-600 rounded text-gray-400 hover:text-red-400 cursor-pointer"
+              className="px-2 py-0.5 text-[10px] bg-gray-700 border border-gray-500 rounded text-gray-100 hover:text-red-300 cursor-pointer"
             >
               Reset Accessibility Defaults
             </button>
@@ -1206,7 +1206,7 @@ export default function SettingsPage(): JSX.Element {
                 handleGridOpacityChange(40)
                 handleGridColorChange('#ffffff')
               }}
-              className="px-2 py-0.5 text-[10px] bg-gray-700 border border-gray-600 rounded text-gray-400 hover:text-red-400 cursor-pointer"
+              className="px-2 py-0.5 text-[10px] bg-gray-700 border border-gray-500 rounded text-gray-100 hover:text-red-300 cursor-pointer"
             >
               Reset Grid Defaults
             </button>
@@ -1272,7 +1272,7 @@ export default function SettingsPage(): JSX.Element {
                 NotificationService.setEnabled(true)
                 NotificationService.setSoundEnabled(true)
               }}
-              className="px-2 py-0.5 text-[10px] bg-gray-700 border border-gray-600 rounded text-gray-400 hover:text-red-400 cursor-pointer"
+              className="px-2 py-0.5 text-[10px] bg-gray-700 border border-gray-500 rounded text-gray-100 hover:text-red-300 cursor-pointer"
             >
               Reset Notification Defaults
             </button>
@@ -1335,7 +1335,7 @@ export default function SettingsPage(): JSX.Element {
               ] as const
             ).map((event) => (
               <label key={event} className="flex items-center justify-between cursor-pointer">
-                <span className="text-xs text-gray-300 capitalize">{event.replace(/-/g, ' ')}</span>
+                <span className="text-xs text-gray-300">{event.replace(/-/g, ' ').replace(/ai/gi, 'AI').replace(/^./, (c) => c.toUpperCase()).replace(/ (.)/g, (_, c) => ' ' + c.toUpperCase())}</span>
                 <input
                   type="checkbox"
                   checked={NotificationService.getConfig().enabledEvents.has(event)}
@@ -1362,7 +1362,7 @@ export default function SettingsPage(): JSX.Element {
                 setAutoSaveInterval(5)
                 AutoSave.setConfig({ enabled: true, intervalMs: 300000 })
               }}
-              className="px-2 py-0.5 text-[10px] bg-gray-700 border border-gray-600 rounded text-gray-400 hover:text-red-400 cursor-pointer"
+              className="px-2 py-0.5 text-[10px] bg-gray-700 border border-gray-500 rounded text-gray-100 hover:text-red-300 cursor-pointer"
             >
               Reset Auto-Save Defaults
             </button>
@@ -1392,7 +1392,9 @@ export default function SettingsPage(): JSX.Element {
                 max={60}
                 value={autoSaveInterval}
                 onChange={(e) => {
-                  const val = Math.max(1, Math.min(60, Number(e.target.value)))
+                  const raw = Number(e.target.value)
+                  const numeric = Number.isFinite(raw) ? raw : 1
+                  const val = numeric < 1 ? 1 : numeric > 60 ? 60 : numeric
                   setAutoSaveInterval(val)
                   AutoSave.setConfig({ intervalMs: val * 60000 })
                 }}

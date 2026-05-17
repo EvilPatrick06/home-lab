@@ -166,7 +166,7 @@ export default function CharacterBuilder5e(): JSX.Element {
     if (backgroundSlot?.selectedId) {
       const totalBonusPoints = Object.values(backgroundAbilityBonuses).reduce((a, b) => a + b, 0)
       if (totalBonusPoints !== 3) {
-        issues.push('Assign all background ability bonuses (3 points)')
+        issues.push('Assign all background ability bonuses (Specials tab)')
       }
     }
 
