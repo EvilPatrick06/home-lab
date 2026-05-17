@@ -400,7 +400,11 @@ function bmo() {
       });
 
       // Fetch current music state on page load (preserve playback across reloads)
-      this.fetchMusicState();
+      this.fetchMusicState().then(() => {
+        // QA #23: if music is playing and we have a remembered query,
+        // re-run the search so the now-playing row re-highlights.
+        this.restoreMusicSearchIfPlaying();
+      });
 
       // Load cached calendar instantly from localStorage (before any server call)
       try {
@@ -1294,6 +1298,12 @@ function bmo() {
 
     async searchMusic() {
       if (!this.musicQuery.trim()) return;
+      // QA #23 (2026-05-17): remember the active query so a refresh during
+      // playback can re-execute it and the now-playing row highlights again.
+      try {
+        localStorage.setItem('bmo_music_last_query', this.musicQuery);
+        localStorage.setItem('bmo_music_last_mode', this.searchMode);
+      } catch {}
       if (this.searchMode === 'playlists') {
         const res = await fetch(`/api/music/search/playlists?q=${encodeURIComponent(this.musicQuery)}`);
         this.playlistResults = await res.json();
@@ -1303,6 +1313,20 @@ function bmo() {
         this.musicResults = await res.json();
         this.playlistResults = [];
       }
+    },
+
+    async restoreMusicSearchIfPlaying() {
+      // QA #23 (2026-05-17): if a song is playing on init, re-run the last
+      // search so the "now playing" row highlight rehydrates. Skipped when
+      // nothing is playing (don't surprise the user with old results).
+      try {
+        const q = localStorage.getItem('bmo_music_last_query') || '';
+        const m = localStorage.getItem('bmo_music_last_mode') || 'songs';
+        if (!q || !this.musicState?.song?.videoId) return;
+        this.musicQuery = q;
+        this.searchMode = m;
+        await this.searchMusic();
+      } catch {}
     },
 
     async fetchPlaylist(browseId) {

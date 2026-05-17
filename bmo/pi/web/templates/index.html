@@ -345,9 +345,15 @@
     <div x-show="tab === 'music'"
          :class="swipeDirection === 'left' ? 'tab-slide-enter-left' : swipeDirection === 'right' ? 'tab-slide-enter-right' : ''"
          class="h-full flex flex-col p-3 gap-2">
-      <!-- Search -->
+      <!-- Search (QA #18, 2026-05-17: explicit @keydown.enter so Enter
+           always submits even when the @input debounce path is mid-flight) -->
       <form @submit.prevent="searchMusic()" class="flex gap-2">
-        <input x-model="musicQuery" @input="searchMusicDebounced()" @focus="onMusicSearchFocus()" @blur="musicSearchFocused = false" type="text"
+        <input x-model="musicQuery"
+               @input="searchMusicDebounced()"
+               @keydown.enter.prevent="searchMusic()"
+               @focus="onMusicSearchFocus()"
+               @blur="musicSearchFocused = false"
+               type="text"
                :placeholder="searchMode === 'playlists' ? 'Search playlists...' : 'Search songs...'"
                class="flex-1 bg-surface-light rounded-lg px-4 py-2.5 text-base text-text outline-none focus:ring-1 focus:ring-accent">
         <button type="submit" class="bg-accent text-surface-dark px-4 py-2.5 rounded-lg text-base">Search</button>
@@ -1372,9 +1378,14 @@
             <template x-for="cat in ['system', 'music', 'voice', 'effects', 'notifications', 'alarms']" :key="cat">
               <div class="flex items-center gap-2 mb-1.5" :class="cat === 'system' ? 'pb-1.5 mb-2 border-b border-surface' : ''">
                 <label class="text-sm text-text-muted w-20 capitalize" x-text="cat === 'system' ? '🔈 master' : cat"></label>
-                <input type="range" min="0" :max="cat === 'system' ? 150 : 100" x-model.number="volumeLevels[cat]"
+                <!-- QA #32 (2026-05-17): step=1 + live x-text readout so the
+                     current value updates while dragging, not just on release. -->
+                <input type="range" min="0" :max="cat === 'system' ? 150 : 100" step="1"
+                       x-model.number="volumeLevels[cat]"
                        @input="setVolume(cat, $event.target.value)"
                        class="flex-1 accent-accent">
+                <span class="text-xs font-mono text-text-muted w-10 text-right tabular-nums"
+                      x-text="(volumeLevels[cat] ?? 0) + '%'"></span>
                 <input type="number" min="0" :max="cat === 'system' ? 150 : 100"
                        x-model.number="volumeLevels[cat]"
                        @change="setVolume(cat, $event.target.value)"

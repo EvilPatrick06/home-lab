@@ -12,6 +12,22 @@
 
 ---
 
+### [2026-05-17] Phase 31g — Music search Enter, refresh-rehydrate now-playing, volume live readout
+
+- **Original QA bugs:** 2026-05-17 BMO QA report Problems #18, #23, #32.
+- **Category:** bug, ux
+- **Domain:** bmo
+- **Resolved by:** Claude Opus (Phase 31g)
+- **Date resolved:** 2026-05-17
+- **Resolution:**
+  - **#18 (Music search Enter doesn't submit):** Added an explicit `@keydown.enter.prevent="searchMusic()"` on the music-search input. The `@submit.prevent` on the form should have handled this, but some browsers/Alpine interactions with the `@input="searchMusicDebounced()"` listener swallow the synthetic submit. Explicit Enter handler removes the ambiguity.
+  - **#23 (Refresh during playback loses now-playing row highlight):** `searchMusic()` now writes `bmo_music_last_query` + `bmo_music_last_mode` to localStorage. On init, after `fetchMusicState` resolves, `restoreMusicSearchIfPlaying()` re-executes the remembered search ONLY if a song is currently playing — so the user gets the highlighted row back without surprise-restoring an old search when nothing's playing.
+  - **#32 (Volume slider has no live numeric readout while dragging):** Added a `<span x-text="(volumeLevels[cat] ?? 0) + '%'">` between the range slider and the numeric input. Explicit `step="1"`. The span reflects every `input` event so the value updates while dragging, not just on release. The numeric input next to it retains its purpose as the editable text field.
+- **Verified:** `pytest tests/test_app_endpoints.py` → 31 passed. BMO restarted, `/health` ok.
+- **Touched files:** `bmo/pi/web/static/js/bmo.js`, `bmo/pi/web/templates/index.html`.
+
+---
+
 ### [2026-05-17] Phase 31f — Camera inline preview, /api/leds + /api/face aliases, Bluetooth MAC tail
 
 - **Original QA bugs:** 2026-05-17 BMO QA report Problems #17, #19, #20, #21.
