@@ -6699,10 +6699,15 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
               <TrendingUp className="w-5 h-5 text-indigo-300" style={{ filter: 'drop-shadow(0 0 6px rgba(129, 140, 248, 0.6))' }} />
               <h3 className="text-sm font-bold italic text-indigo-200 tracking-wider">Predicted Exam Score</h3>
               <div className="flex-1 h-px bg-gradient-to-r from-indigo-700/40 to-transparent" />
+              {/* Phase 37c QA P4: "no data" badge contradicts the visible
+                  Domain-tagged Accuracy panel below when only the sample-
+                  threshold gate isn't met (not actually missing data).
+                  Rename to "below threshold" so the headline matches the
+                  body explanation. */}
               <span className="text-[10px] italic px-2 py-0.5 rounded font-bold tracking-wider" style={{
                 background: confPalette.bg, color: confPalette.text, border: `1px solid ${confPalette.border}`,
               }}>
-                {p.confidence === 'none' ? 'no data' : p.confidence}
+                {p.confidence === 'none' ? 'below threshold' : p.confidence}
               </span>
             </div>
             <div className="flex items-center gap-4 flex-wrap">
@@ -6719,7 +6724,11 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
                   )}
                 </div>
                 <div className="text-xs italic text-indigo-200">
-                  Based on <span className="font-bold">{p.sampledDomains}</span> of <span className="font-bold">{p.totalDomains}</span> domain{p.totalDomains === 1 ? '' : 's'} · <span className="font-bold">{p.coveragePct}%</span> of exam weight
+                  {/* Phase 37c QA P4: lead with the threshold relationship
+                      ("X of Y domains have 5+ samples") so the reader
+                      doesn't parse this as "X of Y total domains" when
+                      Domain-tagged Accuracy below shows more samples. */}
+                  <span className="font-bold">{p.sampledDomains}</span> of <span className="font-bold">{p.totalDomains}</span> domain{p.totalDomains === 1 ? '' : 's'} have 5+ samples · <span className="font-bold">{p.coveragePct}%</span> of exam weight
                 </div>
                 {p.confidence === 'none' && (
                   <div className="text-[10px] italic text-amber-700 mt-1">
