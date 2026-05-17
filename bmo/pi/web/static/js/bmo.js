@@ -1599,20 +1599,28 @@ function bmo() {
     },
 
     async fetchCalendar() {
+      // Round 2 #7 (2026-05-17): silent backoff. Don't poll when the tab
+      // isn't visible (avoids the [cal] fetch failed spam on Home with
+      // DevTools open). Don't log every failure — only first failure +
+      // recovery so the console stays scannable.
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+        return;
+      }
       try {
         const res = await fetch(`/api/calendar/events?days=${this.calDays}`);
         const data = await res.json();
         if (!res.ok) {
-          console.warn('[cal] API error:', res.status, data);
+          if (!this.calOffline) console.warn('[cal] API error:', res.status, data);
           this.calOffline = true;
           return;
         }
+        if (this.calOffline) console.info('[cal] recovered');
         this.calOffline = false;
         this.calEvents = data.events || data || [];
         if (this.calEvents.length > 0) this.nextEvent = this.calEvents[0];
         try { localStorage.setItem('bmo_cal_events', JSON.stringify(this.calEvents)); } catch {}
       } catch (e) {
-        console.warn('[cal] fetch failed:', e);
+        if (!this.calOffline) console.warn('[cal] fetch failed:', e?.message || e);
         this.calOffline = true;
         if (this.calEvents.length === 0) {
           try {

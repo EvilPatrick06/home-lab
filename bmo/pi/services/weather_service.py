@@ -61,13 +61,28 @@ class WeatherService:
     # ── Fetch Weather ────────────────────────────────────────────────
 
     def get_current(self, force_refresh: bool = False) -> dict:
-        """Get current weather conditions."""
+        """Get current weather conditions.
+
+        Round 2 #5 (2026-05-17): the frontend used to call ?force=1 on
+        every Home-tab fetch, which round-tripped Open-Meteo every time
+        and surfaced 10-20°F swings between the API's minute-by-minute
+        reanalyses. Now we throttle: force=True only triggers a real
+        refresh if the cache is older than _MIN_REFRESH_SEC. Within that
+        window the cached payload is returned (with the same as_of
+        timestamp), so the Home tab reads stable values."""
         location = self._get_location()
         signature = self._location_signature(location)
-        if not force_refresh and self._cache and self._cache_location_signature == signature:
+        now = time.time()
+        cached_age = (now - self._cache.get("as_of", 0)) if self._cache else 1e9
+        if (
+            self._cache
+            and self._cache_location_signature == signature
+            and (not force_refresh or cached_age < self._MIN_REFRESH_SEC)
+        ):
             return self._cache
-
         return self._fetch(location)
+
+    _MIN_REFRESH_SEC = 300  # 5 min — Open-Meteo "current" only re-derives this often
 
     def _fetch(self, location: dict | None = None) -> dict:
         """Fetch weather from Open-Meteo API."""
@@ -126,6 +141,7 @@ class WeatherService:
                     "icon": day_icon,
                 })
 
+        result["as_of"] = time.time()  # Round 2 #5: stamp for freshness pill
         self._cache = result
         self._cache_location_signature = self._location_signature(location)
         return result

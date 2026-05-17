@@ -152,10 +152,26 @@ class TestCache:
             svc.get_current()
         assert mock_get.call_count == 1  # second call served from cache
 
-    def test_force_refresh_bypasses_cache(self, svc):
+    def test_force_refresh_throttled_within_min_window(self, svc):
+        """Round 2 #5 (2026-05-17): force_refresh only triggers a real
+        re-fetch if the cache is older than _MIN_REFRESH_SEC. Open-Meteo's
+        "current" data only re-derives every ~5 min — fetching more often
+        produced 10-20°F swings between consecutive Home-tab refreshes."""
         api_data = _make_api_response()
         with patch("requests.get", return_value=_mock_requests_get(api_data)) as mock_get:
             svc.get_current()
+            # Immediately forced refresh — cache is fresh, should NOT re-fetch
+            svc.get_current(force_refresh=True)
+        assert mock_get.call_count == 1
+
+    def test_force_refresh_bypasses_cache_when_stale(self, svc):
+        """Once the cache is older than _MIN_REFRESH_SEC, force_refresh
+        DOES trigger a real re-fetch."""
+        api_data = _make_api_response()
+        with patch("requests.get", return_value=_mock_requests_get(api_data)) as mock_get:
+            svc.get_current()
+            # Age the cache past the throttle window
+            svc._cache["as_of"] = 0
             svc.get_current(force_refresh=True)
         assert mock_get.call_count == 2
 
