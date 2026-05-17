@@ -55,7 +55,11 @@ export function createTokenSprite(
   showHpBar = true,
   lightingCondition?: 'bright' | 'dim' | 'darkness',
   isDM = true,
-  existingContainer?: Container
+  existingContainer?: Container,
+  // Phase 13e: when the local user is a player and this token represents
+  // their character, draw a subtle blue ring so the player can spot at a
+  // glance which token(s) they can move. Ignored when isDM is true.
+  myCharacterId?: string | null
 ): Container {
   const container = existingContainer ?? new Container()
   // Clean up all overlay elements, but keep avatar if it's the exact same
@@ -97,6 +101,17 @@ export function createTokenSprite(
     auraRing.stroke({ width: 1, color: auraColor, alpha: token.aura.opacity * 0.5 })
 
     container.addChild(auraRing)
+  }
+
+  // Phase 13e: ownership indicator for players — soft blue ring on the
+  // token(s) the local non-host user controls. Drawn before the
+  // selection ring so a selected own token shows both (selection on top).
+  const isOwn = !isDM && myCharacterId != null && token.entityId === myCharacterId
+  if (isOwn) {
+    const ownerRing = new Graphics()
+    ownerRing.circle(cx, cy, radius + 3)
+    ownerRing.stroke({ width: 2, color: 0x60a5fa, alpha: 0.7 }) // soft blue
+    container.addChild(ownerRing)
   }
 
   // Selection ring (drawn behind the token)

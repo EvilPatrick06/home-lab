@@ -41,7 +41,8 @@ export default function TokenContextMenu({
   onClose,
   onOpenMountModal,
   onEditToken,
-  onAddToInitiative
+  onAddToInitiative,
+  onApplyCondition
 }: TokenContextMenuProps): JSX.Element | null {
   const selectedIds = selectedTokenIds ?? []
   const menuRef = useRef<HTMLDivElement>(null)
@@ -145,6 +146,7 @@ export default function TokenContextMenu({
   }
 
   const handleApplyCondition = (): void => {
+    onApplyCondition?.(token.id)
     onClose()
   }
 

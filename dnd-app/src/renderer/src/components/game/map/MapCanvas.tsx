@@ -459,7 +459,8 @@ export default function MapCanvas({
 
       // Split key: position and appearance are tracked separately for animation
       const posKey = `${token.gridX},${token.gridY}`
-      const appearanceKey = `${isSelected},${isActive},${token.label},${token.color ?? ''},${token.currentHP ?? ''},${token.maxHP ?? ''},${showHpBar},${token.sizeX ?? 1},${token.sizeY ?? 1},${(token.conditions ?? []).join(',')},${lighting},${token.nameVisible ?? ''},${isHost},${isOnCurrentFloor},${JSON.stringify(token.aura ?? null)}`
+      const isOwnToken = !isHost && myCharacterId != null && token.entityId === myCharacterId
+      const appearanceKey = `${isSelected},${isActive},${token.label},${token.color ?? ''},${token.currentHP ?? ''},${token.maxHP ?? ''},${showHpBar},${token.sizeX ?? 1},${token.sizeY ?? 1},${(token.conditions ?? []).join(',')},${lighting},${token.nameVisible ?? ''},${isHost},${isOnCurrentFloor},${JSON.stringify(token.aura ?? null)},${isOwnToken}`
       const key = `${posKey},${appearanceKey}`
       const cached = cache.get(token.id)
       if (cached && cached.key === key) continue
@@ -477,11 +478,31 @@ export default function MapCanvas({
 
       if (cached) {
         // Reuse container, removes children but preserves avatar container if possible
-        createTokenSprite(token, map.grid.cellSize, isSelected, isActive, showHpBar, lighting, isHost, cached.sprite)
+        createTokenSprite(
+          token,
+          map.grid.cellSize,
+          isSelected,
+          isActive,
+          showHpBar,
+          lighting,
+          isHost,
+          cached.sprite,
+          myCharacterId
+        )
         cache.set(token.id, { sprite: cached.sprite, key })
         continue
       }
-      const sprite = createTokenSprite(token, map.grid.cellSize, isSelected, isActive, showHpBar, lighting, isHost)
+      const sprite = createTokenSprite(
+        token,
+        map.grid.cellSize,
+        isSelected,
+        isActive,
+        showHpBar,
+        lighting,
+        isHost,
+        undefined,
+        myCharacterId
+      )
       sprite.label = `token-${token.id}`
 
       // DM: dim off-floor tokens so all floors are visible at a glance
