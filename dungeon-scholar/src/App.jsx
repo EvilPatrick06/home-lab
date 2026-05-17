@@ -2957,6 +2957,37 @@ export default function DungeonScholarApp() {
                         cancelLabel: 'Keep Going',
                         confirmVariant: 'danger',
                         onConfirm: () => {
+                          // Phase 36f QA round 5 suggestion: log abandoned trials
+                          // to practiceExams so they appear in Past Trials with a
+                          // distinct 'abandoned' status (rather than silently
+                          // disappearing, which made it hard to tell what was
+                          // submitted-empty vs abandoned).
+                          if (saved.tomeId) {
+                            const elapsedSec = saved.totalSeconds
+                              ? Math.max(0, saved.totalSeconds - Math.max(0, Math.ceil((saved.deadlineMs - Date.now()) / 1000)))
+                              : 0;
+                            const answeredCount = Array.isArray(saved.answers)
+                              ? saved.answers.filter(a => a !== null && a !== undefined && a !== '').length
+                              : 0;
+                            const record = {
+                              startedAt: saved.startedAt || Date.now(),
+                              durationSec: elapsedSec,
+                              totalCount: Array.isArray(saved.sample) ? saved.sample.length : 0,
+                              answered: answeredCount,
+                              correct: 0,
+                              scorePct: 0,
+                              byDomain: {},
+                              status: 'abandoned',
+                            };
+                            setPlayerState(prev => ({
+                              ...prev,
+                              library: prev.library.map(t => {
+                                if (t.id !== saved.tomeId) return t;
+                                const prior = Array.isArray(t.progress?.practiceExams) ? t.progress.practiceExams : [];
+                                return { ...t, progress: { ...t.progress, practiceExams: [...prior, record].slice(-20) } };
+                              }),
+                            }));
+                          }
                           clearSession(SESSION_KIND.EXAM);
                           setScreen('home');
                         },

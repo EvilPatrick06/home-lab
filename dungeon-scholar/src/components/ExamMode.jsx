@@ -315,6 +315,14 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
                           {rec.scorePct}%
                         </span>
                         {rec.status === 'timeout' && <span className="text-[10px] text-red-300 italic">timed out</span>}
+                        {/* Phase 36f QA round 5 suggestion: distinct badge for
+                            abandoned trials so users can tell them apart from
+                            submitted-empty 0% records at a glance. */}
+                        {rec.status === 'abandoned' && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded italic" style={{
+                            background: 'rgba(127, 29, 29, 0.4)', border: '1px solid rgba(239, 68, 68, 0.55)', color: '#fecaca',
+                          }}>abandoned</span>
+                        )}
                       </div>
                     );
                   })}
