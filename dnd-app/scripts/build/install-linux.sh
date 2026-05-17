@@ -97,7 +97,13 @@ set -e
 
 APPIMAGE="__APPIMAGE_PATH__"
 EXTRACT_DIR="__EXTRACT_DIR__"
-APPRUN="${EXTRACT_DIR}/AppRun"
+# We exec the binary directly instead of going through AppRun. AppRun
+# expects $APPDIR to be set (the AppImage runtime injects it during a
+# normal FUSE-mounted launch); we're launching the extracted tree
+# without that mount, so AppRun's `exec "${APPDIR}/dnd-vtt"` would
+# expand to `exec /dnd-vtt` and fail. Skipping AppRun and pointing at
+# the binary side-steps the issue cleanly.
+APP_BINARY="${EXTRACT_DIR}/__APP_NAME__"
 
 FLAGS=(--no-sandbox)
 
@@ -118,8 +124,8 @@ fi
 # after an electron-updater auto-update replaces the AppImage on disk
 # — at which point we want the new contents, not the old extracted
 # copy. Without pre-extraction every launch FUSE-mounts /tmp, adding
-# 2-5 s; with it, AppRun starts in ~500 ms.
-if [[ ! -x "${APPRUN}" ]] || [[ "${APPIMAGE}" -nt "${APPRUN}" ]]; then
+# 2-5 s; with it, the binary starts in ~500 ms.
+if [[ ! -x "${APP_BINARY}" ]] || [[ "${APPIMAGE}" -nt "${APP_BINARY}" ]]; then
   if [[ -t 1 ]]; then
     echo "Updating extracted runtime (one-time, ~10-30 s)..."
   fi
@@ -137,9 +143,12 @@ if [[ ! -x "${APPRUN}" ]] || [[ "${APPIMAGE}" -nt "${APPRUN}" ]]; then
   fi
 fi
 
-exec "${APPRUN}" "${FLAGS[@]}" "$@"
+# cd into the runtime dir so resources resolved by relative paths
+# (icons, asar, locales) are findable.
+cd "${EXTRACT_DIR}"
+exec "${APP_BINARY}" "${FLAGS[@]}" "$@"
 LAUNCHER_EOF
-sed -i "s|__APPIMAGE_PATH__|${DEST}|; s|__EXTRACT_DIR__|${EXTRACT_DIR}|" "${LAUNCHER}"
+sed -i "s|__APPIMAGE_PATH__|${DEST}|; s|__EXTRACT_DIR__|${EXTRACT_DIR}|; s|__APP_NAME__|${APP_NAME}|" "${LAUNCHER}"
 chmod +x "${LAUNCHER}"
 ok "Added ${LAUNCHER} (wraps the AppImage with auto-detected flags)"
 
