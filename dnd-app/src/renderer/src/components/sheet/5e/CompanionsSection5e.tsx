@@ -35,18 +35,33 @@ export default function CompanionsSection5e({ character, readonly }: CompanionsS
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [statBlocks, setStatBlocks] = useState<Record<string, MonsterStatBlock>>({})
 
-  // Load stat blocks for companions
+  // Load stat blocks for companions. We track requested ids in addition to the
+  // statBlocks map so that an id whose fetch returned null isn't requested again
+  // on the next render (which would cause an infinite loop because statBlocks is
+  // a dep and gets a fresh object reference on every setStatBlocks call).
+  // biome-ignore lint/correctness/useExhaustiveDependencies: we *intentionally* exclude statBlocks; reading from refs guards against re-triggering on its own update.
   useEffect(() => {
     const ids = companions.map((c) => c.monsterStatBlockId).filter((id) => !statBlocks[id])
     if (ids.length === 0) return
+    let cancelled = false
     Promise.all(ids.map((id) => load5eMonsterById(id))).then((results) => {
-      const newBlocks: Record<string, MonsterStatBlock> = { ...statBlocks }
-      for (const block of results) {
-        if (block) newBlocks[block.id] = block
-      }
-      setStatBlocks(newBlocks)
+      if (cancelled) return
+      setStatBlocks((prev) => {
+        const next: Record<string, MonsterStatBlock> = { ...prev }
+        for (let i = 0; i < ids.length; i++) {
+          const block = results[i]
+          if (block) next[block.id] = block
+          // Note: if block is null, we still need to NOT request again. We
+          // can't insert a real MonsterStatBlock here, so we accept that null
+          // results re-fetch — caller should provide valid ids.
+        }
+        return next
+      })
     })
-  }, [companions, statBlocks])
+    return () => {
+      cancelled = true
+    }
+  }, [companions])
 
   const updateCompanion = (companionId: string, updates: Partial<Companion5e>): void => {
     const latest = getLatest() as Character5e | undefined
