@@ -160,20 +160,35 @@ export default function LobbyPage(): JSX.Element {
   // Phase 29g: announce the hosted game to LAN (always) + Pi registry
   // (public games only). Heartbeat refreshes the Pi TTL every 30s; we
   // unpublish + deregister when the host leaves the lobby.
+  // Scalar fields needed by the announce payload. Pulled out of the
+  // campaign object so the announce effect doesn't re-fire (and bounce
+  // the registry entry off → on) every time the campaign object reference
+  // changes from an unrelated saveCampaign call. Symptom before this fix:
+  // friends saw the game appear in the public list for a split second
+  // then disappear, because every campaign mutation triggered
+  // stopHostAnnounce (DELETE /api/games/<code>) followed by
+  // startHostAnnounce (POST /api/games) — the SSE `games:removed`
+  // event reached the friend's UI before the `games:added` did.
+  const campaignName = campaign?.name ?? null
+  const campaignSystem = campaign?.system ?? null
+  const campaignMaxPlayers = campaign?.settings?.maxPlayers ?? null
+  const campaignMaxSpectators = campaign?.settings?.maxSpectators ?? null
+  const campaignIsPrivate = campaign?.settings?.isPrivate ?? null
+
   useEffect(() => {
-    if (!isHost || !campaign || !inviteCode || !localPeerId || !displayName) return
+    if (!isHost || !campaignName || !inviteCode || !localPeerId || !displayName) return
     let cancelled = false
     void startHostAnnounce({
       invite_code: inviteCode,
-      name: campaign.name || 'Untitled Game',
+      name: campaignName || 'Untitled Game',
       host_display_name: displayName,
       host_client_id: getOrCreateClientId(),
       current_players: 1,
-      max_players: campaign.settings?.maxPlayers ?? 8,
+      max_players: campaignMaxPlayers ?? 8,
       current_spectators: 0,
-      max_spectators: campaign.settings?.maxSpectators ?? 5,
-      game_system: campaign.system || 'dnd5e',
-      is_private: campaign.settings?.isPrivate ?? false,
+      max_spectators: campaignMaxSpectators ?? 5,
+      game_system: campaignSystem || 'dnd5e',
+      is_private: campaignIsPrivate ?? false,
       peer_id: localPeerId
     }).catch((err) => logger.warn('[Lobby] announce failed:', err))
     return () => {
@@ -181,7 +196,17 @@ export default function LobbyPage(): JSX.Element {
       void stopHostAnnounce()
       void cancelled
     }
-  }, [isHost, campaign, inviteCode, localPeerId, displayName])
+  }, [
+    isHost,
+    campaignName,
+    campaignSystem,
+    campaignMaxPlayers,
+    campaignMaxSpectators,
+    campaignIsPrivate,
+    inviteCode,
+    localPeerId,
+    displayName
+  ])
 
   // Keep the registry entry's player/spectator counts in sync with the lobby.
   const lobbyPlayers = useLobbyStore((s) => s.players)
