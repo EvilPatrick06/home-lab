@@ -1,50 +1,13 @@
-import { Fragment, memo, type ReactNode } from 'react'
+import { memo } from 'react'
 import { type ExtractedCondition, extractConditionsFromDescription } from '../../../services/combat/condition-extractor'
 import type { MonsterAction } from '../../../services/data-provider'
 import type { MonsterStatBlock } from '../../../types/monster'
 import { abilityModifier } from '../../../types/monster'
+import { renderInlineMarkdown } from '../../../utils/markdown'
 
 interface MonsterStatBlockViewProps {
   monster: MonsterStatBlock
   compact?: boolean
-}
-
-// Minimal inline markdown: **bold** and *italic*. We only need these for monster
-// action descriptions (e.g. "*Melee Attack Roll:*"). Skipping a full markdown
-// dependency to keep the bundle lean.
-function renderInlineMarkdown(text: string): ReactNode {
-  if (!text) return text
-  // Token stream: split on **...** (bold) and *...* (italic).
-  const parts: ReactNode[] = []
-  // Match ** or single * groups; the regex consumes the surrounding markers.
-  const re = /\*\*([^*]+?)\*\*|\*([^*]+?)\*/g
-  let lastIndex = 0
-  let match: RegExpExecArray | null
-  let key = 0
-  // biome-ignore lint/suspicious/noAssignInExpressions: standard regex.exec idiom
-  while ((match = re.exec(text)) !== null) {
-    if (match.index > lastIndex) {
-      parts.push(text.slice(lastIndex, match.index))
-    }
-    if (match[1] !== undefined) {
-      parts.push(<strong key={`b${key++}`}>{match[1]}</strong>)
-    } else if (match[2] !== undefined) {
-      parts.push(<em key={`i${key++}`}>{match[2]}</em>)
-    }
-    lastIndex = match.index + match[0].length
-  }
-  if (lastIndex < text.length) {
-    parts.push(text.slice(lastIndex))
-  }
-  return parts.length === 0 ? (
-    text
-  ) : (
-    <>
-      {parts.map((p, idx) => (
-        <Fragment key={idx}>{p}</Fragment>
-      ))}
-    </>
-  )
 }
 
 function formatModifier(score: number): string {

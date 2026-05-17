@@ -3,10 +3,31 @@ import { setDragPayload } from '../../services/library/drag-data'
 import type { LibraryCategory, LibraryItem } from '../../types/library'
 import { getCategoryDef } from '../../types/library'
 import type { MonsterStatBlock } from '../../types/monster'
+import { renderInlineMarkdown } from '../../utils/markdown'
 import MonsterStatBlockView from '../game/dm/MonsterStatBlockView'
 import Modal from '../ui/Modal'
+import BackgroundDetailView from './BackgroundDetailView'
 import ItemCardView from './ItemCardView'
+import SpeciesDetailView from './SpeciesDetailView'
 import SpellCardView from './SpellCardView'
+
+// Friendly labels for camelCase value tokens that get surfaced as leaves
+// (e.g. "perProficiencyBonus" → "Per Proficiency Bonus").
+const VALUE_OVERRIDES: Record<string, string> = {
+  perProficiencyBonus: 'Per Proficiency Bonus',
+  perDay: 'Per Day',
+  perShortRest: 'Per Short Rest',
+  perLongRest: 'Per Long Rest'
+}
+
+function humanizeValue(s: string): string {
+  if (VALUE_OVERRIDES[s]) return VALUE_OVERRIDES[s]
+  // camelCase → "Camel Case"; only when it's all letters AND has at least one upper.
+  if (/^[a-z][a-zA-Z]+$/.test(s) && /[A-Z]/.test(s)) {
+    return s.replace(/([A-Z])/g, ' $1').replace(/^./, (c) => c.toUpperCase())
+  }
+  return s
+}
 
 const DRAGGABLE_CATEGORIES = new Set<LibraryCategory>([
   'monsters',
@@ -35,7 +56,7 @@ function renderField(label: string, value: unknown): JSX.Element | null {
       return (
         <div key={label}>
           <dt className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">{label}</dt>
-          <dd className="text-sm text-gray-200">{value.join(', ')}</dd>
+          <dd className="text-sm text-gray-200">{value.map((v) => humanizeValue(String(v))).join(', ')}</dd>
         </div>
       )
     }
@@ -67,7 +88,9 @@ function renderField(label: string, value: unknown): JSX.Element | null {
   return (
     <div key={label}>
       <dt className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">{label}</dt>
-      <dd className="text-sm text-gray-200">{String(value)}</dd>
+      <dd className="text-sm text-gray-200 whitespace-pre-wrap">
+        {typeof value === 'string' ? renderInlineMarkdown(value) : String(value)}
+      </dd>
     </div>
   )
 }
@@ -109,7 +132,9 @@ function renderObject(obj: Record<string, unknown>): JSX.Element {
         return (
           <div key={k} className="flex gap-2">
             <span className="text-xs text-gray-500 min-w-[80px]">{formatLabel(k)}:</span>
-            <span className="text-xs text-gray-300 break-words">{String(v)}</span>
+            <span className="text-xs text-gray-300 break-words whitespace-pre-wrap">
+              {typeof v === 'string' ? renderInlineMarkdown(humanizeValue(v)) : String(v)}
+            </span>
           </div>
         )
       })}
@@ -257,6 +282,10 @@ export default function LibraryDetailModal({
             <MonsterStatBlockView monster={item.data as unknown as MonsterStatBlock} />
           ) : item.category === 'spells' ? (
             <SpellCardView spell={item.data} />
+          ) : item.category === 'species' ? (
+            <SpeciesDetailView species={item.data} />
+          ) : item.category === 'backgrounds' ? (
+            <BackgroundDetailView background={item.data} />
           ) : (['weapons', 'armor', 'gear', 'magic-items'] as LibraryCategory[]).includes(item.category) ? (
             <ItemCardView item={item.data} category={item.category} />
           ) : (

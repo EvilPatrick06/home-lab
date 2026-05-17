@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import { renderInlineMarkdown } from '../../utils/markdown'
 
 interface SpellData {
   name?: string
@@ -125,7 +126,9 @@ function SpellCardView({ spell }: SpellCardViewProps): JSX.Element {
         <div className="border-t border-amber-800/30" />
 
         {/* Description */}
-        {s.description && <div className="text-xs text-gray-300 whitespace-pre-wrap">{s.description}</div>}
+        {s.description && (
+          <div className="text-xs text-gray-300 whitespace-pre-wrap">{renderInlineMarkdown(s.description)}</div>
+        )}
 
         {/* At Higher Levels */}
         {s.higherLevels && (
@@ -133,7 +136,7 @@ function SpellCardView({ spell }: SpellCardViewProps): JSX.Element {
             <div className="border-t border-amber-800/30" />
             <div className="text-xs">
               <span className="text-amber-400 font-semibold italic">At Higher Levels. </span>
-              <span className="text-gray-300">{s.higherLevels}</span>
+              <span className="text-gray-300">{renderInlineMarkdown(s.higherLevels)}</span>
             </div>
           </>
         )}
