@@ -15,7 +15,19 @@ function addExhaustionDeathMessage(entityName: string): void {
 
 export const createConditionsSlice: StateCreator<GameStoreState, [], [], ConditionsSliceState> = (set, get) => ({
   addCondition: (condition: EntityCondition) => {
-    set((state) => ({ conditions: [...state.conditions, condition] }))
+    // Phase 17ac — idempotent add. Previously this blindly appended,
+    // letting the same condition stack on the same entity (e.g. clicking
+    // Unconscious in the token context menu twice produced two
+    // Unconscious entries). Dedup by (entityId, condition name): if
+    // present, replace so the new duration / metadata wins, otherwise
+    // append. Exhaustion is special-cased because it carries a `value`
+    // (level) — the replace-by-name path naturally bumps that.
+    set((state) => {
+      const filtered = state.conditions.filter(
+        (c) => !(c.entityId === condition.entityId && c.condition === condition.condition)
+      )
+      return { conditions: [...filtered, condition] }
+    })
 
     // Exhaustion level 6 = death
     if (condition.condition === 'Exhaustion' && (condition.value ?? 0) >= 6) {

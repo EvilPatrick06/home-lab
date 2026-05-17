@@ -162,7 +162,16 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     const char = characters.find((c) => c.id === characterId)
     if (!char) return
 
-    const conditions = [...(char.conditions ?? []), condition]
+    // Phase 17ac — idempotent add. Previously this blindly appended,
+    // letting an already-applied condition (e.g. Unconscious from
+    // hitting 0 HP, then re-toggled via DM token menu / chat command)
+    // stack multiple copies of itself. The user saw 3× "Unconscious"
+    // chips after a few death-save toggles. Now we replace if a
+    // same-named condition already exists (so duration counters
+    // refresh) and skip the stale duplicate entry.
+    const existing = char.conditions ?? []
+    const filteredExisting = existing.filter((c) => c.name !== condition.name)
+    const conditions = [...filteredExisting, condition]
     const updated = { ...char, conditions, updatedAt: new Date().toISOString() } as Character
     await get().saveCharacter(updated)
   },
