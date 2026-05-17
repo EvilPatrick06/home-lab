@@ -3375,6 +3375,41 @@ def _save_chat_message(msg: dict):
         _save_dnd_message(msg)
 
 
+def _save_pending_assistant_stub(pending_id: str) -> None:
+    """Round 2 N (2026-05-17): write a placeholder assistant turn at chat
+    start. Marked incomplete + pending_id so _finalize_pending_assistant
+    can overwrite it on completion. If the request dies (server crash,
+    user refresh) before completion, the stub stays as `incomplete:true`
+    and the frontend renders an "(interrupted)" pill."""
+    _save_chat_message({
+        "role": "assistant",
+        "text": "",
+        "incomplete": True,
+        "pending_id": pending_id,
+        "ts": time.time(),
+    })
+
+
+def _finalize_pending_assistant(pending_id: str, final_msg: dict) -> bool:
+    """Overwrite the most recent pending stub matching pending_id with the
+    completed assistant turn. Returns True if a stub was replaced, False
+    otherwise (caller should then save normally as a fallback)."""
+    with STATE.chat_lock:
+        try:
+            messages = _load_recent_chat()
+            for i in range(len(messages) - 1, -1, -1):
+                m = messages[i]
+                if m.get("role") == "assistant" and m.get("pending_id") == pending_id:
+                    messages[i] = {**final_msg, "pending_id": pending_id, "incomplete": False}
+                    messages[i].pop("incomplete", None)  # final shape has no incomplete flag
+                    with open(RECENT_CHAT_FILE, "w", encoding="utf-8") as f:
+                        json.dump(messages, f, ensure_ascii=False)
+                    return True
+        except Exception:
+            log.exception("[chat] _finalize_pending_assistant failed")
+    return False
+
+
 def _auto_resume_after_restart():
     """If BMO restarted after a Code Agent task, auto-generate resume message and push to clients."""
     time.sleep(4)
@@ -4938,7 +4973,7 @@ def on_connect(auth=None):
         log.exception(f"[ws] Alerts init failed")
 
 
-def _finish_chat_response(sid, result, model_override, voice, speaker):
+def _finish_chat_response(sid, result, model_override, voice, speaker, pending_id=None):
     """Emit chat_response and run TTS. Called from main handler or background thread."""
     from services.voice_pipeline import VoicePipeline
 
@@ -4979,7 +5014,13 @@ def _finish_chat_response(sid, result, model_override, voice, speaker):
         assistant_msg["agent_used"] = agent_used
     if model_override and model_override != "auto":
         assistant_msg["model"] = model_override
-    _save_chat_message(assistant_msg)
+    # Round 2 N (2026-05-17): finalize the pending stub from on_chat_message
+    # if one was created; falls back to a fresh append if no stub existed
+    # (covers callers that didn't go through on_chat_message).
+    if pending_id and _finalize_pending_assistant(pending_id, assistant_msg):
+        pass
+    else:
+        _save_chat_message(assistant_msg)
 
     with app.app_context():
         # Code Agent: chat-only, no speak, no OLED expression changes
@@ -5019,6 +5060,14 @@ def on_chat_message(data):
             user_msg["model"] = model_override
         _save_chat_message(user_msg)
 
+        # Round 2 N (2026-05-17): write a placeholder assistant turn marked
+        # incomplete so if the request dies (refresh / server crash) the
+        # frontend can render an "(interrupted)" pill on reload. The
+        # placeholder gets overwritten by _finalize_pending_assistant on
+        # successful completion.
+        pending_id = f"pa-{int(time.time()*1000)}-{secrets.token_hex(4)}"
+        _save_pending_assistant_stub(pending_id)
+
         emit("status", {"state": "thinking"})
         if agent_override != "code":
             _sync_expression("thinking")
@@ -5037,13 +5086,14 @@ def on_chat_message(data):
         # Code Agent runs in background so the user isn't blocked for minutes
         if agent_override == "code":
             sid = request.sid
+            captured_pending = pending_id
 
             def _code_agent_task():
                 try:
                     result = agent.chat(message, speaker=speaker, agent_override=agent_override, client_timezone=client_tz)
                     if model_override and model_override != "auto":
                         agent.model_override = prev_model_override
-                    _finish_chat_response(sid, result, model_override, voice, speaker)
+                    _finish_chat_response(sid, result, model_override, voice, speaker, pending_id=captured_pending)
                 except Exception as e:
                     log.exception(f"[chat] Code Agent error")
                     import traceback
@@ -5068,7 +5118,7 @@ def on_chat_message(data):
         if model_override and model_override != "auto":
             agent.model_override = prev_model_override
 
-        _finish_chat_response(request.sid, result, model_override, voice, speaker)
+        _finish_chat_response(request.sid, result, model_override, voice, speaker, pending_id=pending_id)
     except Exception as e:
         log.exception(f"[chat] ERROR in chat_message handler")
         import traceback
@@ -5076,6 +5126,9 @@ def on_chat_message(data):
         emit("chat_response", {"text": f"Oops! BMO's brain got fuzzy: {e}", "speaker": speaker, "commands_executed": []})
         if agent_override != "code":
             _sync_expression("error")
+        # Round 2 N: error path doesn't finalize the stub; the (interrupted)
+        # marker will surface on next history load, which is correct UX
+        # signaling that the request didn't produce a clean reply.
 
 
 # QA #3: Plan-mode Approve / Reject sent literal "yes"/"no" as chat_message

@@ -1043,12 +1043,14 @@ function bmo() {
             role: m.role, text: m.text, speaker: m.speaker,
             incomplete: !!m.incomplete,
           }));
-          // QA Round 2 #23 (2026-05-17): backend persistence saves the user
-          // turn immediately but only saves the assistant turn at the end
-          // of _finish_chat_response. If the user refreshed mid-stream, the
-          // assistant turn is missing entirely. Detect this pattern (trailing
-          // user turn with no assistant reply, > 15s old) and append a visual
-          // interrupted marker — not persisted, just rendered.
+          // QA Round 2 #23 / N (2026-05-17): backend now writes a pending
+          // assistant stub at chat start (incomplete:true, pending_id set)
+          // and overwrites it on successful completion. Stubs that survive
+          // a refresh stay incomplete:true → the renderer naturally shows
+          // the (interrupted) pill from this.messages.map above. Legacy
+          // safety net (trailing-user-no-assistant after 15s) kept as a
+          // belt-and-suspenders fallback for any code path that bypasses
+          // the stub mechanism.
           const last = this.messages[this.messages.length - 1];
           if (last && last.role === 'user') {
             const lastSourceTs = history[history.length - 1]?.ts || 0;

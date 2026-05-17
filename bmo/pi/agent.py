@@ -108,14 +108,31 @@ def _cloud_chat(messages: list[dict], options: dict | None = None,
                       max_tokens=max_tokens)
 
 
+def _ollama_installed() -> bool:
+    """Detect whether the ollama binary is installed at all. Round 2 M
+    (2026-05-17): on Pis without Ollama, the fallback path returned a
+    misleading "model not pulled" error implying the daemon was running.
+    Use this to gate the messaging on the real condition."""
+    import shutil as _sh
+    return bool(_sh.which("ollama"))
+
+
 def _local_chat(messages: list[dict], options: dict | None = None) -> str:
     """Call local Ollama as fallback. Returns response text.
 
-    QA #4 (2026-05-17): when the configured LOCAL_MODEL isn't pulled, Ollama
-    raised an opaque 404 that surfaced to D&D / persona users as "model bmo
-    not found." Catch that case and return a human-readable message so the
-    user can act (pull the model, set BMO_LOCAL_MODEL, or restore cloud
-    connectivity)."""
+    Round 2 M (2026-05-17): error messaging is now accurate to the actual
+    failure mode — daemon-not-installed vs daemon-down-but-installed vs
+    model-not-pulled. The user gets the right action ("install ollama
+    AND pull the model" vs "start the service" vs "pull the model")."""
+    if not _ollama_installed():
+        print("[agent] ERROR ollama not installed on this Pi — local fallback unavailable")
+        return (
+            "BMO's cloud APIs are unreachable AND no local Ollama fallback "
+            "is installed on this Pi. To enable offline replies, install "
+            "Ollama (https://ollama.com/download) and run "
+            f"`ollama pull {LOCAL_MODEL}`. Until then, check internet/API-key "
+            "configuration."
+        )
     try:
         response = ollama_client.chat(
             model=LOCAL_MODEL,
@@ -128,25 +145,25 @@ def _local_chat(messages: list[dict], options: dict | None = None) -> str:
         if status == 404:
             print(
                 f"[agent] ERROR ollama local fallback model '{LOCAL_MODEL}' "
-                f"not pulled. Either run `ollama pull {LOCAL_MODEL}` on the "
-                f"Pi, or set BMO_LOCAL_MODEL to a model that exists. Cloud "
-                f"APIs were likely also unreachable for this request."
+                f"not pulled. Run `ollama pull {LOCAL_MODEL}` on the Pi, or "
+                f"set BMO_LOCAL_MODEL to a model that exists."
             )
             return (
-                f"BMO's local-fallback model `{LOCAL_MODEL}` isn't installed "
-                f"and the cloud APIs are unreachable. Ask the Pi admin to run "
-                f"`ollama pull {LOCAL_MODEL}` or check internet connectivity."
+                f"BMO's local-fallback model `{LOCAL_MODEL}` isn't pulled "
+                f"and the cloud APIs are unreachable. Run "
+                f"`ollama pull {LOCAL_MODEL}` on the Pi, or set "
+                f"BMO_LOCAL_MODEL to a model you already have."
             )
         raise
     except (ConnectionError, OSError) as e:
-        # Round 2 #17 (2026-05-17): Ollama daemon not running at all (e.g.
-        # systemd unit stopped) raises a connection error rather than a
-        # ResponseError. Same user-facing fix: surface a readable message.
+        # Round 2 #17 (2026-05-17): Ollama daemon not running but binary
+        # is installed (covers `_ollama_installed() == True` + daemon
+        # down). Different action than "not installed at all".
         print(f"[agent] ERROR ollama daemon unreachable: {e}")
         return (
-            "BMO's local-fallback Ollama daemon isn't running and the cloud "
-            "APIs are unreachable. Ask the Pi admin to `systemctl start ollama` "
-            "or check internet connectivity."
+            "BMO's local-fallback Ollama is installed but not running, "
+            "and the cloud APIs are unreachable. Ask the Pi admin to "
+            "`systemctl start ollama` (or `ollama serve` from a terminal)."
         )
     except Exception as e:
         # Catch-all so a fallback exception never bubbles as an opaque
