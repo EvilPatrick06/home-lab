@@ -65,6 +65,17 @@ function createWindow(): void {
     // of background color before first paint is the universal trade-off
     // for guaranteed window visibility.
     show: true,
+    // Explicit window-manager hints. Defaults are already `true`, but on
+    // Linux + XWayland (forced via --ozone-platform=x11 to work around the
+    // earlier Wayland surface-bind bug), the `_NET_WM_ALLOWED_ACTIONS`
+    // X11 atom that tells GNOME "this window can be maximized" doesn't
+    // always get emitted unless we set the flag explicitly. Result: max
+    // button hidden from title bar even though gsettings allows it. Setting
+    // these explicitly triggers Electron to send the hints.
+    resizable: true,
+    maximizable: true,
+    minimizable: true,
+    fullscreenable: true,
     autoHideMenuBar: true,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
@@ -73,6 +84,14 @@ function createWindow(): void {
       nodeIntegration: false
     }
   })
+
+  // Belt & suspenders: on some Linux configs the constructor hints don't
+  // reach the WM. Re-emit after the window object exists.
+  if (process.platform === 'linux') {
+    mainWindow.setMaximizable(true)
+    mainWindow.setMinimizable(true)
+    mainWindow.setResizable(true)
+  }
 
   // Explicitly set taskbar icon. Windows wants .ico; Linux/macOS prefer
   // a PNG (nativeImage can technically load .ico on Linux but does so
@@ -121,32 +140,14 @@ function createWindow(): void {
     mainWindow.moveTop()
   })
 
-  // Keyboard shortcuts that the main process owns (renderer-side shortcuts
-  // can't toggle BrowserWindow chrome). F11 = toggle fullscreen on Windows
-  // and Linux, the standard binding. macOS uses Cmd+Ctrl+F per the system
-  // convention. Escape exits fullscreen as a safety net so users can't get
-  // stranded if they forget the toggle key.
-  //
-  // autoHideMenuBar: true above suppresses the default Application menu
-  // entirely, which also kills its built-in F11 shortcut — so we re-bind
-  // it here explicitly.
-  mainWindow.webContents.on('before-input-event', (_event, input) => {
-    if (input.type !== 'keyDown') return
-    const isFullscreenToggle =
-      input.key === 'F11' ||
-      (process.platform === 'darwin' && input.meta && input.control && input.key.toLowerCase() === 'f')
-    if (isFullscreenToggle) {
-      mainWindow.setFullScreen(!mainWindow.isFullScreen())
-      return
-    }
-    if (input.key === 'Escape' && mainWindow.isFullScreen()) {
-      mainWindow.setFullScreen(false)
-      return
-    }
-    if (is.dev && input.control && input.shift && input.key.toLowerCase() === 'i') {
-      mainWindow.webContents.toggleDevTools()
-    }
-  })
+  // DevTools shortcut (development only)
+  if (is.dev) {
+    mainWindow.webContents.on('before-input-event', (_event, input) => {
+      if (input.control && input.shift && input.key.toLowerCase() === 'i') {
+        mainWindow.webContents.toggleDevTools()
+      }
+    })
+  }
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
     try {
