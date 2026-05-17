@@ -286,7 +286,10 @@ export function handleJoin(
     characterId,
     characterName,
     isReady: false,
-    isHost: false
+    isHost: false,
+    // Phase 29j: snapshot the joining peer's wire-format capabilities so
+    // subsequent broadcasts can decide whether to emit msgpack frames.
+    ...(message.payload.clientCapabilities ? { clientCapabilities: message.payload.clientCapabilities } : {})
   }
   // Capture connected peers BEFORE adding the new peer so game:state-full
   // doesn't include the joining peer in their own peer list

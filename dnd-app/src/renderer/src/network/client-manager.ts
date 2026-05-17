@@ -9,6 +9,7 @@ import {
 } from '../constants'
 import { getOrCreateClientId } from '../utils/client-id'
 import { logger } from '../utils/logger'
+import { decodeMessage } from './msgpack-codec'
 import { createPeer, destroyPeer, getPeerId } from './peer-manager'
 import { validateNetworkMessage } from './schemas'
 import type { NetworkMessage } from './types'
@@ -265,6 +266,10 @@ async function attemptConnection(
               characterName,
               clientId: getOrCreateClientId(),
               role: 'player',
+              // Phase 29j: advertise msgpack support so the host can ship
+              // tagged binary frames on its outgoing path. The client
+              // side still sends JSON strings — capability is one-way.
+              clientCapabilities: { msgpack: true },
               ...(lastSequenceForResync >= 0 ? { lastSequence: lastSequenceForResync } : {})
             }
           })
@@ -273,10 +278,13 @@ async function attemptConnection(
           resolve()
         })
 
-        conn.on('data', (raw) => {
+        conn.on('data', async (raw) => {
           let message: NetworkMessage
           try {
-            message = typeof raw === 'string' ? JSON.parse(raw) : (raw as NetworkMessage)
+            // Phase 29j: accepts JSON strings (legacy v2.1.9 and
+            // earlier hosts) or tagged Uint8Array/ArrayBuffer
+            // (msgpack ± gzip from 29j-aware hosts).
+            message = await decodeMessage(raw)
           } catch (e) {
             logger.warn('[ClientManager] Invalid message from host:', e)
             return

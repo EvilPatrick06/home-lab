@@ -18,6 +18,11 @@ export interface PeerInfo {
   /** Transiently set by the host heartbeat check when a peer stops responding but hasn't yet been removed. */
   isDisconnected?: boolean
   latencyMs?: number
+  /** Phase 29j: peer-advertised wire-format capabilities. The host only ships
+   * tagged binary frames (msgpack ± gzip) when `msgpack === true`. */
+  clientCapabilities?: {
+    msgpack?: boolean
+  }
 }
 
 export type ShopItemCategory =

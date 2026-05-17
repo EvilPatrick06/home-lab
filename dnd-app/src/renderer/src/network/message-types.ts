@@ -124,6 +124,12 @@ export interface JoinPayload {
   /** Phase 29h: last sequence number the client processed before disconnecting. Host replays
    * messages from its per-client buffer instead of resending the full state. */
   lastSequence?: number
+  /** Phase 29j: client-advertised wire-format capabilities. The host only emits a
+   * tagged binary frame (msgpack ± gzip) when the peer has set `msgpack: true`.
+   * Pre-29j clients omit the field and continue to receive JSON strings. */
+  clientCapabilities?: {
+    msgpack?: boolean
+  }
 }
 
 export interface ChatPayload {

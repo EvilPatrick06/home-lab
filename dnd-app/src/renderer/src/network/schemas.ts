@@ -36,7 +36,12 @@ const JoinPayloadSchema = z.object({
   color: z.string().optional(),
   clientId: z.string().min(1).max(100),
   role: z.enum(['player', 'spectator']).optional(),
-  lastSequence: z.number().int().nonnegative().optional()
+  lastSequence: z.number().int().nonnegative().optional(),
+  clientCapabilities: z
+    .object({
+      msgpack: z.boolean().optional()
+    })
+    .optional()
 })
 
 const ChatPayloadSchema = z.object({

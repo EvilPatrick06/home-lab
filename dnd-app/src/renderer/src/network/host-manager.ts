@@ -16,6 +16,7 @@ import {
   stopHeartbeatCheck
 } from './host-state-sync'
 import { createMessageRouter } from './message-handler'
+import { encodeMessage } from './msgpack-codec'
 import { createPeer, destroyPeer, generateInviteCode, getPeer } from './peer-manager'
 import type { BanPayload, KickPayload, NetworkMessage, PeerInfo } from './types'
 
@@ -81,11 +82,13 @@ const MAX_PEER_QUEUE_SIZE = 50
 const peerQueues = new Map<string, NetworkMessage[]>()
 const peerFlushScheduled = new Set<string>()
 
-function rawSend(peerId: string, msg: NetworkMessage): boolean {
+async function rawSend(peerId: string, msg: NetworkMessage): Promise<boolean> {
   const conn = connections.get(peerId)
   if (!conn?.open) return false
+  const msgpack = peerInfoMap.get(peerId)?.clientCapabilities?.msgpack === true
   try {
-    conn.send(JSON.stringify(msg))
+    const wire = await encodeMessage(msg, { msgpack })
+    conn.send(wire)
     return true
   } catch (e) {
     logger.warn('[HostManager] Failed to send message to', peerId, e)
@@ -120,11 +123,11 @@ function flushPeerQueue(peerId: string): void {
     // Single-message tick — no wrapper, keeps the wire backwards
     // compatible with pre-29i clients.
     const msg = queue.shift()
-    if (msg) rawSend(peerId, msg)
+    if (msg) void rawSend(peerId, msg)
     return
   }
   const batch = queue.splice(0, queue.length)
-  rawSend(peerId, buildBatchEnvelope(batch))
+  void rawSend(peerId, buildBatchEnvelope(batch))
 }
 
 /** Queue a message for a specific peer; flush is deferred to the next microtask. */
