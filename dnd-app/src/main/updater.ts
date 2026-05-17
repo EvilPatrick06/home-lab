@@ -1,13 +1,28 @@
 /**
  * Auto-update module using electron-updater.
  *
- * Behavior:
- * - Checks for updates on demand (user clicks "Check for Updates")
- * - Downloads updates in the background
- * - Prompts user to restart — never forces mid-session
- * - DM is notified of available updates; players are not interrupted
+ * v2.1.16 redesign:
+ * - Hardened install path. Windows users were hitting a "Update &
+ *   Restart" crash that needed multiple retries before the new
+ *   build came up. Root cause was a 3-way race between the
+ *   renderer's IPC reply, Electron's quit sequence, and the NSIS
+ *   installer launch. The new flow:
+ *     1. Reply to the IPC handler first.
+ *     2. Cleanly close every BrowserWindow (gives renderers a tick
+ *        to flush localStorage / sessionStorage writes).
+ *     3. Wait a beat for those `close` events to fire.
+ *     4. Call quitAndInstall.
+ * - Optional auto-check on startup (settings.autoCheckUpdates).
+ * - Optional auto-download when a new version is found
+ *   (settings.autoDownloadUpdates).
+ * - Optional auto-restart on download complete
+ *   (settings.autoRestartAfterUpdate).
+ * - Optional silent install reusing prior NSIS settings
+ *   (settings.autoInstallSilent).
  */
 
+import { promises as fs } from 'node:fs'
+import { join } from 'node:path'
 import { app, BrowserWindow, ipcMain } from 'electron'
 import { IPC_CHANNELS } from '../shared/ipc-channels'
 import { logToFile } from './log'
@@ -23,9 +38,11 @@ export type UpdateStatus =
 
 let currentStatus: UpdateStatus = { state: 'idle' }
 
-function sendStatus(win: BrowserWindow | null): void {
-  if (win && !win.isDestroyed()) {
-    win.webContents.send(IPC_CHANNELS.UPDATE_STATUS, currentStatus)
+function broadcastStatus(): void {
+  for (const win of BrowserWindow.getAllWindows()) {
+    if (!win.isDestroyed()) {
+      win.webContents.send(IPC_CHANNELS.UPDATE_STATUS, currentStatus)
+    }
   }
 }
 
@@ -38,12 +55,74 @@ function getAutoUpdater() {
   return updater
 }
 
+interface AutoUpdatePrefs {
+  autoCheckUpdates: boolean
+  autoDownloadUpdates: boolean
+  autoRestartAfterUpdate: boolean
+  autoInstallSilent: boolean
+}
+
+async function loadAutoUpdatePrefs(): Promise<AutoUpdatePrefs> {
+  const defaults: AutoUpdatePrefs = {
+    autoCheckUpdates: false,
+    autoDownloadUpdates: false,
+    autoRestartAfterUpdate: false,
+    autoInstallSilent: false
+  }
+  try {
+    const path = join(app.getPath('userData'), 'settings.json')
+    const raw = await fs.readFile(path, 'utf-8')
+    const data = JSON.parse(raw) as Partial<AutoUpdatePrefs>
+    return {
+      autoCheckUpdates: data.autoCheckUpdates === true,
+      autoDownloadUpdates: data.autoDownloadUpdates === true,
+      autoRestartAfterUpdate: data.autoRestartAfterUpdate === true,
+      autoInstallSilent: data.autoInstallSilent === true
+    }
+  } catch {
+    return defaults
+  }
+}
+
+/**
+ * Run the install / relaunch sequence with the v2.1.16 hardening:
+ * close every window, wait for the close events to flush, then
+ * quitAndInstall. `isSilent` controls whether the NSIS installer UI
+ * surfaces (false = visible 1s window, true = no UI).
+ */
+function performInstall(isSilent: boolean): void {
+  logToFile('INFO', `[updater] performInstall(isSilent=${isSilent}, isForceRunAfter=true)`)
+
+  for (const win of BrowserWindow.getAllWindows()) {
+    if (!win.isDestroyed()) {
+      try {
+        win.close()
+      } catch (err) {
+        logToFile('WARN', '[updater] window.close() failed during install:', String(err))
+      }
+    }
+  }
+
+  // Give the windows ~250 ms to flush close handlers + persisted
+  // state, THEN invoke quitAndInstall. Empirically this is enough
+  // for the renderer to drain its IPC queue and for storage writes
+  // to hit disk.
+  setTimeout(() => {
+    try {
+      const autoUpdater = getAutoUpdater()
+      autoUpdater.quitAndInstall(isSilent, true)
+    } catch (err) {
+      logToFile('ERROR', '[updater] quitAndInstall failed, forcing quit:', String(err))
+      app.quit()
+    }
+  }, 250)
+}
+
 /**
  * Register update-related IPC handlers.
  * Call once during app initialization.
  */
 export function registerUpdateHandlers(): void {
-  // Route electron-updater's own diagnostics into the app log file
   try {
     const autoUpdater = getAutoUpdater()
     autoUpdater.logger = {
@@ -63,14 +142,13 @@ export function registerUpdateHandlers(): void {
   })
 
   ipcMain.handle(IPC_CHANNELS.UPDATE_CHECK, async () => {
-    const win = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0] ?? null
     try {
       const autoUpdater = getAutoUpdater()
       autoUpdater.autoDownload = false
       autoUpdater.autoInstallOnAppQuit = false
 
       currentStatus = { state: 'checking' }
-      sendStatus(win)
+      broadcastStatus()
 
       const result = await autoUpdater.checkForUpdates()
       if (result && result.updateInfo.version !== autoUpdater.currentVersion.version) {
@@ -78,7 +156,7 @@ export function registerUpdateHandlers(): void {
       } else {
         currentStatus = { state: 'not-available' }
       }
-      sendStatus(win)
+      broadcastStatus()
       return currentStatus
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
@@ -89,12 +167,8 @@ export function registerUpdateHandlers(): void {
         msg.includes('No published versions') ||
         msg.includes('net::') ||
         msg.includes('ENOTFOUND')
-      if (isNoRelease) {
-        currentStatus = { state: 'not-available' }
-      } else {
-        currentStatus = { state: 'error', message: msg }
-      }
-      sendStatus(win)
+      currentStatus = isNoRelease ? { state: 'not-available' } : { state: 'error', message: msg }
+      broadcastStatus()
       return currentStatus
     }
   })
@@ -109,55 +183,90 @@ export function registerUpdateHandlers(): void {
 
       autoUpdater.removeAllListeners('download-progress')
       autoUpdater.on('download-progress', (progress: { percent: number }) => {
-        // Re-resolve the active window on each tick so progress is always sent
-        // to a live window even if focus changed after download started.
-        const activeWin = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0] ?? null
         currentStatus = { state: 'downloading', percent: Math.round(progress.percent) }
-        sendStatus(activeWin)
+        broadcastStatus()
       })
 
       await autoUpdater.downloadUpdate()
-
       autoUpdater.autoInstallOnAppQuit = true
-
-      const win = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0] ?? null
       currentStatus = { state: 'downloaded', version: pendingVersion }
-      sendStatus(win)
+      broadcastStatus()
       return currentStatus
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       currentStatus = { state: 'error', message: msg }
-      const errWin = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0] ?? null
-      sendStatus(errWin)
+      broadcastStatus()
       return currentStatus
     }
   })
 
-  ipcMain.handle(IPC_CHANNELS.UPDATE_INSTALL, () => {
-    // Defer the actual install to the next tick so this IPC handler
-    // returns first — otherwise the renderer is mid-await when Electron
-    // tears the process down for the quit, which presents as the
-    // window crashing. Users had to click "Update & Restart" 1–3 times
-    // because each crash left the installer dangling.
-    //
-    // quitAndInstall args: (isSilent, isForceRunAfter).
-    //   - isSilent=true ran the NSIS installer silently but had a known
-    //     race on Windows where UAC dialogs / installer-stub timing
-    //     could leave the new app unlaunched even with isForceRunAfter.
-    //   - isSilent=false shows the installer UI briefly (~1 sec), which
-    //     synchronises the post-install relaunch reliably across the
-    //     Win10 / Win11 install paths we see in the field.
-    setImmediate(() => {
-      try {
-        const autoUpdater = getAutoUpdater()
-        logToFile('INFO', '[updater] quitAndInstall(isSilent=false, isForceRunAfter=true) — relaunching after install')
-        autoUpdater.quitAndInstall(false, true)
-      } catch (err) {
-        // quitAndInstall failed — force quit so the downloaded update can run on next launch
-        logToFile('ERROR', 'quitAndInstall failed, forcing quit:', String(err))
-        app.quit()
-      }
-    })
+  ipcMain.handle(IPC_CHANNELS.UPDATE_INSTALL, async () => {
+    // Reply to the renderer FIRST, then schedule the install on the
+    // next tick so the renderer's await resolves cleanly before any
+    // quit sequence begins.
+    const prefs = await loadAutoUpdatePrefs()
+    setImmediate(() => performInstall(prefs.autoInstallSilent))
     return { state: 'installing' as const }
   })
+}
+
+/**
+ * Kick off the optional auto-check-on-startup flow. Called from
+ * main/index.ts after `app.whenReady()`. Reads settings.json
+ * directly — IPC isn't available yet at this point in startup.
+ */
+export async function maybeAutoCheckOnLaunch(): Promise<void> {
+  const prefs = await loadAutoUpdatePrefs()
+  if (!prefs.autoCheckUpdates) return
+
+  // Defer slightly so the renderer is alive to receive status events.
+  setTimeout(() => {
+    void runAutoUpdateFlow(prefs)
+  }, 5_000)
+}
+
+async function runAutoUpdateFlow(prefs: AutoUpdatePrefs): Promise<void> {
+  try {
+    const autoUpdater = getAutoUpdater()
+    autoUpdater.autoDownload = false
+    autoUpdater.autoInstallOnAppQuit = false
+
+    currentStatus = { state: 'checking' }
+    broadcastStatus()
+
+    const result = await autoUpdater.checkForUpdates()
+    if (!result || result.updateInfo.version === autoUpdater.currentVersion.version) {
+      currentStatus = { state: 'not-available' }
+      broadcastStatus()
+      return
+    }
+
+    const pendingVersion = result.updateInfo.version
+    currentStatus = { state: 'available', version: pendingVersion }
+    broadcastStatus()
+
+    if (!prefs.autoDownloadUpdates) return
+
+    autoUpdater.removeAllListeners('download-progress')
+    autoUpdater.on('download-progress', (progress: { percent: number }) => {
+      currentStatus = { state: 'downloading', percent: Math.round(progress.percent) }
+      broadcastStatus()
+    })
+    await autoUpdater.downloadUpdate()
+    autoUpdater.autoInstallOnAppQuit = true
+    currentStatus = { state: 'downloaded', version: pendingVersion }
+    broadcastStatus()
+
+    if (!prefs.autoRestartAfterUpdate) return
+
+    // Give the renderer a moment to surface the "downloaded" banner
+    // before yanking it for the install. 1.5s is enough for users to
+    // notice without being annoying.
+    setTimeout(() => performInstall(prefs.autoInstallSilent), 1_500)
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    currentStatus = { state: 'error', message: msg }
+    broadcastStatus()
+    logToFile('ERROR', '[updater] auto-flow failed:', msg)
+  }
 }

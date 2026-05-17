@@ -11,7 +11,7 @@ import { logToFile } from './log'
 import { registerPluginProtocol, registerPluginScheme } from './plugins/plugin-protocol'
 import { registerCoreBooks } from './storage/book-storage'
 import { loadSettings } from './storage/settings-storage'
-import { registerUpdateHandlers } from './updater'
+import { maybeAutoCheckOnLaunch, registerUpdateHandlers } from './updater'
 
 // ── Unhandled Error Handlers ──
 
@@ -186,6 +186,11 @@ app.whenReady().then(async () => {
   registerUpdateHandlers()
   initFromSavedConfig()
   registerCoreBooks()
+
+  // v2.1.16: optional auto-check for updates on launch (opt-in via
+  // Settings → autoCheckUpdates). Fires asynchronously so it doesn't
+  // block app boot.
+  void maybeAutoCheckOnLaunch()
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)

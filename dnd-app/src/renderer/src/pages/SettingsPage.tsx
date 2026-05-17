@@ -413,6 +413,12 @@ function UpdateSection(): JSX.Element {
   const [appVersion, setAppVersion] = useState<string>('')
   const listenerRegistered = useRef(false)
 
+  // v2.1.16: persisted auto-update preferences.
+  const [autoCheckUpdates, setAutoCheckUpdates] = useState(false)
+  const [autoDownloadUpdates, setAutoDownloadUpdates] = useState(false)
+  const [autoRestartAfterUpdate, setAutoRestartAfterUpdate] = useState(false)
+  const [autoInstallSilent, setAutoInstallSilent] = useState(false)
+
   useEffect(() => {
     window.api
       .getVersion()
@@ -424,11 +430,35 @@ function UpdateSection(): JSX.Element {
         setStatus(s as UpdateStatusInfo)
       })
     }
+    // Hydrate the auto-update prefs from persisted settings.
+    window.api.loadSettings().then((s) => {
+      const data = s as unknown as Record<string, unknown>
+      setAutoCheckUpdates(data.autoCheckUpdates === true)
+      setAutoDownloadUpdates(data.autoDownloadUpdates === true)
+      setAutoRestartAfterUpdate(data.autoRestartAfterUpdate === true)
+      setAutoInstallSilent(data.autoInstallSilent === true)
+    })
     return () => {
       window.api.update.removeStatusListener()
       listenerRegistered.current = false
     }
   }, [])
+
+  // Persist auto-update pref changes immediately so the main process
+  // picks them up on next launch (and on the next install handler).
+  const persistAutoPrefs = async (patch: {
+    autoCheckUpdates?: boolean
+    autoDownloadUpdates?: boolean
+    autoRestartAfterUpdate?: boolean
+    autoInstallSilent?: boolean
+  }): Promise<void> => {
+    try {
+      const settings = await window.api.loadSettings()
+      await window.api.saveSettings({ ...settings, ...patch })
+    } catch {
+      // ignore — UI keeps the local state; user can retry by toggling again
+    }
+  }
 
   const handleCheck = async (): Promise<void> => {
     setStatus({ state: 'checking' })
@@ -535,6 +565,82 @@ function UpdateSection(): JSX.Element {
           </button>
         )}
         {status.state === 'checking' && <span className="text-sm text-gray-400 animate-pulse">Checking...</span>}
+      </div>
+
+      {/* v2.1.16 auto-update preferences. All four default off; opt-in. */}
+      <div className="mt-3 pt-3 border-t border-gray-800 space-y-2">
+        <p className="text-[10px] uppercase tracking-wider text-gray-500">Auto-update preferences</p>
+        <label className="flex items-start gap-2 text-xs text-gray-300 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={autoCheckUpdates}
+            onChange={(e) => {
+              setAutoCheckUpdates(e.target.checked)
+              void persistAutoPrefs({ autoCheckUpdates: e.target.checked })
+            }}
+            className="mt-0.5 w-3.5 h-3.5 accent-amber-500 cursor-pointer"
+          />
+          <span>
+            Auto-check for updates on launch
+            <span className="block text-[10px] text-gray-500">
+              App pings the release feed ~5 s after startup. Status shows here.
+            </span>
+          </span>
+        </label>
+        <label className="flex items-start gap-2 text-xs text-gray-300 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={autoDownloadUpdates}
+            disabled={!autoCheckUpdates}
+            onChange={(e) => {
+              setAutoDownloadUpdates(e.target.checked)
+              void persistAutoPrefs({ autoDownloadUpdates: e.target.checked })
+            }}
+            className="mt-0.5 w-3.5 h-3.5 accent-amber-500 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+          />
+          <span>
+            Auto-download when an update is found
+            <span className="block text-[10px] text-gray-500">
+              Skips the "Download Update" button. Requires auto-check enabled.
+            </span>
+          </span>
+        </label>
+        <label className="flex items-start gap-2 text-xs text-gray-300 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={autoRestartAfterUpdate}
+            disabled={!autoCheckUpdates || !autoDownloadUpdates}
+            onChange={(e) => {
+              setAutoRestartAfterUpdate(e.target.checked)
+              void persistAutoPrefs({ autoRestartAfterUpdate: e.target.checked })
+            }}
+            className="mt-0.5 w-3.5 h-3.5 accent-amber-500 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+          />
+          <span>
+            Auto-restart after download finishes
+            <span className="block text-[10px] text-gray-500">
+              No "Install & Restart" click needed. Triggers ~1.5 s after the download completes.
+            </span>
+          </span>
+        </label>
+        <label className="flex items-start gap-2 text-xs text-gray-300 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={autoInstallSilent}
+            onChange={(e) => {
+              setAutoInstallSilent(e.target.checked)
+              void persistAutoPrefs({ autoInstallSilent: e.target.checked })
+            }}
+            className="mt-0.5 w-3.5 h-3.5 accent-amber-500 cursor-pointer"
+          />
+          <span>
+            Silent install (skip the installer UI)
+            <span className="block text-[10px] text-gray-500">
+              Re-uses your previous install location + settings via NSIS /S. Visible installer is the safer default;
+              flip on for unattended updates.
+            </span>
+          </span>
+        </label>
       </div>
     </div>
   )

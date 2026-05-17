@@ -153,6 +153,7 @@ export function startLanScan(): { ok: boolean } {
  */
 function startBmoDiscovery(): void {
   if (bmoBrowser) return
+  logToFile('INFO', '[lan-discovery] BMO discovery starting (browsing _bmo._tcp)')
   bmoBrowser = getBonjour().find({ type: BMO_SERVICE_TYPE })
   bmoBrowser.on('up', (service: Service) => {
     // Prefer an IPv4 address — that's what Electron's fetch can use
@@ -164,7 +165,7 @@ function startBmoDiscovery(): void {
     knownBmoFqdns.add(service.fqdn)
     setDiscoveredBmoUrl(url)
     broadcast(IPC_CHANNELS.BMO_RESOLVED_URL, { url })
-    logToFile('INFO', `[lan-discovery] BMO Pi discovered at ${url}`)
+    logToFile('INFO', `[lan-discovery] BMO Pi discovered at ${url} (via _bmo._tcp)`)
   })
   bmoBrowser.on('down', (service: Service) => {
     knownBmoFqdns.delete(service.fqdn)
@@ -174,6 +175,42 @@ function startBmoDiscovery(): void {
       logToFile('INFO', '[lan-discovery] BMO Pi went away')
     }
   })
+
+  // v2.1.16 fallback: bonjour-service browse depends on inbound UDP
+  // 5353 being unblocked by Windows Firewall + the OS's mDNS responder
+  // surfacing the service. On environments where that fails (firewall
+  // prompt dismissed, corp WiFi blocking multicast, etc.) the user
+  // never sees the Pi. After 3 seconds with no mDNS hit, fall back to
+  // a direct HTTP probe of the default `bmo.local:5000` — if it
+  // responds, register that URL ourselves so the renderer's
+  // registry-client can use it.
+  setTimeout(() => {
+    if (knownBmoFqdns.size > 0) return
+    probeDefaultBmoLocal().catch((err) => logToFile('WARN', '[lan-discovery] default-host probe failed:', String(err)))
+  }, 3_000)
+}
+
+async function probeDefaultBmoLocal(): Promise<void> {
+  const candidates = [
+    'http://bmo.local:5000',
+    'http://bmo:5000' // Some OSes resolve bare hostname via NetBIOS / netbridge.
+  ]
+  for (const url of candidates) {
+    try {
+      const controller = new AbortController()
+      const t = setTimeout(() => controller.abort(), 2_000)
+      const resp = await fetch(`${url}/health`, { signal: controller.signal })
+      clearTimeout(t)
+      if (!resp.ok) continue
+      logToFile('INFO', `[lan-discovery] BMO Pi reachable via direct probe at ${url}`)
+      setDiscoveredBmoUrl(url)
+      broadcast(IPC_CHANNELS.BMO_RESOLVED_URL, { url })
+      return
+    } catch {
+      // candidate unreachable — try the next one
+    }
+  }
+  logToFile('WARN', '[lan-discovery] BMO Pi not found via mDNS or direct probe')
 }
 
 function stopBmoDiscovery(): void {

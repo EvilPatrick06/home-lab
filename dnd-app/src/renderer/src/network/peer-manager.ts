@@ -85,7 +85,14 @@ export function resetSignalingServer(): void {
   iceServers = getDefaultIceServers()
 }
 
-let forceRelay = true
+// Default `false` so iceTransportPolicy stays 'all' — WebRTC gathers
+// direct + STUN + TURN candidates and ICE picks the best. Forcing
+// 'relay' blocks direct + STUN candidates, which is the right call
+// only when a working TURN server is reachable. Same-LAN hosts with
+// no TURN configured were silently failing every join because no
+// candidate pair could be nominated. Cloud mode flips this back on
+// when needed (see configureForCloud).
+let forceRelay = false
 
 /**
  * Override ICE server configuration (e.g. with user-configured TURN servers).
@@ -152,7 +159,7 @@ export function configureForCloud(): void {
 export function resetToDefaults(): void {
   resetSignalingServer()
   resetIceConfig()
-  forceRelay = true
+  forceRelay = false
 }
 
 /**

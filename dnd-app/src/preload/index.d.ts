@@ -356,6 +356,11 @@ interface AppSettingsData {
   }
   /** BMO Pi HTTP API base. When set, overrides BMO_PI_URL for bridge + cloud sync + CSP. */
   bmoPiBaseUrl?: string
+  /** v2.1.16 auto-update preferences (all default false / opt-in). */
+  autoCheckUpdates?: boolean
+  autoDownloadUpdates?: boolean
+  autoRestartAfterUpdate?: boolean
+  autoInstallSilent?: boolean
 }
 
 interface SettingsAPI {
