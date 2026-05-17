@@ -111,6 +111,16 @@ export interface LobbyPlayer {
    * Ready button stays disabled until this flips true.
    */
   colorConfirmed?: boolean
+  /**
+   * Phase 17d: live "uncommitted" color preview broadcast by a peer that's
+   * cycling through swatches before clicking Confirm. Renders with a
+   * dashed/dimmed border on every other peer's PlayerCard so the picking is
+   * visible in real time both ways (host ↔ players) — fixes the asymmetry
+   * where the host saw players' picks live but the DM's swatch stayed grey
+   * to everyone else until the DM clicked Confirm. Cleared once the peer's
+   * color is confirmed (authoritative `color` field carries the truth).
+   */
+  previewColor?: string | null
   isCoDM?: boolean
   diceColors?: DiceColors
   status?: 'connected' | 'reconnecting' | 'disconnected'

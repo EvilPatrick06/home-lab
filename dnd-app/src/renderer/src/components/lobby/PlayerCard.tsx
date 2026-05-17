@@ -69,7 +69,17 @@ export default memo(function PlayerCard({
                 ? `cursor-pointer hover:scale-105 ${player.colorConfirmed ? '' : 'animate-pulse hover:animate-none'}`
                 : 'cursor-default'
             }`}
-            style={{ borderColor: player.color || '#475569' }}
+            style={{
+              // Phase 17d — symmetric live preview. If this peer is mid-pick
+              // (has a previewColor and hasn't confirmed yet), render the
+              // pending swatch dashed + slightly dimmed so it's visually
+              // distinct from a confirmed border. Otherwise fall back to the
+              // confirmed `color`, then the default grey.
+              borderColor:
+                !player.colorConfirmed && player.previewColor ? player.previewColor : player.color || '#475569',
+              borderStyle: !player.colorConfirmed && player.previewColor ? 'dashed' : undefined,
+              opacity: !player.colorConfirmed && player.previewColor ? 0.85 : undefined
+            }}
             onClick={isLocal && onColorChange ? () => setShowColorPicker(!showColorPicker) : undefined}
             disabled={!isLocal || !onColorChange}
             aria-label={

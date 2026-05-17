@@ -50,6 +50,9 @@ const SPECTATOR_ALLOWED_TYPES = new Set<MessageType>([
   'player:ready',
   'player:color-confirm',
   'player:color-change',
+  // Phase 17d — spectators can preview their picked color the same way
+  // players can; just like color-change/confirm this is presence, not gameplay.
+  'player:color-preview',
   'player:character-select',
   'ping',
   'pong'
@@ -126,9 +129,35 @@ export function handleHostMessage(
       // clients) — but it bypasses the uniqueness check, matching pre-29d behavior.
       const colorPayload = message.payload as ColorChangePayload
       get().updatePeer(fromPeerId, { color: colorPayload.color })
-      useLobbyStore.getState().updatePlayer(fromPeerId, { color: colorPayload.color, colorConfirmed: true })
+      useLobbyStore.getState().updatePlayer(fromPeerId, {
+        color: colorPayload.color,
+        colorConfirmed: true,
+        // Phase 17d — confirmed color supersedes any uncommitted preview.
+        previewColor: null
+      })
       updatePeerInfo(fromPeerId, { color: colorPayload.color })
       broadcastExcluding(message, fromPeerId)
+      break
+    }
+
+    case 'player:color-preview': {
+      // Phase 17d — symmetric live color preview. A peer is cycling through
+      // swatches before clicking Confirm. Update local lobby store so the
+      // host's UI shows the pending swatch dashed/dimmed, then re-broadcast
+      // to all other peers (with peerId injected so receivers know whose
+      // preview this is — the client-side raw payload only carries the
+      // color value).
+      const previewPayload = message.payload as { color: string | null }
+      useLobbyStore.getState().updatePlayer(fromPeerId, { previewColor: previewPayload.color })
+      const senderInfo = getPeerInfo(fromPeerId)
+      broadcastMessage({
+        type: 'player:color-preview' as MessageType,
+        payload: { color: previewPayload.color, peerId: fromPeerId },
+        senderId: fromPeerId,
+        senderName: senderInfo?.displayName ?? '',
+        timestamp: Date.now(),
+        sequence: 0
+      })
       break
     }
 

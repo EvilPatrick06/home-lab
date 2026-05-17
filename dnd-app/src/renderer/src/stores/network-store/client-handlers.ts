@@ -251,8 +251,22 @@ export function handleClientMessage(
       // state for every peer.
       useLobbyStore.getState().updatePlayer(message.senderId, {
         color: payload.color,
-        colorConfirmed: true
+        colorConfirmed: true,
+        // Phase 17d — confirmed color supersedes any uncommitted preview.
+        previewColor: null
       })
+      break
+    }
+
+    case 'player:color-preview': {
+      // Phase 17d — host is forwarding another peer's live color preview.
+      // Update that peer's previewColor so the local UI renders the
+      // uncommitted swatch (dashed/dimmed) until they Confirm.
+      const previewPayload = message.payload as { color: string | null; peerId?: string }
+      const targetPeerId = previewPayload.peerId ?? message.senderId
+      if (targetPeerId) {
+        useLobbyStore.getState().updatePlayer(targetPeerId, { previewColor: previewPayload.color })
+      }
       break
     }
 

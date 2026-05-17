@@ -121,6 +121,12 @@ export default function PlayerList(): JSX.Element {
     // picks a new color after already confirming a previous one.
     if (localPeerId) {
       updatePlayer(localPeerId, { color, colorConfirmed: false })
+      // Phase 17d — broadcast a live preview so OTHER peers see the
+      // uncommitted swatch in real time (rendered dashed/dimmed in
+      // PlayerCard). Previously player picks stayed visible only on the
+      // host's side; the DM picking a color stayed grey to all players
+      // until they confirmed.
+      sendMessage('player:color-preview', { color })
     }
   }
 

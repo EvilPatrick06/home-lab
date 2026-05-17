@@ -262,6 +262,12 @@ const ColorConfirmPayloadSchema = z.object({
   color: z.string()
 })
 
+// Phase 17d — uncommitted color preview broadcast to all peers.
+const ColorPreviewPayloadSchema = z.object({
+  color: z.string().nullable(),
+  peerId: z.string().optional()
+})
+
 const ColorRejectedPayloadSchema = z.object({
   color: z.string(),
   reason: z.literal('taken')
@@ -551,6 +557,7 @@ const PAYLOAD_SCHEMAS: Partial<Record<MessageTypeString, z.ZodType>> = {
   'player:sell-item': SellItemPayloadSchema,
   'player:color-change': ColorChangePayloadSchema,
   'player:color-confirm': ColorConfirmPayloadSchema,
+  'player:color-preview': ColorPreviewPayloadSchema,
   'player:color-rejected': ColorRejectedPayloadSchema,
   'player:join-rejected': JoinRejectedPayloadSchema,
   'dm:role-change': RoleChangePayloadSchema,

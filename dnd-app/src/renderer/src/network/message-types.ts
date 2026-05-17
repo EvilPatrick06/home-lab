@@ -66,6 +66,7 @@ export const MESSAGE_TYPES = [
   'chat:announcement',
   'player:color-change',
   'player:color-confirm',
+  'player:color-preview',
   'player:color-rejected',
   'player:join-rejected',
   'dm:role-change',
@@ -303,6 +304,23 @@ export interface ColorChangePayload {
 
 export interface ColorConfirmPayload {
   color: string
+}
+
+/**
+ * Phase 17d — symmetric live color preview. Player picks a color but hasn't
+ * Confirmed yet. Host receives + re-broadcasts to all peers so everyone sees
+ * the pending swatch (rendered with a dashed/dimmed border to signal
+ * "uncommitted"). Distinct from `player:color-change` so we don't accidentally
+ * advance `colorConfirmed` to true before the player actually confirms.
+ *
+ * `peerId` is set by the host on re-broadcast so receivers know whose preview
+ * this is (the original `player:color-preview` from the player only carries
+ * the color; senderId tells the host which peer it's from).
+ */
+export interface ColorPreviewPayload {
+  color: string | null
+  /** Set by the host on re-broadcast. Receivers use it to update the right peer. */
+  peerId?: string
 }
 
 export interface ColorRejectedPayload {
