@@ -147,6 +147,50 @@ describe('parseRichContent', () => {
       expect(out).toEqual([{ type: 'text', content: '5 * 6 = 30' }]);
     });
   });
+
+  // Phase 36d QA P3: inline math.
+  describe('inline math (Phase 36d)', () => {
+    it('extracts $E=mc^2$ as a math node', () => {
+      const out = parseRichContent('Einstein gave us $E=mc^2$ in 1905');
+      expect(out).toEqual([
+        { type: 'text', content: 'Einstein gave us ' },
+        { type: 'math', content: 'E=mc^2' },
+        { type: 'text', content: ' in 1905' },
+      ]);
+    });
+
+    it('handles single-character math', () => {
+      const out = parseRichContent('Let $x$ be the variable');
+      expect(out).toEqual([
+        { type: 'text', content: 'Let ' },
+        { type: 'math', content: 'x' },
+        { type: 'text', content: ' be the variable' },
+      ]);
+    });
+
+    it('does not match "$5" (no closing partner)', () => {
+      const out = parseRichContent('It costs $5 for one unit');
+      expect(out).toEqual([{ type: 'text', content: 'It costs $5 for one unit' }]);
+    });
+
+    it('does not match "$ open and close $" with adjacent whitespace', () => {
+      const out = parseRichContent('a $ bad $ math');
+      // Inner edges have whitespace — not a valid math token.
+      expect(out).toEqual([{ type: 'text', content: 'a $ bad $ math' }]);
+    });
+
+    it('preserves dollar-signs inside inline code', () => {
+      const out = parseRichContent('var x = `$5.00`');
+      // Inline-code takes priority over math.
+      expect(out.map(n => n.type)).toEqual(['text', 'inline-code']);
+      expect(out[1].content).toBe('$5.00');
+    });
+
+    it('does not match math spanning a newline', () => {
+      const out = parseRichContent('$bad\nmath$');
+      expect(out).toEqual([{ type: 'text', content: '$bad\nmath$' }]);
+    });
+  });
 });
 
 describe('isDiagramLanguage', () => {

@@ -109,6 +109,21 @@ export default function RichContent({ text, className, style, as: BlockTag = 'di
           {n.label}
         </a>,
       );
+    } else if (n.type === 'math') {
+      // Phase 36d: $inline math$ — styled span, not KaTeX. Visual hint
+      // only. Dollar signs are stripped (handled in the parser).
+      runBuffer.push(
+        <span key={`m${i}`} title="Math expression" style={{
+          fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+          fontStyle: 'italic',
+          fontSize: '0.95em',
+          background: 'rgba(126, 34, 206, 0.15)',
+          border: '1px solid rgba(168, 85, 247, 0.35)',
+          color: '#e9d5ff',
+          borderRadius: '3px',
+          padding: '0 0.35em',
+        }}>{n.content}</span>,
+      );
     } else if (n.type === 'code') {
       flushRun();
       const diagram = isDiagramLanguage(n.language);
