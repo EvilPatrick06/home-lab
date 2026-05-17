@@ -712,8 +712,17 @@ export default function MapCanvas({
 
     app.ticker.add(renderPings)
     return () => {
-      app.ticker.remove(renderPings)
-      gfx.clear()
+      // React doesn't guarantee cleanup ordering: the parent effect's
+      // `app.destroy(true, { children: true })` may run first, nulling the
+      // ticker. Calling `.remove()` on a null ticker throws "Cannot read
+      // properties of null (reading 'remove')", which the error boundary
+      // catches on Solo Play → Return to Lobby (C-2 from QA report).
+      app.ticker?.remove(renderPings)
+      try {
+        gfx.clear()
+      } catch {
+        // gfx may have been destroyed alongside the app.
+      }
     }
   }, [initialized])
 

@@ -422,13 +422,24 @@ export function createCombatAnimationLayer(app: Application): {
   function destroy(): void {
     destroyed = true
     unsubscribe()
-    app.ticker.remove(tick)
+    // Defensive: if the PixiJS app was already destroyed by an outer cleanup,
+    // app.ticker is null and `.remove()` throws "Cannot read properties of
+    // null (reading 'remove')". Same root cause as the original C-2 bug.
+    app.ticker?.remove(tick)
 
     for (const p of particles) {
-      p.gfx.destroy()
+      try {
+        p.gfx.destroy()
+      } catch {
+        // Already destroyed by the app teardown.
+      }
     }
     particles.length = 0
-    container.destroy({ children: true })
+    try {
+      container.destroy({ children: true })
+    } catch {
+      // Already destroyed by the app teardown.
+    }
   }
 
   return { container, destroy }
