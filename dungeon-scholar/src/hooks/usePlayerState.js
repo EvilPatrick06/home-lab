@@ -3,6 +3,7 @@ import {
   loadFromLocalStorage,
   saveToLocalStorage,
   hasMeaningfulData,
+  hashState,
   migrateIfNeeded,
   CURRENT_SCHEMA_VER,
   loadSyncMeta,
@@ -280,7 +281,20 @@ export function usePlayerState(defaultState, user = null) {
         const lastSync = meta.lastSyncedAt;
         const wasDirty = !!meta.dirty;
 
+        // Identical-content guard: when both sides already match byte-for-byte
+        // there is no real divergence — suppress the MergeChooser branches
+        // that would otherwise force an arbitrary pick. Applied surgically to
+        // the two chooser paths only; the dirty-push branch is intentionally
+        // untouched so that a dirty-but-currently-equal state still records a
+        // sync via pushSave for any updated_at metadata.
+        const localCloudIdentical = hashState(local) === hashState(cloudData);
+
         if (!lastSync) {
+          if (localCloudIdentical) {
+            lastKnownCloudUpdatedAtRef.current = cloud.updatedAt;
+            writeSyncMeta({ lastSyncedAt: cloud.updatedAt, dirty: false });
+            return;
+          }
           setLocalPreview(local);
           setCloudPreview(cloudData);
           setMergeRequired(true);
@@ -304,6 +318,14 @@ export function usePlayerState(defaultState, user = null) {
 
         if (!wasDirty) {
           applyRemoteState(cloudData, cloud.updatedAt);
+          return;
+        }
+
+        // dirty + cloud changed → would normally show the chooser. Suppress
+        // when contents match: nothing to merge, just record the sync.
+        if (localCloudIdentical) {
+          lastKnownCloudUpdatedAtRef.current = cloud.updatedAt;
+          writeSyncMeta({ lastSyncedAt: cloud.updatedAt, dirty: false });
           return;
         }
 

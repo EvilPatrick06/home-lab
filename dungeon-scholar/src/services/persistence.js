@@ -42,6 +42,19 @@ export function hasMeaningfulData(state) {
   return false;
 }
 
+// Canonical content hash of a player-state blob. Used by usePlayerState's
+// sign-in branch to detect "no real divergence" cases — when both sides
+// already match byte-for-byte, the MergeChooser ("Two Journals Discovered")
+// is just noise and forces an arbitrary pick over identical state.
+export function hashState(state) {
+  if (!state || typeof state !== 'object') return '';
+  try {
+    return JSON.stringify(state);
+  } catch {
+    return '';
+  }
+}
+
 export function migrateIfNeeded(state, schemaVer) {
   if (!state) return state;
   let next = state;

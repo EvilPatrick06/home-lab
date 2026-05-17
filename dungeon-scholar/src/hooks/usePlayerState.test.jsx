@@ -290,4 +290,46 @@ describe('usePlayerState — smart sign-in merge using sync meta', () => {
     expect(pushSave).not.toHaveBeenCalled();
     expect(result.current[2].mergeRequired).toBe(false);
   });
+
+  it('local and cloud are byte-identical → no chooser even when never synced before', async () => {
+    // Same state on both sides, but no prior sync meta exists. Previously
+    // this hit the "!lastSync" branch and forced the MergeChooser despite
+    // there being nothing to merge.
+    const shared = { level: 4, totalXp: 923, library: [{ id: 't1', title: 'AWS' }], totalCorrect: 66 };
+    localStorage.setItem('dungeon-scholar:save:v1', JSON.stringify(shared));
+    // No sync meta — first time the device signs in.
+
+    pullSave.mockResolvedValueOnce({
+      data: shared,
+      updatedAt: '2026-05-17T00:00:00Z',
+      schemaVer: 1,
+    });
+
+    const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
+    await waitFor(() => expect(pullSave).toHaveBeenCalled());
+    await new Promise((r) => setTimeout(r, 50));
+    expect(result.current[2].mergeRequired).toBe(false);
+    expect(pushSave).not.toHaveBeenCalled();
+  });
+
+  it('local and cloud are byte-identical → no chooser even on cloud-changed + dirty branch', async () => {
+    // Sync meta says we were dirty + cloud has changed since lastSync,
+    // but the new cloud state is identical to local. No real conflict.
+    const shared = { level: 4, totalXp: 923, library: [{ id: 't1' }], totalCorrect: 66 };
+    localStorage.setItem('dungeon-scholar:save:v1', JSON.stringify(shared));
+    localStorage.setItem('dungeon-scholar:sync:v1',
+      JSON.stringify({ lastSyncedAt: '2026-04-29T10:00:00Z', dirty: true }));
+
+    pullSave.mockResolvedValueOnce({
+      data: shared,
+      updatedAt: '2026-04-29T11:00:00Z', // newer than lastSyncedAt
+      schemaVer: 1,
+    });
+
+    const { result } = renderHook(() => usePlayerState(DEFAULT, USER));
+    await waitFor(() => expect(pullSave).toHaveBeenCalled());
+    await new Promise((r) => setTimeout(r, 50));
+    expect(result.current[2].mergeRequired).toBe(false);
+    expect(pushSave).not.toHaveBeenCalled();
+  });
 });

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { usePlayerState } from './hooks/usePlayerState.js';
+import { hasMeaningfulData } from './services/persistence.js';
 import { SignInButton } from './components/SignInButton.jsx';
 import { consumeOAuthCallback, signOut } from './services/supabase.js';
 import { useAuth } from './hooks/useAuth.js';
@@ -1279,12 +1280,39 @@ export default function DungeonScholarApp() {
     }
   }, [screen]);
 
-  // Show welcome modal on first launch (when tutorial hasn't been started yet)
+  // Show welcome modal only on a genuine first launch. Three guards:
+  //  1. Ref short-circuit so it never fires twice per session (StrictMode
+  //     double-mount + re-runs when deps change).
+  //  2. If tutorial state is set OR there is any meaningful saved progress,
+  //     bail immediately — the user has been here before.
+  //  3. Otherwise wait ~1s for auth + cloud sync to settle before declaring
+  //     "new user". This fixes the Phase 30 QA #3 case where a signed-in
+  //     returning user briefly renders with the default state (before the
+  //     cloud pull lands) and the old `[]`-deps effect already triggered.
+  const welcomeShownRef = useRef(false);
   useEffect(() => {
-    if (!playerState.tutorialStarted && !playerState.tutorialCompleted) {
-      setShowWelcomeModal(true);
+    if (welcomeShownRef.current) return;
+    if (playerState.tutorialStarted || playerState.tutorialCompleted) {
+      welcomeShownRef.current = true;
+      return;
     }
-  }, []);
+    if (hasMeaningfulData(playerState)) {
+      welcomeShownRef.current = true;
+      return;
+    }
+    const id = setTimeout(() => {
+      if (welcomeShownRef.current) return;
+      welcomeShownRef.current = true;
+      setShowWelcomeModal(true);
+    }, 1000);
+    return () => clearTimeout(id);
+  }, [
+    playerState.tutorialStarted,
+    playerState.tutorialCompleted,
+    playerState.level,
+    playerState.totalXp,
+    playerState.library?.length,
+  ]);
 
   // Tutorial step advancement helpers
   const advanceTutorial = (currentId) => {

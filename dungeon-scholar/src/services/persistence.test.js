@@ -3,6 +3,7 @@ import {
   loadFromLocalStorage,
   saveToLocalStorage,
   hasMeaningfulData,
+  hashState,
   STORAGE_KEY,
   CURRENT_SCHEMA_VER,
   migrateIfNeeded,
@@ -95,5 +96,31 @@ describe('persistence', () => {
   it('migrateIfNeeded with schemaVer 0 leaves state alone when tutorialStepIndex is missing', () => {
     const state = { level: 5 };
     expect(migrateIfNeeded(state, 0)).toEqual({ level: 5 });
+  });
+
+  describe('hashState', () => {
+    it('returns equal hashes for structurally equal states', () => {
+      const a = { level: 4, library: [{ id: 't1' }], totalXp: 923 };
+      const b = { level: 4, library: [{ id: 't1' }], totalXp: 923 };
+      expect(hashState(a)).toBe(hashState(b));
+    });
+
+    it('returns different hashes when any content differs', () => {
+      expect(hashState({ level: 4 })).not.toBe(hashState({ level: 5 }));
+      expect(hashState({ library: [{ id: 'a' }] })).not.toBe(hashState({ library: [{ id: 'b' }] }));
+    });
+
+    it('returns empty string for null / undefined / non-object', () => {
+      expect(hashState(null)).toBe('');
+      expect(hashState(undefined)).toBe('');
+      expect(hashState(7)).toBe('');
+      expect(hashState('x')).toBe('');
+    });
+
+    it('returns empty string when stringify throws (cyclic refs)', () => {
+      const cyclic = { level: 1 };
+      cyclic.self = cyclic;
+      expect(hashState(cyclic)).toBe('');
+    });
   });
 });
