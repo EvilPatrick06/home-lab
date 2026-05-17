@@ -121,14 +121,32 @@ function createWindow(): void {
     mainWindow.moveTop()
   })
 
-  // DevTools shortcut (development only)
-  if (is.dev) {
-    mainWindow.webContents.on('before-input-event', (_event, input) => {
-      if (input.control && input.shift && input.key.toLowerCase() === 'i') {
-        mainWindow.webContents.toggleDevTools()
-      }
-    })
-  }
+  // Keyboard shortcuts that the main process owns (renderer-side shortcuts
+  // can't toggle BrowserWindow chrome). F11 = toggle fullscreen on Windows
+  // and Linux, the standard binding. macOS uses Cmd+Ctrl+F per the system
+  // convention. Escape exits fullscreen as a safety net so users can't get
+  // stranded if they forget the toggle key.
+  //
+  // autoHideMenuBar: true above suppresses the default Application menu
+  // entirely, which also kills its built-in F11 shortcut — so we re-bind
+  // it here explicitly.
+  mainWindow.webContents.on('before-input-event', (_event, input) => {
+    if (input.type !== 'keyDown') return
+    const isFullscreenToggle =
+      input.key === 'F11' ||
+      (process.platform === 'darwin' && input.meta && input.control && input.key.toLowerCase() === 'f')
+    if (isFullscreenToggle) {
+      mainWindow.setFullScreen(!mainWindow.isFullScreen())
+      return
+    }
+    if (input.key === 'Escape' && mainWindow.isFullScreen()) {
+      mainWindow.setFullScreen(false)
+      return
+    }
+    if (is.dev && input.control && input.shift && input.key.toLowerCase() === 'i') {
+      mainWindow.webContents.toggleDevTools()
+    }
+  })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
     try {
