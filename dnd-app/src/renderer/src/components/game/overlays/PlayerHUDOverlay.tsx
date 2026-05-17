@@ -281,7 +281,14 @@ function PlayerHUDOverlay({ character, conditions }: PlayerHUDOverlayProps): JSX
   return (
     <div
       ref={hudRef}
-      className={`${position ? '' : 'absolute top-16 left-1/2 -translate-x-1/2'} z-10 ${dragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+      // Phase 17w — `isolation: isolate` creates a new stacking context so
+      // the inner `backdrop-blur-sm` only blurs content WITHIN this HUD's
+      // own composition layer. Without isolation, fast map-canvas
+      // re-paints during WASD pan caused the blur backdrop to smear
+      // across the player's view, presenting as "a background covering
+      // the map." DM view didn't show this because its bottom bar /
+      // toolbar use opaque containers without backdrop-filter.
+      className={`${position ? '' : 'absolute top-16 left-1/2 -translate-x-1/2'} z-10 ${dragging ? 'cursor-grabbing' : 'cursor-grab'} isolate`}
       style={style}
       onMouseDown={handleMouseDown}
     >
