@@ -35,8 +35,11 @@ export default function DMToolbar({
         <button
           key={tool.id}
           onClick={() => onToolChange(tool.id)}
-          title={`${tool.label} (${tool.shortcut})`}
+          // Phase 17ae — clearer hover hint + aria-current so the active
+          // tool is announced to screen readers (and visually obvious).
+          title={`${tool.label} — press ${tool.shortcut}`}
           aria-label={tool.label}
+          aria-current={activeTool === tool.id ? 'true' : undefined}
           className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg transition-colors cursor-pointer
             ${
               activeTool === tool.id ? 'bg-amber-600 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-gray-200'
