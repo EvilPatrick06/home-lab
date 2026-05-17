@@ -1,15 +1,18 @@
-# Architecture — dnd-app + bmo
+# Architecture — dnd-app + bmo + dungeon-scholar
 
-How the two domains communicate, plus quarantine/run conventions.
+How the three projects relate, plus quarantine/run conventions.
 
-## Domain boundary (BMO ↔ DND)
+## Project boundaries
 
-| Domain | Path | Runtime |
-|--------|------|---------|
-| VTT (D&D app) | `dnd-app/` | Electron + React (DM/player machines) |
-| Voice assistant | `bmo/pi/` | Python Flask (Pi 24/7) |
+| Project | Path | Runtime | Talks to |
+|---|---|---|---|
+| VTT (D&D app) | `dnd-app/` | Electron + React 19 (DM/player machines) | BMO + other VTTs |
+| Voice assistant + game registry | `bmo/pi/` | Python Flask + gevent (Pi 24/7) | VTT + cloud APIs |
+| Study app | `dungeon-scholar/` | React + Vite (GitHub Pages) | Optional Supabase |
 
-**Coupling:** HTTP only — VTT → BMO `:5000`, BMO callbacks → VTT `:5001`. **No** TypeScript `import` of `bmo/`, no Python import of `dnd-app/` sources. Shared contract = HTTP + manually mirrored shapes (see `dnd-app/src/shared/`, BMO clients).
+**`dnd-app` ↔ `bmo` coupling:** HTTP only — VTT → BMO `:5000`, BMO callbacks → VTT `:5001`. **No** TypeScript `import` of `bmo/`, no Python `import` of `dnd-app/` sources. Shared contract = HTTP + manually mirrored shapes (see `dnd-app/src/shared/`, BMO clients).
+
+**`dungeon-scholar`:** fully independent — no contact with BMO or the VTT. Lives in the same repo only because it shares the release pipeline conventions and AI-agent rules.
 
 **Configs:** Keep at domain roots (`dnd-app/*`, `bmo/*`). Full tree map: [`../.cursorrules`](../.cursorrules) (Repository Structure).
 
@@ -70,6 +73,18 @@ cd bmo/pi && ./venv/bin/python -m pytest
 | `/api/narrate` | POST | Speak text via BMO's voice + send to Discord channel |
 | `/api/chat` | POST (SSE) | Stream chat with BMO's agent router |
 | `/api/agent/:name/invoke` | POST | Directly invoke one of the 41 agents |
+| `/api/games` | GET / POST | Game-discovery registry — list (GET) + announce (POST) [Phase 29f] |
+| `/api/games/<code>` | PATCH / DELETE | Update player/spectator counts; deregister on host stop |
+| `/api/games/<code>/heartbeat` | POST | Refresh the 60 s entry TTL (host pings every 30 s) |
+| `/api/games/stream[?client_id=…]` | GET (SSE) | Live registry events — `games:full` snapshot then `games:added`/`updated`/`removed` |
+
+**Resolved BMO URL precedence (VTT side, see `dnd-app/src/main/bmo-config.ts`):**
+
+```
+settings.bmoPiBaseUrl  >  discoveredBmoUrl (via _bmo._tcp mDNS)  >  $BMO_PI_URL  >  http://bmo.local:5000
+```
+
+Pi advertises `_bmo._tcp` on port 5000 via `/etc/avahi/services/bmo.service`. The VTT's main process (`src/main/lan-discovery.ts`) browses it via `bonjour-service` and emits `BMO_RESOLVED_URL` to the renderer. Fallback: 3 s after starting the mDNS browse with no hit, fire a direct HTTP probe at `bmo.local:5000/health` (helps Windows machines where the firewall blocks UDP 5353).
 
 ### 2. BMO → VTT (callback plane)
 
@@ -97,11 +112,21 @@ Examples:
 
 ### 3. VTT ↔ VTT (multiplayer)
 
-**Transport:** WebRTC via `peerjs` (P2P, no central server required).
+**Transport:** WebRTC via `peerjs` (P2P; signalling either through the public peerjs cloud or a self-hosted server).
 
 **Code:** `dnd-app/src/renderer/src/network/`
 
-The DM machine hosts a peer session. Players join via invite code. State updates (token moves, dice rolls, chat, initiative, fog-of-war) propagate via peerjs data channel. BMO is *not* part of this — multiplayer is VTT-only.
+The DM machine hosts a peer session. Players join via:
+- **GameList browser** — same-subnet hosts advertise themselves via `_dndvtt._tcp` mDNS; public hosts also POST to the Pi's `/api/games` registry. The renderer merges both sources into one card grid (deduped by `peer_id`). Phase 29g.
+- **Invite code** — fallback path; manually-entered codes still work for private games.
+
+State updates (token moves, dice rolls, chat, initiative, fog) propagate via the WebRTC data channel. Phase 29 perf passes batch same-microtask broadcasts into one `batch` envelope, throttle `dm:token-move` to ~15 Hz, ship initiative/condition deltas instead of full arrays, and encode binary frames as msgpack ± gzip when both peers advertise `clientCapabilities.msgpack`. Pre-29j peers stay on JSON strings.
+
+**Reconnect resync** — the host keeps a 500-entry circular buffer per `clientId`. A returning client sends `player:join` with `lastSequence`; the host replies with `game:state-resync` (delta) or falls back to `game:state-full` if outside the window.
+
+**ICE policy** — `iceTransportPolicy: 'all'` by default (`peer-manager.ts:forceRelay = false`). Cloud mode flips relay on; LAN mode never needs it.
+
+BMO is the discovery channel (via `/api/games`) but **not** in the data path — multiplayer state is purely VTT-to-VTT WebRTC.
 
 ### 4. BMO ↔ cloud APIs
 
@@ -161,12 +186,15 @@ Current (single Pi + laptops):
 
 ## Why monorepo?
 
-BMO and dnd-app are tightly coupled:
+`dnd-app` and `bmo` are tightly coupled:
 - BMO narrates D&D sessions → dnd-app sends game state to BMO
 - Discord players interact with the game → BMO relays their events to dnd-app
 - Changes to IPC schema (in `dnd-app/src/shared/`) affect BMO's HTTP clients
+- The Pi-side game-discovery registry (`/api/games*`) and the mDNS `_bmo._tcp` service file are part of the same atomic change as the VTT-side `lan-discovery.ts` browser
 
-Keeping both in one repo means atomic changes across the protocol boundary. Split would be premature given the current scale.
+Keeping both in one repo means atomic changes across the protocol boundary.
+
+`dungeon-scholar` rides along because it shares: the release workflow (Pages deploy), the AI-agent rules, the cut.mjs / commit conventions, and the LFS setup. Splitting it out would be valid; not splitting it costs nothing.
 
 ## Boundary enforcement
 

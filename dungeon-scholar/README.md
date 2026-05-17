@@ -1,84 +1,95 @@
 # Dungeon Scholar
 
-A D&D-themed study app built with React + Vite.
+A D&D-themed exam-prep study app — cybersecurity, IT, and CS certification material wrapped in a dungeon-delve gamification loop. Spaced repetition, timed full-length practice exams, rich-content question rendering (diagrams + code), forgetting-curve memory forecasts, optional cloud sync.
 
-**Live site:** `https://YOUR-USERNAME.github.io/dungeon-scholar/` (after you deploy)
+**Live site:** [https://EvilPatrick06.github.io/dungeon-scholar/](https://EvilPatrick06.github.io/dungeon-scholar/) (deployed automatically from `main` via GitHub Actions)
 
----
+## What it does
 
-## One-time setup on Pop!_OS
+- **Study modes** — flashcards, multiple-choice drills, timed full-length practice exams (Phase 26e).
+- **Spaced repetition** — FSRS-inspired algorithm (Phase 26g) tracks per-card recall difficulty + ease + interval.
+- **Memory forecasting** — forgetting-curve projection (Phase 26h) shows what's at risk of being forgotten next week.
+- **Rich content** — Markdown questions render diagrams (Mermaid) and syntax-highlighted code blocks inline (Phase 26f).
+- **Dungeon-delve gamification** — every correct streak advances the player through dungeon rooms; bosses gate harder material.
+- **Cloud sync** (optional) — Supabase + GitHub OAuth. Without it, progress lives in `localStorage` and the sign-in button is hidden.
 
-Install Node 20 if you don't have it:
+## Stack
+
+React 19 · Vite ^7 · Tailwind CSS · Vitest · Supabase (optional). Deployed to GitHub Pages via the `deploy.yml` workflow.
+
+> The vite version is pinned to `^7` because `@vitejs/plugin-react ^4.3.4` declares peer support only for vite 4–7. Dependabot bumps to vite 8 cause `npm ci` to reject the install during deploy — keep the pin until plugin-react ships a vite-8-compatible release.
+
+## Quick start
 
 ```bash
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt install -y nodejs
-node --version  # should print v20.x.x
-```
-
-## Run it locally first
-
-```bash
+cd dungeon-scholar
 npm install
-npm run dev
+npm run dev        # http://localhost:5173
 ```
 
-Open http://localhost:5173 — make sure it works before deploying.
+## Build + test
 
-## Accounts & cloud sync (optional)
+```bash
+npm run build              # production bundle into dist/
+npm run preview            # serve the production bundle locally
+npm test                   # vitest run
+npm run test:watch         # vitest watch
+```
 
-Dungeon Scholar saves your progress to your browser's localStorage automatically — no setup required.
+## Cloud sync setup (optional)
 
-For optional **cloud sync** across devices, the project uses Supabase + GitHub OAuth. To enable it on a fork:
+Without configuration the app skips the sign-in button and runs as a pure local PWA — progress lives in `localStorage`. To enable cross-device sync:
 
-1. Follow `docs/supabase-setup.md` (one-time dashboard work, ~10 minutes).
-2. Copy `.env.example` → `.env.local` and fill in the two values from your Supabase project.
-3. Add the same two values as repo secrets at **Settings → Secrets and variables → Actions** so deploys pick them up.
+1. Follow [`docs/supabase-setup.md`](./docs/supabase-setup.md) (~10 minutes of Supabase dashboard work).
+2. Copy `.env.example` → `.env.local` and fill in the Supabase URL + anon key.
+3. Add the same two values as repo secrets at **Settings → Secrets → Actions** so the deploy workflow picks them up.
 
-If `.env.local` is missing, the app skips the sign-in button and runs as a pure local app.
+## Deploy
 
-## Deploy to GitHub Pages
+Every push to `main` triggers `.github/workflows/deploy.yml`. First-time setup (only once per fork):
 
-1. **Make a new public repo** on GitHub. The repo name will be in your URL, so pick something you like (e.g. `dungeon-scholar`).
+1. Update the `base` path in `vite.config.js` to match the repo name (currently `/dungeon-scholar/`). Both slashes matter.
+2. **Settings → Pages → Build and deployment → Source = GitHub Actions**.
 
-2. **Update the base path** in `vite.config.js` to match your repo name. If your repo is `dungeon-scholar`, leave it; if you named it something else, change `'/dungeon-scholar/'` to `'/<your-repo-name>/'`. The leading and trailing slashes both matter.
-
-3. **Push the project:**
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit"
-   git branch -M main
-   git remote add origin git@github.com:YOUR-USERNAME/YOUR-REPO.git
-   git push -u origin main
-   ```
-
-4. **Enable Pages:** in your repo on GitHub, go to **Settings → Pages → Build and deployment → Source** and pick **GitHub Actions**. (You only do this once per repo.)
-
-5. **Watch the deploy:** the workflow runs automatically. Check the **Actions** tab — first build takes about 60–90 seconds. When it goes green, your site is live at `https://YOUR-USERNAME.github.io/YOUR-REPO/`.
-
-From now on, every push to `main` redeploys automatically.
-
-## Troubleshooting
-
-**Blank page after deploy?** Almost always the `base` path in `vite.config.js` doesn't match your repo name. Fix it, commit, push.
-
-**Tailwind classes not applying?** Make sure `index.css` is imported in `main.jsx` (it already is in this scaffold).
-
-**Build fails in Actions but works locally?** Run `npm run build` locally — the same error will show up. Often it's a missing import or a TS-flavored syntax that Vite doesn't strip.
+The build takes ~60–90 seconds. When it goes green, the site is live at `https://<user>.github.io/<repo>/`.
 
 ## Project structure
 
 ```
 dungeon-scholar/
-├── .github/workflows/deploy.yml   # auto-deploy on push
+├── .github/workflows/deploy.yml   Pages deploy on push to main
 ├── src/
-│   ├── App.jsx                    # your app (4784 lines)
-│   ├── main.jsx                   # React entry point
-│   └── index.css                  # Tailwind directives
+│   ├── App.jsx                    Top-level app
+│   ├── components/                UI components (StudyDeck, ExamRunner, MemoryForecast, ...)
+│   ├── data/                      Question banks (per-exam JSON)
+│   ├── lib/                       FSRS scheduler, forgetting-curve math, supabase client
+│   ├── main.jsx                   React entry
+│   └── index.css                  Tailwind directives
+├── docs/
+│   └── supabase-setup.md          One-time Supabase dashboard walkthrough
+├── tests/                         Vitest specs (FSRS, memory math, exam-runner state)
 ├── index.html
 ├── package.json
-├── vite.config.js                 # base path lives here
+├── vite.config.js                 Vite + Pages base path
 ├── tailwind.config.js
 └── postcss.config.js
 ```
+
+## Troubleshooting
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| Blank page after deploy | `base` in `vite.config.js` doesn't match the repo name | Update + redeploy |
+| Tailwind classes not applying | `index.css` not imported in `main.jsx` | Already imported in the scaffold; re-add if you removed it |
+| Build fails in Actions but works locally | Vite doesn't strip TS-style syntax in `.jsx` files | Run `npm run build` locally to repro and fix the imports |
+| `npm ci` fails with `ERESOLVE could not resolve` on vite | Dependabot bumped vite past `^7` | Keep vite pinned to `^7` (see Stack note above) |
+
+## Known limitations + future-ideas
+
+- Active bugs / debt → [`../docs/ISSUES-LOG-DUNGEON-SCHOLAR.md`](../docs/ISSUES-LOG-DUNGEON-SCHOLAR.md)
+- Future-ideas + design-gotchas → [`../docs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md`](../docs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md)
+- Resolved archive → [`../docs/RESOLVED-ISSUES-DUNGEON-SCHOLAR.md`](../docs/RESOLVED-ISSUES-DUNGEON-SCHOLAR.md)
+
+## License
+
+ISC — inherited from the parent repo.
