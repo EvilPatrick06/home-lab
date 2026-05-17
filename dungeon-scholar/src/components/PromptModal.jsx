@@ -1,6 +1,16 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Wand2, X, Check, ArrowLeft } from 'lucide-react';
 import { ORG_PROMPTS } from '../prompts/index.js';
+
+// Phase 37b QA P2: Escape closes the modal (matches the app-wide pattern).
+function useEscapeKey(onEscape) {
+  useEffect(() => {
+    if (typeof onEscape !== 'function') return;
+    const handler = (e) => { if (e.key === 'Escape') { e.preventDefault(); onEscape(); } };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [onEscape]);
+}
 
 const EXAM_TARGET_LEAVE_BLANK = '<leave blank to let me infer from materials>';
 const EXAM_TARGET_LINE_REGEX = /EXAM TARGET: <[^>]+>/;
@@ -178,6 +188,7 @@ function PromptViewer({ org, examTarget, setExamTarget, finalPrompt, copied, onC
 }
 
 export default function PromptModal({ onClose }) {
+  useEscapeKey(onClose);
   const [selectedOrg, setSelectedOrg] = useState(null);
   const [examTarget, setExamTarget] = useState('');
   const [copied, setCopied] = useState(false);

@@ -1036,6 +1036,18 @@ const formatStoryAction = (counter, target) => {
   return `${a.icon} ${a.verb} ${target} ${noun}`;
 };
 
+// Phase 37b QA P2: Escape-to-close hook for modal dialogs. ConfirmModal
+// already had its own; this lets every other modal opt in with one line.
+// No-op when onEscape is falsy.
+function useEscapeKey(onEscape) {
+  useEffect(() => {
+    if (typeof onEscape !== 'function') return;
+    const handler = (e) => { if (e.key === 'Escape') { e.preventDefault(); onEscape(); } };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [onEscape]);
+}
+
 // Fisher-Yates shuffle. Returns a new array; doesn't mutate input.
 const shuffleArray = (arr) => {
   const a = [...arr];
@@ -9194,6 +9206,7 @@ function QuestBoard({
 }
 
 function WelcomeModal({ onStart, onSkip }) {
+  useEscapeKey(onSkip);
   return (
     <div className="fixed inset-0 bg-black/90 backdrop-blur z-50 flex items-center justify-center p-4">
       <div className="rounded max-w-2xl w-full overflow-hidden flex flex-col relative" style={{
@@ -9357,6 +9370,7 @@ function downloadTomeJson(tome) {
 }
 
 function ShareTomeModal({ tome, onClose }) {
+  useEscapeKey(onClose);
   const [copied, setCopied] = useState(false);
   const textareaRef = useRef(null);
   const code = useMemo(() => tome ? encodeTomeShareCode(tome.data) : null, [tome]);
@@ -9489,6 +9503,7 @@ function ShareTomeModal({ tome, onClose }) {
 }
 
 function ImportCodeModal({ onClose, onSubmit }) {
+  useEscapeKey(onClose);
   const [text, setText] = useState('');
   const [error, setError] = useState('');
 
@@ -9562,6 +9577,7 @@ function ImportCodeModal({ onClose, onSubmit }) {
 }
 
 function MetadataEditModal({ tome, onSave, onClose }) {
+  useEscapeKey(onClose);
   const meta = tome?.data?.metadata || {};
   const [title, setTitle] = useState(meta.title || '');
   const [description, setDescription] = useState(meta.description || '');
@@ -9722,6 +9738,7 @@ function MetadataEditModal({ tome, onSave, onClose }) {
 }
 
 function ResetConfirmModal({ onConfirm, onCancel }) {
+  useEscapeKey(onCancel);
   const [confirmText, setConfirmText] = useState('');
   const isMatch = confirmText.trim().toUpperCase() === 'BEGIN ANEW';
 
@@ -9878,6 +9895,7 @@ function ConfirmModal({ title, body, confirmLabel = 'Confirm', cancelLabel = 'Ca
 }
 
 function PasteTomeModal({ onClose, onSubmit }) {
+  useEscapeKey(onClose);
   const [text, setText] = useState('');
   const [error, setError] = useState('');
 
@@ -9964,6 +9982,7 @@ function PasteTomeModal({ onClose, onSubmit }) {
 }
 
 function AchievementsModal({ playerState, onClose }) {
+  useEscapeKey(onClose);
   const categoryLabels = {
     milestone: '⚔ First Steps ⚔',
     dungeon: '🐉 Dungeon Glory 🐉',
@@ -10037,6 +10056,7 @@ function AchievementsModal({ playerState, onClose }) {
 }
 
 function TitlesModal({ playerState, onSelect, onClose }) {
+  useEscapeKey(onClose);
   const currentLevel = playerState.level;
   return (
     <div className="fixed inset-0 bg-black/85 backdrop-blur z-50 flex items-center justify-center p-4">
