@@ -3575,8 +3575,11 @@ TV_KEYS = {
 }
 
 TV_APPS = {
-    "youtube": "vnd.youtube://",
-    "netflix": "netflix://",
+    # QA #12 (2026-05-17): `vnd.youtube://` was a no-op on Google TV —
+    # AndroidTVRemote.send_launch_app_command expects an http(s) deeplink
+    # or a package URI. The TV YouTube app responds to https://www.youtube.com/tv.
+    "youtube": "https://www.youtube.com/tv",
+    "netflix": "https://www.netflix.com/title",
     "prime": "https://app.primevideo.com",
     "crunchyroll": "crunchyroll://",
     "twitch": "twitch://",
@@ -3587,8 +3590,15 @@ TV_APPS = {
 _tv_loop = None
 _tv_loop_thread = None
 
-# Path to the standalone TV worker script (runs outside gevent)
-_TV_WORKER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tv_worker.py")
+# Path to the standalone TV worker script (runs outside gevent).
+# Discovered during QA #11 / #12 (2026-05-17) testing: the worker had moved
+# to services/ but this constant still pointed at pi root, so subprocess
+# spawned python with a missing script — Popen returned a handle whose
+# process died immediately, and _tv_cmd hung on readline() of the empty
+# stdout. All TV interactions (pair, key, launch) silently broke.
+_TV_WORKER = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "services", "tv_worker.py"
+)
 _TV_PYTHON = os.path.join(os.path.dirname(os.path.abspath(__file__)), "venv", "bin", "python3")
 _tv_proc = None
 # (moved to state.STATE.tv_proc_lock)
@@ -3872,6 +3882,30 @@ def api_tv_pair_finish():
     _tv_remote = True
     log.info(f"[tv] Paired and connected to TV at {TV_IP}!")
     return jsonify(result)
+
+
+@app.route("/api/tv/pair/cancel", methods=["POST"])
+def api_tv_pair_cancel():
+    """Cancel an in-flight pairing handshake (QA #11, 2026-05-17).
+
+    The user dismissed the PIN dialog. Without this the next pair_start
+    can fail silently because the worker's `pairing_remote` is still
+    half-initialized in the long-lived worker subprocess. We terminate
+    the worker outright; the next pair_start respawns it with a fresh
+    `pairing_remote=None`. Idempotent — safe when no pairing is open."""
+    global _tv_proc
+    with STATE.tv_proc_lock:
+        if _tv_proc is not None:
+            try:
+                _tv_proc.terminate()
+                _tv_proc.wait(timeout=2)
+            except Exception:
+                try:
+                    _tv_proc.kill()
+                except Exception:
+                    pass
+            _tv_proc = None
+    return jsonify({"ok": True, "message": "Pairing cancelled"})
 
 
 @app.route("/api/tv/key", methods=["POST"])

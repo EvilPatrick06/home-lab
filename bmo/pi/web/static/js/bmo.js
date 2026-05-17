@@ -2434,13 +2434,34 @@ function bmo() {
     },
 
     async tvLaunch(app) {
+      // QA #12 (2026-05-17): YouTube tile used to silently no-op because the
+      // launcher URI was wrong AND the frontend swallowed errors. Surface
+      // anything non-OK as a toast so the user knows what happened.
       try {
-        await fetch('/api/tv/launch', {
+        const res = await fetch('/api/tv/launch', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ app }),
         });
-      } catch {}
+        if (!res.ok) {
+          let msg = `Couldn't launch ${app}`;
+          try {
+            const data = await res.json();
+            if (data && data.error) msg = `${app}: ${data.error}`;
+          } catch {}
+          this.showNotification(msg, 'error');
+        }
+      } catch (e) {
+        this.showNotification(`Couldn't launch ${app}: ${e.message || 'network'}`, 'error');
+      }
+    },
+
+    async tvCancelPairing() {
+      // QA #11 (2026-05-17): user dismissed the PIN dialog — tell the worker
+      // so the next pair_start works from a clean state.
+      try { await fetch('/api/tv/pair/cancel', { method: 'POST' }); } catch {}
+      this.tvPairing = false;
+      this.tvPairPin = '';
     },
 
     async tvVolume(direction) {

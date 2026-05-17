@@ -12,6 +12,23 @@
 
 ---
 
+### [2026-05-17] Phase 31d — TV pair flow safety, YouTube tile, _TV_WORKER path repair
+
+- **Original QA bugs:** 2026-05-17 BMO QA report Problems #11, #12. Discovered-while-testing: TV worker path constant pointed at a non-existent file, silently breaking ALL TV interactions.
+- **Category:** bug, lifecycle, integration
+- **Domain:** bmo
+- **Resolved by:** Claude Opus (Phase 31d)
+- **Date resolved:** 2026-05-17
+- **Resolution:**
+  - **Discovered bug — `_TV_WORKER` path:** `app.py:_TV_WORKER` resolved to `bmo/pi/tv_worker.py`, but the worker had been relocated to `bmo/pi/services/tv_worker.py`. `subprocess.Popen` spawned python with a missing script; the subprocess died immediately; `_tv_cmd` hung on `stdout.readline()` waiting forever. Fixed by updating the path to include `services`. Without this fix every other TV change below would be untested.
+  - **#11 (pair flow loses state mid-handshake):** `services/tv_worker.py` `pair_start` now tears down any leftover `pairing_remote` before allocating a new one. New `pair_cancel` worker action + `app.py:api_tv_pair_cancel` route lets the user dismiss the PIN dialog cleanly — the route terminates the worker subprocess (the next `pair_start` respawns fresh), avoiding subprocess-pipe hangs. `pair_finish` now wraps the connect in try/except and resets `pairing_remote` on failure so retries work.
+  - **#11 (frontend):** Cancel button in the PIN dialog now calls `tvCancelPairing()` which posts `/api/tv/pair/cancel` then clears local state. Previously the button just flipped `tvPairing=false` locally, leaving the worker dangling.
+  - **#12 (YouTube tile no-op):** `TV_APPS["youtube"]` was `vnd.youtube://`, which `androidtvremote2.send_launch_app_command` doesn't handle. Replaced with `https://www.youtube.com/tv` (the canonical Android TV deeplink). `netflix` also updated for the same reason. Frontend `tvLaunch()` now surfaces non-OK responses + network errors as a toast (previously swallowed silently).
+- **Verified:** `pytest tests/test_app_endpoints.py` → 31 passed (no regressions). Live: `curl POST /api/tv/pair/cancel` returns `{ok:true, message:"Pairing cancelled"}` (previously hung 30s+ on subprocess pipe). `curl POST /api/tv/launch {"app":"youtube"}` returns `{ok:true}` (vs. previous no-op).
+- **Touched files:** `bmo/pi/app.py`, `bmo/pi/services/tv_worker.py`, `bmo/pi/web/static/js/bmo.js`, `bmo/pi/web/templates/index.html`.
+
+---
+
 ### [2026-05-17] Phase 31c — IDE /file/create honors content, /folder/create endpoint, sandbox roots surfaced
 
 - **Original QA bugs:** 2026-05-17 BMO QA report Problems #8, #9, #10.

@@ -66,6 +66,17 @@ class TVWorker:
                 return {"ok": True}
 
             elif action == "pair_start":
+                # QA #11 (2026-05-17): tear down any in-flight pairing remote
+                # before starting a new one. Without this, a cancelled or
+                # timed-out previous attempt left self.pairing_remote in a
+                # half-initialized state so subsequent clicks did nothing.
+                if self.pairing_remote is not None:
+                    try:
+                        if hasattr(self.pairing_remote, "disconnect"):
+                            self.pairing_remote.disconnect()
+                    except Exception:
+                        pass
+                    self.pairing_remote = None
                 self.pairing_remote = AndroidTVRemote(
                     client_name="BMO",
                     certfile=self.certfile,
@@ -76,20 +87,43 @@ class TVWorker:
                 await self.pairing_remote.async_start_pairing()
                 return {"ok": True, "message": "Check your TV for a PIN code"}
 
+            elif action == "pair_cancel":
+                # QA #11 (2026-05-17): user dismissed the PIN dialog — clean
+                # up so the next pair_start works from a fresh state.
+                if self.pairing_remote is not None:
+                    try:
+                        if hasattr(self.pairing_remote, "disconnect"):
+                            self.pairing_remote.disconnect()
+                    except Exception:
+                        pass
+                    self.pairing_remote = None
+                return {"ok": True, "message": "Pairing cancelled"}
+
             elif action == "pair_finish":
                 if not self.pairing_remote:
                     return {"error": "No pairing in progress"}
-                await self.pairing_remote.async_finish_pairing(cmd["pin"])
-                await asyncio.wait_for(
-                    self.pairing_remote.async_connect(), timeout=10
-                )
-                # Promote pairing remote to main remote
-                if self.remote:
-                    self.remote.disconnect()
-                self.remote = self.pairing_remote
-                self.pairing_remote = None
-                self.remote.keep_reconnecting()
-                return {"ok": True, "message": "Paired and connected!"}
+                try:
+                    await self.pairing_remote.async_finish_pairing(cmd["pin"])
+                    await asyncio.wait_for(
+                        self.pairing_remote.async_connect(), timeout=10
+                    )
+                    # Promote pairing remote to main remote
+                    if self.remote:
+                        self.remote.disconnect()
+                    self.remote = self.pairing_remote
+                    self.pairing_remote = None
+                    self.remote.keep_reconnecting()
+                    return {"ok": True, "message": "Paired and connected!"}
+                except Exception as e:
+                    # QA #11: on PIN failure / connect timeout, tear down so
+                    # the user can retry from a clean state.
+                    try:
+                        if hasattr(self.pairing_remote, "disconnect"):
+                            self.pairing_remote.disconnect()
+                    except Exception:
+                        pass
+                    self.pairing_remote = None
+                    return {"error": f"pair_finish failed: {e}"}
 
             elif action == "status":
                 connected = self.remote is not None
