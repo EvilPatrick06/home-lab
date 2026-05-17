@@ -4588,18 +4588,10 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
       <div className="flex justify-between items-center text-sm text-amber-600 italic flex-wrap gap-2">
         <span className="flex items-center gap-2 flex-wrap">
           📜 Scroll {index + 1} of {cards.length}
-          {/* Phase 32e QA #6: per-card difficulty + Bloom's badges. Falls
-              back to the tome's overall difficulty (metadata) when the
-              specific card doesn't carry one — at least gives the user a
-              difficulty signal instead of nothing. */}
-          {typeof card.difficulty === 'number'
-            ? <DifficultyStars value={card.difficulty} />
-            : (typeof courseSet?.metadata?.difficulty === 'number' && (
-              <span title="Tome's overall difficulty (this scroll has no per-item rating)">
-                <DifficultyStars value={courseSet.metadata.difficulty} />
-                <span className="text-[9px] italic text-amber-700/70 ml-1">tome avg</span>
-              </span>
-            ))}
+          {/* Phase 35c QA P4: per-card difficulty only — the tome-avg
+              fallback added in 32e implied false per-item granularity. If
+              the per-card rating is missing, no chip is shown. */}
+          {typeof card.difficulty === 'number' && <DifficultyStars value={card.difficulty} />}
           {card.bloomLevel && <BloomBadge level={card.bloomLevel} />}
           {card.domain && (
             <span className="text-[10px] italic uppercase tracking-wider text-sky-400" title={`Domain: ${card.domain}`}>
@@ -4890,17 +4882,13 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
       <div className="flex justify-between items-center text-sm text-amber-600 italic flex-wrap gap-2">
         <span className="flex items-center gap-2 flex-wrap">
           🔮 Riddle {index + 1} of {questions.length}
-          {/* Phase 32e QA #6: surface difficulty + Bloom's even when the
-              riddle lacks per-item fields — fall back to tome metadata so
-              the user always sees SOME difficulty signal. */}
-          {typeof q.difficulty === 'number'
-            ? <DifficultyStars value={q.difficulty} />
-            : (typeof courseSet?.metadata?.difficulty === 'number' && (
-              <span title="Tome's overall difficulty (this riddle has no per-item rating)">
-                <DifficultyStars value={courseSet.metadata.difficulty} />
-                <span className="text-[9px] italic text-amber-700/70 ml-1">tome avg</span>
-              </span>
-            ))}
+          {/* Phase 35c QA P4: per-riddle difficulty only. The tome-avg
+              fallback (Phase 32e) was visually identical across every riddle
+              and gave the misleading impression that the difficulty was
+              per-item, so the QA reporter (correctly) flagged it as worse
+              than nothing. Drop the fallback; chip is hidden when the
+              riddle lacks a per-item rating. */}
+          {typeof q.difficulty === 'number' && <DifficultyStars value={q.difficulty} />}
           {q.bloomLevel && <BloomBadge level={q.bloomLevel} />}
         </span>
         <span className="flex items-center gap-1"><Flame className="w-4 h-4 text-orange-400" /> Streak: {streak}</span>
@@ -4922,27 +4910,22 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
         background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.85) 0%, rgba(15, 6, 20, 0.95) 100%)',
         border: '3px double rgba(126, 34, 206, 0.6)', boxShadow: '0 0 30px rgba(168, 85, 247, 0.25), inset 0 0 25px rgba(0,0,0,0.5)',
       }}>
-        {/* Phase 33f QA P6: prominent chip row above the question text so the
-            user always sees domain / difficulty / Bloom's at a glance.
-            Difficulty falls back to the tome's metadata.difficulty when
-            per-item is missing. */}
-        {(q.domain || typeof q.difficulty === 'number' || typeof courseSet?.metadata?.difficulty === 'number' || q.bloomLevel) && (
+        {/* Phase 33f / 35c QA P6 + P4: prominent chip row above the question
+            text. Difficulty is per-riddle only — the previous tome-avg
+            fallback was identical across every question and implied false
+            per-item granularity. */}
+        {(q.domain || typeof q.difficulty === 'number' || q.bloomLevel) && (
           <div className="flex items-center gap-2 flex-wrap mb-4 pb-3 border-b border-purple-700/40">
             {q.domain && (
               <span className="text-[10px] italic uppercase tracking-wider px-2 py-0.5 rounded font-bold" style={{
                 background: 'rgba(126, 34, 206, 0.35)', border: '1px solid rgba(168, 85, 247, 0.6)', color: '#e9d5ff',
               }}>{q.domain}</span>
             )}
-            {typeof q.difficulty === 'number'
-              ? <span className="flex items-center gap-1 px-2 py-0.5 rounded" style={{ background: 'rgba(120, 53, 15, 0.35)', border: '1px solid rgba(245, 158, 11, 0.5)' }}>
-                  <DifficultyStars value={q.difficulty} />
-                </span>
-              : (typeof courseSet?.metadata?.difficulty === 'number' && (
-                <span title="Tome's overall difficulty (per-riddle rating not set)" className="flex items-center gap-1 px-2 py-0.5 rounded" style={{ background: 'rgba(120, 53, 15, 0.25)', border: '1px solid rgba(245, 158, 11, 0.35)' }}>
-                  <DifficultyStars value={courseSet.metadata.difficulty} />
-                  <span className="text-[9px] italic text-amber-700/80">tome avg</span>
-                </span>
-              ))}
+            {typeof q.difficulty === 'number' && (
+              <span className="flex items-center gap-1 px-2 py-0.5 rounded" style={{ background: 'rgba(120, 53, 15, 0.35)', border: '1px solid rgba(245, 158, 11, 0.5)' }}>
+                <DifficultyStars value={q.difficulty} />
+              </span>
+            )}
             {q.bloomLevel && <BloomBadge level={q.bloomLevel} />}
           </div>
         )}
