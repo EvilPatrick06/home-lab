@@ -89,6 +89,26 @@ export default function RichContent({ text, className, style, as: BlockTag = 'di
       runBuffer.push(
         <code key={`ic${i}`} style={INLINE_CODE_STYLE}>{n.content}</code>,
       );
+    } else if (n.type === 'bold') {
+      // Phase 35e QA P5: **bold** renders as <strong> with theme color.
+      runBuffer.push(
+        <strong key={`b${i}`} style={{ fontWeight: 700, color: '#fde68a' }}>{n.content}</strong>,
+      );
+    } else if (n.type === 'italic') {
+      // Phase 35e: *italic* renders as <em>. Most prose is already italic
+      // (the dungeon font), so emphasize by switching to NORMAL style so
+      // the italics-on-italics inversion stands out.
+      runBuffer.push(
+        <em key={`em${i}`} style={{ fontStyle: 'normal', fontWeight: 600, color: '#fef3c7' }}>{n.content}</em>,
+      );
+    } else if (n.type === 'link') {
+      // Phase 35e: [text](url) renders as an <a> opening in a new tab.
+      runBuffer.push(
+        <a key={`a${i}`} href={n.href} target="_blank" rel="noopener noreferrer"
+          style={{ color: '#7dd3fc', textDecoration: 'underline', fontStyle: 'normal' }}>
+          {n.label}
+        </a>,
+      );
     } else if (n.type === 'code') {
       flushRun();
       const diagram = isDiagramLanguage(n.language);

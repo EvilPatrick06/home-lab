@@ -85,6 +85,68 @@ describe('parseRichContent', () => {
     const out = parseRichContent('<div>&amp;</div>');
     expect(out).toEqual([{ type: 'text', content: '<div>&amp;</div>' }]);
   });
+
+  // Phase 35e QA P5: bold / italic / link parsing.
+  describe('bold / italic / link (Phase 35e)', () => {
+    it('extracts a bold token', () => {
+      const out = parseRichContent('this is **important** text');
+      expect(out).toEqual([
+        { type: 'text', content: 'this is ' },
+        { type: 'bold', content: 'important' },
+        { type: 'text', content: ' text' },
+      ]);
+    });
+
+    it('extracts an italic token', () => {
+      const out = parseRichContent('this is *emphasized* text');
+      expect(out).toEqual([
+        { type: 'text', content: 'this is ' },
+        { type: 'italic', content: 'emphasized' },
+        { type: 'text', content: ' text' },
+      ]);
+    });
+
+    it('prefers bold over italic when both could match', () => {
+      const out = parseRichContent('**bold not italic**');
+      expect(out).toEqual([{ type: 'bold', content: 'bold not italic' }]);
+    });
+
+    it('extracts a link token with label and href', () => {
+      const out = parseRichContent('see [docs](https://example.com) for more');
+      expect(out).toEqual([
+        { type: 'text', content: 'see ' },
+        { type: 'link', label: 'docs', href: 'https://example.com' },
+        { type: 'text', content: ' for more' },
+      ]);
+    });
+
+    it('preserves inline code over emphasis (asterisks inside backticks stay literal)', () => {
+      const out = parseRichContent('use `**not bold**` for literal');
+      expect(out).toEqual([
+        { type: 'text', content: 'use ' },
+        { type: 'inline-code', content: '**not bold**' },
+        { type: 'text', content: ' for literal' },
+      ]);
+    });
+
+    it('mixes bold, italic, inline-code, and link in one line', () => {
+      const out = parseRichContent('**B** *I* `C` [L](u)');
+      expect(out.map(n => n.type)).toEqual([
+        'bold', 'text', 'italic', 'text', 'inline-code', 'text', 'link',
+      ]);
+    });
+
+    it('does not match bold spanning a newline', () => {
+      const out = parseRichContent('**not\nbold**');
+      expect(out).toEqual([{ type: 'text', content: '**not\nbold**' }]);
+    });
+
+    it('leaves a stray asterisk as text', () => {
+      const out = parseRichContent('5 * 6 = 30');
+      // Single asterisk surrounded by digits + spaces — no closing partner.
+      expect(out).toEqual([{ type: 'text', content: '5 * 6 = 30' }]);
+    });
+  });
 });
 
 describe('isDiagramLanguage', () => {
