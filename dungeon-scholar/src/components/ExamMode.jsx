@@ -370,8 +370,38 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
           border: '3px double rgba(126, 34, 206, 0.6)',
           boxShadow: '0 0 24px rgba(168, 85, 247, 0.18), inset 0 0 24px rgba(0,0,0,0.5)',
         }}>
-          {q.domain && (
-            <div className="text-[10px] italic text-amber-700 tracking-wider uppercase mb-2">{q.domain}</div>
+          {/* Phase 33f QA P6: prominent chip row (domain / difficulty / Bloom's)
+              above the question text. Difficulty falls back to tome metadata
+              when per-item is missing. */}
+          {(q.domain || typeof q.difficulty === 'number' || typeof courseSet?.metadata?.difficulty === 'number' || q.bloomLevel) && (
+            <div className="flex items-center gap-2 flex-wrap mb-3 pb-2 border-b border-purple-700/30">
+              {q.domain && (
+                <span className="text-[10px] italic uppercase tracking-wider px-2 py-0.5 rounded font-bold" style={{
+                  background: 'rgba(67, 56, 202, 0.35)', border: '1px solid rgba(129, 140, 248, 0.55)', color: '#c7d2fe',
+                }}>{q.domain}</span>
+              )}
+              {typeof q.difficulty === 'number'
+                ? <span className="flex items-center gap-1 px-2 py-0.5 rounded" style={{ background: 'rgba(120, 53, 15, 0.35)', border: '1px solid rgba(245, 158, 11, 0.5)' }}>
+                    <span className="text-xs italic tabular-nums" title={`Difficulty ${Math.min(5, Math.max(1, Math.round(q.difficulty)))}/5`}>
+                      <span style={{ color: '#fbbf24' }}>{'▰'.repeat(Math.min(5, Math.max(1, Math.round(q.difficulty))))}</span>
+                      <span style={{ color: 'rgba(120, 53, 15, 0.7)' }}>{'▱'.repeat(5 - Math.min(5, Math.max(1, Math.round(q.difficulty))))}</span>
+                    </span>
+                  </span>
+                : (typeof courseSet?.metadata?.difficulty === 'number' && (
+                  <span title="Tome's overall difficulty (per-riddle rating not set)" className="flex items-center gap-1 px-2 py-0.5 rounded" style={{ background: 'rgba(120, 53, 15, 0.25)', border: '1px solid rgba(245, 158, 11, 0.35)' }}>
+                    <span className="text-xs italic tabular-nums">
+                      <span style={{ color: '#fbbf24' }}>{'▰'.repeat(Math.min(5, Math.max(1, Math.round(courseSet.metadata.difficulty))))}</span>
+                      <span style={{ color: 'rgba(120, 53, 15, 0.7)' }}>{'▱'.repeat(5 - Math.min(5, Math.max(1, Math.round(courseSet.metadata.difficulty))))}</span>
+                    </span>
+                    <span className="text-[9px] italic text-amber-700/80">tome avg</span>
+                  </span>
+                ))}
+              {q.bloomLevel && (
+                <span className="text-[10px] uppercase tracking-wider italic px-2 py-0.5 rounded font-bold" style={{
+                  background: 'rgba(6, 78, 59, 0.35)', border: '1px solid rgba(16, 185, 129, 0.5)', color: '#a7f3d0',
+                }}>{q.bloomLevel}</span>
+              )}
+            </div>
           )}
           <RichContent as="div" text={q.question} className="text-lg text-amber-50 italic mb-4 leading-relaxed" />
           {/* Phase 30g QA #12: keyboard hotkey hint for the in-progress exam. */}

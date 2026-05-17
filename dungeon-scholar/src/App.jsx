@@ -4824,6 +4824,30 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
         background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.85) 0%, rgba(15, 6, 20, 0.95) 100%)',
         border: '3px double rgba(126, 34, 206, 0.6)', boxShadow: '0 0 30px rgba(168, 85, 247, 0.25), inset 0 0 25px rgba(0,0,0,0.5)',
       }}>
+        {/* Phase 33f QA P6: prominent chip row above the question text so the
+            user always sees domain / difficulty / Bloom's at a glance.
+            Difficulty falls back to the tome's metadata.difficulty when
+            per-item is missing. */}
+        {(q.domain || typeof q.difficulty === 'number' || typeof courseSet?.metadata?.difficulty === 'number' || q.bloomLevel) && (
+          <div className="flex items-center gap-2 flex-wrap mb-4 pb-3 border-b border-purple-700/40">
+            {q.domain && (
+              <span className="text-[10px] italic uppercase tracking-wider px-2 py-0.5 rounded font-bold" style={{
+                background: 'rgba(126, 34, 206, 0.35)', border: '1px solid rgba(168, 85, 247, 0.6)', color: '#e9d5ff',
+              }}>{q.domain}</span>
+            )}
+            {typeof q.difficulty === 'number'
+              ? <span className="flex items-center gap-1 px-2 py-0.5 rounded" style={{ background: 'rgba(120, 53, 15, 0.35)', border: '1px solid rgba(245, 158, 11, 0.5)' }}>
+                  <DifficultyStars value={q.difficulty} />
+                </span>
+              : (typeof courseSet?.metadata?.difficulty === 'number' && (
+                <span title="Tome's overall difficulty (per-riddle rating not set)" className="flex items-center gap-1 px-2 py-0.5 rounded" style={{ background: 'rgba(120, 53, 15, 0.25)', border: '1px solid rgba(245, 158, 11, 0.35)' }}>
+                  <DifficultyStars value={courseSet.metadata.difficulty} />
+                  <span className="text-[9px] italic text-amber-700/80">tome avg</span>
+                </span>
+              ))}
+            {q.bloomLevel && <BloomBadge level={q.bloomLevel} />}
+          </div>
+        )}
         <RichContent as="div" text={q.question} className="text-lg text-amber-50 mb-6 italic" />
         {/* 26a: confidence calibration. Gate the answer choices behind a
             confidence rating so we can compare "how sure I was" vs "did I
