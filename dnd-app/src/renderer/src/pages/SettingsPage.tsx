@@ -883,7 +883,15 @@ function CloudBackupSection(): JSX.Element {
   )
 }
 
-export async function factoryResetAllSettings(): Promise<void> {
+// Phase 17q — split the previous "Factory Reset" into two clearly-scoped
+// operations. `resetAllData` (was `factoryResetAllSettings`) keeps its
+// destructive footprint: localStorage wipe + file-based settings + a11y +
+// theme + audio. `restoreDefaultSettings` is the non-destructive sibling
+// that ONLY touches preferences (a11y/theme/audio/turn-server), leaving
+// campaigns/characters/library/macros/drafts/notifications intact. Public
+// export of the legacy name preserved as an alias for any third-party
+// caller that may still reference it.
+export async function resetAllData(): Promise<void> {
   // 1. Clear all localStorage keys
   const keysToRemove: string[] = []
   for (let i = 0; i < localStorage.length; i++) {
@@ -905,16 +913,26 @@ export async function factoryResetAllSettings(): Promise<void> {
   }
   keysToRemove.forEach((k) => localStorage.removeItem(k))
 
-  // 2. Reset file-based settings
+  // 2-5. Apply the same defaults the non-destructive path uses.
+  await restoreDefaultSettings()
+}
+
+export async function restoreDefaultSettings(): Promise<void> {
+  // Phase 17q — non-destructive settings restore. Only resets preferences
+  // (turn-server / userProfile / bmoPiBaseUrl, audio levels, a11y,
+  // theme). Does NOT touch user content (campaigns, characters, macros,
+  // library, drafts, notifications history).
+
+  // Reset file-based settings
   await window.api.saveSettings({ turnServers: undefined, userProfile: undefined, bmoPiBaseUrl: undefined })
 
-  // 3. Reset in-memory state
+  // Reset in-memory audio state
   setGlobalVolume(1)
   setGlobalAmbientVolume(0.3)
   setGlobalAudioMuted(false)
   setGlobalAudioEnabled(true)
 
-  // 4. Reset accessibility store
+  // Reset accessibility store
   const accessStore = useAccessibilityStore.getState()
   accessStore.resetAllKeybindings()
   accessStore.setUiScale(100)
@@ -923,9 +941,12 @@ export async function factoryResetAllSettings(): Promise<void> {
   accessStore.setScreenReaderMode(false)
   accessStore.setTooltipsEnabled(true)
 
-  // 5. Reset theme
+  // Reset theme
   setTheme('dark')
 }
+
+// Legacy export name preserved for any caller still using it.
+export const factoryResetAllSettings = resetAllData
 
 export default function SettingsPage(): JSX.Element {
   const navigate = useNavigate()
@@ -1676,21 +1697,52 @@ export default function SettingsPage(): JSX.Element {
           <KeybindingEditor />
         </Section>
 
-        {/* Factory Reset */}
-        <Section title="Reset Everything">
-          <p className="text-xs text-red-400 mb-3">
-            This will reset ALL settings to their defaults. Campaigns, characters, and custom data will not be deleted.
+        {/* Phase 17q — Reset / Restore — two scoped operations.
+            "Restore Default Settings" is non-destructive (preferences only).
+            "Reset All Data" is the legacy Factory Reset, renamed for clarity. */}
+        <Section title="Reset / Restore">
+          <p className="text-xs text-amber-300 mb-2">
+            <strong className="text-amber-200">Restore Default Settings</strong> — non-destructive. Resets theme, audio
+            levels, accessibility options, keybindings, and turn-server config to their defaults. Your campaigns,
+            characters, library, homebrew, macros, drafts, and notifications are NOT touched.
           </p>
           <button
+            type="button"
             onClick={async () => {
-              if (window.confirm('Are you sure you want to reset all settings to defaults? This cannot be undone.')) {
-                await factoryResetAllSettings()
+              if (
+                window.confirm(
+                  'Restore default settings? Theme, audio, accessibility, keybindings, and turn-server config will reset. Characters, campaigns, library, and macros will be untouched.'
+                )
+              ) {
+                await restoreDefaultSettings()
+                window.location.reload()
+              }
+            }}
+            className="px-4 py-1.5 text-sm rounded-lg border bg-amber-900/30 border-amber-700/50 text-amber-200 hover:bg-amber-800/50 hover:text-amber-100 transition-colors cursor-pointer"
+          >
+            Restore Default Settings
+          </button>
+
+          <p className="text-xs text-red-400 mt-6 mb-2">
+            <strong className="text-red-300">Reset All Data</strong> — destructive. Wipes ALL stored data: settings,
+            campaigns, characters, library, homebrew, macros, drafts, notification history, autosaves. This cannot be
+            undone.
+          </p>
+          <button
+            type="button"
+            onClick={async () => {
+              if (
+                window.confirm(
+                  'Reset all data? This will WIPE campaigns, characters, library entries, macros, drafts, and all settings. This cannot be undone.'
+                )
+              ) {
+                await resetAllData()
                 window.location.reload()
               }
             }}
             className="px-4 py-1.5 text-sm rounded-lg border bg-red-900/30 border-red-700/50 text-red-300 hover:bg-red-800/50 hover:text-red-100 transition-colors cursor-pointer"
           >
-            Factory Reset
+            Reset All Data
           </button>
         </Section>
       </div>
