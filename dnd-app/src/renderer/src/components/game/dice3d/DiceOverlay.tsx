@@ -150,6 +150,10 @@ export default function DiceOverlay(): JSX.Element {
         dice: groups,
         results: event.rolls,
         formula: event.formula,
+        // Pass the event's authoritative total through so the Dice Tray entry
+        // emitted by handleAnimationComplete reflects kh/kl/dh/dl + modifiers
+        // rather than a naïve sum of all rolls.
+        total: event.total,
         onComplete: undefined,
         isHidden: event.isHidden || false,
         colors: event.colors || DEFAULT_DICE_COLORS

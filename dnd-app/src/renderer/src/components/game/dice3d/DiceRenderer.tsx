@@ -37,6 +37,13 @@ export interface DiceRollRequest {
   dice: Array<{ type: DieType; count: number }>
   results: number[] // predetermined results (from actual roll)
   formula: string
+  /**
+   * Authoritative roll total (already includes kh/kl/dh/dl + modifiers).
+   * If omitted, the renderer falls back to summing `results` — that's only
+   * correct for trivial NdM rolls. Always pass this when triggering 3D dice
+   * for advantage, disadvantage, drop, or compound expressions.
+   */
+  total?: number
   onComplete?: () => void
   isHidden?: boolean
   colors?: DiceColors
@@ -272,7 +279,9 @@ export default function DiceRenderer({
           const resultData = {
             formula: rollRequest.formula,
             rolls: rollRequest.results,
-            total: rollRequest.results.reduce((a, b) => a + b, 0)
+            // Prefer the caller's authoritative total (covers kh/kl/dh/dl + constants);
+            // fall back to summing dice for legacy NdM-only paths that don't set total.
+            total: rollRequest.total !== undefined ? rollRequest.total : rollRequest.results.reduce((a, b) => a + b, 0)
           }
           onAnimationComplete(resultData)
           rollRequest.onComplete?.()
