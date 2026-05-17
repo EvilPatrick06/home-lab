@@ -41,6 +41,18 @@ export interface HostStateAccessors {
   disconnectPeer: (peerId: string, message: NetworkMessage) => void
   persistBans: () => void
   getConnectedPeers: () => PeerInfo[]
+  /** Phase 29h: register a replay buffer for a freshly joined client. */
+  registerClientBuffer: (clientId: string) => void
+  /** Phase 29h: look up the per-client replay buffer for a reconnect. */
+  replayAfter: (
+    clientId: string,
+    lastSequence: number
+  ) => {
+    fromSequence: number
+    toSequence: number
+    fallback: boolean
+    messages: NetworkMessage[]
+  }
 }
 
 /**
@@ -281,6 +293,7 @@ export function handleJoin(
   const allPeers = state.getConnectedPeers()
   state.peerInfoMap.set(peerId, peerInfo)
   state.lastHeartbeat.set(peerId, Date.now())
+  state.registerClientBuffer(message.payload.clientId)
 
   logger.debug('[HostManager] Player joined:', playerName, '(', peerId, ')')
 
@@ -308,6 +321,50 @@ export function handleJoin(
       logger.warn('[HostManager] Failed to get game state for sync:', e)
     }
   }
+
+  // Phase 29h: reconnect resync. If the client returns with the same
+  // stable clientId and a `lastSequence` cursor that falls within our
+  // retained replay buffer, replay only the missed messages instead of
+  // shipping the full state. Falls back to game:state-full otherwise.
+  const lastSequence = message.payload.lastSequence
+  if (typeof lastSequence === 'number') {
+    const replay = state.replayAfter(message.payload.clientId, lastSequence)
+    if (!replay.fallback) {
+      // Still need to send the peer list / campaign-id meta — drop the
+      // gameState field since the replay contains every mutation since.
+      const { gameState: _gameState, ...meta } = fullPayload
+      state.sendToPeer(peerId, state.buildMessage('game:state-full', meta))
+      state.sendToPeer(
+        peerId,
+        state.buildMessage('game:state-resync', {
+          fromSequence: replay.fromSequence,
+          toSequence: replay.toSequence,
+          fallback: false,
+          messages: replay.messages
+        })
+      )
+      state.broadcastExcluding(
+        state.buildMessage('player:join', {
+          displayName: playerName,
+          characterId,
+          characterName,
+          peerId,
+          clientId: peerInfo.clientId,
+          role: peerInfo.role
+        }),
+        peerId
+      )
+      for (const cb of state.joinCallbacks) {
+        try {
+          cb(peerInfo)
+        } catch (e) {
+          logger.error('[HostManager] Error in join callback:', e)
+        }
+      }
+      return
+    }
+  }
+
   state.sendToPeer(peerId, state.buildMessage('game:state-full', fullPayload))
 
   state.broadcastExcluding(

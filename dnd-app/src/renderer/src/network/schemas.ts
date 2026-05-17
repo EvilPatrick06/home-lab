@@ -35,7 +35,8 @@ const JoinPayloadSchema = z.object({
   characterName: z.string().nullable(),
   color: z.string().optional(),
   clientId: z.string().min(1).max(100),
-  role: z.enum(['player', 'spectator']).optional()
+  role: z.enum(['player', 'spectator']).optional(),
+  lastSequence: z.number().int().nonnegative().optional()
 })
 
 const ChatPayloadSchema = z.object({
@@ -123,6 +124,37 @@ const ConditionUpdatePayloadSchema = z.object({
   targetId: z.string(),
   condition: z.string(),
   active: z.boolean()
+})
+
+// Phase 29h: delta + resync schemas. Pass-through validation for the
+// inner entity shapes (`InitiativeEntry`, `EntityCondition`) since
+// they're internal game state — the network surface only enforces
+// add/remove/update shape.
+const InitiativeDeltaPayloadSchema = z.object({
+  round: z.number().optional(),
+  currentIndex: z.number().optional(),
+  turnMode: z.string().optional(),
+  added: z.array(z.unknown()),
+  removed: z.array(z.string()),
+  updated: z.array(z.unknown())
+})
+
+const ConditionDeltaPayloadSchema = z.object({
+  added: z.array(z.unknown()),
+  removed: z.array(z.string()),
+  updated: z.array(z.unknown())
+})
+
+const ResyncRequestPayloadSchema = z.object({
+  lastSequence: z.number().int().nonnegative(),
+  lastClientId: z.string().min(1).max(64)
+})
+
+const StateResyncPayloadSchema = z.object({
+  fromSequence: z.number().int().nonnegative(),
+  toSequence: z.number().int().nonnegative(),
+  fallback: z.boolean(),
+  messages: z.array(z.unknown()).optional()
 })
 
 const KickPayloadSchema = z.object({
@@ -525,7 +557,11 @@ const PAYLOAD_SCHEMAS: Partial<Record<MessageTypeString, z.ZodType>> = {
   'dm:fog-reveal': FogRevealPayloadSchema,
   'dm:token-move': TokenMovePayloadSchema,
   'dm:initiative-update': InitiativeUpdatePayloadSchema,
+  'dm:initiative-delta': InitiativeDeltaPayloadSchema,
   'dm:condition-update': ConditionUpdatePayloadSchema,
+  'dm:condition-delta': ConditionDeltaPayloadSchema,
+  'player:resync-request': ResyncRequestPayloadSchema,
+  'game:state-resync': StateResyncPayloadSchema,
   'dm:kick-player': KickPayloadSchema,
   'dm:ban-player': BanPayloadSchema,
   'dm:chat-timeout': ChatTimeoutPayloadSchema,

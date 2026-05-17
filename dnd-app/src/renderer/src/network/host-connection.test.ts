@@ -65,6 +65,8 @@ function createMockState(overrides: Partial<HostStateAccessors> = {}): HostState
     disconnectPeer: vi.fn(),
     persistBans: vi.fn(),
     getConnectedPeers: vi.fn(() => []),
+    registerClientBuffer: vi.fn(),
+    replayAfter: vi.fn(() => ({ fromSequence: 0, toSequence: 0, fallback: true, messages: [] })),
     ...overrides
   }
 }

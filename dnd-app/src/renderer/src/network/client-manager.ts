@@ -42,6 +42,13 @@ let sequenceCounter = 0
 // ordered channels should prevent gaps, but we log when they occur for debugging).
 let lastHostSequence = -1
 
+// Phase 29h: resync cursor. Survives across reconnects (unlike
+// `lastHostSequence` which resets to -1 on each connect attempt) so a
+// reconnecting client can ask the host to replay only the missed
+// messages instead of bootstrapping the full state. Cleared on full
+// disconnect / kick / ban / game-end.
+let lastSequenceForResync = -1
+
 // Persisted character info for reconnection
 let lastCharacterId: string | null = null
 let lastCharacterName: string | null = null
@@ -124,6 +131,7 @@ export function disconnect(): void {
   retryCount = 0
   isReconnecting = false
   lastHostSequence = -1
+  lastSequenceForResync = -1
 
   stopHeartbeat()
   destroyPeer()
@@ -256,7 +264,8 @@ async function attemptConnection(
               characterId,
               characterName,
               clientId: getOrCreateClientId(),
-              role: 'player'
+              role: 'player',
+              ...(lastSequenceForResync >= 0 ? { lastSequence: lastSequenceForResync } : {})
             }
           })
 
@@ -295,6 +304,11 @@ async function attemptConnection(
             }
             if (message.sequence > lastHostSequence) {
               lastHostSequence = message.sequence
+            }
+            // Phase 29h: persistent resync cursor — keeps moving across
+            // reconnects until the session ends or the client is kicked.
+            if (message.sequence > lastSequenceForResync) {
+              lastSequenceForResync = message.sequence
             }
           }
 
@@ -426,6 +440,7 @@ function handleForcedDisconnection(reason: string): void {
   connection = null
   lastInviteCode = null
   retryCount = MAX_RECONNECT_RETRIES // Prevent retries
+  lastSequenceForResync = -1
   if (retryTimeout) {
     clearTimeout(retryTimeout)
     retryTimeout = null

@@ -1,8 +1,25 @@
 import { useGameStore } from '../stores/use-game-store'
-import type { EntityCondition } from '../types/game-state'
+import type { EntityCondition, InitiativeEntry, InitiativeState } from '../types/game-state'
 import type { GameMap } from '../types/map'
 import { logger } from '../utils/logger'
 import type { MessageType } from './types'
+
+function diffById<T extends { id: string }>(prev: T[], next: T[]): { added: T[]; removed: string[]; updated: T[] } {
+  const prevById = new Map(prev.map((e) => [e.id, e]))
+  const nextById = new Map(next.map((e) => [e.id, e]))
+  const added: T[] = []
+  const removed: string[] = []
+  const updated: T[] = []
+  for (const [id, entry] of nextById) {
+    const prevEntry = prevById.get(id)
+    if (!prevEntry) added.push(entry)
+    else if (prevEntry !== entry) updated.push(entry)
+  }
+  for (const id of prevById.keys()) {
+    if (!nextById.has(id)) removed.push(id)
+  }
+  return { added, removed, updated }
+}
 
 type SendMessageFn = (type: MessageType, payload: unknown) => void
 
@@ -11,6 +28,39 @@ let unsubscribe: (() => void) | null = null
 const MAX_IMAGE_BYTES = 4 * 1024 * 1024
 
 const imageCache = new Map<string, string>()
+
+// Phase 29h: token-move throttle. A rapid drag can fire dozens of
+// updates per second; ship at most ~15 Hz (67ms tick) and drop
+// intermediate positions so each per-token broadcast carries the
+// latest grid position only.
+const TOKEN_MOVE_FLUSH_MS = 67
+interface PendingTokenMove {
+  mapId: string
+  tokenId: string
+  gridX: number
+  gridY: number
+}
+const pendingTokenMoves = new Map<string, PendingTokenMove>()
+let tokenMoveFlushTimer: ReturnType<typeof setTimeout> | null = null
+
+function flushPendingTokenMoves(sendMessage: SendMessageFn): void {
+  if (pendingTokenMoves.size === 0) {
+    tokenMoveFlushTimer = null
+    return
+  }
+  for (const move of pendingTokenMoves.values()) {
+    sendMessage('dm:token-move', move)
+  }
+  pendingTokenMoves.clear()
+  tokenMoveFlushTimer = null
+}
+
+function queueTokenMove(sendMessage: SendMessageFn, move: PendingTokenMove): void {
+  pendingTokenMoves.set(`${move.mapId}:${move.tokenId}`, move)
+  if (!tokenMoveFlushTimer) {
+    tokenMoveFlushTimer = setTimeout(() => flushPendingTokenMoves(sendMessage), TOKEN_MOVE_FLUSH_MS)
+  }
+}
 
 async function encodeMapImage(imagePath: string): Promise<string | null> {
   if (!imagePath || imagePath.startsWith('data:')) return imagePath
@@ -53,7 +103,7 @@ export function startGameSync(sendMessage: SendMessageFn): void {
 
   let prevMaps: GameMap[] = useGameStore.getState().maps
   let prevActiveMapId: string | null = useGameStore.getState().activeMapId
-  let prevInitiative = useGameStore.getState().initiative
+  let prevInitiative: InitiativeState | null = useGameStore.getState().initiative
   let prevRound = useGameStore.getState().round
   let prevConditions: EntityCondition[] = useGameStore.getState().conditions
   let prevTurnMode = useGameStore.getState().turnMode
@@ -94,19 +144,36 @@ export function startGameSync(sendMessage: SendMessageFn): void {
       }
     }
 
-    if (state.initiative !== prevInitiative || state.round !== prevRound) {
+    if (state.initiative !== prevInitiative || state.round !== prevRound || state.turnMode !== prevTurnMode) {
+      const nextEntries: InitiativeEntry[] = state.initiative?.entries ?? []
+      const prevEntries: InitiativeEntry[] = prevInitiative?.entries ?? []
+      const diff = diffById(prevEntries, nextEntries)
+      const metaChanged =
+        prevInitiative?.round !== state.initiative?.round ||
+        prevInitiative?.currentIndex !== state.initiative?.currentIndex ||
+        prevTurnMode !== state.turnMode
+      if (diff.added.length || diff.removed.length || diff.updated.length || metaChanged) {
+        // Phase 29h: emit a delta instead of the full array. Receiver
+        // applies add/remove/update against its local mirror.
+        sendMessage('dm:initiative-delta', {
+          round: state.initiative?.round,
+          currentIndex: state.initiative?.currentIndex,
+          turnMode: state.turnMode,
+          added: diff.added,
+          removed: diff.removed,
+          updated: diff.updated
+        })
+      }
       prevInitiative = state.initiative
       prevRound = state.round
-      sendMessage('dm:initiative-update', {
-        initiative: state.initiative,
-        round: state.round,
-        turnMode: state.turnMode
-      })
     }
 
     if (state.conditions !== prevConditions) {
+      const diff = diffById(prevConditions, state.conditions)
+      if (diff.added.length || diff.removed.length || diff.updated.length) {
+        sendMessage('dm:condition-delta', diff)
+      }
       prevConditions = state.conditions
-      sendMessage('dm:condition-update', { conditions: state.conditions })
     }
 
     if (state.turnMode !== prevTurnMode || state.isPaused !== prevIsPaused) {
@@ -137,7 +204,7 @@ export function startGameSync(sendMessage: SendMessageFn): void {
             if (!prevToken) {
               sendMessage('game:state-update', { addToken: { mapId: map.id, token } })
             } else if (prevToken.gridX !== token.gridX || prevToken.gridY !== token.gridY) {
-              sendMessage('dm:token-move', {
+              queueTokenMove(sendMessage, {
                 mapId: map.id,
                 tokenId: token.id,
                 gridX: token.gridX,
@@ -240,6 +307,11 @@ export function stopGameSync(): void {
     unsubscribe()
     unsubscribe = null
   }
+  if (tokenMoveFlushTimer) {
+    clearTimeout(tokenMoveFlushTimer)
+    tokenMoveFlushTimer = null
+  }
+  pendingTokenMoves.clear()
 }
 
 /**

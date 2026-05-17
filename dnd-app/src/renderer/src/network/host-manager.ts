@@ -4,6 +4,7 @@ import { KICK_DELAY_MS, MAX_RECONNECT_ATTEMPTS } from '../constants'
 import { getOrCreateClientId } from '../utils/client-id'
 import { logger } from '../utils/logger'
 import { type HostStateAccessors, handleDisconnection, handleNewConnection } from './host-connection'
+import { recordOutgoing, registerClientBuffer, replayAfter, resetReplayBuffers } from './host-replay-buffer'
 import {
   type BanClientEntry,
   buildMessage as buildMessageUtil,
@@ -185,7 +186,9 @@ function getStateAccessors(): HostStateAccessors {
     sendToPeer,
     disconnectPeer,
     persistBans,
-    getConnectedPeers
+    getConnectedPeers,
+    registerClientBuffer,
+    replayAfter
   }
 }
 
@@ -311,6 +314,7 @@ export function stopHosting(): void {
   chatMutedPeers.clear()
   lastHeartbeat.clear()
   peerQueues.clear()
+  resetReplayBuffers()
   stopHeartbeatCheck()
   router.clear()
   joinCallbacks.clear()
@@ -334,21 +338,37 @@ export function stopHosting(): void {
   bansLoaded.value = false
 }
 
+function clientIdsForPeers(peerIds: Iterable<string>): string[] {
+  const ids: string[] = []
+  for (const peerId of peerIds) {
+    const info = peerInfoMap.get(peerId)
+    if (info?.clientId) ids.push(info.clientId)
+  }
+  return ids
+}
+
 /** Send a message to all connected peers. */
 export function broadcastMessage(msg: NetworkMessage): void {
   const serialized = JSON.stringify(msg)
-  for (const [peerId] of connections) {
+  const peerIds = Array.from(connections.keys())
+  for (const peerId of peerIds) {
     queueForPeer(peerId, serialized)
   }
+  // Phase 29h: record on every connected client's replay buffer so
+  // they can ask for a delta on reconnect.
+  recordOutgoing(clientIdsForPeers(peerIds), msg)
 }
 
 /** Broadcast to all peers except the specified one (rebroadcast without echo). */
 export function broadcastExcluding(msg: NetworkMessage, excludePeerId: string): void {
   const serialized = JSON.stringify(msg)
+  const peerIds: string[] = []
   for (const [peerId] of connections) {
     if (peerId === excludePeerId) continue
     queueForPeer(peerId, serialized)
+    peerIds.push(peerId)
   }
+  recordOutgoing(clientIdsForPeers(peerIds), msg)
 }
 
 /** Send a message to a specific peer. */
@@ -358,6 +378,8 @@ export function sendToPeer(peerId: string, msg: NetworkMessage): void {
     return
   }
   queueForPeer(peerId, JSON.stringify(msg))
+  const clientId = peerInfoMap.get(peerId)?.clientId
+  if (clientId) recordOutgoing([clientId], msg)
 }
 
 /** Kick a peer from the game. */

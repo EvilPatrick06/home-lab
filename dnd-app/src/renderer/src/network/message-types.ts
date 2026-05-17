@@ -23,7 +23,9 @@ export const MESSAGE_TYPES = [
   'dm:fog-reveal',
   'dm:token-move',
   'dm:initiative-update',
+  'dm:initiative-delta',
   'dm:condition-update',
+  'dm:condition-delta',
   'dm:kick-player',
   'dm:ban-player',
   'dm:unban-player',
@@ -79,6 +81,8 @@ export const MESSAGE_TYPES = [
   'player:trade-response',
   'player:trade-cancel',
   'dm:trade-result',
+  'player:resync-request',
+  'game:state-resync',
   'player:journal-add',
   'player:journal-update',
   'player:journal-delete',
@@ -116,6 +120,9 @@ export interface JoinPayload {
   clientId: string
   /** Functional role at join time. Defaults to 'player'; spectator support lands in Phase 29e. */
   role?: 'player' | 'spectator'
+  /** Phase 29h: last sequence number the client processed before disconnecting. Host replays
+   * messages from its per-client buffer instead of resending the full state. */
+  lastSequence?: number
 }
 
 export interface ChatPayload {
@@ -189,6 +196,45 @@ export interface ConditionUpdatePayload {
   targetId: string
   condition: string
   active: boolean
+}
+
+// Phase 29h: delta payloads. Stop shipping the full initiative /
+// condition arrays on every change; ship only the diff. Clients apply
+// add/remove/update against their local mirror. `round` /
+// `currentIndex` / `turnMode` are optional so an array-only change
+// doesn't carry stale meta.
+export interface InitiativeDeltaPayload {
+  round?: number
+  currentIndex?: number
+  turnMode?: 'initiative' | 'free'
+  added: import('../types/game-state').InitiativeEntry[]
+  removed: string[]
+  updated: import('../types/game-state').InitiativeEntry[]
+}
+
+export interface ConditionDeltaPayload {
+  added: import('../types/game-state').EntityCondition[]
+  removed: string[]
+  updated: import('../types/game-state').EntityCondition[]
+}
+
+// Phase 29h: reconnect resync. A client returning with the same
+// stable clientId sends `player:resync-request` carrying the last
+// sequence number it processed. The host either replays the queued
+// outgoing messages from its per-client ring buffer (`game:state-resync`
+// with `fallback: false`) or, if the requested cursor falls outside
+// the buffer window, marks `fallback: true` so the client falls back
+// to the existing full-state-on-join path.
+export interface ResyncRequestPayload {
+  lastSequence: number
+  lastClientId: string
+}
+
+export interface StateResyncPayload {
+  fromSequence: number
+  toSequence: number
+  fallback: boolean
+  messages?: NetworkMessage[]
 }
 
 export interface KickPayload {

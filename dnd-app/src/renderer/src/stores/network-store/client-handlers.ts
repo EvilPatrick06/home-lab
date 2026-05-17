@@ -57,6 +57,7 @@ import {
   setAmbientVolume,
   stopAmbient
 } from '../../services/sound-manager'
+import { logger } from '../../utils/logger'
 import { useGameStore } from '../use-game-store'
 import { useLobbyStore } from '../use-lobby-store'
 import { useMacroStore } from '../use-macro-store'
@@ -419,10 +420,102 @@ export function handleClientMessage(
       break
     }
 
+    case 'dm:initiative-delta': {
+      // Phase 29h: apply add/remove/update against the local initiative
+      // mirror instead of replacing the whole array.
+      const payload = message.payload as {
+        round?: number
+        currentIndex?: number
+        turnMode?: 'initiative' | 'free'
+        added: Array<Record<string, unknown> & { id: string }>
+        removed: string[]
+        updated: Array<Record<string, unknown> & { id: string }>
+      }
+      const gameStore = useGameStore.getState()
+      const prevInitiative = gameStore.initiative as {
+        entries: Array<Record<string, unknown> & { id: string }>
+        currentIndex: number
+        round: number
+      } | null
+      const entries = [...(prevInitiative?.entries ?? [])]
+      for (const id of payload.removed) {
+        const idx = entries.findIndex((e) => e.id === id)
+        if (idx >= 0) entries.splice(idx, 1)
+      }
+      for (const entry of payload.updated) {
+        const idx = entries.findIndex((e) => e.id === entry.id)
+        if (idx >= 0) entries[idx] = entry
+      }
+      for (const entry of payload.added) {
+        if (!entries.some((e) => e.id === entry.id)) entries.push(entry)
+      }
+      const nextInitiative = {
+        entries,
+        currentIndex: payload.currentIndex ?? prevInitiative?.currentIndex ?? 0,
+        round: payload.round ?? prevInitiative?.round ?? 1
+      }
+      applyGameState({
+        initiative: nextInitiative,
+        ...(payload.round !== undefined ? { round: payload.round } : {}),
+        ...(payload.turnMode ? { turnMode: payload.turnMode } : {})
+      } as Record<string, unknown>)
+      break
+    }
+
     case 'dm:condition-update': {
       const payload = message.payload as ConditionUpdatePayload & { conditions?: unknown[] }
       if (payload.conditions) {
         applyGameState({ conditions: payload.conditions } as Record<string, unknown>)
+      }
+      break
+    }
+
+    case 'dm:condition-delta': {
+      const payload = message.payload as {
+        added: Array<Record<string, unknown> & { id: string }>
+        removed: string[]
+        updated: Array<Record<string, unknown> & { id: string }>
+      }
+      const prevConditions = (useGameStore.getState().conditions ?? []) as unknown as Array<
+        Record<string, unknown> & { id: string }
+      >
+      const next = [...prevConditions]
+      for (const id of payload.removed) {
+        const idx = next.findIndex((c) => c.id === id)
+        if (idx >= 0) next.splice(idx, 1)
+      }
+      for (const entry of payload.updated) {
+        const idx = next.findIndex((c) => c.id === entry.id)
+        if (idx >= 0) next[idx] = entry
+      }
+      for (const entry of payload.added) {
+        if (!next.some((c) => c.id === entry.id)) next.push(entry)
+      }
+      applyGameState({ conditions: next } as Record<string, unknown>)
+      break
+    }
+
+    case 'game:state-resync': {
+      // Phase 29h: the host replayed missed messages from its per-client
+      // buffer. Re-dispatch each through this handler so the existing
+      // case branches apply them (no special apply paths needed).
+      const payload = message.payload as {
+        fromSequence: number
+        toSequence: number
+        fallback: boolean
+        messages?: NetworkMessage[]
+      }
+      if (payload.fallback) {
+        // Host couldn't replay — clients fall through to the existing
+        // game:state-full snapshot that arrives separately.
+        break
+      }
+      for (const inner of payload.messages ?? []) {
+        try {
+          handleClientMessage(inner, get, set)
+        } catch (err) {
+          logger.warn('[ClientHandlers] resync inner-message dispatch failed:', err)
+        }
       }
       break
     }
