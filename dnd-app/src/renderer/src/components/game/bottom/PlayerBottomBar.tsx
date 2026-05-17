@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { parseDiceFormula, rollDice } from '../../../services/dice/dice-engine'
+import { getCurrentAmbient, subscribeToCurrentAmbient } from '../../../services/sound-manager'
 import { useNetworkStore } from '../../../stores/network-store'
 import { useCharacterStore } from '../../../stores/use-character-store'
 import { useGameStore } from '../../../stores/use-game-store'
@@ -74,6 +75,11 @@ export default function PlayerBottomBar({
   const sendMessage = useNetworkStore((s) => s.sendMessage)
   const [toolsOpen, setToolsOpen] = useState(false)
   const toolsRef = useRef<HTMLDivElement>(null)
+
+  // Phase 14d: surface the currently playing ambient track so players
+  // know the soundscape they're in (and that ambient sync is working).
+  const [currentAmbient, setCurrentAmbient] = useState<string | null>(() => getCurrentAmbient())
+  useEffect(() => subscribeToCurrentAmbient((value) => setCurrentAmbient(value)), [])
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent): void => {
@@ -155,6 +161,20 @@ export default function PlayerBottomBar({
       >
         {collapsed ? '\u25B2' : '\u25BC'}
       </button>
+
+      {/* Phase 14d: Currently playing ambient \u2014 small pill in the
+          top-left corner of the bottom bar. Only renders when something
+          is actually playing; null state stays out of the way. */}
+      {currentAmbient && (
+        <div
+          className="absolute -top-5 right-3 z-10 px-2.5 py-0.5 text-[10px] flex items-center gap-1
+            bg-gray-800 border border-gray-700/50 rounded-t-lg text-amber-300"
+          title={`Currently playing: ${currentAmbient}`}
+        >
+          <span aria-hidden>\u266A</span>
+          <span className="font-medium">{currentAmbient.replace(/^ambient-/, '')}</span>
+        </div>
+      )}
 
       {collapsed ? (
         <div className="flex-1 px-3 py-1.5">

@@ -151,6 +151,16 @@ export function handleClientMessage(
           useGameStore.getState().openShop(gs.shopName)
           if (gs.shopInventory) useGameStore.getState().setShopInventory(gs.shopInventory)
         }
+        // Phase 14d: hydrate the currently playing ambient track so a
+        // late joiner hears whatever the DM has running. The host's
+        // game-sync includes `currentAmbient: AmbientSound | null` in
+        // the full-state payload; null means stop, a name means play.
+        const currentAmbient = (gs as unknown as { currentAmbient?: string | null }).currentAmbient
+        if (typeof currentAmbient === 'string' && currentAmbient.length > 0) {
+          playAmbientSound(currentAmbient as Parameters<typeof playAmbientSound>[0])
+        } else if (currentAmbient === null) {
+          stopAmbient()
+        }
       }
       break
     }

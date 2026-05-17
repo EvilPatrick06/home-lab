@@ -326,6 +326,18 @@ export async function buildFullGameStatePayload(): Promise<Record<string, unknow
       return { ...m, imageData: imageData || undefined }
     })
   )
+  // Phase 14d: include the currently playing ambient track so late
+  // joiners hear the same soundscape the rest of the party already has
+  // running. Lazy-imported to avoid pulling sound-manager into every
+  // call site that touches this module (sound-manager has heavy
+  // playback dependencies).
+  let currentAmbient: string | null = null
+  try {
+    const { getCurrentAmbient } = await import('../services/sound-manager')
+    currentAmbient = getCurrentAmbient()
+  } catch {
+    /* sound-manager not available in this context — skip */
+  }
   return {
     maps: mapsWithImages,
     activeMapId: gs.activeMapId,
@@ -359,6 +371,7 @@ export async function buildFullGameStatePayload(): Promise<Record<string, unknow
     handouts: gs.handouts,
     combatTimer: gs.combatTimer,
     partyVisionCells: gs.partyVisionCells,
-    sharedJournal: gs.sharedJournal
+    sharedJournal: gs.sharedJournal,
+    currentAmbient
   }
 }

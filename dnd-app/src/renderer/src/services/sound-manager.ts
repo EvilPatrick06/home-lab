@@ -433,6 +433,7 @@ export function playAmbient(ambient: AmbientSound): void {
   }
   playbackPlayAmbient(ambient, muted, ambientVolume)
   currentAmbientName = ambient
+  notifyAmbientListeners()
 }
 
 /**
@@ -442,6 +443,7 @@ export function playAmbient(ambient: AmbientSound): void {
 export function stopAmbient(): void {
   playbackStopAmbient()
   currentAmbientName = null
+  notifyAmbientListeners()
 }
 
 /**
@@ -449,6 +451,28 @@ export function stopAmbient(): void {
  */
 export function getCurrentAmbient(): AmbientSound | null {
   return currentAmbientName ?? playbackGetCurrentAmbient()
+}
+
+// Phase 14d: subscribers for "Currently Playing" indicator on the
+// PlayerBottomBar. Fires on play/stop so the UI can re-render without
+// polling.
+const ambientListeners = new Set<(ambient: AmbientSound | null) => void>()
+function notifyAmbientListeners(): void {
+  const value = getCurrentAmbient()
+  for (const cb of ambientListeners) {
+    try {
+      cb(value)
+    } catch {
+      // ignore — keep notifying the rest
+    }
+  }
+}
+
+export function subscribeToCurrentAmbient(cb: (ambient: AmbientSound | null) => void): () => void {
+  ambientListeners.add(cb)
+  return () => {
+    ambientListeners.delete(cb)
+  }
 }
 
 /**

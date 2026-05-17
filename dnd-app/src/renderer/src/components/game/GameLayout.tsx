@@ -44,6 +44,7 @@ import ActionEconomyBar from './overlays/ActionEconomyBar'
 import ClockOverlay from './overlays/ClockOverlay'
 import DmAlertTray from './overlays/DmAlertTray'
 import EmptyCellContextMenu from './overlays/EmptyCellContextMenu'
+import FloatingDMPanel from './overlays/FloatingDMPanel'
 import {
   type ConcCheckPromptState,
   ConcentrationCheckPrompt,
@@ -421,6 +422,23 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
     }
   }, [activeMap?.id, character, gameStore])
 
+  // Phase 14c: F5 toggles DM ↔ Player view (DM-only). Designed so a
+  // DM can peek at the player perspective and flip back fast without
+  // hunting for the ViewModeToggle button.
+  useEffect(() => {
+    if (!isDM) return
+    const onKey = (e: KeyboardEvent): void => {
+      if (e.key !== 'F5') return
+      const target = e.target as HTMLElement | null
+      if (target && /INPUT|TEXTAREA|SELECT/.test(target.tagName)) return
+      if (target?.isContentEditable) return
+      e.preventDefault()
+      setViewMode(viewMode === 'dm' ? 'player' : 'dm')
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [isDM, viewMode, setViewMode])
+
   // QA-S8: surface a toast when the campaign calendar preset changes
   // mid-session. The change can happen behind the DM's back (a co-DM,
   // a campaign-settings edit, or another open window). Without a
@@ -729,6 +747,25 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
         aria-label="Game controls toolbar"
       >
         {isDM && <ViewModeToggle viewMode={viewMode} onToggle={handleViewModeToggle} characterName={character?.name} />}
+        {effectiveIsDM && gameStore.maps.length > 1 && (
+          // Phase 14a (D1): quick map selector in the DM toolbar — no
+          // longer requires drilling into Places / portal triggers /
+          // fullscreen editor just to flip the active map.
+          <select
+            value={gameStore.activeMapId ?? ''}
+            onChange={(e) => gameStore.setActiveMap(e.target.value)}
+            className="bg-gray-900/80 backdrop-blur-sm border border-gray-700 text-gray-200 text-xs rounded-lg px-2 py-1.5
+                       hover:border-amber-600/50 focus:outline-none focus:border-amber-500 transition-colors cursor-pointer"
+            title="Switch active map"
+            aria-label="Switch active map"
+          >
+            {gameStore.maps.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.name || 'Untitled Map'}
+              </option>
+            ))}
+          </select>
+        )}
         {campaign.calendar && (
           <ClockOverlay
             calendar={campaign.calendar}
@@ -905,8 +942,13 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
       {effectiveIsDM && activeTool === 'wall' && (
         <WallToolbar wallType={wallType} onSetWallType={setWallType} onDone={() => setActiveTool('select')} />
       )}
-      {/* Drawing tools button - appears when not in drawing mode */}
-      {activeTool === 'select' && (
+      {/* Drawing tools button - appears when not in drawing mode.
+          Phase 14b (D2): DM-only. Even though setActiveTool('draw-*')
+          callers are already DM-gated, the toolbar itself was rendered
+          unconditionally; if `activeTool` ever leaked into a player
+          session (state-restore edge case, view-mode swap) the player
+          would see drawing controls. Explicit gate closes that hole. */}
+      {effectiveIsDM && activeTool === 'select' && (
         <div
           className="absolute top-16 right-4 z-20 flex flex-col gap-1 bg-gray-900/90 backdrop-blur-sm border border-gray-700/50 rounded-xl p-2 shadow-xl"
           role="toolbar"
@@ -956,23 +998,24 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
         </div>
       )}
 
-      {/* Drawing toolbar - appears when in drawing mode */}
-      {(activeTool === 'draw-free' ||
-        activeTool === 'draw-line' ||
-        activeTool === 'draw-rect' ||
-        activeTool === 'draw-circle' ||
-        activeTool === 'draw-text') && (
-        <DrawingToolbar
-          activeTool={activeTool}
-          strokeWidth={drawingStrokeWidth}
-          color={drawingColor}
-          onSetTool={setActiveTool}
-          onSetStrokeWidth={setDrawingStrokeWidth}
-          onSetColor={setDrawingColor}
-          onClearDrawings={effectiveIsDM && activeMap ? () => gameStore.clearDrawings(activeMap.id) : undefined}
-          isHost={effectiveIsDM}
-        />
-      )}
+      {/* Drawing toolbar - appears when in drawing mode. DM-only (14b). */}
+      {effectiveIsDM &&
+        (activeTool === 'draw-free' ||
+          activeTool === 'draw-line' ||
+          activeTool === 'draw-rect' ||
+          activeTool === 'draw-circle' ||
+          activeTool === 'draw-text') && (
+          <DrawingToolbar
+            activeTool={activeTool}
+            strokeWidth={drawingStrokeWidth}
+            color={drawingColor}
+            onSetTool={setActiveTool}
+            onSetStrokeWidth={setDrawingStrokeWidth}
+            onSetColor={setDrawingColor}
+            onClearDrawings={effectiveIsDM && activeMap ? () => gameStore.clearDrawings(activeMap.id) : undefined}
+            isHost={effectiveIsDM}
+          />
+        )}
 
       {!effectiveIsDM && <ShopView />}
 
@@ -1049,6 +1092,20 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
       )}
       {longRestWarning && <LongRestWarning onOverride={executeLongRest} onCancel={() => setLongRestWarning(false)} />}
       {activeAoE && <AoEDismissButton onClear={() => setActiveAoE(null)} />}
+
+      {/* Phase 14c (D3): when the DM is previewing the Player view,
+          keep a few critical actions reachable without forcing a
+          round-trip back to DM view. F5 also toggles the view. */}
+      {isDM && viewMode === 'player' && (
+        <FloatingDMPanel
+          onSwitchToDM={() => setViewMode('dm')}
+          onOpenInitiative={() => setActiveModal('initiative')}
+          onNextTurn={() => gameStore.nextTurn()}
+          aiDmEnabled={campaign.aiDm?.enabled ?? false}
+          aiPaused={aiDmStore.paused}
+          onTogglePauseAI={() => aiDmStore.setPaused(!aiDmStore.paused)}
+        />
+      )}
 
       {/* Game prompts */}
       {oaPrompt && (
