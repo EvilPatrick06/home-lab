@@ -3561,7 +3561,12 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
                       </h3>
                     )}
                     {meta.description && (
-                      <p className="text-xs text-amber-100/60 italic mt-1 line-clamp-2">{meta.description}</p>
+                      /* Phase 34a QA P11: render rich content (backticks +
+                         fenced code) instead of literal raw text. */
+                      <RichContent
+                        text={meta.description}
+                        className="text-xs text-amber-100/60 italic mt-1 line-clamp-2"
+                      />
                     )}
                   </div>
                 </div>
@@ -3925,7 +3930,11 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
               {courseSet.metadata.title}
             </h2>
             {courseSet.metadata.description && (
-              <p className="text-amber-100/70 text-sm mt-1 italic">{courseSet.metadata.description}</p>
+              /* Phase 34a QA P11: render rich content in active-tome description. */
+              <RichContent
+                text={courseSet.metadata.description}
+                className="text-amber-100/70 text-sm mt-1 italic"
+              />
             )}
             {(courseSet.metadata.subject || courseSet.metadata.author || courseSet.metadata.difficulty) && (
               <div className="flex flex-wrap gap-2 mt-2 text-xs">
