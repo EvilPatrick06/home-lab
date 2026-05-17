@@ -7,7 +7,7 @@ vi.mock('./chat-commands/index', () => ({
 
 import type { Character5e } from '../types/character-5e'
 import { executeCommand } from './chat-commands/index'
-import { executeMacro, resolveMacroVariables } from './macro-engine'
+import { executeMacro, expandRepeatBlocks, resolveMacroVariables } from './macro-engine'
 
 function makeCharacter(overrides?: Partial<Character5e>): Character5e {
   return {
@@ -168,5 +168,102 @@ describe('executeMacro', () => {
     const ctx = { addSystemMessage: vi.fn() } as never
     executeMacro(macro, ctx, null)
     expect(mockExecuteCommand).toHaveBeenCalledWith('/roll d6', ctx)
+  })
+})
+
+describe('expandRepeatBlocks (16D)', () => {
+  it('returns command unchanged when no repeat block present', () => {
+    expect(expandRepeatBlocks('/roll 1d20')).toBe('/roll 1d20')
+  })
+
+  it('expands a single block N times, newline-joined', () => {
+    const out = expandRepeatBlocks('{repeat 3}/roll 1d20+5{/repeat}')
+    expect(out).toBe('/roll 1d20+5\n/roll 1d20+5\n/roll 1d20+5')
+  })
+
+  it('caps the repeat count at 20', () => {
+    const out = expandRepeatBlocks('{repeat 999}1d6{/repeat}')
+    expect(out.split('\n')).toHaveLength(20)
+  })
+
+  it('treats a 0/negative count as at least 1', () => {
+    expect(expandRepeatBlocks('{repeat 0}x{/repeat}')).toBe('x')
+  })
+
+  it('expands multiple sibling blocks', () => {
+    const out = expandRepeatBlocks('{repeat 2}A{/repeat}_{repeat 2}B{/repeat}')
+    expect(out).toBe('A\nA_B\nB')
+  })
+})
+
+describe('executeMacro multi-line dispatch (16D)', () => {
+  const mockExecuteCommand = vi.mocked(executeCommand)
+
+  it('dispatches each iteration of a {repeat} block as its own command', () => {
+    mockExecuteCommand.mockClear()
+    const macro = {
+      id: 'm-repeat',
+      name: 'Extra Attack',
+      command: '{repeat 3}/roll 1d20+5{/repeat}',
+      icon: '',
+      hotkey: null
+    }
+    const ctx = { addSystemMessage: vi.fn() } as never
+    executeMacro(macro, ctx, null)
+    expect(mockExecuteCommand).toHaveBeenCalledTimes(3)
+    expect(mockExecuteCommand).toHaveBeenNthCalledWith(1, '/roll 1d20+5', ctx)
+    expect(mockExecuteCommand).toHaveBeenNthCalledWith(2, '/roll 1d20+5', ctx)
+    expect(mockExecuteCommand).toHaveBeenNthCalledWith(3, '/roll 1d20+5', ctx)
+  })
+
+  it('dispatches hand-authored newline-separated lines independently', () => {
+    mockExecuteCommand.mockClear()
+    const macro = {
+      id: 'm-multi',
+      name: 'Multi',
+      command: '/roll 1d20\n2d6+3',
+      icon: '',
+      hotkey: null
+    }
+    const ctx = { addSystemMessage: vi.fn() } as never
+    executeMacro(macro, ctx, null)
+    expect(mockExecuteCommand).toHaveBeenCalledTimes(2)
+    expect(mockExecuteCommand).toHaveBeenNthCalledWith(1, '/roll 1d20', ctx)
+    // Bare dice formula on second line gets auto-wrapped as /roll
+    expect(mockExecuteCommand).toHaveBeenNthCalledWith(2, '/roll 2d6+3', ctx)
+  })
+
+  it('skips empty lines produced by trailing newlines', () => {
+    mockExecuteCommand.mockClear()
+    const macro = {
+      id: 'm-empty',
+      name: 'WithBlanks',
+      command: '/roll 1d20\n\n\n/roll 1d6',
+      icon: '',
+      hotkey: null
+    }
+    const ctx = { addSystemMessage: vi.fn() } as never
+    executeMacro(macro, ctx, null)
+    expect(mockExecuteCommand).toHaveBeenCalledTimes(2)
+  })
+
+  it('resolves variables inside the repeated body once per iteration', () => {
+    mockExecuteCommand.mockClear()
+    const char = makeCharacter({ name: 'Eldrin', level: 5 })
+    // resolveMacroVariables runs after expandRepeatBlocks, so each iteration
+    // resolves the same way; we just verify the variables come out right.
+    const macro = {
+      id: 'm-var-repeat',
+      name: 'TripleAttack',
+      command: '{repeat 2}/roll 1d20+$prof for $name{/repeat}',
+      icon: '',
+      hotkey: null
+    }
+    const ctx = { addSystemMessage: vi.fn() } as never
+    executeMacro(macro, ctx, char)
+    expect(mockExecuteCommand).toHaveBeenCalledTimes(2)
+    // Level 5 → proficiency +3
+    expect(mockExecuteCommand).toHaveBeenNthCalledWith(1, '/roll 1d20++3 for Eldrin', ctx)
+    expect(mockExecuteCommand).toHaveBeenNthCalledWith(2, '/roll 1d20++3 for Eldrin', ctx)
   })
 })

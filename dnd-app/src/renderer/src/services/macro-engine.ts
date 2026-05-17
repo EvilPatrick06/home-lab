@@ -67,7 +67,29 @@ function isDiceFormula(s: string): boolean {
 }
 
 /**
- * Execute a macro: resolve variables, then dispatch as command, dice roll, or chat message.
+ * Phase 16D — expand `{repeat N}BODY{/repeat}` blocks into N newline-joined
+ * copies of BODY, so each iteration becomes its own macro line. Useful for
+ * Extra Attack, Scorching Ray, Magic Missile, etc.
+ *
+ * Non-greedy match so nested expansions in BODY are left for the next pass.
+ * Cap N at 20 to keep typo'd macros (`{repeat 999999}`) from runaway.
+ *
+ * Returns the expanded string; if no repeat blocks are present, returns
+ * the input unchanged.
+ */
+export function expandRepeatBlocks(command: string): string {
+  const re = /\{repeat\s+(\d+)\}([\s\S]*?)\{\/repeat\}/g
+  return command.replace(re, (_match, countStr: string, body: string) => {
+    const n = Math.max(1, Math.min(20, parseInt(countStr, 10)))
+    const lines: string[] = []
+    for (let i = 0; i < n; i++) lines.push(body)
+    return lines.join('\n')
+  })
+}
+
+/**
+ * Execute a macro: expand repeat blocks, resolve variables, then dispatch
+ * each non-empty line as its own command / dice roll / chat message.
  */
 export function executeMacro(
   macro: Macro,
@@ -75,16 +97,23 @@ export function executeMacro(
   character: Character5e | null,
   targetLabel?: string
 ): void {
-  const resolved = resolveMacroVariables(macro.command, character, targetLabel)
+  const expanded = expandRepeatBlocks(macro.command)
+  const resolved = resolveMacroVariables(expanded, character, targetLabel)
 
-  if (resolved.startsWith('/')) {
-    // It's a slash command
-    executeCommand(resolved, ctx)
-  } else if (isDiceFormula(resolved)) {
-    // Auto-wrap bare dice formulas as /roll
-    executeCommand(`/roll ${resolved}`, ctx)
-  } else {
-    // Plain text — send as system message
-    ctx.addSystemMessage(`[Macro: ${macro.name}] ${resolved}`)
+  // Phase 16D — Multi-line execution. A macro can now produce multiple
+  // independent outputs (one per iteration of a repeat block, or one per
+  // hand-authored newline). Each line is dispatched independently.
+  const lines = resolved
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean)
+  for (const line of lines) {
+    if (line.startsWith('/')) {
+      executeCommand(line, ctx)
+    } else if (isDiceFormula(line)) {
+      executeCommand(`/roll ${line}`, ctx)
+    } else {
+      ctx.addSystemMessage(`[Macro: ${macro.name}] ${line}`)
+    }
   }
 }

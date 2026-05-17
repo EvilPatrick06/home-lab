@@ -190,16 +190,29 @@ export default function PlayerBottomBar({
       )}
 
       {collapsed ? (
-        <div className="flex-1 px-3 py-1.5">
-          <ChatPanel
-            isDM={false}
-            playerName={playerName}
-            campaign={campaign}
-            character={character}
-            collapsed
-            onOpenModal={onOpenModal}
-            onLinkClick={onLinkClick}
-          />
+        <div className="flex-1 px-3 py-1.5 flex items-center gap-3 min-w-0">
+          {/* Phase 16D — keep the macro bar visible when the bottom bar is
+              collapsed. Previously macros were nested inside the expanded
+              center column and vanished entirely when collapsed, even
+              though they're the fastest path to a player's action of the
+              turn. Rendering here puts them on the same row as the
+              collapsed chat input. */}
+          {freshCharacter && (
+            <div className="shrink-0 max-w-[40%] overflow-x-auto">
+              <MacroBar character={freshCharacter} onRoll={handleMacroRoll} />
+            </div>
+          )}
+          <div className="flex-1 min-w-0">
+            <ChatPanel
+              isDM={false}
+              playerName={playerName}
+              campaign={campaign}
+              character={character}
+              collapsed
+              onOpenModal={onOpenModal}
+              onLinkClick={onLinkClick}
+            />
+          </div>
         </div>
       ) : (
         <>
