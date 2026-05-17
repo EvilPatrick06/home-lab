@@ -1593,12 +1593,23 @@ export default function DungeonScholarApp() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playerState.activeTomeId]);
 
-  // Phase 38a/39c: showNotif takes an optional `onClick` (for deep-links)
-  // and `timeoutMs` (so the resume/success toasts can auto-dismiss faster
-  // than the 3s achievement default).
+  // Phase 38a/39c/43a: showNotif with optional onClick (deep-links) and
+  // timeoutMs. 43a fixes a clobber: prior version queued a NEW setTimeout
+  // every call without canceling pending ones — toast A's 4s timer would
+  // fire while toast B was showing and clear B early. The shared ref
+  // ensures only ONE dismissal timer is live at any moment, so a long-
+  // running undo toast can't be killed by an earlier setTimeout.
+  const notifTimeoutRef = useRef(null);
   const showNotif = (msg, type = 'info', onClick = null, timeoutMs = 3000) => {
+    if (notifTimeoutRef.current) {
+      clearTimeout(notifTimeoutRef.current);
+      notifTimeoutRef.current = null;
+    }
     setNotification({ msg, type, onClick });
-    setTimeout(() => setNotification(null), timeoutMs);
+    notifTimeoutRef.current = setTimeout(() => {
+      setNotification(null);
+      notifTimeoutRef.current = null;
+    }, timeoutMs);
   };
 
   const updateProgress = (updates) => {
@@ -2281,7 +2292,7 @@ export default function DungeonScholarApp() {
     if (itemForUndo) {
       const stem = (itemForUndo.question || itemForUndo.front || itemForUndo.term || itemForUndo.title || 'item').slice(0, 50);
       showNotif(
-        `Vanquished: ${stem}${stem.length === 50 ? '…' : ''} · Undo?`,
+        `Vanquished: ${stem}${stem.length === 50 ? '…' : ''} · Undo`,
         'success',
         () => {
           setPlayerState(prev => {
@@ -2833,6 +2844,18 @@ export default function DungeonScholarApp() {
         background: 'radial-gradient(circle at 20% 80%, rgba(255,140,0,0.08), transparent 40%), radial-gradient(circle at 80% 20%, rgba(220,38,38,0.06), transparent 40%)',
       }} />
 
+      {/* Phase 43c: hidden KaTeX sentinel. RichContent encounters a math
+          node here on every page load, triggering the lazy-import of the
+          katex chunk. After the import resolves, `window.katex` is
+          populated (see loadKatex in RichContent.jsx) so external probes
+          and the "Live preview" row in Edit Metadata both find KaTeX
+          available without the user needing to first enter a math
+          expression somewhere. Hidden visually but kept in the DOM tree
+          so the import side-effect actually fires. */}
+      <div aria-hidden="true" className="sr-only" data-katex-sentinel>
+        <RichContent text="$x$" as="span" />
+      </div>
+
       {sync.mergeRequired && (
         <MergeChooser
           localState={sync.localPreview}
@@ -2910,7 +2933,11 @@ export default function DungeonScholarApp() {
         >
           {notification.msg}
           {notification.onClick && (
-            <span className="ml-2 text-[10px] italic opacity-75">↗ click to view</span>
+            // Phase 43a: just a small ↗ glyph (was "↗ click to view" — wrong
+            // for non-view actions like undo). The msg already includes the
+            // verb ("· Undo", "· View"), and the pointer cursor + hover
+            // brightness make the affordance obvious.
+            <span className="ml-2 text-[10px] italic opacity-75">↗</span>
           )}
         </div>
       )}
@@ -5056,9 +5083,18 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
   useEffect(() => {
     const onKey = (e) => {
       const s = keyRef.current;
-      if (!s || !s.q || s.answered) return;
+      if (!s || !s.q) return;
       if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
+      // Phase 43d round-10 P4: Enter / Space advances on the explanation
+      // screen so keyboard users can chain riddles without mousing.
+      if (s.answered) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          s.next?.();
+        }
+        return;
+      }
       if (!s.confidence) {
         if (e.key === '1') { e.preventDefault(); s.setConfidence('low'); return; }
         if (e.key === '2') { e.preventDefault(); s.setConfidence('med'); return; }
@@ -5162,8 +5198,8 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
     setProgressCount(p => p + 1);
   };
 
-  // Phase 30g: keep keyRef in sync with the latest closure values so the
-  // keydown listener always uses fresh handleAnswer / state.
+  // Phase 30g / 43d: keep keyRef in sync with the latest closure values so
+  // the keydown listener always uses fresh handleAnswer / next / state.
   keyRef.current = {
     q,
     isMC: q && q.options && Array.isArray(q.options),
@@ -5171,6 +5207,7 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
     answered,
     confidence,
     handleAnswer,
+    next,
     setConfidence,
   };
 
@@ -5456,25 +5493,49 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
   const [feedback, setFeedback] = useState(null);
   const [grading, setGrading] = useState(false);
   const labs = courseSet.labs || [];
+  const labProgress = tomeProgress?.labProgress || {};
 
   if (!selectedLab) {
     return (
       <div className="space-y-3 max-w-3xl mx-auto">
         <h2 className="text-2xl font-bold text-rose-300 mb-4 italic">⚗️ Choose Thy Trial ⚗️</h2>
         {labs.length === 0 && <div className="text-amber-600 italic">No trials in this tome.</div>}
-        {labs.map((lab, i) => (
-          <button key={i} onClick={() => { setSelectedLab(lab); setStep(0); setFeedback(null); }} className="w-full text-left p-4 rounded transition relative" style={{
-            background: 'linear-gradient(135deg, rgba(41, 12, 27, 0.85) 0%, rgba(20, 6, 13, 0.95) 100%)',
-            border: '2px solid rgba(190, 24, 93, 0.5)', boxShadow: '0 0 15px rgba(244, 63, 94, 0.15)',
-          }}>
-            <div className="font-bold text-rose-300 text-lg italic flex items-center justify-between gap-2 flex-wrap">
-              <span>{lab.title}</span>
-              {typeof lab.difficulty === 'number' && <DifficultyStars value={lab.difficulty} />}
-            </div>
-            {lab.scenario && <div className="text-sm text-amber-100/70 mt-1 italic">{lab.scenario}</div>}
-            <div className="text-xs text-amber-700 mt-2 italic">⚔ {(lab.steps || lab.stages)?.length || 0} stages ⚔</div>
-          </button>
-        ))}
+        {labs.map((lab, i) => {
+          // Phase 43e round-10 P5: per-trial status pill on each list card.
+          // labProgress[lab.id] = { step, completed } updated on advance.
+          const progress = lab.id ? labProgress[lab.id] : null;
+          const totalStages = (lab.steps || lab.stages)?.length || 0;
+          const isCompleted = progress?.completed;
+          const inProgress = !isCompleted && progress && (progress.step ?? 0) > 0;
+          return (
+            <button key={i} onClick={() => {
+              const resumeStep = inProgress ? Math.min(progress.step ?? 0, Math.max(0, totalStages - 1)) : 0;
+              setSelectedLab(lab); setStep(resumeStep); setFeedback(null); setTextAnswer('');
+            }} className="w-full text-left p-4 rounded transition relative" style={{
+              background: 'linear-gradient(135deg, rgba(41, 12, 27, 0.85) 0%, rgba(20, 6, 13, 0.95) 100%)',
+              border: '2px solid rgba(190, 24, 93, 0.5)', boxShadow: '0 0 15px rgba(244, 63, 94, 0.15)',
+            }}>
+              <div className="font-bold text-rose-300 text-lg italic flex items-center justify-between gap-2 flex-wrap">
+                <span>{lab.title}</span>
+                {typeof lab.difficulty === 'number' && <DifficultyStars value={lab.difficulty} />}
+              </div>
+              {lab.scenario && <div className="text-sm text-amber-100/70 mt-1 italic">{lab.scenario}</div>}
+              <div className="text-xs text-amber-700 mt-2 italic flex items-center gap-2 flex-wrap">
+                <span>⚔ {totalStages} stages ⚔</span>
+                {isCompleted && (
+                  <span className="px-2 py-0.5 rounded text-[10px] uppercase tracking-wider font-bold not-italic" style={{
+                    background: 'rgba(6, 78, 59, 0.55)', border: '1px solid rgba(16, 185, 129, 0.6)', color: '#a7f3d0',
+                  }}>Completed</span>
+                )}
+                {inProgress && (
+                  <span className="px-2 py-0.5 rounded text-[10px] uppercase tracking-wider font-bold not-italic" style={{
+                    background: 'rgba(120, 53, 15, 0.55)', border: '1px solid rgba(245, 158, 11, 0.6)', color: '#fde68a',
+                  }}>In progress · stage {(progress.step ?? 0) + 1} of {totalStages}</span>
+                )}
+              </div>
+            </button>
+          );
+        })}
       </div>
     );
   }
@@ -5482,6 +5543,15 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
   // Tolerate AI-generated tomes that use `stages` instead of `steps`.
   const steps = selectedLab.steps || selectedLab.stages || [];
   const currentStep = steps[step];
+
+  // Phase 43e: helpers for the per-lab progress map. Merge-write into the
+  // tome's labProgress object so other entries are preserved.
+  const writeLabProgress = (entry) => {
+    if (!selectedLab?.id) return;
+    updateTomeProgress({
+      labProgress: { ...(tomeProgress?.labProgress || {}), [selectedLab.id]: entry },
+    });
+  };
 
   // Multiple-choice steps and Oracle-graded text steps both flow through here
   // once a verdict exists. `extra` carries Oracle feedback/source for display.
@@ -5499,7 +5569,11 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
       setTimeout(() => {
         if (step + 1 >= steps.length) {
           const newCount = (tomeProgress?.labsCompleted || 0) + 1;
-          updateTomeProgress({ labsCompleted: newCount });
+          // Phase 43e: mark completed in labProgress AND bump global count.
+          updateTomeProgress({
+            labsCompleted: newCount,
+            labProgress: { ...(tomeProgress?.labProgress || {}), [selectedLab.id]: { step: steps.length, completed: true, completedAt: Date.now() } },
+          });
           checkAchievement('first_lab');
           const totalLabsAcrossLib = playerState.library.reduce((s, t) => s + (t.progress?.labsCompleted || 0), 0) + 1;
           if (totalLabsAcrossLib >= 10) checkAchievement('lab_master');
@@ -5507,6 +5581,9 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
           setSelectedLab(null);
           setFeedback(null);
         } else {
+          // Phase 43e: record the next step so re-entering the trial
+          // resumes here (and the list card shows "in progress · stage N").
+          writeLabProgress({ step: step + 1, completed: false });
           setStep(step + 1); setTextAnswer(''); setFeedback(null);
         }
       }, 1500);
@@ -5523,13 +5600,18 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
       awardXP(15);
       if (step + 1 >= steps.length) {
         const newCount = (tomeProgress?.labsCompleted || 0) + 1;
-        updateTomeProgress({ labsCompleted: newCount });
+        // Phase 43e: same completion write as submitStep.
+        updateTomeProgress({
+          labsCompleted: newCount,
+          labProgress: { ...(tomeProgress?.labProgress || {}), [selectedLab.id]: { step: steps.length, completed: true, completedAt: Date.now() } },
+        });
         checkAchievement('first_lab');
         const totalLabsAcrossLib = playerState.library.reduce((s, t) => s + (t.progress?.labsCompleted || 0), 0) + 1;
         if (totalLabsAcrossLib >= 10) checkAchievement('lab_master');
         if (totalLabsAcrossLib >= 25) checkAchievement('lab_grandmaster');
         setSelectedLab(null);
       } else {
+        writeLabProgress({ step: step + 1, completed: false });
         setStep(step + 1);
         setTextAnswer('');
       }
@@ -5580,6 +5662,35 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
       }
     }, 1500);
   };
+
+  // Phase 43e round-10 P5: hotkey support inside a lab stage. Mirrors the
+  // Riddles pattern — 1-9 / A-Z indexes the current step's options array.
+  // Listener reads from a ref so it doesn't churn on every render.
+  const labKeyRef = useRef(null);
+  labKeyRef.current = {
+    options: currentStep?.options,
+    correctIndex: currentStep?.correctIndex,
+    feedback,
+    submitStep,
+  };
+  useEffect(() => {
+    const onKey = (e) => {
+      const s = labKeyRef.current;
+      if (!s || !Array.isArray(s.options) || s.feedback) return;
+      if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const key = e.key.toLowerCase();
+      let idx = -1;
+      if (/^[1-9]$/.test(key)) idx = Number(key) - 1;
+      else if (/^[a-z]$/.test(key)) idx = key.charCodeAt(0) - 97;
+      if (idx >= 0 && idx < s.options.length) {
+        e.preventDefault();
+        s.submitStep?.(idx === s.correctIndex);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   // Phase 42a QA round-9 P1: confirm before destroying mid-trial progress.
   // Re-uses the App-level ConfirmModal (same pattern as Trial of Hours
@@ -5635,8 +5746,14 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
               style={{ background: 'rgba(41, 12, 27, 0.7)', border: '1px solid rgba(190, 24, 93, 0.4)' }} />
             {currentStep.options ? (
               <div className="space-y-2">
+                {/* Phase 43e: visible hotkey hint matching the Riddles pattern. */}
+                <div className="text-[11px] italic text-amber-100/60 text-center">
+                  ⌨ Hotkeys: 1–{currentStep.options.length} or A–{String.fromCharCode(64 + currentStep.options.length)} to pick
+                </div>
                 {currentStep.options.map((opt, i) => (
-                  <button key={i} onClick={() => submitStep(i === currentStep.correctIndex)} className="w-full text-left p-3 rounded border-2 text-amber-50" style={{ background: 'rgba(41, 12, 27, 0.6)', borderColor: 'rgba(190, 24, 93, 0.5)' }}>{opt}</button>
+                  <button key={i} onClick={() => submitStep(i === currentStep.correctIndex)} className="w-full text-left p-3 rounded border-2 text-amber-50" style={{ background: 'rgba(41, 12, 27, 0.6)', borderColor: 'rgba(190, 24, 93, 0.5)' }}>
+                    <span className="text-rose-300 font-bold mr-2">{String.fromCharCode(65 + i)}.</span>{opt}
+                  </button>
                 ))}
               </div>
             ) : (

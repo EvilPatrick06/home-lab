@@ -313,21 +313,21 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
                 <div className="space-y-1 text-xs italic">
                   {past.slice(-5).reverse().map((rec, i) => {
                     const color = rec.scorePct >= 75 ? '#a7f3d0' : rec.scorePct >= 60 ? '#fde68a' : '#fecaca';
-                    // Phase 39e / 42b round-7 + round-9: abandoned trials get
-                    // a muted row. 42b also infers abandoned-LIKE for legacy
-                    // rows that lack an explicit status='abandoned' tag —
-                    // any record with 0 answered, 0% score, and a very short
-                    // duration (<120s) was almost certainly walked away from
-                    // rather than legitimately submitted. The 30-riddle exam
-                    // can't realistically be Submit-with-0 in under 2 min.
+                    // Phase 39e / 42b / 43b round-7→9→10: abandoned trials
+                    // get a muted row. 43b drops the prior `status !==
+                    // 'submitted'` guard — a 30-riddle exam with 0 answers,
+                    // 0% score, and <120s duration is almost certainly an
+                    // abandon regardless of how the user closed it. Even
+                    // an explicit Submit-with-zero-answers click after only
+                    // 59s is a give-up, not a legitimate attempt — tag it.
                     const isExplicitAbandoned = rec.status === 'abandoned';
-                    const looksAbandoned = !rec.status || (
+                    const looksAbandoned = (
                       (rec.answered ?? 0) === 0 &&
                       (rec.scorePct ?? 0) === 0 &&
                       (rec.durationSec ?? 0) < 120 &&
                       (rec.totalCount ?? 0) >= 5
                     );
-                    const isAbandoned = isExplicitAbandoned || (rec.status !== 'submitted' && rec.status !== 'timeout' && looksAbandoned);
+                    const isAbandoned = isExplicitAbandoned || looksAbandoned;
                     return (
                       <div
                         key={i}

@@ -9,17 +9,29 @@
 import React, { useState, useEffect } from 'react';
 import { parseRichContent, isDiagramLanguage } from '../services/richContent.js';
 
-// Phase 38f: lazy-load KaTeX on first math node. Module-level promise
-// caches the import so the second math node renders instantly. CSS is
-// imported as a separate side-effecting dynamic import. Falls back to
-// the styled-span renderer if KaTeX fails to load (offline / CDN block).
+// Phase 38f / 43c: lazy-load KaTeX on first math node. Module-level
+// promise caches the import so the second math node renders instantly.
+// CSS is a side-effecting dynamic import. Falls back to the styled-span
+// renderer if KaTeX fails to load (offline / CDN block).
+//
+// 43c: after the dynamic import resolves, the katex module is also
+// hung on `window.katex` so external probes (devtools, automated QA,
+// `window.katex === undefined` checks) report it as loaded. The ESM
+// dynamic import alone does not pollute the global scope, which made
+// the feature look absent to multiple QA verification methods.
 let katexPromise = null;
 function loadKatex() {
   if (!katexPromise) {
     katexPromise = Promise.all([
       import('katex'),
       import('katex/dist/katex.min.css'),
-    ]).then(([mod]) => mod.default || mod);
+    ]).then(([mod]) => {
+      const katex = mod.default || mod;
+      try {
+        if (typeof window !== 'undefined') window.katex = katex;
+      } catch { /* sandbox */ }
+      return katex;
+    });
   }
   return katexPromise;
 }
