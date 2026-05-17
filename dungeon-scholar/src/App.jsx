@@ -4281,7 +4281,7 @@ function AudioPanel() {
 function ThemePanel({ currentTheme, onSetTheme }) {
   const opts = [
     { id: 'dark', label: '🌙 Dark', desc: 'The default dungeon palette.' },
-    { id: 'light', label: '☀ Light', desc: 'Parchment background, dim-light reading. Experimental.' },
+    { id: 'light', label: '☀ Light', desc: 'Off-white background, dim-light reading. Panels stay dark.' },
     { id: 'system', label: '🖥 Match System', desc: 'Follows your OS color preference.' },
   ];
   return (

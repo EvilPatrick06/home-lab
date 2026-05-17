@@ -38,16 +38,20 @@
   box-shadow: 0 0 0 2px #92400e;
 }
 
-/* Phase 34b QA P10: light theme. PARTIAL — only swaps the page-level
- * background gradient + dims the noise/vignette overlays. Dungeon panels
- * stay dark by design (they're part of the brand identity). The data-theme
- * attribute is set on documentElement by an effect in DungeonScholarApp.
- * Selector targets the outermost gradient container the app renders. */
+/* Phase 34b / 35f QA P10 + P6: light theme. PARTIAL — only swaps the
+ * page-level background gradient + dims the noise/vignette overlays.
+ * Dungeon panels stay dark by design (they're part of the brand identity).
+ *
+ * Phase 35f toned the parchment WAY down from the 34b "amber-100 → amber-300"
+ * gradient. The QA reporter said the bright yellow surrounding dark panels
+ * was jarring and arguably worse for photosensitive users than full dark.
+ * Now using stone-50 → stone-100 → stone-200 (neutral warm off-white) so
+ * the panels read as deliberate dark cards on a paper-like background. */
 html[data-theme="light"] body {
-  background: #fef3c7; /* amber-100 base parchment */
+  background: #fafaf9; /* stone-50 base — neutral warm off-white */
 }
 html[data-theme="light"] .dungeon-bg-root {
-  background: radial-gradient(ellipse at top, #fef3c7 0%, #fde68a 50%, #fcd34d 100%) !important;
+  background: radial-gradient(ellipse at top, #fafaf9 0%, #f5f5f4 55%, #e7e5e4 100%) !important;
 }
 /* Dim the noise + vignette overlays so they don't make light mode muddy. */
 html[data-theme="light"] .dungeon-bg-noise,
