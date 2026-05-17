@@ -21,6 +21,8 @@
     "release": "npm run build:index && electron-vite build && electron-builder --win --publish always",
     "release:linux": "npm run build:index && electron-vite build && electron-builder --linux --publish always",
     "release:all": "npm run build:index && electron-vite build && electron-builder --win --linux --publish always",
+    "release:cut": "node scripts/release/cut.mjs",
+    "check:release": "npm run lint && tsc --noEmit -p tsconfig.web.json && tsc --noEmit -p tsconfig.node.json && npm test",
     "build:index": "node scripts/build/build-chunk-index.mjs",
     "validate:5e": "node scripts/audit/check-5e-cross-refs.mjs",
     "gen:ipc-surface": "node scripts/build/gen-ipc-surface.mjs",

@@ -1,19 +1,27 @@
 name: Release
 
-# Triggered by pushing a `v*` tag (e.g. `v2.0.0`).
-# Builds the dnd-app on Windows + Linux runners in parallel and uploads
-# artifacts to a GitHub Release.
+# Triggered by pushing a `v*` tag. Builds the dnd-app on Windows + Linux
+# runners in parallel and uploads artifacts to a GitHub Release.
+#
+# Flow:
+#   1. preflight — verify package.json version matches the tag, then run
+#      lint + typecheck (both tsconfigs) + tests. Hard-fails the whole release
+#      if anything is off, so we never ship a broken / mis-versioned build.
+#   2. build (matrix Win + Linux) — electron-builder builds + publishes the
+#      installer/AppImage/blockmap/latest.yml to the tag's release.
+#   3. verify-assets — after both matrix jobs complete, lists the release's
+#      assets and fails if any of the 6 expected platform/installer files are
+#      missing. Catches silent partial-upload failures (like the 2026-05-16
+#      incident where v2.0.1/v2.0.2 shipped 3/8 and 1/8 assets respectively).
+#
+# The package.json version MUST match the tag, otherwise electron-builder
+# names artifacts with the wrong version and publishes to the wrong release.
+# `scripts/release/cut.mjs` handles the bump-commit-tag-push dance.
 #
 # Ollama bundling: Windows only. Linux AppImage exceeds GitHub Releases'
 # 2 GiB single-asset cap when Ollama is bundled, so Linux ships a small
-# (~150 MB) AppImage and the user installs Ollama via the official script
-# (`curl -fsSL https://ollama.com/install.sh | sh`); the app auto-detects
-# it on next launch.
-#
-# Auto-update wires up via electron-builder's `latest.yml` / `latest-linux.yml`
-# files which are emitted alongside each artifact and uploaded as part of the
-# same release; electron-updater on the user's machine reads them on next
-# launch and offers the upgrade.
+# (~150 MB) AppImage and the user installs Ollama via the official script;
+# the app auto-detects it on next launch.
 
 on:
   push:
@@ -24,8 +32,51 @@ permissions:
   contents: write
 
 jobs:
-  release:
+  preflight:
+    name: Preflight (version match + lint + typecheck + test)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: dnd-app
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: dnd-app/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify package.json version matches tag
+        run: |
+          PKG_VER=$(node -p "require('./package.json').version")
+          TAG_VER="${GITHUB_REF_NAME#v}"
+          if [ "$PKG_VER" != "$TAG_VER" ]; then
+            echo "::error::package.json version ($PKG_VER) does not match tag ($TAG_VER). Use scripts/release/cut.mjs to cut releases — it bumps package.json + package-lock.json before pushing the tag, so electron-builder names artifacts correctly and publishes to the right release."
+            exit 1
+          fi
+          echo "Version match: $PKG_VER"
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck (web tsconfig)
+        run: npx tsc --noEmit -p tsconfig.web.json
+
+      - name: Typecheck (node tsconfig)
+        run: npx tsc --noEmit -p tsconfig.node.json
+
+      - name: Test
+        run: npm test
+
+  build:
     name: Build & publish (${{ matrix.os }})
+    needs: preflight
     strategy:
       fail-fast: false
       matrix:
@@ -57,15 +108,13 @@ jobs:
       # Bundles the full Ollama distribution (binary + GPU runner libs) into
       # resources/ollama/windows/ so electron-builder's win.extraResources
       # picks it up. Windows only — Linux AppImage exceeds GitHub's 2 GiB
-      # asset cap with Ollama bundled. Linux users install Ollama themselves
-      # via the official script.
+      # asset cap with Ollama bundled.
       - name: Bundle Ollama (Windows)
         if: matrix.os == 'windows-latest'
         run: node scripts/build/fetch-ollama.mjs --platform=windows
 
       # AppImage build needs GTK and friends on the runner so the bundled
-      # binary can launch its smoke-test. Ubuntu runners ship most of these;
-      # this step is a sanity-check no-op when already present. Skipped on Windows.
+      # binary can launch its smoke-test.
       - name: Linux build deps
         if: matrix.os == 'ubuntu-latest'
         run: |
@@ -104,3 +153,42 @@ jobs:
             dnd-app/dist/*.blockmap
           if-no-files-found: warn
           retention-days: 14
+
+  verify-assets:
+    name: Verify release assets
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check expected assets are present
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          VER="${GITHUB_REF_NAME#v}"
+          EXPECTED=(
+            "dnd-vtt-${VER}-setup.exe"
+            "dnd-vtt-${VER}-setup.exe.blockmap"
+            "dnd-vtt-${VER}-x86_64.AppImage"
+            "latest.yml"
+            "latest-linux.yml"
+            "install-linux.sh"
+          )
+          echo "Expected assets:"
+          printf '  %s\n' "${EXPECTED[@]}"
+          echo ""
+          PRESENT=$(gh release view "$GITHUB_REF_NAME" --repo "$REPO" --json assets --jq '.assets[].name')
+          echo "Present assets:"
+          echo "$PRESENT" | sed 's/^/  /'
+          echo ""
+          MISSING=()
+          for asset in "${EXPECTED[@]}"; do
+            if ! echo "$PRESENT" | grep -qFx "$asset"; then
+              MISSING+=("$asset")
+            fi
+          done
+          if [ ${#MISSING[@]} -gt 0 ]; then
+            echo "::error::Release $GITHUB_REF_NAME is missing ${#MISSING[@]} expected asset(s):"
+            printf '::error::  - %s\n' "${MISSING[@]}"
+            exit 1
+          fi
+          echo "All 6 platform/installer assets present (source tarballs auto-attach via GitHub)."
