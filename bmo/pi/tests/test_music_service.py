@@ -69,19 +69,25 @@ def music_service(mock_vlc_player, mock_ytmusic, tmp_path):
     counts_path = str(tmp_path / "play_counts.json")
     state_path = str(tmp_path / "playback_state.json")
 
+    # Round 2 #13 (2026-05-17): patch the FULL module path
+    # services.music_service.* — the prior "music_service.HISTORY_FILE"
+    # short form didn't reach the imported module under `services.`, so
+    # tests poisoned the real ~/home-lab/bmo/pi/data/music_history.json
+    # with "Test Song / Test Artist" entries that showed up in the prod UI.
+    # Order matters: patch vlc/ytmusic FIRST, reload module so its top-
+    # level code picks up the mocks, then patch the module's path
+    # constants on the loaded instance.
     with patch("vlc.Instance", return_value=mock_vlc_instance), \
-         patch("ytmusicapi.YTMusic", return_value=mock_ytmusic), \
-         patch("music_service.HISTORY_FILE", history_path), \
-         patch("music_service.PLAY_COUNTS_FILE", counts_path), \
-         patch("music_service.PLAYBACK_STATE_FILE", state_path):
-
+         patch("ytmusicapi.YTMusic", return_value=mock_ytmusic):
         import services.music_service as ms_module
         importlib.reload(ms_module)
-
-        svc = ms_module.MusicService()
-        svc._player = mock_player
-        svc._vlc_instance = mock_vlc_instance
-        yield svc
+        with patch.object(ms_module, "HISTORY_FILE", history_path), \
+             patch.object(ms_module, "PLAY_COUNTS_FILE", counts_path), \
+             patch.object(ms_module, "PLAYBACK_STATE_FILE", state_path):
+            svc = ms_module.MusicService()
+            svc._player = mock_player
+            svc._vlc_instance = mock_vlc_instance
+            yield svc
 
 
 # ── Search tests ───────────────────────────────────────────────────────────────
