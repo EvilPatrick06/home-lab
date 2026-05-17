@@ -1140,7 +1140,7 @@ const DEFAULT_STATE = {
   // Phase 34b QA P10: theme preference. 'dark' (default) | 'light' | 'system'.
   // 'system' tracks prefers-color-scheme. Applied via data-theme on the root.
   // Light theme is intentionally PARTIAL — only the body background swaps to
-  // parchment; the dungeon panels stay dark by design.
+  // off-white; the dungeon panels stay dark by design.
   theme: 'dark',
   // Library system
   library: [],
@@ -4276,7 +4276,7 @@ function AudioPanel() {
 // Phase 34b QA P10: theme picker — Dark (default) / Light (experimental) /
 // Match System. Persisted in playerState.theme; applied via data-theme on
 // the root element by an effect in DungeonScholarApp. The "light" variant
-// is intentionally partial — only the body background swaps to parchment;
+// is intentionally partial — only the body background swaps to off-white;
 // dungeon panels stay dark by design. CSS in index.css.
 function ThemePanel({ currentTheme, onSetTheme }) {
   const opts = [
