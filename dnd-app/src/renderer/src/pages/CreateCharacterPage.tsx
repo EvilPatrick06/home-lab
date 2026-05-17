@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router'
+import { useLocation, useNavigate, useParams } from 'react-router'
 import CharacterBuilder5e from '../components/builder/5e/CharacterBuilder5e'
 import { applyBuilderDraft, clearBuilderDraft, loadBuilderDraft, useAutoSaveBuilderDraft } from '../hooks/use-auto-save'
 import { addToast } from '../hooks/use-toast'
@@ -76,8 +76,21 @@ export default function CreateCharacterPage(): JSX.Element {
     return () => window.removeEventListener('keydown', handler)
   }, [])
 
+  // Phase 17m — quick "Library" link from the character builder so players
+  // can look up spells / items / species / class detail without leaving the
+  // builder. Uses the LibraryPage's existing `?from=` search-param pattern
+  // so the back-button on the LibraryPage routes back here automatically.
+  const location = useLocation()
   return (
     <>
+      <button
+        type="button"
+        onClick={() => navigate(`/library?from=${encodeURIComponent(location.pathname)}`)}
+        className="fixed top-3 right-14 z-50 px-3 py-1 text-xs font-medium bg-gray-900/80 border border-gray-700 rounded-lg text-amber-300 hover:text-amber-200 hover:border-amber-600/50 transition-colors cursor-pointer backdrop-blur-sm"
+        title="Open the library (spells, items, species, classes, etc.)"
+      >
+        Library
+      </button>
       <CharacterBuilder5e />
       {draftPrompt && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">

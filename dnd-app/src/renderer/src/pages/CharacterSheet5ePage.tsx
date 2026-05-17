@@ -180,6 +180,18 @@ export default function CharacterSheet5ePage(): JSX.Element {
               Return to Game
             </button>
           )}
+          {/* Phase 17m — Library access from the character sheet so the
+              player can look up rules / spells / items mid-game without
+              leaving the sheet. Uses the LibraryPage's `?from=` pattern
+              so its back-button routes back here. */}
+          <button
+            type="button"
+            onClick={() => navigate(`/library?from=${encodeURIComponent(location.pathname)}`)}
+            className="px-3 py-1.5 text-sm border border-gray-700 text-amber-300 hover:text-amber-200 hover:border-amber-600/50 rounded transition-colors cursor-pointer"
+            title="Open the library"
+          >
+            Library
+          </button>
           <div className="w-px h-4 bg-gray-700" />
           <span className="text-xs text-gray-500">Character Sheet</span>
         </div>
