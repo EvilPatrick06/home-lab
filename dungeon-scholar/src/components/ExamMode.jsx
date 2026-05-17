@@ -64,8 +64,9 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
     if (picked.length === 0) return;
     const totalSec = preset.minutes * 60;
     const deadline = Date.now() + totalSec * 1000;
+    const blankAnswers = new Array(picked.length).fill(null);
     setSample(picked);
-    setAnswers(new Array(picked.length).fill(null));
+    setAnswers(blankAnswers);
     setCurrentIdx(0);
     setSecondsLeft(totalSec);
     totalSecondsRef.current = totalSec;
@@ -73,6 +74,19 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
     startedAtRef.current = Date.now();
     setTextInput('');
     setShowSubmitConfirm(false);
+    // Phase 32b QA #3: persist the exam session synchronously *before*
+    // setPhase fires the inProgress useEffect. Belt + suspenders so an
+    // immediate Hearth click (same render frame) finds a live session
+    // and triggers the abandon confirm instead of silently discarding.
+    saveSession(SESSION_KIND.EXAM, {
+      tomeId: tomeId ?? null,
+      deadlineMs: deadline,
+      totalSeconds: totalSec,
+      startedAt: startedAtRef.current,
+      sample: picked,
+      answers: blankAnswers,
+      currentIdx: 0,
+    });
     setPhase('inProgress');
   };
 
