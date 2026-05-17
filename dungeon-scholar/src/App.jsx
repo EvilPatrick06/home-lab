@@ -6607,7 +6607,15 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
             border: '2px solid rgba(16, 185, 129, 0.45)',
           }}>
             <div className="flex items-baseline justify-between mb-2">
-              <h3 className="text-sm font-bold italic text-emerald-200 tracking-wider">Overall Mastery (sampled)</h3>
+              {/* Phase 33g QA P7: the previous "Overall Mastery (sampled)"
+                  label was ambiguous when the same screen's Confidence
+                  Calibration block reported a much bigger N. This bar only
+                  counts domain-tagged answers (from runHistory + Phase 30e
+                  per-domain stats), so name it that explicitly. */}
+              <h3 className="text-sm font-bold italic text-emerald-200 tracking-wider">
+                Domain-tagged Accuracy
+                <span className="ml-2 text-[10px] uppercase tracking-wider font-normal text-emerald-400 not-italic">{totals.total} sample{totals.total === 1 ? '' : 's'}</span>
+              </h3>
               <div className="text-sm font-bold tabular-nums italic text-emerald-200">
                 {totals.correct}/{totals.total} · {overallPct}%
               </div>
@@ -6615,14 +6623,8 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
             <div className="h-3 rounded overflow-hidden" style={{ background: 'rgba(0,0,0,0.45)' }}>
               <div className="h-full transition-all" style={{ width: `${overallPct}%`, background: rampForPct(overallPct).fill }} />
             </div>
-            {/* Phase 32d QA #5: clarify the difference between Overall Mastery
-                and Predicted Exam Score. The first is accuracy across whatever
-                domains have been touched ({totals.correct}/{totals.total}
-                raw answers); the second weights every blueprint domain and
-                requires ≥5 samples per domain — so it can read "no data"
-                while this reads "100%" without contradiction. */}
             <div className="text-[10px] italic text-emerald-300/80 mt-2">
-              ✦ Raw accuracy across the {totals.total} riddle{totals.total === 1 ? '' : 's'} answered so far. Not the same as Predicted Exam Score, which weights all blueprint domains and needs 5+ samples per domain.
+              ✦ Counts only riddles + dungeon answers that carried a domain tag. Older un-tagged answers (and any answer where the item lacked a `domain` field) aren&apos;t included here — those still appear in Confidence Calibration below. Predicted Exam Score uses the same domain-tagged source but additionally requires 5+ samples per blueprint domain.
             </div>
           </div>
 
