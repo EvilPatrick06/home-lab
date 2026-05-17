@@ -15,6 +15,7 @@ import { useNetworkStore } from '../stores/network-store'
 import { useAiDmStore } from '../stores/use-ai-dm-store'
 import { useCampaignStore } from '../stores/use-campaign-store'
 import { useCharacterStore } from '../stores/use-character-store'
+import { useGameStore } from '../stores/use-game-store'
 import { useLobbyStore } from '../stores/use-lobby-store'
 import type { Campaign } from '../types/campaign'
 import { getOrCreateClientId } from '../utils/client-id'
@@ -267,6 +268,24 @@ export default function LobbyPage(): JSX.Element {
     })
     return unsub
   }, [role, campaignId, navigate])
+
+  // Phase 17g — mid-game rejoin auto-transition. Previously a player who
+  // left a running game and rejoined via JoinGamePage landed in the
+  // lobby and waited for `dm:game-start` — which never fires because
+  // the game is ALREADY started. Detect game-in-progress (activeMapId
+  // set in the synced game state) and auto-navigate to /game/. This
+  // makes the rejoin invisible to the user (they end up where the
+  // session is, not stuck in lobby).
+  const gameActiveMapId = useGameStore((s) => s.activeMapId)
+  const inGameAutoNavigated = useRef(false)
+  useEffect(() => {
+    if (role !== 'client') return
+    if (inGameAutoNavigated.current) return
+    if (!gameActiveMapId || !campaignId) return
+    inGameAutoNavigated.current = true
+    logger.info('[Lobby] Detected in-progress game on rejoin → auto-navigating to /game/', campaignId)
+    navigate(`/game/${campaignId}`)
+  }, [role, gameActiveMapId, campaignId, navigate])
 
   const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
