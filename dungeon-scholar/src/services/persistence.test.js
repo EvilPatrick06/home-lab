@@ -105,6 +105,21 @@ describe('persistence', () => {
       expect(hashState(a)).toBe(hashState(b));
     });
 
+    it('returns equal hashes regardless of key insertion order (Phase 32a — Supabase JSONB reorders keys)', () => {
+      // Same content, different insertion order — Supabase JSONB normalizes
+      // keys, so a fingerprint that depends on order would falsely flag
+      // identical states as divergent.
+      const a = { level: 4, totalXp: 944, library: [{ id: 't1', addedAt: 1 }] };
+      const b = { totalXp: 944, library: [{ addedAt: 1, id: 't1' }], level: 4 };
+      expect(hashState(a)).toBe(hashState(b));
+    });
+
+    it('returns equal hashes for nested objects with reordered keys', () => {
+      const a = { library: [{ id: 't1', progress: { cardsReviewed: 5, quizAnswered: 12 } }] };
+      const b = { library: [{ progress: { quizAnswered: 12, cardsReviewed: 5 }, id: 't1' }] };
+      expect(hashState(a)).toBe(hashState(b));
+    });
+
     it('returns different hashes when any content differs', () => {
       expect(hashState({ level: 4 })).not.toBe(hashState({ level: 5 }));
       expect(hashState({ library: [{ id: 'a' }] })).not.toBe(hashState({ library: [{ id: 'b' }] }));

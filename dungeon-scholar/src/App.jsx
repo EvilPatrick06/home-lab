@@ -1237,7 +1237,27 @@ const DEFAULT_STATE = {
 
 
 export default function DungeonScholarApp() {
-  const [screen, setScreen] = useState('home');
+  // Phase 32a QA #2: auto-route to an in-progress study session on mount so
+  // a mid-quiz refresh resumes the user where they were, not at Hearth.
+  // Order matters: timed exam (most urgent — deadline is ticking) wins over
+  // quiz/flashcards. An exam session only counts if its deadline is still
+  // in the future; quiz/flashcards count if their index is past the first
+  // question (saved index > 0 means meaningful progress).
+  const [screen, setScreen] = useState(() => {
+    const exam = loadSession(SESSION_KIND.EXAM);
+    if (exam && typeof exam.deadlineMs === 'number' && exam.deadlineMs > Date.now()) {
+      return 'practiceExam';
+    }
+    const quiz = loadSession(SESSION_KIND.QUIZ);
+    if (quiz && typeof quiz.index === 'number' && quiz.index > 0) {
+      return 'quiz';
+    }
+    const flash = loadSession(SESSION_KIND.FLASHCARDS);
+    if (flash && typeof flash.index === 'number' && flash.index > 0) {
+      return 'flashcards';
+    }
+    return 'home';
+  });
   const { user } = useAuth();
   const [playerState, setPlayerState, sync] = usePlayerState(DEFAULT_STATE, user);
   const [notification, setNotification] = useState(null);
@@ -2881,6 +2901,11 @@ export default function DungeonScholarApp() {
                       clearSession(SESSION_KIND.EXAM);
                     }
                   }
+                  // Phase 32a QA #2: clear quiz/flashcards session on explicit
+                  // Hearth nav so a subsequent refresh from Hearth doesn't
+                  // surprise-auto-route the user back to study.
+                  if (screen === 'quiz') clearSession(SESSION_KIND.QUIZ);
+                  if (screen === 'flashcards') clearSession(SESSION_KIND.FLASHCARDS);
                   setScreen('home');
                 }}
                 className="px-3 py-2 hover:bg-amber-900/30 rounded transition border-2 border-amber-700/50 hover:border-amber-500 flex items-center gap-2 text-amber-200"

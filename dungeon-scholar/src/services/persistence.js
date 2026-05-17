@@ -46,10 +46,43 @@ export function hasMeaningfulData(state) {
 // sign-in branch to detect "no real divergence" cases — when both sides
 // already match byte-for-byte, the MergeChooser ("Two Journals Discovered")
 // is just noise and forces an arbitrary pick over identical state.
+//
+// Phase 32a fix for QA #1 regression: Supabase stores `data` as JSONB, which
+// reorders object keys based on internal storage rules. A naive
+// JSON.stringify reflects JS insertion order, so local (insertion-ordered)
+// and cloud (JSONB-reordered) of the SAME content produce different strings.
+// We use a stable, depth-first stringifier that sorts keys at every level so
+// the hash depends only on content, not key order.
+function stableStringify(value) {
+  if (value === undefined) return undefined;
+  if (value === null) return 'null';
+  if (typeof value === 'number') return Number.isFinite(value) ? String(value) : 'null';
+  if (typeof value === 'boolean') return value ? 'true' : 'false';
+  if (typeof value === 'string') return JSON.stringify(value);
+  if (Array.isArray(value)) {
+    const items = value.map(v => {
+      const s = stableStringify(v);
+      return s === undefined ? 'null' : s;
+    });
+    return '[' + items.join(',') + ']';
+  }
+  if (typeof value === 'object') {
+    const keys = Object.keys(value).sort();
+    const parts = [];
+    for (const k of keys) {
+      const s = stableStringify(value[k]);
+      if (s === undefined) continue;
+      parts.push(JSON.stringify(k) + ':' + s);
+    }
+    return '{' + parts.join(',') + '}';
+  }
+  return undefined;
+}
+
 export function hashState(state) {
   if (!state || typeof state !== 'object') return '';
   try {
-    return JSON.stringify(state);
+    return stableStringify(state) || '';
   } catch {
     return '';
   }
