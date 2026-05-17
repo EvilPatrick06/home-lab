@@ -12,6 +12,31 @@
 
 ---
 
+### [2026-05-17] Phase 37 — BMO QA Round 2 bundle (32 problems, regressions + new)
+
+- **Original QA bugs:** 2026-05-17 BMO QA Round 2 report. Mix of regressions from Phase 31 (my code) and pre-existing / new issues surfaced by the deeper QA pass.
+- **Category:** bug, ux, regression-sweep, hardening
+- **Domain:** bmo
+- **Resolved by:** Claude Opus (Phase 37 sub-phases 37a-37j)
+- **Date resolved:** 2026-05-17
+- **Final test sweep:** 811 passed, 6 skipped. All BMO systemd services active. End-to-end smoke clean.
+- **Sub-phase commits:**
+  - 37a (regressions): wifi/status shape (read current_ssid + wpa_state correctly), idle suppression deeper (focused input + non-empty inputs), refresh-mid-stream interrupted marker, exit-idle hint more visible, ollama fallback broader exception catch, music search Enter race fix
+  - 37b (audio): _get_system_audio_state surfaces muted flag; /api/audio/unmute helper; /api/music/play returns is_playing + warning; top-of-app mute banner with one-click unmute
+  - 37c (scenes): _apply_deactivation reverses music side-effects from the deactivating scene (Party Mode no longer leaves music playing)
+  - 37d (weather/cal): 5-min throttle on force_refresh; as_of stamp; fetchCalendar gated on document.visibilityState + first-failure-only logging
+  - 37e (IDE): renamed 11 `_escapeHtml` → `escapeHtml` + removed 2 duplicate function defs (was breaking Quick Open / command palette); new /api/ide/folder/delete endpoint
+  - 37f (chat): leading routing-tag strip (`[conversation]`, etc.); voice transcription drops on mic-muted + empty text + unknown speaker; plan parser fallbacks (strict, numbered, bulleted); chat_cleared SocketIO broadcast for /clear
+  - 37g (camera): cameraSnap surfaces backend error string; toggleMotion revert-on-failure + toast
+  - 37h (grab-bag): calendar +Add inline validation (duration, date parseable); BT scan 20s timeout reset; BT MAC tail hidden behind toggle; per-item notification dismiss; /api/health/full schema versioned (schema_version:1, guaranteed keys); Routines + Create CTA in panel header + empty state link; idle "What can BMO do for you?" → muted color (no longer reads as link)
+  - 37i (test seed): test_music_service fixture patched ms_module path correctly (was leaking "Test Song" entries into prod music_history.json); 7 fake entries scrubbed from the live file
+  - 37j (close-out): full pytest, smoke battery, log row
+- **Test growth:** 781 → 811 across Phases 31 + 37 (30 new tests).
+- **Touched files (Phase 37):** `bmo/pi/app.py`, `bmo/pi/agent.py`, `bmo/pi/services/scene_service.py`, `bmo/pi/services/weather_service.py`, `bmo/pi/routes/ide.py`, `bmo/pi/web/static/js/bmo.js`, `bmo/pi/web/static/ide/ide.js`, `bmo/pi/web/templates/index.html`, `bmo/pi/tests/test_music_service.py`, `bmo/pi/tests/test_weather_service.py`.
+- **Carry-forward:** #11 (no /file/read) was incorrect — endpoint exists at routes/ide.py:292. #4 (no scene badge after reload) appears resolved by the existing /api/scenes flow + 31e's scene_change SocketIO event; re-test if reproducible. Audio mute state on this Pi is pre-existing system condition — the new banner surfaces it, but unmuting is the user's call.
+
+---
+
 ### [2026-05-17] Phase 31l — BMO face visual unification: web canvas mirrors OLED in shared coord space
 
 - **Original QA bug:** 2026-05-17 BMO QA report Problem #28 (visual side — state machine already unified in 31h, defer noted in 31j).
