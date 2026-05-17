@@ -105,6 +105,12 @@ EXTRACT_DIR="__EXTRACT_DIR__"
 # the binary side-steps the issue cleanly.
 APP_BINARY="${EXTRACT_DIR}/__APP_NAME__"
 
+# electron-updater's AppImageUpdater finds the on-disk AppImage by
+# reading $APPIMAGE. The AppImage runtime sets it automatically during
+# a FUSE-mounted launch; since we exec the extracted binary directly,
+# we have to set it ourselves so auto-update can swap the file.
+export APPIMAGE
+
 FLAGS=(--no-sandbox)
 
 # No DRI render nodes → no GPU. Force CPU rendering so the renderer
