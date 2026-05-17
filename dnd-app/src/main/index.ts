@@ -77,9 +77,22 @@ function createWindow(): void {
     })
   })
 
+  // Normal happy path: show as soon as the renderer's first paint is ready,
+  // which avoids a flash of unstyled content.
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
   })
+  // Fallback for environments where `ready-to-show` never fires (some
+  // Linux + VM combos hit this — renderer creates contexts, processes
+  // are alive, but the event silently doesn't dispatch and the window
+  // stays hidden forever). If we haven't shown after 5 seconds, force
+  // it. A brief flash of background color is better than no window.
+  setTimeout(() => {
+    if (!mainWindow.isDestroyed() && !mainWindow.isVisible()) {
+      logToFile('WARN', 'ready-to-show did not fire within 5s — force-showing window')
+      mainWindow.show()
+    }
+  }, 5000)
 
   // DevTools shortcut (development only)
   if (is.dev) {

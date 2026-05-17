@@ -98,6 +98,10 @@ export interface LobbyPlayer {
   displayName: string
   characterId: string | null
   characterName: string | null
+  /** Optional data-URL or remote URL of the selected character's portrait,
+   * rendered as the avatar fill in PlayerCard. Falls back to the player's
+   * initial when absent. */
+  characterPortraitUrl?: string | null
   isReady: boolean
   isHost: boolean
   color?: string

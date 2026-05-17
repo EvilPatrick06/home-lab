@@ -21,7 +21,9 @@ import { useLobbyStore } from '../../stores/use-lobby-store'
 export default function ColorConfirmButton(): JSX.Element | null {
   const players = useLobbyStore((s) => s.players)
   const localPeerId = useNetworkStore((s) => s.localPeerId)
+  const role = useNetworkStore((s) => s.role)
   const sendMessage = useNetworkStore((s) => s.sendMessage)
+  const updatePlayer = useLobbyStore((s) => s.updatePlayer)
 
   const localPlayer = players.find((p) => p.peerId === localPeerId)
   if (!localPlayer) return null
@@ -36,7 +38,19 @@ export default function ColorConfirmButton(): JSX.Element | null {
   const disabled = !localColor || isTaken || isConfirmed
 
   const handleConfirm = (): void => {
-    if (disabled || !localColor) return
+    if (disabled || !localColor || !localPeerId) return
+    // Host-self path: `sendMessage` in host mode only broadcasts to remote
+    // peers, so an alone-in-lobby host never sees their own
+    // `player:color-confirm` come back through host-handlers — `colorConfirmed`
+    // would stay false forever and the Ready button would stay locked. Run
+    // the authoritative steps locally for the host, then broadcast a
+    // `player:color-change` so any clients that join later see the same
+    // confirmed color.
+    if (role === 'host') {
+      updatePlayer(localPeerId, { color: localColor, colorConfirmed: true })
+      sendMessage('player:color-change', { color: localColor })
+      return
+    }
     sendMessage('player:color-confirm', { color: localColor })
   }
 

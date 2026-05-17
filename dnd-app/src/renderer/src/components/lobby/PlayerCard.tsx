@@ -52,16 +52,56 @@ export default memo(function PlayerCard({
     >
       {/* Main row: avatar, info, status */}
       <div className="flex items-center gap-3">
-        {/* Avatar with speaking indicator and player color */}
+        {/* Avatar: color is a BORDER, not the fill. The fill is either the
+            chosen character's portrait or a default dark circle with the
+            player's initial. For the local player the avatar is also the
+            color-picker trigger — pulsing border + palette icon hint until
+            a color is confirmed; quiet hover ring after that. */}
         <div className="relative flex-shrink-0">
-          <div
-            className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm cursor-pointer"
-            style={{ backgroundColor: player.color || '#D97706' }}
+          <button
+            type="button"
+            className={`w-11 h-11 rounded-full flex items-center justify-center overflow-hidden bg-gray-800 text-white font-bold text-sm transition-all border-[3px] focus:outline-none focus:ring-2 focus:ring-amber-300 focus:ring-offset-2 focus:ring-offset-gray-900 ${
+              isLocal && onColorChange
+                ? `cursor-pointer hover:scale-105 ${player.colorConfirmed ? '' : 'animate-pulse hover:animate-none'}`
+                : 'cursor-default'
+            }`}
+            style={{ borderColor: player.color || '#475569' }}
             onClick={isLocal && onColorChange ? () => setShowColorPicker(!showColorPicker) : undefined}
-            title={isLocal ? 'Change color' : undefined}
+            disabled={!isLocal || !onColorChange}
+            aria-label={
+              isLocal
+                ? `Your avatar — click to pick your border color (currently ${player.color || 'default'})`
+                : `${player.displayName}'s avatar`
+            }
+            title={isLocal && onColorChange ? 'Click to pick your color' : undefined}
           >
-            {avatarLetter}
-          </div>
+            {player.characterPortraitUrl ? (
+              <img
+                src={player.characterPortraitUrl}
+                alt=""
+                aria-hidden="true"
+                className="w-full h-full object-cover"
+                draggable={false}
+              />
+            ) : (
+              <span aria-hidden="true">{avatarLetter}</span>
+            )}
+          </button>
+          {isLocal && onColorChange && (
+            <div
+              className="pointer-events-none absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-gray-900 border border-amber-500 flex items-center justify-center"
+              aria-hidden="true"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                className="w-3 h-3 text-amber-400"
+              >
+                <path d="M10 2a8 8 0 1 0 8 8c0-1.5-1.2-2-2-2h-2a2 2 0 0 1 0-4 2 2 0 0 0 2-2c0-.7-1.3-.5-3-1A8 8 0 0 0 10 2zm-4 7a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm3-4a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm4 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2z" />
+              </svg>
+            </div>
+          )}
         </div>
 
         {/* Player info */}
