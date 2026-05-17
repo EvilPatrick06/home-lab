@@ -74,13 +74,61 @@ const messageCallbacks = new Set<MessageCallback>()
 // Internal message router for host-side message handling
 const router = createMessageRouter()
 
-// Per-peer bounded send queue — prevents unbounded memory growth when a peer is slow
-// Messages are serialized strings; oldest are dropped when the queue is full.
+// Per-peer bounded send queue — prevents unbounded memory growth when a peer is slow.
+// Phase 29i: switched from pre-serialized strings to NetworkMessage objects so
+// the drain step can coalesce same-tick messages into a single `batch` envelope.
 const MAX_PEER_QUEUE_SIZE = 50
-const peerQueues = new Map<string, string[]>()
+const peerQueues = new Map<string, NetworkMessage[]>()
+const peerFlushScheduled = new Set<string>()
 
-/** Queue a serialized message for a specific peer and drain synchronously. */
-function queueForPeer(peerId: string, serialized: string): void {
+function rawSend(peerId: string, msg: NetworkMessage): boolean {
+  const conn = connections.get(peerId)
+  if (!conn?.open) return false
+  try {
+    conn.send(JSON.stringify(msg))
+    return true
+  } catch (e) {
+    logger.warn('[HostManager] Failed to send message to', peerId, e)
+    return false
+  }
+}
+
+function buildBatchEnvelope(msgs: NetworkMessage[]): NetworkMessage {
+  // The wrapper carries the latest inner message's sequence so
+  // existing gap-detection in client-manager still works.
+  const last = msgs[msgs.length - 1]
+  return {
+    type: 'batch',
+    payload: { messages: msgs },
+    senderId: last?.senderId ?? '',
+    senderName: last?.senderName ?? '',
+    timestamp: Date.now(),
+    sequence: last?.sequence ?? 0
+  }
+}
+
+function flushPeerQueue(peerId: string): void {
+  peerFlushScheduled.delete(peerId)
+  const queue = peerQueues.get(peerId)
+  if (!queue || queue.length === 0) return
+  const conn = connections.get(peerId)
+  if (!conn?.open) {
+    queue.length = 0
+    return
+  }
+  if (queue.length === 1) {
+    // Single-message tick — no wrapper, keeps the wire backwards
+    // compatible with pre-29i clients.
+    const msg = queue.shift()
+    if (msg) rawSend(peerId, msg)
+    return
+  }
+  const batch = queue.splice(0, queue.length)
+  rawSend(peerId, buildBatchEnvelope(batch))
+}
+
+/** Queue a message for a specific peer; flush is deferred to the next microtask. */
+function queueForPeer(peerId: string, msg: NetworkMessage): void {
   const conn = connections.get(peerId)
   if (!conn?.open) return
 
@@ -94,23 +142,14 @@ function queueForPeer(peerId: string, serialized: string): void {
     logger.warn('[HostManager] Peer send queue full for', peerId, '— dropping oldest message')
     queue.shift()
   }
-  queue.push(serialized)
+  queue.push(msg)
 
-  // Drain in FIFO order (PeerJS conn.send is synchronous / non-blocking)
-  while (queue.length > 0) {
-    const c = connections.get(peerId)
-    if (!c?.open) {
-      queue.length = 0
-      break
-    }
-    try {
-      c.send(queue[0])
-      queue.shift()
-    } catch (e) {
-      logger.warn('[HostManager] Failed to send queued message to', peerId, e)
-      queue.shift() // drop the failed message and stop draining
-      break
-    }
+  if (!peerFlushScheduled.has(peerId)) {
+    peerFlushScheduled.add(peerId)
+    // queueMicrotask drains at the end of the current task. Multiple
+    // broadcasts inside one Zustand subscribe tick coalesce into a
+    // single batch frame per peer.
+    queueMicrotask(() => flushPeerQueue(peerId))
   }
 }
 
@@ -143,6 +182,7 @@ function disconnectPeer(peerId: string, message: NetworkMessage): void {
   connections.delete(peerId)
   peerInfoMap.delete(peerId)
   peerQueues.delete(peerId)
+  peerFlushScheduled.delete(peerId)
 
   if (peerInfo) {
     broadcastMessage(buildMessage('player:leave', { displayName: peerInfo.displayName }))
@@ -314,6 +354,7 @@ export function stopHosting(): void {
   chatMutedPeers.clear()
   lastHeartbeat.clear()
   peerQueues.clear()
+  peerFlushScheduled.clear()
   resetReplayBuffers()
   stopHeartbeatCheck()
   router.clear()
@@ -349,10 +390,9 @@ function clientIdsForPeers(peerIds: Iterable<string>): string[] {
 
 /** Send a message to all connected peers. */
 export function broadcastMessage(msg: NetworkMessage): void {
-  const serialized = JSON.stringify(msg)
   const peerIds = Array.from(connections.keys())
   for (const peerId of peerIds) {
-    queueForPeer(peerId, serialized)
+    queueForPeer(peerId, msg)
   }
   // Phase 29h: record on every connected client's replay buffer so
   // they can ask for a delta on reconnect.
@@ -361,11 +401,10 @@ export function broadcastMessage(msg: NetworkMessage): void {
 
 /** Broadcast to all peers except the specified one (rebroadcast without echo). */
 export function broadcastExcluding(msg: NetworkMessage, excludePeerId: string): void {
-  const serialized = JSON.stringify(msg)
   const peerIds: string[] = []
   for (const [peerId] of connections) {
     if (peerId === excludePeerId) continue
-    queueForPeer(peerId, serialized)
+    queueForPeer(peerId, msg)
     peerIds.push(peerId)
   }
   recordOutgoing(clientIdsForPeers(peerIds), msg)
@@ -377,7 +416,7 @@ export function sendToPeer(peerId: string, msg: NetworkMessage): void {
     logger.warn('[HostManager] No connection found for peer:', peerId)
     return
   }
-  queueForPeer(peerId, JSON.stringify(msg))
+  queueForPeer(peerId, msg)
   const clientId = peerInfoMap.get(peerId)?.clientId
   if (clientId) recordOutgoing([clientId], msg)
 }

@@ -40,6 +40,24 @@ function clearListenerCleanups(): void {
   listenerCleanups.length = 0
 }
 
+// Phase 29i: per-role filter cache. Filtering a full game state for
+// each joining peer is the slowest path in our broadcast pipeline —
+// it walks every map, token, region, drawing, and handout to strip
+// DM-only data. We bump `gameStateVersion` whenever the host's game
+// store mutates, and keep one cached filtered result per role at the
+// latest version. A burst of joins (e.g. 4 players reconnecting at
+// the same time) sees a single compute followed by 3 cache hits.
+let gameStateVersion = 0
+const filteredStateCache = new Map<string, { version: number; result: unknown }>()
+
+function buildFilteredStateForRole(role: 'host' | 'player' | 'spectator'): unknown {
+  const cached = filteredStateCache.get(role)
+  if (cached && cached.version === gameStateVersion) return cached.result
+  const result = filterGameStateForRole(buildNetworkGameState(), role)
+  filteredStateCache.set(role, { version: gameStateVersion, result })
+  return result
+}
+
 export const useNetworkStore = create<NetworkState>((set, get) => ({
   role: 'none',
   connectionState: 'disconnected',
@@ -103,8 +121,16 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
       // Provide game state for full syncs when new players connect.
       // The host gets the unfiltered view; non-host peers get a player-view
       // with hidden tokens / unrevealed traps / DM-only handouts redacted.
+      // Phase 29i: results are cached per role until the next game-state
+      // mutation, so burst joins reuse the filter pass.
+      listenerCleanups.push(
+        useGameStore.subscribe(() => {
+          gameStateVersion++
+          filteredStateCache.clear()
+        })
+      )
       setGameStateProvider((peerInfo: PeerInfo) =>
-        filterGameStateForRole(buildNetworkGameState(), peerInfo.role ?? (peerInfo.isHost ? 'host' : 'player'))
+        buildFilteredStateForRole(peerInfo.role ?? (peerInfo.isHost ? 'host' : 'player'))
       )
 
       set({

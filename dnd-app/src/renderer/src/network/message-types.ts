@@ -92,7 +92,8 @@ export const MESSAGE_TYPES = [
   'dm:push-macros',
   'dm:light-source-update',
   'ping',
-  'pong'
+  'pong',
+  'batch'
 ] as const
 
 export type MessageType = (typeof MESSAGE_TYPES)[number]
@@ -235,6 +236,17 @@ export interface StateResyncPayload {
   toSequence: number
   fallback: boolean
   messages?: NetworkMessage[]
+}
+
+// Phase 29i: tick-batched send queue. The host coalesces every
+// outgoing message within the same microtask into a single `batch`
+// envelope. The client iterates the inner messages and re-dispatches
+// each through its normal validation + handler path, so each inner
+// message's own type is what matters — `batch` is purely a transport
+// wrapper. Single-message ticks are sent without the wrapper for
+// backwards compat with v2.1.7 and earlier clients.
+export interface BatchPayload {
+  messages: NetworkMessage[]
 }
 
 export interface KickPayload {

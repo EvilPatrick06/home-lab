@@ -157,6 +157,13 @@ const StateResyncPayloadSchema = z.object({
   messages: z.array(z.unknown()).optional()
 })
 
+// Phase 29i: batch envelope. Inner messages are validated by the
+// recipient's normal per-message router when it iterates them, so
+// here we only check the shape of the wrapper itself.
+const BatchPayloadSchema = z.object({
+  messages: z.array(z.unknown())
+})
+
 const KickPayloadSchema = z.object({
   peerId: z.string(),
   reason: z.string().optional()
@@ -562,6 +569,7 @@ const PAYLOAD_SCHEMAS: Partial<Record<MessageTypeString, z.ZodType>> = {
   'dm:condition-delta': ConditionDeltaPayloadSchema,
   'player:resync-request': ResyncRequestPayloadSchema,
   'game:state-resync': StateResyncPayloadSchema,
+  batch: BatchPayloadSchema,
   'dm:kick-player': KickPayloadSchema,
   'dm:ban-player': BanPayloadSchema,
   'dm:chat-timeout': ChatTimeoutPayloadSchema,

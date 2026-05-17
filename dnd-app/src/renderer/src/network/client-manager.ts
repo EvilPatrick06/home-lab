@@ -294,6 +294,34 @@ async function attemptConnection(
             return
           }
 
+          // Phase 29i: unwrap `batch` envelopes — the host coalesces
+          // same-tick broadcasts into one frame. Each inner message
+          // still goes through full validation + the per-message
+          // dispatch path below.
+          if (message.type === 'batch') {
+            const inner = (message.payload as { messages?: NetworkMessage[] }).messages ?? []
+            for (const innerMsg of inner) {
+              const innerValid = validateNetworkMessage(innerMsg)
+              if (!innerValid.success) {
+                logger.warn('[ClientManager] Inner batch message failed schema validation:', innerValid.error)
+                continue
+              }
+              if (!validateIncomingMessage(innerMsg)) {
+                logger.warn(
+                  '[ClientManager] Inner batch message failed validation:',
+                  (innerMsg as Record<string, unknown>)?.type
+                )
+                continue
+              }
+              processIncomingMessage(innerMsg)
+            }
+            return
+          }
+
+          processIncomingMessage(message)
+        })
+
+        function processIncomingMessage(message: NetworkMessage): void {
           // Sequence gap detection — log if host sequence skipped (informational; WebRTC
           // reliable ordered channels should prevent this, but we track it for debugging)
           if (typeof message.sequence === 'number' && message.sequence >= 0) {
@@ -362,7 +390,7 @@ async function attemptConnection(
               logger.error('[ClientManager] Error in message callback:', e)
             }
           }
-        })
+        }
 
         conn.on('close', () => {
           clearTimeout(timeout)
