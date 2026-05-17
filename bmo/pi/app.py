@@ -21,7 +21,7 @@ import threading
 import time
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-from flask import Flask, Response, jsonify, render_template, request, send_from_directory
+from flask import Flask, Response, jsonify, render_template, request, send_from_directory, stream_with_context
 from flask_socketio import SocketIO
 from services.bmo_logging import get_logger
 log = get_logger("bmo")
@@ -136,6 +136,7 @@ RATE_LIMIT_CHAT = os.environ.get("BMO_CHAT_RATE_LIMIT", "30 per minute")
 RATE_LIMIT_DND_LOAD = os.environ.get("BMO_DND_LOAD_RATE_LIMIT", "15 per minute")
 RATE_LIMIT_IDE_JOBS = os.environ.get("BMO_IDE_JOBS_RATE_LIMIT", "10 per minute")
 RATE_LIMIT_NARRATE = os.environ.get("BMO_NARRATE_RATE_LIMIT", "30 per minute")
+RATE_LIMIT_GAMES = os.environ.get("BMO_GAMES_RATE_LIMIT", "30 per minute")
 
 
 def _get_secret_key() -> str:
@@ -4376,6 +4377,142 @@ def api_model_set():
     else:
         agent._model_override = model_id
     return jsonify({"ok": True, "model": model_id})
+
+
+# ── Game Registry (dnd-app multiplayer game directory, Phase 29f) ────
+# Lazy-import + lazy-resolve the singleton so test fixtures that swap the
+# module after import still see their own instance.
+
+def _games_registry():
+    from services.game_registry import get_registry
+    return get_registry()
+
+
+# Optional second-key gate for the announce/heartbeat routes. Hosts on
+# trusted LAN can omit it; if the env var is set, non-localhost callers
+# must present it. Orthogonal to BMO_API_KEY (which gates the whole
+# Flask app at `_bmo_optional_api_key`).
+def _registry_authorized() -> bool:
+    expected = (os.environ.get("BMO_REGISTRY_API_KEY") or "").strip()
+    if not expected:
+        return True
+    if _bmo_client_is_trusted_localhost():
+        return True
+    presented = (request.headers.get("X-Registry-Key", "") or "").strip()
+    return presented == expected
+
+
+# Hard cap on inbound POST body size for registry routes — game entries
+# are small JSON, anything bigger is abuse.
+MAX_GAMES_BODY_BYTES = 4096
+MAX_GAMES_MAX_PLAYERS = 20
+
+
+def _games_validate_body(data: dict) -> tuple[bool, str | None]:
+    if not isinstance(data, dict):
+        return False, "request body must be a JSON object"
+    try:
+        max_p = int(data.get("max_players", 0))
+        max_s = int(data.get("max_spectators", 0))
+    except (TypeError, ValueError):
+        return False, "max_players/max_spectators must be integers"
+    if max_p < 1 or max_p > MAX_GAMES_MAX_PLAYERS:
+        return False, f"max_players must be 1..{MAX_GAMES_MAX_PLAYERS}"
+    if max_s < 0 or max_s > MAX_GAMES_MAX_PLAYERS:
+        return False, f"max_spectators must be 0..{MAX_GAMES_MAX_PLAYERS}"
+    return True, None
+
+
+@app.route("/api/games", methods=["GET"])
+def api_games_list():
+    """List active games, optionally annotated for a given client_id."""
+    client_id = (request.args.get("client_id") or "").strip() or None
+    return jsonify({"games": _games_registry().list(filter_client_id=client_id)})
+
+
+@app.route("/api/games", methods=["POST"])
+@limiter.limit(RATE_LIMIT_GAMES)
+def api_games_announce():
+    """Register or update a hosted game."""
+    if not _registry_authorized():
+        return jsonify({"error": "unauthorized"}), 401
+    if request.content_length is not None and request.content_length > MAX_GAMES_BODY_BYTES:
+        return jsonify({"error": "payload too large"}), 413
+    data = request.get_json(silent=True) or {}
+    ok, err = _games_validate_body(data)
+    if not ok:
+        return jsonify({"error": err}), 400
+    try:
+        entry = _games_registry().register(data)
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), 400
+    return jsonify({"ok": True, "game": entry["invite_code"]}), 201
+
+
+@app.route("/api/games/<code>", methods=["PATCH"])
+@limiter.limit(RATE_LIMIT_GAMES)
+def api_games_update(code: str):
+    """Patch fields on an existing entry (typically player/spectator counts)."""
+    if not _registry_authorized():
+        return jsonify({"error": "unauthorized"}), 401
+    if request.content_length is not None and request.content_length > MAX_GAMES_BODY_BYTES:
+        return jsonify({"error": "payload too large"}), 413
+    data = request.get_json(silent=True) or {}
+    if not isinstance(data, dict):
+        return jsonify({"error": "request body must be a JSON object"}), 400
+    updated = _games_registry().update(code, data)
+    if updated is None:
+        return jsonify({"error": "not found"}), 404
+    return jsonify({"ok": True})
+
+
+@app.route("/api/games/<code>", methods=["DELETE"])
+@limiter.limit(RATE_LIMIT_GAMES)
+def api_games_deregister(code: str):
+    """Remove an entry (host shutting down)."""
+    if not _registry_authorized():
+        return jsonify({"error": "unauthorized"}), 401
+    removed = _games_registry().deregister(code)
+    return jsonify({"ok": removed}), (200 if removed else 404)
+
+
+@app.route("/api/games/<code>/heartbeat", methods=["POST"])
+@limiter.limit(RATE_LIMIT_GAMES)
+def api_games_heartbeat(code: str):
+    """Refresh the entry's TTL. Hosts call this every ~30s."""
+    if not _registry_authorized():
+        return jsonify({"error": "unauthorized"}), 401
+    ok = _games_registry().heartbeat(code)
+    return jsonify({"ok": ok}), (200 if ok else 404)
+
+
+@app.route("/api/games/stream", methods=["GET"])
+def api_games_stream():
+    """SSE stream of registry events: initial snapshot + add/update/remove."""
+    client_id = (request.args.get("client_id") or "").strip() or None
+    registry = _games_registry()
+    sub = registry.subscribe(filter_client_id=client_id)
+
+    def _format(event: dict) -> str:
+        # SSE keep-alive comments are `: text\n\n`; real events are
+        # `event:` + `data:` blocks separated by a blank line.
+        if event["event"] == "heartbeat":
+            return ": heartbeat\n\n"
+        payload = json.dumps(event["data"])
+        return f"event: {event['event']}\ndata: {payload}\n\n"
+
+    @stream_with_context
+    def _gen():
+        try:
+            for evt in sub.iter_events():
+                yield _format(evt)
+        finally:
+            sub.close()
+
+    resp = Response(_gen(), mimetype="text/event-stream")
+    resp.headers["Cache-Control"] = "no-cache"
+    resp.headers["X-Accel-Buffering"] = "no"
+    return resp
 
 
 # ── WebSocket Events ────────────────────────────────────────────────
