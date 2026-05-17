@@ -397,3 +397,47 @@ class TestMockHardwareIntegration:
         assert stats["cpu_percent"] == 25.0
         assert stats["ram_percent"] == 60.0
         assert stats["disk_percent"] == 45.0
+
+
+# ── Circuit-breaker for repeatedly-failing subsystems (QA #6, 2026-05-17) ─────
+
+class TestCircuitBreaker:
+    def test_no_history_means_circuit_closed(self, tmp_path):
+        checker = _make_checker(tmp_path)
+        assert not checker._circuit_open("google_calendar", time.time())
+
+    def test_record_failure_opens_circuit(self, tmp_path):
+        checker = _make_checker(tmp_path)
+        now = 1_000_000.0
+        checker._circuit_record_failure("google_calendar", now, ttl=60)
+        # First failure: next attempt at now + 60.
+        assert checker._circuit_open("google_calendar", now + 30)
+        assert not checker._circuit_open("google_calendar", now + 61)
+
+    def test_backoff_doubles_on_repeated_failures(self, tmp_path):
+        checker = _make_checker(tmp_path)
+        now = 1_000_000.0
+        checker._circuit_record_failure("google_calendar", now, ttl=60)
+        checker._circuit_record_failure("google_calendar", now, ttl=60)
+        checker._circuit_record_failure("google_calendar", now, ttl=60)
+        # After 3 failures: backoff = 60 * 2^2 = 240
+        assert checker._circuit_open("google_calendar", now + 239)
+        assert not checker._circuit_open("google_calendar", now + 241)
+
+    def test_backoff_capped_at_one_hour(self, tmp_path):
+        checker = _make_checker(tmp_path)
+        now = 1_000_000.0
+        for _ in range(15):  # well past 2^x cap
+            checker._circuit_record_failure("google_calendar", now, ttl=60)
+        failures, next_attempt = checker._subsystem_backoff["google_calendar"]
+        assert failures == 15
+        assert next_attempt - now == 3600  # capped
+
+    def test_success_resets_backoff(self, tmp_path):
+        checker = _make_checker(tmp_path)
+        now = 1_000_000.0
+        checker._circuit_record_failure("google_calendar", now)
+        checker._circuit_record_failure("google_calendar", now)
+        checker._circuit_record_success("google_calendar")
+        assert "google_calendar" not in checker._subsystem_backoff
+        assert not checker._circuit_open("google_calendar", now)

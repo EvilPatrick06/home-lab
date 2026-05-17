@@ -12,6 +12,24 @@
 
 ---
 
+### [2026-05-17] Phase 31b — Calendar OAuth HTTPS, health circuit-breaker, CF Access banner, wifi/status slim
+
+- **Original QA bugs:** 2026-05-17 BMO QA report Problems #5, #6, #7, #33.
+- **Category:** bug, oauth, monitoring, ux, surface-minimization
+- **Domain:** bmo
+- **Resolved by:** Claude Opus (Phase 31b)
+- **Date resolved:** 2026-05-17
+- **Resolution:**
+  - **#5 (`redirect_uri_mismatch`):** `api_calendar_auth_url` in `bmo/pi/app.py` now reads `X-Forwarded-Proto` and `X-Forwarded-Host` from the Cloudflare Tunnel and constructs an `https://bmo.mybmoai.work/...` redirect URI instead of `request.host_url` which returns `http://` (gevent terminates plain HTTP). **User action still required:** register that exact URI in the Google Cloud OAuth client's authorized-redirect list — code fix alone cannot do that.
+  - **#6 (300+ consecutive failures on `google_calendar`):** `services/monitoring.py` gained a per-subsystem circuit-breaker (`_circuit_open` / `_circuit_record_failure` / `_circuit_record_success`). Backoff doubles each consecutive failure, capped at 1 hour. `_check_calendar_token` skips re-checking while the breaker is open, so the failure counter no longer climbs unbounded and the alert pipeline stops spamming.
+  - **#6 (UI never sees critical):** `bmo/pi/web/static/js/bmo.js` polls `/api/health/full` every 30 s. The header pill (`healthPillClass()` + `healthSummary`) flips amber when `overall === 'critical' | 'warning'`, showing the failing subsystem name (`BMO ⚠ calendar`).
+  - **#7 (CF Access expiry silently bricks page):** New `apiFetch()` wrapper in `bmo.js` detects `401/403 + text/html` (Cloudflare Access challenge body shape) and flips `connectionState='cf_expired'`. Template shows a non-dismissible amber banner with a one-click "reload to re-authenticate" button. Sustained `fetch` throw flips to `offline` with a rose banner.
+  - **#33 (`/api/wifi/status` leaks BSSID/signal/channel):** `app.py` trims the public response to `{ssid, connected}` only. The full `_wifi_status()` shape (BSSID, signal, channel, IP, saved networks) moved behind `/api/wifi/status/detail`, used by the Settings tab.
+- **Verified:** `pytest tests/test_calendar_auth_paths.py tests/test_monitoring.py tests/test_chat_speaker.py tests/test_app_endpoints.py` → 78 passed. Live: `curl /api/wifi/status` returns `{"connected":false,"ssid":""}`; `curl /api/wifi/status/detail` returns full diagnostics. BMO restarted clean.
+- **Touched files:** `bmo/pi/app.py`, `bmo/pi/services/monitoring.py`, `bmo/pi/web/static/js/bmo.js`, `bmo/pi/web/templates/index.html`, `bmo/pi/tests/test_calendar_auth_paths.py`, `bmo/pi/tests/test_monitoring.py`.
+
+---
+
 ### [2026-05-17] Phase 31a — Chat integrity: speaker enum, plan event, Ollama fallback safety
 
 - **Original QA bugs:** 2026-05-17 BMO QA report Problems #1, #2, #3, #4.

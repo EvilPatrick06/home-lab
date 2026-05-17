@@ -96,5 +96,63 @@ class CalendarPathResolutionTests(unittest.TestCase):
         self.assertEqual(merged["refresh_token"], "existing-refresh")
 
 
+# QA #5 (2026-05-17): redirect_uri_mismatch happened because the tunnel
+# terminates TLS — request.scheme returned http:// but the browser was on
+# https://. The auth-url builder now honors X-Forwarded-Proto / X-Forwarded-Host.
+
+class CalendarOAuthRedirectTests(unittest.TestCase):
+    def _fake_request(self, *, host_header="bmo.mybmoai.work",
+                      forwarded_proto="https", forwarded_host=None):
+        """Build a minimal stub mimicking Flask's request that the URL builder reads."""
+        class _R:
+            pass
+        r = _R()
+        r.host = host_header
+        r.host_url = f"http://{host_header}/"
+        r.scheme = "http"
+        r.args = {}
+        r.headers = {
+            "X-Forwarded-Proto": forwarded_proto,
+            "X-Forwarded-Host": forwarded_host or host_header,
+        }
+        return r
+
+    def _build_redirect_uri(self, request_obj, mode="auto"):
+        """Re-implement the small URI-selection block from app.py for the unit test."""
+        if mode == "manual":
+            return "urn:ietf:wg:oauth:2.0:oob"
+        fwd_proto = (request_obj.headers.get("X-Forwarded-Proto") or "").strip().lower()
+        scheme = fwd_proto if fwd_proto in ("http", "https") else (request_obj.scheme or "http")
+        fwd_host = (request_obj.headers.get("X-Forwarded-Host") or "").strip()
+        host = fwd_host or request_obj.host
+        return (request_obj.args.get("redirect_uri", "").strip()
+                or f"{scheme}://{host}/api/calendar/auth/callback")
+
+    def test_redirect_uri_uses_x_forwarded_proto_https(self):
+        r = self._fake_request(forwarded_proto="https")
+        self.assertEqual(
+            self._build_redirect_uri(r),
+            "https://bmo.mybmoai.work/api/calendar/auth/callback",
+        )
+
+    def test_redirect_uri_falls_back_to_request_scheme_when_no_header(self):
+        r = self._fake_request(forwarded_proto="")
+        self.assertEqual(
+            self._build_redirect_uri(r),
+            "http://bmo.mybmoai.work/api/calendar/auth/callback",
+        )
+
+    def test_manual_mode_returns_oob(self):
+        r = self._fake_request()
+        self.assertEqual(self._build_redirect_uri(r, mode="manual"),
+                         "urn:ietf:wg:oauth:2.0:oob")
+
+    def test_explicit_redirect_uri_query_param_wins(self):
+        r = self._fake_request()
+        r.args = {"redirect_uri": "https://custom.example/callback"}
+        self.assertEqual(self._build_redirect_uri(r),
+                         "https://custom.example/callback")
+
+
 if __name__ == "__main__":
     unittest.main()

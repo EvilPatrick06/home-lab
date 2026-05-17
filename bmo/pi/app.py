@@ -1054,6 +1054,19 @@ def _wifi_connect_saved(connection_name: str) -> tuple[bool, str]:
 
 @app.route("/api/wifi/status")
 def api_wifi_status():
+    # QA #33 (2026-05-17): dashboard only renders {ssid, connected}; full
+    # detail (BSSID/signal/channel/IP) is reachable behind CF Access via
+    # /api/wifi/status/detail. Minimizes attack surface on a public hostname.
+    full = _wifi_status()
+    return jsonify({
+        "ssid": full.get("ssid", "") or "",
+        "connected": bool(full.get("connected")),
+    })
+
+
+@app.route("/api/wifi/status/detail")
+def api_wifi_status_detail():
+    """Full Wi-Fi diagnostics (BSSID/signal/channel/IP). Settings tab only."""
     return jsonify(_wifi_status())
 
 
@@ -1842,10 +1855,17 @@ def api_calendar_auth_url():
         if mode == "manual":
             redirect_uri = "urn:ietf:wg:oauth:2.0:oob"
         else:
-            redirect_uri = (
-                request.args.get("redirect_uri", "").strip()
-                or f"{request.host_url.rstrip('/')}/api/calendar/auth/callback"
-            )
+            # QA #5 (2026-05-17): request.host_url returns http:// because gevent
+            # terminates plain HTTP — but the user's browser is on https://
+            # behind Cloudflare Tunnel. Honor X-Forwarded-Proto / X-Forwarded-Host
+            # so the redirect_uri Google sees matches what's whitelisted in the
+            # OAuth client (the cause of "redirect_uri_mismatch").
+            fwd_proto = (request.headers.get("X-Forwarded-Proto") or "").strip().lower()
+            scheme = fwd_proto if fwd_proto in ("http", "https") else (request.scheme or "http")
+            fwd_host = (request.headers.get("X-Forwarded-Host") or "").strip()
+            host = fwd_host or request.host
+            default_uri = f"{scheme}://{host}/api/calendar/auth/callback"
+            redirect_uri = (request.args.get("redirect_uri", "").strip() or default_uri)
         scope = urllib.parse.quote("https://www.googleapis.com/auth/calendar", safe="")
         auth_url = (
             "https://accounts.google.com/o/oauth2/auth"

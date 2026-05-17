@@ -108,6 +108,13 @@ function bmo() {
     // Status
     status: 'idle', // idle, listening, thinking, speaking
 
+    // QA #6/#7 (2026-05-17): connection + health surface.
+    // connectionState: 'online' | 'offline' | 'cf_expired'.
+    // healthSummary: pill text reflecting /api/health/full overall.
+    connectionState: 'online',
+    healthSummary: 'BMO',
+    _healthPoll: null,
+
     // Weather
     weather: { temperature: null, description: '', icon: 'clear', feels_like: null },
 
@@ -453,6 +460,12 @@ function bmo() {
       this.fetchLists();
       this.fetchRoutines();
       this.fetchAlerts();
+
+      // QA #6 (2026-05-17): poll /api/health/full so the header pill reflects
+      // overall subsystem status. CF Access expiry / network outage detected
+      // via apiFetch wrapper updates connectionState.
+      this.pollHealth();
+      this._healthPoll = setInterval(() => this.pollHealth(), 30000);
 
       // Load Google Places API
       fetch('/api/config').then(r => r.json()).then(c => {
@@ -864,6 +877,63 @@ function bmo() {
       this.socket.emit('plan_reject', { client_timezone: this.clientTimezone });
       this.planMode = false;
       this.planStatus = 'idle';
+    },
+
+    // ── Connection / Health (QA #6, #7, 2026-05-17) ───────────
+
+    // Wrapper around fetch() that updates connectionState when CF Access
+    // expires (401/403 with HTML body) or the network goes offline.
+    async apiFetch(input, init) {
+      try {
+        const res = await fetch(input, init);
+        if (res.status === 401 || res.status === 403) {
+          // Cloudflare Access challenge bodies are HTML; the API normally
+          // answers JSON. Use content-type as the disambiguator.
+          const ct = (res.headers.get('content-type') || '').toLowerCase();
+          if (ct.includes('text/html')) {
+            this.connectionState = 'cf_expired';
+          }
+        } else if (this.connectionState !== 'online') {
+          this.connectionState = 'online';
+        }
+        return res;
+      } catch (e) {
+        // fetch threw → no network / CORS / DNS failure.
+        if (this.connectionState !== 'cf_expired') {
+          this.connectionState = 'offline';
+        }
+        throw e;
+      }
+    },
+
+    async pollHealth() {
+      try {
+        const res = await this.apiFetch('/api/health/full');
+        if (!res.ok) return;
+        const data = await res.json();
+        const overall = (data.overall || '').toLowerCase();
+        if (overall === 'critical') {
+          const failing = Object.entries(data.services || {})
+            .filter(([_, s]) => (s.status || '').toLowerCase() === 'down')
+            .map(([name]) => name.replace(/^svc_|^google_/, ''))
+            .slice(0, 2)
+            .join(',');
+          this.healthSummary = failing ? `BMO ⚠ ${failing}` : 'BMO ⚠';
+        } else if (overall === 'warning' || overall === 'degraded') {
+          this.healthSummary = 'BMO ⚠';
+        } else {
+          this.healthSummary = 'BMO';
+        }
+      } catch {
+        // Network failure — keep last summary; connection pill flips via apiFetch.
+      }
+    },
+
+    healthPillClass() {
+      if (this.connectionState === 'cf_expired') return 'bg-amber-500/20 text-amber-300';
+      if (this.connectionState === 'offline') return 'bg-rose-500/20 text-rose-300';
+      if ((this.healthSummary || '').includes('⚠')) return 'bg-amber-500/20 text-amber-300';
+      return 'bg-emerald-500/20 text-emerald-300';
     },
 
     // ── Chat ──────────────────────────────────────────────────

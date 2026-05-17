@@ -306,6 +306,33 @@ class HealthChecker:
         self._alert_state_file = os.path.join(_DATA_DIR, "monitor_alert_state.json")
         self._discord_last_fingerprint: dict[str, str] = self._load_discord_alert_state()
 
+        # QA #6 (2026-05-17): per-subsystem circuit-breaker. When a check
+        # fails repeatedly (e.g. google_calendar with broken OAuth client),
+        # we'd otherwise re-fail it every poll and grow the failure counter
+        # unboundedly. Backoff doubles each consecutive failure up to 1h.
+        # Maps subsystem_name -> (consecutive_failures, next_attempt_at).
+        self._subsystem_backoff: dict[str, tuple[int, float]] = {}
+
+    # ── Circuit-breaker helpers ───────────────────────────────────────
+    def _circuit_open(self, name: str, now: float) -> bool:
+        """True if `name` is still in backoff window — caller should skip re-checking."""
+        state = self._subsystem_backoff.get(name)
+        if not state:
+            return False
+        _failures, next_attempt = state
+        return now < next_attempt
+
+    def _circuit_record_failure(self, name: str, now: float, ttl: int = 60) -> None:
+        """Increment the backoff for `name`. Capped at 1 hour."""
+        failures, _ = self._subsystem_backoff.get(name, (0, 0))
+        failures += 1
+        backoff = min(ttl * (2 ** (failures - 1)), 3600)
+        self._subsystem_backoff[name] = (failures, now + backoff)
+
+    def _circuit_record_success(self, name: str) -> None:
+        """Reset backoff for `name` on first success."""
+        self._subsystem_backoff.pop(name, None)
+
     def _load_prev_status(self) -> dict[str, str]:
         """Load previous service status from disk (survives restarts)."""
         try:
@@ -1445,8 +1472,18 @@ class HealthChecker:
     # ── Google Calendar Token Check ───────────────────────────────────
 
     def _check_calendar_token(self):
-        """Check if Google Calendar OAuth token is present and valid."""
+        """Check if Google Calendar OAuth token is present and valid.
+
+        QA #6 (2026-05-17): when the OAuth client config is broken (e.g. the
+        redirect_uri_mismatch caused by missing https redirect URI in the
+        Google Cloud Console), this check fails on every poll cycle. The
+        circuit breaker below skips the check during the exponential backoff
+        window so /api/health/full doesn't grow a 300+ failure count and
+        spam the alert pipeline."""
         now = time.time()
+        if self._circuit_open("google_calendar", now):
+            # Keep prior status visible to consumers — just don't redo the work.
+            return
         try:
             credentials_path = (
                 CALENDAR_CREDENTIALS_PATH
@@ -1565,6 +1602,14 @@ class HealthChecker:
                 "status": "unknown", "last_check": now,
                 "message": str(e), "response_time": None,
             }
+        finally:
+            # QA #6: feed every early-return path into the breaker. The status
+            # set by whichever branch ran tells us whether to back off.
+            info = self._service_status.get("google_calendar", {})
+            if info.get("status") in {"down", "unknown"}:
+                self._circuit_record_failure("google_calendar", now)
+            elif info.get("status") == "up":
+                self._circuit_record_success("google_calendar")
 
     # ── Cloudflare Tunnel Check ───────────────────────────────────────
 

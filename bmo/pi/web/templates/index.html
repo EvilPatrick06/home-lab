@@ -13,6 +13,17 @@
 </head>
 <body class="bg-surface-dark text-text select-none flex flex-col h-screen{% if kiosk_mode %} kiosk-mode{% endif %}" x-data="bmo()" x-init="init()">
 
+  <!-- QA #7 (2026-05-17): CF Access expiry / offline banners. Above everything. -->
+  <div x-show="connectionState === 'cf_expired'" x-cloak
+       class="bg-amber-600 text-amber-50 px-4 py-2 text-center text-sm shrink-0">
+    Cloudflare Access session expired —
+    <button @click="location.reload()" class="underline font-semibold ml-1">reload to re-authenticate</button>
+  </div>
+  <div x-show="connectionState === 'offline'" x-cloak
+       class="bg-rose-600 text-rose-50 px-4 py-2 text-center text-sm shrink-0">
+    Offline — actions are not reaching BMO. Check connection.
+  </div>
+
   <!-- Top Bar -->
   <header class="h-[60px] shrink-0 bg-surface flex items-center justify-between px-4 text-base border-b border-surface-light z-10 relative"
           @click="tab = 'calendar'">
@@ -21,6 +32,9 @@
       <span x-text="dateStr" class="text-text-muted text-sm"></span>
     </div>
     <div class="flex items-center gap-3">
+      <!-- QA #6: live overall-health pill -->
+      <span :class="healthPillClass()" class="px-2 py-0.5 rounded-full text-xs font-medium"
+            x-text="healthSummary" @click.stop></span>
       <span x-show="weather.temperature !== null" class="text-text-muted text-sm">
         <span x-text="weather.temperature + '°F'"></span>
         <span x-text="weatherIcon(weather.icon)" class="ml-1 text-base"></span>
