@@ -9,6 +9,7 @@ import { useBastionStore } from '../stores/use-bastion-store'
 import { useCampaignStore } from '../stores/use-campaign-store'
 import { useCharacterStore } from '../stores/use-character-store'
 import { useGameStore } from '../stores/use-game-store'
+import { useLobbyStore } from '../stores/use-lobby-store'
 import { totalSecondsFromDateTime } from '../utils/calendar-utils'
 
 export default function InGamePage(): JSX.Element {
@@ -48,7 +49,14 @@ export default function InGamePage(): JSX.Element {
   }, [])
 
   const campaign = campaigns.find((c) => c.id === campaignId) ?? null
-  const isDM = networkRole === 'host' || (networkRole === 'none' && campaign?.dmId === 'local')
+  // Phase 17b — CoDM gets the same gameplay perms + view as DM (full
+  // hidden-token visibility, DM-only stat lines, fog brush, kick, etc.).
+  // Host-management actions (promote/demote, transfer-host) stay gated to
+  // the literal host elsewhere; for the InGame view itself, CoDM === DM.
+  const localPeerId = useNetworkStore((s) => s.localPeerId)
+  const lobbyPlayers = useLobbyStore((s) => s.players)
+  const localIsCoDM = lobbyPlayers.some((p) => p.peerId === localPeerId && p.isCoDM === true)
+  const isDM = networkRole === 'host' || localIsCoDM || (networkRole === 'none' && campaign?.dmId === 'local')
   const effectiveDM = isDM || networkRole === 'none'
   const playerCharacter = characters.find((c) => c.campaignId === campaignId) ?? characters[0] ?? null
 

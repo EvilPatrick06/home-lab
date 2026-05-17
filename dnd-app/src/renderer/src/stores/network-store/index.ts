@@ -130,7 +130,10 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
         })
       )
       setGameStateProvider((peerInfo: PeerInfo) =>
-        buildFilteredStateForRole(peerInfo.role ?? (peerInfo.isHost ? 'host' : 'player'))
+        // Phase 17b — CoDM peers see the same full state as the literal host.
+        buildFilteredStateForRole(
+          peerInfo.isCoDM === true ? 'host' : (peerInfo.role ?? (peerInfo.isHost ? 'host' : 'player'))
+        )
       )
 
       set({
@@ -283,7 +286,11 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
           sequence: 0
         }
         for (const p of peers) {
-          const role = p.role ?? (p.isHost ? 'host' : 'player')
+          // Phase 17b — CoDM peers receive the unfiltered host view of state
+          // updates (hidden-token transitions, etc.). Only the literal host
+          // role short-circuits visibility transforms; promote a CoDM to
+          // 'host' for transform purposes too.
+          const role = p.isCoDM === true ? 'host' : (p.role ?? (p.isHost ? 'host' : 'player'))
           const transformed = transformUpdatePayloadForPeer(payload, role)
           if (transformed === null) continue
           const message: NetworkMessage = {
