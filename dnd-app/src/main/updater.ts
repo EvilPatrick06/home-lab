@@ -215,13 +215,17 @@ export function registerUpdateHandlers(): void {
     // next tick so the renderer's await resolves cleanly before any
     // quit sequence begins.
     //
-    // Always pass isSilent=true on this path. The user has already
-    // explicitly clicked "Restart and install" in the app — there's
-    // no value in popping another NSIS wizard on top of that. With
-    // oneClick=false in our nsis config, a non-silent install shows
-    // the full wizard, and any cancel/close-X aborts the install and
-    // relaunches the OLD version (the bug user reported in v2.1.23).
-    setImmediate(() => performInstall(true))
+    // Pass isSilent=false so the user sees a small progress modal
+    // during install. The no-click-through behavior the user wants
+    // comes from `oneClick: true` in the nsis build config — that's
+    // a build-time flag that makes the installer skip the wizard
+    // pages and auto-run. `isSilent=true` on top of oneClick goes
+    // fully silent (no UI at all), which suppresses the very
+    // progress indicator we want to keep. v2.1.29 had both set,
+    // which is why "no progress, doesn't seem to do anything" was
+    // the symptom — the installer was silently running and either
+    // completing or failing with no feedback.
+    setImmediate(() => performInstall(false))
     return { state: 'installing' as const }
   })
 }
