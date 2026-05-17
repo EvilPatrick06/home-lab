@@ -18,6 +18,23 @@ import MainContentArea5e from './MainContentArea5e'
 
 const SPECIES_WITH_SPELL_ABILITY = ['elf', 'tiefling', 'gnome']
 
+// Phase 17p — character builder data sourcing.
+//
+// All entity data (species, classes, subclasses, backgrounds, feats,
+// spells, magic items, etc.) is sourced from the same `load5e*` helpers
+// in `services/data-provider.ts` that the LibraryPage uses, so the
+// builder and library share a single source of truth — there is no
+// separate "builder subset" data file.
+//
+// What the user perceives as "missing fields" is per-tab UI rendering
+// that picks specific fields relevant to a given build step. To see
+// every field on an entry, use the floating "Library" button (Phase
+// 17m) in the top-right of the builder — it routes to the LibraryPage
+// with `?from=` so the back button comes here. A future phase can wire
+// per-entry deep-linking (e.g. `/library?from=...&entry=elf`) but
+// for now the builder's per-step panels stay scoped to the relevant
+// fields by design.
+
 export default function CharacterBuilder5e(): JSX.Element {
   const navigate = useNavigate()
   const location = useLocation()
