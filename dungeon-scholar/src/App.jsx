@@ -4661,6 +4661,11 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
 
 function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, awardXP, recordAnswer, checkAchievement, playerState, updateTomeProgress, domainFilter, onExitFilter }) {
   const [index, setIndex] = useState(0);
+  // Phase 35d QA P3: user-facing session progress counter, decoupled from
+  // deck position. Increments only on `next()` so a refresh-resume (which
+  // restores the index via questionId and may land at a different deck
+  // position in the new shuffle) doesn't make the counter jump.
+  const [progressCount, setProgressCount] = useState(0);
   const [answered, setAnswered] = useState(null);
   const [textAnswer, setTextAnswer] = useState('');
   const [streak, setStreak] = useState(0);
@@ -4708,12 +4713,18 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
       setIndex(saved.index);
       if (saved.confidence) setConfidence(saved.confidence);
     }
+    // Phase 35d QA P3: restore the session-progress counter too. If the
+    // saved session doesn't have it (legacy), default to 0 so the counter
+    // still shows "Riddle 1 of N" rather than jumping to a deck-position
+    // index that may have shifted in the new shuffle.
+    if (typeof saved.progressCount === 'number' && saved.progressCount >= 0) {
+      setProgressCount(saved.progressCount);
+    }
   }, [questions, tomeId, domainFilter]);
 
-  // Phase 30b/33b QA #2: persist the current index + question id + confidence
-  // whenever they change so a refresh-mid-quiz resumes the exact question
-  // (not just the position). Skip persistence under a domain filter — the
-  // filtered deck shape isn't stable across refreshes.
+  // Phase 30b/33b/35d QA #2 + P3: persist the current index + question id +
+  // confidence + session-progress counter so a refresh-mid-quiz resumes
+  // both the exact question AND a stable user-facing counter.
   useEffect(() => {
     if (domainFilter) return;
     saveSession(SESSION_KIND.QUIZ, {
@@ -4721,8 +4732,9 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
       index,
       questionId: questions[index]?.id ?? null,
       confidence,
+      progressCount,
     });
-  }, [index, tomeId, domainFilter, questions, confidence]);
+  }, [index, tomeId, domainFilter, questions, confidence, progressCount]);
 
   // Phase 30g QA #12: keyboard answers for Riddles. 1/2/3 picks confidence;
   // after confidence is set, 1-9 or A-Z indexes MC options, T/F picks
@@ -4835,6 +4847,10 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
     setTextAnswer('');
     setConfidence(null);
     setIndex((index + 1) % questions.length);
+    // Phase 35d QA P3: bump the user-facing counter only on explicit
+    // advance, never on index restoration. This is what keeps "Riddle X of N"
+    // stable across a refresh-resume.
+    setProgressCount(p => p + 1);
   };
 
   // Phase 30g: keep keyRef in sync with the latest closure values so the
@@ -4881,7 +4897,7 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
       )}
       <div className="flex justify-between items-center text-sm text-amber-600 italic flex-wrap gap-2">
         <span className="flex items-center gap-2 flex-wrap">
-          🔮 Riddle {index + 1} of {questions.length}
+          🔮 Riddle {Math.min(progressCount + 1, questions.length)} of {questions.length}
           {/* Phase 35c QA P4: per-riddle difficulty only. The tome-avg
               fallback (Phase 32e) was visually identical across every riddle
               and gave the misleading impression that the difficulty was
