@@ -28,6 +28,17 @@ process.on('unhandledRejection', (reason) => {
 // Register plugin:// scheme as privileged (must be before app.whenReady)
 registerPluginScheme()
 
+// Force the X11 backend on Linux. Electron's ozone auto-detection picks
+// Wayland when `XDG_SESSION_TYPE=wayland`, but several common Wayland
+// compositors (the one in stock Ubuntu 22 Hyper-V VMs, GNOME-on-WSLg,
+// some Cinnamon/Xfce hybrid sessions) negotiate a surface that the
+// Electron renderer then fails to draw — processes stay alive, no
+// window appears. X11 is the safer default; Wayland users running a
+// native session can override with --ozone-platform=wayland.
+if (process.platform === 'linux' && !app.commandLine.hasSwitch('ozone-platform')) {
+  app.commandLine.appendSwitch('ozone-platform', 'x11')
+}
+
 const gotTheLock = app.requestSingleInstanceLock()
 if (!gotTheLock) {
   app.quit()
@@ -57,15 +68,24 @@ function createWindow(): void {
     }
   })
 
-  // Explicitly set taskbar icon
+  // Explicitly set taskbar icon. Windows wants .ico; Linux/macOS prefer
+  // a PNG (nativeImage can technically load .ico on Linux but does so
+  // unreliably depending on the distro's ICO codec). Pick the right
+  // file by platform so setIcon never silently no-ops.
+  const iconExt = process.platform === 'win32' ? 'ico' : 'png'
+  const iconBasename = `icon.${iconExt}`
   const iconPath = app.isPackaged
-    ? join(process.resourcesPath, 'icon.ico')
-    : join(__dirname, '../../resources/icon.ico')
-  const appIcon = nativeImage.createFromPath(iconPath)
-  if (!appIcon.isEmpty()) {
-    mainWindow.setIcon(appIcon)
-  } else {
-    logToFile('WARN', `Failed to load app icon from: ${iconPath}`)
+    ? join(process.resourcesPath, iconBasename)
+    : join(__dirname, '../../resources', iconBasename)
+  try {
+    const appIcon = nativeImage.createFromPath(iconPath)
+    if (!appIcon.isEmpty()) {
+      mainWindow.setIcon(appIcon)
+    } else {
+      logToFile('WARN', `Failed to load app icon from: ${iconPath}`)
+    }
+  } catch (err) {
+    logToFile('WARN', `nativeImage threw on ${iconPath}`, err instanceof Error ? err.message : String(err))
   }
 
   // Content Security Policy — relax inline restrictions in dev for Vite HMR
