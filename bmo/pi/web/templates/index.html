@@ -98,9 +98,13 @@
         <canvas id="bmo-face-canvas" class="mx-auto" style="image-rendering: pixelated;" width="320" height="240"></canvas>
         <div class="text-xs text-text-dim mt-4" x-text="clock"></div>
       </div>
-      <!-- QA #27: tap-to-exit hint, low-contrast so it doesn't compete -->
-      <div class="absolute bottom-6 inset-x-0 text-center text-[11px] text-text-dim tracking-wide">
-        Tap to exit
+      <!-- QA #28 round 2 (2026-05-17): more prominent — small pill with
+           border, brighter text, gentle pulse so the user notices the
+           affordance even if they were looking at the face. -->
+      <div class="absolute bottom-6 inset-x-0 flex items-center justify-center pointer-events-none">
+        <div class="px-3 py-1 rounded-full bg-surface/60 border border-text-dim/30 text-text-muted text-xs tracking-wide animate-pulse">
+          👆 Tap anywhere to exit
+        </div>
       </div>
     </div>
 

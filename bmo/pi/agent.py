@@ -138,6 +138,25 @@ def _local_chat(messages: list[dict], options: dict | None = None) -> str:
                 f"`ollama pull {LOCAL_MODEL}` or check internet connectivity."
             )
         raise
+    except (ConnectionError, OSError) as e:
+        # Round 2 #17 (2026-05-17): Ollama daemon not running at all (e.g.
+        # systemd unit stopped) raises a connection error rather than a
+        # ResponseError. Same user-facing fix: surface a readable message.
+        print(f"[agent] ERROR ollama daemon unreachable: {e}")
+        return (
+            "BMO's local-fallback Ollama daemon isn't running and the cloud "
+            "APIs are unreachable. Ask the Pi admin to `systemctl start ollama` "
+            "or check internet connectivity."
+        )
+    except Exception as e:
+        # Catch-all so a fallback exception never bubbles as an opaque
+        # stack trace into the UI (#17 root cause: generic failure shown).
+        print(f"[agent] ERROR local fallback failed: {type(e).__name__}: {e}")
+        return (
+            f"BMO's local-fallback model couldn't generate a reply "
+            f"({type(e).__name__}). Cloud APIs are also unreachable. "
+            f"Check `journalctl -u bmo` and `systemctl status ollama` on the Pi."
+        )
 
 
 # ── Tiered Model Router ──────────────────────────────────────────────

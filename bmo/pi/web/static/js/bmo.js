@@ -998,6 +998,25 @@ function bmo() {
             role: m.role, text: m.text, speaker: m.speaker,
             incomplete: !!m.incomplete,
           }));
+          // QA Round 2 #23 (2026-05-17): backend persistence saves the user
+          // turn immediately but only saves the assistant turn at the end
+          // of _finish_chat_response. If the user refreshed mid-stream, the
+          // assistant turn is missing entirely. Detect this pattern (trailing
+          // user turn with no assistant reply, > 15s old) and append a visual
+          // interrupted marker — not persisted, just rendered.
+          const last = this.messages[this.messages.length - 1];
+          if (last && last.role === 'user') {
+            const lastSourceTs = history[history.length - 1]?.ts || 0;
+            const nowSec = Date.now() / 1000;
+            if (lastSourceTs && (nowSec - lastSourceTs) > 15) {
+              this.messages.push({
+                role: 'assistant',
+                text: '',
+                incomplete: true,
+                interruptedByRefresh: true,
+              });
+            }
+          }
           this.scrollChat();
         }
       } catch (e) {
@@ -1324,6 +1343,13 @@ function bmo() {
 
     async searchMusic() {
       if (!this.musicQuery.trim()) return;
+      // QA Round 2 #14 (2026-05-17): also clear any pending debounced
+      // search so Enter doesn't race with the typing-debounce timer
+      // (which can fire after Enter completes and overwrite results).
+      if (this._searchTimer) {
+        clearTimeout(this._searchTimer);
+        this._searchTimer = null;
+      }
       // QA #23 (2026-05-17): remember the active query so a refresh during
       // playback can re-execute it and the now-playing row highlights again.
       try {
@@ -3571,6 +3597,20 @@ function bmo() {
           if (!t.fired && typeof t.remaining === 'number' && t.remaining > 0 && t.remaining <= 60) return true;
         }
       }
+      // QA Round 2 #27 (2026-05-17): also defer when the user is actively
+      // working — focused text input, focused button, or chat input has
+      // any content. Mid-task ambient hijack was the headline complaint.
+      try {
+        const ae = document.activeElement;
+        if (ae && ae !== document.body) {
+          const tag = (ae.tagName || '').toUpperCase();
+          if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
+          if (ae.isContentEditable) return true;
+        }
+      } catch {}
+      if ((this.chatInput || '').trim()) return true;
+      if ((this.newNoteText || '').trim()) return true;
+      if ((this.musicQuery || '').trim()) return true;
       return false;
     },
 

@@ -1070,11 +1070,18 @@ def api_wifi_status():
     # QA #33 (2026-05-17): dashboard only renders {ssid, connected}; full
     # detail (BSSID/signal/channel/IP) is reachable behind CF Access via
     # /api/wifi/status/detail. Minimizes attack surface on a public hostname.
+    #
+    # QA Round 2 #6 (2026-05-17): the trim referenced `ssid`/`connected`
+    # keys that _wifi_status() doesn't return — it actually emits
+    # `current_ssid` + `wpa_state`. Map correctly here: connected ==
+    # wpa_state COMPLETED (handshake done) OR a non-empty SSID with an
+    # IP (catches non-WPA configs).
     full = _wifi_status()
-    return jsonify({
-        "ssid": full.get("ssid", "") or "",
-        "connected": bool(full.get("connected")),
-    })
+    ssid = (full.get("current_ssid") or full.get("ssid") or "").strip()
+    wpa_state = (full.get("wpa_state") or "").strip().upper()
+    has_ip = bool((full.get("ip_address") or "").strip())
+    connected = wpa_state == "COMPLETED" or (bool(ssid) and has_ip) or bool(full.get("internet"))
+    return jsonify({"ssid": ssid, "connected": connected})
 
 
 @app.route("/api/wifi/status/detail")
