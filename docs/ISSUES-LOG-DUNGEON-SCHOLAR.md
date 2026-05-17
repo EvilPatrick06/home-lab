@@ -16,6 +16,8 @@
 
 New entries go at the TOP of their severity section (newest first within each section).
 
+> **Phase 27 status (as of 2026-05-17):** The 38-finding Phase 27 audit (`/home/patrick/.claude/plans/dungeon-scholar-phase-27.md`) was planned but never implemented — only the audit-logging commit `bb531c76` landed. Phase 30 (the 2026-05-17 QA bundle, plan `/home/patrick/.claude/plans/dungeon-scholar-phase-30.md`) resolved the three findings that re-surfaced as QA bugs: **M1** (header aria-labels → 30h), **L2** (keyboard answers → 30g), **L6** (focus ring → 30f). The remaining 35 Phase 27 findings (H1–H7, M2–M13 except M1/M12, L1, L3–L5, L7–L18 except L2/L6, F2–F6) stay in the active logs pending a future phase.
+
 ---
 
 # Active Issues

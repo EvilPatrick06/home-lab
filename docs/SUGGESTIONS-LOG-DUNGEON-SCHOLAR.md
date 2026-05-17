@@ -21,6 +21,32 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+### [2026-05-17] QA16 — Full light theme / high-contrast variant
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** Claude Code (Opus 4.7) during Phase 30 QA review
+
+The app is dark-mode-only with low-contrast dim gold-on-dark-brown text in places (card descriptions, "Set thy exam date" hints, daily-quest reward text). Phase 30i did a minimal contrast bump on the most-touched copy but the broader theme work is its own phase. Consider either a true light theme + toggle or a deeper systematic contrast audit of every `text-amber-*/N` opacity used against the brown background.
+
+**Files:** `dungeon-scholar/src/index.css`, every dim-amber text site across `src/App.jsx`.
+
+---
+
+### [2026-05-17] QA-Bestiary — Surface difficulty + Bloom's level on individual riddles/scrolls
+
+- **Category:** future-idea
+- **Severity:** low
+- **Domain:** dungeon-scholar
+- **Discovered by:** Claude Code (Opus 4.7) during Phase 30 QA review
+
+Tome metadata already exposes difficulty + Bloom's level, but the per-item study UIs (Scrolls / Riddles / Trials) don't surface them inline. Adding small badges per question would let the player gauge difficulty mid-session and tune confidence calibration.
+
+**Files:** `dungeon-scholar/src/App.jsx` FlashcardsMode + QuizMode card / question header.
+
+---
+
 ### [2026-05-12] F6 — Offline-first PWA + background sync
 
 - **Category:** future-idea
@@ -313,6 +339,31 @@ Throughout App.jsx and components. Decorative icons make screen readers double-a
 # Design gotchas (warnings for future agents)
 
 *(none currently logged)*
+
+---
+
+# Info / observations
+
+### [2026-05-17] Phase 30 QA "Couldn't test" surfaces (next QA pass)
+
+- **Category:** info
+- **Severity:** minor
+- **Domain:** dungeon-scholar
+- **Discovered by:** Claude Code (Opus 4.7) during Phase 30 QA review
+
+The 2026-05-17 QA bundle could not exercise these surfaces; next QA pass should revisit them explicitly:
+
+- **Delete Account flow** — verified the button exists in AccountPanel alongside Sign Out + "Delete cloud save (keep this device)". Hard limit prevented running.
+- **Sign-in from a signed-out state** — would require fresh GitHub OAuth round-trip; the test session was already authenticated.
+- **Offline-during-sync behavior** — no DevTools network throttling control was available; the retry-with-backoff path (`usePlayerState` `RETRY_DELAYS_MS`) and the `'offline'` status flip remain manually-untested under real network failure.
+- **Responsive layouts at 375 / 768 px** — viewport meta tag is correct but `resize_window` in the test env was ignored. Mobile / tablet breakpoints are unverified.
+- **100+ tomes load** — would require importing many share codes; not attempted.
+- **Dungeon Delve full run** — prep screen (Tower of Network Defense, loadout, potion / hotkey slots) verified; combat / curse / final-boss flows untested.
+- **Daily Devotion claim + Path of Ascension token flow** — visible on Hearth but not exercised.
+- **The Stable / Bestiary** — visible at 0/5 and 0/20; interactions unexplored.
+- **Local-filesystem tome deletion** — off-limits per QA hard limits.
+
+These aren't bugs — they're known coverage gaps for the next QA round.
 
 ---
 
