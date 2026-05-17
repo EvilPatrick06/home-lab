@@ -3,6 +3,21 @@
 Follow this checklist once. After it's done, fill in `.env.local`
 (see `.env.example`) and the app will be able to sign in.
 
+> **Before you start:** figure out your deployed URL. It's
+> `https://<your-github-username>.github.io/<your-repo-name>/` — the
+> trailing slash is part of the path and matters.
+>
+> Worked examples used below:
+> - **Owner of this template** (repo `home-lab`, user `evilpatrick06`)
+>   → `https://evilpatrick06.github.io/home-lab/`
+> - **Fork following the default README** (repo `dungeon-scholar`, user
+>   `<your-username>`) → `https://<your-username>.github.io/dungeon-scholar/`
+>
+> Anywhere this doc shows `https://<your-username>.github.io/<your-repo>/`,
+> substitute *your* URL. Anywhere it shows the literal
+> `https://evilpatrick06.github.io/home-lab/`, that's the worked
+> example — replace it for your own deploy.
+
 ## 1. Create Supabase project
 
 1. Go to https://supabase.com → New Project.
@@ -48,7 +63,8 @@ if the table is already in the publication.
 
 1. https://github.com/settings/developers → OAuth Apps → New.
 2. Application name: `Dungeon Scholar`
-3. Homepage URL: `https://evilpatrick06.github.io/home-lab/`
+3. Homepage URL: `https://<your-username>.github.io/<your-repo>/`
+   (e.g. `https://evilpatrick06.github.io/home-lab/`)
 4. Authorization callback URL: copy from Supabase dashboard →
    Authentication → Providers → GitHub. It will look like
    `https://<project-ref>.supabase.co/auth/v1/callback`.

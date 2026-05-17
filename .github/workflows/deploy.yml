@@ -2,7 +2,7 @@ name: Deploy Dungeon Scholar to GitHub Pages
 
 on:
   push:
-    branches: [master]
+    branches: [main, master]
     paths:
       - 'dungeon-scholar/**'
       - '.github/workflows/deploy.yml'
@@ -36,6 +36,12 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          # GitHub Pages serves under /<repo-name>/. This owner's repo is
+          # `home-lab` (monorepo), so we override the default. Forks whose
+          # repo is named `dungeon-scholar` can delete this line entirely —
+          # vite.config.js defaults to `/dungeon-scholar/`. Forks with any
+          # other repo name should change `/home-lab/` here to `/<their-repo>/`.
+          VITE_BASE: /home-lab/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
