@@ -4281,18 +4281,10 @@ function ModeCard({ title, desc, icon, color, onClick, featured, disabled, disab
 }
 
 function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awardXP, updateTomeProgress, updateCardProgress, playerState, checkAchievement, domainFilter, onExitFilter, reviewMode, onExitReviewMode }) {
-  // Phase 30b QA #2: resume index from a saved session if it belongs to this
-  // tome and is in range. Review-mode decks are dynamic (filtered to due
-  // cards) so resume is intentionally skipped for them — they reset to 0.
-  const [index, setIndex] = useState(() => {
-    if (reviewMode) return 0;
-    const saved = loadSession(SESSION_KIND.FLASHCARDS);
-    if (!saved) return 0;
-    if (saved.tomeId && tomeId && saved.tomeId !== tomeId) return 0;
-    const total = (cardsProp && cardsProp.length) ? cardsProp.length : (courseSet?.flashcards?.length || 0);
-    if (typeof saved.index !== 'number' || saved.index < 0 || saved.index >= total) return 0;
-    return saved.index;
-  });
+  // Phase 33b QA P2: defer resume until `cards` is populated, and prefer
+  // cardId over raw index — App.jsx reshuffles each session so saved index
+  // would land on a different scroll.
+  const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [reviewed, setReviewed] = useState(0);
   // 26g: review-mode deck is frozen at entry — recomputing on every
@@ -4325,13 +4317,38 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
   }, [baseDeck, domainFilter, reviewMode, reviewDeck]);
   const card = cards[index];
 
-  // Phase 30b QA #2: persist the current index in non-review browse mode so
-  // a refresh resumes at the same scroll. Review mode is skipped because its
-  // deck is a dynamic snapshot of due cards — the index isn't portable.
+  // Phase 33b QA P2: resume from session AFTER `cards` is populated, by
+  // cardId. Once restored, the ref short-circuits.
+  const restoredRef = useRef(false);
+  useEffect(() => {
+    if (restoredRef.current) return;
+    if (reviewMode) return;
+    if (!cards || cards.length === 0) return;
+    restoredRef.current = true;
+    if (domainFilter) return;
+    const saved = loadSession(SESSION_KIND.FLASHCARDS);
+    if (!saved) return;
+    if (saved.tomeId && tomeId && saved.tomeId !== tomeId) return;
+    if (saved.cardId) {
+      const pos = cards.findIndex(c => c?.id === saved.cardId);
+      if (pos >= 0) { setIndex(pos); return; }
+    }
+    if (typeof saved.index === 'number' && saved.index >= 0 && saved.index < cards.length) {
+      setIndex(saved.index);
+    }
+  }, [cards, tomeId, reviewMode, domainFilter]);
+
+  // Phase 30b/33b QA P2: persist the current index + card id in non-review
+  // browse mode so a refresh resumes at the same scroll (by id, not just
+  // position). Review mode is skipped — its deck is a dynamic snapshot.
   useEffect(() => {
     if (reviewMode || domainFilter) return;
-    saveSession(SESSION_KIND.FLASHCARDS, { tomeId: tomeId ?? null, index });
-  }, [index, tomeId, reviewMode, domainFilter]);
+    saveSession(SESSION_KIND.FLASHCARDS, {
+      tomeId: tomeId ?? null,
+      index,
+      cardId: cards[index]?.id ?? null,
+    });
+  }, [index, tomeId, reviewMode, domainFilter, cards]);
 
   // 26g: 4-button SRS rating. Schedules the card and advances. In review
   // mode the index runs off the end of the (frozen) deck and we render
@@ -4509,17 +4526,7 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
 }
 
 function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, awardXP, recordAnswer, checkAchievement, playerState, updateTomeProgress, domainFilter, onExitFilter }) {
-  // Phase 30b QA #2: resume index from a saved session if it belongs to this
-  // tome and is still in range. Otherwise start at 0. Lazy initializer so
-  // we don't briefly flash the first question before snapping forward.
-  const [index, setIndex] = useState(() => {
-    const saved = loadSession(SESSION_KIND.QUIZ);
-    if (!saved) return 0;
-    if (saved.tomeId && tomeId && saved.tomeId !== tomeId) return 0;
-    const total = (questionsProp && questionsProp.length) ? questionsProp.length : (courseSet?.quiz?.length || 0);
-    if (typeof saved.index !== 'number' || saved.index < 0 || saved.index >= total) return 0;
-    return saved.index;
-  });
+  const [index, setIndex] = useState(0);
   const [answered, setAnswered] = useState(null);
   const [textAnswer, setTextAnswer] = useState('');
   const [streak, setStreak] = useState(0);
@@ -4539,14 +4546,49 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
   }, [baseDeck, domainFilter]);
   const q = questions[index];
 
-  // Phase 30b QA #2: persist the current index whenever it changes so a
-  // refresh-mid-quiz can resume where the user left off. Skip persistence
-  // when a domain filter is active — the filtered deck shape isn't stable
-  // across refreshes and a saved index would map to a different question.
+  // Phase 33b QA P2: resume from session AFTER `questions` is populated, by
+  // questionId rather than raw index — App.jsx reshuffles `questionsProp`
+  // every session, so saved index 3 may land on a different riddle. Saving
+  // the question's stable `id` and finding it in the new shuffle preserves
+  // continuity. Falls back to index if the id isn't found (e.g., deck
+  // membership changed). Once restored, the ref short-circuits so subsequent
+  // re-renders don't keep snapping back.
+  const restoredRef = useRef(false);
+  useEffect(() => {
+    if (restoredRef.current) return;
+    if (!questions || questions.length === 0) return;
+    restoredRef.current = true;
+    if (domainFilter) return;
+    const saved = loadSession(SESSION_KIND.QUIZ);
+    if (!saved) return;
+    if (saved.tomeId && tomeId && saved.tomeId !== tomeId) return;
+    if (saved.questionId) {
+      const pos = questions.findIndex(q => q?.id === saved.questionId);
+      if (pos >= 0) {
+        setIndex(pos);
+        if (saved.confidence) setConfidence(saved.confidence);
+        return;
+      }
+    }
+    if (typeof saved.index === 'number' && saved.index >= 0 && saved.index < questions.length) {
+      setIndex(saved.index);
+      if (saved.confidence) setConfidence(saved.confidence);
+    }
+  }, [questions, tomeId, domainFilter]);
+
+  // Phase 30b/33b QA #2: persist the current index + question id + confidence
+  // whenever they change so a refresh-mid-quiz resumes the exact question
+  // (not just the position). Skip persistence under a domain filter — the
+  // filtered deck shape isn't stable across refreshes.
   useEffect(() => {
     if (domainFilter) return;
-    saveSession(SESSION_KIND.QUIZ, { tomeId: tomeId ?? null, index });
-  }, [index, tomeId, domainFilter]);
+    saveSession(SESSION_KIND.QUIZ, {
+      tomeId: tomeId ?? null,
+      index,
+      questionId: questions[index]?.id ?? null,
+      confidence,
+    });
+  }, [index, tomeId, domainFilter, questions, confidence]);
 
   // Phase 30g QA #12: keyboard answers for Riddles. 1/2/3 picks confidence;
   // after confidence is set, 1-9 or A-Z indexes MC options, T/F picks
