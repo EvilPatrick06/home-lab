@@ -28,8 +28,30 @@ export interface GameMap {
     spatial: boolean
     playing?: boolean
   }>
+  /** Phase 16B — Map pins. Spatial bookmarks the DM can drop on the map
+   * with an optional link to a journal entry, NPC, or location. Pins
+   * persist with the map; not separate entities. */
+  pins?: MapPin[]
 
   createdAt: string
+}
+
+export type MapPinIcon = 'note' | 'quest' | 'shop' | 'danger' | 'npc' | 'custom'
+
+export interface MapPin {
+  id: string
+  gridX: number
+  gridY: number
+  label: string
+  icon: MapPinIcon
+  /** Hex color string for the pin chrome (e.g. `#f59e0b`). */
+  color: string
+  linkedJournalId?: string
+  linkedNpcId?: string
+  linkedLocationId?: string
+  /** When false, hidden from non-DM players. Default true. */
+  visibleToPlayers?: boolean
+  floor?: number
 }
 
 export interface TerrainCell {

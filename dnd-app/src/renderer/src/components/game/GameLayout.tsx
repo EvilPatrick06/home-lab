@@ -548,7 +548,13 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
     // 'select' if already active so 'r' acts as a true toggle.
     onOpenPlayerNotes: () => setActiveModal((m) => (m === 'playerNotes' ? null : 'playerNotes')),
     onOpenInventory: () => setActiveModal((m) => (m === 'item' ? null : 'item')),
-    onToggleMeasure: () => setActiveTool((t) => (t === 'measure' ? 'select' : 'measure'))
+    onToggleMeasure: () => setActiveTool((t) => (t === 'measure' ? 'select' : 'measure')),
+    // Phase 16A — center the camera on the local player's character.
+    onCenterOnMe: () => {
+      if (character?.id) {
+        useGameStore.getState().requestCenterOnEntity(character.id)
+      }
+    }
   })
 
   if (leaving)
@@ -900,6 +906,28 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
           mapId={activeMap.id}
           onClose={() => setEmptyCellMenu(null)}
           onPlaceToken={() => setActiveModal('creatures')}
+          // Phase 16B — DM-only Add Pin. Quick label prompt + save into
+          // map.pins via the existing updateMap method. A full pin-creation
+          // modal (icon picker / journal linker) is a follow-up; this MVP
+          // gets the data + visible marker working end-to-end.
+          onAddPin={
+            effectiveIsDM
+              ? (gridX, gridY) => {
+                  const label = window.prompt('Pin label?')
+                  if (!label || !activeMap) return
+                  const newPin = {
+                    id: `pin-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
+                    gridX,
+                    gridY,
+                    label: label.slice(0, 64),
+                    icon: 'note' as const,
+                    color: '#f59e0b',
+                    visibleToPlayers: true
+                  }
+                  useGameStore.getState().updateMap(activeMap.id, { pins: [...(activeMap.pins ?? []), newPin] })
+                }
+              : undefined
+          }
         />
       )}
       {!effectiveIsDM && showCompactHUD ? (

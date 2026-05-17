@@ -14,6 +14,8 @@ export interface GameShortcutCallbacks {
   onOpenPlayerNotes?: () => void
   onOpenInventory?: () => void
   onToggleMeasure?: () => void
+  /** Phase 16A — center camera on local player's character. */
+  onCenterOnMe?: () => void
 }
 
 /**
@@ -87,6 +89,10 @@ export function useGameShortcuts(isDM: boolean, callbacks: GameShortcutCallbacks
 
         case 'toggle-measure':
           cb.onToggleMeasure?.()
+          break
+
+        case 'center-on-me':
+          cb.onCenterOnMe?.()
           break
 
         case 'undo':

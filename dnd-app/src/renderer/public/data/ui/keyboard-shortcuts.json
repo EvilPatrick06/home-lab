@@ -25,5 +25,12 @@
   { "key": "y", "ctrl": true, "action": "redo", "description": "Redo", "category": "general" },
   { "key": "n", "action": "open-player-notes", "description": "Open My Notes (player)", "category": "tools" },
   { "key": "b", "action": "open-inventory", "description": "Open Inventory / Items (player)", "category": "tools" },
-  { "key": "r", "action": "toggle-measure", "description": "Activate Measure Tool (player)", "category": "tools" }
+  { "key": "r", "action": "toggle-measure", "description": "Activate Measure Tool (player)", "category": "tools" },
+  {
+    "key": "c",
+    "shift": true,
+    "action": "center-on-me",
+    "description": "Center camera on my character",
+    "category": "navigation"
+  }
 ]

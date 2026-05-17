@@ -13,6 +13,9 @@ interface EmptyCellContextMenuProps {
   mapId: string
   onClose: () => void
   onPlaceToken: () => void
+  /** Phase 16B — DM-only "Add Pin" handler. Prompts for a pin label and
+   *  saves a new pin at this cell. */
+  onAddPin?: (gridX: number, gridY: number) => void
 }
 
 export default function EmptyCellContextMenu({
@@ -22,7 +25,8 @@ export default function EmptyCellContextMenu({
   screenY,
   mapId,
   onClose,
-  onPlaceToken
+  onPlaceToken,
+  onAddPin
 }: EmptyCellContextMenuProps): JSX.Element {
   const menuRef = useRef<HTMLDivElement>(null)
   const [showSearch, setShowSearch] = useState(false)
@@ -136,6 +140,19 @@ export default function EmptyCellContextMenu({
           >
             Place Token
           </button>
+          {/* Phase 16B — DM-only "Add Pin" entry. Spatial bookmark on the map. */}
+          {onAddPin && (
+            <button
+              type="button"
+              onClick={() => {
+                onAddPin(gridX, gridY)
+                onClose()
+              }}
+              className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-gray-800 transition-colors cursor-pointer"
+            >
+              Add Pin
+            </button>
+          )}
         </>
       ) : (
         <div className="p-2 w-64">

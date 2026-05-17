@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useGameStore } from '../../../stores/use-game-store'
 import type { InitiativeEntry } from '../../../types/game-state'
 import { InitiativeTracker } from '../dm'
@@ -51,6 +51,26 @@ function PortraitCircle({
 export default function InitiativeOverlay({ isDM }: InitiativeOverlayProps): JSX.Element {
   const [expanded, setExpanded] = useState(false)
   const initiative = useGameStore((s) => s.initiative)
+  // Phase 16A — auto-pan to the active token whenever the turn changes.
+  // Re-uses the existing requestCenterOnEntity flag, so MapCanvas does the
+  // actual camera move. Skips hidden entries for non-host viewers so the
+  // 15c info-leak fix isn't undone (no panning the player camera to a
+  // hidden enemy's tile). Guards against missing entityId.
+  const activeEntryId = initiative?.entries[initiative.currentIndex]?.entityId ?? null
+  const activeEntryVisible = (() => {
+    if (!initiative) return false
+    const entry = initiative.entries[initiative.currentIndex]
+    if (!entry) return false
+    if (isDM) return true
+    if (entry.entityType === 'player') return true
+    const activeMap = useGameStore.getState().maps.find((m) => m.id === useGameStore.getState().activeMapId)
+    const token = activeMap?.tokens.find((t) => t.entityId === entry.entityId)
+    return token?.visibleToPlayers !== false
+  })()
+  useEffect(() => {
+    if (!activeEntryId || !activeEntryVisible) return
+    useGameStore.getState().requestCenterOnEntity(activeEntryId)
+  }, [activeEntryId, activeEntryVisible])
   const round = useGameStore((s) => s.round)
   const startInitiative = useGameStore((s) => s.startInitiative)
   const nextTurn = useGameStore((s) => s.nextTurn)
