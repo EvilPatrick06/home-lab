@@ -109,8 +109,34 @@ jobs:
       # resources/ollama/windows/ so electron-builder's win.extraResources
       # picks it up. Windows only — Linux AppImage exceeds GitHub's 2 GiB
       # asset cap with Ollama bundled.
-      - name: Bundle Ollama (Windows)
+      #
+      # Two-step caching: resolve the latest Ollama release tag, then
+      # restore the extracted tree from cache if we already shipped a
+      # build against that tag. The ~2 GB archive only downloads when
+      # the upstream tag bumps — saves 5–10 min per Windows release
+      # when Ollama hasn't changed since the prior cut.
+      - name: Resolve latest Ollama tag
         if: matrix.os == 'windows-latest'
+        id: ollama-tag
+        shell: bash
+        run: |
+          tag=$(curl -fsSL https://api.github.com/repos/ollama/ollama/releases/latest \
+                  -H "Accept: application/vnd.github+json" \
+                  -H "User-Agent: dnd-vtt-build" \
+                | jq -r '.tag_name')
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "Resolved Ollama tag: $tag"
+
+      - name: Cache bundled Ollama
+        if: matrix.os == 'windows-latest'
+        id: cache-ollama
+        uses: actions/cache@v4
+        with:
+          path: dnd-app/resources/ollama/windows
+          key: ollama-windows-${{ steps.ollama-tag.outputs.tag }}
+
+      - name: Bundle Ollama (Windows)
+        if: matrix.os == 'windows-latest' && steps.cache-ollama.outputs.cache-hit != 'true'
         run: node scripts/build/fetch-ollama.mjs --platform=windows
 
       # AppImage build needs GTK and friends on the runner so the bundled
