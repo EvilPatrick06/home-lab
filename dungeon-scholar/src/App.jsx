@@ -3873,6 +3873,8 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
           <h3 className="text-lg font-bold mb-3 text-amber-300 flex items-center gap-2 italic">
             <Settings className="w-5 h-5" /> ⚔ Sage Management ⚔
           </h3>
+          {/* Phase 33h QA P8: safe actions in one row, destructive in its own
+              row with a warning preamble so the user can't mis-click. */}
           <div className="flex flex-wrap gap-3">
             {!playerState.tutorialCompleted && !playerState.tutorialStarted && (
               <button onClick={onRestartTutorial} className="px-4 py-2 rounded flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic"
@@ -3887,10 +3889,15 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
               </button>
             )}
             {!signedIn && <SignInButton />}
+          </div>
+          <div className="mt-3 pt-3 border-t border-red-900/40">
+            <div className="text-[10px] uppercase tracking-wider italic text-red-400/80 mb-2 font-bold">⚠ Destructive</div>
             <button onClick={onResetProgress} className="px-4 py-2 rounded flex items-center gap-2 text-sm border-2 border-red-800 text-red-300 hover:bg-red-900/30 italic"
-              style={{ background: 'rgba(41, 12, 12, 0.7)' }}>
-              <RotateCcw className="w-4 h-4" /> Begin Anew
+              style={{ background: 'rgba(41, 12, 12, 0.7)' }}
+              aria-label="Begin Anew — permanently erases all local progress (a confirmation dialog will appear)">
+              <RotateCcw className="w-4 h-4" aria-hidden="true" /> Begin Anew
             </button>
+            <span className="ml-3 text-[10px] italic text-red-300/70">Erases all local progress. Confirmation required.</span>
           </div>
         </OrnatePanel>
 
@@ -4137,6 +4144,8 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
           <h3 className="text-lg font-bold mb-3 text-amber-300 flex items-center gap-2 italic">
             <Settings className="w-5 h-5" /> ⚔ Sage Management ⚔
           </h3>
+          {/* Phase 33h QA P8: safe actions in one row, destructive in its own
+              row with a warning preamble so the user can't mis-click. */}
           <div className="flex flex-wrap gap-3">
             {!playerState.tutorialCompleted && !playerState.tutorialStarted && (
               <button onClick={onRestartTutorial} className="px-4 py-2 rounded flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic"
@@ -4151,10 +4160,15 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
               </button>
             )}
             {!signedIn && <SignInButton />}
+          </div>
+          <div className="mt-3 pt-3 border-t border-red-900/40">
+            <div className="text-[10px] uppercase tracking-wider italic text-red-400/80 mb-2 font-bold">⚠ Destructive</div>
             <button onClick={onResetProgress} className="px-4 py-2 rounded flex items-center gap-2 text-sm border-2 border-red-800 text-red-300 hover:bg-red-900/30 italic"
-              style={{ background: 'rgba(41, 12, 12, 0.7)' }}>
-              <RotateCcw className="w-4 h-4" /> Begin Anew
+              style={{ background: 'rgba(41, 12, 12, 0.7)' }}
+              aria-label="Begin Anew — permanently erases all local progress (a confirmation dialog will appear)">
+              <RotateCcw className="w-4 h-4" aria-hidden="true" /> Begin Anew
             </button>
+            <span className="ml-3 text-[10px] italic text-red-300/70">Erases all local progress. Confirmation required.</span>
           </div>
         </OrnatePanel>
 
@@ -6821,9 +6835,15 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
             <Brain className="w-5 h-5 text-sky-300" style={{ filter: 'drop-shadow(0 0 6px rgba(59, 130, 246, 0.55))' }} />
             <h3 className="text-sm font-bold italic text-sky-200 tracking-wider">Memory Forecast</h3>
             <div className="flex-1 h-px bg-gradient-to-r from-sky-700/40 to-transparent" />
-            <span className="text-[10px] italic text-amber-700 tracking-wider">
-              {memoryCoverage.rated} of {memoryCoverage.total} scrolls rated
-            </span>
+            {/* Phase 33h: when forecast is locked, hide the redundant
+                "X of Y scrolls rated" badge — the same number is in the
+                consolidated unlock message below. Keep it visible once
+                the curve is drawing. */}
+            {memoryCoverage.rated >= 10 && (
+              <span className="text-[10px] italic text-amber-700 tracking-wider">
+                {memoryCoverage.rated} of {memoryCoverage.total} scrolls rated
+              </span>
+            )}
           </div>
 
           {memoryCoverage.rated === 0 ? (
@@ -6831,15 +6851,11 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
               ✦ Rate scrolls in any tome to begin charting thy memory decay. The Oracle of Memory hath not yet seen thee study.
             </div>
           ) : memoryCoverage.rated < 10 ? (
-            /* Phase 30e QA #11: gate the curve until the sample is large enough
-               to be meaningful. Below 10 rated scrolls the forecast was drawing
-               a confident-looking line from 3 data points, misleading the user
-               about coverage. Show the progress + a clear "needs N more" hint. */
-            <div className="text-xs italic text-amber-700 py-3 text-center space-y-2">
-              <div>✦ Forecast unlocks at 10 rated scrolls — {memoryCoverage.rated}/10 so far.</div>
-              <div className="text-amber-100/70">
-                Continue rating scrolls (any tome) to unlock the decay curve.
-              </div>
+            /* Phase 30e / 33h QA #11 + suggestion: gate the curve until the
+               sample is large enough; consolidate the two-line progress copy
+               into one ("Rate 7 more scrolls to unlock — 3/10 rated"). */
+            <div className="text-xs italic text-sky-300 py-3 text-center">
+              ✦ Rate {10 - memoryCoverage.rated} more scroll{(10 - memoryCoverage.rated) === 1 ? '' : 's'} to unlock the decay curve ({memoryCoverage.rated}/10 rated).
             </div>
           ) : (
             <>
@@ -9454,7 +9470,9 @@ function MetadataEditModal({ tome, onSave, onClose }) {
               maxLength={200}
               className="w-full p-2 rounded border-2 focus:outline-none italic text-amber-50"
               style={{ background: 'rgba(20, 12, 6, 0.7)', borderColor: 'rgba(180, 83, 9, 0.5)' }} />
-            <div className="text-[10px] italic text-amber-700/70 text-right mt-0.5 tabular-nums">
+            {/* Phase 33h QA P9: bumped char counter contrast (was
+                text-amber-700/70 — barely readable). */}
+            <div className="text-xs italic text-amber-300 text-right mt-1 tabular-nums">
               {title.length}/200
             </div>
           </div>
@@ -9465,7 +9483,7 @@ function MetadataEditModal({ tome, onSave, onClose }) {
               maxLength={600} rows={2}
               className="w-full p-2 rounded border-2 focus:outline-none italic text-amber-50"
               style={{ background: 'rgba(20, 12, 6, 0.7)', borderColor: 'rgba(180, 83, 9, 0.5)' }} />
-            <div className="text-[10px] italic text-amber-700/70 text-right mt-0.5 tabular-nums">
+            <div className="text-xs italic text-amber-300 text-right mt-1 tabular-nums">
               {description.length}/600
             </div>
           </div>
