@@ -12,6 +12,49 @@
 
 ---
 
+### [2026-05-17] Phase 31j — Full verification + couldn't-test carry-forward (BMO QA bundle close-out)
+
+- **Original QA bugs:** 2026-05-17 BMO QA report final pass.
+- **Category:** verification, docs
+- **Domain:** bmo
+- **Resolved by:** Claude Opus (Phase 31j)
+- **Date resolved:** 2026-05-17
+- **Resolution:**
+  - **Full test sweep:** `cd bmo/pi && source venv/bin/activate && pytest` → **810 passed, 6 skipped** (was 781 at start of Phase 31 — added 29 new tests across speaker normalization, circuit breaker, IDE blueprint, face state machine).
+  - **Services healthy:** `systemctl is-active bmo bmo-dm-bot bmo-social-bot bmo-fan` → all `active`. `/health` returns `{status:"ok"}`.
+  - **End-to-end smoke of every sub-phase fix path:**
+    - 31a: `curl POST /api/chat {"speaker":"voice:gavin"}` → returns `"speaker":"text"` (spoof downgraded).
+    - 31b: `/api/wifi/status` → `{"connected":false,"ssid":""}` (trimmed); `/api/wifi/status/detail` returns full diagnostics.
+    - 31c: `/api/ide/sandbox/roots` → `{roots:[/home-lab, .bmo_ide_workspace, /tmp]}`; `POST /api/ide/file/create {"content":"..."}` writes bytes_written count.
+    - 31d: `POST /api/tv/pair/cancel` → `{ok:true,message:"Pairing cancelled"}` (was hanging 30s+ pre-fix); `POST /api/tv/launch {"app":"youtube"}` → `{ok:true}` (was no-op).
+    - 31e: scene_change event emits BEFORE _apply_scene; weather card has freshness pill; mini-player is min-h shrink-0 sticky.
+    - 31f: `/api/leds` → status; `/api/face/expression` → `{expression:"idle"}`; BT scan rows render MAC tail.
+    - 31g: search input has @keydown.enter; localStorage stores last query; volume slider has live %.
+    - 31h: face_state SocketIO event emits on every _sync_expression; ambient suppression rules cover modals/audio/timers; tap-to-exit hint visible.
+    - 31i: scratchpad envelope + 64ch/32KB validators; notes 409 on duplicate; timer last-10s text-4xl + drop-shadow pulse; "(interrupted)" pill on incomplete assistant turns.
+
+#### Carry-forward — items the report listed as "Couldn't test" or that require user action
+
+The Phase 31 fix scope landed; these items are tracked separately:
+
+- **#5 (Calendar redirect_uri_mismatch) — user action still required.** Code fix landed in 31b; the OAuth client config in Google Cloud Console must be updated to whitelist `https://bmo.mybmoai.work/api/calendar/auth/callback`.
+- **Real-phone mobile-viewport reflow** — only DevTools emulation was exercised this session.
+- **Refresh-mid-stream against a deliberately slow model** — local model responded too fast to reliably catch the race window.
+- **`/api/service/restart-all`** — skipped to avoid taking BMO offline during the run.
+- **Discord DM session start/narrate flow** — off-limits per user instruction.
+- **Bluetooth pair/connect (full flow)** — scan-only; pair flow requires a real BT device test.
+- **Voice-profile deletion path** — not exercised this run.
+- **Long-dwell (5+ min) ambient face** — only briefly observed when ambient activated mid-test.
+- **Calendar end-to-end success** — blocked by `#5` user-action step above.
+- **TV-off scene transitions** — TV was on for this pass per user instruction.
+
+#### Deferred follow-ups (out of scope for Phase 31, tracked in active logs)
+
+- **Full BMO face visual redesign** — state machine unified in 31h; the asset-level redesign (canonical show-style proportions, shared keyframe atlas between web + OLED) deferred to a separate future phase.
+- **Controls tab full hydration skeleton** — 31e gated the System Status tile; remaining ~40 Controls subsections still hydrate independently. Visible-on-open content no longer shows wrong defaults; sub-tile flicker fix is a follow-up.
+
+---
+
 ### [2026-05-17] Phase 31i — Scratchpad schema, chat-stream interrupt marker, timer last-10s pulse, notes dedup
 
 - **Original QA bugs:** 2026-05-17 BMO QA report Problems #22, #24, #29, #30, #31.
