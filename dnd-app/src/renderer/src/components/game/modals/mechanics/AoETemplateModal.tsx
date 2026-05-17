@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { MapToken } from '../../../../types/map'
 import type { AoEConfig, AoEShape, Direction8 } from '../../map/aoe-overlay'
 import { getAoECells } from '../../map/aoe-overlay'
@@ -9,6 +9,10 @@ interface AoETemplateModalProps {
   gridHeight: number
   onPlace: (config: AoEConfig) => void
   onClose: () => void
+  /** QA-S3: live preview overlay on the map while the DM adjusts the
+   * config. Called on every config change with the current AoEConfig,
+   * and once with null on unmount so a cancel clears the overlay. */
+  onPreview?: (config: AoEConfig | null) => void
 }
 
 const SHAPES: Array<{ id: AoEShape; label: string; desc: string; needsDirection: boolean }> = [
@@ -38,7 +42,8 @@ export default function AoETemplateModal({
   gridWidth,
   gridHeight,
   onPlace,
-  onClose
+  onClose,
+  onPreview
 }: AoETemplateModalProps): JSX.Element {
   const [shape, setShape] = useState<AoEShape>('sphere')
   const [sizeFeet, setSizeFeet] = useState(20)
@@ -62,6 +67,17 @@ export default function AoETemplateModal({
     }),
     [shape, sizeFeet, originX, originY, currentShape.needsDirection, direction, widthFeet]
   )
+
+  // QA-S3: keep the live preview overlay in sync with the modal's
+  // current config; clear it on cancel/close.
+  useEffect(() => {
+    onPreview?.(config)
+  }, [config, onPreview])
+  useEffect(() => {
+    return () => {
+      onPreview?.(null)
+    }
+  }, [onPreview])
 
   // Preview: count affected cells and tokens
   const affectedCells = useMemo(() => getAoECells(config), [config])

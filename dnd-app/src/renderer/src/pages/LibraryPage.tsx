@@ -56,6 +56,7 @@ export default function LibraryPage(): JSX.Element {
     deleteHomebrewEntry,
     recentlyViewed,
     addToRecentlyViewed,
+    clearRecentlyViewed,
     favorites,
     toggleFavorite
   } = useLibraryStore()
@@ -608,9 +609,16 @@ export default function LibraryPage(): JSX.Element {
                   {/* Recently Viewed */}
                   {recentlyViewed.length > 0 && (
                     <section className="mb-8">
-                      <h2 className="text-lg font-bold text-gray-200 mb-3 border-b border-gray-800 pb-2">
-                        Recently Viewed
-                      </h2>
+                      <div className="flex items-center justify-between mb-3 border-b border-gray-800 pb-2">
+                        <h2 className="text-lg font-bold text-gray-200">Recently Viewed</h2>
+                        <button
+                          onClick={clearRecentlyViewed}
+                          className="text-[10px] uppercase tracking-wider text-gray-500 hover:text-red-400 transition-colors cursor-pointer"
+                          title="Clear Recently Viewed list"
+                        >
+                          Clear
+                        </button>
+                      </div>
                       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
                         {recentlyViewed.slice(0, 10).map((item) => {
                           const def = getCategoryDef(item.category)

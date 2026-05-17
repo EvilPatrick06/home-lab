@@ -368,6 +368,14 @@ export default function TreasureGeneratorModal({
           {/* Results */}
           {result && (
             <div className="space-y-3">
+              {/* QA-S5: surface the table that was actually rolled so a
+                  modest payout (e.g. just 12 GP) reads as a system
+                  outcome rather than a UX bug. */}
+              <div className="px-3 py-2 rounded-md bg-gray-900/60 border border-gray-800 text-[11px] text-gray-400">
+                Rolled <span className="text-amber-300 font-semibold">{type === 'hoard' ? 'Hoard' : 'Individual'}</span>{' '}
+                Treasure on the <span className="text-gray-200">CR {crTier}</span>{' '}
+                {type === 'hoard' ? '2024 DMG hoard table' : '2024 DMG basic-coins table'}.
+              </div>
               {/* Coins */}
               <div className="bg-gray-800 rounded-lg border border-gray-700 p-3">
                 <h3 className="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-2">Coins</h3>

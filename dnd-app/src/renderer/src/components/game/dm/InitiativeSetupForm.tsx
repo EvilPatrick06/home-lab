@@ -296,10 +296,22 @@ export default function InitiativeSetupForm({
           </div>
 
           <div className="flex gap-2">
+            {/* QA-S1: disable + Add when the last row still has an empty
+                name. Without this, users could stack phantom blank-name
+                Foe rows that silently vanished when Roll Initiative
+                pruned them. */}
             <button
               onClick={onAddNewEntryRow}
+              disabled={newEntries.length > 0 && !newEntries[newEntries.length - 1].name.trim()}
+              title={
+                newEntries.length > 0 && !newEntries[newEntries.length - 1].name.trim()
+                  ? 'Enter a name on the current row first'
+                  : undefined
+              }
               className="flex-1 py-1.5 text-xs rounded-lg bg-gray-800 text-gray-400
-                hover:bg-gray-700 hover:text-gray-200 transition-colors cursor-pointer"
+                hover:bg-gray-700 hover:text-gray-200 transition-colors cursor-pointer
+                disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-800
+                disabled:hover:text-gray-400"
             >
               + Add
             </button>

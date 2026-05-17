@@ -6,6 +6,7 @@ import { useGameEffects } from '../../hooks/use-game-effects'
 import { useGameHandlers } from '../../hooks/use-game-handlers'
 import { useGameNetwork } from '../../hooks/use-game-network'
 import { useGameShortcuts } from '../../hooks/use-game-shortcuts'
+import { addToast } from '../../hooks/use-toast'
 import type { PortalEntryInfo } from '../../hooks/use-token-movement'
 import { useTokenMovement } from '../../hooks/use-token-movement'
 import { buildContentIndex } from '../../services/library/content-index'
@@ -419,6 +420,21 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
       })
     }
   }, [activeMap?.id, character, gameStore])
+
+  // QA-S8: surface a toast when the campaign calendar preset changes
+  // mid-session. The change can happen behind the DM's back (a co-DM,
+  // a campaign-settings edit, or another open window). Without a
+  // notification the DM doesn't notice their dates suddenly read in a
+  // different format.
+  const prevCalendarPresetRef = useRef<string | null>(campaign.calendar?.preset ?? null)
+  useEffect(() => {
+    const next = campaign.calendar?.preset ?? null
+    const prev = prevCalendarPresetRef.current
+    if (prev !== null && next !== null && prev !== next) {
+      addToast(`Calendar changed to ${next.replace(/-/g, ' ')}.`, 'info')
+    }
+    prevCalendarPresetRef.current = next
+  }, [campaign.calendar?.preset])
 
   const handleViewModeToggle = (): void => {
     if (viewMode === 'player') {

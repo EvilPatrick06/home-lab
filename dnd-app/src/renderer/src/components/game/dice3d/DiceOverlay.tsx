@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useAccessibilityStore } from '../../../stores/use-accessibility-store'
 import DiceRenderer, { type DiceRollRequest } from './DiceRenderer'
 import type { DiceColors, DieType } from './dice-meshes'
 import { DEFAULT_DICE_COLORS } from './dice-meshes'
@@ -145,6 +146,24 @@ export default function DiceOverlay(): JSX.Element {
 
       const totalDice = groups.reduce((sum, g) => sum + g.count, 0)
       if (totalDice === 0) return
+
+      // QA-S9: honor the Reduced Motion accessibility toggle. The 3D
+      // canvas uses Three.js + cannon-es physics which CSS transitions
+      // can't reach, so we read the store directly here and skip the
+      // 3D path entirely — emit the tray entry immediately so the
+      // result still shows up in the rolling history.
+      if (useAccessibilityStore.getState().reducedMotion) {
+        emitTrayEntry({
+          id: `tray-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          formula: event.formula,
+          rolls: event.rolls,
+          total: event.total,
+          rollerName: event.rollerName,
+          timestamp: Date.now(),
+          isHidden: event.isHidden
+        })
+        return
+      }
 
       const request: DiceRollRequest = {
         dice: groups,

@@ -45,6 +45,7 @@ interface LibraryState {
   deleteHomebrewEntry: (category: string, id: string) => Promise<boolean>
 
   addToRecentlyViewed: (item: LibraryItem) => void
+  clearRecentlyViewed: () => void
   toggleFavorite: (itemId: string) => void
   isFavorite: (itemId: string) => boolean
 }
@@ -115,6 +116,18 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
     set({ recentlyViewed: next })
     try {
       localStorage.setItem(SETTINGS_KEYS.LIBRARY_RECENT, JSON.stringify(next))
+    } catch {
+      /* ignore */
+    }
+  },
+
+  // QA-S6: surface a Clear button on the Recently Viewed row so users
+  // can drop accidental clicks instead of waiting for them to fall off
+  // the 20-entry slice.
+  clearRecentlyViewed: () => {
+    set({ recentlyViewed: [] })
+    try {
+      localStorage.removeItem(SETTINGS_KEYS.LIBRARY_RECENT)
     } catch {
       /* ignore */
     }

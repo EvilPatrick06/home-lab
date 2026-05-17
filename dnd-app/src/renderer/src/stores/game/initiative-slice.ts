@@ -252,9 +252,12 @@ export const createInitiativeSlice: StateCreator<GameStoreState, [], [], Initiat
   },
 
   endInitiative: () => {
+    // QA-S2: don't clobber `turnMode` here. The mode is the DM's
+    // campaign-level preference; ending combat means clearing the
+    // initiative array + resetting the round counter, not silently
+    // flipping every campaign back to 'free' after one fight.
     set({
       initiative: null,
-      turnMode: 'free',
       round: 0
     })
 

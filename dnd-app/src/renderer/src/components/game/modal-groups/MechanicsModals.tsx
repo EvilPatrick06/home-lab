@@ -106,6 +106,10 @@ export default function MechanicsModals({
             setActiveAoE(config)
             close()
           }}
+          // QA-S3: live preview — flow the modal's current config to
+          // the same activeAoE slot the placed overlay uses so the DM
+          // sees the template on the map while adjusting.
+          onPreview={setActiveAoE}
           onClose={close}
         />
       )}

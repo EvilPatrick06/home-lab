@@ -61,10 +61,31 @@ export const useCampaignStore = create<CampaignState>((set, get) => ({
       const diskCampaigns = rawData.filter(
         (c) => c != null && typeof c === 'object' && typeof (c as Record<string, unknown>).id === 'string'
       ) as unknown as Campaign[]
+
+      // QA-S7 migration: if a campaign predates the inviteCode field, mint
+      // one and persist it back so subsequent host-starts reuse the same
+      // code instead of regenerating per session. Without this, older
+      // saves (e.g. anything created before invite codes were introduced
+      // and any campaign saved with a falsy inviteCode field) would get
+      // a fresh code every time host-manager fell through to
+      // `generateInviteCode()`.
+      const migrated: Campaign[] = []
+      for (const campaign of diskCampaigns) {
+        if (!campaign.inviteCode || typeof campaign.inviteCode !== 'string') {
+          const repaired = { ...campaign, inviteCode: generateInviteCode() }
+          migrated.push(repaired)
+          window.api.saveCampaign(repaired as unknown as Record<string, unknown>).catch((err) => {
+            logger.warn(`Failed to persist migrated inviteCode for campaign ${campaign.id}:`, err)
+          })
+        } else {
+          migrated.push(campaign)
+        }
+      }
+
       set((state) => {
-        const diskIds = new Set(diskCampaigns.map((c) => c.id))
+        const diskIds = new Set(migrated.map((c) => c.id))
         const inMemoryOnly = state.campaigns.filter((c) => !diskIds.has(c.id))
-        return { campaigns: [...diskCampaigns, ...inMemoryOnly], loading: false }
+        return { campaigns: [...migrated, ...inMemoryOnly], loading: false }
       })
     } catch (error) {
       logger.error('Failed to load campaigns:', error)

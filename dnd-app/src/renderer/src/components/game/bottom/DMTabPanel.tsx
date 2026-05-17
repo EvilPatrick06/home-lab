@@ -119,6 +119,9 @@ export default function DMTabPanel({ onOpenModal, campaign, onDispute, onEditMap
         )
 
       case 'magic':
+        // QA-S4: tab used to be just AoE + Custom Effect. Surface the
+        // other magic-adjacent modals that already exist elsewhere so
+        // the tab matches the density of Combat / DM Tools.
         return (
           <div className="flex flex-wrap gap-1.5">
             <button className={btnClass} onClick={() => onOpenModal('aoe')}>
@@ -126,6 +129,18 @@ export default function DMTabPanel({ onOpenModal, campaign, onDispute, onEditMap
             </button>
             <button className={btnClass} onClick={() => onOpenModal('customEffect')}>
               Custom Effect
+            </button>
+            <button className={btnClass} onClick={() => onOpenModal('spellRef')}>
+              Spell Reference
+            </button>
+            <button className={btnClass} onClick={() => onOpenModal('lightSource')}>
+              Light Source
+            </button>
+            <button className={btnClass} onClick={() => onOpenModal('summonCreature')}>
+              Summon Creature
+            </button>
+            <button className={btnClass} onClick={() => onOpenModal('quickCondition')}>
+              Apply Condition
             </button>
           </div>
         )
