@@ -12,6 +12,24 @@
 
 ---
 
+### [2026-05-17] Phase 31i — Scratchpad schema, chat-stream interrupt marker, timer last-10s pulse, notes dedup
+
+- **Original QA bugs:** 2026-05-17 BMO QA report Problems #22, #24, #29, #30, #31.
+- **Category:** bug, ux, api-design
+- **Domain:** bmo
+- **Resolved by:** Claude Opus (Phase 31i)
+- **Date resolved:** 2026-05-17
+- **Resolution:**
+  - **#22 (Scratchpad schema undocumented):** Inline schema block at the top of the `/api/scratchpad` route group in `app.py` documents the GET response (`{sections: {<name>: <content>}}`), POST request (required `section` ≤64ch, `content` ≤32KB, optional `append`), DELETE request (optional `section`). New `_scratchpad_validate` enforces the contract; previously the POST silently defaulted `section="Notes"`/`content=""`. POST response now returns `{success, section, bytes}` with the UTF-8 byte count.
+  - **#31 (Home notes accept duplicates silently):** `POST /api/notes` returns `409 {error:"duplicate", existing:<note>}` on case-insensitive text match unless the body sets `allow_duplicate=true`. Frontend `addNote()` catches the 409 and shows `confirm("...Add anyway?")` before re-posting with the override flag. Dedup check + insert happen under a single `notes_lock` acquisition.
+  - **#29 (Timer last-10s visual is unchanged from earlier countdown):** Timer card font size bumps from `text-3xl` → `text-4xl` in the last 10 seconds, gains a red drop-shadow glow + animate-pulse. The existing amber-at-60s tier preserved.
+  - **#24 (Refresh-mid-stream truncates assistant turn):** Server-side: `_finish_chat_response` already tags `result["incomplete"]=True` on detected Code-Agent tail truncation and saves to history. Frontend: `loadChatHistory` now propagates `m.incomplete` into the rendered messages. Template renders an "(interrupted — try asking again)" italic pill under any assistant message with `incomplete=true`. Future refresh-mid-stream cases land here cleanly.
+  - **#30 (Final ~1 line missing from visible message):** Double-scroll fix in the `chat_response` handler — calls `scrollChat()` immediately AND in `$nextTick(() => this.scrollChat())` so the freshly-pushed message reaches the DOM before the scroll target is computed. Previously the last line sometimes sat below the visible window.
+- **Verified:** `pytest tests/test_app_endpoints.py` → 31 passed. Live smoke: `curl /api/scratchpad` → `{sections:{}}`; `POST /api/notes {"text":"smoke note 31i"}` → 200 once, then 409 duplicate; `POST {...,allow_duplicate:true}` → 200; cleanup via DELETE confirmed.
+- **Touched files:** `bmo/pi/app.py`, `bmo/pi/web/static/js/bmo.js`, `bmo/pi/web/templates/index.html`.
+
+---
+
 ### [2026-05-17] Phase 31h — Unified face_state machine, idle/ambient suppression, fade + exit hint
 
 - **Original QA bugs:** 2026-05-17 BMO QA report Problems #26, #27, #28.

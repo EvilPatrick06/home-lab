@@ -1458,36 +1458,85 @@ def api_agents():
     return jsonify({"agents": [], "mode": "normal"})
 
 
+# QA #22 (2026-05-17): Scratchpad request/response schema.
+#
+#   GET  /api/scratchpad
+#     → 200 { "sections": { <section_name: str>: <content: str>, ... } }
+#     The wrapping `sections` envelope replaces the bare flat dict so future
+#     metadata (last_updated, version) can be added without breaking clients.
+#
+#   POST /api/scratchpad
+#     ← { "section": <str, required, max 64 chars>,
+#         "content": <str, required, max 32 KB>,
+#         "append":  <bool, optional, default false> }
+#     → 200 { "success": true, "section": <str>, "bytes": <int> }
+#     → 400 on missing/invalid fields, 503 on no-agent.
+#
+#   DELETE /api/scratchpad
+#     ← { "section": <str, optional> }   omit to clear all sections.
+#     → 200 { "success": true }
+#
+# Documented inline so any future renderer / integration can call it
+# without spelunking through bmo.js. The handlers below enforce the
+# contract; payloads outside it return 400 (was: silent default to
+# section="Notes", content="").
+_SCRATCHPAD_MAX_SECTION_LEN = 64
+_SCRATCHPAD_MAX_CONTENT_LEN = 32 * 1024
+
+
+def _scratchpad_validate(data: dict) -> tuple[str | None, str | None, bool, str | None]:
+    """Validate write payload. Returns (section, content, append, error)."""
+    section = data.get("section")
+    content = data.get("content", "")
+    append = bool(data.get("append", False))
+    if not isinstance(section, str) or not section.strip():
+        return None, None, False, "`section` is required and must be a non-empty string"
+    if len(section) > _SCRATCHPAD_MAX_SECTION_LEN:
+        return None, None, False, f"`section` exceeds {_SCRATCHPAD_MAX_SECTION_LEN} chars"
+    if not isinstance(content, str):
+        return None, None, False, "`content` must be a string"
+    if len(content) > _SCRATCHPAD_MAX_CONTENT_LEN:
+        return None, None, False, f"`content` exceeds {_SCRATCHPAD_MAX_CONTENT_LEN} chars"
+    return section.strip(), content, append, None
+
+
 @app.route("/api/scratchpad")
 def api_scratchpad():
-    """Read the shared scratchpad."""
+    """Read the shared scratchpad. Response shape:
+       { sections: {<name>: <content>, ...} }   (QA #22 envelope)."""
     if agent and agent.orchestrator:
-        return jsonify(agent.orchestrator.scratchpad.to_dict())
-    return jsonify({})
+        return jsonify({"sections": agent.orchestrator.scratchpad.to_dict()})
+    return jsonify({"sections": {}})
 
 
 @app.route("/api/scratchpad", methods=["POST"])
 def api_scratchpad_write():
-    """Write to the shared scratchpad."""
+    """Write to the shared scratchpad. See schema doc above."""
+    if not (agent and agent.orchestrator):
+        return jsonify({"error": "Agent not initialized"}), 503
     data = request.json or {}
-    section = data.get("section", "Notes")
-    content = data.get("content", "")
-    append = data.get("append", False)
-    if agent and agent.orchestrator:
-        agent.orchestrator.scratchpad.write(section, content, append)
-        return jsonify({"success": True})
-    return jsonify({"error": "Agent not initialized"}), 500
+    section, content, append, err = _scratchpad_validate(data)
+    if err:
+        return jsonify({"error": err}), 400
+    agent.orchestrator.scratchpad.write(section, content, append)
+    return jsonify({
+        "success": True,
+        "section": section,
+        "bytes": len(content.encode("utf-8")),
+    })
 
 
 @app.route("/api/scratchpad", methods=["DELETE"])
 def api_scratchpad_clear():
-    """Clear scratchpad section(s)."""
+    """Clear scratchpad section(s). Body: {section: str} optional."""
+    if not (agent and agent.orchestrator):
+        return jsonify({"error": "Agent not initialized"}), 503
     data = request.json or {}
     section = data.get("section")
-    if agent and agent.orchestrator:
-        agent.orchestrator.scratchpad.clear(section)
-        return jsonify({"success": True})
-    return jsonify({"error": "Agent not initialized"}), 500
+    if section is not None and (not isinstance(section, str) or not section.strip()):
+        return jsonify({"error": "`section` must be a non-empty string if provided"}), 400
+    agent.orchestrator.scratchpad.clear(section.strip() if section else None)
+    return jsonify({"success": True})
 
 
 @app.route("/api/init", methods=["POST"])
@@ -3345,17 +3394,31 @@ def api_notes():
 
 @app.route("/api/notes", methods=["POST"])
 def api_notes_create():
+    """Create a note. QA #31 (2026-05-17): returns 409 when a duplicate
+    (case-insensitive text match) already exists, unless the request
+    body sets `allow_duplicate=true`. The 409 body includes the matching
+    note so the UI can offer "add anyway" without a second lookup."""
     data = request.json or {}
     text = data.get("text", "").strip()
     if not text:
         return jsonify({"error": "No text provided"}), 400
-    note = {
-        "id": str(int(time.time() * 1000)),
-        "text": text,
-        "done": False,
-        "created": time.time(),
-    }
+    allow_dup = bool(data.get("allow_duplicate", False))
     with STATE.notes_lock:
+        if not allow_dup:
+            lowered = text.lower()
+            for existing in STATE.notes_list:
+                if isinstance(existing, dict) and existing.get("text", "").strip().lower() == lowered:
+                    return jsonify({
+                        "error": "duplicate",
+                        "message": "A note with this text already exists.",
+                        "existing": existing,
+                    }), 409
+        note = {
+            "id": str(int(time.time() * 1000)),
+            "text": text,
+            "done": False,
+            "created": time.time(),
+        }
         STATE.notes_list.append(note)
         _save_notes_locked()
     return jsonify(note)

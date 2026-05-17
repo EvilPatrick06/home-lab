@@ -702,7 +702,12 @@ function bmo() {
           incomplete: data.incomplete === true
         });
         if (data.agent_used) this.agentUsed = data.agent_used;
+        // QA #30 (2026-05-17): double-tick the scroll so the freshly-pushed
+        // message reaches the DOM before the scroll fires. Without this,
+        // the final line of long responses occasionally sat below the
+        // visible scroll window (looked like a "dropped tokens" bug).
         this.scrollChat();
+        this.$nextTick(() => this.scrollChat());
         const codeDelay = (data.agent_used === 'code') ? 6000 : 2000;
         setTimeout(() => { this.status = 'idle'; }, codeDelay);
       });
@@ -986,7 +991,13 @@ function bmo() {
         const res = await fetch('/api/chat/history');
         const history = await res.json();
         if (Array.isArray(history) && history.length > 0) {
-          this.messages = history.map(m => ({ role: m.role, text: m.text, speaker: m.speaker }));
+          // QA #24 (2026-05-17): surface `incomplete` so the renderer can
+          // show the "(interrupted)" pill on assistant turns that died mid-
+          // generation (refresh during stream, Code Agent truncation, etc.)
+          this.messages = history.map(m => ({
+            role: m.role, text: m.text, speaker: m.speaker,
+            incomplete: !!m.incomplete,
+          }));
           this.scrollChat();
         }
       } catch (e) {
@@ -2376,11 +2387,23 @@ function bmo() {
       const text = this.newNoteText.trim();
       if (!text) return;
       try {
-        await fetch('/api/notes', {
+        const res = await fetch('/api/notes', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ text }),
         });
+        if (res.status === 409) {
+          // QA #31 (2026-05-17): duplicate — ask before re-adding.
+          if (confirm('A note with this text already exists. Add anyway?')) {
+            await fetch('/api/notes', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ text, allow_duplicate: true }),
+            });
+          } else {
+            return;
+          }
+        }
         this.newNoteText = '';
         this.fetchNotes();
       } catch {}

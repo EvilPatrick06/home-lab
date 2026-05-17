@@ -299,6 +299,11 @@
                  :class="msg.role === 'user' ? 'max-w-[75%] bg-accent text-surface-dark' : (msg.role === 'progress' ? (msg.failed ? 'text-xs text-red-400 italic' : 'text-xs text-text-dim italic') : (msg.isRecap ? 'max-w-[75%] bg-accent-dim/30 text-accent-light italic border border-accent-dim' : (msg.incomplete ? 'max-w-[75%] bg-surface-light text-text border border-amber-500/40' : 'max-w-[75%] bg-surface-light text-text')))">
               <div x-show="msg.speaker && msg.role === 'user'" class="text-xs opacity-70 mb-0.5" x-text="msg.speaker"></div>
               <div class="select-text" x-text="msg.text"></div>
+              <!-- QA #24 (2026-05-17): explicit "(interrupted)" pill when an
+                   assistant message was persisted partial — usually because
+                   the user refreshed mid-stream. -->
+              <div x-show="msg.role === 'assistant' && msg.incomplete"
+                   class="text-xs text-amber-400/80 italic mt-1">(interrupted — try asking again)</div>
             </div>
           </div>
         </template>
@@ -1273,8 +1278,12 @@
             <!-- Info -->
             <div class="flex-1 min-w-0">
               <div class="text-sm text-text-muted truncate" x-text="item.label"></div>
-              <div class="text-3xl font-mono leading-tight"
-                   :class="item.remaining <= 10 ? 'text-red-400 animate-pulse' : item.remaining <= 60 ? 'text-amber-400' : 'text-accent'"
+              <!-- QA #29 (2026-05-17): more obvious last-10s emphasis —
+                   bump font + red ring pulse so the user notices before the
+                   audio alert. The base existing tier (<=60 amber, default
+                   accent) is preserved for earlier countdown phases. -->
+              <div class="font-mono leading-tight transition-all"
+                   :class="item.remaining > 0 && item.remaining <= 10 ? 'text-red-400 animate-pulse text-4xl drop-shadow-[0_0_8px_rgba(248,113,113,0.5)]' : item.remaining <= 60 ? 'text-amber-400 text-3xl' : 'text-accent text-3xl'"
                    x-text="formatCountdown(item.remaining)"></div>
             </div>
             <!-- Target time, date & repeat for alarms -->
