@@ -71,7 +71,13 @@ function OrgPicker({ orgs, onPick, onClose }) {
         </button>
       </div>
       <div className="p-4 overflow-y-auto flex-1">
-        <p className="text-sm text-amber-100/80 mb-4 italic">
+        {/* Phase 30i (Suggestion): make it explicit that this flow generates
+            a prompt the user pastes into their AI of choice — the app does
+            not call an LLM directly. */}
+        <p className="text-xs text-amber-300/90 mb-2 italic">
+          ⓘ This generates a prompt to paste into your AI (Claude, ChatGPT, Gemini, etc.). Dungeon Scholar does not call an LLM directly.
+        </p>
+        <p className="text-sm text-amber-100/85 mb-4 italic">
           &ldquo;Choose the order whose exams thou wouldst conquer. Each holds a tome-forging spell tuned to its trials.&rdquo;
         </p>
         <div className="space-y-2">

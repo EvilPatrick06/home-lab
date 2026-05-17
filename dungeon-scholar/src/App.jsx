@@ -8884,7 +8884,7 @@ function WelcomeModal({ onStart, onSkip }) {
             "Long has the realm awaited thy arrival. Within these halls, knowledge becomes adventure — riddles become quests, scrolls become spells of memory, and every studied page brings thee closer to mastery."
           </p>
           <p className="text-amber-100/70 italic text-sm">
-            Wouldst thou follow the path of the Scholar's Awakening? A fourteen-step tutorial shall guide thee through each of these sacred halls. Or thou mayest set forth alone, if thy spirit demands it.
+            Wouldst thou follow the path of the Scholar&apos;s Awakening? A {TUTORIAL_STEPS.length}-step tutorial shall guide thee through each of these sacred halls. Or thou mayest set forth alone, if thy spirit demands it.
           </p>
           <div className="text-xs text-amber-700 italic mt-4">
             ✦ Completing the Awakening grants the title <span className="text-amber-300 font-bold">The Initiated</span> ✦
@@ -9001,10 +9001,32 @@ function TutorialPanel({ stepIndex, collapsed, onToggle, onAdvance, onSkip, onAc
   );
 }
 
+// Phase 30i QA #19: tomes whose share code exceeds this threshold default to
+// the "Download JSON" path. The raw code is still available behind a
+// disclosure, but pasting a 250 KB string into chat apps + textareas misbehaves.
+const SHARE_LARGE_THRESHOLD = 50_000;
+
+function downloadTomeJson(tome) {
+  try {
+    const json = JSON.stringify(tome.data, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${(tome.data?.metadata?.title || 'tome').replace(/[^a-z0-9-_]+/gi, '_')}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch { /* ignore */ }
+}
+
 function ShareTomeModal({ tome, onClose }) {
   const [copied, setCopied] = useState(false);
   const textareaRef = useRef(null);
   const code = useMemo(() => tome ? encodeTomeShareCode(tome.data) : null, [tome]);
+  const isLarge = (code?.length || 0) > SHARE_LARGE_THRESHOLD;
+  const [showRawCode, setShowRawCode] = useState(false);
 
   const copy = () => {
     if (!code) return;
@@ -9039,40 +9061,92 @@ function ShareTomeModal({ tome, onClose }) {
           <h3 className="text-xl font-bold text-purple-300 flex items-center gap-2 italic">
             <Share2 className="w-5 h-5" /> ✦ Share Thy Tome ✦
           </h3>
-          <button onClick={onClose} className="p-2 hover:bg-purple-900/30 rounded text-purple-300">
+          <button onClick={onClose} className="p-2 hover:bg-purple-900/30 rounded text-purple-300" aria-label="Close share dialog">
             <X className="w-5 h-5" />
           </button>
         </div>
         <div className="p-4 overflow-y-auto flex-1 flex flex-col gap-3">
-          <p className="text-sm text-amber-100/80 italic">
-            "Below is the sacred share code for <span className="text-amber-300 font-bold">{tome.data.metadata.title}</span>. Share it with fellow scholars — they may import it via the Hash sigil to receive the tome."
+          <p className="text-sm text-amber-100/85 italic">
+            &ldquo;Share <span className="text-amber-300 font-bold">{tome.data.metadata.title}</span> with fellow scholars. They may import it via the Hash sigil (Share Code) or by loading the downloaded JSON file.&rdquo;
           </p>
           <div className="text-xs text-purple-400 italic">
-            Code length: {code?.length || 0} characters
+            Code length: {code?.length || 0} characters ({Math.round((code?.length || 0) / 1024)} KB)
           </div>
-          <textarea
-            ref={textareaRef}
-            value={code || ''}
-            readOnly
-            className="flex-1 min-h-[200px] p-3 rounded border-2 focus:outline-none text-amber-50 font-mono text-xs"
-            style={{
-              background: 'rgba(10, 6, 4, 0.7)',
-              borderColor: 'rgba(126, 34, 206, 0.5)',
-              fontFamily: 'monospace',
-              wordBreak: 'break-all',
-            }}
-            onFocus={(e) => e.target.select()}
-          />
-          <p className="text-xs text-amber-700 italic">
-            ⚠ Note: The code contains the entire tome's contents. Larger tomes produce longer codes — for very large tomes, sharing the JSON file directly may be more practical.
-          </p>
+          {isLarge ? (
+            // Phase 30i QA #19: large tomes default to the file path. The raw
+            // share code is still reachable behind a disclosure for users who
+            // need it (e.g., pasting into a chat that strips attachments).
+            <>
+              <div className="p-3 rounded text-sm italic" style={{
+                background: 'rgba(120, 53, 15, 0.35)',
+                border: '1px solid rgba(245, 158, 11, 0.5)',
+                color: '#fde68a',
+              }}>
+                ⚠ This tome is large ({Math.round((code?.length || 0) / 1024)} KB). Sharing as a JSON file is more reliable than pasting the raw code — many chat apps truncate or mangle long strings.
+              </div>
+              <button
+                onClick={() => downloadTomeJson(tome)}
+                className="py-3 font-bold rounded flex items-center justify-center gap-2 text-amber-50 border-2 border-emerald-300 italic"
+                style={{ background: 'linear-gradient(to bottom, #10b981 0%, #047857 100%)', boxShadow: '0 0 20px rgba(16, 185, 129, 0.5)' }}
+              >
+                <Download className="w-4 h-4" /> Download Tome JSON
+              </button>
+              <details
+                className="text-xs italic text-amber-700/85"
+                onToggle={(e) => setShowRawCode(e.currentTarget.open)}
+              >
+                <summary className="cursor-pointer hover:text-amber-300">
+                  {showRawCode ? '▾' : '▸'} Show raw share code anyway
+                </summary>
+                <div className="mt-2 space-y-2">
+                  <textarea
+                    ref={textareaRef}
+                    value={code || ''}
+                    readOnly
+                    className="w-full min-h-[120px] p-3 rounded border-2 focus:outline-none text-amber-50 font-mono text-xs"
+                    style={{ background: 'rgba(10, 6, 4, 0.7)', borderColor: 'rgba(126, 34, 206, 0.5)', fontFamily: 'monospace', wordBreak: 'break-all' }}
+                    onFocus={(e) => e.target.select()}
+                  />
+                  <button
+                    onClick={copy}
+                    className="w-full py-2 rounded flex items-center justify-center gap-2 text-amber-50 border-2 border-purple-300 italic text-sm"
+                    style={{ background: 'linear-gradient(to bottom, #a855f7 0%, #6b21a8 100%)' }}
+                  >
+                    {copied ? <><Check className="w-4 h-4" /> Inscribed!</> : <><Copy className="w-4 h-4" /> Copy Share Code</>}
+                  </button>
+                </div>
+              </details>
+            </>
+          ) : (
+            <>
+              <textarea
+                ref={textareaRef}
+                value={code || ''}
+                readOnly
+                className="flex-1 min-h-[200px] p-3 rounded border-2 focus:outline-none text-amber-50 font-mono text-xs"
+                style={{ background: 'rgba(10, 6, 4, 0.7)', borderColor: 'rgba(126, 34, 206, 0.5)', fontFamily: 'monospace', wordBreak: 'break-all' }}
+                onFocus={(e) => e.target.select()}
+              />
+              <p className="text-xs text-amber-700/85 italic">
+                ⚠ The code contains the entire tome&apos;s contents. Or download as a JSON file if you prefer.
+              </p>
+              <button
+                onClick={() => downloadTomeJson(tome)}
+                className="text-xs italic text-emerald-300 hover:text-emerald-200 flex items-center gap-1 self-start"
+              >
+                <Download className="w-3 h-3" /> Download as JSON file instead
+              </button>
+            </>
+          )}
         </div>
         <div className="p-4 border-t border-purple-700/50 flex gap-2">
           <button onClick={onClose} className="px-6 py-3 rounded border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(41, 24, 12, 0.7)' }}>Close</button>
-          <button onClick={copy} className="flex-1 py-3 font-bold rounded flex items-center justify-center gap-2 text-amber-50 border-2 border-purple-300 italic"
-            style={{ background: 'linear-gradient(to bottom, #a855f7 0%, #6b21a8 100%)', boxShadow: '0 0 20px rgba(168, 85, 247, 0.5)' }}>
-            {copied ? <><Check className="w-4 h-4" /> Inscribed!</> : <><Copy className="w-4 h-4" /> Copy Share Code</>}
-          </button>
+          {!isLarge && (
+            <button onClick={copy} className="flex-1 py-3 font-bold rounded flex items-center justify-center gap-2 text-amber-50 border-2 border-purple-300 italic"
+              style={{ background: 'linear-gradient(to bottom, #a855f7 0%, #6b21a8 100%)', boxShadow: '0 0 20px rgba(168, 85, 247, 0.5)' }}>
+              {copied ? <><Check className="w-4 h-4" /> Inscribed!</> : <><Copy className="w-4 h-4" /> Copy Share Code</>}
+            </button>
+          )}
         </div>
       </div>
     </div>
