@@ -1593,12 +1593,12 @@ export default function DungeonScholarApp() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playerState.activeTomeId]);
 
-  // Phase 38a: showNotif now takes an optional `onClick` so achievement /
-  // title notifications can deep-link the user to the relevant Hall of Glory
-  // entry. Falls back to the dismiss-on-click behavior for plain notifs.
-  const showNotif = (msg, type = 'info', onClick = null) => {
+  // Phase 38a/39c: showNotif takes an optional `onClick` (for deep-links)
+  // and `timeoutMs` (so the resume/success toasts can auto-dismiss faster
+  // than the 3s achievement default).
+  const showNotif = (msg, type = 'info', onClick = null, timeoutMs = 3000) => {
     setNotification({ msg, type, onClick });
-    setTimeout(() => setNotification(null), 3000);
+    setTimeout(() => setNotification(null), timeoutMs);
   };
 
   const updateProgress = (updates) => {
@@ -3348,7 +3348,7 @@ export default function DungeonScholarApp() {
             onExitFilter={() => { setDomainFilter(null); setScreen('domainStudy'); }}
             reviewMode={reviewMode}
             onExitReviewMode={() => { setReviewMode(false); setScreen('home'); }}
-            onResumeNotify={(info) => showNotif(`Resumed Scroll ${info.index + 1} of ${info.total}`, 'success')}
+            onResumeNotify={(info) => showNotif(`Resumed Scroll ${info.index + 1} of ${info.total}`, 'success', null, 1500)}
           />
         )}
         {screen === 'quiz' && courseSet && (
@@ -3366,7 +3366,7 @@ export default function DungeonScholarApp() {
             onExitFilter={() => { setDomainFilter(null); setScreen('domainStudy'); }}
             onResumeNotify={(info) => showNotif(
               `Resumed Riddle ${Math.min(info.progressCount + 1, info.total)} of ${info.total}${info.streak > 0 ? ` · Streak ${info.streak}` : ''}`,
-              'success',
+              'success', null, 1500,
             )}
           />
         )}
@@ -3404,7 +3404,7 @@ export default function DungeonScholarApp() {
               onExit={() => setScreen('home')}
               onResumeNotify={(info) => showNotif(
                 `Resumed trial — Riddle ${info.currentIdx + 1} of ${info.total} · ${info.remainingLabel} left`,
-                'success',
+                'success', null, 1500,
               )}
             />
           </React.Suspense>
@@ -9875,7 +9875,7 @@ function MetadataEditModal({ tome, onSave, onClose }) {
                 purple background) — NOT typeset LaTeX. Calling that out so
                 authors don't expect real KaTeX/MathJax output. */}
             <div className="text-[10px] italic text-amber-100/60 mt-1 leading-relaxed">
-              ⓘ Supported: <code className="text-amber-300">**bold**</code>, <code className="text-amber-300">*italic*</code>, <code className="text-amber-300">`inline code`</code>, <code className="text-amber-300">[link](url)</code>, <code className="text-amber-300">![alt](url)</code> images (data: or trusted hosts only), <code className="text-amber-300">$math$</code> (typeset via KaTeX), and fenced <code className="text-amber-300">```code```</code> blocks. (Headings, lists, and tables render as plain text.)
+              ⓘ Supported: <code className="text-amber-300">**bold**</code>, <code className="text-amber-300">*italic*</code>, <code className="text-amber-300">`inline code`</code>, <code className="text-amber-300">[link](url)</code>, <code className="text-amber-300">![alt](url)</code> images (data: or trusted hosts only), <code className="text-amber-300">$math$</code> (typeset via KaTeX, lazy-loaded on first use), and fenced <code className="text-amber-300">```code```</code> blocks. (Headings, lists, and tables render as plain text.)
             </div>
             {/* Phase 35a QA P1: legacy descriptions can exceed the limit. Show
                 an inline error + one-click Trim so the user has an explicit
