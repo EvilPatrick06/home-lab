@@ -109,13 +109,35 @@ def _cloud_chat(messages: list[dict], options: dict | None = None,
 
 
 def _local_chat(messages: list[dict], options: dict | None = None) -> str:
-    """Call local Ollama as fallback. Returns response text."""
-    response = ollama_client.chat(
-        model=LOCAL_MODEL,
-        messages=messages,
-        options=options or OLLAMA_OPTIONS,
-    )
-    return response["message"]["content"]
+    """Call local Ollama as fallback. Returns response text.
+
+    QA #4 (2026-05-17): when the configured LOCAL_MODEL isn't pulled, Ollama
+    raised an opaque 404 that surfaced to D&D / persona users as "model bmo
+    not found." Catch that case and return a human-readable message so the
+    user can act (pull the model, set BMO_LOCAL_MODEL, or restore cloud
+    connectivity)."""
+    try:
+        response = ollama_client.chat(
+            model=LOCAL_MODEL,
+            messages=messages,
+            options=options or OLLAMA_OPTIONS,
+        )
+        return response["message"]["content"]
+    except ollama_client.ResponseError as e:
+        status = getattr(e, "status_code", None)
+        if status == 404:
+            print(
+                f"[agent] ERROR ollama local fallback model '{LOCAL_MODEL}' "
+                f"not pulled. Either run `ollama pull {LOCAL_MODEL}` on the "
+                f"Pi, or set BMO_LOCAL_MODEL to a model that exists. Cloud "
+                f"APIs were likely also unreachable for this request."
+            )
+            return (
+                f"BMO's local-fallback model `{LOCAL_MODEL}` isn't installed "
+                f"and the cloud APIs are unreachable. Ask the Pi admin to run "
+                f"`ollama pull {LOCAL_MODEL}` or check internet connectivity."
+            )
+        raise
 
 
 # ── Tiered Model Router ──────────────────────────────────────────────

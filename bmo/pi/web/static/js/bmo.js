@@ -854,12 +854,14 @@ function bmo() {
     },
 
     approvePlan() {
-      this.socket.emit('chat_message', { message: 'yes', speaker: this.activePlayer || 'gavin', client_timezone: this.clientTimezone });
+      // QA #3: dedicated plan_approve event so the approval doesn't show up
+      // as a literal "yes" user turn in chat history / agent memory.
+      this.socket.emit('plan_approve', { client_timezone: this.clientTimezone });
       this.planStatus = 'executing';
     },
 
     rejectPlan() {
-      this.socket.emit('chat_message', { message: 'no', speaker: this.activePlayer || 'gavin', client_timezone: this.clientTimezone });
+      this.socket.emit('plan_reject', { client_timezone: this.clientTimezone });
       this.planMode = false;
       this.planStatus = 'idle';
     },
@@ -890,8 +892,9 @@ function bmo() {
         return;
       }
 
-      // Prefix with active player name if in D&D mode
-      const speaker = this.activePlayer || 'gavin';
+      // QA #2: typed input is "text"; only tag with voice:<profile> when the
+      // user has explicitly selected an "as <player>" persona for D&D mode.
+      const speaker = this.activePlayer ? `voice:${this.activePlayer}` : 'text';
       const displayMsg = this.activePlayer ? `[${this.activePlayer}] ${msg}` : msg;
       this.messages.push({ role: 'user', text: displayMsg, speaker: this.activePlayer || undefined });
       this.chatInput = '';
@@ -1032,7 +1035,8 @@ function bmo() {
           this.messages.push({ role: 'user', text: cmd });
           this.scrollChat();
           this.status = 'thinking';
-          this.socket.emit('chat_message', { message: diceMsg, speaker: 'gavin', client_timezone: this.clientTimezone });
+          // QA #2: /roll is typed via slash-command — tag as text not voice profile.
+          this.socket.emit('chat_message', { message: diceMsg, speaker: 'text', client_timezone: this.clientTimezone });
           return;
         }
       }

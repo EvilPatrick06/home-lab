@@ -103,7 +103,38 @@ def _cache_policy(response):
 # /api/chat input limits. Per-handler size cap + speaker allowlist + per-IP
 # rate-limit (see Limiter setup below) block the worst economic-attack shape.
 MAX_CHAT_MESSAGE_LEN = int(os.environ.get("BMO_MAX_CHAT_MESSAGE_LEN", "16384"))
-ALLOWED_CHAT_SPEAKERS = {"player", "dm", "discord", "kiosk", "user", "unknown"}
+# Source-of-input enum. Every persisted chat turn carries one of these (or a
+# `voice:<profile>` prefix). The legacy `player/dm/user/gavin` entries stay
+# for D&D-mode back-compat, but new typed UI traffic now uses `text` and
+# voice-pipeline writes use `voice:<profile>` — see _is_voice_speaker below.
+ALLOWED_CHAT_SPEAKERS = {
+    "text", "system", "discord", "kiosk", "unknown",
+    "player", "dm", "user", "gavin",
+}
+
+
+def _is_voice_speaker(speaker: str) -> bool:
+    """True iff this speaker tag claims voice-profile attribution (`voice:<name>`)."""
+    return isinstance(speaker, str) and speaker.startswith("voice:") and len(speaker) > len("voice:")
+
+
+def _normalize_chat_speaker(speaker, source_voice: bool = False) -> str:
+    """Drop voice-attribution claims that didn't come from the voice pipeline,
+    then map anything outside the enum to `unknown`. Defends the persisted
+    history (and downstream agent memory) from spoofed `speaker` fields.
+
+    `source_voice=True` is set ONLY by the voice pipeline and trusted internal
+    callers; QA #2 root cause was the typed-chat UI sending `speaker:'gavin'`
+    by default, which polluted per-profile memory."""
+    if not isinstance(speaker, str) or not speaker:
+        return "unknown"
+    if _is_voice_speaker(speaker) and not source_voice:
+        return "text"
+    if _is_voice_speaker(speaker):
+        return speaker
+    if speaker.lower() in ALLOWED_CHAT_SPEAKERS:
+        return speaker.lower()
+    return "unknown"
 
 
 # ── Rate limiting (cost-sensitive routes) ─────────────────────────────
@@ -1218,7 +1249,8 @@ def _strip_markdown(text: str) -> str:
 def api_chat():
     data = request.json or {}
     message = data.get("message", "")
-    speaker = data.get("speaker", "unknown")
+    raw_speaker = data.get("speaker", "unknown")
+    source_voice = bool(data.get("source_voice"))
 
     if not isinstance(message, str) or not message:
         return jsonify({"error": "No message provided"}), 400
@@ -1226,10 +1258,10 @@ def api_chat():
         return jsonify({
             "error": f"message too large (max {MAX_CHAT_MESSAGE_LEN} chars)"
         }), 413
-    # Speaker allowlist — prevents downstream agents from being tricked by
-    # a spoofed `speaker == "DM"` / `"system"` field.
-    if not isinstance(speaker, str) or speaker.lower() not in ALLOWED_CHAT_SPEAKERS:
-        speaker = "unknown"
+    # Drops voice-attribution claims that didn't come from the voice pipeline
+    # (QA #2: typed messages were being tagged with voice profile "gavin"),
+    # then enforces the speaker enum.
+    speaker = _normalize_chat_speaker(raw_speaker, source_voice=source_voice)
 
     # Save user message immediately
     _save_chat_message({"role": "user", "text": message, "speaker": speaker, "ts": time.time()})
@@ -4654,7 +4686,11 @@ def _finish_chat_response(sid, result, model_override, voice, speaker):
 def on_chat_message(data):
     from flask_socketio import emit
     message = data.get("message", "")
-    speaker = data.get("speaker", "unknown")
+    # QA #1/#2: drop voice-attribution claims that didn't come from the voice
+    # pipeline (the typed-chat UI used to default to speaker:"gavin"),
+    # then enforce the speaker enum before anything else persists.
+    speaker = _normalize_chat_speaker(data.get("speaker", "unknown"),
+                                     source_voice=bool(data.get("source_voice")))
     agent_override = data.get("agent")
     model_override = data.get("model")
     client_tz = _normalize_timezone(data.get("client_timezone")) or _pi_timezone()
@@ -4726,6 +4762,43 @@ def on_chat_message(data):
         emit("chat_response", {"text": f"Oops! BMO's brain got fuzzy: {e}", "speaker": speaker, "commands_executed": []})
         if agent_override != "code":
             _sync_expression("error")
+
+
+# QA #3: Plan-mode Approve / Reject sent literal "yes"/"no" as chat_message
+# turns, polluting history + persona memory. These dedicated events route the
+# decision through the agent's plan controller without persisting a user turn.
+@socketio.on("plan_approve")
+def on_plan_approve(data):
+    """User approved the current plan — resume plan execution WITHOUT writing a chat turn."""
+    from flask_socketio import emit
+    if not agent:
+        return
+    log.info("[plan] user approved plan")
+    sid = request.sid
+    client_tz = _normalize_timezone((data or {}).get("client_timezone")) or _pi_timezone()
+    try:
+        result = agent.chat("yes", speaker="system", client_timezone=client_tz)
+        _finish_chat_response(sid, result, None, voice, "system")
+    except Exception as e:
+        log.exception("[plan] approve failed")
+        emit("chat_response", {"text": f"Plan resume failed: {e}", "speaker": "system", "commands_executed": []})
+
+
+@socketio.on("plan_reject")
+def on_plan_reject(data):
+    """User rejected the current plan — abort planning WITHOUT writing a chat turn."""
+    from flask_socketio import emit
+    if not agent:
+        return
+    log.info("[plan] user rejected plan")
+    sid = request.sid
+    client_tz = _normalize_timezone((data or {}).get("client_timezone")) or _pi_timezone()
+    try:
+        result = agent.chat("no", speaker="system", client_timezone=client_tz)
+        _finish_chat_response(sid, result, None, voice, "system")
+    except Exception as e:
+        log.exception("[plan] reject failed")
+        emit("chat_response", {"text": f"Plan reject failed: {e}", "speaker": "system", "commands_executed": []})
 
 
 @socketio.on("client_timezone")

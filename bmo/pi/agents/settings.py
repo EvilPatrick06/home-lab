@@ -42,7 +42,13 @@ def _get_default_settings() -> dict:
             "dnd_model": os.environ.get("BMO_DND_MODEL", "claude-opus-4.6"),
             "cloud_timeout": 30,
             "cloud_health_check_interval": 60,
-            "local_model": "bmo",
+            # QA #4 (2026-05-17): the "bmo" custom Ollama model is not always
+            # pulled on fresh installs. When the cloud APIs are unreachable
+            # and the fallback fires, an unknown model surfaces as a 404 from
+            # Ollama (the D&D / persona path). Default to the upstream
+            # gemma3:4b so the fallback at least answers; users who actually
+            # pulled the custom "bmo" model can set BMO_LOCAL_MODEL=bmo.
+            "local_model": os.environ.get("BMO_LOCAL_MODEL", "gemma3:4b"),
             "ollama_options": ollama_opts,
             "ollama_plan_options": ollama_plan_opts,
         },

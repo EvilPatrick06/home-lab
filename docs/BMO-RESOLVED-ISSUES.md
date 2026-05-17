@@ -12,6 +12,23 @@
 
 ---
 
+### [2026-05-17] Phase 31a — Chat integrity: speaker enum, plan event, Ollama fallback safety
+
+- **Original QA bugs:** 2026-05-17 BMO QA report Problems #1, #2, #3, #4.
+- **Category:** bug, data-integrity, model-routing
+- **Domain:** bmo
+- **Resolved by:** Claude Opus (Phase 31a)
+- **Date resolved:** 2026-05-17
+- **Resolution:**
+  - **#1, #2 (chat attribution):** Added `_normalize_chat_speaker(speaker, source_voice)` in `bmo/pi/app.py`. The /api/chat HTTP route and the `chat_message` SocketIO handler both run incoming `speaker` through it before persisting. Voice-prefixed claims (`voice:<name>`) are downgraded to `text` unless the request body has `source_voice=True`, which only the voice pipeline sets. Enum expanded to include `text` + `system`; unknown values normalize to `unknown`.
+  - **Frontend (#2 root cause):** `bmo/pi/web/static/js/bmo.js:sendChat` used to default `speaker` to `'gavin'` (the voice profile name) for every typed message. Now sends `speaker: 'text'` for typed input and only `voice:<profile>` when the user explicitly selects a player persona. The `/roll` slash-command path also updated.
+  - **#3 (plan-mode "yes"):** Added dedicated `plan_approve` / `plan_reject` SocketIO events that route through `agent.chat()` with `speaker:'system'` and do NOT write a user turn to `recent_chat.json`. Frontend `approvePlan()` / `rejectPlan()` now emit those events instead of pushing a literal `"yes"` / `"no"` `chat_message`.
+  - **#4 (D&D 404, model `bmo`):** Default local Ollama model changed from `bmo` (often unpulled) to `gemma3:4b` in `bmo/pi/agents/settings.py`; admins who pulled the custom `bmo` model can set `BMO_LOCAL_MODEL=bmo`. `_local_chat()` in `bmo/pi/agent.py` now catches `ollama.ResponseError(404)` and returns a human-readable hint ("model not pulled, run `ollama pull X` or check connectivity") instead of bubbling the bare 404.
+- **Verified:** `pytest tests/test_chat_speaker.py tests/test_app_endpoints.py` — 40 passed (includes new SocketIO tests for `plan_approve` / `plan_reject`). Full suite: 781 passed, 6 skipped. Smoke: `curl POST /api/chat {"speaker":"voice:gavin"}` returned `speaker:"text"` confirming the normalizer downgrades spoofed voice claims.
+- **Touched files:** `bmo/pi/app.py`, `bmo/pi/agent.py`, `bmo/pi/agents/settings.py`, `bmo/pi/web/static/js/bmo.js`, `bmo/pi/tests/test_chat_speaker.py` (new), `bmo/pi/tests/test_app_endpoints.py`.
+
+---
+
 ### [2026-04-26] Test coverage tracker — `pytest-cov` + branch coverage with explicit production source list
 
 - **Original severity:** low (suggestion: "Test coverage tracker: enable `pytest --cov=bmo/pi --cov-report=term --cov-report=html`")

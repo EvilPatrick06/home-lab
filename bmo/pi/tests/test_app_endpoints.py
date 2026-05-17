@@ -470,3 +470,39 @@ class TestSocketIOEvents:
             assert isinstance(received, list)
         finally:
             bmo_module.agent = original
+
+    def test_plan_approve_event_does_not_raise(self, sio_client, bmo_app):
+        """QA #3 (2026-05-17): Approve button uses plan_approve, not chat_message."""
+        import app as bmo_module
+        original = bmo_module.agent
+        mock_agent = MagicMock()
+        mock_agent.chat = MagicMock(return_value={
+            "text": "Executing plan.", "commands_executed": [], "tags": {},
+            "agent_used": "plan", "speaker": "system",
+        })
+        mock_agent.model_override = None
+        bmo_module.agent = mock_agent
+        try:
+            sio_client.emit("plan_approve", {"client_timezone": "America/New_York"})
+            received = sio_client.get_received()
+            assert isinstance(received, list)
+        finally:
+            bmo_module.agent = original
+
+    def test_plan_reject_event_does_not_raise(self, sio_client, bmo_app):
+        """QA #3 (2026-05-17): Reject button uses plan_reject, not chat_message."""
+        import app as bmo_module
+        original = bmo_module.agent
+        mock_agent = MagicMock()
+        mock_agent.chat = MagicMock(return_value={
+            "text": "Plan cancelled.", "commands_executed": [], "tags": {},
+            "agent_used": "plan", "speaker": "system",
+        })
+        mock_agent.model_override = None
+        bmo_module.agent = mock_agent
+        try:
+            sio_client.emit("plan_reject", {"client_timezone": "America/New_York"})
+            received = sio_client.get_received()
+            assert isinstance(received, list)
+        finally:
+            bmo_module.agent = original
