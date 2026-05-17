@@ -191,26 +191,138 @@ function startBmoDiscovery(): void {
 }
 
 async function probeDefaultBmoLocal(): Promise<void> {
-  const candidates = [
-    'http://bmo.local:5000',
-    'http://bmo:5000' // Some OSes resolve bare hostname via NetBIOS / netbridge.
-  ]
-  for (const url of candidates) {
-    try {
-      const controller = new AbortController()
-      const t = setTimeout(() => controller.abort(), 2_000)
-      const resp = await fetch(`${url}/health`, { signal: controller.signal })
-      clearTimeout(t)
-      if (!resp.ok) continue
-      logToFile('INFO', `[lan-discovery] BMO Pi reachable via direct probe at ${url}`)
-      setDiscoveredBmoUrl(url)
-      broadcast(IPC_CHANNELS.BMO_RESOLVED_URL, { url })
+  // 1) Hostname-based probes — works when the OS resolver (Bonjour
+  //    Print Services on Windows, nss-mdns on Linux) is available.
+  const hostnameCandidates = ['http://bmo.local:5000', 'http://bmo:5000']
+  for (const url of hostnameCandidates) {
+    if (await probeUrl(url)) {
+      registerDiscoveredBmoUrl(url, 'hostname probe')
       return
-    } catch {
-      // candidate unreachable — try the next one
     }
   }
-  logToFile('WARN', '[lan-discovery] BMO Pi not found via mDNS or direct probe')
+
+  // 2) Direct mDNS A-record query via multicast-dns. Bypasses the OS
+  //    resolver entirely — works on Windows even without Bonjour
+  //    Print Services as long as Windows Firewall lets UDP 5353
+  //    inbound through (the firewall prompt usually fires on the
+  //    first run of bonjour-service from this app and is remembered).
+  const ip = await resolveBmoLocalViaMdns()
+  if (ip) {
+    const url = `http://${ip}:5000`
+    if (await probeUrl(url)) {
+      registerDiscoveredBmoUrl(url, 'mDNS A-record')
+      return
+    }
+  }
+
+  // 3) Last-ditch LAN sweep. Walk the local /24 looking for an HTTP
+  //    server at :5000/health that smells like BMO. Only the gateway
+  //    + a handful of common Pi-default-ish IPs to keep this fast.
+  const lanCandidates = buildLanCandidates()
+  for (const ipCandidate of lanCandidates) {
+    const url = `http://${ipCandidate}:5000`
+    if (await probeUrl(url)) {
+      registerDiscoveredBmoUrl(url, `LAN sweep (${ipCandidate})`)
+      return
+    }
+  }
+
+  logToFile('WARN', '[lan-discovery] BMO Pi not found via mDNS, hostname probe, or LAN sweep')
+}
+
+async function probeUrl(url: string): Promise<boolean> {
+  try {
+    const controller = new AbortController()
+    const t = setTimeout(() => controller.abort(), 1_500)
+    const resp = await fetch(`${url}/health`, { signal: controller.signal })
+    clearTimeout(t)
+    return resp.ok
+  } catch {
+    return false
+  }
+}
+
+function registerDiscoveredBmoUrl(url: string, via: string): void {
+  logToFile('INFO', `[lan-discovery] BMO Pi reachable at ${url} (${via})`)
+  setDiscoveredBmoUrl(url)
+  broadcast(IPC_CHANNELS.BMO_RESOLVED_URL, { url })
+}
+
+/**
+ * Query an mDNS A record for `bmo.local` directly via multicast-dns,
+ * sidestepping the OS resolver. Works on Windows without Bonjour
+ * Print Services when bonjour-service's UDP socket is reachable.
+ */
+interface MdnsInstance {
+  query: (q: { questions: Array<{ name: string; type: string }> }) => void
+  on: (event: string, cb: (response: unknown) => void) => void
+  destroy: () => void
+}
+
+async function resolveBmoLocalViaMdns(): Promise<string | null> {
+  let mdns: MdnsInstance
+  try {
+    const factory = require('multicast-dns') as () => MdnsInstance
+    mdns = factory()
+  } catch (err) {
+    logToFile('WARN', '[lan-discovery] multicast-dns require failed:', String(err))
+    return null
+  }
+
+  return new Promise<string | null>((resolve) => {
+    let settled = false
+    const finish = (ip: string | null): void => {
+      if (settled) return
+      settled = true
+      try {
+        mdns.destroy()
+      } catch {
+        // best-effort
+      }
+      resolve(ip)
+    }
+
+    mdns.on('response', (response: unknown) => {
+      const answers = (response as { answers?: Array<{ name: string; type: string; data: string }> }).answers ?? []
+      for (const a of answers) {
+        if (a.name?.toLowerCase() === 'bmo.local' && a.type === 'A' && a.data) {
+          finish(a.data)
+          return
+        }
+      }
+    })
+
+    mdns.query({ questions: [{ name: 'bmo.local', type: 'A' }] })
+    setTimeout(() => finish(null), 2_000)
+  })
+}
+
+/**
+ * Build a small list of likely Pi IPs by looking at our own network
+ * interfaces. We probe the gateway-adjacent IPs in our subnet — slow
+ * scans across /24 are too noisy, so we stick to the handful of
+ * addresses a Pi tends to land on (router DHCP-pool head + tail +
+ * a couple common static reservations).
+ */
+function buildLanCandidates(): string[] {
+  // Lazy require so the module's tree-shake stays clean for tests.
+  const os = require('node:os') as typeof import('node:os')
+  const interfaces = os.networkInterfaces()
+  const candidates = new Set<string>()
+  for (const list of Object.values(interfaces)) {
+    for (const iface of list ?? []) {
+      if (iface.family !== 'IPv4' || iface.internal) continue
+      // address e.g. 192.168.1.42; cidr e.g. 192.168.1.42/24
+      const match = iface.address.match(/^(\d+)\.(\d+)\.(\d+)\.\d+$/)
+      if (!match) continue
+      const prefix = `${match[1]}.${match[2]}.${match[3]}.`
+      // Most likely-to-host-the-Pi IPs in a typical /24
+      for (const last of [1, 2, 50, 100, 101, 102, 200, 254]) {
+        candidates.add(`${prefix}${last}`)
+      }
+    }
+  }
+  return Array.from(candidates)
 }
 
 function stopBmoDiscovery(): void {
