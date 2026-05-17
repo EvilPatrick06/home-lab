@@ -41,7 +41,13 @@ function createWindow(): void {
     minHeight: 768,
     title: 'D&D Virtual Tabletop',
     backgroundColor: '#030712',
-    show: false,
+    // Was `show: false` + ready-to-show + 5 s force-show fallback. Some Linux
+    // VM configs never produced a window even with the fallback firing —
+    // show() returns successfully but the WM doesn't draw anything. Showing
+    // from creation eliminates the hidden state entirely; the brief flash
+    // of background color before first paint is the universal trade-off
+    // for guaranteed window visibility.
+    show: true,
     autoHideMenuBar: true,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
@@ -77,22 +83,17 @@ function createWindow(): void {
     })
   })
 
-  // Normal happy path: show as soon as the renderer's first paint is ready,
-  // which avoids a flash of unstyled content.
+  // On ready-to-show, nudge the WM to draw + focus the window. Belt &
+  // suspenders for X11/Wayland compositors that sometimes drop the
+  // initial map request from an Electron app.
   mainWindow.on('ready-to-show', () => {
-    mainWindow.show()
-  })
-  // Fallback for environments where `ready-to-show` never fires (some
-  // Linux + VM combos hit this — renderer creates contexts, processes
-  // are alive, but the event silently doesn't dispatch and the window
-  // stays hidden forever). If we haven't shown after 5 seconds, force
-  // it. A brief flash of background color is better than no window.
-  setTimeout(() => {
-    if (!mainWindow.isDestroyed() && !mainWindow.isVisible()) {
-      logToFile('WARN', 'ready-to-show did not fire within 5s — force-showing window')
+    if (mainWindow.isDestroyed()) return
+    if (!mainWindow.isVisible()) {
       mainWindow.show()
     }
-  }, 5000)
+    mainWindow.focus()
+    mainWindow.moveTop()
+  })
 
   // DevTools shortcut (development only)
   if (is.dev) {
