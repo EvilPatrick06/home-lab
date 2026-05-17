@@ -22,7 +22,10 @@ export default function ReadyButton(): JSX.Element {
   const colorConfirmed = localPlayer?.colorConfirmed === true
 
   const sendMessage = useNetworkStore((s) => s.sendMessage)
-  const connectedPeerIds = useNetworkStore((s) => s.peers.map((p) => p.peerId))
+  // Select primitives (not derived arrays) — `s.peers.map(...)` returns a fresh
+  // array every call, so useSyncExternalStore sees the snapshot as changed on
+  // every render and loops until React throws #185.
+  const connectedPeerCount = useNetworkStore((s) => s.peers.length)
 
   // Subscribe to the specific campaign so this button re-renders when its
   // aiDm.enabled flag (or any other field on the campaign) changes.
@@ -60,7 +63,7 @@ export default function ReadyButton(): JSX.Element {
     const waitForAcks = async (): Promise<boolean> => {
       // Mocked up acknowledgment logic for clients.
       // Wait for a few seconds as a best-effort mechanism.
-      await new Promise((resolve) => setTimeout(resolve, Math.min(connectedPeerIds.length * 500, 5000)))
+      await new Promise((resolve) => setTimeout(resolve, Math.min(connectedPeerCount * 500, 5000)))
       return true
     }
 
