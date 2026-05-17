@@ -1,18 +1,27 @@
 #!/usr/bin/env bash
 # D&D VTT — Linux installer
 #
-# One-line install:
-#   curl -fsSL https://github.com/EvilPatrick06/home-lab/releases/latest/download/install-linux.sh | bash
+# One-line install (auto-applies PATH to your current shell):
+#   curl -fsSL https://github.com/EvilPatrick06/home-lab/releases/latest/download/install-linux.sh | bash && source ~/.bashrc
 #
-# What it does:
+# The `&& source ~/.bashrc` part runs in your *current* shell after the
+# install script finishes, so the new PATH entry takes effect immediately
+# — `dnd-vtt` works as a command without restarting your terminal. This
+# script (running in a `bash` subprocess) can't reach into your shell's
+# environment on its own; that's a fundamental Unix subprocess boundary.
+#
+# What this script does:
 #   1. Resolves the latest AppImage URL from the GitHub release
 #   2. Downloads to ~/Applications/dnd-vtt.AppImage and chmod +x
-#   3. Drops a .desktop entry in ~/.local/share/applications/ so it shows up
-#      in your app menu
+#   3. Drops a launcher at ~/.local/bin/dnd-vtt (auto-detects VM/Wayland/GPU)
+#   4. Drops a .desktop entry in ~/.local/share/applications/
+#   5. Extracts the app icon into ~/.local/share/icons/hicolor/.../apps/
+#   6. Auto-runs `sudo apt install -y` for any missing runtime libs
+#   7. Appends ~/.local/bin to PATH via ~/.bashrc / ~/.profile
 #
-# Won't touch system paths, won't sudo, won't auto-install Ollama. AI
-# features need Ollama (`curl -fsSL https://ollama.com/install.sh | sh`)
-# or cloud API keys set in-app.
+# Won't auto-install Ollama. AI features need Ollama
+# (`curl -fsSL https://ollama.com/install.sh | sh`) or cloud API keys
+# set in-app.
 
 set -euo pipefail
 
@@ -133,11 +142,14 @@ if ! echo "${PATH}" | tr ':' '\n' | grep -qx "${BIN_DIR}"; then
   echo
   if [[ -n "${added_to}" ]]; then
     ok "Added ${BIN_DIR} to PATH in: ${added_to}"
-    info "Restart your terminal, OR run this in the current shell to pick it up immediately:"
+    info "To make \`${APP_NAME}\` work in your CURRENT terminal, run this once:"
     info ""
     info "    source ~/.bashrc"
     info ""
-    info "Until then, use the full path: ${LAUNCHER}"
+    info "(Or use the full path: ${LAUNCHER}.) Next time, you can chain the"
+    info "source step into the install command itself:"
+    info ""
+    info "    curl -fsSL .../install-linux.sh | bash && source ~/.bashrc"
   else
     info "Note: ${BIN_DIR} isn't on your PATH yet."
     info "Couldn't auto-append to ~/.bashrc or ~/.profile (do they exist?)."

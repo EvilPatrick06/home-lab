@@ -38,13 +38,16 @@ The release ships two Linux paths — pick one.
 
 **Option A — one-line installer (recommended):**
 ```bash
-curl -fsSL https://github.com/EvilPatrick06/home-lab/releases/latest/download/install-linux.sh | bash
+curl -fsSL https://github.com/EvilPatrick06/home-lab/releases/latest/download/install-linux.sh | bash && source ~/.bashrc
 ```
+The trailing `&& source ~/.bashrc` is the part that makes `dnd-vtt` work as a command in your **current** terminal — without it you'd need to restart the terminal first (subprocess limitation: the script can't reach into your shell's PATH on its own).
+
 What it does:
 - Downloads the AppImage to `~/Applications/dnd-vtt.AppImage`.
 - Writes a launcher at `~/.local/bin/dnd-vtt` that auto-detects your environment and tacks on the right flags (`--no-sandbox` always, `--disable-gpu` if no GPU/DRI nodes — fixes VM hangs — `--ozone-platform=x11` on Wayland sessions).
-- Adds a desktop entry so the app shows up in your menu.
-- Prints a copy-pasteable `apt install` line for any missing runtime libs (libfuse2, libnss3, libgbm1, libasound2, libgtk-3-0).
+- Adds a desktop entry + extracts the app icon into your icon theme.
+- Auto-runs `sudo apt install -y` for any missing runtime libs (`libfuse2`, `libnss3`, `libgbm1`, `libasound2`, `libgtk-3-0`). On non-apt distros, prints the equivalent dnf/pacman commands.
+- Appends `~/.local/bin` to PATH via `~/.bashrc` and `~/.profile` (idempotent).
 
 After install, run from terminal as `dnd-vtt` or launch from your app menu.
 
