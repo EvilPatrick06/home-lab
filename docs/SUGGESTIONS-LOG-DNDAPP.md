@@ -19,6 +19,55 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+### [2026-05-12] Document the `BMO_API_KEY` end-to-end flow in dnd-app README + bmo-bridge JSDoc
+
+- **Category:** future-idea, docs
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** Claude Opus
+- **During:** comprehensive dnd-app audit (2026-05-12)
+- **Effort estimate:** 30 min (after the actual Bearer-header implementation lands)
+- **Phase:** 28g
+
+**Description:** Once the Authorization Bearer work (`SECURITY-LOG.md` 2026-05-12 entry) lands, the symmetric flow needs documentation so future contributors don't accidentally bypass it. Cover:
+- Where the key is stored (`safeStorage`-wrapped settings field)
+- How to set it for dev (env-var precedence vs settings UI)
+- That BMO's side enforces it on non-localhost callers (`bmo/pi/app.py:163-178`)
+- What happens when it's misconfigured (401 from BMO; how the VTT surfaces this)
+
+**What to do:**
+- [ ] Add a "BMO connection" section to `dnd-app/README.md`
+- [ ] Add a JSDoc block at the top of `src/main/bmo-bridge.ts` explaining the auth header
+- [ ] Cross-reference from `bmo/pi/README.md` or `docs/ARCHITECTURE.md`
+
+**Related entries:** `SECURITY-LOG.md` "[2026-05-12] dnd-app: VTT → BMO calls never send Authorization: Bearer".
+
+---
+
+### [2026-05-12] Document the plugin trust model explicitly in `dnd-app/docs/PLUGIN-SYSTEM.md`
+
+- **Category:** future-idea, docs, security
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** Claude Opus
+- **During:** comprehensive dnd-app audit (2026-05-12)
+- **Effort estimate:** 30 min
+- **Phase:** 28g
+
+**Description:** SUGGESTIONS-LOG already documents the gotcha: `isolated-vm` is in `dependencies` but never imported; plugins run with full renderer privileges. The user-facing docs don't say so. A plugin author / installer should know:
+- Plugins have access to every zustand store, every IPC channel, the full DOM
+- "Trust on install" model — review code before enabling
+- No sandbox; no kill switch beyond disabling in plugin-config
+
+**What to do:**
+- [ ] Add a "Trust model" section to `dnd-app/docs/PLUGIN-SYSTEM.md`
+- [ ] Add a warning to the plugin-install UI ("This plugin will have full access to your game data — only install plugins you trust")
+- [ ] Cross-reference from `dnd-app/README.md`
+
+**Related entries:** SUGGESTIONS-LOG `[2026-04-24] DO NOT trust the isolated-vm dependency to mean plugins are sandboxed`.
+
+---
+
 ### [2026-04-24] Backup format migration framework (v1/v2 → v3+)
 
 - **Category:** future-idea
@@ -186,6 +235,57 @@ This catches the kind of regression flagged in "Renderer bundle: 8 chunks > 500 
 ---
 
 # Design gotchas (warnings for future agents)
+
+### [2026-05-12] DO NOT use `Math.random()` for any game-rolling code — `cryptoRollDie` already exists
+
+- **Category:** design-gotcha
+- **Severity:** high
+- **Domain:** dnd-app
+- **Discovered by:** Claude Opus
+- **During:** comprehensive dnd-app audit (2026-05-12)
+
+**Why it's tempting:** `Math.floor(Math.random() * 20) + 1` is the universal D&D one-liner — it's everywhere on the web, every blog tutorial uses it, and copy-paste makes it the path of least resistance. There are already 25+ instances of this in the codebase.
+
+**Why it's wrong:**
+- `Math.random()` is V8's XorShift128+. Predictable from a handful of observed outputs (see `src/renderer/src/utils/invite-code.ts:9` comment, which explicitly documents the predictability for the invite-code case).
+- Game outcomes that depend on it can't be audited, can't be replayed deterministically, and can't be seeded for tests.
+- Bypasses any future logging / dispute-resolution / replay instrumentation the dice engine adds.
+- Inconsistent with the codebase: `utils/crypto-random.ts` exposes `cryptoRandom()` and `cryptoRollDie(sides)` (lines 22, 28); `services/dice/dice-engine.ts:1` imports them; `utils/dice-utils.ts:34` and `utils/invite-code.ts:18` already use them.
+
+**What to do instead:**
+```ts
+import { cryptoRollDie, cryptoRandom } from '@renderer/utils/crypto-random'
+// Single die
+const roll = cryptoRollDie(20)
+// Random index into array
+const i = Math.floor(cryptoRandom() * arr.length)
+```
+Tests are exempt (`*.test.*` files) — they can keep `Math.random` (or better, mock the crypto-random module like `dice-engine.test.ts` does).
+
+**Future-proofing:** Consider a biome / eslint rule that flags `Math.random` outside `*.test.*` and `utils/crypto-random.ts`.
+
+**Related entries:** `ISSUES-LOG-DNDAPP.md` "[2026-05-12] Math.random() used for game-affecting dice rolls across 25+ sites" (the active sweep entry).
+
+---
+
+### [2026-05-12] DO NOT introduce new VTT → BMO HTTP calls without `Authorization: Bearer` support
+
+- **Category:** design-gotcha, security
+- **Severity:** high
+- **Domain:** dnd-app
+
+**Why it's tempting:** `bmoPiFetch` (`src/main/bmo-bridge.ts:31-53`) "just works" without auth — current calls succeed against the Pi during dev. Adding a new endpoint? Copy `sendInitiativeToPi` (line 80) as the template.
+
+**Why it's wrong:** BMO's Python side gates non-localhost callers on `Authorization: Bearer ${BMO_API_KEY}` (`bmo/pi/app.py:163-178, 4384-4389`). The VTT currently never sends the header — so:
+- If `BMO_API_KEY` is unset on the Pi: everything works but defense-in-depth is missing
+- If `BMO_API_KEY` is set on the Pi: every VTT call to BMO returns 401, silently
+The asymmetry is invisible until production. Copy-paste of the no-auth pattern propagates the bug.
+
+**What to do instead:** After the Authorization Bearer work lands (Phase 28a), `bmoPiFetch` will inject the header automatically. New endpoints should call `bmoPiFetch` (don't roll your own fetch). If you must bypass it for some reason, document why and how the auth-skip is safe.
+
+**Related entries:** `SECURITY-LOG.md` "[2026-05-12] dnd-app: VTT → BMO calls never send Authorization: Bearer". `ISSUES-LOG-DNDAPP.md` "[2026-05-12] bmoPiFetch has no retry / backoff".
+
+---
 
 ### [2026-04-24] `IPC-SURFACE.md` lists channel names, not request/response contracts
 
@@ -388,6 +488,87 @@ The `isolated-vm` dep is misleading code archaeology — leftover from an abando
 ---
 
 # Info / Observations
+
+### [2026-05-12] Audit coverage gaps — areas NOT deeply explored in the 2026-05-12 sweep
+
+- **Category:** info
+- **Severity:** info
+- **Domain:** dnd-app
+- **Discovered by:** Claude Opus
+- **During:** comprehensive dnd-app audit (2026-05-12)
+- **Phase:** 28i (follow-up audits)
+
+**Description:** The 2026-05-12 audit ran a wide net but went shallow in several areas. Calling them out so a future audit knows where the unknowns live:
+
+1. Multiplayer / peerjs — `src/renderer/src/network/` (25 files). Reconnection, NAT traversal, host-migration, message-ordering not surveyed.
+2. Pixi.js map rendering — `src/renderer/src/components/game/map/*` not audited for fog-of-war correctness, viewport math, memory growth.
+3. Plugin runtime — `src/main/plugins/`. Trust model logged; runtime behavior not stepped through.
+4. Cloud sync (rclone) — `src/main/cloud-sync.ts`. Surface scanned; conflict resolution, partial-failure recovery not exercised.
+5. TipTap rich-text editor — campaign journal / notes editor. Content sanitization on import not verified.
+6. Updater — `src/main/updater.ts`. Signature verification, channel pinning, rollback not audited.
+7. Discord integration on dnd-app side — `src/main/discord-integration/` uses bot tokens. Token storage path not verified.
+8. 3028 5e JSON data files in `src/renderer/public/data/5e/` — content cross-refs validated by CI but schema mismatch is already logged.
+9. Renderer-side IPC consumers — confirmed no direct `ipcRenderer.` usage (good), but didn't trace every `window.api.*` call to verify all consumers handle async errors.
+
+**What to do:** A follow-up audit per area (Phase 28i) would catch the long tail. The threat model is the same as the audited surfaces (LAN trust, malformed input, GPU/memory growth) — the audit didn't dwell on them because they didn't surface obvious smoking guns in the grep sweep.
+
+**Related entries:** Plan that drove the audit: `~/.claude/plans/your-job-is-to-wild-thacker.md`. Phase plan: `dnd-app/docs/phases/phase-28-plan.md`.
+
+---
+
+### [2026-05-12] `discord-service.ts` Bot token storage path unverified
+
+- **Category:** info, security
+- **Severity:** info
+- **Domain:** dnd-app
+- **Discovered by:** Claude Opus
+- **During:** comprehensive dnd-app audit (2026-05-12)
+- **Phase:** 28i
+
+**Description:** `src/main/discord-integration/discord-service.ts:190, 207` issues HTTP requests with `Authorization: Bot ${botToken}`. The token's origin (env var? settings.json? `safeStorage`?) was not traced in the audit. If it is plain `settings.json`, it falls in the same encrypt-persisted-secrets bucket as the `turnServers[].credential` entry already logged.
+
+**What to do:**
+- [ ] Trace where `botToken` is read from in `discord-service.ts`
+- [ ] If plaintext on disk, mirror the `safeStorage` pattern from the existing 2026-04-24 entry
+- [ ] If already encrypted, log "verified encrypted" in this entry's body and move on
+
+**Related entries:** SUGGESTIONS-LOG `[2026-04-24] Encrypt persisted secrets with Electron safeStorage API` (parent pattern).
+
+**Related files:** `src/main/discord-integration/discord-service.ts:190, 207`.
+
+---
+
+### [2026-05-12] Vitest suite has zero skipped / todo tests — good signal
+
+- **Category:** info, test
+- **Severity:** info
+- **Domain:** dnd-app
+- **Discovered by:** Claude Opus
+- **During:** comprehensive dnd-app audit (2026-05-12)
+
+**Description:** Repo-wide grep across `dnd-app/src/**/*.test.{ts,tsx}` for skip / todo / xit / xdescribe patterns returned zero matches. The test suite does not accumulate quarantined or deferred tests. The currently-failing tests (notably `TokenContextMenu.test.tsx` per the existing useNetworkStore circular-dep gotcha) are red, not skipped — which is the right state: failing tests force fixes.
+
+**Why useful to future agents:** Maintain the zero-skipped invariant. Don't add skip "temporarily" — open an `ISSUES-LOG-DNDAPP.md` entry and fix or delete the test.
+
+---
+
+### [2026-05-12] Secure-randomness alternatives already exist — call out the dual pattern
+
+- **Category:** info
+- **Severity:** info
+- **Domain:** dnd-app
+- **Discovered by:** Claude Opus
+- **During:** comprehensive dnd-app audit (2026-05-12)
+
+**Description:** The codebase has TWO randomness sources today:
+- `Math.random()` — V8 XorShift128+, used in 25+ game-roll sites (see active ISSUES entry)
+- `utils/crypto-random.ts` — `cryptoRandom()` and `cryptoRollDie(sides)` backed by `crypto.getRandomValues`. Used in `services/dice/dice-engine.ts`, `utils/dice-utils.ts`, `utils/invite-code.ts`.
+
+The dice engine ALREADY routes through the secure path. The 25+ sites that bypass it (mostly inline `Math.random` for one-off rolls) are the sweep target. Worth knowing for the design-gotcha companion entry (DO NOT use Math.random) — the alternative is not "build a new abstraction", it is "use the existing one".
+
+**Related entries:** `ISSUES-LOG-DNDAPP.md` "[2026-05-12] Math.random() used for game-affecting dice rolls across 25+ sites". This log's "[2026-05-12] DO NOT use Math.random() for any game-rolling code" design-gotcha.
+
+---
 
 ### [2026-04-24] Electron security base config is correctly hardened — XSS sinks pruned
 
