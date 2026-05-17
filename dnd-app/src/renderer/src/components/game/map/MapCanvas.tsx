@@ -804,10 +804,31 @@ export default function MapCanvas({
   )
 
   const handleResetView = useCallback((): void => {
+    // Phase 17j — fit-to-map instead of "zoom 1, pan 0". Compute the scale
+    // that makes the whole map fit inside the canvas viewport with a small
+    // (~5%) breathing margin, then center it. Falls back to the old
+    // (1.0, 0, 0) reset when the container or map dimensions aren't
+    // measurable yet.
+    const el = containerRef.current
+    if (el && map && map.width > 0 && map.height > 0) {
+      const vw = el.clientWidth
+      const vh = el.clientHeight
+      if (vw > 0 && vh > 0) {
+        const scale = Math.min(vw / map.width, vh / map.height) * 0.95
+        const newZoom = scale > 0 ? scale : 1
+        zoomRef.current = newZoom
+        panRef.current = {
+          x: (vw - map.width * newZoom) / 2,
+          y: (vh - map.height * newZoom) / 2
+        }
+        applyTransform()
+        return
+      }
+    }
     zoomRef.current = 1
     panRef.current = { x: 0, y: 0 }
     applyTransform()
-  }, [applyTransform])
+  }, [applyTransform, map])
 
   useEffect(() => {
     const handler = (e: KeyboardEvent): void => {
@@ -877,11 +898,15 @@ export default function MapCanvas({
     >
       <div ref={containerRef} className="w-full h-full" />
       {map && (
+        // Phase 17j — moved from bottom-3 to top-3 right-3 so the button no
+        // longer overlaps the chat Send button (which lives at the bottom
+        // of the layout). Pairs visually with the other map-view controls
+        // that cluster in the top-right.
         <button
           onClick={handleResetView}
           title="Reset View (Home)"
-          aria-label="Reset map view"
-          className="absolute bottom-3 right-3 z-20 px-3 py-1.5 text-xs font-medium
+          aria-label="Reset map view (fit map to screen)"
+          className="absolute top-3 right-3 z-20 px-3 py-1.5 text-xs font-medium
             bg-gray-800/90 border border-gray-700 rounded-lg text-gray-400 hover:text-gray-200
             hover:bg-gray-700 transition-colors cursor-pointer backdrop-blur-sm"
         >
