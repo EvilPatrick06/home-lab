@@ -314,6 +314,21 @@ export function handleJoin(
       state.connections.delete(existingPeerId)
       state.peerInfoMap.delete(existingPeerId)
       state.lastHeartbeat.delete(existingPeerId)
+      // Phase 17h — fire the leave-callbacks for the displaced phantom so
+      // downstream consumers (network-store.peers, lobby-store cleanup
+      // bridge) actually remove the stale entry. Without this, the
+      // host-manager's local maps were clean but the network-store kept a
+      // ghost peer in its `peers` array, holding onto colors and confusing
+      // new joiners ("can't pick a color and keeps reconnecting" after a
+      // few leave/rejoin cycles). The callbacks are wrapped in try/catch
+      // because they're user-provided.
+      for (const cb of state.leaveCallbacks) {
+        try {
+          cb(existingPeer)
+        } catch (e) {
+          logger.error('[HostManager] Error in leave callback during dedup:', e)
+        }
+      }
     }
   }
 
