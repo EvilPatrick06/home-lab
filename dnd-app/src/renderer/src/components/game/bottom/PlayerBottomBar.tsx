@@ -28,6 +28,15 @@ interface PlayerBottomBarProps {
   onQuickCondition?: () => void
   onCheckTime?: () => void
   onLightSource?: () => void
+  /** Phase 15b: activate the map measurement tool for the local player.
+   *  Measurement is rendered to the player's own canvas only — not broadcast. */
+  onMeasure?: () => void
+  /** Phase 15b: activate the line-of-sight check tool. */
+  onCheckLos?: () => void
+  /** Phase 15d: open the personal player journal panel. */
+  onMyNotes?: () => void
+  /** Phase 15f: open the in-game spell preparation panel (prepared casters only). */
+  onSpellPrep?: () => void
   onTrade?: () => void
   onJournal?: () => void
   onCompendium?: () => void
@@ -57,6 +66,10 @@ export default function PlayerBottomBar({
   onQuickCondition,
   onCheckTime,
   onLightSource,
+  onMeasure,
+  onCheckLos,
+  onMyNotes,
+  onSpellPrep,
   onTrade,
   onJournal,
   onCompendium,
@@ -246,6 +259,32 @@ export default function PlayerBottomBar({
                   >
                     Dice Roller
                   </button>
+                  {/* Phase 15b: player measurement + LoS tools. Local-only —
+                      the measurement line is drawn to the player's own
+                      PixiJS canvas, never broadcast. LoS uses the same
+                      raycast-visibility code path the DM's vision uses. */}
+                  {onMeasure && (
+                    <button
+                      onClick={() => {
+                        setToolsOpen(false)
+                        onMeasure()
+                      }}
+                      className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-gray-800 hover:text-gray-100 transition-colors cursor-pointer"
+                    >
+                      Measure Distance
+                    </button>
+                  )}
+                  {onCheckLos && (
+                    <button
+                      onClick={() => {
+                        setToolsOpen(false)
+                        onCheckLos()
+                      }}
+                      className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-gray-800 hover:text-gray-100 transition-colors cursor-pointer"
+                    >
+                      Check Line of Sight
+                    </button>
+                  )}
                   <button
                     onClick={() => {
                       setToolsOpen(false)
@@ -299,6 +338,20 @@ export default function PlayerBottomBar({
                   <div className="px-2 pt-2 pb-1">
                     <span className="text-[9px] text-gray-500 uppercase tracking-wider font-semibold">Reference</span>
                   </div>
+                  {/* Phase 15f: in-game spell prep — visible to all but the
+                      modal itself gates by class (prepared casters only) and
+                      out-of-combat. */}
+                  {onSpellPrep && (
+                    <button
+                      onClick={() => {
+                        setToolsOpen(false)
+                        onSpellPrep()
+                      }}
+                      className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-gray-800 hover:text-gray-100 transition-colors cursor-pointer"
+                    >
+                      Prepare Spells
+                    </button>
+                  )}
                   <button
                     onClick={() => {
                       setToolsOpen(false)
@@ -332,6 +385,20 @@ export default function PlayerBottomBar({
                   <div className="px-2 pt-2 pb-1">
                     <span className="text-[9px] text-gray-500 uppercase tracking-wider font-semibold">Social</span>
                   </div>
+                  {/* Phase 15d: personal journal — private, local-only notes
+                      for the player. Never broadcast / synced; stored in
+                      localStorage keyed on characterId. */}
+                  {onMyNotes && (
+                    <button
+                      onClick={() => {
+                        setToolsOpen(false)
+                        onMyNotes()
+                      }}
+                      className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-gray-800 hover:text-gray-100 transition-colors cursor-pointer"
+                    >
+                      My Notes
+                    </button>
+                  )}
                   {onWhisper && (
                     <button
                       onClick={() => {

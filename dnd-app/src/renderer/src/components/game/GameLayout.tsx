@@ -33,6 +33,8 @@ import PlayerBottomBar from './bottom/PlayerBottomBar'
 import DiceTray from './dice3d/DiceTray'
 import type { ActiveModal } from './GameModalDispatcher'
 import GameModalDispatcher from './GameModalDispatcher'
+import PlayerNotesPanel from './player/PlayerNotesPanel'
+import SpellPrepModal from './player/SpellPrepModal'
 
 const CharacterInspectModal = lazy(() => import('./modals/utility/CharacterInspectModal'))
 
@@ -163,6 +165,8 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
     | 'fog-reveal'
     | 'fog-hide'
     | 'wall'
+    | 'measure'
+    | 'check-los'
     | 'draw-free'
     | 'draw-line'
     | 'draw-rect'
@@ -538,7 +542,13 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
     onOpenDice: () => setActiveModal((m) => (m === 'diceRoller' ? null : 'diceRoller')),
     onCloseModal: () => setActiveModal(null),
     onShowShortcuts: () => setActiveModal((m) => (m === 'shortcutRef' ? null : 'shortcutRef')),
-    onToggleMapEditor: () => setEditMapMode((v) => !v)
+    onToggleMapEditor: () => setEditMapMode((v) => !v),
+    // Phase 15g — player-side shortcuts. Modal toggles so pressing the
+    // same key twice closes the panel. Measure toggle flips back to
+    // 'select' if already active so 'r' acts as a true toggle.
+    onOpenPlayerNotes: () => setActiveModal((m) => (m === 'playerNotes' ? null : 'playerNotes')),
+    onOpenInventory: () => setActiveModal((m) => (m === 'item' ? null : 'item')),
+    onToggleMeasure: () => setActiveTool((t) => (t === 'measure' ? 'select' : 'measure'))
   })
 
   if (leaving)
@@ -728,6 +738,10 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
                 : undefined
             }
             onLightSource={() => setActiveModal('lightSource')}
+            onMeasure={() => setActiveTool('measure')}
+            onCheckLos={() => setActiveTool('check-los')}
+            onMyNotes={() => setActiveModal('playerNotes')}
+            onSpellPrep={() => setActiveModal('spellPrep')}
             onDowntime={() => setActiveModal('downtime')}
             onSpellRef={() => setActiveModal('spellRef')}
             onShortcutRef={() => setActiveModal('shortcutRef')}
@@ -1044,6 +1058,21 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
             />
           </Suspense>
         </ErrorBoundary>
+      )}
+
+      {/* Phase 15d: personal player journal — rendered inline outside the
+          GameModalDispatcher because its props/IPC surface differs from
+          the centralized dispatcher (storage is localStorage, no broadcast,
+          no character store mutation). */}
+      {activeModal === 'playerNotes' && (
+        <PlayerNotesPanel characterId={character?.id ?? null} onClose={() => setActiveModal(null)} />
+      )}
+
+      {/* Phase 15f: in-game spell prep panel — only opens when there's a
+          character; the modal itself checks whether they're a prepared
+          caster and otherwise shows an explanatory message. */}
+      {activeModal === 'spellPrep' && character && (
+        <SpellPrepModal character={character} onClose={() => setActiveModal(null)} />
       )}
 
       {/* Modals */}

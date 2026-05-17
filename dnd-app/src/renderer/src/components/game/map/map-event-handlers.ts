@@ -1,11 +1,12 @@
 import { type Container, Graphics } from 'pixi.js'
 import { canMoveToPosition } from '../../../services/combat/combat-rules'
 import { isMovementBlockedByWall } from '../../../services/map/pathfinder'
+import { isMovementBlocked, wallsToSegments } from '../../../services/map/raycast-visibility'
 import { useGameStore } from '../../../stores/use-game-store'
 import type { TurnState } from '../../../types/game-state'
 import type { GameMap, MapToken } from '../../../types/map'
 import { pixelToHex } from './grid-layer'
-import { drawMeasurement } from './measurement-tool'
+import { drawLineOfSight, drawMeasurement } from './measurement-tool'
 import { findNearbyWallEndpoint, hitTestDoorHandle } from './wall-layer'
 
 // ── Shared ref interfaces ─────────────────────────────────────────────────────
@@ -49,6 +50,7 @@ type ActiveTool =
   | 'fog-reveal'
   | 'fog-hide'
   | 'measure'
+  | 'check-los'
   | 'terrain'
   | 'wall'
   | 'fill'
@@ -220,7 +222,7 @@ export function setupMouseHandlers(el: HTMLElement, opts: MouseHandlerOptions): 
       const gridX = Math.floor((worldX - (map.grid.offsetX % map.grid.cellSize)) / map.grid.cellSize)
       const gridY = Math.floor((worldY - (map.grid.offsetY % map.grid.cellSize)) / map.grid.cellSize)
 
-      if (activeTool === 'measure') {
+      if (activeTool === 'measure' || activeTool === 'check-los') {
         if (!refs.measureStart.current) {
           refs.measureStart.current = { x: worldX, y: worldY }
         }
@@ -387,27 +389,34 @@ export function setupMouseHandlers(el: HTMLElement, opts: MouseHandlerOptions): 
     // Ghost token for click-to-place and fog brush preview
     handleCursorPreview(e, el, refs, map, activeTool, fogBrushSize)
 
-    // Measurement tool
+    // Measurement tool / Line-of-sight check (15b — same drag flow, two
+    // renderers depending on the active tool).
     if (refs.measureStart.current && refs.measureGraphics.current && map) {
       const rect = el.getBoundingClientRect()
       const canvasX = e.clientX - rect.left
       const canvasY = e.clientY - rect.top
       const worldX = (canvasX - refs.pan.current.x) / refs.zoom.current
       const worldY = (canvasY - refs.pan.current.y) / refs.zoom.current
-      const diagonalRule = useGameStore.getState().diagonalRule
 
-      drawMeasurement(
-        refs.measureGraphics.current,
-        refs.measureStart.current,
-        { x: worldX, y: worldY },
-        map.grid.cellSize,
-        {
-          gridType: map.grid.type,
-          offsetX: map.grid.offsetX,
-          offsetY: map.grid.offsetY,
-          diagonalRule
-        }
-      )
+      if (activeTool === 'check-los') {
+        const wallSegs = wallsToSegments(map.wallSegments ?? [], map.grid.cellSize)
+        const blocked = isMovementBlocked(refs.measureStart.current, { x: worldX, y: worldY }, wallSegs)
+        drawLineOfSight(refs.measureGraphics.current, refs.measureStart.current, { x: worldX, y: worldY }, blocked)
+      } else {
+        const diagonalRule = useGameStore.getState().diagonalRule
+        drawMeasurement(
+          refs.measureGraphics.current,
+          refs.measureStart.current,
+          { x: worldX, y: worldY },
+          map.grid.cellSize,
+          {
+            gridType: map.grid.type,
+            offsetX: map.grid.offsetX,
+            offsetY: map.grid.offsetY,
+            diagonalRule
+          }
+        )
+      }
     }
 
     // Drawing tools (live preview)
@@ -627,8 +636,8 @@ export function setupMouseHandlers(el: HTMLElement, opts: MouseHandlerOptions): 
       refs.drag.current = null
     }
 
-    // Finish measurement
-    if (refs.measureStart.current && activeTool === 'measure') {
+    // Finish measurement / LoS check (15b — same teardown for both tools).
+    if (refs.measureStart.current && (activeTool === 'measure' || activeTool === 'check-los')) {
       refs.measureStart.current = null
     }
   }

@@ -26,6 +26,14 @@ export default function TurnNotificationBanner({ entityName, onDismiss }: TurnNo
       className={`fixed top-24 left-1/2 -translate-x-1/2 z-40 pointer-events-none transition-all duration-300 ${
         visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
       }`}
+      // Phase 15g — accessibility for the turn-notification banner. Screen
+      // readers need an assertive live region so the player isn't missing
+      // their turn cue when the visual flash is off-screen / dismissed too
+      // fast. `role="alert"` and `aria-live="assertive"` together push the
+      // message to assistive tech immediately.
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
     >
       <div className="px-6 py-3 bg-gradient-to-r from-amber-600 to-amber-500 border border-amber-400/50 rounded-xl shadow-lg shadow-amber-500/20">
         <p className="text-sm font-bold text-white text-center">Your Turn, {entityName}!</p>

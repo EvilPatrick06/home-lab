@@ -117,19 +117,30 @@ export default function SpellSlotTracker({
             <div key={level} className="flex items-center gap-2 text-xs">
               <span className="w-8 text-gray-500 text-right text-[10px]">Lv {level}</span>
               <div className="flex gap-0.5">
-                {Array.from({ length: slot.total }).map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => handleSlotClick(level)}
-                    className={`w-4 h-4 rounded-full border transition-colors cursor-pointer
+                {Array.from({ length: slot.total }).map((_, i) => {
+                  // Phase 15h — accessibility. Each pip is a toggle that
+                  // shows used/available state. aria-pressed reflects the
+                  // expended state, and aria-label gives the screen reader
+                  // enough context to navigate the row without re-reading
+                  // the visible "Lv 1 4/4" header for every pip.
+                  const isAvailable = i < remaining
+                  return (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => handleSlotClick(level)}
+                      aria-pressed={!isAvailable}
+                      aria-label={`Level ${level} spell slot ${i + 1}: ${isAvailable ? 'available' : 'expended'}`}
+                      className={`w-4 h-4 rounded-full border transition-colors cursor-pointer
                       ${
-                        i < remaining
+                        isAvailable
                           ? 'bg-amber-600 border-amber-500 hover:bg-amber-500'
                           : 'bg-gray-800 border-gray-600 hover:bg-gray-700'
                       }`}
-                    title={`Level ${level} slot ${i + 1}`}
-                  />
-                ))}
+                      title={`Level ${level} slot ${i + 1}`}
+                    />
+                  )
+                })}
               </div>
               <span className="text-[10px] text-gray-500">
                 {remaining}/{slot.total}

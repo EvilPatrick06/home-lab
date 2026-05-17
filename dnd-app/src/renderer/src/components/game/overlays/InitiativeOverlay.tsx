@@ -67,7 +67,24 @@ export default function InitiativeOverlay({ isDM }: InitiativeOverlayProps): JSX
 
   if (!initiative) return <></>
 
-  const visibleEntries = initiative.entries.slice(Math.max(0, initiative.currentIndex - 1), initiative.currentIndex + 3)
+  // Phase 15c — Initiative info-leak fix. Non-host viewers see only:
+  //   - Their own player entries
+  //   - NPC/enemy entries whose token has visibleToPlayers !== false
+  // Hidden entries are replaced by a `???` placeholder so the turn order
+  // still advances correctly without revealing identities. Lair actions
+  // (initiative 20, no token) always pass through. The DM sees everything.
+  const activeMap = useGameStore.getState().maps.find((m) => m.id === useGameStore.getState().activeMapId)
+  const filteredEntries = isDM
+    ? initiative.entries
+    : initiative.entries.map((entry) => {
+        if (entry.entityType === 'player' || entry.lairActions?.length) return entry
+        const token = activeMap?.tokens.find((t) => t.entityId === entry.entityId)
+        if (token?.visibleToPlayers === false) {
+          return { ...entry, entityName: '???', portraitUrl: undefined, total: 0 }
+        }
+        return entry
+      })
+  const visibleEntries = filteredEntries.slice(Math.max(0, initiative.currentIndex - 1), initiative.currentIndex + 3)
 
   if (expanded) {
     return (
@@ -88,7 +105,7 @@ export default function InitiativeOverlay({ isDM }: InitiativeOverlayProps): JSX
             </button>
           </div>
           <InitiativeTracker
-            initiative={initiative}
+            initiative={{ ...initiative, entries: filteredEntries }}
             round={round}
             isHost={isDM}
             onStartInitiative={startInitiative}

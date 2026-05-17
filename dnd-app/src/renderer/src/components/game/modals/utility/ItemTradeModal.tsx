@@ -302,6 +302,46 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
                   They want {Math.floor(pendingTradeOffer.requestedGold / 100)} gp from you
                 </p>
               )}
+              {(() => {
+                // Phase 15e — weight / encumbrance check on accept. Look up
+                // weights of incoming items via my own equipment list (best-
+                // effort — for items I already own a copy of, the weight is
+                // known; for unknown items we conservatively assume 1 lb).
+                // Outgoing items reduce my carried weight; incoming items
+                // add to it. If the post-trade total exceeds Str × 15 we
+                // warn so the player can decline.
+                const myEquip = is5eCharacter(character) ? (character.equipment ?? []) : []
+                type WeightedItem = { name: string; weight?: number }
+                const weightFor = (name: string): number => {
+                  const match = (myEquip as WeightedItem[]).find((e) => e.name === name)
+                  return typeof match?.weight === 'number' ? match.weight : 1
+                }
+                const myCurrent = (myEquip as WeightedItem[]).reduce(
+                  (sum, e) => sum + (typeof e.weight === 'number' ? e.weight : 1),
+                  0
+                )
+                const incomingWeight = pendingTradeOffer.offeredItems.reduce(
+                  (sum: number, item: { name: string; quantity: number }) =>
+                    sum + weightFor(item.name) * (item.quantity || 1),
+                  0
+                )
+                const outgoingWeight = pendingTradeOffer.requestedItems.reduce(
+                  (sum: number, item: { name: string; quantity: number }) =>
+                    sum + weightFor(item.name) * (item.quantity || 1),
+                  0
+                )
+                const postTrade = myCurrent + incomingWeight - outgoingWeight
+                const strScore = is5eCharacter(character) ? (character.abilityScores?.strength ?? 10) : 10
+                const cap = strScore * 15
+                if (postTrade > cap) {
+                  return (
+                    <p className="text-[10px] text-red-300 bg-red-900/30 border border-red-700/40 rounded px-2 py-1 mb-2">
+                      Warning: accepting puts you at {postTrade.toFixed(1)}/{cap} lb — over carrying capacity.
+                    </p>
+                  )
+                }
+                return null
+              })()}
             </div>
             <div className="flex gap-2">
               <button

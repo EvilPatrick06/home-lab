@@ -51,7 +51,11 @@ export default function ConditionTracker({
   }
 
   return (
-    <div className="space-y-1">
+    // Phase 15h — Condition list a11y. The list is now a proper `ul`/`li`
+    // with each row carrying an aria-label that summarizes the condition
+    // name + value + duration; the decorative emoji icon is aria-hidden
+    // so it doesn't double-read.
+    <ul className="space-y-1" aria-label="Active conditions">
       {conditions.map((cond) => {
         const isBuff = buffNames.has(cond.condition.toLowerCase())
         const icon = CONDITION_ICONS[cond.condition.toLowerCase()] ?? (isBuff ? '\u{2B50}' : '\u{26A0}')
@@ -61,8 +65,14 @@ export default function ConditionTracker({
             : `${cond.duration} round${cond.duration !== 1 ? 's' : ''} remaining`
 
         return (
-          <div key={cond.id} className="flex items-center gap-2 p-1.5 rounded-lg bg-gray-800/50 text-xs">
-            <span className="text-base">{icon}</span>
+          <li
+            key={cond.id}
+            className="flex items-center gap-2 p-1.5 rounded-lg bg-gray-800/50 text-xs"
+            aria-label={`${cond.condition}${cond.value !== undefined ? ` ${cond.value}` : ''}, ${durationText}`}
+          >
+            <span className="text-base" aria-hidden="true">
+              {icon}
+            </span>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1">
                 <span className={`font-medium capitalize ${isBuff ? 'text-green-300' : 'text-gray-200'}`}>
@@ -76,14 +86,15 @@ export default function ConditionTracker({
               <button
                 onClick={() => onRemoveCondition(cond.id)}
                 className="text-gray-500 hover:text-red-400 cursor-pointer text-xs flex-shrink-0"
+                aria-label={`Remove condition ${cond.condition}`}
                 title="Remove condition"
               >
                 &#x2715;
               </button>
             )}
-          </div>
+          </li>
         )
       })}
-    </div>
+    </ul>
   )
 }

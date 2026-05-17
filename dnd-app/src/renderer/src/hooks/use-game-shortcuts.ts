@@ -10,6 +10,10 @@ export interface GameShortcutCallbacks {
   onCloseModal?: () => void
   onShowShortcuts?: () => void
   onToggleMapEditor?: () => void
+  /** Phase 15g — player-side shortcuts. */
+  onOpenPlayerNotes?: () => void
+  onOpenInventory?: () => void
+  onToggleMeasure?: () => void
 }
 
 /**
@@ -71,6 +75,18 @@ export function useGameShortcuts(isDM: boolean, callbacks: GameShortcutCallbacks
 
         case 'toggle-map-editor':
           if (isDM) cb.onToggleMapEditor?.()
+          break
+
+        case 'open-player-notes':
+          cb.onOpenPlayerNotes?.()
+          break
+
+        case 'open-inventory':
+          cb.onOpenInventory?.()
+          break
+
+        case 'toggle-measure':
+          cb.onToggleMeasure?.()
           break
 
         case 'undo':

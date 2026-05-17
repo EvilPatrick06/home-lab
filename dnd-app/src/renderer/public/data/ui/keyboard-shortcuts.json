@@ -22,5 +22,8 @@
   { "key": "Escape", "action": "close-modal", "description": "Close Modal / Deselect", "category": "general" },
   { "key": "/", "action": "show-shortcuts", "description": "Show Shortcuts Reference", "category": "general" },
   { "key": "z", "ctrl": true, "action": "undo", "description": "Undo", "category": "general" },
-  { "key": "y", "ctrl": true, "action": "redo", "description": "Redo", "category": "general" }
+  { "key": "y", "ctrl": true, "action": "redo", "description": "Redo", "category": "general" },
+  { "key": "n", "action": "open-player-notes", "description": "Open My Notes (player)", "category": "tools" },
+  { "key": "b", "action": "open-inventory", "description": "Open Inventory / Items (player)", "category": "tools" },
+  { "key": "r", "action": "toggle-measure", "description": "Activate Measure Tool (player)", "category": "tools" }
 ]

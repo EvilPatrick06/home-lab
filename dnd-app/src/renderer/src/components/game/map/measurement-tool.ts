@@ -213,3 +213,57 @@ export function clearMeasurement(graphics: Graphics): void {
     graphics.removeChildAt(0)
   }
 }
+
+/**
+ * Phase 15b — Player LoS check.
+ *
+ * Renders a colored line from start → end with a "Clear" or "Blocked"
+ * label. Uses the same Graphics object the measure tool uses, so the
+ * tool toggle just swaps which drawing path runs for the current
+ * click pair.
+ */
+export function drawLineOfSight(
+  graphics: Graphics,
+  start: { x: number; y: number },
+  end: { x: number; y: number },
+  isBlocked: boolean
+): void {
+  graphics.clear()
+  while (graphics.children.length > 0) {
+    graphics.removeChildAt(0)
+  }
+
+  const color = isBlocked ? 0xdc2626 : 0x22c55e // red-600 / green-500
+  const labelColor = isBlocked ? 0xfca5a5 : 0x86efac // red-300 / green-300
+
+  graphics.moveTo(start.x, start.y)
+  graphics.lineTo(end.x, end.y)
+  graphics.stroke({ width: 2, color, alpha: 0.9 })
+
+  graphics.circle(start.x, start.y, 4)
+  graphics.fill({ color, alpha: 1 })
+  graphics.circle(end.x, end.y, 4)
+  graphics.fill({ color, alpha: 1 })
+
+  const midX = (start.x + end.x) / 2
+  const midY = (start.y + end.y) / 2
+
+  const style = new TextStyle({
+    fontFamily: 'Arial, sans-serif',
+    fontSize: 14,
+    fontWeight: 'bold',
+    fill: labelColor,
+    stroke: { color: 0x000000, width: 3 },
+    align: 'center'
+  })
+
+  const label = new Text({
+    text: isBlocked ? '✗ Blocked by wall' : '✓ Clear line of sight',
+    style
+  })
+  label.anchor.set(0.5, 1)
+  label.x = midX
+  label.y = midY - 8
+
+  graphics.addChild(label)
+}

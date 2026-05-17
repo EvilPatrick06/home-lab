@@ -71,6 +71,7 @@ interface MapCanvasProps {
     | 'fog-reveal'
     | 'fog-hide'
     | 'measure'
+    | 'check-los'
     | 'terrain'
     | 'wall'
     | 'fill'
