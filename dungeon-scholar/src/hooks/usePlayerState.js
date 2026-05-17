@@ -15,7 +15,14 @@ import { pullSave, pushSave, upsertProfile, subscribeSaves } from '../services/c
 import { applyBackfills } from '../services/backfill.js';
 
 const LOCAL_DEBOUNCE_MS = 500;
-const CLOUD_DEBOUNCE_MS = 500;
+// Phase 37d QA round-6 suggestion: bumped cloud debounce from 500ms → 1500ms
+// to cluster bursts of setState (e.g., answer-event triggers recordAnswer +
+// updateTomeProgress + awardXP + checkAchievement in quick succession). The
+// 500ms window often missed the trailing edge of such a cluster — observed
+// as up to 4 POSTs to /rest/v1/saves per answer. Local save stays at 500ms
+// and the beforeunload flush still fires synchronously, so crash-safety is
+// unaffected.
+const CLOUD_DEBOUNCE_MS = 1500;
 const RETRY_DELAYS_MS = [1000, 4000, 16000];
 const BROADCAST_CHANNEL = 'dungeon-scholar:state';
 
