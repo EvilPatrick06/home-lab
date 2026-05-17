@@ -13,10 +13,12 @@ import HighElfCantripSwapModal5e from '../components/sheet/5e/HighElfCantripSwap
 import NotesSection5e from '../components/sheet/5e/NotesSection5e'
 import OffenseSection5e from '../components/sheet/5e/OffenseSection5e'
 import SavingThrowsSection5e from '../components/sheet/5e/SavingThrowsSection5e'
+import SheetErrorRecovery5e from '../components/sheet/5e/SheetErrorRecovery5e'
 import SheetHeader5e from '../components/sheet/5e/SheetHeader5e'
 import ShortRestModal5e from '../components/sheet/5e/ShortRestModal5e'
 import SkillsSection5e from '../components/sheet/5e/SkillsSection5e'
 import SpellcastingSection5e from '../components/sheet/5e/SpellcastingSection5e'
+import ErrorBoundary from '../components/ui/ErrorBoundary'
 import Modal from '../components/ui/Modal'
 import { addToast } from '../hooks/use-toast'
 
@@ -60,6 +62,10 @@ export default function CharacterSheet5ePage(): JSX.Element {
   const [loadingVersions, setLoadingVersions] = useState(false)
   const [restoringVersion, setRestoringVersion] = useState<string | null>(null)
   const [confirmRestoreFile, setConfirmRestoreFile] = useState<string | null>(null)
+  // Phase 17a — sheet-scoped error recovery: incrementing the key remounts
+  // the inner <ErrorBoundary>, clearing its caught-error state so the user
+  // can retry rendering without reloading the entire app.
+  const [sheetErrorKey, setSheetErrorKey] = useState(0)
 
   if (!character) {
     return (
@@ -263,36 +269,49 @@ export default function CharacterSheet5ePage(): JSX.Element {
         </div>
       )}
 
-      {/* Sheet content */}
-      <div className="flex-1 overflow-y-auto p-6">
-        <div className="max-w-4xl mx-auto">
-          <SheetHeader5e character={character} readonly={readonly} />
-          <CombatStatsBar5e character={character} readonly={readonly} />
-          <AbilityScoresGrid5e character={character} />
+      {/* Sheet content — wrapped in sheet-scoped ErrorBoundary (17a) so a
+          render error in any section shows a recovery panel instead of
+          escaping to the global error boundary (which used to navigate the
+          host back to the lobby and the player to "page not found"). */}
+      <ErrorBoundary
+        key={sheetErrorKey}
+        fallback={
+          <SheetErrorRecovery5e
+            onReload={() => setSheetErrorKey((k) => k + 1)}
+            onBack={() => navigate(returnTo || '/characters')}
+          />
+        }
+      >
+        <div className="flex-1 overflow-y-auto p-6">
+          <div className="max-w-4xl mx-auto">
+            <SheetHeader5e character={character} readonly={readonly} />
+            <CombatStatsBar5e character={character} readonly={readonly} />
+            <AbilityScoresGrid5e character={character} />
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="space-y-6">
-              <ClassResourcesSection5e character={character} readonly={readonly} />
-              <SavingThrowsSection5e character={character} />
-              <SkillsSection5e character={character} readonly={readonly} />
-              <ConditionsSection5e character={character} readonly={readonly} />
-              <FeaturesSection5e character={character} readonly={readonly} />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="space-y-6">
+                <ClassResourcesSection5e character={character} readonly={readonly} />
+                <SavingThrowsSection5e character={character} />
+                <SkillsSection5e character={character} readonly={readonly} />
+                <ConditionsSection5e character={character} readonly={readonly} />
+                <FeaturesSection5e character={character} readonly={readonly} />
+              </div>
+              <div className="space-y-6">
+                <OffenseSection5e character={character} readonly={readonly} />
+                <DefenseSection5e character={character} readonly={readonly} />
+                <SpellcastingSection5e character={character} readonly={readonly} />
+                <EquipmentSection5e character={character} readonly={readonly} />
+                <CompanionsSection5e character={character} readonly={readonly} />
+                <CraftingSection5e character={character} readonly={readonly} />
+              </div>
             </div>
-            <div className="space-y-6">
-              <OffenseSection5e character={character} readonly={readonly} />
-              <DefenseSection5e character={character} readonly={readonly} />
-              <SpellcastingSection5e character={character} readonly={readonly} />
-              <EquipmentSection5e character={character} readonly={readonly} />
-              <CompanionsSection5e character={character} readonly={readonly} />
-              <CraftingSection5e character={character} readonly={readonly} />
-            </div>
-          </div>
 
-          <div className="mt-6">
-            <NotesSection5e character={character} readonly={readonly} />
+            <div className="mt-6">
+              <NotesSection5e character={character} readonly={readonly} />
+            </div>
           </div>
         </div>
-      </div>
+      </ErrorBoundary>
 
       {/* Short Rest Modal */}
       <ShortRestModal5e character={character} open={showShortRest} onClose={() => setShowShortRest(false)} />
