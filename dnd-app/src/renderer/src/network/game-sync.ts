@@ -110,6 +110,11 @@ export function startGameSync(sendMessage: SendMessageFn): void {
   let prevIsPaused = useGameStore.getState().isPaused
   let prevTurnStates = useGameStore.getState().turnStates
   let prevPartyVisionCells = useGameStore.getState().partyVisionCells
+  // Phase 17ad — also watch the sharedJournal array. Previously journal
+  // entries only synced as part of the full game-state payload sent at
+  // peer join, so a player or DM adding a new shared entry mid-session
+  // was invisible to everyone else.
+  let prevSharedJournal = useGameStore.getState().sharedJournal
 
   unsubscribe = useGameStore.subscribe((state) => {
     // Sync party vision cells
@@ -188,6 +193,20 @@ export function startGameSync(sendMessage: SendMessageFn): void {
     if (state.turnStates !== prevTurnStates) {
       prevTurnStates = state.turnStates
       sendMessage('game:state-update', { turnStates: state.turnStates })
+    }
+
+    // Phase 17ad — sharedJournal incremental broadcast. The reference
+    // changes whenever an entry is added / updated / deleted (each store
+    // mutation returns a fresh array). Ships the full sharedJournal in
+    // the state-update payload; per-peer filtering (visibility ===
+    // 'private' authored-by-other-player) happens at the client render
+    // surface, not at the network layer — fine for now since private
+    // entries are still visible to their author + the host, and players
+    // currently see all shared entries. (Future phase: per-entry
+    // visibility filtering at this broadcast for true private.)
+    if (state.sharedJournal !== prevSharedJournal) {
+      prevSharedJournal = state.sharedJournal
+      sendMessage('game:state-update', { sharedJournal: state.sharedJournal })
     }
 
     if (state.maps !== prevMaps) {
