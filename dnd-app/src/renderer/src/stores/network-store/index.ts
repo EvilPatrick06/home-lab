@@ -28,6 +28,7 @@ import {
   stopHosting
 } from '../../network'
 import { useGameStore } from '../use-game-store'
+import { useLobbyStore } from '../use-lobby-store'
 import { handleClientMessage } from './client-handlers'
 import { handleHostMessage } from './host-handlers'
 import type { NetworkState } from './types'
@@ -173,8 +174,19 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
   },
 
   kickPlayer: (peerId: string) => {
+    // Phase 17e — kicked peers used to linger in the sidebar as "reconnecting"
+    // (yellow pill) for ~15 s before vanishing, because the lobby-bridge
+    // peer-disappearance handler set status='reconnecting' on any peer that
+    // dropped, regardless of cause. Set the status to 'disconnected' (red
+    // pill) up front so the kick reads as a kick, give the user 1.5 s to
+    // notice, then drop the entry. (The bridge sees the explicit
+    // 'disconnected' status and skips the 'reconnecting' downgrade.)
+    useLobbyStore.getState().setPlayerStatus(peerId, 'disconnected')
     kickPeer(peerId)
     get().removePeer(peerId)
+    setTimeout(() => {
+      useLobbyStore.getState().removePlayer(peerId)
+    }, 1500)
   },
 
   // --- Client actions ---

@@ -72,7 +72,11 @@ function usePeerSync(localPeerId: string | null): void {
     for (const player of currentPlayers) {
       if (player.peerId === localPeerId) continue
       if (!peerIds.has(player.peerId)) {
-        if (player.status !== 'reconnecting') {
+        // Phase 17e — respect an explicit 'disconnected' status (set by a
+        // kick) so the kicked player doesn't get downgraded back to
+        // 'reconnecting'. The kick path schedules its own short-grace
+        // removal so the entry doesn't linger here either.
+        if (player.status !== 'reconnecting' && player.status !== 'disconnected') {
           lobby.setPlayerStatus(player.peerId, 'reconnecting')
           setTimeout(() => {
             const p = useLobbyStore.getState().players.find((x) => x.peerId === player.peerId)

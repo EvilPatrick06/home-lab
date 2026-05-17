@@ -165,6 +165,11 @@ export default memo(function PlayerCard({
           )}
           {player.status === 'reconnecting' ? (
             <span className="text-[10px] text-amber-400 animate-pulse">Reconnecting...</span>
+          ) : player.status === 'disconnected' ? (
+            // Phase 17e — explicit disconnected (set by Kick) renders as a
+            // red pill, not the yellow "Reconnecting" used for transient
+            // drops. The card is removed after a short grace.
+            <span className="text-[10px] text-red-400 font-semibold">Disconnected</span>
           ) : (
             player.latencyMs != null && (
               <span
