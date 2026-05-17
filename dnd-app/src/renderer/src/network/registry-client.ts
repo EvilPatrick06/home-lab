@@ -12,12 +12,13 @@
  * - fetch a one-shot listing if SSE isn't reachable (`listGames`)
  *
  * The Pi base URL is read from `settings.bmoPiBaseUrl` (falls back to
- * the historic `http://bmo.local:5000`). Network errors are surfaced
- * to the caller — the UI distinguishes "no Pi reachable" from
- * "registry empty" via the `onError` callback.
+ * the public Cloudflare Tunnel hostname so off-LAN players reach the
+ * registry without any local network setup). Network errors are
+ * surfaced to the caller — the UI distinguishes "no Pi reachable"
+ * from "registry empty" via the `onError` callback.
  */
 
-const DEFAULT_BASE_URL = 'http://bmo.local:5000'
+const DEFAULT_BASE_URL = 'https://bmo.mybmoai.work'
 const HEARTBEAT_INTERVAL_MS = 30_000
 const BACKOFF_LADDER_MS = [1_000, 2_000, 4_000, 8_000, 16_000, 30_000]
 

@@ -99,7 +99,7 @@ Not yet shipped. Build from source via the `Build for release` section below (`n
 - **Accessibility** — reduced motion (skips 3D dice physics), high-contrast theme.
 
 **Troubleshooting:**
-- Game browser empty + says *"No Pi registry connected"* — you're seeing LAN games only. Either ignore (LAN-only is fine for couch sessions) or set up the [BMO Pi](../bmo) for cross-network public-game discovery.
+- Game browser empty — same Wi-Fi as the host shows LAN games immediately. Off-LAN public games come via the Cloudflare-Tunnel'd Pi registry (`bmo.mybmoai.work`), no setup needed. If neither shows anything, nobody is hosting right now or the public registry is unreachable from your network (rare; some captive-portal Wi-Fi blocks `*.mybmoai.work`).
 - Can't reach a host with the right code — both ends need to allow the app through their firewall. The first launch pops a Windows Firewall prompt; click **Allow access** on both networks (private + public).
 - Auto-update keeps prompting — Settings → Updates → uncheck **Auto-check on launch**.
 

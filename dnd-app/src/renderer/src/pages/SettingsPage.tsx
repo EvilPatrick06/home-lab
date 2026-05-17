@@ -798,7 +798,7 @@ function CloudBackupSection(): JSX.Element {
             type="url"
             name="bmo-pi-base-url"
             autoComplete="off"
-            placeholder="http://bmo.local:5000"
+            placeholder="https://bmo.mybmoai.work"
             value={bmoPiBaseUrl}
             onChange={(e) => setBmoPiBaseUrl(e.target.value)}
             className="flex-1 min-w-[12rem] px-2 py-1.5 text-sm rounded-lg bg-gray-800 border border-gray-700 text-gray-200"

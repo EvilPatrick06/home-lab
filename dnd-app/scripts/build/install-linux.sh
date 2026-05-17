@@ -21,6 +21,7 @@ APP_NAME="dnd-vtt"
 DISPLAY_NAME="D&D Virtual Tabletop"
 INSTALL_DIR="${HOME}/Applications"
 DESKTOP_DIR="${HOME}/.local/share/applications"
+ICON_DIR="${HOME}/.local/share/icons/hicolor/512x512/apps"
 BIN_DIR="${HOME}/.local/bin"
 DEST="${INSTALL_DIR}/${APP_NAME}.AppImage"
 LAUNCHER="${BIN_DIR}/${APP_NAME}"
@@ -106,10 +107,50 @@ chmod +x "${LAUNCHER}"
 ok "Added ${LAUNCHER} (wraps the AppImage with auto-detected flags)"
 
 # Warn if ~/.local/bin isn't on PATH so the "run from terminal" hint at
-# the end actually works in a fresh shell.
+# the end actually works in a fresh shell. Print the exact one-liner the
+# user can paste, not a hand-wavy "add to your profile" hint.
 if ! echo "${PATH}" | tr ':' '\n' | grep -qx "${BIN_DIR}"; then
-  info "Note: ${BIN_DIR} isn't on PATH — add it to ~/.bashrc / ~/.profile,"
-  info "or run via the full path: ${LAUNCHER}"
+  echo
+  info "Note: ${BIN_DIR} isn't on your PATH yet."
+  info "To run \`${APP_NAME}\` from any terminal, paste this and restart your shell:"
+  info ""
+  info "    echo 'export PATH=\"\$HOME/.local/bin:\$PATH\"' >> ~/.bashrc"
+  info ""
+  info "Or just use the full path: ${LAUNCHER}"
+fi
+
+bold "==> Extracting app icon"
+# AppImages ship a top-level <name>.png that the .desktop file's Icon=
+# field references. Without copying it into the user's hicolor theme
+# tree, the app menu shows a generic placeholder icon instead of the
+# BMO/D&D artwork. Extract into a tmp dir, copy the icon out, clean up.
+mkdir -p "${ICON_DIR}"
+icon_tmp=$(mktemp -d)
+icon_extracted=0
+if (cd "${icon_tmp}" && "${DEST}" --appimage-extract "${APP_NAME}.png" >/dev/null 2>&1); then
+  icon_src="${icon_tmp}/squashfs-root/${APP_NAME}.png"
+  if [[ -f "${icon_src}" ]]; then
+    cp "${icon_src}" "${ICON_DIR}/${APP_NAME}.png"
+    icon_extracted=1
+  fi
+fi
+# Fallback: search for any PNG inside the extracted resources tree.
+if [[ "${icon_extracted}" -eq 0 ]]; then
+  if (cd "${icon_tmp}" && "${DEST}" --appimage-extract "usr/share/icons/hicolor/*/apps/${APP_NAME}.png" >/dev/null 2>&1); then
+    icon_src=$(find "${icon_tmp}/squashfs-root" -name "${APP_NAME}.png" 2>/dev/null | sort -r | head -1)
+    if [[ -n "${icon_src}" && -f "${icon_src}" ]]; then
+      cp "${icon_src}" "${ICON_DIR}/${APP_NAME}.png"
+      icon_extracted=1
+    fi
+  fi
+fi
+rm -rf "${icon_tmp}"
+if [[ "${icon_extracted}" -eq 1 ]]; then
+  gtk-update-icon-cache -t "${HOME}/.local/share/icons/hicolor" 2>/dev/null || true
+  ok "Installed icon to ${ICON_DIR}/${APP_NAME}.png"
+else
+  err "Could not extract icon from AppImage — app menu will show a generic placeholder."
+  err "(This is cosmetic; the app still launches normally.)"
 fi
 
 bold "==> Adding desktop entry"
@@ -146,10 +187,32 @@ need_lib "libgtk-3.so.0" "libgtk-3-0"
 
 if [[ ${#missing_libs[@]} -gt 0 ]]; then
   echo
-  err "Missing libraries: ${missing_libs[*]}"
-  err "Install with: sudo apt install ${missing_libs[*]}"
-  err "Then re-run the AppImage."
+  bold "==> Installing required runtime libraries"
+  info "Missing: ${missing_libs[*]}"
+  info "Electron will not launch without these — installing automatically."
   echo
+  if command -v apt-get >/dev/null 2>&1; then
+    # apt-get reads its yes/no prompts from stdin, but we add -y to skip.
+    # sudo reads the password from /dev/tty directly (not stdin), so this
+    # works even when the script is piped via `curl | bash` — the password
+    # prompt still appears on the user's terminal.
+    info "Running: sudo apt install -y ${missing_libs[*]}"
+    info "(your terminal may prompt for your password)"
+    echo
+    if sudo apt-get install -y "${missing_libs[@]}"; then
+      ok "Installed: ${missing_libs[*]}"
+    else
+      err "Auto-install failed (apt returned non-zero)."
+      err "Run manually: sudo apt install ${missing_libs[*]}"
+      err "Then re-run the AppImage — no need to re-run install-linux.sh."
+    fi
+  else
+    err "Auto-install only supports Debian/Ubuntu (apt-get not found)."
+    err "Install these libraries manually for your distro: ${missing_libs[*]}"
+    err "Common equivalents:"
+    err "  Fedora:  sudo dnf install nss libgtk-3 mesa-libgbm alsa-lib fuse"
+    err "  Arch:    sudo pacman -S nss gtk3 mesa alsa-lib fuse2"
+  fi
 fi
 
 bold "==> Done"

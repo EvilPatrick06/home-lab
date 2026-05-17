@@ -3,9 +3,16 @@
  * Precedence: non-empty `bmoPiBaseUrl` in app settings (after load/save) →
  * mDNS-discovered Pi URL (via _bmo._tcp browse in lan-discovery.ts) →
  * `process.env.BMO_PI_URL` → `BMO_PI_URL_DEFAULT`.
+ *
+ * The default points at the public Cloudflare Tunnel hostname so off-LAN
+ * players can hit `/api/games*` (game-discovery registry) without any
+ * local network setup. The tunnel is owned by the Pi at home; LAN users
+ * still get LAN-direct routing via mDNS, which beats the tunnel because
+ * it skips the Cloudflare edge hop. The default only kicks in when mDNS
+ * times out and no settings override is set.
  */
 
-export const BMO_PI_URL_DEFAULT = 'http://bmo.local:5000'
+export const BMO_PI_URL_DEFAULT = 'https://bmo.mybmoai.work'
 
 let userOverrideUrl: string | null = null
 let discoveredBmoUrl: string | null = null

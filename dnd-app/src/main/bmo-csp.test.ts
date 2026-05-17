@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest'
 import { bmoCspConnectFragmentForBaseUrl } from './bmo-csp'
 
 describe('bmoCspConnectFragmentForBaseUrl', () => {
-  it('uses default bmo.local when undefined (same default as bmo-bridge)', () => {
+  it('uses public Cloudflare Tunnel default when undefined (matches bmo-bridge)', () => {
     const f = bmoCspConnectFragmentForBaseUrl(undefined)
-    expect(f).toBe(' ws://bmo.local:* http://bmo.local:*')
+    expect(f).toBe(' wss://bmo.mybmoai.work:* https://bmo.mybmoai.work:*')
   })
 
   it('derives http and ws hosts with port wildcard for LAN IP', () => {
