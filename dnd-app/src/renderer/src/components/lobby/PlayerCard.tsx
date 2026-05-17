@@ -44,12 +44,16 @@ export default memo(function PlayerCard({
   const avatarLetter = player.displayName.charAt(0).toUpperCase()
   const [showColorPicker, setShowColorPicker] = useState(false)
 
+  // MP-10 (v2.1.31 QA): card border is driven by stable role (host vs.
+  // not-host), not the viewer-relative isLocal flag. Otherwise the host's
+  // own card looked amber to themselves and gray to everyone else.
+  // isLocal still adds a subtle inner ring so "this is your card" stays
+  // recognizable without overriding the host styling.
+  const cardBorderClass = player.isHost ? 'border-amber-700/50 bg-amber-900/10' : 'border-gray-800 bg-gray-900/30'
+  const localRingClass = isLocal ? 'ring-1 ring-inset ring-amber-500/30' : ''
+
   return (
-    <div
-      className={`flex flex-col gap-1 p-3 rounded-lg border transition-colors ${
-        isLocal ? 'border-amber-700/50 bg-amber-900/10' : 'border-gray-800 bg-gray-900/30'
-      }`}
-    >
+    <div className={`flex flex-col gap-1 p-3 rounded-lg border transition-colors ${cardBorderClass} ${localRingClass}`}>
       {/* Main row: avatar, info, status */}
       <div className="flex items-center gap-3">
         {/* Avatar: color is a BORDER, not the fill. The fill is either the
@@ -87,18 +91,28 @@ export default memo(function PlayerCard({
               <span aria-hidden="true">{avatarLetter}</span>
             )}
           </button>
+          {/* MP-11 (v2.1.31 QA): the palette overlay only renders on the
+              local player's own card because it's the color-picker trigger,
+              not a permanent avatar decoration. To make that intent obvious
+              (the QA reporter mistook it for a static badge) we render a
+              pencil-edit icon (universal "this is interactive") instead of
+              the previous palette-circle, scoped strictly to the local-
+              editable path. Other viewers' cards intentionally have no
+              corner overlay — the avatar border (color) is the entire
+              cross-viewer-visible identity. */}
           {isLocal && onColorChange && (
             <div
               className="pointer-events-none absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-gray-900 border border-amber-500 flex items-center justify-center"
               aria-hidden="true"
+              title="Click avatar to change color"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
                 fill="currentColor"
-                className="w-3 h-3 text-amber-400"
+                className="w-2.5 h-2.5 text-amber-400"
               >
-                <path d="M10 2a8 8 0 1 0 8 8c0-1.5-1.2-2-2-2h-2a2 2 0 0 1 0-4 2 2 0 0 0 2-2c0-.7-1.3-.5-3-1A8 8 0 0 0 10 2zm-4 7a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm3-4a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm4 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2z" />
+                <path d="M2.695 14.763l-1.262 3.154a.5.5 0 0 0 .65.65l3.155-1.262a4 4 0 0 0 1.343-.886L17.5 5.501a2.121 2.121 0 0 0-3-3L3.58 13.42a4 4 0 0 0-.885 1.343Z" />
               </svg>
             </div>
           )}
@@ -160,13 +174,30 @@ export default memo(function PlayerCard({
 
         {/* Status icons & controls */}
         <div className="flex items-center gap-1.5 flex-shrink-0">
-          {/* Local mute button (visible on non-self players) */}
+          {/* Local mute button (visible on non-self players).
+              MP-9 (v2.1.31 QA): QA reported "no observable effect" because
+              the icon-only toggle went from a very-dark-gray speaker to an
+              amber muted-speaker — visually subtle, no explicit pressed
+              state, no text. Adding aria-pressed, a contrast-strong active
+              ring, and visible state-change scaling so the toggle reads as
+              an actual toggle, not a dead button. */}
           {!isLocal && onToggleLocalMute && (
             <button
+              type="button"
               onClick={onToggleLocalMute}
-              title={isLocallyMuted ? 'Unmute player (local)' : 'Mute player (local)'}
-              className={`p-1 rounded transition-colors cursor-pointer ${
-                isLocallyMuted ? 'text-amber-400 hover:text-amber-300' : 'text-gray-600 hover:text-gray-400'
+              aria-pressed={isLocallyMuted}
+              aria-label={
+                isLocallyMuted ? `Unmute ${player.displayName} (local)` : `Mute ${player.displayName} (local)`
+              }
+              title={
+                isLocallyMuted
+                  ? `Unmute ${player.displayName} for your audio (local-only)`
+                  : `Mute ${player.displayName} for your audio (local-only)`
+              }
+              className={`p-1 rounded transition-all cursor-pointer ${
+                isLocallyMuted
+                  ? 'text-amber-300 bg-amber-900/40 ring-1 ring-amber-500/60 hover:bg-amber-900/60'
+                  : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/60'
               }`}
             >
               {isLocallyMuted ? (

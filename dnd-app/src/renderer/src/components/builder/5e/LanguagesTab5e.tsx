@@ -51,8 +51,21 @@ function LanguageTooltip({
     if (!anchorRef) return
     const rect = anchorRef.getBoundingClientRect()
     const flipBelow = rect.top < 100
+    // P-3 (v2.1.31 QA): clamp the tooltip's centerpoint so the w-64
+    // (256 px) panel can't overflow off either edge of the window.
+    // The first selected language chip ("Common") sits near the left
+    // edge of the Languages tab — without the clamp, the
+    // translateX(-50%) below pushes the tooltip ~100 px past x=0 and
+    // the body text reads "ten by humans and … language across the …"
+    // because the leading characters are clipped.
+    const TOOLTIP_WIDTH = 256
+    const MARGIN = 8
+    const center = rect.left + rect.width / 2
+    const minCenter = TOOLTIP_WIDTH / 2 + MARGIN
+    const maxCenter = window.innerWidth - TOOLTIP_WIDTH / 2 - MARGIN
+    const clampedX = Math.max(minCenter, Math.min(maxCenter, center))
     setPos({
-      x: rect.left + rect.width / 2,
+      x: clampedX,
       y: flipBelow ? rect.bottom + 8 : rect.top - 8,
       flipBelow
     })

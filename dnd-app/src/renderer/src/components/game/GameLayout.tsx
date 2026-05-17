@@ -29,7 +29,7 @@ import { ErrorBoundary, ModalErrorBoundary } from '../ui'
 import { announce } from '../ui/ScreenReaderAnnouncer'
 import DMBottomBar from './bottom/DMBottomBar'
 import PlayerBottomBar from './bottom/PlayerBottomBar'
-import { DiceOverlay } from './dice3d'
+// DiceOverlay imported in App.tsx only — see P-2 comment below.
 import DiceTray from './dice3d/DiceTray'
 import type { ActiveModal } from './GameModalDispatcher'
 import GameModalDispatcher from './GameModalDispatcher'
@@ -635,7 +635,12 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
             </div>
           )
         })()}
-        <DiceOverlay />
+        {/* P-2 (v2.1.31 QA): DiceOverlay is already mounted globally in
+            App.tsx — mounting it again here registered a second listener
+            against the trigger3dDice event bus, which made every chat
+            roll produce two DiceTray entries (matching `(2)` badge per
+            roll). Tray itself stays here so per-game position state
+            survives map/scene swaps. */}
         <DiceTray />
       </div>
 

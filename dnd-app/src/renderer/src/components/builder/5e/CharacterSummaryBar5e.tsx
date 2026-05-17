@@ -121,14 +121,22 @@ function CompletionBadge(): JSX.Element {
   const characterName = useBuilderStore((s) => s.characterName)
   const buildSlots = useBuilderStore((s) => s.buildSlots)
   const backgroundAbilityBonuses = useBuilderStore((s) => s.backgroundAbilityBonuses)
+  // L-1 (v2.1.31 QA): include languages in the completion count. Without
+  // this, the badge went green at 7/7 even when the Languages tab still
+  // had unmet "Choose 2 more languages" requirements, contradicting the
+  // disabled Save Character button.
+  const speciesExtraLangCount = useBuilderStore((s) => s.speciesExtraLangCount)
+  const bgLanguageCount = useBuilderStore((s) => s.bgLanguageCount)
+  const classExtraLangCount = useBuilderStore((s) => s.classExtraLangCount)
+  const chosenLanguages = useBuilderStore((s) => s.chosenLanguages)
 
   const completionInfo = useMemo(() => {
     let completed = 0
-    // 7 foundation steps: name, ancestry, class, background, ability scores,
-    // skill choices, and background ability bonuses (3 points). The badge must
-    // stay short of "green" until all of these are satisfied — Save Character
-    // will still refuse for these reasons even when fewer are missing.
-    const total = 7
+    // 8 foundation steps: name, ancestry, class, background, ability scores,
+    // skill choices, background ability bonuses (3 points), and languages.
+    // The badge must stay short of "green" until all of these are satisfied —
+    // Save Character will refuse for any of them.
+    const total = 8
     if (characterName.trim()) completed++
     const ancestrySlot = buildSlots.find((s) => s.category === 'ancestry')
     if (ancestrySlot?.selectedId) completed++
@@ -144,8 +152,20 @@ function CompletionBadge(): JSX.Element {
       const bonusTotal = Object.values(backgroundAbilityBonuses).reduce((a, b) => a + b, 0)
       if (bonusTotal === 3) completed++
     }
+    // Languages: 2 free + species + background + class extras. All slots must
+    // be filled by `chosenLanguages` entries before the step counts complete.
+    const totalLanguageSlots = 2 + speciesExtraLangCount + bgLanguageCount + classExtraLangCount
+    if (chosenLanguages.length >= totalLanguageSlots) completed++
     return { completed, total }
-  }, [characterName, buildSlots, backgroundAbilityBonuses])
+  }, [
+    characterName,
+    buildSlots,
+    backgroundAbilityBonuses,
+    speciesExtraLangCount,
+    bgLanguageCount,
+    classExtraLangCount,
+    chosenLanguages
+  ])
 
   const { completed, total } = completionInfo
   const color =

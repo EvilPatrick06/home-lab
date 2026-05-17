@@ -39,6 +39,18 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
   const equipment = character.equipment
   const is5e = is5eCharacter(character)
   const magicItems = is5e ? ((character as Character5e).magicItems ?? []) : []
+  // Phase 15a: Player Inventory Panel — surface currency totals and total
+  // carried weight as headline summary fields. Previously the modal was
+  // a flat item list with no aggregate view; players had to mentally
+  // sum coins / lb. across rows or open the full character sheet.
+  const treasure = is5e ? (character as Character5e).treasure : undefined
+  const totalWeight = equipment.reduce((sum, item) => {
+    const w = ((item as unknown as Record<string, unknown>).weight as number | undefined) ?? 0
+    return sum + w * (item.quantity || 1)
+  }, 0)
+  const strScore = is5e ? ((character as Character5e).abilityScores?.strength ?? 10) : 10
+  const carryCapacity = strScore * 15 // 5e standard
+  const isEncumbered = totalWeight > carryCapacity
 
   const handleUseConsumable = (item: { name: string; quantity: number }, index: number): void => {
     const effectSource = getConsumableEffects(item.name)
@@ -133,6 +145,45 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
             &times;
           </button>
         </div>
+
+        {/* Phase 15a: aggregate inventory summary — currency totals + total
+            carried weight + encumbrance flag. Replaces the previous "open the
+            full character sheet to see your coins" round-trip. */}
+        {treasure && (
+          <div className="mb-3 grid grid-cols-2 gap-2 text-[11px] shrink-0">
+            <div className="rounded-lg border border-gray-700/50 bg-gray-800/40 px-3 py-2">
+              <div className="text-[9px] uppercase tracking-wider text-gray-500 mb-1">Currency</div>
+              <div className="flex flex-wrap gap-x-3 gap-y-0.5 font-mono text-gray-300">
+                {treasure.pp > 0 && (
+                  <span>
+                    <span className="text-amber-300">{treasure.pp}</span> pp
+                  </span>
+                )}
+                <span>
+                  <span className="text-yellow-400">{treasure.gp}</span> gp
+                </span>
+                {treasure.ep != null && treasure.ep > 0 && (
+                  <span>
+                    <span className="text-yellow-200">{treasure.ep}</span> ep
+                  </span>
+                )}
+                <span>
+                  <span className="text-gray-300">{treasure.sp}</span> sp
+                </span>
+                <span>
+                  <span className="text-orange-400">{treasure.cp}</span> cp
+                </span>
+              </div>
+            </div>
+            <div className="rounded-lg border border-gray-700/50 bg-gray-800/40 px-3 py-2">
+              <div className="text-[9px] uppercase tracking-wider text-gray-500 mb-1">Carry weight</div>
+              <div className={`font-mono text-sm ${isEncumbered ? 'text-red-400' : 'text-gray-200'}`}>
+                {totalWeight.toFixed(1)} / {carryCapacity} lb
+                {isEncumbered && <span className="ml-1 text-[10px] uppercase">Encumbered</span>}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Roll result banner */}
         {rollResult && (
