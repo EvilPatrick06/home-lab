@@ -1415,7 +1415,7 @@ export default function DungeonScholarApp() {
       if (isComplete) {
         if (!next.unlockedTitles.includes('initiated')) {
           next.unlockedTitles = [...next.unlockedTitles, 'initiated'];
-          setTimeout(() => showNotif('Title Unlocked: The Initiated', 'achievement'), 200);
+          setTimeout(() => showNotif('Title Unlocked: The Initiated', 'achievement', () => setShowTitles(true)), 200);
         }
         setTimeout(() => showNotif('Tutorial Complete! Welcome, brave scholar.', 'levelup'), 400);
       } else {
@@ -1593,8 +1593,11 @@ export default function DungeonScholarApp() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playerState.activeTomeId]);
 
-  const showNotif = (msg, type = 'info') => {
-    setNotification({ msg, type });
+  // Phase 38a: showNotif now takes an optional `onClick` so achievement /
+  // title notifications can deep-link the user to the relevant Hall of Glory
+  // entry. Falls back to the dismiss-on-click behavior for plain notifs.
+  const showNotif = (msg, type = 'info', onClick = null) => {
+    setNotification({ msg, type, onClick });
     setTimeout(() => setNotification(null), 3000);
   };
 
@@ -1623,7 +1626,7 @@ export default function DungeonScholarApp() {
           if (next.level >= m.lvl && !next.achievements.includes(m.id)) {
             next.achievements = [...next.achievements, m.id];
             const ach = ACHIEVEMENTS.find(a => a.id === m.id);
-            if (ach) setTimeout(() => showNotif(`Achievement Unlocked: ${ach.name}`, 'achievement'), 200);
+            if (ach) setTimeout(() => showNotif(`Achievement Unlocked: ${ach.name}`, 'achievement', () => setShowAchievements(true)), 200);
           }
         });
         const xpMilestones = [
@@ -1635,7 +1638,7 @@ export default function DungeonScholarApp() {
           if (next.totalXp >= m.amt && !next.achievements.includes(m.id)) {
             next.achievements = [...next.achievements, m.id];
             const ach = ACHIEVEMENTS.find(a => a.id === m.id);
-            if (ach) setTimeout(() => showNotif(`Achievement Unlocked: ${ach.name}`, 'achievement'), 300);
+            if (ach) setTimeout(() => showNotif(`Achievement Unlocked: ${ach.name}`, 'achievement', () => setShowAchievements(true)), 300);
           }
         });
         setTimeout(() => showNotif(`Level Up! You are now Level ${next.level}`, 'levelup'), 100);
@@ -2091,7 +2094,7 @@ export default function DungeonScholarApp() {
       if (prev.achievements.includes(id)) return prev;
       const ach = ACHIEVEMENTS.find(a => a.id === id);
       if (ach) {
-        setTimeout(() => showNotif(`Achievement Unlocked: ${ach.name} (+${ACHIEVEMENT_GOLD} gold)`, 'achievement'), 50);
+        setTimeout(() => showNotif(`Achievement Unlocked: ${ach.name} (+${ACHIEVEMENT_GOLD} gold)`, 'achievement', () => setShowAchievements(true)), 50);
       }
       return {
         ...prev,
@@ -2104,7 +2107,7 @@ export default function DungeonScholarApp() {
   const unlockSpecialTitle = (id) => {
     setPlayerState(prev => {
       if (prev.unlockedTitles.includes(id)) return prev;
-      setTimeout(() => showNotif(`Title Unlocked: ${SPECIAL_TITLES[id].name}`, 'achievement'), 50);
+      setTimeout(() => showNotif(`Title Unlocked: ${SPECIAL_TITLES[id].name}`, 'achievement', () => setShowTitles(true)), 50);
       return { ...prev, unlockedTitles: [...prev.unlockedTitles, id] };
     });
   };
@@ -2228,7 +2231,7 @@ export default function DungeonScholarApp() {
         if (newCorrect >= m.amt && !next.achievements.includes(m.id)) {
           next.achievements = [...next.achievements, m.id];
           const ach = ACHIEVEMENTS.find(a => a.id === m.id);
-          if (ach) setTimeout(() => showNotif(`Achievement Unlocked: ${ach.name}`, 'achievement'), 100);
+          if (ach) setTimeout(() => showNotif(`Achievement Unlocked: ${ach.name}`, 'achievement', () => setShowAchievements(true)), 100);
         }
       });
       const accuracy = newCorrect / newAnswered;
@@ -2241,7 +2244,7 @@ export default function DungeonScholarApp() {
         if (newAnswered >= c.count && accuracy >= c.acc && !next.achievements.includes(c.id)) {
           next.achievements = [...next.achievements, c.id];
           const ach = ACHIEVEMENTS.find(a => a.id === c.id);
-          if (ach) setTimeout(() => showNotif(`Achievement Unlocked: ${ach.name}`, 'achievement'), 150);
+          if (ach) setTimeout(() => showNotif(`Achievement Unlocked: ${ach.name}`, 'achievement', () => setShowAchievements(true)), 150);
         }
       });
       return next;
@@ -2264,7 +2267,7 @@ export default function DungeonScholarApp() {
       if (newBanished >= 25 && !next.achievements.includes('vault_warrior')) {
         next.achievements = [...next.achievements, 'vault_warrior'];
         const ach = ACHIEVEMENTS.find(a => a.id === 'vault_warrior');
-        if (ach) setTimeout(() => showNotif(`Achievement Unlocked: ${ach.name}`, 'achievement'), 100);
+        if (ach) setTimeout(() => showNotif(`Achievement Unlocked: ${ach.name}`, 'achievement', () => setShowAchievements(true)), 100);
       }
       return next;
     });
@@ -2548,7 +2551,7 @@ export default function DungeonScholarApp() {
       if (isFinal && chain.rewardTitleId && !prev.unlockedTitles.includes(chain.rewardTitleId)) {
         next.unlockedTitles = [...prev.unlockedTitles, chain.rewardTitleId];
         const titleName = SPECIAL_TITLES[chain.rewardTitleId]?.name || chain.rewardTitleId;
-        setTimeout(() => showNotif(`Title Unlocked: ${titleName}`, 'achievement'), 350);
+        setTimeout(() => showNotif(`Title Unlocked: ${titleName}`, 'achievement', () => setShowTitles(true)), 350);
       }
 
       return next;
@@ -2573,15 +2576,15 @@ export default function DungeonScholarApp() {
       const next = { ...prev, modesUsed: newModes };
       if (newModes.length >= 5 && !next.achievements.includes('all_modes')) {
         next.achievements = [...next.achievements, 'all_modes'];
-        setTimeout(() => showNotif(`Achievement Unlocked: Versatile Scholar`, 'achievement'), 100);
+        setTimeout(() => showNotif(`Achievement Unlocked: Versatile Scholar`, 'achievement', () => setShowAchievements(true)), 100);
       }
       if (mode === 'flashcards' && !next.achievements.includes('first_card')) {
         next.achievements = [...next.achievements, 'first_card'];
-        setTimeout(() => showNotif(`Achievement Unlocked: Open the Tome`, 'achievement'), 200);
+        setTimeout(() => showNotif(`Achievement Unlocked: Open the Tome`, 'achievement', () => setShowAchievements(true)), 200);
       }
       if (mode === 'chat' && !next.achievements.includes('first_oracle')) {
         next.achievements = [...next.achievements, 'first_oracle'];
-        setTimeout(() => showNotif(`Achievement Unlocked: Seeker of Wisdom`, 'achievement'), 200);
+        setTimeout(() => showNotif(`Achievement Unlocked: Seeker of Wisdom`, 'achievement', () => setShowAchievements(true)), 200);
       }
       return next;
     });
@@ -2623,15 +2626,15 @@ export default function DungeonScholarApp() {
       }
       if (!next.achievements.includes('first_tome')) {
         next.achievements = [...next.achievements, 'first_tome'];
-        setTimeout(() => showNotif(`Achievement Unlocked: Library Founded`, 'achievement'), 100);
+        setTimeout(() => showNotif(`Achievement Unlocked: Library Founded`, 'achievement', () => setShowAchievements(true)), 100);
       }
       if (next.library.length >= 3 && !next.achievements.includes('tome_collector')) {
         next.achievements = [...next.achievements, 'tome_collector'];
-        setTimeout(() => showNotif(`Achievement Unlocked: Tome Collector`, 'achievement'), 200);
+        setTimeout(() => showNotif(`Achievement Unlocked: Tome Collector`, 'achievement', () => setShowAchievements(true)), 200);
       }
       if (next.library.length >= 10 && !next.achievements.includes('tome_archivist')) {
         next.achievements = [...next.achievements, 'tome_archivist'];
-        setTimeout(() => showNotif(`Achievement Unlocked: Grand Archivist`, 'achievement'), 300);
+        setTimeout(() => showNotif(`Achievement Unlocked: Grand Archivist`, 'achievement', () => setShowAchievements(true)), 300);
       }
       return next;
     });
@@ -2835,15 +2838,39 @@ export default function DungeonScholarApp() {
       )}
 
       {notification && (
-        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded border-2 backdrop-blur-md ${
-          notification.type === 'levelup' ? 'bg-amber-900/80 border-amber-400 text-amber-100' :
-          notification.type === 'achievement' ? 'bg-purple-900/80 border-purple-400 text-purple-100' :
-          notification.type === 'xp' ? 'bg-emerald-900/80 border-emerald-500 text-emerald-100' :
-          notification.type === 'success' ? 'bg-emerald-900/80 border-emerald-500 text-emerald-100' :
-          notification.type === 'error' ? 'bg-red-900/80 border-red-500 text-red-100' :
-          'bg-stone-900/80 border-stone-600 text-amber-50'
-        }`} style={{ boxShadow: '0 0 20px rgba(245, 158, 11, 0.3)' }}>
+        // Phase 38a: clickable notifications when an onClick is attached
+        // (achievement / title unlocks deep-link to Hall of Glory). Default
+        // notifs just render as before with no pointer cursor.
+        <div
+          role={notification.onClick ? 'button' : undefined}
+          tabIndex={notification.onClick ? 0 : undefined}
+          onClick={() => {
+            if (!notification.onClick) return;
+            try { notification.onClick(); } catch { /* ignore */ }
+            setNotification(null);
+          }}
+          onKeyDown={(e) => {
+            if (!notification.onClick) return;
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              try { notification.onClick(); } catch { /* ignore */ }
+              setNotification(null);
+            }
+          }}
+          className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded border-2 backdrop-blur-md ${
+            notification.type === 'levelup' ? 'bg-amber-900/80 border-amber-400 text-amber-100' :
+            notification.type === 'achievement' ? 'bg-purple-900/80 border-purple-400 text-purple-100' :
+            notification.type === 'xp' ? 'bg-emerald-900/80 border-emerald-500 text-emerald-100' :
+            notification.type === 'success' ? 'bg-emerald-900/80 border-emerald-500 text-emerald-100' :
+            notification.type === 'error' ? 'bg-red-900/80 border-red-500 text-red-100' :
+            'bg-stone-900/80 border-stone-600 text-amber-50'
+          } ${notification.onClick ? 'cursor-pointer hover:brightness-110' : ''}`}
+          style={{ boxShadow: '0 0 20px rgba(245, 158, 11, 0.3)' }}
+        >
           {notification.msg}
+          {notification.onClick && (
+            <span className="ml-2 text-[10px] italic opacity-75">↗ click to view</span>
+          )}
         </div>
       )}
 
