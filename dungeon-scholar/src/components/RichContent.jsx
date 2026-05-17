@@ -6,8 +6,48 @@
 // border when the language is diagram-family (ascii, diagram, topology,
 // flow). Inline `backticks` render as a styled <code> span.
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { parseRichContent, isDiagramLanguage } from '../services/richContent.js';
+
+// Phase 38f: lazy-load KaTeX on first math node. Module-level promise
+// caches the import so the second math node renders instantly. CSS is
+// imported as a separate side-effecting dynamic import. Falls back to
+// the styled-span renderer if KaTeX fails to load (offline / CDN block).
+let katexPromise = null;
+function loadKatex() {
+  if (!katexPromise) {
+    katexPromise = Promise.all([
+      import('katex'),
+      import('katex/dist/katex.min.css'),
+    ]).then(([mod]) => mod.default || mod);
+  }
+  return katexPromise;
+}
+
+// Phase 38f: per-expression KaTeX renderer. Renders styled-span placeholder
+// while katex loads; swaps to the typeset HTML once ready. throwOnError:false
+// so a malformed expression renders the raw source rather than crashing.
+function MathRender({ expr, fallbackStyle }) {
+  const [html, setHtml] = useState(null);
+  useEffect(() => {
+    let mounted = true;
+    loadKatex().then((katex) => {
+      if (!mounted) return;
+      try {
+        const rendered = katex.renderToString(expr, { throwOnError: false, displayMode: false });
+        setHtml(rendered);
+      } catch { /* keep fallback */ }
+    }).catch(() => { /* offline — keep fallback */ });
+    return () => { mounted = false; };
+  }, [expr]);
+  if (html) {
+    // katex.renderToString returns trusted HTML (auto-escapes user input,
+    // includes no <script>). dangerouslySetInnerHTML is the documented
+    // KaTeX API for inline use.
+    return <span title="Math expression" dangerouslySetInnerHTML={{ __html: html }} />;
+  }
+  return <span title="Math expression (loading…)" style={fallbackStyle}>{expr}</span>;
+}
 
 const PRE_BASE_STYLE = {
   borderRadius: '4px',
@@ -133,19 +173,26 @@ export default function RichContent({ text, className, style, as: BlockTag = 'di
         />,
       );
     } else if (n.type === 'math') {
-      // Phase 36d: $inline math$ — styled span, not KaTeX. Visual hint
-      // only. Dollar signs are stripped (handled in the parser).
+      // Phase 36d / 38f: $inline math$ — full KaTeX typesetting via
+      // lazy-loaded module. Styled-span placeholder renders immediately
+      // (matches the Phase 36d look) and is replaced once KaTeX finishes
+      // loading. Module + CSS are imported only when the first math node
+      // is encountered, so tomes without math don't pay the bundle cost.
       runBuffer.push(
-        <span key={`m${i}`} title="Math expression" style={{
-          fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
-          fontStyle: 'italic',
-          fontSize: '0.95em',
-          background: 'rgba(126, 34, 206, 0.15)',
-          border: '1px solid rgba(168, 85, 247, 0.35)',
-          color: '#e9d5ff',
-          borderRadius: '3px',
-          padding: '0 0.35em',
-        }}>{n.content}</span>,
+        <MathRender
+          key={`m${i}`}
+          expr={n.content}
+          fallbackStyle={{
+            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+            fontStyle: 'italic',
+            fontSize: '0.95em',
+            background: 'rgba(126, 34, 206, 0.15)',
+            border: '1px solid rgba(168, 85, 247, 0.35)',
+            color: '#e9d5ff',
+            borderRadius: '3px',
+            padding: '0 0.35em',
+          }}
+        />,
       );
     } else if (n.type === 'code') {
       flushRun();
