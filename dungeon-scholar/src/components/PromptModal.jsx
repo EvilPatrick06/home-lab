@@ -64,10 +64,10 @@ function OrgPicker({ orgs, onPick, onClose }) {
         </h3>
         <button
           onClick={onClose}
-          aria-label="close"
+          aria-label="Close Spell of Tome Creation"
           className="p-2 hover:bg-amber-900/30 rounded text-amber-300"
         >
-          <X className="w-5 h-5" />
+          <X className="w-5 h-5" aria-hidden="true" />
         </button>
       </div>
       <div className="p-4 overflow-y-auto flex-1">
@@ -107,10 +107,10 @@ function PromptViewer({ org, examTarget, setExamTarget, finalPrompt, copied, onC
       <div className="p-4 border-b border-amber-700/50 flex justify-between items-center">
         <button
           onClick={onBack}
-          aria-label="back"
+          aria-label="Back to spell picker"
           className="p-2 hover:bg-amber-900/30 rounded text-amber-300"
         >
-          <ArrowLeft className="w-5 h-5" />
+          <ArrowLeft className="w-5 h-5" aria-hidden="true" />
         </button>
         <h3 className="text-xl font-bold text-amber-300 flex items-center gap-2 italic">
           <span className="text-2xl">{org.emoji}</span>
@@ -118,10 +118,10 @@ function PromptViewer({ org, examTarget, setExamTarget, finalPrompt, copied, onC
         </h3>
         <button
           onClick={onClose}
-          aria-label="close"
+          aria-label="Close Spell of Tome Creation"
           className="p-2 hover:bg-amber-900/30 rounded text-amber-300"
         >
-          <X className="w-5 h-5" />
+          <X className="w-5 h-5" aria-hidden="true" />
         </button>
       </div>
       <div className="p-4 overflow-y-auto flex-1">
