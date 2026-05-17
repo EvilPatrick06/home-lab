@@ -142,8 +142,10 @@ export default function DiceRenderer({
         if (f.material) disposeOneMaterial(f.material as THREE.Material)
         floorRef.current = null
       }
+      const dom = renderer.domElement
       renderer.dispose()
-      renderer.domElement.remove()
+      // dom may be null if React strict-mode already ran cleanup, or after dispose() in some Three.js versions.
+      dom?.remove()
       scene.clear()
     }
   }, [height, width])

@@ -15,13 +15,48 @@ const ABILITY_LABELS: Record<AbilityName, string> = {
   charisma: 'CHA'
 }
 
-const ABBR_TO_ABILITY: Record<string, AbilityName> = {
-  STR: 'strength',
-  DEX: 'dexterity',
-  CON: 'constitution',
-  INT: 'intelligence',
-  WIS: 'wisdom',
-  CHA: 'charisma'
+const ABILITY_FULL_NAMES: Record<AbilityName, string> = {
+  strength: 'Strength',
+  dexterity: 'Dexterity',
+  constitution: 'Constitution',
+  intelligence: 'Intelligence',
+  wisdom: 'Wisdom',
+  charisma: 'Charisma'
+}
+
+function joinWithAnd(items: string[]): string {
+  if (items.length === 0) return ''
+  if (items.length === 1) return items[0]
+  if (items.length === 2) return `${items[0]} and ${items[1]}`
+  return `${items.slice(0, -1).join(', ')}, and ${items[items.length - 1]}`
+}
+
+// Background JSON's `abilityScores` may use either abbreviations ("STR")
+// or full names ("Strength"). Normalize either form to canonical AbilityName.
+function normalizeAbility(raw: string): AbilityName | null {
+  const key = raw.trim().toLowerCase()
+  switch (key) {
+    case 'str':
+    case 'strength':
+      return 'strength'
+    case 'dex':
+    case 'dexterity':
+      return 'dexterity'
+    case 'con':
+    case 'constitution':
+      return 'constitution'
+    case 'int':
+    case 'intelligence':
+      return 'intelligence'
+    case 'wis':
+    case 'wisdom':
+      return 'wisdom'
+    case 'cha':
+    case 'charisma':
+      return 'charisma'
+    default:
+      return null
+  }
 }
 
 const ELF_KEEN_SENSES_OPTIONS = ['Insight', 'Perception', 'Survival']
@@ -94,7 +129,7 @@ export default function SpecialAbilitiesTab5e(): JSX.Element {
 
   // Determine which abilities are allowed for this background
   const allowedAbilities: AbilityName[] = backgroundData?.abilityScores
-    ? backgroundData.abilityScores.map((abbr) => ABBR_TO_ABILITY[abbr]).filter((a): a is AbilityName => !!a)
+    ? backgroundData.abilityScores.map(normalizeAbility).filter((a): a is AbilityName => !!a)
     : ABILITY_NAMES.slice() // fallback: all abilities
 
   const isCustomBackground = backgroundId === 'custom'
@@ -184,7 +219,7 @@ export default function SpecialAbilitiesTab5e(): JSX.Element {
         <p className="text-xs text-gray-500">
           {isCustomBackground
             ? 'Choose any 3 ability scores for your custom background. Total must equal 3 points.'
-            : `Your background grants bonuses to ${allowedAbilities.map((a) => ABILITY_LABELS[a]).join(', ')}. Choose how to distribute 3 points.`}
+            : `Your background grants bonuses to ${joinWithAnd(allowedAbilities.map((a) => ABILITY_FULL_NAMES[a]))}. Choose how to distribute 3 points.`}
         </p>
         <div className="flex gap-2">
           <button
