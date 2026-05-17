@@ -19,7 +19,72 @@ Electron desktop Virtual Tabletop (VTT) for running Dungeons & Dragons 5e games.
 
 TypeScript 5 · React 19 · Vite · electron-vite · biome · vitest · Zustand · tiptap · PeerJS · PixiJS · Three.js · cannon-es · @msgpack/msgpack · bonjour-service · electron-updater.
 
-## Quick start
+---
+
+## Install (end users)
+
+You don't need to build from source. Pre-built installers are on the [Releases page](https://github.com/EvilPatrick06/home-lab/releases/latest).
+
+### Windows
+
+1. Download `dnd-vtt-<version>-setup.exe` from the latest release.
+2. Double-click the installer. Windows SmartScreen may warn ("unrecognized app") — click **More info → Run anyway** (the installer is unsigned).
+3. The installer puts a shortcut on your desktop and in the Start menu.
+4. First launch: the app opens to the Main Menu. Auto-update is built in — when a new version ships, you'll be prompted to install on next launch.
+
+### Linux (x86_64)
+
+The release ships two Linux paths — pick one.
+
+**Option A — one-line installer (recommended):**
+```bash
+curl -fsSL https://github.com/EvilPatrick06/home-lab/releases/latest/download/install-linux.sh | bash
+```
+Installs the AppImage to `~/.local/bin/dnd-vtt`, adds a `.desktop` launcher, and wires up auto-update.
+
+**Option B — manual AppImage:**
+1. Download `dnd-vtt-<version>-x86_64.AppImage`.
+2. `chmod +x dnd-vtt-*.AppImage`
+3. Run it: `./dnd-vtt-*.AppImage`
+
+### macOS
+
+Not yet shipped. Build from source via the `Build for release` section below (`npm run build` produces a local artifact in `dist/`).
+
+---
+
+## Using the app
+
+**Starting your first game (DM / host):**
+1. Main Menu → **Host Game**. Pick a system (D&D 5e 2024), name the game, choose **Public** (announces on the LAN registry) or **Private** (invite-code only).
+2. You land in the **Lobby**. Share the invite code (private) or wait for players to find you in the game browser (public).
+3. When everyone's Ready, click **Start Game**.
+
+**Joining a game (player):**
+1. Main Menu → **Join Game**.
+2. The game browser merges LAN games + games announced to a BMO Pi registry. Click any card to join. Private games will prompt for an invite code.
+3. If you don't see games: same Wi-Fi as the host? If still empty, ask the host for the invite code and enter it manually.
+
+**Other things to try:**
+- **Character sheets** — Main Menu → **Characters** → **New Character**. Full 5e 2024 builder with level-up flow.
+- **Library** — browse 3000+ monsters / spells / items / feats. Recently-viewed list at the top.
+- **AI DM** (optional) — Settings → AI. Plug in a Claude / Gemini / OpenAI key, or point at a local Ollama server. The AI DM generates scenes, NPC reactions, and end-of-session recaps.
+- **BMO integration** (optional) — if you've also set up the [`bmo`](../bmo) Pi voice assistant, it's auto-discovered on the same LAN. Settings → BMO Connection lets you override the URL. The Pi unlocks Discord-bot relay, narration TTS, and a public game-discovery registry.
+
+**Settings:**
+- **Updates** — opt in to auto-check on launch / auto-download / silent install.
+- **Audio** — mic/speaker pick + volume.
+- **Network** — invite code length, ICE/TURN behavior, BMO override URL.
+- **Accessibility** — reduced motion (skips 3D dice physics), high-contrast theme.
+
+**Troubleshooting:**
+- Game browser empty + says *"No Pi registry connected"* — you're seeing LAN games only. Either ignore (LAN-only is fine for couch sessions) or set up the [BMO Pi](../bmo) for cross-network public-game discovery.
+- Can't reach a host with the right code — both ends need to allow the app through their firewall. The first launch pops a Windows Firewall prompt; click **Allow access** on both networks (private + public).
+- Auto-update keeps prompting — Settings → Updates → uncheck **Auto-check on launch**.
+
+---
+
+## Build from source (developers)
 
 ```bash
 npm install

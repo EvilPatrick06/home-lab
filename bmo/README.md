@@ -6,6 +6,8 @@ Named after the Adventure Time character. Lives in a 3D-printed BMO case on a Pi
 
 **Stack:** Python 3.11 · Flask + SocketIO (gevent) · Google APIs (calendar, vision) · Anthropic Claude · Google Gemini · Groq Whisper STT · Fish Audio TTS · `discord.py` · `openwakeword` · `piper` · `vlc` (music) · `picamera2` · `pytest` · avahi-daemon.
 
+> **Heads-up:** BMO is hardware-specific. The Pi, mic array, OLED face, speakers, fan, and LED strip are part of how it works — there's no "install BMO on your laptop" path. If you want to build your own, the [`Hardware`](#hardware) section below lists every part. If you just want to talk to an existing BMO that someone else set up, jump to [`Using BMO`](#using-bmo).
+
 ## What it does
 
 - **Voice assistant** — wake-word (openwakeword) → STT (Groq Whisper) → 41-agent router → TTS (Fish Audio / piper). Runs continuously on the kitchen counter.
@@ -15,7 +17,53 @@ Named after the Adventure Time character. Lives in a 3D-printed BMO case on a Pi
 - **Game-discovery registry** (Phase 29f) — `/api/games*` REST + SSE that the `dnd-app` clients use to find hosted games on the LAN. Advertised via avahi (`_bmo._tcp`) so Windows clients can discover the Pi without installing Bonjour Print Services.
 - **Embedded web IDE** — a sub-app on port 5001 for editing BMO code from any browser on the LAN. Self-contained xterm + Monaco + chat.
 
-## Quick start
+## Using BMO
+
+For end users on the same household / LAN as a running BMO.
+
+**Voice — wake word:**
+- Say **"Hey BMO"** to wake him. The LED strip lights up while he's listening. Then ask anything — weather, calendar, music, D&D narration, a random trivia question.
+- Examples: *"Hey BMO, what's the weather?"* · *"play some lo-fi"* · *"start a D&D session"* · *"what's on my calendar tomorrow?"* · *"turn on the kitchen lights"* · *"who is Princess Bubblegum?"*
+
+**Touchscreen kiosk:**
+- The HDMI display shows BMO's face. Tap it for the main menu — music, alarms, calendar, settings.
+- The face animates when BMO talks.
+
+**Discord:**
+- BMO has two Discord bots. The **social bot** runs on a casual server (`!play`, `!skip`, `!queue`, `!weather`, `!calendar`).
+- The **DM bot** sits in a D&D server and relays messages between Discord players and the VTT — Discord players can `/roll d20` and the roll lands in the VTT chat panel; VTT initiative pushes appear as Discord embeds.
+
+**With the VTT ([`dnd-app`](../dnd-app)):**
+- Same Wi-Fi → the VTT auto-discovers BMO on first launch.
+- Hosted public games show up in the VTT's game-list browser via the Pi's game registry.
+- The Pi narrates initiative + scene descriptions in the running session if you've turned on TTS.
+
+**Web IDE (developers / Pi owner only):**
+- BMO ships an embedded code editor at `http://bmo.local:5001` for editing BMO's own source over LAN. Username/password is in `pi/.env`.
+
+---
+
+## Hardware
+
+If you want to build your own:
+
+| Part | Notes |
+|---|---|
+| Raspberry Pi 5 (16 GB) | 8 GB works but tight under load |
+| 128 GB+ NVMe SSD + PCIe HAT | optional; durability + speed |
+| USB mic array | ReSpeaker 2-Mic or 4-Mic Array HAT |
+| HDMI touchscreen (~5") | for the kiosk face |
+| Speakers | 3.5 mm or USB DAC |
+| OLED display (SH1106 I2C) | for the BMO face |
+| Case fan (PWM, I2C) | Pi 5 throttles without one |
+| WS2812 LED strip | wake / status indicator |
+| 3D-printed BMO case | STL files not in this repo |
+
+Total ~$200–250 if you scavenge most of it.
+
+---
+
+## Quick start (Pi owner)
 
 One-time setup on a fresh Pi:
 

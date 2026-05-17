@@ -19,7 +19,39 @@ React 19 · Vite ^7 · Tailwind CSS · Vitest · Supabase (optional). Deployed t
 
 > The vite version is pinned to `^7` because `@vitejs/plugin-react ^4.3.4` declares peer support only for vite 4–7. Dependabot bumps to vite 8 cause `npm ci` to reject the install during deploy — keep the pin until plugin-react ships a vite-8-compatible release.
 
-## Quick start
+---
+
+## Using the app (no install needed)
+
+It's a web app — just visit **[EvilPatrick06.github.io/dungeon-scholar](https://EvilPatrick06.github.io/dungeon-scholar/)** in any modern browser (Chrome, Firefox, Safari, Edge). Works on desktop and mobile. No download, no account required.
+
+**Your first session:**
+1. Open the site. You'll land on the deck picker — each deck is one certification or topic (Security+, Network+, CompTIA A+, etc.).
+2. Pick a deck → **Study**. Cards appear one at a time; flip them or pick the right answer.
+3. Your progress is saved locally in your browser. Closing the tab is fine — open it again later and pick up where you left off.
+
+**Study modes:**
+- **Flashcards** — flip-and-self-grade. Best for early learning.
+- **Multiple choice** — drill mode, the algorithm tracks which cards you keep getting wrong.
+- **Practice exam** — timed, full-length, mimics the real cert exam (Phase 26e).
+
+**Memory forecast** — the dashboard shows a forgetting-curve projection of which cards you're about to forget. Review those first.
+
+**Dungeon delve** — a correct-answer streak walks you through dungeon rooms; bosses gate harder material. It's the same study queue, just visualized as a D&D-style progression so it feels like a game.
+
+**Cross-device sync (optional):**
+- Click **Sign in with GitHub** in the top-right to sync progress across devices.
+- Without sign-in, everything stays in your browser's `localStorage`. If you clear browsing data, progress is lost.
+- The sign-in button only appears if cloud-sync is configured on the deployment — see `Cloud sync setup` below.
+
+**Troubleshooting:**
+- *"Site won't load"* — GitHub Pages can take a minute to warm up after a deploy. Refresh after ~30 s.
+- *"My progress disappeared"* — you probably cleared browser data or switched devices without enabling cloud sync. There's no recovery without sync; sign in first to avoid this next time.
+- *"Cards look wrong / clipped"* — try a hard refresh (Ctrl-Shift-R / Cmd-Shift-R) to bust the service-worker cache.
+
+---
+
+## Build from source (developers)
 
 ```bash
 cd dungeon-scholar

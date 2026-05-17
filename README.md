@@ -15,6 +15,16 @@ Each project's own README has the details:
 - 📖 [`bmo/README.md`](./bmo/README.md)
 - 📖 [`dungeon-scholar/README.md`](./dungeon-scholar/README.md)
 
+## Try it (no source build required)
+
+| Project | How to use it |
+|---|---|
+| **dnd-app** | Download the latest installer from [Releases](https://github.com/EvilPatrick06/home-lab/releases/latest) — `dnd-vtt-*-setup.exe` on Windows, `dnd-vtt-*-x86_64.AppImage` (or the one-line `install-linux.sh`) on Linux. Full install + first-game walkthrough: [`dnd-app/README.md`](./dnd-app/README.md#install-end-users). |
+| **dungeon-scholar** | Open **[EvilPatrick06.github.io/dungeon-scholar](https://EvilPatrick06.github.io/dungeon-scholar/)** in any browser. No download. Usage guide: [`dungeon-scholar/README.md`](./dungeon-scholar/README.md#using-the-app-no-install-needed). |
+| **bmo** | Hardware project — you need a Pi + mic + screen. Parts list + setup script: [`bmo/README.md`](./bmo/README.md#hardware). If you're on the same Wi-Fi as an already-running BMO, jump to [Using BMO](./bmo/README.md#using-bmo) for voice / Discord / VTT integration. |
+
+Everything below is for **developers / contributors** — building from source, running tests, contributing fixes.
+
 ## Why one repo
 
 These projects share infrastructure rather than features:
