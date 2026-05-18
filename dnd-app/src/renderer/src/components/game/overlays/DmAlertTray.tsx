@@ -1,10 +1,25 @@
 import { useCallback, useState } from 'react'
 
+/**
+ * Phase 18b — DmAlert gains an optional `actions` array. Each action is
+ * a label + callback (synchronous; callers can `void`-wrap async). The
+ * alert tray renders the buttons inline below the message. Use this for
+ * actionable notifications — e.g. mid-game player rejoin "Kick back to
+ * lobby?" — that would otherwise force the DM to chase down the player
+ * in the sidebar and click Kick there.
+ */
+export interface DmAlertAction {
+  label: string
+  onClick: () => void
+  style?: 'primary' | 'danger' | 'subtle'
+}
+
 interface DmAlert {
   id: string
   level: 'error' | 'warning' | 'info'
   message: string
   timestamp: number
+  actions?: DmAlertAction[]
 }
 
 const MAX_ALERTS = 50
@@ -16,8 +31,14 @@ function notify(): void {
   for (const fn of listeners) fn()
 }
 
-export function pushDmAlert(level: DmAlert['level'], message: string): void {
-  alerts = [{ id: crypto.randomUUID(), level, message, timestamp: Date.now() }, ...alerts].slice(0, MAX_ALERTS)
+export function pushDmAlert(level: DmAlert['level'], message: string, actions?: DmAlertAction[]): void {
+  alerts = [{ id: crypto.randomUUID(), level, message, timestamp: Date.now(), actions }, ...alerts].slice(0, MAX_ALERTS)
+  notify()
+}
+
+/** Remove a single alert by id (e.g. after the user clicks one of its actions). */
+export function dismissDmAlert(id: string): void {
+  alerts = alerts.filter((a) => a.id !== id)
   notify()
 }
 
@@ -99,6 +120,32 @@ export default function DmAlertTray(): JSX.Element {
                     <div className="flex-1 min-w-0">
                       <p className="text-xs text-gray-300 break-words">{a.message}</p>
                       <p className="text-[10px] text-gray-600 mt-0.5">{new Date(a.timestamp).toLocaleTimeString()}</p>
+                      {a.actions && a.actions.length > 0 && (
+                        <div className="flex gap-1.5 mt-1.5">
+                          {a.actions.map((act) => (
+                            <button
+                              key={act.label}
+                              type="button"
+                              onClick={() => {
+                                try {
+                                  act.onClick()
+                                } finally {
+                                  dismissDmAlert(a.id)
+                                }
+                              }}
+                              className={`px-2 py-0.5 text-[10px] rounded cursor-pointer transition-colors ${
+                                act.style === 'danger'
+                                  ? 'bg-red-900/40 hover:bg-red-800/60 text-red-300 border border-red-700/50'
+                                  : act.style === 'subtle'
+                                    ? 'bg-gray-800 hover:bg-gray-700 text-gray-400 border border-gray-700'
+                                    : 'bg-amber-900/40 hover:bg-amber-800/60 text-amber-300 border border-amber-700/50'
+                              }`}
+                            >
+                              {act.label}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

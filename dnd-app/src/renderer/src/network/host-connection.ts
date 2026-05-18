@@ -1,5 +1,7 @@
 import type { DataConnection } from 'peerjs'
+import { pushDmAlert } from '../components/game/overlays/DmAlertTray'
 import { FILE_SIZE_LIMIT, JOIN_TIMEOUT_MS, MAX_DISPLAY_NAME_LENGTH, MESSAGE_SIZE_LIMIT } from '../constants'
+import { useGameStore } from '../stores/use-game-store'
 import { logger } from '../utils/logger'
 import { applyChatModeration, isClientAllowedMessageType, validateMessage } from './host-message-handlers'
 import type { BanClientEntry } from './host-state-sync'
@@ -298,10 +300,17 @@ export function handleJoin(
   // Phase 17c — also remember the stale entry's characterId/characterName
   // so the rejoiner retains their previous PC selection even if their
   // client didn't include it in the new join payload.
+  // Phase 18b — also track whether this is a rejoin (any peer with the
+  // same clientId existed before) so the host can be notified mid-game
+  // and given a quick "Kick back to lobby" affordance (the
+  // Allow/Deny-style gate the user asked for, layered on top of the
+  // existing 17g auto-transition path).
   let priorCharacterId: string | null = null
   let priorCharacterName: string | null = null
+  let isRejoin = false
   for (const [existingPeerId, existingPeer] of Array.from(state.peerInfoMap.entries())) {
     if (existingPeer.clientId === joiningClientId && existingPeerId !== peerId) {
+      isRejoin = true
       logger.debug(
         '[HostManager] Replacing stale peer for clientId:',
         joiningClientId,
@@ -457,6 +466,35 @@ export function handleJoin(
     } catch (e) {
       logger.error('[HostManager] Error in join callback:', e)
     }
+  }
+
+  // Phase 18b — mid-game rejoin notification with Allow/Deny.
+  // If this was a rejoin (matched clientId already in peerInfoMap before
+  // we deduped it out) AND the campaign is in-progress (gameStore has an
+  // activeMapId), surface a DM alert with the option to kick the
+  // rejoiner back. Default is "Allow" (no action — the player is
+  // already admitted, matching the 17g auto-transition behavior); the
+  // Kick button is the explicit "Deny." Skipped for fresh lobby joins
+  // and for the host's own peer.
+  try {
+    const inGame = useGameStore.getState().activeMapId != null
+    if (isRejoin && inGame && !peerInfo.isHost) {
+      const kickThis = (): void => {
+        try {
+          const banPayload: BanPayload = { peerId, reason: 'Rejoin denied by DM' }
+          const kickMsg = state.buildMessage('dm:kick-player', banPayload)
+          state.disconnectPeer(peerId, kickMsg)
+        } catch (e) {
+          logger.error('[HostManager] Error kicking rejoined peer:', e)
+        }
+      }
+      pushDmAlert('info', `${playerName} rejoined the game mid-session.`, [
+        { label: 'Allow (no action)', style: 'subtle', onClick: () => undefined },
+        { label: 'Kick back to lobby', style: 'danger', onClick: kickThis }
+      ])
+    }
+  } catch {
+    /* Non-fatal — alert is informational. */
   }
 }
 
