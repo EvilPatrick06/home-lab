@@ -219,6 +219,34 @@ export default function LibraryPage(): JSX.Element {
     setItems(mergedItems)
   }, [mergedItems, setItems])
 
+  // Phase 18f — deep-link from the character builder (and anywhere else
+  // that wants to jump straight to a library entry). Accepts:
+  //   ?entry=<id>&category=<library-category>
+  // On mount, set the category (so the entry's mergedItems pool loads),
+  // then once that pool contains the id, setSelectedItem opens the
+  // detail view. The deep-link is one-shot — we only fire once per
+  // mount via a ref guard so subsequent in-page navigation doesn't get
+  // overridden by the original URL.
+  const deepLinkAppliedRef = useRef(false)
+  useEffect(() => {
+    if (deepLinkAppliedRef.current) return
+    const entryId = searchParams.get('entry')
+    const category = searchParams.get('category') as LibraryCategory | null
+    if (!entryId) return
+    // First apply the category if one was supplied AND we haven't already
+    // landed on it. This triggers the items-load effect.
+    if (category && selectedCategory !== category) {
+      setCategory(category)
+      return // wait for the next render once mergedItems updates
+    }
+    const found = mergedItems.find((i) => i.id === entryId)
+    if (found) {
+      deepLinkAppliedRef.current = true
+      setSelectedItem(found)
+      addToRecentlyViewed(found)
+    }
+  }, [searchParams, selectedCategory, mergedItems, setCategory, addToRecentlyViewed])
+
   // Apply sort + filter + search
   const filteredItems = useMemo(() => {
     let items = mergedItems
