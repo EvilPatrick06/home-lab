@@ -390,6 +390,41 @@ export function readDieResult(def: DieDefinition, quaternion: THREE.Quaternion):
   return bestValue
 }
 
+/**
+ * Phase 18c — orient a die so its `targetValue` face is the resting face.
+ *
+ * The physics simulation tumbles the die freely, so the face that ends up
+ * pointing up is whatever physics chose — NOT the authoritative roll
+ * value coming from the dice engine. Users reported the visible face
+ * "doesn't match what chat and the dice tray show as the base roll."
+ *
+ * This function builds a quaternion that rotates the target face's
+ * world-up normal (post-current-rotation) into actual world-up, then
+ * composes it onto the die's current quaternion. So we keep whatever
+ * yaw/tilt physics produced (the die still looks like it settled
+ * naturally), but the face value matches the result.
+ *
+ * For d4 the result is read from the BOTTOM face, so we orient the
+ * target normal toward world-DOWN instead.
+ */
+export function forceFaceUp(def: DieDefinition, targetValue: number): void {
+  const idx = targetValue - 1
+  if (idx < 0 || idx >= def.faceNormals.length) return
+
+  const isD4 = def.sides === 4
+  const targetWorld = isD4 ? new THREE.Vector3(0, -1, 0) : new THREE.Vector3(0, 1, 0)
+
+  // Face normal currently pointing wherever physics put it.
+  const currentNormal = def.faceNormals[idx].clone().applyQuaternion(def.mesh.quaternion).normalize()
+
+  // Quaternion that rotates currentNormal → targetWorld.
+  const correction = new THREE.Quaternion().setFromUnitVectors(currentNormal, targetWorld)
+
+  // Compose onto the existing rotation so the die keeps its natural tilt
+  // around the result axis but lands face-up.
+  def.mesh.quaternion.premultiply(correction)
+}
+
 // ─── Color helpers ────────────────────────────────────────────
 
 /** Tint a die with crit/fumble highlight */

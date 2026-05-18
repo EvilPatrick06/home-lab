@@ -1,7 +1,15 @@
 import { useCallback, useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import type { CreateDieOptions, DiceColors, DieDefinition, DieType } from './dice-meshes'
-import { CRIT_COLOR, createDie, DEFAULT_DICE_COLORS, FUMBLE_COLOR, readDieResult, tintDie } from './dice-meshes'
+import {
+  CRIT_COLOR,
+  createDie,
+  DEFAULT_DICE_COLORS,
+  FUMBLE_COLOR,
+  forceFaceUp,
+  readDieResult,
+  tintDie
+} from './dice-meshes'
 import {
   addDieToWorld,
   createPhysicsWorld,
@@ -252,7 +260,16 @@ export default function DiceRenderer({
       onSettled: () => {
         settledRef.current = true
 
-        // Read face results and apply highlights
+        // Phase 18c — snap each die's resting orientation so the
+        // authoritative result face is pointing up. Without this, the
+        // physics simulation can leave the die showing a face that
+        // doesn't match the chat-reported result (user complaint:
+        // "doesn't land correctly as what chat and the dice tray show
+        // as the base roll"). forceFaceUp composes a correction
+        // quaternion onto the current rotation so the die still has
+        // its natural tilt — just with the right face on top.
+        // For hidden rolls we deliberately skip this so the result
+        // stays unreadable to onlookers.
         const readResults: number[] = []
         for (const entry of dieEntries) {
           const def = diceDefsRef.current.get(entry.id)
@@ -261,6 +278,9 @@ export default function DiceRenderer({
             continue
           }
 
+          if (!rollRequest.isHidden) {
+            forceFaceUp(def, entry.result)
+          }
           const faceResult = readDieResult(def, def.mesh.quaternion)
           readResults.push(faceResult)
 
