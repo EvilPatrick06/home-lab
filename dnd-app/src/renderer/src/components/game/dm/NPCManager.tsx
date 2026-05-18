@@ -369,6 +369,32 @@ export default function NPCManager({
                     </div>
                   )}
 
+                  {/* Phase 18e — empty-state placeholder. Without this, an
+                      NPC with no description/personality/motivation/notes/
+                      stat-block fields just rendered the role badge + the
+                      DM reveal-controls row, which the user perceived as
+                      "clicking the drop-down doesn't give NPC details."
+                      Surface a friendly hint so the empty state is clearly
+                      empty rather than ambiguously broken. */}
+                  {(() => {
+                    const hasDescription = !!npc.description && (isDM || isFieldRevealed(npc, 'description'))
+                    const hasPersonality = !!npc.personality && (isDM || isFieldRevealed(npc, 'personality'))
+                    const hasMotivation = !!npc.motivation && (isDM || isFieldRevealed(npc, 'motivation'))
+                    const hasLocation = !!npc.location && (isDM || isFieldRevealed(npc, 'description'))
+                    const hasNotes = !!(isDM && npc.notes)
+                    const hasStatBlock = !!(isDM && getEffectiveStatBlock(npc))
+                    const isEmpty =
+                      !hasDescription && !hasPersonality && !hasMotivation && !hasLocation && !hasNotes && !hasStatBlock
+                    if (!isEmpty) return null
+                    return (
+                      <p className="text-xs italic text-gray-500">
+                        {isDM
+                          ? 'No details set yet — edit this NPC in the Campaign editor to add description, personality, motivation, or stats.'
+                          : "This NPC hasn't been revealed yet."}
+                      </p>
+                    )
+                  })()}
+
                   {/* Description: DM always sees, players only if revealed */}
                   {npc.description && (isDM || isFieldRevealed(npc, 'description')) && (
                     <p className="text-xs text-gray-400">{npc.description}</p>
