@@ -2,6 +2,12 @@
 
 Phase 25 covers the **Homebrew & Custom Content System**. The foundation exists — creation modal with 13 content types, category-organized storage, data merge with official content, and library display. The critical gaps are **no export/import for homebrew**, **only 3/13 content types have Zod schemas**, **custom mechanics don't function in gameplay**, **dual storage confusion** (homebrew vs custom creatures), and **no campaign-scoped content**.
 
+> **See also:** Phase 15 (Library as Single Source of Truth). Two original sub-phases moved entirely to Phase 15:
+> - **H4 (Sub-Phase D — Unify Storage Systems)** is absorbed by Phase 15 Sub-Phase G Step 21 (Homebrew Parity). Custom-creatures storage merging into homebrew, and homebrew living in the same library store as built-ins, are structural Phase 15 rules.
+> - **M2 (Sub-Phase F — Builder/Sheet Integration)** is resolved structurally by Phase 15 Sub-Phases B/C/D — once every consumer hits the library, homebrew shows up automatically (it's in the library; consumers can't tell built-in from homebrew apart from a `source: 'homebrew'` field).
+>
+> **H2 (Zod schemas)** is promoted to a **Phase 15 prerequisite**: all 13 content types need validated shapes before they become canonical library entries. Ship H2 before Phase 15 lands.
+
 ---
 
 ## 🏗️ Architecture & Environment Split
@@ -35,16 +41,16 @@ Phase 25 covers the **Homebrew & Custom Content System**. The foundation exists 
 | # | Issue | Impact |
 |---|-------|--------|
 | H1 | No homebrew export/import — can't share custom content | Users can't transfer homebrew between machines or share with players |
-| H2 | Only 3/13 content types have Zod validation schemas | Invalid homebrew can break the app |
-| H3 | Custom feats/spells have no mechanical effect | Homebrew displays in library but doesn't work in gameplay |
-| H4 | Dual storage systems (homebrew vs custom-creatures) | User confusion, maintenance burden |
+| H2 | Only 3/13 content types have Zod validation schemas — **Phase 15 prerequisite** | Invalid homebrew can break the app; library entries need validated shapes |
+| H3 | Custom feats/spells have no mechanical effect — partially absorbed by Phase 15 | Homebrew displays in library but doesn't work in gameplay |
+| ~~H4~~ | ~~Dual storage systems~~ — **moved to Phase 15 Sub-Phase G Step 21** | — |
 
 ### MEDIUM PRIORITY
 
 | # | Issue | Impact |
 |---|-------|--------|
 | M1 | No campaign-scoped homebrew | All homebrew is global; can't have campaign-specific content |
-| M2 | Character builder/sheet doesn't reference homebrew | Custom classes/species not selectable in builder |
+| ~~M2~~ | ~~Character builder/sheet doesn't reference homebrew~~ — **resolved structurally by Phase 15** | — |
 
 ---
 
@@ -177,6 +183,8 @@ Phase 25 covers the **Homebrew & Custom Content System**. The foundation exists 
 
 ### Sub-Phase C: Custom Mechanics Integration (H3)
 
+> **Phase 15 note:** Once Phase 15 lands, the "homebrew displays in library but doesn't work in gameplay" symptom disappears at the read layer — every consumer (Sheet, Builder, In-Game) hydrates from the library and renders the homebrew entry the same as a built-in. The mechanical-effects work below (`feat-mechanics-5e.ts` extension, effect editor, dice formula) is still needed regardless, because those concerns are about *applying* effects, not about reading the data. Run this sub-phase as planned.
+
 **Step 7 — Extend Feat Mechanics for Homebrew**
 - Open `src/renderer/src/services/character/feat-mechanics-5e.ts`
 - Currently only handles official feats by name matching
@@ -219,27 +227,9 @@ Phase 25 covers the **Homebrew & Custom Content System**. The foundation exists 
 - Add a `diceFormula` field to homebrew spells: e.g., `"8d6"` for a custom fireball variant
 - In the spell casting flow, when casting a homebrew spell, roll the formula and broadcast
 
-### Sub-Phase D: Unify Storage Systems (H4)
+### Sub-Phase D: ~~Unify Storage Systems (H4)~~
 
-**Step 10 — Merge Custom Creatures into Homebrew**
-- Open `src/main/storage/custom-creature-storage.ts`
-- Open `src/main/storage/homebrew-storage.ts`
-- Route custom creature saves through the homebrew system:
-  ```typescript
-  // In custom-creature-storage.ts
-  export async function saveCustomCreature(creature: Record<string, unknown>) {
-    // Normalize to homebrew format
-    const asHomebrew = {
-      ...creature,
-      type: 'monster',
-      source: 'homebrew',
-    }
-    return homebrewStorage.save('monster', asHomebrew)
-  }
-  ```
-- Maintain backward compatibility: if `custom-creatures/` directory exists, migrate on first load
-- Update all references to `custom-creature-storage` to use the unified homebrew system
-- Eventually deprecate the `custom-creatures/` directory
+> **Moved to Phase 15** (Sub-Phase G Step 21 — Homebrew Parity). The merging of `custom-creature-storage` into the unified library/homebrew store is a structural Phase 15 rule: homebrew and built-ins live in the same library store, distinguished only by a `source: 'homebrew'` field. No action in Phase 25; this work happens during Phase 15's sweep.
 
 ### Sub-Phase E: Campaign-Scoped Homebrew (M1)
 
@@ -262,24 +252,11 @@ Phase 25 covers the **Homebrew & Custom Content System**. The foundation exists 
 - In the campaign detail page, add a "Campaign Homebrew" section showing associated custom content
 - Allow moving homebrew between global and campaign-scoped
 
-### Sub-Phase F: Builder/Sheet Integration (M2)
+### Sub-Phase F: ~~Builder/Sheet Integration (M2)~~
 
-**Step 13 — Include Homebrew in Character Builder**
-- Open `src/renderer/src/services/data-provider.ts`
-- Verify that `load5eSpecies()`, `load5eClasses()`, `load5eFeats()`, `load5eBackgrounds()` call `mergeHomebrew()` from the data store
-- If they don't, add the merge step so homebrew species/classes/backgrounds/feats appear as options in the character builder
-- Add a "(Homebrew)" badge next to custom content in selection modals
-
-**Step 14 — Validate Homebrew in Character Builder**
-- When a homebrew class/species/background is selected, show a warning:
-  ```tsx
-  {isHomebrew && (
-    <div className="text-xs text-amber-400 bg-amber-900/20 px-2 py-1 rounded">
-      This is homebrew content. Some features may not have mechanical effects.
-    </div>
-  )}
-  ```
-- Still allow selection — don't block, just inform
+> **Moved to Phase 15** (Sub-Phases B, C, D — Builder / Sheet / Level Up sweeps). Once consumers read from the library via `useLibraryEntry`, homebrew entries (which live in the same library store with `source: 'homebrew'`) become available to every consumer automatically. No data-provider merge step is needed because there's only one source.
+>
+> The "(Homebrew)" badge in selection modals is a UX nice-to-have — add it as a small enhancement during Phase 15's Builder / Sheet sweeps, not as separate Phase 25 work.
 
 ---
 
@@ -300,8 +277,7 @@ Phase 25 covers the **Homebrew & Custom Content System**. The foundation exists 
 - **Dice formulas**: Use the existing `dice-service.ts` for homebrew spell damage rolls. Validate the formula format before rolling.
 
 ### Storage Unification
-- **Migration path**: When the app starts and finds files in `custom-creatures/`, migrate them to `homebrew/monster/` with the homebrew format. Mark as migrated to avoid re-migration.
-- **Don't delete `custom-creatures/`** immediately — keep it for one version cycle, then remove the migration code.
+- Moved to Phase 15. See Phase 15 Sub-Phase G Step 21 (Homebrew Parity) and Sub-Phase H Step 22 (load-time migration) for constraints.
 
 ### Campaign Scoping
 - **Global homebrew must always be available** — campaign-scoped homebrew adds to the global pool, it doesn't replace it.

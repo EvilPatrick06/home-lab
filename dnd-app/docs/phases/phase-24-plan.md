@@ -2,6 +2,8 @@
 
 Phase 24 covers the **Character Level-Up System**. The wizard is substantially complete for 2024 PHB with correct ASI levels, subclass at 3, epic boons, multiclass prerequisites, and Warlock Pact Magic separation. However, it has **critical bugs**: subclass selection not persisted to the character object, hit dice only tracking the primary class, and half-caster level 1 spell slots incorrect. Missing features include spell swap/replacement and cantrip selection during level-up.
 
+> **See also:** Phase 15 (Library as Single Source of Truth). `src/renderer/src/services/character/spell-data.ts` (spell-slot tables, half-caster lookup, `CANTRIPS_KNOWN`) is a parallel data file outside the library. Phase 15 Step 28 deletes parallel data files and moves the content into library `class-progression-table` entries. **Sequence:** land Phase 24's bug fixes first (B3 half-caster, F-series cantrips/subclass features), then Phase 15's sweep ports the corrected tables into the library. If Phase 15 lands first, all Phase 24 references to `spell-data.ts` re-target the library entries via `useLibraryEntry('class', classId)`.
+
 ---
 
 ## 🏗️ Architecture & Environment Split

@@ -26,7 +26,7 @@ Phase 19 is entirely build/config work on the Windows machine.
 
 | File | Lines | Issue |
 |------|-------|-------|
-| `src/main/ai/srd-provider.ts` | 6-8 | **CRITICAL**: Packaged path uses `renderer/public/data/5e` — should be `renderer/data/5e` (Vite strips `public/` prefix) |
+| `src/main/ai/srd-provider.ts` | 6-8 | **CRITICAL**: Packaged path uses `renderer/public/data/5e` — should be `renderer/data/5e` (Vite strips `public/` prefix). **Phase 15 note:** also affects the library build-guard lint rule — coordinate when Phase 15 lands. |
 | `src/main/ai/context-builder.ts` | 27 | Uses `__dirname` (covered by Phase 6 Step 7 — overlap) |
 
 **Updater:**
@@ -118,6 +118,8 @@ Phase 19 is entirely build/config work on the Windows machine.
   }
   ```
 - Replace all direct path constructions in `srd-provider.ts`, `context-builder.ts`, `chunk-builder.ts`, and `game-data-handlers.ts` with calls to this utility
+
+> **Phase 15 coordination:** Phase 15 Step 24 ships a build-guard lint rule restricting raw-JSON imports from `public/data/5e/**` to library boundaries. `src/main/paths.ts`, `srd-provider.ts`, and the other consumers above need to either (a) be on the explicit allowlist for the lint rule, or (b) load 5e data via the library store instead of raw paths. Decide which when Phase 15 lands.
 
 ### Sub-Phase B: Fix Release Script (P2)
 

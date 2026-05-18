@@ -2,6 +2,8 @@
 
 Phase 23 covers the **In-Game Character Sheet** — data binding, real-time sync, inventory, spellbook, conditions, and performance. The sheet is feature-rich and functional but needs **performance optimization** (no virtualization for spell/equipment lists, limited useMemo), **spell search/filtering**, **sync conflict resolution**, and **consistency fixes** (remote characters stored in wrong store, attunement count mismatch).
 
+> **See also:** Phase 15 (Library as Single Source of Truth) — Sub-Phase C (remote character store) and Sub-Phase F (attunement) both interact with Phase 15's ref+hydration shape. See per-sub-phase notes below.
+
 ---
 
 ## 🏗️ Architecture & Environment Split
@@ -102,19 +104,20 @@ Phase 23 covers the **In-Game Character Sheet** — data binding, real-time sync
 - Open `src/renderer/src/stores/network-store/client-handlers.ts` lines 734-745
 - Currently: `dm:character-update` sets character in `lobbyStore.remoteCharacters`
 - This means the character store and lobby store can have different versions of the same character
-- Fix: Also update the character store when receiving a character update:
+- Fix: write to a **single canonical store** — the character store. `lobbyStore.remoteCharacters` is slated for removal by Phase 15 (one character store, refs-based):
   ```typescript
   case 'dm:character-update': {
     const payload = message.payload as CharacterUpdatePayload
     if (payload.characterData) {
-      // Update BOTH stores
-      useLobbyStore.getState().setRemoteCharacter(payload.characterId, payload.characterData as Character5e)
       useCharacterStore.getState().updateCharacterInState(payload.characterId, payload.characterData as Character5e)
     }
     break
   }
   ```
 - Add `updateCharacterInState(id, data)` to the character store if it doesn't exist
+- Remove every consumer of `lobbyStore.remoteCharacters` as part of this step (or in a follow-up commit before Phase 15 lands).
+
+> **Phase 15 coordination:** After Phase 15, the character record holds `EntryRef` for species / classes / spells / items — the `characterData` payload above ships those refs, and consumers hydrate via `useLibraryEntry`. The dual-write pattern from the original draft is explicitly forbidden by Phase 15's single-canonical-store rule.
 
 ### Sub-Phase D: Conflict Resolution (S4)
 
@@ -181,13 +184,15 @@ Phase 23 covers the **In-Game Character Sheet** — data binding, real-time sync
 **Step 10 — Unify Attunement Count**
 - Open `src/renderer/src/components/sheet/5e/AttunementTracker5e.tsx` (lines 11-135)
 - Open `src/renderer/src/components/sheet/5e/MagicItemsPanel5e.tsx` (lines 57-61)
-- Both show attunement counts — ensure they derive from the same source:
+- Both show attunement counts — ensure they derive from the same source on the character record:
   ```typescript
   const attunedItems = character.magicItems?.filter(mi => mi.attuned) ?? []
   const attunedCount = attunedItems.length
   const maxAttunement = 3 // PHB standard
   ```
-- If AttunementTracker maintains its own state, replace with derived state from the character object
+- If AttunementTracker maintains its own state, replace with derived state from the character object.
+
+> **Phase 15 coordination:** After Phase 15 lands, `character.magicItems` holds `{ entryRef: { entryId, entryType: 'item' }, attuned, charges?, overrides? }` — the `attuned` flag stays on the instance record (where it belongs), while the item's stat block hydrates via `useHydratedRef`. Derivation logic above doesn't change shape; only the read of the item's name/description changes from inline data to a library lookup.
 
 ### Sub-Phase G: Optimistic Updates (M3)
 

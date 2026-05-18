@@ -53,7 +53,7 @@ The order prioritizes (1) live security exposure first, (2) game-mechanic correc
 - Death-save / bless / recovery: `src/renderer/src/components/game/overlays/PlayerHUDEffects.tsx:231, 278, 297`
 - Character builder: `src/renderer/src/stores/builder/types.ts:44` (4d6)
 - DM tools: `src/renderer/src/components/game/modals/combat/GroupRollModal.tsx:74`, `src/renderer/src/components/game/modals/dm-tools/NPCGeneratorModal.tsx:50, 54`, `src/renderer/src/components/game/modals/dm-tools/treasure-generator-utils.ts:66, 72`, `src/renderer/src/components/game/sidebar/TablesPanel.tsx:79, 115, 123`
-- Data tables: `src/renderer/src/data/starting-equipment-table.ts:71`, `src/renderer/src/data/bastion-events.ts:14`, `src/renderer/src/data/sentient-items.ts:49`, `src/renderer/src/data/personality-tables.ts:20`, `src/renderer/src/data/weather-tables.ts:106, 115`
+- Data tables: `src/renderer/src/data/starting-equipment-table.ts:71`, `src/renderer/src/data/bastion-events.ts:14`, `src/renderer/src/data/sentient-items.ts:49`, `src/renderer/src/data/personality-tables.ts:20`, `src/renderer/src/data/weather-tables.ts:106, 115` — **skip per Phase 15 sequencing (Option A): Phase 15 Step 28 deletes these parallel data files, so the Math.random sweep skips them; the eventual library-stored equivalents pick up `cryptoRandom` during the Phase 15 port.**
 - Utility: `src/renderer/src/utils/dawn-recharge.ts:27`
 
 **Approach:**
@@ -335,11 +335,13 @@ try { return await next } finally {
 
 **Files:** broad — primary hotspots `src/renderer/src/services/library-service.ts:639, 678-679, 694, 702, 710`, plus 7+ test helpers
 
+**Phase 15 sequencing (Option A):** Phase 15 reshapes `library-service.ts` substantially (keyed-map source-of-truth, hydration hooks, refs+overrides shape). The 5 casts listed above will likely move, change, or disappear during that rewrite. **Defer the `library-service.ts` cluster to a post-Phase-15 cleanup pass.** Run the other 69 casts now; do `library-service.ts` after Phase 15 lands.
+
 **Changes:**
-1. Cluster the 74 casts by boundary (IPC, JSON-from-disk, third-party SDK, test mock).
+1. Cluster the 74 casts by boundary (IPC, JSON-from-disk, third-party SDK, test mock). Exclude `library-service.ts` from this pass.
 2. For known-shape data: zod parse at the boundary; downstream gets the typed result.
 3. For truly dynamic (plugin payloads): document the cast with a comment ("plugin-supplied; no schema possible").
-4. Target: < 40 casts outside tests after the pass.
+4. Target: < 40 casts outside tests after the pass (allowing 5 casts in `library-service.ts` to remain pending Phase 15).
 
 ### Step 28d.4 — Effect-dep suppression audit
 
@@ -593,6 +595,7 @@ Each of the 9 gap areas (multiplayer/peerjs, Pixi map rendering, plugin runtime,
 | 28b.2 (SDK 1.x bump) | 28b.3 (prompt cache) | — |
 | 28e (CI) | 28h (coverage baseline gate) | — |
 | 28h.3 (TokenContextMenu tests) | — | `2026-04-24-network-store-barrel-circular` fix |
+| 28a.1 data-tables, 28d.3 `library-service.ts` | — | **Phase 15 (Option A) — those files reshape or get deleted; defer scope** |
 
 The user has previously agreed (memory) to phase-by-phase execution: **stop and await approval between every sub-phase**; commit + push BEFORE summarizing. Apply the same discipline within Phase 28 — finish 28a, push, summarize, wait. Don't bundle.
 

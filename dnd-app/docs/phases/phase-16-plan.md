@@ -1,6 +1,8 @@
 # SYSTEM OVERRIDE: IMPLEMENTATION MODE
 
-Phase 16 is a **VTT Platform Comparison** against D&D Beyond, Foundry VTT, and Roll20. Many identified gaps are already addressed by previous phase plans (active effects, dynamic lighting, trigger zones, audio emitters, floor filtering, advanced walls, multi-token ops, rollable tables, party inventory, encounter builder). This plan covers only the **net-new items** not already assigned to other phases, plus 7 UX workflow improvements.
+Phase 16 is a **VTT Platform Comparison** against D&D Beyond, Foundry VTT, and Roll20. Many identified gaps are already addressed by previous phase plans (active effects, dynamic lighting, trigger zones, audio emitters, floor filtering, advanced walls, multi-token ops, rollable tables, party inventory, encounter builder). This plan covers only the **net-new items** not already assigned to other phases, plus 6 UX workflow improvements.
+
+> **See also:** Phase 15 (Library as Single Source of Truth) — the original N5 "Unified content discovery" goal is fully absorbed there.
 
 ---
 
@@ -29,6 +31,7 @@ Phase 16 is entirely client-side. No Raspberry Pi involvement.
 | Foreground / occlusion layer | Phase 1 (D16) |
 | Guided character builder | Phase 2 (U3) |
 | Animated scene transitions | Phase 1 (missing) |
+| CompendiumModal vs Library unification | Phase 15 (Sub-Phase E) |
 
 **NET-NEW items from this phase:**
 
@@ -54,7 +57,6 @@ Phase 16 is entirely client-side. No Raspberry Pi involvement.
 | N2 | Map pins with journal linkage | Roll20 | No spatial bookmarks on maps |
 | N3 | Non-blocking floating tools (reduce modal reliance) | Foundry | Modals break map immersion |
 | N4 | Macro engine improvements (conditionals, loops) | Roll20 | Current macros limited to simple variable substitution |
-| N5 | Unified content discovery (merge Compendium + Library) | D&D Beyond | Two separate systems with different UX |
 | N6 | Scene preloading for map transitions | Foundry | Map switches may stutter while loading assets |
 | N7 | Grid coordinate readout on hover | Foundry/Roll20 | Players can't identify grid positions |
 
@@ -204,19 +206,9 @@ Phase 16 is entirely client-side. No Raspberry Pi involvement.
   ```
 - Position above the collapsed bar
 
-### Sub-Phase E: Unified Content Discovery (N5)
+### Sub-Phase E: ~~Unified Content Discovery (N5)~~
 
-**Step 14 — Merge CompendiumModal into Library Pattern**
-- The CompendiumModal (in-game) and LibraryPage (out-of-game) duplicate functionality
-- Replace CompendiumModal internals with a lightweight embed of the Library components:
-  ```tsx
-  // In CompendiumModal, instead of custom search/display:
-  <LibraryItemList items={filteredItems} onSelect={handleSelect} compact />
-  <LibraryDetailModal item={selectedItem} compact />
-  ```
-- Import `LibraryItemList` and `LibraryDetailModal` from `src/renderer/src/components/library/`
-- This ensures consistent rendering (stat blocks, search quality) between in-game and out-of-game
-- Upgrade CompendiumModal search from `.includes()` to Fuse.js (already addressed in Phase 5 Step 15)
+> Moved to **Phase 15 (Sub-Phase E)**. The CompendiumModal-vs-LibraryPage duplication is one instance of the broader Phase 15 rule: every D&D-data consumer reads from the library, not from a parallel store. Phase 15 absorbs this work; no action in Phase 16.
 
 ### Sub-Phase F: Scene Preloading (N6)
 
@@ -307,7 +299,6 @@ Phase 16 is entirely client-side. No Raspberry Pi involvement.
 - **Network bandwidth**: If map images are transferred via P2P, preloading would trigger downloads for clients. Only preload on the host; clients preload when they receive the map data during a switch.
 
 ### Content Unification
-- **Do NOT delete CompendiumModal** — it serves as a quick in-game reference. Instead, replace its internals with library components so it gets the same rendering quality and search.
-- **CompendiumModal must be lightweight** — it opens and closes frequently during gameplay. Don't load the full LibraryPage state on every open.
+- Moved to Phase 15 (Sub-Phase E). See that plan for constraints around CompendiumModal-as-library-consumer.
 
 Begin implementation now. Start with Sub-Phase A (Steps 1-3) for auto-pan — this is the highest-impact QoL improvement that every player benefits from immediately. Then Sub-Phase B (Steps 4-7) for map pins as a unique differentiator feature. Sub-Phase C (Steps 8-10) for floating windows is higher effort but transforms the DM workflow.

@@ -344,6 +344,28 @@ After **Sub-Phase I (Steps 26–28)**: Cross-surface coherence test green. Libra
 
 ---
 
+## 🔗 Plans superseded or modified by Phase 15
+
+| Plan | Item | Disposition |
+|------|------|-------------|
+| Phase 16 | Sub-Phase E (Step 14) — Merge CompendiumModal into Library | **Absorbed.** Phase 15 Sub-Phase E (Step 14) covers the broader rule; Phase 16 strikes N5 from the NET-NEW table and points to Phase 15. |
+| Phase 19 | `srd-provider.ts` / `getPackagedDataPath` packaged-path util | **Coordinate.** Phase 15 Step 24 build-guard lint rule restricts raw-JSON imports to library boundaries. Phase 19 utils need an allowlist exception or get refactored to load via the library store. |
+| Phase 22 | H4 (Step 6) — Fix Service Layer Bypasses | **Reframe.** If Phase 15 lands first, route components through `useLibraryEntry` / `useLibraryEntries` hooks directly, skipping the data-provider intermediate. |
+| Phase 23 | Sub-Phase C (S3, Step 5) — Fix Remote Character Store | **Rewritten.** Dual-write pattern replaced with single canonical write to the character store; `lobbyStore.remoteCharacters` slated for removal during Phase 15. |
+| Phase 23 | Sub-Phase F (M2, Step 10) — Attunement | **Coordinated.** `character.magicItems` holds `{ entryRef, attuned, charges?, overrides? }` after Phase 15. Attunement derivation logic stays; the item stat-block read changes from inline to library hydration. |
+| Phase 24 | `services/character/spell-data.ts` (spell-slot / cantrip tables) | **Ported.** Phase 24 bug fixes land first, then Phase 15 Step 28 deletes the parallel file and moves the corrected tables into a library `class-progression-table` entry type. |
+| Phase 25 | H4 (Sub-Phase D) — Unify Storage Systems | **Absorbed entirely.** Phase 15 Sub-Phase G Step 21 (Homebrew Parity) makes homebrew live in the same library store as built-ins. |
+| Phase 25 | M2 (Sub-Phase F) — Builder/Sheet Integration | **Absorbed entirely.** Phase 15 Sub-Phases B/C/D make every consumer hit the library, where homebrew already lives. |
+| Phase 25 | H3 (Sub-Phase C) — Custom Mechanics | **Reframed.** "Displays in library but doesn't work in gameplay" disappears at the read layer after Phase 15; the mechanical-effects work (`feat-mechanics-5e.ts` extension, EffectBuilder, dice formulas) is still needed and stays in Phase 25. |
+| Phase 25 | H2 — Zod schemas for all 13 content types | **Phase 15 prerequisite.** Ship H2 before Phase 15 — library entries need validated shapes. |
+| Phase 26 | Step 10 — Pre-position monsters on map | **Coordinated.** Encounter stores `{ monsterRef, startX, startY, count, overrides? }`, never embedded monster JSON. Pre-Phase-15 encounters with embedded data auto-migrate at load. |
+| Phase 28 | Step 28a.1 — Math.random sweep on data tables | **Skipped (Option A).** Phase 15 Step 28 deletes `personality-tables.ts`, `starting-equipment-table.ts`, `bastion-events.ts`, `sentient-items.ts`, `weather-tables.ts`. Math.random sweep skips these files. |
+| Phase 28 | Step 28d.3 — `as unknown as` pass on `library-service.ts` | **Deferred (Option A).** Phase 15 reshapes the file; defer the 5 casts in lines 639, 678-679, 694, 702, 710 to a post-Phase-15 cleanup. |
+
+Every affected plan carries a "See also: Phase 15" note near its top so the relationship is visible from either direction.
+
+---
+
 ## 🧭 Execution order
 
 1. Sub-Phase A first — the hydration layer is the foundation; every other sub-phase depends on it.

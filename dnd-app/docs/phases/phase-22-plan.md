@@ -2,6 +2,8 @@
 
 Phase 22 is a **comprehensive codebase analysis** covering performance, architecture, documentation, dependencies, accessibility, and i18n. Many findings overlap prior phases. This plan covers **net-new items only**: unused reduced-motion hook, timer/listener leaks, unused dependencies, conversation memory leak, plugin installer security, CSP hardcoded IP, production console statements, service layer bypass, and missing project files.
 
+> **See also:** Phase 15 (Library as Single Source of Truth) — H4 service-layer bypass converges with the broader hydration-layer rewrite there.
+
 ---
 
 ## 🏗️ Architecture & Environment Split
@@ -140,6 +142,8 @@ Phase 22 is a **comprehensive codebase analysis** covering performance, architec
   - `game/sidebar/SpellsTab.tsx`: `window.api.game.loadSpells()` → `data-provider.load5eSpells()`
 - This gives them caching, error handling, and homebrew merge for free
 - Verify the data-provider functions exist and return the expected shapes
+
+> **Phase 15 coordination:** If Phase 15 has already landed when this step runs, the final target is `useLibraryEntries('equipment')` / `useLibraryEntries('spell')` (the hydration hooks), not the data-provider call site. Skip the intermediate data-provider hop and route the bypassed components directly through Phase 15's hydration layer.
 
 ### Sub-Phase D: Fix Remaining Timer/Listener Leaks (H5)
 
