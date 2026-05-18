@@ -18,7 +18,11 @@ interface DMTabPanelProps {
   onEditMap: () => void
 }
 
-const TABS = dmTabsJson as readonly { id: string; label: string; icon: string }[]
+// Phase 18d — group field added so the tab bar can render visual
+// separators between functional groups (combat / world / tools / logs).
+// Falls back to no group for any tab the JSON might be missing the field
+// on (e.g. plugin-injected tabs from a custom data store).
+const TABS = dmTabsJson as readonly { id: string; label: string; icon: string; group?: string }[]
 
 /** Load DM tab definitions from the data store (includes plugin tabs). */
 export async function loadDmTabData(): Promise<unknown> {
@@ -374,22 +378,31 @@ export default function DMTabPanel({ onOpenModal, campaign, onDispute, onEditMap
 
   return (
     <div className="flex flex-col gap-1 h-full min-h-0">
-      {/* Tab bar */}
-      <div className="flex overflow-x-auto scrollbar-thin scrollbar-thumb-gray-700 gap-0.5 shrink-0">
-        {TABS.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-medium rounded-t-lg whitespace-nowrap transition-all cursor-pointer shrink-0 ${
-              activeTab === tab.id
-                ? 'bg-amber-600/25 border border-b-0 border-amber-500/50 text-amber-300'
-                : 'bg-gray-800/40 border border-b-0 border-gray-700/30 text-gray-400 hover:bg-gray-700/40 hover:text-gray-300'
-            }`}
-          >
-            <span>{tab.icon}</span>
-            <span>{tab.label}</span>
-          </button>
-        ))}
+      {/* Tab bar — Phase 18d inserts a thin vertical divider between
+          functional groups (combat / world / tools / logs) so the 13
+          tabs read as four sections instead of one flat blob. */}
+      <div className="flex overflow-x-auto scrollbar-thin scrollbar-thumb-gray-700 gap-0.5 shrink-0 items-end">
+        {TABS.map((tab, i) => {
+          const prevGroup = i > 0 ? TABS[i - 1].group : tab.group
+          const groupChanged = i > 0 && prevGroup !== tab.group
+          return (
+            <div key={tab.id} className="flex items-end">
+              {groupChanged && <div className="self-stretch w-px bg-gray-700/40 mx-1.5 mb-0.5" aria-hidden="true" />}
+              <button
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-medium rounded-t-lg whitespace-nowrap transition-all cursor-pointer shrink-0 ${
+                  activeTab === tab.id
+                    ? 'bg-amber-600/25 border border-b-0 border-amber-500/50 text-amber-300'
+                    : 'bg-gray-800/40 border border-b-0 border-gray-700/30 text-gray-400 hover:bg-gray-700/40 hover:text-gray-300'
+                }`}
+              >
+                <span>{tab.icon}</span>
+                <span>{tab.label}</span>
+              </button>
+            </div>
+          )
+        })}
       </div>
 
       {/* Tab content — scrollable */}
