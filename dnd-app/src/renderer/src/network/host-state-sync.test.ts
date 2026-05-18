@@ -330,7 +330,12 @@ describe('heartbeat check', () => {
       characterName: null
     }
     const peerInfoMap = new Map([['timeout-peer', peerInfo]])
-    const lastHeartbeat = new Map([['timeout-peer', Date.now() - 50_000]]) // 50s ago, > 45s timeout but < 120s remove
+    // Phase 18a — picked so that after the test's `advanceTimersByTime(10_000)`
+    // the elapsed window is 35s, which sits between HEARTBEAT_TIMEOUT_MS (30s)
+    // and HEARTBEAT_REMOVE_MS (60s). Previous value 50_000 worked when the
+    // constants were 45/120 but with the 18a-tightened 30/60 thresholds the
+    // 60s post-advance value hit the REMOVE branch instead of TIMEOUT.
+    const lastHeartbeat = new Map([['timeout-peer', Date.now() - 25_000]])
     const buildMessageFn = vi.fn().mockReturnValue({ type: 'player:leave', payload: {} })
     const cb = vi.fn()
 

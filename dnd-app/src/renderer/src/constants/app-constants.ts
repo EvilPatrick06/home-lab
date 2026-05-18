@@ -39,10 +39,17 @@ export const JOINED_SESSIONS_KEY = SETTINGS_KEYS.JOINED_SESSIONS
 export const AUTO_REJOIN_KEY = SETTINGS_KEYS.AUTO_REJOIN
 export const DISPLAY_NAME_KEY = SETTINGS_KEYS.DISPLAY_NAME
 
-// Heartbeat
+// Heartbeat — Phase 18a tightened timeouts so half-open WebRTC connections
+// (where the channel reports `open` but data silently drops) recover faster.
+// The host already pings every 5s (network/host-manager.ts PING_INTERVAL_MS)
+// and 17f counts every peer message as liveness, so a healthy peer's
+// heartbeat refreshes well within 30s; a peer that's truly silent for 30s
+// is now flagged as disconnected, and force-removed at 60s so the client's
+// auto-reconnect path kicks in instead of the user waiting 2 minutes.
+// Previous values: 45_000 / 120_000.
 export const HEARTBEAT_INTERVAL_MS = 15_000
-export const HEARTBEAT_TIMEOUT_MS = 45_000
-export const HEARTBEAT_REMOVE_MS = 120_000
+export const HEARTBEAT_TIMEOUT_MS = 30_000
+export const HEARTBEAT_REMOVE_MS = 60_000
 
 // Cloud ICE servers (fallback when Pi is unreachable)
 export const CLOUD_ICE_SERVERS: RTCIceServer[] = [
