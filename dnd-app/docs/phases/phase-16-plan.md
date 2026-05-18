@@ -1,314 +1,340 @@
-# SYSTEM OVERRIDE: IMPLEMENTATION MODE
-You are Claude Opus 4.6 Max. Your job is to execute the following architectural plan for Phase 16 of the D&D VTT project.
+# Phase 16 — Roles + Permissions
 
-Phase 16 is a **VTT Platform Comparison** against D&D Beyond, Foundry VTT, and Roll20. Many identified gaps are already addressed by previous phase plans (active effects, dynamic lighting, trigger zones, audio emitters, floor filtering, advanced walls, multi-token ops, rollable tables, party inventory, encounter builder). This plan covers only the **net-new items** not already assigned to other phases, plus 7 UX workflow improvements.
-
----
-
-## 🏗️ Architecture & Environment Split
-
-### Windows 11 Machine (`C:\Users\evilp\dnd\`) — ALL WORK IS HERE
-
-Phase 16 is entirely client-side. No Raspberry Pi involvement.
-
-**Cross-Phase Overlap Map (DO NOT duplicate — these are owned by other phases):**
-
-| Gap | Already Addressed In |
-|-----|---------------------|
-| Active Effects system | Phase 1 (D7), Phase 4 (conditions) |
-| Dynamic lighting animations | Phase 1 (D3) |
-| Trigger zones / scene regions | Phase 1 (D4) |
-| Audio emitters unwired | Phase 1 (A11) |
-| Multi-floor filtering | Phase 1 (A10) |
-| Advanced wall types | Phase 1 (D14) |
-| Multi-token group operations | Phase 1 (D5) |
-| Rollable tables | Phase 1 (D10) |
-| Party inventory / shared loot | Phase 1 (D8) |
-| Encounter builder CR calc | Phase 1 (D9) |
-| Token context menu → conditions | Phase 1 (A6), Phase 13 (C) |
-| drawTokenStatusRing unused | Phase 1 (A4) |
-| Foreground / occlusion layer | Phase 1 (D16) |
-| Guided character builder | Phase 2 (U3) |
-| Animated scene transitions | Phase 1 (missing) |
-
-**NET-NEW items from this phase:**
-
-| File | Relevance |
-|------|-----------|
-| `src/renderer/src/components/game/map/MapCanvas.tsx` | Auto-pan to active token on turn change |
-| `src/renderer/src/services/macro-engine.ts` | Macro scripting limitations |
-| `src/renderer/src/components/game/player/MacroBar.tsx` | Macro bar hidden when bottom bar collapsed |
-| `src/renderer/src/components/game/GameLayout.tsx` | Modal-heavy UI, no floating windows |
-| `src/renderer/src/components/game/modals/utility/CompendiumModal.tsx` | Duplicates LibraryPage functionality |
-
-### Raspberry Pi (`patrick@bmo`) — NO WORK THIS PHASE
+> Replace every hardcoded "host" / "isCoDM" / role-string gate with a fully customizable permission matrix. Per-campaign role lists, custom roles, per-player overrides, view-as-role debug mode.
+>
+> Renumbered from "Phase A" in conversation planning.
 
 ---
 
-## 📋 Core Objectives
+## Context
 
-### NET-NEW Features (Not covered by any previous phase)
+Today, almost every gameplay gate in dnd-app is one of two literal checks: `networkRole === 'host'` (about half of them) or `localPlayer?.isCoDM` (a smaller set). Examples scattered across the codebase:
 
-| # | Feature | Competitor Source | Impact |
-|---|---------|-------------------|--------|
-| N1 | Auto-pan to active token on turn change | Roll20 | Players lose track of where combat is happening |
-| N2 | Map pins with journal linkage | Roll20 | No spatial bookmarks on maps |
-| N3 | Non-blocking floating tools (reduce modal reliance) | Foundry | Modals break map immersion |
-| N4 | Macro engine improvements (conditionals, loops) | Roll20 | Current macros limited to simple variable substitution |
-| N5 | Unified content discovery (merge Compendium + Library) | D&D Beyond | Two separate systems with different UX |
-| N6 | Scene preloading for map transitions | Foundry | Map switches may stutter while loading assets |
-| N7 | Grid coordinate readout on hover | Foundry/Roll20 | Players can't identify grid positions |
+- `pages/InGamePage.tsx:51` — `isDM = networkRole === 'host'`
+- `stores/network-store/index.ts:415-536 filterGameStateForRole` — host vs anyone-else
+- `components/lobby/PlayerList.tsx` — Promote / Demote / Kick gated by `isHostView`
+- Token visibility, fog brush, NPC stat blocks, journal write — all gated similarly
+- Phase 17b (`v2.1.38`) partially fixed this by making CoDM equivalent to host for game-view purposes, but that was a bandage on the same `isHost` literal.
 
----
+This means:
 
-## 🛠️ Step-by-Step Execution Plan
+1. There's no way to give one player slightly elevated perms without making them a full CoDM.
+2. Spectators have a single allowlist (`SPECTATOR_ALLOWED_TYPES` in `host-handlers.ts`) — no granularity.
+3. Different campaigns can't have different role shapes (one casual game's "Player" might be allowed to manage NPCs; another's wouldn't).
+4. Debugging "what does Player X see?" requires re-creating the lobby with their role; no in-place toggle.
 
-### Sub-Phase A: Auto-Pan to Active Token (N1)
+Goal: data-driven permissions. The DM defines what each role can do, optionally per-player, optionally per-campaign. Every gate in the code becomes `hasPermission(peer, key, campaign)`.
 
-**Step 1 — Implement Auto-Pan on Turn Change**
-- Open `src/renderer/src/components/game/map/MapCanvas.tsx`
-- Find where the initiative turn changes (either via store subscription or prop change)
-- When the active initiative entry changes, pan the camera to center on that token:
-  ```typescript
-  useEffect(() => {
-    if (!activeEntry || !autoPanEnabled) return
-    const token = activeMap?.tokens.find(t => t.entityId === activeEntry.entityId)
-    if (!token) return
-    const worldX = token.gridX * cellSize + cellSize / 2
-    const worldY = token.gridY * cellSize + cellSize / 2
-    panToPosition(worldX, worldY, { animate: true, duration: 300 })
-  }, [activeEntry?.entityId])
-  ```
-- Create a `panToPosition(x, y, options)` utility that smoothly animates the PixiJS viewport/camera
-- The animation should use easing (ease-out) for a polished feel
-
-**Step 2 — Add Auto-Pan Toggle**
-- Add a game setting: `autoPanOnTurnChange: boolean` (default: true)
-- Add a toggle button in the game toolbar or settings dropdown
-- When disabled, no camera movement on turn changes
-- Players should be able to override independently from DM setting
-
-**Step 3 — Manual "Center on Token" Enhancement**
-- The audit mentions "Center on entity" is a manual action via portrait click
-- Enhance: add a keyboard shortcut (e.g., `C`) to center camera on the player's own token
-- Add "Center on Me" button in the PlayerBottomBar
-
-### Sub-Phase B: Map Pins with Journal Linkage (N2)
-
-**Step 4 — Define MapPin Type**
-- Add to `src/renderer/src/types/map.ts`:
-  ```typescript
-  export interface MapPin {
-    id: string
-    gridX: number
-    gridY: number
-    label: string
-    icon: 'note' | 'quest' | 'shop' | 'danger' | 'npc' | 'custom'
-    color: string
-    linkedJournalId?: string
-    linkedNpcId?: string
-    linkedLocationId?: string
-    visibleToPlayers: boolean
-    floor?: number
-  }
-  ```
-- Add `pins: MapPin[]` to `GameMap` type
-
-**Step 5 — Create Pin Layer on Map**
-- Add a new PixiJS layer for map pins in `map-pixi-setup.ts` (between Tokens and Fog layers)
-- Render pins as small icons at their grid positions
-- DM pins with `visibleToPlayers: false` hidden from players
-- Hover shows pin label tooltip
-- Click opens the linked content (journal entry, NPC sheet, or a custom note)
-
-**Step 6 — Pin Creation UI**
-- In `EmptyCellContextMenu`, add "Add Pin" option (DM only)
-- Opens a small form: label, icon type, color, visibility, optional journal/NPC link
-- Pin saved to the map's `pins` array via `updateMap`
-
-**Step 7 — Pin-to-Journal Navigation**
-- When clicking a pin with `linkedJournalId`, open the journal entry in a floating panel
-- When clicking a pin with `linkedNpcId`, open the NPC detail view
-- This creates spatial storytelling — DMs can mark important locations on the map with linked content
-
-### Sub-Phase C: Non-Blocking Floating Tools (N3)
-
-**Step 8 — Create FloatingWindow Component**
-- Build a reusable `FloatingWindow` wrapper component:
-  ```tsx
-  interface FloatingWindowProps {
-    title: string
-    children: React.ReactNode
-    defaultPosition?: { x: number; y: number }
-    defaultSize?: { width: number; height: number }
-    resizable?: boolean
-    onClose: () => void
-  }
-  ```
-- Features: draggable title bar, optional resize handle, close button, semi-transparent background
-- Position persisted in sessionStorage per window type
-- Z-order management: clicking a window brings it to front
-
-**Step 9 — Convert Key DM Tools to Floating Windows**
-- Identify the most disruptive modals (those that block the map):
-  - `InitiativeModal` → convert to `FloatingWindow` option
-  - `CreatureModal` (monster lookup) → floating window
-  - `DMNotesModal` → floating window
-- Keep modal as default but add "Float" button in the modal header that detaches it into a floating window
-- The game layout should support multiple floating windows simultaneously
-
-**Step 10 — Float Toggle Pattern**
-- Add a "Float / Dock" toggle to each modal header:
-  ```tsx
-  <ModalHeader>
-    <span>{title}</span>
-    <button onClick={toggleFloat} title="Float as window">
-      <FloatIcon />
-    </button>
-    <button onClick={onClose} title="Close">
-      <CloseIcon />
-    </button>
-  </ModalHeader>
-  ```
-- When "Float" is clicked, close the modal and open the same content in a `FloatingWindow`
-- Store user preference: if a tool was last used as floating, open it as floating next time
-
-### Sub-Phase D: Macro Engine Improvements (N4)
-
-**Step 11 — Add Conditional Logic to Macros**
-- Open `src/renderer/src/services/macro-engine.ts`
-- Currently supports simple variable substitution (`$self`, `$target`, `$mod.str`)
-- Add basic conditional syntax:
-  ```
-  {if $self.hp < $self.maxhp/2}2d6+$mod.con{else}1d6+$mod.con{/if}
-  ```
-- Parser should handle:
-  - `{if condition}...{else}...{/if}` blocks
-  - Comparison operators: `<`, `>`, `<=`, `>=`, `==`, `!=`
-  - Arithmetic in conditions: `$self.hp < $self.maxhp/2`
-
-**Step 12 — Add Repeat/Multi-Roll**
-- Add repeat syntax for multi-attack macros:
-  ```
-  {repeat 3}1d20+$mod.str vs AC | 2d6+$mod.str slashing{/repeat}
-  ```
-- Each iteration produces a separate roll result in chat
-- Useful for Extra Attack, Eldritch Blast, Scorching Ray
-
-**Step 13 — Fix Macro Bar Visibility**
-- The audit notes the bottom bar collapse hides the Macro Bar
-- When the bottom bar is collapsed, show a minimal floating macro bar:
-  ```tsx
-  {isBottomBarCollapsed && macros.length > 0 && (
-    <FloatingMacroBar macros={macros} onExecute={executeMacro} />
-  )}
-  ```
-- Position above the collapsed bar
-
-### Sub-Phase E: Unified Content Discovery (N5)
-
-**Step 14 — Merge CompendiumModal into Library Pattern**
-- The CompendiumModal (in-game) and LibraryPage (out-of-game) duplicate functionality
-- Replace CompendiumModal internals with a lightweight embed of the Library components:
-  ```tsx
-  // In CompendiumModal, instead of custom search/display:
-  <LibraryItemList items={filteredItems} onSelect={handleSelect} compact />
-  <LibraryDetailModal item={selectedItem} compact />
-  ```
-- Import `LibraryItemList` and `LibraryDetailModal` from `src/renderer/src/components/library/`
-- This ensures consistent rendering (stat blocks, search quality) between in-game and out-of-game
-- Upgrade CompendiumModal search from `.includes()` to Fuse.js (already addressed in Phase 5 Step 15)
-
-### Sub-Phase F: Scene Preloading (N6)
-
-**Step 15 — Preload Adjacent Map Assets**
-- When the DM has multiple maps in a campaign, preload the background images of nearby/linked maps:
-  ```typescript
-  function preloadAdjacentMaps(currentMap: GameMap, allMaps: GameMap[]) {
-    // Preload maps linked by portals
-    const portalTargets = currentMap.terrain
-      ?.filter(t => t.type === 'portal' && t.portalTarget)
-      .map(t => t.portalTarget!.mapId) ?? []
-
-    for (const mapId of portalTargets) {
-      const map = allMaps.find(m => m.id === mapId)
-      if (map?.imagePath) {
-        Assets.load(map.imagePath).catch(() => {})
-      }
-    }
-  }
-  ```
-- Call on map load and on map list change
-- Use PixiJS `Assets.load()` which caches results — subsequent loads are instant
-- Also preload the next map in the session's adventure sequence if one is defined
-
-**Step 16 — Add Transition Effect**
-- When switching maps, add a brief fade-to-black transition:
-  ```typescript
-  async function transitionToMap(mapId: string) {
-    // Fade out current map (300ms)
-    await fadeOverlay(0, 1, 300)
-    // Switch map
-    gameStore.setActiveMap(mapId)
-    // Wait for new map to render (next frame)
-    await new Promise(r => requestAnimationFrame(r))
-    // Fade in new map (300ms)
-    await fadeOverlay(1, 0, 300)
-  }
-  ```
-- Use a PixiJS overlay or CSS transition on the canvas container
-- Respect `prefers-reduced-motion` — skip animation if set
-
-### Sub-Phase G: Grid Coordinate Readout (N7)
-
-**Step 17 — Show Grid Position on Hover**
-- Open `src/renderer/src/components/game/map/MapCanvas.tsx`
-- On mousemove, calculate the grid coordinates under the cursor:
-  ```typescript
-  const gridCoord = pixelToGrid(cursorX, cursorY, grid)
-  // Display as "A3" for square grid or "3,7" for hex
-  ```
-- Show in a small HUD element:
-  ```tsx
-  <div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
-    {gridLabel}
-  </div>
-  ```
-- For square grids: use column letter + row number (e.g., "A1", "B5", "AA12")
-- For hex grids: use axial coordinates (e.g., "3,7")
-- Show for both DM and players
-- Add a toggle in settings to hide if unwanted
+This phase ships on the **existing P2P transport** — no network architecture changes. It's the foundation for Phase 17 (Player-as-Host rewrite) and Phase 18 (Live-state sync overhaul), but it's standalone-useful immediately.
 
 ---
 
-## ⚠️ Constraints & Edge Cases
+## Sub-phase summary
 
-### Auto-Pan
-- **Respect manual camera position**: If the player manually panned/zoomed, don't auto-pan for 5 seconds (debounce). This prevents fighting the user's intentional camera position.
-- **Hidden tokens**: If it's a hidden enemy's turn, do NOT pan to their position for players — only pan for visible entities.
-- **Animation performance**: Use PixiJS ticker for smooth animation, not CSS transitions on the container.
+| # | Sub-phase | Scope |
+|---|-----------|-------|
+| 16a | Permission key universe + `hasPermission` helper | Define ~50–80 permission keys grouped by category; ship the lookup helper |
+| 16b | Built-in role defaults | DM, CoDM, Player, Spectator — stored as data, not constants |
+| 16c | Custom roles per campaign | Editable role list; add / duplicate / delete; per-campaign storage |
+| 16d | Per-player overrides | `playerOverrides[clientId] = { grant, deny }` with deny-beats-grant-beats-role priority |
+| 16e | Codebase sweep — replace literal gates | The grind: every `role === 'host'` / `isCoDM` becomes a permission lookup |
+| 16f | View-as-role debug mode | DM toggle: "view as Player X" honoring the matrix exactly |
+| 16g | Permissions editor UI | Campaign Settings → Permissions tab. Matrix + override panel |
+| 16h | Migration for existing campaigns | Inject defaults on load; preserve any in-flight `isCoDM` assignments |
 
-### Map Pins
-- **Pin density**: A map with many pins can be cluttered. Add a zoom threshold — hide pin labels when zoomed out past a threshold, show only icons.
-- **Pin persistence**: Pins are part of `GameMap` and persist with the map data. They are NOT separate entities.
-- **Network sync**: Pin CRUD must be broadcast to clients via `dm:map-update` when added/removed by the DM.
+8 sub-phases. Each ends with `lint + tsc-web + tsc-node + vitest` (4-gate). One release at the end: **v3.0.0** (major bump — large architectural change even though it's invisible at default settings).
 
-### Floating Windows
-- **Do NOT float all modals** — only the frequently-used DM reference tools. Combat modals (AttackModal, SpellModal) should remain centered modals because they require focused interaction.
-- **Window stacking**: Implement a simple Z-index manager. Each click on a window increments its z-index.
-- **Screen bounds**: Prevent windows from being dragged off-screen. Clamp position to viewport bounds.
+---
 
-### Macro Conditionals
-- **No arbitrary code execution**: The conditional parser should only support comparison operators and arithmetic on known variables. Do NOT implement `eval()` or allow arbitrary JavaScript.
-- **Error handling**: Malformed conditional syntax should produce a clear error message, not crash the macro.
-- **Backward compatibility**: Existing macros without conditionals must continue to work identically.
+## Sub-phase details
 
-### Scene Preloading
-- **Memory budget**: Preloading large map images consumes GPU memory. Limit to 3 preloaded maps max.
-- **Network bandwidth**: If map images are transferred via P2P, preloading would trigger downloads for clients. Only preload on the host; clients preload when they receive the map data during a switch.
+### 16a — Permission key universe + `hasPermission` helper
 
-### Content Unification
-- **Do NOT delete CompendiumModal** — it serves as a quick in-game reference. Instead, replace its internals with library components so it gets the same rendering quality and search.
-- **CompendiumModal must be lightweight** — it opens and closes frequently during gameplay. Don't load the full LibraryPage state on every open.
+**Files (new):**
+- `src/renderer/src/types/permissions.ts` — exports `Permission` (string union of all keys), `PermissionCategory` enum, `PERMISSION_GROUPS` (display grouping for UI), and a `getPermissionLabel(key) → string` helper.
+- `src/renderer/src/services/permissions/has-permission.ts` — `hasPermission(peer: PeerInfo, key: Permission, campaign: Campaign | null): boolean`.
 
-Begin implementation now. Start with Sub-Phase A (Steps 1-3) for auto-pan — this is the highest-impact QoL improvement that every player benefits from immediately. Then Sub-Phase B (Steps 4-7) for map pins as a unique differentiator feature. Sub-Phase C (Steps 8-10) for floating windows is higher effort but transforms the DM workflow.
+**Permission key universe (initial draft — likely 60–80 keys final):**
+
+```
+view_hidden_tokens
+view_dm_only_stats
+view_full_fog
+view_hidden_npcs
+view_dm_journal_entries
+view_secret_handouts
+
+move_own_token
+move_any_token
+add_token
+remove_token
+change_token_visibility
+edit_token_hp
+edit_token_conditions
+edit_own_sheet
+edit_any_sheet
+view_any_sheet
+
+roll_dice
+roll_hidden_dice
+see_hidden_dice
+chat_send
+chat_whisper
+chat_clear
+chat_file_upload
+
+draw_visible
+draw_dm_only
+clear_drawings
+place_pin
+edit_fog
+change_active_map
+edit_map
+edit_grid
+edit_walls
+
+manage_initiative
+end_turn_any
+end_turn_own
+start_combat
+end_combat
+add_condition_any
+remove_condition_any
+
+add_npc
+edit_npc
+reveal_npc_field
+manage_sidebar_entries
+edit_party_inventory
+edit_handouts
+manage_journal
+
+use_dm_tools
+use_ai_dm
+edit_campaign_settings
+manage_homebrew
+manage_audio
+manage_calendar
+manage_weather
+
+kick_player
+ban_player
+timeout_player
+mute_player_chat
+promote_codm
+demote_codm
+change_player_role
+transfer_host
+end_session
+```
+
+**`hasPermission` algorithm:**
+
+1. If `!peer` or `!campaign`, return false (be conservative).
+2. Look up `playerOverrides[peer.clientId]` (added in 16d). If present and `deny.includes(key)`, return false. If `grant.includes(key)`, return true.
+3. Find peer's role on the campaign. If role not found, return false.
+4. Return `role.permissions.includes(key)`.
+
+**Acceptance:**
+- Helper compiles and runs against a mock campaign. Unit-tests cover deny>grant>role precedence, missing campaign, missing role, unknown permission key (returns false, doesn't throw).
+- No existing code calls it yet (sweep happens in 16e).
+
+---
+
+### 16b — Built-in role defaults
+
+**Files (new):**
+- `src/renderer/src/data/builtin-roles.ts` — exports `BUILTIN_ROLES: Role[]` with:
+  - **DM** — every permission in the universe.
+  - **CoDM** — every permission except `promote_codm`, `demote_codm`, `transfer_host`, `ban_player`, `end_session`, `edit_campaign_settings`.
+  - **Player** — `view_dm_only_stats` no; `view_hidden_tokens` no; `move_own_token`, `edit_own_sheet`, `roll_dice`, `chat_send`, `chat_whisper`, `draw_visible`, `view_any_sheet` (yes — see your party), `add_condition_any` (no), etc.
+  - **Spectator** — `chat_send`, `chat_whisper`, `roll_dice`, and the view-only permissions. No write actions.
+
+**Files (modify):**
+- `src/renderer/src/types/campaign.ts` — add `Role` interface (`{ id, name, description?, color?, isBuiltIn, permissions: Permission[] }`) and `CampaignPermissions` (`{ roles: Role[], playerOverrides: Record<string, PlayerOverride> }`). Mark `Campaign.permissions?: CampaignPermissions` optional for backwards compat.
+
+**Acceptance:**
+- `BUILTIN_ROLES` import works from anywhere.
+- A new campaign created today gets `BUILTIN_ROLES` copied into its `permissions.roles` so the DM can edit a per-campaign copy without affecting future campaigns.
+
+---
+
+### 16c — Custom roles per campaign
+
+**Files (modify):**
+- `src/renderer/src/stores/use-campaign-store.ts` — actions: `addRole(campaignId, role)`, `updateRole(campaignId, roleId, updates)`, `deleteRole(campaignId, roleId)`, `duplicateRole(campaignId, roleId)`. Built-in roles can be edited but not deleted (UI prevents deletion; store throws if attempted).
+- `src/renderer/src/types/campaign.ts` — `Role.isBuiltIn: boolean` distinguishes built-ins from user-created. Built-ins keep stable ids (`'role-dm'`, `'role-codm'`, etc.).
+
+**Acceptance:**
+- DM can create a custom role "Apprentice DM" with any subset of permissions.
+- DM can duplicate "Player" → "Senior Player" and tweak.
+- Deleting a custom role that's currently assigned to a peer falls back the peer to the default "Player" role with a system chat message.
+
+---
+
+### 16d — Per-player overrides
+
+**Files (modify):**
+- `src/renderer/src/types/campaign.ts` — `PlayerOverride = { grant: Permission[], deny: Permission[] }`. `CampaignPermissions.playerOverrides: Record<string /* clientId */, PlayerOverride>`.
+- `src/renderer/src/stores/use-campaign-store.ts` — `setPlayerOverride(campaignId, clientId, override)` and `clearPlayerOverride(campaignId, clientId)`.
+
+**Priority (final):** explicit deny > explicit grant > role permission.
+
+**Acceptance:**
+- DM can grant `view_hidden_tokens` to one specific player without changing their role.
+- DM can deny `chat_whisper` to a specific player even though their role has it.
+- Setting both grant + deny for the same permission resolves to deny (with a UI warning in 16g).
+
+---
+
+### 16e — Codebase sweep — replace literal gates
+
+The grind. Every `role === 'host'`, `isCoDM`, `isHost`, `peerInfo.isHost`, and similar literal becomes `hasPermission(peer, key, campaign)`.
+
+**Touched files (incomplete list — sweep will find more):**
+- `pages/InGamePage.tsx` — `isDM` derivation
+- `pages/LobbyPage.tsx` — `isHost` references
+- `stores/network-store/index.ts` — `filterGameStateForRole`, `transformUpdatePayloadForPeer`
+- `stores/network-store/host-handlers.ts` — `SPECTATOR_ALLOWED_TYPES` becomes a derived list; per-message permission check at handler entry
+- `network/host-connection.ts` — kick, ban, promote checks
+- `components/lobby/PlayerList.tsx` — `isHostView`
+- `components/game/dm/*` — every DM-only UI gate
+- `components/game/overlays/*` — DM toolbar, FloatingDMPanel, EmptyCellContextMenu, etc.
+- Chat commands (`services/chat-commands/*`) — DM-only commands
+- Map event handlers — drawing, fog, wall placement
+
+Each touched site documents which permission key replaced the literal check.
+
+**Acceptance:**
+- `git grep "role === 'host'"` returns zero hits in the gameplay surface (a few remaining are OK in network bootstrap paths where "the literal host" is a transport concept, not a role).
+- `git grep "isCoDM"` returns zero hits in gameplay (the boolean still exists on PeerInfo for backwards compat during migration; future cleanup phase removes it).
+- Existing vitest specs pass — Phase 17b's CoDM tests now go through the permission system but produce the same answers.
+
+---
+
+### 16f — View-as-role debug mode
+
+**Files (modify):**
+- `src/renderer/src/components/game/GameLayout.tsx` — extend the existing `viewMode` state. Today it's `'dm' | 'player'`; expand to `{ mode: 'self' | 'as-role'; targetRoleId?: string; targetPlayerId?: string }`.
+- `src/renderer/src/services/permissions/has-permission.ts` — accept an optional `viewAs` override that masks the caller's real peer with a synthetic peer carrying the target role/overrides.
+- New UI: dropdown in DMToolbar to pick "View as: Self / Player X / Spectator / [custom role]". When active, every `hasPermission` call across the renderer uses the override.
+
+**Why this is huge for debugging:** instead of "what does Bob see?" requiring Bob to share his screen, the DM toggles a dropdown and the entire UI re-renders with Bob's exact permission set applied. Every gate hits the same way Bob's would.
+
+**Acceptance:**
+- Toggle to "View as Player X" → hidden tokens disappear, DM-only stats disappear, fog reveals as Player X would see, DM toolbar dims out, etc.
+- Toggle back to Self → full DM view restored.
+- A clear indicator at the top of the screen says "Viewing as Player X — click to exit" so the DM doesn't get stuck wondering why their tools are gone.
+
+---
+
+### 16g — Permissions editor UI
+
+**Files (new):**
+- `src/renderer/src/components/campaign/PermissionsEditor.tsx` — main editor. Lists campaign roles with their description + permission count. Click a role to expand a matrix view of every permission grouped by category, with checkboxes.
+- `src/renderer/src/components/campaign/PlayerOverridesPanel.tsx` — per-player override surface. Lists each campaign player, expand to see per-permission switches (grant / role-default / deny).
+
+**Files (modify):**
+- `src/renderer/src/pages/CampaignDetailPage.tsx` (or wherever campaign settings live) — new "Permissions" tab.
+
+**UX details:**
+- Reset-to-defaults per role.
+- Bulk actions on a role: "grant all in this category" / "deny all in this category".
+- Conflict warning: if a player override sets both grant + deny for the same permission, surface a non-blocking warning (deny wins, but flag the contradiction).
+- Search box for permission keys (~80 keys gets unwieldy without one).
+
+**Acceptance:**
+- DM can create / edit / delete custom roles, see the live matrix, save back to the campaign.
+- DM can set per-player overrides for any campaign player.
+- Changes save to disk and propagate to all peers via the existing campaign update broadcast.
+
+---
+
+### 16h — Migration for existing campaigns
+
+**Files (modify):**
+- `src/main/io/campaign-io.ts` (or equivalent load path) — on campaign load, if `campaign.permissions` is missing, inject a copy of `BUILTIN_ROLES` and an empty `playerOverrides`.
+- Preserve any in-flight `isCoDM` flag on lobby players: a player flagged `isCoDM === true` gets their role set to `'role-codm'` on first migration.
+
+**Acceptance:**
+- Loading a pre-permissions save works exactly as it did before — DM has all perms, CoDM-flagged players have CoDM perms.
+- Subsequent saves include the new `permissions` field so future loads skip migration.
+
+---
+
+## Cross-cutting decisions
+
+- **Custom roles are per-campaign only.** No global role library. Cleaner data model, no cross-campaign coupling. If the DM wants to reuse a role across campaigns, they duplicate it manually.
+- **Contradictory overrides warn-but-allow.** DM can construct weird combinations on purpose (e.g., grant `edit_any_sheet` but deny `view_any_sheet`). UI surfaces a warning chip; deny still wins.
+- **Built-in roles are editable but not deletable.** Reset-to-defaults restores their original permission set.
+- **Migration is one-way.** Once a campaign has `permissions` populated, the old `isCoDM` boolean stops being consulted. Removed entirely in a follow-up cleanup phase.
+
+---
+
+## Verification — end-to-end test plan
+
+After **16a-d**: unit tests on `hasPermission` cover precedence, missing data, custom roles, overrides.
+
+After **16e**: existing Phase 17b CoDM acceptance tests pass (CoDM still has DM-equivalent perms because the built-in CoDM role includes all the same keys). Existing kick/ban/promote tests pass.
+
+After **16f**: DM toggles "View as Player X" and the map fog reveals, DM toolbar hides, hidden tokens vanish. Toggle off → full DM view.
+
+After **16g**: DM creates a custom "Senior Player" role with `manage_initiative` granted. Assigns Bob to that role. Bob can now advance initiative. Bob's role-default kick action stays disabled.
+
+After **16h**: Loading a Phase 17 save with a CoDM-flagged player → that player loads with the `role-codm` role. No regression.
+
+---
+
+## Critical files (multi-touch hotspots)
+
+- `src/renderer/src/types/permissions.ts` *(new)*
+- `src/renderer/src/services/permissions/has-permission.ts` *(new)*
+- `src/renderer/src/data/builtin-roles.ts` *(new)*
+- `src/renderer/src/types/campaign.ts`
+- `src/renderer/src/stores/use-campaign-store.ts`
+- `src/renderer/src/stores/network-store/index.ts` — `filterGameStateForRole`, sendMessage routing
+- `src/renderer/src/stores/network-store/host-handlers.ts` — spectator allowlist becomes derived
+- `src/renderer/src/network/host-connection.ts` — kick/ban/promote
+- `src/renderer/src/components/campaign/PermissionsEditor.tsx` *(new)*
+- `src/renderer/src/components/campaign/PlayerOverridesPanel.tsx` *(new)*
+- Plus ~20–30 component files touched in the 16e sweep
+
+---
+
+## Commit cadence
+
+```
+16a — feat(perm): permission key universe + hasPermission helper
+16b — feat(perm): built-in role defaults (DM / CoDM / Player / Spectator)
+16c — feat(perm): custom roles per campaign (add / edit / delete / duplicate)
+16d — feat(perm): per-player overrides (grant / deny beyond role)
+16e — refactor(dnd-app): replace literal role checks with hasPermission across gameplay
+16f — feat(dnd-app): view-as-role debug mode in GameLayout
+16g — feat(dnd-app): Permissions editor + Player Overrides panel
+16h — feat(perm): migration for pre-permissions campaigns
+```
+
+Each must pass:
+```
+npm run lint
+npx tsc --noEmit -p tsconfig.web.json
+npx tsc --noEmit -p tsconfig.node.json
+npx vitest run
+```
+
+One release: **v3.0.0** cut after 16h lands. Major version bump because while the default behavior is unchanged, the underlying model is a fundamental rewrite.
+
+---
+
+## Estimated scope
+
+6–8 working sessions. The most time-consuming sub-phases are 16a (deciding the permission key universe — has to be done thoughtfully so we don't have to re-shape it later), 16e (sweep grind), and 16g (UI surface for a ~80-permission matrix is non-trivial).
+
+This phase ships independently of Phase 17/18/19. Even if Phase 17 (Player-as-Host rewrite) is deferred indefinitely, Phase 16 is fully usable.
+
+---
+
+## Open questions (locked before starting)
+
+1. **Custom roles per-campaign only** — confirmed.
+2. **Contradictory combinations warn-but-allow** — confirmed.

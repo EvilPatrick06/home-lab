@@ -1,7 +1,7 @@
 # SYSTEM OVERRIDE: IMPLEMENTATION MODE
-You are Claude Opus 4.6 Max. Your job is to execute the following architectural plan for Phase 23 of the D&D VTT project.
+You are Claude Opus 4.6 Max. Your job is to execute the following architectural plan for Phase 19 of the D&D VTT project.
 
-Phase 23 covers the **In-Game Character Sheet** — data binding, real-time sync, inventory, spellbook, conditions, and performance. The sheet is feature-rich and functional but needs **performance optimization** (no virtualization for spell/equipment lists, limited useMemo), **spell search/filtering**, **sync conflict resolution**, and **consistency fixes** (remote characters stored in wrong store, attunement count mismatch).
+Phase 19 covers **Packaging, Build Configuration, and Distribution** — Electron build toolchain, NSIS installer, auto-updater, code signing, platform targets, and asset paths. The audit found the Windows build pipeline functional but identified a **critical packaged path bug** in `srd-provider.ts`, missing Mac/Linux targets, no code signing, and a `release` script that doesn't clean stale artifacts.
 
 ---
 
@@ -9,261 +9,305 @@ Phase 23 covers the **In-Game Character Sheet** — data binding, real-time sync
 
 ### Windows 11 Machine (`C:\Users\evilp\dnd\`) — ALL WORK IS HERE
 
-### Cross-Phase Overlap (DO NOT duplicate)
+Phase 19 is entirely build/config work on the Windows machine.
 
-| Issue | Owned By |
-|-------|----------|
-| Conditions not mechanically applied to rolls | Phase 1 (D7), Phase 4 |
-| Death save automation | Phase 4 (B) |
-| Concentration save on damage | Phase 4 (noted in Phase 11) |
-| Accessibility/ARIA on sheet | Phase 18 |
-| Player inventory panel (in-game) | Phase 15 (A) |
+**Build System Files:**
+
+| File | Role | Issues |
+|------|------|--------|
+| `package.json` | Build scripts (lines 6-22), electron-builder config (lines 62-105) | Windows only; `release` doesn't run `prerelease`; `signAndEditExecutable: true` but no cert config |
+| `electron.vite.config.ts` | Vite config for main/preload/renderer | `__APP_VERSION__` injection, `manualChunks` |
+| `resources/installer.nsh` | Custom NSIS macros for upgrade hardening | Functional |
+| `resources/icon.ico` | App icon (~360KB) | Present |
+| `resources/icon.png` | App icon PNG (~46KB) | Present |
+| `scripts/prerelease-clean.mjs` | Cleans `dist/` before build | Not called by `release` script |
+| `scripts/build-chunk-index.mjs` | Builds AI chunk index from reference files | Depends on gitignored `5.5e References/` |
+
+**Path Bug Files:**
+
+| File | Lines | Issue |
+|------|-------|-------|
+| `src/main/ai/srd-provider.ts` | 6-8 | **CRITICAL**: Packaged path uses `renderer/public/data/5e` — should be `renderer/data/5e` (Vite strips `public/` prefix) |
+| `src/main/ai/context-builder.ts` | 27 | Uses `__dirname` (covered by Phase 6 Step 7 — overlap) |
+
+**Updater:**
+
+| File | Role |
+|------|------|
+| `src/main/updater.ts` | electron-updater wrapper, on-demand check/download/install |
+| `src/renderer/src/components/ui/UpdatePrompt.tsx` | Floating update banner |
+| `src/renderer/src/pages/AboutPage.tsx` | Full update flow UI (lines 139-220) |
+
+### Raspberry Pi (`patrick@bmo`) — NO WORK THIS PHASE
 
 ---
 
-## 📋 Net-New Objectives
+## 📋 Core Objectives
 
-### HIGH PRIORITY
-
-| # | Issue | Impact |
-|---|-------|--------|
-| S1 | No virtualization for spell/equipment lists — lag with 50+ items | Performance |
-| S2 | No spell search/filter within spell list | UX — hard to find spells |
-| S3 | Remote character updates go to `lobbyStore.remoteCharacters` not character store | Data inconsistency |
-| S4 | No conflict resolution for simultaneous DM+player edits | Last-write-wins silently |
-
-### MEDIUM PRIORITY
+### CRITICAL
 
 | # | Issue | Impact |
 |---|-------|--------|
-| M1 | Limited useMemo — most sections recalculate on every render | Performance |
-| M2 | Attunement count mismatch between AttunementTracker and MagicItemsPanel | Confusing display |
-| M3 | No optimistic updates — UI waits for IPC round-trip | Sluggish feel |
-| M4 | Inconsistent use of `useCharacterEditor` vs direct store calls | Code maintenance |
-| M5 | No tool proficiency roll buttons | Missing QoL feature |
+| P1 | `srd-provider.ts` packaged path includes `public/` — AI SRD lookups fail in production | AI DM has no spell/monster/rule data in packaged build |
+
+### IMPORTANT
+
+| # | Issue | Impact |
+|---|-------|--------|
+| P2 | `release` script doesn't run `prerelease` — stale dist artifacts affect delta updates | Update delivery unreliable |
+| P3 | No code signing — Windows SmartScreen blocks unsigned installers | Users see "Windows protected your PC" warning |
+| P4 | Mac/Linux not supported — Windows-only build targets | Cannot distribute to non-Windows users |
+
+### MINOR
+
+| # | Issue | Impact |
+|---|-------|--------|
+| P5 | `5.5e References/` gitignored — chunk index may be empty | AI features degraded on clean clones |
+| P6 | `context-builder.ts` dev path (Phase 6 overlap) | Non-fatal, covered by try-catch |
 
 ---
 
 ## 🛠️ Step-by-Step Execution Plan
 
-### Sub-Phase A: List Virtualization (S1)
+### Sub-Phase A: Fix Critical Packaged Path (P1)
 
-**Step 1 — Virtualize Spell List**
-- Open `src/renderer/src/components/sheet/5e/SpellList5e.tsx`
-- The project already uses `@tanstack/react-virtual` (in ChatPanel, LibraryItemList)
-- Wrap the spell list in a virtualizer:
+**Step 1 — Fix srd-provider.ts Packaged Path**
+- Open `src/main/ai/srd-provider.ts`
+- Find lines 6-8:
   ```typescript
-  import { useVirtualizer } from '@tanstack/react-virtual'
-
-  const parentRef = useRef<HTMLDivElement>(null)
-  const virtualizer = useVirtualizer({
-    count: filteredSpells.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 48, // estimated row height
-    overscan: 5
-  })
+  if (app.isPackaged) {
+    return join(process.resourcesPath, 'app.asar', 'renderer', 'public', 'data', '5e')
+  }
   ```
-- Render only visible spell rows with `virtualizer.getVirtualItems()`
-- Keep the level grouping — virtualize within each level group or flatten with group headers
-
-**Step 2 — Virtualize Equipment List**
-- Open `src/renderer/src/components/sheet/5e/EquipmentListPanel5e.tsx`
-- Apply same `@tanstack/react-virtual` pattern for equipment items
-- Equipment lists can grow large with pack contents expanded
-
-### Sub-Phase B: Spell Search & Filter (S2)
-
-**Step 3 — Add Spell Search Box**
-- Open `SpellcastingSection5e.tsx` or `SpellList5e.tsx`
-- Add a search input above the spell list:
-  ```tsx
-  <input
-    type="text"
-    placeholder="Search spells..."
-    value={spellSearch}
-    onChange={(e) => setSpellSearch(e.target.value)}
-    className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm"
-  />
-  ```
-- Filter spells by name match (case-insensitive includes)
-
-**Step 4 — Add Spell Filters**
-- Add filter chips for:
-  - School: Abjuration, Conjuration, Divination, Enchantment, Evocation, Illusion, Necromancy, Transmutation
-  - Casting time: Action, Bonus Action, Reaction, 1 Minute+
-  - Components: V, S, M
-  - Concentration: Yes/No
-  - Ritual: Yes/No
-  - Prepared: Prepared only / All
-- Use multi-select chip pattern (toggle each filter on/off)
-
-### Sub-Phase C: Fix Remote Character Store (S3)
-
-**Step 5 — Unify Character Update Flow**
-- Open `src/renderer/src/stores/network-store/client-handlers.ts` lines 734-745
-- Currently: `dm:character-update` sets character in `lobbyStore.remoteCharacters`
-- This means the character store and lobby store can have different versions of the same character
-- Fix: Also update the character store when receiving a character update:
+- Remove `'public'` from the path:
   ```typescript
-  case 'dm:character-update': {
-    const payload = message.payload as CharacterUpdatePayload
-    if (payload.characterData) {
-      // Update BOTH stores
-      useLobbyStore.getState().setRemoteCharacter(payload.characterId, payload.characterData as Character5e)
-      useCharacterStore.getState().updateCharacterInState(payload.characterId, payload.characterData as Character5e)
+  if (app.isPackaged) {
+    return join(process.resourcesPath, 'app.asar', 'renderer', 'data', '5e')
+  }
+  ```
+- **Rationale**: electron-vite copies `src/renderer/public/` contents to `out/renderer/` root. The `public/` directory name is stripped. When electron-builder packages `out/` into `app.asar`, the structure is `app.asar/renderer/data/5e/`, not `app.asar/renderer/public/data/5e/`.
+
+**Step 2 — Verify All Packaged Paths**
+- Search the entire `src/main/` directory for any path that includes `'public'` when packaged:
+  ```
+  grep -r "public.*data" src/main/
+  ```
+- Verify `context-builder.ts` line 27 (Phase 6 overlap — may already be fixed)
+- Verify `chunk-builder.ts` line 287 uses `process.resourcesPath` correctly for `chunk-index.json`
+- Verify `game-data-handlers.ts` resolves data paths correctly in packaged mode
+
+**Step 3 — Create Path Utility**
+- Create a shared utility for resolving data paths in both dev and packaged:
+  ```typescript
+  // src/main/paths.ts
+  import { app } from 'electron'
+  import { join } from 'node:path'
+  import { is } from '@electron-toolkit/utils'
+
+  export function getDataDir(): string {
+    if (is.dev) {
+      return join(__dirname, '..', '..', 'renderer', 'public', 'data', '5e')
     }
-    break
+    return join(process.resourcesPath, 'app.asar', 'renderer', 'data', '5e')
+  }
+
+  export function getResourcePath(relativePath: string): string {
+    if (is.dev) {
+      return join(__dirname, '..', '..', relativePath)
+    }
+    return join(process.resourcesPath, relativePath)
   }
   ```
-- Add `updateCharacterInState(id, data)` to the character store if it doesn't exist
+- Replace all direct path constructions in `srd-provider.ts`, `context-builder.ts`, `chunk-builder.ts`, and `game-data-handlers.ts` with calls to this utility
 
-### Sub-Phase D: Conflict Resolution (S4)
+### Sub-Phase B: Fix Release Script (P2)
 
-**Step 6 — Add Timestamp-Based Conflict Detection**
-- Every character save already stamps `updatedAt: new Date().toISOString()`
-- When receiving a `dm:character-update`, compare timestamps:
-  ```typescript
-  const localChar = useCharacterStore.getState().characters.find(c => c.id === payload.characterId)
-  const remoteTimestamp = new Date(payload.characterData.updatedAt).getTime()
-  const localTimestamp = localChar ? new Date(localChar.updatedAt).getTime() : 0
+**Step 4 — Integrate Prerelease into Release**
+- Open `package.json`
+- Find the `release` script
+- Modify to include `prerelease` and `build:index`:
+  ```json
+  "release": "npm run prerelease && npm run build:index && electron-vite build && electron-builder --win --publish always"
+  ```
+- This ensures:
+  1. `dist/` is cleaned (no stale blockmaps)
+  2. AI chunk index is rebuilt
+  3. App is compiled
+  4. Package is built and published
 
-  if (localTimestamp > remoteTimestamp) {
-    // Local version is newer — show conflict notification
-    showConflictWarning(localChar, payload.characterData)
-  } else {
-    // Remote version is newer — apply
-    applyCharacterUpdate(payload)
+**Step 5 — Add Build Verification Script**
+- Create `scripts/verify-build.mjs`:
+  ```javascript
+  // Verify required files exist after build
+  const required = [
+    'out/main/index.js',
+    'out/preload/index.mjs',
+    'out/renderer/index.html',
+    'out/renderer/data/5e/spells/spells.json',
+    'resources/chunk-index.json'
+  ]
+  for (const file of required) {
+    if (!existsSync(file)) {
+      console.error(`Missing required file: ${file}`)
+      process.exit(1)
+    }
+  }
+  console.log('Build verification passed')
+  ```
+- Add to release script: `npm run verify-build` after `electron-vite build` but before `electron-builder`
+
+### Sub-Phase C: Code Signing Setup (P3)
+
+**Step 6 — Document Code Signing Configuration**
+- The `signAndEditExecutable: true` setting in `package.json` line 89 is already enabled
+- electron-builder expects environment variables:
+  - `CSC_LINK` — path to PFX/P12 certificate file
+  - `CSC_KEY_PASSWORD` — certificate password
+- Create a `.env.signing.template` file (NOT committed, added to .gitignore):
+  ```
+  # Windows Code Signing (required for production builds)
+  # Obtain a code signing certificate from DigiCert, Sectigo, or similar CA
+  CSC_LINK=path/to/certificate.pfx
+  CSC_KEY_PASSWORD=your-certificate-password
+  ```
+- Add to `package.json` build section as comment or README instruction
+- For immediate use without a purchased certificate: set `signAndEditExecutable: false` to avoid build errors when no cert is present
+
+**Step 7 — Conditional Signing**
+- Modify the build config to gracefully handle missing certificates:
+  ```json
+  "win": {
+    "signAndEditExecutable": false,
+    "sign": "./scripts/sign.mjs"
+  }
+  ```
+- Create `scripts/sign.mjs`:
+  ```javascript
+  // Only sign if CSC_LINK is set; skip silently otherwise
+  export default async function sign(configuration) {
+    if (!process.env.CSC_LINK) {
+      console.log('Skipping code signing (CSC_LINK not set)')
+      return
+    }
+    // Default signing behavior
+    const { signWindows } = await import('electron-builder')
+    return signWindows(configuration)
   }
   ```
 
-**Step 7 — Create Conflict Resolution UI**
-- When a conflict is detected, show a notification:
-  ```tsx
-  <ConflictBanner>
-    Character "{name}" was modified by both you and the DM.
-    <button onClick={keepLocal}>Keep Your Version</button>
-    <button onClick={acceptRemote}>Accept DM's Version</button>
-  </ConflictBanner>
-  ```
-- For most cases, the DM's version should win (DM is authoritative). But give the player visibility.
+### Sub-Phase D: Mac/Linux Platform Targets (P4)
 
-### Sub-Phase E: Performance — useMemo (M1)
-
-**Step 8 — Add useMemo to Sheet Sections**
-- Wrap expensive calculations in `useMemo`:
-  - `SkillsSection5e`: Skill modifier calculations
-  - `SavingThrowsSection5e`: Save modifier calculations
-  - `OffenseSection5e`: Attack bonus calculations
-  - `DefenseSection5e`: AC calculation
-  - `SpellcastingSection5e`: Spell DC, attack bonus, slot counts
-  - `EquipmentSection5e`: Weight calculation, encumbrance
-- Example:
-  ```typescript
-  const skillModifiers = useMemo(() =>
-    character.skills.map(skill => ({
-      ...skill,
-      modifier: calculateSkillMod(skill, character)
-    })),
-    [character.skills, character.abilityScores, character.proficiencies]
-  )
-  ```
-
-**Step 9 — Wrap List Items with React.memo**
-- Spell row components, equipment row components, and condition row components should be memoized:
-  ```typescript
-  const SpellRow = React.memo(function SpellRow({ spell, onCast, onTogglePrepared }: SpellRowProps) {
-    // ... render
-  })
-  ```
-- This prevents full-list re-renders when a single item changes
-
-### Sub-Phase F: Attunement Fix (M2)
-
-**Step 10 — Unify Attunement Count**
-- Open `src/renderer/src/components/sheet/5e/AttunementTracker5e.tsx` (lines 11-135)
-- Open `src/renderer/src/components/sheet/5e/MagicItemsPanel5e.tsx` (lines 57-61)
-- Both show attunement counts — ensure they derive from the same source:
-  ```typescript
-  const attunedItems = character.magicItems?.filter(mi => mi.attuned) ?? []
-  const attunedCount = attunedItems.length
-  const maxAttunement = 3 // PHB standard
-  ```
-- If AttunementTracker maintains its own state, replace with derived state from the character object
-
-### Sub-Phase G: Optimistic Updates (M3)
-
-**Step 11 — Implement Optimistic Save Pattern**
-- Open `src/renderer/src/hooks/use-character-editor.ts`
-- Instead of waiting for IPC save to complete before updating UI:
-  ```typescript
-  const saveAndBroadcast = (updated: Character): void => {
-    // Optimistic: update local state immediately
-    useCharacterStore.getState().updateCharacterInState(updated.id, updated)
-    // Async: persist to disk (may fail)
-    useCharacterStore.getState().saveCharacter(updated).catch((err) => {
-      // Rollback on failure
-      showToast('Save failed — reverting changes', 'error')
-      // Reload from disk
-      window.api.loadCharacter(updated.id).then(original => {
-        if (original) useCharacterStore.getState().updateCharacterInState(updated.id, original)
-      })
-    })
-    broadcastIfDM(updated)
+**Step 8 — Add macOS Build Configuration**
+- Open `package.json`
+- Add `mac` section to the build config:
+  ```json
+  "mac": {
+    "category": "public.app-category.games",
+    "target": ["dmg", "zip"],
+    "icon": "resources/icon.png",
+    "hardenedRuntime": true,
+    "gatekeeperAssess": false
+  },
+  "dmg": {
+    "contents": [
+      { "x": 130, "y": 220 },
+      { "x": 410, "y": 220, "type": "link", "path": "/Applications" }
+    ]
   }
   ```
-- This makes the UI feel instant while the save happens in the background
+- Add build script: `"build:mac": "npm run build:index && electron-vite build && electron-builder --mac"`
+- Note: macOS builds require running on a Mac (cross-compilation not supported for DMG/notarization)
 
-### Sub-Phase H: Tool Proficiency Rolls (M5)
-
-**Step 12 — Add Rollable Tool Proficiencies**
-- Open `src/renderer/src/components/sheet/5e/SkillsSection5e.tsx` or create a `ToolsSection5e.tsx`
-- For each tool proficiency the character has, add a roll button:
-  ```tsx
-  {character.proficiencies.tools?.map(tool => (
-    <div key={tool} className="flex items-center justify-between">
-      <span>{tool}</span>
-      <button onClick={() => rollToolCheck(tool, character)}>
-        Roll +{proficiencyBonus + getRelevantAbilityMod(tool, character)}
-      </button>
-    </div>
-  ))}
+**Step 9 — Add Linux Build Configuration**
+- Add `linux` section:
+  ```json
+  "linux": {
+    "target": ["AppImage", "deb"],
+    "category": "Game",
+    "icon": "resources/icon.png"
+  }
   ```
-- Tool checks use an ability modifier determined by the tool type:
-  - Thieves' tools → DEX
-  - Herbalism kit → WIS
-  - Most artisan's tools → varies (use a lookup table or let the DM choose)
-- Broadcast the roll result via dice service
+- Add build script: `"build:linux": "npm run build:index && electron-vite build && electron-builder --linux"`
+- Linux builds can be cross-compiled from Windows using Docker (electron-builder supports this)
 
-### Sub-Phase I: Standardize useCharacterEditor (M4)
+**Step 10 — Platform-Specific Path Fixes**
+- The `getDataDir()` utility from Step 3 handles path differences
+- Verify `app.getPath('userData')` works correctly on all platforms:
+  - Windows: `%APPDATA%/dnd-vtt/`
+  - macOS: `~/Library/Application Support/dnd-vtt/`
+  - Linux: `~/.config/dnd-vtt/`
+- Verify all `path.join()` calls use forward slashes or `path.sep` for cross-platform compatibility
+- Check for any Windows-specific paths (e.g., backslashes, drive letters) hardcoded in the codebase
 
-**Step 13 — Audit and Standardize Data Access**
-- Search for all direct calls to `useCharacterStore.getState()` in sheet components
-- Replace with `useCharacterEditor(characterId)` pattern where possible
-- Ensure all save paths go through `saveAndBroadcast` for consistent sync behavior
-- Components that should use the hook but don't:
-  - `HitPointsBar5e.tsx` — directly manages local state + store
-  - `SpellSlotTracker5e.tsx` — directly calls store
-  - `ConditionsSection5e.tsx` — directly calls store
+### Sub-Phase E: Chunk Index Resilience (P5)
+
+**Step 11 — Handle Missing 5.5e References Gracefully**
+- Open `scripts/build-chunk-index.mjs`
+- If `5.5e References/` directory doesn't exist, output a valid but empty chunk index:
+  ```javascript
+  if (!existsSync(REFERENCES_DIR)) {
+    console.warn('5.5e References directory not found — generating empty chunk index')
+    writeFileSync(OUTPUT, JSON.stringify({ chunks: [], version: 1 }))
+    process.exit(0)
+  }
+  ```
+- This ensures `npm run build:index` never fails, even on clean clones without reference files
+- The AI will operate with reduced context (no SRD chunks) but won't crash
+
+**Step 12 — Add Chunk Index to .gitattributes**
+- `resources/chunk-index.json` is gitignored (correct — it's a build artifact)
+- Add a note in the README or CONTRIBUTING.md explaining that `build:index` must be run before the first build
+- Consider checking in a minimal default `chunk-index.json` with basic rules/glossary
+
+### Sub-Phase F: Updater Robustness
+
+**Step 13 — Add Automatic Update Check on Startup**
+- Open `src/main/updater.ts`
+- Currently update checks are on-demand only
+- Add an optional background check after app startup (with 30-second delay to avoid blocking startup):
+  ```typescript
+  export function scheduleUpdateCheck() {
+    setTimeout(async () => {
+      try {
+        const result = await autoUpdater.checkForUpdates()
+        if (result?.updateInfo) {
+          // Notify renderer about available update
+          BrowserWindow.getAllWindows()[0]?.webContents.send(
+            IPC_CHANNELS.UPDATE_STATUS,
+            { status: 'update-available', version: result.updateInfo.version }
+          )
+        }
+      } catch {
+        // Silently fail — user can check manually
+      }
+    }, 30_000)
+  }
+  ```
+- Call from `src/main/index.ts` after app initialization
+- Respect a user setting: `checkForUpdatesOnStartup: boolean` (default: true)
 
 ---
 
 ## ⚠️ Constraints & Edge Cases
 
-### Virtualization
-- **Variable row heights**: Spell rows are expandable (collapsed: ~48px, expanded: ~200px+). Use `measureElement` from `@tanstack/react-virtual` for accurate sizing after expand.
-- **Level group headers**: If spells are grouped by level with headers, include headers as virtual items with a different `estimateSize`.
-- **Scroll restoration**: When the user returns to the spell list after viewing a spell detail, restore scroll position.
+### Packaged Paths
+- **ASAR archive**: When packaged, most app files are inside `app.asar`. Use `process.resourcesPath` + `app.asar` for ASAR contents, or `app.getAppPath()` which returns the ASAR root directly.
+- **Unpacked files**: `extraResources` files (icon, chunk-index) are OUTSIDE the ASAR at `process.resourcesPath/`. Don't prepend `app.asar` for these.
+- **Dev vs Production**: Always branch on `app.isPackaged` or `is.dev`. Never assume one path works for both.
 
-### Conflict Resolution
-- **Auto-resolve is acceptable for most cases**: DM version wins by default. Only show the conflict banner for player-initiated changes that the DM might be overwriting.
-- **Don't conflict on timestamps within 2 seconds**: Network latency can cause near-simultaneous saves. Use a 2-second tolerance before flagging as conflict.
+### Code Signing
+- **Cost**: Windows code signing certificates cost $200-400/year from standard CAs. Free alternatives (self-signed) don't bypass SmartScreen.
+- **Azure Trusted Signing**: Microsoft offers a cheaper alternative for small developers. Consider for future.
+- **CI/CD**: If using GitHub Actions, CSC_LINK should be a base64-encoded secret, not a file path.
 
-### Optimistic Updates
-- **Rollback UX**: If a save fails, the UI briefly shows the optimistic state then reverts. Use a subtle animation (flash) to indicate the rollback.
-- **Network broadcast should still happen optimistically**: The DM's peers see the change immediately even before disk persistence. If persistence fails, the next sync will correct.
+### Cross-Platform
+- **macOS builds require macOS**: electron-builder cannot produce signed/notarized DMGs on Windows. A macOS CI runner (GitHub Actions `macos-latest`) is needed.
+- **Linux builds are cross-compilable**: electron-builder can produce AppImage/deb on Windows via Docker.
+- **Native dependencies**: If any npm packages have native addons (e.g., better-sqlite3), they need to be rebuilt per platform. `electron-builder install-app-deps` handles this.
 
-### Spell Filtering
-- **Filter state should NOT persist**: Reset filters when navigating away from the sheet. Spell search is for quick in-session lookup, not a persistent preference.
-- **Filter by "prepared only" is the most useful default**: Add it as a toggle that defaults to ON for prepared casters (Wizard, Cleric, Druid, Paladin).
+### Auto-Update
+- **Background checks should be non-blocking**: The 30-second delay and try-catch ensure the app isn't slowed or crashed by update checks.
+- **`win.isDestroyed()` check**: Same as Phase 17 NET-2 — verify the window exists before sending update status events.
+- **GitHub rate limits**: If many users check for updates simultaneously, GitHub API rate limits (60/hour unauthenticated) may cause failures. The "silently fail" approach handles this.
 
-Begin implementation now. Start with Sub-Phase A (Steps 1-2) for virtualization — this is the highest-impact performance fix. Then Sub-Phase B (Steps 3-4) for spell search which is the most-requested QoL feature. Sub-Phase C (Step 5) for the remote character store fix prevents a real data inconsistency bug.
+Begin implementation now. Start with Sub-Phase A (Steps 1-3) — the packaged path bug is CRITICAL and directly causes AI features to fail in production. Then Sub-Phase B (Steps 4-5) for release script reliability. Sub-Phases C-F are important for production quality but can be done incrementally.

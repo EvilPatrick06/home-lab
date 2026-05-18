@@ -1,7 +1,7 @@
 # SYSTEM OVERRIDE: IMPLEMENTATION MODE
-You are Claude Opus 4.6 Max. Your job is to execute the following architectural plan for Phase 25 of the D&D VTT project.
+You are Claude Opus 4.6 Max. Your job is to execute the following architectural plan for Phase 21 of the D&D VTT project.
 
-Phase 25 covers the **Homebrew & Custom Content System**. The foundation exists — creation modal with 13 content types, category-organized storage, data merge with official content, and library display. The critical gaps are **no export/import for homebrew**, **only 3/13 content types have Zod schemas**, **custom mechanics don't function in gameplay**, **dual storage confusion** (homebrew vs custom creatures), and **no campaign-scoped content**.
+Phase 21 covers **GitHub & Version Control** — `.gitignore`, branching, README, CI/CD, git hooks, and commit hygiene. The audit found `.gitignore` well-configured and commit history clean (conventional commits). The gaps are **no CI validation pipeline** (only a release workflow), **no pre-commit hooks**, **barebones README**, and **no branching strategy** (everything pushed to master).
 
 ---
 
@@ -9,303 +9,264 @@ Phase 25 covers the **Homebrew & Custom Content System**. The foundation exists 
 
 ### Windows 11 Machine (`C:\Users\evilp\dnd\`) — ALL WORK IS HERE
 
+Phase 21 is config/workflow changes. No Raspberry Pi involvement.
+
 **Existing Files:**
 
-| File | Role | Status |
-|------|------|--------|
-| `src/renderer/src/components/library/HomebrewCreateModal.tsx` | Creation UI — 13 types, dynamic fields, based-on relationships | Functional |
-| `src/main/storage/homebrew-storage.ts` | File storage — `userData/homebrew/{category}/{id}.json` | Functional |
-| `src/main/storage/custom-creature-storage.ts` | Separate creature storage — `userData/custom-creatures/{id}.json` | Functional but confusing dual system |
-| `src/renderer/src/stores/use-data-store.ts` | `mergeHomebrew()` — integrates with official data | Functional |
-| `src/renderer/src/services/library-service.ts` | `homebrewToLibraryItems()` — displays in library | Functional |
-| `src/renderer/src/services/homebrew-validation.ts` | Basic validation — name, type, id, duplicate check | Minimal |
-| `src/renderer/src/services/character/feat-mechanics-5e.ts` | Feat mechanics — **official feats only** | Custom feats not supported |
-| `src/renderer/src/services/io/entity-io.ts` | Entity export — **doesn't include homebrew types** | Missing |
-| `src/renderer/src/services/io/import-export.ts` | Full backup — includes homebrew in `exportAllData()` | Partial |
-| `scripts/schemas/` | Zod schemas — **only classes, feats, backgrounds** | 3/13 types |
-| `scripts/validate-homebrew.ts` | Dev-time validation — only 3 types | Minimal |
+| File | Status |
+|------|--------|
+| `.gitignore` | Well-configured — secrets, build artifacts, large files excluded |
+| `.github/workflows/release.yml` | Windows release on tag push — functional |
+| `README.md` | Barebones, inaccurate (lists `npm install dnd-vtt` instead of actual dev commands) |
+| `CLAUDE.md` | Contains actual dev setup instructions |
 
-### Raspberry Pi (`patrick@bmo`) — NO WORK THIS PHASE
+**Missing Files:**
+
+| File | Purpose |
+|------|---------|
+| `.github/workflows/ci.yml` | PR/push validation (tests, lint, typecheck) |
+| `.husky/pre-commit` | Pre-commit hook for lint/format |
+| `CONTRIBUTING.md` | Contribution guidelines |
 
 ---
 
 ## 📋 Core Objectives
 
-### HIGH PRIORITY
-
-| # | Issue | Impact |
-|---|-------|--------|
-| H1 | No homebrew export/import — can't share custom content | Users can't transfer homebrew between machines or share with players |
-| H2 | Only 3/13 content types have Zod validation schemas | Invalid homebrew can break the app |
-| H3 | Custom feats/spells have no mechanical effect | Homebrew displays in library but doesn't work in gameplay |
-| H4 | Dual storage systems (homebrew vs custom-creatures) | User confusion, maintenance burden |
-
-### MEDIUM PRIORITY
-
-| # | Issue | Impact |
-|---|-------|--------|
-| M1 | No campaign-scoped homebrew | All homebrew is global; can't have campaign-specific content |
-| M2 | Character builder/sheet doesn't reference homebrew | Custom classes/species not selectable in builder |
+| # | Issue | Priority |
+|---|-------|----------|
+| G1 | No CI validation pipeline (tests/lint/typecheck on push) | High |
+| G2 | README is barebones and inaccurate | High |
+| G3 | No pre-commit hooks | Medium |
+| G4 | No branching strategy documented | Low |
+| G5 | Phase research files cluttering root directory | Low |
 
 ---
 
 ## 🛠️ Step-by-Step Execution Plan
 
-### Sub-Phase A: Homebrew Export/Import (H1)
+### Sub-Phase A: CI Validation Pipeline (G1)
 
-**Step 1 — Add Homebrew to Entity I/O System**
-- Open `src/renderer/src/services/io/entity-io.ts`
-- Add homebrew as a supported entity type:
-  ```typescript
-  const ENTITY_CONFIGS = {
-    // ... existing types
-    homebrew: { extension: '.dndhomebrew', displayName: 'Homebrew Content' },
+**Step 1 — Create CI Workflow**
+- Create `.github/workflows/ci.yml`:
+  ```yaml
+  name: CI
+  on:
+    push:
+      branches: [master]
+    pull_request:
+      branches: [master]
+
+  jobs:
+    validate:
+      runs-on: windows-latest
+      steps:
+        - uses: actions/checkout@v4
+        - uses: actions/setup-node@v4
+          with:
+            node-version: 20
+            cache: npm
+        - run: npm ci
+
+        - name: Type Check
+          run: npx tsc --noEmit
+
+        - name: Lint
+          run: npx biome check src/
+
+        - name: Test
+          run: npx vitest run --reporter=verbose
+  ```
+- This runs on every push to master and every PR targeting master
+- Three validation steps: TypeScript compilation, Biome linting, Vitest tests
+- Uses Windows runner to match the target platform
+
+**Step 2 — Add Build Verification to CI**
+- Add a build step after tests pass:
+  ```yaml
+        - name: Build
+          run: npx electron-vite build
+
+        - name: Verify Build Artifacts
+          run: |
+            if (!(Test-Path out/main/index.js)) { exit 1 }
+            if (!(Test-Path out/renderer/index.html)) { exit 1 }
+          shell: pwsh
+  ```
+- This catches build-time errors that tsc/vitest don't find (e.g., Vite config issues, missing imports in lazy-loaded routes)
+
+### Sub-Phase B: README Overhaul (G2)
+
+**Step 3 — Rewrite README.md**
+- Replace the current barebones README with a comprehensive project README:
+  ```markdown
+  # D&D Virtual Tabletop
+
+  A desktop D&D 5e (2024) Virtual Tabletop built with Electron, React, and PixiJS. Features an AI Dungeon Master, peer-to-peer multiplayer, dynamic maps with fog of war, and a complete character builder.
+
+  ## Quick Start
+
+  ```bash
+  npm install
+  npm run dev
+  ```
+
+  ## Build
+
+  ```bash
+  npm run build:win    # Windows installer
+  npm run build:mac    # macOS (requires macOS)
+  npm run build:linux  # Linux AppImage/deb
+  ```
+
+  ## Tech Stack
+
+  - **Runtime:** Electron 40
+  - **Frontend:** React 19, TypeScript 5.9, Tailwind CSS v4
+  - **Map Engine:** PixiJS 8 (2D), Three.js (3D dice)
+  - **State:** Zustand v5
+  - **Networking:** PeerJS (WebRTC P2P)
+  - **AI:** Ollama (local), Claude, OpenAI, Gemini
+  - **Build:** electron-vite, electron-builder
+
+  ## Project Structure
+
+  ```
+  src/
+    main/       # Electron main process (AI, storage, IPC)
+    preload/    # Preload bridge (context isolation)
+    renderer/   # React app (components, stores, services)
+    shared/     # Shared types and constants
+  BMO-setup/    # Raspberry Pi backend (Discord bot, voice, agents)
+  ```
+
+  ## Environment Variables
+
+  AI API keys are configured in-app via Settings > AI Provider.
+  No `.env` file is required for basic development.
+
+  For Discord integration:
+  - `BMO_PI_URL` — Raspberry Pi backend URL (default: `http://bmo.local:5000`)
+
+  ## Testing
+
+  ```bash
+  npm test              # Run all tests
+  npx vitest run        # Run once
+  npx vitest --ui       # Interactive UI
+  ```
+
+  ## License
+
+  D&D content used under the SRD 5.2 Creative Commons Attribution 4.0 License.
+  See the About page in-app for full licensing details.
+  ```
+- Ensure the README matches current project reality (commands from `package.json`, actual structure)
+
+### Sub-Phase C: Pre-Commit Hooks (G3)
+
+**Step 4 — Install Husky**
+- Run: `npm install --save-dev husky`
+- Initialize: `npx husky init`
+- This creates `.husky/` directory with a sample pre-commit hook
+
+**Step 5 — Configure Pre-Commit Hook**
+- Create `.husky/pre-commit`:
+  ```bash
+  #!/usr/bin/env sh
+  . "$(dirname -- "$0")/_/husky.sh"
+
+  # Run Biome on staged files only (fast)
+  npx biome check --staged --no-errors-on-unmatched src/
+
+  # Type check (full project, ~10-15s)
+  npx tsc --noEmit
+  ```
+- This prevents commits with lint errors or type errors
+- `--staged` flag on Biome only checks files being committed (fast)
+- `tsc --noEmit` is slower but catches cross-file type issues
+
+**Step 6 — Add lint-staged for Performance (Optional)**
+- If the full `tsc --noEmit` is too slow for pre-commit:
+  ```bash
+  npm install --save-dev lint-staged
+  ```
+  ```json
+  // package.json
+  "lint-staged": {
+    "src/**/*.{ts,tsx}": ["biome check --fix"]
   }
   ```
-- The envelope format already supports arbitrary data: `{ version: 1, type, exportedAt, count, data }`
-
-**Step 2 — Create Homebrew Export Function**
-- Add to `entity-io.ts` or create `homebrew-io.ts`:
-  ```typescript
-  export async function exportHomebrew(items: HomebrewItem[]): Promise<void> {
-    await exportEntities('homebrew', items)
-  }
-
-  export async function exportAllHomebrew(): Promise<void> {
-    const allHomebrew = await window.api.homebrew.loadAll()
-    await exportEntities('homebrew', allHomebrew)
-  }
+  ```bash
+  # .husky/pre-commit
+  npx lint-staged
   ```
+- This only runs Biome on staged files, keeping pre-commit under 3 seconds
 
-**Step 3 — Create Homebrew Import Function**
-- Add import with validation:
-  ```typescript
-  export async function importHomebrew(): Promise<{ imported: number; errors: string[] }> {
-    const entities = await importEntities('homebrew')
-    const results = { imported: 0, errors: [] as string[] }
-    for (const item of entities) {
-      const validation = validateHomebrew(item)
-      if (validation.valid) {
-        await window.api.homebrew.save(item)
-        results.imported++
-      } else {
-        results.errors.push(`${item.name}: ${validation.errors.join(', ')}`)
-      }
-    }
-    return results
-  }
+### Sub-Phase D: Branching Strategy (G4)
+
+**Step 7 — Document Branching Convention**
+- Add to README or create `CONTRIBUTING.md`:
+  ```markdown
+  ## Branching Strategy
+
+  - `master` — stable, release-ready code
+  - `feature/*` — new features (e.g., `feature/bastion-bp-system`)
+  - `fix/*` — bug fixes (e.g., `fix/exhaustion-long-rest`)
+  - `refactor/*` — code cleanup (e.g., `refactor/unify-settings-store`)
+
+  ### Workflow
+  1. Create a feature/fix branch from `master`
+  2. Make changes, commit with conventional commit messages
+  3. Push and create a Pull Request
+  4. CI runs automatically on the PR
+  5. Merge to `master` after review
   ```
+- This is a documented convention, not enforced by tooling. Branch protection rules can be added later on GitHub.
 
-**Step 4 — Add Export/Import UI Buttons**
-- Open `src/renderer/src/components/library/HomebrewCreateModal.tsx` or the library homebrew section
-- Add "Export All Homebrew" and "Import Homebrew" buttons
-- Show import results (count imported, any errors)
+### Sub-Phase E: Workspace Cleanup (G5)
 
-### Sub-Phase B: Complete Validation Schemas (H2)
-
-**Step 5 — Create Zod Schemas for All Content Types**
-- Create `src/renderer/src/schemas/homebrew-schemas.ts`:
-  ```typescript
-  import { z } from 'zod'
-
-  const BaseHomebrewSchema = z.object({
-    id: z.string().uuid(),
-    name: z.string().min(1),
-    type: z.string(),
-    source: z.literal('homebrew'),
-    createdAt: z.string(),
-    updatedAt: z.string(),
-  })
-
-  export const HomebrewSpellSchema = BaseHomebrewSchema.extend({
-    type: z.literal('spell'),
-    level: z.number().int().min(0).max(9),
-    school: z.string(),
-    castingTime: z.string(),
-    range: z.string(),
-    components: z.object({
-      verbal: z.boolean().optional(),
-      somatic: z.boolean().optional(),
-      material: z.string().optional(),
-    }).optional(),
-    duration: z.string(),
-    description: z.string(),
-    higherLevels: z.string().optional(),
-    classes: z.array(z.string()).optional(),
-    concentration: z.boolean().optional(),
-    ritual: z.boolean().optional(),
-  }).passthrough()
-
-  export const HomebrewMonsterSchema = BaseHomebrewSchema.extend({
-    type: z.literal('monster'),
-    cr: z.union([z.number(), z.string()]),
-    ac: z.number().int().min(0),
-    hp: z.number().int().min(1),
-    speed: z.union([z.number(), z.object({}).passthrough()]),
-    size: z.string(),
-    creatureType: z.string(),
-    abilityScores: z.object({
-      strength: z.number(), dexterity: z.number(), constitution: z.number(),
-      intelligence: z.number(), wisdom: z.number(), charisma: z.number(),
-    }).optional(),
-  }).passthrough()
-
-  export const HomebrewItemSchema = BaseHomebrewSchema.extend({
-    type: z.enum(['item', 'magic-item', 'weapon', 'armor', 'tool']),
-    weight: z.number().optional(),
-    cost: z.string().optional(),
-    description: z.string(),
-    rarity: z.string().optional(),
-  }).passthrough()
-
-  // Add schemas for remaining types: species, class, subclass, background, feat, other
+**Step 8 — Add Phase Research Files to .gitignore**
+- The Phase analysis files (`Phase1_GeminiPro.md`, `Phase2_ClaudeOpus.md`, etc.) and plan files (`Phase1_Plan.md`, etc.) clutter the root
+- Add to `.gitignore`:
   ```
-- Use `.passthrough()` to allow extra fields — homebrew content is inherently flexible
-
-**Step 6 — Integrate Validation on Save**
-- Open `src/renderer/src/services/homebrew-validation.ts`
-- Replace basic validation with Zod schema validation:
-  ```typescript
-  export function validateHomebrew(item: unknown): { valid: boolean; errors: string[] } {
-    const schema = getSchemaForType(item.type)
-    if (!schema) return { valid: true, errors: [] } // unknown types pass through
-    const result = schema.safeParse(item)
-    if (result.success) return { valid: true, errors: [] }
-    return { valid: false, errors: result.error.issues.map(i => i.message) }
-  }
+  # Phase research and plan files
+  Phase*_*.md
   ```
-- Show validation errors in the HomebrewCreateModal before saving
+- Or move them to a dedicated directory: `docs/research/`
+- These are research artifacts, not part of the application source
 
-### Sub-Phase C: Custom Mechanics Integration (H3)
-
-**Step 7 — Extend Feat Mechanics for Homebrew**
-- Open `src/renderer/src/services/character/feat-mechanics-5e.ts`
-- Currently only handles official feats by name matching
-- Add a generic homebrew feat effect system:
-  ```typescript
-  interface HomebrewFeatEffect {
-    type: 'ability_bonus' | 'skill_proficiency' | 'damage_resistance' | 'speed_bonus' | 'ac_bonus' | 'custom'
-    target?: string  // ability name, skill name, damage type
-    value?: number
-    description?: string
-  }
+**Step 9 — Update Release Workflow**
+- Open `.github/workflows/release.yml`
+- Ensure it runs the full build chain including `prerelease` and `build:index`:
+  ```yaml
+  - name: Build and Release
+    run: npm run release
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
   ```
-- When a homebrew feat has an `effects` array, apply them in the character stat calculation:
-  ```typescript
-  for (const feat of character.feats) {
-    if (feat.source === 'homebrew' && feat.effects) {
-      for (const effect of feat.effects) {
-        applyHomebrewEffect(effect, stats)
-      }
-    }
-  }
-  ```
-
-**Step 8 — Add Effect Editor to HomebrewCreateModal**
-- When creating a homebrew feat, add an "Effects" section:
-  ```tsx
-  <EffectBuilder
-    effects={item.effects ?? []}
-    onChange={(effects) => updateItem({ effects })}
-  />
-  ```
-- The EffectBuilder provides dropdowns for effect type, target, and value
-- This allows homebrew feats to grant ability bonuses, proficiencies, resistances, etc.
-
-**Step 9 — Extend Spell Mechanics for Homebrew**
-- Custom spells need to work in the spell casting flow:
-  - They should appear in the spell list (already works via data merge)
-  - They should be castable (consume spell slots)
-  - Damage/healing amounts should be rollable
-- Add a `diceFormula` field to homebrew spells: e.g., `"8d6"` for a custom fireball variant
-- In the spell casting flow, when casting a homebrew spell, roll the formula and broadcast
-
-### Sub-Phase D: Unify Storage Systems (H4)
-
-**Step 10 — Merge Custom Creatures into Homebrew**
-- Open `src/main/storage/custom-creature-storage.ts`
-- Open `src/main/storage/homebrew-storage.ts`
-- Route custom creature saves through the homebrew system:
-  ```typescript
-  // In custom-creature-storage.ts
-  export async function saveCustomCreature(creature: Record<string, unknown>) {
-    // Normalize to homebrew format
-    const asHomebrew = {
-      ...creature,
-      type: 'monster',
-      source: 'homebrew',
-    }
-    return homebrewStorage.save('monster', asHomebrew)
-  }
-  ```
-- Maintain backward compatibility: if `custom-creatures/` directory exists, migrate on first load
-- Update all references to `custom-creature-storage` to use the unified homebrew system
-- Eventually deprecate the `custom-creatures/` directory
-
-### Sub-Phase E: Campaign-Scoped Homebrew (M1)
-
-**Step 11 — Add Campaign Association**
-- Add `campaignId?: string` to the homebrew item schema:
-  ```typescript
-  interface HomebrewItem {
-    id: string
-    name: string
-    type: string
-    campaignId?: string  // null = global, string = campaign-specific
-    // ...
-  }
-  ```
-- When creating homebrew from within a campaign context, auto-set the campaignId
-- In `mergeHomebrew()`, filter to include global items + items matching the active campaign
-
-**Step 12 — Campaign Homebrew UI**
-- In the library, add a filter: "All Homebrew" / "This Campaign" / "Global Only"
-- In the campaign detail page, add a "Campaign Homebrew" section showing associated custom content
-- Allow moving homebrew between global and campaign-scoped
-
-### Sub-Phase F: Builder/Sheet Integration (M2)
-
-**Step 13 — Include Homebrew in Character Builder**
-- Open `src/renderer/src/services/data-provider.ts`
-- Verify that `load5eSpecies()`, `load5eClasses()`, `load5eFeats()`, `load5eBackgrounds()` call `mergeHomebrew()` from the data store
-- If they don't, add the merge step so homebrew species/classes/backgrounds/feats appear as options in the character builder
-- Add a "(Homebrew)" badge next to custom content in selection modals
-
-**Step 14 — Validate Homebrew in Character Builder**
-- When a homebrew class/species/background is selected, show a warning:
-  ```tsx
-  {isHomebrew && (
-    <div className="text-xs text-amber-400 bg-amber-900/20 px-2 py-1 rounded">
-      This is homebrew content. Some features may not have mechanical effects.
-    </div>
-  )}
-  ```
-- Still allow selection — don't block, just inform
+- Verify that the `release` script in `package.json` (fixed in Phase 19 Step 4) includes `prerelease` and `build:index`
 
 ---
 
 ## ⚠️ Constraints & Edge Cases
 
-### Export/Import
-- **`.dndhomebrew` files are JSON** — same envelope format as other entity exports. The importer should handle both single items and bulk arrays.
-- **ID collisions**: When importing, if an item with the same ID already exists, ask: "Replace existing?" or "Import as copy (new ID)?"
-- **Cross-version compatibility**: Include a `schemaVersion` in the envelope. If a future version adds required fields, older homebrew files should still import with defaults.
+### CI Pipeline
+- **Windows runner**: The CI must use `windows-latest` because the app targets Windows and uses Windows-specific dependencies. If Mac/Linux builds are added (Phase 19), add matrix builds.
+- **npm ci**: Use `npm ci` (not `npm install`) in CI for reproducible builds from `package-lock.json`.
+- **Test timeout**: Vitest tests may timeout on slower CI runners. Set `--timeout 30000` if needed.
+- **Biome config**: Ensure `biome.json` exists at the project root. If Biome is configured via `package.json`, that works too.
 
-### Validation
-- **`.passthrough()` is essential** — homebrew content may have fields the schema doesn't know about. Strict schemas would reject valid creative content. Only validate the structural minimum.
-- **Don't prevent saving invalid content** — show warnings but allow save. The user may be in the middle of creating content and want to save a draft.
+### Pre-Commit Hooks
+- **Husky requires `.git` directory**: Only works in git repos. `npx husky init` will fail if not a git repo.
+- **Skip hooks**: Developers can bypass with `git commit --no-verify` for emergency commits. This is acceptable — CI catches issues on push.
+- **Performance**: `tsc --noEmit` on the full project takes 10-15 seconds. If this is too slow, remove it from pre-commit and rely on CI for type checking.
 
-### Custom Mechanics
-- **Effect system must be opt-in** — if a homebrew feat has no `effects` array, it's treated as informational only (current behavior). Only feats with explicit effects get mechanical treatment.
-- **Don't break official feats** — the homebrew effect system must not interfere with the hardcoded official feat mechanics in `feat-mechanics-5e.ts`. Check homebrew effects AFTER official feat processing.
-- **Dice formulas**: Use the existing `dice-service.ts` for homebrew spell damage rolls. Validate the formula format before rolling.
+### README
+- **Keep it concise**: The README should be a quick-start guide, not full documentation. Link to `CLAUDE.md` for detailed developer setup if needed.
+- **Do NOT include API keys or secrets** in the README. Reference in-app settings for AI provider configuration.
 
-### Storage Unification
-- **Migration path**: When the app starts and finds files in `custom-creatures/`, migrate them to `homebrew/monster/` with the homebrew format. Mark as migrated to avoid re-migration.
-- **Don't delete `custom-creatures/`** immediately — keep it for one version cycle, then remove the migration code.
+### Branching
+- **Solo developer workflow**: The branching strategy is advisory. For a solo project, direct pushes to master are common. The value is in establishing the pattern for when contributors join.
+- **Branch protection**: Can be enabled on GitHub: require CI to pass before merging to master. This is a GitHub settings change, not a code change.
 
-### Campaign Scoping
-- **Global homebrew must always be available** — campaign-scoped homebrew adds to the global pool, it doesn't replace it.
-- **Campaign deletion should NOT delete global homebrew** — only campaign-scoped homebrew gets cleaned up with the campaign.
-
-Begin implementation now. Start with Sub-Phase A (Steps 1-4) for homebrew export/import — this is the most requested feature. Then Sub-Phase B (Steps 5-6) for validation schemas. Sub-Phase C (Steps 7-9) for custom mechanics is the most complex and highest-value improvement.
+Begin implementation now. Start with Sub-Phase A (Steps 1-2) for the CI pipeline — this is the highest-impact change for code quality assurance. Then Sub-Phase B (Step 3) for the README rewrite. Sub-Phase C (Steps 4-6) for pre-commit hooks is quick to set up.

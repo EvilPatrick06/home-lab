@@ -1,610 +1,306 @@
-# Phase 28 — dnd-app Audit Follow-Ups (2026-05-12)
+# SYSTEM OVERRIDE: IMPLEMENTATION MODE
+You are Claude Opus 4.6 Max. Your job is to execute the following architectural plan for Phase 24 of the D&D VTT project.
 
-> Origin: comprehensive dnd-app audit at `~/.claude/plans/your-job-is-to-wild-thacker.md` (2026-05-12).
-> Every finding from that audit is logged across `docs/ISSUES-LOG-DNDAPP.md`, `docs/SECURITY-LOG.md`, and `docs/SUGGESTIONS-LOG-DNDAPP.md` (entries dated 2026-05-12).
-> This phase plan groups all of them into 9 sub-phases (28a–28i) for execution. **User approved all items, including minor / future / out-of-scope (2026-05-12).**
-
----
-
-## Architecture & Environment
-
-- **Target:** all work in `dnd-app/` on the Windows 11 / macOS dev box (`/home/patrick/home-lab/dnd-app/` on the Pi mirror).
-- **No work on BMO / Pi** in this phase. (BMO is the trust counterparty for 28a but its side is already done — see `bmo/pi/app.py:163-178`.)
-- **No restructuring** of `src/{main,preload,renderer,shared}/` — electron-vite layout is fixed (logged gotcha).
-- **Discipline:** commit per sub-phase; do NOT bundle 28a + 28b. Each sub-phase merges or pauses for review on its own.
+Phase 24 covers the **Character Level-Up System**. The wizard is substantially complete for 2024 PHB with correct ASI levels, subclass at 3, epic boons, multiclass prerequisites, and Warlock Pact Magic separation. However, it has **critical bugs**: subclass selection not persisted to the character object, hit dice only tracking the primary class, and half-caster level 1 spell slots incorrect. Missing features include spell swap/replacement and cantrip selection during level-up.
 
 ---
 
-## Sub-Phase Ordering Rationale
+## 🏗️ Architecture & Environment Split
 
-The order prioritizes (1) live security exposure first, (2) game-mechanic correctness second, (3) external-surface correctness (network / AI) third, (4) internal hygiene last.
+### Windows 11 Machine (`C:\Users\evilp\dnd\`) — ALL WORK IS HERE
 
-| Sub-phase | Theme | Why this order |
-|-----------|-------|----------------|
-| 28a | Critical security & game integrity | Sync receiver is LAN-exposed today; Math.random affects every roll |
-| 28b | AI surface refresh | Stale models, missing cache, SDK lag — user-visible cost / quality |
-| 28c | Network resilience | BMO bridge bugs surface as random flaky Discord sync |
-| 28d | Data integrity & type safety | Latent bugs in stat-mutations + save-queue; type hygiene |
-| 28e | CI hardening | Gate must exist before later phases land or they regress immediately |
-| 28f | UI / UX polish | Lower urgency; many small items |
-| 28g | Docs & long tail | After implementation lands so docs reflect reality |
-| 28h | Test coverage uplift | After CI is in place to enforce future tests |
-| 28i | Coverage-gap audits | Knowledge work to drive a Phase 29 if needed |
+**Key Files:**
 
----
+| File | Role | Critical Issues |
+|------|------|----------------|
+| `src/renderer/src/stores/level-up/apply-level-up.ts` | ~500-line function that mutates character | Subclass not written back; hit dice only primary class; no skill proficiency for multiclass |
+| `src/renderer/src/stores/level-up/level-up-spells.ts` | Spell resolution | Uses existing subclass (not newly selected) for always-prepared |
+| `src/renderer/src/stores/level-up/feature-selection-slice.ts` | Validation/incomplete checks | No feat sub-choice validation |
+| `src/renderer/src/components/levelup/5e/HpRollSection5e.tsx` | HP roll/average UI | Display uses pre-ASI CON; no reroll protection |
+| `src/renderer/src/components/levelup/5e/SpellSelectionSection5e.tsx` | Spell picker | No cantrips, no spell swap |
+| `src/renderer/src/services/character/spell-data.ts` | Spell slot tables | Half-caster `Math.ceil` gives wrong slots at level 1 |
+| `src/renderer/src/components/levelup/5e/AsiSelector5e.tsx` | ASI/feat UI | "+2 to one" doesn't warn about waste at score 19 |
 
-## Sub-Phase 28a — Critical Security & Game Integrity
-
-**Audit entries covered:**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] Math.random for game-affecting rolls (25+ sites) — **Critical**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] readBody unbounded buffer — **Low** (companion to security M)
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] JSON.parse unguarded in game-data-handlers.ts:29 — **Low**
-- `SECURITY-LOG.md` [2026-05-12] BMO sync receiver binds 0.0.0.0 — **High**
-- `SECURITY-LOG.md` [2026-05-12] Wildcard CORS on BMO sync receiver — **High**
-- `SECURITY-LOG.md` [2026-05-12] BMO sync receiver no zod validation on inbound JSON — **High**
-- `SECURITY-LOG.md` [2026-05-12] VTT → BMO never sends Authorization: Bearer — **High**
-- `SECURITY-LOG.md` [2026-05-12] No rate limiting on sync receiver — **Medium**
-- `SECURITY-LOG.md` [2026-05-12] No max-body-size guard on sync receiver — **Medium**
-
-### Step 28a.1 — Replace Math.random across game-roll sites
-
-**Files (25+ sites — full list in ISSUES-LOG-DNDAPP entry):**
-- Critical d20 paths: `src/renderer/src/components/game/GameLayout.tsx:781`, `src/renderer/src/components/game/overlays/ReactionPrompts.tsx:195`, `src/renderer/src/components/game/overlays/GamePrompts.tsx:124, 240`, `src/renderer/src/components/game/modals/dm-tools/MapEditorRightPanel.tsx:85`
-- Death-save / bless / recovery: `src/renderer/src/components/game/overlays/PlayerHUDEffects.tsx:231, 278, 297`
-- Character builder: `src/renderer/src/stores/builder/types.ts:44` (4d6)
-- DM tools: `src/renderer/src/components/game/modals/combat/GroupRollModal.tsx:74`, `src/renderer/src/components/game/modals/dm-tools/NPCGeneratorModal.tsx:50, 54`, `src/renderer/src/components/game/modals/dm-tools/treasure-generator-utils.ts:66, 72`, `src/renderer/src/components/game/sidebar/TablesPanel.tsx:79, 115, 123`
-- Data tables: `src/renderer/src/data/starting-equipment-table.ts:71`, `src/renderer/src/data/bastion-events.ts:14`, `src/renderer/src/data/sentient-items.ts:49`, `src/renderer/src/data/personality-tables.ts:20`, `src/renderer/src/data/weather-tables.ts:106, 115`
-- Utility: `src/renderer/src/utils/dawn-recharge.ts:27`
-
-**Approach:**
-1. Add `import { cryptoRollDie, cryptoRandom } from '@renderer/utils/crypto-random'` per file
-2. Single-die: `Math.floor(Math.random() * N) + 1` → `cryptoRollDie(N)`
-3. Random index: `Math.floor(Math.random() * arr.length)` → `Math.floor(cryptoRandom() * arr.length)`
-4. Weighted random (weather-tables.ts:106): `Math.random() * total` → `cryptoRandom() * total`
-5. Range: `min + Math.random() * (max - min)` → `min + cryptoRandom() * (max - min)`
-6. Skip tests (`*.test.*`) — keep `Math.random` there (mocked anyway)
-
-**Acceptance:**
-- `grep -rn "Math\.random" --include='*.ts' --include='*.tsx' src/renderer/ | grep -v '\.test\.'` returns only acceptable cases (UI ephemeral ids in DiceOverlay.tsx:124, if intentionally kept) — ideally 0
-- All game-roll vitest tests still pass
-- Manual: roll initiative on a token, confirm value lands in [1, 20]
-
-**Future-proofing:** Add a biome rule (or simple grep-based pre-commit) that flags `Math.random` outside `utils/crypto-random.ts` and `*.test.*`.
-
-### Step 28a.2 — Harden BMO sync receiver (loopback + CORS + body limits)
-
-**Files:** `src/main/bmo-bridge.ts`
-
-**Changes:**
-1. Line 16: keep `SYNC_RECEIVER_PORT` env-overridable.
-2. Add `const SYNC_BIND = process.env.BMO_SYNC_BIND ?? '127.0.0.1'` (default loopback; explicit opt-in to `0.0.0.0`).
-3. Line 201: `syncServer.listen(port, SYNC_BIND, …)`.
-4. Lines 118, 147: drop `'Access-Control-Allow-Origin': '*'` entirely on loopback bind. If `SYNC_BIND === '0.0.0.0'`, set to the configured BMO origin instead (parse from `getBmoBaseUrl()`).
-5. Add `MAX_BODY_BYTES = 64_000` constant. In `readBody`, track running total and `req.destroy()` + reject if exceeded. In handlers, reject if `Content-Length` header exceeds it up-front.
-6. Reject any POST whose `Content-Type !== 'application/json'` with 415.
-7. Token-bucket rate limit: per-source-IP, 60 events / minute, 429 on overflow. Use a `Map<string, { tokens, lastRefill }>`.
-8. Log inbound source IP via `logToFile('INFO', 'sync from', req.socket.remoteAddress)`.
-
-**Acceptance:**
-- `curl http://0.0.0.0:5001/api/sync` from another LAN machine fails to connect when `BMO_SYNC_BIND` unset
-- `curl http://127.0.0.1:5001/api/sync` from the same machine succeeds
-- Posting >64 KB returns 413
-- Posting non-JSON returns 415
-- Posting 100 events in 10 s gets the last 40 rejected with 429
-
-### Step 28a.3 — Add zod validation to sync receiver
-
-**Files:** `src/main/bmo-bridge.ts`, `src/shared/ipc-schemas.ts`
-
-**Changes:**
-1. In `ipc-schemas.ts`, add `SyncEventSchema` as a discriminated union on the `type` field:
-   ```ts
-   const SyncEventSchema = z.discriminatedUnion('type', [
-     z.object({ type: z.literal('discord_message'), payload: z.object({ /* … */ }), timestamp: z.number() }),
-     z.object({ type: z.literal('initiative_sync'), payload: z.object({ /* … */ }), timestamp: z.number() }),
-     // … one per type
-   ])
-   const InitiativeSyncSchema = z.object({ /* … */ })
-   ```
-2. In `bmo-bridge.ts:163-178`, after `const body = await readBody(req)`, do `const parsed = SyncEventSchema.safeParse(JSON.parse(body))`. On failure, 400 with the issues; on success, forward `parsed.data`.
-3. Same for `/api/sync/initiative` with `InitiativeSyncSchema`.
-4. Add `logToFile('WARN', 'sync event rejected', parsed.error.issues)` on failure.
-
-**Acceptance:**
-- Posting a `SyncEvent` with `type: 'banana'` returns 400, not 200
-- Posting a valid event still forwards to the renderer
-- Renderer-side handlers do NOT need changes (zod-narrowed shape matches the existing TS type)
-
-### Step 28a.4 — Authorization Bearer to BMO
-
-**Files:** `src/main/bmo-config.ts`, `src/main/bmo-bridge.ts`, `src/main/ipc/settings-handlers.ts` (or wherever settings I/O lives), settings UI panel.
-
-**Changes:**
-1. In `bmo-config.ts`, add `getBmoApiKey()`: read order = env (`BMO_API_KEY`) > settings (decrypted via `safeStorage`) > undefined.
-2. In `bmo-bridge.ts:31-53`, in `bmoPiFetch`, inject `Authorization: Bearer ${apiKey}` into headers when `getBmoApiKey()` returns a value.
-3. Add a `bmoApiKey` field to `settings.json` schema; wrap with `safeStorage.encryptString` on write (mirror the `2026-04-24-encrypt-persisted-secrets` pattern).
-4. Add a settings-UI surface ("BMO connection" panel): text field for the key, "Test connection" button that calls `getDmStatus` and reports auth pass/fail.
-5. Update `dnd-app/README.md` with the env-var / settings flow.
-
-**Acceptance:**
-- With BMO `BMO_API_KEY` unset on the Pi: dnd-app behaves identically to before
-- With BMO `BMO_API_KEY` set on the Pi + matching key in dnd-app settings: all `bmoPiFetch` calls succeed
-- With BMO `BMO_API_KEY` set on the Pi + missing key in dnd-app: calls return `{ ok: false, error: 'HTTP 401: …' }` and the UI shows an actionable error
-- `getBmoApiKey()` unit test confirms env precedence over settings
-
-### Step 28a.5 — Add error containment to `game:load-json` JSON.parse
-
-**Files:** `src/main/ipc/game-data-handlers.ts:29`
-
-**Changes:**
-1. Wrap `JSON.parse(content)` in a local try/catch.
-2. On parse failure, throw `Error('INVALID_JSON: ' + relativePath)` so renderer-side handlers see a typed error code.
-3. Add a vitest case loading a malformed JSON fixture.
-
-**Acceptance:** Renderer surfaces a useful error message (not a generic IPC reject) on corrupted 5e data file.
+### Raspberry Pi (`patrick@bmo`) — NO WORK THIS PHASE
 
 ---
 
-## Sub-Phase 28b — AI Surface Refresh
+## 📋 Core Objectives
 
-**Audit entries covered:**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] Claude model strings stale — **High**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] `@anthropic-ai/sdk@^0.78.0` pre-1.x — **High**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] claude-client hardcodes max_tokens 4096 — **Medium**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] No Anthropic prompt caching wired — **Medium**
+### CRITICAL BUGS
 
-### Step 28b.1 — Update Claude model list (per Jan 2026 knowledge cutoff)
+| # | Bug | Location | Impact |
+|---|-----|----------|--------|
+| B1 | Subclass not persisted to `character.classes[].subclass` | `apply-level-up.ts` — no write-back code | Selecting subclass at level 3 does NOTHING — character has no subclass |
+| B2 | Hit dice only track primary class in multiclass | `apply-level-up.ts` lines 402-414 | Fighter 5/Wizard 1 gets d10 pool instead of d10+d6 — breaks short rest healing |
+| B3 | Half-caster `Math.ceil` gives spell slots at level 1 | `spell-data.ts` line 444 | Paladin 1 gets 2 first-level slots (should have 0) |
 
-**Files:**
-- `src/main/ai/llm-provider.ts:20-22` — registry
-- `src/main/ai/claude-client.ts:96` — `isAvailable()` ping model
-- `src/main/ai/claude-client.ts:107` — `listModels()`
-- `src/renderer/src/components/campaign/AiProviderSetup.tsx:251` — UI default
-- `src/shared/ipc-schemas.test.ts:18` — test fixture
+### HIGH BUGS
 
-**Changes:** Add the current Claude 4.x family (Opus 4.7, Sonnet 4.6, Haiku 4.5). Keep the older ids as deprecated for back-compat. Bump `isAvailable()` to ping Haiku 4.5.
+| # | Bug | Location | Impact |
+|---|-----|----------|--------|
+| B4 | HP display shows pre-ASI CON modifier | `HpRollSection5e.tsx` line 24 | Displayed HP gain differs from actual applied HP |
+| B5 | No skill proficiency gained on multiclass | `apply-level-up.ts` lines 288-303 | Bard/Ranger/Rogue multiclass miss one skill proficiency |
 
-```ts
-// llm-provider.ts:20
-{ id: 'claude-opus-4-7',            name: 'Claude Opus 4.7',    desc: 'Most capable; best for long DM narration' },
-{ id: 'claude-sonnet-4-6',          name: 'Claude Sonnet 4.6',  desc: 'Best balance of speed and intelligence' },
-{ id: 'claude-haiku-4-5-20251001',  name: 'Claude Haiku 4.5',   desc: 'Fastest; good for quick responses' },
-// keep older entries for back-compat (mark deprecated)
-{ id: 'claude-sonnet-4-20250514',   name: 'Claude Sonnet 4',    desc: '(deprecated) prior generation' },
-```
+### MISSING FEATURES
 
-**Acceptance:**
-- AI Provider UI dropdown shows new models first
-- A new fresh campaign defaults to Sonnet 4.6
-- Existing campaigns referencing older ids continue to work
-- API key validation pings Haiku 4.5
-
-### Step 28b.2 — Bump `@anthropic-ai/sdk` to 1.x
-
-**Files:** `dnd-app/package.json`, `src/main/ai/claude-client.ts`
-
-**Changes:**
-1. `npm install @anthropic-ai/sdk@^1.0.0` (or latest 1.x)
-2. Update imports — the 1.x line moved some named exports; check `node_modules/@anthropic-ai/sdk/CHANGELOG.md` for the migration notes
-3. Run `npm run lint && npx tsc --noEmit && npm test` — fix any breakages in claude-client
-4. Add a smoke test that the SDK still streams a simple message
-
-**Blocks:** 28b.3 (prompt caching uses the 1.x helpers).
-
-### Step 28b.3 — Wire Anthropic prompt caching
-
-**Files:** `src/main/ai/claude-client.ts`, `src/main/ai/context-builder.ts`
-
-**Changes:**
-1. Restructure the `system` param into an array of content blocks (the 1.x SDK pattern) so the stable prefix (system prompt + character / campaign context) is one block, the per-turn user message is another.
-2. Mark the stable prefix block with `cache_control: { type: 'ephemeral' }`.
-3. Read the response's `usage.cache_creation_input_tokens` and `usage.cache_read_input_tokens`; surface in dev logs.
-4. Add a vitest assertion that the `cache_control` field reaches the SDK call (mock the SDK, capture the args).
-
-**Acceptance:**
-- Second user turn in the same session reads from cache (verify in dev logs)
-- Token cost per turn drops measurably for long-context conversations
-- No behavior regression in non-cached short conversations
-
-### Step 28b.4 — Make `max_tokens` model-aware
-
-**Files:** `src/main/ai/claude-client.ts:40, 77`, `src/main/ai/llm-provider.ts`, `src/renderer/src/components/campaign/AiProviderSetup.tsx`
-
-**Changes:**
-1. Add `maxTokens?: number` to `LLMProvider.streamChat` / `chatOnce` signatures.
-2. In claude-client, default to: Opus → 16384, Sonnet/Haiku → 8192.
-3. Surface "Max response length" slider (1k → 16k) in AiProviderSetup.
+| # | Feature | Impact |
+|---|---------|--------|
+| F1 | No spell swap/replacement during level-up | Core 2024 PHB rule — prepared casters can swap one spell per level |
+| F2 | No cantrip selection during level-up | Cantrip counts increase at levels 4/10 but no picker UI |
+| F3 | Subclass features not auto-loaded | Subclass features at levels 3/6/10/14 missing from character |
+| F4 | Feat sub-choice not validated | Feats like Elemental Adept can be "completed" without choosing damage type |
+| F5 | No HP reroll protection | Players can re-roll hit die indefinitely |
+| F6 | Class resources for secondary classes not updated | Multiclass secondary class resources stale |
 
 ---
 
-## Sub-Phase 28c — Network Resilience
+## 🛠️ Step-by-Step Execution Plan
 
-**Audit entries covered:**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] `bmoPiFetch` no retry / backoff — **High**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] BridgeResponse.ok vs .error contract inconsistent — **High**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] stopSyncReceiver doesn't await in-flight — **Medium**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] bmo-config.ts default hardcoded — **Medium**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] peerjs reconnection absent — **Low**
-- `SECURITY-LOG.md` [2026-05-12] ELECTRON_RENDERER_URL passed to loadURL without validation — **Low**
+### Sub-Phase A: Fix Subclass Persistence (B1) — MOST CRITICAL
 
-### Step 28c.1 — Retry/backoff for `bmoPiFetch`
+**Step 1 — Write Subclass Back to Character**
+- Open `src/renderer/src/stores/level-up/apply-level-up.ts`
+- Find where build slots are processed (around the ASI/feat section)
+- Add subclass write-back for the subclass slot:
+  ```typescript
+  const subclassSlot = levelUpSlots.find(s => s.category === 'subclass' && s.selectedId)
+  if (subclassSlot) {
+    const classIndex = updatedClasses.findIndex(c => c.id === subclassSlot.classId || c.id === primaryClassId)
+    if (classIndex >= 0) {
+      updatedClasses[classIndex] = {
+        ...updatedClasses[classIndex],
+        subclass: subclassSlot.selectedId,
+        subclassName: subclassSlot.selectedName
+      }
+    }
+  }
+  ```
+- Verify `updatedClasses` is later written to the character object
 
-**Files:** `src/main/bmo-bridge.ts:31-53`
+**Step 2 — Fix Always-Prepared Spells to Use New Subclass**
+- Open `src/renderer/src/stores/level-up/level-up-spells.ts`
+- Find line 135 where `character.classes[0]?.subclass` is read
+- Replace with the newly selected subclass from the level-up store:
+  ```typescript
+  const subclassId = subclassSlot?.selectedId || character.classes[0]?.subclass
+  ```
+- Pass the selected subclass ID into `resolveLevelUpSpells()`
 
-**Changes:**
-1. Wrap in retry helper: 3 attempts, backoff 200 / 800 / 2000 ms.
-2. Don't retry on 4xx (auth errors, bad request — retry won't fix).
-3. Track consecutive failures; after 3, emit a renderer toast via IPC ("BMO unreachable — Discord sync paused").
-4. Reset failure counter on first success.
+### Sub-Phase B: Fix Hit Dice Tracking (B2)
 
-### Step 28c.2 — Normalize `BridgeResponse` contract
+**Step 3 — Track Hit Dice Per Class**
+- Open `src/renderer/src/stores/level-up/apply-level-up.ts` lines 402-414
+- Replace single-pool hit dice with per-class tracking:
+  ```typescript
+  const hitDiceByClass: Record<string, { die: number; total: number; remaining: number }> = {}
+  
+  // Initialize from existing character hit dice
+  for (const hd of character.hitDice ?? []) {
+    hitDiceByClass[hd.classId ?? 'primary'] = { die: hd.die, total: hd.total, remaining: hd.remaining }
+  }
+  
+  // Add new levels' hit dice
+  for (let lvl = currentLevel + 1; lvl <= targetLevel; lvl++) {
+    const classId = classLevelChoices[lvl] || primaryClassId
+    const classData = classDataMap[classId]
+    const die = classData?.hitDie ?? 8
+    if (!hitDiceByClass[classId]) {
+      hitDiceByClass[classId] = { die, total: 0, remaining: 0 }
+    }
+    hitDiceByClass[classId].total += 1
+    hitDiceByClass[classId].remaining += 1
+  }
+  
+  updated.hitDice = Object.entries(hitDiceByClass).map(([classId, hd]) => ({
+    classId, ...hd
+  }))
+  ```
+- Verify the `Character5e.hitDice` type supports per-class entries (may need a type update)
 
-**Files:** `src/main/bmo-bridge.ts:18-22` plus every caller in `src/main/`.
+### Sub-Phase C: Fix Half-Caster Spell Slots (B3)
 
-**Changes:**
-1. Change `BridgeResponse` to a discriminated union:
-   ```ts
-   type BridgeResponse =
-     | { ok: true; data: unknown }
-     | { ok: false; error: string; statusCode?: number }
-   ```
-2. Always set `ok` explicitly.
-3. Wrap server data under `data` (don't spread into the top level).
-4. Codemod every caller (`if (!result.error)` → `if (result.ok)`).
+**Step 4 — Fix Half-Caster Level 1 Slots**
+- Open `src/renderer/src/services/character/spell-data.ts` line 444
+- Change `Math.ceil(level / 2)` to a lookup that matches the 2024 PHB half-caster table:
+  ```typescript
+  function getHalfCasterEffectiveLevel(classLevel: number): number {
+    if (classLevel < 2) return 0  // No slots at level 1
+    return Math.ceil(classLevel / 2)
+  }
+  ```
+- This ensures Paladin 1 and Ranger 1 get 0 spell slots, while Paladin 2 gets slots as level 1 full caster
 
-### Step 28c.3 — `stopSyncReceiver` graceful shutdown
+### Sub-Phase D: Fix HP Display (B4)
 
-**Files:** `src/main/bmo-bridge.ts:212-218`, `src/main/index.ts` (before-quit wiring)
+**Step 5 — Show Post-ASI CON in HP Section**
+- Open `src/renderer/src/components/levelup/5e/HpRollSection5e.tsx`
+- Line 24 uses `character.abilityScores.constitution`
+- Calculate the post-ASI CON by reading the ASI selections from the level-up store:
+  ```typescript
+  const asiSelections = useLevelUpStore(s => s.asiSelections)
+  const conBoosts = Object.values(asiSelections).flat().filter(a => a === 'constitution').length
+  const effectiveCon = character.abilityScores.constitution + conBoosts
+  const conMod = Math.floor((effectiveCon - 10) / 2)
+  ```
+- Display this corrected modifier in the HP calculation preview
 
-**Changes:**
-1. Call `syncServer.closeAllConnections()` (Node 18.2+) before `syncServer.close()`.
-2. Make `stopSyncReceiver` return a `Promise<void>` that resolves after the server fully closes.
-3. Wire into `app.on('before-quit', async (e) => { e.preventDefault(); await stopSyncReceiver(); app.exit() })`.
+### Sub-Phase E: Fix Multiclass Skill Proficiencies (B5)
 
-### Step 28c.4 — Document `bmoBaseUrl` override chain
+**Step 6 — Add Skill Proficiency Grants for Multiclass**
+- Open `src/renderer/src/stores/level-up/apply-level-up.ts`
+- After armor/weapon proficiency grants (lines 288-303), add skill proficiency handling:
+  ```typescript
+  const MULTICLASS_SKILL_GRANTS: Record<string, number> = {
+    bard: 1,    // 1 skill of your choice
+    ranger: 1,  // 1 skill from Ranger list
+    rogue: 1    // 1 skill from Rogue list
+  }
+  
+  for (const classId of newClassesAdded) {
+    const skillCount = MULTICLASS_SKILL_GRANTS[classId]
+    if (skillCount) {
+      // TODO: The implementation agent should check if the level-up UI already has
+      // a skill picker for multiclass. If not, add one to LevelUpConfirm5e.tsx
+      // For now, note that skills need to be selected by the player, not auto-assigned
+    }
+  }
+  ```
+- Add a skill picker UI in `LevelUpConfirm5e.tsx` when a new class is added that grants skills
 
-**Files:** `src/main/bmo-config.ts`, `dnd-app/README.md`, settings UI
+### Sub-Phase F: Spell Swap/Replacement (F1)
 
-**Changes:**
-1. Add JSDoc to `bmo-config.ts` explaining the precedence (env > settings > default).
-2. Confirm `BMO_PI_URL` env-var precedence (or add it if missing).
-3. Add a settings-UI surface for the base URL.
+**Step 7 — Add Spell Swap UI**
+- Open `src/renderer/src/components/levelup/5e/SpellSelectionSection5e.tsx`
+- Add a "Replace Spell" section above the "Learn New Spells" section:
+  ```tsx
+  <div>
+    <h4>Replace a Spell (Optional)</h4>
+    <p className="text-xs text-gray-400">You may replace one prepared spell with another of a level you can cast.</p>
+    <select value={swapOutSpellId} onChange={e => setSwapOutSpellId(e.target.value)}>
+      <option value="">None</option>
+      {existingSpells.map(s => <option key={s.id} value={s.id}>{s.name} (Level {s.level})</option>)}
+    </select>
+    {swapOutSpellId && <SpellPicker onSelect={setSwapInSpellId} maxLevel={maxSpellLevel} />}
+  </div>
+  ```
+- Store the swap in the level-up store: `spellSwap: { removeId: string; addId: string } | null`
+- In `apply-level-up.ts`, process the swap: remove the old spell, add the new one
 
-### Step 28c.5 — peerjs reconnection
+### Sub-Phase G: Cantrip Selection (F2)
 
-**Files:** `src/renderer/src/network/*.ts` (audit first to find the right insertion point)
+**Step 8 — Add Cantrip Picker During Level-Up**
+- Open `src/renderer/src/components/levelup/5e/SpellSelectionSection5e.tsx`
+- Currently line 131 filters out `s.level === 0` (cantrips)
+- Add a separate cantrip section when the cantrip count increases at this level:
+  ```typescript
+  const oldCantrips = CANTRIPS_KNOWN[className]?.[currentLevel] ?? 0
+  const newCantrips = CANTRIPS_KNOWN[className]?.[targetLevel] ?? 0
+  const cantripsToLearn = newCantrips - existingCantripCount
+  
+  if (cantripsToLearn > 0) {
+    // Show cantrip picker with count = cantripsToLearn
+  }
+  ```
+- Import `CANTRIPS_KNOWN` from `spell-data.ts`
+- Filter available cantrips by the character's class spell list
 
-**Changes:**
-1. Read all 25 files in `src/renderer/src/network/` to find the existing disconnect handler (if any).
-2. If absent, add `peer.on('disconnected', () => { peer.reconnect() })` with exponential backoff (1s, 2s, 4s, …, capped at 30s) and a max-attempts cap (10).
-3. Surface the reconnect state in the lobby UI (greyed-out "Reconnecting…" badge).
+### Sub-Phase H: Subclass Feature Loading (F3)
 
-### Step 28c.6 — Validate `ELECTRON_RENDERER_URL`
+**Step 9 — Load Subclass Features During Level-Up**
+- Open `src/renderer/src/stores/level-up/apply-level-up.ts` lines 164-190
+- After loading class features, also load subclass features:
+  ```typescript
+  const subclassId = subclassSlot?.selectedId || character.classes[0]?.subclass
+  if (subclassId) {
+    const subclassData = await load5eSubclass(subclassId)
+    if (subclassData?.features) {
+      for (const feature of subclassData.features) {
+        if (feature.level >= currentLevel + 1 && feature.level <= targetLevel) {
+          allNewFeatures.push({
+            level: feature.level,
+            name: feature.name,
+            description: feature.description,
+            source: subclassData.name
+          })
+        }
+      }
+    }
+  }
+  ```
+- Verify `load5eSubclass()` exists or create it from the existing subclass data loading pattern
 
-**Files:** `src/main/index.ts:106-135`
+### Sub-Phase I: Validation Fixes (F4, F5)
 
-**Changes:**
-1. Before `loadURL(process.env.ELECTRON_RENDERER_URL)`, parse via `new URL(env)` (try/catch).
-2. Confirm `hostname` is `localhost` or `127.0.0.1`.
-3. Confirm `port` is in `[5170, 5180]` (the expected dev port range).
-4. On mismatch: fall back to `file://` packaged path + `logToFile('WARN', …)`.
+**Step 10 — Validate Feat Sub-Choices**
+- Open `src/renderer/src/stores/level-up/feature-selection-slice.ts`
+- In `getIncompleteChoices()`, add validation for feat `choiceConfig`:
+  ```typescript
+  for (const [slotId, feat] of Object.entries(generalFeatSelections)) {
+    if (feat.choiceConfig && !feat.choiceValue) {
+      incomplete.push(`${feat.name}: Choose a ${feat.choiceConfig.label}`)
+    }
+  }
+  ```
+
+**Step 11 — Add HP Reroll Protection**
+- Open `src/renderer/src/components/levelup/5e/HpRollSection5e.tsx`
+- After rolling, disable the roll button (lock the result):
+  ```typescript
+  const [locked, setLocked] = useState(false)
+  
+  const doRoll = () => {
+    if (locked) return
+    const result = Math.floor(Math.random() * hitDie) + 1
+    setRoll(result)
+    setLocked(true)  // Lock after first roll
+    onRollHp(level, result)
+  }
+  ```
+- Add a DM setting: `allowHpRerolls: boolean` (default: false). If true, the lock is skipped.
+- Show the lock state visually: "Rolled: {value} (locked)" with a lock icon
+
+### Sub-Phase J: Secondary Class Resources (F6)
+
+**Step 12 — Update Resources for All Classes**
+- Open `src/renderer/src/stores/level-up/apply-level-up.ts` lines 423-441
+- Currently calls `getClassResources()` only for `primaryClassId`
+- Iterate all classes and update resources for each:
+  ```typescript
+  for (const cls of updatedClasses) {
+    const classLevel = classLvlTracker[cls.id] ?? 0
+    const resources = getClassResources(cls.id, classLevel)
+    if (resources) {
+      mergeResources(updated.classResources, resources)
+    }
+  }
+  ```
+- Create `mergeResources()` that combines resource arrays without duplicating
 
 ---
 
-## Sub-Phase 28d — Data Integrity & Type Safety
-
-**Audit entries covered:**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] stat-mutations.ts unsafe HP cast + in-place mutation — **Medium**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] save-queue.ts dead cleanup — **Medium**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] ~74 `as unknown as` casts — **Medium**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] Effect-dep suppressions in critical hooks — **Medium**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] Date.now()-based condition IDs — **Low**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] UUID truncation pattern audit needed — **Low**
-
-### Step 28d.1 — Type the character pipeline through to `stat-mutations.ts`
-
-**Files:**
-- `src/renderer/src/types/character-5e.ts:136` (source of `HitPoints`)
-- `src/main/ai/stat-mutations.ts:160-220`
-- `src/main/ai/character-context.ts:43`
-- Move `Character5e` / `HitPoints` types to `src/shared/` so main + renderer share them
-
-**Changes:**
-1. Move the shared types into `src/shared/types/character-5e.ts`.
-2. Update `stat-mutations.ts` signature: `applyChange(char: Character5e, change: StatChange): void` (or `Character5e` return).
-3. Drop the per-case `as { current; maximum; temporary }` casts.
-4. Decide: keep in-place mutation (document loudly) OR refactor to return a new object piped through call sites.
-5. Add a vitest that exercises every `StatChange` case (damage/heal/temp_hp/condition adds/removes/death-save/exhaustion).
-
-### Step 28d.2 — Finish or remove the `save-queue.ts` dead cleanup
-
-**Files:** `src/main/storage/save-queue.ts`
-
-**Changes (preferred): store stable handle for the equality check.**
-```ts
-const queueHandle = next.catch(() => undefined)
-queues.set(key, queueHandle)
-try { return await next } finally {
-  if (queues.get(key) === queueHandle) queues.delete(key)
-}
-```
-- Delete the dead comment block.
-- Add a vitest: enqueue 100 saves, wait for quiesce, confirm `queues.size === 0`.
-
-### Step 28d.3 — `as unknown as` pass
-
-**Files:** broad — primary hotspots `src/renderer/src/services/library-service.ts:639, 678-679, 694, 702, 710`, plus 7+ test helpers
-
-**Changes:**
-1. Cluster the 74 casts by boundary (IPC, JSON-from-disk, third-party SDK, test mock).
-2. For known-shape data: zod parse at the boundary; downstream gets the typed result.
-3. For truly dynamic (plugin payloads): document the cast with a comment ("plugin-supplied; no schema possible").
-4. Target: < 40 casts outside tests after the pass.
-
-### Step 28d.4 — Effect-dep suppression audit
-
-**Files:**
-- `src/renderer/src/components/game/GameLayout.tsx:407`
-- `src/renderer/src/hooks/use-game-effects.ts:144, 307`
-- `src/renderer/src/hooks/use-game-network.ts:92`
-
-**Per site:**
-1. Attempt the honest dep list; if it causes a render loop, refactor the surrounding state (don't suppress).
-2. Where the dep really is provably stable (`useState` setter, `useRef` current), narrow the comment ("setter ref stable per React docs").
-3. Add a vitest exercising a state change that should re-run the effect.
-
-### Step 28d.5 — Date.now()-based IDs → `crypto.randomUUID()`
-
-**Files:** `src/renderer/src/components/game/overlays/PlayerHUDEffects.tsx:234, 300`, plus any other `id: \`cond-${Date.now()}\`` pattern
-
-**Changes:**
-1. Grep for `\`cond-\${Date.now()` / similar.
-2. Replace with `crypto.randomUUID()` (or a scoped `idFor('cond')` helper).
-3. Add a unit test that two rapid calls produce distinct ids.
-
-### Step 28d.6 — UUID truncation audit
-
-**Files:** ~40+ sites using `crypto.randomUUID().slice(0, 8)`
-
-**Changes:**
-1. Enumerate sites by purpose: "UI ephemeral" (OK to truncate) vs "persistent game state" (full UUID required).
-2. Migrate the persistent-state sites to full UUIDs.
-3. Add helper pair: `ephemeralId(prefix?)` (for UI-only) and `entityId()` (for persistent state) to make intent explicit.
-
----
-
-## Sub-Phase 28e — CI Hardening
-
-**Audit entries covered:**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] dnd-app CI minimal — **Medium**
-- `SUGGESTIONS-LOG-DNDAPP.md` [2026-04-24] Add `npm run check:full` aggregate script — **future-idea** (composes here)
-
-### Step 28e.1 — Add `npm run check:full` aggregate
-
-**Files:** `dnd-app/package.json`
-
-**Changes:**
-```json
-"check:full": "npm run lint && tsc --noEmit -p tsconfig.web.json && tsc --noEmit -p tsconfig.node.json && npm test && npm run circular && npm run dead-code && npm run audit:ci"
-```
-
-### Step 28e.2 — Add `.github/workflows/dnd-app-ci.yml`
-
-**Files:** new `.github/workflows/dnd-app-ci.yml`
-
-**Trigger:** `push` and `pull_request` on `paths: ['dnd-app/**', '.github/workflows/dnd-app-ci.yml']`.
-
-**Jobs:**
-- `setup-node@v4` with `node-version: 22`, `cache: npm`, `cache-dependency-path: dnd-app/package-lock.json`
-- `npm ci`
-- `npm run lint`
-- `npx tsc --noEmit -p tsconfig.web.json`
-- `npx tsc --noEmit -p tsconfig.node.json`
-- `npm test`
-- `npm run audit:ci`
-- `npm run circular`
-- `npm run dead-code` (allow-fail until knip baseline is clean — `continue-on-error: true`)
-
-**Acceptance:**
-- A PR that breaks `tsc` fails the job
-- A PR that adds a circular dep fails the job
-- A PR that drops a test fails the job
-
----
-
-## Sub-Phase 28f — UI / UX / Graphical Polish
-
-**Audit entries covered:**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] Limited aria-* coverage — **Low**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] `<div onClick>` anti-pattern present — **Low**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] Silent `.catch()` blocks no UI feedback — **Low**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] Color tokens not centralized — **Low**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] z-[9999] magic z-index — **Low**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] Window 1024×768 min tight — **Low**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] Lists may need virtualization — **Low**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] console.warn for validation failures continues processing — **Low**
-
-### Step 28f.1 — Replace `<div onClick>` with `<button>`
-
-**Approach:**
-1. `grep -rn '<div[^>]*onClick' --include='*.tsx' src/renderer` to enumerate.
-2. Each one: `<button type="button" className="...">` (preserve Tailwind classes).
-3. Where the div must stay (card with nested interactive children), add `role="button" tabIndex={0}` + Enter/Space handler.
-
-### Step 28f.2 — Surface silent `.catch()` errors
-
-**Files:** `src/renderer/src/components/sheet/FeaturesSection5e.tsx:47, 55` + the broader sweep.
-
-**Changes:**
-1. Add a `useErrorToast()` hook wrapping the common "log + toast + retry-button" pattern.
-2. Per silent-catch site, decide: user-actionable → toast; not → `logToFile` (main-side) instead of `console`.
-
-### Step 28f.3 — Centralize color tokens
-
-**Files:** `tailwind.config`, ~20-30 inline `#hex` sites.
-
-**Changes:**
-1. Enumerate: `grep -rn "#[0-9a-fA-F]\{3,6\}" --include='*.tsx' --include='*.ts' --include='*.css' src/renderer`.
-2. Triage: chart palettes (intentional inline) vs. theme drift.
-3. Tokens to add to Tailwind: any color used > 3 times.
-
-### Step 28f.4 — Z-index layer convention
-
-**Files:** `tailwind.config`, `src/renderer/src/components/sheet/PrintSheet.tsx:27, 67`, `Tooltip.tsx:78`, `LanguagesTab5e.tsx:65`, plus broader
-
-**Changes:**
-1. Add a `z-app`, `z-modal-backdrop`, `z-modal`, `z-tooltip`, `z-toast`, `z-overlay-print` token set to Tailwind.
-2. Replace magic numbers.
-3. Document in new `dnd-app/docs/UI-LAYERS.md`.
-
-### Step 28f.5 — Aria coverage sweep
-
-**Approach:**
-1. Top 20 user-traffic components (initiative tracker, dice tray, action buttons, modals, lobby).
-2. Per component: icon-only buttons get `aria-label`; list updates get `aria-live`.
-3. Don't aim for 100% coverage; aim for "all interactive elements with non-text content".
-
-### Step 28f.6 — Window minimum size check
-
-**Files:** `src/main/index.ts:38-41`
-
-**Changes:**
-1. Manually test each panel layout at 1024×768.
-2. If broken: bump `minWidth` to 1280, OR add a "compact mode" toggle.
-3. Document the minimum supported viewport in `dnd-app/README.md`.
-
-### Step 28f.7 — Profile + virtualize long lists
-
-**Files:** `EncounterLog*.tsx`, journal components, any list rendering > 100 items
-
-**Changes:**
-1. React DevTools profile with synthetic 500-entry data.
-2. If render > 16 ms, virtualize with `@tanstack/react-virtual` (same lib as chat).
-3. Document the "if > 200 items, virtualize" rule.
-
-### Step 28f.8 — console.warn validation handling
-
-**Files:** `src/renderer/src/stores/network-store/client-handlers.ts:67`, `host-handlers.ts:50, 62, 230`
-
-**Changes:**
-- Per site: decide throw+catch upstream OR fall-through-with-clearer-comment.
-- If thrown, surface as renderer toast via `addSysMsg()`.
-
----
-
-## Sub-Phase 28g — Docs & Long Tail
-
-**Audit entries covered:**
-- `SUGGESTIONS-LOG-DNDAPP.md` [2026-05-12] Document BMO_API_KEY end-to-end flow — **future-idea**
-- `SUGGESTIONS-LOG-DNDAPP.md` [2026-05-12] Document plugin trust model — **future-idea**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] Two open TODO markers — **Low**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] files-allowlist may leak `docs/` — **Low**
-
-### Step 28g.1 — BMO_API_KEY end-to-end docs
-
-(Depends on 28a.4 landing first.)
-
-**Files:** `dnd-app/README.md`, `src/main/bmo-bridge.ts` (JSDoc), `docs/ARCHITECTURE.md`.
-
-### Step 28g.2 — Plugin trust model docs
-
-**Files:** `dnd-app/docs/PLUGIN-SYSTEM.md`, `dnd-app/README.md`, plugin-install UI.
-
-**Changes:**
-1. Add "Trust model" section to PLUGIN-SYSTEM.md.
-2. Add warning to plugin-install UI ("Plugins have full access to your game data — only install plugins you trust").
-
-### Step 28g.3 — Close the 2 open TODOs
-
-**Files:**
-- `src/renderer/src/components/game/GameLayout.tsx:280` — "TODO: Could enhance to pre-select the specific item"
-- `src/renderer/src/components/game/map/map-overlay-effects.ts:27` — "TODO: Add playing state management"
-
-**Approach:** Per TODO, either action it OR convert to a dated `// FIXME: [2026-05-12] …` and confirm it has an entry in `ISSUES-LOG-DNDAPP.md`.
-
-### Step 28g.4 — Verify electron-builder files-allowlist doesn't leak `docs/`
-
-**Files:** `dnd-app/package.json`
-
-**Approach:**
-1. Run `electron-builder --dir`; `ls dist/`.
-2. If `docs/` present, add `!docs/**/*` to `build.files`.
-3. (Optional) Add an `audit:bundle` script that fails CI if forbidden paths slip in.
-
----
-
-## Sub-Phase 28h — Test Coverage Uplift
-
-**Audit entries covered:**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] Component test coverage ≈ 42% — **Medium**
-
-### Step 28h.1 — Coverage baseline
-
-**Files:** `dnd-app/.coverage-baseline.json` (new)
-
-**Approach:**
-1. Run `npm run test:coverage` to get the authoritative figure (the 42% is a colocated-file proxy).
-2. Commit the baseline.
-3. Add a CI gate that fails if coverage drops below baseline.
-
-### Step 28h.2 — Lobby / onboarding flow
-
-**Untested files prioritized (game-gating):**
-- `src/renderer/src/components/lobby/ReadyButton.tsx`
-- `src/renderer/src/components/lobby/CharacterSelector.tsx`
-- `src/renderer/src/components/campaign/SessionZeroStep.tsx`
-
-### Step 28h.3 — TokenContextMenu test recovery
-
-**Blocked by:** the `useNetworkStore` circular dep fix (SUGGESTIONS-LOG `2026-04-24-network-store-barrel-circular`). That fix is a prerequisite — run it first or include in 28h.
-
----
-
-## Sub-Phase 28i — Coverage-Gap Audits
-
-**Audit entries covered:**
-- `SUGGESTIONS-LOG-DNDAPP.md` [2026-05-12] Audit coverage gaps — info
-- `SUGGESTIONS-LOG-DNDAPP.md` [2026-05-12] discord-service.ts Bot token storage path unverified — info
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] peerjs reconnection logic absent on audited surface — Low (audit follow-up overlaps 28c.5)
-
-### Step 28i.1 — Per-area scoped audits
-
-Each of the 9 gap areas (multiplayer/peerjs, Pixi map rendering, plugin runtime, cloud sync, TipTap, updater, Discord integration, 5e JSON, renderer IPC consumers) gets its own narrow scan:
-
-1. Multiplayer/peerjs — fog-of-war state, host-migration, reconnect (overlaps 28c.5)
-2. Pixi map — fog-of-war correctness, viewport math, GPU memory growth
-3. Plugin runtime — actual privilege boundary, plugin lifecycle, error containment
-4. Cloud sync (rclone) — conflict resolution, partial-failure recovery, retry behavior
-5. TipTap — content sanitization on import (paste from web, restore from backup)
-6. Updater — signature verification, channel pinning, rollback path
-7. Discord integration — bot token storage (overlaps SUGGESTIONS-LOG info entry)
-8. 5e JSON — schema correctness (overlaps existing `2026-04-24-schemas-content-mismatch` gotcha)
-9. Renderer IPC consumers — every `window.api.*` call site for async-error handling
-
-**Output:** one log entry per finding (per the standard triage table). May spawn a Phase 29.
-
----
-
-## Cross-Phase Dependencies
-
-| Sub-phase | Blocks | Blocked by |
-|-----------|--------|------------|
-| 28a.4 (Auth Bearer) | 28g.1 (docs) | — |
-| 28b.2 (SDK 1.x bump) | 28b.3 (prompt cache) | — |
-| 28e (CI) | 28h (coverage baseline gate) | — |
-| 28h.3 (TokenContextMenu tests) | — | `2026-04-24-network-store-barrel-circular` fix |
-
-The user has previously agreed (memory) to phase-by-phase execution: **stop and await approval between every sub-phase**; commit + push BEFORE summarizing. Apply the same discipline within Phase 28 — finish 28a, push, summarize, wait. Don't bundle.
-
----
-
-## Acceptance Checklist (whole phase)
-
-- [ ] `grep -rn 'Math\.random' --include='*.ts' --include='*.tsx' src/renderer/ | grep -v '\.test\.'` returns only acceptable cases
-- [ ] BMO sync receiver binds 127.0.0.1 by default
-- [ ] Sync receiver rejects malformed / oversized / wrong-content-type payloads
-- [ ] VTT → BMO sends `Authorization: Bearer` when `BMO_API_KEY` is set
-- [ ] Claude 4.7 / 4.6 / 4.5 visible in AI Provider UI; prompt caching wired
-- [ ] `npm run check:full` exists and runs all gates
-- [ ] `.github/workflows/dnd-app-ci.yml` blocks PRs on lint / typecheck / test / audit failures
-- [ ] All 2026-05-12 log entries either resolved (moved to `RESOLVED-ISSUES-DNDAPP.md` / `RESOLVED-SECURITY-ISSUES.md`) or have a follow-up Phase 29 entry
+## ⚠️ Constraints & Edge Cases
+
+### Subclass Persistence
+- **This is the most critical fix** — without it, characters created at level 3+ via level-up have NO subclass. All subclass features, always-prepared spells, and subclass-specific behavior are broken.
+- **Verify the character type**: Ensure `Character5e.classes[].subclass` field exists and is the correct type (string ID).
+- **Test**: After fixing, level a character from 2 to 3, select a subclass, apply. Verify the character's `classes[0].subclass` is set.
+
+### Hit Dice Per Class
+- **Type change required**: The `Character5e.hitDice` field may currently be `{ die: number; total: number; remaining: number }[]` without a `classId`. Adding `classId` changes the type — ensure backward compatibility with existing characters (default to primary class ID if `classId` is undefined).
+- **Short rest**: The `RestModal` hit die roller must show per-class dice options (e.g., "d10 (Fighter): 3 remaining, d6 (Wizard): 1 remaining"). Verify the rest UI supports this.
+
+### Half-Caster Level 1
+- **Single-class only**: This fix affects the single-class half-caster table. The multiclass combined table uses `Math.ceil` which is correct per 2024 PHB for the combined table. Do NOT change the multiclass function.
+- **Test**: Verify Paladin 1 = 0 slots, Paladin 2 = 2 first-level slots, Ranger 1 = 0 slots.
+
+### Spell Swap
+- **One swap per level-up**: The 2024 PHB allows swapping one spell per level gained. If leveling 4 levels at once, allow 4 swaps.
+- **Level restriction**: The replacement spell must be of a level the character can cast (not just any level).
+- **Always-prepared spells cannot be swapped** — they're granted by class/subclass.
+
+### Cantrip Selection
+- **Cantrip count by class**: Each class has its own cantrip progression. In multiclass, each class contributes its own cantrips. Verify the picker uses the correct class's cantrip list.
+- **No cantrip swap**: Unlike prepared spells, cantrips are permanent once learned (2024 PHB rule). No swap mechanism for cantrips.
+
+Begin implementation now. Start with Sub-Phase A (Steps 1-2) — the subclass persistence bug is CRITICAL and means every level 3+ character created via level-up has no subclass. Then Sub-Phase B (Step 3) for hit dice. Then Sub-Phase C (Step 4) for half-caster slots. These three fixes address the most impactful rule violations.
