@@ -1,5 +1,4 @@
 # SYSTEM OVERRIDE: IMPLEMENTATION MODE
-You are Claude Opus 4.6 Max. Your job is to execute the following architectural plan for Phase 26 of the D&D VTT project.
 
 Phase 26 covers the **Encounter Builder & Combat Tracker**. The builder correctly implements 2024 DMG XP budgets and has a functional search/add/count UI. The critical issues are: **GroupRollModal uses hardcoded mock data** (fake players, fake rolls), **"Place All & Start Initiative" doesn't actually place tokens**, **AI deployment stacks monsters in a tight grid ignoring walls**, **no wave support**, and **no encounter-to-map linkage**.
 

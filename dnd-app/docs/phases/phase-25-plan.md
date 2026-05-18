@@ -1,5 +1,4 @@
 # SYSTEM OVERRIDE: IMPLEMENTATION MODE
-You are Claude Opus 4.6 Max. Your job is to execute the following architectural plan for Phase 25 of the D&D VTT project.
 
 Phase 25 covers the **Homebrew & Custom Content System**. The foundation exists — creation modal with 13 content types, category-organized storage, data merge with official content, and library display. The critical gaps are **no export/import for homebrew**, **only 3/13 content types have Zod schemas**, **custom mechanics don't function in gameplay**, **dual storage confusion** (homebrew vs custom creatures), and **no campaign-scoped content**.
 

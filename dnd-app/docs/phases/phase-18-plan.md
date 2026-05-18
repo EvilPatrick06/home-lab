@@ -1,5 +1,4 @@
 # SYSTEM OVERRIDE: IMPLEMENTATION MODE
-You are Claude Opus 4.6 Max. Your job is to execute the following architectural plan for Phase 18 of the D&D VTT project.
 
 Phase 18 is a **GUI & UX audit**. The app has solid foundations (dark theme, accessibility store, toast system, keyboard shortcuts, error boundaries) but suffers from **inconsistent iconography** (Unicode chars instead of an icon library), **100+ occurrences of 10px text**, **only 67 aria-labels across 697 TSX files**, **no responsive breakpoints**, and **z-index soup**. Many items overlap previous phases; this plan covers only net-new UX work.
 

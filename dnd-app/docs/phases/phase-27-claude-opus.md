@@ -1,6 +1,5 @@
 # Phase 27 — Audio, SFX & Atmosphere Analysis
 
-**Agent:** Claude Opus 4.6 Max  
 **Date:** 2026-03-09  
 **Scope:** Full codebase audit of the audio pipeline — managers, playback, networking, volume controls, spatial audio, and bugs.
 

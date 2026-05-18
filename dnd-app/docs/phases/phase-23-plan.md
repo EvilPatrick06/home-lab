@@ -1,5 +1,4 @@
 # SYSTEM OVERRIDE: IMPLEMENTATION MODE
-You are Claude Opus 4.6 Max. Your job is to execute the following architectural plan for Phase 23 of the D&D VTT project.
 
 Phase 23 covers the **In-Game Character Sheet** — data binding, real-time sync, inventory, spellbook, conditions, and performance. The sheet is feature-rich and functional but needs **performance optimization** (no virtualization for spell/equipment lists, limited useMemo), **spell search/filtering**, **sync conflict resolution**, and **consistency fixes** (remote characters stored in wrong store, attunement count mismatch).
 

@@ -1,5 +1,4 @@
 # SYSTEM OVERRIDE: IMPLEMENTATION MODE
-You are Claude Opus 4.6 Max. Your job is to execute the following architectural plan for Phase 24 of the D&D VTT project.
 
 Phase 24 covers the **Character Level-Up System**. The wizard is substantially complete for 2024 PHB with correct ASI levels, subclass at 3, epic boons, multiclass prerequisites, and Warlock Pact Magic separation. However, it has **critical bugs**: subclass selection not persisted to the character object, hit dice only tracking the primary class, and half-caster level 1 spell slots incorrect. Missing features include spell swap/replacement and cantrip selection during level-up.
 

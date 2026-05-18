@@ -1,5 +1,4 @@
 # SYSTEM OVERRIDE: IMPLEMENTATION MODE
-You are Claude Opus 4.6 Max. Your job is to execute the following architectural plan for Phase 21 of the D&D VTT project.
 
 Phase 21 covers **GitHub & Version Control** — `.gitignore`, branching, README, CI/CD, git hooks, and commit hygiene. The audit found `.gitignore` well-configured and commit history clean (conventional commits). The gaps are **no CI validation pipeline** (only a release workflow), **no pre-commit hooks**, **barebones README**, and **no branching strategy** (everything pushed to master).
 

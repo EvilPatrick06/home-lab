@@ -1,5 +1,4 @@
 # SYSTEM OVERRIDE: IMPLEMENTATION MODE
-You are Claude Opus 4.6 Max. Your job is to execute the following architectural plan for Phase 19 of the D&D VTT project.
 
 Phase 19 covers **Packaging, Build Configuration, and Distribution** — Electron build toolchain, NSIS installer, auto-updater, code signing, platform targets, and asset paths. The audit found the Windows build pipeline functional but identified a **critical packaged path bug** in `srd-provider.ts`, missing Mac/Linux targets, no code signing, and a `release` script that doesn't clean stale artifacts.
 

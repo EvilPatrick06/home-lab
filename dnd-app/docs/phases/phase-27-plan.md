@@ -1,5 +1,4 @@
 # SYSTEM OVERRIDE: IMPLEMENTATION MODE
-You are Claude Opus 4.6 Max. Your job is to execute the following architectural plan for Phase 27 (FINAL) of the D&D VTT project.
 
 Phase 27 covers the **Audio, SFX & Atmosphere System**. The app has a robust SFX pool (97 events, 130 bundled .mp3 files, round-robin playback), DM audio panel, and network sync for ambient/SFX. However, it has **two critical path bugs** (default ambient points to nonexistent files, custom audio stop uses wrong key), **3D dice animations are completely silent**, **late joiners hear no ambient**, and **duplicate message handlers may cause double-playback**.
 

@@ -1,5 +1,4 @@
 # SYSTEM OVERRIDE: IMPLEMENTATION MODE
-You are Claude Opus 4.6 Max. Your job is to execute the following architectural plan for Phase 17 of the D&D VTT project.
 
 Phase 17 is a **full codebase error audit** identifying 171 issues across syntax, logic, network, GUI, runtime, and type categories. This is the largest single phase. The plan focuses on the **49 critical and high-severity issues** that are NET-NEW (not already addressed by previous phases). Lower-severity items are catalogued for future cleanup.
 

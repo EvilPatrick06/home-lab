@@ -1,4 +1,4 @@
-# Phase 17 — Claude Opus 4.6 Max Error Analysis
+# Phase 17 — Error Analysis
 
 **Date:** March 9, 2026
 **Scope:** Full codebase error audit across 6 categories

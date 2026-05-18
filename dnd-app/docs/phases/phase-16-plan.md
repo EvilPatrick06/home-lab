@@ -1,5 +1,4 @@
 # SYSTEM OVERRIDE: IMPLEMENTATION MODE
-You are Claude Opus 4.6 Max. Your job is to execute the following architectural plan for Phase 16 of the D&D VTT project.
 
 Phase 16 is a **VTT Platform Comparison** against D&D Beyond, Foundry VTT, and Roll20. Many identified gaps are already addressed by previous phase plans (active effects, dynamic lighting, trigger zones, audio emitters, floor filtering, advanced walls, multi-token ops, rollable tables, party inventory, encounter builder). This plan covers only the **net-new items** not already assigned to other phases, plus 7 UX workflow improvements.
 

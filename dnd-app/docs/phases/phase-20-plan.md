@@ -1,5 +1,4 @@
 # SYSTEM OVERRIDE: IMPLEMENTATION MODE
-You are Claude Opus 4.6 Max. Your job is to execute the following architectural plan for Phase 20 of the D&D VTT project.
 
 Phase 20 is a **Security Audit** scoring 7/10. Electron configuration is excellent (sandbox, contextIsolation, CSP). Network validation is strong (Zod schemas, rate limiting, size limits). The gaps are in **credential storage** (API keys in plaintext), **input sanitization** (chat messages, user data), **plugin integrity** (no signature verification), **hardcoded TURN credentials**, and **AI file access scope**. The "no authentication" finding is noted but deprioritized — this is a desktop P2P app where invite codes serve as session auth.
 

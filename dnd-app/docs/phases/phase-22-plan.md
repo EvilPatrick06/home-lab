@@ -1,5 +1,4 @@
 # SYSTEM OVERRIDE: IMPLEMENTATION MODE
-You are Claude Opus 4.6 Max. Your job is to execute the following architectural plan for Phase 22 of the D&D VTT project.
 
 Phase 22 is a **comprehensive codebase analysis** covering performance, architecture, documentation, dependencies, accessibility, and i18n. Many findings overlap prior phases. This plan covers **net-new items only**: unused reduced-motion hook, timer/listener leaks, unused dependencies, conversation memory leak, plugin installer security, CSP hardcoded IP, production console statements, service layer bypass, and missing project files.
 
