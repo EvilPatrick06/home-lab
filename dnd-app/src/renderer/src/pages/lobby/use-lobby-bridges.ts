@@ -111,8 +111,17 @@ function useCharacterSelectBridge(role: string, localPeerId: string | null): voi
   }, [role, localPeerId])
 }
 
-// --- Network chat messages -> lobby chat ---
-function useChatBridge(role: string, localPeerId: string | null): void {
+/**
+ * Subscribes to network `chat:message` and `chat:file` broadcasts and writes
+ * received entries into the lobby store. Exported (not just used internally
+ * by `useLobbyBridges`) so the in-game view can mount its own copy: while
+ * the player is in /game/, LobbyPage is unmounted and its `useLobbyBridges`
+ * subscription is gone, so without an in-game bridge no one would be
+ * listening for incoming chat. Sender's own messages keep showing locally
+ * because `sendChat` adds them via `addChatMessage` directly, but other
+ * peers' broadcasts would silently drop on the floor.
+ */
+export function useChatBridge(role: string, localPeerId: string | null): void {
   const msgIdRef = useRef(0)
 
   useEffect(() => {

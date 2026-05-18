@@ -9,6 +9,7 @@ import { useGameShortcuts } from '../../hooks/use-game-shortcuts'
 import { addToast } from '../../hooks/use-toast'
 import type { PortalEntryInfo } from '../../hooks/use-token-movement'
 import { useTokenMovement } from '../../hooks/use-token-movement'
+import { useChatBridge } from '../../pages/lobby/use-lobby-bridges'
 import { buildContentIndex } from '../../services/library/content-index'
 import { loadCategoryItems } from '../../services/library-service'
 import { executeMacro } from '../../services/macro-engine'
@@ -236,6 +237,15 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
   const sendMessage = useNetworkStore((s) => s.sendMessage)
   const addChatMessage = useLobbyStore((s) => s.addChatMessage)
   const lobbyPeerId = useNetworkStore((s) => s.localPeerId)
+  // Mount the chat bridge so incoming chat:message / chat:file broadcasts
+  // get written into the lobby store while the player is in /game/.
+  // LobbyPage's `useLobbyBridges` tears down on unmount when the player
+  // navigates lobby → game; without this in-game subscription the host
+  // still broadcasts everyone's chat, the sender still sees their own
+  // local echo (sendChat adds via addChatMessage directly), but no other
+  // peer's incoming messages reach the store. Result: in-game chat
+  // appeared one-way to senders only.
+  useChatBridge(networkRole === 'host' ? 'host' : networkRole === 'client' ? 'client' : 'none', lobbyPeerId)
   const lobbyDisplayName = useLobbyStore((s) => {
     const localId = useNetworkStore.getState().localPeerId
     return s.players.find((p) => p.peerId === localId)?.displayName ?? null
