@@ -1,7 +1,7 @@
 # SYSTEM OVERRIDE: IMPLEMENTATION MODE
-You are Claude Opus 4.6 Max. Your job is to execute the following architectural plan for Phase 17 of the D&D VTT project.
+You are Claude Opus 4.6 Max. Your job is to execute the following architectural plan for Phase 21 of the D&D VTT project.
 
-Phase 17 is a **full codebase error audit** identifying 171 issues across syntax, logic, network, GUI, runtime, and type categories. This is the largest single phase. The plan focuses on the **49 critical and high-severity issues** that are NET-NEW (not already addressed by previous phases). Lower-severity items are catalogued for future cleanup.
+Phase 21 covers **GitHub & Version Control** — `.gitignore`, branching, README, CI/CD, git hooks, and commit hygiene. The audit found `.gitignore` well-configured and commit history clean (conventional commits). The gaps are **no CI validation pipeline** (only a release workflow), **no pre-commit hooks**, **barebones README**, and **no branching strategy** (everything pushed to master).
 
 ---
 
@@ -9,276 +9,264 @@ Phase 17 is a **full codebase error audit** identifying 171 issues across syntax
 
 ### Windows 11 Machine (`C:\Users\evilp\dnd\`) — ALL WORK IS HERE
 
-Phase 17 is entirely client-side code fixes. No Raspberry Pi involvement.
+Phase 21 is config/workflow changes. No Raspberry Pi involvement.
 
-### Cross-Phase Overlap (DO NOT duplicate)
+**Existing Files:**
 
-| Issue ID | Already In |
-|----------|-----------|
-| LOG-6 (exhaustion long rest) | Phase 4 Steps 1-2 |
-| NET-9 (non-atomic writes) | Phase 7 Steps 1-3 |
-| GUI-5 (selectedTokenId inconsistency) | Phase 12 Step 17 |
-| SYN-2 useHookAtTopLevel warnings | Addressed by GUI-1 fix |
+| File | Status |
+|------|--------|
+| `.gitignore` | Well-configured — secrets, build artifacts, large files excluded |
+| `.github/workflows/release.yml` | Windows release on tag push — functional |
+| `README.md` | Barebones, inaccurate (lists `npm install dnd-vtt` instead of actual dev commands) |
+| `CLAUDE.md` | Contains actual dev setup instructions |
+
+**Missing Files:**
+
+| File | Purpose |
+|------|---------|
+| `.github/workflows/ci.yml` | PR/push validation (tests, lint, typecheck) |
+| `.husky/pre-commit` | Pre-commit hook for lint/format |
+| `CONTRIBUTING.md` | Contribution guidelines |
 
 ---
 
-## 📋 Execution Plan: 30 Steps, 7 Sub-Phases
+## 📋 Core Objectives
 
-### Sub-Phase A: SECURITY FIXES (Steps 1-5) — DO THESE FIRST
+| # | Issue | Priority |
+|---|-------|----------|
+| G1 | No CI validation pipeline (tests/lint/typecheck on push) | High |
+| G2 | README is barebones and inaccurate | High |
+| G3 | No pre-commit hooks | Medium |
+| G4 | No branching strategy documented | Low |
+| G5 | Phase research files cluttering root directory | Low |
 
-**Step 1 — NET-1 [CRITICAL]: Path Traversal in AI Memory Handlers**
-- File: `src/main/ipc/ai-handlers.ts` lines 290-340
-- `AI_CLEAR_MEMORY`, `AI_LIST_MEMORY_FILES`, `AI_READ_MEMORY_FILE` use `campaignId` directly in `path.join()`. `campaignId = '../../../'` deletes arbitrary directories.
-- Fix: Sanitize `campaignId` — reject if it contains `..`, `/`, `\`, or is not a valid UUID:
-  ```typescript
-  function sanitizeCampaignId(id: unknown): string {
-    if (typeof id !== 'string' || !/^[a-f0-9-]{36}$/i.test(id)) {
-      throw new Error('Invalid campaign ID')
-    }
-    return id
+---
+
+## 🛠️ Step-by-Step Execution Plan
+
+### Sub-Phase A: CI Validation Pipeline (G1)
+
+**Step 1 — Create CI Workflow**
+- Create `.github/workflows/ci.yml`:
+  ```yaml
+  name: CI
+  on:
+    push:
+      branches: [master]
+    pull_request:
+      branches: [master]
+
+  jobs:
+    validate:
+      runs-on: windows-latest
+      steps:
+        - uses: actions/checkout@v4
+        - uses: actions/setup-node@v4
+          with:
+            node-version: 20
+            cache: npm
+        - run: npm ci
+
+        - name: Type Check
+          run: npx tsc --noEmit
+
+        - name: Lint
+          run: npx biome check src/
+
+        - name: Test
+          run: npx vitest run --reporter=verbose
+  ```
+- This runs on every push to master and every PR targeting master
+- Three validation steps: TypeScript compilation, Biome linting, Vitest tests
+- Uses Windows runner to match the target platform
+
+**Step 2 — Add Build Verification to CI**
+- Add a build step after tests pass:
+  ```yaml
+        - name: Build
+          run: npx electron-vite build
+
+        - name: Verify Build Artifacts
+          run: |
+            if (!(Test-Path out/main/index.js)) { exit 1 }
+            if (!(Test-Path out/renderer/index.html)) { exit 1 }
+          shell: pwsh
+  ```
+- This catches build-time errors that tsc/vitest don't find (e.g., Vite config issues, missing imports in lazy-loaded routes)
+
+### Sub-Phase B: README Overhaul (G2)
+
+**Step 3 — Rewrite README.md**
+- Replace the current barebones README with a comprehensive project README:
+  ```markdown
+  # D&D Virtual Tabletop
+
+  A desktop D&D 5e (2024) Virtual Tabletop built with Electron, React, and PixiJS. Features an AI Dungeon Master, peer-to-peer multiplayer, dynamic maps with fog of war, and a complete character builder.
+
+  ## Quick Start
+
+  ```bash
+  npm install
+  npm run dev
+  ```
+
+  ## Build
+
+  ```bash
+  npm run build:win    # Windows installer
+  npm run build:mac    # macOS (requires macOS)
+  npm run build:linux  # Linux AppImage/deb
+  ```
+
+  ## Tech Stack
+
+  - **Runtime:** Electron 40
+  - **Frontend:** React 19, TypeScript 5.9, Tailwind CSS v4
+  - **Map Engine:** PixiJS 8 (2D), Three.js (3D dice)
+  - **State:** Zustand v5
+  - **Networking:** PeerJS (WebRTC P2P)
+  - **AI:** Ollama (local), Claude, OpenAI, Gemini
+  - **Build:** electron-vite, electron-builder
+
+  ## Project Structure
+
+  ```
+  src/
+    main/       # Electron main process (AI, storage, IPC)
+    preload/    # Preload bridge (context isolation)
+    renderer/   # React app (components, stores, services)
+    shared/     # Shared types and constants
+  BMO-setup/    # Raspberry Pi backend (Discord bot, voice, agents)
+  ```
+
+  ## Environment Variables
+
+  AI API keys are configured in-app via Settings > AI Provider.
+  No `.env` file is required for basic development.
+
+  For Discord integration:
+  - `BMO_PI_URL` — Raspberry Pi backend URL (default: `http://bmo.local:5000`)
+
+  ## Testing
+
+  ```bash
+  npm test              # Run all tests
+  npx vitest run        # Run once
+  npx vitest --ui       # Interactive UI
+  ```
+
+  ## License
+
+  D&D content used under the SRD 5.2 Creative Commons Attribution 4.0 License.
+  See the About page in-app for full licensing details.
+  ```
+- Ensure the README matches current project reality (commands from `package.json`, actual structure)
+
+### Sub-Phase C: Pre-Commit Hooks (G3)
+
+**Step 4 — Install Husky**
+- Run: `npm install --save-dev husky`
+- Initialize: `npx husky init`
+- This creates `.husky/` directory with a sample pre-commit hook
+
+**Step 5 — Configure Pre-Commit Hook**
+- Create `.husky/pre-commit`:
+  ```bash
+  #!/usr/bin/env sh
+  . "$(dirname -- "$0")/_/husky.sh"
+
+  # Run Biome on staged files only (fast)
+  npx biome check --staged --no-errors-on-unmatched src/
+
+  # Type check (full project, ~10-15s)
+  npx tsc --noEmit
+  ```
+- This prevents commits with lint errors or type errors
+- `--staged` flag on Biome only checks files being committed (fast)
+- `tsc --noEmit` is slower but catches cross-file type issues
+
+**Step 6 — Add lint-staged for Performance (Optional)**
+- If the full `tsc --noEmit` is too slow for pre-commit:
+  ```bash
+  npm install --save-dev lint-staged
+  ```
+  ```json
+  // package.json
+  "lint-staged": {
+    "src/**/*.{ts,tsx}": ["biome check --fix"]
   }
   ```
-- Apply to ALL handlers that use `campaignId` in path construction (10+ handlers per the audit).
-
-**Step 2 — NET-12: Path Traversal in CHARACTER_RESTORE_VERSION**
-- File: `src/main/ipc/storage-handlers.ts` lines 91-93
-- `fileName` passed directly to path construction. Fix: sanitize `fileName` — strip path separators, validate format.
-
-**Step 3 — NET-13: BOOK_IMPORT/BOOK_READ_FILE Accept Arbitrary Paths**
-- File: `src/main/ipc/storage-handlers.ts` lines 324-337
-- Add `isPathAllowed()` check (already used by `FS_READ`/`FS_WRITE`).
-
-**Step 4 — NET-14: AI_INSTALL_OLLAMA Unvalidated Installer Path**
-- File: `src/main/ipc/ai-handlers.ts` lines 434-441
-- Validate `installerPath` is within the temp directory or downloads folder.
-
-**Step 5 — NET-15: FS_WRITE_BINARY Missing Size Limit**
-- File: `src/main/ipc/index.ts` lines 197-210
-- Add `MAX_WRITE_CONTENT_SIZE` check matching `FS_WRITE`.
-
-### Sub-Phase B: CRASH PREVENTION (Steps 6-9)
-
-**Step 6 — NET-2/NET-3 [CRITICAL]: Destroyed BrowserWindow Crashes Main Process**
-- File: `src/main/ipc/ai-handlers.ts` lines 162-183, 422-432, 452-462, 484-497
-- All streaming callbacks use `win.webContents.send()` without checking `win.isDestroyed()`.
-- Fix: Add guard to every callback:
-  ```typescript
-  if (win && !win.isDestroyed()) {
-    win.webContents.send(channel, data)
-  }
+  ```bash
+  # .husky/pre-commit
+  npx lint-staged
   ```
-- Apply to `AI_CHAT_STREAM`, `AI_DOWNLOAD_OLLAMA`, `AI_OLLAMA_UPDATE`, `AI_PULL_MODEL`.
+- This only runs Biome on staged files, keeping pre-commit under 3 seconds
 
-**Step 7 — RUN-1/NET-7 [CRITICAL]: JSON.parse Without Try-Catch in Data Loader**
-- File: `src/main/ipc/game-data-handlers.ts` lines 28-29
-- `GAME_LOAD_JSON` handler: wrap `JSON.parse(content)` in try-catch:
-  ```typescript
-  try {
-    return JSON.parse(content)
-  } catch (err) {
-    logToFile(`[game-data] Failed to parse ${filePath}: ${err}`)
-    return null
-  }
+### Sub-Phase D: Branching Strategy (G4)
+
+**Step 7 — Document Branching Convention**
+- Add to README or create `CONTRIBUTING.md`:
+  ```markdown
+  ## Branching Strategy
+
+  - `master` — stable, release-ready code
+  - `feature/*` — new features (e.g., `feature/bastion-bp-system`)
+  - `fix/*` — bug fixes (e.g., `fix/exhaustion-long-rest`)
+  - `refactor/*` — code cleanup (e.g., `refactor/unify-settings-store`)
+
+  ### Workflow
+  1. Create a feature/fix branch from `master`
+  2. Make changes, commit with conventional commit messages
+  3. Push and create a Pull Request
+  4. CI runs automatically on the PR
+  5. Merge to `master` after review
   ```
+- This is a documented convention, not enforced by tooling. Branch protection rules can be added later on GitHub.
 
-**Step 8 — GUI-1 [CRITICAL]: Conditional Hooks in PlayerHUDOverlay**
-- File: `src/renderer/src/components/game/overlays/PlayerHUDOverlay.tsx` line 82
-- Early return `if (!character) return <></>` BEFORE hooks at lines 86, 96, 118, 153+.
-- Fix: Move ALL hooks above the early return. Guard their usage with `character` checks inside:
-  ```typescript
-  // ALL hooks FIRST
-  const memoized = useMemo(() => character ? compute(character) : null, [character])
-  const callback = useCallback(() => { if (!character) return; /* ... */ }, [character])
-  // THEN the early return
-  if (!character) return null
+### Sub-Phase E: Workspace Cleanup (G5)
+
+**Step 8 — Add Phase Research Files to .gitignore**
+- The Phase analysis files (`Phase1_GeminiPro.md`, `Phase2_ClaudeOpus.md`, etc.) and plan files (`Phase1_Plan.md`, etc.) clutter the root
+- Add to `.gitignore`:
   ```
-
-**Step 9 — SYN-1 [CRITICAL]: JSX in .ts File**
-- Rename `src/renderer/src/utils/chat-links.ts` to `src/renderer/src/utils/chat-links.tsx`
-- Update ALL imports across the codebase that reference `chat-links`.
-
-### Sub-Phase C: GAME LOGIC FIXES (Steps 10-18)
-
-**Step 10 — LOG-1 [HIGH]: Champion Fighter Crit Range Never Applied**
-- File: `src/renderer/src/services/combat/attack-resolver.ts` line 481
-- Replace `const isCrit = attackRoll === 20` with:
-  ```typescript
-  import { getCritThreshold } from './crit-range'
-  const critThreshold = getCritThreshold(attacker)
-  const isCrit = attackRoll >= critThreshold
+  # Phase research and plan files
+  Phase*_*.md
   ```
-- Also fix in `combat-resolver.ts` line 452 if it has the same hardcoded check.
+- Or move them to a dedicated directory: `docs/research/`
+- These are research artifacts, not part of the application source
 
-**Step 11 — LOG-2 [HIGH]: Critical Hit Only Doubles First Dice Group**
-- File: `src/renderer/src/services/combat/combat-resolver.ts` lines 870-875
-- `doubleDiceInFormula()` uses regex without `g` flag.
-- Fix: `formula.replace(/(\d*)d(\d+)/g, ...)`
-
-**Step 12 — LOG-3 [HIGH]: isInMeleeRange Ignores Token Size**
-- File: `src/renderer/src/services/combat/combat-rules.ts` lines 291-301
-- Fix: Iterate all occupied cells (like `isAdjacent()` at line 198 already does):
-  ```typescript
-  function isInMeleeRange(attacker: MapToken, target: MapToken, reach: number, cellSize: number): boolean {
-    for (let ax = 0; ax < attacker.sizeX; ax++) {
-      for (let ay = 0; ay < attacker.sizeY; ay++) {
-        for (let tx = 0; tx < target.sizeX; tx++) {
-          for (let ty = 0; ty < target.sizeY; ty++) {
-            const dist = gridDistance(attacker.gridX + ax, attacker.gridY + ay, target.gridX + tx, target.gridY + ty) * cellSize / cellSize * 5
-            if (dist <= reach) return true
-          }
-        }
-      }
-    }
-    return false
-  }
+**Step 9 — Update Release Workflow**
+- Open `.github/workflows/release.yml`
+- Ensure it runs the full build chain including `prerelease` and `build:index`:
+  ```yaml
+  - name: Build and Release
+    run: npm run release
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
   ```
-
-**Step 13 — LOG-4 [HIGH]: Area Effect Saves Ignore Target Modifiers**
-- File: `src/renderer/src/services/game-actions/creature-conditions.ts` lines 113-115
-- File: `src/renderer/src/services/game-actions/creature-actions.ts` lines 256-258
-- Fix: Look up target's save modifier from token stats or linked stat block:
-  ```typescript
-  const saveMod = getCreatureSaveMod(target, saveAbility) // DEX, CON, etc.
-  const saveRoll = rollDiceFormula('1d20')
-  const saved = (saveRoll.total + saveMod) >= saveDC
-  ```
-- Create `getCreatureSaveMod(token, ability)` that reads from `monsterStatBlockId` or token properties.
-
-**Step 14 — LOG-5 [HIGH]: Cone AoE Uses Square Geometry**
-- File: `src/renderer/src/services/game-actions/dice-helpers.ts` lines 46-49
-- The `'cone'` case falls through to `'cube'` logic.
-- Fix: Use the existing `getConeCells()` from `aoe-targeting.ts`:
-  ```typescript
-  case 'cone':
-    return getConeCells(origin, direction, radius, cellSize)
-  ```
-
-**Step 15 — LOG-7 [MEDIUM]: Thrown Weapons Always Classified as Melee**
-- File: `src/renderer/src/services/combat/attack-resolver.ts` lines 70-72
-- Fix: `isMeleeWeapon()` should check if the attack is actually at range:
-  ```typescript
-  function isMeleeWeapon(weapon, attackDistance?: number): boolean {
-    if (attackDistance && attackDistance > 5 && weapon.properties.some(p => p.toLowerCase() === 'thrown')) {
-      return false // thrown at range = ranged attack
-    }
-    return !weapon.range || weapon.properties.some(p => p.toLowerCase() === 'thrown')
-  }
-  ```
-
-**Step 16 — LOG-8 [MEDIUM]: Exhaustion Death at Level 6 Uses 2014 Rule**
-- File: `src/renderer/src/stores/game/conditions-slice.ts` lines 21, 47
-- The 2024 PHB removed the "exhaustion 6 = death" rule. Remove the death trigger.
-- Keep the cumulative -2 penalty per level (already in `attack-condition-effects.ts:90`).
-
-**Step 17 — LOG-10 [MEDIUM]: removeFromInitiative Shifts Active Turn Wrong**
-- File: `src/renderer/src/stores/game/initiative-slice.ts` lines 265-288
-- Fix: Track active entry by `entityId`, not by index. After removal, find the tracked entity's new index.
-
-**Step 18 — LOG-12 [MEDIUM]: Initiative Validator Checks label Instead of entityName**
-- File: `src/renderer/src/services/game-actions/action-validator.ts` line 104
-- Fix: Change `e.label?.toLowerCase()` to `e.entityName?.toLowerCase()`.
-- Remove the type cast `{ label?: string }` that masked the error.
-
-### Sub-Phase D: ERROR HANDLING HARDENING (Steps 19-24)
-
-**Step 19 — NET-5 [HIGH]: Unguarded JSON.stringify in Broadcast**
-- File: `src/renderer/src/network/host-manager.ts` lines 321, 329, 342
-- Wrap `JSON.stringify(msg)` in try-catch in all broadcast functions.
-
-**Step 20 — NET-6/NET-29/NET-30: Add Try-Catch to All IPC Handlers**
-- File: `src/main/ipc/ai-handlers.ts` — 27+ handlers
-- File: `src/main/ipc/storage-handlers.ts` — 34 handlers
-- File: `src/main/ipc/plugin-handlers.ts` — 10 handlers
-- Pattern: Wrap each handler body in try-catch returning `StorageResult` or `{ success: false, error }`.
-- This is a bulk operation — apply consistently to ALL handlers in these files.
-
-**Step 21 — NET-8 [HIGH]: Add Timeouts to Cloud API Calls**
-- Files: `claude-client.ts`, `openai-client.ts`, `gemini-client.ts`
-- Add `AbortSignal.timeout(120_000)` (matching Ollama's timeout) to all `streamChat` and `chatOnce` calls.
-
-**Step 22 — NET-10 [HIGH]: Replace writeFileSync with Async Write**
-- File: `src/main/ai/ai-service.ts` lines 244-256
-- Replace `writeFileSync` with `await writeFile` (async). This unblocks the main process.
-
-**Step 23 — RUN-2 [HIGH]: Add .catch() to Builder Selection Slice**
-- File: `src/renderer/src/stores/builder/slices/selection-slice.ts` lines 170, 227, 247, 279
-- Add `.catch()` to all `load5eSpecies().then()`, `load5eBackgrounds().then()`, `load5eClasses().then()`.
-
-**Step 24 — RUN-3/RUN-5 [HIGH]: Add .catch() to Dynamic Imports**
-- File: `src/renderer/src/stores/use-ai-dm-store.ts` lines 136-138
-- File: `src/renderer/src/hooks/use-game-effects.ts` lines 334, 349
-- Add `.catch()` to all `import('...').then()` calls.
-
-### Sub-Phase E: GUI FIXES (Steps 25-28)
-
-**Step 25 — GUI-2 [HIGH]: DmAlertTray Subscription Leak**
-- File: `src/renderer/src/components/game/overlays/DmAlertTray.tsx` lines 33-38
-- Fix: Return cleanup function from `useEffect`, not as initial state.
-
-**Step 26 — GUI-4 [HIGH]: Three.js Resource Leaks Per Dice Roll**
-- File: `src/renderer/src/components/game/dice3d/DiceRenderer.tsx` lines 129-134
-- File: `dice-textures.ts` lines 6-73
-- File: `dice-physics.ts` lines 91-148
-- Fix: Call `.geometry.dispose()`, `.material.dispose()`, `.texture.dispose()` in `clearDice()`.
-
-**Step 27 — GUI-7 [HIGH]: RulingApprovalModal Cannot Be Dismissed**
-- File: `src/renderer/src/components/game/modals/utility/RulingApprovalModal.tsx` lines 50-109
-- Add Escape key handler, backdrop click handler, and a "Dismiss" button.
-
-**Step 28 — GUI-8 [HIGH]: 11 Modals Missing Escape Key Handling**
-- Files: `NarrowModalShell.tsx`, `LightSourceModal.tsx`, `TimeEditModal.tsx`, `SentientItemModal.tsx`, `NetworkSettingsModal.tsx`, `WhisperModal.tsx`, `HandoutModal.tsx`, `DMNotesModal.tsx`, `SharedJournalModal.tsx`, `ConfirmDialog.tsx`
-- Add `useEffect` with `keydown` listener for Escape in each, or migrate them to use the shared `Modal` component that already handles Escape.
-
-### Sub-Phase F: TYPE SAFETY (Steps 29-30)
-
-**Step 29 — TYP-1/TYP-2 [HIGH]: Missing Preload Type Declarations**
-- File: `src/preload/index.d.ts`
-- Add `discord` and `cloudSync` namespace declarations matching the runtime API.
-- Add `listCloudModels`, `validateApiKey`, `syncWorldState`, `syncCombatState` to `AiAPI` type.
-
-**Step 30 — TYP-3/TYP-4 [MEDIUM]: Zod Bypass and Type Cast Masking**
-- `ai-handlers.ts` line 75: Change `aiService.configure(config)` to `aiService.configure(parsed.data)`.
-- `action-validator.ts` line 104: Remove `{ label?: string }` cast, use `e.entityName` (covered by Step 18).
-
-### Sub-Phase G: MEDIUM/LOW PRIORITY CATALOGUE (For future reference — do NOT block on these)
-
-The remaining 122 medium/low issues are catalogued for future cleanup sprints:
-- **22 Biome lint warnings** (useHookAtTopLevel in 13 files) — most are false positives or require refactoring
-- **6 exhaustive dependency warnings** in MapCanvas — review but may be intentional
-- **30 medium network issues** (NET-21 through NET-50) — error handling and validation gaps
-- **25 medium GUI issues** (GUI-12 through GUI-36) — loading states, index keys, dark mode
-- **12 medium runtime issues** (RUN-10 through RUN-21) — Promise.all failures, non-null assertions
-- **10 low logical issues** (LOG-16 through LOG-25) — condition timing, Math.random() inconsistency, movement edge cases
-- **8 low GUI issues** (GUI-37 through GUI-44) — minor styling
-- **18 low network issues** (NET-51 through NET-68) — minor cleanup
+- Verify that the `release` script in `package.json` (fixed in Phase 19 Step 4) includes `prerelease` and `build:index`
 
 ---
 
 ## ⚠️ Constraints & Edge Cases
 
-### Security Fixes
-- **Path sanitization must be defense-in-depth**: Validate format (UUID regex) AND check that the resolved path is within the expected directory (`path.resolve(base, id).startsWith(base)`).
-- **Do NOT break existing campaigns**: The UUID validation regex must accept the format already used by existing campaign IDs.
+### CI Pipeline
+- **Windows runner**: The CI must use `windows-latest` because the app targets Windows and uses Windows-specific dependencies. If Mac/Linux builds are added (Phase 19), add matrix builds.
+- **npm ci**: Use `npm ci` (not `npm install`) in CI for reproducible builds from `package-lock.json`.
+- **Test timeout**: Vitest tests may timeout on slower CI runners. Set `--timeout 30000` if needed.
+- **Biome config**: Ensure `biome.json` exists at the project root. If Biome is configured via `package.json`, that works too.
 
-### Crash Prevention
-- **`win.isDestroyed()` must be checked BEFORE `win.webContents`** — accessing `webContents` on a destroyed window also throws.
-- **JSON.parse fallback**: When corrupt data is detected, log the file path and return `null`. The caller must handle `null` gracefully — check all callsites of `GAME_LOAD_JSON`.
+### Pre-Commit Hooks
+- **Husky requires `.git` directory**: Only works in git repos. `npx husky init` will fail if not a git repo.
+- **Skip hooks**: Developers can bypass with `git commit --no-verify` for emergency commits. This is acceptable — CI catches issues on push.
+- **Performance**: `tsc --noEmit` on the full project takes 10-15 seconds. If this is too slow, remove it from pre-commit and rely on CI for type checking.
 
-### Game Logic
-- **Champion crit range**: `getCritThreshold()` needs access to the attacker's class and level. Verify this data is available in the attack resolution context.
-- **Area effect saves**: `getCreatureSaveMod()` for monsters needs the stat block. If the monster token doesn't have a linked stat block, fall back to +0 (current behavior) but log a warning.
-- **Exhaustion 2024**: Removing the level 6 death trigger is correct for 2024 rules. If users want the 2014 rule, add it as a campaign setting option.
+### README
+- **Keep it concise**: The README should be a quick-start guide, not full documentation. Link to `CLAUDE.md` for detailed developer setup if needed.
+- **Do NOT include API keys or secrets** in the README. Reference in-app settings for AI provider configuration.
 
-### Error Handling Bulk Fix
-- **IPC handler try-catch**: Use a wrapper function to avoid boilerplate:
-  ```typescript
-  function safeHandler<T>(fn: (...args: unknown[]) => Promise<T>) {
-    return async (...args: unknown[]) => {
-      try { return await fn(...args) }
-      catch (err) { return { success: false, error: String(err) } }
-    }
-  }
-  ```
-- Apply to all 71+ IPC handlers across 3 files.
+### Branching
+- **Solo developer workflow**: The branching strategy is advisory. For a solo project, direct pushes to master are common. The value is in establishing the pattern for when contributors join.
+- **Branch protection**: Can be enabled on GitHub: require CI to pass before merging to master. This is a GitHub settings change, not a code change.
 
-Begin implementation now. **Start with Sub-Phase A (Steps 1-5) — security fixes are non-negotiable.** Then Sub-Phase B (Steps 6-9) for crash prevention. Then Sub-Phase C (Steps 10-18) for game logic correctness. Error handling (Sub-Phase D) and GUI fixes (Sub-Phase E) come last.
+Begin implementation now. Start with Sub-Phase A (Steps 1-2) for the CI pipeline — this is the highest-impact change for code quality assurance. Then Sub-Phase B (Step 3) for the README rewrite. Sub-Phase C (Steps 4-6) for pre-commit hooks is quick to set up.

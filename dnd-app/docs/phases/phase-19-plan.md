@@ -1,337 +1,313 @@
-# Phase 19 — Cloud Host (Pi-as-host)
+# SYSTEM OVERRIDE: IMPLEMENTATION MODE
+You are Claude Opus 4.6 Max. Your job is to execute the following architectural plan for Phase 19 of the D&D VTT project.
 
-> Pi implements `GameAuthority` (Phase 17) speaking the shard protocol (Phase 18). Game creators get a "Local (P2P)" vs "Cloud (Pi)" toggle. Cloud mode = game persists across all client disconnects, accessible from anywhere, hosted by infrastructure instead of a player's machine.
->
-> Renumbered from "Phase D" in conversation planning. Depends on **Phase 17** (Player-as-Host rewrite) and **Phase 18** (Live-state sync overhaul) landing first.
-
----
-
-## Context
-
-By the time Phase 19 starts, the prerequisites are in place:
-
-- **Phase 16** has made all permissions data-driven (no hardcoded role checks).
-- **Phase 17** has consolidated host-side logic into a single `GameAuthority` module behind a `TransportAdapter` interface. "The host" is no longer tied to whoever started the game.
-- **Phase 18** has unified all state sync into one shard protocol. Adding cloud sync means implementing ONE protocol on the Pi, not 30 feature-specific message handlers.
-
-This phase plugs the Pi into those abstractions:
-
-- **Pi-side `GameAuthority` implementation** in Python (in the existing `bmo/pi/services/` directory pattern).
-- **WebSocket transport** as a new `TransportAdapter` implementation. Authority logic on both sides is identical — just the transport changes.
-- **Per-campaign cloud-host toggle.** Local P2P stays as the default; cloud is opt-in. No forced migration.
-
-What you and your friend get out of it:
-
-- **Game survives disconnect.** Pi keeps running. DM can step away, close laptop, change devices. State persists.
-- **Cross-network is the default.** Pi has a stable address (Cloudflare Tunnel already in place). No NAT-traversal pain for new players.
-- **Spectator scaling.** Pi can fan out broadcasts to N spectators more efficiently than a single client machine.
-- **Event log / audit / replay.** Pi logs every shard delta for the whole campaign. Easy to debug "what happened on turn 47?"
-
-What it costs:
-
-- **Latency.** Pi adds ~20–50ms RTT vs LAN-direct P2P. Fine for D&D pacing; noticeable for fast-twitch (dice animations, rapid drawing).
-- **Pi is a single point of failure.** One Pi reboot takes down all cloud-hosted games. Local P2P stays as the alternative.
-- **Voice doesn't move.** When voice chat lands (sometime after the Phase 17r mic settings get a consumer), it stays peer-to-peer or via SFU — not through Pi.
+Phase 19 covers **Packaging, Build Configuration, and Distribution** — Electron build toolchain, NSIS installer, auto-updater, code signing, platform targets, and asset paths. The audit found the Windows build pipeline functional but identified a **critical packaged path bug** in `srd-provider.ts`, missing Mac/Linux targets, no code signing, and a `release` script that doesn't clean stale artifacts.
 
 ---
 
-## Sub-phase summary
+## 🏗️ Architecture & Environment Split
 
-| # | Sub-phase | Scope |
-|---|-----------|-------|
-| 19a | Pi-side `GameAuthority` service skeleton | New Python service in `bmo/pi/services/game_server.py`. Same external contract as the TS authority |
-| 19b | WebSocket transport — Pi side | Flask-SocketIO endpoint (matches existing Pi service pattern); campaign room management |
-| 19c | WebSocket transport — client side | New `WebSocketTransport` adapter slotting into Phase 17's `TransportAdapter` interface |
-| 19d | Shard protocol port — Pi side | Same shard message types from Phase 18; Pi validates against Phase 16 permissions |
-| 19e | Pi-side persistence | Event sourcing — per-campaign delta log + periodic snapshots; replay on restart |
-| 19f | Authentication | Per-campaign session tokens; JWT validation on every WS frame; Cloudflare Tunnel for WAN |
-| 19g | Game-creation UI: Local vs Cloud toggle | New game flow picks the host destination; default Local for backwards compat |
-| 19h | Migrate-running-game flow | "Move this game to cloud" button leverages Phase 17 host-transfer protocol |
-| 19i | Pi admin surface in BMO | Hosted Games tab — list rooms, view event logs, archive / kick |
-| 19j | Auto-resume / catch-up | Client reconnect → Phase 18's replay protocol handles missed deltas |
-| 19k | Voice transport boundary | Document: voice stays P2P even when game state is cloud-hosted |
-| 19l | Stability + monitoring | Pi-side metrics (active rooms, peer counts, delta rates, errors); auto-archive of idle rooms |
+### Windows 11 Machine (`C:\Users\evilp\dnd\`) — ALL WORK IS HERE
 
-12 sub-phases. Each ends with the 4-gate suite (lint + tsc-web + tsc-node + vitest) AND the BMO pytest suite. One release: **v6.0.0** (major bump — new opt-in deployment mode).
+Phase 19 is entirely build/config work on the Windows machine.
 
----
+**Build System Files:**
 
-## Sub-phase details
+| File | Role | Issues |
+|------|------|--------|
+| `package.json` | Build scripts (lines 6-22), electron-builder config (lines 62-105) | Windows only; `release` doesn't run `prerelease`; `signAndEditExecutable: true` but no cert config |
+| `electron.vite.config.ts` | Vite config for main/preload/renderer | `__APP_VERSION__` injection, `manualChunks` |
+| `resources/installer.nsh` | Custom NSIS macros for upgrade hardening | Functional |
+| `resources/icon.ico` | App icon (~360KB) | Present |
+| `resources/icon.png` | App icon PNG (~46KB) | Present |
+| `scripts/prerelease-clean.mjs` | Cleans `dist/` before build | Not called by `release` script |
+| `scripts/build-chunk-index.mjs` | Builds AI chunk index from reference files | Depends on gitignored `5.5e References/` |
 
-### 19a — Pi-side `GameAuthority` service skeleton
+**Path Bug Files:**
 
-**Files (new — `bmo/pi/services/`):**
-- `game_server.py` — main service. Patterns after the existing Pi services (Flask gevent, threaded coroutines per active game). Exposes:
-  - `GET /api/games/<campaign_id>` — room status (active peers, last activity).
-  - `POST /api/games/<campaign_id>/start` — start hosting a campaign (provisioned with initial snapshot).
-  - `POST /api/games/<campaign_id>/stop` — graceful shutdown (final snapshot, disconnect peers).
-  - `GET /api/games/<campaign_id>/log` — event log paged by sequence.
-- `game_authority.py` — Python class with the same external contract as the TypeScript `GameAuthority` from Phase 17:
-  - `apply_action(actor, action) → { accepted, broadcast }`
-  - `get_snapshot(for_peer) → state`
-  - `add_peer(peer_info)`, `remove_peer(peer_id)`
-  - `validate(actor, action) → bool` (Python port of `hasPermission`)
-- `room.py` — per-campaign room state (in-memory authority + connected peer list + log handle).
+| File | Lines | Issue |
+|------|-------|-------|
+| `src/main/ai/srd-provider.ts` | 6-8 | **CRITICAL**: Packaged path uses `renderer/public/data/5e` — should be `renderer/data/5e` (Vite strips `public/` prefix) |
+| `src/main/ai/context-builder.ts` | 27 | Uses `__dirname` (covered by Phase 6 Step 7 — overlap) |
 
-**Files (modify):**
-- `bmo/pi/app.py` — register `game_server` blueprint, add CORS for the WS upgrade path.
-- `bmo/setup-bmo.sh` — ensure the systemd unit includes the game-server. New dependency: `flask-socketio` (or `gevent-websocket` — pick at this phase).
-- `bmo/docs/SERVICES.md` — document the new service.
+**Updater:**
 
-**Acceptance:**
-- Service starts on Pi boot.
-- `curl http://pi-host/api/games/foo` returns 404 (no rooms yet).
-- `pytest bmo/pi/tests/test_game_server.py` covers room create / stop / status.
+| File | Role |
+|------|------|
+| `src/main/updater.ts` | electron-updater wrapper, on-demand check/download/install |
+| `src/renderer/src/components/ui/UpdatePrompt.tsx` | Floating update banner |
+| `src/renderer/src/pages/AboutPage.tsx` | Full update flow UI (lines 139-220) |
+
+### Raspberry Pi (`patrick@bmo`) — NO WORK THIS PHASE
 
 ---
 
-### 19b — WebSocket transport — Pi side
+## 📋 Core Objectives
 
-**Files (modify — `bmo/pi/services/game_server.py`):**
-- Flask-SocketIO endpoint at `/ws/games/<campaign_id>`. Connection handshake includes the session token (from 19f).
-- Per-campaign Socket.IO room mapping. Inbound message → `GameAuthority.apply_action`. Authority result's `broadcast` payload → `socketio.emit(...)` to room.
-- Peer join: `socketio.join_room(campaign_id)` + `authority.add_peer(peer_info)` + send initial snapshot.
-- Peer leave: graceful disconnect handler + `authority.remove_peer(peer_id)`.
+### CRITICAL
 
-**Acceptance:**
-- `wscat -c ws://pi-host/ws/games/<id>` connects (auth permitting).
-- Multiple peers in the same campaign get each other's messages.
-- Peer disconnect → room state cleans up correctly.
+| # | Issue | Impact |
+|---|-------|--------|
+| P1 | `srd-provider.ts` packaged path includes `public/` — AI SRD lookups fail in production | AI DM has no spell/monster/rule data in packaged build |
 
----
+### IMPORTANT
 
-### 19c — WebSocket transport — client side
+| # | Issue | Impact |
+|---|-------|--------|
+| P2 | `release` script doesn't run `prerelease` — stale dist artifacts affect delta updates | Update delivery unreliable |
+| P3 | No code signing — Windows SmartScreen blocks unsigned installers | Users see "Windows protected your PC" warning |
+| P4 | Mac/Linux not supported — Windows-only build targets | Cannot distribute to non-Windows users |
 
-**Files (new):**
-- `dnd-app/src/renderer/src/network/transport/websocket-transport.ts` — implements the `TransportAdapter` interface from Phase 17. Same `send / broadcast / onMessage / onPeerJoin / onPeerLeave / disconnect / close` surface. Uses native `WebSocket` API (Electron renderer can use it directly) or `socket.io-client` if we go the Flask-SocketIO route.
+### MINOR
 
-**Files (modify):**
-- `network-store/index.ts` — `hostGame` action gains a parameter `{ mode: 'local' | 'cloud' }`. Picks `P2PTransport` or `WebSocketTransport` accordingly.
-
-**Acceptance:**
-- Client connects to Pi-hosted game via WebSocket.
-- Authority logic on Pi is invoked correctly.
-- Same gameplay works as in local P2P mode.
+| # | Issue | Impact |
+|---|-------|--------|
+| P5 | `5.5e References/` gitignored — chunk index may be empty | AI features degraded on clean clones |
+| P6 | `context-builder.ts` dev path (Phase 6 overlap) | Non-fatal, covered by try-catch |
 
 ---
 
-### 19d — Shard protocol port — Pi side
+## 🛠️ Step-by-Step Execution Plan
 
-**Files (new — `bmo/pi/services/`):**
-- `shards.py` — Python port of the shard registry from Phase 18. Each shard is a Python class with:
-  - `source` — extracts current value from authority state.
-  - `diff` — structural diff (Python port of Phase 18b's diff engine — simpler in Python because dict-based).
-  - `apply_delta` — mutates authority state.
-  - `permission_filter` — Python port; reads Phase 16 permissions from campaign data.
-- One shard per file: `shards/chat.py`, `shards/map_tokens.py`, etc., mirroring the TS structure.
+### Sub-Phase A: Fix Critical Packaged Path (P1)
 
-**Files (modify):**
-- `game_authority.py` — runs the shard registry. Subscribes to state mutations, diffs, emits `state:delta` over WebSocket per-peer.
+**Step 1 — Fix srd-provider.ts Packaged Path**
+- Open `src/main/ai/srd-provider.ts`
+- Find lines 6-8:
+  ```typescript
+  if (app.isPackaged) {
+    return join(process.resourcesPath, 'app.asar', 'renderer', 'public', 'data', '5e')
+  }
+  ```
+- Remove `'public'` from the path:
+  ```typescript
+  if (app.isPackaged) {
+    return join(process.resourcesPath, 'app.asar', 'renderer', 'data', '5e')
+  }
+  ```
+- **Rationale**: electron-vite copies `src/renderer/public/` contents to `out/renderer/` root. The `public/` directory name is stripped. When electron-builder packages `out/` into `app.asar`, the structure is `app.asar/renderer/data/5e/`, not `app.asar/renderer/public/data/5e/`.
 
-**Acceptance:**
-- All Phase 18 shards have Python implementations.
-- A round-trip test: client sends chat → Pi receives → shard system → broadcasts back → client applies → message appears for all peers.
-- Permission filtering works identically to the TS authority (hidden tokens stay hidden for non-DM peers).
+**Step 2 — Verify All Packaged Paths**
+- Search the entire `src/main/` directory for any path that includes `'public'` when packaged:
+  ```
+  grep -r "public.*data" src/main/
+  ```
+- Verify `context-builder.ts` line 27 (Phase 6 overlap — may already be fixed)
+- Verify `chunk-builder.ts` line 287 uses `process.resourcesPath` correctly for `chunk-index.json`
+- Verify `game-data-handlers.ts` resolves data paths correctly in packaged mode
+
+**Step 3 — Create Path Utility**
+- Create a shared utility for resolving data paths in both dev and packaged:
+  ```typescript
+  // src/main/paths.ts
+  import { app } from 'electron'
+  import { join } from 'node:path'
+  import { is } from '@electron-toolkit/utils'
+
+  export function getDataDir(): string {
+    if (is.dev) {
+      return join(__dirname, '..', '..', 'renderer', 'public', 'data', '5e')
+    }
+    return join(process.resourcesPath, 'app.asar', 'renderer', 'data', '5e')
+  }
+
+  export function getResourcePath(relativePath: string): string {
+    if (is.dev) {
+      return join(__dirname, '..', '..', relativePath)
+    }
+    return join(process.resourcesPath, relativePath)
+  }
+  ```
+- Replace all direct path constructions in `srd-provider.ts`, `context-builder.ts`, `chunk-builder.ts`, and `game-data-handlers.ts` with calls to this utility
+
+### Sub-Phase B: Fix Release Script (P2)
+
+**Step 4 — Integrate Prerelease into Release**
+- Open `package.json`
+- Find the `release` script
+- Modify to include `prerelease` and `build:index`:
+  ```json
+  "release": "npm run prerelease && npm run build:index && electron-vite build && electron-builder --win --publish always"
+  ```
+- This ensures:
+  1. `dist/` is cleaned (no stale blockmaps)
+  2. AI chunk index is rebuilt
+  3. App is compiled
+  4. Package is built and published
+
+**Step 5 — Add Build Verification Script**
+- Create `scripts/verify-build.mjs`:
+  ```javascript
+  // Verify required files exist after build
+  const required = [
+    'out/main/index.js',
+    'out/preload/index.mjs',
+    'out/renderer/index.html',
+    'out/renderer/data/5e/spells/spells.json',
+    'resources/chunk-index.json'
+  ]
+  for (const file of required) {
+    if (!existsSync(file)) {
+      console.error(`Missing required file: ${file}`)
+      process.exit(1)
+    }
+  }
+  console.log('Build verification passed')
+  ```
+- Add to release script: `npm run verify-build` after `electron-vite build` but before `electron-builder`
+
+### Sub-Phase C: Code Signing Setup (P3)
+
+**Step 6 — Document Code Signing Configuration**
+- The `signAndEditExecutable: true` setting in `package.json` line 89 is already enabled
+- electron-builder expects environment variables:
+  - `CSC_LINK` — path to PFX/P12 certificate file
+  - `CSC_KEY_PASSWORD` — certificate password
+- Create a `.env.signing.template` file (NOT committed, added to .gitignore):
+  ```
+  # Windows Code Signing (required for production builds)
+  # Obtain a code signing certificate from DigiCert, Sectigo, or similar CA
+  CSC_LINK=path/to/certificate.pfx
+  CSC_KEY_PASSWORD=your-certificate-password
+  ```
+- Add to `package.json` build section as comment or README instruction
+- For immediate use without a purchased certificate: set `signAndEditExecutable: false` to avoid build errors when no cert is present
+
+**Step 7 — Conditional Signing**
+- Modify the build config to gracefully handle missing certificates:
+  ```json
+  "win": {
+    "signAndEditExecutable": false,
+    "sign": "./scripts/sign.mjs"
+  }
+  ```
+- Create `scripts/sign.mjs`:
+  ```javascript
+  // Only sign if CSC_LINK is set; skip silently otherwise
+  export default async function sign(configuration) {
+    if (!process.env.CSC_LINK) {
+      console.log('Skipping code signing (CSC_LINK not set)')
+      return
+    }
+    // Default signing behavior
+    const { signWindows } = await import('electron-builder')
+    return signWindows(configuration)
+  }
+  ```
+
+### Sub-Phase D: Mac/Linux Platform Targets (P4)
+
+**Step 8 — Add macOS Build Configuration**
+- Open `package.json`
+- Add `mac` section to the build config:
+  ```json
+  "mac": {
+    "category": "public.app-category.games",
+    "target": ["dmg", "zip"],
+    "icon": "resources/icon.png",
+    "hardenedRuntime": true,
+    "gatekeeperAssess": false
+  },
+  "dmg": {
+    "contents": [
+      { "x": 130, "y": 220 },
+      { "x": 410, "y": 220, "type": "link", "path": "/Applications" }
+    ]
+  }
+  ```
+- Add build script: `"build:mac": "npm run build:index && electron-vite build && electron-builder --mac"`
+- Note: macOS builds require running on a Mac (cross-compilation not supported for DMG/notarization)
+
+**Step 9 — Add Linux Build Configuration**
+- Add `linux` section:
+  ```json
+  "linux": {
+    "target": ["AppImage", "deb"],
+    "category": "Game",
+    "icon": "resources/icon.png"
+  }
+  ```
+- Add build script: `"build:linux": "npm run build:index && electron-vite build && electron-builder --linux"`
+- Linux builds can be cross-compiled from Windows using Docker (electron-builder supports this)
+
+**Step 10 — Platform-Specific Path Fixes**
+- The `getDataDir()` utility from Step 3 handles path differences
+- Verify `app.getPath('userData')` works correctly on all platforms:
+  - Windows: `%APPDATA%/dnd-vtt/`
+  - macOS: `~/Library/Application Support/dnd-vtt/`
+  - Linux: `~/.config/dnd-vtt/`
+- Verify all `path.join()` calls use forward slashes or `path.sep` for cross-platform compatibility
+- Check for any Windows-specific paths (e.g., backslashes, drive letters) hardcoded in the codebase
+
+### Sub-Phase E: Chunk Index Resilience (P5)
+
+**Step 11 — Handle Missing 5.5e References Gracefully**
+- Open `scripts/build-chunk-index.mjs`
+- If `5.5e References/` directory doesn't exist, output a valid but empty chunk index:
+  ```javascript
+  if (!existsSync(REFERENCES_DIR)) {
+    console.warn('5.5e References directory not found — generating empty chunk index')
+    writeFileSync(OUTPUT, JSON.stringify({ chunks: [], version: 1 }))
+    process.exit(0)
+  }
+  ```
+- This ensures `npm run build:index` never fails, even on clean clones without reference files
+- The AI will operate with reduced context (no SRD chunks) but won't crash
+
+**Step 12 — Add Chunk Index to .gitattributes**
+- `resources/chunk-index.json` is gitignored (correct — it's a build artifact)
+- Add a note in the README or CONTRIBUTING.md explaining that `build:index` must be run before the first build
+- Consider checking in a minimal default `chunk-index.json` with basic rules/glossary
+
+### Sub-Phase F: Updater Robustness
+
+**Step 13 — Add Automatic Update Check on Startup**
+- Open `src/main/updater.ts`
+- Currently update checks are on-demand only
+- Add an optional background check after app startup (with 30-second delay to avoid blocking startup):
+  ```typescript
+  export function scheduleUpdateCheck() {
+    setTimeout(async () => {
+      try {
+        const result = await autoUpdater.checkForUpdates()
+        if (result?.updateInfo) {
+          // Notify renderer about available update
+          BrowserWindow.getAllWindows()[0]?.webContents.send(
+            IPC_CHANNELS.UPDATE_STATUS,
+            { status: 'update-available', version: result.updateInfo.version }
+          )
+        }
+      } catch {
+        // Silently fail — user can check manually
+      }
+    }, 30_000)
+  }
+  ```
+- Call from `src/main/index.ts` after app initialization
+- Respect a user setting: `checkForUpdatesOnStartup: boolean` (default: true)
 
 ---
 
-### 19e — Pi-side persistence
+## ⚠️ Constraints & Edge Cases
 
-**Files (new):**
-- `bmo/pi/data/games/<campaign_id>/` — per-campaign data directory.
-- Inside each: `snapshot.json` (latest snapshot) + `events.log` (append-only JSONL of every shard delta with sequence number).
-- `bmo/pi/services/persistence.py` — write-behind snapshotting (every N=100 events or every 60 seconds, whichever first). Tail-event reads for resync.
+### Packaged Paths
+- **ASAR archive**: When packaged, most app files are inside `app.asar`. Use `process.resourcesPath` + `app.asar` for ASAR contents, or `app.getAppPath()` which returns the ASAR root directly.
+- **Unpacked files**: `extraResources` files (icon, chunk-index) are OUTSIDE the ASAR at `process.resourcesPath/`. Don't prepend `app.asar` for these.
+- **Dev vs Production**: Always branch on `app.isPackaged` or `is.dev`. Never assume one path works for both.
 
-**Files (modify):**
-- `game_authority.py` — on accept, write delta to `events.log`. Snapshot periodically. On restart, replay events from last snapshot to current.
+### Code Signing
+- **Cost**: Windows code signing certificates cost $200-400/year from standard CAs. Free alternatives (self-signed) don't bypass SmartScreen.
+- **Azure Trusted Signing**: Microsoft offers a cheaper alternative for small developers. Consider for future.
+- **CI/CD**: If using GitHub Actions, CSC_LINK should be a base64-encoded secret, not a file path.
 
-**Acceptance:**
-- Game runs for an hour. Pi reboots. Game resumes from last snapshot + tail events. No state lost beyond the last few seconds (the unwritten ones).
-- `events.log` can be inspected with `cat` for debugging.
+### Cross-Platform
+- **macOS builds require macOS**: electron-builder cannot produce signed/notarized DMGs on Windows. A macOS CI runner (GitHub Actions `macos-latest`) is needed.
+- **Linux builds are cross-compilable**: electron-builder can produce AppImage/deb on Windows via Docker.
+- **Native dependencies**: If any npm packages have native addons (e.g., better-sqlite3), they need to be rebuilt per platform. `electron-builder install-app-deps` handles this.
 
----
+### Auto-Update
+- **Background checks should be non-blocking**: The 30-second delay and try-catch ensure the app isn't slowed or crashed by update checks.
+- **`win.isDestroyed()` check**: Same as Phase 17 NET-2 — verify the window exists before sending update status events.
+- **GitHub rate limits**: If many users check for updates simultaneously, GitHub API rate limits (60/hour unauthenticated) may cause failures. The "silently fail" approach handles this.
 
-### 19f — Authentication
-
-**Files (new):**
-- `bmo/pi/services/auth.py` — issues per-campaign session tokens (JWT signed with a Pi-side secret). Validated on every WS frame.
-- Token issuance: client calls `POST /api/games/<id>/join` with displayName + invite code → Pi validates invite code → returns JWT.
-
-**Files (modify):**
-- `game_server.py` WS handshake — require valid JWT.
-- `bmo/setup-bmo.sh` — generate the signing secret on first install if missing.
-- Cloudflare Tunnel config (`/etc/cloudflared/config.yml`) — ensure `/ws/games/*` is reachable (already covered by the existing wildcard rule for `bmo.mybmoai.work`).
-
-**Acceptance:**
-- Token issued only after valid invite-code check.
-- WS frame with missing/expired/invalid token is rejected.
-- Cross-WAN game works (your friend on a different network connects via Cloudflare Tunnel without VPN).
-
----
-
-### 19g — Game-creation UI: Local vs Cloud toggle
-
-**Files (modify):**
-- `src/renderer/src/components/campaign/CampaignWizard.tsx` (or wherever the "create game" flow ends) — new step: "Where should this game be hosted?" with two options:
-  - **Local (P2P)** — recommended for local-network play, lowest latency, host's machine stays connected to keep the game alive. (Default.)
-  - **Cloud (Pi)** — recommended for cross-network play, persists across disconnects, requires Pi to be reachable.
-- The selection feeds into the existing `hostGame(displayName, { mode })` action.
-
-**Acceptance:**
-- New game flow exposes the toggle.
-- Local mode unchanged from today.
-- Cloud mode connects to Pi.
-
----
-
-### 19h — Migrate-running-game flow
-
-**Files (modify):**
-- Campaign settings page — "Move this game to cloud" button (visible if game is currently Local and Pi is reachable). Uses Phase 17's host-transfer protocol:
-  1. Current host (a player's machine) serializes authority state.
-  2. Pi accepts via `POST /api/games/<id>/start` with the snapshot.
-  3. All peers receive a `host:transfer-broadcast` pointing them at the Pi WS endpoint.
-  4. Peers reconnect to Pi; local-host's authority shuts down.
-
-**Acceptance:**
-- Game in progress → DM clicks "Move to cloud" → after a brief pause, everyone's connected to the Pi and the game continues seamlessly.
-- Reverse path (cloud → local) is intentionally NOT supported in this phase. Once cloud, stay cloud.
-
----
-
-### 19i — Pi admin surface in BMO
-
-**Files (modify):**
-- BMO admin web UI (in `bmo/web/templates/`) — new "Hosted Games" tab. Lists active rooms with:
-  - Campaign name
-  - Current peer count
-  - Last activity timestamp
-  - Event count
-  - "View Log" button (paged event display)
-  - "Archive" button (graceful shutdown, snapshot saved)
-  - "Force Kick All" button (emergency)
-
-**Acceptance:**
-- You can browse to the Pi admin page and see what games are running.
-- Event log is paginated, not crash-the-browser-on-huge-campaigns.
-
----
-
-### 19j — Auto-resume / catch-up
-
-Already covered by Phase 18k's resync protocol. This sub-phase verifies it works end-to-end against the Pi-side authority.
-
-**Acceptance:**
-- Client disconnects mid-session, reconnects 30 seconds later → server replays missed deltas, no state flash.
-- Client disconnects for an hour, reconnects → server detects out-of-window cursor, ships a full snapshot. Game catches up gracefully.
-
----
-
-### 19k — Voice transport boundary
-
-**Files (new):**
-- `docs/ARCHITECTURE-VOICE.md` — documents the design boundary. Voice chat (when wired up post-Phase 17r) does NOT route through Pi. Stays peer-to-peer (or via SFU later). Game state sync goes via Pi; audio doesn't.
-
-**Why this matters:** the moment voice ships, someone will be tempted to "centralize everything on Pi." That's the wrong call (audio latency budget is tighter; Pi CPU isn't sized for N-way audio mixing).
-
-**Acceptance:**
-- Architecture doc is committed.
-- When voice lands, its transport choice references this doc.
-
----
-
-### 19l — Stability + monitoring
-
-**Files (new / modify):**
-- `bmo/pi/services/game_server.py` — expose Prometheus-style metrics at `/api/games/metrics`:
-  - `active_rooms_total`
-  - `connected_peers_total`
-  - `deltas_emitted_total` (counter, per-shard)
-  - `messages_rejected_total` (per rejection reason)
-  - `room_age_seconds` (per room)
-- Idle-room auto-archive: rooms with zero peers for > 1 hour get snapshotted to disk and removed from memory. Reopened on demand.
-- BMO Grafana board (your existing infra) gains a Pi-Hosted-Games row.
-
-**Acceptance:**
-- Metrics scrapeable.
-- Idle rooms don't accumulate in memory forever.
-
----
-
-## Cross-cutting decisions
-
-- **Local P2P stays first-class.** Cloud is opt-in. Some games are better local (LAN play, ultra-low latency). Both modes remain supported indefinitely.
-- **One way migration in this phase.** Local → Cloud is supported. Cloud → Local is NOT (would require host-transfer in the other direction, which works in theory but isn't a common-case feature worth shipping until requested).
-- **Cloudflare Tunnel handles WAN reach.** Already in place. No new infrastructure.
-- **Pi is a single point of failure.** Acknowledged. Mitigation: Local P2P remains available as fallback. Pi auto-restart via systemd. Snapshots survive Pi crashes.
-- **No multi-tenant resource limits this phase.** Single Pi serving your own games. If load becomes a concern later, per-campaign CPU/memory budgets can be added in a follow-up.
-
----
-
-## Critical files (multi-touch hotspots)
-
-- `bmo/pi/services/game_server.py` *(new)*
-- `bmo/pi/services/game_authority.py` *(new — Python port of TS authority)*
-- `bmo/pi/services/shards.py` *(new — Python shard registry)*
-- `bmo/pi/services/shards/*.py` *(new — one file per shard, mirroring TS)*
-- `bmo/pi/services/persistence.py` *(new)*
-- `bmo/pi/services/auth.py` *(new — JWT issuance + validation)*
-- `bmo/pi/app.py` — register new blueprints
-- `bmo/setup-bmo.sh` — systemd unit + dependencies
-- `dnd-app/src/renderer/src/network/transport/websocket-transport.ts` *(new)*
-- `dnd-app/src/renderer/src/components/campaign/CampaignWizard.tsx` — host-mode toggle
-- BMO admin templates — "Hosted Games" tab
-- `docs/ARCHITECTURE-VOICE.md` *(new)*
-
----
-
-## Commit cadence
-
-```
-19a — feat(bmo): Pi-side game_server.py service skeleton
-19b — feat(bmo): WebSocket transport (Pi side) — Flask-SocketIO + room management
-19c — feat(dnd-app): WebSocketTransport adapter (client side)
-19d — feat(bmo): Python shard registry port + per-shard implementations
-19e — feat(bmo): event-sourced persistence (snapshots + delta log)
-19f — feat(bmo): per-campaign JWT auth on WS frames
-19g — feat(dnd-app): Local vs Cloud host toggle in campaign creation
-19h — feat(net): "Move this game to cloud" flow via Phase 17 host transfer
-19i — feat(bmo): Hosted Games admin tab in BMO web UI
-19j — test(net): end-to-end resync verification against Pi authority
-19k — docs(arch): voice-transport boundary doc
-19l — feat(bmo): metrics + idle-room auto-archive
-```
-
-One release: **v6.0.0** after 19l. Major version bump for the new deployment mode.
-
----
-
-## Estimated scope
-
-8–12 working sessions. The biggest pieces are 19a/b (Pi service stand-up) and 19d (Python shard port). The Phase 18 abstraction means most of this is mechanical translation between TS and Python rather than fresh design.
-
----
-
-## Dependencies
-
-- **Requires Phase 16** (permissions) for the authority's validation logic.
-- **Requires Phase 17** (Player-as-Host rewrite) for the `GameAuthority` and `TransportAdapter` contracts.
-- **Requires Phase 18** (live-state sync overhaul) for the shard protocol Pi implements.
-
----
-
-## Open questions to lock before starting
-
-1. **Flask-SocketIO vs raw WebSocket?** Default: Flask-SocketIO for consistency with the existing Flask gevent pattern on Pi. Confirm at 19b.
-2. **Cloudflare Tunnel routing.** Already set up for `bmo.mybmoai.work/api/*`. Need to verify WebSocket upgrade (`/ws/*`) is unblocked. Confirm with a quick test before 19f.
-3. **Per-campaign event-log size limit.** Default: unlimited on disk, indexed by date. Compaction on game-archive only. Confirm if you want a per-game cap.
-4. **What's the right reaction to a Pi restart mid-game?** Default: snapshot replay catches everyone up automatically (Phase 18k). Confirm — no explicit user-facing "Pi rebooted, reconnecting…" toast unless you want one.
-
----
-
-## Post-Phase-19 ideas (out of scope here)
-
-- **Cloud-mode-only features.** Things like async DM (DM logs in tomorrow, sees what happened today) only make sense once the authority is persistent. Future phase.
-- **Multiple Pis.** Sharding active games across multiple Pis. Out of scope until you actually want it.
-- **Replay viewer.** Browse old campaign event logs as a UI. Out of scope.
-- **Cloud → Local migration.** Reverse of 19h. Out of scope unless requested.
+Begin implementation now. Start with Sub-Phase A (Steps 1-3) — the packaged path bug is CRITICAL and directly causes AI features to fail in production. Then Sub-Phase B (Steps 4-5) for release script reliability. Sub-Phases C-F are important for production quality but can be done incrementally.

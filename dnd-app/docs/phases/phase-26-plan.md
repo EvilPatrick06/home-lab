@@ -1,7 +1,7 @@
 # SYSTEM OVERRIDE: IMPLEMENTATION MODE
-You are Claude Opus 4.6 Max. Your job is to execute the following architectural plan for Phase 22 of the D&D VTT project.
+You are Claude Opus 4.6 Max. Your job is to execute the following architectural plan for Phase 26 of the D&D VTT project.
 
-Phase 22 is a **comprehensive codebase analysis** covering performance, architecture, documentation, dependencies, accessibility, and i18n. Many findings overlap prior phases. This plan covers **net-new items only**: unused reduced-motion hook, timer/listener leaks, unused dependencies, conversation memory leak, plugin installer security, CSP hardcoded IP, production console statements, service layer bypass, and missing project files.
+Phase 26 covers the **Encounter Builder & Combat Tracker**. The builder correctly implements 2024 DMG XP budgets and has a functional search/add/count UI. The critical issues are: **GroupRollModal uses hardcoded mock data** (fake players, fake rolls), **"Place All & Start Initiative" doesn't actually place tokens**, **AI deployment stacks monsters in a tight grid ignoring walls**, **no wave support**, and **no encounter-to-map linkage**.
 
 ---
 
@@ -9,299 +9,261 @@ Phase 22 is a **comprehensive codebase analysis** covering performance, architec
 
 ### Windows 11 Machine (`C:\Users\evilp\dnd\`) — ALL WORK IS HERE
 
-### Cross-Phase Overlap (DO NOT duplicate)
+**Key Files:**
 
-| Issue | Owned By |
-|-------|----------|
-| README rewrite | Phase 21 |
-| CI pipeline | Phase 21 |
-| Modal escape/focus (50+ modals) | Phase 17 (GUI-7, GUI-8) |
-| ARIA labels (50+ buttons) | Phase 18 |
-| Input labels (200+ inputs) | Phase 18 |
-| Error handling consistency | Phase 17 (Sub-Phase D) |
-| Timer leaks in DiceOverlay, ShopView | Phase 17 (GUI-3, GUI-11) |
-| Three.js resource leaks | Phase 17 (GUI-4) |
-| Audio emitters/floor selector | Phase 1 |
-| God object decomposition | Catalogued for future |
+| File | Role | Issues |
+|------|------|--------|
+| `src/renderer/src/components/game/modals/dm-tools/EncounterBuilderModal.tsx` | Encounter builder UI — search, add, count, XP budgets, presets | "Place All & Start Initiative" only broadcasts chat; no map linkage UI |
+| `src/renderer/src/components/game/modals/combat/GroupRollModal.tsx` | Group saving throw rolls | **Hardcoded mock players** (line 71): `['Theron', 'Lyra', 'Grimjaw', 'Senna']` with fake random rolls |
+| `src/renderer/src/services/game-actions/creature-actions.ts` | `executeLoadEncounter` — AI encounter deployment | Places all tokens in tight grid at map center, ignores walls/players |
+| `src/renderer/src/components/game/dm/InitiativeSetupForm.tsx` | Initiative setup — supports group initiative | `groupInitiativeEnabled` for identical monsters (line 157) — functional |
+| `src/renderer/src/types/encounter.ts` | `Encounter` type with `mapId` field | `mapId` defined but no UI to set it |
+
+### Raspberry Pi (`patrick@bmo`) — NO WORK THIS PHASE
 
 ---
 
-## 📋 Net-New Objectives
+## 📋 Core Objectives
 
-### HIGH PRIORITY
-
-| # | Issue | Impact |
-|---|-------|--------|
-| H1 | `useReducedMotion` hook defined but NEVER used — accessibility setting has zero effect | Users who need reduced motion get no relief |
-| H2 | Unused production dependencies inflate install (`immer`, `@pixi/react`, `@tiptap/extension-image`) | Bundle bloat |
-| H3 | Script-only deps in `dependencies` (`@langchain/*`) | Production install includes build tools |
-| H4 | Components bypass data-provider service layer (direct IPC) | Miss caching, error handling, homebrew merge |
-| H5 | Timer/listener leaks in ArmorManager, EquipmentListPanel, AudioPlayerItem, PlayerHUDOverlay, use-toast | Memory leaks, stale state updates |
-
-### MEDIUM PRIORITY
+### CRITICAL
 
 | # | Issue | Impact |
 |---|-------|--------|
-| M1 | ConversationManager never cleans up deleted campaign conversations | Memory growth in long sessions |
-| M2 | Plugin installer uses PowerShell `Expand-Archive` — injection risk | Security |
-| M3 | Hardcoded IP `10.10.20.242` in CSP | Non-portable BMO configuration |
-| M4 | 5 production console.warn/error calls bypass logger | Unwanted output in production |
-| M5 | No LICENSE file despite ISC declaration in package.json | Legal ambiguity |
-| M6 | No CHANGELOG.md | No structured release tracking |
-| M7 | Electron 40 EOL June 2026 | 4 months to plan upgrade |
+| E1 | GroupRollModal uses hardcoded mock players/rolls — not wired to network | Group saves are fake; DM sees fictional results |
+| E2 | "Place All & Start Initiative" doesn't place tokens | Core builder feature is a no-op |
+
+### HIGH
+
+| # | Issue | Impact |
+|---|-------|--------|
+| E3 | AI encounter deployment places monsters in tight grid at map center | DMs must manually reposition every monster |
+| E4 | No wave support for multi-stage encounters | Boss fights with reinforcements require separate presets |
+| E5 | No encounter-to-map linkage in UI | Can't pre-assign monster positions |
 
 ---
 
 ## 🛠️ Step-by-Step Execution Plan
 
-### Sub-Phase A: Wire useReducedMotion (H1)
+### Sub-Phase A: Fix GroupRollModal (E1)
 
-**Step 1 — Apply useReducedMotion Throughout**
-- The hook exists at `src/renderer/src/hooks/use-reduced-motion.ts` but is never imported
-- Find ALL animation-bearing components and apply the hook:
+**Step 1 — Wire GroupRollModal to Real Players**
+- Open `src/renderer/src/components/game/modals/combat/GroupRollModal.tsx`
+- Remove hardcoded `['Theron', 'Lyra', 'Grimjaw', 'Senna']` at line 71
+- Pull actual connected players from the lobby/network store:
   ```typescript
-  import { useReducedMotion } from '@/hooks/use-reduced-motion'
-
-  function AnimatedComponent() {
-    const prefersReducedMotion = useReducedMotion()
-    return (
-      <div className={prefersReducedMotion ? '' : 'transition-all duration-300'}>
+  const players = useLobbyStore(s => s.players)
+  const connectedPlayers = players.filter(p => p.status === 'connected')
   ```
-- Key targets:
-  - `globals.css` animations (toast, dice) — add `@media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; } }`
-  - Map fog transitions (`fog-overlay.ts`) — skip animation if reduced motion
-  - Token movement animations (`token-animation.ts`) — instant move if reduced motion
-  - Weather particles (`weather-overlay.ts`) — disable if reduced motion
-  - Dice 3D physics (`DiceRenderer.tsx`) — skip 3D roll, show result immediately
-  - Combat animations (`combat-animations.ts`) — disable particle effects
+- Display real player names with their characters
 
-**Step 2 — Add CSS Global Reduced Motion**
-- Open `src/renderer/src/styles/globals.css`
-- Add a comprehensive reduced-motion rule:
-  ```css
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-      scroll-behavior: auto !important;
+**Step 2 — Implement Networked Group Roll**
+- When the DM initiates a group roll:
+  1. Send `dm:group-roll-request` to all target players with `{ ability, dc, rollType: 'save' }`
+  2. Each player's client shows a roll prompt (reuse `RollRequestOverlay` from Phase 1 B3)
+  3. Player rolls (or auto-rolls if setting enabled) and sends `player:group-roll-result` back
+  4. DM's GroupRollModal collects results as they arrive, updating the UI in real-time
+  5. After all results received (or timeout), show pass/fail summary
+- Timeout: 30 seconds; after timeout, unresponsive players are marked "No Response"
+- Auto-roll option: DM can toggle "Auto-roll for NPCs/monsters" for non-player targets
+
+**Step 3 — Add Monster Group Rolls**
+- The DM should be able to include enemy tokens in group rolls (e.g., AoE effects)
+- For monsters, roll automatically using their save modifier from the stat block:
+  ```typescript
+  for (const monster of selectedMonsters) {
+    const saveMod = getMonsterSaveMod(monster, ability)
+    const roll = rollD20()
+    const total = roll + saveMod
+    results.push({ name: monster.label, roll, modifier: saveMod, total, passed: total >= dc })
+  }
+  ```
+- This fixes the Phase 17 LOG-4 issue (area saves ignoring modifiers) for the group roll flow
+
+### Sub-Phase B: Fix Token Placement (E2)
+
+**Step 4 — Wire "Place All & Start Initiative" to Actually Place Tokens**
+- Open `src/renderer/src/components/game/modals/dm-tools/EncounterBuilderModal.tsx`
+- Find the "Place All & Start Initiative" button handler
+- Instead of just broadcasting chat, actually create tokens:
+  ```typescript
+  const handlePlaceAndStart = () => {
+    const activeMap = useGameStore.getState().activeMap
+    if (!activeMap) return
+
+    const tokens: Partial<MapToken>[] = []
+    for (const entry of encounterMonsters) {
+      for (let i = 0; i < entry.count; i++) {
+        tokens.push({
+          label: `${entry.name}${entry.count > 1 ? ` ${i + 1}` : ''}`,
+          entityType: 'enemy',
+          currentHP: entry.hp,
+          maxHP: entry.hp,
+          ac: entry.ac,
+          walkSpeed: entry.speed,
+          monsterStatBlockId: entry.id,
+          visibleToPlayers: false, // Hidden by default — DM reveals when ready
+        })
+      }
+    }
+
+    // Place tokens using smart placement (Step 5)
+    smartPlaceTokens(activeMap, tokens)
+
+    // Start initiative
+    const initiativeEntries = tokens.map(t => ({
+      entityName: t.label,
+      entityType: 'enemy',
+      initiative: rollD20() + (t.initiativeModifier ?? 0),
+    }))
+    gameStore.startInitiative(initiativeEntries)
+
+    onClose()
+  }
+  ```
+
+**Step 5 — Smart Token Placement Algorithm**
+- Instead of placing all tokens at the map center in a tight grid:
+  ```typescript
+  function smartPlaceTokens(map: GameMap, tokens: Partial<MapToken>[]): void {
+    const cellSize = map.grid.cellSize
+    const mapCols = Math.floor(map.width / cellSize)
+    const mapRows = Math.floor(map.height / cellSize)
+
+    // Find empty cells not occupied by existing tokens or walls
+    const occupied = new Set(map.tokens.map(t => `${t.gridX},${t.gridY}`))
+    const blocked = new Set<string>() // cells with walls
+
+    // Build blocked set from walls
+    for (const wall of map.walls ?? []) {
+      // Mark cells adjacent to walls as potentially blocked
+    }
+
+    // Find the map edge farthest from players for enemy placement
+    const playerTokens = map.tokens.filter(t => t.entityType === 'player')
+    const playerCenter = getAveragePosition(playerTokens)
+
+    // Place tokens in a spread formation away from players
+    let placed = 0
+    const startX = playerCenter ? (playerCenter.x > mapCols / 2 ? 2 : mapCols - 5) : Math.floor(mapCols / 2)
+    const startY = playerCenter ? (playerCenter.y > mapRows / 2 ? 2 : mapRows - 5) : Math.floor(mapRows / 2)
+
+    for (const token of tokens) {
+      // Spiral outward from start position to find empty cell
+      const pos = findEmptyCell(startX, startY, occupied, blocked, mapCols, mapRows, placed)
+      if (pos) {
+        gameStore.addToken(map.id, { ...token, gridX: pos.x, gridY: pos.y })
+        occupied.add(`${pos.x},${pos.y}`)
+        placed++
+      }
     }
   }
   ```
-- Also apply when the in-app `reducedMotion` setting is true by adding a class to the root:
+- Place enemies on the opposite side of the map from players
+- Spread tokens in a loose formation (not tight grid)
+- Respect walls — don't place tokens inside walls
+
+### Sub-Phase C: Wave Support (E4)
+
+**Step 6 — Add Wave Data Model**
+- Open `src/renderer/src/types/encounter.ts`
+- Add wave support to the `Encounter` type:
   ```typescript
-  if (accessibilityStore.reducedMotion) {
-    document.documentElement.classList.add('reduce-motion')
+  export interface EncounterWave {
+    id: string
+    name: string  // "Wave 1", "Reinforcements", "Boss Phase 2"
+    monsters: EncounterMonster[]
+    triggerCondition?: string  // "round 3", "when boss below 50% HP", manual
+  }
+
+  export interface Encounter {
+    id: string
+    name: string
+    mapId?: string
+    waves: EncounterWave[]  // replaces flat monsters array
+    // ... existing fields
   }
   ```
-  ```css
-  .reduce-motion *, .reduce-motion *::before, .reduce-motion *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
+- Migrate existing encounters: if `monsters` exists without `waves`, wrap in a single wave
+
+**Step 7 — Add Wave UI to Encounter Builder**
+- In `EncounterBuilderModal.tsx`, add wave tabs:
+  ```tsx
+  <div className="flex gap-2 mb-4">
+    {waves.map((wave, i) => (
+      <button key={wave.id} onClick={() => setActiveWave(i)}
+        className={activeWave === i ? 'border-b-2 border-amber-400' : ''}>
+        {wave.name}
+      </button>
+    ))}
+    <button onClick={addWave}>+ Add Wave</button>
+  </div>
+  ```
+- Each wave has its own monster list and XP budget display
+- Total encounter XP is sum of all waves
+- DM can name waves and set trigger conditions (free text)
+
+**Step 8 — Wave Deployment During Combat**
+- Add a "Deploy Wave" button in the initiative tracker or DM toolbar:
+  ```typescript
+  const handleDeployWave = (waveIndex: number) => {
+    const wave = encounter.waves[waveIndex]
+    // Place wave monsters using smartPlaceTokens
+    smartPlaceTokens(activeMap, wave.monsters.flatMap(m => createTokensFromMonster(m)))
+    // Add to initiative
+    // Broadcast: "Reinforcements arrive!"
   }
   ```
+- Show deployed/pending status for each wave
 
-### Sub-Phase B: Dependency Cleanup (H2, H3)
+### Sub-Phase D: Encounter-Map Linkage (E5)
 
-**Step 3 — Remove Unused Production Dependencies**
-- Run: `npm uninstall immer @pixi/react @tiptap/extension-image`
-- Verify no imports exist (search codebase for each package name first)
-- `immer`: Zero imports in `src/` (only incidental text matches in JSON)
-- `@pixi/react`: Zero imports; PixiJS used imperatively
-- `@tiptap/extension-image`: Zero imports; JournalPanel uses Link, Placeholder, StarterKit only
-
-**Step 4 — Move Script-Only Deps to devDependencies**
-- Move from `dependencies` to `devDependencies`:
-  ```bash
-  npm uninstall @langchain/anthropic @langchain/core @langchain/langgraph
-  npm install --save-dev @langchain/anthropic @langchain/core @langchain/langgraph
+**Step 9 — Add Map Selection to Encounter Builder**
+- In `EncounterBuilderModal.tsx`, add a map dropdown:
+  ```tsx
+  <select value={encounter.mapId} onChange={e => setMapId(e.target.value)}>
+    <option value="">No Map</option>
+    {maps.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+  </select>
   ```
-- These are only used in `scripts/extract-5e-data.ts`, a build-time data extraction script
+- When a map is linked, show a mini-preview of the map
 
-**Step 5 — Review Package Overrides**
-- Document why each of the 7 overrides exists:
-  ```json
-  "overrides": {
-    "minimatch": ">=10.2.1",      // security patch
-    "scheduler": "0.27.0",        // React 19 internal requirement
-    "fs-extra": "11.3.3",         // electron-builder compat
-    "commander": "12.1.0",        // version conflict resolution
-    "chalk": "4.1.2",             // CJS/ESM conflict
-    "semver": "7.7.4",            // security patch
-    "entities": "4.5.0"           // security patch
-  }
-  ```
-- Add comments in package.json (JSON5-style comments won't work; add to README or a `DEPENDENCIES.md`)
+**Step 10 — Pre-Position Monsters on Map**
+- When a map is linked, allow DMs to pre-assign monster starting positions:
+  - Show the linked map in a small canvas view within the encounter builder
+  - Click on the map to set a monster's starting position
+  - Store positions in the encounter data: `monster.startX`, `monster.startY`
+- When "Place All" is clicked with pre-positions, use those positions instead of smart placement
 
-### Sub-Phase C: Route Components Through Service Layer (H4)
+### Sub-Phase E: Improve AI Encounter Deployment (E3)
 
-**Step 6 — Fix Service Layer Bypasses**
-- Replace direct IPC calls with data-provider in these components:
-  - `game/sidebar/EquipmentTab.tsx`: `window.api.game.loadEquipment()` → `data-provider.load5eEquipment()`
-  - `game/sidebar/SpellsTab.tsx`: `window.api.game.loadSpells()` → `data-provider.load5eSpells()`
-- This gives them caching, error handling, and homebrew merge for free
-- Verify the data-provider functions exist and return the expected shapes
-
-### Sub-Phase D: Fix Remaining Timer/Listener Leaks (H5)
-
-**Step 7 — Fix ArmorManager and EquipmentListPanel Timer Leaks**
-- `components/sheet/5e/ArmorManager5e.tsx` line 62, 158: `setTimeout` without cleanup
-- `components/sheet/5e/EquipmentListPanel5e.tsx` line 170: same pattern
-- Fix: Store timeout ID and clear on unmount:
-  ```typescript
-  const timeoutRef = useRef<NodeJS.Timeout>()
-  const showWarning = () => {
-    setBuyWarning(msg)
-    clearTimeout(timeoutRef.current)
-    timeoutRef.current = setTimeout(() => setBuyWarning(null), 3000)
-  }
-  useEffect(() => () => clearTimeout(timeoutRef.current), [])
-  ```
-
-**Step 8 — Fix AudioPlayerItem Listener Leak**
-- `components/library/AudioPlayerItem.tsx` lines 43-46: `loadedmetadata` and `ended` listeners never removed
-- Fix: Use ref for audio element and clean up in useEffect return:
-  ```typescript
-  useEffect(() => {
-    const audio = audioRef.current
-    const onLoaded = () => { /* ... */ }
-    const onEnded = () => { /* ... */ }
-    audio?.addEventListener('loadedmetadata', onLoaded)
-    audio?.addEventListener('ended', onEnded)
-    return () => {
-      audio?.removeEventListener('loadedmetadata', onLoaded)
-      audio?.removeEventListener('ended', onEnded)
-    }
-  }, [path])
-  ```
-
-**Step 9 — Fix PlayerHUDOverlay Drag Listener Leak**
-- `components/game/overlays/PlayerHUDOverlay.tsx` lines 73-74: `mousemove`/`mouseup` on document during drag
-- Fix: Remove listeners in mouseup handler AND in useEffect cleanup:
-  ```typescript
-  const handleMouseUp = useCallback(() => {
-    document.removeEventListener('mousemove', handleMouseMove)
-    document.removeEventListener('mouseup', handleMouseUp)
-  }, [handleMouseMove])
-
-  useEffect(() => () => {
-    document.removeEventListener('mousemove', handleMouseMove)
-    document.removeEventListener('mouseup', handleMouseUp)
-  }, [handleMouseMove, handleMouseUp])
-  ```
-
-**Step 10 — Fix use-toast Dismiss Race**
-- `hooks/use-toast.ts` line 39: `setTimeout` for auto-dismiss not cleared on manual dismiss
-- Fix: Clear timeout when toast is manually dismissed
-
-### Sub-Phase E: ConversationManager Cleanup (M1)
-
-**Step 11 — Clean Conversations on Campaign Delete**
-- Open `src/main/ai/conversation-manager.ts`
-- Find the `conversations` Map
-- Add a cleanup method:
-  ```typescript
-  removeConversation(campaignId: string) {
-    this.conversations.delete(campaignId)
-  }
-  ```
-- Call it when a campaign is deleted (in `campaign-storage.ts` `deleteCampaign()` cascade, or via IPC from the renderer)
-
-### Sub-Phase F: Plugin Installer Security (M2)
-
-**Step 12 — Replace PowerShell Expand-Archive with Node.js ZIP**
-- Open `src/main/plugins/plugin-installer.ts` lines 27-28
-- Replace PowerShell `Expand-Archive` with `adm-zip` or Node.js `zlib`:
-  ```bash
-  npm install adm-zip
-  ```
-  ```typescript
-  import AdmZip from 'adm-zip'
-
-  async function extractPlugin(zipPath: string, extractDir: string) {
-    const zip = new AdmZip(zipPath)
-    zip.extractAllTo(extractDir, true)
-  }
-  ```
-- This eliminates the shell injection risk from path interpolation
-- Also add the zip-slip validation from Phase 20 Step 8
-
-### Sub-Phase G: CSP and Production Console (M3, M4)
-
-**Step 13 — Make BMO IP Configurable in CSP**
-- Open `src/main/index.ts` line 62
-- Replace hardcoded `10.10.20.242` with environment variable:
-  ```typescript
-  const bmoIp = process.env.BMO_PI_IP || 'bmo.local'
-  const piConnect = ` ws://${bmoIp}:* http://${bmoIp}:*`
-  ```
-
-**Step 14 — Replace Production Console Statements with Logger**
-- Replace in these 5 locations:
-  - `PdfViewer.tsx:15` → `logger.warn('[PdfViewer] Failed to load worker...')`
-  - `combat-resolver.ts:883-885` → `logger.warn('[CombatResolver] ...')`
-  - `system-chat-bridge.ts:32` → `logger.error('[SystemChatBridge] ...')`
-  - `host-handlers.ts:132,161` → `logger.warn('[host-handlers] ...')`
-- Import `logger` from `utils/logger.ts` (gated behind `import.meta.env.DEV`)
-
-### Sub-Phase H: Missing Project Files (M5, M6)
-
-**Step 15 — Create LICENSE File**
-- Create `LICENSE` in the project root with ISC license text (matching `package.json` declaration):
-  ```
-  ISC License
-
-  Copyright (c) 2025-2026 Gavin Knotts
-
-  Permission to use, copy, modify, and/or distribute this software...
-  ```
-
-**Step 16 — Create CHANGELOG.md**
-- Create `CHANGELOG.md` with initial entry:
-  ```markdown
-  # Changelog
-
-  ## [1.9.9] - 2026-03-09
-
-  ### Added
-  - Full D&D 5e 2024 character builder (10 species, 12 classes, 48 subclasses)
-  - PixiJS map engine with fog of war, dynamic lighting, weather
-  - AI Dungeon Master (Ollama, Claude, OpenAI, Gemini)
-  - P2P multiplayer via PeerJS WebRTC
-  - Bastion system, campaign management, session notes
-  - Discord integration with voice/TTS
-  ```
-
-### Sub-Phase I: Electron Upgrade Planning (M7)
-
-**Step 17 — Document Electron 40 EOL Plan**
-- Electron 40 reaches end-of-life June 30, 2026 (~4 months)
-- Add to project tracking: plan upgrade to Electron 41+ (or latest stable)
-- Key considerations:
-  - Check Node.js version requirements for new Electron
-  - Verify all native dependencies rebuild cleanly
-  - Test PixiJS, Three.js, PeerJS compatibility
-  - Review breaking changes in Electron changelog
-- This is a planning step, not implementation — create a tracking issue or document
+**Step 11 — Improve executeLoadEncounter Placement**
+- Open `src/renderer/src/services/game-actions/creature-actions.ts`
+- Find `executeLoadEncounter`
+- Replace the tight center-grid placement with `smartPlaceTokens()` from Step 5
+- If the encounter has pre-positioned monsters (from Step 10), use those positions
+- If no pre-positions, use the smart placement algorithm
 
 ---
 
 ## ⚠️ Constraints & Edge Cases
 
-### Reduced Motion
-- **CSS approach covers most cases**: The `@media (prefers-reduced-motion: reduce)` rule affects CSS animations and transitions. JavaScript animations (PixiJS ticker, Three.js render loop, requestAnimationFrame) need explicit code checks.
-- **PixiJS animations**: Fog fade, token movement, combat particles all use PixiJS tickers. Check `useReducedMotion()` in the orchestrating React component and skip the animation call.
-- **3D dice**: If reduced motion is enabled, show the result directly without physics simulation. Keep the result display (which dice, which faces) but skip the throw animation.
+### GroupRollModal
+- **Network timeout**: Players may be slow to respond. Show results as they arrive with a progress indicator: "3/5 players responded."
+- **Disconnected players**: If a player disconnects during a group roll, auto-fail (or allow DM to override).
+- **Monster auto-rolls should use correct modifiers**: Pull save modifiers from the monster's stat block. If no stat block is linked, fall back to +0 with a warning.
 
-### Dependency Removal
-- **Verify before removing**: Run `npm ls immer`, `npm ls @pixi/react`, `npm ls @tiptap/extension-image` to confirm no transitive consumers depend on them being in `dependencies`.
-- **Lock file**: After removing, run `npm install` to regenerate `package-lock.json` cleanly.
+### Token Placement
+- **Large tokens**: Large (2x2), Huge (3x3), and Gargantuan (4x4) tokens need multiple cells. The `findEmptyCell` function must check all cells the token would occupy.
+- **Hidden by default**: Placed enemy tokens should start with `visibleToPlayers: false` so players don't see them before the DM reveals. The DM can toggle visibility.
+- **Initiative order**: When starting initiative from the encounter builder, include player tokens already on the map. Use `InitiativeSetupForm` logic for rolling initiative with group initiative support.
 
-### Service Layer
-- **Don't break direct calls that need fresh data**: Some components intentionally bypass cache for fresh loads. If a component MUST have fresh data (not cached), it's acceptable to call IPC directly. But document the reason.
+### Waves
+- **Backward compatibility**: Existing encounter presets (saved to localStorage) use a flat `monsters` array. Migration: wrap in `waves: [{ id: 'wave-1', name: 'Wave 1', monsters: existingMonsters }]`.
+- **XP budget per wave**: Show per-wave XP and total XP. The difficulty rating should use total XP across all waves.
+- **Wave trigger conditions are free text**: No automation — the DM manually deploys waves. Trigger text is for the DM's reference only.
 
-### Plugin Installer
-- **adm-zip is a JS-only library** — no native dependencies, works cross-platform. It's already used by many Electron apps.
-- **Test with existing plugins**: After replacing the extraction method, verify existing `.zip` content packs still extract correctly.
+### Pre-Positioning
+- **This is a nice-to-have**: If implementing the full mini-map pre-positioning canvas is too complex, start with simple grid coordinate inputs (X, Y per monster). The visual map placement can come later.
+- **Pre-positions are stored in the encounter, not the map**: Monsters aren't placed until the DM deploys them.
 
-Begin implementation now. Start with Sub-Phase A (Steps 1-2) for the reduced-motion fix — this is a real accessibility failure where a defined setting has zero effect. Then Sub-Phase B (Steps 3-5) for dependency cleanup. Sub-Phase D (Steps 7-10) for timer/listener leaks is quick mechanical work.
+Begin implementation now. Start with Sub-Phase A (Steps 1-3) to fix GroupRollModal — this is a broken feature that shows fake data. Then Sub-Phase B (Steps 4-5) to wire "Place All & Start Initiative" to actually work. These two fixes transform the encounter builder from partially broken to fully functional.

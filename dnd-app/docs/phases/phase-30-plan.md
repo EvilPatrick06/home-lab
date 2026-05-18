@@ -1,269 +1,270 @@
-# SYSTEM OVERRIDE: IMPLEMENTATION MODE
-You are Claude Opus 4.6 Max. Your job is to execute the following architectural plan for Phase 26 of the D&D VTT project.
+# Phase 30 — Player-as-Host architecture rewrite
 
-Phase 26 covers the **Encounter Builder & Combat Tracker**. The builder correctly implements 2024 DMG XP budgets and has a functional search/add/count UI. The critical issues are: **GroupRollModal uses hardcoded mock data** (fake players, fake rolls), **"Place All & Start Initiative" doesn't actually place tokens**, **AI deployment stacks monsters in a tight grid ignoring walls**, **no wave support**, and **no encounter-to-map linkage**.
-
----
-
-## 🏗️ Architecture & Environment Split
-
-### Windows 11 Machine (`C:\Users\evilp\dnd\`) — ALL WORK IS HERE
-
-**Key Files:**
-
-| File | Role | Issues |
-|------|------|--------|
-| `src/renderer/src/components/game/modals/dm-tools/EncounterBuilderModal.tsx` | Encounter builder UI — search, add, count, XP budgets, presets | "Place All & Start Initiative" only broadcasts chat; no map linkage UI |
-| `src/renderer/src/components/game/modals/combat/GroupRollModal.tsx` | Group saving throw rolls | **Hardcoded mock players** (line 71): `['Theron', 'Lyra', 'Grimjaw', 'Senna']` with fake random rolls |
-| `src/renderer/src/services/game-actions/creature-actions.ts` | `executeLoadEncounter` — AI encounter deployment | Places all tokens in tight grid at map center, ignores walls/players |
-| `src/renderer/src/components/game/dm/InitiativeSetupForm.tsx` | Initiative setup — supports group initiative | `groupInitiativeEnabled` for identical monsters (line 157) — functional |
-| `src/renderer/src/types/encounter.ts` | `Encounter` type with `mapId` field | `mapId` defined but no UI to set it |
-
-### Raspberry Pi (`patrick@bmo`) — NO WORK THIS PHASE
+> Decouple the *network host* (who holds authoritative state + routes messages) from the *DM* (who has permission-set we'd call "DM"). Consolidate host-side logic into a `GameAuthority` module behind a transport adapter. Add host-role transfer protocol.
+>
+> Renumbered from "Phase B" in conversation planning. Depends on **Phase 29** (permissions matrix) landing first.
 
 ---
 
-## 📋 Core Objectives
+## Context
 
-### CRITICAL
+Today, "the host" and "the DM" are the same peer by accident. Whoever calls `startHosting()` (i.e., whoever creates the game) becomes:
 
-| # | Issue | Impact |
-|---|-------|--------|
-| E1 | GroupRollModal uses hardcoded mock players/rolls — not wired to network | Group saves are fake; DM sees fictional results |
-| E2 | "Place All & Start Initiative" doesn't place tokens | Core builder feature is a no-op |
+1. The **network host** — holds the authoritative `useGameStore` state, runs `host-handlers.ts`, validates inbound messages, broadcasts changes to peers.
+2. The **DM** — has every gameplay permission by default, holds the `dmId` in the campaign settings.
 
-### HIGH
+This conflation produces several problems:
 
-| # | Issue | Impact |
-|---|-------|--------|
-| E3 | AI encounter deployment places monsters in tight grid at map center | DMs must manually reposition every monster |
-| E4 | No wave support for multi-stage encounters | Boss fights with reinforcements require separate presets |
-| E5 | No encounter-to-map linkage in UI | Can't pre-assign monster positions |
+- **DM can't transfer.** If the DM has to step away from their machine, the game ends — because the DM IS the host, closing their app shuts down the network.
+- **Players can't host for someone else.** Want one friend to host (better connection / always-on machine) while a different friend DMs? No way to express that.
+- **Phase 31 needs this abstraction.** When Phase 31 (Live-state sync overhaul) consolidates the sync model, "the host" still needs to be something specific — but we want it to be a role, not a peer that started PeerJS first.
+- **Phase 32 needs this abstraction.** Pi-as-host means a Pi runs the authority. That's only sensible if "authority" is a thing that can be different from "the human DM."
 
----
+Goal: separate the two concepts cleanly. Any peer can be the host; any peer (or zero peers) can hold the DM role; both can transfer mid-session.
 
-## 🛠️ Step-by-Step Execution Plan
-
-### Sub-Phase A: Fix GroupRollModal (E1)
-
-**Step 1 — Wire GroupRollModal to Real Players**
-- Open `src/renderer/src/components/game/modals/combat/GroupRollModal.tsx`
-- Remove hardcoded `['Theron', 'Lyra', 'Grimjaw', 'Senna']` at line 71
-- Pull actual connected players from the lobby/network store:
-  ```typescript
-  const players = useLobbyStore(s => s.players)
-  const connectedPlayers = players.filter(p => p.status === 'connected')
-  ```
-- Display real player names with their characters
-
-**Step 2 — Implement Networked Group Roll**
-- When the DM initiates a group roll:
-  1. Send `dm:group-roll-request` to all target players with `{ ability, dc, rollType: 'save' }`
-  2. Each player's client shows a roll prompt (reuse `RollRequestOverlay` from Phase 1 B3)
-  3. Player rolls (or auto-rolls if setting enabled) and sends `player:group-roll-result` back
-  4. DM's GroupRollModal collects results as they arrive, updating the UI in real-time
-  5. After all results received (or timeout), show pass/fail summary
-- Timeout: 30 seconds; after timeout, unresponsive players are marked "No Response"
-- Auto-roll option: DM can toggle "Auto-roll for NPCs/monsters" for non-player targets
-
-**Step 3 — Add Monster Group Rolls**
-- The DM should be able to include enemy tokens in group rolls (e.g., AoE effects)
-- For monsters, roll automatically using their save modifier from the stat block:
-  ```typescript
-  for (const monster of selectedMonsters) {
-    const saveMod = getMonsterSaveMod(monster, ability)
-    const roll = rollD20()
-    const total = roll + saveMod
-    results.push({ name: monster.label, roll, modifier: saveMod, total, passed: total >= dc })
-  }
-  ```
-- This fixes the Phase 17 LOG-4 issue (area saves ignoring modifiers) for the group roll flow
-
-### Sub-Phase B: Fix Token Placement (E2)
-
-**Step 4 — Wire "Place All & Start Initiative" to Actually Place Tokens**
-- Open `src/renderer/src/components/game/modals/dm-tools/EncounterBuilderModal.tsx`
-- Find the "Place All & Start Initiative" button handler
-- Instead of just broadcasting chat, actually create tokens:
-  ```typescript
-  const handlePlaceAndStart = () => {
-    const activeMap = useGameStore.getState().activeMap
-    if (!activeMap) return
-
-    const tokens: Partial<MapToken>[] = []
-    for (const entry of encounterMonsters) {
-      for (let i = 0; i < entry.count; i++) {
-        tokens.push({
-          label: `${entry.name}${entry.count > 1 ? ` ${i + 1}` : ''}`,
-          entityType: 'enemy',
-          currentHP: entry.hp,
-          maxHP: entry.hp,
-          ac: entry.ac,
-          walkSpeed: entry.speed,
-          monsterStatBlockId: entry.id,
-          visibleToPlayers: false, // Hidden by default — DM reveals when ready
-        })
-      }
-    }
-
-    // Place tokens using smart placement (Step 5)
-    smartPlaceTokens(activeMap, tokens)
-
-    // Start initiative
-    const initiativeEntries = tokens.map(t => ({
-      entityName: t.label,
-      entityType: 'enemy',
-      initiative: rollD20() + (t.initiativeModifier ?? 0),
-    }))
-    gameStore.startInitiative(initiativeEntries)
-
-    onClose()
-  }
-  ```
-
-**Step 5 — Smart Token Placement Algorithm**
-- Instead of placing all tokens at the map center in a tight grid:
-  ```typescript
-  function smartPlaceTokens(map: GameMap, tokens: Partial<MapToken>[]): void {
-    const cellSize = map.grid.cellSize
-    const mapCols = Math.floor(map.width / cellSize)
-    const mapRows = Math.floor(map.height / cellSize)
-
-    // Find empty cells not occupied by existing tokens or walls
-    const occupied = new Set(map.tokens.map(t => `${t.gridX},${t.gridY}`))
-    const blocked = new Set<string>() // cells with walls
-
-    // Build blocked set from walls
-    for (const wall of map.walls ?? []) {
-      // Mark cells adjacent to walls as potentially blocked
-    }
-
-    // Find the map edge farthest from players for enemy placement
-    const playerTokens = map.tokens.filter(t => t.entityType === 'player')
-    const playerCenter = getAveragePosition(playerTokens)
-
-    // Place tokens in a spread formation away from players
-    let placed = 0
-    const startX = playerCenter ? (playerCenter.x > mapCols / 2 ? 2 : mapCols - 5) : Math.floor(mapCols / 2)
-    const startY = playerCenter ? (playerCenter.y > mapRows / 2 ? 2 : mapRows - 5) : Math.floor(mapRows / 2)
-
-    for (const token of tokens) {
-      // Spiral outward from start position to find empty cell
-      const pos = findEmptyCell(startX, startY, occupied, blocked, mapCols, mapRows, placed)
-      if (pos) {
-        gameStore.addToken(map.id, { ...token, gridX: pos.x, gridY: pos.y })
-        occupied.add(`${pos.x},${pos.y}`)
-        placed++
-      }
-    }
-  }
-  ```
-- Place enemies on the opposite side of the map from players
-- Spread tokens in a loose formation (not tight grid)
-- Respect walls — don't place tokens inside walls
-
-### Sub-Phase C: Wave Support (E4)
-
-**Step 6 — Add Wave Data Model**
-- Open `src/renderer/src/types/encounter.ts`
-- Add wave support to the `Encounter` type:
-  ```typescript
-  export interface EncounterWave {
-    id: string
-    name: string  // "Wave 1", "Reinforcements", "Boss Phase 2"
-    monsters: EncounterMonster[]
-    triggerCondition?: string  // "round 3", "when boss below 50% HP", manual
-  }
-
-  export interface Encounter {
-    id: string
-    name: string
-    mapId?: string
-    waves: EncounterWave[]  // replaces flat monsters array
-    // ... existing fields
-  }
-  ```
-- Migrate existing encounters: if `monsters` exists without `waves`, wrap in a single wave
-
-**Step 7 — Add Wave UI to Encounter Builder**
-- In `EncounterBuilderModal.tsx`, add wave tabs:
-  ```tsx
-  <div className="flex gap-2 mb-4">
-    {waves.map((wave, i) => (
-      <button key={wave.id} onClick={() => setActiveWave(i)}
-        className={activeWave === i ? 'border-b-2 border-amber-400' : ''}>
-        {wave.name}
-      </button>
-    ))}
-    <button onClick={addWave}>+ Add Wave</button>
-  </div>
-  ```
-- Each wave has its own monster list and XP budget display
-- Total encounter XP is sum of all waves
-- DM can name waves and set trigger conditions (free text)
-
-**Step 8 — Wave Deployment During Combat**
-- Add a "Deploy Wave" button in the initiative tracker or DM toolbar:
-  ```typescript
-  const handleDeployWave = (waveIndex: number) => {
-    const wave = encounter.waves[waveIndex]
-    // Place wave monsters using smartPlaceTokens
-    smartPlaceTokens(activeMap, wave.monsters.flatMap(m => createTokensFromMonster(m)))
-    // Add to initiative
-    // Broadcast: "Reinforcements arrive!"
-  }
-  ```
-- Show deployed/pending status for each wave
-
-### Sub-Phase D: Encounter-Map Linkage (E5)
-
-**Step 9 — Add Map Selection to Encounter Builder**
-- In `EncounterBuilderModal.tsx`, add a map dropdown:
-  ```tsx
-  <select value={encounter.mapId} onChange={e => setMapId(e.target.value)}>
-    <option value="">No Map</option>
-    {maps.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
-  </select>
-  ```
-- When a map is linked, show a mini-preview of the map
-
-**Step 10 — Pre-Position Monsters on Map**
-- When a map is linked, allow DMs to pre-assign monster starting positions:
-  - Show the linked map in a small canvas view within the encounter builder
-  - Click on the map to set a monster's starting position
-  - Store positions in the encounter data: `monster.startX`, `monster.startY`
-- When "Place All" is clicked with pre-positions, use those positions instead of smart placement
-
-### Sub-Phase E: Improve AI Encounter Deployment (E3)
-
-**Step 11 — Improve executeLoadEncounter Placement**
-- Open `src/renderer/src/services/game-actions/creature-actions.ts`
-- Find `executeLoadEncounter`
-- Replace the tight center-grid placement with `smartPlaceTokens()` from Step 5
-- If the encounter has pre-positioned monsters (from Step 10), use those positions
-- If no pre-positions, use the smart placement algorithm
+Phase 29's permission system makes the gameplay side already role-driven. This phase makes the network side authority-driven, with the authority abstracted so it can run anywhere (player's machine in this phase, Pi in Phase 32).
 
 ---
 
-## ⚠️ Constraints & Edge Cases
+## Sub-phase summary
 
-### GroupRollModal
-- **Network timeout**: Players may be slow to respond. Show results as they arrive with a progress indicator: "3/5 players responded."
-- **Disconnected players**: If a player disconnects during a group roll, auto-fail (or allow DM to override).
-- **Monster auto-rolls should use correct modifiers**: Pull save modifiers from the monster's stat block. If no stat block is linked, fall back to +0 with a warning.
+| # | Sub-phase | Scope |
+|---|-----------|-------|
+| 30a | Extract `GameAuthority` module | Consolidate host-handlers + host-connection + network-store host paths into one module with a clean interface |
+| 30b | Transport adapter abstraction | `TransportAdapter` interface; current PeerJS code becomes `P2PTransport`; authority no longer knows what's underneath |
+| 30c | Decouple host-peer from DM-role | Record host-peer separately from `campaign.dmId`; permission checks already use Phase 29, so this finishes the data separation |
+| 30d | Host-role transfer protocol | `host:transfer-request` + `host:transfer-accept`; state snapshot serialization; atomic switchover |
+| 30e | DM-role transfer | Independent of host transfer. Just a permission/role reassignment via Phase 29 |
+| 30f | Transfer UI in PlayerCard menu | "Transfer Host" + "Transfer DM" gated by `transfer_host` + `change_player_role` permissions |
+| 30g | Persistence on host-side | Local host saves campaign state on debounced interval; snapshot moves to new host on transfer |
+| 30h | Tests + verify-don't-assume sweep | Existing host-handler tests run against GameAuthority; new tests for transfer atomicity and DM-transfer independence |
+| 30i | Migration for in-flight games and saved campaigns | Map old `campaign.dmId` to new DM-role assignment; map old host-peer to new authority record |
 
-### Token Placement
-- **Large tokens**: Large (2x2), Huge (3x3), and Gargantuan (4x4) tokens need multiple cells. The `findEmptyCell` function must check all cells the token would occupy.
-- **Hidden by default**: Placed enemy tokens should start with `visibleToPlayers: false` so players don't see them before the DM reveals. The DM can toggle visibility.
-- **Initiative order**: When starting initiative from the encounter builder, include player tokens already on the map. Use `InitiativeSetupForm` logic for rolling initiative with group initiative support.
+9 sub-phases. Each ends with the 4-gate suite. One release: **v4.0.0** (major bump — fundamental network rewrite, invisible to users in normal play but breaking for any extension that pokes at the old host-handlers API).
 
-### Waves
-- **Backward compatibility**: Existing encounter presets (saved to localStorage) use a flat `monsters` array. Migration: wrap in `waves: [{ id: 'wave-1', name: 'Wave 1', monsters: existingMonsters }]`.
-- **XP budget per wave**: Show per-wave XP and total XP. The difficulty rating should use total XP across all waves.
-- **Wave trigger conditions are free text**: No automation — the DM manually deploys waves. Trigger text is for the DM's reference only.
+---
 
-### Pre-Positioning
-- **This is a nice-to-have**: If implementing the full mini-map pre-positioning canvas is too complex, start with simple grid coordinate inputs (X, Y per monster). The visual map placement can come later.
-- **Pre-positions are stored in the encounter, not the map**: Monsters aren't placed until the DM deploys them.
+## Sub-phase details
 
-Begin implementation now. Start with Sub-Phase A (Steps 1-3) to fix GroupRollModal — this is a broken feature that shows fake data. Then Sub-Phase B (Steps 4-5) to wire "Place All & Start Initiative" to actually work. These two fixes transform the encounter builder from partially broken to fully functional.
+### 30a — Extract `GameAuthority` module
+
+**Files (new):**
+- `src/renderer/src/network/authority/game-authority.ts` — the single module. Exports a class or namespace with:
+  - `init(campaign, hostPeerInfo, transport)`
+  - `applyAction(actor: PeerInfo, action: NetworkMessage) → { accepted: boolean, broadcast: NetworkMessage[] }`
+  - `getSnapshot(forPeer: PeerInfo) → NetworkGameState` (per-peer filtered, uses Phase 29 permissions)
+  - `onSnapshotChange(callback)` — for diff broadcasting
+  - `addPeer(peerInfo)`, `removePeer(peerId)`
+  - `validate(actor, action) → boolean` (uses `hasPermission`)
+  - `serialize()` / `deserialize(snapshot)` — for host transfer + persistence
+
+**Files (modify / consolidate-out-of):**
+- `src/renderer/src/network/host-connection.ts` — handleJoin, message router, ban check, peer dedup
+- `src/renderer/src/network/host-manager.ts` — connections map, peerInfoMap, lastHeartbeat
+- `src/renderer/src/network/host-message-handlers.ts` — applyChatModeration, validateMessage
+- `src/renderer/src/stores/network-store/host-handlers.ts` — case-by-case message handling
+- `src/renderer/src/stores/network-store/index.ts` — `filterGameStateForRole`, `transformUpdatePayloadForPeer`, sendMessage's host branch
+
+All of this logic moves INTO `GameAuthority` behind a clean interface. The existing files become thin shims that call into the new module while migration is in flight, then get deleted in a follow-up cleanup commit.
+
+**Acceptance:**
+- Existing tests pass — `GameAuthority` produces identical outputs to the old scattered code.
+- Adding a new message type now requires editing exactly one file (`game-authority.ts`).
+
+---
+
+### 30b — Transport adapter abstraction
+
+**Files (new):**
+- `src/renderer/src/network/transport/transport-adapter.ts` — interface:
+  ```typescript
+  interface TransportAdapter {
+    send(peerId: string, msg: NetworkMessage): void
+    broadcast(msg: NetworkMessage): void
+    broadcastExcluding(msg: NetworkMessage, peerId: string): void
+    onMessage(cb: (msg, fromPeerId) => void): () => void
+    onPeerJoin(cb: (peerInfo) => void): () => void
+    onPeerLeave(cb: (peerId) => void): () => void
+    disconnect(peerId: string, reason?: NetworkMessage): void
+    close(): void
+  }
+  ```
+- `src/renderer/src/network/transport/p2p-transport.ts` — current PeerJS code wrapped into this interface. Same behavior; new file.
+
+**Files (modify):**
+- `GameAuthority` constructor takes a `TransportAdapter` instead of importing PeerJS directly. Authority doesn't know — and doesn't care — that the transport is WebRTC DataChannel.
+
+**Acceptance:**
+- Game still runs on PeerJS; no transport behavior change.
+- Code search confirms `GameAuthority` has zero imports from `peerjs` directly.
+- A stub `MemoryTransport` exists for tests (peer simulation in-process).
+
+---
+
+### 30c — Decouple host-peer from DM-role
+
+**Files (modify):**
+- `src/renderer/src/types/campaign.ts` — add `Campaign.hostPeerClientId: string | null` (the current host's stable clientId). Existing `dmId` stays as the DM-role assignment (but its meaning is "who has the DM role" not "who runs the network").
+- `src/renderer/src/network/authority/game-authority.ts` — `hostPeerInfo` is a runtime concept (passed in init). DM-role is a campaign data concept. They're never coupled.
+- Every "isHost" check in renderer code becomes either:
+  - `peer.clientId === campaign.hostPeerClientId` (rare — usually only for transport-routing display)
+  - `hasPermission(peer, 'some_dm_perm', campaign)` (almost everywhere — Phase 29's mechanism)
+
+**Acceptance:**
+- A campaign can have `hostPeerClientId === 'client-alice'` and DM role assigned to `client-bob`. Game runs. Alice's machine routes traffic; Bob has DM perms.
+- Default behavior (host creates game → host is DM) still works because the create-game flow assigns both.
+
+---
+
+### 30d — Host-role transfer protocol
+
+**Files (new):**
+- `src/renderer/src/network/transport/host-transfer.ts` — atomic handover. New message types:
+  - `host:transfer-request` (current host → target): payload = `{ targetClientId, snapshotPayload, sequenceCursor }`. The target receives the full serialized authority state.
+  - `host:transfer-accept` (target → current host): payload = `{ targetClientId, acceptedAt }`. Target signals it has applied the snapshot and is ready.
+  - `host:transfer-broadcast` (sent by current host on accept): payload = `{ newHostClientId }`. Tells all peers to re-route to the new host.
+
+**Files (modify):**
+- `src/renderer/src/network/transport/p2p-transport.ts` — implement re-routing. Existing peer connections to the OLD host get closed; new connections initiated to the NEW host. Brief switchover window (~1–2s); existing 17g auto-reconnect path covers it.
+- `src/renderer/src/network/authority/game-authority.ts` — `transferTo(targetClientId)` method. Validates target has `accept_host_transfer` permission. Pauses inbound message processing during transfer. Serializes snapshot, sends, waits for accept, broadcasts switch.
+
+**Acceptance:**
+- Alice (current host) clicks Transfer Host → Bob. Game pauses for ~1–2s. State snapshot ships to Bob. Bob's app is now the authority. Everyone reconnects via Bob's transport. Game resumes.
+- Alice can leave the session entirely after the transfer; game keeps running.
+- If the transfer fails (Bob's machine dies mid-transfer), the original host stays authoritative and the transfer is aborted with a system chat message.
+
+---
+
+### 30e — DM-role transfer
+
+**Files (modify):**
+- `src/renderer/src/stores/use-campaign-store.ts` — `transferDmRole(campaignId, fromClientId, toClientId)`. Just a campaign update — reassigns whoever has the DM role to a new peer. No transport implications.
+- Sends a campaign-update broadcast so all peers see the new DM assignment.
+
+**Why this is trivial after Phase 29:** DM-role transfer is just `setPlayerRole(targetPeer, 'role-dm')`. Phase 29 already supports per-player role assignment. This sub-phase is mostly the UI affordance + a permission check (`change_player_role`).
+
+**Acceptance:**
+- Alice has DM role. Bob has Player role. Alice clicks "Transfer DM → Bob". Bob now has DM role, Alice gets demoted to Player (or to whatever role Alice picks at transfer time).
+- Independent of host transfer. Either can happen without the other.
+
+---
+
+### 30f — Transfer UI in PlayerCard menu
+
+**Files (modify):**
+- `src/renderer/src/components/lobby/PlayerCard.tsx` — add two menu items, gated by permissions:
+  - "Transfer Host →" (visible if local peer has `transfer_host` AND target is not currently the host)
+  - "Transfer DM →" (visible if local peer has `change_player_role` AND target is not currently the DM)
+- Confirmation modal for both, because they're disruptive.
+
+**Acceptance:**
+- DM (who's also host) sees both menu items on other players' cards.
+- A non-DM peer can be granted `transfer_host` via Phase 29 overrides if the user wants that flexibility.
+
+---
+
+### 30g — Persistence on host-side
+
+**Files (new):**
+- `src/renderer/src/network/authority/persistence.ts` — debounced (~5s) snapshot serialization to disk via `window.api.saveCampaignSnapshot(campaignId, snapshot)`. On host startup, attempts `window.api.loadCampaignSnapshot(campaignId)` and seeds the authority if found.
+
+**Files (modify):**
+- `src/main/io/campaign-snapshots.ts` (new IPC handler) — read/write to `<userData>/snapshots/<campaignId>.json`.
+
+**Why this matters for Phase 32:** Pi-as-host needs to persist state too. The serialization format defined here gets reused. By the time Phase 32 starts, "snapshot the authority" is a solved primitive.
+
+**Acceptance:**
+- Host crashes mid-game. Reopens app. Game loads from last snapshot, peers reconnect, play resumes from the snapshot's state.
+- Host transfer ships the snapshot to the new host (same `serialize()` API).
+
+---
+
+### 30h — Tests + verify-don't-assume sweep
+
+**Files (new / modify):**
+- `src/renderer/src/network/authority/game-authority.test.ts` — comprehensive test suite for the new module.
+- `src/renderer/src/network/transport/p2p-transport.test.ts` — wraps existing host-manager tests under the adapter.
+- `src/renderer/src/network/transport/host-transfer.test.ts` — atomic-transfer specs (success, target rejection, target crash mid-transfer, network blip during transfer).
+
+Acceptance criteria for each migrated piece of host logic: produces byte-identical output to the pre-30a code path for the same inputs.
+
+**Acceptance:**
+- 4-gate suite green. New tests cover transfer + DM-role separation + permission integration. Existing tests untouched in behavior.
+
+---
+
+### 30i — Migration for in-flight games and saved campaigns
+
+**Files (modify):**
+- `src/main/io/campaign-io.ts` — on load, if `campaign.hostPeerClientId` is missing but `campaign.dmId` is set, set `hostPeerClientId = dmId`. Preserves the host=DM coupling for legacy saves.
+- Auto-rejoin flow handles the case where the host changed between sessions.
+
+**Acceptance:**
+- Loading a pre-30 save works exactly as today. Host = DM by default.
+- Once the user transfers host, the new value persists.
+
+---
+
+## Cross-cutting decisions
+
+- **Host-peer and DM-role default to the same peer at campaign creation.** Backwards compatible. Only diverges when explicitly transferred.
+- **Phase 29 permissions are the single source of truth for "who can do what."** The host-peer concept is purely about transport routing.
+- **Transfer protocol pauses gameplay briefly.** ~1–2s is acceptable. The alternative (live-migrate state without pausing) is much more complex and not worth it for the use case (DM stepping away).
+- **Persistence is local-host disk for this phase.** Phase 32 moves it to Pi.
+- **TransportAdapter is the seam Phase 32 plugs into.** WebSocket transport (Phase 32) implements the same interface — no changes needed to `GameAuthority`.
+
+---
+
+## Critical files (multi-touch hotspots)
+
+- `src/renderer/src/network/authority/game-authority.ts` *(new)*
+- `src/renderer/src/network/transport/transport-adapter.ts` *(new)*
+- `src/renderer/src/network/transport/p2p-transport.ts` *(new)*
+- `src/renderer/src/network/transport/host-transfer.ts` *(new)*
+- `src/renderer/src/network/authority/persistence.ts` *(new)*
+- `src/renderer/src/types/campaign.ts` — `hostPeerClientId` field
+- `src/renderer/src/stores/use-campaign-store.ts` — DM-role transfer action
+- `src/renderer/src/components/lobby/PlayerCard.tsx` — transfer menu items
+- Eventually deleted: `host-connection.ts`, `host-manager.ts`, `host-message-handlers.ts`, `host-handlers.ts` (their content moves into `GameAuthority`)
+
+---
+
+## Commit cadence
+
+```
+30a — refactor(net): extract GameAuthority module from scattered host logic
+30b — refactor(net): TransportAdapter interface + P2PTransport implementation
+30c — feat(net): decouple host-peer from DM-role (campaign.hostPeerClientId)
+30d — feat(net): host-role transfer protocol + atomic switchover
+30e — feat(dnd-app): DM-role transfer (role reassignment via Phase 29)
+30f — feat(dnd-app): Transfer Host / Transfer DM menu items in PlayerCard
+30g — feat(net): debounced host-side snapshot persistence
+30h — test(net): comprehensive GameAuthority + transfer tests
+30i — feat(net): migration for legacy campaigns lacking hostPeerClientId
+```
+
+One release: **v4.0.0** after 30i. Major version bump — `GameAuthority` is a new public-ish surface, and the old host-handler shims will be removed in a follow-up.
+
+---
+
+## Estimated scope
+
+10–15 working sessions. The biggest sub-phases are 30a (consolidation grind — every line of host logic gets moved) and 30d (transfer protocol is genuinely hairy because of the atomic switchover requirement).
+
+This phase is invisible to users in normal play — game still works exactly as before. The user-visible value comes from being able to transfer host/DM mid-session, which is a niche but high-value feature for long campaigns.
+
+---
+
+## Dependencies
+
+- **Requires Phase 29** (permissions matrix) to be landed. The `hasPermission` checks for `transfer_host` and `change_player_role` need to exist.
+- **Blocks Phase 31** (Live-state sync overhaul). Phase 31 mounts its shard registry inside `GameAuthority` — that module needs to exist first.
+- **Blocks Phase 32** (Cloud host). Phase 32 builds a Pi-side implementation of `GameAuthority` speaking the same transport-adapter contract.
+
+---
+
+## Open questions to lock before starting
+
+1. **Can a peer hold the host-peer role without having the DM role?** Default: yes (that's the whole point — "player hosts for the DM"). Confirm.
+2. **What happens if the host-peer disconnects without transferring?** Default: pick a remaining peer with the highest "host-eligibility" (probably the peer with the DM role, falling back to the longest-connected peer with `transfer_host` permission) and offer them an "Accept host responsibility" toast. They can decline; if no one accepts within ~30s, game pauses and waits for the original host to reconnect. Confirm or adjust.
+3. **Should host transfer require both the old host and the new host to be online?** Default: yes (atomic handshake). Confirm.

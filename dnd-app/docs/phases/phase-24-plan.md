@@ -1,7 +1,7 @@
 # SYSTEM OVERRIDE: IMPLEMENTATION MODE
-You are Claude Opus 4.6 Max. Your job is to execute the following architectural plan for Phase 20 of the D&D VTT project.
+You are Claude Opus 4.6 Max. Your job is to execute the following architectural plan for Phase 24 of the D&D VTT project.
 
-Phase 20 is a **Security Audit** scoring 7/10. Electron configuration is excellent (sandbox, contextIsolation, CSP). Network validation is strong (Zod schemas, rate limiting, size limits). The gaps are in **credential storage** (API keys in plaintext), **input sanitization** (chat messages, user data), **plugin integrity** (no signature verification), **hardcoded TURN credentials**, and **AI file access scope**. The "no authentication" finding is noted but deprioritized — this is a desktop P2P app where invite codes serve as session auth.
+Phase 24 covers the **Character Level-Up System**. The wizard is substantially complete for 2024 PHB with correct ASI levels, subclass at 3, epic boons, multiclass prerequisites, and Warlock Pact Magic separation. However, it has **critical bugs**: subclass selection not persisted to the character object, hit dice only tracking the primary class, and half-caster level 1 spell slots incorrect. Missing features include spell swap/replacement and cantrip selection during level-up.
 
 ---
 
@@ -9,282 +9,298 @@ Phase 20 is a **Security Audit** scoring 7/10. Electron configuration is excelle
 
 ### Windows 11 Machine (`C:\Users\evilp\dnd\`) — ALL WORK IS HERE
 
-Phase 20 is entirely client-side security hardening. No Raspberry Pi involvement.
+**Key Files:**
 
-### Cross-Phase Overlap (DO NOT duplicate)
+| File | Role | Critical Issues |
+|------|------|----------------|
+| `src/renderer/src/stores/level-up/apply-level-up.ts` | ~500-line function that mutates character | Subclass not written back; hit dice only primary class; no skill proficiency for multiclass |
+| `src/renderer/src/stores/level-up/level-up-spells.ts` | Spell resolution | Uses existing subclass (not newly selected) for always-prepared |
+| `src/renderer/src/stores/level-up/feature-selection-slice.ts` | Validation/incomplete checks | No feat sub-choice validation |
+| `src/renderer/src/components/levelup/5e/HpRollSection5e.tsx` | HP roll/average UI | Display uses pre-ASI CON; no reroll protection |
+| `src/renderer/src/components/levelup/5e/SpellSelectionSection5e.tsx` | Spell picker | No cantrips, no spell swap |
+| `src/renderer/src/services/character/spell-data.ts` | Spell slot tables | Half-caster `Math.ceil` gives wrong slots at level 1 |
+| `src/renderer/src/components/levelup/5e/AsiSelector5e.tsx` | ASI/feat UI | "+2 to one" doesn't warn about waste at score 19 |
 
-| Issue | Owned By |
-|-------|----------|
-| Path traversal (campaignId, fileName, book paths) | Phase 17 (NET-1, NET-12, NET-13) |
-| IPC handlers without try-catch | Phase 17 (NET-6, NET-29, NET-30) |
-| IPC save validation | Phase 7 (Sub-Phase E) |
-| Plugin execution sandboxing | Phase 1 (C2) |
-| Network `z.unknown()` schemas | Phase 7 (Sub-Phase G) |
-
-**Verified as EXCELLENT (no action needed):**
-- Electron: sandbox=true, contextIsolation=true, nodeIntegration=false
-- CSP: Strict content security policy
-- WebRTC: Forces relay-only (`iceTransportPolicy: 'relay'`), wss:/https: only for signaling
-- Rate limiting: 200 msg/sec, 65KB per message, file size limits
+### Raspberry Pi (`patrick@bmo`) — NO WORK THIS PHASE
 
 ---
 
-## 📋 Core Objectives (Net-New Only)
+## 📋 Core Objectives
 
-### HIGH PRIORITY
+### CRITICAL BUGS
 
-| # | Issue | File | Impact |
-|---|-------|------|--------|
-| S1 | API keys stored in plaintext JSON | `ai-service.ts:244-255` | Key exposure if userData compromised |
-| S2 | No chat message sanitization | `network/schemas.ts:39-53` | Potential XSS if rendered as HTML |
-| S3 | TURN credentials hardcoded in source | `peer-manager.ts:21-32` | Credentials publicly visible in repo |
-| S4 | Plugin ZIP install without integrity check | `plugin-handlers.ts:34-47` | Malicious plugin installation |
-| S5 | AI file reader unrestricted in userData | `ai/file-reader.ts:64-109` | AI can read any file in userData |
+| # | Bug | Location | Impact |
+|---|-----|----------|--------|
+| B1 | Subclass not persisted to `character.classes[].subclass` | `apply-level-up.ts` — no write-back code | Selecting subclass at level 3 does NOTHING — character has no subclass |
+| B2 | Hit dice only track primary class in multiclass | `apply-level-up.ts` lines 402-414 | Fighter 5/Wizard 1 gets d10 pool instead of d10+d6 — breaks short rest healing |
+| B3 | Half-caster `Math.ceil` gives spell slots at level 1 | `spell-data.ts` line 444 | Paladin 1 gets 2 first-level slots (should have 0) |
 
-### MEDIUM PRIORITY
+### HIGH BUGS
 
-| # | Issue | Impact |
-|---|-------|--------|
-| M1 | Binary file upload without content validation | Arbitrary file types written to disk |
-| M2 | AI memory files without size limits | Disk exhaustion over time |
-| M3 | No audit logging for security events | Cannot trace unauthorized actions |
+| # | Bug | Location | Impact |
+|---|-----|----------|--------|
+| B4 | HP display shows pre-ASI CON modifier | `HpRollSection5e.tsx` line 24 | Displayed HP gain differs from actual applied HP |
+| B5 | No skill proficiency gained on multiclass | `apply-level-up.ts` lines 288-303 | Bard/Ranger/Rogue multiclass miss one skill proficiency |
+
+### MISSING FEATURES
+
+| # | Feature | Impact |
+|---|---------|--------|
+| F1 | No spell swap/replacement during level-up | Core 2024 PHB rule — prepared casters can swap one spell per level |
+| F2 | No cantrip selection during level-up | Cantrip counts increase at levels 4/10 but no picker UI |
+| F3 | Subclass features not auto-loaded | Subclass features at levels 3/6/10/14 missing from character |
+| F4 | Feat sub-choice not validated | Feats like Elemental Adept can be "completed" without choosing damage type |
+| F5 | No HP reroll protection | Players can re-roll hit die indefinitely |
+| F6 | Class resources for secondary classes not updated | Multiclass secondary class resources stale |
 
 ---
 
 ## 🛠️ Step-by-Step Execution Plan
 
-### Sub-Phase A: API Key Encryption (S1)
+### Sub-Phase A: Fix Subclass Persistence (B1) — MOST CRITICAL
 
-**Step 1 — Encrypt API Keys at Rest**
-- Open `src/main/ai/ai-service.ts` lines 244-255
-- Currently writes plaintext JSON to `ai-config.json`
-- Use Electron's `safeStorage` API to encrypt sensitive fields:
+**Step 1 — Write Subclass Back to Character**
+- Open `src/renderer/src/stores/level-up/apply-level-up.ts`
+- Find where build slots are processed (around the ASI/feat section)
+- Add subclass write-back for the subclass slot:
   ```typescript
-  import { safeStorage } from 'electron'
-
-  function encryptKey(key: string): string {
-    if (!safeStorage.isEncryptionAvailable()) return key
-    return safeStorage.encryptString(key).toString('base64')
-  }
-
-  function decryptKey(encrypted: string): string {
-    if (!safeStorage.isEncryptionAvailable()) return encrypted
-    return safeStorage.decryptString(Buffer.from(encrypted, 'base64'))
-  }
-  ```
-- Before saving config, encrypt API key fields: `claudeApiKey`, `openaiApiKey`, `geminiApiKey`
-- On load, decrypt them before passing to AI clients
-- `safeStorage` uses the OS credential store (Windows Credential Manager, macOS Keychain, Linux Secret Service)
-
-**Step 2 — Encrypt Discord Bot Token**
-- Apply same encryption to Discord bot token in discord config
-- Load and decrypt on access, never keep decrypted in memory longer than needed
-
-**Step 3 — Add API Key Format Validation**
-- Before saving, validate key formats:
-  ```typescript
-  function validateApiKeyFormat(provider: string, key: string): boolean {
-    switch (provider) {
-      case 'claude': return key.startsWith('sk-ant-')
-      case 'openai': return key.startsWith('sk-')
-      case 'gemini': return key.length > 20
-      default: return key.length > 0
+  const subclassSlot = levelUpSlots.find(s => s.category === 'subclass' && s.selectedId)
+  if (subclassSlot) {
+    const classIndex = updatedClasses.findIndex(c => c.id === subclassSlot.classId || c.id === primaryClassId)
+    if (classIndex >= 0) {
+      updatedClasses[classIndex] = {
+        ...updatedClasses[classIndex],
+        subclass: subclassSlot.selectedId,
+        subclassName: subclassSlot.selectedName
+      }
     }
   }
   ```
-- Show validation error in the AI settings UI for malformed keys
+- Verify `updatedClasses` is later written to the character object
 
-### Sub-Phase B: Chat Message Sanitization (S2)
-
-**Step 4 — Sanitize Chat Messages Before Display**
-- Chat messages from network peers are validated by Zod schema but NOT sanitized for HTML/XSS
-- If chat messages are rendered using `dangerouslySetInnerHTML` or any HTML-injecting pattern, this is a risk
-- Check how chat messages are rendered in `ChatPanel.tsx`:
-  - If using React JSX text nodes (`{message.content}`), React auto-escapes — NO action needed
-  - If using `dangerouslySetInnerHTML` or `innerHTML`, add DOMPurify sanitization
-- Install DOMPurify if needed: `npm install dompurify @types/dompurify`
-- Apply to any user-generated content rendered as HTML (chat, journal entries, notes, NPC descriptions)
-
-**Step 5 — Sanitize Chat Link Rendering**
-- Open `src/renderer/src/utils/chat-links.tsx` (renamed from .ts in Phase 17)
-- The `renderChatContent()` function creates JSX elements from user text
-- Ensure URLs are validated before rendering as clickable links:
+**Step 2 — Fix Always-Prepared Spells to Use New Subclass**
+- Open `src/renderer/src/stores/level-up/level-up-spells.ts`
+- Find line 135 where `character.classes[0]?.subclass` is read
+- Replace with the newly selected subclass from the level-up store:
   ```typescript
-  function isValidUrl(url: string): boolean {
-    try {
-      const parsed = new URL(url)
-      return ['http:', 'https:'].includes(parsed.protocol)
-    } catch { return false }
-  }
+  const subclassId = subclassSlot?.selectedId || character.classes[0]?.subclass
   ```
-- Do NOT render `javascript:`, `data:`, or `file:` URLs as clickable links
+- Pass the selected subclass ID into `resolveLevelUpSpells()`
 
-### Sub-Phase C: Remove Hardcoded TURN Credentials (S3)
+### Sub-Phase B: Fix Hit Dice Tracking (B2)
 
-**Step 6 — Move TURN Credentials to Settings**
-- Open `src/renderer/src/network/peer-manager.ts` lines 21-32
-- Find the hardcoded TURN credentials (`dndvtt:dndvtt-relay`)
-- Remove from source code and move to user-configurable settings:
+**Step 3 — Track Hit Dice Per Class**
+- Open `src/renderer/src/stores/level-up/apply-level-up.ts` lines 402-414
+- Replace single-pool hit dice with per-class tracking:
   ```typescript
-  function getTurnServers(): RTCIceServer[] {
-    const settings = loadSettings()
-    if (settings.turnServers?.length) {
-      return settings.turnServers
+  const hitDiceByClass: Record<string, { die: number; total: number; remaining: number }> = {}
+  
+  // Initialize from existing character hit dice
+  for (const hd of character.hitDice ?? []) {
+    hitDiceByClass[hd.classId ?? 'primary'] = { die: hd.die, total: hd.total, remaining: hd.remaining }
+  }
+  
+  // Add new levels' hit dice
+  for (let lvl = currentLevel + 1; lvl <= targetLevel; lvl++) {
+    const classId = classLevelChoices[lvl] || primaryClassId
+    const classData = classDataMap[classId]
+    const die = classData?.hitDie ?? 8
+    if (!hitDiceByClass[classId]) {
+      hitDiceByClass[classId] = { die, total: 0, remaining: 0 }
     }
-    return [
-      { urls: 'stun:stun.cloudflare.com:3478' }
-    ]
+    hitDiceByClass[classId].total += 1
+    hitDiceByClass[classId].remaining += 1
+  }
+  
+  updated.hitDice = Object.entries(hitDiceByClass).map(([classId, hd]) => ({
+    classId, ...hd
+  }))
+  ```
+- Verify the `Character5e.hitDice` type supports per-class entries (may need a type update)
+
+### Sub-Phase C: Fix Half-Caster Spell Slots (B3)
+
+**Step 4 — Fix Half-Caster Level 1 Slots**
+- Open `src/renderer/src/services/character/spell-data.ts` line 444
+- Change `Math.ceil(level / 2)` to a lookup that matches the 2024 PHB half-caster table:
+  ```typescript
+  function getHalfCasterEffectiveLevel(classLevel: number): number {
+    if (classLevel < 2) return 0  // No slots at level 1
+    return Math.ceil(classLevel / 2)
   }
   ```
-- The TURN server config is already in `AppSettings.turnServers` (from Phase 8 analysis). Wire the peer manager to use it instead of hardcoded values.
-- Remove all hardcoded usernames/passwords from the source code
-- The `NetworkSettingsModal` already exists for configuring TURN servers — verify it works end-to-end
+- This ensures Paladin 1 and Ranger 1 get 0 spell slots, while Paladin 2 gets slots as level 1 full caster
 
-### Sub-Phase D: Plugin Integrity Verification (S4)
+### Sub-Phase D: Fix HP Display (B4)
 
-**Step 7 — Add Plugin Checksum Verification**
-- Open `src/main/ipc/plugin-handlers.ts` lines 34-47
-- Before installing a plugin ZIP, compute and verify a checksum:
+**Step 5 — Show Post-ASI CON in HP Section**
+- Open `src/renderer/src/components/levelup/5e/HpRollSection5e.tsx`
+- Line 24 uses `character.abilityScores.constitution`
+- Calculate the post-ASI CON by reading the ASI selections from the level-up store:
   ```typescript
-  import { createHash } from 'node:crypto'
-
-  async function computeChecksum(filePath: string): Promise<string> {
-    const content = await readFile(filePath)
-    return createHash('sha256').update(content).digest('hex')
-  }
+  const asiSelections = useLevelUpStore(s => s.asiSelections)
+  const conBoosts = Object.values(asiSelections).flat().filter(a => a === 'constitution').length
+  const effectiveCon = character.abilityScores.constitution + conBoosts
+  const conMod = Math.floor((effectiveCon - 10) / 2)
   ```
-- If the plugin comes from a trusted source with a manifest, verify the checksum matches
-- If no checksum is available (user-uploaded), show a warning: "This plugin is not verified. Install at your own risk?"
+- Display this corrected modifier in the HP calculation preview
 
-**Step 8 — Validate Plugin ZIP Contents**
-- Before extracting, scan the ZIP for dangerous patterns:
-  - Reject ZIPs with paths containing `..` (zip-slip vulnerability)
-  - Reject ZIPs containing executable files (`.exe`, `.bat`, `.cmd`, `.ps1`, `.sh`)
-  - Reject ZIPs larger than 50MB
-  - Only allow expected file types: `.json`, `.js`, `.ts`, `.css`, `.png`, `.jpg`, `.svg`, `.md`
+### Sub-Phase E: Fix Multiclass Skill Proficiencies (B5)
+
+**Step 6 — Add Skill Proficiency Grants for Multiclass**
+- Open `src/renderer/src/stores/level-up/apply-level-up.ts`
+- After armor/weapon proficiency grants (lines 288-303), add skill proficiency handling:
   ```typescript
-  function validateZipEntry(entryName: string): boolean {
-    if (entryName.includes('..')) return false
-    const ext = path.extname(entryName).toLowerCase()
-    const ALLOWED_EXTENSIONS = ['.json', '.js', '.ts', '.css', '.png', '.jpg', '.svg', '.md', '.txt']
-    return ALLOWED_EXTENSIONS.includes(ext) || entryName.endsWith('/')
+  const MULTICLASS_SKILL_GRANTS: Record<string, number> = {
+    bard: 1,    // 1 skill of your choice
+    ranger: 1,  // 1 skill from Ranger list
+    rogue: 1    // 1 skill from Rogue list
   }
-  ```
-
-### Sub-Phase E: AI File Access Restriction (S5)
-
-**Step 9 — Restrict AI File Reader to Specific Directories**
-- Open `src/main/ai/file-reader.ts` lines 64-109
-- Currently the AI can read any text file in userData
-- Restrict to only campaign-specific directories:
-  ```typescript
-  const ALLOWED_AI_READ_DIRS = [
-    'campaigns',
-    'ai-conversations',
-    'characters'
-  ]
-
-  function isAiReadAllowed(filePath: string): boolean {
-    const userDataDir = app.getPath('userData')
-    const resolved = path.resolve(filePath)
-    if (!resolved.startsWith(userDataDir)) return false
-    const relative = path.relative(userDataDir, resolved)
-    return ALLOWED_AI_READ_DIRS.some(dir => relative.startsWith(dir))
-  }
-  ```
-- Reject reads outside allowed directories with a logged warning
-
-**Step 10 — Add AI Memory File Size Limits (M2)**
-- Open `src/main/ai/memory-manager.ts`
-- Add a maximum file size for each memory file:
-  ```typescript
-  const MAX_MEMORY_FILE_SIZE = 1024 * 1024 // 1MB per memory file
-  const MAX_TOTAL_MEMORY_SIZE = 10 * 1024 * 1024 // 10MB total
-
-  async function checkMemoryLimits(campaignId: string): Promise<boolean> {
-    const memoryDir = getMemoryDir(campaignId)
-    const files = await readdir(memoryDir)
-    let totalSize = 0
-    for (const file of files) {
-      const stat = await fsStat(path.join(memoryDir, file))
-      if (stat.size > MAX_MEMORY_FILE_SIZE) return false
-      totalSize += stat.size
+  
+  for (const classId of newClassesAdded) {
+    const skillCount = MULTICLASS_SKILL_GRANTS[classId]
+    if (skillCount) {
+      // TODO: The implementation agent should check if the level-up UI already has
+      // a skill picker for multiclass. If not, add one to LevelUpConfirm5e.tsx
+      // For now, note that skills need to be selected by the player, not auto-assigned
     }
-    return totalSize < MAX_TOTAL_MEMORY_SIZE
   }
   ```
-- Before writing memory files, check limits. If exceeded, prune oldest entries.
+- Add a skill picker UI in `LevelUpConfirm5e.tsx` when a new class is added that grants skills
 
-### Sub-Phase F: File Upload Validation (M1)
+### Sub-Phase F: Spell Swap/Replacement (F1)
 
-**Step 11 — Validate Binary File Uploads**
-- Open `src/preload/index.ts` lines 199-211 (or the relevant upload handler)
-- Add content type validation for uploaded files:
+**Step 7 — Add Spell Swap UI**
+- Open `src/renderer/src/components/levelup/5e/SpellSelectionSection5e.tsx`
+- Add a "Replace Spell" section above the "Learn New Spells" section:
+  ```tsx
+  <div>
+    <h4>Replace a Spell (Optional)</h4>
+    <p className="text-xs text-gray-400">You may replace one prepared spell with another of a level you can cast.</p>
+    <select value={swapOutSpellId} onChange={e => setSwapOutSpellId(e.target.value)}>
+      <option value="">None</option>
+      {existingSpells.map(s => <option key={s.id} value={s.id}>{s.name} (Level {s.level})</option>)}
+    </select>
+    {swapOutSpellId && <SpellPicker onSelect={setSwapInSpellId} maxLevel={maxSpellLevel} />}
+  </div>
+  ```
+- Store the swap in the level-up store: `spellSwap: { removeId: string; addId: string } | null`
+- In `apply-level-up.ts`, process the swap: remove the old spell, add the new one
+
+### Sub-Phase G: Cantrip Selection (F2)
+
+**Step 8 — Add Cantrip Picker During Level-Up**
+- Open `src/renderer/src/components/levelup/5e/SpellSelectionSection5e.tsx`
+- Currently line 131 filters out `s.level === 0` (cantrips)
+- Add a separate cantrip section when the cantrip count increases at this level:
   ```typescript
-  const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif']
-  const ALLOWED_AUDIO_TYPES = ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/webm']
+  const oldCantrips = CANTRIPS_KNOWN[className]?.[currentLevel] ?? 0
+  const newCantrips = CANTRIPS_KNOWN[className]?.[targetLevel] ?? 0
+  const cantripsToLearn = newCantrips - existingCantripCount
+  
+  if (cantripsToLearn > 0) {
+    // Show cantrip picker with count = cantripsToLearn
+  }
+  ```
+- Import `CANTRIPS_KNOWN` from `spell-data.ts`
+- Filter available cantrips by the character's class spell list
 
-  function validateFileType(buffer: Buffer, expectedTypes: string[]): boolean {
-    // Check magic bytes for file type verification
-    const header = buffer.slice(0, 4).toString('hex')
-    const magicBytes: Record<string, string> = {
-      '89504e47': 'image/png',
-      'ffd8ffe0': 'image/jpeg',
-      'ffd8ffe1': 'image/jpeg',
-      '52494646': 'audio/wav', // or image/webp
-      '4f676753': 'audio/ogg',
+### Sub-Phase H: Subclass Feature Loading (F3)
+
+**Step 9 — Load Subclass Features During Level-Up**
+- Open `src/renderer/src/stores/level-up/apply-level-up.ts` lines 164-190
+- After loading class features, also load subclass features:
+  ```typescript
+  const subclassId = subclassSlot?.selectedId || character.classes[0]?.subclass
+  if (subclassId) {
+    const subclassData = await load5eSubclass(subclassId)
+    if (subclassData?.features) {
+      for (const feature of subclassData.features) {
+        if (feature.level >= currentLevel + 1 && feature.level <= targetLevel) {
+          allNewFeatures.push({
+            level: feature.level,
+            name: feature.name,
+            description: feature.description,
+            source: subclassData.name
+          })
+        }
+      }
     }
-    const detected = magicBytes[header]
-    return detected ? expectedTypes.includes(detected) : false
   }
   ```
-- Apply to image uploads (token images, map backgrounds) and audio uploads (custom sounds)
+- Verify `load5eSubclass()` exists or create it from the existing subclass data loading pattern
 
-### Sub-Phase G: Audit Logging (M3)
+### Sub-Phase I: Validation Fixes (F4, F5)
 
-**Step 12 — Add Security Event Logging**
-- Create `src/main/security-log.ts`:
+**Step 10 — Validate Feat Sub-Choices**
+- Open `src/renderer/src/stores/level-up/feature-selection-slice.ts`
+- In `getIncompleteChoices()`, add validation for feat `choiceConfig`:
   ```typescript
-  import { logToFile } from './log'
-
-  export function logSecurityEvent(event: string, details: Record<string, unknown>) {
-    const timestamp = new Date().toISOString()
-    logToFile(`[SECURITY] ${timestamp} ${event}: ${JSON.stringify(details)}`)
+  for (const [slotId, feat] of Object.entries(generalFeatSelections)) {
+    if (feat.choiceConfig && !feat.choiceValue) {
+      incomplete.push(`${feat.name}: Choose a ${feat.choiceConfig.label}`)
+    }
   }
   ```
-- Log these security events:
-  - Failed path traversal attempts
-  - Invalid API key format submissions
-  - Plugin installation (success/failure, filename, checksum)
-  - AI file read attempts outside allowed directories
-  - Network peer connection/disconnection
-  - Kick/ban actions
-  - Failed Zod validation on network messages (potential injection attempts)
+
+**Step 11 — Add HP Reroll Protection**
+- Open `src/renderer/src/components/levelup/5e/HpRollSection5e.tsx`
+- After rolling, disable the roll button (lock the result):
+  ```typescript
+  const [locked, setLocked] = useState(false)
+  
+  const doRoll = () => {
+    if (locked) return
+    const result = Math.floor(Math.random() * hitDie) + 1
+    setRoll(result)
+    setLocked(true)  // Lock after first roll
+    onRollHp(level, result)
+  }
+  ```
+- Add a DM setting: `allowHpRerolls: boolean` (default: false). If true, the lock is skipped.
+- Show the lock state visually: "Rolled: {value} (locked)" with a lock icon
+
+### Sub-Phase J: Secondary Class Resources (F6)
+
+**Step 12 — Update Resources for All Classes**
+- Open `src/renderer/src/stores/level-up/apply-level-up.ts` lines 423-441
+- Currently calls `getClassResources()` only for `primaryClassId`
+- Iterate all classes and update resources for each:
+  ```typescript
+  for (const cls of updatedClasses) {
+    const classLevel = classLvlTracker[cls.id] ?? 0
+    const resources = getClassResources(cls.id, classLevel)
+    if (resources) {
+      mergeResources(updated.classResources, resources)
+    }
+  }
+  ```
+- Create `mergeResources()` that combines resource arrays without duplicating
 
 ---
 
 ## ⚠️ Constraints & Edge Cases
 
-### API Key Encryption
-- **`safeStorage.isEncryptionAvailable()`**: Returns `false` before `app.ready` event. Ensure encryption is only used after app is ready.
-- **Migration**: Existing users have plaintext keys. On first load after this change, detect unencrypted keys (they won't have the base64 encryption marker) and encrypt them in place.
-- **Fallback**: If `safeStorage` is unavailable (rare on Windows 10+), fall back to plaintext with a warning log. Do NOT prevent app from starting.
+### Subclass Persistence
+- **This is the most critical fix** — without it, characters created at level 3+ via level-up have NO subclass. All subclass features, always-prepared spells, and subclass-specific behavior are broken.
+- **Verify the character type**: Ensure `Character5e.classes[].subclass` field exists and is the correct type (string ID).
+- **Test**: After fixing, level a character from 2 to 3, select a subclass, apply. Verify the character's `classes[0].subclass` is set.
 
-### Chat Sanitization
-- **React auto-escapes JSX text**: If chat messages are rendered as `{message.content}` in JSX, React prevents XSS by default. Verify this is the case before adding DOMPurify — unnecessary sanitization adds complexity.
-- **Markdown rendering**: If chat supports markdown (via a markdown renderer), the markdown-to-HTML step needs sanitization. Check if any chat rendering uses `dangerouslySetInnerHTML`.
-- **Chat links**: The `renderChatContent` function creates JSX elements from parsed URLs. Ensure `href` attributes are validated (no `javascript:` protocol).
+### Hit Dice Per Class
+- **Type change required**: The `Character5e.hitDice` field may currently be `{ die: number; total: number; remaining: number }[]` without a `classId`. Adding `classId` changes the type — ensure backward compatibility with existing characters (default to primary class ID if `classId` is undefined).
+- **Short rest**: The `RestModal` hit die roller must show per-class dice options (e.g., "d10 (Fighter): 3 remaining, d6 (Wizard): 1 remaining"). Verify the rest UI supports this.
 
-### TURN Credentials
-- **Default fallback**: After removing hardcoded TURN, the default should be STUN-only (Cloudflare). This means direct P2P connections work but may fail behind strict NATs. Users who need TURN must configure their own server.
-- **Do NOT remove the relay-only policy** (`iceTransportPolicy: 'relay'`). If no TURN server is configured and the policy is relay-only, connections will fail. Change the default policy to `'all'` (try direct first, fall back to relay) when no TURN is configured.
+### Half-Caster Level 1
+- **Single-class only**: This fix affects the single-class half-caster table. The multiclass combined table uses `Math.ceil` which is correct per 2024 PHB for the combined table. Do NOT change the multiclass function.
+- **Test**: Verify Paladin 1 = 0 slots, Paladin 2 = 2 first-level slots, Ranger 1 = 0 slots.
 
-### Plugin Security
-- **ZIP-slip is a real vulnerability**: The `..` check in entry names must use the resolved path, not just string matching. `path.resolve(extractDir, entryName).startsWith(extractDir)` is the correct check.
-- **JS execution**: Even with safe file types, a malicious `.js` file in a plugin could execute arbitrary code if the plugin system runs it. Phase 1 addresses plugin sandboxing — this phase only handles the installation step.
+### Spell Swap
+- **One swap per level-up**: The 2024 PHB allows swapping one spell per level gained. If leveling 4 levels at once, allow 4 swaps.
+- **Level restriction**: The replacement spell must be of a level the character can cast (not just any level).
+- **Always-prepared spells cannot be swapped** — they're granted by class/subclass.
 
-### AI File Access
-- **Don't break existing functionality**: The AI legitimately needs to read campaign data, NPC descriptions, and conversation history. The allowed directories list must cover all legitimate use cases.
-- **Test after restricting**: Run an AI DM session after implementing the restriction to ensure context building still works (it reads from campaigns, characters, and AI conversations).
+### Cantrip Selection
+- **Cantrip count by class**: Each class has its own cantrip progression. In multiclass, each class contributes its own cantrips. Verify the picker uses the correct class's cantrip list.
+- **No cantrip swap**: Unlike prepared spells, cantrips are permanent once learned (2024 PHB rule). No swap mechanism for cantrips.
 
-Begin implementation now. Start with Sub-Phase A (Steps 1-3) for API key encryption — this is the highest-impact security fix since keys are currently in plaintext. Then Sub-Phase C (Step 6) to remove hardcoded TURN credentials from the repo. Then Sub-Phase D (Steps 7-8) for plugin integrity.
+Begin implementation now. Start with Sub-Phase A (Steps 1-2) — the subclass persistence bug is CRITICAL and means every level 3+ character created via level-up has no subclass. Then Sub-Phase B (Step 3) for hit dice. Then Sub-Phase C (Step 4) for half-caster slots. These three fixes address the most impactful rule violations.

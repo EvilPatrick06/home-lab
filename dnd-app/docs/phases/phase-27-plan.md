@@ -1,7 +1,7 @@
 # SYSTEM OVERRIDE: IMPLEMENTATION MODE
-You are Claude Opus 4.6 Max. Your job is to execute the following architectural plan for Phase 23 of the D&D VTT project.
+You are Claude Opus 4.6 Max. Your job is to execute the following architectural plan for Phase 27 (FINAL) of the D&D VTT project.
 
-Phase 23 covers the **In-Game Character Sheet** — data binding, real-time sync, inventory, spellbook, conditions, and performance. The sheet is feature-rich and functional but needs **performance optimization** (no virtualization for spell/equipment lists, limited useMemo), **spell search/filtering**, **sync conflict resolution**, and **consistency fixes** (remote characters stored in wrong store, attunement count mismatch).
+Phase 27 covers the **Audio, SFX & Atmosphere System**. The app has a robust SFX pool (97 events, 130 bundled .mp3 files, round-robin playback), DM audio panel, and network sync for ambient/SFX. However, it has **two critical path bugs** (default ambient points to nonexistent files, custom audio stop uses wrong key), **3D dice animations are completely silent**, **late joiners hear no ambient**, and **duplicate message handlers may cause double-playback**.
 
 ---
 
@@ -13,257 +13,316 @@ Phase 23 covers the **In-Game Character Sheet** — data binding, real-time sync
 
 | Issue | Owned By |
 |-------|----------|
-| Conditions not mechanically applied to rolls | Phase 1 (D7), Phase 4 |
-| Death save automation | Phase 4 (B) |
-| Concentration save on damage | Phase 4 (noted in Phase 11) |
-| Accessibility/ARIA on sheet | Phase 18 |
-| Player inventory panel (in-game) | Phase 15 (A) |
+| Volume persistence to localStorage | Phase 8 (Sub-Phase A) |
+| Player volume controls in Settings | Phase 8 (Sub-Phase A, Step 2) |
+| Audio emitter `updateEmitters` never called | Phase 1 (A11) |
+| Audio emitter playing state management | Phase 11 (Sub-Phase B) |
+| Audio state not included in late-joiner sync | Phase 14 (Sub-Phase D, Step 7) |
+
+**Key Files:**
+
+| File | Lines | Critical Issues |
+|------|-------|----------------|
+| `src/renderer/src/services/sound-playback.ts` | 173 | **CRITICAL**: Line 30 — ambient path `assets/audio/ambient/*.ogg` is WRONG (should be `sounds/ambient/*.mp3`); line 34 — silent error swallowing; fade race condition (lines 77-115) |
+| `src/renderer/src/services/sound-manager.ts` | 558 | Volume not persisted (Phase 8 overlap); `reinit()` doesn't clean up ambient/custom |
+| `src/renderer/src/components/game/bottom/DMAudioPanel.tsx` | 393 | **CRITICAL**: Lines 171, 207 — passes `fileName` to stop/delete but Map is keyed by `filePath`; per-track volume slider doesn't update playing audio |
+| `src/renderer/src/components/game/dice3d/DiceOverlay.tsx` | ~200 | **HIGH**: `trigger3dDice()` never calls `play()` — 3D dice are completely silent |
+| `src/renderer/src/hooks/use-game-network.ts` | Lines 114-126 | **HIGH**: Duplicate audio handler — same messages handled in `client-handlers.ts:624-650` |
+| `src/renderer/src/services/chat-commands/commands-dm-sound.ts` | 97 | `/sound ambient` doesn't network sync (line 82) |
+
+### Raspberry Pi (`patrick@bmo`) — NO WORK THIS PHASE
 
 ---
 
-## 📋 Net-New Objectives
+## 📋 Core Objectives
 
-### HIGH PRIORITY
+### CRITICAL BUGS
+
+| # | Bug | Impact |
+|---|-----|--------|
+| A1 | Default ambient path wrong: `assets/audio/ambient/*.ogg` instead of `sounds/ambient/*.mp3` | All 9 default ambient tracks produce silence — DM clicks play, nothing happens |
+| A2 | Custom audio stop/delete uses `fileName` but Map keyed by `filePath` | Custom tracks cannot be stopped — play indefinitely |
+
+### HIGH BUGS
+
+| # | Bug | Impact |
+|---|-----|--------|
+| A3 | 3D dice animations from `trigger3dDice()` are completely silent | 25+ dice roll paths have no sound — only dice tray UI plays sounds |
+| A4 | Duplicate audio message handlers in two files | SFX/ambient may play twice per trigger |
+| A5 | `/sound ambient` chat command doesn't network sync | DM hears ambient via chat command; players don't |
+
+### MEDIUM ISSUES
 
 | # | Issue | Impact |
 |---|-------|--------|
-| S1 | No virtualization for spell/equipment lists — lag with 50+ items | Performance |
-| S2 | No spell search/filter within spell list | UX — hard to find spells |
-| S3 | Remote character updates go to `lobbyStore.remoteCharacters` not character store | Data inconsistency |
-| S4 | No conflict resolution for simultaneous DM+player edits | Last-write-wins silently |
-
-### MEDIUM PRIORITY
-
-| # | Issue | Impact |
-|---|-------|--------|
-| M1 | Limited useMemo — most sections recalculate on every render | Performance |
-| M2 | Attunement count mismatch between AttunementTracker and MagicItemsPanel | Confusing display |
-| M3 | No optimistic updates — UI waits for IPC round-trip | Sluggish feel |
-| M4 | Inconsistent use of `useCharacterEditor` vs direct store calls | Code maintenance |
-| M5 | No tool proficiency roll buttons | Missing QoL feature |
+| A6 | No fade cancellation — rapid ambient switches cause overlapping rAF loops | Unpredictable volume jumps |
+| A7 | `reinit()` doesn't stop ambient or clear custom tracks | Audio leaks across sessions |
+| A8 | Per-track volume slider doesn't update playing audio element | Must stop/restart to apply new volume |
+| A9 | Custom audio not networked to clients | DM custom tracks play locally only |
+| A10 | No playlist system | Can't sequence ambient tracks |
 
 ---
 
 ## 🛠️ Step-by-Step Execution Plan
 
-### Sub-Phase A: List Virtualization (S1)
+### Sub-Phase A: Fix Critical Path Bug (A1)
 
-**Step 1 — Virtualize Spell List**
-- Open `src/renderer/src/components/sheet/5e/SpellList5e.tsx`
-- The project already uses `@tanstack/react-virtual` (in ChatPanel, LibraryItemList)
-- Wrap the spell list in a virtualizer:
+**Step 1 — Fix Default Ambient Path**
+- Open `src/renderer/src/services/sound-playback.ts`
+- Find line 30:
   ```typescript
-  import { useVirtualizer } from '@tanstack/react-virtual'
+  const path = customPath ?? `assets/audio/ambient/${ambient}.ogg`
+  ```
+- Fix to:
+  ```typescript
+  const path = customPath ?? `./sounds/ambient/${ambient.replace('ambient-', '')}.mp3`
+  ```
+- Verify the ambient track names in `ambient-tracks.json` match the filenames in `sounds/ambient/`
+- If ambient names are like `ambient-tavern`, the strip prefix ensures it resolves to `sounds/ambient/tavern.mp3`
 
-  const parentRef = useRef<HTMLDivElement>(null)
-  const virtualizer = useVirtualizer({
-    count: filteredSpells.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 48, // estimated row height
-    overscan: 5
+**Step 2 — Add Error Logging for Ambient Playback**
+- Replace the silent catch at line 34:
+  ```typescript
+  audio.play().catch((err) => {
+    logger.warn(`[sound-playback] Failed to play ambient: ${ambient}`, err)
   })
   ```
-- Render only visible spell rows with `virtualizer.getVirtualItems()`
-- Keep the level grouping — virtualize within each level group or flatten with group headers
 
-**Step 2 — Virtualize Equipment List**
-- Open `src/renderer/src/components/sheet/5e/EquipmentListPanel5e.tsx`
-- Apply same `@tanstack/react-virtual` pattern for equipment items
-- Equipment lists can grow large with pack contents expanded
+### Sub-Phase B: Fix Custom Audio Key Mismatch (A2)
 
-### Sub-Phase B: Spell Search & Filter (S2)
-
-**Step 3 — Add Spell Search Box**
-- Open `SpellcastingSection5e.tsx` or `SpellList5e.tsx`
-- Add a search input above the spell list:
-  ```tsx
-  <input
-    type="text"
-    placeholder="Search spells..."
-    value={spellSearch}
-    onChange={(e) => setSpellSearch(e.target.value)}
-    className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm"
-  />
-  ```
-- Filter spells by name match (case-insensitive includes)
-
-**Step 4 — Add Spell Filters**
-- Add filter chips for:
-  - School: Abjuration, Conjuration, Divination, Enchantment, Evocation, Illusion, Necromancy, Transmutation
-  - Casting time: Action, Bonus Action, Reaction, 1 Minute+
-  - Components: V, S, M
-  - Concentration: Yes/No
-  - Ritual: Yes/No
-  - Prepared: Prepared only / All
-- Use multi-select chip pattern (toggle each filter on/off)
-
-### Sub-Phase C: Fix Remote Character Store (S3)
-
-**Step 5 — Unify Character Update Flow**
-- Open `src/renderer/src/stores/network-store/client-handlers.ts` lines 734-745
-- Currently: `dm:character-update` sets character in `lobbyStore.remoteCharacters`
-- This means the character store and lobby store can have different versions of the same character
-- Fix: Also update the character store when receiving a character update:
+**Step 3 — Fix Stop/Delete to Use Full Path**
+- Open `src/renderer/src/components/game/bottom/DMAudioPanel.tsx`
+- Find `handleToggleCustomPlay` at line 171 and `handleDeleteCustom` at line 207
+- Currently passes `fileName` (e.g., `"battle-music.mp3"`)
+- Fix: pass the full path returned by `audio:get-custom-path` IPC:
   ```typescript
-  case 'dm:character-update': {
-    const payload = message.payload as CharacterUpdatePayload
-    if (payload.characterData) {
-      // Update BOTH stores
-      useLobbyStore.getState().setRemoteCharacter(payload.characterId, payload.characterData as Character5e)
-      useCharacterStore.getState().updateCharacterInState(payload.characterId, payload.characterData as Character5e)
+  const handleToggleCustomPlay = async (fileName: string) => {
+    const fullPath = await window.api.audio.getCustomPath(campaignId, fileName)
+    if (playingTracks.has(fileName)) {
+      stopCustomAudio(fullPath)  // Use full path
+      setPlayingTracks(prev => { prev.delete(fileName); return new Set(prev) })
+    } else {
+      playCustomAudio(fullPath, { loop: loopEnabled, volume: trackVolume })
+      setPlayingTracks(prev => new Set(prev).add(fileName))
     }
-    break
   }
   ```
-- Add `updateCharacterInState(id, data)` to the character store if it doesn't exist
+- Apply the same fix to `handleDeleteCustom`
 
-### Sub-Phase D: Conflict Resolution (S4)
+### Sub-Phase C: Add Sound to 3D Dice (A3)
 
-**Step 6 — Add Timestamp-Based Conflict Detection**
-- Every character save already stamps `updatedAt: new Date().toISOString()`
-- When receiving a `dm:character-update`, compare timestamps:
+**Step 4 — Wire Sound to trigger3dDice**
+- Open `src/renderer/src/components/game/dice3d/DiceOverlay.tsx`
+- Find where `trigger3dDice` events are processed
+- Add sound playback when dice are triggered:
   ```typescript
-  const localChar = useCharacterStore.getState().characters.find(c => c.id === payload.characterId)
-  const remoteTimestamp = new Date(payload.characterData.updatedAt).getTime()
-  const localTimestamp = localChar ? new Date(localChar.updatedAt).getTime() : 0
+  import { play, playDiceSound } from '@/services/sound-manager'
 
-  if (localTimestamp > remoteTimestamp) {
-    // Local version is newer — show conflict notification
-    showConflictWarning(localChar, payload.characterData)
-  } else {
-    // Remote version is newer — apply
-    applyCharacterUpdate(payload)
+  // When a dice roll event is received:
+  const handleDiceRoll = (event: DiceRollEvent) => {
+    // Play dice sound based on die type
+    playDiceSound(event.sides)
+
+    // Check for nat 20/nat 1 on d20
+    if (event.sides === 20 && event.results.length === 1) {
+      if (event.results[0] === 20) play('nat-20')
+      else if (event.results[0] === 1) play('nat-1')
+    }
+
+    // ... existing 3D animation logic
   }
   ```
+- Ensure this doesn't double-play with the dice tray — the dice tray (`DiceRoller.tsx`) already plays sounds. Add a flag: if the roll originated from the dice tray, skip the DiceOverlay sound.
+- For network-received rolls, the DiceOverlay should play the sound since the dice tray isn't involved.
 
-**Step 7 — Create Conflict Resolution UI**
-- When a conflict is detected, show a notification:
-  ```tsx
-  <ConflictBanner>
-    Character "{name}" was modified by both you and the DM.
-    <button onClick={keepLocal}>Keep Your Version</button>
-    <button onClick={acceptRemote}>Accept DM's Version</button>
-  </ConflictBanner>
-  ```
-- For most cases, the DM's version should win (DM is authoritative). But give the player visibility.
+### Sub-Phase D: Fix Duplicate Audio Handlers (A4)
 
-### Sub-Phase E: Performance — useMemo (M1)
+**Step 5 — Remove Duplicate Handler**
+- Two locations handle `dm:play-sound`, `dm:play-ambient`, `dm:stop-ambient`:
+  1. `src/renderer/src/hooks/use-game-network.ts` lines 114-126
+  2. `src/renderer/src/stores/network-store/client-handlers.ts` lines 624-650
+- **Keep only one.** The store-based handler in `client-handlers.ts` is the correct location (consistent with all other message handling).
+- Remove the audio handlers from `use-game-network.ts` lines 114-126.
+- Verify no other code depends on those hook-based handlers.
 
-**Step 8 — Add useMemo to Sheet Sections**
-- Wrap expensive calculations in `useMemo`:
-  - `SkillsSection5e`: Skill modifier calculations
-  - `SavingThrowsSection5e`: Save modifier calculations
-  - `OffenseSection5e`: Attack bonus calculations
-  - `DefenseSection5e`: AC calculation
-  - `SpellcastingSection5e`: Spell DC, attack bonus, slot counts
-  - `EquipmentSection5e`: Weight calculation, encumbrance
-- Example:
+### Sub-Phase E: Fix Chat /sound Sync (A5)
+
+**Step 6 — Network Sync /sound ambient Command**
+- Open `src/renderer/src/services/chat-commands/commands-dm-sound.ts`
+- Find line 82 where `playAmbient(fullName)` is called directly
+- Add network broadcast:
   ```typescript
-  const skillModifiers = useMemo(() =>
-    character.skills.map(skill => ({
-      ...skill,
-      modifier: calculateSkillMod(skill, character)
-    })),
-    [character.skills, character.abilityScores, character.proficiencies]
-  )
+  case 'ambient': {
+    const trackName = parts.slice(1).join(' ')
+    const fullName = `ambient-${trackName}`
+    playAmbient(fullName)
+    // Sync to all clients
+    const { sendMessage } = useNetworkStore.getState()
+    sendMessage?.('dm:play-ambient', { ambient: fullName })
+    return { type: 'info', content: `Playing ambient: ${trackName}` }
+  }
   ```
+- Same fix for `stop` subcommand — broadcast `dm:stop-ambient`
 
-**Step 9 — Wrap List Items with React.memo**
-- Spell row components, equipment row components, and condition row components should be memoized:
+### Sub-Phase F: Fix Fade Race Condition (A6)
+
+**Step 7 — Add Fade Cancellation**
+- Open `src/renderer/src/services/sound-playback.ts`
+- Add a cancellation token to the fade function:
   ```typescript
-  const SpellRow = React.memo(function SpellRow({ spell, onCast, onTogglePrepared }: SpellRowProps) {
-    // ... render
-  })
+  let activeFadeId = 0
+
+  export function fadeAmbient(targetVolume: number, durationMs: number): void {
+    const fadeId = ++activeFadeId
+    const startVolume = currentAmbient?.volume ?? ambientVol
+    const startTime = performance.now()
+
+    function tick(now: number) {
+      if (fadeId !== activeFadeId) return  // Cancelled by newer fade
+      const elapsed = now - startTime
+      const progress = Math.min(1, elapsed / durationMs)
+      const eased = easeInOut(progress)
+      const vol = startVolume + (targetVolume - startVolume) * eased
+      if (currentAmbient) currentAmbient.volume = vol
+      if (progress < 1) requestAnimationFrame(tick)
+    }
+    requestAnimationFrame(tick)
+  }
   ```
-- This prevents full-list re-renders when a single item changes
+- Each new fade increments `activeFadeId`, causing previous fades to abort on the next frame check
 
-### Sub-Phase F: Attunement Fix (M2)
+### Sub-Phase G: Fix Audio Cleanup (A7)
 
-**Step 10 — Unify Attunement Count**
-- Open `src/renderer/src/components/sheet/5e/AttunementTracker5e.tsx` (lines 11-135)
-- Open `src/renderer/src/components/sheet/5e/MagicItemsPanel5e.tsx` (lines 57-61)
-- Both show attunement counts — ensure they derive from the same source:
+**Step 8 — Complete reinit() Cleanup**
+- Open `src/renderer/src/services/sound-manager.ts`
+- In `reinit()` (lines 294-309), add:
   ```typescript
-  const attunedItems = character.magicItems?.filter(mi => mi.attuned) ?? []
-  const attunedCount = attunedItems.length
-  const maxAttunement = 3 // PHB standard
+  export function reinit(): void {
+    // Existing pool cleanup...
+
+    // Stop ambient
+    stopAmbient()
+
+    // Clear all custom audio
+    for (const [path, audio] of customAudioTracks) {
+      audio.pause()
+      audio.src = ''
+    }
+    customAudioTracks.clear()
+
+    // Clear overrides
+    customOverrides.clear()
+  }
   ```
-- If AttunementTracker maintains its own state, replace with derived state from the character object
+- Call `reinit()` when navigating away from a game session (in the game page unmount effect)
 
-### Sub-Phase G: Optimistic Updates (M3)
+### Sub-Phase H: Fix Live Volume Update (A8)
 
-**Step 11 — Implement Optimistic Save Pattern**
-- Open `src/renderer/src/hooks/use-character-editor.ts`
-- Instead of waiting for IPC save to complete before updating UI:
+**Step 9 — Update Playing Audio Element Volume**
+- Open `src/renderer/src/components/game/bottom/DMAudioPanel.tsx`
+- When the per-track volume slider changes, also update the live audio element:
   ```typescript
-  const saveAndBroadcast = (updated: Character): void => {
-    // Optimistic: update local state immediately
-    useCharacterStore.getState().updateCharacterInState(updated.id, updated)
-    // Async: persist to disk (may fail)
-    useCharacterStore.getState().saveCharacter(updated).catch((err) => {
-      // Rollback on failure
-      showToast('Save failed — reverting changes', 'error')
-      // Reload from disk
-      window.api.loadCharacter(updated.id).then(original => {
-        if (original) useCharacterStore.getState().updateCharacterInState(updated.id, original)
-      })
+  const handleVolumeChange = (fileName: string, newVolume: number) => {
+    setTrackVolumes(prev => ({ ...prev, [fileName]: newVolume }))
+    // Update the playing audio element immediately
+    const fullPath = getFullPath(fileName)
+    const audio = customAudioTracks.get(fullPath)
+    if (audio) audio.volume = newVolume
+  }
+  ```
+- This requires either accessing the `customAudioTracks` Map from sound-playback, or adding a `setCustomAudioVolume(filePath, volume)` export
+
+### Sub-Phase I: Add Ambient State to Late-Joiner Sync
+
+**Step 10 — Include Audio State in Full Game State Payload**
+- Open `src/renderer/src/network/game-sync.ts`
+- Find `buildFullGameStatePayload()` (lines 249-292)
+- Add current audio state:
+  ```typescript
+  const payload = {
+    // ... existing fields
+    audioState: {
+      currentAmbient: getCurrentAmbientName(),
+      ambientVolume: getAmbientVolume(),
+    }
+  }
+  ```
+- On the client side, when receiving the full state, start the ambient:
+  ```typescript
+  if (payload.audioState?.currentAmbient) {
+    playAmbient(payload.audioState.currentAmbient, payload.audioState.ambientVolume)
+  }
+  ```
+- Add `getCurrentAmbientName()` export to sound-playback if it doesn't exist
+
+### Sub-Phase J: Custom Audio Network Sync (A9)
+
+**Step 11 — Add Custom Audio Network Messages**
+- Add new message types:
+  ```typescript
+  'dm:play-custom-audio': { fileName: string; loop: boolean; volume: number }
+  'dm:stop-custom-audio': { fileName: string }
+  ```
+- Problem: Custom audio files exist only on the DM's machine. Options:
+  - **Option A (simple):** Encode audio as base64 in the message payload (works for small files < 1MB)
+  - **Option B (better):** Transfer the file via PeerJS data channel, then play locally
+  - **Option C (best):** Stream the audio from DM to clients via WebRTC audio track
+- Start with **Option A** for files under 1MB, with a warning for larger files
+- In `DMAudioPanel`, when playing a custom track, also broadcast:
+  ```typescript
+  if (isHost) {
+    const audioData = await window.api.audio.readCustomFile(campaignId, fileName)
+    sendMessage('dm:play-custom-audio', {
+      fileName,
+      audioData: btoa(String.fromCharCode(...new Uint8Array(audioData))),
+      loop, volume
     })
-    broadcastIfDM(updated)
   }
   ```
-- This makes the UI feel instant while the save happens in the background
+- Client receives and creates a blob URL for playback
 
-### Sub-Phase H: Tool Proficiency Rolls (M5)
+### Sub-Phase K: Basic Playlist System (A10)
 
-**Step 12 — Add Rollable Tool Proficiencies**
-- Open `src/renderer/src/components/sheet/5e/SkillsSection5e.tsx` or create a `ToolsSection5e.tsx`
-- For each tool proficiency the character has, add a roll button:
-  ```tsx
-  {character.proficiencies.tools?.map(tool => (
-    <div key={tool} className="flex items-center justify-between">
-      <span>{tool}</span>
-      <button onClick={() => rollToolCheck(tool, character)}>
-        Roll +{proficiencyBonus + getRelevantAbilityMod(tool, character)}
-      </button>
-    </div>
-  ))}
+**Step 12 — Create Simple Playlist Feature**
+- Add playlist support to `DMAudioPanel.tsx`:
+  ```typescript
+  interface Playlist {
+    id: string
+    name: string
+    tracks: string[]  // ambient track names or custom file names
+    shuffle: boolean
+    currentIndex: number
+  }
   ```
-- Tool checks use an ability modifier determined by the tool type:
-  - Thieves' tools → DEX
-  - Herbalism kit → WIS
-  - Most artisan's tools → varies (use a lookup table or let the DM choose)
-- Broadcast the roll result via dice service
-
-### Sub-Phase I: Standardize useCharacterEditor (M4)
-
-**Step 13 — Audit and Standardize Data Access**
-- Search for all direct calls to `useCharacterStore.getState()` in sheet components
-- Replace with `useCharacterEditor(characterId)` pattern where possible
-- Ensure all save paths go through `saveAndBroadcast` for consistent sync behavior
-- Components that should use the hook but don't:
-  - `HitPointsBar5e.tsx` — directly manages local state + store
-  - `SpellSlotTracker5e.tsx` — directly calls store
-  - `ConditionsSection5e.tsx` — directly calls store
+- UI: "Create Playlist" button, drag-to-reorder tracks, shuffle toggle, auto-advance on track end
+- When the current ambient track ends (via the `ended` event on HTMLAudioElement), auto-play the next track in the playlist
+- Store playlists in localStorage per campaign: `dnd-vtt-playlists-{campaignId}`
+- Sync current playlist position to clients via existing `dm:play-ambient` messages
 
 ---
 
 ## ⚠️ Constraints & Edge Cases
 
-### Virtualization
-- **Variable row heights**: Spell rows are expandable (collapsed: ~48px, expanded: ~200px+). Use `measureElement` from `@tanstack/react-virtual` for accurate sizing after expand.
-- **Level group headers**: If spells are grouped by level with headers, include headers as virtual items with a different `estimateSize`.
-- **Scroll restoration**: When the user returns to the spell list after viewing a spell detail, restore scroll position.
+### Ambient Path Fix
+- **Test all 9 preset tracks** after fixing the path. Play each one and verify audio output.
+- **The ambient name format matters**: If `ambient-tracks.json` uses names like `ambient-tavern` and the file is `tavern.mp3`, the strip prefix is needed. If names match filenames directly, no strip needed. Verify the mapping.
 
-### Conflict Resolution
-- **Auto-resolve is acceptable for most cases**: DM version wins by default. Only show the conflict banner for player-initiated changes that the DM might be overwriting.
-- **Don't conflict on timestamps within 2 seconds**: Network latency can cause near-simultaneous saves. Use a 2-second tolerance before flagging as conflict.
+### Custom Audio Key
+- **The key mismatch is between `fileName` (basename) and `filePath` (absolute path)**. The fix must ensure both the Map key and the stop/delete call use the same format.
+- **Alternative fix**: Normalize the Map to use `fileName` as key instead of `filePath`. This is simpler but means two tracks with the same filename from different campaigns would collide. Since custom audio is per-campaign, this is unlikely.
 
-### Optimistic Updates
-- **Rollback UX**: If a save fails, the UI briefly shows the optimistic state then reverts. Use a subtle animation (flash) to indicate the rollback.
-- **Network broadcast should still happen optimistically**: The DM's peers see the change immediately even before disk persistence. If persistence fails, the next sync will correct.
+### 3D Dice Sound
+- **Avoid double-play**: When the dice tray triggers a roll, it plays sound AND triggers the 3D animation. The 3D animation handler should NOT also play sound in this case. Use a `source: 'tray' | 'command' | 'network'` flag on the dice event.
+- **Network-received dice**: When another player's dice roll arrives via network, the 3D animation plays on your screen. This SHOULD play sound — it's a new event for this client.
 
-### Spell Filtering
-- **Filter state should NOT persist**: Reset filters when navigating away from the sheet. Spell search is for quick in-session lookup, not a persistent preference.
-- **Filter by "prepared only" is the most useful default**: Add it as a toggle that defaults to ON for prepared casters (Wizard, Cleric, Druid, Paladin).
+### Duplicate Handlers
+- **Verify removal is safe**: Before removing the hook-based handlers, search for any code that depends on them being in `use-game-network.ts`. If the hook is used in a specific component that doesn't have access to the store handlers, the removal could break that path.
 
-Begin implementation now. Start with Sub-Phase A (Steps 1-2) for virtualization — this is the highest-impact performance fix. Then Sub-Phase B (Steps 3-4) for spell search which is the most-requested QoL feature. Sub-Phase C (Step 5) for the remote character store fix prevents a real data inconsistency bug.
+### Custom Audio Sync
+- **File size limit for base64**: 1MB of audio = ~1.33MB base64. PeerJS data channels typically handle messages up to 16KB by default, with chunking up to ~256KB. For files > 256KB, implement chunked transfer.
+- **Caching**: Once a client receives a custom audio file, cache it locally (in memory or a Blob URL) so it doesn't need to be retransmitted on every play.
+
+### Playlist
+- **`ended` event on looping tracks**: When `loop = true`, the `ended` event does NOT fire. Disable loop for playlist tracks and use the `ended` event for auto-advance. Re-enable loop for the last track if the playlist should repeat.
+
+Begin implementation now. Start with Sub-Phase A (Steps 1-2) and Sub-Phase B (Step 3) — these are the two critical bugs where existing features are completely broken (ambient produces silence, custom tracks can't be stopped). Then Sub-Phase C (Step 4) to add sound to 3D dice, and Sub-Phase D (Step 5) to fix the duplicate handler. These four fixes make the existing audio system actually work as intended.

@@ -1,7 +1,7 @@
 # SYSTEM OVERRIDE: IMPLEMENTATION MODE
-You are Claude Opus 4.6 Max. Your job is to execute the following architectural plan for Phase 16 of the D&D VTT project.
+You are Claude Opus 4.6 Max. Your job is to execute the following architectural plan for Phase 20 of the D&D VTT project.
 
-Phase 16 is a **VTT Platform Comparison** against D&D Beyond, Foundry VTT, and Roll20. Many identified gaps are already addressed by previous phase plans (active effects, dynamic lighting, trigger zones, audio emitters, floor filtering, advanced walls, multi-token ops, rollable tables, party inventory, encounter builder). This plan covers only the **net-new items** not already assigned to other phases, plus 7 UX workflow improvements.
+Phase 20 is a **Security Audit** scoring 7/10. Electron configuration is excellent (sandbox, contextIsolation, CSP). Network validation is strong (Zod schemas, rate limiting, size limits). The gaps are in **credential storage** (API keys in plaintext), **input sanitization** (chat messages, user data), **plugin integrity** (no signature verification), **hardcoded TURN credentials**, and **AI file access scope**. The "no authentication" finding is noted but deprioritized — this is a desktop P2P app where invite codes serve as session auth.
 
 ---
 
@@ -9,306 +9,282 @@ Phase 16 is a **VTT Platform Comparison** against D&D Beyond, Foundry VTT, and R
 
 ### Windows 11 Machine (`C:\Users\evilp\dnd\`) — ALL WORK IS HERE
 
-Phase 16 is entirely client-side. No Raspberry Pi involvement.
+Phase 20 is entirely client-side security hardening. No Raspberry Pi involvement.
 
-**Cross-Phase Overlap Map (DO NOT duplicate — these are owned by other phases):**
+### Cross-Phase Overlap (DO NOT duplicate)
 
-| Gap | Already Addressed In |
-|-----|---------------------|
-| Active Effects system | Phase 1 (D7), Phase 4 (conditions) |
-| Dynamic lighting animations | Phase 1 (D3) |
-| Trigger zones / scene regions | Phase 1 (D4) |
-| Audio emitters unwired | Phase 1 (A11) |
-| Multi-floor filtering | Phase 1 (A10) |
-| Advanced wall types | Phase 1 (D14) |
-| Multi-token group operations | Phase 1 (D5) |
-| Rollable tables | Phase 1 (D10) |
-| Party inventory / shared loot | Phase 1 (D8) |
-| Encounter builder CR calc | Phase 1 (D9) |
-| Token context menu → conditions | Phase 1 (A6), Phase 13 (C) |
-| drawTokenStatusRing unused | Phase 1 (A4) |
-| Foreground / occlusion layer | Phase 1 (D16) |
-| Guided character builder | Phase 2 (U3) |
-| Animated scene transitions | Phase 1 (missing) |
+| Issue | Owned By |
+|-------|----------|
+| Path traversal (campaignId, fileName, book paths) | Phase 17 (NET-1, NET-12, NET-13) |
+| IPC handlers without try-catch | Phase 17 (NET-6, NET-29, NET-30) |
+| IPC save validation | Phase 7 (Sub-Phase E) |
+| Plugin execution sandboxing | Phase 1 (C2) |
+| Network `z.unknown()` schemas | Phase 7 (Sub-Phase G) |
 
-**NET-NEW items from this phase:**
-
-| File | Relevance |
-|------|-----------|
-| `src/renderer/src/components/game/map/MapCanvas.tsx` | Auto-pan to active token on turn change |
-| `src/renderer/src/services/macro-engine.ts` | Macro scripting limitations |
-| `src/renderer/src/components/game/player/MacroBar.tsx` | Macro bar hidden when bottom bar collapsed |
-| `src/renderer/src/components/game/GameLayout.tsx` | Modal-heavy UI, no floating windows |
-| `src/renderer/src/components/game/modals/utility/CompendiumModal.tsx` | Duplicates LibraryPage functionality |
-
-### Raspberry Pi (`patrick@bmo`) — NO WORK THIS PHASE
+**Verified as EXCELLENT (no action needed):**
+- Electron: sandbox=true, contextIsolation=true, nodeIntegration=false
+- CSP: Strict content security policy
+- WebRTC: Forces relay-only (`iceTransportPolicy: 'relay'`), wss:/https: only for signaling
+- Rate limiting: 200 msg/sec, 65KB per message, file size limits
 
 ---
 
-## 📋 Core Objectives
+## 📋 Core Objectives (Net-New Only)
 
-### NET-NEW Features (Not covered by any previous phase)
+### HIGH PRIORITY
 
-| # | Feature | Competitor Source | Impact |
-|---|---------|-------------------|--------|
-| N1 | Auto-pan to active token on turn change | Roll20 | Players lose track of where combat is happening |
-| N2 | Map pins with journal linkage | Roll20 | No spatial bookmarks on maps |
-| N3 | Non-blocking floating tools (reduce modal reliance) | Foundry | Modals break map immersion |
-| N4 | Macro engine improvements (conditionals, loops) | Roll20 | Current macros limited to simple variable substitution |
-| N5 | Unified content discovery (merge Compendium + Library) | D&D Beyond | Two separate systems with different UX |
-| N6 | Scene preloading for map transitions | Foundry | Map switches may stutter while loading assets |
-| N7 | Grid coordinate readout on hover | Foundry/Roll20 | Players can't identify grid positions |
+| # | Issue | File | Impact |
+|---|-------|------|--------|
+| S1 | API keys stored in plaintext JSON | `ai-service.ts:244-255` | Key exposure if userData compromised |
+| S2 | No chat message sanitization | `network/schemas.ts:39-53` | Potential XSS if rendered as HTML |
+| S3 | TURN credentials hardcoded in source | `peer-manager.ts:21-32` | Credentials publicly visible in repo |
+| S4 | Plugin ZIP install without integrity check | `plugin-handlers.ts:34-47` | Malicious plugin installation |
+| S5 | AI file reader unrestricted in userData | `ai/file-reader.ts:64-109` | AI can read any file in userData |
+
+### MEDIUM PRIORITY
+
+| # | Issue | Impact |
+|---|-------|--------|
+| M1 | Binary file upload without content validation | Arbitrary file types written to disk |
+| M2 | AI memory files without size limits | Disk exhaustion over time |
+| M3 | No audit logging for security events | Cannot trace unauthorized actions |
 
 ---
 
 ## 🛠️ Step-by-Step Execution Plan
 
-### Sub-Phase A: Auto-Pan to Active Token (N1)
+### Sub-Phase A: API Key Encryption (S1)
 
-**Step 1 — Implement Auto-Pan on Turn Change**
-- Open `src/renderer/src/components/game/map/MapCanvas.tsx`
-- Find where the initiative turn changes (either via store subscription or prop change)
-- When the active initiative entry changes, pan the camera to center on that token:
+**Step 1 — Encrypt API Keys at Rest**
+- Open `src/main/ai/ai-service.ts` lines 244-255
+- Currently writes plaintext JSON to `ai-config.json`
+- Use Electron's `safeStorage` API to encrypt sensitive fields:
   ```typescript
-  useEffect(() => {
-    if (!activeEntry || !autoPanEnabled) return
-    const token = activeMap?.tokens.find(t => t.entityId === activeEntry.entityId)
-    if (!token) return
-    const worldX = token.gridX * cellSize + cellSize / 2
-    const worldY = token.gridY * cellSize + cellSize / 2
-    panToPosition(worldX, worldY, { animate: true, duration: 300 })
-  }, [activeEntry?.entityId])
-  ```
-- Create a `panToPosition(x, y, options)` utility that smoothly animates the PixiJS viewport/camera
-- The animation should use easing (ease-out) for a polished feel
+  import { safeStorage } from 'electron'
 
-**Step 2 — Add Auto-Pan Toggle**
-- Add a game setting: `autoPanOnTurnChange: boolean` (default: true)
-- Add a toggle button in the game toolbar or settings dropdown
-- When disabled, no camera movement on turn changes
-- Players should be able to override independently from DM setting
+  function encryptKey(key: string): string {
+    if (!safeStorage.isEncryptionAvailable()) return key
+    return safeStorage.encryptString(key).toString('base64')
+  }
 
-**Step 3 — Manual "Center on Token" Enhancement**
-- The audit mentions "Center on entity" is a manual action via portrait click
-- Enhance: add a keyboard shortcut (e.g., `C`) to center camera on the player's own token
-- Add "Center on Me" button in the PlayerBottomBar
-
-### Sub-Phase B: Map Pins with Journal Linkage (N2)
-
-**Step 4 — Define MapPin Type**
-- Add to `src/renderer/src/types/map.ts`:
-  ```typescript
-  export interface MapPin {
-    id: string
-    gridX: number
-    gridY: number
-    label: string
-    icon: 'note' | 'quest' | 'shop' | 'danger' | 'npc' | 'custom'
-    color: string
-    linkedJournalId?: string
-    linkedNpcId?: string
-    linkedLocationId?: string
-    visibleToPlayers: boolean
-    floor?: number
+  function decryptKey(encrypted: string): string {
+    if (!safeStorage.isEncryptionAvailable()) return encrypted
+    return safeStorage.decryptString(Buffer.from(encrypted, 'base64'))
   }
   ```
-- Add `pins: MapPin[]` to `GameMap` type
+- Before saving config, encrypt API key fields: `claudeApiKey`, `openaiApiKey`, `geminiApiKey`
+- On load, decrypt them before passing to AI clients
+- `safeStorage` uses the OS credential store (Windows Credential Manager, macOS Keychain, Linux Secret Service)
 
-**Step 5 — Create Pin Layer on Map**
-- Add a new PixiJS layer for map pins in `map-pixi-setup.ts` (between Tokens and Fog layers)
-- Render pins as small icons at their grid positions
-- DM pins with `visibleToPlayers: false` hidden from players
-- Hover shows pin label tooltip
-- Click opens the linked content (journal entry, NPC sheet, or a custom note)
+**Step 2 — Encrypt Discord Bot Token**
+- Apply same encryption to Discord bot token in discord config
+- Load and decrypt on access, never keep decrypted in memory longer than needed
 
-**Step 6 — Pin Creation UI**
-- In `EmptyCellContextMenu`, add "Add Pin" option (DM only)
-- Opens a small form: label, icon type, color, visibility, optional journal/NPC link
-- Pin saved to the map's `pins` array via `updateMap`
-
-**Step 7 — Pin-to-Journal Navigation**
-- When clicking a pin with `linkedJournalId`, open the journal entry in a floating panel
-- When clicking a pin with `linkedNpcId`, open the NPC detail view
-- This creates spatial storytelling — DMs can mark important locations on the map with linked content
-
-### Sub-Phase C: Non-Blocking Floating Tools (N3)
-
-**Step 8 — Create FloatingWindow Component**
-- Build a reusable `FloatingWindow` wrapper component:
-  ```tsx
-  interface FloatingWindowProps {
-    title: string
-    children: React.ReactNode
-    defaultPosition?: { x: number; y: number }
-    defaultSize?: { width: number; height: number }
-    resizable?: boolean
-    onClose: () => void
-  }
-  ```
-- Features: draggable title bar, optional resize handle, close button, semi-transparent background
-- Position persisted in sessionStorage per window type
-- Z-order management: clicking a window brings it to front
-
-**Step 9 — Convert Key DM Tools to Floating Windows**
-- Identify the most disruptive modals (those that block the map):
-  - `InitiativeModal` → convert to `FloatingWindow` option
-  - `CreatureModal` (monster lookup) → floating window
-  - `DMNotesModal` → floating window
-- Keep modal as default but add "Float" button in the modal header that detaches it into a floating window
-- The game layout should support multiple floating windows simultaneously
-
-**Step 10 — Float Toggle Pattern**
-- Add a "Float / Dock" toggle to each modal header:
-  ```tsx
-  <ModalHeader>
-    <span>{title}</span>
-    <button onClick={toggleFloat} title="Float as window">
-      <FloatIcon />
-    </button>
-    <button onClick={onClose} title="Close">
-      <CloseIcon />
-    </button>
-  </ModalHeader>
-  ```
-- When "Float" is clicked, close the modal and open the same content in a `FloatingWindow`
-- Store user preference: if a tool was last used as floating, open it as floating next time
-
-### Sub-Phase D: Macro Engine Improvements (N4)
-
-**Step 11 — Add Conditional Logic to Macros**
-- Open `src/renderer/src/services/macro-engine.ts`
-- Currently supports simple variable substitution (`$self`, `$target`, `$mod.str`)
-- Add basic conditional syntax:
-  ```
-  {if $self.hp < $self.maxhp/2}2d6+$mod.con{else}1d6+$mod.con{/if}
-  ```
-- Parser should handle:
-  - `{if condition}...{else}...{/if}` blocks
-  - Comparison operators: `<`, `>`, `<=`, `>=`, `==`, `!=`
-  - Arithmetic in conditions: `$self.hp < $self.maxhp/2`
-
-**Step 12 — Add Repeat/Multi-Roll**
-- Add repeat syntax for multi-attack macros:
-  ```
-  {repeat 3}1d20+$mod.str vs AC | 2d6+$mod.str slashing{/repeat}
-  ```
-- Each iteration produces a separate roll result in chat
-- Useful for Extra Attack, Eldritch Blast, Scorching Ray
-
-**Step 13 — Fix Macro Bar Visibility**
-- The audit notes the bottom bar collapse hides the Macro Bar
-- When the bottom bar is collapsed, show a minimal floating macro bar:
-  ```tsx
-  {isBottomBarCollapsed && macros.length > 0 && (
-    <FloatingMacroBar macros={macros} onExecute={executeMacro} />
-  )}
-  ```
-- Position above the collapsed bar
-
-### Sub-Phase E: Unified Content Discovery (N5)
-
-**Step 14 — Merge CompendiumModal into Library Pattern**
-- The CompendiumModal (in-game) and LibraryPage (out-of-game) duplicate functionality
-- Replace CompendiumModal internals with a lightweight embed of the Library components:
-  ```tsx
-  // In CompendiumModal, instead of custom search/display:
-  <LibraryItemList items={filteredItems} onSelect={handleSelect} compact />
-  <LibraryDetailModal item={selectedItem} compact />
-  ```
-- Import `LibraryItemList` and `LibraryDetailModal` from `src/renderer/src/components/library/`
-- This ensures consistent rendering (stat blocks, search quality) between in-game and out-of-game
-- Upgrade CompendiumModal search from `.includes()` to Fuse.js (already addressed in Phase 5 Step 15)
-
-### Sub-Phase F: Scene Preloading (N6)
-
-**Step 15 — Preload Adjacent Map Assets**
-- When the DM has multiple maps in a campaign, preload the background images of nearby/linked maps:
+**Step 3 — Add API Key Format Validation**
+- Before saving, validate key formats:
   ```typescript
-  function preloadAdjacentMaps(currentMap: GameMap, allMaps: GameMap[]) {
-    // Preload maps linked by portals
-    const portalTargets = currentMap.terrain
-      ?.filter(t => t.type === 'portal' && t.portalTarget)
-      .map(t => t.portalTarget!.mapId) ?? []
-
-    for (const mapId of portalTargets) {
-      const map = allMaps.find(m => m.id === mapId)
-      if (map?.imagePath) {
-        Assets.load(map.imagePath).catch(() => {})
-      }
+  function validateApiKeyFormat(provider: string, key: string): boolean {
+    switch (provider) {
+      case 'claude': return key.startsWith('sk-ant-')
+      case 'openai': return key.startsWith('sk-')
+      case 'gemini': return key.length > 20
+      default: return key.length > 0
     }
   }
   ```
-- Call on map load and on map list change
-- Use PixiJS `Assets.load()` which caches results — subsequent loads are instant
-- Also preload the next map in the session's adventure sequence if one is defined
+- Show validation error in the AI settings UI for malformed keys
 
-**Step 16 — Add Transition Effect**
-- When switching maps, add a brief fade-to-black transition:
+### Sub-Phase B: Chat Message Sanitization (S2)
+
+**Step 4 — Sanitize Chat Messages Before Display**
+- Chat messages from network peers are validated by Zod schema but NOT sanitized for HTML/XSS
+- If chat messages are rendered using `dangerouslySetInnerHTML` or any HTML-injecting pattern, this is a risk
+- Check how chat messages are rendered in `ChatPanel.tsx`:
+  - If using React JSX text nodes (`{message.content}`), React auto-escapes — NO action needed
+  - If using `dangerouslySetInnerHTML` or `innerHTML`, add DOMPurify sanitization
+- Install DOMPurify if needed: `npm install dompurify @types/dompurify`
+- Apply to any user-generated content rendered as HTML (chat, journal entries, notes, NPC descriptions)
+
+**Step 5 — Sanitize Chat Link Rendering**
+- Open `src/renderer/src/utils/chat-links.tsx` (renamed from .ts in Phase 17)
+- The `renderChatContent()` function creates JSX elements from user text
+- Ensure URLs are validated before rendering as clickable links:
   ```typescript
-  async function transitionToMap(mapId: string) {
-    // Fade out current map (300ms)
-    await fadeOverlay(0, 1, 300)
-    // Switch map
-    gameStore.setActiveMap(mapId)
-    // Wait for new map to render (next frame)
-    await new Promise(r => requestAnimationFrame(r))
-    // Fade in new map (300ms)
-    await fadeOverlay(1, 0, 300)
+  function isValidUrl(url: string): boolean {
+    try {
+      const parsed = new URL(url)
+      return ['http:', 'https:'].includes(parsed.protocol)
+    } catch { return false }
   }
   ```
-- Use a PixiJS overlay or CSS transition on the canvas container
-- Respect `prefers-reduced-motion` — skip animation if set
+- Do NOT render `javascript:`, `data:`, or `file:` URLs as clickable links
 
-### Sub-Phase G: Grid Coordinate Readout (N7)
+### Sub-Phase C: Remove Hardcoded TURN Credentials (S3)
 
-**Step 17 — Show Grid Position on Hover**
-- Open `src/renderer/src/components/game/map/MapCanvas.tsx`
-- On mousemove, calculate the grid coordinates under the cursor:
+**Step 6 — Move TURN Credentials to Settings**
+- Open `src/renderer/src/network/peer-manager.ts` lines 21-32
+- Find the hardcoded TURN credentials (`dndvtt:dndvtt-relay`)
+- Remove from source code and move to user-configurable settings:
   ```typescript
-  const gridCoord = pixelToGrid(cursorX, cursorY, grid)
-  // Display as "A3" for square grid or "3,7" for hex
+  function getTurnServers(): RTCIceServer[] {
+    const settings = loadSettings()
+    if (settings.turnServers?.length) {
+      return settings.turnServers
+    }
+    return [
+      { urls: 'stun:stun.cloudflare.com:3478' }
+    ]
+  }
   ```
-- Show in a small HUD element:
-  ```tsx
-  <div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
-    {gridLabel}
-  </div>
+- The TURN server config is already in `AppSettings.turnServers` (from Phase 8 analysis). Wire the peer manager to use it instead of hardcoded values.
+- Remove all hardcoded usernames/passwords from the source code
+- The `NetworkSettingsModal` already exists for configuring TURN servers — verify it works end-to-end
+
+### Sub-Phase D: Plugin Integrity Verification (S4)
+
+**Step 7 — Add Plugin Checksum Verification**
+- Open `src/main/ipc/plugin-handlers.ts` lines 34-47
+- Before installing a plugin ZIP, compute and verify a checksum:
+  ```typescript
+  import { createHash } from 'node:crypto'
+
+  async function computeChecksum(filePath: string): Promise<string> {
+    const content = await readFile(filePath)
+    return createHash('sha256').update(content).digest('hex')
+  }
   ```
-- For square grids: use column letter + row number (e.g., "A1", "B5", "AA12")
-- For hex grids: use axial coordinates (e.g., "3,7")
-- Show for both DM and players
-- Add a toggle in settings to hide if unwanted
+- If the plugin comes from a trusted source with a manifest, verify the checksum matches
+- If no checksum is available (user-uploaded), show a warning: "This plugin is not verified. Install at your own risk?"
+
+**Step 8 — Validate Plugin ZIP Contents**
+- Before extracting, scan the ZIP for dangerous patterns:
+  - Reject ZIPs with paths containing `..` (zip-slip vulnerability)
+  - Reject ZIPs containing executable files (`.exe`, `.bat`, `.cmd`, `.ps1`, `.sh`)
+  - Reject ZIPs larger than 50MB
+  - Only allow expected file types: `.json`, `.js`, `.ts`, `.css`, `.png`, `.jpg`, `.svg`, `.md`
+  ```typescript
+  function validateZipEntry(entryName: string): boolean {
+    if (entryName.includes('..')) return false
+    const ext = path.extname(entryName).toLowerCase()
+    const ALLOWED_EXTENSIONS = ['.json', '.js', '.ts', '.css', '.png', '.jpg', '.svg', '.md', '.txt']
+    return ALLOWED_EXTENSIONS.includes(ext) || entryName.endsWith('/')
+  }
+  ```
+
+### Sub-Phase E: AI File Access Restriction (S5)
+
+**Step 9 — Restrict AI File Reader to Specific Directories**
+- Open `src/main/ai/file-reader.ts` lines 64-109
+- Currently the AI can read any text file in userData
+- Restrict to only campaign-specific directories:
+  ```typescript
+  const ALLOWED_AI_READ_DIRS = [
+    'campaigns',
+    'ai-conversations',
+    'characters'
+  ]
+
+  function isAiReadAllowed(filePath: string): boolean {
+    const userDataDir = app.getPath('userData')
+    const resolved = path.resolve(filePath)
+    if (!resolved.startsWith(userDataDir)) return false
+    const relative = path.relative(userDataDir, resolved)
+    return ALLOWED_AI_READ_DIRS.some(dir => relative.startsWith(dir))
+  }
+  ```
+- Reject reads outside allowed directories with a logged warning
+
+**Step 10 — Add AI Memory File Size Limits (M2)**
+- Open `src/main/ai/memory-manager.ts`
+- Add a maximum file size for each memory file:
+  ```typescript
+  const MAX_MEMORY_FILE_SIZE = 1024 * 1024 // 1MB per memory file
+  const MAX_TOTAL_MEMORY_SIZE = 10 * 1024 * 1024 // 10MB total
+
+  async function checkMemoryLimits(campaignId: string): Promise<boolean> {
+    const memoryDir = getMemoryDir(campaignId)
+    const files = await readdir(memoryDir)
+    let totalSize = 0
+    for (const file of files) {
+      const stat = await fsStat(path.join(memoryDir, file))
+      if (stat.size > MAX_MEMORY_FILE_SIZE) return false
+      totalSize += stat.size
+    }
+    return totalSize < MAX_TOTAL_MEMORY_SIZE
+  }
+  ```
+- Before writing memory files, check limits. If exceeded, prune oldest entries.
+
+### Sub-Phase F: File Upload Validation (M1)
+
+**Step 11 — Validate Binary File Uploads**
+- Open `src/preload/index.ts` lines 199-211 (or the relevant upload handler)
+- Add content type validation for uploaded files:
+  ```typescript
+  const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif']
+  const ALLOWED_AUDIO_TYPES = ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/webm']
+
+  function validateFileType(buffer: Buffer, expectedTypes: string[]): boolean {
+    // Check magic bytes for file type verification
+    const header = buffer.slice(0, 4).toString('hex')
+    const magicBytes: Record<string, string> = {
+      '89504e47': 'image/png',
+      'ffd8ffe0': 'image/jpeg',
+      'ffd8ffe1': 'image/jpeg',
+      '52494646': 'audio/wav', // or image/webp
+      '4f676753': 'audio/ogg',
+    }
+    const detected = magicBytes[header]
+    return detected ? expectedTypes.includes(detected) : false
+  }
+  ```
+- Apply to image uploads (token images, map backgrounds) and audio uploads (custom sounds)
+
+### Sub-Phase G: Audit Logging (M3)
+
+**Step 12 — Add Security Event Logging**
+- Create `src/main/security-log.ts`:
+  ```typescript
+  import { logToFile } from './log'
+
+  export function logSecurityEvent(event: string, details: Record<string, unknown>) {
+    const timestamp = new Date().toISOString()
+    logToFile(`[SECURITY] ${timestamp} ${event}: ${JSON.stringify(details)}`)
+  }
+  ```
+- Log these security events:
+  - Failed path traversal attempts
+  - Invalid API key format submissions
+  - Plugin installation (success/failure, filename, checksum)
+  - AI file read attempts outside allowed directories
+  - Network peer connection/disconnection
+  - Kick/ban actions
+  - Failed Zod validation on network messages (potential injection attempts)
 
 ---
 
 ## ⚠️ Constraints & Edge Cases
 
-### Auto-Pan
-- **Respect manual camera position**: If the player manually panned/zoomed, don't auto-pan for 5 seconds (debounce). This prevents fighting the user's intentional camera position.
-- **Hidden tokens**: If it's a hidden enemy's turn, do NOT pan to their position for players — only pan for visible entities.
-- **Animation performance**: Use PixiJS ticker for smooth animation, not CSS transitions on the container.
+### API Key Encryption
+- **`safeStorage.isEncryptionAvailable()`**: Returns `false` before `app.ready` event. Ensure encryption is only used after app is ready.
+- **Migration**: Existing users have plaintext keys. On first load after this change, detect unencrypted keys (they won't have the base64 encryption marker) and encrypt them in place.
+- **Fallback**: If `safeStorage` is unavailable (rare on Windows 10+), fall back to plaintext with a warning log. Do NOT prevent app from starting.
 
-### Map Pins
-- **Pin density**: A map with many pins can be cluttered. Add a zoom threshold — hide pin labels when zoomed out past a threshold, show only icons.
-- **Pin persistence**: Pins are part of `GameMap` and persist with the map data. They are NOT separate entities.
-- **Network sync**: Pin CRUD must be broadcast to clients via `dm:map-update` when added/removed by the DM.
+### Chat Sanitization
+- **React auto-escapes JSX text**: If chat messages are rendered as `{message.content}` in JSX, React prevents XSS by default. Verify this is the case before adding DOMPurify — unnecessary sanitization adds complexity.
+- **Markdown rendering**: If chat supports markdown (via a markdown renderer), the markdown-to-HTML step needs sanitization. Check if any chat rendering uses `dangerouslySetInnerHTML`.
+- **Chat links**: The `renderChatContent` function creates JSX elements from parsed URLs. Ensure `href` attributes are validated (no `javascript:` protocol).
 
-### Floating Windows
-- **Do NOT float all modals** — only the frequently-used DM reference tools. Combat modals (AttackModal, SpellModal) should remain centered modals because they require focused interaction.
-- **Window stacking**: Implement a simple Z-index manager. Each click on a window increments its z-index.
-- **Screen bounds**: Prevent windows from being dragged off-screen. Clamp position to viewport bounds.
+### TURN Credentials
+- **Default fallback**: After removing hardcoded TURN, the default should be STUN-only (Cloudflare). This means direct P2P connections work but may fail behind strict NATs. Users who need TURN must configure their own server.
+- **Do NOT remove the relay-only policy** (`iceTransportPolicy: 'relay'`). If no TURN server is configured and the policy is relay-only, connections will fail. Change the default policy to `'all'` (try direct first, fall back to relay) when no TURN is configured.
 
-### Macro Conditionals
-- **No arbitrary code execution**: The conditional parser should only support comparison operators and arithmetic on known variables. Do NOT implement `eval()` or allow arbitrary JavaScript.
-- **Error handling**: Malformed conditional syntax should produce a clear error message, not crash the macro.
-- **Backward compatibility**: Existing macros without conditionals must continue to work identically.
+### Plugin Security
+- **ZIP-slip is a real vulnerability**: The `..` check in entry names must use the resolved path, not just string matching. `path.resolve(extractDir, entryName).startsWith(extractDir)` is the correct check.
+- **JS execution**: Even with safe file types, a malicious `.js` file in a plugin could execute arbitrary code if the plugin system runs it. Phase 1 addresses plugin sandboxing — this phase only handles the installation step.
 
-### Scene Preloading
-- **Memory budget**: Preloading large map images consumes GPU memory. Limit to 3 preloaded maps max.
-- **Network bandwidth**: If map images are transferred via P2P, preloading would trigger downloads for clients. Only preload on the host; clients preload when they receive the map data during a switch.
+### AI File Access
+- **Don't break existing functionality**: The AI legitimately needs to read campaign data, NPC descriptions, and conversation history. The allowed directories list must cover all legitimate use cases.
+- **Test after restricting**: Run an AI DM session after implementing the restriction to ensure context building still works (it reads from campaigns, characters, and AI conversations).
 
-### Content Unification
-- **Do NOT delete CompendiumModal** — it serves as a quick in-game reference. Instead, replace its internals with library components so it gets the same rendering quality and search.
-- **CompendiumModal must be lightweight** — it opens and closes frequently during gameplay. Don't load the full LibraryPage state on every open.
-
-Begin implementation now. Start with Sub-Phase A (Steps 1-3) for auto-pan — this is the highest-impact QoL improvement that every player benefits from immediately. Then Sub-Phase B (Steps 4-7) for map pins as a unique differentiator feature. Sub-Phase C (Steps 8-10) for floating windows is higher effort but transforms the DM workflow.
+Begin implementation now. Start with Sub-Phase A (Steps 1-3) for API key encryption — this is the highest-impact security fix since keys are currently in plaintext. Then Sub-Phase C (Step 6) to remove hardcoded TURN credentials from the repo. Then Sub-Phase D (Steps 7-8) for plugin integrity.

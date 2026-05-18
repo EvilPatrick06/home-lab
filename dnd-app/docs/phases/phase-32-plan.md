@@ -1,610 +1,337 @@
-# Phase 28 — dnd-app Audit Follow-Ups (2026-05-12)
+# Phase 32 — Cloud Host (Pi-as-host)
 
-> Origin: comprehensive dnd-app audit at `~/.claude/plans/your-job-is-to-wild-thacker.md` (2026-05-12).
-> Every finding from that audit is logged across `docs/ISSUES-LOG-DNDAPP.md`, `docs/SECURITY-LOG.md`, and `docs/SUGGESTIONS-LOG-DNDAPP.md` (entries dated 2026-05-12).
-> This phase plan groups all of them into 9 sub-phases (28a–28i) for execution. **User approved all items, including minor / future / out-of-scope (2026-05-12).**
-
----
-
-## Architecture & Environment
-
-- **Target:** all work in `dnd-app/` on the Windows 11 / macOS dev box (`/home/patrick/home-lab/dnd-app/` on the Pi mirror).
-- **No work on BMO / Pi** in this phase. (BMO is the trust counterparty for 28a but its side is already done — see `bmo/pi/app.py:163-178`.)
-- **No restructuring** of `src/{main,preload,renderer,shared}/` — electron-vite layout is fixed (logged gotcha).
-- **Discipline:** commit per sub-phase; do NOT bundle 28a + 28b. Each sub-phase merges or pauses for review on its own.
+> Pi implements `GameAuthority` (Phase 17) speaking the shard protocol (Phase 18). Game creators get a "Local (P2P)" vs "Cloud (Pi)" toggle. Cloud mode = game persists across all client disconnects, accessible from anywhere, hosted by infrastructure instead of a player's machine.
+>
+> Renumbered from "Phase D" in conversation planning. Depends on **Phase 17** (Player-as-Host rewrite) and **Phase 18** (Live-state sync overhaul) landing first.
 
 ---
 
-## Sub-Phase Ordering Rationale
+## Context
 
-The order prioritizes (1) live security exposure first, (2) game-mechanic correctness second, (3) external-surface correctness (network / AI) third, (4) internal hygiene last.
+By the time Phase 19 starts, the prerequisites are in place:
 
-| Sub-phase | Theme | Why this order |
-|-----------|-------|----------------|
-| 28a | Critical security & game integrity | Sync receiver is LAN-exposed today; Math.random affects every roll |
-| 28b | AI surface refresh | Stale models, missing cache, SDK lag — user-visible cost / quality |
-| 28c | Network resilience | BMO bridge bugs surface as random flaky Discord sync |
-| 28d | Data integrity & type safety | Latent bugs in stat-mutations + save-queue; type hygiene |
-| 28e | CI hardening | Gate must exist before later phases land or they regress immediately |
-| 28f | UI / UX polish | Lower urgency; many small items |
-| 28g | Docs & long tail | After implementation lands so docs reflect reality |
-| 28h | Test coverage uplift | After CI is in place to enforce future tests |
-| 28i | Coverage-gap audits | Knowledge work to drive a Phase 29 if needed |
+- **Phase 16** has made all permissions data-driven (no hardcoded role checks).
+- **Phase 17** has consolidated host-side logic into a single `GameAuthority` module behind a `TransportAdapter` interface. "The host" is no longer tied to whoever started the game.
+- **Phase 18** has unified all state sync into one shard protocol. Adding cloud sync means implementing ONE protocol on the Pi, not 30 feature-specific message handlers.
 
----
+This phase plugs the Pi into those abstractions:
 
-## Sub-Phase 28a — Critical Security & Game Integrity
+- **Pi-side `GameAuthority` implementation** in Python (in the existing `bmo/pi/services/` directory pattern).
+- **WebSocket transport** as a new `TransportAdapter` implementation. Authority logic on both sides is identical — just the transport changes.
+- **Per-campaign cloud-host toggle.** Local P2P stays as the default; cloud is opt-in. No forced migration.
 
-**Audit entries covered:**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] Math.random for game-affecting rolls (25+ sites) — **Critical**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] readBody unbounded buffer — **Low** (companion to security M)
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] JSON.parse unguarded in game-data-handlers.ts:29 — **Low**
-- `SECURITY-LOG.md` [2026-05-12] BMO sync receiver binds 0.0.0.0 — **High**
-- `SECURITY-LOG.md` [2026-05-12] Wildcard CORS on BMO sync receiver — **High**
-- `SECURITY-LOG.md` [2026-05-12] BMO sync receiver no zod validation on inbound JSON — **High**
-- `SECURITY-LOG.md` [2026-05-12] VTT → BMO never sends Authorization: Bearer — **High**
-- `SECURITY-LOG.md` [2026-05-12] No rate limiting on sync receiver — **Medium**
-- `SECURITY-LOG.md` [2026-05-12] No max-body-size guard on sync receiver — **Medium**
+What you and your friend get out of it:
 
-### Step 28a.1 — Replace Math.random across game-roll sites
+- **Game survives disconnect.** Pi keeps running. DM can step away, close laptop, change devices. State persists.
+- **Cross-network is the default.** Pi has a stable address (Cloudflare Tunnel already in place). No NAT-traversal pain for new players.
+- **Spectator scaling.** Pi can fan out broadcasts to N spectators more efficiently than a single client machine.
+- **Event log / audit / replay.** Pi logs every shard delta for the whole campaign. Easy to debug "what happened on turn 47?"
 
-**Files (25+ sites — full list in ISSUES-LOG-DNDAPP entry):**
-- Critical d20 paths: `src/renderer/src/components/game/GameLayout.tsx:781`, `src/renderer/src/components/game/overlays/ReactionPrompts.tsx:195`, `src/renderer/src/components/game/overlays/GamePrompts.tsx:124, 240`, `src/renderer/src/components/game/modals/dm-tools/MapEditorRightPanel.tsx:85`
-- Death-save / bless / recovery: `src/renderer/src/components/game/overlays/PlayerHUDEffects.tsx:231, 278, 297`
-- Character builder: `src/renderer/src/stores/builder/types.ts:44` (4d6)
-- DM tools: `src/renderer/src/components/game/modals/combat/GroupRollModal.tsx:74`, `src/renderer/src/components/game/modals/dm-tools/NPCGeneratorModal.tsx:50, 54`, `src/renderer/src/components/game/modals/dm-tools/treasure-generator-utils.ts:66, 72`, `src/renderer/src/components/game/sidebar/TablesPanel.tsx:79, 115, 123`
-- Data tables: `src/renderer/src/data/starting-equipment-table.ts:71`, `src/renderer/src/data/bastion-events.ts:14`, `src/renderer/src/data/sentient-items.ts:49`, `src/renderer/src/data/personality-tables.ts:20`, `src/renderer/src/data/weather-tables.ts:106, 115`
-- Utility: `src/renderer/src/utils/dawn-recharge.ts:27`
+What it costs:
 
-**Approach:**
-1. Add `import { cryptoRollDie, cryptoRandom } from '@renderer/utils/crypto-random'` per file
-2. Single-die: `Math.floor(Math.random() * N) + 1` → `cryptoRollDie(N)`
-3. Random index: `Math.floor(Math.random() * arr.length)` → `Math.floor(cryptoRandom() * arr.length)`
-4. Weighted random (weather-tables.ts:106): `Math.random() * total` → `cryptoRandom() * total`
-5. Range: `min + Math.random() * (max - min)` → `min + cryptoRandom() * (max - min)`
-6. Skip tests (`*.test.*`) — keep `Math.random` there (mocked anyway)
-
-**Acceptance:**
-- `grep -rn "Math\.random" --include='*.ts' --include='*.tsx' src/renderer/ | grep -v '\.test\.'` returns only acceptable cases (UI ephemeral ids in DiceOverlay.tsx:124, if intentionally kept) — ideally 0
-- All game-roll vitest tests still pass
-- Manual: roll initiative on a token, confirm value lands in [1, 20]
-
-**Future-proofing:** Add a biome rule (or simple grep-based pre-commit) that flags `Math.random` outside `utils/crypto-random.ts` and `*.test.*`.
-
-### Step 28a.2 — Harden BMO sync receiver (loopback + CORS + body limits)
-
-**Files:** `src/main/bmo-bridge.ts`
-
-**Changes:**
-1. Line 16: keep `SYNC_RECEIVER_PORT` env-overridable.
-2. Add `const SYNC_BIND = process.env.BMO_SYNC_BIND ?? '127.0.0.1'` (default loopback; explicit opt-in to `0.0.0.0`).
-3. Line 201: `syncServer.listen(port, SYNC_BIND, …)`.
-4. Lines 118, 147: drop `'Access-Control-Allow-Origin': '*'` entirely on loopback bind. If `SYNC_BIND === '0.0.0.0'`, set to the configured BMO origin instead (parse from `getBmoBaseUrl()`).
-5. Add `MAX_BODY_BYTES = 64_000` constant. In `readBody`, track running total and `req.destroy()` + reject if exceeded. In handlers, reject if `Content-Length` header exceeds it up-front.
-6. Reject any POST whose `Content-Type !== 'application/json'` with 415.
-7. Token-bucket rate limit: per-source-IP, 60 events / minute, 429 on overflow. Use a `Map<string, { tokens, lastRefill }>`.
-8. Log inbound source IP via `logToFile('INFO', 'sync from', req.socket.remoteAddress)`.
-
-**Acceptance:**
-- `curl http://0.0.0.0:5001/api/sync` from another LAN machine fails to connect when `BMO_SYNC_BIND` unset
-- `curl http://127.0.0.1:5001/api/sync` from the same machine succeeds
-- Posting >64 KB returns 413
-- Posting non-JSON returns 415
-- Posting 100 events in 10 s gets the last 40 rejected with 429
-
-### Step 28a.3 — Add zod validation to sync receiver
-
-**Files:** `src/main/bmo-bridge.ts`, `src/shared/ipc-schemas.ts`
-
-**Changes:**
-1. In `ipc-schemas.ts`, add `SyncEventSchema` as a discriminated union on the `type` field:
-   ```ts
-   const SyncEventSchema = z.discriminatedUnion('type', [
-     z.object({ type: z.literal('discord_message'), payload: z.object({ /* … */ }), timestamp: z.number() }),
-     z.object({ type: z.literal('initiative_sync'), payload: z.object({ /* … */ }), timestamp: z.number() }),
-     // … one per type
-   ])
-   const InitiativeSyncSchema = z.object({ /* … */ })
-   ```
-2. In `bmo-bridge.ts:163-178`, after `const body = await readBody(req)`, do `const parsed = SyncEventSchema.safeParse(JSON.parse(body))`. On failure, 400 with the issues; on success, forward `parsed.data`.
-3. Same for `/api/sync/initiative` with `InitiativeSyncSchema`.
-4. Add `logToFile('WARN', 'sync event rejected', parsed.error.issues)` on failure.
-
-**Acceptance:**
-- Posting a `SyncEvent` with `type: 'banana'` returns 400, not 200
-- Posting a valid event still forwards to the renderer
-- Renderer-side handlers do NOT need changes (zod-narrowed shape matches the existing TS type)
-
-### Step 28a.4 — Authorization Bearer to BMO
-
-**Files:** `src/main/bmo-config.ts`, `src/main/bmo-bridge.ts`, `src/main/ipc/settings-handlers.ts` (or wherever settings I/O lives), settings UI panel.
-
-**Changes:**
-1. In `bmo-config.ts`, add `getBmoApiKey()`: read order = env (`BMO_API_KEY`) > settings (decrypted via `safeStorage`) > undefined.
-2. In `bmo-bridge.ts:31-53`, in `bmoPiFetch`, inject `Authorization: Bearer ${apiKey}` into headers when `getBmoApiKey()` returns a value.
-3. Add a `bmoApiKey` field to `settings.json` schema; wrap with `safeStorage.encryptString` on write (mirror the `2026-04-24-encrypt-persisted-secrets` pattern).
-4. Add a settings-UI surface ("BMO connection" panel): text field for the key, "Test connection" button that calls `getDmStatus` and reports auth pass/fail.
-5. Update `dnd-app/README.md` with the env-var / settings flow.
-
-**Acceptance:**
-- With BMO `BMO_API_KEY` unset on the Pi: dnd-app behaves identically to before
-- With BMO `BMO_API_KEY` set on the Pi + matching key in dnd-app settings: all `bmoPiFetch` calls succeed
-- With BMO `BMO_API_KEY` set on the Pi + missing key in dnd-app: calls return `{ ok: false, error: 'HTTP 401: …' }` and the UI shows an actionable error
-- `getBmoApiKey()` unit test confirms env precedence over settings
-
-### Step 28a.5 — Add error containment to `game:load-json` JSON.parse
-
-**Files:** `src/main/ipc/game-data-handlers.ts:29`
-
-**Changes:**
-1. Wrap `JSON.parse(content)` in a local try/catch.
-2. On parse failure, throw `Error('INVALID_JSON: ' + relativePath)` so renderer-side handlers see a typed error code.
-3. Add a vitest case loading a malformed JSON fixture.
-
-**Acceptance:** Renderer surfaces a useful error message (not a generic IPC reject) on corrupted 5e data file.
+- **Latency.** Pi adds ~20–50ms RTT vs LAN-direct P2P. Fine for D&D pacing; noticeable for fast-twitch (dice animations, rapid drawing).
+- **Pi is a single point of failure.** One Pi reboot takes down all cloud-hosted games. Local P2P stays as the alternative.
+- **Voice doesn't move.** When voice chat lands (sometime after the Phase 17r mic settings get a consumer), it stays peer-to-peer or via SFU — not through Pi.
 
 ---
 
-## Sub-Phase 28b — AI Surface Refresh
+## Sub-phase summary
 
-**Audit entries covered:**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] Claude model strings stale — **High**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] `@anthropic-ai/sdk@^0.78.0` pre-1.x — **High**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] claude-client hardcodes max_tokens 4096 — **Medium**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] No Anthropic prompt caching wired — **Medium**
+| # | Sub-phase | Scope |
+|---|-----------|-------|
+| 19a | Pi-side `GameAuthority` service skeleton | New Python service in `bmo/pi/services/game_server.py`. Same external contract as the TS authority |
+| 19b | WebSocket transport — Pi side | Flask-SocketIO endpoint (matches existing Pi service pattern); campaign room management |
+| 19c | WebSocket transport — client side | New `WebSocketTransport` adapter slotting into Phase 17's `TransportAdapter` interface |
+| 19d | Shard protocol port — Pi side | Same shard message types from Phase 18; Pi validates against Phase 16 permissions |
+| 19e | Pi-side persistence | Event sourcing — per-campaign delta log + periodic snapshots; replay on restart |
+| 19f | Authentication | Per-campaign session tokens; JWT validation on every WS frame; Cloudflare Tunnel for WAN |
+| 19g | Game-creation UI: Local vs Cloud toggle | New game flow picks the host destination; default Local for backwards compat |
+| 19h | Migrate-running-game flow | "Move this game to cloud" button leverages Phase 17 host-transfer protocol |
+| 19i | Pi admin surface in BMO | Hosted Games tab — list rooms, view event logs, archive / kick |
+| 19j | Auto-resume / catch-up | Client reconnect → Phase 18's replay protocol handles missed deltas |
+| 19k | Voice transport boundary | Document: voice stays P2P even when game state is cloud-hosted |
+| 19l | Stability + monitoring | Pi-side metrics (active rooms, peer counts, delta rates, errors); auto-archive of idle rooms |
 
-### Step 28b.1 — Update Claude model list (per Jan 2026 knowledge cutoff)
+12 sub-phases. Each ends with the 4-gate suite (lint + tsc-web + tsc-node + vitest) AND the BMO pytest suite. One release: **v6.0.0** (major bump — new opt-in deployment mode).
 
-**Files:**
-- `src/main/ai/llm-provider.ts:20-22` — registry
-- `src/main/ai/claude-client.ts:96` — `isAvailable()` ping model
-- `src/main/ai/claude-client.ts:107` — `listModels()`
-- `src/renderer/src/components/campaign/AiProviderSetup.tsx:251` — UI default
-- `src/shared/ipc-schemas.test.ts:18` — test fixture
+---
 
-**Changes:** Add the current Claude 4.x family (Opus 4.7, Sonnet 4.6, Haiku 4.5). Keep the older ids as deprecated for back-compat. Bump `isAvailable()` to ping Haiku 4.5.
+## Sub-phase details
 
-```ts
-// llm-provider.ts:20
-{ id: 'claude-opus-4-7',            name: 'Claude Opus 4.7',    desc: 'Most capable; best for long DM narration' },
-{ id: 'claude-sonnet-4-6',          name: 'Claude Sonnet 4.6',  desc: 'Best balance of speed and intelligence' },
-{ id: 'claude-haiku-4-5-20251001',  name: 'Claude Haiku 4.5',   desc: 'Fastest; good for quick responses' },
-// keep older entries for back-compat (mark deprecated)
-{ id: 'claude-sonnet-4-20250514',   name: 'Claude Sonnet 4',    desc: '(deprecated) prior generation' },
+### 19a — Pi-side `GameAuthority` service skeleton
+
+**Files (new — `bmo/pi/services/`):**
+- `game_server.py` — main service. Patterns after the existing Pi services (Flask gevent, threaded coroutines per active game). Exposes:
+  - `GET /api/games/<campaign_id>` — room status (active peers, last activity).
+  - `POST /api/games/<campaign_id>/start` — start hosting a campaign (provisioned with initial snapshot).
+  - `POST /api/games/<campaign_id>/stop` — graceful shutdown (final snapshot, disconnect peers).
+  - `GET /api/games/<campaign_id>/log` — event log paged by sequence.
+- `game_authority.py` — Python class with the same external contract as the TypeScript `GameAuthority` from Phase 17:
+  - `apply_action(actor, action) → { accepted, broadcast }`
+  - `get_snapshot(for_peer) → state`
+  - `add_peer(peer_info)`, `remove_peer(peer_id)`
+  - `validate(actor, action) → bool` (Python port of `hasPermission`)
+- `room.py` — per-campaign room state (in-memory authority + connected peer list + log handle).
+
+**Files (modify):**
+- `bmo/pi/app.py` — register `game_server` blueprint, add CORS for the WS upgrade path.
+- `bmo/setup-bmo.sh` — ensure the systemd unit includes the game-server. New dependency: `flask-socketio` (or `gevent-websocket` — pick at this phase).
+- `bmo/docs/SERVICES.md` — document the new service.
+
+**Acceptance:**
+- Service starts on Pi boot.
+- `curl http://pi-host/api/games/foo` returns 404 (no rooms yet).
+- `pytest bmo/pi/tests/test_game_server.py` covers room create / stop / status.
+
+---
+
+### 19b — WebSocket transport — Pi side
+
+**Files (modify — `bmo/pi/services/game_server.py`):**
+- Flask-SocketIO endpoint at `/ws/games/<campaign_id>`. Connection handshake includes the session token (from 19f).
+- Per-campaign Socket.IO room mapping. Inbound message → `GameAuthority.apply_action`. Authority result's `broadcast` payload → `socketio.emit(...)` to room.
+- Peer join: `socketio.join_room(campaign_id)` + `authority.add_peer(peer_info)` + send initial snapshot.
+- Peer leave: graceful disconnect handler + `authority.remove_peer(peer_id)`.
+
+**Acceptance:**
+- `wscat -c ws://pi-host/ws/games/<id>` connects (auth permitting).
+- Multiple peers in the same campaign get each other's messages.
+- Peer disconnect → room state cleans up correctly.
+
+---
+
+### 19c — WebSocket transport — client side
+
+**Files (new):**
+- `dnd-app/src/renderer/src/network/transport/websocket-transport.ts` — implements the `TransportAdapter` interface from Phase 17. Same `send / broadcast / onMessage / onPeerJoin / onPeerLeave / disconnect / close` surface. Uses native `WebSocket` API (Electron renderer can use it directly) or `socket.io-client` if we go the Flask-SocketIO route.
+
+**Files (modify):**
+- `network-store/index.ts` — `hostGame` action gains a parameter `{ mode: 'local' | 'cloud' }`. Picks `P2PTransport` or `WebSocketTransport` accordingly.
+
+**Acceptance:**
+- Client connects to Pi-hosted game via WebSocket.
+- Authority logic on Pi is invoked correctly.
+- Same gameplay works as in local P2P mode.
+
+---
+
+### 19d — Shard protocol port — Pi side
+
+**Files (new — `bmo/pi/services/`):**
+- `shards.py` — Python port of the shard registry from Phase 18. Each shard is a Python class with:
+  - `source` — extracts current value from authority state.
+  - `diff` — structural diff (Python port of Phase 18b's diff engine — simpler in Python because dict-based).
+  - `apply_delta` — mutates authority state.
+  - `permission_filter` — Python port; reads Phase 16 permissions from campaign data.
+- One shard per file: `shards/chat.py`, `shards/map_tokens.py`, etc., mirroring the TS structure.
+
+**Files (modify):**
+- `game_authority.py` — runs the shard registry. Subscribes to state mutations, diffs, emits `state:delta` over WebSocket per-peer.
+
+**Acceptance:**
+- All Phase 18 shards have Python implementations.
+- A round-trip test: client sends chat → Pi receives → shard system → broadcasts back → client applies → message appears for all peers.
+- Permission filtering works identically to the TS authority (hidden tokens stay hidden for non-DM peers).
+
+---
+
+### 19e — Pi-side persistence
+
+**Files (new):**
+- `bmo/pi/data/games/<campaign_id>/` — per-campaign data directory.
+- Inside each: `snapshot.json` (latest snapshot) + `events.log` (append-only JSONL of every shard delta with sequence number).
+- `bmo/pi/services/persistence.py` — write-behind snapshotting (every N=100 events or every 60 seconds, whichever first). Tail-event reads for resync.
+
+**Files (modify):**
+- `game_authority.py` — on accept, write delta to `events.log`. Snapshot periodically. On restart, replay events from last snapshot to current.
+
+**Acceptance:**
+- Game runs for an hour. Pi reboots. Game resumes from last snapshot + tail events. No state lost beyond the last few seconds (the unwritten ones).
+- `events.log` can be inspected with `cat` for debugging.
+
+---
+
+### 19f — Authentication
+
+**Files (new):**
+- `bmo/pi/services/auth.py` — issues per-campaign session tokens (JWT signed with a Pi-side secret). Validated on every WS frame.
+- Token issuance: client calls `POST /api/games/<id>/join` with displayName + invite code → Pi validates invite code → returns JWT.
+
+**Files (modify):**
+- `game_server.py` WS handshake — require valid JWT.
+- `bmo/setup-bmo.sh` — generate the signing secret on first install if missing.
+- Cloudflare Tunnel config (`/etc/cloudflared/config.yml`) — ensure `/ws/games/*` is reachable (already covered by the existing wildcard rule for `bmo.mybmoai.work`).
+
+**Acceptance:**
+- Token issued only after valid invite-code check.
+- WS frame with missing/expired/invalid token is rejected.
+- Cross-WAN game works (your friend on a different network connects via Cloudflare Tunnel without VPN).
+
+---
+
+### 19g — Game-creation UI: Local vs Cloud toggle
+
+**Files (modify):**
+- `src/renderer/src/components/campaign/CampaignWizard.tsx` (or wherever the "create game" flow ends) — new step: "Where should this game be hosted?" with two options:
+  - **Local (P2P)** — recommended for local-network play, lowest latency, host's machine stays connected to keep the game alive. (Default.)
+  - **Cloud (Pi)** — recommended for cross-network play, persists across disconnects, requires Pi to be reachable.
+- The selection feeds into the existing `hostGame(displayName, { mode })` action.
+
+**Acceptance:**
+- New game flow exposes the toggle.
+- Local mode unchanged from today.
+- Cloud mode connects to Pi.
+
+---
+
+### 19h — Migrate-running-game flow
+
+**Files (modify):**
+- Campaign settings page — "Move this game to cloud" button (visible if game is currently Local and Pi is reachable). Uses Phase 17's host-transfer protocol:
+  1. Current host (a player's machine) serializes authority state.
+  2. Pi accepts via `POST /api/games/<id>/start` with the snapshot.
+  3. All peers receive a `host:transfer-broadcast` pointing them at the Pi WS endpoint.
+  4. Peers reconnect to Pi; local-host's authority shuts down.
+
+**Acceptance:**
+- Game in progress → DM clicks "Move to cloud" → after a brief pause, everyone's connected to the Pi and the game continues seamlessly.
+- Reverse path (cloud → local) is intentionally NOT supported in this phase. Once cloud, stay cloud.
+
+---
+
+### 19i — Pi admin surface in BMO
+
+**Files (modify):**
+- BMO admin web UI (in `bmo/web/templates/`) — new "Hosted Games" tab. Lists active rooms with:
+  - Campaign name
+  - Current peer count
+  - Last activity timestamp
+  - Event count
+  - "View Log" button (paged event display)
+  - "Archive" button (graceful shutdown, snapshot saved)
+  - "Force Kick All" button (emergency)
+
+**Acceptance:**
+- You can browse to the Pi admin page and see what games are running.
+- Event log is paginated, not crash-the-browser-on-huge-campaigns.
+
+---
+
+### 19j — Auto-resume / catch-up
+
+Already covered by Phase 18k's resync protocol. This sub-phase verifies it works end-to-end against the Pi-side authority.
+
+**Acceptance:**
+- Client disconnects mid-session, reconnects 30 seconds later → server replays missed deltas, no state flash.
+- Client disconnects for an hour, reconnects → server detects out-of-window cursor, ships a full snapshot. Game catches up gracefully.
+
+---
+
+### 19k — Voice transport boundary
+
+**Files (new):**
+- `docs/ARCHITECTURE-VOICE.md` — documents the design boundary. Voice chat (when wired up post-Phase 17r) does NOT route through Pi. Stays peer-to-peer (or via SFU later). Game state sync goes via Pi; audio doesn't.
+
+**Why this matters:** the moment voice ships, someone will be tempted to "centralize everything on Pi." That's the wrong call (audio latency budget is tighter; Pi CPU isn't sized for N-way audio mixing).
+
+**Acceptance:**
+- Architecture doc is committed.
+- When voice lands, its transport choice references this doc.
+
+---
+
+### 19l — Stability + monitoring
+
+**Files (new / modify):**
+- `bmo/pi/services/game_server.py` — expose Prometheus-style metrics at `/api/games/metrics`:
+  - `active_rooms_total`
+  - `connected_peers_total`
+  - `deltas_emitted_total` (counter, per-shard)
+  - `messages_rejected_total` (per rejection reason)
+  - `room_age_seconds` (per room)
+- Idle-room auto-archive: rooms with zero peers for > 1 hour get snapshotted to disk and removed from memory. Reopened on demand.
+- BMO Grafana board (your existing infra) gains a Pi-Hosted-Games row.
+
+**Acceptance:**
+- Metrics scrapeable.
+- Idle rooms don't accumulate in memory forever.
+
+---
+
+## Cross-cutting decisions
+
+- **Local P2P stays first-class.** Cloud is opt-in. Some games are better local (LAN play, ultra-low latency). Both modes remain supported indefinitely.
+- **One way migration in this phase.** Local → Cloud is supported. Cloud → Local is NOT (would require host-transfer in the other direction, which works in theory but isn't a common-case feature worth shipping until requested).
+- **Cloudflare Tunnel handles WAN reach.** Already in place. No new infrastructure.
+- **Pi is a single point of failure.** Acknowledged. Mitigation: Local P2P remains available as fallback. Pi auto-restart via systemd. Snapshots survive Pi crashes.
+- **No multi-tenant resource limits this phase.** Single Pi serving your own games. If load becomes a concern later, per-campaign CPU/memory budgets can be added in a follow-up.
+
+---
+
+## Critical files (multi-touch hotspots)
+
+- `bmo/pi/services/game_server.py` *(new)*
+- `bmo/pi/services/game_authority.py` *(new — Python port of TS authority)*
+- `bmo/pi/services/shards.py` *(new — Python shard registry)*
+- `bmo/pi/services/shards/*.py` *(new — one file per shard, mirroring TS)*
+- `bmo/pi/services/persistence.py` *(new)*
+- `bmo/pi/services/auth.py` *(new — JWT issuance + validation)*
+- `bmo/pi/app.py` — register new blueprints
+- `bmo/setup-bmo.sh` — systemd unit + dependencies
+- `dnd-app/src/renderer/src/network/transport/websocket-transport.ts` *(new)*
+- `dnd-app/src/renderer/src/components/campaign/CampaignWizard.tsx` — host-mode toggle
+- BMO admin templates — "Hosted Games" tab
+- `docs/ARCHITECTURE-VOICE.md` *(new)*
+
+---
+
+## Commit cadence
+
+```
+19a — feat(bmo): Pi-side game_server.py service skeleton
+19b — feat(bmo): WebSocket transport (Pi side) — Flask-SocketIO + room management
+19c — feat(dnd-app): WebSocketTransport adapter (client side)
+19d — feat(bmo): Python shard registry port + per-shard implementations
+19e — feat(bmo): event-sourced persistence (snapshots + delta log)
+19f — feat(bmo): per-campaign JWT auth on WS frames
+19g — feat(dnd-app): Local vs Cloud host toggle in campaign creation
+19h — feat(net): "Move this game to cloud" flow via Phase 17 host transfer
+19i — feat(bmo): Hosted Games admin tab in BMO web UI
+19j — test(net): end-to-end resync verification against Pi authority
+19k — docs(arch): voice-transport boundary doc
+19l — feat(bmo): metrics + idle-room auto-archive
 ```
 
-**Acceptance:**
-- AI Provider UI dropdown shows new models first
-- A new fresh campaign defaults to Sonnet 4.6
-- Existing campaigns referencing older ids continue to work
-- API key validation pings Haiku 4.5
-
-### Step 28b.2 — Bump `@anthropic-ai/sdk` to 1.x
-
-**Files:** `dnd-app/package.json`, `src/main/ai/claude-client.ts`
-
-**Changes:**
-1. `npm install @anthropic-ai/sdk@^1.0.0` (or latest 1.x)
-2. Update imports — the 1.x line moved some named exports; check `node_modules/@anthropic-ai/sdk/CHANGELOG.md` for the migration notes
-3. Run `npm run lint && npx tsc --noEmit && npm test` — fix any breakages in claude-client
-4. Add a smoke test that the SDK still streams a simple message
-
-**Blocks:** 28b.3 (prompt caching uses the 1.x helpers).
-
-### Step 28b.3 — Wire Anthropic prompt caching
-
-**Files:** `src/main/ai/claude-client.ts`, `src/main/ai/context-builder.ts`
-
-**Changes:**
-1. Restructure the `system` param into an array of content blocks (the 1.x SDK pattern) so the stable prefix (system prompt + character / campaign context) is one block, the per-turn user message is another.
-2. Mark the stable prefix block with `cache_control: { type: 'ephemeral' }`.
-3. Read the response's `usage.cache_creation_input_tokens` and `usage.cache_read_input_tokens`; surface in dev logs.
-4. Add a vitest assertion that the `cache_control` field reaches the SDK call (mock the SDK, capture the args).
-
-**Acceptance:**
-- Second user turn in the same session reads from cache (verify in dev logs)
-- Token cost per turn drops measurably for long-context conversations
-- No behavior regression in non-cached short conversations
-
-### Step 28b.4 — Make `max_tokens` model-aware
-
-**Files:** `src/main/ai/claude-client.ts:40, 77`, `src/main/ai/llm-provider.ts`, `src/renderer/src/components/campaign/AiProviderSetup.tsx`
-
-**Changes:**
-1. Add `maxTokens?: number` to `LLMProvider.streamChat` / `chatOnce` signatures.
-2. In claude-client, default to: Opus → 16384, Sonnet/Haiku → 8192.
-3. Surface "Max response length" slider (1k → 16k) in AiProviderSetup.
+One release: **v6.0.0** after 19l. Major version bump for the new deployment mode.
 
 ---
 
-## Sub-Phase 28c — Network Resilience
+## Estimated scope
 
-**Audit entries covered:**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] `bmoPiFetch` no retry / backoff — **High**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] BridgeResponse.ok vs .error contract inconsistent — **High**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] stopSyncReceiver doesn't await in-flight — **Medium**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] bmo-config.ts default hardcoded — **Medium**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] peerjs reconnection absent — **Low**
-- `SECURITY-LOG.md` [2026-05-12] ELECTRON_RENDERER_URL passed to loadURL without validation — **Low**
-
-### Step 28c.1 — Retry/backoff for `bmoPiFetch`
-
-**Files:** `src/main/bmo-bridge.ts:31-53`
-
-**Changes:**
-1. Wrap in retry helper: 3 attempts, backoff 200 / 800 / 2000 ms.
-2. Don't retry on 4xx (auth errors, bad request — retry won't fix).
-3. Track consecutive failures; after 3, emit a renderer toast via IPC ("BMO unreachable — Discord sync paused").
-4. Reset failure counter on first success.
-
-### Step 28c.2 — Normalize `BridgeResponse` contract
-
-**Files:** `src/main/bmo-bridge.ts:18-22` plus every caller in `src/main/`.
-
-**Changes:**
-1. Change `BridgeResponse` to a discriminated union:
-   ```ts
-   type BridgeResponse =
-     | { ok: true; data: unknown }
-     | { ok: false; error: string; statusCode?: number }
-   ```
-2. Always set `ok` explicitly.
-3. Wrap server data under `data` (don't spread into the top level).
-4. Codemod every caller (`if (!result.error)` → `if (result.ok)`).
-
-### Step 28c.3 — `stopSyncReceiver` graceful shutdown
-
-**Files:** `src/main/bmo-bridge.ts:212-218`, `src/main/index.ts` (before-quit wiring)
-
-**Changes:**
-1. Call `syncServer.closeAllConnections()` (Node 18.2+) before `syncServer.close()`.
-2. Make `stopSyncReceiver` return a `Promise<void>` that resolves after the server fully closes.
-3. Wire into `app.on('before-quit', async (e) => { e.preventDefault(); await stopSyncReceiver(); app.exit() })`.
-
-### Step 28c.4 — Document `bmoBaseUrl` override chain
-
-**Files:** `src/main/bmo-config.ts`, `dnd-app/README.md`, settings UI
-
-**Changes:**
-1. Add JSDoc to `bmo-config.ts` explaining the precedence (env > settings > default).
-2. Confirm `BMO_PI_URL` env-var precedence (or add it if missing).
-3. Add a settings-UI surface for the base URL.
-
-### Step 28c.5 — peerjs reconnection
-
-**Files:** `src/renderer/src/network/*.ts` (audit first to find the right insertion point)
-
-**Changes:**
-1. Read all 25 files in `src/renderer/src/network/` to find the existing disconnect handler (if any).
-2. If absent, add `peer.on('disconnected', () => { peer.reconnect() })` with exponential backoff (1s, 2s, 4s, …, capped at 30s) and a max-attempts cap (10).
-3. Surface the reconnect state in the lobby UI (greyed-out "Reconnecting…" badge).
-
-### Step 28c.6 — Validate `ELECTRON_RENDERER_URL`
-
-**Files:** `src/main/index.ts:106-135`
-
-**Changes:**
-1. Before `loadURL(process.env.ELECTRON_RENDERER_URL)`, parse via `new URL(env)` (try/catch).
-2. Confirm `hostname` is `localhost` or `127.0.0.1`.
-3. Confirm `port` is in `[5170, 5180]` (the expected dev port range).
-4. On mismatch: fall back to `file://` packaged path + `logToFile('WARN', …)`.
+8–12 working sessions. The biggest pieces are 19a/b (Pi service stand-up) and 19d (Python shard port). The Phase 18 abstraction means most of this is mechanical translation between TS and Python rather than fresh design.
 
 ---
 
-## Sub-Phase 28d — Data Integrity & Type Safety
+## Dependencies
 
-**Audit entries covered:**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] stat-mutations.ts unsafe HP cast + in-place mutation — **Medium**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] save-queue.ts dead cleanup — **Medium**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] ~74 `as unknown as` casts — **Medium**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] Effect-dep suppressions in critical hooks — **Medium**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] Date.now()-based condition IDs — **Low**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] UUID truncation pattern audit needed — **Low**
-
-### Step 28d.1 — Type the character pipeline through to `stat-mutations.ts`
-
-**Files:**
-- `src/renderer/src/types/character-5e.ts:136` (source of `HitPoints`)
-- `src/main/ai/stat-mutations.ts:160-220`
-- `src/main/ai/character-context.ts:43`
-- Move `Character5e` / `HitPoints` types to `src/shared/` so main + renderer share them
-
-**Changes:**
-1. Move the shared types into `src/shared/types/character-5e.ts`.
-2. Update `stat-mutations.ts` signature: `applyChange(char: Character5e, change: StatChange): void` (or `Character5e` return).
-3. Drop the per-case `as { current; maximum; temporary }` casts.
-4. Decide: keep in-place mutation (document loudly) OR refactor to return a new object piped through call sites.
-5. Add a vitest that exercises every `StatChange` case (damage/heal/temp_hp/condition adds/removes/death-save/exhaustion).
-
-### Step 28d.2 — Finish or remove the `save-queue.ts` dead cleanup
-
-**Files:** `src/main/storage/save-queue.ts`
-
-**Changes (preferred): store stable handle for the equality check.**
-```ts
-const queueHandle = next.catch(() => undefined)
-queues.set(key, queueHandle)
-try { return await next } finally {
-  if (queues.get(key) === queueHandle) queues.delete(key)
-}
-```
-- Delete the dead comment block.
-- Add a vitest: enqueue 100 saves, wait for quiesce, confirm `queues.size === 0`.
-
-### Step 28d.3 — `as unknown as` pass
-
-**Files:** broad — primary hotspots `src/renderer/src/services/library-service.ts:639, 678-679, 694, 702, 710`, plus 7+ test helpers
-
-**Changes:**
-1. Cluster the 74 casts by boundary (IPC, JSON-from-disk, third-party SDK, test mock).
-2. For known-shape data: zod parse at the boundary; downstream gets the typed result.
-3. For truly dynamic (plugin payloads): document the cast with a comment ("plugin-supplied; no schema possible").
-4. Target: < 40 casts outside tests after the pass.
-
-### Step 28d.4 — Effect-dep suppression audit
-
-**Files:**
-- `src/renderer/src/components/game/GameLayout.tsx:407`
-- `src/renderer/src/hooks/use-game-effects.ts:144, 307`
-- `src/renderer/src/hooks/use-game-network.ts:92`
-
-**Per site:**
-1. Attempt the honest dep list; if it causes a render loop, refactor the surrounding state (don't suppress).
-2. Where the dep really is provably stable (`useState` setter, `useRef` current), narrow the comment ("setter ref stable per React docs").
-3. Add a vitest exercising a state change that should re-run the effect.
-
-### Step 28d.5 — Date.now()-based IDs → `crypto.randomUUID()`
-
-**Files:** `src/renderer/src/components/game/overlays/PlayerHUDEffects.tsx:234, 300`, plus any other `id: \`cond-${Date.now()}\`` pattern
-
-**Changes:**
-1. Grep for `\`cond-\${Date.now()` / similar.
-2. Replace with `crypto.randomUUID()` (or a scoped `idFor('cond')` helper).
-3. Add a unit test that two rapid calls produce distinct ids.
-
-### Step 28d.6 — UUID truncation audit
-
-**Files:** ~40+ sites using `crypto.randomUUID().slice(0, 8)`
-
-**Changes:**
-1. Enumerate sites by purpose: "UI ephemeral" (OK to truncate) vs "persistent game state" (full UUID required).
-2. Migrate the persistent-state sites to full UUIDs.
-3. Add helper pair: `ephemeralId(prefix?)` (for UI-only) and `entityId()` (for persistent state) to make intent explicit.
+- **Requires Phase 16** (permissions) for the authority's validation logic.
+- **Requires Phase 17** (Player-as-Host rewrite) for the `GameAuthority` and `TransportAdapter` contracts.
+- **Requires Phase 18** (live-state sync overhaul) for the shard protocol Pi implements.
 
 ---
 
-## Sub-Phase 28e — CI Hardening
+## Open questions to lock before starting
 
-**Audit entries covered:**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] dnd-app CI minimal — **Medium**
-- `SUGGESTIONS-LOG-DNDAPP.md` [2026-04-24] Add `npm run check:full` aggregate script — **future-idea** (composes here)
-
-### Step 28e.1 — Add `npm run check:full` aggregate
-
-**Files:** `dnd-app/package.json`
-
-**Changes:**
-```json
-"check:full": "npm run lint && tsc --noEmit -p tsconfig.web.json && tsc --noEmit -p tsconfig.node.json && npm test && npm run circular && npm run dead-code && npm run audit:ci"
-```
-
-### Step 28e.2 — Add `.github/workflows/dnd-app-ci.yml`
-
-**Files:** new `.github/workflows/dnd-app-ci.yml`
-
-**Trigger:** `push` and `pull_request` on `paths: ['dnd-app/**', '.github/workflows/dnd-app-ci.yml']`.
-
-**Jobs:**
-- `setup-node@v4` with `node-version: 22`, `cache: npm`, `cache-dependency-path: dnd-app/package-lock.json`
-- `npm ci`
-- `npm run lint`
-- `npx tsc --noEmit -p tsconfig.web.json`
-- `npx tsc --noEmit -p tsconfig.node.json`
-- `npm test`
-- `npm run audit:ci`
-- `npm run circular`
-- `npm run dead-code` (allow-fail until knip baseline is clean — `continue-on-error: true`)
-
-**Acceptance:**
-- A PR that breaks `tsc` fails the job
-- A PR that adds a circular dep fails the job
-- A PR that drops a test fails the job
+1. **Flask-SocketIO vs raw WebSocket?** Default: Flask-SocketIO for consistency with the existing Flask gevent pattern on Pi. Confirm at 19b.
+2. **Cloudflare Tunnel routing.** Already set up for `bmo.mybmoai.work/api/*`. Need to verify WebSocket upgrade (`/ws/*`) is unblocked. Confirm with a quick test before 19f.
+3. **Per-campaign event-log size limit.** Default: unlimited on disk, indexed by date. Compaction on game-archive only. Confirm if you want a per-game cap.
+4. **What's the right reaction to a Pi restart mid-game?** Default: snapshot replay catches everyone up automatically (Phase 18k). Confirm — no explicit user-facing "Pi rebooted, reconnecting…" toast unless you want one.
 
 ---
 
-## Sub-Phase 28f — UI / UX / Graphical Polish
+## Post-Phase-19 ideas (out of scope here)
 
-**Audit entries covered:**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] Limited aria-* coverage — **Low**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] `<div onClick>` anti-pattern present — **Low**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] Silent `.catch()` blocks no UI feedback — **Low**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] Color tokens not centralized — **Low**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] z-[9999] magic z-index — **Low**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] Window 1024×768 min tight — **Low**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] Lists may need virtualization — **Low**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] console.warn for validation failures continues processing — **Low**
-
-### Step 28f.1 — Replace `<div onClick>` with `<button>`
-
-**Approach:**
-1. `grep -rn '<div[^>]*onClick' --include='*.tsx' src/renderer` to enumerate.
-2. Each one: `<button type="button" className="...">` (preserve Tailwind classes).
-3. Where the div must stay (card with nested interactive children), add `role="button" tabIndex={0}` + Enter/Space handler.
-
-### Step 28f.2 — Surface silent `.catch()` errors
-
-**Files:** `src/renderer/src/components/sheet/FeaturesSection5e.tsx:47, 55` + the broader sweep.
-
-**Changes:**
-1. Add a `useErrorToast()` hook wrapping the common "log + toast + retry-button" pattern.
-2. Per silent-catch site, decide: user-actionable → toast; not → `logToFile` (main-side) instead of `console`.
-
-### Step 28f.3 — Centralize color tokens
-
-**Files:** `tailwind.config`, ~20-30 inline `#hex` sites.
-
-**Changes:**
-1. Enumerate: `grep -rn "#[0-9a-fA-F]\{3,6\}" --include='*.tsx' --include='*.ts' --include='*.css' src/renderer`.
-2. Triage: chart palettes (intentional inline) vs. theme drift.
-3. Tokens to add to Tailwind: any color used > 3 times.
-
-### Step 28f.4 — Z-index layer convention
-
-**Files:** `tailwind.config`, `src/renderer/src/components/sheet/PrintSheet.tsx:27, 67`, `Tooltip.tsx:78`, `LanguagesTab5e.tsx:65`, plus broader
-
-**Changes:**
-1. Add a `z-app`, `z-modal-backdrop`, `z-modal`, `z-tooltip`, `z-toast`, `z-overlay-print` token set to Tailwind.
-2. Replace magic numbers.
-3. Document in new `dnd-app/docs/UI-LAYERS.md`.
-
-### Step 28f.5 — Aria coverage sweep
-
-**Approach:**
-1. Top 20 user-traffic components (initiative tracker, dice tray, action buttons, modals, lobby).
-2. Per component: icon-only buttons get `aria-label`; list updates get `aria-live`.
-3. Don't aim for 100% coverage; aim for "all interactive elements with non-text content".
-
-### Step 28f.6 — Window minimum size check
-
-**Files:** `src/main/index.ts:38-41`
-
-**Changes:**
-1. Manually test each panel layout at 1024×768.
-2. If broken: bump `minWidth` to 1280, OR add a "compact mode" toggle.
-3. Document the minimum supported viewport in `dnd-app/README.md`.
-
-### Step 28f.7 — Profile + virtualize long lists
-
-**Files:** `EncounterLog*.tsx`, journal components, any list rendering > 100 items
-
-**Changes:**
-1. React DevTools profile with synthetic 500-entry data.
-2. If render > 16 ms, virtualize with `@tanstack/react-virtual` (same lib as chat).
-3. Document the "if > 200 items, virtualize" rule.
-
-### Step 28f.8 — console.warn validation handling
-
-**Files:** `src/renderer/src/stores/network-store/client-handlers.ts:67`, `host-handlers.ts:50, 62, 230`
-
-**Changes:**
-- Per site: decide throw+catch upstream OR fall-through-with-clearer-comment.
-- If thrown, surface as renderer toast via `addSysMsg()`.
-
----
-
-## Sub-Phase 28g — Docs & Long Tail
-
-**Audit entries covered:**
-- `SUGGESTIONS-LOG-DNDAPP.md` [2026-05-12] Document BMO_API_KEY end-to-end flow — **future-idea**
-- `SUGGESTIONS-LOG-DNDAPP.md` [2026-05-12] Document plugin trust model — **future-idea**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] Two open TODO markers — **Low**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] files-allowlist may leak `docs/` — **Low**
-
-### Step 28g.1 — BMO_API_KEY end-to-end docs
-
-(Depends on 28a.4 landing first.)
-
-**Files:** `dnd-app/README.md`, `src/main/bmo-bridge.ts` (JSDoc), `docs/ARCHITECTURE.md`.
-
-### Step 28g.2 — Plugin trust model docs
-
-**Files:** `dnd-app/docs/PLUGIN-SYSTEM.md`, `dnd-app/README.md`, plugin-install UI.
-
-**Changes:**
-1. Add "Trust model" section to PLUGIN-SYSTEM.md.
-2. Add warning to plugin-install UI ("Plugins have full access to your game data — only install plugins you trust").
-
-### Step 28g.3 — Close the 2 open TODOs
-
-**Files:**
-- `src/renderer/src/components/game/GameLayout.tsx:280` — "TODO: Could enhance to pre-select the specific item"
-- `src/renderer/src/components/game/map/map-overlay-effects.ts:27` — "TODO: Add playing state management"
-
-**Approach:** Per TODO, either action it OR convert to a dated `// FIXME: [2026-05-12] …` and confirm it has an entry in `ISSUES-LOG-DNDAPP.md`.
-
-### Step 28g.4 — Verify electron-builder files-allowlist doesn't leak `docs/`
-
-**Files:** `dnd-app/package.json`
-
-**Approach:**
-1. Run `electron-builder --dir`; `ls dist/`.
-2. If `docs/` present, add `!docs/**/*` to `build.files`.
-3. (Optional) Add an `audit:bundle` script that fails CI if forbidden paths slip in.
-
----
-
-## Sub-Phase 28h — Test Coverage Uplift
-
-**Audit entries covered:**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] Component test coverage ≈ 42% — **Medium**
-
-### Step 28h.1 — Coverage baseline
-
-**Files:** `dnd-app/.coverage-baseline.json` (new)
-
-**Approach:**
-1. Run `npm run test:coverage` to get the authoritative figure (the 42% is a colocated-file proxy).
-2. Commit the baseline.
-3. Add a CI gate that fails if coverage drops below baseline.
-
-### Step 28h.2 — Lobby / onboarding flow
-
-**Untested files prioritized (game-gating):**
-- `src/renderer/src/components/lobby/ReadyButton.tsx`
-- `src/renderer/src/components/lobby/CharacterSelector.tsx`
-- `src/renderer/src/components/campaign/SessionZeroStep.tsx`
-
-### Step 28h.3 — TokenContextMenu test recovery
-
-**Blocked by:** the `useNetworkStore` circular dep fix (SUGGESTIONS-LOG `2026-04-24-network-store-barrel-circular`). That fix is a prerequisite — run it first or include in 28h.
-
----
-
-## Sub-Phase 28i — Coverage-Gap Audits
-
-**Audit entries covered:**
-- `SUGGESTIONS-LOG-DNDAPP.md` [2026-05-12] Audit coverage gaps — info
-- `SUGGESTIONS-LOG-DNDAPP.md` [2026-05-12] discord-service.ts Bot token storage path unverified — info
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] peerjs reconnection logic absent on audited surface — Low (audit follow-up overlaps 28c.5)
-
-### Step 28i.1 — Per-area scoped audits
-
-Each of the 9 gap areas (multiplayer/peerjs, Pixi map rendering, plugin runtime, cloud sync, TipTap, updater, Discord integration, 5e JSON, renderer IPC consumers) gets its own narrow scan:
-
-1. Multiplayer/peerjs — fog-of-war state, host-migration, reconnect (overlaps 28c.5)
-2. Pixi map — fog-of-war correctness, viewport math, GPU memory growth
-3. Plugin runtime — actual privilege boundary, plugin lifecycle, error containment
-4. Cloud sync (rclone) — conflict resolution, partial-failure recovery, retry behavior
-5. TipTap — content sanitization on import (paste from web, restore from backup)
-6. Updater — signature verification, channel pinning, rollback path
-7. Discord integration — bot token storage (overlaps SUGGESTIONS-LOG info entry)
-8. 5e JSON — schema correctness (overlaps existing `2026-04-24-schemas-content-mismatch` gotcha)
-9. Renderer IPC consumers — every `window.api.*` call site for async-error handling
-
-**Output:** one log entry per finding (per the standard triage table). May spawn a Phase 29.
-
----
-
-## Cross-Phase Dependencies
-
-| Sub-phase | Blocks | Blocked by |
-|-----------|--------|------------|
-| 28a.4 (Auth Bearer) | 28g.1 (docs) | — |
-| 28b.2 (SDK 1.x bump) | 28b.3 (prompt cache) | — |
-| 28e (CI) | 28h (coverage baseline gate) | — |
-| 28h.3 (TokenContextMenu tests) | — | `2026-04-24-network-store-barrel-circular` fix |
-
-The user has previously agreed (memory) to phase-by-phase execution: **stop and await approval between every sub-phase**; commit + push BEFORE summarizing. Apply the same discipline within Phase 28 — finish 28a, push, summarize, wait. Don't bundle.
-
----
-
-## Acceptance Checklist (whole phase)
-
-- [ ] `grep -rn 'Math\.random' --include='*.ts' --include='*.tsx' src/renderer/ | grep -v '\.test\.'` returns only acceptable cases
-- [ ] BMO sync receiver binds 127.0.0.1 by default
-- [ ] Sync receiver rejects malformed / oversized / wrong-content-type payloads
-- [ ] VTT → BMO sends `Authorization: Bearer` when `BMO_API_KEY` is set
-- [ ] Claude 4.7 / 4.6 / 4.5 visible in AI Provider UI; prompt caching wired
-- [ ] `npm run check:full` exists and runs all gates
-- [ ] `.github/workflows/dnd-app-ci.yml` blocks PRs on lint / typecheck / test / audit failures
-- [ ] All 2026-05-12 log entries either resolved (moved to `RESOLVED-ISSUES-DNDAPP.md` / `RESOLVED-SECURITY-ISSUES.md`) or have a follow-up Phase 29 entry
+- **Cloud-mode-only features.** Things like async DM (DM logs in tomorrow, sees what happened today) only make sense once the authority is persistent. Future phase.
+- **Multiple Pis.** Sharding active games across multiple Pis. Out of scope until you actually want it.
+- **Replay viewer.** Browse old campaign event logs as a UI. Out of scope.
+- **Cloud → Local migration.** Reverse of 19h. Out of scope unless requested.
