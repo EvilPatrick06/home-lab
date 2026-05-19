@@ -6,12 +6,12 @@ Phase 24 covers the **Character Level-Up System**. The wizard is substantially c
 >
 > **See also:** Phase 31 (Live-state sync overhaul) — level-up character mutations broadcast automatically through the character shard. No explicit broadcaster needed once Phase 31 lands; today's manual broadcast call sites become no-ops.
 >
-> **Verification pass (2026-05-18):**
-> - B1 subclass not persisted to `character.classes[].subclass` — ✗ verified critical. `apply-level-up.ts` references `subclass` at lines 111, 205, 374, 382 but no write-back to the character record. Live work.
-> - B2 hit dice multiclass — ✗ not fixed. Live work.
-> - B3 half-caster level 1 slots (`spell-data.ts:444` `Math.ceil(level/2)`) — ✗ not fixed. Live work.
-> - B4 HP display pre-ASI CON (`HpRollSection5e.tsx:24`) — ✗ not fixed. Live work.
-> - B5 skill prof on multiclass — ✗ not fixed. Live work.
+> **Verification pass (2026-05-18, refined):**
+> - B1 subclass not persisted — ✗ verified critical. `apply-level-up.ts` references `subclass` at lines 111, 205, 374, 382 but no write-back to the character record. **Live work.** Phase 15 renames `classes[].subclass: string` → `classRefs[].subclassRef: EntryRef<'subclasses'>`. The bug (builder code doesn't write the value) is unchanged by Phase 15 — it just changes the field name to write to. After Phase 15: B1 fix targets `classRefs[].subclassRef`. Before Phase 15: B1 fix targets `classes[].subclass`. Either way, the builder bug stays Phase 24's responsibility.
+> - B2 hit dice multiclass — ◐ **partially absorbed by Phase 15.** Each class's hit die lives on the library `ClassEntry` (`hitDie: 'd10'`). After Phase 15, the data layer supports per-class lookup. But `apply-level-up.ts:402-414` still uses the legacy primary-class-only iteration; the code change to walk `classRefs` and accumulate per-class HD pools is Phase 24 work. Live code change; data already correct post-Phase-15.
+> - B3 half-caster level 1 slots (`spell-data.ts:444` `Math.ceil(level/2)`) — ✗ not fixed. Live work. Phase 15 Step 28 ports the corrected tables into a library `class-progression-table` entry; ship B3's `Math.ceil`→lookup fix first, then Phase 15 carries it forward.
+> - B4 HP display pre-ASI CON (`HpRollSection5e.tsx:24`) — ✗ not fixed. Live work. Unrelated to Phase 15 shape.
+> - B5 skill prof on multiclass — ✗ not fixed. Live work. Unrelated to Phase 15 shape.
 
 ---
 

@@ -145,7 +145,7 @@ Phase 22 is a **comprehensive codebase analysis** covering performance, architec
 - This gives them caching, error handling, and homebrew merge for free
 - Verify the data-provider functions exist and return the expected shapes
 
-> **Phase 15 coordination:** If Phase 15 has already landed when this step runs, the final target is `useLibraryEntries('equipment')` / `useLibraryEntries('spell')` (the hydration hooks), not the data-provider call site. Skip the intermediate data-provider hop and route the bypassed components directly through Phase 15's hydration layer.
+> **Phase 15 coordination (2026-05-18, corrected).** The two files (`EquipmentTab.tsx:18` and `SpellsTab.tsx:93`) call `window.api.game.load*` directly — they don't use `useDataStore`, so Phase 15 Sub-Phase A.3.iv (the useDataStore→useLibraryStore migration) does NOT catch them. Phase 15 Sub-Phase E's `components/game/*` sweep is the actual absorption path. If Phase 15 ships first, H4 is structurally fixed via E. If H4 ships first, the interim target is `useLibraryEntries('equipment'|'spells')` directly — NOT the data-provider call site, since data-provider stays as a non-React access layer post-Phase-15 (Phase 15 Option 3). **Action:** verify that Phase 15 Sub-Phase E's file list explicitly enumerates `EquipmentTab.tsx` and `SpellsTab.tsx` so the sweep doesn't skip them.
 
 ### Sub-Phase D: Fix Remaining Timer/Listener Leaks (H5)
 

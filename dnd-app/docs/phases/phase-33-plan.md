@@ -287,6 +287,8 @@ function migrateBackup(raw: any): BackupPayload {
 
 ### Sub-Phase H: `scripts/schemas/*` content-shape fix (33h)
 
+> **Scope clarification (2026-05-18).** Phase 33h targets `scripts/schemas/` — **dev-time** zod schemas used by `npm run validate:5e` to assert content shape before commit. This is separate from Phase 15 A.2 schemas at `src/renderer/src/services/library/schemas/`, which are **runtime** schemas validating entries at load + homebrew-save time. The two schema sets validate at different boundaries and have different purposes; they do not conflict, and Phase 33h does not replace or get replaced by Phase 15's schema work. Phase 33h fixes the existing single-record-vs-array-or-wrapper mismatch in the dev-time set; Phase 15 ships the runtime set from scratch.
+
 **Step 29 — Audit current schema vs content shape**
 - Run `dnd-app/scripts/audit/validate-content-vs-schemas.ts` to get the pass/fail table.
 - Identified mismatch categories (per SUGGESTIONS-LOG gotcha):

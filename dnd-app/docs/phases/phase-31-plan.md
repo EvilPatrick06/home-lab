@@ -414,6 +414,8 @@ Doing Phase 18 first means Phase 19's Pi-side authority implements ONE protocol 
 | Phase 27 Sub-Phase I (late-joiner ambient) | Ambient missing in late-joiner sync | Absorbed — initial state-bootstrap ships every shard snapshot to joiners. |
 | Phase 17 medium network items (NET-21–NET-50) | Many error-handling / validation gaps | Re-scope after Phase 31 — many disappear with the single sync protocol. |
 | Phase 15 | per-shard `permissionFilter` | Uses Phase 29 keys; Phase 31 wires the call. |
+| Phase 15 | `useLibraryStore` mutation broadcast | Phase 15 introduces a new canonical store. Phase 31 registers a `library` shard so library mutations (homebrew edits, plugin loads, official errata patches) propagate to peers via the standard shard diff path. Without this, Phase 15 has no network propagation for library changes. |
+| Phase 23 | `lobbyStore.remoteCharacters` + `dm:character-update` flow | Phase 31's character shard fully absorbs both — `dm:character-update` ceases to exist, `lobbyStore.remoteCharacters` becomes dead code. Phase 23 S3's interim fix (single-canonical-write to `useCharacterStore`) bridges the gap until Phase 31 lands. |
 
 ---
 

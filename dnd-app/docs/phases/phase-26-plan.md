@@ -236,7 +236,7 @@ Phase 26 covers the **Encounter Builder & Combat Tracker**. The builder correctl
 - When a map is linked, allow DMs to pre-assign monster starting positions:
   - Show the linked map in a small canvas view within the encounter builder
   - Click on the map to set a monster's starting position
-  - Store positions in the encounter data per-monster entry: `{ monsterRef: { entryId, entryType: 'monster', overrides? }, startX, startY, count }`. The monster's stat block hydrates via `useLibraryEntry` — encounters store refs, not embedded JSON (Phase 15 rule).
+  - Store positions in the encounter data per-monster entry: `{ ref: EntryRef<'monsters' | 'creatures' | 'npcs'>, startX, startY, count, instanceOverrides? }`. The monster's stat block hydrates via `useLibraryEntry` — encounters store refs, not embedded JSON (Phase 15 rule). **Field name `instanceOverrides`** (not `overrides`) matches Phase 15 Sub-Phase E — encounter monsters carry instance-level customization (this specific encounter's "Goblin (Lieutenant)" with custom HP), distinct from ref-level player-intent overrides (player renamed Wand of Magic Missiles to "Pew Pew").
 - When "Place All" is clicked with pre-positions, use those positions instead of smart placement
 
 ### Sub-Phase E: Improve AI Encounter Deployment (E3)
@@ -272,6 +272,6 @@ Phase 26 covers the **Encounter Builder & Combat Tracker**. The builder correctl
 ### Pre-Positioning
 - **This is a nice-to-have**: If implementing the full mini-map pre-positioning canvas is too complex, start with simple grid coordinate inputs (X, Y per monster). The visual map placement can come later.
 - **Pre-positions are stored in the encounter, not the map**: Monsters aren't placed until the DM deploys them.
-- **Phase 15 rule**: Encounter monster entries are `{ monsterRef, startX, startY, count, overrides? }`. The encounter never holds a copy of the monster stat block. Pre-Phase-15 encounters with embedded monster data auto-migrate at load (Phase 15 Step 22 — Migration).
+- **Phase 15 rule**: Encounter monster entries are `{ ref: EntryRef<'monsters' | 'creatures' | 'npcs'>, startX, startY, count, instanceOverrides? }`. The encounter never holds a copy of the monster stat block. Pre-Phase-15 encounters with embedded monster data auto-migrate at load (Phase 15 Step 22 — Migration). **Editing an encounter monster's `actions` via `instanceOverrides` replaces the entire action array atomically** — the encounter "owns" that monster's action list permanently. Library updates to other actions don't reach customized encounters. This is per Phase 15's array-atomic-replace constraint.
 
 Begin implementation now. Start with Sub-Phase A (Steps 1-3) to fix GroupRollModal — this is a broken feature that shows fake data. Then Sub-Phase B (Steps 4-5) to wire "Place All & Start Initiative" to actually work. These two fixes transform the encounter builder from partially broken to fully functional.

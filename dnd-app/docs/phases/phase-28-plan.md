@@ -356,13 +356,13 @@ try { return await next } finally {
 
 **Files:** broad — primary hotspots `src/renderer/src/services/library-service.ts:639, 678-679, 694, 702, 710`, plus 7+ test helpers
 
-**Phase 15 sequencing (Option A):** Phase 15 reshapes `library-service.ts` substantially (keyed-map source-of-truth, hydration hooks, refs+overrides shape). The 5 casts listed above will likely move, change, or disappear during that rewrite. **Defer the `library-service.ts` cluster to a post-Phase-15 cleanup pass.** Run the other 69 casts now; do `library-service.ts` after Phase 15 lands.
+**Phase 15 sequencing (2026-05-18, refined).** Earlier note claimed the casts would "move or disappear" under Phase 15. Verification shows otherwise: Phase 15 A.3.iii says `library-service.ts` is "touched mechanically file-by-file" to route results to `useLibraryStore.entries[category]` instead of `useDataStore.cache`. The 5 `as unknown as` casts at ~639/678-679/694/702/710 sit at **JSON-parse boundaries** (parsing raw 5e content), which don't move. They persist through Phase 15 unchanged. **Sweep the casts here, after Phase 15 A.3.iii stabilizes the file's import + cache routing.** Don't expect them to be deferred-away.
 
 **Changes:**
 1. Cluster the 74 casts by boundary (IPC, JSON-from-disk, third-party SDK, test mock). Exclude `library-service.ts` from this pass.
 2. For known-shape data: zod parse at the boundary; downstream gets the typed result.
 3. For truly dynamic (plugin payloads): document the cast with a comment ("plugin-supplied; no schema possible").
-4. Target: < 40 casts outside tests after the pass (allowing 5 casts in `library-service.ts` to remain pending Phase 15).
+4. Target: < 40 casts outside tests after the pass (including the 5 in `library-service.ts`, which are now in scope per the 2026-05-18 refinement — they don't disappear under Phase 15).
 
 ### Step 28d.4 — Effect-dep suppression audit
 

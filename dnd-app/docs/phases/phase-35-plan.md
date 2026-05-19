@@ -438,6 +438,7 @@ One release at end of Phase 35.
 | Phase 28a.5 (JSON.parse containment in game-data-handlers.ts:29) | Add try-catch | Phase 35i absorbs this — strike 28a.5 from Phase 28 scope |
 | Phase 28d (`as unknown as` casts) | Type safety pass | Phase 35 reduces the cast surface — the unsafe `Record<string, unknown>` payload types become typed via schema inference. Re-scope 28d after 35 lands |
 | SECURITY-LOG `[2026-04-24] 119 of 121 IPC handlers don't zod-validate` | Active high-debt entry | Phase 35 absorbs entirely. Log entry cleared after Phase 35 lands |
+| Phase 15 A.2 (per-category library schemas) | Schema reuse for IPC payloads carrying library entries | For channels like `storage:save-homebrew`, `library:upsert-entry`, `bmo:sync-event` (when payload contains a `LibraryEntry<T>`), Phase 35 imports the per-category schema from `services/library/schemas/registry.ts` rather than declaring a new one in `src/shared/ipc-schemas.ts`. Single source of truth for entry shape across the renderer + IPC + storage boundary. |
 
 ---
 

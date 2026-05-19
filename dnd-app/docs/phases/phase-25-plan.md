@@ -6,13 +6,13 @@ Phase 25 covers the **Homebrew & Custom Content System**. The foundation exists 
 > - **H4 (Sub-Phase D — Unify Storage Systems)** is absorbed by Phase 15 Sub-Phase G Step 21 (Homebrew Parity). Custom-creatures storage merging into homebrew, and homebrew living in the same library store as built-ins, are structural Phase 15 rules.
 > - **M2 (Sub-Phase F — Builder/Sheet Integration)** is resolved structurally by Phase 15 Sub-Phases B/C/D — once every consumer hits the library, homebrew shows up automatically (it's in the library; consumers can't tell built-in from homebrew apart from a `source: 'homebrew'` field).
 >
-> **H2 (Zod schemas)** is promoted to a **Phase 15 prerequisite**: all 13 content types need validated shapes before they become canonical library entries. Ship H2 before Phase 15 lands.
+> **H2 (Zod schemas) — fully absorbed by Phase 15 (2026-05-18 update).** Phase 15 Sub-Phase A.2 ships unified per-category schemas; A.2.5 adds source + audit fields to `BaseLibraryEntry`. The 13 homebrew types validate via the same `SCHEMA_REGISTRY` as official entries. No separate homebrew schemas needed. H2 struck from Phase 25 scope.
 >
 > **See also:** Phase 31 (Live-state sync overhaul) — library / homebrew updates broadcast as a library shard delta (no bespoke message). Campaign-scoped homebrew filtering (Sub-Phase E / M1) lives in that shard's `permissionFilter` once Phase 29 permission keys exist.
 >
 > **Verification pass (2026-05-18):**
 > - H1 export/import — ✗ no `.dndhomebrew` support in `services/io/`. Live work.
-> - H2 Zod schemas — ◐ baseline drift: **9/13 files** in `scripts/schemas/` (backgrounds, bestiary, classes, equipment, feats, mechanics, species, spells, world). Up from plan's 3/13. Remaining 4 types still need schemas. Live work + this remains a Phase 15 prerequisite.
+> - H2 Zod schemas — ✓ **STRUCK FROM SCOPE (2026-05-18).** Fully absorbed by Phase 15 A.2 + A.2.5. The 9 dev-time schemas in `scripts/schemas/` remain Phase 33h's concern; the runtime homebrew validation H2 wanted is now Phase 15's unified `SCHEMA_REGISTRY`.
 > - H3 custom mechanics — ✗ `feat-mechanics-5e.ts` has zero homebrew handling. Live work (mechanical-effects work, not the field-parity work that 17o shipped).
 > - M1 campaign-scoped homebrew — ✗ no `campaignId` field on homebrew schemas. Live work.
 
@@ -49,7 +49,7 @@ Phase 25 covers the **Homebrew & Custom Content System**. The foundation exists 
 | # | Issue | Impact |
 |---|-------|--------|
 | H1 | No homebrew export/import — can't share custom content | Users can't transfer homebrew between machines or share with players |
-| H2 | Only 3/13 content types have Zod validation schemas — **Phase 15 prerequisite** | Invalid homebrew can break the app; library entries need validated shapes |
+| ~~H2~~ | ~~Only 3/13 content types have Zod validation schemas~~ — **fully absorbed by Phase 15 A.2 + A.2.5** (2026-05-18). Phase 15 ships unified `SCHEMA_REGISTRY` covering every `LibraryCategory` (~52 categories, all 13 homebrew types included). A.2.5 adds `source: 'official' \| 'homebrew' \| 'plugin'` + optional `createdAt`/`updatedAt` to `BaseLibraryEntry`, so homebrew audit metadata validates against the same schemas. **Strike H2 from Phase 25 scope** — no separate `HomebrewSpellSchema` etc. needed. | — |
 | H3 | Custom feats/spells have no mechanical effect — partially absorbed by Phase 15 | Homebrew displays in library but doesn't work in gameplay |
 | ~~H4~~ | ~~Dual storage systems~~ — **moved to Phase 15 Sub-Phase G Step 21** | — |
 
@@ -114,7 +114,9 @@ Phase 25 covers the **Homebrew & Custom Content System**. The foundation exists 
 - Add "Export All Homebrew" and "Import Homebrew" buttons
 - Show import results (count imported, any errors)
 
-### Sub-Phase B: Complete Validation Schemas (H2)
+### Sub-Phase B: ~~Complete Validation Schemas (H2)~~
+
+> **STRUCK 2026-05-18.** Fully absorbed by Phase 15 A.2 (unified `SCHEMA_REGISTRY` for every `LibraryCategory`) + Phase 15 A.2.5 (homebrew audit fields on `BaseLibraryEntry`). No homebrew-specific schemas needed. The steps below are kept for historical reference only — do not implement.
 
 **Step 5 — Create Zod Schemas for All Content Types**
 - Create `src/renderer/src/schemas/homebrew-schemas.ts`:

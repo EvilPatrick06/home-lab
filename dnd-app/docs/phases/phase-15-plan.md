@@ -328,6 +328,47 @@ Validation runs at exactly two boundaries:
 
 Runtime reads (`getEntry`, `getEntries`, `useLibraryEntry`) trust the cache. No per-read validation cost.
 
+### A.2.5 — Homebrew audit fields on `BaseLibraryEntry` (added 2026-05-18)
+
+**Origin:** absorbs Phase 25 H2 (Zod schemas for homebrew). Instead of separate `HomebrewSpellSchema`/`HomebrewMonsterSchema`/etc. wrapping per-category schemas, extend `BaseLibraryEntry` (and the Zod `BaseLibraryEntrySchema` that every per-category schema in A.2 extends) with the audit fields homebrew + plugin entries carry. Official entries leave these fields blank — the schema makes them optional.
+
+**Fields:**
+
+```typescript
+interface BaseLibraryEntry {
+  id: string
+  name: string
+  source: 'official' | 'homebrew' | 'plugin'
+  createdAt?: string                          // ISO timestamp — homebrew / plugin only
+  updatedAt?: string                          // ISO timestamp — homebrew / plugin only
+  pluginId?: string                           // when source === 'plugin', the plugin that owns this entry
+}
+```
+
+**Zod base schema (used by every per-category schema in A.2):**
+
+```typescript
+const BaseLibraryEntrySchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  source: z.enum(['official', 'homebrew', 'plugin']),
+  createdAt: z.string().datetime().optional(),
+  updatedAt: z.string().datetime().optional(),
+  pluginId: z.string().min(1).optional()
+})
+
+// Per-category schemas extend the base:
+export const SpellSchema = BaseLibraryEntrySchema.extend({ /* spell-specific fields */ }).passthrough()
+```
+
+**Save / load behavior:**
+
+- `loadCategory(category)` validates raw entries through the per-category schema. Official entries pass with `source: 'official'`, no audit timestamps. Homebrew + plugin loads stamp `source` accordingly.
+- `upsertHomebrew(category, entry)` stamps `source: 'homebrew'`, sets `createdAt` (if missing) and `updatedAt` to `new Date().toISOString()`, then validates. Invalid homebrew rejects with a user-facing error.
+- Plugin loaders stamp `source: 'plugin'` + `pluginId` + `createdAt = installedAt`.
+
+**Phase 25 H2 fully absorbed.** No homebrew-specific schemas needed. Consumers can't distinguish homebrew/plugin from official except via the `source` field, which the boundary test forbids them from branching on. The Library page itself reads `sourceOf[uid]` to render the "homebrew" / "plugin" badge.
+
 ### A.3 — Repurposed `useLibraryStore` (`src/renderer/src/stores/use-library-store.ts`)
 
 Spin the current UI-only state into a new file, then rewrite `useLibraryStore` as the truth store.
@@ -538,18 +579,27 @@ const MIGRATIONS: Record<number, Migration> = {
 | `knownSpells: SpellEntry[]` | `knownSpellRefs: EntryRef<'spells'>[]` | `spells` |
 | `weapons: WeaponEntry[]` | `weaponRefs: EntryRef<'weapons'>[]` | `weapons` |
 | `armor: ArmorEntry[]` | `armorRefs: EntryRef<'armor'>[]` | `armor` |
-| `equipment: EquipmentItem[]` | `equipmentRefs: EntryRef<'weapons'|'armor'|'gear'|'tools'>[]` | (resolved by name match) |
+| `equipment: EquipmentItem[]` | `equipmentRefs: EntryRef<'weapons'|'armor'|'gear'|'tools'>[]` | (resolved by name match — see ambiguous-match fallback below) |
 | `feats: Array<{...}>` | `featRefs: EntryRef<'feats'>[]` | `feats` |
 | `classFeatures: ClassFeatureEntry[]` | `classFeatureRefs: EntryRef<'class-features'>[]` | `class-features` |
-| `magicItems: MagicItemEntry5e[]` | `magicItemRefs: EntryRef<'magic-items'>[]` | `magic-items` |
+| `magicItems: MagicItemEntry5e[]` + `attunement: Array<{...}>` | `magicItemRefs: Array<{ instanceId: string, ref: EntryRef<'magic-items'> }>` + `state.magicItemAttuned: Record<instanceId, boolean>` + `state.magicItemCharges: Record<instanceId, number>` | `magic-items` |
 | `conditions: ActiveCondition[]` | `conditionRefs: EntryRef<'conditions'>[]` | `conditions` |
 | `customFeatures: CustomFeature[]` | (stays inline — these are by definition NOT in the library; flag as `source: 'character-local'` for the lint rule) | n/a |
-| `attunement: Array<{...}>` | `attunementRefs: EntryRef<'magic-items'>[]` + `state.attuned: boolean` on each magic-item ref | `magic-items` |
 | `classes: CharacterClass5e[]` | `classRefs: Array<{ classRef: EntryRef<'classes'>, level, subclassRef?: EntryRef<'subclasses'> }>` | `classes` / `subclasses` |
-| `species: string` (already an id) | `speciesRef: EntryRef<'species'>` | `species` |
-| `background: string` (already an id) | `backgroundRef: EntryRef<'backgrounds'>` | `backgrounds` |
+| `species: string` (already an id) | `speciesRef: EntryRef<'species'> \| null` (null fallback when id doesn't match library) | `species` |
+| `background: string` (already an id) | `backgroundRef: EntryRef<'backgrounds'> \| null` (null fallback when id doesn't match library) | `backgrounds` |
 | `equipment[*].magicItemId` | rolled into the `magic-items` ref above | n/a |
 | `companions[*]` | each companion's stat block becomes a ref | `companions` |
+
+**Attunement migration detail (Design C, 2026-05-18).** The legacy `Character5e` had two separate stores for the same concept: `magicItems[]` (items owned) and `attunement[]` (subset that's attuned, keyed by name). Migration unifies into a single `magicItemRefs` list (each entry has a stable `instanceId`, reusing `MagicItemEntry5e.id` from the legacy record), and lifts the "is attuned?" boolean into `state.magicItemAttuned[instanceId]`. Per-instance charge counts go to `state.magicItemCharges[instanceId]`. To match an old `attunement[]` entry against `magicItems[]`, walk by name; on no match, surface in migration report as "attuned item not found in inventory."
+
+**Library-side ItemEntry shape (Phase 15 A.2 schema).** The legacy `MagicItemEntry5e` had two boolean fields confusingly named: `attunement: boolean` (= "requires attunement", a capability) and `attuned?: boolean` (= "this character has attuned to it", instance state). Phase 15's library `ItemEntry` keeps **only** `requiresAttunement: boolean`. The `attuned` field is dropped from the library shape entirely; "is attuned right now" lives exclusively in `Character.state.magicItemAttuned[instanceId]`. The `item.schema.ts` in A.2 must enforce this — `attuned` is rejected if present on a library entry.
+
+**Bare-id resolution fallback (`species`, `background`).** Both fields are already ids on legacy records, not embedded JSON. The match-or-orphan strategy doesn't fit — if the id doesn't match any library entry, there's no original data to preserve as `overrides`. Instead: on no-match, set the ref to `null` and surface in the migration report as "Unrecognized species/background id; please pick one." The character renders with a "Pick a species" prompt in the sheet's species section until the player resolves it. Same for background.
+
+**Ambiguous equipment match fallback.** Equipment resolves by name across four categories (`weapons | armor | gear | tools`). For items with ambiguous names — e.g., a homebrew "Sword" with no category — match is undefined. Resolver behavior: ambiguous matches log a warning and become `{ entryId: 'orphan:<uuid>', entryType: <best-guess-category>, overrides: <full original record> }`. Migration report flags these as "Ambiguous equipment migration" so player can re-link.
+
+**Pre-existing homebrew migration.** Existing on-disk homebrew files (`userData/homebrew/*.json`) were written before Phase 15's schemas exist. On first v4 boot, before any character migration runs, walk `userData/homebrew/*.json` and validate each entry against Phase 15 A.2's `SCHEMA_REGISTRY[category]`. Entries that pass: load into `useLibraryStore.entries[category]` with `sourceOf[uid] = 'homebrew'`. Entries that fail: log a warning, write the original to `userData/homebrew/incompatible/<file>.json` for user recovery, exclude from the store. Surface failed entries in the migration report so the user can manually re-import or fix.
 
 For each old entry, match by `(name, category)` against the library index built from a one-shot load of all relevant categories. Override derivation:
 
@@ -581,6 +631,8 @@ export async function snapshotIfFirstMigration(saveFilePath: string, targetVersi
 Called from `migrateData` at the moment we know we're stepping past v3. Idempotent on every dimension (re-running migration on already-v4 data is a no-op; second migration of a v4 file never overwrites the existing `.bak`).
 
 **Mirror migration in the renderer** (`src/renderer/src/services/io/import-export.ts` — `BACKUP_MIGRATIONS[4]`). Same logic, same orphan handling. Backup files exported from the app carry the new shape after import-time migration.
+
+> **Shared migration core (2026-05-18).** To prevent divergence between the main-process `MIGRATIONS[4]` and the renderer-side `BACKUP_MIGRATIONS[4]`, **extract** `migrateCharacter5eToRefs` to `src/shared/migrations/v4-character-refs.ts`. Both call sites import the same function. The shared module is pure (no Electron / Node imports beyond `crypto.randomUUID`); it only operates on character record JSON. Both wrappers handle their environment-specific snapshot / orphan-report concerns separately.
 
 **Migration report.** As `migrateCharacter5eToRefs` runs, it accumulates a per-character summary:
 
@@ -854,28 +906,34 @@ interface Character5e {
   // ...
 }
 
-// AFTER
+// AFTER (Design C, 2026-05-18 — keyed by stable instanceId, NOT by array index)
 interface Character5e {
-  speciesRef: EntryRef<'species'>
-  backgroundRef: EntryRef<'backgrounds'>
-  classRefs: Array<{ classRef: EntryRef<'classes'>, level: number, subclassRef?: EntryRef<'subclasses'> }>
-  knownSpellRefs: EntryRef<'spells'>[]
-  weaponRefs: EntryRef<'weapons'>[]
-  armorRefs: EntryRef<'armor'>[]
-  equipmentRefs: EntryRef<'weapons'|'armor'|'gear'|'tools'|'magic-items'>[]
-  featRefs: EntryRef<'feats'>[]
-  classFeatureRefs: EntryRef<'class-features'>[]
-  magicItemRefs?: EntryRef<'magic-items'>[]
-  conditionRefs: EntryRef<'conditions'>[]
-  attunementRefs?: EntryRef<'magic-items'>[]
-  customFeatures?: CustomFeature[]              // STAYS inline — by definition not in library
-  // Instance state:
+  speciesRef: EntryRef<'species'> | null            // null fallback if legacy id doesn't match library
+  backgroundRef: EntryRef<'backgrounds'> | null     // same
+  classRefs: Array<{
+    instanceId: string                              // crypto.randomUUID() per class entry
+    classRef: EntryRef<'classes'>
+    level: number
+    subclassRef?: EntryRef<'subclasses'>
+    levelTaken: number                              // for replay / undo
+  }>
+  knownSpellRefs: Array<{ instanceId: string, ref: EntryRef<'spells'> }>
+  weaponRefs: Array<{ instanceId: string, ref: EntryRef<'weapons'> }>
+  armorRefs: Array<{ instanceId: string, ref: EntryRef<'armor'> }>
+  equipmentRefs: Array<{ instanceId: string, ref: EntryRef<'weapons'|'armor'|'gear'|'tools'|'magic-items'> }>
+  featRefs: Array<{ instanceId: string, ref: EntryRef<'feats'> }>
+  classFeatureRefs: Array<{ instanceId: string, ref: EntryRef<'class-features'> }>
+  magicItemRefs?: Array<{ instanceId: string, ref: EntryRef<'magic-items'> }>
+  conditionRefs: Array<{ instanceId: string, ref: EntryRef<'conditions'> }>
+  customFeatures?: CustomFeature[]                  // STAYS inline — by definition not in library
+  // Instance state — keyed by instanceId from the corresponding ref array entry.
+  // NEVER keyed by array index (reorder-fragile) or by entryId (collision-prone with duplicates).
   state: {
-    preparedSpellIds: string[]
-    weaponEquipped: Record<string /* refIndex */, boolean>
-    armorEquipped: Record<string, boolean>
-    magicItemCharges: Record<string, number>
-    magicItemAttuned: Record<string, boolean>
+    preparedSpellIds: Record<string /* instanceId */, boolean>
+    weaponEquipped: Record<string /* instanceId */, boolean>
+    armorEquipped: Record<string /* instanceId */, boolean>
+    magicItemCharges: Record<string /* instanceId */, number>
+    magicItemAttuned: Record<string /* instanceId */, boolean>
     // ...
   }
 }
@@ -891,10 +949,12 @@ AttunementTracker5e.tsx, BackgroundPanel5e.tsx, CharacterTraitsPanel5e.tsx,
 ClassResourcesSection5e.tsx, CoinBadge5e.tsx, CombatStatsBar5e.tsx,
 CompanionsSection5e.tsx, ConditionsSection5e.tsx, CraftingProgress5e.tsx,
 CraftingRecipeList5e.tsx, CraftingSection5e.tsx, DeathSaves5e.tsx,
-EquipmentListPanel5e.tsx, HighElfCantripSwapModal5e.tsx, SpellcastingSection5e.tsx,
-SpellPrepOptimizer.tsx, SpellSlotTracker5e.tsx, (~40 files total — full list in the actual
-file system at implementation time)
+EquipmentListPanel5e.tsx, HighElfCantripSwapModal5e.tsx, MagicItemsPanel5e.tsx,
+SpellcastingSection5e.tsx, SpellPrepOptimizer.tsx, SpellSlotTracker5e.tsx,
+(~40 files total — full list in the actual file system at implementation time)
 ```
+
+**Phase 23 Sub-Phase F (M2) absorption.** `AttunementTracker5e.tsx` and `MagicItemsPanel5e.tsx` previously showed different attunement counts (one read `character.attunement.length`, the other `character.magicItems.filter(mi => mi.attuned).length`). After Sub-Phase C: both panels read `Object.values(character.state.magicItemAttuned).filter(Boolean).length`. Single source. Phase 23 M2 fully absorbed by this sweep.
 
 Each file:
 
@@ -906,8 +966,13 @@ Each file:
 
 - **Death-save auto-applied conditions** (sub-phase 17ac shipped this earlier). The matcher becomes `conditionRefs.some((r) => r.entryId === 'unconscious')` — ref-id based, not name-based.
 - **Spell prep state** — `preparedSpellIds: string[]` in `state`, not `overrides`. Easy to confuse during the rewrite.
-- **Magic item attunement** — `magicItemAttuned: Record<refIndex, boolean>` in `state`. The legacy `attuned?: boolean` field on `MagicItemEntry5e` was confused — it mixed library-level "this item *can* be attuned" with character-level "this character *has* attuned it". Library entry keeps `attunement: boolean` (= "requires attunement"); character carries `state.magicItemAttuned`.
-- **Charges** — `state.magicItemCharges[refIndex]: number`. Max charges live on the library entry.
+- **Magic item attunement (Design C, 2026-05-18)** — `state.magicItemAttuned: Record<instanceId, boolean>` keyed by the **stable `instanceId`** on each `magicItemRefs[]` entry. **Not** keyed by array index (reordering inventory shifts every key) or by `entryId` (a character with two of the same magic item — twin daggers, two healing potions — can't distinguish them; both have the same `entryId`).
+  - The legacy `attuned?: boolean` field on `MagicItemEntry5e` was confused — it mixed library-level "this item *can* be attuned" with character-level "this character *has* attuned it". Phase 15 A.2's `item.schema.ts` drops `attuned` from the library shape entirely. Library entry keeps `requiresAttunement: boolean`; character carries `state.magicItemAttuned[instanceId]`.
+  - `MagicItemEntry5e.id` already exists per-instance on legacy records — migration reuses it as the new `instanceId` (no new UUID generation needed for already-saved characters).
+  - 3-attuned-max check: `Object.values(character.state.magicItemAttuned).filter(Boolean).length`.
+- **Charges** — `state.magicItemCharges[instanceId]: number`. Max charges live on the library entry. Same instanceId keying discipline as attunement.
+- **Equipped state** — `state.weaponEquipped` and `state.armorEquipped` keyed by instanceId. A character with two longswords sees each one's equipped state independently.
+- **Prepared spells** — `state.preparedSpellIds: Record<instanceId, boolean>`. Player can prepare two instances of the same spell ref if the homebrew design allows it.
 - **Equipped state** — `state.weaponEquipped` and `state.armorEquipped` maps. The library entry doesn't carry "equipped"; it's purely a per-character runtime flag.
 - **Inventory display ordering** — character record can hold a `state.equipmentOrder: string[]` if player drag-reordering matters; otherwise display in ref-array order.
 
@@ -987,7 +1052,7 @@ src/renderer/src/components/game/GameModalDispatcher.tsx
 src/renderer/src/components/game/modals/utility/CompendiumModal.tsx
 src/renderer/src/components/game/dm/* — every DM-side modal/panel
 src/renderer/src/components/game/player/* — every player-side modal/panel
-src/renderer/src/components/game/sidebar/* — initiative tracker, conditions panel
+src/renderer/src/components/game/sidebar/* — initiative tracker, conditions panel, EquipmentTab.tsx, SpellsTab.tsx (the last two currently bypass useDataStore via direct window.api.game.load* calls — absorbs Phase 22 H4)
 src/renderer/src/components/game/modals/* — every modal that reads D&D data
 src/renderer/src/components/game/overlays/* — token detail, NPC popup, spell tooltip
 src/renderer/src/components/game/bottom/* — chat, dice, command bar
@@ -1011,13 +1076,25 @@ Encounter records store:
 ```typescript
 interface Encounter5e {
   monsterRefs: Array<{
+    instanceId: string                              // crypto.randomUUID() per slot
     ref: EntryRef<'monsters' | 'creatures' | 'npcs'>
-    count: number
+    count: number                                   // only used when N identical stamp-outs needed without per-instance state
+    startX?: number
+    startY?: number
     instanceOverrides?: DeepPartial<MonsterLikeEntry>  // for "Goblin (Lieutenant)" with custom HP
   }>
   // ...
 }
 ```
+
+**Two patterns for "multiple of the same monster":**
+
+- **`count: N`** — stamp out N identical creatures with no per-instance distinguishing state. Fine for "5 goblins, all identical." The DM places tokens for each; per-token state lives on the token records, not the encounter.
+- **N separate entries with distinct `instanceId`s and `instanceOverrides`** — when each monster has its own customization (Goblin Lieutenant with custom HP, Goblin Shaman with extra spells, etc.). Each is a distinct encounter slot.
+
+Use whichever fits. Phase 26 Step 10 + Step 11 (encounter pre-position + smart placement) use the same shape.
+
+**Array-override edge case for monster `actions`.** `instanceOverrides.actions = [...]` replaces the entire `actions` array atomically per Phase 15's array-replace rule. A DM who tweaks one action on an encounter monster permanently forks that monster's action list — library updates to other actions never reach that encounter. Intentional per the design; document explicitly so encounter authors aren't surprised.
 
 DM-dragged tokens:
 
@@ -1175,6 +1252,18 @@ Tab-complete for `/spell`, `/item`, `/monster`, `/feat`, `/condition` searches t
 
 Currently allowlisted in the boundary test (line 1046 of `library-service.ts` and line 59 of `adventure-loader.ts` use `fetch('/data/5e/...')` directly). Sub-phase G migrates these to `useLibraryStore.loadCategory(...)` so the allowlist shrinks to just `services/library/**`.
 
+**Explicit step:** After the loader migration above lands, edit `src/renderer/src/services/library/library-boundary.test.ts` and remove `'src/renderer/src/services/adventure-loader.ts'` from the `ALLOWLIST` constant. The boundary test now enforces the rule against the loader too.
+
+### Library mutation broadcast wiring
+
+`useLibraryStore` mutations (`upsertHomebrew`, plugin loads, official errata patches) need to reach peers in a multiplayer session. Phase 15 ships the store but not the broadcast — the broadcast is **Phase 31's responsibility**:
+
+- Phase 31 registers a `library` shard (per its reverse-map entry, added 2026-05-18).
+- The shard subscribes to `useLibraryStore.entries` mutations, diffs against the last broadcast snapshot, ships `state:delta` to peers.
+- Permission filtering (via Phase 29 keys) hides DM-only library entries (e.g., hidden monster lore) from non-DM peers.
+
+Until Phase 31 lands, library mutations stay local. Local-only homebrew is the today-state anyway; multi-DM homebrew authoring is a Phase 31 feature. **No Phase 15 step needed** — just documented for the contract.
+
 ### G — Verification
 
 After sub-phase G:
@@ -1204,6 +1293,11 @@ src/renderer/src/services/library/content-index.test.ts
 ```
 
 Plus any `*-tables.ts` files discovered during the sweeps that hold inline D&D data. Plus inline-shape interfaces in `character-common.ts` that are now unreferenced (the `SpellEntry`, `WeaponEntry`, `ArmorEntry`, `MagicItemEntry5e` definitions that lived as "inline data for the character record"; these are replaced by per-category typed entries in `types/library.ts` from sub-phase A).
+
+**NOT deleted:**
+
+- `src/renderer/src/services/data-provider.ts` — **stays** as the official imperative API for non-React access paths (loaders, migration framework, main-process IPC handlers that can't use hooks). The 83 `load5eX()` exports become thin wrappers around `useLibraryStore.loadCategory(category) + getEntries(category)`. Per Phase 15 Option 3 (2026-05-18): React components use hydration hooks (`useLibraryEntry` etc.); services + main-process consumers use `data-provider`. The two paths read the same store; the distinction is about who can call hooks. Document the rule in `src/renderer/src/services/library/README.md`.
+- `src/renderer/src/stores/use-plugin-store.ts` — **stays**, but **split in scope**: plugin **library entries** flow through `useLibraryStore.entries` (with `sourceOf[uid] = 'plugin'` + `pluginId` tagging per A.2.5). Plugin **metadata** (enabled/disabled state, manifest, install dir, install/uninstall hooks) stays in `use-plugin-store`. The split is enforced by convention — the store no longer caches plugin data content directly. Document the split in `use-plugin-store.ts`'s top-of-file JSDoc.
 
 ### Rename verification
 
@@ -1283,6 +1377,7 @@ The Release workflow runs preflight (lint + tsc-web + tsc-node + vitest) and ass
 - **Overrides express player intent.** Renames, custom descriptions, balance tweaks. They persist with the character/campaign.
 - **State expresses runtime mutation.** Current HP, current charges, attuned, equipped, prepared, position. They persist with the character/campaign but live as siblings, never inside `overrides`.
 - **No deep override of arrays.** Arrays in `overrides` replace the whole library array atomically. If the player customized an action list on a homebrew monster, they own that list — they don't auto-pick up new actions added to the library entry. This is intentional.
+- **Instance state is keyed by `instanceId`, not array index.** `state.magicItemAttuned`, `state.magicItemCharges`, `state.weaponEquipped`, `state.armorEquipped`, `state.preparedSpellIds` — all `Record<instanceId, T>`. Reordering inventory must not silently re-key state. `instanceId` is a stable `crypto.randomUUID()` set at acquire time (or migrated from `MagicItemEntry5e.id` for legacy magic items).
 
 ### Network sync
 
@@ -1313,6 +1408,56 @@ The Release workflow runs preflight (lint + tsc-web + tsc-node + vitest) and ass
 ### Backward compatibility window
 
 There isn't one. Phase 15 ships as `v3.0.0`. Pre-3.0.0 saves migrate on first load via the `MIGRATIONS[4]` step and the `.pre-phase-15.bak` snapshot. Post-3.0.0 saves cannot be opened by pre-3.0.0 builds (the schema version mismatch is detected and the load fails with a clear "this save is from a newer version" error). This matches how v2 → v3 shipped.
+
+### Plugin content load order
+
+Bootstrap order on app start (matters because `useHydratedRef` returns `null` for entries not yet in the store):
+
+1. **Official content** — `useLibraryStore.loadCategory(...)` for every `LibraryCategory`. Files from `public/data/5e/**`. Schema-validated; tagged `source: 'official'`.
+2. **Homebrew** — `loadHomebrew()` walks `userData/homebrew/*.json`. Schema-validated; tagged `source: 'homebrew'`. Failed entries surface in the migration report.
+3. **Plugin content** — `loadPluginContent()` walks installed plugin manifests, pulls their library entries, validates, tags `source: 'plugin'` + `pluginId`.
+4. **First render** — `<App />` mounts. Hydration hooks now have data.
+
+If a consumer renders before this completes, `useHydratedRef(ref)` returns `null` and the consumer must handle null gracefully (Component cleanup contract below).
+
+### Component cleanup contract
+
+`useLibraryEntry`, `useLibraryEntries`, and `useHydratedRef` ALL return `null` (or empty array, for `useLibraryEntries`) when their referenced entry doesn't exist. Reasons this can happen at runtime:
+
+- Bootstrap not complete yet (covered above).
+- DM deleted the library entry mid-session (the consumer's character still holds the ref; entry is gone).
+- Library entry moved between categories (e.g., a homebrew "Dragon" reclassified from `bestiary` to `npcs`). The ref's `entryType` no longer matches — see "Library entry category changes" below.
+- Orphan path active (entry was an `orphan:<uuid>` from migration; user hasn't re-linked).
+
+**Consumers MUST handle null.** Every place that calls `useHydratedRef(ref)` is a place that can return `null`. Render an explicit "missing item" / "missing spell" / "orphan — pick a replacement" UI. Don't crash, don't render placeholder data that pretends nothing is wrong.
+
+### Library entry category changes
+
+A homebrew entry can be re-classified between categories during its lifetime (rare, but possible — the DM realizes a "creature" should be an "NPC"). The ref's `entryType` is now stale.
+
+**Behavior:** treated as an orphan. `useHydratedRef` returns `null`. The library editor's "Move category" action MUST detect inbound references and surface a warning: "This entry is referenced by N characters / M encounters. Moving it will orphan those references." Same flow as deletion (per Step 23 reference counts).
+
+### Plugin override collisions
+
+Plugin entries can have IDs that collide with official entries. Behavior:
+
+- **Official entries are never overridden by plugin loads.** A plugin shipping `{ id: 'fireball', source: 'plugin' }` does NOT shadow the official Fireball — the plugin entry is rejected at load with a clear warning.
+- **Plugin entries with colliding ids across plugins** are namespaced. Plugin A's entry `{ id: 'fireball' }` loads as `entries.spells['plugin:plugin-a:fireball']`. References in plugin manifests use the full namespaced id.
+- **Homebrew entries cannot collide with official entries either** — `upsertHomebrew` checks the official set and rejects on collision with a "use a different id" error.
+
+This preserves the trust model: the player controls homebrew; the user-installed plugins can extend but never silently rewrite official content.
+
+### Migration-report dismissal persistence
+
+The "Don't show this again" checkbox in `MigrationReportModal` writes `migrationReportDismissed: true` to **app-level settings** (`app.getPath('userData') + '/settings.json'`), not campaign-store. Rationale: the migration is a one-time event per machine, not per-campaign. Subsequent campaigns / launches don't re-show the modal once dismissed on a given install. New installs on a different machine show the modal again (probably desired — different machine = different state to migrate).
+
+### Boundary test performance budget
+
+The vitest boundary test (A.7) must complete in under **500ms**. If it grows past that — e.g., the codebase expands and the file walk takes longer — split into a separate `vitest run --filter library-boundary` job that runs in parallel with the main suite. Today's 200ms estimate is the working budget; flag if it drifts.
+
+### Release tag handling
+
+Per `CLAUDE.md` release flow, `dnd-app/scripts/release/cut.mjs 3.0.0` is the only thing that pushes a `v*` tag. The intermediate sub-phase tags (`phase-15a-done`, `phase-15b-done`, …) are **lightweight, local-only by convention** — push them individually if you want them on the remote (`git push origin phase-15a-done`), NOT via `git push --tags` (which would push all tags and could accidentally trigger the release workflow if any matches its tag-filter). Verify `release.yml`'s `on.push.tags` filter is restricted to `'v*.*.*'` before starting Phase 15; if it's just `'*'`, narrow it first.
 
 ### Customizing customizations
 
@@ -1363,3 +1508,32 @@ All five surfaces reflect the edit within one render frame, no reload.
 No sub-phase advances on a red gate. No PRs opened mid-phase. No GitHub releases until H is green.
 
 Begin implementation with Sub-Phase A.
+
+---
+
+## 🔗 Plans superseded or modified by Phase 15
+
+| Plan | Item | Disposition |
+|------|------|-------------|
+| Phase 16 | Sub-Phase E (Step 14) — Merge CompendiumModal into Library | **Absorbed.** Phase 15 Sub-Phase E (`game/modals/utility/CompendiumModal.tsx` in the file list) covers the broader rule. |
+| Phase 19 | `srd-provider.ts` / `getPackagedDataPath` packaged-path util | **Coordinate.** Phase 15 A.7 build-guard restricts raw-JSON imports to library boundaries. Phase 19 utils need an allowlist exception or refactor to load via the library store. |
+| Phase 22 | H4 (Step 6) — Fix Service Layer Bypasses | **Absorbed by Sub-Phase E** (`components/game/sidebar/EquipmentTab.tsx` + `SpellsTab.tsx` explicit in E's file list — they bypass `useDataStore` via direct `window.api.game.load*` calls). Not absorbed by A.3.iv (which only covers `useDataStore` consumers). |
+| Phase 23 | Sub-Phase C (S3) — Remote Character Store | **NOT absorbed.** Phase 15 reshapes `Character5e` field names but doesn't touch the network character-update flow or `lobbyStore.remoteCharacters`. Phase 23 S3's single-canonical-write fix stays live work; Phase 31 eventually absorbs the network flow via the character shard. |
+| Phase 23 | Sub-Phase F (M2) — Attunement count mismatch | **Absorbed by Sub-Phase C.** Both `AttunementTracker5e.tsx` and `MagicItemsPanel5e.tsx` read `state.magicItemAttuned` after C — single source. |
+| Phase 24 | B1 — subclass not persisted | **NOT absorbed.** Phase 15 renames `classes[].subclass` → `classRefs[].subclassRef`, but the builder bug (no write-back) is unchanged. Stays Phase 24 live work, targeting whichever field name is current. |
+| Phase 24 | B2 — multiclass hit dice | **Partially absorbed.** Per-class `hitDie` lives on library `ClassEntry` after Phase 15. The `apply-level-up.ts:402-414` iteration fix stays Phase 24 live work. |
+| Phase 24 | `spell-data.ts` (spell-slot / cantrip tables) | **Ported.** B3 fix lands first, then Sub-Phase G deletes the parallel file and moves the corrected tables into a library `class-progression-table` entry type. |
+| Phase 25 | H2 — Zod schemas for 13 homebrew types | **Fully absorbed by Phase 15 A.2 + A.2.5.** Unified `SCHEMA_REGISTRY` + homebrew audit fields on `BaseLibraryEntry`. No homebrew-specific schemas needed. Phase 25 H2 struck. |
+| Phase 25 | H4 (Sub-Phase D) — Unify Storage Systems | **Absorbed.** Sub-Phase G (Homebrew Parity) places homebrew + custom-creatures in the same library store under unified shape. |
+| Phase 25 | M2 (Sub-Phase F) — Builder/Sheet Integration | **Absorbed.** Sub-Phases B/C/D make every consumer hit the library, where homebrew lives. |
+| Phase 25 | H3 — Custom Mechanics | **Reframed.** Display layer fixed by Phase 15; mechanical-effects work (`feat-mechanics-5e.ts` extension, EffectBuilder, dice formulas) stays Phase 25. |
+| Phase 26 | Step 10 — encounter monster pre-position shape | **Coordinated.** Encounter stores `{ instanceId, ref, count, startX, startY, instanceOverrides? }` per Phase 15 Sub-Phase E. Field name `instanceOverrides` (NOT `overrides`) per Phase 15 distinction. |
+| Phase 28 | Step 28a.1 — Math.random sweep on data tables | **Skipped.** Sub-Phase H deletes the parallel files (`personality-tables.ts`, etc.). Math.random sweep skips them; library-stored equivalents pick up `cryptoRandom` during the port. |
+| Phase 28 | Step 28d.3 — `as unknown as` pass on `library-service.ts` | **Still live post-Phase-15.** The 5 casts sit at JSON-parse boundaries that Phase 15 A.3.iii doesn't move. Sweep them as Phase 28 work after A.3.iii stabilizes the file. |
+| Phase 29 | Permission keys for library entries | **Coordinate.** Phase 15 A.2 `BaseLibraryEntry` includes provenance (`source`). Phase 29 keys gate DM-only entry fields (hidden monster lore) via Phase 31's shard `permissionFilter`. |
+| Phase 31 | `library` shard | **Phase 31 owns the broadcast.** Phase 15 ships `useLibraryStore` but no per-shard sync — Phase 31 registers the library shard. |
+| Phase 31 | Character shard | **Phase 31 owns the character-update flow.** `dm:character-update` ceases to exist post-Phase-31; `lobbyStore.remoteCharacters` becomes dead code. |
+| Phase 33h | `scripts/schemas/*` content-shape fix | **No conflict.** Phase 15 runs runtime schemas at `services/library/schemas/`. Phase 33h fixes dev-time schemas at `scripts/schemas/`. Different boundaries; both coexist. |
+| Phase 35 | IPC schema reuse | **Coordinate.** Phase 35's `withSchema` wrapper imports per-category schemas from `services/library/schemas/registry.ts` for channels carrying `LibraryEntry<T>` payloads (storage, BMO sync, etc.). Single source of truth for entry shape across renderer + IPC + storage. |
+
+Every affected plan carries a "See also: Phase 15" note near its top so the relationship is visible from either direction.
