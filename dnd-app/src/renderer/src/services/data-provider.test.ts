@@ -121,3 +121,14 @@ describe('searchMonsters', () => {
     expect(searchMonsters(monsters, 'beholder')).toHaveLength(0)
   })
 })
+
+describe('clearDataCache — phase 15a step 9 cross-store flip', () => {
+  it('clears useLibraryStore entries alongside useDataStore', async () => {
+    const { useLibraryStore } = await import('../stores/use-library-store')
+    await useLibraryStore.getState().loadCategory('spells', () => [{ id: 'fireball', name: 'Fireball', level: 3 }])
+    expect(useLibraryStore.getState().getEntry('spells', 'fireball')).not.toBeNull()
+    clearDataCache()
+    expect(useLibraryStore.getState().getEntry('spells', 'fireball')).toBeNull()
+    expect(useLibraryStore.getState().entries).toEqual({})
+  })
+})

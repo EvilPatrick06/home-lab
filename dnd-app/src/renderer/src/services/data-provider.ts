@@ -1,4 +1,5 @@
 import { useDataStore } from '../stores/use-data-store'
+import { useLibraryStore } from '../stores/use-library-store'
 import { getSystem } from '../systems/registry'
 import type { BuildSlotCategory, DetailField, SelectableOption } from '../types/character-common'
 import type {
@@ -109,6 +110,7 @@ export async function loadJson<T>(path: string): Promise<T> {
 export function clearDataCache(): void {
   jsonCache.clear()
   useDataStore.getState().clearAll()
+  useLibraryStore.getState().clearAll()
 }
 
 /**
@@ -169,6 +171,7 @@ function speciesToOption(species: SpeciesData): SelectableOption {
   }
 
   for (const trait of species.traits) {
+    // boundary-allow: loader return-type — data-provider is the imperative façade per services/library/README.md
     details.push({ label: trait.name, value: typeof trait.description === 'string' ? trait.description : '' })
   }
 
@@ -213,6 +216,7 @@ function classToOption(cls: ClassData): SelectableOption {
 
   return {
     id: cls.id ?? cls.name.toLowerCase(),
+    // boundary-allow: loader return-type — data-provider is the imperative façade per services/library/README.md
     name: cls.name,
     rarity: 'common',
     description: `${ct.hitPointDie} | Primary: ${ct.primaryAbility.join(', ')}`,
@@ -253,6 +257,7 @@ function backgroundToOption(bg: BackgroundData): SelectableOption {
 
   return {
     id: bg.id,
+    // boundary-allow: loader return-type — data-provider is the imperative façade per services/library/README.md
     name: bg.name,
     rarity: 'common',
     description: bg.description || `Skills: ${bg.skillProficiencies.join(', ')}`,
@@ -290,6 +295,7 @@ function feat5eToOption(feat: FeatData): SelectableOption {
   const description = feat.benefits.map((b) => b.description).join(' ')
   return {
     id: feat.id,
+    // boundary-allow: loader return-type — data-provider is the imperative façade per services/library/README.md
     name: feat.name,
     rarity: 'common',
     description,
@@ -392,6 +398,7 @@ export async function getOptionsForSlot(
         if (context?.selectedClassId === 'ranger') {
           options.push({
             id: 'druidic-warrior',
+            // boundary-allow: loader return-type — data-provider is the imperative façade per services/library/README.md
             name: 'Druidic Warrior',
             rarity: 'common' as const,
             description:
@@ -630,6 +637,7 @@ export async function getHeritageOptions5e(speciesId: string): Promise<Selectabl
     }
     return {
       id: option.name.toLowerCase().replace(/\s+/g, '-'),
+      // boundary-allow: loader return-type — data-provider is the imperative façade per services/library/README.md
       name: option.name,
       rarity: 'common' as const,
       description: option.description ?? '',

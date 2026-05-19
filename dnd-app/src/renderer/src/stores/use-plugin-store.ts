@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import type { PluginStatus } from '../../../shared/plugin-types'
 import { getLoadedPlugin, type LoadedPlugin, loadPlugin, unloadPlugin } from '../services/plugin-system/plugin-registry'
 import { useDataStore } from './use-data-store'
+import { useLibraryStore } from './use-library-store'
 
 type _LoadedPlugin = LoadedPlugin
 
@@ -64,6 +65,7 @@ export const usePluginStore = create<PluginStoreState>((set, get) => ({
       await loadPlugin(plugin.manifest)
     }
     useDataStore.getState().clearAll()
+    useLibraryStore.getState().clearAll()
     await get().refreshPluginList()
   },
 
@@ -71,6 +73,7 @@ export const usePluginStore = create<PluginStoreState>((set, get) => ({
     await window.api.plugins.disable(id)
     unloadPlugin(id)
     useDataStore.getState().clearAll()
+    useLibraryStore.getState().clearAll()
     await get().refreshPluginList()
   },
 
@@ -79,6 +82,7 @@ export const usePluginStore = create<PluginStoreState>((set, get) => ({
       const result = await window.api.plugins.install()
       if (result.success) {
         useDataStore.getState().clearAll()
+        useLibraryStore.getState().clearAll()
         await get().refreshPluginList()
       }
       return result
@@ -93,6 +97,7 @@ export const usePluginStore = create<PluginStoreState>((set, get) => ({
       const result = await window.api.plugins.uninstall(id)
       if (result.success) {
         useDataStore.getState().clearAll()
+        useLibraryStore.getState().clearAll()
         await get().refreshPluginList()
       }
       return result
