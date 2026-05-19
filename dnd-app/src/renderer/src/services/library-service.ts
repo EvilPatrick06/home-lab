@@ -1,4 +1,6 @@
-import type { HomebrewEntry, LibraryCategory, LibraryItem } from '../types/library'
+import { useLibraryStore } from '../stores/use-library-store'
+import type { HomebrewEntry, LibraryCategory, LibraryEntry, LibraryItem } from '../types/library'
+import { logger } from '../utils/logger'
 import {
   load5eAdventureSeeds,
   load5eBackgrounds,
@@ -484,7 +486,7 @@ function toLibraryItems(
   category: LibraryCategory,
   source: 'official' | 'homebrew' = 'official'
 ): LibraryItem[] {
-  return items.map((raw) => {
+  const built = items.map((raw) => {
     const item = (raw !== null && typeof raw === 'object' ? raw : {}) as unknown as Record<string, unknown>
     return {
       id: (item.id as string) || (item.name as string) || category,
@@ -495,6 +497,32 @@ function toLibraryItems(
       data: item
     }
   })
+  // Phase 15a Step 8 — side-write each entry into the truth store so consumers
+  // built on `useLibraryEntry` / `useLibraryEntries` / `useHydratedRef` can see
+  // the same data without going through the LibraryItem wrapper. Homebrew goes
+  // through `upsertHomebrew` separately, so only the 'official' path ingests.
+  if (source === 'official') {
+    ingestIntoLibraryStore(category, built)
+  }
+  return built
+}
+
+function ingestIntoLibraryStore(category: LibraryCategory, built: readonly LibraryItem[]): void {
+  if (built.length === 0) return
+  const entries = built
+    .map((b) => {
+      const data = b.data as Record<string, unknown>
+      const id = (data.id as string) || b.id
+      const name = (data.name as string) || b.name
+      if (!id || !name) return null
+      return { ...data, id, name } as LibraryEntry
+    })
+    .filter((e): e is LibraryEntry => e !== null)
+  if (entries.length === 0) return
+  useLibraryStore
+    .getState()
+    .loadCategory(category, () => entries)
+    .catch((err) => logger.warn(`[LibraryService] truth-store ingest failed for ${category}:`, err))
 }
 
 function homebrewToLibraryItems(entries: HomebrewEntry[], category: LibraryCategory): LibraryItem[] {

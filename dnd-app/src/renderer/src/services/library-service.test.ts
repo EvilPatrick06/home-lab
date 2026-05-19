@@ -197,4 +197,27 @@ describe('library-service', () => {
       expect(results.length).toBeGreaterThanOrEqual(1)
     })
   })
+
+  describe('phase 15a step 8 — truth-store side-write', () => {
+    it('loadCategoryItems populates useLibraryStore.entries for the loaded category', async () => {
+      const { useLibraryStore } = await import('../stores/use-library-store')
+      useLibraryStore.getState().clearAll()
+      const { loadCategoryItems } = await import('./library-service')
+      await loadCategoryItems('spells', [])
+      const state = useLibraryStore.getState()
+      const fireball = state.getEntry('spells', 'fireball')
+      expect(fireball?.name).toBe('Fireball')
+      expect(state.sourceOf['spells:fireball']).toBe('official')
+      expect(state.loaded.spells).toBe(true)
+    })
+
+    it('loadCategoryItems for monsters writes goblin into the truth store', async () => {
+      const { useLibraryStore } = await import('../stores/use-library-store')
+      useLibraryStore.getState().clearAll()
+      const { loadCategoryItems } = await import('./library-service')
+      await loadCategoryItems('monsters', [])
+      const goblin = useLibraryStore.getState().getEntry('monsters', 'goblin')
+      expect(goblin?.name).toBe('Goblin')
+    })
+  })
 })
