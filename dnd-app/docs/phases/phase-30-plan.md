@@ -1,283 +1,170 @@
 # Phase 30 — Player-as-Host architecture rewrite
 
-> Decouple the *network host* (who holds authoritative state + routes messages) from the *DM* (who has permission-set we'd call "DM"). Consolidate host-side logic into a `GameAuthority` module behind a transport adapter. Add host-role transfer protocol.
->
-> Renumbered from "Phase B" in conversation planning. Depends on **Phase 29** (permissions matrix) landing first.
-
----
-
 ## Context
 
-Today, "the host" and "the DM" are the same peer by accident. Whoever calls `startHosting()` (i.e., whoever creates the game) becomes:
+Today, the "network host" and the "DM" are the same peer by accident. Whoever calls `startHosting()` becomes both the network host (holds authoritative `useGameStore`, runs `host-handlers.ts`, validates inbound messages, broadcasts to peers) and the DM (every gameplay permission, holds `campaign.dmId`). This conflation means the DM cannot transfer mid-session (closing the DM's app shuts down the network) and a player cannot host on behalf of someone else (better connection / always-on machine, different friend DMs).
 
-1. The **network host** — holds the authoritative `useGameStore` state, runs `host-handlers.ts`, validates inbound messages, broadcasts changes to peers.
-2. The **DM** — has every gameplay permission by default, holds the `dmId` in the campaign settings.
+Goal: separate the two concepts cleanly. Consolidate host-side logic into a `GameAuthority` module behind a `TransportAdapter` interface. Any peer can hold the host role; any peer (or zero peers) can hold the DM role; both can transfer mid-session.
 
-This conflation produces several problems:
+Phase 29's permission system makes the gameplay side role-driven. This phase makes the network side authority-driven, with the authority abstracted so it can run anywhere (player's machine here, Pi in Phase 32).
 
-- **DM can't transfer.** If the DM has to step away from their machine, the game ends — because the DM IS the host, closing their app shuts down the network.
-- **Players can't host for someone else.** Want one friend to host (better connection / always-on machine) while a different friend DMs? No way to express that.
-- **Phase 31 needs this abstraction.** When Phase 31 (Live-state sync overhaul) consolidates the sync model, "the host" still needs to be something specific — but we want it to be a role, not a peer that started PeerJS first.
-- **Phase 32 needs this abstraction.** Pi-as-host means a Pi runs the authority. That's only sensible if "authority" is a thing that can be different from "the human DM."
+## Depends on / blocks
+- Depends on: Phase 29 (permissions matrix — `hasPermission`, `transfer_host`, `change_player_role` perms must exist)
+- Blocks: Phase 31 (live-state sync overhaul mounts its shard registry inside `GameAuthority`), Phase 32 (cloud host — Pi-side implementation of `GameAuthority` over same transport-adapter contract)
 
-Goal: separate the two concepts cleanly. Any peer can be the host; any peer (or zero peers) can hold the DM role; both can transfer mid-session.
+## Files touched
 
-Phase 29's permission system makes the gameplay side already role-driven. This phase makes the network side authority-driven, with the authority abstracted so it can run anywhere (player's machine in this phase, Pi in Phase 32).
-
----
+| Path | Role |
+|------|------|
+| `src/renderer/src/network/authority/game-authority.ts` | NEW — consolidated authority module |
+| `src/renderer/src/network/authority/persistence.ts` | NEW — debounced host-side snapshot persistence |
+| `src/renderer/src/network/authority/game-authority.test.ts` | NEW — authority tests |
+| `src/renderer/src/network/transport/transport-adapter.ts` | NEW — interface |
+| `src/renderer/src/network/transport/p2p-transport.ts` | NEW — PeerJS implementation |
+| `src/renderer/src/network/transport/host-transfer.ts` | NEW — atomic handover protocol |
+| `src/renderer/src/network/transport/p2p-transport.test.ts` | NEW — transport tests |
+| `src/renderer/src/network/transport/host-transfer.test.ts` | NEW — transfer atomicity tests |
+| `src/renderer/src/network/host-connection.ts` | MODIFY then delete — logic moves into `GameAuthority` |
+| `src/renderer/src/network/host-manager.ts` | MODIFY then delete — logic moves into `GameAuthority` |
+| `src/renderer/src/network/host-message-handlers.ts` | MODIFY then delete — logic moves into `GameAuthority` |
+| `src/renderer/src/stores/network-store/host-handlers.ts` | MODIFY then delete — logic moves into `GameAuthority` |
+| `src/renderer/src/stores/network-store/index.ts` | MODIFY — `filterGameStateForRole`, `transformUpdatePayloadForPeer`, sendMessage host branch route through authority |
+| `src/renderer/src/types/campaign.ts` | MODIFY — add `Campaign.hostPeerClientId: string \| null` |
+| `src/renderer/src/stores/use-campaign-store.ts` | MODIFY — `transferDmRole` action |
+| `src/renderer/src/components/lobby/PlayerCard.tsx` | MODIFY — "Transfer Host" + "Transfer DM" menu items |
+| `src/main/io/campaign-snapshots.ts` | NEW — IPC handler reading/writing `<userData>/snapshots/<campaignId>.json` |
+| `src/main/io/campaign-io.ts` | NEW or MODIFY — migration mapping `dmId` → `hostPeerClientId` for legacy saves |
 
 ## Sub-phase summary
 
-| # | Sub-phase | Scope |
+| # | Sub-phase | Theme |
 |---|-----------|-------|
-| 30a | Extract `GameAuthority` module | Consolidate host-handlers + host-connection + network-store host paths into one module with a clean interface |
-| 30b | Transport adapter abstraction | `TransportAdapter` interface; current PeerJS code becomes `P2PTransport`; authority no longer knows what's underneath |
-| 30c | Decouple host-peer from DM-role | Record host-peer separately from `campaign.dmId`; permission checks already use Phase 29, so this finishes the data separation |
-| 30d | Host-role transfer protocol | `host:transfer-request` + `host:transfer-accept`; state snapshot serialization; atomic switchover |
-| 30e | DM-role transfer | Independent of host transfer. Just a permission/role reassignment via Phase 29 |
-| 30f | Transfer UI in PlayerCard menu | "Transfer Host" + "Transfer DM" gated by `transfer_host` + `change_player_role` permissions |
-| 30g | Persistence on host-side | Local host saves campaign state on debounced interval; snapshot moves to new host on transfer |
-| 30h | Tests + verify-don't-assume sweep | Existing host-handler tests run against GameAuthority; new tests for transfer atomicity and DM-transfer independence |
-| 30i | Migration for in-flight games and saved campaigns | Map old `campaign.dmId` to new DM-role assignment; map old host-peer to new authority record |
+| 30a | Extract `GameAuthority` module | Consolidate scattered host logic into one module |
+| 30b | Transport adapter abstraction | `TransportAdapter` interface; PeerJS becomes `P2PTransport` |
+| 30c | Decouple host-peer from DM-role | `Campaign.hostPeerClientId` separate from `dmId` |
+| 30d | Host-role transfer protocol | `host:transfer-request/accept/broadcast` atomic switchover |
+| 30e | DM-role transfer | Role reassignment via Phase 29 |
+| 30f | Transfer UI in PlayerCard menu | Permission-gated menu items |
+| 30g | Persistence on host-side | Debounced snapshot serialization |
+| 30h | Tests + verify-don't-assume sweep | Authority + transfer + DM separation specs |
+| 30i | Migration for legacy campaigns | Map old `dmId` → `hostPeerClientId` |
 
-9 sub-phases. Each ends with the 4-gate suite. One release: **v4.0.0** (major bump — fundamental network rewrite, invisible to users in normal play but breaking for any extension that pokes at the old host-handlers API).
+One release: **v4.0.0** after 30i (major bump — `GameAuthority` is a new public-ish surface, old host-handler shims removed in follow-up).
 
----
+## Architecture / data flow
+
+```mermaid
+graph TD
+  A[GameAuthority] -->|serialize/deserialize| P[Persistence]
+  A -->|uses| Perm[Phase 29 hasPermission]
+  A -->|sends via| T[TransportAdapter]
+  T --> P2P[P2PTransport - PeerJS]
+  T -.future.-> WS[WebSocketTransport - Phase 32 Pi]
+  HT[host-transfer.ts] -->|coordinates| A
+  HT -->|reroutes| T
+  Cam[Campaign.hostPeerClientId] -.runtime.-> A
+  Cam2[Campaign.dmId] -.data only.-> Perm
+```
 
 ## Sub-phase details
 
 ### 30a — Extract `GameAuthority` module
-
-**Files (new):**
-- `src/renderer/src/network/authority/game-authority.ts` — the single module. Exports a class or namespace with:
-  - `init(campaign, hostPeerInfo, transport)`
-  - `applyAction(actor: PeerInfo, action: NetworkMessage) → { accepted: boolean, broadcast: NetworkMessage[] }`
-  - `getSnapshot(forPeer: PeerInfo) → NetworkGameState` (per-peer filtered, uses Phase 29 permissions)
-  - `onSnapshotChange(callback)` — for diff broadcasting
-  - `addPeer(peerInfo)`, `removePeer(peerId)`
-  - `validate(actor, action) → boolean` (uses `hasPermission`)
-  - `serialize()` / `deserialize(snapshot)` — for host transfer + persistence
-
-**Files (modify / consolidate-out-of):**
-- `src/renderer/src/network/host-connection.ts` — handleJoin, message router, ban check, peer dedup
-- `src/renderer/src/network/host-manager.ts` — connections map, peerInfoMap, lastHeartbeat
-- `src/renderer/src/network/host-message-handlers.ts` — applyChatModeration, validateMessage
-- `src/renderer/src/stores/network-store/host-handlers.ts` — case-by-case message handling
-- `src/renderer/src/stores/network-store/index.ts` — `filterGameStateForRole`, `transformUpdatePayloadForPeer`, sendMessage's host branch
-
-All of this logic moves INTO `GameAuthority` behind a clean interface. The existing files become thin shims that call into the new module while migration is in flight, then get deleted in a follow-up cleanup commit.
-
-**Acceptance:**
-- Existing tests pass — `GameAuthority` produces identical outputs to the old scattered code.
-- Adding a new message type now requires editing exactly one file (`game-authority.ts`).
-
----
+**Files:** `src/renderer/src/network/authority/game-authority.ts` (new); modify `src/renderer/src/network/host-connection.ts`, `src/renderer/src/network/host-manager.ts`, `src/renderer/src/network/host-message-handlers.ts`, `src/renderer/src/stores/network-store/host-handlers.ts`, `src/renderer/src/stores/network-store/index.ts` (`filterGameStateForRole` at line 558, `transformUpdatePayloadForPeer` at line 656)
+**Steps:**
+1. Create `game-authority.ts` exporting a class with `init(campaign, hostPeerInfo, transport)`, `applyAction(actor, action) → { accepted, broadcast[] }`, `getSnapshot(forPeer) → NetworkGameState`, `onSnapshotChange(cb)`, `addPeer/removePeer`, `validate(actor, action)`, `serialize/deserialize`.
+2. Move handleJoin, message router, ban check, peer dedup from `host-connection.ts` into authority.
+3. Move connections map, peerInfoMap, lastHeartbeat from `host-manager.ts` into authority.
+4. Move `applyChatModeration`, `validateMessage` from `host-message-handlers.ts` into authority.
+5. Move case-by-case host message handling from `stores/network-store/host-handlers.ts` into authority.
+6. Move `filterGameStateForRole` (network-store/index.ts:558) and `transformUpdatePayloadForPeer` (network-store/index.ts:656) into authority's `getSnapshot`.
+7. Old files become thin shims calling into the new module; delete in follow-up cleanup.
+**Acceptance:** Existing tests pass with `GameAuthority` producing identical outputs. Adding a new message type requires editing exactly one file.
 
 ### 30b — Transport adapter abstraction
-
-**Files (new):**
-- `src/renderer/src/network/transport/transport-adapter.ts` — interface:
-  ```typescript
-  interface TransportAdapter {
-    send(peerId: string, msg: NetworkMessage): void
-    broadcast(msg: NetworkMessage): void
-    broadcastExcluding(msg: NetworkMessage, peerId: string): void
-    onMessage(cb: (msg, fromPeerId) => void): () => void
-    onPeerJoin(cb: (peerInfo) => void): () => void
-    onPeerLeave(cb: (peerId) => void): () => void
-    disconnect(peerId: string, reason?: NetworkMessage): void
-    close(): void
-  }
-  ```
-- `src/renderer/src/network/transport/p2p-transport.ts` — current PeerJS code wrapped into this interface. Same behavior; new file.
-
-**Files (modify):**
-- `GameAuthority` constructor takes a `TransportAdapter` instead of importing PeerJS directly. Authority doesn't know — and doesn't care — that the transport is WebRTC DataChannel.
-
-**Acceptance:**
-- Game still runs on PeerJS; no transport behavior change.
-- Code search confirms `GameAuthority` has zero imports from `peerjs` directly.
-- A stub `MemoryTransport` exists for tests (peer simulation in-process).
-
----
+**Files:** `src/renderer/src/network/transport/transport-adapter.ts` (new), `src/renderer/src/network/transport/p2p-transport.ts` (new)
+**Steps:**
+1. Define `TransportAdapter` interface: `send`, `broadcast`, `broadcastExcluding`, `onMessage`, `onPeerJoin`, `onPeerLeave`, `disconnect`, `close`.
+2. Wrap current PeerJS code into `P2PTransport` implementing the interface; preserve behavior.
+3. Modify `GameAuthority` constructor to accept `TransportAdapter` — remove direct PeerJS imports.
+4. Add `MemoryTransport` stub for in-process peer simulation in tests.
+**Acceptance:** Game still runs on PeerJS unchanged. `grep "from 'peerjs'" src/renderer/src/network/authority/` returns zero results. `MemoryTransport` enables unit tests.
 
 ### 30c — Decouple host-peer from DM-role
-
-**Files (modify):**
-- `src/renderer/src/types/campaign.ts` — add `Campaign.hostPeerClientId: string | null` (the current host's stable clientId). Existing `dmId` stays as the DM-role assignment (but its meaning is "who has the DM role" not "who runs the network").
-- `src/renderer/src/network/authority/game-authority.ts` — `hostPeerInfo` is a runtime concept (passed in init). DM-role is a campaign data concept. They're never coupled.
-- Every "isHost" check in renderer code becomes either:
-  - `peer.clientId === campaign.hostPeerClientId` (rare — usually only for transport-routing display)
-  - `hasPermission(peer, 'some_dm_perm', campaign)` (almost everywhere — Phase 29's mechanism)
-
-**Acceptance:**
-- A campaign can have `hostPeerClientId === 'client-alice'` and DM role assigned to `client-bob`. Game runs. Alice's machine routes traffic; Bob has DM perms.
-- Default behavior (host creates game → host is DM) still works because the create-game flow assigns both.
-
----
+**Files:** `src/renderer/src/types/campaign.ts` (currently `dmId: string` at line 79), `src/renderer/src/network/authority/game-authority.ts`
+**Steps:**
+1. Add `Campaign.hostPeerClientId: string | null` to campaign type. Existing `dmId` semantically becomes "who has DM role" only.
+2. `GameAuthority`: `hostPeerInfo` is a runtime concept (passed in init); DM-role is campaign data; never coupled.
+3. Sweep "isHost" checks in renderer code. Convert to either `peer.clientId === campaign.hostPeerClientId` (transport-routing display only) or `hasPermission(peer, '<dm_perm>', campaign)` (everywhere else).
+**Acceptance:** Campaign with `hostPeerClientId === 'client-alice'` and DM role on `client-bob` works — Alice routes traffic, Bob has DM perms. Default create-game flow still assigns both to the creator.
 
 ### 30d — Host-role transfer protocol
-
-**Files (new):**
-- `src/renderer/src/network/transport/host-transfer.ts` — atomic handover. New message types:
-  - `host:transfer-request` (current host → target): payload = `{ targetClientId, snapshotPayload, sequenceCursor }`. The target receives the full serialized authority state.
-  - `host:transfer-accept` (target → current host): payload = `{ targetClientId, acceptedAt }`. Target signals it has applied the snapshot and is ready.
-  - `host:transfer-broadcast` (sent by current host on accept): payload = `{ newHostClientId }`. Tells all peers to re-route to the new host.
-
-**Files (modify):**
-- `src/renderer/src/network/transport/p2p-transport.ts` — implement re-routing. Existing peer connections to the OLD host get closed; new connections initiated to the NEW host. Brief switchover window (~1–2s); existing 17g auto-reconnect path covers it.
-- `src/renderer/src/network/authority/game-authority.ts` — `transferTo(targetClientId)` method. Validates target has `accept_host_transfer` permission. Pauses inbound message processing during transfer. Serializes snapshot, sends, waits for accept, broadcasts switch.
-
-**Acceptance:**
-- Alice (current host) clicks Transfer Host → Bob. Game pauses for ~1–2s. State snapshot ships to Bob. Bob's app is now the authority. Everyone reconnects via Bob's transport. Game resumes.
-- Alice can leave the session entirely after the transfer; game keeps running.
-- If the transfer fails (Bob's machine dies mid-transfer), the original host stays authoritative and the transfer is aborted with a system chat message.
-
----
+**Files:** `src/renderer/src/network/transport/host-transfer.ts` (new), modify `src/renderer/src/network/transport/p2p-transport.ts`, `src/renderer/src/network/authority/game-authority.ts`
+**Steps:**
+1. Define new message types: `host:transfer-request` (current host → target, payload `{ targetClientId, snapshotPayload, sequenceCursor }`), `host:transfer-accept` (target → current host, payload `{ targetClientId, acceptedAt }`), `host:transfer-broadcast` (current host → all, payload `{ newHostClientId }`).
+2. In `p2p-transport.ts`, implement re-routing: close peer connections to old host, initiate new ones to new host. Switchover window ~1-2s; existing Phase 17g auto-reconnect covers it.
+3. In `game-authority.ts`, add `transferTo(targetClientId)`: validates `accept_host_transfer` perm on target, pauses inbound message processing, serializes snapshot, sends, waits for accept, broadcasts switch.
+4. Handle failure: if target dies mid-transfer, original host stays authoritative; abort with system chat message.
+**Acceptance:** Alice transfers host to Bob; game pauses ~1-2s; state ships; Bob's app is authority; peers reconnect via Bob; game resumes.
 
 ### 30e — DM-role transfer
-
-**Files (modify):**
-- `src/renderer/src/stores/use-campaign-store.ts` — `transferDmRole(campaignId, fromClientId, toClientId)`. Just a campaign update — reassigns whoever has the DM role to a new peer. No transport implications.
-- Sends a campaign-update broadcast so all peers see the new DM assignment.
-
-**Why this is trivial after Phase 29:** DM-role transfer is just `setPlayerRole(targetPeer, 'role-dm')`. Phase 29 already supports per-player role assignment. This sub-phase is mostly the UI affordance + a permission check (`change_player_role`).
-
-**Acceptance:**
-- Alice has DM role. Bob has Player role. Alice clicks "Transfer DM → Bob". Bob now has DM role, Alice gets demoted to Player (or to whatever role Alice picks at transfer time).
-- Independent of host transfer. Either can happen without the other.
-
----
+**Files:** `src/renderer/src/stores/use-campaign-store.ts`
+**Steps:**
+1. Add `transferDmRole(campaignId, fromClientId, toClientId)` action. Reassigns DM role; no transport implications.
+2. Broadcast a campaign-update so all peers see new DM assignment.
+3. Implementation is essentially `setPlayerRole(targetPeer, 'role-dm')` since Phase 29 already supports per-player role assignment.
+**Acceptance:** Alice (DM) transfers DM to Bob; Bob now has DM role; Alice demoted to chosen fallback role.
 
 ### 30f — Transfer UI in PlayerCard menu
-
-**Files (modify):**
-- `src/renderer/src/components/lobby/PlayerCard.tsx` — add two menu items, gated by permissions:
-  - "Transfer Host →" (visible if local peer has `transfer_host` AND target is not currently the host)
-  - "Transfer DM →" (visible if local peer has `change_player_role` AND target is not currently the DM)
-- Confirmation modal for both, because they're disruptive.
-
-**Acceptance:**
-- DM (who's also host) sees both menu items on other players' cards.
-- A non-DM peer can be granted `transfer_host` via Phase 29 overrides if the user wants that flexibility.
-
----
+**Files:** `src/renderer/src/components/lobby/PlayerCard.tsx`
+**Steps:**
+1. Add "Transfer Host →" menu item: visible if local peer has `transfer_host` AND target is not currently the host.
+2. Add "Transfer DM →" menu item: visible if local peer has `change_player_role` AND target is not currently the DM.
+3. Confirmation modal for both (disruptive actions).
+**Acceptance:** DM/host sees both items on other players' cards. Non-DM peer granted `transfer_host` via Phase 29 overrides sees Transfer Host only.
 
 ### 30g — Persistence on host-side
-
-**Files (new):**
-- `src/renderer/src/network/authority/persistence.ts` — debounced (~5s) snapshot serialization to disk via `window.api.saveCampaignSnapshot(campaignId, snapshot)`. On host startup, attempts `window.api.loadCampaignSnapshot(campaignId)` and seeds the authority if found.
-
-**Files (modify):**
-- `src/main/io/campaign-snapshots.ts` (new IPC handler) — read/write to `<userData>/snapshots/<campaignId>.json`.
-
-**Why this matters for Phase 32:** Pi-as-host needs to persist state too. The serialization format defined here gets reused. By the time Phase 32 starts, "snapshot the authority" is a solved primitive.
-
-**Acceptance:**
-- Host crashes mid-game. Reopens app. Game loads from last snapshot, peers reconnect, play resumes from the snapshot's state.
-- Host transfer ships the snapshot to the new host (same `serialize()` API).
-
----
+**Files:** `src/renderer/src/network/authority/persistence.ts` (new), `src/main/io/campaign-snapshots.ts` (new IPC handler)
+**Steps:**
+1. In `persistence.ts`, debounce ~5s snapshot serialization via `window.api.saveCampaignSnapshot(campaignId, snapshot)`. On host startup, attempt `window.api.loadCampaignSnapshot(campaignId)` and seed authority if found.
+2. In `src/main/io/campaign-snapshots.ts`, add IPC read/write to `<userData>/snapshots/<campaignId>.json`. Uses Phase 19 path utility if landed.
+**Acceptance:** Host crashes mid-game; reopens app; loads from snapshot; peers reconnect; play resumes. Host transfer ships snapshot via same `serialize()` API.
 
 ### 30h — Tests + verify-don't-assume sweep
+**Files:** `src/renderer/src/network/authority/game-authority.test.ts` (new), `src/renderer/src/network/transport/p2p-transport.test.ts` (new), `src/renderer/src/network/transport/host-transfer.test.ts` (new)
+**Steps:**
+1. Comprehensive `game-authority.test.ts` covering all migrated host-logic paths; assert byte-identical output vs pre-30a code path for the same inputs.
+2. `p2p-transport.test.ts` wraps existing host-manager tests under the adapter.
+3. `host-transfer.test.ts` covers atomic transfer success, target rejection, target crash mid-transfer, network blip during transfer.
+**Acceptance:** 4-gate suite green. New tests cover transfer + DM-role separation + Phase 29 permission integration.
 
-**Files (new / modify):**
-- `src/renderer/src/network/authority/game-authority.test.ts` — comprehensive test suite for the new module.
-- `src/renderer/src/network/transport/p2p-transport.test.ts` — wraps existing host-manager tests under the adapter.
-- `src/renderer/src/network/transport/host-transfer.test.ts` — atomic-transfer specs (success, target rejection, target crash mid-transfer, network blip during transfer).
+### 30i — Migration for legacy campaigns
+**Files:** `src/main/io/campaign-io.ts` (new or existing main-process campaign loader)
+**Steps:**
+1. On campaign load, if `campaign.hostPeerClientId` is missing but `campaign.dmId` is set, set `hostPeerClientId = dmId`. Preserves host=DM coupling for legacy saves.
+2. Auto-rejoin flow handles cross-session host changes.
+**Acceptance:** Pre-30 save loads exactly as today (host = DM). After explicit transfer, new value persists across sessions.
 
-Acceptance criteria for each migrated piece of host logic: produces byte-identical output to the pre-30a code path for the same inputs.
+## Constraints & edge cases
 
-**Acceptance:**
-- 4-gate suite green. New tests cover transfer + DM-role separation + permission integration. Existing tests untouched in behavior.
+- Host-peer and DM-role default to the same peer at campaign creation (backwards compatible; diverges only on explicit transfer).
+- Phase 29 permissions are the single source of truth for gameplay actions; host-peer concept is purely about transport routing.
+- Transfer protocol pauses gameplay briefly (~1-2s) — acceptable; live-migrate without pausing is much more complex and not worth it for the "DM stepping away" use case.
+- Persistence is local-host disk for this phase; Phase 32 moves it to Pi.
+- `TransportAdapter` is the seam Phase 32 plugs into — WebSocket transport implements the same interface, no `GameAuthority` changes needed.
+- Open question: if host-peer disconnects without transferring, default = elect remaining peer (DM first, longest-connected fallback) with `transfer_host` perm and prompt "Accept host responsibility" toast; ~30s no-accept → pause and wait for original host. Confirm with user before 30d.
+- Open question: should host transfer require both old and new host online? Default = yes (atomic handshake). Confirm before 30d.
+- Plans-superseded notes: Phase 17 Step 19 (NET-5 broadcast hardening) must land first — its `host-manager.ts` try-catch travels into `GameAuthority` during 30a. Phase 19 Step 3 path utility must cover 30g's persistence target. Phase 20 Sub-Phase C / S3 TURN credentials inject into `P2PTransport` constructor — the seam 30b creates. Phase 22 production console statements at `host-handlers.ts:132,161` apply the console→logger swap during 30a consolidation. Phase 27 Sub-Phase J A9 custom audio sync routes through `TransportAdapter`. Phase 28 items 28c.3/28c.5/28d.4/28i.1 all move into or are reframed by `TransportAdapter`.
 
----
+## Verification
 
-### 30i — Migration for in-flight games and saved campaigns
+- 4-gate suite (`npm run lint`, `tsc --noEmit` web+node, `npm test`, `npm run build`) green after every sub-phase.
+- `grep -rn "hostPeerClientId" src/` shows usage only in code that needs transport routing.
+- `grep -rn "peerjs" src/renderer/src/network/authority/` returns zero matches after 30b.
+- Manual: create campaign → transfer host to second peer → both peers report new host → original host leaves → game continues.
+- Manual: create campaign → transfer DM to second peer (without transferring host) → DM perms move; host stays.
+- Manual: kill host mid-game → reopen → snapshot restores state.
+- Manual: load pre-30 save → host = DM by default; transfer once → persists across reload.
 
-**Files (modify):**
-- `src/main/io/campaign-io.ts` — on load, if `campaign.hostPeerClientId` is missing but `campaign.dmId` is set, set `hostPeerClientId = dmId`. Preserves the host=DM coupling for legacy saves.
-- Auto-rejoin flow handles the case where the host changed between sessions.
+## Completed
 
-**Acceptance:**
-- Loading a pre-30 save works exactly as today. Host = DM by default.
-- Once the user transfers host, the new value persists.
-
----
-
-## Cross-cutting decisions
-
-- **Host-peer and DM-role default to the same peer at campaign creation.** Backwards compatible. Only diverges when explicitly transferred.
-- **Phase 29 permissions are the single source of truth for "who can do what."** The host-peer concept is purely about transport routing.
-- **Transfer protocol pauses gameplay briefly.** ~1–2s is acceptable. The alternative (live-migrate state without pausing) is much more complex and not worth it for the use case (DM stepping away).
-- **Persistence is local-host disk for this phase.** Phase 32 moves it to Pi.
-- **TransportAdapter is the seam Phase 32 plugs into.** WebSocket transport (Phase 32) implements the same interface — no changes needed to `GameAuthority`.
-
----
-
-## Critical files (multi-touch hotspots)
-
-- `src/renderer/src/network/authority/game-authority.ts` *(new)*
-- `src/renderer/src/network/transport/transport-adapter.ts` *(new)*
-- `src/renderer/src/network/transport/p2p-transport.ts` *(new)*
-- `src/renderer/src/network/transport/host-transfer.ts` *(new)*
-- `src/renderer/src/network/authority/persistence.ts` *(new)*
-- `src/renderer/src/types/campaign.ts` — `hostPeerClientId` field
-- `src/renderer/src/stores/use-campaign-store.ts` — DM-role transfer action
-- `src/renderer/src/components/lobby/PlayerCard.tsx` — transfer menu items
-- Eventually deleted: `host-connection.ts`, `host-manager.ts`, `host-message-handlers.ts`, `host-handlers.ts` (their content moves into `GameAuthority`)
-
----
-
-## Commit cadence
-
-```
-30a — refactor(net): extract GameAuthority module from scattered host logic
-30b — refactor(net): TransportAdapter interface + P2PTransport implementation
-30c — feat(net): decouple host-peer from DM-role (campaign.hostPeerClientId)
-30d — feat(net): host-role transfer protocol + atomic switchover
-30e — feat(dnd-app): DM-role transfer (role reassignment via Phase 29)
-30f — feat(dnd-app): Transfer Host / Transfer DM menu items in PlayerCard
-30g — feat(net): debounced host-side snapshot persistence
-30h — test(net): comprehensive GameAuthority + transfer tests
-30i — feat(net): migration for legacy campaigns lacking hostPeerClientId
-```
-
-One release: **v4.0.0** after 30i. Major version bump — `GameAuthority` is a new public-ish surface, and the old host-handler shims will be removed in a follow-up.
-
----
-
-## Estimated scope
-
-10–15 working sessions. The biggest sub-phases are 30a (consolidation grind — every line of host logic gets moved) and 30d (transfer protocol is genuinely hairy because of the atomic switchover requirement).
-
-This phase is invisible to users in normal play — game still works exactly as before. The user-visible value comes from being able to transfer host/DM mid-session, which is a niche but high-value feature for long campaigns.
-
----
-
-## Dependencies
-
-- **Requires Phase 29** (permissions matrix) to be landed. The `hasPermission` checks for `transfer_host` and `change_player_role` need to exist.
-- **Blocks Phase 31** (Live-state sync overhaul). Phase 31 mounts its shard registry inside `GameAuthority` — that module needs to exist first.
-- **Blocks Phase 32** (Cloud host). Phase 32 builds a Pi-side implementation of `GameAuthority` speaking the same transport-adapter contract.
-
----
-
-## Plans superseded or modified by Phase 30
-
-| Plan | Item | Disposition |
-|------|------|-------------|
-| Phase 17 (Step 19 — NET-5 broadcast hardening) | `host-manager.ts` broadcast try-catch | Travels into `GameAuthority` during 30a extraction. Land NET-5 fix first. |
-| Phase 19 (Step 3 path utility) | host-side snapshot writes (`<userData>/snapshots/<campaignId>.json`) | Path utility must cover 30g's persistence target. |
-| Phase 20 (Sub-Phase C / S3) | Hardcoded TURN credentials | TURN config injects into `P2PTransport` constructor (the seam Phase 30b creates). If Phase 20 lands first, the settings indirection carries over. |
-| Phase 22 (production console statements) | `host-handlers.ts:132, 161` | Apply the console→logger swap during 30a's consolidation (lines move with the file). |
-| Phase 27 Sub-Phase J (A9 custom audio sync) | PeerJS data channel transfer | Routes through `TransportAdapter`. Local-P2P uses `P2PTransport`; cloud-host file transfer stays peer-to-peer per Phase 32 Step 19k. |
-| Phase 28 (28c.3 graceful shutdown, 28c.5 peerjs reconnection, 28d.4 dep audit, 28i.1 multiplayer gap scan) | Various network-side fixes | All move into / reframed by `TransportAdapter`. See Phase 28 dependency table. |
-
----
-
-## Open questions to lock before starting
-
-1. **Can a peer hold the host-peer role without having the DM role?** Default: yes (that's the whole point — "player hosts for the DM"). Confirm.
-2. **What happens if the host-peer disconnects without transferring?** Default: pick a remaining peer with the highest "host-eligibility" (probably the peer with the DM role, falling back to the longest-connected peer with `transfer_host` permission) and offer them an "Accept host responsibility" toast. They can decline; if no one accepts within ~30s, game pauses and waits for the original host to reconnect. Confirm or adjust.
-3. **Should host transfer require both the old host and the new host to be online?** Default: yes (atomic handshake). Confirm.
+No prior verification stamps in this plan; codebase scan on 2026-05-19 confirms no Phase 30 work started. No `authority/` or `transport/` directories under `src/renderer/src/network/`; no `game-authority.ts`, `transport-adapter.ts`, `p2p-transport.ts`, `host-transfer.ts`, or `persistence.ts` files exist; no `hostPeerClientId` field in `src/renderer/src/types/campaign.ts` (still only `dmId: string` at line 79); no `src/main/io/` directory; no `hasPermission` symbol anywhere (Phase 29 not yet landed — confirms dependency still blocking).

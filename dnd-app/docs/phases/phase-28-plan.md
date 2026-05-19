@@ -1,347 +1,314 @@
-# Phase 28 — dnd-app Audit Follow-Ups (2026-05-12)
+# Phase 28 — dnd-app Audit Follow-Ups
 
-> Origin: comprehensive dnd-app audit at `~/.claude/plans/your-job-is-to-wild-thacker.md` (2026-05-12).
-> Every finding from that audit is logged across `docs/ISSUES-LOG-DNDAPP.md`, `docs/SECURITY-LOG.md`, and `docs/SUGGESTIONS-LOG-DNDAPP.md` (entries dated 2026-05-12).
-> This phase plan groups all of them into 9 sub-phases (28a–28i) for execution. **User approved all items, including minor / future / out-of-scope (2026-05-12).**
+## Context
 
-> **Verification pass (2026-05-18):**
-> - 28a.1 Math.random sweep — ✗ **89 Math.random sites remain** in non-test files. `crypto-random.ts` utility exists and is adopted in dice/invite/rest paths, but every site in the 28a.1 list (PlayerHUDEffects, NPCGeneratorModal, GroupRollModal, weather-tables, bastion-events, personality-tables, etc.) still uses Math.random. Live work.
-> - 28a.2/28a.3 BMO sync receiver hardening — ✗ no `BMO_SYNC_BIND`, no narrow CORS, no body limit, no Zod validation. Live work.
-> - 28a.4 Authorization Bearer — ✗ not injected in `bmo-bridge.ts`. Live work.
-> - 28a.5 JSON.parse containment in `game-data-handlers.ts:29` — ✗ still unguarded. Live work.
-> - 28b.1 Claude model list — ✗ `src/main/ai/claude-client.ts:107` lists outdated models (`claude-sonnet-4-20250514`, `claude-3-5-sonnet-20241022`, `claude-3-5-haiku-20241022`); current series (`claude-opus-4-7`, `claude-sonnet-4-6`, `claude-haiku-4-5-20251001`) absent. Live work.
-> - 28b.2 SDK bump — ✗ `package.json` shows `@anthropic-ai/sdk: ^0.78.0`. Live work.
-> - 28b.3 prompt caching — ✗ no `cache_control` in `src/main/ai/`. Live work.
-> - 28c.5 peerjs reconnection — ✓ **DONE.** Exponential backoff (1s/2s/4s/8s/16s/30s cap) + max-attempts + jitter present in `host-manager.ts:277-310`, `client-manager.ts:57`, `registry-client.ts:196`. "Reconnecting…" lobby badge at `PlayerCard.tsx:167`. Strike this step from Phase 28 scope.
-> - 28d.5/28d.6 Date.now()-based IDs + UUID truncation — ◐ partial. `crypto.randomUUID()` is used in many places but **86 sites of `randomUUID().slice(...)` truncation** remain, and some bare `Date.now()` ID generation persists (`PlayerHUDEffects.tsx:234, :300`). Live work.
-> - 28e CI workflow — ◐ `.github/workflows/release.yml` exists (preflight + build matrix + verify-assets). No `dnd-app-ci.yml`. No pre-commit hooks. Live work.
-> - All other items (28b.4, 28c.1–4/6, 28d.1–4, 28f, 28g, 28h, 28i) — verified ✗ not done.
+This phase rolls up a comprehensive dnd-app code audit (2026-05-12) into one execution plan grouped by theme. Findings landed in `docs/ISSUES-LOG-DNDAPP.md`, `docs/SECURITY-LOG.md`, and `docs/SUGGESTIONS-LOG-DNDAPP.md` (entries dated 2026-05-12). The user approved every item, including minor / future / out-of-scope ones.
 
----
+The work spans live security exposure on the BMO sync receiver, stale Claude model strings, missing retry / shutdown discipline on the BMO bridge, type-safety hygiene, CI gates, UI polish, and docs. Each sub-phase is committed and pushed independently — no bundling.
 
-## Architecture & Environment
+The intended outcome: every 2026-05-12 audit entry is either resolved (moved to `RESOLVED-ISSUES-DNDAPP.md` / `RESOLVED-SECURITY-ISSUES.md`) or carried into a follow-up Phase 29.
 
-- **Target:** all work in `dnd-app/` on the Windows 11 / macOS dev box (`/home/patrick/home-lab/dnd-app/` on the Pi mirror).
-- **No work on BMO / Pi** in this phase. (BMO is the trust counterparty for 28a but its side is already done — see `bmo/pi/app.py:163-178`.)
-- **No restructuring** of `src/{main,preload,renderer,shared}/` — electron-vite layout is fixed (logged gotcha).
-- **Discipline:** commit per sub-phase; do NOT bundle 28a + 28b. Each sub-phase merges or pauses for review on its own.
+## Depends on / blocks
 
----
+- Depends on: Phase 15 (Option A) for the 28a.1 data-tables sweep and 28d.3 `library-service.ts` casts — those files reshape or get deleted; defer scope until they stabilize. Phase 33g for 28h.3 (TokenContextMenu tests blocked by `useNetworkStore` circular dep codemod).
+- Blocks: Phase 29 (any items not resolved here cascade forward); Phase 30 / 31 / 32 / 33 inherit several call-site refactors (TransportAdapter consolidation, JWT auth, dual-import resolution, no-bare-writeFile lint).
+- Cross-coordination: 28a.2 / 28c.3 / 28c.5 / 28i.1 / 28d.4 land at sites Phase 30 reshapes; 28a.4 token shape must reconcile with Phase 32 WS JWT.
 
-## Sub-Phase Ordering Rationale
+## Files touched
 
-The order prioritizes (1) live security exposure first, (2) game-mechanic correctness second, (3) external-surface correctness (network / AI) third, (4) internal hygiene last.
+| Path | Role |
+|------|------|
+| `src/renderer/src/utils/crypto-random.ts` | Existing RNG utility — adoption sweep target |
+| `src/renderer/src/components/game/GameLayout.tsx` | d20 roll + dep-suppression site |
+| `src/renderer/src/components/game/overlays/ReactionPrompts.tsx` | d20 roll site |
+| `src/renderer/src/components/game/overlays/GamePrompts.tsx` | d20 roll site |
+| `src/renderer/src/components/game/overlays/PlayerHUDEffects.tsx` | Bless / recovery rolls + Date.now IDs |
+| `src/renderer/src/components/game/modals/dm-tools/NPCGeneratorModal.tsx` | Dice + index random |
+| `src/renderer/src/components/game/modals/dm-tools/MapEditorRightPanel.tsx` | d20 roll site |
+| `src/renderer/src/components/game/modals/dm-tools/treasure-generator-utils.ts` | Random index |
+| `src/renderer/src/components/game/modals/combat/GroupRollModal.tsx` | Random modifier |
+| `src/renderer/src/components/game/sidebar/TablesPanel.tsx` | Random index |
+| `src/renderer/src/components/lobby/PlayerCard.tsx` | Reconnecting badge (28c.5 already done) |
+| `src/renderer/src/data/{starting-equipment-table,bastion-events,sentient-items,personality-tables,weather-tables}.ts` | Tables (deferred per Phase 15) |
+| `src/renderer/src/stores/builder/types.ts` | 4d6 builder roll |
+| `src/renderer/src/utils/dawn-recharge.ts` | Recharge dice |
+| `src/renderer/src/hooks/use-game-effects.ts` | Effect-dep suppressions |
+| `src/renderer/src/hooks/use-game-network.ts` | Effect-dep + Phase 30 overlap |
+| `src/renderer/src/services/library-service.ts` | `as unknown as` cluster |
+| `src/renderer/src/network/host-manager.ts` | peerjs reconnection (28c.5 done) |
+| `src/renderer/src/network/client-manager.ts` | peerjs reconnection (28c.5 done) |
+| `src/renderer/src/network/registry-client.ts` | peerjs reconnection (28c.5 done) |
+| `src/main/bmo-bridge.ts` | Sync receiver hardening, retry, BridgeResponse, graceful shutdown, Bearer |
+| `src/main/bmo-config.ts` | `BMO_PI_URL` precedence + `getBmoApiKey` |
+| `src/main/ipc/game-data-handlers.ts` | JSON.parse containment |
+| `src/main/ipc/settings-handlers.ts` | bmoApiKey settings I/O |
+| `src/main/ai/claude-client.ts` | Model list, SDK 1.x, prompt caching, max_tokens |
+| `src/main/ai/llm-provider.ts` | Provider registry |
+| `src/main/ai/context-builder.ts` | Cache-control block split |
+| `src/main/ai/stat-mutations.ts` | Typed character pipeline |
+| `src/main/ai/character-context.ts` | Shared character types |
+| `src/main/storage/save-queue.ts` | Dead-cleanup rewrite |
+| `src/main/storage/migrations.ts` | Mutation/return contract |
+| `src/main/storage/atomic-write.ts` | Storage-write JSDoc |
+| `src/main/storage/index.security.test.ts` | New BrowserWindow security regression test |
+| `src/main/index.ts` | Window min size, before-quit wiring, `ELECTRON_RENDERER_URL` validation |
+| `src/shared/types/character-5e.ts` | Move shared Character5e + HitPoints types |
+| `src/shared/ipc-schemas.ts` | SyncEventSchema, InitiativeSyncSchema |
+| `src/renderer/src/components/campaign/AiProviderSetup.tsx` | UI default + max-tokens slider |
+| `src/renderer/src/components/sheet/{FeaturesSection5e,PrintSheet,Tooltip,LanguagesTab5e}.tsx` | Silent catch + z-index |
+| `tailwind.config` | Color tokens + z-index tokens |
+| `dnd-app/package.json` | check:full script, SDK bump, electron-builder allowlist |
+| `.github/workflows/dnd-app-ci.yml` (new) | CI gate |
+| `dnd-app/docs/{PLUGIN-SYSTEM.md,UI-LAYERS.md}` | Trust model + z-index conventions |
+| `dnd-app/README.md` | BMO key + min viewport |
+| `AGENTS.md`, `CLAUDE.md` | Storage / IPC discipline docs |
+| `scripts/audit/check-no-div-onclick.mjs` (new) | Regression script |
 
-| Sub-phase | Theme | Why this order |
-|-----------|-------|----------------|
-| 28a | Critical security & game integrity | Sync receiver is LAN-exposed today; Math.random affects every roll |
-| 28b | AI surface refresh | Stale models, missing cache, SDK lag — user-visible cost / quality |
-| 28c | Network resilience | BMO bridge bugs surface as random flaky Discord sync |
-| 28d | Data integrity & type safety | Latent bugs in stat-mutations + save-queue; type hygiene |
-| 28e | CI hardening | Gate must exist before later phases land or they regress immediately |
-| 28f | UI / UX polish | Lower urgency; many small items |
-| 28g | Docs & long tail | After implementation lands so docs reflect reality |
-| 28h | Test coverage uplift | After CI is in place to enforce future tests |
-| 28i | Coverage-gap audits | Knowledge work to drive a Phase 29 if needed |
+## Sub-phase summary
 
----
+| # | Sub-phase | Theme |
+|---|-----------|-------|
+| 28a | Critical security & game integrity | Sync receiver hardening + Math.random sweep + JSON containment |
+| 28b | AI surface refresh | Model list, SDK 1.x, prompt caching, model-aware max_tokens |
+| 28c | Network resilience | bmoPiFetch retry, BridgeResponse contract, graceful shutdown, RENDERER_URL validation |
+| 28d | Data integrity & type safety | Typed character pipeline, save-queue, casts sweep, dep audit, IDs, migrateData |
+| 28e | CI hardening | check:full, dnd-app-ci.yml, lint rules |
+| 28f | UI / UX polish | Button semantics, error surfacing, tokens, aria, virtualization |
+| 28g | Docs & long tail | BMO key docs, plugin trust model, allowlist, JSDoc rules |
+| 28h | Test coverage uplift | Baseline gate, lobby tests, security regression |
+| 28i | Coverage-gap audits | Knowledge scan to drive Phase 29 |
 
-## Sub-Phase 28a — Critical Security & Game Integrity
+## Sub-phase details
 
-**Audit entries covered:**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] Math.random for game-affecting rolls (25+ sites) — **Critical**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] readBody unbounded buffer — **Low** (companion to security M)
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] JSON.parse unguarded in game-data-handlers.ts:29 — **Low**
-- `SECURITY-LOG.md` [2026-05-12] BMO sync receiver binds 0.0.0.0 — **High**
-- `SECURITY-LOG.md` [2026-05-12] Wildcard CORS on BMO sync receiver — **High**
-- `SECURITY-LOG.md` [2026-05-12] BMO sync receiver no zod validation on inbound JSON — **High**
-- `SECURITY-LOG.md` [2026-05-12] VTT → BMO never sends Authorization: Bearer — **High**
-- `SECURITY-LOG.md` [2026-05-12] No rate limiting on sync receiver — **Medium**
-- `SECURITY-LOG.md` [2026-05-12] No max-body-size guard on sync receiver — **Medium**
+### 28a — Critical Security & Game Integrity
 
-### Step 28a.1 — Replace Math.random across game-roll sites
+#### 28a.1 — Math.random sweep
+**Files:**
+- `src/renderer/src/components/game/GameLayout.tsx:893`
+- `src/renderer/src/components/game/overlays/ReactionPrompts.tsx:195`
+- `src/renderer/src/components/game/overlays/GamePrompts.tsx:124, 240`
+- `src/renderer/src/components/game/overlays/PlayerHUDEffects.tsx:231, 278, 297`
+- `src/renderer/src/components/game/modals/combat/GroupRollModal.tsx:74`
+- `src/renderer/src/components/game/modals/dm-tools/NPCGeneratorModal.tsx:50, 54`
+- `src/renderer/src/components/game/modals/dm-tools/MapEditorRightPanel.tsx` (line moved; re-grep)
+- `src/renderer/src/components/game/modals/dm-tools/treasure-generator-utils.ts:66, 72`
+- `src/renderer/src/components/game/sidebar/TablesPanel.tsx:79, 115, 123`
+- `src/renderer/src/stores/builder/types.ts:44`
+- `src/renderer/src/utils/dawn-recharge.ts:27`
+- `src/renderer/src/data/{starting-equipment-table,bastion-events,sentient-items,personality-tables,weather-tables}.ts` — **skip per Phase 15 sequencing (Option A): the data tables get deleted; library-stored equivalents pick up `cryptoRandom` during the Phase 15 port.**
 
-**Files (25+ sites — full list in ISSUES-LOG-DNDAPP entry):**
-- Critical d20 paths: `src/renderer/src/components/game/GameLayout.tsx:781`, `src/renderer/src/components/game/overlays/ReactionPrompts.tsx:195`, `src/renderer/src/components/game/overlays/GamePrompts.tsx:124, 240`, `src/renderer/src/components/game/modals/dm-tools/MapEditorRightPanel.tsx:85`
-- Death-save / bless / recovery: `src/renderer/src/components/game/overlays/PlayerHUDEffects.tsx:231, 278, 297`
-- Character builder: `src/renderer/src/stores/builder/types.ts:44` (4d6)
-- DM tools: `src/renderer/src/components/game/modals/combat/GroupRollModal.tsx:74`, `src/renderer/src/components/game/modals/dm-tools/NPCGeneratorModal.tsx:50, 54`, `src/renderer/src/components/game/modals/dm-tools/treasure-generator-utils.ts:66, 72`, `src/renderer/src/components/game/sidebar/TablesPanel.tsx:79, 115, 123`
-- Data tables: `src/renderer/src/data/starting-equipment-table.ts:71`, `src/renderer/src/data/bastion-events.ts:14`, `src/renderer/src/data/sentient-items.ts:49`, `src/renderer/src/data/personality-tables.ts:20`, `src/renderer/src/data/weather-tables.ts:106, 115` — **skip per Phase 15 sequencing (Option A): Phase 15 Step 28 deletes these parallel data files, so the Math.random sweep skips them; the eventual library-stored equivalents pick up `cryptoRandom` during the Phase 15 port.**
-- Utility: `src/renderer/src/utils/dawn-recharge.ts:27`
-
-**Approach:**
-1. Add `import { cryptoRollDie, cryptoRandom } from '@renderer/utils/crypto-random'` per file
-2. Single-die: `Math.floor(Math.random() * N) + 1` → `cryptoRollDie(N)`
-3. Random index: `Math.floor(Math.random() * arr.length)` → `Math.floor(cryptoRandom() * arr.length)`
-4. Weighted random (weather-tables.ts:106): `Math.random() * total` → `cryptoRandom() * total`
-5. Range: `min + Math.random() * (max - min)` → `min + cryptoRandom() * (max - min)`
-6. Skip tests (`*.test.*`) — keep `Math.random` there (mocked anyway)
+**Steps:**
+1. Add `import { cryptoRollDie, cryptoRandom } from '@renderer/utils/crypto-random'` per file.
+2. Single-die: `Math.floor(Math.random() * N) + 1` → `cryptoRollDie(N)`.
+3. Random index: `Math.floor(Math.random() * arr.length)` → `Math.floor(cryptoRandom() * arr.length)`.
+4. Weighted random: `Math.random() * total` → `cryptoRandom() * total`.
+5. Range: `min + Math.random() * (max - min)` → `min + cryptoRandom() * (max - min)`.
+6. Skip `*.test.*` files.
 
 **Acceptance:**
-- `grep -rn "Math\.random" --include='*.ts' --include='*.tsx' src/renderer/ | grep -v '\.test\.'` returns only acceptable cases (UI ephemeral ids in DiceOverlay.tsx:124, if intentionally kept) — ideally 0
-- All game-roll vitest tests still pass
-- Manual: roll initiative on a token, confirm value lands in [1, 20]
+- `grep -rn 'Math\.random' --include='*.ts' --include='*.tsx' src/renderer/ | grep -v '\.test\.'` returns only acceptable cases (currently 89 hits; target is the count after subtracting Phase-15-deferred sites and intentional UI ephemerals like `DiceOverlay.tsx:124`).
+- All vitest roll suites still pass.
+- Manual: roll initiative on a token, value lands in [1, 20].
 
-**Future-proofing:** Add a biome rule (or simple grep-based pre-commit) that flags `Math.random` outside `utils/crypto-random.ts` and `*.test.*`.
-
-### Step 28a.2 — Harden BMO sync receiver (loopback + CORS + body limits)
-
-> **Phase 32 coordination:** Cloud-host mode uses WebSocket transport, not the BMO sync receiver. Phase 32 ships JWT auth + framing on the WS path. The hardening below still applies to the LAN sync receiver used by local-P2P mode. Both code paths need hardening; they don't overlap structurally.
-
+#### 28a.2 — Harden BMO sync receiver (loopback + CORS + body limits + rate)
 **Files:** `src/main/bmo-bridge.ts`
 
-**Changes:**
-1. Line 16: keep `SYNC_RECEIVER_PORT` env-overridable.
-2. Add `const SYNC_BIND = process.env.BMO_SYNC_BIND ?? '127.0.0.1'` (default loopback; explicit opt-in to `0.0.0.0`).
-3. Line 201: `syncServer.listen(port, SYNC_BIND, …)`.
-4. Lines 118, 147: drop `'Access-Control-Allow-Origin': '*'` entirely on loopback bind. If `SYNC_BIND === '0.0.0.0'`, set to the configured BMO origin instead (parse from `getBmoBaseUrl()`).
-5. Add `MAX_BODY_BYTES = 64_000` constant. In `readBody`, track running total and `req.destroy()` + reject if exceeded. In handlers, reject if `Content-Length` header exceeds it up-front.
-6. Reject any POST whose `Content-Type !== 'application/json'` with 415.
-7. Token-bucket rate limit: per-source-IP, 60 events / minute, 429 on overflow. Use a `Map<string, { tokens, lastRefill }>`.
+> Phase 32 coordination: Cloud-host mode uses WS transport, not the sync receiver. Both code paths need hardening; they don't overlap structurally.
+
+**Steps:**
+1. `src/main/bmo-bridge.ts:16` — keep `SYNC_RECEIVER_PORT` env-overridable.
+2. Add `const SYNC_BIND = process.env.BMO_SYNC_BIND ?? '127.0.0.1'` (default loopback; opt-in to `0.0.0.0`).
+3. `src/main/bmo-bridge.ts:201` — `syncServer.listen(port, SYNC_BIND, ...)`.
+4. `src/main/bmo-bridge.ts:118, 147` — drop `'Access-Control-Allow-Origin': '*'` on loopback bind. When `SYNC_BIND === '0.0.0.0'`, set to the configured BMO origin via `getBmoBaseUrl()`.
+5. Add `MAX_BODY_BYTES = 64_000` constant. In `readBody` (line 108), track running total + `req.destroy()` + reject if exceeded; reject up-front if `Content-Length` exceeds.
+6. Reject POST whose `Content-Type !== 'application/json'` with 415.
+7. Token-bucket rate limit per source IP, 60 events / minute, 429 on overflow (`Map<string, { tokens, lastRefill }>`).
 8. Log inbound source IP via `logToFile('INFO', 'sync from', req.socket.remoteAddress)`.
 
 **Acceptance:**
-- `curl http://0.0.0.0:5001/api/sync` from another LAN machine fails to connect when `BMO_SYNC_BIND` unset
-- `curl http://127.0.0.1:5001/api/sync` from the same machine succeeds
-- Posting >64 KB returns 413
-- Posting non-JSON returns 415
-- Posting 100 events in 10 s gets the last 40 rejected with 429
+- `curl http://0.0.0.0:5001/api/sync` from another LAN machine fails when `BMO_SYNC_BIND` unset.
+- Posting >64 KB returns 413.
+- Posting non-JSON returns 415.
+- 100 events in 10 s → last 40 get 429.
 
-### Step 28a.3 — Add zod validation to sync receiver
+#### 28a.3 — Zod validation on sync receiver
+**Files:** `src/main/bmo-bridge.ts:163-178, 174`, `src/shared/ipc-schemas.ts`
 
-**Files:** `src/main/bmo-bridge.ts`, `src/shared/ipc-schemas.ts`
+**Steps:**
+1. In `ipc-schemas.ts`, add `SyncEventSchema` as a discriminated union on `type`, plus `InitiativeSyncSchema`.
+2. `bmo-bridge.ts:164` after `readBody(req)` — `SyncEventSchema.safeParse(JSON.parse(body))`; 400 with issues on failure; forward `parsed.data` on success.
+3. `bmo-bridge.ts:174` — same for `/api/sync/initiative` with `InitiativeSyncSchema`.
+4. `logToFile('WARN', 'sync event rejected', parsed.error.issues)` on failure.
 
-**Changes:**
-1. In `ipc-schemas.ts`, add `SyncEventSchema` as a discriminated union on the `type` field:
-   ```ts
-   const SyncEventSchema = z.discriminatedUnion('type', [
-     z.object({ type: z.literal('discord_message'), payload: z.object({ /* … */ }), timestamp: z.number() }),
-     z.object({ type: z.literal('initiative_sync'), payload: z.object({ /* … */ }), timestamp: z.number() }),
-     // … one per type
-   ])
-   const InitiativeSyncSchema = z.object({ /* … */ })
-   ```
-2. In `bmo-bridge.ts:163-178`, after `const body = await readBody(req)`, do `const parsed = SyncEventSchema.safeParse(JSON.parse(body))`. On failure, 400 with the issues; on success, forward `parsed.data`.
-3. Same for `/api/sync/initiative` with `InitiativeSyncSchema`.
-4. Add `logToFile('WARN', 'sync event rejected', parsed.error.issues)` on failure.
+**Acceptance:** Posting event with `type: 'banana'` returns 400. Valid events still forward. Renderer handlers need no changes (zod-narrowed shape matches existing TS type).
 
-**Acceptance:**
-- Posting a `SyncEvent` with `type: 'banana'` returns 400, not 200
-- Posting a valid event still forwards to the renderer
-- Renderer-side handlers do NOT need changes (zod-narrowed shape matches the existing TS type)
+#### 28a.4 — Authorization Bearer to BMO
+**Files:** `src/main/bmo-config.ts`, `src/main/bmo-bridge.ts:31-53`, `src/main/ipc/settings-handlers.ts`, settings UI panel, `dnd-app/README.md`
 
-### Step 28a.4 — Authorization Bearer to BMO
+> Phase 32 coordination: reconcile token shape (issuer, signing secret, audience claim) so one secret validates both LAN Bearer + WS JWT.
 
-> **Phase 32 coordination:** Phase 32 ships JWT auth on every WS frame for cloud-host mode. Reconcile the token shape (issuer, signing secret, audience claim) so the same secret can validate both the LAN-sync Bearer header and the WS-frame JWT. Pi-side secret generation already covered in Phase 32 Step 19f.
-
-**Files:** `src/main/bmo-config.ts`, `src/main/bmo-bridge.ts`, `src/main/ipc/settings-handlers.ts` (or wherever settings I/O lives), settings UI panel.
-
-**Changes:**
-1. In `bmo-config.ts`, add `getBmoApiKey()`: read order = env (`BMO_API_KEY`) > settings (decrypted via `safeStorage`) > undefined.
-2. In `bmo-bridge.ts:31-53`, in `bmoPiFetch`, inject `Authorization: Bearer ${apiKey}` into headers when `getBmoApiKey()` returns a value.
-3. Add a `bmoApiKey` field to `settings.json` schema; wrap with `safeStorage.encryptString` on write (mirror the `2026-04-24-encrypt-persisted-secrets` pattern).
-4. Add a settings-UI surface ("BMO connection" panel): text field for the key, "Test connection" button that calls `getDmStatus` and reports auth pass/fail.
-5. Update `dnd-app/README.md` with the env-var / settings flow.
+**Steps:**
+1. `bmo-config.ts` — add `getBmoApiKey()`: env (`BMO_API_KEY`) > settings (decrypted via `safeStorage`) > undefined.
+2. `bmo-bridge.ts:31-53` — in `bmoPiFetch`, inject `Authorization: Bearer ${apiKey}` when `getBmoApiKey()` returns a value.
+3. Add `bmoApiKey` to `settings.json` schema; wrap with `safeStorage.encryptString` on write.
+4. Settings-UI "BMO connection" panel: text field + "Test connection" button hitting `getDmStatus`.
+5. README: env-var / settings flow.
 
 **Acceptance:**
-- With BMO `BMO_API_KEY` unset on the Pi: dnd-app behaves identically to before
-- With BMO `BMO_API_KEY` set on the Pi + matching key in dnd-app settings: all `bmoPiFetch` calls succeed
-- With BMO `BMO_API_KEY` set on the Pi + missing key in dnd-app: calls return `{ ok: false, error: 'HTTP 401: …' }` and the UI shows an actionable error
-- `getBmoApiKey()` unit test confirms env precedence over settings
+- BMO `BMO_API_KEY` unset → behavior unchanged.
+- Both sides set + matching → all `bmoPiFetch` calls succeed.
+- BMO set + dnd-app missing → `{ ok: false, error: 'HTTP 401: ...' }` + actionable UI.
+- Unit test confirms env precedence over settings.
 
-### Step 28a.5 — Add error containment to `game:load-json` JSON.parse
-
+#### 28a.5 — JSON.parse containment in `game:load-json`
 **Files:** `src/main/ipc/game-data-handlers.ts:29`
 
-**Changes:**
-1. Wrap `JSON.parse(content)` in a local try/catch.
-2. On parse failure, throw `Error('INVALID_JSON: ' + relativePath)` so renderer-side handlers see a typed error code.
-3. Add a vitest case loading a malformed JSON fixture.
+**Steps:**
+1. Wrap `JSON.parse(content)` in local try/catch.
+2. On parse failure, throw `Error('INVALID_JSON: ' + relativePath)`.
+3. Add vitest case with malformed JSON fixture.
 
-**Acceptance:** Renderer surfaces a useful error message (not a generic IPC reject) on corrupted 5e data file.
+**Acceptance:** Renderer surfaces a useful error (not generic IPC reject) on corrupted 5e data file.
 
----
+### 28b — AI Surface Refresh
 
-## Sub-Phase 28b — AI Surface Refresh
-
-**Audit entries covered:**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] Claude model strings stale — **High**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] `@anthropic-ai/sdk@^0.78.0` pre-1.x — **High**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] claude-client hardcodes max_tokens 4096 — **Medium**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] No Anthropic prompt caching wired — **Medium**
-
-### Step 28b.1 — Update Claude model list (per Jan 2026 knowledge cutoff)
-
+#### 28b.1 — Update Claude model list (Jan 2026 cutoff)
 **Files:**
-- `src/main/ai/llm-provider.ts:20-22` — registry
-- `src/main/ai/claude-client.ts:96` — `isAvailable()` ping model
-- `src/main/ai/claude-client.ts:107` — `listModels()`
-- `src/renderer/src/components/campaign/AiProviderSetup.tsx:251` — UI default
-- `src/shared/ipc-schemas.test.ts:18` — test fixture
+- `src/main/ai/llm-provider.ts:20` (registry — currently lists only `claude-sonnet-4-20250514`)
+- `src/main/ai/claude-client.ts:96` (`isAvailable()` ping)
+- `src/main/ai/claude-client.ts:107` (`listModels()` — currently `claude-sonnet-4-20250514`, `claude-3-5-sonnet-20241022`, `claude-3-5-haiku-20241022`)
+- `src/renderer/src/components/campaign/AiProviderSetup.tsx:251` (UI default)
+- `src/shared/ipc-schemas.test.ts:18` (test fixture)
 
-**Changes:** Add the current Claude 4.x family (Opus 4.7, Sonnet 4.6, Haiku 4.5). Keep the older ids as deprecated for back-compat. Bump `isAvailable()` to ping Haiku 4.5.
+**Steps:**
+1. Add current Claude 4.x family entries (Opus 4.7, Sonnet 4.6, Haiku 4.5). Keep older ids as deprecated.
+2. Bump `isAvailable()` to ping Haiku 4.5.
 
 ```ts
-// llm-provider.ts:20
-{ id: 'claude-opus-4-7',            name: 'Claude Opus 4.7',    desc: 'Most capable; best for long DM narration' },
-{ id: 'claude-sonnet-4-6',          name: 'Claude Sonnet 4.6',  desc: 'Best balance of speed and intelligence' },
-{ id: 'claude-haiku-4-5-20251001',  name: 'Claude Haiku 4.5',   desc: 'Fastest; good for quick responses' },
-// keep older entries for back-compat (mark deprecated)
-{ id: 'claude-sonnet-4-20250514',   name: 'Claude Sonnet 4',    desc: '(deprecated) prior generation' },
+{ id: 'claude-opus-4-7',           name: 'Claude Opus 4.7',   desc: 'Most capable; best for long DM narration' },
+{ id: 'claude-sonnet-4-6',         name: 'Claude Sonnet 4.6', desc: 'Best balance of speed and intelligence' },
+{ id: 'claude-haiku-4-5-20251001', name: 'Claude Haiku 4.5',  desc: 'Fastest; good for quick responses' },
+{ id: 'claude-sonnet-4-20250514',  name: 'Claude Sonnet 4',   desc: '(deprecated) prior generation' },
 ```
 
-**Acceptance:**
-- AI Provider UI dropdown shows new models first
-- A new fresh campaign defaults to Sonnet 4.6
-- Existing campaigns referencing older ids continue to work
-- API key validation pings Haiku 4.5
+**Acceptance:** UI dropdown shows new models first; fresh campaigns default to Sonnet 4.6; existing campaigns with older ids still work; API-key validation pings Haiku 4.5.
 
-### Step 28b.2 — Bump `@anthropic-ai/sdk` to 1.x
+#### 28b.2 — Bump `@anthropic-ai/sdk` to 1.x
+**Files:** `dnd-app/package.json` (currently `^0.78.0`), `src/main/ai/claude-client.ts`
 
-**Files:** `dnd-app/package.json`, `src/main/ai/claude-client.ts`
+**Steps:**
+1. `npm install @anthropic-ai/sdk@^1.0.0`.
+2. Update imports per the 1.x migration notes.
+3. Run `npm run lint && npx tsc --noEmit && npm test`; fix breakages.
+4. Add smoke test that the SDK still streams a simple message.
 
-**Changes:**
-1. `npm install @anthropic-ai/sdk@^1.0.0` (or latest 1.x)
-2. Update imports — the 1.x line moved some named exports; check `node_modules/@anthropic-ai/sdk/CHANGELOG.md` for the migration notes
-3. Run `npm run lint && npx tsc --noEmit && npm test` — fix any breakages in claude-client
-4. Add a smoke test that the SDK still streams a simple message
+**Acceptance:** All gates pass; smoke test green.
 
-**Blocks:** 28b.3 (prompt caching uses the 1.x helpers).
-
-### Step 28b.3 — Wire Anthropic prompt caching
-
+#### 28b.3 — Wire Anthropic prompt caching
 **Files:** `src/main/ai/claude-client.ts`, `src/main/ai/context-builder.ts`
 
-**Changes:**
-1. Restructure the `system` param into an array of content blocks (the 1.x SDK pattern) so the stable prefix (system prompt + character / campaign context) is one block, the per-turn user message is another.
-2. Mark the stable prefix block with `cache_control: { type: 'ephemeral' }`.
-3. Read the response's `usage.cache_creation_input_tokens` and `usage.cache_read_input_tokens`; surface in dev logs.
-4. Add a vitest assertion that the `cache_control` field reaches the SDK call (mock the SDK, capture the args).
+**Steps:**
+1. Restructure the `system` param into an array of content blocks: stable prefix (system + character/campaign context) as one block; per-turn user message as another.
+2. Mark stable prefix with `cache_control: { type: 'ephemeral' }`.
+3. Read `usage.cache_creation_input_tokens` + `usage.cache_read_input_tokens`; surface in dev logs.
+4. Vitest assertion that `cache_control` reaches the SDK call (mock SDK, capture args).
 
-**Acceptance:**
-- Second user turn in the same session reads from cache (verify in dev logs)
-- Token cost per turn drops measurably for long-context conversations
-- No behavior regression in non-cached short conversations
+**Acceptance:** Second turn in a session reads from cache (dev logs); per-turn token cost drops measurably for long-context conversations; no regression in short conversations.
 
-### Step 28b.4 — Make `max_tokens` model-aware
+#### 28b.4 — Model-aware `max_tokens`
+**Files:** `src/main/ai/claude-client.ts:40, 77` (both hardcode 4096), `src/main/ai/llm-provider.ts`, `src/renderer/src/components/campaign/AiProviderSetup.tsx`
 
-**Files:** `src/main/ai/claude-client.ts:40, 77`, `src/main/ai/llm-provider.ts`, `src/renderer/src/components/campaign/AiProviderSetup.tsx`
-
-**Changes:**
+**Steps:**
 1. Add `maxTokens?: number` to `LLMProvider.streamChat` / `chatOnce` signatures.
-2. In claude-client, default to: Opus → 16384, Sonnet/Haiku → 8192.
+2. Defaults: Opus → 16384, Sonnet/Haiku → 8192.
 3. Surface "Max response length" slider (1k → 16k) in AiProviderSetup.
 
----
+**Acceptance:** Slider drives the call; defaults respect per-model caps.
 
-## Sub-Phase 28c — Network Resilience
+### 28c — Network Resilience
 
-**Audit entries covered:**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] `bmoPiFetch` no retry / backoff — **High**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] BridgeResponse.ok vs .error contract inconsistent — **High**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] stopSyncReceiver doesn't await in-flight — **Medium**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] bmo-config.ts default hardcoded — **Medium**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] peerjs reconnection absent — **Low**
-- `SECURITY-LOG.md` [2026-05-12] ELECTRON_RENDERER_URL passed to loadURL without validation — **Low**
-
-### Step 28c.1 — Retry/backoff for `bmoPiFetch`
-
+#### 28c.1 — Retry / backoff for `bmoPiFetch`
 **Files:** `src/main/bmo-bridge.ts:31-53`
 
-**Changes:**
+**Steps:**
 1. Wrap in retry helper: 3 attempts, backoff 200 / 800 / 2000 ms.
-2. Don't retry on 4xx (auth errors, bad request — retry won't fix).
-3. Track consecutive failures; after 3, emit a renderer toast via IPC ("BMO unreachable — Discord sync paused").
-4. Reset failure counter on first success.
+2. Don't retry on 4xx.
+3. Track consecutive failures; after 3, emit renderer toast via IPC ("BMO unreachable — Discord sync paused").
+4. Reset counter on first success.
 
-### Step 28c.2 — Normalize `BridgeResponse` contract
+**Acceptance:** Unit test forces 2 timeouts, third succeeds, function resolves; 3 consecutive failures emit the toast.
 
-**Files:** `src/main/bmo-bridge.ts:18-22` plus every caller in `src/main/`.
+#### 28c.2 — Normalize `BridgeResponse` contract
+**Files:** `src/main/bmo-bridge.ts:18-22` + every caller in `src/main/`
 
-**Changes:**
-1. Change `BridgeResponse` to a discriminated union:
+**Steps:**
+1. Change `BridgeResponse` to discriminated union:
    ```ts
    type BridgeResponse =
      | { ok: true; data: unknown }
      | { ok: false; error: string; statusCode?: number }
    ```
 2. Always set `ok` explicitly.
-3. Wrap server data under `data` (don't spread into the top level).
-4. Codemod every caller (`if (!result.error)` → `if (result.ok)`).
+3. Wrap server data under `data` (don't spread top-level).
+4. Codemod callers (`if (!result.error)` → `if (result.ok)`).
 
-### Step 28c.3 — `stopSyncReceiver` graceful shutdown
+**Acceptance:** TS compile clean; all bridge consumers updated.
 
-> **Phase 30 coordination:** the shutdown path moves into `TransportAdapter.close()` after Phase 30b. Apply the graceful-shutdown promise to the adapter's `close()` implementation if Phase 30 has landed; otherwise wire as drafted and let Phase 30 inherit.
+#### 28c.3 — `stopSyncReceiver` graceful shutdown
+**Files:** `src/main/bmo-bridge.ts:212` (currently sync `void` return), `src/main/index.ts` (before-quit wiring)
 
-**Files:** `src/main/bmo-bridge.ts:212-218`, `src/main/index.ts` (before-quit wiring)
+> Phase 30 coordination: when `TransportAdapter` lands, move this into `TransportAdapter.close()`.
 
-**Changes:**
+**Steps:**
 1. Call `syncServer.closeAllConnections()` (Node 18.2+) before `syncServer.close()`.
-2. Make `stopSyncReceiver` return a `Promise<void>` that resolves after the server fully closes.
+2. Make `stopSyncReceiver` return `Promise<void>` resolving after full close.
 3. Wire into `app.on('before-quit', async (e) => { e.preventDefault(); await stopSyncReceiver(); app.exit() })`.
 
-### Step 28c.4 — Document `bmoBaseUrl` override chain
+**Acceptance:** Quitting with an active connection waits for close before exit.
 
-**Files:** `src/main/bmo-config.ts`, `dnd-app/README.md`, settings UI
+#### 28c.4 — Document `bmoBaseUrl` override chain
+**Files:** `src/main/bmo-config.ts` (precedence already implemented — needs JSDoc + UI), `dnd-app/README.md`, settings UI
 
-**Changes:**
-1. Add JSDoc to `bmo-config.ts` explaining the precedence (env > settings > default).
-2. Confirm `BMO_PI_URL` env-var precedence (or add it if missing).
-3. Add a settings-UI surface for the base URL.
+**Steps:**
+1. Add JSDoc explaining precedence (env > settings > default).
+2. Confirm `BMO_PI_URL` env-var precedence (currently `process.env.BMO_PI_URL || BMO_PI_URL_DEFAULT` at line 23 — no settings-layer read).
+3. Add settings-UI surface for base URL.
 
-### Step 28c.5 — peerjs reconnection
+**Acceptance:** UI override roundtrips to settings.json; env-var still wins.
 
-> **Phase 30 coordination:** `TransportAdapter` owns reconnection after Phase 30b. The exponential-backoff + UI-badge work below belongs inside `P2PTransport` (the WebRTC implementation), not at the call sites. Reframe accordingly when Phase 30 lands; for now, the implementation can live where drafted and migrate during Phase 30.
+#### 28c.6 — Validate `ELECTRON_RENDERER_URL`
+**Files:** `src/main/index.ts:203-204`
 
-**Files:** `src/renderer/src/network/*.ts` (audit first to find the right insertion point)
-
-**Changes:**
-1. Read all 25 files in `src/renderer/src/network/` to find the existing disconnect handler (if any).
-2. If absent, add `peer.on('disconnected', () => { peer.reconnect() })` with exponential backoff (1s, 2s, 4s, …, capped at 30s) and a max-attempts cap (10).
-3. Surface the reconnect state in the lobby UI (greyed-out "Reconnecting…" badge).
-
-### Step 28c.6 — Validate `ELECTRON_RENDERER_URL`
-
-**Files:** `src/main/index.ts:106-135`
-
-**Changes:**
+**Steps:**
 1. Before `loadURL(process.env.ELECTRON_RENDERER_URL)`, parse via `new URL(env)` (try/catch).
 2. Confirm `hostname` is `localhost` or `127.0.0.1`.
-3. Confirm `port` is in `[5170, 5180]` (the expected dev port range).
-4. On mismatch: fall back to `file://` packaged path + `logToFile('WARN', …)`.
+3. Confirm `port` is in `[5170, 5180]`.
+4. On mismatch: fall back to `file://` packaged path + `logToFile('WARN', ...)`.
 
----
+**Acceptance:** Test passes a malformed URL; loader falls back.
 
-## Sub-Phase 28d — Data Integrity & Type Safety
+### 28d — Data Integrity & Type Safety
 
-**Audit entries covered:**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] stat-mutations.ts unsafe HP cast + in-place mutation — **Medium**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] save-queue.ts dead cleanup — **Medium**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] ~74 `as unknown as` casts — **Medium**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] Effect-dep suppressions in critical hooks — **Medium**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] Date.now()-based condition IDs — **Low**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] UUID truncation pattern audit needed — **Low**
-
-### Step 28d.1 — Type the character pipeline through to `stat-mutations.ts`
-
+#### 28d.1 — Type the character pipeline through `stat-mutations.ts`
 **Files:**
 - `src/renderer/src/types/character-5e.ts:136` (source of `HitPoints`)
-- `src/main/ai/stat-mutations.ts:160-220`
+- `src/main/ai/stat-mutations.ts:178` (currently `applyChange(char: Record<string, unknown>, change: StatChange): void`)
 - `src/main/ai/character-context.ts:43`
-- Move `Character5e` / `HitPoints` types to `src/shared/` so main + renderer share them
+- Move `Character5e` / `HitPoints` to `src/shared/types/character-5e.ts`
 
-**Changes:**
-1. Move the shared types into `src/shared/types/character-5e.ts`.
-2. Update `stat-mutations.ts` signature: `applyChange(char: Character5e, change: StatChange): void` (or `Character5e` return).
-3. Drop the per-case `as { current; maximum; temporary }` casts.
-4. Decide: keep in-place mutation (document loudly) OR refactor to return a new object piped through call sites.
-5. Add a vitest that exercises every `StatChange` case (damage/heal/temp_hp/condition adds/removes/death-save/exhaustion).
+**Steps:**
+1. Move shared types into `src/shared/types/character-5e.ts`.
+2. Update `stat-mutations.ts` signature: `applyChange(char: Character5e, change: StatChange): void` (or return `Character5e`).
+3. Drop per-case `as { current; maximum; temporary }` casts.
+4. Decide: keep in-place mutation (document loudly) OR refactor to return new object.
+5. Vitest covering every `StatChange` case (damage / heal / temp_hp / condition adds / removes / death-save / exhaustion).
 
-### Step 28d.2 — Finish or remove the `save-queue.ts` dead cleanup
+**Acceptance:** TS compile clean without casts; vitest covers each case.
 
-**Files:** `src/main/storage/save-queue.ts`
+#### 28d.2 — Finish / remove `save-queue.ts` dead cleanup
+**Files:** `src/main/storage/save-queue.ts:33-50`
 
-**Changes (preferred): store stable handle for the equality check.**
+**Steps:** Store stable handle:
 ```ts
 const queueHandle = next.catch(() => undefined)
 queues.set(key, queueHandle)
@@ -349,95 +316,90 @@ try { return await next } finally {
   if (queues.get(key) === queueHandle) queues.delete(key)
 }
 ```
-- Delete the dead comment block.
-- Add a vitest: enqueue 100 saves, wait for quiesce, confirm `queues.size === 0`.
+Delete the dead comment block. Vitest: enqueue 100 saves, wait for quiesce, confirm `queues.size === 0`.
 
-### Step 28d.3 — `as unknown as` pass
+**Acceptance:** Map empty after quiesce.
 
-**Files:** broad — primary hotspots `src/renderer/src/services/library-service.ts:639, 678-679, 694, 702, 710`, plus 7+ test helpers
+#### 28d.3 — `as unknown as` sweep
+**Files:** primary hotspots `src/renderer/src/services/library-service.ts:639, 678-679, 694, 702, 710` (currently 30 casts in this file alone), plus 7+ test helpers. Total non-test: 143 occurrences.
 
-**Phase 15 sequencing (2026-05-18, refined).** Earlier note claimed the casts would "move or disappear" under Phase 15. Verification shows otherwise: Phase 15 A.3.iii says `library-service.ts` is "touched mechanically file-by-file" to route results to `useLibraryStore.entries[category]` instead of `useDataStore.cache`. The 5 `as unknown as` casts at ~639/678-679/694/702/710 sit at **JSON-parse boundaries** (parsing raw 5e content), which don't move. They persist through Phase 15 unchanged. **Sweep the casts here, after Phase 15 A.3.iii stabilizes the file's import + cache routing.** Don't expect them to be deferred-away.
+**Sequencing:** Phase 15 A.3.iii rewrites `library-service.ts` import/cache routing but does NOT move the JSON-parse-boundary casts. Sweep after Phase 15 A.3.iii lands.
 
-**Changes:**
-1. Cluster the 74 casts by boundary (IPC, JSON-from-disk, third-party SDK, test mock). Exclude `library-service.ts` from this pass.
-2. For known-shape data: zod parse at the boundary; downstream gets the typed result.
-3. For truly dynamic (plugin payloads): document the cast with a comment ("plugin-supplied; no schema possible").
-4. Target: < 40 casts outside tests after the pass (including the 5 in `library-service.ts`, which are now in scope per the 2026-05-18 refinement — they don't disappear under Phase 15).
+**Steps:**
+1. Cluster the casts by boundary (IPC, JSON-from-disk, third-party SDK, test mock).
+2. For known-shape data: zod parse at the boundary.
+3. For truly dynamic (plugin payloads): document with comment ("plugin-supplied; no schema possible").
+4. Target: < 40 casts outside tests after the sweep.
 
-### Step 28d.4 — Effect-dep suppression audit
+**Acceptance:** Total non-test casts < 40; library-service.ts casts have either zod-parse or doc-comment.
 
-> **Phase 30 coordination:** `use-game-network.ts:92` is part of the network-side surface Phase 30 reshapes. Verify the dep suppression is still relevant post-rewrite; the hook may move or disappear.
-
-### Step 28d.7 — `migrateData` return-value contract rewrite (added 2026-05-18)
-
-**Origin:** SUGGESTIONS-LOG-DNDAPP `[2026-04-24] DO NOT update migrateData to return new objects instead of mutating in place` gotcha.
-
-**Description:** `src/main/storage/migrations.ts:33` discards each migration's return value and relies on in-place mutation. Future contributors writing immutable-style migrations (`(data) => ({ ...data, foo: [] })`) silently no-op. Fix the contract instead of documenting the trap.
-
-**Changes:**
-1. Refactor `migrateData()` to capture each migration's return value: `record = migration(record)`.
-2. Both forms now work: mutation-style returns the mutated record; immutable-style returns a new object.
-3. Update the function's JSDoc explicitly: "Migrations may mutate in place OR return a new record — the caller captures the return value either way."
-4. Add a vitest with one mutation-style migration + one immutable-style migration, both producing the same final shape.
-
-**Acceptance:**
-- Existing migrations (which mutate in place) still work.
-- A new test-only immutable-style migration also works.
-- Gotcha entry in SUGGESTIONS-LOG can be deleted (contract is no longer a trap).
-
+#### 28d.4 — Effect-dep suppression audit
 **Files:**
-- `src/renderer/src/components/game/GameLayout.tsx:407`
-- `src/renderer/src/hooks/use-game-effects.ts:144, 307`
-- `src/renderer/src/hooks/use-game-network.ts:92`
+- `src/renderer/src/hooks/use-game-effects.ts:117, 143, 296, 306, 387, 423` (6 suppressions currently)
+- `src/renderer/src/components/game/GameLayout.tsx` (re-grep for any `eslint-disable.*react-hooks`)
+- `src/renderer/src/hooks/use-game-network.ts` (re-grep)
 
-**Per site:**
-1. Attempt the honest dep list; if it causes a render loop, refactor the surrounding state (don't suppress).
-2. Where the dep really is provably stable (`useState` setter, `useRef` current), narrow the comment ("setter ref stable per React docs").
-3. Add a vitest exercising a state change that should re-run the effect.
+> Phase 30 coordination: `use-game-network.ts` is part of the network surface Phase 30 reshapes; verify the suppression survives the rewrite.
 
-### Step 28d.5 — Date.now()-based IDs → `crypto.randomUUID()`
+**Steps:**
+1. Per site, attempt honest dep list; if it loops, refactor surrounding state (don't suppress).
+2. Where dep really is stable (`useState` setter, `useRef` current), narrow the comment.
+3. Vitest exercising a state change that should re-run the effect.
 
-**Files:** `src/renderer/src/components/game/overlays/PlayerHUDEffects.tsx:234, 300`, plus any other `id: \`cond-${Date.now()}\`` pattern
+**Acceptance:** Suppression count drops; each survivor has a precise reason.
 
-**Changes:**
+#### 28d.5 — Date.now()-based IDs → `crypto.randomUUID()`
+**Files:** `src/renderer/src/components/game/overlays/PlayerHUDEffects.tsx:55, 234, 300` (3 remaining `cond-${Date.now()` patterns)
+
+**Steps:**
 1. Grep for `\`cond-\${Date.now()` / similar.
-2. Replace with `crypto.randomUUID()` (or a scoped `idFor('cond')` helper).
-3. Add a unit test that two rapid calls produce distinct ids.
+2. Replace with `crypto.randomUUID()` (or scoped `idFor('cond')` helper).
+3. Unit test: two rapid calls produce distinct ids.
 
-### Step 28d.6 — UUID truncation audit
+**Acceptance:** No `Date.now()` ID patterns remain.
 
-**Files:** ~40+ sites using `crypto.randomUUID().slice(0, 8)`
+#### 28d.6 — UUID truncation audit
+**Files:** ~86 sites using `crypto.randomUUID().slice(0, 8)` (or similar) across `src/`.
 
-**Changes:**
-1. Enumerate sites by purpose: "UI ephemeral" (OK to truncate) vs "persistent game state" (full UUID required).
-2. Migrate the persistent-state sites to full UUIDs.
-3. Add helper pair: `ephemeralId(prefix?)` (for UI-only) and `entityId()` (for persistent state) to make intent explicit.
+**Steps:**
+1. Enumerate sites by purpose: "UI ephemeral" (OK) vs "persistent game state" (full UUID required).
+2. Migrate persistent-state sites to full UUIDs.
+3. Add helper pair: `ephemeralId(prefix?)` + `entityId()`.
 
----
+**Acceptance:** Persistent-state IDs use full UUID; UI ephemerals routed through helper.
 
-## Sub-Phase 28e — CI Hardening
+#### 28d.7 — `migrateData` return-value contract
+**Files:** `src/main/storage/migrations.ts:33` (currently `migration(record)` — return value discarded)
 
-**Audit entries covered:**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] dnd-app CI minimal — **Medium**
-- `SUGGESTIONS-LOG-DNDAPP.md` [2026-04-24] Add `npm run check:full` aggregate script — **future-idea** (composes here)
+**Origin:** SUGGESTIONS-LOG-DNDAPP `[2026-04-24] DO NOT update migrateData to return new objects` gotcha — fix the contract instead of documenting the trap.
 
-### Step 28e.1 — Add `npm run check:full` aggregate
+**Steps:**
+1. Refactor `migrateData()` to capture each migration's return: `record = migration(record)`.
+2. Mutation-style returns mutated record; immutable-style returns new object — both work.
+3. Update JSDoc: "Migrations may mutate in place OR return a new record — the caller captures either way."
+4. Vitest with one mutation-style + one immutable-style migration producing the same final shape.
 
-**Files:** `dnd-app/package.json`
+**Acceptance:** Both forms pass; gotcha entry can be deleted from SUGGESTIONS-LOG.
 
-**Changes:**
+### 28e — CI Hardening
+
+#### 28e.1 — `npm run check:full` aggregate
+**Files:** `dnd-app/package.json` (currently has `audit:ci` at line 35; no `check:full`)
+
+**Steps:** Add:
 ```json
 "check:full": "npm run lint && tsc --noEmit -p tsconfig.web.json && tsc --noEmit -p tsconfig.node.json && npm test && npm run circular && npm run dead-code && npm run audit:ci"
 ```
 
-### Step 28e.2 — Add `.github/workflows/dnd-app-ci.yml`
+**Acceptance:** Script runs end-to-end locally; failure on any step aborts.
 
-**Files:** new `.github/workflows/dnd-app-ci.yml`
+#### 28e.2 — `.github/workflows/dnd-app-ci.yml`
+**Files:** new `.github/workflows/dnd-app-ci.yml` (currently only `release.yml`, `bmo-pi-pytest.yml`, `deploy.yml`, `dnd-app-validate-5e.yml`, `security-audit.yml`)
 
-**Trigger:** `push` and `pull_request` on `paths: ['dnd-app/**', '.github/workflows/dnd-app-ci.yml']`.
+**Trigger:** `push` + `pull_request` on `paths: ['dnd-app/**', '.github/workflows/dnd-app-ci.yml']`.
 
 **Jobs:**
-- `setup-node@v4` with `node-version: 22`, `cache: npm`, `cache-dependency-path: dnd-app/package-lock.json`
+- `setup-node@v4`, `node-version: 22`, `cache: npm`, `cache-dependency-path: dnd-app/package-lock.json`
 - `npm ci`
 - `npm run lint`
 - `npx tsc --noEmit -p tsconfig.web.json`
@@ -445,323 +407,308 @@ try { return await next } finally {
 - `npm test`
 - `npm run audit:ci`
 - `npm run circular`
-- `npm run dead-code` (allow-fail until knip baseline is clean — `continue-on-error: true`)
+- `npm run dead-code` (`continue-on-error: true` until knip baseline clean)
 
-**Acceptance:**
-- A PR that breaks `tsc` fails the job
-- A PR that adds a circular dep fails the job
-- A PR that drops a test fails the job
+**Acceptance:** PR breaking tsc / circular / test fails the job.
 
-### Step 28e.3 — Lint rule: forbid `Math.random` outside `utils/crypto-random.ts` and tests (added 2026-05-18)
+#### 28e.3 — Lint rule: no `Math.random` outside `crypto-random.ts` + tests
+**Files:** `biome.json` (or `scripts/lint/no-math-random.mjs`)
 
-**Origin:** SUGGESTIONS-LOG-DNDAPP `[2026-05-12] DO NOT use Math.random()` gotcha. Replaces the docs gotcha with mechanical enforcement.
+**Origin:** SUGGESTIONS-LOG `[2026-05-12] DO NOT use Math.random()` gotcha.
 
-**Files:** `biome.json` (or new `scripts/lint/no-math-random.mjs` for a grep-based check)
+**Steps:**
+1. Biome custom rule (or grep-based pre-commit): `Math.random` forbidden except in `src/renderer/src/utils/crypto-random.ts` and `*.test.ts(x)`.
+2. Wire into `check:full` + `dnd-app-ci.yml`.
 
-**Changes:**
-1. Add a Biome custom rule (or grep-based pre-commit hook): `Math.random` is forbidden except in `src/renderer/src/utils/crypto-random.ts` and `*.test.ts(x)`.
-2. Wire into `check:full` and `dnd-app-ci.yml`.
-3. After Phase 28a.1 sweep lands, this rule prevents regressions.
+**Acceptance:** Rule active after 28a.1 sweep lands; PR adding `Math.random` fails.
 
-### Step 28e.4 — Lint rule: forbid bare `writeFile` outside `atomic-write.ts` (added 2026-05-18)
+#### 28e.4 — Lint rule: no bare `writeFile` outside `atomic-write.ts`
+**Files:** `biome.json`
 
-**Origin:** SUGGESTIONS-LOG-DNDAPP `[2026-04-24] atomic-write.ts is the canonical storage write` info entry.
+**Origin:** SUGGESTIONS-LOG `[2026-04-24] atomic-write.ts is canonical storage write`.
 
-**Changes:** Biome rule forbidding `import { writeFile } from 'node:fs'` / `from 'node:fs/promises'` outside `src/main/storage/atomic-write.ts`. Forces every new storage module to route through the atomic helper.
+**Steps:** Biome rule forbidding `import { writeFile } from 'node:fs'` / `'node:fs/promises'` outside `src/main/storage/atomic-write.ts`.
 
-### Step 28e.5 — Lint rule: forbid `useNetworkStore` import from `stores/use-network-store.ts` (added 2026-05-18)
+**Acceptance:** New storage module that imports bare `writeFile` fails lint.
 
-**Origin:** SUGGESTIONS-LOG-DNDAPP `[2026-04-24] DO NOT import useNetworkStore from use-network-store.ts` gotcha. Pairs with Phase 33g codemod.
+#### 28e.5 — Lint rule: forbid `useNetworkStore` import from `stores/use-network-store.ts`
+**Files:** `biome.json`
 
-**Changes:** Biome rule forbidding imports from `stores/use-network-store` — after Phase 33g rewrites consumers, the rule prevents anyone re-introducing the circular barrel.
+**Origin:** SUGGESTIONS-LOG `[2026-04-24] DO NOT import useNetworkStore from use-network-store.ts`. Pairs with Phase 33g codemod.
 
-### Step 28e.6 — Lint rule: forbid `require()` in `electron.vite.config.ts` (added 2026-05-18)
+**Acceptance:** Re-introducing the circular barrel fails lint.
 
-**Origin:** SUGGESTIONS-LOG-DNDAPP `[2026-04-24] DO NOT use CJS require()` gotcha. Pairs with Phase 33e migration.
+#### 28e.6 — Lint rule: forbid `require()` in `electron.vite.config.ts`
+**Files:** grep-based pre-commit hook
 
-**Changes:** Grep-based pre-commit hook flagging `require(` in `electron.vite.config.ts`. After Phase 33e converts to `await import(...)`, the rule keeps the file ESM-only.
+**Origin:** SUGGESTIONS-LOG `[2026-04-24] DO NOT use CJS require()`. Pairs with Phase 33e migration.
 
-### Step 28e.7 — Lint rule: no skipped tests (added 2026-05-18)
+**Acceptance:** Hook flags `require(` in `electron.vite.config.ts`.
 
-**Origin:** SUGGESTIONS-LOG-DNDAPP `[2026-05-12] Vitest suite has zero skipped / todo tests` info — replace observation with enforcement.
+#### 28e.7 — Lint rule: no skipped tests
+**Files:** CI step
 
-**Changes:** CI step: `! grep -rE '\\b(it|describe|test)\\.skip\\b|\\b(xit|xdescribe|xtest)\\b|\\.todo\\b' src/`. Fails if any test is `.skip`/`.todo`/`xit`/`xdescribe`.
+**Origin:** SUGGESTIONS-LOG `[2026-05-12] Vitest suite has zero skipped` info — convert observation to enforcement.
 
-### Step 28e.8 — License audit gate (added 2026-05-18)
+**Steps:** CI step: `! grep -rE '\b(it|describe|test)\.skip\b|\b(xit|xdescribe|xtest)\b|\.todo\b' src/`.
 
-**Origin:** SUGGESTIONS-LOG-DNDAPP `[2026-04-24] License audit clean — 222 prod deps` info — replace snapshot with enforcement.
+**Acceptance:** PR adding `.skip` / `.todo` / `xit` fails.
 
-**Changes:** CI step: `npx license-checker --production --failOn 'GPL;LGPL;AGPL'`. Prevents copyleft deps from creeping in.
+#### 28e.8 — License audit gate
+**Files:** CI step
 
-### Step 28e.9 — IPC-SURFACE.md drift gate (added 2026-05-18)
+**Origin:** SUGGESTIONS-LOG `[2026-04-24] License audit clean — 222 prod deps` — replace snapshot with enforcement.
 
-**Origin:** SUGGESTIONS-LOG-DNDAPP `[2026-04-24] IPC-SURFACE.md lists channel names, not request/response contracts` gotcha — turn the regeneration discipline into a CI check.
+**Steps:** `npx license-checker --production --failOn 'GPL;LGPL;AGPL'`.
 
-**Changes:** CI step: `npm run gen:ipc-surface && git diff --exit-code docs/IPC-SURFACE.md`. Fails if a PR modifies `ipc-channels.ts` without regenerating the surface doc.
+**Acceptance:** Copyleft dep introduction fails.
 
-### Step 28e.10 — Forbid raw `lucide`-free icon usage (defer to Phase 18)
+#### 28e.9 — IPC-SURFACE.md drift gate
+**Files:** CI step
 
-> Not Phase 28's scope. Phase 18 owns the icon-library migration; once that lands, a lint rule preventing Unicode glyphs in JSX can be added by Phase 18.
+**Origin:** SUGGESTIONS-LOG `[2026-04-24] IPC-SURFACE.md lists channel names, not contracts` gotcha — turn regeneration into a CI check.
 
----
+**Steps:** `npm run gen:ipc-surface && git diff --exit-code docs/IPC-SURFACE.md`.
 
-## Sub-Phase 28f — UI / UX / Graphical Polish
+**Acceptance:** PR modifying `ipc-channels.ts` without regenerating surface doc fails.
 
-**Audit entries covered:**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] Limited aria-* coverage — **Low**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] `<div onClick>` anti-pattern present — **Low**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] Silent `.catch()` blocks no UI feedback — **Low**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] Color tokens not centralized — **Low**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] z-[9999] magic z-index — **Low**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] Window 1024×768 min tight — **Low**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] Lists may need virtualization — **Low**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] console.warn for validation failures continues processing — **Low**
+### 28f — UI / UX / Graphical Polish
 
-### Step 28f.1 — Replace `<div onClick>` with `<button>`
+#### 28f.1 — Replace `<div onClick>` with `<button>`
+**Files:** 73 occurrences across `src/renderer/src/`.
 
-**Approach:**
+**Steps:**
 1. `grep -rn '<div[^>]*onClick' --include='*.tsx' src/renderer` to enumerate.
-2. Each one: `<button type="button" className="...">` (preserve Tailwind classes).
-3. Where the div must stay (card with nested interactive children), add `role="button" tabIndex={0}` + Enter/Space handler.
+2. Each: `<button type="button" className="...">` preserving Tailwind classes.
+3. Where the div must stay (card with nested interactives), add `role="button" tabIndex={0}` + Enter/Space handler.
 
-### Step 28f.2 — Surface silent `.catch()` errors
+**Acceptance:** Count drops to near-zero; survivors have explicit `role`+tabIndex+keyboard handler.
 
-**Files:** `src/renderer/src/components/sheet/FeaturesSection5e.tsx:47, 55` + the broader sweep.
+#### 28f.2 — Surface silent `.catch()` errors
+**Files:** `src/renderer/src/components/sheet/FeaturesSection5e.tsx:47, 55` + broader sweep.
 
-**Changes:**
-1. Add a `useErrorToast()` hook wrapping the common "log + toast + retry-button" pattern.
-2. Per silent-catch site, decide: user-actionable → toast; not → `logToFile` (main-side) instead of `console`.
+**Steps:**
+1. Add `useErrorToast()` hook (log + toast + retry-button pattern).
+2. Per site, decide user-actionable → toast; not → `logToFile` (main-side) instead of `console`.
 
-### Step 28f.3 — Centralize color tokens
+**Acceptance:** No silent `console`-only catch in renderer.
 
-**Files:** `tailwind.config`, ~20-30 inline `#hex` sites.
+#### 28f.3 — Centralize color tokens
+**Files:** `tailwind.config`, 20-30 inline `#hex` sites.
 
-**Changes:**
-1. Enumerate: `grep -rn "#[0-9a-fA-F]\{3,6\}" --include='*.tsx' --include='*.ts' --include='*.css' src/renderer`.
-2. Triage: chart palettes (intentional inline) vs. theme drift.
-3. Tokens to add to Tailwind: any color used > 3 times.
+**Steps:**
+1. `grep -rn '#[0-9a-fA-F]\{3,6\}' --include='*.tsx' --include='*.ts' --include='*.css' src/renderer`.
+2. Triage chart palettes (intentional inline) vs theme drift.
+3. Tailwind tokens for any color used > 3 times.
 
-### Step 28f.4 — Z-index layer convention
+**Acceptance:** Theme-drift hexes replaced by tokens.
 
-**Files:** `tailwind.config`, `src/renderer/src/components/sheet/PrintSheet.tsx:27, 67`, `Tooltip.tsx:78`, `LanguagesTab5e.tsx:65`, plus broader
+#### 28f.4 — Z-index layer convention
+**Files:** `tailwind.config`, `src/renderer/src/components/sheet/PrintSheet.tsx:27, 67`, `Tooltip.tsx:78`, `LanguagesTab5e.tsx:65`, plus broader.
 
-**Changes:**
-1. Add a `z-app`, `z-modal-backdrop`, `z-modal`, `z-tooltip`, `z-toast`, `z-overlay-print` token set to Tailwind.
+**Steps:**
+1. Add `z-app`, `z-modal-backdrop`, `z-modal`, `z-tooltip`, `z-toast`, `z-overlay-print` tokens to Tailwind.
 2. Replace magic numbers.
 3. Document in new `dnd-app/docs/UI-LAYERS.md`.
 
-### Step 28f.5 — Aria coverage sweep
+**Acceptance:** No magic `z-[9999]` in src/.
 
-**Approach:**
+#### 28f.5 — Aria coverage sweep
+**Steps:**
 1. Top 20 user-traffic components (initiative tracker, dice tray, action buttons, modals, lobby).
 2. Per component: icon-only buttons get `aria-label`; list updates get `aria-live`.
-3. Don't aim for 100% coverage; aim for "all interactive elements with non-text content".
+3. Aim for "all interactive elements with non-text content".
 
-### Step 28f.6 — Window minimum size check
+**Acceptance:** Audit script + manual screen-reader sweep on the 20 components.
 
-**Files:** `src/main/index.ts:38-41`
+#### 28f.6 — Window minimum size check
+**Files:** `src/main/index.ts:70-71` (currently `minWidth: 1024, minHeight: 768`).
 
-**Changes:**
+**Steps:**
 1. Manually test each panel layout at 1024×768.
-2. If broken: bump `minWidth` to 1280, OR add a "compact mode" toggle.
-3. Document the minimum supported viewport in `dnd-app/README.md`.
+2. If broken: bump `minWidth` to 1280 OR add a "compact mode" toggle.
+3. Document minimum supported viewport in README.
 
-### Step 28f.7 — Profile + virtualize long lists
+**Acceptance:** All panels render usably at the chosen minimum.
 
-**Files:** `EncounterLog*.tsx`, journal components, any list rendering > 100 items
+#### 28f.7 — Profile + virtualize long lists
+**Files:** `EncounterLog*.tsx`, journal components, any list > 100 items.
 
-**Changes:**
+**Steps:**
 1. React DevTools profile with synthetic 500-entry data.
-2. If render > 16 ms, virtualize with `@tanstack/react-virtual` (same lib as chat).
+2. If render > 16 ms, virtualize with `@tanstack/react-virtual`.
 3. Document the "if > 200 items, virtualize" rule.
 
-### Step 28f.8 — console.warn validation handling
+**Acceptance:** Profiled list render < 16 ms at 500 items.
 
-**Files:** `src/renderer/src/stores/network-store/client-handlers.ts:67`, `host-handlers.ts:50, 62, 230`
+#### 28f.8 — `console.warn` validation handling
+**Files:** `src/renderer/src/stores/network-store/client-handlers.ts:67`, `host-handlers.ts:50, 62, 230`.
 
-**Changes:**
-- Per site: decide throw+catch upstream OR fall-through-with-clearer-comment.
-- If thrown, surface as renderer toast via `addSysMsg()`.
+**Steps:** Per site, decide throw+catch upstream OR fall-through-with-clearer-comment; if thrown, surface as renderer toast via `addSysMsg()`.
 
----
+**Acceptance:** No `console.warn` leaves validation failure silent.
 
-## Sub-Phase 28g — Docs & Long Tail
+### 28g — Docs & Long Tail
 
-**Audit entries covered:**
-- `SUGGESTIONS-LOG-DNDAPP.md` [2026-05-12] Document BMO_API_KEY end-to-end flow — **future-idea**
-- `SUGGESTIONS-LOG-DNDAPP.md` [2026-05-12] Document plugin trust model — **future-idea**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] Two open TODO markers — **Low**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] files-allowlist may leak `docs/` — **Low**
+#### 28g.1 — BMO_API_KEY end-to-end docs
+**Files:** `dnd-app/README.md`, `src/main/bmo-bridge.ts` JSDoc, `docs/ARCHITECTURE.md`.
 
-### Step 28g.1 — BMO_API_KEY end-to-end docs
+**Depends on:** 28a.4 landing first.
 
-(Depends on 28a.4 landing first.)
+**Acceptance:** Setup walkthrough exists; matches actual env / settings precedence.
 
-**Files:** `dnd-app/README.md`, `src/main/bmo-bridge.ts` (JSDoc), `docs/ARCHITECTURE.md`.
+#### 28g.2 — Plugin trust model docs
+**Files:** `dnd-app/docs/PLUGIN-SYSTEM.md`, README, plugin-install UI.
 
-### Step 28g.2 — Plugin trust model docs
+**Steps:**
+1. Add "Trust model" section.
+2. Plugin-install UI warning ("Plugins have full access to your game data — only install plugins you trust").
 
-**Files:** `dnd-app/docs/PLUGIN-SYSTEM.md`, `dnd-app/README.md`, plugin-install UI.
+**Acceptance:** Section + UI banner present.
 
-**Changes:**
-1. Add "Trust model" section to PLUGIN-SYSTEM.md.
-2. Add warning to plugin-install UI ("Plugins have full access to your game data — only install plugins you trust").
-
-### Step 28g.3 — Close the 2 open TODOs
-
+#### 28g.3 — Close the 2 open TODOs
 **Files:**
-- `src/renderer/src/components/game/GameLayout.tsx:280` — "TODO: Could enhance to pre-select the specific item"
-- `src/renderer/src/components/game/map/map-overlay-effects.ts:27` — "TODO: Add playing state management"
+- `src/renderer/src/components/game/GameLayout.tsx:296` ("TODO: Could enhance to pre-select the specific item")
+- `src/renderer/src/components/game/map/map-overlay-effects.ts:27` ("TODO: Add playing state management")
 
-**Approach:** Per TODO, either action it OR convert to a dated `// FIXME: [2026-05-12] …` and confirm it has an entry in `ISSUES-LOG-DNDAPP.md`.
+**Steps:** Per TODO, either action it OR convert to dated `// FIXME: [2026-05-12] ...` with matching ISSUES-LOG-DNDAPP entry.
 
-### Step 28g.4 — Verify electron-builder files-allowlist doesn't leak `docs/`
+**Acceptance:** No bare `TODO:` markers remain in those files.
 
+#### 28g.4 — Verify electron-builder files-allowlist doesn't leak `docs/`
 **Files:** `dnd-app/package.json`
 
-**Approach:**
+**Steps:**
 1. Run `electron-builder --dir`; `ls dist/`.
 2. If `docs/` present, add `!docs/**/*` to `build.files`.
-3. (Optional) Add an `audit:bundle` script that fails CI if forbidden paths slip in.
+3. (Optional) Add `audit:bundle` script that fails CI if forbidden paths slip in.
 
-### Step 28g.5 — Document `atomic-write.ts` as canonical storage write (added 2026-05-18)
+**Acceptance:** `docs/` absent from packaged bundle.
 
-**Origin:** SUGGESTIONS-LOG-DNDAPP `[2026-04-24] atomic-write.ts is the canonical storage write` info — convert from observation into a rule.
+#### 28g.5 — Document `atomic-write.ts` as canonical storage write
+**Files:** `AGENTS.md`, `src/main/storage/atomic-write.ts` JSDoc.
 
-**Files:** `AGENTS.md`, top-of-file JSDoc in `src/main/storage/atomic-write.ts`.
+**Steps:**
+1. AGENTS.md new "Storage rules" section under "When adding new dnd-app files": new storage modules MUST use `atomicWriteFile`; bare `writeFile` forbidden (28e.4 lint enforces).
+2. JSDoc at top of `atomic-write.ts` documenting rename-after-temp-write atomicity.
 
-**Changes:**
-1. AGENTS.md new section under "When adding new dnd-app files" — "Storage rules": new storage modules MUST use `atomicWriteFile`; bare `writeFile` is forbidden (Phase 28e.4 lint rule enforces).
-2. JSDoc at top of `atomic-write.ts` documenting the rename-after-temp-write atomicity guarantee.
+**Acceptance:** Rule visible; JSDoc present.
 
-### Step 28g.6 — Document IPC-SURFACE.md regeneration discipline (added 2026-05-18)
-
-**Origin:** SUGGESTIONS-LOG-DNDAPP `[2026-04-24] IPC-SURFACE.md lists channel names, not request/response contracts` gotcha — absorbed by Phase 28e.9 (CI gate) + this doc note.
-
+#### 28g.6 — Document IPC-SURFACE.md regeneration discipline
 **Files:** `AGENTS.md`, `CLAUDE.md`.
 
-**Changes:** New "When editing `ipc-channels.ts`" rule: regenerate `docs/IPC-SURFACE.md` via `npm run gen:ipc-surface` and commit alongside the channel change. CI gate (28e.9) enforces.
+**Steps:** New "When editing `ipc-channels.ts`" rule: regenerate `docs/IPC-SURFACE.md` via `npm run gen:ipc-surface` and commit alongside. CI gate 28e.9 enforces.
 
-### Step 28g.7 — Document `migrateData` mutation/return contract (added 2026-05-18)
+**Acceptance:** Rule documented; CI gate active.
 
-**Origin:** SUGGESTIONS-LOG-DNDAPP `[2026-04-24] DO NOT update migrateData to return new objects` gotcha — absorbed by Phase 28d.7 (the actual rewrite) + this doc note in JSDoc.
-
+#### 28g.7 — Document `migrateData` mutation/return contract
 **Files:** `src/main/storage/migrations.ts` JSDoc.
 
-**Changes:** Top-of-file JSDoc documenting the post-Phase-28d.7 contract: "Migrations may mutate in place OR return a new record. The caller captures the return value either way."
+**Depends on:** 28d.7 (the rewrite).
 
-### Step 28g.8 — Document the dual-import-pattern resolution in provider-registry.ts (added 2026-05-18)
+**Steps:** Top-of-file JSDoc post-28d.7: "Migrations may mutate in place OR return a new record. The caller captures either way."
 
-**Origin:** SUGGESTIONS-LOG-DNDAPP `[2026-04-24] DO NOT add new dynamic await import calls without removing static import` gotcha — Phase 33f resolves it (picks one pattern).
+**Acceptance:** JSDoc updated; old gotcha entry deletable.
 
+#### 28g.8 — Document dual-import resolution in `provider-registry.ts`
 **Files:** `src/main/ai/provider-registry.ts` JSDoc.
 
-**Changes:** Top-of-file JSDoc explaining the chosen pattern (eager or lazy per Phase 33f's decision) and why mixing them produces silent no-op dynamic imports.
+**Depends on:** Phase 33f (picks the pattern).
 
----
+**Steps:** JSDoc explaining chosen pattern (eager or lazy) and why mixing produces silent no-op dynamic imports.
 
-## Sub-Phase 28h — Test Coverage Uplift
+**Acceptance:** JSDoc reflects Phase 33f's choice.
 
-**Audit entries covered:**
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] Component test coverage ≈ 42% — **Medium**
+### 28h — Test Coverage Uplift
 
-### Step 28h.1 — Coverage baseline
+#### 28h.1 — Coverage baseline
+**Files:** new `dnd-app/.coverage-baseline.json`.
 
-**Files:** `dnd-app/.coverage-baseline.json` (new)
+**Steps:**
+1. `npm run test:coverage` for authoritative figure.
+2. Commit baseline.
+3. CI gate fails if coverage drops below baseline.
 
-**Approach:**
-1. Run `npm run test:coverage` to get the authoritative figure (the 42% is a colocated-file proxy).
-2. Commit the baseline.
-3. Add a CI gate that fails if coverage drops below baseline.
+**Acceptance:** Gate visible; baseline committed.
 
-### Step 28h.2 — Lobby / onboarding flow
-
-**Untested files prioritized (game-gating):**
+#### 28h.2 — Lobby / onboarding flow tests
+**Files:**
 - `src/renderer/src/components/lobby/ReadyButton.tsx`
 - `src/renderer/src/components/lobby/CharacterSelector.tsx`
 - `src/renderer/src/components/campaign/SessionZeroStep.tsx`
 
-### Step 28h.3 — TokenContextMenu test recovery
+**Acceptance:** Component tests cover ready toggle, character pick, session-zero step transitions.
 
-**Blocked by:** the `useNetworkStore` circular dep fix (SUGGESTIONS-LOG `2026-04-24-network-store-barrel-circular`). That fix is a prerequisite — run it first or include in 28h. **2026-05-18 update:** Phase 33g now owns the circular-dep codemod; 28h.3 sequences after Phase 33g.
+#### 28h.3 — TokenContextMenu test recovery
+**Depends on:** Phase 33g `useNetworkStore` circular-dep codemod.
 
-### Step 28h.4 — Electron BrowserWindow security regression test (added 2026-05-18)
+**Acceptance:** Test file imports cleanly; ContextMenu behaviour covered.
 
-**Origin:** SUGGESTIONS-LOG-DNDAPP `[2026-04-24] Electron security base config correctly hardened` info — convert the snapshot observation into a regression test.
+#### 28h.4 — Electron BrowserWindow security regression test
+**Files:** new `src/main/index.security.test.ts`.
 
-**Files:** new `src/main/index.security.test.ts`
+**Origin:** SUGGESTIONS-LOG `[2026-04-24] Electron security base config correctly hardened` info — convert snapshot to regression test.
 
-**Changes:** vitest spec that imports the main entry's `createWindow` config (or the config object directly) and asserts:
+**Steps:** vitest spec importing `createWindow` config and asserting:
 - `webPreferences.sandbox === true`
 - `webPreferences.contextIsolation === true`
 - `webPreferences.nodeIntegration === false`
-- `setWindowOpenHandler` denies all (returns `{ action: 'deny' }`) and routes `http(s)` URLs to `shell.openExternal`
-- CSP header is set on `webContents.session.webRequest.onHeadersReceived`
-- `requestSingleInstanceLock` is called on startup
-- `uncaughtException` + `unhandledRejection` handlers are registered
+- `setWindowOpenHandler` denies all (`{ action: 'deny' }`); routes `http(s)` to `shell.openExternal`
+- CSP header set on `webContents.session.webRequest.onHeadersReceived`
+- `requestSingleInstanceLock` called on startup
+- `uncaughtException` + `unhandledRejection` handlers registered
 
-**Acceptance:**
-- Test passes against current code (verifies the snapshot).
-- A PR that flips any of these to insecure defaults fails the test.
+**Acceptance:** Test passes against current code; flipping any setting to insecure default fails the test.
 
-### Step 28h.5 — `<div onClick>` regression test (added 2026-05-18)
+#### 28h.5 — `<div onClick>` regression test
+**Files:** new `scripts/audit/check-no-div-onclick.mjs`.
 
-**Origin:** SUGGESTIONS-LOG-DNDAPP / ISSUES-LOG `<div onClick>` anti-pattern — pair with Phase 28f.1 fix.
+**Steps:** Script greps `<div[^>]*onClick=` across `src/renderer/src/components/`; fails if found (allowlist: explicit `// a11y-allow-div-onclick: <reason>` comment). Wire into `check:full` + CI.
 
-**Files:** new `scripts/audit/check-no-div-onclick.mjs`
+**Depends on:** 28f.1 sweep landing first.
 
-**Changes:** Script that greps `<div[^>]*onClick=` across `src/renderer/src/components/` and fails if any are found (allowlist: explicit `// a11y-allow-div-onclick: <reason>` comment). Wire into `check:full` + `dnd-app-ci.yml`. Runs after the 28f.1 sweep — gate prevents regression.
+**Acceptance:** Sweep + gate prevents regression.
 
----
+### 28i — Coverage-Gap Audits
 
-## Sub-Phase 28i — Coverage-Gap Audits
+#### 28i.1 — Per-area scoped audits
+Each of the 9 gap areas gets its own narrow scan:
 
-**Audit entries covered:**
-- `SUGGESTIONS-LOG-DNDAPP.md` [2026-05-12] Audit coverage gaps — info
-- `SUGGESTIONS-LOG-DNDAPP.md` [2026-05-12] discord-service.ts Bot token storage path unverified — info
-- `ISSUES-LOG-DNDAPP.md` [2026-05-12] peerjs reconnection logic absent on audited surface — Low (audit follow-up overlaps 28c.5)
+1. Multiplayer / peerjs — fog-of-war state, host-migration, reconnect. **Phase 30/31 absorb most of this scope** — re-scope to "items not absorbed" once those land.
+2. Pixi map — fog-of-war correctness, viewport math, GPU memory growth.
+3. Plugin runtime — actual privilege boundary, lifecycle, error containment.
+4. Cloud sync (rclone) — conflict resolution, partial-failure recovery, retry behavior.
+5. TipTap — content sanitization on import (paste from web, restore from backup).
+6. Updater — signature verification, channel pinning, rollback path.
+7. Discord integration — bot token storage (overlaps SUGGESTIONS-LOG info).
+8. 5e JSON — schema correctness (overlaps `2026-04-24-schemas-content-mismatch`).
+9. Renderer IPC consumers — every `window.api.*` call site for async-error handling.
 
-### Step 28i.1 — Per-area scoped audits
+**Output:** one log entry per finding (per the standard triage table). May spawn Phase 29.
 
-Each of the 9 gap areas (multiplayer/peerjs, Pixi map rendering, plugin runtime, cloud sync, TipTap, updater, Discord integration, 5e JSON, renderer IPC consumers) gets its own narrow scan:
+**Acceptance:** Each area has a written scan note + zero-or-more log entries.
 
-1. Multiplayer/peerjs — fog-of-war state, host-migration, reconnect (overlaps 28c.5). **Phase 30/31 absorb most of this scope** (host-migration → Phase 30 host-transfer protocol; reconnect → `TransportAdapter`; fog-of-war state → Phase 31 shard). Re-scope the gap scan to "items not absorbed by Phase 30/31" once those land; may shrink to near-zero.
-2. Pixi map — fog-of-war correctness, viewport math, GPU memory growth
-3. Plugin runtime — actual privilege boundary, plugin lifecycle, error containment
-4. Cloud sync (rclone) — conflict resolution, partial-failure recovery, retry behavior
-5. TipTap — content sanitization on import (paste from web, restore from backup)
-6. Updater — signature verification, channel pinning, rollback path
-7. Discord integration — bot token storage (overlaps SUGGESTIONS-LOG info entry)
-8. 5e JSON — schema correctness (overlaps existing `2026-04-24-schemas-content-mismatch` gotcha)
-9. Renderer IPC consumers — every `window.api.*` call site for async-error handling
+## Constraints & edge cases
 
-**Output:** one log entry per finding (per the standard triage table). May spawn a Phase 29.
+- **Discipline:** commit per sub-phase; stop and await approval between each one. Don't bundle 28a + 28b.
+- **Layout fixed:** no restructuring of `src/{main,preload,renderer,shared}/` — electron-vite layout enforced.
+- **Phase 15 deferral:** 28a.1 data-tables (`bastion-events`, `weather-tables`, `personality-tables`, `sentient-items`, `starting-equipment-table`) and 28d.3 `library-service.ts` casts wait for Phase 15 Option A to land.
+- **Phase 30 overlap:** 28a.2 / 28c.3 / 28c.5 / 28d.4 (`use-game-network.ts`) / 28i.1 must reframe call sites once `TransportAdapter` exists. Implement where drafted now; migrate during Phase 30.
+- **Phase 32 overlap:** 28a.4 Bearer token shape must reconcile with the WS JWT (issuer / secret / audience).
+- **Phase 33 overlaps:** 28e.5 lint pairs with Phase 33g codemod; 28e.6 + 28g.8 pair with Phase 33e/33f.
+- **BMO side already done:** Bearer auth counterpart exists at `bmo/pi/app.py:163-178`; no Pi-side work required in this phase.
 
----
+## Verification
 
-## Cross-Phase Dependencies
+- `grep -rn 'Math\.random' --include='*.ts' --include='*.tsx' src/renderer/ | grep -v '\.test\.'` returns only acceptable cases (currently 89; expected residual: Phase-15-deferred tables + intentional `DiceOverlay.tsx` ephemeral).
+- BMO sync receiver binds `127.0.0.1` by default; rejects malformed / oversized / wrong-content-type / over-rate payloads.
+- VTT → BMO sends `Authorization: Bearer` when `BMO_API_KEY` set; falls back cleanly when unset.
+- Claude 4.7 / 4.6 / 4.5 visible in AI Provider UI; prompt caching present (`cache_control` reaches SDK).
+- `@anthropic-ai/sdk` resolves to `^1.0.0`.
+- `npm run check:full` exists and runs all gates.
+- `.github/workflows/dnd-app-ci.yml` blocks PRs on lint / typecheck / test / audit failures.
+- All 2026-05-12 log entries either resolved (moved to `RESOLVED-ISSUES-DNDAPP.md` / `RESOLVED-SECURITY-ISSUES.md`) or have a Phase 29 follow-up entry.
 
-| Sub-phase | Blocks | Blocked by |
-|-----------|--------|------------|
-| 28a.4 (Auth Bearer) | 28g.1 (docs) | — |
-| 28b.2 (SDK 1.x bump) | 28b.3 (prompt cache) | — |
-| 28e (CI) | 28h (coverage baseline gate) | — |
-| 28h.3 (TokenContextMenu tests) | — | `2026-04-24-network-store-barrel-circular` fix |
-| 28a.1 data-tables, 28d.3 `library-service.ts` | — | **Phase 15 (Option A) — those files reshape or get deleted; defer scope** |
-| 28a.2 BMO sync hardening, 28c.3 graceful shutdown, 28c.5 peerjs reconnection, 28i.1 multiplayer gap scan, 28d.4 `use-game-network.ts:92` dep audit | — | **Phase 30 (TransportAdapter consolidation)** — reframe call sites once the adapter exists; coordinate sequencing |
-| 28a.4 Auth Bearer | — | **Phase 32 (JWT on WS)** — reconcile token shape so one secret covers both flows |
+## Completed
 
-The user has previously agreed (memory) to phase-by-phase execution: **stop and await approval between every sub-phase**; commit + push BEFORE summarizing. Apply the same discipline within Phase 28 — finish 28a, push, summarize, wait. Don't bundle.
-
----
-
-## Acceptance Checklist (whole phase)
-
-- [ ] `grep -rn 'Math\.random' --include='*.ts' --include='*.tsx' src/renderer/ | grep -v '\.test\.'` returns only acceptable cases
-- [ ] BMO sync receiver binds 127.0.0.1 by default
-- [ ] Sync receiver rejects malformed / oversized / wrong-content-type payloads
-- [ ] VTT → BMO sends `Authorization: Bearer` when `BMO_API_KEY` is set
-- [ ] Claude 4.7 / 4.6 / 4.5 visible in AI Provider UI; prompt caching wired
-- [ ] `npm run check:full` exists and runs all gates
-- [ ] `.github/workflows/dnd-app-ci.yml` blocks PRs on lint / typecheck / test / audit failures
-- [ ] All 2026-05-12 log entries either resolved (moved to `RESOLVED-ISSUES-DNDAPP.md` / `RESOLVED-SECURITY-ISSUES.md`) or have a follow-up Phase 29 entry
+- 28c.5 — peerjs reconnection DONE (`src/renderer/src/network/host-manager.ts:277-310`, `client-manager.ts:57`, `registry-client.ts:196`) — exponential backoff (1s/2s/4s/8s/16s/30s cap) + max-attempts + jitter present; "Reconnecting..." badge at `src/renderer/src/components/lobby/PlayerCard.tsx:167`.

@@ -1,286 +1,191 @@
-# SYSTEM OVERRIDE: IMPLEMENTATION MODE
+# Phase 23 — In-Game Character Sheet
 
-Phase 23 covers the **In-Game Character Sheet** — data binding, real-time sync, inventory, spellbook, conditions, and performance. The sheet is feature-rich and functional but needs **performance optimization** (no virtualization for spell/equipment lists, limited useMemo), **spell search/filtering**, **sync conflict resolution**, and **consistency fixes** (remote characters stored in wrong store, attunement count mismatch).
+## Context
+The 5e character sheet is comprehensive and functional, organized into a two-column Tailwind grid with collapsible sections (`CharacterSheet5ePage.tsx`). Data binds via Zustand (`use-character-store.ts`) with broadcast through `useCharacterEditor`. The architecture is solid but exhibits several gaps: no list virtualization (spells/equipment lag with 50+ entries), no in-sheet spell search/filter, remote character updates land in `lobbyStore.remoteCharacters` instead of the canonical character store, no conflict detection on simultaneous DM+player edits, sparse `useMemo` coverage, attunement is split across two fields (`character.attunement` array vs `character.magicItems[].attuned` boolean), and saves block on IPC round-trip.
 
-> **See also:** Phase 15 (Library as Single Source of Truth) — Sub-Phase C (remote character store) and Sub-Phase F (attunement) both interact with Phase 15's ref+hydration shape. See per-sub-phase notes below.
->
-> **See also:** Phase 31 (Live-state sync overhaul) — `dm:character-update` ceases to exist; character state becomes part of the character shard. Sub-Phase D's conflict-resolution UI moves into the shard-applier layer. Notes inline.
->
-> **Verification pass (2026-05-18):**
-> - Sub-Phase A virtualization — ◐ `@tanstack/react-virtual` is in the repo and used elsewhere (ChatPanel, LibraryItemList) but **not confirmed wired into the sheet's spell/equipment lists**. Live work.
-> - Sub-Phase B spell search input — ✗ no in-sheet spell search input found. Library deep-link from Builder/Sheet shipped (17m + 18f) covers the *jump-to-library* path; the in-sheet filter input itself is still live work.
-> - Sub-Phase C remote character store — ✗ dual-store pattern intact (already noted for Phase 15 + Phase 31).
-> - Sub-Phase D conflict resolution — ✗ no `ConflictBanner` / `showConflictWarning` / timestamp compare in `client-handlers.ts`. Live work.
-> - Sub-Phase E useMemo coverage — ◐ partial across sheet sections; not exhaustive. Live work.
-> - Sub-Phase F attunement — ✗ two separate stores still: `character.attunement` array AND `character.magicItems[].attuned` boolean. Live work.
-> - Sub-Phase G optimistic save — ✗ `use-character-editor.ts` not confirmed to implement the optimistic pattern. Live work.
+Quality-of-life gaps surfaced during audit: no rollable tool proficiencies (the UI lists tools, but no roll buttons), no quick-actions panel (Attack/Dash/Disengage), no temp-HP or damage-application helper, no consumable tracking (ammo/potions/scrolls), no initiative roll button on the sheet, no individual hit-die rolling, container weights are not aggregated, currency conversion on sell may drop denominations, and there is no condition sync message type. A real bug exists in `MagicItemsPanel5e.tsx`: line 57 checks `mi.attunement` while line 59 filters `mi.attuned`, so the "Attuned: X/3" label appears off the wrong predicate.
 
----
+Phase 23 closes performance, sync-correctness, and QoL gaps without trespassing on phase-owned work (conditions-to-rolls automation lives in Phase 1/4; death save automation in Phase 4; ARIA in Phase 18; player inventory panel in Phase 15A; shard-based sync supersedes the conflict layer post-Phase 31).
 
-## 🏗️ Architecture & Environment Split
+## Depends on / blocks
+- Depends on: none (interim work; coordinate field shapes with Phase 15)
+- Blocks: none directly; the Sub-Phase D conflict layer becomes shard-level work after Phase 31
 
-### Windows 11 Machine (`C:\Users\evilp\dnd\`) — ALL WORK IS HERE
+## Files touched
+| Path | Role |
+|------|------|
+| `src/renderer/src/components/sheet/5e/SpellList5e.tsx` | Virtualize spell rows; add search/filter input |
+| `src/renderer/src/components/sheet/5e/SpellcastingSection5e.tsx` | Hoist filter state; pass to SpellList |
+| `src/renderer/src/components/sheet/5e/EquipmentListPanel5e.tsx` | Virtualize equipment rows; categories/sort |
+| `src/renderer/src/stores/network-store/client-handlers.ts` | Route `dm:character-update` to character store; conflict detection |
+| `src/renderer/src/stores/use-character-store.ts` | Add `updateCharacterInState` (if missing); optimistic write |
+| `src/renderer/src/stores/use-lobby-store.ts` | Remove `remoteCharacters` (interim) |
+| `src/renderer/src/hooks/use-character-editor.ts` | Optimistic save + rollback pattern |
+| `src/renderer/src/components/sheet/5e/AttunementTracker5e.tsx` | Derive from `magicItems[].attuned` |
+| `src/renderer/src/components/sheet/5e/MagicItemsPanel5e.tsx` | Fix `mi.attunement` vs `mi.attuned` mismatch |
+| `src/renderer/src/components/sheet/5e/ToolProficiencies5e.tsx` | Add roll buttons per tool |
+| `src/renderer/src/components/sheet/5e/HitPointsBar5e.tsx` | Damage/heal/temp-HP helper |
+| `src/renderer/src/components/sheet/5e/SkillsSection5e.tsx`, `SavingThrowsSection5e.tsx`, `OffenseSection5e.tsx`, `DefenseSection5e.tsx`, `EquipmentSection5e.tsx` | `useMemo` for derived stats |
+| `src/renderer/src/components/sheet/5e/SheetHeader5e.tsx` | Initiative roll button |
+| `src/renderer/src/services/weight-calculator.ts` | Container weight aggregation |
 
-### Cross-Phase Overlap (DO NOT duplicate)
+## Sub-phase summary
+| # | Sub-phase | Theme |
+|---|-----------|-------|
+| 23a | List virtualization | Performance |
+| 23b | Spell search & filters | UX |
+| 23c | Unify character update flow | Sync correctness |
+| 23d | Conflict detection & resolution | Sync correctness |
+| 23e | `useMemo` and `React.memo` coverage | Performance |
+| 23f | Attunement unification | Data consistency |
+| 23g | Optimistic save pattern | UX latency |
+| 23h | Tool proficiency rolls | QoL |
+| 23i | Standardize editor hook usage | Maintenance |
+| 23j | Quick actions & damage helper | QoL |
+| 23k | Consumable & spell scroll tracking | QoL |
+| 23l | Initiative & hit-die rolls on sheet | QoL |
+| 23m | Inventory categories & container weight | UX/correctness |
+| 23n | Condition sync message type | Sync correctness |
 
-| Issue | Owned By |
-|-------|----------|
-| Conditions not mechanically applied to rolls | Phase 1 (D7), Phase 4 |
-| Death save automation | Phase 4 (B) |
-| Concentration save on damage | Phase 4 (noted in Phase 11) |
-| Accessibility/ARIA on sheet | Phase 18 |
-| Player inventory panel (in-game) | Phase 15 (A) |
+## Architecture / data flow
+```mermaid
+flowchart LR
+  Editor[Sheet edit] --> Hook[useCharacterEditor.saveAndBroadcast]
+  Hook --> Optimistic[Optimistic updateCharacterInState]
+  Hook --> Persist[saveCharacter -> IPC]
+  Hook --> Broadcast[sendMessage dm:character-update]
+  Broadcast --> Peer[Client client-handlers]
+  Peer --> Conflict{timestamp compare}
+  Conflict -- newer remote --> Apply[updateCharacterInState]
+  Conflict -- local newer --> Banner[ConflictBanner]
+  Persist -- error --> Rollback[reload from disk; toast]
+```
 
----
+## Sub-phase details
 
-## 📋 Net-New Objectives
+### 23a — List virtualization
+**Files:** `src/renderer/src/components/sheet/5e/SpellList5e.tsx`, `src/renderer/src/components/sheet/5e/EquipmentListPanel5e.tsx`
+**Steps:**
+1. In `SpellList5e.tsx:274-303`, replace the nested `.map` with `useVirtualizer` from `@tanstack/react-virtual` (already in repo, used in `ChatPanel`, `LibraryItemList`). Flatten level groups into a single virtual list with header rows interleaved. Use `measureElement` so expanded spell rows resize correctly.
+2. In `EquipmentListPanel5e.tsx`, wrap the equipment item list in the same virtualizer pattern (`estimateSize: 48`, `overscan: 5`).
+3. Preserve scroll position when navigating back into the sheet (store last scrollTop in a ref keyed by character id).
+**Acceptance:** A character with 80 spells across all levels scrolls without dropped frames in DevTools Performance; only ~20 spell DOM nodes are present at any one time.
 
-### HIGH PRIORITY
+### 23b — Spell search & filter
+**Files:** `src/renderer/src/components/sheet/5e/SpellcastingSection5e.tsx`, `src/renderer/src/components/sheet/5e/SpellList5e.tsx`
+**Steps:**
+1. Add `spellSearch` and filter state (`school[]`, `castingTime[]`, `components{V,S,M}`, `concentration`, `ritual`, `preparedOnly`) to `SpellcastingSection5e.tsx`.
+2. Render search input + filter chip row above the spell list. Default `preparedOnly` to true for prepared casters and false otherwise.
+3. Pass filtered `spellsByLevel` (post-filter) into `SpellList5e`.
+4. Filter resets when the sheet unmounts.
+**Acceptance:** Typing "fire" hides non-matching spells in <50ms with 60+ spells; toggling "Ritual" reduces the visible set to ritual spells only.
 
-| # | Issue | Impact |
-|---|-------|--------|
-| S1 | No virtualization for spell/equipment lists — lag with 50+ items | Performance |
-| S2 | No spell search/filter within spell list | UX — hard to find spells |
-| S3 | Remote character updates go to `lobbyStore.remoteCharacters` not character store | Data inconsistency |
-| S4 | No conflict resolution for simultaneous DM+player edits | Last-write-wins silently |
+### 23c — Unify character update flow
+**Files:** `src/renderer/src/stores/network-store/client-handlers.ts`, `src/renderer/src/stores/use-character-store.ts`, `src/renderer/src/stores/use-lobby-store.ts`, `src/renderer/src/hooks/use-character-editor.ts`
+**Steps:**
+1. Verify/add `updateCharacterInState(id, data)` to `use-character-store.ts` (saveCharacter at line 55).
+2. In `client-handlers.ts:924-935`, replace `useLobbyStore.getState().setRemoteCharacter(...)` with `useCharacterStore.getState().updateCharacterInState(payload.characterId, payload.characterData)`.
+3. Remove the redundant `useLobbyStore.getState().setRemoteCharacter` call in `use-character-editor.ts:22`.
+4. Audit all `setRemoteCharacter` call sites: `DeathSaves5e.tsx:41,93`, `ClassResourcesSection5e.tsx:31`, `CombatStatsBar5e.tsx:321`, `HitPointsBar5e.tsx:48`, `host-handlers.ts:368-369,488`. Each must call the character store instead. Then delete `remoteCharacters` field + setter from `use-lobby-store.ts` (lines 155, 172, 196, 464-466, 527) and update tests.
+**Acceptance:** `grep -rn "remoteCharacters\|setRemoteCharacter" src/renderer/src/` returns only deletions.
 
-### MEDIUM PRIORITY
+### 23d — Conflict detection & resolution
+**Files:** `src/renderer/src/stores/network-store/client-handlers.ts`, `src/renderer/src/components/common/ConflictBanner.tsx` (new)
+**Steps:**
+1. In the `dm:character-update` case of `client-handlers.ts`, compare local `updatedAt` against `payload.characterData.updatedAt`. If `localTs > remoteTs + 2000ms` tolerance, push a conflict entry into a new `useConflictStore`.
+2. Create `ConflictBanner.tsx` consuming the conflict store. Buttons: "Keep Mine" (re-broadcasts local) and "Accept DM" (force-applies the remote payload). Mount the banner in the sheet root.
+3. Default behaviour when remote is newer: apply silently.
+**Acceptance:** Two-tab test — both sides set HP simultaneously; the older side sees the banner; clicking "Accept DM" replaces local state; clicking "Keep Mine" rebroadcasts.
 
-| # | Issue | Impact |
-|---|-------|--------|
-| M1 | Limited useMemo — most sections recalculate on every render | Performance |
-| M2 | Attunement count mismatch between AttunementTracker and MagicItemsPanel | Confusing display |
-| M3 | No optimistic updates — UI waits for IPC round-trip | Sluggish feel |
-| M4 | Inconsistent use of `useCharacterEditor` vs direct store calls | Code maintenance |
-| M5 | No tool proficiency roll buttons | Missing QoL feature |
+### 23e — `useMemo` and `React.memo` coverage
+**Files:** `SkillsSection5e.tsx`, `SavingThrowsSection5e.tsx`, `OffenseSection5e.tsx`, `DefenseSection5e.tsx`, `SpellcastingSection5e.tsx`, `EquipmentSection5e.tsx`, `SpellList5e.tsx`
+**Steps:**
+1. Wrap per-section derived arrays in `useMemo` keyed on `[character.skills, abilityScores, proficiencies]` etc.
+2. Wrap `SpellRow` (in `SpellList5e.tsx:30`) and equipment row in `React.memo`.
+**Acceptance:** React Profiler shows the unedited rows skip render when one HP value changes; cold render of the sheet is under 60ms with a level-17 caster.
 
----
+### 23f — Attunement unification
+**Files:** `src/renderer/src/components/sheet/5e/AttunementTracker5e.tsx`, `src/renderer/src/components/sheet/5e/MagicItemsPanel5e.tsx`, `src/renderer/src/types/character-5e.ts`
+**Steps:**
+1. Fix mismatch at `MagicItemsPanel5e.tsx:57` (`mi.attunement`) vs `:59` (`mi.attuned`) — pick `attuned`. Update the type so the per-item field is canonically `attuned: boolean`; deprecate the `attunement: boolean` duplicate at `character-5e.ts:247`.
+2. In `AttunementTracker5e.tsx:40`, derive the displayed slots from `character.magicItems?.filter(mi => mi.attuned) ?? []`.
+3. Migrate: write a one-time fold that copies entries from `character.attunement` array into matching `magicItems[]` entries.
+**Acceptance:** With three attuned magic items, both `AttunementTracker5e` slot grid and `MagicItemsPanel5e` "Attuned: 3/3" label show the same count.
 
-## 🛠️ Step-by-Step Execution Plan
+### 23g — Optimistic save pattern
+**Files:** `src/renderer/src/hooks/use-character-editor.ts`, `src/renderer/src/stores/use-character-store.ts`
+**Steps:**
+1. Update `saveAndBroadcast` (`use-character-editor.ts:26`) to first call `updateCharacterInState(updated)` synchronously, then `saveCharacter(updated).catch(...)` to rollback via `window.api.loadCharacter` + toast.
+2. Broadcast continues to fire immediately so peers see the change before disk persists.
+**Acceptance:** With `saveCharacter` artificially delayed 500ms, editing HP shows the new value instantly; throwing a save error reverts with a "Save failed" toast.
 
-### Sub-Phase A: List Virtualization (S1)
+### 23h — Tool proficiency rolls
+**Files:** `src/renderer/src/components/sheet/5e/ToolProficiencies5e.tsx`
+**Steps:**
+1. In the tool-row render block (`ToolProficiencies5e.tsx:128-205`), add a roll button next to each tool name. Use `toolDescriptions[].ability` (line 167) to pick the ability modifier.
+2. Wire the click to the shared dice service so the result broadcasts via `game:dice-result`.
+**Acceptance:** Clicking "Thieves' Tools" rolls `1d20 + PROF + DEX`; result appears in chat with label "Thieves' Tools check".
 
-**Step 1 — Virtualize Spell List**
-- Open `src/renderer/src/components/sheet/5e/SpellList5e.tsx`
-- The project already uses `@tanstack/react-virtual` (in ChatPanel, LibraryItemList)
-- Wrap the spell list in a virtualizer:
-  ```typescript
-  import { useVirtualizer } from '@tanstack/react-virtual'
+### 23i — Standardize editor hook usage
+**Files:** sheet components
+**Steps:**
+1. Replace direct `useCharacterStore.getState().characters.find(...)` + `saveCharacter` pairs with `useCharacterEditor` in: `DeathSaves5e.tsx:26,78`, `SpellcastingSection5e.tsx:54,125,180,189,194,214,239,247`, `ShortRestModal5e.tsx:49,53`, `FeaturesSection5e.tsx:69,75,125,131,147,153`, `CombatStatsBar5e.tsx:305,334`, `NotesSection5e.tsx:24,26`, `SheetHeader5e.tsx:40,47,77,91,104,224,243`, `HitPointsBar5e.tsx:32-49`.
+**Acceptance:** `grep -rn "useCharacterStore.getState()" src/renderer/src/components/sheet/5e/` returns zero matches outside `useCharacterEditor`.
 
-  const parentRef = useRef<HTMLDivElement>(null)
-  const virtualizer = useVirtualizer({
-    count: filteredSpells.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 48, // estimated row height
-    overscan: 5
-  })
-  ```
-- Render only visible spell rows with `virtualizer.getVirtualItems()`
-- Keep the level grouping — virtualize within each level group or flatten with group headers
+### 23j — Quick actions & damage helper
+**Files:** `src/renderer/src/components/sheet/5e/HitPointsBar5e.tsx`, new `QuickActions5e.tsx`
+**Steps:**
+1. Add a damage/heal input row inside `HitPointsBar5e.tsx` (number input + "Damage", "Heal", "Temp HP" buttons). Damage applies temp HP first; heal caps at max HP; temp HP uses 5e "take higher" rule.
+2. Create `QuickActions5e.tsx` with buttons for Dash, Disengage, Dodge, Hide, Help, Ready, Search. Each emits a chat-system message.
+**Acceptance:** Entering "5" + Damage subtracts 5 from current HP (temp HP first); clicking Dodge posts a chat message.
 
-**Step 2 — Virtualize Equipment List**
-- Open `src/renderer/src/components/sheet/5e/EquipmentListPanel5e.tsx`
-- Apply same `@tanstack/react-virtual` pattern for equipment items
-- Equipment lists can grow large with pack contents expanded
+### 23k — Consumable & spell scroll tracking
+**Files:** `src/renderer/src/components/sheet/5e/EquipmentListPanel5e.tsx`, `src/renderer/src/types/character-5e.ts`
+**Steps:**
+1. Add optional `charges?: number`, `maxCharges?: number`, `consumable?: boolean` to the equipment item type.
+2. For consumable items, render a "Use" button that decrements `charges`. At 0 charges, prompt to remove or keep.
+3. Spell scrolls: when used, post a chat dice roll if attack/save and remove from inventory.
+**Acceptance:** A Potion of Healing item with `charges: 1` shows a Use button; clicking heals and removes the item.
 
-### Sub-Phase B: Spell Search & Filter (S2)
+### 23l — Initiative & hit-die rolls on sheet
+**Files:** `src/renderer/src/components/sheet/5e/SheetHeader5e.tsx`, `src/renderer/src/components/sheet/5e/ShortRestModal5e.tsx`
+**Steps:**
+1. Add an "Initiative" button to `SheetHeader5e.tsx` toolbar. Rolls `1d20 + DEX + (alert? +5)` and broadcasts via dice service.
+2. In `ShortRestModal5e.tsx`, alongside the bulk "Spend N hit dice" flow, add per-hit-die buttons that roll individually and apply healing.
+**Acceptance:** Initiative button posts an init roll to chat; hit-die buttons apply the rolled value as healing.
 
-**Step 3 — Add Spell Search Box**
-- Open `SpellcastingSection5e.tsx` or `SpellList5e.tsx`
-- Add a search input above the spell list:
-  ```tsx
-  <input
-    type="text"
-    placeholder="Search spells..."
-    value={spellSearch}
-    onChange={(e) => setSpellSearch(e.target.value)}
-    className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm"
-  />
-  ```
-- Filter spells by name match (case-insensitive includes)
+### 23m — Inventory categories & container weight
+**Files:** `src/renderer/src/components/sheet/5e/EquipmentListPanel5e.tsx`, `src/renderer/src/services/weight-calculator.ts`
+**Steps:**
+1. Add category tabs/chips (Weapons | Armor | Adventuring Gear | Tools | Consumables | All) in `EquipmentListPanel5e.tsx`; filter by inferred category from item type.
+2. In `weight-calculator.ts:46`, recurse into container `contents[]` (if present) so a Bag of Holding correctly reports either 0 or its contents weight.
+3. Verify currency conversion on `sellItem` rounds and promotes coin denominations.
+**Acceptance:** Equipment list filters by category; weight of items inside a backpack is included; selling a 25gp item adds 12gp 5sp.
 
-**Step 4 — Add Spell Filters**
-- Add filter chips for:
-  - School: Abjuration, Conjuration, Divination, Enchantment, Evocation, Illusion, Necromancy, Transmutation
-  - Casting time: Action, Bonus Action, Reaction, 1 Minute+
-  - Components: V, S, M
-  - Concentration: Yes/No
-  - Ritual: Yes/No
-  - Prepared: Prepared only / All
-- Use multi-select chip pattern (toggle each filter on/off)
+### 23n — Condition sync message type
+**Files:** `src/renderer/src/stores/network-store/messages.ts`, `src/renderer/src/components/sheet/5e/ConditionsSection5e.tsx`, `src/renderer/src/stores/network-store/client-handlers.ts`, `src/renderer/src/stores/network-store/host-handlers.ts`
+**Steps:**
+1. Add `game:condition-update` payload (`characterId`, `conditions: ConditionState[]`).
+2. `ConditionsSection5e.tsx` emits the message on add/remove/value-change via `useCharacterEditor.broadcastIfDM`.
+3. Handlers apply the update to the character store.
+**Acceptance:** DM adds Exhaustion(2) to a player; the player sees the condition appear without a full character-update roundtrip.
 
-### Sub-Phase C: Fix Remote Character Store (S3)
+## Constraints & edge cases
+- Virtualization with variable row heights requires `measureElement`; spell rows expand to ~200px+ from ~48px collapsed.
+- Conflict tolerance window: 2 seconds — avoids false positives from network latency.
+- Optimistic rollback UX: brief flash animation to signal the revert; broadcast still fires.
+- Spell filter state is session-local and does not persist.
+- After Phase 15, `character.magicItems[]` becomes `{ entryRef, attuned, charges?, overrides? }`; the `attuned` flag stays on the instance — 23f remains valid.
+- After Phase 31, `dm:character-update` disappears; 23c writes become the shard apply path, 23d conflict logic moves into the shard-applier.
+- DM-version-wins is the default conflict resolution; the banner is informational.
 
-**Step 5 — Unify Character Update Flow**
-- Open `src/renderer/src/stores/network-store/client-handlers.ts` lines 734-745
-- Currently: `dm:character-update` sets character in `lobbyStore.remoteCharacters`
-- This means the character store and lobby store can have different versions of the same character
-- Fix: write to a **single canonical store** — the character store. `lobbyStore.remoteCharacters` is slated for removal by Phase 15 (one character store, refs-based):
-  ```typescript
-  case 'dm:character-update': {
-    const payload = message.payload as CharacterUpdatePayload
-    if (payload.characterData) {
-      useCharacterStore.getState().updateCharacterInState(payload.characterId, payload.characterData as Character5e)
-    }
-    break
-  }
-  ```
-- Add `updateCharacterInState(id, data)` to the character store if it doesn't exist
-- Remove every consumer of `lobbyStore.remoteCharacters` as part of this step (or in a follow-up commit before Phase 15 lands).
+## Verification
+- Run `cd dnd-app && npm run lint && npm run typecheck && npm test` after each sub-phase.
+- Manual two-tab DM+player session: edit HP, conditions, spells from each side; verify divergence is reconciled correctly.
+- React DevTools Profiler: confirm sub-section memoization reduces wasted renders on isolated edits.
+- DevTools Performance recording with 80+ spells: confirm virtualized DOM count stays bounded.
+- `grep -rn "remoteCharacters" src/renderer/src/` returns zero after 23c.
 
-> **Phase 15 coordination (2026-05-18, corrected).** Phase 15 reshapes `Character5e` field names (`speciesRef`, `classRefs`, etc.) but **does not** touch the network character-update flow or `lobbyStore.remoteCharacters`. The prior reconciliation claim that `lobbyStore.remoteCharacters` was "slated for removal during Phase 15" was incorrect; Phase 15 has zero mention of either store. **Phase 23 S3 stays live work.** The fix as drafted (single canonical write to `useCharacterStore`, drop `lobbyStore.remoteCharacters`) is the Phase 23 deliverable. After Phase 15 lands, the `characterData` payload carries the new ref-shaped fields — but which store it lands in is Phase 23's call.
->
-> **Phase 31 coordination.** Phase 31 (Live-state sync overhaul) eventually moves the character-update flow into the character shard. Once shards land, `dm:character-update` no longer exists as a discrete message type; character mutations propagate via the shard's structural diff. `lobbyStore.remoteCharacters` becomes genuinely dead at that point. Until Phase 31 ships, Phase 23 S3's single-canonical-write is the right interim fix. The conflict-resolution work in Sub-Phase D below moves into the shard-applier layer post-Phase-31 (compare sequence numbers at delta apply time, surface conflicts there).
-
-### Sub-Phase D: Conflict Resolution (S4)
-
-**Step 6 — Add Timestamp-Based Conflict Detection**
-- Every character save already stamps `updatedAt: new Date().toISOString()`
-- When receiving a `dm:character-update`, compare timestamps:
-  ```typescript
-  const localChar = useCharacterStore.getState().characters.find(c => c.id === payload.characterId)
-  const remoteTimestamp = new Date(payload.characterData.updatedAt).getTime()
-  const localTimestamp = localChar ? new Date(localChar.updatedAt).getTime() : 0
-
-  if (localTimestamp > remoteTimestamp) {
-    // Local version is newer — show conflict notification
-    showConflictWarning(localChar, payload.characterData)
-  } else {
-    // Remote version is newer — apply
-    applyCharacterUpdate(payload)
-  }
-  ```
-
-**Step 7 — Create Conflict Resolution UI**
-- When a conflict is detected, show a notification:
-  ```tsx
-  <ConflictBanner>
-    Character "{name}" was modified by both you and the DM.
-    <button onClick={keepLocal}>Keep Your Version</button>
-    <button onClick={acceptRemote}>Accept DM's Version</button>
-  </ConflictBanner>
-  ```
-- For most cases, the DM's version should win (DM is authoritative). But give the player visibility.
-
-### Sub-Phase E: Performance — useMemo (M1)
-
-**Step 8 — Add useMemo to Sheet Sections**
-- Wrap expensive calculations in `useMemo`:
-  - `SkillsSection5e`: Skill modifier calculations
-  - `SavingThrowsSection5e`: Save modifier calculations
-  - `OffenseSection5e`: Attack bonus calculations
-  - `DefenseSection5e`: AC calculation
-  - `SpellcastingSection5e`: Spell DC, attack bonus, slot counts
-  - `EquipmentSection5e`: Weight calculation, encumbrance
-- Example:
-  ```typescript
-  const skillModifiers = useMemo(() =>
-    character.skills.map(skill => ({
-      ...skill,
-      modifier: calculateSkillMod(skill, character)
-    })),
-    [character.skills, character.abilityScores, character.proficiencies]
-  )
-  ```
-
-**Step 9 — Wrap List Items with React.memo**
-- Spell row components, equipment row components, and condition row components should be memoized:
-  ```typescript
-  const SpellRow = React.memo(function SpellRow({ spell, onCast, onTogglePrepared }: SpellRowProps) {
-    // ... render
-  })
-  ```
-- This prevents full-list re-renders when a single item changes
-
-### Sub-Phase F: Attunement Fix (M2)
-
-**Step 10 — Unify Attunement Count**
-- Open `src/renderer/src/components/sheet/5e/AttunementTracker5e.tsx` (lines 11-135)
-- Open `src/renderer/src/components/sheet/5e/MagicItemsPanel5e.tsx` (lines 57-61)
-- Both show attunement counts — ensure they derive from the same source on the character record:
-  ```typescript
-  const attunedItems = character.magicItems?.filter(mi => mi.attuned) ?? []
-  const attunedCount = attunedItems.length
-  const maxAttunement = 3 // PHB standard
-  ```
-- If AttunementTracker maintains its own state, replace with derived state from the character object.
-
-> **Phase 15 coordination:** After Phase 15 lands, `character.magicItems` holds `{ entryRef: { entryId, entryType: 'item' }, attuned, charges?, overrides? }` — the `attuned` flag stays on the instance record (where it belongs), while the item's stat block hydrates via `useHydratedRef`. Derivation logic above doesn't change shape; only the read of the item's name/description changes from inline data to a library lookup.
-
-### Sub-Phase G: Optimistic Updates (M3)
-
-**Step 11 — Implement Optimistic Save Pattern**
-- Open `src/renderer/src/hooks/use-character-editor.ts`
-- Instead of waiting for IPC save to complete before updating UI:
-  ```typescript
-  const saveAndBroadcast = (updated: Character): void => {
-    // Optimistic: update local state immediately
-    useCharacterStore.getState().updateCharacterInState(updated.id, updated)
-    // Async: persist to disk (may fail)
-    useCharacterStore.getState().saveCharacter(updated).catch((err) => {
-      // Rollback on failure
-      showToast('Save failed — reverting changes', 'error')
-      // Reload from disk
-      window.api.loadCharacter(updated.id).then(original => {
-        if (original) useCharacterStore.getState().updateCharacterInState(updated.id, original)
-      })
-    })
-    broadcastIfDM(updated)
-  }
-  ```
-- This makes the UI feel instant while the save happens in the background
-
-### Sub-Phase H: Tool Proficiency Rolls (M5)
-
-**Step 12 — Add Rollable Tool Proficiencies**
-- Open `src/renderer/src/components/sheet/5e/SkillsSection5e.tsx` or create a `ToolsSection5e.tsx`
-- For each tool proficiency the character has, add a roll button:
-  ```tsx
-  {character.proficiencies.tools?.map(tool => (
-    <div key={tool} className="flex items-center justify-between">
-      <span>{tool}</span>
-      <button onClick={() => rollToolCheck(tool, character)}>
-        Roll +{proficiencyBonus + getRelevantAbilityMod(tool, character)}
-      </button>
-    </div>
-  ))}
-  ```
-- Tool checks use an ability modifier determined by the tool type:
-  - Thieves' tools → DEX
-  - Herbalism kit → WIS
-  - Most artisan's tools → varies (use a lookup table or let the DM choose)
-- Broadcast the roll result via dice service
-
-### Sub-Phase I: Standardize useCharacterEditor (M4)
-
-**Step 13 — Audit and Standardize Data Access**
-- Search for all direct calls to `useCharacterStore.getState()` in sheet components
-- Replace with `useCharacterEditor(characterId)` pattern where possible
-- Ensure all save paths go through `saveAndBroadcast` for consistent sync behavior
-- Components that should use the hook but don't:
-  - `HitPointsBar5e.tsx` — directly manages local state + store
-  - `SpellSlotTracker5e.tsx` — directly calls store
-  - `ConditionsSection5e.tsx` — directly calls store
-
----
-
-## ⚠️ Constraints & Edge Cases
-
-### Virtualization
-- **Variable row heights**: Spell rows are expandable (collapsed: ~48px, expanded: ~200px+). Use `measureElement` from `@tanstack/react-virtual` for accurate sizing after expand.
-- **Level group headers**: If spells are grouped by level with headers, include headers as virtual items with a different `estimateSize`.
-- **Scroll restoration**: When the user returns to the spell list after viewing a spell detail, restore scroll position.
-
-### Conflict Resolution
-- **Auto-resolve is acceptable for most cases**: DM version wins by default. Only show the conflict banner for player-initiated changes that the DM might be overwriting.
-- **Don't conflict on timestamps within 2 seconds**: Network latency can cause near-simultaneous saves. Use a 2-second tolerance before flagging as conflict.
-
-### Optimistic Updates
-- **Rollback UX**: If a save fails, the UI briefly shows the optimistic state then reverts. Use a subtle animation (flash) to indicate the rollback.
-- **Network broadcast should still happen optimistically**: The DM's peers see the change immediately even before disk persistence. If persistence fails, the next sync will correct.
-
-### Spell Filtering
-- **Filter state should NOT persist**: Reset filters when navigating away from the sheet. Spell search is for quick in-session lookup, not a persistent preference.
-- **Filter by "prepared only" is the most useful default**: Add it as a toggle that defaults to ON for prepared casters (Wizard, Cleric, Druid, Paladin).
-
-Begin implementation now. Start with Sub-Phase A (Steps 1-2) for virtualization — this is the highest-impact performance fix. Then Sub-Phase B (Steps 3-4) for spell search which is the most-requested QoL feature. Sub-Phase C (Step 5) for the remote character store fix prevents a real data inconsistency bug.
+## Completed
+(none — verification on 2026-05-19 against current code shows every sub-phase still NOT DONE or PARTIAL; details below for the PARTIAL case)
+- 23e — PARTIAL — `useMemo`/`memo` present in 8 files (`CombatStatsBar5e`, `FeatureCard5e`, `HitPointsBar5e`, `MagicItemCard5e`, `MulticlassAdvisor`, `SpellPrepOptimizer`, `SpellSlotGrid5e`, `WeaponList5e`); most other section components recompute on every render. Still NEEDED for `SkillsSection5e`, `SavingThrowsSection5e`, `OffenseSection5e`, `DefenseSection5e`, `EquipmentSection5e`, `SpellList5e` rows.

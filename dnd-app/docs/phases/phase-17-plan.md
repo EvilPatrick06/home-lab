@@ -1,290 +1,223 @@
-# SYSTEM OVERRIDE: IMPLEMENTATION MODE
+# Phase 17 — Full Codebase Error Audit Fixes
 
-Phase 17 is a **full codebase error audit** identifying 171 issues across syntax, logic, network, GUI, runtime, and type categories. This is the largest single phase. The plan focuses on the **49 critical and high-severity issues** that are NET-NEW (not already addressed by previous phases). Lower-severity items are catalogued for future cleanup.
+## Context
 
-> **See also:** Phases 29-32. NET-5 broadcast hardening (Step 19) lands inside `host-manager.ts` paths that Phase 30 consolidates into `GameAuthority` — the try-catch travels with the consolidation. Many of the "30 medium network issues" (NET-21–NET-50) may disappear after Phase 30 (single message router) + Phase 31 (single sync protocol); re-scope at execution time.
->
-> **Phase 17 GUI-4 (Three.js resource leaks) — additional scope (2026-05-18):** include the `scene.remove(mesh)` + `dispose()` discipline pattern absorbed from SUGGESTIONS-LOG-DNDAPP. The fix wraps `scene.remove` with mandatory `geometry.dispose()` + `material.dispose()` + `material.map?.dispose()` across `dice3d/` (84 `new THREE.*()` allocations vs 1 historical `dispose()` call). Define a `disposeDie(mesh)` helper and replace every clear/cleanup path. Lint rule (or grep-based pre-commit): forbid bare `scene.remove(...)` outside the helper.
->
-> **Verification pass (2026-05-18):** Spot-checked ~30 audit steps. ~2 already addressed: **GUI-1** PlayerHUDOverlay hooks placement (hooks above the early return at `PlayerHUDOverlay.tsx`); **NET-5** broadcast try-catch present at the visible sites in `host-manager.ts:170-174` (disconnectPeer) and `:303-308` (ping interval). The plan's stale line numbers (321/329/342) don't map to current code; full broadcast-site coverage is unverified, so treat NET-5 as **partial**. All other P0/P1 audit items (NET-1/12/13/14/15 path traversal, NET-2/3 BrowserWindow guards, RUN-1 JSON.parse, LOG-1–LOG-12 game logic, GUI-2/4/7/8, TYP-1–TYP-4) verified NOT done. **Recommendation:** re-run the audit script before scoping; some "fixed elsewhere" may show up.
+A full codebase audit (TypeScript compiler, Biome linter, manual review across 4,417 source files) surfaced 171 issues spanning 6 categories: 1 syntax, 25 logical, 68 network, 44 GUI, 26 runtime, 7 type. Of these, 49 are critical or high severity and represent net-new work after previous phases.
 
----
+This phase fixes the critical/high issues that change correctness, prevent crashes, or close security holes. Catch-all hardening (try-catch on every IPC handler, modal escape-key coverage) is bundled here because the audit found these as systematic gaps rather than isolated bugs. Lower-severity items are catalogued for future cleanup sprints in sub-phase 17g; only the critical/high issues are live work.
 
-## 🏗️ Architecture & Environment Split
+Verification re-run on 2026-05-19 against current code. Several items have landed since the audit: LOG-6 (long rest exhaustion), GUI-4 (Three.js disposal helper), GUI-5 (MapCanvas selectedTokenId), TYP-1/TYP-2 (preload type declarations), SYN-1 (chat-links now uses `React.createElement` instead of JSX so the `.ts` extension is correct), and partial NET-19 / partial NET-5. Everything else remains as scoped.
 
-### Windows 11 Machine (`C:\Users\evilp\dnd\`) — ALL WORK IS HERE
+## Depends on / blocks
 
-Phase 17 is entirely client-side code fixes. No Raspberry Pi involvement.
+- Depends on: Phase 4 (exhaustion rules baseline), Phase 7 (atomic writes baseline), Phase 12 (`selectedTokenId` consistency baseline)
+- Blocks: Phase 30 (NET-5 broadcast hardening lives in `host-manager.ts` paths that Phase 30 consolidates into `GameAuthority`); Phase 31 may absorb several NET-21 through NET-50 items as the single sync protocol replaces ad-hoc broadcasts
 
-### Cross-Phase Overlap (DO NOT duplicate)
+## Files touched
 
-| Issue ID | Already In |
-|----------|-----------|
-| LOG-6 (exhaustion long rest) | Phase 4 Steps 1-2 |
-| NET-9 (non-atomic writes) | Phase 7 Steps 1-3 |
-| GUI-5 (selectedTokenId inconsistency) | Phase 12 Step 17 |
-| SYN-2 useHookAtTopLevel warnings | Addressed by GUI-1 fix |
+| Path | Role |
+|------|------|
+| `src/main/ipc/ai-handlers.ts` | Path-traversal sanitization, destroyed-window guards, configure parsed.data, bulk try-catch |
+| `src/main/ipc/storage-handlers.ts` | CHARACTER_RESTORE_VERSION / BOOK_IMPORT / BOOK_READ_FILE sanitization, bulk try-catch (34 handlers) |
+| `src/main/ipc/game-data-handlers.ts` | `GAME_LOAD_JSON` try-catch around `JSON.parse` |
+| `src/main/ipc/plugin-handlers.ts` | Bulk try-catch (10 handlers) |
+| `src/main/ipc/audio-handlers.ts` | `AUDIO_PICK_FILE` size check and read guard |
+| `src/main/ipc/index.ts` | `FS_WRITE_BINARY` size limit; `DIALOG_SAVE`/`DIALOG_OPEN` null-window guard |
+| `src/main/ai/ai-service.ts` | Replace `atomicWriteFileSync` with async write; clear module-level setInterval on shutdown |
+| `src/main/ai/claude-client.ts`, `openai-client.ts`, `gemini-client.ts` | Add 120s timeout to `streamChat` and `chatOnce` |
+| `src/main/ai/memory-manager.ts` | Serialize read-modify-write paths to fix races |
+| `src/main/index.ts` | Decide policy for `uncaughtException` (currently logs only) |
+| `src/renderer/src/components/game/overlays/PlayerHUDOverlay.tsx` | Move hooks above the early return |
+| `src/renderer/src/components/game/overlays/DmAlertTray.tsx` | Subscribe in `useEffect`, not `useState` initial |
+| `src/renderer/src/components/game/dice3d/DiceOverlay.tsx` | Track and clear nested `setTimeout` |
+| `src/renderer/src/components/game/player/ShopView.tsx` | Track and clear `setTimeout` |
+| `src/renderer/src/components/game/modals/utility/RulingApprovalModal.tsx` | Escape, backdrop, cancel button |
+| `src/renderer/src/components/game/modals/**/*.tsx` (11 modals) | Add Escape key handler or migrate to shared `Modal` |
+| `src/renderer/src/components/ui/Modal.tsx` | Decouple header from scrolling body |
+| `src/renderer/src/services/combat/attack-resolver.ts` | Champion crit threshold; thrown-weapon classification |
+| `src/renderer/src/services/combat/combat-resolver.ts` | `doubleDiceInFormula` global flag; champion crit |
+| `src/renderer/src/services/combat/combat-rules.ts` | `isInMeleeRange` iterates all occupied cells |
+| `src/renderer/src/services/combat/cover-calculator.ts` | Skip dead, allied, and Tiny tokens for cover |
+| `src/renderer/src/services/game-actions/creature-conditions.ts` | Area-effect saves use target modifier |
+| `src/renderer/src/services/game-actions/creature-actions.ts` | Area-effect saves use target modifier |
+| `src/renderer/src/services/game-actions/creature-initiative.ts` | `executeNextTurn` reads index after `nextTurn` |
+| `src/renderer/src/services/game-actions/dice-helpers.ts` | Cone uses `getConeCells`, not square |
+| `src/renderer/src/services/game-actions/action-validator.ts` | Use `entityName`, drop `{ label?: string }` cast |
+| `src/renderer/src/stores/game/conditions-slice.ts` | Remove 2014 exhaustion-6 death trigger |
+| `src/renderer/src/stores/game/initiative-slice.ts` | `removeFromInitiative` tracks active entry by id |
+| `src/renderer/src/stores/use-ai-dm-store.ts` | `.catch()` on dynamic import; `.catch()` on `loadConversation` |
+| `src/renderer/src/hooks/use-game-effects.ts` | `.catch()` on two dynamic imports |
+| `src/renderer/src/stores/builder/slices/selection-slice.ts` | `.catch()` on `load5eSpecies/Backgrounds/Classes` |
+| `src/renderer/src/stores/builder/slices/character-details-slice.ts` | `.catch()` on `setClassEquipmentChoice` chain |
+| `src/renderer/src/data/conditions.ts` | Replace `_conditions!` / `_buffs!` non-null assertions |
+| `src/renderer/src/services/data-provider.ts` | Replace `Promise.all` in `loadAllStatBlocks` with per-file tolerance |
+| `src/renderer/src/services/downtime-service.ts` | Replace `Promise.all` in `loadExtendedDowntimeActivities` |
+| `src/renderer/src/services/sound-manager.ts` | Dispose HTMLAudioElement pools in `reinit` |
+| `src/renderer/src/network/host-manager.ts` | Try-catch around `JSON.stringify` in send paths |
+| `src/renderer/src/network/client-manager.ts` | Propagate post-connection peer errors |
 
----
+## Sub-phase summary
 
-## 📋 Execution Plan: 30 Steps, 7 Sub-Phases
+| # | Sub-phase | Theme |
+|---|-----------|-------|
+| 17a | Security fixes | Path traversal, size limits, validator bypass |
+| 17b | Crash prevention | Destroyed-window guards, JSON.parse guards, hook ordering |
+| 17c | Game logic fixes | Crit range, AoE saves, cone geometry, initiative tracking |
+| 17d | Error handling hardening | Bulk IPC try-catch, cloud API timeouts, async writes, dynamic-import catches |
+| 17e | GUI fixes | Modal escape coverage, subscription/timeout leaks, Three.js disposal completion |
+| 17f | Type safety | Zod-parsed data plumbed through, validator cast removed |
+| 17g | Medium / low catalogue | Tracked for later sprints; not blocking |
 
-### Sub-Phase A: SECURITY FIXES (Steps 1-5) — DO THESE FIRST
+## Sub-phase details
 
-**Step 1 — NET-1 [CRITICAL]: Path Traversal in AI Memory Handlers**
-- File: `src/main/ipc/ai-handlers.ts` lines 290-340
-- `AI_CLEAR_MEMORY`, `AI_LIST_MEMORY_FILES`, `AI_READ_MEMORY_FILE` use `campaignId` directly in `path.join()`. `campaignId = '../../../'` deletes arbitrary directories.
-- Fix: Sanitize `campaignId` — reject if it contains `..`, `/`, `\`, or is not a valid UUID:
-  ```typescript
-  function sanitizeCampaignId(id: unknown): string {
-    if (typeof id !== 'string' || !/^[a-f0-9-]{36}$/i.test(id)) {
-      throw new Error('Invalid campaign ID')
-    }
-    return id
-  }
-  ```
-- Apply to ALL handlers that use `campaignId` in path construction (10+ handlers per the audit).
+### 17a — Security fixes
 
-**Step 2 — NET-12: Path Traversal in CHARACTER_RESTORE_VERSION**
-- File: `src/main/ipc/storage-handlers.ts` lines 91-93
-- `fileName` passed directly to path construction. Fix: sanitize `fileName` — strip path separators, validate format.
+**Files:** `src/main/ipc/ai-handlers.ts`, `src/main/ipc/storage-handlers.ts`, `src/main/ipc/index.ts`, `src/main/ipc/audio-handlers.ts`
 
-**Step 3 — NET-13: BOOK_IMPORT/BOOK_READ_FILE Accept Arbitrary Paths**
-- File: `src/main/ipc/storage-handlers.ts` lines 324-337
-- Add `isPathAllowed()` check (already used by `FS_READ`/`FS_WRITE`).
+**Steps:**
 
-**Step 4 — NET-14: AI_INSTALL_OLLAMA Unvalidated Installer Path**
-- File: `src/main/ipc/ai-handlers.ts` lines 434-441
-- Validate `installerPath` is within the temp directory or downloads folder.
+1. NET-1 [CRITICAL]: Path traversal via `campaignId`. `ai-handlers.ts:319, 357, 362` plus 7 more handlers concatenate `campaignId` straight into `path.join(userData, 'campaigns', campaignId, ...)`. `AI_CLEAR_MEMORY` calls `fs.rm({ recursive: true, force: true })`, so `campaignId = '../../../'` is a directory-deletion vector. Add a `sanitizeCampaignId(id)` helper that rejects anything not matching `/^[a-f0-9-]{36}$/i`, AND defense-in-depth: assert `path.resolve(base, id).startsWith(base)`. Apply to every handler taking `campaignId`.
+2. NET-12 [HIGH]: `CHARACTER_RESTORE_VERSION` at `storage-handlers.ts:103` passes `fileName` through to `restoreCharacterVersion` with no sanitization. Strip path separators, reject `..`, require an allowlisted extension before delegating.
+3. NET-13 [HIGH]: `BOOK_IMPORT` (`storage-handlers.ts:376`) and `BOOK_READ_FILE` (`:380`) accept arbitrary paths from the renderer. Wrap both with `isPathAllowed()` (already used by `FS_READ`/`FS_WRITE` at `index.ts:142, 160`), or require the path live under the book-storage directory.
+4. NET-14 [HIGH]: `AI_INSTALL_OLLAMA` at `ai-handlers.ts:462` passes `installerPath` straight to `installOllama`. Validate that the resolved path lives under the OS temp dir or downloads folder before execution.
+5. NET-15 [HIGH]: `FS_WRITE_BINARY` at `index.ts:159-172` skips the `MAX_WRITE_CONTENT_SIZE` check that `FS_WRITE` enforces at `:145`. Add `buffer.byteLength > MAX_WRITE_CONTENT_SIZE` guard with the same error format.
+6. NET-16 [HIGH]: `AUDIO_PICK_FILE` at `audio-handlers.ts:118-130` reads files chosen by dialog without a size guard and without protecting against TOCTOU between dialog return and `fs.readFile`. Stat first, enforce a max size (reuse `MAX_READ_FILE_SIZE`), wrap the read in try-catch returning a `StorageResult`.
 
-**Step 5 — NET-15: FS_WRITE_BINARY Missing Size Limit**
-- File: `src/main/ipc/index.ts` lines 197-210
-- Add `MAX_WRITE_CONTENT_SIZE` check matching `FS_WRITE`.
+**Acceptance:** All eight handlers reject hostile `campaignId`/`fileName`/`filePath` inputs (test in `ai-handlers.test.ts`, `storage-handlers.test.ts`, `audio-handlers.test.ts` with `../../etc/passwd` style payloads). `FS_WRITE_BINARY` rejects oversized buffers. No real campaign UUID is rejected by the new validator.
 
-### Sub-Phase B: CRASH PREVENTION (Steps 6-9)
+### 17b — Crash prevention
 
-**Step 6 — NET-2/NET-3 [CRITICAL]: Destroyed BrowserWindow Crashes Main Process**
-- File: `src/main/ipc/ai-handlers.ts` lines 162-183, 422-432, 452-462, 484-497
-- All streaming callbacks use `win.webContents.send()` without checking `win.isDestroyed()`.
-- Fix: Add guard to every callback:
-  ```typescript
-  if (win && !win.isDestroyed()) {
-    win.webContents.send(channel, data)
-  }
-  ```
-- Apply to `AI_CHAT_STREAM`, `AI_DOWNLOAD_OLLAMA`, `AI_OLLAMA_UPDATE`, `AI_PULL_MODEL`.
+**Files:** `src/main/ipc/ai-handlers.ts`, `src/main/ipc/game-data-handlers.ts`, `src/renderer/src/components/game/overlays/PlayerHUDOverlay.tsx`
 
-**Step 7 — RUN-1/NET-7 [CRITICAL]: JSON.parse Without Try-Catch in Data Loader**
-- File: `src/main/ipc/game-data-handlers.ts` lines 28-29
-- `GAME_LOAD_JSON` handler: wrap `JSON.parse(content)` in try-catch:
-  ```typescript
-  try {
-    return JSON.parse(content)
-  } catch (err) {
-    logToFile(`[game-data] Failed to parse ${filePath}: ${err}`)
-    return null
-  }
-  ```
+**Steps:**
 
-**Step 8 — GUI-1 [CRITICAL]: Conditional Hooks in PlayerHUDOverlay**
-- File: `src/renderer/src/components/game/overlays/PlayerHUDOverlay.tsx` line 82
-- Early return `if (!character) return <></>` BEFORE hooks at lines 86, 96, 118, 153+.
-- Fix: Move ALL hooks above the early return. Guard their usage with `character` checks inside:
-  ```typescript
-  // ALL hooks FIRST
-  const memoized = useMemo(() => character ? compute(character) : null, [character])
-  const callback = useCallback(() => { if (!character) return; /* ... */ }, [character])
-  // THEN the early return
-  if (!character) return null
-  ```
+1. NET-2 / NET-3 [CRITICAL]: Destroyed-window crashes during AI streaming. `ai-handlers.ts:169, 173, 184` (`AI_CHAT_STREAM`), `:454` (`AI_DOWNLOAD_OLLAMA`), `:484` (`AI_PULL_MODEL`), `:516` (`AI_OLLAMA_UPDATE`), `:139` (`AI_LOAD_INDEX` progress) all call `win.webContents.send(...)` (or `win?.webContents.send(...)` — optional chaining doesn't catch `isDestroyed`). Replace each call site with `if (win && !win.isDestroyed()) win.webContents.send(...)`. Order matters: check `isDestroyed` before touching `webContents`.
+2. RUN-1 / NET-7 [CRITICAL]: `GAME_LOAD_JSON` at `game-data-handlers.ts:28-29` runs `JSON.parse(content)` with no try-catch. A single corrupt JSON file in 85+ data files crashes the data pipeline (blank screen). Wrap in try-catch, log the file path via `logToFile`, return `null` (or a `{ success: false, error }` envelope), and audit every `loadJson()` callsite in `data-provider.ts` to handle the `null`.
+3. GUI-1 [CRITICAL]: Conditional hooks in `PlayerHUDOverlay.tsx`. The early return at `:82` (`if (!character) return <></>`) sits above `useMemo` at `:86` and at least 10 more `useCallback` declarations through `:240`. Hook call order changes when `character` flips. Move every hook above the early return; guard the body of each hook on `character` truthiness. Confirm Biome's `useHookAtTopLevel` warnings clear for this file.
 
-**Step 9 — SYN-1 [CRITICAL]: JSX in .ts File**
-- Rename `src/renderer/src/utils/chat-links.ts` to `src/renderer/src/utils/chat-links.tsx`
-- Update ALL imports across the codebase that reference `chat-links`.
+**Acceptance:** Closing the window during `AI_CHAT_STREAM` no longer throws "Object has been destroyed" in main-process logs. Loading a deliberately-corrupted JSON file logs the path and returns a structured failure instead of crashing. `PlayerHUDOverlay.tsx` produces zero `useHookAtTopLevel` warnings.
 
-### Sub-Phase C: GAME LOGIC FIXES (Steps 10-18)
+### 17c — Game logic fixes
 
-**Step 10 — LOG-1 [HIGH]: Champion Fighter Crit Range Never Applied**
-- File: `src/renderer/src/services/combat/attack-resolver.ts` line 481
-- Replace `const isCrit = attackRoll === 20` with:
-  ```typescript
-  import { getCritThreshold } from './crit-range'
-  const critThreshold = getCritThreshold(attacker)
-  const isCrit = attackRoll >= critThreshold
-  ```
-- Also fix in `combat-resolver.ts` line 452 if it has the same hardcoded check.
+**Files:** `src/renderer/src/services/combat/attack-resolver.ts`, `combat-resolver.ts`, `combat-rules.ts`, `cover-calculator.ts`, `game-actions/creature-conditions.ts`, `creature-actions.ts`, `creature-initiative.ts`, `dice-helpers.ts`, `action-validator.ts`, `stores/game/conditions-slice.ts`, `stores/game/initiative-slice.ts`
 
-**Step 11 — LOG-2 [HIGH]: Critical Hit Only Doubles First Dice Group**
-- File: `src/renderer/src/services/combat/combat-resolver.ts` lines 870-875
-- `doubleDiceInFormula()` uses regex without `g` flag.
-- Fix: `formula.replace(/(\d*)d(\d+)/g, ...)`
+**Steps:**
 
-**Step 12 — LOG-3 [HIGH]: isInMeleeRange Ignores Token Size**
-- File: `src/renderer/src/services/combat/combat-rules.ts` lines 291-301
-- Fix: Iterate all occupied cells (like `isAdjacent()` at line 198 already does):
-  ```typescript
-  function isInMeleeRange(attacker: MapToken, target: MapToken, reach: number, cellSize: number): boolean {
-    for (let ax = 0; ax < attacker.sizeX; ax++) {
-      for (let ay = 0; ay < attacker.sizeY; ay++) {
-        for (let tx = 0; tx < target.sizeX; tx++) {
-          for (let ty = 0; ty < target.sizeY; ty++) {
-            const dist = gridDistance(attacker.gridX + ax, attacker.gridY + ay, target.gridX + tx, target.gridY + ty) * cellSize / cellSize * 5
-            if (dist <= reach) return true
-          }
-        }
-      }
-    }
-    return false
-  }
-  ```
+1. LOG-1 [HIGH]: Champion Fighter expanded crit range never applied. `attack-resolver.ts:250, 481` and `combat-resolver.ts` (search for `attackRoll === 20`) both hardcode the crit check. Import `getCritThreshold` from `crit-range.ts:8` and use `attackRoll >= getCritThreshold(attacker)` at both sites. Verify `attacker` carries class + level (it currently does via `Character5e` and resolved effects).
+2. LOG-2 [HIGH]: `doubleDiceInFormula` at `combat-resolver.ts:901-906` uses `formula.replace(/(\d*)d(\d+)/, ...)` without the `g` flag, so only the first dice group doubles on a crit. `2d6+1d8+4` becomes `4d6+1d8+4` instead of `4d6+2d8+4`. Add the `g` flag.
+3. LOG-3 [HIGH]: `isInMeleeRange` at `combat-rules.ts:291-301` measures from `attacker.gridX/gridY` only. A 2x2 Large creature at (0,0) attacking (2,0) reports 10 ft (false for 5 ft reach) when cell (1,0) is actually 5 ft away. Iterate every occupied cell of attacker and target (mirror the pattern in `isAdjacent` at `:198`); return on first hit within `reach`.
+4. LOG-4 [HIGH]: Area-effect saves ignore target modifiers. `creature-conditions.ts:113-115` and `creature-actions.ts:331-333` both compute `const saveRoll = rollDiceFormula('1d20'); saved = saveRoll.total >= saveDC` with no ability mod. Build a `getCreatureSaveMod(token, ability)` that pulls from the linked stat block (`monsterStatBlockId`) or character abilities; fall back to +0 with a `logToFile` warning when no stat block is linked. Use it in both branches: `(saveRoll.total + saveMod) >= saveDC`.
+5. LOG-5 [HIGH]: Cone AoE uses square geometry. `dice-helpers.ts:46-49` shares the `'cube'` case with `'cone'`. Add a dedicated `case 'cone':` that delegates to `getConeCells` (already exists at `services/combat/aoe-targeting.ts:119`) with origin, direction, and radius.
+6. LOG-7 [MEDIUM]: `isMeleeWeapon` at `attack-resolver.ts:70-72` returns true whenever `weapon.properties` includes `'thrown'`, even at range. Add an optional `attackDistance` parameter; treat thrown weapons as ranged when distance > 5 ft. Audit `:118, :344` callsites to pass the actual attack distance.
+7. LOG-8 [MEDIUM]: `conditions-slice.ts:33, 59` still fire the 2014 "exhaustion 6 = death" rule (`condition.value >= 6` triggers an instant kill). 2024 PHB removed this and the cumulative -2-per-level penalty already lives in `attack-condition-effects.ts:90`. Remove both death branches; leave a stub comment pointing at the 2024 rule.
+8. LOG-10 [MEDIUM]: `removeFromInitiative` at `initiative-slice.ts:281-304` still uses `Math.min(initiative.currentIndex, newEntries.length - 1)` after removing an entry. Removing an entry before the active one shifts the active marker to the wrong entity. `reorderInitiative` at `:316-318` already tracks by id; mirror that: capture `activeId = entries[currentIndex]?.id` before the filter, then `newIndex = newEntries.findIndex(e => e.id === activeId)`. If the removed entry WAS active, advance to the next entry that still exists.
+9. LOG-11 [MEDIUM]: `cover-calculator.ts:104-116` treats every other token identically. Dead/unconscious tokens, allies, and Tiny creatures all contribute to cover. PHB caps creature cover at half and excludes dead and Tiny. Filter the token list before the cover line trace: skip tokens whose `currentHP <= 0`, whose size is Tiny, and (per PHB option) allies; clamp the resulting cover to `'half'` regardless of how many creature segments block.
+10. LOG-12 [MEDIUM]: `action-validator.ts:104-106` reads `(e as unknown as { label?: string }).label?.toLowerCase()`. `InitiativeEntry` exposes `entityName`, not `label`, so every `remove_from_initiative` action is rejected as "not found." Drop the cast, switch to `e.entityName?.toLowerCase()`. This also closes TYP-4.
+11. LOG-13 [MEDIUM]: `executeNextTurn` at `creature-initiative.ts:85-87` pre-computes the next index as `(currentIdx + 1) % length`, then calls `gameStore.nextTurn()` which may skip delaying entries. Legendary action resets and recharge rolls target the wrong creature. Fix: call `gameStore.nextTurn()` first, then read the post-advance `currentIndex` from the store.
+12. LOG-14 [MEDIUM]: Async data loaders in `data/effect-definitions.ts`, `conditions.ts`, `xp-thresholds.ts`, `weapon-mastery.ts` expose synchronous accessors backed by `.then()` callbacks. First combat in a session can see empty defaults. Either (a) make accessors `async`, or (b) gate combat resolution on a single `await loadAllGameData()` at app boot. Choose (b) — it minimizes call-site churn — and add the gate to `main.tsx`.
+13. LOG-15 [MEDIUM]: `systems/dnd5e/index.ts:22-23, 37-44, 96-97` initializes `HALF_CASTER_SLOTS` and `THIRD_CASTER_SLOTS` as `{}` and populates them asynchronously. Rangers, Paladins, Eldritch Knights, Arcane Tricksters get 0 spell slots before the promise resolves. Same fix as LOG-14: bake the load into the app-boot gate, or surface a loading state via the plugin manifest.
 
-**Step 13 — LOG-4 [HIGH]: Area Effect Saves Ignore Target Modifiers**
-- File: `src/renderer/src/services/game-actions/creature-conditions.ts` lines 113-115
-- File: `src/renderer/src/services/game-actions/creature-actions.ts` lines 256-258
-- Fix: Look up target's save modifier from token stats or linked stat block:
-  ```typescript
-  const saveMod = getCreatureSaveMod(target, saveAbility) // DEX, CON, etc.
-  const saveRoll = rollDiceFormula('1d20')
-  const saved = (saveRoll.total + saveMod) >= saveDC
-  ```
-- Create `getCreatureSaveMod(token, ability)` that reads from `monsterStatBlockId` or token properties.
+**Acceptance:** Targeted vitest suites for crit range, dice doubling, melee range, AoE saves, cone targeting, exhaustion 2024, and initiative removal all pass. `remove_from_initiative` validates positively in `action-validator.test.ts`. A scripted long rest after combat reduces exhaustion by 1 (LOG-6 baseline preserved). No regressions in `combat-resolver.test.ts`.
 
-**Step 14 — LOG-5 [HIGH]: Cone AoE Uses Square Geometry**
-- File: `src/renderer/src/services/game-actions/dice-helpers.ts` lines 46-49
-- The `'cone'` case falls through to `'cube'` logic.
-- Fix: Use the existing `getConeCells()` from `aoe-targeting.ts`:
-  ```typescript
-  case 'cone':
-    return getConeCells(origin, direction, radius, cellSize)
-  ```
+### 17d — Error handling hardening
 
-**Step 15 — LOG-7 [MEDIUM]: Thrown Weapons Always Classified as Melee**
-- File: `src/renderer/src/services/combat/attack-resolver.ts` lines 70-72
-- Fix: `isMeleeWeapon()` should check if the attack is actually at range:
-  ```typescript
-  function isMeleeWeapon(weapon, attackDistance?: number): boolean {
-    if (attackDistance && attackDistance > 5 && weapon.properties.some(p => p.toLowerCase() === 'thrown')) {
-      return false // thrown at range = ranged attack
-    }
-    return !weapon.range || weapon.properties.some(p => p.toLowerCase() === 'thrown')
-  }
-  ```
+**Files:** `src/renderer/src/network/host-manager.ts`, `src/renderer/src/network/client-manager.ts`, `src/main/ai/claude-client.ts`, `openai-client.ts`, `gemini-client.ts`, `src/main/ai/ai-service.ts`, `src/main/ai/memory-manager.ts`, `src/main/ipc/ai-handlers.ts`, `storage-handlers.ts`, `plugin-handlers.ts`, `src/renderer/src/stores/builder/slices/selection-slice.ts`, `character-details-slice.ts`, `src/renderer/src/stores/use-ai-dm-store.ts`, `src/renderer/src/hooks/use-game-effects.ts`, `src/main/ipc/index.ts`
 
-**Step 16 — LOG-8 [MEDIUM]: Exhaustion Death at Level 6 Uses 2014 Rule**
-- File: `src/renderer/src/stores/game/conditions-slice.ts` lines 21, 47
-- The 2024 PHB removed the "exhaustion 6 = death" rule. Remove the death trigger.
-- Keep the cumulative -2 penalty per level (already in `attack-condition-effects.ts:90`).
+**Steps:**
 
-**Step 17 — LOG-10 [MEDIUM]: removeFromInitiative Shifts Active Turn Wrong**
-- File: `src/renderer/src/stores/game/initiative-slice.ts` lines 265-288
-- Fix: Track active entry by `entityId`, not by index. After removal, find the tracked entity's new index.
+1. NET-5 [HIGH] PARTIAL: Unguarded `JSON.stringify` in broadcast paths. `host-manager.ts:171` (disconnectPeer) and `:305` (ping interval) have try-catch. `queueForPeer` at `:134-157` ultimately hands messages to `rawSend` which stringifies them — confirm `rawSend` and `flushPeerQueue` (`:125-131`) both wrap the stringify. STILL NEEDED: trace each `JSON.stringify` call across `host-manager.ts` and `client-manager.ts`, wrap any uncovered site, and add a test that simulates a circular-ref payload. Coordinate with Phase 30: these paths consolidate into `GameAuthority` so the try-catch must travel with the consolidation.
+2. NET-4 [HIGH]: `client-manager.ts:368-375` (`attemptConnection` → `peer.on('error')`) silently swallows peer errors once `connected = true`. Promote post-connection errors to a user-visible reconnect attempt or a state-change callback; log via `logger.warn`. Required for any reliable client UX.
+3. NET-6 / NET-29 / NET-30 [HIGH]: Bulk try-catch across IPC handlers. Audit count: 27+ in `ai-handlers.ts`, 34 in `storage-handlers.ts`, 10 in `plugin-handlers.ts`. Introduce a `safeHandler<T>(fn)` wrapper in `src/main/ipc/_safe.ts` that catches and returns `{ success: false, error: String(err) }`. Migrate every handler in those three files to use it. Distinct error envelopes that already use `{ success, error }` stay unchanged; raw throwers are normalized.
+4. NET-8 [HIGH]: Cloud API timeouts. `claude-client.ts:23, 67`, `openai-client.ts:23, 68`, `gemini-client.ts:27, 73` accept an `abortSignal?` but never enforce their own. Add `AbortSignal.timeout(120_000)` (matching the Ollama default at `ollama-client.ts:62, 195`) and combine with any caller-supplied signal via `AbortSignal.any`. Apply to both `streamChat` and `chatOnce` in all three clients.
+5. NET-10 [HIGH] PARTIAL: `ai-service.ts:247` now uses `atomicWriteFileSync` (good — atomic), but it's still synchronous and blocks the main process during configure. Convert `configure` to async and switch to an `atomicWriteFile` variant; update the caller at `ai-handlers.ts:82` to `await aiService.configure(parsed.data)`.
+6. NET-11 [HIGH]: `memory-manager.ts:119-128, 135-144, 182-189, 212-221, 235-287` (`upsertNPC`, `upsertPlace`, `addRuling`, `setNpcPersonality`, `logNpcInteraction`, `addNpcRelationship`) all read-modify-write JSON files. Concurrent AI DM actions lose data. Serialize via a per-file mutex (a `Map<filePath, Promise<void>>` chain) or a small write queue.
+7. NET-17 [HIGH]: `ai-handlers.ts:243-249` (`AI_CONNECTION_STATUS`) is registered but no preload entry calls it. Either expose it in `preload/index.ts` so renderer can use it, or delete the handler. Deleting is preferred unless a caller is identified.
+8. NET-19 / NET-20 [HIGH] PARTIAL: `ai-handlers.ts:82` still passes the raw `config` to `aiService.configure(config)` after Zod validation succeeded; should be `parsed.data`. Same pattern at `:165-186` (`AI_CHAT_STREAM`) where the raw `request` is forwarded instead of `parsed.data`.
+9. RUN-2 [HIGH]: `selection-slice.ts:171, 228, 248, 280` chain `.then()` without `.catch()`. Add `.catch((err) => logger.warn('[builder] selection load failed', err))` on each.
+10. RUN-3 / RUN-4 [HIGH]: `use-ai-dm-store.ts:157` dynamic-imports `game-action-executor` without `.catch()`. State is cleared but actions never run; DM has no feedback. Add `.catch()` and surface a `pushDmAlert('error', ...)` toast. Also audit `initFromCampaign` (the `loadConversation` call) for a missing `.catch()`.
+11. RUN-5 [HIGH]: `use-game-effects.ts:68` and `:370` both call `import('...').then(...)` without `.catch()`. AI creature mutations and DM actions silently drop. Wrap both with `.catch()` that pushes a system chat message and logs the failure.
+12. RUN-6 [HIGH]: `character-details-slice.ts:117-132` (`setClassEquipmentChoice`) has a similar uncaught `.then()`. Add `.catch()` consistent with step 9.
+13. RUN-7 [HIGH]: `DIALOG_SAVE` and `DIALOG_OPEN` in `index.ts:127-128, 143-144` use `BrowserWindow.getAllWindows()[0]` which is `undefined` when no window exists. Guard with `?? null` and short-circuit with a `{ success: false, error: 'no-window' }` envelope.
+14. RUN-15 [MEDIUM]: `index.ts:18-20` `uncaughtException` handler only logs; the process continues in undefined state, risking corrupt writes. Decision needed: either (a) exit after logging via `app.exit(1)`, or (b) surface a fatal dialog and quit gracefully. Pick (b) for desktop UX. Same `unhandledRejection` policy.
 
-**Step 18 — LOG-12 [MEDIUM]: Initiative Validator Checks label Instead of entityName**
-- File: `src/renderer/src/services/game-actions/action-validator.ts` line 104
-- Fix: Change `e.label?.toLowerCase()` to `e.entityName?.toLowerCase()`.
-- Remove the type cast `{ label?: string }` that masked the error.
+**Acceptance:** `safeHandler` wrapper covers every registered handler in the three files (grep for raw `ipcMain.handle` outside `safeHandler` should return zero hits except for the schema-validated streaming setups). Cloud API integration tests pass with a 120s upper bound. Builder load failures show a toast and don't lock the builder slot. A scripted dialog with no windows returns a structured error.
 
-### Sub-Phase D: ERROR HANDLING HARDENING (Steps 19-24)
+### 17e — GUI fixes
 
-**Step 19 — NET-5 [HIGH]: Unguarded JSON.stringify in Broadcast**
-- File: `src/renderer/src/network/host-manager.ts` lines 321, 329, 342
-- Wrap `JSON.stringify(msg)` in try-catch in all broadcast functions.
-- **Phase 30 coordination:** these broadcast paths consolidate into `GameAuthority` during Phase 30a; the try-catch travels with the move. Land Step 19 first; Phase 30 inherits.
+**Files:** `src/renderer/src/components/game/overlays/DmAlertTray.tsx`, `dice3d/DiceOverlay.tsx`, `dice3d/DiceRenderer.tsx`, `dice3d/dice-textures.ts`, `dice3d/dice-physics.ts`, `player/ShopView.tsx`, `modals/utility/RulingApprovalModal.tsx`, and the 11 modal files listed in step 5, `components/ui/Modal.tsx`
 
-**Step 20 — NET-6/NET-29/NET-30: Add Try-Catch to All IPC Handlers**
-- File: `src/main/ipc/ai-handlers.ts` — 27+ handlers
-- File: `src/main/ipc/storage-handlers.ts` — 34 handlers
-- File: `src/main/ipc/plugin-handlers.ts` — 10 handlers
-- Pattern: Wrap each handler body in try-catch returning `StorageResult` or `{ success: false, error }`.
-- This is a bulk operation — apply consistently to ALL handlers in these files.
+**Steps:**
 
-**Step 21 — NET-8 [HIGH]: Add Timeouts to Cloud API Calls**
-- Files: `claude-client.ts`, `openai-client.ts`, `gemini-client.ts`
-- Add `AbortSignal.timeout(120_000)` (matching Ollama's timeout) to all `streamChat` and `chatOnce` calls.
+1. GUI-2 [HIGH]: `DmAlertTray.tsx:50-60` subscribes inside `useState(() => { listeners.push(rerender); return () => {...} })`. The returned cleanup is never invoked because React treats it as initial state. Move the subscribe + cleanup into a `useEffect(() => { listeners.push(rerender); return () => { listeners = listeners.filter(...) } }, [rerender])`.
+2. GUI-3 [HIGH]: `DiceOverlay.tsx:133-135` nests two `setTimeout` calls without storing the IDs. If the component unmounts mid-roll, `setRollRequest(null)` fires on an unmounted component. Track both IDs in a ref and clear them in a `useEffect` cleanup.
+3. GUI-4 [HIGH] PARTIAL: `DiceRenderer.tsx:184-189` now calls `disposeObject3D` before `scene.remove`. STILL NEEDED: (a) audit `dice-textures.ts:6-73` for `CanvasTexture` instances that never get `.dispose()`; (b) audit `dice-physics.ts:91-148` for cannon-es `BufferGeometry` allocations that aren't disposed. Add a `disposeDie(mesh)` helper that fully tears down geometry, material, material.map, and any wireframe — replace bare `scene.remove(...)` callsites with the helper. Per the suggestions-log gotcha, consider a grep-based pre-commit hook that forbids `scene.remove(` outside the helper.
+4. GUI-7 [HIGH]: `RulingApprovalModal.tsx:50-109` has no Escape handler, no backdrop click, no Cancel button — only Approve and Override. Add `useEffect` keydown listener for Escape (calls a new `dismiss()` that clears pending actions without applying), wire backdrop `onClick` on the outer `fixed inset-0` div, and add a third "Dismiss" button alongside Override/Approve.
+5. GUI-8 [HIGH]: 11 modals missing Escape handling. Verified missing today in: `game/modals/shared/NarrowModalShell.tsx`, `mechanics/LightSourceModal.tsx`, `utility/TimeEditModal.tsx`, `dm-tools/SentientItemModal.tsx`, `utility/NetworkSettingsModal.tsx`, `utility/WhisperModal.tsx`, `dm-tools/HandoutModal.tsx`, `dm-tools/DMNotesModal.tsx`, `utility/SharedJournalModal.tsx`, `ui/ConfirmDialog.tsx`. The shared `ui/Modal.tsx:26, 62` already has Escape + cleanup. Two options: (a) add the `useEffect` keydown handler to each, or (b) migrate each modal to render through the shared `Modal` component. Prefer (b) where feasible; fall back to (a) for modals with custom shell layouts.
+6. GUI-9 [HIGH]: `components/ui/Modal.tsx:73` puts `overflow-y-auto flex flex-col` on the same element so the header scrolls away with long content. Split into `flex flex-col` wrapper + inner `overflow-y-auto` body, keeping header (and footer if present) as siblings outside the scroll container.
+7. GUI-11 [HIGH]: `ShopView.tsx:214-219` (`handleHaggle`) calls `setTimeout(..., 10000)` without storing the ID. Track in a ref, clear in cleanup, and also clear when the user navigates away.
 
-**Step 22 — NET-10 [HIGH]: Replace writeFileSync with Async Write**
-- File: `src/main/ai/ai-service.ts` lines 244-256
-- Replace `writeFileSync` with `await writeFile` (async). This unblocks the main process.
+**Acceptance:** Manual smoke test: opening every listed modal and pressing Escape dismisses it. Long modal content keeps the header pinned. Rolling 100 dice in a row reports stable Three.js memory (use `renderer.info.memory` in dev). Mounting/unmounting `DmAlertTray` 10 times leaves `listeners.length === 0`.
 
-**Step 23 — RUN-2 [HIGH]: Add .catch() to Builder Selection Slice**
-- File: `src/renderer/src/stores/builder/slices/selection-slice.ts` lines 170, 227, 247, 279
-- Add `.catch()` to all `load5eSpecies().then()`, `load5eBackgrounds().then()`, `load5eClasses().then()`.
+### 17f — Type safety
 
-**Step 24 — RUN-3/RUN-5 [HIGH]: Add .catch() to Dynamic Imports**
-- File: `src/renderer/src/stores/use-ai-dm-store.ts` lines 136-138
-- File: `src/renderer/src/hooks/use-game-effects.ts` lines 334, 349
-- Add `.catch()` to all `import('...').then()` calls.
+**Files:** `src/main/ipc/ai-handlers.ts`, `src/renderer/src/services/game-actions/action-validator.ts`
 
-### Sub-Phase E: GUI FIXES (Steps 25-28)
+**Steps:**
 
-**Step 25 — GUI-2 [HIGH]: DmAlertTray Subscription Leak**
-- File: `src/renderer/src/components/game/overlays/DmAlertTray.tsx` lines 33-38
-- Fix: Return cleanup function from `useEffect`, not as initial state.
+1. TYP-3 [MEDIUM]: `ai-handlers.ts:82` — `aiService.configure(config)` ignores the Zod-narrowed `parsed.data`. Change to `parsed.data`. Same audit at `:165` for `AI_CHAT_STREAM`. This overlaps with 17d step 8 — land both in the same commit.
+2. TYP-4 [MEDIUM]: `action-validator.ts:104-106` cast `{ label?: string }` masks the actual `InitiativeEntry` shape. Remove the cast, switch to `e.entityName?.toLowerCase()`. Covered by 17c step 10; left here as a paper-trail entry.
 
-**Step 26 — GUI-4 [HIGH]: Three.js Resource Leaks Per Dice Roll**
-- File: `src/renderer/src/components/game/dice3d/DiceRenderer.tsx` lines 129-134
-- File: `dice-textures.ts` lines 6-73
-- File: `dice-physics.ts` lines 91-148
-- Fix: Call `.geometry.dispose()`, `.material.dispose()`, `.texture.dispose()` in `clearDice()`.
+**Acceptance:** `tsc --noEmit` stays at zero errors. The change in step 1 produces no behavioural difference (the schema is a structural superset of the runtime type), confirming the Zod narrowing was already aligned with the IPC contract.
 
-**Step 27 — GUI-7 [HIGH]: RulingApprovalModal Cannot Be Dismissed**
-- File: `src/renderer/src/components/game/modals/utility/RulingApprovalModal.tsx` lines 50-109
-- Add Escape key handler, backdrop click handler, and a "Dismiss" button.
+### 17g — Medium / low catalogue
 
-**Step 28 — GUI-8 [HIGH]: 11 Modals Missing Escape Key Handling**
-- Files: `NarrowModalShell.tsx`, `LightSourceModal.tsx`, `TimeEditModal.tsx`, `SentientItemModal.tsx`, `NetworkSettingsModal.tsx`, `WhisperModal.tsx`, `HandoutModal.tsx`, `DMNotesModal.tsx`, `SharedJournalModal.tsx`, `ConfirmDialog.tsx`
-- Add `useEffect` with `keydown` listener for Escape in each, or migrate them to use the shared `Modal` component that already handles Escape.
+This sub-phase tracks lower-severity items for future cleanup. Not blocking; not part of the live work above. Spot-fix opportunistically when touching neighbouring code.
 
-### Sub-Phase F: TYPE SAFETY (Steps 29-30)
+- 22 Biome `useHookAtTopLevel` warnings spread across 13 files (`PlayerHUDOverlay.tsx`, `ActionEconomyBar.tsx`, `GamePrompts.tsx`, `ReactionPrompts.tsx`, `MountModal.tsx`, `AttackModal.tsx`, `MechanicsModals.tsx`, `UtilityModals.tsx`, `CharacterSheet5ePage.tsx`, `use-game-handlers.ts`, `combat-resolver.ts`, `initiative-slice.ts`, `commands-player-movement.ts`). Fixing GUI-1 clears the ones in `PlayerHUDOverlay.tsx`; the rest need similar early-return-vs-hooks reorders.
+- 6 `useExhaustiveDependencies` warnings in `MapCanvas.tsx` (x4), `AoETemplateModal.tsx`, `CraftingBrowser.tsx`, `TablesPanel.tsx`. Triage each — some are intentional stale closures, some are real bugs.
+- NET-21 through NET-50 (30 medium network issues) — error handling and validation gaps. May partially close after Phase 30 / 31 routing consolidation.
+- GUI-12 through GUI-36 (25 medium GUI issues): loading spinners on async data screens, index keys on reorderable lists (`StatBlockEditor.tsx:93,175,666`, `CompanionsSection5e:188,197,223`, `MagicItemTracker:157,161`), z-index conflicts, focus traps, body scroll lock, modal max-height on small screens, fixed widths (`w-[900px]`, `w-[700px]`, `w-[600px]`), `truncate` without `min-w-0`, draft persistence on close, `isSubmitting` guard, hardcoded `bg-white`/`text-black` in dark mode.
+- RUN-10 through RUN-21 (12 medium runtime issues): `Promise.all` failure cascades in `data-provider.ts:678` and `downtime-service.ts:113`; non-null assertions in `data/conditions.ts:40-45`; corrupt-metadata handling in `image-library-storage.ts:124`, `map-library-storage.ts:101`, `shop-storage.ts:104`; HTMLAudioElement pool disposal in `sound-manager.ts:294-298`; module-level `setInterval` cleanup in `ai-service.ts:117`; keyboard shortcut scope; BMO dynamic import error handling.
+- LOG-16 through LOG-25 (10 low logical issues): off-by-one on round duration; "(halved)" branch unreachable; `Math.random` vs `cryptoRandom` inconsistencies (`inline-roller.ts:19,22`, `builder/types.ts:44`, `rest-service-5e.ts:446`); standard array default; movement BFS edge cases; standing from prone gating.
+- GUI-37 through GUI-44 (8 low GUI issues): minor styling, redundant overflow classes, short-lived setTimeout leaks, dark-mode polish.
+- NET-51 through NET-68 (18 low network issues): signaling disconnection handlers, redundant deletes, hardcoded TURN credentials review (NET-28), `lastInviteCode!` non-null assertion, unbounded `imageCache` at `game-sync.ts:13` (consider LRU cap with periodic eviction), preload listener accumulation (`preload/index.ts:136`), `OPEN_DEVTOOLS` exposed in production builds (`preload/index.ts:65`).
+- TYP-5 through TYP-7 (3 low type issues): `noImplicitAnyLet` in `chat-links.ts:30,44,57`; non-null assertions; `noRedeclare` shadows.
 
-**Step 29 — TYP-1/TYP-2 [HIGH]: Missing Preload Type Declarations**
-- File: `src/preload/index.d.ts`
-- Add `discord` and `cloudSync` namespace declarations matching the runtime API.
-- Add `listCloudModels`, `validateApiKey`, `syncWorldState`, `syncCombatState` to `AiAPI` type.
+**Acceptance:** Each item lives here as a reference until pulled into its own focused sub-phase or addressed inline by a touching commit.
 
-**Step 30 — TYP-3/TYP-4 [MEDIUM]: Zod Bypass and Type Cast Masking**
-- `ai-handlers.ts` line 75: Change `aiService.configure(config)` to `aiService.configure(parsed.data)`.
-- `action-validator.ts` line 104: Remove `{ label?: string }` cast, use `e.entityName` (covered by Step 18).
+## Constraints & edge cases
 
-### Sub-Phase G: MEDIUM/LOW PRIORITY CATALOGUE (For future reference — do NOT block on these)
+- Path sanitization is defense-in-depth: validate the format (UUID regex for `campaignId`, allowlist for filenames) AND assert that `path.resolve(base, id).startsWith(base)`. Reject anything that fails either check.
+- The UUID regex must accept the format already issued by existing campaigns; verify against a real campaign directory before shipping.
+- `win.isDestroyed()` must be checked before any access to `win.webContents`. Reading `webContents` on a destroyed window throws.
+- `JSON.parse` fallback: corrupt data should log the file path and return `null`. Audit every `loadJson()` callsite — they currently assume a defined return.
+- `getCritThreshold()` needs the attacker's class and level; confirm the attack resolution context carries the resolved character (not the bare token).
+- `getCreatureSaveMod()` needs the linked stat block when targeting monsters. Fall back to +0 with a logged warning when the stat block link is missing — better than silently boosting AoE damage.
+- Removing the 2014 exhaustion-6 death rule is correct for 2024; if a future "Legacy 2014 mode" campaign setting lands, the rule comes back as a feature flag.
+- The `safeHandler` wrapper changes failure semantics from `throw` to `{ success: false, error }`. Audit renderer callsites — some may still expect a rejected promise. Either keep `throw` behaviour for handlers whose callers already do `.catch`, or normalize everywhere and update callers.
+- Modal Escape migration: prefer routing through the shared `Modal` component for consistency. Hand-rolled handlers must remember `event.stopPropagation()` to avoid nested-modal accidents.
+- NET-5 sites in `host-manager.ts` will move into `GameAuthority` during Phase 30a — the try-catch travels with the move. Land the hardening here; Phase 30 inherits.
 
-The remaining 122 medium/low issues are catalogued for future cleanup sprints:
-- **22 Biome lint warnings** (useHookAtTopLevel in 13 files) — most are false positives or require refactoring
-- **6 exhaustive dependency warnings** in MapCanvas — review but may be intentional
-- **30 medium network issues** (NET-21 through NET-50) — error handling and validation gaps
-- **25 medium GUI issues** (GUI-12 through GUI-36) — loading states, index keys, dark mode
-- **12 medium runtime issues** (RUN-10 through RUN-21) — Promise.all failures, non-null assertions
-- **10 low logical issues** (LOG-16 through LOG-25) — condition timing, Math.random() inconsistency, movement edge cases
-- **8 low GUI issues** (GUI-37 through GUI-44) — minor styling
-- **18 low network issues** (NET-51 through NET-68) — minor cleanup
+## Verification
 
----
+1. `cd dnd-app && npm run lint` — Biome warnings drop by at least the `useHookAtTopLevel` count in `PlayerHUDOverlay.tsx` (≥10 fewer warnings).
+2. `cd dnd-app && npm test` — every targeted suite (combat, initiative, action-validator, AoE, IPC sanitization) passes.
+3. `cd dnd-app && npm run typecheck` — zero errors.
+4. Manual: close the window mid-stream during an AI chat; main-process log shows no destroyed-window throw.
+5. Manual: open every listed modal; Escape dismisses each.
+6. Manual: deliberately corrupt one data file in `src/renderer/public/`; app logs the path and degrades gracefully instead of showing a blank screen.
+7. Manual: rolling 100 dice in a row keeps `renderer.info.memory.geometries` stable.
 
-## ⚠️ Constraints & Edge Cases
+## Completed
 
-### Security Fixes
-- **Path sanitization must be defense-in-depth**: Validate format (UUID regex) AND check that the resolved path is within the expected directory (`path.resolve(base, id).startsWith(base)`).
-- **Do NOT break existing campaigns**: The UUID validation regex must accept the format already used by existing campaign IDs.
-
-### Crash Prevention
-- **`win.isDestroyed()` must be checked BEFORE `win.webContents`** — accessing `webContents` on a destroyed window also throws.
-- **JSON.parse fallback**: When corrupt data is detected, log the file path and return `null`. The caller must handle `null` gracefully — check all callsites of `GAME_LOAD_JSON`.
-
-### Game Logic
-- **Champion crit range**: `getCritThreshold()` needs access to the attacker's class and level. Verify this data is available in the attack resolution context.
-- **Area effect saves**: `getCreatureSaveMod()` for monsters needs the stat block. If the monster token doesn't have a linked stat block, fall back to +0 (current behavior) but log a warning.
-- **Exhaustion 2024**: Removing the level 6 death trigger is correct for 2024 rules. If users want the 2014 rule, add it as a campaign setting option.
-
-### Error Handling Bulk Fix
-- **IPC handler try-catch**: Use a wrapper function to avoid boilerplate:
-  ```typescript
-  function safeHandler<T>(fn: (...args: unknown[]) => Promise<T>) {
-    return async (...args: unknown[]) => {
-      try { return await fn(...args) }
-      catch (err) { return { success: false, error: String(err) } }
-    }
-  }
-  ```
-- Apply to all 71+ IPC handlers across 3 files.
-
-Begin implementation now. **Start with Sub-Phase A (Steps 1-5) — security fixes are non-negotiable.** Then Sub-Phase B (Steps 6-9) for crash prevention. Then Sub-Phase C (Steps 10-18) for game logic correctness. Error handling (Sub-Phase D) and GUI fixes (Sub-Phase E) come last.
+- 17b Step 3 — PARTIAL — `PlayerHUDOverlay.tsx:82` still returns above hooks at `:86, :96, :118, :153+`. NOT done.
+- 17e Step 5 — PARTIAL — Shared `Modal.tsx:26, 62` has Escape; the 11 listed modals still lack it. NOT done.
+- 17c Step 7 — DONE (`creature-actions.ts:580-599`) — `executeLongRest` reduces exhaustion by 1 (or removes if at 1), matching `rest-service-5e.ts`. Closes LOG-6.
+- 17e Step 3 setup — DONE (`DiceRenderer.tsx:22, 184-189`) — `disposeObject3D` helper exists and is called before `scene.remove`. Remaining GUI-4 work in `dice-textures.ts` and `dice-physics.ts` is still PARTIAL — see live step.
+- 17b Step 2 — partially mitigated (`game-data-handlers.ts:24` adds path-traversal check) — the `JSON.parse` at `:29` is still unguarded. Live work remains.
+- 17a Step 1 — PARTIAL — `AI_READ_MEMORY_FILE` at `ai-handlers.ts:353-356` normalizes and rejects `..` / absolute paths for the `fileName` argument, but `campaignId` itself is still unvalidated across all 10+ handlers. NOT done at the campaignId layer.
+- GUI-5 — DONE (`MapCanvas.tsx:383`) — `selectedTokenId: selectedTokenIds[0] ?? null` correctly passes a defined value. Closes GUI-5 (also tracked in Phase 12 Step 17).
+- TYP-1 / TYP-2 — DONE (`preload/index.d.ts:237-240, 737-738`) — `discord`, `cloudSync`, `listCloudModels`, `validateApiKey`, `syncWorldState`, `syncCombatState` all declared. Closes TYP-1 and TYP-2.
+- SYN-1 — DONE (`chat-links.ts:151-203`) — file uses `React.createElement` instead of JSX; the `.ts` extension is correct and Biome can parse it. Original audit recommendation (rename to `.tsx`) is no longer applicable.
+- NET-9 (non-atomic writes) — covered by Phase 7 (atomic write helpers); `ai-service.ts:8, 247` now uses `atomicWriteFileSync`. Remaining issue is the synchronous variant — captured as live step 17d-5.
+- 17c reorder fix baseline — DONE (`initiative-slice.ts:316-318`) — `reorderInitiative` tracks the active entry by id. `removeFromInitiative` at `:281-304` still uses index-min and is the active step 17c-8.

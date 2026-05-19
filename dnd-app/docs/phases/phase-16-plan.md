@@ -1,334 +1,139 @@
-# SYSTEM OVERRIDE: IMPLEMENTATION MODE
-
-Phase 16 is a **VTT Platform Comparison** against D&D Beyond, Foundry VTT, and Roll20. Many identified gaps are already addressed by previous phase plans (active effects, dynamic lighting, trigger zones, audio emitters, floor filtering, advanced walls, multi-token ops, rollable tables, party inventory, encounter builder). This plan covers only the **net-new items** not already assigned to other phases, plus 6 UX workflow improvements.
-
-> **See also:** Phase 15 (Library as Single Source of Truth) — the original N5 "Unified content discovery" goal is fully absorbed there.
->
-> **See also:** Phases 29-32 (Roles + Permissions / Player-as-Host / Live-state sync / Cloud Host) — Map Pin broadcast turns into a shard during Phase 31. See Sub-Phase B constraint note below.
-
----
-
-## 🏗️ Architecture & Environment Split
-
-### Windows 11 Machine (`C:\Users\evilp\dnd\`) — ALL WORK IS HERE
-
-Phase 16 is entirely client-side. No Raspberry Pi involvement.
-
-**Cross-Phase Overlap Map (DO NOT duplicate — these are owned by other phases):**
-
-| Gap | Already Addressed In |
-|-----|---------------------|
-| Active Effects system | Phase 1 (D7), Phase 4 (conditions) |
-| Dynamic lighting animations | Phase 1 (D3) |
-| Trigger zones / scene regions | Phase 1 (D4) |
-| Audio emitters unwired | Phase 1 (A11) |
-| Multi-floor filtering | Phase 1 (A10) |
-| Advanced wall types | Phase 1 (D14) |
-| Multi-token group operations | Phase 1 (D5) |
-| Rollable tables | Phase 1 (D10) |
-| Party inventory / shared loot | Phase 1 (D8) |
-| Encounter builder CR calc | Phase 1 (D9) |
-| Token context menu → conditions | Phase 1 (A6), Phase 13 (C) |
-| drawTokenStatusRing unused | Phase 1 (A4) |
-| Foreground / occlusion layer | Phase 1 (D16) |
-| Guided character builder | Phase 2 (U3) |
-| Animated scene transitions | Phase 1 (missing) |
-| CompendiumModal vs Library unification | Phase 15 (Sub-Phase E) |
-
-**NET-NEW items from this phase:**
-
-| File | Relevance |
-|------|-----------|
-| `src/renderer/src/components/game/map/MapCanvas.tsx` | Auto-pan to active token on turn change |
-| `src/renderer/src/services/macro-engine.ts` | Macro scripting limitations |
-| `src/renderer/src/components/game/player/MacroBar.tsx` | Macro bar hidden when bottom bar collapsed |
-| `src/renderer/src/components/game/GameLayout.tsx` | Modal-heavy UI, no floating windows |
-| `src/renderer/src/components/game/modals/utility/CompendiumModal.tsx` | Duplicates LibraryPage functionality |
-
-### Raspberry Pi (`patrick@bmo`) — NO WORK THIS PHASE
-
----
-
-## 📋 Core Objectives
-
-### NET-NEW Features (Not covered by any previous phase)
-
-| # | Feature | Competitor Source | Impact |
-|---|---------|-------------------|--------|
-| N1 | Auto-pan to active token on turn change | Roll20 | Players lose track of where combat is happening |
-| N2 | Map pins with journal linkage | Roll20 | No spatial bookmarks on maps |
-| N3 | Non-blocking floating tools (reduce modal reliance) | Foundry | Modals break map immersion |
-| N4 | Macro engine improvements (conditionals, loops) | Roll20 | Current macros limited to simple variable substitution |
-| N6 | Scene preloading for map transitions | Foundry | Map switches may stutter while loading assets |
-| N7 | Grid coordinate readout on hover | Foundry/Roll20 | Players can't identify grid positions |
-
----
-
-## 🛠️ Step-by-Step Execution Plan
-
-### Sub-Phase A: Auto-Pan to Active Token (N1)
-
-**Step 1 — Implement Auto-Pan on Turn Change** — ✓ **DONE (different mechanism)**
-> Verified 2026-05-18: implemented in `InitiativeOverlay.tsx:54-73` via the `requestCenterOnEntity` store flag, not the proposed `panToPosition` utility. MapCanvas does the camera move when the flag fires. Hidden-token info-leak guard also present (`InitiativeOverlay.tsx:60-69` filters non-host viewers).
-
-- Open `src/renderer/src/components/game/map/MapCanvas.tsx`
-- Find where the initiative turn changes (either via store subscription or prop change)
-- When the active initiative entry changes, pan the camera to center on that token:
-  ```typescript
-  useEffect(() => {
-    if (!activeEntry || !autoPanEnabled) return
-    const token = activeMap?.tokens.find(t => t.entityId === activeEntry.entityId)
-    if (!token) return
-    const worldX = token.gridX * cellSize + cellSize / 2
-    const worldY = token.gridY * cellSize + cellSize / 2
-    panToPosition(worldX, worldY, { animate: true, duration: 300 })
-  }, [activeEntry?.entityId])
-  ```
-- Create a `panToPosition(x, y, options)` utility that smoothly animates the PixiJS viewport/camera
-- The animation should use easing (ease-out) for a polished feel
-
-**Step 2 — Add Auto-Pan Toggle** — ✗ NOT done
-> Verified 2026-05-18: zero matches for `autoPanOnTurnChange` in `src/renderer/src/`. Setting + toggle remain live work.
-
-- Add a game setting: `autoPanOnTurnChange: boolean` (default: true)
-- Add a toggle button in the game toolbar or settings dropdown
-- When disabled, no camera movement on turn changes
-- Players should be able to override independently from DM setting
-
-**Step 3 — Manual "Center on Token" Enhancement** — ◐ PARTIAL
-> Verified 2026-05-18:
-> - ✓ **Shift+C keyboard shortcut DONE.** Bound in `public/data/ui/keyboard-shortcuts.json` (action `center-on-me`); handler in `hooks/use-game-shortcuts.ts:94` wired through `GameLayout.tsx:563-565` which calls `requestCenterOnEntity(character.id)`.
-> - ✗ **"Center on Me" button in PlayerBottomBar NOT done.** Zero matches in `PlayerBottomBar.tsx`. Live work.
-
-- The audit mentions "Center on entity" is a manual action via portrait click
-- Enhance: add a keyboard shortcut (e.g., `C`) to center camera on the player's own token
-- Add "Center on Me" button in the PlayerBottomBar
-
-### Sub-Phase B: Map Pins with Journal Linkage (N2)
-
-**Step 4 — Define MapPin Type** — ✓ DONE
-> Verified 2026-05-18: `MapPin` interface defined at `types/map.ts:41`; `MapPinIcon` union at `:39`; `pins?: MapPin[]` on `GameMap` at `:34`.
-
-- Add to `src/renderer/src/types/map.ts`:
-  ```typescript
-  export interface MapPin {
-    id: string
-    gridX: number
-    gridY: number
-    label: string
-    icon: 'note' | 'quest' | 'shop' | 'danger' | 'npc' | 'custom'
-    color: string
-    linkedJournalId?: string
-    linkedNpcId?: string
-    linkedLocationId?: string
-    visibleToPlayers: boolean
-    floor?: number
-  }
-  ```
-- Add `pins: MapPin[]` to `GameMap` type
-
-**Step 5 — Create Pin Layer on Map** — ✗ NOT done
-> Verified 2026-05-18: no pin layer in `map-pixi-setup.ts` (only `pingGraphics`, selection box, fog). Pins exist as data but don't render on the canvas. Hover tooltip + click-to-open also gated by this layer. Live work.
-
-- Add a new PixiJS layer for map pins in `map-pixi-setup.ts` (between Tokens and Fog layers)
-- Render pins as small icons at their grid positions
-- DM pins with `visibleToPlayers: false` hidden from players
-- Hover shows pin label tooltip
-- Click opens the linked content (journal entry, NPC sheet, or a custom note)
-
-**Step 6 — Pin Creation UI** — ✓ DONE (minimal)
-> Verified 2026-05-18: "Add Pin" entry in `EmptyCellContextMenu.tsx:143-153` (gated by `onAddPin` prop). Handler wired in `GameLayout.tsx:947-961` (label prompt + write into `activeMap.pins`). The form-style label/icon/color/visibility/linked-entity picker described in this step did NOT ship — current implementation is a single label prompt. Refining the picker is live work if richer UX is desired.
-
-- In `EmptyCellContextMenu`, add "Add Pin" option (DM only)
-- Opens a small form: label, icon type, color, visibility, optional journal/NPC link
-- Pin saved to the map's `pins` array via `updateMap`
-
-**Step 7 — Pin-to-Journal Navigation** — ✗ NOT done
-> Verified 2026-05-18: no rendered pin layer means no click handler. Linked-content navigation is live work, blocked on Step 5 landing first.
-
-- When clicking a pin with `linkedJournalId`, open the journal entry in a floating panel
-- When clicking a pin with `linkedNpcId`, open the NPC detail view
-- This creates spatial storytelling — DMs can mark important locations on the map with linked content
-
-### Sub-Phase C: Non-Blocking Floating Tools (N3)
-
-**Step 8 — Create FloatingWindow Component** — ✓ DONE
-> Verified 2026-05-18: primitive shipped at `components/ui/FloatingWindow.tsx` (draggable, resizable, sessionStorage-persisted, z-order managed). Re-exported from `components/ui/index.ts:8`. No consumers yet — Steps 9 + 10 below are the remaining live work.
-
-- Build a reusable `FloatingWindow` wrapper component:
-  ```tsx
-  interface FloatingWindowProps {
-    title: string
-    children: React.ReactNode
-    defaultPosition?: { x: number; y: number }
-    defaultSize?: { width: number; height: number }
-    resizable?: boolean
-    onClose: () => void
-  }
-  ```
-- Features: draggable title bar, optional resize handle, close button, semi-transparent background
-- Position persisted in sessionStorage per window type
-- Z-order management: clicking a window brings it to front
-
-**Step 9 — Convert Key DM Tools to Floating Windows** — ✗ NOT done
-> Verified 2026-05-18: `FloatingWindow` primitive has zero consumers in `components/game/modals/`. InitiativeModal / CreatureModal / DMNotesModal all still modal-only. Live work.
-
-- Identify the most disruptive modals (those that block the map):
-  - `InitiativeModal` → convert to `FloatingWindow` option
-  - `CreatureModal` (monster lookup) → floating window
-  - `DMNotesModal` → floating window
-- Keep modal as default but add "Float" button in the modal header that detaches it into a floating window
-- The game layout should support multiple floating windows simultaneously
-
-**Step 10 — Float Toggle Pattern** — ✗ NOT done
-> Verified 2026-05-18: no Float/Dock toggle pattern present in modal headers. Live work.
-
-- Add a "Float / Dock" toggle to each modal header:
-  ```tsx
-  <ModalHeader>
-    <span>{title}</span>
-    <button onClick={toggleFloat} title="Float as window">
-      <FloatIcon />
-    </button>
-    <button onClick={onClose} title="Close">
-      <CloseIcon />
-    </button>
-  </ModalHeader>
-  ```
-- When "Float" is clicked, close the modal and open the same content in a `FloatingWindow`
-- Store user preference: if a tool was last used as floating, open it as floating next time
-
-### Sub-Phase D: Macro Engine Improvements (N4)
-
-**Step 11 — Add Conditional Logic to Macros** — ✗ NOT done
-> Verified 2026-05-18: `services/macro-engine.ts` has no `{if}`/`{else}`/comparison operator parsing. Only `resolveMacroVariables` + `expandRepeatBlocks` exist. Live work.
-
-- Open `src/renderer/src/services/macro-engine.ts`
-- Currently supports simple variable substitution (`$self`, `$target`, `$mod.str`)
-- Add basic conditional syntax:
-  ```
-  {if $self.hp < $self.maxhp/2}2d6+$mod.con{else}1d6+$mod.con{/if}
-  ```
-- Parser should handle:
-  - `{if condition}...{else}...{/if}` blocks
-  - Comparison operators: `<`, `>`, `<=`, `>=`, `==`, `!=`
-  - Arithmetic in conditions: `$self.hp < $self.maxhp/2`
-
-**Step 12 — Add Repeat/Multi-Roll** — ✓ DONE
-> Verified 2026-05-18: `expandRepeatBlocks` in `services/macro-engine.ts:80-88` (non-greedy regex, cap at N=20, newline-joined output). Multi-line execution dispatch at `macro-engine.ts:106-118`. Each iteration produces a separate chat result.
-
-- Add repeat syntax for multi-attack macros:
-  ```
-  {repeat 3}1d20+$mod.str vs AC | 2d6+$mod.str slashing{/repeat}
-  ```
-- Each iteration produces a separate roll result in chat
-- Useful for Extra Attack, Eldritch Blast, Scorching Ray
-
-**Step 13 — Fix Macro Bar Visibility** — ✓ DONE (different shape)
-> Verified 2026-05-18: not a separate `FloatingMacroBar` component as drafted. Instead, the collapsed branch of `PlayerBottomBar.tsx:192-203` renders `<MacroBar character={freshCharacter} onRoll={handleMacroRoll} />` inline alongside `<ChatPanel collapsed />`. Functionally equivalent — macro bar stays visible when the bottom bar is collapsed.
-
-- The audit notes the bottom bar collapse hides the Macro Bar
-- When the bottom bar is collapsed, show a minimal floating macro bar:
-  ```tsx
-  {isBottomBarCollapsed && macros.length > 0 && (
-    <FloatingMacroBar macros={macros} onExecute={executeMacro} />
-  )}
-  ```
-- Position above the collapsed bar
-
-### Sub-Phase E: ~~Unified Content Discovery (N5)~~
-
-> Moved to **Phase 15 (Sub-Phase E)**. The CompendiumModal-vs-LibraryPage duplication is one instance of the broader Phase 15 rule: every D&D-data consumer reads from the library, not from a parallel store. Phase 15 absorbs this work; no action in Phase 16.
-
-### Sub-Phase F: Scene Preloading (N6)
-
-**Step 15 — Preload Adjacent Map Assets**
-- When the DM has multiple maps in a campaign, preload the background images of nearby/linked maps:
-  ```typescript
-  function preloadAdjacentMaps(currentMap: GameMap, allMaps: GameMap[]) {
-    // Preload maps linked by portals
-    const portalTargets = currentMap.terrain
-      ?.filter(t => t.type === 'portal' && t.portalTarget)
-      .map(t => t.portalTarget!.mapId) ?? []
-
-    for (const mapId of portalTargets) {
-      const map = allMaps.find(m => m.id === mapId)
-      if (map?.imagePath) {
-        Assets.load(map.imagePath).catch(() => {})
-      }
-    }
-  }
-  ```
-- Call on map load and on map list change
-- Use PixiJS `Assets.load()` which caches results — subsequent loads are instant
-- Also preload the next map in the session's adventure sequence if one is defined
-
-**Step 16 — Add Transition Effect**
-- When switching maps, add a brief fade-to-black transition:
-  ```typescript
-  async function transitionToMap(mapId: string) {
-    // Fade out current map (300ms)
-    await fadeOverlay(0, 1, 300)
-    // Switch map
-    gameStore.setActiveMap(mapId)
-    // Wait for new map to render (next frame)
-    await new Promise(r => requestAnimationFrame(r))
-    // Fade in new map (300ms)
-    await fadeOverlay(1, 0, 300)
-  }
-  ```
-- Use a PixiJS overlay or CSS transition on the canvas container
-- Respect `prefers-reduced-motion` — skip animation if set
-
-### Sub-Phase G: Grid Coordinate Readout (N7)
-
-**Step 17 — Show Grid Position on Hover**
-- Open `src/renderer/src/components/game/map/MapCanvas.tsx`
-- On mousemove, calculate the grid coordinates under the cursor:
-  ```typescript
-  const gridCoord = pixelToGrid(cursorX, cursorY, grid)
-  // Display as "A3" for square grid or "3,7" for hex
-  ```
-- Show in a small HUD element:
-  ```tsx
-  <div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
-    {gridLabel}
-  </div>
-  ```
-- For square grids: use column letter + row number (e.g., "A1", "B5", "AA12")
-- For hex grids: use axial coordinates (e.g., "3,7")
-- Show for both DM and players
-- Add a toggle in settings to hide if unwanted
-
----
-
-## ⚠️ Constraints & Edge Cases
-
-### Auto-Pan
-- **Respect manual camera position**: If the player manually panned/zoomed, don't auto-pan for 5 seconds (debounce). This prevents fighting the user's intentional camera position. — ✗ NOT done (no manual-pan debounce found; live work).
-- **Hidden tokens**: If it's a hidden enemy's turn, do NOT pan to their position for players — only pan for visible entities. — ✓ DONE (`InitiativeOverlay.tsx:60-69` filters non-host viewers; lair actions + own-player entries always visible).
-- **Animation performance**: Use PixiJS ticker for smooth animation, not CSS transitions on the container. — unverified at this pass.
-
-### Map Pins
-- **Pin density**: A map with many pins can be cluttered. Add a zoom threshold — hide pin labels when zoomed out past a threshold, show only icons.
-- **Pin persistence**: Pins are part of `GameMap` and persist with the map data. They are NOT separate entities.
-- **Network sync**: Pin CRUD must be broadcast to clients. Before Phase 31, via `dm:map-update`. After Phase 31 lands, pins live inside the `map-pins` shard and propagate via shard delta automatically — no explicit broadcast call.
-
-### Floating Windows
-- **Do NOT float all modals** — only the frequently-used DM reference tools. Combat modals (AttackModal, SpellModal) should remain centered modals because they require focused interaction.
-- **Window stacking**: Implement a simple Z-index manager. Each click on a window increments its z-index.
-- **Screen bounds**: Prevent windows from being dragged off-screen. Clamp position to viewport bounds.
-
-### Macro Conditionals
-- **No arbitrary code execution**: The conditional parser should only support comparison operators and arithmetic on known variables. Do NOT implement `eval()` or allow arbitrary JavaScript.
-- **Error handling**: Malformed conditional syntax should produce a clear error message, not crash the macro.
-- **Backward compatibility**: Existing macros without conditionals must continue to work identically.
-
-### Scene Preloading
-- **Memory budget**: Preloading large map images consumes GPU memory. Limit to 3 preloaded maps max.
-- **Network bandwidth**: If map images are transferred via P2P, preloading would trigger downloads for clients. Only preload on the host; clients preload when they receive the map data during a switch.
-
-### Content Unification
-- Moved to Phase 15 (Sub-Phase E). See that plan for constraints around CompendiumModal-as-library-consumer.
-
-Begin implementation now. Start with Sub-Phase A (Steps 1-3) for auto-pan — this is the highest-impact QoL improvement that every player benefits from immediately. Then Sub-Phase B (Steps 4-7) for map pins as a unique differentiator feature. Sub-Phase C (Steps 8-10) for floating windows is higher effort but transforms the DM workflow.
+# Phase 16 — VTT Platform Comparison: Net-New Polish
+
+## Context
+Phase 16 collects the net-new gaps identified by comparing the dnd-app VTT against D&D Beyond, Foundry VTT, and Roll20. Most platform-comparison findings (active effects, dynamic lighting, trigger zones, audio emitters, multi-floor filtering, advanced walls, multi-token operations, rollable tables, party inventory, encounter builder, foreground/occlusion, guided character builder, library unification) are already owned by other phases — see the Depends on / blocks section.
+
+What remains here are the workflow polish features that don't fit elsewhere: auto-pan during initiative, map pins with journal links, non-blocking floating windows for DM reference tools, macro engine improvements (conditionals + repeat + visibility while bottom bar is collapsed), scene preloading, animated map transitions, and hover-based grid coordinate readout. The intended outcome is parity with the QoL features players expect from mainstream VTTs without bloating any existing subsystem.
+
+## Depends on / blocks
+- Depends on: Phase 1 (lighting, regions, audio emitters, floor filtering, walls, multi-token, rollable tables, party inventory, encounter builder, foreground/occlusion), Phase 2 (guided builder), Phase 13 (token context menu wiring), Phase 15 (library unification — absorbs old Sub-Phase E)
+- Blocks: none. Phase 31 (live-state sync) will later move pin CRUD into a `map-pins` shard; until then, pin broadcasts go through `dm:map-update`.
+
+## Files touched
+| Path | Role |
+|------|------|
+| `src/renderer/src/components/game/map/MapCanvas.tsx` | Auto-pan camera, hover grid coordinate readout, scene transition overlay |
+| `src/renderer/src/components/game/overlays/InitiativeOverlay.tsx` | Trigger auto-pan on turn change (DONE) |
+| `src/renderer/src/hooks/use-game-shortcuts.ts` | `center-on-me` keyboard handler (DONE) |
+| `src/renderer/src/components/game/GameLayout.tsx` | Wire `onCenterOnMe`, host `Add Pin` flow (DONE); add `autoPanOnTurnChange` setting + toggle |
+| `src/renderer/src/components/game/bottom/PlayerBottomBar.tsx` | "Center on Me" button; MacroBar in collapsed branch (DONE) |
+| `src/renderer/src/types/map.ts` | `MapPin`, `MapPinIcon`, `pins` field on `GameMap` (DONE) |
+| `src/renderer/src/components/game/map/map-pixi-setup.ts` | New `pinsContainer` layer between tokens and fog |
+| `src/renderer/src/components/game/overlays/EmptyCellContextMenu.tsx` | "Add Pin" menu entry (DONE — label-only) |
+| `src/renderer/src/components/ui/FloatingWindow.tsx` | Draggable/resizable window primitive (DONE) |
+| `src/renderer/src/components/game/modals/combat/InitiativeModal.tsx` | Add Float/Dock toggle |
+| `src/renderer/src/components/game/modals/dm-tools/CreatureModal.tsx` | Add Float/Dock toggle |
+| `src/renderer/src/components/game/modals/dm-tools/DMNotesModal.tsx` | Add Float/Dock toggle |
+| `src/renderer/src/services/macro-engine.ts` | `expandRepeatBlocks` (DONE); add `{if}` conditional parser |
+| `src/renderer/src/components/game/map/grid-layer.ts` | `drawGridLabels` row/column overlay (DONE — different shape than hover-readout) |
+
+## Sub-phase summary
+| # | Sub-phase | Theme |
+|---|-----------|-------|
+| 16a | Auto-pan to active token | Camera follows initiative + Center-on-Me UX |
+| 16b | Map pins with journal linkage | Spatial bookmarks with linked content |
+| 16c | Non-blocking floating tools | DM reference panels that don't block the map |
+| 16d | Macro engine improvements | Conditionals, repeat blocks, visible-when-collapsed |
+| 16e | (Removed) | Absorbed into Phase 15 (library unification) |
+| 16f | Scene preloading + transitions | Asset preload on portal links + fade between maps |
+| 16g | Grid coordinate readout | Hover HUD showing cell label under cursor |
+
+## Architecture / data flow
+```mermaid
+flowchart LR
+  Initiative[InitiativeOverlay turn change] -->|requestCenterOnEntity| Store[(gameStore.centerOnEntityId)]
+  Shortcut[Shift+C / Center-on-Me btn] -->|requestCenterOnEntity| Store
+  Store -->|effect| MapCanvas[MapCanvas camera pan]
+  Pins[(GameMap.pins)] -->|render| PinLayer[map-pixi-setup pinsContainer]
+  PinLayer -->|click| LinkedContent[Journal / NPC modal]
+  ModalHeader[Modal header Float btn] -->|toggle| FloatingWindow[FloatingWindow primitive]
+```
+
+## Sub-phase details
+
+### 16a — Auto-Pan to Active Token
+**Files:** `src/renderer/src/components/game/GameLayout.tsx`, `src/renderer/src/components/game/bottom/PlayerBottomBar.tsx`, `src/renderer/src/components/game/map/MapCanvas.tsx`
+**Steps:**
+1. Add `autoPanOnTurnChange: boolean` (default `true`) to the game settings store and surface a toggle in the game toolbar or settings dropdown. Gate the existing `requestCenterOnEntity` call at `InitiativeOverlay.tsx:70-73` on that setting (each viewer can override DM default).
+2. Add a "Center on Me" button in `PlayerBottomBar.tsx` that calls `useGameStore.getState().requestCenterOnEntity(character.id)`, mirroring the existing `onCenterOnMe` handler at `GameLayout.tsx:563-567`.
+3. In `MapCanvas.tsx:694-712` (current snap-pan), add a debounce that suppresses auto-pan for 5 seconds after the user manually pans/zooms. Track the last user-pan timestamp via the existing `panRef`/wheel handlers and skip the centering effect if `Date.now() - lastManualPanAt < 5000`.
+
+**Acceptance:** Toggling the setting off stops `MapCanvas.tsx:697` from re-centering on initiative changes. Pressing the "Center on Me" button moves the camera to the local character. Manually panning then waiting for a turn change does NOT auto-pan within 5s; after 5s it does.
+
+### 16b — Map Pins with Journal Linkage
+**Files:** `src/renderer/src/components/game/map/map-pixi-setup.ts`, `src/renderer/src/components/game/map/MapCanvas.tsx`, `src/renderer/src/components/game/overlays/EmptyCellContextMenu.tsx`, `src/renderer/src/components/game/GameLayout.tsx`
+**Steps:**
+1. Add a `pinsContainer` PixiJS Container in `map-pixi-setup.ts` between the token layer and the fog layer (mirror the existing `gridLabelContainer` pattern at `:97-99`). Wire it into the returned layers tuple at `:184`.
+2. In `MapCanvas.tsx`, add a `useEffect` that reads `activeMap.pins`, filters by `visibleToPlayers` for non-DM viewers and by `floor === currentFloor`, then renders each pin as an icon + colored chrome at `(gridX * cellSize + cellSize/2, gridY * cellSize + cellSize/2)`. Hide labels at zoom thresholds below ~0.5 to avoid clutter on dense maps.
+3. Add pointer handlers on each pin sprite: hover shows the `label` as a tooltip; click dispatches based on link fields — `linkedJournalId` opens journal panel, `linkedNpcId` opens NPC detail, `linkedLocationId` opens location detail.
+4. Upgrade the existing label-only prompt at `GameLayout.tsx:947-963` into a richer form (icon picker, color, visibility toggle, optional journal/NPC/location picker). Keep the same `updateMap(activeMap.id, { pins: [...] })` write path so 31's shard migration is trivial.
+
+**Acceptance:** A DM adding a pin via the EmptyCellContextMenu sees it render on the map. A pin with `visibleToPlayers: false` is invisible to non-DM viewers. Hovering a pin shows its label; clicking opens the linked content. Pins persist in `GameMap.pins`.
+
+### 16c — Non-Blocking Floating Tools
+**Files:** `src/renderer/src/components/game/modals/combat/InitiativeModal.tsx`, `src/renderer/src/components/game/modals/dm-tools/CreatureModal.tsx`, `src/renderer/src/components/game/modals/dm-tools/DMNotesModal.tsx`, `src/renderer/src/components/game/GameLayout.tsx`
+**Steps:**
+1. In each of the three modal headers, add a "Float / Dock" button beside Close. Clicking Float closes the modal (via existing `onClose`) and opens the same content inside `<FloatingWindow storageKey="initiative" ... />` mounted at the `GameLayout` level.
+2. Persist the user's last choice per tool in a `floatingWindowState` slice (sessionStorage-backed) so subsequent opens default to whichever surface (modal vs floating) was last used.
+3. Manage z-order at the `GameLayout` mount points — the `FloatingWindow` primitive already increments `zCounter` on focus (`FloatingWindow.tsx:38`); confirm the wrapper exposes the focus handler upstream.
+4. Do NOT float `AttackModal`, `SpellModal`, or any confirmation modal — these stay focused/blocking by design.
+
+**Acceptance:** Pressing Float on `InitiativeModal` shows the same tracker inside a draggable window with the map still interactive behind it. Reload — the same tool reopens as floating because the preference persisted. Clicking another floating window brings it forward.
+
+### 16d — Macro Engine Conditionals
+**Files:** `src/renderer/src/services/macro-engine.ts`
+**Steps:**
+1. Add a `{if condition}A{else}B{/if}` parser to `macro-engine.ts` that runs BEFORE `resolveMacroVariables`. Support comparison operators (`<`, `>`, `<=`, `>=`, `==`, `!=`) and arithmetic (`+`, `-`, `*`, `/`) on the already-supported `$self.hp`, `$self.maxhp`, `$mod.*`, `$prof`, `$level` variables. No `eval()` — hand-rolled tokenizer.
+2. Extend `resolveMacroVariables` at `macro-engine.ts:17-62` to also resolve `$self.hp` and `$self.maxhp` (currently only `mod.*`, `self`, `target`, `prof`, `level` are handled).
+3. Wire `expandConditionalBlocks` into `executeMacro` at `macro-engine.ts:100-101` so the order is: repeat -> conditional -> variables.
+4. Malformed conditionals should produce a clear chat error (`[Macro: name] syntax error in {if ...}`) and not throw.
+
+**Acceptance:** A macro `{if $self.hp < $self.maxhp/2}2d6+$mod.con{else}1d6+$mod.con{/if}` rolls the high die when bloodied and the low die when healthy. A malformed `{if foo bar}...{/if}` shows a clear error in chat, never crashes the chat dispatcher. Existing macros without conditionals continue to work identically.
+
+### 16f — Scene Preloading + Transitions
+**Files:** `src/renderer/src/components/game/map/MapCanvas.tsx`, `src/renderer/src/stores/game/map-token-slice.ts`
+**Steps:**
+1. Add `preloadAdjacentMaps(currentMap, allMaps)` near `MapCanvas.tsx:321` (the existing `Assets.load` call). For each `terrain` cell with `type === 'portal'` and a defined `portalTarget`, call `Assets.load(targetMap.imagePath).catch(() => {})`. Cap at 3 preloads to keep GPU memory bounded. Host only — clients preload when they receive the map-data on switch.
+2. Call `preloadAdjacentMaps` on map load and when the campaign map list changes.
+3. Add a fade-to-black transition when switching active maps: pre-switch fade overlay 0->1 (300ms), call `setActiveMap`, wait one `requestAnimationFrame`, fade 1->0 (300ms). Use a PixiJS overlay or CSS overlay on the canvas container. Respect `prefers-reduced-motion` — skip animation if set.
+
+**Acceptance:** With a campaign of 3+ maps linked via portals, switching to the linked map happens with no asset-load stutter (verified via DevTools network panel — no PNG/JPG load during the switch). The transition is a smooth 600ms fade. Setting `prefers-reduced-motion: reduce` removes the fade.
+
+### 16g — Grid Coordinate Hover Readout
+**Files:** `src/renderer/src/components/game/map/MapCanvas.tsx`
+**Steps:**
+1. On the map's pointermove handler, compute grid coordinates under the cursor using the existing `pixelToGrid`-equivalent math used at `MapCanvas.tsx:704-708`. Square grids -> column letter + row number ("A1", "AA12"); hex grids -> axial coordinates ("3,7").
+2. Render a small absolute-positioned HUD element inside the MapCanvas wrapper (`bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded`) showing the current coordinate.
+3. Add a settings toggle to hide if unwanted. Note: row/column edge labels already exist via `drawGridLabels` (`grid-layer.ts:218`) — this is a separate hover-only readout.
+
+**Acceptance:** Moving the cursor across cells updates the HUD readout in real time. The HUD respects the toggle. For both DM and players. No measurable FPS drop during sustained mouse movement.
+
+## Constraints & edge cases
+- **Auto-pan info leak**: The hidden-token guard at `InitiativeOverlay.tsx:60-69` MUST stay. Pre-existing Phase 15c fix — don't undo by triggering camera moves on hidden enemies' turns.
+- **Auto-pan vs manual pan**: Debounce manual interactions so the camera doesn't fight the user.
+- **Pin density**: Many pins on one map gets noisy; hide labels (not icons) below zoom 0.5.
+- **Pin sync**: Until Phase 31 lands, pin CRUD must be broadcast via the existing `dm:map-update` channel. After Phase 31 (live-state sync), pins live in the `map-pins` shard and propagate via delta automatically.
+- **Floating windows**: Never float confirmation modals or combat input modals (AttackModal, SpellModal) — focus is intentional there. Clamp window position to viewport bounds.
+- **Macro conditional safety**: No `eval()`. Hand-rolled tokenizer over a fixed variable allowlist. Backward-compatible — every existing macro must continue to work unchanged.
+- **Scene preload memory budget**: Hard cap of 3 preloaded maps. Only the host preloads (P2P clients receive map data lazily on switch).
+- **Grid hover-readout vs row/column labels**: Two different features. `drawGridLabels` already paints edge labels; the new HUD is per-cursor. Both can coexist.
+
+## Verification
+- `cd dnd-app && npm test -- macro-engine` — confirms `{if}` parser cases, malformed input handling, repeat-then-conditional ordering.
+- `cd dnd-app && npm test -- map-pixi-setup` — confirms `pinsContainer` is in the layer stack at the expected position.
+- Manual smoke: start a campaign, open initiative, advance turns -> camera pans to the active token, no pan when hidden enemy is up. Toggle the setting off -> no camera move. Press Shift+C / Center-on-Me -> camera centers on local character.
+- Manual smoke: DM places a pin via empty-cell menu, fills label/icon/journal link -> pin renders, hover shows label, click opens linked content. Player without `visibleToPlayers` doesn't see the pin.
+- Manual smoke: open InitiativeModal, click Float -> floating window appears, map is interactive behind it, reload -> initiative reopens floating.
+- Manual smoke: portal-link two maps, set active to one, DevTools Network tab clear -> switch maps; no image fetch happens during the switch; the fade transition plays for 600ms.
+- Manual smoke: hover cursor across the map -> HUD updates with cell label; toggle off -> HUD disappears.
+
+## Completed
+- 16a Step 1 (auto-pan trigger) — DONE (`src/renderer/src/components/game/overlays/InitiativeOverlay.tsx:54-73`) — `requestCenterOnEntity` flag fires on turn change; MapCanvas consumes at `MapCanvas.tsx:694-712`; hidden-token info-leak guard preserved.
+- 16a Step 3 (Center-on-Me shortcut) — DONE (`src/renderer/public/data/ui/keyboard-shortcuts.json:32`, `src/renderer/src/hooks/use-game-shortcuts.ts:94`, `src/renderer/src/components/game/GameLayout.tsx:562-567`) — Shift+C centers on local player's character.
+- 16b Step 1 (MapPin type) — DONE (`src/renderer/src/types/map.ts:31-55`) — `MapPin` interface, `MapPinIcon` union, `pins?: MapPin[]` on `GameMap`.
+- 16b Step 4 (Add Pin menu entry, minimal) — DONE (`src/renderer/src/components/game/overlays/EmptyCellContextMenu.tsx:143-153`, `src/renderer/src/components/game/GameLayout.tsx:943-964`) — label-only prompt writes to `activeMap.pins`; icon/color/link picker is the live remainder under 16b Step 4.
+- 16c Step 0 (FloatingWindow primitive) — DONE (`src/renderer/src/components/ui/FloatingWindow.tsx:1-80`, `src/renderer/src/components/ui/index.ts:8`) — draggable, resizable, sessionStorage-persisted, z-order managed; no consumers yet.
+- 16d Step 0 (repeat blocks + multi-line dispatch) — DONE (`src/renderer/src/services/macro-engine.ts:80-88`, `:100-118`) — `{repeat N}...{/repeat}` expands to N newline-joined copies, cap N=20; each line dispatched independently.
+- 16d Step 0b (macro bar visible when bottom bar collapsed) — DONE (`src/renderer/src/components/game/bottom/PlayerBottomBar.tsx:192-204`) — collapsed branch renders `<MacroBar />` inline alongside collapsed `<ChatPanel />`.
+- 16g Step 0 (row/column edge labels) — DONE (`src/renderer/src/components/game/map/grid-layer.ts:218`, `src/renderer/src/components/game/map/map-overlay-effects.ts:112-114`) — `drawGridLabels` paints column letters along top and row numbers along left when zoom > 0.5. Distinct from the live hover-readout step.
+- Phase 1 / prior follow-up (drawTokenStatusRing wired) — DONE (`src/renderer/src/components/game/map/token-sprite.ts:265`) — formerly unused; now invoked on each token sprite.

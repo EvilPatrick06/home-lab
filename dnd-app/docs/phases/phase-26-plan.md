@@ -1,277 +1,162 @@
-# SYSTEM OVERRIDE: IMPLEMENTATION MODE
+# Phase 26 — Encounter Builder & Combat Tracker
 
-Phase 26 covers the **Encounter Builder & Combat Tracker**. The builder correctly implements 2024 DMG XP budgets and has a functional search/add/count UI. The critical issues are: **GroupRollModal uses hardcoded mock data** (fake players, fake rolls), **"Place All & Start Initiative" doesn't actually place tokens**, **AI deployment stacks monsters in a tight grid ignoring walls**, **no wave support**, and **no encounter-to-map linkage**.
+## Context
 
-> **See also:** Phase 15 (Library as Single Source of Truth) — encounters store monster **refs**, not embedded monster JSON. See Step 10 and the Pre-Positioning constraint below.
->
-> **See also:** Phase 31 (Live-state sync overhaul) — token mutations from `smartPlaceTokens` / `executeLoadEncounter` propagate via the `map-tokens` shard automatically. Encounter object itself becomes its own shard (Phase 31 Sub-Phase 31i). Wave-trigger "Reinforcements arrive!" stays as a chat-shard message (one-shot event). Notes inline below.
->
-> **Verification pass (2026-05-18):** All five plan items (E1 GroupRollModal hardcoded `['Theron', 'Lyra', 'Grimjaw', 'Senna']`; E2 "Place All & Start Initiative" only broadcasts chat; E3 tight-grid AI deployment; E4 wave support; E5 encounter-to-map UI) verified ✗ NOT done. Live work.
+The encounter builder UI (`EncounterBuilderModal.tsx`) is feature-complete for monster search, count, party-size XP budgets (DMG 2024), and preset save/load. The combat tracker supports group initiative for identical monsters. The remaining gaps are wiring failures, not missing logic: (1) `GroupRollModal` ships with hardcoded mock players (`['Theron', 'Lyra', 'Grimjaw', 'Senna']`) and `Math.random()` modifiers — the DM sees fictional results; (2) the "Place All & Start Initiative" button only broadcasts a chat string and never instantiates tokens; (3) AI encounter deployment via `executeLoadEncounter` dumps every monster in a tight 5-wide grid at map center, ignoring walls and player positions; (4) no wave/reinforcement model; (5) `Encounter.mapId` exists in the type but has no UI to set it, and no per-monster pre-positioning.
 
----
+Phase 15 reshapes how encounters store monsters (refs into the library, not embedded JSON) and Phase 31 reshapes how token mutations propagate (structural shard diff replaces explicit broadcast). Both affect Step 6 (data model) and Step 11 (broadcast removal) here.
 
-## 🏗️ Architecture & Environment Split
+## Depends on / blocks
 
-### Windows 11 Machine (`C:\Users\evilp\dnd\`) — ALL WORK IS HERE
+- Depends on: Phase 1 (`RollRequestOverlay` reused in Step 2); Phase 15 Sub-Phase E (encounter monster `ref` shape, `instanceOverrides`); Phase 17 (group-save modifier bug feeds Step 3)
+- Blocks: none — downstream phases consume the wave data model and smart placement but don't gate on this
 
-**Key Files:**
+## Files touched
 
-| File | Role | Issues |
-|------|------|--------|
-| `src/renderer/src/components/game/modals/dm-tools/EncounterBuilderModal.tsx` | Encounter builder UI — search, add, count, XP budgets, presets | "Place All & Start Initiative" only broadcasts chat; no map linkage UI |
-| `src/renderer/src/components/game/modals/combat/GroupRollModal.tsx` | Group saving throw rolls | **Hardcoded mock players** (line 71): `['Theron', 'Lyra', 'Grimjaw', 'Senna']` with fake random rolls |
-| `src/renderer/src/services/game-actions/creature-actions.ts` | `executeLoadEncounter` — AI encounter deployment | Places all tokens in tight grid at map center, ignores walls/players |
-| `src/renderer/src/components/game/dm/InitiativeSetupForm.tsx` | Initiative setup — supports group initiative | `groupInitiativeEnabled` for identical monsters (line 157) — functional |
-| `src/renderer/src/types/encounter.ts` | `Encounter` type with `mapId` field | `mapId` defined but no UI to set it |
+| Path | Role |
+|------|------|
+| `src/renderer/src/components/game/modals/combat/GroupRollModal.tsx` | Strip mock players, wire to lobby + network |
+| `src/renderer/src/components/game/modals/dm-tools/EncounterBuilderModal.tsx` | Real "Place All", wave tabs, map dropdown, pre-position canvas |
+| `src/renderer/src/services/game-actions/creature-actions.ts` | Replace grid placement in `executeLoadEncounter` with smart placement; honor pre-positions |
+| `src/renderer/src/services/game-actions/token-placement.ts` | New — `smartPlaceTokens`, `findEmptyCell`, large-token aware |
+| `src/renderer/src/types/encounter.ts` | Add `EncounterWave`, per-monster `startX/startY`, migrate `monsters → waves` |
+| `src/renderer/src/components/game/overlays/RollRequestOverlay.tsx` | Reused for player group-save prompts |
+| `src/renderer/src/stores/use-lobby-store.ts` | Source of `connectedPlayers` for Step 1 |
+| `src/renderer/src/stores/network-store/index.ts` | New IPC messages: `dm:group-roll-request`, `player:group-roll-result` |
 
-### Raspberry Pi (`patrick@bmo`) — NO WORK THIS PHASE
+## Sub-phase summary
 
----
+| # | Sub-phase | Theme |
+|---|-----------|-------|
+| 26a | Fix GroupRollModal | Real players, networked rolls, monster auto-saves |
+| 26b | Wire "Place All & Start Initiative" | Actually create tokens, hook initiative |
+| 26c | Smart token placement | Spread away from players, respect walls + size |
+| 26d | Wave support | Multi-stage encounters, deploy mid-combat |
+| 26e | Encounter-map linkage | Map dropdown, pre-position monsters |
+| 26f | AI deployment uses smart placement | `executeLoadEncounter` honors pre-positions |
 
-## 📋 Core Objectives
+## Sub-phase details
 
-### CRITICAL
+### 26a — Fix GroupRollModal
 
-| # | Issue | Impact |
-|---|-------|--------|
-| E1 | GroupRollModal uses hardcoded mock players/rolls — not wired to network | Group saves are fake; DM sees fictional results |
-| E2 | "Place All & Start Initiative" doesn't place tokens | Core builder feature is a no-op |
+**Files:** `src/renderer/src/components/game/modals/combat/GroupRollModal.tsx`, `src/renderer/src/stores/use-lobby-store.ts`, `src/renderer/src/components/game/overlays/RollRequestOverlay.tsx`, `src/renderer/src/stores/network-store/index.ts`
 
-### HIGH
+**Steps:**
+1. Delete the hardcoded simulated players block at `GroupRollModal.tsx:70-78` (`const simulatedPlayers = ['Theron', 'Lyra', 'Grimjaw', 'Senna']` and the fake `Math.random()` modifier). Replace with `const players = useLobbyStore(s => s.players.filter(p => p.status === 'connected'))` (status field at `use-lobby-store.ts:128`).
+2. Register two new IPC messages in `network-store/index.ts`: `dm:group-roll-request` (`{ requestId, ability|skill, dc, rollType: 'save'|'check' }`) and `player:group-roll-result` (`{ requestId, playerId, roll, modifier, total }`). Add Zod schemas in `ipc-schemas.ts`.
+3. In `handleRequestRoll`, broadcast `dm:group-roll-request` to all target players, collect results into a `Map<playerId, RollResult>`, update UI as each arrives. Show "X/Y players responded" progress. Set 30s timeout, mark unresponsive players "No Response".
+4. On the player side, on receipt of `dm:group-roll-request`, mount `RollRequestOverlay` (existing — `overlays/RollRequestOverlay.tsx:34`); on player roll, send back `player:group-roll-result`.
+5. Add monster auto-roll path: for any selected enemy tokens (Phase 17 LOG-4 fix), look up `monsterStatBlockId`, pull `save.<ability>` modifier from stat block; `rollSingle(20) + saveMod`. If no stat block, fall back to +0 with a console warning.
+6. Disconnected mid-roll → auto-fail; DM can override via a per-row "Manual: Pass/Fail" select.
 
-| # | Issue | Impact |
-|---|-------|--------|
-| E3 | AI encounter deployment places monsters in tight grid at map center | DMs must manually reposition every monster |
-| E4 | No wave support for multi-stage encounters | Boss fights with reinforcements require separate presets |
-| E5 | No encounter-to-map linkage in UI | Can't pre-assign monster positions |
+**Acceptance:**
+- `GroupRollModal.tsx` contains no `'Theron'`/`'Lyra'`/`'Grimjaw'`/`'Senna'` literals (`grep` returns zero hits).
+- With two connected peers, DM-initiated save shows two real names; each peer sees a roll prompt; results stream in.
+- Monster row uses correct save modifier from stat block.
+- Unit test simulates timeout → marks "No Response".
 
----
+### 26b — Wire "Place All & Start Initiative"
 
-## 🛠️ Step-by-Step Execution Plan
+**Files:** `src/renderer/src/components/game/modals/dm-tools/EncounterBuilderModal.tsx`, `src/renderer/src/services/game-actions/token-placement.ts` (new)
 
-### Sub-Phase A: Fix GroupRollModal (E1)
+**Steps:**
+1. Replace `handleStartInitiative` body at `EncounterBuilderModal.tsx:133-141`. After broadcasting the chat summary, fetch `activeMap` via `useGameStore.getState()`; if absent, toast "No active map" and return.
+2. For each selected monster entry × `count`, build a `Partial<MapToken>` carrying `label`, `entityType: 'enemy'`, `currentHP/maxHP`, `ac`, `walkSpeed`, `monsterStatBlockId`, `visibleToPlayers: false` (hidden by default — DM reveals later).
+3. Call `smartPlaceTokens(activeMap, tokens)` from 26c.
+4. Build `InitiativeEntry[]` from the placed tokens (`rollD20() + initiativeModifier`); call `gameStore.startInitiative(entries)`; close modal.
+5. If `groupInitiativeEnabled` (`stores/game/index.ts:88`) is on, dedupe identical monsters into one initiative roll per group.
 
-**Step 1 — Wire GroupRollModal to Real Players**
-- Open `src/renderer/src/components/game/modals/combat/GroupRollModal.tsx`
-- Remove hardcoded `['Theron', 'Lyra', 'Grimjaw', 'Senna']` at line 71
-- Pull actual connected players from the lobby/network store:
-  ```typescript
-  const players = useLobbyStore(s => s.players)
-  const connectedPlayers = players.filter(p => p.status === 'connected')
-  ```
-- Display real player names with their characters
+**Acceptance:**
+- Clicking "Place All & Start Initiative" with 3 goblins + 1 ogre selected adds 4 tokens to `activeMap.tokens` and pushes 4 entries (or 2 with group init) into `gameStore.initiative`.
+- Tokens start `visibleToPlayers: false` (players see nothing until DM toggles).
+- New unit test in `EncounterBuilderModal.test.tsx` asserts `addToken` is called N times.
 
-**Step 2 — Implement Networked Group Roll**
-- When the DM initiates a group roll:
-  1. Send `dm:group-roll-request` to all target players with `{ ability, dc, rollType: 'save' }`
-  2. Each player's client shows a roll prompt (reuse `RollRequestOverlay` from Phase 1 B3)
-  3. Player rolls (or auto-rolls if setting enabled) and sends `player:group-roll-result` back
-  4. DM's GroupRollModal collects results as they arrive, updating the UI in real-time
-  5. After all results received (or timeout), show pass/fail summary
-- Timeout: 30 seconds; after timeout, unresponsive players are marked "No Response"
-- Auto-roll option: DM can toggle "Auto-roll for NPCs/monsters" for non-player targets
+### 26c — Smart token placement
 
-**Step 3 — Add Monster Group Rolls**
-- The DM should be able to include enemy tokens in group rolls (e.g., AoE effects)
-- For monsters, roll automatically using their save modifier from the stat block:
-  ```typescript
-  for (const monster of selectedMonsters) {
-    const saveMod = getMonsterSaveMod(monster, ability)
-    const roll = rollD20()
-    const total = roll + saveMod
-    results.push({ name: monster.label, roll, modifier: saveMod, total, passed: total >= dc })
-  }
-  ```
-- This fixes the Phase 17 LOG-4 issue (area saves ignoring modifiers) for the group roll flow
+**Files:** `src/renderer/src/services/game-actions/token-placement.ts` (new), test alongside
 
-### Sub-Phase B: Fix Token Placement (E2)
+**Steps:**
+1. New module exports `smartPlaceTokens(map: GameMap, tokens: Partial<MapToken>[]): MapToken[]`:
+   - Build `occupied = new Set` from existing `map.tokens` (account for `sizeX×sizeY`).
+   - Build `blocked = new Set` from `map.walls` (`types/map.ts:202-219`): any cell within 0.5 of a wall segment is blocked.
+   - Compute `playerCenter = average(gridX, gridY)` over tokens with `entityType === 'player'`; pick deployment start opposite (if `playerCenter.x > mapCols/2` start at col `2`, else `mapCols - 5`; mirror for Y).
+   - For each new token, spiral outward from start via `findEmptyCell(startX, startY, occupied, blocked, mapCols, mapRows, sizeX, sizeY)`; call `gameStore.addToken(map.id, { ...token, gridX, gridY })` and add all occupied cells to `occupied`.
+2. `findEmptyCell` must check all `sizeX × sizeY` cells the token would occupy (Large=2×2, Huge=3×3, Gargantuan=4×4) — none may be in `occupied ∪ blocked` and all within map bounds.
+3. Use `getSizeTokenDimensions(monster.size)` from `types/monster.ts` (already imported by `executeLoadEncounter`).
 
-**Step 4 — Wire "Place All & Start Initiative" to Actually Place Tokens**
-- Open `src/renderer/src/components/game/modals/dm-tools/EncounterBuilderModal.tsx`
-- Find the "Place All & Start Initiative" button handler
-- Instead of just broadcasting chat, actually create tokens:
-  ```typescript
-  const handlePlaceAndStart = () => {
-    const activeMap = useGameStore.getState().activeMap
-    if (!activeMap) return
+**Acceptance:**
+- Unit test with a 20×20 map, 4 player tokens at (10,10) cluster, deploying 8 goblins → all 8 placed on opposite half, no overlap, no wall cell.
+- Test with Huge dragon (3×3): all 9 underlying cells clear.
+- No infinite loop when map is too full (return what was placed, log warning).
 
-    const tokens: Partial<MapToken>[] = []
-    for (const entry of encounterMonsters) {
-      for (let i = 0; i < entry.count; i++) {
-        tokens.push({
-          label: `${entry.name}${entry.count > 1 ? ` ${i + 1}` : ''}`,
-          entityType: 'enemy',
-          currentHP: entry.hp,
-          maxHP: entry.hp,
-          ac: entry.ac,
-          walkSpeed: entry.speed,
-          monsterStatBlockId: entry.id,
-          visibleToPlayers: false, // Hidden by default — DM reveals when ready
-        })
-      }
-    }
+### 26d — Wave support
 
-    // Place tokens using smart placement (Step 5)
-    smartPlaceTokens(activeMap, tokens)
+**Files:** `src/renderer/src/types/encounter.ts`, `src/renderer/src/components/game/modals/dm-tools/EncounterBuilderModal.tsx`, `src/renderer/src/components/game/dm/InitiativeTracker.tsx`
 
-    // Start initiative
-    const initiativeEntries = tokens.map(t => ({
-      entityName: t.label,
-      entityType: 'enemy',
-      initiative: rollD20() + (t.initiativeModifier ?? 0),
-    }))
-    gameStore.startInitiative(initiativeEntries)
+**Steps:**
+1. In `types/encounter.ts:1-26`, add `EncounterWave { id; name; monsters: EncounterMonster[]; triggerCondition?: string }`. Change `Encounter.monsters: EncounterMonster[]` to `Encounter.waves: EncounterWave[]`.
+2. Add migration helper `migrateEncounter(raw): Encounter`: if `raw.monsters` exists and `raw.waves` does not, wrap as `waves: [{ id: 'wave-1', name: 'Wave 1', monsters: raw.monsters }]`. Run at load time wherever encounters are read from `localStorage` (`EncounterBuilderModal.tsx:153` preset load path).
+3. Wave tabs in `EncounterBuilderModal.tsx` above the monster table: render `waves.map(...)`, active-wave underline, `+ Add Wave` button. Each wave shows its own monster list + XP subtotal; total encounter XP sums across waves.
+4. Trigger condition is free-text only ("round 3", "boss < 50% HP"); no automation.
+5. In `InitiativeTracker.tsx`, add "Deploy Wave N" buttons (one per pending wave). On click → run `smartPlaceTokens` for that wave, add to initiative, broadcast a one-shot chat message "Reinforcements arrive!". Mark wave deployed.
 
-    onClose()
-  }
-  ```
+**Acceptance:**
+- Existing preset in `localStorage` with flat `monsters` still loads (migration test).
+- New 2-wave encounter saves and reloads with both waves intact.
+- Per-wave XP sum equals total; difficulty bar reflects total.
+- "Deploy Wave 2" button only appears when wave 2 has not yet been deployed.
 
-**Step 5 — Smart Token Placement Algorithm**
-- Instead of placing all tokens at the map center in a tight grid:
-  ```typescript
-  function smartPlaceTokens(map: GameMap, tokens: Partial<MapToken>[]): void {
-    const cellSize = map.grid.cellSize
-    const mapCols = Math.floor(map.width / cellSize)
-    const mapRows = Math.floor(map.height / cellSize)
+### 26e — Encounter-map linkage
 
-    // Find empty cells not occupied by existing tokens or walls
-    const occupied = new Set(map.tokens.map(t => `${t.gridX},${t.gridY}`))
-    const blocked = new Set<string>() // cells with walls
+**Files:** `src/renderer/src/components/game/modals/dm-tools/EncounterBuilderModal.tsx`, `src/renderer/src/types/encounter.ts`
 
-    // Build blocked set from walls
-    for (const wall of map.walls ?? []) {
-      // Mark cells adjacent to walls as potentially blocked
-    }
+**Steps:**
+1. Add a `<select>` for `mapId` in `EncounterBuilderModal.tsx`: options pulled from `useGameStore(s => s.maps)`. Persist to encounter preset.
+2. When `mapId` is set, render a small canvas preview of the linked map.
+3. Per-monster pre-position: extend `EncounterMonster` to `{ ref: EntryRef<'monsters' | 'creatures' | 'npcs'>, count, startX?: number, startY?: number, instanceOverrides? }`. Field name is `instanceOverrides` (Phase 15 Sub-Phase E alignment).
+4. Click on the mini-map sets `startX/startY` for the currently selected monster row.
+5. If the visual canvas is too costly, ship grid X/Y number inputs per monster row first; the visual click handler can land in a follow-up.
 
-    // Find the map edge farthest from players for enemy placement
-    const playerTokens = map.tokens.filter(t => t.entityType === 'player')
-    const playerCenter = getAveragePosition(playerTokens)
+**Acceptance:**
+- Setting `mapId` then "Place All" causes tokens with `startX/startY` to use those coords (bypassing smart placement), and tokens without them to fall through to smart placement.
+- Per-monster `instanceOverrides` round-trips through save/load.
 
-    // Place tokens in a spread formation away from players
-    let placed = 0
-    const startX = playerCenter ? (playerCenter.x > mapCols / 2 ? 2 : mapCols - 5) : Math.floor(mapCols / 2)
-    const startY = playerCenter ? (playerCenter.y > mapRows / 2 ? 2 : mapRows - 5) : Math.floor(mapRows / 2)
+### 26f — AI deployment uses smart placement
 
-    for (const token of tokens) {
-      // Spiral outward from start position to find empty cell
-      const pos = findEmptyCell(startX, startY, occupied, blocked, mapCols, mapRows, placed)
-      if (pos) {
-        gameStore.addToken(map.id, { ...token, gridX: pos.x, gridY: pos.y })
-        occupied.add(`${pos.x},${pos.y}`)
-        placed++
-      }
-    }
-  }
-  ```
-- Place enemies on the opposite side of the map from players
-- Spread tokens in a loose formation (not tight grid)
-- Respect walls — don't place tokens inside walls
+**Files:** `src/renderer/src/services/game-actions/creature-actions.ts`
 
-### Sub-Phase C: Wave Support (E4)
+**Steps:**
+1. In `executeLoadEncounter` at `creature-actions.ts:622-715`, delete the tight-grid block (`centerX + col * dims.x`, `centerY + row * dims.y` at lines 658-700) and call `smartPlaceTokens(map, tokens)` from 26c instead.
+2. If the preset has any monster with `startX/startY`, honor those exact coords; pass only the remainder through `smartPlaceTokens`.
+3. Phase 31 coordination: after Phase 31 lands, the `map-tokens` shard auto-broadcasts. Remove the explicit `broadcastTokenSync(map.id, stores)` call at `creature-actions.ts:704`. Until Phase 31 ships, leave the broadcast call in.
 
-**Step 6 — Add Wave Data Model**
-- Open `src/renderer/src/types/encounter.ts`
-- Add wave support to the `Encounter` type:
-  ```typescript
-  export interface EncounterWave {
-    id: string
-    name: string  // "Wave 1", "Reinforcements", "Boss Phase 2"
-    monsters: EncounterMonster[]
-    triggerCondition?: string  // "round 3", "when boss below 50% HP", manual
-  }
+**Acceptance:**
+- Loading "Goblin Ambush" preset with 6 goblins on a 25×25 map with players clustered at (5,5) → goblins placed in the (15-22, 15-22) region, none on walls.
+- Encounter with pre-positioned monsters places them at exact coords.
 
-  export interface Encounter {
-    id: string
-    name: string
-    mapId?: string
-    waves: EncounterWave[]  // replaces flat monsters array
-    // ... existing fields
-  }
-  ```
-- Migrate existing encounters: if `monsters` exists without `waves`, wrap in a single wave
+## Constraints & edge cases
 
-**Step 7 — Add Wave UI to Encounter Builder**
-- In `EncounterBuilderModal.tsx`, add wave tabs:
-  ```tsx
-  <div className="flex gap-2 mb-4">
-    {waves.map((wave, i) => (
-      <button key={wave.id} onClick={() => setActiveWave(i)}
-        className={activeWave === i ? 'border-b-2 border-amber-400' : ''}>
-        {wave.name}
-      </button>
-    ))}
-    <button onClick={addWave}>+ Add Wave</button>
-  </div>
-  ```
-- Each wave has its own monster list and XP budget display
-- Total encounter XP is sum of all waves
-- DM can name waves and set trigger conditions (free text)
+- **GroupRollModal timeouts:** 30s default; show progress; disconnected mid-roll auto-fails (DM can override row-by-row).
+- **Monster auto-roll fallback:** if no stat block linked → +0 modifier with console warning, not a thrown error.
+- **Large-token placement:** Large (2×2), Huge (3×3), Gargantuan (4×4) — `findEmptyCell` checks every underlying cell.
+- **Tokens hidden by default:** placed enemy tokens start `visibleToPlayers: false`; DM toggles visibility when revealing.
+- **Initiative integration:** when starting from the builder, include player tokens already on the map. Respect `groupInitiativeEnabled`.
+- **Wave backward compat:** flat `monsters` array → wrap in single wave at load. XP budget shown per-wave AND as total.
+- **Wave triggers are free-text only:** no engine automation.
+- **Pre-position fallback:** if visual canvas is too heavy, ship X/Y number inputs first.
+- **Phase 15 rule:** encounter monster entries are `{ ref, startX, startY, count, instanceOverrides? }` — never embed monster JSON. `instanceOverrides.actions` replaces the whole action array atomically (Phase 15 array-atomic constraint).
+- **Phase 31 rule:** `smartPlaceTokens` and `executeLoadEncounter` both write to `gameStore.maps[].tokens`; the `map-tokens` shard diff propagates. Drop explicit `broadcastTokenSync` calls once Phase 31 is live. Wave-trigger "Reinforcements arrive!" stays a chat-shard message.
+- **Encounter as its own shard:** Phase 31 Sub-Phase 31i — the `Encounter` object becomes a shard once Phase 31 lands; the data model in 26d should not have hidden cycles or non-serializable fields.
 
-**Step 8 — Wave Deployment During Combat**
-- Add a "Deploy Wave" button in the initiative tracker or DM toolbar:
-  ```typescript
-  const handleDeployWave = (waveIndex: number) => {
-    const wave = encounter.waves[waveIndex]
-    // Place wave monsters using smartPlaceTokens
-    smartPlaceTokens(activeMap, wave.monsters.flatMap(m => createTokensFromMonster(m)))
-    // Add to initiative
-    // Broadcast: "Reinforcements arrive!"
-  }
-  ```
-- Show deployed/pending status for each wave
+## Verification
 
-### Sub-Phase D: Encounter-Map Linkage (E5)
+- `grep "Theron\|Lyra\|Grimjaw\|Senna" src/` → zero hits.
+- Unit tests: `GroupRollModal.test.tsx` covers real-player wiring + timeout; `token-placement.test.ts` covers spread, walls, large tokens; `EncounterBuilderModal.test.tsx` covers wave migration + "Place All" actually adds tokens; `creature-actions.test.ts` covers smart placement and pre-position honoring.
+- Manual: open builder, add 4 monsters, click "Place All & Start Initiative" → 4 tokens appear on opposite side of map from players, initiative tracker populated.
+- Manual: open group save modal with two connected players → both names appear, both get prompted, results stream in.
+- Manual: create 2-wave preset, start initiative on wave 1, click "Deploy Wave 2" → second batch appears with chat broadcast.
+- `npm run lint && npm run test && tsc --noEmit` clean.
 
-**Step 9 — Add Map Selection to Encounter Builder**
-- In `EncounterBuilderModal.tsx`, add a map dropdown:
-  ```tsx
-  <select value={encounter.mapId} onChange={e => setMapId(e.target.value)}>
-    <option value="">No Map</option>
-    {maps.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
-  </select>
-  ```
-- When a map is linked, show a mini-preview of the map
+## Completed
 
-**Step 10 — Pre-Position Monsters on Map**
-- When a map is linked, allow DMs to pre-assign monster starting positions:
-  - Show the linked map in a small canvas view within the encounter builder
-  - Click on the map to set a monster's starting position
-  - Store positions in the encounter data per-monster entry: `{ ref: EntryRef<'monsters' | 'creatures' | 'npcs'>, startX, startY, count, instanceOverrides? }`. The monster's stat block hydrates via `useLibraryEntry` — encounters store refs, not embedded JSON (Phase 15 rule). **Field name `instanceOverrides`** (not `overrides`) matches Phase 15 Sub-Phase E — encounter monsters carry instance-level customization (this specific encounter's "Goblin (Lieutenant)" with custom HP), distinct from ref-level player-intent overrides (player renamed Wand of Magic Missiles to "Pew Pew").
-- When "Place All" is clicked with pre-positions, use those positions instead of smart placement
-
-### Sub-Phase E: Improve AI Encounter Deployment (E3)
-
-**Step 11 — Improve executeLoadEncounter Placement**
-- Open `src/renderer/src/services/game-actions/creature-actions.ts`
-- Find `executeLoadEncounter`
-- Replace the tight center-grid placement with `smartPlaceTokens()` from Step 5
-- If the encounter has pre-positioned monsters (from Step 10), use those positions
-- If no pre-positions, use the smart placement algorithm
-
-> **Phase 31 coordination:** Both `smartPlaceTokens` (Step 5) and `executeLoadEncounter` (Step 11) write to `useGameStore.maps[].tokens`. After Phase 31, the `map-tokens` shard's structural diff picks those mutations up automatically; no explicit broadcast call is required. Drop any direct `sendMessage('dm:token-add', ...)` calls these functions currently make.
-
----
-
-## ⚠️ Constraints & Edge Cases
-
-### GroupRollModal
-- **Network timeout**: Players may be slow to respond. Show results as they arrive with a progress indicator: "3/5 players responded."
-- **Disconnected players**: If a player disconnects during a group roll, auto-fail (or allow DM to override).
-- **Monster auto-rolls should use correct modifiers**: Pull save modifiers from the monster's stat block. If no stat block is linked, fall back to +0 with a warning.
-
-### Token Placement
-- **Large tokens**: Large (2x2), Huge (3x3), and Gargantuan (4x4) tokens need multiple cells. The `findEmptyCell` function must check all cells the token would occupy.
-- **Hidden by default**: Placed enemy tokens should start with `visibleToPlayers: false` so players don't see them before the DM reveals. The DM can toggle visibility.
-- **Initiative order**: When starting initiative from the encounter builder, include player tokens already on the map. Use `InitiativeSetupForm` logic for rolling initiative with group initiative support.
-
-### Waves
-- **Backward compatibility**: Existing encounter presets (saved to localStorage) use a flat `monsters` array. Migration: wrap in `waves: [{ id: 'wave-1', name: 'Wave 1', monsters: existingMonsters }]`.
-- **XP budget per wave**: Show per-wave XP and total XP. The difficulty rating should use total XP across all waves.
-- **Wave trigger conditions are free text**: No automation — the DM manually deploys waves. Trigger text is for the DM's reference only.
-
-### Pre-Positioning
-- **This is a nice-to-have**: If implementing the full mini-map pre-positioning canvas is too complex, start with simple grid coordinate inputs (X, Y per monster). The visual map placement can come later.
-- **Pre-positions are stored in the encounter, not the map**: Monsters aren't placed until the DM deploys them.
-- **Phase 15 rule**: Encounter monster entries are `{ ref: EntryRef<'monsters' | 'creatures' | 'npcs'>, startX, startY, count, instanceOverrides? }`. The encounter never holds a copy of the monster stat block. Pre-Phase-15 encounters with embedded monster data auto-migrate at load (Phase 15 Step 22 — Migration). **Editing an encounter monster's `actions` via `instanceOverrides` replaces the entire action array atomically** — the encounter "owns" that monster's action list permanently. Library updates to other actions don't reach customized encounters. This is per Phase 15's array-atomic-replace constraint.
-
-Begin implementation now. Start with Sub-Phase A (Steps 1-3) to fix GroupRollModal — this is a broken feature that shows fake data. Then Sub-Phase B (Steps 4-5) to wire "Place All & Start Initiative" to actually work. These two fixes transform the encounter builder from partially broken to fully functional.
+- (none — all five items E1-E5 verified NOT DONE as of 2026-05-19; no steps to archive)

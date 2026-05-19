@@ -1,322 +1,153 @@
-# SYSTEM OVERRIDE: IMPLEMENTATION MODE
+# Phase 19 — Packaging, Build Configuration, and Distribution
 
-> **See also:** Phase 15 (library build-guard lint allowlist) and Phase 30 (host-side snapshot path). See notes inline in the Path Bug Files table below.
->
-> **Verification pass (2026-05-18):**
-> - P1 srd-provider.ts packaged path bug — ✗ still present. `src/main/ai/srd-provider.ts:7` still has `'public'` in the joined path. Critical, AI SRD lookups fail in packaged builds. Live work.
-> - Step 3 `src/main/paths.ts` utility — ✗ file does not exist. Live work.
-> - All other sub-phases (release script, code signing, platform targets, chunk index, updater) — ✗ verified not done.
+## Context
 
-Phase 19 covers **Packaging, Build Configuration, and Distribution** — Electron build toolchain, NSIS installer, auto-updater, code signing, platform targets, and asset paths. The audit found the Windows build pipeline functional but identified a **critical packaged path bug** in `srd-provider.ts`, missing Mac/Linux targets, no code signing, and a `release` script that doesn't clean stale artifacts.
+Phase 19 covers the Electron build toolchain: electron-vite + electron-builder, the NSIS installer, the auto-updater, code signing, platform targets, and how data assets are resolved in packaged vs dev builds. The original audit (2026-03-09) flagged a critical packaged path bug in `srd-provider.ts` that makes AI SRD lookups return nothing in production, plus several reliability/quality gaps (no code signing, Windows-only targets, `release` script not cleaning stale artifacts).
 
----
+The 2026-05-19 re-verification shows significant progress: Linux builds now ship (`linux.target: ["AppImage"]`, `build:linux`, `release:linux`), CI release workflow exists with preflight + verify-assets jobs, chunk-index handles missing reference files, and auto-check-on-startup is wired. The critical `srd-provider.ts` `public/` path bug is still live, the shared `paths.ts` utility was never created, `prerelease` is still not invoked by `release`, and code signing is still not configured.
 
-## 🏗️ Architecture & Environment Split
+## Depends on / blocks
 
-### Windows 11 Machine (`C:\Users\evilp\dnd\`) — ALL WORK IS HERE
+- Depends on: none
+- Blocks: Phase 15 (library build-guard lint allowlist needs to know which files load 5e raw JSON), Phase 30 (host-side snapshot path under `userData/snapshots/` should reuse the same path-resolution layer if one lands)
 
-Phase 19 is entirely build/config work on the Windows machine.
+## Files touched
 
-**Build System Files:**
-
-| File | Role | Issues |
-|------|------|--------|
-| `package.json` | Build scripts (lines 6-22), electron-builder config (lines 62-105) | Windows only; `release` doesn't run `prerelease`; `signAndEditExecutable: true` but no cert config |
-| `electron.vite.config.ts` | Vite config for main/preload/renderer | `__APP_VERSION__` injection, `manualChunks` |
-| `resources/installer.nsh` | Custom NSIS macros for upgrade hardening | Functional |
-| `resources/icon.ico` | App icon (~360KB) | Present |
-| `resources/icon.png` | App icon PNG (~46KB) | Present |
-| `scripts/prerelease-clean.mjs` | Cleans `dist/` before build | Not called by `release` script |
-| `scripts/build-chunk-index.mjs` | Builds AI chunk index from reference files | Depends on gitignored `5.5e References/` |
-
-**Path Bug Files:**
-
-| File | Lines | Issue |
-|------|-------|-------|
-| `src/main/ai/srd-provider.ts` | 6-8 | **CRITICAL**: Packaged path uses `renderer/public/data/5e` — should be `renderer/data/5e` (Vite strips `public/` prefix). **Phase 15 note:** also affects the library build-guard lint rule — coordinate when Phase 15 lands. |
-| `src/renderer/src/network/authority/persistence.ts` (Phase 30g, future) | — | **Phase 30 note:** host-side snapshot writes to `<userData>/snapshots/<campaignId>.json`. Ensure `getDataDir()` / `getResourcePath()` from Step 3 handle this case when Phase 30 lands. |
-| `src/main/ai/context-builder.ts` | 27 | Uses `__dirname` (covered by Phase 6 Step 7 — overlap) |
-
-**Updater:**
-
-| File | Role |
+| Path | Role |
 |------|------|
-| `src/main/updater.ts` | electron-updater wrapper, on-demand check/download/install |
-| `src/renderer/src/components/ui/UpdatePrompt.tsx` | Floating update banner |
-| `src/renderer/src/pages/AboutPage.tsx` | Full update flow UI (lines 139-220) |
+| `src/main/ai/srd-provider.ts` | Critical packaged-path bug — `'public'` still in join |
+| `src/main/ai/context-builder.ts` | Dev branch still references `renderer/public/data/5e`; covered by try/catch |
+| `src/main/ai/chunk-builder.ts` | Already uses `process.resourcesPath` + `rulebooks` / `chunk-index.json` correctly |
+| `src/main/ipc/game-data-handlers.ts` | Already uses `is.dev` branching with no `public/` in packaged path |
+| `src/main/paths.ts` | Does not exist — proposed shared util |
+| `package.json` | `build` config; `release` script still skips `prerelease`; no CSC config; no `mac` target |
+| `scripts/build/prerelease-clean.mjs` | Present but not invoked by `release` |
+| `scripts/build/build-chunk-index.mjs` | Already handles missing `5.5e References/` by falling back to tracked `resources/chunk-index.json` |
+| `scripts/build/verify-build.mjs` | Does not exist — local pre-package verification gap |
+| `scripts/sign.mjs` | Does not exist — conditional signing wrapper |
+| `src/main/updater.ts` | `maybeAutoCheckOnLaunch` already implemented (v2.1.16) |
+| `src/main/index.ts` | Already calls `maybeAutoCheckOnLaunch()` at line 265 |
+| `.github/workflows/release.yml` | Has `preflight` + matrix build + `verify-assets`; no signing wiring |
 
-### Raspberry Pi (`patrick@bmo`) — NO WORK THIS PHASE
+## Sub-phase summary
 
----
+| # | Sub-phase | Theme |
+|---|-----------|-------|
+| 19a | Fix critical packaged path | srd-provider `'public'` bug + audit related callers |
+| 19b | Shared paths utility | Centralize dev/packaged path resolution |
+| 19c | Release script reliability | Invoke `prerelease` + add local build verification |
+| 19d | Code signing | Conditional signing wrapper + CSC env var docs |
+| 19e | macOS target | Add `mac`/`dmg` build config |
+| 19f | Cross-platform path audit | Verify `userData`, separators on all OSes |
 
-## 📋 Core Objectives
+## Architecture / data flow
 
-### CRITICAL
+```mermaid
+flowchart LR
+  src[src/renderer/public/data/5e/*.json] -- vite build --> outRenderer[out/renderer/data/5e/*.json]
+  outRenderer -- electron-builder --> asar[app.asar/renderer/data/5e/*.json]
+  refs[5.5e References/*.md] -- build:index --> chunkIndex[resources/chunk-index.json]
+  chunkIndex -- extraResources --> resourcesPath[process.resourcesPath/chunk-index.json]
+  ollamaBin[resources/ollama/windows/] -- win.extraResources --> resourcesPath
+```
 
-| # | Issue | Impact |
-|---|-------|--------|
-| P1 | `srd-provider.ts` packaged path includes `public/` — AI SRD lookups fail in production | AI DM has no spell/monster/rule data in packaged build |
+Key invariant: Vite copies the *contents* of `src/renderer/public/` to the root of `out/renderer/`. The `public/` directory name is stripped. Any main-process code joining `'public'` into a packaged path will miss the file.
 
-### IMPORTANT
+## Sub-phase details
 
-| # | Issue | Impact |
-|---|-------|--------|
-| P2 | `release` script doesn't run `prerelease` — stale dist artifacts affect delta updates | Update delivery unreliable |
-| P3 | No code signing — Windows SmartScreen blocks unsigned installers | Users see "Windows protected your PC" warning |
-| P4 | Mac/Linux not supported — Windows-only build targets | Cannot distribute to non-Windows users |
+### 19a — Fix critical packaged path in srd-provider
 
-### MINOR
+**Files:** `src/main/ai/srd-provider.ts`, `src/main/ai/context-builder.ts`
+**Steps:**
+1. In `src/main/ai/srd-provider.ts:7`, remove the literal `'public'` from the join so the packaged branch reads `join(process.resourcesPath, 'app.asar', 'renderer', 'data', '5e')`. The dev branch at line 9 (`join(app.getAppPath(), 'src', 'renderer', 'public', 'data', '5e')`) is correct and stays.
+2. In `src/main/ai/context-builder.ts:24-30`, replace the `NODE_ENV` check with `app.isPackaged` (matches the rest of the codebase) and align the packaged path with `getSrdDir()` in srd-provider. Today the prod branch already targets `out/renderer/data/5e` via `app.getAppPath()` which is the loader-time path, not the packaged path; switching to `process.resourcesPath + app.asar + renderer + data + 5e` makes both files consistent.
+3. Verify `src/main/ipc/game-data-handlers.ts:10` continues to work — it uses `__dirname, '..', 'renderer'` in packaged mode which resolves to `app.asar/renderer/` (correct). No change needed.
+4. Verify `src/main/ai/chunk-builder.ts:24` (`process.resourcesPath, 'rulebooks'`) and `chunk-builder.ts:292` (`process.resourcesPath, 'chunk-index.json'`) are unchanged — both are extraResources entries outside the asar.
 
-| # | Issue | Impact |
-|---|-------|--------|
-| P5 | `5.5e References/` gitignored — chunk index may be empty | AI features degraded on clean clones |
-| P6 | `context-builder.ts` dev path (Phase 6 overlap) | Non-fatal, covered by try-catch |
+**Acceptance:** `grep -rn "public" src/main/ai/srd-provider.ts src/main/ai/context-builder.ts` shows no `public` literal in either packaged branch. Manually run a packaged build, open the DM, ask "what does fireball do?" — SRD lookup returns spell data instead of empty.
 
----
+### 19b — Shared paths utility
 
-## 🛠️ Step-by-Step Execution Plan
+**Files:** `src/main/paths.ts` (new), `src/main/ai/srd-provider.ts`, `src/main/ai/context-builder.ts`, `src/main/ai/chunk-builder.ts`, `src/main/ipc/game-data-handlers.ts`
+**Steps:**
+1. Create `src/main/paths.ts` exporting `getDataDir()` and `getResourcePath(relative: string)` that branch on `app.isPackaged` and return the canonical paths used by Step 1.
+2. Replace direct path joins in `srd-provider.ts:5-10`, `context-builder.ts:24-30`, `chunk-builder.ts:22-32`, and `game-data-handlers.ts:7-12` with calls into the new utility.
+3. Decide Phase 15 coordination: if Phase 15 lands a build-guard lint rule restricting raw 5e JSON imports, either add `paths.ts` to the allowlist OR route reads through the renderer library store. Note here when Phase 15 ships.
 
-### Sub-Phase A: Fix Critical Packaged Path (P1)
+**Acceptance:** Single source of truth for the asar-relative data dir. `grep -rn "renderer.*public.*data\|app.asar.*renderer" src/main` returns only `paths.ts`. Existing `srd-provider.test.ts`, `context-builder.test.ts`, `chunk-builder.test.ts`, `game-data-handlers.test.ts` still pass.
 
-**Step 1 — Fix srd-provider.ts Packaged Path**
-- Open `src/main/ai/srd-provider.ts`
-- Find lines 6-8:
-  ```typescript
-  if (app.isPackaged) {
-    return join(process.resourcesPath, 'app.asar', 'renderer', 'public', 'data', '5e')
-  }
-  ```
-- Remove `'public'` from the path:
-  ```typescript
-  if (app.isPackaged) {
-    return join(process.resourcesPath, 'app.asar', 'renderer', 'data', '5e')
-  }
-  ```
-- **Rationale**: electron-vite copies `src/renderer/public/` contents to `out/renderer/` root. The `public/` directory name is stripped. When electron-builder packages `out/` into `app.asar`, the structure is `app.asar/renderer/data/5e/`, not `app.asar/renderer/public/data/5e/`.
+### 19c — Release script reliability
 
-**Step 2 — Verify All Packaged Paths**
-- Search the entire `src/main/` directory for any path that includes `'public'` when packaged:
-  ```
-  grep -r "public.*data" src/main/
-  ```
-- Verify `context-builder.ts` line 27 (Phase 6 overlap — may already be fixed)
-- Verify `chunk-builder.ts` line 287 uses `process.resourcesPath` correctly for `chunk-index.json`
-- Verify `game-data-handlers.ts` resolves data paths correctly in packaged mode
+**Files:** `package.json` (scripts block, lines 11-27), `scripts/build/verify-build.mjs` (new)
+**Steps:**
+1. Edit `package.json:21` (`release` script) so it invokes `prerelease` first: `"release": "npm run prerelease && npm run build:index && electron-vite build && electron-builder --win --publish always"`. Apply the same to `release:linux` (line 22) and `release:all` (line 23). `prerelease-clean.mjs` only wipes `dist/` — safe to run on every release.
+2. Create `scripts/build/verify-build.mjs` that asserts `out/main/index.js`, `out/preload/index.mjs`, `out/renderer/index.html`, `out/renderer/data/5e/spells/spells.json`, and `resources/chunk-index.json` exist before electron-builder runs. Insert between `electron-vite build` and `electron-builder` in each release script.
+3. Confirm `.github/workflows/release.yml` `verify-assets` job (lines 192-229) continues to catch the post-publish surface (it lists 6 expected assets — keep in sync if installer artifact names change).
 
-**Step 3 — Create Path Utility**
-- Create a shared utility for resolving data paths in both dev and packaged:
-  ```typescript
-  // src/main/paths.ts
-  import { app } from 'electron'
-  import { join } from 'node:path'
-  import { is } from '@electron-toolkit/utils'
+**Acceptance:** `npm run release` cleans `dist/` then rebuilds. `verify-build.mjs` exits non-zero if any required output is missing. Local pre-tag run of `npm run check:release` still green.
 
-  export function getDataDir(): string {
-    if (is.dev) {
-      return join(__dirname, '..', '..', 'renderer', 'public', 'data', '5e')
-    }
-    return join(process.resourcesPath, 'app.asar', 'renderer', 'data', '5e')
-  }
+### 19d — Code signing (Windows)
 
-  export function getResourcePath(relativePath: string): string {
-    if (is.dev) {
-      return join(__dirname, '..', '..', relativePath)
-    }
-    return join(process.resourcesPath, relativePath)
-  }
-  ```
-- Replace all direct path constructions in `srd-provider.ts`, `context-builder.ts`, `chunk-builder.ts`, and `game-data-handlers.ts` with calls to this utility
+**Files:** `package.json` (lines 101-120), `scripts/sign.mjs` (new), `.env.signing.template` (new)
+**Steps:**
+1. Replace `"signAndEditExecutable": true` (line 106) with `"signAndEditExecutable": false` plus `"sign": "./scripts/sign.mjs"` so unsigned builds don't fail when no cert is present.
+2. Create `scripts/sign.mjs`: if `process.env.CSC_LINK` is unset, log "skipping code signing" and return. Otherwise delegate to electron-builder's default signtool wrapper. Keep it ESM (`export default async function sign(configuration) {…}`).
+3. Add `.env.signing.template` documenting `CSC_LINK` (path to PFX) and `CSC_KEY_PASSWORD`. Add `.env.signing` to `.gitignore` (verify not already excluded).
+4. Document in `README.md` that production builds require a cert; CI can use base64-encoded secrets (`CSC_LINK` as base64 → electron-builder writes a temp file).
 
-> **Phase 15 coordination:** Phase 15 Step 24 ships a build-guard lint rule restricting raw-JSON imports from `public/data/5e/**` to library boundaries. `src/main/paths.ts`, `srd-provider.ts`, and the other consumers above need to either (a) be on the explicit allowlist for the lint rule, or (b) load 5e data via the library store instead of raw paths. Decide which when Phase 15 lands.
+**Acceptance:** Local `npm run build:win` succeeds without `CSC_LINK` set (no signing). With a valid cert, the installer is signed (verify in Windows file properties → Digital Signatures).
 
-### Sub-Phase B: Fix Release Script (P2)
+### 19e — macOS target
 
-**Step 4 — Integrate Prerelease into Release**
-- Open `package.json`
-- Find the `release` script
-- Modify to include `prerelease` and `build:index`:
-  ```json
-  "release": "npm run prerelease && npm run build:index && electron-vite build && electron-builder --win --publish always"
-  ```
-- This ensures:
-  1. `dist/` is cleaned (no stale blockmaps)
-  2. AI chunk index is rebuilt
-  3. App is compiled
-  4. Package is built and published
+**Files:** `package.json` (build block, after line 144)
+**Steps:**
+1. Add `mac` section with `category: "public.app-category.games"`, `target: ["dmg", "zip"]`, `icon: "resources/icon.png"`, `hardenedRuntime: true`, `gatekeeperAssess: false`.
+2. Add `dmg` section with two-icon layout (app + Applications symlink).
+3. Add `build:mac` and `release:mac` scripts that mirror the Linux pair.
+4. Note in README that DMG builds require running on a Mac runner (electron-builder cannot produce notarized DMGs on Windows/Linux). Add `macos-latest` to the release.yml matrix when a Mac runner becomes available — out of scope for this phase, but document the requirement.
 
-**Step 5 — Add Build Verification Script**
-- Create `scripts/verify-build.mjs`:
-  ```javascript
-  // Verify required files exist after build
-  const required = [
-    'out/main/index.js',
-    'out/preload/index.mjs',
-    'out/renderer/index.html',
-    'out/renderer/data/5e/spells/spells.json',
-    'resources/chunk-index.json'
-  ]
-  for (const file of required) {
-    if (!existsSync(file)) {
-      console.error(`Missing required file: ${file}`)
-      process.exit(1)
-    }
-  }
-  console.log('Build verification passed')
-  ```
-- Add to release script: `npm run verify-build` after `electron-vite build` but before `electron-builder`
+**Acceptance:** `npm run build:mac` (on a Mac) produces a DMG and ZIP. Configuration is valid (run `npx electron-builder --help` to confirm no schema errors).
 
-### Sub-Phase C: Code Signing Setup (P3)
+### 19f — Cross-platform path audit
 
-**Step 6 — Document Code Signing Configuration**
-- The `signAndEditExecutable: true` setting in `package.json` line 89 is already enabled
-- electron-builder expects environment variables:
-  - `CSC_LINK` — path to PFX/P12 certificate file
-  - `CSC_KEY_PASSWORD` — certificate password
-- Create a `.env.signing.template` file (NOT committed, added to .gitignore):
-  ```
-  # Windows Code Signing (required for production builds)
-  # Obtain a code signing certificate from DigiCert, Sectigo, or similar CA
-  CSC_LINK=path/to/certificate.pfx
-  CSC_KEY_PASSWORD=your-certificate-password
-  ```
-- Add to `package.json` build section as comment or README instruction
-- For immediate use without a purchased certificate: set `signAndEditExecutable: false` to avoid build errors when no cert is present
+**Files:** `src/main/`, `src/renderer/`
+**Steps:**
+1. Confirm `app.getPath('userData')` is used everywhere user-writable state lives (campaigns, settings, snapshots). Grep for hard-coded `%APPDATA%`, `~/Library`, `~/.config`.
+2. Grep for hardcoded backslashes in path strings: `grep -rn "\\\\\\\\" src/`. None expected — `path.join` handles separators.
+3. Grep for Windows drive-letter assumptions: `grep -rn "C:\\\\\|D:\\\\" src/`. None expected.
+4. Verify `path.join`/`path.sep` usage in all main-process file IO.
 
-**Step 7 — Conditional Signing**
-- Modify the build config to gracefully handle missing certificates:
-  ```json
-  "win": {
-    "signAndEditExecutable": false,
-    "sign": "./scripts/sign.mjs"
-  }
-  ```
-- Create `scripts/sign.mjs`:
-  ```javascript
-  // Only sign if CSC_LINK is set; skip silently otherwise
-  export default async function sign(configuration) {
-    if (!process.env.CSC_LINK) {
-      console.log('Skipping code signing (CSC_LINK not set)')
-      return
-    }
-    // Default signing behavior
-    const { signWindows } = await import('electron-builder')
-    return signWindows(configuration)
-  }
-  ```
+**Acceptance:** Clean greps for the patterns above. Existing tests still pass on Linux CI runner.
 
-### Sub-Phase D: Mac/Linux Platform Targets (P4)
+## Constraints & edge cases
 
-**Step 8 — Add macOS Build Configuration**
-- Open `package.json`
-- Add `mac` section to the build config:
-  ```json
-  "mac": {
-    "category": "public.app-category.games",
-    "target": ["dmg", "zip"],
-    "icon": "resources/icon.png",
-    "hardenedRuntime": true,
-    "gatekeeperAssess": false
-  },
-  "dmg": {
-    "contents": [
-      { "x": 130, "y": 220 },
-      { "x": 410, "y": 220, "type": "link", "path": "/Applications" }
-    ]
-  }
-  ```
-- Add build script: `"build:mac": "npm run build:index && electron-vite build && electron-builder --mac"`
-- Note: macOS builds require running on a Mac (cross-compilation not supported for DMG/notarization)
+- **ASAR boundary:** `app.asar` contents are read-only and shimmed as a virtual filesystem. `extraResources` entries live *outside* the asar at `process.resourcesPath`. Never prepend `app.asar` to an extraResources path. The Ollama bundle (`resources/ollama/windows/` → `ollama/`) and `chunk-index.json` are both extraResources.
+- **Vite public dir stripping:** `src/renderer/public/<x>` becomes `out/renderer/<x>` (no `public/` segment). The Phase 19 critical bug is exactly this off-by-one path.
+- **Code signing cost:** Standard CAs charge $200-400/year for code signing certs. Azure Trusted Signing is cheaper for indie devs. Free self-signed certs do not bypass SmartScreen.
+- **macOS cross-compilation:** electron-builder cannot produce signed/notarized DMGs from Windows or Linux. A macOS CI runner is required.
+- **GitHub release API rate limits:** Unauthenticated check-for-updates calls hit 60/hour. The updater silently downgrades errors to "not-available" to avoid alarming users when the limit is hit.
+- **Delta updates:** Differential downloads are intentionally disabled in `updater.ts` (line 236) due to corruption observed across structural changes (e.g. v2.0 → v2.1 when `signAndEditExecutable` flipped). Full re-downloads are slower but reliable.
+- **`window.isDestroyed()` guard:** Broadcasting update status events to closed windows throws. `broadcastStatus` in `updater.ts:57-63` already guards correctly.
+- **CI parity:** `5.5e References/` is gitignored so CI does not have it. `build-chunk-index.mjs` already falls back to the tracked `resources/chunk-index.json` (lines 240-247). Do not break that fallback.
 
-**Step 9 — Add Linux Build Configuration**
-- Add `linux` section:
-  ```json
-  "linux": {
-    "target": ["AppImage", "deb"],
-    "category": "Game",
-    "icon": "resources/icon.png"
-  }
-  ```
-- Add build script: `"build:linux": "npm run build:index && electron-vite build && electron-builder --linux"`
-- Linux builds can be cross-compiled from Windows using Docker (electron-builder supports this)
+## Verification
 
-**Step 10 — Platform-Specific Path Fixes**
-- The `getDataDir()` utility from Step 3 handles path differences
-- Verify `app.getPath('userData')` works correctly on all platforms:
-  - Windows: `%APPDATA%/dnd-vtt/`
-  - macOS: `~/Library/Application Support/dnd-vtt/`
-  - Linux: `~/.config/dnd-vtt/`
-- Verify all `path.join()` calls use forward slashes or `path.sep` for cross-platform compatibility
-- Check for any Windows-specific paths (e.g., backslashes, drive letters) hardcoded in the codebase
+After each sub-phase:
+1. `npm run lint && npm run test`
+2. `npm run check:release` (lint + both typechecks + tests — same gates as CI preflight)
+3. For 19a/19b: build the app (`npm run build:win` on Win, `npm run build:linux` on Linux), install it, open the DM, prompt with a known SRD spell name. SRD context block should appear in the AI prompt logs.
+4. For 19c: `npm run release` end-to-end on a throwaway tag — confirm `dist/` was cleaned and all expected artifacts are present.
+5. For 19d: Win build with no `CSC_LINK` succeeds and is unsigned (expected SmartScreen warning); with a real cert, installer shows a valid digital signature.
+6. For 19e: build on a Mac runner — DMG mounts and the app launches.
+7. For 19f: full test suite green on the Linux CI runner.
 
-### Sub-Phase E: Chunk Index Resilience (P5)
+## Completed
 
-**Step 11 — Handle Missing 5.5e References Gracefully**
-- Open `scripts/build-chunk-index.mjs`
-- If `5.5e References/` directory doesn't exist, output a valid but empty chunk index:
-  ```javascript
-  if (!existsSync(REFERENCES_DIR)) {
-    console.warn('5.5e References directory not found — generating empty chunk index')
-    writeFileSync(OUTPUT, JSON.stringify({ chunks: [], version: 1 }))
-    process.exit(0)
-  }
-  ```
-- This ensures `npm run build:index` never fails, even on clean clones without reference files
-- The AI will operate with reduced context (no SRD chunks) but won't crash
-
-**Step 12 — Add Chunk Index to .gitattributes**
-- `resources/chunk-index.json` is gitignored (correct — it's a build artifact)
-- Add a note in the README or CONTRIBUTING.md explaining that `build:index` must be run before the first build
-- Consider checking in a minimal default `chunk-index.json` with basic rules/glossary
-
-### Sub-Phase F: Updater Robustness
-
-**Step 13 — Add Automatic Update Check on Startup**
-- Open `src/main/updater.ts`
-- Currently update checks are on-demand only
-- Add an optional background check after app startup (with 30-second delay to avoid blocking startup):
-  ```typescript
-  export function scheduleUpdateCheck() {
-    setTimeout(async () => {
-      try {
-        const result = await autoUpdater.checkForUpdates()
-        if (result?.updateInfo) {
-          // Notify renderer about available update
-          BrowserWindow.getAllWindows()[0]?.webContents.send(
-            IPC_CHANNELS.UPDATE_STATUS,
-            { status: 'update-available', version: result.updateInfo.version }
-          )
-        }
-      } catch {
-        // Silently fail — user can check manually
-      }
-    }, 30_000)
-  }
-  ```
-- Call from `src/main/index.ts` after app initialization
-- Respect a user setting: `checkForUpdatesOnStartup: boolean` (default: true)
-
----
-
-## ⚠️ Constraints & Edge Cases
-
-### Packaged Paths
-- **ASAR archive**: When packaged, most app files are inside `app.asar`. Use `process.resourcesPath` + `app.asar` for ASAR contents, or `app.getAppPath()` which returns the ASAR root directly.
-- **Unpacked files**: `extraResources` files (icon, chunk-index) are OUTSIDE the ASAR at `process.resourcesPath/`. Don't prepend `app.asar` for these.
-- **Dev vs Production**: Always branch on `app.isPackaged` or `is.dev`. Never assume one path works for both.
-
-### Code Signing
-- **Cost**: Windows code signing certificates cost $200-400/year from standard CAs. Free alternatives (self-signed) don't bypass SmartScreen.
-- **Azure Trusted Signing**: Microsoft offers a cheaper alternative for small developers. Consider for future.
-- **CI/CD**: If using GitHub Actions, CSC_LINK should be a base64-encoded secret, not a file path.
-
-### Cross-Platform
-- **macOS builds require macOS**: electron-builder cannot produce signed/notarized DMGs on Windows. A macOS CI runner (GitHub Actions `macos-latest`) is needed.
-- **Linux builds are cross-compilable**: electron-builder can produce AppImage/deb on Windows via Docker.
-- **Native dependencies**: If any npm packages have native addons (e.g., better-sqlite3), they need to be rebuilt per platform. `electron-builder install-app-deps` handles this.
-
-### Auto-Update
-- **Background checks should be non-blocking**: The 30-second delay and try-catch ensure the app isn't slowed or crashed by update checks.
-- **`win.isDestroyed()` check**: Same as Phase 17 NET-2 — verify the window exists before sending update status events.
-- **GitHub rate limits**: If many users check for updates simultaneously, GitHub API rate limits (60/hour unauthenticated) may cause failures. The "silently fail" approach handles this.
-
-Begin implementation now. Start with Sub-Phase A (Steps 1-3) — the packaged path bug is CRITICAL and directly causes AI features to fail in production. Then Sub-Phase B (Steps 4-5) for release script reliability. Sub-Phases C-F are important for production quality but can be done incrementally.
+- 19g Step 1 — DONE (`src/main/updater.ts:290-298`, `src/main/index.ts:265`) — auto-check-on-startup wired via `maybeAutoCheckOnLaunch`, gated by `settings.autoCheckUpdates`, with a 5s deferral so the renderer is alive for status events. Also covers optional auto-download and auto-restart prefs.
+- 19h Step 1 — DONE (`scripts/build/build-chunk-index.mjs:240-247`) — missing `5.5e References/` directory now falls back to the tracked `resources/chunk-index.json` instead of failing the build. Empty-index fallback is unnecessary because the prebuilt index is checked in.
+- 19i Step 1 — DONE (`package.json:133-147`, `package.json:18`, `package.json:22`, `.github/workflows/release.yml:77-190`) — Linux `AppImage` target shipped, `build:linux` and `release:linux` scripts in place, release workflow builds Windows + Linux in matrix.
+- 19j Step 1 — DONE (`.github/workflows/release.yml:35-75`) — CI preflight job validates version match + lint + both typechecks + tests before any artifact is built.
+- 19k Step 1 — DONE (`.github/workflows/release.yml:192-229`) — post-publish `verify-assets` job fails the release if any of the 6 expected assets are missing (catches the v2.0.1 / v2.0.2 silent-partial-upload class of bug).
+- 19l Step 1 — DONE (`src/main/ipc/game-data-handlers.ts:10`) — packaged path correctly uses `join(__dirname, '..', 'renderer')` with no stale `public/` segment; path-traversal guard via `resolve` is also in place (line 24).
+- 19m Step 1 — DONE (`src/main/ai/chunk-builder.ts:24`, `chunk-builder.ts:292`) — rulebooks and chunk-index resolution correctly use `process.resourcesPath` without joining `app.asar`.
+- 19n Step 1 — DONE (`package.json:21`) — `release` script invokes `build:index` (chunk index rebuild) before electron-vite build. Still missing the `prerelease` clean (tracked in 19c Step 1).

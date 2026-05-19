@@ -1,312 +1,252 @@
-# SYSTEM OVERRIDE: IMPLEMENTATION MODE
+# Phase 22 — Codebase Sweep: Accessibility, Leaks, Dependencies, Security
 
-Phase 22 is a **comprehensive codebase analysis** covering performance, architecture, documentation, dependencies, accessibility, and i18n. Many findings overlap prior phases. This plan covers **net-new items only**: unused reduced-motion hook, timer/listener leaks, unused dependencies, conversation memory leak, plugin installer security, CSP hardcoded IP, production console statements, service layer bypass, and missing project files.
+## Context
 
-> **See also:** Phase 15 (Library as Single Source of Truth) — H4 service-layer bypass converges with the broader hydration-layer rewrite there.
->
-> **See also:** Phase 30 — the production-console-statements item touches `host-handlers.ts:132, 161` which Phase 30 consolidates into `GameAuthority`. Apply the console→logger swap during Phase 30's extraction (the lines move with the consolidation).
+Phase 22 collects net-new findings from a comprehensive codebase audit (performance, architecture, documentation, dependencies, accessibility, i18n, security). Items owned by other phases (modal a11y, ARIA labels, error-handling convention, big-component timer leaks, god-object split) are NOT duplicated here.
 
----
+This phase focuses on the unique remaining issues: the accessibility reduced-motion path that has no effect on the UI, a small set of timer/listener leaks in lesser components, dependency hygiene, in-memory map cleanup, the BMO IP / CSP path, production console statements, and missing project files. A second wave folds in audit findings that do not have an owning phase yet: plugin-ID input validation, a CI PR-check workflow, throttle utility, and tracking entries for the larger architectural items (god-object splits, IPC schemas, dead code, magic numbers, CRUD modal pattern, i18n framework).
 
-## 🏗️ Architecture & Environment Split
+## Depends on / blocks
+- Depends on: none
+- Blocks: none
+- Coordinates with:
+  - Phase 15 Sub-Phase E — explicitly absorbs the `EquipmentTab.tsx` / `SpellsTab.tsx` service-layer bypass (22g). If Phase 15 ships first the issue is structurally fixed and 22g closes as a no-op.
+  - Phase 17 (GUI-3, GUI-11) — owns DiceOverlay / ShopView timer cleanup; not duplicated here.
+  - Phase 17 / Phase 18 — own modal-shell, ARIA-label, and input-label sweeps; not duplicated here.
+  - Phase 30 — extracts `host-handlers.ts` into `GameAuthority`; the console-to-logger swap in that file should land during Phase 30's extraction so the edits do not conflict.
 
-### Windows 11 Machine (`C:\Users\evilp\dnd\`) — ALL WORK IS HERE
+## Files touched
 
-### Cross-Phase Overlap (DO NOT duplicate)
+| Path | Role |
+|------|------|
+| `src/renderer/src/hooks/use-reduced-motion.ts` | Hook to (re-)create — wraps store flag + OS media query |
+| `src/renderer/src/stores/use-accessibility-store.ts` | Apply `.reduce-motion` class on root when store flag flips |
+| `src/renderer/src/styles/globals.css` | Add `.reduce-motion *` rules mirroring the existing `@media` rule |
+| `src/renderer/src/components/sheet/5e/ArmorManager5e.tsx` | Wrap auto-dismiss `setTimeout` calls in `useRef` + cleanup |
+| `src/renderer/src/components/sheet/5e/EquipmentListPanel5e.tsx` | Same pattern |
+| `src/renderer/src/components/library/AudioPlayerItem.tsx` | Move audio-element listeners into `useEffect` with cleanup |
+| `src/renderer/src/components/game/overlays/PlayerHUDOverlay.tsx` | Add `useEffect` unmount cleanup for drag listeners |
+| `src/renderer/src/hooks/use-toast.ts` | Track per-toast timeout id; clear on manual dismiss |
+| `src/main/ai/ai-service.ts` | Track stream-TTL `setInterval`, clear on `will-quit`; export `removeConversation` |
+| `src/main/storage/campaign-storage.ts` | On `deleteCampaign` cascade, call `removeConversation` |
+| `src/main/ipc/game-data-handlers.ts` | Wrap `JSON.parse` in try/catch |
+| `src/renderer/src/components/library/PdfViewer.tsx` | `console.warn` -> `logger.warn` |
+| `src/renderer/src/services/combat/combat-resolver.ts` | `console.warn` -> `logger.warn` |
+| `src/renderer/src/events/system-chat-bridge.ts` | `console.error` -> `logger.error` |
+| `src/main/ipc/plugin-handlers.ts` | Validate plugin ID format before file-path use |
+| `src/renderer/src/utils/throttle.ts` | New — shared throttle utility |
+| `.github/workflows/pr-checks.yml` | New — lint + type-check + test on every PR |
+| `package.json` | Drop unused `immer` |
+| `LICENSE` (dnd-app project root) | Create ISC license text |
+| `CHANGELOG.md` (dnd-app project root) | Create initial release log |
 
-| Issue | Owned By |
-|-------|----------|
-| README rewrite | Phase 21 |
-| CI pipeline | Phase 21 |
-| Modal escape/focus (50+ modals) | Phase 17 (GUI-7, GUI-8) |
-| ARIA labels (50+ buttons) | Phase 18 |
-| Input labels (200+ inputs) | Phase 18 |
-| Error handling consistency | Phase 17 (Sub-Phase D) |
-| Timer leaks in DiceOverlay, ShopView | Phase 17 (GUI-3, GUI-11) |
-| Three.js resource leaks | Phase 17 (GUI-4) |
-| Audio emitters/floor selector | Phase 1 |
-| God object decomposition | Catalogued for future |
+## Sub-phase summary
 
----
+| # | Sub-phase | Theme |
+|---|-----------|-------|
+| 22a | Reduced-motion wiring | Make the accessibility store flag actually affect the UI |
+| 22b | Remaining timer / listener leaks | ArmorManager, EquipmentListPanel, AudioPlayerItem, PlayerHUDOverlay, use-toast, ai-service interval |
+| 22c | Dependency hygiene | Drop unused `immer` |
+| 22d | ConversationManager map cleanup | Delete in-memory conversation when campaign is deleted |
+| 22e | Production console statements | Route through `logger` |
+| 22f | Main-process robustness | JSON.parse try/catch in game-data-handlers |
+| 22g | Service-layer bypass | Coordinate with Phase 15 Sub-Phase E — see Constraints |
+| 22h | Missing project files | LICENSE, CHANGELOG |
+| 22i | Plugin ID validation | Validate `pluginId` format in main-process handlers |
+| 22j | PR-check CI workflow | Lint + type-check + test on every push / pull request |
+| 22k | Shared throttle utility | Standardize rate-limiting across rapid-fire handlers |
+| 22l | Audit tracking entries | File log entries for the large architectural items (no inline fix) |
 
-## 📋 Net-New Objectives
+## Sub-phase details
 
-### HIGH PRIORITY
+### 22a — Reduced-motion wiring
 
-| # | Issue | Impact |
-|---|-------|--------|
-| H1 | `useReducedMotion` hook defined but NEVER used — accessibility setting has zero effect | Users who need reduced motion get no relief |
-| H2 | Unused production dependencies inflate install (`immer`, `@pixi/react`, `@tiptap/extension-image`) | Bundle bloat |
-| H3 | Script-only deps in `dependencies` (`@langchain/*`) | Production install includes build tools |
-| H4 | Components bypass data-provider service layer (direct IPC) | Miss caching, error handling, homebrew merge |
-| H5 | Timer/listener leaks in ArmorManager, EquipmentListPanel, AudioPlayerItem, PlayerHUDOverlay, use-toast | Memory leaks, stale state updates |
+**Files:** `src/renderer/src/hooks/use-reduced-motion.ts` (new), `src/renderer/src/stores/use-accessibility-store.ts`, `src/renderer/src/styles/globals.css`
 
-### MEDIUM PRIORITY
+**Steps:**
+1. (Re-)create `src/renderer/src/hooks/use-reduced-motion.ts` exporting `useReducedMotion(): boolean` that returns `useAccessibilityStore((s) => s.reducedMotion) || window.matchMedia('(prefers-reduced-motion: reduce)').matches`. The store-flag path at `src/renderer/src/stores/use-accessibility-store.ts:82` already initializes from the OS media query.
+2. In `src/renderer/src/stores/use-accessibility-store.ts:99`, after `set({ reducedMotion: v })`, also toggle `document.documentElement.classList.toggle('reduce-motion', v)`. Apply once at module init (after `saved.reducedMotion` resolution near line 82) so the class reflects persisted state on app start.
+3. In `src/renderer/src/styles/globals.css:65-75`, add a sibling block mirroring the `@media (prefers-reduced-motion: reduce)` rule:
+   ```css
+   .reduce-motion *, .reduce-motion *::before, .reduce-motion *::after {
+     animation-duration: 0.01ms !important;
+     animation-iteration-count: 1 !important;
+     transition-duration: 0.01ms !important;
+     scroll-behavior: auto !important;
+   }
+   ```
+4. Add `useReducedMotion()` calls to JS-animation orchestrators that CSS cannot reach: `DiceOverlay.tsx` (already reads `useAccessibilityStore.getState().reducedMotion` at line 155 — refactor to use the hook), the fog-overlay / weather-overlay / token-animation / combat-animations modules. Where the JS already runs a CSS transition, the new `.reduce-motion` class will handle it; where the JS drives PixiJS tickers or RAF loops, branch to the instant-result path.
 
-| # | Issue | Impact |
-|---|-------|--------|
-| M1 | ConversationManager never cleans up deleted campaign conversations | Memory growth in long sessions |
-| M2 | Plugin installer uses PowerShell `Expand-Archive` — injection risk | Security |
-| M3 | Hardcoded IP `10.10.20.242` in CSP | Non-portable BMO configuration |
-| M4 | 5 production console.warn/error calls bypass logger | Unwanted output in production |
-| M5 | No LICENSE file despite ISC declaration in package.json | Legal ambiguity |
-| M6 | No CHANGELOG.md | No structured release tracking |
-| M7 | Electron 40 EOL June 2026 | 4 months to plan upgrade |
+**Acceptance:** Flip the in-app `reducedMotion` setting in `SettingsPage` — `<html>` element gets / loses the `reduce-motion` class. CSS transitions on toasts, dice popovers, and modals run at 0.01ms. 3D dice still display rolled values without playing the physics animation. OS-level `prefers-reduced-motion` continues to default the store as it does today.
 
----
+### 22b — Remaining timer / listener leaks
 
-## 🛠️ Step-by-Step Execution Plan
+**Files:** `src/renderer/src/components/sheet/5e/ArmorManager5e.tsx`, `EquipmentListPanel5e.tsx`, `AudioPlayerItem.tsx`, `PlayerHUDOverlay.tsx`, `use-toast.ts`, `src/main/ai/ai-service.ts`
 
-### Sub-Phase A: Wire useReducedMotion (H1)
+**Steps:**
+1. `src/renderer/src/components/sheet/5e/ArmorManager5e.tsx:62,158` — wrap each `setTimeout(() => setBuyWarning(null), 4000)` and `setTimeout(() => setCustomCostError(null), 3000)` with a shared `useRef<ReturnType<typeof setTimeout>>()`. Clear the ref before each new schedule and in a `useEffect(() => () => clearTimeout(ref.current), [])` cleanup.
+2. `src/renderer/src/components/sheet/5e/EquipmentListPanel5e.tsx:203` — same pattern.
+3. `src/renderer/src/components/library/AudioPlayerItem.tsx:59-69` — move the three `audio.addEventListener('loadedmetadata' | 'error' | 'ended', ...)` calls out of the `handleToggle` click handler and into a `useEffect` keyed on `path`; capture the listener functions in named consts and return a cleanup that calls `removeEventListener`. The audio element should be constructed eagerly (or via ref) so the effect can attach listeners deterministically.
+4. `src/renderer/src/components/game/overlays/PlayerHUDOverlay.tsx:62-75` — the inline `onMove` / `onUp` remove themselves on mouseup but stay on `window` if the component unmounts mid-drag. Hoist `onMove` / `onUp` into refs or component scope, and add `useEffect(() => () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp) }, [])` so unmount during drag cleans both listeners.
+5. `src/renderer/src/hooks/use-toast.ts:39` — `setTimeout(() => dismissToast(id), duration)` is not cleared if the user dismisses the toast manually. Maintain a module-level `Map<string, ReturnType<typeof setTimeout>>`. In `addToast` store the timeout id keyed by toast id. In `dismissToast` call `clearTimeout` and delete the entry before splicing the toast.
+6. `src/main/ai/ai-service.ts:117` — assign the `setInterval(...)` to a top-level handle and clear it inside an `app.on('will-quit', () => clearInterval(handle))` listener (register the handler from `ai-service` module init, or expose a `disposeAiService()` called by `src/main/index.ts` quit path).
 
-**Step 1 — Apply useReducedMotion Throughout**
-- The hook exists at `src/renderer/src/hooks/use-reduced-motion.ts` but is never imported
-- Find ALL animation-bearing components and apply the hook:
-  ```typescript
-  import { useReducedMotion } from '@/hooks/use-reduced-motion'
+**Acceptance:** Unit / smoke check: mount + immediately unmount each component during the warning / drag / audio-load lifecycle, assert no listeners remain (`document` / `window` listener count unchanged). Toast manually dismissed before duration expires — no stale `setState` warning. App quit logs no orphan-interval warnings.
 
-  function AnimatedComponent() {
-    const prefersReducedMotion = useReducedMotion()
-    return (
-      <div className={prefersReducedMotion ? '' : 'transition-all duration-300'}>
-  ```
-- Key targets:
-  - `globals.css` animations (toast, dice) — add `@media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; } }`
-  - Map fog transitions (`fog-overlay.ts`) — skip animation if reduced motion
-  - Token movement animations (`token-animation.ts`) — instant move if reduced motion
-  - Weather particles (`weather-overlay.ts`) — disable if reduced motion
-  - Dice 3D physics (`DiceRenderer.tsx`) — skip 3D roll, show result immediately
-  - Combat animations (`combat-animations.ts`) — disable particle effects
+### 22c — Dependency hygiene
 
-**Step 2 — Add CSS Global Reduced Motion**
-- Open `src/renderer/src/styles/globals.css`
-- Add a comprehensive reduced-motion rule:
-  ```css
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-      scroll-behavior: auto !important;
-    }
-  }
-  ```
-- Also apply when the in-app `reducedMotion` setting is true by adding a class to the root:
-  ```typescript
-  if (accessibilityStore.reducedMotion) {
-    document.documentElement.classList.add('reduce-motion')
-  }
-  ```
-  ```css
-  .reduce-motion *, .reduce-motion *::before, .reduce-motion *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
-  ```
+**Files:** `package.json`
 
-### Sub-Phase B: Dependency Cleanup (H2, H3)
+**Steps:**
+1. `package.json:195` — `immer` is still listed (`^11.1.4`) but no source file imports it. Run `npm uninstall immer` and verify `npm ls immer` shows nothing (or only intentional transitive consumers).
 
-**Step 3 — Remove Unused Production Dependencies**
-- Run: `npm uninstall immer @pixi/react @tiptap/extension-image`
-- Verify no imports exist (search codebase for each package name first)
-- `immer`: Zero imports in `src/` (only incidental text matches in JSON)
-- `@pixi/react`: Zero imports; PixiJS used imperatively
-- `@tiptap/extension-image`: Zero imports; JournalPanel uses Link, Placeholder, StarterKit only
+**Acceptance:** `package.json` no longer lists `immer` in `dependencies`. `package-lock.json` regenerated. `npm run lint` + `tsc --noEmit -p tsconfig.web.json` + `tsc --noEmit -p tsconfig.node.json` pass.
 
-**Step 4 — Move Script-Only Deps to devDependencies**
-- Move from `dependencies` to `devDependencies`:
-  ```bash
-  npm uninstall @langchain/anthropic @langchain/core @langchain/langgraph
-  npm install --save-dev @langchain/anthropic @langchain/core @langchain/langgraph
-  ```
-- These are only used in `scripts/extract-5e-data.ts`, a build-time data extraction script
+### 22d — ConversationManager map cleanup
 
-**Step 5 — Review Package Overrides**
-- Document why each of the 7 overrides exists:
-  ```json
-  "overrides": {
-    "minimatch": ">=10.2.1",      // security patch
-    "scheduler": "0.27.0",        // React 19 internal requirement
-    "fs-extra": "11.3.3",         // electron-builder compat
-    "commander": "12.1.0",        // version conflict resolution
-    "chalk": "4.1.2",             // CJS/ESM conflict
-    "semver": "7.7.4",            // security patch
-    "entities": "4.5.0"           // security patch
-  }
-  ```
-- Add comments in package.json (JSON5-style comments won't work; add to README or a `DEPENDENCIES.md`)
+**Files:** `src/main/ai/ai-service.ts`, `src/main/storage/campaign-storage.ts`
 
-### Sub-Phase C: Route Components Through Service Layer (H4)
+**Steps:**
+1. `src/main/ai/ai-service.ts:76` — the module-level `const conversations = new Map<string, ConversationManager>()` grows monotonically. Export `removeConversation(campaignId: string): void` that calls `conversations.delete(campaignId)` and aborts any active streams for that campaign.
+2. `src/main/storage/campaign-storage.ts:140` — in the cascade block (after the on-disk `ai-conversations/<id>.json` is removed), import and call `removeConversation(id)` from `ai-service`. If the import creates a circular cycle, dispatch via an EventEmitter or a small registration table at module init.
 
-**Step 6 — Fix Service Layer Bypasses**
-- Replace direct IPC calls with data-provider in these components:
-  - `game/sidebar/EquipmentTab.tsx`: `window.api.game.loadEquipment()` → `data-provider.load5eEquipment()`
-  - `game/sidebar/SpellsTab.tsx`: `window.api.game.loadSpells()` → `data-provider.load5eSpells()`
-- This gives them caching, error handling, and homebrew merge for free
-- Verify the data-provider functions exist and return the expected shapes
+**Acceptance:** Delete a campaign — its key is removed from the in-memory `conversations` Map. Re-creating a campaign with the same ID yields a fresh `ConversationManager`. Existing `conversation-manager.test.ts` continues to pass; add one test that exercises the delete path.
 
-> **Phase 15 coordination (2026-05-18, corrected).** The two files (`EquipmentTab.tsx:18` and `SpellsTab.tsx:93`) call `window.api.game.load*` directly — they don't use `useDataStore`, so Phase 15 Sub-Phase A.3.iv (the useDataStore→useLibraryStore migration) does NOT catch them. Phase 15 Sub-Phase E's `components/game/*` sweep is the actual absorption path. If Phase 15 ships first, H4 is structurally fixed via E. If H4 ships first, the interim target is `useLibraryEntries('equipment'|'spells')` directly — NOT the data-provider call site, since data-provider stays as a non-React access layer post-Phase-15 (Phase 15 Option 3). **Action:** verify that Phase 15 Sub-Phase E's file list explicitly enumerates `EquipmentTab.tsx` and `SpellsTab.tsx` so the sweep doesn't skip them.
+### 22e — Production console statements
 
-### Sub-Phase D: Fix Remaining Timer/Listener Leaks (H5)
+**Files:** `src/renderer/src/components/library/PdfViewer.tsx`, `src/renderer/src/services/combat/combat-resolver.ts`, `src/renderer/src/events/system-chat-bridge.ts`
 
-**Step 7 — Fix ArmorManager and EquipmentListPanel Timer Leaks**
-- `components/sheet/5e/ArmorManager5e.tsx` line 62, 158: `setTimeout` without cleanup
-- `components/sheet/5e/EquipmentListPanel5e.tsx` line 170: same pattern
-- Fix: Store timeout ID and clear on unmount:
-  ```typescript
-  const timeoutRef = useRef<NodeJS.Timeout>()
-  const showWarning = () => {
-    setBuyWarning(msg)
-    clearTimeout(timeoutRef.current)
-    timeoutRef.current = setTimeout(() => setBuyWarning(null), 3000)
-  }
-  useEffect(() => () => clearTimeout(timeoutRef.current), [])
-  ```
+**Steps:**
+1. `src/renderer/src/components/library/PdfViewer.tsx:15` — replace `console.warn('[PdfViewer] Failed to load worker, ...', err)` with `logger.warn(...)` imported from `src/renderer/src/utils/logger.ts`.
+2. `src/renderer/src/services/combat/combat-resolver.ts:914` — replace `console.warn('[CombatResolver] applyDamageToToken: ...')` with `logger.warn(...)`.
+3. `src/renderer/src/events/system-chat-bridge.ts:32` — replace `console.error('[SystemChatBridge] Handler error:', e)` with `logger.error(...)`.
 
-**Step 8 — Fix AudioPlayerItem Listener Leak**
-- `components/library/AudioPlayerItem.tsx` lines 43-46: `loadedmetadata` and `ended` listeners never removed
-- Fix: Use ref for audio element and clean up in useEffect return:
-  ```typescript
-  useEffect(() => {
-    const audio = audioRef.current
-    const onLoaded = () => { /* ... */ }
-    const onEnded = () => { /* ... */ }
-    audio?.addEventListener('loadedmetadata', onLoaded)
-    audio?.addEventListener('ended', onEnded)
-    return () => {
-      audio?.removeEventListener('loadedmetadata', onLoaded)
-      audio?.removeEventListener('ended', onEnded)
-    }
-  }, [path])
-  ```
+(The original H4 list also called out `host-handlers.ts:132, 161` for buy / sell payload validation logs; those specific call sites have already been re-shaped — payload validation now lives upstream and the two warnings no longer exist. The remaining `host-handlers.ts` warnings — `senderId mismatch`, `Invalid payload for`, `spectator drop`, trade / inspect mismatches — should be swept during Phase 30's `GameAuthority` extraction so the file is not edited twice.)
 
-**Step 9 — Fix PlayerHUDOverlay Drag Listener Leak**
-- `components/game/overlays/PlayerHUDOverlay.tsx` lines 73-74: `mousemove`/`mouseup` on document during drag
-- Fix: Remove listeners in mouseup handler AND in useEffect cleanup:
-  ```typescript
-  const handleMouseUp = useCallback(() => {
-    document.removeEventListener('mousemove', handleMouseMove)
-    document.removeEventListener('mouseup', handleMouseUp)
-  }, [handleMouseMove])
+**Acceptance:** `grep -n "console.warn\|console.error" src/renderer/src/{components/library/PdfViewer.tsx,services/combat/combat-resolver.ts,events/system-chat-bridge.ts}` yields zero hits. Dev mode still surfaces these messages (logger gates on `import.meta.env.DEV`).
 
-  useEffect(() => () => {
-    document.removeEventListener('mousemove', handleMouseMove)
-    document.removeEventListener('mouseup', handleMouseUp)
-  }, [handleMouseMove, handleMouseUp])
-  ```
+### 22f — Main-process robustness
 
-**Step 10 — Fix use-toast Dismiss Race**
-- `hooks/use-toast.ts` line 39: `setTimeout` for auto-dismiss not cleared on manual dismiss
-- Fix: Clear timeout when toast is manually dismissed
+**Files:** `src/main/ipc/game-data-handlers.ts`
 
-### Sub-Phase E: ConversationManager Cleanup (M1)
+**Steps:**
+1. `src/main/ipc/game-data-handlers.ts:29` — `JSON.parse(content)` runs outside any try / catch. A malformed JSON file in the data directory crashes the IPC handler. Wrap in try / catch and return a structured failure (or `{ success: false, error: ... }` matching neighbouring handlers); log via `logToFile` so callers and the journal both see the bad file path.
 
-**Step 11 — Clean Conversations on Campaign Delete**
-- Open `src/main/ai/conversation-manager.ts`
-- Find the `conversations` Map
-- Add a cleanup method:
-  ```typescript
-  removeConversation(campaignId: string) {
-    this.conversations.delete(campaignId)
-  }
-  ```
-- Call it when a campaign is deleted (in `campaign-storage.ts` `deleteCampaign()` cascade, or via IPC from the renderer)
+**Acceptance:** Drop a syntactically invalid JSON into a data path under user-data and trigger the loader — the handler returns an error result instead of crashing the main process. Unit test added with a stubbed `readFile` returning `'{not-json'`.
 
-### Sub-Phase F: Plugin Installer Security (M2)
+### 22g — Service-layer bypass — coordinate with Phase 15
 
-**Step 12 — Replace PowerShell Expand-Archive with Node.js ZIP**
-- Open `src/main/plugins/plugin-installer.ts` lines 27-28
-- Replace PowerShell `Expand-Archive` with `adm-zip` or Node.js `zlib`:
-  ```bash
-  npm install adm-zip
-  ```
-  ```typescript
-  import AdmZip from 'adm-zip'
+**Files:** `src/renderer/src/components/game/sidebar/EquipmentTab.tsx`, `src/renderer/src/components/game/sidebar/SpellsTab.tsx`
 
-  async function extractPlugin(zipPath: string, extractDir: string) {
-    const zip = new AdmZip(zipPath)
-    zip.extractAllTo(extractDir, true)
-  }
-  ```
-- This eliminates the shell injection risk from path interpolation
-- Also add the zip-slip validation from Phase 20 Step 8
+**Steps:**
+1. Phase 15 Sub-Phase E (`docs/phases/phase-15-plan.md:1042-1055`) explicitly enumerates both files in its sweep list and absorbs this fix. **Verification step:** before starting work here, re-grep Phase 15's file list to confirm both files are still listed; if so, this sub-phase is a no-op and is closed when Phase 15 E lands.
+2. If Phase 15 slips: interim fix is to route `EquipmentTab.tsx:18` and `SpellsTab.tsx:93` through `useLibraryEntries('equipment'|'spells')` (NOT through `data-provider.load5e*`; per Phase 15 Option 3, `data-provider` remains a non-React access layer and components consume the library store directly).
 
-### Sub-Phase G: CSP and Production Console (M3, M4)
+**Acceptance:** `grep "window.api.game.load(Equipment|Spells)" src/renderer/src/components/game/sidebar/` returns no hits. Either Phase 15 E moved the file, or this phase replaced the call site with `useLibraryEntries`.
 
-**Step 13 — Make BMO IP Configurable in CSP**
-- Open `src/main/index.ts` line 62
-- Replace hardcoded `10.10.20.242` with environment variable:
-  ```typescript
-  const bmoIp = process.env.BMO_PI_IP || 'bmo.local'
-  const piConnect = ` ws://${bmoIp}:* http://${bmoIp}:*`
-  ```
+### 22h — Missing project files
 
-**Step 14 — Replace Production Console Statements with Logger**
-- Replace in these 5 locations:
-  - `PdfViewer.tsx:15` → `logger.warn('[PdfViewer] Failed to load worker...')`
-  - `combat-resolver.ts:883-885` → `logger.warn('[CombatResolver] ...')`
-  - `system-chat-bridge.ts:32` → `logger.error('[SystemChatBridge] ...')`
-  - `host-handlers.ts:132,161` → `logger.warn('[host-handlers] ...')`
-- Import `logger` from `utils/logger.ts` (gated behind `import.meta.env.DEV`)
+**Files:** `dnd-app/LICENSE`, `dnd-app/CHANGELOG.md`
 
-### Sub-Phase H: Missing Project Files (M5, M6)
+**Steps:**
+1. Create `dnd-app/LICENSE` containing the standard ISC license text (matching `package.json:license = "ISC"`), copyright owner and year per repo convention. The repo-root `LICENSE` already exists at `/home/user/home-lab/LICENSE`; this is a project-local copy so it ships with electron-builder packages and is visible to users.
+2. Create `dnd-app/CHANGELOG.md` with the standard "Keep a Changelog" header and a single initial entry covering the current version (per `package.json:3`). Going forward `scripts/release/cut.mjs` should append per-tag sections (separate ask — not in scope here).
 
-**Step 15 — Create LICENSE File**
-- Create `LICENSE` in the project root with ISC license text (matching `package.json` declaration):
-  ```
-  ISC License
+**Acceptance:** `ls dnd-app/LICENSE dnd-app/CHANGELOG.md` both exist. License-checker (`npm run check:release`-adjacent) does not flag the package as unlicensed.
 
-  Copyright (c) 2025-2026 Gavin Knotts
+### 22i — Plugin ID validation
 
-  Permission to use, copy, modify, and/or distribute this software...
-  ```
+**Files:** `src/main/ipc/plugin-handlers.ts`
 
-**Step 16 — Create CHANGELOG.md**
-- Create `CHANGELOG.md` with initial entry:
-  ```markdown
-  # Changelog
+**Steps:**
+1. Add a `validatePluginId(id: unknown): string` helper at the top of `src/main/ipc/plugin-handlers.ts` (or import from a `src/main/security/` module) that asserts `typeof id === 'string'`, length 1-64, matches `/^[a-z0-9][a-z0-9-_.]{0,63}$/i`. Reject anything else with a `StorageResult` error result.
+2. Call `validatePluginId(id)` at the top of every handler that receives a `pluginId` argument and uses it to construct a file path (install / uninstall / load / read-storage / write-storage). Returning early on rejection prevents path-traversal or namespace-bloat via `../`, `../../`, or unicode tricks.
+3. Add a unit test in `src/main/__tests__/plugin-handlers.test.ts` (create if missing) that feeds `'../etc/passwd'`, `''`, `'a/b'`, `'a'.repeat(200)`, `null`, `undefined`, and a valid id — assert the four malformed inputs return error results.
 
-  ## [1.9.9] - 2026-03-09
+**Acceptance:** Sending `pluginId = '../../foo'` via the renderer bridge results in a structured error rather than a file under `userData/../../foo`. Unit test passes. No regressions on valid IDs.
 
-  ### Added
-  - Full D&D 5e 2024 character builder (10 species, 12 classes, 48 subclasses)
-  - PixiJS map engine with fog of war, dynamic lighting, weather
-  - AI Dungeon Master (Ollama, Claude, OpenAI, Gemini)
-  - P2P multiplayer via PeerJS WebRTC
-  - Bastion system, campaign management, session notes
-  - Discord integration with voice/TTS
-  ```
+### 22j — PR-check CI workflow
 
-### Sub-Phase I: Electron Upgrade Planning (M7)
+**Files:** `.github/workflows/pr-checks.yml` (new)
 
-**Step 17 — Document Electron 40 EOL Plan**
-- Electron 40 reaches end-of-life June 30, 2026 (~4 months)
-- Add to project tracking: plan upgrade to Electron 41+ (or latest stable)
-- Key considerations:
-  - Check Node.js version requirements for new Electron
-  - Verify all native dependencies rebuild cleanly
-  - Test PixiJS, Three.js, PeerJS compatibility
-  - Review breaking changes in Electron changelog
-- This is a planning step, not implementation — create a tracking issue or document
+**Steps:**
+1. Create `.github/workflows/pr-checks.yml` triggered on `pull_request` and `push` to non-tag refs. Steps: checkout, `actions/setup-node@v4` with the project's pinned Node major, `npm ci`, `npm run lint`, `tsc --noEmit -p tsconfig.web.json`, `tsc --noEmit -p tsconfig.node.json`, `npm test`.
+2. Use the same gates `cut.mjs` runs locally to avoid drift between local pre-tag checks and CI PR checks. Surface failures as required status checks on `main`.
 
----
+**Acceptance:** Open a PR with a deliberate lint error — the new workflow fails the PR. Fix the error — workflow goes green. Tag-push release workflow is untouched.
 
-## ⚠️ Constraints & Edge Cases
+### 22k — Shared throttle utility
 
-### Reduced Motion
-- **CSS approach covers most cases**: The `@media (prefers-reduced-motion: reduce)` rule affects CSS animations and transitions. JavaScript animations (PixiJS ticker, Three.js render loop, requestAnimationFrame) need explicit code checks.
-- **PixiJS animations**: Fog fade, token movement, combat particles all use PixiJS tickers. Check `useReducedMotion()` in the orchestrating React component and skip the animation call.
-- **3D dice**: If reduced motion is enabled, show the result directly without physics simulation. Keep the result display (which dice, which faces) but skip the throw animation.
+**Files:** `src/renderer/src/utils/throttle.ts` (new), `src/renderer/src/utils/__tests__/throttle.test.ts` (new)
 
-### Dependency Removal
-- **Verify before removing**: Run `npm ls immer`, `npm ls @pixi/react`, `npm ls @tiptap/extension-image` to confirm no transitive consumers depend on them being in `dependencies`.
-- **Lock file**: After removing, run `npm install` to regenerate `package-lock.json` cleanly.
+**Steps:**
+1. Create `src/renderer/src/utils/throttle.ts` exporting `throttle<T extends (...args: any[]) => void>(fn: T, ms: number): T` with leading-edge + trailing-call semantics matching common lodash usage. Type the return precisely so call sites stay strict.
+2. Add a `cancel()` method (or `flush()`) on the returned function so callers can clear pending invocations during teardown / unmount.
+3. Write a `throttle.test.ts` covering: rapid burst -> single leading call within window, trailing call after window elapses, cancel before trailing fires, ms = 0 short-circuit.
+4. Sweep candidate call sites (do NOT batch them all in this sub-phase — just enable the utility): window-resize listeners in `GameLayout.tsx`, scroll handlers in `PdfViewer.tsx`, rapid token-drag in `MapCanvas.tsx`. Each conversion can be a follow-up commit; the utility landing is the deliverable here.
 
-### Service Layer
-- **Don't break direct calls that need fresh data**: Some components intentionally bypass cache for fresh loads. If a component MUST have fresh data (not cached), it's acceptable to call IPC directly. But document the reason.
+**Acceptance:** New file passes type-check and tests. Lint clean. No existing call sites need to import it yet — it is opt-in.
 
-### Plugin Installer
-- **adm-zip is a JS-only library** — no native dependencies, works cross-platform. It's already used by many Electron apps.
-- **Test with existing plugins**: After replacing the extraction method, verify existing `.zip` content packs still extract correctly.
+### 22l — Audit tracking entries
 
-Begin implementation now. Start with Sub-Phase A (Steps 1-2) for the reduced-motion fix — this is a real accessibility failure where a defined setting has zero effect. Then Sub-Phase B (Steps 3-5) for dependency cleanup. Sub-Phase D (Steps 7-10) for timer/listener leaks is quick mechanical work.
+**Files:** `docs/SUGGESTIONS-LOG-DNDAPP.md`, `docs/ISSUES-LOG-DNDAPP.md`
+
+**Steps:**
+1. Append one entry per item below to the appropriate dnd-app log. Each entry follows `docs/LOG-INSTRUCTIONS.md`: severity, category, file paths, summary, recommendation. Do not fix inline.
+   - **God-object files**: `PdfViewer.tsx` (~1,833 lines), `data-provider.ts` (~1,162), `DowntimeModal.tsx` (~1,131), `library-service.ts` (~1,095), `GameLayout.tsx` (~1,030), `combat-resolver.ts` (~955), `client-handlers.ts` (~879), `MapCanvas.tsx` (~838), `import-dnd-beyond.ts` (~727), `build-character-5e.ts` (~664). Suggest follow-up phases per file. Note: `host-handlers.ts` and `combat-resolver.ts` split are already tracked in Phase 30.
+   - **Inline style objects**: `ChatPanel.tsx:276-290,311-318`, `PdfViewer.tsx:1606,1713,1735,1756`, `GameLayout.tsx:565,590,604`, `LibraryItemList.tsx:82,92`, `EquipmentShop5e.tsx:121,129`. Move static values to CSS classes.
+   - **Static JSON eager imports**: 14 files (see audit) — convert to lazy load via `data-provider.ts` for modals that may never open.
+   - **Limited `React.memo`**: only 5 components memoized; identify hot list rows (initiative tracker, equipment lists, spell lists, token overlays) for memoization sweep.
+   - **`~138 unused exports + 10 unused files`** (knip output): `constants/index.ts`, `network/index.ts`, `types/index.ts`, `types/user.ts`, 5+ files under `components/library/` (`HomebrewCreateModal`, `LibraryCategoryGrid`, etc.). Curate API surface vs prune.
+   - **Scattered magic numbers**: enumerate the audit's file list (`GameLayout.tsx`, `ai-memory-sync.ts`, `use-ai-dm-store.ts`, `use-game-effects.ts`, `UpdatePrompt.tsx`, `client-manager.ts`, `PdfViewer.tsx`, `PlayerList.tsx`). Migrate to `app-constants.ts` or domain modules.
+   - **Repeated CRUD modal pattern**: `SharedJournalModal`, `HandoutModal`, `RuleManager`, `LoreManager`, `NPCManager`. Propose generic `CRUDModal<T>` / `useCrudModal`.
+   - **Repeated async-data-loading hook**: propose `useAsyncData<T>(loader, deps)` to standardize cancellation + error states.
+   - **IPC channel-to-schema gap**: ~100 channels in `ipc-channels.ts` vs 3 Zod schemas in `ipc-schemas.ts`. Plan to backfill schemas per domain.
+   - **Inconsistent error handling**: 4 patterns (throw / null / `StorageResult` / silent-catch). Pick a convention and migrate.
+   - **Package overrides** (7 entries in `package.json:overrides`): document why each is pinned; re-check on every dep bump.
+   - **Color-only state indicators**: `MainMenuPage`, `HigherLevelEquipment5e`, `RuleManager`, `TurnEventsTab`, `MacroBar`. Pair color with text / icon / aria-label.
+   - **Mouse-only interactions**: `PdfDrawingOverlay`, `HandoutViewerModal`, `ResizeHandle`, `DiceTray`, `PlayerHUDOverlay`, `LanguagesTab5e`. Add keyboard equivalents.
+   - **Form validation announcements**: `StatBlockEditor`, `DiseaseCurseTracker`, `AiProviderSetup` and most inline modal forms use custom error markup without `aria-invalid` / `aria-describedby`.
+   - **i18n**: no framework installed; all UI strings hardcoded English; date / number formatting relies on browser locale (`toLocaleDateString()` etc.); D&D currency labels (`"25 gp"`) hardcoded; no RTL support.
+   - **Documentation gaps**: README is boilerplate; no CONTRIBUTING.md; no TypeDoc / Storybook; no IPC surface doc; no `GameSystemPlugin` developer guide.
+   - **Test coverage gaps**: `systems/dnd5e/` only `registry.test.ts`; no modal / form / keyboard-navigation integration tests; limited `src/main/` coverage; no WebRTC reconnection tests; no accessibility tests. `vitest.config.ts` only measures `services/` and `data/`.
+   - **Multi-floor unimplemented**: `FloorSelector.tsx` + `currentFloor` state exist but never affect token visibility / layer filtering / rendering.
+   - **Positional audio emitters never updated**: `audio-emitter-overlay.ts:updateEmitters` is never called.
+   - **Large public-dir assets**: `monsters.json` (~32k lines), 130+ MP3s under `public/sounds/`. Consider CDN / lazy-download.
+   - **Security: `.env` API key rotation**: an Anthropic key has been observed in a local `.env`. Even though gitignored, recommend rotation if it has ever entered logs / screenshots / error reports. Log to `SECURITY-LOG.md` (NOT to a public log).
+
+**Acceptance:** Each item above appears once in the appropriate log with file paths and a one-line recommendation. The security item lands in `docs/SECURITY-LOG.md` (gitignored). No code changes in this sub-phase — pure documentation.
+
+## Constraints & edge cases
+
+- **Reduced motion vs PixiJS / Three.js**: CSS rules do not reach the WebGL canvas. The `useReducedMotion()` hook must be checked in the React component that drives each ticker — skip the animation call, but always render the final state.
+- **Dice 3D**: when reduced-motion is on, the result must still be shown (which dice, which faces). Only the throw animation is suppressed.
+- **AudioPlayerItem listener move**: the existing code creates the `<audio>` element lazily inside the click handler. The fix changes ownership to a ref initialized in a `useEffect` keyed on `path`; do not eagerly construct `new Audio(path)` when `path` is empty (see the `hasPath` guard at line 51).
+- **PlayerHUDOverlay**: drag start currently re-binds new closures on every mousedown. The unmount-cleanup useEffect must reference the same `onMove` / `onUp` instances that were attached — store them in refs.
+- **ai-service interval**: the interval is declared at module scope, so it survives renderer reloads. Cleanup must happen on Electron `will-quit`, not on renderer navigation.
+- **Conversation map cleanup circular import**: if importing `removeConversation` from `ai-service` into `campaign-storage` creates a cycle, prefer a tiny event-bus / registration table in a third module, or hoist the Map ownership out of `ai-service`.
+- **License-file collision**: the repo root already has `LICENSE` — the new `dnd-app/LICENSE` is intentional duplication scoped to the dnd-app package. Do not delete the repo-root file.
+- **Plugin ID regex**: keep the allowed character set conservative (lowercase + digits + `-_.`). Tighter than necessary on day 1 is fixable; permissive is hard to walk back without breaking installed plugins.
+- **PR-check workflow caching**: cache `~/.npm` keyed on `package-lock.json` hash so CI installs do not dominate the wall-clock time.
+- **Throttle vs debounce**: this phase ships throttle only; existing debounce implementations (auto-save 2-5s, vision recompute) stay. They are not interchangeable.
+
+## Verification
+
+- `npm run lint`
+- `npm run test`
+- `tsc --noEmit -p tsconfig.web.json && tsc --noEmit -p tsconfig.node.json`
+- `npm run check:release` before tagging
+- Manual smoke: toggle reduced-motion in settings, dismiss a toast early, mount / unmount AudioPlayerItem mid-load, mount / unmount PlayerHUDOverlay mid-drag, delete a campaign, drop a malformed JSON into a data path, send a malformed `pluginId` via the renderer bridge, open a PR with a lint error to verify the new workflow.
+
+## Completed
+
+- 22 H2 Step 3 — DONE (`package.json`) — `@pixi/react` and `@tiptap/extension-image` removed from `dependencies`.
+- 22 H3 Step 4 — DONE (`package.json`) — `@langchain/langgraph` moved to `devDependencies`; `@langchain/anthropic` and `@langchain/core` removed entirely.
+- 22 H5 (DiceRenderer subset) — DONE — owned by Phase 17 (GUI-3); not in scope here.
+- 22 H5 (ShopView subset) — DONE — owned by Phase 17 (GUI-11); not in scope here.
+- 22 M2 Step 12 — DONE (`src/main/plugins/plugin-installer.ts:8`) — PowerShell `Expand-Archive` replaced with `extract-zip` (yauzl, zip-slip protected, no shell exec).
+- 22 M3 Step 13 — DONE (`src/main/index.ts:134`, `src/main/bmo-csp.ts:43`, `src/main/bmo-config.ts`) — hardcoded `10.10.20.242` replaced with `bmoCspConnectFragment()` reading `BMO_PI_URL` env / settings, plus discovered Bonjour URL.
+- 22 M4 (host-handlers buy / sell subset) — DONE — payload-validation logs removed when validation moved upstream; `host-handlers.ts:132, 161` no longer exist. Remaining `host-handlers.ts` console calls (sender mismatch, spectator drop, etc.) deferred to Phase 30 extraction.
+- 22 M5 (repo-root LICENSE) — DONE (`/home/user/home-lab/LICENSE`) — repo-level license file exists; project-local `dnd-app/LICENSE` still NEEDED (22h).
+- 22 Step 18 (Electron 40 EOL planning) — DROPPED from this plan — tracking-only item, no implementation steps; record in `docs/SUGGESTIONS-LOG-DNDAPP.md` rather than a phase live step.
+- 22a Step 1 (useReducedMotion hook) — PARTIAL — `globals.css:66` already has the `@media (prefers-reduced-motion: reduce)` rule; store at `use-accessibility-store.ts:82` reads OS preference and tracks live changes at lines 138-145; `DiceOverlay.tsx:155` consults `reducedMotion`. Still NEEDED: hook file (`use-reduced-motion.ts` is absent), `.reduce-motion` class toggle in store setter, application to other JS animations.

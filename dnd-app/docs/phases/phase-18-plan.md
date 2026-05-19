@@ -1,292 +1,180 @@
-# SYSTEM OVERRIDE: IMPLEMENTATION MODE
+# Phase 18 — GUI and UX Audit
 
-Phase 18 is a **GUI & UX audit**. The app has solid foundations (dark theme, accessibility store, toast system, keyboard shortcuts, error boundaries) but suffers from **inconsistent iconography** (Unicode chars instead of an icon library), **100+ occurrences of 10px text**, **only 67 aria-labels across 697 TSX files**, **no responsive breakpoints**, and **z-index soup**. Many items overlap previous phases; this plan covers only net-new UX work.
+## Context
+The dnd-app has a solid dark-themed foundation: an accessibility store with reduced-motion / colorblind / tooltip toggles, a toast system, keyboard shortcuts, error boundaries, and a focus-trapping Modal. UX rough edges remain that block consistent polish: Unicode characters used as icons in toolbars and overlays, 1053 `text-[10px]` occurrences (baseline drift from the original 100+ scope), 158 `aria-label` attributes spread across 697 TSX files, no Firefox scrollbar styling, no responsive breakpoint strategy in layouts, and ad-hoc z-index values across overlays.
 
-> **See also:** Phase 29 (Roles + Permissions) — UI states that today read `isHost` / `isCoDM` will switch to `hasPermission(peer, key, campaign)`. Toolbar / button visibility added by this plan should anticipate that shape.
->
-> **Verification pass (2026-05-18):**
-> - Sub-Phase A (Icon library): ✗ no `lucide-react` / `heroicons` deps; Unicode chars still in use. Live work.
-> - Sub-Phase B (10px sweep): ◐ baseline drift in the wrong direction — **1053 `text-[10px]` occurrences** remain (plan baseline was 100+). Live work, larger than originally scoped.
-> - Sub-Phase C (aria sweep): ◐ partial — **152 `aria-label=` occurrences** (audit baseline 67). More coverage than baseline but well short of complete. Live work.
-> - Sub-Phase D–J (route dup, empty/loading states, z-index, expanded state, Firefox scrollbar, fantasy font, screen-reader auto-detect): ✗ none verified done. Live work.
+Phase 18 is entirely client-side work in the Electron renderer. It is net-new UX work and explicitly defers items owned by other phases (see Depends on / blocks). Roles work in Phase 29 will replace `isHost` / `isCoDM` checks with `hasPermission(peer, key, campaign)`; any new toolbar visibility logic should anticipate that shape.
 
----
+## Depends on / blocks
+- Depends on: none
+- Blocks: none
+- Owned elsewhere (do not duplicate):
+  - Phase 17 (GUI-7, GUI-8): modal escape handling, focus traps
+  - Phase 1 (A6), Phase 13 (C): token context menu conditions
+  - Phase 16 (E): CompendiumModal vs Library unification
+  - Phase 1 (A10): floor selector unwired (`MapCanvas.tsx:191` uses `currentFloor` only for token visibility filter)
+  - Phase 14 (B): drawing tools DM-only gate
+  - Phase 16 (D, Step 13): bottom bar collapse hiding macros
+  - Phase 29: role/permission migration (`isHost` / `isCoDM` -> `hasPermission`)
 
-## 🏗️ Architecture & Environment Split
+## Files touched
+| Path | Role |
+|------|------|
+| `dnd-app/package.json` | Add `lucide-react` dependency |
+| `src/renderer/src/components/game/GameLayout.tsx` | Drawing toolbar icons + sizes + z-index |
+| `src/renderer/src/components/game/overlays/SettingsDropdown.tsx` | Gear icon (`&#9881;` at line 312) |
+| `src/renderer/src/pages/InGamePage.tsx` | Crossed swords (`&#9876;` at line 167) |
+| `src/renderer/src/components/game/sidebar/LeftSidebar.tsx` | Section icon array (lines 37-48) |
+| `src/renderer/src/components/game/bottom/PlayerBottomBar.tsx` | Tool dropdown icons, aria-expanded |
+| `src/renderer/src/components/game/bottom/DMBottomBar.tsx` | Tab icons |
+| `src/renderer/src/components/game/bottom/DMTabPanel.tsx` | Tab icons |
+| `src/renderer/src/pages/SettingsPage.tsx` | `text-[10px]` cluster |
+| `src/renderer/src/pages/LibraryPage.tsx` | `text-[10px]` cluster |
+| `src/renderer/src/components/game/modals/shared/ModalFormFooter.tsx` | Footer button text size |
+| `src/renderer/src/components/ui/Tooltip.tsx` | Existing component, wrap call sites |
+| `src/renderer/src/components/ui/EmptyState.tsx` | Existing component, expand call sites |
+| `src/renderer/src/components/ui/Skeleton.tsx` | Existing component, expand call sites |
+| `src/renderer/src/components/game/dm/InitiativeTracker.tsx` | Empty state |
+| `src/renderer/src/components/game/sidebar/CombatLogPanel.tsx` | Empty state |
+| `src/renderer/src/components/game/player/ShopView.tsx` | Empty state |
+| `src/renderer/src/components/game/dm/ShopPanel.tsx` | Empty state |
+| `src/renderer/src/components/game/modals/dm-tools/EncounterBuilderModal.tsx` | Skeleton loading |
+| `src/renderer/src/components/game/modals/dm-tools/TreasureGeneratorModal.tsx` | Skeleton loading |
+| `src/renderer/src/components/levelup/5e/SubclassSelector5e.tsx` | Skeleton loading |
+| `src/renderer/src/components/library/CoreBooksGrid.tsx` | Skeleton loading |
+| `src/renderer/src/constants/z-index.ts` (new) | Z-index layer constants |
+| `src/renderer/src/App.tsx` | Route duplication fix (lines 165, 173) |
+| `src/renderer/src/styles/globals.css` | Firefox scrollbar, fantasy font CSS |
+| `src/renderer/src/stores/use-accessibility-store.ts` | `fontStyle`, screen-reader prompt |
+| `src/renderer/src/pages/JoinGamePage.tsx` | Auto-rejoin loading indicator |
 
-### Windows 11 Machine (`C:\Users\evilp\dnd\`) — ALL WORK IS HERE
+## Sub-phase summary
+| # | Sub-phase | Theme |
+|---|-----------|-------|
+| 18a | Icon library migration | Install Lucide React, replace Unicode icons |
+| 18b | Minimum font size and touch targets | Sweep `text-[10px]`, raise drawing button sizes |
+| 18c | ARIA labels and tooltips | Wrap icon-only buttons with `Tooltip` + `aria-label` |
+| 18d | Empty and loading states | Adopt `EmptyState` / `Skeleton` in data views |
+| 18e | Z-index systematization | New constants module, replace hardcoded values |
+| 18f | Route cleanup | Resolve `/characters/create` duplication |
+| 18g | aria-expanded coverage | Add to collapsible UI |
+| 18h | Cross-browser scrollbar | Firefox `scrollbar-width` / `scrollbar-color` |
+| 18i | Fantasy font option | Opt-in Cinzel serif headers |
+| 18j | Screen reader auto-detect | First-run prompt + correlate with reduced-motion |
+| 18k | Auto-rejoin loading feedback | Visible state during `JoinGamePage` reconnection |
 
-Phase 18 is entirely client-side. No Raspberry Pi involvement.
+## Sub-phase details
 
-### Cross-Phase Overlap (DO NOT duplicate)
+### 18a — Icon library migration
+**Files:** `dnd-app/package.json`, `src/renderer/src/components/game/overlays/SettingsDropdown.tsx`, `src/renderer/src/pages/InGamePage.tsx`, `src/renderer/src/components/game/sidebar/LeftSidebar.tsx`, `src/renderer/src/components/game/GameLayout.tsx`, `src/renderer/src/components/game/bottom/PlayerBottomBar.tsx`, `src/renderer/src/components/game/bottom/DMBottomBar.tsx`, `src/renderer/src/components/game/bottom/DMTabPanel.tsx`
+**Steps:**
+1. Install Lucide: `npm install lucide-react` in `dnd-app/`. Tree-shakeable, no bundle concern.
+2. Build a migration map covering: gear -> `<Settings />`, swords -> `<Swords />`, pencil -> `<Pencil />`, ruler -> `<Ruler />`, rectangle -> `<Square />`, circle -> `<Circle />`, type -> `<Type />`, plus `LeftSidebar.tsx:37-48` emoji array (Characters/NPCs/Allies/Enemies/Places/Bastions/Tables/Party Loot/Combat Log/Journal).
+3. Replace at known sites: `SettingsDropdown.tsx:312` (gear), `InGamePage.tsx:167` (crossed swords), `LeftSidebar.tsx:37-48` (section icon objects), `GameLayout.tsx:1045/1053/1061/1069/1077` (drawing tools). Use consistent sizing: `<Icon className="w-4 h-4" />` for dense, `w-5 h-5` for primary toolbars.
+4. Skip intentionally thematic Unicode (D&D runes, decorative dice glyphs). Only swap generic UI icons.
+**Acceptance:** `grep -rn '&#9881;\|&#9876;' src/renderer/src/` returns no hits in the listed files; `lucide-react` appears in `package.json` dependencies; visual smoke test of drawing toolbar + sidebar shows Lucide glyphs at uniform pixel size.
 
-| Issue | Owned By |
-|-------|----------|
-| Modal escape handling, focus traps | Phase 17 (GUI-7, GUI-8) |
-| Token context menu conditions | Phase 1 (A6), Phase 13 (C) |
-| CompendiumModal vs Library unification | Phase 16 (E) |
-| Floor selector unwired | Phase 1 (A10) |
-| Drawing tools DM-only | Phase 14 (B) |
-| Missing tooltips (drawing buttons) | This phase (new) |
-| Modal Escape/focus issues | Phase 17 (GUI-7, GUI-8) |
-| Bottom bar collapse hiding macros | Phase 16 (D, Step 13) |
+### 18b — Minimum font size and touch targets
+**Files:** `src/renderer/src/components/game/modals/shared/ModalFormFooter.tsx`, `src/renderer/src/pages/SettingsPage.tsx`, `src/renderer/src/pages/LibraryPage.tsx`, `src/renderer/src/components/game/GameLayout.tsx`, plus all other files matching `text-[10px]`
+**Steps:**
+1. Run `grep -rn 'text-\[10px\]' src/` to enumerate the 1053 occurrences (baseline drift from original 100+ scope).
+2. Replace with `text-xs` (12px) globally; allow `text-[11px]` only in genuinely cramped contexts (token badges, version numbers). Interactive button text minimum `text-sm` (14px) per WCAG AA.
+3. Concrete first targets: `ModalFormFooter.tsx:33,41`, `SettingsPage.tsx:183,212,220,228,358,359,363,366,373,375`, `LibraryPage.tsx:658,679`.
+4. Raise drawing toolbar buttons in `GameLayout.tsx:1043,1051,1059,1067,1075` from `w-10 h-10` (40px) to `w-11 h-11` (44px); ensure `p-2` minimum on every icon-only button.
+**Acceptance:** `grep -rn 'text-\[10px\]' src/renderer/src/ | wc -l` returns 0 (or only annotated, justified survivors); drawing toolbar buttons measure 44px in DevTools.
 
----
+### 18c — ARIA labels and tooltips
+**Files:** `src/renderer/src/components/game/GameLayout.tsx`, `src/renderer/src/components/game/dm/InitiativeControls.tsx`, `src/renderer/src/components/game/dm/DMToolbar.tsx`, `src/renderer/src/components/game/map/FloorSelector.tsx`, all icon-only `<button>` sites
+**Steps:**
+1. Grep `<button` blocks in `src/renderer/src/components/game/` that contain only an icon/glyph (no text child). Add descriptive `aria-label` to each. Baseline count is 158 `aria-label` instances across 697 TSX files — target every icon-only button.
+2. Wrap each with the existing `Tooltip` component (`src/renderer/src/components/ui/Tooltip.tsx`, 93 lines). Both `aria-label` and `Tooltip` must coexist: `Tooltip` is gated by `accessibilityStore.tooltipsEnabled`, so the `aria-label` is the only fallback when tooltips are disabled.
+3. Concrete first targets: all five drawing buttons in `GameLayout.tsx:1040-1080`; initiative controls; floor selector arrows; bottom bar collapse toggle; sidebar collapse toggle; view mode toggle.
+**Acceptance:** No icon-only `<button>` in `src/renderer/src/components/game/` lacks `aria-label`; `<Tooltip>` wrapper appears on each listed target; axe-core / Lighthouse a11y audit shows zero "Buttons must have discernible text" violations on game layout.
 
-## 📋 Core Objectives (Net-New Only)
+### 18d — Empty and loading states
+**Files:** `src/renderer/src/components/game/dm/InitiativeTracker.tsx`, `src/renderer/src/components/game/sidebar/CombatLogPanel.tsx`, `src/renderer/src/components/game/player/ShopView.tsx`, `src/renderer/src/components/game/dm/ShopPanel.tsx`, `src/renderer/src/components/game/modals/dm-tools/EncounterBuilderModal.tsx`, `src/renderer/src/components/game/modals/dm-tools/TreasureGeneratorModal.tsx`, `src/renderer/src/components/levelup/5e/SubclassSelector5e.tsx`, `src/renderer/src/components/library/CoreBooksGrid.tsx`
+**Steps:**
+1. `EmptyState` import path: `import { EmptyState } from '../components/ui'`. Add to InitiativeTracker, CombatLogPanel, ShopView/ShopPanel, LibraryPage search (verify lines 596/629/700 cover all empty branches), Campaign journal.
+2. `Skeleton` import path: same `ui` barrel. Add skeleton loading to: `EncounterBuilderModal` (monster list fetch), `TreasureGeneratorModal`, `SubclassSelector5e`, `CoreBooksGrid`.
+3. Empty vs loading rule: skeleton during load, `EmptyState` only after a confirmed empty load.
+**Acceptance:** Open each component in a fresh state (no data) — visible `EmptyState` rendered; throttle network in DevTools — skeleton visible before data resolves; no blank screens during fetch.
 
-### HIGH PRIORITY
+### 18e — Z-index systematization
+**Files:** `src/renderer/src/constants/z-index.ts` (new), `src/renderer/src/components/game/GameLayout.tsx`, all overlays using `z-`
+**Steps:**
+1. Create `src/renderer/src/constants/z-index.ts` exporting `Z` constants: `MAP_CANVAS: 0, SIDEBAR/BOTTOM_BAR: 10, TOOLBAR: 20, OVERLAY: 30, DROPDOWN: 40, MODAL_BACKDROP: 50, MODAL: 60, TOAST: 70, DICE_3D: 80, CRITICAL_OVERLAY: 90`.
+2. Re-export from `src/renderer/src/constants/index.ts`.
+3. Replace hardcoded values in `GameLayout.tsx` (hits at lines 651, 654, 656, 666, 682, 708, 722, 788, 968, 1034) and elsewhere — 98 occurrences of `z-50`/`z-40`/`z-30`/`z-[60]`/`z-[9999]` in `src/renderer/src/components/`.
+4. Use `style={{ zIndex: Z.MODAL }}` or extend `tailwind.config` `zIndex` with named tokens.
+5. Do NOT touch PixiJS internal layer ordering (Phase 12 owns 16 canvas layers); only DOM overlays.
+**Acceptance:** `grep -rn 'z-\[9999\]\|z-\[60\]' src/renderer/src/` returns 0; new `z-index.ts` exists; manual stacking test shows correct ordering.
 
-| # | Issue | Scope |
-|---|-------|-------|
-| U1 | Replace Unicode icons with Lucide React across entire codebase | Global — 50+ components |
-| U2 | Replace all `text-[10px]` with minimum `text-xs` (12px) | Global — 100+ occurrences |
-| U3 | Add `aria-label` to all icon-only buttons | Global — hundreds of buttons |
-| U4 | Add tooltips to all icon-only buttons using existing `Tooltip` component | Global |
+### 18f — Route cleanup
+**Files:** `src/renderer/src/App.tsx`
+**Steps:**
+1. `App.tsx:165` declares `<Route path="/characters/create" ...>`; `App.tsx:173` declares `<Route path="/characters/5e/create" ...>`. 5e is the only system.
+2. Replace the `/characters/create` route element with `<Navigate to="/characters/5e/create" replace />`.
+3. Audit links that point to `/characters/create` and update; if none remain after audit, delete the redirect route entirely.
+**Acceptance:** Hitting `/characters/create` redirects to `/characters/5e/create`; only one active character-create route.
 
-### MEDIUM PRIORITY
+### 18g — aria-expanded coverage
+**Files:** `src/renderer/src/components/game/sidebar/LeftSidebar.tsx`, `src/renderer/src/components/game/overlays/SettingsDropdown.tsx`, `src/renderer/src/components/game/bottom/PlayerBottomBar.tsx`, `src/renderer/src/components/game/bottom/DMBottomBar.tsx`, character sheet accordions
+**Steps:**
+1. `LeftSidebar.tsx:423` already sets `aria-expanded` for accordion sections — verify pattern.
+2. Add `aria-expanded` to: sidebar collapse button, bottom bar collapse button, `SettingsDropdown` trigger, PlayerBottomBar "Tools..." dropdown (`PlayerBottomBar.tsx:73-350`), DMBottomBar tab triggers, character sheet accordions.
+**Acceptance:** Current count is 4 `aria-expanded` usages — target every disclosure widget; screen reader announces "expanded"/"collapsed" on every toggle.
 
-| # | Issue | Scope |
-|---|-------|-------|
-| M1 | Add empty states to all data-dependent views | ~15 components |
-| M2 | Add loading states to data-fetching components | ~10 components |
-| M3 | Fix z-index soup with systematic layering constants | `GameLayout.tsx` + overlays |
-| M4 | Fix route duplication (`/characters/create` vs `/characters/5e/create`) | `App.tsx` |
-| M5 | Add `aria-expanded` to collapsible sections | Sidebars, dropdowns |
-| M6 | Cross-browser scrollbar styling (Firefox support) | `globals.css` |
+### 18h — Cross-browser scrollbar
+**Files:** `src/renderer/src/styles/globals.css`
+**Steps:**
+1. Existing webkit rules at `globals.css:24-39` are Chromium-only.
+2. Append `* { scrollbar-width: thin; scrollbar-color: #374151 transparent; }`.
+3. Keep webkit rules for richer Chromium styling.
+**Acceptance:** `grep -n 'scrollbar-width' src/renderer/src/styles/globals.css` returns a hit; Firefox shows thin gray scrollbar instead of OS default.
 
-### LOW PRIORITY
+### 18i — Fantasy font option
+**Files:** `src/renderer/src/styles/globals.css`, `src/renderer/src/stores/use-accessibility-store.ts`, settings UI
+**Steps:**
+1. Add `@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap');` to `globals.css`.
+2. Add `fontStyle: 'system' | 'fantasy'` to accessibility store with `'system'` default; persist alongside existing `reducedMotion`/`screenReaderMode`.
+3. CSS scope: `.fantasy-font h1, .fantasy-font h2, .fantasy-font h3 { font-family: 'Cinzel', serif; }`.
+4. Toggle `.fantasy-font` class on `<body>` from the store. Body text stays system — fantasy is headers-only.
+5. Surface a Font Style picker in `SettingsPage.tsx`.
+**Acceptance:** Setting toggle flips heading font live; body text unchanged; reload preserves choice.
 
-| # | Issue | Scope |
-|---|-------|-------|
-| L1 | Add fantasy font option for D&D immersion | `globals.css`, theme system |
-| L2 | Auto-detect screen reader preference from OS | Accessibility store |
-| L3 | Improve error state visibility with inline messages + retry | Various |
+### 18j — Screen reader auto-detect
+**Files:** `src/renderer/src/stores/use-accessibility-store.ts`
+**Steps:**
+1. `use-accessibility-store.ts:68-72` already auto-detects `prefers-reduced-motion`. `screenReaderMode` at line 83 is hardcoded `false`.
+2. Add first-launch prompt: if no `screenReaderMode` persisted AND `prefers-reduced-motion: reduce` matches, show modal asking "Do you use a screen reader?" Persist either answer.
+**Acceptance:** Fresh launch with reduced-motion set triggers the prompt; subsequent launches do not re-prompt; answering yes flips `screenReaderMode` to `true`.
 
----
+### 18k — Auto-rejoin loading feedback
+**Files:** `src/renderer/src/pages/JoinGamePage.tsx`
+**Steps:**
+1. `JoinGamePage.tsx:46` declares `autoRejoinTriggered = useRef(false)`; lines 139-150 fire the rejoin without surfacing a visible state. The page already imports `Spinner` and uses it at lines 339, 351 for manual join.
+2. Add a `<Spinner size="sm" />` plus copy ("Reconnecting to game...") during the auto-rejoin window.
+**Acceptance:** Cold reload of a game URL with stored session shows a visible reconnecting indicator until the lobby reattaches.
 
-## 🛠️ Step-by-Step Execution Plan
+## Constraints & edge cases
+- Icon migration: Lucide is tree-shakeable. Do not replace thematic Unicode (D&D runes, dice glyphs). Works in Electron renderer (Chromium) with no shim.
+- Font size: 1053 occurrences is the largest mechanical sweep. Spot-check each cluster — some `text-[10px]` is decorative and may stay if explicitly justified. Buttons stay at `text-sm` minimum (WCAG AA).
+- Z-index: PixiJS owns its own 16-layer ordering inside the canvas. The constants module governs only DOM overlays.
+- Tooltips: `Tooltip` honours `accessibilityStore.tooltipsEnabled`. When false, the `aria-label` is the only accessible name. Both must always be present.
+- Empty states: Never render `EmptyState` while still loading — show `Skeleton` first.
+- Permission migration awareness: Toolbar visibility added in 18a/18c gates today on `effectiveIsDM` (`GameLayout.tsx:593, 1097`). Phase 29 swaps this for `hasPermission`. Keep the gate as a single boolean variable so the swap is mechanical.
 
-### Sub-Phase A: Icon Library Migration (U1)
+## Verification
+- `grep -rn '&#9881;\|&#9876;' src/renderer/src/` returns 0 hits in 18a target files.
+- `grep -rn 'text-\[10px\]' src/renderer/src/ | wc -l` trends toward 0.
+- `grep -rn 'aria-label' src/renderer/src/ | wc -l` materially exceeds 158 (baseline).
+- `grep -rn 'aria-expanded' src/renderer/src/ | wc -l` materially exceeds 4 (baseline).
+- New file `src/renderer/src/constants/z-index.ts` exists and is imported by `GameLayout.tsx`.
+- `grep -n 'scrollbar-width' src/renderer/src/styles/globals.css` returns a hit.
+- Firefox manual test: scrollbars render thin/gray.
+- Hitting `/characters/create` redirects to `/characters/5e/create`.
+- `lucide-react` listed in `dnd-app/package.json` dependencies.
+- `npm run lint && npm run typecheck && npm test` clean in `dnd-app/`.
 
-**Step 1 — Install Lucide React**
-- Run: `npm install lucide-react`
-- Lucide is lightweight, tree-shakeable, and has 1500+ icons including D&D-relevant ones (sword, shield, scroll, skull, dice, map, compass, eye)
-
-**Step 2 — Create Icon Migration Map**
-- Audit all Unicode icon usage and map to Lucide equivalents:
-  ```
-  &#9881; (gear) → <Settings />
-  &#9876; (swords) → <Swords />
-  ✏️ (pencil) → <Pencil />
-  📏 (ruler) → <Ruler />
-  ▭ (rectangle) → <Square />
-  ○ (circle) → <Circle />
-  📝 (memo) → <Type />
-  ```
-- Also replace Unicode emoji in `LeftSidebar.tsx` section icons
-
-**Step 3 — Replace Icons Across Codebase**
-- Start with the most visible components:
-  - `SettingsDropdown.tsx` (line 293: gear)
-  - `InGamePage.tsx` (line 145: crossed swords)
-  - `LeftSidebar.tsx` (lines 34-41: section icons)
-  - `GameLayout.tsx` (lines 832-870: drawing tool buttons)
-  - `PlayerBottomBar.tsx` (tool dropdown icons)
-  - `DMBottomBar.tsx` / `DMTabPanel.tsx` (tab icons)
-- Use consistent 16px/20px sizing: `<Icon className="w-4 h-4" />` or `<Icon className="w-5 h-5" />`
-
-### Sub-Phase B: Minimum Font Size (U2)
-
-**Step 4 — Search and Replace text-[10px]**
-- Find all occurrences of `text-[10px]` across the codebase (100+ instances)
-- Replace with `text-xs` (12px) as minimum. For truly cramped layouts, use `text-[11px]`
-- Priority files:
-  - `SettingsPage.tsx` (lines 171, 200, 208, 217, 246, 303, 346, 377)
-  - `LibraryPage.tsx` (metadata labels)
-  - `ModalFormFooter.tsx` pattern
-  - Any component using `text-[10px]` on interactive buttons
-- For button text specifically: minimum `text-sm` (14px) per WCAG touch target guidelines
-
-**Step 5 — Increase Touch Targets**
-- Ensure all interactive elements are at least 44x44px on touch:
-  - Drawing toolbar buttons: change from `w-10 h-10` (40px) to `w-11 h-11` (44px)
-  - Modal footer buttons: add `min-h-[44px]` padding
-  - Icon-only buttons: ensure `p-2` minimum padding around the icon
-
-### Sub-Phase C: ARIA Labels & Tooltips (U3, U4)
-
-**Step 6 — Systematic aria-label Audit**
-- Find all `<button>` elements without `aria-label` that contain only icons or symbols
-- Add descriptive `aria-label` to each:
-  ```tsx
-  <button aria-label="Open settings" onClick={...}>
-    <Settings className="w-4 h-4" />
-  </button>
-  ```
-- Priority areas:
-  - Game toolbar (map tools, fog tools, drawing tools)
-  - Initiative controls (next turn, delay, ready)
-  - Token context menu buttons
-  - Floor selector arrows
-  - Bottom bar collapse/expand toggle
-  - Sidebar section icons when collapsed
-
-**Step 7 — Wrap Icon Buttons with Tooltip Component**
-- The `Tooltip` component exists at `src/renderer/src/components/ui/Tooltip.tsx` (93 lines)
-- Wrap all icon-only buttons:
-  ```tsx
-  <Tooltip content="Open settings">
-    <button aria-label="Open settings" onClick={...}>
-      <Settings className="w-4 h-4" />
-    </button>
-  </Tooltip>
-  ```
-- Ensure tooltip visibility respects the accessibility store `tooltipsEnabled` setting
-- Add tooltips to at minimum:
-  - All drawing toolbar buttons
-  - All DM toolbar buttons
-  - All initiative control buttons
-  - Floor selector arrows
-  - View mode toggle
-  - Bottom/sidebar collapse toggles
-
-### Sub-Phase D: Empty & Loading States (M1, M2)
-
-**Step 8 — Add Empty States to Key Views**
-- Use the existing `EmptyState` component (`src/renderer/src/components/ui/EmptyState.tsx`)
-- Add to:
-  - Initiative tracker (no entries): "No initiative order. Start combat to begin tracking."
-  - Combat log (no events): "No combat events yet."
-  - Shop (no items): "This shop has no items for sale."
-  - Character inventory (empty sections): "No equipped items" / "No consumables"
-  - Library search (no results): "No results found for your search."
-  - Campaign journal (no entries): "No journal entries yet. Add one after your next session."
-
-**Step 9 — Add Loading Skeletons to Data-Fetching Components**
-- Use the existing `Skeleton` component
-- Add skeleton loading to:
-  - `EncounterBuilderModal` (when loading monster list)
-  - `TreasureGeneratorModal` (when loading treasure tables)
-  - `SubclassSelector5e` (when loading subclass data)
-  - `CoreBooksGrid` (when loading books)
-  - `LibraryPage` (when loading category items)
-
-### Sub-Phase E: Z-Index Systematization (M3)
-
-**Step 10 — Create Z-Index Constants**
-- Create `src/renderer/src/constants/z-index.ts`:
-  ```typescript
-  export const Z = {
-    MAP_CANVAS: 0,
-    SIDEBAR: 10,
-    BOTTOM_BAR: 10,
-    TOOLBAR: 20,
-    OVERLAY: 30,      // HUD, initiative, notifications
-    DROPDOWN: 40,     // Context menus, dropdowns
-    MODAL_BACKDROP: 50,
-    MODAL: 60,
-    TOAST: 70,
-    DICE_3D: 80,
-    CRITICAL_OVERLAY: 90,  // Death saves, connection lost
-  } as const
-  ```
-- Replace all hardcoded `z-10`, `z-20`, `z-40`, `z-50`, `z-[60]`, `z-[9999]` with references to these constants
-- Use Tailwind's `z-[]` arbitrary value syntax: `z-[${Z.MODAL}]` or add custom Tailwind config values
-
-### Sub-Phase F: Route Cleanup (M4)
-
-**Step 11 — Fix Character Creation Route Duplication**
-- Open `src/renderer/src/App.tsx`
-- Currently has both `/characters/create` and `/characters/5e/create` (lines 165-179)
-- Redirect `/characters/create` to `/characters/5e/create` since 5e is the only supported system:
-  ```tsx
-  <Route path="/characters/create" element={<Navigate to="/characters/5e/create" replace />} />
-  ```
-- Or remove the duplicate route entirely if nothing links to `/characters/create`
-
-### Sub-Phase G: Expanded State for Screen Readers (M5)
-
-**Step 12 — Add aria-expanded to Collapsible Elements**
-- Add `aria-expanded` to:
-  - Left sidebar collapse button: `aria-expanded={!sidebarCollapsed}`
-  - Bottom bar collapse button: `aria-expanded={!bottomCollapsed}`
-  - Settings dropdown: `aria-expanded={isOpen}`
-  - Tools dropdown in PlayerBottomBar: `aria-expanded={isOpen}`
-  - Accordion sections in character sheet: `aria-expanded={isExpanded}`
-  - Sidebar section headers: `aria-expanded={isSectionOpen}`
-
-### Sub-Phase H: Cross-Browser Scrollbar (M6)
-
-**Step 13 — Add Firefox Scrollbar Support**
-- Open `src/renderer/src/globals.css`
-- The existing webkit scrollbar styling (lines 24-39) only works in Chrome/Electron
-- Add Firefox standard scrollbar CSS:
-  ```css
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: #374151 transparent;
-  }
-  ```
-- This uses the CSS Scrollbars Spec supported by Firefox 64+
-- Keep the webkit styles for Chromium, add the standard property for cross-browser
-
-### Sub-Phase I: Fantasy Font Option (L1)
-
-**Step 14 — Add Fantasy Font for D&D Immersion**
-- Import a fantasy-themed Google Font (e.g., Cinzel for headers, Inter for body):
-  ```css
-  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap');
-  ```
-- Add a "Font Style" setting in the accessibility store: `fontStyle: 'system' | 'fantasy'`
-- When `'fantasy'`:
-  ```css
-  .fantasy-font h1, .fantasy-font h2, .fantasy-font h3 {
-    font-family: 'Cinzel', serif;
-  }
-  ```
-- Apply the class to the app root when the setting is enabled
-- Keep system fonts as default — fantasy font is opt-in
-
-### Sub-Phase J: Screen Reader Auto-Detection (L2)
-
-**Step 15 — Auto-Enable Screen Reader Mode**
-- The accessibility store has `screenReaderMode: false` which must be manually enabled
-- Auto-detect on app startup using OS preferences:
-  ```typescript
-  // In accessibility store initialization:
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    setReducedMotion(true)
-  }
-  // Screen reader detection is limited in browsers, but we can:
-  // 1. Check if prefers-reduced-motion is set (often correlated)
-  // 2. Show a first-run prompt: "Do you use a screen reader?"
-  ```
-- Also add a prompt on first launch asking about accessibility needs
-
----
-
-## ⚠️ Constraints & Edge Cases
-
-### Icon Migration
-- **Lucide React is tree-shakeable** — only imported icons are bundled. No bundle size concern.
-- **Do NOT change icons that are D&D-specific** — if a Unicode symbol is intentionally thematic (e.g., a D&D rune), keep it. Only replace generic UI icons (gear, arrows, close, etc.).
-- **Electron renderer**: Lucide works in Electron's Chromium renderer with no issues.
-
-### Font Size
-- **`text-[10px]` removal is a bulk operation** — use find-and-replace but verify each change visually. Some 10px text may be in decorative/non-interactive contexts where small size is intentional (e.g., version numbers, timestamps).
-- **Button text minimum 14px**: This is for WCAG AA compliance on interactive elements. Non-interactive labels can remain at 12px.
-
-### Z-Index
-- **PixiJS canvas z-index**: The PixiJS canvas has its own internal z-ordering (16 layers per Phase 12). CSS z-index only affects DOM elements overlaying the canvas, not PixiJS internals.
-- **Tailwind arbitrary values**: `z-[50]` works in Tailwind v4. However, if many components need z-index constants, consider extending the Tailwind config with named layers.
-
-### Tooltips
-- **Tooltip component dependency on `tooltipsEnabled`**: When tooltips are disabled, the `aria-label` is the ONLY accessible description. Both must always be present.
-- **Touch devices**: Tooltips are hover-only. On touch, they should trigger on long-press or not appear at all (aria-label handles accessibility).
-
-### Empty States
-- **Do NOT use EmptyState in loading-then-populated views** — if data is loading, show a skeleton, not an empty state. Empty state should only appear when data has loaded and is genuinely empty.
-- **Empty state messaging should be actionable**: "No journal entries yet. [Add one]" with a clickable link to the creation flow.
-
-Begin implementation now. Start with Sub-Phase A (Steps 1-3) for the icon library migration — this has the broadest visual impact. Then Sub-Phase B (Steps 4-5) for font size fixes and Sub-Phase C (Steps 6-7) for aria-labels + tooltips. These three sub-phases together will dramatically improve both visual polish and accessibility.
+## Completed
+(none — all sub-phases live as of 2026-05-19)

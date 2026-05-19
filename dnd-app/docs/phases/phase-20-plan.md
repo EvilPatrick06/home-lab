@@ -1,300 +1,157 @@
-# SYSTEM OVERRIDE: IMPLEMENTATION MODE
+# Phase 20 — Security Audit Hardening
 
-Phase 20 is a **Security Audit** scoring 7/10. Electron configuration is excellent (sandbox, contextIsolation, CSP). Network validation is strong (Zod schemas, rate limiting, size limits). The gaps are in **credential storage** (API keys in plaintext), **input sanitization** (chat messages, user data), **plugin integrity** (no signature verification), **hardcoded TURN credentials**, and **AI file access scope**. The "no authentication" finding is noted but deprioritized — this is a desktop P2P app where invite codes serve as session auth (and Phase 32 ships JWT for cloud-host mode).
+## Context
 
-> **See also:** Phases 30-32. The "no authentication" deprioritized finding is **covered for cloud mode by Phase 32** (JWT auth on WS frames). S3 (hardcoded TURN credentials) interacts with Phase 30's `TransportAdapter` abstraction — see inline note.
->
-> **Verification pass (2026-05-18):**
-> - S1 API keys plaintext — ✗ no `safeStorage` usage in `src/main/ai/ai-service.ts`. Live work. **Additional scope (2026-05-18):** absorb the SUGGESTIONS-LOG `[2026-04-24] Encrypt persisted secrets with Electron safeStorage API` work — wrap every persisted secret (Claude/OpenAI/Gemini API keys, TURN credentials, Discord bot token after Phase 35e verification) with `safeStorage.encryptString` on write + `decryptString` on read. Migrate existing files: detect plaintext on first load and re-encrypt. Fall back gracefully if `safeStorage.isEncryptionAvailable()` returns false (Linux without secret service). Add a unit test using a temp `userData` confirming round-trip + that on-disk bytes are not the plain secret.
-> - S2 chat sanitization — ◐ no `dangerouslySetInnerHTML` in `ChatPanel.tsx`; React JSX auto-escapes. No DOMPurify layer either. Render-side safety is acceptable today; sanitization layer remains live work pending decision.
-> - S3 hardcoded TURN creds — ✗ `peer-manager.ts:23-29` still hardcodes `dndvtt:dndvtt-relay` (only active when `customHost` is set, but credentials are still source-visible). Live work.
-> - S4 plugin integrity — ✗ no signature/checksum verification in `plugin-handlers.ts`. Live work.
-> - S5 AI file scope — ✗ scope restriction not implemented. Live work.
+A security audit (scored 7/10) found strong Electron hardening (sandbox, contextIsolation, CSP), strong network validation (Zod schemas, rate limits, size caps), but gaps in credential-at-rest, input sanitization, plugin integrity, hardcoded TURN credentials, and AI file-access scope. Sub-Phase A (API key encryption via `safeStorage`) shipped in the work captured by `safe-secret-storage.ts` and is wired into `ai-service.ts` + `settings-storage.ts`. The remaining work is to extend encryption to the Discord bot token, validate key formats, remove repo-visible TURN credentials, add plugin integrity checks (sha256 + zip-content allowlist on top of the existing zip-slip protection), restrict AI file reads to specific subdirectories, and add audit logging + memory/upload limits.
 
----
+"No authentication" is deprioritized for desktop P2P — invite codes are session auth. Cloud-host JWT auth lives in Phase 32; do not duplicate here.
 
-## 🏗️ Architecture & Environment Split
+## Depends on / blocks
 
-### Windows 11 Machine (`C:\Users\evilp\dnd\`) — ALL WORK IS HERE
+- Depends on: Phase 7 (Sub-Phase E IPC save validation, Sub-Phase G network schema tightening), Phase 17 (NET-1/NET-12/NET-13 path traversal, NET-6/NET-29/NET-30 IPC try/catch)
+- Blocks: Phase 30 (Sub-Phase C TURN credential indirection moves to `P2PTransport` constructor once `TransportAdapter` lands), Phase 32 (cloud-host JWT auth assumes audit logging hook exists)
+- Coordinates with: Phase 1 (C2 plugin runtime sandboxing — this phase only hardens installation)
 
-Phase 20 is entirely client-side security hardening. No Raspberry Pi involvement.
+## Files touched
 
-### Cross-Phase Overlap (DO NOT duplicate)
+| Path | Role |
+|------|------|
+| `src/main/storage/safe-secret-storage.ts` | Existing helpers; reuse for Discord token + TURN credentials |
+| `src/main/discord-integration/discord-service.ts` | Encrypt `botToken` on save, decrypt on load |
+| `src/main/ai/ai-service.ts` | Add format validation before save (Step 3) |
+| `src/renderer/src/network/peer-manager.ts` | Remove hardcoded `dndvtt:dndvtt-relay`; pull TURN from settings |
+| `src/renderer/src/components/game/modals/utility/NetworkSettingsModal.tsx` | Verify end-to-end TURN wiring still works after Step 6 |
+| `src/main/plugins/plugin-installer.ts` | Add sha256 checksum + entry allowlist + size cap |
+| `src/main/ai/file-reader.ts` | Restrict reads to `campaigns/`, `ai-conversations/`, `characters/` |
+| `src/main/ai/memory-manager.ts` | Add per-file + total memory size limits |
+| `src/preload/index.ts` (or main-side upload handler) | Magic-byte validation for image/audio uploads |
+| `src/main/security-log.ts` (new) | Central security event logger |
+| `src/renderer/src/components/game/bottom/ChatPanel.tsx` | Re-verify no `dangerouslySetInnerHTML`; document JSX-only contract |
+| `src/renderer/src/utils/chat-links.ts` | Add URL allowlist if/when raw URLs become linkable |
 
-| Issue | Owned By |
-|-------|----------|
-| Path traversal (campaignId, fileName, book paths) | Phase 17 (NET-1, NET-12, NET-13) |
-| IPC handlers without try-catch | Phase 17 (NET-6, NET-29, NET-30) |
-| IPC save validation | Phase 7 (Sub-Phase E) |
-| Plugin execution sandboxing | Phase 1 (C2) |
-| Network `z.unknown()` schemas | Phase 7 (Sub-Phase G) |
+## Sub-phase summary
 
-**Verified as EXCELLENT (no action needed):**
-- Electron: sandbox=true, contextIsolation=true, nodeIntegration=false
-- CSP: Strict content security policy
-- WebRTC: Forces relay-only (`iceTransportPolicy: 'relay'`), wss:/https: only for signaling
-- Rate limiting: 200 msg/sec, 65KB per message, file size limits
+| # | Sub-phase | Theme |
+|---|-----------|-------|
+| 20a | API key + Discord token encryption | Cover remaining secrets, add format validation |
+| 20b | Chat sanitization | Verify JSX-only render path, gate future URL linkification |
+| 20c | TURN credential removal | Strip repo-visible creds, wire user-settings |
+| 20d | Plugin integrity | sha256 + entry allowlist + size cap |
+| 20e | AI file scope + memory caps | Restrict reader to whitelisted subdirs, cap memory growth |
+| 20f | Binary upload validation | Magic-byte checks on image/audio uploads |
+| 20g | Audit logging | Central `security-log.ts`, route events |
 
----
+## Sub-phase details
 
-## 📋 Core Objectives (Net-New Only)
+### 20a — Discord token encryption + API key format validation
 
-### HIGH PRIORITY
+**Files:** `src/main/discord-integration/discord-service.ts`, `src/main/ai/ai-service.ts`, `src/main/storage/safe-secret-storage.ts`
 
-| # | Issue | File | Impact |
-|---|-------|------|--------|
-| S1 | API keys stored in plaintext JSON | `ai-service.ts:244-255` | Key exposure if userData compromised |
-| S2 | No chat message sanitization | `network/schemas.ts:39-53` | Potential XSS if rendered as HTML |
-| S3 | TURN credentials hardcoded in source | `peer-manager.ts:21-32` | Credentials publicly visible in repo |
-| S4 | Plugin ZIP install without integrity check | `plugin-handlers.ts:34-47` | Malicious plugin installation |
-| S5 | AI file reader unrestricted in userData | `ai/file-reader.ts:64-109` | AI can read any file in userData |
+**Steps:**
+1. In `discord-service.ts` (`loadDiscordConfig` ~`src/main/discord-integration/discord-service.ts:40-67`, `saveDiscordConfig` ~`src/main/discord-integration/discord-service.ts:74-109`), wrap `botToken` read/write with `decryptOptional` / `encryptOptional` from `safe-secret-storage.ts`. Preserve the `'keep'` sentinel by checking it BEFORE encryption.
+2. Add `validateApiKeyFormat(provider, key)` helper in `src/main/ai/ai-service.ts` and call it in `configure()` (~`src/main/ai/ai-service.ts:226-258`) before writing to disk. Reject malformed keys with a clear error: `sk-ant-` for Claude, `sk-` for OpenAI, length >= 20 for Gemini. Return the error to the renderer so the AI settings UI can display it.
+3. Add a unit test in `src/main/storage/safe-secret-storage.test.ts` that uses a temp `userData` and confirms (a) round-trip equality, (b) on-disk bytes differ from plaintext, (c) graceful fallback when `safeStorage.isEncryptionAvailable()` returns false.
 
-### MEDIUM PRIORITY
+**Acceptance:** `discord-integration.json` on disk shows `ss1:`-prefixed base64 for `botToken`; AI settings UI rejects an obviously bad Claude key (`hello`) with a UI error before write; safe-secret-storage tests pass.
 
-| # | Issue | Impact |
-|---|-------|--------|
-| M1 | Binary file upload without content validation | Arbitrary file types written to disk |
-| M2 | AI memory files without size limits | Disk exhaustion over time |
-| M3 | No audit logging for security events | Cannot trace unauthorized actions |
+### 20b — Chat sanitization audit
 
----
+**Files:** `src/renderer/src/components/game/bottom/ChatPanel.tsx`, `src/renderer/src/components/lobby/ChatPanel.tsx`, `src/renderer/src/utils/chat-links.ts`
 
-## 🛠️ Step-by-Step Execution Plan
+**Steps:**
+1. Grep the renderer for `dangerouslySetInnerHTML` and `innerHTML`. Current state: zero hits, all chat renders flow through `renderChatContent` at `src/renderer/src/components/game/bottom/ChatPanel.tsx:82,92` which uses JSX text nodes. Add a code comment at the top of `ChatPanel.tsx` documenting the JSX-only contract.
+2. Add an `isSafeHref(url)` helper in `src/renderer/src/utils/chat-links.ts` that rejects any URL whose protocol is not `http:` or `https:`. Today `chat-links.ts` only emits `<button>` elements for compendium lookups (no `href`), so this is preventative.
+3. If markdown rendering is ever added to chat (currently none), the markdown-to-HTML step MUST sanitize with DOMPurify. Capture this as an inline FUTURE comment in `ChatPanel.tsx` to anchor the rule.
 
-### Sub-Phase A: API Key Encryption (S1)
+**Acceptance:** Grep returns zero `dangerouslySetInnerHTML` hits across `src/renderer/`; `chat-links.ts` exports `isSafeHref`; a unit test rejects `javascript:`, `data:`, and `file:` URLs.
 
-**Step 1 — Encrypt API Keys at Rest**
-- Open `src/main/ai/ai-service.ts` lines 244-255
-- Currently writes plaintext JSON to `ai-config.json`
-- Use Electron's `safeStorage` API to encrypt sensitive fields:
-  ```typescript
-  import { safeStorage } from 'electron'
+### 20c — Remove hardcoded TURN credentials
 
-  function encryptKey(key: string): string {
-    if (!safeStorage.isEncryptionAvailable()) return key
-    return safeStorage.encryptString(key).toString('base64')
-  }
+**Files:** `src/renderer/src/network/peer-manager.ts`, `src/renderer/src/components/game/modals/utility/NetworkSettingsModal.tsx`
 
-  function decryptKey(encrypted: string): string {
-    if (!safeStorage.isEncryptionAvailable()) return encrypted
-    return safeStorage.decryptString(Buffer.from(encrypted, 'base64'))
-  }
-  ```
-- Before saving config, encrypt API key fields: `claudeApiKey`, `openaiApiKey`, `geminiApiKey`
-- On load, decrypt them before passing to AI clients
-- `safeStorage` uses the OS credential store (Windows Credential Manager, macOS Keychain, Linux Secret Service)
+**Steps:**
+1. In `peer-manager.ts:18-34` (`getDefaultIceServers`), delete the `dndvtt` / `dndvtt-relay` literal credentials. When `customHost` is set but no user-configured ICE servers exist via `setIceConfig`, fall back to STUN-only (`{ urls: 'stun:stun.cloudflare.com:3478' }`).
+2. Verify `setIceConfig` (`src/renderer/src/network/peer-manager.ts:101`) is invoked from `NetworkSettingsModal.tsx:62` on save and from app boot when `settings.turnServers` exists. If boot wiring is missing, add a call in the network-init path.
+3. Update `forceRelay` default behavior: when no TURN is configured, keep `iceTransportPolicy: 'all'` (the comment at `peer-manager.ts:88-94` already documents this).
+4. Search the entire repo for any remaining `dndvtt-relay` or `dndvtt:dndvtt` literals; confirm zero hits after the change.
 
-**Step 2 — Encrypt Discord Bot Token**
-- Apply same encryption to Discord bot token in discord config
-- Load and decrypt on access, never keep decrypted in memory longer than needed
+**Acceptance:** `grep -rn "dndvtt-relay\|dndvtt:dndvtt" src/` returns zero results; same-LAN host/join still works without TURN configured; a saved TURN server in settings round-trips through restart.
 
-**Step 3 — Add API Key Format Validation**
-- Before saving, validate key formats:
-  ```typescript
-  function validateApiKeyFormat(provider: string, key: string): boolean {
-    switch (provider) {
-      case 'claude': return key.startsWith('sk-ant-')
-      case 'openai': return key.startsWith('sk-')
-      case 'gemini': return key.length > 20
-      default: return key.length > 0
-    }
-  }
-  ```
-- Show validation error in the AI settings UI for malformed keys
+### 20d — Plugin integrity verification
 
-### Sub-Phase B: Chat Message Sanitization (S2)
+**Files:** `src/main/plugins/plugin-installer.ts`
 
-**Step 4 — Sanitize Chat Messages Before Display**
-- Chat messages from network peers are validated by Zod schema but NOT sanitized for HTML/XSS
-- If chat messages are rendered using `dangerouslySetInnerHTML` or any HTML-injecting pattern, this is a risk
-- Check how chat messages are rendered in `ChatPanel.tsx`:
-  - If using React JSX text nodes (`{message.content}`), React auto-escapes — NO action needed
-  - If using `dangerouslySetInnerHTML` or `innerHTML`, add DOMPurify sanitization
-- Install DOMPurify if needed: `npm install dompurify @types/dompurify`
-- Apply to any user-generated content rendered as HTML (chat, journal entries, notes, NPC descriptions)
+**Steps:**
+1. Add `async function computeChecksum(zipPath: string): Promise<string>` near the top of `plugin-installer.ts` using `node:crypto` `createHash('sha256')`. Log the checksum at INFO level during `installFromZip` (~`src/main/plugins/plugin-installer.ts:28-89`).
+2. If the manifest contains a top-level `expectedChecksum` field (extend `validateManifest`), enforce it: mismatch returns `{ success: false, error: 'Checksum mismatch' }` and aborts before move-to-pluginsDir.
+3. Add `MAX_PLUGIN_ZIP_BYTES = 50 * 1024 * 1024` and `stat` the zip before extract; reject if larger.
+4. Add `validateZipEntry(entryName)` allowlist: extensions `.json .js .ts .css .png .jpg .jpeg .svg .md .txt .woff .woff2`. Reject any entry containing `..` or with a disallowed extension. `extract-zip` already provides zip-slip protection at `src/main/plugins/plugin-installer.ts:14-22`; this is defense-in-depth.
+5. Surface unknown-checksum installs to the renderer as a warning so the UI can show "Plugin not verified — install at your own risk?" (Phase 1 C2 is responsible for runtime sandboxing.)
 
-**Step 5 — Sanitize Chat Link Rendering**
-- Open `src/renderer/src/utils/chat-links.tsx` (renamed from .ts in Phase 17)
-- The `renderChatContent()` function creates JSX elements from user text
-- Ensure URLs are validated before rendering as clickable links:
-  ```typescript
-  function isValidUrl(url: string): boolean {
-    try {
-      const parsed = new URL(url)
-      return ['http:', 'https:'].includes(parsed.protocol)
-    } catch { return false }
-  }
-  ```
-- Do NOT render `javascript:`, `data:`, or `file:` URLs as clickable links
+**Acceptance:** Installing a plugin with an `.exe` entry returns an error; oversized zip rejected; checksum logged on every install; mismatching `expectedChecksum` aborts; existing valid plugins still install successfully.
 
-### Sub-Phase C: Remove Hardcoded TURN Credentials (S3)
+### 20e — AI file scope + memory size caps
 
-> **Phase 30 coordination:** Phase 30b introduces a `TransportAdapter` interface; `P2PTransport` is the WebRTC/PeerJS implementation. If Phase 30 has landed when this step runs, TURN credential injection moves to `P2PTransport`'s constructor (cleaner seam). If Phase 20 lands first, the user-settings indirection from Step 6 carries over into `P2PTransport` during Phase 30.
+**Files:** `src/main/ai/file-reader.ts`, `src/main/ai/memory-manager.ts`
 
-**Step 6 — Move TURN Credentials to Settings**
-- Open `src/renderer/src/network/peer-manager.ts` lines 21-32
-- Find the hardcoded TURN credentials (`dndvtt:dndvtt-relay`)
-- Remove from source code and move to user-configurable settings:
-  ```typescript
-  function getTurnServers(): RTCIceServer[] {
-    const settings = loadSettings()
-    if (settings.turnServers?.length) {
-      return settings.turnServers
-    }
-    return [
-      { urls: 'stun:stun.cloudflare.com:3478' }
-    ]
-  }
-  ```
-- The TURN server config is already in `AppSettings.turnServers` (from Phase 8 analysis). Wire the peer manager to use it instead of hardcoded values.
-- Remove all hardcoded usernames/passwords from the source code
-- The `NetworkSettingsModal` already exists for configuring TURN servers — verify it works end-to-end
+**Steps:**
+1. In `file-reader.ts:64-117`, replace the bare `isPathWithinUserData` check (`src/main/ai/file-reader.ts:58-62`) with `isAiReadAllowed`. The allowed directories are `campaigns`, `ai-conversations`, `characters`, and (if it exists) `ai-context`. Reject reads outside these with `Access denied: AI reads restricted to game data` and log the attempt via 20g security log.
+2. In `memory-manager.ts`, add `MAX_MEMORY_FILE_SIZE = 1 * 1024 * 1024` and `MAX_TOTAL_MEMORY_SIZE = 10 * 1024 * 1024`. Before each write, check size; if exceeded, prune oldest entries (or rotate to a `.old` file).
+3. Run an AI DM session locally after the change and confirm campaign context, NPC memory, and conversation history still load. Add an integration-style test.
 
-### Sub-Phase D: Plugin Integrity Verification (S4)
+**Acceptance:** `readRequestedFile` rejects a path resolving to `userData/ai-config.json`; accepts `userData/campaigns/<uuid>/notes.md`; memory writes block when total reaches 10MB; AI DM session boots without regression.
 
-**Step 7 — Add Plugin Checksum Verification**
-- Open `src/main/ipc/plugin-handlers.ts` lines 34-47
-- Before installing a plugin ZIP, compute and verify a checksum:
-  ```typescript
-  import { createHash } from 'node:crypto'
+### 20f — Binary file upload validation
 
-  async function computeChecksum(filePath: string): Promise<string> {
-    const content = await readFile(filePath)
-    return createHash('sha256').update(content).digest('hex')
-  }
-  ```
-- If the plugin comes from a trusted source with a manifest, verify the checksum matches
-- If no checksum is available (user-uploaded), show a warning: "This plugin is not verified. Install at your own risk?"
+**Files:** TBD upload handler (search for current implementation; original plan cited `src/preload/index.ts:199-211` but that block now houses AI stream listeners — likely moved to a main-side IPC handler)
 
-**Step 8 — Validate Plugin ZIP Contents**
-- Before extracting, scan the ZIP for dangerous patterns:
-  - Reject ZIPs with paths containing `..` (zip-slip vulnerability)
-  - Reject ZIPs containing executable files (`.exe`, `.bat`, `.cmd`, `.ps1`, `.sh`)
-  - Reject ZIPs larger than 50MB
-  - Only allow expected file types: `.json`, `.js`, `.ts`, `.css`, `.png`, `.jpg`, `.svg`, `.md`
-  ```typescript
-  function validateZipEntry(entryName: string): boolean {
-    if (entryName.includes('..')) return false
-    const ext = path.extname(entryName).toLowerCase()
-    const ALLOWED_EXTENSIONS = ['.json', '.js', '.ts', '.css', '.png', '.jpg', '.svg', '.md', '.txt']
-    return ALLOWED_EXTENSIONS.includes(ext) || entryName.endsWith('/')
-  }
-  ```
+**Steps:**
+1. Grep for `image/png\|image/jpeg\|writeFile.*png\|writeFile.*jpg` across `src/main/ipc/` to locate the active token-image / map-background / audio upload handler.
+2. Add a `validateMagicBytes(buffer, expectedTypes)` helper that checks the first 4 bytes. Magic byte map: `89504e47` png, `ffd8ffe0/ffd8ffe1/ffd8ffe8` jpeg, `52494646` webp/wav (disambiguate via byte 8-11 `WEBP`/`WAVE`), `4f676753` ogg, `47494638` gif.
+3. Apply to every image upload and audio upload site. Reject mismatches with `Invalid file type: header does not match extension`.
 
-### Sub-Phase E: AI File Access Restriction (S5)
+**Acceptance:** A `.png` file renamed to `.jpg` is rejected; a real PNG passes; unit test covers each magic-byte branch.
 
-**Step 9 — Restrict AI File Reader to Specific Directories**
-- Open `src/main/ai/file-reader.ts` lines 64-109
-- Currently the AI can read any text file in userData
-- Restrict to only campaign-specific directories:
-  ```typescript
-  const ALLOWED_AI_READ_DIRS = [
-    'campaigns',
-    'ai-conversations',
-    'characters'
-  ]
+### 20g — Security audit logging
 
-  function isAiReadAllowed(filePath: string): boolean {
-    const userDataDir = app.getPath('userData')
-    const resolved = path.resolve(filePath)
-    if (!resolved.startsWith(userDataDir)) return false
-    const relative = path.relative(userDataDir, resolved)
-    return ALLOWED_AI_READ_DIRS.some(dir => relative.startsWith(dir))
-  }
-  ```
-- Reject reads outside allowed directories with a logged warning
+**Files:** `src/main/security-log.ts` (new), various call sites
 
-**Step 10 — Add AI Memory File Size Limits (M2)**
-- Open `src/main/ai/memory-manager.ts`
-- Add a maximum file size for each memory file:
-  ```typescript
-  const MAX_MEMORY_FILE_SIZE = 1024 * 1024 // 1MB per memory file
-  const MAX_TOTAL_MEMORY_SIZE = 10 * 1024 * 1024 // 10MB total
+**Steps:**
+1. Create `src/main/security-log.ts` exporting `logSecurityEvent(event: string, details: Record<string, unknown>): void` that delegates to `logToFile('SECURITY', ...)` from `src/main/log.ts`. Include ISO timestamp + JSON-stringified details. Cap details JSON at 4KB.
+2. Wire calls at:
+   - Failed path-traversal rejections in `src/main/ipc/*-handlers.ts` (campaign/file/book — already validated by Phase 17).
+   - Invalid API key format (Step 2 in 20a).
+   - Plugin install success/failure with sha256 + filename (Step 1 in 20d).
+   - AI file-read denials outside allowlist (Step 1 in 20e).
+   - Failed Zod validation on network messages (existing rate-limit / schema-reject path in `src/renderer/src/network/host-message-handlers.ts`).
+   - Kick / ban host actions.
+3. Document the log destination + rotation expectations in a header comment.
 
-  async function checkMemoryLimits(campaignId: string): Promise<boolean> {
-    const memoryDir = getMemoryDir(campaignId)
-    const files = await readdir(memoryDir)
-    let totalSize = 0
-    for (const file of files) {
-      const stat = await fsStat(path.join(memoryDir, file))
-      if (stat.size > MAX_MEMORY_FILE_SIZE) return false
-      totalSize += stat.size
-    }
-    return totalSize < MAX_TOTAL_MEMORY_SIZE
-  }
-  ```
-- Before writing memory files, check limits. If exceeded, prune oldest entries.
+**Acceptance:** New module compiles and exports `logSecurityEvent`; each listed event site invokes it; tail of `userData/logs/main.log` shows `[SECURITY]` entries during a kick action.
 
-### Sub-Phase F: File Upload Validation (M1)
+## Constraints & edge cases
 
-**Step 11 — Validate Binary File Uploads**
-- Open `src/preload/index.ts` lines 199-211 (or the relevant upload handler)
-- Add content type validation for uploaded files:
-  ```typescript
-  const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif']
-  const ALLOWED_AUDIO_TYPES = ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/webm']
+- `safeStorage.isEncryptionAvailable()` returns `false` before `app.ready`. All encrypt/decrypt calls must be on paths that only run post-ready.
+- Migration: any pre-existing plaintext Discord token must be re-encrypted on first load after this change. `decryptOptional` already passes through values that lack the `ss1:` prefix; trigger a `saveDiscordConfig` call after `loadDiscordConfig` if the on-disk value lacks the prefix.
+- Linux without `libsecret`: `safeStorage` falls back to unencrypted; do not block app startup. The existing `_warnedInsecure` flag in `safe-secret-storage.ts:7` is the right pattern.
+- React auto-escapes JSX text — verified zero `dangerouslySetInnerHTML` calls today. Sanitization layer is preventative for any future markdown-rendered chat.
+- Removing TURN literals defaults to STUN-only. Behind strict NATs, P2P will fail unless the user configures their own TURN server. The `iceTransportPolicy: 'all'` default (vs `'relay'`) at `peer-manager.ts:95` allows direct + STUN-relayed connections to still work on same LAN.
+- Zip-slip is real: rely on `extract-zip`'s built-in protection (already in place); the entry-name allowlist in 20d is defense-in-depth.
+- AI file scope: do not break legitimate campaign reads — test before merging.
+- Plugin runtime sandboxing is Phase 1 C2's job; this phase only hardens installation.
 
-  function validateFileType(buffer: Buffer, expectedTypes: string[]): boolean {
-    // Check magic bytes for file type verification
-    const header = buffer.slice(0, 4).toString('hex')
-    const magicBytes: Record<string, string> = {
-      '89504e47': 'image/png',
-      'ffd8ffe0': 'image/jpeg',
-      'ffd8ffe1': 'image/jpeg',
-      '52494646': 'audio/wav', // or image/webp
-      '4f676753': 'audio/ogg',
-    }
-    const detected = magicBytes[header]
-    return detected ? expectedTypes.includes(detected) : false
-  }
-  ```
-- Apply to image uploads (token images, map backgrounds) and audio uploads (custom sounds)
+## Verification
 
-### Sub-Phase G: Audit Logging (M3)
+1. `npm run lint && npx tsc --noEmit -p tsconfig.web.json && npx tsc --noEmit -p tsconfig.node.json && npm test` from `dnd-app/`.
+2. Manual: install a plugin, grep `userData/logs/main.log` for `[SECURITY]` install line with sha256.
+3. Manual: configure a fake Discord bot token, inspect `userData/discord-integration.json`, confirm `botToken` starts with `ss1:`.
+4. Manual: same-LAN host + join without TURN servers configured; verify connection works.
+5. Manual: trigger an AI `[FILE_READ]` for a path outside `campaigns/`; confirm denial + security log entry.
+6. `grep -rn "dndvtt-relay\|dndvtt:dndvtt" src/` returns zero hits.
 
-**Step 12 — Add Security Event Logging**
-- Create `src/main/security-log.ts`:
-  ```typescript
-  import { logToFile } from './log'
+## Completed
 
-  export function logSecurityEvent(event: string, details: Record<string, unknown>) {
-    const timestamp = new Date().toISOString()
-    logToFile(`[SECURITY] ${timestamp} ${event}: ${JSON.stringify(details)}`)
-  }
-  ```
-- Log these security events:
-  - Failed path traversal attempts
-  - Invalid API key format submissions
-  - Plugin installation (success/failure, filename, checksum)
-  - AI file read attempts outside allowed directories
-  - Network peer connection/disconnection
-  - Kick/ban actions
-  - Failed Zod validation on network messages (potential injection attempts)
-
----
-
-## ⚠️ Constraints & Edge Cases
-
-### API Key Encryption
-- **`safeStorage.isEncryptionAvailable()`**: Returns `false` before `app.ready` event. Ensure encryption is only used after app is ready.
-- **Migration**: Existing users have plaintext keys. On first load after this change, detect unencrypted keys (they won't have the base64 encryption marker) and encrypt them in place.
-- **Fallback**: If `safeStorage` is unavailable (rare on Windows 10+), fall back to plaintext with a warning log. Do NOT prevent app from starting.
-
-### Chat Sanitization
-- **React auto-escapes JSX text**: If chat messages are rendered as `{message.content}` in JSX, React prevents XSS by default. Verify this is the case before adding DOMPurify — unnecessary sanitization adds complexity.
-- **Markdown rendering**: If chat supports markdown (via a markdown renderer), the markdown-to-HTML step needs sanitization. Check if any chat rendering uses `dangerouslySetInnerHTML`.
-- **Chat links**: The `renderChatContent` function creates JSX elements from parsed URLs. Ensure `href` attributes are validated (no `javascript:` protocol).
-
-### TURN Credentials
-- **Default fallback**: After removing hardcoded TURN, the default should be STUN-only (Cloudflare). This means direct P2P connections work but may fail behind strict NATs. Users who need TURN must configure their own server.
-- **Do NOT remove the relay-only policy** (`iceTransportPolicy: 'relay'`). If no TURN server is configured and the policy is relay-only, connections will fail. Change the default policy to `'all'` (try direct first, fall back to relay) when no TURN is configured.
-
-### Plugin Security
-- **ZIP-slip is a real vulnerability**: The `..` check in entry names must use the resolved path, not just string matching. `path.resolve(extractDir, entryName).startsWith(extractDir)` is the correct check.
-- **JS execution**: Even with safe file types, a malicious `.js` file in a plugin could execute arbitrary code if the plugin system runs it. Phase 1 addresses plugin sandboxing — this phase only handles the installation step.
-
-### AI File Access
-- **Don't break existing functionality**: The AI legitimately needs to read campaign data, NPC descriptions, and conversation history. The allowed directories list must cover all legitimate use cases.
-- **Test after restricting**: Run an AI DM session after implementing the restriction to ensure context building still works (it reads from campaigns, characters, and AI conversations).
-
-Begin implementation now. Start with Sub-Phase A (Steps 1-3) for API key encryption — this is the highest-impact security fix since keys are currently in plaintext. Then Sub-Phase C (Step 6) to remove hardcoded TURN credentials from the repo. Then Sub-Phase D (Steps 7-8) for plugin integrity.
+- 20a Step 1 (original) — DONE (`src/main/ai/ai-service.ts:253-271`, `src/main/storage/safe-secret-storage.ts:10-43`) — API keys (`claudeApiKey`, `openaiApiKey`, `geminiApiKey`) encrypted at rest via `encryptOptional`/`decryptOptional`; `ss1:` prefix marker; graceful fallback when `safeStorage` unavailable.
+- 20a Step 1b — DONE (`src/main/storage/settings-storage.ts:46,59`) — TURN server `credential` fields encrypted at rest via the same helper pair (user-configured TURN credentials are protected; only the repo-visible hardcoded fallback remains, addressed in 20c).
+- 20d zip-slip protection — DONE (`src/main/plugins/plugin-installer.ts:14-22`) — `extract-zip` enforces zip-slip protection; targetDir traversal guard at `src/main/plugins/plugin-installer.ts:69-72`. The new work in 20d adds sha256 + entry allowlist + size cap on top of this.
+- 20b grep audit — DONE (verified 2026-05-19) — zero `dangerouslySetInnerHTML` / `innerHTML` hits in `src/renderer/`; current chat rendering at `src/renderer/src/components/game/bottom/ChatPanel.tsx:82,92` uses JSX-only `renderChatContent`. Step 1 of 20b remains live (add the documenting comment + preventative `isSafeHref`).

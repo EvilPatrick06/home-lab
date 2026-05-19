@@ -1,296 +1,131 @@
-# SYSTEM OVERRIDE: IMPLEMENTATION MODE
+# Phase 25 — Homebrew & Custom Content System
 
-Phase 25 covers the **Homebrew & Custom Content System**. The foundation exists — creation modal with 13 content types, category-organized storage, data merge with official content, and library display. The critical gaps are **no export/import for homebrew**, **only 3/13 content types have Zod schemas**, **custom mechanics don't function in gameplay**, **dual storage confusion** (homebrew vs custom creatures), and **no campaign-scoped content**.
+## Context
 
-> **See also:** Phase 15 (Library as Single Source of Truth). Two original sub-phases moved entirely to Phase 15:
-> - **H4 (Sub-Phase D — Unify Storage Systems)** is absorbed by Phase 15 Sub-Phase G Step 21 (Homebrew Parity). Custom-creatures storage merging into homebrew, and homebrew living in the same library store as built-ins, are structural Phase 15 rules.
-> - **M2 (Sub-Phase F — Builder/Sheet Integration)** is resolved structurally by Phase 15 Sub-Phases B/C/D — once every consumer hits the library, homebrew shows up automatically (it's in the library; consumers can't tell built-in from homebrew apart from a `source: 'homebrew'` field).
->
-> **H2 (Zod schemas) — fully absorbed by Phase 15 (2026-05-18 update).** Phase 15 Sub-Phase A.2 ships unified per-category schemas; A.2.5 adds source + audit fields to `BaseLibraryEntry`. The 13 homebrew types validate via the same `SCHEMA_REGISTRY` as official entries. No separate homebrew schemas needed. H2 struck from Phase 25 scope.
->
-> **See also:** Phase 31 (Live-state sync overhaul) — library / homebrew updates broadcast as a library shard delta (no bespoke message). Campaign-scoped homebrew filtering (Sub-Phase E / M1) lives in that shard's `permissionFilter` once Phase 29 permission keys exist.
->
-> **Verification pass (2026-05-18):**
-> - H1 export/import — ✗ no `.dndhomebrew` support in `services/io/`. Live work.
-> - H2 Zod schemas — ✓ **STRUCK FROM SCOPE (2026-05-18).** Fully absorbed by Phase 15 A.2 + A.2.5. The 9 dev-time schemas in `scripts/schemas/` remain Phase 33h's concern; the runtime homebrew validation H2 wanted is now Phase 15's unified `SCHEMA_REGISTRY`.
-> - H3 custom mechanics — ✗ `feat-mechanics-5e.ts` has zero homebrew handling. Live work (mechanical-effects work, not the field-parity work that 17o shipped).
-> - M1 campaign-scoped homebrew — ✗ no `campaignId` field on homebrew schemas. Live work.
+The dnd-app has a working homebrew creation surface (`HomebrewCreateModal.tsx` covers 13 content types), category-organized storage (`userData/homebrew/{category}/{id}.json`), data merge with official content (`mergeHomebrew()`), and library display via `homebrewToLibraryItems()`. What remains broken is the lifecycle around that data: there is no first-class export/import for homebrew bundles, custom feats/spells carry no mechanical effect into gameplay, and homebrew has no campaign scope.
 
----
+Two original sub-phases were structurally absorbed elsewhere. **H4 (Unify Storage Systems)** moves to Phase 15 Sub-Phase G Step 21 (Homebrew Parity) — once homebrew lives in the unified library store alongside built-ins with a `source: 'homebrew'` discriminator, the dual storage confusion disappears. **M2 (Builder/Sheet Integration)** resolves automatically when Phase 15 Sub-Phases B/C/D land — every consumer hydrates from the library. **H2 (Zod schemas for 13 content types)** is fully absorbed by Phase 15 A.2 (unified `SCHEMA_REGISTRY`) and A.2.5 (source + audit fields on `BaseLibraryEntry`).
 
-## 🏗️ Architecture & Environment Split
+The remaining Phase 25 scope is therefore three lanes: export/import portability, mechanical effect application for custom feats/spells, and campaign-scoped homebrew association.
 
-### Windows 11 Machine (`C:\Users\evilp\dnd\`) — ALL WORK IS HERE
+## Depends on / blocks
+- Depends on: Phase 15 (unified library + `SCHEMA_REGISTRY` + `source` field), Phase 29 (permission keys, for campaign filtering)
+- Blocks: none (Phase 36 Pi-hosted library handles cross-machine sync independently)
 
-**Existing Files:**
+## Files touched
+| Path | Role |
+|------|------|
+| `src/renderer/src/services/io/entity-io.ts` | Add `homebrew` entity type + extension `dndhomebrew` |
+| `src/renderer/src/services/io/import-export.ts` | Already wires homebrew into full backup; verify import path |
+| `src/main/storage/homebrew-storage.ts` | Storage layer; add `campaignId` field plumbing |
+| `src/renderer/src/components/library/HomebrewCreateModal.tsx` | Add export/import buttons, effects builder, campaign field |
+| `src/renderer/src/services/character/feat-mechanics-5e.ts` | Extend with homebrew effect application |
+| `src/renderer/src/services/character/spell-data.ts` | Wire homebrew spell dice formulas into casting |
+| `src/renderer/src/stores/use-data-store.ts` | `mergeHomebrew()` — filter by active campaign |
+| `src/renderer/src/services/library-service.ts` | `homebrewToLibraryItems()` — propagate campaignId |
+| `src/renderer/src/services/homebrew-validation.ts` | **New** — wrap Phase 15 `SCHEMA_REGISTRY` for save-time validation |
+| `src/renderer/src/services/character/homebrew-effects.ts` | **New** — `HomebrewFeatEffect` types + `applyHomebrewEffect()` |
 
-| File | Role | Status |
-|------|------|--------|
-| `src/renderer/src/components/library/HomebrewCreateModal.tsx` | Creation UI — 13 types, dynamic fields, based-on relationships | Functional |
-| `src/main/storage/homebrew-storage.ts` | File storage — `userData/homebrew/{category}/{id}.json` | Functional |
-| `src/main/storage/custom-creature-storage.ts` | Separate creature storage — `userData/custom-creatures/{id}.json` | Functional but confusing dual system |
-| `src/renderer/src/stores/use-data-store.ts` | `mergeHomebrew()` — integrates with official data | Functional |
-| `src/renderer/src/services/library-service.ts` | `homebrewToLibraryItems()` — displays in library | Functional |
-| `src/renderer/src/services/homebrew-validation.ts` | Basic validation — name, type, id, duplicate check | Minimal |
-| `src/renderer/src/services/character/feat-mechanics-5e.ts` | Feat mechanics — **official feats only** | Custom feats not supported |
-| `src/renderer/src/services/io/entity-io.ts` | Entity export — **doesn't include homebrew types** | Missing |
-| `src/renderer/src/services/io/import-export.ts` | Full backup — includes homebrew in `exportAllData()` | Partial |
-| `scripts/schemas/` | Zod schemas — **only classes, feats, backgrounds** | 3/13 types |
-| `scripts/validate-homebrew.ts` | Dev-time validation — only 3 types | Minimal |
+## Sub-phase summary
+| # | Sub-phase | Theme |
+|---|-----------|-------|
+| 25a | Homebrew Export/Import (H1) | First-class `.dndhomebrew` files via entity-io |
+| 25b | Custom Mechanics Integration (H3) | Effects array on homebrew feats + spell dice |
+| 25c | Campaign-Scoped Homebrew (M1) | `campaignId` field + merge filter + UI |
+| 25d | Save-time Validation Hookup | Wire Phase 15 `SCHEMA_REGISTRY` into save path |
+| 25e | Backup Restore Verification | Confirm `importAllData()` actually rehydrates homebrew |
 
-### Raspberry Pi (`patrick@bmo`) — NO WORK THIS PHASE
+## Sub-phase details
 
----
+### 25a — Homebrew Export/Import (H1)
+**Files:** `src/renderer/src/services/io/entity-io.ts`, `src/renderer/src/services/io/homebrew-io.ts` (new), `src/renderer/src/components/library/HomebrewCreateModal.tsx`
+**Steps:**
+1. In `src/renderer/src/services/io/entity-io.ts:17` extend `EntityType` union with `'homebrew'` and at `entity-io.ts:49` add to `ENTITY_CONFIGS`: `homebrew: { extension: 'dndhomebrew', label: 'Homebrew Content', requiredFields: ['id', 'name', 'type'] }`.
+2. Create `src/renderer/src/services/io/homebrew-io.ts` exporting `exportHomebrew(items)`, `exportAllHomebrew()` (calls `window.api.homebrew.loadAll()` then `exportEntities('homebrew', ...)`), and `importHomebrew()` (calls `importEntities('homebrew')`, runs `validateHomebrew()` per item, then `window.api.homebrew.save()` on each pass).
+3. On ID collision during import, prompt user: "Replace existing?" or "Import as copy (assign new UUID)?". Default to copy if dismissed.
+4. Add `schemaVersion: 1` to envelope `data` payload so future field additions can fallback-default older imports.
+5. In `HomebrewCreateModal.tsx`, add "Export All Homebrew" and "Import Homebrew" buttons in the header. Import shows a result toast: `Imported N items, M errors`.
+**Acceptance:** `services/io/entity-io.ts` ENTITY_CONFIGS contains `homebrew`; round-trip test: export N items → delete from store → import same file → all N items reappear.
 
-## 📋 Core Objectives
+### 25b — Custom Mechanics Integration (H3)
+**Files:** `src/renderer/src/services/character/feat-mechanics-5e.ts`, `src/renderer/src/services/character/homebrew-effects.ts` (new), `src/renderer/src/components/library/HomebrewCreateModal.tsx`, `src/renderer/src/services/character/spell-data.ts`
+**Steps:**
+1. Create `src/renderer/src/services/character/homebrew-effects.ts` defining `HomebrewFeatEffect` union (`ability_bonus`, `skill_proficiency`, `damage_resistance`, `speed_bonus`, `ac_bonus`, `custom`) and `applyHomebrewEffect(effect, stats)`.
+2. In `feat-mechanics-5e.ts`, after the official-feat switch block, iterate `character.feats.filter(f => f.source === 'homebrew' && Array.isArray(f.effects))` and call `applyHomebrewEffect()`. Homebrew effects must run AFTER official feat processing.
+3. In `HomebrewCreateModal.tsx`, when `formData.type === 'feat'`, render an EffectBuilder section. Persist as `formData.effects: HomebrewFeatEffect[]`.
+4. In `spell-data.ts` (or the spell-casting flow), accept a `diceFormula?: string` field on homebrew spells. When casting, run formula through existing `dice-service.ts` and broadcast result. Validate formula format (`/^\d+d\d+([+-]\d+)?$/`).
+5. Opt-in: if homebrew feat has no `effects` array, render as informational only.
+**Acceptance:** A homebrew feat with `effects: [{ type: 'ability_bonus', target: 'strength', value: 1 }]` raises a character's STR by 1 in the sheet; a homebrew spell with `diceFormula: '8d6'` rolls 8d6 on cast.
 
-### HIGH PRIORITY
+### 25c — Campaign-Scoped Homebrew (M1)
+**Files:** `src/main/storage/homebrew-storage.ts`, `src/renderer/src/stores/use-data-store.ts`, `src/renderer/src/services/library-service.ts`, `src/renderer/src/components/library/HomebrewCreateModal.tsx`, `src/renderer/src/components/library/LibraryFilters.tsx`
+**Steps:**
+1. Add `campaignId?: string` to `HomebrewEntry` type. `undefined` = global, string = campaign-scoped.
+2. Storage layer already serializes the full object — verify save round-trip preserves `campaignId`. Add a test.
+3. In `HomebrewCreateModal.tsx`, when opened within a campaign context, auto-default `campaignId` to active campaign; add a "Make this campaign-only" checkbox.
+4. In `use-data-store.ts:255` `mergeHomebrew()`, accept an optional `activeCampaignId` arg. Filter incoming homebrew: `entry.campaignId === undefined || entry.campaignId === activeCampaignId`.
+5. Add library filter UI: tri-state — "All Homebrew" / "This Campaign" / "Global Only". Persist preference per-session.
+6. On campaign deletion, cascade-delete only homebrew entries where `campaignId === deletedCampaignId`. Global homebrew (`campaignId === undefined`) untouched.
+**Acceptance:** New homebrew created inside Campaign X stores `campaignId: 'X'`; opening Campaign Y shows only undefined + Y's; deleting X removes its homebrew but leaves global intact.
 
-| # | Issue | Impact |
-|---|-------|--------|
-| H1 | No homebrew export/import — can't share custom content | Users can't transfer homebrew between machines or share with players. **2026-05-18 reframe:** Phase 36 (Pi-hosted library) handles most cross-machine homebrew sharing via Pi auto-sync; H1's export/import remains useful for one-off backups, sharing with users who don't run a Pi, and offline-first portability. Stays live work, reduced in priority. |
-| ~~H2~~ | ~~Only 3/13 content types have Zod validation schemas~~ — **fully absorbed by Phase 15 A.2 + A.2.5** (2026-05-18). Phase 15 ships unified `SCHEMA_REGISTRY` covering every `LibraryCategory` (~52 categories, all 13 homebrew types included). A.2.5 adds `source: 'official' \| 'homebrew' \| 'plugin'` + optional `createdAt`/`updatedAt` to `BaseLibraryEntry`, so homebrew audit metadata validates against the same schemas. **Strike H2 from Phase 25 scope** — no separate `HomebrewSpellSchema` etc. needed. | — |
-| H3 | Custom feats/spells have no mechanical effect — partially absorbed by Phase 15 | Homebrew displays in library but doesn't work in gameplay |
-| ~~H4~~ | ~~Dual storage systems~~ — **moved to Phase 15 Sub-Phase G Step 21** | — |
+### 25d — Save-time Validation Hookup
+**Files:** `src/renderer/src/services/homebrew-validation.ts` (new), `src/renderer/src/components/library/HomebrewCreateModal.tsx`
+**Steps:**
+1. Create `src/renderer/src/services/homebrew-validation.ts` exporting `validateHomebrew(item: unknown): { valid: boolean; errors: string[]; warnings: string[] }`. Look up the Phase 15 `SCHEMA_REGISTRY` entry for `item.type` and run `safeParse()`. Unknown type → pass through with warning.
+2. Use `.passthrough()` semantics — extra fields are warnings, not errors. Homebrew creativity must not be blocked.
+3. In `HomebrewCreateModal.tsx` save handler, run validation; show errors/warnings inline. Allow save even with warnings; block save on hard errors (missing `id`/`name`/`type`).
+4. Also call `validateHomebrew()` inside 25a's import path for each entity before persisting.
+**Acceptance:** Saving a homebrew spell missing `name` shows "name is required" and blocks save; saving with unknown field saves successfully with warning.
 
-### MEDIUM PRIORITY
+### 25e — Backup Restore Verification
+**Files:** `src/renderer/src/services/io/import-export.ts`
+**Steps:**
+1. Verify `importAllData()` path at `import-export.ts:410` actually writes each `homebrew` entry back to disk via `window.api.homebrew.save()`. Currently the count is reported but the write fan-out is unconfirmed.
+2. Add `import-export.test.ts` cases for homebrew round-trip: backup → wipe userData → restore → assert homebrew count matches and entries are loadable.
+3. If `customCreatures` is also in the payload, ensure they restore through the dual-storage path until Phase 15 G Step 21 unifies them.
+**Acceptance:** `import-export.test.ts` includes a homebrew round-trip case and passes.
 
-| # | Issue | Impact |
-|---|-------|--------|
-| M1 | No campaign-scoped homebrew | All homebrew is global; can't have campaign-specific content |
-| ~~M2~~ | ~~Character builder/sheet doesn't reference homebrew~~ — **resolved structurally by Phase 15** | — |
-
----
-
-## 🛠️ Step-by-Step Execution Plan
-
-### Sub-Phase A: Homebrew Export/Import (H1)
-
-**Step 1 — Add Homebrew to Entity I/O System**
-- Open `src/renderer/src/services/io/entity-io.ts`
-- Add homebrew as a supported entity type:
-  ```typescript
-  const ENTITY_CONFIGS = {
-    // ... existing types
-    homebrew: { extension: '.dndhomebrew', displayName: 'Homebrew Content' },
-  }
-  ```
-- The envelope format already supports arbitrary data: `{ version: 1, type, exportedAt, count, data }`
-
-**Step 2 — Create Homebrew Export Function**
-- Add to `entity-io.ts` or create `homebrew-io.ts`:
-  ```typescript
-  export async function exportHomebrew(items: HomebrewItem[]): Promise<void> {
-    await exportEntities('homebrew', items)
-  }
-
-  export async function exportAllHomebrew(): Promise<void> {
-    const allHomebrew = await window.api.homebrew.loadAll()
-    await exportEntities('homebrew', allHomebrew)
-  }
-  ```
-
-**Step 3 — Create Homebrew Import Function**
-- Add import with validation:
-  ```typescript
-  export async function importHomebrew(): Promise<{ imported: number; errors: string[] }> {
-    const entities = await importEntities('homebrew')
-    const results = { imported: 0, errors: [] as string[] }
-    for (const item of entities) {
-      const validation = validateHomebrew(item)
-      if (validation.valid) {
-        await window.api.homebrew.save(item)
-        results.imported++
-      } else {
-        results.errors.push(`${item.name}: ${validation.errors.join(', ')}`)
-      }
-    }
-    return results
-  }
-  ```
-
-**Step 4 — Add Export/Import UI Buttons**
-- Open `src/renderer/src/components/library/HomebrewCreateModal.tsx` or the library homebrew section
-- Add "Export All Homebrew" and "Import Homebrew" buttons
-- Show import results (count imported, any errors)
-
-### Sub-Phase B: ~~Complete Validation Schemas (H2)~~
-
-> **STRUCK 2026-05-18.** Fully absorbed by Phase 15 A.2 (unified `SCHEMA_REGISTRY` for every `LibraryCategory`) + Phase 15 A.2.5 (homebrew audit fields on `BaseLibraryEntry`). No homebrew-specific schemas needed. The steps below are kept for historical reference only — do not implement.
-
-**Step 5 — Create Zod Schemas for All Content Types**
-- Create `src/renderer/src/schemas/homebrew-schemas.ts`:
-  ```typescript
-  import { z } from 'zod'
-
-  const BaseHomebrewSchema = z.object({
-    id: z.string().uuid(),
-    name: z.string().min(1),
-    type: z.string(),
-    source: z.literal('homebrew'),
-    createdAt: z.string(),
-    updatedAt: z.string(),
-  })
-
-  export const HomebrewSpellSchema = BaseHomebrewSchema.extend({
-    type: z.literal('spell'),
-    level: z.number().int().min(0).max(9),
-    school: z.string(),
-    castingTime: z.string(),
-    range: z.string(),
-    components: z.object({
-      verbal: z.boolean().optional(),
-      somatic: z.boolean().optional(),
-      material: z.string().optional(),
-    }).optional(),
-    duration: z.string(),
-    description: z.string(),
-    higherLevels: z.string().optional(),
-    classes: z.array(z.string()).optional(),
-    concentration: z.boolean().optional(),
-    ritual: z.boolean().optional(),
-  }).passthrough()
-
-  export const HomebrewMonsterSchema = BaseHomebrewSchema.extend({
-    type: z.literal('monster'),
-    cr: z.union([z.number(), z.string()]),
-    ac: z.number().int().min(0),
-    hp: z.number().int().min(1),
-    speed: z.union([z.number(), z.object({}).passthrough()]),
-    size: z.string(),
-    creatureType: z.string(),
-    abilityScores: z.object({
-      strength: z.number(), dexterity: z.number(), constitution: z.number(),
-      intelligence: z.number(), wisdom: z.number(), charisma: z.number(),
-    }).optional(),
-  }).passthrough()
-
-  export const HomebrewItemSchema = BaseHomebrewSchema.extend({
-    type: z.enum(['item', 'magic-item', 'weapon', 'armor', 'tool']),
-    weight: z.number().optional(),
-    cost: z.string().optional(),
-    description: z.string(),
-    rarity: z.string().optional(),
-  }).passthrough()
-
-  // Add schemas for remaining types: species, class, subclass, background, feat, other
-  ```
-- Use `.passthrough()` to allow extra fields — homebrew content is inherently flexible
-
-**Step 6 — Integrate Validation on Save**
-- Open `src/renderer/src/services/homebrew-validation.ts`
-- Replace basic validation with Zod schema validation:
-  ```typescript
-  export function validateHomebrew(item: unknown): { valid: boolean; errors: string[] } {
-    const schema = getSchemaForType(item.type)
-    if (!schema) return { valid: true, errors: [] } // unknown types pass through
-    const result = schema.safeParse(item)
-    if (result.success) return { valid: true, errors: [] }
-    return { valid: false, errors: result.error.issues.map(i => i.message) }
-  }
-  ```
-- Show validation errors in the HomebrewCreateModal before saving
-
-### Sub-Phase C: Custom Mechanics Integration (H3)
-
-> **Phase 15 note:** Once Phase 15 lands, the "homebrew displays in library but doesn't work in gameplay" symptom disappears at the read layer — every consumer (Sheet, Builder, In-Game) hydrates from the library and renders the homebrew entry the same as a built-in. The mechanical-effects work below (`feat-mechanics-5e.ts` extension, effect editor, dice formula) is still needed regardless, because those concerns are about *applying* effects, not about reading the data. Run this sub-phase as planned.
-
-**Step 7 — Extend Feat Mechanics for Homebrew**
-- Open `src/renderer/src/services/character/feat-mechanics-5e.ts`
-- Currently only handles official feats by name matching
-- Add a generic homebrew feat effect system:
-  ```typescript
-  interface HomebrewFeatEffect {
-    type: 'ability_bonus' | 'skill_proficiency' | 'damage_resistance' | 'speed_bonus' | 'ac_bonus' | 'custom'
-    target?: string  // ability name, skill name, damage type
-    value?: number
-    description?: string
-  }
-  ```
-- When a homebrew feat has an `effects` array, apply them in the character stat calculation:
-  ```typescript
-  for (const feat of character.feats) {
-    if (feat.source === 'homebrew' && feat.effects) {
-      for (const effect of feat.effects) {
-        applyHomebrewEffect(effect, stats)
-      }
-    }
-  }
-  ```
-
-**Step 8 — Add Effect Editor to HomebrewCreateModal**
-- When creating a homebrew feat, add an "Effects" section:
-  ```tsx
-  <EffectBuilder
-    effects={item.effects ?? []}
-    onChange={(effects) => updateItem({ effects })}
-  />
-  ```
-- The EffectBuilder provides dropdowns for effect type, target, and value
-- This allows homebrew feats to grant ability bonuses, proficiencies, resistances, etc.
-
-**Step 9 — Extend Spell Mechanics for Homebrew**
-- Custom spells need to work in the spell casting flow:
-  - They should appear in the spell list (already works via data merge)
-  - They should be castable (consume spell slots)
-  - Damage/healing amounts should be rollable
-- Add a `diceFormula` field to homebrew spells: e.g., `"8d6"` for a custom fireball variant
-- In the spell casting flow, when casting a homebrew spell, roll the formula and broadcast
-
-### Sub-Phase D: ~~Unify Storage Systems (H4)~~
-
-> **Moved to Phase 15** (Sub-Phase G Step 21 — Homebrew Parity). The merging of `custom-creature-storage` into the unified library/homebrew store is a structural Phase 15 rule: homebrew and built-ins live in the same library store, distinguished only by a `source: 'homebrew'` field. No action in Phase 25; this work happens during Phase 15's sweep.
-
-### Sub-Phase E: Campaign-Scoped Homebrew (M1)
-
-**Step 11 — Add Campaign Association**
-- Add `campaignId?: string` to the homebrew item schema:
-  ```typescript
-  interface HomebrewItem {
-    id: string
-    name: string
-    type: string
-    campaignId?: string  // null = global, string = campaign-specific
-    // ...
-  }
-  ```
-- When creating homebrew from within a campaign context, auto-set the campaignId
-- In `mergeHomebrew()`, filter to include global items + items matching the active campaign
-
-**Step 12 — Campaign Homebrew UI**
-- In the library, add a filter: "All Homebrew" / "This Campaign" / "Global Only"
-- In the campaign detail page, add a "Campaign Homebrew" section showing associated custom content
-- Allow moving homebrew between global and campaign-scoped
-
-### Sub-Phase F: ~~Builder/Sheet Integration (M2)~~
-
-> **Moved to Phase 15** (Sub-Phases B, C, D — Builder / Sheet / Level Up sweeps). Once consumers read from the library via `useLibraryEntry`, homebrew entries (which live in the same library store with `source: 'homebrew'`) become available to every consumer automatically. No data-provider merge step is needed because there's only one source.
->
-> The "(Homebrew)" badge in selection modals is a UX nice-to-have — add it as a small enhancement during Phase 15's Builder / Sheet sweeps, not as separate Phase 25 work.
-
----
-
-## ⚠️ Constraints & Edge Cases
+## Constraints & edge cases
 
 ### Export/Import
-- **`.dndhomebrew` files are JSON** — same envelope format as other entity exports. The importer should handle both single items and bulk arrays.
-- **ID collisions**: When importing, if an item with the same ID already exists, ask: "Replace existing?" or "Import as copy (new ID)?"
-- **Cross-version compatibility**: Include a `schemaVersion` in the envelope. If a future version adds required fields, older homebrew files should still import with defaults.
+- `.dndhomebrew` files are JSON envelopes matching the existing entity-io schema. The importer accepts both single-item and bulk-array shapes.
+- Cross-version compatibility: envelope carries `schemaVersion: 1`. Future versions add defaults for older files.
 
 ### Validation
-- **`.passthrough()` is essential** — homebrew content may have fields the schema doesn't know about. Strict schemas would reject valid creative content. Only validate the structural minimum.
-- **Don't prevent saving invalid content** — show warnings but allow save. The user may be in the middle of creating content and want to save a draft.
+- `.passthrough()` is essential — homebrew is inherently flexible. Validate the structural minimum; everything else is warnings.
+- Never block save outright on schema mismatch — show warnings and let user proceed.
 
 ### Custom Mechanics
-- **Effect system must be opt-in** — if a homebrew feat has no `effects` array, it's treated as informational only (current behavior). Only feats with explicit effects get mechanical treatment.
-- **Don't break official feats** — the homebrew effect system must not interfere with the hardcoded official feat mechanics in `feat-mechanics-5e.ts`. Check homebrew effects AFTER official feat processing.
-- **Dice formulas**: Use the existing `dice-service.ts` for homebrew spell damage rolls. Validate the formula format before rolling.
+- Effect system is opt-in. A homebrew feat with no `effects` array is informational only.
+- Homebrew effect application must run AFTER official feat hardcoded handling so it cannot interfere.
+- Validate dice formulas with regex `/^\d+d\d+([+-]\d+)?$/` before allowing save; reuse `dice-service.ts` for rolls.
 
 ### Storage Unification
-- Moved to Phase 15. See Phase 15 Sub-Phase G Step 21 (Homebrew Parity) and Sub-Phase H Step 22 (load-time migration) for constraints.
+- Out of Phase 25 scope — Phase 15 Sub-Phase G Step 21 handles the `custom-creatures` → unified library merge.
 
 ### Campaign Scoping
-- **Global homebrew must always be available** — campaign-scoped homebrew adds to the global pool, it doesn't replace it.
-- **Campaign deletion should NOT delete global homebrew** — only campaign-scoped homebrew gets cleaned up with the campaign.
+- Global homebrew is always available, additive to campaign-scoped content, never replaced.
+- Campaign deletion cascades only to campaign-scoped homebrew. Global content is preserved.
+- Phase 31 broadcasts homebrew changes as a library shard delta; per-campaign filter lives in that shard's `permissionFilter` once Phase 29 permission keys exist.
 
-Begin implementation now. Start with Sub-Phase A (Steps 1-4) for homebrew export/import — this is the most requested feature. Then Sub-Phase B (Steps 5-6) for validation schemas. Sub-Phase C (Steps 7-9) for custom mechanics is the most complex and highest-value improvement.
+## Verification
+
+After implementation:
+```bash
+cd dnd-app
+npm run lint
+npx tsc --noEmit -p tsconfig.node.json
+npx tsc --noEmit -p tsconfig.web.json
+npm test -- entity-io homebrew feat-mechanics import-export
+```
+
+Manual smoke:
+1. Create a homebrew feat with an ability_bonus effect, attach to a character — STR rises in sheet.
+2. Export all homebrew → wipe `userData/homebrew/` → import → all items reappear.
+3. Create homebrew while in Campaign A → switch to Campaign B → confirm it does NOT appear in B's library.
+4. Delete Campaign A → confirm A's homebrew is gone and global homebrew is intact.
+5. Full backup → restore → verify homebrew count via library.
+
+## Completed
+
+(All prior steps relocated. H2 struck and absorbed by Phase 15 A.2 + A.2.5. H4 moved to Phase 15 Sub-Phase G Step 21. M2 resolved structurally by Phase 15 Sub-Phases B/C/D. Live verification 2026-05-19 confirmed no entries in `entity-io.ts` ENTITY_CONFIGS for `homebrew`, no `homebrew-validation.ts` file exists, no `source === 'homebrew'` branch in `feat-mechanics-5e.ts`, no `campaignId` field on homebrew storage. All 25a-25e sub-phases remain live.)

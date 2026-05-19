@@ -1,273 +1,104 @@
-# SYSTEM OVERRIDE: IMPLEMENTATION MODE
+# Phase 21 — GitHub & Version Control
 
-Phase 21 covers **GitHub & Version Control** — `.gitignore`, branching, README, CI/CD, git hooks, and commit hygiene. The audit found `.gitignore` well-configured and commit history clean (conventional commits). The gaps are **no CI validation pipeline** (only a release workflow), **no pre-commit hooks**, **barebones README**, and **no branching strategy** (everything pushed to master).
+## Context
 
-> **See also:** Phases 29-32. CI gate must include the new test files added by Phase 29 (permission helper specs), Phase 30 (`game-authority.test.ts`, `p2p-transport.test.ts`, `host-transfer.test.ts`), Phase 31 (shard / diff / applier specs), Phase 32 (`game_server.py` pytest + Python shard tests). README architecture section currently describes "P2P via PeerJS" — after Phases 30-32 the architecture has `GameAuthority` + `TransportAdapter` + shards + optional Pi cloud host. **Recommend: defer the README "Networking" prose** until those land; ship a placeholder.
+Phase 21 hardens the repo-level workflow surface: `.gitignore`, CI validation, README accuracy, pre-commit hooks, branching convention, and workspace tidiness. The original audit found `.gitignore` solid, commit history clean (Conventional Commits), and a working release workflow, but flagged: no CI gate on PRs/pushes to master, a barebones/inaccurate README, no pre-commit automation, no documented branching strategy, and phase research files cluttering the repo root.
 
----
+Since the audit, the README has been fully overhauled (269 lines, accurate), phase research files have been relocated to `dnd-app/docs/phases/`, a `docs/CONTRIBUTING.md` was added covering branches + commit style + PR flow, and a `.githooks/pre-commit` shim exists for optional `gitleaks` secret scanning. The remaining live work is the CI validation pipeline (lint + typecheck + test on every push/PR, not only on `v*` tags) and a real lint/typecheck pre-commit hook.
 
-## 🏗️ Architecture & Environment Split
+Cross-phase note: any CI gate added here must cover the new test files landing in Phases 29 (permission helper specs), 30 (`game-authority.test.ts`, `p2p-transport.test.ts`, `host-transfer.test.ts`), 31 (shard / diff / applier specs), and 32 (`game_server.py` pytest + Python shard tests).
 
-### Windows 11 Machine (`C:\Users\evilp\dnd\`) — ALL WORK IS HERE
+## Depends on / blocks
+- Depends on: none
+- Blocks: none (informational coupling with Phases 29-32 for CI coverage)
 
-Phase 21 is config/workflow changes. No Raspberry Pi involvement.
+## Files touched
+| Path | Role |
+|------|------|
+| `.github/workflows/ci.yml` | New PR/push validation workflow (lint + typecheck + test + build smoke) |
+| `.github/workflows/release.yml` | Reference only — already runs preflight gates on tag push |
+| `dnd-app/package.json` | Add `husky` + (optional) `lint-staged` devDeps, `prepare` script |
+| `.husky/pre-commit` | Real lint/typecheck pre-commit hook |
+| `.githooks/pre-commit` | Existing gitleaks shim — keep, or fold into `.husky/` flow |
+| `dnd-app/README.md` | Reference only — already comprehensive |
+| `docs/CONTRIBUTING.md` | Reference only — already documents branches + commit style |
 
-**Existing Files:**
+## Sub-phase summary
+| # | Sub-phase | Theme |
+|---|-----------|-------|
+| 21a | CI validation pipeline | Add `.github/workflows/ci.yml` running lint + typecheck + tests on PRs and master pushes |
+| 21b | CI build smoke | Extend ci.yml with `electron-vite build` + artifact existence check |
+| 21c | Pre-commit hook (Husky) | Install husky + wire `.husky/pre-commit` to run biome + tsc |
+| 21d | lint-staged (optional perf) | Scope biome to staged files for sub-3s commits |
+| 21e | Verification & cleanup | Confirm completed items still hold; close out |
 
-| File | Status |
-|------|--------|
-| `.gitignore` | Well-configured — secrets, build artifacts, large files excluded |
-| `.github/workflows/release.yml` | Windows release on tag push — functional |
-| `README.md` | Barebones, inaccurate (lists `npm install dnd-vtt` instead of actual dev commands) |
-| `CLAUDE.md` | Contains actual dev setup instructions |
+## Sub-phase details
 
-**Missing Files:**
+### 21a — CI validation pipeline
+**Files:** `.github/workflows/ci.yml` (new)
+**Steps:**
+1. Create `.github/workflows/ci.yml` triggered on `push: branches: [master]` and `pull_request: branches: [master]`, scoped to `paths: ['dnd-app/**', '.github/workflows/ci.yml']`. Mirror `.github/workflows/dnd-app-validate-5e.yml:4-17` (working-directory `dnd-app`, Node 22 with `cache: npm` keyed on `dnd-app/package-lock.json`).
+2. Add steps: `npm ci`, then `npm run lint`, `npx tsc --noEmit -p tsconfig.web.json`, `npx tsc --noEmit -p tsconfig.node.json`, `npm test`. Reuse `check:release` script (`dnd-app/package.json:23`) if convenient.
+3. Use `ubuntu-latest`. Windows is reserved for release builds where electron-builder needs it.
+**Acceptance:** `.github/workflows/ci.yml` exists; opening a PR or pushing to master triggers a `CI` workflow run; the workflow fails if any gate fails; `bmo/` or `dungeon-scholar/` paths do not trigger this workflow.
 
-| File | Purpose |
-|------|---------|
-| `.github/workflows/ci.yml` | PR/push validation (tests, lint, typecheck) |
-| `.husky/pre-commit` | Pre-commit hook for lint/format |
-| `CONTRIBUTING.md` | Contribution guidelines |
+### 21b — CI build smoke
+**Files:** `.github/workflows/ci.yml`
+**Steps:**
+1. Append a `Build` step running `npx electron-vite build` after the test step. Catches Vite config/lazy-route/missing-import failures that pure tsc + vitest misses.
+2. Append a `Verify build artifacts` step that fails if `out/main/index.js` or `out/renderer/index.html` is missing.
+3. Do NOT invoke `electron-builder` here — that's release-only.
+**Acceptance:** A PR that breaks the Vite build fails the `CI` workflow at the `Build` step; a PR that deletes `src/main/index.ts` fails at `Verify build artifacts`.
 
----
+### 21c — Pre-commit hook (Husky)
+**Files:** `dnd-app/package.json`, `.husky/pre-commit` (new)
+**Steps:**
+1. From `dnd-app/`, run `npm install --save-dev husky` and add `"prepare": "husky"` to `dnd-app/package.json` scripts.
+2. Create `.husky/pre-commit` at the repo root (git's `.git/` is at the repo root). Content: cd into `dnd-app/`, run `npm run lint -- --staged --no-errors-on-unmatched`, then `npx tsc --noEmit -p tsconfig.web.json`.
+3. Decide on `.githooks/pre-commit` (gitleaks shim): either keep both via `git config core.hooksPath` chaining, or merge gitleaks into `.husky/pre-commit`. Document the choice in `docs/CONTRIBUTING.md`.
+**Acceptance:** `git commit` on a file with a biome violation aborts; `git commit` on a TS error aborts; `git commit --no-verify` still works as an escape hatch; `npm install` in a fresh clone wires the hook automatically.
 
-## 📋 Core Objectives
+### 21d — lint-staged (optional perf)
+**Files:** `dnd-app/package.json`, `.husky/pre-commit`
+**Steps:**
+1. Only undertake if 21c's `tsc --noEmit -p tsconfig.web.json` exceeds ~5s on the dev machine.
+2. `npm install --save-dev lint-staged` in `dnd-app/`. Add `"lint-staged": { "src/**/*.{ts,tsx}": ["biome check --write --no-errors-on-unmatched"] }` to `dnd-app/package.json`.
+3. Replace the biome step in `.husky/pre-commit` with `cd dnd-app && npx lint-staged`. Keep the `tsc --noEmit` step.
+**Acceptance:** A staged file with a biome violation is auto-fixed and re-staged on commit; the pre-commit hook completes faster than the 21c baseline.
 
-| # | Issue | Priority |
-|---|-------|----------|
-| G1 | No CI validation pipeline (tests/lint/typecheck on push) | High |
-| G2 | README is barebones and inaccurate | High |
-| G3 | No pre-commit hooks | Medium |
-| G4 | No branching strategy documented | Low |
-| G5 | Phase research files cluttering root directory | Low |
+### 21e — Verification & cleanup
+**Files:** repo-wide
+**Steps:**
+1. Re-run `ls /home/user/home-lab/` and confirm no `Phase*_*.md` files remain at the repo root or under `dnd-app/`.
+2. Re-check `dnd-app/README.md` reflects the current `package.json` scripts.
+3. Re-check `docs/CONTRIBUTING.md` covers branches, commit format, PR flow.
+4. Open a no-op PR to confirm the new `ci.yml` runs and passes against current `master`.
+**Acceptance:** Repo root + `dnd-app/` root are free of `Phase*_*.md`; a clean PR run shows green CI + 5e validate + security audit checks.
 
----
+## Constraints & edge cases
+- **Runner choice:** use `ubuntu-latest`. The two other dnd-app-scoped workflows both run on Ubuntu. Windows is reserved for `electron-builder` packaging.
+- **`npm ci`, not `npm install`** in CI for reproducible builds.
+- **Path filter:** scope ci.yml to `paths: ['dnd-app/**', '.github/workflows/ci.yml']`.
+- **Pre-commit performance:** `tsc --noEmit -p tsconfig.web.json` is the slowest gate (~5-15s). If commits feel sluggish, move typecheck to a `pre-push` hook.
+- **Husky lives at the repo root**, not under `dnd-app/`. `.git/` is at `/home/user/home-lab/.git/`. Install husky from `dnd-app/` and point it up, or install at the root and shell into `dnd-app/` from the hook.
+- **`.githooks/` collision:** `.githooks/pre-commit` and `.husky/pre-commit` cannot both be active via `core.hooksPath` — pick one chain.
+- **`--no-verify` escape hatch:** leave intentionally available. CI is the authoritative gate.
+- **Branch protection:** out of scope (GitHub settings change, not code).
+- **README "Networking" prose:** defer any rewrite of `dnd-app/README.md:155-179` until Phases 30-32 land.
 
-## 🛠️ Step-by-Step Execution Plan
+## Verification
+- `ls /home/user/home-lab/.github/workflows/ci.yml` — file exists after 21a.
+- Open a draft PR; the `CI` check appears and runs lint/typecheck/test/build.
+- Break a TS file locally, try to commit — pre-commit hook blocks (21c).
+- Run `git commit --no-verify` on the same file — succeeds (escape hatch intact).
+- `ls /home/user/home-lab/.husky/pre-commit` exists and is executable.
+- `grep husky /home/user/home-lab/dnd-app/package.json` shows the dep + `prepare` script.
 
-### Sub-Phase A: CI Validation Pipeline (G1)
-
-**Step 1 — Create CI Workflow**
-- Create `.github/workflows/ci.yml`:
-  ```yaml
-  name: CI
-  on:
-    push:
-      branches: [master]
-    pull_request:
-      branches: [master]
-
-  jobs:
-    validate:
-      runs-on: windows-latest
-      steps:
-        - uses: actions/checkout@v4
-        - uses: actions/setup-node@v4
-          with:
-            node-version: 20
-            cache: npm
-        - run: npm ci
-
-        - name: Type Check
-          run: npx tsc --noEmit
-
-        - name: Lint
-          run: npx biome check src/
-
-        - name: Test
-          run: npx vitest run --reporter=verbose
-  ```
-- This runs on every push to master and every PR targeting master
-- Three validation steps: TypeScript compilation, Biome linting, Vitest tests
-- Uses Windows runner to match the target platform
-
-**Step 2 — Add Build Verification to CI**
-- Add a build step after tests pass:
-  ```yaml
-        - name: Build
-          run: npx electron-vite build
-
-        - name: Verify Build Artifacts
-          run: |
-            if (!(Test-Path out/main/index.js)) { exit 1 }
-            if (!(Test-Path out/renderer/index.html)) { exit 1 }
-          shell: pwsh
-  ```
-- This catches build-time errors that tsc/vitest don't find (e.g., Vite config issues, missing imports in lazy-loaded routes)
-
-### Sub-Phase B: README Overhaul (G2)
-
-**Step 3 — Rewrite README.md**
-- Replace the current barebones README with a comprehensive project README:
-  ```markdown
-  # D&D Virtual Tabletop
-
-  A desktop D&D 5e (2024) Virtual Tabletop built with Electron, React, and PixiJS. Features an AI Dungeon Master, peer-to-peer multiplayer, dynamic maps with fog of war, and a complete character builder.
-
-  ## Quick Start
-
-  ```bash
-  npm install
-  npm run dev
-  ```
-
-  ## Build
-
-  ```bash
-  npm run build:win    # Windows installer
-  npm run build:mac    # macOS (requires macOS)
-  npm run build:linux  # Linux AppImage/deb
-  ```
-
-  ## Tech Stack
-
-  - **Runtime:** Electron 40
-  - **Frontend:** React 19, TypeScript 5.9, Tailwind CSS v4
-  - **Map Engine:** PixiJS 8 (2D), Three.js (3D dice)
-  - **State:** Zustand v5
-  - **Networking:** PeerJS (WebRTC P2P)
-  - **AI:** Ollama (local), Claude, OpenAI, Gemini
-  - **Build:** electron-vite, electron-builder
-
-  ## Project Structure
-
-  ```
-  src/
-    main/       # Electron main process (AI, storage, IPC)
-    preload/    # Preload bridge (context isolation)
-    renderer/   # React app (components, stores, services)
-    shared/     # Shared types and constants
-  BMO-setup/    # Raspberry Pi backend (Discord bot, voice, agents)
-  ```
-
-  ## Environment Variables
-
-  AI API keys are configured in-app via Settings > AI Provider.
-  No `.env` file is required for basic development.
-
-  For Discord integration:
-  - `BMO_PI_URL` — Raspberry Pi backend URL (default: `http://bmo.local:5000`)
-
-  ## Testing
-
-  ```bash
-  npm test              # Run all tests
-  npx vitest run        # Run once
-  npx vitest --ui       # Interactive UI
-  ```
-
-  ## License
-
-  D&D content used under the SRD 5.2 Creative Commons Attribution 4.0 License.
-  See the About page in-app for full licensing details.
-  ```
-- Ensure the README matches current project reality (commands from `package.json`, actual structure)
-
-### Sub-Phase C: Pre-Commit Hooks (G3)
-
-**Step 4 — Install Husky**
-- Run: `npm install --save-dev husky`
-- Initialize: `npx husky init`
-- This creates `.husky/` directory with a sample pre-commit hook
-
-**Step 5 — Configure Pre-Commit Hook**
-- Create `.husky/pre-commit`:
-  ```bash
-  #!/usr/bin/env sh
-  . "$(dirname -- "$0")/_/husky.sh"
-
-  # Run Biome on staged files only (fast)
-  npx biome check --staged --no-errors-on-unmatched src/
-
-  # Type check (full project, ~10-15s)
-  npx tsc --noEmit
-  ```
-- This prevents commits with lint errors or type errors
-- `--staged` flag on Biome only checks files being committed (fast)
-- `tsc --noEmit` is slower but catches cross-file type issues
-
-**Step 6 — Add lint-staged for Performance (Optional)**
-- If the full `tsc --noEmit` is too slow for pre-commit:
-  ```bash
-  npm install --save-dev lint-staged
-  ```
-  ```json
-  // package.json
-  "lint-staged": {
-    "src/**/*.{ts,tsx}": ["biome check --fix"]
-  }
-  ```
-  ```bash
-  # .husky/pre-commit
-  npx lint-staged
-  ```
-- This only runs Biome on staged files, keeping pre-commit under 3 seconds
-
-### Sub-Phase D: Branching Strategy (G4)
-
-**Step 7 — Document Branching Convention**
-- Add to README or create `CONTRIBUTING.md`:
-  ```markdown
-  ## Branching Strategy
-
-  - `master` — stable, release-ready code
-  - `feature/*` — new features (e.g., `feature/bastion-bp-system`)
-  - `fix/*` — bug fixes (e.g., `fix/exhaustion-long-rest`)
-  - `refactor/*` — code cleanup (e.g., `refactor/unify-settings-store`)
-
-  ### Workflow
-  1. Create a feature/fix branch from `master`
-  2. Make changes, commit with conventional commit messages
-  3. Push and create a Pull Request
-  4. CI runs automatically on the PR
-  5. Merge to `master` after review
-  ```
-- This is a documented convention, not enforced by tooling. Branch protection rules can be added later on GitHub.
-
-### Sub-Phase E: Workspace Cleanup (G5)
-
-**Step 8 — Add Phase Research Files to .gitignore**
-- The Phase analysis files (`Phase1_GeminiPro.md`, `Phase2_ClaudeOpus.md`, etc.) and plan files (`Phase1_Plan.md`, etc.) clutter the root
-- Add to `.gitignore`:
-  ```
-  # Phase research and plan files
-  Phase*_*.md
-  ```
-- Or move them to a dedicated directory: `docs/research/`
-- These are research artifacts, not part of the application source
-
-**Step 9 — Update Release Workflow**
-- Open `.github/workflows/release.yml`
-- Ensure it runs the full build chain including `prerelease` and `build:index`:
-  ```yaml
-  - name: Build and Release
-    run: npm run release
-    env:
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
-  ```
-- Verify that the `release` script in `package.json` (fixed in Phase 19 Step 4) includes `prerelease` and `build:index`
-
----
-
-## ⚠️ Constraints & Edge Cases
-
-### CI Pipeline
-- **Windows runner**: The CI must use `windows-latest` because the app targets Windows and uses Windows-specific dependencies. If Mac/Linux builds are added (Phase 19), add matrix builds.
-- **npm ci**: Use `npm ci` (not `npm install`) in CI for reproducible builds from `package-lock.json`.
-- **Test timeout**: Vitest tests may timeout on slower CI runners. Set `--timeout 30000` if needed.
-- **Biome config**: Ensure `biome.json` exists at the project root. If Biome is configured via `package.json`, that works too.
-
-### Pre-Commit Hooks
-- **Husky requires `.git` directory**: Only works in git repos. `npx husky init` will fail if not a git repo.
-- **Skip hooks**: Developers can bypass with `git commit --no-verify` for emergency commits. This is acceptable — CI catches issues on push.
-- **Performance**: `tsc --noEmit` on the full project takes 10-15 seconds. If this is too slow, remove it from pre-commit and rely on CI for type checking.
-
-### README
-- **Keep it concise**: The README should be a quick-start guide, not full documentation. Link to `CLAUDE.md` for detailed developer setup if needed.
-- **Do NOT include API keys or secrets** in the README. Reference in-app settings for AI provider configuration.
-
-### Branching
-- **Solo developer workflow**: The branching strategy is advisory. For a solo project, direct pushes to master are common. The value is in establishing the pattern for when contributors join.
-- **Branch protection**: Can be enabled on GitHub: require CI to pass before merging to master. This is a GitHub settings change, not a code change.
-
-Begin implementation now. Start with Sub-Phase A (Steps 1-2) for the CI pipeline — this is the highest-impact change for code quality assurance. Then Sub-Phase B (Step 3) for the README rewrite. Sub-Phase C (Steps 4-6) for pre-commit hooks is quick to set up.
+## Completed
+- 21 Step 3 (README rewrite) — DONE (`dnd-app/README.md:1-269`) — comprehensive README covering install, usage, build, test, multiplayer architecture, directory layout, plugin system.
+- 21 Step 7 (Branching strategy doc) — DONE (`docs/CONTRIBUTING.md:22-29,42-69,71-89`) — documents branches, conventional commit format, and PR flow.
+- 21 Step 8 (Phase research clutter) — DONE — no `Phase*_*.md` at repo root or under `dnd-app/`; all phase docs live under `dnd-app/docs/phases/phase-*.md`.
+- 21 Step 9 (Release workflow) — DONE (`.github/workflows/release.yml:1-230`) — full pipeline: preflight, matrix build, electron-builder publish, verify-assets job.
+- 21 (.gitignore audit) — DONE (`.gitignore:1-136`) — covers build artifacts, env files, broad secret globs, BMO runtime files, PDF rulebooks, gitignored `docs/SECURITY-LOG.md`.
+- 21 (Conventional commits audit) — DONE — commit history follows the documented format.
+- 21 (Optional gitleaks pre-commit shim) — DONE (`.githooks/pre-commit:1-8`) — opt-in via `git config core.hooksPath .githooks`; gracefully skips when gitleaks is not installed.

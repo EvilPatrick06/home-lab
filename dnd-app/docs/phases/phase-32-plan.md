@@ -1,350 +1,232 @@
 # Phase 32 — Cloud Host (Pi-as-host)
 
-> Pi implements `GameAuthority` (Phase 17) speaking the shard protocol (Phase 18). Game creators get a "Local (P2P)" vs "Cloud (Pi)" toggle. Cloud mode = game persists across all client disconnects, accessible from anywhere, hosted by infrastructure instead of a player's machine.
->
-> Renumbered from "Phase D" in conversation planning. Depends on **Phase 17** (Player-as-Host rewrite) and **Phase 18** (Live-state sync overhaul) landing first.
-
----
-
 ## Context
 
-By the time Phase 19 starts, the prerequisites are in place:
+Pi implements `GameAuthority` (Phase 30) speaking the shard protocol (Phase 31). Game creators get a "Local (P2P)" vs "Cloud (Pi)" toggle. Cloud mode = game persists across all client disconnects, accessible from anywhere, hosted by infrastructure instead of a player's machine.
 
-- **Phase 16** has made all permissions data-driven (no hardcoded role checks).
-- **Phase 17** has consolidated host-side logic into a single `GameAuthority` module behind a `TransportAdapter` interface. "The host" is no longer tied to whoever started the game.
-- **Phase 18** has unified all state sync into one shard protocol. Adding cloud sync means implementing ONE protocol on the Pi, not 30 feature-specific message handlers.
+By the time this phase starts, the prerequisites are in place: Phase 29 has made permissions data-driven (no hardcoded role checks). Phase 30 has consolidated host-side logic into a `GameAuthority` module behind a `TransportAdapter` interface. Phase 31 has unified all state sync into one shard protocol — adding cloud sync means implementing ONE protocol on the Pi, not 30 feature-specific message handlers.
 
-This phase plugs the Pi into those abstractions:
+Trade-offs: game survives DM disconnect; cross-network via Cloudflare Tunnel is the default; spectator fan-out scales better; event log enables audit/replay. Costs: +20-50ms RTT vs LAN-direct P2P; Pi is a single point of failure (Local P2P stays as fallback); voice chat remains peer-to-peer (does NOT route through Pi).
 
-- **Pi-side `GameAuthority` implementation** in Python (in the existing `bmo/pi/services/` directory pattern).
-- **WebSocket transport** as a new `TransportAdapter` implementation. Authority logic on both sides is identical — just the transport changes.
-- **Per-campaign cloud-host toggle.** Local P2P stays as the default; cloud is opt-in. No forced migration.
+## Depends on / blocks
+- Depends on: Phase 29 (permissions), Phase 30 (Player-as-Host rewrite + `GameAuthority` / `TransportAdapter`), Phase 31 (live-state sync overhaul + shard protocol)
+- Blocks: Phase 36 (reuses JWT model for `library:write:homebrew` scope and reuses `bmoPiBaseUrl` plumbing)
 
-What you and your friend get out of it:
-
-- **Game survives disconnect.** Pi keeps running. DM can step away, close laptop, change devices. State persists.
-- **Cross-network is the default.** Pi has a stable address (Cloudflare Tunnel already in place). No NAT-traversal pain for new players.
-- **Spectator scaling.** Pi can fan out broadcasts to N spectators more efficiently than a single client machine.
-- **Event log / audit / replay.** Pi logs every shard delta for the whole campaign. Easy to debug "what happened on turn 47?"
-
-What it costs:
-
-- **Latency.** Pi adds ~20–50ms RTT vs LAN-direct P2P. Fine for D&D pacing; noticeable for fast-twitch (dice animations, rapid drawing).
-- **Pi is a single point of failure.** One Pi reboot takes down all cloud-hosted games. Local P2P stays as the alternative.
-- **Voice doesn't move.** When voice chat lands (sometime after the Phase 17r mic settings get a consumer), it stays peer-to-peer or via SFU — not through Pi.
-
----
+## Files touched
+| Path | Role |
+|------|------|
+| `bmo/pi/services/game_server.py` | New — Flask-SocketIO service, REST + WS endpoints, room management |
+| `bmo/pi/services/game_authority.py` | New — Python port of TS `GameAuthority` (apply_action, snapshot, peers, validate) |
+| `bmo/pi/services/room.py` | New — per-campaign in-memory room state |
+| `bmo/pi/services/shards.py` | New — Python shard registry (source / diff / apply_delta / permission_filter) |
+| `bmo/pi/services/shards/*.py` | New — one file per shard (chat, map_tokens, ...), mirrors TS layout |
+| `bmo/pi/services/persistence.py` | New — write-behind snapshot + JSONL event log |
+| `bmo/pi/services/auth.py` | New — JWT issuance + WS-frame validation |
+| `bmo/pi/data/games/<campaign_id>/` | New data dir — `snapshot.json` + `events.log` |
+| `bmo/pi/app.py` | Register `game_server` blueprint, CORS for WS upgrade |
+| `bmo/setup-bmo.sh` | systemd unit update, `flask-socketio` dep, signing secret generation |
+| `bmo/docs/SERVICES.md` | Document the new service |
+| `bmo/web/templates/` | New "Hosted Games" admin tab |
+| `dnd-app/src/renderer/src/network/transport/websocket-transport.ts` | New — `TransportAdapter` implementation |
+| `dnd-app/src/renderer/src/network/index.ts` | `hostGame` action gains `{ mode: 'local' \| 'cloud' }` |
+| `dnd-app/src/renderer/src/components/campaign/CampaignWizard.tsx` | Local-vs-Cloud host toggle in create flow |
+| `dnd-app/src/renderer/src/pages/SettingsPage.tsx` | Reuse existing `bmoPiBaseUrl` for cloud connection |
+| `docs/ARCHITECTURE-VOICE.md` | New — documents voice-stays-P2P boundary |
+| `/etc/cloudflared/config.yml` | Verify `/ws/games/*` reachable over Tunnel |
 
 ## Sub-phase summary
-
-| # | Sub-phase | Scope |
+| # | Sub-phase | Theme |
 |---|-----------|-------|
-| 19a | Pi-side `GameAuthority` service skeleton | New Python service in `bmo/pi/services/game_server.py`. Same external contract as the TS authority |
-| 19b | WebSocket transport — Pi side | Flask-SocketIO endpoint (matches existing Pi service pattern); campaign room management |
-| 19c | WebSocket transport — client side | New `WebSocketTransport` adapter slotting into Phase 17's `TransportAdapter` interface |
-| 19d | Shard protocol port — Pi side | Same shard message types from Phase 18; Pi validates against Phase 16 permissions |
-| 19e | Pi-side persistence | Event sourcing — per-campaign delta log + periodic snapshots; replay on restart |
-| 19f | Authentication | Per-campaign session tokens; JWT validation on every WS frame; Cloudflare Tunnel for WAN |
-| 19g | Game-creation UI: Local vs Cloud toggle | New game flow picks the host destination; default Local for backwards compat |
-| 19h | Migrate-running-game flow | "Move this game to cloud" button leverages Phase 17 host-transfer protocol |
-| 19i | Pi admin surface in BMO | Hosted Games tab — list rooms, view event logs, archive / kick |
-| 19j | Auto-resume / catch-up | Client reconnect → Phase 18's replay protocol handles missed deltas |
-| 19k | Voice transport boundary | Document: voice stays P2P even when game state is cloud-hosted |
-| 19l | Stability + monitoring | Pi-side metrics (active rooms, peer counts, delta rates, errors); auto-archive of idle rooms |
+| 32a | Pi-side `GameAuthority` service skeleton | New Python service, REST endpoints, same external contract as TS authority |
+| 32b | WebSocket transport — Pi side | Flask-SocketIO endpoint + room/peer lifecycle |
+| 32c | WebSocket transport — client side | `WebSocketTransport` adapter slotting into Phase 30's `TransportAdapter` |
+| 32d | Shard protocol port — Pi side | Python shard registry, per-shard files mirroring TS |
+| 32e | Pi-side persistence | Event sourcing — JSONL delta log + periodic snapshots + restart replay |
+| 32f | Authentication | Per-campaign JWT issued via invite code; validated on every WS frame |
+| 32g | Game-creation UI: Local vs Cloud toggle | New wizard step picking host destination, Local default |
+| 32h | Migrate-running-game flow | "Move to cloud" button on Phase 30 host-transfer protocol |
+| 32i | Pi admin surface in BMO | Hosted Games tab — list rooms, view logs, archive / kick |
+| 32j | Auto-resume / catch-up | Verify Phase 31k resync protocol end-to-end against Pi authority |
+| 32k | Voice transport boundary | ADR doc: voice stays P2P even when game state is cloud-hosted |
+| 32l | Stability + monitoring | Prometheus-style metrics + idle-room auto-archive |
 
-12 sub-phases. Each ends with the 4-gate suite (lint + tsc-web + tsc-node + vitest) AND the BMO pytest suite. One release: **v6.0.0** (major bump — new opt-in deployment mode).
+12 sub-phases. Each ends with the 4-gate suite (lint + tsc-web + tsc-node + vitest) AND the BMO pytest suite. One release: **v6.0.0** (major bump for new opt-in deployment mode).
 
----
+## Architecture / data flow
+
+```mermaid
+flowchart LR
+    subgraph Client[dnd-app Electron renderer]
+        UI[CampaignWizard]
+        NET[network-store hostGame]
+        WST[WebSocketTransport]
+        P2P[P2PTransport]
+    end
+    subgraph Pi[Raspberry Pi BMO]
+        WS[game_server.py ws/games/id]
+        AUTH[auth.py JWT]
+        GA[game_authority.py]
+        SH[shards.py]
+        PER[persistence.py]
+        DISK[(events.log + snapshot.json)]
+    end
+    UI --> NET
+    NET -->|mode=cloud| WST
+    NET -->|mode=local| P2P
+    WST <-->|Cloudflare Tunnel| WS
+    WS --> AUTH
+    WS --> GA
+    GA --> SH
+    GA --> PER
+    PER --> DISK
+```
 
 ## Sub-phase details
 
-### 19a — Pi-side `GameAuthority` service skeleton
-
-**Files (new — `bmo/pi/services/`):**
-- `game_server.py` — main service. Patterns after the existing Pi services (Flask gevent, threaded coroutines per active game). Exposes:
-  - `GET /api/games/<campaign_id>` — room status (active peers, last activity).
-  - `POST /api/games/<campaign_id>/start` — start hosting a campaign (provisioned with initial snapshot).
-  - `POST /api/games/<campaign_id>/stop` — graceful shutdown (final snapshot, disconnect peers).
-  - `GET /api/games/<campaign_id>/log` — event log paged by sequence.
-- `game_authority.py` — Python class with the same external contract as the TypeScript `GameAuthority` from Phase 17:
-  - `apply_action(actor, action) → { accepted, broadcast }`
-  - `get_snapshot(for_peer) → state`
-  - `add_peer(peer_info)`, `remove_peer(peer_id)`
-  - `validate(actor, action) → bool` (Python port of `hasPermission`)
-- `room.py` — per-campaign room state (in-memory authority + connected peer list + log handle).
-
-**Files (modify):**
-- `bmo/pi/app.py` — register `game_server` blueprint, add CORS for the WS upgrade path.
-- `bmo/setup-bmo.sh` — ensure the systemd unit includes the game-server. New dependency: `flask-socketio` (or `gevent-websocket` — pick at this phase).
-- `bmo/docs/SERVICES.md` — document the new service.
-
-**Acceptance:**
-- Service starts on Pi boot.
-- `curl http://pi-host/api/games/foo` returns 404 (no rooms yet).
-- `pytest bmo/pi/tests/test_game_server.py` covers room create / stop / status.
-
----
-
-### 19b — WebSocket transport — Pi side
-
-**Files (modify — `bmo/pi/services/game_server.py`):**
-- Flask-SocketIO endpoint at `/ws/games/<campaign_id>`. Connection handshake includes the session token (from 19f).
-- Per-campaign Socket.IO room mapping. Inbound message → `GameAuthority.apply_action`. Authority result's `broadcast` payload → `socketio.emit(...)` to room.
-- Peer join: `socketio.join_room(campaign_id)` + `authority.add_peer(peer_info)` + send initial snapshot.
-- Peer leave: graceful disconnect handler + `authority.remove_peer(peer_id)`.
-
-**Acceptance:**
-- `wscat -c ws://pi-host/ws/games/<id>` connects (auth permitting).
-- Multiple peers in the same campaign get each other's messages.
-- Peer disconnect → room state cleans up correctly.
-
----
-
-### 19c — WebSocket transport — client side
-
-**Files (new):**
-- `dnd-app/src/renderer/src/network/transport/websocket-transport.ts` — implements the `TransportAdapter` interface from Phase 17. Same `send / broadcast / onMessage / onPeerJoin / onPeerLeave / disconnect / close` surface. Uses native `WebSocket` API (Electron renderer can use it directly) or `socket.io-client` if we go the Flask-SocketIO route.
-
-**Files (modify):**
-- `network-store/index.ts` — `hostGame` action gains a parameter `{ mode: 'local' | 'cloud' }`. Picks `P2PTransport` or `WebSocketTransport` accordingly.
-
-**Acceptance:**
-- Client connects to Pi-hosted game via WebSocket.
-- Authority logic on Pi is invoked correctly.
-- Same gameplay works as in local P2P mode.
-
----
-
-### 19d — Shard protocol port — Pi side
-
-**Files (new — `bmo/pi/services/`):**
-- `shards.py` — Python port of the shard registry from Phase 18. Each shard is a Python class with:
-  - `source` — extracts current value from authority state.
-  - `diff` — structural diff (Python port of Phase 18b's diff engine — simpler in Python because dict-based).
-  - `apply_delta` — mutates authority state.
-  - `permission_filter` — Python port; reads Phase 16 permissions from campaign data.
-- One shard per file: `shards/chat.py`, `shards/map_tokens.py`, etc., mirroring the TS structure.
-
-**Files (modify):**
-- `game_authority.py` — runs the shard registry. Subscribes to state mutations, diffs, emits `state:delta` over WebSocket per-peer.
-
-**Acceptance:**
-- All Phase 18 shards have Python implementations.
-- A round-trip test: client sends chat → Pi receives → shard system → broadcasts back → client applies → message appears for all peers.
-- Permission filtering works identically to the TS authority (hidden tokens stay hidden for non-DM peers).
-
----
-
-### 19e — Pi-side persistence
-
-**Files (new):**
-- `bmo/pi/data/games/<campaign_id>/` — per-campaign data directory.
-- Inside each: `snapshot.json` (latest snapshot) + `events.log` (append-only JSONL of every shard delta with sequence number).
-- `bmo/pi/services/persistence.py` — write-behind snapshotting (every N=100 events or every 60 seconds, whichever first). Tail-event reads for resync.
-
-**Files (modify):**
-- `game_authority.py` — on accept, write delta to `events.log`. Snapshot periodically. On restart, replay events from last snapshot to current.
-
-**Acceptance:**
-- Game runs for an hour. Pi reboots. Game resumes from last snapshot + tail events. No state lost beyond the last few seconds (the unwritten ones).
-- `events.log` can be inspected with `cat` for debugging.
-
----
-
-### 19f — Authentication
-
-**Files (new):**
-- `bmo/pi/services/auth.py` — issues per-campaign session tokens (JWT signed with a Pi-side secret). Validated on every WS frame.
-- Token issuance: client calls `POST /api/games/<id>/join` with displayName + invite code → Pi validates invite code → returns JWT.
-
-**Files (modify):**
-- `game_server.py` WS handshake — require valid JWT.
-- `bmo/setup-bmo.sh` — generate the signing secret on first install if missing.
-- Cloudflare Tunnel config (`/etc/cloudflared/config.yml`) — ensure `/ws/games/*` is reachable (already covered by the existing wildcard rule for `bmo.mybmoai.work`).
-
-**Acceptance:**
-- Token issued only after valid invite-code check.
-- WS frame with missing/expired/invalid token is rejected.
-- Cross-WAN game works (your friend on a different network connects via Cloudflare Tunnel without VPN).
-
----
-
-### 19g — Game-creation UI: Local vs Cloud toggle
-
-**Files (modify):**
-- `src/renderer/src/components/campaign/CampaignWizard.tsx` (or wherever the "create game" flow ends) — new step: "Where should this game be hosted?" with two options:
-  - **Local (P2P)** — recommended for local-network play, lowest latency, host's machine stays connected to keep the game alive. (Default.)
-  - **Cloud (Pi)** — recommended for cross-network play, persists across disconnects, requires Pi to be reachable.
-- The selection feeds into the existing `hostGame(displayName, { mode })` action.
-
-**Acceptance:**
-- New game flow exposes the toggle.
-- Local mode unchanged from today.
-- Cloud mode connects to Pi.
-
----
-
-### 19h — Migrate-running-game flow
-
-**Files (modify):**
-- Campaign settings page — "Move this game to cloud" button (visible if game is currently Local and Pi is reachable). Uses Phase 17's host-transfer protocol:
-  1. Current host (a player's machine) serializes authority state.
-  2. Pi accepts via `POST /api/games/<id>/start` with the snapshot.
-  3. All peers receive a `host:transfer-broadcast` pointing them at the Pi WS endpoint.
-  4. Peers reconnect to Pi; local-host's authority shuts down.
-
-**Acceptance:**
-- Game in progress → DM clicks "Move to cloud" → after a brief pause, everyone's connected to the Pi and the game continues seamlessly.
-- Reverse path (cloud → local) is intentionally NOT supported in this phase. Once cloud, stay cloud.
-
----
-
-### 19i — Pi admin surface in BMO
-
-**Files (modify):**
-- BMO admin web UI (in `bmo/web/templates/`) — new "Hosted Games" tab. Lists active rooms with:
-  - Campaign name
-  - Current peer count
-  - Last activity timestamp
-  - Event count
-  - "View Log" button (paged event display)
-  - "Archive" button (graceful shutdown, snapshot saved)
-  - "Force Kick All" button (emergency)
-
-**Acceptance:**
-- You can browse to the Pi admin page and see what games are running.
-- Event log is paginated, not crash-the-browser-on-huge-campaigns.
-
----
-
-### 19j — Auto-resume / catch-up
-
-Already covered by Phase 18k's resync protocol. This sub-phase verifies it works end-to-end against the Pi-side authority.
-
-**Acceptance:**
-- Client disconnects mid-session, reconnects 30 seconds later → server replays missed deltas, no state flash.
-- Client disconnects for an hour, reconnects → server detects out-of-window cursor, ships a full snapshot. Game catches up gracefully.
-
----
-
-### 19k — Voice transport boundary
-
-**Files (new):**
-- `docs/ARCHITECTURE-VOICE.md` — documents the design boundary. Voice chat (when wired up post-Phase 17r) does NOT route through Pi. Stays peer-to-peer (or via SFU later). Game state sync goes via Pi; audio doesn't.
-
-**Why this matters:** the moment voice ships, someone will be tempted to "centralize everything on Pi." That's the wrong call (audio latency budget is tighter; Pi CPU isn't sized for N-way audio mixing).
-
-**Acceptance:**
-- Architecture doc is committed.
-- When voice lands, its transport choice references this doc.
-
----
-
-### 19l — Stability + monitoring
-
-**Files (new / modify):**
-- `bmo/pi/services/game_server.py` — expose Prometheus-style metrics at `/api/games/metrics`:
-  - `active_rooms_total`
-  - `connected_peers_total`
-  - `deltas_emitted_total` (counter, per-shard)
-  - `messages_rejected_total` (per rejection reason)
-  - `room_age_seconds` (per room)
-- Idle-room auto-archive: rooms with zero peers for > 1 hour get snapshotted to disk and removed from memory. Reopened on demand.
-- BMO Grafana board (your existing infra) gains a Pi-Hosted-Games row.
-
-**Acceptance:**
-- Metrics scrapeable.
-- Idle rooms don't accumulate in memory forever.
-
----
-
-## Cross-cutting decisions
-
-- **Local P2P stays first-class.** Cloud is opt-in. Some games are better local (LAN play, ultra-low latency). Both modes remain supported indefinitely.
-- **One way migration in this phase.** Local → Cloud is supported. Cloud → Local is NOT (would require host-transfer in the other direction, which works in theory but isn't a common-case feature worth shipping until requested).
-- **Cloudflare Tunnel handles WAN reach.** Already in place. No new infrastructure.
-- **Pi is a single point of failure.** Acknowledged. Mitigation: Local P2P remains available as fallback. Pi auto-restart via systemd. Snapshots survive Pi crashes.
-- **No multi-tenant resource limits this phase.** Single Pi serving your own games. If load becomes a concern later, per-campaign CPU/memory budgets can be added in a follow-up.
-
----
-
-## Critical files (multi-touch hotspots)
-
-- `bmo/pi/services/game_server.py` *(new)*
-- `bmo/pi/services/game_authority.py` *(new — Python port of TS authority)*
-- `bmo/pi/services/shards.py` *(new — Python shard registry)*
-- `bmo/pi/services/shards/*.py` *(new — one file per shard, mirroring TS)*
-- `bmo/pi/services/persistence.py` *(new)*
-- `bmo/pi/services/auth.py` *(new — JWT issuance + validation)*
-- `bmo/pi/app.py` — register new blueprints
-- `bmo/setup-bmo.sh` — systemd unit + dependencies
-- `dnd-app/src/renderer/src/network/transport/websocket-transport.ts` *(new)*
-- `dnd-app/src/renderer/src/components/campaign/CampaignWizard.tsx` — host-mode toggle
-- BMO admin templates — "Hosted Games" tab
-- `docs/ARCHITECTURE-VOICE.md` *(new)*
-
----
-
-## Commit cadence
-
-```
-19a — feat(bmo): Pi-side game_server.py service skeleton
-19b — feat(bmo): WebSocket transport (Pi side) — Flask-SocketIO + room management
-19c — feat(dnd-app): WebSocketTransport adapter (client side)
-19d — feat(bmo): Python shard registry port + per-shard implementations
-19e — feat(bmo): event-sourced persistence (snapshots + delta log)
-19f — feat(bmo): per-campaign JWT auth on WS frames
-19g — feat(dnd-app): Local vs Cloud host toggle in campaign creation
-19h — feat(net): "Move this game to cloud" flow via Phase 17 host transfer
-19i — feat(bmo): Hosted Games admin tab in BMO web UI
-19j — test(net): end-to-end resync verification against Pi authority
-19k — docs(arch): voice-transport boundary doc
-19l — feat(bmo): metrics + idle-room auto-archive
-```
-
-One release: **v6.0.0** after 19l. Major version bump for the new deployment mode.
-
----
-
-## Estimated scope
-
-8–12 working sessions. The biggest pieces are 19a/b (Pi service stand-up) and 19d (Python shard port). The Phase 18 abstraction means most of this is mechanical translation between TS and Python rather than fresh design.
-
----
-
-## Dependencies
-
-- **Requires Phase 16** (permissions) for the authority's validation logic.
-- **Requires Phase 17** (Player-as-Host rewrite) for the `GameAuthority` and `TransportAdapter` contracts.
-- **Requires Phase 18** (live-state sync overhaul) for the shard protocol Pi implements.
-
----
-
-## Open questions to lock before starting
-
-1. **Flask-SocketIO vs raw WebSocket?** Default: Flask-SocketIO for consistency with the existing Flask gevent pattern on Pi. Confirm at 19b.
-2. **Cloudflare Tunnel routing.** Already set up for `bmo.mybmoai.work/api/*`. Need to verify WebSocket upgrade (`/ws/*`) is unblocked. Confirm with a quick test before 19f.
-3. **Per-campaign event-log size limit.** Default: unlimited on disk, indexed by date. Compaction on game-archive only. Confirm if you want a per-game cap.
-4. **What's the right reaction to a Pi restart mid-game?** Default: snapshot replay catches everyone up automatically (Phase 18k). Confirm — no explicit user-facing "Pi rebooted, reconnecting…" toast unless you want one.
-
----
+### 32a — Pi-side `GameAuthority` service skeleton
+**Files:** `bmo/pi/services/game_server.py` (new), `bmo/pi/services/game_authority.py` (new), `bmo/pi/services/room.py` (new), `bmo/pi/app.py`, `bmo/setup-bmo.sh`, `bmo/docs/SERVICES.md`
+**Steps:**
+1. Create `bmo/pi/services/game_server.py` exposing REST: `GET /api/games/<campaign_id>` (status), `POST /api/games/<campaign_id>/start` (provision with snapshot), `POST /api/games/<campaign_id>/stop` (graceful shutdown), `GET /api/games/<campaign_id>/log` (paged event log).
+2. Create `game_authority.py` with the same external contract as the TS `GameAuthority` from Phase 30: `apply_action(actor, action) -> {accepted, broadcast}`, `get_snapshot(for_peer)`, `add_peer(peer_info)`, `remove_peer(peer_id)`, `validate(actor, action) -> bool` (Python port of `hasPermission`).
+3. Create `room.py` — per-campaign in-memory state (authority + connected peer list + log handle).
+4. Register the blueprint in `bmo/pi/app.py` with CORS allowance for the WS upgrade path.
+5. Update `bmo/setup-bmo.sh` to add `flask-socketio` (or `gevent-websocket`) dependency and ensure the systemd unit picks up the game-server.
+6. Document the service in `bmo/docs/SERVICES.md`.
+**Acceptance:** Service starts on Pi boot. `curl http://pi-host/api/games/foo` returns 404 (no rooms). `pytest bmo/pi/tests/test_game_server.py` covers create / stop / status.
+
+### 32b — WebSocket transport — Pi side
+**Files:** `bmo/pi/services/game_server.py` (modify)
+**Steps:**
+1. Add Flask-SocketIO endpoint at `/ws/games/<campaign_id>`. Connection handshake includes the session token from 32f.
+2. Wire per-campaign Socket.IO room mapping. Inbound message → `GameAuthority.apply_action`; authority result's `broadcast` payload → `socketio.emit(...)` to room.
+3. Peer join handler: `socketio.join_room(campaign_id)` + `authority.add_peer(peer_info)` + send initial snapshot.
+4. Peer leave handler: graceful disconnect + `authority.remove_peer(peer_id)`.
+**Acceptance:** `wscat -c ws://pi-host/ws/games/<id>` connects (auth permitting). Multiple peers in same campaign see each other's messages. Peer disconnect cleans up room state.
+
+### 32c — WebSocket transport — client side
+**Files:** `dnd-app/src/renderer/src/network/transport/websocket-transport.ts` (new), `dnd-app/src/renderer/src/network/index.ts` (modify)
+**Steps:**
+1. Create `websocket-transport.ts` implementing the Phase 30 `TransportAdapter` interface (`send / broadcast / onMessage / onPeerJoin / onPeerLeave / disconnect / close`). Use native `WebSocket` or `socket.io-client` matching the server choice from 32b.
+2. Modify `network/index.ts` so `hostGame` takes `{ mode: 'local' | 'cloud' }` and instantiates `P2PTransport` vs `WebSocketTransport`.
+3. Wire connection URL from existing `bmoPiBaseUrl` setting (`src/renderer/src/pages/SettingsPage.tsx`).
+**Acceptance:** Client connects to Pi-hosted game via WebSocket. Authority logic on Pi invoked correctly. Same gameplay as in local P2P mode.
+
+### 32d — Shard protocol port — Pi side
+**Files:** `bmo/pi/services/shards.py` (new), `bmo/pi/services/shards/*.py` (new), `bmo/pi/services/game_authority.py` (modify)
+**Steps:**
+1. Create `shards.py` — Python port of the Phase 31 shard registry. Each shard class implements: `source`, `diff`, `apply_delta`, `permission_filter` (Python port reading Phase 29 permissions from campaign data).
+2. Create one file per shard mirroring the TS structure.
+3. In `game_authority.py`, run the registry: subscribe to state mutations, diff, emit `state:delta` over WebSocket per-peer.
+**Acceptance:** All Phase 31 shards have Python counterparts. Round-trip: client sends chat → Pi receives → shards diff → broadcast → all peers see message. Permission filter hides DM-only tokens from non-DM peers.
+
+### 32e — Pi-side persistence
+**Files:** `bmo/pi/services/persistence.py` (new), `bmo/pi/data/games/<campaign_id>/` (new), `bmo/pi/services/game_authority.py` (modify)
+**Steps:**
+1. Define per-campaign data dir `bmo/pi/data/games/<campaign_id>/` containing `snapshot.json` + `events.log` (append-only JSONL with sequence numbers).
+2. Create `persistence.py` with write-behind snapshotting (every N=100 events OR every 60s) and tail-event reads for resync.
+3. Modify `game_authority.py` to write delta to `events.log` on accept; snapshot periodically; on restart replay events from last snapshot to current.
+**Acceptance:** Pi reboots mid-game; on restart, game resumes from last snapshot + tail events; nothing lost beyond the unwritten tail. `events.log` is human-readable JSONL.
+
+### 32f — Authentication
+**Files:** `bmo/pi/services/auth.py` (new), `bmo/pi/services/game_server.py` (modify), `bmo/setup-bmo.sh` (modify), `/etc/cloudflared/config.yml` (verify)
+**Steps:**
+1. Create `auth.py` issuing per-campaign session JWTs signed with a Pi-side secret. Validation hook for every WS frame.
+2. Token issuance flow: client calls `POST /api/games/<id>/join` with displayName + invite code → Pi validates invite → returns JWT.
+3. Modify the WS handshake in `game_server.py` to require a valid JWT.
+4. Update `bmo/setup-bmo.sh` to generate the signing secret on first install if missing.
+5. Verify Cloudflare Tunnel config exposes `/ws/games/*`.
+6. Coordinate JWT secret/issuer with the Phase 28a.4 BMO Bearer-auth path so one credential covers both transports.
+**Acceptance:** Token issued only after valid invite-code check. WS frame with missing/expired/invalid token is rejected. Cross-WAN game works (friend on a different network via Cloudflare Tunnel, no VPN).
+
+### 32g — Game-creation UI: Local vs Cloud toggle
+**Files:** `dnd-app/src/renderer/src/components/campaign/CampaignWizard.tsx` (modify)
+**Steps:**
+1. Add a new wizard step "Where should this game be hosted?" with two options: Local (P2P) [default] and Cloud (Pi).
+2. Feed the selection into the modified `hostGame(displayName, { mode })` action from 32c.
+3. Disable the Cloud option (with tooltip) if `bmoPiBaseUrl` is unset in settings.
+**Acceptance:** New game flow exposes the toggle. Local mode unchanged. Cloud mode connects to Pi via 32c transport.
+
+### 32h — Migrate-running-game flow
+**Files:** Campaign settings page (modify), reuses Phase 30 host-transfer protocol
+**Steps:**
+1. Add "Move this game to cloud" button on the campaign settings page. Visible only when game is currently Local AND Pi is reachable.
+2. Flow: current host serializes authority state → Pi accepts via `POST /api/games/<id>/start` with snapshot → all peers receive `host:transfer-broadcast` pointing at Pi WS endpoint → peers reconnect to Pi → local-host's authority shuts down.
+3. Reverse path (cloud → local) is intentionally NOT supported in this phase.
+**Acceptance:** Game in progress → DM clicks "Move to cloud" → after a brief pause, everyone is connected to Pi and the game continues seamlessly.
+
+### 32i — Pi admin surface in BMO
+**Files:** `bmo/web/templates/` (new "Hosted Games" tab)
+**Steps:**
+1. Add "Hosted Games" tab listing active rooms with: campaign name, peer count, last activity timestamp, event count.
+2. Per-row actions: "View Log" (paged event display), "Archive" (graceful shutdown + snapshot), "Force Kick All" (emergency).
+3. Use the existing Flask template path (`web/templates/`).
+**Acceptance:** Admin page lists running games. Event log is paginated.
+
+### 32j — Auto-resume / catch-up
+**Files:** No new files — verification of Phase 31k resync against Pi authority
+**Steps:**
+1. Run end-to-end test: client disconnects mid-session, reconnects 30s later → server replays missed deltas, no state flash.
+2. Run long-disconnect test: client disconnects for 1h, reconnects → server detects out-of-window cursor, ships full snapshot, game catches up gracefully.
+**Acceptance:** Both scenarios pass against the Pi authority with identical behaviour to the local-host authority.
+
+### 32k — Voice transport boundary
+**Files:** `docs/ARCHITECTURE-VOICE.md` (new)
+**Steps:**
+1. Document the design boundary: voice chat does NOT route through Pi. Stays peer-to-peer.
+2. State the rationale explicitly: audio latency budget is tighter than game-state RTT, and Pi CPU is not sized for N-way audio mixing.
+3. Cross-reference Phase 27 Sub-Phase J (custom audio sync stays P2P per this doc).
+**Acceptance:** Architecture doc committed. When voice ships, its transport choice references this doc.
+
+### 32l — Stability + monitoring
+**Files:** `bmo/pi/services/game_server.py` (modify), Grafana dashboard
+**Steps:**
+1. Expose Prometheus-style metrics at `/api/games/metrics`: `active_rooms_total`, `connected_peers_total`, `deltas_emitted_total`, `messages_rejected_total`, `room_age_seconds`.
+2. Implement idle-room auto-archive: rooms with zero peers for >1 hour get snapshotted to disk and removed from memory.
+3. Add a "Pi-Hosted-Games" row to the existing BMO Grafana board.
+**Acceptance:** Metrics scrapeable. Idle rooms do not accumulate in memory forever.
+
+## Constraints & edge cases
+
+- **Local P2P stays first-class.** Cloud is opt-in. Both modes supported indefinitely.
+- **One-way migration this phase.** Local → Cloud only; reverse not shipped until requested.
+- **Cloudflare Tunnel handles WAN reach.** Already in place — no new infra.
+- **Pi is a single point of failure.** Mitigations: Local P2P fallback, systemd auto-restart, snapshot replay survives crashes.
+- **No multi-tenant resource limits this phase.** Single Pi serving the owner's games.
+- **Voice does NOT migrate.** Even in cloud mode, voice transport stays P2P/SFU (see 32k).
+- **Known package gotchas:** Python `calendar` stdlib already shadowed by `services.calendar_service` — follow the same pattern. Discord bots live in `bots/` (never `discord/`).
+
+## Verification
+
+Per sub-phase: run the 4-gate dnd-app suite (`npm run lint`, `tsc --noEmit` web + node configs, `npm test`) AND `pytest bmo/pi/tests/` from `bmo/pi/`.
+
+Pre-release smoke (after 32l, before cutting v6.0.0):
+1. Local-only flow — create game with mode=local, multi-peer LAN play, no regression.
+2. Cloud-only flow — create game with mode=cloud, two peers on different networks, persistent across DM laptop close.
+3. Migration flow — start local, move to cloud, peers reconnect, gameplay resumes.
+4. Pi restart — game running, `sudo systemctl restart bmo`, all peers auto-resync within 30s.
+5. Auth negatives — bad invite code rejected, expired JWT rejected, valid JWT accepted.
+6. Idle archive — leave a room idle 1h, confirm snapshot + memory release, reopen.
+
+Release: `cd dnd-app && npm run check:release` then `node dnd-app/scripts/release/cut.mjs 6.0.0 --notes-file /tmp/v6.0.0-notes.md`.
 
 ## Plans superseded or modified by Phase 32
 
 | Plan | Item | Disposition |
 |------|------|-------------|
-| Phase 20 (deprioritized "no authentication" finding) | Auth gap for cloud surface | Covered by Phase 32 JWT on WS frames. Local-P2P invite-code auth unchanged. |
-| Phase 27 Sub-Phase J (A9 custom audio sync) | File transfer transport | Stays peer-to-peer per voice-transport-boundary doc (Step 19k). Phase 32 does NOT route audio through Pi. |
+| Phase 20 (deprioritized "no authentication") | Auth gap for cloud surface | Covered by Phase 32 JWT on WS frames. Local-P2P invite-code auth unchanged. |
+| Phase 27 Sub-Phase J (A9 custom audio sync) | File transfer transport | Stays peer-to-peer per 32k. |
 | Phase 28 Step 28a.4 (Auth Bearer to BMO) | Token shape for BMO bridge | Reconcile JWT issuer/secret so one credential covers both LAN sync Bearer and cloud WS frame auth. |
-| Phase 28 Step 28a.2 (BMO sync receiver hardening) | LAN sync receiver | Hardening still applies to local-P2P mode. Cloud-host uses the new WS path, not this receiver. Both code paths need their own hardening. |
-| Phase 36 | JWT scope for library:write:homebrew | Phase 36 reuses Phase 32's JWT model for homebrew/plugin gating. Add a `library:write:homebrew:<campaign-id>` scope (or equivalent ACL claim) to the JWT issuance flow when a player has DM permissions on a campaign. Official library content is public-read (no JWT required). |
-| Phase 36 | Pi `bmoPiBaseUrl` reuse | Phase 36's library fetch uses the same `bmoPiBaseUrl` Phase 32 plumbs through `bmo-config.ts`. No separate library-source URL — one Pi address per session. |
+| Phase 28 Step 28a.2 (BMO sync receiver hardening) | LAN sync receiver | Hardening still applies to local-P2P mode. Cloud-host uses the new WS path. Both code paths need their own hardening. |
+| Phase 36 | JWT scope for `library:write:homebrew` | Phase 36 reuses Phase 32's JWT model. |
+| Phase 36 | Pi `bmoPiBaseUrl` reuse | Phase 36's library fetch uses the same `bmoPiBaseUrl` Phase 32 plumbs through. |
 
----
+## Open questions
 
-## Post-Phase-19 ideas (out of scope here)
+1. Flask-SocketIO vs raw WebSocket? Default: Flask-SocketIO for consistency with existing Flask gevent pattern on Pi. Confirm at 32b.
+2. Cloudflare Tunnel `/ws/*` upgrade verified? Quick test before 32f.
+3. Per-campaign event-log size limit? Default: unlimited on disk, compaction only on game-archive.
+4. Pi restart UX — silent auto-resync via 32j, or explicit "Pi rebooted, reconnecting..." toast?
 
-- **Cloud-mode-only features.** Things like async DM (DM logs in tomorrow, sees what happened today) only make sense once the authority is persistent. Future phase.
-- **Multiple Pis.** Sharding active games across multiple Pis. Out of scope until you actually want it.
-- **Replay viewer.** Browse old campaign event logs as a UI. Out of scope.
-- **Cloud → Local migration.** Reverse of 19h. Out of scope unless requested.
+## Completed
+
+(none — Phase 32 is entirely unimplemented as of 2026-05-19. Verified: no `game_server.py` / `game_authority.py` / `shards.py` / `persistence.py` / `auth.py` in `bmo/pi/services/`; no `transport/` directory or `websocket-transport.ts` under `dnd-app/src/renderer/src/network/`; `CampaignWizard.tsx` has no Local-vs-Cloud step; no `docs/ARCHITECTURE-VOICE.md`. `bmoPiBaseUrl` setting exists in `SettingsPage.tsx` and is reusable.)
