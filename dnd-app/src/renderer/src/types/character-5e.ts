@@ -11,6 +11,25 @@ import type {
   WeaponEntry
 } from './character-common'
 import type { Companion5e } from './companion'
+import type { EntryRef } from './library'
+
+// Phase 15c.1 — v4 instance-ref shape. Stable per-entry identity decouples
+// the consumer from array index and entry id (both fragile: index changes
+// on reorder, entry id collides with twin daggers / duplicate spells).
+export interface InstanceRef<C extends string> {
+  instanceId: string
+  ref: EntryRef<C>
+}
+
+// Phase 15c.1 — runtime state for v4 consumer records. Each map is keyed by
+// the matching `instanceId`. Persists with the consumer; hot-path sync target.
+export interface Character5eState {
+  preparedSpellIds?: Record<string, boolean>
+  weaponEquipped?: Record<string, boolean>
+  armorEquipped?: Record<string, boolean>
+  magicItemAttuned?: Record<string, boolean>
+  magicItemCharges?: Record<string, number>
+}
 
 export interface Character5e {
   id: string
@@ -89,6 +108,30 @@ export interface Character5e {
   portraitPath?: string
   createdAt: string
   updatedAt: string
+
+  // Phase 15c.1 — v4 ref shape. Optional + additive: every legacy field
+  // above stays in place until 15c.5 sweeps them out, so consumers can
+  // adopt the v4 shape one batch at a time without ever breaking the
+  // build. New fields:
+  //   *Ref / *Refs — pointer(s) to library entries with optional overrides
+  //   state         — instance-state maps keyed by stable instanceId
+  speciesRef?: EntryRef<'species'> | null
+  subspeciesRef?: EntryRef<'species'> | null
+  backgroundRef?: EntryRef<'backgrounds'> | null
+  classRefs?: Array<{
+    instanceId: string
+    ref: EntryRef<'classes'>
+    level: number
+    levelTaken: number
+    subclassRef?: EntryRef<'subclasses'> | null
+  }>
+  featRefs?: Array<InstanceRef<'feats'>>
+  knownSpellRefs?: Array<InstanceRef<'spells'>>
+  weaponRefs?: Array<InstanceRef<'weapons'>>
+  armorRefs?: Array<InstanceRef<'armor'>>
+  magicItemRefs?: Array<InstanceRef<'magic-items'>>
+  conditionRefs?: Array<InstanceRef<'conditions'>>
+  state?: Character5eState
 }
 
 export interface BuildChoices5e {

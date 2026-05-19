@@ -29,8 +29,8 @@ Work through the sub-phases in their stated order. For each sub-phase:
 
 If a step turns out to be wrong or missing context, see rule 9.
 
-### 5. 4-gate test between each sub-phase
-After every sub-phase finishes (before moving to the next one or committing):
+### 5. 4-gate test at the END of each PHASE (not sub-phase) — per user 2026-05-19
+After the LAST sub-phase of a phase finishes, before cutting the release in rule 6:
 
 ```bash
 cd dnd-app
@@ -40,11 +40,23 @@ npx tsc --noEmit -p tsconfig.node.json
 npx vitest run
 ```
 
-All four gates must be green. A red gate means stop and fix in place — do not advance to the next sub-phase with a failing gate.
+All four gates must be green. A red gate is a STOP-and-ask trigger:
+
+1. Fire notify.sh per rule 23:
+   ```bash
+   ~/.claude-tools/notify.sh "warn" "Phase N — 4-gate red at end-of-phase" \
+     "<which gate(s) failed + cited file:line if any + suggested fix path>"
+   ```
+2. Fix in place. Do NOT cut the release in rule 6. Do NOT advance to the next phase.
+3. Re-run the 4-gate. Repeat until green, then continue to rule 6.
 
 For phases that touch the Pi side (32, 36, anything under `bmo/pi/`), also run `pytest bmo/pi/tests/` from `bmo/pi/`.
 
-Once the 4-gate is green, commit the sub-phase with a clear message (`feat(<scope>): <phase>X — <theme>`), push, and move to the next sub-phase.
+**Sub-phase commits do NOT need to run the 4-gate.** Per the user's 2026-05-19 directive ("doing tests after every step is exhausting and not necessary; speed this up"), each sub-phase commits with a clear message (`feat(<scope>): <phase>X — <theme>`), pushes, and moves on — the per-sub-phase iteration is now optimized for cadence, not validation. Validation lives at the phase boundary.
+
+Lighter checks during sub-phase work are still encouraged (and cheap): `npx tsc --noEmit -p tsconfig.web.json` after a non-trivial edit takes seconds and catches the obvious type breakage. But the full lint + tsc + vitest sweep is reserved for end-of-phase.
+
+If a contributor wants per-sub-phase gating back, they can revert this rule edit — the playbook honors the user's current trade-off (speed > early detection inside a phase).
 
 ### 6. Ship release
 When the last sub-phase of a phase is green and committed, cut the release per `dnd-app/docs/RELEASE.md` (or `CLAUDE.md` release flow):
@@ -450,21 +462,22 @@ while plans remain in dnd-app/docs/phases/ (excluding INSTRUCTIONS.md):
       STOP_AND_ASK("warn", "meta-file edit requested", <which file + why>) (rule 16)
     if out-of-scope finding discovered:
       LOG to correct file (rule 12), do not inline-fix
-    run 4-gate
-    if 4-gate green:
-      update plan's `## Completed` section with file:line citations (rule 17)
-      commit (code + Completed edits together) + push to master
-      touch ~/.claude-tools/heartbeat                                  (rule 24)
-      sub_phase_counter += 1
-      if sub_phase_counter % 5 == 0:
-        emit progress checkpoint (rule 21)
-        touch ~/.claude-tools/heartbeat                                (rule 24)
-        git fetch origin --quiet                                       (rule 11 mid-phase sweep)
-        if `git ls-remote --heads origin | grep -v 'refs/heads/master$'` is non-empty:
-          STOP_AND_ASK("warn", "foreign branch found mid-phase", <branch + last commit + diff stat + recommendation>) (rule 11)
-      continue
-    else:
-      fix in place, re-run 4-gate
+    update plan's `## Completed` section with file:line citations (rule 17)
+    commit (code + Completed edits together) + push to master            (rule 5 — no per-sub-phase 4-gate)
+    touch ~/.claude-tools/heartbeat                                       (rule 24)
+    sub_phase_counter += 1
+    if sub_phase_counter % 5 == 0:
+      emit progress checkpoint (rule 21)
+      touch ~/.claude-tools/heartbeat                                     (rule 24)
+      git fetch origin --quiet                                            (rule 11 mid-phase sweep)
+      if `git ls-remote --heads origin | grep -v 'refs/heads/master$'` is non-empty:
+        STOP_AND_ASK("warn", "foreign branch found mid-phase", <branch + last commit + diff stat + recommendation>) (rule 11)
+
+  # END-OF-PHASE 4-gate (rule 5, user 2026-05-19):
+  run 4-gate (lint + tsc-web + tsc-node + vitest; pytest if Pi-side)
+  if 4-gate red:
+    STOP_AND_ASK("warn", "phase N — 4-gate red at end-of-phase", <which gate + cited line + fix path>) (rule 5)
+    fix in place + re-run until green; do NOT cut release, do NOT advance phase
 
   cut release (NOT a force-push, NOT a tag rewrite — rule 20)
   verify release workflow + assets

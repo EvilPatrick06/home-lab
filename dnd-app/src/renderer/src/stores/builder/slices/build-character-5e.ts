@@ -18,6 +18,7 @@ import {
   load5eSpecies
 } from '../../../services/data-provider'
 import type { Character5e, MagicItemEntry5e } from '../../../types/character-5e'
+import { migrateCharacter5eFromV3ToV4 } from '../../../types/character-5e-migration'
 import type { AbilityName } from '../../../types/character-common'
 import type { MagicItemData } from '../../../types/data'
 import { useCharacterStore } from '../../use-character-store'
@@ -662,5 +663,8 @@ export async function buildCharacter5e(get: GetState): Promise<Character5e> {
     updatedAt: now
   }
 
-  return character
+  // Phase 15c.1 — produce the v4 *Refs + state alongside the legacy v3
+  // fields. Consumers that have flipped to the new shape read these; the
+  // rest keep reading the v3 fields until 15c.5 sweeps them out.
+  return migrateCharacter5eFromV3ToV4(character)
 }
