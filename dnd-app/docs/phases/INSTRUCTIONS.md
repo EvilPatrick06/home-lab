@@ -159,7 +159,38 @@ Confirm for each release:
 
 Do NOT attempt to fix a failed release automatically. Releases affect users and need the user's judgment.
 
-If every release is fully green, summarize for the user: "All N releases shipped (`vA.B.C`, `vD.E.F`, …). Every preflight + build + verify-assets job green. Phase work complete." Then stop.
+If every release is fully green, summarize for the user: "All N releases shipped (`vA.B.C`, `vD.E.F`, …). Every preflight + build + verify-assets job green. Phase work complete." Then move to rule 14.
+
+### 14. End-of-run summary
+After rule 13 confirms every release shipped (or you've alerted the user about failures), produce one final summary message before the session ends. Three sections:
+
+**1. Phases completed.** Exact count + list. Examples:
+- "Completed 4 phases this run: 15, 16, 17, 19."
+- "Completed 1 phase: 15." (single-phase run is fine)
+- "Completed 0 phases — stopped at Phase 15 Sub-Phase B on user direction." (when work was halted mid-stream)
+
+If the run halted mid-phase, state which sub-phase was the last to land green and which sub-phase is next so the user can pick up cleanly.
+
+**2. Problems & friction encountered.** For each non-trivial issue that came up during the run, give:
+- What went wrong (one sentence)
+- How it was resolved (or marked unresolved)
+- Suggested follow-up if any (test file to add, doc to update, memory entry to write, refactor candidate)
+
+Include both code-level problems (a failing test, a plan step that didn't match reality) and process-level friction (a sub-phase took multiple attempts, a 4-gate gate kept flaking). Be concise — one or two lines per item.
+
+If new test files / docs / memory entries / phase-plan amendments were created during the run, list them with file paths so the user can find them. Do NOT re-paste their contents.
+
+**3. Logged-finding count.** If rule 12 fired (out-of-scope finding logged to one of the triage files), report:
+- Count + log file: "Logged 3 entries in `docs/ISSUES-LOG-DNDAPP.md`, 1 in `docs/SUGGESTIONS-LOG-DNDAPP.md`, 0 in `docs/SECURITY-LOG.md`."
+- Closing line: "Review at your convenience."
+
+Do NOT describe the findings inline. The user's preference is to triage on their own time; the summary just signals that the logs grew.
+
+If no findings were logged, say so: "No new entries logged this run."
+
+**Tone:** factual, scannable, no praise, no apology. Bullet lists for each section. Total length: ~10-30 lines depending on how eventful the run was.
+
+---
 
 ---
 
@@ -198,7 +229,12 @@ watch every release cut during the run (rule 13)
 if any release failed:
   STOP, alert user with diagnosis
 else:
-  summarize success, stop
+  summarize success
+emit end-of-run summary (rule 14):
+  1. phases completed (count + list)
+  2. problems & friction (with suggested follow-ups)
+  3. logged-finding count (file + count; NO inline content)
+stop
 ```
 
 ---
