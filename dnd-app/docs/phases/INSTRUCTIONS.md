@@ -2,7 +2,7 @@
 
 > How to work through the phase plans in this directory. Read this before starting any phase work.
 
-## The 26 rules
+## The 27 rules
 
 ### 1. Start with the earliest phase plan in folder
 Find the lowest-numbered `phase-N-plan.md` file in `dnd-app/docs/phases/` that still exists. Open it. That's the current phase. Do not skip ahead. Do not work on a later phase while an earlier one is unshipped.
@@ -384,6 +384,29 @@ grep -E '(skip|inject-failed)' ~/.claude-tools/reply-watcher.log | tail   # diag
 - Single-session: all replies route to the tmux session named in `session-meta`. Multi-session routing needs Message-ID-tagged session IDs (future work).
 - Security: anyone with access to the user's Gmail OR the ability to compose an SMS to the user's number can inject input. The permission classifier still gates dangerous tool calls (rule 25 SMSes back to confirm), so injection alone can't trigger destructive commands without an additional approval round-trip.
 
+### 27. Deferral is a rule-9 STOP-and-ask trigger
+Never silently defer a Step / Sub-Phase / log-finding because it appears to depend on later work, conflicts with the current type system, or otherwise looks out of reach in this session. The moment you catch yourself thinking *"I'll skip this and come back after X lands"* or *"I'll write a stub and the real one later"*, treat it identically to rule 9:
+
+1. Stop before editing or skipping. Do NOT mark the Step `PARTIAL` or `DEFERRED` on your own.
+2. Fire notify.sh per rule 23:
+   ```bash
+   ~/.claude-tools/notify.sh "warn" "Phase N — deferral candidate" \
+     "<sub-phase + step + cited line + apparent dependency + proposed defer path>"
+   ```
+3. Wait for the user's call: continue against the conflict, defer with their authorization, re-order, drop, or amend the plan.
+
+Common signals that you are about to silently defer (all are triggers, not permissions):
+- "Needs the Character5e v4 shape first" / "needs Step X to land first."
+- "I'll write a stub for now and the real one later."
+- "Marking PARTIAL — <some reason that wasn't on the plan>."
+- "Skipping this case because the data shape doesn't match."
+- "This depends on Phase M's work; deferring."
+- "Scope is too large for one session; I'll do part now and part later."
+
+The user owns ordering decisions. The agent's job is to surface the conflict, cite specifics (plan line + code line + the apparent dep), and wait. Rule 9's umbrella covers this; rule 27 names it explicitly because the failure mode is recurring.
+
+If the user authorizes the deferral, document it honestly in the plan's `## Completed` section per rule 17: cite the user's directive ("deferred per user 2026-MM-DD direction") and what the deferral target is so future sessions know where to resume.
+
 ---
 
 ## Quick reference — the loop
@@ -421,6 +444,8 @@ while plans remain in dnd-app/docs/phases/ (excluding INSTRUCTIONS.md):
       STOP_AND_ASK("warn", "permission required for <tool>", <action + suggested approve/deny>) (rule 25)
     if confused or conflicting:
       STOP_AND_ASK("warn", "phase N sub-phase X stopped", <reason + cited lines + suggested next>) (rule 9)
+    if about to defer / skip / stub / PARTIAL-mark a Step on your own:
+      STOP_AND_ASK("warn", "phase N — deferral candidate", <step + cited dep + proposed path>) (rule 27)
     if would-modify any meta-file:
       STOP_AND_ASK("warn", "meta-file edit requested", <which file + why>) (rule 16)
     if out-of-scope finding discovered:
