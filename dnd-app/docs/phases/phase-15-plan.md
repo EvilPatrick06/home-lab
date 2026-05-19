@@ -312,11 +312,24 @@ Overrides express player intent that should persist and propagate. Instance stat
 
 1. Delete listed files; verify no broken imports.
 2. `grep -rn "knownSpells\b\|weapons:\|armor:\|magicItems\|classFeatures" src/renderer/src` returns zero hits outside (a) migration code, (b) migration tests, (c) new typed `LibraryEntry<>` definitions.
-3. Update `AGENTS.md` with "Data layer rules" section referencing `services/library/README.md`.
-4. Update `CLAUDE.md` "When adding new dnd-app files" with sub-bullet: "All D&D content data lives in the library. Consumers reference entries by `EntryRef`; no inline duplication. See `src/renderer/src/services/library/README.md`. Boundary test fails CI on raw `public/data` imports."
-5. Append `info` entry to `docs/SUGGESTIONS-LOG-DNDAPP.md` summarizing Phase 15 invariants for future grep workflows.
-6. Verify `release.yml` `on.push.tags` filter is `'v*.*.*'` (NOT `'*'`) so lightweight `phase-15*-done` tags don't trigger the release workflow.
-7. Cut `v3.0.0`: write notes to `/tmp/v3.0.0-notes.md` (schema-breaking change, migration auto-runs, `.pre-phase-15.bak` snapshot, report modal, rollback recipe), `git stash push -u -m wip-during-release`, `node dnd-app/scripts/release/cut.mjs 3.0.0 --notes-file /tmp/v3.0.0-notes.md`, `git stash pop`. Release workflow runs preflight (lint + tsc-web + tsc-node + vitest) and asset-verify.
+
+**Migration framework (absorbed from 15a Steps 12-18 per user direction 2026-05-19, option D):** Phase 15a's plan ordered these BEFORE the Character5e v4 rewrite (15c). That ordering was inverted — `MIGRATIONS[4]`'s output shape (refs + state) only becomes a clean target for the migration once 15c has landed. Per user 2026-05-19 the migration framework moves here. The original Step text + acceptance carry forward unchanged:
+
+3. Bump `CURRENT_SCHEMA_VERSION` from 3 to 4 at `src/main/storage/migrations.ts:1`. Add `MIGRATIONS[4]` that delegates to `migrateCharacter5eToRefs` for `gameSystem === 'dnd5e'`.
+4. Create `src/shared/migrations/v4-character-refs.ts` (pure, only `crypto.randomUUID`) implementing the inline-data-to-refs conversion per the field table from 15a's plan body. Includes orphan path (`entryId: 'orphan:<uuid>'` + full original as `overrides`), bare-id fallback for `species`/`background` (set ref to null + migration report entry), ambiguous-equipment fallback (best-guess category + warning), attunement migration (Design C — single `magicItemRefs` list keyed by stable `instanceId`, reuse legacy `MagicItemEntry5e.id`; lift `attuned`/`charges` to `state`), and pre-existing homebrew migration (walk `userData/homebrew/*.json`, validate against `SCHEMA_REGISTRY`, write failures to `userData/homebrew/incompatible/`).
+5. Mirror `MIGRATIONS[4]` as `BACKUP_MIGRATIONS[4]` in `src/renderer/src/services/io/import-export.ts`; both call the shared core.
+6. Create `src/main/storage/snapshot.ts` with `snapshotIfFirstMigration(saveFilePath, targetVersion)` — writes `<savefile>.pre-phase-15.bak` exactly once when stepping past v3; idempotent. Wire into `migrateData` at the v3→v4 boundary.
+7. Migration accumulates `PerCharacterReport[]` and writes to `app.getPath('userData') + '/migration-report.json'`.
+8. Add IPC channel `getMigrationReport()` returning the report JSON.
+9. Create `src/renderer/src/components/library/MigrationReportModal.tsx` reading via IPC. Layout: header, summary, per-character orphan list with "Re-link" picker, "Don't show this again" checkbox writing `migrationReportDismissed: true` to app-level settings.
+
+**Docs + release (original 15h):**
+
+10. Update `AGENTS.md` with "Data layer rules" section referencing `services/library/README.md`.
+11. Update `CLAUDE.md` "When adding new dnd-app files" with sub-bullet: "All D&D content data lives in the library. Consumers reference entries by `EntryRef`; no inline duplication. See `src/renderer/src/services/library/README.md`. Boundary test fails CI on raw `public/data` imports."
+12. Append `info` entry to `docs/SUGGESTIONS-LOG-DNDAPP.md` summarizing Phase 15 invariants for future grep workflows.
+13. Verify `release.yml` `on.push.tags` filter is `'v*.*.*'` (NOT `'*'`) so lightweight `phase-15*-done` tags don't trigger the release workflow.
+14. Cut `v3.0.0`: write notes to `/tmp/v3.0.0-notes.md` (schema-breaking change, migration auto-runs, `.pre-phase-15.bak` snapshot, report modal, rollback recipe), `git stash push -u -m wip-during-release`, `node dnd-app/scripts/release/cut.mjs 3.0.0 --notes-file /tmp/v3.0.0-notes.md`, `git stash pop`. Release workflow runs preflight (lint + tsc-web + tsc-node + vitest) and asset-verify.
 
 **Acceptance:** `git diff --stat` shows large net deletion. `grep -rn "from.*use-data-store" src/renderer/src` returns zero. `grep -rn "import .*'/?public/data" src/renderer/src` returns hits only inside allowlisted paths. 4-gate green. `v3.0.0` published with all expected assets.
 
@@ -454,4 +467,6 @@ End state after 15h: `git diff --stat` shows large net deletion (legacy data + `
 - 15a Step 9 — DONE 2026-05-19 (`src/renderer/src/services/data-provider.ts:112`, `stores/use-plugin-store.ts:67/74/85/100`) — every cache-invalidation site that calls `useDataStore.getState().clearAll()` now ALSO calls `useLibraryStore.getState().clearAll()` so plugin enable/disable/install/uninstall and `clearDataCache()` keep both stores in sync. `data-provider.test.ts` gains 1 spec proving the cross-store clear; `use-data-store.ts` itself stays in place (deletion is 15h). Library-shape readers + writers can rely on a single invalidation signal during the transition.
 - 15a Step 19 — DONE 2026-05-19 (`src/renderer/src/services/library/library-boundary.test.ts:1`) — vitest architecture spec with all three plan-prescribed checks: (1) no `import … from … public/data/**`, (2) no `fetch('/data/5e/…')`, (3) no consumer literal embeds ≥3 of `[name, description, damage, traits, level, school, hit_die, ability_score_increase, casting_time, range]` within 20 lines of each other. Allowlist: `services/library/**`, `stores/use-library-store.ts`, `services/library-service.ts`, `services/adventure-loader.ts`. Inline opt-out: `// boundary-allow: <reason>` (reason required). 5 specs total (4 structural + 1 detection); strict mode per user direction 2026-05-19. ~60 `boundary-allow` comments seeded across types/, services/, stores/, components/ to document each opt-out (Phase 15b/c/d/e/g sweep targets, format adapters, type definitions, homebrew authoring paths, data-provider façade per README).
 
-Steps 12-18 (migration v4 + IPC + report modal) flagged as rule-27 deferral candidates — see notify.sh history 2026-05-19T05:34/05:50/05:53; user direction expected before they land.
+- 15a Steps 12-18 — MOVED to 15h per user direction 2026-05-19 (notify.sh `06:10:20Z`, option D). The migration framework (CURRENT_SCHEMA_VERSION bump, v4-character-refs, BACKUP_MIGRATIONS, snapshot, IPC channel, MigrationReportModal) lands in 15h immediately before the `v3.0.0` cut, against the v4 `Character5e` shape that 15c writes. Plan ordering inversion resolved.
+
+**15a — COMPLETE 2026-05-19** (13/13 in-scope Steps green: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 19, 20). 4-gate green across each landing commit; latest at `18831ad` master. Next sub-phase: 15b — Character Builder sweep.
