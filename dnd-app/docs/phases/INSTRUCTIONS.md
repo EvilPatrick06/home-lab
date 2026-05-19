@@ -2,7 +2,7 @@
 
 > How to work through the phase plans in this directory. Read this before starting any phase work.
 
-## The 11 rules
+## The 26 rules
 
 ### 1. Start with the earliest phase plan in folder
 Find the lowest-numbered `phase-N-plan.md` file in `dnd-app/docs/phases/` that still exists. Open it. That's the current phase. Do not skip ahead. Do not work on a later phase while an earlier one is unshipped.
@@ -108,6 +108,12 @@ Don't pause for confirmation between sub-phases. Don't pause for confirmation be
   - What's on it (`git log master..<branch>` summary, file-changed list)
   - The proposed action (delete via `git push origin :<branch>` + `git branch -D <branch>`, or keep, or merge)
   - Wait for the user's call. Then follow exactly.
+
+**When to sweep** — the foreign-branch check fires at TWO points, not just one:
+- **Top of every phase iteration**, as part of rule 15's `git fetch` block (the entry-gate check).
+- **Every progress checkpoint during a phase** (rule 21, every ~5 sub-phases), so branches that appear mid-phase (a dependabot PR opened mid-run, a side branch from another contributor, a stray push from another AI session) get caught within ~5 sub-phases instead of sitting unnoticed until the next phase starts.
+
+Both points run the same one-liner: `git fetch origin --quiet && git ls-remote --heads origin | grep -v 'refs/heads/master$'`. Non-empty output → STOP+ask per the protocol above. Cost per mid-phase sweep is one `git fetch` against origin (negligible).
 
 Tags are fine (the release flow creates `vX.Y.Z` tags), but only via `cut.mjs` — never `git push --tags` (would push intermediate lightweight tags). Verify `.github/workflows/release.yml`'s tag filter is restricted to `'v*.*.*'` before pushing any tags manually.
 
@@ -270,6 +276,8 @@ Phase 17 progress: 17a/17b/17c/17d/17e green. Next: 17f. Logged 1 ISSUES, 0 SECU
 
 Then continue (rule 10 still applies — don't pause for confirmation; just emit + move on). The user can interrupt cleanly if they want to redirect. Without the checkpoint, interruption requires either trusting the radio silence or breaking the flow.
 
+The checkpoint also doubles as a **foreign-branch sweep** — see rule 11's "When to sweep" section. A single `git fetch origin --quiet` + branch-listing runs alongside the progress note; if anything other than `master` exists on origin, STOP+ask via rule 23. Catches branches that appear mid-phase without waiting for the next phase iteration.
+
 ### 22. Phase-plan amendments land BEFORE implementation, in their own commit
 During rule 3 (verify), if you discover the plan needs editing — a file path drifted, a Step is wrong, a Constraint is now stale — DO NOT mix the plan edit with the implementation. Land the plan amendment in its own commit FIRST:
 
@@ -283,43 +291,152 @@ Rationale: mixing plan edits with implementation hides the "the plan was wrong" 
 
 If the amendment is large (multiple Steps need rewording, a Sub-Phase needs splitting), treat it as a rule 9 STOP-and-ask trigger — the plan may need user input before you can sensibly correct it.
 
----
+### 23. SMS the user on every STOP-and-ask trigger
+Any time rule 9 fires — or any rule that cites it (10, 11, 15, 16, 19, 22) — call the notification script BEFORE waiting on the user. The user is not at the terminal during long runs; silent STOPs waste hours.
+
+```bash
+~/.claude-tools/notify.sh "<severity>" "<subject>" "<body>"
+```
+
+- `<severity>` is one of `info`, `warn`, `error`. STOPs use `warn` for confusion / scope questions; `error` for release failures / branch ambiguity / auth failures.
+- `<subject>` is a one-line title (`Phase 17 Sub-Phase 17c stopped`).
+- `<body>` is the detail block: which phase, which sub-phase, why the stop fired, the cited line numbers if any, and the suggested next step (or "awaiting direction" if none is obvious).
+
+The script lives at `~/.claude-tools/notify.sh` and sends an SMS to `+1-304-621-7418` via the user's configured provider (Twilio, email-to-SMS gateway, ntfy.sh push, etc.). Provider choice + credentials are local config (the script + `~/.claude-tools/.credentials` file). The agent only calls the script — it does not pick the provider or store the secret.
+
+If `~/.claude-tools/notify.sh` does not exist, log a warning and continue the STOP without notification — but flag this in the next end-of-run summary (rule 14) as "Notify script missing; alerts were not sent." Do NOT silently skip without surfacing it.
+
+Rate limit: at most one SMS per ~5 minutes. If a second STOP fires within that window, append the body to a pending-batch file (`~/.claude-tools/pending.txt`) and send a single combined message on the next eligible send. Prevents spamming the user's phone when a bad plan triggers many STOPs in a row.
+
+### 24. Maintain the session-active heartbeat for the failsafe watchdog
+The active alert in rule 23 only fires if the agent is alive enough to call the script. If the session crashes, the network drops, or the host reboots, the agent can't notify anyone — by design, that's what the external watchdog catches.
+
+The agent's job is to maintain the heartbeat file the watchdog reads:
+
+- **At session start** (before rule 1's first iteration): `touch ~/.claude-tools/session-active && touch ~/.claude-tools/heartbeat`.
+- **After every successful commit** (per rule 5 / rule 17 exit) AND **at every progress checkpoint** (rule 21): `touch ~/.claude-tools/heartbeat`.
+- **At end-of-run** (after rule 14's summary): `rm -f ~/.claude-tools/session-active`. The watchdog reads this absence as "session ended cleanly; do not alert."
+- **On clean STOP-and-ask** (rule 9 triggers that the user is actively responding to): keep `session-active` present; keep heartbeat fresh until the user responds. The watchdog's threshold should be long enough (~15 min) that a quick back-and-forth doesn't trigger a false alert.
+
+If the script paths under `~/.claude-tools/` don't exist when the agent starts (fresh setup, never configured), log a warning and proceed without the heartbeat. Surface this in the rule 14 summary as "Failsafe heartbeat not configured."
+
+The watchdog itself lives at `~/.claude-tools/watchdog.sh` and is invoked by a host-level scheduler (systemd user timer on the Pi, cron, etc. — set up out-of-band by the user). It reads `~/.claude-tools/session-active` + `~/.claude-tools/heartbeat`, decides whether to fire, and (if firing) calls `~/.claude-tools/notify.sh`. The rules above are what the agent does; the watchdog is what the host does when the agent can't.
+
+### 25. Permission-classifier blocks count as STOP-and-ask
+The agent runs under a permission classifier that auto-approves some tool calls and prompts for others. In an unattended run, a prompt-required tool call blocks the agent indefinitely — there's no signal to the user until they next look at the terminal. Hours of wall time can vanish into a single waiting prompt.
+
+When the agent is **about to** call a tool the classifier will block, OR has just received an "awaiting permission" / "permission denied" response from the harness, treat it identically to a rule 9 STOP-and-ask:
+
+```bash
+~/.claude-tools/notify.sh "warn" "Phase N — permission prompt blocking" \
+  "<tool> on <target> requires approval. Action: <one-line description>. \
+   Suggested next: approve / deny / redirect."
+```
+
+Then keep `~/.claude-tools/session-active` present (do **not** clear it) so the watchdog stays quiet while the user is responding, and keep heartbeating per rule 24 so a long human-response delay doesn't trigger a false crash alert.
+
+Common triggers in this repo:
+- `Bash` calls outside the auto-allow set: most `sudo` invocations, touching `/etc`, `/usr`, `/var`, `systemctl --system`, `chmod` on files outside `$HOME`
+- `Write` to paths outside the project tree (the `~/.claude-tools/*` setup itself qualifies — every file create there will block)
+- Network operations to hosts not in the allow list
+- Destructive git operations (`git push --force*`, `git reset --hard`, `git branch -D` on non-current branches) — even when they'd succeed, the harness may still gate them
+
+If the agent isn't sure whether a particular call will block, **assume it might** and send the SMS preemptively. A redundant alert is far better than a silent block.
+
+This rule does **not** mean "stop trying" — once the user approves (or redirects), continue per rule 10. The SMS exists so the wait isn't silent, not to abandon the task.
+
+### 26. SMS / email replies satisfy the STOP wait
+When rule 9 (or any of its derivatives — 11, 15, 16, 19, 22, 25) STOPs the agent and rule 23 fires the SMS + email, the user can respond from anywhere:
+
+a. **Typing into the terminal** — the existing path.
+b. **Replying to the SMS on the phone** — Google Fi forwards the reply back to Gmail as email from `+1<10digits>@msg.fi.google.com`; the reply-watcher picks it up.
+c. **Replying to the email in Gmail** — direct path; reply-watcher picks it up.
+
+Paths (b) and (c) are handled by the `claude-reply-watcher` systemd user service (installed + verified end-to-end on the Pi). The watcher:
+
+- IMAP-polls `datdude365d@gmail.com` every ~12s while `~/.claude-tools/session-active` is present (drops to 30s when idle).
+- Searches `ALL` UIDs and only acts on UIDs above its `seen_max` watermark — Gmail's monotonic UIDs guarantee mail above that line is new; this avoids UNSEEN / SINCE edge cases (Gmail auto-flags, date-tz parsing) and never replays history.
+- Processes newest UIDs first so a fresh reply lands ahead of any backlog.
+- Allowlist sender regexes:
+  - `^datdude365d@gmail\.com$`
+  - `^\+?\d+@msg\.fi\.google\.com$` — Fi forwards as `+1<digits>@msg.fi.google.com`; the `+` matters.
+- Skips our own outbound by matching `X-Mailer: claude-code-notify/1.0`.
+- Verifies Gmail-from-Gmail mail against `Authentication-Results` (rejects spoofs with `spf=fail` / `dkim=fail`).
+- Strips quoted previous message, signatures, and our own notify-script chrome (severity emoji header, `━━` divider, `🤖 Claude Code` footer).
+- Injects cleaned body into the named tmux session: `tmux send-keys -l "<body>" ; tmux send-keys Enter`.
+
+For this to work the agent must run inside a tmux session whose name is recorded in `~/.claude-tools/session-meta`. The `~/.claude-tools/claude-tmux` wrapper handles both — it writes `session-meta` then `exec tmux new-session -A -s "${SESSION}" claude "$@"`. Alias `claude='$HOME/.claude-tools/claude-tmux'` lives in `~/.bashrc`; takes effect on the next new shell or after `source ~/.bashrc`.
+
+The agent doesn't change its STOP wait behavior — the reply lands on stdin as if typed locally. Existing `STOP_AND_ASK` paths unblock when the line arrives.
+
+**Verified end-to-end latency:** ~55s (Fi MMS-to-email forwarding 30–45s + IMAP poll up to 12s + processing). A reply that arrives while `session-active` is absent OR the tmux session is dead is **logged but NOT injected** — the user has to go to the terminal directly.
+
+**Health checks:**
+
+```bash
+systemctl --user is-active claude-reply-watcher.service        # must be 'active'
+tail ~/.claude-tools/reply-watcher.log                          # recent activity / INJECTED lines
+tmux list-sessions                                              # the named session must be alive
+grep -E '(skip|inject-failed)' ~/.claude-tools/reply-watcher.log | tail   # diagnose missed injections
+```
+
+**Limitations:**
+- Single-session: all replies route to the tmux session named in `session-meta`. Multi-session routing needs Message-ID-tagged session IDs (future work).
+- Security: anyone with access to the user's Gmail OR the ability to compose an SMS to the user's number can inject input. The permission classifier still gates dangerous tool calls (rule 25 SMSes back to confirm), so injection alone can't trigger destructive commands without an additional approval round-trip.
 
 ---
 
 ## Quick reference — the loop
 
 ```
+# SESSION START (rule 24):
+touch ~/.claude-tools/session-active
+touch ~/.claude-tools/heartbeat
+
+# Helper: STOP_AND_ASK(severity, subject, body):
+#   ~/.claude-tools/notify.sh "<severity>" "<subject>" "<body>"   (rule 23, rate-limited inside script)
+#   keep session-active present so the watchdog stays quiet while user is responding
+#   touch ~/.claude-tools/heartbeat                                (rule 24, prevent false alert)
+#   wait for user
+
 while plans remain in dnd-app/docs/phases/ (excluding INSTRUCTIONS.md):
   REFRESH: git fetch origin && git pull origin master --ff-only (rule 15)
-    -> ff-only fails: STOP, ask user (rule 9)
+    -> ff-only fails: STOP_AND_ASK("error", "ff-only failed", <diff summary>)
 
   CHECK: any remote branch other than master?
-    -> yes: STOP, ask user (rule 11)
+    -> yes: STOP_AND_ASK("warn", "foreign branch found", <branch info>) (rule 11)
     -> no: continue
 
   plan = earliest phase-N-plan.md
   review(plan)
   verify(plan, code)
     -> plan drift discovered: amend plan first in its own commit (rule 22)
-    -> amendment is large/ambiguous: STOP, ask user (rule 9)
+       touch ~/.claude-tools/heartbeat
+    -> amendment is large/ambiguous: STOP_AND_ASK("warn", "plan amendment too large", <details>)
 
   sub_phase_counter = 0
   for each sub-phase in plan:
     implement(sub-phase)
+    if next tool call will be blocked by permission classifier:
+      STOP_AND_ASK("warn", "permission required for <tool>", <action + suggested approve/deny>) (rule 25)
     if confused or conflicting:
-      STOP -> ask user -> follow answer (rule 9)
+      STOP_AND_ASK("warn", "phase N sub-phase X stopped", <reason + cited lines + suggested next>) (rule 9)
     if would-modify any meta-file:
-      STOP, ask user (rule 16)
+      STOP_AND_ASK("warn", "meta-file edit requested", <which file + why>) (rule 16)
     if out-of-scope finding discovered:
       LOG to correct file (rule 12), do not inline-fix
     run 4-gate
     if 4-gate green:
       update plan's `## Completed` section with file:line citations (rule 17)
       commit (code + Completed edits together) + push to master
+      touch ~/.claude-tools/heartbeat                                  (rule 24)
       sub_phase_counter += 1
       if sub_phase_counter % 5 == 0:
         emit progress checkpoint (rule 21)
+        touch ~/.claude-tools/heartbeat                                (rule 24)
+        git fetch origin --quiet                                       (rule 11 mid-phase sweep)
+        if `git ls-remote --heads origin | grep -v 'refs/heads/master$'` is non-empty:
+          STOP_AND_ASK("warn", "foreign branch found mid-phase", <branch + last commit + diff stat + recommendation>) (rule 11)
       continue
     else:
       fix in place, re-run 4-gate
@@ -328,19 +445,24 @@ while plans remain in dnd-app/docs/phases/ (excluding INSTRUCTIONS.md):
   verify release workflow + assets
   delete plan file
   commit deletion to master + push
+  touch ~/.claude-tools/heartbeat                                      (rule 24)
 
 # After the last plan is gone:
 precheck `gh auth status` (rule 19)
-  -> not authenticated: STOP, ask user
+  -> not authenticated: STOP_AND_ASK("error", "gh not authenticated", "run `gh auth login`")
 watch every release cut during the run (rule 13)
+  -> touch heartbeat between each `gh run watch` to prevent watchdog false alert
 if any release failed:
-  STOP, alert user with diagnosis
+  STOP_AND_ASK("error", "release vX.Y.Z failed", <which job + last 30 lines + suggested next>)
 else:
   summarize success
 emit end-of-run summary (rule 14):
   1. phases completed (count + list)
   2. problems & friction (with suggested follow-ups)
   3. logged-finding count (file + count; NO inline content)
+
+# SESSION END (rule 24): clean shutdown signal to the watchdog.
+rm -f ~/.claude-tools/session-active
 stop
 
 # All dates written anywhere during the loop use ISO YYYY-MM-DD from system clock (rule 18).
