@@ -3,6 +3,8 @@
 Phase 16 is a **VTT Platform Comparison** against D&D Beyond, Foundry VTT, and Roll20. Many identified gaps are already addressed by previous phase plans (active effects, dynamic lighting, trigger zones, audio emitters, floor filtering, advanced walls, multi-token ops, rollable tables, party inventory, encounter builder). This plan covers only the **net-new items** not already assigned to other phases, plus 6 UX workflow improvements.
 
 > **See also:** Phase 15 (Library as Single Source of Truth) — the original N5 "Unified content discovery" goal is fully absorbed there.
+>
+> **See also:** Phases 29-32 (Roles + Permissions / Player-as-Host / Live-state sync / Cloud Host) — Map Pin broadcast turns into a shard during Phase 31. See Sub-Phase B constraint note below.
 
 ---
 
@@ -282,7 +284,7 @@ Phase 16 is entirely client-side. No Raspberry Pi involvement.
 ### Map Pins
 - **Pin density**: A map with many pins can be cluttered. Add a zoom threshold — hide pin labels when zoomed out past a threshold, show only icons.
 - **Pin persistence**: Pins are part of `GameMap` and persist with the map data. They are NOT separate entities.
-- **Network sync**: Pin CRUD must be broadcast to clients via `dm:map-update` when added/removed by the DM.
+- **Network sync**: Pin CRUD must be broadcast to clients. Before Phase 31, via `dm:map-update`. After Phase 31 lands, pins live inside the `map-pins` shard and propagate via shard delta automatically — no explicit broadcast call.
 
 ### Floating Windows
 - **Do NOT float all modals** — only the frequently-used DM reference tools. Combat modals (AttackModal, SpellModal) should remain centered modals because they require focused interaction.

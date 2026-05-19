@@ -7,6 +7,8 @@ Phase 25 covers the **Homebrew & Custom Content System**. The foundation exists 
 > - **M2 (Sub-Phase F — Builder/Sheet Integration)** is resolved structurally by Phase 15 Sub-Phases B/C/D — once every consumer hits the library, homebrew shows up automatically (it's in the library; consumers can't tell built-in from homebrew apart from a `source: 'homebrew'` field).
 >
 > **H2 (Zod schemas)** is promoted to a **Phase 15 prerequisite**: all 13 content types need validated shapes before they become canonical library entries. Ship H2 before Phase 15 lands.
+>
+> **See also:** Phase 31 (Live-state sync overhaul) — library / homebrew updates broadcast as a library shard delta (no bespoke message). Campaign-scoped homebrew filtering (Sub-Phase E / M1) lives in that shard's `permissionFilter` once Phase 29 permission keys exist.
 
 ---
 

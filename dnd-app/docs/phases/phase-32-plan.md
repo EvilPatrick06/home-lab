@@ -329,6 +329,17 @@ One release: **v6.0.0** after 19l. Major version bump for the new deployment mod
 
 ---
 
+## Plans superseded or modified by Phase 32
+
+| Plan | Item | Disposition |
+|------|------|-------------|
+| Phase 20 (deprioritized "no authentication" finding) | Auth gap for cloud surface | Covered by Phase 32 JWT on WS frames. Local-P2P invite-code auth unchanged. |
+| Phase 27 Sub-Phase J (A9 custom audio sync) | File transfer transport | Stays peer-to-peer per voice-transport-boundary doc (Step 19k). Phase 32 does NOT route audio through Pi. |
+| Phase 28 Step 28a.4 (Auth Bearer to BMO) | Token shape for BMO bridge | Reconcile JWT issuer/secret so one credential covers both LAN sync Bearer and cloud WS frame auth. |
+| Phase 28 Step 28a.2 (BMO sync receiver hardening) | LAN sync receiver | Hardening still applies to local-P2P mode. Cloud-host uses the new WS path, not this receiver. Both code paths need their own hardening. |
+
+---
+
 ## Post-Phase-19 ideas (out of scope here)
 
 - **Cloud-mode-only features.** Things like async DM (DM logs in tomorrow, sees what happened today) only make sense once the authority is persistent. Future phase.

@@ -334,6 +334,17 @@ This phase ships independently of Phase 30/31/32. Even if Phase 30 (Player-as-Ho
 
 ---
 
+## Plans superseded or modified by Phase 29
+
+| Plan | Item | Disposition |
+|------|------|-------------|
+| Phase 18 (GUI/UX) | UI states reading `isHost` / `isCoDM` | Anticipate `hasPermission(peer, key, campaign)` shape — all visibility gates added by Phase 18 use the permission helper. |
+| Phase 15 / Phase 31 | Per-shard `permissionFilter` | Phase 31 shard filters call Phase 29's `hasPermission`. Permission key universe must be defined first. |
+| Phase 17 (NET-5) | broadcast hardening | Permission-aware broadcast filtering moves into `GameAuthority` via Phase 30 → uses Phase 29 keys. |
+| All gameplay surfaces | Literal `role === 'host'` / `isCoDM` checks | Phase 29 Sub-Phase 29e sweeps every site. New gates added by any plan should use `hasPermission` from day one. |
+
+---
+
 ## Open questions (locked before starting)
 
 1. **Custom roles per-campaign only** — confirmed.

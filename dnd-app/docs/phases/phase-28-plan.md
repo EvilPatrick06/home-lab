@@ -73,6 +73,8 @@ The order prioritizes (1) live security exposure first, (2) game-mechanic correc
 
 ### Step 28a.2 — Harden BMO sync receiver (loopback + CORS + body limits)
 
+> **Phase 32 coordination:** Cloud-host mode uses WebSocket transport, not the BMO sync receiver. Phase 32 ships JWT auth + framing on the WS path. The hardening below still applies to the LAN sync receiver used by local-P2P mode. Both code paths need hardening; they don't overlap structurally.
+
 **Files:** `src/main/bmo-bridge.ts`
 
 **Changes:**
@@ -116,6 +118,8 @@ The order prioritizes (1) live security exposure first, (2) game-mechanic correc
 - Renderer-side handlers do NOT need changes (zod-narrowed shape matches the existing TS type)
 
 ### Step 28a.4 — Authorization Bearer to BMO
+
+> **Phase 32 coordination:** Phase 32 ships JWT auth on every WS frame for cloud-host mode. Reconcile the token shape (issuer, signing secret, audience claim) so the same secret can validate both the LAN-sync Bearer header and the WS-frame JWT. Pi-side secret generation already covered in Phase 32 Step 19f.
 
 **Files:** `src/main/bmo-config.ts`, `src/main/bmo-bridge.ts`, `src/main/ipc/settings-handlers.ts` (or wherever settings I/O lives), settings UI panel.
 
@@ -254,6 +258,8 @@ The order prioritizes (1) live security exposure first, (2) game-mechanic correc
 
 ### Step 28c.3 — `stopSyncReceiver` graceful shutdown
 
+> **Phase 30 coordination:** the shutdown path moves into `TransportAdapter.close()` after Phase 30b. Apply the graceful-shutdown promise to the adapter's `close()` implementation if Phase 30 has landed; otherwise wire as drafted and let Phase 30 inherit.
+
 **Files:** `src/main/bmo-bridge.ts:212-218`, `src/main/index.ts` (before-quit wiring)
 
 **Changes:**
@@ -271,6 +277,8 @@ The order prioritizes (1) live security exposure first, (2) game-mechanic correc
 3. Add a settings-UI surface for the base URL.
 
 ### Step 28c.5 — peerjs reconnection
+
+> **Phase 30 coordination:** `TransportAdapter` owns reconnection after Phase 30b. The exponential-backoff + UI-badge work below belongs inside `P2PTransport` (the WebRTC implementation), not at the call sites. Reframe accordingly when Phase 30 lands; for now, the implementation can live where drafted and migrate during Phase 30.
 
 **Files:** `src/renderer/src/network/*.ts` (audit first to find the right insertion point)
 
@@ -344,6 +352,8 @@ try { return await next } finally {
 4. Target: < 40 casts outside tests after the pass (allowing 5 casts in `library-service.ts` to remain pending Phase 15).
 
 ### Step 28d.4 — Effect-dep suppression audit
+
+> **Phase 30 coordination:** `use-game-network.ts:92` is part of the network-side surface Phase 30 reshapes. Verify the dep suppression is still relevant post-rewrite; the hook may move or disappear.
 
 **Files:**
 - `src/renderer/src/components/game/GameLayout.tsx:407`
@@ -573,7 +583,7 @@ try { return await next } finally {
 
 Each of the 9 gap areas (multiplayer/peerjs, Pixi map rendering, plugin runtime, cloud sync, TipTap, updater, Discord integration, 5e JSON, renderer IPC consumers) gets its own narrow scan:
 
-1. Multiplayer/peerjs — fog-of-war state, host-migration, reconnect (overlaps 28c.5)
+1. Multiplayer/peerjs — fog-of-war state, host-migration, reconnect (overlaps 28c.5). **Phase 30/31 absorb most of this scope** (host-migration → Phase 30 host-transfer protocol; reconnect → `TransportAdapter`; fog-of-war state → Phase 31 shard). Re-scope the gap scan to "items not absorbed by Phase 30/31" once those land; may shrink to near-zero.
 2. Pixi map — fog-of-war correctness, viewport math, GPU memory growth
 3. Plugin runtime — actual privilege boundary, plugin lifecycle, error containment
 4. Cloud sync (rclone) — conflict resolution, partial-failure recovery, retry behavior
@@ -596,6 +606,8 @@ Each of the 9 gap areas (multiplayer/peerjs, Pixi map rendering, plugin runtime,
 | 28e (CI) | 28h (coverage baseline gate) | — |
 | 28h.3 (TokenContextMenu tests) | — | `2026-04-24-network-store-barrel-circular` fix |
 | 28a.1 data-tables, 28d.3 `library-service.ts` | — | **Phase 15 (Option A) — those files reshape or get deleted; defer scope** |
+| 28a.2 BMO sync hardening, 28c.3 graceful shutdown, 28c.5 peerjs reconnection, 28i.1 multiplayer gap scan, 28d.4 `use-game-network.ts:92` dep audit | — | **Phase 30 (TransportAdapter consolidation)** — reframe call sites once the adapter exists; coordinate sequencing |
+| 28a.4 Auth Bearer | — | **Phase 32 (JWT on WS)** — reconcile token shape so one secret covers both flows |
 
 The user has previously agreed (memory) to phase-by-phase execution: **stop and await approval between every sub-phase**; commit + push BEFORE summarizing. Apply the same discipline within Phase 28 — finish 28a, push, summarize, wait. Don't bundle.
 

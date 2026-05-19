@@ -3,6 +3,8 @@
 Phase 23 covers the **In-Game Character Sheet** — data binding, real-time sync, inventory, spellbook, conditions, and performance. The sheet is feature-rich and functional but needs **performance optimization** (no virtualization for spell/equipment lists, limited useMemo), **spell search/filtering**, **sync conflict resolution**, and **consistency fixes** (remote characters stored in wrong store, attunement count mismatch).
 
 > **See also:** Phase 15 (Library as Single Source of Truth) — Sub-Phase C (remote character store) and Sub-Phase F (attunement) both interact with Phase 15's ref+hydration shape. See per-sub-phase notes below.
+>
+> **See also:** Phase 31 (Live-state sync overhaul) — `dm:character-update` ceases to exist; character state becomes part of the character shard. Sub-Phase D's conflict-resolution UI moves into the shard-applier layer. Notes inline.
 
 ---
 
@@ -118,6 +120,8 @@ Phase 23 covers the **In-Game Character Sheet** — data binding, real-time sync
 - Remove every consumer of `lobbyStore.remoteCharacters` as part of this step (or in a follow-up commit before Phase 15 lands).
 
 > **Phase 15 coordination:** After Phase 15, the character record holds `EntryRef` for species / classes / spells / items — the `characterData` payload above ships those refs, and consumers hydrate via `useLibraryEntry`. The dual-write pattern from the original draft is explicitly forbidden by Phase 15's single-canonical-store rule.
+>
+> **Phase 31 coordination:** After Phase 31, the `dm:character-update` message type no longer exists; character state mutations propagate through the character shard's structural diff. The Step 5 handler block disappears entirely — the shard applier (mounted at App root) routes character deltas to the character store directly. The conflict-resolution work in Sub-Phase D moves into the shard-applier layer (compare sequence numbers at delta apply time, surface conflicts there).
 
 ### Sub-Phase D: Conflict Resolution (S4)
 

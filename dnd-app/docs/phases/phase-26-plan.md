@@ -3,6 +3,8 @@
 Phase 26 covers the **Encounter Builder & Combat Tracker**. The builder correctly implements 2024 DMG XP budgets and has a functional search/add/count UI. The critical issues are: **GroupRollModal uses hardcoded mock data** (fake players, fake rolls), **"Place All & Start Initiative" doesn't actually place tokens**, **AI deployment stacks monsters in a tight grid ignoring walls**, **no wave support**, and **no encounter-to-map linkage**.
 
 > **See also:** Phase 15 (Library as Single Source of Truth) — encounters store monster **refs**, not embedded monster JSON. See Step 10 and the Pre-Positioning constraint below.
+>
+> **See also:** Phase 31 (Live-state sync overhaul) — token mutations from `smartPlaceTokens` / `executeLoadEncounter` propagate via the `map-tokens` shard automatically. Encounter object itself becomes its own shard (Phase 31 Sub-Phase 31i). Wave-trigger "Reinforcements arrive!" stays as a chat-shard message (one-shot event). Notes inline below.
 
 ---
 
@@ -243,6 +245,8 @@ Phase 26 covers the **Encounter Builder & Combat Tracker**. The builder correctl
 - Replace the tight center-grid placement with `smartPlaceTokens()` from Step 5
 - If the encounter has pre-positioned monsters (from Step 10), use those positions
 - If no pre-positions, use the smart placement algorithm
+
+> **Phase 31 coordination:** Both `smartPlaceTokens` (Step 5) and `executeLoadEncounter` (Step 11) write to `useGameStore.maps[].tokens`. After Phase 31, the `map-tokens` shard's structural diff picks those mutations up automatically; no explicit broadcast call is required. Drop any direct `sendMessage('dm:token-add', ...)` calls these functions currently make.
 
 ---
 

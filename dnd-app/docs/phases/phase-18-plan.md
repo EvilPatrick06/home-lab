@@ -2,6 +2,8 @@
 
 Phase 18 is a **GUI & UX audit**. The app has solid foundations (dark theme, accessibility store, toast system, keyboard shortcuts, error boundaries) but suffers from **inconsistent iconography** (Unicode chars instead of an icon library), **100+ occurrences of 10px text**, **only 67 aria-labels across 697 TSX files**, **no responsive breakpoints**, and **z-index soup**. Many items overlap previous phases; this plan covers only net-new UX work.
 
+> **See also:** Phase 29 (Roles + Permissions) — UI states that today read `isHost` / `isCoDM` will switch to `hasPermission(peer, key, campaign)`. Toolbar / button visibility added by this plan should anticipate that shape.
+
 ---
 
 ## 🏗️ Architecture & Environment Split

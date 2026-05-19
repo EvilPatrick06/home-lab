@@ -2,6 +2,8 @@
 
 Phase 27 covers the **Audio, SFX & Atmosphere System**. The app has a robust SFX pool (97 events, 130 bundled .mp3 files, round-robin playback), DM audio panel, and network sync for ambient/SFX. However, it has **two critical path bugs** (default ambient points to nonexistent files, custom audio stop uses wrong key), **3D dice animations are completely silent**, **late joiners hear no ambient**, and **duplicate message handlers may cause double-playback**.
 
+> **See also:** Phase 31 (Live-state sync overhaul) — biggest overlap of any plan. Sub-Phase D (A4 duplicate handlers), Sub-Phase E (A5 chat command sync), Sub-Phase I (late-joiner ambient), and parts of Sub-Phase J (A9 custom audio sync) are all absorbed structurally once Phase 31 lands. See per-sub-phase notes inline. Phase 27's path-bug fixes (Sub-Phases A/B), sound for 3D dice (Sub-Phase C), race + cleanup + volume work (Sub-Phases F/G/H), and the playlist system (Sub-Phase K) remain Phase 27 work.
+
 ---
 
 ## 🏗️ Architecture & Environment Split
@@ -136,6 +138,8 @@ Phase 27 covers the **Audio, SFX & Atmosphere System**. The app has a robust SFX
 
 ### Sub-Phase D: Fix Duplicate Audio Handlers (A4)
 
+> **Phase 31 disposition:** structurally fixed by Phase 31 — a single shard applier mounted at App root replaces every per-feature handler pair, making double-handlers impossible. Keep this sub-phase as an interim fix landing before Phase 31; strike it from Phase 27 if Phase 31 has already landed when Phase 27 runs.
+
 **Step 5 — Remove Duplicate Handler**
 - Two locations handle `dm:play-sound`, `dm:play-ambient`, `dm:stop-ambient`:
   1. `src/renderer/src/hooks/use-game-network.ts` lines 114-126
@@ -145,6 +149,8 @@ Phase 27 covers the **Audio, SFX & Atmosphere System**. The app has a robust SFX
 - Verify no other code depends on those hook-based handlers.
 
 ### Sub-Phase E: Fix Chat /sound Sync (A5)
+
+> **Phase 31 disposition:** structurally fixed by Phase 31 — ambient state becomes a shard, and the `/sound ambient` chat command mutates that shard; propagation is automatic. Keep this sub-phase as an interim fix until Phase 31 lands.
 
 **Step 6 — Network Sync /sound ambient Command**
 - Open `src/renderer/src/services/chat-commands/commands-dm-sound.ts`
@@ -233,6 +239,8 @@ Phase 27 covers the **Audio, SFX & Atmosphere System**. The app has a robust SFX
 
 ### Sub-Phase I: Add Ambient State to Late-Joiner Sync
 
+> **Phase 31 disposition:** absorbed entirely. Phase 31's initial state-bootstrap ships every shard snapshot to a joining peer; the ambient shard rides along. Strike this sub-phase if Phase 31 has landed; otherwise ship it as an interim fix.
+
 **Step 10 — Include Audio State in Full Game State Payload**
 - Open `src/renderer/src/network/game-sync.ts`
 - Find `buildFullGameStatePayload()` (lines 249-292)
@@ -255,6 +263,8 @@ Phase 27 covers the **Audio, SFX & Atmosphere System**. The app has a robust SFX
 - Add `getCurrentAmbientName()` export to sound-playback if it doesn't exist
 
 ### Sub-Phase J: Custom Audio Network Sync (A9)
+
+> **Phase 30/32 coordination:** Custom audio file transfer is a binary blob transport concern, not gameplay state. After Phase 30, the file transfer routes through `TransportAdapter` (P2P or WS). After Phase 32, voice and audio file transports stay peer-to-peer per the voice-transport-boundary doc (Phase 32 Step 19k) — they do NOT route through Pi. Document accordingly; behavior of this sub-phase is unchanged but the file path / transport selection shifts.
 
 **Step 11 — Add Custom Audio Network Messages**
 - Add new message types:

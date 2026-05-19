@@ -1,6 +1,8 @@
 # SYSTEM OVERRIDE: IMPLEMENTATION MODE
 
-Phase 20 is a **Security Audit** scoring 7/10. Electron configuration is excellent (sandbox, contextIsolation, CSP). Network validation is strong (Zod schemas, rate limiting, size limits). The gaps are in **credential storage** (API keys in plaintext), **input sanitization** (chat messages, user data), **plugin integrity** (no signature verification), **hardcoded TURN credentials**, and **AI file access scope**. The "no authentication" finding is noted but deprioritized — this is a desktop P2P app where invite codes serve as session auth.
+Phase 20 is a **Security Audit** scoring 7/10. Electron configuration is excellent (sandbox, contextIsolation, CSP). Network validation is strong (Zod schemas, rate limiting, size limits). The gaps are in **credential storage** (API keys in plaintext), **input sanitization** (chat messages, user data), **plugin integrity** (no signature verification), **hardcoded TURN credentials**, and **AI file access scope**. The "no authentication" finding is noted but deprioritized — this is a desktop P2P app where invite codes serve as session auth (and Phase 32 ships JWT for cloud-host mode).
+
+> **See also:** Phases 30-32. The "no authentication" deprioritized finding is **covered for cloud mode by Phase 32** (JWT auth on WS frames). S3 (hardcoded TURN credentials) interacts with Phase 30's `TransportAdapter` abstraction — see inline note.
 
 ---
 
@@ -119,6 +121,8 @@ Phase 20 is entirely client-side security hardening. No Raspberry Pi involvement
 - Do NOT render `javascript:`, `data:`, or `file:` URLs as clickable links
 
 ### Sub-Phase C: Remove Hardcoded TURN Credentials (S3)
+
+> **Phase 30 coordination:** Phase 30b introduces a `TransportAdapter` interface; `P2PTransport` is the WebRTC/PeerJS implementation. If Phase 30 has landed when this step runs, TURN credential injection moves to `P2PTransport`'s constructor (cleaner seam). If Phase 20 lands first, the user-settings indirection from Step 6 carries over into `P2PTransport` during Phase 30.
 
 **Step 6 — Move TURN Credentials to Settings**
 - Open `src/renderer/src/network/peer-manager.ts` lines 21-32

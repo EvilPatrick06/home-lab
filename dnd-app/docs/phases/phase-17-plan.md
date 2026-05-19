@@ -2,6 +2,8 @@
 
 Phase 17 is a **full codebase error audit** identifying 171 issues across syntax, logic, network, GUI, runtime, and type categories. This is the largest single phase. The plan focuses on the **49 critical and high-severity issues** that are NET-NEW (not already addressed by previous phases). Lower-severity items are catalogued for future cleanup.
 
+> **See also:** Phases 29-32. NET-5 broadcast hardening (Step 19) lands inside `host-manager.ts` paths that Phase 30 consolidates into `GameAuthority` — the try-catch travels with the consolidation. Many of the "30 medium network issues" (NET-21–NET-50) may disappear after Phase 30 (single message router) + Phase 31 (single sync protocol); re-scope at execution time.
+
 ---
 
 ## 🏗️ Architecture & Environment Split
@@ -183,6 +185,7 @@ Phase 17 is entirely client-side code fixes. No Raspberry Pi involvement.
 **Step 19 — NET-5 [HIGH]: Unguarded JSON.stringify in Broadcast**
 - File: `src/renderer/src/network/host-manager.ts` lines 321, 329, 342
 - Wrap `JSON.stringify(msg)` in try-catch in all broadcast functions.
+- **Phase 30 coordination:** these broadcast paths consolidate into `GameAuthority` during Phase 30a; the try-catch travels with the move. Land Step 19 first; Phase 30 inherits.
 
 **Step 20 — NET-6/NET-29/NET-30: Add Try-Catch to All IPC Handlers**
 - File: `src/main/ipc/ai-handlers.ts` — 27+ handlers

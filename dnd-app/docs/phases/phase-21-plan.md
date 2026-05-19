@@ -2,6 +2,8 @@
 
 Phase 21 covers **GitHub & Version Control** — `.gitignore`, branching, README, CI/CD, git hooks, and commit hygiene. The audit found `.gitignore` well-configured and commit history clean (conventional commits). The gaps are **no CI validation pipeline** (only a release workflow), **no pre-commit hooks**, **barebones README**, and **no branching strategy** (everything pushed to master).
 
+> **See also:** Phases 29-32. CI gate must include the new test files added by Phase 29 (permission helper specs), Phase 30 (`game-authority.test.ts`, `p2p-transport.test.ts`, `host-transfer.test.ts`), Phase 31 (shard / diff / applier specs), Phase 32 (`game_server.py` pytest + Python shard tests). README architecture section currently describes "P2P via PeerJS" — after Phases 30-32 the architecture has `GameAuthority` + `TransportAdapter` + shards + optional Pi cloud host. **Recommend: defer the README "Networking" prose** until those land; ship a placeholder.
+
 ---
 
 ## 🏗️ Architecture & Environment Split

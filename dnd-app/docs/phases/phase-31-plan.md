@@ -399,6 +399,24 @@ Doing Phase 18 first means Phase 19's Pi-side authority implements ONE protocol 
 
 ---
 
+## Plans superseded or modified by Phase 31
+
+| Plan | Item | Disposition |
+|------|------|-------------|
+| Phase 16 (Sub-Phase B — Map Pins constraint) | "Pin CRUD broadcast via `dm:map-update`" | Pins become the `map-pins` shard; explicit broadcast call disappears. |
+| Phase 23 (Sub-Phase C — S3 Step 5) | `dm:character-update` handler | Message type ceases to exist; character state propagates through the character shard. Conflict-resolution UI (Sub-Phase D) moves into the shard-applier layer. |
+| Phase 24 | level-up character mutations | No explicit broadcaster needed — character shard picks up mutations automatically. |
+| Phase 25 (Sub-Phase E / M1) | campaign-scoped homebrew sync | Library/homebrew updates broadcast as a library shard delta; campaign filtering via per-shard `permissionFilter` (requires Phase 29 keys). |
+| Phase 26 (Step 5 `smartPlaceTokens`, Step 11 `executeLoadEncounter`) | token broadcast calls | Drop `sendMessage('dm:token-add', ...)` — `map-tokens` shard diff picks up mutations. Wave-trigger "Reinforcements arrive!" stays a one-shot chat-shard message. |
+| Phase 26 (encounter object) | encounter state sharing | Encounter becomes its own shard (Sub-Phase 31i — remaining state migration). |
+| Phase 27 Sub-Phase D (A4 duplicate handlers) | `use-game-network.ts:114-126` vs `client-handlers.ts:624-650` | Structurally eliminated — single shard applier replaces all per-feature handler pairs. |
+| Phase 27 Sub-Phase E (A5 chat command sync) | `/sound ambient` doesn't broadcast | Ambient becomes a shard; chat command mutates the shard. |
+| Phase 27 Sub-Phase I (late-joiner ambient) | Ambient missing in late-joiner sync | Absorbed — initial state-bootstrap ships every shard snapshot to joiners. |
+| Phase 17 medium network items (NET-21–NET-50) | Many error-handling / validation gaps | Re-scope after Phase 31 — many disappear with the single sync protocol. |
+| Phase 15 | per-shard `permissionFilter` | Uses Phase 29 keys; Phase 31 wires the call. |
+
+---
+
 ## Open questions to lock before starting
 
 1. **Does any current synced state genuinely need per-peer broadcasting that ISN'T just a permission filter?** Default answer: no — the existing `transformUpdatePayloadForPeer` work (visibility-transition rewrites) is exactly the kind of thing a `permissionFilter` does cleanly. Confirm by surveying the existing transform logic in 18a.

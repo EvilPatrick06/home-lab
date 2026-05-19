@@ -263,6 +263,19 @@ This phase is invisible to users in normal play — game still works exactly as 
 
 ---
 
+## Plans superseded or modified by Phase 30
+
+| Plan | Item | Disposition |
+|------|------|-------------|
+| Phase 17 (Step 19 — NET-5 broadcast hardening) | `host-manager.ts` broadcast try-catch | Travels into `GameAuthority` during 30a extraction. Land NET-5 fix first. |
+| Phase 19 (Step 3 path utility) | host-side snapshot writes (`<userData>/snapshots/<campaignId>.json`) | Path utility must cover 30g's persistence target. |
+| Phase 20 (Sub-Phase C / S3) | Hardcoded TURN credentials | TURN config injects into `P2PTransport` constructor (the seam Phase 30b creates). If Phase 20 lands first, the settings indirection carries over. |
+| Phase 22 (production console statements) | `host-handlers.ts:132, 161` | Apply the console→logger swap during 30a's consolidation (lines move with the file). |
+| Phase 27 Sub-Phase J (A9 custom audio sync) | PeerJS data channel transfer | Routes through `TransportAdapter`. Local-P2P uses `P2PTransport`; cloud-host file transfer stays peer-to-peer per Phase 32 Step 19k. |
+| Phase 28 (28c.3 graceful shutdown, 28c.5 peerjs reconnection, 28d.4 dep audit, 28i.1 multiplayer gap scan) | Various network-side fixes | All move into / reframed by `TransportAdapter`. See Phase 28 dependency table. |
+
+---
+
 ## Open questions to lock before starting
 
 1. **Can a peer hold the host-peer role without having the DM role?** Default: yes (that's the whole point — "player hosts for the DM"). Confirm.

@@ -3,6 +3,8 @@
 Phase 22 is a **comprehensive codebase analysis** covering performance, architecture, documentation, dependencies, accessibility, and i18n. Many findings overlap prior phases. This plan covers **net-new items only**: unused reduced-motion hook, timer/listener leaks, unused dependencies, conversation memory leak, plugin installer security, CSP hardcoded IP, production console statements, service layer bypass, and missing project files.
 
 > **See also:** Phase 15 (Library as Single Source of Truth) — H4 service-layer bypass converges with the broader hydration-layer rewrite there.
+>
+> **See also:** Phase 30 — the production-console-statements item touches `host-handlers.ts:132, 161` which Phase 30 consolidates into `GameAuthority`. Apply the console→logger swap during Phase 30's extraction (the lines move with the consolidation).
 
 ---
 

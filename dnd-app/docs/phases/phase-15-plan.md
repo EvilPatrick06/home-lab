@@ -306,6 +306,7 @@ The only allowed deviation is the **override exception** (Step 22) — a charact
 - **Library mutations broadcast via the existing sync path.** No new transport work this phase.
 - **All clients hydrate from their local mirror.** No per-render network fetch.
 - **Late-joiner sync.** A client joining mid-session receives the full library snapshot in the initial state-bootstrap.
+- **Phase 29/31 stack.** Phase 15's `EntryRef` shape + Phase 29's permission keys + Phase 31's per-shard `permissionFilter` form one consistent stack. Library entries with DM-only fields (e.g., hidden monster lore) rely on Phase 29 keys being defined and Phase 31's shard filter calling them at broadcast time.
 
 ### Homebrew Parity
 - **Homebrew lives in the same store as built-ins.** Distinguished only by `source: 'homebrew'`.

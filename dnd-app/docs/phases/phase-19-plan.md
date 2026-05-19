@@ -1,5 +1,7 @@
 # SYSTEM OVERRIDE: IMPLEMENTATION MODE
 
+> **See also:** Phase 15 (library build-guard lint allowlist) and Phase 30 (host-side snapshot path). See notes inline in the Path Bug Files table below.
+
 Phase 19 covers **Packaging, Build Configuration, and Distribution** — Electron build toolchain, NSIS installer, auto-updater, code signing, platform targets, and asset paths. The audit found the Windows build pipeline functional but identified a **critical packaged path bug** in `srd-provider.ts`, missing Mac/Linux targets, no code signing, and a `release` script that doesn't clean stale artifacts.
 
 ---
@@ -27,6 +29,7 @@ Phase 19 is entirely build/config work on the Windows machine.
 | File | Lines | Issue |
 |------|-------|-------|
 | `src/main/ai/srd-provider.ts` | 6-8 | **CRITICAL**: Packaged path uses `renderer/public/data/5e` — should be `renderer/data/5e` (Vite strips `public/` prefix). **Phase 15 note:** also affects the library build-guard lint rule — coordinate when Phase 15 lands. |
+| `src/renderer/src/network/authority/persistence.ts` (Phase 30g, future) | — | **Phase 30 note:** host-side snapshot writes to `<userData>/snapshots/<campaignId>.json`. Ensure `getDataDir()` / `getResourcePath()` from Step 3 handle this case when Phase 30 lands. |
 | `src/main/ai/context-builder.ts` | 27 | Uses `__dirname` (covered by Phase 6 Step 7 — overlap) |
 
 **Updater:**
