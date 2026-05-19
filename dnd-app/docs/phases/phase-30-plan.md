@@ -32,8 +32,8 @@ Phase 29's permission system makes the gameplay side role-driven. This phase mak
 | `src/renderer/src/types/campaign.ts` | MODIFY — add `Campaign.hostPeerClientId: string \| null` |
 | `src/renderer/src/stores/use-campaign-store.ts` | MODIFY — `transferDmRole` action |
 | `src/renderer/src/components/lobby/PlayerCard.tsx` | MODIFY — "Transfer Host" + "Transfer DM" menu items |
-| `src/main/io/campaign-snapshots.ts` | NEW — IPC handler reading/writing `<userData>/snapshots/<campaignId>.json` |
-| `src/main/io/campaign-io.ts` | NEW or MODIFY — migration mapping `dmId` → `hostPeerClientId` for legacy saves |
+| `src/main/storage/campaign-snapshots.ts` | NEW — IPC handler reading/writing `<userData>/snapshots/<campaignId>.json` |
+| `src/main/storage/campaign-storage.ts` | MODIFY — migration mapping `dmId` → `hostPeerClientId` for legacy saves (same file Phase 29h migrates for permissions; coordinate edits) |
 
 ## Sub-phase summary
 
@@ -123,10 +123,10 @@ graph TD
 **Acceptance:** DM/host sees both items on other players' cards. Non-DM peer granted `transfer_host` via Phase 29 overrides sees Transfer Host only.
 
 ### 30g — Persistence on host-side
-**Files:** `src/renderer/src/network/authority/persistence.ts` (new), `src/main/io/campaign-snapshots.ts` (new IPC handler)
+**Files:** `src/renderer/src/network/authority/persistence.ts` (new), `src/main/storage/campaign-snapshots.ts` (new IPC handler — aligned with existing `src/main/storage/` directory for campaign IO)
 **Steps:**
 1. In `persistence.ts`, debounce ~5s snapshot serialization via `window.api.saveCampaignSnapshot(campaignId, snapshot)`. On host startup, attempt `window.api.loadCampaignSnapshot(campaignId)` and seed authority if found.
-2. In `src/main/io/campaign-snapshots.ts`, add IPC read/write to `<userData>/snapshots/<campaignId>.json`. Uses Phase 19 path utility if landed.
+2. In `src/main/storage/campaign-snapshots.ts`, add IPC read/write to `<userData>/snapshots/<campaignId>.json`. Uses Phase 19 path utility if landed. Co-locates with the other campaign-data IO modules already in `src/main/storage/` (no new `src/main/io/` directory introduced).
 **Acceptance:** Host crashes mid-game; reopens app; loads from snapshot; peers reconnect; play resumes. Host transfer ships snapshot via same `serialize()` API.
 
 ### 30h — Tests + verify-don't-assume sweep
@@ -138,10 +138,11 @@ graph TD
 **Acceptance:** 4-gate suite green. New tests cover transfer + DM-role separation + Phase 29 permission integration.
 
 ### 30i — Migration for legacy campaigns
-**Files:** `src/main/io/campaign-io.ts` (new or existing main-process campaign loader)
+**Files:** `src/main/storage/campaign-storage.ts` (existing main-process campaign loader; same file Phase 29h amends for permissions migration — coordinate so the two migration steps don't trample each other)
 **Steps:**
 1. On campaign load, if `campaign.hostPeerClientId` is missing but `campaign.dmId` is set, set `hostPeerClientId = dmId`. Preserves host=DM coupling for legacy saves.
 2. Auto-rejoin flow handles cross-session host changes.
+3. If Phase 29h's `BUILTIN_ROLES` injection runs in the same load path, order the two migrations explicitly: permissions inject first, then hostPeerClientId default. Both write back on first save in the new shape.
 **Acceptance:** Pre-30 save loads exactly as today (host = DM). After explicit transfer, new value persists across sessions.
 
 ## Constraints & edge cases

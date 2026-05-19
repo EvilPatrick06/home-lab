@@ -106,11 +106,16 @@ flowchart LR
 
 ### 23f — Attunement unification
 **Files:** `src/renderer/src/components/sheet/5e/AttunementTracker5e.tsx`, `src/renderer/src/components/sheet/5e/MagicItemsPanel5e.tsx`, `src/renderer/src/types/character-5e.ts`
+
+> **Phase 15 alignment (2026-05-19):** Phase 15 v3 Design C lifts instance state (attuned, charges, equipped) into a sibling `character.state` map keyed by `instanceId`, NOT a boolean on each magic-item entry. 23f below aligns to that shape — both panels read `character.state.magicItemAttuned[instanceId]`. The library-side `ItemEntry` carries only `requiresAttunement: boolean` (capability), never per-character "is attuned" state. If 23f ships BEFORE Phase 15, use `mi.attuned` as the interim shape and re-route through `state.magicItemAttuned` during Phase 15 Sub-Phase C. The library-vs-character split (requiresAttunement on library, attuned in state) is the load-bearing fix regardless of order.
+
 **Steps:**
-1. Fix mismatch at `MagicItemsPanel5e.tsx:57` (`mi.attunement`) vs `:59` (`mi.attuned`) — pick `attuned`. Update the type so the per-item field is canonically `attuned: boolean`; deprecate the `attunement: boolean` duplicate at `character-5e.ts:247`.
-2. In `AttunementTracker5e.tsx:40`, derive the displayed slots from `character.magicItems?.filter(mi => mi.attuned) ?? []`.
-3. Migrate: write a one-time fold that copies entries from `character.attunement` array into matching `magicItems[]` entries.
-**Acceptance:** With three attuned magic items, both `AttunementTracker5e` slot grid and `MagicItemsPanel5e` "Attuned: 3/3" label show the same count.
+1. Fix mismatch at `MagicItemsPanel5e.tsx:57` (`mi.attunement`) vs `:59` (`mi.attuned`) — both panels MUST read from a single source. Post-Phase-15 source: `character.state.magicItemAttuned[instanceId]`. Pre-Phase-15 interim: pick `mi.attuned` and deprecate `mi.attunement` at `character-5e.ts:247` — but flag the line "instance state stays on the entry until Phase 15 Sub-Phase C lifts it to `state.magicItemAttuned[instanceId]`".
+2. In `AttunementTracker5e.tsx:40`, derive displayed slots from the single source: `Object.values(character.state?.magicItemAttuned ?? {}).filter(Boolean).length` post-Phase-15, or `(character.magicItems ?? []).filter(mi => mi.attuned).length` pre-Phase-15.
+3. In `MagicItemsPanel5e.tsx:59`, change the count expression to match (1) above.
+4. Migrate the legacy `character.attunement: Array<{name, description}>` array into the chosen single source. Post-Phase-15 this is the `MIGRATIONS[4]` work; pre-Phase-15 fold attunement entries into matching `magicItems[]` rows by name and stamp `attuned: true`.
+
+**Acceptance:** With three attuned magic items, both `AttunementTracker5e` slot grid and `MagicItemsPanel5e` "Attuned: 3/3" label show the same count, sourced from the SAME field (either both `mi.attuned` pre-15 or both `state.magicItemAttuned[instanceId]` post-15).
 
 ### 23g — Optimistic save pattern
 **Files:** `src/renderer/src/hooks/use-character-editor.ts`, `src/renderer/src/stores/use-character-store.ts`
@@ -175,7 +180,7 @@ flowchart LR
 - Conflict tolerance window: 2 seconds — avoids false positives from network latency.
 - Optimistic rollback UX: brief flash animation to signal the revert; broadcast still fires.
 - Spell filter state is session-local and does not persist.
-- After Phase 15, `character.magicItems[]` becomes `{ entryRef, attuned, charges?, overrides? }`; the `attuned` flag stays on the instance — 23f remains valid.
+- After Phase 15, `character.magicItems[]` becomes `Array<{ instanceId, ref: EntryRef<'magic-items'> }>` and instance state (`attuned`, `charges`, `equipped`) moves to `character.state.magicItemAttuned[instanceId]` / `state.magicItemCharges[instanceId]` siblings. 23f's count-derivation logic stays valid; the source field changes from `mi.attuned` to `state.magicItemAttuned[instanceId]`. Phase 15 Sub-Phase C owns the field rename; 23f owns the both-panels-read-same-source UX fix regardless of timing.
 - After Phase 31, `dm:character-update` disappears; 23c writes become the shard apply path, 23d conflict logic moves into the shard-applier.
 - DM-version-wins is the default conflict resolution; the banner is informational.
 

@@ -131,12 +131,17 @@ flowchart TB
 **Acceptance:** Background revalidation runs after first render and cache updates propagate without user action.
 
 ### 36e — Schema version mismatch
-**Files:** `src/renderer/src/services/library/remote-loader.ts`, `src/renderer/src/stores/use-library-store.ts`, `src/renderer/src/components/library/LibraryVersionMismatchBanner.tsx`
+**Files:** `src/renderer/src/services/library/schemas/registry.ts` (Phase 15 file; add the version constant here), `src/renderer/src/services/library/remote-loader.ts`, `src/renderer/src/stores/use-library-store.ts`, `src/renderer/src/components/library/LibraryVersionMismatchBanner.tsx`, `bmo/pi/services/library_storage.py`
 **Steps:**
-1. Add `CURRENT_LIBRARY_SCHEMA_VERSION` constant in app; compare against `manifest.schemaVersion`. Per-category `validateEntries` failures (Zod) treated as schema skew for that category.
-2. On validation failure: `logger.warn`, fall back to `loadSeedCategory(category)`, set `useLibraryStore.versionSkew[category] = { piVersion, appVersion }`.
-3. Build `LibraryVersionMismatchBanner.tsx`: dismissible per-session banner listing skewed categories.
-**Acceptance:** Synthetic test (app schema v4 vs Pi schema v5) triggers per-category seed fallback; banner appears.
+1. **Define the constant.** Add `export const CURRENT_LIBRARY_SCHEMA_VERSION = 1` to `src/renderer/src/services/library/schemas/registry.ts` (Phase 15's schema-registry file). This is the **library entry schema version** — distinct from Phase 15's `CURRENT_SCHEMA_VERSION` in `src/main/storage/migrations.ts` (which governs save-file shape). Library schema version starts at 1; bump whenever any per-category schema in `services/library/schemas/*.schema.ts` adds, removes, or changes the type of a required field.
+2. **Pi-side mirror.** `bmo/pi/services/library_storage.py` reads the same version. Two options for keeping them in sync (pick one and document in ADR-002):
+   - **(Recommended) Pi reads from a shared constants file.** Sync script (`sync-library-from-app.sh`) copies `src/renderer/src/services/library/schemas/registry.ts` → `bmo/pi/data/library/SCHEMA_VERSION` (a single integer file) at sync time. Pi reads the file; manifest endpoint includes it.
+   - **(Alternative) Pi hardcodes its own version, devs bump both manually.** Simpler but invites drift; only pick if option 1 is impractical.
+3. **Bump rule.** Any PR that modifies a `*.schema.ts` file under `services/library/schemas/` MUST bump `CURRENT_LIBRARY_SCHEMA_VERSION` by 1 in the same commit. A CI guard (script in `scripts/audit/check-schema-version-bumped.mjs`, similar to 28e.9 IPC-SURFACE drift gate) compares the schema files' git diff against the constant's diff and fails if schema files changed without a version bump. Add to `dnd-app-ci.yml` preflight.
+4. **Comparison + fallback.** In `remote-loader.ts`, when fetching manifest, compare `manifest.schemaVersion` to `CURRENT_LIBRARY_SCHEMA_VERSION`. If mismatched OR per-category `validateEntries` throws (Zod): `logger.warn`, fall back to `loadSeedCategory(category)`, set `useLibraryStore.versionSkew[category] = { piVersion, appVersion }`.
+5. Build `LibraryVersionMismatchBanner.tsx`: dismissible per-session banner listing skewed categories.
+
+**Acceptance:** Synthetic test (app schema v1 vs Pi manifest schema v2) triggers per-category seed fallback; banner appears. CI fails a PR that modifies a `*.schema.ts` without bumping `CURRENT_LIBRARY_SCHEMA_VERSION`. ADR-002 documents the sync mechanism between app constant and Pi mirror.
 
 ### 36f — Homebrew sync via Pi
 **Files:** `src/renderer/src/stores/use-library-store.ts`, `src/renderer/src/services/library/remote-loader.ts`

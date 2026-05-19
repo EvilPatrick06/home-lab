@@ -174,7 +174,7 @@ flowchart LR
 **Steps:**
 1. Document the design boundary: voice chat does NOT route through Pi. Stays peer-to-peer.
 2. State the rationale explicitly: audio latency budget is tighter than game-state RTT, and Pi CPU is not sized for N-way audio mixing.
-3. Cross-reference Phase 27 Sub-Phase J (custom audio sync stays P2P per this doc).
+3. Cross-reference Phase 27 Sub-Phase I (custom audio sync stays P2P per this doc).
 **Acceptance:** Architecture doc committed. When voice ships, its transport choice references this doc.
 
 ### 32l — Stability + monitoring
@@ -214,7 +214,7 @@ Release: `cd dnd-app && npm run check:release` then `node dnd-app/scripts/releas
 | Plan | Item | Disposition |
 |------|------|-------------|
 | Phase 20 (deprioritized "no authentication") | Auth gap for cloud surface | Covered by Phase 32 JWT on WS frames. Local-P2P invite-code auth unchanged. |
-| Phase 27 Sub-Phase J (A9 custom audio sync) | File transfer transport | Stays peer-to-peer per 32k. |
+| Phase 27 Sub-Phase I (A9 custom audio sync) | File transfer transport | Stays peer-to-peer per 32k. |
 | Phase 28 Step 28a.4 (Auth Bearer to BMO) | Token shape for BMO bridge | Reconcile JWT issuer/secret so one credential covers both LAN sync Bearer and cloud WS frame auth. |
 | Phase 28 Step 28a.2 (BMO sync receiver hardening) | LAN sync receiver | Hardening still applies to local-P2P mode. Cloud-host uses the new WS path. Both code paths need their own hardening. |
 | Phase 36 | JWT scope for `library:write:homebrew` | Phase 36 reuses Phase 32's JWT model. |

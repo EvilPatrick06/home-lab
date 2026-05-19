@@ -11,7 +11,7 @@ Phase 33 is entirely client-side. No Raspberry Pi involvement.
 ## Depends on / blocks
 
 - Depends on: none (33b is the practical prerequisite for 33f/33g verification, but only by execution order)
-- Blocks: none directly. Phase 15 build-time schema guard depends on 33h producing correct schemas first.
+- Blocks: none directly. 33h's dev-time content validation in `scripts/schemas/` is independent of Phase 15's runtime library boundary test — the two coexist (Phase 15 forbids raw `public/data` imports in consumer code; 33h validates content shape at CI/build time). No false dependency in either direction.
 
 ## Files touched
 
