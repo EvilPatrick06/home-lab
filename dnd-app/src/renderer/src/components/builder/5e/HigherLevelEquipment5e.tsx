@@ -1,15 +1,14 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import {
   getHigherLevelEquipment,
   type HigherLevelEquipment,
   rollStartingGold
 } from '../../../data/starting-equipment-table'
-import { addToast } from '../../../hooks/use-toast'
 import { load5eMagicItems } from '../../../services/data-provider'
+import { useLibraryCategory } from '../../../services/library/use-library-entry'
 import { useBuilderStore } from '../../../stores/use-builder-store'
 import type { MagicItemRarity5e } from '../../../types/character-common'
 import type { MagicItemData } from '../../../types/data'
-import { logger } from '../../../utils/logger'
 import SectionBanner from '../shared/SectionBanner'
 
 const RARITY_COLORS: Record<string, string> = {
@@ -42,20 +41,11 @@ function MagicItemSlot({
   onClear: () => void
 }): JSX.Element {
   const [expanded, setExpanded] = useState(false)
-  const [items, setItems] = useState<MagicItemData[]>([])
   const [search, setSearch] = useState('')
 
-  useEffect(() => {
-    if (expanded && items.length === 0) {
-      load5eMagicItems(rarity)
-        .then(setItems)
-        .catch((err) => {
-          logger.error('Failed to load magic items', err)
-          addToast('Failed to load magic items', 'error')
-          setItems([])
-        })
-    }
-  }, [expanded, rarity, items.length])
+  // Phase 15b Step 1 — magic items live in the truth store; filter by rarity at render time.
+  const allItems = useLibraryCategory('magic-items', () => load5eMagicItems()) as unknown as MagicItemData[]
+  const items = useMemo(() => allItems.filter((i) => i.rarity === rarity), [allItems, rarity])
 
   const filtered = useMemo(() => {
     if (!search) return items

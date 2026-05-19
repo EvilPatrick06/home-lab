@@ -5,6 +5,7 @@ import { clearBuilderDraft } from '../../../hooks/use-auto-save'
 import { addToast } from '../../../hooks/use-toast'
 import { getCantripsKnown, getPreparedSpellMax, hasAnySpellcasting } from '../../../services/character/spell-data'
 import { getHeritageOptions5e, load5eSpells, resolveDataPath } from '../../../services/data-provider'
+import { useLibraryCategory } from '../../../services/library/use-library-entry'
 import { useNetworkStore } from '../../../stores/network-store'
 import { useBuilderStore } from '../../../stores/use-builder-store'
 import { useCharacterStore } from '../../../stores/use-character-store'
@@ -88,27 +89,20 @@ export default function CharacterBuilder5e(): JSX.Element {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [showLeaveDialog, setShowLeaveDialog] = useState(false)
 
-  // Load spell level map for spell validation
+  // Phase 15b Step 1 — spell level map derives from the live truth-store spells.
   const setSpellLevelMapStore = useBuilderStore((s) => s.setSpellLevelMap)
-  const [spellLevelMap, setSpellLevelMap] = useState<Map<string, number>>(new Map())
-  const [spellDataError, setSpellDataError] = useState(false)
+  const spellEntries = useLibraryCategory('spells', load5eSpells) as unknown as Array<{ id: string; level: number }>
+  const spellLevelMap = useMemo(() => {
+    const map = new Map<string, number>()
+    for (const s of spellEntries) map.set(s.id, s.level)
+    return map
+  }, [spellEntries])
+  const spellDataError = false
   useEffect(() => {
-    load5eSpells()
-      .then((spells) => {
-        const map = new Map<string, number>()
-        const record: Record<string, number> = {}
-        for (const s of spells) {
-          map.set(s.id, s.level)
-          record[s.id] = s.level
-        }
-        setSpellLevelMap(map)
-        setSpellLevelMapStore(record)
-      })
-      .catch((err) => {
-        logger.error('Failed to load spell data:', err)
-        setSpellDataError(true)
-      })
-  }, [setSpellLevelMapStore])
+    const record: Record<string, number> = {}
+    for (const s of spellEntries) record[s.id] = s.level
+    setSpellLevelMapStore(record)
+  }, [spellEntries, setSpellLevelMapStore])
 
   // Preload heritage options for the selected species
   const speciesSlot = useBuilderStore((s) => s.buildSlots.find((sl) => sl.id === 'ancestry'))

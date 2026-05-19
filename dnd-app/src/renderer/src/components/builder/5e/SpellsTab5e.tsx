@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { getSpellsFromTraits } from '../../../services/character/auto-populate-5e'
 import {
   getCantripsKnown,
@@ -8,7 +8,9 @@ import {
   isWarlockPactMagic
 } from '../../../services/character/spell-data'
 import { load5eSpells, load5eSubclasses } from '../../../services/data-provider'
+import { useLibraryCategory } from '../../../services/library/use-library-entry'
 import { useBuilderStore } from '../../../stores/use-builder-store'
+import type { SubclassData } from '../../../types/data'
 import SectionBanner from '../shared/SectionBanner'
 import CantripPicker5e from './CantripPicker5e'
 import SpellPicker5e from './SpellPicker5e'
@@ -21,7 +23,9 @@ export default function SpellsTab5e(): JSX.Element {
   const targetLevel = useBuilderStore((s) => s.targetLevel)
   const speciesTraits = useBuilderStore((s) => s.speciesTraits)
 
-  const [allSpells, setAllSpells] = useState<SpellData[]>([])
+  // Phase 15b Step 1 — spells + subclasses read live from the truth store.
+  const allSpells = useLibraryCategory('spells', load5eSpells) as unknown as SpellData[]
+  const allSubclasses = useLibraryCategory('subclasses', load5eSubclasses) as unknown as SubclassData[]
   const selectedSpellIds = useBuilderStore((s) => s.selectedSpellIds)
   const setSelectedSpellIds = useBuilderStore((s) => s.setSelectedSpellIds)
   const [warning, setWarning] = useState<string | null>(null)
@@ -39,28 +43,17 @@ export default function SpellsTab5e(): JSX.Element {
   const blessedWarriorCantrips = useBuilderStore((s) => s.blessedWarriorCantrips)
   const setBlessedWarriorCantrips = useBuilderStore((s) => s.setBlessedWarriorCantrips)
 
-  // Load subclass always-prepared spell names
-  const [subclassAlwaysPreparedNames, setSubclassAlwaysPreparedNames] = useState<string[]>([])
-  useEffect(() => {
-    if (!subclassId) {
-      setSubclassAlwaysPreparedNames([])
-      return
+  // Subclass always-prepared spell names — derived from the live subclass list.
+  const subclassAlwaysPreparedNames = useMemo(() => {
+    if (!subclassId) return []
+    const sc = allSubclasses.find((s) => (s.id ?? s.name.toLowerCase().replace(/\s+/g, '-')) === subclassId)
+    if (!sc?.alwaysPreparedSpells) return []
+    const names: string[] = []
+    for (const [lvlStr, spellNames] of Object.entries(sc.alwaysPreparedSpells)) {
+      if (targetLevel >= Number(lvlStr)) names.push(...(spellNames as string[]))
     }
-    load5eSubclasses()
-      .then((subclasses) => {
-        const sc = subclasses.find((s) => (s.id ?? s.name.toLowerCase().replace(/\s+/g, '-')) === subclassId)
-        if (!sc?.alwaysPreparedSpells) {
-          setSubclassAlwaysPreparedNames([])
-          return
-        }
-        const names: string[] = []
-        for (const [lvlStr, spellNames] of Object.entries(sc.alwaysPreparedSpells)) {
-          if (targetLevel >= Number(lvlStr)) names.push(...spellNames)
-        }
-        setSubclassAlwaysPreparedNames(names)
-      })
-      .catch(() => setSubclassAlwaysPreparedNames([]))
-  }, [subclassId, targetLevel])
+    return names
+  }, [subclassId, targetLevel, allSubclasses])
 
   // Detect species spells from traits
   const speciesSpells = useMemo(() => {
@@ -74,13 +67,6 @@ export default function SpellsTab5e(): JSX.Element {
       speciesName
     )
   }, [speciesTraits, speciesName])
-
-  // Load spells
-  useEffect(() => {
-    load5eSpells()
-      .then((data) => setAllSpells(data as SpellData[]))
-      .catch(() => setAllSpells([]))
-  }, [])
 
   // Compute slot info
   const isCaster = hasAnySpellcasting(classId)

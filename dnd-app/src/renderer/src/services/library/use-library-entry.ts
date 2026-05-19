@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useLibraryStore } from '../../stores/use-library-store'
 import type { EntryRef, LibraryCategory, LibraryEntry, MergedEntry } from '../../types/library'
 import { deepMergeObjects } from './merge'
@@ -28,6 +28,23 @@ export function useLibraryEntries<C extends LibraryCategory>(
     const all = Object.values(bucket) as LibraryEntry<C>[]
     return filter ? all.filter(filter) : all
   }, [bucket, filter])
+}
+
+// useLibraryCategory — combine `loadCategory` bootstrap + `useLibraryEntries`
+// read into a single hook. Each React consumer that previously did
+// `useEffect(() => load5eX().then(setX), [])` becomes
+// `const entries = useLibraryCategory('x', load5eX)`. The loader is called
+// once per mount; the truth store's TTL cache + waiter coalescing dedupe
+// concurrent callers and skip work after the first successful load.
+export function useLibraryCategory<C extends LibraryCategory>(
+  category: C,
+  loader: () => Promise<unknown[]>
+): LibraryEntry<C>[] {
+  const entries = useLibraryEntries(category)
+  useEffect(() => {
+    useLibraryStore.getState().loadCategory(category, async () => (await loader()) as unknown as LibraryEntry[])
+  }, [category, loader])
+  return entries
 }
 
 // useHydratedRef — resolve an EntryRef to its live entry merged with overrides

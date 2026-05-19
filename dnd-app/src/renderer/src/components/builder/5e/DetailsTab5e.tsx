@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { load5eBackgrounds, load5eClasses, load5eFeats } from '../../../services/data-provider'
+import { useLibraryCategory } from '../../../services/library/use-library-entry'
 import { useBuilderStore } from '../../../stores/use-builder-store'
-import type { FeatData } from '../../../types/data'
+import type { BackgroundData, ClassData, FeatData } from '../../../types/data'
 import SectionBanner from '../shared/SectionBanner'
 import AppearanceEditor5e from './AppearanceEditor5e'
 import BackstoryEditor5e, { VariantChoicesSection } from './BackstoryEditor5e'
@@ -16,80 +17,58 @@ export default function DetailsTab5e(): JSX.Element {
   const classEquipment = useBuilderStore((s) => s.classEquipment)
   const bgEquipment = useBuilderStore((s) => s.bgEquipment)
 
+  // Phase 15b Step 1 — load via truth-store hooks; lookups become useMemo over the live list.
+  const backgrounds = useLibraryCategory('backgrounds', load5eBackgrounds) as unknown as BackgroundData[]
+  const originFeatPool = useLibraryCategory('feats', () => load5eFeats('Origin')) as unknown as FeatData[]
+  const allClasses = useLibraryCategory('classes', load5eClasses) as unknown as ClassData[]
+
   // Load origin feat from selected background
   const backgroundSlot = buildSlots.find((s) => s.category === 'background')
   const backgroundId = backgroundSlot?.selectedId ?? null
-  const [originFeat, setOriginFeat] = useState<string | null>(null)
-  const [originFeatDescription, setOriginFeatDescription] = useState<string | null>(null)
   const [originFeatExpanded, setOriginFeatExpanded] = useState(false)
 
-  useEffect(() => {
-    if (!backgroundId) {
-      setOriginFeat(null)
-      setOriginFeatDescription(null)
-      return
-    }
-    let cancelled = false
-    load5eBackgrounds().then(async (bgs) => {
-      if (cancelled) return
-      const bg = bgs.find((b) => b.id === backgroundId)
-      const featName = bg?.feat ?? null
-      setOriginFeat(featName)
-      if (featName) {
-        const feats = await load5eFeats('Origin')
-        if (cancelled) return
-        const baseName = featName.replace(/\s*\(.*\)$/, '')
-        const match = feats.find((f) => f.name === baseName)
-        setOriginFeatDescription(match?.benefits.map((b) => b.description).join(' ') ?? null)
-      } else {
-        setOriginFeatDescription(null)
-      }
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [backgroundId])
+  const originFeat = useMemo(() => {
+    if (!backgroundId) return null
+    const bg = backgrounds.find((b) => b.id === backgroundId)
+    return bg?.feat ?? null
+  }, [backgroundId, backgrounds])
+
+  const originFeatDescription = useMemo(() => {
+    if (!originFeat) return null
+    const baseName = originFeat.replace(/\s*\(.*\)$/, '')
+    const match = originFeatPool.find((f) => f.name === baseName)
+    return match?.benefits.map((b) => b.description).join(' ') ?? null
+  }, [originFeat, originFeatPool])
 
   // Determine if species is Human (for Versatile feat)
   const speciesSlot = buildSlots.find((s) => s.category === 'ancestry')
   const isHuman = speciesSlot?.selectedId === 'human'
 
-  // Load Origin feats for Versatile feat picker
-  const [originFeats, setOriginFeats] = useState<FeatData[]>([])
-  useEffect(() => {
-    if (!isHuman) {
-      setOriginFeats([])
-      return
-    }
-    load5eFeats('Origin').then(setOriginFeats)
-  }, [isHuman])
+  // Origin feats for Versatile feat picker — empty when not Human.
+  const originFeats = useMemo(() => (isHuman ? originFeatPool : []), [isHuman, originFeatPool])
 
   const selectedVersatileFeat = originFeats.find((f) => f.id === versatileFeatId)
 
   // Load class equipment options for A/B/C selector
   const classSlot = buildSlots.find((s) => s.category === 'class')
   const classId = classSlot?.selectedId ?? null
-  const [classEquipmentOptions, setClassEquipmentOptions] = useState<Array<{
-    label: string
-    items: string[]
-    gp: number
-  }> | null>(null)
+
+  const classEquipmentOptions = useMemo(() => {
+    if (!classId) return null
+    const cls = allClasses.find((c) => c.id === classId)
+    const entries = cls?.coreTraits?.startingEquipment ?? []
+    return entries.length > 1 ? entries : null
+  }, [classId, allClasses])
 
   useEffect(() => {
-    if (!classId) {
-      setClassEquipmentOptions(null)
-      return
+    // Auto-satisfy validation for classes with no equipment options (e.g. Barbarian).
+    if (!classId) return
+    const cls = allClasses.find((c) => c.id === classId)
+    const entries = cls?.coreTraits?.startingEquipment ?? []
+    if (entries.length <= 1) {
+      useBuilderStore.getState().setClassEquipmentChoice(entries[0]?.label ?? null)
     }
-    load5eClasses().then((classes) => {
-      const cls = classes.find((c) => c.id === classId)
-      const entries = cls?.coreTraits.startingEquipment ?? []
-      setClassEquipmentOptions(entries.length > 1 ? entries : null)
-      // Auto-satisfy validation for classes with no equipment options (e.g. Barbarian)
-      if (entries.length <= 1) {
-        useBuilderStore.getState().setClassEquipmentChoice(entries[0]?.label ?? null)
-      }
-    })
-  }, [classId])
+  }, [classId, allClasses])
 
   const asiSlots = buildSlots.filter((s) => s.category === 'ability-boost')
 

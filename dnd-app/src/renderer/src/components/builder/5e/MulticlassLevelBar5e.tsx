@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { getEligibleClasses, getMulticlassWarnings } from '../../../services/character/multiclass-advisor'
 import { load5eClasses } from '../../../services/data-provider'
+import { useLibraryCategory } from '../../../services/library/use-library-entry'
 import { useBuilderStore } from '../../../stores/use-builder-store'
 
 interface ClassOption {
@@ -21,13 +22,16 @@ export default function MulticlassLevelBar5e(): JSX.Element {
   const primaryClassId = classSlot?.selectedId ?? ''
   const primaryClassName = classSlot?.selectedName ?? ''
 
-  const [allClasses, setAllClasses] = useState<Array<{ id: string; name: string }>>([])
-
-  useEffect(() => {
-    load5eClasses()
-      .then((classes) => setAllClasses(classes.map((c) => ({ id: c.id ?? c.name.toLowerCase(), name: c.name }))))
-      .catch(() => setAllClasses([]))
-  }, [])
+  // Phase 15b Step 1 — read classes live from the truth store via useLibraryCategory.
+  const classEntries = useLibraryCategory('classes', load5eClasses)
+  const allClasses = useMemo(
+    () =>
+      classEntries.map((c) => ({
+        id: (c.id as string) ?? (c.name as string).toLowerCase(),
+        name: c.name as string
+      })),
+    [classEntries]
+  )
 
   // Get eligibility for multiclassing
   const classOptions = useMemo((): ClassOption[] => {
