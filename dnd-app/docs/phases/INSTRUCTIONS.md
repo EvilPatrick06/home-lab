@@ -101,35 +101,104 @@ Don't pause for confirmation between sub-phases. Don't pause for confirmation be
 - No new branches at all.
 - All commits go straight to `master`.
 - All pushes go to `origin master`.
-- If a remote branch other than `master` exists (e.g., from a previous AI session), delete it: `git push origin :<branch>` + `git branch -D <branch>`.
 - Keep the local branch list and the GitHub branch list both equal to `[master]`.
+- **If a remote branch other than `master` exists** (e.g., from a previous AI session, a dependabot PR, a stale review branch), this is a **rule 9 STOP-and-ask trigger**. Do NOT delete it without explicit user permission. Present the user with:
+  - The branch name (local and/or remote)
+  - When it was last committed to + by whom
+  - What's on it (`git log master..<branch>` summary, file-changed list)
+  - The proposed action (delete via `git push origin :<branch>` + `git branch -D <branch>`, or keep, or merge)
+  - Wait for the user's call. Then follow exactly.
 
 Tags are fine (the release flow creates `vX.Y.Z` tags), but only via `cut.mjs` — never `git push --tags` (would push intermediate lightweight tags). Verify `.github/workflows/release.yml`'s tag filter is restricted to `'v*.*.*'` before pushing any tags manually.
+
+### 12. Log every out-of-scope finding to the correct log file
+During review, verify, implement, or test, if you discover anything that is NOT part of the current sub-phase's scope — a new bug, a tech-debt item, a future-idea, a design gotcha, a security concern — log it. Do NOT inline-fix items that aren't in the current sub-phase's scope. Log them and keep moving. Out-of-scope inline fixes break the per-sub-phase 4-gate isolation and bloat the diff.
+
+Triage to the right file (per `docs/LOG-INSTRUCTIONS.md`):
+
+| Finding kind | Domain | Log file |
+|---|---|---|
+| Bug / debt / config / perf / test failure | dnd-app | `docs/ISSUES-LOG-DNDAPP.md` |
+| Bug / debt / config / perf / test failure | BMO | `docs/BMO-ISSUES-LOG.md` |
+| Future idea / design gotcha / observation | dnd-app | `docs/SUGGESTIONS-LOG-DNDAPP.md` |
+| Future idea / design gotcha / observation | BMO | `docs/BMO-SUGGESTIONS-LOG.md` |
+| Security concern | any | `docs/SECURITY-LOG.md` (gitignored) |
+| Cross-cutting | dnd-app + BMO | mirror in BOTH relevant logs |
+
+Use the entry template + severity / category fields from `docs/LOG-INSTRUCTIONS.md`. Date the entry. Cite file paths and line numbers. Be specific enough that a future contributor (or future you) can act on the entry without re-discovering it.
+
+Logs grow during phase work and are emptied when a future phase plan absorbs each entry. That's normal — the log files are entry points for triage, not permanent backlogs.
+
+### 13. After the LAST phase, wait for every release to fully publish
+After deleting the final phase plan file (rule 8 applied to the last plan), the work is NOT done yet. Wait for every release cut during the run to fully publish and verify.
+
+For each release shipped during the run:
+
+```bash
+# Watch the most recent release workflow run
+gh run watch
+
+# Or list recent runs and inspect any that aren't completed
+gh run list --workflow=release.yml --limit 20
+
+# Inspect a specific run's logs if anything is suspicious
+gh run view <run-id> --log
+```
+
+Confirm for each release:
+- Preflight job: green (lint + tsc-web + tsc-node + vitest all passed)
+- Build matrix: Windows + Linux jobs both completed
+- `verify-assets` job: green (all 6 expected files present on the GitHub release page)
+- `electron-updater` can see the new version (browse the release page, confirm `latest.yml` / `latest-linux.yml` are present and parseable)
+
+**If any release fails or any check is red:** this is a **rule 9 STOP-and-ask trigger**. Alert the user with:
+- Which release (`vX.Y.Z`) failed
+- Which workflow step / job failed
+- The error excerpt from the logs (last ~30 lines)
+- The recommended next action (re-run job, tag a fix release, manual rollback, etc.)
+
+Do NOT attempt to fix a failed release automatically. Releases affect users and need the user's judgment.
+
+If every release is fully green, summarize for the user: "All N releases shipped (`vA.B.C`, `vD.E.F`, …). Every preflight + build + verify-assets job green. Phase work complete." Then stop.
 
 ---
 
 ## Quick reference — the loop
 
 ```
-while plans remain in dnd-app/docs/phases/:
+while plans remain in dnd-app/docs/phases/ (excluding INSTRUCTIONS.md):
+  CHECK: any remote branch other than master?
+    -> yes: STOP, ask user (rule 11)
+    -> no: continue
+
   plan = earliest phase-N-plan.md
   review(plan)
   verify(plan, code)
+
   for each sub-phase in plan:
     implement(sub-phase)
     if confused or conflicting:
-      STOP -> ask user -> follow answer
+      STOP -> ask user -> follow answer (rule 9)
+    if out-of-scope finding discovered:
+      LOG to correct file (rule 12), do not inline-fix
     run 4-gate
     if 4-gate green:
       commit + push to master
       continue
     else:
       fix in place, re-run 4-gate
+
   cut release
-  verify release published with all assets
+  verify release workflow + assets
   delete plan file
-  commit deletion to master
-  push
+  commit deletion to master + push
+
+# After the last plan is gone:
+watch every release cut during the run (rule 13)
+if any release failed:
+  STOP, alert user with diagnosis
+else:
+  summarize success, stop
 ```
 
 ---
@@ -139,3 +208,4 @@ while plans remain in dnd-app/docs/phases/:
 - This file (`INSTRUCTIONS.md`) is NOT a phase plan and is NOT deleted by rule 8.
 - This file overrides any conflicting general guidance in `CLAUDE.md`, `AGENTS.md`, or session prompts when working on phase execution. Anything else in those files stands.
 - If the user updates these rules mid-flight, follow the new rules immediately and treat the old version as void.
+- Rule 9 (STOP-and-ask) is the umbrella for every escalation in this file. Rules 11 (foreign branch) and 13 (release failure) explicitly cite it; any other "should I…?" judgment call also falls under rule 9.
