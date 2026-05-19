@@ -29,7 +29,7 @@ Work through the sub-phases in their stated order. For each sub-phase:
 
 If a step turns out to be wrong or missing context, see rule 9.
 
-### 5. 4-gate test at the END of each PHASE (not sub-phase) — per user 2026-05-19
+### 5. 4-gate test + commit at the END of each PHASE (not sub-phase) — per user 2026-05-19
 After the LAST sub-phase of a phase finishes, before cutting the release in rule 6:
 
 ```bash
@@ -52,11 +52,22 @@ All four gates must be green. A red gate is a STOP-and-ask trigger:
 
 For phases that touch the Pi side (32, 36, anything under `bmo/pi/`), also run `pytest bmo/pi/tests/` from `bmo/pi/`.
 
-**Sub-phase commits do NOT need to run the 4-gate.** Per the user's 2026-05-19 directive ("doing tests after every step is exhausting and not necessary; speed this up"), each sub-phase commits with a clear message (`feat(<scope>): <phase>X — <theme>`), pushes, and moves on — the per-sub-phase iteration is now optimized for cadence, not validation. Validation lives at the phase boundary.
+**Sub-phase work accumulates in the working tree; commit + push ONCE per phase.** Per the user's 2026-05-19 directive ("doing tests after every step is exhausting and not necessary; speed this up" + follow-up: "commit only after each Phase not sub phase"), per-sub-phase commits are NOT created. Edit, update the plan's Completed section (rule 17 — still applies per sub-phase), move to the next sub-phase. After the LAST sub-phase + the end-of-phase 4-gate is green:
 
-Lighter checks during sub-phase work are still encouraged (and cheap): `npx tsc --noEmit -p tsconfig.web.json` after a non-trivial edit takes seconds and catches the obvious type breakage. But the full lint + tsc + vitest sweep is reserved for end-of-phase.
+1. Single `git add` of every file touched during the phase.
+2. Single commit with a phase-scoped message: `feat(<scope>): phase N — <one-line theme>`. Body lists each sub-phase that landed inside.
+3. Single `git push origin master`.
 
-If a contributor wants per-sub-phase gating back, they can revert this rule edit — the playbook honors the user's current trade-off (speed > early detection inside a phase).
+Lighter checks during sub-phase work are still encouraged (and cheap): `npx tsc --noEmit -p tsconfig.web.json` after a non-trivial edit takes seconds and catches the obvious type breakage. But the full lint + tsc + vitest sweep is reserved for end-of-phase, and so is the commit.
+
+**Exceptions** — these still get their own commits even mid-phase:
+- Plan amendments per rule 22 (the audit trail "plan was wrong → fixed → then implemented" remains in separate commits).
+- Meta-file edits per rule 16 (INSTRUCTIONS.md, CLAUDE.md, etc.) when the user authorizes them mid-phase.
+- Foreign-branch cleanup per rule 11 if the user authorizes a delete mid-phase.
+
+The exceptions exist because their audit-trail value is the separation. Phase work itself stays bundled.
+
+If a contributor wants per-sub-phase commits + gating back, they can revert this rule edit — the playbook honors the user's current trade-off (speed > granular history > early detection inside a phase).
 
 ### 6. Ship release
 When the last sub-phase of a phase is green and committed, cut the release per `dnd-app/docs/RELEASE.md` (or `CLAUDE.md` release flow):
@@ -462,8 +473,7 @@ while plans remain in dnd-app/docs/phases/ (excluding INSTRUCTIONS.md):
       STOP_AND_ASK("warn", "meta-file edit requested", <which file + why>) (rule 16)
     if out-of-scope finding discovered:
       LOG to correct file (rule 12), do not inline-fix
-    update plan's `## Completed` section with file:line citations (rule 17)
-    commit (code + Completed edits together) + push to master            (rule 5 — no per-sub-phase 4-gate)
+    update plan's `## Completed` section with file:line citations (rule 17) — working tree only, NO commit yet
     touch ~/.claude-tools/heartbeat                                       (rule 24)
     sub_phase_counter += 1
     if sub_phase_counter % 5 == 0:
@@ -473,11 +483,15 @@ while plans remain in dnd-app/docs/phases/ (excluding INSTRUCTIONS.md):
       if `git ls-remote --heads origin | grep -v 'refs/heads/master$'` is non-empty:
         STOP_AND_ASK("warn", "foreign branch found mid-phase", <branch + last commit + diff stat + recommendation>) (rule 11)
 
-  # END-OF-PHASE 4-gate (rule 5, user 2026-05-19):
+  # END-OF-PHASE 4-gate + single commit (rule 5, user 2026-05-19):
   run 4-gate (lint + tsc-web + tsc-node + vitest; pytest if Pi-side)
   if 4-gate red:
     STOP_AND_ASK("warn", "phase N — 4-gate red at end-of-phase", <which gate + cited line + fix path>) (rule 5)
     fix in place + re-run until green; do NOT cut release, do NOT advance phase
+  git add <every file touched during the phase>
+  git commit -m "feat(<scope>): phase N — <one-line theme>" -m "<body listing each sub-phase>"
+  git push origin master
+  touch ~/.claude-tools/heartbeat                                         (rule 24)
 
   cut release (NOT a force-push, NOT a tag rewrite — rule 20)
   verify release workflow + assets
