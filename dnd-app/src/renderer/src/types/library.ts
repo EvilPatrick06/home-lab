@@ -1,3 +1,98 @@
+export interface BaseLibraryEntry {
+  id: string
+  name: string
+  source?: string
+  description?: string
+  createdAt?: string
+  updatedAt?: string
+  pluginId?: string
+}
+
+export type LibraryEntry<_C extends string = string> = BaseLibraryEntry & Record<string, unknown>
+
+export type DeepPartial<T> =
+  T extends ReadonlyArray<infer _U> ? T : T extends object ? { [K in keyof T]?: DeepPartial<T[K]> } : T
+
+export interface EntryRef<C extends string = string> {
+  entryId: string
+  entryType: C
+  overrides?: DeepPartial<LibraryEntry<C>>
+}
+
+export type MergedEntry<C extends string = string> = LibraryEntry<C>
+
+export function isEntryRef(value: unknown): value is EntryRef {
+  if (typeof value !== 'object' || value === null) return false
+  const v = value as Record<string, unknown>
+  return typeof v.entryId === 'string' && typeof v.entryType === 'string'
+}
+
+// Library-side shapes — pure entry data, no instance state. Instance state
+// (prepared/equipped/attuned/current charges) lives on consumer.state.
+
+export interface LibrarySpellEntry extends BaseLibraryEntry {
+  level: number
+  castingTime: string
+  range: string
+  duration: string
+  components: string
+  school?: string
+  concentration?: boolean
+  ritual?: boolean
+  traditions?: string[]
+  traits?: string[]
+  heightened?: Record<string, string>
+  higherLevels?: string
+  classes?: string[]
+}
+
+export interface LibraryWeaponEntry extends BaseLibraryEntry {
+  damage: string
+  damageType: string
+  properties: string[]
+  hands?: string
+  group?: string
+  bulk?: string
+  range?: string
+  mastery?: string
+  cost?: string
+  weight?: number
+}
+
+export interface LibraryArmorEntry extends BaseLibraryEntry {
+  acBonus: number
+  type: 'armor' | 'shield' | 'clothing'
+  category?: string
+  dexCap?: number | null
+  stealthDisadvantage?: boolean
+  checkPenalty?: number
+  speedPenalty?: number
+  strength?: number
+  bulk?: number
+  hardness?: number
+  shieldHP?: number
+  shieldBT?: number
+  cost?: string
+  weight?: number
+}
+
+export interface LibraryMagicItemEntry extends BaseLibraryEntry {
+  rarity: string
+  type: string
+  requiresAttunement: boolean
+  weight?: number
+  charges?: {
+    max: number
+    rechargeType: 'dawn' | 'long-rest' | 'none'
+    rechargeDice?: string
+  }
+  grantedSpells?: Array<{
+    spellId: string
+    spellName: string
+    charges?: number
+  }>
+}
+
 export type LibraryCategory =
   | 'characters'
   | 'campaigns'
