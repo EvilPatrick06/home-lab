@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { getBonusFeatCount } from '../../../data/xp-thresholds'
 import { load5eInvocations, load5eMetamagic } from '../../../services/data-provider'
+import { useHydratedInstances } from '../../../services/library/use-library-entry'
 import { useNetworkStore } from '../../../stores/network-store'
 import { useCharacterStore } from '../../../stores/use-character-store'
 import { useLobbyStore } from '../../../stores/use-lobby-store'
@@ -30,7 +31,17 @@ export default function FeaturesSection5e({ character, readonly }: FeaturesSecti
     }
     return f
   })
-  const feats = character.feats ?? []
+  // Phase 15c.4 — read feats live from truth store via v4 refs when populated.
+  const hydratedFeats = useHydratedInstances(character.featRefs, 'feats')
+  const feats =
+    hydratedFeats.length > 0
+      ? (hydratedFeats as unknown as Array<{
+          id: string
+          name: string
+          description: string
+          choices?: Record<string, string | string[]>
+        }>)
+      : (character.feats ?? [])
 
   const [showPicker, setShowPicker] = useState(false)
 

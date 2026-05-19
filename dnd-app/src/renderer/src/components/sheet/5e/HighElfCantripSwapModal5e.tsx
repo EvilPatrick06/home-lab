@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { load5eSpells } from '../../../services/data-provider'
+import { useHydratedInstances } from '../../../services/library/use-library-entry'
 import { useNetworkStore } from '../../../stores/network-store'
 import { useCharacterStore } from '../../../stores/use-character-store'
 import { useLobbyStore } from '../../../stores/use-lobby-store'
@@ -40,8 +41,11 @@ export default function HighElfCantripSwapModal5e({
   const [selectedCantripId, setSelectedCantripId] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
 
-  // Find the current High Elf species cantrip
-  const currentSpeciesCantrip = (character.knownSpells ?? []).find(
+  // Phase 15c.2 — read known spells via v4 refs when populated, fall back to v3.
+  const hydratedKnownSpells = useHydratedInstances(character.knownSpellRefs, 'spells')
+  const knownSpellsForLookup =
+    hydratedKnownSpells.length > 0 ? (hydratedKnownSpells as unknown as SpellEntry[]) : (character.knownSpells ?? [])
+  const currentSpeciesCantrip = knownSpellsForLookup.find(
     (s) => s.level === 0 && s.id.startsWith('species-') && s.id.includes('Elf')
   )
 

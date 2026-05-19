@@ -1,5 +1,6 @@
 import { memo } from 'react'
 import { getMagicItemEffects } from '../../../data/effect-definitions'
+import { useHydratedInstances } from '../../../services/library/use-library-entry'
 import type { Character5e } from '../../../types/character-5e'
 
 interface MagicItemCard5eProps {
@@ -47,8 +48,11 @@ function MagicItemCard5e({
   const hasEffects = !isUnidentified && !!getMagicItemEffects(item.name)
   const isWeaponType = item.type === 'weapon' || /weapon|\+\d.*weapon/i.test(item.name)
   const isArmorType = item.type === 'armor' || /armor|shield|\+\d.*armor/i.test(item.name)
-  const weapons = character.weapons ?? []
-  const armors = character.armor ?? []
+  // Phase 15c.3 — read weapons + armor live from truth store via v4 refs.
+  const hydratedWeapons = useHydratedInstances(character.weaponRefs, 'weapons')
+  const hydratedArmors = useHydratedInstances(character.armorRefs, 'armor')
+  const weapons = hydratedWeapons.length > 0 ? hydratedWeapons : (character.weapons ?? [])
+  const armors = hydratedArmors.length > 0 ? hydratedArmors : (character.armor ?? [])
 
   // Unidentified items: show masked info to players
   if (isUnidentified && readonly) {

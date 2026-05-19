@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useCharacterEditor } from '../../../hooks/use-character-editor'
+import { useHydratedInstances } from '../../../services/library/use-library-entry'
 import type { Character } from '../../../types/character'
 import type { Character5e } from '../../../types/character-5e'
 import type { WeaponEntry } from '../../../types/character-common'
@@ -17,7 +18,10 @@ interface OffenseSection5eProps {
 
 export default function OffenseSection5e({ character, readonly }: OffenseSection5eProps): JSX.Element {
   const { getLatest, saveAndBroadcast } = useCharacterEditor(character.id)
-  const newWeapons: WeaponEntry[] = character.weapons ?? []
+  // Phase 15c.3 — read weapons live from truth store via v4 refs when populated.
+  const hydratedWeapons = useHydratedInstances(character.weaponRefs, 'weapons')
+  const newWeapons: WeaponEntry[] =
+    hydratedWeapons.length > 0 ? (hydratedWeapons as unknown as WeaponEntry[]) : (character.weapons ?? [])
   const weaponDatabase = useWeaponDatabase()
 
   const [showCustomForm, setShowCustomForm] = useState(false)

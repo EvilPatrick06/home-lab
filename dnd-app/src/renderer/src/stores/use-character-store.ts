@@ -2,8 +2,19 @@ import { create } from 'zustand'
 import { dynamicKeys } from '../constants'
 import { addToast } from '../hooks/use-toast'
 import type { Character } from '../types/character'
+import type { Character5e } from '../types/character-5e'
+import { migrateCharacter5eFromV3ToV4 } from '../types/character-5e-migration'
 import type { ActiveCondition } from '../types/character-common'
 import { logger } from '../utils/logger'
+
+// Phase 15c.1 — apply the v4 refs+state migration to every Character5e on load.
+// Idempotent + additive (leaves v3 fields intact). Components that have flipped
+// to v4 see populated *Refs / state; components still on v3 see the unchanged
+// legacy fields. Non-5e characters pass through untouched.
+function applyV4Migration(character: Character): Character {
+  if (character.gameSystem !== 'dnd5e') return character
+  return migrateCharacter5eFromV3ToV4(character as Character5e) as unknown as Character
+}
 
 function cleanupCharacterLocalStorage(characterId: string) {
   localStorage.removeItem(dynamicKeys.macroStorage(characterId))
@@ -42,9 +53,11 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
         set({ loading: false })
         return
       }
-      const characters = rawData.filter(
-        (c) => c != null && typeof c === 'object' && typeof (c as Record<string, unknown>).id === 'string'
-      ) as unknown as Character[]
+      const characters = (
+        rawData.filter(
+          (c) => c != null && typeof c === 'object' && typeof (c as Record<string, unknown>).id === 'string'
+        ) as unknown as Character[]
+      ).map(applyV4Migration)
       set({ characters, loading: false })
     } catch (error) {
       logger.error('Failed to load characters:', error)

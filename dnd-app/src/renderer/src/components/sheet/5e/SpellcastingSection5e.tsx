@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useState } from 'react'
+import { lazy, Suspense, useCallback, useMemo, useState } from 'react'
 import {
   computeSpellcastingInfo,
   FULL_CASTERS_5E,
@@ -10,6 +10,7 @@ import {
   isWarlockPactMagic
 } from '../../../services/character/spell-data'
 import { getDragPayload, hasLibraryDrag } from '../../../services/library/drag-data'
+import { useHydratedInstances } from '../../../services/library/use-library-entry'
 import { useNetworkStore } from '../../../stores/network-store'
 import { useCharacterStore } from '../../../stores/use-character-store'
 import { useGameStore } from '../../../stores/use-game-store'
@@ -31,10 +32,34 @@ interface SpellcastingSection5eProps {
 }
 
 export default function SpellcastingSection5e({ character, readonly }: SpellcastingSection5eProps): JSX.Element {
-  const knownSpells: SpellEntry[] = character.knownSpells ?? []
+  // Phase 15c.2 — read spells via the truth store. Hydrated entries carry
+  // overrides + react to library mutations. Falls back to legacy v3 inline
+  // shape when v4 refs aren't populated (e.g. a freshly-loaded legacy save
+  // before the load-path migration kicks in).
+  const hydratedSpells = useHydratedInstances(character.knownSpellRefs, 'spells')
+  const knownSpells: SpellEntry[] = useMemo(() => {
+    if (hydratedSpells.length > 0) return hydratedSpells as unknown as SpellEntry[]
+    return (character.knownSpells ?? []) as SpellEntry[]
+  }, [hydratedSpells, character.knownSpells])
   const spellSlotLevels = character.spellSlotLevels ?? {}
   const pactMagicSlotLevels = character.pactMagicSlotLevels ?? {}
-  const preparedSpellIds: string[] = character.preparedSpellIds ?? []
+  // v3 used preparedSpellIds: string[]. v4 keys prepared by stable instanceId
+  // in character.state.preparedSpellIds: Record<instanceId, boolean>. Derive
+  // a v3-shape array for backward-compat with the rest of this file's logic.
+  const preparedSpellIds: string[] = useMemo(() => {
+    const v4Map = character.state?.preparedSpellIds
+    if (v4Map && Object.keys(v4Map).length > 0) {
+      // map instanceId → spell id by walking knownSpellRefs
+      const idByInstance = new Map((character.knownSpellRefs ?? []).map((r) => [r.instanceId, r.ref.entryId]))
+      const out: string[] = []
+      for (const [instanceId, prepared] of Object.entries(v4Map)) {
+        const spellId = idByInstance.get(instanceId)
+        if (prepared && spellId) out.push(spellId)
+      }
+      if (out.length > 0) return out
+    }
+    return character.preparedSpellIds ?? []
+  }, [character.state?.preparedSpellIds, character.knownSpellRefs, character.preparedSpellIds])
   const proficiencyBonus = Math.floor((character.level - 1) / 4) + 2
   const [ritualMessage, setRitualMessage] = useState<string | null>(null)
   const [concentrationConfirm, setConcentrationConfirm] = useState<SpellEntry | null>(null)

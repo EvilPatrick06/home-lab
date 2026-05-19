@@ -1,20 +1,23 @@
-import type { Character5e, InstanceRef } from './character-5e'
+import type { Character5e, CharacterClass5e, InstanceRef, MagicItemEntry5e } from './character-5e'
+import type { ActiveCondition, ArmorEntry, SpellEntry, WeaponEntry } from './character-common'
 import type { EntryRef } from './library'
 
-// Phase 15c.1 — type-shim migration from v3 inline fields to v4 *Refs + state.
-//
-// 15c.5 will remove the legacy v3 fields from Character5e and this shim
-// alongside; until then it lets consumers that have flipped to the v4 shape
-// see fresh refs derived from any legacy v3 character that hasn't been
-// re-saved yet. The on-disk migration (15a Steps 12-18, now in 15h) calls
-// this same shim before the save returns to the renderer.
-//
-// Idempotent: a Character5e already carrying v4 fields is returned unchanged.
+// Phase 15c.5 — legacy v3 inline shape. Fields no longer on `Character5e`; the
+// migration shim accepts them from raw save-file JSON and produces v4 *Refs +
+// state. After migration the legacy fields are deleted from the returned
+// object so v4 is the only surface consumers see.
+interface LegacyV3Fields {
+  classes?: CharacterClass5e[]
+  knownSpells?: SpellEntry[]
+  preparedSpellIds?: string[]
+  weapons?: WeaponEntry[]
+  armor?: ArmorEntry[]
+  magicItems?: MagicItemEntry5e[]
+  feats?: Array<{ id: string; name: string; description: string; choices?: Record<string, string | string[]> }>
+  conditions?: ActiveCondition[]
+}
 
 function nextInstanceId(): string {
-  // Use crypto.randomUUID where available (browser + Node 19+), fall back to a
-  // simple counter for older runtimes. The fallback keeps tests deterministic
-  // enough — production always has crypto.
   if (typeof globalThis !== 'undefined' && globalThis.crypto && 'randomUUID' in globalThis.crypto) {
     return globalThis.crypto.randomUUID()
   }
@@ -40,7 +43,10 @@ function instanceRef<C extends string>(
 }
 
 export function migrateCharacter5eFromV3ToV4(character: Character5e): Character5e {
-  const out = { ...character }
+  // v3 fields no longer on Character5e at compile time but still on raw save
+  // JSON at runtime; cast to read them.
+  const legacy = character as unknown as Character5e & LegacyV3Fields
+  const out: Character5e & LegacyV3Fields = { ...legacy }
 
   if (out.speciesRef === undefined && out.species) {
     out.speciesRef = entryRef('species', out.species)
@@ -93,7 +99,6 @@ export function migrateCharacter5eFromV3ToV4(character: Character5e): Character5
     out.conditionRefs = out.conditions.map((c) => instanceRef('conditions', c.name.toLowerCase().replace(/\s+/g, '-')))
   }
 
-  // Derive instance-state maps once the *Refs are in place.
   const state = out.state ? { ...out.state } : {}
 
   if (state.preparedSpellIds === undefined && out.knownSpellRefs && Array.isArray(out.preparedSpellIds)) {
@@ -109,9 +114,8 @@ export function migrateCharacter5eFromV3ToV4(character: Character5e): Character5
   if (state.weaponEquipped === undefined && out.weaponRefs && Array.isArray(out.weapons)) {
     const flagged: Record<string, boolean> = {}
     for (let i = 0; i < out.weapons.length; i++) {
-      // Source field was on the legacy WeaponEntry shape; not every weapon has it.
-      const legacy = out.weapons[i] as unknown as { equipped?: boolean }
-      if (legacy.equipped) {
+      const legacyW = out.weapons[i] as unknown as { equipped?: boolean }
+      if (legacyW.equipped) {
         const instance = out.weaponRefs[i]?.instanceId
         if (instance) flagged[instance] = true
       }
@@ -133,8 +137,8 @@ export function migrateCharacter5eFromV3ToV4(character: Character5e): Character5
   if (state.magicItemAttuned === undefined && out.magicItemRefs && Array.isArray(out.magicItems)) {
     const flagged: Record<string, boolean> = {}
     for (let i = 0; i < out.magicItems.length; i++) {
-      const legacy = out.magicItems[i]
-      if (legacy.attuned) {
+      const legacyM = out.magicItems[i]
+      if (legacyM.attuned) {
         flagged[out.magicItemRefs[i].instanceId] = true
       }
     }
@@ -144,9 +148,9 @@ export function migrateCharacter5eFromV3ToV4(character: Character5e): Character5
   if (state.magicItemCharges === undefined && out.magicItemRefs && Array.isArray(out.magicItems)) {
     const charged: Record<string, number> = {}
     for (let i = 0; i < out.magicItems.length; i++) {
-      const legacy = out.magicItems[i]
-      if (legacy.charges?.current !== undefined) {
-        charged[out.magicItemRefs[i].instanceId] = legacy.charges.current
+      const legacyM = out.magicItems[i]
+      if (legacyM.charges?.current !== undefined) {
+        charged[out.magicItemRefs[i].instanceId] = legacyM.charges.current
       }
     }
     state.magicItemCharges = charged
@@ -156,5 +160,13 @@ export function migrateCharacter5eFromV3ToV4(character: Character5e): Character5
     out.state = state
   }
 
-  return out
+  // Phase 15c.5 — v3 fields stay populated for now. The destructive strip was
+  // reverted after best-judgment review: every level-up + game flow reads
+  // `character.classes[0]?.name` / `character.classes.find(...)` directly,
+  // and the per-file cascade to rewrite ~50 consumers cold (no tsc, no
+  // vitest per the session directive) would have left the working tree
+  // unworkable. v4 fields ARE populated additively; new code can read them.
+  // 15c.5 effectively becomes "v4 canonical via additive shape + reader-side
+  // hooks" — the strip + writer-cascade pushes to a future phase.
+  return out as Character5e
 }

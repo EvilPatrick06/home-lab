@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useCharacterEditor } from '../../../hooks/use-character-editor'
 import { computeSpellcastingInfo } from '../../../services/character/spell-data'
+import { useHydratedClassList } from '../../../services/library/use-library-entry'
 import type { Character5e } from '../../../types/character-5e'
 import { formatMod } from '../../../types/character-common'
 
@@ -22,10 +23,14 @@ export default function AttackCalculator5e({
   const [customWeaponProf, setCustomWeaponProf] = useState('')
   const [expandedWeaponProf, setExpandedWeaponProf] = useState<string | null>(null)
 
+  // Phase 15c.4 — derive class list from v4 classRefs when populated, fall back to v3.
+  const hydratedClasses = useHydratedClassList(character.classRefs)
+  const effectiveClasses = hydratedClasses.length > 0 ? hydratedClasses : character.classes
+
   // Spellcasting info -- dynamically computed
   const spellAttack = (() => {
     const scInfo = computeSpellcastingInfo(
-      character.classes.map((c) => ({
+      effectiveClasses.map((c) => ({
         classId: c.name.toLowerCase(),
         subclassId: c.subclass?.toLowerCase(),
         level: c.level

@@ -40,7 +40,8 @@ export interface Character5e {
   name: string
   species: string
   subspecies?: string
-  classes: CharacterClass5e[]
+  /** Phase 15c.5 — optional + stripped at runtime by the load-path migration. Writers may still set this; readers should prefer `classRefs` + truth-store hydration. v4 is the canonical surface. */
+  classes?: CharacterClass5e[]
   level: number
   background: string
   alignment: string
@@ -71,14 +72,19 @@ export interface Character5e {
   treasure: Currency
   features: Feature[]
 
-  knownSpells: SpellEntry[]
-  preparedSpellIds: string[]
+  /** Phase 15c.5 — optional + stripped at runtime. Writers may still set; readers should prefer `knownSpellRefs` via `useHydratedInstances('spells', …)`. */
+  knownSpells?: SpellEntry[]
+  /** Phase 15c.5 — optional + stripped at runtime. Writers may still set; readers should prefer `state.preparedSpellIds` keyed by instanceId. */
+  preparedSpellIds?: string[]
   spellSlotLevels: Record<number, { current: number; max: number }>
   pactMagicSlotLevels?: Record<number, { current: number; max: number }>
   classFeatures: ClassFeatureEntry[]
-  weapons: WeaponEntry[]
-  armor: ArmorEntry[]
-  feats: Array<{ id: string; name: string; description: string; choices?: Record<string, string | string[]> }>
+  /** Phase 15c.5 — optional + stripped at runtime. Writers may still set; readers should prefer `weaponRefs` via `useHydratedInstances('weapons', …)`. */
+  weapons?: WeaponEntry[]
+  /** Phase 15c.5 — optional + stripped at runtime. Writers may still set; readers should prefer `armorRefs` via `useHydratedInstances('armor', …)`. */
+  armor?: ArmorEntry[]
+  /** Phase 15c.5 — optional + stripped at runtime. Writers may still set; readers should prefer `featRefs` via `useHydratedInstances('feats', …)`. */
+  feats?: Array<{ id: string; name: string; description: string; choices?: Record<string, string | string[]> }>
 
   buildChoices: BuildChoices5e
 
@@ -97,13 +103,15 @@ export interface Character5e {
   metamagicKnown?: string[]
   weaponMasteryChoices?: string[]
   attunement: Array<{ name: string; description: string }>
+  /** Phase 15c.5 — optional + stripped at runtime. Writers may still set; readers should prefer `magicItemRefs` + `state.magicItemAttuned`/`state.magicItemCharges`. */
   magicItems?: MagicItemEntry5e[]
   bonusFeats?: Array<{ id: string; name: string; description: string }>
   customFeatures?: CustomFeature[]
   classResources?: import('./character-common').ClassResource[]
   speciesResources?: import('./character-common').ClassResource[]
   languageDescriptions: Record<string, string>
-  conditions: ActiveCondition[]
+  /** Phase 15c.5 — optional + stripped at runtime. Writers may still set; readers should prefer `conditionRefs` via `useHydratedInstances('conditions', …)`. */
+  conditions?: ActiveCondition[]
   iconPreset?: string
   portraitPath?: string
   createdAt: string

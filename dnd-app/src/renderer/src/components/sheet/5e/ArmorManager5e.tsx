@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useCharacterEditor } from '../../../hooks/use-character-editor'
+import { useHydratedInstances } from '../../../services/library/use-library-entry'
 import { useCharacterStore } from '../../../stores/use-character-store'
 import type { Character } from '../../../types/character'
 import type { Character5e } from '../../../types/character-5e'
@@ -33,7 +34,13 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
 
   const armorDatabase = useArmorDatabase()
 
-  const armor: ArmorEntry[] = character.armor ?? []
+  // Phase 15c.3 — read armor live from truth store via v4 refs when populated,
+  // fall back to legacy v3 inline shape. Equipped state still lives on the
+  // legacy v3 ArmorEntry.equipped boolean until a future phase wires
+  // state.armorEquipped through the mutation path too.
+  const hydratedArmor = useHydratedInstances(character.armorRefs, 'armor')
+  const armor: ArmorEntry[] =
+    hydratedArmor.length > 0 ? (hydratedArmor as unknown as ArmorEntry[]) : (character.armor ?? [])
   const equippedArmor = armor.find((a) => a.equipped && a.type === 'armor')
   const equippedShield = armor.find((a) => a.equipped && a.type === 'shield')
 

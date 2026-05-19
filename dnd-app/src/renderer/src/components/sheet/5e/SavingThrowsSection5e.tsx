@@ -1,3 +1,4 @@
+import { useHydratedClassList } from '../../../services/library/use-library-entry'
 import type { Character5e } from '../../../types/character-5e'
 import { ABILITY_NAMES, abilityModifier, formatMod } from '../../../types/character-common'
 import SheetSectionWrapper from '../shared/SheetSectionWrapper'
@@ -10,11 +11,15 @@ interface SavingThrowsSection5eProps {
 export default function SavingThrowsSection5e({ character }: SavingThrowsSection5eProps): JSX.Element {
   const profBonus = Math.ceil(character.level / 4) + 1
 
+  // Phase 15c.4 — primary class via v4 classRefs when populated, fall back to v3.
+  const hydratedClasses = useHydratedClassList(character.classRefs)
+  const effectiveClasses = hydratedClasses.length > 0 ? hydratedClasses : character.classes
+
   // Compute effective saving throw proficiencies (includes dynamic grants like Slippery Mind)
   const effectiveProficientSaves = (() => {
     const base = [...character.proficiencies.savingThrows]
     // Rogue L15+ Slippery Mind: grants WIS + CHA save proficiency
-    const primaryClass = character.classes[0]
+    const primaryClass = effectiveClasses[0]
     if (primaryClass && primaryClass.name.toLowerCase() === 'rogue' && primaryClass.level >= 15) {
       if (!base.includes('wisdom')) base.push('wisdom')
       if (!base.includes('charisma')) base.push('charisma')

@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { xpThresholdForNextLevel } from '../../../data/xp-thresholds'
+import { useHydratedClassList } from '../../../services/library/use-library-entry'
 import { PRESET_ICONS } from '../../../stores/use-builder-store'
 import { useCharacterStore } from '../../../stores/use-character-store'
 import { is5eCharacter } from '../../../types/character'
@@ -21,10 +22,13 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
   const [showInspirationTransfer, setShowInspirationTransfer] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
-  const isMulticlass = character.classes.length > 1
+  // Phase 15c.4 — derive class list from v4 classRefs when populated, fall back to v3.
+  const hydratedClasses = useHydratedClassList(character.classRefs)
+  const effectiveClasses = hydratedClasses.length > 0 ? hydratedClasses : character.classes
+  const isMulticlass = effectiveClasses.length > 1
   const className = isMulticlass
-    ? character.classes.map((c) => `${c.name} ${c.level}`).join(' / ')
-    : character.classes.map((c) => c.name).join(' / ')
+    ? effectiveClasses.map((c) => `${c.name} ${c.level}`).join(' / ')
+    : effectiveClasses.map((c) => c.name).join(' / ')
   const speciesName = character.subspecies ? `${character.subspecies} ${character.species}` : character.species
   const subtitle = `${character.background} \u00B7 ${character.alignment || 'No alignment'}`
 

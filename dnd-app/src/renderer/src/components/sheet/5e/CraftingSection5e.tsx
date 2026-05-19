@@ -2,9 +2,10 @@ import { useState } from 'react'
 import { useCharacterEditor } from '../../../hooks/use-character-editor'
 import { useEquipmentData } from '../../../hooks/use-equipment-data'
 import { load5eCrafting, load5eEquipment } from '../../../services/data-provider'
+import { useHydratedInstances } from '../../../services/library/use-library-entry'
 import type { Character } from '../../../types/character'
 import type { Character5e } from '../../../types/character-5e'
-import type { ArmorEntry, WeaponEntry } from '../../../types/character-common'
+import type { ArmorEntry, SpellEntry, WeaponEntry } from '../../../types/character-common'
 import { abilityModifier } from '../../../types/character-common'
 import { deductWithConversion, totalInCopper } from '../../../utils/currency'
 import SheetSectionWrapper from '../shared/SheetSectionWrapper'
@@ -178,7 +179,10 @@ export default function CraftingSection5e({ character, readonly }: CraftingSecti
     )
   )
 
-  const preparedSpells = character.knownSpells ?? []
+  // Phase 15c.2 — read known spells live from truth store via v4 refs.
+  const hydratedSpells = useHydratedInstances(character.knownSpellRefs, 'spells')
+  const preparedSpells: SpellEntry[] =
+    hydratedSpells.length > 0 ? (hydratedSpells as unknown as SpellEntry[]) : (character.knownSpells ?? [])
 
   const handleCraftScroll = (spell: { id: string; name: string; level: number }): void => {
     const latest = getLatest() || character
