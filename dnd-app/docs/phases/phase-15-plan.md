@@ -214,6 +214,14 @@ Overrides express player intent that should persist and propagate. Instance stat
 
 **Acceptance:** `Character5e` has the new shape; `MIGRATIONS[4]` produces it from v3 saves. No `public/data` imports in `components/sheet/`. Round-trip: save → load → re-save byte-identical on a v4-shape character. Migration fixture v3 character migrates to v4 with `.bak` written, orphan chips for unmatched entries, expected counts in report JSON. Manual propagation: edit a spell description in the library, sheet's spell card re-renders without reload. 4-gate green; tag `phase-15c-done`.
 
+**15c sub-split per user direction 2026-05-19** (notify.sh `06:37:47Z`, option A from rule-27 escalation, after surveying 88 sheet files + 140 `Character5e` consumers = ~150-180 file cascade if done as one commit). Each sub-batch lands the 4-gate green in its own commit; the codebase compiles and runs after every commit. The legacy v3 fields stay on `Character5e` until 15c.5 sweeps them out, so consumers can adopt the new `*Refs` + `state` shape one batch at a time.
+
+- **15c.1 — `Character5e` v4 type + builder slice integration.** Add `*Refs` (optional, additive), `state` block (optional), and `migrateCharacter5eFromV3ToV4` shim. Wire 15b's deferred Step 2/3 (builder slice rewrite + side-panel hydrated reads) into the v4 fields. Legacy v3 fields stay on the interface.
+- **15c.2 — Sheet batch 1: spells.** `SpellcastingSection5e.tsx`, `SpellPrepOptimizer.tsx`, `SpellSlotTracker5e.tsx`, `SpellAttackBonus5e.tsx`, `SpellSaveDc5e.tsx`, `CantripsList5e.tsx`, etc. Read via `useHydratedRef`/`useLibraryEntry`, runtime state from `character.state.preparedSpellIds`.
+- **15c.3 — Sheet batch 2: equipment + magic items.** `EquipmentListPanel5e.tsx`, `WeaponList5e.tsx`, `ArmorManager5e.tsx`, `MagicItemsPanel5e.tsx`, `AttunementTracker5e.tsx` (absorbs Phase 23 F M2), `AttackCalculator5e.tsx`. Per-instance `weaponEquipped`/`armorEquipped`/`magicItemAttuned`/`magicItemCharges` read from `state`.
+- **15c.4 — Sheet batch 3: traits, conditions, abilities, classes, everything else.** All remaining files under `components/sheet/5e/`. Death-save auto-applied conditions matcher (Step 4) lands here.
+- **15c.5 — Cleanup.** Remove legacy v3 fields from `Character5e` once every consumer has flipped. Delete `migrateCharacter5eFromV3ToV4` shim if no longer needed. Final boundary-test allowlist trim if applicable.
+
 ### 15d — Level Up sweep
 
 **Files:**
