@@ -416,6 +416,7 @@ Doing Phase 18 first means Phase 19's Pi-side authority implements ONE protocol 
 | Phase 15 | per-shard `permissionFilter` | Uses Phase 29 keys; Phase 31 wires the call. |
 | Phase 15 | `useLibraryStore` mutation broadcast | Phase 15 introduces a new canonical store. Phase 31 registers a `library` shard so library mutations (homebrew edits, plugin loads, official errata patches) propagate to peers via the standard shard diff path. Without this, Phase 15 has no network propagation for library changes. |
 | Phase 23 | `lobbyStore.remoteCharacters` + `dm:character-update` flow | Phase 31's character shard fully absorbs both — `dm:character-update` ceases to exist, `lobbyStore.remoteCharacters` becomes dead code. Phase 23 S3's interim fix (single-canonical-write to `useCharacterStore`) bridges the gap until Phase 31 lands. |
+| Phase 36 | Library shard wiring for homebrew sync | Phase 36 routes `upsertHomebrew` writes through Pi via HTTP; Phase 31's library shard handles the in-session live propagation to other connected peers (so they don't have to round-trip through Pi). Phase 36 explicitly hooks `useLibraryStore.upsertHomebrew` to the library shard's broadcast path. |
 
 ---
 

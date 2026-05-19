@@ -48,7 +48,7 @@ Phase 25 covers the **Homebrew & Custom Content System**. The foundation exists 
 
 | # | Issue | Impact |
 |---|-------|--------|
-| H1 | No homebrew export/import — can't share custom content | Users can't transfer homebrew between machines or share with players |
+| H1 | No homebrew export/import — can't share custom content | Users can't transfer homebrew between machines or share with players. **2026-05-18 reframe:** Phase 36 (Pi-hosted library) handles most cross-machine homebrew sharing via Pi auto-sync; H1's export/import remains useful for one-off backups, sharing with users who don't run a Pi, and offline-first portability. Stays live work, reduced in priority. |
 | ~~H2~~ | ~~Only 3/13 content types have Zod validation schemas~~ — **fully absorbed by Phase 15 A.2 + A.2.5** (2026-05-18). Phase 15 ships unified `SCHEMA_REGISTRY` covering every `LibraryCategory` (~52 categories, all 13 homebrew types included). A.2.5 adds `source: 'official' \| 'homebrew' \| 'plugin'` + optional `createdAt`/`updatedAt` to `BaseLibraryEntry`, so homebrew audit metadata validates against the same schemas. **Strike H2 from Phase 25 scope** — no separate `HomebrewSpellSchema` etc. needed. | — |
 | H3 | Custom feats/spells have no mechanical effect — partially absorbed by Phase 15 | Homebrew displays in library but doesn't work in gameplay |
 | ~~H4~~ | ~~Dual storage systems~~ — **moved to Phase 15 Sub-Phase G Step 21** | — |

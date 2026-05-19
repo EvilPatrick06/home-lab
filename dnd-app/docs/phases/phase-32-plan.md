@@ -337,6 +337,8 @@ One release: **v6.0.0** after 19l. Major version bump for the new deployment mod
 | Phase 27 Sub-Phase J (A9 custom audio sync) | File transfer transport | Stays peer-to-peer per voice-transport-boundary doc (Step 19k). Phase 32 does NOT route audio through Pi. |
 | Phase 28 Step 28a.4 (Auth Bearer to BMO) | Token shape for BMO bridge | Reconcile JWT issuer/secret so one credential covers both LAN sync Bearer and cloud WS frame auth. |
 | Phase 28 Step 28a.2 (BMO sync receiver hardening) | LAN sync receiver | Hardening still applies to local-P2P mode. Cloud-host uses the new WS path, not this receiver. Both code paths need their own hardening. |
+| Phase 36 | JWT scope for library:write:homebrew | Phase 36 reuses Phase 32's JWT model for homebrew/plugin gating. Add a `library:write:homebrew:<campaign-id>` scope (or equivalent ACL claim) to the JWT issuance flow when a player has DM permissions on a campaign. Official library content is public-read (no JWT required). |
+| Phase 36 | Pi `bmoPiBaseUrl` reuse | Phase 36's library fetch uses the same `bmoPiBaseUrl` Phase 32 plumbs through `bmo-config.ts`. No separate library-source URL — one Pi address per session. |
 
 ---
 
