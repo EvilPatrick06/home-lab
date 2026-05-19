@@ -17,12 +17,12 @@ PWM_FREQ = 100000  # 100kHz — inaudible, eliminates fan whine
 # Fan curve: (cpu_temp_celsius, duty 0-255), ordered hot -> cool.
 # Tuned for quieter idle while ramping earlier at sustained load.
 FAN_CURVE = [
-    (78, 255),  # emergency max
-    (73, 220),  # very high
-    (68, 180),  # high
-    (62, 140),  # medium
-    (56, 100),  # low
-    (50, 60),   # gentle
+    (85, 120),  # emergency
+    (80, 70),   # very high
+    (75, 40),   # high
+    (70, 25),   # medium
+    (65, 15),   # low
+    (60, 8),    # gentle
 ]
 HYSTERESIS = 3  # degrees below threshold before stepping down
 POLL_INTERVAL = 4  # seconds

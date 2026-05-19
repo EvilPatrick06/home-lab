@@ -1,21 +1,10 @@
-import type { Character5e, CharacterClass5e, InstanceRef, MagicItemEntry5e } from './character-5e'
-import type { ActiveCondition, ArmorEntry, SpellEntry, WeaponEntry } from './character-common'
+import type { Character5e, InstanceRef } from './character-5e'
 import type { EntryRef } from './library'
 
-// Phase 15c.5 — legacy v3 inline shape. Fields no longer on `Character5e`; the
-// migration shim accepts them from raw save-file JSON and produces v4 *Refs +
-// state. After migration the legacy fields are deleted from the returned
-// object so v4 is the only surface consumers see.
-interface LegacyV3Fields {
-  classes?: CharacterClass5e[]
-  knownSpells?: SpellEntry[]
-  preparedSpellIds?: string[]
-  weapons?: WeaponEntry[]
-  armor?: ArmorEntry[]
-  magicItems?: MagicItemEntry5e[]
-  feats?: Array<{ id: string; name: string; description: string; choices?: Record<string, string | string[]> }>
-  conditions?: ActiveCondition[]
-}
+// Phase 15c.5 — v3 inline arrays remain on `Character5e` (additive
+// interpretation). This shim DERIVES v4 fields from v3 on load; v3 fields
+// are NOT stripped. Future work: convert remaining writers to v4 + remove
+// v3 fields entirely.
 
 function nextInstanceId(): string {
   if (typeof globalThis !== 'undefined' && globalThis.crypto && 'randomUUID' in globalThis.crypto) {
@@ -43,10 +32,7 @@ function instanceRef<C extends string>(
 }
 
 export function migrateCharacter5eFromV3ToV4(character: Character5e): Character5e {
-  // v3 fields no longer on Character5e at compile time but still on raw save
-  // JSON at runtime; cast to read them.
-  const legacy = character as unknown as Character5e & LegacyV3Fields
-  const out: Character5e & LegacyV3Fields = { ...legacy }
+  const out: Character5e = { ...character }
 
   if (out.speciesRef === undefined && out.species) {
     out.speciesRef = entryRef('species', out.species)
