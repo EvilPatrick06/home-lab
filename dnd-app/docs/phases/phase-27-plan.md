@@ -3,6 +3,11 @@
 Phase 27 covers the **Audio, SFX & Atmosphere System**. The app has a robust SFX pool (97 events, 130 bundled .mp3 files, round-robin playback), DM audio panel, and network sync for ambient/SFX. However, it has **two critical path bugs** (default ambient points to nonexistent files, custom audio stop uses wrong key), **3D dice animations are completely silent**, **late joiners hear no ambient**, and **duplicate message handlers may cause double-playback**.
 
 > **See also:** Phase 31 (Live-state sync overhaul) — biggest overlap of any plan. Sub-Phase D (A4 duplicate handlers), Sub-Phase E (A5 chat command sync), Sub-Phase I (late-joiner ambient), and parts of Sub-Phase J (A9 custom audio sync) are all absorbed structurally once Phase 31 lands. See per-sub-phase notes inline. Phase 27's path-bug fixes (Sub-Phases A/B), sound for 3D dice (Sub-Phase C), race + cleanup + volume work (Sub-Phases F/G/H), and the playlist system (Sub-Phase K) remain Phase 27 work.
+>
+> **Verification pass (2026-05-18):**
+> - A1 default ambient nonexistent file — ◐ partial refutation: `/sounds/ambient/forest.mp3` **does exist** in `src/renderer/public/sounds/ambient/`. The full playback resolution path through `sound-playback.ts` isn't fully traced; symptom may have been a real bug at audit time or a path-resolution issue that's since shifted. Re-verify before scoping.
+> - A2 custom audio stop key — ✗ `DMAudioPanel.tsx:171, 207` calls `stopCustomAudio(fileName)` while `sound-playback.ts:154` signature is `stopCustomAudio(filePath: string)`. Name/path mismatch the plan flagged still appears present. Live work.
+> - A3 3D dice silent, A6 fade race, A7 cleanup, A8 live volume, A10 playlist — ✗ verified not done. Live work.
 
 ---
 

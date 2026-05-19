@@ -68,7 +68,9 @@ Phase 16 is entirely client-side. No Raspberry Pi involvement.
 
 ### Sub-Phase A: Auto-Pan to Active Token (N1)
 
-**Step 1 — Implement Auto-Pan on Turn Change**
+**Step 1 — Implement Auto-Pan on Turn Change** — ✓ **DONE (different mechanism)**
+> Verified 2026-05-18: implemented in `InitiativeOverlay.tsx:54-73` via the `requestCenterOnEntity` store flag, not the proposed `panToPosition` utility. MapCanvas does the camera move when the flag fires. Hidden-token info-leak guard also present (`InitiativeOverlay.tsx:60-69` filters non-host viewers).
+
 - Open `src/renderer/src/components/game/map/MapCanvas.tsx`
 - Find where the initiative turn changes (either via store subscription or prop change)
 - When the active initiative entry changes, pan the camera to center on that token:
@@ -85,20 +87,28 @@ Phase 16 is entirely client-side. No Raspberry Pi involvement.
 - Create a `panToPosition(x, y, options)` utility that smoothly animates the PixiJS viewport/camera
 - The animation should use easing (ease-out) for a polished feel
 
-**Step 2 — Add Auto-Pan Toggle**
+**Step 2 — Add Auto-Pan Toggle** — ✗ NOT done
+> Verified 2026-05-18: zero matches for `autoPanOnTurnChange` in `src/renderer/src/`. Setting + toggle remain live work.
+
 - Add a game setting: `autoPanOnTurnChange: boolean` (default: true)
 - Add a toggle button in the game toolbar or settings dropdown
 - When disabled, no camera movement on turn changes
 - Players should be able to override independently from DM setting
 
-**Step 3 — Manual "Center on Token" Enhancement**
+**Step 3 — Manual "Center on Token" Enhancement** — ◐ PARTIAL
+> Verified 2026-05-18:
+> - ✓ **Shift+C keyboard shortcut DONE.** Bound in `public/data/ui/keyboard-shortcuts.json` (action `center-on-me`); handler in `hooks/use-game-shortcuts.ts:94` wired through `GameLayout.tsx:563-565` which calls `requestCenterOnEntity(character.id)`.
+> - ✗ **"Center on Me" button in PlayerBottomBar NOT done.** Zero matches in `PlayerBottomBar.tsx`. Live work.
+
 - The audit mentions "Center on entity" is a manual action via portrait click
 - Enhance: add a keyboard shortcut (e.g., `C`) to center camera on the player's own token
 - Add "Center on Me" button in the PlayerBottomBar
 
 ### Sub-Phase B: Map Pins with Journal Linkage (N2)
 
-**Step 4 — Define MapPin Type**
+**Step 4 — Define MapPin Type** — ✓ DONE
+> Verified 2026-05-18: `MapPin` interface defined at `types/map.ts:41`; `MapPinIcon` union at `:39`; `pins?: MapPin[]` on `GameMap` at `:34`.
+
 - Add to `src/renderer/src/types/map.ts`:
   ```typescript
   export interface MapPin {
@@ -117,26 +127,34 @@ Phase 16 is entirely client-side. No Raspberry Pi involvement.
   ```
 - Add `pins: MapPin[]` to `GameMap` type
 
-**Step 5 — Create Pin Layer on Map**
+**Step 5 — Create Pin Layer on Map** — ✗ NOT done
+> Verified 2026-05-18: no pin layer in `map-pixi-setup.ts` (only `pingGraphics`, selection box, fog). Pins exist as data but don't render on the canvas. Hover tooltip + click-to-open also gated by this layer. Live work.
+
 - Add a new PixiJS layer for map pins in `map-pixi-setup.ts` (between Tokens and Fog layers)
 - Render pins as small icons at their grid positions
 - DM pins with `visibleToPlayers: false` hidden from players
 - Hover shows pin label tooltip
 - Click opens the linked content (journal entry, NPC sheet, or a custom note)
 
-**Step 6 — Pin Creation UI**
+**Step 6 — Pin Creation UI** — ✓ DONE (minimal)
+> Verified 2026-05-18: "Add Pin" entry in `EmptyCellContextMenu.tsx:143-153` (gated by `onAddPin` prop). Handler wired in `GameLayout.tsx:947-961` (label prompt + write into `activeMap.pins`). The form-style label/icon/color/visibility/linked-entity picker described in this step did NOT ship — current implementation is a single label prompt. Refining the picker is live work if richer UX is desired.
+
 - In `EmptyCellContextMenu`, add "Add Pin" option (DM only)
 - Opens a small form: label, icon type, color, visibility, optional journal/NPC link
 - Pin saved to the map's `pins` array via `updateMap`
 
-**Step 7 — Pin-to-Journal Navigation**
+**Step 7 — Pin-to-Journal Navigation** — ✗ NOT done
+> Verified 2026-05-18: no rendered pin layer means no click handler. Linked-content navigation is live work, blocked on Step 5 landing first.
+
 - When clicking a pin with `linkedJournalId`, open the journal entry in a floating panel
 - When clicking a pin with `linkedNpcId`, open the NPC detail view
 - This creates spatial storytelling — DMs can mark important locations on the map with linked content
 
 ### Sub-Phase C: Non-Blocking Floating Tools (N3)
 
-**Step 8 — Create FloatingWindow Component**
+**Step 8 — Create FloatingWindow Component** — ✓ DONE
+> Verified 2026-05-18: primitive shipped at `components/ui/FloatingWindow.tsx` (draggable, resizable, sessionStorage-persisted, z-order managed). Re-exported from `components/ui/index.ts:8`. No consumers yet — Steps 9 + 10 below are the remaining live work.
+
 - Build a reusable `FloatingWindow` wrapper component:
   ```tsx
   interface FloatingWindowProps {
@@ -152,7 +170,9 @@ Phase 16 is entirely client-side. No Raspberry Pi involvement.
 - Position persisted in sessionStorage per window type
 - Z-order management: clicking a window brings it to front
 
-**Step 9 — Convert Key DM Tools to Floating Windows**
+**Step 9 — Convert Key DM Tools to Floating Windows** — ✗ NOT done
+> Verified 2026-05-18: `FloatingWindow` primitive has zero consumers in `components/game/modals/`. InitiativeModal / CreatureModal / DMNotesModal all still modal-only. Live work.
+
 - Identify the most disruptive modals (those that block the map):
   - `InitiativeModal` → convert to `FloatingWindow` option
   - `CreatureModal` (monster lookup) → floating window
@@ -160,7 +180,9 @@ Phase 16 is entirely client-side. No Raspberry Pi involvement.
 - Keep modal as default but add "Float" button in the modal header that detaches it into a floating window
 - The game layout should support multiple floating windows simultaneously
 
-**Step 10 — Float Toggle Pattern**
+**Step 10 — Float Toggle Pattern** — ✗ NOT done
+> Verified 2026-05-18: no Float/Dock toggle pattern present in modal headers. Live work.
+
 - Add a "Float / Dock" toggle to each modal header:
   ```tsx
   <ModalHeader>
@@ -178,7 +200,9 @@ Phase 16 is entirely client-side. No Raspberry Pi involvement.
 
 ### Sub-Phase D: Macro Engine Improvements (N4)
 
-**Step 11 — Add Conditional Logic to Macros**
+**Step 11 — Add Conditional Logic to Macros** — ✗ NOT done
+> Verified 2026-05-18: `services/macro-engine.ts` has no `{if}`/`{else}`/comparison operator parsing. Only `resolveMacroVariables` + `expandRepeatBlocks` exist. Live work.
+
 - Open `src/renderer/src/services/macro-engine.ts`
 - Currently supports simple variable substitution (`$self`, `$target`, `$mod.str`)
 - Add basic conditional syntax:
@@ -190,7 +214,9 @@ Phase 16 is entirely client-side. No Raspberry Pi involvement.
   - Comparison operators: `<`, `>`, `<=`, `>=`, `==`, `!=`
   - Arithmetic in conditions: `$self.hp < $self.maxhp/2`
 
-**Step 12 — Add Repeat/Multi-Roll**
+**Step 12 — Add Repeat/Multi-Roll** — ✓ DONE
+> Verified 2026-05-18: `expandRepeatBlocks` in `services/macro-engine.ts:80-88` (non-greedy regex, cap at N=20, newline-joined output). Multi-line execution dispatch at `macro-engine.ts:106-118`. Each iteration produces a separate chat result.
+
 - Add repeat syntax for multi-attack macros:
   ```
   {repeat 3}1d20+$mod.str vs AC | 2d6+$mod.str slashing{/repeat}
@@ -198,7 +224,9 @@ Phase 16 is entirely client-side. No Raspberry Pi involvement.
 - Each iteration produces a separate roll result in chat
 - Useful for Extra Attack, Eldritch Blast, Scorching Ray
 
-**Step 13 — Fix Macro Bar Visibility**
+**Step 13 — Fix Macro Bar Visibility** — ✓ DONE (different shape)
+> Verified 2026-05-18: not a separate `FloatingMacroBar` component as drafted. Instead, the collapsed branch of `PlayerBottomBar.tsx:192-203` renders `<MacroBar character={freshCharacter} onRoll={handleMacroRoll} />` inline alongside `<ChatPanel collapsed />`. Functionally equivalent — macro bar stays visible when the bottom bar is collapsed.
+
 - The audit notes the bottom bar collapse hides the Macro Bar
 - When the bottom bar is collapsed, show a minimal floating macro bar:
   ```tsx
@@ -277,9 +305,9 @@ Phase 16 is entirely client-side. No Raspberry Pi involvement.
 ## ⚠️ Constraints & Edge Cases
 
 ### Auto-Pan
-- **Respect manual camera position**: If the player manually panned/zoomed, don't auto-pan for 5 seconds (debounce). This prevents fighting the user's intentional camera position.
-- **Hidden tokens**: If it's a hidden enemy's turn, do NOT pan to their position for players — only pan for visible entities.
-- **Animation performance**: Use PixiJS ticker for smooth animation, not CSS transitions on the container.
+- **Respect manual camera position**: If the player manually panned/zoomed, don't auto-pan for 5 seconds (debounce). This prevents fighting the user's intentional camera position. — ✗ NOT done (no manual-pan debounce found; live work).
+- **Hidden tokens**: If it's a hidden enemy's turn, do NOT pan to their position for players — only pan for visible entities. — ✓ DONE (`InitiativeOverlay.tsx:60-69` filters non-host viewers; lair actions + own-player entries always visible).
+- **Animation performance**: Use PixiJS ticker for smooth animation, not CSS transitions on the container. — unverified at this pass.
 
 ### Map Pins
 - **Pin density**: A map with many pins can be cluttered. Add a zoom threshold — hide pin labels when zoomed out past a threshold, show only icons.

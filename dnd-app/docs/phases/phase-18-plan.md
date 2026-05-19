@@ -3,6 +3,12 @@
 Phase 18 is a **GUI & UX audit**. The app has solid foundations (dark theme, accessibility store, toast system, keyboard shortcuts, error boundaries) but suffers from **inconsistent iconography** (Unicode chars instead of an icon library), **100+ occurrences of 10px text**, **only 67 aria-labels across 697 TSX files**, **no responsive breakpoints**, and **z-index soup**. Many items overlap previous phases; this plan covers only net-new UX work.
 
 > **See also:** Phase 29 (Roles + Permissions) — UI states that today read `isHost` / `isCoDM` will switch to `hasPermission(peer, key, campaign)`. Toolbar / button visibility added by this plan should anticipate that shape.
+>
+> **Verification pass (2026-05-18):**
+> - Sub-Phase A (Icon library): ✗ no `lucide-react` / `heroicons` deps; Unicode chars still in use. Live work.
+> - Sub-Phase B (10px sweep): ◐ baseline drift in the wrong direction — **1053 `text-[10px]` occurrences** remain (plan baseline was 100+). Live work, larger than originally scoped.
+> - Sub-Phase C (aria sweep): ◐ partial — **152 `aria-label=` occurrences** (audit baseline 67). More coverage than baseline but well short of complete. Live work.
+> - Sub-Phase D–J (route dup, empty/loading states, z-index, expanded state, Firefox scrollbar, fantasy font, screen-reader auto-detect): ✗ none verified done. Live work.
 
 ---
 

@@ -5,6 +5,13 @@ Phase 24 covers the **Character Level-Up System**. The wizard is substantially c
 > **See also:** Phase 15 (Library as Single Source of Truth). `src/renderer/src/services/character/spell-data.ts` (spell-slot tables, half-caster lookup, `CANTRIPS_KNOWN`) is a parallel data file outside the library. Phase 15 Step 28 deletes parallel data files and moves the content into library `class-progression-table` entries. **Sequence:** land Phase 24's bug fixes first (B3 half-caster, F-series cantrips/subclass features), then Phase 15's sweep ports the corrected tables into the library. If Phase 15 lands first, all Phase 24 references to `spell-data.ts` re-target the library entries via `useLibraryEntry('class', classId)`.
 >
 > **See also:** Phase 31 (Live-state sync overhaul) — level-up character mutations broadcast automatically through the character shard. No explicit broadcaster needed once Phase 31 lands; today's manual broadcast call sites become no-ops.
+>
+> **Verification pass (2026-05-18):**
+> - B1 subclass not persisted to `character.classes[].subclass` — ✗ verified critical. `apply-level-up.ts` references `subclass` at lines 111, 205, 374, 382 but no write-back to the character record. Live work.
+> - B2 hit dice multiclass — ✗ not fixed. Live work.
+> - B3 half-caster level 1 slots (`spell-data.ts:444` `Math.ceil(level/2)`) — ✗ not fixed. Live work.
+> - B4 HP display pre-ASI CON (`HpRollSection5e.tsx:24`) — ✗ not fixed. Live work.
+> - B5 skill prof on multiclass — ✗ not fixed. Live work.
 
 ---
 

@@ -3,6 +3,8 @@
 Phase 17 is a **full codebase error audit** identifying 171 issues across syntax, logic, network, GUI, runtime, and type categories. This is the largest single phase. The plan focuses on the **49 critical and high-severity issues** that are NET-NEW (not already addressed by previous phases). Lower-severity items are catalogued for future cleanup.
 
 > **See also:** Phases 29-32. NET-5 broadcast hardening (Step 19) lands inside `host-manager.ts` paths that Phase 30 consolidates into `GameAuthority` — the try-catch travels with the consolidation. Many of the "30 medium network issues" (NET-21–NET-50) may disappear after Phase 30 (single message router) + Phase 31 (single sync protocol); re-scope at execution time.
+>
+> **Verification pass (2026-05-18):** Spot-checked ~30 audit steps. ~2 already addressed: **GUI-1** PlayerHUDOverlay hooks placement (hooks above the early return at `PlayerHUDOverlay.tsx`); **NET-5** broadcast try-catch present at the visible sites in `host-manager.ts:170-174` (disconnectPeer) and `:303-308` (ping interval). The plan's stale line numbers (321/329/342) don't map to current code; full broadcast-site coverage is unverified, so treat NET-5 as **partial**. All other P0/P1 audit items (NET-1/12/13/14/15 path traversal, NET-2/3 BrowserWindow guards, RUN-1 JSON.parse, LOG-1–LOG-12 game logic, GUI-2/4/7/8, TYP-1–TYP-4) verified NOT done. **Recommendation:** re-run the audit script before scoping; some "fixed elsewhere" may show up.
 
 ---
 

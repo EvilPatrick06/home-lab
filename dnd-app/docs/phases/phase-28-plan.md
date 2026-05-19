@@ -4,6 +4,19 @@
 > Every finding from that audit is logged across `docs/ISSUES-LOG-DNDAPP.md`, `docs/SECURITY-LOG.md`, and `docs/SUGGESTIONS-LOG-DNDAPP.md` (entries dated 2026-05-12).
 > This phase plan groups all of them into 9 sub-phases (28a–28i) for execution. **User approved all items, including minor / future / out-of-scope (2026-05-12).**
 
+> **Verification pass (2026-05-18):**
+> - 28a.1 Math.random sweep — ✗ **89 Math.random sites remain** in non-test files. `crypto-random.ts` utility exists and is adopted in dice/invite/rest paths, but every site in the 28a.1 list (PlayerHUDEffects, NPCGeneratorModal, GroupRollModal, weather-tables, bastion-events, personality-tables, etc.) still uses Math.random. Live work.
+> - 28a.2/28a.3 BMO sync receiver hardening — ✗ no `BMO_SYNC_BIND`, no narrow CORS, no body limit, no Zod validation. Live work.
+> - 28a.4 Authorization Bearer — ✗ not injected in `bmo-bridge.ts`. Live work.
+> - 28a.5 JSON.parse containment in `game-data-handlers.ts:29` — ✗ still unguarded. Live work.
+> - 28b.1 Claude model list — ✗ `src/main/ai/claude-client.ts:107` lists outdated models (`claude-sonnet-4-20250514`, `claude-3-5-sonnet-20241022`, `claude-3-5-haiku-20241022`); current series (`claude-opus-4-7`, `claude-sonnet-4-6`, `claude-haiku-4-5-20251001`) absent. Live work.
+> - 28b.2 SDK bump — ✗ `package.json` shows `@anthropic-ai/sdk: ^0.78.0`. Live work.
+> - 28b.3 prompt caching — ✗ no `cache_control` in `src/main/ai/`. Live work.
+> - 28c.5 peerjs reconnection — ✓ **DONE.** Exponential backoff (1s/2s/4s/8s/16s/30s cap) + max-attempts + jitter present in `host-manager.ts:277-310`, `client-manager.ts:57`, `registry-client.ts:196`. "Reconnecting…" lobby badge at `PlayerCard.tsx:167`. Strike this step from Phase 28 scope.
+> - 28d.5/28d.6 Date.now()-based IDs + UUID truncation — ◐ partial. `crypto.randomUUID()` is used in many places but **86 sites of `randomUUID().slice(...)` truncation** remain, and some bare `Date.now()` ID generation persists (`PlayerHUDEffects.tsx:234, :300`). Live work.
+> - 28e CI workflow — ◐ `.github/workflows/release.yml` exists (preflight + build matrix + verify-assets). No `dnd-app-ci.yml`. No pre-commit hooks. Live work.
+> - All other items (28b.4, 28c.1–4/6, 28d.1–4, 28f, 28g, 28h, 28i) — verified ✗ not done.
+
 ---
 
 ## Architecture & Environment

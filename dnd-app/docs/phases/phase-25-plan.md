@@ -9,6 +9,12 @@ Phase 25 covers the **Homebrew & Custom Content System**. The foundation exists 
 > **H2 (Zod schemas)** is promoted to a **Phase 15 prerequisite**: all 13 content types need validated shapes before they become canonical library entries. Ship H2 before Phase 15 lands.
 >
 > **See also:** Phase 31 (Live-state sync overhaul) — library / homebrew updates broadcast as a library shard delta (no bespoke message). Campaign-scoped homebrew filtering (Sub-Phase E / M1) lives in that shard's `permissionFilter` once Phase 29 permission keys exist.
+>
+> **Verification pass (2026-05-18):**
+> - H1 export/import — ✗ no `.dndhomebrew` support in `services/io/`. Live work.
+> - H2 Zod schemas — ◐ baseline drift: **9/13 files** in `scripts/schemas/` (backgrounds, bestiary, classes, equipment, feats, mechanics, species, spells, world). Up from plan's 3/13. Remaining 4 types still need schemas. Live work + this remains a Phase 15 prerequisite.
+> - H3 custom mechanics — ✗ `feat-mechanics-5e.ts` has zero homebrew handling. Live work (mechanical-effects work, not the field-parity work that 17o shipped).
+> - M1 campaign-scoped homebrew — ✗ no `campaignId` field on homebrew schemas. Live work.
 
 ---
 

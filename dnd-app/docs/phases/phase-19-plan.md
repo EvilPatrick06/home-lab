@@ -1,6 +1,11 @@
 # SYSTEM OVERRIDE: IMPLEMENTATION MODE
 
 > **See also:** Phase 15 (library build-guard lint allowlist) and Phase 30 (host-side snapshot path). See notes inline in the Path Bug Files table below.
+>
+> **Verification pass (2026-05-18):**
+> - P1 srd-provider.ts packaged path bug — ✗ still present. `src/main/ai/srd-provider.ts:7` still has `'public'` in the joined path. Critical, AI SRD lookups fail in packaged builds. Live work.
+> - Step 3 `src/main/paths.ts` utility — ✗ file does not exist. Live work.
+> - All other sub-phases (release script, code signing, platform targets, chunk index, updater) — ✗ verified not done.
 
 Phase 19 covers **Packaging, Build Configuration, and Distribution** — Electron build toolchain, NSIS installer, auto-updater, code signing, platform targets, and asset paths. The audit found the Windows build pipeline functional but identified a **critical packaged path bug** in `srd-provider.ts`, missing Mac/Linux targets, no code signing, and a `release` script that doesn't clean stale artifacts.
 

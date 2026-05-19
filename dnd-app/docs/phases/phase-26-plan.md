@@ -5,6 +5,8 @@ Phase 26 covers the **Encounter Builder & Combat Tracker**. The builder correctl
 > **See also:** Phase 15 (Library as Single Source of Truth) — encounters store monster **refs**, not embedded monster JSON. See Step 10 and the Pre-Positioning constraint below.
 >
 > **See also:** Phase 31 (Live-state sync overhaul) — token mutations from `smartPlaceTokens` / `executeLoadEncounter` propagate via the `map-tokens` shard automatically. Encounter object itself becomes its own shard (Phase 31 Sub-Phase 31i). Wave-trigger "Reinforcements arrive!" stays as a chat-shard message (one-shot event). Notes inline below.
+>
+> **Verification pass (2026-05-18):** All five plan items (E1 GroupRollModal hardcoded `['Theron', 'Lyra', 'Grimjaw', 'Senna']`; E2 "Place All & Start Initiative" only broadcasts chat; E3 tight-grid AI deployment; E4 wave support; E5 encounter-to-map UI) verified ✗ NOT done. Live work.
 
 ---
 

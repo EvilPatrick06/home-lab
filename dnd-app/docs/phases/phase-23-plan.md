@@ -5,6 +5,15 @@ Phase 23 covers the **In-Game Character Sheet** — data binding, real-time sync
 > **See also:** Phase 15 (Library as Single Source of Truth) — Sub-Phase C (remote character store) and Sub-Phase F (attunement) both interact with Phase 15's ref+hydration shape. See per-sub-phase notes below.
 >
 > **See also:** Phase 31 (Live-state sync overhaul) — `dm:character-update` ceases to exist; character state becomes part of the character shard. Sub-Phase D's conflict-resolution UI moves into the shard-applier layer. Notes inline.
+>
+> **Verification pass (2026-05-18):**
+> - Sub-Phase A virtualization — ◐ `@tanstack/react-virtual` is in the repo and used elsewhere (ChatPanel, LibraryItemList) but **not confirmed wired into the sheet's spell/equipment lists**. Live work.
+> - Sub-Phase B spell search input — ✗ no in-sheet spell search input found. Library deep-link from Builder/Sheet shipped (17m + 18f) covers the *jump-to-library* path; the in-sheet filter input itself is still live work.
+> - Sub-Phase C remote character store — ✗ dual-store pattern intact (already noted for Phase 15 + Phase 31).
+> - Sub-Phase D conflict resolution — ✗ no `ConflictBanner` / `showConflictWarning` / timestamp compare in `client-handlers.ts`. Live work.
+> - Sub-Phase E useMemo coverage — ◐ partial across sheet sections; not exhaustive. Live work.
+> - Sub-Phase F attunement — ✗ two separate stores still: `character.attunement` array AND `character.magicItems[].attuned` boolean. Live work.
+> - Sub-Phase G optimistic save — ✗ `use-character-editor.ts` not confirmed to implement the optimistic pattern. Live work.
 
 ---
 

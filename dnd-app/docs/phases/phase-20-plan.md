@@ -3,6 +3,13 @@
 Phase 20 is a **Security Audit** scoring 7/10. Electron configuration is excellent (sandbox, contextIsolation, CSP). Network validation is strong (Zod schemas, rate limiting, size limits). The gaps are in **credential storage** (API keys in plaintext), **input sanitization** (chat messages, user data), **plugin integrity** (no signature verification), **hardcoded TURN credentials**, and **AI file access scope**. The "no authentication" finding is noted but deprioritized — this is a desktop P2P app where invite codes serve as session auth (and Phase 32 ships JWT for cloud-host mode).
 
 > **See also:** Phases 30-32. The "no authentication" deprioritized finding is **covered for cloud mode by Phase 32** (JWT auth on WS frames). S3 (hardcoded TURN credentials) interacts with Phase 30's `TransportAdapter` abstraction — see inline note.
+>
+> **Verification pass (2026-05-18):**
+> - S1 API keys plaintext — ✗ no `safeStorage` usage in `src/main/ai/ai-service.ts`. Live work.
+> - S2 chat sanitization — ◐ no `dangerouslySetInnerHTML` in `ChatPanel.tsx`; React JSX auto-escapes. No DOMPurify layer either. Render-side safety is acceptable today; sanitization layer remains live work pending decision.
+> - S3 hardcoded TURN creds — ✗ `peer-manager.ts:23-29` still hardcodes `dndvtt:dndvtt-relay` (only active when `customHost` is set, but credentials are still source-visible). Live work.
+> - S4 plugin integrity — ✗ no signature/checksum verification in `plugin-handlers.ts`. Live work.
+> - S5 AI file scope — ✗ scope restriction not implemented. Live work.
 
 ---
 
