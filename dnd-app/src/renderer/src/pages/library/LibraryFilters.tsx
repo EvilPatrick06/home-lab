@@ -1,4 +1,4 @@
-import { useLibraryStore } from '../../stores/use-library-store'
+import { useLibraryUiStore } from '../../stores/use-library-ui-store'
 import type { SortField, Tab } from './library-constants'
 import { CR_OPTIONS, SIZE_OPTIONS, sizeOrder, TABS, TYPE_OPTIONS } from './library-constants'
 
@@ -6,7 +6,7 @@ export { CR_OPTIONS, SIZE_OPTIONS, sizeOrder, TABS, TYPE_OPTIONS }
 export type { SortField, Tab }
 
 export default function LibraryFilters(): JSX.Element {
-  const { searchQuery, setSearchQuery } = useLibraryStore()
+  const { searchQuery, setSearchQuery } = useLibraryUiStore()
 
   return (
     <div className="mb-4">

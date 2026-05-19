@@ -12,7 +12,7 @@ vi.stubGlobal('window', {
 
 import { useLibraryStore } from './use-library-store'
 
-describe('useLibraryStore', () => {
+describe('useLibraryStore (data)', () => {
   it('can be imported', async () => {
     const mod = await import('./use-library-store')
     expect(mod).toBeDefined()
@@ -22,30 +22,35 @@ describe('useLibraryStore', () => {
     expect(typeof useLibraryStore).toBe('function')
   })
 
-  it('has expected initial state shape', () => {
+  it('has expected initial state shape (data-only after Phase 15a Step 6 spinout)', () => {
     const state = useLibraryStore.getState()
-    expect(state).toHaveProperty('selectedCategory')
-    expect(state).toHaveProperty('searchQuery')
     expect(state).toHaveProperty('items')
     expect(state).toHaveProperty('homebrewEntries')
     expect(state).toHaveProperty('loading')
     expect(state).toHaveProperty('homebrewLoaded')
   })
 
-  it('has expected initial state values', () => {
+  it('UI state has been moved to useLibraryUiStore', () => {
+    const state = useLibraryStore.getState() as unknown as Record<string, unknown>
+    expect(state.selectedCategory).toBeUndefined()
+    expect(state.searchQuery).toBeUndefined()
+    expect(state.recentlyViewed).toBeUndefined()
+    expect(state.favorites).toBeUndefined()
+    expect(state.setCategory).toBeUndefined()
+    expect(state.setSearchQuery).toBeUndefined()
+    expect(state.toggleFavorite).toBeUndefined()
+  })
+
+  it('has expected initial values', () => {
     const state = useLibraryStore.getState()
-    expect(state.selectedCategory).toBeNull()
-    expect(state.searchQuery).toBe('')
     expect(state.items).toEqual([])
     expect(state.homebrewEntries).toEqual([])
     expect(state.loading).toBe(false)
     expect(state.homebrewLoaded).toBe(false)
   })
 
-  it('has expected actions', () => {
+  it('has expected data actions', () => {
     const state = useLibraryStore.getState()
-    expect(typeof state.setCategory).toBe('function')
-    expect(typeof state.setSearchQuery).toBe('function')
     expect(typeof state.setItems).toBe('function')
     expect(typeof state.setLoading).toBe('function')
     expect(typeof state.loadHomebrew).toBe('function')

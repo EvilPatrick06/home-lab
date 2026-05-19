@@ -24,6 +24,7 @@ import {
   sortItems
 } from '../services/library-sort-filter'
 import { useLibraryStore } from '../stores/use-library-store'
+import { useLibraryUiStore } from '../stores/use-library-ui-store'
 import type { HomebrewEntry, LibraryCategory, LibraryItem } from '../types/library'
 import { getAllCategories, getCategoryDef, LIBRARY_GROUPS } from '../types/library'
 import type { MonsterStatBlock } from '../types/monster'
@@ -42,24 +43,19 @@ export default function LibraryPage(): JSX.Element {
   const returnTo = searchParams.get('from') || '/'
   const navigate = useNavigate()
 
+  const { setItems, loading, setLoading, homebrewEntries, loadHomebrew, saveHomebrewEntry, deleteHomebrewEntry } =
+    useLibraryStore()
   const {
     selectedCategory,
     setCategory,
     searchQuery: search,
     setSearchQuery: setSearch,
-    setItems,
-    loading,
-    setLoading,
-    homebrewEntries,
-    loadHomebrew,
-    saveHomebrewEntry,
-    deleteHomebrewEntry,
     recentlyViewed,
     addToRecentlyViewed,
     clearRecentlyViewed,
     favorites,
     toggleFavorite
-  } = useLibraryStore()
+  } = useLibraryUiStore()
 
   const [selectedItem, setSelectedItem] = useState<LibraryItem | null>(null)
   const [homebrewModal, setHomebrewModal] = useState<{

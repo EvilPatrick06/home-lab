@@ -2,6 +2,7 @@ import Fuse from 'fuse.js'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { loadCategoryItems } from '../../../../services/library-service'
 import { useLibraryStore } from '../../../../stores/use-library-store'
+import { useLibraryUiStore } from '../../../../stores/use-library-ui-store'
 import type { LibraryCategory, LibraryItem } from '../../../../types/library'
 import { LibraryDetailModal, LibraryItemList } from '../../../library'
 import Modal from '../../../ui/Modal'
@@ -52,7 +53,8 @@ export default function CompendiumModal({ onClose }: CompendiumModalProps): JSX.
     }
   }, [])
 
-  const { homebrewEntries, favorites, toggleFavorite, loadHomebrew } = useLibraryStore()
+  const { homebrewEntries, loadHomebrew } = useLibraryStore()
+  const { favorites, toggleFavorite } = useLibraryUiStore()
 
   useEffect(() => {
     loadHomebrew()
