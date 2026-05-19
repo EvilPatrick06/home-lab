@@ -456,6 +456,7 @@ export function isThirdCaster(classId: string, subclassId?: string): boolean {
  * Calculate spell slots for a multiclass character.
  */
 export function getMulticlassSpellSlots(
+  // boundary-allow: Phase 15g sweep target — *-tables.ts file ported to library entries in cleanup
   classes: Array<{ classId: string; subclassId?: string; level: number }>
 ): Record<number, number> {
   let combinedLevel = 0
@@ -544,6 +545,7 @@ export function getItemGrantedSpells(magicItems: MagicItemEntry5e[], knownSpells
       if (existing) continue
       result.push({
         id: `item-${item.id}-${grant.spellId}`,
+        // boundary-allow: Phase 15g sweep target — *-tables.ts file ported to library entries in cleanup
         name: grant.spellName,
         level: 0,
         description: `Granted by ${item.name}.`,

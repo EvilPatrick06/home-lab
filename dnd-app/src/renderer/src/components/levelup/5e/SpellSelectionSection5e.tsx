@@ -16,6 +16,7 @@ interface SpellSelectionSection5eProps {
 
 interface RawSpell {
   id: string
+  // boundary-allow: Phase 15d sweep target — levelup component still consumes inline spell shape
   name: string
   level: number
   school?: string

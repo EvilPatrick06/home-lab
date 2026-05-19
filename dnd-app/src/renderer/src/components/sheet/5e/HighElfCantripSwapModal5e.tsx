@@ -15,6 +15,7 @@ interface HighElfCantripSwapModal5eProps {
 
 interface SpellData {
   id: string
+  // boundary-allow: Phase 15c sweep target — sheet modal still consumes inline spell shape
   name: string
   level: number
   school?: string
@@ -77,6 +78,7 @@ export default function HighElfCantripSwapModal5e({
       if (s.id !== currentSpeciesCantrip.id) return s
       return {
         id: `species-${newCantrip.id}-Elf`,
+        // boundary-allow: Phase 15c sweep target — sheet modal still consumes inline spell shape
         name: newCantrip.name,
         level: 0,
         description: newCantrip.description,

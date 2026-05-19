@@ -64,6 +64,7 @@ export function weaponDataToEntry(item: WeaponData5e, character: Character5e): W
   const mod = abilityModifier(abilityScore)
   return {
     id: crypto.randomUUID(),
+    // boundary-allow: Phase 15c sweep target — sheet component still consumes inline weapon shape
     name: item.name,
     damage: item.damage,
     damageType: item.damageType,

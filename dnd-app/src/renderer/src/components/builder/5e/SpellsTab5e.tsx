@@ -266,6 +266,7 @@ export default function SpellsTab5e(): JSX.Element {
                 key={spell.id}
                 spell={{
                   id: spell.id,
+                  // boundary-allow: Phase 15b sweep target — builder spells tab still consumes inline spell shape
                   name: spell.name,
                   level: spell.level,
                   school: spell.school,
@@ -430,6 +431,7 @@ export default function SpellsTab5e(): JSX.Element {
                 key={spell.id}
                 spell={{
                   id: spell.id,
+                  // boundary-allow: Phase 15b sweep target — builder spells tab still consumes inline spell shape
                   name: spell.name,
                   level: spell.level,
                   school: spell.school,
@@ -460,6 +462,7 @@ export default function SpellsTab5e(): JSX.Element {
               key={spell.id}
               spell={{
                 id: spell.id,
+                // boundary-allow: Phase 15b sweep target — builder spells tab still consumes inline spell shape
                 name: spell.name,
                 level: spell.level,
                 school: spell.school,

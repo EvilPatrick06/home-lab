@@ -10,6 +10,7 @@ export interface TrapScaling {
 
 export interface Trap {
   id: string
+  // boundary-allow: type definition for library shape (canonical declaration site, not data embedding)
   name: string
   level: 'nuisance' | 'deadly'
   trigger: string

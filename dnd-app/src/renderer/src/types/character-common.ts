@@ -85,6 +85,7 @@ export const ALL_LANGUAGES_5E = [...STANDARD_LANGUAGES_5E, ...RARE_LANGUAGES_5E]
 
 export interface SelectableOption {
   id: string
+  // boundary-allow: type definition for library shape (legacy SpellEntry/etc. — removed in Phase 15c sweep)
   name: string
   rarity: Rarity
   description: string
@@ -128,6 +129,7 @@ export function isBloodied(currentHP: number, maxHP: number): boolean {
 
 export interface SpellEntry {
   id: string
+  // boundary-allow: type definition for library shape (legacy SpellEntry/etc. — removed in Phase 15c sweep)
   name: string
   level: number
   description: string
@@ -197,6 +199,7 @@ export interface Currency {
 }
 
 export interface ClassFeatureEntry {
+  // boundary-allow: type definition for library shape (legacy SpellEntry/etc. — removed in Phase 15c sweep)
   level: number
   name: string
   source: string

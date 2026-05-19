@@ -199,6 +199,7 @@ export async function importFoundryCharacter(): Promise<Character5e | null> {
     const armor: ArmorEntry[] = []
     const equipment: EquipmentItem[] = []
     const knownSpells: SpellEntry[] = []
+    // boundary-allow: external format adapter — maps Foundry data into library shape
     const feats: Array<{ id: string; name: string; description: string }> = []
     const classFeatures: ClassFeatureEntry[] = []
     const features: Feature[] = []
@@ -302,6 +303,7 @@ export async function importFoundryCharacter(): Promise<Character5e | null> {
           const levelMatch = reqLevel.match?.(/(\d+)/)
           if (item.system?.type?.value === 'class') {
             classFeatures.push({
+              // boundary-allow: external format adapter — maps Foundry data into library shape
               level: levelMatch ? parseInt(levelMatch[1], 10) : 1,
               name,
               source: item.system?.requirements ?? 'Class',

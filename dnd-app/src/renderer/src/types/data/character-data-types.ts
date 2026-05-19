@@ -14,6 +14,7 @@ export interface SpeciesTraitUsageLimit {
 }
 
 export interface SpeciesLineageOption {
+  // boundary-allow: type definition for library shape (canonical declaration site, not data embedding)
   name: string
   description?: string
   darkvisionOverride?: number
@@ -128,6 +129,7 @@ export interface FeatureGrantedSpell {
 }
 
 export interface ClassFeatureEntry {
+  // boundary-allow: type definition for library shape (canonical declaration site, not data embedding)
   name: string
   level: number
   description: string
@@ -205,6 +207,7 @@ export interface BackgroundEquipmentOption {
 
 export interface BackgroundData {
   id: string
+  // boundary-allow: type definition for library shape (canonical declaration site, not data embedding)
   name: string
   description: string
   abilityScores: string[]
@@ -250,6 +253,7 @@ export interface FeatAbilityScoreOption {
 }
 
 export interface FeatBenefit {
+  // boundary-allow: type definition for library shape (canonical declaration site, not data embedding)
   name: string
   description: string
 }

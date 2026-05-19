@@ -31,6 +31,7 @@ export function isEntryRef(value: unknown): value is EntryRef {
 // (prepared/equipped/attuned/current charges) lives on consumer.state.
 
 export interface LibrarySpellEntry extends BaseLibraryEntry {
+  // boundary-allow: type definition for library shape (canonical declaration site, not data embedding)
   level: number
   castingTime: string
   range: string

@@ -8,6 +8,7 @@ import { logger } from '../../../utils/logger'
 function toSpellEntry(
   raw: {
     id: string
+    // boundary-allow: Phase 15b sweep target — builder still holds inline shape
     name: string
     level: number
     description: string

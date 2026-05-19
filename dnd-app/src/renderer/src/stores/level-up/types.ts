@@ -51,6 +51,7 @@ export interface LevelUpState {
   asiSelections: Record<string, AbilityName[]> // slotId -> [ability1, ability2]
   generalFeatSelections: Record<
     string,
+    // boundary-allow: Phase 15d sweep target — level-up state still holds inline shape
     { id: string; name: string; description: string; choices?: Record<string, string | string[]> }
   > // slotId -> feat
   fightingStyleSelection: { id: string; name: string; description: string } | null

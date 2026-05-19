@@ -19,6 +19,7 @@ export async function loadCurrencyConfigData(): Promise<unknown> {
 
 // Equipment data types from equipment.json
 export interface WeaponData {
+  // boundary-allow: Phase 15b sweep target — builder gear-tab still holds inline shape
   name: string
   category: string
   damage: string

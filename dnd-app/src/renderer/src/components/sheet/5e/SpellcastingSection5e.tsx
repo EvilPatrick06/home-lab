@@ -103,6 +103,7 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
 
       const newSpell: SpellEntry = {
         id: spellData.id,
+        // boundary-allow: Phase 15c sweep target — sheet component still consumes inline spell shape
         name: spellData.name,
         level: spellData.level ?? 0,
         description: spellData.description ?? '',
@@ -537,6 +538,7 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
             preparedSpells={knownSpells
               .filter((s) => s.level > 0 && preparedSpellIds.includes(s.id))
               .map((s) => ({
+                // boundary-allow: Phase 15c sweep target — sheet component still consumes inline spell shape
                 name: s.name,
                 school: s.school,
                 level: s.level,

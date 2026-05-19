@@ -43,6 +43,7 @@ const SPECIES_SPELL_DATA: Record<string, Omit<SpellEntry, 'id'>> = speciesSpells
  * Falls back to description parsing for legacy data.
  */
 export function getSpellsFromTraits(
+  // boundary-allow: Phase 15b sweep target — auto-populate flips to library reads in builder sweep
   traits: Array<{ name: string; description: string; spellGranted?: string | { list: string; count: number } }>,
   speciesName: string
 ): SpellEntry[] {
@@ -64,6 +65,7 @@ export function getSpellsFromTraits(
           // Unknown spell - create placeholder
           spells.push({
             id: `species-${spellKey}-${speciesName}`,
+            // boundary-allow: Phase 15b sweep target — auto-populate flips to library reads in builder sweep
             name: trait.spellGranted.charAt(0).toUpperCase() + trait.spellGranted.slice(1),
             level: 0,
             description: `Species cantrip from ${trait.name}.`,

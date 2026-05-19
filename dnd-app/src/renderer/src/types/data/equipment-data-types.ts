@@ -13,6 +13,7 @@ type _CreatureSize = CreatureSize
 type _WeaponMasteryProperty = WeaponMasteryProperty
 
 export interface WeaponData {
+  // boundary-allow: type definition for library shape (canonical declaration site, not data embedding)
   name: string
   category: WeaponCategory
   damage: string

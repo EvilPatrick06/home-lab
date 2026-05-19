@@ -110,6 +110,7 @@ export const dnd5ePlugin: GameSystemPlugin = {
         })
         .map((s) => ({
           id: s.id ?? s.name.toLowerCase().replace(/\s+/g, '-'),
+          // boundary-allow: system-level type definition for 5e library shape
           name: s.name,
           level: s.level ?? 0,
           description: s.description ?? '',
@@ -143,6 +144,7 @@ export const dnd5ePlugin: GameSystemPlugin = {
     }
   },
 
+  // boundary-allow: system-level type definition for 5e library shape
   async getClassFeatures(classId: string, level: number): Promise<ClassFeatureEntry[]> {
     try {
       const data = await load5eClassFeatures()

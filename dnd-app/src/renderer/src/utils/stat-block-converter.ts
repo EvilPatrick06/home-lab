@@ -94,6 +94,7 @@ export function monsterToDisplay(m: MonsterStatBlock): DisplayStatBlock {
       ability: m.spellcasting.ability,
       dc: m.spellcasting.saveDC,
       attackBonus: m.spellcasting.attackBonus,
+      // boundary-allow: format converter — adapts text/JSON into library shape
       description: m.spellcasting.notes
     }
   }
@@ -170,6 +171,7 @@ export function sidebarToDisplay(s: SidebarEntryStatBlock, name?: string): Displ
   }
 
   return {
+    // boundary-allow: format converter — adapts text/JSON into library shape
     name: name ?? 'Creature',
     size: s.size ?? 'Medium',
     type: s.creatureType ?? 'Unknown',
@@ -280,6 +282,7 @@ export function monsterToSidebar(m: MonsterStatBlock): SidebarEntryStatBlock {
     conditionImmunities: m.conditionImmunities,
     senses: senses.length > 0 ? senses : undefined,
     passivePerception: m.senses.passivePerception,
+    // boundary-allow: format converter — adapts text/JSON into library shape
     traits: m.traits,
     actions: m.actions.map((a) => ({ name: a.name, description: a.description })),
     bonusActions: m.bonusActions?.map((a) => ({ name: a.name, description: a.description })),

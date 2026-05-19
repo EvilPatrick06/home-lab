@@ -4,6 +4,7 @@ import type { SpellListName, SpellSchool } from './shared-enums'
 
 export interface SpellData {
   id: string
+  // boundary-allow: type definition for library shape (canonical declaration site, not data embedding)
   name: string
   level: number
   school: SpellSchool

@@ -7,6 +7,7 @@ import type { SpellEntry } from '../../types/character-common'
 export function toSpellEntry(
   raw: {
     id: string
+    // boundary-allow: Phase 15d sweep target — level-up state still holds inline shape
     name: string
     level: number
     description: string

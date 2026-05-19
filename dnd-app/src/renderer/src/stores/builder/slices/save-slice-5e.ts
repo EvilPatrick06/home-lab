@@ -6,6 +6,7 @@ export { buildCharacter5e } from './build-character-5e'
 export { loadCharacterForEdit5e } from './load-character-5e'
 
 interface EquipmentArmorData {
+  // boundary-allow: Phase 15b sweep target — builder still holds inline shape
   name: string
   category: string
   baseAC: number

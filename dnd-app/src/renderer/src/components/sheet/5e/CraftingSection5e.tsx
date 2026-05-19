@@ -99,6 +99,7 @@ function weaponDataToEntry(item: WeaponData5e, character: Character5e): WeaponEn
   const mod = abilityModifier(abilityScore)
   return {
     id: crypto.randomUUID(),
+    // boundary-allow: Phase 15c sweep target — sheet component still constructs inline shape
     name: item.name,
     damage: item.damage,
     damageType: item.damageType,

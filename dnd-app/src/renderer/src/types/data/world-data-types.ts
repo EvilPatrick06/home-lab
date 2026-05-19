@@ -9,6 +9,7 @@ import type { AbilityAbbreviation } from './shared-enums'
 
 export interface TrapData {
   id: string
+  // boundary-allow: type definition for library shape (canonical declaration site, not data embedding)
   name: string
   level: 'low' | 'mid' | 'high'
   trigger: string

@@ -148,6 +148,7 @@ export async function apply5eLevelUp(
     const levelClassId = classLevelChoices[lvl] ?? primaryClassId
     const existingIdx = updatedClasses.findIndex((c) => c.name.toLowerCase() === levelClassId)
     if (existingIdx >= 0) {
+      // boundary-allow: Phase 15d sweep target — level-up state still holds inline shape
       updatedClasses[existingIdx] = { ...updatedClasses[existingIdx], level: updatedClasses[existingIdx].level + 1 }
     } else {
       const classInfo = classDataMap[levelClassId]
@@ -271,6 +272,7 @@ export async function apply5eLevelUp(
   const mergedClassFeatures = [
     ...(character.classFeatures ?? []),
     ...allNewFeatures.map((f) => ({
+      // boundary-allow: Phase 15d sweep target — level-up state still holds inline shape
       level: f.level,
       name: f.name,
       source: f.source,

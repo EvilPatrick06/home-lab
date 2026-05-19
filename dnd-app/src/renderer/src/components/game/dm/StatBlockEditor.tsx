@@ -167,6 +167,7 @@ function TraitListEditor({
   traits,
   onChange
 }: {
+  // boundary-allow: Phase 15e sweep target — DM stat-block editor still constructs library shape (also a homebrew-authoring path)
   traits: MonsterTrait[]
   onChange: (traits: MonsterTrait[]) => void
 }): JSX.Element {

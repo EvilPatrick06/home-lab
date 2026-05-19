@@ -32,6 +32,7 @@ export const fogCommand: ChatCommand = {
 }
 
 export const lightCommand: ChatCommand = {
+  // boundary-allow: Phase 15g sweep target — chat command still constructs shape inline
   name: 'light',
   aliases: [],
   description: 'Set ambient lighting level',

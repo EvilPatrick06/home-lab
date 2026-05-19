@@ -15,6 +15,7 @@ export function rollDice(count: number, sides: number): number[] {
   return rollMultiple(count, sides)
 }
 
+// boundary-allow: Phase 15e sweep target — in-game combat util still consumes inline weapon shape
 export function parseDamageDice(damage: string): { count: number; sides: number; modifier: number } | null {
   const match = damage.trim().match(/^(\d*)d(\d+)\s*([+-]\s*\d+)?/)
   if (!match) return null

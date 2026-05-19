@@ -35,6 +35,7 @@ const EDITABLE_SKIP = new Set(['id', '_homebrewId', '_basedOn', '_createdAt', 't
 const CATEGORY_DEFAULT_FIELDS: Partial<Record<LibraryCategory, Record<string, unknown>>> = {
   // The sounds category drives AudioPlayerItem (Phase 17n) which reads
   // `item.data.path` to construct the Audio() src.
+  // boundary-allow: homebrew authoring UI — constructs library-shape from form input, intentional
   sounds: { name: '', description: '', path: '', subcategory: '' },
   spells: {
     name: '',

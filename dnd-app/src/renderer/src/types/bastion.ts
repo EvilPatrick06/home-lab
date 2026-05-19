@@ -222,6 +222,7 @@ export interface Bastion {
 
 export interface BasicFacilityDef {
   type: BasicFacilityType
+  // boundary-allow: type definition for library shape (canonical declaration site, not data embedding)
   name: string
   description: string
 }

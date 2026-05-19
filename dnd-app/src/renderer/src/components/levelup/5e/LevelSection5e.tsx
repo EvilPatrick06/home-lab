@@ -29,6 +29,7 @@ export { AsiSelector5e, GeneralFeatPicker }
 
 interface LevelSection5eProps {
   character: Character5e
+  // boundary-allow: Phase 15d sweep target — levelup component still consumes inline level shape
   level: number
   slots: BuildSlot[]
   classIdForLevel?: string

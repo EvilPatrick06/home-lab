@@ -371,6 +371,7 @@ function extractSpells(data: Record<string, unknown>): { knownSpells: SpellEntry
 
       const spell: SpellEntry = {
         id,
+        // boundary-allow: external format adapter — maps D&D Beyond data into library shape
         name: def.name,
         level: def.level ?? 0,
         description: (def.description ?? '').replace(/<[^>]*>/g, '').slice(0, 500),

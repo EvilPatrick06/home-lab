@@ -150,6 +150,7 @@ const levelCommand: ChatCommand = {
       return
     }
 
+    // boundary-allow: Phase 15g sweep target — chat command still constructs shape inline
     const updated = { ...char5e, level: currentLevel + 1 }
     saveAndBroadcastCharacter(updated)
 

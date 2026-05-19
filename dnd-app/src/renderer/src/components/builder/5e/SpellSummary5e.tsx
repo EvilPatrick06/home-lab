@@ -2,6 +2,7 @@ import { Fragment, useMemo, useState } from 'react'
 
 export interface SpellData {
   id: string
+  // boundary-allow: Phase 15b sweep target — builder spell summary still consumes inline spell shape
   name: string
   level: number
   school?: string

@@ -130,6 +130,7 @@ export async function buildCharacter5e(get: GetState): Promise<Character5e> {
   const classId = classSlot?.selectedId ?? ''
   const subclassId = subclassSlot?.selectedId ?? undefined
   const spellcastingInfo = computeSpellcastingInfo(
+    // boundary-allow: Phase 15b sweep target — builder still holds inline shape
     [{ classId, subclassId, level: targetLevel }],
     stats.abilityScores,
     targetLevel,
@@ -479,6 +480,7 @@ export async function buildCharacter5e(get: GetState): Promise<Character5e> {
     druidicWarriorCantrips,
     speciesData,
     derivedSpeciesTraits: state.derivedSpeciesTraits as Array<{
+      // boundary-allow: Phase 15b sweep target — builder still holds inline shape
       name: string
       description: string
       spellGranted?: string | { list: string; count: number }

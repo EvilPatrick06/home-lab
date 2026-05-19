@@ -4,6 +4,7 @@ import type { EncounterDifficulty } from './shared-enums'
 
 export interface EncounterPreset {
   id: string
+  // boundary-allow: type definition for library shape (canonical declaration site, not data embedding)
   name: string
   description: string
   environment: string
