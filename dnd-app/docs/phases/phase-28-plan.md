@@ -368,6 +368,23 @@ try { return await next } finally {
 
 > **Phase 30 coordination:** `use-game-network.ts:92` is part of the network-side surface Phase 30 reshapes. Verify the dep suppression is still relevant post-rewrite; the hook may move or disappear.
 
+### Step 28d.7 — `migrateData` return-value contract rewrite (added 2026-05-18)
+
+**Origin:** SUGGESTIONS-LOG-DNDAPP `[2026-04-24] DO NOT update migrateData to return new objects instead of mutating in place` gotcha.
+
+**Description:** `src/main/storage/migrations.ts:33` discards each migration's return value and relies on in-place mutation. Future contributors writing immutable-style migrations (`(data) => ({ ...data, foo: [] })`) silently no-op. Fix the contract instead of documenting the trap.
+
+**Changes:**
+1. Refactor `migrateData()` to capture each migration's return value: `record = migration(record)`.
+2. Both forms now work: mutation-style returns the mutated record; immutable-style returns a new object.
+3. Update the function's JSDoc explicitly: "Migrations may mutate in place OR return a new record — the caller captures the return value either way."
+4. Add a vitest with one mutation-style migration + one immutable-style migration, both producing the same final shape.
+
+**Acceptance:**
+- Existing migrations (which mutate in place) still work.
+- A new test-only immutable-style migration also works.
+- Gotcha entry in SUGGESTIONS-LOG can be deleted (contract is no longer a trap).
+
 **Files:**
 - `src/renderer/src/components/game/GameLayout.tsx:407`
 - `src/renderer/src/hooks/use-game-effects.ts:144, 307`
@@ -434,6 +451,57 @@ try { return await next } finally {
 - A PR that breaks `tsc` fails the job
 - A PR that adds a circular dep fails the job
 - A PR that drops a test fails the job
+
+### Step 28e.3 — Lint rule: forbid `Math.random` outside `utils/crypto-random.ts` and tests (added 2026-05-18)
+
+**Origin:** SUGGESTIONS-LOG-DNDAPP `[2026-05-12] DO NOT use Math.random()` gotcha. Replaces the docs gotcha with mechanical enforcement.
+
+**Files:** `biome.json` (or new `scripts/lint/no-math-random.mjs` for a grep-based check)
+
+**Changes:**
+1. Add a Biome custom rule (or grep-based pre-commit hook): `Math.random` is forbidden except in `src/renderer/src/utils/crypto-random.ts` and `*.test.ts(x)`.
+2. Wire into `check:full` and `dnd-app-ci.yml`.
+3. After Phase 28a.1 sweep lands, this rule prevents regressions.
+
+### Step 28e.4 — Lint rule: forbid bare `writeFile` outside `atomic-write.ts` (added 2026-05-18)
+
+**Origin:** SUGGESTIONS-LOG-DNDAPP `[2026-04-24] atomic-write.ts is the canonical storage write` info entry.
+
+**Changes:** Biome rule forbidding `import { writeFile } from 'node:fs'` / `from 'node:fs/promises'` outside `src/main/storage/atomic-write.ts`. Forces every new storage module to route through the atomic helper.
+
+### Step 28e.5 — Lint rule: forbid `useNetworkStore` import from `stores/use-network-store.ts` (added 2026-05-18)
+
+**Origin:** SUGGESTIONS-LOG-DNDAPP `[2026-04-24] DO NOT import useNetworkStore from use-network-store.ts` gotcha. Pairs with Phase 33g codemod.
+
+**Changes:** Biome rule forbidding imports from `stores/use-network-store` — after Phase 33g rewrites consumers, the rule prevents anyone re-introducing the circular barrel.
+
+### Step 28e.6 — Lint rule: forbid `require()` in `electron.vite.config.ts` (added 2026-05-18)
+
+**Origin:** SUGGESTIONS-LOG-DNDAPP `[2026-04-24] DO NOT use CJS require()` gotcha. Pairs with Phase 33e migration.
+
+**Changes:** Grep-based pre-commit hook flagging `require(` in `electron.vite.config.ts`. After Phase 33e converts to `await import(...)`, the rule keeps the file ESM-only.
+
+### Step 28e.7 — Lint rule: no skipped tests (added 2026-05-18)
+
+**Origin:** SUGGESTIONS-LOG-DNDAPP `[2026-05-12] Vitest suite has zero skipped / todo tests` info — replace observation with enforcement.
+
+**Changes:** CI step: `! grep -rE '\\b(it|describe|test)\\.skip\\b|\\b(xit|xdescribe|xtest)\\b|\\.todo\\b' src/`. Fails if any test is `.skip`/`.todo`/`xit`/`xdescribe`.
+
+### Step 28e.8 — License audit gate (added 2026-05-18)
+
+**Origin:** SUGGESTIONS-LOG-DNDAPP `[2026-04-24] License audit clean — 222 prod deps` info — replace snapshot with enforcement.
+
+**Changes:** CI step: `npx license-checker --production --failOn 'GPL;LGPL;AGPL'`. Prevents copyleft deps from creeping in.
+
+### Step 28e.9 — IPC-SURFACE.md drift gate (added 2026-05-18)
+
+**Origin:** SUGGESTIONS-LOG-DNDAPP `[2026-04-24] IPC-SURFACE.md lists channel names, not request/response contracts` gotcha — turn the regeneration discipline into a CI check.
+
+**Changes:** CI step: `npm run gen:ipc-surface && git diff --exit-code docs/IPC-SURFACE.md`. Fails if a PR modifies `ipc-channels.ts` without regenerating the surface doc.
+
+### Step 28e.10 — Forbid raw `lucide`-free icon usage (defer to Phase 18)
+
+> Not Phase 28's scope. Phase 18 owns the icon-library migration; once that lands, a lint rule preventing Unicode glyphs in JSX can be added by Phase 18.
 
 ---
 
@@ -556,6 +624,40 @@ try { return await next } finally {
 2. If `docs/` present, add `!docs/**/*` to `build.files`.
 3. (Optional) Add an `audit:bundle` script that fails CI if forbidden paths slip in.
 
+### Step 28g.5 — Document `atomic-write.ts` as canonical storage write (added 2026-05-18)
+
+**Origin:** SUGGESTIONS-LOG-DNDAPP `[2026-04-24] atomic-write.ts is the canonical storage write` info — convert from observation into a rule.
+
+**Files:** `AGENTS.md`, top-of-file JSDoc in `src/main/storage/atomic-write.ts`.
+
+**Changes:**
+1. AGENTS.md new section under "When adding new dnd-app files" — "Storage rules": new storage modules MUST use `atomicWriteFile`; bare `writeFile` is forbidden (Phase 28e.4 lint rule enforces).
+2. JSDoc at top of `atomic-write.ts` documenting the rename-after-temp-write atomicity guarantee.
+
+### Step 28g.6 — Document IPC-SURFACE.md regeneration discipline (added 2026-05-18)
+
+**Origin:** SUGGESTIONS-LOG-DNDAPP `[2026-04-24] IPC-SURFACE.md lists channel names, not request/response contracts` gotcha — absorbed by Phase 28e.9 (CI gate) + this doc note.
+
+**Files:** `AGENTS.md`, `CLAUDE.md`.
+
+**Changes:** New "When editing `ipc-channels.ts`" rule: regenerate `docs/IPC-SURFACE.md` via `npm run gen:ipc-surface` and commit alongside the channel change. CI gate (28e.9) enforces.
+
+### Step 28g.7 — Document `migrateData` mutation/return contract (added 2026-05-18)
+
+**Origin:** SUGGESTIONS-LOG-DNDAPP `[2026-04-24] DO NOT update migrateData to return new objects` gotcha — absorbed by Phase 28d.7 (the actual rewrite) + this doc note in JSDoc.
+
+**Files:** `src/main/storage/migrations.ts` JSDoc.
+
+**Changes:** Top-of-file JSDoc documenting the post-Phase-28d.7 contract: "Migrations may mutate in place OR return a new record. The caller captures the return value either way."
+
+### Step 28g.8 — Document the dual-import-pattern resolution in provider-registry.ts (added 2026-05-18)
+
+**Origin:** SUGGESTIONS-LOG-DNDAPP `[2026-04-24] DO NOT add new dynamic await import calls without removing static import` gotcha — Phase 33f resolves it (picks one pattern).
+
+**Files:** `src/main/ai/provider-registry.ts` JSDoc.
+
+**Changes:** Top-of-file JSDoc explaining the chosen pattern (eager or lazy per Phase 33f's decision) and why mixing them produces silent no-op dynamic imports.
+
 ---
 
 ## Sub-Phase 28h — Test Coverage Uplift
@@ -581,7 +683,34 @@ try { return await next } finally {
 
 ### Step 28h.3 — TokenContextMenu test recovery
 
-**Blocked by:** the `useNetworkStore` circular dep fix (SUGGESTIONS-LOG `2026-04-24-network-store-barrel-circular`). That fix is a prerequisite — run it first or include in 28h.
+**Blocked by:** the `useNetworkStore` circular dep fix (SUGGESTIONS-LOG `2026-04-24-network-store-barrel-circular`). That fix is a prerequisite — run it first or include in 28h. **2026-05-18 update:** Phase 33g now owns the circular-dep codemod; 28h.3 sequences after Phase 33g.
+
+### Step 28h.4 — Electron BrowserWindow security regression test (added 2026-05-18)
+
+**Origin:** SUGGESTIONS-LOG-DNDAPP `[2026-04-24] Electron security base config correctly hardened` info — convert the snapshot observation into a regression test.
+
+**Files:** new `src/main/index.security.test.ts`
+
+**Changes:** vitest spec that imports the main entry's `createWindow` config (or the config object directly) and asserts:
+- `webPreferences.sandbox === true`
+- `webPreferences.contextIsolation === true`
+- `webPreferences.nodeIntegration === false`
+- `setWindowOpenHandler` denies all (returns `{ action: 'deny' }`) and routes `http(s)` URLs to `shell.openExternal`
+- CSP header is set on `webContents.session.webRequest.onHeadersReceived`
+- `requestSingleInstanceLock` is called on startup
+- `uncaughtException` + `unhandledRejection` handlers are registered
+
+**Acceptance:**
+- Test passes against current code (verifies the snapshot).
+- A PR that flips any of these to insecure defaults fails the test.
+
+### Step 28h.5 — `<div onClick>` regression test (added 2026-05-18)
+
+**Origin:** SUGGESTIONS-LOG-DNDAPP / ISSUES-LOG `<div onClick>` anti-pattern — pair with Phase 28f.1 fix.
+
+**Files:** new `scripts/audit/check-no-div-onclick.mjs`
+
+**Changes:** Script that greps `<div[^>]*onClick=` across `src/renderer/src/components/` and fails if any are found (allowlist: explicit `// a11y-allow-div-onclick: <reason>` comment). Wire into `check:full` + `dnd-app-ci.yml`. Runs after the 28f.1 sweep — gate prevents regression.
 
 ---
 

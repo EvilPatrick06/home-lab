@@ -5,7 +5,7 @@ Phase 20 is a **Security Audit** scoring 7/10. Electron configuration is excelle
 > **See also:** Phases 30-32. The "no authentication" deprioritized finding is **covered for cloud mode by Phase 32** (JWT auth on WS frames). S3 (hardcoded TURN credentials) interacts with Phase 30's `TransportAdapter` abstraction — see inline note.
 >
 > **Verification pass (2026-05-18):**
-> - S1 API keys plaintext — ✗ no `safeStorage` usage in `src/main/ai/ai-service.ts`. Live work.
+> - S1 API keys plaintext — ✗ no `safeStorage` usage in `src/main/ai/ai-service.ts`. Live work. **Additional scope (2026-05-18):** absorb the SUGGESTIONS-LOG `[2026-04-24] Encrypt persisted secrets with Electron safeStorage API` work — wrap every persisted secret (Claude/OpenAI/Gemini API keys, TURN credentials, Discord bot token after Phase 35e verification) with `safeStorage.encryptString` on write + `decryptString` on read. Migrate existing files: detect plaintext on first load and re-encrypt. Fall back gracefully if `safeStorage.isEncryptionAvailable()` returns false (Linux without secret service). Add a unit test using a temp `userData` confirming round-trip + that on-disk bytes are not the plain secret.
 > - S2 chat sanitization — ◐ no `dangerouslySetInnerHTML` in `ChatPanel.tsx`; React JSX auto-escapes. No DOMPurify layer either. Render-side safety is acceptable today; sanitization layer remains live work pending decision.
 > - S3 hardcoded TURN creds — ✗ `peer-manager.ts:23-29` still hardcodes `dndvtt:dndvtt-relay` (only active when `customHost` is set, but credentials are still source-visible). Live work.
 > - S4 plugin integrity — ✗ no signature/checksum verification in `plugin-handlers.ts`. Live work.

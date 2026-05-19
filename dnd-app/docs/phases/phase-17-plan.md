@@ -4,6 +4,8 @@ Phase 17 is a **full codebase error audit** identifying 171 issues across syntax
 
 > **See also:** Phases 29-32. NET-5 broadcast hardening (Step 19) lands inside `host-manager.ts` paths that Phase 30 consolidates into `GameAuthority` — the try-catch travels with the consolidation. Many of the "30 medium network issues" (NET-21–NET-50) may disappear after Phase 30 (single message router) + Phase 31 (single sync protocol); re-scope at execution time.
 >
+> **Phase 17 GUI-4 (Three.js resource leaks) — additional scope (2026-05-18):** include the `scene.remove(mesh)` + `dispose()` discipline pattern absorbed from SUGGESTIONS-LOG-DNDAPP. The fix wraps `scene.remove` with mandatory `geometry.dispose()` + `material.dispose()` + `material.map?.dispose()` across `dice3d/` (84 `new THREE.*()` allocations vs 1 historical `dispose()` call). Define a `disposeDie(mesh)` helper and replace every clear/cleanup path. Lint rule (or grep-based pre-commit): forbid bare `scene.remove(...)` outside the helper.
+>
 > **Verification pass (2026-05-18):** Spot-checked ~30 audit steps. ~2 already addressed: **GUI-1** PlayerHUDOverlay hooks placement (hooks above the early return at `PlayerHUDOverlay.tsx`); **NET-5** broadcast try-catch present at the visible sites in `host-manager.ts:170-174` (disconnectPeer) and `:303-308` (ping interval). The plan's stale line numbers (321/329/342) don't map to current code; full broadcast-site coverage is unverified, so treat NET-5 as **partial**. All other P0/P1 audit items (NET-1/12/13/14/15 path traversal, NET-2/3 BrowserWindow guards, RUN-1 JSON.parse, LOG-1–LOG-12 game logic, GUI-2/4/7/8, TYP-1–TYP-4) verified NOT done. **Recommendation:** re-run the audit script before scoping; some "fixed elsewhere" may show up.
 
 ---
