@@ -190,6 +190,99 @@ If no findings were logged, say so: "No new entries logged this run."
 
 **Tone:** factual, scannable, no praise, no apology. Bullet lists for each section. Total length: ~10-30 lines depending on how eventful the run was.
 
+### 15. Refresh from origin before opening any plan
+At the top of every phase iteration (before rule 1 picks the earliest plan), refresh local from remote:
+
+```bash
+git fetch origin
+git status                # confirm clean
+git pull origin master --ff-only
+```
+
+If `--ff-only` fails (divergence), this is a rule 9 STOP-and-ask trigger. The user may have pushed a fix-up or another session's work; do not force-merge.
+
+This catches the silent-corruption case where remote master moved while a session was idle. Without it, the loop can write commits against a stale tree and produce conflict-laden pushes.
+
+### 16. Do not modify meta-files unprompted
+The following files are **meta**: they govern AI behavior, persistent state, or sensitive notes that the user owns explicitly.
+
+- `dnd-app/docs/phases/INSTRUCTIONS.md` (this file)
+- `/home/patrick/.claude/projects/-home-patrick-home-lab/memory/*` (memory store)
+- `docs/SECURITY-LOG.md` (gitignored — sensitive)
+- `CLAUDE.md`, `AGENTS.md`, `.cursorrules` (repo-level AI guidance)
+
+Modifying any of them is a **rule 9 STOP-and-ask trigger**. Even seemingly-helpful edits (adding a memory entry, tightening a rule, appending to SECURITY-LOG) need user permission first. Phase work touches plan files (`phase-N-plan.md`), code, and the per-domain ISSUES/SUGGESTIONS logs — those are in scope; the meta-files are not.
+
+Exception: rule 12 (logging out-of-scope findings) explicitly authorizes appends to `docs/SECURITY-LOG.md` for new security findings discovered DURING phase work. That's the only auto-touched meta-file, and it's append-only.
+
+### 17. Update the plan's `Completed` section after every sub-phase
+4-gate green is not enough on its own. As part of the per-sub-phase exit criteria, also update the phase plan's `## Completed` section with a precise file:line citation and a one-line summary of what landed.
+
+Example after sub-phase `15a` ships:
+
+```markdown
+## Completed
+- 15a Step 1 — DONE (`src/renderer/src/types/library.ts:23`) — `EntryRef<T>` interface + `DeepPartial<T>` recursive helper + `LibraryEntry<T>` per-category mapped type.
+- 15a Step 2 — DONE (`src/renderer/src/services/library/schemas/registry.ts:1`) — `SCHEMA_REGISTRY` + `validateEntry` + `safeValidateEntry` exports.
+- 15a Step 5 — DONE (`src/renderer/src/services/library/schemas/registry.test.ts:1`) — snapshot test walks all of `public/data/5e/**`; passes.
+```
+
+Commit the doc edit in the SAME commit as the code (or as a follow-up commit before pushing). The Completed section is the progress tracker; if it stays empty after sub-phases land, future sessions can't tell what's done without re-running verification.
+
+If a sub-phase lands partially (some Steps green, others deferred), reflect that honestly: `DONE` for the green parts, `PARTIAL — <reason>` for the rest. Never mark something `DONE` you didn't verify.
+
+### 18. ISO-date every stamp
+Anywhere the loop writes a date — log entries (rule 12), summary timestamps (rule 14), `Completed` "verified <date>" lines (rule 17), commit message dates, memory entries — use ISO format `YYYY-MM-DD` and pull the value from the system:
+
+```bash
+date -u +%Y-%m-%d
+```
+
+Never hardcode a guess, never carry over a stale date from another file, never invent. Drift in the audit trail compounds across sessions.
+
+### 19. Precheck `gh` auth before rule 13
+Rule 13 leans on `gh run watch`, `gh run list`, and `gh run view`. Before entering the wait loop, run:
+
+```bash
+gh auth status
+```
+
+If `gh` is not authenticated (or the token is expired): this is a **rule 9 STOP-and-ask trigger**. Tell the user to run `gh auth login` and wait for confirmation before proceeding. Do not improvise (no curl-against-the-API workaround unless the user explicitly directs it).
+
+### 20. Do NOT amend, force-push, or rewrite released tags
+Released tags (`v2.1.38`, `v3.0.0`, etc.) are immutable in the wild — `electron-updater` clients have them pinned. Never:
+
+- `git tag -f <existing-tag>`
+- `git push --force <existing-tag>`
+- `git push --force-with-lease <existing-tag>`
+- `gh release edit <tag>` to change the underlying ref
+
+A bad release gets a **new** tag (a hotfix bump: `v2.1.38` → `v2.1.39`), not a rewrite. If the user explicitly directs a rewrite, treat it as a rule 9 escalation and confirm twice — once that they want the rewrite, once with the impact ("This will break auto-updaters on every client that received the old tag").
+
+### 21. Emit a progress checkpoint every ~5 sub-phases
+For phases with many sub-phases (Phase 17 has 32, Phase 28 has 9 clusters with multiple items each, Phase 34 has 12, Phase 36 has 10), the loop can run in radio silence for an hour or more. Avoid this.
+
+After every ~5 sub-phases (or every ~30 minutes of wall time, whichever first), emit a single-line progress note before continuing:
+
+```
+Phase 17 progress: 17a/17b/17c/17d/17e green. Next: 17f. Logged 1 ISSUES, 0 SECURITY entry.
+```
+
+Then continue (rule 10 still applies — don't pause for confirmation; just emit + move on). The user can interrupt cleanly if they want to redirect. Without the checkpoint, interruption requires either trusting the radio silence or breaking the flow.
+
+### 22. Phase-plan amendments land BEFORE implementation, in their own commit
+During rule 3 (verify), if you discover the plan needs editing — a file path drifted, a Step is wrong, a Constraint is now stale — DO NOT mix the plan edit with the implementation. Land the plan amendment in its own commit FIRST:
+
+```
+docs(phase-N): correct file path in NX step Y — file moved during Phase M
+```
+
+THEN start implementation against the corrected plan. The implementation commit cites the corrected line.
+
+Rationale: mixing plan edits with implementation hides the "the plan was wrong" signal in the diff. Future contributors reading `git log` should see a clear sequence: "plan amended → work done against amended plan." Not: "everything changed at once, good luck."
+
+If the amendment is large (multiple Steps need rewording, a Sub-Phase needs splitting), treat it as a rule 9 STOP-and-ask trigger — the plan may need user input before you can sensibly correct it.
+
 ---
 
 ---
@@ -198,6 +291,9 @@ If no findings were logged, say so: "No new entries logged this run."
 
 ```
 while plans remain in dnd-app/docs/phases/ (excluding INSTRUCTIONS.md):
+  REFRESH: git fetch origin && git pull origin master --ff-only (rule 15)
+    -> ff-only fails: STOP, ask user (rule 9)
+
   CHECK: any remote branch other than master?
     -> yes: STOP, ask user (rule 11)
     -> no: continue
@@ -205,26 +301,37 @@ while plans remain in dnd-app/docs/phases/ (excluding INSTRUCTIONS.md):
   plan = earliest phase-N-plan.md
   review(plan)
   verify(plan, code)
+    -> plan drift discovered: amend plan first in its own commit (rule 22)
+    -> amendment is large/ambiguous: STOP, ask user (rule 9)
 
+  sub_phase_counter = 0
   for each sub-phase in plan:
     implement(sub-phase)
     if confused or conflicting:
       STOP -> ask user -> follow answer (rule 9)
+    if would-modify any meta-file:
+      STOP, ask user (rule 16)
     if out-of-scope finding discovered:
       LOG to correct file (rule 12), do not inline-fix
     run 4-gate
     if 4-gate green:
-      commit + push to master
+      update plan's `## Completed` section with file:line citations (rule 17)
+      commit (code + Completed edits together) + push to master
+      sub_phase_counter += 1
+      if sub_phase_counter % 5 == 0:
+        emit progress checkpoint (rule 21)
       continue
     else:
       fix in place, re-run 4-gate
 
-  cut release
+  cut release (NOT a force-push, NOT a tag rewrite — rule 20)
   verify release workflow + assets
   delete plan file
   commit deletion to master + push
 
 # After the last plan is gone:
+precheck `gh auth status` (rule 19)
+  -> not authenticated: STOP, ask user
 watch every release cut during the run (rule 13)
 if any release failed:
   STOP, alert user with diagnosis
@@ -235,6 +342,8 @@ emit end-of-run summary (rule 14):
   2. problems & friction (with suggested follow-ups)
   3. logged-finding count (file + count; NO inline content)
 stop
+
+# All dates written anywhere during the loop use ISO YYYY-MM-DD from system clock (rule 18).
 ```
 
 ---
