@@ -119,6 +119,19 @@ Otherwise: keep going. Sub-phase done → commit → push → next sub-phase. La
 
 Don't pause for confirmation between sub-phases. Don't pause for confirmation between commits. Don't pause to summarize progress unless asked.
 
+**These are NOT reasons to stop, pause, or hand back to the user — they are normal work, keep going:**
+- "This is a lot of work / many files / a big cascade."
+- "This is hard / complex / risky."
+- "This is long / will take a while / spans multiple areas."
+- "This looks out of scope / touches more than expected" (log out-of-scope *findings* per rule 12, but keep executing the in-scope work — don't halt the whole task).
+- "Manual smoke testing is recommended / the 4-gate can't validate runtime." Note the recommendation in the commit/plan and keep going; do not stop to ask the user to test.
+- "I reached a natural checkpoint / milestone." Checkpoints are for a one-line progress note (rule 21), not for stopping.
+
+Stopping or handing back the turn when the work is merely large/hard/long/manual-test-suggested is **breaking this rule**. Only a genuine rule-9 trigger (confusion, contradiction, ambiguity that blocks correct work, a real failure you can't resolve) or an explicit user "stop" ends the loop.
+
+**Do not mark anything `COMPLETE`/`DONE` and then end the turn as if handing off.** Completing a sub-phase means: commit, push, then *immediately* start the next sub-phase/phase in the same turn. The only acceptable ways a turn ends are (a) a rule-9 STOP-and-ask (which surfaces to the user), or (b) every plan in the folder is shipped and removed and the rule-14 end-of-run summary is written. A "completed, here's a summary, want me to continue?" ending is a rule-10 violation.
+
+
 ### 11. Always work on master
 - No feature branches.
 - No new branches at all.
