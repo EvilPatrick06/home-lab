@@ -1,4 +1,5 @@
 import { getExpertiseGrants } from '../../services/character/build-tree-5e'
+import { getEffectiveClasses } from '../../services/character/effective-character-5e'
 import { is5eCharacter } from '../../types/character'
 import type { Character5e } from '../../types/character-5e'
 import type { AbilityName } from '../../types/character-common'
@@ -165,7 +166,8 @@ export function createFeatureSelectionSlice(set: SetState, get: GetState) {
         for (let lvl = currentLevel + 1; lvl <= targetLevel; lvl++) {
           const effectiveClassId = classLevelChoices[lvl] ?? character.buildChoices.classId
           if (effectiveClassId !== 'druid') continue
-          const existingDruidLevel = character.classes.find((c) => c.name.toLowerCase() === 'druid')?.level ?? 0
+          const existingDruidLevel =
+            getEffectiveClasses(character as Character5e).find((c) => c.name.toLowerCase() === 'druid')?.level ?? 0
           const levelsGained = (() => {
             let count = 0
             for (let l = currentLevel + 1; l <= lvl; l++) {
@@ -217,7 +219,8 @@ export function createFeatureSelectionSlice(set: SetState, get: GetState) {
 
       // Invocations (Warlock)
       const warlockLevel = (() => {
-        const existing = character.classes.find((c) => c.name.toLowerCase() === 'warlock')?.level ?? 0
+        const existing =
+          getEffectiveClasses(character as Character5e).find((c) => c.name.toLowerCase() === 'warlock')?.level ?? 0
         let gained = 0
         for (let lvl = currentLevel + 1; lvl <= targetLevel; lvl++) {
           if ((classLevelChoices[lvl] ?? character.buildChoices.classId) === 'warlock') gained++
@@ -255,7 +258,8 @@ export function createFeatureSelectionSlice(set: SetState, get: GetState) {
 
       // Metamagic (Sorcerer)
       const sorcererLevel = (() => {
-        const existing = (character as Character5e).classes.find((c) => c.name.toLowerCase() === 'sorcerer')?.level ?? 0
+        const existing =
+          getEffectiveClasses(character as Character5e).find((c) => c.name.toLowerCase() === 'sorcerer')?.level ?? 0
         let gained = 0
         for (let lvl = currentLevel + 1; lvl <= targetLevel; lvl++) {
           if ((classLevelChoices[lvl] ?? character.buildChoices.classId) === 'sorcerer') gained++

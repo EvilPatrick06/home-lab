@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
+import { getEffectiveKnownSpells } from '../../../services/character/effective-character-5e'
 import { load5eSpells } from '../../../services/data-provider'
-import { useHydratedInstances } from '../../../services/library/use-library-entry'
 import { useNetworkStore } from '../../../stores/network-store'
 import { useCharacterStore } from '../../../stores/use-character-store'
 import { useLobbyStore } from '../../../stores/use-lobby-store'
@@ -41,10 +41,8 @@ export default function HighElfCantripSwapModal5e({
   const [selectedCantripId, setSelectedCantripId] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
 
-  // Phase 15c.2 — read known spells via v4 refs when populated, fall back to v3.
-  const hydratedKnownSpells = useHydratedInstances(character.knownSpellRefs, 'spells')
-  const knownSpellsForLookup =
-    hydratedKnownSpells.length > 0 ? (hydratedKnownSpells as unknown as SpellEntry[]) : (character.knownSpells ?? [])
+  // Phase 15c.5 — derive known spells (v3 shape) from v4 refs via the truth store.
+  const knownSpellsForLookup = getEffectiveKnownSpells(character)
   const currentSpeciesCantrip = knownSpellsForLookup.find(
     (s) => s.level === 0 && s.id.startsWith('species-') && s.id.includes('Elf')
   )
@@ -78,7 +76,7 @@ export default function HighElfCantripSwapModal5e({
     const latest = useCharacterStore.getState().characters.find((c) => c.id === character.id) || character
 
     // Replace the old species cantrip with the new one
-    const updatedSpells: SpellEntry[] = (latest.knownSpells ?? []).map((s) => {
+    const updatedSpells: SpellEntry[] = getEffectiveKnownSpells(latest as Character5e).map((s) => {
       if (s.id !== currentSpeciesCantrip.id) return s
       return {
         id: `species-${newCantrip.id}-Elf`,

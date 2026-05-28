@@ -1,6 +1,12 @@
 import { getClassResources } from '../../data/class-resources'
 import { getSpeciesResources } from '../../data/species-resources'
 import {
+  getEffectiveClasses,
+  getEffectiveFeats,
+  getEffectiveKnownSpells,
+  getEffectivePreparedSpellIds
+} from '../../services/character/effective-character-5e'
+import {
   computeSpellcastingInfo,
   FULL_CASTERS_5E,
   getMulticlassSpellSlots,
@@ -11,7 +17,8 @@ import {
 } from '../../services/character/spell-data'
 import { calculateHPBonusFromTraits, getWildShapeMax } from '../../services/character/stat-calculator-5e'
 import { load5eClasses, load5eClassFeatures, load5eSpells } from '../../services/data-provider'
-import type { Character5e, MulticlassEntry } from '../../types/character-5e'
+import type { Character5e, Character5eV3, MulticlassEntry } from '../../types/character-5e'
+import { migrateCharacter5eFromV3ToV4 } from '../../types/character-5e-migration'
 import type { AbilityName, AbilityScoreSet } from '../../types/character-common'
 import { abilityModifier } from '../../types/character-common'
 import { resolveLevelUpSpells, toSpellEntry } from './level-up-spells'
@@ -67,8 +74,13 @@ export async function apply5eLevelUp(
     /* ignore */
   }
 
+  // Phase 15c.5 — read v3-shaped views off the v4 character via the helpers.
+  const charClasses = getEffectiveClasses(character)
+  const charFeats = getEffectiveFeats(character)
+  const charKnownSpells = getEffectiveKnownSpells(character)
+
   const primaryClassId = character.buildChoices.classId
-  const defaultHitDie = character.classes[0]?.hitDie ?? 8
+  const defaultHitDie = charClasses[0]?.hitDie ?? 8
 
   // 1. Process ASI first to update ability scores
   const updatedScores: AbilityScoreSet = { ...character.abilityScores }
@@ -101,17 +113,17 @@ export async function apply5eLevelUp(
   const retroactiveBonus = (newConMod - oldConMod) * currentLevel
 
   // 3b. HP bonus from species traits and feats
-  const existingFeats = character.feats ?? []
+  const existingFeats = charFeats
   const newToughSelected = Object.values(generalFeatSelections).some((f) => f.id === 'tough')
   const featsForHP =
     newToughSelected && !existingFeats.some((f) => f.id === 'tough')
       ? [...existingFeats, { id: 'tough' }]
       : existingFeats
-  const isDraconicSorcerer = character.classes.some(
+  const isDraconicSorcerer = charClasses.some(
     (c) => c.name.toLowerCase() === 'sorcerer' && c.subclass?.toLowerCase().replace(/\s+/g, '-') === 'draconic-sorcery'
   )
   const oldSorcererLevel = isDraconicSorcerer
-    ? (character.classes.find((c) => c.name.toLowerCase() === 'sorcerer')?.level ?? 0)
+    ? (charClasses.find((c) => c.name.toLowerCase() === 'sorcerer')?.level ?? 0)
     : 0
   let newSorcererLevels = 0
   if (isDraconicSorcerer) {
@@ -141,7 +153,7 @@ export async function apply5eLevelUp(
   const newCurrentHP = Math.max(1, newMaxHP - damageTaken)
 
   // 5. Update classes array
-  const updatedClasses = character.classes.map((c) => ({ ...c }))
+  const updatedClasses = charClasses.map((c) => ({ ...c }))
   const newClassesAdded: string[] = []
 
   for (let lvl = currentLevel + 1; lvl <= targetLevel; lvl++) {
@@ -166,7 +178,7 @@ export async function apply5eLevelUp(
   try {
     const cfData = await load5eClassFeatures()
     const classLvlTracker: Record<string, number> = {}
-    for (const cls of character.classes) {
+    for (const cls of charClasses) {
       classLvlTracker[cls.name.toLowerCase()] = cls.level
     }
     for (let lvl = currentLevel + 1; lvl <= targetLevel; lvl++) {
@@ -281,7 +293,7 @@ export async function apply5eLevelUp(
   ]
 
   // 11. Add feats
-  const updatedFeats = [...(character.feats ?? [])]
+  const updatedFeats = [...charFeats]
   if (epicBoonSelection) updatedFeats.push(epicBoonSelection)
   for (const feat of Object.values(generalFeatSelections)) updatedFeats.push(feat)
   if (fightingStyleSelection) updatedFeats.push(fightingStyleSelection)
@@ -341,7 +353,7 @@ export async function apply5eLevelUp(
       : character.wildShapeUses
 
   // Ensure always-prepared class spells
-  const updatedKnownSpells = [...character.knownSpells, ...newSpells]
+  const updatedKnownSpells = [...charKnownSpells, ...newSpells]
   const rangerClass = updatedClasses.find((c) => c.name.toLowerCase() === 'ranger')
   const alwaysPreparedClassSpells: Array<{ spellName: string; classRef: unknown }> = [
     { spellName: 'Speak with Animals', classRef: druidClass },
@@ -395,8 +407,14 @@ export async function apply5eLevelUp(
     }
   }
 
-  const updated: Character5e = {
+  const updated: Character5eV3 = {
     ...character,
+    // Phase 15c.5 — produce v3-shaped arrays here, then null the v4 fields we
+    // regenerate so the shim re-derives them from these arrays at the return.
+    classRefs: undefined,
+    knownSpellRefs: undefined,
+    featRefs: undefined,
+    state: { ...character.state, preparedSpellIds: undefined },
     level: targetLevel,
     classes: updatedClasses,
     abilityScores: updatedScores,
@@ -417,6 +435,9 @@ export async function apply5eLevelUp(
     proficiencies: updatedProficiencies,
     spellcasting: spellcastingInfo,
     knownSpells: updatedKnownSpells,
+    preparedSpellIds: Array.from(
+      new Set([...getEffectivePreparedSpellIds(character), ...newSpells.filter((s) => s.prepared).map((s) => s.id)])
+    ),
     spellSlotLevels: updatedSlotLevels,
     ...(updatedPactSlotLevels ? { pactMagicSlotLevels: updatedPactSlotLevels } : {}),
     classFeatures: mergedClassFeatures,
@@ -486,7 +507,7 @@ export async function apply5eLevelUp(
       const rangerLevel = updatedClasses.find((c) => c.name.toLowerCase() === 'ranger')?.level ?? 0
       if (rangerLevel >= 6) {
         const baseSpeed = character.speed
-        const prevRangerLevel = character.classes.find((c) => c.name.toLowerCase() === 'ranger')?.level ?? 0
+        const prevRangerLevel = charClasses.find((c) => c.name.toLowerCase() === 'ranger')?.level ?? 0
         const newSpeed = prevRangerLevel < 6 ? baseSpeed + 10 : baseSpeed
         return {
           speed: newSpeed,
@@ -498,5 +519,6 @@ export async function apply5eLevelUp(
     updatedAt: new Date().toISOString()
   }
 
-  return updated
+  // Phase 15c.5 — derive v4 refs + state from the v3 arrays above; shim strips v3.
+  return migrateCharacter5eFromV3ToV4(updated)
 }

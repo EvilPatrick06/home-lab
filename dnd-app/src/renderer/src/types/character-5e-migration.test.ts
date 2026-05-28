@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import type { Character5e } from './character-5e'
+import type { Character5eV3 } from './character-5e'
 import { migrateCharacter5eFromV3ToV4 } from './character-5e-migration'
 
-function v3Character(over: Partial<Character5e> = {}): Character5e {
+function v3Character(over: Partial<Character5eV3> = {}): Character5eV3 {
   return {
     id: 'char-1',
     gameSystem: 'dnd5e',

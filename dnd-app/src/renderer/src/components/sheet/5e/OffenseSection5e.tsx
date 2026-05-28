@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useCharacterEditor } from '../../../hooks/use-character-editor'
-import { useHydratedInstances } from '../../../services/library/use-library-entry'
+import { getEffectiveWeapons } from '../../../services/character/effective-character-5e'
 import type { Character } from '../../../types/character'
 import type { Character5e } from '../../../types/character-5e'
 import type { WeaponEntry } from '../../../types/character-common'
@@ -18,10 +18,8 @@ interface OffenseSection5eProps {
 
 export default function OffenseSection5e({ character, readonly }: OffenseSection5eProps): JSX.Element {
   const { getLatest, saveAndBroadcast } = useCharacterEditor(character.id)
-  // Phase 15c.3 — read weapons live from truth store via v4 refs when populated.
-  const hydratedWeapons = useHydratedInstances(character.weaponRefs, 'weapons')
-  const newWeapons: WeaponEntry[] =
-    hydratedWeapons.length > 0 ? (hydratedWeapons as unknown as WeaponEntry[]) : (character.weapons ?? [])
+  // Phase 15c.5 — derive weapons (v3 shape) from v4 refs via the truth store.
+  const newWeapons: WeaponEntry[] = getEffectiveWeapons(character)
   const weaponDatabase = useWeaponDatabase()
 
   const [showCustomForm, setShowCustomForm] = useState(false)
@@ -43,8 +41,7 @@ export default function OffenseSection5e({ character, readonly }: OffenseSection
   const handleRemoveWeapon = (weaponId: string): void => {
     const latest = getLatest()
     if (!latest) return
-    const currentWeapons: WeaponEntry[] =
-      ('weapons' in latest ? (latest as { weapons: WeaponEntry[] }).weapons : []) ?? []
+    const currentWeapons: WeaponEntry[] = getEffectiveWeapons(latest as Character5e)
     const updated = {
       ...latest,
       weapons: currentWeapons.filter((w) => w.id !== weaponId),
@@ -56,8 +53,7 @@ export default function OffenseSection5e({ character, readonly }: OffenseSection
   const handleSellWeapon = (weaponId: string): void => {
     const latest = getLatest()
     if (!latest) return
-    const currentWeapons: WeaponEntry[] =
-      ('weapons' in latest ? (latest as { weapons: WeaponEntry[] }).weapons : []) ?? []
+    const currentWeapons: WeaponEntry[] = getEffectiveWeapons(latest as Character5e)
     const weapon = currentWeapons.find((w) => w.id === weaponId)
     if (!weapon) return
 
@@ -135,8 +131,7 @@ export default function OffenseSection5e({ character, readonly }: OffenseSection
       proficient: weaponForm.proficient,
       cost: costStr || undefined
     }
-    const currentWeapons: WeaponEntry[] =
-      ('weapons' in latest ? (latest as { weapons: WeaponEntry[] }).weapons : []) ?? []
+    const currentWeapons: WeaponEntry[] = getEffectiveWeapons(latest as Character5e)
     const updated = {
       ...latest,
       weapons: [...currentWeapons, newWeapon],
@@ -178,8 +173,7 @@ export default function OffenseSection5e({ character, readonly }: OffenseSection
 
     const newWeapon = weaponDataToEntry(weaponItem, latest as Character5e)
     newWeapon.cost = weaponItem.cost
-    const currentWeapons: WeaponEntry[] =
-      ('weapons' in latest ? (latest as { weapons: WeaponEntry[] }).weapons : []) ?? []
+    const currentWeapons: WeaponEntry[] = getEffectiveWeapons(latest as Character5e)
     const updatedTreasure = {
       ...treasure,
       pp: newCurrency.pp,

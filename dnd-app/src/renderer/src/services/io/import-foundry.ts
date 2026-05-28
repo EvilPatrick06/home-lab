@@ -3,7 +3,8 @@
  * Parses a Foundry VTT dnd5e system actor export into our Character5e format.
  */
 
-import type { Character5e, EquipmentItem, Feature, SkillProficiency5e } from '../../types/character-5e'
+import type { Character5e, Character5eV3, EquipmentItem, Feature, SkillProficiency5e } from '../../types/character-5e'
+import { migrateCharacter5eFromV3ToV4 } from '../../types/character-5e-migration'
 import type {
   AbilityName,
   AbilityScoreSet,
@@ -360,7 +361,7 @@ export async function importFoundryCharacter(): Promise<Character5e | null> {
     const totalLevel = classes.reduce((sum, c) => sum + c.level, 0) || 1
 
     const now = new Date().toISOString()
-    const character: Character5e = {
+    const character: Character5eV3 = {
       id: crypto.randomUUID(),
       gameSystem: 'dnd5e',
       campaignId: null,
@@ -444,7 +445,7 @@ export async function importFoundryCharacter(): Promise<Character5e | null> {
       updatedAt: now
     }
 
-    return character
+    return migrateCharacter5eFromV3ToV4(character)
   } catch (err) {
     logger.error('Import Foundry VTT character failed:', err)
     return null

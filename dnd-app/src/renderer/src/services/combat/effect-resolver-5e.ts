@@ -1,4 +1,5 @@
 import { getFeatEffects, getFightingStyleEffects, getMagicItemEffects } from '../../data/effect-definitions'
+import { getEffectiveArmor, getEffectiveFeats, getEffectiveMagicItems } from '../character/effective-character-5e'
 import type { Character5e } from '../../types/character-5e'
 import type { CustomEffect, EffectScope, EffectSource, MechanicalEffect } from '../../types/effects'
 
@@ -82,11 +83,11 @@ function conditionMet(condition: string | undefined, character: Character5e, _so
     case 'wielding':
       return true // Checked at weapon-use time
     case 'wearing_armor': {
-      const armor = character.armor ?? []
+      const armor = getEffectiveArmor(character)
       return armor.some((a) => a.equipped && a.type === 'armor')
     }
     case 'wearing_heavy_armor': {
-      const armor = character.armor ?? []
+      const armor = getEffectiveArmor(character)
       return armor.some((a) => a.equipped && a.type === 'armor' && a.category === 'heavy')
     }
     case 'on_use':
@@ -105,7 +106,7 @@ export function resolveEffects(character: Character5e, customEffects?: CustomEff
   const allEffects: Array<{ effect: MechanicalEffect; source: EffectSource }> = []
 
   // 1. Collect magic item effects (only attuned or non-attunement items)
-  const magicItems = character.magicItems ?? []
+  const magicItems = getEffectiveMagicItems(character)
   for (const item of magicItems) {
     if (item.attunement && !item.attuned) continue
     const effectSource = getMagicItemEffects(item.name)
@@ -120,7 +121,7 @@ export function resolveEffects(character: Character5e, customEffects?: CustomEff
   }
 
   // 2. Collect feat effects
-  const feats = character.feats ?? []
+  const feats = getEffectiveFeats(character)
   for (const feat of feats) {
     const effectSource = getFeatEffects(feat.name)
     if (effectSource) {

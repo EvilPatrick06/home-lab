@@ -4,6 +4,7 @@ import { useGameStore } from '../../stores/use-game-store'
 import type { AoETargetResult } from '../combat/aoe-targeting'
 import type { AttackOptions, AttackResult } from '../combat/attack-resolver'
 import { findWeapon, formatAttackResult, resolveAttack } from '../combat/attack-resolver'
+import { getEffectiveWeapons } from '../character/effective-character-5e'
 import type { DeathSaveResult, DeathSaveState, GrappleResult, ShoveResult } from '../combat/damage-resolver'
 import { rollMultiple } from '../dice/dice-service'
 import { findTokenByName, rollD20WithTag } from './helpers'
@@ -375,9 +376,10 @@ const attackCommand: ChatCommand = {
     const weaponSearch = parts[0]
     const targetSearch = parts.slice(1).join(' ')
 
-    const weapon = findWeapon(ctx.character.weapons, weaponSearch)
+    const weapons = getEffectiveWeapons(ctx.character)
+    const weapon = findWeapon(weapons, weaponSearch)
     if (!weapon) {
-      const available = ctx.character.weapons.map((w) => w.name).join(', ')
+      const available = weapons.map((w) => w.name).join(', ')
       return {
         type: 'error',
         content: `Weapon "${weaponSearch}" not found. Available: ${available || 'none'}`

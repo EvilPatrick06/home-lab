@@ -1,6 +1,7 @@
 import { useLobbyStore } from '../../stores/use-lobby-store'
 import { is5eCharacter } from '../../types/character'
 import type { Character5e } from '../../types/character-5e'
+import { getEffectiveMagicItems } from '../character/effective-character-5e'
 import { getLatestCharacter, saveAndBroadcastCharacter } from './helpers'
 import type { ChatCommand } from './types'
 
@@ -244,21 +245,28 @@ const identifyCommand: ChatCommand = {
       ctx.addSystemMessage(`Character data not found for "${charQuery}"`)
       return
     }
-    const itemIndex = (character.magicItems ?? []).findIndex(
+    const magicItems = getEffectiveMagicItems(character)
+    const itemIndex = magicItems.findIndex(
       (mi) => mi.name.toLowerCase().includes(itemQuery.toLowerCase()) && mi.identified === false
     )
     if (itemIndex < 0) {
       ctx.addSystemMessage(`No unidentified magic item matching "${itemQuery}" found on ${character.name}.`)
       return
     }
+    // Phase 15c.5 — `identified` is per-character intent → store as a ref override.
+    const targetInstanceId = (magicItems[itemIndex] as unknown as { __instanceId: string }).__instanceId
     const updated: Character5e = {
       ...character,
-      magicItems: (character.magicItems ?? []).map((mi, idx) => (idx === itemIndex ? { ...mi, identified: true } : mi)),
+      magicItemRefs: character.magicItemRefs?.map((r) =>
+        r.instanceId === targetInstanceId
+          ? { ...r, ref: { ...r.ref, overrides: { ...r.ref.overrides, identified: true } } }
+          : r
+      ),
       updatedAt: new Date().toISOString()
     }
     saveAndBroadcastCharacter(updated)
     ctx.broadcastSystemMessage(
-      `**${ctx.playerName}** identified **${character.magicItems![itemIndex].name}** for ${character.name}!`
+      `**${ctx.playerName}** identified **${magicItems[itemIndex].name}** for ${character.name}!`
     )
   }
 }

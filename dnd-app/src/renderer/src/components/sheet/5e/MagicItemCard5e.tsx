@@ -1,10 +1,10 @@
 import { memo } from 'react'
 import { getMagicItemEffects } from '../../../data/effect-definitions'
-import { useHydratedInstances } from '../../../services/library/use-library-entry'
-import type { Character5e } from '../../../types/character-5e'
+import { getEffectiveArmor, getEffectiveMagicItems, getEffectiveWeapons } from '../../../services/character/effective-character-5e'
+import type { Character5e, MagicItemEntry5e } from '../../../types/character-5e'
 
 interface MagicItemCard5eProps {
-  item: NonNullable<Character5e['magicItems']>[number]
+  item: MagicItemEntry5e
   index: number
   character: Character5e
   readonly?: boolean
@@ -48,11 +48,9 @@ function MagicItemCard5e({
   const hasEffects = !isUnidentified && !!getMagicItemEffects(item.name)
   const isWeaponType = item.type === 'weapon' || /weapon|\+\d.*weapon/i.test(item.name)
   const isArmorType = item.type === 'armor' || /armor|shield|\+\d.*armor/i.test(item.name)
-  // Phase 15c.3 — read weapons + armor live from truth store via v4 refs.
-  const hydratedWeapons = useHydratedInstances(character.weaponRefs, 'weapons')
-  const hydratedArmors = useHydratedInstances(character.armorRefs, 'armor')
-  const weapons = hydratedWeapons.length > 0 ? hydratedWeapons : (character.weapons ?? [])
-  const armors = hydratedArmors.length > 0 ? hydratedArmors : (character.armor ?? [])
+  // Phase 15c.5 — derive weapons + armor (v3 shape) from v4 refs via the truth store.
+  const weapons = getEffectiveWeapons(character)
+  const armors = getEffectiveArmor(character)
 
   // Unidentified items: show masked info to players
   if (isUnidentified && readonly) {
@@ -93,7 +91,7 @@ function MagicItemCard5e({
                   if (!latest) return
                   // Enforce 3-item attunement limit
                   if (!item.attuned) {
-                    const attunedCount = (latest.magicItems ?? []).filter((mi) => mi.attuned).length
+                    const attunedCount = getEffectiveMagicItems(latest).filter((mi) => mi.attuned).length
                     if (attunedCount >= 3) {
                       setBuyWarning('Cannot attune — maximum 3 items already attuned.')
                       setTimeout(() => setBuyWarning(null), 3000)
@@ -102,7 +100,7 @@ function MagicItemCard5e({
                   }
                   const updated = {
                     ...latest,
-                    magicItems: (latest.magicItems ?? []).map((mi, idx) =>
+                    magicItems: getEffectiveMagicItems(latest).map((mi, idx) =>
                       idx === i ? { ...mi, attuned: !mi.attuned } : mi
                     ),
                     updatedAt: new Date().toISOString()
@@ -130,7 +128,7 @@ function MagicItemCard5e({
                 if (!latest) return
                 const updated = {
                   ...latest,
-                  magicItems: (latest.magicItems ?? []).map((mi, idx) =>
+                  magicItems: getEffectiveMagicItems(latest).map((mi, idx) =>
                     idx === i && mi.charges
                       ? {
                           ...mi,
@@ -156,7 +154,7 @@ function MagicItemCard5e({
                 if (!latest) return
                 const updated = {
                   ...latest,
-                  magicItems: (latest.magicItems ?? []).map((mi, idx) =>
+                  magicItems: getEffectiveMagicItems(latest).map((mi, idx) =>
                     idx === i && mi.charges
                       ? {
                           ...mi,
@@ -184,7 +182,7 @@ function MagicItemCard5e({
               if (!latest) return
               const updated = {
                 ...latest,
-                magicItems: (latest.magicItems ?? []).filter((_, idx) => idx !== i),
+                magicItems: getEffectiveMagicItems(latest).filter((_, idx) => idx !== i),
                 updatedAt: new Date().toISOString()
               } as Character5e
               saveAndBroadcast(updated)
@@ -202,7 +200,7 @@ function MagicItemCard5e({
               if (!latest) return
               const updated = {
                 ...latest,
-                magicItems: (latest.magicItems ?? []).map((mi, idx) => (idx === i ? { ...mi, identified: true } : mi)),
+                magicItems: getEffectiveMagicItems(latest).map((mi, idx) => (idx === i ? { ...mi, identified: true } : mi)),
                 updatedAt: new Date().toISOString()
               } as Character5e
               saveAndBroadcast(updated)
@@ -225,7 +223,7 @@ function MagicItemCard5e({
                 if (!latest) return
                 const updated = {
                   ...latest,
-                  magicItems: (latest.magicItems ?? []).map((mi, idx) =>
+                  magicItems: getEffectiveMagicItems(latest).map((mi, idx) =>
                     idx === i ? { ...mi, linkedWeaponId: e.target.value || undefined } : mi
                   ),
                   updatedAt: new Date().toISOString()
@@ -250,7 +248,7 @@ function MagicItemCard5e({
                 if (!latest) return
                 const updated = {
                   ...latest,
-                  magicItems: (latest.magicItems ?? []).map((mi, idx) =>
+                  magicItems: getEffectiveMagicItems(latest).map((mi, idx) =>
                     idx === i ? { ...mi, linkedArmorId: e.target.value || undefined } : mi
                   ),
                   updatedAt: new Date().toISOString()

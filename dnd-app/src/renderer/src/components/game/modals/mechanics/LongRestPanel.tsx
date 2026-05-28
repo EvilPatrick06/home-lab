@@ -1,3 +1,4 @@
+import { getEffectiveClasses } from '../../../../services/character/effective-character-5e'
 import { getLongRestPreview } from '../../../../services/character/rest-service-5e'
 import type { Character5e } from '../../../../types/character-5e'
 
@@ -49,7 +50,7 @@ export default function LongRestPanel({ pcs, states, onStatesChange }: LongRestP
               />
               <span className="text-sm font-semibold text-gray-200">{pc.name}</span>
               <span className="text-xs text-gray-500">
-                Lv{pc.level} {pc.classes.map((c) => c.name).join('/')}
+                Lv{pc.level} {getEffectiveClasses(pc).map((c) => c.name).join('/')}
               </span>
             </div>
 

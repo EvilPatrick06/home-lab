@@ -1,3 +1,4 @@
+import { getEffectiveClasses } from '../character/effective-character-5e'
 import type { Character5e } from '../../types/character-5e'
 
 /**
@@ -6,7 +7,7 @@ import type { Character5e } from '../../types/character-5e'
  * and Superior Critical (18-20) at level 15.
  */
 export function getCritThreshold(character: Character5e): number {
-  const fighterClass = character.classes.find((c) => c.name.toLowerCase() === 'fighter')
+  const fighterClass = getEffectiveClasses(character).find((c) => c.name.toLowerCase() === 'fighter')
   if (!fighterClass) return 20
 
   const isChampion =

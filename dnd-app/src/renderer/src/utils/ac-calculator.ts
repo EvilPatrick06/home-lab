@@ -1,18 +1,19 @@
 import type { Character } from '../types/character'
 import type { ArmorEntry } from '../types/character-common'
 import { abilityModifier } from '../types/character-common'
+import { getEffectiveArmor, getEffectiveClasses, getEffectiveFeats } from '../services/character/effective-character-5e'
 
 /**
  * Compute dynamic AC from equipped armor for a 5e character.
  * Mirrors the logic in CombatStatsBar.
  */
 export function computeDynamicAC(character: Character): number {
-  const armor: ArmorEntry[] = character.armor ?? []
+  const armor: ArmorEntry[] = getEffectiveArmor(character)
   const equippedArmor = armor.find((a) => a.equipped && a.type === 'armor')
   const equippedShield = armor.find((a) => a.equipped && a.type === 'shield')
   const dexMod = abilityModifier(character.abilityScores.dexterity)
 
-  const feats = character.feats ?? []
+  const feats = getEffectiveFeats(character)
   const hasDefenseFS = feats.some((f) => f.id === 'fighting-style-defense')
   const hasMediumArmorMaster = feats.some((f) => f.id === 'medium-armor-master')
   let ac: number
@@ -25,11 +26,12 @@ export function computeDynamicAC(character: Character): number {
     ac = equippedArmor.acBonus + cappedDex
     if (hasDefenseFS) ac += 1
   } else {
-    const classNames = character.classes.map((c) => c.name.toLowerCase())
+    const classes = getEffectiveClasses(character)
+    const classNames = classes.map((c) => c.name.toLowerCase())
     const conMod = abilityModifier(character.abilityScores.constitution)
     const wisMod = abilityModifier(character.abilityScores.wisdom)
     const chaMod = abilityModifier(character.abilityScores.charisma)
-    const isDraconicSorcerer = character.classes.some(
+    const isDraconicSorcerer = classes.some(
       (c) =>
         c.name.toLowerCase() === 'sorcerer' && c.subclass?.toLowerCase().replace(/\s+/g, '-') === 'draconic-sorcery'
     )

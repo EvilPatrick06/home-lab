@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getExpertiseGrants } from '../../../services/character/build-tree-5e'
+import { getEffectiveClasses } from '../../../services/character/effective-character-5e'
 import { getSlotProgression, isWarlockPactMagic } from '../../../services/character/spell-data'
 import { load5eClassFeatures } from '../../../services/data-provider'
 import { useLevelUpStore } from '../../../stores/use-level-up-store'
@@ -70,6 +71,8 @@ export default function LevelSection5e({
   const expertiseSelections = useLevelUpStore((s) => s.expertiseSelections)
   const setExpertiseSelections = useLevelUpStore((s) => s.setExpertiseSelections)
 
+  const effectiveClasses = getEffectiveClasses(character)
+
   const asiSlots = slots.filter((s) => s.category === 'ability-boost')
   const epicBoonSlots = slots.filter((s) => s.category === 'epic-boon')
   const fightingStyleSlots = slots.filter((s) => s.category === 'fighting-style')
@@ -94,7 +97,8 @@ export default function LevelSection5e({
 
     let classLevel = level
     if (classIdForLevel && classIdForLevel !== character.buildChoices.classId) {
-      const existingLevel = character.classes.find((c) => c.name.toLowerCase() === classIdForLevel)?.level ?? 0
+      const existingLevel =
+        getEffectiveClasses(character).find((c) => c.name.toLowerCase() === classIdForLevel)?.level ?? 0
       classLevel = existingLevel + 1
     }
 
@@ -110,7 +114,7 @@ export default function LevelSection5e({
 
   // Check if new spell slot levels are gained at this level
   const newSlotInfo = (() => {
-    const className = classIdForLevel ?? character.classes[0]?.name?.toLowerCase() ?? ''
+    const className = classIdForLevel ?? effectiveClasses[0]?.name?.toLowerCase() ?? ''
     const currentSlots = getSlotProgression(className, level - 1)
     const newSlots = getSlotProgression(className, level)
 
@@ -193,7 +197,7 @@ export default function LevelSection5e({
           const grants = getExpertiseGrants(effectiveClassId)
           // Find the matching grant for this slot's class level
           const existingDruidLevel =
-            character.classes.find((c) => c.name.toLowerCase() === effectiveClassId)?.level ?? 0
+            effectiveClasses.find((c) => c.name.toLowerCase() === effectiveClassId)?.level ?? 0
           const classLevelForSlot =
             classIdForLevel && classIdForLevel !== character.buildChoices.classId ? existingDruidLevel + 1 : slot.level
           const grant = grants.find((g) => g.classLevel === classLevelForSlot) ?? grants[0]
@@ -215,7 +219,7 @@ export default function LevelSection5e({
           const effectiveClassId = classIdForLevel ?? character.buildChoices.classId
           if (effectiveClassId !== 'druid') return null
           // Check if this level gains Elemental Fury (class level 7)
-          const existingDruidLevel = character.classes.find((c) => c.name.toLowerCase() === 'druid')?.level ?? 0
+          const existingDruidLevel = effectiveClasses.find((c) => c.name.toLowerCase() === 'druid')?.level ?? 0
           const newDruidClassLevel =
             classIdForLevel && classIdForLevel !== character.buildChoices.classId
               ? existingDruidLevel + 1
@@ -258,7 +262,7 @@ export default function LevelSection5e({
         {newSlotInfo && (
           <div>
             <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">
-              {isWarlockPactMagic(classIdForLevel ?? character.classes[0]?.name?.toLowerCase() ?? '')
+              {isWarlockPactMagic(classIdForLevel ?? effectiveClasses[0]?.name?.toLowerCase() ?? '')
                 ? 'Pact Slot Changes'
                 : 'Spell Slot Changes'}
             </div>

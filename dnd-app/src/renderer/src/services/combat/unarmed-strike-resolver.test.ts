@@ -83,7 +83,15 @@ function makeCharacter(overrides: Partial<Character5e> = {}): Character5e {
     playerId: 'player-1',
     name: 'Fighter',
     species: 'Human',
-    classes: [{ name: 'Fighter', level: 5, subclass: undefined, hitDie: 10 }],
+    classRefs: [
+      {
+        instanceId: 'c1',
+        ref: { entryType: 'classes', entryId: 'fighter', overrides: { name: 'Fighter', hitDie: 10 } },
+        level: 5,
+        levelTaken: 1,
+        subclassRef: null
+      }
+    ],
     level: 5,
     background: 'Soldier',
     alignment: 'Neutral',
@@ -249,7 +257,15 @@ describe('resolveUnarmedStrike', () => {
   it('Monk uses DEX when higher than STR for attack bonus', () => {
     mockRollResult = 10
     const monk = makeCharacter({
-      classes: [{ name: 'Monk', level: 5, subclass: undefined, hitDie: 8 }],
+      classRefs: [
+        {
+          instanceId: 'c1',
+          ref: { entryType: 'classes', entryId: 'monk', overrides: { name: 'Monk', hitDie: 8 } },
+          level: 5,
+          levelTaken: 1,
+          subclassRef: null
+        }
+      ],
       abilityScores: { strength: 10, dexterity: 18, constitution: 14, intelligence: 10, wisdom: 16, charisma: 8 }
     })
     const result = resolveUnarmedStrike(
@@ -265,7 +281,15 @@ describe('resolveUnarmedStrike', () => {
   it('Monk uses STR when higher than DEX', () => {
     mockRollResult = 10
     const monk = makeCharacter({
-      classes: [{ name: 'Monk', level: 5, subclass: undefined, hitDie: 8 }],
+      classRefs: [
+        {
+          instanceId: 'c1',
+          ref: { entryType: 'classes', entryId: 'monk', overrides: { name: 'Monk', hitDie: 8 } },
+          level: 5,
+          levelTaken: 1,
+          subclassRef: null
+        }
+      ],
       abilityScores: { strength: 20, dexterity: 14, constitution: 14, intelligence: 10, wisdom: 16, charisma: 8 }
     })
     const result = resolveUnarmedStrike(
@@ -370,7 +394,15 @@ describe('resolveUnarmedStrike', () => {
     // Monk damage: monkDmgRoll(15) + attackAbilityMod(+4) = 19 vs baseDamage(1+4=5) → uses monkDmg=19
     mockRollResult = 6
     const monk = makeCharacter({
-      classes: [{ name: 'Monk', level: 5, subclass: undefined, hitDie: 8 }],
+      classRefs: [
+        {
+          instanceId: 'c1',
+          ref: { entryType: 'classes', entryId: 'monk', overrides: { name: 'Monk', hitDie: 8 } },
+          level: 5,
+          levelTaken: 1,
+          subclassRef: null
+        }
+      ],
       abilityScores: { strength: 10, dexterity: 18, constitution: 14, intelligence: 10, wisdom: 16, charisma: 8 }
     })
     const result = resolveUnarmedStrike(
@@ -390,7 +422,15 @@ describe('resolveUnarmedStrike', () => {
     // Mock returns 1 for rollSingle (die and attack)
     mockRollResult = 1
     const monk = makeCharacter({
-      classes: [{ name: 'Monk', level: 1, subclass: undefined, hitDie: 8 }],
+      classRefs: [
+        {
+          instanceId: 'c1',
+          ref: { entryType: 'classes', entryId: 'monk', overrides: { name: 'Monk', hitDie: 8 } },
+          level: 1,
+          levelTaken: 1,
+          subclassRef: null
+        }
+      ],
       level: 1,
       abilityScores: { strength: 10, dexterity: 14, constitution: 14, intelligence: 10, wisdom: 14, charisma: 8 }
     })
@@ -420,7 +460,15 @@ describe('resolveUnarmedStrike', () => {
     mockRollResult = 10
     const char1 = makeCharacter({
       level: 1,
-      classes: [{ name: 'Fighter', level: 1, subclass: undefined, hitDie: 10 }]
+      classRefs: [
+        {
+          instanceId: 'c1',
+          ref: { entryType: 'classes', entryId: 'fighter', overrides: { name: 'Fighter', hitDie: 10 } },
+          level: 1,
+          levelTaken: 1,
+          subclassRef: null
+        }
+      ]
     })
     const result1 = resolveUnarmedStrike(
       char1,
@@ -432,7 +480,15 @@ describe('resolveUnarmedStrike', () => {
 
     const char9 = makeCharacter({
       level: 9,
-      classes: [{ name: 'Fighter', level: 9, subclass: undefined, hitDie: 10 }]
+      classRefs: [
+        {
+          instanceId: 'c1',
+          ref: { entryType: 'classes', entryId: 'fighter', overrides: { name: 'Fighter', hitDie: 10 } },
+          level: 9,
+          levelTaken: 1,
+          subclassRef: null
+        }
+      ]
     })
     const result9 = resolveUnarmedStrike(
       char9,

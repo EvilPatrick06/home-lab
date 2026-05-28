@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useCharacterEditor } from '../../../hooks/use-character-editor'
+import { getEffectiveMagicItems } from '../../../services/character/effective-character-5e'
 import { load5eMagicItems } from '../../../services/data-provider'
 import type { Character5e } from '../../../types/character-5e'
 import type { MagicItemRarity5e } from '../../../types/character-common'
@@ -30,6 +31,9 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
   const [giveUnidentified, setGiveUnidentified] = useState(false)
   const [buyWarning, setBuyWarning] = useState<string | null>(null)
 
+  // Phase 15c.5 — derive equipped magic items (v3 shape) from v4 refs via the truth store.
+  const characterMagicItems = getEffectiveMagicItems(character)
+
   const getLatestTyped = (): Character5e | undefined => {
     const latest = getLatest()
     if (!latest || latest.gameSystem !== 'dnd5e') return undefined
@@ -50,21 +54,21 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
       />
 
       {/* Magic Items */}
-      {((character.magicItems && character.magicItems.length > 0) || !readonly) && (
+      {(characterMagicItems.length > 0 || !readonly) && (
         <div className="mb-3">
           <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">
             Magic Items
-            {character.magicItems?.some((mi) => mi.attunement) && (
+            {characterMagicItems.some((mi) => mi.attunement) && (
               <span className="ml-2 text-purple-400 normal-case">
                 {/* Phase 15c.3 — attunement count reads v4 state.magicItemAttuned (absorbs Phase 23 F M2). */}
-                Attuned: {Object.values(character.state?.magicItemAttuned ?? {}).filter(Boolean).length || (character.magicItems ?? []).filter((mi) => mi.attuned).length}/3
+                Attuned: {Object.values(character.state?.magicItemAttuned ?? {}).filter(Boolean).length || characterMagicItems.filter((mi) => mi.attuned).length}/3
               </span>
             )}
           </div>
           {buyWarning && <div className="text-xs text-red-400 mb-1">{buyWarning}</div>}
-          {character.magicItems && character.magicItems.length > 0 ? (
+          {characterMagicItems.length > 0 ? (
             <div className="space-y-1">
-              {character.magicItems.map((item, i) => (
+              {characterMagicItems.map((item, i) => (
                 <MagicItemCard5e
                   key={item.id || i}
                   item={item}
@@ -177,7 +181,7 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                             }
                             const updated = {
                               ...latest,
-                              magicItems: [...(latest.magicItems ?? []), newItem],
+                              magicItems: [...getEffectiveMagicItems(latest), newItem],
                               updatedAt: new Date().toISOString()
                             } as Character5e
                             saveTyped(updated)
@@ -257,7 +261,7 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                                   }
                                   const updated = {
                                     ...latest,
-                                    magicItems: [...(latest.magicItems ?? []), newItem],
+                                    magicItems: [...getEffectiveMagicItems(latest), newItem],
                                     updatedAt: new Date().toISOString()
                                   } as Character5e
                                   saveTyped(updated)

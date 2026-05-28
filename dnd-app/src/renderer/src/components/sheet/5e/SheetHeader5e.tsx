@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { xpThresholdForNextLevel } from '../../../data/xp-thresholds'
-import { useHydratedClassList } from '../../../services/library/use-library-entry'
+import { getEffectiveClasses } from '../../../services/character/effective-character-5e'
 import { PRESET_ICONS } from '../../../stores/use-builder-store'
 import { useCharacterStore } from '../../../stores/use-character-store'
 import { is5eCharacter } from '../../../types/character'
@@ -22,9 +22,8 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
   const [showInspirationTransfer, setShowInspirationTransfer] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
-  // Phase 15c.4 — derive class list from v4 classRefs when populated, fall back to v3.
-  const hydratedClasses = useHydratedClassList(character.classRefs)
-  const effectiveClasses = hydratedClasses.length > 0 ? hydratedClasses : character.classes
+  // Phase 15c.5 — derive class list (v3 shape) from v4 classRefs via the truth store.
+  const effectiveClasses = getEffectiveClasses(character)
   const isMulticlass = effectiveClasses.length > 1
   const className = isMulticlass
     ? effectiveClasses.map((c) => `${c.name} ${c.level}`).join(' / ')

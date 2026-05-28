@@ -1,4 +1,5 @@
 import { useGameStore } from '../../stores/use-game-store'
+import { getEffectiveClasses } from '../character/effective-character-5e'
 import type { Character5e } from '../../types/character-5e'
 import type { MapToken } from '../../types/map'
 import { rollSingle } from '../dice/dice-service'
@@ -38,7 +39,7 @@ export function resolveUnarmedStrike(
   const profBonus = Math.ceil(character.level / 4) + 1
 
   // Monk can use DEX for unarmed strikes
-  const isMonk = character.classes.some((c) => c.name.toLowerCase() === 'monk')
+  const isMonk = getEffectiveClasses(character).some((c) => c.name.toLowerCase() === 'monk')
   const attackAbilityMod = isMonk ? Math.max(strMod, dexMod) : strMod
 
   const totalAttackBonus = attackAbilityMod + profBonus

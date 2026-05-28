@@ -1,4 +1,5 @@
 import { getSpeciesSpellProgression } from '../../services/character/auto-populate-5e'
+import { getEffectiveClasses, getEffectiveKnownSpells } from '../../services/character/effective-character-5e'
 import { load5eSpecies, load5eSpells, load5eSubclasses } from '../../services/data-provider'
 import type { Character5e } from '../../types/character-5e'
 import type { SpellEntry } from '../../types/character-common'
@@ -50,6 +51,9 @@ export async function resolveLevelUpSpells(
   druidicWarriorCantrips: string[]
 ): Promise<SpellEntry[]> {
   const newSpells: SpellEntry[] = []
+  // Phase 15c.5 — v3-shaped views off the v4 character.
+  const charKnownSpells = getEffectiveKnownSpells(character)
+  const charClasses = getEffectiveClasses(character)
 
   // 7. Load selected new spells
   if (newSpellIds.length > 0) {
@@ -57,7 +61,7 @@ export async function resolveLevelUpSpells(
       const spellData = await load5eSpells()
       for (const id of newSpellIds) {
         const raw = spellData.find((s) => s.id === id)
-        if (raw && !character.knownSpells.some((ks) => ks.id === raw.id)) {
+        if (raw && !charKnownSpells.some((ks) => ks.id === raw.id)) {
           newSpells.push(toSpellEntry(raw))
         }
       }
@@ -71,7 +75,7 @@ export async function resolveLevelUpSpells(
     try {
       const spellData = await load5eSpells()
       for (const cantripId of blessedWarriorCantrips) {
-        if (!character.knownSpells.some((ks) => ks.id === cantripId) && !newSpells.some((ns) => ns.id === cantripId)) {
+        if (!charKnownSpells.some((ks) => ks.id === cantripId) && !newSpells.some((ns) => ns.id === cantripId)) {
           const raw = spellData.find((s) => s.id === cantripId)
           if (raw) {
             newSpells.push(toSpellEntry(raw, { source: 'feat' }))
@@ -88,7 +92,7 @@ export async function resolveLevelUpSpells(
     try {
       const spellData = await load5eSpells()
       for (const cantripId of druidicWarriorCantrips) {
-        if (!character.knownSpells.some((ks) => ks.id === cantripId) && !newSpells.some((ns) => ns.id === cantripId)) {
+        if (!charKnownSpells.some((ks) => ks.id === cantripId) && !newSpells.some((ns) => ns.id === cantripId)) {
           const raw = spellData.find((s) => s.id === cantripId)
           if (raw) {
             newSpells.push(toSpellEntry(raw, { source: 'feat' }))
@@ -118,10 +122,7 @@ export async function resolveLevelUpSpells(
           }))
           const progressionSpells = getSpeciesSpellProgression(spellProg, targetLevel, speciesData.name)
           for (const spell of progressionSpells) {
-            if (
-              !character.knownSpells.some((ks) => ks.id === spell.id) &&
-              !newSpells.some((ns) => ns.id === spell.id)
-            ) {
+            if (!charKnownSpells.some((ks) => ks.id === spell.id) && !newSpells.some((ns) => ns.id === spell.id)) {
               newSpells.push(spell)
             }
           }
@@ -133,7 +134,7 @@ export async function resolveLevelUpSpells(
   }
 
   // 7d. Add subclass always-prepared spells
-  const primarySubclassId = character.classes[0]?.subclass?.toLowerCase().replace(/\s+/g, '-') ?? ''
+  const primarySubclassId = charClasses[0]?.subclass?.toLowerCase().replace(/\s+/g, '-') ?? ''
   if (primarySubclassId) {
     try {
       const subclasses = await load5eSubclasses()
@@ -144,7 +145,7 @@ export async function resolveLevelUpSpells(
           if (targetLevel >= Number(lvlStr)) {
             for (const name of spellNames) {
               if (
-                !character.knownSpells.some((ks) => ks.name.toLowerCase() === name.toLowerCase()) &&
+                !charKnownSpells.some((ks) => ks.name.toLowerCase() === name.toLowerCase()) &&
                 !newSpells.some((ns) => ns.name.toLowerCase() === name.toLowerCase())
               ) {
                 const raw = spellData.find((s) => s.name.toLowerCase() === name.toLowerCase())

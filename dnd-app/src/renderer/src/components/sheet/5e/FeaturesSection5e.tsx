@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { getBonusFeatCount } from '../../../data/xp-thresholds'
+import { getEffectiveFeats } from '../../../services/character/effective-character-5e'
 import { load5eInvocations, load5eMetamagic } from '../../../services/data-provider'
-import { useHydratedInstances } from '../../../services/library/use-library-entry'
 import { useNetworkStore } from '../../../stores/network-store'
 import { useCharacterStore } from '../../../stores/use-character-store'
 import { useLobbyStore } from '../../../stores/use-lobby-store'
@@ -31,17 +31,8 @@ export default function FeaturesSection5e({ character, readonly }: FeaturesSecti
     }
     return f
   })
-  // Phase 15c.4 — read feats live from truth store via v4 refs when populated.
-  const hydratedFeats = useHydratedInstances(character.featRefs, 'feats')
-  const feats =
-    hydratedFeats.length > 0
-      ? (hydratedFeats as unknown as Array<{
-          id: string
-          name: string
-          description: string
-          choices?: Record<string, string | string[]>
-        }>)
-      : (character.feats ?? [])
+  // Phase 15c.5 — derive feats (v3 shape) from v4 refs via the truth store.
+  const feats = getEffectiveFeats(character)
 
   const [showPicker, setShowPicker] = useState(false)
 
@@ -156,9 +147,21 @@ export default function FeaturesSection5e({ character, readonly }: FeaturesSecti
     updatedFeats: Array<{ id: string; name: string; description: string; choices?: Record<string, string | string[]> }>
   ): void => {
     const latest = useCharacterStore.getState().characters.find((c) => c.id === character.id) || character
+    const l = latest as Character5e
+    // Phase 15c.5 — feats are v4 refs; per-feat `choices` persist as a ref override.
     const updated: Character5e = {
-      ...(latest as Character5e),
-      feats: updatedFeats,
+      ...l,
+      featRefs: updatedFeats.map((f) => {
+        const existing = l.featRefs?.find((r) => r.ref.entryId === f.id)
+        return {
+          instanceId: existing?.instanceId ?? crypto.randomUUID(),
+          ref: {
+            entryType: 'feats' as const,
+            entryId: f.id,
+            ...(f.choices ? { overrides: { choices: f.choices } } : {})
+          }
+        }
+      }),
       updatedAt: new Date().toISOString()
     }
     useCharacterStore.getState().saveCharacter(updated)

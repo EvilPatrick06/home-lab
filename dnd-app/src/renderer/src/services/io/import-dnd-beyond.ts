@@ -7,7 +7,8 @@
  * class features, speed, senses, resistances, immunities, death saves.
  */
 
-import type { Character5e, EquipmentItem, Feature, SkillProficiency5e } from '../../types/character-5e'
+import type { Character5e, Character5eV3, EquipmentItem, Feature, SkillProficiency5e } from '../../types/character-5e'
+import { migrateCharacter5eFromV3ToV4 } from '../../types/character-5e-migration'
 import type {
   AbilityName,
   AbilityScoreSet,
@@ -635,7 +636,7 @@ export async function importDndBeyondCharacter(): Promise<Character5e | null> {
 
     // Build our Character5e object
     const now = new Date().toISOString()
-    const character: Character5e = {
+    const character: Character5eV3 = {
       id: crypto.randomUUID(),
       gameSystem: 'dnd5e',
       campaignId: null,
@@ -720,7 +721,7 @@ export async function importDndBeyondCharacter(): Promise<Character5e | null> {
       updatedAt: now
     }
 
-    return character
+    return migrateCharacter5eFromV3ToV4(character)
   } catch (err) {
     logger.error('Import D&D Beyond character failed:', err)
     return null

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useCharacterEditor } from '../../../hooks/use-character-editor'
-import { useHydratedInstances } from '../../../services/library/use-library-entry'
+import { getEffectiveArmor, getEffectiveClasses } from '../../../services/character/effective-character-5e'
 import { useCharacterStore } from '../../../stores/use-character-store'
 import type { Character } from '../../../types/character'
 import type { Character5e } from '../../../types/character-5e'
@@ -34,13 +34,9 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
 
   const armorDatabase = useArmorDatabase()
 
-  // Phase 15c.3 — read armor live from truth store via v4 refs when populated,
-  // fall back to legacy v3 inline shape. Equipped state still lives on the
-  // legacy v3 ArmorEntry.equipped boolean until a future phase wires
-  // state.armorEquipped through the mutation path too.
-  const hydratedArmor = useHydratedInstances(character.armorRefs, 'armor')
-  const armor: ArmorEntry[] =
-    hydratedArmor.length > 0 ? (hydratedArmor as unknown as ArmorEntry[]) : (character.armor ?? [])
+  // Phase 15c.5 — derive armor + classes (v3 shape) from v4 refs via the truth store.
+  const armor: ArmorEntry[] = getEffectiveArmor(character)
+  const classes = getEffectiveClasses(character)
   const equippedArmor = armor.find((a) => a.equipped && a.type === 'armor')
   const equippedShield = armor.find((a) => a.equipped && a.type === 'shield')
 
@@ -73,7 +69,7 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
     }
 
     const newArmor = armorDataToEntry(armorItem)
-    const currentArmor: ArmorEntry[] = latest.armor ?? []
+    const currentArmor: ArmorEntry[] = getEffectiveArmor(latest)
     const updatedTreasure = {
       ...treasure,
       pp: newCurrency.pp,
@@ -98,7 +94,7 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
   const handleRemoveArmor = (armorId: string): void => {
     const latest = getLatest()
     if (!latest) return
-    const currentArmor: ArmorEntry[] = latest.armor ?? []
+    const currentArmor: ArmorEntry[] = getEffectiveArmor(latest)
     const updated = {
       ...latest,
       armor: currentArmor.filter((a) => a.id !== armorId),
@@ -110,7 +106,7 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
   const handleSellArmor = (armorId: string): void => {
     const latest = getLatest()
     if (!latest) return
-    const currentArmor: ArmorEntry[] = latest.armor ?? []
+    const currentArmor: ArmorEntry[] = getEffectiveArmor(latest)
     const armorItem = currentArmor.find((a) => a.id === armorId)
     if (!armorItem) return
 
@@ -179,7 +175,7 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
       cost: customForm.cost.trim() || undefined
     }
 
-    const currentArmor: ArmorEntry[] = latest.armor ?? []
+    const currentArmor: ArmorEntry[] = getEffectiveArmor(latest)
     const updated = {
       ...latest,
       armor: [...currentArmor, newArmor],
@@ -217,10 +213,10 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
         ) : (
           <div className="text-sm text-gray-500 mb-2">
             {(() => {
-              const cNames = character.classes.map((c) => c.name.toLowerCase())
+              const cNames = classes.map((c) => c.name.toLowerCase())
               if (cNames.includes('barbarian')) return 'Unarmored Defense (10 + DEX + CON)'
               if (cNames.includes('monk') && !equippedShield) return 'Unarmored Defense (10 + DEX + WIS)'
-              const isDracSorc = character.classes.some(
+              const isDracSorc = classes.some(
                 (c) =>
                   c.name.toLowerCase() === 'sorcerer' &&
                   c.subclass?.toLowerCase().replace(/\s+/g, '-') === 'draconic-sorcery'

@@ -1,3 +1,4 @@
+import { getEffectiveFeats } from './effective-character-5e'
 import type { Character5e } from '../../types/character-5e'
 
 // ─── Feat Mechanic Descriptors ──────────────────────────────
@@ -14,7 +15,7 @@ export interface FeatMechanic {
  * Get active feat mechanics for a character, based on their equipped feats.
  */
 export function getActiveFeatMechanics(character: Character5e): FeatMechanic[] {
-  const feats = character.feats ?? []
+  const feats = getEffectiveFeats(character)
   const mechanics: FeatMechanic[] = []
   const profBonus = Math.ceil(character.level / 4) + 1
 
@@ -148,7 +149,7 @@ export function getDamageTypeFeatEffects(
   damageType: string,
   isCrit: boolean
 ): Array<{ feat: string; effect: string }> {
-  const feats = character.feats ?? []
+  const feats = getEffectiveFeats(character)
   const effects: Array<{ feat: string; effect: string }> = []
 
   if (damageType === 'bludgeoning' && feats.some((f) => f.id === 'crusher')) {

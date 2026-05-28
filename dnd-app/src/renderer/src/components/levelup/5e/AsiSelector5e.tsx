@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { getEffectiveFeats } from '../../../services/character/effective-character-5e'
 import { formatPrerequisites, load5eFeats } from '../../../services/data-provider'
 import type { Character5e } from '../../../types/character-5e'
 import type { AbilityName, BuildSlot } from '../../../types/character-common'
@@ -94,7 +95,7 @@ export function GeneralFeatPicker({
   }, [])
 
   // Filter out already-taken feats (unless repeatable)
-  const takenIds = new Set((character.feats ?? []).map((f) => f.id))
+  const takenIds = new Set(getEffectiveFeats(character).map((f) => f.id))
   const filteredFeats = feats.filter((f) => {
     if (takenIds.has(f.id) && !f.repeatable) return false
     if (search && !f.name.toLowerCase().includes(search.toLowerCase())) return false

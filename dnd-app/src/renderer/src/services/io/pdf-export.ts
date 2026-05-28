@@ -6,6 +6,14 @@
 import { jsPDF } from 'jspdf'
 import type { Character5e } from '../../types/character-5e'
 import { ABILITY_NAMES, type AbilityName, abilityModifier, formatMod } from '../../types/character-common'
+import {
+  getEffectiveArmor,
+  getEffectiveClasses,
+  getEffectiveFeats,
+  getEffectiveKnownSpells,
+  getEffectivePreparedSpellIds,
+  getEffectiveWeapons
+} from '../character/effective-character-5e'
 import { logger } from '../../utils/logger'
 
 const PAGE_W = 210
@@ -223,22 +231,24 @@ function drawFeatures(builder: PdfBuilder, char: Character5e): void {
 }
 
 function drawEquipment(builder: PdfBuilder, char: Character5e): void {
-  if (char.equipment.length === 0 && char.weapons.length === 0 && char.armor.length === 0) return
+  const weapons = getEffectiveWeapons(char)
+  const armor = getEffectiveArmor(char)
+  if (char.equipment.length === 0 && weapons.length === 0 && armor.length === 0) return
 
   builder.drawSection('Equipment')
 
-  if (char.weapons.length > 0) {
+  if (weapons.length > 0) {
     builder.drawText('Weapons:', FONT_SIZES.body, true)
-    for (const w of char.weapons) {
+    for (const w of weapons) {
       const props = w.properties.length > 0 ? ` [${w.properties.join(', ')}]` : ''
       builder.drawText(`  ${w.name}: ${w.damage} ${w.damageType}${props}${w.range ? ` (${w.range})` : ''}`)
     }
     builder.y += 1
   }
 
-  if (char.armor.length > 0) {
+  if (armor.length > 0) {
     builder.drawText('Armor:', FONT_SIZES.body, true)
-    for (const a of char.armor) {
+    for (const a of armor) {
       const eqp = a.equipped ? ' (equipped)' : ''
       builder.drawText(`  ${a.name}: AC ${a.acBonus}${eqp}`)
     }
@@ -276,7 +286,8 @@ function drawTreasure(builder: PdfBuilder, char: Character5e): void {
 }
 
 function drawSpells(builder: PdfBuilder, char: Character5e): void {
-  if (char.knownSpells.length === 0) return
+  const knownSpells = getEffectiveKnownSpells(char)
+  if (knownSpells.length === 0) return
 
   builder.drawSection('Spells')
 
@@ -287,20 +298,20 @@ function drawSpells(builder: PdfBuilder, char: Character5e): void {
     builder.y += 1
   }
 
-  const byLevel = new Map<number, typeof char.knownSpells>()
-  for (const spell of char.knownSpells) {
+  const byLevel = new Map<number, typeof knownSpells>()
+  for (const spell of knownSpells) {
     const list = byLevel.get(spell.level) ?? []
     list.push(spell)
     byLevel.set(spell.level, list)
   }
 
+  const prepared = new Set(getEffectivePreparedSpellIds(char))
   const sortedLevels = [...byLevel.keys()].sort((a, b) => a - b)
   for (const level of sortedLevels) {
     const spells = byLevel.get(level) ?? []
     const label = level === 0 ? 'Cantrips' : `Level ${level}`
     builder.drawText(`${label}:`, FONT_SIZES.body, true)
 
-    const prepared = new Set(char.preparedSpellIds)
     for (const spell of spells) {
       const marker = prepared.has(spell.id) ? '\u25CF' : '\u25CB'
       const conc = spell.concentration ? ' (C)' : ''
@@ -314,10 +325,11 @@ function drawSpells(builder: PdfBuilder, char: Character5e): void {
 }
 
 function drawFeats(builder: PdfBuilder, char: Character5e): void {
-  if (char.feats.length === 0) return
+  const feats = getEffectiveFeats(char)
+  if (feats.length === 0) return
 
   builder.drawSection('Feats')
-  for (const feat of char.feats) {
+  for (const feat of feats) {
     builder.drawText(feat.name, FONT_SIZES.body, true)
     if (feat.description) builder.drawText(feat.description.slice(0, 200))
     builder.y += 1
@@ -359,7 +371,7 @@ export async function exportCharacterToPdf(character: Character5e): Promise<bool
     builder.doc.text(character.name, MARGIN, builder.y)
     builder.y += 6
 
-    const classStr = character.classes
+    const classStr = getEffectiveClasses(character)
       .map((c) => `${c.name} ${c.level}${c.subclass ? ` (${c.subclass})` : ''}`)
       .join(' / ')
     builder.doc.setFontSize(FONT_SIZES.subtitle)

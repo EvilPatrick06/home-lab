@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { useMacroStore } from '../../../stores/use-macro-store'
 import type { Character } from '../../../types/character'
 import { is5eCharacter } from '../../../types/character'
+import { getEffectiveWeapons } from '../../../services/character/effective-character-5e'
 import { abilityModifier, formatMod } from '../../../types/character-common'
 
 interface MacroBarProps {
@@ -51,7 +52,7 @@ export default function MacroBar({ character, onRoll }: MacroBarProps): JSX.Elem
     const buttons: MacroButton[] = []
 
     // Weapon attack macros
-    for (const weapon of char5e.weapons) {
+    for (const weapon of getEffectiveWeapons(char5e)) {
       const atkMod = weapon.attackBonus
       buttons.push({
         id: `atk-${weapon.id}`,

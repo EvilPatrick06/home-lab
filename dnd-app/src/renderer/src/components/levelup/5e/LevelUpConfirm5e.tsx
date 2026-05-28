@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { addToast } from '../../../hooks/use-toast'
+import { getEffectiveClasses } from '../../../services/character/effective-character-5e'
 import { load5eInvocations, load5eMetamagic } from '../../../services/data-provider'
 import { useLevelUpStore } from '../../../stores/use-level-up-store'
 import type { Character5e } from '../../../types/character-5e'
@@ -52,7 +53,7 @@ export function ClassLevelSelector({
   onSelect: (classId: string) => void
 }): JSX.Element {
   // Current class is always available
-  const currentClassIds = new Set(character.classes.map((c) => c.name.toLowerCase()))
+  const currentClassIds = new Set(getEffectiveClasses(character).map((c) => c.name.toLowerCase()))
   currentClassIds.add(character.buildChoices.classId)
 
   // Check prerequisites for new classes
@@ -115,7 +116,7 @@ function getWarlockClassLevel(
   targetLevel: number,
   classLevelChoices: Record<number, string>
 ): number {
-  const existingWarlockLevel = character.classes.find((c) => c.name.toLowerCase() === 'warlock')?.level ?? 0
+  const existingWarlockLevel = getEffectiveClasses(character).find((c) => c.name.toLowerCase() === 'warlock')?.level ?? 0
   let newWarlockLevels = 0
   for (let lvl = character.level + 1; lvl <= targetLevel; lvl++) {
     if ((classLevelChoices[lvl] ?? character.buildChoices.classId) === 'warlock') {
@@ -306,7 +307,8 @@ function getSorcererClassLevel(
   targetLevel: number,
   classLevelChoices: Record<number, string>
 ): number {
-  const existingSorcererLevel = character.classes.find((c) => c.name.toLowerCase() === 'sorcerer')?.level ?? 0
+  const existingSorcererLevel =
+    getEffectiveClasses(character).find((c) => c.name.toLowerCase() === 'sorcerer')?.level ?? 0
   let newSorcererLevels = 0
   for (let lvl = character.level + 1; lvl <= targetLevel; lvl++) {
     if ((classLevelChoices[lvl] ?? character.buildChoices.classId) === 'sorcerer') {

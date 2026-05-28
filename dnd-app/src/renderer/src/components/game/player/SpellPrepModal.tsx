@@ -1,4 +1,9 @@
 import { useCallback, useMemo } from 'react'
+import {
+  getEffectiveClasses,
+  getEffectiveKnownSpells,
+  getEffectivePreparedSpellIds
+} from '../../../services/character/effective-character-5e'
 import { useCharacterStore } from '../../../stores/use-character-store'
 import { useGameStore } from '../../../stores/use-game-store'
 import type { Character } from '../../../types/character'
@@ -33,7 +38,7 @@ function modifier(score: number): number {
 }
 
 function primaryClassId(char: Character5e): string {
-  return (char.classes?.[0]?.name ?? '').toLowerCase()
+  return (getEffectiveClasses(char)[0]?.name ?? '').toLowerCase()
 }
 
 function maxPreparedFor(char: Character5e): number {
@@ -59,20 +64,37 @@ export default function SpellPrepModal({ character, onClose }: SpellPrepModalPro
   const char5e = is5eCharacter(character) ? (character as Character5e) : null
   const isPreparedCaster = !!char5e && PREPARED_CASTER_CLASSES.has(primaryClassId(char5e))
 
-  const preparedSet = useMemo(() => new Set(char5e?.preparedSpellIds ?? []), [char5e?.preparedSpellIds])
+  const preparedSet = useMemo(
+    () => new Set(char5e ? getEffectivePreparedSpellIds(char5e) : []),
+    [char5e?.state?.preparedSpellIds]
+  )
   const maxPrepared = char5e ? maxPreparedFor(char5e) : 0
-  const leveled = useMemo(() => (char5e?.knownSpells ?? []).filter((s) => s.level > 0), [char5e?.knownSpells])
+  const leveled = useMemo(
+    () => (char5e ? getEffectiveKnownSpells(char5e) : []).filter((s) => s.level > 0),
+    [char5e?.knownSpellRefs]
+  )
 
   const preparedCount = leveled.filter((s) => preparedSet.has(s.id)).length
 
   const handleToggle = useCallback(
     (spellId: string) => {
       if (!char5e || inCombat) return
-      const current = char5e.preparedSpellIds ?? []
+      const current = getEffectivePreparedSpellIds(char5e)
       const already = current.includes(spellId)
       if (!already && preparedCount >= maxPrepared) return // at cap
       const next = already ? current.filter((id) => id !== spellId) : [...current, spellId]
-      const updated: Character5e = { ...char5e, preparedSpellIds: next, updatedAt: new Date().toISOString() }
+      // Phase 15c.5 — prepared state lives in state.preparedSpellIds, keyed by instanceId.
+      const idToInstance = new Map((char5e.knownSpellRefs ?? []).map((r) => [r.ref.entryId, r.instanceId]))
+      const preparedSpellIds: Record<string, boolean> = {}
+      for (const id of next) {
+        const inst = idToInstance.get(id)
+        if (inst) preparedSpellIds[inst] = true
+      }
+      const updated: Character5e = {
+        ...char5e,
+        state: { ...char5e.state, preparedSpellIds },
+        updatedAt: new Date().toISOString()
+      }
       void saveCharacter(updated as Character)
     },
     [char5e, inCombat, preparedCount, maxPrepared, saveCharacter]

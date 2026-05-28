@@ -1,5 +1,11 @@
 import { useMemo } from 'react'
 import { computeSpellcastingInfo } from '../../../services/character/spell-data'
+import {
+  getEffectiveArmor,
+  getEffectiveClasses,
+  getEffectiveConditions,
+  getEffectiveFeats
+} from '../../../services/character/effective-character-5e'
 import { resolveEffects } from '../../../services/combat/effect-resolver-5e'
 import { useNetworkStore } from '../../../stores/network-store'
 import { useCharacterStore } from '../../../stores/use-character-store'
@@ -24,12 +30,13 @@ export default function CombatStatsBar5e({ character, readonly }: CombatStatsBar
   const profBonus = Math.ceil(character.level / 4) + 1
 
   // Dynamic AC calculation from equipped armor
-  const armor: ArmorEntry[] = effectiveCharacter.armor ?? []
+  const armor: ArmorEntry[] = getEffectiveArmor(effectiveCharacter)
   const equippedArmor = armor.find((a) => a.equipped && a.type === 'armor')
   const equippedShield = armor.find((a) => a.equipped && a.type === 'shield')
   const dexMod = abilityModifier(effectiveCharacter.abilityScores.dexterity)
 
-  const feats = effectiveCharacter.feats ?? []
+  const effectiveClasses = getEffectiveClasses(effectiveCharacter)
+  const feats = getEffectiveFeats(effectiveCharacter)
   const hasDefenseFS = feats.some((f) => f.id === 'fighting-style-defense')
   const hasMediumArmorMaster = feats.some((f) => f.id === 'medium-armor-master')
   const hasHeavyArmorMaster = feats.some((f) => f.id === 'heavy-armor-master')
@@ -48,11 +55,11 @@ export default function CombatStatsBar5e({ character, readonly }: CombatStatsBar
       ac = equippedArmor.acBonus + cappedDex
       if (hasDefenseFS) ac += 1
     } else {
-      const classNames = effectiveCharacter.classes.map((c) => c.name.toLowerCase())
+      const classNames = effectiveClasses.map((c) => c.name.toLowerCase())
       const conMod = abilityModifier(effectiveCharacter.abilityScores.constitution)
       const wisMod = abilityModifier(effectiveCharacter.abilityScores.wisdom)
       const chaMod = abilityModifier(effectiveCharacter.abilityScores.charisma)
-      const isDraconicSorcerer = effectiveCharacter.classes.some(
+      const isDraconicSorcerer = effectiveClasses.some(
         (c) =>
           c.name.toLowerCase() === 'sorcerer' && c.subclass?.toLowerCase().replace(/\s+/g, '-') === 'draconic-sorcery'
       )
@@ -88,13 +95,13 @@ export default function CombatStatsBar5e({ character, readonly }: CombatStatsBar
   initTooltipParts.push(`= ${formatMod(dynamicInitiative)}`)
 
   // AC equipment bonus indicator
-  const classNames = effectiveCharacter.classes.map((c) => c.name.toLowerCase())
+  const classNames = effectiveClasses.map((c) => c.name.toLowerCase())
   const unarmoredCandidates: number[] = [10 + dexMod]
   if (classNames.includes('barbarian'))
     unarmoredCandidates.push(10 + dexMod + abilityModifier(effectiveCharacter.abilityScores.constitution))
   if (classNames.includes('monk') && !equippedShield)
     unarmoredCandidates.push(10 + dexMod + abilityModifier(effectiveCharacter.abilityScores.wisdom))
-  const isDraconicSorcererForBonus = effectiveCharacter.classes.some(
+  const isDraconicSorcererForBonus = effectiveClasses.some(
     (c) => c.name.toLowerCase() === 'sorcerer' && c.subclass?.toLowerCase().replace(/\s+/g, '-') === 'draconic-sorcery'
   )
   if (isDraconicSorcererForBonus)
@@ -160,7 +167,7 @@ export default function CombatStatsBar5e({ character, readonly }: CombatStatsBar
           const hasBoonOfSpeed = feats.some((f) => f.id === 'boon-of-speed')
           const featSpeedBonus = (hasSpeedy ? 10 : 0) + (hasBoonOfSpeed ? 30 : 0)
           const baseSpeed = rawSpeed + featSpeedBonus + resolved.speedBonus
-          const conditions = effectiveCharacter.conditions ?? []
+          const conditions = getEffectiveConditions(effectiveCharacter)
           const hasGrappled = conditions.some((c) => c.name?.toLowerCase() === 'grappled')
           const hasRestrained = conditions.some((c) => c.name?.toLowerCase() === 'restrained')
           const exhaustionLevel = (() => {
@@ -228,7 +235,7 @@ export default function CombatStatsBar5e({ character, readonly }: CombatStatsBar
           </span>
           {(() => {
             const scInfo = computeSpellcastingInfo(
-              effectiveCharacter.classes.map((c) => ({
+              effectiveClasses.map((c) => ({
                 classId: c.name.toLowerCase(),
                 subclassId: c.subclass?.toLowerCase(),
                 level: c.level
@@ -263,7 +270,7 @@ export default function CombatStatsBar5e({ character, readonly }: CombatStatsBar
           {(() => {
             const percSkill = effectiveCharacter.skills.find((s) => s.name === 'Perception')
             const percBonus = percSkill?.expertise ? profBonus * 2 : percSkill?.proficient ? profBonus : 0
-            const conditions = effectiveCharacter.conditions ?? []
+            const conditions = getEffectiveConditions(effectiveCharacter)
             const exhCond = conditions.find((c) => c.name?.toLowerCase() === 'exhaustion')
             const exhPenalty = (exhCond?.value ?? 0) * 2
             const passivePerc = 10 + abilityModifier(effectiveCharacter.abilityScores.wisdom) + percBonus - exhPenalty

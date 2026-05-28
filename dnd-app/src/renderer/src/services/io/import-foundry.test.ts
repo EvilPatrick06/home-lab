@@ -190,10 +190,9 @@ describe('importFoundryCharacter', () => {
 
     const result = await importFoundryCharacter()
 
-    expect(result!.weapons).toHaveLength(1)
-    expect(result!.weapons[0].name).toBe('Longsword')
-    expect(result!.weapons[0].damage).toBe('1d8')
-    expect(result!.weapons[0].damageType).toBe('slashing')
+    expect(result!.weaponRefs).toHaveLength(1)
+    expect(result!.weaponRefs![0].ref.entryType).toBe('weapons')
+    expect(result!.weaponRefs![0].ref.entryId).toBe('w1')
   })
 
   it('parses armor items', async () => {
@@ -219,10 +218,11 @@ describe('importFoundryCharacter', () => {
 
     const result = await importFoundryCharacter()
 
-    expect(result!.armor).toHaveLength(1)
-    expect(result!.armor[0].name).toBe('Chain Mail')
-    expect(result!.armor[0].acBonus).toBe(16)
-    expect(result!.armor[0].equipped).toBe(true)
+    expect(result!.armorRefs).toHaveLength(1)
+    expect(result!.armorRefs![0].ref.entryType).toBe('armor')
+    expect(result!.armorRefs![0].ref.entryId).toBe('a1')
+    // equipped state is migrated into state.armorEquipped keyed by instanceId
+    expect(result!.state?.armorEquipped?.[result!.armorRefs![0].instanceId]).toBe(true)
   })
 
   it('parses shield equipment as armor', async () => {
@@ -246,8 +246,9 @@ describe('importFoundryCharacter', () => {
 
     const result = await importFoundryCharacter()
 
-    expect(result!.armor).toHaveLength(1)
-    expect(result!.armor[0].type).toBe('shield')
+    expect(result!.armorRefs).toHaveLength(1)
+    expect(result!.armorRefs![0].ref.entryType).toBe('armor')
+    expect(result!.armorRefs![0].ref.entryId).toBe('s1')
   })
 
   it('parses spells with school, components, and ritual flags', async () => {
@@ -274,16 +275,9 @@ describe('importFoundryCharacter', () => {
 
     const result = await importFoundryCharacter()
 
-    expect(result!.knownSpells).toHaveLength(1)
-    const spell = result!.knownSpells[0]
-    expect(spell.name).toBe('Fireball')
-    expect(spell.level).toBe(3)
-    expect(spell.school).toBe('Evocation')
-    expect(spell.components).toContain('V')
-    expect(spell.components).toContain('S')
-    expect(spell.components).toContain('M')
-    expect(spell.concentration).toBe(false)
-    expect(spell.ritual).toBe(false)
+    expect(result!.knownSpellRefs).toHaveLength(1)
+    expect(result!.knownSpellRefs![0].ref.entryType).toBe('spells')
+    expect(result!.knownSpellRefs![0].ref.entryId).toBe('sp1')
   })
 
   it('parses class items and calculates total level', async () => {
@@ -306,10 +300,12 @@ describe('importFoundryCharacter', () => {
 
     const result = await importFoundryCharacter()
 
-    expect(result!.classes).toHaveLength(2)
+    expect(result!.classRefs).toHaveLength(2)
     expect(result!.level).toBe(10)
-    expect(result!.classes[0].hitDie).toBe(6) // wizard
-    expect(result!.classes[1].hitDie).toBe(10) // fighter
+    expect(result!.classRefs![0].ref.entryId).toBe('wizard')
+    expect(result!.classRefs![0].level).toBe(7)
+    expect(result!.classRefs![1].ref.entryId).toBe('fighter')
+    expect(result!.classRefs![1].level).toBe(3)
   })
 
   it('creates a default class if no class items found', async () => {
@@ -319,8 +315,8 @@ describe('importFoundryCharacter', () => {
 
     const result = await importFoundryCharacter()
 
-    expect(result!.classes).toHaveLength(1)
-    expect(result!.classes[0].name).toBe('Unknown')
+    expect(result!.classRefs).toHaveLength(1)
+    expect(result!.classRefs![0].ref.entryId).toBe('unknown')
   })
 
   it('parses feat items as feats or class features', async () => {
@@ -345,8 +341,9 @@ describe('importFoundryCharacter', () => {
 
     const result = await importFoundryCharacter()
 
-    expect(result!.feats).toHaveLength(1)
-    expect(result!.feats[0].name).toBe('Alert')
+    expect(result!.featRefs).toHaveLength(1)
+    expect(result!.featRefs![0].ref.entryType).toBe('feats')
+    expect(result!.featRefs![0].ref.entryId).toBe('f1')
 
     expect(result!.classFeatures).toHaveLength(1)
     expect(result!.classFeatures[0].name).toBe('Action Surge')

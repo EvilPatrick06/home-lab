@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { getEffectiveClasses } from '../../../services/character/effective-character-5e'
 import type { Character } from '../../../types/character'
 import { is5eCharacter } from '../../../types/character'
 import { ABILITY_NAMES, abilityModifier, formatMod } from '../../../types/character-common'
@@ -31,7 +32,7 @@ export default function CharacterMiniSheet({ character }: CharacterMiniSheetProp
         <p className="text-xs text-gray-400">
           {is5eCharacter(character) && (
             <>
-              {character.species} {character.classes.map((c) => `${c.name} ${c.level}`).join(' / ')}
+              {character.species} {getEffectiveClasses(character).map((c) => `${c.name} ${c.level}`).join(' / ')}
             </>
           )}
         </p>

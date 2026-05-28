@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { trigger3dDice } from '../../../../components/game/dice3d'
 import { getConsumableEffects } from '../../../../data/effect-definitions'
+import { getEffectiveMagicItems } from '../../../../services/character/effective-character-5e'
 import { rollMultiple } from '../../../../services/dice/dice-service'
 import { useCharacterStore } from '../../../../stores/use-character-store'
 import type { Character } from '../../../../types/character'
@@ -38,7 +39,7 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
 
   const equipment = character.equipment
   const is5e = is5eCharacter(character)
-  const magicItems = is5e ? ((character as Character5e).magicItems ?? []) : []
+  const magicItems = is5e ? getEffectiveMagicItems(character as Character5e) : []
   // Phase 15a: Player Inventory Panel — surface currency totals and total
   // carried weight as headline summary fields. Previously the modal was
   // a flat item list with no aggregate view; players had to mentally
@@ -259,13 +260,17 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
                         const latest = useCharacterStore.getState().characters.find((c) => c.id === character.id)
                         if (!latest || !is5eCharacter(latest)) return
                         const l = latest as Character5e
+                        // Phase 15c.5 — charge state lives in state.magicItemCharges, keyed by instanceId.
+                        const miInstanceId = (mi as unknown as { __instanceId: string }).__instanceId
                         const updated = {
                           ...l,
-                          magicItems: (l.magicItems ?? []).map((m) =>
-                            m.id === mi.id && m.charges
-                              ? { ...m, charges: { ...m.charges, current: Math.max(0, m.charges.current - 1) } }
-                              : m
-                          ),
+                          state: {
+                            ...l.state,
+                            magicItemCharges: {
+                              ...l.state?.magicItemCharges,
+                              [miInstanceId]: Math.max(0, (mi.charges?.current ?? 0) - 1)
+                            }
+                          },
                           updatedAt: new Date().toISOString()
                         }
                         useCharacterStore.getState().saveCharacter(updated)

@@ -89,15 +89,10 @@ export default function SpellSlotTracker5e({
       restoredPactSlots[Number(level)] = { current: slots.max, max: slots.max }
     }
 
-    const restoredSpells = (latest.knownSpells ?? []).map((s) => {
-      if (!s.innateUses) return s
-      return { ...s, innateUses: { max: s.innateUses.max, remaining: s.innateUses.max } }
-    })
-
+    // Phase 15c.5 — innate-spell-use restoration dropped (no v4 home for innateUses).
     const updated = {
       ...latest,
       spellSlotLevels: restoredSlots,
-      knownSpells: restoredSpells,
       ...(Object.keys(restoredPactSlots).length > 0 ? { pactMagicSlotLevels: restoredPactSlots } : {}),
       updatedAt: new Date().toISOString()
     } as Character

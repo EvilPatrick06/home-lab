@@ -1,3 +1,4 @@
+import { getEffectiveClasses, getEffectiveWeapons } from '../../../services/character/effective-character-5e'
 import type { Character5e, CharacterClass5e, EquipmentItem, SkillProficiency5e } from '../../../types/character-5e'
 import {
   ABILITY_NAMES,
@@ -22,7 +23,10 @@ interface PrintSheetStatsProps {
 }
 
 export default function PrintSheetStats({ character, proficiencyBonus: pb }: PrintSheetStatsProps): JSX.Element {
-  const hitDiceStr = character.classes.map((c: CharacterClass5e) => `${c.level}d${c.hitDie}`).join(' + ')
+  const hitDiceStr = getEffectiveClasses(character)
+    .map((c: CharacterClass5e) => `${c.level}d${c.hitDie}`)
+    .join(' + ')
+  const weapons = getEffectiveWeapons(character)
 
   return (
     <>
@@ -178,7 +182,7 @@ export default function PrintSheetStats({ character, proficiencyBonus: pb }: Pri
           </div>
 
           {/* Attacks */}
-          {character.weapons.length > 0 && (
+          {weapons.length > 0 && (
             <div className="mb-3">
               <h2
                 className="mb-1 text-xs font-bold uppercase tracking-wider border-b border-gray-400 pb-0.5"
@@ -195,7 +199,7 @@ export default function PrintSheetStats({ character, proficiencyBonus: pb }: Pri
                   </tr>
                 </thead>
                 <tbody>
-                  {character.weapons.map((w: WeaponEntry) => (
+                  {weapons.map((w: WeaponEntry) => (
                     <tr key={w.id} className="border-b border-gray-200">
                       <td className="py-0.5">{w.name}</td>
                       <td className="text-center py-0.5 font-mono">{formatMod(w.attackBonus)}</td>

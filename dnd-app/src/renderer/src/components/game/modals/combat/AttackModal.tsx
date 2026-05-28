@@ -9,6 +9,7 @@ import {
   type MasteryEffectResult,
   unarmedStrikeDC
 } from '../../../../services/combat/combat-rules'
+import { getEffectiveFeats, getEffectiveWeapons } from '../../../../services/character/effective-character-5e'
 import { getCritThreshold } from '../../../../services/combat/crit-range'
 import {
   type GrappleRequest,
@@ -105,7 +106,7 @@ export default function AttackModal({
 
   const char5e = character as Character5e
   const profBonus = Math.ceil(character.level / 4) + 1
-  const realWeapons = char5e.weapons ?? []
+  const realWeapons = getEffectiveWeapons(char5e)
   const strMod = abilityModifier(character.abilityScores.strength)
   const dexMod = abilityModifier(character.abilityScores.dexterity)
 
@@ -118,7 +119,7 @@ export default function AttackModal({
   const selectedTarget = selectedTargetId ? tokens.find((t) => t.id === selectedTargetId) : null
 
   // Feat detection for combat bonuses
-  const charFeats = char5e.feats ?? []
+  const charFeats = getEffectiveFeats(char5e)
   const hasArcheryFS = charFeats.some((f) => f.id === 'fighting-style-archery')
   const hasDuelingFS = charFeats.some((f) => f.id === 'fighting-style-dueling')
   const hasThrownWeaponFS = charFeats.some((f) => f.id === 'fighting-style-thrown-weapon-fighting')

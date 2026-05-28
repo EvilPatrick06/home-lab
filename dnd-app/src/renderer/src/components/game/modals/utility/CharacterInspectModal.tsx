@@ -1,4 +1,5 @@
 import type { Character5e } from '../../../../types/character-5e'
+import { getEffectiveClasses, getEffectiveKnownSpells } from '../../../../services/character/effective-character-5e'
 
 interface CharacterInspectModalProps {
   characterData: unknown
@@ -29,7 +30,7 @@ export default function CharacterInspectModal({ characterData, onClose }: Charac
     )
   }
 
-  const classes = (char.classes ?? []).map((c) => `${c.name} ${c.level}`).join(' / ')
+  const classes = getEffectiveClasses(char).map((c) => `${c.name} ${c.level}`).join(' / ')
   const abilities = char.abilityScores ?? {
     strength: 10,
     dexterity: 10,
@@ -48,7 +49,7 @@ export default function CharacterInspectModal({ characterData, onClose }: Charac
     charisma: 'CHA'
   }
   const equipment = char.equipment ?? []
-  const spells = char.knownSpells ?? []
+  const spells = getEffectiveKnownSpells(char)
 
   const allProficiencies = [
     ...char.proficiencies.weapons,

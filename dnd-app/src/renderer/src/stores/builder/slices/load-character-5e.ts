@@ -1,5 +1,11 @@
 import { addToast } from '../../../hooks/use-toast'
 import { generate5eBuildSlots } from '../../../services/character/build-tree-5e'
+import {
+  getEffectiveClasses,
+  getEffectiveConditions,
+  getEffectiveFeats,
+  getEffectiveKnownSpells
+} from '../../../services/character/effective-character-5e'
 import { load5eBackgrounds, load5eClasses, load5eSpecies } from '../../../services/data-provider'
 import type { Character5e } from '../../../types/character-5e'
 import type { AbilityName } from '../../../types/character-common'
@@ -10,6 +16,11 @@ type SetState = (partial: Partial<BuilderState>) => void
 type GetState = () => BuilderState
 
 export function loadCharacterForEdit5e(character: Character5e, set: SetState, get: GetState): void {
+  // Phase 15c.5 — v3-shaped views off the v4 character.
+  const charClasses = getEffectiveClasses(character)
+  const charFeats = getEffectiveFeats(character)
+  const charKnownSpells = getEffectiveKnownSpells(character)
+  const charConditions = getEffectiveConditions(character)
   const slots = generate5eBuildSlots(character.level, character.buildChoices.classId)
   const speciesSlot = slots.find((s) => s.category === 'ancestry')
   if (speciesSlot && character.buildChoices.speciesId) {
@@ -19,7 +30,7 @@ export function loadCharacterForEdit5e(character: Character5e, set: SetState, ge
   const classSlot = slots.find((s) => s.category === 'class')
   if (classSlot && character.buildChoices.classId) {
     classSlot.selectedId = character.buildChoices.classId
-    classSlot.selectedName = character.classes[0]?.name ?? null
+    classSlot.selectedName = charClasses[0]?.name ?? null
   }
   const bgSlot = slots.find((s) => s.category === 'background')
   if (bgSlot && character.buildChoices.backgroundId) {
@@ -44,16 +55,14 @@ export function loadCharacterForEdit5e(character: Character5e, set: SetState, ge
     const subclassSlot = slots.find((s) => s.id.includes('subclass'))
     if (subclassSlot) {
       subclassSlot.selectedId = character.buildChoices.subclassId
-      subclassSlot.selectedName = character.classes[0]?.subclass ?? null
+      subclassSlot.selectedName = charClasses[0]?.subclass ?? null
     }
   }
 
   // Restore Epic Boon selection
   const epicBoonSlot = slots.find((s) => s.category === 'epic-boon')
-  if (epicBoonSlot && character.feats) {
-    const epicBoon = character.feats.find(
-      (f) => f.id.startsWith('epic-boon-') || character.buildChoices.epicBoonId === f.id
-    )
+  if (epicBoonSlot && charFeats.length) {
+    const epicBoon = charFeats.find((f) => f.id.startsWith('epic-boon-') || character.buildChoices.epicBoonId === f.id)
     if (epicBoon) {
       epicBoonSlot.selectedId = epicBoon.id
       epicBoonSlot.selectedName = epicBoon.name
@@ -77,8 +86,8 @@ export function loadCharacterForEdit5e(character: Character5e, set: SetState, ge
 
   // Restore Fighting Style selection
   const fightingStyleSlot = slots.find((s) => s.category === 'fighting-style')
-  if (fightingStyleSlot && character.buildChoices.fightingStyleId && character.feats) {
-    const fsMatch = character.feats.find((f) => f.id === character.buildChoices.fightingStyleId)
+  if (fightingStyleSlot && character.buildChoices.fightingStyleId && charFeats.length) {
+    const fsMatch = charFeats.find((f) => f.id === character.buildChoices.fightingStyleId)
     if (fsMatch) {
       fightingStyleSlot.selectedId = fsMatch.id
       fightingStyleSlot.selectedName = fsMatch.name
@@ -110,7 +119,7 @@ export function loadCharacterForEdit5e(character: Character5e, set: SetState, ge
   }
 
   // Restore selected spell IDs from knownSpells (excluding species spells which have 'species-' prefix)
-  const restoredSpellIds = (character.knownSpells ?? []).filter((s) => !s.id.startsWith('species-')).map((s) => s.id)
+  const restoredSpellIds = charKnownSpells.filter((s) => !s.id.startsWith('species-')).map((s) => s.id)
 
   // Restore expertise selections
   const restoredExpertiseSelections: Record<string, string[]> = character.buildChoices.expertiseChoices ?? {}
@@ -119,7 +128,7 @@ export function loadCharacterForEdit5e(character: Character5e, set: SetState, ge
   const restoredFeatSelections: Record<string, { id: string; name: string; description: string }> = {}
   if (character.buildChoices.generalFeatChoices) {
     for (const [slotId, featId] of Object.entries(character.buildChoices.generalFeatChoices)) {
-      const feat = (character.feats ?? []).find((f) => f.id === featId)
+      const feat = charFeats.find((f) => f.id === featId)
       if (feat) {
         restoredFeatSelections[slotId] = { id: feat.id, name: feat.name, description: feat.description }
         // Also mark the ASI slot as confirmed with feat name
@@ -195,15 +204,11 @@ export function loadCharacterForEdit5e(character: Character5e, set: SetState, ge
     speciesSpellcastingAbility: character.buildChoices.speciesSpellcastingAbility ?? null,
     keenSensesSkill: character.buildChoices.keenSensesSkill ?? null,
     classExtraLangCount:
-      character.classes[0]?.name.toLowerCase() === 'rogue'
-        ? 1
-        : character.classes[0]?.name.toLowerCase() === 'ranger'
-          ? 2
-          : 0,
+      charClasses[0]?.name.toLowerCase() === 'rogue' ? 1 : charClasses[0]?.name.toLowerCase() === 'ranger' ? 2 : 0,
     blessedWarriorCantrips: character.buildChoices.blessedWarriorCantrips ?? [],
     druidicWarriorCantrips: character.buildChoices.druidicWarriorCantrips ?? [],
     pets: character.pets ?? [],
-    conditions: character.conditions ?? [],
+    conditions: charConditions,
     currentHP: character.hitPoints.current < character.hitPoints.maximum ? character.hitPoints.current : null,
     tempHP: character.hitPoints.temporary ?? 0
   })

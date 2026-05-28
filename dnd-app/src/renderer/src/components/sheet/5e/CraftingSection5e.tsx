@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useCharacterEditor } from '../../../hooks/use-character-editor'
 import { useEquipmentData } from '../../../hooks/use-equipment-data'
+import { getEffectiveArmor, getEffectiveKnownSpells, getEffectiveWeapons } from '../../../services/character/effective-character-5e'
 import { load5eCrafting, load5eEquipment } from '../../../services/data-provider'
-import { useHydratedInstances } from '../../../services/library/use-library-entry'
 import type { Character } from '../../../types/character'
 import type { Character5e } from '../../../types/character-5e'
 import type { ArmorEntry, SpellEntry, WeaponEntry } from '../../../types/character-common'
@@ -179,10 +179,8 @@ export default function CraftingSection5e({ character, readonly }: CraftingSecti
     )
   )
 
-  // Phase 15c.2 — read known spells live from truth store via v4 refs.
-  const hydratedSpells = useHydratedInstances(character.knownSpellRefs, 'spells')
-  const preparedSpells: SpellEntry[] =
-    hydratedSpells.length > 0 ? (hydratedSpells as unknown as SpellEntry[]) : (character.knownSpells ?? [])
+  // Phase 15c.5 — derive known spells (v3 shape) from v4 refs via the truth store.
+  const preparedSpells: SpellEntry[] = getEffectiveKnownSpells(character)
 
   const handleCraftScroll = (spell: { id: string; name: string; level: number }): void => {
     const latest = getLatest() || character
@@ -274,7 +272,7 @@ export default function CraftingSection5e({ character, readonly }: CraftingSecti
       const weaponData = equipmentDb.weapons.find((w) => w.name.toLowerCase() === item.name.toLowerCase())
       if (weaponData) {
         const newWeapon = weaponDataToEntry(weaponData, latest as Character5e)
-        const currentWeapons: WeaponEntry[] = latest.weapons ?? []
+        const currentWeapons: WeaponEntry[] = getEffectiveWeapons(latest as Character5e)
         const updated = {
           ...latest,
           weapons: [...currentWeapons, newWeapon],
@@ -292,7 +290,7 @@ export default function CraftingSection5e({ character, readonly }: CraftingSecti
           properties: [],
           proficient: true
         }
-        const currentWeapons: WeaponEntry[] = latest.weapons ?? []
+        const currentWeapons: WeaponEntry[] = getEffectiveWeapons(latest as Character5e)
         const updated = {
           ...latest,
           weapons: [...currentWeapons, newWeapon],
@@ -305,7 +303,7 @@ export default function CraftingSection5e({ character, readonly }: CraftingSecti
       const armorData = equipmentDb.armor.find((a) => a.name.toLowerCase() === item.name.toLowerCase())
       if (armorData) {
         const newArmor = armorDataToEntry(armorData)
-        const currentArmor: ArmorEntry[] = latest.armor ?? []
+        const currentArmor: ArmorEntry[] = getEffectiveArmor(latest as Character5e)
         const updated = {
           ...latest,
           armor: [...currentArmor, newArmor],
@@ -321,7 +319,7 @@ export default function CraftingSection5e({ character, readonly }: CraftingSecti
           equipped: false,
           type: 'armor'
         }
-        const currentArmor: ArmorEntry[] = latest.armor ?? []
+        const currentArmor: ArmorEntry[] = getEffectiveArmor(latest as Character5e)
         const updated = {
           ...latest,
           armor: [...currentArmor, newArmor],

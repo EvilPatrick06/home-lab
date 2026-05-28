@@ -1,7 +1,7 @@
-import { deepMergeObjects } from '../library/merge'
 import { useLibraryStore } from '../../stores/use-library-store'
 import type { Character5e, CharacterClass5e, MagicItemEntry5e } from '../../types/character-5e'
 import type { ActiveCondition, ArmorEntry, SpellEntry, WeaponEntry } from '../../types/character-common'
+import { deepMergeObjects } from '../library/merge'
 
 // Phase 15c.5 — v3-shape derivation from v4 Character5e refs + state.
 //
@@ -19,17 +19,26 @@ import type { ActiveCondition, ArmorEntry, SpellEntry, WeaponEntry } from '../..
 type LibraryEntries = Partial<Record<string, Record<string, Record<string, unknown>>>>
 
 function hydrate<C extends string>(
-  refs: Array<{ instanceId: string; ref: { entryType: C; entryId: string; overrides?: Record<string, unknown> } }> | undefined,
+  refs:
+    | Array<{ instanceId: string; ref: { entryType: C; entryId: string; overrides?: Record<string, unknown> } }>
+    | undefined,
   bucket: Record<string, Record<string, unknown>> | undefined
 ): Array<Record<string, unknown> & { __instanceId: string }> {
   if (!refs) return []
   const out: Array<Record<string, unknown> & { __instanceId: string }> = []
   for (const inst of refs) {
     const entry = bucket?.[inst.ref.entryId]
-    if (!entry) continue
-    const merged = inst.ref.overrides
-      ? deepMergeObjects(entry, inst.ref.overrides as Record<string, unknown>)
-      : entry
+    const overrides = inst.ref.overrides as Record<string, unknown> | undefined
+    let merged: Record<string, unknown>
+    if (entry) {
+      merged = overrides ? deepMergeObjects(entry, overrides) : entry
+    } else if (overrides) {
+      // Orphan / custom entry not present in the library — the ref carries the
+      // full object as overrides. Hydrate from those alone.
+      merged = overrides
+    } else {
+      continue
+    }
     out.push({ ...merged, __instanceId: inst.instanceId })
   }
   return out
@@ -39,15 +48,16 @@ export function getEffectiveClasses(character: Character5e): CharacterClass5e[] 
   if (!character.classRefs || character.classRefs.length === 0) return []
   const bucket = useLibraryStore.getState().entries.classes as Record<string, Record<string, unknown>> | undefined
   return character.classRefs.map((cr) => {
-    const entry = bucket?.[cr.ref.entryId]
+    // Orphan / custom / test fallback: ref.overrides carries the entry when the
+    // library doesn't (or isn't loaded).
+    const entry = bucket?.[cr.ref.entryId] ?? (cr.ref.overrides as Record<string, unknown> | undefined)
     return {
       name: ((entry?.name as string) ?? cr.ref.entryId) as string,
       level: cr.level,
       subclass: cr.subclassRef?.entryId,
-      hitDie:
-        ((entry?.hitDie as number) ??
-          ((entry?.coreTraits as Record<string, unknown> | undefined)?.hitPointDie as unknown as number) ??
-          10) as number
+      hitDie: ((entry?.hitDie as number) ??
+        ((entry?.coreTraits as Record<string, unknown> | undefined)?.hitPointDie as unknown as number) ??
+        10) as number
     }
   })
 }
@@ -103,9 +113,10 @@ export function getEffectiveMagicItems(character: Character5e): MagicItemEntry5e
     return {
       ...m,
       attuned: attunedMap?.[instanceId] === true,
-      charges: chargesMap?.[instanceId] !== undefined
-        ? { ...(m.charges ?? { max: 0, rechargeType: 'none' as const }), current: chargesMap[instanceId] }
-        : m.charges
+      charges:
+        chargesMap?.[instanceId] !== undefined
+          ? { ...(m.charges ?? { max: 0, rechargeType: 'none' as const }), current: chargesMap[instanceId] }
+          : m.charges
     } as MagicItemEntry5e
   })
 }

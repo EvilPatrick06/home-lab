@@ -1,3 +1,4 @@
+import { getEffectiveClasses } from '../../../services/character/effective-character-5e'
 import type { Character5e } from '../../../types/character-5e'
 import { abilityModifier } from '../../../types/character-common'
 import type { ClassData } from '../../../types/data'
@@ -29,13 +30,14 @@ export function calculateSummary5e(
   const newConScore = Math.min(20, character.abilityScores.constitution + conIncrease)
   const newConMod = abilityModifier(newConScore)
 
+  const primaryHitDie = getEffectiveClasses(character)[0]?.hitDie ?? 8
+
   let hpGain = 0
   for (let lvl = currentLevel + 1; lvl <= targetLevel; lvl++) {
     const levelClassId = classLevelChoices[lvl] ?? character.buildChoices.classId
     const classInfo = allClasses.find((c) => c.id === levelClassId)
     const hitDie =
-      (classInfo ? parseInt(classInfo.coreTraits.hitPointDie.replace(/\D/g, ''), 10) : null) ||
-      (character.classes[0]?.hitDie ?? 8)
+      (classInfo ? parseInt(classInfo.coreTraits.hitPointDie.replace(/\D/g, ''), 10) : null) || primaryHitDie
 
     let dieResult: number
     if (hpChoices[lvl] === 'roll' && hpRolls[lvl] !== undefined) {

@@ -1,3 +1,4 @@
+import { getEffectiveClasses } from '../../../services/character/effective-character-5e'
 import type { Character5e, CharacterClass5e } from '../../../types/character-5e'
 import { formatMod } from '../../../types/character-common'
 
@@ -7,7 +8,7 @@ interface PrintSheetHeaderProps {
 }
 
 export default function PrintSheetHeader({ character, proficiencyBonus: pb }: PrintSheetHeaderProps): JSX.Element {
-  const classStr = character.classes
+  const classStr = getEffectiveClasses(character)
     .map((c: CharacterClass5e) => `${c.name}${c.subclass ? ` (${c.subclass})` : ''} ${c.level}`)
     .join(' / ')
 

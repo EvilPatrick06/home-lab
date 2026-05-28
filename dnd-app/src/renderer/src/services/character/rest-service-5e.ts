@@ -1,8 +1,14 @@
 import type { Character5e, HitDiceEntry, HitPoints } from '../../types/character-5e'
 import { totalHitDiceMaximum, totalHitDiceRemaining } from '../../types/character-5e'
-import type { ActiveCondition, ClassResource, SpellEntry } from '../../types/character-common'
+import type { ClassResource } from '../../types/character-common'
 import { abilityModifier } from '../../types/character-common'
 import { cryptoRandom } from '../../utils/crypto-random'
+import {
+  getEffectiveClasses,
+  getEffectiveConditions,
+  getEffectiveKnownSpells,
+  getEffectiveMagicItems
+} from './effective-character-5e'
 
 // ─── Types ────────────────────────────────────────────────────
 
@@ -82,10 +88,11 @@ export interface LongRestResult {
 
 export function getShortRestPreview(character: Character5e): ShortRestPreview {
   const conMod = abilityModifier(character.abilityScores.constitution)
+  const classes = getEffectiveClasses(character)
 
   const hitDiePools: HitDiePool[] = character.hitDice.map((hd, i) => ({
     dieSize: hd.dieType,
-    className: character.classes[i]?.name ?? 'Unknown',
+    className: classes[i]?.name ?? 'Unknown',
     remaining: hd.current,
     total: hd.maximum
   }))
@@ -124,7 +131,7 @@ export function getShortRestPreview(character: Character5e): ShortRestPreview {
   const wildShapeRegain = !!(character.wildShapeUses && character.wildShapeUses.current < character.wildShapeUses.max)
 
   // Arcane Recovery (Wizard): recover spell slots totaling up to half wizard level (rounded up)
-  const wizardLevel = character.classes.find((c) => c.name.toLowerCase() === 'wizard')?.level ?? 0
+  const wizardLevel = classes.find((c) => c.name.toLowerCase() === 'wizard')?.level ?? 0
   const arcaneRecoveryEligible = wizardLevel >= 1
   const arcaneRecoverySlotsToRecover = Math.ceil(wizardLevel / 2)
   // Max slot level = half wizard level rounded up, capped at 5
@@ -132,13 +139,13 @@ export function getShortRestPreview(character: Character5e): ShortRestPreview {
 
   // Natural Recovery (Druid, Land): recover spell slots totaling up to half druid level (rounded up)
   // For simplicity, check if druid
-  const druidLevel = character.classes.find((c) => c.name.toLowerCase() === 'druid')?.level ?? 0
+  const druidLevel = classes.find((c) => c.name.toLowerCase() === 'druid')?.level ?? 0
   const naturalRecoveryEligible = druidLevel >= 2
   const naturalRecoverySlotsToRecover = Math.ceil(druidLevel / 2)
 
   // Ranger Tireless (Level 10+)
-  const rangerLevel = character.classes.find((c) => c.name.toLowerCase() === 'ranger')?.level ?? 0
-  const hasExhaustion = (character.conditions ?? []).some((c) => c.name === 'Exhaustion' && (c.value ?? 0) > 0)
+  const rangerLevel = classes.find((c) => c.name.toLowerCase() === 'ranger')?.level ?? 0
+  const hasExhaustion = getEffectiveConditions(character).some((c) => c.name === 'Exhaustion' && (c.value ?? 0) > 0)
   const rangerTireless = rangerLevel >= 10 && hasExhaustion
 
   return {
@@ -238,17 +245,9 @@ export function applyShortRest(
     resourcesRestored.push('Wild Shape (+1)')
   }
 
-  // Ranger Tireless: reduce Exhaustion by 1
-  const rangerLevel = character.classes.find((c) => c.name.toLowerCase() === 'ranger')?.level ?? 0
-  let newConditions = [...(character.conditions ?? [])]
-  if (rangerLevel >= 10) {
-    newConditions = newConditions
-      .map((c) => (c.name === 'Exhaustion' && (c.value ?? 0) > 0 ? { ...c, value: (c.value ?? 0) - 1 } : c))
-      .filter((c) => !(c.name === 'Exhaustion' && (c.value ?? 0) <= 0))
-    if (character.conditions?.some((c) => c.name === 'Exhaustion' && (c.value ?? 0) > 0)) {
-      resourcesRestored.push('Exhaustion -1 (Tireless)')
-    }
-  }
+  // Phase 15c.5 — Ranger Tireless exhaustion reduction dropped: conditions are
+  // v4 refs now (no per-instance exhaustion value). Re-add via a dedicated
+  // exhaustion-state field if/when that feature is reinstated.
 
   // Arcane Recovery: restore selected spell slot levels
   let newSpellSlots = { ...character.spellSlotLevels }
@@ -277,7 +276,6 @@ export function applyShortRest(
     speciesResources: newSpeciesResources,
     ...(Object.keys(newPactSlots).length > 0 ? { pactMagicSlotLevels: newPactSlots } : {}),
     wildShapeUses: newWildShape,
-    conditions: newConditions,
     spellSlotLevels: newSpellSlots,
     updatedAt: new Date().toISOString()
   }
@@ -310,12 +308,12 @@ export function getLongRestPreview(character: Character5e): LongRestPreview {
     .filter((r) => r.current < r.max)
     .map((r) => ({ name: r.name, current: r.current, max: r.max, restoreAmount: 'all' as const }))
 
-  const exhaustionCondition = (character.conditions ?? []).find((c) => c.name === 'Exhaustion')
+  const exhaustionCondition = getEffectiveConditions(character).find((c) => c.name === 'Exhaustion')
   const currentExhaustionLevel = exhaustionCondition?.value ?? 0
 
   const isHuman = character.species?.toLowerCase() === 'human'
 
-  const innateSpellsToRestore = (character.knownSpells ?? [])
+  const innateSpellsToRestore = getEffectiveKnownSpells(character)
     .filter((s) => s.innateUses && s.innateUses.remaining < s.innateUses.max)
     .map((s) => s.name)
 
@@ -403,26 +401,13 @@ export function applyLongRest(character: Character5e): LongRestResult {
     ? { ...character.wildShapeUses, current: character.wildShapeUses.max }
     : undefined
 
-  // Exhaustion -1
-  let exhaustionReduced = false
-  const newConditions: ActiveCondition[] = (character.conditions ?? [])
-    .map((c) => {
-      if (c.name === 'Exhaustion' && (c.value ?? 0) > 0) {
-        exhaustionReduced = true
-        return { ...c, value: (c.value ?? 0) - 1 }
-      }
-      return c
-    })
-    .filter((c) => !(c.name === 'Exhaustion' && (c.value ?? 0) <= 0))
+  // Phase 15c.5 — exhaustion reduction dropped (conditions are v4 refs, no value).
+  const exhaustionReduced = false
 
   // Death saves reset
   const newDeathSaves = { successes: 0, failures: 0 }
 
-  // Innate spell uses restore
-  const restoredSpells: SpellEntry[] = (character.knownSpells ?? []).map((s) => {
-    if (!s.innateUses) return s
-    return { ...s, innateUses: { max: s.innateUses.max, remaining: s.innateUses.max } }
-  })
+  // Phase 15c.5 — innate-spell-use restoration dropped (no v4 home for innateUses).
 
   // Human: Heroic Inspiration
   const isHuman = character.species?.toLowerCase() === 'human'
@@ -431,10 +416,11 @@ export function applyLongRest(character: Character5e): LongRestResult {
   // High Elf cantrip swap eligibility
   const highElfCantripSwap = character.buildChoices?.subspeciesId === 'high-elf'
 
-  // Magic item charge restoration (long-rest rechargeType)
+  // Magic item charge restoration (long-rest rechargeType) → write state.magicItemCharges
   const magicItemsRestored: string[] = []
-  const newMagicItems = (character.magicItems ?? []).map((mi) => {
-    if (!mi.charges || mi.charges.rechargeType !== 'long-rest' || mi.charges.current >= mi.charges.max) return mi
+  const newMagicItemCharges: Record<string, number> = { ...(character.state?.magicItemCharges ?? {}) }
+  for (const mi of getEffectiveMagicItems(character)) {
+    if (!mi.charges || mi.charges.rechargeType !== 'long-rest' || mi.charges.current >= mi.charges.max) continue
     let restored = mi.charges.max
     if (mi.charges.rechargeDice) {
       const match = mi.charges.rechargeDice.match(/^(\d*)d(\d+)\s*([+-]\s*\d+)?$/)
@@ -447,9 +433,10 @@ export function applyLongRest(character: Character5e): LongRestResult {
         restored = Math.min(mi.charges.max, mi.charges.current + Math.max(0, roll))
       }
     }
+    const instanceId = (mi as unknown as { __instanceId: string }).__instanceId
+    newMagicItemCharges[instanceId] = restored
     magicItemsRestored.push(mi.name)
-    return { ...mi, charges: { ...mi.charges, current: restored } }
-  })
+  }
 
   const updated: Character5e = {
     ...character,
@@ -458,12 +445,10 @@ export function applyLongRest(character: Character5e): LongRestResult {
     spellSlotLevels: restoredSpellSlots,
     ...(Object.keys(restoredPactSlots).length > 0 ? { pactMagicSlotLevels: restoredPactSlots } : {}),
     deathSaves: newDeathSaves,
-    conditions: newConditions,
-    knownSpells: restoredSpells,
     classResources: newClassResources,
     speciesResources: newSpeciesResources,
     wildShapeUses: newWildShape,
-    magicItems: newMagicItems,
+    state: { ...character.state, magicItemCharges: newMagicItemCharges },
     ...(heroicInspirationGranted ? { heroicInspiration: true } : {}),
     updatedAt: new Date().toISOString()
   }

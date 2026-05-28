@@ -13,6 +13,7 @@
  */
 
 import { useGameStore } from '../../stores/use-game-store'
+import { getEffectiveClasses, getEffectiveMagicItems } from '../character/effective-character-5e'
 import type { Character5e } from '../../types/character-5e'
 import type { WeaponEntry } from '../../types/character-common'
 import type { MapToken } from '../../types/map'
@@ -151,7 +152,7 @@ export function resolveUnarmedStrike(
   const profBonus = Math.ceil(character.level / 4) + 1
 
   // Monk can use DEX for unarmed strikes
-  const isMonk = character.classes.some((c) => c.name.toLowerCase() === 'monk')
+  const isMonk = getEffectiveClasses(character).some((c) => c.name.toLowerCase() === 'monk')
   const attackAbilityMod = isMonk ? Math.max(strMod, dexMod) : strMod
 
   const totalAttackBonus = attackAbilityMod + profBonus
@@ -526,7 +527,9 @@ export function resolveAttack(
     const targetVulnerabilities = targetToken.vulnerabilities ?? []
     const isMagical =
       weapon.properties.some((p) => p.toLowerCase() === 'magical') ||
-      (character.magicItems ?? []).some((mi) => mi.attuned && mi.name.toLowerCase().includes(weapon.name.toLowerCase()))
+      getEffectiveMagicItems(character).some(
+        (mi) => mi.attuned && mi.name.toLowerCase().includes(weapon.name.toLowerCase())
+      )
 
     damageResolution = resolveDamage(
       [{ rawDamage: damageTotal, damageType: weapon.damageType, isMagical }],

@@ -1,4 +1,4 @@
-import { useHydratedClassList } from '../../../services/library/use-library-entry'
+import { getEffectiveClasses } from '../../../services/character/effective-character-5e'
 import type { Character5e } from '../../../types/character-5e'
 import { ABILITY_NAMES, abilityModifier, formatMod } from '../../../types/character-common'
 import SheetSectionWrapper from '../shared/SheetSectionWrapper'
@@ -11,9 +11,8 @@ interface SavingThrowsSection5eProps {
 export default function SavingThrowsSection5e({ character }: SavingThrowsSection5eProps): JSX.Element {
   const profBonus = Math.ceil(character.level / 4) + 1
 
-  // Phase 15c.4 — primary class via v4 classRefs when populated, fall back to v3.
-  const hydratedClasses = useHydratedClassList(character.classRefs)
-  const effectiveClasses = hydratedClasses.length > 0 ? hydratedClasses : character.classes
+  // Phase 15c.5 — derive class list (v3 shape) from v4 classRefs via the truth store.
+  const effectiveClasses = getEffectiveClasses(character)
 
   // Compute effective saving throw proficiencies (includes dynamic grants like Slippery Mind)
   const effectiveProficientSaves = (() => {

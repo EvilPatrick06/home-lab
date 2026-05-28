@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { addToast } from '../../../hooks/use-toast'
+import { getEffectiveClasses, getEffectiveFeats } from '../../../services/character/effective-character-5e'
 import { formatPrerequisites, load5eFeats, load5eSpells } from '../../../services/data-provider'
 import { useLevelUpStore } from '../../../stores/use-level-up-store'
 import type { Character5e } from '../../../types/character-5e'
@@ -260,7 +261,8 @@ export function FightingStyleSelector5e({
   const [feats, setFeats] = useState<FeatData[]>([])
   const [expanded, setExpanded] = useState(false)
 
-  const isRanger = character.buildChoices.classId === 'ranger' || character.classes[0]?.name.toLowerCase() === 'ranger'
+  const isRanger =
+    character.buildChoices.classId === 'ranger' || getEffectiveClasses(character)[0]?.name.toLowerCase() === 'ranger'
 
   useEffect(() => {
     load5eFeats('Fighting Style')
@@ -282,7 +284,7 @@ export function FightingStyleSelector5e({
   }, [character.buildChoices.classId])
 
   // Filter out already-taken fighting styles
-  const takenIds = new Set((character.feats ?? []).map((f) => f.id))
+  const takenIds = new Set(getEffectiveFeats(character).map((f) => f.id))
   const available: Array<{ id: string; name: string; description: string }> = [
     ...feats
       .filter((f) => !takenIds.has(f.id))

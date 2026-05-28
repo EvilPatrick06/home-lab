@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
+import { getEffectiveClasses } from '../../services/character/effective-character-5e'
 import { useNetworkStore } from '../../stores/network-store'
 import { useCharacterStore } from '../../stores/use-character-store'
 import { useLobbyStore } from '../../stores/use-lobby-store'
@@ -10,7 +11,7 @@ interface CharacterSelectorProps {
 }
 
 function getCharacterSummary(character: Character): { name: string; level: number; className: string } {
-  const primaryClass = character.classes[0]
+  const primaryClass = getEffectiveClasses(character)[0]
   return {
     name: character.name,
     level: character.level,

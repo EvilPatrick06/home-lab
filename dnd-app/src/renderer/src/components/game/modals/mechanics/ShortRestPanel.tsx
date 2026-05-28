@@ -5,6 +5,7 @@ import {
   type ShortRestDiceRoll,
   type ShortRestPreview as SRPreview
 } from '../../../../services/character/rest-service-5e'
+import { getEffectiveClasses } from '../../../../services/character/effective-character-5e'
 import type { Character5e } from '../../../../types/character-5e'
 import { abilityModifier } from '../../../../types/character-common'
 
@@ -30,7 +31,7 @@ export function initShortRestStates(pcs: Character5e[]): Record<string, PCShortR
   const states: Record<string, PCShortRestState> = {}
   for (const pc of pcs) {
     const preview = getShortRestPreview(pc)
-    const dieSizes = [...new Set(pc.classes.map((c) => c.hitDie))].sort((a, b) => b - a)
+    const dieSizes = [...new Set(getEffectiveClasses(pc).map((c) => c.hitDie))].sort((a, b) => b - a)
     states[pc.id] = {
       selected: true,
       preview,
@@ -91,8 +92,9 @@ export default function ShortRestPanel({ pcs, states, onStatesChange }: ShortRes
         const state = states[pc.id]
         if (!state) return null
         const conMod = abilityModifier(pc.abilityScores.constitution)
-        const dieSizes = [...new Set(pc.classes.map((c) => c.hitDie))].sort((a, b) => b - a)
-        const isMulticlass = pc.classes.length > 1
+        const classes = getEffectiveClasses(pc)
+        const dieSizes = [...new Set(classes.map((c) => c.hitDie))].sort((a, b) => b - a)
+        const isMulticlass = classes.length > 1
         const totalHealing = state.rolls.reduce((sum, r) => sum + r.healing, 0)
 
         return (
@@ -112,7 +114,7 @@ export default function ShortRestPanel({ pcs, states, onStatesChange }: ShortRes
               />
               <span className="text-sm font-semibold text-gray-200">{pc.name}</span>
               <span className="text-xs text-gray-500">
-                Lv{pc.level} {pc.classes.map((c) => c.name).join('/')}
+                Lv{pc.level} {classes.map((c) => c.name).join('/')}
               </span>
               <span className="ml-auto text-xs text-gray-400">
                 HP: {pc.hitPoints.current}/{pc.hitPoints.maximum}
@@ -179,7 +181,7 @@ export default function ShortRestPanel({ pcs, states, onStatesChange }: ShortRes
                         className="w-12 bg-gray-700 border border-gray-600 rounded px-1.5 py-0.5 text-center text-xs text-gray-100 focus:outline-none focus:border-amber-500"
                       />
                       <span className="text-[10px] text-gray-500">
-                        d{isMulticlass ? state.selectedDieSize : (pc.classes[0]?.hitDie ?? 8)}
+                        d{isMulticlass ? state.selectedDieSize : (classes[0]?.hitDie ?? 8)}
                       </span>
                       <span className="text-[10px] text-gray-500">+ {conMod} CON</span>
                     </div>

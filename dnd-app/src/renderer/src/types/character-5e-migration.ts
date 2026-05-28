@@ -1,10 +1,12 @@
-import type { Character5e, InstanceRef } from './character-5e'
+import type { Character5e, Character5eV3, InstanceRef } from './character-5e'
 import type { EntryRef } from './library'
 
-// Phase 15c.5 — v3 inline arrays remain on `Character5e` (additive
-// interpretation). This shim DERIVES v4 fields from v3 on load; v3 fields
-// are NOT stripped. Future work: convert remaining writers to v4 + remove
-// v3 fields entirely.
+// Phase 15c.5 — the canonical `Character5e` is v4 (refs + state). This shim is
+// the single chokepoint that converts the legacy v3 inline-array shape
+// (`Character5eV3`) into v4: it DERIVES the ref + state fields, then deletes the
+// v3 inline arrays so they never reach the persisted/canonical shape. Used on
+// load (`use-character-store`) and after builder/level-up/rest produce v3-shaped
+// output.
 
 function nextInstanceId(): string {
   if (typeof globalThis !== 'undefined' && globalThis.crypto && 'randomUUID' in globalThis.crypto) {
@@ -31,8 +33,8 @@ function instanceRef<C extends string>(
   return { instanceId: nextInstanceId(), ref: entryRef(entryType, entryId, overrides) }
 }
 
-export function migrateCharacter5eFromV3ToV4(character: Character5e): Character5e {
-  const out: Character5e = { ...character }
+export function migrateCharacter5eFromV3ToV4(character: Character5eV3): Character5e {
+  const out: Character5eV3 = { ...character }
 
   if (out.speciesRef === undefined && out.species) {
     out.speciesRef = entryRef('species', out.species)
@@ -146,13 +148,16 @@ export function migrateCharacter5eFromV3ToV4(character: Character5e): Character5
     out.state = state
   }
 
-  // Phase 15c.5 — v3 fields stay populated for now. The destructive strip was
-  // reverted after best-judgment review: every level-up + game flow reads
-  // `character.classes[0]?.name` / `character.classes.find(...)` directly,
-  // and the per-file cascade to rewrite ~50 consumers cold (no tsc, no
-  // vitest per the session directive) would have left the working tree
-  // unworkable. v4 fields ARE populated additively; new code can read them.
-  // 15c.5 effectively becomes "v4 canonical via additive shape + reader-side
-  // hooks" — the strip + writer-cascade pushes to a future phase.
-  return out as Character5e
+  // Phase 15c.5 — strip the legacy v3 inline arrays now that v4 (refs + state)
+  // is derived. Consumers read v4 via the `getEffective*` helpers / hydration
+  // hooks; the v3 fields never reach the canonical shape.
+  delete out.classes
+  delete out.knownSpells
+  delete out.preparedSpellIds
+  delete out.weapons
+  delete out.armor
+  delete out.magicItems
+  delete out.feats
+  delete out.conditions
+  return out
 }

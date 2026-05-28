@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react'
 import type { MessageType } from '../../../network'
+import { getEffectiveClasses } from '../../../services/character/effective-character-5e'
 import { useCharacterStore } from '../../../stores/use-character-store'
 import { useGameStore } from '../../../stores/use-game-store'
 import type { ChatMessage } from '../../../stores/use-lobby-store'
@@ -139,7 +140,7 @@ export default function MechanicsModals({
       {activeModal === 'wildShape' && character && is5eCharacter(character) && (
         <WildShapeBrowserModal
           onClose={close}
-          druidLevel={character.classes.find((c) => c.name.toLowerCase() === 'druid')?.level ?? character.level}
+          druidLevel={getEffectiveClasses(character).find((c) => c.name.toLowerCase() === 'druid')?.level ?? character.level}
           wildShapeUses={character.wildShapeUses ?? { current: 0, max: 0 }}
           activeFormId={character.activeWildShapeFormId}
           onTransform={handleWildShapeTransform}

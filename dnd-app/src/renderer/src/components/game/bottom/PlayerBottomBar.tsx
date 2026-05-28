@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
+import { getEffectiveClasses } from '../../../services/character/effective-character-5e'
 import { parseDiceFormula, rollDice } from '../../../services/dice/dice-engine'
 import { getCurrentAmbient, subscribeToCurrentAmbient } from '../../../services/sound-manager'
 import { useNetworkStore } from '../../../stores/network-store'
@@ -157,10 +158,11 @@ export default function PlayerBottomBar({
 
   // Determine which companion options to show based on character class
   const is5e = freshCharacter && is5eCharacter(freshCharacter)
-  const isDruid = is5e && freshCharacter.classes.some((c) => c.name.toLowerCase() === 'druid')
+  const classes5e = is5e ? getEffectiveClasses(freshCharacter) : []
+  const isDruid = is5e && classes5e.some((c) => c.name.toLowerCase() === 'druid')
   const hasWizardOrWarlock =
-    is5e && freshCharacter.classes.some((c) => ['wizard', 'warlock'].includes(c.name.toLowerCase()))
-  const isPaladin = is5e && freshCharacter.classes.some((c) => c.name.toLowerCase() === 'paladin')
+    is5e && classes5e.some((c) => ['wizard', 'warlock'].includes(c.name.toLowerCase()))
+  const isPaladin = is5e && classes5e.some((c) => c.name.toLowerCase() === 'paladin')
 
   return (
     <div className="min-h-0 h-full bg-gray-950/90 backdrop-blur-sm border-t border-amber-900/30 flex min-w-0 relative">

@@ -1,3 +1,4 @@
+import { getEffectiveClasses, getEffectiveWeapons } from '../../../../services/character/effective-character-5e'
 import type { Character5e } from '../../../../types/character-5e'
 import { type AbilityName, abilityModifier as charAbilityMod, formatMod } from '../../../../types/character-common'
 import type { MonsterAction, MonsterStatBlock } from '../../../../types/monster'
@@ -22,10 +23,11 @@ function PCBlock({
   onRoll: (entityName: string, label: string, modifier: number) => void
 }): JSX.Element {
   const profBonus = Math.floor((char.level - 1) / 4) + 2
+  const charWeapons = getEffectiveWeapons(char)
   return (
     <div className="space-y-3">
       <div className="text-xs text-gray-400">
-        Level {char.level} {char.classes.map((c) => c.name).join('/')} | HP: {char.hitPoints.current}/
+        Level {char.level} {getEffectiveClasses(char).map((c) => c.name).join('/')} | HP: {char.hitPoints.current}/
         {char.hitPoints.maximum} | AC: {char.armorClass}
       </div>
 
@@ -102,11 +104,11 @@ function PCBlock({
       </div>
 
       {/* Weapons */}
-      {char.weapons.length > 0 && (
+      {charWeapons.length > 0 && (
         <div>
           <div className="text-[9px] text-gray-500 uppercase tracking-wider mb-1">Attacks</div>
           <div className="space-y-1">
-            {char.weapons.map((w) => (
+            {charWeapons.map((w) => (
               <div key={w.id} className="flex items-center gap-2 bg-gray-800/30 rounded px-2 py-1">
                 <span className="text-xs text-gray-200 flex-1">
                   {w.name}: {formatMod(w.attackBonus)} to hit, {w.damage} {w.damageType}

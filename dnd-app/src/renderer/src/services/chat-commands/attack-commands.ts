@@ -3,6 +3,7 @@ import { LIGHT_SOURCE_LABELS, LIGHT_SOURCES } from '../../data/light-sources'
 import { useGameStore } from '../../stores/use-game-store'
 import { formatAttackResult } from '../combat/attack-formatter'
 import { findWeapon, resolveAttack } from '../combat/attack-resolver'
+import { getEffectiveWeapons } from '../character/effective-character-5e'
 import { rollMultiple } from '../dice/dice-service'
 import { findTokenByName, rollD20WithTag } from './helpers'
 import type { ChatCommand } from './types'
@@ -135,9 +136,10 @@ export const attackCommand: ChatCommand = {
     const weaponSearch = parts[0]
     const targetSearch = parts.slice(1).join(' ')
 
-    const weapon = findWeapon(ctx.character.weapons, weaponSearch)
+    const weapons = getEffectiveWeapons(ctx.character)
+    const weapon = findWeapon(weapons, weaponSearch)
     if (!weapon) {
-      const available = ctx.character.weapons.map((w) => w.name).join(', ')
+      const available = weapons.map((w) => w.name).join(', ')
       return {
         type: 'error',
         content: `Weapon "${weaponSearch}" not found. Available: ${available || 'none'}`

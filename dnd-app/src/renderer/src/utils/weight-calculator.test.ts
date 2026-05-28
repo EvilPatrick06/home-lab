@@ -86,7 +86,6 @@ describe('calculateTotalWeight', () => {
       playerId: 'p1',
       name: 'Test',
       species: 'Human',
-      classes: [],
       level: 1,
       background: '',
       alignment: '',
@@ -109,13 +108,8 @@ describe('calculateTotalWeight', () => {
       equipment: [],
       treasure: { cp: 0, sp: 0, gp: 0, pp: 0 },
       features: [],
-      knownSpells: [],
-      preparedSpellIds: [],
       spellSlotLevels: {},
       classFeatures: [],
-      weapons: [],
-      armor: [],
-      feats: [],
       buildChoices: {} as any,
       status: 'active',
       campaignHistory: [],
@@ -134,26 +128,29 @@ describe('calculateTotalWeight', () => {
   })
 
   it('sums weapon weights', () => {
+    const w1 = {
+      id: 'w1',
+      name: 'Longsword',
+      damage: '1d8',
+      damageType: 'slashing',
+      attackBonus: 5,
+      properties: [],
+      weight: 3
+    }
+    const w2 = { id: 'w2', name: 'Dagger', damage: '1d4', damageType: 'piercing', attackBonus: 5, properties: [], weight: 1 }
     const char = makeCharacter({
-      weapons: [
-        {
-          id: 'w1',
-          name: 'Longsword',
-          damage: '1d8',
-          damageType: 'slashing',
-          attackBonus: 5,
-          properties: [],
-          weight: 3
-        },
-        { id: 'w2', name: 'Dagger', damage: '1d4', damageType: 'piercing', attackBonus: 5, properties: [], weight: 1 }
+      weaponRefs: [
+        { instanceId: w1.id, ref: { entryType: 'weapons', entryId: w1.id, overrides: w1 } },
+        { instanceId: w2.id, ref: { entryType: 'weapons', entryId: w2.id, overrides: w2 } }
       ]
     })
     expect(calculateTotalWeight(char)).toBe(4)
   })
 
   it('sums armor weights', () => {
+    const a1 = { id: 'a1', name: 'Chain Mail', acBonus: 16, equipped: true, type: 'armor', weight: 55 }
     const char = makeCharacter({
-      armor: [{ id: 'a1', name: 'Chain Mail', acBonus: 16, equipped: true, type: 'armor', weight: 55 }]
+      armorRefs: [{ instanceId: a1.id, ref: { entryType: 'armor', entryId: a1.id, overrides: a1 } }]
     })
     expect(calculateTotalWeight(char)).toBe(55)
   })
@@ -169,10 +166,9 @@ describe('calculateTotalWeight', () => {
   })
 
   it('sums magic item weights', () => {
+    const m1 = { id: 'm1', name: 'Wand', rarity: 'uncommon', type: 'wand', attunement: false, description: '', weight: 1 }
     const char = makeCharacter({
-      magicItems: [
-        { id: 'm1', name: 'Wand', rarity: 'uncommon', type: 'wand', attunement: false, description: '', weight: 1 }
-      ]
+      magicItemRefs: [{ instanceId: m1.id, ref: { entryType: 'magic-items', entryId: m1.id, overrides: m1 } }]
     })
     expect(calculateTotalWeight(char)).toBe(1)
   })
@@ -193,11 +189,11 @@ describe('calculateTotalWeight', () => {
   })
 
   it('combines all weight sources together', () => {
+    const w = { id: 'w', name: 'Sword', damage: '1d8', damageType: 'slashing', attackBonus: 0, properties: [], weight: 3 }
+    const a = { id: 'a', name: 'Shield', acBonus: 2, equipped: true, type: 'shield', weight: 6 }
     const char = makeCharacter({
-      weapons: [
-        { id: 'w', name: 'Sword', damage: '1d8', damageType: 'slashing', attackBonus: 0, properties: [], weight: 3 }
-      ],
-      armor: [{ id: 'a', name: 'Shield', acBonus: 2, equipped: true, type: 'shield', weight: 6 }],
+      weaponRefs: [{ instanceId: w.id, ref: { entryType: 'weapons', entryId: w.id, overrides: w } }],
+      armorRefs: [{ instanceId: a.id, ref: { entryType: 'armor', entryId: a.id, overrides: a } }],
       equipment: [{ name: 'Pack', quantity: 1, weight: 5 }],
       treasure: { cp: 0, sp: 0, gp: 50, pp: 0 }
     })
@@ -206,8 +202,9 @@ describe('calculateTotalWeight', () => {
   })
 
   it('handles items with undefined weight gracefully', () => {
+    const w1 = { id: 'w1', name: 'Mystery', damage: '1d6', damageType: 'force', attackBonus: 0, properties: [] }
     const char = makeCharacter({
-      weapons: [{ id: 'w1', name: 'Mystery', damage: '1d6', damageType: 'force', attackBonus: 0, properties: [] }]
+      weaponRefs: [{ instanceId: w1.id, ref: { entryType: 'weapons', entryId: w1.id, overrides: w1 } }]
     })
     expect(calculateTotalWeight(char)).toBe(0)
   })

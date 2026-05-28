@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { CONDITIONS_5E } from '../../../data/conditions'
 import { resolveDeathSave } from '../../../services/combat/death-mechanics'
+import { getEffectiveClasses } from '../../../services/character/effective-character-5e'
 import type { ResolvedEffects } from '../../../services/combat/effect-resolver-5e'
 import { useCharacterStore } from '../../../stores/use-character-store'
 import { useGameStore } from '../../../stores/use-game-store'
@@ -254,17 +255,18 @@ export function PlayerHUDEffectsExpanded({
 
     // PHB 2024: Compute death save bonus from features
     let deathSaveBonus = 0
+    const latestClasses = getEffectiveClasses(latest)
 
     // Paladin Aura of Protection (Level 6+): add CHA mod to all saving throws for self
     // In multiplayer, nearby allies also benefit, but self-buff is always applicable
-    const paladinLevel = latest.classes?.find((c) => c.name.toLowerCase() === 'paladin')?.level ?? 0
+    const paladinLevel = latestClasses.find((c) => c.name.toLowerCase() === 'paladin')?.level ?? 0
     if (paladinLevel >= 6) {
       const chaMod = Math.floor(((latest.abilityScores?.charisma ?? 10) - 10) / 2)
       if (chaMod > 0) deathSaveBonus += chaMod
     }
 
     // Monk Diamond Soul (Level 14+): proficiency bonus to all saving throws
-    const monkLevel = latest.classes?.find((c) => c.name.toLowerCase() === 'monk')?.level ?? 0
+    const monkLevel = latestClasses.find((c) => c.name.toLowerCase() === 'monk')?.level ?? 0
     if (monkLevel >= 14) {
       const profBonus = latest.level >= 21 ? 7 : Math.ceil(latest.level / 4) + 1
       deathSaveBonus += profBonus

@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import { getEffectiveClasses } from '../../services/character/effective-character-5e'
 import type { Character } from '../../types/character'
 import { computeDynamicAC } from '../../utils/ac-calculator'
 import { CharacterIcon, getCharacterIconProps } from '../builder/shared/IconPicker'
@@ -18,9 +19,10 @@ export default memo(function CharacterCard({
   onExport,
   onExportPdf
 }: CharacterCardProps): JSX.Element {
-  const className = character.classes.map((c) => c.name).join(' / ') || 'Unknown Class'
+  const classes = getEffectiveClasses(character)
+  const className = classes.map((c) => c.name).join(' / ') || 'Unknown Class'
   const speciesName = character.species
-  const subclass = character.classes[0]?.subclass
+  const subclass = classes[0]?.subclass
   const alignment = character.alignment
 
   const systemLabel = 'D&D 5e'

@@ -1,5 +1,6 @@
 import type { FacilityPrerequisite, SpecialFacilityDef } from '../types/bastion'
 import type { Character5e } from '../types/character-5e'
+import { getEffectiveClasses } from '../services/character/effective-character-5e'
 
 export interface CharacterCapabilities {
   canUseArcaneFocus: boolean
@@ -34,7 +35,7 @@ export function analyzeCapabilities(
   character: Character5e,
   factionRenown?: Record<string, number>
 ): CharacterCapabilities {
-  const classes = character.classes
+  const classes = getEffectiveClasses(character)
 
   const canUseArcaneFocus = hasClassIn(classes, ARCANE_FOCUS_CLASSES)
   const canUseHolySymbol = hasClassIn(classes, HOLY_SYMBOL_CLASSES)

@@ -25,6 +25,7 @@ import { addToast } from '../hooks/use-toast'
 const PrintSheet = lazy(() => import('../components/sheet/shared/PrintSheet'))
 
 import { shouldLevelUp } from '../data/xp-thresholds'
+import { getEffectiveKnownSpells } from '../services/character/effective-character-5e'
 import { applyLongRest } from '../services/character/rest-service-5e'
 import { useNetworkStore } from '../stores/network-store'
 import { useBuilderStore } from '../stores/use-builder-store'
@@ -339,7 +340,7 @@ export default function CharacterSheet5ePage(): JSX.Element {
             <li>Clear death saves</li>
             <li>Clear temporary HP</li>
             <li>Reduce Exhaustion by 1 level</li>
-            {(character.knownSpells ?? []).some((s) => s.innateUses) && <li>Restore innate spell uses</li>}
+            {getEffectiveKnownSpells(character).some((s) => s.innateUses) && <li>Restore innate spell uses</li>}
             {character.wildShapeUses && character.wildShapeUses.max > 0 && <li>Restore all Wild Shape uses</li>}
             {character.species?.toLowerCase() === 'human' && <li>Grant Heroic Inspiration (Human trait)</li>}
           </ul>

@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { generate5eLevelUpSlots } from '../../services/character/build-tree-5e'
+import { getEffectiveClasses } from '../../services/character/effective-character-5e'
 import type { Character } from '../../types/character'
 import { is5eCharacter } from '../../types/character'
 import type { Character5e } from '../../types/character-5e'
@@ -78,7 +79,7 @@ export const useLevelUpStore = create<LevelUpState>((set, get) => ({
       Object.values(newClassChoices).some((id) => id !== character.buildChoices.classId)
     ) {
       existingClassLevels = {}
-      for (const cls of character.classes) {
+      for (const cls of getEffectiveClasses(character as Character5e)) {
         existingClassLevels[cls.name.toLowerCase()] = cls.level
       }
     }
@@ -140,7 +141,7 @@ export const useLevelUpStore = create<LevelUpState>((set, get) => ({
 
     // Recompute existing class levels for slot generation
     const existingClassLevels: Record<string, number> = {}
-    for (const cls of character.classes) {
+    for (const cls of getEffectiveClasses(character as Character5e)) {
       existingClassLevels[cls.name.toLowerCase()] = cls.level
     }
 

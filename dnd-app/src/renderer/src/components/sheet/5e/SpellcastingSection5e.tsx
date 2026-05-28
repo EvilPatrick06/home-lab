@@ -9,8 +9,13 @@ import {
   isMulticlassSpellcaster,
   isWarlockPactMagic
 } from '../../../services/character/spell-data'
+import {
+  getEffectiveClasses,
+  getEffectiveKnownSpells,
+  getEffectiveMagicItems,
+  getEffectivePreparedSpellIds
+} from '../../../services/character/effective-character-5e'
 import { getDragPayload, hasLibraryDrag } from '../../../services/library/drag-data'
-import { useHydratedInstances } from '../../../services/library/use-library-entry'
 import { useNetworkStore } from '../../../stores/network-store'
 import { useCharacterStore } from '../../../stores/use-character-store'
 import { useGameStore } from '../../../stores/use-game-store'
@@ -32,34 +37,25 @@ interface SpellcastingSection5eProps {
 }
 
 export default function SpellcastingSection5e({ character, readonly }: SpellcastingSection5eProps): JSX.Element {
-  // Phase 15c.2 — read spells via the truth store. Hydrated entries carry
-  // overrides + react to library mutations. Falls back to legacy v3 inline
-  // shape when v4 refs aren't populated (e.g. a freshly-loaded legacy save
-  // before the load-path migration kicks in).
-  const hydratedSpells = useHydratedInstances(character.knownSpellRefs, 'spells')
-  const knownSpells: SpellEntry[] = useMemo(() => {
-    if (hydratedSpells.length > 0) return hydratedSpells as unknown as SpellEntry[]
-    return (character.knownSpells ?? []) as SpellEntry[]
-  }, [hydratedSpells, character.knownSpells])
+  // Phase 15c.5 — derive known spells (v3 shape) from v4 refs via the truth
+  // store. Hydrated entries carry overrides + react to library mutations.
+  const knownSpells: SpellEntry[] = useMemo(
+    () => getEffectiveKnownSpells(character),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [character.knownSpellRefs]
+  )
   const spellSlotLevels = character.spellSlotLevels ?? {}
   const pactMagicSlotLevels = character.pactMagicSlotLevels ?? {}
   // v3 used preparedSpellIds: string[]. v4 keys prepared by stable instanceId
-  // in character.state.preparedSpellIds: Record<instanceId, boolean>. Derive
-  // a v3-shape array for backward-compat with the rest of this file's logic.
-  const preparedSpellIds: string[] = useMemo(() => {
-    const v4Map = character.state?.preparedSpellIds
-    if (v4Map && Object.keys(v4Map).length > 0) {
-      // map instanceId → spell id by walking knownSpellRefs
-      const idByInstance = new Map((character.knownSpellRefs ?? []).map((r) => [r.instanceId, r.ref.entryId]))
-      const out: string[] = []
-      for (const [instanceId, prepared] of Object.entries(v4Map)) {
-        const spellId = idByInstance.get(instanceId)
-        if (prepared && spellId) out.push(spellId)
-      }
-      if (out.length > 0) return out
-    }
-    return character.preparedSpellIds ?? []
-  }, [character.state?.preparedSpellIds, character.knownSpellRefs, character.preparedSpellIds])
+  // in character.state.preparedSpellIds. Derive a v3-shape array for
+  // backward-compat with the rest of this file's logic.
+  const preparedSpellIds: string[] = useMemo(
+    () => getEffectivePreparedSpellIds(character),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [character.state?.preparedSpellIds, character.knownSpellRefs]
+  )
+  // Phase 15c.5 — derive class list (v3 shape) from v4 classRefs via the truth store.
+  const effectiveClasses = getEffectiveClasses(character)
   const proficiencyBonus = Math.floor((character.level - 1) / 4) + 2
   const [ritualMessage, setRitualMessage] = useState<string | null>(null)
   const [concentrationConfirm, setConcentrationConfirm] = useState<SpellEntry | null>(null)
@@ -80,7 +76,7 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
         | Character5e
         | undefined
       if (!latest) return
-      if ((latest.knownSpells ?? []).some((s) => s.id === payload.itemId)) return
+      if (getEffectiveKnownSpells(latest).some((s) => s.id === payload.itemId)) return
 
       const { load5eSpells } = await import('../../../services/data-provider')
       const allSpells = await load5eSpells()
@@ -145,7 +141,7 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
 
       const updated = {
         ...latest,
-        knownSpells: [...(latest.knownSpells ?? []), newSpell],
+        knownSpells: [...getEffectiveKnownSpells(latest), newSpell],
         updatedAt: new Date().toISOString()
       } as Character
       useCharacterStore.getState().saveCharacter(updated)
@@ -156,8 +152,8 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
   const turnState = useGameStore((s) => s.getTurnState(character.id))
   const isConcentrating = !!turnState?.concentratingSpell
 
-  const hasWarlock = character.classes.some((c) => isWarlockPactMagic(c.name.toLowerCase()))
-  const hasNonWarlockCaster = character.classes.some((c) => {
+  const hasWarlock = effectiveClasses.some((c) => isWarlockPactMagic(c.name.toLowerCase()))
+  const hasNonWarlockCaster = effectiveClasses.some((c) => {
     const id = c.name.toLowerCase()
     return id !== 'warlock' && (FULL_CASTERS_5E.includes(id) || HALF_CASTERS_5E.includes(id))
   })
@@ -167,7 +163,7 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
     !!character.spellcasting ||
     knownSpells.length > 0 ||
     !!computeSpellcastingInfo(
-      character.classes.map((c) => ({
+      effectiveClasses.map((c) => ({
         classId: c.name.toLowerCase(),
         subclassId: c.subclass?.toLowerCase(),
         level: c.level
@@ -183,7 +179,7 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
   }
 
   // Merge item-granted spells
-  const itemSpells = getItemGrantedSpells(character.magicItems ?? [], knownSpells)
+  const itemSpells = getItemGrantedSpells(getEffectiveMagicItems(character), knownSpells)
   const allSpells = [...knownSpells]
   for (const iSpell of itemSpells) {
     if (!allSpells.some((s) => s.name === iSpell.name)) {
@@ -204,7 +200,7 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
   function handleTogglePrepared(spellId: string): void {
     if (readonly) return
     const latest = useCharacterStore.getState().characters.find((c) => c.id === character.id) || character
-    const currentPrepared = latest.preparedSpellIds ?? []
+    const currentPrepared = getEffectivePreparedSpellIds(latest as Character5e)
     let updatedPrepared: string[]
     if (currentPrepared.includes(spellId)) {
       updatedPrepared = currentPrepared.filter((id) => id !== spellId)
@@ -219,7 +215,7 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
     if (readonly) return
     const latest = (useCharacterStore.getState().characters.find((c) => c.id === character.id) ||
       character) as Character5e
-    const updatedSpells = (latest.knownSpells ?? []).map((s) => {
+    const updatedSpells = getEffectiveKnownSpells(latest).map((s) => {
       if (s.id !== spellId || !s.innateUses) return s
       const remaining = s.innateUses.remaining
       const max = s.innateUses.max
@@ -384,7 +380,7 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
 
       {/* Spellcasting info */}
       {(() => {
-        const classesForCalc = character.classes.map((c) => ({
+        const classesForCalc = effectiveClasses.map((c) => ({
           classId: c.name.toLowerCase(),
           subclassId: c.subclass?.toLowerCase(),
           level: c.level
@@ -421,7 +417,7 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
 
       {/* Species spellcasting info */}
       {(() => {
-        const classesForCalc = character.classes.map((c) => ({
+        const classesForCalc = effectiveClasses.map((c) => ({
           classId: c.name.toLowerCase(),
           subclassId: c.subclass?.toLowerCase(),
           level: c.level
@@ -466,7 +462,7 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
           const nonCantrips = knownSpells.filter((s) => s.level > 0)
 
           let cantripsMax = 0
-          for (const cls of character.classes) {
+          for (const cls of effectiveClasses) {
             const cId = cls.name.toLowerCase()
             cantripsMax += getCantripsKnown(cId, cls.level)
           }
@@ -485,8 +481,8 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
               )}
               {nonCantrips.length > 0 &&
                 (() => {
-                  const primaryClassId = character.classes[0]?.name?.toLowerCase() ?? ''
-                  const primaryClassLevel = character.classes[0]?.level ?? character.level
+                  const primaryClassId = effectiveClasses[0]?.name?.toLowerCase() ?? ''
+                  const primaryClassLevel = effectiveClasses[0]?.level ?? character.level
                   const maxPrepared = getPreparedSpellMax(primaryClassId, primaryClassLevel)
                   return (
                     <>
@@ -506,7 +502,7 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
 
       {/* Utility buttons */}
       <div className="flex gap-2 mb-3">
-        {character.classes.length > 1 && (
+        {effectiveClasses.length > 1 && (
           <button
             onClick={() => setShowMulticlassAdvisor(true)}
             className="px-2 py-1 text-[10px] rounded transition-colors cursor-pointer bg-purple-600/30 text-purple-300 hover:bg-purple-600/50"
@@ -547,7 +543,7 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
             open={showMulticlassAdvisor}
             onClose={() => setShowMulticlassAdvisor(false)}
             abilityScores={character.abilityScores}
-            currentClasses={character.classes.map((c) => c.name.toLowerCase())}
+            currentClasses={effectiveClasses.map((c) => c.name.toLowerCase())}
           />
         </Suspense>
       )}
@@ -558,7 +554,7 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
           <SpellPrepOptimizer
             open={showSpellPrepOptimizer}
             onClose={() => setShowSpellPrepOptimizer(false)}
-            classId={character.classes[0]?.name.toLowerCase()}
+            classId={effectiveClasses[0]?.name.toLowerCase()}
             level={character.level}
             preparedSpells={knownSpells
               .filter((s) => s.level > 0 && preparedSpellIds.includes(s.id))

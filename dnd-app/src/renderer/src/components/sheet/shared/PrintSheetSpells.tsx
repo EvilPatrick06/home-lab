@@ -1,3 +1,8 @@
+import {
+  getEffectiveFeats,
+  getEffectiveKnownSpells,
+  getEffectivePreparedSpellIds
+} from '../../../services/character/effective-character-5e'
 import type { Character5e, Feature } from '../../../types/character-5e'
 import type { SpellEntry } from '../../../types/character-common'
 
@@ -6,9 +11,13 @@ interface PrintSheetSpellsProps {
 }
 
 export default function PrintSheetSpells({ character }: PrintSheetSpellsProps): JSX.Element {
+  const knownSpells = getEffectiveKnownSpells(character)
+  const preparedSpellIds = getEffectivePreparedSpellIds(character)
+  const feats = getEffectiveFeats(character)
+
   // Group spells by level
-  const spellsByLevel: Record<number, typeof character.knownSpells> = {}
-  for (const spell of character.knownSpells) {
+  const spellsByLevel: Record<number, SpellEntry[]> = {}
+  for (const spell of knownSpells) {
     if (!spellsByLevel[spell.level]) spellsByLevel[spell.level] = []
     spellsByLevel[spell.level].push(spell)
   }
@@ -42,7 +51,7 @@ export default function PrintSheetSpells({ character }: PrintSheetSpellsProps): 
                 </div>
                 <div className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 text-[8.5pt]">
                   {spells.map((sp: SpellEntry) => {
-                    const isPrepared = lvl === 0 || character.preparedSpellIds.includes(sp.id)
+                    const isPrepared = lvl === 0 || preparedSpellIds.includes(sp.id)
                     return (
                       <span key={sp.id} className={isPrepared ? 'font-semibold' : 'text-gray-400'}>
                         {sp.name}
@@ -80,7 +89,7 @@ export default function PrintSheetSpells({ character }: PrintSheetSpellsProps): 
       )}
 
       {/* Feats */}
-      {character.feats.length > 0 && (
+      {feats.length > 0 && (
         <div className="mb-4 break-inside-avoid">
           <h2
             className="mb-1 text-xs font-bold uppercase tracking-wider border-b border-gray-400 pb-0.5"
@@ -89,7 +98,7 @@ export default function PrintSheetSpells({ character }: PrintSheetSpellsProps): 
             Feats
           </h2>
           <div className="mt-0.5 space-y-1 text-[8.5pt]">
-            {character.feats.map((f: { id: string; name: string; description: string }) => (
+            {feats.map((f: { id: string; name: string; description: string }) => (
               <div key={f.id}>
                 <strong>{f.name}</strong>
                 {f.description && <span className="ml-1">{f.description}</span>}

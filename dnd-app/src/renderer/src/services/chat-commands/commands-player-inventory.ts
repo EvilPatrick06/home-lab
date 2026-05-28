@@ -1,3 +1,4 @@
+import { getEffectiveMagicItems } from '../../services/character/effective-character-5e'
 import { useCharacterStore } from '../../stores/use-character-store'
 import { is5eCharacter } from '../../types/character'
 import type { ChatCommand, CommandReturn } from './types'
@@ -12,10 +13,14 @@ function findEquipmentItem(characterId: string, itemName: string) {
 
 function findMagicItem(characterId: string, itemName: string) {
   const char = useCharacterStore.getState().characters.find((c) => c.id === characterId)
-  if (!char || !is5eCharacter(char) || !char.magicItems) return null
+  if (!char || !is5eCharacter(char)) return null
+  const magicItems = getEffectiveMagicItems(char)
   const lower = itemName.toLowerCase()
-  const idx = char.magicItems.findIndex((e) => e.name.toLowerCase() === lower)
-  return idx >= 0 ? { char, idx, item: char.magicItems[idx] } : null
+  const idx = magicItems.findIndex((e) => e.name.toLowerCase() === lower)
+  if (idx < 0) return null
+  const item = magicItems[idx]
+  const instanceId = (item as unknown as { __instanceId: string }).__instanceId
+  return { char, idx, item, instanceId, magicItems }
 }
 
 const equipCommand: ChatCommand = {
@@ -107,13 +112,17 @@ const attuneCommand: ChatCommand = {
     if (found.item.attuned) {
       return { type: 'error', content: `Already attuned to **${found.item.name}**.` }
     }
-    const attunedCount = found.char.magicItems?.filter((m) => m.attuned).length ?? 0
+    const attunedCount = found.magicItems.filter((m) => m.attuned).length
     if (attunedCount >= 3) {
       return { type: 'error', content: 'Already attuned to 3 items (maximum). Unattune one first.' }
     }
-    const updatedMagicItems = [...(found.char.magicItems ?? [])]
-    updatedMagicItems[found.idx] = { ...found.item, attuned: true }
-    useCharacterStore.getState().saveCharacter({ ...found.char, magicItems: updatedMagicItems })
+    useCharacterStore.getState().saveCharacter({
+      ...found.char,
+      state: {
+        ...found.char.state,
+        magicItemAttuned: { ...found.char.state?.magicItemAttuned, [found.instanceId]: true }
+      }
+    })
     return {
       type: 'broadcast',
       content: `**${ctx.playerName}** attunes to **${found.item.name}** (requires short rest).`
@@ -143,9 +152,13 @@ const unattuneCommand: ChatCommand = {
     if (!found.item.attuned) {
       return { type: 'error', content: `Not attuned to **${found.item.name}**.` }
     }
-    const updatedMagicItems = [...(found.char.magicItems ?? [])]
-    updatedMagicItems[found.idx] = { ...found.item, attuned: false }
-    useCharacterStore.getState().saveCharacter({ ...found.char, magicItems: updatedMagicItems })
+    useCharacterStore.getState().saveCharacter({
+      ...found.char,
+      state: {
+        ...found.char.state,
+        magicItemAttuned: { ...found.char.state?.magicItemAttuned, [found.instanceId]: false }
+      }
+    })
     return {
       type: 'broadcast',
       content: `**${ctx.playerName}** ends attunement with **${found.item.name}**.`

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { BUFFS_5E, type ConditionDef, getConditionsForSystem } from '../../../data/conditions'
-import { useHydratedInstances } from '../../../services/library/use-library-entry'
+import { getEffectiveConditions } from '../../../services/character/effective-character-5e'
 import { useCharacterStore } from '../../../stores/use-character-store'
 import type { Character5e } from '../../../types/character-5e'
 import type { ActiveCondition } from '../../../types/character-common'
@@ -22,21 +22,13 @@ export default function ConditionsSection5e({ character, readonly }: ConditionsS
   const removeCondition = useCharacterStore((s) => s.removeCondition)
   const updateConditionValue = useCharacterStore((s) => s.updateConditionValue)
 
-  // Phase 15c.4 — read active conditions live from truth store via v4 refs
-  // when populated. Hydrated entries carry the live condition library data
-  // (name + description). Falls back to legacy v3 inline shape. Note: v4
-  // doesn't yet carry the `type`/`value` instance-state fields ActiveCondition
-  // exposes; until those move to character.state, the v3 path is canonical
-  // for any consumer that mutates value/type.
-  const hydratedConditions = useHydratedInstances(character.conditionRefs, 'conditions')
-  const activeConditions = useMemo<ActiveCondition[]>(() => {
-    if (hydratedConditions.length === 0) return character.conditions ?? []
-    return hydratedConditions.map((c) => ({
-      name: c.name as string,
-      type: 'condition' as const,
-      isCustom: false
-    }))
-  }, [hydratedConditions, character.conditions])
+  // Phase 15c.5 — derive active conditions (v3 shape) from v4 refs via the
+  // truth store. Hydrated entries carry the live condition library data.
+  const activeConditions = useMemo<ActiveCondition[]>(
+    () => getEffectiveConditions(character),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [character.conditionRefs]
+  )
   const allConditions = getConditionsForSystem()
   const allBuffs = BUFFS_5E
 

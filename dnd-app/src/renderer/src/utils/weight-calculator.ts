@@ -1,4 +1,5 @@
 import type { Character5e } from '../types/character-5e'
+import { getEffectiveArmor, getEffectiveMagicItems, getEffectiveWeapons } from '../services/character/effective-character-5e'
 
 export interface CarryingCapacity {
   carry: number
@@ -47,12 +48,12 @@ export function calculateTotalWeight(character: Character5e): number {
   let total = 0
 
   // Weapons
-  for (const w of character.weapons ?? []) {
+  for (const w of getEffectiveWeapons(character)) {
     total += w.weight ?? 0
   }
 
   // Armor
-  for (const a of character.armor ?? []) {
+  for (const a of getEffectiveArmor(character)) {
     total += a.weight ?? 0
   }
 
@@ -62,7 +63,7 @@ export function calculateTotalWeight(character: Character5e): number {
   }
 
   // Magic items
-  for (const mi of character.magicItems ?? []) {
+  for (const mi of getEffectiveMagicItems(character)) {
     total += mi.weight ?? 0
   }
 

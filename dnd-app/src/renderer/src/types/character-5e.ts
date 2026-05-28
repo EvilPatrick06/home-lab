@@ -40,7 +40,6 @@ export interface Character5e {
   name: string
   species: string
   subspecies?: string
-  classes: CharacterClass5e[]
   level: number
   background: string
   alignment: string
@@ -71,14 +70,9 @@ export interface Character5e {
   treasure: Currency
   features: Feature[]
 
-  knownSpells: SpellEntry[]
-  preparedSpellIds: string[]
   spellSlotLevels: Record<number, { current: number; max: number }>
   pactMagicSlotLevels?: Record<number, { current: number; max: number }>
   classFeatures: ClassFeatureEntry[]
-  weapons: WeaponEntry[]
-  armor: ArmorEntry[]
-  feats: Array<{ id: string; name: string; description: string; choices?: Record<string, string | string[]> }>
 
   buildChoices: BuildChoices5e
 
@@ -97,13 +91,11 @@ export interface Character5e {
   metamagicKnown?: string[]
   weaponMasteryChoices?: string[]
   attunement: Array<{ name: string; description: string }>
-  magicItems?: MagicItemEntry5e[]
   bonusFeats?: Array<{ id: string; name: string; description: string }>
   customFeatures?: CustomFeature[]
   classResources?: import('./character-common').ClassResource[]
   speciesResources?: import('./character-common').ClassResource[]
   languageDescriptions: Record<string, string>
-  conditions: ActiveCondition[]
   iconPreset?: string
   portraitPath?: string
   createdAt: string
@@ -132,6 +124,22 @@ export interface Character5e {
   magicItemRefs?: Array<InstanceRef<'magic-items'>>
   conditionRefs?: Array<InstanceRef<'conditions'>>
   state?: Character5eState
+}
+
+// Phase 15c.5 — legacy v3 input shape. The pre-15c.5 inline arrays were stripped
+// from the canonical `Character5e` (now v4: refs + state). These fields survive
+// ONLY as the input contract for the migration shim and writer-side computation
+// (builder, level-up, rest). The shim derives v4 from them and deletes them, so
+// they never reach the persisted/canonical shape consumers read.
+export interface Character5eV3 extends Character5e {
+  classes?: CharacterClass5e[]
+  knownSpells?: SpellEntry[]
+  preparedSpellIds?: string[]
+  weapons?: WeaponEntry[]
+  armor?: ArmorEntry[]
+  magicItems?: MagicItemEntry5e[]
+  feats?: Array<{ id: string; name: string; description: string; choices?: Record<string, string | string[]> }>
+  conditions?: ActiveCondition[]
 }
 
 export interface BuildChoices5e {

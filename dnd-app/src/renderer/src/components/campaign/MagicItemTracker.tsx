@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { getEffectiveMagicItems } from '../../services/character/effective-character-5e'
 import { useCharacterStore } from '../../stores/use-character-store'
 import type { Campaign } from '../../types/campaign'
 import type { Character5e } from '../../types/character-5e'
@@ -68,7 +69,7 @@ export default function MagicItemTracker({ campaign }: MagicItemTrackerProps): J
     for (const char of campaignChars) {
       levelSum += char.level
       const charItems: { name: string; rarity: MagicItemRarity5e }[] = []
-      for (const item of char.magicItems ?? []) {
+      for (const item of getEffectiveMagicItems(char)) {
         const rarity = item.rarity as MagicItemRarity5e
         if (counts[rarity] !== undefined) counts[rarity]++
         total++

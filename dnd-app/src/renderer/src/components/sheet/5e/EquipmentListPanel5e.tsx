@@ -216,10 +216,18 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
         description: item.description,
         cost: costStr || undefined
       }
-      const currentArmor: ArmorEntry[] = latest.armor ?? []
+      // Phase 15c.5 — custom (non-library) armor is stored as an orphan ref:
+      // the full item lives in `overrides`; hydration falls back to it.
+      const l = latest as Character5e
       const updated = {
-        ...latest,
-        armor: [...currentArmor, newArmor],
+        ...l,
+        armorRefs: [
+          ...(l.armorRefs ?? []),
+          {
+            instanceId: crypto.randomUUID(),
+            ref: { entryType: 'armor' as const, entryId: newArmor.id, overrides: newArmor }
+          }
+        ],
         treasure: updatedTreasure,
         updatedAt: new Date().toISOString()
       } as Character

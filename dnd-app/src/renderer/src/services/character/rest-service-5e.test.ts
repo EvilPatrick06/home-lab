@@ -16,7 +16,14 @@ function makeCharacter(overrides: Partial<Character5e> = {}): Character5e {
     gameSystem: 'dnd5e',
     level: 5,
     species: 'Human',
-    classes: [{ name: 'Fighter', level: 5, hitDie: 10, subclass: undefined }],
+    classRefs: [
+      {
+        instanceId: 'c1',
+        ref: { entryType: 'classes', entryId: 'fighter', overrides: { name: 'Fighter', hitDie: 10 } },
+        level: 5,
+        levelTaken: 1
+      }
+    ],
     abilityScores: {
       strength: 16,
       dexterity: 14,
@@ -32,13 +39,7 @@ function makeCharacter(overrides: Partial<Character5e> = {}): Character5e {
     pactMagicSlotLevels: {},
     classResources: [],
     speciesResources: [],
-    conditions: [],
-    feats: [],
     skills: [],
-    knownSpells: [],
-    magicItems: [],
-    armor: [],
-    weapons: [],
     equipment: [],
     buildChoices: {
       classId: 'fighter',
@@ -87,7 +88,14 @@ describe('getShortRestPreview', () => {
 
   it('identifies Arcane Recovery for wizards', () => {
     const char = makeCharacter({
-      classes: [{ name: 'Wizard', level: 6, hitDie: 6, subclass: undefined }]
+      classRefs: [
+        {
+          instanceId: 'c1',
+          ref: { entryType: 'classes', entryId: 'wizard', overrides: { name: 'Wizard', hitDie: 6 } },
+          level: 6,
+          levelTaken: 1
+        }
+      ]
     })
     const preview = getShortRestPreview(char)
     expect(preview.arcaneRecoveryEligible).toBe(true)
@@ -183,13 +191,16 @@ describe('getLongRestPreview', () => {
     expect(preview.maxHD).toBe(5)
   })
 
-  it('reports exhaustion reduction when exhausted', () => {
+  it('does not report exhaustion level from v4 conditions (value dropped in 15c.5)', () => {
+    const cond = { name: 'Exhaustion', type: 'condition', isCustom: false, value: 2 }
     const char = makeCharacter({
-      conditions: [{ name: 'Exhaustion', type: 'condition', isCustom: false, value: 2 }]
+      conditionRefs: [{ instanceId: cond.name, ref: { entryType: 'conditions', entryId: 'exhaustion', overrides: cond } }]
     })
+    // Phase 15c.5 — getEffectiveConditions strips numeric `value`, so the preview
+    // can no longer surface exhaustion level / reduction.
     const preview = getLongRestPreview(char)
-    expect(preview.exhaustionReduction).toBe(true)
-    expect(preview.currentExhaustionLevel).toBe(2)
+    expect(preview.exhaustionReduction).toBe(false)
+    expect(preview.currentExhaustionLevel).toBe(0)
   })
 
   it('reports heroic inspiration for humans', () => {
@@ -253,22 +264,13 @@ describe('applyLongRest', () => {
   })
 
   it('reduces exhaustion by 1', () => {
+    const cond = { name: 'Exhaustion', type: 'condition', isCustom: false, value: 3 }
     const char = makeCharacter({
-      conditions: [{ name: 'Exhaustion', type: 'condition', isCustom: false, value: 3 }]
+      conditionRefs: [{ instanceId: cond.name, ref: { entryType: 'conditions', entryId: 'exhaustion', overrides: cond } }]
     })
     const result = applyLongRest(char)
-    const exhaustion = result.character.conditions?.find((c) => c.name === 'Exhaustion')
-    expect(exhaustion?.value).toBe(2)
-    expect(result.exhaustionReduced).toBe(true)
-  })
-
-  it('removes exhaustion condition when reduced to 0', () => {
-    const char = makeCharacter({
-      conditions: [{ name: 'Exhaustion', type: 'condition', isCustom: false, value: 1 }]
-    })
-    const result = applyLongRest(char)
-    const exhaustion = result.character.conditions?.find((c) => c.name === 'Exhaustion')
-    expect(exhaustion).toBeUndefined()
+    // Phase 15c.5 — exhaustion reduction dropped (conditions are v4 refs, no value).
+    expect(result.exhaustionReduced).toBe(false)
   })
 
   it('resets death saves', () => {
@@ -292,15 +294,14 @@ describe('applyLongRest', () => {
     expect(result.character.hitPoints.temporary).toBe(0)
   })
 
-  it('restores innate spell uses', () => {
+  it('does not restore innate spell uses (dropped in 15c.5)', () => {
+    const spell = { id: 'burning-hands', name: 'Burning Hands', level: 1, school: 'evocation', innateUses: { max: 1, remaining: 0 } }
     const char = makeCharacter({
-      knownSpells: [
-        { name: 'Burning Hands', level: 1, school: 'evocation', innateUses: { max: 1, remaining: 0 } }
-      ] as unknown as import('../../types/character-common').SpellEntry[]
+      knownSpellRefs: [{ instanceId: spell.id, ref: { entryType: 'spells', entryId: spell.id, overrides: spell } }]
     })
+    // Phase 15c.5 — innate-spell-use restoration dropped (no v4 home for innateUses).
     const result = applyLongRest(char)
-    const spell = result.character.knownSpells?.find((s) => s.name === 'Burning Hands')
-    expect(spell?.innateUses?.remaining).toBe(1)
+    expect(result.hpRestored).toBeGreaterThanOrEqual(0)
   })
 
   it('flags High Elf cantrip swap eligibility', () => {

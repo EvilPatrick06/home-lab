@@ -1,3 +1,4 @@
+import { getEffectiveClasses } from '../../../services/character/effective-character-5e'
 import { type HpChoice, useLevelUpStore } from '../../../stores/use-level-up-store'
 
 type _HpChoice = HpChoice
@@ -20,7 +21,7 @@ export default function HpRollSection5e({ character, level, hitDieOverride }: Hp
   const choice = hpChoices[level] ?? null
   const rolled = hpRolls[level]
 
-  const hitDie = hitDieOverride ?? character.classes[0]?.hitDie ?? 8
+  const hitDie = hitDieOverride ?? getEffectiveClasses(character)[0]?.hitDie ?? 8
   const conMod = abilityModifier(character.abilityScores.constitution)
   const average = Math.floor(hitDie / 2) + 1
   const averageHP = Math.max(1, average + conMod)

@@ -1,19 +1,20 @@
 import { create } from 'zustand'
 import { dynamicKeys } from '../constants'
 import { addToast } from '../hooks/use-toast'
+import { getEffectiveArmor, getEffectiveConditions } from '../services/character/effective-character-5e'
 import type { Character } from '../types/character'
-import type { Character5e } from '../types/character-5e'
+import type { Character5eV3 } from '../types/character-5e'
 import { migrateCharacter5eFromV3ToV4 } from '../types/character-5e-migration'
 import type { ActiveCondition } from '../types/character-common'
 import { logger } from '../utils/logger'
 
-// Phase 15c.1 — apply the v4 refs+state migration to every Character5e on load.
-// Idempotent + additive (leaves v3 fields intact). Components that have flipped
-// to v4 see populated *Refs / state; components still on v3 see the unchanged
-// legacy fields. Non-5e characters pass through untouched.
+// Phase 15c.5 — convert every Character5e to the canonical v4 shape on load.
+// Old saves carry the legacy v3 inline arrays (typed via Character5eV3); the
+// shim derives refs + state and strips the v3 fields. Idempotent: already-v4
+// saves pass through unchanged. Non-5e characters pass through untouched.
 function applyV4Migration(character: Character): Character {
   if (character.gameSystem !== 'dnd5e') return character
-  return migrateCharacter5eFromV3ToV4(character as Character5e) as unknown as Character
+  return migrateCharacter5eFromV3ToV4(character as unknown as Character5eV3) as unknown as Character
 }
 
 function cleanupCharacterLocalStorage(characterId: string) {
@@ -155,18 +156,27 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     const char = characters.find((c) => c.id === characterId)
     if (!char) return
 
-    const updatedArmor = char.armor.map((a) => {
+    const char5e = char as unknown as Character5eV3
+    const currentArmor = getEffectiveArmor(char5e)
+    const updatedArmor = currentArmor.map((a) => {
       if (a.id === armorId) {
         return { ...a, equipped: !a.equipped }
       }
       // Unequip other armor of same type when equipping
-      if (char.armor.find((x) => x.id === armorId)?.type === a.type && a.id !== armorId) {
+      if (currentArmor.find((x) => x.id === armorId)?.type === a.type && a.id !== armorId) {
         return { ...a, equipped: false }
       }
       return a
     })
 
-    const updated = { ...char, armor: updatedArmor, updatedAt: new Date().toISOString() } as Character
+    // Phase 15c.5 — rebuild v3 armor + re-derive v4 refs/state via the shim.
+    const updated = migrateCharacter5eFromV3ToV4({
+      ...char5e,
+      armor: updatedArmor,
+      armorRefs: undefined,
+      state: { ...char5e.state, armorEquipped: undefined },
+      updatedAt: new Date().toISOString()
+    }) as unknown as Character
     await get().saveCharacter(updated)
   },
 
@@ -182,10 +192,16 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     // chips after a few death-save toggles. Now we replace if a
     // same-named condition already exists (so duration counters
     // refresh) and skip the stale duplicate entry.
-    const existing = char.conditions ?? []
+    const char5e = char as unknown as Character5eV3
+    const existing = getEffectiveConditions(char5e)
     const filteredExisting = existing.filter((c) => c.name !== condition.name)
     const conditions = [...filteredExisting, condition]
-    const updated = { ...char, conditions, updatedAt: new Date().toISOString() } as Character
+    const updated = migrateCharacter5eFromV3ToV4({
+      ...char5e,
+      conditions,
+      conditionRefs: undefined,
+      updatedAt: new Date().toISOString()
+    }) as unknown as Character
     await get().saveCharacter(updated)
   },
 
@@ -194,8 +210,14 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     const char = characters.find((c) => c.id === characterId)
     if (!char) return
 
-    const conditions = (char.conditions ?? []).filter((c) => c.name !== conditionName)
-    const updated = { ...char, conditions, updatedAt: new Date().toISOString() } as Character
+    const char5e = char as unknown as Character5eV3
+    const conditions = getEffectiveConditions(char5e).filter((c) => c.name !== conditionName)
+    const updated = migrateCharacter5eFromV3ToV4({
+      ...char5e,
+      conditions,
+      conditionRefs: undefined,
+      updatedAt: new Date().toISOString()
+    }) as unknown as Character
     await get().saveCharacter(updated)
   },
 
@@ -204,15 +226,20 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     const char = characters.find((c) => c.id === characterId)
     if (!char) return
 
-    if (newValue <= 0) {
-      // Remove the condition when value drops to 0
-      const conditions = (char.conditions ?? []).filter((c) => c.name !== conditionName)
-      const updated = { ...char, conditions, updatedAt: new Date().toISOString() } as Character
-      await get().saveCharacter(updated)
-    } else {
-      const conditions = (char.conditions ?? []).map((c) => (c.name === conditionName ? { ...c, value: newValue } : c))
-      const updated = { ...char, conditions, updatedAt: new Date().toISOString() } as Character
-      await get().saveCharacter(updated)
-    }
+    const char5e = char as unknown as Character5eV3
+    const existing = getEffectiveConditions(char5e)
+    // Phase 15c.5 — condition `value` (e.g. exhaustion level) has no v4 home;
+    // the value is dropped on the shim. Presence is still tracked via conditionRefs.
+    const conditions =
+      newValue <= 0
+        ? existing.filter((c) => c.name !== conditionName)
+        : existing.map((c) => (c.name === conditionName ? { ...c, value: newValue } : c))
+    const updated = migrateCharacter5eFromV3ToV4({
+      ...char5e,
+      conditions,
+      conditionRefs: undefined,
+      updatedAt: new Date().toISOString()
+    }) as unknown as Character
+    await get().saveCharacter(updated)
   }
 }))

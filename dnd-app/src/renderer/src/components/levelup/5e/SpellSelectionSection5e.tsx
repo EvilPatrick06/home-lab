@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { getEffectiveClasses, getEffectiveKnownSpells } from '../../../services/character/effective-character-5e'
 import {
   getSlotProgression,
   hasAnySpellcasting,
@@ -42,8 +43,10 @@ export default function SpellSelectionSection5e({
   const [loading, setLoading] = useState(true)
   const [showAllSpells, setShowAllSpells] = useState(false)
 
-  const className = character.classes[0]?.name?.toLowerCase() ?? ''
-  const subclassId = character.classes[0]?.subclass?.toLowerCase().replace(/\s+/g, '-') ?? ''
+  const effectiveClasses = getEffectiveClasses(character)
+  const effectiveKnownSpells = getEffectiveKnownSpells(character)
+  const className = effectiveClasses[0]?.name?.toLowerCase() ?? ''
+  const subclassId = effectiveClasses[0]?.subclass?.toLowerCase().replace(/\s+/g, '-') ?? ''
 
   // Check for third-caster subclasses (Eldritch Knight, Arcane Trickster)
   const isThirdCasterClass = isThirdCaster(className, subclassId)
@@ -83,10 +86,9 @@ export default function SpellSelectionSection5e({
   for (const n of subclassNewSpells) alwaysPreparedNames.add(n.toLowerCase())
 
   // Calculate how many new spells this character can pick (exclude always-prepared)
-  const existingCount =
-    character.knownSpells?.filter(
-      (s) => s.level > 0 && !s.id.startsWith('species-') && !alwaysPreparedNames.has(s.name.toLowerCase())
-    ).length ?? 0
+  const existingCount = effectiveKnownSpells.filter(
+    (s) => s.level > 0 && !s.id.startsWith('species-') && !alwaysPreparedNames.has(s.name.toLowerCase())
+  ).length
   const preparedTable = PREPARED_SPELLS[className]
   const newMax = preparedTable ? (preparedTable[targetLevel] ?? 0) : 0
   const canPick = preparedTable ? Math.max(0, newMax - existingCount) : -1 // -1 = non-caster or third-caster, unlimited picks
@@ -98,7 +100,7 @@ export default function SpellSelectionSection5e({
 
   // Calculate max spell level accessible
   let maxSpellLevel = 0
-  const classLevel = character.classes[0]?.level ?? character.level
+  const classLevel = effectiveClasses[0]?.level ?? character.level
   const newClassLevel = classLevel + (targetLevel - character.level)
   if (isThirdCasterClass) {
     // Third-casters use full caster slots at floor(classLevel/3)
@@ -128,7 +130,7 @@ export default function SpellSelectionSection5e({
     }
     load5eSpells()
       .then((spells) => {
-        const existingIds = new Set(character.knownSpells?.map((s) => s.id) ?? [])
+        const existingIds = new Set(effectiveKnownSpells.map((s) => s.id))
         const filtered = spells.filter((s) => {
           if (s.level === 0 || s.level > maxSpellLevel) return false
           if (existingIds.has(s.id)) return false
@@ -150,7 +152,7 @@ export default function SpellSelectionSection5e({
         setLoading(false)
       })
       .catch(() => setLoading(false))
-  }, [isCaster, maxSpellLevel, character.knownSpells?.map, showAllSpells, spellListClass])
+  }, [isCaster, maxSpellLevel, character.knownSpellRefs, showAllSpells, spellListClass])
 
   if (!isCaster || maxSpellLevel === 0) return null
 

@@ -2,6 +2,12 @@ import { getClassResources } from '../../../data/class-resources'
 import { getSpeciesResources } from '../../../data/species-resources'
 import { isWearableItem } from '../../../data/wearable-items'
 import { populateSkills5e } from '../../../services/character/auto-populate-5e'
+import {
+  getEffectiveFeats,
+  getEffectiveMagicItems,
+  getEffectivePreparedSpellIds,
+  getEffectiveWeapons
+} from '../../../services/character/effective-character-5e'
 import { computeSpellcastingInfo, getSlotProgression } from '../../../services/character/spell-data'
 import {
   calculate5eStats,
@@ -17,7 +23,7 @@ import {
   load5eMagicItems,
   load5eSpecies
 } from '../../../services/data-provider'
-import type { Character5e, MagicItemEntry5e } from '../../../types/character-5e'
+import type { Character5e, Character5eV3, MagicItemEntry5e } from '../../../types/character-5e'
 import { migrateCharacter5eFromV3ToV4 } from '../../../types/character-5e-migration'
 import type { AbilityName } from '../../../types/character-common'
 import type { MagicItemData } from '../../../types/data'
@@ -112,7 +118,7 @@ export async function buildCharacter5e(get: GetState): Promise<Character5e> {
       | undefined
   }
 
-  const builderFeats = (existingChar5e?.feats ?? []).map((f) => ({ id: f.id }))
+  const builderFeats = (existingChar5e ? getEffectiveFeats(existingChar5e) : []).map((f) => ({ id: f.id }))
   const isDraconicForHP = classSlot?.selectedId === 'sorcerer' && subclassSlot?.selectedId === 'draconic-sorcery'
   const draconicSorcererLevelForHP = isDraconicForHP ? targetLevel : undefined
 
@@ -181,10 +187,11 @@ export async function buildCharacter5e(get: GetState): Promise<Character5e> {
   ]
 
   // Build weapons and armor
+  const existingWeapons = editingCharacterId && existingChar5e ? getEffectiveWeapons(existingChar5e) : []
   const weaponBuildResult = editingCharacterId
     ? {
-        weapons: existingChar5e?.weapons ?? [],
-        matchedNames: new Set(existingChar5e?.weapons?.map((w) => w.name) ?? [])
+        weapons: existingWeapons,
+        matchedNames: new Set(existingWeapons.map((w) => w.name))
       }
     : await buildWeaponsFromEquipment5e(allEquipment)
   const armorBuildResult = await buildArmorFromEquipment5e(allEquipment)
@@ -225,7 +232,7 @@ export async function buildCharacter5e(get: GetState): Promise<Character5e> {
 
   // Resolve magic items
   const selectedMagicItemEntries = state.selectedMagicItems
-  let magicItems: MagicItemEntry5e[] = existingChar5e?.magicItems ?? []
+  let magicItems: MagicItemEntry5e[] = existingChar5e ? getEffectiveMagicItems(existingChar5e) : []
   if (selectedMagicItemEntries.some((m) => m.itemId)) {
     const allMagicItemData = await load5eMagicItems().catch(() => [] as MagicItemData[])
     magicItems = selectedMagicItemEntries
@@ -332,7 +339,7 @@ export async function buildCharacter5e(get: GetState): Promise<Character5e> {
 
   // Pre-compute feats
   const computedFeats = (() => {
-    let result = existingChar5e?.feats ?? []
+    let result = existingChar5e ? getEffectiveFeats(existingChar5e) : []
     if (originFeat) {
       const withoutOldOrigin = result.filter((f) => {
         const baseName = f.name.replace(/\s*\(.*\)$/, '')
@@ -489,7 +496,7 @@ export async function buildCharacter5e(get: GetState): Promise<Character5e> {
     heritageId
   })
 
-  const character: Character5e = {
+  const character: Character5eV3 = {
     id: editingCharacterId ?? crypto.randomUUID(),
     gameSystem: 'dnd5e',
     campaignId: existingChar5e?.campaignId ?? null,
@@ -650,7 +657,7 @@ export async function buildCharacter5e(get: GetState): Promise<Character5e> {
     attunement: existingChar5e?.attunement ?? [],
     magicItems: magicItems.length > 0 ? magicItems : undefined,
     knownSpells,
-    preparedSpellIds: existingChar5e?.preparedSpellIds ?? [],
+    preparedSpellIds: existingChar5e ? getEffectivePreparedSpellIds(existingChar5e) : [],
     spellSlotLevels: computedSpellSlotLevels,
     classFeatures: computedClassFeatures,
     weapons: weaponBuildResult.weapons,
