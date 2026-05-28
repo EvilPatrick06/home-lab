@@ -12,6 +12,7 @@ import type {
   SpellRange
 } from '../../../services/character/spell-data'
 import { CANTRIPS_KNOWN, getWarlockMaxSpellLevel } from '../../../services/character/spell-preparation-analyzer'
+import { load5eSpells } from '../../../services/data-provider'
 import { playSpellSound } from '../../../services/sound-manager'
 import type { SpellIndexEntry } from '../../../types/data/spell-data-types'
 
@@ -90,8 +91,9 @@ export default function SpellsTab(): JSX.Element {
 
   useEffect(() => {
     let cancelled = false
-    window.api.game.loadSpells().then((data: unknown) => {
-      const spellData = data as SpellIndexEntry[]
+    // Phase 15e / 22 H4 — go through the library truth store, not the direct IPC bypass.
+    load5eSpells().then((data) => {
+      const spellData = data as unknown as SpellIndexEntry[]
       if (!cancelled) {
         setSpells(spellData)
         setLoading(false)

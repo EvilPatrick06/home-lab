@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { load5eEquipment } from '../../../services/data-provider'
 import type { EquipmentFile } from '../../../types/data'
 
 interface ItemWithCategory {
@@ -15,9 +16,10 @@ export default function EquipmentTab(): JSX.Element {
 
   useEffect(() => {
     let cancelled = false
-    window.api.game.loadEquipment().then((data: unknown) => {
+    // Phase 15e / 22 H4 — go through the library truth store, not the direct IPC bypass.
+    load5eEquipment().then((data) => {
       if (!cancelled) {
-        setEquipment(data as EquipmentFile)
+        setEquipment(data)
         setLoading(false)
       }
     })

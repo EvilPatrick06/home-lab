@@ -56,6 +56,7 @@ cd dungeon-scholar && npm test && npm run build
 | Types | shared types in `src/shared/`, domain types in `src/renderer/src/types/`. |
 | Validation | zod schemas for runtime (`src/shared/ipc-schemas.ts`). |
 | Data | game content JSON in `src/renderer/public/data/5e/`. TS-exported data in `src/renderer/src/data/`. |
+| Data layer (single source of truth) | All D&D content lives in the library truth store (`stores/use-library-store.ts`). Consumers reference entries by `EntryRef` and hydrate via the hooks in `services/library/use-library-entry.ts` — no inline duplication of library data. The boundary test (`services/library/library-boundary.test.ts`) fails CI on raw `public/data` imports/fetches outside the allowlist. See `src/renderer/src/services/library/README.md`; Bastion-domain specifics in `docs/phases/bastion-data-rule.md`. |
 | Game systems | pluggable via `src/renderer/src/systems/registry.ts`. Currently only `dnd5e/`. |
 | Network (multiplayer) | peerjs in `src/renderer/src/network/`. DM hosts, players join via invite code. |
 | BMO integration | HTTP client in `src/main/bmo-bridge.ts`. Receives callbacks on port 5001 via sync receiver. |
