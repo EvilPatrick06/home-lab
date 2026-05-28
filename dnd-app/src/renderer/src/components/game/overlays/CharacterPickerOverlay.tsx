@@ -1,9 +1,9 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router'
+import { getEffectiveClasses } from '../../../services/character/effective-character-5e'
 import { useCharacterStore } from '../../../stores/use-character-store'
 import type { Character } from '../../../types/character'
 import { is5eCharacter } from '../../../types/character'
-import { getEffectiveClasses } from '../../../services/character/effective-character-5e'
 import { getBuilderCreatePath } from '../../../utils/character-routes'
 
 interface CharacterPickerOverlayProps {
@@ -47,7 +47,12 @@ export default function CharacterPickerOverlay({
               <div>
                 <div className="text-sm text-gray-200">{c.name}</div>
                 <div className="text-xs text-gray-500">
-                  Level {c.level} {is5eCharacter(c) ? getEffectiveClasses(c).map((cl) => cl.name).join(' / ') : ''}
+                  Level {c.level}{' '}
+                  {is5eCharacter(c)
+                    ? getEffectiveClasses(c)
+                        .map((cl) => cl.name)
+                        .join(' / ')
+                    : ''}
                 </div>
               </div>
             </button>

@@ -1,5 +1,5 @@
-import { getEffectiveClasses } from '../character/effective-character-5e'
 import type { Character5e } from '../../types/character-5e'
+import { getEffectiveClasses } from '../character/effective-character-5e'
 
 /**
  * Get the critical hit threshold for a character.

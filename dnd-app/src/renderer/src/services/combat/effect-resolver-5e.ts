@@ -1,7 +1,7 @@
 import { getFeatEffects, getFightingStyleEffects, getMagicItemEffects } from '../../data/effect-definitions'
-import { getEffectiveArmor, getEffectiveFeats, getEffectiveMagicItems } from '../character/effective-character-5e'
 import type { Character5e } from '../../types/character-5e'
 import type { CustomEffect, EffectScope, EffectSource, MechanicalEffect } from '../../types/effects'
+import { getEffectiveArmor, getEffectiveFeats, getEffectiveMagicItems } from '../character/effective-character-5e'
 
 // ─── Resolved Effects Interface ─────────────────────────────
 

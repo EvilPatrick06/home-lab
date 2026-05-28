@@ -9,7 +9,6 @@ const minimalCharacter: Character5e = {
   campaignId: null,
   playerId: 'player-1',
   species: 'Human',
-  classes: [],
   level: 1,
   background: 'Folk Hero',
   alignment: 'Neutral Good',
@@ -32,13 +31,8 @@ const minimalCharacter: Character5e = {
   equipment: [],
   treasure: { pp: 0, gp: 0, ep: 0, sp: 0, cp: 0 },
   features: [],
-  knownSpells: [],
-  preparedSpellIds: [],
   spellSlotLevels: {},
   classFeatures: [],
-  weapons: [],
-  armor: [],
-  feats: [],
   buildChoices: {
     speciesId: 'human',
     backgroundId: 'folk-hero',
@@ -55,7 +49,6 @@ const minimalCharacter: Character5e = {
   deathSaves: { successes: 0, failures: 0 },
   attunement: [],
   languageDescriptions: {},
-  conditions: [],
   createdAt: '2025-01-01T00:00:00.000Z',
   updatedAt: '2025-01-01T00:00:00.000Z'
 }

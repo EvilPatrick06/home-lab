@@ -137,7 +137,15 @@ describe('calculateTotalWeight', () => {
       properties: [],
       weight: 3
     }
-    const w2 = { id: 'w2', name: 'Dagger', damage: '1d4', damageType: 'piercing', attackBonus: 5, properties: [], weight: 1 }
+    const w2 = {
+      id: 'w2',
+      name: 'Dagger',
+      damage: '1d4',
+      damageType: 'piercing',
+      attackBonus: 5,
+      properties: [],
+      weight: 1
+    }
     const char = makeCharacter({
       weaponRefs: [
         { instanceId: w1.id, ref: { entryType: 'weapons', entryId: w1.id, overrides: w1 } },
@@ -166,7 +174,15 @@ describe('calculateTotalWeight', () => {
   })
 
   it('sums magic item weights', () => {
-    const m1 = { id: 'm1', name: 'Wand', rarity: 'uncommon', type: 'wand', attunement: false, description: '', weight: 1 }
+    const m1 = {
+      id: 'm1',
+      name: 'Wand',
+      rarity: 'uncommon',
+      type: 'wand',
+      attunement: false,
+      description: '',
+      weight: 1
+    }
     const char = makeCharacter({
       magicItemRefs: [{ instanceId: m1.id, ref: { entryType: 'magic-items', entryId: m1.id, overrides: m1 } }]
     })
@@ -189,7 +205,15 @@ describe('calculateTotalWeight', () => {
   })
 
   it('combines all weight sources together', () => {
-    const w = { id: 'w', name: 'Sword', damage: '1d8', damageType: 'slashing', attackBonus: 0, properties: [], weight: 3 }
+    const w = {
+      id: 'w',
+      name: 'Sword',
+      damage: '1d8',
+      damageType: 'slashing',
+      attackBonus: 0,
+      properties: [],
+      weight: 3
+    }
     const a = { id: 'a', name: 'Shield', acBonus: 2, equipped: true, type: 'shield', weight: 6 }
     const char = makeCharacter({
       weaponRefs: [{ instanceId: w.id, ref: { entryType: 'weapons', entryId: w.id, overrides: w } }],

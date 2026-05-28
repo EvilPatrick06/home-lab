@@ -116,7 +116,8 @@ function getWarlockClassLevel(
   targetLevel: number,
   classLevelChoices: Record<number, string>
 ): number {
-  const existingWarlockLevel = getEffectiveClasses(character).find((c) => c.name.toLowerCase() === 'warlock')?.level ?? 0
+  const existingWarlockLevel =
+    getEffectiveClasses(character).find((c) => c.name.toLowerCase() === 'warlock')?.level ?? 0
   let newWarlockLevels = 0
   for (let lvl = character.level + 1; lvl <= targetLevel; lvl++) {
     if ((classLevelChoices[lvl] ?? character.buildChoices.classId) === 'warlock') {

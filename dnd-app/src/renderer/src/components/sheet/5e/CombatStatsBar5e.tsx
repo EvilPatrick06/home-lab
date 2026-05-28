@@ -1,11 +1,11 @@
 import { useMemo } from 'react'
-import { computeSpellcastingInfo } from '../../../services/character/spell-data'
 import {
   getEffectiveArmor,
   getEffectiveClasses,
   getEffectiveConditions,
   getEffectiveFeats
 } from '../../../services/character/effective-character-5e'
+import { computeSpellcastingInfo } from '../../../services/character/spell-data'
 import { resolveEffects } from '../../../services/combat/effect-resolver-5e'
 import { useNetworkStore } from '../../../stores/network-store'
 import { useCharacterStore } from '../../../stores/use-character-store'

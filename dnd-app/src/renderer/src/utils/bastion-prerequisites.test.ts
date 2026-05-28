@@ -29,7 +29,12 @@ function makeCharacter(
     playerId: 'player-1',
     name: 'Test Character',
     species: 'Human',
-    classes: overrides.classes ?? [{ name: 'Fighter', level: 5, hitDie: 10 }],
+    classRefs: (overrides.classes ?? [{ name: 'Fighter', level: 5, hitDie: 10 }]).map((c, i) => ({
+      instanceId: `c${i}`,
+      ref: { entryType: 'classes', entryId: c.name.toLowerCase(), overrides: { name: c.name, hitDie: c.hitDie } },
+      level: c.level,
+      levelTaken: 1
+    })),
     level: overrides.level ?? 5,
     background: 'Noble',
     alignment: 'Neutral',

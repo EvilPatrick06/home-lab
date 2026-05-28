@@ -1,6 +1,10 @@
 import { memo } from 'react'
 import { getMagicItemEffects } from '../../../data/effect-definitions'
-import { getEffectiveArmor, getEffectiveMagicItems, getEffectiveWeapons } from '../../../services/character/effective-character-5e'
+import {
+  getEffectiveArmor,
+  getEffectiveMagicItems,
+  getEffectiveWeapons
+} from '../../../services/character/effective-character-5e'
 import type { Character5e, MagicItemEntry5e } from '../../../types/character-5e'
 
 interface MagicItemCard5eProps {
@@ -200,7 +204,9 @@ function MagicItemCard5e({
               if (!latest) return
               const updated = {
                 ...latest,
-                magicItems: getEffectiveMagicItems(latest).map((mi, idx) => (idx === i ? { ...mi, identified: true } : mi)),
+                magicItems: getEffectiveMagicItems(latest).map((mi, idx) =>
+                  idx === i ? { ...mi, identified: true } : mi
+                ),
                 updatedAt: new Date().toISOString()
               } as Character5e
               saveAndBroadcast(updated)

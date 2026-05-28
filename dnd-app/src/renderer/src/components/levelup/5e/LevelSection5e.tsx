@@ -196,8 +196,7 @@ export default function LevelSection5e({
           const effectiveClassId = classIdForLevel ?? character.buildChoices.classId
           const grants = getExpertiseGrants(effectiveClassId)
           // Find the matching grant for this slot's class level
-          const existingDruidLevel =
-            effectiveClasses.find((c) => c.name.toLowerCase() === effectiveClassId)?.level ?? 0
+          const existingDruidLevel = effectiveClasses.find((c) => c.name.toLowerCase() === effectiveClassId)?.level ?? 0
           const classLevelForSlot =
             classIdForLevel && classIdForLevel !== character.buildChoices.classId ? existingDruidLevel + 1 : slot.level
           const grant = grants.find((g) => g.classLevel === classLevelForSlot) ?? grants[0]

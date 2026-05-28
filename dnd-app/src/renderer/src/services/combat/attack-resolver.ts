@@ -13,10 +13,10 @@
  */
 
 import { useGameStore } from '../../stores/use-game-store'
-import { getEffectiveClasses, getEffectiveMagicItems } from '../character/effective-character-5e'
 import type { Character5e } from '../../types/character-5e'
 import type { WeaponEntry } from '../../types/character-common'
 import type { MapToken } from '../../types/map'
+import { getEffectiveClasses, getEffectiveMagicItems } from '../character/effective-character-5e'
 import { rollMultiple, rollSingle } from '../dice/dice-service'
 import { pluginEventBus } from '../plugin-system/event-bus'
 import { getWeatherEffects, type WeatherType } from '../weather-mechanics'

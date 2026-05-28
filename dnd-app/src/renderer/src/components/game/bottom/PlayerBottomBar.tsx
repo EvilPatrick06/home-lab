@@ -160,8 +160,7 @@ export default function PlayerBottomBar({
   const is5e = freshCharacter && is5eCharacter(freshCharacter)
   const classes5e = is5e ? getEffectiveClasses(freshCharacter) : []
   const isDruid = is5e && classes5e.some((c) => c.name.toLowerCase() === 'druid')
-  const hasWizardOrWarlock =
-    is5e && classes5e.some((c) => ['wizard', 'warlock'].includes(c.name.toLowerCase()))
+  const hasWizardOrWarlock = is5e && classes5e.some((c) => ['wizard', 'warlock'].includes(c.name.toLowerCase()))
   const isPaladin = is5e && classes5e.some((c) => c.name.toLowerCase() === 'paladin')
 
   return (

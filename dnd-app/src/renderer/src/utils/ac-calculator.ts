@@ -1,7 +1,7 @@
+import { getEffectiveArmor, getEffectiveClasses, getEffectiveFeats } from '../services/character/effective-character-5e'
 import type { Character } from '../types/character'
 import type { ArmorEntry } from '../types/character-common'
 import { abilityModifier } from '../types/character-common'
-import { getEffectiveArmor, getEffectiveClasses, getEffectiveFeats } from '../services/character/effective-character-5e'
 
 /**
  * Compute dynamic AC from equipped armor for a 5e character.

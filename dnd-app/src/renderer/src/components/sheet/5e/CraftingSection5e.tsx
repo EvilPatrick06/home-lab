@@ -1,7 +1,11 @@
 import { useState } from 'react'
 import { useCharacterEditor } from '../../../hooks/use-character-editor'
 import { useEquipmentData } from '../../../hooks/use-equipment-data'
-import { getEffectiveArmor, getEffectiveKnownSpells, getEffectiveWeapons } from '../../../services/character/effective-character-5e'
+import {
+  getEffectiveArmor,
+  getEffectiveKnownSpells,
+  getEffectiveWeapons
+} from '../../../services/character/effective-character-5e'
 import { load5eCrafting, load5eEquipment } from '../../../services/data-provider'
 import type { Character } from '../../../types/character'
 import type { Character5e } from '../../../types/character-5e'

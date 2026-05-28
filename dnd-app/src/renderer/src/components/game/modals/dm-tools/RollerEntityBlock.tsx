@@ -27,8 +27,11 @@ function PCBlock({
   return (
     <div className="space-y-3">
       <div className="text-xs text-gray-400">
-        Level {char.level} {getEffectiveClasses(char).map((c) => c.name).join('/')} | HP: {char.hitPoints.current}/
-        {char.hitPoints.maximum} | AC: {char.armorClass}
+        Level {char.level}{' '}
+        {getEffectiveClasses(char)
+          .map((c) => c.name)
+          .join('/')}{' '}
+        | HP: {char.hitPoints.current}/{char.hitPoints.maximum} | AC: {char.armorClass}
       </div>
 
       {/* Ability Scores */}

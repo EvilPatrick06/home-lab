@@ -6,6 +6,7 @@
 import { jsPDF } from 'jspdf'
 import type { Character5e } from '../../types/character-5e'
 import { ABILITY_NAMES, type AbilityName, abilityModifier, formatMod } from '../../types/character-common'
+import { logger } from '../../utils/logger'
 import {
   getEffectiveArmor,
   getEffectiveClasses,
@@ -14,7 +15,6 @@ import {
   getEffectivePreparedSpellIds,
   getEffectiveWeapons
 } from '../character/effective-character-5e'
-import { logger } from '../../utils/logger'
 
 const PAGE_W = 210
 const PAGE_H = 297

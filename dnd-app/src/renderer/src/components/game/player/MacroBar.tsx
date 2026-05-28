@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
+import { getEffectiveWeapons } from '../../../services/character/effective-character-5e'
 import { useMacroStore } from '../../../stores/use-macro-store'
 import type { Character } from '../../../types/character'
 import { is5eCharacter } from '../../../types/character'
-import { getEffectiveWeapons } from '../../../services/character/effective-character-5e'
 import { abilityModifier, formatMod } from '../../../types/character-common'
 
 interface MacroBarProps {

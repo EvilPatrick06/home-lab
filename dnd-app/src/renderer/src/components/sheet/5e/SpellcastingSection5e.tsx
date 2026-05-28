@@ -1,5 +1,11 @@
 import { lazy, Suspense, useCallback, useMemo, useState } from 'react'
 import {
+  getEffectiveClasses,
+  getEffectiveKnownSpells,
+  getEffectiveMagicItems,
+  getEffectivePreparedSpellIds
+} from '../../../services/character/effective-character-5e'
+import {
   computeSpellcastingInfo,
   FULL_CASTERS_5E,
   getCantripsKnown,
@@ -9,12 +15,6 @@ import {
   isMulticlassSpellcaster,
   isWarlockPactMagic
 } from '../../../services/character/spell-data'
-import {
-  getEffectiveClasses,
-  getEffectiveKnownSpells,
-  getEffectiveMagicItems,
-  getEffectivePreparedSpellIds
-} from '../../../services/character/effective-character-5e'
 import { getDragPayload, hasLibraryDrag } from '../../../services/library/drag-data'
 import { useNetworkStore } from '../../../stores/network-store'
 import { useCharacterStore } from '../../../stores/use-character-store'

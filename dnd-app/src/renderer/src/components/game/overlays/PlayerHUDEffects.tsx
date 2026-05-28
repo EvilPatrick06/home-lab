@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { CONDITIONS_5E } from '../../../data/conditions'
-import { resolveDeathSave } from '../../../services/combat/death-mechanics'
 import { getEffectiveClasses } from '../../../services/character/effective-character-5e'
+import { resolveDeathSave } from '../../../services/combat/death-mechanics'
 import type { ResolvedEffects } from '../../../services/combat/effect-resolver-5e'
 import { useCharacterStore } from '../../../stores/use-character-store'
 import { useGameStore } from '../../../stores/use-game-store'

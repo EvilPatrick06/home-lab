@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { getEffectiveFeats, getEffectiveWeapons } from '../../../../services/character/effective-character-5e'
 import {
   type CoverType,
   canGrappleOrShove,
@@ -9,7 +10,6 @@ import {
   type MasteryEffectResult,
   unarmedStrikeDC
 } from '../../../../services/combat/combat-rules'
-import { getEffectiveFeats, getEffectiveWeapons } from '../../../../services/character/effective-character-5e'
 import { getCritThreshold } from '../../../../services/combat/crit-range'
 import {
   type GrappleRequest,

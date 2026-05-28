@@ -1,6 +1,6 @@
+import { getEffectiveClasses } from '../services/character/effective-character-5e'
 import type { FacilityPrerequisite, SpecialFacilityDef } from '../types/bastion'
 import type { Character5e } from '../types/character-5e'
-import { getEffectiveClasses } from '../services/character/effective-character-5e'
 
 export interface CharacterCapabilities {
   canUseArcaneFocus: boolean

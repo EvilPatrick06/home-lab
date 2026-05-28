@@ -9,7 +9,12 @@ function makeChar(overrides: {
   multiclassEntries?: { classId: string; subclassId?: string; levelTaken: number }[]
 }): Character5e {
   return {
-    classes: overrides.classes ?? [],
+    classRefs: (overrides.classes ?? []).map((c, i) => ({
+      instanceId: `c${i}`,
+      ref: { entryType: 'classes', entryId: c.name.toLowerCase(), overrides: { name: c.name } },
+      level: c.level,
+      levelTaken: 1
+    })),
     buildChoices: {
       classId: overrides.classId ?? 'fighter',
       subclassId: overrides.subclassId,

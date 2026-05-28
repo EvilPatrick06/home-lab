@@ -61,7 +61,10 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
             {characterMagicItems.some((mi) => mi.attunement) && (
               <span className="ml-2 text-purple-400 normal-case">
                 {/* Phase 15c.3 — attunement count reads v4 state.magicItemAttuned (absorbs Phase 23 F M2). */}
-                Attuned: {Object.values(character.state?.magicItemAttuned ?? {}).filter(Boolean).length || characterMagicItems.filter((mi) => mi.attuned).length}/3
+                Attuned:{' '}
+                {Object.values(character.state?.magicItemAttuned ?? {}).filter(Boolean).length ||
+                  characterMagicItems.filter((mi) => mi.attuned).length}
+                /3
               </span>
             )}
           </div>

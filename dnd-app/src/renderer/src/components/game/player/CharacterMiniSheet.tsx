@@ -32,7 +32,10 @@ export default function CharacterMiniSheet({ character }: CharacterMiniSheetProp
         <p className="text-xs text-gray-400">
           {is5eCharacter(character) && (
             <>
-              {character.species} {getEffectiveClasses(character).map((c) => `${c.name} ${c.level}`).join(' / ')}
+              {character.species}{' '}
+              {getEffectiveClasses(character)
+                .map((c) => `${c.name} ${c.level}`)
+                .join(' / ')}
             </>
           )}
         </p>

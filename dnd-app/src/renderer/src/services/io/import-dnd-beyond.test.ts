@@ -197,11 +197,10 @@ describe('import-dnd-beyond', () => {
       const { importDndBeyondCharacter } = await import('./import-dnd-beyond')
       const result = await importDndBeyondCharacter()
 
-      expect(result!.classes).toHaveLength(1)
-      expect(result!.classes[0].name).toBe('Fighter')
-      expect(result!.classes[0].level).toBe(5)
-      expect(result!.classes[0].subclass).toBe('Champion')
-      expect(result!.classes[0].hitDie).toBe(10)
+      expect(result!.classRefs).toHaveLength(1)
+      expect(result!.classRefs![0].ref.entryId).toBe('fighter')
+      expect(result!.classRefs![0].level).toBe(5)
+      expect(result!.classRefs![0].subclassRef?.entryId).toBe('Champion')
       expect(result!.level).toBe(5)
     })
 
@@ -273,10 +272,10 @@ describe('import-dnd-beyond', () => {
       const { importDndBeyondCharacter } = await import('./import-dnd-beyond')
       const result = await importDndBeyondCharacter()
 
-      expect(result!.weapons.length).toBeGreaterThanOrEqual(1)
-      expect(result!.weapons[0].name).toBe('Longsword')
-      expect(result!.armor.length).toBeGreaterThanOrEqual(1)
-      expect(result!.armor[0].name).toBe('Chain Mail')
+      expect(result!.weaponRefs!.length).toBeGreaterThanOrEqual(1)
+      expect(result!.weaponRefs![0].ref.entryType).toBe('weapons')
+      expect(result!.armorRefs!.length).toBeGreaterThanOrEqual(1)
+      expect(result!.armorRefs![0].ref.entryType).toBe('armor')
       expect(result!.equipment.length).toBeGreaterThanOrEqual(1)
       expect(result!.equipment[0].name).toBe('Rope')
     })
@@ -287,8 +286,9 @@ describe('import-dnd-beyond', () => {
       const { importDndBeyondCharacter } = await import('./import-dnd-beyond')
       const result = await importDndBeyondCharacter()
 
-      expect(result!.feats).toHaveLength(1)
-      expect(result!.feats![0].name).toBe('Great Weapon Master')
+      expect(result!.featRefs).toHaveLength(1)
+      expect(result!.featRefs![0].ref.entryType).toBe('feats')
+      expect(result!.featRefs![0].ref.entryId).toBe('101')
     })
 
     it('extracts treasure/currencies', async () => {

@@ -140,7 +140,9 @@ export default function MechanicsModals({
       {activeModal === 'wildShape' && character && is5eCharacter(character) && (
         <WildShapeBrowserModal
           onClose={close}
-          druidLevel={getEffectiveClasses(character).find((c) => c.name.toLowerCase() === 'druid')?.level ?? character.level}
+          druidLevel={
+            getEffectiveClasses(character).find((c) => c.name.toLowerCase() === 'druid')?.level ?? character.level
+          }
           wildShapeUses={character.wildShapeUses ?? { current: 0, max: 0 }}
           activeFormId={character.activeWildShapeFormId}
           onTransform={handleWildShapeTransform}

@@ -1,5 +1,9 @@
+import {
+  getEffectiveArmor,
+  getEffectiveMagicItems,
+  getEffectiveWeapons
+} from '../services/character/effective-character-5e'
 import type { Character5e } from '../types/character-5e'
-import { getEffectiveArmor, getEffectiveMagicItems, getEffectiveWeapons } from '../services/character/effective-character-5e'
 
 export interface CarryingCapacity {
   carry: number

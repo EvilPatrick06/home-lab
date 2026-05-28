@@ -11,7 +11,13 @@ function makeCharacter(overrides: Record<string, any> = {}): Character {
     playerId: 'p1',
     name: 'Test',
     species: 'Human',
-    classes: overrides.classes ?? [{ name: 'Fighter', level: 5 }],
+    classRefs: (overrides.classes ?? [{ name: 'Fighter', level: 5 }]).map((c: any, i: number) => ({
+      instanceId: `c${i}`,
+      ref: { entryType: 'classes', entryId: c.name.toLowerCase(), overrides: { name: c.name } },
+      level: c.level,
+      levelTaken: 1,
+      subclassRef: c.subclass ? { entryType: 'subclasses', entryId: c.subclass } : null
+    })),
     level: 5,
     background: '',
     alignment: '',
@@ -46,8 +52,15 @@ function makeCharacter(overrides: Record<string, any> = {}): Character {
     spellSlotLevels: {},
     classFeatures: [],
     weapons: [],
-    armor: overrides.armor ?? [],
-    feats: overrides.feats ?? [],
+    armorRefs: (overrides.armor ?? []).map((a: any) => ({
+      instanceId: a.id,
+      ref: { entryType: 'armor', entryId: a.id, overrides: a }
+    })),
+    feats: [],
+    featRefs: (overrides.feats ?? []).map((f: any) => ({
+      instanceId: f.id,
+      ref: { entryType: 'feats', entryId: f.id, overrides: f }
+    })),
     buildChoices: {},
     status: 'active',
     campaignHistory: [],

@@ -1,7 +1,7 @@
 import { useGameStore } from '../../stores/use-game-store'
-import { getEffectiveClasses } from '../character/effective-character-5e'
 import type { Character5e } from '../../types/character-5e'
 import type { MapToken } from '../../types/map'
+import { getEffectiveClasses } from '../character/effective-character-5e'
 import { rollSingle } from '../dice/dice-service'
 import { getAttackConditionEffects } from './attack-condition-effects'
 import type { AttackOptions, AttackResult } from './attack-types'

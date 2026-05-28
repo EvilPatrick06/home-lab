@@ -194,7 +194,9 @@ describe('getLongRestPreview', () => {
   it('does not report exhaustion level from v4 conditions (value dropped in 15c.5)', () => {
     const cond = { name: 'Exhaustion', type: 'condition', isCustom: false, value: 2 }
     const char = makeCharacter({
-      conditionRefs: [{ instanceId: cond.name, ref: { entryType: 'conditions', entryId: 'exhaustion', overrides: cond } }]
+      conditionRefs: [
+        { instanceId: cond.name, ref: { entryType: 'conditions', entryId: 'exhaustion', overrides: cond } }
+      ]
     })
     // Phase 15c.5 — getEffectiveConditions strips numeric `value`, so the preview
     // can no longer surface exhaustion level / reduction.
@@ -266,7 +268,9 @@ describe('applyLongRest', () => {
   it('reduces exhaustion by 1', () => {
     const cond = { name: 'Exhaustion', type: 'condition', isCustom: false, value: 3 }
     const char = makeCharacter({
-      conditionRefs: [{ instanceId: cond.name, ref: { entryType: 'conditions', entryId: 'exhaustion', overrides: cond } }]
+      conditionRefs: [
+        { instanceId: cond.name, ref: { entryType: 'conditions', entryId: 'exhaustion', overrides: cond } }
+      ]
     })
     const result = applyLongRest(char)
     // Phase 15c.5 — exhaustion reduction dropped (conditions are v4 refs, no value).
@@ -295,7 +299,13 @@ describe('applyLongRest', () => {
   })
 
   it('does not restore innate spell uses (dropped in 15c.5)', () => {
-    const spell = { id: 'burning-hands', name: 'Burning Hands', level: 1, school: 'evocation', innateUses: { max: 1, remaining: 0 } }
+    const spell = {
+      id: 'burning-hands',
+      name: 'Burning Hands',
+      level: 1,
+      school: 'evocation',
+      innateUses: { max: 1, remaining: 0 }
+    }
     const char = makeCharacter({
       knownSpellRefs: [{ instanceId: spell.id, ref: { entryType: 'spells', entryId: spell.id, overrides: spell } }]
     })

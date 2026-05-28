@@ -1,5 +1,5 @@
-import { getEffectiveFeats } from './effective-character-5e'
 import type { Character5e } from '../../types/character-5e'
+import { getEffectiveFeats } from './effective-character-5e'
 
 // ─── Feat Mechanic Descriptors ──────────────────────────────
 

@@ -1,11 +1,11 @@
 import { useCallback, useState } from 'react'
+import { getEffectiveClasses } from '../../../../services/character/effective-character-5e'
 import {
   getShortRestPreview,
   rollShortRestDice,
   type ShortRestDiceRoll,
   type ShortRestPreview as SRPreview
 } from '../../../../services/character/rest-service-5e'
-import { getEffectiveClasses } from '../../../../services/character/effective-character-5e'
 import type { Character5e } from '../../../../types/character-5e'
 import { abilityModifier } from '../../../../types/character-common'
 

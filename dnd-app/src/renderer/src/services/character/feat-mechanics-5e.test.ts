@@ -10,7 +10,10 @@ function makeCharacter(
 ): Character5e {
   return {
     level,
-    feats
+    featRefs: feats.map((f) => ({
+      instanceId: f.id,
+      ref: { entryType: 'feats', entryId: f.id, overrides: f }
+    }))
   } as unknown as Character5e
 }
 

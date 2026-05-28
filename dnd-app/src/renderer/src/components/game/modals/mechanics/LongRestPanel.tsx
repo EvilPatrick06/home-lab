@@ -50,7 +50,10 @@ export default function LongRestPanel({ pcs, states, onStatesChange }: LongRestP
               />
               <span className="text-sm font-semibold text-gray-200">{pc.name}</span>
               <span className="text-xs text-gray-500">
-                Lv{pc.level} {getEffectiveClasses(pc).map((c) => c.name).join('/')}
+                Lv{pc.level}{' '}
+                {getEffectiveClasses(pc)
+                  .map((c) => c.name)
+                  .join('/')}
               </span>
             </div>
 

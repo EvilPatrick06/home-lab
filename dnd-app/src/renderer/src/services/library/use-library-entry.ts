@@ -64,7 +64,10 @@ export function useHydratedInstances<C extends LibraryCategory>(
       const entry = bucket?.[instance.ref.entryId]
       if (!entry) continue
       const merged = instance.ref.overrides
-        ? (deepMergeObjects(entry as Record<string, unknown>, instance.ref.overrides as Record<string, unknown>) as LibraryEntry<C>)
+        ? (deepMergeObjects(
+            entry as Record<string, unknown>,
+            instance.ref.overrides as Record<string, unknown>
+          ) as LibraryEntry<C>)
         : (entry as LibraryEntry<C>)
       out.push({ ...merged, __instanceId: instance.instanceId })
     }
@@ -76,13 +79,15 @@ export function useHydratedInstances<C extends LibraryCategory>(
 // shape so consumers that read `character.classes` for display/derivation
 // stay compatible. Returns an empty array when classRefs is absent.
 export function useHydratedClassList(
-  classRefs: Array<{
-    instanceId: string
-    ref: EntryRef<'classes'>
-    level: number
-    levelTaken?: number
-    subclassRef?: EntryRef<'subclasses'> | null
-  }> | undefined
+  classRefs:
+    | Array<{
+        instanceId: string
+        ref: EntryRef<'classes'>
+        level: number
+        levelTaken?: number
+        subclassRef?: EntryRef<'subclasses'> | null
+      }>
+    | undefined
 ): Array<{ name: string; level: number; subclass?: string; hitDie: number }> {
   const bucket = useLibraryStore((s) => s.entries.classes)
   return useMemo(() => {
@@ -93,7 +98,10 @@ export function useHydratedClassList(
         name: (entry?.name as string) ?? cr.ref.entryId,
         level: cr.level,
         subclass: cr.subclassRef?.entryId,
-        hitDie: (entry?.hitDie as number) ?? ((entry?.coreTraits as Record<string, unknown> | undefined)?.hitPointDie as unknown as number) ?? 10
+        hitDie:
+          (entry?.hitDie as number) ??
+          ((entry?.coreTraits as Record<string, unknown> | undefined)?.hitPointDie as unknown as number) ??
+          10
       }
     })
   }, [classRefs, bucket])
