@@ -85,7 +85,8 @@ All three areas the user asked to research — **(A) build/packaging speed, (B) 
 | `dnd-app/src/renderer/src/components/ui/OllamaManagement.tsx` | Add **Install Ollama** button to not-installed branch; verify update-check controls |
 | `dnd-app/src/renderer/src/components/<new>/OllamaFirstRunPrompt.tsx` | New first-run "Install Ollama for local AI?" modal (Win + Linux) |
 | `dnd-app/src/renderer/src/pages/SettingsPage.tsx` | "Ollama AI" + "Updates" sections; silent-checkbox copy tweak |
-| `dnd-app/src/shared/ipc-channels.ts` / `ipc-schemas.ts` | New IPC channel(s) for first-run prompt / Linux install if needed; schema |
+| `dnd-app/src/shared/ipc-channels.ts` / `ipc-schemas.ts` | Reference — **no new channels needed**; 14b/14c/14d reuse `AI_*_OLLAMA` + `UPDATE_*` + `APP_VERSION` |
+| `dnd-app/scripts/build/postinstall.mjs` + `src/renderer/public/pdf.worker.min.mjs` | Reference — pdfjs worker copy; keep both so `pdfjs-dist` can move to devDeps (14g) |
 | `dnd-app/resources/chunk-index.json` + loader | gzip-at-rest + inflate on read (§A3) — optional size win |
 | `dnd-app/scripts/build/fetch-ollama.mjs` | No longer wired into CI; keep for optional local bundling or delete |
 | `dnd-app/scripts/build/install-linux.sh` | Reference — Ollama note stays accurate |
@@ -117,26 +118,28 @@ All three areas the user asked to research — **(A) build/packaging speed, (B) 
 
 ### 14b — Cross-platform Ollama install
 **Files:** `ollama-manager.ts`, `ai-handlers.ts`
+**No new IPC channel** — reuse the existing `AI_DOWNLOAD_OLLAMA` (`ipc-channels.ts:85`, preload `index.ts:103`) + `AI_INSTALL_OLLAMA` (`:86`/`:104`) + `AI_OLLAMA_PROGRESS` (`:127`/preload `:185`). Only the main-process implementations change.
 **Steps:**
 1. Replace the off-Windows throws in `downloadOllama` (247–255) / `installOllama` (298–303) with real paths: Linux → spawn `curl -fsSL https://ollama.com/install.sh | sh` (capture stdout/stderr for errors); macOS → `brew install ollama` if `brew` present, else surface the `ollama.com/download` instruction (best-effort, not a shipped target). Keep the Windows `OllamaSetup.exe /SILENT /NORESTART` path.
-2. Linux install has no parseable progress → emit an **indeterminate** signal (e.g. `phase: 'installing'`) so the UI shows a spinner, not a fake bar. Keep the Windows download percentage.
-3. `updateOllama` (533–536) inherits the cross-platform path; verify it upgrades in place on Linux.
-4. **Preserve** the temp-dir + `.exe` path guard (304–311) — security-relevant.
-**Acceptance:** Linux install runs `install.sh` and `detectOllama` then reports `installed: true`; failures return the captured error. Windows unchanged. No unhandled rejection on macOS.
+2. Linux install has no parseable progress → emit an **indeterminate** signal over `AI_OLLAMA_PROGRESS` (e.g. `{ type: 'download', percent: -1 }` or a `phase: 'installing'` flag) so the UI shows a spinner, not a fake bar. Keep the Windows download percentage. Update the `ai-handlers.ts` `AI_DOWNLOAD_OLLAMA`/`AI_INSTALL_OLLAMA` handlers (442–470) to forward the new signal shape.
+3. `updateOllama` (533–536) inherits the cross-platform path; verify it upgrades in place on Linux (re-runs `install.sh`).
+4. **Preserve** the temp-dir + `.exe` path guard (304–311) — security-relevant. The Linux path must run only the official `install.sh` over HTTPS — no unvalidated arbitrary-URL exec.
+**Acceptance:** Linux install runs `install.sh` and `detectOllama` then reports `installed: true`; failures return the captured error. Windows unchanged. No unhandled rejection on macOS. No new IPC channel added.
 
 ### 14c — First-run "Install Ollama?" prompt
-**Files:** new `OllamaFirstRunPrompt.tsx`, app shell wiring, `ipc-channels.ts`/`ipc-schemas.ts` (if needed), settings
+**Files:** new `OllamaFirstRunPrompt.tsx`, app shell wiring (mount near the renderer root / `SettingsPage` host), settings persistence
+**No new IPC channel** — pure renderer + a settings flag, reusing the 14b install path (`window.api.ai.downloadOllama`/`installOllama`) + `onOllamaProgress` (preload `:185`) + `detectOllama` (preload `:101`).
 **Steps:**
-1. Add settings flag `ollamaFirstRunPrompted` (default `false`). On first launch where it's `false` **and** Ollama isn't already detected, show a one-time modal: "Install Ollama for local AI? … You can also do this later in Settings → Ollama AI." with **Install** / **Not now**.
-2. **Install** → reuse 14b path + the existing `AI_OLLAMA_PROGRESS` stream (percent on Win, spinner on Linux); on completion set the flag + refresh detection.
+1. Add settings flag `ollamaFirstRunPrompted` (default `false`). On first launch where it's `false` **and** `detectOllama` reports `installed: false`, show a one-time modal: "Install Ollama for local AI? … You can also do this later in Settings → Ollama AI." with **Install** / **Not now**.
+2. **Install** → call the 14b path + subscribe to the existing `AI_OLLAMA_PROGRESS` stream (percent on Win, spinner on Linux); on completion set the flag + refresh detection.
 3. **Not now** → set the flag, close; never auto-show again.
-4. One code path for both platforms (platform difference lives in `ollama-manager`).
-**Acceptance:** Fresh profile → modal once; either choice sets the flag (never reappears); Install ends with Ollama detected; a profile that already has Ollama never sees it.
+4. One code path for both platforms (platform difference lives entirely in `ollama-manager`).
+**Acceptance:** Fresh profile → modal once; either choice sets the flag (never reappears); Install ends with Ollama detected; a profile that already has Ollama never sees it; no new IPC channel.
 
 ### 14d — Settings AI group controls (requests #3 + #4)
 **Files:** `OllamaManagement.tsx`
 **Steps:**
-1. Not-installed branch (208–229) currently shows text + link + Re-check only. Add an **Install Ollama** button → 14b path, progress, then `refreshAll()`. Keep Re-check.
+1. Not-installed branch (208–229) currently shows text + link + Re-check only. Add an **Install Ollama** button calling `window.api.ai.downloadOllama()` → `installOllama()` (the 14b path), wire `onOllamaProgress`, then `refreshAll()`. Keep Re-check.
 2. Verify installed-state controls (234–262): **Check for Updates** (`checkOllamaUpdate`) + **Update Ollama** (`updateOllama`) render regardless of running state (they sit above the running-gate at 294 — keep). Route `updateOllama` through the cross-platform path so the Update button works on Linux.
 3. Confirm `AiProviderSetup.tsx handleAutoSetup` (148) still works (same IPC); now also works on Linux via 14b.
 **Acceptance:** Ollama absent → working **Install Ollama** button (Win + Linux). Ollama present → **Check/Update** work on both platforms.
@@ -160,24 +163,37 @@ All three areas the user asked to research — **(A) build/packaging speed, (B) 
 **Acceptance:** Checkbox OFF → every install shows the visible installer; ON → fully silent. No path goes silent while OFF.
 
 ### 14g — App build size + Vite speed (§A)
-**Files:** `package.json`, `electron.vite.config.*`, `resources/chunk-index.json` + loader
+**Files:** `package.json`, `electron.vite.config.ts`, `resources/chunk-index.json` + loader
+> Evidence basis (verified by import-site grep across `src/main|preload|renderer|shared` — see §A): `externalizeDepsPlugin()` runs on main+preload, so a dep is safe to move to `devDependencies` **iff** it is imported only in the renderer (renderer bundles it). The exact split below is the action list — do not re-derive it, just verify each in the packaged app.
 **Steps:**
-1. **Dependency double-ship audit (§A2):** for each of the 26 prod deps, confirm whether Vite fully bundles it into `out/`. Move fully-bundled pure-JS libs (candidates: `three`, `pixi.js`, `pdfjs-dist`, `jspdf`, `tiptap/*`, `cannon-es`, `fuse.js`, `immer`, `@msgpack/msgpack`, `@tanstack/react-virtual`) to `devDependencies`. **Keep in `dependencies`** anything `require`d at runtime by path or with native binaries. Test the **packaged** app, not just dev — this is the riskiest step.
-2. Vite (§A4): `build.minify: 'esbuild'`, `build.sourcemap: false` (prod), `build.reportCompressedSize: false`. Ensure `**/*.map` excluded from the package `files`.
-3. gzip `chunk-index.json` at rest + inflate on read (§A3) — optional ~4 MB win.
-4. Leave asar default-on; do not set `signAndEditExecutable: false` (§A5/A6). Set `removePackageScripts`/`removePackageKeywords` if not already default.
-**Acceptance:** Packaged app launches + all features work (AI providers, PDF export, 3D dice/physics, tiptap editor, virtualized lists, msgpack transport). Installed size measurably smaller than the post-14a baseline.
+1. **Move these renderer-only libs from `dependencies` → `devDependencies`** (each confirmed imported only in `src/renderer`, already in renderer `manualChunks`/bundle): `pixi.js` (28 sites), `three` (13), `pdfjs-dist` (1), `@tiptap/react`, `@tiptap/starter-kit`, `@tiptap/extension-placeholder`, `@tiptap/pm` (peer), `peerjs` (7), `jspdf` (1), `cannon-es` (2), `fuse.js` (3), `@msgpack/msgpack` (1), `@tanstack/react-virtual` (4). Also move `dotenv` (used **only** in dev `scripts/`, never in `src/`).
+2. **Keep in `dependencies` (DO NOT move)** — imported in `src/main`, externalized at runtime: `@anthropic-ai/sdk`, `@google/generative-ai`, `openai`, `zod`, `bonjour-service`, `electron-updater`, `extract-zip`. Leave the React/state core (`react`, `react-dom`, `react-router`, `zustand`, `immer`) in `dependencies` — technically renderer-bundled and movable, but small footprint + high "surprise" factor; not worth the risk.
+3. **pdfjs-dist caveat (must hold):** its runtime worker is the committed public asset `src/renderer/public/pdf.worker.min.mjs`, copied by `scripts/build/postinstall.mjs` from `node_modules`. Moving the package to `devDependencies` is safe **because CI runs plain `npm ci` (installs devDeps), so postinstall still finds it** and the public worker still ships. Do NOT switch CI to `npm ci --omit=dev`, and do NOT delete the public worker.
+4. **Verify packaged, feature-by-feature** (riskiest step — a runtime-`require`d-by-path lib moved to devDeps crashes only in the built app): launch the packaged build and exercise AI providers, PDF view/export, 3D dice + physics, the tiptap editor, virtualized lists, and msgpack P2P transport.
+5. Vite (§A4) in `electron.vite.config.ts` renderer `build`: `minify: 'esbuild'`, `sourcemap: false`, `reportCompressedSize: false`. Ensure `**/*.map` is excluded from the package `files` globs in `package.json`.
+6. **Drop the dead `vendor-anthropic` entry from `manualChunks`** — `@anthropic-ai/sdk` is never imported in the renderer (main-only), so that chunk rule never matches.
+7. gzip `chunk-index.json` at rest + inflate on read (§A3) — optional ~4 MB win; keep `build-chunk-index.mjs` output path stable.
+8. Leave asar default-on; do not set `signAndEditExecutable: false` (§A5/A6 — it strips the icon/metadata). Set `removePackageScripts`/`removePackageKeywords` if not already default.
+**Acceptance:** Packaged app launches + all features above work. `dependencies` count drops to ~12 (the keep-list + React core); installed size measurably smaller than the post-14a baseline. `manualChunks` has no dead `vendor-anthropic` rule.
 
 ### 14h — CI / release-pipeline restructure (§B)
-**Files:** `.github/workflows/release.yml`, `package.json` (`publish.timeout`)
+**Files:** `.github/workflows/release.yml`, `package.json` (`build.publish.timeout`)
+Replace the current `preflight → build → verify-assets` graph with a **4-job graph** so the electron-builder matrix runs *concurrently* with the slow vitest, and publish is gated on tests. Target structure (implement this exactly):
+
+- **`checks-fast`** (ubuntu): `npm ci --prefer-offline --no-audit --no-fund`, the package.json-version-matches-tag check (release.yml:55–63), `npm run lint`, `tsc --noEmit -p tsconfig.web.json`, `tsc --noEmit -p tsconfig.node.json`. *(No vitest here — this is the gate `build` waits on.)*
+- **`test`** (ubuntu, `strategy.matrix.shard: [1,2,3]`): `npm ci …` then `npx vitest run --shard=${{ matrix.shard }}/3`. Runs in parallel with `build`.
+- **`build`** (matrix win+linux, `needs: checks-fast`): `npm ci …`, Linux apt deps step (unchanged, 153–160), then `npx electron-vite build && npx electron-builder --win|--linux --publish never` (NOTE: `never`, not `always`), then `actions/upload-artifact` of `dnd-app/dist/*` (retention 1 day) to hand off to publish. **Delete the 3 Ollama steps (118–149).**
+- **`publish`** (ubuntu, `needs: [test, build]`): `actions/download-artifact` (merge both matrix outputs), then `gh release upload "${{ github.ref_name }}" dist/* dnd-app/scripts/build/install-linux.sh --clobber`, then the folded asset-verify (loop over the 6 expected names via `gh release view … --jq`). This makes publish gated on **both** tests and a clean build, so a test-failing build never ships.
+
 **Steps:**
-1. **Parallelize (§B1):** split `build` into `electron-vite build && electron-builder --<os>` *without* `--publish` running in parallel with `preflight`, then a `publish` step/job that `needs: [preflight, build]`. (Or shard vitest 3-way to shrink preflight.) Keep publish strictly downstream of `preflight` so a test-failing build never ships.
-2. **Cache Electron/builder (§B2):** export `ELECTRON_CACHE`/`ELECTRON_BUILDER_CACHE` to `${{ github.workspace }}/.cache/...`; `actions/cache` keyed `${{ runner.os }}-electron-${{ hashFiles('dnd-app/package-lock.json') }}`.
-3. **Fold `verify-assets` (§B3)** into the Linux build job as a final `gh release view` step; delete the standalone job.
-4. **Debug artifact (§B4):** change `if: always()` → `if: failure()`.
-5. **Concurrency (§B5):** `concurrency: { group: release-${{ github.ref_name }}, cancel-in-progress: false }`. Add `--prefer-offline --no-audit --no-fund` to `npm ci`.
-6. **`publish.timeout: 300000`** in `package.json build.publish` (§B7).
-**Acceptance:** Build starts without waiting on the full test suite; publish still gated on preflight; one fewer runner; no debug upload on success; cached Electron between runs; `verify-assets` check still green.
+1. **Parallelize (§B1):** implement the 4-job graph above. Switch electron-builder to `--publish never` + actions-artifact hand-off; do the GitHub upload in the `publish` job. (Lower-risk fallback if you don't want to move publish out of electron-builder: keep `build needs: preflight` + `--publish always` and only shard vitest inside preflight — partial saving, build still waits on tests. Default to the full split.)
+2. **Cache Electron/builder (§B2):** in `build`, set env `ELECTRON_CACHE: ${{ github.workspace }}/.cache/electron` + `ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.cache/electron-builder`; add `actions/cache@v4` on both paths keyed `${{ runner.os }}-electron-${{ hashFiles('dnd-app/package-lock.json') }}` (per-OS — never share Win↔Linux).
+3. **Fold `verify-assets` (§B3)** into the `publish` job's final step; delete the standalone `verify-assets` job (no dedicated runner).
+4. **Debug artifact (§B4):** the old `if: always()` upload-artifact (179–190) is superseded by the build→publish hand-off; keep at most an `if: failure()` diagnostic upload, otherwise remove.
+5. **Concurrency (§B5):** add top-level `concurrency: { group: release-${{ github.ref_name }}, cancel-in-progress: false }` (false — never cancel a mid-publish run). Add `--prefer-offline --no-audit --no-fund` to every `npm ci`.
+6. **`publish.timeout: 300000`** in `package.json build.publish` (§B7) — insurance against slow-asset upload timeouts (mostly moot post-unbundle but free).
+7. `cut.mjs` already pre-creates the release with notes before the tag push, so the `publish` job uploads INTO an existing release — confirm `--clobber` is set so re-runs don't 422.
+**Acceptance:** `build` starts as soon as `checks-fast` is green (does not wait on the ~6376-test run); `publish` runs only after `test` + `build` both pass; one fewer runner than today; no full-installer upload to Actions storage on success; Electron binaries cached between runs; the 6-asset verify still gates the release.
 
 ### 14i — Verification, benchmark & docs
 **Files:** repo-wide; `CLAUDE.md`, `dnd-app/docs/*`
