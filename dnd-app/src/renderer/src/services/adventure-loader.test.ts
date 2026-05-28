@@ -1,15 +1,17 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { loadAdventures } from './adventure-loader'
 
-// --- Mock global fetch ---
-const mockFetch = vi.fn()
-vi.stubGlobal('fetch', mockFetch)
+// Phase 15g — adventure-loader now routes through the data-provider IPC loader (library façade)
+// instead of a raw fetch, so we mock `loadJson` rather than global fetch.
+const { mockLoadJson } = vi.hoisted(() => ({ mockLoadJson: vi.fn() }))
+vi.mock('./data-provider', () => ({
+  loadJson: mockLoadJson
+}))
 
 describe('adventure-loader', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    // Reset the cached adventures by re-importing the module fresh
-    // Since the module caches internally, we need to reset between tests
+    // The module caches internally; reset between tests so each gets a fresh import.
     vi.resetModules()
   })
 
@@ -17,17 +19,13 @@ describe('adventure-loader', () => {
     vi.restoreAllMocks()
   })
 
-  it('fetches adventures from the correct URL', async () => {
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: async () => []
-    })
+  it('loads adventures from the correct path via the data-provider façade', async () => {
+    mockLoadJson.mockResolvedValue([])
 
-    // We need a fresh import to avoid cache
     const { loadAdventures: load } = await import('./adventure-loader')
     await load()
 
-    expect(mockFetch).toHaveBeenCalledWith('./data/5e/adventures/adventures.json')
+    expect(mockLoadJson).toHaveBeenCalledWith('./data/5e/adventures/adventures.json')
   })
 
   it('returns an array of adventures on success', async () => {
@@ -35,10 +33,7 @@ describe('adventure-loader', () => {
       { id: 'a1', name: 'Lost Mine', system: 'dnd5e', description: 'Test', icon: '', chapters: [] },
       { id: 'a2', name: 'Curse of Strahd', system: 'dnd5e', description: 'Test', icon: '', chapters: [] }
     ]
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: async () => adventures
-    })
+    mockLoadJson.mockResolvedValue(adventures)
 
     const { loadAdventures: load } = await import('./adventure-loader')
     const result = await load()
@@ -48,20 +43,8 @@ describe('adventure-loader', () => {
     expect(result[1].name).toBe('Curse of Strahd')
   })
 
-  it('returns an empty array when fetch returns non-ok response', async () => {
-    mockFetch.mockResolvedValue({
-      ok: false,
-      status: 404
-    })
-
-    const { loadAdventures: load } = await import('./adventure-loader')
-    const result = await load()
-
-    expect(result).toEqual([])
-  })
-
-  it('returns an empty array when fetch throws a network error', async () => {
-    mockFetch.mockRejectedValue(new Error('Network error'))
+  it('returns an empty array when the loader throws a network/IPC error', async () => {
+    mockLoadJson.mockRejectedValue(new Error('Network error'))
 
     const { loadAdventures: load } = await import('./adventure-loader')
     const result = await load()
@@ -71,23 +54,19 @@ describe('adventure-loader', () => {
 
   it('caches the result on subsequent calls', async () => {
     const adventures = [{ id: 'a1', name: 'Test', system: 'dnd5e', description: '', icon: '', chapters: [] }]
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: async () => adventures
-    })
+    mockLoadJson.mockResolvedValue(adventures)
 
     const { loadAdventures: load } = await import('./adventure-loader')
     const result1 = await load()
     const result2 = await load()
 
-    // Fetch should only be called once due to caching
-    expect(mockFetch).toHaveBeenCalledTimes(1)
+    // Loader should only be called once due to caching
+    expect(mockLoadJson).toHaveBeenCalledTimes(1)
     expect(result1).toBe(result2) // Same reference
   })
 
-  it('top-level loadAdventures import returns empty array on fetch error', async () => {
-    mockFetch.mockRejectedValue(new Error('Offline'))
-    // Use the statically-imported reference to verify the export exists and is callable
+  it('top-level loadAdventures import returns an array', async () => {
+    mockLoadJson.mockRejectedValue(new Error('Offline'))
     expect(typeof loadAdventures).toBe('function')
     const result = await loadAdventures()
     expect(Array.isArray(result)).toBe(true)
@@ -119,10 +98,7 @@ describe('adventure-loader', () => {
         }
       ]
     }
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: async () => [adventure]
-    })
+    mockLoadJson.mockResolvedValue([adventure])
 
     const { loadAdventures: load } = await import('./adventure-loader')
     const result = await load()

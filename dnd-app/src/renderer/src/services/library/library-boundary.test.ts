@@ -19,9 +19,9 @@ const ALLOWED_PREFIXES = [
   // The library service layer owns ingest; these paths are inside the trust boundary.
   'src/renderer/src/services/library/',
   'src/renderer/src/stores/use-library-store.ts',
-  'src/renderer/src/services/library-service.ts',
-  // adventure-loader still fetches a flat manifest; 15g shrinks the allowlist after migration.
-  'src/renderer/src/services/adventure-loader.ts'
+  // library-service.ts is the official ingest loader (reads public/data, validates, writes the
+  // truth store); data-provider.ts is the imperative façade every other loader routes through.
+  'src/renderer/src/services/library-service.ts'
 ]
 
 const FORBIDDEN_PATTERNS: Array<{ regex: RegExp; description: string }> = [

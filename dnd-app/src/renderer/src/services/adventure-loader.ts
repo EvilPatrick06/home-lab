@@ -1,5 +1,6 @@
 import type { Encounter } from '../types/encounter'
 import type { GameSystem } from '../types/game-system'
+import { loadJson } from './data-provider'
 
 export interface AdventureChapter {
   title: string
@@ -56,9 +57,9 @@ export async function loadAdventures(): Promise<Adventure[]> {
   if (cachedAdventures) return cachedAdventures
 
   try {
-    const res = await fetch('./data/5e/adventures/adventures.json')
-    if (!res.ok) return []
-    const data: Adventure[] = await res.json()
+    // Phase 15g — route through the data-provider IPC loader (library façade) instead of a
+    // raw fetch, so the boundary guard no longer needs to allowlist this file.
+    const data = await loadJson<Adventure[]>('./data/5e/adventures/adventures.json')
     cachedAdventures = data
     return data
   } catch {

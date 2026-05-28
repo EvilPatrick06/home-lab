@@ -198,7 +198,7 @@ const summonCommand: ChatCommand = {
 }
 
 const lightCommand: ChatCommand = {
-  // boundary-allow: Phase 15g sweep target — chat command still constructs shape inline
+  // boundary-allow: ChatCommand definition (name/description are command metadata), not library data
   name: 'light',
   aliases: [],
   description: 'Set ambient lighting level',

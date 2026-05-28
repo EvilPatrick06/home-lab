@@ -151,7 +151,7 @@ const levelCommand: ChatCommand = {
       return
     }
 
-    // boundary-allow: Phase 15g sweep target — chat command still constructs shape inline
+    // boundary-allow: character record mutation (level-up), not a library entry
     const updated = { ...char5e, level: currentLevel + 1 }
     saveAndBroadcastCharacter(updated)
 

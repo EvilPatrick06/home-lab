@@ -8,7 +8,7 @@ import { load5eDowntime, loadJson } from './data-provider'
 
 export interface DowntimeActivity {
   id: string
-  // boundary-allow: Phase 15g sweep target — downtime flips to library reads during cleanup
+  // boundary-allow: type definition for library shape (canonical declaration site, not data embedding)
   name: string
   description: string
   daysRequired: number
