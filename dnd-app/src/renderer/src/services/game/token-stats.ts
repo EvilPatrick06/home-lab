@@ -30,9 +30,19 @@ export interface EffectiveTokenStats {
   immunities?: string[]
   darkvision?: boolean
   darkvisionRange?: number
+  specialSenses?: Array<{ type: 'blindsight' | 'tremorsense' | 'truesight'; range: number }>
   cr?: string
   /** True when a live library stat block backed this resolution (vs. pure inline fallback). */
   libraryBacked: boolean
+}
+
+/** Build the token-shaped specialSenses array from a monster's senses block (excludes darkvision). */
+function monsterSpecialSenses(monster: MonsterStatBlock): EffectiveTokenStats['specialSenses'] {
+  const out: NonNullable<EffectiveTokenStats['specialSenses']> = []
+  if (monster.senses.blindsight) out.push({ type: 'blindsight', range: monster.senses.blindsight })
+  if (monster.senses.tremorsense) out.push({ type: 'tremorsense', range: monster.senses.tremorsense })
+  if (monster.senses.truesight) out.push({ type: 'truesight', range: monster.senses.truesight })
+  return out.length > 0 ? out : undefined
 }
 
 /**
@@ -53,6 +63,7 @@ export function resolveTokenStats(token: MapToken, monster?: MonsterStatBlock): 
     immunities: token.immunities ?? monster?.damageImmunities,
     darkvision: token.darkvision ?? (monster?.senses.darkvision != null ? true : undefined),
     darkvisionRange: token.darkvisionRange ?? monster?.senses.darkvision,
+    specialSenses: token.specialSenses ?? (monster ? monsterSpecialSenses(monster) : undefined),
     cr: monster?.cr,
     libraryBacked
   }
@@ -72,6 +83,17 @@ export function lookupTokenStatBlock(id: string | undefined): MonsterStatBlock |
     if (entry) return entry as unknown as MonsterStatBlock
   }
   return undefined
+}
+
+/**
+ * Imperative accessor: effective, live-resolved base stats for a token. For use outside React
+ * (canvas draw loops, services, network sync, chat commands). Resolves the source stat block
+ * from the library truth store at call time, applying inline token fields as per-instance
+ * overrides. React components that need re-render-on-library-edit should prefer
+ * `useEffectiveTokenStats`.
+ */
+export function getTokenStats(token: MapToken): EffectiveTokenStats {
+  return resolveTokenStats(token, lookupTokenStatBlock(token.monsterStatBlockId))
 }
 
 /**

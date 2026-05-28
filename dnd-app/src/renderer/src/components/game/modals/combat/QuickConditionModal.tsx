@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { CONDITIONS_5E } from '../../../../data/conditions'
+import { getTokenStats } from '../../../../services/game/token-stats'
 import { useGameStore } from '../../../../stores/use-game-store'
 import { useLobbyStore } from '../../../../stores/use-lobby-store'
 
@@ -69,7 +70,8 @@ export default function QuickConditionModal({
       const condLower = selectedCondition.toLowerCase()
       if (condLower === 'incapacitated' || condLower === 'prone') {
         const token = activeMap?.tokens.find((t) => t.entityId === entity.id)
-        if (token?.flySpeed && token.flySpeed > 0) {
+        const flySpeed = token ? getTokenStats(token).flySpeed : undefined
+        if (flySpeed && flySpeed > 0) {
           useLobbyStore.getState().addChatMessage({
             id: crypto.randomUUID(),
             senderId: 'system',

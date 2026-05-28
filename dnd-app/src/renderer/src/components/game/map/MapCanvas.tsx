@@ -28,6 +28,7 @@ type _Point = Point
 type _Segment = Segment
 type _VisibilityPolygon = VisibilityPolygon
 
+import { getTokenStats } from '../../../services/game/token-stats'
 import { getDragPayload, hasLibraryDrag } from '../../../services/library/drag-data'
 import { getPlayerFloor, getTokenFloor } from '../../../services/map/floor-filtering'
 import { monsterToTokenData } from '../../../services/map/monster-to-token'
@@ -461,7 +462,7 @@ export default function MapCanvas({
       // Split key: position and appearance are tracked separately for animation
       const posKey = `${token.gridX},${token.gridY}`
       const isOwnToken = !isHost && myCharacterId != null && token.entityId === myCharacterId
-      const appearanceKey = `${isSelected},${isActive},${token.label},${token.color ?? ''},${token.currentHP ?? ''},${token.maxHP ?? ''},${showHpBar},${token.sizeX ?? 1},${token.sizeY ?? 1},${(token.conditions ?? []).join(',')},${lighting},${token.nameVisible ?? ''},${isHost},${isOnCurrentFloor},${JSON.stringify(token.aura ?? null)},${isOwnToken}`
+      const appearanceKey = `${isSelected},${isActive},${token.label},${token.color ?? ''},${token.currentHP ?? ''},${getTokenStats(token).maxHP ?? ''},${showHpBar},${token.sizeX ?? 1},${token.sizeY ?? 1},${(token.conditions ?? []).join(',')},${lighting},${token.nameVisible ?? ''},${isHost},${isOnCurrentFloor},${JSON.stringify(token.aura ?? null)},${isOwnToken}`
       const key = `${posKey},${appearanceKey}`
       const cached = cache.get(token.id)
       if (cached && cached.key === key) continue

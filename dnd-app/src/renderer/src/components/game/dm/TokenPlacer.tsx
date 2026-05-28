@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { load5eMonsters, searchMonsters } from '../../../services/data-provider'
+import { getTokenStats } from '../../../services/game/token-stats'
 import { monsterToTokenData } from '../../../services/map/monster-to-token'
 import type { MapToken } from '../../../types/map'
 import type { MonsterStatBlock } from '../../../types/monster'
@@ -412,57 +413,60 @@ export default function TokenPlacer({
         <div className="mt-3 border-t border-gray-800 pt-3">
           <h4 className="text-xs text-gray-500 uppercase tracking-wider mb-2">Existing Tokens ({tokens.length})</h4>
           <div className="space-y-1 max-h-48 overflow-y-auto">
-            {tokens.map((token) => (
-              <div key={token.id} className="flex items-center justify-between p-2 rounded-lg bg-gray-800/50 text-sm">
-                <div className="flex items-center gap-2 min-w-0">
-                  <span
-                    className={`w-3 h-3 rounded-full flex-shrink-0 ${
-                      token.entityType === 'player'
-                        ? 'bg-blue-500'
-                        : token.entityType === 'enemy'
-                          ? 'bg-red-500'
-                          : 'bg-yellow-500'
-                    }`}
-                  />
-                  <span className="text-gray-200 truncate">{token.label}</span>
-                  {token.maxHP !== undefined && token.currentHP !== undefined && (
-                    <span className="text-xs text-gray-500">
-                      {token.currentHP}/{token.maxHP}
-                    </span>
-                  )}
-                  {token.specialSenses && token.specialSenses.length > 0 && (
+            {tokens.map((token) => {
+              const stats = getTokenStats(token)
+              return (
+                <div key={token.id} className="flex items-center justify-between p-2 rounded-lg bg-gray-800/50 text-sm">
+                  <div className="flex items-center gap-2 min-w-0">
                     <span
-                      className="text-[10px] text-amber-400"
-                      title={token.specialSenses.map((s) => `${s.type} ${s.range}ft`).join(', ')}
-                    >
-                      {token.specialSenses.map((s) => s.type.charAt(0).toUpperCase()).join('')}
-                    </span>
-                  )}
-                  {token.flySpeed && token.flySpeed > 0 && (
-                    <span className="text-[10px] text-blue-400" title={`Fly ${token.flySpeed}ft`}>
-                      F
-                    </span>
-                  )}
-                  {token.swimSpeed && token.swimSpeed > 0 && (
-                    <span className="text-[10px] text-cyan-400" title={`Swim ${token.swimSpeed}ft`}>
-                      S
-                    </span>
-                  )}
-                  {token.climbSpeed && token.climbSpeed > 0 && (
-                    <span className="text-[10px] text-green-400" title={`Climb ${token.climbSpeed}ft`}>
-                      C
-                    </span>
-                  )}
+                      className={`w-3 h-3 rounded-full flex-shrink-0 ${
+                        token.entityType === 'player'
+                          ? 'bg-blue-500'
+                          : token.entityType === 'enemy'
+                            ? 'bg-red-500'
+                            : 'bg-yellow-500'
+                      }`}
+                    />
+                    <span className="text-gray-200 truncate">{token.label}</span>
+                    {stats.maxHP !== undefined && token.currentHP !== undefined && (
+                      <span className="text-xs text-gray-500">
+                        {token.currentHP}/{stats.maxHP}
+                      </span>
+                    )}
+                    {stats.specialSenses && stats.specialSenses.length > 0 && (
+                      <span
+                        className="text-[10px] text-amber-400"
+                        title={stats.specialSenses.map((s) => `${s.type} ${s.range}ft`).join(', ')}
+                      >
+                        {stats.specialSenses.map((s) => s.type.charAt(0).toUpperCase()).join('')}
+                      </span>
+                    )}
+                    {stats.flySpeed && stats.flySpeed > 0 && (
+                      <span className="text-[10px] text-blue-400" title={`Fly ${stats.flySpeed}ft`}>
+                        F
+                      </span>
+                    )}
+                    {stats.swimSpeed && stats.swimSpeed > 0 && (
+                      <span className="text-[10px] text-cyan-400" title={`Swim ${stats.swimSpeed}ft`}>
+                        S
+                      </span>
+                    )}
+                    {stats.climbSpeed && stats.climbSpeed > 0 && (
+                      <span className="text-[10px] text-green-400" title={`Climb ${stats.climbSpeed}ft`}>
+                        C
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => onRemoveToken(token.id)}
+                    className="text-gray-500 hover:text-red-400 text-xs cursor-pointer ml-2 flex-shrink-0"
+                    title="Remove token"
+                  >
+                    &#x2715;
+                  </button>
                 </div>
-                <button
-                  onClick={() => onRemoveToken(token.id)}
-                  className="text-gray-500 hover:text-red-400 text-xs cursor-pointer ml-2 flex-shrink-0"
-                  title="Remove token"
-                >
-                  &#x2715;
-                </button>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       )}

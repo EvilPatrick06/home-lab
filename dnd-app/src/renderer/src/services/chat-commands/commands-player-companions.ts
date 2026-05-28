@@ -1,3 +1,4 @@
+import { getTokenStats } from '../../services/game/token-stats'
 import { useGameStore } from '../../stores/use-game-store'
 import type { MapToken } from '../../types/map'
 import {
@@ -131,7 +132,7 @@ export const commands: ChatCommand[] = [
       for (const token of companionTokens) {
         const name = token.label ?? token.id
         const hp = token.currentHP ?? '?'
-        const maxHp = token.maxHP ?? '?'
+        const maxHp = getTokenStats(token).maxHP ?? '?'
         const type = token.companionType ?? 'companion'
         const pos = `(${token.gridX}, ${token.gridY})`
         lines.push(`- **${name}** [${type}] — HP: ${hp}/${maxHp} — Position: ${pos}`)

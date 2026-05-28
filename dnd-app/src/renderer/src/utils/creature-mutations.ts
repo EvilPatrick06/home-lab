@@ -1,3 +1,4 @@
+import { getTokenStats } from '../services/game/token-stats'
 import type { GameMap, MapToken } from '../types/map'
 
 interface CreatureStatChange {
@@ -46,7 +47,7 @@ export function applyCreatureMutations(
       }
       case 'creature_heal': {
         const hp = token.currentHP ?? 0
-        const max = token.maxHP ?? hp
+        const max = getTokenStats(token).maxHP ?? hp
         const newHP = Math.min(max, hp + (change.value ?? 0))
         updateToken(activeMap.id, token.id, { currentHP: newHP })
         results.push({ change, applied: true })

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { trigger3dDice } from '../../../../components/game/dice3d'
 import { rollSingle } from '../../../../services/dice/dice-service'
+import { getTokenStats } from '../../../../services/game/token-stats'
 import { useGameStore } from '../../../../stores/use-game-store'
 import type { Character } from '../../../../types/character'
 import type { Character5e } from '../../../../types/character-5e'
@@ -307,7 +308,7 @@ export default function HelpModal({
                     <span className="text-sm text-gray-200">{token.label}</span>
                     {token.currentHP != null && (
                       <span className="text-xs text-gray-500">
-                        HP: {token.currentHP}/{token.maxHP}
+                        HP: {token.currentHP}/{getTokenStats(token).maxHP}
                       </span>
                     )}
                   </div>

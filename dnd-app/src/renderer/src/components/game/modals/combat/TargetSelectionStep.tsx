@@ -1,4 +1,5 @@
 import type { CoverType } from '../../../../services/combat/combat-rules'
+import { getTokenStats } from '../../../../services/game/token-stats'
 import type { MapToken } from '../../../../types/map'
 import type { AttackWeapon, UnarmedMode } from './attack-utils'
 
@@ -87,7 +88,7 @@ export function TargetSelectionStep({
                   <span className="text-sm text-gray-200">{token.label}</span>
                   {token.currentHP != null && (
                     <span className="text-xs text-gray-500">
-                      HP: {token.currentHP}/{token.maxHP}
+                      HP: {token.currentHP}/{getTokenStats(token).maxHP}
                     </span>
                   )}
                 </div>

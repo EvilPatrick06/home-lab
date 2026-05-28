@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { trigger3dDice } from '../../../../components/game/dice3d'
 import { rollMultiple } from '../../../../services/dice/dice-service'
+import { getTokenStats } from '../../../../services/game/token-stats'
 import { useGameStore } from '../../../../stores/use-game-store'
 import type { MapToken } from '../../../../types/map'
 import NarrowModalShell from '../shared/NarrowModalShell'
@@ -124,7 +125,7 @@ export default function FallingDamageModal({
                 </span>
                 {token.currentHP != null && (
                   <span className="text-xs text-gray-500">
-                    HP: {token.currentHP}/{token.maxHP}
+                    HP: {token.currentHP}/{getTokenStats(token).maxHP}
                   </span>
                 )}
               </div>

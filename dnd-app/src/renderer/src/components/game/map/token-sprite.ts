@@ -1,4 +1,5 @@
 import { Assets, Container, Graphics, Sprite, Text, TextStyle, type Texture } from 'pixi.js'
+import { getTokenStats } from '../../../services/game/token-stats'
 import type { MapToken } from '../../../types/map'
 import { drawTokenStatusRing } from './combat-animations'
 
@@ -236,8 +237,10 @@ export function createTokenSprite(
   text.y = cy
   container.addChild(text)
 
-  // HP bar below the token (gated by showHpBar)
-  if (showHpBar && token.maxHP !== undefined && token.maxHP > 0 && token.currentHP !== undefined) {
+  // HP bar below the token (gated by showHpBar). Max HP resolves live from the library for
+  // monster-backed tokens (Phase 15e) — inline value otherwise.
+  const effMaxHP = getTokenStats(token).maxHP
+  if (showHpBar && effMaxHP !== undefined && effMaxHP > 0 && token.currentHP !== undefined) {
     const barWidth = tokenSize - 8
     const barHeight = 4
     const barX = 4
@@ -248,7 +251,7 @@ export function createTokenSprite(
     bgBar.fill({ color: 0x374151, alpha: 0.8 })
     container.addChild(bgBar)
 
-    const hpPercent = Math.max(0, Math.min(1, token.currentHP / token.maxHP))
+    const hpPercent = Math.max(0, Math.min(1, token.currentHP / effMaxHP))
     if (hpPercent > 0) {
       const hpBar = new Graphics()
       const hpColor = hpPercent > 0.5 ? 0x22c55e : hpPercent > 0.25 ? 0xeab308 : 0xef4444
@@ -259,8 +262,8 @@ export function createTokenSprite(
   }
 
   // Status ring based on HP percentage
-  if (token.currentHP !== undefined && token.maxHP !== undefined && token.maxHP > 0) {
-    const hpPercent = Math.max(0, Math.min(1, token.currentHP / token.maxHP))
+  if (token.currentHP !== undefined && effMaxHP !== undefined && effMaxHP > 0) {
+    const hpPercent = Math.max(0, Math.min(1, token.currentHP / effMaxHP))
     const statusRing = new Graphics()
     drawTokenStatusRing(statusRing, cx, cy, tokenSize - 4, hpPercent)
     container.addChild(statusRing)

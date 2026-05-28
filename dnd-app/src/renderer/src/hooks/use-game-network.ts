@@ -16,6 +16,7 @@ import type {
   WhisperPlayerPayload
 } from '../network'
 import { onClientMessage, onHostMessage } from '../network'
+import { getTokenStats } from '../services/game/token-stats'
 import type { AmbientSound, SoundEvent } from '../services/sound-manager'
 import { playAmbient, play as playSound, setAmbientVolume, stopAmbient } from '../services/sound-manager'
 import { useAiDmStore } from '../stores/use-ai-dm-store'
@@ -167,14 +168,17 @@ export function useGameNetwork({
               currentMap?.tokens
                 .filter((t) => t.entityType === 'enemy' || t.entityType === 'npc')
                 .filter((t) => t.currentHP != null)
-                .map((t) => ({
-                  label: t.label,
-                  currentHP: t.currentHP!,
-                  maxHP: t.maxHP!,
-                  ac: t.ac ?? 10,
-                  conditions: t.conditions,
-                  monsterStatBlockId: t.monsterStatBlockId
-                })) ?? []
+                .map((t) => {
+                  const s = getTokenStats(t)
+                  return {
+                    label: t.label,
+                    currentHP: t.currentHP!,
+                    maxHP: s.maxHP ?? t.currentHP!,
+                    ac: s.ac ?? 10,
+                    conditions: t.conditions,
+                    monsterStatBlockId: t.monsterStatBlockId
+                  }
+                }) ?? []
             aiDmStore.sendMessage(
               campaignId,
               payload.message,

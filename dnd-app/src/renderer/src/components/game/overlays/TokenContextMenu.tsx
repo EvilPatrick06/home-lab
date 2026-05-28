@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { getTokenSizeCategory, isAdjacent } from '../../../services/combat/combat-rules'
+import { useEffectiveTokenStats } from '../../../services/game/token-stats'
 import {
   getPluginContextMenuItems,
   type PluginBottomBarWidget,
@@ -45,6 +46,8 @@ export default function TokenContextMenu({
   onApplyCondition
 }: TokenContextMenuProps): JSX.Element | null {
   const selectedIds = selectedTokenIds ?? []
+  // Phase 15e — base stats (AC, max HP, speed) resolve live from the library for monster-backed tokens.
+  const stats = useEffectiveTokenStats(token)
   const menuRef = useRef<HTMLDivElement>(null)
   const updateToken = useGameStore((s) => s.updateToken)
   const removeToken = useGameStore((s) => s.removeToken)
@@ -189,9 +192,9 @@ export default function TokenContextMenu({
   const createSidebarEntryFromToken = (category: 'allies' | 'enemies'): void => {
     const descParts: string[] = []
     if (token.entityType) descParts.push(`Type: ${token.entityType}`)
-    if (token.ac) descParts.push(`AC ${token.ac}`)
-    if (token.maxHP) descParts.push(`HP ${token.currentHP ?? token.maxHP}/${token.maxHP}`)
-    if (token.walkSpeed) descParts.push(`Speed ${token.walkSpeed} ft`)
+    if (stats.ac) descParts.push(`AC ${stats.ac}`)
+    if (stats.maxHP) descParts.push(`HP ${token.currentHP ?? stats.maxHP}/${stats.maxHP}`)
+    if (stats.walkSpeed) descParts.push(`Speed ${stats.walkSpeed} ft`)
 
     const entry: SidebarEntry = {
       id: crypto.randomUUID(),
@@ -201,10 +204,10 @@ export default function TokenContextMenu({
       isAutoPopulated: false,
       sourceId: token.id,
       statBlock:
-        token.ac || token.maxHP
+        stats.ac || stats.maxHP
           ? {
-              ...(token.ac ? { ac: token.ac } : {}),
-              ...(token.maxHP ? { hpMax: token.maxHP, hpCurrent: token.currentHP ?? token.maxHP } : {})
+              ...(stats.ac ? { ac: stats.ac } : {}),
+              ...(stats.maxHP ? { hpMax: stats.maxHP, hpCurrent: token.currentHP ?? stats.maxHP } : {})
             }
           : undefined
     }
@@ -227,8 +230,8 @@ export default function TokenContextMenu({
           <div className="text-xs font-semibold text-gray-200">{token.label}</div>
           {isOwnToken && token.currentHP != null && (
             <div className="text-[10px] text-gray-400 mt-0.5">
-              HP: {token.currentHP}/{token.maxHP ?? '?'}
-              {token.ac != null && <span className="ml-2">AC: {token.ac}</span>}
+              HP: {token.currentHP}/{stats.maxHP ?? '?'}
+              {stats.ac != null && <span className="ml-2">AC: {stats.ac}</span>}
             </div>
           )}
         </div>
@@ -292,7 +295,7 @@ export default function TokenContextMenu({
             className="w-16 bg-gray-800 border border-gray-600 rounded px-1.5 py-0.5 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
             autoFocus
           />
-          <span className="text-[10px] text-gray-500">/ {token.maxHP ?? '?'}</span>
+          <span className="text-[10px] text-gray-500">/ {stats.maxHP ?? '?'}</span>
           <button
             onClick={handleSetHP}
             className="px-2 py-0.5 text-[10px] bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer"
@@ -305,7 +308,7 @@ export default function TokenContextMenu({
           onClick={() => setShowSetHP(true)}
           className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-gray-800 transition-colors cursor-pointer"
         >
-          Set HP{token.currentHP != null ? ` (${token.currentHP}/${token.maxHP ?? '?'})` : ''}
+          Set HP{token.currentHP != null ? ` (${token.currentHP}/${stats.maxHP ?? '?'})` : ''}
         </button>
       )}
       <button

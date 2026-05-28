@@ -5,6 +5,7 @@
 import type { MapToken } from '../../types/map'
 import type { MonsterStatBlock } from '../../types/monster'
 import { getSizeTokenDimensions } from '../../types/monster'
+import { getTokenStats } from '../game/token-stats'
 import { pluginEventBus } from '../plugin-system/event-bus'
 import { broadcastTokenSync } from './broadcast-helpers'
 import { resolveTokenByLabel } from './name-resolver'
@@ -119,7 +120,10 @@ export function executeUpdateToken(
   const updates: Partial<MapToken> = {}
   if (action.hp !== undefined) {
     updates.currentHP = action.hp as number
-    if (token.maxHP === undefined || (action.hp as number) > token.maxHP) {
+    // Bump max only when the new HP exceeds the EFFECTIVE max (live library value for
+    // monster-backed tokens, inline value otherwise) — avoids clobbering live resolution.
+    const effMax = getTokenStats(token).maxHP
+    if (effMax === undefined || (action.hp as number) > effMax) {
       updates.maxHP = action.hp as number
     }
   }
@@ -179,6 +183,10 @@ export function executePlaceCreature(
   }
 
   const dims = getSizeTokenDimensions(creature.size)
+  // Phase 15e — monster-backed token holds the REF (monsterStatBlockId) + instance state only.
+  // Library-derived base stats (maxHP/AC/speeds/senses/resist/imm/vuln/CR) resolve live via
+  // services/game/token-stats so a library rebalance propagates. currentHP starts at the
+  // library max; the inline stat fields are intentionally omitted (no parallel-data drift).
   const token: MapToken = {
     id: crypto.randomUUID(),
     entityId: crypto.randomUUID(),
@@ -191,25 +199,14 @@ export function executePlaceCreature(
     visibleToPlayers: action.visibleToPlayers !== false,
     conditions: [],
     currentHP: creature.hp,
-    maxHP: creature.hp,
-    ac: creature.ac,
-    monsterStatBlockId: creature.id,
-    walkSpeed: creature.speed.walk ?? 0,
-    swimSpeed: creature.speed.swim,
-    climbSpeed: creature.speed.climb,
-    flySpeed: creature.speed.fly,
-    initiativeModifier: creature.abilityScores ? Math.floor((creature.abilityScores.dex - 10) / 2) : 0,
-    resistances: creature.resistances,
-    vulnerabilities: creature.vulnerabilities,
-    immunities: creature.damageImmunities,
-    darkvision: !!(creature.senses.darkvision && creature.senses.darkvision > 0),
-    darkvisionRange: creature.senses.darkvision || undefined
+    monsterStatBlockId: creature.id
   }
   gameStore.addToken(activeMap.id, token)
 
-  // Initialize turn state if in initiative
-  if (gameStore.initiative && token.walkSpeed) {
-    gameStore.initTurnState(token.entityId, token.walkSpeed)
+  // Initialize turn state if in initiative (walk speed resolves live from the source block)
+  const walkSpeed = creature.speed.walk ?? 0
+  if (gameStore.initiative && walkSpeed) {
+    gameStore.initTurnState(token.entityId, walkSpeed)
   }
   broadcastTokenSync(activeMap.id, stores)
   return true

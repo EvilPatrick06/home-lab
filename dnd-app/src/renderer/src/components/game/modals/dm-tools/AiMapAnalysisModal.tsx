@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { getTokenStats } from '../../../../services/game/token-stats'
 import { useGameStore } from '../../../../stores/use-game-store'
 
 interface AiMapAnalysisModalProps {
@@ -28,17 +29,20 @@ export default function AiMapAnalysisModal({ onClose }: AiMapAnalysisModalProps)
           name: m.name,
           gridWidth: m.grid?.cellSize ? Math.floor(m.width / m.grid.cellSize) : m.width,
           gridHeight: m.grid?.cellSize ? Math.floor(m.height / m.grid.cellSize) : m.height,
-          tokens: m.tokens.map((t) => ({
-            entityId: t.entityId,
-            label: t.label,
-            entityType: t.entityType,
-            gridX: t.gridX,
-            gridY: t.gridY,
-            currentHP: t.currentHP,
-            maxHP: t.maxHP,
-            ac: t.ac,
-            conditions: t.conditions ?? []
-          }))
+          tokens: m.tokens.map((t) => {
+            const s = getTokenStats(t)
+            return {
+              entityId: t.entityId,
+              label: t.label,
+              entityType: t.entityType,
+              gridX: t.gridX,
+              gridY: t.gridY,
+              currentHP: t.currentHP,
+              maxHP: s.maxHP,
+              ac: s.ac,
+              conditions: t.conditions ?? []
+            }
+          })
         })),
         activeMapId,
         initiative: initiative
@@ -141,33 +145,36 @@ export default function AiMapAnalysisModal({ onClose }: AiMapAnalysisModalProps)
             <div>
               <h3 className="text-xs font-medium text-gray-400 mb-1.5">Current Tokens</h3>
               <div className="space-y-1">
-                {activeMap.tokens.map((token) => (
-                  <div
-                    key={token.id}
-                    className="flex items-center justify-between text-[11px] px-2 py-1 bg-gray-800/40 rounded"
-                  >
-                    <span className="text-gray-300">
-                      {token.label}
-                      <span className="text-gray-500 ml-1">({token.entityType})</span>
-                    </span>
-                    <span className="text-gray-500">
-                      ({token.gridX}, {token.gridY})
-                      {token.currentHP !== undefined && token.maxHP !== undefined && (
-                        <span
-                          className={`ml-2 ${
-                            token.currentHP <= 0
-                              ? 'text-red-400'
-                              : token.currentHP < token.maxHP / 2
-                                ? 'text-amber-400'
-                                : 'text-green-400'
-                          }`}
-                        >
-                          {token.currentHP}/{token.maxHP}
-                        </span>
-                      )}
-                    </span>
-                  </div>
-                ))}
+                {activeMap.tokens.map((token) => {
+                  const maxHP = getTokenStats(token).maxHP
+                  return (
+                    <div
+                      key={token.id}
+                      className="flex items-center justify-between text-[11px] px-2 py-1 bg-gray-800/40 rounded"
+                    >
+                      <span className="text-gray-300">
+                        {token.label}
+                        <span className="text-gray-500 ml-1">({token.entityType})</span>
+                      </span>
+                      <span className="text-gray-500">
+                        ({token.gridX}, {token.gridY})
+                        {token.currentHP !== undefined && maxHP !== undefined && (
+                          <span
+                            className={`ml-2 ${
+                              token.currentHP <= 0
+                                ? 'text-red-400'
+                                : token.currentHP < maxHP / 2
+                                  ? 'text-amber-400'
+                                  : 'text-green-400'
+                            }`}
+                          >
+                            {token.currentHP}/{maxHP}
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                  )
+                })}
               </div>
             </div>
           )}

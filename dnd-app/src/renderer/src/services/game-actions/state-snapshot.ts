@@ -2,6 +2,7 @@
  * Build a compact text snapshot of the current game state for AI context.
  */
 
+import { getTokenStats } from '../game/token-stats'
 import type { StoreAccessors } from './types'
 
 export function buildGameStateSnapshot(stores: StoreAccessors): string {
@@ -20,13 +21,14 @@ export function buildGameStateSnapshot(stores: StoreAccessors): string {
     if (activeMap.tokens.length > 0) {
       lines.push('Tokens:')
       for (const t of activeMap.tokens) {
+        const s = getTokenStats(t)
         let desc = `- ${t.label} (${t.entityType}) at (${t.gridX}, ${t.gridY}) ${t.sizeX}x${t.sizeY}`
-        if (t.currentHP != null && t.maxHP != null) {
-          const bloodied = t.currentHP <= Math.floor(t.maxHP / 2) && t.currentHP > 0
-          desc += ` HP:${t.currentHP}/${t.maxHP}${bloodied ? ' [BLOODIED]' : ''}`
+        if (t.currentHP != null && s.maxHP != null) {
+          const bloodied = t.currentHP <= Math.floor(s.maxHP / 2) && t.currentHP > 0
+          desc += ` HP:${t.currentHP}/${s.maxHP}${bloodied ? ' [BLOODIED]' : ''}`
         }
-        if (t.ac != null) desc += ` AC:${t.ac}`
-        if (t.walkSpeed) desc += ` Speed:${t.walkSpeed}`
+        if (s.ac != null) desc += ` AC:${s.ac}`
+        if (s.walkSpeed) desc += ` Speed:${s.walkSpeed}`
         if (t.conditions.length > 0) desc += ` [${t.conditions.join(', ')}]`
         if (t.companionType) desc += ` {${t.companionType}}`
         if (t.monsterStatBlockId) desc += ` creature:${t.monsterStatBlockId}`

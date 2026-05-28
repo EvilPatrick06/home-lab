@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { getTokenStats } from '../services/game/token-stats'
 import { useNetworkStore } from '../stores/network-store'
 import { useGameStore } from '../stores/use-game-store'
 import { logger } from '../utils/logger'
@@ -43,7 +44,7 @@ export function useAiMemorySync(campaignId: string | null | undefined): void {
               name: t.label,
               gridX: t.gridX,
               gridY: t.gridY,
-              hp: t.currentHP != null ? `${t.currentHP}/${t.maxHP ?? '?'}` : undefined
+              hp: t.currentHP != null ? `${t.currentHP}/${getTokenStats(t).maxHP ?? '?'}` : undefined
             }))
           }
           await window.api.ai.syncWorldState(campaignId, payload)
@@ -73,7 +74,7 @@ export function useAiMemorySync(campaignId: string | null | undefined): void {
                   return {
                     name: e.entityName,
                     initiative: e.total,
-                    hp: { current: token?.currentHP ?? 0, max: token?.maxHP ?? 0 },
+                    hp: { current: token?.currentHP ?? 0, max: (token ? getTokenStats(token).maxHP : 0) ?? 0 },
                     conditions: entityConditions,
                     isPlayer: e.entityType === 'player'
                   }

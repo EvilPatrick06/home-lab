@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { getTokenStats } from '../../../services/game/token-stats'
 import type { PlaceType, SidebarCategory, SidebarEntry, SidebarEntryStatBlock } from '../../../types/game-state'
 import type { GameMap, MapToken } from '../../../types/map'
 import type { MonsterStatBlock } from '../../../types/monster'
@@ -58,11 +59,12 @@ export default function AddEntryForm({
   const availableBoardTokens = boardTokens.filter((t) => !existingEntityIds.has(t.id))
 
   const handleQuickAddFromToken = (token: MapToken): void => {
+    const stats = getTokenStats(token)
     const desc = [
       token.entityType ? `Type: ${token.entityType}` : '',
-      token.ac ? `AC ${token.ac}` : '',
-      token.maxHP ? `HP ${token.currentHP ?? token.maxHP}/${token.maxHP}` : '',
-      token.walkSpeed ? `Speed ${token.walkSpeed} ft` : ''
+      stats.ac ? `AC ${stats.ac}` : '',
+      stats.maxHP ? `HP ${token.currentHP ?? stats.maxHP}/${stats.maxHP}` : '',
+      stats.walkSpeed ? `Speed ${stats.walkSpeed} ft` : ''
     ]
       .filter(Boolean)
       .join(' | ')
@@ -122,7 +124,9 @@ export default function AddEntryForm({
                     {token.label.charAt(0).toUpperCase()}
                   </span>
                   <span className="text-xs text-gray-300 truncate">{token.label}</span>
-                  {token.ac && <span className="text-[9px] text-gray-500 shrink-0 ml-auto">AC {token.ac}</span>}
+                  {getTokenStats(token).ac && (
+                    <span className="text-[9px] text-gray-500 shrink-0 ml-auto">AC {getTokenStats(token).ac}</span>
+                  )}
                 </button>
               ))}
             </div>
