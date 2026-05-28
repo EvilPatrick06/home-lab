@@ -81,6 +81,7 @@ Body optional for trivial changes. For multi-file refactors, describe:
 3. TS strict — no `any` without `// biome-ignore lint/suspicious/noExplicitAny` + reason
 4. Add colocated `.test.ts(x)` — vitest
 5. Register IPC channels in `src/shared/ipc-channels.ts` + schema in `ipc-schemas.ts`
+6. **All D&D content data lives in the library (single source of truth).** Consumers reference entries by `EntryRef` and hydrate via `services/library/use-library-entry.ts` hooks (`useLibraryEntry` / `useLibraryEntries` / `useHydratedRef`) — never inline-duplicate library data. See `src/renderer/src/services/library/README.md`. The boundary test (`services/library/library-boundary.test.ts`) fails CI on raw `public/data` imports / `/data/5e` fetches outside the allowlist; opt out only with an inline `// boundary-allow: <reason>`.
 
 ### Logging discoveries
 

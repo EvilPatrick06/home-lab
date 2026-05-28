@@ -58,6 +58,9 @@ New entries go at the TOP of their section (newest first).
 
 # Info / Observations
 
+### 2026-05-28 — Phase 15 invariant: library is the single source of truth (info)
+**Domain: dnd-app.** Phase 15 made `useLibraryStore` (`stores/use-library-store.ts`) the canonical store for all D&D content. Consumers hold `EntryRef`s and hydrate via `services/library/use-library-entry.ts` (`useLibraryEntry` / `useLibraryEntries` / `useHydratedRef`); the vitest architecture spec `services/library/library-boundary.test.ts` fails CI on raw `public/data` imports / `/data/5e` fetches outside the allowlist (`services/library/**`, `use-library-store.ts`, `library-service.ts`), with inline `// boundary-allow: <reason>` opt-outs. Domain specifics: `services/library/README.md` (general), `docs/phases/bastion-data-rule.md` (Bastion). Tokens resolve library-derived stats live via `services/game/token-stats.ts` (inline fields = per-instance overrides; non-library-backed player/custom/summon tokens fall back to inline). For grep workflows: a "where does this content live / why isn't my edit propagating" question almost always resolves to "hold an EntryRef + hydrate via a hook," not an inline copy.
+
 > **Absorbed into phase plans (2026-05-18).** Snapshot observations were either turned into enforcement gates or deleted as stale-risk:
 > - Audit coverage gaps → **Phase 28i.1** (per-area scoped audits, re-scoped after Phase 30/31).
 > - `discord-service.ts` bot token storage unverified → **Phase 35e** Step 19 verifies + folds into **Phase 20 S1**.
