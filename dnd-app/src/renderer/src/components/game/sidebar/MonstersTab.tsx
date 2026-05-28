@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { load5eMonsters } from '../../../services/data-provider'
 import type { MonsterStatBlock } from '../../../types/monster'
 
 export default function MonstersTab(): JSX.Element {
@@ -9,9 +10,10 @@ export default function MonstersTab(): JSX.Element {
 
   useEffect(() => {
     let cancelled = false
-    window.api.game.loadMonsters().then((data) => {
+    // Phase 15e / 22 H4 — go through the library truth store, not the direct IPC bypass.
+    load5eMonsters().then((data) => {
       if (!cancelled) {
-        setMonsters(data as MonsterStatBlock[])
+        setMonsters(data)
         setLoading(false)
       }
     })
