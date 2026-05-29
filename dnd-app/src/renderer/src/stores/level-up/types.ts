@@ -48,11 +48,21 @@ export interface LevelUpState {
   levelUpSlots: BuildSlot[]
   hpChoices: Record<number, HpChoice> // per level
   hpRolls: Record<number, number> // actual rolled values per level
+  hpLocked: Record<number, boolean> // Phase 24d — per-level roll lock (no re-rolls)
   asiSelections: Record<string, AbilityName[]> // slotId -> [ability1, ability2]
+  multiclassSkillSelections: Record<string, string[]> // Phase 24e — classId -> chosen skills
+  spellSwaps: Array<{ removeId: string; addId: string }> // Phase 24f — one swap per level gained
+  newCantripIds: string[] // Phase 24g — cantrips chosen at level-up
   generalFeatSelections: Record<
     string,
     // boundary-allow: Phase 15d sweep target — level-up state still holds inline shape
-    { id: string; name: string; description: string; choices?: Record<string, string | string[]> }
+    {
+      id: string
+      name: string
+      description: string
+      choices?: Record<string, string | string[]>
+      choiceConfig?: Record<string, { label: string; type?: string; options?: string[] }>
+    }
   > // slotId -> feat
   fightingStyleSelection: { id: string; name: string; description: string } | null
   primalOrderSelection: 'magician' | 'warden' | null
@@ -73,6 +83,10 @@ export interface LevelUpState {
   setTargetLevel: (level: number) => void
   setHpChoice: (level: number, choice: HpChoice) => void
   setHpRoll: (level: number, value: number) => void
+  setMulticlassSkillSelection: (classId: string, skills: string[]) => void
+  addSpellSwap: (swap: { removeId: string; addId: string }) => void
+  removeSpellSwap: (removeId: string) => void
+  toggleNewCantrip: (id: string) => void
   setAsiSelection: (slotId: string, abilities: AbilityName[]) => void
   setSlotSelection: (slotId: string, selectedId: string | null, selectedName: string | null) => void
   setNewSpellIds: (ids: string[]) => void
@@ -80,7 +94,13 @@ export interface LevelUpState {
   setEpicBoonSelection: (sel: { id: string; name: string; description: string } | null) => void
   setGeneralFeatSelection: (
     slotId: string,
-    feat: { id: string; name: string; description: string; choices?: Record<string, string | string[]> } | null
+    feat: {
+      id: string
+      name: string
+      description: string
+      choices?: Record<string, string | string[]>
+      choiceConfig?: Record<string, { label: string; type?: string; options?: string[] }>
+    } | null
   ) => void
   setFightingStyleSelection: (sel: { id: string; name: string; description: string } | null) => void
   setBlessedWarriorCantrips: (ids: string[]) => void
@@ -105,10 +125,20 @@ export const initialState = {
   levelUpSlots: [],
   hpChoices: {} as Record<number, HpChoice>,
   hpRolls: {} as Record<number, number>,
+  hpLocked: {} as Record<number, boolean>,
   asiSelections: {} as Record<string, AbilityName[]>,
+  multiclassSkillSelections: {} as Record<string, string[]>,
+  spellSwaps: [] as Array<{ removeId: string; addId: string }>,
+  newCantripIds: [] as string[],
   generalFeatSelections: {} as Record<
     string,
-    { id: string; name: string; description: string; choices?: Record<string, string | string[]> }
+    {
+      id: string
+      name: string
+      description: string
+      choices?: Record<string, string | string[]>
+      choiceConfig?: Record<string, { label: string; type?: string; options?: string[] }>
+    }
   >,
   fightingStyleSelection: null as { id: string; name: string; description: string } | null,
   primalOrderSelection: null as 'magician' | 'warden' | null,

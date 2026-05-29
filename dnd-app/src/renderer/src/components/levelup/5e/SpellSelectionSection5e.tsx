@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getEffectiveClasses, getEffectiveKnownSpells } from '../../../services/character/effective-character-5e'
 import {
+  getCantripsKnown,
   getSlotProgression,
   hasAnySpellcasting,
   isThirdCaster,
@@ -39,9 +40,17 @@ export default function SpellSelectionSection5e({
   const newSpellIds = useLevelUpStore((s) => s.newSpellIds)
   const toggleNewSpell = useLevelUpStore((s) => s.toggleNewSpell)
   const setSpellsRequired = useLevelUpStore((s) => s.setSpellsRequired)
+  // Phase 24g — cantrip picker; Phase 24f — spell swap.
+  const newCantripIds = useLevelUpStore((s) => s.newCantripIds)
+  const toggleNewCantrip = useLevelUpStore((s) => s.toggleNewCantrip)
+  const spellSwaps = useLevelUpStore((s) => s.spellSwaps)
+  const addSpellSwap = useLevelUpStore((s) => s.addSpellSwap)
+  const removeSpellSwap = useLevelUpStore((s) => s.removeSpellSwap)
   const [availableSpells, setAvailableSpells] = useState<RawSpell[]>([])
+  const [availableCantrips, setAvailableCantrips] = useState<RawSpell[]>([])
   const [loading, setLoading] = useState(true)
   const [showAllSpells, setShowAllSpells] = useState(false)
+  const [swapRemoveId, setSwapRemoveId] = useState('')
 
   const effectiveClasses = getEffectiveClasses(character)
   const effectiveKnownSpells = getEffectiveKnownSpells(character)
@@ -123,6 +132,25 @@ export default function SpellSelectionSection5e({
 
   const spellListClass = isThirdCasterClass ? 'wizard' : className
 
+  // Phase 24g — number of cantrips gained between current and target level.
+  const cantripsToLearn = Math.max(
+    0,
+    getCantripsKnown(className, targetLevel) - getCantripsKnown(className, character.level)
+  )
+
+  // Phase 24f — known spells eligible for replacement: leveled spells that are
+  // not species/feat/class/subclass-granted (those are always-prepared).
+  const swappableSpells = effectiveKnownSpells.filter(
+    (s) =>
+      s.level > 0 &&
+      !s.id.startsWith('species-') &&
+      s.source !== 'species' &&
+      s.source !== 'feat' &&
+      s.source !== 'class' &&
+      !alwaysPreparedNames.has(s.name.toLowerCase())
+  )
+  const maxSwaps = Math.max(0, targetLevel - character.level)
+
   useEffect(() => {
     if (!isCaster || maxSpellLevel === 0) {
       setLoading(false)
@@ -153,6 +181,28 @@ export default function SpellSelectionSection5e({
       })
       .catch(() => setLoading(false))
   }, [isCaster, maxSpellLevel, character.knownSpellRefs, showAllSpells, spellListClass])
+
+  // Phase 24g — load class cantrip list when the character gains cantrips.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: mirrors the spell-load effect's deps
+  useEffect(() => {
+    if (!isCaster || cantripsToLearn <= 0) {
+      setAvailableCantrips([])
+      return
+    }
+    load5eSpells()
+      .then((spells) => {
+        const existingIds = new Set(effectiveKnownSpells.map((s) => s.id))
+        const cantrips = spells.filter(
+          (s) =>
+            s.level === 0 &&
+            !existingIds.has(s.id) &&
+            (showAllSpells || (s.classes?.some((c) => c.toLowerCase() === spellListClass) ?? false))
+        )
+        cantrips.sort((a, b) => a.name.localeCompare(b.name))
+        setAvailableCantrips(cantrips)
+      })
+      .catch(() => setAvailableCantrips([]))
+  }, [isCaster, cantripsToLearn, spellListClass, showAllSpells, character.knownSpellRefs])
 
   if (!isCaster || maxSpellLevel === 0) return null
 
@@ -202,6 +252,109 @@ export default function SpellSelectionSection5e({
         Show All Spells
         {showAllSpells && <span className="text-orange-400">(off-list spells marked)</span>}
       </label>
+
+      {/* Phase 24g — cantrip picker */}
+      {cantripsToLearn > 0 && (
+        <div className="mb-3 border border-gray-800 rounded p-2">
+          <div className="text-xs font-semibold text-amber-400 uppercase tracking-wide mb-1">
+            New Cantrips ({newCantripIds.length}/{cantripsToLearn})
+            {newCantripIds.length < cantripsToLearn && <span className="ml-2 text-amber-500">REQUIRED</span>}
+          </div>
+          <div className="max-h-40 overflow-y-auto space-y-0.5">
+            {availableCantrips.map((c) => {
+              const selected = newCantripIds.includes(c.id)
+              const cantripAtLimit = newCantripIds.length >= cantripsToLearn
+              return (
+                <button
+                  key={c.id}
+                  onClick={() => {
+                    if (!selected && cantripAtLimit) return
+                    toggleNewCantrip(c.id)
+                  }}
+                  disabled={!selected && cantripAtLimit}
+                  className={`w-full text-left flex items-center gap-2 px-2 py-1 rounded text-sm transition-colors ${
+                    selected
+                      ? 'bg-amber-600/20 border border-amber-600 text-amber-300'
+                      : cantripAtLimit
+                        ? 'text-gray-600 cursor-not-allowed'
+                        : 'text-gray-300 hover:bg-gray-800 border border-transparent'
+                  }`}
+                >
+                  <span
+                    className={`w-4 h-4 rounded border-2 flex-shrink-0 ${selected ? 'bg-amber-500 border-amber-400' : 'border-gray-600'}`}
+                  />
+                  <span>{c.name}</span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Phase 24f — replace a prepared spell (one per level gained) */}
+      {maxSwaps > 0 && swappableSpells.length > 0 && (
+        <div className="mb-3 border border-gray-800 rounded p-2">
+          <div className="text-xs font-semibold text-amber-400 uppercase tracking-wide mb-1">
+            Replace a Prepared Spell ({spellSwaps.length}/{maxSwaps})
+          </div>
+          {spellSwaps.map((sw) => {
+            const removed = effectiveKnownSpells.find((s) => s.id === sw.removeId)
+            const added = availableSpells.find((s) => s.id === sw.addId)
+            return (
+              <div key={sw.removeId} className="flex items-center gap-2 text-xs text-gray-300 mb-1">
+                <span className="text-red-400">−{removed?.name ?? sw.removeId}</span>
+                <span>→</span>
+                <span className="text-green-400">+{added?.name ?? sw.addId}</span>
+                <button
+                  onClick={() => removeSpellSwap(sw.removeId)}
+                  className="ml-1 text-gray-500 hover:text-red-400 cursor-pointer"
+                >
+                  ×
+                </button>
+              </div>
+            )
+          })}
+          {spellSwaps.length < maxSwaps && (
+            <div className="flex flex-col gap-1 mt-1">
+              <select
+                value={swapRemoveId}
+                onChange={(e) => setSwapRemoveId(e.target.value)}
+                className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
+              >
+                <option value="">-- Spell to replace --</option>
+                {swappableSpells
+                  .filter((s) => !spellSwaps.some((sw) => sw.removeId === s.id))
+                  .map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name}
+                    </option>
+                  ))}
+              </select>
+              {swapRemoveId && (
+                <select
+                  value=""
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      addSpellSwap({ removeId: swapRemoveId, addId: e.target.value })
+                      setSwapRemoveId('')
+                    }
+                  }}
+                  className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
+                >
+                  <option value="">-- Replacement spell --</option>
+                  {availableSpells
+                    .filter((s) => s.level <= maxSpellLevel)
+                    .map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name} (lvl {s.level})
+                      </option>
+                    ))}
+                </select>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {loading ? (
         <div className="text-sm text-gray-500">Loading spells...</div>

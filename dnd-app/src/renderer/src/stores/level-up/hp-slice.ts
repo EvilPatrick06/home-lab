@@ -9,7 +9,12 @@ export function createHpSlice(set: SetState) {
     },
 
     setHpRoll: (level: number, value: number) => {
-      set((s) => ({ hpRolls: { ...s.hpRolls, [level]: value } }))
+      // Phase 24d — once a level's HP is rolled it locks (no re-rolls). A
+      // re-roll attempt for an already-locked level is ignored.
+      set((s) => {
+        if (s.hpLocked[level]) return {}
+        return { hpRolls: { ...s.hpRolls, [level]: value }, hpLocked: { ...s.hpLocked, [level]: true } }
+      })
     }
   }
 }

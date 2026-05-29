@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { addToast } from '../../../hooks/use-toast'
 import { getEffectiveClasses } from '../../../services/character/effective-character-5e'
 import { load5eInvocations, load5eMetamagic } from '../../../services/data-provider'
+import { MULTICLASS_SKILL_GRANTS } from '../../../stores/level-up/apply-level-up'
 import { useLevelUpStore } from '../../../stores/use-level-up-store'
 import type { Character5e } from '../../../types/character-5e'
 import type { ClassData, InvocationData, MetamagicData } from '../../../types/data'
@@ -393,6 +394,90 @@ export function MetamagicSection5e({
           )
         })}
       </div>
+    </div>
+  )
+}
+
+/**
+ * Phase 24e — multiclass skill proficiencies. When a level is assigned to a new
+ * class that grants a skill on entry (Bard/Ranger/Rogue, 2024 PHB), render a
+ * constrained skill picker. Picks are stored in `multiclassSkillSelections`.
+ */
+export function MulticlassSkillSection5e({
+  character,
+  targetLevel,
+  classLevelChoices
+}: {
+  character: Character5e
+  targetLevel: number
+  classLevelChoices: Record<number, string>
+}): JSX.Element | null {
+  const multiclassSkillSelections = useLevelUpStore((s) => s.multiclassSkillSelections)
+  const setMulticlassSkillSelection = useLevelUpStore((s) => s.setMulticlassSkillSelection)
+
+  const existingClassIds = new Set(getEffectiveClasses(character).map((c) => c.name.toLowerCase()))
+  const allSkillNames = character.skills.map((s) => s.name)
+
+  // Newly entered classes (not already in the character) that grant skills.
+  const newGrantClasses = new Set<string>()
+  for (let lvl = character.level + 1; lvl <= targetLevel; lvl++) {
+    const cid = classLevelChoices[lvl]
+    if (!cid || cid === character.buildChoices.classId) continue
+    if (existingClassIds.has(cid)) continue
+    if (MULTICLASS_SKILL_GRANTS[cid]) newGrantClasses.add(cid)
+  }
+
+  if (newGrantClasses.size === 0) return null
+
+  return (
+    <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-4">
+      <h3 className="text-sm font-semibold text-amber-400 uppercase tracking-wide mb-3">Multiclass Skills</h3>
+      {Array.from(newGrantClasses).map((cid) => {
+        const grant = MULTICLASS_SKILL_GRANTS[cid]
+        const options = grant.options[0] === '__any__' ? allSkillNames : grant.options
+        const chosen = multiclassSkillSelections[cid] ?? []
+        const atMax = chosen.length >= grant.count
+        const incomplete = chosen.length < grant.count
+        return (
+          <div key={cid} className="mb-2">
+            <div className={`text-xs mb-1 ${incomplete ? 'text-amber-400' : 'text-gray-500'}`}>
+              {cid.charAt(0).toUpperCase() + cid.slice(1)}: choose {grant.count} skill
+              {grant.count > 1 ? 's' : ''} ({chosen.length}/{grant.count})
+              {incomplete && <span className="ml-2 font-semibold">REQUIRED</span>}
+            </div>
+            <div className="flex flex-wrap gap-1">
+              {options.map((skill) => {
+                const selected = chosen.includes(skill)
+                return (
+                  <button
+                    key={skill}
+                    onClick={() => {
+                      if (selected) {
+                        setMulticlassSkillSelection(
+                          cid,
+                          chosen.filter((s) => s !== skill)
+                        )
+                      } else if (!atMax) {
+                        setMulticlassSkillSelection(cid, [...chosen, skill])
+                      }
+                    }}
+                    disabled={!selected && atMax}
+                    className={`px-2 py-0.5 text-xs rounded border transition-colors ${
+                      selected
+                        ? 'bg-amber-600 border-amber-500 text-white'
+                        : atMax
+                          ? 'border-gray-700/50 text-gray-600 cursor-not-allowed'
+                          : 'border-gray-700 text-gray-300 hover:border-amber-600 cursor-pointer'
+                    }`}
+                  >
+                    {skill}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )
+      })}
     </div>
   )
 }

@@ -19,10 +19,22 @@ export function AsiOrFeatSelector5e({
   slot: BuildSlot
   character: Character5e
   asiSelection: AbilityName[]
-  featSelection: { id: string; name: string; description: string; choices?: Record<string, string | string[]> } | null
+  featSelection: {
+    id: string
+    name: string
+    description: string
+    choices?: Record<string, string | string[]>
+    choiceConfig?: Record<string, { label: string; type?: string; options?: string[] }>
+  } | null
   onAsiSelect: (abilities: AbilityName[]) => void
   onFeatSelect: (
-    feat: { id: string; name: string; description: string; choices?: Record<string, string | string[]> } | null
+    feat: {
+      id: string
+      name: string
+      description: string
+      choices?: Record<string, string | string[]>
+      choiceConfig?: Record<string, { label: string; type?: string; options?: string[] }>
+    } | null
   ) => void
 }): JSX.Element {
   const [chooseFeat, setChooseFeat] = useState(!!featSelection)
@@ -78,9 +90,21 @@ export function GeneralFeatPicker({
   onSelect
 }: {
   character: Character5e
-  selection: { id: string; name: string; description: string; choices?: Record<string, string | string[]> } | null
+  selection: {
+    id: string
+    name: string
+    description: string
+    choices?: Record<string, string | string[]>
+    choiceConfig?: Record<string, { label: string; type?: string; options?: string[] }>
+  } | null
   onSelect: (
-    feat: { id: string; name: string; description: string; choices?: Record<string, string | string[]> } | null
+    feat: {
+      id: string
+      name: string
+      description: string
+      choices?: Record<string, string | string[]>
+      choiceConfig?: Record<string, { label: string; type?: string; options?: string[] }>
+    } | null
   ) => void
 }): JSX.Element {
   const [feats, setFeats] = useState<FeatData[]>([])
@@ -176,7 +200,10 @@ export function GeneralFeatPicker({
                     onSelect({
                       id: feat.id,
                       name: feat.name,
-                      description: feat.benefits.map((b) => b.description).join(' ')
+                      description: feat.benefits.map((b) => b.description).join(' '),
+                      // Phase 24h — carry the feat's choiceConfig so the store can
+                      // validate that every required sub-choice was made.
+                      choiceConfig: feat.choiceConfig
                     })
                     setExpanded(false)
                     setSearch('')

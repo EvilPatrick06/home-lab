@@ -15,18 +15,32 @@ interface HpRollSection5eProps {
 export default function HpRollSection5e({ character, level, hitDieOverride }: HpRollSection5eProps): JSX.Element {
   const hpChoices = useLevelUpStore((s) => s.hpChoices)
   const hpRolls = useLevelUpStore((s) => s.hpRolls)
+  const hpLocked = useLevelUpStore((s) => s.hpLocked)
+  const asiSelections = useLevelUpStore((s) => s.asiSelections)
+  const generalFeatSelections = useLevelUpStore((s) => s.generalFeatSelections)
+  const levelUpSlots = useLevelUpStore((s) => s.levelUpSlots)
   const setHpChoice = useLevelUpStore((s) => s.setHpChoice)
   const setHpRoll = useLevelUpStore((s) => s.setHpRoll)
 
   const choice = hpChoices[level] ?? null
   const rolled = hpRolls[level]
+  const locked = hpLocked[level] ?? false
 
   const hitDie = hitDieOverride ?? getEffectiveClasses(character)[0]?.hitDie ?? 8
-  const conMod = abilityModifier(character.abilityScores.constitution)
+
+  // Phase 24d — post-ASI CON. Count 'constitution' boosts across ability-boost
+  // slots up to and including this level's ASI (mirrors apply-level-up cumulative
+  // math). Feat-taken slots don't count as ASI. Clamp to the 20 ability cap.
+  const conBoosts = levelUpSlots
+    .filter((s) => s.category === 'ability-boost' && s.level <= level && !generalFeatSelections[s.id])
+    .reduce((sum, s) => sum + (asiSelections[s.id]?.filter((a) => a === 'constitution').length ?? 0), 0)
+  const postAsiCon = Math.min(20, character.abilityScores.constitution + conBoosts)
+  const conMod = abilityModifier(postAsiCon)
   const average = Math.floor(hitDie / 2) + 1
   const averageHP = Math.max(1, average + conMod)
 
   const doRoll = (): void => {
+    if (locked) return
     const result = Math.floor(Math.random() * hitDie) + 1
     setHpRoll(level, result)
     setHpChoice(level, 'roll')
@@ -71,6 +85,9 @@ export default function HpRollSection5e({ character, level, hitDieOverride }: Hp
         <span className="text-sm text-green-400">
           +{rolledHP} HP (rolled {rolled} + {conMod >= 0 ? '+' : ''}
           {conMod} CON)
+          {locked && (
+            <span className="ml-2 text-xs text-gray-500 border border-gray-600 rounded px-1 uppercase">Locked</span>
+          )}
         </span>
       )}
       {choice === 'roll' && rolled === undefined && <span className="text-sm text-gray-500">Click "Roll" to roll</span>}

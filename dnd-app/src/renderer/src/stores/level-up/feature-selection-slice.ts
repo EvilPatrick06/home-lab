@@ -1,8 +1,10 @@
 import { getExpertiseGrants } from '../../services/character/build-tree-5e'
 import { getEffectiveClasses } from '../../services/character/effective-character-5e'
+import { getCantripsKnown } from '../../services/character/spell-data'
 import { is5eCharacter } from '../../types/character'
 import type { Character5e } from '../../types/character-5e'
 import type { AbilityName } from '../../types/character-common'
+import { MULTICLASS_SKILL_GRANTS } from './apply-level-up'
 import { checkMulticlassPrerequisites, type LevelUpState } from './types'
 
 type SetState = (partial: Partial<LevelUpState> | ((state: LevelUpState) => Partial<LevelUpState>)) => void
@@ -59,6 +61,31 @@ export function createFeatureSelectionSlice(set: SetState, get: GetState) {
       set((s) => ({ expertiseSelections: { ...s.expertiseSelections, [slotId]: skills } }))
     },
 
+    // Phase 24e — multiclass skill proficiencies
+    setMulticlassSkillSelection: (classId: string, skills: string[]) => {
+      set((s) => ({ multiclassSkillSelections: { ...s.multiclassSkillSelections, [classId]: skills } }))
+    },
+
+    // Phase 24f — spell swap (one per level gained)
+    addSpellSwap: (swap: { removeId: string; addId: string }) => {
+      set((s) => {
+        const max = Math.max(0, s.targetLevel - s.currentLevel)
+        const filtered = s.spellSwaps.filter((sw) => sw.removeId !== swap.removeId)
+        if (filtered.length >= max) return {}
+        return { spellSwaps: [...filtered, swap] }
+      })
+    },
+    removeSpellSwap: (removeId: string) => {
+      set((s) => ({ spellSwaps: s.spellSwaps.filter((sw) => sw.removeId !== removeId) }))
+    },
+
+    // Phase 24g — cantrip selection at level-up
+    toggleNewCantrip: (id: string) => {
+      set((s) => ({
+        newCantripIds: s.newCantripIds.includes(id) ? s.newCantripIds.filter((c) => c !== id) : [...s.newCantripIds, id]
+      }))
+    },
+
     getIncompleteChoices: (): string[] => {
       const {
         character,
@@ -81,7 +108,9 @@ export function createFeatureSelectionSlice(set: SetState, get: GetState) {
         metamagicSelections,
         newSpellIds,
         spellsRequired,
-        classLevelChoices
+        classLevelChoices,
+        multiclassSkillSelections,
+        newCantripIds
       } = get()
       if (!character || !is5eCharacter(character)) return []
 
@@ -129,6 +158,44 @@ export function createFeatureSelectionSlice(set: SetState, get: GetState) {
         if (!hasAsi && !feat) {
           incomplete.push(`Level ${slot.level}: Ability Score Improvement or Feat`)
         }
+      }
+
+      // Phase 24h — feat sub-choice validation. Each general feat with a
+      // choiceConfig must have a non-empty value for every configured key.
+      for (const feat of Object.values(generalFeatSelections)) {
+        if (!feat.choiceConfig) continue
+        for (const [key, config] of Object.entries(feat.choiceConfig)) {
+          const val = feat.choices?.[key]
+          const empty = val === undefined || val === '' || (Array.isArray(val) && val.length === 0)
+          if (empty) incomplete.push(`Feat ${feat.name}: choose ${config.label}`)
+        }
+      }
+
+      // Phase 24e — multiclass skill proficiencies. Each newly added class that
+      // grants a skill must have its required count chosen.
+      for (let lvl = currentLevel + 1; lvl <= targetLevel; lvl++) {
+        const chosenClass = classLevelChoices[lvl]
+        if (!chosenClass || chosenClass === primaryClassId) continue
+        const grant = MULTICLASS_SKILL_GRANTS[chosenClass]
+        if (!grant) continue
+        const existingClass = getEffectiveClasses(character as Character5e).some(
+          (c) => c.name.toLowerCase() === chosenClass
+        )
+        // Only on first entry into the class.
+        if (existingClass) continue
+        const chosen = multiclassSkillSelections[chosenClass] ?? []
+        if (chosen.length < grant.count) {
+          incomplete.push(`Multiclass ${chosenClass}: choose ${grant.count} skill${grant.count > 1 ? 's' : ''}`)
+        }
+      }
+
+      // Phase 24g — cantrips to learn at level-up (per primary class progression).
+      const cantripsToLearn = Math.max(
+        0,
+        getCantripsKnown(primaryClassId, targetLevel) - getCantripsKnown(primaryClassId, currentLevel)
+      )
+      if (cantripsToLearn > 0 && newCantripIds.length < cantripsToLearn) {
+        incomplete.push(`Cantrips (${newCantripIds.length}/${cantripsToLearn})`)
       }
 
       // Epic Boon

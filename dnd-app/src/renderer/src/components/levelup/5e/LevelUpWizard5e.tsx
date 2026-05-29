@@ -5,7 +5,12 @@ import { useLevelUpStore } from '../../../stores/use-level-up-store'
 import type { Character5e } from '../../../types/character-5e'
 import type { ClassData } from '../../../types/data'
 import LevelSection5e from './LevelSection5e'
-import { ClassLevelSelector, InvocationSection5e, MetamagicSection5e } from './LevelUpConfirm5e'
+import {
+  ClassLevelSelector,
+  InvocationSection5e,
+  MetamagicSection5e,
+  MulticlassSkillSection5e
+} from './LevelUpConfirm5e'
 import { calculateSummary5e, LevelUpSummaryBar5e } from './LevelUpSummary5e'
 import SpellSelectionSection5e from './SpellSelectionSection5e'
 
@@ -129,6 +134,9 @@ export default function LevelUpWizard5e({ character, incompleteChoices }: LevelU
             </div>
           )
         })}
+
+      {/* Multiclass skill proficiencies (Phase 24e) */}
+      <MulticlassSkillSection5e character={character} targetLevel={targetLevel} classLevelChoices={classLevelChoices} />
 
       {/* Spell selection */}
       <SpellSelectionSection5e character={character} targetLevel={targetLevel} />

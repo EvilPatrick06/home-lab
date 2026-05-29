@@ -41,6 +41,10 @@ export const useLevelUpStore = create<LevelUpState>((set, get) => ({
       levelUpSlots: slots,
       hpChoices: {},
       hpRolls: {},
+      hpLocked: {},
+      multiclassSkillSelections: {},
+      spellSwaps: [],
+      newCantripIds: [],
       asiSelections: {},
       generalFeatSelections: {},
       fightingStyleSelection: null,
@@ -60,7 +64,7 @@ export const useLevelUpStore = create<LevelUpState>((set, get) => ({
   },
 
   setTargetLevel: (level: number) => {
-    const { character, currentLevel, hpChoices, hpRolls, asiSelections, classLevelChoices } = get()
+    const { character, currentLevel, hpChoices, hpRolls, hpLocked, asiSelections, classLevelChoices } = get()
     if (!character) return
     const clamped = Math.max(currentLevel + 1, Math.min(20, level))
 
@@ -95,9 +99,11 @@ export const useLevelUpStore = create<LevelUpState>((set, get) => ({
     // Preserve existing HP choices/rolls for levels that still exist
     const newHpChoices: Record<number, HpChoice> = {}
     const newHpRolls: Record<number, number> = {}
+    const newHpLocked: Record<number, boolean> = {}
     for (let lvl = currentLevel + 1; lvl <= clamped; lvl++) {
       if (hpChoices[lvl]) newHpChoices[lvl] = hpChoices[lvl]
       if (hpRolls[lvl] !== undefined) newHpRolls[lvl] = hpRolls[lvl]
+      if (hpLocked[lvl]) newHpLocked[lvl] = hpLocked[lvl]
     }
 
     // Preserve ASI selections for slots that still exist
@@ -123,6 +129,7 @@ export const useLevelUpStore = create<LevelUpState>((set, get) => ({
       levelUpSlots: slots,
       hpChoices: newHpChoices,
       hpRolls: newHpRolls,
+      hpLocked: newHpLocked,
       asiSelections: newAsi,
       generalFeatSelections: newGeneralFeats,
       classLevelChoices: newClassChoices,
@@ -218,7 +225,10 @@ export const useLevelUpStore = create<LevelUpState>((set, get) => ({
       blessedWarriorCantrips,
       druidicWarriorCantrips,
       expertiseSelections,
-      get().levelUpSlots
+      get().levelUpSlots,
+      get().multiclassSkillSelections,
+      get().spellSwaps,
+      get().newCantripIds
     )
   },
 

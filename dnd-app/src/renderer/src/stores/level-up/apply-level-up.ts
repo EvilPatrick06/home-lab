@@ -25,6 +25,34 @@ import { logger } from '../../utils/logger'
 import { resolveLevelUpSpells, toSpellEntry } from './level-up-spells'
 import type { HpChoice } from './types'
 
+/**
+ * Phase 24e — 2024 PHB multiclass skill grants. Each listed class grants the
+ * given number of skill proficiencies (chosen from `options`) when entered via
+ * multiclassing.
+ */
+export const MULTICLASS_SKILL_GRANTS: Record<string, { count: number; options: string[] }> = {
+  bard: { count: 1, options: ['__any__'] }, // Bard: any one skill
+  ranger: {
+    count: 1,
+    options: ['Animal Handling', 'Athletics', 'Insight', 'Investigation', 'Nature', 'Perception', 'Stealth', 'Survival']
+  },
+  rogue: {
+    count: 1,
+    options: [
+      'Acrobatics',
+      'Athletics',
+      'Deception',
+      'Insight',
+      'Intimidation',
+      'Investigation',
+      'Perception',
+      'Persuasion',
+      'Sleight of Hand',
+      'Stealth'
+    ]
+  }
+}
+
 export async function apply5eLevelUp(
   character: Character5e,
   currentLevel: number,
@@ -50,7 +78,11 @@ export async function apply5eLevelUp(
   expertiseSelections: Record<string, string[]>,
   // Phase 24a — subclass selections live in the level-up slots (category
   // 'class-feat', label 'Subclass'). Threaded so they're written back.
-  levelUpSlots: BuildSlot[] = []
+  levelUpSlots: BuildSlot[] = [],
+  // Phase 24e/24f/24g — multiclass skill profs, spell swaps, new cantrips.
+  multiclassSkillSelections: Record<string, string[]> = {},
+  spellSwaps: Array<{ removeId: string; addId: string }> = [],
+  newCantripIds: string[] = []
 ): Promise<Character5e> {
   // Load class data for hit dice and names
   const classDataMap: Record<
@@ -369,8 +401,33 @@ export async function apply5eLevelUp(
         }
       : character.wildShapeUses
 
+  // Phase 24f — spell swaps. Remove each swapped-out spell (by id), then add the
+  // replacement. Phase 24g — newly chosen cantrips. Both resolve through the
+  // spell library; failures are logged and skipped rather than aborting apply.
+  let swappedKnownSpells = [...charKnownSpells]
+  const spellAdditions: typeof newSpells = []
+  if (spellSwaps.length > 0 || newCantripIds.length > 0) {
+    try {
+      const spellData = await load5eSpells()
+      for (const { removeId, addId } of spellSwaps) {
+        if (!removeId || !addId) continue
+        swappedKnownSpells = swappedKnownSpells.filter((s) => s.id !== removeId)
+        const found = spellData.find((s) => s.id === addId || s.name === addId)
+        if (found) spellAdditions.push(toSpellEntry(found))
+      }
+      for (const cantripId of newCantripIds) {
+        const found = spellData.find((s) => s.id === cantripId || s.name === cantripId)
+        if (found && !swappedKnownSpells.some((s) => s.id === found.id)) {
+          spellAdditions.push(toSpellEntry(found, { prepared: true }))
+        }
+      }
+    } catch (err) {
+      logger.warn('[level-up] spell swap/cantrip resolve failed:', err)
+    }
+  }
+
   // Ensure always-prepared class spells
-  const updatedKnownSpells = [...charKnownSpells, ...newSpells]
+  const updatedKnownSpells = [...swappedKnownSpells, ...newSpells, ...spellAdditions]
   const rangerClass = updatedClasses.find((c) => c.name.toLowerCase() === 'ranger')
   const alwaysPreparedClassSpells: Array<{ spellName: string; classRef: unknown }> = [
     { spellName: 'Speak with Animals', classRef: druidClass },
@@ -421,6 +478,15 @@ export async function apply5eLevelUp(
     for (const skillName of skillNames) {
       const skill = updatedSkills.find((s) => s.name === skillName)
       if (skill) skill.expertise = true
+    }
+  }
+
+  // Phase 24e — multiclass skill proficiencies. Classes that grant a skill on
+  // multiclass entry (2024 PHB): Bard/Ranger/Rogue each grant 1.
+  for (const skillNames of Object.values(multiclassSkillSelections)) {
+    for (const skillName of skillNames) {
+      const skill = updatedSkills.find((s) => s.name === skillName)
+      if (skill) skill.proficient = true
     }
   }
 
