@@ -1,7 +1,12 @@
 import { app } from 'electron'
 import { promises as fs } from 'fs'
 import path from 'path'
+import { logSecurityEvent } from '../security-log'
 import type { NPCPersonality, WorldStateSummary } from './types'
+
+// Phase 20e — memory size budget.
+const MAX_MEMORY_FILE_SIZE = 1 * 1024 * 1024 // 1 MB per ai-context file
+const MAX_TOTAL_MEMORY_SIZE = 10 * 1024 * 1024 // 10 MB across the ai-context dir
 
 // Per-campaign memory files stored in userData/campaigns/{campaignId}/ai-context/
 
@@ -81,7 +86,45 @@ export class MemoryManager {
 
   private async writeJson(filename: string, data: unknown): Promise<void> {
     await this.ensureDir()
-    await fs.writeFile(path.join(this.basePath, filename), JSON.stringify(data, null, 2), 'utf-8')
+    // Phase 20e — per-file cap. If an array file outgrows MAX_MEMORY_FILE_SIZE,
+    // prune oldest entries (front of the array) until it fits, so unbounded NPC/
+    // place/ruling growth can't balloon a single file.
+    let payload = data
+    if (Array.isArray(payload)) {
+      let arr = payload as unknown[]
+      while (arr.length > 1 && Buffer.byteLength(JSON.stringify(arr), 'utf-8') > MAX_MEMORY_FILE_SIZE) {
+        arr = arr.slice(1)
+      }
+      payload = arr
+    }
+    const serialized = JSON.stringify(payload, null, 2)
+    if (Buffer.byteLength(serialized, 'utf-8') > MAX_MEMORY_FILE_SIZE) {
+      logSecurityEvent('ai.memory.file_oversize', { filename, bytes: Buffer.byteLength(serialized, 'utf-8') })
+    }
+    await fs.writeFile(path.join(this.basePath, filename), serialized, 'utf-8')
+    await this.enforceTotalSize()
+  }
+
+  // Phase 20e — total ai-context budget. When the directory exceeds the cap,
+  // rotate the largest file to `.old` (single generation) to reclaim space
+  // without silently dropping the most recent writes.
+  private async enforceTotalSize(): Promise<void> {
+    try {
+      const entries = await fs.readdir(this.basePath, { withFileTypes: true })
+      const files = entries.filter((e) => e.isFile() && !e.name.endsWith('.old'))
+      const sized = await Promise.all(
+        files.map(async (e) => ({ name: e.name, size: (await fs.stat(path.join(this.basePath, e.name))).size }))
+      )
+      const total = sized.reduce((sum, f) => sum + f.size, 0)
+      if (total <= MAX_TOTAL_MEMORY_SIZE) return
+      logSecurityEvent('ai.memory.total_oversize', { bytes: total })
+      const largest = sized.sort((a, b) => b.size - a.size)[0]
+      if (largest) {
+        await fs.rename(path.join(this.basePath, largest.name), path.join(this.basePath, `${largest.name}.old`))
+      }
+    } catch {
+      // best-effort; never block a write on budget enforcement
+    }
   }
 
   // Phase 17d (NET-11) — per-file write queue. Concurrent AI DM actions used to read-modify-write

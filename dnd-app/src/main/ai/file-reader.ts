@@ -5,8 +5,9 @@
  */
 
 import { readFile, stat } from 'node:fs/promises'
-import { isAbsolute, relative, resolve } from 'node:path'
+import { isAbsolute, relative, resolve, sep } from 'node:path'
 import { app } from 'electron'
+import { logSecurityEvent } from '../security-log'
 
 const FILE_READ_RE = /\[FILE_READ\]\s*([\s\S]*?)\s*\[\/FILE_READ\]/
 
@@ -54,22 +55,31 @@ export function stripFileRead(response: string): string {
   return response.replace(/\s*\[FILE_READ\][\s\S]*?\[\/FILE_READ\]\s*/g, '').trim()
 }
 
-/** Check whether a resolved path falls within the app's userData directory. */
-function isPathWithinUserData(resolvedPath: string): boolean {
+// Phase 20e — AI file reads are restricted to these userData subdirectories
+// (game data only), not the whole userData tree. This keeps secrets like
+// ai-config.json / discord-integration.json out of reach of a prompt-injected
+// [FILE_READ].
+const AI_READ_ALLOWED_DIRS = ['campaigns', 'ai-conversations', 'characters', 'ai-context']
+
+/** Check whether a resolved path falls within one of the AI-readable game-data subdirs. */
+function isAiReadAllowed(resolvedPath: string): boolean {
   const userData = resolve(app.getPath('userData'))
   const rel = relative(userData, resolvedPath)
-  return !!rel && !rel.startsWith('..') && !isAbsolute(rel)
+  if (!rel || rel.startsWith('..') || isAbsolute(rel)) return false
+  const top = rel.split(sep)[0]
+  return AI_READ_ALLOWED_DIRS.includes(top)
 }
 
 /** Read a file from disk with safety constraints. */
 export async function readRequestedFile(filePath: string): Promise<FileReadResult> {
   const resolved = resolve(filePath)
 
-  if (!isPathWithinUserData(resolved)) {
+  if (!isAiReadAllowed(resolved)) {
+    logSecurityEvent('ai.file_read.denied', { path: resolved })
     return {
       success: false,
       path: resolved,
-      error: 'Access denied: file reads are restricted to app data directories'
+      error: 'Access denied: AI reads restricted to game data'
     }
   }
 
