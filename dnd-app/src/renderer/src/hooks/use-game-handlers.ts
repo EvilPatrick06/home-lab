@@ -18,6 +18,7 @@ import { is5eCharacter } from '../types/character'
 import type { Companion5e } from '../types/companion'
 import type { GameMap } from '../types/map'
 import type { MonsterStatBlock } from '../types/monster'
+import { cryptoRandom } from '../utils/crypto-random'
 import { logger } from '../utils/logger'
 
 interface UseGameHandlersOptions {
@@ -345,7 +346,7 @@ export function useGameHandlers({
           })
         } else {
           // Familiars roll their own initiative
-          const roll = Math.floor(Math.random() * 20) + 1
+          const roll = Math.floor(cryptoRandom() * 20) + 1
           gameStore.addToInitiative({
             id: tokenId,
             entityId: tokenId,

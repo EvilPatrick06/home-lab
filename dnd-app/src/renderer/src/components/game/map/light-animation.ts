@@ -8,6 +8,7 @@
 
 import type { Ticker } from 'pixi.js'
 import type { LightAnimation } from '../../../types/campaign'
+import { cryptoRandom } from '../../../utils/crypto-random'
 
 export interface AnimatedLightRadius {
   brightRadius: number
@@ -73,7 +74,7 @@ export function registerLightAnimation(
     baseDim,
     animation,
     flickerCurrent: 0,
-    flickerTarget: (Math.random() - 0.5) * 2,
+    flickerTarget: (cryptoRandom() - 0.5) * 2,
     flickerTimer: 0
   })
 }
@@ -135,7 +136,7 @@ export function updateLightAnimations(dt: number): void {
         // Change target every 0.05-0.15 seconds based on speed
         const changeInterval = 0.1 / Math.max(animation.speed, 0.1)
         if (entry.flickerTimer >= changeInterval) {
-          entry.flickerTarget = (Math.random() - 0.5) * 2
+          entry.flickerTarget = (cryptoRandom() - 0.5) * 2
           entry.flickerTimer = 0
         }
         // Lerp current toward target

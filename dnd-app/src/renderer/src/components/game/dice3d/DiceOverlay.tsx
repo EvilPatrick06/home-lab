@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useReducedMotion } from '../../../hooks/use-reduced-motion'
 import { play as playSound, type SoundEvent } from '../../../services/sound-manager'
+import { cryptoRandom } from '../../../utils/crypto-random'
 import DiceRenderer, { type DiceRollRequest } from './DiceRenderer'
 import type { DiceColors, DieType } from './dice-meshes'
 import { DEFAULT_DICE_COLORS } from './dice-meshes'
@@ -133,7 +134,7 @@ export default function DiceOverlay(): JSX.Element {
     // Add to dice tray if we have results
     if (results) {
       emitTrayEntry({
-        id: `tray-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        id: `tray-${Date.now()}-${cryptoRandom().toString(36).slice(2, 6)}`,
         formula: results.formula,
         rolls: results.rolls,
         total: results.total,
@@ -178,7 +179,7 @@ export default function DiceOverlay(): JSX.Element {
       // result still shows up in the rolling history.
       if (reducedMotionRef.current) {
         emitTrayEntry({
-          id: `tray-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          id: `tray-${Date.now()}-${cryptoRandom().toString(36).slice(2, 6)}`,
           formula: event.formula,
           rolls: event.rolls,
           total: event.total,

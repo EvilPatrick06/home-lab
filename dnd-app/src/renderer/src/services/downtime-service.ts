@@ -4,6 +4,7 @@
  */
 
 import type { Campaign, DowntimeProgressEntry } from '../types/campaign'
+import { cryptoRandom } from '../utils/crypto-random'
 import { load5eDowntime, loadJson } from './data-provider'
 
 export interface DowntimeActivity {
@@ -131,7 +132,7 @@ export function rollComplication(tables: ComplicationTables, tableId: string): C
   const table = tables.tables[tableId]
   if (!table || table.length === 0) return null
   const max = Math.max(...table.map((e) => e.max))
-  const roll = Math.floor(Math.random() * max) + 1
+  const roll = Math.floor(cryptoRandom() * max) + 1
   return table.find((e) => roll >= e.min && roll <= e.max) ?? null
 }
 

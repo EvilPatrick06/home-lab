@@ -1,6 +1,7 @@
 import { load5eNpcNames, load5eRandomTables } from '../../services/data-provider'
 import { useLobbyStore } from '../../stores/use-lobby-store'
 import type { Character5e, CustomFeature } from '../../types/character-5e'
+import { cryptoRandom } from '../../utils/crypto-random'
 import { getLatestCharacter, saveAndBroadcastCharacter } from './helpers'
 import type { ChatCommand } from './types'
 
@@ -87,7 +88,7 @@ const nameCommand: ChatCommand = {
       let gender = parts[1]
 
       if (!species || !speciesList.includes(species)) {
-        species = speciesList[Math.floor(Math.random() * speciesList.length)]
+        species = speciesList[Math.floor(cryptoRandom() * speciesList.length)]
       }
 
       const speciesData = data[species]
@@ -98,7 +99,7 @@ const nameCommand: ChatCommand = {
 
       const genderOptions = Object.keys(speciesData).filter((k) => k !== 'last')
       if (!gender || !genderOptions.includes(gender)) {
-        gender = genderOptions[Math.floor(Math.random() * genderOptions.length)]
+        gender = genderOptions[Math.floor(cryptoRandom() * genderOptions.length)]
       }
 
       const firstNames = speciesData[gender] || []
@@ -109,8 +110,8 @@ const nameCommand: ChatCommand = {
         return
       }
 
-      const firstName = firstNames[Math.floor(Math.random() * firstNames.length)]
-      const lastName = lastNames.length > 0 ? ` ${lastNames[Math.floor(Math.random() * lastNames.length)]}` : ''
+      const firstName = firstNames[Math.floor(cryptoRandom() * firstNames.length)]
+      const lastName = lastNames.length > 0 ? ` ${lastNames[Math.floor(cryptoRandom() * lastNames.length)]}` : ''
 
       ctx.addSystemMessage(`Random name: ${firstName}${lastName}`)
     } catch {
@@ -155,7 +156,7 @@ const randomCommand: ChatCommand = {
         return
       }
 
-      const entry = table[Math.floor(Math.random() * table.length)]
+      const entry = table[Math.floor(cryptoRandom() * table.length)]
       ctx.addSystemMessage(`🎲 [${tableName}]: ${entry}`)
     } catch {
       ctx.addSystemMessage('Failed to load random table data.')

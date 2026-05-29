@@ -7,7 +7,7 @@ const INVITE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
  * Generate a fresh invite code for a multiplayer session.
  *
  * Uses `crypto.getRandomValues` (via `cryptoRandom`) so the code can't be
- * predicted from observed prior codes — `Math.random()` is V8's XorShift128+,
+ * predicted from observed prior codes — `cryptoRandom()` is V8's XorShift128+,
  * which leaks its internal state after a small number of observed outputs.
  * Predictable invite codes would let an attacker enumerate live sessions and
  * connect as an unauthorized peer.

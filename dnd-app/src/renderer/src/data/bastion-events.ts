@@ -5,13 +5,14 @@
 // ============================================================================
 
 import { load5eBastionEvents } from '../services/data-provider'
+import { cryptoRandom } from '../utils/crypto-random'
 import { logger } from '../utils/logger'
 
 // ---- Dice Helpers ----------------------------------------------------------
 
 /** Roll a single die with `n` sides (1..n inclusive). */
 export function rollD(n: number): number {
-  return Math.floor(Math.random() * n) + 1
+  return Math.floor(cryptoRandom() * n) + 1
 }
 
 /** Roll `count` dice each with `sides` sides, return the array of results. */

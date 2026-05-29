@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { load5eChaseTables } from '../../../../services/data-provider'
+import { cryptoRandom } from '../../../../utils/crypto-random'
 import { logger } from '../../../../utils/logger'
 import ChaseControls, { type Participant } from './ChaseControls'
 import ChaseMap from './ChaseMap'
@@ -86,7 +87,7 @@ export default function ChaseTrackerModal({ onClose, onBroadcastResult }: ChaseT
 
   const rollComplication = (): string => {
     const table = getComplications()
-    const roll = Math.floor(Math.random() * table.length)
+    const roll = Math.floor(cryptoRandom() * table.length)
     return table[roll]
   }
 

@@ -1,5 +1,6 @@
 import { getEffectiveClasses } from '../../../services/character/effective-character-5e'
 import { type HpChoice, useLevelUpStore } from '../../../stores/use-level-up-store'
+import { cryptoRandom } from '../../../utils/crypto-random'
 
 type _HpChoice = HpChoice
 
@@ -41,7 +42,7 @@ export default function HpRollSection5e({ character, level, hitDieOverride }: Hp
 
   const doRoll = (): void => {
     if (locked) return
-    const result = Math.floor(Math.random() * hitDie) + 1
+    const result = Math.floor(cryptoRandom() * hitDie) + 1
     setHpRoll(level, result)
     setHpChoice(level, 'roll')
   }

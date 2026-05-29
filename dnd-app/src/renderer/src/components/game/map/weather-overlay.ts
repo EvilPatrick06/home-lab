@@ -6,6 +6,7 @@
  */
 
 import { type Application, Container, Graphics } from 'pixi.js'
+import { cryptoRandom } from '../../../utils/crypto-random'
 
 // ─── Weather Type Definitions ────────────────────────────────
 
@@ -119,11 +120,11 @@ export class WeatherOverlayLayer {
     const config = WEATHER_CONFIGS[type]
     for (let i = 0; i < config.particleCount; i++) {
       this.particles.push({
-        x: Math.random() * this.width,
-        y: Math.random() * this.height,
-        phase: Math.random() * Math.PI * 2,
-        speedMul: 0.7 + Math.random() * 0.6,
-        alpha: 0.3 + Math.random() * 0.5
+        x: cryptoRandom() * this.width,
+        y: cryptoRandom() * this.height,
+        phase: cryptoRandom() * Math.PI * 2,
+        speedMul: 0.7 + cryptoRandom() * 0.6,
+        alpha: 0.3 + cryptoRandom() * 0.5
       })
     }
 
@@ -202,19 +203,19 @@ export class WeatherOverlayLayer {
       // Wrap around screen edges
       if (p.y > h) {
         p.y = -5
-        p.x = Math.random() * w
+        p.x = cryptoRandom() * w
       }
       if (p.y < -10) {
         p.y = h + 5
-        p.x = Math.random() * w
+        p.x = cryptoRandom() * w
       }
       if (p.x > w + 10) {
         p.x = -5
-        p.y = Math.random() * h
+        p.y = cryptoRandom() * h
       }
       if (p.x < -10) {
         p.x = w + 5
-        p.y = Math.random() * h
+        p.y = cryptoRandom() * h
       }
     }
 

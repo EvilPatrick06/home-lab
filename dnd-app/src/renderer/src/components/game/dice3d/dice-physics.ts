@@ -1,5 +1,6 @@
 import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
+import { cryptoRandom } from '../../../utils/crypto-random'
 
 // ─── Constants ────────────────────────────────────────────────
 
@@ -271,9 +272,9 @@ export function addDieToWorld(
   const spread = Math.min(totalDice, 6)
   const angle = (index / spread) * Math.PI * 2
   const radius = 1.0 + (totalDice > 3 ? 0.5 : 0)
-  const startX = Math.cos(angle) * radius + (Math.random() - 0.5) * 0.3
-  const startZ = Math.sin(angle) * radius + (Math.random() - 0.5) * 0.3
-  const startY = 5 + Math.random() * 2
+  const startX = Math.cos(angle) * radius + (cryptoRandom() - 0.5) * 0.3
+  const startZ = Math.sin(angle) * radius + (cryptoRandom() - 0.5) * 0.3
+  const startY = 5 + cryptoRandom() * 2
 
   const body = new CANNON.Body({
     mass: DIE_MASS,
@@ -285,17 +286,17 @@ export function addDieToWorld(
   })
 
   // Random initial rotation
-  body.quaternion.setFromEuler(Math.random() * Math.PI * 2, Math.random() * Math.PI * 2, Math.random() * Math.PI * 2)
+  body.quaternion.setFromEuler(cryptoRandom() * Math.PI * 2, cryptoRandom() * Math.PI * 2, cryptoRandom() * Math.PI * 2)
 
   // Random initial velocity
-  body.velocity.set((Math.random() - 0.5) * 8, -2 + Math.random() * 3, (Math.random() - 0.5) * 8)
+  body.velocity.set((cryptoRandom() - 0.5) * 8, -2 + cryptoRandom() * 3, (cryptoRandom() - 0.5) * 8)
 
   // Randomized angular velocity for natural tumbling
-  const angSpeed = 15 + Math.random() * 15
+  const angSpeed = 15 + cryptoRandom() * 15
   body.angularVelocity.set(
-    (Math.random() - 0.5) * angSpeed,
-    (Math.random() - 0.5) * angSpeed,
-    (Math.random() - 0.5) * angSpeed
+    (cryptoRandom() - 0.5) * angSpeed,
+    (cryptoRandom() - 0.5) * angSpeed,
+    (cryptoRandom() - 0.5) * angSpeed
   )
 
   pw.world.addBody(body)

@@ -1,3 +1,4 @@
+import { cryptoRandom } from '../../utils/crypto-random'
 export interface InlineRollResult {
   label: string // e.g., "Athletics", "Dexterity Save", "Longsword"
   formula: string // e.g., "1d20+5"
@@ -16,10 +17,10 @@ export function rollInline(
   modifier: number,
   advantage?: 'advantage' | 'disadvantage'
 ): InlineRollResult {
-  const roll1 = Math.floor(Math.random() * 20) + 1
+  const roll1 = Math.floor(cryptoRandom() * 20) + 1
 
   if (advantage) {
-    const roll2 = Math.floor(Math.random() * 20) + 1
+    const roll2 = Math.floor(cryptoRandom() * 20) + 1
     const chosen = advantage === 'advantage' ? Math.max(roll1, roll2) : Math.min(roll1, roll2)
     return {
       label,

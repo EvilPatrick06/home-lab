@@ -1,6 +1,7 @@
 import { addToast } from '../hooks/use-toast'
 import { load5eStartingEquipment } from '../services/data-provider'
 import type { MagicItemRarity5e } from '../types/character-common'
+import { cryptoRandom } from '../utils/crypto-random'
 import { logger } from '../utils/logger'
 
 export interface HigherLevelEquipment {
@@ -68,6 +69,6 @@ export function getStartingGoldBonus(level: number): { base: number; diceCount: 
 export function rollStartingGold(level: number): number {
   const bonus = getStartingGoldBonus(level)
   if (bonus.diceCount === 0) return bonus.base
-  const roll = Math.floor(Math.random() * 10) + 1 // 1d10
+  const roll = Math.floor(cryptoRandom() * 10) + 1 // 1d10
   return bonus.base + roll * bonus.diceMultiplier
 }

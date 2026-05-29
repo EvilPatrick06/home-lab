@@ -1,6 +1,7 @@
 import { addToast } from '../hooks/use-toast'
 import { load5ePersonalityTables } from '../services/data-provider'
 import type { AbilityScoreSet } from '../types/character-common'
+import { cryptoRandom } from '../utils/crypto-random'
 import { logger } from '../utils/logger'
 
 export const ABILITY_PERSONALITY: Record<string, { high: string[]; low: string[] }> = {}
@@ -20,7 +21,7 @@ load5ePersonalityTables()
 // upper bound, silently restricting every personality roll to the first
 // four entries of every table). Now samples from the full array length.
 function rollFrom<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)]
+  return arr[Math.floor(cryptoRandom() * arr.length)]
 }
 
 /**

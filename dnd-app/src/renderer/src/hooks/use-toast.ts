@@ -1,4 +1,5 @@
 import { useCallback, useSyncExternalStore } from 'react'
+import { cryptoRandom } from '../utils/crypto-random'
 
 export type ToastVariant = 'success' | 'error' | 'warning' | 'info'
 
@@ -33,7 +34,7 @@ function getSnapshot(): Toast[] {
 }
 
 export function addToast(message: string, variant: ToastVariant = 'info', duration = 4000): void {
-  const id = `toast-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+  const id = `toast-${Date.now()}-${cryptoRandom().toString(36).slice(2, 8)}`
   const toast: Toast = { id, message, variant, duration }
 
   toasts = [...toasts, toast].slice(-MAX_VISIBLE)

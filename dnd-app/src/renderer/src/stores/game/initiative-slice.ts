@@ -4,6 +4,7 @@ import { createAttackTracker } from '../../services/combat/multi-attack-tracker'
 import { smartPlaceTokens } from '../../services/game-actions/token-placement'
 import { pluginEventBus } from '../../services/plugin-system/event-bus'
 import type { EntityCondition, InitiativeEntry } from '../../types/game-state'
+import { cryptoRandom } from '../../utils/crypto-random'
 import { createTurnState, type GameStoreState, type InitiativeSliceState } from './types'
 
 export const createInitiativeSlice: StateCreator<GameStoreState, [], [], InitiativeSliceState> = (set, get) => ({
@@ -22,7 +23,7 @@ export const createInitiativeSlice: StateCreator<GameStoreState, [], [], Initiat
     const map = maps.find((m) => m.id === activeMapId)
     if (!map) return
     const placed = smartPlaceTokens(map, wave.tokens)
-    const rollD20 = (): number => Math.floor(Math.random() * 20) + 1
+    const rollD20 = (): number => Math.floor(cryptoRandom() * 20) + 1
     for (const token of placed) {
       get().addToken(map.id, token as import('../../types/map').MapToken)
       const mod = (token as { initiativeModifier?: number }).initiativeModifier ?? 0

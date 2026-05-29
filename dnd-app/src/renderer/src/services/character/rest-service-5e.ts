@@ -429,7 +429,7 @@ export function applyLongRest(character: Character5e): LongRestResult {
         const sides = parseInt(match[2], 10)
         const mod = match[3] ? parseInt(match[3].replace(/\s/g, ''), 10) : 0
         let roll = mod
-        for (let r = 0; r < count; r++) roll += Math.floor(Math.random() * sides) + 1
+        for (let r = 0; r < count; r++) roll += Math.floor(cryptoRandom() * sides) + 1
         restored = Math.min(mi.charges.max, mi.charges.current + Math.max(0, roll))
       }
     }

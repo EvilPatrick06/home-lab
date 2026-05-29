@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { rollFormula } from '../../../../services/dice/dice-engine'
 import { useCampaignStore } from '../../../../stores/use-campaign-store'
 import { useLobbyStore } from '../../../../stores/use-lobby-store'
+import { cryptoRandom } from '../../../../utils/crypto-random'
 
 interface RollTableModalProps {
   onClose: () => void
@@ -253,7 +254,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
       if (hasWeights) {
         // Weighted pick
         const totalWeight = table.entries.reduce((sum, e) => sum + (e.weight ?? 1), 0)
-        let r = Math.random() * totalWeight
+        let r = cryptoRandom() * totalWeight
         for (let i = 0; i < table.entries.length; i++) {
           r -= table.entries[i].weight ?? 1
           if (r <= 0) {

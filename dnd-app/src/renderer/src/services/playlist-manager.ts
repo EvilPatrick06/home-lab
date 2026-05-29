@@ -1,3 +1,4 @@
+import { cryptoRandom } from '../utils/crypto-random'
 import { logger } from '../utils/logger'
 
 /**
@@ -96,7 +97,7 @@ export function nextIndex(playlist: Playlist): number | null {
     if (n === 1) return playlist.loopPlaylist ? 0 : null
     let idx = playlist.currentIndex
     // Avoid immediately repeating the same track.
-    while (idx === playlist.currentIndex) idx = Math.floor(Math.random() * n)
+    while (idx === playlist.currentIndex) idx = Math.floor(cryptoRandom() * n)
     return idx
   }
   const next = playlist.currentIndex + 1

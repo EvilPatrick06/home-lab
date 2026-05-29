@@ -3,6 +3,7 @@
 import { addToast } from '../hooks/use-toast'
 import { load5eSentientItems } from '../services/data-provider'
 import type { SentientCommunication } from '../types/character-5e'
+import { cryptoRandom } from '../utils/crypto-random'
 import { logger } from '../utils/logger'
 
 // Module-level caches
@@ -46,7 +47,7 @@ export interface SentientItemProperties {
 // ---- Dice Helpers ----------------------------------------------------------
 
 function roll(sides: number): number {
-  return Math.floor(Math.random() * sides) + 1
+  return Math.floor(cryptoRandom() * sides) + 1
 }
 
 function rollAbility(): number {

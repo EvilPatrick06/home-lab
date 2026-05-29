@@ -21,6 +21,7 @@ import {
 } from '../../../../services/downtime-service'
 import type { Campaign, DowntimeProgressEntry } from '../../../../types/campaign'
 import type { Character5e } from '../../../../types/character-5e'
+import { cryptoRandom } from '../../../../utils/crypto-random'
 import { logger } from '../../../../utils/logger'
 import CraftingBrowser from './CraftingBrowser'
 
@@ -271,7 +272,7 @@ function ActivitiesTab({
     const details =
       selectedRarity || selectedPotion || (selected.spellLevelTable ? `Level ${selectedSpellLevel} spell` : '')
     const entry: DowntimeProgressEntry = {
-      id: `dt-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      id: `dt-${Date.now()}-${cryptoRandom().toString(36).slice(2, 8)}`,
       activityId: selected.id,
       activityName: selected.name,
       characterId,
@@ -813,7 +814,7 @@ function CraftingTab({
   const handleStartCrafting = (item: string, tool: string, days: number, cost: string, recipeId?: string): void => {
     if (!characterId) return
     const entry: DowntimeProgressEntry = {
-      id: `craft-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      id: `craft-${Date.now()}-${cryptoRandom().toString(36).slice(2, 8)}`,
       activityId: 'crafting',
       activityName: `Craft: ${item}`,
       characterId,
@@ -955,7 +956,7 @@ function TrainingTab({
   const handleStartTraining = (): void => {
     if (!characterId || !selectedTarget) return
     const entry: DowntimeProgressEntry = {
-      id: `train-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      id: `train-${Date.now()}-${cryptoRandom().toString(36).slice(2, 8)}`,
       activityId: 'training',
       activityName: `Training: ${selectedTarget}`,
       characterId,

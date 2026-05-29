@@ -1,6 +1,7 @@
 import type { PDFDocumentProxy } from 'pdfjs-dist'
 import * as pdfjsLib from 'pdfjs-dist'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { cryptoRandom } from '../../utils/crypto-random'
 import { logger } from '../../utils/logger'
 import type { DrawingStroke, DrawingTool, PageDrawings } from './PdfDrawingOverlay'
 
@@ -442,7 +443,7 @@ const CROSS_BOOK_REFS: Record<string, TocEntry[]> = {
 }
 
 function generateId(): string {
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
+  return `${Date.now()}-${cryptoRandom().toString(36).slice(2, 9)}`
 }
 
 export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook }: PdfViewerProps): JSX.Element {

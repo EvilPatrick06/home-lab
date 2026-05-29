@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { loadVariantItemsForUi, VARIANT_ITEMS } from '../../../data/variant-items'
 import { DATA_PATHS, loadJson, type TrinketsFile } from '../../../services/data-provider'
+import { cryptoRandom } from '../../../utils/crypto-random'
 
 type _TrinketsFile = TrinketsFile
 
@@ -19,7 +20,7 @@ function TrinketRoller(): JSX.Element {
   const handleRoll = useCallback(async () => {
     try {
       const trinkets = await loadJson<string[]>(DATA_PATHS.trinkets)
-      const idx = Math.floor(Math.random() * trinkets.length)
+      const idx = Math.floor(cryptoRandom() * trinkets.length)
       setRollNumber(idx + 1)
       addEquipmentItem({ name: trinkets[idx], quantity: 1, source: 'trinket' })
     } catch {

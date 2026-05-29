@@ -8,6 +8,7 @@ import {
   RECONNECT_DELAY_MS
 } from '../constants'
 import { getOrCreateClientId } from '../utils/client-id'
+import { cryptoRandom } from '../utils/crypto-random'
 import { logger } from '../utils/logger'
 import { decodeMessage } from './msgpack-codec'
 import { createPeer, destroyPeer, getPeerId } from './peer-manager'
@@ -459,7 +460,7 @@ function handleDisconnection(reason: string): void {
     retryCount++
     // Exponential backoff with jitter, minimum RECONNECT_DELAY_MS (capped at 30s)
     const delay = Math.max(RECONNECT_DELAY_MS, Math.min(BASE_RETRY_MS * 2 ** (retryCount - 1), MAX_RETRY_MS))
-    const jitter = Math.floor(Math.random() * 500)
+    const jitter = Math.floor(cryptoRandom() * 500)
     const totalDelay = delay + jitter
     logger.debug(
       `[ClientManager] Connection lost. Retrying (${retryCount}/${MAX_RECONNECT_RETRIES}) in ${totalDelay}ms...`

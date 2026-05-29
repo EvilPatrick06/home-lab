@@ -1,5 +1,6 @@
 import { is5eCharacter } from '../../types/character'
 import type { Character5e } from '../../types/character-5e'
+import { cryptoRandom } from '../../utils/crypto-random'
 import {
   addConditionOnCharacter,
   removeConditionByPrefix,
@@ -296,7 +297,7 @@ const superiorityCommand: ChatCommand = {
     }
     const maneuver = args.trim() || 'a maneuver'
     const name = ctx.character.name || 'Character'
-    const roll = Math.floor(Math.random() * 8) + 1
+    const roll = Math.floor(cryptoRandom() * 8) + 1
     ctx.broadcastSystemMessage(`${name} uses Superiority Die (${maneuver}): **d8 = ${roll}**`)
     return { handled: true }
   }
@@ -320,7 +321,7 @@ const secondWindCommand: ChatCommand = {
     }
     const name = char.name || 'Character'
     const level = char.level || 1
-    const roll = Math.floor(Math.random() * 10) + 1
+    const roll = Math.floor(cryptoRandom() * 10) + 1
     const total = roll + level
     ctx.broadcastSystemMessage(`${name} uses **Second Wind**: 1d10 (${roll}) + ${level} = **${total} HP healed**`)
     return { handled: true }
@@ -392,7 +393,7 @@ const hitDiceCommand: ChatCommand = {
     let total = 0
     const rolls: number[] = []
     for (let i = 0; i < count; i++) {
-      const r = Math.floor(Math.random() * dieSize) + 1
+      const r = Math.floor(cryptoRandom() * dieSize) + 1
       rolls.push(r + conMod)
       total += Math.max(1, r + conMod) // Minimum 1 HP per hit die
     }

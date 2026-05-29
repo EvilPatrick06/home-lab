@@ -16,6 +16,7 @@ import {
 import { NPC_MANNERISMS, NPC_VOICE_DESCRIPTIONS } from '../../../data/npc-mannerisms'
 import { ALIGNMENT_PERSONALITY } from '../../../data/personality-tables'
 import type { SidebarEntryStatBlock } from '../../../types/game-state'
+import { cryptoRandom } from '../../../utils/crypto-random'
 
 // ─── NPC Templates ──────────────────────────────────────────────
 
@@ -221,7 +222,7 @@ const NPC_LAST_NAMES = [
 const NPC_SPECIES = ['Human', 'Elf', 'Dwarf', 'Halfling', 'Gnome', 'Half-Orc', 'Tiefling', 'Dragonborn']
 
 function pickRandom<T>(arr: readonly T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)]
+  return arr[Math.floor(cryptoRandom() * arr.length)]
 }
 
 function pickRandomPersonalityTrait(): string {

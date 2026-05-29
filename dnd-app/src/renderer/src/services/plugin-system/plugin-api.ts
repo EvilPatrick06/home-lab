@@ -7,6 +7,7 @@
 
 import type { PluginManifest, PluginPermission } from '../../../../shared/plugin-types'
 import { registerGameSystem } from '../../types/game-system'
+import { cryptoRandom } from '../../utils/crypto-random'
 import { logger } from '../../utils/logger'
 import { type AsyncEventHandler, type EventHandler, pluginEventBus } from './event-bus'
 import { getPluginCommandRegistry, getPluginUIRegistry } from './plugin-registry-data'
@@ -257,7 +258,7 @@ export function createPluginAPI(
       requirePermission('sounds', 'sounds.play()')
       const urls = soundRegistry.get(eventName)
       if (!urls || urls.length === 0) return
-      const url = urls[Math.floor(Math.random() * urls.length)]
+      const url = urls[Math.floor(cryptoRandom() * urls.length)]
       try {
         const audio = new Audio(url)
         audio.volume = 0.5

@@ -11,6 +11,7 @@ import { useGameStore } from '../../../../stores/use-game-store'
 import type { InitiativeEntry } from '../../../../types/game-state'
 import type { MapToken } from '../../../../types/map'
 import { getSizeTokenDimensions } from '../../../../types/monster'
+import { cryptoRandom } from '../../../../utils/crypto-random'
 import { logger } from '../../../../utils/logger'
 import { Skeleton } from '../../../ui'
 
@@ -256,7 +257,7 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
       return
     }
 
-    const rollD20 = (): number => Math.floor(Math.random() * 20) + 1
+    const rollD20 = (): number => Math.floor(cryptoRandom() * 20) + 1
 
     // Phase 26d — wave 1 deploys now; waves 2+ become pending (deploy from the
     // Initiative Tracker). Monsters with no wave default to wave 1.

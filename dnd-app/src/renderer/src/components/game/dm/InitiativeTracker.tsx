@@ -5,6 +5,7 @@ import { useGameStore } from '../../../stores/use-game-store'
 import type { CombatTimerConfig } from '../../../types/campaign'
 import type { InitiativeEntry, InitiativeState } from '../../../types/game-state'
 import type { MapToken } from '../../../types/map'
+import { cryptoRandom } from '../../../utils/crypto-random'
 import { EmptyState } from '../../ui'
 import InitiativeControls from './InitiativeControls'
 import InitiativeEntryRow from './InitiativeEntry'
@@ -170,11 +171,11 @@ export default function InitiativeTracker({
         if (isGroupInit && e.entityType === 'enemy' && groupRolls.has(groupKey)) {
           roll = groupRolls.get(groupKey)!
         } else if (e.surprised) {
-          const r1 = Math.floor(Math.random() * 20) + 1
-          const r2 = Math.floor(Math.random() * 20) + 1
+          const r1 = Math.floor(cryptoRandom() * 20) + 1
+          const r2 = Math.floor(cryptoRandom() * 20) + 1
           roll = Math.min(r1, r2)
         } else {
-          roll = Math.floor(Math.random() * 20) + 1
+          roll = Math.floor(cryptoRandom() * 20) + 1
         }
         if (isGroupInit && e.entityType === 'enemy' && !groupRolls.has(groupKey)) {
           groupRolls.set(groupKey, roll)
@@ -240,7 +241,7 @@ export default function InitiativeTracker({
       const monster = allMonsters.find((m) => m.id === payload.itemId)
       if (!monster) return
       const mod = monster.initiative?.modifier ?? Math.floor((monster.abilityScores.dex - 10) / 2)
-      const roll = Math.floor(Math.random() * 20) + 1
+      const roll = Math.floor(cryptoRandom() * 20) + 1
       onAddEntry({
         id: crypto.randomUUID(),
         entityId: crypto.randomUUID(),

@@ -1,8 +1,18 @@
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+// Phase 28e.3 — rolls use cryptoRandom (CSPRNG) now, so mock that instead of Math.random.
+import { cryptoRandom } from '../../utils/crypto-random'
 import type { InlineRollResult } from './inline-roller'
 import { formatInlineRoll, rollInline } from './inline-roller'
 
+vi.mock('../../utils/crypto-random', () => ({ cryptoRandom: vi.fn(() => 0.5) }))
+const mockCryptoRandom = vi.mocked(cryptoRandom)
+
 describe('rollInline', () => {
+  beforeEach(() => {
+    mockCryptoRandom.mockReset()
+    mockCryptoRandom.mockReturnValue(0.5)
+  })
+
   it('returns a result with correct label and modifier', () => {
     const result = rollInline('Athletics', 5)
     expect(result.label).toBe('Athletics')
@@ -29,7 +39,7 @@ describe('rollInline', () => {
   })
 
   it('detects natural 20 as crit', () => {
-    vi.spyOn(Math, 'random').mockReturnValue(0.999) // → 20
+    mockCryptoRandom.mockReturnValue(0.999) // → 20
     const result = rollInline('Test', 0)
     expect(result.roll).toBe(20)
     expect(result.isCrit).toBe(true)
@@ -38,7 +48,7 @@ describe('rollInline', () => {
   })
 
   it('detects natural 1 as fumble', () => {
-    vi.spyOn(Math, 'random').mockReturnValue(0.0) // → 1
+    mockCryptoRandom.mockReturnValue(0.0) // → 1
     const result = rollInline('Test', 0)
     expect(result.roll).toBe(1)
     expect(result.isFumble).toBe(true)
@@ -48,10 +58,7 @@ describe('rollInline', () => {
 
   it('advantage picks higher of two rolls', () => {
     // Mock: first roll=5 (0.2*20+1=5), second roll=15 (0.7*20+1=15)
-    const _mockRandom = vi
-      .spyOn(Math, 'random')
-      .mockReturnValueOnce(0.2) // roll1 = 5
-      .mockReturnValueOnce(0.7) // roll2 = 15
+    mockCryptoRandom.mockReturnValueOnce(0.2).mockReturnValueOnce(0.7) // roll1=5, roll2=15
     const result = rollInline('Test', 0, 'advantage')
     expect(result.roll).toBe(15) // max(5, 15)
     expect(result.rolls).toEqual([5, 15])
@@ -60,10 +67,7 @@ describe('rollInline', () => {
   })
 
   it('disadvantage picks lower of two rolls', () => {
-    const _mockRandom = vi
-      .spyOn(Math, 'random')
-      .mockReturnValueOnce(0.7) // roll1 = 15
-      .mockReturnValueOnce(0.2) // roll2 = 5
+    mockCryptoRandom.mockReturnValueOnce(0.7).mockReturnValueOnce(0.2) // roll1=15, roll2=5
     const result = rollInline('Test', 0, 'disadvantage')
     expect(result.roll).toBe(5) // min(15, 5)
     expect(result.rolls).toEqual([15, 5])

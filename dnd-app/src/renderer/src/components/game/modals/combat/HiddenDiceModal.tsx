@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useGameStore } from '../../../../stores/use-game-store'
 import { useLobbyStore } from '../../../../stores/use-lobby-store'
+import { cryptoRandom } from '../../../../utils/crypto-random'
 import DiceResult from '../../dice3d/DiceResult'
 
 interface HiddenDiceModalProps {
@@ -30,7 +31,7 @@ export default function HiddenDiceModal({ onClose }: HiddenDiceModalProps): JSX.
 
     const rolls: number[] = []
     for (let i = 0; i < parsed.count; i++) {
-      rolls.push(Math.floor(Math.random() * parsed.sides) + 1)
+      rolls.push(Math.floor(cryptoRandom() * parsed.sides) + 1)
     }
     const total = rolls.reduce((sum, r) => sum + r, 0) + parsed.modifier
 

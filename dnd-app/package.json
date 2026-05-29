@@ -35,11 +35,13 @@
     "test:coverage": "vitest run --coverage",
     "lint": "biome check src/",
     "lint:fix": "biome check --write src/",
+    "lint:forbidden": "node scripts/lint/forbidden-patterns.mjs",
     "format": "biome format --write src/",
     "audit:ci": "npm audit --audit-level=moderate --omit=dev",
     "audit:all": "npm audit --audit-level=moderate",
     "dead-code": "npx knip",
-    "circular": "npx dpdm@3.14.0 --no-warning --no-tree --transform --extensions ts,tsx --exit-code circular:0 src/main/index.ts src/renderer/src/main.tsx"
+    "circular": "npx dpdm@3.14.0 --no-warning --no-tree --transform --extensions ts,tsx --exit-code circular:0 src/main/index.ts src/renderer/src/main.tsx",
+    "check:full": "npm run lint && npm run lint:forbidden && tsc --noEmit -p tsconfig.web.json && tsc --noEmit -p tsconfig.node.json && npm test && npm run circular && npm run dead-code && npm run audit:ci"
   },
   "keywords": [
     "dnd",

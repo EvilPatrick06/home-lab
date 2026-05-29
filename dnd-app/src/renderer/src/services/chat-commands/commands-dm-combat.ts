@@ -1,4 +1,5 @@
 import { useGameStore } from '../../stores/use-game-store'
+import { cryptoRandom } from '../../utils/crypto-random'
 import { findTokenByName } from './helpers'
 import type { ChatCommand } from './types'
 
@@ -69,7 +70,7 @@ const rollforCommand: ChatCommand = {
 
     const rolls: number[] = []
     for (let i = 0; i < count; i++) {
-      rolls.push(Math.floor(Math.random() * sides) + 1)
+      rolls.push(Math.floor(cryptoRandom() * sides) + 1)
     }
     const sum = rolls.reduce((a, b) => a + b, 0)
     const total = sum + modifier

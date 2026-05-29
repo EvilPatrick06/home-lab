@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { load5eTreasureTables } from '../../../../services/data-provider'
 import { rollMultiple, rollSingle } from '../../../../services/dice/dice-service'
+import { cryptoRandom } from '../../../../utils/crypto-random'
 import { logger } from '../../../../utils/logger'
 import { Skeleton } from '../../../ui'
 import type {
@@ -41,7 +42,7 @@ function rollD100(): number {
 }
 
 function pickRandom<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)]
+  return arr[Math.floor(cryptoRandom() * arr.length)]
 }
 
 const FALLBACK_GEMS = [

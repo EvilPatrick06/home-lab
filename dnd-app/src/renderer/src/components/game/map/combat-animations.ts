@@ -5,6 +5,7 @@
 // ---------------------------------------------------------------------------
 
 import { type Application, Container, Graphics, Text } from 'pixi.js'
+import { cryptoRandom } from '../../../utils/crypto-random'
 
 // ---- Public types ---------------------------------------------------------
 
@@ -72,7 +73,7 @@ function clamp01(v: number): number {
 
 // Utility: random float in [min, max)
 function rand(min: number, max: number): number {
-  return Math.random() * (max - min) + min
+  return cryptoRandom() * (max - min) + min
 }
 
 // ---- Animation layer factory ----------------------------------------------
@@ -93,7 +94,7 @@ export function createCombatAnimationLayer(app: Application): {
   }
 
   function spawnSlash(event: CombatAnimationEvent): void {
-    const arcCount = 3 + Math.floor(Math.random() * 3) // 3-5
+    const arcCount = 3 + Math.floor(cryptoRandom() * 3) // 3-5
     const color = event.color ?? 0xffffff
     const cx = event.toX
     const cy = event.toY
@@ -191,7 +192,7 @@ export function createCombatAnimationLayer(app: Application): {
 
   function spawnSpellBurst(event: CombatAnimationEvent): void {
     const color = event.color ?? 0x9933ff
-    const count = 8 + Math.floor(Math.random() * 5) // 8-12
+    const count = 8 + Math.floor(cryptoRandom() * 5) // 8-12
     const duration = 0.5
     const cx = event.toX
     const cy = event.toY

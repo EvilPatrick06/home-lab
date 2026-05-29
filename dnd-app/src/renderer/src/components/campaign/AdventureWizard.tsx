@@ -1,6 +1,7 @@
 import adventureSeedsJson from '@data/5e/world/adventure-seeds.json'
 import { useState } from 'react'
 import { load5eAdventureSeeds } from '../../services/data-provider'
+import { cryptoRandom } from '../../utils/crypto-random'
 
 const ADVENTURE_SEEDS: Record<string, string[]> = adventureSeedsJson
 
@@ -50,7 +51,7 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
 
   const rollSeed = (): void => {
     const seeds = ADVENTURE_SEEDS[data.levelTier]
-    const seed = seeds[Math.floor(Math.random() * seeds.length)]
+    const seed = seeds[Math.floor(cryptoRandom() * seeds.length)]
     update('premise', seed)
   }
 

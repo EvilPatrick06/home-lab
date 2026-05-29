@@ -6,6 +6,7 @@ import { LANGUAGE_DESCRIPTIONS } from '../../../data/language-descriptions'
 import { load5eLanguageD12Table } from '../../../services/data-provider'
 import { useBuilderStore } from '../../../stores/use-builder-store'
 import { RARE_LANGUAGES_5E, STANDARD_LANGUAGES_5E } from '../../../types/character-common'
+import { cryptoRandom } from '../../../utils/crypto-random'
 import SectionBanner from '../shared/SectionBanner'
 
 const LANGUAGE_D12_TABLE: { min: number; max: number; language: string }[] = languageD12Json
@@ -20,14 +21,14 @@ function rollD12Language(knownSet: Set<string>): { roll: number; language: strin
   const available = LANGUAGE_D12_TABLE.filter((e) => !knownSet.has(e.language))
   if (available.length === 0) return null
 
-  const roll = Math.floor(Math.random() * 12) + 1
+  const roll = Math.floor(cryptoRandom() * 12) + 1
   const entry = LANGUAGE_D12_TABLE.find((e) => roll >= e.min && roll <= e.max)
 
   if (entry && !knownSet.has(entry.language)) {
     return { roll, language: entry.language }
   }
   // Re-roll: pick randomly from available entries
-  const pick = available[Math.floor(Math.random() * available.length)]
+  const pick = available[Math.floor(cryptoRandom() * available.length)]
   return { roll, language: pick.language }
 }
 

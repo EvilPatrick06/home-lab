@@ -3,6 +3,7 @@
 
 import { addToast } from '../hooks/use-toast'
 import { load5eWeatherGeneration } from '../services/data-provider'
+import { cryptoRandom } from '../utils/crypto-random'
 import { logger } from '../utils/logger'
 
 export type Climate = 'arctic' | 'temperate' | 'tropical' | 'desert' | 'coastal'
@@ -103,7 +104,7 @@ load5eWeatherGeneration()
 
 function weightedPick<T>(weights: [T, number][]): T {
   const total = weights.reduce((sum, [, w]) => sum + w, 0)
-  let r = Math.random() * total
+  let r = cryptoRandom() * total
   for (const [value, weight] of weights) {
     r -= weight
     if (r <= 0) return value
@@ -112,7 +113,7 @@ function weightedPick<T>(weights: [T, number][]): T {
 }
 
 function randomInRange(min: number, max: number): number {
-  return Math.round(min + Math.random() * (max - min))
+  return Math.round(min + cryptoRandom() * (max - min))
 }
 
 function getMapPreset(precipitation: PrecipitationLevel, temperature: TemperatureLevel): string {
