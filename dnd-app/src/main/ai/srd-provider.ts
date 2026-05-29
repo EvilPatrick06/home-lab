@@ -1,20 +1,16 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { app } from 'electron'
-
-function getSrdDir(): string {
-  if (app.isPackaged) {
-    return join(process.resourcesPath, 'app.asar', 'renderer', 'public', 'data', '5e')
-  }
-  return join(app.getAppPath(), 'src', 'renderer', 'public', 'data', '5e')
-}
+import { getDataDir } from '../paths'
 
 const cache: Record<string, unknown[]> = {}
 
 function loadJson<T>(filename: string): T[] {
   if (cache[filename]) return cache[filename] as T[]
 
-  const filePath = join(getSrdDir(), filename)
+  // Phase 19a/19b — was `process.resourcesPath/app.asar/renderer/public/data/5e`,
+  // which both kept a stale `public/` segment and dropped `out/`, so packaged SRD
+  // lookups silently returned nothing. Now routed through the shared resolver.
+  const filePath = join(getDataDir(), filename)
   if (!existsSync(filePath)) return []
 
   try {

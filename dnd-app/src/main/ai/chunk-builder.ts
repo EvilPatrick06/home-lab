@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 
 import { dirname, join } from 'node:path'
 import { app } from 'electron'
 import { logToFile } from '../log'
+import { getResourcePath } from '../paths'
 import type { BookSource, Chunk, ChunkIndex } from './types'
 
 const MAX_CHUNK_TOKENS = 4000
@@ -21,7 +22,7 @@ const SOURCES: SourceDir[] = [
 
 function getReferencesBase(): string {
   if (app.isPackaged) {
-    return join(process.resourcesPath, 'rulebooks')
+    return getResourcePath('rulebooks')
   }
   const appPath = app.getAppPath()
   const besideDndApp = join(appPath, '..', '5.5e References')
@@ -289,7 +290,7 @@ export function buildChunkIndex(onProgress?: (percent: number, stage: string) =>
 
 function getBundledIndexPath(): string {
   if (app.isPackaged) {
-    return join(process.resourcesPath, 'chunk-index.json')
+    return getResourcePath('chunk-index.json')
   }
   return join(app.getAppPath(), 'resources', 'chunk-index.json')
 }

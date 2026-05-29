@@ -1,14 +1,13 @@
 import { readFile } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
-import { is } from '@electron-toolkit/utils'
-import { app, ipcMain } from 'electron'
+import { ipcMain } from 'electron'
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
 import { logToFile } from '../log'
+import { getRendererPublicDir } from '../paths'
 
 export function registerGameDataHandlers(): void {
-  // In dev: public/ files are under src/renderer/public/
-  // In prod: they're copied to out/renderer/ inside the asar
-  const dataBase = is.dev ? join(app.getAppPath(), 'src', 'renderer', 'public') : join(__dirname, '..', 'renderer')
+  // Phase 19b — dev/packaged base for the renderer public/ tree (shared resolver).
+  const dataBase = getRendererPublicDir()
 
   const resolvedBase = resolve(dataBase)
 

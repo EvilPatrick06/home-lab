@@ -1,7 +1,7 @@
-import { app } from 'electron'
 import * as fs from 'fs'
 import * as path from 'path'
 import { logToFile } from '../log'
+import { getDataDir } from '../paths'
 import { formatCampaignForContext, loadCampaignById } from './campaign-context'
 import { formatCharacterAbbreviated, formatCharacterForContext, loadCharacterById } from './character-context'
 import type { FileReadRequest } from './file-reader'
@@ -20,14 +20,9 @@ type _FileReadRequest = FileReadRequest
 type _WebSearchRequest = WebSearchRequest
 type _WebSearchResult = WebSearchResult
 
-// Electron-safe data directory for SRD/monster JSON files
-function getDataDir(): string {
-  if (process.env.NODE_ENV !== 'production') {
-    return path.join(__dirname, '..', '..', 'renderer', 'public', 'data', '5e')
-  }
-  // In packaged builds, public assets are copied to out/renderer/
-  return path.join(app.getAppPath(), 'out', 'renderer', 'data', '5e')
-}
+// Phase 19a/19b — SRD/monster JSON dir now comes from the shared resolver
+// (was a bespoke NODE_ENV branch with a dev path that resolved incorrectly under
+// electron-vite's `out/main` __dirname).
 
 // Cache loaded monster data
 let monsterDataCache: Map<string, Record<string, unknown>> | null = null
