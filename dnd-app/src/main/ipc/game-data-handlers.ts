@@ -4,6 +4,7 @@ import { ipcMain } from 'electron'
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
 import { logToFile } from '../log'
 import { getRendererPublicDir } from '../paths'
+import { logSecurityEvent } from '../security-log'
 
 export function registerGameDataHandlers(): void {
   // Phase 19b — dev/packaged base for the renderer public/ tree (shared resolver).
@@ -22,6 +23,7 @@ export function registerGameDataHandlers(): void {
 
     // Security: prevent path traversal outside the data directory
     if (!fullPath.startsWith(resolvedBase)) {
+      logSecurityEvent('ipc.path_traversal.denied', { channel: 'GAME_LOAD_JSON', path: relativePath })
       throw new Error('Access denied: path traversal detected')
     }
 

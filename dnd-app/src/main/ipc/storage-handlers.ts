@@ -8,6 +8,7 @@ import {
   HomebrewSaveSchema
 } from '../../shared/storage-schemas'
 import { applyBmoBaseUrlFromSettings } from '../bmo-config'
+import { logSecurityEvent } from '../security-log'
 import { loadBans, saveBans } from '../storage/ban-storage'
 import { deleteBastion, loadBastion, loadBastions, saveBastion } from '../storage/bastion-storage'
 import {
@@ -112,6 +113,10 @@ export function registerStorageHandlers(): void {
       fileName.includes('\0') ||
       !/\.json$/i.test(fileName)
     ) {
+      logSecurityEvent('ipc.path_traversal.denied', {
+        channel: 'CHARACTER_RESTORE_VERSION',
+        fileName: String(fileName)
+      })
       throw new Error('Invalid version file name')
     }
     return restoreCharacterVersion(id, fileName)

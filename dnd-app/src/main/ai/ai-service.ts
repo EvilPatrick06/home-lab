@@ -4,6 +4,7 @@ import { app, BrowserWindow } from 'electron'
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
 import { sendNarrationToDiscord } from '../discord-integration'
 import { logToFile } from '../log'
+import { logSecurityEvent } from '../security-log'
 import { saveConversation } from '../storage/ai-conversation-storage'
 import { atomicWriteFile } from '../storage/atomic-write'
 import { decryptOptional, encryptOptional } from '../storage/safe-secret-storage'
@@ -247,9 +248,15 @@ export async function configure(config: AiConfig): Promise<void> {
   // Phase 20a — validate key formats up front so a typo'd key is rejected with a
   // clear error (surfaced to the AI settings UI via the IPC error envelope)
   // instead of being silently saved and failing later on first request.
-  validateApiKeyFormat('claude', config.claudeApiKey)
-  validateApiKeyFormat('openai', config.openaiApiKey)
-  validateApiKeyFormat('gemini', config.geminiApiKey)
+  // Phase 20g — log a malformed-key rejection before rethrowing.
+  try {
+    validateApiKeyFormat('claude', config.claudeApiKey)
+    validateApiKeyFormat('openai', config.openaiApiKey)
+    validateApiKeyFormat('gemini', config.geminiApiKey)
+  } catch (err) {
+    logSecurityEvent('ai.api_key.invalid_format', { error: err instanceof Error ? err.message : String(err) })
+    throw err
+  }
 
   currentConfig = {
     provider: config.provider ?? 'ollama',
