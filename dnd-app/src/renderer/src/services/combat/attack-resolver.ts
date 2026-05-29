@@ -66,10 +66,18 @@ export function findWeapon(weapons: WeaponEntry[], search: string): WeaponEntry 
 }
 
 /**
- * Determine if a weapon is a melee weapon (no range property, or has Thrown).
+ * Determine if a weapon is being used as a melee weapon.
+ *
+ * Phase 17c (LOG-7) — a thrown weapon (e.g. handaxe) carries BOTH a range and the Thrown
+ * property; it's a melee attack only when used in melee (≤5 ft) and a ranged attack when thrown.
+ * Pass `attackDistance` (feet) so a thrown weapon used at range is classified as ranged. When
+ * the distance is unknown, a thrown weapon defaults to melee (the prior behavior).
  */
-function isMeleeWeapon(weapon: WeaponEntry): boolean {
-  return !weapon.range || weapon.properties.some((p) => p.toLowerCase() === 'thrown')
+function isMeleeWeapon(weapon: WeaponEntry, attackDistance?: number): boolean {
+  if (!weapon.range) return true // no range = pure melee weapon
+  const isThrown = weapon.properties.some((p) => p.toLowerCase() === 'thrown')
+  if (isThrown) return attackDistance === undefined || attackDistance <= 5
+  return false // has a range and isn't thrown = ranged weapon
 }
 
 /**
@@ -342,8 +350,8 @@ export function resolveAttack(
   if (hasFinesse(weapon)) {
     // Finesse: use higher of STR or DEX
     attackAbilityMod = Math.max(strMod, dexMod)
-  } else if (isRangedWeapon(weapon) && !isMeleeWeapon(weapon)) {
-    // Pure ranged weapon: use DEX
+  } else if (isRangedWeapon(weapon) && !isMeleeWeapon(weapon, isInMeleeRange(attackerToken, targetToken) ? 5 : 10)) {
+    // Ranged attack (incl. a thrown weapon used at range — Phase 17c LOG-7): use DEX
     attackAbilityMod = dexMod
   } else {
     // Melee weapon: use STR

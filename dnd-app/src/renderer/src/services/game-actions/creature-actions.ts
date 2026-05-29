@@ -5,6 +5,7 @@
 
 import type { InitiativeEntry } from '../../types/game-state'
 import type { MonsterStatBlock } from '../../types/monster'
+import { getCreatureSaveMod } from '../game/token-stats'
 import { play as playSound } from '../sound-manager'
 import { broadcastConditionSync, broadcastInitiativeSync, broadcastTokenSync } from './broadcast-helpers'
 import { findTokensInArea, rollDiceFormula } from './dice-helpers'
@@ -329,8 +330,9 @@ export function executeApplyAreaEffect(
   for (const token of affectedTokens) {
     let saved = false
     if (saveType && saveDC) {
+      // Phase 17c (LOG-4) — add the target's save modifier (was a bare d20 vs DC).
       const saveRoll = rollDiceFormula('1d20')
-      saved = saveRoll.total >= saveDC
+      saved = saveRoll.total + getCreatureSaveMod(token, saveType) >= saveDC
     }
 
     if (damageFormula) {

@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { useLibraryStore } from '../../stores/use-library-store'
 import type { MapToken } from '../../types/map'
 import type { MonsterStatBlock } from '../../types/monster'
+import { logger } from '../../utils/logger'
 
 /**
  * Phase 15e — token live stat resolution.
@@ -116,4 +117,25 @@ export function useEffectiveTokenStats(token: MapToken): EffectiveTokenStats {
     }
     return resolveTokenStats(token, monster)
   }, [token, entries])
+}
+
+/**
+ * Phase 17c (LOG-4) — the target's saving-throw modifier for an area-effect save. Pulls the
+ * proficient save bonus (or the bare ability modifier) from the token's linked library stat
+ * block. Falls back to +0 with a logged warning for tokens with no stat block (player/custom),
+ * which is safer than silently inflating AoE damage by omitting the modifier entirely.
+ *
+ * `ability` accepts long or short names ("dexterity"/"dex"); only the first three letters matter.
+ */
+export function getCreatureSaveMod(token: MapToken, ability: string): number {
+  const key = ability.slice(0, 3).toLowerCase() as 'str' | 'dex' | 'con' | 'int' | 'wis' | 'cha'
+  const monster = lookupTokenStatBlock(token.monsterStatBlockId)
+  if (monster) {
+    const save = monster.savingThrows?.[key]
+    if (save !== undefined) return save
+    const score = monster.abilityScores?.[key]
+    if (score !== undefined) return Math.floor((score - 10) / 2)
+  }
+  logger.warn(`[combat] AoE save: no stat block for token "${token.label}" — using +0 save modifier`)
+  return 0
 }
