@@ -73,7 +73,7 @@ If you're in a VM or any environment with no GPU, also add `--disable-gpu`:
 
 ### macOS
 
-Not yet shipped. Build from source via the `Build for release` section below (`npm run build` produces a local artifact in `dist/`).
+No pre-built download yet. The `mac` build config exists (`npm run build:mac` → DMG + ZIP), but DMGs must be built **on a Mac** — electron-builder cannot produce signed/notarized macOS artifacts from Windows or Linux, so the release workflow won't ship macOS until a `macos-latest` runner is added to the matrix.
 
 ---
 
@@ -126,7 +126,8 @@ npm run build                  # electron-vite build (current platform only, no 
 # Per-platform builders — local artifacts in dist/, no publish
 npm run build:win              # Windows NSIS installer
 npm run build:linux            # Linux AppImage
-npm run build:cross            # Both (requires wine on Linux for cross-compile)
+npm run build:mac              # macOS DMG + ZIP (must run ON a Mac)
+npm run build:cross            # Win + Linux (requires wine on Linux for cross-compile)
 
 # Cutting a real release — use the helper, NOT a manual tag
 node scripts/release/cut.mjs X.Y.Z --notes-file=/tmp/vX.Y.Z-notes.md
