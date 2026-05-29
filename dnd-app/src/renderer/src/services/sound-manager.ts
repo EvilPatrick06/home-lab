@@ -440,12 +440,12 @@ export function playDiceSound(sides: number): void {
  * Start playing an ambient sound loop.
  * Delegates to sound-playback module.
  */
-export function playAmbient(ambient: AmbientSound): void {
+export function playAmbient(ambient: AmbientSound, opts?: { loop?: boolean; onEnded?: () => void }): void {
   // Sync custom overrides to playback module
   for (const [key, value] of customOverrides) {
     playbackCustomOverrides.set(key, value)
   }
-  playbackPlayAmbient(ambient, muted, ambientVolume)
+  playbackPlayAmbient(ambient, muted, ambientVolume, opts)
   currentAmbientName = ambient
   notifyAmbientListeners()
 }

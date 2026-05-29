@@ -26,7 +26,14 @@ export const customOverrides: Map<string, string> = new Map()
  * Start playing an ambient sound loop.
  * Stops any currently playing ambient sound.
  */
-export function playAmbient(ambient: AmbientSound, muted: boolean, ambientVolume: number): void {
+export function playAmbient(
+  ambient: AmbientSound,
+  muted: boolean,
+  ambientVolume: number,
+  // Phase 27j — playlists disable looping and advance on the track's `ended`
+  // event (which never fires while `loop = true`).
+  opts?: { loop?: boolean; onEnded?: () => void }
+): void {
   stopAmbient()
 
   const customPath = customOverrides.get(ambient)
@@ -35,8 +42,9 @@ export function playAmbient(ambient: AmbientSound, muted: boolean, ambientVolume
   // `assets/audio/ambient/<id>.ogg` path pointed at nonexistent files (silent no-op).
   const path = customPath ?? `./sounds/ambient/${ambient.replace('ambient-', '')}.mp3`
   const audio = new Audio(path)
-  audio.loop = true
+  audio.loop = opts?.loop ?? true
   audio.volume = muted ? 0 : ambientVolume
+  if (opts?.onEnded) audio.addEventListener('ended', opts.onEnded, { once: true })
   audio.play().catch((err) => {
     logger.warn('[sound-playback] Failed to play ambient:', ambient, err)
   })
