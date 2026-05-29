@@ -76,8 +76,8 @@
 4. **🟠 Phase 28a.3 + 28a.4 — BMO sync receiver still lacks Zod + Bearer.**
    Commit `6ecaf3e` tightened CORS (`'*'` → `'http://127.0.0.1'`) and added retry/backoff/graceful-shutdown/URL validation, but: no Zod validation of incoming sync payloads (raw `JSON.parse`), no `Authorization: Bearer` header check (no `getBmoApiKey` in `bmo-config.ts`), no `SYNC_BIND` env-var for loopback bind, no body-size cap, no per-IP rate limit (429), no `Content-Type` 415 reject. Materially exploitable only if the port is reachable externally.
 
-5. **🟠 Phase 19d vs Phase 14 §A6 contradict each other on `signAndEditExecutable`.**
-   `package.json:111` sets `signAndEditExecutable: false`. Phase 14 §A6 research finding said `false` strips the app icon + exe metadata (name/version/publisher) and is not worth the build-time saving. The next packaged Windows installer should be manually inspected for icon/metadata loss; revert to `true` if confirmed.
+5. **✅ RESOLVED — Phase 19d `signAndEditExecutable: false` removed.**
+   The first v2.2.0 build failed because `package.json build.win.sign: "./scripts/sign.mjs"` is not a valid property in electron-builder 26 (removed in 25; now belongs under `signtoolOptions.sign`). Hotfixed in commit `cf0cb1b` — both `signAndEditExecutable: false` and `sign: …` were deleted from `build.win`. Default of `true` for `signAndEditExecutable` preserves the Windows installer icon + exe metadata per Phase 14 §A6. Phase 19d's signing wrapper at `scripts/sign.mjs` + `.env.signing.template` are retained for future use, but no longer wired in `package.json`. The contradiction Phase 14 ↔ Phase 19 had on this field is closed.
 
 6. **🟠 Phase 29e — literal `role === 'host'` / `isCoDM` sweep is partial.**
    After `991a791` (phase 29e/29f), `21 files` still contain `role === 'host'` and `17 files` still contain `isCoDM` — including core surfaces (`stores/network-store/index.ts`, `lobby/PlayerCard.tsx`, `lobby/PlayerList.tsx`, `sheet/5e/HitPointsBar5e.tsx`, `sheet/5e/DeathSaves5e.tsx`). The new permission system runs in parallel with the literals instead of replacing them, risking divergence under custom roles.
@@ -1344,9 +1344,68 @@ User picked option B for 15c.5. 59 readers + ~50 writers depend on v3 fields. Fi
 
 ## §E — Release status
 
-### Cut this session
+### v2.2.0 — SHIPPED ✅ 2026-05-29 18:39 UTC
 
-**v2.2.0** — to be tagged at end of this consolidation pass. Notes captured in `/tmp/v2.2.0-notes.md`. The 4-job release pipeline (Phase 14h) will run on tag push: `checks-fast` → `test` (sharded ×3) → `build` (Win + Linux) → `publish` (uploads to pre-created GitHub Release, runs folded 6-asset verify).
+**Release URL:** https://github.com/EvilPatrick06/home-lab/releases/tag/v2.2.0
+**Tag SHA:** `cf0cb1b`
+**Pipeline:** https://github.com/EvilPatrick06/home-lab/actions/runs/26655166277 (status: success, second attempt)
+
+**Assets published (7 — all 6 expected + 1 debug yml):**
+
+| File | Size |
+|---|---|
+| `dnd-vtt-2.2.0-setup.exe` | 239,348,729 bytes (~228 MB) |
+| `dnd-vtt-2.2.0-setup.exe.blockmap` | 252,608 bytes (differential metadata) |
+| `dnd-vtt-2.2.0-x86_64.AppImage` | 294,237,664 bytes (~281 MB) |
+| `latest.yml` | 343 bytes (Windows electron-updater feed) |
+| `latest-linux.yml` | 380 bytes (Linux electron-updater feed) |
+| `install-linux.sh` | 13,102 bytes |
+| `builder-debug.yml` | 1,778 bytes (incidental upload) |
+
+### The two-attempt story
+
+**Attempt 1 (run `26654806293`) — FAILED.** Both `Build (ubuntu-latest)` and `Build (windows-latest)` failed at the `electron-builder` step with identical errors:
+
+```
+⨯ Invalid configuration object. electron-builder 26.8.1 has been initialized
+  using a configuration object that does not match the API schema.
+ - configuration.win has an unknown property 'sign'.
+```
+
+**Root cause.** `package.json:113-114` carried two lines that broke against electron-builder 26.x:
+
+```json
+"signAndEditExecutable": false,
+"sign": "./scripts/sign.mjs",
+```
+
+- `sign` as a direct `build.win` property was **removed in electron-builder 25**; the migration target is `signtoolOptions.sign` (Windows-specific).
+- Both lines landed in commit `5ce0b34 build: phase 19d — conditional Windows code-signing wrapper`. The 4-gate validation Phase 19 ran only covered `lint + tsc + vitest` — `electron-builder` itself never executed in CI prior to this release because the previous successful release (`v2.1.39`) predates Phase 19d.
+- Net effect: **the dnd-app could not have been packaged for Windows since Phase 19d landed**, but nobody noticed because nobody had cut a release between then and now.
+
+**Hotfix (commit `cf0cb1b`).** Both lines deleted from `package.json`. We're not signing (no `CSC_LINK`), so `sign.mjs` was a no-op wrapper and removing the `sign` property is the migration-correct way to disable signing in electron-builder 26.x. Removing `signAndEditExecutable: false` returns it to the default `true`, restoring the icon + exe metadata behaviour Phase 14 §A6 wanted preserved.
+
+**Attempt 2 (run `26655166277`) — SUCCESS.** All four jobs green: `checks-fast` (lint + tsc-web + tsc-node, no vitest gate — the 6555-spec run is parallel), `test` ×3 shards, `build (ubuntu-latest)` + `build (windows-latest)`, `publish + verify assets`. The folded 6-asset verify passed inside the publish job.
+
+### What this proves about the Phase 14h pipeline
+
+- The 4-job graph (`checks-fast` → parallel test + build → publish gated on both) worked as designed.
+- The Electron / electron-builder cache (`ELECTRON_CACHE`/`ELECTRON_BUILDER_CACHE` keyed per-OS) hit on the second attempt — Linux build was noticeably faster.
+- `concurrency: { group: release-${{ github.ref_name }}, cancel-in-progress: false }` correctly serialized the two attempts on the same tag.
+- `debug-artifacts` `if: failure()` policy worked: the first attempt published the failure logs as an artifact, the second attempt didn't.
+
+### Pre-release verification status (final)
+
+| Check | Result |
+|---|---|
+| Vitest | 6555/6555 (670/670 files) — green, locally and in CI |
+| Biome lint (release pipeline) | green |
+| tsc web | green |
+| tsc node | green |
+| Content schema validator | 20 errors (Phase 33h still open) — not in CI gate, did not block release |
+| Branches besides master | None |
+| `tmp` security advisory | Cleared by merged Dependabot PR #9 |
+| Final tag | `v2.2.0` at `cf0cb1b` |
 
 **Why 2.2.0 and not 2.1.40 or 3.0.0?** Minor bump:
 - A LOT of net-new features landed since 2.1.39 (cross-platform Ollama install, first-run prompt, encounter waves, level-up missing-features, homebrew export/import, permission system foundation, Claude 4.x models, audio playlist, custom-audio network sync) — patch is too small.
@@ -1402,6 +1461,107 @@ User picked option B for 15c.5. 59 readers + ~50 writers depend on v3 fields. Fi
 | Open Dependabot PRs | None on master (the `tmp` bump merged 2026-05-29 16:59:51 UTC) |
 | GitHub security advisories | 1 high (`tmp`) closes automatically once Dependabot scans master next |
 | Uncommitted edits | `_archive/` chmod, `bmo/pi/scripts/` chmod, `dnd-app/scripts/release/cut.mjs` chmod, `docs/DATA-FLOW.md` path-separator clarification — held back from this report's commit; will be folded into a follow-up |
+
+---
+
+## §H — GitHub Actions audit (recent failures)
+
+While monitoring the v2.2.0 release I checked `gh run list` for the last 200 runs and found **two separate workflows have been silently failing on every master push since this morning**. Neither blocked the release (the Release workflow is independent), but both should be fixed.
+
+### Workflow file inventory
+
+| File | `name:` field | Trigger | Status today |
+|---|---|---|---|
+| `.github/workflows/ci.yml` | `CI` | push/PR to `master`/`main`, paths `dnd-app/**` | ❌ failing |
+| `.github/workflows/dnd-app-ci.yml` | `dnd-app CI` | push/PR to master | ❌ failing |
+| `.github/workflows/release.yml` | `Release` | tag push | ✅ green on `v2.2.0` (2nd attempt) |
+| `.github/workflows/dnd-app-validate-5e.yml` | `dnd-app validate 5e` | varies | ✅ green |
+| `.github/workflows/bmo-pi-pytest.yml` | `bmo / pi pytest` | varies | ✅ green |
+| `.github/workflows/security-audit.yml` | `Security audit` | varies | ✅ green |
+| `.github/workflows/deploy.yml` | `Deploy Dungeon Scholar to GitHub Pages` | varies | ✅ green |
+
+**Workflow duplication is itself a finding** — both `ci.yml` and `dnd-app-ci.yml` were added (Phase 21 added the first, Phase 28e.2 added the second). Both run on every push to `dnd-app/**`. They overlap substantially. Recommend consolidating, or at least documenting why both exist.
+
+### Failure 1 — `CI` workflow (`ci.yml`) failing biome lint
+
+**Affected runs (most recent first):**
+
+| Run | Time (UTC) | Commit / branch |
+|---|---|---|
+| 26648812622 | 2026-05-29 16:20:48 | `feat(audio): phase 27j — ambient playlist system` |
+| 26648606023 | 2026-05-29 16:16:43 | `feat(audio): phase 27i — DM custom-audio network sync` |
+| 26648388081 | 2026-05-29 16:12:27 | `feat(audio): phase 27d/27g` |
+| 26648280667 | 2026-05-29 16:10:20 | `feat(encounter): phase 26d/26e foundation` |
+| 26648183037 | 2026-05-29 16:08:25 | `feat(encounter): phase 26b` |
+| 26648004625 | 2026-05-29 16:04:55 | `test(io): phase 25e` |
+| 26647944097 | 2026-05-29 16:03:40 | `feat(homebrew): phase 25b` |
+| 26647662119 | 2026-05-29 15:58:14 | `feat(levelup): phase 24d-h` |
+| 26647211444 | 2026-05-29 15:49:26 | `feat(library): phase 25c` |
+| 26646939742 | 2026-05-29 15:44:00 | `fix(levelup): phase 24a` |
+
+**Root cause.** `npm run lint` fails with `Found 2 errors, Found 27 warnings`. The two errors are misplaced `biome-ignore` directives:
+
+```
+> 649 │   // biome-ignore lint/suspicious/noArrayIndexKey: tracks have no stable id
+> 75  │   // biome-ignore lint/a11y/noAutofocus: focusing the first field of a just-opened pin form is expected
+> 119 │ /* biome-ignore-all lint/complexity/noImportantStyles: reduced-motion must override animation utilities */
+   i Rename this to biome-ignore or move it to the top of the file
+```
+
+These are real lint regressions — likely landed in Phase 23/26/22a where the suppressions were added. Two-line fix: either move the `biome-ignore-all` to top-of-file (where it belongs per biome's syntax), or change to single-line `biome-ignore`.
+
+The earlier commit `34980f6 chore(lint): restore green lint gate` (which the prior audit credited with closing the use-library-entry.test.ts:26 hit) only fixed the test file — these three sites are unrelated and remained broken.
+
+### Failure 2 — `dnd-app CI` workflow (`dnd-app-ci.yml`) failing forbidden-patterns lint
+
+**Affected runs (all 6 from today after Phase 28e.2 landed the workflow):**
+
+| Run | Time (UTC) | Commit |
+|---|---|---|
+| 26655166156 | 2026-05-29 18:33:30 | `fix(build): drop electron-builder 25+ removed properties` |
+| 26655161376 | 2026-05-29 18:33:24 | same fix, on master |
+| 26654805949 | 2026-05-29 18:26:02 | `chore(release): bump dnd-app to v2.2.0` |
+| 26654782752 | 2026-05-29 18:25:33 | same bump on master |
+| 26652973821 | 2026-05-29 17:47:33 | `test(28h): cover local-permission helper` |
+| 26652796179 | 2026-05-29 17:43:47 | `docs(28f.4): document z-index layer convention` |
+| 26652725239 | 2026-05-29 17:42:15 | `docs(28g): plugin trust model …` |
+| 26652548928 | 2026-05-29 17:38:30 | `docs(phases): stamp 28/29/33/35 progress` |
+| 26652483791 | 2026-05-29 17:37:05 | `refactor(stores): phase 33g — delete dead barrel` |
+| 26652419966 | 2026-05-29 17:35:45 | `feat(ipc): phase 35c — withArgsSchema` |
+| 26652191911 | 2026-05-29 17:31:02 | `feat(ci): phase 28a.1/28e — finish Math.random sweep + forbidden-patterns lint + CI` |
+
+**Root cause.** The "no skipped tests" forbidden-patterns step shipped in run `26652191911` (`feat(ci): phase 28a.1/28e — finish Math.random sweep + forbidden-patterns lint + CI`). The step runs:
+
+```yaml
+- name: No skipped tests
+  run: ! grep -rE '\b(it|describe|test)\.(skip|todo)\b|\b(xit|xdescribe|xtest)\b' src/
+```
+
+The `! grep` pattern is intended to invert: "fail if grep finds matches." But:
+
+```
+grep: src/renderer/public/data/5e/maps/ship.png: binary file matches
+##[error]Process completed with exit code 1.
+```
+
+Without `--binary-files=without-match` or a path filter, `grep -r` walks into the bundled map PNG. Some byte sequence in the binary matches the regex as far as `grep` is concerned, so it reports a "binary file matches" line and exits 0 (match). `!` then inverts that to exit 1 — the step fails on every push, regardless of test content.
+
+**Two-line fix in `.github/workflows/dnd-app-ci.yml`:** either add `--binary-files=without-match` to the grep invocation, or restrict the recursion with `--include='*.ts'` `--include='*.tsx'`. The latter is more correct (we only care about source files).
+
+### Pattern observations
+
+- **Neither failing workflow gates the release pipeline.** `release.yml` runs its own `checks-fast` job with the same lint/tsc/test gates — those pass. The PR-time gates are broken but the tag-time gates are fine.
+- **Both failures landed today** (within minutes of phases 28e, 21, 22a being stamped "complete"). The pattern is the same as Phase 19d's `electron-builder` config: a step that wasn't exercised before is failing the first time it runs.
+- **CI workflow duplication amplifies the noise.** Two workflows fail on every push; PR authors see two red Xs and may stop reading the diff.
+
+### Recommended actions (not done — needs your approval)
+
+1. Fix `dnd-app-ci.yml` grep step (`--binary-files=without-match` or `--include='*.ts*'`).
+2. Fix the three biome-ignore-all placement errors (move to top-of-file or use single-line directive).
+3. Decide whether `ci.yml` and `dnd-app-ci.yml` should be merged. If both stay, document the split.
+4. Add a vitest test runner argument or `it.skip` policy doc so the forbidden-patterns step's intent is clear.
+
+These are five-minute fixes but each is a separate commit. **Say which (any/all/none) to land in this session.**
 
 ---
 
