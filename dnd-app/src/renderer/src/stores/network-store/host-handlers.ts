@@ -29,7 +29,10 @@ import {
   sendToPeer,
   updatePeerInfo
 } from '../../network'
+import { hasPermission } from '../../services/permissions/has-permission'
 import type { Character5e } from '../../types/character-5e'
+import type { Permission } from '../../types/permissions'
+import { useCampaignStore } from '../use-campaign-store'
 import { useGameStore } from '../use-game-store'
 import { useLobbyStore } from '../use-lobby-store'
 import type { NetworkState } from './index'
@@ -57,6 +60,23 @@ const SPECTATOR_ALLOWED_TYPES = new Set<MessageType>([
   'ping',
   'pong'
 ])
+
+/**
+ * Phase 29e: inbound message type → required permission. When the sender lacks
+ * the key (and a campaign permissions block exists), the host drops the message.
+ * Types not listed here fall back to the spectator allow-list gate only.
+ */
+const MESSAGE_PERMISSION: Partial<Record<MessageType, Permission>> = {
+  'dm:kick-player': 'kick_player',
+  'dm:ban-player': 'ban_player',
+  'dm:promote-codm': 'promote_codm',
+  'dm:demote-codm': 'demote_codm',
+  'dm:role-change': 'change_player_role',
+  'player:trade-request': 'edit_party_inventory',
+  'player:journal-add': 'manage_journal',
+  'player:journal-update': 'manage_journal',
+  'player:journal-delete': 'manage_journal'
+}
 
 /**
  * Handle messages received by the host from connected peers.
@@ -93,6 +113,19 @@ export function handleHostMessage(
   if (senderPeer?.role === 'spectator' && !SPECTATOR_ALLOWED_TYPES.has(message.type)) {
     console.warn('[host-handlers] Dropping gameplay message from spectator:', message.type, fromPeerId)
     return
+  }
+
+  // Phase 29e: permission-gated inbound types. Only enforce when the campaign
+  // has a permissions block (otherwise legacy behavior: the spectator floor
+  // above is the only gate). The host itself is exempt (it doesn't route its own
+  // actions through here).
+  const requiredKey = MESSAGE_PERMISSION[message.type]
+  if (requiredKey && senderPeer) {
+    const campaign = useCampaignStore.getState().campaigns.find((c) => c.id === get().campaignId) ?? null
+    if (campaign?.permissions && !hasPermission(senderPeer, requiredKey, campaign)) {
+      console.warn('[host-handlers] Dropping message; sender lacks permission:', message.type, requiredKey, fromPeerId)
+      return
+    }
   }
 
   switch (message.type) {

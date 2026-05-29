@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { banPeer, chatMutePeer, kickPeer } from '../../network'
+import { localHasPermission } from '../../services/permissions/local-permission'
 import { useNetworkStore } from '../../stores/network-store'
 import { useCampaignStore } from '../../stores/use-campaign-store'
 import { useLobbyStore } from '../../stores/use-lobby-store'
+import type { Permission } from '../../types/permissions'
 import { PlayerCard } from '.'
 
 export default function PlayerList(): JSX.Element {
@@ -18,11 +20,17 @@ export default function PlayerList(): JSX.Element {
   const removePeer = useNetworkStore((s) => s.removePeer)
 
   const { campaignId } = useParams<{ campaignId: string }>()
-  const isHostView = role === 'host'
 
   // Check if AI DM is enabled for this campaign
   const campaigns = useCampaignStore((s) => s.campaigns)
   const campaign = campaigns.find((c) => c.id === campaignId)
+
+  // Phase 29e — moderation gates resolve through the permission system rather
+  // than `role === 'host'`. `isHostView` (the moderation-capable view) maps to
+  // use_dm_tools; individual actions check their own permission key.
+  const can = (key: Permission): boolean =>
+    localHasPermission(key, campaign, { networkRole: role, localPeerId, peers: players })
+  const isHostView = can('use_dm_tools')
   const aiDmEnabled = campaign?.aiDm?.enabled ?? false
   const aiDmOllamaModel = campaign?.aiDm?.ollamaModel ?? 'llama3.1'
 
@@ -176,26 +184,28 @@ export default function PlayerList(): JSX.Element {
                 onToggleLocalMute={() => toggleLocalMutePlayer(player.peerId)}
                 isHostView={isHostView}
                 onViewCharacter={player.characterId ? () => handleViewCharacter(player.characterId) : undefined}
-                onKick={isHostView && !isLocal && !player.isHost ? () => handleKick(player.peerId) : undefined}
-                onBan={isHostView && !isLocal && !player.isHost ? () => handleBan(player.peerId) : undefined}
+                onKick={can('kick_player') && !isLocal && !player.isHost ? () => handleKick(player.peerId) : undefined}
+                onBan={can('ban_player') && !isLocal && !player.isHost ? () => handleBan(player.peerId) : undefined}
                 onChatTimeout={
-                  isHostView && !isLocal && !player.isHost ? () => handleChatTimeout(player.peerId) : undefined
+                  can('timeout_player') && !isLocal && !player.isHost
+                    ? () => handleChatTimeout(player.peerId)
+                    : undefined
                 }
                 onPromoteCoDM={
-                  isHostView && !isLocal && !player.isHost ? () => handlePromoteCoDM(player.peerId) : undefined
+                  can('promote_codm') && !isLocal && !player.isHost ? () => handlePromoteCoDM(player.peerId) : undefined
                 }
                 onDemoteCoDM={
-                  isHostView && !isLocal && !player.isHost ? () => handleDemoteCoDM(player.peerId) : undefined
+                  can('demote_codm') && !isLocal && !player.isHost ? () => handleDemoteCoDM(player.peerId) : undefined
                 }
                 onColorChange={isLocal ? handleColorChange : undefined}
                 usedByOtherPeers={isLocal ? usedByOthers : undefined}
                 onPromoteToPlayer={
-                  isHostView && !isLocal && !player.isHost && player.role === 'spectator'
+                  can('change_player_role') && !isLocal && !player.isHost && player.role === 'spectator'
                     ? () => handlePromoteToPlayer(player.peerId)
                     : undefined
                 }
                 onDemoteToSpectator={
-                  isHostView && !isLocal && !player.isHost && player.role !== 'spectator'
+                  can('change_player_role') && !isLocal && !player.isHost && player.role !== 'spectator'
                     ? () => handleDemoteToSpectator(player.peerId)
                     : undefined
                 }

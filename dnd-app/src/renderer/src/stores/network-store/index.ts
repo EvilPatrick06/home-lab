@@ -27,6 +27,8 @@ import {
   startHosting,
   stopHosting
 } from '../../network'
+import { hasPermission } from '../../services/permissions/has-permission'
+import { useCampaignStore } from '../use-campaign-store'
 import { useGameStore } from '../use-game-store'
 import { useLobbyStore } from '../use-lobby-store'
 import { handleClientMessage } from './client-handlers'
@@ -130,12 +132,25 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
           filteredStateCache.clear()
         })
       )
-      setGameStateProvider((peerInfo: PeerInfo) =>
-        // Phase 17b — CoDM peers see the same full state as the literal host.
-        buildFilteredStateForRole(
-          peerInfo.isCoDM === true ? 'host' : (peerInfo.role ?? (peerInfo.isHost ? 'host' : 'player'))
-        )
-      )
+      setGameStateProvider((peerInfo: PeerInfo) => {
+        // Phase 29e — the recipient's *view* is keyed on view permissions rather
+        // than the literal host/CoDM flags. A peer that can see hidden tokens AND
+        // DM-only stats gets the unfiltered ("host") state; everyone else gets the
+        // player/spectator-filtered view. isHost/isCoDM remain a fast path and the
+        // legacy fallback for campaigns with no permissions block.
+        const campaign = useCampaignStore.getState().campaigns.find((c) => c.id === get().campaignId) ?? null
+        const seesAll =
+          peerInfo.isHost ||
+          peerInfo.isCoDM === true ||
+          (hasPermission(peerInfo, 'view_hidden_tokens', campaign) &&
+            hasPermission(peerInfo, 'view_dm_only_stats', campaign))
+        const bucket: 'host' | 'player' | 'spectator' = seesAll
+          ? 'host'
+          : peerInfo.role === 'spectator'
+            ? 'spectator'
+            : 'player'
+        return buildFilteredStateForRole(bucket)
+      })
 
       set({
         connectionState: 'connected',

@@ -59,4 +59,22 @@ describe('hasPermission (Phase 29a)', () => {
     expect(hasPermission(peer({ isCoDM: true }), 'manage_initiative', c)).toBe(true)
     expect(hasPermission(peer({ isCoDM: true }), 'transfer_host', c)).toBe(false)
   })
+
+  // Phase 29f — view-as mask
+  it('viewAs masks a DM down to the target role (loses DM-only perms)', () => {
+    const c = campaign()
+    const dm = peer({ isHost: true })
+    expect(hasPermission(dm, 'kick_player', c)).toBe(true)
+    // Previewing as the player role: DM flags ignored, role-player used.
+    expect(hasPermission(dm, 'kick_player', c, { viewAs: { roleId: 'role-player' } })).toBe(false)
+    expect(hasPermission(dm, 'roll_dice', c, { viewAs: { roleId: 'role-player' } })).toBe(true)
+  })
+
+  it('viewAs applies the target player overrides via masked clientId', () => {
+    const c = campaign({ playerOverrides: { 'cid-target': { grant: ['view_hidden_tokens'], deny: [] } } })
+    const dm = peer({ isHost: true })
+    expect(
+      hasPermission(dm, 'view_hidden_tokens', c, { viewAs: { roleId: 'role-player', playerId: 'cid-target' } })
+    ).toBe(true)
+  })
 })

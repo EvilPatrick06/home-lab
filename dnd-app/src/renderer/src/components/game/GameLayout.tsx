@@ -144,17 +144,28 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
   const prevSidebarWidth = useRef(280)
   const [teleportMove, _setTeleportMove] = useState(false)
   const [activeAoE, setActiveAoE] = useState<AoEConfig | null>(null)
+  // Phase 29f — view-as-role. `viewMode` stays the string the rest of the layout
+  // reads ('dm' = full DM view, 'player' = filtered). `viewAs` carries the
+  // optional target role/player the DM is previewing (drives the banner + label).
   const [viewMode, setViewModeRaw] = useState<'dm' | 'player'>(() => {
     try {
       const saved = sessionStorage.getItem(`game-viewMode-${campaign.id}`)
-      return saved === 'player' ? 'player' : 'dm'
+      // Migrate the old bare-string key; an object form means "as-role" → player view.
+      if (saved === 'player') return 'player'
+      if (saved && saved.startsWith('{')) {
+        const parsed = JSON.parse(saved) as { mode?: string }
+        return parsed.mode === 'self' ? 'dm' : 'player'
+      }
+      return 'dm'
     } catch {
       return 'dm'
     }
   })
+  const [viewAs, setViewAs] = useState<{ roleId?: string; playerId?: string; label?: string } | null>(null)
   const setViewMode = useCallback(
     (mode: 'dm' | 'player') => {
       setViewModeRaw(mode)
+      if (mode === 'dm') setViewAs(null)
       try {
         sessionStorage.setItem(`game-viewMode-${campaign.id}`, mode)
       } catch {
@@ -162,6 +173,25 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
       }
     },
     [campaign.id]
+  )
+  // Preview the game as a specific role/player: forces the filtered (player) view
+  // and records the target for the banner. Passing null returns to self/DM view.
+  const setViewAsTarget = useCallback(
+    (target: { roleId?: string; playerId?: string; label: string } | null) => {
+      if (!target) {
+        setViewAs(null)
+        setViewMode('dm')
+        return
+      }
+      setViewAs(target)
+      setViewModeRaw('player')
+      try {
+        sessionStorage.setItem(`game-viewMode-${campaign.id}`, JSON.stringify({ mode: 'as-role', ...target }))
+      } catch {
+        /* ignore */
+      }
+    },
+    [campaign.id, setViewMode]
   )
   const [showCharacterPicker, setShowCharacterPicker] = useState(false)
   const [activeTool, setActiveTool] = useState<
@@ -590,6 +620,17 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
       role="application"
       aria-label="Game session"
     >
+      {/* Phase 29f — view-as-role banner so the DM knows why their tools vanished. */}
+      {viewAs && (
+        <button
+          type="button"
+          onClick={() => setViewAsTarget(null)}
+          className="absolute top-0 left-1/2 -translate-x-1/2 z-50 mt-2 px-3 py-1 rounded-full bg-amber-600/90 text-white text-xs font-semibold shadow-lg cursor-pointer hover:bg-amber-500"
+        >
+          Viewing as {viewAs.label} — click to exit
+        </button>
+      )}
+
       {/* Map layer */}
       <div className="absolute inset-0" role="region" aria-label="Game map">
         <MapCanvas
@@ -804,6 +845,38 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
         aria-label="Game controls toolbar"
       >
         {isDM && <ViewModeToggle viewMode={viewMode} onToggle={handleViewModeToggle} characterName={character?.name} />}
+        {/* Phase 29f — View-as-role debug selector (DM only). */}
+        {isDM && (
+          <select
+            value={viewAs ? (viewAs.playerId ? `player:${viewAs.playerId}` : `role:${viewAs.roleId}`) : 'self'}
+            onChange={(e) => {
+              const v = e.target.value
+              if (v === 'self') return setViewAsTarget(null)
+              if (v.startsWith('player:')) {
+                const pid = v.slice(7)
+                const p = campaign.players.find((pl) => pl.userId === pid)
+                return setViewAsTarget({ playerId: pid, label: p?.displayName ?? 'Player' })
+              }
+              const rid = v.slice(5)
+              const r = campaign.permissions?.roles.find((rr) => rr.id === rid)
+              setViewAsTarget({ roleId: rid, label: r?.name ?? 'Role' })
+            }}
+            className="bg-gray-800/80 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
+            title="Preview the game as a role or player"
+          >
+            <option value="self">View: Self (DM)</option>
+            {campaign.players.map((p) => (
+              <option key={p.userId} value={`player:${p.userId}`}>
+                As player: {p.displayName}
+              </option>
+            ))}
+            {(campaign.permissions?.roles ?? []).map((r) => (
+              <option key={r.id} value={`role:${r.id}`}>
+                As role: {r.name}
+              </option>
+            ))}
+          </select>
+        )}
         {effectiveIsDM && gameStore.maps.length > 1 && (
           // Phase 14a (D1): quick map selector in the DM toolbar — no
           // longer requires drilling into Places / portal triggers /

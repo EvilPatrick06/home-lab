@@ -22,9 +22,25 @@ export function resolvePeerRoleId(peer: PeerInfo): string {
 export function hasPermission(
   peer: PeerInfo | null | undefined,
   key: Permission,
-  campaign: Campaign | null | undefined
+  campaign: Campaign | null | undefined,
+  // Phase 29f — view-as-role debug mask. When supplied, the real peer is
+  // replaced by a synthetic peer carrying the target role / player override id,
+  // so a DM can preview the game exactly as that role/player sees it.
+  opts?: { viewAs?: { roleId?: string; playerId?: string } }
 ): boolean {
   if (!peer || !campaign?.permissions) return false
+
+  if (opts?.viewAs) {
+    const synthetic: PeerInfo = {
+      ...peer,
+      isHost: false,
+      isCoDM: false,
+      roleId: opts.viewAs.roleId ?? peer.roleId,
+      // Mask the override key to the target player's so their overrides apply.
+      clientId: opts.viewAs.playerId ?? peer.clientId
+    }
+    return hasPermission(synthetic, key, campaign)
+  }
 
   // Per-player overrides (deny wins over grant).
   const override = campaign.permissions.playerOverrides[peer.clientId]

@@ -5,6 +5,7 @@ import GameLayout from '../components/game/GameLayout'
 import { Spinner } from '../components/ui'
 import { LOADING_GRACE_PERIOD_MS, Z } from '../constants'
 import { useAutoSaveGame } from '../hooks/use-auto-save'
+import { localHasPermission } from '../services/permissions/local-permission'
 import { useNetworkStore } from '../stores/network-store'
 import { useBastionStore } from '../stores/use-bastion-store'
 import { useCampaignStore } from '../stores/use-campaign-store'
@@ -64,8 +65,14 @@ export default function InGamePage(): JSX.Element {
   // the literal host elsewhere; for the InGame view itself, CoDM === DM.
   const localPeerId = useNetworkStore((s) => s.localPeerId)
   const lobbyPlayers = useLobbyStore((s) => s.players)
-  const localIsCoDM = lobbyPlayers.some((p) => p.peerId === localPeerId && p.isCoDM === true)
-  const isDM = networkRole === 'host' || localIsCoDM || (networkRole === 'none' && campaign?.dmId === 'local')
+  // Phase 29e — gate DM tools through the permission system (use_dm_tools) rather
+  // than the `role === 'host' || isCoDM` literal. localHasPermission falls back to
+  // the legacy host/CoDM check for campaigns that predate the permissions block.
+  const isDM = localHasPermission('use_dm_tools', campaign, {
+    networkRole,
+    localPeerId,
+    peers: lobbyPlayers
+  })
   const effectiveDM = isDM || networkRole === 'none'
   const playerCharacter = characters.find((c) => c.campaignId === campaignId) ?? characters[0] ?? null
 
