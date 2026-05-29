@@ -95,6 +95,14 @@ Cross-phase note: any CI gate added here must cover the new test files landing i
 - `grep husky /home/user/home-lab/dnd-app/package.json` shows the dep + `prepare` script.
 
 ## Completed
+
+> **PHASE 21 COMPLETE (21a–21e) — 2026-05-29.** Full 4-gate green (lint 0, tsc web+node 0, vitest 6491/6491).
+> - **21a/21b** — new `.github/workflows/ci.yml`: push/PR to master scoped to `dnd-app/**`, ubuntu-latest, `npm ci` → biome lint → tsc web+node → vitest → `electron-vite build` smoke → artifact existence check (out/main/index.js, out/renderer/index.html). electron-builder stays release-only.
+> - **21c** — `husky` devDep + `"prepare": "cd .. && husky dnd-app/.husky"` (monorepo: `.git` is one level above `dnd-app/`). `.husky/pre-commit` runs biome `--staged` + `tsc -p tsconfig.web.json` + optional gitleaks (folded in from the old `.githooks/` shim so a single `core.hooksPath` covers all). `--no-verify` escape hatch intact; CONTRIBUTING documents the hook + .githooks supersession. Installed with `--ignore-scripts` so this session's git config was untouched; a fresh `npm install` wires it.
+> - **21d** — intentionally SKIPPED: biome `--staged` already scopes to staged files, and tsc can't be staged-scoped, so lint-staged adds a devDep for marginal auto-fix-and-restage value. Move tsc to a pre-push hook if commits feel slow (documented in CONTRIBUTING).
+> - **21e** — verified: no `Phase*_*.md` at repo root or under `dnd-app/`; README script references all resolve to package.json; CONTRIBUTING covers branches + commit format + PR flow + hooks. Step 4 (no-op PR to exercise ci.yml) NOT performed — PRs are out of scope for this cloud session (no PR unless explicitly requested); ci.yml will run on the next real push/PR.
+
+### Pre-existing (earlier-session) stamps
 - 21 Step 3 (README rewrite) — DONE (`dnd-app/README.md:1-269`) — comprehensive README covering install, usage, build, test, multiplayer architecture, directory layout, plugin system.
 - 21 Step 7 (Branching strategy doc) — DONE (`docs/CONTRIBUTING.md:22-29,42-69,71-89`) — documents branches, conventional commit format, and PR flow.
 - 21 Step 8 (Phase research clutter) — DONE — no `Phase*_*.md` at repo root or under `dnd-app/`; all phase docs live under `dnd-app/docs/phases/phase-*.md`.
