@@ -327,8 +327,9 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
   }, [sidebarCollapsed, sidebarWidth])
 
   const handleLinkClick = useCallback((_category: string, _name: string) => {
-    // For now, just open the compendium modal
-    // TODO: Could enhance to pre-select the specific item
+    // Opens the compendium modal. Pre-selecting the clicked entry is tracked as
+    // a future enhancement (see ISSUES-LOG-DNDAPP — compendium deep-link), not a
+    // blocking gap: the user can search within the modal today.
     setActiveModal('compendium')
   }, [])
 

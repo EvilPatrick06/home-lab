@@ -24,7 +24,8 @@ import { drawRegions } from './region-layer'
 import { drawWalls } from './wall-layer'
 import { presetToWeatherType, type WeatherOverlayLayer } from './weather-overlay'
 
-// TODO: Add playing state management
+// Overlay effects carry their own playing-state (the `playing`/`startedAt`/
+// `duration` fields below); the renderer ticks them via startedAt + duration.
 export interface OverlayEffectState {
   id: string
   type: 'audio' | 'visual'

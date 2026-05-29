@@ -56,6 +56,8 @@ cd dungeon-scholar && npm test && npm run build
 | Types | shared types in `src/shared/`, domain types in `src/renderer/src/types/`. |
 | Validation | zod schemas for runtime (`src/shared/ipc-schemas.ts`). |
 | Data | game content JSON in `src/renderer/public/data/5e/`. TS-exported data in `src/renderer/src/data/`. |
+| Storage writes | New storage modules MUST persist via `atomicWriteFile` (`src/main/storage/atomic-write.ts`, temp-write+rename so a crash never truncates the file). A bare `writeFile` import from `node:fs`/`node:fs/promises` inside `src/main/storage/` is forbidden and fails `npm run lint:forbidden` (28e.4); `atomic-write.ts` itself is the only allowed importer. |
+| Randomness | Game-outcome RNG (dice, shuffles, picks) MUST use `cryptoRandom`/`cryptoRollDie` (`src/renderer/src/utils/crypto-random.ts`), never `Math.random` — `npm run lint:forbidden` (28e.3) enforces it. Cosmetic-only randomness (3D jitter, id suffixes) may opt out with an inline `// crypto-ok: <reason>`. |
 | Data layer (single source of truth) | All D&D content lives in the library truth store (`stores/use-library-store.ts`). Consumers reference entries by `EntryRef` and hydrate via the hooks in `services/library/use-library-entry.ts` — no inline duplication of library data. The boundary test (`services/library/library-boundary.test.ts`) fails CI on raw `public/data` imports/fetches outside the allowlist. See `src/renderer/src/services/library/README.md`; Bastion-domain specifics in `docs/phases/bastion-data-rule.md`. |
 | Game systems | pluggable via `src/renderer/src/systems/registry.ts`. Currently only `dnd5e/`. |
 | Network (multiplayer) | peerjs in `src/renderer/src/network/`. DM hosts, players join via invite code. |

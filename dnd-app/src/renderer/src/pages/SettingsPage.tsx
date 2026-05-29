@@ -326,6 +326,11 @@ function PluginManager(): JSX.Element {
 
   return (
     <div className="space-y-3">
+      {/* Phase 28g.2 — plugin trust-model warning. Plugins run with full access
+          to game data; only install ones you trust. */}
+      <p className="text-[11px] text-amber-400/90 bg-amber-900/20 border border-amber-700/40 rounded px-2 py-1">
+        ⚠ Plugins have full access to your game data — only install plugins from sources you trust.
+      </p>
       <div className="flex items-center justify-between">
         <p className="text-xs text-gray-400">
           {plugins.length === 0

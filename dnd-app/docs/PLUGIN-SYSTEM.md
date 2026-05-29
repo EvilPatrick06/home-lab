@@ -178,6 +178,18 @@ Each phase uses zod schemas to validate. Regeneration is idempotent.
 
 Currently partially implemented. User-installed plugins work for content packs (spells/monsters/equipment JSON) but not for full system logic (which needs trusted code).
 
+## Trust model (Phase 28g.2)
+
+**Plugins are NOT sandboxed.** A renderer plugin runs as ordinary JavaScript inside the renderer process with the same access the app itself has — game data, IPC bridge, localStorage, the network. There is no permission prompt and no capability isolation; installing a plugin is a full trust decision.
+
+Consequences for users:
+- Only install plugins from sources you trust. A malicious plugin can read/modify campaigns, characters, and settings, and make network requests.
+- The install UI (Settings → Plugins) surfaces this with a warning banner: *"Plugins have full access to your game data — only install plugins from sources you trust."*
+
+Consequences for the install pipeline:
+- `plugin-installer.ts` validates the zip structure + manifest shape, and the plugin id is charset/length-constrained (`PluginIdSchema`, Phase 22i) so it can't traverse the filesystem. This is **structural** validation, not a security sandbox — it stops malformed packs, not malicious code.
+- Content packs (JSON spells/monsters/equipment) are data-only and lower-risk than code plugins; full code-plugin execution remains gated behind the not-yet-shipped sandbox work below.
+
 ## Future improvements
 
 - Fully encapsulate D&D 5e into `systems/dnd5e/` (currently sprawled across `components/`, `services/`, etc.)
