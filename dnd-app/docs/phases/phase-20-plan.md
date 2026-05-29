@@ -151,6 +151,18 @@ A security audit (scored 7/10) found strong Electron hardening (sandbox, context
 
 ## Completed
 
+> **PHASE 20 COMPLETE (20a–20g) — 2026-05-29.** Full 4-gate green (lint 0, tsc web+node 0, vitest 6491/6491).
+> - **20a** — discord-service encrypts botToken at rest (safeStorage; cachedConfig holds runtime plaintext; legacy plaintext migrates on first load). ai-service `validateApiKeyFormat` (claude sk-ant-, openai sk-, gemini ≥20) at the top of configure(). New `safe-secret-storage.test.ts` (round-trip / stored≠plaintext / empty / legacy / keystore-unavailable).
+> - **20b** — JSON-only chat contract comment atop ChatPanel; preventative `isSafeHref` in chat-links.ts (+ test). Zero `dangerouslySetInnerHTML`/`innerHTML` in renderer (verified).
+> - **20c** — removed repo-visible `dndvtt:dndvtt-relay` TURN creds; custom host → STUN-only + cloud STUN; real TURN from settings via setIceConfig; boot wiring in App.tsx applies saved turnServers. `grep dndvtt-relay/dndvtt:dndvtt` → 0.
+> - **20d** — plugin-installer: 50MB size cap, sha256 of source zip, `expectedChecksum` manifest pin enforcement, extension allowlist (+ `..` reject) on extracted entries, security-log on install success/failure/rejection.
+> - **20e** — AI file reads restricted to campaigns/ai-conversations/characters/ai-context (was whole userData); denials logged. memory-manager per-file 1MB cap (prune oldest array entries) + 10MB total budget (rotate largest to .old), both logged.
+> - **20f** — `upload-validation.ts` magic-byte sniffing (png/jpeg/gif/webp/wav/ogg/mp3); `validateUploadExtension` wired into IMAGE_LIBRARY_SAVE + AUDIO_UPLOAD_CUSTOM; per-branch unit test.
+> - **20g** — `security-log.ts` (`logSecurityEvent` → `[SECURITY]` app.log, 4KB cap). Main-process events wired: IPC path-traversal (GAME_LOAD_JSON, CHARACTER_RESTORE_VERSION), malformed API key, plugin install, AI file-read denial, memory oversize.
+> - **Deferred:** renderer-side 20g events (kick/ban, network Zod rejects) need a LOG_SECURITY_EVENT IPC bridge — logged to ISSUES-LOG-DNDAPP. Plugin-installer install-path tests (existing suite only covers uninstall) — the new guards are tsc-checked + the no-mock branches are straightforward.
+
+### Pre-existing (earlier-session) stamps
+
 - 20a Step 1 (original) — DONE (`src/main/ai/ai-service.ts:253-271`, `src/main/storage/safe-secret-storage.ts:10-43`) — API keys (`claudeApiKey`, `openaiApiKey`, `geminiApiKey`) encrypted at rest via `encryptOptional`/`decryptOptional`; `ss1:` prefix marker; graceful fallback when `safeStorage` unavailable.
 - 20a Step 1b — DONE (`src/main/storage/settings-storage.ts:46,59`) — TURN server `credential` fields encrypted at rest via the same helper pair (user-configured TURN credentials are protected; only the repo-visible hardcoded fallback remains, addressed in 20c).
 - 20d zip-slip protection — DONE (`src/main/plugins/plugin-installer.ts:14-22`) — `extract-zip` enforces zip-slip protection; targetDir traversal guard at `src/main/plugins/plugin-installer.ts:69-72`. The new work in 20d adds sha256 + entry allowlist + size cap on top of this.
