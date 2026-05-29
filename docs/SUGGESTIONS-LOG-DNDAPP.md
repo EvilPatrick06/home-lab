@@ -19,6 +19,32 @@ New entries go at the TOP of their section (newest first).
 
 # Future ideas
 
+### 2026-05-29 — Phase 22l audit tracking entries (future-idea / debt, Domain: dnd-app)
+
+Catalogued from the comprehensive codebase audit; no inline fix (tracking only).
+
+- **God-object files to split (follow-up phases):** `PdfViewer.tsx` (~1,833), `data-provider.ts` (~1,162), `DowntimeModal.tsx` (~1,131), `library-service.ts` (~1,095), `GameLayout.tsx` (~1,030), `client-handlers.ts` (~879), `MapCanvas.tsx` (~838), `import-dnd-beyond.ts` (~727), `build-character-5e.ts` (~664). (`host-handlers.ts` + `combat-resolver.ts` splits already tracked in Phase 30.)
+- **Inline style objects → CSS classes:** `ChatPanel.tsx:276-290,311-318`, `PdfViewer.tsx:1606,1713,1735,1756`, `GameLayout.tsx:565,590,604`, `LibraryItemList.tsx:82,92`, `EquipmentShop5e.tsx:121,129`.
+- **Static JSON eager imports (14 files):** convert rarely-opened modals to lazy `data-provider` loads.
+- **Limited `React.memo` (only ~5):** memoize hot list rows — initiative tracker, equipment/spell lists, token overlays.
+- **~138 unused exports + 10 unused files (knip):** `constants/index.ts`, `network/index.ts`, `types/index.ts`, `types/user.ts`, 5+ `components/library/` files (`HomebrewCreateModal`, `LibraryCategoryGrid`, …). Curate vs prune.
+- **Scattered magic numbers → `app-constants.ts`/domain modules:** `GameLayout.tsx`, `ai-memory-sync.ts`, `use-ai-dm-store.ts`, `use-game-effects.ts`, `UpdatePrompt.tsx`, `client-manager.ts`, `PdfViewer.tsx`, `PlayerList.tsx`.
+- **Repeated CRUD modal pattern:** `SharedJournalModal`, `HandoutModal`, `RuleManager`, `LoreManager`, `NPCManager` → generic `CRUDModal<T>` / `useCrudModal`.
+- **Repeated async-data hook:** propose `useAsyncData<T>(loader, deps)` (cancellation + error states).
+- **IPC channel↔schema gap:** ~100 channels in `ipc-channels.ts` vs 3 Zod schemas in `ipc-schemas.ts`; backfill per domain.
+- **Inconsistent error handling (4 patterns):** throw / null / `StorageResult` / silent-catch — pick a convention and migrate.
+- **Package `overrides` (7 entries):** document why each is pinned; re-check on every dep bump.
+- **Color-only state indicators:** `MainMenuPage`, `HigherLevelEquipment5e`, `RuleManager`, `TurnEventsTab`, `MacroBar` — pair color with text/icon/aria-label.
+- **Mouse-only interactions (need keyboard equivalents):** `PdfDrawingOverlay`, `HandoutViewerModal`, `ResizeHandle`, `DiceTray`, `PlayerHUDOverlay`, `LanguagesTab5e`.
+- **Form validation announcements:** `StatBlockEditor`, `DiseaseCurseTracker`, `AiProviderSetup` + inline modal forms lack `aria-invalid`/`aria-describedby`.
+- **i18n:** no framework; UI strings hardcoded English; date/number via browser locale; currency labels (`"25 gp"`) hardcoded; no RTL. (Phase 34 owns the full sweep.)
+- **Documentation gaps:** no TypeDoc/Storybook; no `GameSystemPlugin` developer guide (README + CONTRIBUTING now exist; IPC surface doc partially via `gen:ipc-surface`).
+- **Test coverage gaps:** `systems/dnd5e/` only `registry.test.ts`; no modal/form/keyboard-nav integration tests; limited `src/main/` coverage; no WebRTC reconnection tests; no a11y tests; `vitest.config.ts` coverage only `services/` + `data/`.
+- **Multi-floor unimplemented:** `FloorSelector.tsx` + `currentFloor` exist but never affect token visibility / layer filtering / rendering.
+- **Positional audio emitters never updated:** `audio-emitter-overlay.ts:updateEmitters` is never called.
+- **Large public-dir assets:** `monsters.json` (~32k lines), 130+ MP3s under `public/sounds/` — consider CDN / lazy-download.
+- **Electron 40 EOL planning (was 22 Step 18):** tracking-only; plan an upgrade cadence before the 40.x line goes EOL.
+
 > **Backlog absorbed into phase plans (2026-05-18).** All previously-tracked future-ideas are now scoped inside the dnd-app phase-plan files:
 > - Backup format migration framework → **Phase 33a**
 > - i18n full sweep → **Phase 34** (entire phase)
