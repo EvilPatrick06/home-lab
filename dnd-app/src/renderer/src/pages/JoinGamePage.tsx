@@ -44,6 +44,9 @@ export default function JoinGamePage(): JSX.Element {
 
   const navigatedRef = useRef(false)
   const autoRejoinTriggered = useRef(false)
+  // Phase 18k — surface a visible reconnecting state while the stored-session
+  // auto-rejoin runs, so a cold reload isn't a blank screen.
+  const [autoRejoining, setAutoRejoining] = useState(false)
 
   // ── Initial load: sync displayName + bootstrap discovery ──────────
   useEffect(() => {
@@ -149,6 +152,7 @@ export default function JoinGamePage(): JSX.Element {
 
       autoRejoinTriggered.current = true
       setDisplayName(session.displayName)
+      setAutoRejoining(true)
 
       setTimeout(async () => {
         try {
@@ -158,6 +162,8 @@ export default function JoinGamePage(): JSX.Element {
           setWaitingForCampaign(true)
         } catch (err) {
           logger.error('[JoinGame] Auto-rejoin failed:', err)
+        } finally {
+          setAutoRejoining(false)
         }
       }, 0)
     } catch (e) {
@@ -304,6 +310,17 @@ export default function JoinGamePage(): JSX.Element {
 
       <h1 className="text-3xl font-bold mb-2">Join Game</h1>
       <p className="text-gray-500 mb-6">Pick a game from the list, or enter an invite code from your DM.</p>
+
+      {autoRejoining && (
+        <div
+          className="flex items-center gap-2 mb-4 px-3 py-2 rounded-lg bg-amber-900/20 border border-amber-700/40 text-amber-300 text-sm"
+          role="status"
+          aria-live="polite"
+        >
+          <Spinner size="sm" />
+          Reconnecting to game...
+        </div>
+      )}
 
       <div className="flex items-center gap-3 mb-4">
         <Input
