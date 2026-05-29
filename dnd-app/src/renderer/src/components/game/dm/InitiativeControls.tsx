@@ -113,6 +113,8 @@ export default function InitiativeControls({
               </button>
               <button
                 onClick={() => onRemoveDelayed(entry.entityId)}
+                aria-label="Remove delayed entry"
+                title="Remove delayed entry"
                 className="text-gray-600 hover:text-red-400 cursor-pointer"
               >
                 &#x2715;
@@ -175,6 +177,8 @@ export default function InitiativeControls({
               </button>
               <button
                 onClick={() => setShowAddForm(false)}
+                aria-label="Cancel adding entry"
+                title="Cancel"
                 className="text-gray-500 hover:text-gray-300 text-xs cursor-pointer"
               >
                 &#x2715;

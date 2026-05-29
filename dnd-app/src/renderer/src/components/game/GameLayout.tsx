@@ -27,7 +27,7 @@ import { is5eCharacter } from '../../types/character'
 import type { MapToken } from '../../types/map'
 import { getBuilderCreatePath } from '../../utils/character-routes'
 import { processDawnRecharge } from '../../utils/dawn-recharge'
-import { ErrorBoundary, ModalErrorBoundary } from '../ui'
+import { ErrorBoundary, ModalErrorBoundary, Tooltip } from '../ui'
 import { announce } from '../ui/ScreenReaderAnnouncer'
 import DMBottomBar from './bottom/DMBottomBar'
 import PlayerBottomBar from './bottom/PlayerBottomBar'
@@ -1043,46 +1043,51 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
           aria-label="Drawing tools"
         >
           <p className="text-xs text-gray-500 uppercase tracking-wider text-center mb-1">Drawing</p>
-          <button
-            onClick={() => setActiveTool('draw-free')}
-            title="Free Draw (F)"
-            aria-label="Free draw"
-            className="w-11 h-11 p-2 rounded-lg flex items-center justify-center bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
-          >
-            <Pencil className="w-5 h-5" aria-hidden="true" />
-          </button>
-          <button
-            onClick={() => setActiveTool('draw-line')}
-            title="Draw Line (L)"
-            aria-label="Draw line"
-            className="w-11 h-11 p-2 rounded-lg flex items-center justify-center bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
-          >
-            <Ruler className="w-5 h-5" aria-hidden="true" />
-          </button>
-          <button
-            onClick={() => setActiveTool('draw-rect')}
-            title="Draw Rectangle (R)"
-            aria-label="Draw rectangle"
-            className="w-11 h-11 p-2 rounded-lg flex items-center justify-center bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
-          >
-            <Square className="w-5 h-5" aria-hidden="true" />
-          </button>
-          <button
-            onClick={() => setActiveTool('draw-circle')}
-            title="Draw Circle (C)"
-            aria-label="Draw circle"
-            className="w-11 h-11 p-2 rounded-lg flex items-center justify-center bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
-          >
-            <Circle className="w-5 h-5" aria-hidden="true" />
-          </button>
-          <button
-            onClick={() => setActiveTool('draw-text')}
-            title="Add Text (T)"
-            aria-label="Add text"
-            className="w-11 h-11 p-2 rounded-lg flex items-center justify-center bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
-          >
-            <Type className="w-5 h-5" aria-hidden="true" />
-          </button>
+          <Tooltip text="Free Draw (F)">
+            <button
+              onClick={() => setActiveTool('draw-free')}
+              aria-label="Free draw"
+              className="w-11 h-11 p-2 rounded-lg flex items-center justify-center bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
+            >
+              <Pencil className="w-5 h-5" aria-hidden="true" />
+            </button>
+          </Tooltip>
+          <Tooltip text="Draw Line (L)">
+            <button
+              onClick={() => setActiveTool('draw-line')}
+              aria-label="Draw line"
+              className="w-11 h-11 p-2 rounded-lg flex items-center justify-center bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
+            >
+              <Ruler className="w-5 h-5" aria-hidden="true" />
+            </button>
+          </Tooltip>
+          <Tooltip text="Draw Rectangle (R)">
+            <button
+              onClick={() => setActiveTool('draw-rect')}
+              aria-label="Draw rectangle"
+              className="w-11 h-11 p-2 rounded-lg flex items-center justify-center bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
+            >
+              <Square className="w-5 h-5" aria-hidden="true" />
+            </button>
+          </Tooltip>
+          <Tooltip text="Draw Circle (C)">
+            <button
+              onClick={() => setActiveTool('draw-circle')}
+              aria-label="Draw circle"
+              className="w-11 h-11 p-2 rounded-lg flex items-center justify-center bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
+            >
+              <Circle className="w-5 h-5" aria-hidden="true" />
+            </button>
+          </Tooltip>
+          <Tooltip text="Add Text (T)">
+            <button
+              onClick={() => setActiveTool('draw-text')}
+              aria-label="Add text"
+              className="w-11 h-11 p-2 rounded-lg flex items-center justify-center bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
+            >
+              <Type className="w-5 h-5" aria-hidden="true" />
+            </button>
+          </Tooltip>
         </div>
       )}
 
