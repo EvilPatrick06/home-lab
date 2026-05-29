@@ -61,9 +61,12 @@ export function calculateTotalWeight(character: Character5e): number {
     total += a.weight ?? 0
   }
 
-  // Equipment (gear items)
+  // Equipment (gear items) — Phase 23m: weight is per-unit, so multiply by quantity
+  // (a stack of 20 daggers weighed 1 lb total before this). Container `contents[]`
+  // recursion is deferred: EquipmentItem has no contents field to recurse into
+  // (logged to ISSUES-LOG-DNDAPP).
   for (const item of character.equipment ?? []) {
-    total += item.weight ?? 0
+    total += (item.weight ?? 0) * (item.quantity ?? 1)
   }
 
   // Magic items

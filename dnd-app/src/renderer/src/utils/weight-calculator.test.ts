@@ -163,14 +163,15 @@ describe('calculateTotalWeight', () => {
     expect(calculateTotalWeight(char)).toBe(55)
   })
 
-  it('sums equipment weights', () => {
+  it('sums equipment weights times quantity', () => {
+    // Phase 23m — weight is per-unit: Rope 1×10 + Torch 5×1 = 15 (was incorrectly 11).
     const char = makeCharacter({
       equipment: [
         { name: 'Rope', quantity: 1, weight: 10 },
         { name: 'Torch', quantity: 5, weight: 1 }
       ]
     })
-    expect(calculateTotalWeight(char)).toBe(11)
+    expect(calculateTotalWeight(char)).toBe(15)
   })
 
   it('sums magic item weights', () => {

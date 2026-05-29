@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useCharacterEditor } from '../../../hooks/use-character-editor'
+import { roll } from '../../../services/dice/dice-service'
 import type { Character5e } from '../../../types/character-5e'
+import { type AbilityName, abilityModifier, formatMod } from '../../../types/character-common'
 
 import {
   GENERIC_TOOL_VARIANTS,
@@ -26,6 +28,16 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
   const [customProfInput, setCustomProfInput] = useState('')
 
   const toolDescriptions = useToolDescriptions()
+  const profBonus = Math.ceil(character.level / 4) + 1
+
+  // Phase 23h — roll a tool check: 1d20 + proficiency + the tool's governing
+  // ability modifier. Broadcasts to chat + 3D dice via the shared dice service.
+  const rollToolCheck = (toolName: string, ability: string | undefined): void => {
+    const key = (ability ?? 'intelligence').toLowerCase() as AbilityName
+    const score = character.abilityScores[key] ?? 10
+    const mod = abilityModifier(score) + profBonus
+    roll(`1d20${mod >= 0 ? '+' : ''}${mod}`, { label: `${toolName} check` })
+  }
 
   const addProficiency = (field: 'armor' | 'tools', value: string): void => {
     const latest = getLatest()
@@ -161,6 +173,19 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
                   >
                     {tool}
                   </button>
+                  {!readonly && (
+                    <button
+                      onClick={() => rollToolCheck(tool, toolData?.ability)}
+                      className="ml-1 text-[11px] text-amber-500 hover:text-amber-300 cursor-pointer"
+                      title={`Roll ${tool} check (1d20 + PROF + ${(toolData?.ability ?? 'INT').slice(0, 3).toUpperCase()})`}
+                      aria-label={`Roll ${tool} check`}
+                    >
+                      🎲
+                      {toolData?.ability
+                        ? ` ${formatMod(abilityModifier(character.abilityScores[toolData.ability.toLowerCase() as AbilityName] ?? 10) + profBonus)}`
+                        : ''}
+                    </button>
+                  )}
                   {(isExpanded || showingVariants) && toolData?.description && (
                     <div className="text-xs text-gray-500 bg-gray-800/50 rounded px-2 py-1 mt-1 mb-1">
                       {toolData.description}
