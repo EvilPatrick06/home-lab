@@ -34,7 +34,7 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## Low
 
-*(none active)*
+- **[debt] LOG-11 Tiny-creature cover exclusion not implementable on `MapToken`.** `cover-calculator.ts` now excludes downed + allied creatures from cover and clamps creature cover to half (Phase 17c). PHB also says Tiny creatures grant no cover, but `MapToken` (`types/map.ts`) carries only `sizeX`/`sizeY` (grid footprint, min 1) — no size *category* — so Tiny can't be distinguished from Medium. Follow-up: add a `sizeCategory`/`creatureSize` field (or resolve it from the linked `monsterStatBlockId`) and skip Tiny in the cover loop. Domain: dnd-app.
 
 ---
 

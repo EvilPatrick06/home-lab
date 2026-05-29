@@ -99,11 +99,17 @@ export function calculateCover(
   const targetCorners = getTokenCorners(target, cellSize)
   const attackerCorners = getTokenCorners(attacker, cellSize)
 
-  // Also treat other creatures as half-cover obstacles (they block lines)
+  // Phase 17c (LOG-11) — only living enemy creatures grant cover. PHB 2024 caps
+  // creature-provided cover at HALF and a creature stops blocking once it drops.
+  // Allies are excluded (PHB optional rule: you can choose to ignore your own
+  // side). NOTE: Tiny creatures should also be excluded, but MapToken carries no
+  // size category to test — see ISSUES-LOG-DNDAPP (LOG-11 Tiny follow-up).
   const creatureSegments: Segment[] = []
   if (otherTokens) {
     for (const tok of otherTokens) {
       if (tok.id === attacker.id || tok.id === target.id) continue
+      if (tok.currentHP !== undefined && tok.currentHP <= 0) continue // downed → no cover
+      if (tok.entityType === attacker.entityType) continue // ally → ignored
       const corners = getTokenCorners(tok, cellSize)
       // Use the four edges of the token as blocking segments
       for (let i = 0; i < corners.length; i++) {
@@ -115,27 +121,40 @@ export function calculateCover(
     }
   }
 
-  const allBlocking = [...blockingWalls, ...creatureSegments]
-
-  // Try each attacker corner and use the one with the LEAST blockage (best for attacker)
-  let bestBlockedCount = 4 // worst case
-
+  // Try each attacker corner and use the one with the LEAST wall blockage (best
+  // for attacker). Track wall and creature blockage separately so creatures can
+  // be clamped to half cover while walls still reach three-quarters / total.
+  let bestWallBlocked = 4 // worst case
+  let creatureBlockedAtBest = 0
   for (const ac of attackerCorners) {
-    let blocked = 0
+    let wallBlocked = 0
+    let creatureBlocked = 0
     for (const tc of targetCorners) {
-      const isBlocked = allBlocking.some((seg) => segmentsIntersect(ac, tc, seg.a, seg.b))
-      if (isBlocked) blocked++
+      if (blockingWalls.some((seg) => segmentsIntersect(ac, tc, seg.a, seg.b))) {
+        wallBlocked++
+      } else if (creatureSegments.some((seg) => segmentsIntersect(ac, tc, seg.a, seg.b))) {
+        creatureBlocked++
+      }
     }
-    if (blocked < bestBlockedCount) {
-      bestBlockedCount = blocked
+    if (wallBlocked < bestWallBlocked || (wallBlocked === bestWallBlocked && creatureBlocked < creatureBlockedAtBest)) {
+      bestWallBlocked = wallBlocked
+      creatureBlockedAtBest = creatureBlocked
     }
   }
 
-  // Determine cover from fraction of blocked lines
-  if (bestBlockedCount === 0) return 'none'
-  if (bestBlockedCount <= 1) return 'half' // 1/4 blocked → half cover
-  if (bestBlockedCount <= 3) return 'three-quarters' // 2-3/4 blocked → three-quarters
-  return 'total' // all 4 blocked → total
+  // Cover from walls (can escalate all the way to total).
+  let wallCover: CoverType = 'none'
+  if (bestWallBlocked === 0) wallCover = 'none'
+  else if (bestWallBlocked <= 1) wallCover = 'half'
+  else if (bestWallBlocked <= 3) wallCover = 'three-quarters'
+  else wallCover = 'total'
+
+  // Creatures grant at most half cover, no matter how many segments block.
+  const creatureCover: CoverType = creatureBlockedAtBest > 0 ? 'half' : 'none'
+
+  // Target benefits from the greater of the two.
+  const rank: Record<CoverType, number> = { none: 0, half: 1, 'three-quarters': 2, total: 3 }
+  return rank[creatureCover] > rank[wallCover] ? creatureCover : wallCover
 }
 
 /**

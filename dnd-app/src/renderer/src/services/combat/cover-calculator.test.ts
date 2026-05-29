@@ -80,8 +80,8 @@ describe('calculateCover', () => {
   it('creatures between attacker and target provide cover', () => {
     const attacker = makeToken(0, 0)
     const target = makeToken(4, 0)
-    // Creature standing between them
-    const blocker = makeToken(2, 0, { id: 'blocker' })
+    // Enemy creature standing between them (allies are ignored — LOG-11)
+    const blocker = makeToken(2, 0, { id: 'blocker', entityType: 'enemy' })
     const cover = calculateCover(attacker, target, [], CELL, [blocker])
     expect(cover).not.toBe('none')
   })
@@ -90,7 +90,7 @@ describe('calculateCover', () => {
     const attacker = makeToken(0, 0)
     const target = makeToken(4, 0)
     // Creature well off to the side
-    const bystander = makeToken(2, 5, { id: 'bystander' })
+    const bystander = makeToken(2, 5, { id: 'bystander', entityType: 'enemy' })
     const cover = calculateCover(attacker, target, [], CELL, [bystander])
     expect(cover).toBe('none')
   })
@@ -98,10 +98,44 @@ describe('calculateCover', () => {
   it('large tokens have larger cover profiles', () => {
     const attacker = makeToken(0, 0)
     const target = makeToken(5, 0)
-    // 2x2 large creature between them
-    const largeBlocker = makeToken(3, 0, { id: 'large', sizeX: 2, sizeY: 2 })
+    // 2x2 large enemy creature between them
+    const largeBlocker = makeToken(3, 0, { id: 'large', entityType: 'enemy', sizeX: 2, sizeY: 2 })
     const cover = calculateCover(attacker, target, [], CELL, [largeBlocker])
     expect(cover).not.toBe('none')
+  })
+
+  // ── Phase 17c (LOG-11) — creature cover filtering + half clamp ──
+
+  it('creature cover is clamped to half even when fully blocking', () => {
+    const attacker = makeToken(0, 0)
+    const target = makeToken(4, 0)
+    // Large enemy spanning the whole sight corridor would block all 4 lines,
+    // but creatures cap at half cover (only walls reach three-quarters/total).
+    const wall = makeToken(2, -1, { id: 'big', entityType: 'enemy', sizeX: 1, sizeY: 4 })
+    const cover = calculateCover(attacker, target, [], CELL, [wall])
+    expect(cover).toBe('half')
+  })
+
+  it('downed creatures provide no cover', () => {
+    const attacker = makeToken(0, 0)
+    const target = makeToken(4, 0)
+    const corpse = makeToken(2, 0, { id: 'corpse', entityType: 'enemy', currentHP: 0 })
+    expect(calculateCover(attacker, target, [], CELL, [corpse])).toBe('none')
+  })
+
+  it('allied creatures provide no cover (PHB optional rule)', () => {
+    const attacker = makeToken(0, 0, { entityType: 'player' })
+    const target = makeToken(4, 0, { entityType: 'enemy' })
+    const ally = makeToken(2, 0, { id: 'ally', entityType: 'player' })
+    expect(calculateCover(attacker, target, [], CELL, [ally])).toBe('none')
+  })
+
+  it('walls still reach total cover independent of creature clamp', () => {
+    const attacker = makeToken(0, 0)
+    const target = makeToken(3, 0)
+    const wall = makeWall(2, -1, 2, 3)
+    const enemy = makeToken(1, 0, { id: 'e', entityType: 'enemy' })
+    expect(calculateCover(attacker, target, [wall], CELL, [enemy])).toBe('total')
   })
 })
 
