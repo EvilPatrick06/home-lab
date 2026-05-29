@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { dynamicKeys } from '../constants'
-import type { Campaign } from '../types/campaign'
+import { BUILTIN_ROLES } from '../data/builtin-roles'
+import type { Campaign, CampaignPermissions, PlayerOverride, Role } from '../types/campaign'
 import { generateInviteCode } from '../utils/invite-code'
 import { logger } from '../utils/logger'
 
@@ -41,6 +42,13 @@ interface CampaignState {
   ) => Promise<Campaign>
   archiveCampaign: (id: string) => Promise<void>
   unarchiveCampaign: (id: string) => Promise<void>
+  // Phase 29c/29d — roles + per-player overrides.
+  addRole: (campaignId: string, role: Role) => Promise<void>
+  updateRole: (campaignId: string, roleId: string, updates: Partial<Role>) => Promise<void>
+  deleteRole: (campaignId: string, roleId: string) => Promise<void>
+  duplicateRole: (campaignId: string, roleId: string) => Promise<void>
+  setPlayerOverride: (campaignId: string, clientId: string, override: PlayerOverride) => Promise<void>
+  clearPlayerOverride: (campaignId: string, clientId: string) => Promise<void>
 }
 
 export const useCampaignStore = create<CampaignState>((set, get) => ({
@@ -70,7 +78,11 @@ export const useCampaignStore = create<CampaignState>((set, get) => ({
       // a fresh code every time host-manager fell through to
       // `generateInviteCode()`.
       const migrated: Campaign[] = []
-      for (const campaign of diskCampaigns) {
+      for (const raw of diskCampaigns) {
+        // Phase 29h — inject default permissions for pre-permissions saves.
+        const campaign = raw.permissions
+          ? raw
+          : { ...raw, permissions: { roles: structuredClone(BUILTIN_ROLES), playerOverrides: {} } }
         if (!campaign.inviteCode || typeof campaign.inviteCode !== 'string') {
           const repaired = { ...campaign, inviteCode: generateInviteCode() }
           migrated.push(repaired)
@@ -161,6 +173,8 @@ export const useCampaignStore = create<CampaignState>((set, get) => ({
       inviteCode: generateInviteCode(),
       players: [],
       journal: { entries: [] },
+      // Phase 29b — seed a per-campaign copy of the built-in roles.
+      permissions: { roles: structuredClone(BUILTIN_ROLES), playerOverrides: {} },
       createdAt: now,
       updatedAt: now
     }
@@ -181,5 +195,76 @@ export const useCampaignStore = create<CampaignState>((set, get) => ({
     if (!campaign) return
     const updated = { ...campaign, archived: false, updatedAt: new Date().toISOString() }
     await get().saveCampaign(updated)
+  },
+
+  // ── Phase 29c/29d — permissions ──
+  addRole: async (campaignId, role) => {
+    await mutatePermissions(get, campaignId, (perms) => {
+      if (perms.roles.some((r) => r.id === role.id)) return perms
+      return { ...perms, roles: [...perms.roles, role] }
+    })
+  },
+
+  updateRole: async (campaignId, roleId, updates) => {
+    await mutatePermissions(get, campaignId, (perms) => ({
+      ...perms,
+      roles: perms.roles.map((r) => (r.id === roleId ? { ...r, ...updates, id: r.id, isBuiltIn: r.isBuiltIn } : r))
+    }))
+  },
+
+  deleteRole: async (campaignId, roleId) => {
+    await mutatePermissions(get, campaignId, (perms) => {
+      const role = perms.roles.find((r) => r.id === roleId)
+      if (!role || role.isBuiltIn) throw new Error('Cannot delete a built-in role')
+      // Reassign any per-player override holders? Overrides aren't role-keyed; peers
+      // referencing this role fall back to role-player via resolvePeerRoleId.
+      return { ...perms, roles: perms.roles.filter((r) => r.id !== roleId) }
+    })
+  },
+
+  duplicateRole: async (campaignId, roleId) => {
+    await mutatePermissions(get, campaignId, (perms) => {
+      const role = perms.roles.find((r) => r.id === roleId)
+      if (!role) return perms
+      const copy: Role = {
+        ...role,
+        id: `role-${crypto.randomUUID().slice(0, 8)}`,
+        name: `${role.name} (Copy)`,
+        isBuiltIn: false,
+        permissions: [...role.permissions]
+      }
+      return { ...perms, roles: [...perms.roles, copy] }
+    })
+  },
+
+  setPlayerOverride: async (campaignId, clientId, override) => {
+    await mutatePermissions(get, campaignId, (perms) => ({
+      ...perms,
+      playerOverrides: { ...perms.playerOverrides, [clientId]: override }
+    }))
+  },
+
+  clearPlayerOverride: async (campaignId, clientId) => {
+    await mutatePermissions(get, campaignId, (perms) => {
+      const next = { ...perms.playerOverrides }
+      delete next[clientId]
+      return { ...perms, playerOverrides: next }
+    })
   }
 }))
+
+/** Phase 29c — apply a permissions mutation to a campaign and persist. */
+async function mutatePermissions(
+  get: () => CampaignState,
+  campaignId: string,
+  fn: (perms: CampaignPermissions) => CampaignPermissions
+): Promise<void> {
+  const campaign = get().campaigns.find((c) => c.id === campaignId)
+  if (!campaign) return
+  const current: CampaignPermissions = campaign.permissions ?? {
+    roles: structuredClone(BUILTIN_ROLES),
+    playerOverrides: {}
+  }
+  const updated = { ...campaign, permissions: fn(current), updatedAt: new Date().toISOString() }
+  await get().saveCampaign(updated)
+}

@@ -52,4 +52,44 @@ describe('useCampaignStore', () => {
     const state = useCampaignStore.getState()
     expect(state.getActiveCampaign()).toBeNull()
   })
+
+  // Phase 29c/29d — role CRUD + overrides.
+  describe('permissions actions', () => {
+    const seed = (): void => {
+      useCampaignStore.setState({
+        campaigns: [{ id: 'camp1', name: 'C', permissions: undefined } as never]
+      })
+    }
+
+    it('addRole seeds built-ins then appends a custom role', async () => {
+      seed()
+      await useCampaignStore.getState().addRole('camp1', {
+        id: 'role-x',
+        name: 'X',
+        isBuiltIn: false,
+        permissions: ['roll_dice']
+      })
+      const perms = useCampaignStore.getState().campaigns[0].permissions
+      expect(perms?.roles.some((r) => r.id === 'role-dm')).toBe(true)
+      expect(perms?.roles.some((r) => r.id === 'role-x')).toBe(true)
+    })
+
+    it('deleteRole rejects built-ins', async () => {
+      seed()
+      await useCampaignStore.getState().addRole('camp1', { id: 'role-y', name: 'Y', isBuiltIn: false, permissions: [] })
+      await expect(useCampaignStore.getState().deleteRole('camp1', 'role-dm')).rejects.toThrow()
+      await useCampaignStore.getState().deleteRole('camp1', 'role-y')
+      expect(useCampaignStore.getState().campaigns[0].permissions?.roles.some((r) => r.id === 'role-y')).toBe(false)
+    })
+
+    it('setPlayerOverride / clearPlayerOverride round-trip', async () => {
+      seed()
+      await useCampaignStore.getState().setPlayerOverride('camp1', 'cid', { grant: ['view_hidden_tokens'], deny: [] })
+      expect(useCampaignStore.getState().campaigns[0].permissions?.playerOverrides.cid?.grant).toContain(
+        'view_hidden_tokens'
+      )
+      await useCampaignStore.getState().clearPlayerOverride('camp1', 'cid')
+      expect(useCampaignStore.getState().campaigns[0].permissions?.playerOverrides.cid).toBeUndefined()
+    })
+  })
 })
