@@ -240,6 +240,22 @@ This phase focuses on the unique remaining issues: the accessibility reduced-mot
 
 ## Completed
 
+> **PHASE 22 COMPLETE (22a–22l) — 2026-05-29.** Full 4-gate green (lint 0, tsc web+node 0, vitest 6503/6503).
+> - **22a** — `useReducedMotion()` hook; store toggles `.reduce-motion` on <html> (setter + init + OS-change); globals.css `.reduce-motion *` block; DiceOverlay reads via ref.
+> - **22b** — leaks fixed: use-toast per-toast timer map; ai-service stale-stream interval cleared via `disposeAiService()` on will-quit; ArmorManager5e / EquipmentListPanel5e setTimeout refs + unmount clear; AudioPlayerItem `<audio>`+listeners in path-keyed effect; PlayerHUDOverlay drag listeners in a ref with unmount cleanup.
+> - **22c** — dropped unused `immer`.
+> - **22d** — `removeConversation()` evicts the in-memory map; deleteCampaign cascade calls it (dynamic import avoids cycle).
+> - **22e** — PdfViewer / combat-resolver / system-chat-bridge `console.*` → `logger`.
+> - **22f** — verified GAME_LOAD_JSON already wraps JSON.parse (17b); no change.
+> - **22g** — no-op: EquipmentTab/SpellsTab use the data-provider access layer (boundary-test compliant); no `window.api.game.load*` bypass exists.
+> - **22h** — `dnd-app/LICENSE` (ISC, ships) + `CHANGELOG.md`.
+> - **22i** — `PluginIdSchema` tightened to `/^[a-z0-9][a-z0-9-_.]{0,63}$/i` (≤64); `parsePluginId` exported + tested (traversal/empty/separator/overlong/leading-dash/null/undefined rejected).
+> - **22j** — satisfied by Phase 21 `ci.yml` (lint+typecheck+test on push/PR); no duplicate `pr-checks.yml` (would just double CI runtime).
+> - **22k** — `utils/throttle.ts` (leading+trailing, `cancel()`, `ms<=0` passthrough) + tests; opt-in, no call sites converted.
+> - **22l** — audit tracking entries logged to SUGGESTIONS-LOG-DNDAPP.md; `.env` key-rotation item to gitignored SECURITY-LOG.md.
+
+### Pre-existing (earlier-session) stamps
+
 - 22 H2 Step 3 — DONE (`package.json`) — `@pixi/react` and `@tiptap/extension-image` removed from `dependencies`.
 - 22 H3 Step 4 — DONE (`package.json`) — `@langchain/langgraph` moved to `devDependencies`; `@langchain/anthropic` and `@langchain/core` removed entirely.
 - 22 H5 (DiceRenderer subset) — DONE — owned by Phase 17 (GUI-3); not in scope here.
