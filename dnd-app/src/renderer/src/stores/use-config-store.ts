@@ -1,6 +1,26 @@
 import { create } from 'zustand'
 import { logger } from '../utils/logger'
 
+/**
+ * Imperative loader cache for `data-provider` (Phase 15h — renamed from `use-data-store`).
+ *
+ * This is the cache behind every `load5e*()` imperative loader: TTL + concurrent-waiter
+ * coalescing, plus the homebrew/plugin MERGE that folds `userData/homebrew/*` and installed
+ * plugin content into each category's results. It holds the ~20 non-library config/UI
+ * categories (themes, dice colors, keyboard shortcuts, xp thresholds, etc.) that have no
+ * `LibraryCategory` home, as well as caching content categories for the imperative façade.
+ *
+ * It is NOT the React-facing source of truth — that is `useLibraryStore` (the truth store),
+ * which content side-writes into via `library-service.ingestIntoLibraryStore` (15a). React
+ * components read content through the library hooks; `data-provider` + main-process code use
+ * these loaders. The two are kept in sync by the dual `clearAll` (15a Step 9).
+ *
+ * Remaining debt (logged 2026-05-28): fully decoupling content caching from this store (so
+ * content reads come only from the truth store) requires wiring the truth store's
+ * homebrew/plugin merge — today that merge lives only here, so moving content reads off it
+ * would drop homebrew/plugin entries from `load5e*` consumers. Out of scope for 15h.
+ */
+
 type DataCategory =
   | 'species'
   | 'speciesTraits'
@@ -97,7 +117,7 @@ const CACHE_TTL_MS = 30 * 60 * 1000
 // without polling, and rejected when the primary loader fails.
 const waiters = new Map<DataCategory, Array<{ resolve: (v: unknown) => void; reject: (e: unknown) => void }>>()
 
-interface DataStoreState {
+interface ConfigStoreState {
   cache: Map<DataCategory, CacheEntry>
   homebrewByCategory: Map<string, Record<string, unknown>[]>
   homebrewLoaded: boolean
@@ -111,7 +131,7 @@ interface DataStoreState {
   clearAll: () => void
 }
 
-export const useDataStore = create<DataStoreState>((set, get) => ({
+export const useConfigStore = create<ConfigStoreState>((set, get) => ({
   cache: new Map(),
   homebrewByCategory: new Map(),
   homebrewLoaded: false,

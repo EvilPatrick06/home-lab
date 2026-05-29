@@ -12,20 +12,20 @@ vi.stubGlobal('window', {
   }
 })
 
-import { useDataStore } from './use-data-store'
+import { useConfigStore } from './use-config-store'
 
-describe('useDataStore', () => {
+describe('useConfigStore', () => {
   it('can be imported', async () => {
-    const mod = await import('./use-data-store')
+    const mod = await import('./use-config-store')
     expect(mod).toBeDefined()
   })
 
   it('exports the store hook', () => {
-    expect(typeof useDataStore).toBe('function')
+    expect(typeof useConfigStore).toBe('function')
   })
 
   it('has expected initial state shape', () => {
-    const state = useDataStore.getState()
+    const state = useConfigStore.getState()
     expect(state).toHaveProperty('cache')
     expect(state).toHaveProperty('homebrewByCategory')
     expect(state).toHaveProperty('homebrewLoaded')
@@ -34,7 +34,7 @@ describe('useDataStore', () => {
   })
 
   it('has expected initial state values', () => {
-    const state = useDataStore.getState()
+    const state = useConfigStore.getState()
     expect(state.cache).toBeInstanceOf(Map)
     expect(state.cache.size).toBe(0)
     expect(state.homebrewByCategory).toBeInstanceOf(Map)
@@ -46,7 +46,7 @@ describe('useDataStore', () => {
   })
 
   it('has expected actions', () => {
-    const state = useDataStore.getState()
+    const state = useConfigStore.getState()
     expect(typeof state.loadHomebrew).toBe('function')
     expect(typeof state.loadPluginContent).toBe('function')
     expect(typeof state.get).toBe('function')

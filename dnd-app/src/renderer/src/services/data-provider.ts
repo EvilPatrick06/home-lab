@@ -1,4 +1,4 @@
-import { useDataStore } from '../stores/use-data-store'
+import { useConfigStore } from '../stores/use-config-store'
 import { useLibraryStore } from '../stores/use-library-store'
 import { getSystem } from '../systems/registry'
 import type { BuildSlotCategory, DetailField, SelectableOption } from '../types/character-common'
@@ -109,7 +109,7 @@ export async function loadJson<T>(path: string): Promise<T> {
 /** Invalidate all cached data (force re-fetch on next access). */
 export function clearDataCache(): void {
   jsonCache.clear()
-  useDataStore.getState().clearAll()
+  useConfigStore.getState().clearAll()
   useLibraryStore.getState().clearAll()
 }
 
@@ -478,7 +478,7 @@ export async function getOptionsForSlot(
 }
 
 // All named loaders go through the centralized DataStore for caching + homebrew merge
-const ds = () => useDataStore.getState()
+const ds = () => useConfigStore.getState()
 
 // Generic index-based loader: loads index.json, then fetches each individual file
 interface IndexEntry {

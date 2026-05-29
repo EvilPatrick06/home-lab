@@ -5,6 +5,7 @@
  * All functions handle errors gracefully, returning false or null on failure.
  */
 
+import { migrateCharacter5eToRefs } from '../../../../shared/migrations/v4-character-refs'
 import { MAX_READ_FILE_SIZE, MAX_WRITE_CONTENT_SIZE } from '../../constants/app-constants'
 import { logger } from '../../utils/logger'
 
@@ -158,6 +159,18 @@ const BACKUP_MIGRATIONS: Record<number, (raw: Record<string, unknown>) => Record
     mapLibrary: Array.isArray(raw.mapLibrary) ? raw.mapLibrary : [],
     shopTemplates: Array.isArray(raw.shopTemplates) ? raw.shopTemplates : [],
     books: raw.books && typeof raw.books === 'object' ? raw.books : { config: { customBooks: [] }, data: [] }
+  }),
+  // v3 → v4 (Phase 15, DORMANT until BACKUP_VERSION bumps to 4 with the v3.0.0 release):
+  // convert each dnd5e character in the backup from the v3 inline-array shape to v4 refs+state
+  // via the same shared core as main-process MIGRATIONS[4].
+  4: (raw) => ({
+    ...raw,
+    characters: Array.isArray(raw.characters)
+      ? raw.characters.map((c) => {
+          const rec = c as Record<string, unknown>
+          return rec.gameSystem === 'dnd5e' ? migrateCharacter5eToRefs(rec) : rec
+        })
+      : []
   })
 }
 

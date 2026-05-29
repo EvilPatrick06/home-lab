@@ -153,8 +153,8 @@ export function createPluginAPI(
   const data: PluginDataAPI = Object.freeze({
     get: async (category: string): Promise<unknown[]> => {
       // Lazy import to avoid circular dependency at module init
-      const { useDataStore } = await import('../../stores/use-data-store')
-      const cache = useDataStore.getState().cache
+      const { useConfigStore } = await import('../../stores/use-config-store')
+      const cache = useConfigStore.getState().cache
       const entry = cache.get(category as Parameters<typeof cache.get>[0])
       if (entry?.data) {
         return Array.isArray(entry.data) ? entry.data : []

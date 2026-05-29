@@ -123,7 +123,7 @@ describe('searchMonsters', () => {
 })
 
 describe('clearDataCache — phase 15a step 9 cross-store flip', () => {
-  it('clears useLibraryStore entries alongside useDataStore', async () => {
+  it('clears useLibraryStore entries alongside useConfigStore', async () => {
     const { useLibraryStore } = await import('../stores/use-library-store')
     await useLibraryStore.getState().loadCategory('spells', () => [{ id: 'fireball', name: 'Fireball', level: 3 }])
     expect(useLibraryStore.getState().getEntry('spells', 'fireball')).not.toBeNull()

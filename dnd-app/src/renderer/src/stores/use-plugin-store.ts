@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import type { PluginStatus } from '../../../shared/plugin-types'
 import { getLoadedPlugin, type LoadedPlugin, loadPlugin, unloadPlugin } from '../services/plugin-system/plugin-registry'
-import { useDataStore } from './use-data-store'
+import { useConfigStore } from './use-config-store'
 import { useLibraryStore } from './use-library-store'
 
 type _LoadedPlugin = LoadedPlugin
@@ -64,7 +64,7 @@ export const usePluginStore = create<PluginStoreState>((set, get) => ({
     if (plugin && plugin.manifest.type !== 'content-pack') {
       await loadPlugin(plugin.manifest)
     }
-    useDataStore.getState().clearAll()
+    useConfigStore.getState().clearAll()
     useLibraryStore.getState().clearAll()
     await get().refreshPluginList()
   },
@@ -72,7 +72,7 @@ export const usePluginStore = create<PluginStoreState>((set, get) => ({
   disablePlugin: async (id: string) => {
     await window.api.plugins.disable(id)
     unloadPlugin(id)
-    useDataStore.getState().clearAll()
+    useConfigStore.getState().clearAll()
     useLibraryStore.getState().clearAll()
     await get().refreshPluginList()
   },
@@ -81,7 +81,7 @@ export const usePluginStore = create<PluginStoreState>((set, get) => ({
     try {
       const result = await window.api.plugins.install()
       if (result.success) {
-        useDataStore.getState().clearAll()
+        useConfigStore.getState().clearAll()
         useLibraryStore.getState().clearAll()
         await get().refreshPluginList()
       }
@@ -96,7 +96,7 @@ export const usePluginStore = create<PluginStoreState>((set, get) => ({
       unloadPlugin(id)
       const result = await window.api.plugins.uninstall(id)
       if (result.success) {
-        useDataStore.getState().clearAll()
+        useConfigStore.getState().clearAll()
         useLibraryStore.getState().clearAll()
         await get().refreshPluginList()
       }
