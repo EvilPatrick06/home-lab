@@ -19,7 +19,7 @@ import { calculateHPBonusFromTraits, getWildShapeMax } from '../../services/char
 import { load5eClasses, load5eClassFeatures, load5eSpells } from '../../services/data-provider'
 import type { Character5e, Character5eV3, MulticlassEntry } from '../../types/character-5e'
 import { migrateCharacter5eFromV3ToV4 } from '../../types/character-5e-migration'
-import type { AbilityName, AbilityScoreSet } from '../../types/character-common'
+import type { AbilityName, AbilityScoreSet, BuildSlot } from '../../types/character-common'
 import { abilityModifier } from '../../types/character-common'
 import { logger } from '../../utils/logger'
 import { resolveLevelUpSpells, toSpellEntry } from './level-up-spells'
@@ -47,7 +47,10 @@ export async function apply5eLevelUp(
   metamagicSelections: string[],
   blessedWarriorCantrips: string[],
   druidicWarriorCantrips: string[],
-  expertiseSelections: Record<string, string[]>
+  expertiseSelections: Record<string, string[]>,
+  // Phase 24a — subclass selections live in the level-up slots (category
+  // 'class-feat', label 'Subclass'). Threaded so they're written back.
+  levelUpSlots: BuildSlot[] = []
 ): Promise<Character5e> {
   // Load class data for hit dice and names
   const classDataMap: Record<
@@ -171,6 +174,19 @@ export async function apply5eLevelUp(
         hitDie: classInfo?.hitDie ?? 8
       })
       newClassesAdded.push(levelClassId)
+    }
+  }
+
+  // Phase 24a — write back subclass selections. Subclass slots are
+  // category 'class-feat', label 'Subclass'. Single-class is the common case
+  // (slot → primary class); the migration re-derives classRefs[].subclassRef
+  // from each class's `.subclass`.
+  for (const slot of levelUpSlots) {
+    if (slot.category === 'class-feat' && slot.label === 'Subclass' && slot.selectedId) {
+      const idx = updatedClasses.findIndex((c) => c.name.toLowerCase() === primaryClassId)
+      if (idx >= 0 && !updatedClasses[idx].subclass) {
+        updatedClasses[idx] = { ...updatedClasses[idx], subclass: slot.selectedId }
+      }
     }
   }
 

@@ -217,7 +217,8 @@ export const useLevelUpStore = create<LevelUpState>((set, get) => ({
       metamagicSelections,
       blessedWarriorCantrips,
       druidicWarriorCantrips,
-      expertiseSelections
+      expertiseSelections,
+      get().levelUpSlots
     )
   },
 
