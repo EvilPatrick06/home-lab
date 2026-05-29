@@ -49,6 +49,22 @@ export interface ChatLink {
   end: number
 }
 
+/**
+ * Phase 20b — protocol allowlist for any URL that ever becomes a real `href`.
+ * Today chat links render as `<button>` (compendium lookups, no href), so this
+ * is preventative: only `http:` / `https:` are safe; `javascript:`, `data:`,
+ * `file:`, etc. are rejected. Use this before assigning a user/AI-supplied URL
+ * to an anchor's href.
+ */
+export function isSafeHref(url: string): boolean {
+  try {
+    const protocol = new URL(url, 'https://placeholder.invalid').protocol
+    return protocol === 'http:' || protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
 export function parseChatLinks(content: string): ChatLink[] {
   const links: ChatLink[] = []
 

@@ -1,3 +1,10 @@
+// SECURITY (Phase 20b) — JSX-only chat rendering contract.
+// Chat content is rendered exclusively through React JSX text nodes (see
+// renderChatContent in utils/chat-links.ts), which auto-escapes user/AI input.
+// NEVER introduce `dangerouslySetInnerHTML` / `innerHTML` here. If markdown is
+// ever added to chat, the markdown→HTML step MUST be sanitized with DOMPurify,
+// and any linkified URL MUST pass `isSafeHref` (chat-links.ts) before becoming
+// an anchor href.
 import { useVirtualizer } from '@tanstack/react-virtual'
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { addToast } from '../../../hooks/use-toast'
