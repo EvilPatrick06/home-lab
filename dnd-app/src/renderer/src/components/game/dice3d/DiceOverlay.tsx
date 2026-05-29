@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useReducedMotion } from '../../../hooks/use-reduced-motion'
+import { play as playSound, type SoundEvent } from '../../../services/sound-manager'
 import DiceRenderer, { type DiceRollRequest } from './DiceRenderer'
 import type { DiceColors, DieType } from './dice-meshes'
 import { DEFAULT_DICE_COLORS } from './dice-meshes'
@@ -159,6 +160,16 @@ export default function DiceOverlay(): JSX.Element {
 
       const totalDice = groups.reduce((sum, g) => sum + g.count, 0)
       if (totalDice === 0) return
+
+      // Phase 27c — play a dice sound for the roll (chat / command / network
+      // rolls were silent; nothing else plays it, so no double-play). Solo d20s
+      // get the nat-20 / nat-1 cue.
+      const sidesFor = (t: DieType): number => parseInt(t.slice(1), 10)
+      const maxType = groups.reduce((a, b) => (sidesFor(b.type) > sidesFor(a.type) ? b : a)).type
+      const soloD20 = groups.length === 1 && groups[0].type === 'd20' && groups[0].count === 1
+      if (soloD20 && event.rolls[0] === 20) playSound('nat-20')
+      else if (soloD20 && event.rolls[0] === 1) playSound('nat-1')
+      else playSound(`dice-${maxType}` as SoundEvent)
 
       // QA-S9: honor the Reduced Motion accessibility toggle. The 3D
       // canvas uses Three.js + cannon-es physics which CSS transitions
