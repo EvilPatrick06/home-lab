@@ -184,18 +184,17 @@ describe('creature-initiative', () => {
 
     it('resets legendary actions for the next creature', async () => {
       const { executeNextTurn } = await import('./creature-initiative')
-      const gs = makeGameStore({
-        initiative: {
-          entries: [
-            { id: 'i1', entityName: 'Paladin', isActive: true },
-            { id: 'i2', entityName: 'Dragon', isActive: false, legendaryActions: { maximum: 3, used: 2 } }
-          ],
-          currentIndex: 0
-        }
-      })
+      // Phase 17c (LOG-13) — executeNextTurn advances FIRST, then acts on the entry at the
+      // post-advance currentIndex (read from the store). The Dragon's turn is starting (index 1).
+      const entries = [
+        { id: 'i1', entityName: 'Paladin', isActive: false },
+        { id: 'i2', entityName: 'Dragon', isActive: true, legendaryActions: { maximum: 3, used: 2 } }
+      ]
+      const localStores = makeStores({ initiative: { entries, currentIndex: 1 } })
+      const gs = makeGameStore({ initiative: { entries, currentIndex: 0 } })
       const action: DmAction = { action: 'next_turn' }
 
-      executeNextTurn(action, gs, undefined, stores)
+      executeNextTurn(action, gs, undefined, localStores)
       expect(gs.updateInitiativeEntry).toHaveBeenCalledWith('i2', {
         legendaryActions: { maximum: 3, used: 0 }
       })
@@ -206,24 +205,21 @@ describe('creature-initiative', () => {
       vi.mocked(rollDiceFormula).mockReturnValue({ rolls: [6], total: 6 })
 
       const { executeNextTurn } = await import('./creature-initiative')
-      const gs = makeGameStore({
-        initiative: {
-          entries: [
-            { id: 'i1', entityName: 'Paladin', isActive: true },
-            {
-              id: 'i2',
-              entityName: 'Dragon',
-              entityType: 'enemy',
-              isActive: false,
-              rechargeAbilities: [{ name: 'Fire Breath', rechargeOn: 5, available: false }]
-            }
-          ],
-          currentIndex: 0
+      const entries = [
+        { id: 'i1', entityName: 'Paladin', isActive: false },
+        {
+          id: 'i2',
+          entityName: 'Dragon',
+          entityType: 'enemy',
+          isActive: true,
+          rechargeAbilities: [{ name: 'Fire Breath', rechargeOn: 5, available: false }]
         }
-      })
+      ]
+      const localStores = makeStores({ initiative: { entries, currentIndex: 1 } })
+      const gs = makeGameStore({ initiative: { entries, currentIndex: 0 } })
       const action: DmAction = { action: 'next_turn' }
 
-      executeNextTurn(action, gs, undefined, stores)
+      executeNextTurn(action, gs, undefined, localStores)
       expect(gs.updateInitiativeEntry).toHaveBeenCalledWith('i2', {
         rechargeAbilities: expect.arrayContaining([expect.objectContaining({ name: 'Fire Breath', available: true })])
       })

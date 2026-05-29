@@ -289,15 +289,29 @@ export function proneStandUpCost(maxSpeed: number): number {
  * Check melee weapon range (5ft for standard, 10ft for reach weapons).
  */
 export function isInMeleeRange(attacker: MapToken, target: MapToken, reach: number = 5): boolean {
-  const dist = gridDistanceFeet(
-    attacker.gridX,
-    attacker.gridY,
-    target.gridX,
-    target.gridY,
-    attacker.elevation ?? 0,
-    target.elevation ?? 0
-  )
-  return dist <= reach
+  // Phase 17c (LOG-3) — measure from EVERY occupied cell of both tokens (mirrors isAdjacent), not
+  // just the top-left origin. A 2×2 Large creature at (0,0) reaching (2,0) is 5 ft from cell (1,0),
+  // not 10 ft from its origin — the origin-only check wrongly reported out-of-reach.
+  const aElev = attacker.elevation ?? 0
+  const tElev = target.elevation ?? 0
+  for (let dx = 0; dx < (attacker.sizeX || 1); dx++) {
+    for (let dy = 0; dy < (attacker.sizeY || 1); dy++) {
+      for (let ex = 0; ex < (target.sizeX || 1); ex++) {
+        for (let ey = 0; ey < (target.sizeY || 1); ey++) {
+          const dist = gridDistanceFeet(
+            attacker.gridX + dx,
+            attacker.gridY + dy,
+            target.gridX + ex,
+            target.gridY + ey,
+            aElev,
+            tElev
+          )
+          if (dist <= reach) return true
+        }
+      }
+    }
+  }
+  return false
 }
 
 /**

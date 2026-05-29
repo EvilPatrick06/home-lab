@@ -81,10 +81,12 @@ export function executeNextTurn(
 ): boolean {
   if (!gameStore.initiative) throw new Error('No initiative running')
 
-  // Reset legendary actions for the creature whose turn is starting
-  const currentIdx = gameStore.initiative.currentIndex
-  const nextIdx = (currentIdx + 1) % gameStore.initiative.entries.length
-  const nextEntry = gameStore.initiative.entries[nextIdx]
+  // Phase 17c (LOG-13) — advance the turn FIRST, then act on the entry whose turn actually
+  // started. `nextTurn()` may skip delaying entries, so pre-computing (currentIdx+1)%len would
+  // reset legendary actions / roll recharge for the WRONG creature.
+  gameStore.nextTurn()
+  const freshInit = stores.getGameStore().getState().initiative
+  const nextEntry = freshInit?.entries[freshInit.currentIndex]
   if (nextEntry?.legendaryActions) {
     gameStore.updateInitiativeEntry(nextEntry.id, {
       legendaryActions: { maximum: nextEntry.legendaryActions.maximum, used: 0 }
@@ -121,7 +123,7 @@ export function executeNextTurn(
     }
   }
 
-  gameStore.nextTurn()
+  // nextTurn() already called above (LOG-13).
   broadcastInitiativeSync(stores)
   return true
 }
