@@ -433,6 +433,45 @@ describe('import-export', () => {
       })
     })
 
+    // Phase 25e — backup round-trip: export → wipe → import. Homebrew must
+    // survive the round-trip (count + entries, including campaignId scope).
+    it('round-trips homebrew through export then import', async () => {
+      const homebrew = [
+        { id: 'h1', type: 'spells', name: 'Custom Bolt', campaignId: 'camp-42' },
+        { id: 'h2', type: 'feats', name: 'Custom Feat' } // global (no campaignId)
+      ]
+      // --- Export phase ---
+      mockLoadCharacters.mockResolvedValue([])
+      mockLoadCampaigns.mockResolvedValue([])
+      mockLoadBastions.mockResolvedValue([])
+      mockLoadCustomCreatures.mockResolvedValue([])
+      mockLoadAllHomebrew.mockResolvedValue(homebrew)
+      mockLoadSettings.mockResolvedValue({})
+      mockShowSaveDialog.mockResolvedValue('/tmp/backup.dndbackup')
+      let writtenJson = ''
+      mockWriteFile.mockImplementation((_path: string, json: string) => {
+        writtenJson = json
+        return Promise.resolve(undefined)
+      })
+
+      const exportStats = await exportAllData()
+      expect(exportStats?.homebrew).toBe(2)
+      expect(writtenJson).not.toBe('')
+
+      // --- Wipe + import phase ---
+      mockSaveHomebrew.mockResolvedValue(undefined)
+      mockShowOpenDialog.mockResolvedValue('/tmp/backup.dndbackup')
+      mockReadFile.mockResolvedValue(writtenJson)
+
+      const importStats = await importAllData()
+      expect(importStats?.homebrew).toBe(2)
+      expect(mockSaveHomebrew).toHaveBeenCalledTimes(2)
+      expect(mockSaveHomebrew).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'h1', campaignId: 'camp-42' })
+      )
+      expect(mockSaveHomebrew).toHaveBeenCalledWith(expect.objectContaining({ id: 'h2' }))
+    })
+
     it('ignores localStorage keys not matching the prefix', async () => {
       const backup = {
         version: 2,
