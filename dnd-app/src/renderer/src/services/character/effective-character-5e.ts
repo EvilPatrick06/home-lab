@@ -2,6 +2,7 @@ import { useLibraryStore } from '../../stores/use-library-store'
 import type { Character5e, CharacterClass5e, MagicItemEntry5e } from '../../types/character-5e'
 import type { ActiveCondition, ArmorEntry, SpellEntry, WeaponEntry } from '../../types/character-common'
 import { deepMergeObjects } from '../library/merge'
+import type { HomebrewFeatEffect } from './homebrew-effects'
 
 // Phase 15c.5 — v3-shape derivation from v4 Character5e refs + state.
 //
@@ -121,15 +122,23 @@ export function getEffectiveMagicItems(character: Character5e): MagicItemEntry5e
   })
 }
 
-export function getEffectiveFeats(
-  character: Character5e
-): Array<{ id: string; name: string; description: string; choices?: Record<string, string | string[]> }> {
+export function getEffectiveFeats(character: Character5e): Array<{
+  id: string
+  name: string
+  description: string
+  choices?: Record<string, string | string[]>
+  // Phase 25b — homebrew feats may carry a source marker + structured effects.
+  source?: string
+  effects?: HomebrewFeatEffect[]
+}> {
   const entries = useLibraryStore.getState().entries as LibraryEntries
   return hydrate(character.featRefs, entries.feats) as unknown as Array<{
     id: string
     name: string
     description: string
     choices?: Record<string, string | string[]>
+    source?: string
+    effects?: HomebrewFeatEffect[]
   }>
 }
 

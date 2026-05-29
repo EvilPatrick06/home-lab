@@ -118,7 +118,12 @@ export async function buildCharacter5e(get: GetState): Promise<Character5e> {
       | undefined
   }
 
-  const builderFeats = (existingChar5e ? getEffectiveFeats(existingChar5e) : []).map((f) => ({ id: f.id }))
+  // Phase 25b — carry source/effects so homebrew feat effects reach the stat calc.
+  const builderFeats = (existingChar5e ? getEffectiveFeats(existingChar5e) : []).map((f) => ({
+    id: f.id,
+    source: f.source,
+    effects: f.effects
+  }))
   const isDraconicForHP = classSlot?.selectedId === 'sorcerer' && subclassSlot?.selectedId === 'draconic-sorcery'
   const draconicSorcererLevelForHP = isDraconicForHP ? targetLevel : undefined
 

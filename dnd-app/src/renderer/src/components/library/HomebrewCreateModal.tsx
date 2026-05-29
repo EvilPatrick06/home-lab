@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 import { addToast } from '../../hooks/use-toast'
+import type { HomebrewFeatEffect } from '../../services/character/homebrew-effects'
 import { exportAllHomebrew, importHomebrew } from '../../services/io/homebrew-io'
 import { useCampaignStore } from '../../stores/use-campaign-store'
 import type { HomebrewEntry, LibraryCategory, LibraryItem } from '../../types/library'
@@ -20,7 +21,16 @@ function formatLabel(key: string): string {
     .trim()
 }
 
-const EDITABLE_SKIP = new Set(['id', '_homebrewId', '_basedOn', '_createdAt', 'tokenSize', 'source'])
+const EDITABLE_SKIP = new Set([
+  'id',
+  '_homebrewId',
+  '_basedOn',
+  '_createdAt',
+  '_campaignId',
+  'tokenSize',
+  'source',
+  'effects'
+])
 
 /**
  * Phase 17o — default field shape per category for from-scratch homebrew
@@ -48,7 +58,9 @@ const CATEGORY_DEFAULT_FIELDS: Partial<Record<LibraryCategory, Record<string, un
     components: '',
     range: '',
     duration: '',
-    classes: [] as string[]
+    classes: [] as string[],
+    // Phase 25b — optional damage/effect roll (e.g. "8d6"); rolled on cast.
+    diceFormula: ''
   },
   monsters: {
     name: '',
@@ -112,9 +124,7 @@ export default function HomebrewCreateModal({
   const activeCampaignId = useCampaignStore((s) => s.activeCampaignId)
   const activeCampaign = useCampaignStore((s) => s.campaigns.find((c) => c.id === s.activeCampaignId))
   const existingCampaignId = existingItem?.data._campaignId as string | undefined
-  const [campaignOnly, setCampaignOnly] = useState<boolean>(
-    isEditing ? !!existingCampaignId : !!activeCampaignId
-  )
+  const [campaignOnly, setCampaignOnly] = useState<boolean>(isEditing ? !!existingCampaignId : !!activeCampaignId)
 
   const updateField = (key: string, value: unknown): void => {
     setFormData((prev) => ({ ...prev, [key]: value }))
@@ -135,9 +145,26 @@ export default function HomebrewCreateModal({
     setNewFieldKey('')
   }
 
+  // Phase 25b — homebrew feat effects builder. Stored under formData.effects.
+  const effects = (Array.isArray(formData.effects) ? formData.effects : []) as HomebrewFeatEffect[]
+  const setEffects = (next: HomebrewFeatEffect[]): void => updateField('effects', next)
+  const addEffect = (): void => setEffects([...effects, { type: 'ability_bonus', target: 'strength', value: 1 }])
+  const updateEffect = (idx: number, next: HomebrewFeatEffect): void =>
+    setEffects(effects.map((e, i) => (i === idx ? next : e)))
+  const removeEffect = (idx: number): void => setEffects(effects.filter((_, i) => i !== idx))
+
   const handleSave = async (): Promise<void> => {
     const name = (formData.name as string)?.trim()
     if (!name) return
+
+    // Phase 25b — validate optional spell dice formula before saving.
+    if (category === 'spells') {
+      const formula = (formData.diceFormula as string)?.trim()
+      if (formula && !/^\d+d\d+([+-]\d+)?$/.test(formula)) {
+        addToast(`Invalid dice formula "${formula}" — use e.g. 8d6 or 2d8+3`, 'error')
+        return
+      }
+    }
 
     setSaving(true)
     try {
@@ -238,6 +265,36 @@ export default function HomebrewCreateModal({
             </div>
           ))}
 
+          {/* Phase 25b — feat effects builder. Without effects a homebrew feat is
+              informational only; with effects it changes derived stats. */}
+          {category === 'feats' && (
+            <div className="pt-4 border-t border-gray-800">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs font-semibold text-amber-400 uppercase tracking-wider">Mechanical Effects</p>
+                <button
+                  onClick={addEffect}
+                  className="text-xs px-2 py-0.5 rounded border border-gray-600 text-gray-300 hover:border-amber-500 hover:text-amber-400 cursor-pointer"
+                >
+                  + Add Effect
+                </button>
+              </div>
+              {effects.length === 0 && (
+                <p className="text-xs text-gray-500">No effects — this feat will be informational only.</p>
+              )}
+              <div className="space-y-2">
+                {effects.map((effect, idx) => (
+                  // biome-ignore lint/suspicious/noArrayIndexKey: effects have no stable id
+                  <EffectRow
+                    key={idx}
+                    effect={effect}
+                    onChange={(e) => updateEffect(idx, e)}
+                    onRemove={() => removeEffect(idx)}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="pt-4 border-t border-gray-800">
             <p className="text-xs text-gray-500 mb-2">Add custom field</p>
             <div className="flex gap-2">
@@ -274,9 +331,7 @@ export default function HomebrewCreateModal({
               </span>
             </label>
             <p className="text-xs text-gray-500 mt-1 ml-6">
-              {campaignOnly
-                ? 'Visible only in this campaign; deleted with it.'
-                : 'Global — visible in every campaign.'}
+              {campaignOnly ? 'Visible only in this campaign; deleted with it.' : 'Global — visible in every campaign.'}
             </p>
           </div>
         )}
@@ -382,5 +437,120 @@ function renderEditField(key: string, value: unknown, onChange: (key: string, va
       onChange={(e) => onChange(key, e.target.value)}
       className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100 focus:border-amber-500 focus:outline-none"
     />
+  )
+}
+
+const ABILITY_OPTIONS = ['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma'] as const
+const EFFECT_TYPES: Array<HomebrewFeatEffect['type']> = [
+  'ability_bonus',
+  'skill_proficiency',
+  'damage_resistance',
+  'speed_bonus',
+  'ac_bonus',
+  'custom'
+]
+
+/** Phase 25b — single homebrew-effect editor row. */
+function EffectRow({
+  effect,
+  onChange,
+  onRemove
+}: {
+  effect: HomebrewFeatEffect
+  onChange: (e: HomebrewFeatEffect) => void
+  onRemove: () => void
+}): JSX.Element {
+  const changeType = (type: HomebrewFeatEffect['type']): void => {
+    switch (type) {
+      case 'ability_bonus':
+        onChange({ type, target: 'strength', value: 1 })
+        break
+      case 'skill_proficiency':
+        onChange({ type, target: '' })
+        break
+      case 'damage_resistance':
+        onChange({ type, target: '' })
+        break
+      case 'speed_bonus':
+        onChange({ type, value: 5 })
+        break
+      case 'ac_bonus':
+        onChange({ type, value: 1 })
+        break
+      case 'custom':
+        onChange({ type, description: '' })
+        break
+    }
+  }
+
+  return (
+    <div className="flex flex-wrap items-center gap-2 bg-gray-800/50 border border-gray-700 rounded p-2">
+      <select
+        value={effect.type}
+        onChange={(e) => changeType(e.target.value as HomebrewFeatEffect['type'])}
+        className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
+      >
+        {EFFECT_TYPES.map((t) => (
+          <option key={t} value={t}>
+            {formatLabel(t)}
+          </option>
+        ))}
+      </select>
+
+      {effect.type === 'ability_bonus' && (
+        <>
+          <select
+            value={effect.target}
+            onChange={(e) => onChange({ ...effect, target: e.target.value as (typeof ABILITY_OPTIONS)[number] })}
+            className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
+          >
+            {ABILITY_OPTIONS.map((a) => (
+              <option key={a} value={a}>
+                {formatLabel(a)}
+              </option>
+            ))}
+          </select>
+          <input
+            type="number"
+            value={effect.value}
+            onChange={(e) => onChange({ ...effect, value: Number(e.target.value) })}
+            className="w-16 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
+          />
+        </>
+      )}
+
+      {(effect.type === 'skill_proficiency' || effect.type === 'damage_resistance') && (
+        <input
+          type="text"
+          value={effect.target}
+          onChange={(e) => onChange({ ...effect, target: e.target.value })}
+          placeholder={effect.type === 'skill_proficiency' ? 'Skill name' : 'Damage type'}
+          className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
+        />
+      )}
+
+      {(effect.type === 'speed_bonus' || effect.type === 'ac_bonus') && (
+        <input
+          type="number"
+          value={effect.value}
+          onChange={(e) => onChange({ ...effect, value: Number(e.target.value) })}
+          className="w-20 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
+        />
+      )}
+
+      {effect.type === 'custom' && (
+        <input
+          type="text"
+          value={effect.description}
+          onChange={(e) => onChange({ ...effect, description: e.target.value })}
+          placeholder="Description"
+          className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
+        />
+      )}
+
+      <button onClick={onRemove} className="ml-auto text-xs text-red-400 hover:text-red-300 cursor-pointer">
+        Remove
+      </button>
+    </div>
   )
 }

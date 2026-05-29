@@ -12,6 +12,7 @@ import {
   sumEquipmentWeight,
   TOOL_SKILL_INTERACTIONS
 } from './equipment-utilities'
+import { applyAbilityBonuses, collectHomebrewFeatEffects, type HomebrewFeatEffect } from './homebrew-effects'
 
 // Re-export armor-class-calculator exports so existing consumers can import from this module
 export { calculateArmorClass5e }
@@ -91,7 +92,7 @@ export function calculate5eStats(
   level: number,
   backgroundAbilityBonuses?: Partial<Record<AbilityName, number>>,
   speciesId?: string | null,
-  feats?: Array<{ id: string }> | null,
+  feats?: Array<{ id: string; source?: string; effects?: HomebrewFeatEffect[] }> | null,
   draconicSorcererLevel?: number,
   resolvedEffects?: ResolvedEffects,
   armorForAC?: ArmorForAC[],
@@ -105,6 +106,12 @@ export function calculate5eStats(
       scores[ability as AbilityName] += bonus as number
     }
   }
+
+  // Phase 25b — homebrew feat ability bonuses (run after background, before
+  // magic-item overrides so an "Amulet of Health"-style floor still wins).
+  const homebrewEffects = collectHomebrewFeatEffects(feats)
+  const scoresWithHomebrew = applyAbilityBonuses(scores, homebrewEffects.abilityBonuses)
+  for (const key of Object.keys(scores) as AbilityName[]) scores[key] = scoresWithHomebrew[key]
 
   // Apply ability score overrides from magic items (e.g., Amulet of Health sets CON to 19)
   if (resolvedEffects?.abilityScoreOverrides) {
@@ -148,7 +155,7 @@ export function calculate5eStats(
     conMod: modifiers.constitution,
     wisMod: modifiers.wisdom,
     draconicSorcererLevel: draconicSorcererLevel ?? 0,
-    acBonusFromEffects: resolvedEffects?.acBonus ?? 0
+    acBonusFromEffects: (resolvedEffects?.acBonus ?? 0) + homebrewEffects.acBonus
   })
 
   // Initiative: DEX mod + proficiency bonus if Alert feat
@@ -167,6 +174,8 @@ export function calculate5eStats(
   if (feats?.some((f) => f.id === 'boon-of-speed')) speed += 30
   // Add speed bonuses from resolved effects
   if (resolvedEffects) speed += resolvedEffects.speedBonus
+  // Phase 25b — homebrew feat speed/AC bonuses
+  speed += homebrewEffects.speedBonus
 
   // Saving throws
   const savingThrows: Record<string, number> = {}
