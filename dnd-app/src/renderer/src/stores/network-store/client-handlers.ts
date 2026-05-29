@@ -34,12 +34,14 @@ import type {
   NetworkMessage,
   PeerInfo,
   PlayAmbientPayload,
+  PlayCustomAudioPayload,
   PlaySoundPayload,
   ReactionPromptPayload,
   RoleChangePayload,
   RollRequestPayload,
   ShopUpdatePayload,
   SlowModePayload,
+  StopCustomAudioPayload,
   TimerStartPayload,
   TimeSharePayload,
   TimeSyncPayload,
@@ -53,9 +55,11 @@ import type {
 } from '../../network'
 import {
   playAmbient as playAmbientSound,
+  playCustomAudio,
   play as playSound,
   setAmbientVolume,
-  stopAmbient
+  stopAmbient,
+  stopCustomAudio
 } from '../../services/sound-manager'
 import { logger } from '../../utils/logger'
 import { useCharacterStore } from '../use-character-store'
@@ -63,6 +67,10 @@ import { useGameStore } from '../use-game-store'
 import { useLobbyStore } from '../use-lobby-store'
 import { useMacroStore } from '../use-macro-store'
 import type { NetworkState } from './index'
+
+// Phase 27i — client-side cache of Blob URLs for DM-streamed custom audio,
+// keyed by fileName. Lets a stop message revoke the exact URL it created.
+const customAudioUrlCache = new Map<string, string>()
 
 /** Apply a partial game state update from the network */
 function applyGameState(data: Record<string, unknown>): void {
@@ -836,6 +844,42 @@ export function handleClientMessage(
     case 'dm:stop-ambient': {
       try {
         stopAmbient()
+      } catch {
+        // Sound system not available
+      }
+      break
+    }
+
+    // Phase 27i — DM custom-audio sync. Decode the base64 payload into a Blob
+    // URL and play it keyed by fileName; cache the URL so stop can revoke it.
+    case 'dm:play-custom-audio': {
+      const payload = message.payload as PlayCustomAudioPayload
+      try {
+        if (!payload.audioData) break
+        // Reuse a cached URL if we already have this track.
+        let url = customAudioUrlCache.get(payload.fileName)
+        if (!url) {
+          const bytes = Uint8Array.from(atob(payload.audioData), (c) => c.charCodeAt(0))
+          const blob = new Blob([bytes], { type: payload.mimeType || 'audio/mpeg' })
+          url = URL.createObjectURL(blob)
+          customAudioUrlCache.set(payload.fileName, url)
+        }
+        playCustomAudio(url, { loop: payload.loop, volume: payload.volume })
+      } catch {
+        // Sound system not available / decode failed
+      }
+      break
+    }
+
+    case 'dm:stop-custom-audio': {
+      const payload = message.payload as StopCustomAudioPayload
+      try {
+        const url = customAudioUrlCache.get(payload.fileName)
+        if (url) {
+          stopCustomAudio(url)
+          URL.revokeObjectURL(url)
+          customAudioUrlCache.delete(payload.fileName)
+        }
       } catch {
         // Sound system not available
       }

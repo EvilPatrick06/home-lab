@@ -427,6 +427,20 @@ const PlayAmbientPayloadSchema = z.object({
 
 const StopAmbientPayloadSchema = z.object({})
 
+// Phase 27i — DM custom-audio sync. audioData base64-capped at ~1.5MB (post-base64
+// ≈ 1.1MB raw); larger files stay DM-local (the panel won't broadcast them).
+const MAX_CUSTOM_AUDIO_BASE64 = 1.5 * 1024 * 1024
+const PlayCustomAudioPayloadSchema = z.object({
+  fileName: z.string(),
+  loop: z.boolean(),
+  volume: z.number(),
+  audioData: z.string().max(MAX_CUSTOM_AUDIO_BASE64).optional(),
+  mimeType: z.string().optional()
+})
+const StopCustomAudioPayloadSchema = z.object({
+  fileName: z.string()
+})
+
 const ReactionPromptPayloadSchema = z.object({
   promptId: z.string(),
   targetEntityId: z.string(),
@@ -603,6 +617,8 @@ const PAYLOAD_SCHEMAS: Partial<Record<MessageTypeString, z.ZodType>> = {
   'dm:play-sound': PlaySoundPayloadSchema,
   'dm:play-ambient': PlayAmbientPayloadSchema,
   'dm:stop-ambient': StopAmbientPayloadSchema,
+  'dm:play-custom-audio': PlayCustomAudioPayloadSchema,
+  'dm:stop-custom-audio': StopCustomAudioPayloadSchema,
   'chat:message': ChatPayloadSchema,
   'chat:file': ChatFilePayloadSchema,
   'chat:whisper': WhisperPayloadSchema,

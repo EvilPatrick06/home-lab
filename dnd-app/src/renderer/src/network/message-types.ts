@@ -52,6 +52,8 @@ export const MESSAGE_TYPES = [
   'dm:play-sound',
   'dm:play-ambient',
   'dm:stop-ambient',
+  'dm:play-custom-audio',
+  'dm:stop-custom-audio',
   'dm:vision-update',
   'dm:drawing-add',
   'dm:drawing-remove',
@@ -527,6 +529,20 @@ export interface PlayAmbientPayload {
 }
 
 export type StopAmbientPayload = Record<string, never>
+
+// Phase 27i — DM custom-audio network sync. `audioData` is base64-encoded and
+// size-capped (see schemas); clients decode it to a Blob URL and play.
+export interface PlayCustomAudioPayload {
+  fileName: string
+  loop: boolean
+  volume: number
+  audioData?: string
+  mimeType?: string
+}
+
+export interface StopCustomAudioPayload {
+  fileName: string
+}
 
 export interface ReactionPromptPayload {
   promptId: string

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { addToast } from '../../../hooks/use-toast'
 import type { AmbientSound, SoundEvent } from '../../../services/sound-manager'
 import {
   fadeAmbient,
@@ -53,6 +54,7 @@ export default function DMAudioPanel(): JSX.Element {
 
   const campaignId = useGameStore((s) => s.campaignId)
   const sendMessage = useNetworkStore((s) => s.sendMessage)
+  const isHost = useNetworkStore((s) => s.role === 'host')
 
   // Load custom audio entries for the current campaign
   useEffect(() => {
@@ -172,6 +174,8 @@ export default function DMAudioPanel(): JSX.Element {
             // Phase 27b — sound-playback keys tracks by absolute path, not fileName.
             const path = customAudioPathsRef.current.get(fileName)
             if (path) stopCustomAudio(path)
+            // Phase 27i — tell clients to stop this track too.
+            if (isHost) sendMessage('dm:stop-custom-audio', { fileName })
             return { ...entry, playing: false }
           }
           return entry
@@ -192,8 +196,38 @@ export default function DMAudioPanel(): JSX.Element {
 
       playCustomAudio(filePath, { loop: entry.loop, volume: entry.volume / 100 })
       setCustomAudioEntries((prev) => prev.map((e) => (e.fileName === fileName ? { ...e, playing: true } : e)))
+
+      // Phase 27i — stream the track to connected players. Files <1MB are
+      // base64-encoded and broadcast; larger files stay DM-local with a hint.
+      if (isHost) {
+        try {
+          const buffer = await window.api.readFileBinary(filePath)
+          if (buffer.byteLength > 1024 * 1024) {
+            addToast(`"${entry.displayName}" is over 1MB — playing DM-only`, 'info')
+          } else {
+            const bytes = new Uint8Array(buffer)
+            let binary = ''
+            for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i])
+            const audioData = btoa(binary)
+            const mimeType = fileName.endsWith('.ogg')
+              ? 'audio/ogg'
+              : fileName.endsWith('.wav')
+                ? 'audio/wav'
+                : 'audio/mpeg'
+            sendMessage('dm:play-custom-audio', {
+              fileName,
+              loop: entry.loop,
+              volume: entry.volume / 100,
+              audioData,
+              mimeType
+            })
+          }
+        } catch (err) {
+          logger.error('[DMAudioPanel] Failed to stream custom audio', err)
+        }
+      }
     },
-    [campaignId, customAudioEntries]
+    [campaignId, customAudioEntries, isHost, sendMessage]
   )
 
   const handleCustomVolumeChange = useCallback((fileName: string, vol: number) => {
