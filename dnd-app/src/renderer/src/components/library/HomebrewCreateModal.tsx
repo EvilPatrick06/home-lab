@@ -1,4 +1,6 @@
 import { useCallback, useState } from 'react'
+import { addToast } from '../../hooks/use-toast'
+import { exportAllHomebrew, importHomebrew } from '../../services/io/homebrew-io'
 import type { HomebrewEntry, LibraryCategory, LibraryItem } from '../../types/library'
 import { getCategoryDef } from '../../types/library'
 
@@ -168,13 +170,39 @@ export default function HomebrewCreateModal({
               {basedOn && <p className="text-xs text-gray-500 mt-0.5">Based on: {existingItem?.name}</p>}
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-300 text-2xl leading-none cursor-pointer"
-            aria-label="Close"
-          >
-            &times;
-          </button>
+          <div className="flex items-center gap-2">
+            {/* Phase 25a — first-class homebrew export/import (.dndhomebrew bundles). */}
+            <button
+              onClick={async () => {
+                const ok = await exportAllHomebrew()
+                addToast(ok ? 'Homebrew exported' : 'No homebrew to export', ok ? 'success' : 'info')
+              }}
+              className="text-xs px-2 py-1 rounded border border-gray-600 text-gray-300 hover:border-amber-500 hover:text-amber-400 cursor-pointer"
+            >
+              Export All
+            </button>
+            <button
+              onClick={async () => {
+                const summary = await importHomebrew()
+                if (summary) {
+                  addToast(
+                    `Imported ${summary.imported} item${summary.imported === 1 ? '' : 's'}, ${summary.errors} error${summary.errors === 1 ? '' : 's'}`,
+                    summary.errors > 0 ? 'warning' : 'success'
+                  )
+                }
+              }}
+              className="text-xs px-2 py-1 rounded border border-gray-600 text-gray-300 hover:border-amber-500 hover:text-amber-400 cursor-pointer"
+            >
+              Import
+            </button>
+            <button
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-300 text-2xl leading-none cursor-pointer"
+              aria-label="Close"
+            >
+              &times;
+            </button>
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto p-5 space-y-4">

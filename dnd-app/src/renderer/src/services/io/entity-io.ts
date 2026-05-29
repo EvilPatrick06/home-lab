@@ -27,6 +27,7 @@ export type EntityType =
   | 'ai'
   | 'settings'
   | 'adventure'
+  | 'homebrew'
 
 export interface ExportEnvelope<T = unknown> {
   version: 1
@@ -58,7 +59,8 @@ const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
   journal: { extension: 'dndjournal', label: 'Journal Entry', requiredFields: ['id', 'title'] },
   ai: { extension: 'dndai', label: 'AI Conversation', requiredFields: [] },
   settings: { extension: 'dndsettings', label: 'Settings', requiredFields: [] },
-  adventure: { extension: 'dndadv', label: 'Adventure Module', requiredFields: ['adventure'] }
+  adventure: { extension: 'dndadv', label: 'Adventure Module', requiredFields: ['adventure'] },
+  homebrew: { extension: 'dndhomebrew', label: 'Homebrew Content', requiredFields: ['id', 'name', 'type'] }
 }
 
 // ---------------------------------------------------------------------------

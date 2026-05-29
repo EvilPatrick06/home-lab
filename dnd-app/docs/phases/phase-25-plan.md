@@ -128,4 +128,12 @@ Manual smoke:
 
 ## Completed
 
+> **PHASE 25 PARTIAL — 2026-05-29 (overnight autonomous pass).** 4-gate green (lint 0, tsc web+node 0, vitest 6508/6508).
+> - **25a DONE** — `entity-io` gains `homebrew` type (`.dndhomebrew`); new `services/io/homebrew-io.ts` (export/exportAll/import with per-item validation); Export All + Import buttons in HomebrewCreateModal with result toasts.
+> - **25d DONE** — `services/homebrew-validation.ts` wraps Phase-15 `SCHEMA_REGISTRY`: hard errors only on missing id/name/type, schema/unknown-type → warnings (passthrough). Tested; used by the import path.
+> - **25b DEFERRED** — custom feat/spell mechanics (needs `feats[].effects`/`source` type extension + homebrew-effects.ts + sheet EffectBuilder + app verify).
+> - **25c DEFERRED** — campaign-scoped homebrew (`campaignId` field + mergeHomebrew filter + tri-state UI + cascade-delete; partly coupled to Phase 29).
+> - **25e DEFERRED** — backup restore round-trip test (heavy userData mocking).
+
+### Pre-existing notes
 (All prior steps relocated. H2 struck and absorbed by Phase 15 A.2 + A.2.5. H4 moved to Phase 15 Sub-Phase G Step 21. M2 resolved structurally by Phase 15 Sub-Phases B/C/D. Live verification 2026-05-19 confirmed no entries in `entity-io.ts` ENTITY_CONFIGS for `homebrew`, no `homebrew-validation.ts` file exists, no `source === 'homebrew'` branch in `feat-mechanics-5e.ts`, no `campaignId` field on homebrew storage. All 25a-25e sub-phases remain live.)
