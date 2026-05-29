@@ -1,10 +1,9 @@
 import 'pixi.js/unsafe-eval' // CSP-compatible PixiJS shaders (must be before any pixi usage)
-import { Application, Assets, type Container, type Graphics, Sprite } from 'pixi.js'
+import { Application, Assets, type Container, type Graphics, type Sprite } from 'pixi.js'
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { LIGHT_SOURCES } from '../../../data/light-sources'
 import {
   calculateZoomToFit,
-  createPing,
   getActivePings,
   getGridLabel,
   getPingAnimation,
@@ -29,18 +28,24 @@ type _Segment = Segment
 type _VisibilityPolygon = VisibilityPolygon
 
 import { getTokenStats } from '../../../services/game/token-stats'
-import { getDragPayload, hasLibraryDrag } from '../../../services/library/drag-data'
 import { getPlayerFloor, getTokenFloor } from '../../../services/map/floor-filtering'
-import { monsterToTokenData } from '../../../services/map/monster-to-token'
 import { collectPreloadImagePaths } from '../../../services/map/preload-adjacent'
 import { useGameStore } from '../../../stores/use-game-store'
-import type { TurnState } from '../../../types/game-state'
-import type { GameMap, MapToken } from '../../../types/map'
 import { logger } from '../../../utils/logger'
-import type { AoEConfig } from './aoe-overlay'
 import { AudioEmitterLayer } from './audio-emitter-overlay'
 import { createCombatAnimationLayer } from './combat-animations'
 import { destroyFogAnimation } from './fog-overlay'
+import { GRID_HUD_KEY } from './map-canvas/grid-coord'
+import {
+  useEmptyCellContextMenu,
+  useGridHudHover,
+  useManualPanStamp,
+  usePingOnDoubleClick,
+  useResetViewHotkey
+} from './map-canvas/map-canvas-hooks'
+import type { MapCanvasProps } from './map-canvas/types'
+import { useMapBackground } from './map-canvas/use-map-background'
+import { useMapCanvasHandlers } from './map-canvas/use-map-canvas-handlers'
 import type { MapEventRefs } from './map-event-handlers'
 import { createWheelHandler, setupKeyboardPan, setupMouseHandlers } from './map-event-handlers'
 import { useMapOverlayEffects } from './map-overlay-effects'
@@ -62,67 +67,6 @@ import { createTokenSprite } from './token-sprite'
 import type { WeatherOverlayLayer } from './weather-overlay'
 
 const FloorSelector = lazy(() => import('./FloorSelector'))
-
-/** Phase 16g — spreadsheet-style column label (0→A, 25→Z, 26→AA, …). */
-function columnLabel(n: number): string {
-  if (n < 0) return String(n)
-  let s = ''
-  let x = n
-  do {
-    s = String.fromCharCode(65 + (x % 26)) + s
-    x = Math.floor(x / 26) - 1
-  } while (x >= 0)
-  return s
-}
-
-/** Phase 16g — hover grid-coordinate label: "A1" for square grids, axial "x,y" for hex/gridless. */
-function formatGridLabel(gridX: number, gridY: number, gridType: string): string {
-  if (gridType === 'square') return `${columnLabel(gridX)}${gridY + 1}`
-  return `${gridX},${gridY}`
-}
-
-const GRID_HUD_KEY = 'dnd-vtt-grid-coord-hud'
-
-interface MapCanvasProps {
-  map: GameMap | null
-  isHost: boolean
-  myCharacterId?: string | null
-  selectedTokenIds: string[]
-  activeTool:
-    | 'select'
-    | 'token'
-    | 'fog-reveal'
-    | 'fog-hide'
-    | 'measure'
-    | 'check-los'
-    | 'terrain'
-    | 'wall'
-    | 'fill'
-    | 'draw-free'
-    | 'draw-line'
-    | 'draw-rect'
-    | 'draw-circle'
-    | 'draw-text'
-  drawingStrokeWidth?: number
-  drawingColor?: string
-  fogBrushSize: number
-  onTokenMove: (tokenId: string, gridX: number, gridY: number) => void
-  onTokenSelect: (tokenIds: string[]) => void
-  onCellClick: (gridX: number, gridY: number) => void
-  onWallPlace?: (x1: number, y1: number, x2: number, y2: number) => void
-  onDoorToggle?: (wallId: string) => void
-  turnState?: TurnState | null
-  isInitiativeMode?: boolean
-  activeAoE?: AoEConfig | null
-  /** Entity ID of the creature whose turn it is (for active turn glow) */
-  activeEntityId?: string | null
-  /** Callback for right-click on a token (context menu) */
-  onTokenContextMenu?: (x: number, y: number, token: MapToken, mapId: string, selectedTokenIds: string[]) => void
-  /** Callback for right-click on an empty cell (DM only) */
-  onEmptyCellContextMenu?: (gridX: number, gridY: number, screenX: number, screenY: number) => void
-  /** Phase 16b — click on a map pin (open linked journal/NPC/location, or surface the label). */
-  onPinClick?: (pin: import('../../../types/map').MapPin) => void
-}
 
 export default function MapCanvas({
   map,
@@ -342,45 +286,18 @@ export default function MapCanvas({
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  // Load and display map background
-  useEffect(() => {
-    if (!initialized || !worldRef.current) return
-    const loadBg = async (): Promise<void> => {
-      if (bgSpriteRef.current) {
-        worldRef.current?.removeChild(bgSpriteRef.current)
-        bgSpriteRef.current.destroy({ children: true, texture: true })
-        bgSpriteRef.current = null
-      }
-      if (!map?.imagePath) return
-      try {
-        const resolvedUrl = new URL(map.imagePath, window.location.href).href
-        logger.debug('[MapCanvas] Loading background image:', resolvedUrl)
-        const texture = await Assets.load(map.imagePath)
-        if (texture.source) texture.source.scaleMode = 'nearest'
-        const sprite = new Sprite(texture)
-        sprite.label = 'bg'
-        worldRef.current?.addChildAt(sprite, 0)
-        bgSpriteRef.current = sprite
-        setBgLoadError(null)
-        const container = containerRef.current
-        if (container && sprite.texture.width > 0) {
-          const cw = container.clientWidth,
-            ch = container.clientHeight
-          const mw = sprite.texture.width,
-            mh = sprite.texture.height
-          const scale = Math.min(cw / mw, ch / mh, 1)
-          zoomRef.current = scale
-          panRef.current = { x: (cw - mw * scale) / 2, y: (ch - mh * scale) / 2 }
-          applyTransform()
-        }
-      } catch (err) {
-        const msg = `Failed to load map image: ${map.imagePath}`
-        logger.warn('[MapCanvas]', msg, err)
-        setBgLoadError(msg)
-      }
-    }
-    loadBg()
-  }, [initialized, map?.imagePath, applyTransform])
+  // Load and display map background (extracted to useMapBackground).
+  useMapBackground({
+    initialized,
+    map,
+    containerRef,
+    worldRef,
+    bgSpriteRef,
+    zoomRef,
+    panRef,
+    applyTransform,
+    setBgLoadError
+  })
 
   // Phase 16f — brief fade-to-black on active-map change (skipped on first mount + when the
   // viewer prefers reduced motion). The overlay always has a 300ms opacity transition; we flip
@@ -689,47 +606,11 @@ export default function MapCanvas({
     return createWheelHandler({ zoom: zoomRef, pan: panRef }, applyTransform)(el)
   }, [applyTransform])
 
-  // Phase 16g — hover grid-coordinate HUD. Compute the cell under the cursor on pointermove
-  // (mirrors the pointer→grid math used by click-to-place); clear on leave. Skipped entirely
-  // when the readout is toggled off, so there's no per-move cost.
-  useEffect(() => {
-    const el = containerRef.current
-    if (!el || !showGridHud || !map) return
-    const cellSize = map.grid.cellSize
-    const gridType = map.grid.type
-    const onMove = (e: PointerEvent): void => {
-      const rect = el.getBoundingClientRect()
-      const worldX = (e.clientX - rect.left - panRef.current.x) / zoomRef.current
-      const worldY = (e.clientY - rect.top - panRef.current.y) / zoomRef.current
-      setHoverCoord(formatGridLabel(Math.floor(worldX / cellSize), Math.floor(worldY / cellSize), gridType))
-    }
-    const onLeave = (): void => setHoverCoord(null)
-    el.addEventListener('pointermove', onMove)
-    el.addEventListener('pointerleave', onLeave)
-    return () => {
-      el.removeEventListener('pointermove', onMove)
-      el.removeEventListener('pointerleave', onLeave)
-    }
-  }, [showGridHud, map])
+  // Phase 16g — hover grid-coordinate HUD (extracted to useGridHudHover).
+  useGridHudHover({ containerRef, panRef, zoomRef }, showGridHud, map, setHoverCoord)
 
-  // Phase 16a — stamp the last manual pan/zoom. Wheel = zoom; pointerdown with the pan triggers
-  // (space held or middle mouse button) = drag-pan. Token clicks (plain left button) don't count.
-  useEffect(() => {
-    const el = containerRef.current
-    if (!el) return
-    const stamp = (): void => {
-      lastManualPanAtRef.current = Date.now()
-    }
-    const onPointerDown = (e: PointerEvent): void => {
-      if (spaceHeldRef.current || e.button === 1) stamp()
-    }
-    el.addEventListener('wheel', stamp, { passive: true })
-    el.addEventListener('pointerdown', onPointerDown)
-    return () => {
-      el.removeEventListener('wheel', stamp)
-      el.removeEventListener('pointerdown', onPointerDown)
-    }
-  }, [])
+  // Phase 16a — stamp the last manual pan/zoom (extracted to useManualPanStamp).
+  useManualPanStamp(containerRef, lastManualPanAtRef, spaceHeldRef)
 
   // Keyboard pan
   const keysHeldRef = useRef(new Set<string>())
@@ -874,144 +755,26 @@ export default function MapCanvas({
     }
   }, [initialized])
 
-  // Double-click to ping at location
-  useEffect(() => {
-    const el = containerRef.current
-    if (!el || !map) return
-    const handler = (e: MouseEvent): void => {
-      const rect = el.getBoundingClientRect()
-      const canvasX = e.clientX - rect.left
-      const canvasY = e.clientY - rect.top
-      const worldX = (canvasX - panRef.current.x) / zoomRef.current
-      const worldY = (canvasY - panRef.current.y) / zoomRef.current
-      createPing(worldX, worldY, isHost ? 'DM' : 'Player')
-    }
-    el.addEventListener('dblclick', handler)
-    return () => el.removeEventListener('dblclick', handler)
-  }, [map, isHost])
+  // Double-click to ping at location (extracted to usePingOnDoubleClick).
+  usePingOnDoubleClick({ containerRef, panRef, zoomRef }, map, isHost)
 
   const pendingPlacement = useGameStore((s) => s.pendingPlacement)
 
-  // Library drag-and-drop: monsters from library → map tokens
-  const handleLibraryDragOver = useCallback((e: React.DragEvent) => {
-    if (hasLibraryDrag(e)) {
-      e.preventDefault()
-      e.dataTransfer.dropEffect = 'copy'
-    }
-  }, [])
+  // Library drag-and-drop + reset-view handlers (extracted to useMapCanvasHandlers).
+  const { handleLibraryDragOver, handleLibraryDrop, handleResetView } = useMapCanvasHandlers({
+    containerRef,
+    panRef,
+    zoomRef,
+    applyTransform,
+    map,
+    currentFloor
+  })
 
-  const handleLibraryDrop = useCallback(
-    async (e: React.DragEvent) => {
-      e.preventDefault()
-      const payload = getDragPayload(e)
-      if (!payload || payload.type !== 'library-monster' || !map) return
+  // Reset map view on the Home key (extracted to useResetViewHotkey).
+  useResetViewHotkey(handleResetView)
 
-      const el = containerRef.current
-      if (!el) return
-      const rect = el.getBoundingClientRect()
-      const canvasX = e.clientX - rect.left
-      const canvasY = e.clientY - rect.top
-      const worldX = (canvasX - panRef.current.x) / zoomRef.current
-      const worldY = (canvasY - panRef.current.y) / zoomRef.current
-      const cellSize = map.grid.cellSize
-      const gridX = Math.floor(worldX / cellSize)
-      const gridY = Math.floor(worldY / cellSize)
-
-      const { loadAllStatBlocks } = await import('../../../services/data-provider')
-      const allMonsters = await loadAllStatBlocks()
-      const monster = allMonsters.find((m) => m.id === payload.itemId)
-      if (!monster) return
-      const tokenData = monsterToTokenData(monster)
-      useGameStore
-        .getState()
-        .addToken(map.id, { ...tokenData, id: crypto.randomUUID(), gridX, gridY, floor: currentFloor })
-    },
-    [map, currentFloor]
-  )
-
-  const handleResetView = useCallback((): void => {
-    // Phase 17j — fit-to-map instead of "zoom 1, pan 0". Compute the scale
-    // that makes the whole map fit inside the canvas viewport with a small
-    // (~5%) breathing margin, then center it. Falls back to the old
-    // (1.0, 0, 0) reset when the container or map dimensions aren't
-    // measurable yet.
-    const el = containerRef.current
-    if (el && map && map.width > 0 && map.height > 0) {
-      const vw = el.clientWidth
-      const vh = el.clientHeight
-      if (vw > 0 && vh > 0) {
-        const scale = Math.min(vw / map.width, vh / map.height) * 0.95
-        const newZoom = scale > 0 ? scale : 1
-        zoomRef.current = newZoom
-        panRef.current = {
-          x: (vw - map.width * newZoom) / 2,
-          y: (vh - map.height * newZoom) / 2
-        }
-        applyTransform()
-        return
-      }
-    }
-    zoomRef.current = 1
-    panRef.current = { x: 0, y: 0 }
-    applyTransform()
-  }, [applyTransform, map])
-
-  useEffect(() => {
-    const handler = (e: KeyboardEvent): void => {
-      if (e.key === 'Home') {
-        e.preventDefault()
-        handleResetView()
-      }
-    }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
-  }, [handleResetView])
-
-  // Right-click on empty cell handler (DM only)
-  useEffect(() => {
-    const el = containerRef.current
-    if (!el || !isHost || !onEmptyCellContextMenu || !map) return
-    const handler = (e: MouseEvent): void => {
-      // Only process if right-click
-      if (e.button !== 2) return
-      e.preventDefault()
-
-      // Check if we clicked on a token — if so, let the token handler deal with it
-      const world = worldRef.current
-      if (!world) return
-      const canvas = el.querySelector('canvas')
-      if (!canvas) return
-      const rect = canvas.getBoundingClientRect()
-      const canvasX = e.clientX - rect.left
-      const canvasY = e.clientY - rect.top
-
-      // Convert screen to world coordinates
-      const worldX = (canvasX - panRef.current.x) / zoomRef.current
-      const worldY = (canvasY - panRef.current.y) / zoomRef.current
-
-      // Check if any token contains this point
-      const cellSize = map.grid.cellSize
-      const hitToken = map.tokens.some((token) => {
-        const tokenSize = cellSize * Math.max(token.sizeX, token.sizeY)
-        const cx = token.gridX * cellSize + tokenSize / 2
-        const cy = token.gridY * cellSize + tokenSize / 2
-        const radius = (tokenSize - 4) / 2
-        const dx = worldX - cx
-        const dy = worldY - cy
-        return dx * dx + dy * dy <= radius * radius
-      })
-      if (hitToken) return
-
-      // Convert to grid cell
-      const gridX = Math.floor(worldX / cellSize)
-      const gridY = Math.floor(worldY / cellSize)
-      if (gridX < 0 || gridY < 0) return
-
-      onEmptyCellContextMenu(gridX, gridY, e.clientX, e.clientY)
-    }
-    el.addEventListener('contextmenu', handler)
-    return () => el.removeEventListener('contextmenu', handler)
-  }, [isHost, onEmptyCellContextMenu, map])
+  // Right-click on empty cell handler, DM only (extracted to useEmptyCellContextMenu).
+  useEmptyCellContextMenu({ containerRef, worldRef, panRef, zoomRef }, isHost, onEmptyCellContextMenu, map)
 
   return (
     <div

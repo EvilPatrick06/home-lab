@@ -1,6 +1,5 @@
 import { getClassResources } from '../../../data/class-resources'
 import { getSpeciesResources } from '../../../data/species-resources'
-import { isWearableItem } from '../../../data/wearable-items'
 import { populateSkills5e } from '../../../services/character/auto-populate-5e'
 import {
   getEffectiveFeats,
@@ -33,15 +32,14 @@ import { type BuilderSpellsInput, resolveBuilderSpells } from './builder-spells'
 
 type _BuilderSpellsInput = BuilderSpellsInput
 
+import { computeExistingCharCarryOver5e } from './build-character-5e/carry-over'
+import { computeBuilderClasses5e } from './build-character-5e/classes'
+import { computeBuilderDetails5e } from './build-character-5e/details'
+import { computeBuilderFeats5e } from './build-character-5e/feats'
+import { computeBuilderProficiencies5e } from './build-character-5e/proficiencies'
+import { buildWearableEquipment5e, type GearDataItem } from './build-character-5e/wearable-equipment'
 import { getSpeciesResistances, getSpeciesSenses } from './character-species-helpers'
 import { buildArmorFromEquipment5e, buildWeaponsFromEquipment5e } from './save-slice-5e'
-
-interface GearDataItem {
-  name: string
-  description?: string
-  cost?: string
-  price?: string
-}
 
 type GetState = () => BuilderState
 
@@ -204,36 +202,12 @@ export async function buildCharacter5e(get: GetState): Promise<Character5e> {
   // Build wearable items
   const eqDataForGear = await load5eEquipment().catch(() => null)
   const gearData: GearDataItem[] = eqDataForGear?.gear ?? []
-  const wearableArmor: import('../../../types/character-common').ArmorEntry[] = []
-  const wearableMatchedNames = new Set<string>()
-  for (const item of allEquipment) {
-    if (weaponBuildResult.matchedNames.has(item.name)) continue
-    if (armorBuildResult.matchedNames.has(item.name)) continue
-    if (isWearableItem(item.name)) {
-      wearableMatchedNames.add(item.name)
-      const gearMatch = gearData.find((g) => g.name.toLowerCase() === item.name.toLowerCase())
-      wearableArmor.push({
-        id: crypto.randomUUID(),
-        name: item.name,
-        acBonus: 0,
-        equipped: false,
-        type: 'clothing',
-        description: gearMatch?.description
-      })
-    }
-  }
-
-  const excludedNames = new Set([
-    ...weaponBuildResult.matchedNames,
-    ...armorBuildResult.matchedNames,
-    ...wearableMatchedNames
-  ])
-  const filteredEquipment = allEquipment
-    .filter((item) => !excludedNames.has(item.name))
-    .map((item) => {
-      const gearMatch = gearData.find((g) => g.name.toLowerCase() === item.name.toLowerCase())
-      return { ...item, description: gearMatch?.description }
-    })
+  const { wearableArmor, filteredEquipment } = buildWearableEquipment5e(
+    allEquipment,
+    weaponBuildResult.matchedNames,
+    armorBuildResult.matchedNames,
+    gearData
+  )
 
   // Resolve magic items
   const selectedMagicItemEntries = state.selectedMagicItems
@@ -286,40 +260,15 @@ export async function buildCharacter5e(get: GetState): Promise<Character5e> {
   const divineOrderSlot = buildSlots.find((s) => s.category === 'divine-order')
   const isWarden = primalOrderSlot?.selectedId === 'warden'
   const isProtector = divineOrderSlot?.selectedId === 'protector'
-  const weaponProfs = (() => {
-    const r = (classData?.coreTraits.weaponProficiencies ?? []).map((w) => w.category ?? '').filter(Boolean)
-    if ((isWarden || isProtector) && !r.includes('Martial')) r.push('Martial')
-    return r
-  })()
-  const armorProfs = (() => {
-    const r = [...(classData?.coreTraits.armorTraining ?? [])]
-    if (isWarden && !r.includes('Medium')) r.push('Medium')
-    if (isProtector && !r.includes('Heavy')) r.push('Heavy')
-    return r
-  })()
-  const toolProfs = (() => {
-    const bgToolsRaw = bgData?.toolProficiency ? [bgData.toolProficiency] : []
-    const bgItems = storeBgEquipment.flatMap((e) => e.items)
-    const bgToolsMapped = bgToolsRaw.map((tool) => {
-      const toolLC = tool.toLowerCase()
-      const matchedItem = bgItems.find((item) => item.toLowerCase() !== toolLC && item.toLowerCase().includes(toolLC))
-      return matchedItem ?? tool
-    })
-    const all = [...bgToolsMapped]
-    const seen = new Set<string>()
-    return all.filter((t) => {
-      const key = t.toLowerCase()
-      if (seen.has(key)) return false
-      seen.add(key)
-      return true
-    })
-  })()
-  const chosenLangs = state.chosenLanguages
-  const langProfs = [
-    ...chosenLangs,
-    ...(classId === 'druid' && !chosenLangs.includes('Druidic') ? ['Druidic'] : []),
-    ...(classId === 'rogue' && !chosenLangs.includes("Thieves' Cant") ? ["Thieves' Cant"] : [])
-  ]
+  const { weaponProfs, armorProfs, toolProfs, langProfs } = computeBuilderProficiencies5e({
+    classData,
+    bgData,
+    storeBgEquipment,
+    chosenLangs: state.chosenLanguages,
+    classId,
+    isWarden,
+    isProtector
+  })
   const mergedExpertiseChoices = {
     ...existingChar5e?.buildChoices?.expertiseChoices,
     ...state.builderExpertiseSelections
@@ -343,58 +292,15 @@ export async function buildCharacter5e(get: GetState): Promise<Character5e> {
   })()
 
   // Pre-compute feats
-  const computedFeats = (() => {
-    let result = existingChar5e ? getEffectiveFeats(existingChar5e) : []
-    if (originFeat) {
-      const withoutOldOrigin = result.filter((f) => {
-        const baseName = f.name.replace(/\s*\(.*\)$/, '')
-        return !featsData.some((fd) => fd.name === baseName && fd.category === 'Origin')
-      })
-      result = withoutOldOrigin.some((f) => f.name === originFeat.name)
-        ? withoutOldOrigin
-        : [originFeat, ...withoutOldOrigin]
-    }
-    const epicBoonSlot = buildSlots.find((s) => s.category === 'epic-boon' && s.selectedId)
-    if (epicBoonSlot) {
-      result = result.filter((f) => f.id !== existingChar5e?.buildChoices?.epicBoonId)
-      const boonFeat = featsData.find((fd) => fd.id === epicBoonSlot.selectedId)
-      result = boonFeat
-        ? [
-            ...result,
-            { id: boonFeat.id, name: boonFeat.name, description: boonFeat.benefits.map((b) => b.description).join(' ') }
-          ]
-        : [...result, { id: epicBoonSlot.selectedId!, name: epicBoonSlot.selectedName ?? 'Epic Boon', description: '' }]
-    }
-    if (versatileFeatId) {
-      result = result.filter((f) => f.id !== existingChar5e?.buildChoices?.versatileFeatId)
-      const vFeat = featsData.find((fd) => fd.id === versatileFeatId)
-      if (vFeat)
-        result = [
-          ...result,
-          { id: vFeat.id, name: vFeat.name, description: vFeat.benefits.map((b) => b.description).join(' ') }
-        ]
-    } else if (existingChar5e?.buildChoices?.versatileFeatId) {
-      result = result.filter((f) => f.id !== existingChar5e?.buildChoices?.versatileFeatId)
-    }
-    const fsSlot = buildSlots.find((s) => s.category === 'fighting-style' && s.selectedId)
-    if (fsSlot) {
-      result = result.filter((f) => f.id !== existingChar5e?.buildChoices?.fightingStyleId)
-      const fsFeat = featsData.find((fd) => fd.id === fsSlot.selectedId)
-      result = fsFeat
-        ? [
-            ...result,
-            { id: fsFeat.id, name: fsFeat.name, description: fsFeat.benefits.map((b) => b.description).join(' ') }
-          ]
-        : [...result, { id: fsSlot.selectedId!, name: fsSlot.selectedName ?? 'Fighting Style', description: '' }]
-    }
-    // Merge builder feat selections (from ASI-or-Feat choices)
-    for (const feat of Object.values(state.builderFeatSelections)) {
-      if (!result.some((f) => f.id === feat.id)) {
-        result.push(feat)
-      }
-    }
-    return result
-  })()
+  const computedFeats = computeBuilderFeats5e({
+    baseFeats: existingChar5e ? getEffectiveFeats(existingChar5e) : [],
+    originFeat,
+    featsData,
+    buildSlots,
+    existingChar5e,
+    versatileFeatId,
+    builderFeatSelections: state.builderFeatSelections
+  })
 
   // Pre-compute resource/feature values
   const computedWildShapeUses =
@@ -446,42 +352,27 @@ export async function buildCharacter5e(get: GetState): Promise<Character5e> {
     undefined
 
   // Pre-compute details — merge builder fields with existing character details
-  const ed = existingChar5e?.details
-  const detailPairs: [string, string | undefined][] = [
-    ['gender', state.characterGender],
-    ['deity', state.characterDeity],
-    ['age', state.characterAge],
-    ['height', state.characterHeight],
-    ['weight', state.characterWeight],
-    ['eyes', state.characterEyes],
-    ['hair', state.characterHair],
-    ['skin', state.characterSkin],
-    ['appearance', state.characterAppearance],
-    ['personality', state.characterPersonality],
-    ['ideals', state.characterIdeals],
-    ['bonds', state.characterBonds],
-    ['flaws', state.characterFlaws]
-  ]
-  const computedDetails = Object.fromEntries(
-    detailPairs.map(([k, v]) => [k, v || ed?.[k as keyof typeof ed] || undefined])
-  ) as Record<string, string | undefined>
+  const computedDetails = computeBuilderDetails5e(
+    [
+      ['gender', state.characterGender],
+      ['deity', state.characterDeity],
+      ['age', state.characterAge],
+      ['height', state.characterHeight],
+      ['weight', state.characterWeight],
+      ['eyes', state.characterEyes],
+      ['hair', state.characterHair],
+      ['skin', state.characterSkin],
+      ['appearance', state.characterAppearance],
+      ['personality', state.characterPersonality],
+      ['ideals', state.characterIdeals],
+      ['bonds', state.characterBonds],
+      ['flaws', state.characterFlaws]
+    ],
+    existingChar5e?.details
+  )
 
   // Carry over optional fields from existing character
-  const ec = existingChar5e
-  const existingCharCarryOver = Object.fromEntries(
-    (
-      [
-        'pactMagicSlotLevels',
-        'invocationsKnown',
-        'metamagicKnown',
-        'weaponMasteryChoices',
-        'companions',
-        'activeWildShapeFormId'
-      ] as const
-    )
-      .filter((k) => ec?.[k] != null)
-      .map((k) => [k, ec![k]])
-  )
+  const existingCharCarryOver = computeExistingCharCarryOver5e(existingChar5e)
 
   // Resolve spells using extracted helper
   const knownSpells = await resolveBuilderSpells({
@@ -509,39 +400,15 @@ export async function buildCharacter5e(get: GetState): Promise<Character5e> {
     name: characterName || 'Unnamed Character',
     species: speciesData?.name ?? 'Unknown',
     subspecies: computedSubspecies,
-    classes: (() => {
-      const clc = state.classLevelChoices
-      const hasMulticlass = Object.keys(clc).length > 0 && Object.values(clc).some((cid) => cid !== classId)
-      if (hasMulticlass && classData) {
-        // Count levels per class (level 1 is always primary class)
-        const levelCounts: Record<string, number> = { [classId]: 1 }
-        for (const cid of Object.values(clc)) {
-          levelCounts[cid] = (levelCounts[cid] ?? 0) + 1
-        }
-        return Object.entries(levelCounts).map(([cid, lvlCount]) => {
-          const cd = classes.find((c) => c.id === cid)
-          const subSlot = buildSlots.find(
-            (s) => s.id.includes('subclass') && (s.id.includes(cid) || (cid === classId && !s.id.includes('-')))
-          )
-          return {
-            name: cd?.name ?? cid,
-            level: lvlCount,
-            hitDie: parseInt(cd?.coreTraits.hitPointDie.replace(/\D/g, '') ?? '8', 10),
-            subclass: subSlot?.selectedName ?? undefined
-          }
-        })
-      }
-      return classData
-        ? [
-            {
-              name: classData.name,
-              level: targetLevel,
-              hitDie: parseInt(classData.coreTraits.hitPointDie.replace(/\D/g, ''), 10) || 8,
-              subclass: subclassSlot?.selectedName ?? undefined
-            }
-          ]
-        : []
-    })(),
+    classes: computeBuilderClasses5e({
+      classLevelChoices: state.classLevelChoices,
+      classId,
+      classData,
+      classes,
+      buildSlots,
+      targetLevel,
+      subclassSlot
+    }),
     level: targetLevel,
     background: bgData?.name ?? 'Unknown',
     alignment: characterAlignment || existingChar5e?.alignment || '',

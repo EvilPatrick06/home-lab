@@ -850,8 +850,8 @@ function CloudBackupSection(): JSX.Element {
           </button>
         </div>
         <p className="text-xs text-gray-500">
-          BMO requires this for any non-localhost request (it auto-generates one on first boot). Get it from the Pi
-          with <code className="text-gray-400">cat ~/.bmo_api_key</code>.
+          BMO requires this for any non-localhost request (it auto-generates one on first boot). Get it from the Pi with{' '}
+          <code className="text-gray-400">cat ~/.bmo_api_key</code>.
         </p>
       </div>
 
