@@ -155,9 +155,28 @@ for (const { path, re } of README_VERSION_SITES) {
   }
 }
 
+// Refresh the other auto-derivable doc numbers so they never drift either:
+// the IPC channel list (gen:ipc-surface) and the file/agent/test counts
+// (sync-doc-counts). Both are idempotent and non-fatal.
+try {
+  sh('node dnd-app/scripts/build/gen-ipc-surface.mjs')
+} catch {
+  console.log('! gen-ipc-surface failed — continuing (IPC-SURFACE.md may be stale)')
+}
+try {
+  sh('node dnd-app/scripts/build/sync-doc-counts.mjs')
+} catch {
+  console.log('! sync-doc-counts failed — continuing (doc counts may be stale)')
+}
+
 // ── 4. commit + tag + push master ─────────────────────────────────────────
 
-sh('git add dnd-app/package.json dnd-app/package-lock.json dnd-app/README.md README.md')
+// Stage the version bump + every doc the sync steps may have touched.
+sh(
+  'git add dnd-app/package.json dnd-app/package-lock.json dnd-app/README.md README.md ' +
+    'bmo/README.md docs/ARCHITECTURE.md bmo/docs/AGENTS.md ' +
+    'dnd-app/docs/IPC-SURFACE.md dnd-app/docs/PLUGIN-SYSTEM.md'
+)
 sh(`git commit -m "chore(release): bump dnd-app to ${tag}"`)
 sh(`git tag ${tag}`)
 console.log(`✓ Committed and tagged ${tag}`)

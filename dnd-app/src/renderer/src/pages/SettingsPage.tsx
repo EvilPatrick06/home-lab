@@ -1117,8 +1117,10 @@ export default function SettingsPage(): JSX.Element {
 
   return (
     <div className="h-screen bg-gray-950 text-gray-100 overflow-y-auto">
-      {/* Header */}
-      <div className="border-b border-gray-800">
+      {/* Header — sticky so the back button + title + (fixed) gear stay visible
+          while the settings content scrolls. z-40 sits just under the fixed
+          GlobalSettingsButton gear (z-50). */}
+      <div className="sticky top-0 z-40 border-b border-gray-800 bg-gray-950">
         <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button

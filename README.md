@@ -7,7 +7,7 @@ Three loosely coupled projects shipped from a single repo. They share a Pi, a re
 | Path | What it is | Stack | Where it runs |
 |---|---|---|---|
 | [`dnd-app/`](./dnd-app/) | Electron Virtual Tabletop for D&D 5e — multiplayer, AI DM, maps, character sheets | TypeScript · React 19 · Vite · electron-vite · PixiJS · PeerJS | Windows / Linux laptops |
-| [`bmo/`](./bmo/) | BMO — voice assistant + Discord bots + smart-home hub + D&D narration engine | Python 3.11 · Flask + gevent · 41 AI agents · `discord.py` · `picamera2` | Raspberry Pi 5 (24/7 systemd services) |
+| [`bmo/`](./bmo/) | BMO — voice assistant + Discord bots + smart-home hub + D&D narration engine | Python 3.11 · Flask + gevent · 28 AI agents · `discord.py` · `picamera2` | Raspberry Pi 5 (24/7 systemd services) |
 | [`dungeon-scholar/`](./dungeon-scholar/) | D&D-themed exam-prep study app — spaced repetition, timed practice, dungeon-delve gamification | React · Vite · Supabase · GitHub Pages | Browser (deployed via Pages) |
 
 Each project's own README has the details:
@@ -53,8 +53,8 @@ Full protocol spec: [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md)
 
 ## Current state (2026-05-29)
 
-- **`dnd-app`** at **v2.2.2**. Multiplayer (Phase 29), Token System (Phase 13), and DM View (Phase 14) shipped. 6588 unit tests passing. Ships as Windows NSIS installer + Linux AppImage. Open backlog + deferred work: `dnd-app/docs/phases/REVIEW-REPORT-2026-05-29.md` (the phase-plan files were consolidated into that single report).
-- **`bmo`** runs 5 systemd services live on the Pi: `bmo`, `bmo-fan`, `bmo-kiosk`, `bmo-dm-bot`, `bmo-social-bot`. 772+ pytest cases. Game-discovery registry at `/api/games*` advertises via avahi for Windows-zero-config.
+- **`dnd-app`** at **v2.2.2**. Multiplayer (Phase 29), Token System (Phase 13), and DM View (Phase 14) shipped. 672 test files. Ships as Windows NSIS installer + Linux AppImage. Open backlog + deferred work: `dnd-app/docs/phases/REVIEW-REPORT-2026-05-29.md` (the phase-plan files were consolidated into that single report).
+- **`bmo`** runs 5 systemd services live on the Pi: `bmo`, `bmo-fan`, `bmo-kiosk`, `bmo-dm-bot`, `bmo-social-bot`. 22 pytest files. Game-discovery registry at `/api/games*` advertises via avahi for Windows-zero-config.
 - **`dungeon-scholar`** at Phase 27 (audit follow-ups). Deployed via GitHub Pages workflow.
 
 ## Quick start
@@ -104,7 +104,7 @@ Tool-specific instruction files: [`CLAUDE.md`](./CLAUDE.md), [`GEMINI.md`](./GEM
 **Per-project deep dives:**
 - [`dnd-app/docs/IPC-SURFACE.md`](./dnd-app/docs/IPC-SURFACE.md) — Electron IPC channel catalogue
 - [`dnd-app/docs/PLUGIN-SYSTEM.md`](./dnd-app/docs/PLUGIN-SYSTEM.md) — game-system plugin API
-- [`bmo/docs/AGENTS.md`](./bmo/docs/AGENTS.md) — the 41 BMO AI agents
+- [`bmo/docs/AGENTS.md`](./bmo/docs/AGENTS.md) — the 28 BMO AI agents
 - [`bmo/docs/SERVICES.md`](./bmo/docs/SERVICES.md) — Python services + ports
 - [`bmo/docs/TROUBLESHOOTING.md`](./bmo/docs/TROUBLESHOOTING.md) — common BMO failures
 - [`bmo/docs/SYSTEMD.md`](./bmo/docs/SYSTEMD.md) — service management

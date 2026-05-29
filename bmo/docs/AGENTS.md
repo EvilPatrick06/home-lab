@@ -1,6 +1,6 @@
 # BMO Agents
 
-41 specialized AI agents, each owning one capability. The orchestrator picks which one(s) to invoke based on user intent.
+28 specialized AI agents, each owning one capability. The orchestrator picks which one(s) to invoke based on user intent.
 
 ## Agent list
 

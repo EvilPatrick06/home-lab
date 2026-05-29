@@ -111,7 +111,7 @@ src/renderer/public/data/<system-id>/
 
 Lives across multiple dirs (not yet fully encapsulated to `systems/dnd5e/` — refactor target):
 
-- **Character sheet:** `src/renderer/src/components/sheet/` (96 files)
+- **Character sheet:** `src/renderer/src/components/sheet/` (98 files)
 - **Character builder:** `src/renderer/src/components/builder/` (64 files, split into `5e/` subdirs)
 - **Level-up wizard:** `src/renderer/src/components/levelup/` (11 files)
 - **Combat:** `src/renderer/src/services/combat/` (54 files)

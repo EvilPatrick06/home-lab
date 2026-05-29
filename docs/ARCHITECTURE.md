@@ -72,7 +72,7 @@ cd bmo/pi && ./venv/bin/python -m pytest
 | `/api/discord/end-session` | POST | End Discord session |
 | `/api/narrate` | POST | Speak text via BMO's voice + send to Discord channel |
 | `/api/chat` | POST (SSE) | Stream chat with BMO's agent router |
-| `/api/agent/:name/invoke` | POST | Directly invoke one of the 41 agents |
+| `/api/agent/:name/invoke` | POST | Directly invoke one of the 28 agents |
 | `/api/games` | GET / POST | Game-discovery registry — list (GET) + announce (POST) [Phase 29f] |
 | `/api/games/<code>` | PATCH / DELETE | Update player/spectator counts; deregister on host stop |
 | `/api/games/<code>/heartbeat` | POST | Refresh the 60 s entry TTL (host pings every 30 s) |
@@ -213,5 +213,5 @@ Keeping both in one repo means atomic changes across the protocol boundary.
 - [`DATA-FLOW.md`](./DATA-FLOW.md) — every data kind and its storage
 - [`../dnd-app/docs/IPC-SURFACE.md`](../dnd-app/docs/IPC-SURFACE.md) — Electron IPC channels
 - [`../bmo/docs/SERVICES.md`](../bmo/docs/SERVICES.md) — BMO services + HTTP endpoints
-- [`../bmo/docs/AGENTS.md`](../bmo/docs/AGENTS.md) — 41 AI agents
+- [`../bmo/docs/AGENTS.md`](../bmo/docs/AGENTS.md) — 28 AI agents
 - [`COMMANDS.md`](./COMMANDS.md) — common operational commands
