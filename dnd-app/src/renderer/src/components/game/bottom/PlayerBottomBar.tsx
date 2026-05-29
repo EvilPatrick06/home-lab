@@ -266,6 +266,8 @@ export default function PlayerBottomBar({
             <div className="relative" ref={toolsRef}>
               <button
                 onClick={() => setToolsOpen(!toolsOpen)}
+                aria-haspopup="menu"
+                aria-expanded={toolsOpen}
                 className="w-full px-3 py-2 text-xs font-semibold rounded-lg bg-gray-800/60 border border-gray-700/50
               text-gray-200 hover:bg-gray-700/60 hover:text-gray-100
               transition-all cursor-pointer"

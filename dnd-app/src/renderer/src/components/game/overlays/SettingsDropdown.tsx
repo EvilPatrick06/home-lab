@@ -85,9 +85,7 @@ function CalendarSettingsSection({
         <span className="text-xs text-gray-400">Calendar</span>
         <span className="text-xs text-amber-400">{PRESET_LABELS[calendar.preset]}</span>
       </div>
-      {inGameTime && (
-        <div className="text-xs text-gray-500">{formatInGameTime(inGameTime.totalSeconds, calendar)}</div>
-      )}
+      {inGameTime && <div className="text-xs text-gray-500">{formatInGameTime(inGameTime.totalSeconds, calendar)}</div>}
     </div>
   )
 }
@@ -105,9 +103,7 @@ function AiDmSettingsSection(): JSX.Element {
         <span className="text-xs text-purple-400 capitalize">{aiModel}</span>
       </div>
       <div className="flex items-center justify-between">
-        <span className="text-xs text-gray-500">
-          {aiIsTyping ? 'Responding...' : aiPaused ? 'Paused' : 'Active'}
-        </span>
+        <span className="text-xs text-gray-500">{aiIsTyping ? 'Responding...' : aiPaused ? 'Paused' : 'Active'}</span>
         <button
           onClick={() => setPaused(!aiPaused)}
           aria-label={aiPaused ? 'Resume AI DM' : 'Pause AI DM'}
@@ -307,6 +303,8 @@ export default function SettingsDropdown({
         <button
           onClick={onToggle}
           aria-label="Game settings"
+          aria-haspopup="menu"
+          aria-expanded={isOpen}
           className="w-9 h-9 bg-gray-900/70 backdrop-blur-sm border border-gray-700/50 rounded-xl
             flex items-center justify-center text-gray-400 hover:text-gray-200 cursor-pointer transition-colors"
         >
