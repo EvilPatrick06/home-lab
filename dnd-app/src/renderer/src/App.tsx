@@ -4,6 +4,7 @@ import { DiceOverlay } from './components/game/dice3d'
 import { ErrorBoundary, ShortcutsOverlay, Spinner, ToastContainer } from './components/ui'
 import ColorblindFilters from './components/ui/ColorblindFilters'
 import GlobalSettingsButton from './components/ui/GlobalSettingsButton'
+import OllamaFirstRunPrompt from './components/ui/OllamaFirstRunPrompt'
 import ScreenReaderAnnouncer from './components/ui/ScreenReaderAnnouncer'
 import SkipToContent from './components/ui/SkipToContent'
 import UpdatePrompt from './components/ui/UpdatePrompt'
@@ -147,6 +148,7 @@ function App(): JSX.Element {
       <DiceOverlay />
       <ToastContainer />
       <UpdatePrompt />
+      <OllamaFirstRunPrompt />
       <ShortcutsOverlay open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
       <GlobalSettingsButton />
       <main id="main-content">
