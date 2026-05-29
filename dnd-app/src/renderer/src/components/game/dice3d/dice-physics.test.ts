@@ -79,7 +79,9 @@ vi.mock('three', () => {
         getY: (i: number) => arr[i * 3 + 1],
         getZ: (i: number) => arr[i * 3 + 2]
       })),
-      getIndex: vi.fn(() => null)
+      getIndex: vi.fn(() => null),
+      // Phase 17e (GUI-4) — create*Shape now disposes the throwaway geometry.
+      dispose: vi.fn()
     }
   }
 
