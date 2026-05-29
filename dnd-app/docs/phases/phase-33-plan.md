@@ -226,3 +226,8 @@ Execution order: 33b first (tooling baseline), then 33e + 33d (config + bundle),
 - 33g Steps 1-2 (importers) — DONE — all 28 in-tree consumers import from `./network-store`; `use-network-store.ts:1-5` is a 4-line re-export barrel awaiting deletion-or-deprecation decision.
 - 33h Step 2 (spells) — DONE (`scripts/schemas/spells.ts:569-571`) — `SpellsSchema = z.object({ spells: z.array(SpellSchema) })` wrapper present.
 - 33h Validator script — DONE (`scripts/audit/validate-content-vs-schemas.ts:1-52`) — script exists; not yet wired into `check:full`/CI.
+
+> **PHASE 33 PARTIAL — 2026-05-29 (overnight autonomous pass).** Build green.
+> - **33b DONE** — removed the stale `ts-prune` entry from `knip.json` ignoreDependencies (madge/ts-prune already dropped; `circular`=dpdm, `dead-code`=knip).
+> - **33e DONE** — `electron.vite.config.ts` reads package.json via `fileURLToPath(new URL('./package.json', import.meta.url))`; zero `require()`/`createRequire`; `electron-vite build` succeeds.
+> - **DEFERRED:** 33a backup-format migration framework, 33c ModalScaffold extraction (~10 modals), 33d bundle-size CI guard, 33f provider-registry static/dynamic collapse, 33g use-network-store barrel deletion (importers already migrated; deletion decision pending), 33h remaining content-shape schema wraps.
