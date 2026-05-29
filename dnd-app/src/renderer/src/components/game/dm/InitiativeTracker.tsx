@@ -60,6 +60,8 @@ export default function InitiativeTracker({
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
   const reorderInitiative = useGameStore((s) => s.reorderInitiative)
+  const pendingWaves = useGameStore((s) => s.pendingWaves)
+  const deployWave = useGameStore((s) => s.deployWave)
 
   // Combat timer state
   const [timerEnabled, setTimerEnabled] = useState(combatTimer?.enabled ?? false)
@@ -321,6 +323,23 @@ export default function InitiativeTracker({
         <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Initiative</h3>
         <span className="text-xs text-amber-400 font-semibold">Round {initiative.round}</span>
       </div>
+
+      {/* Phase 26d — deploy pending encounter waves */}
+      {isHost && pendingWaves.length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {pendingWaves.map((w, i) => (
+            <button
+              // biome-ignore lint/suspicious/noArrayIndexKey: waves have no stable id
+              key={i}
+              onClick={() => deployWave(i)}
+              className="px-2 py-1 text-xs rounded bg-red-700/40 border border-red-600/50 text-red-200 hover:bg-red-700/60"
+              title={w.triggerCondition ? `Trigger: ${w.triggerCondition}` : undefined}
+            >
+              Deploy {w.name} ({w.tokens.length})
+            </button>
+          ))}
+        </div>
+      )}
 
       <div className="space-y-1">
         {displayEntries.length === 0 && (

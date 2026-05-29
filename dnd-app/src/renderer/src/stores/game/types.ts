@@ -137,9 +137,20 @@ export interface PendingLairAction {
   lairActions: Array<{ name: string; description: string }>
 }
 
+/** Phase 26d — a not-yet-deployed encounter wave, holding pre-built token specs. */
+export interface PendingWave {
+  name: string
+  triggerCondition?: string
+  tokens: Array<Partial<import('../../types/map').MapToken> & { sizeX?: number; sizeY?: number }>
+}
+
 export interface InitiativeSliceState {
   pendingLairAction: PendingLairAction | null
   setPendingLairAction: (action: PendingLairAction | null) => void
+  // Phase 26d — encounter waves awaiting deployment (InitiativeTracker surfaces them).
+  pendingWaves: PendingWave[]
+  setPendingWaves: (waves: PendingWave[]) => void
+  deployWave: (index: number) => void
   startInitiative: (entries: InitiativeEntry[]) => void
   addToInitiative: (entry: InitiativeEntry) => void
   nextTurn: () => void

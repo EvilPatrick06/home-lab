@@ -25,6 +25,31 @@ interface MonsterEntry {
   cr: string
   xp: number
   count: number
+  // Phase 26d — which wave this monster deploys with (1-based; default 1).
+  wave?: number
+  // Phase 26e — optional pre-position on the linked map (grid squares).
+  startX?: number
+  startY?: number
+}
+
+/** Phase 26b/26d — built enemy token spec (a PlaceableToken superset). */
+interface EnemyTokenSpec {
+  id: string
+  entityId: string
+  entityType: 'enemy'
+  label: string
+  sizeX: number
+  sizeY: number
+  visibleToPlayers: boolean
+  conditions: never[]
+  currentHP: number
+  maxHP: number
+  ac: number
+  walkSpeed: number
+  monsterStatBlockId: string
+  initiativeModifier: number
+  gridX?: number
+  gridY?: number
 }
 
 interface MonsterData {
@@ -54,6 +79,12 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
   const [presetName, setPresetName] = useState('')
   const [showSavePreset, setShowSavePreset] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
+
+  // Phase 26d — waves; Phase 26e — encounter↔map linkage.
+  const maps = useGameStore((s) => s.maps)
+  const [activeWave, setActiveWave] = useState(1)
+  const [maxWave, setMaxWave] = useState(1)
+  const [mapId, setMapId] = useState<string>('')
 
   useEffect(() => {
     setMonstersLoading(true)
@@ -90,7 +121,11 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
   }, [])
 
   const addMonster = (monster: MonsterData): void => {
-    const existing = selectedMonsters.find((m) => m.name === monster.name && m.cr === monster.cr)
+    // Phase 26d — same monster in different waves are distinct rows; only stack
+    // count when name + cr + wave all match.
+    const existing = selectedMonsters.find(
+      (m) => m.name === monster.name && m.cr === monster.cr && (m.wave ?? 1) === activeWave
+    )
     if (existing) {
       setSelectedMonsters((prev) => prev.map((m) => (m.id === existing.id ? { ...m, count: m.count + 1 } : m)))
     } else {
@@ -101,12 +136,20 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
           name: monster.name,
           cr: monster.cr,
           xp: monster.xp ?? getMonsterXP(monster.cr),
-          count: 1
+          count: 1,
+          wave: activeWave
         }
       ])
     }
     setMonsterSearch('')
     setShowDropdown(false)
+  }
+
+  const setMonsterCoord = (id: string, axis: 'startX' | 'startY', value: string): void => {
+    const n = value === '' ? undefined : Math.max(0, Math.floor(Number(value)))
+    setSelectedMonsters((prev) =>
+      prev.map((m) => (m.id === id ? { ...m, [axis]: Number.isNaN(n) ? undefined : n } : m))
+    )
   }
 
   const updateCount = (id: string, delta: number): void => {
@@ -139,27 +182,11 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
   )
   const xpPct = Math.min((encounter.adjustedXP / budgetBarMax) * 100, 100)
 
-  const handleStartInitiative = (): void => {
-    const monsterList = selectedMonsters
-      .flatMap((m) => Array.from({ length: m.count }, (_, i) => (m.count > 1 ? `${m.name} ${i + 1}` : m.name)))
-      .join(', ')
-    onBroadcastResult(
-      `Encounter started! Monsters: ${monsterList} (Total XP: ${encounter.totalXP.toLocaleString()}, Adjusted XP: ${encounter.adjustedXP.toLocaleString()}, Difficulty: ${encounter.difficulty})`
-    )
-
-    // Phase 26b — place tokens on the active map and seed initiative.
-    const gameStore = useGameStore.getState()
-    const activeMap = gameStore.maps.find((m) => m.id === gameStore.activeMapId)
-    if (!activeMap) {
-      addToast('No active map — open a map before starting the encounter', 'warning')
-      onClose()
-      return
-    }
-
-    const rollD20 = (): number => Math.floor(Math.random() * 20) + 1
-
-    // Build placeable tokens for each selected monster × count.
-    const toPlace = selectedMonsters.flatMap((entry) => {
+  // Phase 26b/26e — build placeable token specs for a set of monster entries.
+  // Pre-positioned entries (startX+startY set) carry gridX/gridY so the caller
+  // can bypass smart placement for them.
+  const buildTokens = (entries: MonsterEntry[]): EnemyTokenSpec[] =>
+    entries.flatMap((entry) => {
       const data = allMonsters.find((m) => m.name === entry.name && m.cr === entry.cr)
       const dims = getSizeTokenDimensions(
         ((data?.size as string) ?? 'medium') as Parameters<typeof getSizeTokenDimensions>[0]
@@ -183,12 +210,69 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
         ac,
         walkSpeed: speed,
         monsterStatBlockId: (data?.id as string) ?? entry.id,
-        initiativeModifier: initMod
+        initiativeModifier: initMod,
+        // Phase 26e — pre-position only the first stamp at the given coords;
+        // additional copies fall through to smart placement.
+        ...(i === 0 && entry.startX !== undefined && entry.startY !== undefined
+          ? { gridX: entry.startX, gridY: entry.startY }
+          : {})
       }))
     })
 
-    const placed = smartPlaceTokens(activeMap, toPlace)
-    for (const token of placed) gameStore.addToken(activeMap.id, token as MapToken)
+  // Place a token list: pre-positioned tokens (already carry gridX/gridY) go
+  // straight in; the rest spread via smartPlaceTokens.
+  const placeTokens = (
+    map: ReturnType<typeof useGameStore.getState>['maps'][number],
+    specs: EnemyTokenSpec[]
+  ): EnemyTokenSpec[] => {
+    const prePos = specs.filter((t) => t.gridX !== undefined && t.gridY !== undefined)
+    const auto = specs.filter((t) => t.gridX === undefined || t.gridY === undefined)
+    const placedAuto = smartPlaceTokens(
+      map,
+      auto as Parameters<typeof smartPlaceTokens>[1]
+    ) as unknown as EnemyTokenSpec[]
+    const all = [...prePos, ...placedAuto]
+    for (const token of all) useGameStore.getState().addToken(map.id, token as unknown as MapToken)
+    return all
+  }
+
+  const handleStartInitiative = (): void => {
+    const monsterList = selectedMonsters
+      .flatMap((m) => Array.from({ length: m.count }, (_, i) => (m.count > 1 ? `${m.name} ${i + 1}` : m.name)))
+      .join(', ')
+    onBroadcastResult(
+      `Encounter started! Monsters: ${monsterList} (Total XP: ${encounter.totalXP.toLocaleString()}, Adjusted XP: ${encounter.adjustedXP.toLocaleString()}, Difficulty: ${encounter.difficulty})`
+    )
+
+    // Phase 26b/26e — switch to the linked map if one is set, then place wave 1.
+    const gameStore = useGameStore.getState()
+    if (mapId && mapId !== gameStore.activeMapId && gameStore.maps.some((m) => m.id === mapId)) {
+      gameStore.setActiveMap(mapId)
+    }
+    const activeMap = useGameStore.getState().maps.find((m) => m.id === useGameStore.getState().activeMapId)
+    if (!activeMap) {
+      addToast('No active map — open a map before starting the encounter', 'warning')
+      onClose()
+      return
+    }
+
+    const rollD20 = (): number => Math.floor(Math.random() * 20) + 1
+
+    // Phase 26d — wave 1 deploys now; waves 2+ become pending (deploy from the
+    // Initiative Tracker). Monsters with no wave default to wave 1.
+    const wave1 = selectedMonsters.filter((m) => (m.wave ?? 1) === 1)
+    const laterWaves: Array<{ wave: number; entries: MonsterEntry[] }> = []
+    for (let w = 2; w <= maxWave; w++) {
+      const ms = selectedMonsters.filter((m) => (m.wave ?? 1) === w)
+      if (ms.length > 0) laterWaves.push({ wave: w, entries: ms })
+    }
+
+    const placed = placeTokens(activeMap, buildTokens(wave1.length > 0 ? wave1 : selectedMonsters))
+
+    // Stash later waves as pre-built token specs for InitiativeTracker deploy.
+    gameStore.setPendingWaves(
+      laterWaves.map((w) => ({ name: `Wave ${w.wave}`, tokens: buildTokens(w.entries) as never[] }))
+    )
 
     // Build initiative entries. With group init, one shared roll per monster name.
     const entries: InitiativeEntry[] = []
@@ -242,7 +326,10 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
       name: presetName,
       partySize,
       partyLevel,
-      monsters: selectedMonsters
+      monsters: selectedMonsters,
+      // Phase 26d/26e — persist wave grouping + linked map.
+      mapId: mapId || undefined,
+      maxWave
     }
     let saved: unknown[] = []
     try {
@@ -370,51 +457,126 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
             )}
           </div>
 
-          {/* Selected Monsters Table */}
-          {selectedMonsters.length > 0 && (
+          {/* Phase 26e — link an encounter to a map */}
+          {maps.length > 0 && (
+            <div className="flex items-center gap-2">
+              <label className="text-xs text-gray-400">Map:</label>
+              <select
+                value={mapId}
+                onChange={(e) => setMapId(e.target.value)}
+                className="bg-gray-800 border border-gray-600 rounded px-2 py-1 text-sm text-white"
+              >
+                <option value="">(use active map)</option>
+                {maps.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.name}
+                  </option>
+                ))}
+              </select>
+              <span className="text-[10px] text-gray-500">
+                Pre-position monsters with X/Y; blank = smart placement.
+              </span>
+            </div>
+          )}
+
+          {/* Phase 26d — wave tabs */}
+          <div className="flex items-center gap-1 flex-wrap">
+            <span className="text-xs text-gray-400 mr-1">Waves:</span>
+            {Array.from({ length: maxWave }, (_, i) => i + 1).map((w) => (
+              <button
+                key={w}
+                onClick={() => setActiveWave(w)}
+                className={`px-2 py-0.5 text-xs rounded border ${
+                  activeWave === w
+                    ? 'bg-amber-600 border-amber-500 text-white'
+                    : 'border-gray-600 text-gray-400 hover:border-amber-600'
+                }`}
+              >
+                Wave {w} ({selectedMonsters.filter((m) => (m.wave ?? 1) === w).length})
+              </button>
+            ))}
+            <button
+              onClick={() => {
+                setMaxWave((n) => n + 1)
+                setActiveWave(maxWave + 1)
+              }}
+              className="px-2 py-0.5 text-xs rounded border border-gray-600 text-gray-400 hover:border-amber-600"
+            >
+              + Add Wave
+            </button>
+          </div>
+
+          {/* Selected Monsters Table (active wave) */}
+          {selectedMonsters.filter((m) => (m.wave ?? 1) === activeWave).length > 0 && (
             <div className="border border-gray-700 rounded overflow-hidden">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-gray-800 text-gray-400 text-xs">
                     <th className="text-left px-3 py-2">Monster</th>
                     <th className="text-center px-2 py-2">CR</th>
-                    <th className="text-center px-2 py-2">XP</th>
                     <th className="text-center px-2 py-2">Count</th>
+                    {mapId && <th className="text-center px-2 py-2">X / Y</th>}
                     <th className="text-center px-2 py-2">Total XP</th>
                     <th className="px-2 py-2"></th>
                   </tr>
                 </thead>
                 <tbody>
-                  {selectedMonsters.map((m) => (
-                    <tr key={m.id} className="border-t border-gray-700/50 text-gray-200">
-                      <td className="px-3 py-1.5">{m.name}</td>
-                      <td className="text-center px-2 py-1.5 text-gray-400">{m.cr}</td>
-                      <td className="text-center px-2 py-1.5 text-gray-400">{m.xp.toLocaleString()}</td>
-                      <td className="text-center px-2 py-1.5">
-                        <div className="flex items-center justify-center gap-1">
+                  {selectedMonsters
+                    .filter((m) => (m.wave ?? 1) === activeWave)
+                    .map((m) => (
+                      <tr key={m.id} className="border-t border-gray-700/50 text-gray-200">
+                        <td className="px-3 py-1.5">{m.name}</td>
+                        <td className="text-center px-2 py-1.5 text-gray-400">{m.cr}</td>
+                        <td className="text-center px-2 py-1.5">
+                          <div className="flex items-center justify-center gap-1">
+                            <button
+                              onClick={() => updateCount(m.id, -1)}
+                              className="w-5 h-5 rounded bg-gray-700 hover:bg-gray-600 text-white text-xs flex items-center justify-center"
+                            >
+                              -
+                            </button>
+                            <span className="w-6 text-center">{m.count}</span>
+                            <button
+                              onClick={() => updateCount(m.id, 1)}
+                              className="w-5 h-5 rounded bg-gray-700 hover:bg-gray-600 text-white text-xs flex items-center justify-center"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </td>
+                        {mapId && (
+                          <td className="text-center px-2 py-1.5">
+                            <div className="flex items-center justify-center gap-1">
+                              <input
+                                type="number"
+                                min={0}
+                                value={m.startX ?? ''}
+                                onChange={(e) => setMonsterCoord(m.id, 'startX', e.target.value)}
+                                placeholder="X"
+                                className="w-12 bg-gray-800 border border-gray-600 rounded px-1 py-0.5 text-xs text-white"
+                              />
+                              <input
+                                type="number"
+                                min={0}
+                                value={m.startY ?? ''}
+                                onChange={(e) => setMonsterCoord(m.id, 'startY', e.target.value)}
+                                placeholder="Y"
+                                className="w-12 bg-gray-800 border border-gray-600 rounded px-1 py-0.5 text-xs text-white"
+                              />
+                            </div>
+                          </td>
+                        )}
+                        <td className="text-center px-2 py-1.5 text-amber-400">{(m.xp * m.count).toLocaleString()}</td>
+                        <td className="text-center px-2 py-1.5">
                           <button
-                            onClick={() => updateCount(m.id, -1)}
-                            className="w-5 h-5 rounded bg-gray-700 hover:bg-gray-600 text-white text-xs flex items-center justify-center"
+                            onClick={() => removeMonster(m.id)}
+                            className="text-red-500 hover:text-red-400 text-xs"
                           >
-                            -
+                            &times;
                           </button>
-                          <span className="w-6 text-center">{m.count}</span>
-                          <button
-                            onClick={() => updateCount(m.id, 1)}
-                            className="w-5 h-5 rounded bg-gray-700 hover:bg-gray-600 text-white text-xs flex items-center justify-center"
-                          >
-                            +
-                          </button>
-                        </div>
-                      </td>
-                      <td className="text-center px-2 py-1.5 text-amber-400">{(m.xp * m.count).toLocaleString()}</td>
-                      <td className="text-center px-2 py-1.5">
-                        <button onClick={() => removeMonster(m.id)} className="text-red-500 hover:text-red-400 text-xs">
-                          &times;
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>

@@ -1,6 +1,7 @@
 import type { StateCreator } from 'zustand'
 import { publishSystemChat } from '../../events/system-chat-bridge'
 import { createAttackTracker } from '../../services/combat/multi-attack-tracker'
+import { smartPlaceTokens } from '../../services/game-actions/token-placement'
 import { pluginEventBus } from '../../services/plugin-system/event-bus'
 import type { EntityCondition, InitiativeEntry } from '../../types/game-state'
 import { createTurnState, type GameStoreState, type InitiativeSliceState } from './types'
@@ -10,6 +11,42 @@ export const createInitiativeSlice: StateCreator<GameStoreState, [], [], Initiat
 
   pendingLairAction: null,
   setPendingLairAction: (action) => set({ pendingLairAction: action }),
+
+  // --- Encounter waves (Phase 26d) ---
+  pendingWaves: [],
+  setPendingWaves: (waves) => set({ pendingWaves: waves }),
+  deployWave: (index: number) => {
+    const { pendingWaves, maps, activeMapId } = get()
+    const wave = pendingWaves[index]
+    if (!wave) return
+    const map = maps.find((m) => m.id === activeMapId)
+    if (!map) return
+    const placed = smartPlaceTokens(map, wave.tokens)
+    const rollD20 = (): number => Math.floor(Math.random() * 20) + 1
+    for (const token of placed) {
+      get().addToken(map.id, token as import('../../types/map').MapToken)
+      const mod = (token as { initiativeModifier?: number }).initiativeModifier ?? 0
+      const roll = rollD20()
+      get().addToInitiative({
+        id: crypto.randomUUID(),
+        entityId: (token.entityId as string) ?? (token.id as string) ?? crypto.randomUUID(),
+        entityName: (token.label as string) ?? 'Enemy',
+        entityType: 'enemy',
+        roll,
+        modifier: mod,
+        total: roll + mod,
+        isActive: false
+      })
+    }
+    set({ pendingWaves: pendingWaves.filter((_, i) => i !== index) })
+    publishSystemChat({
+      senderId: 'system',
+      senderName: 'System',
+      content: `Reinforcements arrive! (${wave.name})`,
+      timestamp: Date.now(),
+      isSystem: true
+    })
+  },
 
   startInitiative: (entries: InitiativeEntry[]) => {
     const sorted = [...entries].sort((a, b) => b.total - a.total)
