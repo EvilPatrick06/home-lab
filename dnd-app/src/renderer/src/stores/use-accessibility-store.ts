@@ -18,6 +18,8 @@ interface AccessibilityState {
   colorblindMode: ColorblindMode
   reducedMotion: boolean
   screenReaderMode: boolean
+  /** Phase 18j — true once the user has explicitly chosen a screen-reader answer (persisted). */
+  screenReaderModeSet: boolean
   tooltipsEnabled: boolean
   fontStyle: FontStyle
   customKeybindings: Record<string, KeyCombo> | null // null = use defaults
@@ -87,6 +89,7 @@ export const useAccessibilityStore = create<AccessibilityState>((set, get) => ({
   colorblindMode: (saved.colorblindMode as ColorblindMode) ?? 'none',
   reducedMotion: (saved.reducedMotion as boolean) ?? osReducedMotion,
   screenReaderMode: (saved.screenReaderMode as boolean) ?? false,
+  screenReaderModeSet: saved.screenReaderMode !== undefined,
   tooltipsEnabled: (saved.tooltipsEnabled as boolean) ?? true,
   fontStyle: (saved.fontStyle as FontStyle) ?? 'system',
   customKeybindings: (saved.customKeybindings as Record<string, KeyCombo> | null) ?? null,
@@ -108,7 +111,7 @@ export const useAccessibilityStore = create<AccessibilityState>((set, get) => ({
   },
 
   setScreenReaderMode: (v) => {
-    set({ screenReaderMode: v })
+    set({ screenReaderMode: v, screenReaderModeSet: true })
     persist(get())
   },
 

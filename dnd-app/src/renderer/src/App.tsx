@@ -6,6 +6,7 @@ import ColorblindFilters from './components/ui/ColorblindFilters'
 import GlobalSettingsButton from './components/ui/GlobalSettingsButton'
 import OllamaFirstRunPrompt from './components/ui/OllamaFirstRunPrompt'
 import ScreenReaderAnnouncer from './components/ui/ScreenReaderAnnouncer'
+import ScreenReaderPrompt from './components/ui/ScreenReaderPrompt'
 import SkipToContent from './components/ui/SkipToContent'
 import UpdatePrompt from './components/ui/UpdatePrompt'
 import { addToast } from './hooks/use-toast'
@@ -155,6 +156,7 @@ function App(): JSX.Element {
       <ToastContainer />
       <UpdatePrompt />
       <OllamaFirstRunPrompt />
+      <ScreenReaderPrompt />
       <ShortcutsOverlay open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
       <GlobalSettingsButton />
       <main id="main-content">
