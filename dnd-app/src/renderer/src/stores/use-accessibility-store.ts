@@ -84,6 +84,13 @@ function detectOsReducedMotion(): boolean {
 
 const osReducedMotion = detectOsReducedMotion()
 
+/** Phase 22a — reflect the reduced-motion flag as a `.reduce-motion` class on <html>. */
+function applyReducedMotionClass(v: boolean): void {
+  if (typeof document !== 'undefined') {
+    document.documentElement.classList.toggle('reduce-motion', v)
+  }
+}
+
 export const useAccessibilityStore = create<AccessibilityState>((set, get) => ({
   uiScale: (saved.uiScale as number) ?? 100,
   colorblindMode: (saved.colorblindMode as ColorblindMode) ?? 'none',
@@ -107,6 +114,7 @@ export const useAccessibilityStore = create<AccessibilityState>((set, get) => ({
 
   setReducedMotion: (v) => {
     set({ reducedMotion: v })
+    applyReducedMotionClass(v)
     persist(get())
   },
 
@@ -147,6 +155,9 @@ export const useAccessibilityStore = create<AccessibilityState>((set, get) => ({
   }
 }))
 
+// Phase 22a — reflect persisted/OS-default reduced-motion on <html> at startup.
+applyReducedMotionClass(useAccessibilityStore.getState().reducedMotion)
+
 // Track OS `prefers-reduced-motion` changes live and apply them when the user
 // has not explicitly set an in-app override (i.e. saved.reducedMotion is undefined).
 // Once the user toggles the in-app setting, persistence wins and we stop tracking.
@@ -158,6 +169,7 @@ if (typeof window !== 'undefined' && typeof window.matchMedia === 'function' && 
       const persisted = loadPersistedState()
       if (persisted.reducedMotion === undefined) {
         useAccessibilityStore.setState({ reducedMotion: e.matches })
+        applyReducedMotionClass(e.matches)
       }
     }
     if (typeof mq.addEventListener === 'function') {

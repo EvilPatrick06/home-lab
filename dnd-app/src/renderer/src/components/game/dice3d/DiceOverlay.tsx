@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { useAccessibilityStore } from '../../../stores/use-accessibility-store'
+import { useReducedMotion } from '../../../hooks/use-reduced-motion'
 import DiceRenderer, { type DiceRollRequest } from './DiceRenderer'
 import type { DiceColors, DieType } from './dice-meshes'
 import { DEFAULT_DICE_COLORS } from './dice-meshes'
@@ -98,6 +98,13 @@ export default function DiceOverlay(): JSX.Element {
   const dismissTimeoutsRef = useRef<Array<ReturnType<typeof setTimeout>>>([])
   useEffect(() => () => dismissTimeoutsRef.current.forEach(clearTimeout), [])
 
+  // Phase 22a — reactive reduced-motion (store flag OR OS pref). The dice event
+  // handler is registered in a useEffect (not React-reactive), so mirror the
+  // value into a ref it can read.
+  const reducedMotion = useReducedMotion()
+  const reducedMotionRef = useRef(reducedMotion)
+  reducedMotionRef.current = reducedMotion
+
   useEffect(() => {
     const el = containerRef.current
     if (!el) return
@@ -158,7 +165,7 @@ export default function DiceOverlay(): JSX.Element {
       // can't reach, so we read the store directly here and skip the
       // 3D path entirely — emit the tray entry immediately so the
       // result still shows up in the rolling history.
-      if (useAccessibilityStore.getState().reducedMotion) {
+      if (reducedMotionRef.current) {
         emitTrayEntry({
           id: `tray-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
           formula: event.formula,

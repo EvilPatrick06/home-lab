@@ -112,3 +112,15 @@ body {
     scroll-behavior: auto;
   }
 }
+
+/* Phase 22a — in-app reduced-motion toggle. The accessibility store adds
+   `.reduce-motion` to <html> when the setting is on (independent of the OS
+   media query above), so users can opt in without changing OS settings. */
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
