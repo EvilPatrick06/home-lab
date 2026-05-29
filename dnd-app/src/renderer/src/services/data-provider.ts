@@ -1162,6 +1162,14 @@ export async function preloadAllData(): Promise<void> {
     load5eAmbientTracks(),
     load5eLanguageD12Table(),
     load5eRarityOptions(),
+    // Phase 17c (LOG-14/15) — warm the combat-critical data at boot so the first combat of a
+    // session never sees empty defaults (conditions, effects, weapon mastery, XP thresholds) and
+    // half/third casters get their spell-slot tables before the first level-up read.
+    load5eConditions(),
+    load5eEffectDefinitions(),
+    load5eWeaponMastery(),
+    load5eXpThresholds(),
+    load5eSpellSlots(),
     // Module-level cache loaders (includes homebrew/plugin data)
     loadClassResourceData(),
     loadModerationData(),
