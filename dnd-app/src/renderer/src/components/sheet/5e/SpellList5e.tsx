@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { memo, useState } from 'react'
 import type { SpellEntry } from '../../../types/character-common'
 
 function parseComponents(comp?: string): { V: boolean; S: boolean; M: boolean; desc?: string } {
@@ -27,7 +27,9 @@ interface SpellRowProps {
   concentratingSpell?: string
 }
 
-function SpellRow({
+// Phase 23e — memoized so unrelated row edits (e.g. one HP change elsewhere)
+// don't re-render every spell row.
+const SpellRow = memo(function SpellRow({
   spell,
   readonly,
   preparedSpellIds,
@@ -231,7 +233,7 @@ function SpellRow({
       )}
     </div>
   )
-}
+})
 
 function ordinal(n: number): string {
   if (n === 1) return 'st'

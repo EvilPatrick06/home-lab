@@ -192,5 +192,13 @@ flowchart LR
 - `grep -rn "remoteCharacters" src/renderer/src/` returns zero after 23c.
 
 ## Completed
-(none — verification on 2026-05-19 against current code shows every sub-phase still NOT DONE or PARTIAL; details below for the PARTIAL case)
+
+> **PHASE 23 PARTIAL — 2026-05-29 (overnight autonomous pass; safe/verifiable subset done, feature/sync-heavy items logged & deferred per the "log confusion and move on" directive).** 4-gate green (lint 0, tsc web+node 0, vitest 6503/6503).
+> - **23h DONE** — per-tool 🎲 roll buttons (1d20 + PROF + governing-ability mod) broadcast via the dice service.
+> - **23m DONE (partial)** — equipment weight now × quantity (was summing per-unit, ignoring stacks); test updated. Container `contents[]` recursion deferred — `EquipmentItem` has no contents field.
+> - **23e DONE (partial)** — `SpellRow` wrapped in `React.memo` (adds to the 8 files already memoized). Section-component `useMemo` sweep still pending.
+> - **23f DEFERRED** — 3 competing attunement sources; the card toggle writes the legacy array, not the canonical `state.magicItemAttuned` the effective-character layer reads. Touches persisted data + legacy↔refs migration; needs app verification. Logged to ISSUES-LOG-DNDAPP.
+> - **DEFERRED (need running-app / two-tab / perf verification or are large feature builds):** 23a virtualization, 23b spell search/filter, 23c remove `remoteCharacters` + unify update flow (multiplayer, ~8 files), 23d conflict store+banner, 23g optimistic save+rollback, 23i editor-hook standardization, 23j quick-actions+damage helper, 23k consumable/scroll tracking, 23l initiative+per-hit-die, 23n condition sync message. Live for a focused follow-up with a running app.
+
+### Pre-existing notes
 - 23e — PARTIAL — `useMemo`/`memo` present in 8 files (`CombatStatsBar5e`, `FeatureCard5e`, `HitPointsBar5e`, `MagicItemCard5e`, `MulticlassAdvisor`, `SpellPrepOptimizer`, `SpellSlotGrid5e`, `WeaponList5e`); most other section components recompute on every render. Still NEEDED for `SkillsSection5e`, `SavingThrowsSection5e`, `OffenseSection5e`, `DefenseSection5e`, `EquipmentSection5e`, `SpellList5e` rows.
