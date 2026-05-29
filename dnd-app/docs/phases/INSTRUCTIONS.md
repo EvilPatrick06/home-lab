@@ -134,6 +134,8 @@ Stopping or handing back the turn when the work is merely large/hard/long/manual
 
 **Do not mark anything `COMPLETE`/`DONE` and then end the turn as if handing off.** Completing a sub-phase means: commit, push, then *immediately* start the next sub-phase/phase in the same turn. The only acceptable ways a turn ends are (a) a rule-9 STOP-and-ask (which surfaces to the user), or (b) every plan in the folder is shipped and removed and the rule-14 end-of-run summary is written. A "completed, here's a summary, want me to continue?" ending is a rule-10 violation.
 
+**NO mid-run status reports / progress summaries / "here's what I did, continuing next" messages — they END THE TURN and waste the user's time (reaffirmed 2026-05-29, user was angry about this).** The turn does NOT end after a commit. After `git push`, the very next action is the next sub-phase's first edit — not a prose recap, not a "current state" list, not a "remaining work" list, not framing the next step to the user. The ONLY narration allowed mid-run is the rule-21 single-line checkpoint (≤1 line, every ~5 sub-phases) and that line is IMMEDIATELY followed by more tool calls in the same turn. "Length of the turn," "this has been a lot," "natural turn boundary," "the user is owed visibility," and "needs an eventual app smoke-test" are NOT reasons to stop or summarize — keep emitting tool calls until rule-9 fires or the folder is empty. If you catch yourself writing more than one sentence of prose that isn't a rule-9 question or the rule-14 final summary, delete it and make the next edit instead.
+
 
 ### 11. Always work on master
 - No feature branches.
