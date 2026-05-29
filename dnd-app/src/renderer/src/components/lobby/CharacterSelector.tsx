@@ -204,7 +204,7 @@ export default function CharacterSelector({ onSelect }: CharacterSelectorProps):
 
       {/* Create new character button */}
       <button
-        onClick={() => navigate('/characters/create', { state: { returnTo: `/lobby/${campaignId}` } })}
+        onClick={() => navigate('/characters/5e/create', { state: { returnTo: `/lobby/${campaignId}` } })}
         className="w-full p-2.5 rounded-lg border border-dashed border-gray-700 text-sm text-gray-400
                    hover:border-amber-600/50 hover:text-amber-400 transition-colors cursor-pointer
                    text-center"

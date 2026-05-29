@@ -193,7 +193,7 @@ export default function ViewCharactersPage(): JSX.Element {
             )}
           </div>
           <button
-            onClick={() => navigate('/characters/create')}
+            onClick={() => navigate('/characters/5e/create')}
             className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg
                        font-semibold text-sm transition-colors cursor-pointer"
           >
@@ -249,7 +249,7 @@ export default function ViewCharactersPage(): JSX.Element {
           <p className="mb-4">Create your first character to begin your adventure.</p>
           <div className="flex justify-center gap-3">
             <button
-              onClick={() => navigate('/characters/create')}
+              onClick={() => navigate('/characters/5e/create')}
               className="px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg
                          font-semibold transition-colors cursor-pointer"
             >

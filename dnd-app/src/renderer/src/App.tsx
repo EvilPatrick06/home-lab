@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
-import { Route, Routes } from 'react-router'
+import { Navigate, Route, Routes } from 'react-router'
 import { DiceOverlay } from './components/game/dice3d'
 import { ErrorBoundary, ShortcutsOverlay, Spinner, ToastContainer } from './components/ui'
 import ColorblindFilters from './components/ui/ColorblindFilters'
@@ -163,14 +163,9 @@ function App(): JSX.Element {
             <Routes>
               <Route path="/" element={<MainMenuPage />} />
               <Route path="/characters" element={<ViewCharactersPage />} />
-              <Route
-                path="/characters/create"
-                element={
-                  <ErrorBoundary>
-                    <CreateCharacterPage />
-                  </ErrorBoundary>
-                }
-              />
+              {/* Phase 18f — 5e is the only system; redirect the legacy generic
+                  create path to the 5e builder (bookmarks / external links). */}
+              <Route path="/characters/create" element={<Navigate to="/characters/5e/create" replace />} />
               <Route
                 path="/characters/5e/create"
                 element={
