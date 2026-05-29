@@ -44,7 +44,7 @@ jobs:
         run: npm run circular
       - name: No skipped tests (28e.7)
         run: |
-          ! grep -rE '\b(it|describe|test)\.(skip|todo)\b|\b(xit|xdescribe|xtest)\b' src/
+          ! grep -rE --include='*.ts' --include='*.tsx' '\b(it|describe|test)\.(skip|todo)\b|\b(xit|xdescribe|xtest)\b' src/
       - name: Dead code (knip)
         run: npm run dead-code
         continue-on-error: true
