@@ -899,7 +899,9 @@ function rollDamage(
  * "2d6+4" → "4d6+4", "1d8+3" → "2d8+3"
  */
 function doubleDiceInFormula(formula: string): string {
-  return formula.replace(/(\d*)d(\d+)/, (_, count, sides) => {
+  // Phase 17c (LOG-2) — `g` flag so EVERY dice group doubles on a crit, not just the first.
+  // `2d6+1d8+4` → `4d6+2d8+4` (was `4d6+1d8+4`).
+  return formula.replace(/(\d*)d(\d+)/g, (_, count, sides) => {
     const n = count ? parseInt(count, 10) : 1
     return `${n * 2}d${sides}`
   })

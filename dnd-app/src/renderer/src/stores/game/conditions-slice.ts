@@ -1,17 +1,6 @@
 import type { StateCreator } from 'zustand'
-import { publishSystemChat } from '../../events/system-chat-bridge'
 import type { EntityCondition } from '../../types/game-state'
 import type { ConditionsSliceState, GameStoreState } from './types'
-
-function addExhaustionDeathMessage(entityName: string): void {
-  publishSystemChat({
-    senderId: 'system',
-    senderName: 'System',
-    content: `${entityName} dies from Exhaustion level 6!`,
-    timestamp: Date.now(),
-    isSystem: true
-  })
-}
 
 export const createConditionsSlice: StateCreator<GameStoreState, [], [], ConditionsSliceState> = (set, get) => ({
   addCondition: (condition: EntityCondition) => {
@@ -29,17 +18,9 @@ export const createConditionsSlice: StateCreator<GameStoreState, [], [], Conditi
       return { conditions: [...filtered, condition] }
     })
 
-    // Exhaustion level 6 = death
-    if (condition.condition === 'Exhaustion' && (condition.value ?? 0) >= 6) {
-      const maps = get().maps
-      for (const map of maps) {
-        const token = map.tokens.find((t) => t.entityId === condition.entityId)
-        if (token?.currentHP && token.currentHP > 0) {
-          get().updateToken(map.id, token.id, { currentHP: 0 })
-        }
-      }
-      addExhaustionDeathMessage(condition.entityName)
-    }
+    // Phase 17c (LOG-8) — 2024 PHB removed the "exhaustion 6 = instant death" rule. Exhaustion
+    // now applies a cumulative -2-per-level penalty (handled in attack-condition-effects.ts);
+    // there is no death trigger at level 6.
   },
 
   removeCondition: (conditionId: string) => {
@@ -52,20 +33,6 @@ export const createConditionsSlice: StateCreator<GameStoreState, [], [], Conditi
     set((state) => ({
       conditions: state.conditions.map((c) => (c.id === conditionId ? { ...c, ...updates } : c))
     }))
-
-    // Check if updated condition is now Exhaustion >= 6
-    if (updates.value !== undefined) {
-      const updated = get().conditions.find((c) => c.id === conditionId)
-      if (updated && updated.condition === 'Exhaustion' && (updated.value ?? 0) >= 6) {
-        const maps = get().maps
-        for (const map of maps) {
-          const token = map.tokens.find((t) => t.entityId === updated.entityId)
-          if (token?.currentHP && token.currentHP > 0) {
-            get().updateToken(map.id, token.id, { currentHP: 0 })
-          }
-        }
-        addExhaustionDeathMessage(updated.entityName)
-      }
-    }
+    // Phase 17c (LOG-8) — no exhaustion-6 death trigger (2024 PHB; see addCondition).
   }
 })

@@ -282,13 +282,25 @@ export const createInitiativeSlice: StateCreator<GameStoreState, [], [], Initiat
     const { initiative } = get()
     if (!initiative) return
 
+    // Phase 17c (LOG-10) — track the active entry by id (like reorderInitiative), not by index.
+    // Removing an entry BEFORE the active one shifts indices, so `Math.min(currentIndex, …)` would
+    // move the active marker to the wrong creature.
+    const activeId = initiative.entries[initiative.currentIndex]?.id
+    const removedActive = activeId === entryId
     const newEntries = initiative.entries.filter((e) => e.id !== entryId)
     if (newEntries.length === 0) {
       get().endInitiative()
       return
     }
 
-    const newIndex = Math.min(initiative.currentIndex, newEntries.length - 1)
+    let newIndex: number
+    if (removedActive) {
+      // The active entry was removed — the next entry that still exists takes the turn (clamped).
+      newIndex = Math.min(initiative.currentIndex, newEntries.length - 1)
+    } else {
+      const idx = newEntries.findIndex((e) => e.id === activeId)
+      newIndex = idx >= 0 ? idx : Math.min(initiative.currentIndex, newEntries.length - 1)
+    }
     const updated = newEntries.map((e, i) => ({
       ...e,
       isActive: i === newIndex

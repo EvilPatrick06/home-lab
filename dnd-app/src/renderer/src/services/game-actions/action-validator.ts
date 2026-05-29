@@ -101,9 +101,9 @@ function validateOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: 
       const a = action as unknown as { label: string }
       const initiative = gameStore.initiative
       if (!initiative || !Array.isArray(initiative.entries)) return fail('No active initiative')
-      const found = initiative.entries.some(
-        (e) => (e as unknown as { label?: string }).label?.toLowerCase() === a.label.toLowerCase()
-      )
+      // Phase 17c (LOG-12 / TYP-4) — InitiativeEntry exposes `entityName`, not `label`; the old
+      // `{ label?: string }` cast always read undefined, so every remove was rejected as "not found".
+      const found = initiative.entries.some((e) => e.entityName?.toLowerCase() === a.label.toLowerCase())
       if (!found) return fail(`"${a.label}" not found in initiative order`)
       return ok()
     }
