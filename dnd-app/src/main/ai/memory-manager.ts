@@ -84,6 +84,25 @@ export class MemoryManager {
     await fs.writeFile(path.join(this.basePath, filename), JSON.stringify(data, null, 2), 'utf-8')
   }
 
+  // Phase 17d (NET-11) — per-file write queue. Concurrent AI DM actions used to read-modify-write
+  // the same JSON file and clobber each other (last write wins). `mutate` chains each
+  // read→modify→write on a per-filename promise so they apply sequentially.
+  private fileLocks = new Map<string, Promise<unknown>>()
+
+  private async mutate<T>(filename: string, mutator: (current: T) => T, fallback: T): Promise<void> {
+    const prev = this.fileLocks.get(filename) ?? Promise.resolve()
+    const task = prev.then(async () => {
+      const current = (await this.readJson<T>(filename)) ?? fallback
+      await this.writeJson(filename, mutator(current))
+    })
+    // Keep the chain alive even if one task throws, so later queued mutations still run.
+    this.fileLocks.set(
+      filename,
+      task.catch(() => {})
+    )
+    return task
+  }
+
   // --- World State ---
   async getWorldState(): Promise<WorldState | null> {
     return this.readJson<WorldState>('world-state.json')
@@ -117,14 +136,20 @@ export class MemoryManager {
   }
 
   async upsertNPC(npc: NPCMemory): Promise<void> {
-    const npcs = await this.getNPCs()
-    const idx = npcs.findIndex((n) => n.id === npc.id)
-    if (idx >= 0) {
-      npcs[idx] = { ...npcs[idx], ...npc, lastSeen: new Date().toISOString() }
-    } else {
-      npcs.push({ ...npc, firstEncountered: new Date().toISOString(), lastSeen: new Date().toISOString() })
-    }
-    await this.writeJson('npcs.json', npcs)
+    // Phase 17d (NET-11) — serialize read-modify-write so concurrent upserts don't clobber.
+    await this.mutate<NPCMemory[]>(
+      'npcs.json',
+      (npcs) => {
+        const idx = npcs.findIndex((n) => n.id === npc.id)
+        if (idx >= 0) {
+          npcs[idx] = { ...npcs[idx], ...npc, lastSeen: new Date().toISOString() }
+        } else {
+          npcs.push({ ...npc, firstEncountered: new Date().toISOString(), lastSeen: new Date().toISOString() })
+        }
+        return npcs
+      },
+      []
+    )
   }
 
   // --- Places ---
@@ -133,14 +158,20 @@ export class MemoryManager {
   }
 
   async upsertPlace(place: PlaceMemory): Promise<void> {
-    const places = await this.getPlaces()
-    const idx = places.findIndex((p) => p.id === place.id)
-    if (idx >= 0) {
-      places[idx] = { ...places[idx], ...place }
-    } else {
-      places.push({ ...place, firstVisited: new Date().toISOString() })
-    }
-    await this.writeJson('places.json', places)
+    // Phase 17d (NET-11) — serialize read-modify-write.
+    await this.mutate<PlaceMemory[]>(
+      'places.json',
+      (places) => {
+        const idx = places.findIndex((p) => p.id === place.id)
+        if (idx >= 0) {
+          places[idx] = { ...places[idx], ...place }
+        } else {
+          places.push({ ...place, firstVisited: new Date().toISOString() })
+        }
+        return places
+      },
+      []
+    )
   }
 
   // --- Session History ---
@@ -180,13 +211,19 @@ export class MemoryManager {
   }
 
   async addRuling(ruling: Omit<RulingsEntry, 'id' | 'timestamp'>): Promise<void> {
-    const rulings = await this.getRulings()
-    rulings.push({
-      ...ruling,
-      id: crypto.randomUUID(),
-      timestamp: new Date().toISOString()
-    })
-    await this.writeJson('rulings-log.json', rulings)
+    // Phase 17d (NET-11) — serialize read-modify-write.
+    await this.mutate<RulingsEntry[]>(
+      'rulings-log.json',
+      (rulings) => {
+        rulings.push({
+          ...ruling,
+          id: crypto.randomUUID(),
+          timestamp: new Date().toISOString()
+        })
+        return rulings
+      },
+      []
+    )
   }
 
   // --- Character Context Cache ---
@@ -210,14 +247,20 @@ export class MemoryManager {
   }
 
   async setNpcPersonality(npc: NPCPersonality): Promise<void> {
-    const personalities = await this.getNpcPersonalities()
-    const idx = personalities.findIndex((p) => p.npcId === npc.npcId)
-    if (idx >= 0) {
-      personalities[idx] = { ...personalities[idx], ...npc }
-    } else {
-      personalities.push(npc)
-    }
-    await this.writeJson('npc-personalities.json', personalities)
+    // Phase 17d (NET-11) — serialize read-modify-write.
+    await this.mutate<NPCPersonality[]>(
+      'npc-personalities.json',
+      (personalities) => {
+        const idx = personalities.findIndex((p) => p.npcId === npc.npcId)
+        if (idx >= 0) {
+          personalities[idx] = { ...personalities[idx], ...npc }
+        } else {
+          personalities.push(npc)
+        }
+        return personalities
+      },
+      []
+    )
   }
 
   async getNpcPersonality(npcId: string): Promise<NPCPersonality | undefined> {
