@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react'
 import type { HandoutSharePayload, MessageType } from '../../../network'
+import { useFloatingToolsStore } from '../../../stores/use-floating-tools-store'
 import { useGameStore } from '../../../stores/use-game-store'
 import type { Campaign } from '../../../types/campaign'
 import type { Character } from '../../../types/character'
@@ -60,6 +61,9 @@ export default function DmModals({
   setViewingHandout
 }: DmModalsProps): JSX.Element {
   const gameStore = useGameStore()
+  // Phase 16c — non-blocking floating tools (initiative, DM notes). Persisted per session.
+  const floating = useFloatingToolsStore((s) => s.floating)
+  const setFloating = useFloatingToolsStore((s) => s.setFloating)
 
   const handlePlaceMonster = effectiveIsDM
     ? (monster: MonsterStatBlock): void => {
@@ -99,8 +103,31 @@ export default function DmModals({
       {activeModal === 'dmRoller' && effectiveIsDM && <DMRollerModal onClose={close} />}
       {activeModal === 'shop' && effectiveIsDM && <DMShopModal onClose={close} />}
       {activeModal === 'timer' && effectiveIsDM && <TimerModal onClose={close} />}
-      {activeModal === 'initiative' && effectiveIsDM && <InitiativeModal onClose={close} />}
-      {activeModal === 'notes' && effectiveIsDM && <DMNotesModal onClose={close} />}
+      {/* Phase 16c — Initiative: docked when active (with a Float button) unless already floating. */}
+      {activeModal === 'initiative' && effectiveIsDM && !floating.initiative && (
+        <InitiativeModal
+          onClose={close}
+          onFloat={() => {
+            setFloating('initiative', true)
+            close()
+          }}
+        />
+      )}
+      {/* Floating instance persists across modal open/close + reloads (sessionStorage). */}
+      {effectiveIsDM && floating.initiative && (
+        <InitiativeModal floating onClose={() => setFloating('initiative', false)} />
+      )}
+
+      {activeModal === 'notes' && effectiveIsDM && !floating.notes && (
+        <DMNotesModal
+          onClose={close}
+          onFloat={() => {
+            setFloating('notes', true)
+            close()
+          }}
+        />
+      )}
+      {effectiveIsDM && floating.notes && <DMNotesModal floating onClose={() => setFloating('notes', false)} />}
 
       {activeModal === 'creatures' && (
         <CreatureModal
