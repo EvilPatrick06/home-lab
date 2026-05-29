@@ -147,3 +147,31 @@ Consolidated here from the dnd-app entries scattered across `docs/ISSUES-LOG-DND
 - **Positional audio emitters "never updated."** `updateEmitters` is called at `map-overlay-effects.ts:401`.
 - **IPC channel↔schema gap ("~100 channels vs 3 schemas").** Phase 35's `withSchema`/`withArgsSchema` sweep + the storage Zod schemas closed most of it.
 - **`Math.random` / secure-randomness dual pattern.** Phase 28a.1 sweep + forbidden-patterns lint.
+
+---
+
+## 🔗 Cross-domain & shared-docs overlap affecting dnd-app (folded in 2026-05-29)
+
+Second `/docs` pass: scanned every shared doc (`ARCHITECTURE`, `DATA-FLOW`, `BACKUP`, `SECURITY`, `SETUP`, `CONTRIBUTING`, `GLOSSARY`, `COMMANDS`, `CHANGELOG`, `LOG-INSTRUCTIONS`) and the other-domain logs (BMO + Dungeon-Scholar) for dnd-app content, misfiling, and overlap. Findings below were verified where checkable.
+
+### Verified — overlap / debt that touches dnd-app
+
+- **🟠 5e JSON shared-data sync has no CI gate (operational debt).** Five 5e JSON files are duplicated between `dnd-app/src/renderer/public/data/5e/` (source of truth) and `bmo/pi/data/5e/` (copy), kept in sync only by manually running `bmo/pi/scripts/sync-shared-5e-json.sh`. **Verified: the script exists; no `.github/workflows/*` references it.** A contributor who edits the dnd-app 5e JSON and forgets to run it leaves BMO's DM agent on stale data, silently. *Action: add a CI check (or a release step) that fails if the two trees diverge.* (`docs/DATA-FLOW.md:33–42`)
+- **🟡 `CONTRIBUTING.md` self-contradicts on file naming.** Line 113 says "kebab-case (… not `ChatPanel.tsx`)"; line 114 says "Wait — actually our codebase uses PascalCase for component files (`CharacterSheet5ePage.tsx`). Match what's there." **Verified verbatim.** Confusing for new dnd-app contributors. *Action: delete the kebab-case line; state PascalCase-components / kebab-non-components as the rule biome enforces.*
+- **🟡 Campaign/character data is not backed up by default.** dnd-app writes saves to `userData/{campaigns,characters,…}`; the only backup path is the opt-in cloud backup via the Pi (`bmoPiBaseUrl` + rclone). A laptop loss = data loss unless the user set that up. *Action: surface a one-time "set up backup?" nudge, or document the manual `userData` backup path in-app.* (`docs/BACKUP.md`)
+- **🟡 `userData` directory is keyed on `package.json` `name`.** `app.getPath('userData')` → `<appData>/dnd-vtt`. If `name` ever changes, existing installs orphan their saves. *Action: never rename `name`; if it must change, add a migration that moves the old dir.* (`docs/DATA-FLOW.md:56`)
+
+### Documented concerns (not code-verified this pass — flag for owner)
+
+- **🟠 Game-discovery registry CORS is `*` (security).** `/api/games*` on the Pi is LAN-public by design for dnd-app's LAN discovery, with wide-open CORS and only an optional `BMO_REGISTRY_API_KEY`. If the Pi is ever internet-exposed (port-forward / tunnel misconfig), active game sessions leak. The docs say "no public internet exposure by default" but don't warn about user tunnel error. (`docs/SECURITY.md:33–35`, `docs/ARCHITECTURE.md:76–79`)
+- **🟡 mDNS discovery falls back silently.** BMO URL precedence is `settings.bmoPiBaseUrl > mDNS-discovered > $BMO_PI_URL > http://bmo.local:5000`, with a 3 s mDNS timeout. On firewall-restricted/cross-subnet networks dnd-app can silently land on the hardcoded default and fail with no surfaced reason. (`docs/ARCHITECTURE.md:81–87`)
+- **🟡 BMO↔dnd-app HTTP endpoints are unversioned.** No `/api/v1/…` prefix; a breaking change to `/api/games` (or the `:5001` callback shape) would break older in-session VTT clients silently. Endpoint versioning is deferred. (`docs/ARCHITECTURE.md:208`)
+- **🟡 Discord↔VTT relay is not atomic.** DM→BMO→Discord→BMO→VTT initiative/roll relay has no transaction log or dedup; a BMO crash mid-relay can post a Discord roll that never reaches the VTT (or vice-versa). (`docs/DATA-FLOW.md:95–184`)
+- **🟢 `SETUP.md:44` `build:cross` needs `wine`** on a Linux host — accurate only for the *local* cross-compile; the actual release uses the CI matrix (separate Win/Linux runners, no wine). Minor: clarify that wine is local-only.
+
+### Verified clean / now-confirmed
+
+- **BMO logs:** no open `Domain: both` bugs; the BMO↔dnd-app integration items (`/api/dnd/load` path-jail + rate-limit, `vtt_sync.py` `:5001` callback, `BMO_API_KEY` Bearer) are all **resolved**. No dnd-app behaviour misfiled as BMO.
+- **Dungeon-Scholar logs:** no dnd-app content misfiled in them.
+- **Previously-"suspicious" resolved claims now CONFIRMED by the real releases:** the RESOLVED-ISSUES-DNDAPP entries that hedged on "Linux AppImage untested" and "release pipeline" are proven good — v2.2.0/2.2.1/2.2.2 built + published the AppImage + NSIS + all 6 assets successfully.
+- **`builder-debug.yml` no longer ships** — v2.2.2 published exactly the 6 expected assets (the `release.yml` glob fix worked).
