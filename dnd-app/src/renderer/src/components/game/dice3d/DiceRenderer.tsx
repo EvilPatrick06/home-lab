@@ -39,6 +39,24 @@ function disposeOneMaterial(m: THREE.Material): void {
   m.dispose()
 }
 
+/**
+ * Phase 17e (GUI-4) — fully tear down a die: geometry, material, material.map
+ * (the CanvasTexture from dice-textures), and its wireframe overlay, then remove
+ * both from the scene. Single chokepoint so no callsite does a bare
+ * `scene.remove(...)` that leaks the GPU resources behind it.
+ */
+function disposeDie(
+  def: { mesh: THREE.Object3D; wireframe?: THREE.Object3D | null },
+  scene?: THREE.Scene | null
+): void {
+  disposeObject3D(def.mesh)
+  scene?.remove(def.mesh)
+  if (def.wireframe) {
+    disposeObject3D(def.wireframe)
+    scene?.remove(def.wireframe)
+  }
+}
+
 // ─── Types ────────────────────────────────────────────────────
 
 export interface DiceRollRequest {
@@ -146,10 +164,7 @@ export default function DiceRenderer({
       simRef.current?.stop()
       if (physicsRef.current) destroyPhysicsWorld(physicsRef.current)
       physicsRef.current = null
-      diceDefsRef.current.forEach((def) => {
-        disposeObject3D(def.mesh)
-        if (def.wireframe) disposeObject3D(def.wireframe)
-      })
+      diceDefsRef.current.forEach((def) => disposeDie(def))
       diceDefsRef.current.clear()
       const f = floorRef.current
       if (f) {
@@ -180,14 +195,7 @@ export default function DiceRenderer({
     const scene = sceneRef.current
     if (!scene) return
 
-    diceDefsRef.current.forEach((def) => {
-      disposeObject3D(def.mesh)
-      scene.remove(def.mesh)
-      if (def.wireframe) {
-        disposeObject3D(def.wireframe)
-        scene.remove(def.wireframe)
-      }
-    })
+    diceDefsRef.current.forEach((def) => disposeDie(def, scene))
     diceDefsRef.current.clear()
 
     if (physicsRef.current) {

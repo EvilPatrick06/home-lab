@@ -107,13 +107,19 @@ function geometryToConvexPolyhedron(geometry: THREE.BufferGeometry): CANNON.Conv
 // ─── Predefined polyhedron shapes ────────────────────────────
 
 function createTetrahedronShape(radius: number): CANNON.ConvexPolyhedron {
+  // Phase 17e (GUI-4) — the THREE geometry is a throwaway used only to extract
+  // vertices; dispose it so its GPU buffers don't leak each time a die is built.
   const geo = new THREE.TetrahedronGeometry(radius)
-  return geometryToConvexPolyhedron(geo)
+  const shape = geometryToConvexPolyhedron(geo)
+  geo.dispose()
+  return shape
 }
 
 function createOctahedronShape(radius: number): CANNON.ConvexPolyhedron {
   const geo = new THREE.OctahedronGeometry(radius)
-  return geometryToConvexPolyhedron(geo)
+  const shape = geometryToConvexPolyhedron(geo)
+  geo.dispose()
+  return shape
 }
 
 function createD10Shape(radius: number): CANNON.ConvexPolyhedron {
@@ -159,12 +165,16 @@ function createD10Shape(radius: number): CANNON.ConvexPolyhedron {
 
 function createDodecahedronShape(radius: number): CANNON.ConvexPolyhedron {
   const geo = new THREE.DodecahedronGeometry(radius)
-  return geometryToConvexPolyhedron(geo)
+  const shape = geometryToConvexPolyhedron(geo)
+  geo.dispose()
+  return shape
 }
 
 function createIcosahedronShape(radius: number): CANNON.ConvexPolyhedron {
   const geo = new THREE.IcosahedronGeometry(radius)
-  return geometryToConvexPolyhedron(geo)
+  const shape = geometryToConvexPolyhedron(geo)
+  geo.dispose()
+  return shape
 }
 
 // ─── Shape factories for each die type ────────────────────────
