@@ -29,7 +29,10 @@ Work through the sub-phases in their stated order. For each sub-phase:
 
 If a step turns out to be wrong or missing context, see rule 9.
 
-### 5. 4-gate test + commit at the END of each PHASE (not sub-phase) — per user 2026-05-19
+### 5. 4-gate test + commit at the END of each PHASE (not sub-phase) — per user 2026-05-19, reaffirmed 2026-05-29
+
+> **The full test suite runs ONCE, at the end of the phase — never per sub-phase (reaffirmed by the user 2026-05-29).** During sub-phase work, the only checks you run are CHEAP, TARGETED ones: `npx tsc --noEmit -p tsconfig.web.json` (or node) on the changed surface, and at most the single new/affected unit-test file (`npx vitest run path/to/that.test.ts`). The full `npm run lint` + both `tsc` configs + the **whole** `npx vitest run` (~70s, 6000+ tests) is reserved for the end of the phase. Running the full vitest sweep after every sub-phase is the exact anti-pattern this rule forbids — it wastes minutes per sub-phase. Accumulate sub-phase edits, then do ONE full 4-gate + ONE commit per phase.
+
 After the LAST sub-phase of a phase finishes, before cutting the release in rule 6:
 
 ```bash
