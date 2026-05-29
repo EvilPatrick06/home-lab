@@ -23,6 +23,13 @@ vi.mock('node:fs', () => ({
   renameSync: vi.fn()
 }))
 
+// Phase 17d (NET-10) — configure now writes asynchronously via fs/promises.
+vi.mock('node:fs/promises', () => ({
+  writeFile: vi.fn(async () => undefined),
+  rename: vi.fn(async () => undefined),
+  unlink: vi.fn(async () => undefined)
+}))
+
 vi.mock('./chunk-builder', () => ({
   buildChunkIndex: vi.fn(() => ({ chunks: [{ id: '1' }, { id: '2' }] })),
   loadChunkIndex: vi.fn(() => null)
@@ -172,7 +179,8 @@ vi.mock('./web-search', () => ({
 
 // ── Imports (after mocks) ──
 
-import { existsSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
+import { rename, writeFile } from 'node:fs/promises'
 import {
   cancelChat,
   checkProviders,
@@ -212,25 +220,25 @@ describe('ai-service', () => {
   // ── Config Management ──
 
   describe('configure', () => {
-    it('saves config to disk and sets ollama URL', () => {
-      configure({ provider: 'ollama', model: 'mistral', ollamaUrl: 'http://gpu-server:11434' })
+    it('saves config to disk and sets ollama URL', async () => {
+      await configure({ provider: 'ollama', model: 'mistral', ollamaUrl: 'http://gpu-server:11434' })
 
       expect(setOllamaUrl).toHaveBeenCalledWith('http://gpu-server:11434')
-      expect(writeFileSync).toHaveBeenCalledWith(
+      expect(writeFile).toHaveBeenCalledWith(
         expect.stringMatching(/ai-config\.json\..*\.tmp$/),
         expect.stringContaining('mistral'),
         'utf-8'
       )
-      expect(renameSync).toHaveBeenCalledWith(
+      expect(rename).toHaveBeenCalledWith(
         expect.stringMatching(/ai-config\.json\..*\.tmp$/),
         expect.stringMatching(/ai-config\.json$/)
       )
     })
 
-    it('defaults model to llama3.1 if not provided', () => {
-      configure({ provider: 'ollama', model: '', ollamaUrl: '' })
+    it('defaults model to llama3.1 if not provided', async () => {
+      await configure({ provider: 'ollama', model: '', ollamaUrl: '' })
 
-      const writtenJson = (writeFileSync as ReturnType<typeof vi.fn>).mock.calls[0][1]
+      const writtenJson = (writeFile as ReturnType<typeof vi.fn>).mock.calls[0][1]
       const parsed = JSON.parse(writtenJson)
       expect(parsed.model).toBe('llama3.1')
     })

@@ -5,7 +5,7 @@ import { IPC_CHANNELS } from '../../shared/ipc-channels'
 import { sendNarrationToDiscord } from '../discord-integration'
 import { logToFile } from '../log'
 import { saveConversation } from '../storage/ai-conversation-storage'
-import { atomicWriteFileSync } from '../storage/atomic-write'
+import { atomicWriteFile } from '../storage/atomic-write'
 import { decryptOptional, encryptOptional } from '../storage/safe-secret-storage'
 import { parseRuleCitations, stripRuleCitations } from './ai-response-parser'
 import type { PendingWebSearchApproval, StreamHandlerDeps } from './ai-stream-handler'
@@ -223,7 +223,7 @@ function getConfigPath(): string {
 
 // ── Config Management ──
 
-export function configure(config: AiConfig): void {
+export async function configure(config: AiConfig): Promise<void> {
   currentConfig = {
     provider: config.provider ?? 'ollama',
     model: config.model || config.ollamaModel || 'llama3.1',
@@ -244,7 +244,8 @@ export function configure(config: AiConfig): void {
   })
 
   const configPath = getConfigPath()
-  atomicWriteFileSync(
+  // Phase 17d (NET-10) — async atomic write so configure no longer blocks the main process.
+  await atomicWriteFile(
     configPath,
     JSON.stringify({
       provider: currentConfig.provider,

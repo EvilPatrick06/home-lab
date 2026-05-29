@@ -109,7 +109,8 @@ export function registerAiHandlers(): void {
       return { success: false, error: `Invalid config: ${parsed.error.issues[0]?.message}` }
     }
     // Phase 17f (TYP-3) — use the Zod-narrowed value, not the raw input.
-    aiService.configure(parsed.data)
+    // Phase 17d (NET-10) — configure is now async (non-blocking atomic write).
+    await aiService.configure(parsed.data)
     return { success: true }
   })
 
