@@ -219,9 +219,7 @@ export default function DMAudioPanel(): JSX.Element {
     <div className="flex flex-col gap-2">
       {/* Ambient tracks grid */}
       <div>
-        <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1 block">
-          Ambient Music
-        </span>
+        <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1 block">Ambient Music</span>
         <div className="grid grid-cols-3 gap-1">
           {AMBIENT_TRACKS.map((track) => {
             const isActive = activeAmbient === track.id

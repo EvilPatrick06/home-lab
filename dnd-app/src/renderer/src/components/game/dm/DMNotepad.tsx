@@ -292,9 +292,7 @@ function SessionGroup({
         onClick={() => setCollapsed(!collapsed)}
         className="flex items-center gap-2 w-full px-2 py-1.5 bg-gray-800/40 hover:bg-gray-800/60 cursor-pointer text-left"
       >
-        <span className={`text-xs text-gray-500 transition-transform ${collapsed ? '' : 'rotate-90'}`}>
-          &#9654;
-        </span>
+        <span className={`text-xs text-gray-500 transition-transform ${collapsed ? '' : 'rotate-90'}`}>&#9654;</span>
         <span className="text-[11px] font-medium text-amber-300">{label}</span>
         <span className="text-[9px] text-gray-500 ml-auto">{entries.length} notes</span>
         <button

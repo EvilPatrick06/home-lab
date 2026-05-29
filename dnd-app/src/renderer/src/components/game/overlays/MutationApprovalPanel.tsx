@@ -88,9 +88,7 @@ function CountdownTimer({ timestamp }: { timestamp: number }): JSX.Element {
     return () => clearInterval(interval)
   }, [timestamp])
 
-  return (
-    <span className={`text-xs font-mono ${remaining <= 10 ? 'text-red-400' : 'text-gray-500'}`}>{remaining}s</span>
-  )
+  return <span className={`text-xs font-mono ${remaining <= 10 ? 'text-red-400' : 'text-gray-500'}`}>{remaining}s</span>
 }
 
 function MutationCard({

@@ -129,10 +129,7 @@ export default function MapManager({ campaign, saveCampaign }: MapManagerProps):
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-lg font-semibold">Maps ({campaign.maps.length})</h3>
           <div className="flex items-center gap-2">
-            <button
-              onClick={handleImportMaps}
-              className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer"
-            >
+            <button onClick={handleImportMaps} className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer">
               Import
             </button>
             {campaign.maps.length > 0 && (

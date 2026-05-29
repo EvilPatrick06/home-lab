@@ -201,9 +201,7 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
 
             {/* Offered gold */}
             <div className="flex items-center gap-2">
-              <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
-                Gold to Offer (gp)
-              </label>
+              <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Gold to Offer (gp)</label>
               <input
                 type="number"
                 min={0}

@@ -26,8 +26,7 @@ export function PrimalOrderSelector5e({
   return (
     <div className={`rounded ${isIncomplete ? 'ring-1 ring-amber-600/50 p-1 -m-1' : ''}`}>
       <div className="text-sm text-gray-400 mb-2 flex items-center gap-2">
-        {slot.label}:
-        {isIncomplete && <span className="text-xs text-amber-500 font-semibold uppercase">Required</span>}
+        {slot.label}:{isIncomplete && <span className="text-xs text-amber-500 font-semibold uppercase">Required</span>}
       </div>
       <div className="space-y-1">
         {options.map((opt) => (
@@ -77,8 +76,7 @@ export function DivineOrderSelector5e({
   return (
     <div className={`rounded ${isIncomplete ? 'ring-1 ring-amber-600/50 p-1 -m-1' : ''}`}>
       <div className="text-sm text-gray-400 mb-2 flex items-center gap-2">
-        {slot.label}:
-        {isIncomplete && <span className="text-xs text-amber-500 font-semibold uppercase">Required</span>}
+        {slot.label}:{isIncomplete && <span className="text-xs text-amber-500 font-semibold uppercase">Required</span>}
       </div>
       <div className="space-y-1">
         {options.map((opt) => (

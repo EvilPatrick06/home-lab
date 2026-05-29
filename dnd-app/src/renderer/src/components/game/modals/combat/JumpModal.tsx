@@ -89,9 +89,7 @@ export default function JumpModal({
         )}
       </div>
 
-      <div className="text-xs text-gray-500 mb-3">
-        Landing in difficult terrain: DC 10 Acrobatics or fall Prone.
-      </div>
+      <div className="text-xs text-gray-500 mb-3">Landing in difficult terrain: DC 10 Acrobatics or fall Prone.</div>
 
       <button
         onClick={() => {

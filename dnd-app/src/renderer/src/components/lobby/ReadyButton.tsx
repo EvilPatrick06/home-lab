@@ -133,9 +133,7 @@ export default function ReadyButton(): JSX.Element {
             )}
           </button>
           {!aiReady && sceneStatus === 'preparing' && !overrideAiWait && (
-            <p className="text-xs text-amber-400/80 text-center animate-pulse">
-              Waiting for AI DM to prepare scene...
-            </p>
+            <p className="text-xs text-amber-400/80 text-center animate-pulse">Waiting for AI DM to prepare scene...</p>
           )}
         </div>
       </div>

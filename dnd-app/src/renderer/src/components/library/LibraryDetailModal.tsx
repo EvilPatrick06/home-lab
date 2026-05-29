@@ -257,9 +257,7 @@ export default function LibraryDetailModal({
               <div className="flex items-center gap-2 mt-0.5">
                 <span className="text-xs text-gray-500">{catDef?.label ?? item.category}</span>
                 {item.source === 'homebrew' && (
-                  <span className="text-xs bg-purple-600/30 text-purple-300 px-1.5 py-0.5 rounded-full">
-                    Homebrew
-                  </span>
+                  <span className="text-xs bg-purple-600/30 text-purple-300 px-1.5 py-0.5 rounded-full">Homebrew</span>
                 )}
                 {item.source === 'official' && (
                   <span className="text-xs bg-blue-600/30 text-blue-300 px-1.5 py-0.5 rounded-full">Official</span>

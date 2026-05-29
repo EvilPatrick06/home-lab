@@ -273,9 +273,7 @@ function MonsterStatBlockView({ monster, compact = false }: MonsterStatBlockView
                   </span>
                 )}
                 {conditions.length > 0 && (
-                  <span className="text-red-400/80 text-xs">
-                    [{conditions.map((c) => c.condition).join(', ')}]{' '}
-                  </span>
+                  <span className="text-red-400/80 text-xs">[{conditions.map((c) => c.condition).join(', ')}] </span>
                 )}
                 <span className="text-gray-300">{renderInlineMarkdown(action.description)}</span>
               </div>

@@ -1634,9 +1634,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
                       >
                         <span className="truncate">{entry.title}</span>
                         {entry.page > 0 && (
-                          <span className="text-xs text-gray-500 shrink-0">
-                            {entry.crossRef ? '↗' : entry.page}
-                          </span>
+                          <span className="text-xs text-gray-500 shrink-0">{entry.crossRef ? '↗' : entry.page}</span>
                         )}
                       </button>
                     </div>

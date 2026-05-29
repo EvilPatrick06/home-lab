@@ -121,14 +121,10 @@ export function InstalledModelList({
                       </span>
                     )}
                     {model.family && (
-                      <span className="text-xs text-gray-500 bg-gray-700/60 px-1.5 py-0.5 rounded">
-                        {model.family}
-                      </span>
+                      <span className="text-xs text-gray-500 bg-gray-700/60 px-1.5 py-0.5 rounded">{model.family}</span>
                     )}
                     {tierStyle && (
-                      <span className={`text-xs px-1.5 py-0.5 rounded ${tierStyle.className}`}>
-                        {tierStyle.label}
-                      </span>
+                      <span className={`text-xs px-1.5 py-0.5 rounded ${tierStyle.className}`}>{tierStyle.label}</span>
                     )}
                   </div>
                   <div className="text-xs text-gray-500 mt-0.5">
@@ -228,9 +224,7 @@ export function AvailableModelList({ models, activeOp, isBusy, vram, onPull }: A
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-sm text-gray-300 font-medium">{model.name}</span>
                   {tierStyle && (
-                    <span className={`text-xs px-1.5 py-0.5 rounded ${tierStyle.className}`}>
-                      {tierStyle.label}
-                    </span>
+                    <span className={`text-xs px-1.5 py-0.5 rounded ${tierStyle.className}`}>{tierStyle.label}</span>
                   )}
                 </div>
                 <div className="text-xs text-gray-500 mt-0.5">

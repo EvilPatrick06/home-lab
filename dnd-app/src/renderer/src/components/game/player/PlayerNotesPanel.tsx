@@ -143,9 +143,7 @@ export default function PlayerNotesPanel({ characterId, onClose }: PlayerNotesPa
         <div className="flex items-center justify-between mb-3 shrink-0">
           <div>
             <h3 className="text-sm font-semibold text-gray-200">My Notes</h3>
-            <p className="text-xs text-gray-500">
-              Private — stored locally, never synced to the DM or other players.
-            </p>
+            <p className="text-xs text-gray-500">Private — stored locally, never synced to the DM or other players.</p>
           </div>
           <button
             type="button"

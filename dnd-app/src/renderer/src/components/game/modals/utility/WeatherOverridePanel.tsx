@@ -254,9 +254,7 @@ export default function WeatherOverridePanel(): JSX.Element {
 
           {/* Random Weather Generator */}
           <div className="border-t border-gray-700 pt-2">
-            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">
-              Generate Random Weather
-            </label>
+            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Generate Random Weather</label>
             <div className="flex items-center gap-2">
               <select
                 value={randomClimate}

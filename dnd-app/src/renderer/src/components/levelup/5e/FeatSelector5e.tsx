@@ -38,8 +38,7 @@ export function EpicBoonSelector5e({
   return (
     <div className={`rounded ${isIncomplete ? 'ring-1 ring-amber-600/50 p-1 -m-1' : ''}`}>
       <div className="text-sm text-gray-400 mb-1 flex items-center gap-2">
-        {slot.label}:
-        {isIncomplete && <span className="text-xs text-amber-500 font-semibold uppercase">Required</span>}
+        {slot.label}:{isIncomplete && <span className="text-xs text-amber-500 font-semibold uppercase">Required</span>}
       </div>
       {selection ? (
         <div className="bg-purple-900/20 border border-purple-700/50 rounded-lg p-2">
@@ -312,8 +311,7 @@ export function FightingStyleSelector5e({
   return (
     <div className={`rounded ${isIncomplete ? 'ring-1 ring-amber-600/50 p-1 -m-1' : ''}`}>
       <div className="text-sm text-gray-400 mb-1 flex items-center gap-2">
-        {slot.label}:
-        {isIncomplete && <span className="text-xs text-amber-500 font-semibold uppercase">Required</span>}
+        {slot.label}:{isIncomplete && <span className="text-xs text-amber-500 font-semibold uppercase">Required</span>}
       </div>
       {selection ? (
         <div className="bg-blue-900/20 border border-blue-700/50 rounded-lg p-2">

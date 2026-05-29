@@ -245,9 +245,7 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
                         {mi.charges?.current}/{mi.charges?.max}
                       </span>
                     </div>
-                    {mi.description && (
-                      <div className="text-xs text-gray-500 mt-0.5 truncate">{mi.description}</div>
-                    )}
+                    {mi.description && <div className="text-xs text-gray-500 mt-0.5 truncate">{mi.description}</div>}
                     <button
                       onClick={() => {
                         if (!mi.charges || mi.charges.current <= 0) return

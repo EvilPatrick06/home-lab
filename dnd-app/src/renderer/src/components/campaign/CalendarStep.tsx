@@ -272,9 +272,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                 <option value="contextual">Contextual (AI decides)</option>
                 <option value="never">Never show exact time (narrative only)</option>
               </select>
-              <p className="text-xs text-gray-500 mt-1">
-                Controls when the AI DM includes numeric time in responses.
-              </p>
+              <p className="text-xs text-gray-500 mt-1">Controls when the AI DM includes numeric time in responses.</p>
             </div>
 
             {/* Preview */}

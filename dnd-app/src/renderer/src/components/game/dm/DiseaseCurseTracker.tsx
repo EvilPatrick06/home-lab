@@ -123,9 +123,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
       <section>
         <h3 className="text-sm font-semibold text-amber-400 flex items-center gap-2">
           Active Diseases
-          <span className="px-1.5 py-0.5 text-xs rounded bg-gray-700/60 text-gray-300">
-            {activeDiseases.length}
-          </span>
+          <span className="px-1.5 py-0.5 text-xs rounded bg-gray-700/60 text-gray-300">{activeDiseases.length}</span>
         </h3>
 
         <div className="space-y-2 mt-1.5">

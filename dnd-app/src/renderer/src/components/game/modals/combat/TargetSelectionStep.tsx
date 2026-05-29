@@ -93,9 +93,7 @@ export function TargetSelectionStep({
                   )}
                 </div>
                 {rangeStatus && <div className={`text-xs mt-0.5 ${rangeColor}`}>{rangeStatus}</div>}
-                {grappleShoveBlocked && (
-                  <div className="text-xs mt-0.5 text-red-400">Too large to {unarmedMode}</div>
-                )}
+                {grappleShoveBlocked && <div className="text-xs mt-0.5 text-red-400">Too large to {unarmedMode}</div>}
                 {charmedBlocked && <div className="text-xs mt-0.5 text-pink-400">Charmed - cannot attack</div>}
               </button>
             )

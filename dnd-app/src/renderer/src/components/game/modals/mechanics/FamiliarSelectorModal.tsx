@@ -99,9 +99,7 @@ export default function FamiliarSelectorModal({
             </div>
             {hasChainPact && (
               <>
-                <div className="text-xs text-purple-400 uppercase tracking-wider mt-3 mb-2 px-1">
-                  Pact of the Chain
-                </div>
+                <div className="text-xs text-purple-400 uppercase tracking-wider mt-3 mb-2 px-1">Pact of the Chain</div>
                 <div className="grid grid-cols-2 gap-1.5">
                   {forms
                     .filter((f) => f.tags?.includes('chain-pact'))

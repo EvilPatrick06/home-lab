@@ -211,9 +211,7 @@ export default function CreateMapModal({ onCreateMap, onClose }: CreateMapModalP
             <div className="rounded-lg border border-gray-700 overflow-hidden">
               <canvas ref={canvasRef} width={320} height={200} className="w-full h-auto block" />
             </div>
-            <p className="text-xs text-gray-500 mt-1">
-              Adjust cell size below to align the grid with your map image
-            </p>
+            <p className="text-xs text-gray-500 mt-1">Adjust cell size below to align the grid with your map image</p>
           </div>
 
           {/* Width and Height */}

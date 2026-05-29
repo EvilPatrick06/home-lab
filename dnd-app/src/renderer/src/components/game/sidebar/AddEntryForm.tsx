@@ -105,9 +105,7 @@ export default function AddEntryForm({
         {/* Quick Add from Board Tokens (not for places) */}
         {!isPlaces && availableBoardTokens.length > 0 && (
           <div className="space-y-1">
-            <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
-              Quick Add from Board
-            </span>
+            <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Quick Add from Board</span>
             <div className="max-h-24 overflow-y-auto space-y-0.5">
               {availableBoardTokens.map((token) => (
                 <button
@@ -284,10 +282,7 @@ export default function AddEntryForm({
           >
             Add
           </button>
-          <button
-            onClick={onCancel}
-            className="px-2 py-0.5 text-xs text-gray-400 hover:text-gray-200 cursor-pointer"
-          >
+          <button onClick={onCancel} className="px-2 py-0.5 text-xs text-gray-400 hover:text-gray-200 cursor-pointer">
             Cancel
           </button>
         </div>

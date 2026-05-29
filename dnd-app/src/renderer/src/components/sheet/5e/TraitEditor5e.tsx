@@ -227,9 +227,7 @@ export default function TraitEditor5e({
                     )}
                   </span>
                   {isLangExpanded && desc && (
-                    <div className="text-xs text-gray-500 bg-gray-800/50 rounded px-2 py-1 mt-1 max-w-xs">
-                      {desc}
-                    </div>
+                    <div className="text-xs text-gray-500 bg-gray-800/50 rounded px-2 py-1 mt-1 max-w-xs">{desc}</div>
                   )}
                 </div>
               )
