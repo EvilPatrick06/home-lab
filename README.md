@@ -53,8 +53,8 @@ Full protocol spec: [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md)
 
 ## Current state (2026-05-29)
 
-- **`dnd-app`** at **v2.2.3**. Multiplayer (Phase 29), Token System (Phase 13), and DM View (Phase 14) shipped. 672 test files. Ships as Windows NSIS installer + Linux AppImage. Open backlog + deferred work: `dnd-app/docs/phases/REVIEW-REPORT-2026-05-29.md` (the phase-plan files were consolidated into that single report).
-- **`bmo`** runs 5 systemd services live on the Pi: `bmo`, `bmo-fan`, `bmo-kiosk`, `bmo-dm-bot`, `bmo-social-bot`. 22 pytest files. Game-discovery registry at `/api/games*` advertises via avahi for Windows-zero-config.
+- **`dnd-app`** at **v2.2.4**. Multiplayer (Phase 29), Token System (Phase 13), and DM View (Phase 14) shipped. 674 test files. Ships as Windows NSIS installer + Linux AppImage. Open backlog + deferred work: `dnd-app/docs/phases/REVIEW-REPORT-2026-05-29.md` (the phase-plan files were consolidated into that single report).
+- **`bmo`** runs 5 systemd services live on the Pi: `bmo`, `bmo-fan`, `bmo-kiosk`, `bmo-dm-bot`, `bmo-social-bot`. 23 pytest files. Game-discovery registry at `/api/games*` advertises via avahi for Windows-zero-config.
 - **`dungeon-scholar`** at Phase 27 (audit follow-ups). Deployed via GitHub Pages workflow.
 
 ## Quick start

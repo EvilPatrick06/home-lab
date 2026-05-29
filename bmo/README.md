@@ -211,7 +211,7 @@ bmo/
 
 ```bash
 cd pi
-./venv/bin/python -m pytest                                # full suite (22 test files)
+./venv/bin/python -m pytest                                # full suite (23 test files)
 ./venv/bin/python -m pytest tests/test_game_registry.py    # single file
 ./venv/bin/python -m pytest -m "not live"                  # skip tests hitting real APIs
 ./venv/bin/python -m pytest -m "not hardware"              # skip Pi-hardware tests
