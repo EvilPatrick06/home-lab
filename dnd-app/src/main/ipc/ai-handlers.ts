@@ -108,7 +108,8 @@ export function registerAiHandlers(): void {
     if (!parsed.success) {
       return { success: false, error: `Invalid config: ${parsed.error.issues[0]?.message}` }
     }
-    aiService.configure(config)
+    // Phase 17f (TYP-3) — use the Zod-narrowed value, not the raw input.
+    aiService.configure(parsed.data)
     return { success: true }
   })
 
@@ -192,7 +193,8 @@ export function registerAiHandlers(): void {
     if (!win) return { success: false, error: 'No window found' }
 
     const streamId = aiService.startChat(
-      request,
+      // Phase 17f (TYP-3/NET-19) — forward the Zod-narrowed request, not the raw input.
+      parsed.data,
       // onChunk
       (text) => {
         sendToWindow(win, IPC_CHANNELS.AI_STREAM_CHUNK, { streamId, text })
@@ -269,13 +271,8 @@ export function registerAiHandlers(): void {
     return aiService.getSceneStatus(campaignId)
   })
 
-  ipcMain.handle(IPC_CHANNELS.AI_CONNECTION_STATUS, async () => {
-    return {
-      status: aiService.getConnectionStatus(),
-      consecutiveFailures: aiService.getConsecutiveFailures(),
-      webSearchAvailable: getSearchEngine() !== null
-    }
-  })
+  // Phase 17d (NET-17) — AI_CONNECTION_STATUS handler removed: no preload/renderer caller exists.
+  // Re-add with a preload entry if a consumer is ever introduced.
 
   ipcMain.handle(IPC_CHANNELS.AI_TOKEN_BUDGET, async () => {
     return getLastTokenBreakdown()
