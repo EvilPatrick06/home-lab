@@ -32,6 +32,9 @@ export default function OllamaManagement(): JSX.Element {
   const [customModelName, setCustomModelName] = useState('')
   const [loading, setLoading] = useState(true)
   const [checkingUpdate, setCheckingUpdate] = useState(false)
+  // Phase 14d — in-app Ollama install (cross-platform via the 14b path). Indeterminate on
+  // Linux (install.sh has no parseable progress), percentage on Windows.
+  const [installing, setInstalling] = useState(false)
   const progressListenerSet = useRef(false)
 
   const refreshModels = useCallback(async () => {
@@ -90,6 +93,28 @@ export default function OllamaManagement(): JSX.Element {
       // Listener cleanup handled by removeAllAiListeners when page unmounts
     }
   }, [])
+
+  const handleInstall = useCallback(async () => {
+    setInstalling(true)
+    try {
+      const dl = await window.api.ai.downloadOllama()
+      if (!dl.success || !dl.path) {
+        addToast(dl.error ?? 'Failed to download Ollama', 'error')
+        return
+      }
+      const inst = await window.api.ai.installOllama(dl.path)
+      if (!inst.success) {
+        addToast(inst.error ?? 'Failed to install Ollama', 'error')
+        return
+      }
+      addToast('Ollama installed', 'success')
+      await refreshAll()
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : 'Ollama install failed', 'error')
+    } finally {
+      setInstalling(false)
+    }
+  }, [refreshAll])
 
   const checkForUpdate = useCallback(async () => {
     setCheckingUpdate(true)
@@ -218,12 +243,22 @@ export default function OllamaManagement(): JSX.Element {
           </button>
           .
         </p>
-        <button
-          onClick={refreshAll}
-          className="text-xs text-gray-500 hover:text-gray-300 transition-colors cursor-pointer"
-        >
-          Re-check
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleInstall}
+            disabled={installing}
+            className="px-3 py-1.5 text-sm font-medium rounded bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white cursor-pointer transition-colors"
+          >
+            {installing ? 'Installing Ollama…' : 'Install Ollama'}
+          </button>
+          <button
+            onClick={refreshAll}
+            disabled={installing}
+            className="text-xs text-gray-500 hover:text-gray-300 transition-colors cursor-pointer disabled:opacity-50"
+          >
+            Re-check
+          </button>
+        </div>
       </div>
     )
   }

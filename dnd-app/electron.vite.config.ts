@@ -49,6 +49,11 @@ export default defineConfig(async () => {
       },
       plugins: [react(), tailwindcss(), suppressPublicDirWarnings(), analyze].filter(Boolean) as Plugin[],
       build: {
+        // Phase 14g (§A4) — faster prod builds + smaller package: esbuild minify (20-40× terser),
+        // no sourcemaps shipped, skip gzip-size reporting (a measurable build cost).
+        minify: 'esbuild',
+        sourcemap: false,
+        reportCompressedSize: false,
         rollupOptions: {
           output: {
             // Code-split heavy dependencies into separate chunks
@@ -65,7 +70,8 @@ export default defineConfig(async () => {
               if (id.includes('node_modules/cannon-es')) return 'vendor-physics'
               if (id.includes('node_modules/pixi.js') || id.includes('node_modules/@pixi')) return 'vendor-pixi'
               if (id.includes('node_modules/@tiptap')) return 'vendor-tiptap'
-              if (id.includes('node_modules/@anthropic-ai')) return 'vendor-anthropic'
+              // Phase 14g §6 — no vendor-anthropic rule: @anthropic-ai/sdk is main-process only
+              // (externalized), never in the renderer bundle, so that chunk rule never matched.
               if (id.includes('node_modules/peerjs')) return 'vendor-peerjs'
               if (id.includes('node_modules/pdfjs-dist')) return 'vendor-pdfjs'
             }
