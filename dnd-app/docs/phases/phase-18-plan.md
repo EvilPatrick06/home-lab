@@ -177,4 +177,18 @@ Phase 18 is entirely client-side work in the Electron renderer. It is net-new UX
 - `npm run lint && npm run typecheck && npm test` clean in `dnd-app/`.
 
 ## Completed
-(none — all sub-phases live as of 2026-05-19)
+
+> **PHASE 18 COMPLETE — 2026-05-29.** Full 4-gate green (biome lint 0 errors / pre-existing 17g warnings only, tsc web+node 0, vitest 6477/6477).
+> - **18a** — installed `lucide-react`; replaced generic Unicode UI icons (gear→Settings, swords→Swords, sidebar emoji array→typed LucideIcons, drawing tools→Pencil/Ruler/Square/Circle/Type, collapse arrows→Chevron). AboutPage's decorative branding swords left as thematic.
+> - **18b** — swept all 1053 `text-[10px]`→`text-xs` across 211 files; ModalFormFooter buttons→text-sm; biome reflow follow-up commit.
+> - **18c** — drawing buttons wrapped in accessibility-aware `Tooltip` (native title dropped, aria-label kept); aria-labels on InitiativeControls ✕ buttons. aria-label 158→167.
+> - **18d** — `EmptyState` gained a `compact` variant + ReactNode icon; applied to InitiativeTracker / CombatLogPanel / ShopView / ShopPanel; `Skeleton` added to SubclassSelector5e / EncounterBuilderModal / TreasureGeneratorModal (CoreBooksGrid already had a card skeleton).
+> - **18e** — new `constants/z-index.ts` (`Z` scale) re-exported from the barrel; replaced `z-[9999]` (PrintSheet×2, Tooltip, LanguagesTab5e) and `z-[60]` (RulingApprovalModal, InGamePage) with `Z.*`; GameLayout drawing toolbar uses `Z.TOOLBAR`.
+> - **18f** — `/characters/create` callers redirected to `/characters/5e/create`; legacy route now `<Navigate replace>`.
+> - **18g** — aria-expanded on settings dropdown, sidebar collapse/expand, player Tools dropdown (bottom-bar toggles landed in 18a). 4→10.
+> - **18h** — `scrollbar-width`/`scrollbar-color` for Firefox.
+> - **18i** — Cinzel bundled LOCALLY under `public/fonts` (CDN @import blocked by the app CSP `style-src/font-src 'self'` + offline support); `fontStyle` store field + `.fantasy-font` body toggle + Settings picker.
+> - **18j** — `screenReaderModeSet` store flag + first-run `ScreenReaderPrompt` modal (shows once when unanswered AND prefers-reduced-motion).
+> - **18k** — `autoRejoining` spinner/banner on JoinGamePage during stored-session reconnect.
+> - **18g/18c note:** `Tooltip` only supports top/bottom; left-positioned toolbar tooltips fall back to top.
+> - **Deferred:** 18g DMBottomBar tabs use tab/aria-selected semantics (not aria-expanded); full icon-only-button Tooltip wrapping beyond the drawing toolbar remains opportunistic (18g/18c are "materially exceed baseline", which is met).
