@@ -223,7 +223,34 @@ function getConfigPath(): string {
 
 // ── Config Management ──
 
+/**
+ * Phase 20a — reject obviously-malformed cloud API keys before they're saved
+ * to disk. Empty/undefined keys are allowed (the user may be clearing one or
+ * using Ollama). Throws with a UI-displayable message on a bad format.
+ */
+export function validateApiKeyFormat(provider: 'claude' | 'openai' | 'gemini', key: string | undefined): void {
+  if (!key) return
+  switch (provider) {
+    case 'claude':
+      if (!key.startsWith('sk-ant-')) throw new Error('Invalid Claude API key (expected it to start with "sk-ant-").')
+      break
+    case 'openai':
+      if (!key.startsWith('sk-')) throw new Error('Invalid OpenAI API key (expected it to start with "sk-").')
+      break
+    case 'gemini':
+      if (key.length < 20) throw new Error('Invalid Gemini API key (too short).')
+      break
+  }
+}
+
 export async function configure(config: AiConfig): Promise<void> {
+  // Phase 20a — validate key formats up front so a typo'd key is rejected with a
+  // clear error (surfaced to the AI settings UI via the IPC error envelope)
+  // instead of being silently saved and failing later on first request.
+  validateApiKeyFormat('claude', config.claudeApiKey)
+  validateApiKeyFormat('openai', config.openaiApiKey)
+  validateApiKeyFormat('gemini', config.geminiApiKey)
+
   currentConfig = {
     provider: config.provider ?? 'ollama',
     model: config.model || config.ollamaModel || 'llama3.1',

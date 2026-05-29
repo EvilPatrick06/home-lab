@@ -2,6 +2,7 @@ import { app } from 'electron'
 import { mkdir, readFile, writeFile } from 'fs/promises'
 import { join } from 'path'
 import { logToFile } from '../log'
+import { decryptOptional, encryptOptional } from '../storage/safe-secret-storage'
 
 export interface DiscordIntegrationConfig {
   enabled: boolean
@@ -45,13 +46,24 @@ export async function loadDiscordConfig(): Promise<DiscordIntegrationConfig> {
     const content = await readFile(configPath, 'utf-8')
     const parsed = JSON.parse(content) as DiscordIntegrationConfig
 
+    // Phase 20a — botToken is encrypted at rest. decryptOptional passes through
+    // legacy plaintext (no `ss1:` prefix); cachedConfig always holds the runtime
+    // plaintext token.
+    const storedToken = parsed.botToken ?? ''
     cachedConfig = {
       enabled: parsed.enabled ?? false,
-      botToken: parsed.botToken ?? '',
+      botToken: decryptOptional(storedToken) ?? '',
       webhookUrl: parsed.webhookUrl ?? '',
       channelId: parsed.channelId,
       userId: parsed.userId,
       dmMode: parsed.dmMode ?? 'webhook'
+    }
+
+    // Migrate a legacy plaintext token to encrypted-at-rest on first load.
+    if (storedToken && !storedToken.startsWith('ss1:')) {
+      void saveDiscordConfig({ ...cachedConfig, botToken: cachedConfig.botToken }).catch((e) =>
+        logToFile('WARN', `Discord token migration to encrypted storage failed: ${String(e)}`)
+      )
     }
 
     return cachedConfig
@@ -93,7 +105,8 @@ export async function saveDiscordConfig(config: DiscordIntegrationConfig): Promi
     JSON.stringify(
       {
         enabled: finalConfig.enabled,
-        botToken: finalConfig.botToken,
+        // Phase 20a — encrypt the bot token at rest (OS keystore via safeStorage).
+        botToken: encryptOptional(finalConfig.botToken),
         webhookUrl: finalConfig.webhookUrl,
         channelId: finalConfig.channelId,
         userId: finalConfig.userId,
@@ -105,6 +118,7 @@ export async function saveDiscordConfig(config: DiscordIntegrationConfig): Promi
     'utf-8'
   )
 
+  // Cache keeps the plaintext token for runtime Discord API calls.
   cachedConfig = finalConfig
 }
 
