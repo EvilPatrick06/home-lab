@@ -8,16 +8,9 @@ Only open/actionable items: problems, errors, security concerns, suggestions, ou
 
 - **20g — renderer-side security events never reach the audit log.** `logSecurityEvent` (`security-log.ts`) is main-process only; renderer events (kick/ban in `network/host-manager.ts`, network-message Zod rejections in `network/host-message-handlers.ts`) have no path to it. No `LOG_SECURITY_EVENT` preload→main channel exists. *Action: add the channel + forward the two renderer sites.*
 - **LOG-11 — Tiny-creature cover unimplementable.** `cover-calculator.ts` clamps creature cover to half but can't exclude Tiny creatures: `MapToken` (`types/map.ts:103-104`) has only `sizeX`/`sizeY` (footprint, min 1), no size category. *Action: add `sizeCategory` (or resolve from `monsterStatBlockId`) + skip Tiny.*
-- **God-object files (oversized, some growing).** `PdfViewer.tsx` (1832), `GameLayout.tsx` (1360, ↑from 1030), `client-handlers.ts` (1120, ↑from 879), `data-provider.ts` (1178), `DowntimeModal.tsx`, `library-service.ts`, `MapCanvas.tsx`, `import-dnd-beyond.ts`, `build-character-5e.ts`. *Action: split per follow-up phases.*
-- **15h legacy interfaces still live.** `SpellEntry`/`WeaponEntry`/… in `character-common.ts` referenced by ~30 files; `MigrationReportModal` + orphan-detection unbuilt. Release-time (v3.0.0) work for the dormant v4 schema flip.
-- **17e GUI-4 partial.** Three.js disposal audit in `dice-textures.ts` / `dice-physics.ts` incomplete (`CanvasTexture.dispose()` / cannon-es geometry). *Action: finish the dispose sweep.*
-- **17d/35 IPC sweep partial.** ~32 raw `ipcMain.handle` sites still unwrapped by `withSchema` across handler files. *Action: finish the per-channel wrap.*
-
----
-
-## ⚠️ Errors
-
-- **React #185 crash (`ReadyButton` / `LobbyPage`), v2.1.10 report.** Stack: `forceStoreRerender → updateStoreInstance → commitHookEffectListMount → ReadyButton`. Signature of an unstable zustand `useSyncExternalStore` selector (returns a fresh object/array each render → infinite re-render). Old build, not reproducible from the minified trace, **not confirmed fixed**. *Action: audit `ReadyButton`/`LobbyPage` selectors for unstable references.*
+- **God-object files (oversized).** `PdfViewer.tsx` (1832), `GameLayout.tsx` (1360), `data-provider.ts` (1178), `library-service.ts` (1176), `DowntimeModal.tsx` (1131), `client-handlers.ts` (1120), `MapCanvas.tsx` (1118), `import-dnd-beyond.ts` (729), `build-character-5e.ts` (682). *Action: split per follow-up phases.*
+- **15h legacy interfaces still live.** `SpellEntry` (~62 refs), `WeaponEntry` (~40), `ArmorEntry` (~34) in `character-common.ts` are still heavily live despite "removed in Phase 15c" boundary-allow comments; `MigrationReportModal` + orphan-detection unbuilt. Release-time (v3.0.0) work for the dormant v4 schema flip. (`FeatEntry` is already at 0 refs.) *Action: finish the removal sweep or drop the "removed" comments.*
+- **17d/35 IPC sweep partial.** 4 raw `ipcMain.handle` sites still unwrapped by the `_safe` `handle()` / `withSchema` helper — all in `updater.ts` (`APP_VERSION`, `UPDATE_CHECK`, `UPDATE_DOWNLOAD`, `UPDATE_INSTALL`). *Action: route them through the wrapper.*
 
 ---
 
@@ -48,7 +41,7 @@ Only open/actionable items: problems, errors, security concerns, suggestions, ou
 - **5e shared-JSON sync has no CI gate.** Five files duplicated dnd-app↔`bmo/pi/data/5e/`, kept in sync only by manually running `bmo/pi/scripts/sync-shared-5e-json.sh` (canonical rule in `bmo/docs/DESIGN-CONSTRAINTS.md`). *Action: CI check that fails if the two trees diverge.*
 - **CI workflow duplication.** `ci.yml` (Phase 21) and `dnd-app-ci.yml` (Phase 28e.2) both run on every `dnd-app/**` push and overlap. *Action: merge or document why both exist.*
 - **22k `throttle` utility is opt-in** — no call-site conversions yet.
-- **Campaign/character data not backed up by default.** Saves live in `userData/{campaigns,characters,…}`; only backup path is opt-in cloud-via-Pi. *Action: in-app "set up backup?" nudge or document the manual `userData` backup path.* (`docs/BACKUP.md`)
+- **No automatic backup / no in-app nudge.** Saves live in `userData/{campaigns,characters,…}`. Backup paths exist but are all manual/opt-in: "Export All Data" (`AboutPage.tsx`), cloud-via-Pi "Backup Now" (`SettingsPage.tsx`, gated on Pi reachability), and git (`docs/BACKUP.md`). Nothing proactively prompts the user (no on-quit/scheduled reminder). *Action (if wanted): an in-app backup nudge.*
 - **`userData` dir keyed on `package.json` `name`.** If `name` changes, existing installs orphan their saves. *Action: never rename `name`; if forced, add a dir-move migration.*
 
 ---
@@ -68,17 +61,16 @@ Only open/actionable items: problems, errors, security concerns, suggestions, ou
 | **30** Player-as-Host | `GameAuthority` extraction (30a), `P2PTransport`/`MemoryTransport` wrap, host/DM decouple + transfer (30c–f), persistence (30g), tests (30h), migration (30i). Only the `TransportAdapter` interface stub exists. | none — ready to start |
 | **31** Live-state sync | broadcaster (31c) + applier (31d) + per-shard descriptors (31e–i) + sequence/replay (31k) + cleanup (31l). `Shard`/`diff` foundations exist; `diff.ts` hardcodes `sequence: 0` (broadcaster must assign). | Phase 30 |
 | **32** Cloud host (Pi) | `game_server.py`/`game_authority.py` + `websocket-transport.ts` + CampaignWizard toggle + admin tab. Nothing built. | 30 + 31 |
-| **36** Pi-hosted library | seed bundle + Pi library API + remote-loader + cache. Nothing built; `bmoPiBaseUrl` setting orphaned. | 32 |
+| **36** Pi-hosted library | seed bundle + Pi library API + remote-loader + cache. Nothing built. (`bmoPiBaseUrl` is **not** orphaned — it's already wired through `registry-client`/`bmo-config`/Settings, but only for the Phase 29 game registry, not a library.) | 32 |
 | **34** i18n sweep | 34a foundation shipped; 34b–34j string sweeps, 34k lint+key-gen, 34l docs remain. No `useT()` consumers yet. | none — large per-area churn |
 
-**Phase 28 tail** (security/AI/network groups done; these remain):
-- **28d** type the character pipeline (`stat-mutations.ts` still `Record<string,unknown>`); `as unknown as` sweep (~185 sites); save-queue dead-cleanup; UUID-truncation audit; migrateData return-value contract.
-- **28f** UI polish: `<div onClick>` → `<button>` (~74 sites); centralized color tokens; window min-size; long-list virtualization.
-- **28g** docs: plugin trust model, IPC-SURFACE regeneration discipline.
-- **28h** test coverage: baseline gate, lobby/onboarding flow tests, BrowserWindow security regression spec.
+**Phase 28 tail** (security/AI/network/docs groups done; these remain):
+- **28d** type the character pipeline (`stat-mutations.ts` still `Record<string,unknown>`); `as unknown as` sweep (~194 non-test sites); save-queue dead no-op (`save-queue.ts:41-50`); UUID-truncation audit (~20 sites). *(migrateData return-value contract already done.)*
+- **28f** UI polish: `<div onClick>` → `<button>` (74 sites); centralized color tokens. *(window min-size + long-list virtualization already done.)*
+- **28h** test coverage: baseline gate, lobby/onboarding flow tests, BrowserWindow security regression spec. *(Current `LobbyPage.test.tsx` is import-smoke only; `vitest.config.ts` coverage scoped to `services/**`+`data/**`, no thresholds.)*
 - **28i** 9 narrow coverage-gap audits.
 
-*Recommendation: split the 28 tail into themed phases (28-debt / 28-ux / 28-docs / 28-coverage).*
+*Recommendation: split the 28 tail into themed phases (28-debt / 28-ux / 28-coverage). (28g docs landed.)*
 
 ---
 
@@ -92,7 +84,7 @@ Only open/actionable items: problems, errors, security concerns, suggestions, ou
   sudo reboot                    # config.txt only applies at boot
   ```
   Note: `vcgencmd get_throttled` on this Pi reports `0xe0000` (sticky under-voltage/throttle history) — `health_check.sh` now surfaces that; it's intended, not a regression.
-- **Pi venv still on `zeroconf` 0.148** (PR #10 merged the 0.149.7 pin but the venv isn't updated):
+- **Pi venv not yet updated to the pinned `zeroconf` 0.149.7** (the pin is in `bmo/pi/requirements.txt:454`; the installed venv version is runtime state not visible in the repo — run the install to apply it):
   ```bash
   cd ~/home-lab && git pull && bmo/pi/venv/bin/pip install -r bmo/pi/requirements.txt
   ```
