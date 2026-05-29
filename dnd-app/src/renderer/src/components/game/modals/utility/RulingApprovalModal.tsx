@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAiDmStore } from '../../../../stores/use-ai-dm-store'
 
 /**
@@ -10,6 +10,22 @@ export default function RulingApprovalModal(): JSX.Element | null {
   const approvePendingActions = useAiDmStore((s) => s.approvePendingActions)
   const rejectPendingActions = useAiDmStore((s) => s.rejectPendingActions)
   const [dmNote, setDmNote] = useState('')
+
+  // Phase 17e (GUI-7) — dismiss (clear pending actions WITHOUT applying them). Escape + backdrop
+  // click both dismiss; previously the modal had only Approve/Override and no escape hatch.
+  const dismiss = (): void => rejectPendingActions('')
+  useEffect(() => {
+    if (!pendingActions) return
+    const onKey = (e: KeyboardEvent): void => {
+      if (e.key === 'Escape') {
+        e.stopPropagation()
+        dismiss()
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingActions])
 
   if (!pendingActions) return null
 
@@ -48,7 +64,12 @@ export default function RulingApprovalModal(): JSX.Element | null {
   })
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70">
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) dismiss()
+      }}
+    >
       <div className="bg-gray-900 border border-amber-500/50 rounded-xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center gap-2 px-5 py-3 border-b border-gray-700 bg-amber-600/10">
@@ -86,6 +107,16 @@ export default function RulingApprovalModal(): JSX.Element | null {
 
         {/* Footer */}
         <div className="flex items-center justify-end gap-2 px-5 py-3 border-t border-gray-700">
+          <button
+            onClick={() => {
+              dismiss()
+              setDmNote('')
+            }}
+            className="px-4 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-200 text-sm rounded font-medium"
+            title="Dismiss without applying or logging an override"
+          >
+            Dismiss
+          </button>
           <button
             onClick={() => {
               rejectPendingActions(dmNote)

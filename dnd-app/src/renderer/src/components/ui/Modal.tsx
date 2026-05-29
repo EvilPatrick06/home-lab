@@ -78,10 +78,12 @@ export default function Modal({
         aria-modal="true"
         aria-labelledby={title && !hideHeader ? titleId : undefined}
         aria-label={title && hideHeader ? title : undefined}
-        className={`relative bg-gray-900 border border-gray-700 rounded-lg p-6 w-full mx-4 max-h-[80vh] overflow-y-auto flex flex-col ${className}`}
+        className={`relative bg-gray-900 border border-gray-700 rounded-lg w-full mx-4 max-h-[80vh] flex flex-col ${className}`}
       >
+        {/* Phase 17e (GUI-9) — header is a non-scrolling sibling; only the body scrolls, so the
+            title + close button stay pinned with long content. */}
         {!hideHeader && (
-          <div className="flex items-center justify-between mb-4 shrink-0">
+          <div className="flex items-center justify-between px-6 pt-6 pb-4 shrink-0">
             {title && (
               <h2 id={titleId} className="text-xl font-bold">
                 {title}
@@ -96,7 +98,7 @@ export default function Modal({
             </button>
           </div>
         )}
-        {children}
+        <div className={`flex-1 overflow-y-auto px-6 pb-6 ${hideHeader ? 'pt-6' : ''}`}>{children}</div>
       </div>
     </div>
   )
