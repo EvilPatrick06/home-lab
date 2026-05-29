@@ -99,7 +99,9 @@ Collisions: official ids are protected (plugin shipping `{ id: 'fireball' }` rej
 
 ## Migration
 
-`MIGRATIONS[4]` rewrites pre-Phase-15 saves to the refs + state shape on first load, snapshots the prior file to `<save>.pre-phase-15.bak`, and writes a per-character report at `app.getPath('userData')/migration-report.json` surfaced via `MigrationReportModal`. Idempotent: re-running on already-v4 data is a no-op.
+> **DORMANT until the v3.0.0 release.** `CURRENT_SCHEMA_VERSION` is pinned at **3**, so `MIGRATIONS[4]` never fires yet — the v4 refs+state shape is additive and runs alongside the legacy v3 fields. The migration framework + `MigrationReportModal` + orphan detection are built but wired off; they activate when the schema version is bumped to 4 at the v3.0.0 cut. See the dormancy comment in `src/shared/migrations/v4-character-refs.ts`.
+
+When active, `MIGRATIONS[4]` rewrites pre-Phase-15 saves to the refs + state shape on first load, snapshots the prior file to `<save>.pre-phase-15.bak`, and writes a per-character report at `app.getPath('userData')/migration-report.json` surfaced via `MigrationReportModal`. Idempotent: re-running on already-v4 data is a no-op.
 
 Rollback: quit, locate `<save>.pre-phase-15.bak`, rename back over the original, downgrade.
 

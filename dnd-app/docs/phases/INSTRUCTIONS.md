@@ -2,6 +2,20 @@
 
 > How to work through the phase plans in this directory. Read this before starting any phase work.
 
+> **⚠️ STATUS (2026-05-29): there are no active `phase-N-plan.md` files.**
+> All phase plans (14–37) were audited, verified, and **consolidated into a single
+> backlog**: [`REVIEW-REPORT-2026-05-29.md`](./REVIEW-REPORT-2026-05-29.md). The
+> individual plan files were deleted. This folder now contains only that report
+> and this playbook.
+>
+> So **Rule 1 ("start with the earliest `phase-N-plan.md`") currently finds
+> nothing** — that's expected. When you pick up new phase work, read the open
+> backlog in the report, then either author a fresh plan file here (and the rules
+> below apply again) or work the item directly. The rules below remain the
+> authoritative reference for the **4-gate, release mechanics (`cut.mjs`), git
+> discipline, ISO dates, and STOP-and-ask escalation** even when no plan file is
+> in flight — only the "find/iterate the plan files" mechanics are dormant.
+
 ## The 27 rules
 
 ### 1. Start with the earliest phase plan in folder

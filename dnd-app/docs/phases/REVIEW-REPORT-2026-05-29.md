@@ -175,3 +175,36 @@ Second `/docs` pass: scanned every shared doc (`ARCHITECTURE`, `DATA-FLOW`, `BAC
 - **Dungeon-Scholar logs:** no dnd-app content misfiled in them.
 - **Previously-"suspicious" resolved claims now CONFIRMED by the real releases:** the RESOLVED-ISSUES-DNDAPP entries that hedged on "Linux AppImage untested" and "release pipeline" are proven good — v2.2.0/2.2.1/2.2.2 built + published the AppImage + NSIS + all 6 assets successfully.
 - **`builder-debug.yml` no longer ships** — v2.2.2 published exactly the 6 expected assets (the `release.yml` glob fix worked).
+
+---
+
+## 🧹 Repo-wide doc audit (2026-05-29, second sweep)
+
+Read every project doc in the repo (excluding `node_modules`, `bmo/pi/venv/**` vendored library docs, and `bmo/pi/data/5e-references/**` sourcebook content, which are data not docs). Findings + the cleanups made.
+
+### Doc cleanups applied (this pass)
+
+- `README.md` (root) + `dnd-app/README.md`: version `v2.1.16` → **v2.2.2**; root now points to this report as the backlog.
+- `dnd-app/README.md`: signing section corrected (the removed `win.sign`/`signAndEditExecutable: false`); Ollama section corrected (unbundled, not a 2 GB Windows-CI bundle).
+- `dnd-app/docs/IPC-SURFACE.md`: regenerated — was stale at 146 channels, now **154** (picks up `WIPE_ALL_DATA` etc.). *Reminder: run `npm run gen:ipc-surface` after adding/renaming a channel.*
+- `dnd-app/CHANGELOG.md`: added v2.2.0 / 2.2.1 / 2.2.2 sections (was stuck at `[Unreleased]` + 2.1.39).
+- `AGENTS.md`: fixed dead reference to deleted `docs/phases/bastion-data-rule.md` → the Bastion rule now lives in this report (§C).
+- `.cursorrules`: "30 planning docs (phase-NN-model.md)" → consolidated report + INSTRUCTIONS.
+- `dnd-app/docs/phases/INSTRUCTIONS.md`: added a STATUS preamble — Rule 1's "find the earliest `phase-N-plan.md`" finds nothing now (plans consolidated here); the 4-gate/release/git/escalation rules remain the authoritative reference.
+- `dnd-app/src/renderer/src/services/library/README.md`: flagged `MIGRATIONS[4]` as **dormant** (CURRENT_SCHEMA_VERSION pinned at 3 until v3.0.0).
+
+### Cross-domain detail confirmed from `bmo/docs/` (refines the overlap section above)
+
+- **5e shared-JSON sync — the canonical rule + exact file list** is in `bmo/docs/DESIGN-CONSTRAINTS.md`: "BMO and dnd-app **do not** read each other's data dirs — HTTP only," and five files are byte-identical by policy (dnd-app = source): `hazards/conditions.json`, `encounters/encounter-presets.json`, `encounters/random-tables.json`, `equipment/magic-items.json`, `world/treasure-tables.json`, synced by `bmo/pi/scripts/sync-shared-5e-json.sh`. Still **no CI gate** enforcing byte-identity — the standing finding holds.
+- **Game-registry CORS — nuance correction.** It is NOT a blanket auth hole: `/api/games*` GET + SSE stream are intentionally open for discovery (CORS `*` for the Electron `file://` origin), but mutations (POST/PATCH/DELETE/heartbeat) can be gated by `BMO_REGISTRY_API_KEY` (`X-Registry-Key`), with a 30/min rate limit + 4 KB body cap (`bmo/docs/SERVICES.md`). The real exposure is the **Cloudflare tunnel** publishing the whole Flask `:5000` at `bmo.mybmoai.work` — `/api/chat`, `/api/discord/*` are open to the internet unless Access JWT is enabled (`bmo/docs/CLOUDFLARE_TUNNEL_SETUP.md`). That's the item to gate before any external exposure.
+- **dnd-app multiplayer depends on a BMO container.** `bmo-peerjs` on `:9000` provides WebRTC signaling for the VTT (`bmo/docs/SERVICES.md`, `ARCHITECTURE.md`); its health/start-dependency is undocumented — if it's down, peer signaling via the Pi path fails silently.
+- **Campaign-backup gap confirmed.** `bmo/docs/SYSTEMD.md` notes the rclone backup timer is legacy/not-installed by default, so dnd-app campaign data is not auto-backed-up via the Pi unless the user wires it. (Matches the BACKUP.md finding above.)
+
+### Verified clean (no dnd-app contamination, nothing to fix)
+
+- **Dungeon-Scholar docs** (`README.md`, `docs/PHASE-24-POLISH.md`, `docs/supabase-setup.md`): zero dnd-app content; fully scoped to the study app. (Minor, DS-owned: `PHASE-24-POLISH.md` reads as a historical log and could be archived — left to the DS owner.)
+- **`bmo/pi/data/5e-references/**`** (PHB/DMG/MM markdown) and **`bmo/pi/venv/**`** (vendored library docs) are content/third-party, not project docs — excluded from cleanup by design.
+
+### Out-of-scope / owner's call
+
+- **Dependabot PR #10** — `zeroconf` 0.148.0 → 0.149.7 in `bmo/pi` (BMO dep; powers the mDNS discovery dnd-app browses). Clean merge, low-risk minor bump with DNS-cache-bounding hardening. Recommend merging after a `pytest bmo/pi/tests/` check; not auto-merged (touches the Pi runtime).

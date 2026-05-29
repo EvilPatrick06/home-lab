@@ -2,7 +2,7 @@
 
 Electron desktop Virtual Tabletop (VTT) for running Dungeons & Dragons 5e games. Multiplayer via PeerJS WebRTC. Optional AI Dungeon Master (Ollama / Claude / Gemini), optional BMO Pi integration for game discovery + narration TTS.
 
-**Current version:** v2.1.16
+**Current version:** v2.2.2
 
 ## What's in it
 
@@ -137,13 +137,7 @@ node scripts/release/cut.mjs X.Y.Z --notes-file=/tmp/vX.Y.Z-notes.md
 
 **Auto-update** — `electron-updater` handles diff updates on Windows (NSIS) and Linux (AppImage). Users can opt into auto-check on launch / auto-download / auto-restart / silent install via Settings → Updates.
 
-**Code signing (Windows, optional)** — builds are **unsigned by default** (`win.signAndEditExecutable: false`); unsigned installers trigger a SmartScreen "unknown publisher" prompt but build fine without a cert. To produce a signed installer, copy `.env.signing.template` → `.env.signing`, set `CSC_LINK` (path to your `.pfx`) and `CSC_KEY_PASSWORD`, then build:
-
-```bash
-set -a && source .env.signing && set +a && npm run build:win
-```
-
-The `win.sign` hook (`scripts/sign.mjs`) skips signing when `CSC_LINK` is unset and otherwise signs via the Windows SDK `signtool` (needs a Windows builder with the SDK). In CI, store `CSC_LINK` as a base64 secret that electron-builder materializes into a temp `.pfx`. `.env.signing` is gitignored.
+**Code signing (Windows)** — builds ship **unsigned**; an unsigned installer triggers a SmartScreen "unknown publisher" prompt but installs fine. The previous custom `win.sign` hook (`scripts/sign.mjs`) and the `signAndEditExecutable: false` setting were **removed** as of v2.2.2 — they were incompatible with electron-builder 26 (`build.win.sign` was moved under `signtoolOptions` in v25) and `signAndEditExecutable: false` stripped the app icon + exe metadata. Leaving `signAndEditExecutable` at its default (`true`) preserves the icon/metadata. To add signing later, use electron-builder's native `win.signtoolOptions` with `CSC_LINK`/`CSC_KEY_PASSWORD`.
 
 ## Test + lint
 
@@ -273,5 +267,5 @@ Spec: [`docs/PLUGIN-SYSTEM.md`](./docs/PLUGIN-SYSTEM.md).
 - Run `npm run circular` before any structural refactor.
 - `npm run dead-code` finds unused exports.
 - 3000+ JSON files in `public/data/5e/` make the renderer bundle big — lazy load via the `@data` alias + dynamic `import()`.
-- The Ollama bundle is ~2 GB; it's downloaded only on Windows CI and cached across releases via `actions/cache` keyed on the upstream tag.
+- Ollama is **no longer bundled** (unbundled in Phase 14a — the old ~2 GB Windows bundle dropped the installer from 1.65 GiB to ~230 MB). The app prompts to install Ollama on first run and exposes Install / Start / Check / Update buttons in Settings → Ollama AI. `scripts/build/fetch-ollama.mjs` is retained for optional local bundling but is not wired into CI.
 - Use `cut.mjs` for releases — never `git tag` manually. Version drift between `package.json` and the tag silently broke v2.0.1 / v2.0.2 / v2.1.0 / v2.1.1 / v2.1.2.
