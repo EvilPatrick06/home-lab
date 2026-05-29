@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Z } from '../../../../constants'
 import { useAiDmStore } from '../../../../stores/use-ai-dm-store'
 
 /**
@@ -65,7 +66,8 @@ export default function RulingApprovalModal(): JSX.Element | null {
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70"
+      className="fixed inset-0 flex items-center justify-center bg-black/70"
+      style={{ zIndex: Z.MODAL }}
       onClick={(e) => {
         if (e.target === e.currentTarget) dismiss()
       }}

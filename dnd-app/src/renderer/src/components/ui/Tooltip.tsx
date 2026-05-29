@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { Z } from '../../constants'
 import { useAccessibilityStore } from '../../stores/use-accessibility-store'
 
 interface TooltipProps {
@@ -75,8 +76,9 @@ export default function Tooltip({ text, children, delay = 300, position = 'top' 
           <div
             ref={tooltipRef}
             role="tooltip"
-            className="fixed z-[9999] pointer-events-none"
+            className="fixed pointer-events-none"
             style={{
+              zIndex: Z.CRITICAL_OVERLAY,
               left: coords.x,
               top: actualPosition === 'top' ? coords.y : coords.y,
               transform: `translateX(-50%)${actualPosition === 'top' ? ' translateY(-100%)' : ''}`

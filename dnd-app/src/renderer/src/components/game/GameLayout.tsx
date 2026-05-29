@@ -1,7 +1,7 @@
 import { Circle, Pencil, Ruler, Square, Type } from 'lucide-react'
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { SETTINGS_KEYS } from '../../constants'
+import { SETTINGS_KEYS, Z } from '../../constants'
 import { useAiMemorySync } from '../../hooks/use-ai-memory-sync'
 import { useGameEffects } from '../../hooks/use-game-effects'
 import { useGameHandlers } from '../../hooks/use-game-handlers'
@@ -1037,7 +1037,8 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
           would see drawing controls. Explicit gate closes that hole. */}
       {effectiveIsDM && activeTool === 'select' && (
         <div
-          className="absolute top-16 right-4 z-20 flex flex-col gap-1 bg-gray-900/90 backdrop-blur-sm border border-gray-700/50 rounded-xl p-2 shadow-xl"
+          className="absolute top-16 right-4 flex flex-col gap-1 bg-gray-900/90 backdrop-blur-sm border border-gray-700/50 rounded-xl p-2 shadow-xl"
+          style={{ zIndex: Z.TOOLBAR }}
           role="toolbar"
           aria-label="Drawing tools"
         >

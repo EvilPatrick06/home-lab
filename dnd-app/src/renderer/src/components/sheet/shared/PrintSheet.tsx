@@ -1,4 +1,5 @@
 import { useCallback } from 'react'
+import { Z } from '../../../constants'
 import type { Character } from '../../../types/character'
 import { is5eCharacter } from '../../../types/character'
 import type { Character5e } from '../../../types/character-5e'
@@ -24,8 +25,13 @@ function PrintSheet5e({ character, onClose }: { character: Character5e; onClose:
 
   return (
     <div
-      className="fixed inset-0 z-[9999] overflow-auto bg-white"
-      style={{ fontFamily: 'Georgia, "Times New Roman", Times, serif', fontSize: '10pt', color: '#000' }}
+      className="fixed inset-0 overflow-auto bg-white"
+      style={{
+        zIndex: Z.CRITICAL_OVERLAY,
+        fontFamily: 'Georgia, "Times New Roman", Times, serif',
+        fontSize: '10pt',
+        color: '#000'
+      }}
     >
       {/* Toolbar - hidden when printing */}
       <div
@@ -64,7 +70,7 @@ export default function PrintSheet({ character, onClose }: PrintSheetProps): JSX
 
   // Fallback - should not happen since only 5e is active
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-white">
+    <div className="fixed inset-0 flex items-center justify-center bg-white" style={{ zIndex: Z.CRITICAL_OVERLAY }}>
       <div className="text-center">
         <p className="text-lg font-semibold">Unsupported game system</p>
         <button onClick={onClose} className="mt-4 rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600">

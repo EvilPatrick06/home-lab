@@ -1,6 +1,7 @@
 import languageD12Json from '@data/5e/character/language-d12-table.json'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { Z } from '../../../constants'
 import { LANGUAGE_DESCRIPTIONS } from '../../../data/language-descriptions'
 import { load5eLanguageD12Table } from '../../../services/data-provider'
 import { useBuilderStore } from '../../../stores/use-builder-store'
@@ -75,8 +76,9 @@ function LanguageTooltip({
 
   return createPortal(
     <div
-      className="fixed z-[9999] w-64 px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg shadow-xl text-xs text-gray-300 leading-relaxed pointer-events-none"
+      className="fixed w-64 px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg shadow-xl text-xs text-gray-300 leading-relaxed pointer-events-none"
       style={{
+        zIndex: Z.CRITICAL_OVERLAY,
         left: pos.x,
         top: pos.flipBelow ? pos.y : undefined,
         bottom: pos.flipBelow ? undefined : `${window.innerHeight - pos.y}px`,
@@ -186,9 +188,7 @@ export default function LanguagesTab5e(): JSX.Element {
                   >
                     {lang}
                     {desc && (
-                      <span className={`text-xs ml-0.5 ${isRare ? 'text-purple-500/60' : 'text-green-500/60'}`}>
-                        ?
-                      </span>
+                      <span className={`text-xs ml-0.5 ${isRare ? 'text-purple-500/60' : 'text-green-500/60'}`}>?</span>
                     )}
                     {isChosen && (
                       <button

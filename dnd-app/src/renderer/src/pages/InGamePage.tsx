@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import GameLayout from '../components/game/GameLayout'
 import { Spinner } from '../components/ui'
-import { LOADING_GRACE_PERIOD_MS } from '../constants'
+import { LOADING_GRACE_PERIOD_MS, Z } from '../constants'
 import { useAutoSaveGame } from '../hooks/use-auto-save'
 import { useNetworkStore } from '../stores/network-store'
 import { useBastionStore } from '../stores/use-bastion-store'
@@ -190,7 +190,10 @@ export default function InGamePage(): JSX.Element {
 
       {/* Reconnect overlay for clients */}
       {showReconnect && networkRole === 'client' && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div
+          className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          style={{ zIndex: Z.MODAL }}
+        >
           <div className="bg-gray-900 border border-red-500/50 rounded-xl p-6 max-w-sm w-full mx-4 text-center">
             <div className="w-8 h-8 border-2 border-red-400 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
             <h2 className="text-lg font-bold text-red-400 mb-2">Connection Lost</h2>
