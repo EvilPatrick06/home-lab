@@ -137,3 +137,8 @@ Manual smoke:
 
 ### Pre-existing notes
 (All prior steps relocated. H2 struck and absorbed by Phase 15 A.2 + A.2.5. H4 moved to Phase 15 Sub-Phase G Step 21. M2 resolved structurally by Phase 15 Sub-Phases B/C/D. Live verification 2026-05-19 confirmed no entries in `entity-io.ts` ENTITY_CONFIGS for `homebrew`, no `homebrew-validation.ts` file exists, no `source === 'homebrew'` branch in `feat-mechanics-5e.ts`, no `campaignId` field on homebrew storage. All 25a-25e sub-phases remain live.)
+
+> **PHASE 25 COMPLETE — 2026-05-29 (resumed "do them all"; 4-gate green).**
+> - **25b DONE** — `services/character/homebrew-effects.ts` (HomebrewFeatEffect union + accumulator + ability-bonus applier, cap 30); `calculate5eStats` folds homebrew feat ability/speed/AC bonuses after official processing; `getEffectiveFeats` + builder carry `source`/`effects`; HomebrewCreateModal effects builder for feats + validated optional `diceFormula` for spells. Unit-tested.
+> - **25c DONE** — `HomebrewEntry.campaignId?`; `mergeHomebrew` filters by active campaign; modal campaign-only toggle; LibraryPage tri-state scope filter (session-persisted) + `_campaignId` stamp; campaign deletion cascade-deletes only its scoped homebrew. Round-trip test.
+> - **25e DONE** — `import-export.test.ts` homebrew export→import round-trip (count + campaignId preserved).

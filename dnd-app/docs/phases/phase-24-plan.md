@@ -157,3 +157,10 @@ Several `catch { /* ignore */ }` blocks in `apply-level-up.ts` and `level-up-spe
 > - **24j DONE** — AsiAbilityPicker shows "+1 will be wasted (cap is 20)" when a +2 targets a score of 19.
 > - **24k DONE** — all 8 silent `} catch { /* ignore */ }` in apply-level-up.ts (3) + level-up-spells.ts (5) now `catch (err) { logger.warn(...) }`.
 > - **DEFERRED (apply-pipeline rewrites + wizard UI; need real-character app verification, high-risk on the leveling critical path):** 24a subclass write-back + feature load, 24b hit-dice-per-class, 24d HP post-ASI CON + roll lock, 24e multiclass skill profs, 24f spell swap, 24g cantrip picker, 24h feat sub-choice validation, 24i secondary-class resources loop. Live for a focused follow-up.
+
+> **PHASE 24 COMPLETE — 2026-05-29 (resumed "do them all"; 4-gate green: lint 0, tsc web+node 0, vitest 6547/6547).** 24a/24b/24i landed earlier in the resume; this pass finished the rest:
+> - **24d DONE** — HP roll locks after first roll (`hpLocked` per level); HP preview uses post-ASI CON (cumulative `constitution` boosts across ability-boost slots ≤ this level, feat-slots excluded, clamped to 20).
+> - **24e DONE** — `MULTICLASS_SKILL_GRANTS` (Bard/Ranger/Rogue) drives `MulticlassSkillSection5e` on first class entry; chosen skills marked `proficient` on apply; apply blocks until chosen.
+> - **24f DONE** — spell swap (one per level gained) in SpellSelectionSection5e; applied before the known-spells rebuild.
+> - **24g DONE** — cantrip picker gated by `getCantripsKnown(class, target) − (…current)`; added cantrips pushed as prepared spell entries.
+> - **24h DONE** — feat `choiceConfig` threaded into the stored selection (AsiSelector → store); `getIncompleteChoices` blocks apply until every configured sub-choice is set.

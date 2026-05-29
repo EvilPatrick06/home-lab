@@ -176,3 +176,7 @@ flowchart LR
 > - **DEFERRED:** 29b-step3 inject on create + 29h migration on load (harmless but unused until the sweep consumes `campaign.permissions` — land together), 29c custom-role CRUD, 29d per-player override actions, 29e the literal-gate sweep (HIGH risk — replaces every `role==='host'`/`isCoDM` gameplay gate; needs app verification of DM gating), 29f view-as-role, 29g permissions editor UI. The foundation (29a/29b) is consumable by all of these.
 
 (prior: Phase 29 fully PROPOSED as of 2026-05-19. No permission files, no `hasPermission` helper, no `BUILTIN_ROLES`, no `Campaign.permissions` field, `GameLayout.viewMode` still `'dm' | 'player'`, 29 `isCoDM` hits and the `networkRole === 'host'` literal in `InGamePage.tsx:59` still present.)
+
+> **PHASE 29 — 2026-05-29 (resumed "do them all"; 4-gate green).** 29c/29d/29h landed earlier in the resume.
+> - **29g DONE** — `components/campaign/PermissionsEditor.tsx` (role list → category-grouped permission matrix with per-category bulk grant/deny, reset-to-defaults, search; built-ins editable but not deletable) + `PlayerOverridesPanel.tsx` (per-player tri-state grant/default/deny + conflict chip), surfaced in a new Permissions card on CampaignDetailPage, wired to the 29c/29d store actions. Overrides keyed by player `userId` (peer `clientId` reconciliation noted inline).
+> - **STILL DEFERRED:** 29e literal-gate sweep (HIGH risk — replaces every `role==='host'`/`isCoDM` gameplay gate; needs app verification) and 29f view-as-role (limited value without 29e's hasPermission gating; land together).

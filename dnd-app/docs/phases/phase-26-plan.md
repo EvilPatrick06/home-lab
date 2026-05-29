@@ -165,3 +165,7 @@ Phase 15 reshapes how encounters store monsters (refs into the library, not embe
 > - **DEFERRED:** 26b Place-All wiring, 26d wave model+migration, 26e map linkage+pre-position, 26f executeLoadEncounter→smartPlaceTokens (clean swap now possible, deferred for AI-deployment app verification). 26c is the keystone these build on.
 
 - (prior: all five items E1-E5 verified NOT DONE as of 2026-05-19)
+
+> **PHASE 26 — 2026-05-29 (resumed "do them all"; 4-gate green).**
+> - **26b DONE** — `handleStartInitiative` resolves the active map, builds hidden enemy tokens (HP/AC/speed/init from monster data), spreads via `smartPlaceTokens`, adds to the map, seeds initiative (group-init = one shared roll per monster group). Toasts when no active map.
+> - **26d/26e FOUNDATION DONE** — `EncounterWave` type + optional `Encounter.waves` (flat `monsters` kept) + `migrateEncounter()` (wraps legacy flat list into Wave 1, rebuilds flat union); tested. `EncounterMonster.startX/startY/instanceOverrides` + `Encounter.mapId` already present. REMAINING (deferred — modal uses an ad-hoc local model, not the Encounter type; faithful UI is a refactor): wave-tabs UI + InitiativeTracker deploy-wave buttons (26d) and the mapId select + per-monster X/Y inputs (26e).

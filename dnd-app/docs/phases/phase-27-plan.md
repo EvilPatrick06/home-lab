@@ -167,3 +167,9 @@ Late-joiner ambient sync has already been wired in Phase 14d (`game-sync.ts:353-
 > - **DEFERRED:** 27c 3D-dice sound (touches DiceOverlay + 25 callers + source flag), 27d duplicate-handler removal (needs consumer grep + mock audit), 27g reinit/dispose cleanup (plan flags blast-radius risk), 27i custom-audio network sync (IPC + base64 + chunking), 27j playlist system (large feature). Need app/two-window verification.
 
 - 27 late-joiner ambient sync — DONE (`src/renderer/src/network/game-sync.ts:340-396`, `src/renderer/src/stores/network-store/client-handlers.ts:154-163`) — `buildFullGameStatePayload` includes `currentAmbient`; client applies it on full-state hydrate. Originally tracked as Sub-Phase I; absorbed by Phase 14d.
+
+> **PHASE 27 COMPLETE — 2026-05-29 (resumed "do them all"; 4-gate green).** 27c landed earlier in the resume; this pass finished the rest:
+> - **27d DONE** — removed the duplicate `dm:play-sound`/`dm:play-ambient`/`dm:stop-ambient` branches from `use-game-network` (client-handlers already plays them — was double-playing on clients) + pruned unused imports.
+> - **27g DONE** — `sound-manager.dispose()` (stop ambient + custom audio + clear override map) wired into the InGamePage unmount; `reinit()` stays non-destructive.
+> - **27i DONE** — `dm:play-custom-audio`/`dm:stop-custom-audio` message types + Zod schemas (base64 ≤1.5MB); host base64-broadcasts tracks <1MB on play/stop (larger stay DM-local with a toast); clients decode to a Blob URL keyed by fileName and revoke on stop.
+> - **27j DONE** — `services/playlist-manager.ts` (preset/custom tracks, shuffle/loop, no-immediate-repeat shuffle, per-campaign localStorage; unit-tested) + DMAudioPanel Playlists UI (create/delete, add/remove tracks, shuffle/loop, play/skip/stop). Preset tracks auto-advance via a new opt-in non-looping ambient playback + `onEnded` callback; host broadcasts each track.
