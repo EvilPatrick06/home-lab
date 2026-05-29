@@ -1,3 +1,16 @@
+import {
+  BookOpen,
+  Building2,
+  Castle,
+  ClipboardList,
+  Coins,
+  Dices,
+  Drama,
+  type LucideIcon,
+  Shield,
+  Swords,
+  User
+} from 'lucide-react'
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { addToast } from '../../../hooks/use-toast'
@@ -34,17 +47,17 @@ interface LeftSidebarProps {
   onReadAloud?: (text: string, style: 'chat' | 'dramatic') => void
 }
 
-const SECTIONS: { id: SectionId; label: string; icon: string }[] = [
-  { id: 'characters', label: 'Characters', icon: '\u{1F464}' },
-  { id: 'npcs', label: 'NPCs', icon: '\u{1F9D9}' },
-  { id: 'allies', label: 'Allies', icon: '\u{1F6E1}' },
-  { id: 'enemies', label: 'Enemies', icon: '\u{2694}' },
-  { id: 'places', label: 'Places', icon: '\u{1F3F0}' },
-  { id: 'bastions', label: 'Bastions', icon: '\u{1F3D7}' },
-  { id: 'tables', label: 'Tables', icon: '\u{1F3B2}' },
-  { id: 'party-loot', label: 'Party Loot', icon: '\u{1F4B0}' },
-  { id: 'combat-log', label: 'Combat Log', icon: '\u{1F4CB}' },
-  { id: 'journal', label: 'Journal', icon: '\u{1F4D6}' }
+const SECTIONS: { id: SectionId; label: string; icon: LucideIcon }[] = [
+  { id: 'characters', label: 'Characters', icon: User },
+  { id: 'npcs', label: 'NPCs', icon: Drama },
+  { id: 'allies', label: 'Allies', icon: Shield },
+  { id: 'enemies', label: 'Enemies', icon: Swords },
+  { id: 'places', label: 'Places', icon: Castle },
+  { id: 'bastions', label: 'Bastions', icon: Building2 },
+  { id: 'tables', label: 'Tables', icon: Dices },
+  { id: 'party-loot', label: 'Party Loot', icon: Coins },
+  { id: 'combat-log', label: 'Combat Log', icon: ClipboardList },
+  { id: 'journal', label: 'Journal', icon: BookOpen }
 ]
 
 export default function LeftSidebar({
@@ -437,7 +450,7 @@ export default function LeftSidebar({
                     clipRule="evenodd"
                   />
                 </svg>
-                <span className="text-sm shrink-0">{section.icon}</span>
+                <section.icon className="w-4 h-4 text-gray-400 shrink-0" aria-hidden="true" />
                 <span className="text-xs font-semibold text-gray-300 uppercase tracking-wider">{section.label}</span>
                 {section.id === 'party-loot' && partyInventory.items.length > 0 && (
                   <span className="ml-auto text-[9px] bg-amber-600/30 text-amber-300 border border-amber-700/30 rounded-full px-1.5 py-0.5 leading-none">

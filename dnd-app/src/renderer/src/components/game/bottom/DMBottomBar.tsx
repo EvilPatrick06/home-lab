@@ -1,3 +1,4 @@
+import { ChevronDown, ChevronUp } from 'lucide-react'
 import { usePanelResize } from '../../../hooks/use-panel-resize'
 import { useNetworkStore } from '../../../stores/network-store'
 import { useMacroStore } from '../../../stores/use-macro-store'
@@ -44,12 +45,18 @@ export default function DMBottomBar({
       <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1">
         <button
           onClick={onToggleCollapse}
-          className="px-3 py-0.5 text-[10px]
+          className="px-3 py-1
             bg-gray-800 border border-gray-700/50 rounded-t-lg text-gray-400 hover:text-gray-200
             cursor-pointer transition-colors"
           title={collapsed ? 'Expand bottom bar' : 'Collapse bottom bar'}
+          aria-label={collapsed ? 'Expand bottom bar' : 'Collapse bottom bar'}
+          aria-expanded={!collapsed}
         >
-          {collapsed ? '\u25B2' : '\u25BC'}
+          {collapsed ? (
+            <ChevronUp className="w-3.5 h-3.5" aria-hidden="true" />
+          ) : (
+            <ChevronDown className="w-3.5 h-3.5" aria-hidden="true" />
+          )}
         </button>
         <button
           onClick={() => {

@@ -1,3 +1,4 @@
+import { Settings } from 'lucide-react'
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import { PRESET_LABELS } from '../../../data/calendar-presets'
@@ -307,9 +308,9 @@ export default function SettingsDropdown({
           onClick={onToggle}
           aria-label="Game settings"
           className="w-9 h-9 bg-gray-900/70 backdrop-blur-sm border border-gray-700/50 rounded-xl
-            flex items-center justify-center text-gray-400 hover:text-gray-200 cursor-pointer transition-colors text-lg"
+            flex items-center justify-center text-gray-400 hover:text-gray-200 cursor-pointer transition-colors"
         >
-          &#9881;
+          <Settings className="w-5 h-5" aria-hidden="true" />
         </button>
       </Tooltip>
 

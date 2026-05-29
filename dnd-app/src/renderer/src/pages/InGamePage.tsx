@@ -1,3 +1,4 @@
+import { Swords } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import GameLayout from '../components/game/GameLayout'
@@ -164,7 +165,7 @@ export default function InGamePage(): JSX.Element {
     return (
       <div className="h-screen flex flex-col items-center justify-center bg-gray-950 text-gray-100">
         <div className="text-center">
-          <div className="text-5xl mb-4">&#9876;</div>
+          <Swords className="w-12 h-12 mx-auto mb-4 text-gray-400" aria-hidden="true" />
           <h1 className="text-2xl font-bold mb-2">No Campaign Found</h1>
           <p className="text-gray-400 mb-6">
             {campaignId ? `Campaign "${campaignId}" could not be loaded.` : 'No campaign ID specified.'}

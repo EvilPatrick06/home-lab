@@ -1,3 +1,4 @@
+import { Swords } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { CharacterCard, ConfirmDialog, Spinner } from '../components/ui'
@@ -243,7 +244,7 @@ export default function ViewCharactersPage(): JSX.Element {
         </div>
       ) : characters.length === 0 ? (
         <div className="border border-dashed border-gray-700 rounded-lg p-12 text-center text-gray-500">
-          <div className="text-4xl mb-4">&#9876;</div>
+          <Swords className="w-10 h-10 mx-auto mb-4 text-gray-500" aria-hidden="true" />
           <p className="text-xl mb-2">No characters yet</p>
           <p className="mb-4">Create your first character to begin your adventure.</p>
           <div className="flex justify-center gap-3">

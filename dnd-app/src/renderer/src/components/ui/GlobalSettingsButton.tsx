@@ -1,3 +1,4 @@
+import { Settings } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router'
 
 export default function GlobalSettingsButton(): JSX.Element | null {
@@ -16,7 +17,7 @@ export default function GlobalSettingsButton(): JSX.Element | null {
       aria-label="Open settings"
       title="Settings"
     >
-      &#9881;
+      <Settings className="w-4 h-4" aria-hidden="true" />
     </button>
   )
 }

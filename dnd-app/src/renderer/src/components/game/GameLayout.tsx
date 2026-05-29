@@ -1,3 +1,4 @@
+import { Circle, Pencil, Ruler, Square, Type } from 'lucide-react'
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { SETTINGS_KEYS } from '../../constants'
@@ -1040,46 +1041,46 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
           role="toolbar"
           aria-label="Drawing tools"
         >
-          <p className="text-[10px] text-gray-500 uppercase tracking-wider text-center mb-1">Drawing</p>
+          <p className="text-xs text-gray-500 uppercase tracking-wider text-center mb-1">Drawing</p>
           <button
             onClick={() => setActiveTool('draw-free')}
             title="Free Draw (F)"
             aria-label="Free draw"
-            className="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
+            className="w-11 h-11 p-2 rounded-lg flex items-center justify-center bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
           >
-            ✏️
+            <Pencil className="w-5 h-5" aria-hidden="true" />
           </button>
           <button
             onClick={() => setActiveTool('draw-line')}
             title="Draw Line (L)"
             aria-label="Draw line"
-            className="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
+            className="w-11 h-11 p-2 rounded-lg flex items-center justify-center bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
           >
-            📏
+            <Ruler className="w-5 h-5" aria-hidden="true" />
           </button>
           <button
             onClick={() => setActiveTool('draw-rect')}
             title="Draw Rectangle (R)"
             aria-label="Draw rectangle"
-            className="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
+            className="w-11 h-11 p-2 rounded-lg flex items-center justify-center bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
           >
-            ▭
+            <Square className="w-5 h-5" aria-hidden="true" />
           </button>
           <button
             onClick={() => setActiveTool('draw-circle')}
             title="Draw Circle (C)"
             aria-label="Draw circle"
-            className="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
+            className="w-11 h-11 p-2 rounded-lg flex items-center justify-center bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
           >
-            ○
+            <Circle className="w-5 h-5" aria-hidden="true" />
           </button>
           <button
             onClick={() => setActiveTool('draw-text')}
             title="Add Text (T)"
             aria-label="Add text"
-            className="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
+            className="w-11 h-11 p-2 rounded-lg flex items-center justify-center bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
           >
-            📝
+            <Type className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
       )}
