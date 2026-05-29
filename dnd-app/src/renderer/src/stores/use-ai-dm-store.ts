@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { pushDmAlert } from '../components/game/overlays/DmAlertTray'
 import { type AiRendererAction, parseRendererActions, stripActionTags } from '../services/ai-renderer-actions'
 import type { Campaign } from '../types/campaign'
+import { logger } from '../utils/logger'
 import { useLobbyStore } from './use-lobby-store'
 
 interface AiStatChange {
@@ -153,10 +154,17 @@ export const useAiDmStore = create<AiDmState>((set, get) => ({
   approvePendingActions: () => {
     const { pendingActions } = get()
     if (!pendingActions) return
-    // Execute the pending actions via game-action-executor with bypassApproval
-    import('../services/game-action-executor').then(({ executeDmActions }) => {
-      executeDmActions(pendingActions.actions, true)
-    })
+    // Execute the pending actions via game-action-executor with bypassApproval.
+    // Phase 17d (RUN-3/4) — surface a failed dynamic import instead of silently dropping the
+    // approved actions (the DM would otherwise get no feedback that nothing ran).
+    import('../services/game-action-executor')
+      .then(({ executeDmActions }) => {
+        executeDmActions(pendingActions.actions, true)
+      })
+      .catch((err) => {
+        pushDmAlert('error', 'Failed to run approved AI actions')
+        logger.error('[ai-dm] game-action-executor import failed', err)
+      })
     set({ pendingActions: null })
   },
 
@@ -280,21 +288,24 @@ export const useAiDmStore = create<AiDmState>((set, get) => ({
     })
 
     // Load saved conversation
-    window.api.ai.loadConversation(campaign.id).then((result) => {
-      if (result.success && result.data) {
-        const data = result.data as { messages?: Array<{ role: string; content: string; timestamp?: string }> }
-        if (data.messages && Array.isArray(data.messages) && data.messages.length > 0) {
-          set({
-            messages: data.messages.map((m) => ({
-              role: m.role as 'user' | 'assistant',
-              content: m.content,
-              timestamp: m.timestamp ? new Date(m.timestamp).getTime() : Date.now()
-            })),
-            sceneStatus: 'ready'
-          })
+    window.api.ai
+      .loadConversation(campaign.id)
+      .then((result) => {
+        if (result.success && result.data) {
+          const data = result.data as { messages?: Array<{ role: string; content: string; timestamp?: string }> }
+          if (data.messages && Array.isArray(data.messages) && data.messages.length > 0) {
+            set({
+              messages: data.messages.map((m) => ({
+                role: m.role as 'user' | 'assistant',
+                content: m.content,
+                timestamp: m.timestamp ? new Date(m.timestamp).getTime() : Date.now()
+              })),
+              sceneStatus: 'ready'
+            })
+          }
         }
-      }
-    })
+      })
+      .catch((err) => logger.error('[ai-dm] loadConversation failed', err))
   },
 
   sendMessage: async (campaignId, content, characterIds, senderName, activeCreatures, gameState, actingCharacterId) => {

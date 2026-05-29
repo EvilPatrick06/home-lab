@@ -168,149 +168,157 @@ export const createSelectionSlice: StateCreator<BuilderState, [], [], SelectionS
     // Derive data from SRD after selection (async, cached data is instant)
     if (gameSystem === 'dnd5e') {
       if (currentSlot?.category === 'ancestry') {
-        load5eSpecies().then((speciesList) => {
-          const speciesData = speciesList.find((r) => r.id === optionId)
-          if (speciesData) {
-            const extraLangCount = speciesData.traits.filter((t) => t.name === 'Extra Language').length
-            const extraSkillCount = speciesData.traits.filter((t) => t.name === 'Skillful').length
-            // Recalculate maxSkills including species extra skills
-            let baseMaxSkills = get().maxSkills - get().speciesExtraSkillCount // remove old species bonus
-            if (baseMaxSkills < 0) baseMaxSkills = get().maxSkills
+        load5eSpecies()
+          .then((speciesList) => {
+            const speciesData = speciesList.find((r) => r.id === optionId)
+            if (speciesData) {
+              const extraLangCount = speciesData.traits.filter((t) => t.name === 'Extra Language').length
+              const extraSkillCount = speciesData.traits.filter((t) => t.name === 'Skillful').length
+              // Recalculate maxSkills including species extra skills
+              let baseMaxSkills = get().maxSkills - get().speciesExtraSkillCount // remove old species bonus
+              if (baseMaxSkills < 0) baseMaxSkills = get().maxSkills
 
-            // Heritage slot management: remove old, add new if species has subraces
-            let currentBuildSlots = get().buildSlots.filter((s) => s.id !== 'heritage')
-            const hasSubraces = speciesData.traits.some((t) => t.lineageChoices)
-            if (hasSubraces) {
-              const ancestryIdx = currentBuildSlots.findIndex((s) => s.category === 'ancestry')
-              const heritageSlot = {
-                id: 'heritage',
-                label: `${speciesData.name} Lineage`,
-                category: 'heritage' as const,
-                level: 0,
-                required: true,
-                selectedId: null,
-                selectedName: null,
-                selectedDescription: null,
-                selectedDetailFields: []
+              // Heritage slot management: remove old, add new if species has subraces
+              let currentBuildSlots = get().buildSlots.filter((s) => s.id !== 'heritage')
+              const hasSubraces = speciesData.traits.some((t) => t.lineageChoices)
+              if (hasSubraces) {
+                const ancestryIdx = currentBuildSlots.findIndex((s) => s.category === 'ancestry')
+                const heritageSlot = {
+                  id: 'heritage',
+                  label: `${speciesData.name} Lineage`,
+                  category: 'heritage' as const,
+                  level: 0,
+                  required: true,
+                  selectedId: null,
+                  selectedName: null,
+                  selectedDescription: null,
+                  selectedDetailFields: []
+                }
+                currentBuildSlots = [
+                  ...currentBuildSlots.slice(0, ancestryIdx + 1),
+                  heritageSlot,
+                  ...currentBuildSlots.slice(ancestryIdx + 1)
+                ]
               }
-              currentBuildSlots = [
-                ...currentBuildSlots.slice(0, ancestryIdx + 1),
-                heritageSlot,
-                ...currentBuildSlots.slice(ancestryIdx + 1)
-              ]
+
+              set({
+                buildSlots: currentBuildSlots,
+                speciesLanguages: [],
+                speciesExtraLangCount: extraLangCount,
+                speciesExtraSkillCount: extraSkillCount,
+                speciesSize: speciesData.size.type === 'fixed' ? (speciesData.size.value ?? '') : '',
+                speciesSpeed: speciesData.speed,
+                speciesTraits: speciesData.traits,
+                derivedSpeciesTraits: speciesData.traits,
+                speciesProficiencies: [],
+                chosenLanguages: [], // reset when species changes
+                versatileFeatId: null, // reset Versatile feat when species changes
+                heritageId: null, // reset heritage when species changes
+                speciesSpellcastingAbility: null, // reset species spellcasting ability
+                keenSensesSkill: null, // reset Elf Keen Senses skill
+                maxSkills: baseMaxSkills + extraSkillCount
+              })
+
+              // Always advance after species data loads (heritage slot may have been injected)
+              queueMicrotask(() => get().advanceToNextSlot())
             }
-
-            set({
-              buildSlots: currentBuildSlots,
-              speciesLanguages: [],
-              speciesExtraLangCount: extraLangCount,
-              speciesExtraSkillCount: extraSkillCount,
-              speciesSize: speciesData.size.type === 'fixed' ? (speciesData.size.value ?? '') : '',
-              speciesSpeed: speciesData.speed,
-              speciesTraits: speciesData.traits,
-              derivedSpeciesTraits: speciesData.traits,
-              speciesProficiencies: [],
-              chosenLanguages: [], // reset when species changes
-              versatileFeatId: null, // reset Versatile feat when species changes
-              heritageId: null, // reset heritage when species changes
-              speciesSpellcastingAbility: null, // reset species spellcasting ability
-              keenSensesSkill: null, // reset Elf Keen Senses skill
-              maxSkills: baseMaxSkills + extraSkillCount
-            })
-
-            // Always advance after species data loads (heritage slot may have been injected)
-            queueMicrotask(() => get().advanceToNextSlot())
-          }
-        })
+          })
+          .catch((err) => logger.warn('[Builder] selection load failed', err))
       }
       if (currentSlot?.category === 'heritage') {
         // Heritage selection: apply lineage choice from species trait
-        load5eSpecies().then((speciesList) => {
-          const ancestrySlot = get().buildSlots.find((s) => s.category === 'ancestry')
-          const speciesData = speciesList.find((r) => r.id === ancestrySlot?.selectedId)
-          if (!speciesData) return
-          const lineageTrait = speciesData.traits.find((t) => t.lineageChoices)
-          if (!lineageTrait?.lineageChoices) return
-          const lineageOption = lineageTrait.lineageChoices.options.find(
-            (o) => o.name.toLowerCase().replace(/\s+/g, '-') === optionId
-          )
-          if (!lineageOption) return
+        load5eSpecies()
+          .then((speciesList) => {
+            const ancestrySlot = get().buildSlots.find((s) => s.category === 'ancestry')
+            const speciesData = speciesList.find((r) => r.id === ancestrySlot?.selectedId)
+            if (!speciesData) return
+            const lineageTrait = speciesData.traits.find((t) => t.lineageChoices)
+            if (!lineageTrait?.lineageChoices) return
+            const lineageOption = lineageTrait.lineageChoices.options.find(
+              (o) => o.name.toLowerCase().replace(/\s+/g, '-') === optionId
+            )
+            if (!lineageOption) return
 
-          set({
-            heritageId: optionId,
-            speciesSpeed: lineageOption.speedOverride ?? speciesData.speed,
-            chosenLanguages: [], // reset languages when heritage changes
-            speciesSpellcastingAbility: null // reset species spellcasting ability when heritage changes
+            set({
+              heritageId: optionId,
+              speciesSpeed: lineageOption.speedOverride ?? speciesData.speed,
+              chosenLanguages: [], // reset languages when heritage changes
+              speciesSpellcastingAbility: null // reset species spellcasting ability when heritage changes
+            })
           })
-        })
+          .catch((err) => logger.warn('[Builder] selection load failed', err))
       }
       if (currentSlot?.category === 'background') {
-        load5eBackgrounds().then((bgs) => {
-          const bg = bgs.find((b) => b.id === optionId)
-          if (bg) {
-            // Re-derive base maxSkills from the class slot's detail fields
-            const currentSlots = get().buildSlots
-            const classSlot = currentSlots.find((s) => s.category === 'class')
-            let baseMaxSkills = 2
-            if (classSlot?.selectedDetailFields) {
-              const skillField = classSlot.selectedDetailFields.find((f) => f.label === 'Skills')
-              if (skillField) {
-                const match = skillField.value.match(/Choose (\d+)/)
-                if (match) baseMaxSkills = parseInt(match[1], 10)
+        load5eBackgrounds()
+          .then((bgs) => {
+            const bg = bgs.find((b) => b.id === optionId)
+            if (bg) {
+              // Re-derive base maxSkills from the class slot's detail fields
+              const currentSlots = get().buildSlots
+              const classSlot = currentSlots.find((s) => s.category === 'class')
+              let baseMaxSkills = 2
+              if (classSlot?.selectedDetailFields) {
+                const skillField = classSlot.selectedDetailFields.find((f) => f.label === 'Skills')
+                if (skillField) {
+                  const match = skillField.value.match(/Choose (\d+)/)
+                  if (match) baseMaxSkills = parseInt(match[1], 10)
+                }
               }
-            }
-            // Custom background: user picks 2 extra skills (since no auto-granted bg skills)
-            // Also add species extra skill count (Human Skillful trait)
-            const effectiveMaxSkills =
-              (optionId === 'custom' ? baseMaxSkills + 2 : baseMaxSkills) + get().speciesExtraSkillCount
+              // Custom background: user picks 2 extra skills (since no auto-granted bg skills)
+              // Also add species extra skill count (Human Skillful trait)
+              const effectiveMaxSkills =
+                (optionId === 'custom' ? baseMaxSkills + 2 : baseMaxSkills) + get().speciesExtraSkillCount
 
-            set({
-              bgLanguageCount: 0,
-              bgEquipment: bg.equipment.map((e) => ({ option: e.option, items: e.items, source: bg.name })),
-              chosenLanguages: [], // reset when background changes
-              currency: { pp: 0, gp: 0, sp: 0, cp: 0 },
-              maxSkills: effectiveMaxSkills,
-              selectedSkills: [], // reset skill picks when background changes
-              backgroundEquipmentChoice: null // reset when background changes — user must choose
-            })
-          }
-        })
+              set({
+                bgLanguageCount: 0,
+                bgEquipment: bg.equipment.map((e) => ({ option: e.option, items: e.items, source: bg.name })),
+                chosenLanguages: [], // reset when background changes
+                currency: { pp: 0, gp: 0, sp: 0, cp: 0 },
+                maxSkills: effectiveMaxSkills,
+                selectedSkills: [], // reset skill picks when background changes
+                backgroundEquipmentChoice: null // reset when background changes — user must choose
+              })
+            }
+          })
+          .catch((err) => logger.warn('[Builder] selection load failed', err))
       }
       if (currentSlot?.category === 'class') {
-        load5eClasses().then((classes) => {
-          const cls = classes.find((c) => c.id === optionId)
-          if (cls) {
-            // Use starting equipment from coreTraits
-            const equipment = cls.coreTraits.startingEquipment
-            // Don't pre-populate with labels — wait for user choice or auto-select single option
-            const autoItems =
-              equipment.length === 1
-                ? equipment[0].items.map((name: string) => ({ name, quantity: 1, source: cls.name }))
-                : []
-            // Phase 17l — preserve entries whose source is independent of the
-            // selected class (e.g. `'trinket'`, `'background'`, `'manual'`).
-            // Previously a class change re-set `classEquipment` to just the
-            // class-grant items, wiping the player's rolled trinket and
-            // forcing them to re-roll. Class-grant items themselves
-            // (`source === cls.name` of the OLD class) are dropped, since
-            // the new class brings its own grant list.
-            const preservedItems = get().classEquipment.filter(
-              (item) => item.source === 'trinket' || item.source === 'background' || item.source === 'manual'
-            )
-            const targetLvl = get().targetLevel
-            const cantripsMax = getCantripsKnown(optionId, targetLvl)
-            const preparedMax = getPreparedSpellMax(optionId, targetLvl) ?? 0
-            set({
-              classEquipment: [...preservedItems, ...autoItems],
-              classSkillOptions: cls.coreTraits.skillProficiencies.from,
-              classEquipmentChoice: equipment.length === 1 ? equipment[0].label : null, // reset when class changes — user must choose
-              classExtraLangCount: optionId === 'rogue' ? 1 : optionId === 'ranger' ? 2 : 0,
-              chosenLanguages: [], // reset when class changes (language grants may differ)
-              maxCantrips: cantripsMax,
-              maxPreparedSpells: preparedMax
-            })
-          }
-        })
+        load5eClasses()
+          .then((classes) => {
+            const cls = classes.find((c) => c.id === optionId)
+            if (cls) {
+              // Use starting equipment from coreTraits
+              const equipment = cls.coreTraits.startingEquipment
+              // Don't pre-populate with labels — wait for user choice or auto-select single option
+              const autoItems =
+                equipment.length === 1
+                  ? equipment[0].items.map((name: string) => ({ name, quantity: 1, source: cls.name }))
+                  : []
+              // Phase 17l — preserve entries whose source is independent of the
+              // selected class (e.g. `'trinket'`, `'background'`, `'manual'`).
+              // Previously a class change re-set `classEquipment` to just the
+              // class-grant items, wiping the player's rolled trinket and
+              // forcing them to re-roll. Class-grant items themselves
+              // (`source === cls.name` of the OLD class) are dropped, since
+              // the new class brings its own grant list.
+              const preservedItems = get().classEquipment.filter(
+                (item) => item.source === 'trinket' || item.source === 'background' || item.source === 'manual'
+              )
+              const targetLvl = get().targetLevel
+              const cantripsMax = getCantripsKnown(optionId, targetLvl)
+              const preparedMax = getPreparedSpellMax(optionId, targetLvl) ?? 0
+              set({
+                classEquipment: [...preservedItems, ...autoItems],
+                classSkillOptions: cls.coreTraits.skillProficiencies.from,
+                classEquipmentChoice: equipment.length === 1 ? equipment[0].label : null, // reset when class changes — user must choose
+                classExtraLangCount: optionId === 'rogue' ? 1 : optionId === 'ranger' ? 2 : 0,
+                chosenLanguages: [], // reset when class changes (language grants may differ)
+                maxCantrips: cantripsMax,
+                maxPreparedSpells: preparedMax
+              })
+            }
+          })
+          .catch((err) => logger.warn('[Builder] selection load failed', err))
       }
     }
 

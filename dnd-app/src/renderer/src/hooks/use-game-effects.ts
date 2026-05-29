@@ -13,6 +13,7 @@ import { useLobbyStore } from '../stores/use-lobby-store'
 import { useNarrationTtsStore } from '../stores/use-narration-tts-store'
 import type { Campaign } from '../types/campaign'
 import type { GameMap, MapToken } from '../types/map'
+import { logger } from '../utils/logger'
 
 interface UseGameEffectsOptions {
   campaign: Campaign
@@ -65,16 +66,18 @@ function applyStatChangesDirectly(
 
   // Apply creature changes directly to map tokens
   if (creatureChanges.length > 0 && activeMap) {
-    import('../utils/creature-mutations').then(({ applyCreatureMutations }) => {
-      const gameStore = useGameStore.getState()
-      applyCreatureMutations(
-        creatureChanges,
-        activeMap,
-        (mapId: string, tokenId: string, updates: Partial<MapToken>) => {
-          gameStore.updateToken(mapId, tokenId, updates)
-        }
-      )
-    })
+    import('../utils/creature-mutations')
+      .then(({ applyCreatureMutations }) => {
+        const gameStore = useGameStore.getState()
+        applyCreatureMutations(
+          creatureChanges,
+          activeMap,
+          (mapId: string, tokenId: string, updates: Partial<MapToken>) => {
+            gameStore.updateToken(mapId, tokenId, updates)
+          }
+        )
+      })
+      .catch((err) => logger.error('[game-effects] creature-mutations import failed', err))
   }
 }
 
@@ -367,19 +370,21 @@ export function useGameEffects({
 
     // Execute DM actions if any
     if (lastMsg.dmActions && lastMsg.dmActions.length > 0) {
-      import('../services/game-action-executor').then(({ executeDmActions }) => {
-        const result = executeDmActions(lastMsg.dmActions!)
-        for (const f of result.failed) {
-          addChatMessage({
-            id: `ai-err-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
-            senderId: 'system',
-            senderName: 'System',
-            content: `AI DM action failed: ${f.action.action} \u2014 ${f.reason}`,
-            timestamp: Date.now(),
-            isSystem: true
-          })
-        }
-      })
+      import('../services/game-action-executor')
+        .then(({ executeDmActions }) => {
+          const result = executeDmActions(lastMsg.dmActions!)
+          for (const f of result.failed) {
+            addChatMessage({
+              id: `ai-err-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
+              senderId: 'system',
+              senderName: 'System',
+              content: `AI DM action failed: ${f.action.action} \u2014 ${f.reason}`,
+              timestamp: Date.now(),
+              isSystem: true
+            })
+          }
+        })
+        .catch((err) => logger.error('[game-effects] game-action-executor import failed', err))
     }
 
     // Save conversation (debounced)

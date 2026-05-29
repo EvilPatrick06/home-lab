@@ -1,5 +1,6 @@
 import type { StateCreator } from 'zustand'
 import { load5eClasses } from '../../../services/data-provider'
+import { logger } from '../../../utils/logger'
 import type { BuilderState, CharacterDetailsSliceState } from '../types'
 
 /** Staleness guard for async equipment choice callbacks */
@@ -127,23 +128,25 @@ export const createCharacterDetailsSlice: StateCreator<BuilderState, [], [], Cha
     if (gameSystem !== 'dnd5e') return
     const classSlot = buildSlots.find((s) => s.category === 'class')
     if (!classSlot?.selectedId) return
-    load5eClasses().then((classes) => {
-      if (version !== equipChoiceVersion) return
-      const cls = classes.find((c) => c.id === classSlot.selectedId)
-      if (!cls) return
-      const equipment = cls.coreTraits.startingEquipment
-      if (equipment && equipment.length > 0) {
-        const chosen = equipment.find((e: { label: string }) => e.label === choice) ?? equipment[0]
-        if (!chosen) return
-        const shopItems = get().classEquipment.filter((e) => e.source === 'shop')
-        set({
-          classEquipment: [
-            ...chosen.items.map((name: string) => ({ name, quantity: 1, source: cls.name })),
-            ...shopItems
-          ]
-        })
-      }
-    })
+    load5eClasses()
+      .then((classes) => {
+        if (version !== equipChoiceVersion) return
+        const cls = classes.find((c) => c.id === classSlot.selectedId)
+        if (!cls) return
+        const equipment = cls.coreTraits.startingEquipment
+        if (equipment && equipment.length > 0) {
+          const chosen = equipment.find((e: { label: string }) => e.label === choice) ?? equipment[0]
+          if (!chosen) return
+          const shopItems = get().classEquipment.filter((e) => e.source === 'shop')
+          set({
+            classEquipment: [
+              ...chosen.items.map((name: string) => ({ name, quantity: 1, source: cls.name })),
+              ...shopItems
+            ]
+          })
+        }
+      })
+      .catch((err) => logger.warn('[Builder] class equipment load failed', err))
   },
   setSpeciesSize: (size) => set({ speciesSize: size }),
   setSelectedSpellIds: (ids) => {
