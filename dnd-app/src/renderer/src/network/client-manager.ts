@@ -429,6 +429,8 @@ async function attemptConnection(
         // Handle peer-level errors (e.g., peer-unavailable means wrong invite code)
         peer.on('error', (err) => {
           clearTimeout(timeout)
+          // Phase 17d (NET-4) — never silently swallow a peer error.
+          logger.warn('[ClientManager] Peer error:', err.type, err.message)
           if (err.type === 'peer-unavailable') {
             reject(
               new Error(
@@ -437,6 +439,9 @@ async function attemptConnection(
             )
           } else if (!connected) {
             reject(new Error(`Connection failed: ${err.message}`))
+          } else {
+            // Post-connection peer error: surface it + attempt reconnection instead of swallowing.
+            handleDisconnection(`Peer error: ${err.message}`)
           }
         })
       })
