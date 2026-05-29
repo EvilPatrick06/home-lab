@@ -5,12 +5,14 @@
 
 import { useGameStore } from '../../stores/use-game-store'
 import type { MapToken } from '../../types/map'
-import type { MonsterStatBlock } from '../../types/monster'
+import type { CreatureSize, MonsterStatBlock } from '../../types/monster'
 import { load5eMonsters } from '../data-provider'
 import { requireActiveMapId, requireTokenOnMap } from './helpers'
 import type { ChatCommand } from './types'
 
-async function getMonsterByName(name: string): Promise<{ name: string; hp: number; ac: number; size: string } | null> {
+async function getMonsterByName(
+  name: string
+): Promise<{ name: string; hp: number; ac: number; size: CreatureSize } | null> {
   const monsters = await load5eMonsters()
   const q = name.toLowerCase()
   const match = monsters.find((m: MonsterStatBlock) => m.name.toLowerCase() === q)
@@ -133,6 +135,7 @@ export const summonCommand: ChatCommand = {
       gridY: y,
       sizeX: sizeValue,
       sizeY: sizeValue,
+      sizeCategory: monster.size,
       visibleToPlayers: true,
       conditions: [],
       currentHP: monster.hp,

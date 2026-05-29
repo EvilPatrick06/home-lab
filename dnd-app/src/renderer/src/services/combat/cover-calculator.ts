@@ -102,14 +102,17 @@ export function calculateCover(
   // Phase 17c (LOG-11) — only living enemy creatures grant cover. PHB 2024 caps
   // creature-provided cover at HALF and a creature stops blocking once it drops.
   // Allies are excluded (PHB optional rule: you can choose to ignore your own
-  // side). NOTE: Tiny creatures should also be excluded, but MapToken carries no
-  // size category to test — see ISSUES-LOG-DNDAPP (LOG-11 Tiny follow-up).
+  // side). Tiny creatures don't provide cover either (PHB 2024 p.17) — skipped
+  // via the token's size category (sizeX/sizeY can't distinguish Tiny from
+  // Small/Medium, all 1×1). Tokens with no size category fall through and still
+  // grant cover (back-compat).
   const creatureSegments: Segment[] = []
   if (otherTokens) {
     for (const tok of otherTokens) {
       if (tok.id === attacker.id || tok.id === target.id) continue
       if (tok.currentHP !== undefined && tok.currentHP <= 0) continue // downed → no cover
       if (tok.entityType === attacker.entityType) continue // ally → ignored
+      if (tok.sizeCategory === 'Tiny') continue // Tiny creatures don't grant cover
       const corners = getTokenCorners(tok, cellSize)
       // Use the four edges of the token as blocking segments
       for (let i = 0; i < corners.length; i++) {

@@ -85,7 +85,7 @@ export const ALL_LANGUAGES_5E = [...STANDARD_LANGUAGES_5E, ...RARE_LANGUAGES_5E]
 
 export interface SelectableOption {
   id: string
-  // boundary-allow: type definition for library shape (legacy SpellEntry/etc. — removed in Phase 15c sweep)
+  // boundary-allow: legacy entry-shape interface still live across the character sheet (~136 refs); EntryRef/v4-schema removal is deferred to the dormant v3.0.0 flip (15h)
   name: string
   rarity: Rarity
   description: string
@@ -125,11 +125,16 @@ export function isBloodied(currentHP: number, maxHP: number): boolean {
   return currentHP > 0 && currentHP <= Math.floor(maxHP / 2)
 }
 
-// === Unified types for new character sheet ===
+// === Character-sheet entry shapes ===
+// NOTE (15h): SpellEntry/WeaponEntry/ArmorEntry/ClassFeatureEntry are the LIVE
+// character-sheet shapes (~136 references). The EntryRef/v4-schema migration that
+// would replace them — plus the MigrationReportModal + orphan-detection UX — is
+// gated on the dormant v3.0.0 schema flip (CURRENT_SCHEMA_VERSION still 3). Do not
+// "finish removing" these until that flip lands, or the sheet breaks.
 
 export interface SpellEntry {
   id: string
-  // boundary-allow: type definition for library shape (legacy SpellEntry/etc. — removed in Phase 15c sweep)
+  // boundary-allow: legacy entry-shape interface still live across the character sheet (~136 refs); EntryRef/v4-schema removal is deferred to the dormant v3.0.0 flip (15h)
   name: string
   level: number
   description: string
@@ -199,7 +204,7 @@ export interface Currency {
 }
 
 export interface ClassFeatureEntry {
-  // boundary-allow: type definition for library shape (legacy SpellEntry/etc. — removed in Phase 15c sweep)
+  // boundary-allow: legacy entry-shape interface still live across the character sheet (~136 refs); EntryRef/v4-schema removal is deferred to the dormant v3.0.0 flip (15h)
   level: number
   name: string
   source: string

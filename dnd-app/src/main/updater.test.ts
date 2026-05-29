@@ -110,8 +110,10 @@ describe('registerUpdateHandlers', () => {
     const versionCall = handleCalls.find(([ch]) => ch === 'app:version')
     expect(versionCall).toBeDefined()
 
-    const handler = versionCall![1] as () => string
-    const version = handler()
+    // Handlers are now registered through the _safe `handle()` wrapper, which
+    // returns an async fn (17d/35 — uniform IPC error containment), so await it.
+    const handler = versionCall![1] as () => Promise<string>
+    const version = await handler()
     expect(version).toMatch(/^\d+\.\d+\.\d+/)
   })
 })

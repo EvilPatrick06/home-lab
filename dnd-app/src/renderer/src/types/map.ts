@@ -1,3 +1,5 @@
+import type { CreatureSize } from './data/shared-enums'
+
 export interface GameMap {
   id: string
   name: string
@@ -102,6 +104,13 @@ export interface MapToken {
 
   sizeX: number
   sizeY: number
+  /**
+   * D&D size category (Tiny…Gargantuan). Distinct from sizeX/sizeY, which are
+   * the grid footprint (Tiny/Small/Medium all occupy 1×1, so the footprint
+   * cannot distinguish them). Optional + populated when a token is created from
+   * a stat block; used by the cover calculator to exclude Tiny creatures (LOG-11).
+   */
+  sizeCategory?: CreatureSize
 
   visibleToPlayers: boolean
   /** Whether the token's name label is visible to players (default true for PCs, false for monsters) */

@@ -23,8 +23,9 @@
 
 import { promises as fs } from 'node:fs'
 import { join } from 'node:path'
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow } from 'electron'
 import { IPC_CHANNELS } from '../shared/ipc-channels'
+import { handle } from './ipc/_safe'
 import { logToFile } from './log'
 
 export type UpdateStatus =
@@ -184,11 +185,11 @@ export function registerUpdateHandlers(): void {
     // Not yet packaged / electron-updater not available — ignore
   }
 
-  ipcMain.handle(IPC_CHANNELS.APP_VERSION, () => {
+  handle(IPC_CHANNELS.APP_VERSION, () => {
     return app.getVersion()
   })
 
-  ipcMain.handle(IPC_CHANNELS.UPDATE_CHECK, async () => {
+  handle(IPC_CHANNELS.UPDATE_CHECK, async () => {
     try {
       const autoUpdater = getAutoUpdater()
       autoUpdater.autoDownload = false
@@ -220,7 +221,7 @@ export function registerUpdateHandlers(): void {
     }
   })
 
-  ipcMain.handle(IPC_CHANNELS.UPDATE_DOWNLOAD, async () => {
+  handle(IPC_CHANNELS.UPDATE_DOWNLOAD, async () => {
     try {
       if (currentStatus.state !== 'available') {
         return currentStatus
@@ -263,7 +264,7 @@ export function registerUpdateHandlers(): void {
     }
   })
 
-  ipcMain.handle(IPC_CHANNELS.UPDATE_INSTALL, async () => {
+  handle(IPC_CHANNELS.UPDATE_INSTALL, async () => {
     // Reply to the renderer FIRST, then schedule the install on the
     // next tick so the renderer's await resolves cleanly before any
     // quit sequence begins.

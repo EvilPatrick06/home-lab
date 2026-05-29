@@ -181,6 +181,7 @@ const summonCommand: ChatCommand = {
         gridY: y,
         sizeX: sizeValue,
         sizeY: sizeValue,
+        sizeCategory: monster.size,
         visibleToPlayers: true,
         conditions: [],
         currentHP: monster.hp,

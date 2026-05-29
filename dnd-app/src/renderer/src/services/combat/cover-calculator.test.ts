@@ -137,6 +137,31 @@ describe('calculateCover', () => {
     const enemy = makeToken(1, 0, { id: 'e', entityType: 'enemy' })
     expect(calculateCover(attacker, target, [wall], CELL, [enemy])).toBe('total')
   })
+
+  // ── LOG-11 — Tiny creatures do not grant cover (PHB 2024 p.17) ──
+
+  it('Tiny creatures provide no cover', () => {
+    const attacker = makeToken(0, 0)
+    const target = makeToken(4, 0)
+    // Same on-the-line position that grants cover for a Medium creature…
+    const tiny = makeToken(2, 0, { id: 'tiny', entityType: 'enemy', sizeCategory: 'Tiny' })
+    expect(calculateCover(attacker, target, [], CELL, [tiny])).toBe('none')
+  })
+
+  it('non-Tiny size categories still grant cover', () => {
+    const attacker = makeToken(0, 0)
+    const target = makeToken(4, 0)
+    const small = makeToken(2, 0, { id: 'small', entityType: 'enemy', sizeCategory: 'Small' })
+    expect(calculateCover(attacker, target, [], CELL, [small])).not.toBe('none')
+  })
+
+  it('tokens with no size category still grant cover (back-compat)', () => {
+    const attacker = makeToken(0, 0)
+    const target = makeToken(4, 0)
+    // sizeCategory omitted — must behave exactly as before (grants cover).
+    const blocker = makeToken(2, 0, { id: 'nocat', entityType: 'enemy' })
+    expect(calculateCover(attacker, target, [], CELL, [blocker])).not.toBe('none')
+  })
 })
 
 describe('hasLineOfSight', () => {
