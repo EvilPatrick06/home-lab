@@ -253,7 +253,7 @@ export default function AiProviderSetup({
                       // Set a sensible default model for each provider
                       const defaultModels: Record<string, string> = {
                         ollama: 'llama3.1',
-                        claude: 'claude-sonnet-4-20250514',
+                        claude: 'claude-sonnet-4-6',
                         openai: 'gpt-4o',
                         gemini: 'gemini-2.0-flash'
                       }
