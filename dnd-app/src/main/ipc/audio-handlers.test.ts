@@ -57,8 +57,9 @@ describe('audio-handlers', () => {
 
       const handler = mockHandle.mock.calls.find((call) => call[0] === IPC_CHANNELS.AUDIO_UPLOAD_CUSTOM)![1]
 
+      // Phase 35c — schema rejects the bad UUID before the body runs.
       const result = await handler({}, 'invalid-id', 'file.mp3', new ArrayBuffer(0), 'Test', 'music')
-      expect(result).toEqual({ success: false, error: 'Invalid campaign ID' })
+      expect(result).toMatchObject({ success: false })
     })
 
     it('should accept valid campaign ID and save file', async () => {
@@ -86,7 +87,7 @@ describe('audio-handlers', () => {
       const handler = mockHandle.mock.calls.find((call) => call[0] === IPC_CHANNELS.AUDIO_LIST_CUSTOM)![1]
 
       const result = await handler({}, 'bad-id')
-      expect(result).toEqual({ success: false, error: 'Invalid campaign ID' })
+      expect(result).toMatchObject({ success: false })
     })
 
     it('should return empty array when directory does not exist', async () => {
@@ -107,7 +108,7 @@ describe('audio-handlers', () => {
       const handler = mockHandle.mock.calls.find((call) => call[0] === IPC_CHANNELS.AUDIO_DELETE_CUSTOM)![1]
 
       const result = await handler({}, 'bad-id', 'file.mp3')
-      expect(result).toEqual({ success: false, error: 'Invalid campaign ID' })
+      expect(result).toMatchObject({ success: false })
     })
 
     it('should reject unsafe file names', async () => {
@@ -117,7 +118,7 @@ describe('audio-handlers', () => {
 
       const campaignId = '12345678-1234-1234-1234-123456789abc'
       const result = await handler({}, campaignId, '../../../etc/passwd')
-      expect(result).toEqual({ success: false, error: 'Invalid file name' })
+      expect(result).toMatchObject({ success: false })
     })
   })
 
@@ -128,7 +129,7 @@ describe('audio-handlers', () => {
       const handler = mockHandle.mock.calls.find((call) => call[0] === IPC_CHANNELS.AUDIO_GET_CUSTOM_PATH)![1]
 
       const result = await handler({}, 'bad-id', 'file.mp3')
-      expect(result).toEqual({ success: false, error: 'Invalid campaign ID' })
+      expect(result).toMatchObject({ success: false })
     })
 
     it('should reject unsafe file names', async () => {
@@ -138,7 +139,7 @@ describe('audio-handlers', () => {
 
       const campaignId = '12345678-1234-1234-1234-123456789abc'
       const result = await handler({}, campaignId, 'has spaces.mp3')
-      expect(result).toEqual({ success: false, error: 'Invalid file name' })
+      expect(result).toMatchObject({ success: false })
     })
   })
 })

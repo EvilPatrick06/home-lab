@@ -4,7 +4,7 @@ vi.mock('electron', () => ({ ipcMain: { handle: vi.fn() } }))
 vi.mock('../log', () => ({ logToFile: vi.fn() }))
 
 import { z } from 'zod'
-import { safeHandler, withSchema } from './_safe'
+import { safeHandler, withArgsSchema, withSchema } from './_safe'
 
 describe('safeHandler (Phase 17d)', () => {
   it('passes a successful return through unchanged', async () => {
@@ -39,5 +39,26 @@ describe('withSchema (Phase 35a)', () => {
     // Composed with safeHandler → error envelope.
     const composed = safeHandler('ch', wrapped)
     expect(await composed({} as never, { name: 'a' } as never)).toMatchObject({ success: false })
+  })
+})
+
+describe('withArgsSchema (Phase 35)', () => {
+  const Tuple = z.tuple([z.string().regex(/^[a-z]+$/), z.number()])
+
+  it('passes the parsed positional args through on valid input', () => {
+    const fn = vi.fn(() => 'ok')
+    const wrapped = withArgsSchema('ch', Tuple, fn as never)
+    const result = wrapped({} as never, 'abc' as never, 2 as never)
+    expect(result).toBe('ok')
+    expect(fn).toHaveBeenCalledWith({}, 'abc', 2)
+  })
+
+  it('throws on an invalid arg tuple (→ error envelope under safeHandler)', async () => {
+    const fn = vi.fn()
+    const wrapped = withArgsSchema('ch', Tuple, fn as never)
+    expect(() => wrapped({} as never, 'ABC' as never, 2 as never)).toThrow(/invalid args/)
+    expect(fn).not.toHaveBeenCalled()
+    const composed = safeHandler('ch', wrapped)
+    expect(await composed({} as never, '..' as never, 0 as never)).toMatchObject({ success: false })
   })
 })

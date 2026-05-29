@@ -1,20 +1,23 @@
-import { app, dialog, ipcMain } from 'electron'
+import { app, dialog } from 'electron'
 import * as fs from 'fs/promises'
 import * as path from 'path'
+import { z } from 'zod'
 import { MAX_READ_FILE_SIZE } from '../../shared/constants'
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
 import { validateUploadExtension } from '../upload-validation'
+import { handle, withArgsSchema } from './_safe'
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const SAFE_FILENAME_RE = /^[a-zA-Z0-9._-]+$/
 
-function isValidUUID(str: string): boolean {
-  return UUID_RE.test(str)
-}
-
-function isSafeFileName(str: string): boolean {
-  return SAFE_FILENAME_RE.test(str) && !str.includes('..') && str.length <= 255
-}
+// Phase 35c — schema primitives. Close path traversal at the schema layer:
+// fileName must be a basename (no separators, no `..`), campaignId a UUID.
+const CampaignIdSchema = z.string().regex(UUID_RE, 'invalid campaign id')
+const FileNameSchema = z
+  .string()
+  .max(255)
+  .regex(SAFE_FILENAME_RE, 'invalid file name')
+  .refine((s) => !s.includes('..'), 'path traversal')
 
 function isWithinDirectory(filePath: string, directory: string): boolean {
   const resolved = path.resolve(filePath)
@@ -24,106 +27,109 @@ function isWithinDirectory(filePath: string, directory: string): boolean {
 
 export function registerAudioHandlers(): void {
   // Upload custom audio file for a campaign
-  ipcMain.handle(
+  handle(
     IPC_CHANNELS.AUDIO_UPLOAD_CUSTOM,
-    async (
-      _event,
-      campaignId: string,
-      fileName: string,
-      buffer: ArrayBuffer,
-      displayName: string,
-      category: string
-    ) => {
-      if (!isValidUUID(campaignId)) {
-        return { success: false, error: 'Invalid campaign ID' }
+    withArgsSchema(
+      IPC_CHANNELS.AUDIO_UPLOAD_CUSTOM,
+      z.tuple([CampaignIdSchema, FileNameSchema, z.instanceof(ArrayBuffer), z.string().max(255), z.string().max(64)]),
+      async (
+        _event,
+        campaignId: string,
+        fileName: string,
+        buffer: ArrayBuffer,
+        displayName: string,
+        category: string
+      ) => {
+        try {
+          const campaignDir = path.join(app.getPath('userData'), 'campaigns', campaignId, 'custom-audio')
+          await fs.mkdir(campaignDir, { recursive: true })
+          const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_')
+          if (!sanitizedFileName || sanitizedFileName.startsWith('.')) {
+            return { success: false, error: 'Invalid file name' }
+          }
+          const filePath = path.join(campaignDir, sanitizedFileName)
+          if (!isWithinDirectory(filePath, campaignDir)) {
+            return { success: false, error: 'Invalid file path' }
+          }
+          const buf = Buffer.from(buffer)
+          // Phase 20f — reject audio whose magic bytes don't match the extension.
+          const mismatch = validateUploadExtension(buf, path.extname(sanitizedFileName))
+          if (mismatch) {
+            return { success: false, error: mismatch }
+          }
+          await fs.writeFile(filePath, buf)
+          return { success: true, data: { fileName: sanitizedFileName, displayName, category } }
+        } catch (err) {
+          return { success: false, error: String(err) }
+        }
       }
-      try {
-        const campaignDir = path.join(app.getPath('userData'), 'campaigns', campaignId, 'custom-audio')
-        await fs.mkdir(campaignDir, { recursive: true })
-        const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_')
-        if (!sanitizedFileName || sanitizedFileName.startsWith('.')) {
-          return { success: false, error: 'Invalid file name' }
-        }
-        const filePath = path.join(campaignDir, sanitizedFileName)
-        if (!isWithinDirectory(filePath, campaignDir)) {
-          return { success: false, error: 'Invalid file path' }
-        }
-        const buf = Buffer.from(buffer)
-        // Phase 20f — reject audio whose magic bytes don't match the extension.
-        const mismatch = validateUploadExtension(buf, path.extname(sanitizedFileName))
-        if (mismatch) {
-          return { success: false, error: mismatch }
-        }
-        await fs.writeFile(filePath, buf)
-        return { success: true, data: { fileName: sanitizedFileName, displayName, category } }
-      } catch (err) {
-        return { success: false, error: String(err) }
-      }
-    }
+    )
   )
 
   // List custom audio files for a campaign
-  ipcMain.handle(IPC_CHANNELS.AUDIO_LIST_CUSTOM, async (_event, campaignId: string) => {
-    if (!isValidUUID(campaignId)) {
-      return { success: false, error: 'Invalid campaign ID' }
-    }
-    try {
-      const campaignDir = path.join(app.getPath('userData'), 'campaigns', campaignId, 'custom-audio')
+  handle(
+    IPC_CHANNELS.AUDIO_LIST_CUSTOM,
+    withArgsSchema(IPC_CHANNELS.AUDIO_LIST_CUSTOM, z.tuple([CampaignIdSchema]), async (_event, campaignId: string) => {
       try {
-        const files = await fs.readdir(campaignDir)
-        return { success: true, data: files }
-      } catch {
-        return { success: true, data: [] }
+        const campaignDir = path.join(app.getPath('userData'), 'campaigns', campaignId, 'custom-audio')
+        try {
+          const files = await fs.readdir(campaignDir)
+          return { success: true, data: files }
+        } catch {
+          return { success: true, data: [] }
+        }
+      } catch (err) {
+        return { success: false, error: String(err) }
       }
-    } catch (err) {
-      return { success: false, error: String(err) }
-    }
-  })
+    })
+  )
 
   // Delete a custom audio file
-  ipcMain.handle(IPC_CHANNELS.AUDIO_DELETE_CUSTOM, async (_event, campaignId: string, fileName: string) => {
-    if (!isValidUUID(campaignId)) {
-      return { success: false, error: 'Invalid campaign ID' }
-    }
-    if (!isSafeFileName(fileName)) {
-      return { success: false, error: 'Invalid file name' }
-    }
-    try {
-      const campaignDir = path.join(app.getPath('userData'), 'campaigns', campaignId, 'custom-audio')
-      const filePath = path.join(campaignDir, fileName)
-      if (!isWithinDirectory(filePath, campaignDir)) {
-        return { success: false, error: 'Invalid file path' }
+  handle(
+    IPC_CHANNELS.AUDIO_DELETE_CUSTOM,
+    withArgsSchema(
+      IPC_CHANNELS.AUDIO_DELETE_CUSTOM,
+      z.tuple([CampaignIdSchema, FileNameSchema]),
+      async (_event, campaignId: string, fileName: string) => {
+        try {
+          const campaignDir = path.join(app.getPath('userData'), 'campaigns', campaignId, 'custom-audio')
+          const filePath = path.join(campaignDir, fileName)
+          if (!isWithinDirectory(filePath, campaignDir)) {
+            return { success: false, error: 'Invalid file path' }
+          }
+          await fs.unlink(filePath)
+          return { success: true }
+        } catch (err) {
+          return { success: false, error: String(err) }
+        }
       }
-      await fs.unlink(filePath)
-      return { success: true }
-    } catch (err) {
-      return { success: false, error: String(err) }
-    }
-  })
+    )
+  )
 
   // Get the full path to a custom audio file (for playback)
-  ipcMain.handle(IPC_CHANNELS.AUDIO_GET_CUSTOM_PATH, async (_event, campaignId: string, fileName: string) => {
-    if (!isValidUUID(campaignId)) {
-      return { success: false, error: 'Invalid campaign ID' }
-    }
-    if (!isSafeFileName(fileName)) {
-      return { success: false, error: 'Invalid file name' }
-    }
-    try {
-      const campaignDir = path.join(app.getPath('userData'), 'campaigns', campaignId, 'custom-audio')
-      const filePath = path.join(campaignDir, fileName)
-      if (!isWithinDirectory(filePath, campaignDir)) {
-        return { success: false, error: 'Invalid file path' }
+  handle(
+    IPC_CHANNELS.AUDIO_GET_CUSTOM_PATH,
+    withArgsSchema(
+      IPC_CHANNELS.AUDIO_GET_CUSTOM_PATH,
+      z.tuple([CampaignIdSchema, FileNameSchema]),
+      async (_event, campaignId: string, fileName: string) => {
+        try {
+          const campaignDir = path.join(app.getPath('userData'), 'campaigns', campaignId, 'custom-audio')
+          const filePath = path.join(campaignDir, fileName)
+          if (!isWithinDirectory(filePath, campaignDir)) {
+            return { success: false, error: 'Invalid file path' }
+          }
+          await fs.access(filePath)
+          return { success: true, data: filePath }
+        } catch (err) {
+          return { success: false, error: String(err) }
+        }
       }
-      await fs.access(filePath)
-      return { success: true, data: filePath }
-    } catch (err) {
-      return { success: false, error: String(err) }
-    }
-  })
+    )
+  )
 
-  // Open file dialog for audio selection
-  ipcMain.handle(IPC_CHANNELS.AUDIO_PICK_FILE, async () => {
+  // Open file dialog for audio selection (no payload to validate)
+  handle(IPC_CHANNELS.AUDIO_PICK_FILE, async () => {
     const result = await dialog.showOpenDialog({
       filters: [{ name: 'Audio', extensions: ['mp3', 'ogg', 'wav', 'webm', 'm4a'] }],
       properties: ['openFile']
