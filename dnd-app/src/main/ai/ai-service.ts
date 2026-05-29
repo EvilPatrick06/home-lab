@@ -114,8 +114,11 @@ function getEffectiveTTL(streamId: string): number {
   return STREAM_TTL_MS
 }
 
-// Periodically clean up stale streams
-setInterval(() => {
+// Periodically clean up stale streams.
+// Phase 22b — this interval is module-scoped and survives renderer reloads;
+// hold the handle and clear it on Electron `will-quit` (via disposeAiService,
+// called from the main quit path) so it isn't orphaned.
+const staleStreamSweep = setInterval(() => {
   const now = Date.now()
   for (const [streamId, timestamp] of activeStreamTimestamps) {
     const effectiveTTL = getEffectiveTTL(streamId)
@@ -393,6 +396,24 @@ function getConversation(campaignId: string): ConversationManager {
 
 export function getConversationManager(campaignId: string): ConversationManager {
   return getConversation(campaignId)
+}
+
+/**
+ * Phase 22d — drop a campaign's in-memory ConversationManager (the `conversations`
+ * Map grew monotonically). Called from the campaign-delete cascade. Re-creating a
+ * campaign with the same id yields a fresh manager via getConversation().
+ */
+export function removeConversation(campaignId: string): void {
+  conversations.delete(campaignId)
+  scenePrepStatus.delete(campaignId)
+}
+
+/**
+ * Phase 22b — release module-scoped resources on app quit (the stale-stream
+ * sweep interval). Wire from the main-process quit path.
+ */
+export function disposeAiService(): void {
+  clearInterval(staleStreamSweep)
 }
 
 // ── Chat ──

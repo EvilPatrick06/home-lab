@@ -144,6 +144,11 @@ export async function deleteCampaign(id: string): Promise<StorageResult<boolean>
       await rm(p, { recursive: true, force: true }).catch(() => {})
     }
 
+    // Phase 22d — also drop the in-memory ConversationManager so the map doesn't
+    // grow monotonically and a re-created same-id campaign starts fresh. Dynamic
+    // import avoids a static cycle (ai-service → campaign-context → campaign-storage).
+    await import('../ai/ai-service').then((m) => m.removeConversation(id)).catch(() => {})
+
     logToFile('INFO', `Campaign deleted with cascade: ${id}`)
     return { success: true, data: true }
   } catch (err) {

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useCharacterEditor } from '../../../hooks/use-character-editor'
 import { getEffectiveArmor, getEffectiveClasses } from '../../../services/character/effective-character-5e'
 import { useCharacterStore } from '../../../stores/use-character-store'
@@ -31,6 +31,17 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
     cost: ''
   })
   const [customCostError, setCustomCostError] = useState<string | null>(null)
+  // Phase 22b — track the auto-dismiss timers so they're cleared on unmount
+  // (otherwise setState fires on an unmounted component).
+  const warningTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const costErrorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(
+    () => () => {
+      if (warningTimerRef.current) clearTimeout(warningTimerRef.current)
+      if (costErrorTimerRef.current) clearTimeout(costErrorTimerRef.current)
+    },
+    []
+  )
 
   const armorDatabase = useArmorDatabase()
 
@@ -62,7 +73,8 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
         setBuyWarning(
           `Not enough funds (need ${cost.amount} ${cost.currency.toUpperCase()} = ${costCp} cp, have ${totalCp} cp total)`
         )
-        setTimeout(() => setBuyWarning(null), 4000)
+        if (warningTimerRef.current) clearTimeout(warningTimerRef.current)
+        warningTimerRef.current = setTimeout(() => setBuyWarning(null), 4000)
         return
       }
       newCurrency = result
@@ -158,7 +170,8 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
         const newCurrency = deductWithConversion(currentCurrency, cost)
         if (!newCurrency) {
           setCustomCostError('Not enough funds')
-          setTimeout(() => setCustomCostError(null), 3000)
+          if (costErrorTimerRef.current) clearTimeout(costErrorTimerRef.current)
+          costErrorTimerRef.current = setTimeout(() => setCustomCostError(null), 3000)
           return
         }
         updatedTreasure = { ...latest.treasure, ...newCurrency }

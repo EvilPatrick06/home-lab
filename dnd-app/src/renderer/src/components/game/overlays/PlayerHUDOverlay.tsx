@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { resolveEffects } from '../../../services/combat/effect-resolver-5e'
 import { useNetworkStore } from '../../../stores/network-store'
 import { useCharacterStore } from '../../../stores/use-character-store'
@@ -44,6 +44,19 @@ function PlayerHUDOverlay({ character, conditions }: PlayerHUDOverlayProps): JSX
   const dragOffset = useRef({ x: 0, y: 0 })
   const hudRef = useRef<HTMLDivElement>(null)
   const [expanded, setExpanded] = useState(false)
+  // Phase 22b — hold the live drag listeners so an unmount mid-drag removes the
+  // SAME instances that were attached (they normally detach on mouseup).
+  const dragListenersRef = useRef<{ move: (e: MouseEvent) => void; up: () => void } | null>(null)
+  useEffect(
+    () => () => {
+      if (dragListenersRef.current) {
+        window.removeEventListener('mousemove', dragListenersRef.current.move)
+        window.removeEventListener('mouseup', dragListenersRef.current.up)
+        dragListenersRef.current = null
+      }
+    },
+    []
+  )
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     const target = e.target as HTMLElement
@@ -69,7 +82,9 @@ function PlayerHUDOverlay({ character, conditions }: PlayerHUDOverlayProps): JSX
       setDragging(false)
       window.removeEventListener('mousemove', onMove)
       window.removeEventListener('mouseup', onUp)
+      dragListenersRef.current = null
     }
+    dragListenersRef.current = { move: onMove, up: onUp }
     window.addEventListener('mousemove', onMove)
     window.addEventListener('mouseup', onUp)
   }, [])

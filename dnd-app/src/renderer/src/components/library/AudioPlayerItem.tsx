@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { addToast } from '../../hooks/use-toast'
 import { logger } from '../../utils/logger'
 
@@ -41,6 +41,38 @@ export default function AudioPlayerItem({
     }
   }, [])
 
+  // Phase 22b — own the <audio> element + its listeners in an effect keyed on
+  // `path` so they're torn down on unmount / path change (the old code created
+  // the element inside the click handler and never removed listeners or cancelled
+  // the RAF, leaking on unmount-mid-play).
+  useEffect(() => {
+    if (!hasPath) return
+    const audio = new Audio(path)
+    audioRef.current = audio
+    const onMeta = (): void => setDuration(audio.duration)
+    const onError = (): void => {
+      logger.warn('[AudioPlayerItem] Failed to load audio:', path)
+      addToast(`Failed to load audio: ${item.name}`, 'error')
+      setPlaying(false)
+    }
+    const onEnded = (): void => {
+      setPlaying(false)
+      setProgress(0)
+      cancelAnimationFrame(animRef.current)
+    }
+    audio.addEventListener('loadedmetadata', onMeta)
+    audio.addEventListener('error', onError)
+    audio.addEventListener('ended', onEnded)
+    return () => {
+      audio.pause()
+      audio.removeEventListener('loadedmetadata', onMeta)
+      audio.removeEventListener('error', onError)
+      audio.removeEventListener('ended', onEnded)
+      cancelAnimationFrame(animRef.current)
+      audioRef.current = null
+    }
+  }, [path, hasPath, item.name])
+
   const handleToggle = useCallback(
     (e: React.MouseEvent): void => {
       e.stopPropagation()
@@ -48,25 +80,10 @@ export default function AudioPlayerItem({
       // homebrew custom-audio entries shipped without a path field,
       // which would silently `new Audio('')` and fail. Surface it as a
       // toast + inline badge instead.
-      if (!hasPath) {
+      if (!hasPath || !audioRef.current) {
         if (!missingSource) setMissingSource(true)
         addToast(`No audio source for "${item.name}"`, 'error')
         return
-      }
-      if (!audioRef.current) {
-        const audio = new Audio(path)
-        audioRef.current = audio
-        audio.addEventListener('loadedmetadata', () => setDuration(audio.duration))
-        audio.addEventListener('error', () => {
-          logger.warn('[AudioPlayerItem] Failed to load audio:', path)
-          addToast(`Failed to load audio: ${item.name}`, 'error')
-          setPlaying(false)
-        })
-        audio.addEventListener('ended', () => {
-          setPlaying(false)
-          setProgress(0)
-          cancelAnimationFrame(animRef.current)
-        })
       }
 
       const audio = audioRef.current
@@ -93,7 +110,7 @@ export default function AudioPlayerItem({
         animRef.current = requestAnimationFrame(updateProgress)
       }
     },
-    [playing, path, hasPath, updateProgress, item.name, missingSource]
+    [playing, hasPath, updateProgress, item.name, missingSource]
   )
 
   const formatTime = (sec: number): string => {

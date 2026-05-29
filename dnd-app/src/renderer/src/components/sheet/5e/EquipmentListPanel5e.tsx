@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { isWearableItem } from '../../../data/wearable-items'
 import { useCharacterEditor } from '../../../hooks/use-character-editor'
 import { getDragPayload, hasLibraryDrag } from '../../../services/library/drag-data'
@@ -35,6 +35,14 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
   const [showGearShop, setShowGearShop] = useState(false)
   const [gearSearch, setGearSearch] = useState('')
   const [buyWarning, setBuyWarning] = useState<string | null>(null)
+  // Phase 22b — clear the auto-dismiss timer on unmount.
+  const buyWarningTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(
+    () => () => {
+      if (buyWarningTimerRef.current) clearTimeout(buyWarningTimerRef.current)
+    },
+    []
+  )
 
   const gearDatabase = useGearDatabase()
   const [equipDragOver, setEquipDragOver] = useState(false)
@@ -200,7 +208,8 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
       const result = deductWithConversion(currentCurrency, cost)
       if (!result) {
         setBuyWarning(`Not enough funds for ${item.name}`)
-        setTimeout(() => setBuyWarning(null), 3000)
+        if (buyWarningTimerRef.current) clearTimeout(buyWarningTimerRef.current)
+        buyWarningTimerRef.current = setTimeout(() => setBuyWarning(null), 3000)
         return
       }
       updatedTreasure = { ...latest.treasure, ...result }

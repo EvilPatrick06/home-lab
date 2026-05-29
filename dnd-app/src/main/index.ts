@@ -3,7 +3,7 @@ import { readdir, unlink } from 'node:fs/promises'
 import { join } from 'node:path'
 import { is, optimizer } from '@electron-toolkit/utils'
 import { app, BrowserWindow, dialog, nativeImage, shell } from 'electron'
-import { initFromSavedConfig } from './ai/ai-service'
+import { disposeAiService, initFromSavedConfig } from './ai/ai-service'
 import { applyBmoBaseUrlFromSettings } from './bmo-config'
 import { bmoCspConnectFragment } from './bmo-csp'
 import { registerIpcHandlers } from './ipc'
@@ -314,6 +314,8 @@ app.on('window-all-closed', () => {
 })
 
 app.on('will-quit', () => {
+  // Phase 22b — clear the module-scoped stale-stream sweep interval.
+  disposeAiService()
   // Release the single-instance lock so the NSIS installer doesn't think the app is still running
   app.releaseSingleInstanceLock()
 })
