@@ -32,6 +32,7 @@ import {
   unarmedStrikeDC
 } from './combat-rules'
 import { calculateCover } from './cover-calculator'
+import { getCritThreshold } from './crit-range'
 import { getCustomEffectBonuses } from './custom-effect-bridge'
 import { type DamageApplication, type DamageResolutionSummary, resolveDamage } from './damage-resolver'
 import { enforceMountedCombatRestrictions } from './mount-rules'
@@ -479,8 +480,14 @@ export function resolveAttack(
   const attackRoll = rollD20(totalBonus, rollOptions)
 
   // ── Determine hit/miss ──
-  // PHB 2024: Natural 20 always hits, Natural 1 always misses
-  const isCritical = attackRoll.natural20 && !conditionEffects.attackerCannotAct
+  // PHB 2024: Natural 20 always hits, Natural 1 always misses.
+  // Phase 17c (LOG-1) — a Champion Fighter crits on a lower natural roll (19-20
+  // at L3, 18-20 at L15). `attackRoll.rolls[0]` is the chosen natural d20 (the
+  // adv/dis pair is already collapsed to one value). Fall back to 20 when no
+  // attacker Character5e is supplied (e.g. monster stat-block attacks).
+  const critThreshold = request.attackerCharacter ? getCritThreshold(request.attackerCharacter) : 20
+  const naturalRoll = attackRoll.rolls[0] ?? 0
+  const isCritical = naturalRoll >= critThreshold && !conditionEffects.attackerCannotAct
   const isCriticalMiss = attackRoll.natural1
   const hit = isCritical || (!isCriticalMiss && attackRoll.total >= targetAC)
 

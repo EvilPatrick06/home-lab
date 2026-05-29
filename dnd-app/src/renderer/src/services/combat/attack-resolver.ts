@@ -27,6 +27,7 @@ import type { AttackOptions, AttackResult } from './attack-types'
 import type { MasteryEffectResult } from './combat-rules'
 import { checkRangedRange, getCoverACBonus, getMasteryEffect, isAdjacent, isInMeleeRange } from './combat-rules'
 import { calculateCover } from './cover-calculator'
+import { getCritThreshold } from './crit-range'
 import type { DamageResolutionSummary } from './damage-resolver'
 import { resolveDamage } from './damage-resolver'
 import type { WeaponContext } from './effect-resolver-5e'
@@ -256,7 +257,9 @@ export function resolveUnarmedStrike(
     attackRoll = rollSingle(20)
   }
 
-  const isCrit = attackRoll === 20
+  // Phase 17c (LOG-1) — Champion Fighter's Improved/Superior Critical lowers the
+  // crit threshold (19-20 at L3, 18-20 at L15); fall back to 20 for everyone else.
+  const isCrit = attackRoll >= getCritThreshold(character)
   const isFumble = attackRoll === 1
   const exhaustionPenalty = conditionEffects.exhaustionPenalty
   const attackTotal = attackRoll + totalAttackBonus + exhaustionPenalty
@@ -487,7 +490,9 @@ export function resolveAttack(
     attackRoll = rollSingle(20)
   }
 
-  const isCrit = attackRoll === 20
+  // Phase 17c (LOG-1) — Champion Fighter's Improved/Superior Critical lowers the
+  // crit threshold (19-20 at L3, 18-20 at L15); fall back to 20 for everyone else.
+  const isCrit = attackRoll >= getCritThreshold(character)
   const isFumble = attackRoll === 1
 
   // Apply exhaustion penalty
