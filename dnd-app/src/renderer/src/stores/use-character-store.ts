@@ -29,6 +29,9 @@ interface CharacterState {
   setSelectedCharacter: (id: string | null) => void
   loadCharacters: () => Promise<void>
   saveCharacter: (character: Character) => Promise<void>
+  /** Phase 23c — apply an in-memory character update (e.g. a DM broadcast) without
+   * a disk write. Inserts if absent so a player's sheet reflects DM edits live. */
+  updateCharacterInState: (id: string, data: Character) => void
   deleteCharacter: (id: string) => Promise<void>
   deleteAllCharacters: () => Promise<void>
   toggleArmorEquipped: (characterId: string, armorId: string) => Promise<void>
@@ -96,6 +99,18 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
         addToast(`Failed to save "${character.name}"`, 'error')
       }
       throw error
+    }
+  },
+
+  updateCharacterInState: (id, data) => {
+    const { characters } = get()
+    const idx = characters.findIndex((c) => c.id === id)
+    if (idx >= 0) {
+      const updated = [...characters]
+      updated[idx] = data
+      set({ characters: updated })
+    } else {
+      set({ characters: [...characters, data] })
     }
   },
 

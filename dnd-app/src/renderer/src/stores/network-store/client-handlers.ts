@@ -58,6 +58,7 @@ import {
   stopAmbient
 } from '../../services/sound-manager'
 import { logger } from '../../utils/logger'
+import { useCharacterStore } from '../use-character-store'
 import { useGameStore } from '../use-game-store'
 import { useLobbyStore } from '../use-lobby-store'
 import { useMacroStore } from '../use-macro-store'
@@ -924,6 +925,15 @@ export function handleClientMessage(
     case 'dm:character-update': {
       const payload = message.payload as CharacterUpdatePayload
       if (payload.characterData) {
+        // Phase 23c — land DM edits in the canonical character store so the
+        // player's sheet reflects them live (the sheet reads useCharacterStore,
+        // not the lobby remoteCharacters mirror). Mirror kept for back-compat.
+        useCharacterStore
+          .getState()
+          .updateCharacterInState(
+            payload.characterId,
+            payload.characterData as import('../../types/character-5e').Character5e
+          )
         useLobbyStore
           .getState()
           .setRemoteCharacter(

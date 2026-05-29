@@ -81,6 +81,21 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
     ? gearDatabase.filter((g) => g.name.toLowerCase().includes(gearSearch.toLowerCase()))
     : gearDatabase
 
+  // Phase 23k — use a consumable: decrement quantity, remove the row at 0.
+  const handleUseConsumable = (index: number): void => {
+    const latest = getLatest()
+    if (!latest || latest.gameSystem !== 'dnd5e') return
+    const l = latest as Character5e
+    const target = l.equipment[index]
+    if (!target) return
+    const nextQty = (target.quantity ?? 1) - 1
+    const equipment =
+      nextQty > 0
+        ? l.equipment.map((e, i) => (i === index ? { ...e, quantity: nextQty } : e))
+        : l.equipment.filter((_, i) => i !== index)
+    saveAndBroadcast({ ...l, equipment, updatedAt: new Date().toISOString() })
+  }
+
   const handleRemoveEquipment = (index: number): void => {
     const latest = getLatest()
     if (!latest) return
@@ -310,6 +325,15 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
                   ))}
                 {!readonly && (
                   <>
+                    {item.consumable && (
+                      <button
+                        onClick={() => handleUseConsumable(i)}
+                        className="ml-1 px-1.5 py-0.5 text-xs bg-blue-700 hover:bg-blue-600 rounded text-white cursor-pointer flex-shrink-0"
+                        title="Use one (decrements quantity)"
+                      >
+                        Use
+                      </button>
+                    )}
                     <button
                       onClick={() => handleSellEquipment(i)}
                       className="ml-1 text-gray-600 hover:text-green-400 cursor-pointer text-xs flex-shrink-0"

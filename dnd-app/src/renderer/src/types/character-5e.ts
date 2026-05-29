@@ -259,6 +259,8 @@ export interface EquipmentItem {
   currentCharges?: number
   rechargeType?: 'dawn' | 'dusk' | 'short-rest' | 'long-rest'
   rechargeFormula?: string
+  /** Phase 23k — consumable (potion/scroll/ammo): a "Use" button decrements quantity. */
+  consumable?: boolean
 }
 
 export interface Feature {
