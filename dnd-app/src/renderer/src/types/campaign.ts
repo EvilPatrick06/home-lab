@@ -3,6 +3,28 @@ import type { EntityCondition, Handout, InGameTimeState, InitiativeState, Sideba
 import type { GameSystem } from './game-system'
 import type { GameMap } from './map'
 import type { MonsterStatBlock } from './monster'
+import type { Permission } from './permissions'
+
+// ── Phase 29 — data-driven roles + permissions ──
+export interface Role {
+  id: string
+  name: string
+  description?: string
+  color?: string
+  isBuiltIn: boolean
+  permissions: Permission[]
+}
+
+export interface PlayerOverride {
+  grant: Permission[]
+  deny: Permission[]
+}
+
+export interface CampaignPermissions {
+  roles: Role[]
+  /** Keyed by peer `clientId`. */
+  playerOverrides: Record<string, PlayerOverride>
+}
 
 export type CampaignType = 'preset' | 'custom'
 export type TurnMode = 'initiative' | 'free'
@@ -113,6 +135,8 @@ export interface Campaign {
     }>
   }>
   savedGameState?: SavedGameState
+  /** Phase 29 — data-driven roles + per-player overrides. Injected on load/create when missing. */
+  permissions?: CampaignPermissions
   createdAt: string
   updatedAt: string
   archived?: boolean

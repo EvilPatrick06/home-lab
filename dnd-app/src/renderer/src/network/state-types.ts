@@ -15,6 +15,9 @@ export interface PeerInfo {
   isHost: boolean
   color?: string
   isCoDM?: boolean
+  /** Phase 29 — explicit campaign role id (into `campaign.permissions.roles`).
+   * When unset, `hasPermission` derives a built-in role from `isHost`/`isCoDM`/`role`. */
+  roleId?: string
   /** Transiently set by the host heartbeat check when a peer stops responding but hasn't yet been removed. */
   isDisconnected?: boolean
   latencyMs?: number

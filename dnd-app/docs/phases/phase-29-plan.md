@@ -169,4 +169,10 @@ flowchart LR
 - **All sub-phases:** `npm run lint`, `npx tsc --noEmit -p tsconfig.web.json`, `npx tsc --noEmit -p tsconfig.node.json`, `npx vitest run` all green.
 
 ## Completed
-(none — Phase 29 is fully PROPOSED as of 2026-05-19. No permission files, no `hasPermission` helper, no `BUILTIN_ROLES`, no `Campaign.permissions` field, `GameLayout.viewMode` still `'dm' | 'player'`, 29 `isCoDM` hits and the `networkRole === 'host'` literal in `InGamePage.tsx:59` still present.)
+
+> **PHASE 29 PARTIAL — 2026-05-29 (overnight autonomous pass; foundation done, sweep/UI/migration deferred).** 4-gate green (lint 0, tsc web+node 0, vitest 6520/6520).
+> - **29a DONE** — `types/permissions.ts` (Permission union, PermissionCategory, `PERMISSION_GROUPS` ~70 keys, `ALL_PERMISSIONS`, `getPermissionLabel`); `services/permissions/has-permission.ts` (`hasPermission` with deny>grant>role precedence + `resolvePeerRoleId` deriving built-ins from isHost/isCoDM/role). 6 unit tests (all four precedence paths + missing-role + CoDM).
+> - **29b DONE** — `Role`/`PlayerOverride`/`CampaignPermissions` + `Campaign.permissions?` in types/campaign.ts; `PeerInfo.roleId?`; `data/builtin-roles.ts` (`BUILTIN_ROLES`: DM=all, CoDM=all−host-mgmt, Player, Spectator). NOT YET wired into createCampaign (see deferred).
+> - **DEFERRED:** 29b-step3 inject on create + 29h migration on load (harmless but unused until the sweep consumes `campaign.permissions` — land together), 29c custom-role CRUD, 29d per-player override actions, 29e the literal-gate sweep (HIGH risk — replaces every `role==='host'`/`isCoDM` gameplay gate; needs app verification of DM gating), 29f view-as-role, 29g permissions editor UI. The foundation (29a/29b) is consumable by all of these.
+
+(prior: Phase 29 fully PROPOSED as of 2026-05-19. No permission files, no `hasPermission` helper, no `BUILTIN_ROLES`, no `Campaign.permissions` field, `GameLayout.viewMode` still `'dm' | 'player'`, 29 `isCoDM` hits and the `networkRole === 'host'` literal in `InGamePage.tsx:59` still present.)
