@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow } from 'electron'
 import { promises as fs } from 'fs'
 import path from 'path'
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
@@ -53,6 +53,7 @@ import type {
 import { getDmStatus, sendNarration, startDiscordDm, stopDiscordDm } from '../bmo-bridge'
 import { logToFile } from '../log'
 import { deleteConversation, loadConversation, saveConversation } from '../storage/ai-conversation-storage'
+import { handle } from './_safe'
 
 // Ensure imported types are used for type-safety
 type _ValidatedAiChatRequest = ValidatedAiChatRequest
@@ -103,7 +104,7 @@ function sanitizeCampaignId(id: unknown): string {
 export function registerAiHandlers(): void {
   // ── Configuration ──
 
-  ipcMain.handle(IPC_CHANNELS.AI_CONFIGURE, async (_event, config: AiConfig) => {
+  handle(IPC_CHANNELS.AI_CONFIGURE, async (_event, config: AiConfig) => {
     const parsed = AiConfigSchema.safeParse(config)
     if (!parsed.success) {
       return { success: false, error: `Invalid config: ${parsed.error.issues[0]?.message}` }
@@ -114,24 +115,24 @@ export function registerAiHandlers(): void {
     return { success: true }
   })
 
-  ipcMain.handle(IPC_CHANNELS.AI_GET_CONFIG, async () => {
+  handle(IPC_CHANNELS.AI_GET_CONFIG, async () => {
     return aiService.getConfig()
   })
 
-  ipcMain.handle(IPC_CHANNELS.AI_CHECK_PROVIDERS, async () => {
+  handle(IPC_CHANNELS.AI_CHECK_PROVIDERS, async () => {
     return await aiService.checkProviders()
   })
 
   // ── Cloud Provider Models ──
 
-  ipcMain.handle(IPC_CHANNELS.AI_LIST_CLOUD_MODELS, async (_event, providerType: string) => {
+  handle(IPC_CHANNELS.AI_LIST_CLOUD_MODELS, async (_event, providerType: string) => {
     if (providerType === 'ollama' || !(providerType in CLOUD_MODELS)) {
       return []
     }
     return CLOUD_MODELS[providerType as keyof typeof CLOUD_MODELS]
   })
 
-  ipcMain.handle(IPC_CHANNELS.AI_VALIDATE_API_KEY, async (_event, providerType: string, apiKey: string) => {
+  handle(IPC_CHANNELS.AI_VALIDATE_API_KEY, async (_event, providerType: string, apiKey: string) => {
     if (providerType === 'ollama') return { valid: true }
 
     const validTypes: AiProviderType[] = ['claude', 'openai', 'gemini']
@@ -155,7 +156,7 @@ export function registerAiHandlers(): void {
 
   // ── Index Building ──
 
-  ipcMain.handle(IPC_CHANNELS.AI_BUILD_INDEX, async (event) => {
+  handle(IPC_CHANNELS.AI_BUILD_INDEX, async (event) => {
     if (app.isPackaged) {
       return {
         success: false,
@@ -175,17 +176,17 @@ export function registerAiHandlers(): void {
     }
   })
 
-  ipcMain.handle(IPC_CHANNELS.AI_LOAD_INDEX, async () => {
+  handle(IPC_CHANNELS.AI_LOAD_INDEX, async () => {
     return aiService.loadIndex()
   })
 
-  ipcMain.handle(IPC_CHANNELS.AI_GET_CHUNK_COUNT, async () => {
+  handle(IPC_CHANNELS.AI_GET_CHUNK_COUNT, async () => {
     return aiService.getChunkCount()
   })
 
   // ── Streaming Chat ──
 
-  ipcMain.handle(IPC_CHANNELS.AI_CHAT_STREAM, async (event, request: AiChatRequest) => {
+  handle(IPC_CHANNELS.AI_CHAT_STREAM, async (event, request: AiChatRequest) => {
     const parsed = AiChatRequestSchema.safeParse(request)
     if (!parsed.success) {
       return { success: false, error: `Invalid request: ${parsed.error.issues[0]?.message}` }
@@ -220,12 +221,12 @@ export function registerAiHandlers(): void {
     return { success: true, streamId }
   })
 
-  ipcMain.handle(IPC_CHANNELS.AI_CANCEL_STREAM, async (_event, streamId: string) => {
+  handle(IPC_CHANNELS.AI_CANCEL_STREAM, async (_event, streamId: string) => {
     aiService.cancelChat(streamId)
     return { success: true }
   })
 
-  ipcMain.handle(IPC_CHANNELS.AI_WEB_SEARCH_APPROVE, async (_event, streamId: string, approved: boolean) => {
+  handle(IPC_CHANNELS.AI_WEB_SEARCH_APPROVE, async (_event, streamId: string, approved: boolean) => {
     if (typeof streamId !== 'string') {
       return { success: false, error: 'Invalid streamId' }
     }
@@ -237,7 +238,7 @@ export function registerAiHandlers(): void {
 
   // ── Stat Mutations ──
 
-  ipcMain.handle(IPC_CHANNELS.AI_APPLY_MUTATIONS, async (_event, characterId: string, changes: StatChange[]) => {
+  handle(IPC_CHANNELS.AI_APPLY_MUTATIONS, async (_event, characterId: string, changes: StatChange[]) => {
     // Log human-readable descriptions of each mutation
     for (const change of changes) {
       const desc = aiService.describeChange(change)
@@ -251,35 +252,35 @@ export function registerAiHandlers(): void {
     return await aiService.applyMutations(characterId, changes)
   })
 
-  ipcMain.handle(IPC_CHANNELS.AI_LONG_REST, async (_event, characterId: string) => {
+  handle(IPC_CHANNELS.AI_LONG_REST, async (_event, characterId: string) => {
     logToFile('info', `[AI Mutation] ${characterId}: long rest`)
     return await aiService.applyLongRestMutations(characterId)
   })
 
-  ipcMain.handle(IPC_CHANNELS.AI_SHORT_REST, async (_event, characterId: string) => {
+  handle(IPC_CHANNELS.AI_SHORT_REST, async (_event, characterId: string) => {
     logToFile('info', `[AI Mutation] ${characterId}: short rest`)
     return await aiService.applyShortRestMutations(characterId)
   })
 
   // ── Scene Preparation ──
 
-  ipcMain.handle(IPC_CHANNELS.AI_PREPARE_SCENE, async (_event, campaignId: string, characterIds: string[]) => {
+  handle(IPC_CHANNELS.AI_PREPARE_SCENE, async (_event, campaignId: string, characterIds: string[]) => {
     const streamId = aiService.prepareScene(campaignId, characterIds)
     return { success: true, streamId }
   })
 
-  ipcMain.handle(IPC_CHANNELS.AI_GET_SCENE_STATUS, async (_event, campaignId: string) => {
+  handle(IPC_CHANNELS.AI_GET_SCENE_STATUS, async (_event, campaignId: string) => {
     return aiService.getSceneStatus(campaignId)
   })
 
   // Phase 17d (NET-17) — AI_CONNECTION_STATUS handler removed: no preload/renderer caller exists.
   // Re-add with a preload entry if a consumer is ever introduced.
 
-  ipcMain.handle(IPC_CHANNELS.AI_TOKEN_BUDGET, async () => {
+  handle(IPC_CHANNELS.AI_TOKEN_BUDGET, async () => {
     return getLastTokenBreakdown()
   })
 
-  ipcMain.handle(IPC_CHANNELS.AI_TOKEN_BUDGET_PREVIEW, async (_event, campaignId: string, characterIds: string[]) => {
+  handle(IPC_CHANNELS.AI_TOKEN_BUDGET_PREVIEW, async (_event, campaignId: string, characterIds: string[]) => {
     // Build context without sending a message — just to populate the token breakdown
     try {
       await buildContext('preview query for token budget', characterIds, campaignId)
@@ -289,7 +290,7 @@ export function registerAiHandlers(): void {
     }
   })
 
-  ipcMain.handle(IPC_CHANNELS.AI_GENERATE_END_OF_SESSION_RECAP, async (_event, campaignId: string) => {
+  handle(IPC_CHANNELS.AI_GENERATE_END_OF_SESSION_RECAP, async (_event, campaignId: string) => {
     try {
       const summary = await aiService.generateSessionSummary(campaignId)
       if (summary) {
@@ -303,7 +304,7 @@ export function registerAiHandlers(): void {
 
   // ── Conversation Persistence ──
 
-  ipcMain.handle(IPC_CHANNELS.AI_SAVE_CONVERSATION, async (_event, campaignId: string) => {
+  handle(IPC_CHANNELS.AI_SAVE_CONVERSATION, async (_event, campaignId: string) => {
     sanitizeCampaignId(campaignId)
     const conv = aiService.getConversationManager(campaignId)
     const data = conv.serialize()
@@ -316,17 +317,14 @@ export function registerAiHandlers(): void {
     return { success: true, summary }
   })
 
-  ipcMain.handle(
-    IPC_CHANNELS.AI_RESTORE_CONVERSATION,
-    async (_event, campaignId: string, data: Record<string, unknown>) => {
-      sanitizeCampaignId(campaignId)
-      const result = await saveConversation(campaignId, data as unknown as ConversationData)
-      if (!result.success) return { success: false, error: result.error }
-      return { success: true }
-    }
-  )
+  handle(IPC_CHANNELS.AI_RESTORE_CONVERSATION, async (_event, campaignId: string, data: Record<string, unknown>) => {
+    sanitizeCampaignId(campaignId)
+    const result = await saveConversation(campaignId, data as unknown as ConversationData)
+    if (!result.success) return { success: false, error: result.error }
+    return { success: true }
+  })
 
-  ipcMain.handle(IPC_CHANNELS.AI_LOAD_CONVERSATION, async (_event, campaignId: string) => {
+  handle(IPC_CHANNELS.AI_LOAD_CONVERSATION, async (_event, campaignId: string) => {
     sanitizeCampaignId(campaignId)
     const result = await loadConversation(campaignId)
     if (result.success && result.data) {
@@ -337,7 +335,7 @@ export function registerAiHandlers(): void {
     return { success: false, error: result.error }
   })
 
-  ipcMain.handle(IPC_CHANNELS.AI_DELETE_CONVERSATION, async (_event, campaignId: string) => {
+  handle(IPC_CHANNELS.AI_DELETE_CONVERSATION, async (_event, campaignId: string) => {
     sanitizeCampaignId(campaignId)
     const result = await deleteConversation(campaignId)
     if (!result.success) return { success: false, error: result.error }
@@ -346,7 +344,7 @@ export function registerAiHandlers(): void {
 
   // ── Memory Files ──
 
-  ipcMain.handle(IPC_CHANNELS.AI_LIST_MEMORY_FILES, async (_event, campaignId: string) => {
+  handle(IPC_CHANNELS.AI_LIST_MEMORY_FILES, async (_event, campaignId: string) => {
     sanitizeCampaignId(campaignId)
     const memoryDir = path.join(app.getPath('userData'), 'campaigns', campaignId, 'ai-context')
     const results: Array<{ name: string; size: number }> = []
@@ -380,7 +378,7 @@ export function registerAiHandlers(): void {
     return results
   })
 
-  ipcMain.handle(IPC_CHANNELS.AI_READ_MEMORY_FILE, async (_event, campaignId: string, fileName: string) => {
+  handle(IPC_CHANNELS.AI_READ_MEMORY_FILE, async (_event, campaignId: string, fileName: string) => {
     sanitizeCampaignId(campaignId)
     // Prevent directory traversal
     const normalized = path.normalize(fileName)
@@ -391,7 +389,7 @@ export function registerAiHandlers(): void {
     return await fs.readFile(filePath, 'utf-8')
   })
 
-  ipcMain.handle(IPC_CHANNELS.AI_CLEAR_MEMORY, async (_event, campaignId: string) => {
+  handle(IPC_CHANNELS.AI_CLEAR_MEMORY, async (_event, campaignId: string) => {
     sanitizeCampaignId(campaignId)
     const memoryDir = path.join(app.getPath('userData'), 'campaigns', campaignId, 'ai-context')
     try {
@@ -403,37 +401,31 @@ export function registerAiHandlers(): void {
 
   // ── Live State Sync ──
 
-  ipcMain.handle(
-    IPC_CHANNELS.AI_SYNC_WORLD_STATE,
-    async (_event, campaignId: string, state: Record<string, unknown>) => {
-      try {
-        const memMgr = getMemoryManager(campaignId)
-        await memMgr.updateWorldState(state as Partial<WorldState>)
-        return { success: true }
-      } catch (error) {
-        logToFile('error', `[AI Memory] Failed to sync world state: ${(error as Error).message}`)
-        return { success: false, error: (error as Error).message }
-      }
+  handle(IPC_CHANNELS.AI_SYNC_WORLD_STATE, async (_event, campaignId: string, state: Record<string, unknown>) => {
+    try {
+      const memMgr = getMemoryManager(campaignId)
+      await memMgr.updateWorldState(state as Partial<WorldState>)
+      return { success: true }
+    } catch (error) {
+      logToFile('error', `[AI Memory] Failed to sync world state: ${(error as Error).message}`)
+      return { success: false, error: (error as Error).message }
     }
-  )
+  })
 
-  ipcMain.handle(
-    IPC_CHANNELS.AI_SYNC_COMBAT_STATE,
-    async (_event, campaignId: string, state: Record<string, unknown>) => {
-      try {
-        const memMgr = getMemoryManager(campaignId)
-        await memMgr.updateCombatState(state as unknown as CombatState)
-        return { success: true }
-      } catch (error) {
-        logToFile('error', `[AI Memory] Failed to sync combat state: ${(error as Error).message}`)
-        return { success: false, error: (error as Error).message }
-      }
+  handle(IPC_CHANNELS.AI_SYNC_COMBAT_STATE, async (_event, campaignId: string, state: Record<string, unknown>) => {
+    try {
+      const memMgr = getMemoryManager(campaignId)
+      await memMgr.updateCombatState(state as unknown as CombatState)
+      return { success: true }
+    } catch (error) {
+      logToFile('error', `[AI Memory] Failed to sync combat state: ${(error as Error).message}`)
+      return { success: false, error: (error as Error).message }
     }
-  )
+  })
 
   // ── NPC Relationship Tracking ──
 
-  ipcMain.handle(
+  handle(
     IPC_CHANNELS.AI_LOG_NPC_INTERACTION,
     async (_event, campaignId: string, npcName: string, summary: string, attitudeAfter: string) => {
       const validAttitudes = ['friendly', 'neutral', 'hostile'] as const
@@ -446,7 +438,7 @@ export function registerAiHandlers(): void {
     }
   )
 
-  ipcMain.handle(
+  handle(
     IPC_CHANNELS.AI_SET_NPC_RELATIONSHIP,
     async (
       _event,
@@ -473,15 +465,15 @@ export function registerAiHandlers(): void {
 
   // ── Ollama Management ──
 
-  ipcMain.handle(IPC_CHANNELS.AI_DETECT_OLLAMA, async () => {
+  handle(IPC_CHANNELS.AI_DETECT_OLLAMA, async () => {
     return await detectOllama()
   })
 
-  ipcMain.handle(IPC_CHANNELS.AI_GET_VRAM, async () => {
+  handle(IPC_CHANNELS.AI_GET_VRAM, async () => {
     return await getSystemVram()
   })
 
-  ipcMain.handle(IPC_CHANNELS.AI_DOWNLOAD_OLLAMA, async (event) => {
+  handle(IPC_CHANNELS.AI_DOWNLOAD_OLLAMA, async (event) => {
     const win = BrowserWindow.fromWebContents(event.sender)
     try {
       const path = await downloadOllama((percent) => {
@@ -493,7 +485,7 @@ export function registerAiHandlers(): void {
     }
   })
 
-  ipcMain.handle(IPC_CHANNELS.AI_INSTALL_OLLAMA, async (_event, installerPath: string) => {
+  handle(IPC_CHANNELS.AI_INSTALL_OLLAMA, async (_event, installerPath: string) => {
     try {
       await installOllama(installerPath)
       return { success: true }
@@ -502,7 +494,7 @@ export function registerAiHandlers(): void {
     }
   })
 
-  ipcMain.handle(IPC_CHANNELS.AI_START_OLLAMA, async () => {
+  handle(IPC_CHANNELS.AI_START_OLLAMA, async () => {
     try {
       await startOllama()
       return { success: true }
@@ -511,7 +503,7 @@ export function registerAiHandlers(): void {
     }
   })
 
-  ipcMain.handle(IPC_CHANNELS.AI_PULL_MODEL, async (event, model: string) => {
+  handle(IPC_CHANNELS.AI_PULL_MODEL, async (event, model: string) => {
     const win = BrowserWindow.fromWebContents(event.sender)
     try {
       await pullModel(model, (percent) => {
@@ -523,19 +515,19 @@ export function registerAiHandlers(): void {
     }
   })
 
-  ipcMain.handle(IPC_CHANNELS.AI_GET_CURATED_MODELS, async () => {
+  handle(IPC_CHANNELS.AI_GET_CURATED_MODELS, async () => {
     return CURATED_MODELS
   })
 
-  ipcMain.handle(IPC_CHANNELS.AI_LIST_INSTALLED_MODELS, async () => {
+  handle(IPC_CHANNELS.AI_LIST_INSTALLED_MODELS, async () => {
     return await listInstalledModels()
   })
 
-  ipcMain.handle(IPC_CHANNELS.AI_LIST_INSTALLED_MODELS_DETAILED, async () => {
+  handle(IPC_CHANNELS.AI_LIST_INSTALLED_MODELS_DETAILED, async () => {
     return await listInstalledModelsDetailed()
   })
 
-  ipcMain.handle(IPC_CHANNELS.AI_OLLAMA_CHECK_UPDATE, async () => {
+  handle(IPC_CHANNELS.AI_OLLAMA_CHECK_UPDATE, async () => {
     try {
       return { success: true, data: await checkOllamaUpdate() }
     } catch (error) {
@@ -543,7 +535,7 @@ export function registerAiHandlers(): void {
     }
   })
 
-  ipcMain.handle(IPC_CHANNELS.AI_OLLAMA_UPDATE, async (event) => {
+  handle(IPC_CHANNELS.AI_OLLAMA_UPDATE, async (event) => {
     const win = BrowserWindow.fromWebContents(event.sender)
     try {
       await updateOllama((percent) => {
@@ -558,7 +550,7 @@ export function registerAiHandlers(): void {
     }
   })
 
-  ipcMain.handle(IPC_CHANNELS.AI_DELETE_MODEL, async (_event, model: string) => {
+  handle(IPC_CHANNELS.AI_DELETE_MODEL, async (_event, model: string) => {
     try {
       await deleteModel(model)
       return { success: true }
@@ -569,7 +561,7 @@ export function registerAiHandlers(): void {
 
   // ── AI Vision / Map Analysis ──
 
-  ipcMain.handle(IPC_CHANNELS.AI_CAPTURE_MAP, async () => {
+  handle(IPC_CHANNELS.AI_CAPTURE_MAP, async () => {
     try {
       const buffer = await captureMapScreenshot()
       if (!buffer) return { success: false, error: 'No window available' }
@@ -579,7 +571,7 @@ export function registerAiHandlers(): void {
     }
   })
 
-  ipcMain.handle(IPC_CHANNELS.AI_ANALYZE_MAP, async (_event, gameState: Record<string, unknown>) => {
+  handle(IPC_CHANNELS.AI_ANALYZE_MAP, async (_event, gameState: Record<string, unknown>) => {
     try {
       return await analyzeMapState(gameState as MapStateForVisionAnalysis)
     } catch (error) {
@@ -589,7 +581,7 @@ export function registerAiHandlers(): void {
 
   // ── AI Proactive Triggers ──
 
-  ipcMain.handle(IPC_CHANNELS.AI_TRIGGER_STATE_UPDATE, async (_event, state: Record<string, unknown>) => {
+  handle(IPC_CHANNELS.AI_TRIGGER_STATE_UPDATE, async (_event, state: Record<string, unknown>) => {
     try {
       const results = processStateUpdate(state as unknown as GameStateSnapshot)
       return { success: true, fired: results }
@@ -600,19 +592,19 @@ export function registerAiHandlers(): void {
 
   // ── BMO Pi Bridge ──
 
-  ipcMain.handle(IPC_CHANNELS.BMO_START_DM, async (_e, campaignId: string) => {
+  handle(IPC_CHANNELS.BMO_START_DM, async (_e, campaignId: string) => {
     return startDiscordDm(campaignId)
   })
 
-  ipcMain.handle(IPC_CHANNELS.BMO_STOP_DM, async () => {
+  handle(IPC_CHANNELS.BMO_STOP_DM, async () => {
     return stopDiscordDm()
   })
 
-  ipcMain.handle(IPC_CHANNELS.BMO_NARRATE, async (_e, text: string, npc?: string, emotion?: string) => {
+  handle(IPC_CHANNELS.BMO_NARRATE, async (_e, text: string, npc?: string, emotion?: string) => {
     return sendNarration(text, npc, emotion)
   })
 
-  ipcMain.handle(IPC_CHANNELS.BMO_STATUS, async () => {
+  handle(IPC_CHANNELS.BMO_STATUS, async () => {
     return getDmStatus()
   })
 }

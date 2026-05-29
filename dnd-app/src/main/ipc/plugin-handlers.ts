@@ -1,4 +1,4 @@
-import { BrowserWindow, dialog, ipcMain } from 'electron'
+import { BrowserWindow, dialog } from 'electron'
 import { z } from 'zod'
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
 import type { PluginManifest } from '../../shared/plugin-types'
@@ -7,6 +7,7 @@ import { getEnabledPluginIds, setPluginEnabled } from '../plugins/plugin-config'
 import { installFromZip, uninstallPlugin } from '../plugins/plugin-installer'
 import { scanPlugins } from '../plugins/plugin-scanner'
 import { deletePluginStorage, getPluginStorage, setPluginStorage } from '../plugins/plugin-storage'
+import { handle } from './_safe'
 
 const PluginIdSchema = z.string().min(1).max(200)
 const PluginKeySchema = z.string().min(1).max(500)
@@ -20,11 +21,11 @@ function parsePluginId(raw: unknown): { ok: true; id: string } | { ok: false; er
 }
 
 export function registerPluginHandlers(): void {
-  ipcMain.handle(IPC_CHANNELS.PLUGIN_SCAN, async () => {
+  handle(IPC_CHANNELS.PLUGIN_SCAN, async () => {
     return scanPlugins()
   })
 
-  ipcMain.handle(IPC_CHANNELS.PLUGIN_ENABLE, async (_event, pluginId: unknown) => {
+  handle(IPC_CHANNELS.PLUGIN_ENABLE, async (_event, pluginId: unknown) => {
     const p = parsePluginId(pluginId)
     if (!p.ok) {
       return { success: false, error: p.err }
@@ -33,7 +34,7 @@ export function registerPluginHandlers(): void {
     return { success: true }
   })
 
-  ipcMain.handle(IPC_CHANNELS.PLUGIN_DISABLE, async (_event, pluginId: unknown) => {
+  handle(IPC_CHANNELS.PLUGIN_DISABLE, async (_event, pluginId: unknown) => {
     const p = parsePluginId(pluginId)
     if (!p.ok) {
       return { success: false, error: p.err }
@@ -42,7 +43,7 @@ export function registerPluginHandlers(): void {
     return { success: true }
   })
 
-  ipcMain.handle(IPC_CHANNELS.PLUGIN_LOAD_CONTENT, async (_event, pluginId: unknown, manifest: PluginManifest) => {
+  handle(IPC_CHANNELS.PLUGIN_LOAD_CONTENT, async (_event, pluginId: unknown, manifest: PluginManifest) => {
     const p = parsePluginId(pluginId)
     if (!p.ok) {
       return { error: p.err }
@@ -50,12 +51,12 @@ export function registerPluginHandlers(): void {
     return loadAllContentPackData(p.id, manifest)
   })
 
-  ipcMain.handle(IPC_CHANNELS.PLUGIN_GET_ENABLED, async () => {
+  handle(IPC_CHANNELS.PLUGIN_GET_ENABLED, async () => {
     const ids = await getEnabledPluginIds()
     return Array.from(ids)
   })
 
-  ipcMain.handle(IPC_CHANNELS.PLUGIN_INSTALL, async () => {
+  handle(IPC_CHANNELS.PLUGIN_INSTALL, async () => {
     const win = BrowserWindow.getFocusedWindow()
     const result = await dialog.showOpenDialog(win ?? BrowserWindow.getAllWindows()[0], {
       title: 'Install Plugin',
@@ -70,7 +71,7 @@ export function registerPluginHandlers(): void {
     return installFromZip(result.filePaths[0])
   })
 
-  ipcMain.handle(IPC_CHANNELS.PLUGIN_UNINSTALL, async (_event, pluginId: unknown) => {
+  handle(IPC_CHANNELS.PLUGIN_UNINSTALL, async (_event, pluginId: unknown) => {
     const p = parsePluginId(pluginId)
     if (!p.ok) {
       return { success: false, error: p.err }
@@ -80,7 +81,7 @@ export function registerPluginHandlers(): void {
 
   // --- Per-plugin storage ---
 
-  ipcMain.handle(IPC_CHANNELS.PLUGIN_STORAGE_GET, async (_event, pluginId: unknown, key: unknown) => {
+  handle(IPC_CHANNELS.PLUGIN_STORAGE_GET, async (_event, pluginId: unknown, key: unknown) => {
     const p = parsePluginId(pluginId)
     const k = PluginKeySchema.safeParse(key)
     if (!p.ok || !k.success) {
@@ -89,7 +90,7 @@ export function registerPluginHandlers(): void {
     return getPluginStorage(p.id, k.data)
   })
 
-  ipcMain.handle(IPC_CHANNELS.PLUGIN_STORAGE_SET, async (_event, pluginId: unknown, key: unknown, value: unknown) => {
+  handle(IPC_CHANNELS.PLUGIN_STORAGE_SET, async (_event, pluginId: unknown, key: unknown, value: unknown) => {
     const p = parsePluginId(pluginId)
     const k = PluginKeySchema.safeParse(key)
     if (!p.ok || !k.success) {
@@ -98,7 +99,7 @@ export function registerPluginHandlers(): void {
     return setPluginStorage(p.id, k.data, value)
   })
 
-  ipcMain.handle(IPC_CHANNELS.PLUGIN_STORAGE_DELETE, async (_event, pluginId: unknown, key: unknown) => {
+  handle(IPC_CHANNELS.PLUGIN_STORAGE_DELETE, async (_event, pluginId: unknown, key: unknown) => {
     const p = parsePluginId(pluginId)
     const k = PluginKeySchema.safeParse(key)
     if (!p.ok || !k.success) {

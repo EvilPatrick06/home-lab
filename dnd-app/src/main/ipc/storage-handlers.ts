@@ -1,4 +1,3 @@
-import { ipcMain } from 'electron'
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
 import {
   BastionSaveSchema,
@@ -58,6 +57,7 @@ import {
 } from '../storage/map-library-storage'
 import { AppSettingsSchema, loadSettings, saveSettings } from '../storage/settings-storage'
 import { deleteShopTemplate, getShopTemplate, listShopTemplates, saveShopTemplate } from '../storage/shop-storage'
+import { handle } from './_safe'
 
 // Ensure imported types are used for type-safety
 type _CharacterVersion = CharacterVersion
@@ -65,14 +65,14 @@ type _CharacterVersion = CharacterVersion
 export function registerStorageHandlers(): void {
   // --- Character storage ---
 
-  ipcMain.handle(IPC_CHANNELS.SAVE_CHARACTER, async (_event, character) => {
+  handle(IPC_CHANNELS.SAVE_CHARACTER, async (_event, character) => {
     const parsed = CharacterSaveSchema.safeParse(character)
     if (!parsed.success) return { success: false, error: `Invalid character data: ${parsed.error.message}` }
     const result = await saveCharacter(parsed.data)
     return { success: result.success, error: result.error }
   })
 
-  ipcMain.handle(IPC_CHANNELS.LOAD_CHARACTERS, async () => {
+  handle(IPC_CHANNELS.LOAD_CHARACTERS, async () => {
     const result = await loadCharacters()
     if (result.success) {
       return result.data
@@ -80,7 +80,7 @@ export function registerStorageHandlers(): void {
     return { success: false, error: result.error ?? 'Failed to load characters' }
   })
 
-  ipcMain.handle(IPC_CHANNELS.LOAD_CHARACTER, async (_event, id: string) => {
+  handle(IPC_CHANNELS.LOAD_CHARACTER, async (_event, id: string) => {
     const result = await loadCharacter(id)
     if (result.success) {
       return result.data
@@ -88,7 +88,7 @@ export function registerStorageHandlers(): void {
     return { success: false, error: result.error ?? 'Failed to load character' }
   })
 
-  ipcMain.handle(IPC_CHANNELS.DELETE_CHARACTER, async (_event, id: string) => {
+  handle(IPC_CHANNELS.DELETE_CHARACTER, async (_event, id: string) => {
     const result = await deleteCharacter(id)
     if (result.success) {
       return result.data
@@ -96,11 +96,11 @@ export function registerStorageHandlers(): void {
     return { success: false, error: result.error ?? 'Failed to delete character' }
   })
 
-  ipcMain.handle(IPC_CHANNELS.CHARACTER_VERSIONS, async (_event, id: string) => {
+  handle(IPC_CHANNELS.CHARACTER_VERSIONS, async (_event, id: string) => {
     return listCharacterVersions(id)
   })
 
-  ipcMain.handle(IPC_CHANNELS.CHARACTER_RESTORE_VERSION, async (_event, id: string, fileName: string) => {
+  handle(IPC_CHANNELS.CHARACTER_RESTORE_VERSION, async (_event, id: string, fileName: string) => {
     // Phase 17a (NET-12) — fileName flows into a version-file path; reject separators / traversal
     // and require the expected extension before delegating.
     if (
@@ -118,14 +118,14 @@ export function registerStorageHandlers(): void {
 
   // --- Campaign storage ---
 
-  ipcMain.handle(IPC_CHANNELS.SAVE_CAMPAIGN, async (_event, campaign) => {
+  handle(IPC_CHANNELS.SAVE_CAMPAIGN, async (_event, campaign) => {
     const parsed = CampaignSaveSchema.safeParse(campaign)
     if (!parsed.success) return { success: false, error: `Invalid campaign data: ${parsed.error.message}` }
     const result = await saveCampaign(parsed.data)
     return { success: result.success, error: result.error }
   })
 
-  ipcMain.handle(IPC_CHANNELS.LOAD_CAMPAIGNS, async () => {
+  handle(IPC_CHANNELS.LOAD_CAMPAIGNS, async () => {
     const result = await loadCampaigns()
     if (result.success) {
       return result.data
@@ -133,7 +133,7 @@ export function registerStorageHandlers(): void {
     return { success: false, error: result.error ?? 'Failed to load campaigns' }
   })
 
-  ipcMain.handle(IPC_CHANNELS.LOAD_CAMPAIGN, async (_event, id: string) => {
+  handle(IPC_CHANNELS.LOAD_CAMPAIGN, async (_event, id: string) => {
     const result = await loadCampaign(id)
     if (result.success) {
       return result.data
@@ -141,7 +141,7 @@ export function registerStorageHandlers(): void {
     return { success: false, error: result.error ?? 'Failed to load campaign' }
   })
 
-  ipcMain.handle(IPC_CHANNELS.DELETE_CAMPAIGN, async (_event, id: string) => {
+  handle(IPC_CHANNELS.DELETE_CAMPAIGN, async (_event, id: string) => {
     const result = await deleteCampaign(id)
     if (result.success) {
       return result.data
@@ -151,14 +151,14 @@ export function registerStorageHandlers(): void {
 
   // --- Bastion storage ---
 
-  ipcMain.handle(IPC_CHANNELS.SAVE_BASTION, async (_event, bastion) => {
+  handle(IPC_CHANNELS.SAVE_BASTION, async (_event, bastion) => {
     const parsed = BastionSaveSchema.safeParse(bastion)
     if (!parsed.success) return { success: false, error: `Invalid bastion data: ${parsed.error.message}` }
     const result = await saveBastion(parsed.data)
     return { success: result.success, error: result.error }
   })
 
-  ipcMain.handle(IPC_CHANNELS.LOAD_BASTIONS, async () => {
+  handle(IPC_CHANNELS.LOAD_BASTIONS, async () => {
     const result = await loadBastions()
     if (result.success) {
       return result.data
@@ -166,7 +166,7 @@ export function registerStorageHandlers(): void {
     return { success: false, error: result.error ?? 'Failed to load bastions' }
   })
 
-  ipcMain.handle(IPC_CHANNELS.LOAD_BASTION, async (_event, id: string) => {
+  handle(IPC_CHANNELS.LOAD_BASTION, async (_event, id: string) => {
     const result = await loadBastion(id)
     if (result.success) {
       return result.data
@@ -174,7 +174,7 @@ export function registerStorageHandlers(): void {
     return { success: false, error: result.error ?? 'Failed to load bastion' }
   })
 
-  ipcMain.handle(IPC_CHANNELS.DELETE_BASTION, async (_event, id: string) => {
+  handle(IPC_CHANNELS.DELETE_BASTION, async (_event, id: string) => {
     const result = await deleteBastion(id)
     if (result.success) {
       return result.data
@@ -184,14 +184,14 @@ export function registerStorageHandlers(): void {
 
   // --- Custom creature storage ---
 
-  ipcMain.handle(IPC_CHANNELS.SAVE_CUSTOM_CREATURE, async (_event, creature) => {
+  handle(IPC_CHANNELS.SAVE_CUSTOM_CREATURE, async (_event, creature) => {
     const parsed = CustomCreatureSaveSchema.safeParse(creature)
     if (!parsed.success) return { success: false, error: `Invalid creature data: ${parsed.error.message}` }
     const result = await saveCustomCreature(parsed.data)
     return { success: result.success, error: result.error }
   })
 
-  ipcMain.handle(IPC_CHANNELS.LOAD_CUSTOM_CREATURES, async () => {
+  handle(IPC_CHANNELS.LOAD_CUSTOM_CREATURES, async () => {
     const result = await loadCustomCreatures()
     if (result.success) {
       return result.data
@@ -199,7 +199,7 @@ export function registerStorageHandlers(): void {
     return { success: false, error: result.error ?? 'Failed to load custom creatures' }
   })
 
-  ipcMain.handle(IPC_CHANNELS.LOAD_CUSTOM_CREATURE, async (_event, id: string) => {
+  handle(IPC_CHANNELS.LOAD_CUSTOM_CREATURE, async (_event, id: string) => {
     const result = await loadCustomCreature(id)
     if (result.success) {
       return result.data
@@ -207,7 +207,7 @@ export function registerStorageHandlers(): void {
     return { success: false, error: result.error ?? 'Failed to load custom creature' }
   })
 
-  ipcMain.handle(IPC_CHANNELS.DELETE_CUSTOM_CREATURE, async (_event, id: string) => {
+  handle(IPC_CHANNELS.DELETE_CUSTOM_CREATURE, async (_event, id: string) => {
     const result = await deleteCustomCreature(id)
     if (result.success) {
       return result.data
@@ -217,14 +217,14 @@ export function registerStorageHandlers(): void {
 
   // --- Game state storage ---
 
-  ipcMain.handle(IPC_CHANNELS.SAVE_GAME_STATE, async (_event, campaignId: string, state: Record<string, unknown>) => {
+  handle(IPC_CHANNELS.SAVE_GAME_STATE, async (_event, campaignId: string, state: Record<string, unknown>) => {
     const parsed = GameStateSaveSchema.safeParse(state)
     if (!parsed.success) return { success: false, error: `Invalid state data: ${parsed.error.message}` }
     const result = await saveGameStateStorage(campaignId, parsed.data)
     return { success: result.success, error: result.error }
   })
 
-  ipcMain.handle(IPC_CHANNELS.LOAD_GAME_STATE, async (_event, campaignId: string) => {
+  handle(IPC_CHANNELS.LOAD_GAME_STATE, async (_event, campaignId: string) => {
     const result = await loadGameStateStorage(campaignId)
     if (result.success) {
       return result.data
@@ -232,7 +232,7 @@ export function registerStorageHandlers(): void {
     return null
   })
 
-  ipcMain.handle(IPC_CHANNELS.DELETE_GAME_STATE, async (_event, campaignId: string) => {
+  handle(IPC_CHANNELS.DELETE_GAME_STATE, async (_event, campaignId: string) => {
     const result = await deleteGameState(campaignId)
     if (result.success) {
       return result.data
@@ -242,26 +242,26 @@ export function registerStorageHandlers(): void {
 
   // --- Homebrew storage ---
 
-  ipcMain.handle(IPC_CHANNELS.SAVE_HOMEBREW, async (_event, entry) => {
+  handle(IPC_CHANNELS.SAVE_HOMEBREW, async (_event, entry) => {
     const parsed = HomebrewSaveSchema.safeParse(entry)
     if (!parsed.success) return { success: false, error: `Invalid homebrew data: ${parsed.error.message}` }
     const result = await saveHomebrewEntry(parsed.data)
     return { success: result.success, error: result.error }
   })
 
-  ipcMain.handle(IPC_CHANNELS.LOAD_HOMEBREW_BY_CATEGORY, async (_event, category: string) => {
+  handle(IPC_CHANNELS.LOAD_HOMEBREW_BY_CATEGORY, async (_event, category: string) => {
     const result = await loadHomebrewEntries(category)
     if (result.success) return result.data
     return { success: false, error: result.error ?? 'Failed to load homebrew entries' }
   })
 
-  ipcMain.handle(IPC_CHANNELS.LOAD_ALL_HOMEBREW, async () => {
+  handle(IPC_CHANNELS.LOAD_ALL_HOMEBREW, async () => {
     const result = await loadAllHomebrew()
     if (result.success) return result.data
     return { success: false, error: result.error ?? 'Failed to load all homebrew' }
   })
 
-  ipcMain.handle(IPC_CHANNELS.DELETE_HOMEBREW, async (_event, category: string, id: string) => {
+  handle(IPC_CHANNELS.DELETE_HOMEBREW, async (_event, category: string, id: string) => {
     const result = await deleteHomebrewEntry(category, id)
     if (result.success) return result.data
     return { success: false, error: result.error ?? 'Failed to delete homebrew entry' }
@@ -269,12 +269,12 @@ export function registerStorageHandlers(): void {
 
   // --- Settings storage ---
 
-  ipcMain.handle(IPC_CHANNELS.LOAD_SETTINGS, async () => {
+  handle(IPC_CHANNELS.LOAD_SETTINGS, async () => {
     const result = await loadSettings()
     return result.data ?? {}
   })
 
-  ipcMain.handle(IPC_CHANNELS.SAVE_SETTINGS, async (_event, settings: unknown) => {
+  handle(IPC_CHANNELS.SAVE_SETTINGS, async (_event, settings: unknown) => {
     const parsed = AppSettingsSchema.safeParse(settings)
     if (!parsed.success) {
       return { success: false, error: `Invalid settings: ${parsed.error.message}` } as const
@@ -288,12 +288,12 @@ export function registerStorageHandlers(): void {
 
   // --- Ban storage ---
 
-  ipcMain.handle(IPC_CHANNELS.LOAD_BANS, async (_event, campaignId: string) => {
+  handle(IPC_CHANNELS.LOAD_BANS, async (_event, campaignId: string) => {
     const result = await loadBans(campaignId)
     return result.data ?? { peerIds: [], names: [] }
   })
 
-  ipcMain.handle(
+  handle(
     IPC_CHANNELS.SAVE_BANS,
     async (
       _event,
@@ -310,82 +310,79 @@ export function registerStorageHandlers(): void {
 
   // --- Map Library storage ---
 
-  ipcMain.handle(
-    IPC_CHANNELS.MAP_LIBRARY_SAVE,
-    async (_event, id: string, name: string, data: Record<string, unknown>) => {
-      return saveMapToLibrary(id, name, data)
-    }
-  )
+  handle(IPC_CHANNELS.MAP_LIBRARY_SAVE, async (_event, id: string, name: string, data: Record<string, unknown>) => {
+    return saveMapToLibrary(id, name, data)
+  })
 
-  ipcMain.handle(IPC_CHANNELS.MAP_LIBRARY_LIST, async () => {
+  handle(IPC_CHANNELS.MAP_LIBRARY_LIST, async () => {
     return listMapLibrary()
   })
 
-  ipcMain.handle(IPC_CHANNELS.MAP_LIBRARY_GET, async (_event, id: string) => {
+  handle(IPC_CHANNELS.MAP_LIBRARY_GET, async (_event, id: string) => {
     return getMapFromLibrary(id)
   })
 
-  ipcMain.handle(IPC_CHANNELS.MAP_LIBRARY_DELETE, async (_event, id: string) => {
+  handle(IPC_CHANNELS.MAP_LIBRARY_DELETE, async (_event, id: string) => {
     return deleteMapFromLibrary(id)
   })
 
   // --- Shop Template storage ---
 
-  ipcMain.handle(
+  handle(
     IPC_CHANNELS.SHOP_TEMPLATE_SAVE,
     async (_event, template: { id: string; name: string; inventory: unknown[]; markup: number }) => {
       return saveShopTemplate(template)
     }
   )
 
-  ipcMain.handle(IPC_CHANNELS.SHOP_TEMPLATE_LIST, async () => {
+  handle(IPC_CHANNELS.SHOP_TEMPLATE_LIST, async () => {
     return listShopTemplates()
   })
 
-  ipcMain.handle(IPC_CHANNELS.SHOP_TEMPLATE_GET, async (_event, id: string) => {
+  handle(IPC_CHANNELS.SHOP_TEMPLATE_GET, async (_event, id: string) => {
     return getShopTemplate(id)
   })
 
-  ipcMain.handle(IPC_CHANNELS.SHOP_TEMPLATE_DELETE, async (_event, id: string) => {
+  handle(IPC_CHANNELS.SHOP_TEMPLATE_DELETE, async (_event, id: string) => {
     return deleteShopTemplate(id)
   })
 
   // --- Image Library storage ---
 
-  ipcMain.handle(
+  handle(
     IPC_CHANNELS.IMAGE_LIBRARY_SAVE,
     async (_event, id: string, name: string, buffer: ArrayBuffer, extension: string) => {
       return saveImage(id, name, Buffer.from(buffer), extension)
     }
   )
 
-  ipcMain.handle(IPC_CHANNELS.IMAGE_LIBRARY_LIST, async () => {
+  handle(IPC_CHANNELS.IMAGE_LIBRARY_LIST, async () => {
     return listImages()
   })
 
-  ipcMain.handle(IPC_CHANNELS.IMAGE_LIBRARY_GET, async (_event, id: string) => {
+  handle(IPC_CHANNELS.IMAGE_LIBRARY_GET, async (_event, id: string) => {
     return getImage(id)
   })
 
-  ipcMain.handle(IPC_CHANNELS.IMAGE_LIBRARY_DELETE, async (_event, id: string) => {
+  handle(IPC_CHANNELS.IMAGE_LIBRARY_DELETE, async (_event, id: string) => {
     return deleteImage(id)
   })
 
   // --- Book storage ---
 
-  ipcMain.handle(IPC_CHANNELS.BOOK_LOAD_CONFIG, async () => {
+  handle(IPC_CHANNELS.BOOK_LOAD_CONFIG, async () => {
     return loadBookConfig()
   })
 
-  ipcMain.handle(IPC_CHANNELS.BOOK_ADD, async (_event, config: BookConfig) => {
+  handle(IPC_CHANNELS.BOOK_ADD, async (_event, config: BookConfig) => {
     return addBook(config)
   })
 
-  ipcMain.handle(IPC_CHANNELS.BOOK_REMOVE, async (_event, bookId: string) => {
+  handle(IPC_CHANNELS.BOOK_REMOVE, async (_event, bookId: string) => {
     return removeBook(bookId)
   })
 
-  ipcMain.handle(IPC_CHANNELS.BOOK_IMPORT, async (_event, sourcePath: string, title: string, bookId: string) => {
+  handle(IPC_CHANNELS.BOOK_IMPORT, async (_event, sourcePath: string, title: string, bookId: string) => {
     // Phase 17a (NET-13) — reject obvious traversal / null-byte payloads in the renderer-supplied
     // source path (it's a user-picked file; full dialog-allowlist integration is a follow-up).
     if (typeof sourcePath !== 'string' || sourcePath.includes('..') || sourcePath.includes('\0')) {
@@ -394,7 +391,7 @@ export function registerStorageHandlers(): void {
     return importBook(sourcePath, title, bookId)
   })
 
-  ipcMain.handle(IPC_CHANNELS.BOOK_READ_FILE, async (_event, filePath: string) => {
+  handle(IPC_CHANNELS.BOOK_READ_FILE, async (_event, filePath: string) => {
     // Phase 17a (NET-13) — reject traversal / null-byte payloads before reading.
     if (typeof filePath !== 'string' || filePath.includes('..') || filePath.includes('\0')) {
       throw new Error('Invalid book file path')
@@ -409,11 +406,11 @@ export function registerStorageHandlers(): void {
     return { success: false, error: result.error }
   })
 
-  ipcMain.handle(IPC_CHANNELS.BOOK_LOAD_DATA, async (_event, bookId: string) => {
+  handle(IPC_CHANNELS.BOOK_LOAD_DATA, async (_event, bookId: string) => {
     return loadBookData(bookId)
   })
 
-  ipcMain.handle(IPC_CHANNELS.BOOK_SAVE_DATA, async (_event, bookId: string, data: BookData) => {
+  handle(IPC_CHANNELS.BOOK_SAVE_DATA, async (_event, bookId: string, data: BookData) => {
     return saveBookData(bookId, data)
   })
 }
