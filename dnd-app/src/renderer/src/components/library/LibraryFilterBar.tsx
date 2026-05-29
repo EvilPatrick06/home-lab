@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import type { FilterConfig, SortDirection, SortField, SortOption } from '../../services/library-sort-filter'
 
+/** Phase 25c — tri-state campaign scope for homebrew visibility. */
+export type CampaignScopeFilter = 'all' | 'campaign' | 'global'
+
 interface LibraryFilterBarProps {
   sortOptions: SortOption[]
   filterConfigs: FilterConfig[]
@@ -8,6 +11,9 @@ interface LibraryFilterBarProps {
   currentFilters: Record<string, string[]>
   onSortChange: (field: SortField, direction: SortDirection) => void
   onFilterChange: (filters: Record<string, string[]>) => void
+  /** Phase 25c — only shown when a campaign is active. */
+  campaignScope?: CampaignScopeFilter
+  onCampaignScopeChange?: (scope: CampaignScopeFilter) => void
 }
 
 export default function LibraryFilterBar({
@@ -16,7 +22,9 @@ export default function LibraryFilterBar({
   currentSort,
   currentFilters,
   onSortChange,
-  onFilterChange
+  onFilterChange,
+  campaignScope,
+  onCampaignScopeChange
 }: LibraryFilterBarProps): JSX.Element {
   const activeFilterEntries = Object.entries(currentFilters).filter(([, vals]) => vals.length > 0)
   const unusedFilters = filterConfigs.filter((fc) => !(currentFilters[fc.field]?.length > 0))
@@ -106,6 +114,26 @@ export default function LibraryFilterBar({
           {currentSort.direction === 'asc' ? '↑' : '↓'}
         </button>
       </div>
+
+      {/* Phase 25c — campaign-scope tri-state (homebrew visibility) */}
+      {campaignScope && onCampaignScopeChange && (
+        <>
+          <div className="w-px h-5 bg-gray-700" />
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-gray-500">Homebrew:</span>
+            <select
+              value={campaignScope}
+              onChange={(e) => onCampaignScopeChange(e.target.value as CampaignScopeFilter)}
+              className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200 focus:outline-none focus:border-amber-500"
+              title="Filter homebrew by campaign scope"
+            >
+              <option value="all">All</option>
+              <option value="campaign">This Campaign</option>
+              <option value="global">Global Only</option>
+            </select>
+          </div>
+        </>
+      )}
 
       {/* Separator */}
       {(activeFilterEntries.length > 0 || unusedFilters.length > 0) && <div className="w-px h-5 bg-gray-700" />}

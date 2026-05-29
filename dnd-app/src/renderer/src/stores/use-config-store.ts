@@ -1,5 +1,19 @@
 import { create } from 'zustand'
 import { logger } from '../utils/logger'
+import { useCampaignStore } from './use-campaign-store'
+
+/**
+ * Phase 25c — read the active campaign id so {@link mergeHomebrew} can scope
+ * campaign-only entries. Wrapped so a missing/unhydrated store (tests, main
+ * process) falls back to "global only" rather than throwing.
+ */
+function getActiveCampaignId(): string | null {
+  try {
+    return useCampaignStore.getState().activeCampaignId ?? null
+  } catch {
+    return null
+  }
+}
 
 /**
  * Imperative loader cache for `data-provider` (Phase 15h — renamed from `use-data-store`).
@@ -224,7 +238,7 @@ export const useConfigStore = create<ConfigStoreState>((set, get) => ({
         await get().loadPluginContent()
       }
 
-      let merged = mergeHomebrew(category, data, get().homebrewByCategory)
+      let merged = mergeHomebrew(category, data, get().homebrewByCategory, getActiveCampaignId())
       merged = mergePluginData(category, merged, get().pluginDataByCategory)
 
       const finalCache = new Map(get().cache)
@@ -275,13 +289,22 @@ export const useConfigStore = create<ConfigStoreState>((set, get) => ({
 function mergeHomebrew<T>(
   category: DataCategory,
   baseData: T,
-  homebrewByCategory: Map<string, Record<string, unknown>[]>
+  homebrewByCategory: Map<string, Record<string, unknown>[]>,
+  activeCampaignId?: string | null
 ): T {
   const catKey = categoryToHomebrewKey(category)
-  const homebrewEntries = homebrewByCategory.get(catKey)
-  if (!homebrewEntries || homebrewEntries.length === 0) return baseData
+  const allEntries = homebrewByCategory.get(catKey)
+  if (!allEntries || allEntries.length === 0) return baseData
 
   if (!Array.isArray(baseData)) return baseData
+
+  // Phase 25c — campaign scope filter. Global entries (no campaignId) are
+  // always visible; campaign-scoped entries only when their campaign is active.
+  const homebrewEntries = allEntries.filter((e) => {
+    const cid = (e as { campaignId?: string }).campaignId
+    return cid === undefined || cid === null || cid === activeCampaignId
+  })
+  if (homebrewEntries.length === 0) return baseData
 
   const result = [...baseData]
 

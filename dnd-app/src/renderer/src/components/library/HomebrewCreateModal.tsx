@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react'
 import { addToast } from '../../hooks/use-toast'
 import { exportAllHomebrew, importHomebrew } from '../../services/io/homebrew-io'
+import { useCampaignStore } from '../../stores/use-campaign-store'
 import type { HomebrewEntry, LibraryCategory, LibraryItem } from '../../types/library'
 import { getCategoryDef } from '../../types/library'
 
@@ -105,6 +106,16 @@ export default function HomebrewCreateModal({
   const [newFieldKey, setNewFieldKey] = useState('')
   const [saving, setSaving] = useState(false)
 
+  // Phase 25c — campaign-scoped homebrew. Only offer the toggle when a campaign
+  // is active. Default ON for new entries created inside a campaign; for edits,
+  // preserve whatever scope the entry already had.
+  const activeCampaignId = useCampaignStore((s) => s.activeCampaignId)
+  const activeCampaign = useCampaignStore((s) => s.campaigns.find((c) => c.id === s.activeCampaignId))
+  const existingCampaignId = existingItem?.data._campaignId as string | undefined
+  const [campaignOnly, setCampaignOnly] = useState<boolean>(
+    isEditing ? !!existingCampaignId : !!activeCampaignId
+  )
+
   const updateField = (key: string, value: unknown): void => {
     setFormData((prev) => ({ ...prev, [key]: value }))
   }
@@ -136,6 +147,8 @@ export default function HomebrewCreateModal({
         name,
         data: { ...formData, id: `homebrew-${crypto.randomUUID().slice(0, 8)}` },
         basedOn: basedOn ?? existingItem?.id,
+        // Phase 25c — scope to the active campaign when the toggle is on.
+        campaignId: campaignOnly && activeCampaignId ? activeCampaignId : undefined,
         createdAt: isEditing
           ? (existingItem!.data._createdAt as string) || new Date().toISOString()
           : new Date().toISOString(),
@@ -246,6 +259,27 @@ export default function HomebrewCreateModal({
             </div>
           </div>
         </div>
+
+        {activeCampaignId && (
+          <div className="px-5 pt-3 border-t border-gray-800">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={campaignOnly}
+                onChange={(e) => setCampaignOnly(e.target.checked)}
+                className="w-4 h-4 rounded border-gray-600 bg-gray-800 text-amber-500 focus:ring-amber-500"
+              />
+              <span className="text-sm text-gray-300">
+                Campaign-only{activeCampaign ? ` (${activeCampaign.name})` : ''}
+              </span>
+            </label>
+            <p className="text-xs text-gray-500 mt-1 ml-6">
+              {campaignOnly
+                ? 'Visible only in this campaign; deleted with it.'
+                : 'Global — visible in every campaign.'}
+            </p>
+          </div>
+        )}
 
         <div className="flex items-center gap-2 p-4 border-t border-gray-800">
           <button

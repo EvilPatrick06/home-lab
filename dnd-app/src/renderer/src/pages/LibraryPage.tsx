@@ -23,6 +23,8 @@ import {
   type SortField,
   sortItems
 } from '../services/library-sort-filter'
+import type { CampaignScopeFilter } from '../components/library/LibraryFilterBar'
+import { useCampaignStore } from '../stores/use-campaign-store'
 import { useLibraryStore } from '../stores/use-library-store'
 import { useLibraryUiStore } from '../stores/use-library-ui-store'
 import type { HomebrewEntry, LibraryCategory, LibraryItem } from '../types/library'
@@ -75,6 +77,30 @@ export default function LibraryPage(): JSX.Element {
   const [sortField, setSortField] = useState<SortField>('name')
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
   const [activeFilters, setActiveFilters] = useState<Record<string, string[]>>({})
+
+  // Phase 25c — campaign-scope tri-state for homebrew, persisted per session.
+  const activeCampaignId = useCampaignStore((s) => s.activeCampaignId)
+  const [campaignScope, setCampaignScope] = useState<CampaignScopeFilter>(
+    () => (sessionStorage.getItem('library-campaign-scope') as CampaignScopeFilter | null) ?? 'all'
+  )
+  const setCampaignScopePersisted = useCallback((scope: CampaignScopeFilter) => {
+    sessionStorage.setItem('library-campaign-scope', scope)
+    setCampaignScope(scope)
+  }, [])
+
+  // Filter homebrew entries by the active campaign scope. Global entries (no
+  // campaignId) always show under "all"/"global"; campaign-scoped entries show
+  // under "all"/"campaign" when their campaign is active.
+  const scopeMatches = useCallback(
+    (entry: { campaignId?: string }): boolean => {
+      const cid = entry.campaignId
+      if (campaignScope === 'global') return cid === undefined
+      if (campaignScope === 'campaign') return cid !== undefined && cid === activeCampaignId
+      // 'all' — global plus this campaign's; hide other campaigns' homebrew.
+      return cid === undefined || cid === activeCampaignId
+    },
+    [campaignScope, activeCampaignId]
+  )
 
   // Global search results
   const [globalSearchResults, setGlobalSearchResults] = useState<LibraryItem[]>([])
@@ -198,17 +224,17 @@ export default function LibraryPage(): JSX.Element {
   const mergedItems = useMemo(() => {
     if (!selectedCategory) return officialItems
     const hbItems = homebrewEntries
-      .filter((e) => e.type === selectedCategory)
+      .filter((e) => e.type === selectedCategory && scopeMatches(e))
       .map((e) => ({
         id: e.id,
         name: e.name,
         category: selectedCategory,
         source: 'homebrew' as const,
         summary: summarizeItem(e.data as Record<string, unknown>, selectedCategory),
-        data: { ...e.data, _homebrewId: e.id, _basedOn: e.basedOn, _createdAt: e.createdAt }
+        data: { ...e.data, _homebrewId: e.id, _basedOn: e.basedOn, _createdAt: e.createdAt, _campaignId: e.campaignId }
       }))
     return [...officialItems.filter((i) => i.source !== 'homebrew'), ...hbItems]
-  }, [officialItems, homebrewEntries, selectedCategory])
+  }, [officialItems, homebrewEntries, selectedCategory, scopeMatches])
 
   // Sync merged items into store (for consumers that read from store directly)
   useEffect(() => {
@@ -582,6 +608,8 @@ export default function LibraryPage(): JSX.Element {
                 setSortDirection(dir)
               }}
               onFilterChange={setActiveFilters}
+              campaignScope={activeCampaignId ? campaignScope : undefined}
+              onCampaignScopeChange={activeCampaignId ? setCampaignScopePersisted : undefined}
             />
           )}
 

@@ -188,6 +188,12 @@ export interface HomebrewEntry {
   name: string
   data: Record<string, unknown>
   basedOn?: string
+  /**
+   * Phase 25c — campaign scope. `undefined` = global (visible in every
+   * campaign), a campaign id = only merged/visible when that campaign is
+   * active. Cascade-deleted with its owning campaign.
+   */
+  campaignId?: string
   createdAt: string
   updatedAt: string
 }

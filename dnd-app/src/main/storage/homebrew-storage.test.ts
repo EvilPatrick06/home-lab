@@ -55,6 +55,17 @@ describe('homebrew-storage', () => {
       expect(writeFile).toHaveBeenCalledWith(expect.stringContaining(`${VALID_UUID}.json`), expect.any(String), 'utf-8')
     })
 
+    it('should preserve campaignId through serialization (Phase 25c)', async () => {
+      vi.mocked(writeFile).mockResolvedValue(undefined)
+
+      const entry = { id: VALID_UUID, type: 'spells', name: 'Campaign Spell', campaignId: 'camp-42' }
+      const result = await saveHomebrewEntry(entry)
+
+      expect(result).toEqual({ success: true })
+      const written = vi.mocked(writeFile).mock.calls[0][1] as string
+      expect(JSON.parse(written).campaignId).toBe('camp-42')
+    })
+
     it('should return error on write failure', async () => {
       vi.mocked(writeFile).mockRejectedValue(new Error('write error'))
 

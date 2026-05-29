@@ -26,6 +26,32 @@ function generateId(): string {
   return crypto.randomUUID()
 }
 
+/**
+ * Phase 25c — cascade-delete homebrew scoped to a deleted campaign. Only entries
+ * whose `campaignId` matches are removed; global homebrew (no `campaignId`) is
+ * left untouched. The config store's homebrew cache is cleared afterward so the
+ * next load reflects the deletion. Dynamic import avoids a static cycle with
+ * `use-config-store` (which statically imports this store).
+ */
+async function cascadeDeleteCampaignHomebrew(campaignId: string): Promise<void> {
+  try {
+    const all = await window.api.loadAllHomebrew()
+    if (!Array.isArray(all)) return
+    const scoped = all.filter((e) => (e as { campaignId?: string }).campaignId === campaignId)
+    for (const entry of scoped) {
+      const type = entry.type as string | undefined
+      const id = entry.id as string | undefined
+      if (type && id) await window.api.deleteHomebrew(type, id)
+    }
+    if (scoped.length > 0) {
+      const { useConfigStore } = await import('./use-config-store')
+      useConfigStore.getState().clearAll()
+    }
+  } catch (error) {
+    logger.error('Failed to cascade-delete campaign homebrew:', campaignId, error)
+  }
+}
+
 interface CampaignState {
   campaigns: Campaign[]
   activeCampaignId: string | null
@@ -131,6 +157,7 @@ export const useCampaignStore = create<CampaignState>((set, get) => ({
         activeCampaignId: activeCampaignId === id ? null : activeCampaignId
       })
       cleanupCampaignLocalStorage(id)
+      await cascadeDeleteCampaignHomebrew(id)
     } catch (error) {
       logger.error('Failed to delete campaign:', error)
     }
@@ -142,6 +169,7 @@ export const useCampaignStore = create<CampaignState>((set, get) => ({
       try {
         await window.api.deleteCampaign(c.id)
         cleanupCampaignLocalStorage(c.id)
+        await cascadeDeleteCampaignHomebrew(c.id)
       } catch (error) {
         logger.error('Failed to delete campaign:', c.id, error)
       }
