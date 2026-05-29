@@ -7,7 +7,7 @@ import {
   GameStateSaveSchema,
   HomebrewSaveSchema
 } from '../../shared/storage-schemas'
-import { applyBmoBaseUrlFromSettings } from '../bmo-config'
+import { applyBmoApiKeyFromSettings, applyBmoBaseUrlFromSettings } from '../bmo-config'
 import { logSecurityEvent } from '../security-log'
 import { loadBans, saveBans } from '../storage/ban-storage'
 import { deleteBastion, loadBastion, loadBastions, saveBastion } from '../storage/bastion-storage'
@@ -297,6 +297,7 @@ export function registerStorageHandlers(): void {
     const result = await saveSettings(parsed.data)
     if (result.success) {
       applyBmoBaseUrlFromSettings(parsed.data)
+      applyBmoApiKeyFromSettings(parsed.data)
     }
     return result
   })

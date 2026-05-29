@@ -223,14 +223,73 @@ def _get_secret_key() -> str:
 
 app.config["SECRET_KEY"] = _get_secret_key()
 
-# Optional LAN/internet hardening: when set, require Authorization: Bearer for non-localhost HTTP
-# and SocketIO connects (kiosk on 127.0.0.1 is exempt). See docs/SECURITY.md.
-BMO_API_KEY = (os.environ.get("BMO_API_KEY") or "").strip()
+
+def _resolve_or_create_secret(env_var: str, file_name: str) -> str:
+    """Return a stable secret: env var > persisted file > generate + persist (0600).
+
+    Mirrors `_get_secret_key`. Used to make the API gate secure-by-DEFAULT: rather
+    than failing OPEN when no key is configured (the old behavior — any LAN/tunnel
+    client could reach the app), we mint a random key on first boot and persist it
+    so the gate is always enforced. The owner reads the generated value to configure
+    remote clients (`cat ~/<file_name>`).
+    """
+    env = (os.environ.get(env_var) or "").strip()
+    if env:
+        return env
+    key_path = os.path.join(os.path.expanduser("~"), file_name)
+    try:
+        with open(key_path, "r") as f:
+            key = f.read().strip()
+        if key:
+            return key
+    except FileNotFoundError:
+        pass
+    key = secrets.token_urlsafe(32)
+    try:
+        with open(key_path, "w") as f:
+            f.write(key)
+        os.chmod(key_path, 0o600)
+    except OSError:
+        # Read-only home (e.g. a locked-down container): fall back to an
+        # in-memory key. Still secure (random, non-empty); just not stable
+        # across restarts, which only forces clients to re-read it.
+        pass
+    return key
+
+
+# LAN/internet hardening (secure by default): require Authorization: Bearer for
+# non-localhost HTTP and SocketIO connects (the kiosk on 127.0.0.1 is exempt).
+# Auto-generated + persisted to ~/.bmo_api_key when BMO_API_KEY is unset, so the
+# front door is NEVER open by default. See docs/SECURITY.md.
+BMO_API_KEY = _resolve_or_create_secret("BMO_API_KEY", ".bmo_api_key")
+# Optional STRICTER second credential for the registry mutation routes
+# (announce/heartbeat/deregister). Left opt-in (env-only): when unset, those
+# routes fall back to the front-door BMO_API_KEY gate (no longer fail open).
+BMO_REGISTRY_API_KEY = (os.environ.get("BMO_REGISTRY_API_KEY") or "").strip()
+
+if os.environ.get("BMO_API_KEY"):
+    log.info("[security] BMO_API_KEY loaded from environment; non-localhost requests require it.")
+else:
+    log.info(
+        "[security] BMO_API_KEY auto-generated and persisted at ~/.bmo_api_key. "
+        "Remote clients (e.g. the VTT) must send it as 'Authorization: Bearer <key>'. "
+        "Read it with: cat ~/.bmo_api_key"
+    )
 
 
 def _bmo_client_is_trusted_localhost() -> bool:
     addr = (getattr(request, "remote_addr", None) or "") or ""
-    return addr in ("127.0.0.1", "::1", "localhost")
+    if addr not in ("127.0.0.1", "::1", "localhost"):
+        return False
+    # A loopback remote_addr is only genuinely local when the request did NOT
+    # arrive through a reverse proxy / tunnel. cloudflared (the Cloudflare
+    # tunnel) proxies to 127.0.0.1 but stamps forwarding headers — without this
+    # check a tunnelled request would masquerade as trusted localhost and bypass
+    # the API key entirely. Treat any forwarding header as "not local".
+    for header in ("X-Forwarded-For", "X-Forwarded-Host", "X-Real-IP", "CF-Connecting-IP", "Forwarded"):
+        if request.headers.get(header):
+            return False
+    return True
 
 
 def _bmo_bearer_authorized() -> bool:
@@ -251,13 +310,20 @@ def _bmo_optional_api_key():
     # the actual route's method allowlist doesn't 405 them.
     if request.method == "OPTIONS" and p.startswith("/api/games"):
         return ("", 204)
-    if not BMO_API_KEY:
-        return None
+    # BMO_API_KEY is always set (auto-generated when unconfigured), so the gate
+    # is always enforced — no fail-open path. Unauthenticated exemptions below
+    # are limited to health/static + trusted localhost.
     if p in ("/health", "/favicon.ico") or p.startswith("/static/"):
         return None
     if _bmo_client_is_trusted_localhost():
         return None
     if request.headers.get("Authorization", "") == f"Bearer {BMO_API_KEY}":
+        return None
+    # EventSource (the VTT's game-registry SSE subscription) can't set an
+    # Authorization header, so accept the key as an `api_key` query param for
+    # that one streaming route. Confined to /api/games/stream so the less-safe
+    # query-param credential isn't accepted app-wide.
+    if p == "/api/games/stream" and (request.args.get("api_key") or "") == BMO_API_KEY:
         return None
     return (
         jsonify(
@@ -4904,13 +4970,16 @@ def _games_registry():
 # must present it. Orthogonal to BMO_API_KEY (which gates the whole
 # Flask app at `_bmo_optional_api_key`).
 def _registry_authorized() -> bool:
-    expected = (os.environ.get("BMO_REGISTRY_API_KEY") or "").strip()
-    if not expected:
-        return True
     if _bmo_client_is_trusted_localhost():
         return True
+    # No separate registry key configured: defer to the front-door gate. By the
+    # time we reach a mutation route the before_request hook has already required
+    # a valid BMO_API_KEY Bearer for any non-localhost caller, so this is no
+    # longer a fail-OPEN path (the old `return True` let anyone mutate).
+    if not BMO_REGISTRY_API_KEY:
+        return _bmo_bearer_authorized()
     presented = (request.headers.get("X-Registry-Key", "") or "").strip()
-    return presented == expected
+    return presented == BMO_REGISTRY_API_KEY
 
 
 # Hard cap on inbound POST body size for registry routes — game entries

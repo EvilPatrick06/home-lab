@@ -1,0 +1,101 @@
+"""Tests for the fail-closed BMO HTTP auth gate (security hardening).
+
+BMO_API_KEY is auto-generated + persisted when unset, so the front-door gate
+(`_bmo_optional_api_key`) is ALWAYS enforced — no fail-open path. These tests
+exercise the gate + the registry second-factor directly in request contexts
+(the SSE stream route is an infinite generator, so a full GET would hang;
+calling the before_request hook directly avoids that).
+"""
+
+from __future__ import annotations
+
+import app as app_module
+from app import app as flask_app
+
+
+def _ctx(path: str, remote: str = "127.0.0.1", headers: dict | None = None):
+    return flask_app.test_request_context(
+        path, environ_base={"REMOTE_ADDR": remote}, headers=headers or {}
+    )
+
+
+def test_localhost_is_exempt(monkeypatch):
+    monkeypatch.setattr(app_module, "BMO_API_KEY", "k")
+    with _ctx("/api/games"):
+        assert app_module._bmo_optional_api_key() is None
+
+
+def test_non_localhost_without_key_is_rejected(monkeypatch):
+    monkeypatch.setattr(app_module, "BMO_API_KEY", "k")
+    with _ctx("/api/games", remote="203.0.113.7"):
+        resp = app_module._bmo_optional_api_key()
+        assert resp is not None and resp[1] == 401
+
+
+def test_non_localhost_with_bearer_is_allowed(monkeypatch):
+    monkeypatch.setattr(app_module, "BMO_API_KEY", "k")
+    with _ctx("/api/games", remote="203.0.113.7", headers={"Authorization": "Bearer k"}):
+        assert app_module._bmo_optional_api_key() is None
+
+
+def test_tunnel_masquerade_is_rejected(monkeypatch):
+    """A loopback remote_addr WITH a forwarding header (cloudflared proxies to
+    127.0.0.1) must NOT be treated as trusted localhost."""
+    monkeypatch.setattr(app_module, "BMO_API_KEY", "k")
+    with _ctx("/api/games", remote="127.0.0.1", headers={"X-Forwarded-For": "203.0.113.7"}):
+        assert app_module._bmo_client_is_trusted_localhost() is False
+        resp = app_module._bmo_optional_api_key()
+        assert resp is not None and resp[1] == 401
+
+
+def test_health_is_exempt(monkeypatch):
+    monkeypatch.setattr(app_module, "BMO_API_KEY", "k")
+    with _ctx("/health", remote="203.0.113.7"):
+        assert app_module._bmo_optional_api_key() is None
+
+
+def test_sse_stream_accepts_api_key_query(monkeypatch):
+    """EventSource can't set a header, so /api/games/stream accepts ?api_key=."""
+    monkeypatch.setattr(app_module, "BMO_API_KEY", "k")
+    with _ctx("/api/games/stream?api_key=k", remote="203.0.113.7"):
+        assert app_module._bmo_optional_api_key() is None
+
+
+def test_api_key_query_not_accepted_outside_stream(monkeypatch):
+    """The query-param credential is confined to the stream route."""
+    monkeypatch.setattr(app_module, "BMO_API_KEY", "k")
+    with _ctx("/api/chat?api_key=k", remote="203.0.113.7"):
+        resp = app_module._bmo_optional_api_key()
+        assert resp is not None and resp[1] == 401
+
+
+def test_registry_no_longer_fails_open(monkeypatch):
+    """With no separate registry key, a non-localhost mutation must defer to the
+    front-door bearer instead of the old `return True` fail-open."""
+    monkeypatch.setattr(app_module, "BMO_API_KEY", "k")
+    monkeypatch.setattr(app_module, "BMO_REGISTRY_API_KEY", "")
+    with _ctx("/api/games", remote="203.0.113.7"):
+        assert app_module._registry_authorized() is False
+    with _ctx("/api/games", remote="203.0.113.7", headers={"Authorization": "Bearer k"}):
+        assert app_module._registry_authorized() is True
+
+
+def test_registry_strict_second_key(monkeypatch):
+    """When BMO_REGISTRY_API_KEY is set, non-localhost callers also need it."""
+    monkeypatch.setattr(app_module, "BMO_API_KEY", "k")
+    monkeypatch.setattr(app_module, "BMO_REGISTRY_API_KEY", "reg")
+    with _ctx("/api/games", remote="203.0.113.7", headers={"Authorization": "Bearer k"}):
+        assert app_module._registry_authorized() is False
+    with _ctx(
+        "/api/games",
+        remote="203.0.113.7",
+        headers={"Authorization": "Bearer k", "X-Registry-Key": "reg"},
+    ):
+        assert app_module._registry_authorized() is True
+
+
+def test_registry_localhost_always_authorized(monkeypatch):
+    monkeypatch.setattr(app_module, "BMO_API_KEY", "k")
+    monkeypatch.setattr(app_module, "BMO_REGISTRY_API_KEY", "reg")
+    with _ctx("/api/games"):
+        assert app_module._registry_authorized() is True

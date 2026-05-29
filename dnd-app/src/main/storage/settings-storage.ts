@@ -29,7 +29,10 @@ export const AppSettingsSchema = z
       })
       .optional(),
     /** BMO Pi HTTP base (main fetches, cloud sync, CSP). Empty/unset → BMO_PI_URL env or default. */
-    bmoPiBaseUrl: z.string().optional()
+    bmoPiBaseUrl: z.string().optional(),
+    /** BMO API key (Authorization: Bearer) for non-localhost Pi requests. BMO is
+     *  fail-closed by default; read the auto-generated key from `~/.bmo_api_key`. */
+    bmoApiKey: z.string().optional()
   })
   .passthrough()
 

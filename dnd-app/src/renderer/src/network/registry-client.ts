@@ -106,6 +106,27 @@ function withSourceTag(
   return { ...entry, source: 'pi' }
 }
 
+/**
+ * BMO API key from settings (`settings.bmoApiKey`). BMO is fail-closed by
+ * default, so non-localhost requests need it as `Authorization: Bearer`.
+ * `null` when unset (LAN/localhost setups where BMO trusts the caller).
+ */
+async function getApiKey(): Promise<string | null> {
+  if (typeof window === 'undefined' || !window.api?.loadSettings) return null
+  try {
+    const settings = await window.api.loadSettings()
+    const key = (settings as { bmoApiKey?: string })?.bmoApiKey
+    return key?.trim() ? key.trim() : null
+  } catch {
+    return null
+  }
+}
+
+async function authHeaders(): Promise<Record<string, string>> {
+  const key = await getApiKey()
+  return key ? { Authorization: `Bearer ${key}` } : {}
+}
+
 export async function announceGame(
   payload: RegistryAnnouncePayload,
   config: RegistryClientConfig = {}
@@ -114,7 +135,7 @@ export async function announceGame(
   try {
     const resp = await fetch(`${base}/api/games`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...(await authHeaders()) },
       body: JSON.stringify(payload)
     })
     if (!resp.ok) {
@@ -136,7 +157,7 @@ export async function updateGame(
   try {
     const resp = await fetch(`${base}/api/games/${encodeURIComponent(inviteCode)}`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...(await authHeaders()) },
       body: JSON.stringify(patch)
     })
     if (!resp.ok) {
@@ -152,7 +173,8 @@ export async function heartbeatGame(inviteCode: string, config: RegistryClientCo
   const base = await getBaseUrl(config.baseUrl)
   try {
     const resp = await fetch(`${base}/api/games/${encodeURIComponent(inviteCode)}/heartbeat`, {
-      method: 'POST'
+      method: 'POST',
+      headers: await authHeaders()
     })
     return { ok: resp.ok }
   } catch {
@@ -164,7 +186,8 @@ export async function deregisterGame(inviteCode: string, config: RegistryClientC
   const base = await getBaseUrl(config.baseUrl)
   try {
     const resp = await fetch(`${base}/api/games/${encodeURIComponent(inviteCode)}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: await authHeaders()
     })
     return { ok: resp.ok }
   } catch {
@@ -178,7 +201,7 @@ export async function listGames(
 ): Promise<RegistryGameEntry[]> {
   const base = await getBaseUrl(config.baseUrl)
   const params = clientId ? `?client_id=${encodeURIComponent(clientId)}` : ''
-  const resp = await fetch(`${base}/api/games${params}`)
+  const resp = await fetch(`${base}/api/games${params}`, { headers: await authHeaders() })
   if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
   const data = (await resp.json()) as { games?: Array<Omit<RegistryGameEntry, 'source'>> }
   return (data.games ?? []).map(withSourceTag)
@@ -221,7 +244,13 @@ export function subscribeToRegistry(
   async function connect(): Promise<void> {
     if (cancelled) return
     const base = await getBaseUrl(config.baseUrl)
-    const params = clientId ? `?client_id=${encodeURIComponent(clientId)}` : ''
+    // EventSource can't set an Authorization header, so the fail-closed BMO
+    // front door accepts the key as an `api_key` query param on this one route.
+    const apiKey = await getApiKey()
+    const qs = new URLSearchParams()
+    if (clientId) qs.set('client_id', clientId)
+    if (apiKey) qs.set('api_key', apiKey)
+    const params = qs.toString() ? `?${qs.toString()}` : ''
     const url = `${base}/api/games/stream${params}`
     try {
       source = new EventSource(url)

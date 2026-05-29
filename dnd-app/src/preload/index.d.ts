@@ -357,6 +357,9 @@ interface AppSettingsData {
   }
   /** BMO Pi HTTP API base. When set, overrides BMO_PI_URL for bridge + cloud sync + CSP. */
   bmoPiBaseUrl?: string
+  /** BMO API key (Authorization: Bearer) for non-localhost Pi requests — BMO is
+   *  fail-closed by default. Read the auto-generated key from `~/.bmo_api_key`. */
+  bmoApiKey?: string
   /** v2.1.16 auto-update preferences (all default false / opt-in). */
   autoCheckUpdates?: boolean
   autoDownloadUpdates?: boolean
