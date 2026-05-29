@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { is, optimizer } from '@electron-toolkit/utils'
 import { app, BrowserWindow, dialog, nativeImage, shell } from 'electron'
 import { disposeAiService, initFromSavedConfig } from './ai/ai-service'
+import { stopSyncReceiver } from './bmo-bridge'
 import { applyBmoBaseUrlFromSettings } from './bmo-config'
 import { bmoCspConnectFragment } from './bmo-csp'
 import { registerIpcHandlers } from './ipc'
@@ -221,10 +222,28 @@ function createWindow(): void {
     event.preventDefault()
   })
 
-  if (is.dev && process.env.ELECTRON_RENDERER_URL) {
-    mainWindow.loadURL(process.env.ELECTRON_RENDERER_URL)
+  // Phase 28c.6 — validate the dev renderer URL before loading it: it must be a
+  // localhost origin on the Vite dev-port range. A malformed/foreign URL falls
+  // back to the packaged file:// bundle rather than navigating somewhere unsafe.
+  const devUrl = is.dev ? process.env.ELECTRON_RENDERER_URL : undefined
+  if (devUrl && isValidRendererUrl(devUrl)) {
+    mainWindow.loadURL(devUrl)
   } else {
+    if (devUrl) logToFile('WARN', `Rejected ELECTRON_RENDERER_URL "${devUrl}" — loading packaged bundle`)
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
+  }
+}
+
+/** Phase 28c.6 — accept only http://localhost|127.0.0.1 on ports 5170–5180. */
+function isValidRendererUrl(raw: string): boolean {
+  try {
+    const u = new URL(raw)
+    if (u.protocol !== 'http:') return false
+    if (u.hostname !== 'localhost' && u.hostname !== '127.0.0.1') return false
+    const port = Number(u.port)
+    return port >= 5170 && port <= 5180
+  } catch {
+    return false
   }
 }
 
@@ -311,6 +330,17 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
+})
+
+// Phase 28c.3 — graceful BMO sync-receiver shutdown before the process exits.
+// before-quit fires once; we defer the quit, await a clean server close, then
+// re-quit. The `quitting` guard prevents an infinite preventDefault loop.
+let quitting = false
+app.on('before-quit', (e) => {
+  if (quitting) return
+  quitting = true
+  e.preventDefault()
+  stopSyncReceiver().finally(() => app.quit())
 })
 
 app.on('will-quit', () => {

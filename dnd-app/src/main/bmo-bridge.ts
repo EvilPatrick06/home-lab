@@ -14,11 +14,29 @@ import { logToFile } from './log'
 
 const TIMEOUT_MS = 15_000
 const SYNC_RECEIVER_PORT = parseInt(process.env.BMO_SYNC_PORT || '5001', 10)
+// Phase 28a.2 — cap inbound sync-receiver bodies (Pi callbacks are small JSON).
+const MAX_SYNC_BODY_BYTES = 256 * 1024
+// Phase 28c.1 — retry schedule for transient BMO failures (not 4xx).
+const RETRY_BACKOFF_MS = [200, 800, 2000]
 
 interface BridgeResponse {
   ok?: boolean
   error?: string
+  statusCode?: number
   [key: string]: unknown
+}
+
+// Phase 28c.1 — track consecutive bridge failures so we can warn once.
+let consecutiveBmoFailures = 0
+function notifyBmoUnreachable(): void {
+  const windows = BrowserWindow.getAllWindows()
+  for (const win of windows) {
+    win.webContents.send(IPC_CHANNELS.BMO_SYNC_EVENT, {
+      type: 'discord_message',
+      payload: { system: true, text: 'BMO unreachable — Discord sync paused' },
+      timestamp: Date.now()
+    } satisfies SyncEvent)
+  }
 }
 
 /** Standard sync event types sent from the Pi Discord bot */
@@ -28,7 +46,7 @@ export interface SyncEvent {
   timestamp: number
 }
 
-async function bmoPiFetch(path: string, options?: RequestInit): Promise<BridgeResponse> {
+async function bmoPiFetchOnce(path: string, options?: RequestInit): Promise<BridgeResponse> {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS)
 
@@ -42,14 +60,40 @@ async function bmoPiFetch(path: string, options?: RequestInit): Promise<BridgeRe
       }
     })
     if (!res.ok) {
-      return { ok: false, error: `HTTP ${res.status}: ${res.statusText}` }
+      return { ok: false, error: `HTTP ${res.status}: ${res.statusText}`, statusCode: res.status }
     }
-    return await res.json()
+    const data = (await res.json()) as Record<string, unknown>
+    return { ok: true, ...data }
   } catch (err) {
-    return { error: err instanceof Error ? err.message : String(err) }
+    return { ok: false, error: err instanceof Error ? err.message : String(err) }
   } finally {
     clearTimeout(timer)
   }
+}
+
+/**
+ * Phase 28c.1 — BMO fetch with retry/backoff. Retries transient failures
+ * (network error / 5xx) up to 3 times (200/800/2000ms); never retries a 4xx.
+ * After 3 consecutive total failures, emits a one-shot "BMO unreachable" toast;
+ * the counter resets on the first success.
+ */
+async function bmoPiFetch(path: string, options?: RequestInit): Promise<BridgeResponse> {
+  let last: BridgeResponse = { ok: false, error: 'unknown' }
+  for (let attempt = 0; attempt <= RETRY_BACKOFF_MS.length; attempt++) {
+    last = await bmoPiFetchOnce(path, options)
+    if (last.ok) {
+      consecutiveBmoFailures = 0
+      return last
+    }
+    // Don't retry client errors (4xx) — they won't succeed on retry.
+    if (typeof last.statusCode === 'number' && last.statusCode >= 400 && last.statusCode < 500) break
+    if (attempt < RETRY_BACKOFF_MS.length) {
+      await new Promise((r) => setTimeout(r, RETRY_BACKOFF_MS[attempt]))
+    }
+  }
+  consecutiveBmoFailures++
+  if (consecutiveBmoFailures === 3) notifyBmoUnreachable()
+  return last
 }
 
 export async function startDiscordDm(campaignId: string): Promise<BridgeResponse> {
@@ -108,14 +152,28 @@ let syncServer: ReturnType<typeof createServer> | null = null
 function readBody(req: IncomingMessage): Promise<string> {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = []
-    req.on('data', (chunk: Buffer) => chunks.push(chunk))
+    let total = 0
+    req.on('data', (chunk: Buffer) => {
+      total += chunk.length
+      // Phase 28a.2 — reject oversized bodies before buffering the whole thing.
+      if (total > MAX_SYNC_BODY_BYTES) {
+        reject(new Error('Request body too large'))
+        req.destroy()
+        return
+      }
+      chunks.push(chunk)
+    })
     req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')))
     req.on('error', reject)
   })
 }
 
+// Phase 28a.2 — the sync receiver binds to loopback only and serves a localhost
+// origin, so the CORS header reflects that rather than a wildcard.
+const SYNC_CORS_ORIGIN = 'http://127.0.0.1'
+
 function sendJson(res: ServerResponse, status: number, data: unknown): void {
-  res.writeHead(status, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' })
+  res.writeHead(status, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': SYNC_CORS_ORIGIN })
   res.end(JSON.stringify(data))
 }
 
@@ -144,7 +202,7 @@ export function startSyncReceiver(port = SYNC_RECEIVER_PORT): void {
     // CORS preflight
     if (req.method === 'OPTIONS') {
       res.writeHead(204, {
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': SYNC_CORS_ORIGIN,
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type'
       })
@@ -198,8 +256,10 @@ export function startSyncReceiver(port = SYNC_RECEIVER_PORT): void {
     }
   })
 
-  syncServer.listen(port, '0.0.0.0', () => {
-    logToFile('INFO', `[bmo-bridge] Sync receiver listening on port ${port}`)
+  // Phase 28a.2 — bind to loopback so the receiver isn't reachable off-box.
+  // The Pi bot connects via an SSH tunnel / localhost forward.
+  syncServer.listen(port, '127.0.0.1', () => {
+    logToFile('INFO', `[bmo-bridge] Sync receiver listening on 127.0.0.1:${port}`)
   })
 
   syncServer.on('error', (err) => {
@@ -208,11 +268,24 @@ export function startSyncReceiver(port = SYNC_RECEIVER_PORT): void {
   })
 }
 
-/** Stop the sync receiver HTTP server */
-export function stopSyncReceiver(): void {
-  if (syncServer) {
-    syncServer.close()
+/**
+ * Stop the sync receiver HTTP server. Phase 28c.3 — resolves only after the
+ * server has fully closed (forcing open keep-alive connections shut first) so a
+ * before-quit handler can await a clean shutdown.
+ */
+export function stopSyncReceiver(): Promise<void> {
+  return new Promise((resolve) => {
+    if (!syncServer) {
+      resolve()
+      return
+    }
+    const server = syncServer
     syncServer = null
-    logToFile('INFO', '[bmo-bridge] Sync receiver stopped')
-  }
+    // Node 18.2+ — terminate idle/active keep-alive sockets so close() resolves.
+    server.closeAllConnections?.()
+    server.close(() => {
+      logToFile('INFO', '[bmo-bridge] Sync receiver stopped')
+      resolve()
+    })
+  })
 }
