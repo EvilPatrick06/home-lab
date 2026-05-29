@@ -657,27 +657,20 @@ export function executeLoadEncounter(
       return
     }
 
-    // Place monsters in a grid pattern starting at center of map
-    const centerX = Math.floor((map.width ?? 20) / 2)
-    const centerY = Math.floor((map.height ?? 20) / 2)
-    let offset = 0
-    let spawnedCount = 0
-
+    // Phase 26f — build the token list, then spread via smartPlaceTokens
+    // (opposite the players, off walls, footprint-aware) instead of a tight grid.
+    const { smartPlaceTokens } = await import('./token-placement')
+    const toPlace = []
     for (const entry of preset.monsters) {
       const monster = monsters.find((m) => m.id === entry.id)
       if (!monster) continue
       const dims = getSizeTokenDimensions(monster.size)
-
       for (let i = 0; i < entry.count; i++) {
-        const col = offset % 5
-        const row = Math.floor(offset / 5)
-        const token = {
+        toPlace.push({
           id: crypto.randomUUID(),
           entityId: crypto.randomUUID(),
           entityType: 'enemy' as const,
           label: entry.count > 1 ? `${monster.name} ${i + 1}` : monster.name,
-          gridX: centerX + col * dims.x,
-          gridY: centerY + row * dims.y,
           sizeX: dims.x,
           sizeY: dims.y,
           visibleToPlayers: false,
@@ -696,12 +689,17 @@ export function executeLoadEncounter(
           immunities: monster.damageImmunities,
           darkvision: !!(monster.senses?.darkvision && monster.senses.darkvision > 0),
           darkvisionRange: monster.senses?.darkvision || undefined
-        }
-        stores.getGameStore().getState().addToken(map.id, token)
-        offset++
-        spawnedCount++
+        })
       }
     }
+    const placed = smartPlaceTokens(map, toPlace)
+    for (const token of placed) {
+      stores
+        .getGameStore()
+        .getState()
+        .addToken(map.id, token as import('../../types/map').MapToken)
+    }
+    const spawnedCount = placed.length
 
     if (spawnedCount > 0) {
       broadcastTokenSync(map.id, stores)
