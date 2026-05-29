@@ -66,11 +66,11 @@ export function registerIpcHandlers(): void {
   ipcMain.handle(
     IPC_CHANNELS.DIALOG_SAVE,
     async (_event, options: { title: string; filters: Array<{ name: string; extensions: string[] }> }) => {
-      const win = BrowserWindow.getFocusedWindow()
-      const result = await dialog.showSaveDialog(win ?? BrowserWindow.getAllWindows()[0], {
-        title: options.title,
-        filters: options.filters
-      })
+      // Phase 17d (RUN-7) — `getAllWindows()[0]` is undefined when no window exists, which
+      // would pass `undefined` as the parent and throw. Fall back to the parent-less dialog.
+      const win = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0] ?? null
+      const opts = { title: options.title, filters: options.filters }
+      const result = win ? await dialog.showSaveDialog(win, opts) : await dialog.showSaveDialog(opts)
       if (result.canceled || !result.filePath) {
         return null
       }
@@ -82,12 +82,10 @@ export function registerIpcHandlers(): void {
   ipcMain.handle(
     IPC_CHANNELS.DIALOG_OPEN,
     async (_event, options: { title: string; filters: Array<{ name: string; extensions: string[] }> }) => {
-      const win = BrowserWindow.getFocusedWindow()
-      const result = await dialog.showOpenDialog(win ?? BrowserWindow.getAllWindows()[0], {
-        title: options.title,
-        filters: options.filters,
-        properties: ['openFile']
-      })
+      // Phase 17d (RUN-7) — parent-less fallback when no window exists (see DIALOG_SAVE).
+      const win = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0] ?? null
+      const opts = { title: options.title, filters: options.filters, properties: ['openFile'] as Array<'openFile'> }
+      const result = win ? await dialog.showOpenDialog(win, opts) : await dialog.showOpenDialog(opts)
       if (result.canceled || result.filePaths.length === 0) {
         return null
       }
@@ -159,6 +157,10 @@ export function registerIpcHandlers(): void {
   ipcMain.handle(IPC_CHANNELS.FS_WRITE_BINARY, async (_event, filePath: string, buffer: ArrayBuffer) => {
     if (!isPathAllowed(filePath)) {
       throw new Error('Access denied: path not allowed')
+    }
+    // Phase 17a (NET-15) — mirror the FS_WRITE size guard; binary writes skipped it.
+    if (buffer.byteLength > MAX_WRITE_CONTENT_SIZE) {
+      throw new Error(`Content too large: ${buffer.byteLength} bytes (max ${MAX_WRITE_CONTENT_SIZE})`)
     }
     const resolvedPath = resolve(filePath)
     try {

@@ -3,6 +3,7 @@ import { join, resolve } from 'node:path'
 import { is } from '@electron-toolkit/utils'
 import { app, ipcMain } from 'electron'
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
+import { logToFile } from '../log'
 
 export function registerGameDataHandlers(): void {
   // In dev: public/ files are under src/renderer/public/
@@ -25,7 +26,14 @@ export function registerGameDataHandlers(): void {
       throw new Error('Access denied: path traversal detected')
     }
 
+    // Phase 17b (RUN-1/NET-7) — a single corrupt JSON file among 85+ data files must not crash
+    // the whole data pipeline (blank screen). Log the path + return null; callers handle null.
     const content = await readFile(fullPath, 'utf-8')
-    return JSON.parse(content)
+    try {
+      return JSON.parse(content)
+    } catch (err) {
+      logToFile('ERROR', `GAME_LOAD_JSON: failed to parse ${normalized}: ${String(err)}`)
+      return null
+    }
   })
 }

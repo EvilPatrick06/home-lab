@@ -71,6 +71,35 @@ type _AiStreamDone = AiStreamDone
 type _AiStreamError = AiStreamError
 type _AiIndexProgress = AiIndexProgress
 
+/**
+ * Phase 17b (NET-2/NET-3) — `win.webContents.send` throws "Object has been destroyed" if the
+ * window closed mid-stream (optional chaining on `win?.` does NOT catch a destroyed-but-present
+ * window). Guard `isDestroyed()` before touching `webContents`.
+ */
+function sendToWindow(win: BrowserWindow | null | undefined, channel: string, payload: unknown): void {
+  if (win && !win.isDestroyed()) win.webContents.send(channel, payload)
+}
+
+/**
+ * Phase 17a (NET-1) — campaign ids flow straight into `path.join(userData, 'campaigns', id, …)`
+ * for several handlers, one of which (`AI_CLEAR_MEMORY`) does `fs.rm({ recursive, force })`.
+ * An id of `../../..` would be a directory-deletion vector. Campaign ids are always UUIDs, so
+ * reject anything that isn't, AND assert the resolved path stays under the campaigns root
+ * (defense-in-depth). Throws on hostile input — handlers surface it as an error envelope.
+ */
+const CAMPAIGN_ID_RE = /^[a-f0-9-]{36}$/i
+function sanitizeCampaignId(id: unknown): string {
+  if (typeof id !== 'string' || !CAMPAIGN_ID_RE.test(id)) {
+    throw new Error('Invalid campaignId')
+  }
+  const base = path.join(app.getPath('userData'), 'campaigns')
+  const resolved = path.resolve(base, id)
+  if (resolved !== path.join(base, id) || !resolved.startsWith(base + path.sep)) {
+    throw new Error('Invalid campaignId')
+  }
+  return id
+}
+
 export function registerAiHandlers(): void {
   // ── Configuration ──
 
@@ -136,7 +165,7 @@ export function registerAiHandlers(): void {
     const win = BrowserWindow.fromWebContents(event.sender)
     try {
       const result = aiService.buildIndex((percent, stage) => {
-        win?.webContents.send(IPC_CHANNELS.AI_INDEX_PROGRESS, { percent, stage })
+        sendToWindow(win, IPC_CHANNELS.AI_INDEX_PROGRESS, { percent, stage })
       })
       return { success: true, chunkCount: result.chunkCount }
     } catch (error) {
@@ -166,11 +195,11 @@ export function registerAiHandlers(): void {
       request,
       // onChunk
       (text) => {
-        win.webContents.send(IPC_CHANNELS.AI_STREAM_CHUNK, { streamId, text })
+        sendToWindow(win, IPC_CHANNELS.AI_STREAM_CHUNK, { streamId, text })
       },
       // onDone
       (fullText, displayText, statChanges, dmActions, ruleCitations) => {
-        win.webContents.send(IPC_CHANNELS.AI_STREAM_DONE, {
+        sendToWindow(win, IPC_CHANNELS.AI_STREAM_DONE, {
           streamId,
           fullText,
           displayText,
@@ -181,7 +210,7 @@ export function registerAiHandlers(): void {
       },
       // onError
       (error) => {
-        win.webContents.send(IPC_CHANNELS.AI_STREAM_ERROR, { streamId, error })
+        sendToWindow(win, IPC_CHANNELS.AI_STREAM_ERROR, { streamId, error })
       }
     )
 
@@ -277,6 +306,7 @@ export function registerAiHandlers(): void {
   // ── Conversation Persistence ──
 
   ipcMain.handle(IPC_CHANNELS.AI_SAVE_CONVERSATION, async (_event, campaignId: string) => {
+    sanitizeCampaignId(campaignId)
     const conv = aiService.getConversationManager(campaignId)
     const data = conv.serialize()
     const saveResult = await saveConversation(campaignId, data)
@@ -291,6 +321,7 @@ export function registerAiHandlers(): void {
   ipcMain.handle(
     IPC_CHANNELS.AI_RESTORE_CONVERSATION,
     async (_event, campaignId: string, data: Record<string, unknown>) => {
+      sanitizeCampaignId(campaignId)
       const result = await saveConversation(campaignId, data as unknown as ConversationData)
       if (!result.success) return { success: false, error: result.error }
       return { success: true }
@@ -298,6 +329,7 @@ export function registerAiHandlers(): void {
   )
 
   ipcMain.handle(IPC_CHANNELS.AI_LOAD_CONVERSATION, async (_event, campaignId: string) => {
+    sanitizeCampaignId(campaignId)
     const result = await loadConversation(campaignId)
     if (result.success && result.data) {
       const conv = aiService.getConversationManager(campaignId)
@@ -308,6 +340,7 @@ export function registerAiHandlers(): void {
   })
 
   ipcMain.handle(IPC_CHANNELS.AI_DELETE_CONVERSATION, async (_event, campaignId: string) => {
+    sanitizeCampaignId(campaignId)
     const result = await deleteConversation(campaignId)
     if (!result.success) return { success: false, error: result.error }
     return { success: true }
@@ -316,6 +349,7 @@ export function registerAiHandlers(): void {
   // ── Memory Files ──
 
   ipcMain.handle(IPC_CHANNELS.AI_LIST_MEMORY_FILES, async (_event, campaignId: string) => {
+    sanitizeCampaignId(campaignId)
     const memoryDir = path.join(app.getPath('userData'), 'campaigns', campaignId, 'ai-context')
     const results: Array<{ name: string; size: number }> = []
 
@@ -349,6 +383,7 @@ export function registerAiHandlers(): void {
   })
 
   ipcMain.handle(IPC_CHANNELS.AI_READ_MEMORY_FILE, async (_event, campaignId: string, fileName: string) => {
+    sanitizeCampaignId(campaignId)
     // Prevent directory traversal
     const normalized = path.normalize(fileName)
     if (normalized.startsWith('..') || path.isAbsolute(normalized)) {
@@ -359,6 +394,7 @@ export function registerAiHandlers(): void {
   })
 
   ipcMain.handle(IPC_CHANNELS.AI_CLEAR_MEMORY, async (_event, campaignId: string) => {
+    sanitizeCampaignId(campaignId)
     const memoryDir = path.join(app.getPath('userData'), 'campaigns', campaignId, 'ai-context')
     try {
       await fs.rm(memoryDir, { recursive: true, force: true })
@@ -451,7 +487,7 @@ export function registerAiHandlers(): void {
     const win = BrowserWindow.fromWebContents(event.sender)
     try {
       const path = await downloadOllama((percent) => {
-        win?.webContents.send(IPC_CHANNELS.AI_OLLAMA_PROGRESS, { type: 'download', percent })
+        sendToWindow(win, IPC_CHANNELS.AI_OLLAMA_PROGRESS, { type: 'download', percent })
       })
       return { success: true, path }
     } catch (error) {
@@ -481,7 +517,7 @@ export function registerAiHandlers(): void {
     const win = BrowserWindow.fromWebContents(event.sender)
     try {
       await pullModel(model, (percent) => {
-        win?.webContents.send(IPC_CHANNELS.AI_OLLAMA_PROGRESS, { type: 'pull', percent })
+        sendToWindow(win, IPC_CHANNELS.AI_OLLAMA_PROGRESS, { type: 'pull', percent })
       })
       return { success: true }
     } catch (error) {
@@ -513,7 +549,7 @@ export function registerAiHandlers(): void {
     const win = BrowserWindow.fromWebContents(event.sender)
     try {
       await updateOllama((percent) => {
-        win?.webContents.send(IPC_CHANNELS.AI_OLLAMA_PROGRESS, {
+        sendToWindow(win, IPC_CHANNELS.AI_OLLAMA_PROGRESS, {
           type: 'ollama-update',
           percent
         })

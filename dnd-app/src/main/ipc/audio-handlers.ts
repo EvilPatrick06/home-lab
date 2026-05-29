@@ -1,6 +1,7 @@
 import { app, dialog, ipcMain } from 'electron'
 import * as fs from 'fs/promises'
 import * as path from 'path'
+import { MAX_READ_FILE_SIZE } from '../../shared/constants'
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -124,8 +125,18 @@ export function registerAudioHandlers(): void {
       return { success: false, error: 'cancelled' }
     }
     const filePath = result.filePaths[0]
-    const buffer = await fs.readFile(filePath)
-    const fileName = path.basename(filePath)
-    return { success: true, data: { fileName, buffer: buffer.buffer } }
+    // Phase 17a (NET-16) — stat first to enforce a size cap and to avoid a TOCTOU read of a
+    // file that vanished/grew between the dialog return and the read; wrap the read in try-catch.
+    try {
+      const stat = await fs.stat(filePath)
+      if (stat.size > MAX_READ_FILE_SIZE) {
+        return { success: false, error: `Audio file too large: ${stat.size} bytes (max ${MAX_READ_FILE_SIZE})` }
+      }
+      const buffer = await fs.readFile(filePath)
+      const fileName = path.basename(filePath)
+      return { success: true, data: { fileName, buffer: buffer.buffer } }
+    } catch (err) {
+      return { success: false, error: `Failed to read audio file: ${String(err)}` }
+    }
   })
 }

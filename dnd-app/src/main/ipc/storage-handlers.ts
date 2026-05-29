@@ -101,6 +101,18 @@ export function registerStorageHandlers(): void {
   })
 
   ipcMain.handle(IPC_CHANNELS.CHARACTER_RESTORE_VERSION, async (_event, id: string, fileName: string) => {
+    // Phase 17a (NET-12) — fileName flows into a version-file path; reject separators / traversal
+    // and require the expected extension before delegating.
+    if (
+      typeof fileName !== 'string' ||
+      fileName.includes('/') ||
+      fileName.includes('\\') ||
+      fileName.includes('..') ||
+      fileName.includes('\0') ||
+      !/\.json$/i.test(fileName)
+    ) {
+      throw new Error('Invalid version file name')
+    }
     return restoreCharacterVersion(id, fileName)
   })
 
@@ -374,10 +386,19 @@ export function registerStorageHandlers(): void {
   })
 
   ipcMain.handle(IPC_CHANNELS.BOOK_IMPORT, async (_event, sourcePath: string, title: string, bookId: string) => {
+    // Phase 17a (NET-13) — reject obvious traversal / null-byte payloads in the renderer-supplied
+    // source path (it's a user-picked file; full dialog-allowlist integration is a follow-up).
+    if (typeof sourcePath !== 'string' || sourcePath.includes('..') || sourcePath.includes('\0')) {
+      throw new Error('Invalid source path')
+    }
     return importBook(sourcePath, title, bookId)
   })
 
   ipcMain.handle(IPC_CHANNELS.BOOK_READ_FILE, async (_event, filePath: string) => {
+    // Phase 17a (NET-13) — reject traversal / null-byte payloads before reading.
+    if (typeof filePath !== 'string' || filePath.includes('..') || filePath.includes('\0')) {
+      throw new Error('Invalid book file path')
+    }
     const result = await readBookFile(filePath)
     if (result.success && result.data) {
       // Must slice to the Buffer's actual range — Buffer.buffer returns the shared pool ArrayBuffer

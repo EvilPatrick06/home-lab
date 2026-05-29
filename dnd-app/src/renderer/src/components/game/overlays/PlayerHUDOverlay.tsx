@@ -79,18 +79,12 @@ function PlayerHUDOverlay({ character, conditions }: PlayerHUDOverlayProps): JSX
     [customEffects, character?.id]
   )
 
-  if (!character) return <></>
-  const char5e = is5eCharacter(character) ? character : null
+  // Phase 17b (GUI-1) — `char5e` is null-safe so every hook below runs unconditionally; the
+  // early return for a missing character moves below the last hook (no conditional hook order).
+  const char5e = character && is5eCharacter(character) ? character : null
 
   // Resolved effects for HUD indicators
   const resolved = useMemo(() => (char5e ? resolveEffects(char5e, myCustomEffects) : null), [char5e, myCustomEffects])
-
-  const hp = character.hitPoints
-  const ac = character.armorClass
-  const speed = character.speed
-  const dexMod = abilityModifier(character.abilityScores.dexterity)
-  const bloodied = hp.current > 0 && hp.current <= Math.floor(hp.maximum / 2)
-  const turnState = turnStates[character.id]
 
   // Save & broadcast helper
   const saveAndBroadcast = useCallback((updated: Character5e) => {
@@ -252,6 +246,16 @@ function PlayerHUDOverlay({ character, conditions }: PlayerHUDOverlayProps): JSX
     },
     [char5e, saveAndBroadcast]
   )
+
+  // Phase 17b (GUI-1) — all hooks are declared above; the early return for a missing character
+  // is now safe (it can no longer change hook call order). Non-hook derived values follow.
+  if (!character) return <></>
+  const hp = character.hitPoints
+  const ac = character.armorClass
+  const speed = character.speed
+  const dexMod = abilityModifier(character.abilityScores.dexterity)
+  const bloodied = hp.current > 0 && hp.current <= Math.floor(hp.maximum / 2)
+  const turnState = turnStates[character.id]
 
   // Spell slot pips renderer
   const renderSlotPips = (level: number, current: number, max: number, isPact: boolean = false): JSX.Element => (
