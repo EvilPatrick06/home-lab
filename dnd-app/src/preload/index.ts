@@ -274,6 +274,11 @@ const api = {
   // App info
   getVersion: () => ipcRenderer.invoke(IPC_CHANNELS.APP_VERSION),
 
+  // Security audit (20g) — forward a renderer-side security event to the
+  // main-process audit log. Fire-and-forget from the caller's perspective.
+  logSecurityEvent: (event: string, details?: Record<string, unknown>) =>
+    ipcRenderer.invoke(IPC_CHANNELS.LOG_SECURITY_EVENT, { event, details }),
+
   // Game data
   game: {
     loadJson: (path: string) => ipcRenderer.invoke(IPC_CHANNELS.GAME_LOAD_JSON, path.replace(/^\.\//, '')),

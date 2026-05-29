@@ -739,6 +739,8 @@ declare global {
         discord: DiscordAPI
         lan: LanAPI
         getVersion: () => Promise<string>
+        // Security audit (20g)
+        logSecurityEvent: (event: string, details?: Record<string, unknown>) => Promise<void>
         // BMO Pi Bridge
         bmoStartDm: (campaignId: string) => Promise<{ ok?: boolean; error?: string }>
         bmoStopDm: () => Promise<{ ok?: boolean; error?: string; recap?: string }>

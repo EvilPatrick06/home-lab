@@ -248,7 +248,13 @@ export const IPC_CHANNELS = {
   // Emitted by main when the BMO Pi is discovered (or disappears) via
   // _bmo._tcp mDNS browse. Lets the renderer auto-configure the Pi base
   // URL without the user installing Bonjour Print Services on Windows.
-  BMO_RESOLVED_URL: 'bmo:resolved-url'
+  BMO_RESOLVED_URL: 'bmo:resolved-url',
+
+  // === Security Audit (20g) ===
+  // Renderer → main: forward a renderer-side security event (kick/ban,
+  // rejected network message) to the main-process audit log. The renderer
+  // can't write the log file directly, so it routes through here.
+  LOG_SECURITY_EVENT: 'security:log-event'
 } as const
 
 export type IpcChannel = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS]

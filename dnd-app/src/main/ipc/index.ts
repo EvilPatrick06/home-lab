@@ -4,8 +4,10 @@ import { is } from '@electron-toolkit/utils'
 import { app, BrowserWindow, dialog } from 'electron'
 import { MAX_READ_FILE_SIZE, MAX_WRITE_CONTENT_SIZE } from '../../shared/constants'
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
+import { SecurityEventSchema } from '../../shared/ipc-schemas'
 import { logToFile } from '../log'
-import { handle } from './_safe'
+import { logSecurityEvent } from '../security-log'
+import { handle, withSchema } from './_safe'
 import { registerAiHandlers } from './ai-handlers'
 import { registerAudioHandlers } from './audio-handlers'
 import { registerBmoSyncHandlers } from './bmo-sync-handlers'
@@ -197,6 +199,17 @@ export function registerIpcHandlers(): void {
       win.webContents.openDevTools()
     }
   })
+
+  // --- Security audit (20g): renderer-originated security events ---
+  // The renderer (host kick/ban, rejected network messages) can't write the
+  // audit log directly; it forwards events here and main records them via the
+  // shared logSecurityEvent (capped at 4 KB).
+  handle(
+    IPC_CHANNELS.LOG_SECURITY_EVENT,
+    withSchema(IPC_CHANNELS.LOG_SECURITY_EVENT, SecurityEventSchema, (_event, data) => {
+      logSecurityEvent(`renderer.${data.event}`, data.details ?? {})
+    })
+  )
 
   // --- AI DM handlers ---
   registerAiHandlers()

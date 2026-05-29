@@ -18,6 +18,7 @@ import {
 import { createMessageRouter } from './message-handler'
 import { encodeMessage } from './msgpack-codec'
 import { createPeer, destroyPeer, generateInviteCode, getPeer } from './peer-manager'
+import { auditSecurityEvent } from './security-audit'
 import type { BanPayload, KickPayload, NetworkMessage, PeerInfo } from './types'
 
 // Module-level state
@@ -428,6 +429,12 @@ export function sendToPeer(peerId: string, msg: NetworkMessage): void {
 export function kickPeer(peerId: string): void {
   const kickPayload: KickPayload = { peerId, reason: 'Kicked by DM' }
   const kickMsg = buildMessage('dm:kick-player', kickPayload)
+  // 20g — audit moderation actions.
+  auditSecurityEvent('host.kick', {
+    peerId,
+    displayName: peerInfoMap.get(peerId)?.displayName,
+    campaignId
+  })
   disconnectPeer(peerId, kickMsg)
 }
 
@@ -506,6 +513,14 @@ export function banPeer(peerId: string): void {
   } else {
     logger.warn('[HostManager] banPeer: no peerInfo for', peerId, '— name fallback only')
   }
+  // 20g — audit moderation actions.
+  auditSecurityEvent('host.ban', {
+    peerId,
+    clientId: peerInfo?.clientId,
+    displayName: peerInfo?.displayName,
+    campaignId,
+    nameFallbackOnly: !peerInfo
+  })
   const banPayload: BanPayload = { peerId, reason: 'Banned by DM' }
   const banMsg = buildMessage('dm:ban-player', banPayload)
   disconnectPeer(peerId, banMsg)

@@ -33,6 +33,18 @@ export const AiChatRequestSchema = z.object({
 export type ValidatedAiConfig = z.infer<typeof AiConfigSchema>
 export type ValidatedAiChatRequest = z.infer<typeof AiChatRequestSchema>
 
+// ── Security Audit (20g) ───────────────────────────────────────────
+// Payload the renderer sends to record a security event in the main-process
+// audit log. `event` is a short dotted name (e.g. "host.kick"); `details` is
+// arbitrary context (main caps it at 4 KB). Bounded so a hostile renderer
+// can't bloat the log via this channel.
+export const SecurityEventSchema = z.object({
+  event: z.string().min(1).max(120),
+  details: z.record(z.string(), z.unknown()).optional()
+})
+
+export type ValidatedSecurityEvent = z.infer<typeof SecurityEventSchema>
+
 // ── LAN Discovery (Phase 29g) ──────────────────────────────────────
 // Payload exchanged with the main process when publishing a hosted
 // game over mDNS and when the renderer is notified that a new peer
