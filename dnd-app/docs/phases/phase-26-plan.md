@@ -159,4 +159,9 @@ Phase 15 reshapes how encounters store monsters (refs into the library, not embe
 
 ## Completed
 
-- (none — all five items E1-E5 verified NOT DONE as of 2026-05-19; no steps to archive)
+> **PHASE 26 PARTIAL — 2026-05-29 (overnight autonomous pass).** 4-gate green (lint 0, tsc web+node 0, vitest 6514/6514).
+> - **26c DONE** — new `services/game-actions/token-placement.ts` (`smartPlaceTokens` + `findEmptyCell`): deploys opposite the player cluster, skips occupied + wall-rasterized (Bresenham) cells, footprint-aware (Large/Huge/Gargantuan), pure. 6 unit tests.
+> - **26a DONE (partial)** — GroupRollModal mock players removed (`Theron/Lyra/Grimjaw/Senna` gone — grep clean); rolls for REAL connected lobby players using each character's actual modifier (ability mod + prof for proficient saves/skills + expertise). Full P2P prompt-each-player IPC round-trip deferred.
+> - **DEFERRED:** 26b Place-All wiring, 26d wave model+migration, 26e map linkage+pre-position, 26f executeLoadEncounter→smartPlaceTokens (clean swap now possible, deferred for AI-deployment app verification). 26c is the keystone these build on.
+
+- (prior: all five items E1-E5 verified NOT DONE as of 2026-05-19)

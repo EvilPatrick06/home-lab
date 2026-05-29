@@ -1,6 +1,10 @@
 import { useState } from 'react'
 import { trigger3dDice } from '../../../../components/game/dice3d'
 import { rollSingle } from '../../../../services/dice/dice-service'
+import { useCharacterStore } from '../../../../stores/use-character-store'
+import { useLobbyStore } from '../../../../stores/use-lobby-store'
+import { is5eCharacter } from '../../../../types/character'
+import { abilityModifier } from '../../../../types/character-common'
 
 interface GroupRollModalProps {
   onClose: () => void
@@ -64,22 +68,43 @@ export default function GroupRollModal({ onClose, onBroadcastResult }: GroupRoll
     return checkType === 'save' ? `${abilityLabel} Saving Throw` : `${abilityLabel} Check`
   }
 
+  // Phase 26a — roll for the REAL connected players (mock names removed). The DM
+  // rolls on each player's behalf using their character's actual modifier.
+  // (Full P2P prompt-each-player round-trip — dm:group-roll-request /
+  // player:group-roll-result — is deferred; logged in the phase plan.)
+  const computeModifier = (characterId: string | null): number => {
+    if (!characterId) return 0
+    const char = useCharacterStore.getState().characters.find((c) => c.id === characterId)
+    if (!char || !is5eCharacter(char)) return 0
+    const profBonus = Math.ceil(char.level / 4) + 1
+    if (checkType === 'skill') {
+      const sk = char.skills.find((s) => s.name === skill)
+      if (!sk) return 0
+      const abMod = abilityModifier(char.abilityScores[sk.ability])
+      return abMod + (sk.proficient ? profBonus : 0) + (sk.expertise ? profBonus : 0)
+    }
+    const abMod = abilityModifier(char.abilityScores[ability as keyof typeof char.abilityScores] ?? 10)
+    if (checkType === 'save') {
+      const proficient = char.proficiencies?.savingThrows?.includes(ability as never)
+      return abMod + (proficient ? profBonus : 0)
+    }
+    return abMod
+  }
+
   const handleRequestRoll = () => {
     setRequested(true)
 
-    // Simulate results from players (in a real networked game, these would come via P2P)
-    const simulatedPlayers = ['Theron', 'Lyra', 'Grimjaw', 'Senna']
-    const simulated: RollResult[] = simulatedPlayers.map((name) => {
+    const players = useLobbyStore.getState().players.filter((p) => (p.status ?? 'connected') === 'connected')
+    const rolled: RollResult[] = players.map((p) => {
+      const name = p.displayName
       const roll = rollSingle(20)
-      const mod = Math.floor(Math.random() * 7) - 1
+      const mod = computeModifier(p.characterId)
       const total = roll + mod
       trigger3dDice({ formula: '1d20', rolls: [roll], total, rollerName: name })
       return { name, roll, mod, total, success: total >= dc }
     })
 
-    setTimeout(() => {
-      setResults(simulated)
-    }, 800)
+    setResults(rolled)
   }
 
   const passCount = results?.filter((r) => r.success).length ?? 0
