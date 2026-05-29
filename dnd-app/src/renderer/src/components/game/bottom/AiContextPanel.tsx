@@ -80,20 +80,20 @@ export default function AiContextPanel({ campaignId }: AiContextPanelProps): JSX
   return (
     <div className="w-full bg-gray-900/60 border border-gray-700/40 rounded-lg px-3 py-2 mt-1.5">
       <div className="flex items-center justify-between mb-1.5">
-        <span className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">AI Context Files</span>
+        <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">AI Context Files</span>
         <div className="flex items-center gap-1.5">
-          <span className="text-[10px] text-gray-500">{formatSize(totalSize)} total</span>
+          <span className="text-xs text-gray-500">{formatSize(totalSize)} total</span>
           <button
             onClick={refresh}
             disabled={loading}
-            className="px-1.5 py-0.5 text-[10px] rounded bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-gray-300 transition-colors cursor-pointer disabled:opacity-50"
+            className="px-1.5 py-0.5 text-xs rounded bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-gray-300 transition-colors cursor-pointer disabled:opacity-50"
           >
             {loading ? 'Loading...' : 'Refresh'}
           </button>
           <button
             onClick={handleClear}
             disabled={clearing || files.length === 0}
-            className="px-1.5 py-0.5 text-[10px] rounded bg-red-900/40 text-red-400 hover:bg-red-800/40 hover:text-red-300 border border-red-700/30 transition-colors cursor-pointer disabled:opacity-50"
+            className="px-1.5 py-0.5 text-xs rounded bg-red-900/40 text-red-400 hover:bg-red-800/40 hover:text-red-300 border border-red-700/30 transition-colors cursor-pointer disabled:opacity-50"
           >
             {clearing ? 'Clearing...' : 'Clear Memory'}
           </button>
@@ -101,18 +101,18 @@ export default function AiContextPanel({ campaignId }: AiContextPanelProps): JSX
       </div>
 
       {files.length === 0 && !loading ? (
-        <div className="text-[10px] text-gray-600 py-1">No memory files yet.</div>
+        <div className="text-xs text-gray-600 py-1">No memory files yet.</div>
       ) : (
         <div className="space-y-0.5">
           {files.map((file) => (
             <div key={file.name}>
               <div className="flex items-center justify-between py-0.5">
-                <span className="text-[10px] text-gray-400 font-mono truncate mr-2">{file.name}</span>
+                <span className="text-xs text-gray-400 font-mono truncate mr-2">{file.name}</span>
                 <div className="flex items-center gap-1.5 shrink-0">
-                  <span className="text-[10px] text-gray-600">{formatSize(file.size)}</span>
+                  <span className="text-xs text-gray-600">{formatSize(file.size)}</span>
                   <button
                     onClick={() => handleView(file.name)}
-                    className={`px-1.5 py-0.5 text-[10px] rounded transition-colors cursor-pointer ${
+                    className={`px-1.5 py-0.5 text-xs rounded transition-colors cursor-pointer ${
                       viewingFile === file.name
                         ? 'bg-purple-600/30 text-purple-300 border border-purple-500/40'
                         : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-gray-300'
@@ -126,9 +126,9 @@ export default function AiContextPanel({ campaignId }: AiContextPanelProps): JSX
               {viewingFile === file.name && (
                 <div className="mt-0.5 mb-1">
                   {loadingContent ? (
-                    <div className="text-[10px] text-gray-600 py-1">Loading...</div>
+                    <div className="text-xs text-gray-600 py-1">Loading...</div>
                   ) : (
-                    <pre className="text-[10px] text-gray-400 bg-gray-950/60 border border-gray-800/60 rounded p-2 max-h-48 overflow-auto whitespace-pre-wrap break-words font-mono leading-relaxed">
+                    <pre className="text-xs text-gray-400 bg-gray-950/60 border border-gray-800/60 rounded p-2 max-h-48 overflow-auto whitespace-pre-wrap break-words font-mono leading-relaxed">
                       {fileContent || '(empty)'}
                     </pre>
                   )}

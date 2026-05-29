@@ -86,11 +86,11 @@ export default function CreatureSearchModal({
             >
               <div className="flex-1 min-w-0">
                 <div className="text-xs font-medium text-gray-200 truncate">{monster.name}</div>
-                <div className="text-[10px] text-gray-500">
+                <div className="text-xs text-gray-500">
                   {monster.size} {monster.type} | CR {monster.cr}
                 </div>
               </div>
-              <span className="text-[10px] text-amber-400 shrink-0 ml-2">Select</span>
+              <span className="text-xs text-amber-400 shrink-0 ml-2">Select</span>
             </button>
           ))}
         </div>

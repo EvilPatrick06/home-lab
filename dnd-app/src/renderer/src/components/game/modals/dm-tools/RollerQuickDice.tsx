@@ -127,7 +127,7 @@ export default function RollerQuickDice({ autoMinimize, onRevealQuickResult }: R
           placeholder="2d6+3"
           className="flex-1 px-2 py-1 bg-gray-800 border border-gray-700 rounded text-xs text-gray-200 placeholder-gray-500 focus:outline-none focus:border-amber-500"
         />
-        <label className="flex items-center gap-1 text-[10px] text-gray-500 shrink-0">
+        <label className="flex items-center gap-1 text-xs text-gray-500 shrink-0">
           <span>x</span>
           <input
             type="number"
@@ -155,7 +155,7 @@ export default function RollerQuickDice({ autoMinimize, onRevealQuickResult }: R
       </div>
       {/* Hidden toggle */}
       <div className="flex items-center gap-2">
-        <label className="flex items-center gap-1.5 text-[10px] text-gray-400 cursor-pointer">
+        <label className="flex items-center gap-1.5 text-xs text-gray-400 cursor-pointer">
           <input
             type="checkbox"
             checked={quickHiddenDefault}
@@ -170,7 +170,7 @@ export default function RollerQuickDice({ autoMinimize, onRevealQuickResult }: R
         <div className="space-y-1 max-h-32 overflow-y-auto">
           {quickResults.map((qr) => (
             <div key={qr.id} className="flex items-center gap-2 bg-gray-800/50 rounded px-2 py-1">
-              <span className="text-[10px] text-gray-400">{qr.formula}:</span>
+              <span className="text-xs text-gray-400">{qr.formula}:</span>
               <span className="text-xs text-gray-300">[{qr.rolls.join(', ')}]</span>
               <span className="text-xs text-amber-300 font-bold">= {qr.total}</span>
               {qr.label && qr.label !== qr.formula.replace(/ \(#\d+\)$/, '') && (

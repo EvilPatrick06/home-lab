@@ -221,7 +221,7 @@ export default function LeftSidebar({
                           const path = getCharacterSheetPath(char)
                           navigate(path, { state: { returnTo } })
                         }}
-                        className="text-[10px] px-1.5 py-0.5 rounded bg-gray-700 text-gray-300 hover:bg-amber-600 hover:text-white transition-colors cursor-pointer shrink-0 ml-1"
+                        className="text-xs px-1.5 py-0.5 rounded bg-gray-700 text-gray-300 hover:bg-amber-600 hover:text-white transition-colors cursor-pointer shrink-0 ml-1"
                       >
                         {canEdit ? 'Edit' : 'View'}
                       </button>
@@ -288,7 +288,7 @@ export default function LeftSidebar({
                       <span className="text-sm text-gray-200 truncate">{bastion.name}</span>
                     </div>
                     <div className="text-xs text-gray-400 mt-0.5">{owner?.name ?? 'Unknown'}</div>
-                    <div className="flex items-center gap-2 mt-1 text-[10px] text-gray-500">
+                    <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
                       <span>{facilityCount} facilities</span>
                       <span>{bastion.defenders.length} defenders</span>
                       <span className="text-yellow-400/70">{bastion.treasury} GP</span>
@@ -306,8 +306,8 @@ export default function LeftSidebar({
           <div className="space-y-1.5">
             {/* Currency summary */}
             <div className="bg-gray-800/50 rounded-lg p-2">
-              <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Currency</div>
-              <div className="flex items-center gap-2 text-[10px] flex-wrap">
+              <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Currency</div>
+              <div className="flex items-center gap-2 text-xs flex-wrap">
                 {partyInventory.currency.pp > 0 && (
                   <span className="text-gray-200">{partyInventory.currency.pp} PP</span>
                 )}
@@ -335,12 +335,12 @@ export default function LeftSidebar({
                       <span className="text-[9px] text-gray-500 capitalize">{item.rarity}</span>
                     )}
                   </div>
-                  <span className="text-[10px] text-gray-400 shrink-0 ml-1">x{item.quantity}</span>
+                  <span className="text-xs text-gray-400 shrink-0 ml-1">x{item.quantity}</span>
                 </div>
               ))
             )}
             {partyInventory.items.length > 8 && (
-              <p className="text-[10px] text-gray-500 text-center">+{partyInventory.items.length - 8} more items</p>
+              <p className="text-xs text-gray-500 text-center">+{partyInventory.items.length - 8} more items</p>
             )}
           </div>
         )

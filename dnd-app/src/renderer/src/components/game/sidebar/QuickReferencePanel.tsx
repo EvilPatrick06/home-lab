@@ -333,7 +333,7 @@ export default function QuickReferencePanel({ onClose }: QuickReferencePanelProp
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`px-2 py-1 text-[10px] font-semibold rounded cursor-pointer transition-colors ${
+            className={`px-2 py-1 text-xs font-semibold rounded cursor-pointer transition-colors ${
               activeTab === tab.id
                 ? 'bg-amber-600 text-white'
                 : 'bg-gray-800 text-gray-400 hover:text-gray-200 hover:bg-gray-700'

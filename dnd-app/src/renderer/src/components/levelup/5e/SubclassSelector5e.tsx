@@ -30,7 +30,7 @@ export function SubclassSelector5e({ slot, classId }: { slot: BuildSlot; classId
     <div className={`rounded ${isIncomplete ? 'ring-1 ring-amber-600/50 p-1 -m-1' : ''}`}>
       <div className="text-sm text-gray-400 mb-1 flex items-center gap-2">
         {slot.label}:
-        {isIncomplete && <span className="text-[10px] text-amber-500 font-semibold uppercase">Required</span>}
+        {isIncomplete && <span className="text-xs text-amber-500 font-semibold uppercase">Required</span>}
       </div>
       {slot.selectedId ? (
         <div className="bg-indigo-900/20 border border-indigo-700/50 rounded-lg p-2">

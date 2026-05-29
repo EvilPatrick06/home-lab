@@ -111,27 +111,27 @@ export function InstalledModelList({
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-sm text-gray-200 font-medium truncate">{model.name}</span>
                     {model.parameterSize && (
-                      <span className="text-[10px] text-gray-500 bg-gray-700/60 px-1.5 py-0.5 rounded">
+                      <span className="text-xs text-gray-500 bg-gray-700/60 px-1.5 py-0.5 rounded">
                         {model.parameterSize}
                       </span>
                     )}
                     {model.quantization && (
-                      <span className="text-[10px] text-gray-500 bg-gray-700/60 px-1.5 py-0.5 rounded">
+                      <span className="text-xs text-gray-500 bg-gray-700/60 px-1.5 py-0.5 rounded">
                         {model.quantization}
                       </span>
                     )}
                     {model.family && (
-                      <span className="text-[10px] text-gray-500 bg-gray-700/60 px-1.5 py-0.5 rounded">
+                      <span className="text-xs text-gray-500 bg-gray-700/60 px-1.5 py-0.5 rounded">
                         {model.family}
                       </span>
                     )}
                     {tierStyle && (
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded ${tierStyle.className}`}>
+                      <span className={`text-xs px-1.5 py-0.5 rounded ${tierStyle.className}`}>
                         {tierStyle.label}
                       </span>
                     )}
                   </div>
-                  <div className="text-[10px] text-gray-500 mt-0.5">
+                  <div className="text-xs text-gray-500 mt-0.5">
                     {formatBytes(model.size)}
                     {curated && <> &middot; ~{(curated.vramMB / 1000).toFixed(1)}GB VRAM</>} &middot;{' '}
                     {timeAgo(model.modifiedAt)}
@@ -146,7 +146,7 @@ export function InstalledModelList({
                         style={{ width: `${activeOp.percent}%` }}
                       />
                     </div>
-                    <span className="text-[10px] text-gray-400 w-8 text-right">{activeOp.percent}%</span>
+                    <span className="text-xs text-gray-400 w-8 text-right">{activeOp.percent}%</span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-1 ml-3">
@@ -228,12 +228,12 @@ export function AvailableModelList({ models, activeOp, isBusy, vram, onPull }: A
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-sm text-gray-300 font-medium">{model.name}</span>
                   {tierStyle && (
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded ${tierStyle.className}`}>
+                    <span className={`text-xs px-1.5 py-0.5 rounded ${tierStyle.className}`}>
                       {tierStyle.label}
                     </span>
                   )}
                 </div>
-                <div className="text-[10px] text-gray-500 mt-0.5">
+                <div className="text-xs text-gray-500 mt-0.5">
                   {model.desc} &middot; ~{(model.vramMB / 1000).toFixed(1)}GB VRAM &middot;{' '}
                   {(model.contextSize / 1024).toFixed(0)}K ctx
                 </div>
@@ -247,7 +247,7 @@ export function AvailableModelList({ models, activeOp, isBusy, vram, onPull }: A
                       style={{ width: `${activeOp.percent}%` }}
                     />
                   </div>
-                  <span className="text-[10px] text-gray-400 w-8 text-right">{activeOp.percent}%</span>
+                  <span className="text-xs text-gray-400 w-8 text-right">{activeOp.percent}%</span>
                 </div>
               ) : (
                 <button

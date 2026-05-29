@@ -68,7 +68,7 @@ export default function CharacterInspectModal({ characterData, onClose }: Charac
         <div className="flex items-center justify-between mb-3 shrink-0">
           <div>
             <h3 className="text-sm font-semibold text-gray-200">{char.name}</h3>
-            <p className="text-[10px] text-gray-400">
+            <p className="text-xs text-gray-400">
               {classes} &middot; {char.species ?? 'Unknown Species'} &middot; {char.background ?? ''}
             </p>
           </div>
@@ -88,9 +88,9 @@ export default function CharacterInspectModal({ characterData, onClose }: Charac
               const score = abilities[ab] ?? 10
               return (
                 <div key={ab} className="bg-gray-800/60 border border-gray-700/40 rounded-lg p-2 text-center">
-                  <div className="text-[10px] text-gray-500 uppercase font-semibold">{abilityLabels[ab]}</div>
+                  <div className="text-xs text-gray-500 uppercase font-semibold">{abilityLabels[ab]}</div>
                   <div className="text-sm font-bold text-gray-200">{score}</div>
-                  <div className="text-[10px] text-amber-400">{abilityMod(score)}</div>
+                  <div className="text-xs text-amber-400">{abilityMod(score)}</div>
                 </div>
               )
             })}
@@ -99,21 +99,21 @@ export default function CharacterInspectModal({ characterData, onClose }: Charac
           {/* HP / AC / Speed / Initiative */}
           <div className="grid grid-cols-4 gap-1.5">
             <div className="bg-gray-800/60 border border-gray-700/40 rounded-lg p-2 text-center">
-              <div className="text-[10px] text-gray-500 uppercase font-semibold">HP</div>
+              <div className="text-xs text-gray-500 uppercase font-semibold">HP</div>
               <div className="text-sm font-bold text-green-400">
                 {char.hitPoints?.current ?? '?'} / {char.hitPoints?.maximum ?? '?'}
               </div>
             </div>
             <div className="bg-gray-800/60 border border-gray-700/40 rounded-lg p-2 text-center">
-              <div className="text-[10px] text-gray-500 uppercase font-semibold">AC</div>
+              <div className="text-xs text-gray-500 uppercase font-semibold">AC</div>
               <div className="text-sm font-bold text-blue-400">{char.armorClass ?? '?'}</div>
             </div>
             <div className="bg-gray-800/60 border border-gray-700/40 rounded-lg p-2 text-center">
-              <div className="text-[10px] text-gray-500 uppercase font-semibold">Speed</div>
+              <div className="text-xs text-gray-500 uppercase font-semibold">Speed</div>
               <div className="text-sm font-bold text-gray-200">{char.speed ?? 30} ft</div>
             </div>
             <div className="bg-gray-800/60 border border-gray-700/40 rounded-lg p-2 text-center">
-              <div className="text-[10px] text-gray-500 uppercase font-semibold">Initiative</div>
+              <div className="text-xs text-gray-500 uppercase font-semibold">Initiative</div>
               <div className="text-sm font-bold text-gray-200">{abilityMod(abilities.dexterity ?? 10)}</div>
             </div>
           </div>
@@ -121,7 +121,7 @@ export default function CharacterInspectModal({ characterData, onClose }: Charac
           {/* Proficiencies */}
           {allProficiencies.length > 0 && (
             <div>
-              <h4 className="text-[10px] text-gray-500 uppercase font-semibold mb-1">Proficiencies</h4>
+              <h4 className="text-xs text-gray-500 uppercase font-semibold mb-1">Proficiencies</h4>
               <p className="text-xs text-gray-300">{allProficiencies.join(', ')}</p>
             </div>
           )}
@@ -129,7 +129,7 @@ export default function CharacterInspectModal({ characterData, onClose }: Charac
           {/* Saving Throws */}
           {char.proficiencies.savingThrows.length > 0 && (
             <div>
-              <h4 className="text-[10px] text-gray-500 uppercase font-semibold mb-1">Saving Throws</h4>
+              <h4 className="text-xs text-gray-500 uppercase font-semibold mb-1">Saving Throws</h4>
               <p className="text-xs text-gray-300">{char.proficiencies.savingThrows.join(', ')}</p>
             </div>
           )}
@@ -137,7 +137,7 @@ export default function CharacterInspectModal({ characterData, onClose }: Charac
           {/* Skills */}
           {char.skills && char.skills.length > 0 && (
             <div>
-              <h4 className="text-[10px] text-gray-500 uppercase font-semibold mb-1">Skills</h4>
+              <h4 className="text-xs text-gray-500 uppercase font-semibold mb-1">Skills</h4>
               <div className="grid grid-cols-2 gap-0.5">
                 {char.skills.map((skill) => (
                   <div key={skill.name} className="text-xs text-gray-300">
@@ -153,7 +153,7 @@ export default function CharacterInspectModal({ characterData, onClose }: Charac
           {/* Equipment */}
           {equipment.length > 0 && (
             <div>
-              <h4 className="text-[10px] text-gray-500 uppercase font-semibold mb-1">Equipment</h4>
+              <h4 className="text-xs text-gray-500 uppercase font-semibold mb-1">Equipment</h4>
               <div className="grid grid-cols-2 gap-0.5">
                 {equipment.map((item) => {
                   const name = typeof item === 'string' ? item : item.name
@@ -172,7 +172,7 @@ export default function CharacterInspectModal({ characterData, onClose }: Charac
           {/* Spells */}
           {spells.length > 0 && (
             <div>
-              <h4 className="text-[10px] text-gray-500 uppercase font-semibold mb-1">Spells</h4>
+              <h4 className="text-xs text-gray-500 uppercase font-semibold mb-1">Spells</h4>
               <div className="grid grid-cols-2 gap-0.5">
                 {spells.map((spell) => (
                   <div key={spell.id} className="text-xs text-gray-300">

@@ -188,7 +188,7 @@ export default function PlayerBottomBar({
           is actually playing; null state stays out of the way. */}
       {currentAmbient && (
         <div
-          className="absolute -top-5 right-3 z-10 px-2.5 py-0.5 text-[10px] flex items-center gap-1
+          className="absolute -top-5 right-3 z-10 px-2.5 py-0.5 text-xs flex items-center gap-1
             bg-gray-800 border border-gray-700/50 rounded-t-lg text-amber-300"
           title={`Currently playing: ${currentAmbient}`}
         >

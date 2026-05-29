@@ -121,7 +121,7 @@ function HitPointsBar5e({ character, effectiveCharacter, readonly }: HitPointsBa
           {/* Bloodied indicator */}
           {effectiveCharacter.hitPoints.current > 0 &&
             effectiveCharacter.hitPoints.current <= Math.floor(effectiveCharacter.hitPoints.maximum / 2) && (
-              <div className="text-[10px] text-red-500 font-bold uppercase tracking-wider mt-0.5">Bloodied</div>
+              <div className="text-xs text-red-500 font-bold uppercase tracking-wider mt-0.5">Bloodied</div>
             )}
           {/* Hit Point Dice */}
           {(() => {

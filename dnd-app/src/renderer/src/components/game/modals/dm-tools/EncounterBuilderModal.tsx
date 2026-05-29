@@ -226,13 +226,13 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
               {/* XP marker */}
               {encounter.adjustedXP > 0 && (
                 <div className="absolute top-0 h-full w-0.5 bg-white shadow-lg" style={{ left: `${xpPct}%` }}>
-                  <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-[10px] text-white whitespace-nowrap bg-gray-900 px-1 rounded">
+                  <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-xs text-white whitespace-nowrap bg-gray-900 px-1 rounded">
                     {encounter.adjustedXP.toLocaleString()} XP
                   </div>
                 </div>
               )}
               {/* Labels */}
-              <div className="absolute inset-0 flex items-center text-[10px] text-white/70 pointer-events-none">
+              <div className="absolute inset-0 flex items-center text-xs text-white/70 pointer-events-none">
                 <span className="flex-1 text-center">Low</span>
                 <span className="flex-1 text-center">Moderate</span>
                 <span className="flex-1 text-center">High</span>

@@ -187,7 +187,7 @@ export default function ShopPanel(): JSX.Element {
                 <button
                   key={item.id}
                   onClick={() => handleAddPreset(item)}
-                  className="text-[10px] px-1.5 py-0.5 bg-gray-800 border border-gray-700 rounded text-gray-400 hover:text-amber-300 hover:border-amber-600 cursor-pointer"
+                  className="text-xs px-1.5 py-0.5 bg-gray-800 border border-gray-700 rounded text-gray-400 hover:text-amber-300 hover:border-amber-600 cursor-pointer"
                 >
                   {item.name}
                 </button>
@@ -211,7 +211,7 @@ export default function ShopPanel(): JSX.Element {
                     <button
                       key={item.id}
                       onClick={() => handleAddPreset(item)}
-                      className="text-[10px] px-1.5 py-0.5 bg-purple-900/30 border border-purple-700/50 rounded text-purple-400 hover:text-purple-300 hover:border-purple-500 cursor-pointer"
+                      className="text-xs px-1.5 py-0.5 bg-purple-900/30 border border-purple-700/50 rounded text-purple-400 hover:text-purple-300 hover:border-purple-500 cursor-pointer"
                       title={item.description}
                     >
                       {item.name}

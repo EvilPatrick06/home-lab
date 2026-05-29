@@ -378,7 +378,7 @@ export default function CampaignDetailPage(): JSX.Element {
                   })
                   addToast('Loot added', 'success')
                 }}
-                className="text-[10px] bg-amber-600/20 text-amber-400 hover:bg-amber-600/40 px-2 py-1 rounded cursor-pointer transition-colors"
+                className="text-xs bg-amber-600/20 text-amber-400 hover:bg-amber-600/40 px-2 py-1 rounded cursor-pointer transition-colors"
               >
                 + Add Loot
               </button>
@@ -409,7 +409,7 @@ export default function CampaignDetailPage(): JSX.Element {
                               })
                             }
                           }}
-                          className="opacity-0 group-hover:opacity-100 text-[10px] text-red-400 hover:text-red-300 cursor-pointer transition-opacity"
+                          className="opacity-0 group-hover:opacity-100 text-xs text-red-400 hover:text-red-300 cursor-pointer transition-opacity"
                         >
                           Delete
                         </button>
@@ -461,20 +461,20 @@ export default function CampaignDetailPage(): JSX.Element {
                   setEditingEntry(null)
                   setShowJournalModal(true)
                 }}
-                className="text-[10px] bg-amber-600/20 text-amber-400 hover:bg-amber-600/40 px-2 py-1 rounded cursor-pointer transition-colors"
+                className="text-xs bg-amber-600/20 text-amber-400 hover:bg-amber-600/40 px-2 py-1 rounded cursor-pointer transition-colors"
               >
                 + New Entry
               </button>
               <button
                 onClick={handleImportJournal}
-                className="text-[10px] text-gray-400 hover:text-amber-400 cursor-pointer"
+                className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer"
               >
                 Import
               </button>
               {campaign.journal.entries.length > 0 && (
                 <button
                   onClick={() => handleExportJournal(campaign.journal.entries)}
-                  className="text-[10px] text-gray-400 hover:text-amber-400 cursor-pointer"
+                  className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer"
                 >
                   Export All
                 </button>
@@ -504,7 +504,7 @@ export default function CampaignDetailPage(): JSX.Element {
                               setEditingEntry(entry)
                               setShowJournalModal(true)
                             }}
-                            className="text-[10px] text-amber-400 hover:text-amber-300 cursor-pointer"
+                            className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer"
                           >
                             Edit
                           </button>
@@ -514,7 +514,7 @@ export default function CampaignDetailPage(): JSX.Element {
                                 handleDeleteJournalEntry(entry.id)
                               }
                             }}
-                            className="text-[10px] text-red-400 hover:text-red-300 cursor-pointer"
+                            className="text-xs text-red-400 hover:text-red-300 cursor-pointer"
                           >
                             Delete
                           </button>

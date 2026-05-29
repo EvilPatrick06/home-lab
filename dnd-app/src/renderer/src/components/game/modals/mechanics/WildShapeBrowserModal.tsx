@@ -115,7 +115,7 @@ export default function WildShapeBrowserModal({
                 }`}
               >
                 <div className="text-sm text-gray-200 font-medium">{m.name}</div>
-                <div className="text-[10px] text-gray-500">
+                <div className="text-xs text-gray-500">
                   {m.size} Beast — CR {m.cr} — HP {m.hp}
                 </div>
               </button>

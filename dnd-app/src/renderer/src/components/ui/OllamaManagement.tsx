@@ -355,12 +355,12 @@ export default function OllamaManagement(): JSX.Element {
                           className="flex items-center gap-1.5 px-2.5 py-1 text-xs bg-gray-800/60 rounded-lg border border-gray-700 hover:border-green-600 hover:text-green-400 text-gray-300 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                         >
                           <span>{m.name}</span>
-                          <span className={`text-[10px] px-1 py-0.5 rounded ${style.className}`}>{style.label}</span>
+                          <span className={`text-xs px-1 py-0.5 rounded ${style.className}`}>{style.label}</span>
                         </button>
                       )
                     })}
                   </div>
-                  <p className="text-[10px] text-gray-500 mt-1.5">
+                  <p className="text-xs text-gray-500 mt-1.5">
                     These models should run well with your {(vram / 1000).toFixed(1)}GB VRAM.
                   </p>
                 </div>
@@ -409,7 +409,7 @@ export default function OllamaManagement(): JSX.Element {
                 Pull
               </button>
             </div>
-            <p className="text-[10px] text-gray-600 mt-1.5">
+            <p className="text-xs text-gray-600 mt-1.5">
               Browse models at{' '}
               <button
                 onClick={() => window.open('https://ollama.com/library', '_blank')}

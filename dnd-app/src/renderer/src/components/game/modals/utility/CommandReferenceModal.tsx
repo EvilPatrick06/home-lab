@@ -39,16 +39,16 @@ export default function CommandReferenceModal({ isDM, onClose }: CommandReferenc
               <div className="flex items-center gap-2 mb-1">
                 <span className="font-mono text-sm font-semibold text-amber-400">/{cmd.name}</span>
                 {cmd.aliases.length > 0 && (
-                  <span className="text-[10px] text-gray-500">{cmd.aliases.map((a) => `/${a}`).join(', ')}</span>
+                  <span className="text-xs text-gray-500">{cmd.aliases.map((a) => `/${a}`).join(', ')}</span>
                 )}
                 {cmd.dmOnly && <span className={`text-[9px] px-1 py-0.5 rounded ${badgeColor}`}>DM</span>}
               </div>
               <p className="text-xs text-gray-400 mb-1">{cmd.description}</p>
-              <div className="text-[10px] text-gray-500 font-mono">{cmd.usage}</div>
+              <div className="text-xs text-gray-500 font-mono">{cmd.usage}</div>
               {(cmd.examples?.length ?? 0) > 0 && (
                 <div className="mt-1 flex flex-wrap gap-1">
                   {cmd.examples?.map((ex, i) => (
-                    <code key={i} className="text-[10px] bg-gray-900/80 px-1.5 py-0.5 rounded text-gray-400">
+                    <code key={i} className="text-xs bg-gray-900/80 px-1.5 py-0.5 rounded text-gray-400">
                       {ex}
                     </code>
                   ))}

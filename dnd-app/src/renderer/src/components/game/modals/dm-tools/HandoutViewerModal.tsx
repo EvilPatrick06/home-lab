@@ -73,10 +73,10 @@ export default function HandoutViewerModal({ handout, onClose }: HandoutViewerMo
           <div className="flex items-center gap-2">
             {activeContentType === 'image' && (
               <>
-                <span className="text-[10px] text-gray-500">{Math.round(scale * 100)}%</span>
+                <span className="text-xs text-gray-500">{Math.round(scale * 100)}%</span>
                 <button
                   onClick={resetView}
-                  className="px-2 py-0.5 text-[10px] bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
+                  className="px-2 py-0.5 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
                 >
                   Reset
                 </button>
@@ -102,7 +102,7 @@ export default function HandoutViewerModal({ handout, onClose }: HandoutViewerMo
                   setActivePage(idx)
                   resetView()
                 }}
-                className={`px-3 py-1 text-[10px] font-medium rounded-t-lg whitespace-nowrap cursor-pointer transition-colors ${
+                className={`px-3 py-1 text-xs font-medium rounded-t-lg whitespace-nowrap cursor-pointer transition-colors ${
                   activePage === idx
                     ? 'bg-amber-600/25 border border-b-0 border-amber-500/50 text-amber-300'
                     : 'bg-gray-800/40 border border-b-0 border-gray-700/30 text-gray-400 hover:bg-gray-700/40'

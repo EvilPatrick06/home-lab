@@ -33,7 +33,7 @@ export default function PersonalityEditor5e(): JSX.Element {
                   // who liked an earlier suggestion can hand-edit it.
                   useBuilderStore.setState({ characterPersonality: traits.join(', ') })
                 }}
-                className="text-[10px] px-2 py-0.5 rounded bg-amber-600 hover:bg-amber-500 text-gray-900 font-semibold cursor-pointer"
+                className="text-xs px-2 py-0.5 rounded bg-amber-600 hover:bg-amber-500 text-gray-900 font-semibold cursor-pointer"
               >
                 Roll Personality Ideas
               </button>

@@ -72,7 +72,7 @@ export default function MulticlassLevelBar5e(): JSX.Element {
       <div className="flex flex-wrap gap-1">
         {/* Level 1 is always the primary class */}
         <div className="flex items-center gap-1 bg-gray-800 rounded px-2 py-1">
-          <span className="text-[10px] text-gray-500 font-mono w-4">1</span>
+          <span className="text-xs text-gray-500 font-mono w-4">1</span>
           <span className="text-xs text-amber-300">{primaryClassName}</span>
         </div>
 
@@ -82,7 +82,7 @@ export default function MulticlassLevelBar5e(): JSX.Element {
 
           return (
             <div key={lvl} className="flex items-center gap-1 bg-gray-800 rounded px-2 py-1">
-              <span className="text-[10px] text-gray-500 font-mono w-4">{lvl}</span>
+              <span className="text-xs text-gray-500 font-mono w-4">{lvl}</span>
               <select
                 value={selectedClassId}
                 onChange={(e) => setClassLevelChoice(lvl, e.target.value)}
@@ -104,7 +104,7 @@ export default function MulticlassLevelBar5e(): JSX.Element {
       {warnings.length > 0 && (
         <div className="mt-2 space-y-1">
           {warnings.map((w, i) => (
-            <div key={i} className="text-[10px] text-yellow-400 bg-yellow-900/20 rounded px-2 py-1">
+            <div key={i} className="text-xs text-yellow-400 bg-yellow-900/20 rounded px-2 py-1">
               {w.className}: {w.warning}
             </div>
           ))}

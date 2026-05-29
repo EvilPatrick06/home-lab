@@ -98,7 +98,7 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                     <div className="flex gap-2">
                       <button
                         onClick={() => setShowManualMagicItem(!showManualMagicItem)}
-                        className="text-[10px] text-gray-400 hover:text-gray-300 cursor-pointer underline"
+                        className="text-xs text-gray-400 hover:text-gray-300 cursor-pointer underline"
                       >
                         {showManualMagicItem ? 'Browse SRD' : 'Manual Entry'}
                       </button>
@@ -110,7 +110,7 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                           setMagicItemRarityFilter('all')
                           setManualMagicItem({ name: '', rarity: 'common', attunement: false, description: '' })
                         }}
-                        className="text-[10px] text-gray-500 hover:text-gray-300 cursor-pointer"
+                        className="text-xs text-gray-500 hover:text-gray-300 cursor-pointer"
                       >
                         Close
                       </button>
@@ -276,7 +276,7 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                                 </span>
                                 <div className="flex items-center gap-2 shrink-0 ml-2">
                                   {item.attunement && <span className="text-[9px] text-purple-500">Attune</span>}
-                                  <span className="text-[10px] text-gray-600 capitalize">
+                                  <span className="text-xs text-gray-600 capitalize">
                                     {item.rarity.replace('-', ' ')}
                                   </span>
                                 </div>

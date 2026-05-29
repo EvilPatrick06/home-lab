@@ -64,7 +64,7 @@ function EditableCurrencyCircle({
           <span className="text-lg font-bold leading-tight">{value}</span>
         )}
       </div>
-      <span className="text-[10px] text-gray-500 font-semibold uppercase tracking-wide">{config.fullName}</span>
+      <span className="text-xs text-gray-500 font-semibold uppercase tracking-wide">{config.fullName}</span>
     </div>
   )
 }
@@ -195,7 +195,7 @@ function InventoryItem({
         }}
       >
         <div className="flex items-center gap-2 min-w-0">
-          <span className={`text-[10px] transition-transform ${expanded ? 'rotate-90' : ''}`}>&#9654;</span>
+          <span className={`text-xs transition-transform ${expanded ? 'rotate-90' : ''}`}>&#9654;</span>
           <span className="truncate">{item.name}</span>
           {item.quantity > 1 && <span className="text-xs text-gray-500 font-medium">x{item.quantity}</span>}
         </div>

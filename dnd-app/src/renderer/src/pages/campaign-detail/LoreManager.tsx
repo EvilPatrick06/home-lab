@@ -98,11 +98,11 @@ export default function LoreManager({ campaign, saveCampaign }: LoreManagerProps
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-lg font-semibold">Lore ({lore.length})</h3>
           <div className="flex items-center gap-2">
-            <button onClick={handleImport} className="text-[10px] text-gray-400 hover:text-amber-400 cursor-pointer">
+            <button onClick={handleImport} className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer">
               Import
             </button>
             {lore.length > 0 && (
-              <button onClick={handleExport} className="text-[10px] text-gray-400 hover:text-amber-400 cursor-pointer">
+              <button onClick={handleExport} className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer">
                 Export All
               </button>
             )}

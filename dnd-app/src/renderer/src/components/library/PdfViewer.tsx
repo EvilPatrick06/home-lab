@@ -1609,7 +1609,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
                       {hasChildren ? (
                         <button
                           onClick={toggleCollapse}
-                          className="w-4 h-4 flex items-center justify-center text-[10px] text-gray-500 hover:text-gray-300 shrink-0"
+                          className="w-4 h-4 flex items-center justify-center text-xs text-gray-500 hover:text-gray-300 shrink-0"
                         >
                           {isCollapsed ? '▶' : '▼'}
                         </button>
@@ -1634,7 +1634,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
                       >
                         <span className="truncate">{entry.title}</span>
                         {entry.page > 0 && (
-                          <span className="text-[10px] text-gray-500 shrink-0">
+                          <span className="text-xs text-gray-500 shrink-0">
                             {entry.crossRef ? '↗' : entry.page}
                           </span>
                         )}
@@ -1690,7 +1690,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
                       <div className="flex items-center justify-between mb-1">
                         <button
                           onClick={() => goToPage(ann.page)}
-                          className="text-[10px] text-amber-500 hover:text-amber-400"
+                          className="text-xs text-amber-500 hover:text-amber-400"
                         >
                           Page {ann.page}
                         </button>
@@ -1782,7 +1782,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
                           {pageAnns.map((ann) => (
                             <span
                               key={ann.id}
-                              className="text-[10px] text-amber-300 bg-amber-900/70 px-1.5 py-0.5 rounded truncate"
+                              className="text-xs text-amber-300 bg-amber-900/70 px-1.5 py-0.5 rounded truncate"
                             >
                               📝 {ann.text}
                             </span>

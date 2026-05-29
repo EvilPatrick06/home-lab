@@ -113,7 +113,7 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
               />
               <button
                 onClick={() => setShowAddArmorProf(false)}
-                className="text-[10px] text-gray-500 hover:text-gray-300 cursor-pointer"
+                className="text-xs text-gray-500 hover:text-gray-300 cursor-pointer"
               >
                 Cancel
               </button>
@@ -294,7 +294,7 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
                     }
                   }}
                   disabled={!customProfInput.trim()}
-                  className="px-2 py-0.5 text-[10px] bg-amber-600 hover:bg-amber-500 disabled:opacity-50 rounded text-white cursor-pointer"
+                  className="px-2 py-0.5 text-xs bg-amber-600 hover:bg-amber-500 disabled:opacity-50 rounded text-white cursor-pointer"
                 >
                   Add
                 </button>
@@ -303,7 +303,7 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
                     setShowAddToolProf(false)
                     setCustomProfInput('')
                   }}
-                  className="text-[10px] text-gray-500 hover:text-gray-300 cursor-pointer"
+                  className="text-xs text-gray-500 hover:text-gray-300 cursor-pointer"
                 >
                   Cancel
                 </button>

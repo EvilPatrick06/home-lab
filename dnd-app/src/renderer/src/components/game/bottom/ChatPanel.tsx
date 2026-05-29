@@ -50,7 +50,7 @@ const BottomChatMessage = memo(function BottomChatMessage({
     return (
       <div className="py-1 pl-2 border-l-2 border-amber-500/50 group">
         <div className="flex items-start justify-between">
-          <span className="text-[10px] font-semibold text-amber-400 block mb-0.5">Dungeon Master</span>
+          <span className="text-xs font-semibold text-amber-400 block mb-0.5">Dungeon Master</span>
           <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
             {isDM && aiNarrationText && onSpeakNarration && (
               <button
@@ -361,7 +361,7 @@ export default function ChatPanel({
 
       {/* AI DM Status Bar (DM only) */}
       {isDM && aiEnabled && (
-        <div className="border-t border-gray-800/50 px-2 py-1 shrink-0 flex items-center gap-2 text-[10px]">
+        <div className="border-t border-gray-800/50 px-2 py-1 shrink-0 flex items-center gap-2 text-xs">
           <span className={`w-1.5 h-1.5 rounded-full ${aiIsTyping ? 'bg-amber-400 animate-pulse' : 'bg-green-500'}`} />
           <span className="text-gray-500">AI {aiIsTyping ? 'responding' : 'ready'}</span>
           <span className="text-gray-600 ml-auto" title="Estimated conversation tokens">

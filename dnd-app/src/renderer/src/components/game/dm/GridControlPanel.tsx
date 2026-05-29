@@ -18,7 +18,7 @@ export default function GridControlPanel({ grid, onUpdate }: GridControlPanelPro
         <h4 className="text-sm font-semibold text-gray-200">Grid Settings</h4>
         <button
           onClick={handleResetToDefault}
-          className="px-2 py-0.5 text-[10px] rounded bg-gray-800 border border-gray-700 text-gray-400 hover:bg-gray-700 hover:text-gray-200 transition-colors cursor-pointer"
+          className="px-2 py-0.5 text-xs rounded bg-gray-800 border border-gray-700 text-gray-400 hover:bg-gray-700 hover:text-gray-200 transition-colors cursor-pointer"
           title="Reset cell size to 40px and offsets to 0"
         >
           Reset to Default (40px)
@@ -27,7 +27,7 @@ export default function GridControlPanel({ grid, onUpdate }: GridControlPanelPro
 
       {/* Cell Size */}
       <div className="space-y-1">
-        <label className="text-[10px] text-gray-400 uppercase tracking-wider">Cell Size: {grid.cellSize}px</label>
+        <label className="text-xs text-gray-400 uppercase tracking-wider">Cell Size: {grid.cellSize}px</label>
         <input
           type="range"
           min={20}
@@ -44,7 +44,7 @@ export default function GridControlPanel({ grid, onUpdate }: GridControlPanelPro
 
       {/* X Offset */}
       <div className="space-y-1">
-        <label className="text-[10px] text-gray-400 uppercase tracking-wider">X Offset: {grid.offsetX}px</label>
+        <label className="text-xs text-gray-400 uppercase tracking-wider">X Offset: {grid.offsetX}px</label>
         <input
           type="range"
           min={-50}
@@ -61,7 +61,7 @@ export default function GridControlPanel({ grid, onUpdate }: GridControlPanelPro
 
       {/* Y Offset */}
       <div className="space-y-1">
-        <label className="text-[10px] text-gray-400 uppercase tracking-wider">Y Offset: {grid.offsetY}px</label>
+        <label className="text-xs text-gray-400 uppercase tracking-wider">Y Offset: {grid.offsetY}px</label>
         <input
           type="range"
           min={-50}
@@ -78,7 +78,7 @@ export default function GridControlPanel({ grid, onUpdate }: GridControlPanelPro
 
       {/* Grid Color */}
       <div className="space-y-1">
-        <label className="text-[10px] text-gray-400 uppercase tracking-wider">Grid Color</label>
+        <label className="text-xs text-gray-400 uppercase tracking-wider">Grid Color</label>
         <div className="flex items-center gap-2">
           <input
             type="color"
@@ -92,7 +92,7 @@ export default function GridControlPanel({ grid, onUpdate }: GridControlPanelPro
 
       {/* Opacity */}
       <div className="space-y-1">
-        <label className="text-[10px] text-gray-400 uppercase tracking-wider">
+        <label className="text-xs text-gray-400 uppercase tracking-wider">
           Opacity: {Math.round(grid.opacity * 100)}%
         </label>
         <input
@@ -107,7 +107,7 @@ export default function GridControlPanel({ grid, onUpdate }: GridControlPanelPro
 
       {/* Grid Type */}
       <div className="space-y-1">
-        <label className="text-[10px] text-gray-400 uppercase tracking-wider">Grid Type</label>
+        <label className="text-xs text-gray-400 uppercase tracking-wider">Grid Type</label>
         <div className="flex gap-1 flex-wrap">
           <button
             onClick={() => onUpdate({ type: 'square' })}

@@ -44,7 +44,7 @@ export function AsiOrFeatSelector5e({
     <div className={`rounded ${isIncomplete ? 'ring-1 ring-amber-600/50 p-1 -m-1' : ''}`}>
       <div className="flex items-center gap-2 mb-2">
         <span className="text-sm text-gray-400">{slot.label}:</span>
-        {isIncomplete && <span className="text-[10px] text-amber-500 font-semibold uppercase">Required</span>}
+        {isIncomplete && <span className="text-xs text-amber-500 font-semibold uppercase">Required</span>}
         <button
           onClick={() => handleToggle(false)}
           className={`px-2 py-0.5 text-xs rounded cursor-pointer transition-colors ${

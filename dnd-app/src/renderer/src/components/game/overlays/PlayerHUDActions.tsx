@@ -47,7 +47,7 @@ export default function PlayerHUDActions({
     <>
       {/* Temp HP */}
       <div className="flex items-center gap-2">
-        <span className="text-[10px] text-gray-500 w-14">Temp HP:</span>
+        <span className="text-xs text-gray-500 w-14">Temp HP:</span>
         {editingTempHP ? (
           <input
             type="number"
@@ -71,9 +71,9 @@ export default function PlayerHUDActions({
             {hp.temporary}
           </button>
         )}
-        <span className="text-[10px] text-gray-600 ml-2">|</span>
-        <span className="text-[10px] text-gray-500">Spd: {speed}ft</span>
-        <span className="text-[10px] text-gray-500">Init: {formatModFn(dexMod)}</span>
+        <span className="text-xs text-gray-600 ml-2">|</span>
+        <span className="text-xs text-gray-500">Spd: {speed}ft</span>
+        <span className="text-xs text-gray-500">Init: {formatModFn(dexMod)}</span>
       </div>
 
       {/* Spell Slots (full view) */}
@@ -107,8 +107,8 @@ export default function PlayerHUDActions({
           <div className="space-y-0.5 mt-0.5">
             {classResources.map((r) => (
               <div key={r.id} className="flex items-center gap-1.5 text-xs">
-                <span className="text-gray-400 text-[10px] min-w-[80px]">{r.name}:</span>
-                <span className="text-amber-300 font-semibold text-[10px]">
+                <span className="text-gray-400 text-xs min-w-[80px]">{r.name}:</span>
+                <span className="text-amber-300 font-semibold text-xs">
                   {r.current}/{r.max}
                 </span>
                 <button
@@ -133,7 +133,7 @@ export default function PlayerHUDActions({
 
       {/* Hit Dice & Heroic Inspiration */}
       <div className="flex items-center gap-4">
-        <span className="text-[10px] text-gray-500">
+        <span className="text-xs text-gray-500">
           Hit Dice:{' '}
           <span className="text-amber-300">
             {hitDice.reduce((s, h) => s + h.current, 0)}/{hitDice.reduce((s, h) => s + h.maximum, 0)}
@@ -142,7 +142,7 @@ export default function PlayerHUDActions({
         </span>
         <button
           onClick={onToggleInspiration}
-          className={`text-[10px] px-1.5 py-0.5 rounded cursor-pointer border ${
+          className={`text-xs px-1.5 py-0.5 rounded cursor-pointer border ${
             char5e.heroicInspiration
               ? 'bg-amber-600/30 text-amber-300 border-amber-500/50'
               : 'bg-gray-800 text-gray-500 border-gray-700'

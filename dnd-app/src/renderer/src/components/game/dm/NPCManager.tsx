@@ -117,7 +117,7 @@ export default function NPCManager({
         )}
         {isDM && showNewNpcForm && (
           <div className="bg-gray-800/50 border border-gray-700/30 rounded-lg p-2.5 space-y-2">
-            <span className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">New NPC</span>
+            <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">New NPC</span>
             <input
               type="text"
               value={newNpcName}
@@ -157,7 +157,7 @@ export default function NPCManager({
               <button
                 onClick={handleCreateNpc}
                 disabled={!newNpcName.trim()}
-                className="px-2 py-0.5 text-[10px] bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer disabled:opacity-50"
+                className="px-2 py-0.5 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer disabled:opacity-50"
               >
                 Create
               </button>
@@ -169,7 +169,7 @@ export default function NPCManager({
                   setNewNpcAC('')
                   setNewNpcHP('')
                 }}
-                className="px-2 py-0.5 text-[10px] text-gray-400 hover:text-gray-200 cursor-pointer"
+                className="px-2 py-0.5 text-xs text-gray-400 hover:text-gray-200 cursor-pointer"
               >
                 Cancel
               </button>
@@ -234,7 +234,7 @@ export default function NPCManager({
       )}
       {isDM && showNewNpcForm && (
         <div className="bg-gray-800/50 border border-gray-700/30 rounded-lg p-2.5 space-y-2">
-          <span className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">New NPC</span>
+          <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">New NPC</span>
           <input
             type="text"
             value={newNpcName}
@@ -274,7 +274,7 @@ export default function NPCManager({
             <button
               onClick={handleCreateNpc}
               disabled={!newNpcName.trim()}
-              className="px-2 py-0.5 text-[10px] bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer disabled:opacity-50"
+              className="px-2 py-0.5 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer disabled:opacity-50"
             >
               Create
             </button>
@@ -286,7 +286,7 @@ export default function NPCManager({
                 setNewNpcAC('')
                 setNewNpcHP('')
               }}
-              className="px-2 py-0.5 text-[10px] text-gray-400 hover:text-gray-200 cursor-pointer"
+              className="px-2 py-0.5 text-xs text-gray-400 hover:text-gray-200 cursor-pointer"
             >
               Cancel
             </button>
@@ -312,7 +312,7 @@ export default function NPCManager({
                 {/* Role badge — DM always sees, players only if revealed */}
                 {npc.role && (isDM || isFieldRevealed(npc, 'role')) && (
                   <span
-                    className={`text-[10px] px-1.5 py-0.5 rounded ${
+                    className={`text-xs px-1.5 py-0.5 rounded ${
                       npc.role === 'ally'
                         ? 'text-green-400 bg-green-400/10'
                         : npc.role === 'enemy'
@@ -328,10 +328,10 @@ export default function NPCManager({
                   </span>
                 )}
                 {isDM && npc.isVisible && (
-                  <span className="text-[10px] text-green-400 bg-green-400/10 px-1.5 py-0.5 rounded">Visible</span>
+                  <span className="text-xs text-green-400 bg-green-400/10 px-1.5 py-0.5 rounded">Visible</span>
                 )}
                 {isDM && !npc.isVisible && (
-                  <span className="text-[10px] text-gray-500 bg-gray-700/50 px-1.5 py-0.5 rounded">Hidden</span>
+                  <span className="text-xs text-gray-500 bg-gray-700/50 px-1.5 py-0.5 rounded">Hidden</span>
                 )}
               </button>
 
@@ -426,7 +426,7 @@ export default function NPCManager({
                       <MonsterStatBlockView monster={statBlock} compact />
                       <button
                         onClick={() => setShowStatBlockId(showingStats ? null : npc.id)}
-                        className="text-[10px] text-amber-400 hover:text-amber-300 mt-1 cursor-pointer"
+                        className="text-xs text-amber-400 hover:text-amber-300 mt-1 cursor-pointer"
                       >
                         {showingStats ? 'Hide full stat block' : 'Show full stat block'}
                       </button>
@@ -445,7 +445,7 @@ export default function NPCManager({
                     <div className="relative">
                       <button
                         onClick={() => setRoleMenuId(roleMenuId === npc.id ? null : npc.id)}
-                        className="text-[10px] text-gray-400 hover:text-gray-200 cursor-pointer bg-gray-700/50 px-2 py-0.5 rounded"
+                        className="text-xs text-gray-400 hover:text-gray-200 cursor-pointer bg-gray-700/50 px-2 py-0.5 rounded"
                       >
                         Change Role...
                       </button>
@@ -471,14 +471,14 @@ export default function NPCManager({
                     <div className="flex gap-1 pt-1">
                       <button
                         onClick={() => onAddToInitiative(npc)}
-                        className="flex-1 py-1 text-[10px] rounded bg-gray-700 text-gray-300
+                        className="flex-1 py-1 text-xs rounded bg-gray-700 text-gray-300
                           hover:bg-amber-600 hover:text-white transition-colors cursor-pointer"
                       >
                         + Initiative
                       </button>
                       <button
                         onClick={() => onPlaceOnMap(npc)}
-                        className="flex-1 py-1 text-[10px] rounded bg-gray-700 text-gray-300
+                        className="flex-1 py-1 text-xs rounded bg-gray-700 text-gray-300
                           hover:bg-blue-600 hover:text-white transition-colors cursor-pointer"
                       >
                         Place on Map

@@ -288,7 +288,7 @@ export default function AbilityScoreModal(): JSX.Element {
                   ? 'Rolled'
                   : 'Custom'}
           </span>
-          {confirmHint && <span className="text-[10px] text-amber-400 mt-0.5">{confirmHint}</span>}
+          {confirmHint && <span className="text-xs text-amber-400 mt-0.5">{confirmHint}</span>}
         </div>
         <div className="flex gap-2">
           <button

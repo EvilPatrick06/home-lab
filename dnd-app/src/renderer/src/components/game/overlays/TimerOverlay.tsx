@@ -25,7 +25,7 @@ export default function TimerOverlay(): JSX.Element {
       <div className="bg-gray-900/70 backdrop-blur-sm border border-gray-700/50 rounded-xl px-4 py-2 min-w-[140px]">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <div className="text-[10px] text-gray-400 truncate max-w-[80px]">{timerTargetName}</div>
+            <div className="text-xs text-gray-400 truncate max-w-[80px]">{timerTargetName}</div>
             <div
               className={`text-lg font-mono font-bold ${
                 timerSeconds <= 10 ? 'text-red-400' : timerSeconds <= 30 ? 'text-amber-400' : 'text-gray-100'

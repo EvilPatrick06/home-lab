@@ -77,7 +77,7 @@ export default function ThemeSelector({ onClose }: ThemeSelectorProps): JSX.Elem
 
               <span className="flex-1">{THEME_LABELS[name]}</span>
 
-              {isActive && <span className="text-amber-400 text-[10px] font-semibold shrink-0">Active</span>}
+              {isActive && <span className="text-amber-400 text-xs font-semibold shrink-0">Active</span>}
             </button>
           )
         })}

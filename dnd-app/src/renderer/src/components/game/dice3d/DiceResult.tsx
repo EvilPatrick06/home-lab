@@ -35,7 +35,7 @@ export default memo(function DiceResult({
     >
       <div className="flex items-center justify-between mb-1">
         <span className="text-xs text-gray-400">{rollerName}</span>
-        <span className="text-[10px] text-gray-500 font-mono">{formula}</span>
+        <span className="text-xs text-gray-500 font-mono">{formula}</span>
       </div>
 
       <div className="flex items-center gap-2">
@@ -88,9 +88,9 @@ export default memo(function DiceResult({
         })()}
       </div>
 
-      {isCritical && <p className="text-[10px] text-green-400 font-semibold mt-1">NATURAL 20 - CRITICAL!</p>}
-      {isFumble && <p className="text-[10px] text-red-400 font-semibold mt-1">NATURAL 1 - FUMBLE!</p>}
-      {isCritDamage && <p className="text-[10px] text-green-400 font-semibold mt-1">CRITICAL DAMAGE - Dice doubled!</p>}
+      {isCritical && <p className="text-xs text-green-400 font-semibold mt-1">NATURAL 20 - CRITICAL!</p>}
+      {isFumble && <p className="text-xs text-red-400 font-semibold mt-1">NATURAL 1 - FUMBLE!</p>}
+      {isCritDamage && <p className="text-xs text-green-400 font-semibold mt-1">CRITICAL DAMAGE - Dice doubled!</p>}
     </div>
   )
 })

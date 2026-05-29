@@ -298,7 +298,7 @@ export default function FeaturesSection5e({ character, readonly }: FeaturesSecti
         <div className="mb-3">
           <div className="flex items-center gap-2 mb-1">
             <div className="text-xs text-amber-400 uppercase tracking-wide">Bonus Feats</div>
-            <span className="text-[10px] text-gray-500">(Post-Level 20)</span>
+            <span className="text-xs text-gray-500">(Post-Level 20)</span>
           </div>
 
           {bonusFeats.map((f) => (

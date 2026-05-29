@@ -136,7 +136,7 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
                   setContentType('text')
                   setContent('')
                 }}
-                className={`px-2 py-1 text-[10px] cursor-pointer ${
+                className={`px-2 py-1 text-xs cursor-pointer ${
                   contentType === 'text' ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                 }`}
               >
@@ -147,7 +147,7 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
                   setContentType('image')
                   setContent('')
                 }}
-                className={`px-2 py-1 text-[10px] cursor-pointer ${
+                className={`px-2 py-1 text-xs cursor-pointer ${
                   contentType === 'image' ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                 }`}
               >
@@ -190,11 +190,11 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
             onSave={handleSave}
             leftSlot={
               <>
-                <span className="text-[10px] text-gray-500">Visibility:</span>
+                <span className="text-xs text-gray-500">Visibility:</span>
                 <select
                   value={visibility}
                   onChange={(e) => setVisibility(e.target.value as 'all' | 'dm-only')}
-                  className="bg-gray-800 border border-gray-700 rounded px-2 py-0.5 text-[10px] text-gray-300 outline-none cursor-pointer"
+                  className="bg-gray-800 border border-gray-700 rounded px-2 py-0.5 text-xs text-gray-300 outline-none cursor-pointer"
                 >
                   <option value="dm-only">DM Only</option>
                   <option value="all">All Players</option>
@@ -206,7 +206,7 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
           {/* Multi-page editing */}
           {pages.length > 0 && (
             <div className="border-t border-gray-700/40 pt-2 space-y-2">
-              <span className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Additional Pages</span>
+              <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Additional Pages</span>
               {pages.map((page, idx) => (
                 <div key={page.id} className="bg-gray-800/40 border border-gray-700/30 rounded p-2 space-y-1">
                   <div className="flex items-center gap-2">
@@ -215,19 +215,19 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
                       placeholder={`Page ${idx + 2} label`}
                       value={page.label ?? ''}
                       onChange={(e) => updatePage(page.id, { label: e.target.value })}
-                      className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-0.5 text-[10px] text-gray-200 outline-none"
+                      className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-0.5 text-xs text-gray-200 outline-none"
                     />
                     <select
                       value={page.contentType}
                       onChange={(e) =>
                         updatePage(page.id, { contentType: e.target.value as 'text' | 'image', content: '' })
                       }
-                      className="bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-[10px] text-gray-300 outline-none cursor-pointer"
+                      className="bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-300 outline-none cursor-pointer"
                     >
                       <option value="text">Text</option>
                       <option value="image">Image</option>
                     </select>
-                    <label className="flex items-center gap-1 text-[10px] text-gray-400 cursor-pointer">
+                    <label className="flex items-center gap-1 text-xs text-gray-400 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={page.dmOnly ?? false}
@@ -238,7 +238,7 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
                     </label>
                     <button
                       onClick={() => removePage(page.id)}
-                      className="px-1.5 py-0.5 text-[10px] bg-red-900/40 hover:bg-red-800/40 text-red-300 rounded cursor-pointer"
+                      className="px-1.5 py-0.5 text-xs bg-red-900/40 hover:bg-red-800/40 text-red-300 rounded cursor-pointer"
                     >
                       &times;
                     </button>
@@ -249,7 +249,7 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
                       value={page.content}
                       onChange={(e) => updatePage(page.id, { content: e.target.value })}
                       rows={2}
-                      className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-[10px] text-gray-200 outline-none resize-y"
+                      className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200 outline-none resize-y"
                     />
                   ) : (
                     <input
@@ -264,7 +264,7 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
                         }
                         reader.readAsDataURL(file)
                       }}
-                      className="w-full text-[10px] text-gray-400 file:mr-2 file:py-0.5 file:px-2 file:rounded file:border-0 file:text-[10px] file:bg-gray-700 file:text-gray-300 file:cursor-pointer"
+                      className="w-full text-xs text-gray-400 file:mr-2 file:py-0.5 file:px-2 file:rounded file:border-0 file:text-xs file:bg-gray-700 file:text-gray-300 file:cursor-pointer"
                     />
                   )}
                 </div>
@@ -273,7 +273,7 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
           )}
           <button
             onClick={addPage}
-            className="w-full py-1 text-[10px] bg-gray-800 hover:bg-gray-700 text-gray-400 border border-gray-700/40 border-dashed rounded cursor-pointer"
+            className="w-full py-1 text-xs bg-gray-800 hover:bg-gray-700 text-gray-400 border border-gray-700/40 border-dashed rounded cursor-pointer"
           >
             + Add Page
           </button>
@@ -303,7 +303,7 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
                 {/* Info */}
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-medium text-gray-200 truncate">{handout.title}</p>
-                  <p className="text-[10px] text-gray-500">
+                  <p className="text-xs text-gray-500">
                     {handout.contentType === 'image' ? 'Image' : 'Text'} &middot;{' '}
                     {handout.visibility === 'all' ? 'Visible to all' : 'DM only'}
                   </p>
@@ -314,21 +314,21 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
                   <button
                     onClick={() => handleShare(handout)}
                     title="Share with players"
-                    className="px-2 py-1 text-[10px] bg-green-700/40 hover:bg-green-600/40 text-green-300 border border-green-600/30 rounded cursor-pointer"
+                    className="px-2 py-1 text-xs bg-green-700/40 hover:bg-green-600/40 text-green-300 border border-green-600/30 rounded cursor-pointer"
                   >
                     Share
                   </button>
                   <button
                     onClick={() => handleEdit(handout)}
                     title="Edit handout"
-                    className="px-2 py-1 text-[10px] bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
+                    className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => removeHandout(handout.id)}
                     title="Delete handout"
-                    className="px-2 py-1 text-[10px] bg-red-900/40 hover:bg-red-800/40 text-red-300 border border-red-700/30 rounded cursor-pointer"
+                    className="px-2 py-1 text-xs bg-red-900/40 hover:bg-red-800/40 text-red-300 border border-red-700/30 rounded cursor-pointer"
                   >
                     Delete
                   </button>

@@ -160,7 +160,7 @@ export default function TimeEditModal({
                 <button
                   key={d}
                   onClick={() => setDaysToAdvance(d)}
-                  className={`px-2 py-1 text-[10px] rounded cursor-pointer ${
+                  className={`px-2 py-1 text-xs rounded cursor-pointer ${
                     daysToAdvance === d
                       ? 'bg-amber-600/30 text-amber-300'
                       : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
@@ -185,7 +185,7 @@ export default function TimeEditModal({
             <div className="flex gap-2 flex-wrap">
               {calendar.preset !== 'simple-day-counter' && (
                 <div>
-                  <label className="text-[10px] text-gray-500 block mb-1">Year</label>
+                  <label className="text-xs text-gray-500 block mb-1">Year</label>
                   <input
                     type="number"
                     value={setYear}
@@ -196,7 +196,7 @@ export default function TimeEditModal({
               )}
               {calendar.months.length > 0 && (
                 <div>
-                  <label className="text-[10px] text-gray-500 block mb-1">Month</label>
+                  <label className="text-xs text-gray-500 block mb-1">Month</label>
                   <select
                     value={setMonthIndex}
                     onChange={(e) => setSetMonthIndex(parseInt(e.target.value, 10))}
@@ -211,7 +211,7 @@ export default function TimeEditModal({
                 </div>
               )}
               <div>
-                <label className="text-[10px] text-gray-500 block mb-1">Day</label>
+                <label className="text-xs text-gray-500 block mb-1">Day</label>
                 <input
                   type="number"
                   value={setDay}
@@ -222,7 +222,7 @@ export default function TimeEditModal({
                 />
               </div>
               <div>
-                <label className="text-[10px] text-gray-500 block mb-1">Hour</label>
+                <label className="text-xs text-gray-500 block mb-1">Hour</label>
                 <input
                   type="number"
                   value={setHour}
@@ -233,7 +233,7 @@ export default function TimeEditModal({
                 />
               </div>
               <div>
-                <label className="text-[10px] text-gray-500 block mb-1">Min</label>
+                <label className="text-xs text-gray-500 block mb-1">Min</label>
                 <input
                   type="number"
                   value={setMinute}

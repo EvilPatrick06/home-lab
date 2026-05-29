@@ -78,7 +78,7 @@ export default function PinCreateModal({ gridX, gridY, onCreate, onClose }: PinC
         />
 
         <div>
-          <div className="text-[10px] uppercase tracking-wider text-gray-500 mb-1">Icon</div>
+          <div className="text-xs uppercase tracking-wider text-gray-500 mb-1">Icon</div>
           <div className="flex gap-1.5 flex-wrap">
             {ICONS.map((i) => (
               <button
@@ -96,7 +96,7 @@ export default function PinCreateModal({ gridX, gridY, onCreate, onClose }: PinC
         </div>
 
         <div>
-          <div className="text-[10px] uppercase tracking-wider text-gray-500 mb-1">Color</div>
+          <div className="text-xs uppercase tracking-wider text-gray-500 mb-1">Color</div>
           <div className="flex gap-1.5 flex-wrap">
             {COLORS.map((c) => (
               <button

@@ -257,9 +257,9 @@ export default function CustomEffectModal({ tokens, onClose, onBroadcast }: Cust
                 <div key={ce.id} className="flex items-center justify-between bg-gray-800/50 rounded px-2 py-1.5">
                   <div>
                     <span className="text-xs text-purple-300 font-medium">{ce.name}</span>
-                    <span className="text-[10px] text-gray-500 ml-2">on {ce.targetEntityName}</span>
+                    <span className="text-xs text-gray-500 ml-2">on {ce.targetEntityName}</span>
                     {ce.duration && (
-                      <span className="text-[10px] text-gray-600 ml-1">
+                      <span className="text-xs text-gray-600 ml-1">
                         ({ce.duration.value} {ce.duration.type})
                       </span>
                     )}

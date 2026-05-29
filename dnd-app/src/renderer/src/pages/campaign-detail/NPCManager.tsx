@@ -186,11 +186,11 @@ export default function NPCManager({ campaign, saveCampaign }: NPCManagerProps):
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-lg font-semibold">NPCs ({campaign.npcs.length})</h3>
           <div className="flex items-center gap-2">
-            <button onClick={handleImport} className="text-[10px] text-gray-400 hover:text-amber-400 cursor-pointer">
+            <button onClick={handleImport} className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer">
               Import
             </button>
             {campaign.npcs.length > 0 && (
-              <button onClick={handleExport} className="text-[10px] text-gray-400 hover:text-amber-400 cursor-pointer">
+              <button onClick={handleExport} className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer">
                 Export All
               </button>
             )}
@@ -209,7 +209,7 @@ export default function NPCManager({ campaign, saveCampaign }: NPCManagerProps):
                   <div className="flex items-center justify-between">
                     <div className="flex-1 min-w-0">
                       <span className="font-semibold text-sm">{npc.name}</span>
-                      {npc.role && <span className="text-[10px] text-gray-400 ml-2 capitalize">{npc.role}</span>}
+                      {npc.role && <span className="text-xs text-gray-400 ml-2 capitalize">{npc.role}</span>}
                       {npc.location && <span className="text-gray-500 text-xs ml-2">{npc.location}</span>}
                       {npc.description && <p className="text-gray-500 text-xs mt-0.5 truncate">{npc.description}</p>}
                     </div>
@@ -240,7 +240,7 @@ export default function NPCManager({ campaign, saveCampaign }: NPCManagerProps):
                     <div className="mt-2">
                       <button
                         onClick={() => setExpandedNpcStatBlock(isStatExpanded ? null : npc.id)}
-                        className="text-[10px] text-amber-400 hover:text-amber-300 cursor-pointer"
+                        className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer"
                       >
                         {isStatExpanded ? 'Hide Stat Block' : `Show Stat Block (${npcBlock.name ?? npc.name})`}
                       </button>
@@ -254,7 +254,7 @@ export default function NPCManager({ campaign, saveCampaign }: NPCManagerProps):
                     <div className="mt-1">
                       <button
                         onClick={() => openEdit(npc)}
-                        className="text-[10px] text-gray-500 hover:text-amber-400 cursor-pointer"
+                        className="text-xs text-gray-500 hover:text-amber-400 cursor-pointer"
                       >
                         No stat block — click Edit to assign
                       </button>
@@ -308,7 +308,7 @@ export default function NPCManager({ campaign, saveCampaign }: NPCManagerProps):
                     className="w-full text-left px-3 py-2 text-xs hover:bg-gray-700/50 cursor-pointer flex items-center justify-between border-b border-gray-700/30 last:border-b-0"
                   >
                     <span className="text-gray-200 font-medium">{m.name}</span>
-                    <div className="flex items-center gap-3 text-[10px]">
+                    <div className="flex items-center gap-3 text-xs">
                       <span className="text-gray-500">
                         {m.size} {m.type}
                       </span>

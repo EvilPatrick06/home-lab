@@ -352,7 +352,7 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
           <div className="flex gap-2">
             <button
               onClick={confirmConcentrationSwitch}
-              className="px-2 py-0.5 text-[10px] rounded bg-yellow-600 text-white hover:bg-yellow-500 cursor-pointer"
+              className="px-2 py-0.5 text-xs rounded bg-yellow-600 text-white hover:bg-yellow-500 cursor-pointer"
             >
               Yes, Switch
             </button>
@@ -361,7 +361,7 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
                 setConcentrationConfirm(null)
                 setPendingCastSlot(null)
               }}
-              className="px-2 py-0.5 text-[10px] rounded bg-gray-700 text-gray-300 hover:bg-gray-600 cursor-pointer"
+              className="px-2 py-0.5 text-xs rounded bg-gray-700 text-gray-300 hover:bg-gray-600 cursor-pointer"
             >
               Cancel
             </button>
@@ -505,7 +505,7 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
         {effectiveClasses.length > 1 && (
           <button
             onClick={() => setShowMulticlassAdvisor(true)}
-            className="px-2 py-1 text-[10px] rounded transition-colors cursor-pointer bg-purple-600/30 text-purple-300 hover:bg-purple-600/50"
+            className="px-2 py-1 text-xs rounded transition-colors cursor-pointer bg-purple-600/30 text-purple-300 hover:bg-purple-600/50"
           >
             Multiclass Advisor
           </button>
@@ -513,7 +513,7 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
         {knownSpells.filter((s) => s.level > 0).length > 0 && (
           <button
             onClick={() => setShowSpellPrepOptimizer(true)}
-            className="px-2 py-1 text-[10px] rounded transition-colors cursor-pointer bg-blue-600/30 text-blue-300 hover:bg-blue-600/50"
+            className="px-2 py-1 text-xs rounded transition-colors cursor-pointer bg-blue-600/30 text-blue-300 hover:bg-blue-600/50"
           >
             Optimize Prep
           </button>

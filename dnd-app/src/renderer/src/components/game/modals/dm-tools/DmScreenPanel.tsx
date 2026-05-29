@@ -96,12 +96,12 @@ export default function DmScreenPanel({ onClose }: DmScreenPanelProps): JSX.Elem
             {CONDITIONS_5E.length > 0 ? (
               CONDITIONS_5E.map((c) => (
                 <div key={c.name} className="flex gap-2">
-                  <span className="text-[10px] font-semibold text-gray-200 min-w-[80px] shrink-0">{c.name}</span>
-                  <span className="text-[10px] text-gray-400">{c.description}</span>
+                  <span className="text-xs font-semibold text-gray-200 min-w-[80px] shrink-0">{c.name}</span>
+                  <span className="text-xs text-gray-400">{c.description}</span>
                 </div>
               ))
             ) : (
-              <p className="text-[10px] text-gray-500 italic">Loading conditions...</p>
+              <p className="text-xs text-gray-500 italic">Loading conditions...</p>
             )}
           </div>
         </CollapsibleSection>
@@ -110,8 +110,8 @@ export default function DmScreenPanel({ onClose }: DmScreenPanelProps): JSX.Elem
           <div className="space-y-1.5">
             {COMBAT_ACTIONS.map((a) => (
               <div key={a.name}>
-                <span className="text-[10px] font-semibold text-gray-200">{a.name}: </span>
-                <span className="text-[10px] text-gray-400">{a.description}</span>
+                <span className="text-xs font-semibold text-gray-200">{a.name}: </span>
+                <span className="text-xs text-gray-400">{a.description}</span>
               </div>
             ))}
           </div>
@@ -121,9 +121,9 @@ export default function DmScreenPanel({ onClose }: DmScreenPanelProps): JSX.Elem
           <div className="space-y-1.5">
             {COVER_RULES.map((c) => (
               <div key={c.type}>
-                <span className="text-[10px] font-semibold text-gray-200">{c.type} </span>
-                <span className="text-[10px] text-amber-400">({c.bonus})</span>
-                <span className="text-[10px] text-gray-400"> — {c.description}</span>
+                <span className="text-xs font-semibold text-gray-200">{c.type} </span>
+                <span className="text-xs text-amber-400">({c.bonus})</span>
+                <span className="text-xs text-gray-400"> — {c.description}</span>
               </div>
             ))}
           </div>
@@ -133,8 +133,8 @@ export default function DmScreenPanel({ onClose }: DmScreenPanelProps): JSX.Elem
           <div className="grid grid-cols-2 gap-1">
             {DIFFICULTY_CLASSES.map((d) => (
               <div key={d.dc} className="flex items-center gap-2">
-                <span className="text-[10px] font-bold text-amber-400 w-6 text-right">{d.dc}</span>
-                <span className="text-[10px] text-gray-300">{d.label}</span>
+                <span className="text-xs font-bold text-amber-400 w-6 text-right">{d.dc}</span>
+                <span className="text-xs text-gray-300">{d.label}</span>
               </div>
             ))}
           </div>
@@ -144,9 +144,9 @@ export default function DmScreenPanel({ onClose }: DmScreenPanelProps): JSX.Elem
           <div className="space-y-1.5">
             {TRAVEL_PACES.map((p) => (
               <div key={p.pace}>
-                <span className="text-[10px] font-semibold text-gray-200">{p.pace}: </span>
-                <span className="text-[10px] text-gray-400">{p.speed}</span>
-                <div className="text-[10px] text-gray-500 ml-2">{p.effect}</div>
+                <span className="text-xs font-semibold text-gray-200">{p.pace}: </span>
+                <span className="text-xs text-gray-400">{p.speed}</span>
+                <div className="text-xs text-gray-500 ml-2">{p.effect}</div>
               </div>
             ))}
           </div>

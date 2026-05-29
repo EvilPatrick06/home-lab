@@ -139,11 +139,11 @@ export default function CombatStatsBar5e({ character, readonly }: CombatStatsBar
           <div className="text-xs text-gray-400 uppercase">AC</div>
           <div className="text-xl font-bold">{dynamicAC}</div>
           {acEquipmentBonus > 0 && <div className="text-xs text-blue-400">+{acEquipmentBonus} equip</div>}
-          {hasDefenseFS && equippedArmor && <div className="text-[10px] text-green-400">+1 Defense</div>}
+          {hasDefenseFS && equippedArmor && <div className="text-xs text-green-400">+1 Defense</div>}
           {resolved.sources
             .filter((s) => s.effects.some((e) => e.type === 'ac_bonus') && s.sourceType !== 'fighting-style')
             .map((s) => (
-              <div key={s.sourceId} className="text-[10px] text-purple-400">
+              <div key={s.sourceId} className="text-xs text-purple-400">
                 +{s.effects.filter((e) => e.type === 'ac_bonus').reduce((sum, e) => sum + (e.value ?? 0), 0)}{' '}
                 {s.sourceName}
               </div>
@@ -157,7 +157,7 @@ export default function CombatStatsBar5e({ character, readonly }: CombatStatsBar
         >
           <div className="text-xs text-gray-400 uppercase">{thirdStat.label}</div>
           <div className="text-xl font-bold">{thirdStat.value}</div>
-          {hasAlert && <div className="text-[10px] text-green-400">+PB (Alert)</div>}
+          {hasAlert && <div className="text-xs text-green-400">+PB (Alert)</div>}
         </div>
 
         {/* Speed */}
@@ -203,14 +203,14 @@ export default function CombatStatsBar5e({ character, readonly }: CombatStatsBar
             >
               <div className="text-xs text-gray-400 uppercase">Speed</div>
               <div className={`text-xl font-bold ${isReduced ? 'text-red-400' : ''}`}>{effectiveSpeed} ft</div>
-              {isReduced && <div className="text-[10px] text-red-400 mt-0.5">(base {baseSpeed} ft)</div>}
+              {isReduced && <div className="text-xs text-red-400 mt-0.5">(base {baseSpeed} ft)</div>}
               {(() => {
                 const speeds = effectiveCharacter.speeds
                 if (!speeds) return null
                 const entries = Object.entries(speeds).filter(([, v]) => v > 0)
                 if (entries.length === 0) return null
                 return (
-                  <div className="text-[10px] text-gray-500 mt-0.5">
+                  <div className="text-xs text-gray-500 mt-0.5">
                     {entries.map(([k, v]) => `${k} ${v} ft`).join(', ')}
                   </div>
                 )
@@ -224,7 +224,7 @@ export default function CombatStatsBar5e({ character, readonly }: CombatStatsBar
           <div className="text-xs text-gray-400 uppercase">Size</div>
           <div className="text-xl font-bold">{characterSize}</div>
           {effectiveCharacter.creatureType && (
-            <div className="text-[10px] text-gray-500">{effectiveCharacter.creatureType}</div>
+            <div className="text-xs text-gray-500">{effectiveCharacter.creatureType}</div>
           )}
         </div>
 

@@ -214,7 +214,7 @@ export default function AboutPage(): JSX.Element {
                 >
                   Update &amp; Restart
                 </button>
-                <p className="text-[10px] text-gray-500">Will also install automatically on next app close</p>
+                <p className="text-xs text-gray-500">Will also install automatically on next app close</p>
               </>
             )}
           </div>

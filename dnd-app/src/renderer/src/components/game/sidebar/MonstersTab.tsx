@@ -56,7 +56,7 @@ export default function MonstersTab(): JSX.Element {
       <div className="flex flex-wrap gap-1">
         <button
           onClick={() => setCrFilter(null)}
-          className={`px-1.5 py-0.5 text-[10px] rounded cursor-pointer transition-colors ${
+          className={`px-1.5 py-0.5 text-xs rounded cursor-pointer transition-colors ${
             crFilter === null ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400 hover:text-gray-200'
           }`}
         >
@@ -66,7 +66,7 @@ export default function MonstersTab(): JSX.Element {
           <button
             key={cr}
             onClick={() => setCrFilter(crFilter === cr ? null : cr)}
-            className={`px-1.5 py-0.5 text-[10px] rounded cursor-pointer transition-colors ${
+            className={`px-1.5 py-0.5 text-xs rounded cursor-pointer transition-colors ${
               crFilter === cr ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400 hover:text-gray-200'
             }`}
           >
@@ -75,7 +75,7 @@ export default function MonstersTab(): JSX.Element {
         ))}
       </div>
 
-      <div className="text-[10px] text-gray-500">
+      <div className="text-xs text-gray-500">
         {filtered.length} monster{filtered.length !== 1 ? 's' : ''}
         {filtered.length === 100 ? '+' : ''}
       </div>
@@ -101,15 +101,15 @@ function MonsterCard({ monster }: { monster: MonsterStatBlock }): JSX.Element {
     >
       <div className="flex items-center justify-between gap-2">
         <div className="text-xs font-semibold text-amber-400 truncate">{monster.name}</div>
-        <div className="text-[10px] text-gray-500 shrink-0">CR {monster.cr}</div>
+        <div className="text-xs text-gray-500 shrink-0">CR {monster.cr}</div>
       </div>
-      <div className="text-[10px] text-gray-400 mt-0.5">
+      <div className="text-xs text-gray-400 mt-0.5">
         {monster.size} {monster.type}
         {monster.tags?.length ? ` (${monster.tags.join(', ')})` : ''}
       </div>
       {expanded && (
         <div className="mt-2 pt-2 border-t border-gray-700/30 space-y-1">
-          <div className="grid grid-cols-3 gap-x-2 gap-y-0.5 text-[10px]">
+          <div className="grid grid-cols-3 gap-x-2 gap-y-0.5 text-xs">
             <span className="text-gray-500">AC</span>
             <span className="text-gray-300 col-span-2">
               {monster.ac}
@@ -126,7 +126,7 @@ function MonsterCard({ monster }: { monster: MonsterStatBlock }): JSX.Element {
               {monster.speed.swim ? `, swim ${monster.speed.swim}ft` : ''}
             </span>
           </div>
-          <div className="flex gap-2 text-[10px] mt-1">
+          <div className="flex gap-2 text-xs mt-1">
             <span className="text-gray-500">STR {monster.abilityScores.str}</span>
             <span className="text-gray-500">DEX {monster.abilityScores.dex}</span>
             <span className="text-gray-500">CON {monster.abilityScores.con}</span>

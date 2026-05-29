@@ -30,7 +30,7 @@ export default function ModalFormFooter({
         {isEditing && (
           <button
             onClick={onCancel}
-            className="px-3 py-1 text-[10px] bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
+            className="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
           >
             Cancel
           </button>
@@ -38,7 +38,7 @@ export default function ModalFormFooter({
         <button
           onClick={onSave}
           disabled={isSaveDisabled}
-          className="px-3 py-1 text-[10px] bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded cursor-pointer"
+          className="px-3 py-1.5 text-sm bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded cursor-pointer"
         >
           {isEditing ? editingLabel : saveLabel}
         </button>

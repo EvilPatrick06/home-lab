@@ -116,7 +116,7 @@ function SpellCardView({ spell }: SpellCardViewProps): JSX.Element {
             <span className="text-amber-500 font-semibold">Duration</span>
             <span className="text-gray-300">{duration.text}</span>
             {isConcentration && (
-              <span className="text-[10px] bg-blue-600/30 text-blue-300 px-1.5 py-0.5 rounded-full ml-1">
+              <span className="text-xs bg-blue-600/30 text-blue-300 px-1.5 py-0.5 rounded-full ml-1">
                 Concentration
               </span>
             )}
@@ -156,7 +156,7 @@ function SpellCardView({ spell }: SpellCardViewProps): JSX.Element {
         {s.tags && s.tags.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-1">
             {s.tags.map((tag) => (
-              <span key={tag} className="text-[10px] bg-gray-700/50 text-gray-400 px-1.5 py-0.5 rounded-full">
+              <span key={tag} className="text-xs bg-gray-700/50 text-gray-400 px-1.5 py-0.5 rounded-full">
                 {tag}
               </span>
             ))}

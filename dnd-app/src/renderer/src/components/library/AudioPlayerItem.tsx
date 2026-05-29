@@ -121,12 +121,12 @@ export default function AudioPlayerItem({
           <span className="text-sm font-medium text-gray-100 group-hover:text-amber-400 transition-colors truncate">
             {item.name}
           </span>
-          <span className="text-[10px] bg-gray-700/60 text-gray-400 px-1.5 py-0.5 rounded-full flex-shrink-0">
+          <span className="text-xs bg-gray-700/60 text-gray-400 px-1.5 py-0.5 rounded-full flex-shrink-0">
             {subcategory.replace(/\//g, ' › ')}
           </span>
           {(!hasPath || missingSource) && (
             <span
-              className="text-[10px] bg-red-900/40 text-red-300 px-1.5 py-0.5 rounded-full flex-shrink-0"
+              className="text-xs bg-red-900/40 text-red-300 px-1.5 py-0.5 rounded-full flex-shrink-0"
               title="No audio source path was provided for this entry"
             >
               No source
@@ -143,7 +143,7 @@ export default function AudioPlayerItem({
             />
           </div>
           {duration > 0 && (
-            <span className="text-[10px] text-gray-500 flex-shrink-0">
+            <span className="text-xs text-gray-500 flex-shrink-0">
               {formatTime(progress)} / {formatTime(duration)}
             </span>
           )}

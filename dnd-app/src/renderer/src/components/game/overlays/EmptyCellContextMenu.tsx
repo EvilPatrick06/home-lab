@@ -166,7 +166,7 @@ export default function EmptyCellContextMenu({
           />
           <div className="max-h-48 overflow-y-auto space-y-0.5">
             {monsters.length === 0 && search.trim() && (
-              <p className="text-[10px] text-gray-500 italic px-2 py-1">No matches</p>
+              <p className="text-xs text-gray-500 italic px-2 py-1">No matches</p>
             )}
             {monsters.map((m) => (
               <button
@@ -175,7 +175,7 @@ export default function EmptyCellContextMenu({
                 className="w-full text-left px-2 py-1.5 text-xs text-gray-200 hover:bg-gray-700 rounded transition-colors cursor-pointer flex items-center justify-between"
               >
                 <span>{m.name}</span>
-                <span className="text-[10px] text-gray-500">CR {m.cr}</span>
+                <span className="text-xs text-gray-500">CR {m.cr}</span>
               </button>
             ))}
           </div>

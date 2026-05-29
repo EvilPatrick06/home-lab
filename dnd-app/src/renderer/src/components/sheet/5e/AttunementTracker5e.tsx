@@ -100,7 +100,7 @@ export default function AttunementTracker5e({
                       <button
                         onClick={handleAttune}
                         disabled={!attuneForm.name.trim()}
-                        className="px-1.5 py-0.5 text-[10px] bg-purple-600 hover:bg-purple-500 disabled:opacity-50 rounded text-white cursor-pointer"
+                        className="px-1.5 py-0.5 text-xs bg-purple-600 hover:bg-purple-500 disabled:opacity-50 rounded text-white cursor-pointer"
                       >
                         Add
                       </button>
@@ -109,7 +109,7 @@ export default function AttunementTracker5e({
                           setShowAttuneForm(false)
                           setAttuneForm({ name: '', description: '' })
                         }}
-                        className="px-1.5 py-0.5 text-[10px] bg-gray-700 hover:bg-gray-600 rounded text-gray-300 cursor-pointer"
+                        className="px-1.5 py-0.5 text-xs bg-gray-700 hover:bg-gray-600 rounded text-gray-300 cursor-pointer"
                       >
                         Cancel
                       </button>

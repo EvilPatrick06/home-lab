@@ -13,7 +13,7 @@ export function TimeRequestToast({ toast, onDismiss }: TimeRequestToastProps): J
         <span className="text-xs text-gray-200">{toast.requesterName} wants to know the current time</span>
         <button
           onClick={onDismiss}
-          className="px-2 py-1 text-[10px] bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
+          className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
         >
           Dismiss
         </button>
@@ -43,13 +43,13 @@ export function RestRequestToast({ toast, onDismiss, onShortRest, onLongRest }: 
             if (toast.restType === 'short') onShortRest()
             else onLongRest()
           }}
-          className="px-2 py-1 text-[10px] bg-green-600 hover:bg-green-500 text-white rounded cursor-pointer"
+          className="px-2 py-1 text-xs bg-green-600 hover:bg-green-500 text-white rounded cursor-pointer"
         >
           Accept
         </button>
         <button
           onClick={onDismiss}
-          className="px-2 py-1 text-[10px] bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
+          className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
         >
           Dismiss
         </button>
@@ -79,13 +79,13 @@ export function PhaseChangeToast({ toast, onDismiss }: PhaseChangeToastProps): J
             gameStore.setAmbientLight(toast.suggestedLight)
             onDismiss()
           }}
-          className="px-2 py-1 text-[10px] bg-purple-600 hover:bg-purple-500 text-white rounded cursor-pointer"
+          className="px-2 py-1 text-xs bg-purple-600 hover:bg-purple-500 text-white rounded cursor-pointer"
         >
           Yes
         </button>
         <button
           onClick={onDismiss}
-          className="px-2 py-1 text-[10px] bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
+          className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
         >
           No
         </button>
@@ -107,13 +107,13 @@ export function LongRestWarning({ onOverride, onCancel }: LongRestWarningProps):
         <span className="text-xs text-gray-200">Less than 24 hours since last Long Rest. Override?</span>
         <button
           onClick={onOverride}
-          className="px-2 py-1 text-[10px] bg-red-600 hover:bg-red-500 text-white rounded cursor-pointer"
+          className="px-2 py-1 text-xs bg-red-600 hover:bg-red-500 text-white rounded cursor-pointer"
         >
           Override
         </button>
         <button
           onClick={onCancel}
-          className="px-2 py-1 text-[10px] bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
+          className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
         >
           Cancel
         </button>
@@ -173,12 +173,12 @@ export function FogToolbar({
         Hide
       </button>
       <div className="border-l border-gray-700 h-5 mx-1" />
-      <span className="text-[10px] text-gray-400">Brush:</span>
+      <span className="text-xs text-gray-400">Brush:</span>
       {[1, 2, 3, 5].map((size) => (
         <button
           key={size}
           onClick={() => onSetBrushSize(size)}
-          className={`w-6 h-6 text-[10px] rounded cursor-pointer ${fogBrushSize === size ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}
+          className={`w-6 h-6 text-xs rounded cursor-pointer ${fogBrushSize === size ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}
         >
           {size}
         </button>
@@ -193,7 +193,7 @@ export function FogToolbar({
               onChange={(e) => onDynamicFogToggle(e.target.checked)}
               className="accent-cyan-500 w-3 h-3 cursor-pointer"
             />
-            <span className="text-[10px] text-gray-400">Dynamic Vision</span>
+            <span className="text-xs text-gray-400">Dynamic Vision</span>
           </label>
         </>
       )}
@@ -236,7 +236,7 @@ export function WallToolbar({ wallType, onSetWallType, onDone }: WallToolbarProp
         </button>
       ))}
       <div className="border-l border-gray-700 h-5 mx-1" />
-      <span className="text-[10px] text-gray-400">Click grid intersections to place walls</span>
+      <span className="text-xs text-gray-400">Click grid intersections to place walls</span>
       <div className="border-l border-gray-700 h-5 mx-1" />
       <button
         onClick={onDone}
@@ -306,12 +306,12 @@ export function DrawingToolbar({
 
       <div className="border-l border-gray-700 h-5 mx-1" />
 
-      <span className="text-[10px] text-gray-400">Size:</span>
+      <span className="text-xs text-gray-400">Size:</span>
       {[1, 2, 3, 5, 8].map((size) => (
         <button
           key={size}
           onClick={() => onSetStrokeWidth(size)}
-          className={`w-6 h-6 text-[10px] rounded cursor-pointer ${
+          className={`w-6 h-6 text-xs rounded cursor-pointer ${
             strokeWidth === size ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
           }`}
         >
@@ -321,7 +321,7 @@ export function DrawingToolbar({
 
       <div className="border-l border-gray-700 h-5 mx-1" />
 
-      <span className="text-[10px] text-gray-400">Color:</span>
+      <span className="text-xs text-gray-400">Color:</span>
       {DRAWING_COLORS.map((c) => (
         <button
           key={c.value}

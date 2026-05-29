@@ -143,7 +143,7 @@ export default function DiceRoller({
       <div className="flex justify-end">
         <button
           onClick={() => setShowHistory((v) => !v)}
-          className="px-2 py-1 text-[10px] rounded transition-colors cursor-pointer bg-gray-800 text-gray-400 hover:text-gray-200 hover:bg-gray-700"
+          className="px-2 py-1 text-xs rounded transition-colors cursor-pointer bg-gray-800 text-gray-400 hover:text-gray-200 hover:bg-gray-700"
         >
           {showHistory ? 'Hide History' : 'History'}
         </button>
@@ -200,7 +200,7 @@ export default function DiceRoller({
               <button
                 key={mode}
                 onClick={() => setAdvantage(mode)}
-                className={`px-2 py-1 text-[10px] rounded transition-colors cursor-pointer
+                className={`px-2 py-1 text-xs rounded transition-colors cursor-pointer
                   ${
                     advantage === mode
                       ? mode === 'advantage'
@@ -224,7 +224,7 @@ export default function DiceRoller({
           <span className="text-xs text-green-300 font-semibold">CRITICAL HIT! Next damage roll doubles dice.</span>
           <button
             onClick={() => setLastRollWasCrit(false)}
-            className="text-[10px] text-green-400 hover:text-green-200 cursor-pointer underline ml-auto"
+            className="text-xs text-green-400 hover:text-green-200 cursor-pointer underline ml-auto"
           >
             Dismiss
           </button>

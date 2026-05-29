@@ -143,12 +143,12 @@ export default function ShortRestPanel({ pcs, states, onStatesChange }: ShortRes
                     {/* Die size selector for multiclass */}
                     {isMulticlass && dieSizes.length > 1 && (
                       <div className="flex items-center gap-1">
-                        <span className="text-[10px] text-gray-500">Die:</span>
+                        <span className="text-xs text-gray-500">Die:</span>
                         {dieSizes.map((d) => (
                           <button
                             key={d}
                             onClick={() => updateState(pc.id, { selectedDieSize: d })}
-                            className={`px-2 py-0.5 text-[10px] rounded cursor-pointer ${
+                            className={`px-2 py-0.5 text-xs rounded cursor-pointer ${
                               state.selectedDieSize === d
                                 ? 'bg-amber-600 text-white'
                                 : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
@@ -161,7 +161,7 @@ export default function ShortRestPanel({ pcs, states, onStatesChange }: ShortRes
                     )}
                     {/* Dice count */}
                     <div className="flex items-center gap-1">
-                      <span className="text-[10px] text-gray-500">Spend:</span>
+                      <span className="text-xs text-gray-500">Spend:</span>
                       <input
                         type="number"
                         min={0}
@@ -180,10 +180,10 @@ export default function ShortRestPanel({ pcs, states, onStatesChange }: ShortRes
                         }
                         className="w-12 bg-gray-700 border border-gray-600 rounded px-1.5 py-0.5 text-center text-xs text-gray-100 focus:outline-none focus:border-amber-500"
                       />
-                      <span className="text-[10px] text-gray-500">
+                      <span className="text-xs text-gray-500">
                         d{isMulticlass ? state.selectedDieSize : (classes[0]?.hitDie ?? 8)}
                       </span>
-                      <span className="text-[10px] text-gray-500">+ {conMod} CON</span>
+                      <span className="text-xs text-gray-500">+ {conMod} CON</span>
                     </div>
                     <button
                       onClick={() => handleRollDice(pc.id)}
@@ -241,7 +241,7 @@ export default function ShortRestPanel({ pcs, states, onStatesChange }: ShortRes
                               key={level}
                               onClick={() => handleToggleArcaneSlot(pc.id, lvl)}
                               disabled={!isSelected && !canAdd}
-                              className={`px-2 py-0.5 text-[10px] rounded cursor-pointer transition-colors ${
+                              className={`px-2 py-0.5 text-xs rounded cursor-pointer transition-colors ${
                                 isSelected
                                   ? 'bg-purple-600 text-white'
                                   : canAdd
@@ -262,7 +262,7 @@ export default function ShortRestPanel({ pcs, states, onStatesChange }: ShortRes
                   state.preview.restorableSpeciesResources.length > 0 ||
                   state.preview.warlockPactSlots ||
                   state.preview.wildShapeRegain) && (
-                  <div className="text-[10px] text-gray-500 mt-1">
+                  <div className="text-xs text-gray-500 mt-1">
                     Will also restore:{' '}
                     {[
                       ...state.preview.restorableClassResources.map((r) => r.name),

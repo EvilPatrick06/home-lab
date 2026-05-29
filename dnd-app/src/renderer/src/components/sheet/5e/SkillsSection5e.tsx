@@ -34,7 +34,7 @@ export default function SkillsSection5e({ character, readonly: _readonly }: Skil
               >
                 <ProficiencyIndicator5e proficient={!!skill.proficient} expertise={!!skill.expertise} />
                 <span className={skill.proficient ? 'text-gray-200' : 'text-gray-500'}>{skill.name}</span>
-                <span className="text-gray-600 text-[10px] ml-0.5">{isExpanded ? '\u25BE' : '\u25B8'}</span>
+                <span className="text-gray-600 text-xs ml-0.5">{isExpanded ? '\u25BE' : '\u25B8'}</span>
                 <span className="ml-auto font-mono text-xs">{formatMod(total)}</span>
               </button>
               {isExpanded && (

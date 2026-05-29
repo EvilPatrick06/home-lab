@@ -52,7 +52,7 @@ export function SpellRow({
           <span className={`text-sm ${selected ? 'text-gray-200' : 'text-gray-400'} flex items-center gap-1.5`}>
             {spell.name}
             {isOffList && (
-              <span className="text-[10px] text-orange-400 border border-orange-700 rounded px-1">Off-List</span>
+              <span className="text-xs text-orange-400 border border-orange-700 rounded px-1">Off-List</span>
             )}
           </span>
           <div className="flex items-center gap-2 text-xs text-gray-500">
@@ -114,13 +114,13 @@ export default function SpellSummary5e({
         <span className="text-xs font-semibold text-amber-400 uppercase tracking-wide">
           Your Selected Spells ({selectedSpellIds.length})
         </span>
-        <span className="text-gray-500 text-[10px]">{collapsed ? '\u25B8' : '\u25BE'}</span>
+        <span className="text-gray-500 text-xs">{collapsed ? '\u25B8' : '\u25BE'}</span>
       </button>
       {!collapsed && (
         <div className="px-4 py-2 space-y-2 max-h-48 overflow-y-auto">
           {grouped.map(([level, spells]) => (
             <Fragment key={level}>
-              <div className="text-[10px] font-semibold text-gray-500 uppercase">
+              <div className="text-xs font-semibold text-gray-500 uppercase">
                 {level === 0 ? 'Cantrips' : `${level}${ordinal(level)} Level`}
               </div>
               {spells.map((spell) => (
@@ -128,7 +128,7 @@ export default function SpellSummary5e({
                   <span className="text-sm text-gray-300">{spell.name}</span>
                   <button
                     onClick={() => onRemove(spell.id)}
-                    className="text-[10px] text-gray-500 hover:text-red-400 px-1.5 py-0.5 rounded hover:bg-gray-800 transition-colors cursor-pointer"
+                    className="text-xs text-gray-500 hover:text-red-400 px-1.5 py-0.5 rounded hover:bg-gray-800 transition-colors cursor-pointer"
                   >
                     Remove
                   </button>

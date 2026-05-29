@@ -355,7 +355,7 @@ export function DrawingToolbar({
           {/* Colors — hidden for eraser */}
           {activeTool !== 'eraser' && (
             <>
-              <p className="text-[10px] text-gray-500 uppercase mb-1">Color</p>
+              <p className="text-xs text-gray-500 uppercase mb-1">Color</p>
               <div className="flex flex-wrap gap-1.5 mb-2">
                 {TOOL_COLORS.map((c) => (
                   <button
@@ -409,7 +409,7 @@ export function DrawingToolbar({
           )}
 
           {/* Sizes */}
-          <p className="text-[10px] text-gray-500 uppercase mb-1">Size</p>
+          <p className="text-xs text-gray-500 uppercase mb-1">Size</p>
           <div className="flex items-center gap-2">
             {sizes.map((s) => (
               <button

@@ -152,7 +152,7 @@ export default function LibraryItemList({
                         {item.name}
                       </span>
                       {item.source === 'homebrew' && (
-                        <span className="text-[10px] bg-purple-600/30 text-purple-300 px-1.5 py-0.5 rounded-full flex-shrink-0">
+                        <span className="text-xs bg-purple-600/30 text-purple-300 px-1.5 py-0.5 rounded-full flex-shrink-0">
                           Homebrew
                         </span>
                       )}

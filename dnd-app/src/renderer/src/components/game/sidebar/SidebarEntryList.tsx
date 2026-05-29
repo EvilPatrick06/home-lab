@@ -164,7 +164,7 @@ export default function SidebarEntryList({
   const placesEditForm =
     isPlaces && editingId ? (
       <div className="bg-gray-800/50 border border-gray-700/30 rounded-lg p-2.5 space-y-2">
-        <span className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Editing Place</span>
+        <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Editing Place</span>
         <input
           type="text"
           value={editName}
@@ -227,13 +227,13 @@ export default function SidebarEntryList({
         <div className="flex gap-1">
           <button
             onClick={saveEdit}
-            className="px-2 py-0.5 text-[10px] bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer"
+            className="px-2 py-0.5 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer"
           >
             Save
           </button>
           <button
             onClick={() => setEditingId(null)}
-            className="px-2 py-0.5 text-[10px] text-gray-400 hover:text-gray-200 cursor-pointer"
+            className="px-2 py-0.5 text-xs text-gray-400 hover:text-gray-200 cursor-pointer"
           >
             Cancel
           </button>

@@ -127,7 +127,7 @@ export default function SpellPrepModal({ character, onClose }: SpellPrepModalPro
         <div className="flex items-center justify-between mb-2 shrink-0">
           <div>
             <h3 className="text-sm font-semibold text-gray-200">Prepare Spells</h3>
-            <p className="text-[10px] text-gray-500">
+            <p className="text-xs text-gray-500">
               {preparedCount} / {maxPrepared} prepared
             </p>
           </div>
@@ -172,7 +172,7 @@ export default function SpellPrepModal({ character, onClose }: SpellPrepModalPro
                     <div className="font-medium">{spell.name}</div>
                     <div className="text-[9px] text-gray-500">Level {spell.level}</div>
                   </div>
-                  <span className="text-[10px]">{isPrepared ? '✓ Prepared' : 'Not prepared'}</span>
+                  <span className="text-xs">{isPrepared ? '✓ Prepared' : 'Not prepared'}</span>
                 </button>
               )
             })

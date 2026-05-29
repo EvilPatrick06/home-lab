@@ -150,7 +150,7 @@ export default function SharedJournalModal({
             {isDM && visibleEntries.length > 0 && (
               <button
                 onClick={handleArchiveToCampaign}
-                className="px-2 py-0.5 text-[10px] bg-amber-600/30 text-amber-300 rounded hover:bg-amber-600/50 transition-colors"
+                className="px-2 py-0.5 text-xs bg-amber-600/30 text-amber-300 rounded hover:bg-amber-600/50 transition-colors"
                 title="Save these entries permanently to the Campaign Journal"
               >
                 Archive to Campaign
@@ -191,11 +191,11 @@ export default function SharedJournalModal({
             onSave={handleSave}
             leftSlot={
               <>
-                <span className="text-[10px] text-gray-500">Visibility:</span>
+                <span className="text-xs text-gray-500">Visibility:</span>
                 <select
                   value={visibility}
                   onChange={(e) => setVisibility(e.target.value as 'public' | 'private')}
-                  className="bg-gray-800 border border-gray-700 rounded px-2 py-0.5 text-[10px] text-gray-300 outline-none cursor-pointer"
+                  className="bg-gray-800 border border-gray-700 rounded px-2 py-0.5 text-xs text-gray-300 outline-none cursor-pointer"
                 >
                   <option value="public">Public</option>
                   <option value="private">Private</option>
@@ -215,7 +215,7 @@ export default function SharedJournalModal({
                 <div className="flex items-start justify-between gap-2 mb-1">
                   <div className="min-w-0">
                     <h4 className="text-xs font-semibold text-gray-200 truncate">{entry.title}</h4>
-                    <p className="text-[10px] text-gray-500">
+                    <p className="text-xs text-gray-500">
                       by {entry.authorName} &middot; {entry.visibility === 'public' ? 'Public' : 'Private'} &middot;{' '}
                       {new Date(entry.updatedAt).toLocaleDateString()}
                     </p>
@@ -225,7 +225,7 @@ export default function SharedJournalModal({
                       <button
                         onClick={() => handleToggleVisibility(entry)}
                         title={entry.visibility === 'public' ? 'Make private' : 'Make public'}
-                        className="px-2 py-0.5 text-[10px] bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
+                        className="px-2 py-0.5 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
                       >
                         {entry.visibility === 'public' ? 'Hide' : 'Show'}
                       </button>
@@ -233,7 +233,7 @@ export default function SharedJournalModal({
                     {canEdit(entry) && (
                       <button
                         onClick={() => handleEdit(entry)}
-                        className="px-2 py-0.5 text-[10px] bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
+                        className="px-2 py-0.5 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
                       >
                         Edit
                       </button>
@@ -241,7 +241,7 @@ export default function SharedJournalModal({
                     {canDelete(entry) && (
                       <button
                         onClick={() => handleDelete(entry.id)}
-                        className="px-2 py-0.5 text-[10px] bg-red-900/40 hover:bg-red-800/40 text-red-300 border border-red-700/30 rounded cursor-pointer"
+                        className="px-2 py-0.5 text-xs bg-red-900/40 hover:bg-red-800/40 text-red-300 border border-red-700/30 rounded cursor-pointer"
                       >
                         Delete
                       </button>

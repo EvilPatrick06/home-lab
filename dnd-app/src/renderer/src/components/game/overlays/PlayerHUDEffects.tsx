@@ -109,7 +109,7 @@ export default function PlayerHUDEffects({
               <button
                 key={name}
                 onClick={() => addConditionFromPicker(name)}
-                className="w-full text-left px-2 py-1 text-[10px] text-gray-300 hover:bg-gray-800 cursor-pointer"
+                className="w-full text-left px-2 py-1 text-xs text-gray-300 hover:bg-gray-800 cursor-pointer"
               >
                 {name}
               </button>
@@ -358,7 +358,7 @@ export function PlayerHUDEffectsExpanded({
       </div>
       {deathSaveResult && (
         <div
-          className={`text-[10px] px-2 py-1 rounded flex items-center justify-between ${
+          className={`text-xs px-2 py-1 rounded flex items-center justify-between ${
             deathSaveResult.roll === 20
               ? 'text-green-300 bg-green-900/30 border border-green-700/50'
               : deathSaveResult.roll === 1
@@ -385,19 +385,19 @@ export function PlayerHUDEffectsExpanded({
         (resolved.resistances.length > 0 || resolved.immunities.length > 0 || resolved.vulnerabilities.length > 0) && (
           <div className="space-y-0.5">
             {resolved.resistances.length > 0 && (
-              <div className="text-[10px]">
+              <div className="text-xs">
                 <span className="text-gray-500">Resist:</span>{' '}
                 <span className="text-green-400">{resolved.resistances.join(', ')}</span>
               </div>
             )}
             {resolved.immunities.length > 0 && (
-              <div className="text-[10px]">
+              <div className="text-xs">
                 <span className="text-gray-500">Immune:</span>{' '}
                 <span className="text-cyan-400">{resolved.immunities.join(', ')}</span>
               </div>
             )}
             {resolved.vulnerabilities.length > 0 && (
-              <div className="text-[10px]">
+              <div className="text-xs">
                 <span className="text-gray-500">Vulnerable:</span>{' '}
                 <span className="text-red-400">{resolved.vulnerabilities.join(', ')}</span>
               </div>
@@ -411,7 +411,7 @@ export function PlayerHUDEffectsExpanded({
           <span className="text-[9px] text-gray-500 uppercase tracking-wider">Active Effects</span>
           <div className="space-y-0.5 mt-0.5">
             {myCustomEffects.map((ce) => (
-              <div key={ce.id} className="flex items-center gap-1.5 text-[10px]">
+              <div key={ce.id} className="flex items-center gap-1.5 text-xs">
                 <span className="text-indigo-300 font-medium">{ce.name}</span>
                 {ce.duration && (
                   <span className="text-gray-600">
@@ -427,8 +427,8 @@ export function PlayerHUDEffectsExpanded({
       {/* Concentration */}
       {turnState?.concentratingSpell && (
         <div className="flex items-center gap-2">
-          <span className="text-[10px] text-purple-400">Concentrating:</span>
-          <span className="text-[10px] text-purple-300 font-semibold">{turnState.concentratingSpell}</span>
+          <span className="text-xs text-purple-400">Concentrating:</span>
+          <span className="text-xs text-purple-300 font-semibold">{turnState.concentratingSpell}</span>
           <button
             onClick={dropConcentration}
             className="text-[9px] text-red-400 hover:text-red-300 cursor-pointer"

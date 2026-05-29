@@ -117,7 +117,7 @@ export default function SessionZeroStep({
               <div className={`text-sm font-medium ${data.tone === opt.value ? 'text-amber-300' : 'text-gray-300'}`}>
                 {opt.label}
               </div>
-              <div className="text-[10px] text-gray-500 mt-0.5">{opt.description}</div>
+              <div className="text-xs text-gray-500 mt-0.5">{opt.description}</div>
             </button>
           ))}
         </div>
@@ -166,7 +166,7 @@ export default function SessionZeroStep({
               .map((l) => (
                 <span
                   key={l}
-                  className="flex items-center gap-1 text-[10px] bg-red-900/30 text-red-300 px-2 py-0.5 rounded"
+                  className="flex items-center gap-1 text-xs bg-red-900/30 text-red-300 px-2 py-0.5 rounded"
                 >
                   {l}
                   <button onClick={() => toggleLimit(l)} className="hover:text-red-100 cursor-pointer">
@@ -219,7 +219,7 @@ export default function SessionZeroStep({
               >
                 {opt.label}
               </div>
-              <div className="text-[10px] text-gray-500 mt-0.5">{opt.description}</div>
+              <div className="text-xs text-gray-500 mt-0.5">{opt.description}</div>
             </button>
           ))}
         </div>
@@ -240,7 +240,7 @@ export default function SessionZeroStep({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
                     <span className="text-sm font-medium text-gray-200">{rule.name}</span>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full ${CATEGORY_COLORS[rule.category]}`}>
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${CATEGORY_COLORS[rule.category]}`}>
                       {rule.category}
                     </span>
                   </div>

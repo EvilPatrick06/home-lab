@@ -111,7 +111,7 @@ export function DamageResultStep({
           <div className="text-xs text-indigo-300 font-semibold">{masteryEffect.mastery} Mastery</div>
           <div className="text-[11px] text-gray-300 mt-0.5">{masteryEffect.description}</div>
           {masteryEffect.requiresSave && (
-            <div className="text-[10px] text-yellow-400 mt-0.5">
+            <div className="text-xs text-yellow-400 mt-0.5">
               Target must make a {masteryEffect.requiresSave.ability.toUpperCase()} save (DC{' '}
               {masteryEffect.requiresSave.dc})
             </div>

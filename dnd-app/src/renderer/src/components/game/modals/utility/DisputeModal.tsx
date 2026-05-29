@@ -40,14 +40,14 @@ export default function DisputeModal({
 
         {/* AI Ruling */}
         <div className="bg-gray-800 rounded-lg p-3 mb-3 border border-gray-700">
-          <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">AI Ruling</div>
+          <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">AI Ruling</div>
           <div className="text-sm text-gray-200">{ruling}</div>
         </div>
 
         {/* Citation */}
         {citation && (
           <div className="bg-amber-900/20 rounded-lg p-3 mb-3 border border-amber-700/30">
-            <div className="text-[10px] text-amber-500 uppercase tracking-wider mb-1">Rules Citation</div>
+            <div className="text-xs text-amber-500 uppercase tracking-wider mb-1">Rules Citation</div>
             <div className="text-xs text-amber-200">{citation}</div>
           </div>
         )}
@@ -80,7 +80,7 @@ export default function DisputeModal({
           </button>
         </div>
 
-        <div className="text-[10px] text-gray-600 mt-2 text-center">
+        <div className="text-xs text-gray-600 mt-2 text-center">
           Overridden rulings are logged to the DM Rulings Log.
         </div>
       </div>

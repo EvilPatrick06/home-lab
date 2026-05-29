@@ -125,7 +125,7 @@ export default function TimelineCard({ campaign, saveCampaign }: TimelineCardPro
                   <div className="w-px h-2 bg-gray-700" />
                   <div className="text-center px-1">
                     <p className="text-xs font-medium text-gray-200 truncate max-w-[7rem]">{item.title}</p>
-                    <p className="text-[10px] text-gray-500">{new Date(item.date).toLocaleDateString()}</p>
+                    <p className="text-xs text-gray-500">{new Date(item.date).toLocaleDateString()}</p>
                     <span
                       className={`inline-block text-[9px] px-1 py-0.5 rounded mt-0.5 ${
                         item.type === 'milestone' ? 'bg-amber-900/40 text-amber-400' : 'bg-gray-800 text-gray-500'

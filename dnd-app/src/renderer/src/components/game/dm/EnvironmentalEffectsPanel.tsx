@@ -144,7 +144,7 @@ export default function EnvironmentalEffectsPanel({ onBroadcastResult }: Environ
                         <div className="flex-1 min-w-0">
                           <span className="text-white text-sm font-medium">{effect.name}</span>
                           {effect.saveDC != null && (
-                            <span className="ml-1.5 text-[10px] px-1.5 py-0.5 rounded bg-gray-700/80 text-gray-300">
+                            <span className="ml-1.5 text-xs px-1.5 py-0.5 rounded bg-gray-700/80 text-gray-300">
                               DC {effect.saveDC} {effect.saveAbility ?? ''}
                             </span>
                           )}
@@ -161,7 +161,7 @@ export default function EnvironmentalEffectsPanel({ onBroadcastResult }: Environ
                       <button
                         type="button"
                         onClick={() => setExpandedId(isExpanded ? null : effect.id)}
-                        className="mt-1 text-[10px] text-gray-500 hover:text-gray-400 cursor-pointer"
+                        className="mt-1 text-xs text-gray-500 hover:text-gray-400 cursor-pointer"
                       >
                         {isExpanded ? 'Hide' : 'Show'} description
                       </button>

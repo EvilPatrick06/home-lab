@@ -69,7 +69,7 @@ function PCBlock({
                 <button
                   key={ab}
                   onClick={() => onRoll(char.name, `${ab.slice(0, 3).toUpperCase()} Save`, totalMod)}
-                  className={`px-1.5 py-0.5 text-[10px] rounded cursor-pointer ${
+                  className={`px-1.5 py-0.5 text-xs rounded cursor-pointer ${
                     isProficient ? 'bg-amber-600/30 text-amber-300' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                   }`}
                 >
@@ -95,7 +95,7 @@ function PCBlock({
                 <button
                   key={skill.name}
                   onClick={() => onRoll(char.name, `${skill.name}`, totalMod)}
-                  className={`px-1.5 py-0.5 text-[10px] rounded cursor-pointer ${
+                  className={`px-1.5 py-0.5 text-xs rounded cursor-pointer ${
                     skill.expertise ? 'bg-purple-600/30 text-purple-300' : 'bg-amber-600/30 text-amber-300'
                   }`}
                 >
@@ -181,7 +181,7 @@ function MonsterBlock({
               <button
                 key={ab}
                 onClick={() => onRoll(monster.name, `${ab.toUpperCase()} Save`, mod as number)}
-                className="px-1.5 py-0.5 text-[10px] bg-amber-600/30 text-amber-300 rounded cursor-pointer"
+                className="px-1.5 py-0.5 text-xs bg-amber-600/30 text-amber-300 rounded cursor-pointer"
               >
                 {ab.toUpperCase()} {formatMod(mod as number)}
               </button>
@@ -199,7 +199,7 @@ function MonsterBlock({
               <button
                 key={skill}
                 onClick={() => onRoll(monster.name, skill, mod)}
-                className="px-1.5 py-0.5 text-[10px] bg-amber-600/30 text-amber-300 rounded cursor-pointer"
+                className="px-1.5 py-0.5 text-xs bg-amber-600/30 text-amber-300 rounded cursor-pointer"
               >
                 {skill} {formatMod(mod)}
               </button>
@@ -213,7 +213,7 @@ function MonsterBlock({
         <div>
           <div className="text-[9px] text-gray-500 uppercase tracking-wider mb-1">Traits</div>
           {monster.traits.map((t, i) => (
-            <div key={i} className="text-[10px] text-gray-400 mb-1">
+            <div key={i} className="text-xs text-gray-400 mb-1">
               <span className="text-gray-200 font-semibold">{t.name}.</span> {t.description}
             </div>
           ))}
@@ -230,7 +230,7 @@ function MonsterBlock({
                 <span className="text-xs text-gray-200 font-semibold">{action.name}</span>
                 {action.toHit != null && (
                   <>
-                    <span className="text-[10px] text-gray-500">{formatMod(action.toHit)} to hit</span>
+                    <span className="text-xs text-gray-500">{formatMod(action.toHit)} to hit</span>
                     <button
                       onClick={() => onRoll(monster.name, `${action.name} Attack`, action.toHit!)}
                       className="text-[9px] px-1.5 py-0.5 bg-red-600/30 text-red-300 rounded cursor-pointer hover:bg-red-600/50"
@@ -248,7 +248,7 @@ function MonsterBlock({
                   </button>
                 )}
               </div>
-              <div className="text-[10px] text-gray-400 mt-0.5">
+              <div className="text-xs text-gray-400 mt-0.5">
                 {action.damageDice && `${action.damageDice} ${action.damageType ?? ''}`}
                 {action.reach && ` | Reach ${action.reach}ft`}
                 {action.rangeNormal &&
@@ -264,7 +264,7 @@ function MonsterBlock({
         <div>
           <div className="text-[9px] text-gray-500 uppercase tracking-wider mb-1">Bonus Actions</div>
           {monster.bonusActions.map((ba, i) => (
-            <div key={i} className="text-[10px] text-gray-400 mb-1">
+            <div key={i} className="text-xs text-gray-400 mb-1">
               <span className="text-gray-200 font-semibold">{ba.name}.</span> {ba.description}
             </div>
           ))}
@@ -276,7 +276,7 @@ function MonsterBlock({
         <div>
           <div className="text-[9px] text-gray-500 uppercase tracking-wider mb-1">Reactions</div>
           {monster.reactions.map((r, i) => (
-            <div key={i} className="text-[10px] text-gray-400 mb-1">
+            <div key={i} className="text-xs text-gray-400 mb-1">
               <span className="text-gray-200 font-semibold">{r.name}.</span> {r.description}
             </div>
           ))}

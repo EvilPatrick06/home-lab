@@ -43,7 +43,7 @@ export default function CharacterMiniSheet({ character }: CharacterMiniSheetProp
 
       {/* Ability scores */}
       <div>
-        <h4 className="text-[10px] text-gray-500 uppercase tracking-wider mb-1.5">Ability Scores</h4>
+        <h4 className="text-xs text-gray-500 uppercase tracking-wider mb-1.5">Ability Scores</h4>
         <div className="grid grid-cols-3 gap-1">
           {ABILITY_NAMES.map((ability) => {
             const score = character.abilityScores[ability]
@@ -52,7 +52,7 @@ export default function CharacterMiniSheet({ character }: CharacterMiniSheetProp
               <div key={ability} className="bg-gray-800/50 rounded p-1.5 text-center">
                 <div className="text-[9px] text-gray-500 uppercase">{abilityLabels[ability]}</div>
                 <div className="text-sm font-semibold text-gray-100">{formatMod(mod)}</div>
-                <div className="text-[10px] text-gray-400">{score}</div>
+                <div className="text-xs text-gray-400">{score}</div>
               </div>
             )
           })}
@@ -61,7 +61,7 @@ export default function CharacterMiniSheet({ character }: CharacterMiniSheetProp
 
       {/* Saving throws */}
       <div>
-        <h4 className="text-[10px] text-gray-500 uppercase tracking-wider mb-1.5">Saving Throws</h4>
+        <h4 className="text-xs text-gray-500 uppercase tracking-wider mb-1.5">Saving Throws</h4>
         {is5eCharacter(character) && (
           <div className="space-y-0.5">
             {ABILITY_NAMES.map((ability) => {
@@ -83,7 +83,7 @@ export default function CharacterMiniSheet({ character }: CharacterMiniSheetProp
 
       {/* Skills */}
       <div>
-        <h4 className="text-[10px] text-gray-500 uppercase tracking-wider mb-1.5">Skills</h4>
+        <h4 className="text-xs text-gray-500 uppercase tracking-wider mb-1.5">Skills</h4>
         <div className="space-y-0.5 max-h-40 overflow-y-auto">
           {is5eCharacter(character) &&
             character.skills.map((skill) => {
@@ -115,10 +115,10 @@ export default function CharacterMiniSheet({ character }: CharacterMiniSheetProp
           onClick={() => setFeaturesExpanded(!featuresExpanded)}
           className="flex items-center gap-2 w-full cursor-pointer"
         >
-          <span className={`text-[10px] text-gray-500 transition-transform ${featuresExpanded ? 'rotate-90' : ''}`}>
+          <span className={`text-xs text-gray-500 transition-transform ${featuresExpanded ? 'rotate-90' : ''}`}>
             &#9654;
           </span>
-          <h4 className="text-[10px] text-gray-500 uppercase tracking-wider">Features</h4>
+          <h4 className="text-xs text-gray-500 uppercase tracking-wider">Features</h4>
         </button>
         {featuresExpanded && (
           <div className="mt-1.5 space-y-1 max-h-40 overflow-y-auto">
@@ -126,7 +126,7 @@ export default function CharacterMiniSheet({ character }: CharacterMiniSheetProp
               character.features.map((feat, i) => (
                 <div key={i} className="bg-gray-800/50 rounded p-1.5">
                   <p className="text-[11px] text-gray-200 font-medium">{feat.name}</p>
-                  <p className="text-[10px] text-gray-500">{feat.source}</p>
+                  <p className="text-xs text-gray-500">{feat.source}</p>
                 </div>
               ))}
           </div>

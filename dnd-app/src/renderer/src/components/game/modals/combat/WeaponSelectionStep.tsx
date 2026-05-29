@@ -83,7 +83,7 @@ export function WeaponSelectionStep({
               )}
             </div>
             {w.mastery && masteryChoices?.includes(w.mastery) && (
-              <div className="text-[10px] text-purple-300 mt-0.5">
+              <div className="text-xs text-purple-300 mt-0.5">
                 Mastery: {w.mastery} — {getMasteryDescription(w.mastery)}
               </div>
             )}

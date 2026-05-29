@@ -70,7 +70,7 @@ export default function EquipmentTab(): JSX.Element {
           <button
             key={cat}
             onClick={() => setCategoryFilter(cat as 'all' | 'weapons' | 'armor' | 'gear')}
-            className={`px-2 py-0.5 text-[10px] font-semibold rounded cursor-pointer capitalize transition-colors ${
+            className={`px-2 py-0.5 text-xs font-semibold rounded cursor-pointer capitalize transition-colors ${
               categoryFilter === cat
                 ? 'bg-amber-600 text-white'
                 : 'bg-gray-800 text-gray-400 hover:text-gray-200 hover:bg-gray-700'
@@ -81,7 +81,7 @@ export default function EquipmentTab(): JSX.Element {
         ))}
       </div>
 
-      <div className="text-[10px] text-gray-500">
+      <div className="text-xs text-gray-500">
         {filtered.length} item{filtered.length !== 1 ? 's' : ''}
       </div>
 
@@ -93,7 +93,7 @@ export default function EquipmentTab(): JSX.Element {
             <div key={`${item.name}-${i}`} className="bg-gray-800/50 rounded-lg px-3 py-2 border border-gray-700/30">
               <div className="flex items-center justify-between gap-2">
                 <div className="text-xs font-semibold text-amber-400 truncate">{item.name}</div>
-                <span className="text-[10px] text-gray-500 shrink-0">{item.category}</span>
+                <span className="text-xs text-gray-500 shrink-0">{item.category}</span>
               </div>
               {item.details && <p className="text-[11px] text-gray-300 mt-0.5 leading-relaxed">{item.details}</p>}
             </div>

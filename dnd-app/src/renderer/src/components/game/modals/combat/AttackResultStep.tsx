@@ -153,7 +153,7 @@ export function AttackResultStep({
                   </div>
                   <button
                     onClick={() => onApplyGraze(grazeEffect.grazeDamage!)}
-                    className="mt-1 w-full py-1 text-[10px] rounded bg-amber-600 hover:bg-amber-500 text-white cursor-pointer font-semibold"
+                    className="mt-1 w-full py-1 text-xs rounded bg-amber-600 hover:bg-amber-500 text-white cursor-pointer font-semibold"
                   >
                     Apply Graze Damage ({grazeEffect.grazeDamage})
                   </button>

@@ -107,7 +107,7 @@ function SpeciesDetailView({ species }: SpeciesDetailViewProps): JSX.Element {
                     <span className="text-gray-300 whitespace-pre-wrap">
                       {renderInlineMarkdown(trait.description ?? '')}
                     </span>
-                    {usage && <div className="text-[10px] text-gray-500 mt-0.5">Usage: {usage}</div>}
+                    {usage && <div className="text-xs text-gray-500 mt-0.5">Usage: {usage}</div>}
                   </div>
                 )
               })}

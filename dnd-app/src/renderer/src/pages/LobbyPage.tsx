@@ -412,7 +412,7 @@ export default function LobbyPage(): JSX.Element {
         {isHost && campaign && (
           <div className="flex items-center gap-2">
             <span
-              className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full ${
+              className={`text-xs uppercase tracking-wider px-2 py-0.5 rounded-full ${
                 campaign.settings?.isPrivate ? 'bg-gray-800 text-gray-300' : 'bg-emerald-900/40 text-emerald-300'
               }`}
             >
@@ -431,7 +431,7 @@ export default function LobbyPage(): JSX.Element {
                 }
                 void saveCampaign(next)
               }}
-              className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full
+              className="text-xs uppercase tracking-wider px-2 py-0.5 rounded-full
                          bg-gray-800 border border-gray-700 text-gray-300
                          hover:border-amber-500/60 hover:text-amber-300 cursor-pointer transition-colors"
               title="Toggle whether this game is listed in the public browser"

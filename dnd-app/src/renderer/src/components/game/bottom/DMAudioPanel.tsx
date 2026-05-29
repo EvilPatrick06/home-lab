@@ -219,7 +219,7 @@ export default function DMAudioPanel(): JSX.Element {
     <div className="flex flex-col gap-2">
       {/* Ambient tracks grid */}
       <div>
-        <span className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold mb-1 block">
+        <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1 block">
           Ambient Music
         </span>
         <div className="grid grid-cols-3 gap-1">
@@ -230,7 +230,7 @@ export default function DMAudioPanel(): JSX.Element {
                 key={track.id}
                 onClick={() => handleAmbientToggle(track.id)}
                 disabled={isFading}
-                className={`flex items-center gap-1 px-2 py-1.5 text-[10px] font-medium rounded-lg transition-all cursor-pointer ${
+                className={`flex items-center gap-1 px-2 py-1.5 text-xs font-medium rounded-lg transition-all cursor-pointer ${
                   isActive
                     ? 'bg-amber-600/30 border border-amber-500/50 text-amber-300 shadow-[0_0_6px_rgba(245,158,11,0.15)]'
                     : 'bg-gray-800/60 border border-gray-700/50 text-gray-300 hover:bg-amber-600/20 hover:border-amber-500/40 hover:text-amber-300'
@@ -248,11 +248,11 @@ export default function DMAudioPanel(): JSX.Element {
 
       {/* Volume sliders */}
       <div className="border-t border-gray-700/40 pt-1.5">
-        <span className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold mb-1 block">Volume</span>
+        <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1 block">Volume</span>
         <div className="space-y-1.5">
           {/* Ambient volume */}
           <div className="flex items-center gap-2">
-            <span className="text-[10px] text-gray-400 w-14 shrink-0">Ambient</span>
+            <span className="text-xs text-gray-400 w-14 shrink-0">Ambient</span>
             <input
               type="range"
               min={0}
@@ -261,11 +261,11 @@ export default function DMAudioPanel(): JSX.Element {
               onChange={(e) => handleAmbientVolumeChange(Number(e.target.value))}
               className="flex-1 h-1 accent-amber-500 cursor-pointer"
             />
-            <span className="text-[10px] text-gray-500 w-8 text-right">{ambientVol}%</span>
+            <span className="text-xs text-gray-500 w-8 text-right">{ambientVol}%</span>
           </div>
           {/* Master volume */}
           <div className="flex items-center gap-2">
-            <span className="text-[10px] text-gray-400 w-14 shrink-0">Master</span>
+            <span className="text-xs text-gray-400 w-14 shrink-0">Master</span>
             <input
               type="range"
               min={0}
@@ -274,20 +274,20 @@ export default function DMAudioPanel(): JSX.Element {
               onChange={(e) => handleMasterVolumeChange(Number(e.target.value))}
               className="flex-1 h-1 accent-amber-500 cursor-pointer"
             />
-            <span className="text-[10px] text-gray-500 w-8 text-right">{masterVol}%</span>
+            <span className="text-xs text-gray-500 w-8 text-right">{masterVol}%</span>
           </div>
         </div>
       </div>
 
       {/* Quick SFX buttons */}
       <div className="border-t border-gray-700/40 pt-1.5">
-        <span className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold mb-1 block">Quick SFX</span>
+        <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1 block">Quick SFX</span>
         <div className="flex flex-wrap gap-1">
           {QUICK_SFX.map((sfx) => (
             <button
               key={sfx.event}
               onClick={() => handlePlaySfx(sfx.event)}
-              className="px-2 py-1 text-[10px] font-medium rounded bg-gray-800/60 border border-gray-700/50 text-gray-300 hover:bg-amber-600/20 hover:border-amber-500/40 hover:text-amber-300 transition-all cursor-pointer"
+              className="px-2 py-1 text-xs font-medium rounded bg-gray-800/60 border border-gray-700/50 text-gray-300 hover:bg-amber-600/20 hover:border-amber-500/40 hover:text-amber-300 transition-all cursor-pointer"
             >
               {sfx.label}
             </button>
@@ -298,11 +298,11 @@ export default function DMAudioPanel(): JSX.Element {
       {/* Custom Sounds */}
       <div className="border-t border-gray-700/40 pt-1.5">
         <div className="flex items-center justify-between mb-1">
-          <span className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Custom Sounds</span>
+          <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Custom Sounds</span>
           <button
             onClick={handleUploadCustom}
             disabled={uploading || !campaignId}
-            className="px-2 py-0.5 text-[10px] font-medium rounded bg-amber-600/20 border border-amber-500/40 text-amber-300 hover:bg-amber-600/30 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-2 py-0.5 text-xs font-medium rounded bg-amber-600/20 border border-amber-500/40 text-amber-300 hover:bg-amber-600/30 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {uploading ? 'Uploading...' : '+ Upload'}
           </button>
@@ -337,7 +337,7 @@ export default function DMAudioPanel(): JSX.Element {
                 {/* Play/Stop toggle */}
                 <button
                   onClick={() => handleToggleCustomPlay(entry.fileName)}
-                  className={`w-5 h-5 shrink-0 flex items-center justify-center rounded text-[10px] transition-all cursor-pointer ${
+                  className={`w-5 h-5 shrink-0 flex items-center justify-center rounded text-xs transition-all cursor-pointer ${
                     entry.playing
                       ? 'bg-amber-600/40 text-amber-300'
                       : 'bg-gray-700/60 text-gray-400 hover:text-gray-200'
@@ -348,7 +348,7 @@ export default function DMAudioPanel(): JSX.Element {
                 </button>
 
                 {/* Name */}
-                <span className="text-[10px] text-gray-300 truncate flex-1 min-w-0">{entry.displayName}</span>
+                <span className="text-xs text-gray-300 truncate flex-1 min-w-0">{entry.displayName}</span>
 
                 {/* Volume slider */}
                 <input
@@ -377,7 +377,7 @@ export default function DMAudioPanel(): JSX.Element {
                 {/* Delete */}
                 <button
                   onClick={() => handleDeleteCustom(entry.fileName)}
-                  className="text-gray-600 hover:text-red-400 transition-colors cursor-pointer text-[10px]"
+                  className="text-gray-600 hover:text-red-400 transition-colors cursor-pointer text-xs"
                   title="Delete"
                 >
                   &times;

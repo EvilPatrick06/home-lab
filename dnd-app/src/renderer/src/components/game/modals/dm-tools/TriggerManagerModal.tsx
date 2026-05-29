@@ -190,27 +190,27 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
                       </button>
                       <span className="text-sm font-medium text-gray-200">{t.name}</span>
                       {t.oneShot && (
-                        <span className="text-[10px] px-1.5 py-0.5 bg-blue-900/50 text-blue-300 rounded">one-shot</span>
+                        <span className="text-xs px-1.5 py-0.5 bg-blue-900/50 text-blue-300 rounded">one-shot</span>
                       )}
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <span className="text-[10px] text-gray-500">fired {t.firedCount ?? 0}x</span>
+                      <span className="text-xs text-gray-500">fired {t.firedCount ?? 0}x</span>
                       <button
                         onClick={() => handleTestFire(t)}
-                        className="px-2 py-0.5 text-[10px] bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
+                        className="px-2 py-0.5 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
                         title="Test fire this trigger"
                       >
                         Test
                       </button>
                       <button
                         onClick={() => removeTrigger(t.id)}
-                        className="px-2 py-0.5 text-[10px] bg-red-900/40 hover:bg-red-900/60 text-red-400 rounded cursor-pointer"
+                        className="px-2 py-0.5 text-xs bg-red-900/40 hover:bg-red-900/60 text-red-400 rounded cursor-pointer"
                       >
                         Delete
                       </button>
                     </div>
                   </div>
-                  <div className="mt-1.5 flex gap-3 text-[10px] text-gray-400">
+                  <div className="mt-1.5 flex gap-3 text-xs text-gray-400">
                     <span>
                       Event: <span className="text-gray-300">{EVENT_LABELS[t.event]}</span>
                     </span>
@@ -438,7 +438,7 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
               <span className="text-xs font-medium text-gray-400 block mb-1.5">Fire History</span>
               <div className="space-y-1 max-h-32 overflow-y-auto">
                 {history.map((h, i) => (
-                  <div key={`${h.triggerId}-${h.timestamp}-${i}`} className="text-[10px] text-gray-500 flex gap-2">
+                  <div key={`${h.triggerId}-${h.timestamp}-${i}`} className="text-xs text-gray-500 flex gap-2">
                     <span className="text-gray-600">{new Date(h.timestamp).toLocaleTimeString()}</span>
                     <span className="text-gray-400">{h.triggerName}</span>
                   </div>

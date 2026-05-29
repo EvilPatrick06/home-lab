@@ -229,7 +229,7 @@ export default function TokenContextMenu({
         <div className="px-4 py-2 border-b border-gray-800">
           <div className="text-xs font-semibold text-gray-200">{token.label}</div>
           {isOwnToken && token.currentHP != null && (
-            <div className="text-[10px] text-gray-400 mt-0.5">
+            <div className="text-xs text-gray-400 mt-0.5">
               HP: {token.currentHP}/{stats.maxHP ?? '?'}
               {stats.ac != null && <span className="ml-2">AC: {stats.ac}</span>}
             </div>
@@ -295,10 +295,10 @@ export default function TokenContextMenu({
             className="w-16 bg-gray-800 border border-gray-600 rounded px-1.5 py-0.5 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
             autoFocus
           />
-          <span className="text-[10px] text-gray-500">/ {stats.maxHP ?? '?'}</span>
+          <span className="text-xs text-gray-500">/ {stats.maxHP ?? '?'}</span>
           <button
             onClick={handleSetHP}
-            className="px-2 py-0.5 text-[10px] bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer"
+            className="px-2 py-0.5 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer"
           >
             Set
           </button>

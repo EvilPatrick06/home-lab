@@ -140,7 +140,7 @@ export default function ExpertiseModal(): JSX.Element {
                     {isSelected ? '\u25CF' : ''}
                   </span>
                   <span className="flex-1 truncate">{opt.name}</span>
-                  {opt.isTools && <span className="text-[10px] text-gray-500">Tool</span>}
+                  {opt.isTools && <span className="text-xs text-gray-500">Tool</span>}
                 </button>
               )
             })}

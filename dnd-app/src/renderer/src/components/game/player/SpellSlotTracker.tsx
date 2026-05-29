@@ -103,7 +103,7 @@ export default function SpellSlotTracker({
 
   return (
     <div className="space-y-2">
-      <h4 className="text-[10px] text-gray-500 uppercase tracking-wider">Spell Slots</h4>
+      <h4 className="text-xs text-gray-500 uppercase tracking-wider">Spell Slots</h4>
       {lastCastMessage && (
         <div className="text-[9px] text-amber-300 bg-amber-900/20 border border-amber-700/30 rounded px-1.5 py-0.5">
           {lastCastMessage}
@@ -115,7 +115,7 @@ export default function SpellSlotTracker({
           const remaining = slot.total - slot.used
           return (
             <div key={level} className="flex items-center gap-2 text-xs">
-              <span className="w-8 text-gray-500 text-right text-[10px]">Lv {level}</span>
+              <span className="w-8 text-gray-500 text-right text-xs">Lv {level}</span>
               <div className="flex gap-0.5">
                 {Array.from({ length: slot.total }).map((_, i) => {
                   // Phase 15h — accessibility. Each pip is a toggle that
@@ -142,7 +142,7 @@ export default function SpellSlotTracker({
                   )
                 })}
               </div>
-              <span className="text-[10px] text-gray-500">
+              <span className="text-xs text-gray-500">
                 {remaining}/{slot.total}
               </span>
             </div>

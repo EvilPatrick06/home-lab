@@ -112,7 +112,7 @@ export default function MagicItemTracker({ campaign }: MagicItemTrackerProps): J
           <span className="text-gray-600 mx-1.5">|</span>
           Tier: <span className="text-gray-200 font-medium">{tier}</span>
         </div>
-        <span className={`text-[10px] px-2 py-0.5 rounded-full ${statusLabel[status].color}`}>
+        <span className={`text-xs px-2 py-0.5 rounded-full ${statusLabel[status].color}`}>
           {statusLabel[status].text}
         </span>
       </div>
@@ -126,7 +126,7 @@ export default function MagicItemTracker({ campaign }: MagicItemTrackerProps): J
 
           return (
             <div key={rarity} className="flex items-center gap-2">
-              <span className={`text-[10px] w-16 shrink-0 px-1.5 py-0.5 rounded text-center ${RARITY_COLORS[rarity]}`}>
+              <span className={`text-xs w-16 shrink-0 px-1.5 py-0.5 rounded text-center ${RARITY_COLORS[rarity]}`}>
                 {RARITY_LABELS[rarity]}
               </span>
               <div className="flex-1 h-3 bg-gray-800 rounded-full overflow-hidden">
@@ -137,7 +137,7 @@ export default function MagicItemTracker({ campaign }: MagicItemTrackerProps): J
                   style={{ width: `${pct}%` }}
                 />
               </div>
-              <span className="text-[10px] text-gray-400 w-12 text-right shrink-0">
+              <span className="text-xs text-gray-400 w-12 text-right shrink-0">
                 {actual}/{expected}
               </span>
             </div>
@@ -153,7 +153,7 @@ export default function MagicItemTracker({ campaign }: MagicItemTrackerProps): J
       {/* Per-Character Breakdown */}
       {characterItems.length > 0 && (
         <div className="border-t border-gray-800 pt-2">
-          <div className="text-[10px] text-gray-500 uppercase tracking-wide mb-1">By Character</div>
+          <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">By Character</div>
           <div className="space-y-1.5">
             {characterItems.map((char) => (
               <div key={char.name}>

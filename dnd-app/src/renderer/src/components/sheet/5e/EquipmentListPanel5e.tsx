@@ -272,7 +272,7 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
                 >
                   <span className="text-gray-300 flex items-center gap-1">
                     {item.name}
-                    <span className="text-gray-600 text-[10px]">{expandedItem === i ? '\u25BE' : '\u25B8'}</span>
+                    <span className="text-gray-600 text-xs">{expandedItem === i ? '\u25BE' : '\u25B8'}</span>
                   </span>
                   <div className="flex items-center gap-2">
                     {item.quantity > 1 && <span className="text-gray-500">x{item.quantity}</span>}
@@ -285,7 +285,7 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
                   (readonly ? (
                     <button
                       onClick={() => setExpandedPack(expandedPack === i ? null : i)}
-                      className="ml-1 px-1.5 py-0.5 text-[10px] bg-gray-700 hover:bg-gray-600 rounded text-gray-300 cursor-pointer flex-shrink-0"
+                      className="ml-1 px-1.5 py-0.5 text-xs bg-gray-700 hover:bg-gray-600 rounded text-gray-300 cursor-pointer flex-shrink-0"
                       title="View pack contents"
                     >
                       {expandedPack === i ? 'Hide' : 'Contents'}
@@ -293,7 +293,7 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
                   ) : (
                     <button
                       onClick={() => handleOpenPack(i)}
-                      className="ml-1 px-1.5 py-0.5 text-[10px] bg-amber-600 hover:bg-amber-500 rounded text-white cursor-pointer flex-shrink-0"
+                      className="ml-1 px-1.5 py-0.5 text-xs bg-amber-600 hover:bg-amber-500 rounded text-white cursor-pointer flex-shrink-0"
                       title="Open pack into individual items"
                     >
                       Open

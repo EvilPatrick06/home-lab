@@ -103,7 +103,7 @@ export default function EntryCard({
               className="w-full flex items-center justify-between px-2 py-1.5 text-[11px] font-semibold text-gray-300 hover:text-amber-400 transition-colors cursor-pointer"
             >
               <span>Stat Block {editStatBlock ? '(configured)' : ''}</span>
-              <span className="text-gray-500 text-[10px]">{showStatBlock ? '\u25B2' : '\u25BC'}</span>
+              <span className="text-gray-500 text-xs">{showStatBlock ? '\u25B2' : '\u25BC'}</span>
             </button>
             {showStatBlock && (
               <div className="px-2 pb-2">
@@ -114,13 +114,13 @@ export default function EntryCard({
           <div className="flex gap-1">
             <button
               onClick={onSaveEdit}
-              className="px-2 py-0.5 text-[10px] bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer"
+              className="px-2 py-0.5 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer"
             >
               Save
             </button>
             <button
               onClick={onCancelEdit}
-              className="px-2 py-0.5 text-[10px] text-gray-400 hover:text-gray-200 cursor-pointer"
+              className="px-2 py-0.5 text-xs text-gray-400 hover:text-gray-200 cursor-pointer"
             >
               Cancel
             </button>
@@ -153,7 +153,7 @@ export default function EntryCard({
               {entry.description && (
                 <p className="text-[11px] text-gray-400 mt-0.5 line-clamp-2">{entry.description}</p>
               )}
-              {isDM && entry.notes && <p className="text-[10px] text-amber-400/70 mt-1 italic">{entry.notes}</p>}
+              {isDM && entry.notes && <p className="text-xs text-amber-400/70 mt-1 italic">{entry.notes}</p>}
             </div>
 
             {isDM && (
@@ -172,7 +172,7 @@ export default function EntryCard({
                     <button
                       onClick={() => setReadAloudMenuOpen(!readAloudMenuOpen)}
                       title="Read Aloud"
-                      className="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-amber-400 cursor-pointer text-[10px]"
+                      className="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-amber-400 cursor-pointer text-xs"
                     >
                       &#x1F4D6;
                     </button>
@@ -236,14 +236,14 @@ export default function EntryCard({
               {entry.statBlock && (
                 <button
                   onClick={() => setViewStatBlockId(!viewStatBlockId)}
-                  className="text-[10px] text-gray-500 hover:text-amber-400 cursor-pointer"
+                  className="text-xs text-gray-500 hover:text-amber-400 cursor-pointer"
                 >
                   {viewStatBlockId ? 'Hide Stat Block' : 'View Stat Block'}
                 </button>
               )}
               <button
                 onClick={onOpenCreatureSearch}
-                className="text-[10px] text-gray-500 hover:text-amber-400 cursor-pointer"
+                className="text-xs text-gray-500 hover:text-amber-400 cursor-pointer"
               >
                 Link from Creature DB
               </button>
@@ -255,7 +255,7 @@ export default function EntryCard({
           {/* Inline unified stat block view */}
           {viewStatBlockId && entry.statBlock && (
             <div className="mt-2">
-              <Suspense fallback={<div className="text-[10px] text-gray-500">Loading...</div>}>
+              <Suspense fallback={<div className="text-xs text-gray-500">Loading...</div>}>
                 <UnifiedStatBlock statBlock={sidebarToDisplay(entry.statBlock, entry.name)} />
               </Suspense>
             </div>

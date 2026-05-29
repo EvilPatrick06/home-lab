@@ -132,7 +132,7 @@ export default function ConditionsSection5e({ character, readonly }: ConditionsS
                 </div>
                 {def && <p className="text-xs text-gray-400 mt-1">{def.description}</p>}
                 {cond.name === 'Exhaustion' && cond.value != null && cond.value > 0 && (
-                  <div className="text-[10px] text-amber-400 mt-1 bg-amber-900/20 rounded px-2 py-1">
+                  <div className="text-xs text-amber-400 mt-1 bg-amber-900/20 rounded px-2 py-1">
                     d20 Tests: {cond.value * -2} | Speed: -{cond.value * 5} ft
                     {cond.value >= 6 && <span className="text-red-400 font-bold ml-2">DEATH</span>}
                   </div>

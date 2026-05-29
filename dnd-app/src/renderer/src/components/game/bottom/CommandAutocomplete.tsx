@@ -62,7 +62,7 @@ export default function CommandAutocomplete({
         >
           <span className="font-mono text-amber-400 font-semibold">/{cmd.name}</span>
           {cmd.aliases.length > 0 && (
-            <span className="text-gray-600 text-[10px]">({cmd.aliases.map((a) => `/${a}`).join(', ')})</span>
+            <span className="text-gray-600 text-xs">({cmd.aliases.map((a) => `/${a}`).join(', ')})</span>
           )}
           <span className="text-gray-500 flex-1 truncate">{cmd.description}</span>
           {cmd.dmOnly && <span className="text-[9px] bg-red-600/30 text-red-400 px-1 py-0.5 rounded shrink-0">DM</span>}

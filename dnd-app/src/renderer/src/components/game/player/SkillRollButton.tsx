@@ -234,7 +234,7 @@ export default function SkillRollButton({ character, onRoll }: SkillRollButtonPr
               <button
                 key={mode}
                 onClick={() => setAdvantage(mode)}
-                className={`flex-1 px-1 py-0.5 text-[10px] rounded transition-colors cursor-pointer
+                className={`flex-1 px-1 py-0.5 text-xs rounded transition-colors cursor-pointer
                   ${
                     advantage === mode
                       ? mode === 'advantage'
@@ -270,7 +270,7 @@ export default function SkillRollButton({ character, onRoll }: SkillRollButtonPr
                         className={`w-1.5 h-1.5 rounded-full ${isExpert ? 'bg-amber-400' : isProficient ? 'bg-green-400' : 'bg-gray-600'}`}
                       />
                       <span className="text-xs text-gray-200">{skill.name}</span>
-                      <span className="text-[10px] text-gray-500">({skill.ability})</span>
+                      <span className="text-xs text-gray-500">({skill.ability})</span>
                     </div>
                     <div className="flex items-center gap-1">
                       {toolAdvTool && (

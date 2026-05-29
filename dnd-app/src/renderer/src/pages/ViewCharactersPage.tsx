@@ -167,7 +167,7 @@ export default function ViewCharactersPage(): JSX.Element {
                          transition-colors cursor-pointer flex items-center gap-1"
             >
               Import
-              <span className="text-[10px]">{showImportMenu ? '\u25B2' : '\u25BC'}</span>
+              <span className="text-xs">{showImportMenu ? '\u25B2' : '\u25BC'}</span>
             </button>
             {showImportMenu && (
               <div className="absolute right-0 top-full mt-1 w-52 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-20 py-1">

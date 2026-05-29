@@ -76,7 +76,7 @@ export default function TimerModal({ onClose }: TimerModalProps): JSX.Element {
               min={1}
               className="w-full px-2 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-100 text-xs focus:outline-none focus:border-amber-500"
             />
-            <span className="text-[10px] text-gray-500">seconds</span>
+            <span className="text-xs text-gray-500">seconds</span>
           </div>
 
           <button

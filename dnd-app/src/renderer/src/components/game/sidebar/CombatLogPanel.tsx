@@ -177,7 +177,7 @@ function LogEntry({ entry }: { entry: CombatLogEntry }): JSX.Element {
               <span className="text-[11px] font-semibold text-gray-200">{entry.sourceEntityName}</span>
             )}
             {entry.sourceEntityName && entry.targetEntityName && (
-              <span className="text-[10px] text-gray-600">{'\u2192'}</span>
+              <span className="text-xs text-gray-600">{'\u2192'}</span>
             )}
             {entry.targetEntityName && (
               <span className="text-[11px] font-semibold text-gray-300">{entry.targetEntityName}</span>
@@ -186,7 +186,7 @@ function LogEntry({ entry }: { entry: CombatLogEntry }): JSX.Element {
           <p className={`text-[11px] ${color} leading-snug mt-0.5`}>{entry.description}</p>
           <div className="flex items-center gap-2 mt-0.5">
             {entry.value != null && entry.value !== 0 && (
-              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${valueColor}`}>
+              <span className={`text-xs font-bold px-1.5 py-0.5 rounded ${valueColor}`}>
                 {entry.type === 'heal' ? '+' : ''}
                 {entry.value}
                 {entry.damageType ? ` ${entry.damageType}` : ''}
@@ -210,7 +210,7 @@ function RoundDivider({ round }: { round: number }): JSX.Element {
   return (
     <div className="flex items-center gap-2 py-1.5">
       <div className="flex-1 h-px bg-gray-700/50" />
-      <span className="text-[10px] font-bold text-amber-500/80 uppercase tracking-wider shrink-0">Round {round}</span>
+      <span className="text-xs font-bold text-amber-500/80 uppercase tracking-wider shrink-0">Round {round}</span>
       <div className="flex-1 h-px bg-gray-700/50" />
     </div>
   )
@@ -230,11 +230,11 @@ function SummaryBar({
   const pct = maxValue > 0 ? Math.min((value / maxValue) * 100, 100) : 0
   return (
     <div className="flex items-center gap-2">
-      <span className="text-[10px] text-gray-500 w-16 shrink-0 text-right">{label}</span>
+      <span className="text-xs text-gray-500 w-16 shrink-0 text-right">{label}</span>
       <div className="flex-1 h-2.5 bg-gray-800 rounded-full overflow-hidden">
         <div className={`h-full rounded-full transition-all duration-300 ${color}`} style={{ width: `${pct}%` }} />
       </div>
-      <span className="text-[10px] text-gray-300 w-10 shrink-0">{value}</span>
+      <span className="text-xs text-gray-300 w-10 shrink-0">{value}</span>
     </div>
   )
 }
@@ -320,7 +320,7 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
         <div className="flex items-center gap-2">
           <h2 className="text-sm font-bold text-gray-100">Combat Log</h2>
           {round > 0 && (
-            <span className="text-[10px] font-semibold text-amber-500 bg-amber-900/30 px-1.5 py-0.5 rounded">
+            <span className="text-xs font-semibold text-amber-500 bg-amber-900/30 px-1.5 py-0.5 rounded">
               Round {round}
             </span>
           )}
@@ -373,7 +373,7 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
       <div className="shrink-0 flex gap-1 px-3 py-2 border-b border-gray-700">
         <button
           onClick={() => setActiveTab('log')}
-          className={`px-3 py-1 text-[10px] font-semibold rounded cursor-pointer transition-colors ${
+          className={`px-3 py-1 text-xs font-semibold rounded cursor-pointer transition-colors ${
             activeTab === 'log'
               ? 'bg-amber-600 text-white'
               : 'bg-gray-800 text-gray-400 hover:text-gray-200 hover:bg-gray-700'
@@ -383,7 +383,7 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
         </button>
         <button
           onClick={() => setActiveTab('summary')}
-          className={`px-3 py-1 text-[10px] font-semibold rounded cursor-pointer transition-colors ${
+          className={`px-3 py-1 text-xs font-semibold rounded cursor-pointer transition-colors ${
             activeTab === 'summary'
               ? 'bg-amber-600 text-white'
               : 'bg-gray-800 text-gray-400 hover:text-gray-200 hover:bg-gray-700'
@@ -399,7 +399,7 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
           {combatLog.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center">
               <p className="text-xs text-gray-500">No combat events recorded yet.</p>
-              <p className="text-[10px] text-gray-600 mt-1">Events will appear here during combat.</p>
+              <p className="text-xs text-gray-600 mt-1">Events will appear here during combat.</p>
             </div>
           ) : (
             <>
@@ -427,21 +427,21 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
             <div className="space-y-4">
               {/* Totals banner */}
               <div className="bg-gray-800/60 rounded-lg p-3 border border-gray-700/30">
-                <div className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold mb-2">
+                <div className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-2">
                   Combat Overview
                 </div>
                 <div className="grid grid-cols-3 gap-3">
                   <div className="text-center">
                     <div className="text-lg font-bold text-gray-100">{highestRound}</div>
-                    <div className="text-[10px] text-gray-500">Rounds</div>
+                    <div className="text-xs text-gray-500">Rounds</div>
                   </div>
                   <div className="text-center">
                     <div className="text-lg font-bold text-red-400">{totalDamage}</div>
-                    <div className="text-[10px] text-gray-500">Total Dmg</div>
+                    <div className="text-xs text-gray-500">Total Dmg</div>
                   </div>
                   <div className="text-center">
                     <div className="text-lg font-bold text-green-400">{totalHealed}</div>
-                    <div className="text-[10px] text-gray-500">Total Healed</div>
+                    <div className="text-xs text-gray-500">Total Healed</div>
                   </div>
                 </div>
               </div>
@@ -453,7 +453,7 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-xs font-semibold text-gray-200">{summary.entityName}</span>
                       {summary.kills > 0 && (
-                        <span className="text-[10px] font-bold text-red-400 bg-red-900/30 px-1.5 py-0.5 rounded">
+                        <span className="text-xs font-bold text-red-400 bg-red-900/30 px-1.5 py-0.5 rounded">
                           {summary.kills} kill{summary.kills !== 1 ? 's' : ''}
                         </span>
                       )}
@@ -481,7 +481,7 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
 
               {/* Event type breakdown */}
               <div className="bg-gray-800/40 rounded-lg p-2.5 border border-gray-700/30">
-                <div className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold mb-2">
+                <div className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-2">
                   Event Breakdown
                 </div>
                 <div className="grid grid-cols-2 gap-x-3 gap-y-1">

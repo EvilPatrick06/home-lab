@@ -150,12 +150,12 @@ export default function MountModal({
             <div className="p-3 bg-gray-800 rounded-lg border border-green-700/50">
               <div className="text-xs text-gray-400 mb-1">Currently mounted on:</div>
               <div className="text-sm font-semibold text-green-400">{mountToken.label}</div>
-              <div className="text-[10px] text-gray-500 mt-1">
+              <div className="text-xs text-gray-500 mt-1">
                 Type:{' '}
                 <span className="text-amber-400">{ts.mountType === 'controlled' ? 'Controlled' : 'Independent'}</span>
               </div>
               {ts.mountType === 'controlled' && (
-                <div className="text-[10px] text-gray-500 mt-0.5">Mount can only: Dash, Disengage, Dodge</div>
+                <div className="text-xs text-gray-500 mt-0.5">Mount can only: Dash, Disengage, Dodge</div>
               )}
             </div>
 
@@ -167,7 +167,7 @@ export default function MountModal({
               Dismount ({mountSpeed} ft of movement)
             </button>
             {(ts?.movementRemaining ?? 0) < mountSpeed && (
-              <div className="text-[10px] text-red-400 text-center">Not enough movement remaining</div>
+              <div className="text-xs text-red-400 text-center">Not enough movement remaining</div>
             )}
           </div>
         ) : (
@@ -188,13 +188,13 @@ export default function MountModal({
                       <div className="flex items-center justify-between mb-2">
                         <div>
                           <span className="text-sm text-gray-200">{token.label}</span>
-                          <span className="text-[10px] text-gray-500 ml-2">({sizeNames[sizeIdx]})</span>
+                          <span className="text-xs text-gray-500 ml-2">({sizeNames[sizeIdx]})</span>
                         </div>
                       </div>
                       <div className="flex gap-2 mb-2">
                         <button
                           onClick={() => setSelectedMountType((s) => ({ ...s, [token.id]: 'controlled' }))}
-                          className={`flex-1 px-2 py-1 text-[10px] rounded cursor-pointer ${
+                          className={`flex-1 px-2 py-1 text-xs rounded cursor-pointer ${
                             mt === 'controlled'
                               ? 'bg-amber-600 text-white'
                               : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
@@ -204,7 +204,7 @@ export default function MountModal({
                         </button>
                         <button
                           onClick={() => setSelectedMountType((s) => ({ ...s, [token.id]: 'independent' }))}
-                          className={`flex-1 px-2 py-1 text-[10px] rounded cursor-pointer ${
+                          className={`flex-1 px-2 py-1 text-xs rounded cursor-pointer ${
                             mt === 'independent'
                               ? 'bg-blue-600 text-white'
                               : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
@@ -226,7 +226,7 @@ export default function MountModal({
               </div>
             )}
             {(ts?.movementRemaining ?? 0) < mountSpeed && mountCandidates.length > 0 && (
-              <div className="text-[10px] text-red-400 text-center">
+              <div className="text-xs text-red-400 text-center">
                 Not enough movement remaining ({mountSpeed} ft needed)
               </div>
             )}
@@ -235,11 +235,11 @@ export default function MountModal({
 
         {/* Rules summary */}
         <div className="mt-4 border-t border-gray-700 pt-3 space-y-1">
-          <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Mounted Combat Rules</div>
-          <div className="text-[10px] text-gray-500">Mounting/dismounting costs half your speed</div>
-          <div className="text-[10px] text-gray-500">Controlled mount: Can only Dash, Disengage, or Dodge</div>
-          <div className="text-[10px] text-gray-500">Independent mount: Acts on its own initiative turn</div>
-          <div className="text-[10px] text-gray-500">Mount must be at least 1 size larger than rider</div>
+          <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Mounted Combat Rules</div>
+          <div className="text-xs text-gray-500">Mounting/dismounting costs half your speed</div>
+          <div className="text-xs text-gray-500">Controlled mount: Can only Dash, Disengage, or Dodge</div>
+          <div className="text-xs text-gray-500">Independent mount: Acts on its own initiative turn</div>
+          <div className="text-xs text-gray-500">Mount must be at least 1 size larger than rider</div>
         </div>
       </div>
     </div>

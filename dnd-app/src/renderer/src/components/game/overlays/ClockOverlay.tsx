@@ -109,7 +109,7 @@ export default function ClockOverlay({
         >
           <span>{icon}</span>
           <span className="text-gray-200 font-medium">{formatInGameTimeOfDay(inGameTime.totalSeconds, calendar)}</span>
-          <span className="text-gray-500 text-[10px]">{formatInGameDate(inGameTime.totalSeconds, calendar)}</span>
+          <span className="text-gray-500 text-xs">{formatInGameDate(inGameTime.totalSeconds, calendar)}</span>
         </button>
       ) : (
         /* Expanded DM view */
@@ -120,7 +120,7 @@ export default function ClockOverlay({
               <div className="text-xs font-semibold text-amber-300">
                 {icon} {formattedTime}
               </div>
-              <div className="text-[10px] text-gray-500 capitalize">{phase}</div>
+              <div className="text-xs text-gray-500 capitalize">{phase}</div>
             </div>
             <button
               onClick={() => setExpanded(false)}
@@ -132,29 +132,29 @@ export default function ClockOverlay({
 
           {/* Quick advance buttons */}
           <div className="px-3 py-2 border-b border-gray-800">
-            <div className="text-[10px] text-gray-500 mb-1.5">Quick Advance</div>
+            <div className="text-xs text-gray-500 mb-1.5">Quick Advance</div>
             <div className="flex flex-wrap gap-1">
               <button
                 onClick={() => handleQuickAdvance(6)}
-                className="px-2 py-1 text-[10px] bg-gray-800 hover:bg-gray-700 rounded text-gray-300 cursor-pointer"
+                className="px-2 py-1 text-xs bg-gray-800 hover:bg-gray-700 rounded text-gray-300 cursor-pointer"
               >
                 +6s
               </button>
               <button
                 onClick={() => handleQuickAdvance(60)}
-                className="px-2 py-1 text-[10px] bg-gray-800 hover:bg-gray-700 rounded text-gray-300 cursor-pointer"
+                className="px-2 py-1 text-xs bg-gray-800 hover:bg-gray-700 rounded text-gray-300 cursor-pointer"
               >
                 +1 min
               </button>
               <button
                 onClick={() => handleQuickAdvance(600)}
-                className="px-2 py-1 text-[10px] bg-gray-800 hover:bg-gray-700 rounded text-gray-300 cursor-pointer"
+                className="px-2 py-1 text-xs bg-gray-800 hover:bg-gray-700 rounded text-gray-300 cursor-pointer"
               >
                 +10 min
               </button>
               <button
                 onClick={() => handleQuickAdvance(3600)}
-                className="px-2 py-1 text-[10px] bg-gray-800 hover:bg-gray-700 rounded text-gray-300 cursor-pointer"
+                className="px-2 py-1 text-xs bg-gray-800 hover:bg-gray-700 rounded text-gray-300 cursor-pointer"
               >
                 +1 hr
               </button>
@@ -163,17 +163,17 @@ export default function ClockOverlay({
 
           {/* Rest buttons */}
           <div className="px-3 py-2 border-b border-gray-800">
-            <div className="text-[10px] text-gray-500 mb-1.5">Rest</div>
+            <div className="text-xs text-gray-500 mb-1.5">Rest</div>
             <div className="flex gap-1">
               <button
                 onClick={onShortRest}
-                className="flex-1 px-2 py-1 text-[10px] bg-blue-900/30 hover:bg-blue-800/40 rounded text-blue-300 cursor-pointer"
+                className="flex-1 px-2 py-1 text-xs bg-blue-900/30 hover:bg-blue-800/40 rounded text-blue-300 cursor-pointer"
               >
                 Short Rest (1 hr)
               </button>
               <button
                 onClick={onLongRest}
-                className="flex-1 px-2 py-1 text-[10px] bg-purple-900/30 hover:bg-purple-800/40 rounded text-purple-300 cursor-pointer"
+                className="flex-1 px-2 py-1 text-xs bg-purple-900/30 hover:bg-purple-800/40 rounded text-purple-300 cursor-pointer"
               >
                 Long Rest (8 hr)
               </button>
@@ -183,10 +183,10 @@ export default function ClockOverlay({
           {/* Active light sources */}
           {lightSourcesWithTime.length > 0 && (
             <div className="px-3 py-2 border-b border-gray-800">
-              <div className="text-[10px] text-gray-500 mb-1.5">Light Sources</div>
+              <div className="text-xs text-gray-500 mb-1.5">Light Sources</div>
               <div className="space-y-1">
                 {lightSourcesWithTime.map((ls) => (
-                  <div key={ls.id} className="flex items-center justify-between text-[10px]">
+                  <div key={ls.id} className="flex items-center justify-between text-xs">
                     <span className="text-amber-400">
                       {LIGHT_SOURCE_LABELS[ls.sourceName] ?? ls.sourceName} ({ls.entityName})
                     </span>
@@ -203,7 +203,7 @@ export default function ClockOverlay({
           <div className="px-3 py-2 border-b border-gray-800">
             <button
               onClick={onLightSource}
-              className="w-full px-2 py-1.5 text-[10px] bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/30 rounded text-yellow-300 cursor-pointer"
+              className="w-full px-2 py-1.5 text-xs bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/30 rounded text-yellow-300 cursor-pointer"
             >
               Light a Source...
             </button>
@@ -213,7 +213,7 @@ export default function ClockOverlay({
           <div className="px-3 py-2">
             <button
               onClick={onEditTime}
-              className="w-full px-2 py-1.5 text-[10px] bg-amber-600/20 hover:bg-amber-600/30 border border-amber-500/30 rounded text-amber-300 cursor-pointer"
+              className="w-full px-2 py-1.5 text-xs bg-amber-600/20 hover:bg-amber-600/30 border border-amber-500/30 rounded text-amber-300 cursor-pointer"
             >
               Advance Days / Edit Time...
             </button>

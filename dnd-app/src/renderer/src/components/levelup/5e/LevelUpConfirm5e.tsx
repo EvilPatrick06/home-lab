@@ -221,7 +221,7 @@ export function InvocationSection5e({
     <div className={`bg-gray-900/50 border rounded-lg p-4 ${isIncomplete ? 'border-amber-600/50' : 'border-gray-800'}`}>
       <h3 className="text-lg font-bold text-purple-400 mb-1 flex items-center gap-2">
         Eldritch Invocations
-        {isIncomplete && <span className="text-[10px] text-amber-500 font-semibold uppercase">Required</span>}
+        {isIncomplete && <span className="text-xs text-amber-500 font-semibold uppercase">Required</span>}
       </h3>
       <p className={`text-xs mb-3 ${isIncomplete ? 'text-amber-400' : 'text-gray-500'}`}>
         Warlock Level {warlockLevel}: {invocationSelections.length}/{maxInvocations} invocations known
@@ -361,7 +361,7 @@ export function MetamagicSection5e({
     <div className={`bg-gray-900/50 border rounded-lg p-4 ${isIncomplete ? 'border-amber-600/50' : 'border-gray-800'}`}>
       <h3 className="text-lg font-bold text-red-400 mb-1 flex items-center gap-2">
         Metamagic Options
-        {isIncomplete && <span className="text-[10px] text-amber-500 font-semibold uppercase">Required</span>}
+        {isIncomplete && <span className="text-xs text-amber-500 font-semibold uppercase">Required</span>}
       </h3>
       <p className={`text-xs mb-3 ${isIncomplete ? 'text-amber-400' : 'text-gray-500'}`}>
         Sorcerer Level {sorcererLevel}: {metamagicSelections.length}/{maxOptions} options known

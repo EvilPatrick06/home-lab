@@ -72,7 +72,7 @@ export function ExpertiseSelector5e({
         <span className={isIncomplete ? 'text-amber-400' : 'text-green-400'}>
           ({selection.length}/{grant.count})
         </span>
-        {isIncomplete && <span className="text-[10px] text-amber-500 font-semibold uppercase">Required</span>}
+        {isIncomplete && <span className="text-xs text-amber-500 font-semibold uppercase">Required</span>}
       </div>
       <div className="flex flex-wrap gap-1">
         {allOptions.map((skill) => {

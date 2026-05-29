@@ -48,7 +48,7 @@ export default function MoonOverridePanel(): JSX.Element {
               setMoonMode('auto')
               setMoonOverride(null)
             }}
-            className={`px-2 py-0.5 text-[10px] rounded cursor-pointer ${
+            className={`px-2 py-0.5 text-xs rounded cursor-pointer ${
               moonMode === 'auto'
                 ? 'bg-amber-600/30 text-amber-300 border border-amber-500/40'
                 : 'bg-gray-800 text-gray-400 border border-gray-700 hover:bg-gray-700'
@@ -58,7 +58,7 @@ export default function MoonOverridePanel(): JSX.Element {
           </button>
           <button
             onClick={() => setMoonMode('manual')}
-            className={`px-2 py-0.5 text-[10px] rounded cursor-pointer ${
+            className={`px-2 py-0.5 text-xs rounded cursor-pointer ${
               moonMode === 'manual'
                 ? 'bg-amber-600/30 text-amber-300 border border-amber-500/40'
                 : 'bg-gray-800 text-gray-400 border border-gray-700 hover:bg-gray-700'

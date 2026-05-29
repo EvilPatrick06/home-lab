@@ -89,7 +89,7 @@ export default function InitiativeEntry({
           onClick={() => {
             if (!entry.isLairAction && onCenterToken) onCenterToken(entry.entityId)
           }}
-          className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-[10px] font-bold text-white
+          className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold text-white
           ${
             entry.isLairAction
               ? 'bg-purple-600'
@@ -122,7 +122,7 @@ export default function InitiativeEntry({
               })
             }
           }}
-          className={`text-[10px] px-1.5 py-0.5 rounded cursor-pointer transition-colors ${
+          className={`text-xs px-1.5 py-0.5 rounded cursor-pointer transition-colors ${
             entry.legendaryResistances.remaining > 0
               ? 'bg-orange-700/50 text-orange-300 hover:bg-orange-600/50'
               : 'bg-gray-800 text-gray-600'
@@ -137,7 +137,7 @@ export default function InitiativeEntry({
       {!entry.isLairAction && entry.entityType === 'enemy' && isHost && (
         <button
           onClick={() => onUpdateEntry(entry.id, { inLair: !entry.inLair })}
-          className={`text-[10px] px-1 py-0.5 rounded cursor-pointer transition-colors ${
+          className={`text-xs px-1 py-0.5 rounded cursor-pointer transition-colors ${
             entry.inLair ? 'bg-purple-700/50 text-purple-300' : 'bg-gray-800/50 text-gray-600 hover:text-gray-400'
           }`}
           title={entry.inLair ? 'In Lair (click to toggle off)' : 'Not in lair (click to toggle on)'}
@@ -150,7 +150,7 @@ export default function InitiativeEntry({
       {isHost && !entry.isLairAction && entry.isActive && (
         <button
           onClick={() => onDelayEntry(entry)}
-          className="text-[10px] px-1 py-0.5 rounded bg-gray-700 text-gray-400 hover:text-yellow-300 hover:bg-gray-600 cursor-pointer"
+          className="text-xs px-1 py-0.5 rounded bg-gray-700 text-gray-400 hover:text-yellow-300 hover:bg-gray-600 cursor-pointer"
           title="Delay turn (hold and re-enter later)"
         >
           Delay

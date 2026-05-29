@@ -102,7 +102,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                     }`}
                   >
                     <div className="font-semibold">{PRESET_LABELS[id]}</div>
-                    <div className="text-[10px] text-gray-500 mt-0.5">
+                    <div className="text-xs text-gray-500 mt-0.5">
                       {id === 'gregorian' && '12 months, 365 days'}
                       {id === 'harptos' && 'Forgotten Realms, 12+5 festival days'}
                       {id === 'simple-day-counter' && 'No months, just "Day N"'}
@@ -143,7 +143,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                         }}
                         className="w-16 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
                       />
-                      <span className="text-[10px] text-gray-500">days</span>
+                      <span className="text-xs text-gray-500">days</span>
                       {customMonths.length > 1 && (
                         <button
                           onClick={() => {
@@ -170,7 +170,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                   + Add Month
                 </button>
                 <div className="mt-2">
-                  <label className="text-[10px] text-gray-500 block mb-1">Year Label</label>
+                  <label className="text-xs text-gray-500 block mb-1">Year Label</label>
                   <input
                     value={customYearLabel}
                     onChange={(e) => {
@@ -190,7 +190,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
               <div className="flex gap-3 items-end flex-wrap">
                 {preset !== 'simple-day-counter' && (
                   <div>
-                    <label className="text-[10px] text-gray-500 block mb-1">Year</label>
+                    <label className="text-xs text-gray-500 block mb-1">Year</label>
                     <input
                       type="number"
                       value={startingYear}
@@ -205,7 +205,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                 )}
                 {months.length > 0 && (
                   <div>
-                    <label className="text-[10px] text-gray-500 block mb-1">Month</label>
+                    <label className="text-xs text-gray-500 block mb-1">Month</label>
                     <select
                       value={startMonth}
                       onChange={(e) => {
@@ -223,7 +223,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                   </div>
                 )}
                 <div>
-                  <label className="text-[10px] text-gray-500 block mb-1">
+                  <label className="text-xs text-gray-500 block mb-1">
                     {preset === 'simple-day-counter' ? 'Starting Day' : 'Day'}
                   </label>
                   <input
@@ -236,7 +236,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] text-gray-500 block mb-1">Hour</label>
+                  <label className="text-xs text-gray-500 block mb-1">Hour</label>
                   <select
                     value={startHour}
                     onChange={(e) => setStartHour(parseInt(e.target.value, 10))}
@@ -272,7 +272,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                 <option value="contextual">Contextual (AI decides)</option>
                 <option value="never">Never show exact time (narrative only)</option>
               </select>
-              <p className="text-[10px] text-gray-500 mt-1">
+              <p className="text-xs text-gray-500 mt-1">
                 Controls when the AI DM includes numeric time in responses.
               </p>
             </div>
@@ -280,7 +280,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
             {/* Preview */}
             {previewTime && (
               <div className="bg-gray-800/50 rounded-lg px-4 py-3 border border-gray-700/30">
-                <div className="text-[10px] text-gray-500 mb-1">Preview</div>
+                <div className="text-xs text-gray-500 mb-1">Preview</div>
                 <div className="text-sm text-amber-300 font-medium">{previewTime}</div>
               </div>
             )}

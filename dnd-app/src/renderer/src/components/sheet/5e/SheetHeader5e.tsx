@@ -282,9 +282,9 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
           {/* Transfer dropdown */}
           {showInspirationTransfer && (
             <div className="absolute top-full left-0 mt-1 z-50 bg-gray-900 border border-amber-500/50 rounded-lg p-2 shadow-xl w-56">
-              <p className="text-[10px] text-amber-400 font-semibold mb-1.5">Give Inspiration To:</p>
+              <p className="text-xs text-amber-400 font-semibold mb-1.5">Give Inspiration To:</p>
               {transferTargets.length === 0 ? (
-                <p className="text-[10px] text-gray-500">No eligible characters</p>
+                <p className="text-xs text-gray-500">No eligible characters</p>
               ) : (
                 transferTargets.map((t) => (
                   <button

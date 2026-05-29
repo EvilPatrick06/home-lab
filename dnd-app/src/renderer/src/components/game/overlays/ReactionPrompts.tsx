@@ -55,7 +55,7 @@ export function ShieldReactionPrompt({
       <div className="relative bg-gray-900 border border-cyan-500 rounded-xl p-5 w-96 shadow-2xl">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-sm font-semibold text-cyan-400">Shield Reaction</h3>
-          <span className="text-[10px] text-gray-500">{remaining}s</span>
+          <span className="text-xs text-gray-500">{remaining}s</span>
         </div>
         <p className="text-xs text-gray-300 mb-4">
           <span className="text-red-300 font-semibold">{prompt.attackerName}</span> rolled{' '}
@@ -151,7 +151,7 @@ export function CounterspellReactionPrompt({
       <div className="relative bg-gray-900 border border-violet-500 rounded-xl p-5 w-96 shadow-2xl">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-sm font-semibold text-violet-400">Counterspell</h3>
-          <span className="text-[10px] text-gray-500">{remaining}s</span>
+          <span className="text-xs text-gray-500">{remaining}s</span>
         </div>
         <p className="text-xs text-gray-300 mb-3">
           <span className="text-red-300 font-semibold">{prompt.casterName}</span> is casting{' '}
@@ -161,7 +161,7 @@ export function CounterspellReactionPrompt({
 
         {slotOptions.length > 1 && (
           <div className="flex items-center gap-2 mb-3">
-            <span className="text-[10px] text-gray-500 uppercase tracking-wider">Slot Level</span>
+            <span className="text-xs text-gray-500 uppercase tracking-wider">Slot Level</span>
             <div className="flex gap-1">
               {slotOptions.map((lvl) => (
                 <button
@@ -178,7 +178,7 @@ export function CounterspellReactionPrompt({
           </div>
         )}
 
-        <p className="text-[10px] text-gray-500 mb-3">
+        <p className="text-xs text-gray-500 mb-3">
           {autoSuccess
             ? 'Auto-success: slot level >= spell level.'
             : `Requires DC ${10 + prompt.spellLevel} ability check to counter.`}

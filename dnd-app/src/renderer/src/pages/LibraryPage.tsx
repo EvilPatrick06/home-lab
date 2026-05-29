@@ -651,7 +651,7 @@ export default function LibraryPage(): JSX.Element {
                         <h2 className="text-lg font-bold text-gray-200">Recently Viewed</h2>
                         <button
                           onClick={clearRecentlyViewed}
-                          className="text-[10px] uppercase tracking-wider text-gray-500 hover:text-red-400 transition-colors cursor-pointer"
+                          className="text-xs uppercase tracking-wider text-gray-500 hover:text-red-400 transition-colors cursor-pointer"
                           title="Clear Recently Viewed list"
                         >
                           Clear
@@ -672,7 +672,7 @@ export default function LibraryPage(): JSX.Element {
                               <span className="text-xs font-medium text-gray-200 group-hover:text-amber-400 transition-colors truncate w-full">
                                 {item.name}
                               </span>
-                              <span className="text-[10px] text-gray-500">{def?.label ?? item.category}</span>
+                              <span className="text-xs text-gray-500">{def?.label ?? item.category}</span>
                             </button>
                           )
                         })}

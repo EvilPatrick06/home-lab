@@ -64,9 +64,9 @@ function MagicItemCard5e({
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium truncate italic">Unidentified {item.type || 'Magic'} Item</span>
-              <span className="text-[10px] text-gray-600 shrink-0">???</span>
+              <span className="text-xs text-gray-600 shrink-0">???</span>
             </div>
-            <div className="text-[10px] text-gray-600 mt-0.5">This item has not been identified.</div>
+            <div className="text-xs text-gray-600 mt-0.5">This item has not been identified.</div>
           </div>
         </div>
       </div>
@@ -84,8 +84,8 @@ function MagicItemCard5e({
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium truncate">{displayName}</span>
-            <span className="text-[10px] text-gray-500 shrink-0">{displayRarity}</span>
-            {isUnidentified && <span className="text-[10px] text-yellow-500 shrink-0 italic">Unidentified</span>}
+            <span className="text-xs text-gray-500 shrink-0">{displayRarity}</span>
+            {isUnidentified && <span className="text-xs text-yellow-500 shrink-0 italic">Unidentified</span>}
             {item.attunement && (
               <button
                 disabled={readonly}
@@ -111,7 +111,7 @@ function MagicItemCard5e({
                   } as Character5e
                   saveAndBroadcast(updated)
                 }}
-                className={`text-[10px] shrink-0 ${item.attuned ? 'text-purple-400' : 'text-gray-500'} ${!readonly ? 'cursor-pointer hover:text-purple-300' : ''}`}
+                className={`text-xs shrink-0 ${item.attuned ? 'text-purple-400' : 'text-gray-500'} ${!readonly ? 'cursor-pointer hover:text-purple-300' : ''}`}
                 title={!readonly ? 'Click to toggle attunement' : undefined}
               >
                 {item.attuned ? '(Attuned)' : '(Requires Attunement)'}
@@ -119,12 +119,12 @@ function MagicItemCard5e({
             )}
             {hasEffects && <span className="text-[9px] text-cyan-500 shrink-0">FX</span>}
           </div>
-          {item.description && <div className="text-[10px] text-gray-500 truncate mt-0.5">{item.description}</div>}
+          {item.description && <div className="text-xs text-gray-500 truncate mt-0.5">{item.description}</div>}
         </div>
         {/* Charges */}
         {item.charges && (
           <div className="flex items-center gap-1 mr-2 shrink-0">
-            <span className="text-[10px] text-gray-500">Charges:</span>
+            <span className="text-xs text-gray-500">Charges:</span>
             <button
               disabled={readonly || item.charges.current <= 0}
               onClick={() => {
@@ -144,7 +144,7 @@ function MagicItemCard5e({
                 } as Character5e
                 saveAndBroadcast(updated)
               }}
-              className="w-4 h-4 text-[10px] bg-gray-700 rounded text-gray-300 hover:bg-gray-600 disabled:opacity-40 cursor-pointer"
+              className="w-4 h-4 text-xs bg-gray-700 rounded text-gray-300 hover:bg-gray-600 disabled:opacity-40 cursor-pointer"
             >
               -
             </button>
@@ -173,7 +173,7 @@ function MagicItemCard5e({
                 } as Character5e
                 saveAndBroadcast(updated)
               }}
-              className="w-4 h-4 text-[10px] bg-gray-700 rounded text-gray-300 hover:bg-gray-600 disabled:opacity-40 cursor-pointer"
+              className="w-4 h-4 text-xs bg-gray-700 rounded text-gray-300 hover:bg-gray-600 disabled:opacity-40 cursor-pointer"
             >
               +
             </button>
@@ -211,7 +211,7 @@ function MagicItemCard5e({
               } as Character5e
               saveAndBroadcast(updated)
             }}
-            className="text-[10px] text-green-400 hover:text-green-300 cursor-pointer ml-2 shrink-0 border border-green-600 rounded px-1.5 py-0.5"
+            className="text-xs text-green-400 hover:text-green-300 cursor-pointer ml-2 shrink-0 border border-green-600 rounded px-1.5 py-0.5"
             title="Identify this magic item"
           >
             Identify
@@ -236,7 +236,7 @@ function MagicItemCard5e({
                 } as Character5e
                 saveAndBroadcast(updated)
               }}
-              className="bg-gray-800 border border-gray-700 rounded px-1.5 py-0.5 text-[10px] text-gray-300 focus:outline-none focus:border-purple-500"
+              className="bg-gray-800 border border-gray-700 rounded px-1.5 py-0.5 text-xs text-gray-300 focus:outline-none focus:border-purple-500"
             >
               <option value="">Link to weapon...</option>
               {weapons.map((w) => (
@@ -261,7 +261,7 @@ function MagicItemCard5e({
                 } as Character5e
                 saveAndBroadcast(updated)
               }}
-              className="bg-gray-800 border border-gray-700 rounded px-1.5 py-0.5 text-[10px] text-gray-300 focus:outline-none focus:border-purple-500"
+              className="bg-gray-800 border border-gray-700 rounded px-1.5 py-0.5 text-xs text-gray-300 focus:outline-none focus:border-purple-500"
             >
               <option value="">Link to armor...</option>
               {armors.map((a) => (

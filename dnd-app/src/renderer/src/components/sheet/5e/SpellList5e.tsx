@@ -94,31 +94,31 @@ function SpellRow({
           <div className="flex items-center gap-2">
             <span className="text-gray-200">{spell.name}</span>
             {isSpecies && (
-              <span className="text-[10px] text-purple-400 border border-purple-700 rounded px-1">Species</span>
+              <span className="text-xs text-purple-400 border border-purple-700 rounded px-1">Species</span>
             )}
-            {isItem && <span className="text-[10px] text-teal-400 border border-teal-700 rounded px-1">Item</span>}
+            {isItem && <span className="text-xs text-teal-400 border border-teal-700 rounded px-1">Item</span>}
             {spell.concentration && (
-              <span className="text-[10px] text-yellow-500 border border-yellow-700 rounded px-1">C</span>
+              <span className="text-xs text-yellow-500 border border-yellow-700 rounded px-1">C</span>
             )}
-            {spell.ritual && <span className="text-[10px] text-blue-400 border border-blue-700 rounded px-1">R</span>}
+            {spell.ritual && <span className="text-xs text-blue-400 border border-blue-700 rounded px-1">R</span>}
             {(() => {
               const c = parseComponents(spell.components)
               const costWarning = c.desc && /\d+\s*gp/i.test(c.desc)
               return (
                 <>
                   {c.V && (
-                    <span className="text-[10px] text-sky-400 border border-sky-700 rounded px-1" title="Verbal">
+                    <span className="text-xs text-sky-400 border border-sky-700 rounded px-1" title="Verbal">
                       V
                     </span>
                   )}
                   {c.S && (
-                    <span className="text-[10px] text-orange-400 border border-orange-700 rounded px-1" title="Somatic">
+                    <span className="text-xs text-orange-400 border border-orange-700 rounded px-1" title="Somatic">
                       S
                     </span>
                   )}
                   {c.M && (
                     <span
-                      className={`text-[10px] ${costWarning ? 'text-red-400 border-red-700' : 'text-emerald-400 border-emerald-700'} border rounded px-1`}
+                      className={`text-xs ${costWarning ? 'text-red-400 border-red-700' : 'text-emerald-400 border-emerald-700'} border rounded px-1`}
                       title={c.desc ? `Material: ${c.desc}` : 'Material component required'}
                     >
                       M
@@ -172,7 +172,7 @@ function SpellRow({
               {spell.ritual && onCastRitual && (
                 <button
                   onClick={() => onCastRitual(spell)}
-                  className="px-2 py-0.5 rounded bg-blue-700/50 text-blue-300 hover:bg-blue-600/50 cursor-pointer text-[10px] transition-colors"
+                  className="px-2 py-0.5 rounded bg-blue-700/50 text-blue-300 hover:bg-blue-600/50 cursor-pointer text-xs transition-colors"
                   title="Cast as ritual (no spell slot, +10 min casting time)"
                 >
                   Cast as Ritual
@@ -181,7 +181,7 @@ function SpellRow({
               {spell.concentration && isConcentrating && onConcentrationWarning && (
                 <button
                   onClick={() => onConcentrationWarning(spell)}
-                  className="px-2 py-0.5 rounded bg-yellow-700/50 text-yellow-300 hover:bg-yellow-600/50 cursor-pointer text-[10px] transition-colors"
+                  className="px-2 py-0.5 rounded bg-yellow-700/50 text-yellow-300 hover:bg-yellow-600/50 cursor-pointer text-xs transition-colors"
                   title="You are already concentrating — casting this will end your current concentration"
                 >
                   Cast (Drop Concentration)
@@ -191,14 +191,14 @@ function SpellRow({
                 <>
                   <button
                     onClick={() => setShowSlotPicker(!showSlotPicker)}
-                    className="px-2 py-0.5 rounded bg-amber-700/50 text-amber-300 hover:bg-amber-600/50 cursor-pointer text-[10px] transition-colors"
+                    className="px-2 py-0.5 rounded bg-amber-700/50 text-amber-300 hover:bg-amber-600/50 cursor-pointer text-xs transition-colors"
                     title="Cast using a spell slot"
                   >
                     {showSlotPicker ? 'Cancel' : 'Cast'}
                   </button>
                   {showSlotPicker && (
                     <div className="flex items-center gap-1">
-                      <span className="text-[10px] text-gray-500">Slot:</span>
+                      <span className="text-xs text-gray-500">Slot:</span>
                       {Array.from({ length: 10 - spell.level }, (_, i) => spell.level + i)
                         .filter((lvl) => spellSlotLevels[lvl] && spellSlotLevels[lvl].current > 0)
                         .map((lvl) => (
@@ -208,7 +208,7 @@ function SpellRow({
                               onCastSpell(spell, lvl)
                               setShowSlotPicker(false)
                             }}
-                            className={`w-6 h-6 rounded text-[10px] font-bold transition-colors cursor-pointer ${
+                            className={`w-6 h-6 rounded text-xs font-bold transition-colors cursor-pointer ${
                               lvl === spell.level
                                 ? 'bg-amber-600 text-white hover:bg-amber-500'
                                 : 'bg-indigo-700/60 text-indigo-200 hover:bg-indigo-600/60'
@@ -220,7 +220,7 @@ function SpellRow({
                         ))}
                       {Array.from({ length: 10 - spell.level }, (_, i) => spell.level + i).filter(
                         (lvl) => spellSlotLevels[lvl] && spellSlotLevels[lvl].current > 0
-                      ).length === 0 && <span className="text-[10px] text-red-400">No slots available</span>}
+                      ).length === 0 && <span className="text-xs text-red-400">No slots available</span>}
                     </div>
                   )}
                 </>

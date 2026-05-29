@@ -52,7 +52,7 @@ export default function CantripPicker5e({
               }`}
             >
               <span
-                className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-[10px] shrink-0 ${
+                className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-xs shrink-0 ${
                   selected ? 'bg-blue-600 border-blue-500 text-white' : 'border-gray-600'
                 }`}
               >

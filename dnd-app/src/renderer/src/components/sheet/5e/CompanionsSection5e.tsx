@@ -107,13 +107,13 @@ export default function CompanionsSection5e({ character, readonly }: CompanionsS
                     className="flex items-center gap-2 cursor-pointer flex-1 min-w-0"
                   >
                     <span className="text-sm font-medium truncate">{comp.name}</span>
-                    <span className="text-[10px] opacity-70 shrink-0">{TYPE_LABELS[comp.type]}</span>
+                    <span className="text-xs opacity-70 shrink-0">{TYPE_LABELS[comp.type]}</span>
                     {comp.dismissed && (
-                      <span className="text-[10px] bg-gray-700 text-gray-400 px-1.5 py-0.5 rounded-full shrink-0">
+                      <span className="text-xs bg-gray-700 text-gray-400 px-1.5 py-0.5 rounded-full shrink-0">
                         Dismissed
                       </span>
                     )}
-                    <span className="text-[10px] opacity-50">{isExpanded ? '\u25BE' : '\u25B8'}</span>
+                    <span className="text-xs opacity-50">{isExpanded ? '\u25BE' : '\u25B8'}</span>
                   </button>
 
                   <div className="flex items-center gap-2 shrink-0 ml-2">
@@ -122,7 +122,7 @@ export default function CompanionsSection5e({ character, readonly }: CompanionsS
                       <div className="flex-1 h-1.5 bg-gray-700 rounded-full overflow-hidden">
                         <div className={`h-full ${hpColor} transition-all`} style={{ width: `${hpPct}%` }} />
                       </div>
-                      <span className="text-[10px] font-medium w-10 text-right">
+                      <span className="text-xs font-medium w-10 text-right">
                         {comp.currentHP}/{comp.maxHP}
                       </span>
                     </div>
@@ -134,7 +134,7 @@ export default function CompanionsSection5e({ character, readonly }: CompanionsS
                     {/* HP adjustment */}
                     {!readonly && (
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] text-gray-400">HP:</span>
+                        <span className="text-xs text-gray-400">HP:</span>
                         <button
                           onClick={() => updateCompanion(comp.id, { currentHP: Math.max(0, comp.currentHP - 1) })}
                           className="w-5 h-5 rounded bg-gray-700 text-gray-300 hover:bg-red-700 text-xs cursor-pointer"
@@ -156,7 +156,7 @@ export default function CompanionsSection5e({ character, readonly }: CompanionsS
                         {comp.type === 'familiar' && !comp.dismissed && (
                           <button
                             onClick={() => updateCompanion(comp.id, { dismissed: true })}
-                            className="ml-auto px-2 py-0.5 text-[10px] bg-gray-700 hover:bg-gray-600 rounded text-gray-300 cursor-pointer"
+                            className="ml-auto px-2 py-0.5 text-xs bg-gray-700 hover:bg-gray-600 rounded text-gray-300 cursor-pointer"
                           >
                             Dismiss
                           </button>
@@ -164,14 +164,14 @@ export default function CompanionsSection5e({ character, readonly }: CompanionsS
                         {comp.type === 'familiar' && comp.dismissed && (
                           <button
                             onClick={() => updateCompanion(comp.id, { dismissed: false })}
-                            className="ml-auto px-2 py-0.5 text-[10px] bg-amber-700 hover:bg-amber-600 rounded text-white cursor-pointer"
+                            className="ml-auto px-2 py-0.5 text-xs bg-amber-700 hover:bg-amber-600 rounded text-white cursor-pointer"
                           >
                             Resummon
                           </button>
                         )}
                         <button
                           onClick={() => removeCompanion(comp.id)}
-                          className="px-2 py-0.5 text-[10px] bg-red-900/50 hover:bg-red-800 rounded text-red-300 cursor-pointer"
+                          className="px-2 py-0.5 text-xs bg-red-900/50 hover:bg-red-800 rounded text-red-300 cursor-pointer"
                         >
                           Remove
                         </button>
@@ -180,7 +180,7 @@ export default function CompanionsSection5e({ character, readonly }: CompanionsS
 
                     {/* Stat block summary */}
                     {block && (
-                      <div className="text-[10px] text-gray-400 bg-gray-900/50 rounded p-2 space-y-0.5">
+                      <div className="text-xs text-gray-400 bg-gray-900/50 rounded p-2 space-y-0.5">
                         <div>
                           AC {block.ac}
                           {block.acType ? ` (${block.acType})` : ''} | HP {block.hp} ({block.hitDice})
@@ -220,7 +220,7 @@ export default function CompanionsSection5e({ character, readonly }: CompanionsS
                     )}
 
                     {comp.sourceSpell && (
-                      <div className="text-[10px] text-gray-500">Source: {comp.sourceSpell.replace(/-/g, ' ')}</div>
+                      <div className="text-xs text-gray-500">Source: {comp.sourceSpell.replace(/-/g, ' ')}</div>
                     )}
                   </div>
                 )}
@@ -233,7 +233,7 @@ export default function CompanionsSection5e({ character, readonly }: CompanionsS
       {/* Simple Pets */}
       {pets.length > 0 && (
         <div className={companions.length > 0 ? 'mt-3' : ''}>
-          <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Simple Pets</div>
+          <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Simple Pets</div>
           <div className="space-y-1">
             {pets.map((pet, i) => (
               <div key={i} className="flex items-center justify-between bg-gray-800/50 rounded px-2 py-1 text-sm">

@@ -119,7 +119,7 @@ function ActionListEditor({
               onChange={(e) =>
                 updateAction(i, { attackType: (e.target.value as MonsterAction['attackType']) || undefined })
               }
-              className="bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-[10px] text-gray-200"
+              className="bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-200"
             >
               <option value="">No attack</option>
               <option value="melee">Melee</option>
@@ -135,21 +135,21 @@ function ActionListEditor({
                     updateAction(i, { toHit: e.target.value ? parseInt(e.target.value, 10) : undefined })
                   }
                   placeholder="+Hit"
-                  className="w-12 bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-[10px] text-gray-100 text-center"
+                  className="w-12 bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-100 text-center"
                 />
                 <input
                   type="text"
                   value={action.damageDice ?? ''}
                   onChange={(e) => updateAction(i, { damageDice: e.target.value || undefined })}
                   placeholder="Damage dice"
-                  className="w-20 bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-[10px] text-gray-100"
+                  className="w-20 bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-100"
                 />
                 <input
                   type="text"
                   value={action.damageType ?? ''}
                   onChange={(e) => updateAction(i, { damageType: e.target.value || undefined })}
                   placeholder="Type"
-                  className="w-16 bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-[10px] text-gray-100"
+                  className="w-16 bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-100"
                 />
               </>
             )}
@@ -221,7 +221,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
       <CollapsibleSection title="Basic" defaultOpen>
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="text-[10px] text-gray-500">Name</label>
+            <label className="text-xs text-gray-500">Name</label>
             <input
               type="text"
               value={value.name ?? ''}
@@ -230,7 +230,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             />
           </div>
           <div>
-            <label className="text-[10px] text-gray-500">Alignment</label>
+            <label className="text-xs text-gray-500">Alignment</label>
             <input
               type="text"
               value={value.alignment ?? ''}
@@ -239,7 +239,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             />
           </div>
           <div>
-            <label className="text-[10px] text-gray-500">Size</label>
+            <label className="text-xs text-gray-500">Size</label>
             <select
               value={value.size ?? 'Medium'}
               onChange={(e) => update('size', e.target.value as CreatureSize)}
@@ -253,7 +253,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             </select>
           </div>
           <div>
-            <label className="text-[10px] text-gray-500">Type</label>
+            <label className="text-xs text-gray-500">Type</label>
             <select
               value={value.type ?? 'Humanoid'}
               onChange={(e) => update('type', e.target.value as CreatureType)}
@@ -267,7 +267,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             </select>
           </div>
           <div>
-            <label className="text-[10px] text-gray-500">CR</label>
+            <label className="text-xs text-gray-500">CR</label>
             <input
               type="text"
               value={value.cr ?? ''}
@@ -277,7 +277,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             />
           </div>
           <div>
-            <label className="text-[10px] text-gray-500">XP</label>
+            <label className="text-xs text-gray-500">XP</label>
             <input
               type="number"
               value={value.xp ?? ''}
@@ -292,7 +292,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
       <CollapsibleSection title="Combat" defaultOpen>
         <div className="grid grid-cols-3 gap-2">
           <div>
-            <label className="text-[10px] text-gray-500">AC</label>
+            <label className="text-xs text-gray-500">AC</label>
             <input
               type="number"
               value={value.ac ?? ''}
@@ -301,7 +301,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             />
           </div>
           <div>
-            <label className="text-[10px] text-gray-500">AC Type</label>
+            <label className="text-xs text-gray-500">AC Type</label>
             <input
               type="text"
               value={value.acType ?? ''}
@@ -311,7 +311,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             />
           </div>
           <div>
-            <label className="text-[10px] text-gray-500">HP</label>
+            <label className="text-xs text-gray-500">HP</label>
             <input
               type="number"
               value={value.hp ?? ''}
@@ -320,7 +320,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             />
           </div>
           <div>
-            <label className="text-[10px] text-gray-500">Hit Dice</label>
+            <label className="text-xs text-gray-500">Hit Dice</label>
             <input
               type="text"
               value={value.hitDice ?? ''}
@@ -332,56 +332,56 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
         </div>
         <div className="grid grid-cols-5 gap-1 mt-2">
           <div>
-            <label className="text-[10px] text-gray-500">Walk</label>
+            <label className="text-xs text-gray-500">Walk</label>
             <input
               type="number"
               value={speed.walk ?? 0}
               onChange={(e) => update('speed', { ...speed, walk: parseInt(e.target.value, 10) || 0 })}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-[10px] text-gray-100 text-center"
+              className="w-full bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-100 text-center"
             />
           </div>
           <div>
-            <label className="text-[10px] text-gray-500">Fly</label>
+            <label className="text-xs text-gray-500">Fly</label>
             <input
               type="number"
               value={speed.fly ?? ''}
               onChange={(e) =>
                 update('speed', { ...speed, fly: e.target.value ? parseInt(e.target.value, 10) : undefined })
               }
-              className="w-full bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-[10px] text-gray-100 text-center"
+              className="w-full bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-100 text-center"
             />
           </div>
           <div>
-            <label className="text-[10px] text-gray-500">Swim</label>
+            <label className="text-xs text-gray-500">Swim</label>
             <input
               type="number"
               value={speed.swim ?? ''}
               onChange={(e) =>
                 update('speed', { ...speed, swim: e.target.value ? parseInt(e.target.value, 10) : undefined })
               }
-              className="w-full bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-[10px] text-gray-100 text-center"
+              className="w-full bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-100 text-center"
             />
           </div>
           <div>
-            <label className="text-[10px] text-gray-500">Climb</label>
+            <label className="text-xs text-gray-500">Climb</label>
             <input
               type="number"
               value={speed.climb ?? ''}
               onChange={(e) =>
                 update('speed', { ...speed, climb: e.target.value ? parseInt(e.target.value, 10) : undefined })
               }
-              className="w-full bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-[10px] text-gray-100 text-center"
+              className="w-full bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-100 text-center"
             />
           </div>
           <div>
-            <label className="text-[10px] text-gray-500">Burrow</label>
+            <label className="text-xs text-gray-500">Burrow</label>
             <input
               type="number"
               value={speed.burrow ?? ''}
               onChange={(e) =>
                 update('speed', { ...speed, burrow: e.target.value ? parseInt(e.target.value, 10) : undefined })
               }
-              className="w-full bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-[10px] text-gray-100 text-center"
+              className="w-full bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-100 text-center"
             />
           </div>
         </div>
@@ -392,7 +392,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
         <div className="grid grid-cols-6 gap-1">
           {(['str', 'dex', 'con', 'int', 'wis', 'cha'] as const).map((ab) => (
             <div key={ab}>
-              <label className="text-[10px] text-gray-500 uppercase text-center block">{ab}</label>
+              <label className="text-xs text-gray-500 uppercase text-center block">{ab}</label>
               <input
                 type="number"
                 value={abilities[ab]}
@@ -429,13 +429,13 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
                   }}
                   className="rounded"
                 />
-                <label className="text-[10px] text-gray-500 uppercase w-6">{ab}</label>
+                <label className="text-xs text-gray-500 uppercase w-6">{ab}</label>
                 {isActive && (
                   <input
                     type="number"
                     value={saves[ab] ?? 0}
                     onChange={(e) => update('savingThrows', { ...saves, [ab]: parseInt(e.target.value, 10) || 0 })}
-                    className="w-10 bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-[10px] text-gray-100 text-center"
+                    className="w-10 bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-100 text-center"
                   />
                 )}
               </div>
@@ -509,7 +509,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
       <CollapsibleSection title="Defenses">
         <div className="space-y-1">
           <div>
-            <label className="text-[10px] text-gray-500">Resistances (comma-separated)</label>
+            <label className="text-xs text-gray-500">Resistances (comma-separated)</label>
             <input
               type="text"
               value={(value.resistances ?? []).join(', ')}
@@ -526,7 +526,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             />
           </div>
           <div>
-            <label className="text-[10px] text-gray-500">Vulnerabilities</label>
+            <label className="text-xs text-gray-500">Vulnerabilities</label>
             <input
               type="text"
               value={(value.vulnerabilities ?? []).join(', ')}
@@ -543,7 +543,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             />
           </div>
           <div>
-            <label className="text-[10px] text-gray-500">Damage Immunities</label>
+            <label className="text-xs text-gray-500">Damage Immunities</label>
             <input
               type="text"
               value={(value.damageImmunities ?? []).join(', ')}
@@ -560,7 +560,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             />
           </div>
           <div>
-            <label className="text-[10px] text-gray-500">Condition Immunities</label>
+            <label className="text-xs text-gray-500">Condition Immunities</label>
             <input
               type="text"
               value={(value.conditionImmunities ?? []).join(', ')}
@@ -583,7 +583,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
       <CollapsibleSection title="Senses & Languages">
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="text-[10px] text-gray-500">Passive Perception</label>
+            <label className="text-xs text-gray-500">Passive Perception</label>
             <input
               type="number"
               value={value.senses?.passivePerception ?? 10}
@@ -597,7 +597,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             />
           </div>
           <div>
-            <label className="text-[10px] text-gray-500">Darkvision (ft)</label>
+            <label className="text-xs text-gray-500">Darkvision (ft)</label>
             <input
               type="number"
               value={value.senses?.darkvision ?? ''}
@@ -612,7 +612,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
           </div>
         </div>
         <div>
-          <label className="text-[10px] text-gray-500">Languages (comma-separated)</label>
+          <label className="text-xs text-gray-500">Languages (comma-separated)</label>
           <input
             type="text"
             value={(value.languages ?? []).join(', ')}
@@ -650,7 +650,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
       <CollapsibleSection title={`Legendary Actions (${value.legendaryActions?.actions.length ?? 0})`}>
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <label className="text-[10px] text-gray-500">Uses per round</label>
+            <label className="text-xs text-gray-500">Uses per round</label>
             <input
               type="number"
               value={value.legendaryActions?.uses ?? 3}
@@ -660,7 +660,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
                   actions: value.legendaryActions?.actions ?? []
                 })
               }
-              className="w-12 bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-[10px] text-gray-100 text-center"
+              className="w-12 bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-100 text-center"
               min={1}
             />
           </div>

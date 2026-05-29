@@ -55,7 +55,7 @@ export default function BackgroundPanel5e({
                   }}
                 >
                   {sense}
-                  {desc && <span className="text-amber-500/60 text-[10px]">{isSenseExpanded ? '\u25BE' : '?'}</span>}
+                  {desc && <span className="text-amber-500/60 text-xs">{isSenseExpanded ? '\u25BE' : '?'}</span>}
                   {!readonly && (
                     <button
                       onClick={(e) => {
@@ -76,7 +76,7 @@ export default function BackgroundPanel5e({
                   )}
                 </span>
                 {isSenseExpanded && desc && (
-                  <div className="text-[10px] text-gray-500 bg-gray-800/50 rounded px-2 py-1 mt-1 max-w-xs">{desc}</div>
+                  <div className="text-xs text-gray-500 bg-gray-800/50 rounded px-2 py-1 mt-1 max-w-xs">{desc}</div>
                 )}
               </div>
             )
@@ -100,7 +100,7 @@ export default function BackgroundPanel5e({
                 setShowSensePicker(false)
                 setCustomSenseInput('')
               }}
-              className="text-[10px] text-gray-500 hover:text-gray-300 cursor-pointer"
+              className="text-xs text-gray-500 hover:text-gray-300 cursor-pointer"
             >
               Cancel
             </button>

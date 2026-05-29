@@ -189,11 +189,11 @@ export default function TokenPlacer({
                 >
                   <div>
                     <span className="text-sm text-gray-200">{m.name}</span>
-                    <span className="text-[10px] text-gray-500 ml-2">
+                    <span className="text-xs text-gray-500 ml-2">
                       {m.size} {m.type}
                     </span>
                   </div>
-                  <div className="flex gap-2 text-[10px] text-gray-500">
+                  <div className="flex gap-2 text-xs text-gray-500">
                     <span>CR {m.cr}</span>
                     <span>HP {m.hp}</span>
                     <span>AC {m.ac}</span>
@@ -210,12 +210,12 @@ export default function TokenPlacer({
         <div className="flex items-center justify-between bg-amber-900/20 border border-amber-800/40 rounded-lg px-2 py-1.5">
           <div className="flex items-center gap-2">
             <span className="text-xs text-amber-400 font-semibold">{selectedMonster.name}</span>
-            <span className="text-[10px] text-gray-500">CR {selectedMonster.cr}</span>
+            <span className="text-xs text-gray-500">CR {selectedMonster.cr}</span>
           </div>
           <div className="flex gap-1">
             <button
               onClick={() => setShowStatBlock(!showStatBlock)}
-              className="text-[10px] text-gray-400 hover:text-amber-400 transition-colors cursor-pointer px-1"
+              className="text-xs text-gray-400 hover:text-amber-400 transition-colors cursor-pointer px-1"
               title="Toggle stat block"
             >
               {showStatBlock ? 'Hide' : 'Stats'}
@@ -263,12 +263,12 @@ export default function TokenPlacer({
             type="file"
             accept="image/png,image/jpeg,image/webp"
             onChange={handleImageUpload}
-            className="text-[10px] text-gray-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:bg-gray-800 file:text-gray-300 hover:file:bg-gray-700 w-full"
+            className="text-xs text-gray-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:bg-gray-800 file:text-gray-300 hover:file:bg-gray-700 w-full"
           />
           {imagePath && (
             <button
               onClick={() => setImagePath(undefined)}
-              className="text-[10px] text-red-400 hover:text-red-300 px-2 py-1 bg-red-900/20 rounded border border-red-900/50 cursor-pointer flex-shrink-0"
+              className="text-xs text-red-400 hover:text-red-300 px-2 py-1 bg-red-900/20 rounded border border-red-900/50 cursor-pointer flex-shrink-0"
               title="Remove image"
             >
               &#x2715;
@@ -364,7 +364,7 @@ export default function TokenPlacer({
             </button>
           ))}
         </div>
-        <p className="text-[10px] text-gray-600 mt-1">{sizeOptions.find((o) => o.label === creatureSize)?.desc}</p>
+        <p className="text-xs text-gray-600 mt-1">{sizeOptions.find((o) => o.label === creatureSize)?.desc}</p>
       </div>
 
       {/* Special speeds (optional) */}
@@ -435,24 +435,24 @@ export default function TokenPlacer({
                     )}
                     {stats.specialSenses && stats.specialSenses.length > 0 && (
                       <span
-                        className="text-[10px] text-amber-400"
+                        className="text-xs text-amber-400"
                         title={stats.specialSenses.map((s) => `${s.type} ${s.range}ft`).join(', ')}
                       >
                         {stats.specialSenses.map((s) => s.type.charAt(0).toUpperCase()).join('')}
                       </span>
                     )}
                     {stats.flySpeed && stats.flySpeed > 0 && (
-                      <span className="text-[10px] text-blue-400" title={`Fly ${stats.flySpeed}ft`}>
+                      <span className="text-xs text-blue-400" title={`Fly ${stats.flySpeed}ft`}>
                         F
                       </span>
                     )}
                     {stats.swimSpeed && stats.swimSpeed > 0 && (
-                      <span className="text-[10px] text-cyan-400" title={`Swim ${stats.swimSpeed}ft`}>
+                      <span className="text-xs text-cyan-400" title={`Swim ${stats.swimSpeed}ft`}>
                         S
                       </span>
                     )}
                     {stats.climbSpeed && stats.climbSpeed > 0 && (
-                      <span className="text-[10px] text-green-400" title={`Climb ${stats.climbSpeed}ft`}>
+                      <span className="text-xs text-green-400" title={`Climb ${stats.climbSpeed}ft`}>
                         C
                       </span>
                     )}

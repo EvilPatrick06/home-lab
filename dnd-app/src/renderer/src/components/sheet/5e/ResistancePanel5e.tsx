@@ -27,7 +27,7 @@ export default function ResistancePanel5e({ character, readonly }: ResistancePan
         <div className="mb-3 space-y-2">
           {(character.resistances ?? []).length > 0 && (
             <div>
-              <div className="text-[10px] text-blue-400 uppercase tracking-wide mb-1">Resistances</div>
+              <div className="text-xs text-blue-400 uppercase tracking-wide mb-1">Resistances</div>
               <div className="flex flex-wrap gap-1.5">
                 {(character.resistances ?? []).map((r) => {
                   const key = `res-${r}`
@@ -40,7 +40,7 @@ export default function ResistancePanel5e({ character, readonly }: ResistancePan
                         className={`inline-flex items-center bg-blue-900/40 text-blue-300 border border-blue-700/50 rounded-full px-2 py-0.5 text-xs ${desc ? 'cursor-pointer hover:bg-blue-900/60' : ''}`}
                       >
                         {r}
-                        {desc && <span className="ml-1 text-blue-500 text-[10px]">{isExpanded ? '\u25B4' : '?'}</span>}
+                        {desc && <span className="ml-1 text-blue-500 text-xs">{isExpanded ? '\u25B4' : '?'}</span>}
                         {!readonly && (
                           <button
                             onClick={(e) => {
@@ -73,7 +73,7 @@ export default function ResistancePanel5e({ character, readonly }: ResistancePan
           )}
           {(character.immunities ?? []).length > 0 && (
             <div>
-              <div className="text-[10px] text-green-400 uppercase tracking-wide mb-1">Immunities</div>
+              <div className="text-xs text-green-400 uppercase tracking-wide mb-1">Immunities</div>
               <div className="flex flex-wrap gap-1.5">
                 {(character.immunities ?? []).map((im) => {
                   const key = `imm-${im}`
@@ -86,7 +86,7 @@ export default function ResistancePanel5e({ character, readonly }: ResistancePan
                         className={`inline-flex items-center bg-green-900/40 text-green-300 border border-green-700/50 rounded-full px-2 py-0.5 text-xs ${desc ? 'cursor-pointer hover:bg-green-900/60' : ''}`}
                       >
                         {im}
-                        {desc && <span className="ml-1 text-green-500 text-[10px]">{isExpanded ? '\u25B4' : '?'}</span>}
+                        {desc && <span className="ml-1 text-green-500 text-xs">{isExpanded ? '\u25B4' : '?'}</span>}
                         {!readonly && (
                           <button
                             onClick={(e) => {
@@ -119,7 +119,7 @@ export default function ResistancePanel5e({ character, readonly }: ResistancePan
           )}
           {(character.vulnerabilities ?? []).length > 0 && (
             <div>
-              <div className="text-[10px] text-red-400 uppercase tracking-wide mb-1">Vulnerabilities</div>
+              <div className="text-xs text-red-400 uppercase tracking-wide mb-1">Vulnerabilities</div>
               <div className="flex flex-wrap gap-1.5">
                 {(character.vulnerabilities ?? []).map((v) => {
                   const key = `vuln-${v}`
@@ -132,7 +132,7 @@ export default function ResistancePanel5e({ character, readonly }: ResistancePan
                         className={`inline-flex items-center bg-red-900/40 text-red-300 border border-red-700/50 rounded-full px-2 py-0.5 text-xs ${desc ? 'cursor-pointer hover:bg-red-900/60' : ''}`}
                       >
                         {v}
-                        {desc && <span className="ml-1 text-red-500 text-[10px]">{isExpanded ? '\u25B4' : '?'}</span>}
+                        {desc && <span className="ml-1 text-red-500 text-xs">{isExpanded ? '\u25B4' : '?'}</span>}
                         {!readonly && (
                           <button
                             onClick={(e) => {
@@ -215,7 +215,7 @@ export default function ResistancePanel5e({ character, readonly }: ResistancePan
               Cancel
             </button>
           </div>
-          <div className="text-[10px] text-gray-500 mb-1">Damage Types</div>
+          <div className="text-xs text-gray-500 mb-1">Damage Types</div>
           <div className="flex flex-wrap gap-1">
             {DAMAGE_TYPES.map((dt) => (
               <button
@@ -257,7 +257,7 @@ export default function ResistancePanel5e({ character, readonly }: ResistancePan
           </div>
           {showDefenseAdder === 'immunity' && (
             <>
-              <div className="text-[10px] text-gray-500 mt-2 mb-1">Condition Immunities</div>
+              <div className="text-xs text-gray-500 mt-2 mb-1">Condition Immunities</div>
               <div className="flex flex-wrap gap-1">
                 {CONDITION_IMMUNITIES.map((cond) => (
                   <button

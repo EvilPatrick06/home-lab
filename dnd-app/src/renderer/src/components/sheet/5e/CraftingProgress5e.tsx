@@ -93,7 +93,7 @@ export default function CraftingProgress5e({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="text-gray-200 font-medium truncate">{spell.name}</span>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded border text-purple-400 bg-purple-900/30 border-purple-700/50">
+                        <span className="text-xs px-1.5 py-0.5 rounded border text-purple-400 bg-purple-900/30 border-purple-700/50">
                           {spell.level === 0 ? 'Cantrip' : `Level ${spell.level}`}
                         </span>
                       </div>

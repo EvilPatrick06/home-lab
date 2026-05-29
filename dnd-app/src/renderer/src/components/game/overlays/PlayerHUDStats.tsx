@@ -43,7 +43,7 @@ export default function PlayerHUDStats({
 
       {/* HP bar (click to edit) */}
       <div className="flex items-center gap-1 min-w-[140px]">
-        <span className="text-[10px] text-gray-500">HP</span>
+        <span className="text-xs text-gray-500">HP</span>
         {editingHP ? (
           <input
             type="number"
@@ -80,14 +80,14 @@ export default function PlayerHUDStats({
         {/* +/- buttons */}
         <button
           onClick={() => onAdjustHP(-1)}
-          className="w-5 h-5 text-[10px] bg-red-900/40 hover:bg-red-800/60 text-red-300 rounded cursor-pointer"
+          className="w-5 h-5 text-xs bg-red-900/40 hover:bg-red-800/60 text-red-300 rounded cursor-pointer"
           title="Take 1 damage"
         >
           -
         </button>
         <button
           onClick={() => onAdjustHP(1)}
-          className="w-5 h-5 text-[10px] bg-green-900/40 hover:bg-green-800/60 text-green-300 rounded cursor-pointer"
+          className="w-5 h-5 text-xs bg-green-900/40 hover:bg-green-800/60 text-green-300 rounded cursor-pointer"
           title="Heal 1 HP"
         >
           +

@@ -153,7 +153,7 @@ export default function QuickConditionModal({
                 onChange={(e) => setExhaustionLevel(Math.min(6, Math.max(1, parseInt(e.target.value, 10) || 1)))}
                 className="w-16 px-2 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-200 text-xs focus:outline-none focus:border-amber-500"
               />
-              {exhaustionLevel >= 6 && <span className="text-[10px] text-red-400 font-semibold">Fatal!</span>}
+              {exhaustionLevel >= 6 && <span className="text-xs text-red-400 font-semibold">Fatal!</span>}
             </div>
           )}
           {needsSource && (
@@ -201,7 +201,7 @@ export default function QuickConditionModal({
 
         {/* Active conditions */}
         <div className="border-t border-gray-800 pt-3">
-          <span className="text-[10px] text-gray-500 uppercase tracking-wider">Active Conditions</span>
+          <span className="text-xs text-gray-500 uppercase tracking-wider">Active Conditions</span>
           <div className="mt-2 space-y-1 max-h-40 overflow-y-auto">
             {conditions.length === 0 ? (
               <p className="text-xs text-gray-500 text-center py-2">None</p>
@@ -210,7 +210,7 @@ export default function QuickConditionModal({
                 <div key={c.id} className="flex items-center justify-between px-2 py-1.5 bg-gray-800/50 rounded">
                   <div>
                     <span className="text-xs text-gray-200">{c.entityName}</span>
-                    <span className="text-[10px] text-purple-400 ml-1.5">
+                    <span className="text-xs text-purple-400 ml-1.5">
                       {c.condition}
                       {c.condition === 'Exhaustion' && c.value ? ` (${c.value})` : ''}
                     </span>

@@ -159,7 +159,7 @@ export default function CraftingBrowser({ characterTools, onStartCrafting }: Cra
           <button
             key={c.id}
             onClick={() => setCategory(c.id)}
-            className={`px-2 py-1 text-[10px] rounded cursor-pointer ${
+            className={`px-2 py-1 text-xs rounded cursor-pointer ${
               category === c.id ? 'bg-amber-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
             }`}
           >
@@ -185,10 +185,10 @@ export default function CraftingBrowser({ characterTools, onStartCrafting }: Cra
                     {item.name}
                   </span>
                   {item.dc && (
-                    <span className="text-[10px] px-1.5 py-0.5 bg-red-600/20 text-red-400 rounded">DC {item.dc}</span>
+                    <span className="text-xs px-1.5 py-0.5 bg-red-600/20 text-red-400 rounded">DC {item.dc}</span>
                   )}
                 </div>
-                <div className="flex items-center gap-3 mt-0.5 text-[10px] text-gray-500">
+                <div className="flex items-center gap-3 mt-0.5 text-xs text-gray-500">
                   <span className={item.hasProficiency ? 'text-green-400' : 'text-red-400'}>
                     {item.hasProficiency ? '\u2713' : '\u2717'} {item.tool}
                   </span>
@@ -197,12 +197,12 @@ export default function CraftingBrowser({ characterTools, onStartCrafting }: Cra
                     {item.days} day{item.days !== 1 ? 's' : ''}
                   </span>
                 </div>
-                {item.description && <p className="text-[10px] text-gray-500 mt-0.5">{item.description}</p>}
+                {item.description && <p className="text-xs text-gray-500 mt-0.5">{item.description}</p>}
               </div>
               <button
                 onClick={() => onStartCrafting(item.name, item.tool, item.days, item.cost, item.recipeId)}
                 disabled={!item.hasProficiency}
-                className="px-2 py-1 text-[10px] bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed ml-2 shrink-0"
+                className="px-2 py-1 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed ml-2 shrink-0"
               >
                 Craft
               </button>
@@ -212,7 +212,7 @@ export default function CraftingBrowser({ characterTools, onStartCrafting }: Cra
       </div>
 
       {/* Multi-crafter note */}
-      <p className="text-[10px] text-gray-500 italic">
+      <p className="text-xs text-gray-500 italic">
         Multiple characters can combine efforts, each contributing 5 GP of progress per day.
       </p>
     </div>

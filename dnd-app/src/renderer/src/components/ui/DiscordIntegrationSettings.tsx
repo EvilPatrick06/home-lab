@@ -132,7 +132,7 @@ export default function DiscordIntegrationSettings(): JSX.Element {
       <label className="flex items-center justify-between cursor-pointer">
         <div>
           <span className="text-sm text-gray-300">Push to Discord</span>
-          <p className="text-[10px] text-gray-500">Forward AI DM narration to Discord</p>
+          <p className="text-xs text-gray-500">Forward AI DM narration to Discord</p>
         </div>
         <input
           type="checkbox"
@@ -157,7 +157,7 @@ export default function DiscordIntegrationSettings(): JSX.Element {
                 }`}
               >
                 <div className="text-xs font-medium text-gray-200">Webhook</div>
-                <div className="text-[10px] text-gray-500">Send to channel via webhook URL</div>
+                <div className="text-xs text-gray-500">Send to channel via webhook URL</div>
               </button>
               <button
                 onClick={() => updateConfig({ dmMode: 'bot-api' })}
@@ -168,7 +168,7 @@ export default function DiscordIntegrationSettings(): JSX.Element {
                 }`}
               >
                 <div className="text-xs font-medium text-gray-200">Bot DM</div>
-                <div className="text-[10px] text-gray-500">Send DM via bot token + user ID</div>
+                <div className="text-xs text-gray-500">Send DM via bot token + user ID</div>
               </button>
             </div>
           </div>
@@ -185,7 +185,7 @@ export default function DiscordIntegrationSettings(): JSX.Element {
                   onChange={(e) => updateConfig({ webhookUrl: e.target.value })}
                   className="w-full px-3 py-2 text-sm bg-gray-900 border border-gray-700 rounded-lg text-gray-200 placeholder-gray-600 focus:border-amber-500 focus:outline-none"
                 />
-                <p className="text-[10px] text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 mt-1">
                   Create a webhook in Discord channel settings → Integrations → Webhooks
                 </p>
               </div>
@@ -204,7 +204,7 @@ export default function DiscordIntegrationSettings(): JSX.Element {
                   onChange={(e) => updateConfig({ botToken: e.target.value })}
                   className="w-full px-3 py-2 text-sm bg-gray-900 border border-gray-700 rounded-lg text-gray-200 placeholder-gray-600 focus:border-amber-500 focus:outline-none"
                 />
-                <p className="text-[10px] text-gray-500 mt-1">From Discord Developer Portal → Bot → Token</p>
+                <p className="text-xs text-gray-500 mt-1">From Discord Developer Portal → Bot → Token</p>
               </div>
               <div>
                 <label className="text-sm text-gray-300 block mb-1">User ID</label>
@@ -215,7 +215,7 @@ export default function DiscordIntegrationSettings(): JSX.Element {
                   onChange={(e) => updateConfig({ userId: e.target.value })}
                   className="w-full px-3 py-2 text-sm bg-gray-900 border border-gray-700 rounded-lg text-gray-200 placeholder-gray-600 focus:border-amber-500 focus:outline-none"
                 />
-                <p className="text-[10px] text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 mt-1">
                   Right-click your profile in Discord with Developer Mode enabled
                 </p>
               </div>

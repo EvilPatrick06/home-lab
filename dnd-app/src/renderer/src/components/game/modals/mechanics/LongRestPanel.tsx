@@ -97,7 +97,7 @@ export default function LongRestPanel({ pcs, states, onStatesChange }: LongRestP
                   preview.classResourcesToRestore.length === 0 &&
                   !preview.exhaustionReduction &&
                   !preview.deathSavesReset && (
-                    <div className="text-[10px] text-gray-600 italic">Already fully rested</div>
+                    <div className="text-xs text-gray-600 italic">Already fully rested</div>
                   )}
               </div>
             )}

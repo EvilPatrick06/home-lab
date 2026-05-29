@@ -131,14 +131,14 @@ export default function MapManager({ campaign, saveCampaign }: MapManagerProps):
           <div className="flex items-center gap-2">
             <button
               onClick={handleImportMaps}
-              className="text-[10px] text-gray-400 hover:text-amber-400 cursor-pointer"
+              className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer"
             >
               Import
             </button>
             {campaign.maps.length > 0 && (
               <button
                 onClick={() => handleExportMaps(campaign.maps)}
-                className="text-[10px] text-gray-400 hover:text-amber-400 cursor-pointer"
+                className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer"
               >
                 Export All
               </button>
@@ -233,7 +233,7 @@ export default function MapManager({ campaign, saveCampaign }: MapManagerProps):
               <label className="text-gray-400 text-xs">Cell Size (px)</label>
               <button
                 onClick={() => setMapForm((f) => ({ ...f, cellSize: 40 }))}
-                className={`px-2 py-0.5 text-[10px] rounded border transition-colors cursor-pointer ${
+                className={`px-2 py-0.5 text-xs rounded border transition-colors cursor-pointer ${
                   mapForm.cellSize === 40
                     ? 'border-amber-500/50 text-amber-300 bg-amber-900/10'
                     : 'border-gray-700 bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-gray-200'

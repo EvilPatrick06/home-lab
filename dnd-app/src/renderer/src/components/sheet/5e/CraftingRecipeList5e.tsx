@@ -107,7 +107,7 @@ export default function CraftingRecipeList5e({
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           <span className="text-gray-200 font-medium truncate">{item.name}</span>
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded border ${categoryColor(item.category)}`}>
+                          <span className={`text-xs px-1.5 py-0.5 rounded border ${categoryColor(item.category)}`}>
                             {categoryLabel(item.category)}
                           </span>
                         </div>

@@ -89,7 +89,7 @@ function CountdownTimer({ timestamp }: { timestamp: number }): JSX.Element {
   }, [timestamp])
 
   return (
-    <span className={`text-[10px] font-mono ${remaining <= 10 ? 'text-red-400' : 'text-gray-500'}`}>{remaining}s</span>
+    <span className={`text-xs font-mono ${remaining <= 10 ? 'text-red-400' : 'text-gray-500'}`}>{remaining}s</span>
   )
 }
 
@@ -127,13 +127,13 @@ function MutationCard({
       <div className="flex gap-1.5 pt-1">
         <button
           onClick={onApprove}
-          className="flex-1 px-2 py-1 text-[10px] font-medium bg-emerald-700/60 hover:bg-emerald-600/80 text-emerald-200 border border-emerald-600/50 rounded cursor-pointer transition-colors"
+          className="flex-1 px-2 py-1 text-xs font-medium bg-emerald-700/60 hover:bg-emerald-600/80 text-emerald-200 border border-emerald-600/50 rounded cursor-pointer transition-colors"
         >
           ✓ Approve
         </button>
         <button
           onClick={onReject}
-          className="flex-1 px-2 py-1 text-[10px] font-medium bg-red-900/60 hover:bg-red-800/80 text-red-300 border border-red-700/50 rounded cursor-pointer transition-colors"
+          className="flex-1 px-2 py-1 text-xs font-medium bg-red-900/60 hover:bg-red-800/80 text-red-300 border border-red-700/50 rounded cursor-pointer transition-colors"
         >
           ✗ Reject
         </button>
@@ -157,7 +157,7 @@ export default function MutationApprovalPanel(): JSX.Element | null {
         <div className="flex justify-end">
           <button
             onClick={approveAllMutations}
-            className="px-2.5 py-1 text-[10px] font-semibold bg-emerald-700/70 hover:bg-emerald-600/90 text-emerald-200 border border-emerald-600/50 rounded-lg cursor-pointer transition-colors"
+            className="px-2.5 py-1 text-xs font-semibold bg-emerald-700/70 hover:bg-emerald-600/90 text-emerald-200 border border-emerald-600/50 rounded-lg cursor-pointer transition-colors"
           >
             ✓ Approve All ({pendingMutations.length})
           </button>

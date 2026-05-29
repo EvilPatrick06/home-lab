@@ -83,10 +83,10 @@ function CalendarSettingsSection({
     <div className="px-4 py-2 border-b border-gray-800">
       <div className="flex items-center justify-between mb-1">
         <span className="text-xs text-gray-400">Calendar</span>
-        <span className="text-[10px] text-amber-400">{PRESET_LABELS[calendar.preset]}</span>
+        <span className="text-xs text-amber-400">{PRESET_LABELS[calendar.preset]}</span>
       </div>
       {inGameTime && (
-        <div className="text-[10px] text-gray-500">{formatInGameTime(inGameTime.totalSeconds, calendar)}</div>
+        <div className="text-xs text-gray-500">{formatInGameTime(inGameTime.totalSeconds, calendar)}</div>
       )}
     </div>
   )
@@ -102,10 +102,10 @@ function AiDmSettingsSection(): JSX.Element {
     <div className="px-4 py-2 border-b border-gray-800">
       <div className="flex items-center justify-between mb-1">
         <span className="text-xs text-gray-400">AI DM</span>
-        <span className="text-[10px] text-purple-400 capitalize">{aiModel}</span>
+        <span className="text-xs text-purple-400 capitalize">{aiModel}</span>
       </div>
       <div className="flex items-center justify-between">
-        <span className="text-[10px] text-gray-500">
+        <span className="text-xs text-gray-500">
           {aiIsTyping ? 'Responding...' : aiPaused ? 'Paused' : 'Active'}
         </span>
         <button
@@ -193,7 +193,7 @@ function SoundCustomizationSection(): JSX.Element {
       {expanded && (
         <div className="mt-2 space-y-1 max-h-32 overflow-y-auto">
           {Array.from(customSounds.entries()).map(([event, path]) => (
-            <div key={event} className="flex items-center justify-between text-[10px]">
+            <div key={event} className="flex items-center justify-between text-xs">
               <span className="text-gray-300 truncate">
                 {event}: {path}
               </span>
@@ -205,10 +205,10 @@ function SoundCustomizationSection(): JSX.Element {
               </button>
             </div>
           ))}
-          {customSounds.size === 0 && <p className="text-[10px] text-gray-500">No custom sound overrides</p>}
+          {customSounds.size === 0 && <p className="text-xs text-gray-500">No custom sound overrides</p>}
           {unusedEvents.length > 0 && (
             <select
-              className="w-full mt-1 p-1 text-[10px] rounded bg-gray-800 border border-gray-700 text-gray-300"
+              className="w-full mt-1 p-1 text-xs rounded bg-gray-800 border border-gray-700 text-gray-300"
               value=""
               onChange={(e) => {
                 if (e.target.value) handleAdd(e.target.value as SoundEvent)
@@ -319,7 +319,7 @@ export default function SettingsDropdown({
           {/* Campaign info */}
           <div className="px-4 py-3 border-b border-gray-800">
             <div className="text-sm font-semibold text-gray-100 truncate">{campaign.name}</div>
-            <div className="text-[10px] text-gray-500 mt-0.5">
+            <div className="text-xs text-gray-500 mt-0.5">
               D&D 5e &middot; {playerCount} player{playerCount !== 1 ? 's' : ''}
             </div>
           </div>

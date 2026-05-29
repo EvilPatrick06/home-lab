@@ -125,7 +125,7 @@ export default function MacroBar({ character, onRoll }: MacroBarProps): JSX.Elem
     <div key={macro.id} className="relative group shrink-0">
       <button
         onClick={() => onRoll(macro.formula, macro.label)}
-        className={`px-2 py-1 text-[10px] font-medium rounded border transition-colors cursor-pointer ${macro.color}`}
+        className={`px-2 py-1 text-xs font-medium rounded border transition-colors cursor-pointer ${macro.color}`}
         title={`Roll ${macro.formula}`}
       >
         {macro.label}
@@ -170,12 +170,12 @@ export default function MacroBar({ character, onRoll }: MacroBarProps): JSX.Elem
             if (e.key === 'Enter') handleCustomRoll()
           }}
           placeholder="2d6+3"
-          className="w-16 bg-gray-800 border border-gray-700 rounded px-1.5 py-0.5 text-[10px] text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
+          className="w-16 bg-gray-800 border border-gray-700 rounded px-1.5 py-0.5 text-xs text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
         />
         <button
           onClick={handleCustomRoll}
           disabled={!customFormula.trim()}
-          className="px-1.5 py-0.5 text-[10px] bg-amber-600/40 border border-amber-500/50 text-amber-300 rounded cursor-pointer hover:bg-amber-600/60 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="px-1.5 py-0.5 text-xs bg-amber-600/40 border border-amber-500/50 text-amber-300 rounded cursor-pointer hover:bg-amber-600/60 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           Roll
         </button>

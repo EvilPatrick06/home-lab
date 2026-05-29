@@ -89,7 +89,7 @@ export default function InitiativeControls({
       {/* Delayed entries */}
       {delayedEntries.length > 0 && isHost && (
         <div className="border-t border-gray-700/50 pt-1">
-          <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Delayed</div>
+          <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Delayed</div>
           {delayedEntries.map((entry) => (
             <div
               key={entry.id}
@@ -107,7 +107,7 @@ export default function InitiativeControls({
               <span className="flex-1 truncate">{entry.entityName}</span>
               <button
                 onClick={() => onReenterDelayed(entry)}
-                className="text-[10px] px-1.5 py-0.5 rounded bg-amber-700/50 text-amber-300 hover:bg-amber-600/50 cursor-pointer"
+                className="text-xs px-1.5 py-0.5 rounded bg-amber-700/50 text-amber-300 hover:bg-amber-600/50 cursor-pointer"
               >
                 Re-enter
               </button>
@@ -169,7 +169,7 @@ export default function InitiativeControls({
                   setAddInit('')
                   setShowAddForm(false)
                 }}
-                className="px-2 py-1 text-[10px] rounded bg-green-700 text-white hover:bg-green-600 cursor-pointer"
+                className="px-2 py-1 text-xs rounded bg-green-700 text-white hover:bg-green-600 cursor-pointer"
               >
                 Add
               </button>
@@ -183,7 +183,7 @@ export default function InitiativeControls({
           ) : (
             <button
               onClick={() => setShowAddForm(true)}
-              className="w-full py-1 text-[10px] rounded bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-gray-200 transition-colors cursor-pointer"
+              className="w-full py-1 text-xs rounded bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-gray-200 transition-colors cursor-pointer"
             >
               + Add Entry
             </button>

@@ -77,7 +77,7 @@ export default function SteedSelectorModal({
         <div className="flex-1 flex min-h-0 overflow-hidden">
           {/* Steed list */}
           <div className="w-48 overflow-y-auto border-r border-gray-700/50 p-2">
-            <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-2 px-1">Available Steeds</div>
+            <div className="text-xs text-gray-500 uppercase tracking-wider mb-2 px-1">Available Steeds</div>
             <div className="space-y-1">
               {forms.map((m) => (
                 <button
@@ -103,7 +103,7 @@ export default function SteedSelectorModal({
             {selected ? (
               <div className="space-y-3">
                 <MonsterStatBlockView monster={selected} />
-                <div className="text-[10px] text-gray-500 bg-gray-800/50 rounded p-2">
+                <div className="text-xs text-gray-500 bg-gray-800/50 rounded p-2">
                   Your steed shares your initiative and acts on your turn. It can move and use its reaction on its own,
                   but the only action it takes on its turn is the Dodge action, unless you take a Bonus Action to
                   command it to take another action.

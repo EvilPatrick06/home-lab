@@ -180,7 +180,7 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
               <div className="text-[9px] uppercase tracking-wider text-gray-500 mb-1">Carry weight</div>
               <div className={`font-mono text-sm ${isEncumbered ? 'text-red-400' : 'text-gray-200'}`}>
                 {totalWeight.toFixed(1)} / {carryCapacity} lb
-                {isEncumbered && <span className="ml-1 text-[10px] uppercase">Encumbered</span>}
+                {isEncumbered && <span className="ml-1 text-xs uppercase">Encumbered</span>}
               </div>
             </div>
           </div>
@@ -207,20 +207,20 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
                   {rollResult.rolls.map((r, i) => (
                     <span
                       key={i}
-                      className="inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-mono bg-gray-700 text-gray-300 border border-gray-600"
+                      className="inline-flex items-center justify-center w-5 h-5 rounded text-xs font-mono bg-gray-700 text-gray-300 border border-gray-600"
                     >
                       {r}
                     </span>
                   ))}
                   {rollResult.formula.includes('+') && (
-                    <span className="text-[10px] text-gray-400 self-center">+{rollResult.formula.split('+')[1]}</span>
+                    <span className="text-xs text-gray-400 self-center">+{rollResult.formula.split('+')[1]}</span>
                   )}
                 </div>
               )}
             </div>
             <button
               onClick={() => setRollResult(null)}
-              className="w-full mt-2 py-1 text-[10px] text-gray-400 hover:text-gray-300 cursor-pointer"
+              className="w-full mt-2 py-1 text-xs text-gray-400 hover:text-gray-300 cursor-pointer"
             >
               Dismiss
             </button>
@@ -231,7 +231,7 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
           {/* Magic items with charges */}
           {magicItems.filter((mi) => mi.charges).length > 0 && (
             <div className="mb-2">
-              <div className="text-[10px] text-purple-400 uppercase tracking-wide mb-1">Magic Items (Charges)</div>
+              <div className="text-xs text-purple-400 uppercase tracking-wide mb-1">Magic Items (Charges)</div>
               {magicItems
                 .filter((mi) => mi.charges)
                 .map((mi, i) => (
@@ -246,7 +246,7 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
                       </span>
                     </div>
                     {mi.description && (
-                      <div className="text-[10px] text-gray-500 mt-0.5 truncate">{mi.description}</div>
+                      <div className="text-xs text-gray-500 mt-0.5 truncate">{mi.description}</div>
                     )}
                     <button
                       onClick={() => {
@@ -276,7 +276,7 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
                         useCharacterStore.getState().saveCharacter(updated)
                       }}
                       disabled={!mi.charges || mi.charges.current <= 0}
-                      className="w-full mt-1 py-1 text-[10px] rounded bg-purple-600/80 text-white hover:bg-purple-500 transition-colors cursor-pointer font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
+                      className="w-full mt-1 py-1 text-xs rounded bg-purple-600/80 text-white hover:bg-purple-500 transition-colors cursor-pointer font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                       Use Charge ({mi.charges?.current} remaining)
                     </button>
@@ -311,7 +311,7 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
                     <div className="flex items-center gap-2">
                       <span className={`text-xs transition-transform ${isExpanded ? 'rotate-90' : ''}`}>&#9654;</span>
                       <span className="text-xs font-medium text-gray-200">{item.name}</span>
-                      {item.quantity > 1 && <span className="text-[10px] text-gray-500">x{item.quantity}</span>}
+                      {item.quantity > 1 && <span className="text-xs text-gray-500">x{item.quantity}</span>}
                       {hasEffect && (
                         <span className="text-[9px] text-cyan-500 bg-cyan-900/30 border border-cyan-700/30 rounded px-1 py-0.5">
                           FX
@@ -330,21 +330,21 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
                   {isExpanded && (
                     <div className="px-3 pb-2 space-y-1.5 border-t border-gray-700/30">
                       {description && <p className="text-[11px] text-gray-400 pt-1.5">{description}</p>}
-                      <div className="flex items-center gap-3 text-[10px] text-gray-500">
+                      <div className="flex items-center gap-3 text-xs text-gray-500">
                         {weight != null && <span>Weight: {weight} lb</span>}
                         {cost && <span>Cost: {cost}</span>}
                       </div>
                       {hasEffect ? (
                         <button
                           onClick={() => handleUseConsumable(item, i)}
-                          className="w-full py-1.5 text-[10px] rounded bg-green-600/80 text-white hover:bg-green-500 transition-colors cursor-pointer font-semibold"
+                          className="w-full py-1.5 text-xs rounded bg-green-600/80 text-white hover:bg-green-500 transition-colors cursor-pointer font-semibold"
                         >
                           Use {item.name} (Auto-Apply Effect)
                         </button>
                       ) : (
                         <button
                           onClick={() => handleUseItem(item)}
-                          className="w-full py-1 text-[10px] rounded bg-amber-600/80 text-white hover:bg-amber-500 transition-colors cursor-pointer font-semibold"
+                          className="w-full py-1 text-xs rounded bg-amber-600/80 text-white hover:bg-amber-500 transition-colors cursor-pointer font-semibold"
                         >
                           {isConsumable ? 'Use Item (Consumable)' : 'Use Item'}
                         </button>

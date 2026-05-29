@@ -91,7 +91,7 @@ export default function InfluenceModal({ character, onClose, onBroadcastResult }
 
         <div className="text-xs text-gray-500 bg-gray-800 rounded-lg px-3 py-2 mb-4">
           <div className="font-semibold text-gray-400 mb-1">NPC Willingness (DM determines):</div>
-          <div className="text-[10px]">
+          <div className="text-xs">
             <span className="text-green-400">Willing</span> — auto-success &nbsp;|&nbsp;
             <span className="text-yellow-400">Hesitant</span> — check DC 15 or INT score &nbsp;|&nbsp;
             <span className="text-red-400">Unwilling</span> — auto-fail
@@ -145,7 +145,7 @@ export default function InfluenceModal({ character, onClose, onBroadcastResult }
           </div>
         )}
 
-        <div className="text-[10px] text-gray-600 mt-2">
+        <div className="text-xs text-gray-600 mt-2">
           Failed attempts: wait 24 hours to retry same approach on same NPC.
         </div>
       </div>

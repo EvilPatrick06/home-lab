@@ -129,7 +129,7 @@ export default function LibrarySidebar({
                       <span className="text-base leading-none">{cat.icon}</span>
                       <span className="flex-1 truncate">{cat.label}</span>
                       {(total > 0 || hbCount > 0) && (
-                        <span className="text-[10px] bg-gray-700/60 text-gray-400 px-1.5 rounded-full">
+                        <span className="text-xs bg-gray-700/60 text-gray-400 px-1.5 rounded-full">
                           {total > 0 ? total : ''}
                           {hbCount > 0 ? `${total > 0 ? ' · ' : ''}${hbCount} custom` : ''}
                         </span>
@@ -152,7 +152,7 @@ export default function LibrarySidebar({
                     >
                       <span className="text-base leading-none">{cat.icon}</span>
                       <span className="flex-1 truncate">{cat.label}</span>
-                      <span className="text-[10px] bg-purple-600/30 text-purple-300 px-1.5 rounded-full">
+                      <span className="text-xs bg-purple-600/30 text-purple-300 px-1.5 rounded-full">
                         {homebrewCounts[cat.id]} custom
                       </span>
                     </button>

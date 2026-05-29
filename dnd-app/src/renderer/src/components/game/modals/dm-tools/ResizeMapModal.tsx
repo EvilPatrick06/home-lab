@@ -73,10 +73,10 @@ export default function ResizeMapModal({
             </div>
           </div>
 
-          <p className="text-[10px] text-gray-500">
+          <p className="text-xs text-gray-500">
             Total size: {newPixelWidth} x {newPixelHeight} px
           </p>
-          <p className="text-[10px] text-amber-500/80">
+          <p className="text-xs text-amber-500/80">
             Note: Content outside the new bounds boundaries will be hidden but preserved. Background maps will not
             resize.
           </p>

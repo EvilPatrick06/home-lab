@@ -325,11 +325,11 @@ function ActivitiesTab({
             <div key={entry.id} className="bg-gray-800/50 border border-gray-700 rounded-lg p-3">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs font-semibold text-amber-300">{entry.activityName}</span>
-                <span className="text-[10px] text-gray-500">
+                <span className="text-xs text-gray-500">
                   {entry.daysSpent}/{entry.daysRequired} days
                 </span>
               </div>
-              {entry.details && <p className="text-[10px] text-gray-500 mb-1">{entry.details}</p>}
+              {entry.details && <p className="text-xs text-gray-500 mb-1">{entry.details}</p>}
               {/* Progress bar */}
               <div className="w-full bg-gray-700 rounded-full h-1.5 mb-2">
                 <div
@@ -341,14 +341,14 @@ function ActivitiesTab({
                 <button
                   onClick={() => handleAdvance(entry.id, 1)}
                   disabled={entry.daysSpent >= entry.daysRequired}
-                  className="px-2 py-0.5 text-[10px] bg-blue-600 hover:bg-blue-500 text-white rounded cursor-pointer disabled:opacity-40"
+                  className="px-2 py-0.5 text-xs bg-blue-600 hover:bg-blue-500 text-white rounded cursor-pointer disabled:opacity-40"
                 >
                   +1 Day
                 </button>
                 <button
                   onClick={() => handleAdvance(entry.id, 5)}
                   disabled={entry.daysSpent >= entry.daysRequired}
-                  className="px-2 py-0.5 text-[10px] bg-blue-600 hover:bg-blue-500 text-white rounded cursor-pointer disabled:opacity-40"
+                  className="px-2 py-0.5 text-xs bg-blue-600 hover:bg-blue-500 text-white rounded cursor-pointer disabled:opacity-40"
                 >
                   +5 Days
                 </button>
@@ -358,14 +358,14 @@ function ActivitiesTab({
                       saveCampaign(updateDowntimeProgress(campaign, entry.id, { status: 'completed' }))
                       onBroadcastResult?.(`**${entry.characterName}** completed: ${entry.activityName}!`)
                     }}
-                    className="px-2 py-0.5 text-[10px] bg-green-600 hover:bg-green-500 text-white rounded cursor-pointer"
+                    className="px-2 py-0.5 text-xs bg-green-600 hover:bg-green-500 text-white rounded cursor-pointer"
                   >
                     Complete
                   </button>
                 )}
                 <button
                   onClick={() => handleAbandon(entry.id)}
-                  className="px-2 py-0.5 text-[10px] bg-red-600/50 hover:bg-red-600 text-red-300 rounded cursor-pointer ml-auto"
+                  className="px-2 py-0.5 text-xs bg-red-600/50 hover:bg-red-600 text-red-300 rounded cursor-pointer ml-auto"
                 >
                   Abandon
                 </button>
@@ -393,7 +393,7 @@ function ActivitiesTab({
             }`}
           >
             <div className="font-semibold">{activity.name}</div>
-            <div className="text-[10px] text-gray-500 mt-0.5">{activity.reference}</div>
+            <div className="text-xs text-gray-500 mt-0.5">{activity.reference}</div>
           </button>
         ))}
       </div>
@@ -404,25 +404,25 @@ function ActivitiesTab({
           <p className="text-xs text-gray-300 leading-relaxed">{selected.description}</p>
 
           {selected.requirements.length > 0 && (
-            <div className="text-[10px] text-gray-500">
+            <div className="text-xs text-gray-500">
               <span className="font-semibold text-gray-400">Requirements:</span> {selected.requirements.join(', ')}
             </div>
           )}
 
-          <div className="text-[10px] text-amber-400">
+          <div className="text-xs text-amber-400">
             <span className="font-semibold">Outcome:</span> {selected.outcome}
           </div>
 
           {/* Rarity selector */}
           {selected.rarityTable && (
             <div className="space-y-1">
-              <label className="text-[10px] text-gray-400 font-semibold">Item Rarity:</label>
+              <label className="text-xs text-gray-400 font-semibold">Item Rarity:</label>
               <div className="flex flex-wrap gap-1">
                 {selected.rarityTable.map((r) => (
                   <button
                     key={r.rarity}
                     onClick={() => setSelectedRarity(r.rarity)}
-                    className={`px-2 py-0.5 text-[10px] rounded cursor-pointer ${
+                    className={`px-2 py-0.5 text-xs rounded cursor-pointer ${
                       selectedRarity === r.rarity
                         ? 'bg-amber-600 text-white'
                         : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
@@ -438,13 +438,13 @@ function ActivitiesTab({
           {/* Spell level selector */}
           {selected.spellLevelTable && (
             <div className="space-y-1">
-              <label className="text-[10px] text-gray-400 font-semibold">Spell Level:</label>
+              <label className="text-xs text-gray-400 font-semibold">Spell Level:</label>
               <div className="flex flex-wrap gap-1">
                 {selected.spellLevelTable.map((r) => (
                   <button
                     key={r.level}
                     onClick={() => setSelectedSpellLevel(r.level)}
-                    className={`px-2 py-0.5 text-[10px] rounded cursor-pointer ${
+                    className={`px-2 py-0.5 text-xs rounded cursor-pointer ${
                       selectedSpellLevel === r.level
                         ? 'bg-amber-600 text-white'
                         : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
@@ -460,13 +460,13 @@ function ActivitiesTab({
           {/* Potion type selector */}
           {selected.potionTable && (
             <div className="space-y-1">
-              <label className="text-[10px] text-gray-400 font-semibold">Potion Type:</label>
+              <label className="text-xs text-gray-400 font-semibold">Potion Type:</label>
               <div className="flex flex-wrap gap-1">
                 {selected.potionTable.map((r) => (
                   <button
                     key={r.type}
                     onClick={() => setSelectedPotion(r.type)}
-                    className={`px-2 py-0.5 text-[10px] rounded cursor-pointer ${
+                    className={`px-2 py-0.5 text-xs rounded cursor-pointer ${
                       selectedPotion === r.type
                         ? 'bg-amber-600 text-white'
                         : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
@@ -482,7 +482,7 @@ function ActivitiesTab({
           {/* Days input */}
           {selected.daysRequired > 0 && !selected.rarityTable && !selected.spellLevelTable && !selected.potionTable && (
             <div className="flex items-center gap-2">
-              <label className="text-[10px] text-gray-400 font-semibold">Days:</label>
+              <label className="text-xs text-gray-400 font-semibold">Days:</label>
               <input
                 type="number"
                 min={1}
@@ -605,7 +605,7 @@ function ExtendedTab({
 
   return (
     <div className="space-y-3">
-      <p className="text-[10px] text-gray-500">
+      <p className="text-xs text-gray-500">
         DMG extended activities with dice resolution. Select an activity, roll the required checks, then see results.
       </p>
 
@@ -622,7 +622,7 @@ function ExtendedTab({
             }`}
           >
             <div className="font-semibold">{act.name}</div>
-            <div className="text-[10px] text-gray-500 mt-0.5">
+            <div className="text-xs text-gray-500 mt-0.5">
               {act.minimumDuration ?? 'Varies'}{' '}
               {act.costPerDayGP > 0 ? `\u2014 ${act.costPerDayGP} GP/day` : '\u2014 Free'}
             </div>
@@ -634,10 +634,10 @@ function ExtendedTab({
       {selected && (
         <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-3 space-y-3">
           <p className="text-xs text-gray-300 leading-relaxed">{selected.description}</p>
-          <p className="text-[10px] text-gray-500">{selected.resolution}</p>
+          <p className="text-xs text-gray-500">{selected.resolution}</p>
 
           {selected.requirements && selected.requirements.length > 0 && (
-            <div className="text-[10px] text-gray-500">
+            <div className="text-xs text-gray-500">
               <span className="font-semibold text-gray-400">Requirements:</span> {selected.requirements.join(', ')}
             </div>
           )}
@@ -645,7 +645,7 @@ function ExtendedTab({
           {/* Lifestyle selector for carousing */}
           {selected.costs && (
             <div className="space-y-1">
-              <label className="text-[10px] text-gray-400 font-semibold">Lifestyle:</label>
+              <label className="text-xs text-gray-400 font-semibold">Lifestyle:</label>
               <div className="flex flex-wrap gap-1">
                 {Object.entries(selected.costs).map(([tier, info]) => {
                   const phbCost = LIFESTYLE_COSTS[tier as LifestyleLevel]
@@ -653,7 +653,7 @@ function ExtendedTab({
                     <button
                       key={tier}
                       onClick={() => setLifestyleTier(tier)}
-                      className={`px-2 py-0.5 text-[10px] rounded cursor-pointer ${
+                      className={`px-2 py-0.5 text-xs rounded cursor-pointer ${
                         lifestyleTier === tier
                           ? 'bg-purple-600 text-white'
                           : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
@@ -671,17 +671,17 @@ function ExtendedTab({
           {/* Checks */}
           {selected.checks && selected.checks.length > 0 && (
             <div className="space-y-1">
-              <label className="text-[10px] text-gray-400 font-semibold">
+              <label className="text-xs text-gray-400 font-semibold">
                 Resolution Checks (DC {selected.dcBase ?? '?'}):
               </label>
               {selected.checks.map((check, i) => {
                 const existing = checkResults[i]
                 return (
                   <div key={i} className="flex items-center gap-2">
-                    <span className="text-[10px] text-gray-300 flex-1">{check.check}</span>
+                    <span className="text-xs text-gray-300 flex-1">{check.check}</span>
                     {existing ? (
                       <span
-                        className={`text-[10px] font-semibold px-2 py-0.5 rounded ${
+                        className={`text-xs font-semibold px-2 py-0.5 rounded ${
                           existing.success ? 'bg-green-600/20 text-green-400' : 'bg-red-600/20 text-red-400'
                         }`}
                       >
@@ -691,7 +691,7 @@ function ExtendedTab({
                       <button
                         onClick={() => handleRollCheck(check.check, selected.dcBase ?? 10)}
                         disabled={i > checkResults.length}
-                        className="px-2 py-0.5 text-[10px] bg-purple-600 hover:bg-purple-500 text-white rounded cursor-pointer disabled:opacity-40"
+                        className="px-2 py-0.5 text-xs bg-purple-600 hover:bg-purple-500 text-white rounded cursor-pointer disabled:opacity-40"
                       >
                         Roll
                       </button>
@@ -715,10 +715,10 @@ function ExtendedTab({
           {/* Research: single Intelligence check */}
           {selected.id === 'research' && selected.dcGuidelines && (
             <div className="space-y-1">
-              <label className="text-[10px] text-gray-400 font-semibold">DC Guidelines:</label>
+              <label className="text-xs text-gray-400 font-semibold">DC Guidelines:</label>
               <div className="flex flex-wrap gap-1">
                 {Object.entries(selected.dcGuidelines).map(([label, dc]) => (
-                  <span key={label} className="text-[10px] bg-gray-700 text-gray-300 px-2 py-0.5 rounded">
+                  <span key={label} className="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded">
                     {label}: DC {dc}
                   </span>
                 ))}
@@ -743,14 +743,14 @@ function ExtendedTab({
           {/* Results display */}
           {resultText && (
             <div className="bg-amber-600/10 border border-amber-500/30 rounded-lg p-2">
-              <span className="text-[10px] text-amber-400 font-semibold">Result: </span>
+              <span className="text-xs text-amber-400 font-semibold">Result: </span>
               <span className="text-xs text-gray-200">{resultText}</span>
             </div>
           )}
 
           {/* Favor examples */}
           {selected.favorExamples && resultText && (
-            <div className="text-[10px] text-gray-500">
+            <div className="text-xs text-gray-500">
               <span className="font-semibold text-gray-400">Favor examples:</span>
               <ul className="list-disc ml-4 mt-0.5 space-y-0.5">
                 {selected.favorExamples.map((f, i) => (
@@ -765,7 +765,7 @@ function ExtendedTab({
             <div className="pt-1 border-t border-gray-700">
               {complicationText ? (
                 <div className="bg-red-600/10 border border-red-500/30 rounded-lg p-2">
-                  <span className="text-[10px] text-red-400 font-semibold">Complication: </span>
+                  <span className="text-xs text-red-400 font-semibold">Complication: </span>
                   <span className="text-xs text-gray-200">{complicationText}</span>
                 </div>
               ) : (
@@ -858,11 +858,11 @@ function CraftingTab({
             <div key={entry.id} className="bg-gray-800/50 border border-gray-700 rounded-lg p-3">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs font-semibold text-amber-300">{entry.activityName}</span>
-                <span className="text-[10px] text-gray-500">
+                <span className="text-xs text-gray-500">
                   {entry.daysSpent}/{entry.daysRequired} days
                 </span>
               </div>
-              {entry.details && <p className="text-[10px] text-gray-500 mb-1">{entry.details}</p>}
+              {entry.details && <p className="text-xs text-gray-500 mb-1">{entry.details}</p>}
               <div className="w-full bg-gray-700 rounded-full h-1.5 mb-2">
                 <div
                   className="bg-amber-500 h-1.5 rounded-full transition-all"
@@ -873,14 +873,14 @@ function CraftingTab({
                 <button
                   onClick={() => handleAdvanceCrafting(entry.id, 1)}
                   disabled={entry.daysSpent >= entry.daysRequired}
-                  className="px-2 py-0.5 text-[10px] bg-blue-600 hover:bg-blue-500 text-white rounded cursor-pointer disabled:opacity-40"
+                  className="px-2 py-0.5 text-xs bg-blue-600 hover:bg-blue-500 text-white rounded cursor-pointer disabled:opacity-40"
                 >
                   +1 Day
                 </button>
                 <button
                   onClick={() => handleAdvanceCrafting(entry.id, 5)}
                   disabled={entry.daysSpent >= entry.daysRequired}
-                  className="px-2 py-0.5 text-[10px] bg-blue-600 hover:bg-blue-500 text-white rounded cursor-pointer disabled:opacity-40"
+                  className="px-2 py-0.5 text-xs bg-blue-600 hover:bg-blue-500 text-white rounded cursor-pointer disabled:opacity-40"
                 >
                   +5 Days
                 </button>
@@ -890,7 +890,7 @@ function CraftingTab({
                       saveCampaign(updateDowntimeProgress(campaign, entry.id, { status: 'completed' }))
                       onBroadcastResult?.(`**${entry.characterName}** completed crafting: ${entry.activityName}!`)
                     }}
-                    className="px-2 py-0.5 text-[10px] bg-green-600 hover:bg-green-500 text-white rounded cursor-pointer"
+                    className="px-2 py-0.5 text-xs bg-green-600 hover:bg-green-500 text-white rounded cursor-pointer"
                   >
                     Complete
                   </button>
@@ -900,7 +900,7 @@ function CraftingTab({
                     saveCampaign(removeDowntimeProgress(campaign, entry.id))
                     onBroadcastResult?.(`**${entry.characterName}** abandoned crafting: ${entry.activityName}`)
                   }}
-                  className="px-2 py-0.5 text-[10px] bg-red-600/50 hover:bg-red-600 text-red-300 rounded cursor-pointer ml-auto"
+                  className="px-2 py-0.5 text-xs bg-red-600/50 hover:bg-red-600 text-red-300 rounded cursor-pointer ml-auto"
                 >
                   Abandon
                 </button>
@@ -989,7 +989,7 @@ function TrainingTab({
 
   return (
     <div className="space-y-3">
-      <p className="text-[10px] text-gray-500">
+      <p className="text-xs text-gray-500">
         Train to gain a new tool proficiency or language. Takes 250 days and costs 1 GP/day. Requires an instructor.
       </p>
 
@@ -1001,7 +1001,7 @@ function TrainingTab({
             <div key={entry.id} className="bg-gray-800/50 border border-gray-700 rounded-lg p-3">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs font-semibold text-amber-300">{entry.activityName}</span>
-                <span className="text-[10px] text-gray-500">
+                <span className="text-xs text-gray-500">
                   {entry.daysSpent}/{entry.daysRequired} days (
                   {Math.round((entry.daysSpent / entry.daysRequired) * 100)}%)
                 </span>
@@ -1016,21 +1016,21 @@ function TrainingTab({
                 <button
                   onClick={() => handleAdvance(entry.id, 1)}
                   disabled={entry.daysSpent >= entry.daysRequired}
-                  className="px-2 py-0.5 text-[10px] bg-blue-600 hover:bg-blue-500 text-white rounded cursor-pointer disabled:opacity-40"
+                  className="px-2 py-0.5 text-xs bg-blue-600 hover:bg-blue-500 text-white rounded cursor-pointer disabled:opacity-40"
                 >
                   +1 Day
                 </button>
                 <button
                   onClick={() => handleAdvance(entry.id, 5)}
                   disabled={entry.daysSpent >= entry.daysRequired}
-                  className="px-2 py-0.5 text-[10px] bg-blue-600 hover:bg-blue-500 text-white rounded cursor-pointer disabled:opacity-40"
+                  className="px-2 py-0.5 text-xs bg-blue-600 hover:bg-blue-500 text-white rounded cursor-pointer disabled:opacity-40"
                 >
                   +1 Workweek
                 </button>
                 <button
                   onClick={() => handleAdvance(entry.id, 30)}
                   disabled={entry.daysSpent >= entry.daysRequired}
-                  className="px-2 py-0.5 text-[10px] bg-blue-600 hover:bg-blue-500 text-white rounded cursor-pointer disabled:opacity-40"
+                  className="px-2 py-0.5 text-xs bg-blue-600 hover:bg-blue-500 text-white rounded cursor-pointer disabled:opacity-40"
                 >
                   +30 Days
                 </button>
@@ -1042,7 +1042,7 @@ function TrainingTab({
                         `**${entry.characterName}** completed training: ${entry.trainingTarget}! Proficiency gained.`
                       )
                     }}
-                    className="px-2 py-0.5 text-[10px] bg-green-600 hover:bg-green-500 text-white rounded cursor-pointer"
+                    className="px-2 py-0.5 text-xs bg-green-600 hover:bg-green-500 text-white rounded cursor-pointer"
                   >
                     Complete
                   </button>
@@ -1052,7 +1052,7 @@ function TrainingTab({
                     saveCampaign(updateDowntimeProgress(campaign, entry.id, { status: 'abandoned' }))
                     onBroadcastResult?.(`**${entry.characterName}** abandoned training: ${entry.trainingTarget}`)
                   }}
-                  className="px-2 py-0.5 text-[10px] bg-red-600/50 hover:bg-red-600 text-red-300 rounded cursor-pointer ml-auto"
+                  className="px-2 py-0.5 text-xs bg-red-600/50 hover:bg-red-600 text-red-300 rounded cursor-pointer ml-auto"
                 >
                   Abandon
                 </button>
@@ -1073,7 +1073,7 @@ function TrainingTab({
               setTrainingType('tool')
               setSelectedTarget('')
             }}
-            className={`px-3 py-1 text-[10px] rounded cursor-pointer ${
+            className={`px-3 py-1 text-xs rounded cursor-pointer ${
               trainingType === 'tool' ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
             }`}
           >
@@ -1084,7 +1084,7 @@ function TrainingTab({
               setTrainingType('language')
               setSelectedTarget('')
             }}
-            className={`px-3 py-1 text-[10px] rounded cursor-pointer ${
+            className={`px-3 py-1 text-xs rounded cursor-pointer ${
               trainingType === 'language' ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
             }`}
           >
@@ -1107,7 +1107,7 @@ function TrainingTab({
         </select>
 
         {selectedTarget && (
-          <div className="flex items-center gap-4 text-[10px] text-gray-400">
+          <div className="flex items-center gap-4 text-xs text-gray-400">
             <span>
               Duration: <span className="text-white font-semibold">250 days</span>
             </span>

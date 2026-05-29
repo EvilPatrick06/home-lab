@@ -80,7 +80,7 @@ export default function ConditionTracker({
                 </span>
                 {cond.value !== undefined && <span className="text-amber-400 font-semibold">{cond.value}</span>}
               </div>
-              <p className="text-[10px] text-gray-500 truncate">{durationText}</p>
+              <p className="text-xs text-gray-500 truncate">{durationText}</p>
             </div>
             {isHost && (
               <button

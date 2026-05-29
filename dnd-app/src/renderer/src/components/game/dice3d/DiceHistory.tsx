@@ -43,7 +43,7 @@ export default function DiceHistory({ onClose }: DiceHistoryProps): JSX.Element 
       <div className="shrink-0 flex items-center justify-between px-3 py-2 border-b border-gray-700">
         <h2 className="text-sm font-bold text-gray-100">Dice History</h2>
         <div className="flex items-center gap-1">
-          <span className="text-[10px] text-gray-500">{diceHistory.length} rolls</span>
+          <span className="text-xs text-gray-500">{diceHistory.length} rolls</span>
           {onClose && (
             <button
               onClick={onClose}
@@ -63,7 +63,7 @@ export default function DiceHistory({ onClose }: DiceHistoryProps): JSX.Element 
         <div className="shrink-0 flex gap-1 px-3 py-2 border-b border-gray-700 flex-wrap">
           <button
             onClick={() => setFilterPlayer(null)}
-            className={`px-2 py-0.5 text-[10px] font-semibold rounded cursor-pointer transition-colors ${
+            className={`px-2 py-0.5 text-xs font-semibold rounded cursor-pointer transition-colors ${
               !filterPlayer
                 ? 'bg-amber-600 text-white'
                 : 'bg-gray-800 text-gray-400 hover:text-gray-200 hover:bg-gray-700'
@@ -75,7 +75,7 @@ export default function DiceHistory({ onClose }: DiceHistoryProps): JSX.Element 
             <button
               key={name}
               onClick={() => setFilterPlayer(filterPlayer === name ? null : name)}
-              className={`px-2 py-0.5 text-[10px] font-semibold rounded cursor-pointer transition-colors ${
+              className={`px-2 py-0.5 text-xs font-semibold rounded cursor-pointer transition-colors ${
                 filterPlayer === name
                   ? 'bg-amber-600 text-white'
                   : 'bg-gray-800 text-gray-400 hover:text-gray-200 hover:bg-gray-700'
@@ -92,7 +92,7 @@ export default function DiceHistory({ onClose }: DiceHistoryProps): JSX.Element 
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
             <p className="text-xs text-gray-500">No dice rolls yet.</p>
-            <p className="text-[10px] text-gray-600 mt-1">Rolls will appear here as they happen.</p>
+            <p className="text-xs text-gray-600 mt-1">Rolls will appear here as they happen.</p>
           </div>
         ) : (
           filtered.map((roll) => (
@@ -111,22 +111,22 @@ export default function DiceHistory({ onClose }: DiceHistoryProps): JSX.Element 
                 <span className="text-[9px] text-gray-600 shrink-0">{formatTime(roll.timestamp)}</span>
               </div>
 
-              {roll.reason && <div className="text-[10px] text-gray-400 mt-0.5 truncate">{roll.reason}</div>}
+              {roll.reason && <div className="text-xs text-gray-400 mt-0.5 truncate">{roll.reason}</div>}
 
               <div className="flex items-center gap-1.5 mt-1">
-                <span className="text-[10px] text-gray-500 font-mono">{roll.formula}</span>
-                <span className="text-[10px] text-gray-600">=</span>
+                <span className="text-xs text-gray-500 font-mono">{roll.formula}</span>
+                <span className="text-xs text-gray-600">=</span>
                 <div className="flex gap-0.5">
                   {roll.rolls.map((die, i) => (
                     <span
                       key={i}
-                      className="inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold rounded bg-gray-700/60 text-gray-200"
+                      className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold rounded bg-gray-700/60 text-gray-200"
                     >
                       {die}
                     </span>
                   ))}
                 </div>
-                <span className="text-[10px] text-gray-600">=</span>
+                <span className="text-xs text-gray-600">=</span>
                 <span
                   className={`text-xs font-bold ${
                     roll.isCritical ? 'text-amber-400' : roll.isFumble ? 'text-red-400' : 'text-gray-100'

@@ -207,7 +207,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
 
   const inputClass =
     'w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200 focus:border-amber-500 focus:outline-none'
-  const labelClass = 'block text-[10px] text-gray-500 mb-0.5'
+  const labelClass = 'block text-xs text-gray-500 mb-0.5'
 
   return (
     <div className="space-y-3">
@@ -218,7 +218,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
             resetForm()
             setShowForm(!showForm)
           }}
-          className="px-2 py-0.5 text-[10px] rounded bg-amber-600 text-white hover:bg-amber-500 cursor-pointer"
+          className="px-2 py-0.5 text-xs rounded bg-amber-600 text-white hover:bg-amber-500 cursor-pointer"
         >
           {showForm ? 'Cancel' : '+ New'}
         </button>
@@ -428,7 +428,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
                 onChange={(e) => setVisibleToPlayers(e.target.checked)}
                 className="accent-cyan-500 w-3 h-3 cursor-pointer"
               />
-              <span className="text-[10px] text-gray-400">Visible to players</span>
+              <span className="text-xs text-gray-400">Visible to players</span>
             </label>
             <label className="flex items-center gap-1.5 cursor-pointer">
               <input
@@ -437,7 +437,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
                 onChange={(e) => setOneShot(e.target.checked)}
                 className="accent-cyan-500 w-3 h-3 cursor-pointer"
               />
-              <span className="text-[10px] text-gray-400">One-shot</span>
+              <span className="text-xs text-gray-400">One-shot</span>
             </label>
           </div>
 

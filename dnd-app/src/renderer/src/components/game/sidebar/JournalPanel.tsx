@@ -241,7 +241,7 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
         <button
           onClick={handleCreate}
           title="New entry"
-          className="px-2 py-1 text-[10px] font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded transition-colors cursor-pointer"
+          className="px-2 py-1 text-xs font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded transition-colors cursor-pointer"
         >
           + New
         </button>
@@ -287,15 +287,15 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
                           handleDelete(entry.id)
                         }}
                         title="Delete entry"
-                        className="w-5 h-5 flex items-center justify-center text-gray-600 hover:text-red-400 cursor-pointer text-[10px] shrink-0"
+                        className="w-5 h-5 flex items-center justify-center text-gray-600 hover:text-red-400 cursor-pointer text-xs shrink-0"
                       >
                         &#10005;
                       </button>
                     )}
                   </div>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-[10px] text-gray-500">{entry.authorName}</span>
-                    <span className="text-[10px] text-gray-600">{formatDate(entry.updatedAt)}</span>
+                    <span className="text-xs text-gray-500">{entry.authorName}</span>
+                    <span className="text-xs text-gray-600">{formatDate(entry.updatedAt)}</span>
                   </div>
                 </div>
               ))}
@@ -323,13 +323,13 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
                 <div className="flex items-center gap-1 shrink-0">
                   <button
                     onClick={handleSave}
-                    className="px-2 py-1 text-[10px] font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded transition-colors cursor-pointer"
+                    className="px-2 py-1 text-xs font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded transition-colors cursor-pointer"
                   >
                     Save
                   </button>
                   <button
                     onClick={handleCancelEdit}
-                    className="px-2 py-1 text-[10px] text-gray-400 hover:text-gray-200 cursor-pointer"
+                    className="px-2 py-1 text-xs text-gray-400 hover:text-gray-200 cursor-pointer"
                   >
                     Cancel
                   </button>
@@ -338,7 +338,7 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
                 <button
                   onClick={handleStartEdit}
                   title="Edit entry"
-                  className="px-2 py-1 text-[10px] font-semibold text-gray-400 hover:text-amber-400 border border-gray-700 hover:border-amber-600/50 rounded transition-colors cursor-pointer"
+                  className="px-2 py-1 text-xs font-semibold text-gray-400 hover:text-amber-400 border border-gray-700 hover:border-amber-600/50 rounded transition-colors cursor-pointer"
                 >
                   Edit
                 </button>
@@ -437,8 +437,8 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
 
             {/* Entry metadata footer */}
             <div className="shrink-0 px-3 py-1 border-t border-gray-700/50 flex items-center justify-between">
-              <span className="text-[10px] text-gray-600">by {selectedEntry.authorName}</span>
-              <span className="text-[10px] text-gray-600">Updated {formatDate(selectedEntry.updatedAt)}</span>
+              <span className="text-xs text-gray-600">by {selectedEntry.authorName}</span>
+              <span className="text-xs text-gray-600">Updated {formatDate(selectedEntry.updatedAt)}</span>
             </div>
           </div>
         ) : (

@@ -30,7 +30,7 @@ export default function DMToolbar({
 }: DMToolbarProps): JSX.Element {
   return (
     <div className="flex flex-col gap-1 bg-gray-900 border border-gray-700 rounded-lg p-2 shadow-xl">
-      <p className="text-[10px] text-gray-500 uppercase tracking-wider text-center mb-1">DM Tools</p>
+      <p className="text-xs text-gray-500 uppercase tracking-wider text-center mb-1">DM Tools</p>
       {tools.map((tool) => (
         <button
           key={tool.id}

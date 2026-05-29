@@ -118,7 +118,7 @@ export default function TrapPlacerPanel({
                         title={placed.armed ? 'Armed' : 'Triggered'}
                       />
                       <span className="text-white text-sm font-medium truncate">{placed.name}</span>
-                      <span className="shrink-0 text-[10px] text-gray-500">
+                      <span className="shrink-0 text-xs text-gray-500">
                         ({placed.gridX},{placed.gridY})
                       </span>
                     </div>
@@ -162,7 +162,7 @@ export default function TrapPlacerPanel({
                   <button
                     type="button"
                     onClick={() => setExpandedPlacedId(isExpanded ? null : placed.id)}
-                    className="mt-1 text-[10px] text-gray-500 hover:text-gray-400 cursor-pointer"
+                    className="mt-1 text-xs text-gray-500 hover:text-gray-400 cursor-pointer"
                   >
                     {isExpanded ? 'Hide' : 'Show'} details
                   </button>
@@ -211,14 +211,14 @@ export default function TrapPlacerPanel({
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0 flex-1">
                     <span
-                      className={`shrink-0 text-[10px] px-1.5 py-0.5 rounded font-medium ${
+                      className={`shrink-0 text-xs px-1.5 py-0.5 rounded font-medium ${
                         trap.level === 'nuisance' ? 'bg-blue-600/80 text-blue-100' : 'bg-red-600/80 text-red-100'
                       }`}
                     >
                       {trap.level}
                     </span>
                     <span className="text-white text-sm font-medium truncate">{trap.name}</span>
-                    <span className="shrink-0 text-[10px] text-gray-500 truncate max-w-[80px]">{trap.trigger}</span>
+                    <span className="shrink-0 text-xs text-gray-500 truncate max-w-[80px]">{trap.trigger}</span>
                   </div>
                   {onSelectTrapForPlacement && (
                     <button
@@ -234,7 +234,7 @@ export default function TrapPlacerPanel({
                 <button
                   type="button"
                   onClick={() => setExpandedTrapId(isExpanded ? null : trap.id)}
-                  className="mt-1 text-[10px] text-gray-500 hover:text-gray-400 cursor-pointer"
+                  className="mt-1 text-xs text-gray-500 hover:text-gray-400 cursor-pointer"
                 >
                   {isExpanded ? 'Hide' : 'Show'} details
                 </button>

@@ -178,7 +178,7 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
             &#9889;
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[10px] uppercase tracking-wider text-amber-500/70 font-semibold mb-0.5">Quick Resume</p>
+            <p className="text-xs uppercase tracking-wider text-amber-500/70 font-semibold mb-0.5">Quick Resume</p>
             <h3 className="text-sm font-semibold text-gray-100 truncate">
               {quickResumeTarget.type === 'hosted'
                 ? quickResumeTarget.campaign.name
@@ -300,7 +300,7 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
                     <span className="text-sm font-semibold text-gray-100 truncate block">
                       {session.campaignName || 'Unknown Campaign'}
                     </span>
-                    <div className="text-[10px] text-gray-500 mt-0.5">
+                    <div className="text-xs text-gray-500 mt-0.5">
                       Code: <span className="font-mono text-gray-400">{maskInviteCode(session.inviteCode)}</span>
                       <span className="mx-1.5">&middot;</span>
                       as {session.displayName}
@@ -363,11 +363,11 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-semibold text-gray-100 truncate">{c.name}</span>
-                          <span className="text-[10px] px-1.5 py-0.5 rounded-full font-semibold bg-red-900/40 text-red-400">
+                          <span className="text-xs px-1.5 py-0.5 rounded-full font-semibold bg-red-900/40 text-red-400">
                             {c.system ?? '5e'}
                           </span>
                         </div>
-                        <div className="text-[10px] text-gray-500 mt-0.5">
+                        <div className="text-xs text-gray-500 mt-0.5">
                           Updated {formatDate(c.updatedAt)}
                           {c.maps?.length > 0 && (
                             <>
@@ -439,11 +439,11 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-semibold text-gray-400 truncate">{c.name}</span>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-full font-semibold bg-gray-700 text-gray-300">
+                        <span className="text-xs px-1.5 py-0.5 rounded-full font-semibold bg-gray-700 text-gray-300">
                           Archived
                         </span>
                       </div>
-                      <div className="text-[10px] text-gray-600 mt-0.5">Updated {formatDate(c.updatedAt)}</div>
+                      <div className="text-xs text-gray-600 mt-0.5">Updated {formatDate(c.updatedAt)}</div>
                     </div>
                     <div className="flex gap-1.5 shrink-0">
                       <button

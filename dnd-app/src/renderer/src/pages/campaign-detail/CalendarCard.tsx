@@ -84,7 +84,7 @@ export default function CalendarCard({ campaign, saveCampaign }: CalendarCardPro
               <div className="flex items-center gap-2 mt-1 pt-1 border-t border-gray-700/50">
                 <span className="text-gray-500">Weather:</span>
                 <span className="text-gray-200 capitalize">{weather.condition.replace(/-/g, ' ')}</span>
-                <span className="text-gray-400 text-[10px]">({weather.temperature})</span>
+                <span className="text-gray-400 text-xs">({weather.temperature})</span>
               </div>
             )}
           </div>

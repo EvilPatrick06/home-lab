@@ -108,7 +108,7 @@ export default function MapEditorRightPanel({
           <button
             key={tab}
             onClick={() => setRightPanel(tab)}
-            className={`px-2 py-0.5 text-[10px] rounded capitalize transition-colors cursor-pointer ${
+            className={`px-2 py-0.5 text-xs rounded capitalize transition-colors cursor-pointer ${
               rightPanel === tab ? 'bg-amber-600 text-white' : 'text-gray-500 hover:text-gray-300'
             }`}
           >
@@ -191,7 +191,7 @@ export default function MapEditorRightPanel({
 
                   {type === 'portal' && activeTool === 'terrain' && terrainPaintType === 'portal' && (
                     <div className="mt-1 p-2 rounded bg-gray-800/50 border border-fuchsia-900/30 flex flex-col gap-2">
-                      <div className="text-[10px] text-fuchsia-300 font-semibold mb-1">Portal Configuration</div>
+                      <div className="text-xs text-fuchsia-300 font-semibold mb-1">Portal Configuration</div>
                       <select
                         className="w-full bg-gray-900 border border-gray-700 rounded text-xs text-gray-200 px-2 py-1"
                         value={portalTarget?.mapId ?? ''}
@@ -212,7 +212,7 @@ export default function MapEditorRightPanel({
                       </select>
                       <div className="flex gap-2">
                         <div className="flex-1">
-                          <label className="text-[10px] text-gray-400 block mb-0.5">Target X</label>
+                          <label className="text-xs text-gray-400 block mb-0.5">Target X</label>
                           <input
                             type="number"
                             className="w-full bg-gray-900 border border-gray-700 rounded text-xs text-gray-200 px-2 py-1"
@@ -227,7 +227,7 @@ export default function MapEditorRightPanel({
                           />
                         </div>
                         <div className="flex-1">
-                          <label className="text-[10px] text-gray-400 block mb-0.5">Target Y</label>
+                          <label className="text-xs text-gray-400 block mb-0.5">Target Y</label>
                           <input
                             type="number"
                             className="w-full bg-gray-900 border border-gray-700 rounded text-xs text-gray-200 px-2 py-1"

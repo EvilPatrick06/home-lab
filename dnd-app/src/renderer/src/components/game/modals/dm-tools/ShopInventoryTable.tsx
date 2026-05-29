@@ -57,7 +57,7 @@ export default function ShopInventoryTable({
           <select
             value={filterCategory}
             onChange={(e) => setFilterCategory(e.target.value as ShopItemCategory | 'all')}
-            className="bg-gray-800 border border-gray-700 rounded px-2 py-0.5 text-[10px] text-gray-300 focus:outline-none focus:border-amber-500"
+            className="bg-gray-800 border border-gray-700 rounded px-2 py-0.5 text-xs text-gray-300 focus:outline-none focus:border-amber-500"
           >
             <option value="all">All Categories</option>
             {SHOP_CATEGORIES.map((c) => (
@@ -66,7 +66,7 @@ export default function ShopInventoryTable({
               </option>
             ))}
           </select>
-          <div className="flex text-[10px] gap-0.5">
+          <div className="flex text-xs gap-0.5">
             {(['name', 'price', 'category'] as SortKey[]).map((key) => (
               <button
                 key={key}
@@ -160,7 +160,7 @@ export default function ShopInventoryTable({
                 <div className="px-3 pb-2 space-y-1.5 border-t border-gray-700/50 pt-1.5">
                   <div className="grid grid-cols-4 gap-2">
                     <div>
-                      <label className="block text-[10px] text-gray-500 mb-0.5">Price (GP)</label>
+                      <label className="block text-xs text-gray-500 mb-0.5">Price (GP)</label>
                       <input
                         type="number"
                         defaultValue={item.price.gp ?? 0}
@@ -172,7 +172,7 @@ export default function ShopInventoryTable({
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] text-gray-500 mb-0.5">Stock Limit</label>
+                      <label className="block text-xs text-gray-500 mb-0.5">Stock Limit</label>
                       <input
                         type="number"
                         defaultValue={item.stockLimit ?? ''}
@@ -196,7 +196,7 @@ export default function ShopInventoryTable({
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] text-gray-500 mb-0.5">Quantity</label>
+                      <label className="block text-xs text-gray-500 mb-0.5">Quantity</label>
                       <input
                         type="number"
                         defaultValue={item.quantity}
@@ -208,7 +208,7 @@ export default function ShopInventoryTable({
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] text-gray-500 mb-0.5">Rarity</label>
+                      <label className="block text-xs text-gray-500 mb-0.5">Rarity</label>
                       <select
                         defaultValue={item.rarity ?? 'common'}
                         onChange={(e) => onUpdate(item.id, { rarity: e.target.value as ShopItemRarity })}
@@ -223,7 +223,7 @@ export default function ShopInventoryTable({
                     </div>
                   </div>
                   <div>
-                    <label className="block text-[10px] text-gray-500 mb-0.5">DM Notes (hidden from players)</label>
+                    <label className="block text-xs text-gray-500 mb-0.5">DM Notes (hidden from players)</label>
                     <input
                       type="text"
                       defaultValue={item.dmNotes ?? ''}

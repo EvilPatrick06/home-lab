@@ -64,7 +64,7 @@ export default function DMBottomBar({
             if (macros.length === 0) return
             useNetworkStore.getState().sendMessage('dm:push-macros', { macros })
           }}
-          className="px-2 py-0.5 text-[10px]
+          className="px-2 py-0.5 text-xs
             bg-gray-800 border border-gray-700/50 rounded-t-lg text-gray-400 hover:text-amber-300
             cursor-pointer transition-colors"
           title="Share your macros with all players"

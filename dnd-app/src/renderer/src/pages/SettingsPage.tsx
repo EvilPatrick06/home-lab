@@ -180,7 +180,7 @@ function KeybindingEditor(): JSX.Element {
     <div ref={captureRef}>
       {Object.entries(grouped).map(([category, shortcuts]) => (
         <div key={category} className="mb-4 last:mb-0">
-          <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2">
+          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
             {CATEGORY_LABELS[category] ?? category}
           </div>
           <div className="space-y-1">
@@ -209,7 +209,7 @@ function KeybindingEditor(): JSX.Element {
                           setConflict(null)
                           setPendingCombo(null)
                         }}
-                        className="px-2 py-0.5 text-[10px] bg-gray-700 border border-gray-600 rounded text-gray-400 hover:text-gray-200 cursor-pointer"
+                        className="px-2 py-0.5 text-xs bg-gray-700 border border-gray-600 rounded text-gray-400 hover:text-gray-200 cursor-pointer"
                       >
                         Cancel
                       </button>
@@ -217,7 +217,7 @@ function KeybindingEditor(): JSX.Element {
                   ) : (
                     <button
                       onClick={() => setCapturing(shortcut.action)}
-                      className="px-2 py-0.5 text-[10px] bg-gray-700 border border-gray-600 rounded text-gray-400 hover:text-gray-200 hover:border-amber-600 cursor-pointer"
+                      className="px-2 py-0.5 text-xs bg-gray-700 border border-gray-600 rounded text-gray-400 hover:text-gray-200 hover:border-amber-600 cursor-pointer"
                     >
                       Rebind
                     </button>
@@ -225,7 +225,7 @@ function KeybindingEditor(): JSX.Element {
                   {isCustom(shortcut.action) && (
                     <button
                       onClick={() => resetKeybinding(shortcut.action)}
-                      className="px-2 py-0.5 text-[10px] bg-gray-900 border border-gray-600 rounded text-gray-100 hover:text-red-300 cursor-pointer"
+                      className="px-2 py-0.5 text-xs bg-gray-900 border border-gray-600 rounded text-gray-100 hover:text-red-300 cursor-pointer"
                     >
                       Reset
                     </button>
@@ -355,24 +355,24 @@ function PluginManager(): JSX.Element {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-gray-200 truncate">{plugin.manifest.name ?? plugin.id}</span>
-                <span className="text-[10px] text-gray-500 font-mono">v{plugin.manifest.version ?? '?'}</span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-700/50 text-gray-400">
+                <span className="text-xs text-gray-500 font-mono">v{plugin.manifest.version ?? '?'}</span>
+                <span className="text-xs px-1.5 py-0.5 rounded bg-gray-700/50 text-gray-400">
                   {plugin.manifest.type}
                 </span>
                 {plugin.loaded && (
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-900/50 text-green-400">Loaded</span>
+                  <span className="text-xs px-1.5 py-0.5 rounded bg-green-900/50 text-green-400">Loaded</span>
                 )}
                 {plugin.error && (
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-900/50 text-red-400">Error</span>
+                  <span className="text-xs px-1.5 py-0.5 rounded bg-red-900/50 text-red-400">Error</span>
                 )}
               </div>
               {!!plugin.manifest.description && (
                 <p className="text-xs text-gray-400 mt-1 truncate">{plugin.manifest.description}</p>
               )}
               {!!plugin.manifest.author && (
-                <p className="text-[10px] text-gray-500 mt-0.5">by {plugin.manifest.author}</p>
+                <p className="text-xs text-gray-500 mt-0.5">by {plugin.manifest.author}</p>
               )}
-              {plugin.error && <p className="text-[10px] text-red-400 mt-1">{plugin.error}</p>}
+              {plugin.error && <p className="text-xs text-red-400 mt-1">{plugin.error}</p>}
             </div>
             <div className="flex items-center gap-2 shrink-0">
               {!plugin.error && (
@@ -388,7 +388,7 @@ function PluginManager(): JSX.Element {
               )}
               <button
                 onClick={() => handleUninstall(plugin)}
-                className="px-2 py-1 text-[10px] bg-gray-700 border border-gray-600 rounded text-gray-400 hover:text-red-400 hover:border-red-600 cursor-pointer"
+                className="px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded text-gray-400 hover:text-red-400 hover:border-red-600 cursor-pointer"
               >
                 Uninstall
               </button>
@@ -570,7 +570,7 @@ function UpdateSection(): JSX.Element {
 
       {/* v2.1.16 auto-update preferences. All four default off; opt-in. */}
       <div className="mt-3 pt-3 border-t border-gray-800 space-y-2">
-        <p className="text-[10px] uppercase tracking-wider text-gray-500">Auto-update preferences</p>
+        <p className="text-xs uppercase tracking-wider text-gray-500">Auto-update preferences</p>
         <label className="flex items-start gap-2 text-xs text-gray-300 cursor-pointer">
           <input
             type="checkbox"
@@ -583,7 +583,7 @@ function UpdateSection(): JSX.Element {
           />
           <span>
             Auto-check for updates on launch
-            <span className="block text-[10px] text-gray-500">
+            <span className="block text-xs text-gray-500">
               App pings the release feed ~5 s after startup. Status shows here.
             </span>
           </span>
@@ -601,7 +601,7 @@ function UpdateSection(): JSX.Element {
           />
           <span>
             Auto-download when an update is found
-            <span className="block text-[10px] text-gray-500">
+            <span className="block text-xs text-gray-500">
               Skips the "Download Update" button. Requires auto-check enabled.
             </span>
           </span>
@@ -619,7 +619,7 @@ function UpdateSection(): JSX.Element {
           />
           <span>
             Auto-restart after download finishes
-            <span className="block text-[10px] text-gray-500">
+            <span className="block text-xs text-gray-500">
               No "Install & Restart" click needed. Triggers ~1.5 s after the download completes.
             </span>
           </span>
@@ -636,7 +636,7 @@ function UpdateSection(): JSX.Element {
           />
           <span>
             Silent install (skip the installer UI)
-            <span className="block text-[10px] text-gray-500">
+            <span className="block text-xs text-gray-500">
               Re-uses your previous install location + settings via NSIS /S. Visible installer is the safer default;
               flip on for unattended updates.
             </span>
@@ -813,7 +813,7 @@ function CloudBackupSection(): JSX.Element {
             {loading === 'bmo-url' ? 'Saving...' : 'Save URL'}
           </button>
         </div>
-        <p className="text-[10px] text-gray-500">
+        <p className="text-xs text-gray-500">
           When set, overrides the <code className="text-gray-400">BMO_PI_URL</code> environment variable for this app.
         </p>
       </div>
@@ -875,7 +875,7 @@ function CloudBackupSection(): JSX.Element {
               className="flex items-center justify-between py-1.5 px-2 rounded bg-gray-800/30 border border-gray-700/30"
             >
               <span className="text-sm text-gray-300">{c.name}</span>
-              <span className="text-[10px] text-gray-500 font-mono">{c.id.slice(0, 8)}...</span>
+              <span className="text-xs text-gray-500 font-mono">{c.id.slice(0, 8)}...</span>
             </div>
           ))}
         </div>
@@ -1121,7 +1121,7 @@ export default function SettingsPage(): JSX.Element {
               className="w-48 px-3 py-1.5 text-sm bg-gray-900 border border-gray-700 rounded-lg text-gray-200 placeholder-gray-600 focus:border-amber-500 focus:outline-none"
             />
           </div>
-          <p className="text-[10px] text-gray-500 mt-2">Used as your default name when joining games.</p>
+          <p className="text-xs text-gray-500 mt-2">Used as your default name when joining games.</p>
         </Section>
 
         {/* Theme */}
@@ -1147,7 +1147,7 @@ export default function SettingsPage(): JSX.Element {
                   </div>
                   <div className="text-left">
                     <div className="text-sm font-medium text-gray-200">{THEME_LABELS[theme]}</div>
-                    {isActive && <div className="text-[10px] text-amber-400">Active</div>}
+                    {isActive && <div className="text-xs text-amber-400">Active</div>}
                   </div>
                 </button>
               )
@@ -1165,7 +1165,7 @@ export default function SettingsPage(): JSX.Element {
                 handleMutedChange(false)
                 handleEnabledChange(true)
               }}
-              className="px-2 py-0.5 text-[10px] bg-gray-900 border border-gray-600 rounded text-gray-100 hover:text-red-300 cursor-pointer"
+              className="px-2 py-0.5 text-xs bg-gray-900 border border-gray-600 rounded text-gray-100 hover:text-red-300 cursor-pointer"
             >
               Reset Audio Defaults
             </button>
@@ -1244,7 +1244,7 @@ export default function SettingsPage(): JSX.Element {
                 setScreenReaderMode(false)
                 setTooltipsEnabled(true)
               }}
-              className="px-2 py-0.5 text-[10px] bg-gray-900 border border-gray-600 rounded text-gray-100 hover:text-red-300 cursor-pointer"
+              className="px-2 py-0.5 text-xs bg-gray-900 border border-gray-600 rounded text-gray-100 hover:text-red-300 cursor-pointer"
             >
               Reset Accessibility Defaults
             </button>
@@ -1259,7 +1259,7 @@ export default function SettingsPage(): JSX.Element {
                   {uiScale !== 100 && (
                     <button
                       onClick={() => setUiScale(100)}
-                      className="px-2 py-0.5 text-[10px] bg-gray-700 border border-gray-600 rounded text-gray-400 hover:text-gray-200 cursor-pointer"
+                      className="px-2 py-0.5 text-xs bg-gray-700 border border-gray-600 rounded text-gray-400 hover:text-gray-200 cursor-pointer"
                     >
                       Reset
                     </button>
@@ -1276,7 +1276,7 @@ export default function SettingsPage(): JSX.Element {
                 className="w-full h-1 accent-amber-500 cursor-pointer"
                 aria-label="UI Scale"
               />
-              <div className="flex justify-between text-[10px] text-gray-600 mt-1">
+              <div className="flex justify-between text-xs text-gray-600 mt-1">
                 <span>75%</span>
                 <span>100%</span>
                 <span>150%</span>
@@ -1298,7 +1298,7 @@ export default function SettingsPage(): JSX.Element {
                     }`}
                   >
                     <div className="text-xs font-medium text-gray-200">{opt.label}</div>
-                    <div className="text-[10px] text-gray-500">{opt.description}</div>
+                    <div className="text-xs text-gray-500">{opt.description}</div>
                   </button>
                 ))}
               </div>
@@ -1309,7 +1309,7 @@ export default function SettingsPage(): JSX.Element {
               <label className="flex items-center justify-between cursor-pointer">
                 <div>
                   <span className="text-sm text-gray-300">Reduced Motion</span>
-                  <p className="text-[10px] text-gray-500">Disable combat animations and dice physics</p>
+                  <p className="text-xs text-gray-500">Disable combat animations and dice physics</p>
                 </div>
                 <input
                   type="checkbox"
@@ -1322,7 +1322,7 @@ export default function SettingsPage(): JSX.Element {
               <label className="flex items-center justify-between cursor-pointer">
                 <div>
                   <span className="text-sm text-gray-300">Screen Reader Mode</span>
-                  <p className="text-[10px] text-gray-500">Enable extra ARIA live region announcements</p>
+                  <p className="text-xs text-gray-500">Enable extra ARIA live region announcements</p>
                 </div>
                 <input
                   type="checkbox"
@@ -1335,7 +1335,7 @@ export default function SettingsPage(): JSX.Element {
               <label className="flex items-center justify-between cursor-pointer">
                 <div>
                   <span className="text-sm text-gray-300">Tooltips</span>
-                  <p className="text-[10px] text-gray-500">Show tooltips on hover over buttons</p>
+                  <p className="text-xs text-gray-500">Show tooltips on hover over buttons</p>
                 </div>
                 <input
                   type="checkbox"
@@ -1356,7 +1356,7 @@ export default function SettingsPage(): JSX.Element {
                 handleGridOpacityChange(40)
                 handleGridColorChange('#ffffff')
               }}
-              className="px-2 py-0.5 text-[10px] bg-gray-900 border border-gray-600 rounded text-gray-100 hover:text-red-300 cursor-pointer"
+              className="px-2 py-0.5 text-xs bg-gray-900 border border-gray-600 rounded text-gray-100 hover:text-red-300 cursor-pointer"
             >
               Reset Grid Defaults
             </button>
@@ -1422,7 +1422,7 @@ export default function SettingsPage(): JSX.Element {
                 NotificationService.setEnabled(true)
                 NotificationService.setSoundEnabled(true)
               }}
-              className="px-2 py-0.5 text-[10px] bg-gray-900 border border-gray-600 rounded text-gray-100 hover:text-red-300 cursor-pointer"
+              className="px-2 py-0.5 text-xs bg-gray-900 border border-gray-600 rounded text-gray-100 hover:text-red-300 cursor-pointer"
             >
               Reset Notification Defaults
             </button>
@@ -1433,7 +1433,7 @@ export default function SettingsPage(): JSX.Element {
           <label className="flex items-center justify-between cursor-pointer">
             <div>
               <span className="text-sm text-gray-300">Enable Notifications</span>
-              <p className="text-[10px] text-gray-500">Show desktop notifications for game events</p>
+              <p className="text-xs text-gray-500">Show desktop notifications for game events</p>
             </div>
             <input
               type="checkbox"
@@ -1449,7 +1449,7 @@ export default function SettingsPage(): JSX.Element {
           <label className="flex items-center justify-between cursor-pointer mt-3">
             <div>
               <span className="text-sm text-gray-300">Notification Sound</span>
-              <p className="text-[10px] text-gray-500">Play a sound with each notification</p>
+              <p className="text-xs text-gray-500">Play a sound with each notification</p>
             </div>
             <input
               type="checkbox"
@@ -1461,7 +1461,7 @@ export default function SettingsPage(): JSX.Element {
           <label className="flex items-center justify-between cursor-pointer mt-3">
             <div>
               <span className="text-sm text-gray-300">Only When Unfocused</span>
-              <p className="text-[10px] text-gray-500">Only show notifications when the window is not in focus</p>
+              <p className="text-xs text-gray-500">Only show notifications when the window is not in focus</p>
             </div>
             <input
               type="checkbox"
@@ -1519,7 +1519,7 @@ export default function SettingsPage(): JSX.Element {
                 setAutoSaveIntervalDraft('5')
                 AutoSave.setConfig({ enabled: true, intervalMs: 300000 })
               }}
-              className="px-2 py-0.5 text-[10px] bg-gray-900 border border-gray-600 rounded text-gray-100 hover:text-red-300 cursor-pointer"
+              className="px-2 py-0.5 text-xs bg-gray-900 border border-gray-600 rounded text-gray-100 hover:text-red-300 cursor-pointer"
             >
               Reset Auto-Save Defaults
             </button>
@@ -1528,7 +1528,7 @@ export default function SettingsPage(): JSX.Element {
             <label className="flex items-center justify-between cursor-pointer">
               <div>
                 <span className="text-sm text-gray-300">Enable Auto-Save</span>
-                <p className="text-[10px] text-gray-500">Periodically save game state during sessions</p>
+                <p className="text-xs text-gray-500">Periodically save game state during sessions</p>
               </div>
               <input
                 type="checkbox"
@@ -1671,7 +1671,7 @@ export default function SettingsPage(): JSX.Element {
                   <div key={sys.id} className="flex items-center justify-between py-2 px-3 bg-gray-800/40 rounded-lg">
                     <div className="flex-1 min-w-0">
                       <span className="text-sm text-gray-200 font-medium">{sys.name}</span>
-                      <span className="text-[10px] text-gray-500 ml-2 font-mono">{sys.id}</span>
+                      <span className="text-xs text-gray-500 ml-2 font-mono">{sys.id}</span>
                     </div>
                     {sys.id !== 'dnd5e' && (
                       <button
@@ -1679,7 +1679,7 @@ export default function SettingsPage(): JSX.Element {
                           unregisterSystem(sys.id)
                           addToast(`Unregistered system "${sys.name}"`, 'success')
                         }}
-                        className="px-2 py-1 text-[10px] bg-gray-700 border border-gray-600 rounded text-gray-400 hover:text-red-400 hover:border-red-600 cursor-pointer"
+                        className="px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded text-gray-400 hover:text-red-400 hover:border-red-600 cursor-pointer"
                       >
                         Remove
                       </button>

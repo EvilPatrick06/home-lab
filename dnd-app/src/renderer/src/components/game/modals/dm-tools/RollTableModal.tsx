@@ -422,7 +422,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
         <div className="flex items-center justify-between mb-2">
           <div>
             <span className="text-xs font-semibold text-gray-200">{table.name}</span>
-            <span className="text-[10px] text-gray-500 ml-2">({table.diceFormula})</span>
+            <span className="text-xs text-gray-500 ml-2">({table.diceFormula})</span>
             {table.builtIn && (
               <span className="text-[9px] text-amber-500/70 ml-2 uppercase tracking-wider">Built-in</span>
             )}
@@ -431,7 +431,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
             <button
               onClick={() => handleRoll(table)}
               disabled={isAnimating}
-              className="px-2 py-1 text-[10px] font-semibold bg-amber-600 hover:bg-amber-500 disabled:bg-amber-800 disabled:cursor-wait text-white rounded cursor-pointer"
+              className="px-2 py-1 text-xs font-semibold bg-amber-600 hover:bg-amber-500 disabled:bg-amber-800 disabled:cursor-wait text-white rounded cursor-pointer"
             >
               {isAnimating ? 'Rolling...' : 'Roll'}
             </button>
@@ -439,13 +439,13 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
               <>
                 <button
                   onClick={() => handleEdit(table)}
-                  className="px-2 py-1 text-[10px] font-semibold bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
+                  className="px-2 py-1 text-xs font-semibold bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
                 >
                   Edit
                 </button>
                 <button
                   onClick={() => handleDelete(table.id)}
-                  className="px-2 py-1 text-[10px] font-semibold bg-gray-700 hover:bg-red-600 text-gray-300 hover:text-white rounded cursor-pointer"
+                  className="px-2 py-1 text-xs font-semibold bg-gray-700 hover:bg-red-600 text-gray-300 hover:text-white rounded cursor-pointer"
                 >
                   Del
                 </button>
@@ -459,7 +459,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
             return (
               <div
                 key={i}
-                className={`text-[10px] px-1.5 py-0.5 rounded transition-all duration-150 ${
+                className={`text-xs px-1.5 py-0.5 rounded transition-all duration-150 ${
                   isHighlighted ? 'bg-amber-500/30 text-amber-200 font-medium' : 'text-gray-400'
                 }`}
               >
@@ -549,7 +549,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
           {tab === 'create' && (
             <div className="space-y-3">
               <div>
-                <label className="text-[10px] text-gray-400 block mb-1">Table Name</label>
+                <label className="text-xs text-gray-400 block mb-1">Table Name</label>
                 <input
                   type="text"
                   value={tableName}
@@ -559,7 +559,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
                 />
               </div>
               <div>
-                <label className="text-[10px] text-gray-400 block mb-1">Dice Formula</label>
+                <label className="text-xs text-gray-400 block mb-1">Dice Formula</label>
                 <input
                   type="text"
                   value={diceFormula}
@@ -570,11 +570,11 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
               </div>
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="text-[10px] text-gray-400">Entries</label>
+                  <label className="text-xs text-gray-400">Entries</label>
                   <div className="flex gap-1">
                     <button
                       onClick={addEntry}
-                      className="px-2 py-0.5 text-[10px] bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
+                      className="px-2 py-0.5 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
                     >
                       + Add Entry
                     </button>
@@ -591,15 +591,15 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
                         type="number"
                         value={entry.min}
                         onChange={(e) => updateEntry(i, 'min', parseInt(e.target.value, 10) || 0)}
-                        className="w-12 bg-gray-800 border border-gray-600 rounded px-1.5 py-1 text-[10px] text-gray-100 text-center focus:outline-none focus:border-amber-500"
+                        className="w-12 bg-gray-800 border border-gray-600 rounded px-1.5 py-1 text-xs text-gray-100 text-center focus:outline-none focus:border-amber-500"
                         title="Min"
                       />
-                      <span className="text-[10px] text-gray-500">-</span>
+                      <span className="text-xs text-gray-500">-</span>
                       <input
                         type="number"
                         value={entry.max}
                         onChange={(e) => updateEntry(i, 'max', parseInt(e.target.value, 10) || 0)}
-                        className="w-12 bg-gray-800 border border-gray-600 rounded px-1.5 py-1 text-[10px] text-gray-100 text-center focus:outline-none focus:border-amber-500"
+                        className="w-12 bg-gray-800 border border-gray-600 rounded px-1.5 py-1 text-xs text-gray-100 text-center focus:outline-none focus:border-amber-500"
                         title="Max"
                       />
                       <input
@@ -607,7 +607,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
                         value={entry.text}
                         onChange={(e) => updateEntry(i, 'text', e.target.value)}
                         placeholder="Result text..."
-                        className="flex-1 bg-gray-800 border border-gray-600 rounded px-2 py-1 text-[10px] text-gray-100 focus:outline-none focus:border-amber-500"
+                        className="flex-1 bg-gray-800 border border-gray-600 rounded px-2 py-1 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
                       />
                       <input
                         type="number"
@@ -618,7 +618,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
                         }}
                         placeholder="Wt"
                         title="Weight (optional)"
-                        className="w-10 bg-gray-800 border border-gray-600 rounded px-1 py-1 text-[10px] text-gray-100 text-center focus:outline-none focus:border-amber-500"
+                        className="w-10 bg-gray-800 border border-gray-600 rounded px-1 py-1 text-xs text-gray-100 text-center focus:outline-none focus:border-amber-500"
                       />
                       <button
                         onClick={() => removeEntry(i)}
@@ -643,14 +643,14 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
           {/* Roll History */}
           {rollHistory.length > 0 && (
             <div className="border-t border-gray-700 pt-3">
-              <span className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold mb-1.5 block">
+              <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1.5 block">
                 Roll History (last {MAX_HISTORY})
               </span>
               <div className="space-y-1">
                 {rollHistory.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-center justify-between bg-gray-800/60 rounded px-2 py-1 text-[10px]"
+                    className="flex items-center justify-between bg-gray-800/60 rounded px-2 py-1 text-xs"
                   >
                     <div className="flex-1 min-w-0">
                       <span className="text-amber-400 font-semibold">[{item.tableName}]</span>{' '}

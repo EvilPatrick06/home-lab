@@ -60,7 +60,7 @@ function MagicItemSlot({
       <div className={`flex items-center justify-between border rounded px-2 py-1.5 ${colors}`}>
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium">{selectedItem.itemName}</span>
-          <span className="text-[10px] text-gray-500">{RARITY_LABELS[rarity]}</span>
+          <span className="text-xs text-gray-500">{RARITY_LABELS[rarity]}</span>
         </div>
         <button onClick={onClear} className="text-xs text-gray-500 hover:text-red-400 px-1 cursor-pointer">
           Change
@@ -108,8 +108,8 @@ function MagicItemSlot({
                 >
                   <div>
                     <span className="text-sm text-gray-200">{item.name}</span>
-                    {item.attunement && <span className="text-[10px] text-purple-400 ml-1">(A)</span>}
-                    <div className="text-[10px] text-gray-500">
+                    {item.attunement && <span className="text-xs text-purple-400 ml-1">(A)</span>}
+                    <div className="text-xs text-gray-500">
                       {item.type} - {item.cost}
                     </div>
                   </div>

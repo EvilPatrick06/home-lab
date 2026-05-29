@@ -68,7 +68,7 @@ export default memo(function CharacterCard({
                 e.stopPropagation()
                 onExportPdf()
               }}
-              className="text-gray-600 hover:text-amber-400 transition-colors text-[10px] cursor-pointer px-1.5 py-1 font-medium"
+              className="text-gray-600 hover:text-amber-400 transition-colors text-xs cursor-pointer px-1.5 py-1 font-medium"
               title="Export to PDF"
             >
               PDF

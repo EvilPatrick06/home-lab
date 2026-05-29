@@ -129,42 +129,42 @@ export default function InGameCalendarModal({ calendar, onClose, isDM }: InGameC
           <div className="grid grid-cols-2 gap-3">
             {/* Season */}
             <div className="bg-gray-800 rounded-lg p-3">
-              <div className="text-[10px] text-gray-500 uppercase tracking-wide mb-1">Season</div>
+              <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Season</div>
               <div className={`text-sm font-semibold capitalize ${SEASON_COLORS[season]}`}>{season}</div>
             </div>
 
             {/* Moon Phase */}
             <div className="bg-gray-800 rounded-lg p-3">
-              <div className="text-[10px] text-gray-500 uppercase tracking-wide mb-1">
+              <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">
                 Moon{moonOverride ? ' (Override)' : ''}
               </div>
               <div className="text-sm font-semibold text-gray-200">
                 {moon.emoji} {moon.name}
               </div>
-              <div className="text-[10px] text-gray-500">{Math.round(moon.illumination * 100)}% illumination</div>
+              <div className="text-xs text-gray-500">{Math.round(moon.illumination * 100)}% illumination</div>
             </div>
 
             {/* Sunrise / Sunset */}
             <div className="bg-gray-800 rounded-lg p-3">
-              <div className="text-[10px] text-gray-500 uppercase tracking-wide mb-1">Sun</div>
+              <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Sun</div>
               <div className="text-xs text-gray-300">Rise: {formatHour(sunPos.sunrise)}</div>
               <div className="text-xs text-gray-300">Set: {formatHour(sunPos.sunset)}</div>
-              <div className={`text-[10px] mt-0.5 ${sunPos.isDaytime ? 'text-yellow-400' : 'text-blue-400'}`}>
+              <div className={`text-xs mt-0.5 ${sunPos.isDaytime ? 'text-yellow-400' : 'text-blue-400'}`}>
                 {sunPos.isDaytime ? 'Daytime' : 'Nighttime'} ({sunPos.lightLevel})
               </div>
             </div>
 
             {/* Weather */}
             <div className="bg-gray-800 rounded-lg p-3">
-              <div className="text-[10px] text-gray-500 uppercase tracking-wide mb-1">
+              <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">
                 Weather{weatherOverride ? ' (Override)' : ''}
               </div>
               <div className="text-sm font-semibold text-gray-200">
                 {WEATHER_ICONS[weather.condition] ?? ''} {weather.condition.replace('-', ' ')}
               </div>
-              <div className="text-[10px] text-gray-400">{weather.temperature}</div>
+              <div className="text-xs text-gray-400">{weather.temperature}</div>
               {weather.mechanicalEffects.length > 0 && (
-                <div className="text-[10px] text-gray-500">{weather.mechanicalEffects[0]}</div>
+                <div className="text-xs text-gray-500">{weather.mechanicalEffects[0]}</div>
               )}
             </div>
           </div>

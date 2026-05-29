@@ -78,7 +78,7 @@ export default function FamiliarSelectorModal({
         <div className="flex-1 flex min-h-0 overflow-hidden">
           {/* Form grid */}
           <div className="w-56 overflow-y-auto border-r border-gray-700/50 p-2">
-            <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-2 px-1">Standard Forms</div>
+            <div className="text-xs text-gray-500 uppercase tracking-wider mb-2 px-1">Standard Forms</div>
             <div className="grid grid-cols-2 gap-1.5">
               {forms
                 .filter((f) => !f.tags?.includes('chain-pact'))
@@ -99,7 +99,7 @@ export default function FamiliarSelectorModal({
             </div>
             {hasChainPact && (
               <>
-                <div className="text-[10px] text-purple-400 uppercase tracking-wider mt-3 mb-2 px-1">
+                <div className="text-xs text-purple-400 uppercase tracking-wider mt-3 mb-2 px-1">
                   Pact of the Chain
                 </div>
                 <div className="grid grid-cols-2 gap-1.5">

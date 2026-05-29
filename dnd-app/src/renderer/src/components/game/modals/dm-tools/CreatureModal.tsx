@@ -197,7 +197,7 @@ export default function CreatureModal({
                 </option>
               ))}
             </select>
-            <span className="text-[10px] text-gray-500 self-center ml-auto">
+            <span className="text-xs text-gray-500 self-center ml-auto">
               {filtered.length} creature{filtered.length !== 1 ? 's' : ''}
             </span>
           </div>
@@ -250,14 +250,14 @@ export default function CreatureModal({
                 }`}
               >
                 <div className="text-sm text-gray-200 font-medium">{m.name}</div>
-                <div className="text-[10px] text-gray-500">
+                <div className="text-xs text-gray-500">
                   {m.size} {m.type} - CR {m.cr}
                 </div>
               </button>
             ))}
             {filtered.length === 0 && <div className="text-gray-500 text-xs text-center p-4">No creatures found</div>}
             {filtered.length > 200 && (
-              <div className="text-gray-600 text-[10px] text-center p-2">Showing first 200 of {filtered.length}</div>
+              <div className="text-gray-600 text-xs text-center p-2">Showing first 200 of {filtered.length}</div>
             )}
           </div>
 

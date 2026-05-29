@@ -287,7 +287,7 @@ export default function AsiModal(): JSX.Element {
                     <div className="flex items-center justify-between">
                       <span className="font-medium">{feat.name}</span>
                       {feat.abilityScoreIncrease && (
-                        <span className="text-[10px] text-green-500">
+                        <span className="text-xs text-green-500">
                           {feat.abilityScoreIncrease.options
                             .map((o) => `+${o.amount} ${o.abilities.join('/')}`)
                             .join(', ')}
@@ -295,12 +295,12 @@ export default function AsiModal(): JSX.Element {
                       )}
                     </div>
                     {!meetsPrereqs && formatPrerequisites(feat.prerequisites).length > 0 && (
-                      <div className="text-[10px] text-red-400 mt-0.5">
+                      <div className="text-xs text-red-400 mt-0.5">
                         Requires: {formatPrerequisites(feat.prerequisites).join(', ')}
                       </div>
                     )}
                     {meetsPrereqs && (
-                      <div className="text-[10px] text-gray-500 mt-0.5 line-clamp-2">
+                      <div className="text-xs text-gray-500 mt-0.5 line-clamp-2">
                         {feat.benefits.map((b) => b.description).join(' ')}
                       </div>
                     )}

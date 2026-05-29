@@ -94,7 +94,7 @@ export default function DmAlertTray(): JSX.Element {
       >
         Alerts
         {unreadCount > 0 && (
-          <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+          <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -106,7 +106,7 @@ export default function DmAlertTray(): JSX.Element {
           <div className="flex items-center justify-between px-3 py-2 border-b border-gray-700">
             <span className="text-xs font-semibold text-gray-300">DM Alerts</span>
             {items.length > 0 && (
-              <button onClick={clearDmAlerts} className="text-[10px] text-gray-500 hover:text-gray-300 cursor-pointer">
+              <button onClick={clearDmAlerts} className="text-xs text-gray-500 hover:text-gray-300 cursor-pointer">
                 Clear all
               </button>
             )}
@@ -121,7 +121,7 @@ export default function DmAlertTray(): JSX.Element {
                     <span className={`text-xs mt-0.5 ${levelColor(a.level)}`}>{levelIcon(a.level)}</span>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs text-gray-300 break-words">{a.message}</p>
-                      <p className="text-[10px] text-gray-600 mt-0.5">{new Date(a.timestamp).toLocaleTimeString()}</p>
+                      <p className="text-xs text-gray-600 mt-0.5">{new Date(a.timestamp).toLocaleTimeString()}</p>
                       {a.actions && a.actions.length > 0 && (
                         <div className="flex gap-1.5 mt-1.5">
                           {a.actions.map((act) => (
@@ -135,7 +135,7 @@ export default function DmAlertTray(): JSX.Element {
                                   dismissDmAlert(a.id)
                                 }
                               }}
-                              className={`px-2 py-0.5 text-[10px] rounded cursor-pointer transition-colors ${
+                              className={`px-2 py-0.5 text-xs rounded cursor-pointer transition-colors ${
                                 act.style === 'danger'
                                   ? 'bg-red-900/40 hover:bg-red-800/60 text-red-300 border border-red-700/50'
                                   : act.style === 'subtle'

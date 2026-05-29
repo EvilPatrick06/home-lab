@@ -138,9 +138,9 @@ export default function EquipmentShop5e({
                     <div className="min-w-0 flex-1 mr-2">
                       <div className="flex items-center gap-2">
                         <span className="text-sm text-gray-200 truncate">{item.name}</span>
-                        <span className="text-[10px] text-gray-500 shrink-0">{item.cost}</span>
+                        <span className="text-xs text-gray-500 shrink-0">{item.cost}</span>
                       </div>
-                      <div className="text-[10px] text-gray-500 truncate">{item.detail}</div>
+                      <div className="text-xs text-gray-500 truncate">{item.detail}</div>
                     </div>
                     <button
                       onClick={() => onAdd(item.name, item.cost)}

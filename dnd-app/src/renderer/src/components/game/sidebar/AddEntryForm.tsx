@@ -105,7 +105,7 @@ export default function AddEntryForm({
         {/* Quick Add from Board Tokens (not for places) */}
         {!isPlaces && availableBoardTokens.length > 0 && (
           <div className="space-y-1">
-            <span className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">
+            <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
               Quick Add from Board
             </span>
             <div className="max-h-24 overflow-y-auto space-y-0.5">
@@ -137,7 +137,7 @@ export default function AddEntryForm({
         {!isPlaces && (
           <button
             onClick={() => setCreatureSearchOpen(true)}
-            className="w-full py-1.5 text-[10px] text-center text-purple-400 bg-purple-400/10 hover:bg-purple-400/20 border border-purple-500/30 rounded cursor-pointer transition-colors"
+            className="w-full py-1.5 text-xs text-center text-purple-400 bg-purple-400/10 hover:bg-purple-400/20 border border-purple-500/30 rounded cursor-pointer transition-colors"
           >
             Import from Creature DB
           </button>
@@ -155,7 +155,7 @@ export default function AddEntryForm({
                 setShowNewStatBlock(true)
               }
             }}
-            className="w-full px-2 py-1.5 rounded bg-gray-900 border border-gray-700 text-[10px] text-gray-400 focus:outline-none focus:border-amber-500 cursor-pointer"
+            className="w-full px-2 py-1.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-400 focus:outline-none focus:border-amber-500 cursor-pointer"
           >
             <option value="">Use Template...</option>
             {NPC_TEMPLATES.map((t) => (
@@ -170,7 +170,7 @@ export default function AddEntryForm({
         {!isPlaces && !showNpcGenerator && (
           <button
             onClick={() => setShowNpcGenerator(true)}
-            className="w-full py-1.5 text-[10px] text-center text-emerald-400 bg-emerald-400/10 hover:bg-emerald-400/20 border border-emerald-500/30 rounded cursor-pointer transition-colors"
+            className="w-full py-1.5 text-xs text-center text-emerald-400 bg-emerald-400/10 hover:bg-emerald-400/20 border border-emerald-500/30 rounded cursor-pointer transition-colors"
           >
             Generate Random NPC
           </button>
@@ -247,7 +247,7 @@ export default function AddEntryForm({
         />
 
         {/* Visibility toggle */}
-        <label className="flex items-center gap-1.5 text-[10px] text-gray-400 cursor-pointer">
+        <label className="flex items-center gap-1.5 text-xs text-gray-400 cursor-pointer">
           <input
             type="checkbox"
             checked={newVisible}
@@ -266,7 +266,7 @@ export default function AddEntryForm({
               className="w-full flex items-center justify-between px-2 py-1.5 text-[11px] font-semibold text-gray-300 hover:text-amber-400 transition-colors cursor-pointer"
             >
               <span>Stat Block {newStatBlock ? '(configured)' : ''}</span>
-              <span className="text-gray-500 text-[10px]">{showNewStatBlock ? '\u25B2' : '\u25BC'}</span>
+              <span className="text-gray-500 text-xs">{showNewStatBlock ? '\u25B2' : '\u25BC'}</span>
             </button>
             {showNewStatBlock && (
               <div className="px-2 pb-2">
@@ -280,13 +280,13 @@ export default function AddEntryForm({
           <button
             onClick={handleAdd}
             disabled={!newName.trim()}
-            className="px-2 py-0.5 text-[10px] bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer disabled:opacity-50"
+            className="px-2 py-0.5 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer disabled:opacity-50"
           >
             Add
           </button>
           <button
             onClick={onCancel}
-            className="px-2 py-0.5 text-[10px] text-gray-400 hover:text-gray-200 cursor-pointer"
+            className="px-2 py-0.5 text-xs text-gray-400 hover:text-gray-200 cursor-pointer"
           >
             Cancel
           </button>

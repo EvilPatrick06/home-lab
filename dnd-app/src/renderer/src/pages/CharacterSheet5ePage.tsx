@@ -420,7 +420,7 @@ export default function CharacterSheet5ePage(): JSX.Element {
                           minute: '2-digit'
                         })}
                       </div>
-                      <div className="text-[10px] text-gray-500">{(v.sizeBytes / 1024).toFixed(1)} KB</div>
+                      <div className="text-xs text-gray-500">{(v.sizeBytes / 1024).toFixed(1)} KB</div>
                     </div>
                     <button
                       onClick={() => setConfirmRestoreFile(v.fileName)}

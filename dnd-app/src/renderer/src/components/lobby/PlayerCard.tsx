@@ -138,17 +138,17 @@ export default memo(function PlayerCard({
               {isLocal && <span className="text-gray-500 font-normal"> (you)</span>}
             </span>
             {player.isHost && (
-              <span className="flex-shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-600/30 text-amber-400 uppercase tracking-wide">
+              <span className="flex-shrink-0 text-xs font-bold px-1.5 py-0.5 rounded bg-amber-600/30 text-amber-400 uppercase tracking-wide">
                 DM
               </span>
             )}
             {player.isCoDM && !player.isHost && (
-              <span className="flex-shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded bg-purple-600/30 text-purple-400 uppercase tracking-wide">
+              <span className="flex-shrink-0 text-xs font-bold px-1.5 py-0.5 rounded bg-purple-600/30 text-purple-400 uppercase tracking-wide">
                 Co-DM
               </span>
             )}
             {isSpectator && (
-              <span className="flex-shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded bg-sky-700/40 text-sky-300 uppercase tracking-wide">
+              <span className="flex-shrink-0 text-xs font-bold px-1.5 py-0.5 rounded bg-sky-700/40 text-sky-300 uppercase tracking-wide">
                 Spectator
               </span>
             )}
@@ -164,16 +164,16 @@ export default memo(function PlayerCard({
             <p className="text-xs text-gray-500 truncate">{player.characterName || 'No character selected'}</p>
           )}
           {player.status === 'reconnecting' ? (
-            <span className="text-[10px] text-amber-400 animate-pulse">Reconnecting...</span>
+            <span className="text-xs text-amber-400 animate-pulse">Reconnecting...</span>
           ) : player.status === 'disconnected' ? (
             // Phase 17e — explicit disconnected (set by Kick) renders as a
             // red pill, not the yellow "Reconnecting" used for transient
             // drops. The card is removed after a short grace.
-            <span className="text-[10px] text-red-400 font-semibold">Disconnected</span>
+            <span className="text-xs text-red-400 font-semibold">Disconnected</span>
           ) : (
             player.latencyMs != null && (
               <span
-                className={`text-[10px] ${
+                className={`text-xs ${
                   player.latencyMs < 100
                     ? 'text-green-400'
                     : player.latencyMs < 250

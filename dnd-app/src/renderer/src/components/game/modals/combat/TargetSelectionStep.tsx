@@ -58,7 +58,7 @@ export function TargetSelectionStep({
 
       {/* Range check info */}
       {selectedWeapon.range && attackerToken && (
-        <div className="text-[10px] text-gray-500">Range: {selectedWeapon.range}</div>
+        <div className="text-xs text-gray-500">Range: {selectedWeapon.range}</div>
       )}
 
       <div className="space-y-1.5">
@@ -92,11 +92,11 @@ export function TargetSelectionStep({
                     </span>
                   )}
                 </div>
-                {rangeStatus && <div className={`text-[10px] mt-0.5 ${rangeColor}`}>{rangeStatus}</div>}
+                {rangeStatus && <div className={`text-xs mt-0.5 ${rangeColor}`}>{rangeStatus}</div>}
                 {grappleShoveBlocked && (
-                  <div className="text-[10px] mt-0.5 text-red-400">Too large to {unarmedMode}</div>
+                  <div className="text-xs mt-0.5 text-red-400">Too large to {unarmedMode}</div>
                 )}
-                {charmedBlocked && <div className="text-[10px] mt-0.5 text-pink-400">Charmed - cannot attack</div>}
+                {charmedBlocked && <div className="text-xs mt-0.5 text-pink-400">Charmed - cannot attack</div>}
               </button>
             )
           })
@@ -113,7 +113,7 @@ export function TargetSelectionStep({
             <button
               key={c}
               onClick={() => setCover(c)}
-              className={`px-2 py-0.5 text-[10px] rounded cursor-pointer ${
+              className={`px-2 py-0.5 text-xs rounded cursor-pointer ${
                 cover === c ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
               }`}
             >

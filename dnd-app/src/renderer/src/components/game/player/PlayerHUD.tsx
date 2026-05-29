@@ -65,7 +65,7 @@ export default function PlayerHUD({ character, conditions }: PlayerHUDProps): JS
                 style={{ width: `${hpPercent}%` }}
               />
             </div>
-            <span className="absolute inset-0 flex items-center justify-center text-[10px] font-semibold text-white drop-shadow">
+            <span className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-white drop-shadow">
               {hp.current} / {hp.maximum}
               {hp.temporary > 0 && <span className="text-blue-300 ml-1">(+{hp.temporary})</span>}
             </span>
@@ -116,7 +116,7 @@ export default function PlayerHUD({ character, conditions }: PlayerHUDProps): JS
                 <span
                   key={cond.id}
                   role="listitem"
-                  className="text-[10px] bg-purple-600/30 text-purple-300 border border-purple-500/50
+                  className="text-xs bg-purple-600/30 text-purple-300 border border-purple-500/50
                     rounded px-1.5 py-0.5"
                   aria-label={`Condition: ${cond.condition}${cond.value ? ` ${cond.value}` : ''}, ${
                     cond.duration === 'permanent' ? 'permanent' : `${cond.duration} rounds remaining`

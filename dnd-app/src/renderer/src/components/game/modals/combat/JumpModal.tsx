@@ -66,7 +66,7 @@ export default function JumpModal({
           />
           <span className="text-xs text-gray-300">Running start (10ft move before jump)</span>
         </label>
-        {!runningStart && <p className="text-[10px] text-yellow-400 mt-1">Standing jump = half distance</p>}
+        {!runningStart && <p className="text-xs text-yellow-400 mt-1">Standing jump = half distance</p>}
       </div>
 
       {/* Result */}
@@ -89,7 +89,7 @@ export default function JumpModal({
         )}
       </div>
 
-      <div className="text-[10px] text-gray-500 mb-3">
+      <div className="text-xs text-gray-500 mb-3">
         Landing in difficult terrain: DC 10 Acrobatics or fall Prone.
       </div>
 

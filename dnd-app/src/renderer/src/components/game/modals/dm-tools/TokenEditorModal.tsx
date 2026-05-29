@@ -161,7 +161,7 @@ export default function TokenEditorModal({ token, mapId, onClose }: TokenEditorM
                 onChange={(e) => handleColorChange(e.target.value)}
                 className="w-8 h-8 rounded border border-gray-700 cursor-pointer bg-transparent"
               />
-              <span className="text-[10px] text-gray-500 font-mono">{color}</span>
+              <span className="text-xs text-gray-500 font-mono">{color}</span>
             </div>
           </div>
 
@@ -175,7 +175,7 @@ export default function TokenEditorModal({ token, mapId, onClose }: TokenEditorM
                 onChange={(e) => handleBorderColorChange(e.target.value)}
                 className="w-8 h-8 rounded border border-gray-700 cursor-pointer bg-transparent"
               />
-              <span className="text-[10px] text-gray-500 font-mono">{borderColor}</span>
+              <span className="text-xs text-gray-500 font-mono">{borderColor}</span>
             </div>
           </div>
 
@@ -216,7 +216,7 @@ export default function TokenEditorModal({ token, mapId, onClose }: TokenEditorM
               type="file"
               accept="image/png,image/jpeg,image/webp"
               onChange={handleImageUpload}
-              className="text-[10px] text-gray-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:bg-gray-800 file:text-gray-300 hover:file:bg-gray-700"
+              className="text-xs text-gray-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:bg-gray-800 file:text-gray-300 hover:file:bg-gray-700"
             />
             {token.imagePath && (
               <div className="flex items-center gap-3 mt-1">
@@ -227,7 +227,7 @@ export default function TokenEditorModal({ token, mapId, onClose }: TokenEditorM
                 />
                 <button
                   onClick={() => applyUpdate({ imagePath: undefined })}
-                  className="text-[10px] text-red-400 hover:text-red-300 px-2 py-1 bg-red-900/20 rounded border border-red-900/50 cursor-pointer"
+                  className="text-xs text-red-400 hover:text-red-300 px-2 py-1 bg-red-900/20 rounded border border-red-900/50 cursor-pointer"
                 >
                   Remove Image
                 </button>
@@ -244,18 +244,18 @@ export default function TokenEditorModal({ token, mapId, onClose }: TokenEditorM
               className="w-full flex items-center justify-between text-xs font-semibold text-gray-300 hover:text-amber-400 transition-colors cursor-pointer"
             >
               <span>View Stat Block</span>
-              <span className="text-gray-500 text-[10px]">{showLinkedStatBlock ? '\u25B2' : '\u25BC'}</span>
+              <span className="text-gray-500 text-xs">{showLinkedStatBlock ? '\u25B2' : '\u25BC'}</span>
             </button>
             {showLinkedStatBlock && (
               <div className="mt-2">
-                {loadingStatBlock && <p className="text-[10px] text-gray-500">Loading stat block...</p>}
+                {loadingStatBlock && <p className="text-xs text-gray-500">Loading stat block...</p>}
                 {!loadingStatBlock && linkedMonster && (
-                  <Suspense fallback={<div className="text-[10px] text-gray-500">Loading...</div>}>
+                  <Suspense fallback={<div className="text-xs text-gray-500">Loading...</div>}>
                     <UnifiedStatBlock statBlock={monsterToDisplay(linkedMonster)} />
                   </Suspense>
                 )}
                 {!loadingStatBlock && !linkedMonster && (
-                  <p className="text-[10px] text-gray-500">Creature not found: {token.monsterStatBlockId}</p>
+                  <p className="text-xs text-gray-500">Creature not found: {token.monsterStatBlockId}</p>
                 )}
               </div>
             )}

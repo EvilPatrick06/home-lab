@@ -419,7 +419,7 @@ export default function CharacterBuilder5e(): JSX.Element {
               <span
                 role="alert"
                 aria-live="polite"
-                className="text-[10px] text-red-400 max-w-60 text-right truncate"
+                className="text-xs text-red-400 max-w-60 text-right truncate"
                 title={validation.join(', ')}
               >
                 {validation[0]}

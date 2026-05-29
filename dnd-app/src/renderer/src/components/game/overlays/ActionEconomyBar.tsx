@@ -13,7 +13,7 @@ function MovementSlot({ remaining, max }: { remaining: number; max: number }): J
   const color = pct > 0.5 ? 'text-green-400' : pct > 0 ? 'text-amber-400' : 'text-red-400'
   return (
     <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-800/60">
-      <span className="text-[10px] text-gray-500 uppercase tracking-wider">Move</span>
+      <span className="text-xs text-gray-500 uppercase tracking-wider">Move</span>
       <span className={`text-xs font-bold ${color}`}>
         {remaining}/{max} ft
       </span>
@@ -44,7 +44,7 @@ function ResourceDot({
       className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-800/60 ${onClick ? 'cursor-pointer hover:bg-gray-700/60' : 'cursor-default'}`}
     >
       <span className={`w-2.5 h-2.5 rounded-full ${dotColor} shrink-0`} />
-      <span className={`text-[10px] uppercase tracking-wider ${textColor}`}>{statusLabel ?? label}</span>
+      <span className={`text-xs uppercase tracking-wider ${textColor}`}>{statusLabel ?? label}</span>
     </button>
   )
 }
@@ -92,7 +92,7 @@ export default function ActionEconomyBar({
       role="status"
       aria-label={`Turn resources for ${entityName}`}
     >
-      <span className="text-[10px] text-gray-500 font-semibold mr-1 max-w-[80px] truncate" title={entityName}>
+      <span className="text-xs text-gray-500 font-semibold mr-1 max-w-[80px] truncate" title={entityName}>
         {entityName}
       </span>
 
@@ -100,8 +100,8 @@ export default function ActionEconomyBar({
 
       {isMounted && (
         <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-900/40 border border-emerald-700/30">
-          <span className="text-[10px] text-emerald-400 font-semibold">(Mounted)</span>
-          {mountSpeed > 0 && <span className="text-[10px] text-emerald-300">{mountSpeed} ft</span>}
+          <span className="text-xs text-emerald-400 font-semibold">(Mounted)</span>
+          {mountSpeed > 0 && <span className="text-xs text-emerald-300">{mountSpeed} ft</span>}
         </div>
       )}
 

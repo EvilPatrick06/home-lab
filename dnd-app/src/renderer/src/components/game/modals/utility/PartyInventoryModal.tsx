@@ -209,7 +209,7 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
         <div className="flex items-center justify-between mb-3 shrink-0">
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-semibold text-gray-200">Party Inventory</h3>
-            <span className="text-[10px] text-gray-500">
+            <span className="text-xs text-gray-500">
               {partyInventory.items.length} item{partyInventory.items.length !== 1 ? 's' : ''}
             </span>
           </div>
@@ -225,11 +225,11 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
         {/* Currency section */}
         <div className="border border-gray-700/50 rounded-lg p-3 mb-3 shrink-0">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Currency</span>
+            <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Currency</span>
             {isDM && players.length > 0 && (
               <button
                 onClick={handleSplitGold}
-                className="px-2 py-0.5 text-[10px] bg-yellow-900/30 hover:bg-yellow-800/40 text-yellow-400 border border-yellow-700/30 rounded cursor-pointer"
+                className="px-2 py-0.5 text-xs bg-yellow-900/30 hover:bg-yellow-800/40 text-yellow-400 border border-yellow-700/30 rounded cursor-pointer"
                 title={`Split gold evenly among ${players.length} players`}
               >
                 Split Gold ({players.length})
@@ -242,7 +242,7 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
             {CURRENCY_LABELS.map(({ key, label, color }) => (
               <div key={key} className="flex items-center gap-1">
                 <span className={`text-xs font-semibold ${color}`}>{partyInventory.currency[key]}</span>
-                <span className="text-[10px] text-gray-500">{label}</span>
+                <span className="text-xs text-gray-500">{label}</span>
               </div>
             ))}
           </div>
@@ -259,19 +259,19 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
                     placeholder="0"
                     value={currencyAmounts[key]}
                     onChange={(e) => setCurrencyAmounts((prev) => ({ ...prev, [key]: e.target.value }))}
-                    className="w-14 bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-[10px] text-gray-200 outline-none focus:border-amber-500/50 text-center"
+                    className="w-14 bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-200 outline-none focus:border-amber-500/50 text-center"
                   />
                 </div>
               ))}
               <button
                 onClick={handleAddCurrency}
-                className="px-2 py-1 text-[10px] bg-green-900/30 hover:bg-green-800/40 text-green-400 border border-green-700/30 rounded cursor-pointer whitespace-nowrap"
+                className="px-2 py-1 text-xs bg-green-900/30 hover:bg-green-800/40 text-green-400 border border-green-700/30 rounded cursor-pointer whitespace-nowrap"
               >
                 Add
               </button>
               <button
                 onClick={handleSpendCurrency}
-                className="px-2 py-1 text-[10px] bg-red-900/30 hover:bg-red-800/40 text-red-400 border border-red-700/30 rounded cursor-pointer whitespace-nowrap"
+                className="px-2 py-1 text-xs bg-red-900/30 hover:bg-red-800/40 text-red-400 border border-red-700/30 rounded cursor-pointer whitespace-nowrap"
               >
                 Spend
               </button>
@@ -291,7 +291,7 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
           {isDM && (
             <button
               onClick={() => setShowAddForm(!showAddForm)}
-              className="px-3 py-1 text-[10px] bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer whitespace-nowrap"
+              className="px-3 py-1 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer whitespace-nowrap"
             >
               {showAddForm ? 'Cancel' : '+ Add Item'}
             </button>
@@ -360,7 +360,7 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
               className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200 outline-none focus:border-amber-500/50 resize-y"
             />
             <div className="flex items-center justify-between">
-              <label className="flex items-center gap-1.5 text-[10px] text-gray-400 cursor-pointer">
+              <label className="flex items-center gap-1.5 text-xs text-gray-400 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={newAttunement}
@@ -372,7 +372,7 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
               <button
                 onClick={handleAddItem}
                 disabled={!newName.trim()}
-                className="px-3 py-1 text-[10px] bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded cursor-pointer"
+                className="px-3 py-1 text-xs bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded cursor-pointer"
               >
                 Add to Inventory
               </button>
@@ -389,7 +389,7 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
           ) : (
             <table className="w-full text-xs">
               <thead className="sticky top-0 bg-gray-900/95">
-                <tr className="border-b border-gray-700/50 text-[10px] text-gray-500 uppercase tracking-wider">
+                <tr className="border-b border-gray-700/50 text-xs text-gray-500 uppercase tracking-wider">
                   <th className="text-left py-1.5 px-2">Name</th>
                   <th className="text-center py-1.5 px-1 w-12">Qty</th>
                   <th className="text-right py-1.5 px-1 w-14">Wt.</th>
@@ -414,7 +414,7 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
                         )}
                       </div>
                       {item.description && (
-                        <p className="text-[10px] text-gray-500 truncate max-w-[250px]">{item.description}</p>
+                        <p className="text-xs text-gray-500 truncate max-w-[250px]">{item.description}</p>
                       )}
                     </td>
                     <td className="text-center py-1.5 px-1">
@@ -422,7 +422,7 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
                         {isDM && (
                           <button
                             onClick={() => handleQuantityChange(item.id, -1)}
-                            className="w-4 h-4 flex items-center justify-center text-gray-500 hover:text-gray-300 rounded hover:bg-gray-700 cursor-pointer text-[10px]"
+                            className="w-4 h-4 flex items-center justify-center text-gray-500 hover:text-gray-300 rounded hover:bg-gray-700 cursor-pointer text-xs"
                           >
                             -
                           </button>
@@ -431,7 +431,7 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
                         {isDM && (
                           <button
                             onClick={() => handleQuantityChange(item.id, 1)}
-                            className="w-4 h-4 flex items-center justify-center text-gray-500 hover:text-gray-300 rounded hover:bg-gray-700 cursor-pointer text-[10px]"
+                            className="w-4 h-4 flex items-center justify-center text-gray-500 hover:text-gray-300 rounded hover:bg-gray-700 cursor-pointer text-xs"
                           >
                             +
                           </button>
@@ -449,7 +449,7 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
                         <select
                           value={item.assignedTo ?? ''}
                           onChange={(e) => handleTransfer(item.id, e.target.value)}
-                          className="w-full bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-[10px] text-gray-300 outline-none cursor-pointer"
+                          className="w-full bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-300 outline-none cursor-pointer"
                         >
                           <option value="">Unassigned</option>
                           {players.map((p) => (
@@ -459,7 +459,7 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
                           ))}
                         </select>
                       ) : (
-                        <span className="text-[10px] text-gray-400">
+                        <span className="text-xs text-gray-400">
                           {item.assignedTo ? getPlayerName(item.assignedTo) : '-'}
                         </span>
                       )}
@@ -468,7 +468,7 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
                       {isDM && (
                         <button
                           onClick={() => handleRemoveItem(item.id)}
-                          className="px-1.5 py-0.5 text-[10px] bg-red-900/30 hover:bg-red-800/40 text-red-400 border border-red-700/30 rounded cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="px-1.5 py-0.5 text-xs bg-red-900/30 hover:bg-red-800/40 text-red-400 border border-red-700/30 rounded cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           Remove
                         </button>
@@ -484,10 +484,10 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
         {/* Footer summary */}
         {partyInventory.items.length > 0 && (
           <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-700/50 shrink-0">
-            <span className="text-[10px] text-gray-500">
+            <span className="text-xs text-gray-500">
               Total Weight: <span className="text-gray-300">{totalWeight.toFixed(1)} lb</span>
             </span>
-            <span className="text-[10px] text-gray-500">
+            <span className="text-xs text-gray-500">
               Total Value: <span className="text-yellow-400/80">{totalValue.toFixed(1)} GP</span>
             </span>
           </div>

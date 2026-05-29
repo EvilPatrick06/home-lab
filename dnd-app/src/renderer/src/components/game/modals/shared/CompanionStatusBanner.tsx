@@ -26,7 +26,7 @@ export default function CompanionStatusBanner({
         <div>
           <span className="text-sm text-gray-200 font-medium">{companion.name}</span>
           <span
-            className={`ml-2 text-[10px] px-1.5 py-0.5 rounded-full ${
+            className={`ml-2 text-xs px-1.5 py-0.5 rounded-full ${
               companion.dismissed ? 'bg-gray-700 text-gray-400' : `${activeColor}`
             }`}
           >

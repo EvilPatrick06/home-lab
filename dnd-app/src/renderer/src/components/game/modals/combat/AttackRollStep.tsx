@@ -182,7 +182,7 @@ export function AttackRollStep({
                   <span className="text-[11px] text-green-300">ADV: {src}</span>
                   <button
                     onClick={() => setConditionOverrides((o) => ({ ...o, [`adv-${i}`]: !o[`adv-${i}`] }))}
-                    className={`text-[10px] px-1.5 py-0.5 rounded cursor-pointer ${conditionOverrides[`adv-${i}`] ? 'bg-gray-700 text-gray-400 line-through' : 'bg-green-800 text-green-200'}`}
+                    className={`text-xs px-1.5 py-0.5 rounded cursor-pointer ${conditionOverrides[`adv-${i}`] ? 'bg-gray-700 text-gray-400 line-through' : 'bg-green-800 text-green-200'}`}
                   >
                     {conditionOverrides[`adv-${i}`] ? 'Overridden' : 'Active'}
                   </button>
@@ -196,7 +196,7 @@ export function AttackRollStep({
                   <span className="text-[11px] text-red-300">DISADV: {src}</span>
                   <button
                     onClick={() => setConditionOverrides((o) => ({ ...o, [`disadv-${i}`]: !o[`disadv-${i}`] }))}
-                    className={`text-[10px] px-1.5 py-0.5 rounded cursor-pointer ${conditionOverrides[`disadv-${i}`] ? 'bg-gray-700 text-gray-400 line-through' : 'bg-red-800 text-red-200'}`}
+                    className={`text-xs px-1.5 py-0.5 rounded cursor-pointer ${conditionOverrides[`disadv-${i}`] ? 'bg-gray-700 text-gray-400 line-through' : 'bg-red-800 text-red-200'}`}
                   >
                     {conditionOverrides[`disadv-${i}`] ? 'Overridden' : 'Active'}
                   </button>

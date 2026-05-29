@@ -192,7 +192,7 @@ export default function CreateMapModal({ onCreateMap, onClose }: CreateMapModalP
                   Remove
                 </button>
               )}
-              <span className="text-[10px] text-gray-500 truncate">
+              <span className="text-xs text-gray-500 truncate">
                 {uploadedImage ? 'Image loaded' : 'PNG, JPG, or WebP'}
               </span>
             </div>
@@ -211,7 +211,7 @@ export default function CreateMapModal({ onCreateMap, onClose }: CreateMapModalP
             <div className="rounded-lg border border-gray-700 overflow-hidden">
               <canvas ref={canvasRef} width={320} height={200} className="w-full h-auto block" />
             </div>
-            <p className="text-[10px] text-gray-500 mt-1">
+            <p className="text-xs text-gray-500 mt-1">
               Adjust cell size below to align the grid with your map image
             </p>
           </div>
@@ -248,7 +248,7 @@ export default function CreateMapModal({ onCreateMap, onClose }: CreateMapModalP
               <label className="text-xs text-gray-400">Cell Size: {cellSize}px</label>
               <button
                 onClick={() => setCellSize(DEFAULT_CELL_SIZE)}
-                className={`px-2 py-0.5 text-[10px] rounded bg-gray-800 border transition-colors cursor-pointer ${
+                className={`px-2 py-0.5 text-xs rounded bg-gray-800 border transition-colors cursor-pointer ${
                   cellSize === DEFAULT_CELL_SIZE
                     ? 'border-amber-500/50 text-amber-300'
                     : 'border-gray-700 text-gray-400 hover:bg-gray-700 hover:text-gray-200'
@@ -271,7 +271,7 @@ export default function CreateMapModal({ onCreateMap, onClose }: CreateMapModalP
                 <span>100px</span>
               </div>
             </div>
-            <p className="text-[10px] text-gray-500 mt-0.5">
+            <p className="text-xs text-gray-500 mt-0.5">
               Total: {totalPixelWidth} x {totalPixelHeight} px
             </p>
           </div>
@@ -348,7 +348,7 @@ export default function CreateMapModal({ onCreateMap, onClose }: CreateMapModalP
                     setWidth(preset.w)
                     setHeight(preset.h)
                   }}
-                  className={`flex-1 py-1 text-[10px] rounded transition-colors cursor-pointer ${
+                  className={`flex-1 py-1 text-xs rounded transition-colors cursor-pointer ${
                     width === preset.w && height === preset.h
                       ? 'bg-amber-600/30 text-amber-300 border border-amber-500/50'
                       : 'bg-gray-800 text-gray-400 hover:bg-gray-700 border border-gray-700'

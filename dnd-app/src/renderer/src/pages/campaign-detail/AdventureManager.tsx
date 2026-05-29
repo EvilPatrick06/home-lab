@@ -114,31 +114,31 @@ export default function AdventureManager({ campaign, saveCampaign }: AdventureMa
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-sm font-semibold text-gray-200">{adv.title}</span>
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] text-gray-500 bg-gray-700 px-1.5 py-0.5 rounded">
+                        <span className="text-xs text-gray-500 bg-gray-700 px-1.5 py-0.5 rounded">
                           Lvl {adv.levelTier}
                         </span>
                         <button
                           onClick={() => openEdit(adv)}
-                          className="text-[10px] text-amber-400 hover:text-amber-300 cursor-pointer"
+                          className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer"
                         >
                           Edit
                         </button>
                         <button
                           onClick={() => handleExport(adv)}
-                          className="text-[10px] text-blue-400 hover:text-blue-300 cursor-pointer"
+                          className="text-xs text-blue-400 hover:text-blue-300 cursor-pointer"
                         >
                           Export
                         </button>
                         <button
                           onClick={() => handleDelete(adv.id)}
-                          className="text-[10px] text-red-400 hover:text-red-300 cursor-pointer"
+                          className="text-xs text-red-400 hover:text-red-300 cursor-pointer"
                         >
                           Delete
                         </button>
                       </div>
                     </div>
                     <div className="text-xs text-gray-400 line-clamp-2">{adv.premise}</div>
-                    {adv.villain && <div className="text-[10px] text-gray-500 mt-1">Antagonist: {adv.villain}</div>}
+                    {adv.villain && <div className="text-xs text-gray-500 mt-1">Antagonist: {adv.villain}</div>}
                   </div>
                 ))}
               </div>

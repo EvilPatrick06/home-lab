@@ -204,7 +204,7 @@ export default function MicrophoneSettings(): JSX.Element {
             aria-valuenow={Math.round(level * 100)}
           />
         </div>
-        <p className="text-[10px] text-gray-500 mt-1">Speak into the mic — the bar should move with your voice.</p>
+        <p className="text-xs text-gray-500 mt-1">Speak into the mic — the bar should move with your voice.</p>
       </div>
 
       {/* Gain slider */}
@@ -222,7 +222,7 @@ export default function MicrophoneSettings(): JSX.Element {
           className="w-full"
           aria-label="Microphone input gain"
         />
-        <div className="flex justify-between text-[10px] text-gray-500 mt-0.5">
+        <div className="flex justify-between text-xs text-gray-500 mt-0.5">
           <span>0%</span>
           <span>100%</span>
           <span>200%</span>
@@ -250,7 +250,7 @@ export default function MicrophoneSettings(): JSX.Element {
             </button>
           )}
         </div>
-        <p className="text-[10px] text-gray-500 mt-1">Held while the bound key is pressed; released otherwise.</p>
+        <p className="text-xs text-gray-500 mt-1">Held while the bound key is pressed; released otherwise.</p>
       </div>
 
       {/* Reset to defaults */}

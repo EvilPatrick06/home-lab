@@ -80,7 +80,7 @@ export default function SessionZeroCard({ campaign, saveCampaign }: SessionZeroC
               <span className="text-gray-500">Content Limits:</span>
               <div className="flex flex-wrap gap-1 mt-1">
                 {campaign.sessionZero.contentLimits.map((l) => (
-                  <span key={l} className="text-[10px] bg-red-900/30 text-red-300 px-2 py-0.5 rounded">
+                  <span key={l} className="text-xs bg-red-900/30 text-red-300 px-2 py-0.5 rounded">
                     {l}
                   </span>
                 ))}

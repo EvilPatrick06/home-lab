@@ -86,9 +86,9 @@ export default function EquipmentSection5e({ character, readonly }: EquipmentSec
               </div>
             </div>
             {status === 'encumbered' && (
-              <p className="text-[10px] text-amber-400 mt-1">Encumbered! Speed reduced to 5 ft.</p>
+              <p className="text-xs text-amber-400 mt-1">Encumbered! Speed reduced to 5 ft.</p>
             )}
-            {status === 'over-limit' && <p className="text-[10px] text-red-400 mt-1">Over carry limit! Cannot move.</p>}
+            {status === 'over-limit' && <p className="text-xs text-red-400 mt-1">Over carry limit! Cannot move.</p>}
           </div>
         )
       })()}

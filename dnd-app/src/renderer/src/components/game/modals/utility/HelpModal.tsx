@@ -249,7 +249,7 @@ export default function HelpModal({
                   <button
                     key={skill}
                     onClick={() => setSelectedSkill(skill)}
-                    className={`px-2 py-0.5 text-[10px] rounded cursor-pointer ${
+                    className={`px-2 py-0.5 text-xs rounded cursor-pointer ${
                       selectedSkill === skill ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                     }`}
                   >

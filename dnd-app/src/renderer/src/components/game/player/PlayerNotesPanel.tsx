@@ -143,7 +143,7 @@ export default function PlayerNotesPanel({ characterId, onClose }: PlayerNotesPa
         <div className="flex items-center justify-between mb-3 shrink-0">
           <div>
             <h3 className="text-sm font-semibold text-gray-200">My Notes</h3>
-            <p className="text-[10px] text-gray-500">
+            <p className="text-xs text-gray-500">
               Private — stored locally, never synced to the DM or other players.
             </p>
           </div>
@@ -228,7 +228,7 @@ export default function PlayerNotesPanel({ characterId, onClose }: PlayerNotesPa
                   placeholder="Write your private notes…"
                   className="flex-1 min-h-[8rem] px-2 py-1.5 text-xs rounded bg-gray-800 border border-gray-700/50 text-gray-200 resize-none font-mono"
                 />
-                <div className="flex items-center justify-between text-[10px] text-gray-500">
+                <div className="flex items-center justify-between text-xs text-gray-500">
                   <span>Updated {new Date(active.updatedAt).toLocaleString()}</span>
                   <button
                     type="button"

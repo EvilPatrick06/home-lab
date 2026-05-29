@@ -186,7 +186,7 @@ export default function LanguagesTab5e(): JSX.Element {
                   >
                     {lang}
                     {desc && (
-                      <span className={`text-[10px] ml-0.5 ${isRare ? 'text-purple-500/60' : 'text-green-500/60'}`}>
+                      <span className={`text-xs ml-0.5 ${isRare ? 'text-purple-500/60' : 'text-green-500/60'}`}>
                         ?
                       </span>
                     )}

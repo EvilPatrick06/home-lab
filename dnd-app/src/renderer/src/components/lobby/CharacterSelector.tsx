@@ -144,7 +144,7 @@ export default function CharacterSelector({ onSelect }: CharacterSelectorProps):
           ) : (
             <>
               {campaignCharacters.length > 0 && (
-                <div className="px-3 py-1 bg-gray-900/80 text-[10px] font-bold text-gray-500 uppercase tracking-wide">
+                <div className="px-3 py-1 bg-gray-900/80 text-xs font-bold text-gray-500 uppercase tracking-wide">
                   Campaign Characters
                 </div>
               )}
@@ -168,7 +168,7 @@ export default function CharacterSelector({ onSelect }: CharacterSelectorProps):
               })}
 
               {otherCharacters.length > 0 && (
-                <div className="px-3 py-1 bg-gray-900/80 text-[10px] font-bold text-gray-500 uppercase tracking-wide">
+                <div className="px-3 py-1 bg-gray-900/80 text-xs font-bold text-gray-500 uppercase tracking-wide">
                   Other Characters
                 </div>
               )}

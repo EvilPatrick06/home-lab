@@ -161,12 +161,12 @@ export default function TablesPanel(): JSX.Element {
             <span className="text-sm text-gray-200 capitalize">{table.name.replace(/([A-Z])/g, ' $1')}</span>
             <button
               onClick={() => rollOnTable(table)}
-              className="px-2 py-1 text-[10px] font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer"
+              className="px-2 py-1 text-xs font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer"
             >
               Roll
             </button>
           </div>
-          <div className="text-[10px] text-gray-400">
+          <div className="text-xs text-gray-400">
             {table.type === 'array' && <span>{(table.data as unknown[]).length} entries</span>}
             {table.type === 'diceTable' && <span>Dice table ({(table.data as { die: string }).die})</span>}
             {table.type === 'nested' && (

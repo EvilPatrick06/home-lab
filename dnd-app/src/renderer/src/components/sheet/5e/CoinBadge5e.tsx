@@ -59,7 +59,7 @@ export default function CoinBadge({
           }}
           className="w-10 h-10 rounded-full bg-gray-800 border-2 border-amber-500 text-center text-sm text-gray-100 focus:outline-none"
         />
-        <span className="text-[10px] text-gray-500">{label}</span>
+        <span className="text-xs text-gray-500">{label}</span>
       </div>
     )
   }
@@ -80,7 +80,7 @@ export default function CoinBadge({
       >
         {value}
       </div>
-      <span className="text-[10px] text-gray-500">{label}</span>
+      <span className="text-xs text-gray-500">{label}</span>
     </div>
   )
 }

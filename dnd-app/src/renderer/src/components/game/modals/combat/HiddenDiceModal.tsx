@@ -130,7 +130,7 @@ export default function HiddenDiceModal({ onClose }: HiddenDiceModalProps): JSX.
                   </div>
                   <button
                     onClick={() => handleReveal(result)}
-                    className="px-2 py-1 text-[10px] bg-gray-800 hover:bg-amber-600/30 text-gray-400 hover:text-amber-300 rounded transition-colors cursor-pointer shrink-0"
+                    className="px-2 py-1 text-xs bg-gray-800 hover:bg-amber-600/30 text-gray-400 hover:text-amber-300 rounded transition-colors cursor-pointer shrink-0"
                   >
                     Reveal
                   </button>
@@ -142,7 +142,7 @@ export default function HiddenDiceModal({ onClose }: HiddenDiceModalProps): JSX.
         {hiddenDiceResults.length > 0 && (
           <button
             onClick={clearHiddenDiceResults}
-            className="mt-2 text-[10px] text-gray-500 hover:text-red-400 cursor-pointer"
+            className="mt-2 text-xs text-gray-500 hover:text-red-400 cursor-pointer"
           >
             Clear All
           </button>

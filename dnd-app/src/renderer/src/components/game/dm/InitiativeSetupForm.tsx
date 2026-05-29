@@ -113,7 +113,7 @@ export default function InitiativeSetupForm({
                       value={entry.legendaryResistances}
                       onChange={(e) => onUpdateNewEntry(i, { legendaryResistances: e.target.value })}
                       className="w-8 p-1 rounded bg-gray-800 border border-gray-700 text-gray-100
-                        text-center focus:outline-none focus:border-orange-500 text-[10px]"
+                        text-center focus:outline-none focus:border-orange-500 text-xs"
                       title="Legendary Resistances (e.g. 3)"
                     />
                     <label
@@ -143,7 +143,7 @@ export default function InitiativeSetupForm({
           {/* From Map tokens */}
           {tokens.length > 0 && (
             <div className="border-t border-gray-700/50 pt-2 mt-1">
-              <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-1.5">From Map</p>
+              <p className="text-xs text-gray-500 uppercase tracking-wider mb-1.5">From Map</p>
               <div className="space-y-1 max-h-28 overflow-y-auto">
                 {tokens.map((token) => (
                   <label
@@ -173,7 +173,7 @@ export default function InitiativeSetupForm({
                       }`}
                     />
                     <span className="text-gray-300 truncate">{token.label}</span>
-                    <span className="text-gray-600 ml-auto text-[10px]">
+                    <span className="text-gray-600 ml-auto text-xs">
                       {token.initiativeModifier !== undefined ? `+${token.initiativeModifier}` : '+0'}
                     </span>
                   </label>
@@ -196,7 +196,7 @@ export default function InitiativeSetupForm({
                     onSetNewEntries((prev) => [...prev.filter((e) => e.name.trim()), ...toAdd])
                     onSetCheckedTokenIds(new Set())
                   }}
-                  className="w-full mt-1.5 py-1 text-[10px] rounded bg-gray-800 text-amber-400
+                  className="w-full mt-1.5 py-1 text-xs rounded bg-gray-800 text-amber-400
                     hover:bg-gray-700 hover:text-amber-300 transition-colors cursor-pointer"
                 >
                   Add {checkedTokenIds.size} Checked
@@ -209,7 +209,7 @@ export default function InitiativeSetupForm({
           <div className="border-t border-gray-700/50 pt-2 mt-1">
             <button
               onClick={() => onSetShowTimerConfig(!showTimerConfig)}
-              className="flex items-center gap-1.5 text-[10px] text-gray-400 hover:text-gray-200 cursor-pointer w-full"
+              className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-200 cursor-pointer w-full"
             >
               <span className="uppercase tracking-wider font-semibold">Turn Timer</span>
               <span className="text-gray-600 text-[9px]">{showTimerConfig ? '\u25B2' : '\u25BC'}</span>
@@ -221,7 +221,7 @@ export default function InitiativeSetupForm({
             </button>
             {showTimerConfig && (
               <div className="mt-1.5 space-y-1.5">
-                <label className="flex items-center gap-1.5 text-[10px] text-gray-400 cursor-pointer">
+                <label className="flex items-center gap-1.5 text-xs text-gray-400 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={timerEnabled}
@@ -233,7 +233,7 @@ export default function InitiativeSetupForm({
                 {timerEnabled && (
                   <>
                     <div className="flex items-center gap-1 flex-wrap">
-                      <span className="text-[10px] text-gray-500 mr-1">Seconds:</span>
+                      <span className="text-xs text-gray-500 mr-1">Seconds:</span>
                       {TIMER_PRESETS.map((preset) => (
                         <button
                           key={preset}
@@ -241,7 +241,7 @@ export default function InitiativeSetupForm({
                             onSetCustomSeconds(String(preset))
                             onUpdateTimerConfig({ seconds: preset })
                           }}
-                          className={`px-1.5 py-0.5 text-[10px] rounded cursor-pointer ${
+                          className={`px-1.5 py-0.5 text-xs rounded cursor-pointer ${
                             timerSeconds === preset
                               ? 'bg-amber-600 text-white'
                               : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
@@ -262,15 +262,15 @@ export default function InitiativeSetupForm({
                             onUpdateTimerConfig({ seconds: val })
                           }
                         }}
-                        className="w-14 p-0.5 rounded bg-gray-800 border border-gray-700 text-gray-100 text-center text-[10px] focus:outline-none focus:border-amber-500"
+                        className="w-14 p-0.5 rounded bg-gray-800 border border-gray-700 text-gray-100 text-center text-xs focus:outline-none focus:border-amber-500"
                         title="Custom seconds (10-600)"
                       />
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] text-gray-500">On expire:</span>
+                      <span className="text-xs text-gray-500">On expire:</span>
                       <button
                         onClick={() => onUpdateTimerConfig({ action: 'warning' })}
-                        className={`px-1.5 py-0.5 text-[10px] rounded cursor-pointer ${
+                        className={`px-1.5 py-0.5 text-xs rounded cursor-pointer ${
                           timerAction === 'warning'
                             ? 'bg-amber-600 text-white'
                             : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
@@ -280,7 +280,7 @@ export default function InitiativeSetupForm({
                       </button>
                       <button
                         onClick={() => onUpdateTimerConfig({ action: 'auto-skip' })}
-                        className={`px-1.5 py-0.5 text-[10px] rounded cursor-pointer ${
+                        className={`px-1.5 py-0.5 text-xs rounded cursor-pointer ${
                           timerAction === 'auto-skip'
                             ? 'bg-red-600 text-white'
                             : 'bg-gray-800 text-gray-400 hover:bg-gray-700'

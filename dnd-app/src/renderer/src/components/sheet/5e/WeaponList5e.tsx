@@ -176,10 +176,10 @@ export function WeaponRow({ weapon, onRemove, onSell, character, weaponDatabase 
           className="flex items-center gap-2 cursor-pointer hover:bg-gray-800/30 rounded px-1 -mx-1 transition-colors"
         >
           <span className="text-gray-200 font-medium">{weapon.name}</span>
-          <span className="text-gray-600 text-[10px]">{expanded ? '\u25BE' : '\u25B8'}</span>
+          <span className="text-gray-600 text-xs">{expanded ? '\u25BE' : '\u25B8'}</span>
           {weapon.mastery && (
             <span
-              className="text-[10px] px-1.5 py-0.5 rounded bg-purple-900/50 text-purple-300 border border-purple-700"
+              className="text-xs px-1.5 py-0.5 rounded bg-purple-900/50 text-purple-300 border border-purple-700"
               title={getMasteryDescription(weapon.mastery)}
             >
               {weapon.mastery}
@@ -188,7 +188,7 @@ export function WeaponRow({ weapon, onRemove, onSell, character, weaponDatabase 
           {weapon.properties.map((prop) => (
             <span
               key={prop}
-              className="text-[10px] px-1 py-0.5 rounded bg-gray-700/50 text-gray-400 border border-gray-600"
+              className="text-xs px-1 py-0.5 rounded bg-gray-700/50 text-gray-400 border border-gray-600"
               title={PROPERTY_TOOLTIPS[prop] ?? prop}
             >
               {PROPERTY_ABBREVIATIONS[prop] ?? prop}

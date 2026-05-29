@@ -151,9 +151,9 @@ export default function PlayerList(): JSX.Element {
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-sm font-medium text-purple-200">AI Dungeon Master</div>
-              <div className="text-[10px] text-purple-400">Ollama ({aiDmOllamaModel})</div>
+              <div className="text-xs text-purple-400">Ollama ({aiDmOllamaModel})</div>
             </div>
-            <span className="text-[10px] text-green-400 bg-green-900/30 px-2 py-0.5 rounded-full">Ready</span>
+            <span className="text-xs text-green-400 bg-green-900/30 px-2 py-0.5 rounded-full">Ready</span>
           </div>
         )}
 

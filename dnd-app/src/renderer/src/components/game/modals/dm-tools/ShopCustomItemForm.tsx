@@ -54,7 +54,7 @@ export default function ShopCustomItemForm({ onAddItem }: ShopCustomItemFormProp
         <div className="px-3 pb-3 space-y-2">
           <div className="grid grid-cols-4 gap-2">
             <div className="col-span-2">
-              <label className="block text-[10px] text-gray-500 mb-0.5">Name</label>
+              <label className="block text-xs text-gray-500 mb-0.5">Name</label>
               <input
                 type="text"
                 value={customName}
@@ -64,7 +64,7 @@ export default function ShopCustomItemForm({ onAddItem }: ShopCustomItemFormProp
               />
             </div>
             <div>
-              <label className="block text-[10px] text-gray-500 mb-0.5">Price (GP)</label>
+              <label className="block text-xs text-gray-500 mb-0.5">Price (GP)</label>
               <input
                 type="number"
                 value={customPrice}
@@ -74,7 +74,7 @@ export default function ShopCustomItemForm({ onAddItem }: ShopCustomItemFormProp
               />
             </div>
             <div>
-              <label className="block text-[10px] text-gray-500 mb-0.5">Weight (lb)</label>
+              <label className="block text-xs text-gray-500 mb-0.5">Weight (lb)</label>
               <input
                 type="number"
                 value={customWeight}
@@ -86,7 +86,7 @@ export default function ShopCustomItemForm({ onAddItem }: ShopCustomItemFormProp
           </div>
           <div className="grid grid-cols-3 gap-2">
             <div>
-              <label className="block text-[10px] text-gray-500 mb-0.5">Category</label>
+              <label className="block text-xs text-gray-500 mb-0.5">Category</label>
               <select
                 value={customCategory}
                 onChange={(e) => setCustomCategory(e.target.value as ShopItemCategory)}
@@ -100,7 +100,7 @@ export default function ShopCustomItemForm({ onAddItem }: ShopCustomItemFormProp
               </select>
             </div>
             <div>
-              <label className="block text-[10px] text-gray-500 mb-0.5">Rarity</label>
+              <label className="block text-xs text-gray-500 mb-0.5">Rarity</label>
               <select
                 value={customRarity}
                 onChange={(e) => setCustomRarity(e.target.value as ShopItemRarity)}
@@ -124,7 +124,7 @@ export default function ShopCustomItemForm({ onAddItem }: ShopCustomItemFormProp
             </div>
           </div>
           <div>
-            <label className="block text-[10px] text-gray-500 mb-0.5">Description</label>
+            <label className="block text-xs text-gray-500 mb-0.5">Description</label>
             <textarea
               value={customDescription}
               onChange={(e) => setCustomDescription(e.target.value)}

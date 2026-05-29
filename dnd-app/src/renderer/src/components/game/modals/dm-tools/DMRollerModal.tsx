@@ -320,11 +320,11 @@ export default function DMRollerModal({ onClose, onMinimize, onRestore }: DMRoll
             <div className="text-[9px] text-gray-500 uppercase tracking-wider mb-2">Roll History</div>
             <div className="flex-1 overflow-y-auto space-y-1.5">
               {rollResults.length === 0 ? (
-                <p className="text-[10px] text-gray-600 text-center py-4">No rolls yet</p>
+                <p className="text-xs text-gray-600 text-center py-4">No rolls yet</p>
               ) : (
                 rollResults.map((r) => (
                   <div key={r.id} className="bg-gray-800/50 rounded p-1.5">
-                    <div className="text-[10px] text-gray-300">
+                    <div className="text-xs text-gray-300">
                       <span className="text-purple-300 font-semibold">{r.entityName}</span> {r.label}:{' '}
                       <span className="text-amber-300 font-bold">{r.total}</span>
                     </div>

@@ -147,7 +147,7 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
           <div className="flex-1 overflow-y-auto space-y-3 min-h-0">
             {/* Target player */}
             <div>
-              <label className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Trade With</label>
+              <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Trade With</label>
               <select
                 value={targetPeerId}
                 onChange={(e) => setTargetPeerId(e.target.value)}
@@ -164,7 +164,7 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
 
             {/* Offered items */}
             <div>
-              <label className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">
+              <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
                 Your Items to Offer
               </label>
               <div className="mt-1 max-h-32 overflow-y-auto space-y-0.5">
@@ -189,19 +189,19 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
                           min={1}
                           value={selected.quantity}
                           onChange={(e) => updateItemQuantity(name, parseInt(e.target.value, 10) || 1)}
-                          className="w-12 bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-[10px] text-gray-300 text-center outline-none"
+                          className="w-12 bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-300 text-center outline-none"
                         />
                       )}
                     </div>
                   )
                 })}
-                {equipment.length === 0 && <p className="text-[10px] text-gray-500">No items in inventory.</p>}
+                {equipment.length === 0 && <p className="text-xs text-gray-500">No items in inventory.</p>}
               </div>
             </div>
 
             {/* Offered gold */}
             <div className="flex items-center gap-2">
-              <label className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">
+              <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
                 Gold to Offer (gp)
               </label>
               <input
@@ -215,7 +215,7 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
 
             {/* Requested items */}
             <div>
-              <label className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">
+              <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
                 Items You Want (comma-separated)
               </label>
               <input
@@ -229,7 +229,7 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
 
             {/* Requested gold */}
             <div className="flex items-center gap-2">
-              <label className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">
+              <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
                 Gold Requested (gp)
               </label>
               <input
@@ -272,7 +272,7 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
               </p>
               {pendingTradeOffer.offeredItems.length > 0 && (
                 <div className="mb-2">
-                  <span className="text-[10px] text-gray-500 uppercase">They offer:</span>
+                  <span className="text-xs text-gray-500 uppercase">They offer:</span>
                   <ul className="mt-0.5 space-y-0.5">
                     {pendingTradeOffer.offeredItems.map((item) => (
                       <li key={item.name} className="text-xs text-gray-300">
@@ -287,7 +287,7 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
               )}
               {pendingTradeOffer.requestedItems.length > 0 && (
                 <div className="mb-2">
-                  <span className="text-[10px] text-gray-500 uppercase">They want:</span>
+                  <span className="text-xs text-gray-500 uppercase">They want:</span>
                   <ul className="mt-0.5 space-y-0.5">
                     {pendingTradeOffer.requestedItems.map((item) => (
                       <li key={item.name} className="text-xs text-gray-300">
@@ -335,7 +335,7 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
                 const cap = strScore * 15
                 if (postTrade > cap) {
                   return (
-                    <p className="text-[10px] text-red-300 bg-red-900/30 border border-red-700/40 rounded px-2 py-1 mb-2">
+                    <p className="text-xs text-red-300 bg-red-900/30 border border-red-700/40 rounded px-2 py-1 mb-2">
                       Warning: accepting puts you at {postTrade.toFixed(1)}/{cap} lb — over carrying capacity.
                     </p>
                   )

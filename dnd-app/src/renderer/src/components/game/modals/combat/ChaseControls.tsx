@@ -69,7 +69,7 @@ export default function ChaseControls({
               <div className="flex items-center gap-2">
                 <span className="text-sm text-white truncate">{p.name}</span>
                 <span
-                  className={`text-[10px] px-1.5 py-0.5 rounded ${
+                  className={`text-xs px-1.5 py-0.5 rounded ${
                     p.isQuarry ? 'bg-red-900/50 text-red-400' : 'bg-blue-900/50 text-blue-400'
                   }`}
                 >
@@ -85,7 +85,7 @@ export default function ChaseControls({
 
             {/* Speed */}
             <div className="flex items-center gap-1">
-              <label className="text-[10px] text-gray-500">Spd:</label>
+              <label className="text-xs text-gray-500">Spd:</label>
               <input
                 type="number"
                 value={p.speed}
@@ -97,7 +97,7 @@ export default function ChaseControls({
 
             {/* CON Mod */}
             <div className="flex items-center gap-1">
-              <label className="text-[10px] text-gray-500">CON:</label>
+              <label className="text-xs text-gray-500">CON:</label>
               <input
                 type="number"
                 value={p.conModifier}
@@ -107,7 +107,7 @@ export default function ChaseControls({
             </div>
 
             {/* Dashes */}
-            <div className="text-[10px] text-gray-500">
+            <div className="text-xs text-gray-500">
               Dashes:{' '}
               <span className={p.dashesUsed > getFreeDashes(p.conModifier) ? 'text-red-400' : 'text-amber-400'}>
                 {p.dashesUsed}
@@ -154,7 +154,7 @@ export default function ChaseControls({
           }}
         />
         <div className="flex items-center gap-1">
-          <label className="text-[10px] text-gray-500">CON:</label>
+          <label className="text-xs text-gray-500">CON:</label>
           <input
             type="number"
             value={newConMod}

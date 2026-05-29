@@ -201,7 +201,7 @@ export default function DMTabPanel({ onOpenModal, campaign, onDispute, onEditMap
           <div className="flex flex-wrap gap-1.5 items-start">
             {aiEnabled ? (
               <>
-                <span className="text-[10px] text-purple-400 font-semibold uppercase tracking-wider w-full">
+                <span className="text-xs text-purple-400 font-semibold uppercase tracking-wider w-full">
                   AI DM ({aiModel}) {aiPaused ? '\u2014 Paused' : ''}
                 </span>
                 <button className={aiPaused ? toggleOnClass : btnClass} onClick={() => setPaused(!aiPaused)}>
@@ -252,19 +252,19 @@ export default function DMTabPanel({ onOpenModal, campaign, onDispute, onEditMap
                         ['Memory', tokenBudget.memory]
                       ] as const
                     ).map(([label, val]) => (
-                      <div key={label} className="flex justify-between text-[10px]">
+                      <div key={label} className="flex justify-between text-xs">
                         <span className="text-gray-500">{label}</span>
                         <span className="text-gray-400">{val.toLocaleString()}</span>
                       </div>
                     ))}
-                    <div className="flex justify-between text-[10px] border-t border-gray-700 pt-0.5 mt-0.5">
+                    <div className="flex justify-between text-xs border-t border-gray-700 pt-0.5 mt-0.5">
                       <span className="text-purple-400 font-semibold">Total Context</span>
                       <span className="text-purple-400 font-semibold">{tokenBudget.total.toLocaleString()}</span>
                     </div>
                   </div>
                 )}
 
-                <Suspense fallback={<div className="text-[10px] text-gray-500 w-full">Loading context panel...</div>}>
+                <Suspense fallback={<div className="text-xs text-gray-500 w-full">Loading context panel...</div>}>
                   <AiContextPanel campaignId={campaign.id} />
                 </Suspense>
 

@@ -26,7 +26,7 @@ function SpellSlotGrid5e({
           .sort(([a], [b]) => Number(a) - Number(b))
           .map(([level, slots]) => (
             <div key={level} className={`rounded px-2 py-1.5 ${isPact ? 'bg-purple-900/30' : 'bg-gray-800/50'}`}>
-              <div className="text-[10px] text-gray-500 text-center mb-1">{`${level}${ordinal(Number(level))}`}</div>
+              <div className="text-xs text-gray-500 text-center mb-1">{`${level}${ordinal(Number(level))}`}</div>
               <div className="flex gap-1">
                 {Array.from({ length: slots.max }, (_, i) => {
                   const isFilled = i < slots.current

@@ -212,7 +212,7 @@ export default function TraitEditor5e({
                     }}
                   >
                     {lang}
-                    {desc && <span className="text-green-500/60 text-[10px]">{isLangExpanded ? '\u25BE' : '?'}</span>}
+                    {desc && <span className="text-green-500/60 text-xs">{isLangExpanded ? '\u25BE' : '?'}</span>}
                     {!readonly && (
                       <button
                         onClick={(e) => {
@@ -227,7 +227,7 @@ export default function TraitEditor5e({
                     )}
                   </span>
                   {isLangExpanded && desc && (
-                    <div className="text-[10px] text-gray-500 bg-gray-800/50 rounded px-2 py-1 mt-1 max-w-xs">
+                    <div className="text-xs text-gray-500 bg-gray-800/50 rounded px-2 py-1 mt-1 max-w-xs">
                       {desc}
                     </div>
                   )}
@@ -262,7 +262,7 @@ export default function TraitEditor5e({
                     >
                       <span className="text-gray-300">{lang}</span>
                       {LANGUAGE_DESCRIPTIONS[lang] && (
-                        <span className="text-gray-600 text-[10px] truncate ml-2 max-w-[60%]">
+                        <span className="text-gray-600 text-xs truncate ml-2 max-w-[60%]">
                           {LANGUAGE_DESCRIPTIONS[lang]}
                         </span>
                       )}

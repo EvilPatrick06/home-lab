@@ -22,13 +22,13 @@ export default function GameCard({ game, onJoin, onSpectate }: GameCardProps): J
         <div className="flex flex-col items-end gap-1 shrink-0">
           {game.is_private && (
             <span
-              className="text-[10px] uppercase tracking-wide bg-amber-900/40 text-amber-300 px-2 py-0.5 rounded-full"
+              className="text-xs uppercase tracking-wide bg-amber-900/40 text-amber-300 px-2 py-0.5 rounded-full"
               title="Private game — invite code required"
             >
               Private
             </span>
           )}
-          <span className="text-[10px] uppercase tracking-wide bg-gray-800 text-gray-300 px-2 py-0.5 rounded-full">
+          <span className="text-xs uppercase tracking-wide bg-gray-800 text-gray-300 px-2 py-0.5 rounded-full">
             {game.game_system}
           </span>
         </div>

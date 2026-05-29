@@ -111,7 +111,7 @@ function SlotEditor({
 
         {/* Icon picker */}
         <div>
-          <div className="text-[10px] text-gray-500 mb-1">Icon</div>
+          <div className="text-xs text-gray-500 mb-1">Icon</div>
           <div className="flex flex-wrap gap-1">
             {ICON_PRESETS.map((emoji) => (
               <button
@@ -127,7 +127,7 @@ function SlotEditor({
 
         {/* Color picker */}
         <div>
-          <div className="text-[10px] text-gray-500 mb-1">Color</div>
+          <div className="text-xs text-gray-500 mb-1">Color</div>
           <div className="flex gap-1">
             {COLOR_PRESETS.map((c) => (
               <button
@@ -150,25 +150,25 @@ function SlotEditor({
         <button
           onClick={handleSave}
           disabled={!name.trim() || !command.trim()}
-          className="flex-1 px-2 py-1 text-[10px] font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex-1 px-2 py-1 text-xs font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
         >
           Save
         </button>
         {macro && (
           <button
             onClick={() => onRemove(slotIndex)}
-            className="px-2 py-1 text-[10px] font-semibold bg-red-900/50 hover:bg-red-800/60 text-red-300 rounded cursor-pointer"
+            className="px-2 py-1 text-xs font-semibold bg-red-900/50 hover:bg-red-800/60 text-red-300 rounded cursor-pointer"
           >
             Remove
           </button>
         )}
         <button
           onClick={() => onPickFromLibrary(slotIndex)}
-          className="px-2 py-1 text-[10px] text-gray-400 hover:text-gray-200 border border-gray-700/50 rounded cursor-pointer"
+          className="px-2 py-1 text-xs text-gray-400 hover:text-gray-200 border border-gray-700/50 rounded cursor-pointer"
         >
           Library
         </button>
-        <button onClick={onClose} className="px-2 py-1 text-[10px] text-gray-500 hover:text-gray-300 cursor-pointer">
+        <button onClick={onClose} className="px-2 py-1 text-xs text-gray-500 hover:text-gray-300 cursor-pointer">
           Cancel
         </button>
       </div>
@@ -208,7 +208,7 @@ function LibraryPicker({ macros, position, onPick, onClose }: LibraryPickerProps
     >
       <div className="text-[11px] font-semibold text-amber-400 mb-1.5">Macro Library</div>
       {macros.length === 0 ? (
-        <div className="text-[10px] text-gray-500 italic py-2">No saved macros</div>
+        <div className="text-xs text-gray-500 italic py-2">No saved macros</div>
       ) : (
         macros.map((m) => (
           <button
@@ -226,7 +226,7 @@ function LibraryPicker({ macros, position, onPick, onClose }: LibraryPickerProps
       )}
       <button
         onClick={onClose}
-        className="w-full mt-1 px-2 py-1 text-[10px] text-gray-500 hover:text-gray-300 cursor-pointer"
+        className="w-full mt-1 px-2 py-1 text-xs text-gray-500 hover:text-gray-300 cursor-pointer"
       >
         Close
       </button>
@@ -388,7 +388,7 @@ export default function Hotbar({ characterId, onExecuteMacro }: HotbarProps): JS
                 )}
               </>
             ) : (
-              <span className="text-[10px] font-mono text-gray-600">{SLOT_LABELS[index]}</span>
+              <span className="text-xs font-mono text-gray-600">{SLOT_LABELS[index]}</span>
             )}
             {/* Slot number badge */}
             <span className="absolute -top-1 -right-1 w-3.5 h-3.5 text-[8px] font-bold rounded-full bg-gray-900 border border-gray-700 text-gray-500 flex items-center justify-center">

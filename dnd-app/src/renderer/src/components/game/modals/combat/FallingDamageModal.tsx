@@ -88,7 +88,7 @@ export default function FallingDamageModal({
           }}
           className="w-full mt-1 accent-amber-600"
         />
-        <div className="flex justify-between text-[10px] text-gray-600">
+        <div className="flex justify-between text-xs text-gray-600">
           <span>10 ft</span>
           <span>200 ft</span>
         </div>
@@ -168,7 +168,7 @@ export default function FallingDamageModal({
         </div>
       )}
 
-      <div className="text-[10px] text-gray-600 mt-2">
+      <div className="text-xs text-gray-600 mt-2">
         Water landing: Reaction for DC 15 STR(Athletics) or DEX(Acrobatics) = half damage.
       </div>
     </NarrowModalShell>

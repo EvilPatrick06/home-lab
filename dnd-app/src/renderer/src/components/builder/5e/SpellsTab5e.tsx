@@ -309,7 +309,7 @@ export default function SpellsTab5e(): JSX.Element {
         {Object.keys(slotProgression).length > 0 && (
           <div className="mb-2">
             {isWarlockPactMagic(classId) && (
-              <div className="text-[10px] text-purple-400 uppercase tracking-wide mb-1">Pact Magic Slots</div>
+              <div className="text-xs text-purple-400 uppercase tracking-wide mb-1">Pact Magic Slots</div>
             )}
             <div className="flex gap-2">
               {Object.entries(slotProgression).map(([lvl, count]) => (
@@ -317,7 +317,7 @@ export default function SpellsTab5e(): JSX.Element {
                   key={lvl}
                   className={`rounded px-2 py-1 text-center ${isWarlockPactMagic(classId) ? 'bg-purple-900/30' : 'bg-gray-800'}`}
                 >
-                  <div className="text-[10px] text-gray-500">
+                  <div className="text-xs text-gray-500">
                     {lvl}
                     {ordinal(Number(lvl))}
                   </div>

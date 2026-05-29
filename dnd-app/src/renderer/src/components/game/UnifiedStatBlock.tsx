@@ -12,7 +12,7 @@ function formatModifier(score: number): string {
 function AbilityRow({ label, score }: { label: string; score: number }): JSX.Element {
   return (
     <div className="text-center">
-      <div className="text-[10px] text-gray-500 uppercase font-semibold">{label}</div>
+      <div className="text-xs text-gray-500 uppercase font-semibold">{label}</div>
       <div className="text-sm font-semibold text-gray-200">{score}</div>
       <div className="text-xs text-amber-400">{formatModifier(score)}</div>
     </div>

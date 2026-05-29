@@ -28,7 +28,7 @@ export default function LairActionPrompt(): JSX.Element | null {
     <div className="absolute top-12 left-1/2 -translate-x-1/2 z-40 bg-gray-900/95 border border-amber-500/60 rounded-xl shadow-2xl p-4 w-96 max-w-[90vw]">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-xs font-bold text-amber-400">Lair Action — {pendingLairAction.creatureName}</h3>
-        <button onClick={handleSkip} className="text-[10px] text-gray-400 hover:text-gray-200 cursor-pointer">
+        <button onClick={handleSkip} className="text-xs text-gray-400 hover:text-gray-200 cursor-pointer">
           Skip
         </button>
       </div>
@@ -41,7 +41,7 @@ export default function LairActionPrompt(): JSX.Element | null {
             title={action.description}
           >
             <div className="text-[11px] font-semibold text-gray-200 group-hover:text-amber-300">{action.name}</div>
-            <div className="text-[10px] text-gray-400 mt-0.5 line-clamp-2">{action.description}</div>
+            <div className="text-xs text-gray-400 mt-0.5 line-clamp-2">{action.description}</div>
           </button>
         ))}
       </div>

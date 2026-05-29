@@ -221,7 +221,7 @@ function TreeNodeRow({
           <button
             onClick={() => onGoToMap(entry.linkedMapId!)}
             title="Go to linked map"
-            className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-blue-400 cursor-pointer text-[10px] opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+            className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-blue-400 cursor-pointer text-xs opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
           >
             &#x1F5FA;
           </button>
@@ -236,7 +236,7 @@ function TreeNodeRow({
                 <button
                   onClick={() => setReadAloudMenuOpen(!readAloudMenuOpen)}
                   title="Read Aloud"
-                  className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-amber-400 cursor-pointer text-[10px]"
+                  className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-amber-400 cursor-pointer text-xs"
                 >
                   &#x1F4D6;
                 </button>
@@ -273,7 +273,7 @@ function TreeNodeRow({
               <button
                 onClick={() => setMoveMenuOpen(!moveMenuOpen)}
                 title="Move to..."
-                className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-amber-400 cursor-pointer text-[10px]"
+                className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-amber-400 cursor-pointer text-xs"
               >
                 &#x21C5;
               </button>
@@ -322,7 +322,7 @@ function TreeNodeRow({
             <button
               onClick={() => onToggleVisibility(entry.id)}
               title={entry.visibleToPlayers ? 'Hide from players' : 'Show to players'}
-              className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-gray-300 cursor-pointer text-[10px]"
+              className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-gray-300 cursor-pointer text-xs"
             >
               {entry.visibleToPlayers ? '\u{1F441}' : '\u{1F441}\u{200D}\u{1F5E8}'}
             </button>
@@ -331,7 +331,7 @@ function TreeNodeRow({
             <button
               onClick={() => onEdit(entry)}
               title="Edit"
-              className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-amber-400 cursor-pointer text-[10px]"
+              className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-amber-400 cursor-pointer text-xs"
             >
               &#9998;
             </button>
@@ -341,7 +341,7 @@ function TreeNodeRow({
               <button
                 onClick={() => onRemove(entry.id)}
                 title="Delete"
-                className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-red-400 cursor-pointer text-[10px]"
+                className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-red-400 cursor-pointer text-xs"
               >
                 &#10005;
               </button>
@@ -352,7 +352,7 @@ function TreeNodeRow({
 
       {/* Description (collapsed inline) */}
       {entry.description && (
-        <div className="text-[10px] text-gray-500 truncate" style={{ paddingLeft: `${indentPx + 24}px` }}>
+        <div className="text-xs text-gray-500 truncate" style={{ paddingLeft: `${indentPx + 24}px` }}>
           {entry.description}
         </div>
       )}

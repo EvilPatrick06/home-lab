@@ -218,7 +218,7 @@ export default function AoETemplateModal({
                   className="w-16 px-2 py-1 text-xs bg-gray-800 border border-gray-700 rounded text-white"
                 />
               </div>
-              <p className="text-[10px] text-gray-600 mt-1">Click on the map to set origin after placing.</p>
+              <p className="text-xs text-gray-600 mt-1">Click on the map to set origin after placing.</p>
             </div>
 
             {/* Preview info */}

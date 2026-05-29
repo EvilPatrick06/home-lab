@@ -207,7 +207,7 @@ export default function CoreBooksGrid({ onOpenBook }: CoreBooksGridProps): JSX.E
                   <span className="text-2xl">📓</span>
                   <div className="flex-1 min-w-0">
                     <h4 className="text-sm font-medium text-gray-200 truncate">{book.title}</h4>
-                    <p className="text-[10px] text-gray-500">Added {new Date(book.addedAt).toLocaleDateString()}</p>
+                    <p className="text-xs text-gray-500">Added {new Date(book.addedAt).toLocaleDateString()}</p>
                   </div>
                   <div className="flex gap-1">
                     <button

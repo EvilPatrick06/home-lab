@@ -94,10 +94,10 @@ export default function AttackCalculator5e({
                     }}
                   >
                     {prof}
-                    {desc && <span className="text-gray-600 text-[10px] ml-1">{isExpanded ? '\u25BE' : '?'}</span>}
+                    {desc && <span className="text-gray-600 text-xs ml-1">{isExpanded ? '\u25BE' : '?'}</span>}
                   </span>
                   {isExpanded && desc && (
-                    <div className="text-[10px] text-gray-500 bg-gray-800/50 rounded px-2 py-1 mt-1 max-w-xs">
+                    <div className="text-xs text-gray-500 bg-gray-800/50 rounded px-2 py-1 mt-1 max-w-xs">
                       {desc}
                     </div>
                   )}
@@ -167,7 +167,7 @@ export default function AttackCalculator5e({
                   setShowAddWeaponProf(false)
                   setCustomWeaponProf('')
                 }}
-                className="text-[10px] text-gray-500 hover:text-gray-300 cursor-pointer"
+                className="text-xs text-gray-500 hover:text-gray-300 cursor-pointer"
               >
                 Cancel
               </button>
@@ -197,7 +197,7 @@ export default function AttackCalculator5e({
                   <div className="flex items-center gap-2">
                     <span className="text-gray-200 font-medium">{spell.name}</span>
                     {spell.concentration && (
-                      <span className="text-[10px] text-yellow-500 border border-yellow-700 rounded px-1">C</span>
+                      <span className="text-xs text-yellow-500 border border-yellow-700 rounded px-1">C</span>
                     )}
                   </div>
                   <div className="flex items-center gap-4 text-xs">

@@ -87,7 +87,7 @@ export default function ShortcutsOverlay({
           )}
 
           {customizedShortcutMap.size > 0 && (
-            <p className="text-[10px] text-gray-600 mt-2">
+            <p className="text-xs text-gray-600 mt-2">
               {effectiveShortcuts.length} shortcuts configured. Customize in Settings &gt; Keybindings.
             </p>
           )}

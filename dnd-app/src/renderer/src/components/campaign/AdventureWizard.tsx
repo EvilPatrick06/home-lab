@@ -61,7 +61,7 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
       content: (
         <div className="space-y-3">
           <div>
-            <label className="block text-[10px] text-gray-500 uppercase tracking-wide mb-1">Adventure Title</label>
+            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Adventure Title</label>
             <input
               value={data.title}
               onChange={(e) => update('title', e.target.value)}
@@ -70,7 +70,7 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
             />
           </div>
           <div>
-            <label className="block text-[10px] text-gray-500 uppercase tracking-wide mb-1">Level Tier</label>
+            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Level Tier</label>
             <div className="flex gap-1.5">
               {Object.keys(ADVENTURE_SEEDS).map((tier) => (
                 <button
@@ -89,8 +89,8 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
           </div>
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-[10px] text-gray-500 uppercase tracking-wide">Premise / Situation</label>
-              <button onClick={rollSeed} className="text-[10px] text-purple-400 hover:text-purple-300 cursor-pointer">
+              <label className="text-xs text-gray-500 uppercase tracking-wide">Premise / Situation</label>
+              <button onClick={rollSeed} className="text-xs text-purple-400 hover:text-purple-300 cursor-pointer">
                 Roll Random Seed
               </button>
             </div>
@@ -103,7 +103,7 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
             />
           </div>
           <div>
-            <label className="block text-[10px] text-gray-500 uppercase tracking-wide mb-1">Villain / Antagonist</label>
+            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Villain / Antagonist</label>
             <input
               value={data.villain}
               onChange={(e) => update('villain', e.target.value)}
@@ -112,7 +112,7 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
             />
           </div>
           <div>
-            <label className="block text-[10px] text-gray-500 uppercase tracking-wide mb-1">Setting / Location</label>
+            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Setting / Location</label>
             <input
               value={data.setting}
               onChange={(e) => update('setting', e.target.value)}
@@ -129,7 +129,7 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
       content: (
         <div className="space-y-3">
           <div>
-            <label className="block text-[10px] text-gray-500 uppercase tracking-wide mb-1">Adventure Hook</label>
+            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Adventure Hook</label>
             <textarea
               value={data.hook}
               onChange={(e) => update('hook', e.target.value)}
@@ -139,7 +139,7 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
             />
           </div>
           <div>
-            <label className="block text-[10px] text-gray-500 uppercase tracking-wide mb-1">Personal Stakes</label>
+            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Personal Stakes</label>
             <textarea
               value={data.playerStakes}
               onChange={(e) => update('playerStakes', e.target.value)}
@@ -157,7 +157,7 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
       content: (
         <div className="space-y-3">
           <div>
-            <label className="block text-[10px] text-gray-500 uppercase tracking-wide mb-1">
+            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">
               Key Encounters (combat, social, exploration)
             </label>
             <textarea
@@ -170,7 +170,7 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
               className="w-full px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded text-gray-200 resize-none"
             />
           </div>
-          <div className="text-[10px] text-gray-500 bg-gray-800/50 rounded p-2">
+          <div className="text-xs text-gray-500 bg-gray-800/50 rounded p-2">
             Mix encounter types for variety. Use a blend of combat, social interaction, and exploration. Successive
             encounters should build tension toward the climax.
           </div>
@@ -183,7 +183,7 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
       content: (
         <div className="space-y-3">
           <div>
-            <label className="block text-[10px] text-gray-500 uppercase tracking-wide mb-1">Climax</label>
+            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Climax</label>
             <textarea
               value={data.climax}
               onChange={(e) => update('climax', e.target.value)}
@@ -193,7 +193,7 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
             />
           </div>
           <div>
-            <label className="block text-[10px] text-gray-500 uppercase tracking-wide mb-1">
+            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">
               Resolution & Consequences
             </label>
             <textarea
@@ -219,7 +219,7 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
           <button
             key={i}
             onClick={() => setStep(i)}
-            className={`flex-1 py-1 text-[10px] rounded cursor-pointer border transition-colors ${
+            className={`flex-1 py-1 text-xs rounded cursor-pointer border transition-colors ${
               i === step
                 ? 'bg-amber-600/20 border-amber-500/40 text-amber-300'
                 : i < step

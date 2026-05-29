@@ -171,7 +171,7 @@ export default function SpellSelectionSection5e({
     <div className={`bg-gray-900/50 border rounded-lg p-4 ${isIncomplete ? 'border-amber-600/50' : 'border-gray-800'}`}>
       <h3 className="text-sm font-semibold text-amber-400 uppercase tracking-wide mb-3 flex items-center gap-2">
         New Spells Available
-        {isIncomplete && <span className="text-[10px] text-amber-500 font-semibold">REQUIRED</span>}
+        {isIncomplete && <span className="text-xs text-amber-500 font-semibold">REQUIRED</span>}
       </h3>
       {subclassNewSpells.length > 0 && (
         <div className="mb-3 bg-green-900/20 border border-green-800 rounded p-2">
@@ -243,15 +243,15 @@ export default function SpellSelectionSection5e({
                         />
                         <span>{spell.name}</span>
                         {showAllSpells && !spell.classes?.some((c) => c.toLowerCase() === spellListClass) && (
-                          <span className="text-[10px] text-orange-400 border border-orange-700 rounded px-1">
+                          <span className="text-xs text-orange-400 border border-orange-700 rounded px-1">
                             Off-List
                           </span>
                         )}
                         {spell.concentration && (
-                          <span className="text-[10px] text-yellow-500 border border-yellow-700 rounded px-1">C</span>
+                          <span className="text-xs text-yellow-500 border border-yellow-700 rounded px-1">C</span>
                         )}
                         {spell.ritual && (
-                          <span className="text-[10px] text-blue-400 border border-blue-700 rounded px-1">R</span>
+                          <span className="text-xs text-blue-400 border border-blue-700 rounded px-1">R</span>
                         )}
                       </button>
                     )

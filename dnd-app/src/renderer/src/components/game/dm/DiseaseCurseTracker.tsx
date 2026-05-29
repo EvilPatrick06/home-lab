@@ -123,7 +123,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
       <section>
         <h3 className="text-sm font-semibold text-amber-400 flex items-center gap-2">
           Active Diseases
-          <span className="px-1.5 py-0.5 text-[10px] rounded bg-gray-700/60 text-gray-300">
+          <span className="px-1.5 py-0.5 text-xs rounded bg-gray-700/60 text-gray-300">
             {activeDiseases.length}
           </span>
         </h3>
@@ -143,12 +143,12 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
                     >
                       <span className={`text-xs transition-transform ${isExpanded ? 'rotate-90' : ''}`}>▶</span>
                       <span className="font-medium text-gray-200 truncate">{ad.name}</span>
-                      <span className="text-gray-500 text-[10px] truncate">— {ad.targetName}</span>
+                      <span className="text-gray-500 text-xs truncate">— {ad.targetName}</span>
                     </button>
 
                     {/* Success/Fail counters */}
                     <div className="flex items-center gap-2 mt-2">
-                      <span className="text-[10px] text-gray-500">Saves:</span>
+                      <span className="text-xs text-gray-500">Saves:</span>
                       <div className="flex items-center gap-0.5">
                         <button
                           type="button"
@@ -157,7 +157,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
                               successCount: Math.max(0, ad.successCount - 1)
                             })
                           }
-                          className="w-5 h-5 rounded text-[10px] bg-green-900/50 text-green-400 border border-green-700/50 hover:bg-green-800/50"
+                          className="w-5 h-5 rounded text-xs bg-green-900/50 text-green-400 border border-green-700/50 hover:bg-green-800/50"
                         >
                           −
                         </button>
@@ -169,7 +169,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
                               successCount: ad.successCount + 1
                             })
                           }
-                          className="w-5 h-5 rounded text-[10px] bg-green-900/50 text-green-400 border border-green-700/50 hover:bg-green-800/50"
+                          className="w-5 h-5 rounded text-xs bg-green-900/50 text-green-400 border border-green-700/50 hover:bg-green-800/50"
                         >
                           +
                         </button>
@@ -183,7 +183,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
                               failCount: Math.max(0, ad.failCount - 1)
                             })
                           }
-                          className="w-5 h-5 rounded text-[10px] bg-red-900/50 text-red-400 border border-red-700/50 hover:bg-red-800/50"
+                          className="w-5 h-5 rounded text-xs bg-red-900/50 text-red-400 border border-red-700/50 hover:bg-red-800/50"
                         >
                           −
                         </button>
@@ -195,7 +195,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
                               failCount: ad.failCount + 1
                             })
                           }
-                          className="w-5 h-5 rounded text-[10px] bg-red-900/50 text-red-400 border border-red-700/50 hover:bg-red-800/50"
+                          className="w-5 h-5 rounded text-xs bg-red-900/50 text-red-400 border border-red-700/50 hover:bg-red-800/50"
                         >
                           +
                         </button>
@@ -203,7 +203,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
                     </div>
 
                     {isExpanded && def && (
-                      <div className="mt-2 pt-2 border-t border-gray-700 space-y-1 text-[10px] text-gray-400">
+                      <div className="mt-2 pt-2 border-t border-gray-700 space-y-1 text-xs text-gray-400">
                         <p>
                           <span className="text-gray-500">Symptoms:</span> {def.symptoms}
                         </p>
@@ -223,7 +223,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
                           placeholder="Add notes..."
                           value={ad.notes ?? ''}
                           onChange={(e) => updateDisease(ad.id, { notes: e.target.value })}
-                          className="w-full mt-1 px-2 py-1 text-[10px] bg-gray-900/60 border border-gray-600 rounded text-gray-300 placeholder-gray-500"
+                          className="w-full mt-1 px-2 py-1 text-xs bg-gray-900/60 border border-gray-600 rounded text-gray-300 placeholder-gray-500"
                         />
                       </div>
                     )}
@@ -247,7 +247,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
           <select
             value={addDiseaseId}
             onChange={(e) => setAddDiseaseId(e.target.value)}
-            className="px-2 py-1 text-[10px] bg-gray-800 border border-gray-600 rounded text-gray-300"
+            className="px-2 py-1 text-xs bg-gray-800 border border-gray-600 rounded text-gray-300"
           >
             {diseases.map((d) => (
               <option key={d.id} value={d.id}>
@@ -261,13 +261,13 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
             value={addDiseaseTarget}
             onChange={(e) => setAddDiseaseTarget(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleAddDisease()}
-            className="px-2 py-1 text-[10px] w-24 bg-gray-800 border border-gray-600 rounded text-gray-300 placeholder-gray-500"
+            className="px-2 py-1 text-xs w-24 bg-gray-800 border border-gray-600 rounded text-gray-300 placeholder-gray-500"
           />
           <button
             type="button"
             onClick={handleAddDisease}
             disabled={!addDiseaseTarget.trim()}
-            className="px-2 py-1 text-[10px] font-medium rounded bg-amber-600/30 border border-amber-500/50 text-amber-300 hover:bg-amber-600/40 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-2 py-1 text-xs font-medium rounded bg-amber-600/30 border border-amber-500/50 text-amber-300 hover:bg-amber-600/40 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Add Disease
           </button>
@@ -278,7 +278,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
       <section>
         <h3 className="text-sm font-semibold text-amber-400 flex items-center gap-2">
           Active Curses
-          <span className="px-1.5 py-0.5 text-[10px] rounded bg-gray-700/60 text-gray-300">{activeCurses.length}</span>
+          <span className="px-1.5 py-0.5 text-xs rounded bg-gray-700/60 text-gray-300">{activeCurses.length}</span>
         </h3>
 
         <div className="space-y-2 mt-1.5">
@@ -296,11 +296,11 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
                     >
                       <span className={`text-xs transition-transform ${isExpanded ? 'rotate-90' : ''}`}>▶</span>
                       <span className="font-medium text-gray-200 truncate">{ac.name}</span>
-                      <span className="text-gray-500 text-[10px] truncate">— {ac.targetName}</span>
+                      <span className="text-gray-500 text-xs truncate">— {ac.targetName}</span>
                     </button>
 
                     {isExpanded && def && (
-                      <div className="mt-2 pt-2 border-t border-gray-700 space-y-1 text-[10px] text-gray-400">
+                      <div className="mt-2 pt-2 border-t border-gray-700 space-y-1 text-xs text-gray-400">
                         <p>
                           <span className="text-gray-500">Effect:</span> {def.effect}
                         </p>
@@ -322,7 +322,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
                           placeholder="Add notes..."
                           value={ac.notes ?? ''}
                           onChange={(e) => updateCurse(ac.id, { notes: e.target.value })}
-                          className="w-full mt-1 px-2 py-1 text-[10px] bg-gray-900/60 border border-gray-600 rounded text-gray-300 placeholder-gray-500"
+                          className="w-full mt-1 px-2 py-1 text-xs bg-gray-900/60 border border-gray-600 rounded text-gray-300 placeholder-gray-500"
                         />
                       </div>
                     )}
@@ -346,7 +346,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
           <select
             value={addCurseId}
             onChange={(e) => setAddCurseId(e.target.value)}
-            className="px-2 py-1 text-[10px] bg-gray-800 border border-gray-600 rounded text-gray-300"
+            className="px-2 py-1 text-xs bg-gray-800 border border-gray-600 rounded text-gray-300"
           >
             {curses.map((c) => (
               <option key={c.id} value={c.id}>
@@ -360,13 +360,13 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
             value={addCurseTarget}
             onChange={(e) => setAddCurseTarget(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleAddCurse()}
-            className="px-2 py-1 text-[10px] w-24 bg-gray-800 border border-gray-600 rounded text-gray-300 placeholder-gray-500"
+            className="px-2 py-1 text-xs w-24 bg-gray-800 border border-gray-600 rounded text-gray-300 placeholder-gray-500"
           />
           <button
             type="button"
             onClick={handleAddCurse}
             disabled={!addCurseTarget.trim()}
-            className="px-2 py-1 text-[10px] font-medium rounded bg-amber-600/30 border border-amber-500/50 text-amber-300 hover:bg-amber-600/40 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-2 py-1 text-xs font-medium rounded bg-amber-600/30 border border-amber-500/50 text-amber-300 hover:bg-amber-600/40 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Add Curse
           </button>

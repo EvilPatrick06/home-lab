@@ -117,7 +117,7 @@ export default function DMToolsTabContent({ onOpenModal, btnClass }: DMToolsTabC
 
       {/* Environment toggles */}
       <div className="w-full border-t border-gray-700/40 mt-1 pt-1.5">
-        <span className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold mb-1 block">Environment</span>
+        <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1 block">Environment</span>
         <div className="flex flex-wrap gap-1.5">
           <button
             className={underwaterCombat ? toggleOnClass : btnClass}
@@ -154,7 +154,7 @@ export default function DMToolsTabContent({ onOpenModal, btnClass }: DMToolsTabC
 
         {/* Lighting */}
         <div className="flex items-center gap-1.5 mt-1.5" role="radiogroup" aria-label="Ambient lighting level">
-          <span className="text-[10px] text-gray-500">Lighting:</span>
+          <span className="text-xs text-gray-500">Lighting:</span>
           {lightingTravelData.lightingLevels.map(({ level, tip }) => (
             <button
               key={level}
@@ -162,7 +162,7 @@ export default function DMToolsTabContent({ onOpenModal, btnClass }: DMToolsTabC
               title={tip}
               aria-pressed={ambientLight === level}
               aria-label={`Set lighting to ${level}`}
-              className={`px-1.5 py-0.5 text-[10px] rounded cursor-pointer ${
+              className={`px-1.5 py-0.5 text-xs rounded cursor-pointer ${
                 ambientLight === level
                   ? level === 'bright'
                     ? 'bg-yellow-600 text-white'
@@ -179,14 +179,14 @@ export default function DMToolsTabContent({ onOpenModal, btnClass }: DMToolsTabC
 
         {/* Travel pace */}
         <div className="flex items-center gap-1.5 mt-1.5" role="radiogroup" aria-label="Travel pace">
-          <span className="text-[10px] text-gray-500">Pace:</span>
+          <span className="text-xs text-gray-500">Pace:</span>
           {(lightingTravelData.travelPaces as Array<string | null>).map((pace) => (
             <button
               key={pace ?? 'none'}
               onClick={() => setTravelPace(pace as 'fast' | 'normal' | 'slow' | null)}
               aria-pressed={travelPace === pace}
               aria-label={`Set travel pace to ${pace ?? 'none'}`}
-              className={`px-1.5 py-0.5 text-[10px] rounded cursor-pointer ${
+              className={`px-1.5 py-0.5 text-xs rounded cursor-pointer ${
                 travelPace === pace ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
               }`}
             >
@@ -197,7 +197,7 @@ export default function DMToolsTabContent({ onOpenModal, btnClass }: DMToolsTabC
 
         {/* Fog controls */}
         <div className="flex items-center gap-1.5 mt-1.5">
-          <span className="text-[10px] text-gray-500">Fog:</span>
+          <span className="text-xs text-gray-500">Fog:</span>
           <button
             className={btnClass}
             onClick={() => {
@@ -220,28 +220,28 @@ export default function DMToolsTabContent({ onOpenModal, btnClass }: DMToolsTabC
 
       {/* Disease & Curse Tracker */}
       <div className="w-full border-t border-gray-700/40 mt-2 pt-2">
-        <span className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold mb-1.5 block">
+        <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1.5 block">
           Diseases & Curses
         </span>
-        <Suspense fallback={<div className="text-[10px] text-gray-500">Loading tracker...</div>}>
+        <Suspense fallback={<div className="text-xs text-gray-500">Loading tracker...</div>}>
           <DiseaseCurseTracker onBroadcastResult={broadcastSystem('disease-curse')} />
         </Suspense>
       </div>
 
       {/* Environmental Effects */}
       <div className="w-full border-t border-gray-700/40 mt-2 pt-2">
-        <span className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold mb-1.5 block">
+        <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1.5 block">
           Environmental Effects
         </span>
-        <Suspense fallback={<div className="text-[10px] text-gray-500">Loading effects...</div>}>
+        <Suspense fallback={<div className="text-xs text-gray-500">Loading effects...</div>}>
           <EnvironmentalEffectsPanel onBroadcastResult={broadcastSystem('env-effect')} />
         </Suspense>
       </div>
 
       {/* Trap Placer */}
       <div className="w-full border-t border-gray-700/40 mt-2 pt-2">
-        <span className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold mb-1.5 block">Traps</span>
-        <Suspense fallback={<div className="text-[10px] text-gray-500">Loading traps...</div>}>
+        <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1.5 block">Traps</span>
+        <Suspense fallback={<div className="text-xs text-gray-500">Loading traps...</div>}>
           <TrapPlacerPanel onBroadcastResult={broadcastSystem('trap')} />
         </Suspense>
       </div>

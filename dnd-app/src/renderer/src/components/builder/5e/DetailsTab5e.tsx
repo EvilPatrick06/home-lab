@@ -91,7 +91,7 @@ export default function DetailsTab5e(): JSX.Element {
               </span>
               <span className="text-sm text-gray-200 font-medium">{originFeat}</span>
               <span className="text-xs text-gray-500">(from {backgroundSlot?.selectedName ?? 'Background'})</span>
-              <span className="text-gray-600 text-[10px] ml-auto">{originFeatExpanded ? '\u25BE' : '\u25B8'}</span>
+              <span className="text-gray-600 text-xs ml-auto">{originFeatExpanded ? '\u25BE' : '\u25B8'}</span>
             </button>
             {originFeatExpanded && originFeatDescription && (
               <div className="mt-2 bg-gray-800/60 border border-gray-700 rounded px-3 py-2">

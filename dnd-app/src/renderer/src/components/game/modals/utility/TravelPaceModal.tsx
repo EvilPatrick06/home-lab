@@ -80,7 +80,7 @@ export default function TravelPaceModal({ onClose }: TravelPaceModalProps): JSX.
                   <span className={`text-sm font-semibold ${pace.color}`}>{pace.name}</span>
                   <button
                     onClick={() => setTravelPace(isActive ? null : pace.value)}
-                    className={`px-2.5 py-1 text-[10px] font-semibold rounded cursor-pointer transition-colors ${
+                    className={`px-2.5 py-1 text-xs font-semibold rounded cursor-pointer transition-colors ${
                       isActive
                         ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                         : 'bg-amber-600 text-white hover:bg-amber-500'
@@ -96,7 +96,7 @@ export default function TravelPaceModal({ onClose }: TravelPaceModalProps): JSX.
                 </div>
                 <div className="space-y-0.5">
                   {pace.effects.map((effect, i) => (
-                    <div key={i} className="text-[10px] text-gray-500">
+                    <div key={i} className="text-xs text-gray-500">
                       {effect}
                     </div>
                   ))}

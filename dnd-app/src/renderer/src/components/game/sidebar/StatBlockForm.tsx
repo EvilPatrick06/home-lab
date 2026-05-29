@@ -121,7 +121,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
         <button
           type="button"
           onClick={() => setEditing((e) => !e)}
-          className="text-[10px] px-2 py-0.5 rounded cursor-pointer bg-gray-800 text-gray-400 hover:text-gray-200 border border-gray-700"
+          className="text-xs px-2 py-0.5 rounded cursor-pointer bg-gray-800 text-gray-400 hover:text-gray-200 border border-gray-700"
         >
           {editing ? 'Preview' : 'Edit'}
         </button>
@@ -134,7 +134,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
             <select
               value={sb.size ?? ''}
               onChange={(e) => update({ size: (e.target.value || undefined) as SidebarEntryStatBlock['size'] })}
-              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-[10px] text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
             >
               <option value="">--</option>
               {SIZE_OPTIONS.map((s) => (
@@ -150,7 +150,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
               type="text"
               value={sb.creatureType ?? ''}
               onChange={(e) => update({ creatureType: e.target.value || undefined })}
-              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-[10px] text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
               placeholder="e.g. Fiend"
             />
           </div>
@@ -160,7 +160,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
               type="text"
               value={sb.alignment ?? ''}
               onChange={(e) => update({ alignment: e.target.value || undefined })}
-              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-[10px] text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
               placeholder="e.g. Chaotic Evil"
             />
           </div>
@@ -170,7 +170,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
               type="text"
               value={sb.cr ?? ''}
               onChange={(e) => update({ cr: e.target.value || undefined })}
-              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-[10px] text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
               placeholder="e.g. 5"
             />
           </div>
@@ -180,7 +180,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
               type="number"
               value={sb.xp ?? ''}
               onChange={(e) => update({ xp: e.target.value ? parseInt(e.target.value, 10) || undefined : undefined })}
-              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-[10px] text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
               placeholder="e.g. 1800"
             />
           </div>
@@ -199,7 +199,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
                   type="number"
                   value={score}
                   onChange={(e) => updateAbilityScore(ab, e.target.value)}
-                  className="w-full px-0.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-[10px] text-gray-100 text-center focus:outline-none focus:border-amber-500"
+                  className="w-full px-0.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 text-center focus:outline-none focus:border-amber-500"
                   min={1}
                   max={30}
                 />
@@ -219,7 +219,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
               type="number"
               value={sb.ac ?? ''}
               onChange={(e) => update({ ac: e.target.value ? parseInt(e.target.value, 10) : undefined })}
-              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-[10px] text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
             />
           </div>
           <div>
@@ -228,7 +228,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
               type="text"
               value={sb.acSource ?? ''}
               onChange={(e) => update({ acSource: e.target.value || undefined })}
-              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-[10px] text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
               placeholder="e.g. natural armor"
             />
           </div>
@@ -240,7 +240,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
               type="number"
               value={sb.hpMax ?? ''}
               onChange={(e) => update({ hpMax: e.target.value ? parseInt(e.target.value, 10) : undefined })}
-              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-[10px] text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
             />
           </div>
           <div>
@@ -249,7 +249,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
               type="number"
               value={sb.hpCurrent ?? ''}
               onChange={(e) => update({ hpCurrent: e.target.value ? parseInt(e.target.value, 10) : undefined })}
-              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-[10px] text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
             />
           </div>
           <div>
@@ -258,7 +258,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
               type="number"
               value={sb.hpTemp ?? ''}
               onChange={(e) => update({ hpTemp: e.target.value ? parseInt(e.target.value, 10) : undefined })}
-              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-[10px] text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
             />
           </div>
         </div>
@@ -272,7 +272,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
                   type="number"
                   value={sb.speeds?.[type] ?? ''}
                   onChange={(e) => updateSpeed(type, e.target.value)}
-                  className="w-full px-0.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-[10px] text-gray-100 text-center focus:outline-none focus:border-amber-500"
+                  className="w-full px-0.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 text-center focus:outline-none focus:border-amber-500"
                   min={0}
                   step={5}
                 />
@@ -288,7 +288,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
           <label className="text-[9px] text-gray-500 uppercase block mb-0.5">Saving Throws</label>
           <div className="flex flex-wrap gap-1.5">
             {SAVE_NAMES.map((save) => (
-              <label key={save} className="flex items-center gap-0.5 text-[10px] text-gray-300 cursor-pointer">
+              <label key={save} className="flex items-center gap-0.5 text-xs text-gray-300 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={sb.savingThrows?.includes(save) ?? false}
@@ -308,19 +308,19 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
                 type="text"
                 value={skill.name}
                 onChange={(e) => updateSkill(idx, 'name', e.target.value)}
-                className="flex-1 px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-[10px] text-gray-100 focus:outline-none focus:border-amber-500"
+                className="flex-1 px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
                 placeholder="Skill name"
               />
               <input
                 type="number"
                 value={skill.modifier}
                 onChange={(e) => updateSkill(idx, 'modifier', e.target.value)}
-                className="w-12 px-1 py-0.5 rounded bg-gray-900 border border-gray-700 text-[10px] text-gray-100 text-center focus:outline-none focus:border-amber-500"
+                className="w-12 px-1 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 text-center focus:outline-none focus:border-amber-500"
               />
               <select
                 value={skill.proficiency}
                 onChange={(e) => updateSkill(idx, 'proficiency', e.target.value)}
-                className="px-1 py-0.5 rounded bg-gray-900 border border-gray-700 text-[10px] text-gray-100 focus:outline-none focus:border-amber-500"
+                className="px-1 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
               >
                 <option value="proficient">Prof</option>
                 <option value="expertise">Expert</option>
@@ -338,7 +338,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
           <button
             type="button"
             onClick={addSkill}
-            className="text-[10px] text-gray-500 hover:text-amber-400 cursor-pointer"
+            className="text-xs text-gray-500 hover:text-amber-400 cursor-pointer"
           >
             + Add Skill
           </button>
@@ -356,7 +356,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
               onChange={(e) =>
                 update({ resistances: e.target.value ? parseCommaSeparated(e.target.value) : undefined })
               }
-              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-[10px] text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
               placeholder="fire, cold, ..."
             />
           </div>
@@ -366,7 +366,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
               type="text"
               value={sb.immunities?.join(', ') ?? ''}
               onChange={(e) => update({ immunities: e.target.value ? parseCommaSeparated(e.target.value) : undefined })}
-              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-[10px] text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
               placeholder="poison, necrotic, ..."
             />
           </div>
@@ -378,7 +378,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
               onChange={(e) =>
                 update({ vulnerabilities: e.target.value ? parseCommaSeparated(e.target.value) : undefined })
               }
-              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-[10px] text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
               placeholder="radiant, ..."
             />
           </div>
@@ -390,7 +390,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
               onChange={(e) =>
                 update({ conditionImmunities: e.target.value ? parseCommaSeparated(e.target.value) : undefined })
               }
-              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-[10px] text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
               placeholder="charmed, frightened, ..."
             />
           </div>
@@ -406,7 +406,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
               type="number"
               value={sb.passivePerception ?? ''}
               onChange={(e) => update({ passivePerception: e.target.value ? parseInt(e.target.value, 10) : undefined })}
-              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-[10px] text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
             />
           </div>
           <div>
@@ -415,7 +415,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
               type="text"
               value={sb.senses?.join(', ') ?? ''}
               onChange={(e) => update({ senses: e.target.value ? parseCommaSeparated(e.target.value) : undefined })}
-              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-[10px] text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
               placeholder="darkvision 60 ft., blindsight 30 ft."
             />
           </div>
