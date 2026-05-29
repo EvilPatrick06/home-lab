@@ -88,6 +88,7 @@ import { CharacterMiniSheet, ConditionTracker, PlayerHUD, ShopView, SpellSlotTra
 import ResizeHandle from './ResizeHandle'
 import LeftSidebar from './sidebar/LeftSidebar'
 
+const PinCreateModal = lazy(() => import('./modals/dm-tools/PinCreateModal'))
 const CharacterPickerOverlay = lazy(() => import('./overlays/CharacterPickerOverlay'))
 const DMMapEditor = lazy(() => import('./modals/dm-tools/DMMapEditor'))
 const RulingApprovalModal = lazy(() => import('./modals/utility/RulingApprovalModal'))
@@ -203,6 +204,8 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
   } | null>(null)
   const [editingToken, setEditingToken] = useState<{ token: MapToken; mapId: string } | null>(null)
   const [viewingHandout, setViewingHandout] = useState<import('../../types/game-state').Handout | null>(null)
+  // Phase 16b Step 4 — cell awaiting a rich pin-create form (null = closed).
+  const [pinDraftCell, setPinDraftCell] = useState<{ gridX: number; gridY: number } | null>(null)
   const [narrationText, setNarrationText] = useState<string | null>(null)
   const [oaPrompt, setOaPrompt] = useState<OaPromptState | null>(null)
   const [stabilizePrompt, setStabilizePrompt] = useState<StabilizePromptState | null>(null)
@@ -638,6 +641,15 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
               ? (gridX, gridY, screenX, screenY) => setEmptyCellMenu({ gridX, gridY, screenX, screenY })
               : undefined
           }
+          // Phase 16b Step 3 — click a pin: open its linked journal if set, otherwise surface
+          // the label. (NPC/location deep-links are a follow-up; journal is the wired panel.)
+          onPinClick={(pin) => {
+            if (pin.linkedJournalId) {
+              setActiveModal('sharedJournal')
+            } else {
+              addToast(pin.label, 'info')
+            }
+          }}
           // Phase 17v — drawing color + stroke width were declared in this
           // component (lines ~178-179) and bound to the DrawingToolbar, but
           // never plumbed through to MapCanvas. That meant the canvas always
@@ -940,29 +952,22 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
           mapId={activeMap.id}
           onClose={() => setEmptyCellMenu(null)}
           onPlaceToken={() => setActiveModal('creatures')}
-          // Phase 16B — DM-only Add Pin. Quick label prompt + save into
-          // map.pins via the existing updateMap method. A full pin-creation
-          // modal (icon picker / journal linker) is a follow-up; this MVP
-          // gets the data + visible marker working end-to-end.
-          onAddPin={
-            effectiveIsDM
-              ? (gridX, gridY) => {
-                  const label = window.prompt('Pin label?')
-                  if (!label || !activeMap) return
-                  const newPin = {
-                    id: `pin-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
-                    gridX,
-                    gridY,
-                    label: label.slice(0, 64),
-                    icon: 'note' as const,
-                    color: '#f59e0b',
-                    visibleToPlayers: true
-                  }
-                  useGameStore.getState().updateMap(activeMap.id, { pins: [...(activeMap.pins ?? []), newPin] })
-                }
-              : undefined
-          }
+          // Phase 16b Step 4 — DM-only Add Pin opens the rich pin-create form (icon/color/
+          // visibility/link), replacing the old label-only window.prompt.
+          onAddPin={effectiveIsDM ? (gridX, gridY) => setPinDraftCell({ gridX, gridY }) : undefined}
         />
+      )}
+      {pinDraftCell && activeMap && effectiveIsDM && (
+        <Suspense fallback={null}>
+          <PinCreateModal
+            gridX={pinDraftCell.gridX}
+            gridY={pinDraftCell.gridY}
+            onClose={() => setPinDraftCell(null)}
+            onCreate={(pin) =>
+              useGameStore.getState().updateMap(activeMap.id, { pins: [...(activeMap.pins ?? []), pin] })
+            }
+          />
+        </Suspense>
       )}
       {!effectiveIsDM && showCompactHUD ? (
         <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-auto">

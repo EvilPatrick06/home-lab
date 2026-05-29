@@ -19,8 +19,18 @@ const ICON_GLYPH: Record<MapPinIcon, string> = {
   custom: '★'
 }
 
-/** Clear and redraw all pins. `zoom` gates label visibility (hidden below 0.5 to reduce clutter). */
-export function renderPins(container: Container, pins: MapPin[], cellSize: number, zoom: number): void {
+/**
+ * Clear and redraw all pins. `zoom` gates label visibility (hidden below 0.5 to reduce clutter).
+ * When `onPinClick` is provided each marker becomes interactive (pointer cursor + click → open
+ * linked content). The pin's text label renders beneath the marker (above ~0.5 zoom).
+ */
+export function renderPins(
+  container: Container,
+  pins: MapPin[],
+  cellSize: number,
+  zoom: number,
+  onPinClick?: (pin: MapPin) => void
+): void {
   container.removeChildren().forEach((c) => c.destroy({ children: true }))
 
   const showLabels = zoom >= 0.5
@@ -35,6 +45,11 @@ export function renderPins(container: Container, pins: MapPin[], cellSize: numbe
     marker.circle(cx, cy - r, r).fill({ color: pin.color, alpha: 0.9 })
     marker.poly([cx - r * 0.5, cy - r * 0.5, cx + r * 0.5, cy - r * 0.5, cx, cy]).fill({ color: pin.color, alpha: 0.9 })
     marker.circle(cx, cy - r, r).stroke({ color: 0x000000, width: 1, alpha: 0.5 })
+    if (onPinClick) {
+      marker.eventMode = 'static'
+      marker.cursor = 'pointer'
+      marker.on('pointertap', () => onPinClick(pin))
+    }
     container.addChild(marker)
 
     const glyph = new Text({

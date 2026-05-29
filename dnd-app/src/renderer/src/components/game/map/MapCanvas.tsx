@@ -120,6 +120,8 @@ interface MapCanvasProps {
   onTokenContextMenu?: (x: number, y: number, token: MapToken, mapId: string, selectedTokenIds: string[]) => void
   /** Callback for right-click on an empty cell (DM only) */
   onEmptyCellContextMenu?: (gridX: number, gridY: number, screenX: number, screenY: number) => void
+  /** Phase 16b — click on a map pin (open linked journal/NPC/location, or surface the label). */
+  onPinClick?: (pin: import('../../../types/map').MapPin) => void
 }
 
 export default function MapCanvas({
@@ -140,6 +142,7 @@ export default function MapCanvas({
   activeEntityId,
   onTokenContextMenu,
   onEmptyCellContextMenu,
+  onPinClick,
   drawingStrokeWidth,
   drawingColor
 }: MapCanvasProps): JSX.Element {
@@ -175,6 +178,9 @@ export default function MapCanvas({
   // Phase 16g — hover grid-coordinate readout (toggleable, per-viewer via localStorage).
   const [showGridHud, setShowGridHud] = useState(() => localStorage.getItem(GRID_HUD_KEY) !== 'false')
   const [hoverCoord, setHoverCoord] = useState<string | null>(null)
+  // Phase 16f — fade-to-black transition when the active map changes.
+  const prevMapIdRef = useRef<string | undefined>(undefined)
+  const [fading, setFading] = useState(false)
   const isPanningRef = useRef(false)
   const panStartRef = useRef({ x: 0, y: 0 })
   const spaceHeldRef = useRef(false)
@@ -375,6 +381,22 @@ export default function MapCanvas({
     }
     loadBg()
   }, [initialized, map?.imagePath, applyTransform])
+
+  // Phase 16f — brief fade-to-black on active-map change (skipped on first mount + when the
+  // viewer prefers reduced motion). The overlay always has a 300ms opacity transition; we flip
+  // it on (→black) then off (→clear) for a ~600ms total dip that masks the texture swap.
+  useEffect(() => {
+    const id = map?.id
+    const prev = prevMapIdRef.current
+    prevMapIdRef.current = id
+    if (prev === undefined || prev === id || !id) return
+    const reduce =
+      typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true
+    if (reduce) return
+    setFading(true)
+    const t = setTimeout(() => setFading(false), 300)
+    return () => clearTimeout(t)
+  }, [map?.id])
 
   // Phase 16f — preload textures of portal-linked maps so switching to one has no asset-load
   // stutter. Host only (clients receive map data lazily on switch); capped + best-effort.
@@ -657,8 +679,8 @@ export default function MapCanvas({
       if (!isHost && p.visibleToPlayers === false) return false
       return (p.floor ?? 0) === currentFloor
     })
-    renderPins(container, pins, map.grid.cellSize, zoomRef.current)
-  }, [initialized, map, isHost, currentFloor])
+    renderPins(container, pins, map.grid.cellSize, zoomRef.current, onPinClick)
+  }, [initialized, map, isHost, currentFloor, onPinClick])
 
   // Mouse wheel zoom
   useEffect(() => {
@@ -1001,6 +1023,12 @@ export default function MapCanvas({
       aria-label="Game map canvas"
     >
       <div ref={containerRef} className="w-full h-full" />
+      {/* Phase 16f — map-switch fade overlay (always transitions; opacity flips on map change). */}
+      <div
+        className="absolute inset-0 z-30 bg-black pointer-events-none transition-opacity duration-300"
+        style={{ opacity: fading ? 1 : 0 }}
+        aria-hidden="true"
+      />
       {/* Phase 16g — hover grid-coordinate readout + its toggle. */}
       {showGridHud && hoverCoord && (
         <div className="absolute bottom-2 right-2 z-20 bg-black/60 text-white text-xs px-2 py-1 rounded pointer-events-none font-mono">
