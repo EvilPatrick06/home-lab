@@ -28,16 +28,19 @@ See [`./SETUP.md`](./SETUP.md).
 - `chore/<short-name>` — tooling, deps, CI
 - `docs/<short-name>` — docs only
 
-## Secret scanning (optional)
+## Pre-commit hook (Husky)
 
-To reduce the chance of committing `.env` or keys by mistake, install [gitleaks](https://github.com/gitleaks/gitleaks) and enable repo hooks:
+Running `npm install` in `dnd-app/` wires a [Husky](https://typicode.github.io/husky/) pre-commit hook automatically (via the `prepare` script, which initializes `.husky/` at the repo root and points `core.hooksPath` there). The hook (`.husky/pre-commit`):
 
-```bash
-git config core.hooksPath .githooks
-chmod +x .githooks/pre-commit
-```
+1. runs Biome on **staged** files (`npm run lint -- --staged`),
+2. typechecks the renderer (`tsc --noEmit -p tsconfig.web.json`),
+3. runs `gitleaks protect --staged --redact` if [gitleaks](https://github.com/gitleaks/gitleaks) is on your `PATH` (skips gracefully otherwise).
 
-The hook runs `gitleaks protect --staged --redact` when gitleaks is on your `PATH` (it skips if not installed). CI runs `dnd-app`'s `npm run audit:ci` (production dependencies only, moderate and above), plus Python `bandit` on `bmo/pi/ide_app` (see `.github/workflows/security-audit.yml`). For a full tree including devDependencies (e.g. LangChain used only in extract scripts), run `cd dnd-app && npm run audit:all`.
+Escape hatch: `git commit --no-verify`. CI (`.github/workflows/ci.yml`) is the authoritative gate; the hook is just a fast local pre-flight.
+
+**Note:** Husky's `.husky/` supersedes the older opt-in `.githooks/` gitleaks shim — the gitleaks step is now folded into the Husky hook, so a single `core.hooksPath` (`.husky`) covers everything. Don't also set `core.hooksPath .githooks` (only one can be active). If the typecheck step feels slow, move it to a `pre-push` hook.
+
+CI runs `dnd-app`'s `npm run audit:ci` (production dependencies only, moderate and above), plus Python `bandit` on `bmo/pi/ide_app` (see `.github/workflows/security-audit.yml`). For a full tree including devDependencies (e.g. LangChain used only in extract scripts), run `cd dnd-app && npm run audit:all`.
 
 ## Commits
 

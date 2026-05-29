@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+# Phase 21c — pre-commit gate. Hooks run with cwd = git root, so cd into the app.
+# Escape hatch: `git commit --no-verify`. CI (.github/workflows/ci.yml) is the
+# authoritative gate; this is a fast local pre-flight.
+cd dnd-app || exit 1
+
+# Biome on staged files only (fast). --no-errors-on-unmatched: don't fail a
+# commit that touches no src/ files (docs-only commits, etc.).
+npm run lint -- --staged --no-errors-on-unmatched || exit 1
+
+# Typecheck the renderer config (the broadest surface). Move to a pre-push hook
+# if this feels slow on your machine.
+npx tsc --noEmit -p tsconfig.web.json || exit 1
+
+# Optional secret scan — folded in from the old .githooks/ shim so a single
+# core.hooksPath (.husky) covers it. Skips gracefully when gitleaks is absent.
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks protect --staged --redact || exit 1
+fi

@@ -1,0 +1,57 @@
+# PR/push validation for dnd-app: lint + typecheck + tests + build smoke.
+# Tag-push release gating lives in release.yml; this is the everyday gate.
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+    paths:
+      - 'dnd-app/**'
+      - '.github/workflows/ci.yml'
+  pull_request:
+    paths:
+      - 'dnd-app/**'
+      - '.github/workflows/ci.yml'
+
+defaults:
+  run:
+    working-directory: dnd-app
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: dnd-app/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint (biome)
+        run: npm run lint
+
+      - name: Typecheck (web)
+        run: npx tsc --noEmit -p tsconfig.web.json
+
+      - name: Typecheck (node)
+        run: npx tsc --noEmit -p tsconfig.node.json
+
+      - name: Test (vitest)
+        run: npm test
+
+      # Build smoke — catches Vite config / lazy-route / missing-import failures
+      # that pure tsc + vitest miss. electron-builder packaging stays release-only.
+      - name: Build (electron-vite)
+        run: npx electron-vite build
+
+      - name: Verify build artifacts
+        run: |
+          test -f out/main/index.js || { echo "missing out/main/index.js"; exit 1; }
+          test -f out/renderer/index.html || { echo "missing out/renderer/index.html"; exit 1; }
