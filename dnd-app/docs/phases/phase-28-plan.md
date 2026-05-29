@@ -717,3 +717,11 @@ Each of the 9 gap areas gets its own narrow scan:
 > - **DEFERRED (large audit rollup; many items overlap Phases 29–33 or need BMO/app/two-window verification):** 28a.2 BMO sync-receiver hardening (loopback bind + CORS + body/rate limits), 28b AI surface refresh (Claude model list, SDK 1.x, prompt caching, max_tokens), 28c bmoPiFetch retry + BridgeResponse + graceful shutdown + RENDERER_URL validation, 28d typed character pipeline + save-queue + casts sweep + migrateData contract, 28e CI hardening (check:full, dnd-app-ci.yml, lint rules), 28f UI polish (button semantics, tokens, aria, virtualization), 28g docs (BMO key, plugin trust model, allowlist), 28h test-coverage uplift, 28i coverage-gap audits. These remain the live Phase-28 backlog.
 
 - 28c.5 — peerjs reconnection DONE (`src/renderer/src/network/host-manager.ts:277-310`, `client-manager.ts:57`, `registry-client.ts:196`) — exponential backoff (1s/2s/4s/8s/16s/30s cap) + max-attempts + jitter present; "Reconnecting..." badge at `src/renderer/src/components/lobby/PlayerCard.tsx:167`.
+
+> **PHASE 28 — 2026-05-29 (resumed "do it all"; 4-gate green).**
+> - **28a.1 DONE (completed)** — cryptoRandom sweep finished across all 36 remaining renderer files; `scripts/lint/forbidden-patterns.mjs` now enforces it.
+> - **28a.2 DONE** — sync receiver binds 127.0.0.1, CORS→localhost origin, 256KB body cap.
+> - **28b DONE** — Claude 4.x model refresh (Opus 4.7/Sonnet 4.6/Haiku 4.5), prompt caching (cache_control), model-aware max_tokens. 28b.2 N/A (no @anthropic-ai/sdk 1.x published).
+> - **28c DONE** — 28c.1 retry/backoff + unreachable toast; 28c.3 async stopSyncReceiver + before-quit; 28c.6 ELECTRON_RENDERER_URL validation; 28c.4 already had settings UI + JSDoc.
+> - **28e DONE** — check:full aggregate; dnd-app-ci.yml; forbidden-patterns lint (28e.3-28e.7) wired into both.
+> - **STILL OPEN:** 28c.2 BridgeResponse full union codemod (additive ok already set), 28d typed-character pipeline, 28f UI polish, 28g docs, 28h/28i coverage. 33h validator re-map is stale vs the post-Phase-15 data layout (left for a focused pass — wiring validate:5e into check:full is blocked until its 20 shape mismatches are re-mapped).
