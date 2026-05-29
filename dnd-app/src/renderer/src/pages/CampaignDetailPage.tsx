@@ -17,6 +17,8 @@ import LoreManager from './campaign-detail/LoreManager'
 import NPCManager from './campaign-detail/NPCManager'
 import RuleManager from './campaign-detail/RuleManager'
 
+const PermissionsEditor = lazy(() => import('../components/campaign/PermissionsEditor'))
+const PlayerOverridesPanel = lazy(() => import('../components/campaign/PlayerOverridesPanel'))
 const AiDmCard = lazy(() => import('./campaign-detail/AiDmCard'))
 const AudioManager = lazy(() => import('./campaign-detail/AudioManager'))
 const MonsterLinker = lazy(() => import('./campaign-detail/MonsterLinker'))
@@ -332,6 +334,26 @@ export default function CampaignDetailPage(): JSX.Element {
               ))}
             </div>
           )}
+        </Card>
+
+        {/* Permissions (Phase 29g) */}
+        <Card title="Permissions">
+          <p className="text-gray-500 text-sm mb-3">
+            Define what each role can do, then override individual players. Changes save to the campaign and propagate
+            to connected players.
+          </p>
+          <Suspense fallback={<p className="text-gray-500 text-sm">Loading…</p>}>
+            <div className="space-y-5">
+              <div>
+                <h3 className="text-sm font-semibold text-gray-200 mb-2">Roles</h3>
+                <PermissionsEditor campaign={campaign} />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-gray-200 mb-2">Player Overrides</h3>
+                <PlayerOverridesPanel campaign={campaign} />
+              </div>
+            </div>
+          </Suspense>
         </Card>
 
         <Suspense fallback={null}>
