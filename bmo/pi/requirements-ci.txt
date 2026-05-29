@@ -435,7 +435,7 @@ yt-dlp==2026.3.17
     # via -r requirements-ci.in
 ytmusicapi==1.11.5
     # via -r requirements-ci.in
-zeroconf==0.148.0
+zeroconf==0.149.7
     # via pychromecast
 zope-event==6.1
     # via gevent
