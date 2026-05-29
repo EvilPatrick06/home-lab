@@ -57,6 +57,7 @@ import {
 } from '../storage/map-library-storage'
 import { AppSettingsSchema, loadSettings, saveSettings } from '../storage/settings-storage'
 import { deleteShopTemplate, getShopTemplate, listShopTemplates, saveShopTemplate } from '../storage/shop-storage'
+import { validateUploadExtension } from '../upload-validation'
 import { handle } from './_safe'
 
 // Ensure imported types are used for type-safety
@@ -352,7 +353,11 @@ export function registerStorageHandlers(): void {
   handle(
     IPC_CHANNELS.IMAGE_LIBRARY_SAVE,
     async (_event, id: string, name: string, buffer: ArrayBuffer, extension: string) => {
-      return saveImage(id, name, Buffer.from(buffer), extension)
+      const buf = Buffer.from(buffer)
+      // Phase 20f — reject files whose magic bytes don't match the claimed extension.
+      const mismatch = validateUploadExtension(buf, extension)
+      if (mismatch) return { success: false, error: mismatch }
+      return saveImage(id, name, buf, extension)
     }
   )
 

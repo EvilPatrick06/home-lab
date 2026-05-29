@@ -71,7 +71,9 @@ describe('audio-handlers', () => {
       const handler = mockHandle.mock.calls.find((call) => call[0] === IPC_CHANNELS.AUDIO_UPLOAD_CUSTOM)![1]
 
       const campaignId = '12345678-1234-1234-1234-123456789abc'
-      const result = await handler({}, campaignId, 'song.mp3', new ArrayBuffer(8), 'My Song', 'music')
+      // Phase 20f — uploads are magic-byte checked; use a valid ID3-tagged mp3 header.
+      const mp3 = new Uint8Array([0x49, 0x44, 0x33, 0x03, 0x00, 0x00, 0x00, 0x00]).buffer
+      const result = await handler({}, campaignId, 'song.mp3', mp3, 'My Song', 'music')
       expect(result.success).toBe(true)
       expect(result.data.fileName).toBe('song.mp3')
     })

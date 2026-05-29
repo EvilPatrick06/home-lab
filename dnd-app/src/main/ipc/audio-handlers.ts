@@ -3,6 +3,7 @@ import * as fs from 'fs/promises'
 import * as path from 'path'
 import { MAX_READ_FILE_SIZE } from '../../shared/constants'
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
+import { validateUploadExtension } from '../upload-validation'
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const SAFE_FILENAME_RE = /^[a-zA-Z0-9._-]+$/
@@ -47,7 +48,13 @@ export function registerAudioHandlers(): void {
         if (!isWithinDirectory(filePath, campaignDir)) {
           return { success: false, error: 'Invalid file path' }
         }
-        await fs.writeFile(filePath, Buffer.from(buffer))
+        const buf = Buffer.from(buffer)
+        // Phase 20f — reject audio whose magic bytes don't match the extension.
+        const mismatch = validateUploadExtension(buf, path.extname(sanitizedFileName))
+        if (mismatch) {
+          return { success: false, error: mismatch }
+        }
+        await fs.writeFile(filePath, buf)
         return { success: true, data: { fileName: sanitizedFileName, displayName, category } }
       } catch (err) {
         return { success: false, error: String(err) }
