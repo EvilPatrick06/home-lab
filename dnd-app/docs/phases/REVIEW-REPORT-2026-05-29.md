@@ -1,8 +1,68 @@
 # dnd-app phases — review report
 
 **Generated:** 2026-05-29
+**Last re-verified:** 2026-05-29 ~17:30 UTC (after parallel session pushed phases 24d-h, 25b/c/e, 26b/d/e, 27c/d/g/i/j, 29e/f/g)
 **Scope:** every plan file in `dnd-app/docs/phases/phase-*.md` (14–36)
 **Method:** read each plan, locate referenced files, verify behaviour matches the plan, run targeted tests where possible. No source edits.
+
+> **READ THIS FIRST — Re-verification deltas (last updated 2026-05-29 17:30 UTC, master @ `6ecaf3e`)**
+>
+> Since the original audit (against `68743fd`) a parallel session has shipped ~21 commits closing many items the report had flagged. The 4-gate is back to fully green (vitest 6555/6555, 670/670 test files) after a local `npm install` to pick up `i18next` + `lucide-react` that were declared but not installed in my dev tree (CI was unaffected because it runs `npm ci`). Definitive current state below.
+>
+> **Original findings I'm RETRACTING (the code was actually fine — I had stale paths or read incorrectly):**
+> - **Phase 18j `screenReaderModeSet` persistence** — works correctly via an inferred-load pattern. `use-accessibility-store.ts:99` rebuilds the flag on next launch via `saved.screenReaderMode !== undefined`, and the toggle at `:122` sets both the value and the flag. No re-prompt occurs.
+> - **Phase 22l log files missing** — they ALL exist (`docs/ISSUES-LOG-DNDAPP.md`, `SUGGESTIONS-LOG-DNDAPP.md`, `SECURITY-LOG.md`, `LOG-INSTRUCTIONS.md`, both BMO logs, both Dungeon-Scholar logs). I missed them in the original pass.
+> - **Phase 17 `RulingApprovalModal` "not found"** — it exists at `components/game/modals/utility/RulingApprovalModal.tsx` with an Escape handler at line 21. My grep was too narrow.
+> - **Phase 24j atMax** — uses `>= 20` not `=== 20` at `AsiSelector5e.tsx:299`. No silent waste at score 20. Correct as written.
+> - **Phase 21 lint hit** — closed by `34980f6 chore(lint): restore green lint gate`.
+> - **Phase 23f attunement WRITE path** — verified. `MagicItemCard5e.tsx:105–125` writes to BOTH `state.magicItemAttuned[instanceId]` (canonical) AND `mi.attuned` (legacy mirror). Read path uses canonical. The dual-write is intentional and is correctly stamped "Phase 23f" in a code comment.
+>
+> **Items CLOSED by new commits since the original audit (most recent first):**
+> - 🟢 **Phase 28a.2 BMO sync hardening (partial) + 28c.1 retry + 28c.3 graceful shutdown + 28c.6 URL validation** — `6ecaf3e`. `bmo-bridge.ts:173` swaps `Access-Control-Allow-Origin: '*'` for `'http://127.0.0.1'`. `RETRY_BACKOFF_MS = [200, 800, 2000]` at `:20`, no 4xx retry at `:88`. `stopSyncReceiver()` returns `Promise<void>` (line 276), `before-quit` awaits it (`index.ts:339–343`). `ELECTRON_RENDERER_URL` parsed via `new URL()` with `is.dev` guard (`index.ts:228–240`). New tests at `bmo-bridge.test.ts`.
+> - 🟢 **Phase 28b Claude 4.x model refresh + prompt caching + model-aware max_tokens** — `54f0a9a`. `llm-provider.ts:22–25` lists Opus 4.7 / Sonnet 4.6 / Haiku 4.5 + deprecated Sonnet 4. `claude-client.ts:27` sets `cache_control: { type: 'ephemeral' }` on the cached prefix. `defaultMaxTokensForModel(model)` (`:51, :99`) replaces hardcoded `4096`. `isAvailable()` pings `claude-haiku-4-5-20251001`. New tests at `claude-client.test.ts`.
+> - 🟢 **Phase 26d/26e — wave UI + map linkage + deploy** — `d3e29e1`. `EncounterMonster.wave?` field added, `EncounterBuilderModal.tsx:85–86` tracks `activeWave`/`maxWave`, `:247–265` deploys wave 1 immediately and queues 2+ via the Initiative Tracker. `normalizeEncounter` at `encounter.ts:74–82` migrates flat→waves.
+> - 🟢 **Phase 24a (subclass persistence)** — `59ab003`.
+> - 🟢 **Phase 24d/e/f/g/h** — `51383ee`. `MULTICLASS_SKILL_GRANTS` exported from `stores/level-up/apply-level-up.ts`, consumed by `LevelUpConfirm5e.tsx:404–438`.
+> - 🟢 **Phase 25b (homebrew feat effects)** — `a1a9b81`. New `services/character/homebrew-effects.ts` + test.
+> - 🟢 **Phase 25c (campaign-scoped homebrew)** — `36d294e`. `campaignId?: string` at `types/library.ts:196`.
+> - 🟢 **Phase 25e (homebrew round-trip test)** — `ebba5c6`.
+> - 🟢 **Phase 26b (Place All & Start Initiative)** — `4837c80`.
+> - 🟢 **Phase 26d/26e foundation (waves type + migration)** — `9112fe8`.
+> - 🟢 **Phase 27c (dice sound from chat/command/network rolls)** — `5dccbe4`.
+> - 🟢 **Phase 27d (duplicate audio handlers dropped) / 27g (`dispose()` cleanup)** — `957296b`. `dispose()` at `sound-manager.ts:353`. Separate from `reinit()` by design.
+> - 🟢 **Phase 27i (custom audio network sync)** — `1f77bda`. `dm:play-custom-audio` / `dm:stop-custom-audio` at `network/message-types.ts:55–56`.
+> - 🟢 **Phase 27j (ambient playlist)** — `95238b8`.
+> - 🟢 **Phase 29e/29f (permission-gate sweep + view-as-role)** — `991a791`. (Sweep is **partial** — see remaining open items below.)
+> - 🟢 **Phase 29g (PermissionsEditor + PlayerOverridesPanel UI)** — `acc4301`.
+>
+> **Findings that STILL STAND after re-verification (priority-ordered):**
+> - 🚨 **Phase 17c LOG-2 `doubleDiceInFormula` is the highest-priority bug.** Definitive proof: `attack-helpers.ts:53–58` exports the no-`g`-flag version; `attack-resolver.ts:25` imports it; `attack-resolver.ts:38` re-exports it; `attack-helpers.test.ts:91–94` pins `'1d8+1d6' → '2d8+1d6'` with comment "only doubles the first dice group (per regex behavior)". `combat-resolver.ts:909` has the corrected (`g`-flag) version stamped "Phase 17c (LOG-2)" but it's `function`, not `export function`. **Two copies, wrong one is exported.** Live impact: Sneak Attack / Smite / extra-die crit damage under-rolls.
+> - 🚨 **Phase 26f `executeLoadEncounter` overrides pre-positioned monsters** — `services/game-actions/creature-actions.ts:660–700`. The loop builds tokens with no startX/startY consultation and runs every monster through `smartPlaceTokens`. No pre-position branch.
+> - 🚨 **Phase 27e `/sound ambient` drops volume** — `services/chat-commands/commands-dm-sound.ts:85` still emits `{ ambient: fullName }` only. (The 27i custom-audio sync did land; this earlier ambient path was not revisited.)
+> - 🟠 **Phase 28a.2 BMO hardening is PARTIAL.** The 17:18 commit `6ecaf3e` tightened CORS (loopback) + retry + shutdown + URL validation. Still missing: (a) `SYNC_BIND` env-var for loopback bind (server still listens on default), (b) `MAX_BODY` body-size cap, (c) per-IP rate limit + 429, (d) Content-Type 415 reject, (e) `Authorization: Bearer` (Phase 28a.4 — no `getBmoApiKey` in `bmo-config.ts`), (f) Zod validation on incoming sync payloads (Phase 28a.3 — raw `JSON.parse` still in place).
+> - 🟠 **Phase 28b SDK 1.x bump NOT done.** `@anthropic-ai/sdk` still at `^0.78.0` in `package.json`. Cache-control + max_tokens + 4.x models did ship.
+> - 🟠 **Phase 19d `signAndEditExecutable: false`** still at `package.json:111` — contradicts Phase 14 §A6 finding (strips icon + exe metadata). Verify in next packaged installer.
+> - 🟠 **Phase 29e literal sweep is PARTIAL** — 21 files still contain `role === 'host'`, 17 contain `isCoDM` (e.g. `network-store/index.ts`, `lobby/PlayerCard.tsx`, `lobby/PlayerList.tsx`, `sheet/5e/HitPointsBar5e.tsx`, `sheet/5e/DeathSaves5e.tsx`). The new commit added permission gates in new code; existing literals not all replaced.
+> - 🟡 **Phase 33h content-validator** — re-ran `npx tsx scripts/audit/validate-content-vs-schemas.ts`. Still 20 errors across backgrounds/classes/bestiary/npcs (object-vs-array shape mismatch). Validator not yet wired into `package.json` scripts.
+> - 🟡 **Phase 14g devDeps move (the headline size lever)** — all 13 listed libs still in `dependencies` (`pixi.js`, `three`, `pdfjs-dist`, the `@tiptap/*` suite, `peerjs`, `jspdf`, `cannon-es`, `fuse.js`, `@msgpack/msgpack`, `@tanstack/react-virtual`, `dotenv`). Needs packaged-build verification, not a cloud-session task.
+> - 🟡 **Phase 17d NET-6/29/30 IPC sweep** — 32 raw `ipcMain.handle` sites still exist across handler files (unchanged count from original audit).
+> - 🟡 **Phase 22d cascade test** — no test of `removeConversation()` cascade in `ai-service.test.ts`.
+> - 🟡 **"FOUNDATION LANDED" pattern** still applies to Phase 30b, 31a/b, 34a, 35a — consumers haven't shipped.
+> - 🟡 **Phase 25a collision prompt + envelope `schemaVersion`** — not implemented.
+>
+> **Branch cleanup status:**
+> - ✅ Local `claude/test-rule11-foreign-2026-05-19` deleted.
+> - ✅ Remote `origin/claude/packaging-update-efficiency-NFm7q` deleted.
+> - ✅ Dependabot PR #9 (`tmp` 0.2.5 → 0.2.7) merged.
+>
+> **Verified via tooling this round (reversible, no source edits):**
+> - `npm install` to pull `i18next` + `lucide-react` into the local tree (CI was already green; this only fixed my dev box).
+> - `npx vitest run` — **6555/6555 tests, 670/670 files pass** at master HEAD `6ecaf3e`.
+> - `npx tsx scripts/audit/validate-content-vs-schemas.ts` — still 20 errors (Phase 33h unchanged).
+> - `gh run list --workflow=ci.yml` — last 5 master runs all `success` (Phase 28a.2/28c run was in-flight when checked; subsequent runs landed green).
+> - GitHub security advisory linked to the deleted-remote-branch push: tied to the `tmp` package; PR #9 already merged → next Dependabot scan clears it automatically.
+>
+> **Not done this round (would need explicit approval):** cutting a test release (`scripts/release/cut.mjs` rejects an unstaged tree, and 10 file-mode/`docs/DATA-FLOW.md` edits remain unstaged); fixing any of the standing findings; landing the 7 suggested tests at the bottom.
 
 ---
 
