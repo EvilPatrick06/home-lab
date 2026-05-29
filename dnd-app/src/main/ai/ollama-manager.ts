@@ -88,37 +88,6 @@ export const CURATED_MODELS: CuratedModel[] = [
 ]
 
 /**
- * Get the bundled Ollama path (shipped inside the app's resources directory).
- * Returns the path if the bundled binary exists, undefined otherwise.
- */
-function getBundledOllamaPath(): string | undefined {
-  // Ollama bundling is Windows-only. Linux AppImage exceeds GitHub Releases'
-  // 2 GiB single-asset cap with Ollama bundled, so Linux users install
-  // Ollama themselves and the app auto-detects via getPlatformInstallCandidates.
-  // Layout (Windows): <base>/ollama.exe + <base>/lib/ollama/runners/*
-  // The binary loads its runner libs via path relative to itself, so the lib/
-  // dir must sit alongside the binary (which extraResources `**/*` preserves).
-  // In packaged builds extraResources copies resources/ollama/windows/ to
-  // <resources>/ollama/. In dev the layout lives in repo at
-  // dnd-app/resources/ollama/windows/.
-  const platformDir = process.platform === 'win32' ? 'windows' : process.platform === 'darwin' ? 'darwin' : 'linux'
-  const binaryRelPath =
-    process.platform === 'linux' ? join('bin', 'ollama') : process.platform === 'win32' ? 'ollama.exe' : 'ollama' // darwin .tgz is single-binary at top level
-  const baseDirs = [
-    join(process.resourcesPath ?? '', 'ollama'),
-    join(app.getAppPath(), 'resources', 'ollama', platformDir)
-  ]
-
-  for (const base of baseDirs) {
-    const candidate = join(base, binaryRelPath)
-    if (existsSync(candidate)) {
-      return candidate
-    }
-  }
-  return undefined
-}
-
-/**
  * Per-platform standard install locations for Ollama.
  *
  * - Windows: `LOCALAPPDATA/Programs/Ollama/ollama.exe`, `Program Files`, etc.
@@ -156,23 +125,20 @@ function getPlatformInstallCandidates(): string[] {
  * Detect whether Ollama is installed and running.
  *
  * Checks (in order):
- *   1. Bundled binary (shipped inside the installer's resources)
- *   2. Per-platform standard install paths
- *   3. PATH lookup (`where ollama` on Windows, `which ollama` elsewhere)
- *   4. Running server on `OLLAMA_BASE_URL`
+ *   1. Per-platform standard install paths
+ *   2. PATH lookup (`where ollama` on Windows, `command -v ollama` elsewhere)
+ *   3. Running server on `OLLAMA_BASE_URL`
+ *
+ * Phase 14a — the previous "bundled binary" check was removed: Ollama is no
+ * longer shipped inside the installer (it bloated the Windows build to ~1.7 GB).
+ * Ollama is installed via the in-app flow (`downloadOllama`/`installOllama`) and
+ * detected here from system paths.
  */
 export async function detectOllama(): Promise<OllamaStatus> {
   let installed = false
   let path: string | undefined
 
-  // 1. Check for bundled Ollama binary (shipped with installer)
-  const bundledPath = getBundledOllamaPath()
-  if (bundledPath) {
-    installed = true
-    path = bundledPath
-  }
-
-  // 2. Check per-platform system install paths
+  // 1. Check per-platform system install paths
   if (!installed) {
     const candidates = getPlatformInstallCandidates()
 
@@ -235,22 +201,46 @@ export async function getSystemVram(): Promise<VramInfo> {
 }
 
 /**
- * Download the Ollama installer for Windows.
+ * Phase 14b — sentinels returned by `downloadOllama` for platforms that install in a single
+ * step (no discrete .exe download). `installOllama` branches on them. Indeterminate progress
+ * (`onProgress(-1)`) tells the UI to show a spinner, not a fake percentage bar.
+ */
+export const LINUX_INSTALL_MARKER = '__ollama_linux_install_script__'
+export const MACOS_BREW_MARKER = '__ollama_macos_brew__'
+
+/** True if a `brew` binary is on PATH (macOS best-effort install). */
+function hasBrew(): boolean {
+  try {
+    execSync('command -v brew', { encoding: 'utf-8', timeout: 5000 })
+    return true
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Download/prepare the Ollama install for the current platform (Phase 14b — cross-platform).
  *
- * Linux and macOS: errors out with an actionable message. Those platforms have
- * one-line install scripts (`curl -fsSL https://ollama.com/install.sh | sh`) and
- * package-manager paths (Homebrew on macOS) that don't fit the .exe-installer
- * model the renderer's "Install Ollama" button assumes. Users on those
- * platforms install Ollama themselves; the in-app *detect* path then picks it
- * up automatically.
+ * - **Windows:** download the signed `OllamaSetup.exe` to the app temp dir (with progress %),
+ *   return its path for `installOllama` to run.
+ * - **Linux:** no discrete download — the official `install.sh` fetches + installs in one shot
+ *   (run by `installOllama`). Returns `LINUX_INSTALL_MARKER`; emits indeterminate progress.
+ * - **macOS (best-effort, not a shipped target):** if Homebrew is present, return
+ *   `MACOS_BREW_MARKER`; otherwise throw an actionable message pointing at ollama.com/download.
  */
 export async function downloadOllama(onProgress?: (percent: number) => void): Promise<string> {
-  if (process.platform !== 'win32') {
+  if (process.platform === 'linux') {
+    onProgress?.(-1) // indeterminate — install.sh has no parseable progress
+    return LINUX_INSTALL_MARKER
+  }
+  if (process.platform === 'darwin') {
+    if (hasBrew()) {
+      onProgress?.(-1)
+      return MACOS_BREW_MARKER
+    }
     throw new Error(
-      'Ollama installer download is Windows-only. ' +
-        'On Linux: run `curl -fsSL https://ollama.com/install.sh | sh`. ' +
-        'On macOS: install the Ollama.app from https://ollama.com/download or `brew install ollama`. ' +
-        "Then restart this app — it'll auto-detect the installed binary."
+      'On macOS, install Ollama from https://ollama.com/download (or `brew install ollama`), ' +
+        "then restart this app — it'll auto-detect the installed binary."
     )
   }
   const url = 'https://ollama.com/download/OllamaSetup.exe'
@@ -291,15 +281,37 @@ export async function downloadOllama(onProgress?: (percent: number) => void): Pr
 }
 
 /**
- * Run the Ollama silent installer.
- * Only accepts paths under the app's temp directory to prevent arbitrary execution.
- * Windows-only — see `downloadOllama` for the rationale.
+ * Run a hardcoded, official install command through the shell, capturing stderr for errors.
+ * The command is a fixed constant (no caller-supplied URL/args) — no arbitrary execution.
+ */
+function runOfficialInstall(command: string): Promise<void> {
+  return new Promise((res, reject) => {
+    execFile('sh', ['-c', command], { timeout: 300000 }, (error, _stdout, stderr) => {
+      if (error) {
+        reject(new Error(`Ollama installation failed: ${stderr?.trim() || error.message}`))
+      } else {
+        res()
+      }
+    })
+  })
+}
+
+/**
+ * Install Ollama for the current platform (Phase 14b — cross-platform).
+ *
+ * - **Windows:** run the downloaded `OllamaSetup.exe /SILENT /NORESTART`. The installer path
+ *   MUST be under the app temp dir and end in `.exe` (security guard — no arbitrary exec).
+ * - **Linux:** run the official `curl -fsSL https://ollama.com/install.sh | sh` (fixed HTTPS URL).
+ * - **macOS (best-effort):** `brew install ollama`.
  */
 export async function installOllama(installerPath: string): Promise<void> {
-  if (process.platform !== 'win32') {
-    throw new Error(
-      'Ollama silent install is Windows-only. ' + 'See downloadOllama() error for per-platform install steps.'
-    )
+  if (process.platform === 'linux') {
+    if (installerPath !== LINUX_INSTALL_MARKER) throw new Error('Unexpected Linux install marker')
+    return runOfficialInstall('curl -fsSL https://ollama.com/install.sh | sh')
+  }
+  if (process.platform === 'darwin') {
+    if (installerPath !== MACOS_BREW_MARKER) throw new Error('Unexpected macOS install marker')
+    return runOfficialInstall('brew install ollama')
   }
   const resolvedPath = resolve(installerPath)
   const tempDir = resolve(app.getPath('temp'))

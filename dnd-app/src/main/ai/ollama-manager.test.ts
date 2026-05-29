@@ -194,9 +194,7 @@ describe('ollama-manager', () => {
   // ── installOllama ──
 
   describe('installOllama', () => {
-    // installOllama early-exits on non-Windows ("Ollama silent install is Windows-only").
-    // The path-validation guards we want to assert on only run when platform === 'win32',
-    // so spoof platform for these two cases.
+    // The Windows path-validation guards only run when platform === 'win32', so spoof it.
     const realPlatform = process.platform
     beforeEach(() => {
       Object.defineProperty(process, 'platform', { value: 'win32', configurable: true })
@@ -213,9 +211,11 @@ describe('ollama-manager', () => {
       await expect(installOllama('/tmp/test-temp/installer.bat')).rejects.toThrow('Access denied')
     })
 
-    it('rejects on non-Windows platforms with a clear error', async () => {
+    // Phase 14b — installOllama is now cross-platform. On Linux it only accepts the sentinel
+    // marker from downloadOllama (no arbitrary path), guarding against unexpected input.
+    it('rejects an unexpected install marker on Linux', async () => {
       Object.defineProperty(process, 'platform', { value: 'linux', configurable: true })
-      await expect(installOllama('/tmp/test-temp/anything.exe')).rejects.toThrow('Windows-only')
+      await expect(installOllama('/tmp/test-temp/anything.exe')).rejects.toThrow('Unexpected Linux install marker')
     })
   })
 

@@ -228,12 +228,13 @@ export function registerUpdateHandlers(): void {
       const autoUpdater = getAutoUpdater()
       const pendingVersion = currentStatus.version
 
-      // Force full re-download (no differential / blockmap patching).
-      // With the 1.7 GB installer (Ollama bundle), differential updates
-      // are slow AND occasionally corrupt across structural changes
-      // (e.g. v2.0 → v2.1 when signAndEditExecutable flipped). A full
-      // re-download is bandwidth-expensive but reliable.
-      autoUpdater.disableDifferentialDownload = true
+      // Phase 14e — differential download is ENABLED (electron-updater default).
+      // 14a unbundled the ~2 GB Ollama payload (installer now low-hundreds-of-MB)
+      // and 14e lowered NSIS compression from `maximum` to `normal` so blockmap
+      // deltas reuse blocks effectively — N→N+1 fetches only the changed bytes.
+      // electron-updater self-heals to a full download on any blockmap mismatch,
+      // so re-enabling is safe. (Ollama is fully decoupled from app updates — no
+      // Ollama download/version-check happens on the update path.)
 
       autoUpdater.removeAllListeners('download-progress')
       autoUpdater.on('download-progress', (progress: { percent: number }) => {
@@ -319,14 +320,15 @@ async function runAutoUpdateFlow(prefs: AutoUpdatePrefs): Promise<void> {
 
     if (!prefs.autoDownloadUpdates) return
 
-    autoUpdater.disableDifferentialDownload = true
+    // Phase 14e — differential ENABLED (default); see the manual-download handler.
     autoUpdater.removeAllListeners('download-progress')
     autoUpdater.on('download-progress', (progress: { percent: number }) => {
       currentStatus = { state: 'downloading', percent: Math.round(progress.percent) }
       broadcastStatus()
     })
     await autoUpdater.downloadUpdate()
-    autoUpdater.autoInstallOnAppQuit = true
+    // Phase 14f — autoInstallOnAppQuit stays false (set at init). Installs go ONLY
+    // through the controlled performInstall path below, never silently on quit.
     currentStatus = { state: 'downloaded', version: pendingVersion }
     broadcastStatus()
 
