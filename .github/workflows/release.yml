@@ -160,10 +160,14 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: dist-${{ matrix.os }}
+          # NOTE: explicit latest{,-linux}.yml — `*.yml` would also sweep up
+          # `builder-debug.yml`, which is electron-builder's internal
+          # file-glob dump and not useful to end users.
           path: |
             dnd-app/dist/*.exe
             dnd-app/dist/*.AppImage
-            dnd-app/dist/*.yml
+            dnd-app/dist/latest.yml
+            dnd-app/dist/latest-linux.yml
             dnd-app/dist/*.blockmap
           if-no-files-found: error
           retention-days: 1
