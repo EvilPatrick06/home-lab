@@ -18,25 +18,23 @@ New entries go at the TOP of their severity section (newest first within each se
 
 # Active Issues
 
-> **Backlog absorbed into phase plans (2026-05-18).** All previously-tracked active issues are now scoped inside the dnd-app phase-plan files at `dnd-app/docs/phases/`. New issues should be triaged into the appropriate phase plan, not added here. This log is kept as an entry point and may surface new triaged entries that haven't yet been routed.
+> **Single source of truth: the consolidated report.** All open dnd-app items
+> (problems, debt, suggestions, security, future work, out-of-scope) now live in
+> **`dnd-app/docs/phases/REVIEW-REPORT-2026-05-29.md`** — verified against the
+> code on 2026-05-29. Do not re-log dnd-app items here; add them to that report.
+>
+> Quick map of what's open (full detail + file:line in the report):
+> - **20g** — renderer-side security events not routed to the main audit log (needs a `LOG_SECURITY_EVENT` IPC channel).
+> - **LOG-11** — Tiny-creature cover exclusion needs a `sizeCategory` field on `MapToken`.
+> - God-object splits, accessibility polish, error-handling convention, test-coverage gaps — see the report's "From home-lab/docs audit" section.
+>
+> **Verified RESOLVED (do not re-fix):** Phase 23f attunement (now single-source
+> via `state.magicItemAttuned` + `getEffectiveMagicItems`); multi-floor visibility
+> (`currentFloor` wired); positional audio emitters (`updateEmitters` is called).
 
-## Critical
+## Critical / High / Medium / Low
 
-*(none active — all prior entries absorbed into Phase 28; verification stamps at `dnd-app/docs/phases/phase-28-plan.md`)*
-
-## High
-
-*(none active)*
-
-## Medium
-
-*(none active)*
-
-## Low
-
-- **[debt] Phase 23f — attunement data model has 3 competing sources; unification deferred (confusing, needs app verification).** `AttunementTracker5e` reads/writes the legacy `character.attunement[]` named array; `MagicItemCard5e` toggles by writing effective items back to `character.magicItems[]`; `effective-character-5e.getEffectiveMagicItems` is the canonical mechanics path and hydrates from `character.magicItemRefs` + projects `state.magicItemAttuned[__instanceId]` onto `mi.attuned`; `commands-player-inventory.ts` writes `state.magicItemAttuned`. Net: the card toggle writes the legacy array, not the canonical `state.magicItemAttuned[instanceId]`, so an attune toggle may not persist through `getEffectiveMagicItems` (which reads refs+state), and `AttunementTracker` shows a count from a different source than `MagicItemsPanel`. Correct fix (per Phase 15 Design C): route the card toggle through `state.magicItemAttuned[__instanceId]`, derive BOTH panels' counts from `getEffectiveMagicItems(...).filter(mi=>mi.attuned)`, and migrate the legacy `attunement[]` array into `state` via `MIGRATIONS[4]`. Deferred because it touches persisted character data + the legacy-`magicItems[]`↔`magicItemRefs` migration boundary and can't be verified without a running app + real character fixtures. Domain: dnd-app.
-- **[debt] Phase 20g — renderer-side security events not yet routed to the main audit log.** `security-log.ts` (`logSecurityEvent` → `[SECURITY]` in `userData/logs/app.log`) is main-process only. Main-side events are wired (plugin install, AI file-read denial, IPC path-traversal rejections, malformed API key). The renderer-side events the plan also lists — kick/ban host actions (`network/host-manager.ts`) and network-message Zod rejections (`network/host-message-handlers.ts`) — would need a `LOG_SECURITY_EVENT` IPC channel (preload → main) to reach the same log. Deferred to avoid the extra IPC surface mid-phase. Domain: dnd-app.
-- **[debt] LOG-11 Tiny-creature cover exclusion not implementable on `MapToken`.** `cover-calculator.ts` now excludes downed + allied creatures from cover and clamps creature cover to half (Phase 17c). PHB also says Tiny creatures grant no cover, but `MapToken` (`types/map.ts`) carries only `sizeX`/`sizeY` (grid footprint, min 1) — no size *category* — so Tiny can't be distinguished from Medium. Follow-up: add a `sizeCategory`/`creatureSize` field (or resolve it from the linked `monsterStatBlockId`) and skip Tiny in the cover loop. Domain: dnd-app.
+*(none tracked here — see the report)*
 
 ---
 

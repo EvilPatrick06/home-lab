@@ -95,3 +95,55 @@ After reboot, sanity-check both cooling loops (`vcgencmd measure_temp`, `vcgencm
 ## Method note
 
 Three audit passes folded every `phase-*-plan.md` into this file (originals deleted; only `INSTRUCTIONS.md` + this report remain in `dnd-app/docs/phases/`). The v2.2.2 fix pass discovered a large body of prior uncommitted work in the tree (BMO hardening, 29e sweep, IPC sweep, content schemas) that implemented much of the High/Medium backlog — it was incorporated, made green, and shipped.
+
+---
+
+## 🗂 From `home-lab/docs` audit (folded in 2026-05-29, verified against code)
+
+Consolidated here from the dnd-app entries scattered across `docs/ISSUES-LOG-DNDAPP.md`, `docs/SUGGESTIONS-LOG-DNDAPP.md`, `docs/SECURITY-LOG.md`, and a stray `docs/fail.txt`. Each was re-verified against current code; stale ones are listed as resolved so they don't get re-fixed. (BMO and Dungeon-Scholar entries were out of scope and left untouched.)
+
+### Problems / debt (verified still open)
+
+- **20g — renderer-side security events never reach the main audit log.** `security-log.ts` (`logSecurityEvent` → `[SECURITY]` in `userData/logs/app.log`) is main-process only. Main-side events are wired, but renderer-side ones (kick/ban host actions in `network/host-manager.ts`, network-message Zod rejections in `network/host-message-handlers.ts`) need a `LOG_SECURITY_EVENT` preload→main channel. **Verified: no such channel exists.** *Action: add the IPC channel + forward the two renderer event sites.*
+- **LOG-11 — Tiny-creature cover exclusion unimplementable.** `cover-calculator.ts` excludes downed/allied creatures and clamps creature cover to half, but PHB also says Tiny creatures grant no cover. `MapToken` (`types/map.ts:103-104`) carries only `sizeX`/`sizeY` (grid footprint, min 1), no size *category*. **Verified: still no `sizeCategory`.** *Action: add `sizeCategory` (or resolve from `monsterStatBlockId`) + skip Tiny in the cover loop.*
+- **God-object files (still oversized, growing).** `PdfViewer.tsx` (1832), `GameLayout.tsx` (1360, ↑ from 1030), `client-handlers.ts` (1120, ↑ from 879), `data-provider.ts` (1178), `DowntimeModal.tsx`, `library-service.ts`, `MapCanvas.tsx`, `import-dnd-beyond.ts`, `build-character-5e.ts`. *Action: split per follow-up phases.*
+
+### Errors
+
+- **`docs/fail.txt` — React #185 ("max update depth exceeded") crash, v2.1.10.** Stack: `forceStoreRerender → updateStoreInstance → commitHookEffectListMount → ReadyButton → LobbyPage`. Signature of an unstable zustand `useSyncExternalStore` selector in `ReadyButton` (a selector returning a fresh object/array every render drives an infinite re-render loop). From an old build (2.1.10; current 2.2.2) and not reproducible from a minified trace, but the pattern is real. *Action: audit `ReadyButton`/`LobbyPage` selectors for unstable references; not yet confirmed fixed.*
+
+### Security concerns (dnd-app)
+
+- Only the 20g item above. `docs/SECURITY-LOG.md`'s dnd-app side is empty by design (absorbed into phase plans; the app-side audit shipped in Phase 20 and the BMO bridge hardening shipped in v2.2.2). All remaining active SECURITY-LOG entries are Dungeon-Scholar (out of scope here).
+
+### Suggestions / Improvements / Future work (verified still applicable)
+
+- **Inline style objects → CSS classes** (`ChatPanel`, `PdfViewer`, `GameLayout`, `LibraryItemList`, `EquipmentShop5e`).
+- **14 eager static-JSON imports** → lazy `data-provider` loads for rarely-opened modals.
+- **Limited `React.memo`** → memoize hot list rows (initiative, equipment/spell lists, token overlays).
+- **~138 unused exports + ~10 unused files (knip)** → curate vs prune.
+- **Scattered magic numbers** → `app-constants.ts`/domain modules.
+- **Repeated CRUD-modal pattern** (`SharedJournalModal`, `HandoutModal`, `RuleManager`, `LoreManager`, `NPCManager`) → generic `CRUDModal<T>`/`useCrudModal`.
+- **Repeated async-data hook** → `useAsyncData<T>(loader, deps)` with cancellation + error state.
+- **Inconsistent error handling (4 patterns: throw / null / `StorageResult` / silent-catch)** → pick one convention and migrate.
+- **Color-only state indicators** (`MainMenuPage`, `HigherLevelEquipment5e`, `RuleManager`, `TurnEventsTab`, `MacroBar`) → pair with text/icon/aria.
+- **Mouse-only interactions** (`PdfDrawingOverlay`, `HandoutViewerModal`, `ResizeHandle`, `DiceTray`, `PlayerHUDOverlay`, `LanguagesTab5e`) → keyboard equivalents.
+- **Form-validation announcements** (`StatBlockEditor`, `DiseaseCurseTracker`, `AiProviderSetup`) → `aria-invalid`/`aria-describedby`.
+- **Doc gaps** — no TypeDoc/Storybook; no `GameSystemPlugin` developer guide.
+- **Test-coverage gaps** — `systems/dnd5e/` only `registry.test.ts`; no modal/form/keyboard-nav integration tests; limited `src/main/` coverage; no WebRTC-reconnection or a11y tests.
+- **Package `overrides` (7 entries)** — document why each is pinned; re-check on dep bumps.
+
+### Out of scope (for the dnd-app phase work)
+
+- **Large public-dir assets** — `monsters.json` (~32k lines), 130+ MP3s under `public/sounds/`. CDN / lazy-download is a distribution decision, not a code fix.
+- **Electron 40 EOL planning** — tracking-only; schedule an upgrade cadence before the 40.x line goes EOL.
+- **i18n full sweep** — owned by Phase 34 (already tracked above).
+- **BMO / Dungeon-Scholar `/docs` entries** — separate domains, not touched.
+
+### Resolved since logged (do NOT re-fix — verified fixed in code)
+
+- **Phase 23f attunement "3 competing sources."** Now consistent: `MagicItemCard5e.tsx` writes the canonical `state.magicItemAttuned[instanceId]`; both `AttunementTracker5e` and `MagicItemsPanel5e` derive their count from `getEffectiveMagicItems(...).filter(mi => mi.attuned)`. The legacy `attunement[]` array is no longer the source.
+- **Multi-floor "never affects visibility/rendering."** `currentFloor` is now wired into `MapCanvas.tsx`, `occlusion-layer.ts`, `region-layer.ts`, and `map-token-slice.ts`.
+- **Positional audio emitters "never updated."** `updateEmitters` is called at `map-overlay-effects.ts:401`.
+- **IPC channel↔schema gap ("~100 channels vs 3 schemas").** Phase 35's `withSchema`/`withArgsSchema` sweep + the storage Zod schemas closed most of it.
+- **`Math.random` / secure-randomness dual pattern.** Phase 28a.1 sweep + forbidden-patterns lint.
