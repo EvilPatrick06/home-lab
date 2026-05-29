@@ -8,6 +8,7 @@ import { useCharacterStore } from '../../../stores/use-character-store'
 import { useGameStore } from '../../../stores/use-game-store'
 import type { Character } from '../../../types/character'
 import { is5eCharacter } from '../../../types/character'
+import { EmptyState } from '../../ui'
 
 interface TransactionRecord {
   id: string
@@ -306,7 +307,7 @@ export default function ShopView(): JSX.Element | null {
           {/* Items list */}
           <div className="space-y-1 max-h-48 overflow-y-auto">
             {filteredItems.length === 0 ? (
-              <p className="text-xs text-gray-500 text-center py-3">No items available</p>
+              <EmptyState compact title="No items available" />
             ) : (
               filteredItems.map((item) => {
                 const affordable = localChar ? canAfford(localChar, item.price) : false
@@ -368,7 +369,7 @@ export default function ShopView(): JSX.Element | null {
         <div className="p-2 space-y-1 max-h-48 overflow-y-auto">
           <p className="text-xs text-gray-500 mb-1">Sell items at 50% value</p>
           {sellableItems.length === 0 ? (
-            <p className="text-xs text-gray-500 text-center py-3">No items to sell</p>
+            <EmptyState compact title="No items to sell" />
           ) : (
             sellableItems.map((item, idx) => {
               const shopRef = shopInventory.find((si) => si.name.toLowerCase() === item.name.toLowerCase())
@@ -403,7 +404,7 @@ export default function ShopView(): JSX.Element | null {
       {activeTab === 'history' && (
         <div className="p-2 space-y-1 max-h-48 overflow-y-auto">
           {transactions.length === 0 ? (
-            <p className="text-xs text-gray-500 text-center py-3">No transactions yet</p>
+            <EmptyState compact title="No transactions yet" />
           ) : (
             transactions.map((tx) => (
               <div key={tx.id} className="flex items-center justify-between bg-gray-800/50 rounded px-2 py-1">

@@ -7,6 +7,7 @@ import {
 } from '../../../../services/combat/encounter-cr-calculator'
 import { load5eMonsters } from '../../../../services/data-provider'
 import { logger } from '../../../../utils/logger'
+import { Skeleton } from '../../../ui'
 
 interface EncounterBuilderModalProps {
   onClose: () => void
@@ -43,12 +44,14 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
   const [searchResults, setSearchResults] = useState<MonsterData[]>([])
   const [selectedMonsters, setSelectedMonsters] = useState<MonsterEntry[]>([])
   const [allMonsters, setAllMonsters] = useState<MonsterData[]>([])
+  const [monstersLoading, setMonstersLoading] = useState(true)
   const [showDropdown, setShowDropdown] = useState(false)
   const [presetName, setPresetName] = useState('')
   const [showSavePreset, setShowSavePreset] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    setMonstersLoading(true)
     load5eMonsters()
       .then((data) => setAllMonsters(data as unknown as MonsterData[]))
       .catch((err) => {
@@ -56,6 +59,7 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
         addToast('Failed to load monsters', 'error')
         setAllMonsters([])
       })
+      .finally(() => setMonstersLoading(false))
   }, [])
 
   useEffect(() => {
@@ -250,6 +254,12 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
               placeholder="Type monster name..."
               className="w-full bg-gray-800 border border-gray-600 rounded px-3 py-1.5 text-sm text-white placeholder-gray-500"
             />
+            {/* Phase 18d — skeleton while the monster list is still loading and the user is searching */}
+            {monstersLoading && monsterSearch.trim().length >= 2 && (
+              <div className="absolute z-10 mt-1 w-full bg-gray-800 border border-gray-600 rounded shadow-lg p-3">
+                <Skeleton lines={4} />
+              </div>
+            )}
             {showDropdown && (
               <div className="absolute z-10 mt-1 w-full bg-gray-800 border border-gray-600 rounded shadow-lg max-h-48 overflow-y-auto">
                 {searchResults.map((m, i) => (

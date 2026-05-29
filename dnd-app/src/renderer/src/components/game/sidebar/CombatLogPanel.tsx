@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { exportCombatLogCSV, exportCombatLogJSON } from '../../../services/io/combat-log-export'
 import { useGameStore } from '../../../stores/use-game-store'
 import type { CombatLogEntry } from '../../../types/game-state'
+import { EmptyState } from '../../ui'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -397,10 +398,11 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
       {activeTab === 'log' ? (
         <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-3 py-2 min-h-0 space-y-1" aria-live="polite">
           {combatLog.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center">
-              <p className="text-xs text-gray-500">No combat events recorded yet.</p>
-              <p className="text-xs text-gray-600 mt-1">Events will appear here during combat.</p>
-            </div>
+            <EmptyState
+              compact
+              title="No combat events recorded yet."
+              description="Events will appear here during combat."
+            />
           ) : (
             <>
               {Array.from(roundGroups.entries()).map(([roundNum, entries]) => (
@@ -420,16 +422,12 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
       ) : (
         <div className="flex-1 overflow-y-auto px-3 py-2 min-h-0">
           {combatLog.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center">
-              <p className="text-xs text-gray-500">No combat data to summarize.</p>
-            </div>
+            <EmptyState compact title="No combat data to summarize." />
           ) : (
             <div className="space-y-4">
               {/* Totals banner */}
               <div className="bg-gray-800/60 rounded-lg p-3 border border-gray-700/30">
-                <div className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-2">
-                  Combat Overview
-                </div>
+                <div className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-2">Combat Overview</div>
                 <div className="grid grid-cols-3 gap-3">
                   <div className="text-center">
                     <div className="text-lg font-bold text-gray-100">{highestRound}</div>
@@ -481,9 +479,7 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
 
               {/* Event type breakdown */}
               <div className="bg-gray-800/40 rounded-lg p-2.5 border border-gray-700/30">
-                <div className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-2">
-                  Event Breakdown
-                </div>
+                <div className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-2">Event Breakdown</div>
                 <div className="grid grid-cols-2 gap-x-3 gap-y-1">
                   {(['damage', 'heal', 'attack', 'condition', 'save', 'death', 'other'] as const).map((type) => {
                     const count = combatLog.filter((e) => e.type === type).length

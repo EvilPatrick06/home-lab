@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { load5eTreasureTables } from '../../../../services/data-provider'
 import { rollMultiple, rollSingle } from '../../../../services/dice/dice-service'
 import { logger } from '../../../../utils/logger'
+import { Skeleton } from '../../../ui'
 import type {
   CoinResult,
   CrTier,
@@ -357,13 +358,17 @@ export default function TreasureGeneratorModal({
             </div>
           </div>
 
-          {/* Generate Button */}
+          {/* Generate Button — disabled until the treasure tables finish loading */}
           <button
             onClick={handleGenerate}
-            className="w-full px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white text-sm rounded font-medium"
+            disabled={!treasureData}
+            className="w-full px-4 py-2 bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white text-sm rounded font-medium"
           >
             Generate Treasure
           </button>
+
+          {/* Phase 18d — skeleton while treasure tables load */}
+          {!treasureData && <Skeleton lines={3} />}
 
           {/* Results */}
           {result && (

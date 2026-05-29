@@ -5,6 +5,7 @@ import { useGameStore } from '../../../stores/use-game-store'
 import type { CombatTimerConfig } from '../../../types/campaign'
 import type { InitiativeEntry, InitiativeState } from '../../../types/game-state'
 import type { MapToken } from '../../../types/map'
+import { EmptyState } from '../../ui'
 import InitiativeControls from './InitiativeControls'
 import InitiativeEntryRow from './InitiativeEntry'
 import type { NewEntry } from './InitiativeSetupForm'
@@ -322,6 +323,13 @@ export default function InitiativeTracker({
       </div>
 
       <div className="space-y-1">
+        {displayEntries.length === 0 && (
+          <EmptyState
+            compact
+            title="No combatants in initiative."
+            description="Add creatures or roll initiative to begin combat."
+          />
+        )}
         {displayEntries.map((entry) => {
           const realIndex = initiative.entries.findIndex((e) => e.id === entry.id)
           return (

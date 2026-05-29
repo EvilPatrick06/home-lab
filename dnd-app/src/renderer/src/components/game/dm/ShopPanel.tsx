@@ -4,6 +4,7 @@ import { load5ePoisons } from '../../../services/data-provider'
 import { useNetworkStore } from '../../../stores/network-store'
 import { useGameStore } from '../../../stores/use-game-store'
 import type { Poison, Settlement } from '../../../types/dm-toolbox'
+import { EmptyState } from '../../ui'
 
 type _Settlement = Settlement
 
@@ -158,7 +159,7 @@ export default function ShopPanel(): JSX.Element {
           {/* Current inventory */}
           <div className="space-y-1 max-h-40 overflow-y-auto">
             {shopInventory.length === 0 && (
-              <p className="text-xs text-gray-500">No items in shop. Add from presets below.</p>
+              <EmptyState compact title="No items in shop." description="Add from presets below." />
             )}
             {shopInventory.map((item) => (
               <div key={item.id} className="flex items-center justify-between bg-gray-800/50 rounded px-2 py-1 text-xs">
