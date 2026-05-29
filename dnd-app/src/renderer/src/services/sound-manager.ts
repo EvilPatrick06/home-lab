@@ -18,6 +18,7 @@ import {
   getCurrentAmbient as playbackGetCurrentAmbient,
   playAmbient as playbackPlayAmbient,
   playCustomAudio as playbackPlayCustomAudio,
+  setCustomAudioVolume as playbackSetCustomAudioVolume,
   stopAllCustomAudio as playbackStopAllCustomAudio,
   stopAmbient as playbackStopAmbient,
   stopCustomAudio as playbackStopCustomAudio,
@@ -617,6 +618,14 @@ export function stopCustomAudio(filePath: string): void {
  */
 export function stopAllCustomAudio(): void {
   playbackStopAllCustomAudio()
+}
+
+/**
+ * Phase 27h — live-update a playing custom track's volume (slider drag).
+ * Delegates to sound-playback module.
+ */
+export function setCustomAudioVolume(filePath: string, volume: number): void {
+  playbackSetCustomAudioVolume(filePath, volume)
 }
 
 // --- Internal helpers ---

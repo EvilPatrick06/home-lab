@@ -8,6 +8,7 @@ import {
   playAmbient,
   playCustomAudio,
   setAmbientVolume,
+  setCustomAudioVolume,
   setVolume,
   stopAmbient,
   stopCustomAudio
@@ -168,7 +169,9 @@ export default function DMAudioPanel(): JSX.Element {
         prev.map((entry) => {
           if (entry.fileName !== fileName) return entry
           if (entry.playing) {
-            stopCustomAudio(fileName)
+            // Phase 27b — sound-playback keys tracks by absolute path, not fileName.
+            const path = customAudioPathsRef.current.get(fileName)
+            if (path) stopCustomAudio(path)
             return { ...entry, playing: false }
           }
           return entry
@@ -195,6 +198,9 @@ export default function DMAudioPanel(): JSX.Element {
 
   const handleCustomVolumeChange = useCallback((fileName: string, vol: number) => {
     setCustomAudioEntries((prev) => prev.map((e) => (e.fileName === fileName ? { ...e, volume: vol } : e)))
+    // Phase 27h — live-update the playing track's volume without a restart.
+    const path = customAudioPathsRef.current.get(fileName)
+    if (path) setCustomAudioVolume(path, vol / 100)
   }, [])
 
   const handleCustomLoopToggle = useCallback((fileName: string) => {
@@ -204,7 +210,9 @@ export default function DMAudioPanel(): JSX.Element {
   const handleDeleteCustom = useCallback(
     async (fileName: string) => {
       if (!campaignId) return
-      stopCustomAudio(fileName)
+      // Phase 27b — stop by absolute path (the Map key), not fileName.
+      const path = customAudioPathsRef.current.get(fileName)
+      if (path) stopCustomAudio(path)
       await window.api.audioDeleteCustom(campaignId, fileName)
       customAudioPathsRef.current.delete(fileName)
       setCustomAudioEntries((prev) => prev.filter((e) => e.fileName !== fileName))

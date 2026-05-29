@@ -14,6 +14,9 @@ let currentAmbientName: AmbientSound | null = null
 /** Custom audio tracks (file path -> Audio element) */
 const customAudioTracks: Map<string, HTMLAudioElement> = new Map()
 
+/** Phase 27f — monotonic fade id so a newer fade cancels any in-flight older one. */
+let activeFadeId = 0
+
 /** Tier 2: DM custom audio overrides (event -> custom file path) */
 export const customOverrides: Map<string, string> = new Map()
 
@@ -27,11 +30,16 @@ export function playAmbient(ambient: AmbientSound, muted: boolean, ambientVolume
   stopAmbient()
 
   const customPath = customOverrides.get(ambient)
-  const path = customPath ?? `assets/audio/ambient/${ambient}.ogg`
+  // Phase 27a — ambient ids are prefixed (`ambient-tavern`); bundled files are
+  // bare (`tavern.mp3`) under public/sounds/ambient. The old
+  // `assets/audio/ambient/<id>.ogg` path pointed at nonexistent files (silent no-op).
+  const path = customPath ?? `./sounds/ambient/${ambient.replace('ambient-', '')}.mp3`
   const audio = new Audio(path)
   audio.loop = true
   audio.volume = muted ? 0 : ambientVolume
-  audio.play().catch(() => {})
+  audio.play().catch((err) => {
+    logger.warn('[sound-playback] Failed to play ambient:', ambient, err)
+  })
 
   currentAmbient = audio
   currentAmbientName = ambient
@@ -81,6 +89,8 @@ export function fadeAmbient(
   setAmbientVolume: (v: number) => void
 ): Promise<void> {
   return new Promise<void>((resolve) => {
+    // Phase 27f — claim this fade; any later fade bumps the id and supersedes us.
+    const fadeId = ++activeFadeId
     const target = Math.max(0, Math.min(1, targetVolume))
     const startVolume = getAmbientVolume()
     const delta = target - startVolume
@@ -94,6 +104,11 @@ export function fadeAmbient(
     const startTime = performance.now()
 
     function step(now: number): void {
+      // A newer fade started — abort this one without touching volume further.
+      if (fadeId !== activeFadeId) {
+        resolve()
+        return
+      }
       const elapsed = now - startTime
       const progress = Math.min(elapsed / durationMs, 1)
 
@@ -158,6 +173,15 @@ export function stopCustomAudio(filePath: string): void {
     audio.currentTime = 0
     customAudioTracks.delete(filePath)
   }
+}
+
+/**
+ * Phase 27h — update the volume of a playing custom track live (slider drag),
+ * without restarting it. No-op if the track isn't currently playing.
+ */
+export function setCustomAudioVolume(filePath: string, volume: number): void {
+  const audio = customAudioTracks.get(filePath)
+  if (audio) audio.volume = Math.max(0, Math.min(1, volume))
 }
 
 /**

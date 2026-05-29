@@ -158,4 +158,12 @@ Late-joiner ambient sync has already been wired in Phase 14d (`game-sync.ts:353-
 
 ## Completed
 
+> **PHASE 27 PARTIAL — 2026-05-29 (overnight autonomous pass; contained bug fixes done, networked/feature items deferred).** 4-gate green (lint 0, tsc web+node 0, vitest 6514/6514).
+> - **27a DONE** — ambient path fixed: `./sounds/ambient/${id.replace('ambient-','')}.mp3` (was nonexistent `assets/audio/ambient/<id>.ogg`); play failures now log.
+> - **27b DONE** — DMAudioPanel custom stop/delete resolve the absolute path from `customAudioPathsRef` before calling `stopCustomAudio` (the Map is keyed by path, not fileName).
+> - **27e DONE** — `/sound ambient` and `/sound stop` now broadcast `dm:play-ambient`/`dm:stop-ambient` (matches DMAudioPanel).
+> - **27f DONE** — fade cancellation via a monotonic `activeFadeId`; a newer fade aborts in-flight older ones (no volume oscillation).
+> - **27h DONE** — `setCustomAudioVolume(path, vol)` in sound-playback + re-exported from sound-manager + wired into DMAudioPanel slider (live volume, no restart).
+> - **DEFERRED:** 27c 3D-dice sound (touches DiceOverlay + 25 callers + source flag), 27d duplicate-handler removal (needs consumer grep + mock audit), 27g reinit/dispose cleanup (plan flags blast-radius risk), 27i custom-audio network sync (IPC + base64 + chunking), 27j playlist system (large feature). Need app/two-window verification.
+
 - 27 late-joiner ambient sync — DONE (`src/renderer/src/network/game-sync.ts:340-396`, `src/renderer/src/stores/network-store/client-handlers.ts:154-163`) — `buildFullGameStatePayload` includes `currentAmbient`; client applies it on full-state hydrate. Originally tracked as Sub-Phase I; absorbed by Phase 14d.

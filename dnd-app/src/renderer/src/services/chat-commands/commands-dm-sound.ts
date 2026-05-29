@@ -9,6 +9,7 @@ import {
   setVolume,
   stopAmbient
 } from '../../services/sound-manager'
+import { useNetworkStore } from '../../stores/network-store'
 import type { ChatCommand } from './types'
 
 const soundCommand: ChatCommand = {
@@ -80,11 +81,14 @@ const soundCommand: ChatCommand = {
           }
         }
         playAmbient(fullName)
+        // Phase 27e — sync the ambient to connected players (matches DMAudioPanel).
+        useNetworkStore.getState().sendMessage?.('dm:play-ambient', { ambient: fullName })
         return { type: 'broadcast', content: `Ambient sound: ${ambientName}` }
       }
 
       case 'stop':
         stopAmbient()
+        useNetworkStore.getState().sendMessage?.('dm:stop-ambient', {})
         return { type: 'system', content: 'Ambient sound stopped.' }
 
       default:
