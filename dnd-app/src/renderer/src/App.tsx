@@ -10,6 +10,7 @@ import ScreenReaderPrompt from './components/ui/ScreenReaderPrompt'
 import SkipToContent from './components/ui/SkipToContent'
 import UpdatePrompt from './components/ui/UpdatePrompt'
 import { addToast } from './hooks/use-toast'
+import { setIceConfig } from './network'
 import MainMenuPage from './pages/MainMenuPage'
 import { preloadAllData } from './services/data-provider'
 import { loadShortcutDefinitions } from './services/keyboard-shortcuts'
@@ -51,6 +52,24 @@ function App(): JSX.Element {
     initSoundManager()
     preloadEssential()
     preloadAllData()
+
+    // Phase 20c — apply user-configured TURN servers from settings at boot so a
+    // saved relay works without first re-opening Network Settings. (Hardcoded
+    // TURN credentials were removed; real creds now live only in settings.)
+    window.api
+      .loadSettings()
+      .then((settings) => {
+        if (settings.turnServers && settings.turnServers.length > 0) {
+          setIceConfig(
+            settings.turnServers.map((s) => ({
+              urls: s.urls,
+              username: s.username,
+              credential: s.credential
+            }))
+          )
+        }
+      })
+      .catch((e) => logger.warn('Failed to apply saved TURN servers at boot', e))
 
     // Warm caches for module-level data loaders so they are referenced as used exports.
     // These are fire-and-forget; errors are non-fatal (data-provider caches handle fallback).

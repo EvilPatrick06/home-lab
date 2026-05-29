@@ -14,21 +14,15 @@ let customSignalingPort: number | null = 9000
 let customSignalingPath: string = '/myapp'
 let customSignalingSecure: boolean = false
 
-// ICE servers — configurable TURN relay
+// ICE servers — configurable TURN relay.
+// Phase 20c — the previous hardcoded `dndvtt:dndvtt-relay` TURN credentials were
+// repo-visible (useless as a secret, and a relay anyone could abuse). They're
+// gone: with a custom host we default to STUN-only (the host may run a STUN
+// listener on 3478) plus the cloud STUN fallback. Real TURN credentials are
+// user-supplied at runtime via setIceConfig (Network Settings).
 const getDefaultIceServers = (): RTCIceServer[] => {
   if (customHost) {
-    return [
-      {
-        urls: `turn:${customHost}:3478?transport=udp`,
-        username: 'dndvtt',
-        credential: 'dndvtt-relay'
-      },
-      {
-        urls: `turn:${customHost}:3478?transport=tcp`,
-        username: 'dndvtt',
-        credential: 'dndvtt-relay'
-      }
-    ]
+    return [{ urls: `stun:${customHost}:3478` }, ...CLOUD_ICE_SERVERS]
   }
   return CLOUD_ICE_SERVERS
 }
