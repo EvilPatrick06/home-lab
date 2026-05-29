@@ -283,7 +283,6 @@ export default function HomebrewCreateModal({
               )}
               <div className="space-y-2">
                 {effects.map((effect, idx) => (
-                  // biome-ignore lint/suspicious/noArrayIndexKey: effects have no stable id
                   <EffectRow
                     key={idx}
                     effect={effect}

@@ -1,3 +1,4 @@
+/* biome-ignore-all lint/complexity/noImportantStyles: reduced-motion (.reduce-motion) must override animation/transition utilities */
 @import "tailwindcss";
 
 /* Phase 18i — Cinzel (OFL) bundled locally rather than via the Google Fonts CDN:
@@ -116,7 +117,6 @@ body {
 /* Phase 22a — in-app reduced-motion toggle. The accessibility store adds
    `.reduce-motion` to <html> when the setting is on (independent of the OS
    media query above), so users can opt in without changing OS settings. */
-/* biome-ignore-all lint/complexity/noImportantStyles: reduced-motion must override animation utilities */
 .reduce-motion *,
 .reduce-motion *::before,
 .reduce-motion *::after {

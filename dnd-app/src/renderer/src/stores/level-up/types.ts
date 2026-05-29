@@ -94,6 +94,7 @@ export interface LevelUpState {
   setEpicBoonSelection: (sel: { id: string; name: string; description: string } | null) => void
   setGeneralFeatSelection: (
     slotId: string,
+    // boundary-allow: action signature type, not embedded library data
     feat: {
       id: string
       name: string

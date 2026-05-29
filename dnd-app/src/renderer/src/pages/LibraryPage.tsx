@@ -11,6 +11,7 @@ import {
   LibrarySidebar,
   PdfViewer
 } from '../components/library'
+import type { CampaignScopeFilter } from '../components/library/LibraryFilterBar'
 import { BackButton, Button, EmptyState, Skeleton } from '../components/ui'
 import { addToast } from '../hooks/use-toast'
 import { exportEntities, importEntities, reIdItems } from '../services/io/entity-io'
@@ -23,7 +24,6 @@ import {
   type SortField,
   sortItems
 } from '../services/library-sort-filter'
-import type { CampaignScopeFilter } from '../components/library/LibraryFilterBar'
 import { useCampaignStore } from '../stores/use-campaign-store'
 import { useLibraryStore } from '../stores/use-library-store'
 import { useLibraryUiStore } from '../stores/use-library-ui-store'

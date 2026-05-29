@@ -466,9 +466,7 @@ describe('import-export', () => {
       const importStats = await importAllData()
       expect(importStats?.homebrew).toBe(2)
       expect(mockSaveHomebrew).toHaveBeenCalledTimes(2)
-      expect(mockSaveHomebrew).toHaveBeenCalledWith(
-        expect.objectContaining({ id: 'h1', campaignId: 'camp-42' })
-      )
+      expect(mockSaveHomebrew).toHaveBeenCalledWith(expect.objectContaining({ id: 'h1', campaignId: 'camp-42' }))
       expect(mockSaveHomebrew).toHaveBeenCalledWith(expect.objectContaining({ id: 'h2' }))
     })
 

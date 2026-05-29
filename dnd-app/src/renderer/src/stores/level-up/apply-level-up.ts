@@ -223,6 +223,7 @@ export async function apply5eLevelUp(
   }
 
   // 6. Load class features for new levels
+  // boundary-allow: transient level-up accumulator shape, not embedded library data
   const allNewFeatures: Array<{ level: number; name: string; description: string; source: string }> = []
   try {
     const cfData = await load5eClassFeatures()

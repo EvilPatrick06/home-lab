@@ -72,7 +72,6 @@ export default function PinCreateModal({ gridX, gridY, onCreate, onClose }: PinC
           onChange={(e) => setLabel(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && submit()}
           placeholder="Pin label…"
-          // biome-ignore lint/a11y/noAutofocus: focusing the first field of a just-opened pin form is expected
           autoFocus
           className="w-full px-2.5 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-amber-500/60"
         />

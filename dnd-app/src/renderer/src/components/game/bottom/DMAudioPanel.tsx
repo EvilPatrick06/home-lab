@@ -646,7 +646,6 @@ export default function DMAudioPanel(): JSX.Element {
                   {pl.tracks.length > 0 && (
                     <div className="mt-1 pl-6 space-y-0.5">
                       {pl.tracks.map((t, i) => (
-                        // biome-ignore lint/suspicious/noArrayIndexKey: tracks have no stable id
                         <div key={i} className="flex items-center gap-1 text-[9px] text-gray-400">
                           <span
                             className={`truncate flex-1 ${isPlaying && pl.currentIndex === i ? 'text-amber-300' : ''}`}
