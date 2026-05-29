@@ -13,6 +13,7 @@ nul
 !**/.env.template
 !**/.env.example
 !**/*.env.example
+!**/.env.signing.template
 
 # IDE/editor
 .vscode/

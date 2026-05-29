@@ -136,6 +136,14 @@ node scripts/release/cut.mjs X.Y.Z --notes-file=/tmp/vX.Y.Z-notes.md
 
 **Auto-update** — `electron-updater` handles diff updates on Windows (NSIS) and Linux (AppImage). Users can opt into auto-check on launch / auto-download / auto-restart / silent install via Settings → Updates.
 
+**Code signing (Windows, optional)** — builds are **unsigned by default** (`win.signAndEditExecutable: false`); unsigned installers trigger a SmartScreen "unknown publisher" prompt but build fine without a cert. To produce a signed installer, copy `.env.signing.template` → `.env.signing`, set `CSC_LINK` (path to your `.pfx`) and `CSC_KEY_PASSWORD`, then build:
+
+```bash
+set -a && source .env.signing && set +a && npm run build:win
+```
+
+The `win.sign` hook (`scripts/sign.mjs`) skips signing when `CSC_LINK` is unset and otherwise signs via the Windows SDK `signtool` (needs a Windows builder with the SDK). In CI, store `CSC_LINK` as a base64 secret that electron-builder materializes into a temp `.pfx`. `.env.signing` is gitignored.
+
 ## Test + lint
 
 ```bash
