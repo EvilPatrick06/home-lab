@@ -310,6 +310,8 @@ export const useLobbyStore = create<LobbyState>((set, get) => ({
     if (!trimmed) return
 
     const { role, sendMessage } = useNetworkStore.getState()
+    // Phase 29e — structural transport check (is there a connection at all),
+    // not a permission gate. Phase 30 will revisit role-as-string.
     const isNetworked = role === 'host' || role === 'client'
 
     // Handle /roll command (and /r alias). L-2 (v2.1.31 QA): lobby chat
@@ -422,6 +424,10 @@ export const useLobbyStore = create<LobbyState>((set, get) => ({
     // identical text got bleeped. Filter once here for symmetry, then
     // both the local chat add AND the broadcast carry the filtered text.
     let outgoing = trimmed
+    // Phase 29e — structural: only the network host runs server-side
+    // auto-moderation on its own outgoing chat (peers' chat gets moderated on
+    // ingress in host-handlers). Not a permission gate. Phase 30 will revisit
+    // role-as-string.
     if (role === 'host' && isModerationEnabled()) {
       const words = getCustomBlockedWords()
       const wordList = words.length > 0 ? words : DEFAULT_BLOCKED_WORDS

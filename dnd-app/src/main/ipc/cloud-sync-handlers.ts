@@ -5,7 +5,6 @@
  * All credential handling is delegated to the Pi; no credentials stored locally.
  */
 
-import { ipcMain } from 'electron'
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
 import { isValidUUID } from '../../shared/utils/uuid'
 import {
@@ -16,6 +15,7 @@ import {
   syncCampaignToDrive
 } from '../cloud-sync'
 import { logToFile } from '../log'
+import { handle } from './_safe'
 
 export interface CloudSyncStatusResult {
   success: boolean
@@ -32,7 +32,7 @@ export interface CampaignBackupResult extends CloudSyncResult {
 
 export function registerCloudSyncHandlers(): void {
   // Check Rclone remote status
-  ipcMain.handle(IPC_CHANNELS.CLOUD_SYNC_STATUS, async (): Promise<CloudSyncStatusResult> => {
+  handle(IPC_CHANNELS.CLOUD_SYNC_STATUS, async (): Promise<CloudSyncStatusResult> => {
     try {
       const status = await checkRemoteStatus()
       return {
@@ -55,7 +55,7 @@ export function registerCloudSyncHandlers(): void {
   })
 
   // Backup campaign to Google Drive
-  ipcMain.handle(
+  handle(
     IPC_CHANNELS.CLOUD_SYNC_BACKUP,
     async (_event, campaignId: string, campaignName: string): Promise<CampaignBackupResult> => {
       // Validate campaign ID
@@ -111,7 +111,7 @@ export function registerCloudSyncHandlers(): void {
   )
 
   // Check sync status for a specific campaign
-  ipcMain.handle(
+  handle(
     IPC_CHANNELS.CLOUD_SYNC_CHECK_STATUS,
     async (
       _event,
@@ -144,7 +144,7 @@ export function registerCloudSyncHandlers(): void {
   )
 
   // List all campaigns backed up to remote
-  ipcMain.handle(
+  handle(
     IPC_CHANNELS.CLOUD_SYNC_LIST_CAMPAIGNS,
     async (): Promise<CloudSyncResult & { campaigns?: Array<{ id: string; name: string }> }> => {
       try {

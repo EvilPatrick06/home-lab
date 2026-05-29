@@ -35,6 +35,7 @@ export default function OllamaManagement(): JSX.Element {
   // Phase 14d — in-app Ollama install (cross-platform via the 14b path). Indeterminate on
   // Linux (install.sh has no parseable progress), percentage on Windows.
   const [installing, setInstalling] = useState(false)
+  const [starting, setStarting] = useState(false)
   const progressListenerSet = useRef(false)
 
   const refreshModels = useCallback(async () => {
@@ -113,6 +114,19 @@ export default function OllamaManagement(): JSX.Element {
       addToast(err instanceof Error ? err.message : 'Ollama install failed', 'error')
     } finally {
       setInstalling(false)
+    }
+  }, [refreshAll])
+
+  const handleStart = useCallback(async () => {
+    setStarting(true)
+    try {
+      await window.api.ai.startOllama()
+      addToast('Ollama started', 'success')
+      await refreshAll()
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : 'Failed to start Ollama', 'error')
+    } finally {
+      setStarting(false)
     }
   }, [refreshAll])
 
@@ -270,7 +284,12 @@ export default function OllamaManagement(): JSX.Element {
         <div className="flex items-center gap-3">
           <div className={`w-2 h-2 rounded-full ${ollamaStatus.running ? 'bg-green-400' : 'bg-gray-500'}`} />
           <span className="text-sm text-gray-300">{ollamaStatus.running ? 'Running' : 'Stopped'}</span>
-          {versionInfo && <span className="text-xs text-gray-500 font-mono">v{versionInfo.installed}</span>}
+          {/* Only show a version when one actually resolved. `installed` is the
+              string 'unknown' when the version API was unreachable (Ollama
+              stopped), which previously rendered a meaningless "vunknown". */}
+          {versionInfo && versionInfo.installed !== 'unknown' && (
+            <span className="text-xs text-gray-500 font-mono">v{versionInfo.installed}</span>
+          )}
         </div>
         <div className="flex items-center gap-2">
           {versionInfo?.updateAvailable && (
@@ -323,7 +342,16 @@ export default function OllamaManagement(): JSX.Element {
       )}
 
       {!ollamaStatus.running && (
-        <div className="text-xs text-gray-500">Ollama is installed but not running. Start it to manage models.</div>
+        <div className="flex items-center justify-between gap-3">
+          <div className="text-xs text-gray-500">Ollama is installed but not running. Start it to manage models.</div>
+          <button
+            onClick={handleStart}
+            disabled={starting || isBusy}
+            className="px-3 py-1 text-xs rounded-lg bg-green-700 hover:bg-green-600 text-white transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+          >
+            {starting ? 'Starting…' : 'Start Ollama'}
+          </button>
+        </div>
       )}
 
       {ollamaStatus.running && (

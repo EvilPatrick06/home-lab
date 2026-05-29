@@ -44,20 +44,26 @@ describe('game-data-handlers', () => {
   })
 
   describe('GAME_LOAD_JSON handler', () => {
-    it('should throw on empty path', async () => {
+    // Phase 35 — handlers are wrapped by `_safe.handle`, which converts a thrown
+    // error into a `{ success: false, error }` envelope rather than rejecting.
+    it('returns an error envelope on empty path', async () => {
       registerGameDataHandlers()
 
       const handler = mockHandle.mock.calls.find((call) => call[0] === IPC_CHANNELS.GAME_LOAD_JSON)![1]
 
-      await expect(handler({}, '')).rejects.toThrow('Invalid path')
+      const result = await handler({}, '')
+      expect(result).toMatchObject({ success: false })
+      expect((result as { error: string }).error).toContain('Invalid path')
     })
 
-    it('should throw on non-string path', async () => {
+    it('returns an error envelope on non-string path', async () => {
       registerGameDataHandlers()
 
       const handler = mockHandle.mock.calls.find((call) => call[0] === IPC_CHANNELS.GAME_LOAD_JSON)![1]
 
-      await expect(handler({}, 123)).rejects.toThrow('Invalid path')
+      const result = await handler({}, 123)
+      expect(result).toMatchObject({ success: false })
+      expect((result as { error: string }).error).toContain('Invalid path')
     })
 
     it('should load and parse JSON file', async () => {

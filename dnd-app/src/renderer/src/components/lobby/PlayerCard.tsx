@@ -142,6 +142,10 @@ export default memo(function PlayerCard({
                 DM
               </span>
             )}
+            {/* Phase 29e — the Co-DM badge is purely visual. Reflect the
+                authoritative lobby flag set by promote/demote; the flag itself
+                is what the host writes, and the permission system maps
+                isCoDM → role-codm in hasPermission. */}
             {player.isCoDM && !player.isHost && (
               <span className="flex-shrink-0 text-xs font-bold px-1.5 py-0.5 rounded bg-purple-600/30 text-purple-400 uppercase tracking-wide">
                 Co-DM

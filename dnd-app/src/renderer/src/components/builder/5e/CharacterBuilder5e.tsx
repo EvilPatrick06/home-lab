@@ -340,7 +340,9 @@ export default function CharacterBuilder5e(): JSX.Element {
       const character = await buildCharacter5e()
       await saveCharacter(character)
 
-      // If DM edited a remote player's character, send the update over the network
+      // If DM edited a remote player's character, send the update over the network.
+      // Phase 29e — structural transport gate: only the network host can
+      // broadcast `dm:character-update`. Phase 30 will revisit role-as-string.
       const { role, sendMessage } = useNetworkStore.getState()
       if (role === 'host' && character.playerId !== 'local') {
         sendMessage('dm:character-update', {

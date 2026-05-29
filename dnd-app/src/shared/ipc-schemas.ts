@@ -69,3 +69,89 @@ export const LanGameRemovedSchema = z.object({
 export type ValidatedLanPublish = z.infer<typeof LanPublishSchema>
 export type ValidatedLanGameFound = z.infer<typeof LanGameFoundSchema>
 export type ValidatedLanGameRemoved = z.infer<typeof LanGameRemovedSchema>
+
+// ── BMO Sync receiver (Phase 28a.3) ────────────────────────────────
+// Payloads accepted by the main-process sync HTTP server (Pi Discord
+// bot → VTT). Discriminated on `type` so each branch validates only
+// the fields it actually consumes.
+
+const SyncEventBaseFields = {
+  timestamp: z.number().int().nonnegative()
+}
+
+const DiscordMessagePayloadSchema = z
+  .object({
+    text: z.string().min(0).max(4000),
+    author: z.string().max(120).optional(),
+    channelId: z.string().max(64).optional(),
+    system: z.boolean().optional()
+  })
+  .loose()
+
+const DiscordRollPayloadSchema = z
+  .object({
+    formula: z.string().min(1).max(120),
+    total: z.number(),
+    rolls: z.array(z.number()).optional(),
+    rollerName: z.string().max(120).optional(),
+    reason: z.string().max(200).optional()
+  })
+  .loose()
+
+const PlayerJoinLeavePayloadSchema = z
+  .object({
+    playerId: z.string().max(64).optional(),
+    playerName: z.string().max(120).optional(),
+    discordId: z.string().max(64).optional()
+  })
+  .loose()
+
+const StateRequestPayloadSchema = z.object({}).loose()
+
+const InitiativeSyncEntrySchema = z.object({
+  entityName: z.string().min(1).max(120),
+  entityType: z.string().min(1).max(64),
+  isActive: z.boolean()
+})
+
+export const InitiativeSyncSchema = z.object({
+  entries: z.array(InitiativeSyncEntrySchema).max(64),
+  currentIndex: z.number().int().nonnegative(),
+  round: z.number().int().nonnegative()
+})
+
+export const SyncEventSchema = z.discriminatedUnion('type', [
+  z.object({
+    ...SyncEventBaseFields,
+    type: z.literal('discord_message'),
+    payload: DiscordMessagePayloadSchema
+  }),
+  z.object({
+    ...SyncEventBaseFields,
+    type: z.literal('discord_roll'),
+    payload: DiscordRollPayloadSchema
+  }),
+  z.object({
+    ...SyncEventBaseFields,
+    type: z.literal('initiative_sync'),
+    payload: InitiativeSyncSchema
+  }),
+  z.object({
+    ...SyncEventBaseFields,
+    type: z.literal('player_join'),
+    payload: PlayerJoinLeavePayloadSchema
+  }),
+  z.object({
+    ...SyncEventBaseFields,
+    type: z.literal('player_leave'),
+    payload: PlayerJoinLeavePayloadSchema
+  }),
+  z.object({
+    ...SyncEventBaseFields,
+    type: z.literal('state_request'),
+    payload: StateRequestPayloadSchema
+  })
+])
+
+export type ValidatedSyncEvent = z.infer<typeof SyncEventSchema>
+export type ValidatedInitiativeSync = z.infer<typeof InitiativeSyncSchema>

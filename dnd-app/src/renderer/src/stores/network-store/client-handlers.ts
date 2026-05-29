@@ -969,21 +969,18 @@ export function handleClientMessage(
     case 'dm:character-update': {
       const payload = message.payload as CharacterUpdatePayload
       if (payload.characterData) {
-        // Phase 23c — land DM edits in the canonical character store so the
-        // player's sheet reflects them live (the sheet reads useCharacterStore,
-        // not the lobby remoteCharacters mirror). Mirror kept for back-compat.
-        useCharacterStore
-          .getState()
-          .updateCharacterInState(
-            payload.characterId,
-            payload.characterData as import('../../types/character-5e').Character5e
-          )
-        useLobbyStore
-          .getState()
-          .setRemoteCharacter(
-            payload.characterId,
-            payload.characterData as import('../../types/character-5e').Character5e
-          )
+        // Phase 23c — DUAL-WRITE CONTRACT (transitional until 23c-full removes
+        // the lobby mirror):
+        //   1. canonical: useCharacterStore.updateCharacterInState — the sheet
+        //      reads this, so it's what makes DM edits show up live.
+        //   2. legacy mirror: useLobbyStore.setRemoteCharacter — still read by
+        //      ~29 call sites that haven't migrated off remoteCharacters yet.
+        // Both MUST receive the same payload every time, or the two stores
+        // diverge and a consumer reading the stale mirror shows wrong data.
+        // The client-handlers spec asserts this invariant.
+        const character = payload.characterData as import('../../types/character-5e').Character5e
+        useCharacterStore.getState().updateCharacterInState(payload.characterId, character)
+        useLobbyStore.getState().setRemoteCharacter(payload.characterId, character)
       }
       break
     }

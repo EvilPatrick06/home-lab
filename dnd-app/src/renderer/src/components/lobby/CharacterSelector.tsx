@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { getEffectiveClasses } from '../../services/character/effective-character-5e'
+import { localHasPermission } from '../../services/permissions/local-permission'
 import { useNetworkStore } from '../../stores/network-store'
+import { useCampaignStore } from '../../stores/use-campaign-store'
 import { useCharacterStore } from '../../stores/use-character-store'
 import { useLobbyStore } from '../../stores/use-lobby-store'
 import type { Character } from '../../types/character'
@@ -23,10 +25,22 @@ export default function CharacterSelector({ onSelect }: CharacterSelectorProps):
   const navigate = useNavigate()
   const { campaignId } = useParams<{ campaignId: string }>()
   const { characters, loading, loadCharacters } = useCharacterStore()
-  const isHost = useLobbyStore((s) => s.isHost)
   const localPeerId = useNetworkStore((s) => s.localPeerId)
-  const localPlayer = useLobbyStore((s) => s.players.find((p) => p.peerId === localPeerId))
-  const isCoDM = localPlayer?.isCoDM ?? false
+  const networkRole = useNetworkStore((s) => s.role)
+  const players = useLobbyStore((s) => s.players)
+  const localPlayer = players.find((p) => p.peerId === localPeerId)
+  const campaign = useCampaignStore((s) => s.campaigns.find((c) => c.id === campaignId)) ?? null
+  // Phase 29e — the "No Character" option is for users who run the table
+  // rather than play a PC (DM / Co-DM). Route through the permission system
+  // (`use_dm_tools`) instead of the literal `isHost || isCoDM`.
+  // `localHasPermission` falls back to the legacy host/CoDM literal for
+  // campaigns that predate the permissions block, so existing saves keep
+  // working unchanged.
+  const canSkipCharacter = localHasPermission('use_dm_tools', campaign, {
+    networkRole,
+    localPeerId,
+    peers: players
+  })
   // Phase 17c — Source the current selection from the lobby store so the
   // PC stays selected across remounts (settings open/close, page nav,
   // rejoin). Previously this was local useState which reset to `null` on
@@ -126,7 +140,7 @@ export default function CharacterSelector({ onSelect }: CharacterSelectorProps):
       {isOpen && (
         <div className="rounded-lg border border-gray-700 bg-gray-800 overflow-hidden max-h-60 overflow-y-auto">
           {/* DM / Co-DM: no character option */}
-          {(isHost || isCoDM) && (
+          {canSkipCharacter && (
             <button
               onClick={handleSelectNone}
               className={`w-full text-left px-3 py-2.5 transition-colors cursor-pointer
@@ -139,7 +153,7 @@ export default function CharacterSelector({ onSelect }: CharacterSelectorProps):
           )}
           {loading ? (
             <p className="p-3 text-sm text-gray-500 text-center">Loading...</p>
-          ) : characters.length === 0 && !isHost && !isCoDM ? (
+          ) : characters.length === 0 && !canSkipCharacter ? (
             <p className="p-3 text-sm text-gray-500 text-center">No characters found</p>
           ) : (
             <>

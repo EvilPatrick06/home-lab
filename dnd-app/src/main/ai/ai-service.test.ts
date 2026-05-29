@@ -194,6 +194,7 @@ import {
   getSceneStatus,
   initFromSavedConfig,
   loadIndex,
+  removeConversation,
   startChat,
   wasContextTruncated
 } from './ai-service'
@@ -422,6 +423,27 @@ describe('ai-service', () => {
       getConversationManager('token-test')
       const estimate = getLastTokenEstimate('token-test')
       expect(typeof estimate).toBe('number')
+    })
+  })
+
+  // Phase 22d — the campaign-delete cascade calls removeConversation() to keep
+  // the in-memory conversations Map from growing without bound.
+  describe('removeConversation (delete cascade)', () => {
+    it('evicts the conversation so a re-fetch yields a fresh manager', () => {
+      const id = 'cascade-test'
+      const first = getConversationManager(id)
+      // Same id before removal returns the SAME cached manager instance.
+      expect(getConversationManager(id)).toBe(first)
+
+      removeConversation(id)
+
+      // After eviction, re-fetching builds a brand-new manager (different ref).
+      const second = getConversationManager(id)
+      expect(second).not.toBe(first)
+    })
+
+    it('is a no-op for an unknown campaign id (no throw)', () => {
+      expect(() => removeConversation('never-existed')).not.toThrow()
     })
   })
 })

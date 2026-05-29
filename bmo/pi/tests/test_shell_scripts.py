@@ -202,6 +202,9 @@ class TestHealthCheckScript:
         make_exe("docker", "echo true")
         # sudo is a no-op
         make_exe("sudo", "exit 0")
+        # vcgencmd → clean throttle state (Phase 37c added a get_throttled check;
+        # the real binary on a Pi with throttle history would return non-zero).
+        make_exe("vcgencmd", "echo 'throttled=0x0'")
         # avahi-resolve-host-name → not found (skipped by `command -v` check)
         # tailscale → not found (skipped)
         # Provide fake /sys/class/thermal temp = 50000 (50°C) via env override

@@ -274,6 +274,10 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
   disconnect: () => {
     clearListenerCleanups()
     const { role } = get()
+    // Phase 29e — structural transport check: the disconnect path needs to
+    // know which side owns the connection (host = tear down everyone, client
+    // = just leave). Not a permission gate. Phase 30 will revisit
+    // role-as-string.
     if (role === 'host') {
       get().stopHosting()
     } else if (role === 'client') {
@@ -296,6 +300,10 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
 
   sendMessage: (type: MessageType, payload: unknown) => {
     const { role, displayName } = get()
+    // Phase 29e — structural transport gate: only the network host owns the
+    // per-peer routing path (filtered state, transform for visibility, etc).
+    // Clients fan out via the host. Not a permission gate. Phase 30 will
+    // revisit role-as-string.
     if (role === 'host') {
       // `game:state-update` requires per-peer routing — each connected peer gets
       // its own filtered/transformed copy based on its DM status. Visibility

@@ -49,6 +49,8 @@ function syncRestResult(
       useGameStore.getState().updateToken(activeMap.id, token.id, tokenHpUpdate)
     }
   }
+  // Phase 29e — structural transport gate: only the network host can
+  // broadcast `dm:character-update`. Phase 30 will revisit role-as-string.
   if (role === 'host' && result.character.playerId !== 'local') {
     sendMessage('dm:character-update', {
       characterId: result.character.id,

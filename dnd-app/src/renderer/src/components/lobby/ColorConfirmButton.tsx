@@ -46,6 +46,8 @@ export default function ColorConfirmButton(): JSX.Element | null {
     // the authoritative steps locally for the host, then broadcast a
     // `player:color-change` so any clients that join later see the same
     // confirmed color.
+    // Phase 29e — structural transport check (network role, not permission).
+    // Phase 30 will revisit role-as-string.
     if (role === 'host') {
       updatePlayer(localPeerId, { color: localColor, colorConfirmed: true })
       sendMessage('player:color-change', { color: localColor })

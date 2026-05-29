@@ -10,7 +10,13 @@ export interface EncounterPreset {
   environment: string
   difficulty: EncounterDifficulty
   partyLevelRange: string
-  monsters: Array<{ id: string; count: number }>
+  /**
+   * Each entry can optionally pre-position the resulting token(s) at a specific
+   * grid cell on the active map. When `startX`/`startY` are set, Phase 26f's
+   * `executeLoadEncounter` honours them verbatim; otherwise the entry flows
+   * through `smartPlaceTokens`.
+   */
+  monsters: Array<{ id: string; count: number; startX?: number; startY?: number }>
   tactics: string
   treasureHint: string
 }

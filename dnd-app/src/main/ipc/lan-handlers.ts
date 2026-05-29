@@ -6,13 +6,13 @@
  * BrowserWindow.webContents.send (see lan-discovery.ts).
  */
 
-import { ipcMain } from 'electron'
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
 import { publishLan, startLanScan, stopLanScan, teardownLanDiscovery, unpublishLan } from '../lan-discovery'
 import { logToFile } from '../log'
+import { handle } from './_safe'
 
 export function registerLanHandlers(): void {
-  ipcMain.handle(IPC_CHANNELS.LAN_START_SCAN, () => {
+  handle(IPC_CHANNELS.LAN_START_SCAN, () => {
     try {
       return startLanScan()
     } catch (error) {
@@ -22,16 +22,16 @@ export function registerLanHandlers(): void {
     }
   })
 
-  ipcMain.handle(IPC_CHANNELS.LAN_STOP_SCAN, () => {
+  handle(IPC_CHANNELS.LAN_STOP_SCAN, () => {
     stopLanScan()
     return { ok: true }
   })
 
-  ipcMain.handle(IPC_CHANNELS.LAN_PUBLISH, (_event, payload) => {
+  handle(IPC_CHANNELS.LAN_PUBLISH, (_event, payload) => {
     return publishLan(payload)
   })
 
-  ipcMain.handle(IPC_CHANNELS.LAN_UNPUBLISH, () => {
+  handle(IPC_CHANNELS.LAN_UNPUBLISH, () => {
     unpublishLan()
     return { ok: true }
   })

@@ -26,10 +26,26 @@ async function getCategoryDir(category: string): Promise<string> {
   return dir
 }
 
+/**
+ * How an id collision (file already exists with a *different* name) is resolved.
+ * Phase 25a Step 3 — the import UI passes an explicit choice; everything else
+ * keeps the historical `'auto'` behaviour (silently assign a fresh id, i.e. copy).
+ *  - `'auto'`    : different-name collision → assign a new id (default, back-compat)
+ *  - `'copy'`    : always assign a new id, even for a same-name collision
+ *  - `'replace'` : overwrite the existing file, keeping the incoming id
+ */
+export type HomebrewConflictMode = 'auto' | 'copy' | 'replace'
+
 export async function saveHomebrewEntry(entry: Record<string, unknown>): Promise<StorageResult<void>> {
   try {
     let id = entry.id as string
     const type = entry.type as string
+    const conflictMode = (entry.__conflictMode as HomebrewConflictMode | undefined) ?? 'auto'
+    if (entry.__conflictMode !== undefined) {
+      // Strip the transient hint so it never lands on disk.
+      const { __conflictMode: _drop, ...rest } = entry
+      entry = rest
+    }
     if (!id || !type) {
       return { success: false, error: 'Entry must have id and type' }
     }
@@ -39,20 +55,25 @@ export async function saveHomebrewEntry(entry: Record<string, unknown>): Promise
     const dir = await getCategoryDir(type)
     const path = join(dir, `${id}.json`)
 
-    // Check if file already exists with a different entry to prevent overwrites
-    try {
-      await access(path)
-      // File exists — check if it's the same entry (update) or a collision
-      const existing = JSON.parse(await readFile(path, 'utf-8'))
-      if (existing.id === id && existing.name !== entry.name) {
-        // Different name = likely a different entry that collided; generate new ID
-        id = randomUUID()
-        entry = { ...entry, id }
+    if (conflictMode === 'copy') {
+      // Caller explicitly wants a duplicate — always a fresh id.
+      id = randomUUID()
+      entry = { ...entry, id }
+    } else if (conflictMode === 'auto') {
+      // Historical behaviour: only regenerate on a different-name collision.
+      try {
+        await access(path)
+        const existing = JSON.parse(await readFile(path, 'utf-8'))
+        if (existing.id === id && existing.name !== entry.name) {
+          id = randomUUID()
+          entry = { ...entry, id }
+        }
+        // Same name = intentional update, allow overwrite.
+      } catch {
+        // File doesn't exist — safe to write.
       }
-      // Same name = intentional update, allow overwrite
-    } catch {
-      // File doesn't exist — safe to write
     }
+    // conflictMode === 'replace' → keep id, overwrite unconditionally.
 
     const writePath = join(dir, `${id}.json`)
     await atomicWriteFile(writePath, JSON.stringify(entry, null, 2), 'utf-8')

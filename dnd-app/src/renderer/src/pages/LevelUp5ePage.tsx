@@ -85,7 +85,9 @@ export default function LevelUp5ePage(): JSX.Element {
       const updated = await applyLevelUp()
       await useCharacterStore.getState().saveCharacter(updated)
 
-      // Broadcast if DM editing remote player
+      // Broadcast if DM editing remote player.
+      // Phase 29e — structural transport gate: only the network host can
+      // broadcast `dm:character-update`. Phase 30 will revisit role-as-string.
       const { role, sendMessage } = useNetworkStore.getState()
       if (role === 'host' && updated.playerId !== 'local') {
         sendMessage('dm:character-update', {

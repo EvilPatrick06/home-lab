@@ -62,6 +62,11 @@ export default function DMAudioPanel(): JSX.Element {
 
   const campaignId = useGameStore((s) => s.campaignId)
   const sendMessage = useNetworkStore((s) => s.sendMessage)
+  // Phase 29e — `isHost` here is a structural transport check used to gate
+  // outbound `dm:` audio broadcasts to remote peers. The user-facing "should I
+  // see the DM audio panel at all" decision is made upstream (this panel only
+  // mounts behind a `manage_audio`/`use_dm_tools` gate). Phase 30 will revisit
+  // role-as-string and may swap this for a network-layer helper.
   const isHost = useNetworkStore((s) => s.role === 'host')
 
   // Phase 27j — playlists

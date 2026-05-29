@@ -36,6 +36,10 @@ export default function LobbyPage(): JSX.Element {
   const hasInitialized = useRef(false)
 
   const campaign = campaigns.find((c) => c.id === campaignId)
+  // Phase 29e — `isHost` here is a structural transport check used only to
+  // decide whether to run the host-side AI DM scene-prep poller. Gameplay
+  // gates (DM tools, moderation, etc.) flow through `localHasPermission`
+  // elsewhere. Phase 30 will revisit role-as-string.
   const isHost = role === 'host'
   const sceneStatus = useAiDmStore((s) => s.sceneStatus)
 
@@ -84,6 +88,9 @@ export default function LobbyPage(): JSX.Element {
         // player stays in the lobby on "Reconnecting…" forever after the host
         // ends the session.
         reason === 'The game session has ended' ||
+        // Phase 29e — structural transport check: the host is the one who
+        // triggered the disconnect themselves (e.g. via Stop Hosting), so
+        // it's intentional. Not a permission gate. Phase 30 will revisit.
         role === 'host' ||
         // P-1 (v2.1.31 QA): solo play has role === 'none' and never establishes
         // a network connection at all. After Return-to-Lobby the lobby was

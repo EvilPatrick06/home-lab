@@ -58,6 +58,7 @@ import {
 } from '../storage/map-library-storage'
 import { AppSettingsSchema, loadSettings, saveSettings } from '../storage/settings-storage'
 import { deleteShopTemplate, getShopTemplate, listShopTemplates, saveShopTemplate } from '../storage/shop-storage'
+import { wipeAllData } from '../storage/wipe-storage'
 import { validateUploadExtension } from '../upload-validation'
 import { handle } from './_safe'
 
@@ -96,6 +97,14 @@ export function registerStorageHandlers(): void {
       return result.data
     }
     return { success: false, error: result.error ?? 'Failed to delete character' }
+  })
+
+  // --- Reset All Data: wipe every file-based content directory ---
+  handle(IPC_CHANNELS.WIPE_ALL_DATA, async () => {
+    const result = await wipeAllData()
+    return result.success
+      ? { success: true, removed: result.data?.removed ?? [] }
+      : { success: false, error: result.error }
   })
 
   handle(IPC_CHANNELS.CHARACTER_VERSIONS, async (_event, id: string) => {

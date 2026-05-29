@@ -5,17 +5,17 @@
  * - Registers IPC handlers for the renderer to push state to the Pi (VTT → Pi)
  */
 
-import { ipcMain } from 'electron'
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
 import { sendGameStateToPi, sendInitiativeToPi, startSyncReceiver, stopSyncReceiver } from '../bmo-bridge'
 import { logToFile } from '../log'
+import { handle } from './_safe'
 
 export function registerBmoSyncHandlers(): void {
   // Start the sync receiver so the Pi can push events to us
   startSyncReceiver()
 
   // Renderer pushes initiative state → we forward to Pi
-  ipcMain.handle(IPC_CHANNELS.BMO_SYNC_INITIATIVE, async (_event, initiative) => {
+  handle(IPC_CHANNELS.BMO_SYNC_INITIATIVE, async (_event, initiative) => {
     try {
       const result = await sendInitiativeToPi(initiative)
       return result
@@ -27,7 +27,7 @@ export function registerBmoSyncHandlers(): void {
   })
 
   // Renderer pushes game state snapshot → we forward to Pi
-  ipcMain.handle(IPC_CHANNELS.BMO_SYNC_SEND_STATE, async (_event, state) => {
+  handle(IPC_CHANNELS.BMO_SYNC_SEND_STATE, async (_event, state) => {
     try {
       const result = await sendGameStateToPi(state)
       return result

@@ -7,6 +7,12 @@ import en from './locales/en.json'
  */
 export async function initI18n(): Promise<void> {
   if (i18n.isInitialized) return
+  // Phase 34a — single default namespace `translation` holding the whole
+  // en.json tree. Keys are addressed by their full dotted path
+  // (`t('common.actions.save')`, `t('lobby.title')`, …), where `common`,
+  // `lobby`, … are top-level objects inside en.json. This is deliberately
+  // NOT `defaultNS: 'common'` — that would make `t('actions.save')` resolve
+  // but break every `t('common.*')` / `t('lobby.*')` call the sweeps add.
   await i18n.init({
     resources: { en: { translation: en } },
     lng: 'en',

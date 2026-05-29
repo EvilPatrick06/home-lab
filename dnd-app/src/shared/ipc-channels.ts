@@ -12,6 +12,12 @@ export const IPC_CHANNELS = {
   LOAD_CHARACTERS: 'storage:load-characters',
   DELETE_CHARACTER: 'storage:delete-character',
 
+  // === Storage: Reset ===
+  // Wipe every file-based content directory under userData (characters,
+  // campaigns, homebrew, library assets, …) for the Settings → Reset All Data
+  // action. The renderer additionally clears localStorage + in-memory stores.
+  WIPE_ALL_DATA: 'storage:wipe-all-data',
+
   // === Storage: Campaigns ===
   SAVE_CAMPAIGN: 'storage:save-campaign',
   LOAD_CAMPAIGN: 'storage:load-campaign',

@@ -602,3 +602,32 @@ export const ClassSchema = z.object({
 
   classTables: z.array(RandomTableSchema).optional(),
 });
+
+// ─────────────────────────────────────────────────────────────
+// File-level wrapper schema (matches the wrapper-object shape
+// used by src/renderer/public/data/5e/character/classes.json).
+// Records use passthrough since the shipped file uses
+// snake_case keys distinct from the strict ClassSchema above.
+// ─────────────────────────────────────────────────────────────
+
+const ClassRecordSchema = z
+  .object({
+    name: z.string(),
+  })
+  .passthrough();
+
+const ClassesChapterSchema = z
+  .object({
+    title: z.string().optional(),
+    description: z.string().optional(),
+  })
+  .passthrough();
+
+export const ClassesFileSchema = z
+  .object({
+    chapter: ClassesChapterSchema,
+    classes: z.array(ClassRecordSchema).min(1),
+  })
+  .passthrough();
+
+export type ClassesFile = z.infer<typeof ClassesFileSchema>;

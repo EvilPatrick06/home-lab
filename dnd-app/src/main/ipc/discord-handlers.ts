@@ -1,4 +1,3 @@
-import { ipcMain } from 'electron'
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
 import {
   type DiscordIntegrationConfig,
@@ -9,10 +8,11 @@ import {
   validateDiscordConfig
 } from '../discord-integration'
 import { logToFile } from '../log'
+import { handle } from './_safe'
 
 export function registerDiscordHandlers(): void {
   // Get current Discord integration configuration
-  ipcMain.handle(IPC_CHANNELS.DISCORD_GET_CONFIG, async () => {
+  handle(IPC_CHANNELS.DISCORD_GET_CONFIG, async () => {
     try {
       const config = await loadDiscordConfig()
       return {
@@ -34,7 +34,7 @@ export function registerDiscordHandlers(): void {
   })
 
   // Save Discord integration configuration
-  ipcMain.handle(IPC_CHANNELS.DISCORD_SAVE_CONFIG, async (_event, config: DiscordIntegrationConfig) => {
+  handle(IPC_CHANNELS.DISCORD_SAVE_CONFIG, async (_event, config: DiscordIntegrationConfig) => {
     try {
       // Validate before saving
       const validation = validateDiscordConfig(config)
@@ -53,7 +53,7 @@ export function registerDiscordHandlers(): void {
   })
 
   // Test Discord connection
-  ipcMain.handle(IPC_CHANNELS.DISCORD_TEST_CONNECTION, async () => {
+  handle(IPC_CHANNELS.DISCORD_TEST_CONNECTION, async () => {
     try {
       const result = await sendTestMessage()
       return result
@@ -65,7 +65,7 @@ export function registerDiscordHandlers(): void {
   })
 
   // Send a message to Discord (manual trigger)
-  ipcMain.handle(IPC_CHANNELS.DISCORD_SEND_MESSAGE, async (_event, text: string, campaignName?: string) => {
+  handle(IPC_CHANNELS.DISCORD_SEND_MESSAGE, async (_event, text: string, campaignName?: string) => {
     try {
       const result = await sendNarrationToDiscord(text, campaignName)
       return result

@@ -841,3 +841,22 @@ export const BestiarySchema = z.object({
 
   lair: LairSchema.optional(),
 });
+
+// ─────────────────────────────────────────────────────────────
+// File-level wrapper schema (matches the raw-array root shape
+// used by dm/npcs/{monsters,creatures,npcs}.json).
+// Records use passthrough since the shipped bestiary entries
+// use a simpler shape (id/name/ac/hp/...) than the strict
+// BestiarySchema above.
+// ─────────────────────────────────────────────────────────────
+
+const BestiaryRecordSchema = z
+  .object({
+    id: z.string(),
+    name: z.string(),
+  })
+  .passthrough();
+
+export const BestiaryFileSchema = z.array(BestiaryRecordSchema).min(1);
+
+export type BestiaryFile = z.infer<typeof BestiaryFileSchema>;

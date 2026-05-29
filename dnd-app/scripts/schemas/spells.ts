@@ -569,3 +569,24 @@ const SpellSchema = z.object({
 export const SpellsSchema = z.object({
   spells: z.array(SpellSchema),
 });
+
+// ─────────────────────────────────────────────────────────────
+// File-level wrapper schema (matches the raw-array root shape
+// used by src/renderer/public/data/5e/spells/spells.json).
+// Records use passthrough since the shipped spell entries use
+// a simpler shape (id/name/level/school/castingTime/...) than
+// the strict SpellSchema above, which captures the full design
+// contract for VTT automation.
+// ─────────────────────────────────────────────────────────────
+
+const SpellRecordSchema = z
+  .object({
+    id: z.string(),
+    name: z.string(),
+    level: z.number().int().min(0).max(9),
+  })
+  .passthrough();
+
+export const SpellsFileSchema = z.array(SpellRecordSchema).min(1);
+
+export type SpellsFile = z.infer<typeof SpellsFileSchema>;

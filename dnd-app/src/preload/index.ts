@@ -7,6 +7,8 @@ const api = {
   loadCharacters: () => ipcRenderer.invoke(IPC_CHANNELS.LOAD_CHARACTERS),
   loadCharacter: (id: string) => ipcRenderer.invoke(IPC_CHANNELS.LOAD_CHARACTER, id),
   deleteCharacter: (id: string) => ipcRenderer.invoke(IPC_CHANNELS.DELETE_CHARACTER, id),
+  // Reset All Data — wipe every file-based content directory under userData.
+  wipeAllData: () => ipcRenderer.invoke(IPC_CHANNELS.WIPE_ALL_DATA),
   listCharacterVersions: (id: string) => ipcRenderer.invoke(IPC_CHANNELS.CHARACTER_VERSIONS, id),
   restoreCharacterVersion: (id: string, fileName: string) =>
     ipcRenderer.invoke(IPC_CHANNELS.CHARACTER_RESTORE_VERSION, id, fileName),

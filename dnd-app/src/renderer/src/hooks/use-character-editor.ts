@@ -13,6 +13,11 @@ export function useCharacterEditor(characterId: string) {
 
   const broadcastIfDM = (updated: Character): void => {
     const { role, sendMessage } = useNetworkStore.getState()
+    // Phase 29e — structural transport gate: only the network host can
+    // broadcast `dm:character-update` to relay an authoritative sheet edit
+    // to a remote player. Per-sheet write authorization happens upstream
+    // via localHasPermission('edit_any_sheet'/'edit_own_sheet').
+    // Phase 30 will revisit role-as-string.
     if (role === 'host' && updated.playerId !== 'local') {
       sendMessage('dm:character-update', {
         characterId: updated.id,

@@ -65,3 +65,27 @@ export const BackgroundSchema = z.object({
 });
 
 export type Background = z.infer<typeof BackgroundSchema>;
+
+// ─────────────────────────────────────────────────────────────
+// File-level wrapper schema (matches the wrapper-object shape
+// used by src/renderer/public/data/5e/character/backgrounds.json).
+// Records use passthrough to tolerate snake_case / homebrew
+// fields while still requiring identifying keys.
+// ─────────────────────────────────────────────────────────────
+
+const BackgroundRecordSchema = z
+  .object({
+    name: z.string(),
+  })
+  .passthrough();
+
+export const BackgroundsFileSchema = z
+  .object({
+    section: z.string(),
+    description: z.string(),
+    total_count: z.number(),
+    backgrounds: z.array(BackgroundRecordSchema).min(1),
+  })
+  .passthrough();
+
+export type BackgroundsFile = z.infer<typeof BackgroundsFileSchema>;

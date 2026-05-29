@@ -1,13 +1,13 @@
 import fs from 'node:fs'
 import { z } from 'zod'
 
-import { BackgroundSchema } from '../schemas/backgrounds'
-import { BestiarySchema } from '../schemas/bestiary'
-import { ClassSchema } from '../schemas/classes'
+import { BackgroundsFileSchema } from '../schemas/backgrounds'
+import { BestiaryFileSchema } from '../schemas/bestiary'
+import { ClassesFileSchema } from '../schemas/classes'
 import { FeatSchema } from '../schemas/feats'
 import { MechanicsSchema } from '../schemas/mechanics'
 import { SpeciesSchema } from '../schemas/species'
-import { SpellsSchema } from '../schemas/spells'
+import { SpellsFileSchema } from '../schemas/spells'
 import { WorldSchema } from '../schemas/world'
 
 const DATA = 'src/renderer/public/data/5e'
@@ -15,12 +15,12 @@ const DATA = 'src/renderer/public/data/5e'
 type Pair = { schema: z.ZodTypeAny; file: string; label: string }
 
 const pairs: Pair[] = [
-  { schema: SpellsSchema, file: `${DATA}/spells/spells.json`, label: 'spells/spells.json (SpellsSchema)' },
-  { schema: BestiarySchema, file: `${DATA}/dm/npcs/monsters.json`, label: 'dm/npcs/monsters.json (BestiarySchema)' },
-  { schema: BestiarySchema, file: `${DATA}/dm/npcs/creatures.json`, label: 'dm/npcs/creatures.json (BestiarySchema)' },
-  { schema: BestiarySchema, file: `${DATA}/dm/npcs/npcs.json`, label: 'dm/npcs/npcs.json (BestiarySchema)' },
-  { schema: ClassSchema, file: `${DATA}/character/classes.json`, label: 'character/classes.json (ClassSchema)' },
-  { schema: BackgroundSchema, file: `${DATA}/character/backgrounds.json`, label: 'character/backgrounds.json (BackgroundSchema)' },
+  { schema: SpellsFileSchema, file: `${DATA}/spells/spells.json`, label: 'spells/spells.json (SpellsFileSchema)' },
+  { schema: BestiaryFileSchema, file: `${DATA}/dm/npcs/monsters.json`, label: 'dm/npcs/monsters.json (BestiaryFileSchema)' },
+  { schema: BestiaryFileSchema, file: `${DATA}/dm/npcs/creatures.json`, label: 'dm/npcs/creatures.json (BestiaryFileSchema)' },
+  { schema: BestiaryFileSchema, file: `${DATA}/dm/npcs/npcs.json`, label: 'dm/npcs/npcs.json (BestiaryFileSchema)' },
+  { schema: ClassesFileSchema, file: `${DATA}/character/classes.json`, label: 'character/classes.json (ClassesFileSchema)' },
+  { schema: BackgroundsFileSchema, file: `${DATA}/character/backgrounds.json`, label: 'character/backgrounds.json (BackgroundsFileSchema)' },
   { schema: FeatSchema, file: `${DATA}/feats/feats.json`, label: 'feats/feats.json (FeatSchema)' },
   { schema: MechanicsSchema, file: `${DATA}/game/mechanics/conditions.json`, label: 'game/mechanics/conditions.json (MechanicsSchema)' },
   { schema: SpeciesSchema, file: `${DATA}/character/species.json`, label: 'character/species.json (SpeciesSchema)' },
@@ -49,3 +49,4 @@ for (const p of pairs) {
   }
 }
 console.log(`\n=== Total errors: ${totalErrors} ===`)
+if (totalErrors > 0) process.exit(1)

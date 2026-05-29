@@ -36,6 +36,8 @@ function HitPointsBar5e({ character, effectiveCharacter, readonly }: HitPointsBa
     saveCharacter(updated)
 
     const { role, sendMessage } = useNetworkStore.getState()
+    // Phase 29e — structural transport gate: only the network host can
+    // broadcast `dm:character-update`. Phase 30 will revisit role-as-string.
     if (role === 'host' && updated.playerId !== 'local') {
       sendMessage('dm:character-update', {
         characterId: updated.id,

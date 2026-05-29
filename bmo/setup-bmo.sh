@@ -70,7 +70,7 @@ dtoverlay=pciex1-compat-pi5,no-l0s
 dtparam=fan_temp0=60000,fan_temp0_hyst=5000,fan_temp0_speed=50
 dtparam=fan_temp1=67000,fan_temp1_hyst=5000,fan_temp1_speed=100
 dtparam=fan_temp2=75000,fan_temp2_hyst=5000,fan_temp2_speed=175
-dtparam=fan_temp3=80000,fan_temp3_hyst=5000,fan_temp3_speed=250
+dtparam=fan_temp3=80000,fan_temp3_hyst=5000,fan_temp3_speed=255
 
 # RTC battery charging
 dtparam=rtc_bbat_vchg=3000000

@@ -1,6 +1,7 @@
 import {
   type AmbientSound,
   getAllAmbientSounds,
+  getAmbientVolume,
   getCurrentAmbient,
   playAmbient,
   setAmbientVolume,
@@ -82,7 +83,12 @@ const soundCommand: ChatCommand = {
         }
         playAmbient(fullName)
         // Phase 27e — sync the ambient to connected players (matches DMAudioPanel).
-        useNetworkStore.getState().sendMessage?.('dm:play-ambient', { ambient: fullName })
+        // Include the current DM ambient volume so clients hear the same loudness
+        // the DM hears locally, not the default.
+        useNetworkStore.getState().sendMessage?.('dm:play-ambient', {
+          ambient: fullName,
+          volume: getAmbientVolume()
+        })
         return { type: 'broadcast', content: `Ambient sound: ${ambientName}` }
       }
 

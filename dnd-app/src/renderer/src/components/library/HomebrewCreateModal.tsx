@@ -1,10 +1,17 @@
 import { useCallback, useState } from 'react'
 import { addToast } from '../../hooks/use-toast'
 import type { HomebrewFeatEffect } from '../../services/character/homebrew-effects'
-import { exportAllHomebrew, importHomebrew } from '../../services/io/homebrew-io'
+import { validateHomebrew } from '../../services/homebrew-validation'
+import { exportAllHomebrew, type HomebrewCollisionChoice, importHomebrew } from '../../services/io/homebrew-io'
 import { useCampaignStore } from '../../stores/use-campaign-store'
 import type { HomebrewEntry, LibraryCategory, LibraryItem } from '../../types/library'
 import { getCategoryDef } from '../../types/library'
+
+interface CollisionPrompt {
+  incoming: HomebrewEntry
+  existing: HomebrewEntry
+  resolve: (choice: HomebrewCollisionChoice) => void
+}
 
 interface HomebrewCreateModalProps {
   category: LibraryCategory
@@ -117,6 +124,7 @@ export default function HomebrewCreateModal({
   const [formData, setFormData] = useState<Record<string, unknown>>(initialData)
   const [newFieldKey, setNewFieldKey] = useState('')
   const [saving, setSaving] = useState(false)
+  const [collisionPrompt, setCollisionPrompt] = useState<CollisionPrompt | null>(null)
 
   // Phase 25c — campaign-scoped homebrew. Only offer the toggle when a campaign
   // is active. Default ON for new entries created inside a campaign; for edits,
@@ -166,26 +174,56 @@ export default function HomebrewCreateModal({
       }
     }
 
+    const entry: HomebrewEntry = {
+      id: isEditing ? (existingItem!.data._homebrewId as string) : crypto.randomUUID(),
+      type: category,
+      name,
+      data: { ...formData, id: `homebrew-${crypto.randomUUID().slice(0, 8)}` },
+      basedOn: basedOn ?? existingItem?.id,
+      // Phase 25c — scope to the active campaign when the toggle is on.
+      campaignId: campaignOnly && activeCampaignId ? activeCampaignId : undefined,
+      createdAt: isEditing
+        ? (existingItem!.data._createdAt as string) || new Date().toISOString()
+        : new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }
+
+    // Phase 25d — validate on save (the import path already validates). Hard
+    // errors (missing id/name/type) block; schema warnings are surfaced but
+    // don't stop the save.
+    const validation = validateHomebrew(entry)
+    if (!validation.valid) {
+      addToast(`Cannot save: ${validation.errors.join(', ')}`, 'error')
+      return
+    }
+    if (validation.warnings.length > 0) {
+      addToast(`Saved with warnings: ${validation.warnings.join(', ')}`, 'warning')
+    }
+
     setSaving(true)
     try {
-      const entry: HomebrewEntry = {
-        id: isEditing ? (existingItem!.data._homebrewId as string) : crypto.randomUUID(),
-        type: category,
-        name,
-        data: { ...formData, id: `homebrew-${crypto.randomUUID().slice(0, 8)}` },
-        basedOn: basedOn ?? existingItem?.id,
-        // Phase 25c — scope to the active campaign when the toggle is on.
-        campaignId: campaignOnly && activeCampaignId ? activeCampaignId : undefined,
-        createdAt: isEditing
-          ? (existingItem!.data._createdAt as string) || new Date().toISOString()
-          : new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      }
       await onSave(entry)
     } finally {
       setSaving(false)
     }
   }
+
+  // Phase 25a Step 3 — resolve an import id-collision (same id, different name)
+  // by prompting the user. Returns a promise the import loop awaits.
+  const resolveCollision = useCallback(
+    (incoming: HomebrewEntry, existing: HomebrewEntry): Promise<HomebrewCollisionChoice> =>
+      new Promise((resolve) => {
+        setCollisionPrompt({
+          incoming,
+          existing,
+          resolve: (choice) => {
+            setCollisionPrompt(null)
+            resolve(choice)
+          }
+        })
+      }),
+    []
+  )
 
   const handleBackdropClick = useCallback(
     (e: React.MouseEvent) => {
@@ -223,10 +261,11 @@ export default function HomebrewCreateModal({
             </button>
             <button
               onClick={async () => {
-                const summary = await importHomebrew()
+                const summary = await importHomebrew(resolveCollision)
                 if (summary) {
+                  const skipped = summary.skipped > 0 ? `, ${summary.skipped} skipped` : ''
                   addToast(
-                    `Imported ${summary.imported} item${summary.imported === 1 ? '' : 's'}, ${summary.errors} error${summary.errors === 1 ? '' : 's'}`,
+                    `Imported ${summary.imported} item${summary.imported === 1 ? '' : 's'}, ${summary.errors} error${summary.errors === 1 ? '' : 's'}${skipped}`,
                     summary.errors > 0 ? 'warning' : 'success'
                   )
                 }
@@ -351,6 +390,41 @@ export default function HomebrewCreateModal({
           </button>
         </div>
       </div>
+
+      {/* Phase 25a Step 3 — id-collision resolver during import. */}
+      {collisionPrompt && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center" role="dialog" aria-modal="true">
+          <div className="absolute inset-0 bg-black/70" aria-hidden="true" />
+          <div className="relative bg-gray-900 border border-gray-700 rounded-lg w-full max-w-sm mx-4 p-5">
+            <h3 className="text-lg font-bold text-gray-100 mb-2">Homebrew already exists</h3>
+            <p className="text-sm text-gray-400 mb-4">
+              An entry with this id already exists as{' '}
+              <span className="text-gray-200">"{collisionPrompt.existing.name}"</span>. The file you're importing calls
+              it <span className="text-gray-200">"{collisionPrompt.incoming.name}"</span>. What should happen?
+            </p>
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() => collisionPrompt.resolve('copy')}
+                className="px-4 py-2 rounded bg-amber-600 hover:bg-amber-500 text-white font-semibold text-sm cursor-pointer"
+              >
+                Import as a copy (new id)
+              </button>
+              <button
+                onClick={() => collisionPrompt.resolve('replace')}
+                className="px-4 py-2 rounded border border-red-600 text-red-300 hover:bg-red-900/30 font-semibold text-sm cursor-pointer"
+              >
+                Replace the existing entry
+              </button>
+              <button
+                onClick={() => collisionPrompt.resolve('skip')}
+                className="px-4 py-2 rounded border border-gray-600 text-gray-300 hover:bg-gray-800 font-semibold text-sm cursor-pointer"
+              >
+                Skip this one
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

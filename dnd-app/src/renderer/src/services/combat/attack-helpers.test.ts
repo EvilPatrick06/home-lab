@@ -89,10 +89,17 @@ describe('doubleDiceInFormula', () => {
     expect(doubleDiceInFormula('1d20')).toBe('2d20')
   })
 
-  it('only doubles the first dice group (per regex behavior)', () => {
-    // The regex replaces only the first match
-    const result = doubleDiceInFormula('1d8+1d6')
-    expect(result).toBe('2d8+1d6')
+  it('doubles every dice group in a multi-die formula', () => {
+    // Phase 17c LOG-2: the `g` flag means EVERY dice group doubles on a crit.
+    expect(doubleDiceInFormula('1d8+1d6')).toBe('2d8+2d6')
+  })
+
+  it('doubles every group in a Sneak-Attack-shaped formula', () => {
+    expect(doubleDiceInFormula('1d8+3d6+4')).toBe('2d8+6d6+4')
+  })
+
+  it('doubles every group in a Divine-Smite-shaped formula', () => {
+    expect(doubleDiceInFormula('1d8+2d8')).toBe('2d8+4d8')
   })
 })
 

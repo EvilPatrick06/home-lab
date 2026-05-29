@@ -103,6 +103,10 @@ function useCharacterSelectBridge(role: string, localPeerId: string | null): voi
       }
     }
 
+    // Phase 29e — structural network-routing: the host subscribes to peers'
+    // inbound messages via `onHostMessage`, clients subscribe to the host's
+    // broadcasts via `onClientMessage`. Not a permission gate. Phase 30 will
+    // revisit role-as-string.
     if (role === 'host') {
       return onHostMessage(handleCharacterSelect)
     } else if (role === 'client') {
@@ -170,6 +174,7 @@ export function useChatBridge(role: string, localPeerId: string | null): void {
       })
     }
 
+    // Phase 29e — structural network-routing (see useCharacterSelectBridge).
     if (role === 'host') {
       return onHostMessage((msg) => {
         if (msg.type === 'chat:message') {
@@ -282,6 +287,7 @@ function useChatTimeoutBridge(role: string): void {
       })
     }
 
+    // Phase 29e — structural network-routing (see useCharacterSelectBridge).
     if (role === 'host') {
       return onHostMessage(handleTimeout)
     } else if (role === 'client') {

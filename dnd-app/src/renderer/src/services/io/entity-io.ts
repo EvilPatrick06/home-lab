@@ -30,7 +30,14 @@ export type EntityType =
   | 'homebrew'
 
 export interface ExportEnvelope<T = unknown> {
+  /** Envelope format version (the wrapper shape itself). */
   version: 1
+  /**
+   * Content schema version of the `data` payload (Phase 25a Step 4). Lets a
+   * future import fallback-default fields that didn't exist when an older file
+   * was exported. Bump this when an entity's field set changes.
+   */
+  schemaVersion: 1
   type: EntityType
   exportedAt: string
   count: number
@@ -81,6 +88,10 @@ function validateEnvelope(parsed: unknown, expectedType: EntityType): ExportEnve
   if (env.type !== expectedType) return null
   if (env.data === undefined) return null
 
+  // Phase 25a Step 4 — back-compat: files exported before `schemaVersion`
+  // existed default to schema 1. Newer files carry it explicitly.
+  if (env.schemaVersion === undefined) env.schemaVersion = 1
+
   return env as unknown as ExportEnvelope
 }
 
@@ -99,6 +110,7 @@ export async function exportEntities<T>(type: EntityType, items: T[], _suggested
   try {
     const envelope: ExportEnvelope<T> = {
       version: 1,
+      schemaVersion: 1,
       type,
       exportedAt: new Date().toISOString(),
       count: items.length,

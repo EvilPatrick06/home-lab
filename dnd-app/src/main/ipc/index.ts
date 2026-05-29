@@ -1,10 +1,11 @@
 import { readFile, stat, writeFile } from 'node:fs/promises'
 import { isAbsolute, relative, resolve } from 'node:path'
 import { is } from '@electron-toolkit/utils'
-import { app, BrowserWindow, dialog, ipcMain } from 'electron'
+import { app, BrowserWindow, dialog } from 'electron'
 import { MAX_READ_FILE_SIZE, MAX_WRITE_CONTENT_SIZE } from '../../shared/constants'
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
 import { logToFile } from '../log'
+import { handle } from './_safe'
 import { registerAiHandlers } from './ai-handlers'
 import { registerAudioHandlers } from './audio-handlers'
 import { registerBmoSyncHandlers } from './bmo-sync-handlers'
@@ -63,7 +64,7 @@ export function registerIpcHandlers(): void {
 
   // --- File dialogs ---
 
-  ipcMain.handle(
+  handle(
     IPC_CHANNELS.DIALOG_SAVE,
     async (_event, options: { title: string; filters: Array<{ name: string; extensions: string[] }> }) => {
       // Phase 17d (RUN-7) — `getAllWindows()[0]` is undefined when no window exists, which
@@ -79,7 +80,7 @@ export function registerIpcHandlers(): void {
     }
   )
 
-  ipcMain.handle(
+  handle(
     IPC_CHANNELS.DIALOG_OPEN,
     async (_event, options: { title: string; filters: Array<{ name: string; extensions: string[] }> }) => {
       // Phase 17d (RUN-7) — parent-less fallback when no window exists (see DIALOG_SAVE).
@@ -96,7 +97,7 @@ export function registerIpcHandlers(): void {
 
   // --- File I/O (restricted to dialog-selected paths and userData) ---
 
-  ipcMain.handle(IPC_CHANNELS.FS_READ, async (_event, filePath: string) => {
+  handle(IPC_CHANNELS.FS_READ, async (_event, filePath: string) => {
     if (!isPathAllowed(filePath)) {
       throw new Error('Access denied: path not allowed')
     }
@@ -116,7 +117,7 @@ export function registerIpcHandlers(): void {
     // Dialog path is NOT consumed on read so the caller can subsequently write to the same path.
   })
 
-  ipcMain.handle(IPC_CHANNELS.FS_READ_BINARY, async (_event, filePath: string) => {
+  handle(IPC_CHANNELS.FS_READ_BINARY, async (_event, filePath: string) => {
     if (!isPathAllowed(filePath)) {
       throw new Error('Access denied: path not allowed')
     }
@@ -136,7 +137,7 @@ export function registerIpcHandlers(): void {
     }
   })
 
-  ipcMain.handle(IPC_CHANNELS.FS_WRITE, async (_event, filePath: string, content: string) => {
+  handle(IPC_CHANNELS.FS_WRITE, async (_event, filePath: string, content: string) => {
     if (!isPathAllowed(filePath)) {
       throw new Error('Access denied: path not allowed')
     }
@@ -154,7 +155,7 @@ export function registerIpcHandlers(): void {
     }
   })
 
-  ipcMain.handle(IPC_CHANNELS.FS_WRITE_BINARY, async (_event, filePath: string, buffer: ArrayBuffer) => {
+  handle(IPC_CHANNELS.FS_WRITE_BINARY, async (_event, filePath: string, buffer: ArrayBuffer) => {
     if (!isPathAllowed(filePath)) {
       throw new Error('Access denied: path not allowed')
     }
@@ -175,7 +176,7 @@ export function registerIpcHandlers(): void {
 
   // --- Window controls ---
 
-  ipcMain.handle(IPC_CHANNELS.TOGGLE_FULLSCREEN, async (event) => {
+  handle(IPC_CHANNELS.TOGGLE_FULLSCREEN, async (event) => {
     const win = BrowserWindow.fromWebContents(event.sender)
     if (win) {
       win.setFullScreen(!win.isFullScreen())
@@ -184,12 +185,12 @@ export function registerIpcHandlers(): void {
     return false
   })
 
-  ipcMain.handle(IPC_CHANNELS.IS_FULLSCREEN, async (event) => {
+  handle(IPC_CHANNELS.IS_FULLSCREEN, async (event) => {
     const win = BrowserWindow.fromWebContents(event.sender)
     return win?.isFullScreen() ?? false
   })
 
-  ipcMain.handle(IPC_CHANNELS.OPEN_DEVTOOLS, async (event) => {
+  handle(IPC_CHANNELS.OPEN_DEVTOOLS, async (event) => {
     if (!is.dev) return // Only allow DevTools in development
     const win = BrowserWindow.fromWebContents(event.sender)
     if (win) {

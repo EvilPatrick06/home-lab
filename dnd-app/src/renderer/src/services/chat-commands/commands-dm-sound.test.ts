@@ -11,6 +11,7 @@ vi.mock('../../services/sound-manager', () => ({
   setEnabled: vi.fn(),
   setVolume: vi.fn(),
   setAmbientVolume: vi.fn(),
+  getAmbientVolume: vi.fn(() => 0.3),
   playAmbient: vi.fn(),
   stopAmbient: vi.fn(),
   getCurrentAmbient: vi.fn(() => null),

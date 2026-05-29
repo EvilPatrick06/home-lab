@@ -11,6 +11,7 @@ interface CharacterAPI {
   loadCharacters: () => Promise<Record<string, unknown>[]>
   loadCharacter: (id: string) => Promise<Record<string, unknown> | null>
   deleteCharacter: (id: string) => Promise<boolean>
+  wipeAllData: () => Promise<{ success: boolean; removed?: string[]; error?: string }>
   listCharacterVersions: (id: string) => Promise<{ success: boolean; data?: CharacterVersion[] }>
   restoreCharacterVersion: (
     id: string,

@@ -41,7 +41,19 @@ TEMP=$(cat /sys/class/thermal/thermal_zone0/temp 2>/dev/null)
 if [ -n "$TEMP" ]; then
     TEMP_C=$((TEMP / 1000))
     if [ "$TEMP_C" -gt 80 ]; then
-        MSG+="CPU temp critical: ${TEMP_C}C. "
+        MSG+="CPU temp critical: ${TEMP_C}C (throttling). "
+        STATUS=1
+    elif [ "$TEMP_C" -gt 75 ]; then
+        MSG+="CPU temp warning: ${TEMP_C}C. "
+        STATUS=1
+    fi
+fi
+
+# Check Pi throttle / under-voltage history (Pi 5 sticky bits)
+if command -v vcgencmd >/dev/null 2>&1; then
+    TH=$(vcgencmd get_throttled | sed 's/throttled=//')
+    if [ "$TH" != "0x0" ]; then
+        MSG+="Throttle/voltage flags: ${TH}. "
         STATUS=1
     fi
 fi

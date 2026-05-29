@@ -48,10 +48,15 @@ export function rollDamage(
 
 /**
  * Double the dice count in a formula (for critical hits).
- * "2d6+4" -> "4d6+4", "1d8+3" -> "2d8+3"
+ * `"2d6+4" → "4d6+4"`, `"1d8+1d6+3" → "2d8+2d6+3"`.
+ *
+ * Phase 17c (LOG-2 follow-up) — the `g` flag is load-bearing: without it
+ * only the first dice group doubles, so multi-die crit formulae like
+ * Sneak Attack (`1d8+3d6`), Divine Smite (`1d8+2d8`), and magic weapons
+ * that add extra dice silently under-roll on a crit.
  */
 export function doubleDiceInFormula(formula: string): string {
-  return formula.replace(/(\d*)d(\d+)/, (_, count, sides) => {
+  return formula.replace(/(\d*)d(\d+)/g, (_, count, sides) => {
     const n = count ? parseInt(count, 10) : 1
     return `${n * 2}d${sides}`
   })

@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { ActiveCreatureSchema, AiChatRequestSchema, AiConfigSchema } from './ipc-schemas'
+import {
+  ActiveCreatureSchema,
+  AiChatRequestSchema,
+  AiConfigSchema,
+  InitiativeSyncSchema,
+  SyncEventSchema
+} from './ipc-schemas'
 
 describe('ipc-schemas', () => {
   describe('AiConfigSchema', () => {
@@ -163,6 +169,102 @@ describe('ipc-schemas', () => {
       expect(mod.AiConfigSchema).toBeDefined()
       expect(mod.AiChatRequestSchema).toBeDefined()
       expect(mod.ActiveCreatureSchema).toBeDefined()
+      expect(mod.SyncEventSchema).toBeDefined()
+      expect(mod.InitiativeSyncSchema).toBeDefined()
+    })
+  })
+
+  describe('SyncEventSchema (Phase 28a.3)', () => {
+    it('accepts a discord_message event', () => {
+      const result = SyncEventSchema.safeParse({
+        type: 'discord_message',
+        timestamp: 1_700_000_000_000,
+        payload: { text: 'hi', author: 'alice' }
+      })
+      expect(result.success).toBe(true)
+    })
+
+    it('accepts a discord_roll event', () => {
+      const result = SyncEventSchema.safeParse({
+        type: 'discord_roll',
+        timestamp: 1_700_000_000_000,
+        payload: { formula: '1d20+5', total: 18, rolls: [13], rollerName: 'alice' }
+      })
+      expect(result.success).toBe(true)
+    })
+
+    it('accepts a player_join event', () => {
+      const result = SyncEventSchema.safeParse({
+        type: 'player_join',
+        timestamp: 1_700_000_000_000,
+        payload: { playerId: 'p1', playerName: 'Alice' }
+      })
+      expect(result.success).toBe(true)
+    })
+
+    it('accepts a state_request event with empty payload', () => {
+      const result = SyncEventSchema.safeParse({
+        type: 'state_request',
+        timestamp: 1_700_000_000_000,
+        payload: {}
+      })
+      expect(result.success).toBe(true)
+    })
+
+    it('rejects an unknown event type', () => {
+      const result = SyncEventSchema.safeParse({
+        type: 'unknown_type',
+        timestamp: 1,
+        payload: {}
+      })
+      expect(result.success).toBe(false)
+    })
+
+    it('rejects a negative timestamp', () => {
+      const result = SyncEventSchema.safeParse({
+        type: 'discord_message',
+        timestamp: -1,
+        payload: { text: 'x' }
+      })
+      expect(result.success).toBe(false)
+    })
+
+    it('rejects a discord_roll missing the formula', () => {
+      const result = SyncEventSchema.safeParse({
+        type: 'discord_roll',
+        timestamp: 1,
+        payload: { total: 5 }
+      })
+      expect(result.success).toBe(false)
+    })
+  })
+
+  describe('InitiativeSyncSchema (Phase 28a.3)', () => {
+    it('accepts a minimal valid payload', () => {
+      const result = InitiativeSyncSchema.safeParse({
+        entries: [{ entityName: 'Bob', entityType: 'pc', isActive: true }],
+        currentIndex: 0,
+        round: 1
+      })
+      expect(result.success).toBe(true)
+    })
+
+    it('rejects entries missing entityType', () => {
+      const result = InitiativeSyncSchema.safeParse({
+        entries: [{ entityName: 'Bob', isActive: true }],
+        currentIndex: 0,
+        round: 1
+      })
+      expect(result.success).toBe(false)
+    })
+
+    it('rejects negative currentIndex', () => {
+      const result = InitiativeSyncSchema.safeParse({
+        entries: [],
+        currentIndex: -1,
+        round: 1
+      })
+      expect(result.success).toBe(false)
     })
   })
 })

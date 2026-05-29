@@ -1,10 +1,10 @@
 import { readFile } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
-import { ipcMain } from 'electron'
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
 import { logToFile } from '../log'
 import { getRendererPublicDir } from '../paths'
 import { logSecurityEvent } from '../security-log'
+import { handle } from './_safe'
 
 export function registerGameDataHandlers(): void {
   // Phase 19b — dev/packaged base for the renderer public/ tree (shared resolver).
@@ -12,7 +12,7 @@ export function registerGameDataHandlers(): void {
 
   const resolvedBase = resolve(dataBase)
 
-  ipcMain.handle(IPC_CHANNELS.GAME_LOAD_JSON, async (_event, relativePath: string) => {
+  handle(IPC_CHANNELS.GAME_LOAD_JSON, async (_event, relativePath: string) => {
     if (typeof relativePath !== 'string' || !relativePath) {
       throw new Error('Invalid path: expected non-empty string')
     }

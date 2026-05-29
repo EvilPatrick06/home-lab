@@ -98,7 +98,9 @@ export default function HighElfCantripSwapModal5e({
     const updated = { ...latest, knownSpells: updatedSpells, updatedAt: new Date().toISOString() } as Character5e
     useCharacterStore.getState().saveCharacter(updated)
 
-    // Broadcast if DM editing remote character
+    // Broadcast if DM editing remote character.
+    // Phase 29e — structural transport gate: only the network host can
+    // broadcast `dm:character-update`. Phase 30 will revisit role-as-string.
     const { role, sendMessage } = useNetworkStore.getState()
     if (role === 'host' && updated.playerId !== 'local') {
       sendMessage('dm:character-update', {

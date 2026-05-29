@@ -657,42 +657,53 @@ export function executeLoadEncounter(
       return
     }
 
-    // Phase 26f — build the token list, then spread via smartPlaceTokens
-    // (opposite the players, off walls, footprint-aware) instead of a tight grid.
+    // Phase 26f — build the token list, then place. Monsters with explicit
+    // pre-positioned `startX`/`startY` (from the encounter builder's
+    // mini-map / X-Y input UI) land at exactly those coords. Everything
+    // else flows through `smartPlaceTokens` (opposite players, off walls,
+    // footprint-aware).
     const { smartPlaceTokens } = await import('./token-placement')
-    const toPlace = []
+    const buildToken = (monster: (typeof monsters)[number], dims: { x: number; y: number }, label: string) => ({
+      id: crypto.randomUUID(),
+      entityId: crypto.randomUUID(),
+      entityType: 'enemy' as const,
+      label,
+      sizeX: dims.x,
+      sizeY: dims.y,
+      visibleToPlayers: false,
+      conditions: [],
+      currentHP: monster.hp,
+      maxHP: monster.hp,
+      ac: monster.ac,
+      monsterStatBlockId: monster.id,
+      walkSpeed: monster.speed.walk ?? 30,
+      swimSpeed: monster.speed.swim,
+      climbSpeed: monster.speed.climb,
+      flySpeed: monster.speed.fly,
+      initiativeModifier: monster.abilityScores ? Math.floor((monster.abilityScores.dex - 10) / 2) : 0,
+      resistances: monster.resistances,
+      vulnerabilities: monster.vulnerabilities,
+      immunities: monster.damageImmunities,
+      darkvision: !!(monster.senses?.darkvision && monster.senses.darkvision > 0),
+      darkvisionRange: monster.senses?.darkvision || undefined
+    })
+    const prePositioned: Array<{ token: ReturnType<typeof buildToken>; x: number; y: number }> = []
+    const toPlace: Array<ReturnType<typeof buildToken>> = []
     for (const entry of preset.monsters) {
       const monster = monsters.find((m) => m.id === entry.id)
       if (!monster) continue
       const dims = getSizeTokenDimensions(monster.size)
       for (let i = 0; i < entry.count; i++) {
-        toPlace.push({
-          id: crypto.randomUUID(),
-          entityId: crypto.randomUUID(),
-          entityType: 'enemy' as const,
-          label: entry.count > 1 ? `${monster.name} ${i + 1}` : monster.name,
-          sizeX: dims.x,
-          sizeY: dims.y,
-          visibleToPlayers: false,
-          conditions: [],
-          currentHP: monster.hp,
-          maxHP: monster.hp,
-          ac: monster.ac,
-          monsterStatBlockId: monster.id,
-          walkSpeed: monster.speed.walk ?? 30,
-          swimSpeed: monster.speed.swim,
-          climbSpeed: monster.speed.climb,
-          flySpeed: monster.speed.fly,
-          initiativeModifier: monster.abilityScores ? Math.floor((monster.abilityScores.dex - 10) / 2) : 0,
-          resistances: monster.resistances,
-          vulnerabilities: monster.vulnerabilities,
-          immunities: monster.damageImmunities,
-          darkvision: !!(monster.senses?.darkvision && monster.senses.darkvision > 0),
-          darkvisionRange: monster.senses?.darkvision || undefined
-        })
+        const token = buildToken(monster, dims, entry.count > 1 ? `${monster.name} ${i + 1}` : monster.name)
+        if (typeof entry.startX === 'number' && typeof entry.startY === 'number') {
+          prePositioned.push({ token, x: entry.startX, y: entry.startY })
+        } else {
+          toPlace.push(token)
+        }
       }
     }
-    const placed = smartPlaceTokens(map, toPlace)
+    const auto = smartPlaceTokens(map, toPlace)
+    const placed = [...prePositioned.map(({ token, x, y }) => ({ ...token, gridX: x, gridY: y })), ...auto]
     for (const token of placed) {
       stores
         .getGameStore()

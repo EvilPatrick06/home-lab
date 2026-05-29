@@ -78,3 +78,27 @@ export function setDiscoveredBmoUrl(url: string | null): void {
 export function getDiscoveredBmoUrl(): string | null {
   return discoveredBmoUrl
 }
+
+// ── BMO sync-receiver shared secret (Phase 28a.4) ────────────────
+// Precedence: process.env.BMO_API_KEY → user-set settings value → undefined.
+// When undefined, the sync receiver logs a one-time warning and accepts
+// unauthenticated requests; the bind already restricts reach to loopback
+// (or whatever BMO_SYNC_BIND is set to).
+
+let userBmoApiKey: string | null = null
+
+export function getBmoApiKey(): string | undefined {
+  const fromEnv = process.env.BMO_API_KEY
+  if (fromEnv && fromEnv.trim() !== '') return fromEnv
+  if (userBmoApiKey && userBmoApiKey.trim() !== '') return userBmoApiKey
+  return undefined
+}
+
+export function applyBmoApiKeyFromSettings(settings: { bmoApiKey?: string } | null | undefined): void {
+  const raw = settings?.bmoApiKey
+  if (raw !== undefined && raw !== null && String(raw).trim() !== '') {
+    userBmoApiKey = String(raw)
+  } else {
+    userBmoApiKey = null
+  }
+}

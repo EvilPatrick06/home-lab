@@ -61,6 +61,23 @@ If you want to build your own:
 
 Total ~$200–250 if you scavenge most of it.
 
+## Thermal management
+
+The Pi 5 throttles at 80 °C (soft) and 85 °C (hard). BMO uses two independent
+cooling loops:
+
+- **Official GPIO active cooler** — kernel-driven via `dtparam=fan_tempN_*` in
+  `/boot/firmware/config.txt`. Four rungs at 60 / 67 / 75 / 80 °C, written by
+  `setup-bmo.sh`. Top rung is at PWM 255 (full-speed) at 80 °C.
+- **FNK0100K case fans** — userspace via `bmo-fan.service` →
+  `pi/hardware/fan_control.py`. 7-rung curve (50 → 80 °C) with linear
+  interpolation between rungs and EMA-smoothed input temperature so idle
+  doesn't oscillate. PWM frequency 100 kHz (inaudible).
+
+`pi/scripts/health_check.sh` raises a warning at > 75 °C and a critical alert
+at > 80 °C, and reads `vcgencmd get_throttled` so sticky under-voltage /
+past-throttle bits are surfaced even after the Pi cools off.
+
 ---
 
 ## Quick start (Pi owner)

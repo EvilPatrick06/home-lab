@@ -536,6 +536,10 @@ export function setupMouseHandlers(el: HTMLElement, opts: MouseHandlerOptions): 
       // crypto.randomUUID, so it's unique per add).
       const broadcastDrawing = (final: typeof drawingData): void => {
         const role = useNetworkStore.getState().role
+        // Phase 29e — structural transport gate: only the network host can
+        // broadcast `dm:drawing-add`. Per-user draw authorization happens
+        // upstream via `draw_visible` / `draw_dm_only`. Phase 30 will revisit
+        // role-as-string.
         if (role === 'host' && map) {
           useNetworkStore.getState().sendMessage('dm:drawing-add', {
             mapId: map.id,

@@ -27,8 +27,10 @@ const PrintSheet = lazy(() => import('../components/sheet/shared/PrintSheet'))
 import { shouldLevelUp } from '../data/xp-thresholds'
 import { getEffectiveKnownSpells } from '../services/character/effective-character-5e'
 import { applyLongRest } from '../services/character/rest-service-5e'
+import { localHasPermission } from '../services/permissions/local-permission'
 import { useNetworkStore } from '../stores/network-store'
 import { useBuilderStore } from '../stores/use-builder-store'
+import { useCampaignStore } from '../stores/use-campaign-store'
 import { useCharacterStore } from '../stores/use-character-store'
 import { useLobbyStore } from '../stores/use-lobby-store'
 import type { Character } from '../types/character'
@@ -49,6 +51,11 @@ export default function CharacterSheet5ePage(): JSX.Element {
   const localPeerId = useNetworkStore((s) => s.localPeerId)
   const role = useNetworkStore((s) => s.role)
   const players = useLobbyStore((s) => s.players)
+  // Phase 29e — campaign lookup must run before the `!character` early-return
+  // so it stays in a fixed hook-call position. Selector returns undefined when
+  // the character is missing or has no campaignId, which `localHasPermission`
+  // handles via its legacy host/CoDM fallback.
+  const campaign = useCampaignStore((s) => s.campaigns.find((c) => c.id === character?.campaignId)) ?? null
 
   const loadCharacterForEdit = useBuilderStore((s) => s.loadCharacterForEdit)
 
@@ -85,13 +92,19 @@ export default function CharacterSheet5ePage(): JSX.Element {
   }
 
   // Permission logic
+  // Phase 29e — route DM/CoDM editing through the permission system
+  // (`edit_any_sheet`). Self-ownership and explicit `local` ownership stay as
+  // structural fast paths — they're not permission decisions, they're "is this
+  // my character?". `localHasPermission` falls back to the legacy host/CoDM
+  // literal for campaigns that predate the permissions block.
   const canEdit = (() => {
     if (character.playerId === 'local') return true
-    if (role === 'host') return true
-    const localPlayer = players.find((p) => p.peerId === localPeerId)
-    if (localPlayer?.isCoDM) return true
     if (character.playerId === localPeerId) return true
-    return false
+    return localHasPermission('edit_any_sheet', campaign, {
+      networkRole: role,
+      localPeerId,
+      peers: players
+    })
   })()
 
   const readonly = !canEdit || !isEditing

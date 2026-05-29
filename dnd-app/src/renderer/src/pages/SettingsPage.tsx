@@ -58,9 +58,14 @@ import {
 } from '../services/sound-manager'
 import { getTheme, getThemeNames, setTheme, type ThemeName } from '../services/theme-manager'
 import { type ColorblindMode, type KeyCombo, useAccessibilityStore } from '../stores/use-accessibility-store'
+import { useCampaignStore } from '../stores/use-campaign-store'
+import { useCharacterStore } from '../stores/use-character-store'
+import { useConfigStore } from '../stores/use-config-store'
+import { useLibraryStore } from '../stores/use-library-store'
 import { usePluginStore } from '../stores/use-plugin-store'
 import { getAllSystems, unregisterSystem } from '../systems/init'
 import type { UserProfile } from '../types/user'
+import { logger } from '../utils/logger'
 
 const THEME_LABELS: Record<ThemeName, string> = {
   dark: 'Dark',
@@ -896,28 +901,62 @@ function CloudBackupSection(): JSX.Element {
 // export of the legacy name preserved as an alias for any third-party
 // caller that may still reference it.
 export async function resetAllData(): Promise<void> {
-  // 1. Clear all localStorage keys
+  // 1. Wipe every FILE-BASED content directory under userData (characters,
+  //    campaigns, homebrew, library assets, bastions, game-states, …). This is
+  //    the load-bearing fix — previously only localStorage was cleared, so the
+  //    on-disk character/campaign .json files survived a "Reset All Data" and
+  //    reappeared on the next load.
+  try {
+    const result = await window.api.wipeAllData()
+    if (!result?.success) {
+      logger.error('[resetAllData] file wipe reported failure:', result?.error)
+    }
+  } catch (err) {
+    logger.error('[resetAllData] file wipe threw:', err)
+  }
+
+  // 2. Clear in-memory stores so the UI reflects the wipe immediately (without
+  //    these, the already-loaded characters/campaigns linger until reload).
+  try {
+    useCharacterStore.setState({ characters: [], selectedCharacterId: null })
+    useCampaignStore.setState({ campaigns: [], activeCampaignId: null })
+    useLibraryStore.getState().clearAll()
+    useConfigStore.getState().clearAll()
+  } catch (err) {
+    logger.error('[resetAllData] in-memory store clear failed:', err)
+  }
+
+  // 3. Clear ALL app-owned localStorage (macros, drafts, notification history,
+  //    autosaves, library UI, lobby, dice tray, narration, encounters, prefs).
+  //    Broadened to a hard wipe of any key that isn't an unrelated third-party
+  //    key — every key this app writes is covered by these prefixes.
+  const APP_KEY_PREFIXES = [
+    'dnd-vtt-',
+    'autosave:',
+    'notification',
+    'lobby',
+    'macro',
+    'builder-draft',
+    'library',
+    'dice-tray',
+    'narration',
+    'encounter',
+    'campaign',
+    'character',
+    'bastion',
+    'homebrew',
+    'theme',
+    'accessibility',
+    'audio'
+  ]
   const keysToRemove: string[] = []
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i)
-    if (
-      key?.startsWith('dnd-vtt-') ||
-      key?.startsWith('autosave:') ||
-      key?.startsWith('notification') ||
-      key?.startsWith('lobby-') ||
-      key?.startsWith('macro-storage-') ||
-      key?.startsWith('builder-draft-') ||
-      key?.startsWith('library-') ||
-      key?.startsWith('dice-tray') ||
-      key?.startsWith('narration-') ||
-      key?.startsWith('encounter-')
-    ) {
-      keysToRemove.push(key)
-    }
+    if (key && APP_KEY_PREFIXES.some((p) => key.startsWith(p))) keysToRemove.push(key)
   }
   keysToRemove.forEach((k) => localStorage.removeItem(k))
 
-  // 2-5. Apply the same defaults the non-destructive path uses.
+  // 4. Apply the same preference defaults the non-destructive path uses.
   await restoreDefaultSettings()
 }
 

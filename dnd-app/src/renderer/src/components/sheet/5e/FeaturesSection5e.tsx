@@ -77,6 +77,11 @@ export default function FeaturesSection5e({ character, readonly }: FeaturesSecti
       useCharacterStore.getState().saveCharacter(updated)
 
       const { role, sendMessage } = useNetworkStore.getState()
+      // Phase 29e — structural transport gate: only the network host can
+      // broadcast `dm:character-update` to relay an authoritative sheet
+      // edit to a remote player. The "should I be allowed to edit this
+      // sheet at all" check happens upstream (CharacterSheet5ePage.canEdit
+      // via localHasPermission). Phase 30 will revisit role-as-string.
       if (role === 'host' && updated.playerId !== 'local') {
         sendMessage('dm:character-update', {
           characterId: updated.id,
@@ -133,6 +138,7 @@ export default function FeaturesSection5e({ character, readonly }: FeaturesSecti
     useCharacterStore.getState().saveCharacter(updated)
 
     const { role, sendMessage } = useNetworkStore.getState()
+    // Phase 29e — structural transport gate (see saveCustomFeatureChange).
     if (role === 'host' && updated.playerId !== 'local') {
       sendMessage('dm:character-update', {
         characterId: updated.id,
@@ -166,7 +172,8 @@ export default function FeaturesSection5e({ character, readonly }: FeaturesSecti
     }
     useCharacterStore.getState().saveCharacter(updated)
 
-    // DM broadcast pattern
+    // DM broadcast pattern.
+    // Phase 29e — structural transport gate (see saveCustomFeatureChange).
     const { role, sendMessage } = useNetworkStore.getState()
     if (role === 'host' && updated.playerId !== 'local') {
       sendMessage('dm:character-update', {
