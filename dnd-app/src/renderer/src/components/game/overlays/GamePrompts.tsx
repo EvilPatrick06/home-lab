@@ -2,6 +2,7 @@ import type { MessageType } from '../../../network'
 import { useGameStore } from '../../../stores/use-game-store'
 import type { ChatMessage } from '../../../stores/use-lobby-store'
 import type { Character } from '../../../types/character'
+import { cryptoRollDie } from '../../../utils/crypto-random'
 
 // --- Prompt state types ---
 export interface OaPromptState {
@@ -121,7 +122,7 @@ export function ConcentrationCheckPrompt({
         <div className="flex gap-2">
           <button
             onClick={() => {
-              const roll = Math.floor(Math.random() * 20) + 1
+              const roll = cryptoRollDie(20)
               const passed = roll >= prompt.dc
               const isCrit = roll === 20
               const isFumble = roll === 1
@@ -237,7 +238,7 @@ export function StabilizeCheckPrompt({
         <div className="flex gap-2">
           <button
             onClick={() => {
-              const roll = Math.floor(Math.random() * 20) + 1
+              const roll = cryptoRollDie(20)
               const total = roll + prompt.medicineMod
               const passed = total >= 10
               const resultText =

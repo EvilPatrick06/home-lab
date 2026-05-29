@@ -7,6 +7,7 @@ import type { Character5e } from '../../types/character-5e'
 import type { AbilityName, AbilityScoreSet, BuildSlot, Rarity } from '../../types/character-common'
 import { ABILITY_NAMES } from '../../types/character-common'
 import type { GameSystem } from '../../types/game-system'
+import { cryptoRollDie } from '../../utils/crypto-random'
 
 // --- Constants ---
 
@@ -41,7 +42,7 @@ export async function loadPresetIconData(): Promise<unknown> {
 // --- Helper functions ---
 
 export function roll4d6DropLowest(): number {
-  const dice = Array.from({ length: 4 }, () => Math.floor(Math.random() * 6) + 1)
+  const dice = Array.from({ length: 4 }, () => cryptoRollDie(6))
   dice.sort((a, b) => a - b)
   return dice[1] + dice[2] + dice[3]
 }

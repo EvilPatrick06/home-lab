@@ -1,3 +1,4 @@
+import { cryptoRandom, cryptoRollDie } from '../../../../utils/crypto-random'
 export type CrTier = '0-4' | '5-10' | '11-16' | '17+'
 export type TreasureType = 'individual' | 'hoard'
 
@@ -63,17 +64,17 @@ export function rollDice(notation: string): number {
   const sides = parseInt(match[2], 10)
   const multiplier = match[3] ? parseInt(match[3], 10) : 1
   const bonus = match[4] ? parseInt(match[4], 10) : 0
-  const rolls = Array.from({ length: count }, () => Math.floor(Math.random() * sides) + 1)
+  const rolls = Array.from({ length: count }, () => cryptoRollDie(sides))
   const total = rolls.reduce((s, r) => s + r, 0)
   return total * multiplier + bonus
 }
 
 function rollD100(): number {
-  return Math.floor(Math.random() * 100) + 1
+  return cryptoRollDie(100)
 }
 
 function pickRandom<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)]
+  return arr[Math.floor(cryptoRandom() * arr.length)]
 }
 
 const FALLBACK_GEMS: string[] = [

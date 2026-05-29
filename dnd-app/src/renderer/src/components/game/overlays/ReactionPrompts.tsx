@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { MessageType } from '../../../network'
 import type { ReactionPromptState } from '../../../stores/game/types'
+import { cryptoRollDie } from '../../../utils/crypto-random'
 
 type _ReactionPromptState = ReactionPromptState
 
@@ -192,7 +193,7 @@ export function CounterspellReactionPrompt({
               if (autoSuccess) {
                 resultText = `${prompt.entityName} counters ${prompt.casterName}'s ${prompt.spellName} with a level ${selectedSlot} Counterspell!`
               } else {
-                const roll = Math.floor(Math.random() * 20) + 1
+                const roll = cryptoRollDie(20)
                 const dc = 10 + prompt.spellLevel
                 const success = roll >= dc || roll === 20
                 resultText = success

@@ -5,6 +5,7 @@ import type { Campaign, NPC } from '../../../../types/campaign'
 import type { InitiativeEntry } from '../../../../types/game-state'
 import type { GameMap, MapToken, TerrainCell } from '../../../../types/map'
 import { getSizeTokenDimensions } from '../../../../types/monster'
+import { cryptoRollDie } from '../../../../utils/crypto-random'
 import { DMNotepad, FogBrush, NPCManager, RegionManager, ShopPanel, TokenPlacer } from '../../dm'
 import type { DmToolId } from '../../dm/DMToolbar'
 import GridControlPanel from '../../dm/GridControlPanel'
@@ -83,7 +84,7 @@ export default function MapEditorRightPanel({
 
   const handleNpcToInitiative = useCallback(
     (npc: NPC) => {
-      const roll = Math.floor(Math.random() * 20) + 1
+      const roll = cryptoRollDie(20)
       const dexScore = npc.customStats?.abilityScores?.dex
       const modifier = dexScore != null ? Math.floor((dexScore - 10) / 2) : 0
       const entry: InitiativeEntry = {

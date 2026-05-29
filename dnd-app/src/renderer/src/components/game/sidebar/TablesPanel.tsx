@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { load5eRandomTables } from '../../../services/data-provider'
 import { rollFormula } from '../../../services/dice/dice-engine'
 import { useLobbyStore } from '../../../stores/use-lobby-store'
+import { cryptoRandom, cryptoRollDie } from '../../../utils/crypto-random'
 
 interface RandomTableData {
   [key: string]: unknown
@@ -82,7 +83,7 @@ export default function TablesPanel(): JSX.Element {
       if (arrayData.length === 0) {
         result = 'No entries in table'
       } else {
-        const roll = Math.floor(Math.random() * arrayData.length) + 1
+        const roll = cryptoRollDie(arrayData.length)
         result = arrayData[roll - 1]
         rollInfo = `1d${arrayData.length} = ${roll}`
       }
@@ -115,12 +116,12 @@ export default function TablesPanel(): JSX.Element {
       if (subKeys.length === 0) {
         result = 'No sub-tables available'
       } else {
-        const randomSubKey = subKeys[Math.floor(Math.random() * subKeys.length)]
+        const randomSubKey = subKeys[Math.floor(cryptoRandom() * subKeys.length)]
         const subTable = nestedData[randomSubKey] as unknown[]
         if (!Array.isArray(subTable) || subTable.length === 0) {
           result = 'Invalid sub-table'
         } else {
-          const roll = Math.floor(Math.random() * subTable.length) + 1
+          const roll = cryptoRollDie(subTable.length)
           result = String(subTable[roll - 1])
           rollInfo = `${randomSubKey} 1d${subTable.length} = ${roll}`
         }

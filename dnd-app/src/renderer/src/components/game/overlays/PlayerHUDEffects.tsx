@@ -9,6 +9,7 @@ import { is5eCharacter } from '../../../types/character'
 import type { Character5e } from '../../../types/character-5e'
 import type { CustomEffect, EffectSource } from '../../../types/effects'
 import type { EntityCondition, TurnState } from '../../../types/game-state'
+import { cryptoRollDie } from '../../../utils/crypto-random'
 
 /* ------------------------------------------------------------------ */
 /*  Collapsed badges (conditions, effects, bloodied, environment)     */
@@ -229,7 +230,7 @@ export function PlayerHUDEffectsExpanded({
 
       if (type === 'successes' && newVal >= 3) {
         // PHB 2024: Stable creature regains 1 HP after 1d4 hours
-        const recoveryHours = Math.floor(Math.random() * 4) + 1
+        const recoveryHours = cryptoRollDie(4)
         const inGameTime = useGameStore.getState().inGameTime
         useGameStore.getState().addCondition({
           id: `cond-${Date.now()}`,
@@ -277,7 +278,7 @@ export function PlayerHUDEffectsExpanded({
     const hasBless = gameConditions.some((c) => c.entityId === latest.id && c.condition.toLowerCase() === 'bless')
     if (hasBless) {
       // Roll 1d4 for Bless bonus
-      const blessRoll = Math.floor(Math.random() * 4) + 1
+      const blessRoll = cryptoRollDie(4)
       deathSaveBonus += blessRoll
     }
 
@@ -296,7 +297,7 @@ export function PlayerHUDEffectsExpanded({
 
     if (result.outcome === 'stabilized') {
       // PHB 2024: Stable creature regains 1 HP after 1d4 hours
-      const recoveryHours = Math.floor(Math.random() * 4) + 1
+      const recoveryHours = cryptoRollDie(4)
       const inGameTime = useGameStore.getState().inGameTime
       useGameStore.getState().addCondition({
         id: `cond-${Date.now()}`,

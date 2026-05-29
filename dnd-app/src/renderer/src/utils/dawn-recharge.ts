@@ -1,5 +1,6 @@
 import { useCharacterStore } from '../stores/use-character-store'
 import type { Character5e } from '../types/character-5e'
+import { cryptoRollDie } from './crypto-random'
 
 /**
  * Process dawn recharge for all campaign characters.
@@ -24,7 +25,7 @@ export function processDawnRecharge(campaignId: string): void {
           const sides = parseInt(match[2], 10)
           const mod = parseInt(match[3] || '0', 10)
           rechargeAmount = 0
-          for (let i = 0; i < count; i++) rechargeAmount += Math.floor(Math.random() * sides) + 1
+          for (let i = 0; i < count; i++) rechargeAmount += cryptoRollDie(sides)
           rechargeAmount += mod
         } else {
           rechargeAmount = parseInt(formula, 10) || 1

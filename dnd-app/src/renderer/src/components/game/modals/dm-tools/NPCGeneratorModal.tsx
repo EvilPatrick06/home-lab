@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { load5eRandomTables } from '../../../../services/data-provider'
+import { cryptoRandom, cryptoRollDie } from '../../../../utils/crypto-random'
 
 interface NPCGeneratorModalProps {
   onClose: () => void
@@ -47,11 +48,11 @@ interface GeneratedNPC {
 }
 
 function rollD(sides: number): number {
-  return Math.floor(Math.random() * sides) + 1
+  return cryptoRollDie(sides)
 }
 
 function pickRandom<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)]
+  return arr[Math.floor(cryptoRandom() * arr.length)]
 }
 
 function pickFromTable<T>(arr: T[], dSides: number): T {

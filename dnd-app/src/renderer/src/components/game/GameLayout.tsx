@@ -26,6 +26,7 @@ import type { Character } from '../../types/character'
 import { is5eCharacter } from '../../types/character'
 import type { MapToken } from '../../types/map'
 import { getBuilderCreatePath } from '../../utils/character-routes'
+import { cryptoRollDie } from '../../utils/crypto-random'
 import { processDawnRecharge } from '../../utils/dawn-recharge'
 import { ErrorBoundary, ModalErrorBoundary, Tooltip } from '../ui'
 import { announce } from '../ui/ScreenReaderAnnouncer'
@@ -903,7 +904,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
             setContextMenu(null)
           }}
           onAddToInitiative={(token) => {
-            const roll = Math.floor(Math.random() * 20) + 1
+            const roll = cryptoRollDie(20)
             const modifier = token.initiativeModifier ?? 0
             gameStore.addToInitiative({
               id: token.id,
