@@ -77,7 +77,34 @@ type _VehicleStatBlock = VehicleStatBlock
 
 import { logger } from '../utils/logger'
 import { DATA_PATHS } from './data-paths'
+import { DIVINE_ORDER_OPTIONS, DRUIDIC_WARRIOR_OPTION, PRIMAL_ORDER_OPTIONS } from './data-provider/build-slot-options'
+import { COMPANION_FILES, DEITY_FILES, PLANE_FILES } from './data-provider/companion-files'
+import type {
+  ConditionEntry,
+  LanguageEntry,
+  LightSourceEntry,
+  SkillEntry,
+  VariantItemEntry,
+  WeaponMasteryEntry
+} from './data-provider/extracted-data-types'
+import {
+  backgroundToOption,
+  classToOption,
+  feat5eToOption,
+  formatPrerequisites,
+  normalizeSource,
+  speciesToOption,
+  subclassToOption
+} from './data-provider/transformers'
 export { DATA_PATHS }
+
+// Re-export the extracted-data loader types so consumers keep importing them
+// from `./data-provider` unchanged.
+export type { ConditionEntry, LanguageEntry, LightSourceEntry, SkillEntry, VariantItemEntry, WeaponMasteryEntry }
+
+// `formatPrerequisites` lives in ./data-provider/transformers but is part of
+// this module's public surface (used by character-builder consumers).
+export { formatPrerequisites }
 
 // Re-export world/data types for consumers that access them through data-provider
 export type {
@@ -131,197 +158,6 @@ export function resolveDataPath(system: GameSystem, pathKey: string): string | u
     }
   }
   return (DATA_PATHS as Record<string, string>)[pathKey]
-}
-
-// === 5e Transformers ===
-
-/** Normalize source to a display string (handles string, object {book}, or undefined) */
-function normalizeSource(source: unknown): string {
-  if (typeof source === 'string') return source
-  if (source && typeof source === 'object' && 'book' in source) return (source as { book: string }).book
-  return 'SRD'
-}
-
-export function formatPrerequisites(prereqs: FeatData['prerequisites']): string[] {
-  const parts: string[] = []
-  if (prereqs.level) parts.push(`Level ${prereqs.level}`)
-  if (prereqs.abilityScores) {
-    for (const req of prereqs.abilityScores) {
-      parts.push(`${req.abilities.join(' or ')} ${req.minimum}+`)
-    }
-  }
-  return parts
-}
-
-function speciesToOption(species: SpeciesData): SelectableOption {
-  const size = species.size
-  const sizeStr =
-    typeof size === 'string' ? size : size.type === 'choice' ? (size.options ?? []).join(' or ') : (size.value ?? '')
-
-  const speed = typeof species.speed === 'number' ? species.speed : parseInt(String(species.speed), 10) || 30
-
-  const details: DetailField[] = [
-    { label: 'Speed', value: `${speed} ft.` },
-    { label: 'Size', value: sizeStr },
-    { label: 'Creature Type', value: species.creatureType }
-  ]
-
-  if (species.darkvision) {
-    details.push({ label: 'Darkvision', value: `${species.darkvision} ft.` })
-  }
-
-  for (const trait of species.traits) {
-    // boundary-allow: loader return-type — data-provider is the imperative façade per services/library/README.md
-    details.push({ label: trait.name, value: typeof trait.description === 'string' ? trait.description : '' })
-  }
-
-  return {
-    id: species.id,
-    name: species.name,
-    rarity: 'common',
-    description: `${species.creatureType} - Speed: ${speed} ft.`,
-    traits: species.traits.map((t) => t.name),
-    source: normalizeSource(species.source),
-    detailFields: details
-  }
-}
-
-function classToOption(cls: ClassData): SelectableOption {
-  const ct = cls.coreTraits
-  const details: DetailField[] = [
-    { label: 'Hit Point Die', value: ct.hitPointDie },
-    { label: 'Primary Ability', value: ct.primaryAbility.join(', ') },
-    { label: 'Saving Throws', value: ct.savingThrowProficiencies.join(', ') },
-    { label: 'Armor Training', value: ct.armorTraining.join(', ') || 'None' },
-    {
-      label: 'Weapon Proficiencies',
-      value:
-        ct.weaponProficiencies
-          .map((w) => w.category ?? '')
-          .filter(Boolean)
-          .join(', ') || 'None'
-    },
-    {
-      label: 'Skills',
-      value: `Choose ${ct.skillProficiencies.count} from: ${Array.isArray(ct.skillProficiencies.from) ? ct.skillProficiencies.from.join(', ') : ct.skillProficiencies.from}`
-    }
-  ]
-
-  if (ct.startingEquipment.length > 0) {
-    details.push({
-      label: 'Starting Equipment',
-      value: ct.startingEquipment.map((e) => `${e.label}: ${e.items.join(', ')} (${e.gp} gp)`).join(' | ')
-    })
-  }
-
-  return {
-    id: cls.id ?? cls.name.toLowerCase(),
-    // boundary-allow: loader return-type — data-provider is the imperative façade per services/library/README.md
-    name: cls.name,
-    rarity: 'common',
-    description: `${ct.hitPointDie} | Primary: ${ct.primaryAbility.join(', ')}`,
-    traits: [],
-    source: 'SRD',
-    detailFields: details
-  }
-}
-
-function backgroundToOption(bg: BackgroundData): SelectableOption {
-  const toolProf =
-    typeof bg.toolProficiency === 'string'
-      ? bg.toolProficiency
-      : ((bg.toolProficiency as { type?: string })?.type ?? 'None')
-  const details: DetailField[] = [
-    {
-      label: 'Skill Proficiencies',
-      value: Array.isArray(bg.skillProficiencies)
-        ? bg.skillProficiencies.join(', ')
-        : String(bg.skillProficiencies ?? '')
-    },
-    { label: 'Tool Proficiency', value: toolProf || 'None' },
-    { label: 'Feat', value: bg.feat },
-    {
-      label: 'Ability Scores',
-      value: Array.isArray(bg.abilityScores) ? bg.abilityScores.join(', ') : String(bg.abilityScores ?? '')
-    }
-  ]
-
-  const equipment = Array.isArray(bg.equipment) ? bg.equipment : []
-  if (equipment.length > 0) {
-    const eqValue =
-      typeof equipment[0] === 'string'
-        ? (equipment as unknown as string[]).join(', ')
-        : equipment.map((e) => `Option ${e.option}: ${e.items.join(', ')}`).join(' | ')
-    details.push({ label: 'Equipment', value: eqValue })
-  }
-
-  return {
-    id: bg.id,
-    // boundary-allow: loader return-type — data-provider is the imperative façade per services/library/README.md
-    name: bg.name,
-    rarity: 'common',
-    description: bg.description || `Skills: ${bg.skillProficiencies.join(', ')}`,
-    traits: [],
-    source: normalizeSource(bg.source),
-    detailFields: details
-  }
-}
-
-// === Feat/Subclass Transformers ===
-
-function feat5eToOption(feat: FeatData): SelectableOption {
-  const details: DetailField[] = [
-    { label: 'Category', value: feat.category },
-    { label: 'Level', value: `${feat.prerequisites.level ?? 'None'}` }
-  ]
-  const prereqParts: string[] = []
-  if (feat.prerequisites.level) prereqParts.push(`Level ${feat.prerequisites.level}`)
-  if (feat.prerequisites.abilityScores) {
-    for (const req of feat.prerequisites.abilityScores) {
-      prereqParts.push(`${req.abilities.join(' or ')} ${req.minimum}+`)
-    }
-  }
-  if (prereqParts.length > 0) {
-    details.push({ label: 'Prerequisites', value: prereqParts.join(', ') })
-  }
-  if (feat.abilityScoreIncrease) {
-    const asi = feat.abilityScoreIncrease
-    const value = asi.options.map((o) => `+${o.amount} ${o.abilities.join(' or ')}`).join('; ')
-    details.push({ label: 'Ability Score Increase', value })
-  }
-  if (feat.repeatable) {
-    details.push({ label: 'Repeatable', value: feat.repeatable.restriction ?? 'Yes' })
-  }
-  const description = feat.benefits.map((b) => b.description).join(' ')
-  return {
-    id: feat.id,
-    // boundary-allow: loader return-type — data-provider is the imperative façade per services/library/README.md
-    name: feat.name,
-    rarity: 'common',
-    description,
-    traits: [feat.category],
-    source: normalizeSource(feat.source),
-    detailFields: details
-  }
-}
-
-function subclassToOption(sc: SubclassData): SelectableOption {
-  const details: DetailField[] = [
-    { label: 'Class', value: sc.className ?? '' },
-    { label: 'Level', value: `${sc.level ?? ''}` }
-  ]
-  for (const feat of sc.features) {
-    details.push({ label: feat.name, value: feat.description })
-  }
-  return {
-    id: sc.id ?? sc.name.toLowerCase().replace(/\s+/g, '-'),
-    name: sc.name,
-    rarity: 'common',
-    description: sc.description,
-    traits: [],
-    source: 'SRD',
-    detailFields: details
-  }
 }
 
 // === Main Loader ===
@@ -396,78 +232,15 @@ export async function getOptionsForSlot(
         const options = feats.map(feat5eToOption)
         // Add Druidic Warrior for Rangers (alternative to Fighting Style feat)
         if (context?.selectedClassId === 'ranger') {
-          options.push({
-            id: 'druidic-warrior',
-            // boundary-allow: loader return-type — data-provider is the imperative façade per services/library/README.md
-            name: 'Druidic Warrior',
-            rarity: 'common' as const,
-            description:
-              'You learn two Druid cantrips of your choice (Guidance and Starry Wisp are recommended). The chosen cantrips count as Ranger spells for you, and Wisdom is your spellcasting ability for them. Whenever you gain a Ranger level, you can replace one of these cantrips with another Druid cantrip.',
-            traits: [],
-            source: 'PHB 2024',
-            detailFields: []
-          })
+          options.push(DRUIDIC_WARRIOR_OPTION)
         }
         return options
       }
       case 'primal-order': {
-        return [
-          {
-            id: 'magician',
-            name: 'Magician',
-            rarity: 'common',
-            description:
-              'You know one extra cantrip from the Primal spell list. In addition, your mystical connection to nature gives you a bonus to your Intelligence (Arcana or Nature) checks equal to your Wisdom modifier (minimum bonus of +1).',
-            traits: [],
-            source: 'SRD',
-            detailFields: [
-              { label: 'Bonus Cantrip', value: '+1 Primal cantrip' },
-              { label: 'Skill Bonus', value: 'Arcana/Nature checks + WIS modifier (min +1)' }
-            ]
-          },
-          {
-            id: 'warden',
-            name: 'Warden',
-            rarity: 'common',
-            description:
-              'Trained for battle, you gain proficiency with Martial weapons and training with Medium armor.',
-            traits: [],
-            source: 'SRD',
-            detailFields: [
-              { label: 'Armor', value: 'Medium armor proficiency' },
-              { label: 'Weapons', value: 'Martial weapons proficiency' }
-            ]
-          }
-        ]
+        return PRIMAL_ORDER_OPTIONS
       }
       case 'divine-order': {
-        return [
-          {
-            id: 'protector',
-            name: 'Protector',
-            rarity: 'common',
-            description: 'Trained for battle, you gain proficiency with Martial weapons and training with Heavy armor.',
-            traits: [],
-            source: 'SRD',
-            detailFields: [
-              { label: 'Armor', value: 'Heavy armor proficiency' },
-              { label: 'Weapons', value: 'Martial weapons proficiency' }
-            ]
-          },
-          {
-            id: 'thaumaturge',
-            name: 'Thaumaturge',
-            rarity: 'common',
-            description:
-              'You know one extra cantrip from the Divine spell list. In addition, your mystical connection to the divine gives you a bonus to Intelligence (Religion) checks equal to your Wisdom modifier (minimum bonus of +1).',
-            traits: [],
-            source: 'SRD',
-            detailFields: [
-              { label: 'Bonus Cantrip', value: '+1 Divine cantrip' },
-              { label: 'Skill Bonus', value: 'Religion checks + WIS modifier (min +1)' }
-            ]
-          }
-        ]
+        return DIVINE_ORDER_OPTIONS
       }
       default:
         return []
@@ -744,75 +517,29 @@ export async function load5eVehicles(): Promise<import('../types/mount').Vehicle
 }
 
 // === Extracted Data Loaders ===
-
-export interface ConditionEntry {
-  id: string
-  name: string
-  type: 'condition' | 'buff'
-  description: string
-  source: string
-  system: string
-  hasValue: boolean
-  maxValue: number | null
-}
+//
+// Loader return-type interfaces (ConditionEntry, LanguageEntry, …) live in
+// `./data-provider/extracted-data-types` and are re-exported at the top of this
+// file so consumers continue importing them from `./data-provider`.
 
 export async function load5eConditions(): Promise<ConditionEntry[]> {
   return ds().get('conditions', () => loadJson<ConditionEntry[]>(resolvePath('conditions')))
-}
-
-export interface LanguageEntry {
-  id: string
-  name: string
-  type: string
-  script: string | null
-  typicalSpeakers: string
-  description: string
-  source: string
 }
 
 export async function load5eLanguages(): Promise<LanguageEntry[]> {
   return ds().get('languages', () => loadJson<LanguageEntry[]>(resolvePath('languages')))
 }
 
-export interface WeaponMasteryEntry {
-  id: string
-  name: string
-  description: string
-  source: string
-}
-
 export async function load5eWeaponMastery(): Promise<WeaponMasteryEntry[]> {
   return ds().get('weaponMastery', () => loadJson<WeaponMasteryEntry[]>(resolvePath('weaponMastery')))
-}
-
-export interface SkillEntry {
-  id: string
-  name: string
-  ability: string
-  description: string
-  exampleDCs: { easy: number; moderate: number; hard: number }
-  uses?: string
-  source: string
 }
 
 export async function load5eSkills(): Promise<SkillEntry[]> {
   return ds().get('skills', () => loadJson<SkillEntry[]>(resolvePath('skills')))
 }
 
-export interface VariantItemEntry {
-  label: string
-  variants: string[]
-}
-
 export async function load5eVariantItems(): Promise<Record<string, VariantItemEntry>> {
   return ds().get('variantItems', () => loadJson<Record<string, VariantItemEntry>>(resolvePath('variantItems')))
-}
-
-export interface LightSourceEntry {
-  label: string
-  durationSeconds: number | null
-  brightRadius: number
-  dimRadius: number
 }
 
 export async function load5eLightSources(): Promise<Record<string, LightSourceEntry>> {
@@ -1008,18 +735,10 @@ export async function load5eRarityOptions(): Promise<RarityOptionEntry[]> {
 }
 
 // --- Round 3 loaders (companions, deities, planes) ---
-
-const COMPANION_FILES = [
-  './data/5e/character/companions/mounts/riding-horse-mount.json',
-  './data/5e/character/companions/mounts/warhorse-mount.json',
-  './data/5e/character/companions/mounts/pony-mount.json',
-  './data/5e/character/companions/pets/owl-companion.json',
-  './data/5e/character/companions/pets/hawk-companion.json',
-  './data/5e/character/companions/pets/cat-companion.json',
-  './data/5e/character/companions/hirelings/hireling-skilled.json',
-  './data/5e/character/companions/hirelings/hireling-unskilled.json',
-  './data/5e/character/companions/hirelings/hireling-mercenary.json'
-]
+//
+// File-path manifests (COMPANION_FILES, DEITY_FILES, PLANE_FILES) live in
+// `./data-provider/companion-files` — these directories have no index.json so
+// the loaders enumerate explicitly.
 
 export async function load5eCompanions(): Promise<Record<string, unknown>[]> {
   return ds().get('companions', async () => {
@@ -1037,21 +756,6 @@ export async function load5eCompanions(): Promise<Record<string, unknown>[]> {
   })
 }
 
-const DEITY_FILES = [
-  './data/5e/world/deities/forgotten-realms/kelemvor.json',
-  './data/5e/world/deities/forgotten-realms/lathander.json',
-  './data/5e/world/deities/forgotten-realms/mystra.json',
-  './data/5e/world/deities/forgotten-realms/selune.json',
-  './data/5e/world/deities/forgotten-realms/sune.json',
-  './data/5e/world/deities/forgotten-realms/tempus.json',
-  './data/5e/world/deities/forgotten-realms/torm.json',
-  './data/5e/world/deities/forgotten-realms/tyr.json',
-  './data/5e/world/deities/pantheons/celtic.json',
-  './data/5e/world/deities/pantheons/egyptian.json',
-  './data/5e/world/deities/pantheons/greek.json',
-  './data/5e/world/deities/pantheons/norse.json'
-]
-
 export async function load5eDeities(): Promise<Record<string, unknown>[]> {
   return ds().get('deities', async () => {
     const results = await Promise.all(
@@ -1067,51 +771,6 @@ export async function load5eDeities(): Promise<Record<string, unknown>[]> {
     return results.filter((r): r is Record<string, unknown> => r !== null)
   })
 }
-
-const PLANE_FILES = [
-  './data/5e/world/planes/material/material-plane.json',
-  './data/5e/world/planes/inner/elemental-plane-of-air.json',
-  './data/5e/world/planes/inner/elemental-plane-of-earth.json',
-  './data/5e/world/planes/inner/elemental-plane-of-fire.json',
-  './data/5e/world/planes/inner/elemental-plane-of-water.json',
-  './data/5e/world/planes/transitive/astral-plane.json',
-  './data/5e/world/planes/transitive/ethereal-plane.json',
-  './data/5e/world/planes/transitive/feywild.json',
-  './data/5e/world/planes/transitive/shadowfell.json',
-  './data/5e/world/planes/outer/abyss.json',
-  './data/5e/world/planes/outer/acheron.json',
-  './data/5e/world/planes/outer/arborea.json',
-  './data/5e/world/planes/outer/arcadia.json',
-  './data/5e/world/planes/outer/beastlands.json',
-  './data/5e/world/planes/outer/bytopia.json',
-  './data/5e/world/planes/outer/carceri.json',
-  './data/5e/world/planes/outer/elysium.json',
-  './data/5e/world/planes/outer/gehenna.json',
-  './data/5e/world/planes/outer/hades.json',
-  './data/5e/world/planes/outer/limbo.json',
-  './data/5e/world/planes/outer/mechanus.json',
-  './data/5e/world/planes/outer/mount-celestia.json',
-  './data/5e/world/planes/outer/nine-hells.json',
-  './data/5e/world/planes/outer/outlands.json',
-  './data/5e/world/planes/outer/pandemonium.json',
-  './data/5e/world/planes/outer/ysgard.json',
-  './data/5e/world/planes/other/demiplanes.json',
-  './data/5e/world/planes/other/far-realm.json',
-  './data/5e/world/planes/other/material-realms.json',
-  './data/5e/world/planes/other/negative-plane.json',
-  './data/5e/world/planes/other/para-elemental-planes.json',
-  './data/5e/world/planes/other/planar-adventure-situations.json',
-  './data/5e/world/planes/other/planar-adventuring.json',
-  './data/5e/world/planes/other/planar-portals.json',
-  './data/5e/world/planes/other/positive-plane.json',
-  './data/5e/world/planes/other/sigil-city-of-doors.json',
-  './data/5e/world/planes/other/spells.json',
-  './data/5e/world/planes/other/the-blood-war.json',
-  './data/5e/world/planes/other/the-great-wheel.json',
-  './data/5e/world/planes/other/the-planes.json',
-  './data/5e/world/planes/other/tour-of-the-multiverse.json',
-  './data/5e/world/planes/other/traveling-the-outer-planes.json'
-]
 
 export async function load5ePlanes(): Promise<Record<string, unknown>[]> {
   return ds().get('planes', async () => {

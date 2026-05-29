@@ -1,7 +1,6 @@
-import { Circle, Pencil, Ruler, Square, Type } from 'lucide-react'
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { SETTINGS_KEYS, Z } from '../../constants'
+import { SETTINGS_KEYS } from '../../constants'
 import { useAiMemorySync } from '../../hooks/use-ai-memory-sync'
 import { useGameEffects } from '../../hooks/use-game-effects'
 import { useGameHandlers } from '../../hooks/use-game-handlers'
@@ -15,6 +14,7 @@ import { buildContentIndex } from '../../services/library/content-index'
 import { loadCategoryItems } from '../../services/library-service'
 import { executeMacro } from '../../services/macro-engine'
 import { buildMapLightSources, hasDarkvision, recomputeVision } from '../../services/map/vision-computation'
+import type { WeatherType } from '../../services/weather-mechanics'
 import { useNetworkStore } from '../../stores/network-store'
 import { useAiDmStore } from '../../stores/use-ai-dm-store'
 import { useCharacterStore } from '../../stores/use-character-store'
@@ -28,7 +28,7 @@ import type { MapToken } from '../../types/map'
 import { getBuilderCreatePath } from '../../utils/character-routes'
 import { cryptoRollDie } from '../../utils/crypto-random'
 import { processDawnRecharge } from '../../utils/dawn-recharge'
-import { ErrorBoundary, ModalErrorBoundary, Tooltip } from '../ui'
+import { ErrorBoundary, ModalErrorBoundary } from '../ui'
 import { announce } from '../ui/ScreenReaderAnnouncer'
 import DMBottomBar from './bottom/DMBottomBar'
 import PlayerBottomBar from './bottom/PlayerBottomBar'
@@ -36,13 +36,15 @@ import PlayerBottomBar from './bottom/PlayerBottomBar'
 import DiceTray from './dice3d/DiceTray'
 import type { ActiveModal } from './GameModalDispatcher'
 import GameModalDispatcher from './GameModalDispatcher'
-import PlayerNotesPanel from './player/PlayerNotesPanel'
-import SpellPrepModal from './player/SpellPrepModal'
-
-const CharacterInspectModal = lazy(() => import('./modals/utility/CharacterInspectModal'))
-
-import { getWeatherEffects, type WeatherType } from '../../services/weather-mechanics'
-
+import {
+  DrawingToolPicker,
+  GamePromptsLayer,
+  InspectModalRenderer,
+  MapSelector,
+  useViewMode,
+  ViewAsSelector,
+  WeatherBanner
+} from './game-layout'
 import type { AoEConfig } from './map/aoe-overlay'
 import MapCanvas from './map/MapCanvas'
 import ActionEconomyBar from './overlays/ActionEconomyBar'
@@ -50,14 +52,7 @@ import ClockOverlay from './overlays/ClockOverlay'
 import DmAlertTray from './overlays/DmAlertTray'
 import EmptyCellContextMenu from './overlays/EmptyCellContextMenu'
 import FloatingDMPanel from './overlays/FloatingDMPanel'
-import {
-  type ConcCheckPromptState,
-  ConcentrationCheckPrompt,
-  type OaPromptState,
-  OpportunityAttackPrompt,
-  StabilizeCheckPrompt,
-  type StabilizePromptState
-} from './overlays/GamePrompts'
+import type { ConcCheckPromptState, OaPromptState, StabilizePromptState } from './overlays/GamePrompts'
 import {
   AoEDismissButton,
   DrawingToolbar,
@@ -74,12 +69,7 @@ import LairActionPrompt from './overlays/LairActionPrompt'
 import MutationApprovalPanel from './overlays/MutationApprovalPanel'
 import PlayerHUDOverlay from './overlays/PlayerHUDOverlay'
 import PortalPrompt from './overlays/PortalPrompt'
-import {
-  type CounterspellPromptState,
-  CounterspellReactionPrompt,
-  type ShieldPromptState,
-  ShieldReactionPrompt
-} from './overlays/ReactionPrompts'
+import type { CounterspellPromptState, ShieldPromptState } from './overlays/ReactionPrompts'
 import RollRequestOverlay from './overlays/RollRequestOverlay'
 import SettingsDropdown from './overlays/SettingsDropdown'
 import TimerOverlay from './overlays/TimerOverlay'
@@ -87,6 +77,8 @@ import TokenContextMenu from './overlays/TokenContextMenu'
 import TurnNotificationBanner from './overlays/TurnNotificationBanner'
 import ViewModeToggle from './overlays/ViewModeToggle'
 import { CharacterMiniSheet, ConditionTracker, PlayerHUD, ShopView, SpellSlotTracker } from './player'
+import PlayerNotesPanel from './player/PlayerNotesPanel'
+import SpellPrepModal from './player/SpellPrepModal'
 import ResizeHandle from './ResizeHandle'
 import LeftSidebar from './sidebar/LeftSidebar'
 
@@ -101,19 +93,6 @@ interface GameLayoutProps {
   isDM: boolean
   character: Character | null
   playerName: string
-}
-
-function InspectModalRenderer(): JSX.Element | null {
-  const inspectedCharacterData = useGameStore((s) => s.inspectedCharacterData)
-  const clearInspectedCharacter = useGameStore((s) => s.clearInspectedCharacter)
-  if (!inspectedCharacterData) return null
-  return (
-    <ErrorBoundary fallback={null}>
-      <Suspense fallback={null}>
-        <CharacterInspectModal characterData={inspectedCharacterData} onClose={clearInspectedCharacter} />
-      </Suspense>
-    </ErrorBoundary>
-  )
 }
 
 export default function GameLayout({ campaign, isDM, character, playerName }: GameLayoutProps): JSX.Element {
@@ -144,55 +123,11 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
   const prevSidebarWidth = useRef(280)
   const [teleportMove, _setTeleportMove] = useState(false)
   const [activeAoE, setActiveAoE] = useState<AoEConfig | null>(null)
-  // Phase 29f — view-as-role. `viewMode` stays the string the rest of the layout
-  // reads ('dm' = full DM view, 'player' = filtered). `viewAs` carries the
-  // optional target role/player the DM is previewing (drives the banner + label).
-  const [viewMode, setViewModeRaw] = useState<'dm' | 'player'>(() => {
-    try {
-      const saved = sessionStorage.getItem(`game-viewMode-${campaign.id}`)
-      // Migrate the old bare-string key; an object form means "as-role" → player view.
-      if (saved === 'player') return 'player'
-      if (saved && saved.startsWith('{')) {
-        const parsed = JSON.parse(saved) as { mode?: string }
-        return parsed.mode === 'self' ? 'dm' : 'player'
-      }
-      return 'dm'
-    } catch {
-      return 'dm'
-    }
-  })
-  const [viewAs, setViewAs] = useState<{ roleId?: string; playerId?: string; label?: string } | null>(null)
-  const setViewMode = useCallback(
-    (mode: 'dm' | 'player') => {
-      setViewModeRaw(mode)
-      if (mode === 'dm') setViewAs(null)
-      try {
-        sessionStorage.setItem(`game-viewMode-${campaign.id}`, mode)
-      } catch {
-        /* ignore */
-      }
-    },
-    [campaign.id]
-  )
-  // Preview the game as a specific role/player: forces the filtered (player) view
-  // and records the target for the banner. Passing null returns to self/DM view.
-  const setViewAsTarget = useCallback(
-    (target: { roleId?: string; playerId?: string; label: string } | null) => {
-      if (!target) {
-        setViewAs(null)
-        setViewMode('dm')
-        return
-      }
-      setViewAs(target)
-      setViewModeRaw('player')
-      try {
-        sessionStorage.setItem(`game-viewMode-${campaign.id}`, JSON.stringify({ mode: 'as-role', ...target }))
-      } catch {
-        /* ignore */
-      }
-    },
-    [campaign.id, setViewMode]
-  )
+  // Phase 29f — view-as-role state (extracted to ./game-layout/use-view-mode).
+  // `viewMode` stays the string the rest of the layout reads ('dm' = full DM
+  // view, 'player' = filtered). `viewAs` carries the optional target role/player
+  // the DM is previewing (drives the banner + label).
+  const { viewMode, viewAs, setViewMode, setViewAsTarget } = useViewMode(campaign.id)
   const [showCharacterPicker, setShowCharacterPicker] = useState(false)
   const [activeTool, setActiveTool] = useState<
     | 'select'
@@ -710,21 +645,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
           <div className="absolute inset-0 bg-gray-950/60 pointer-events-none z-[1]" />
         )}
         {gameStore.underwaterCombat && <div className="absolute inset-0 bg-blue-900/15 pointer-events-none z-[1]" />}
-        {(() => {
-          const preset = gameStore.weatherOverride?.preset as WeatherType | undefined
-          if (!preset || preset === 'clear') return null
-          const effects = getWeatherEffects(preset)
-          const mechanics: string[] = []
-          if (effects.disadvantageRanged) mechanics.push('Disadv. on ranged attacks')
-          if (effects.speedModifier < 1) mechanics.push(`Speed x${effects.speedModifier}`)
-          if (effects.disadvantagePerception) mechanics.push('Disadv. on Perception')
-          return (
-            <div className="absolute top-12 left-1/2 -translate-x-1/2 z-[2] px-3 py-1.5 bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-lg shadow-lg pointer-events-none max-w-md text-center">
-              <span className="text-xs font-semibold text-amber-300">{effects.description}</span>
-              {mechanics.length > 0 && <span className="text-xs text-gray-400 ml-2">{mechanics.join(' · ')}</span>}
-            </div>
-          )
-        })()}
+        <WeatherBanner preset={gameStore.weatherOverride?.preset as WeatherType | undefined} />
         {/* P-2 (v2.1.31 QA): DiceOverlay is already mounted globally in
             App.tsx — mounting it again here registered a second listener
             against the trigger3dDice event bus, which made every chat
@@ -847,45 +768,12 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
       >
         {isDM && <ViewModeToggle viewMode={viewMode} onToggle={handleViewModeToggle} characterName={character?.name} />}
         {/* Phase 29f — View-as-role debug selector (DM only). */}
-        {isDM && (
-          <select
-            value={viewAs ? (viewAs.playerId ? `player:${viewAs.playerId}` : `role:${viewAs.roleId}`) : 'self'}
-            onChange={(e) => {
-              const v = e.target.value
-              if (v === 'self') return setViewAsTarget(null)
-              if (v.startsWith('player:')) {
-                const pid = v.slice(7)
-                const p = campaign.players.find((pl) => pl.userId === pid)
-                return setViewAsTarget({ playerId: pid, label: p?.displayName ?? 'Player' })
-              }
-              const rid = v.slice(5)
-              const r = campaign.permissions?.roles.find((rr) => rr.id === rid)
-              setViewAsTarget({ roleId: rid, label: r?.name ?? 'Role' })
-            }}
-            className="bg-gray-800/80 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
-            title="Preview the game as a role or player"
-          >
-            <option value="self">View: Self (DM)</option>
-            {campaign.players.map((p) => (
-              <option key={p.userId} value={`player:${p.userId}`}>
-                As player: {p.displayName}
-              </option>
-            ))}
-            {(campaign.permissions?.roles ?? []).map((r) => (
-              <option key={r.id} value={`role:${r.id}`}>
-                As role: {r.name}
-              </option>
-            ))}
-          </select>
-        )}
+        {isDM && <ViewAsSelector campaign={campaign} viewAs={viewAs} setViewAsTarget={setViewAsTarget} />}
         {effectiveIsDM && gameStore.maps.length > 1 && (
-          // Phase 14a (D1): quick map selector in the DM toolbar — no
-          // longer requires drilling into Places / portal triggers /
-          // fullscreen editor just to flip the active map.
-          <select
-            value={gameStore.activeMapId ?? ''}
-            onChange={(e) => {
-              const nextMapId = e.target.value
+          <MapSelector
+            maps={gameStore.maps}
+            activeMapId={gameStore.activeMapId}
+            onSelect={(nextMapId) => {
               gameStore.setActiveMap(nextMapId)
               // Phase 17x — fire the dm:map-change broadcast directly here
               // as belt-and-suspenders alongside the game-sync subscriber
@@ -901,17 +789,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
                 sendMessage('dm:map-change', { mapId: nextMapId })
               }
             }}
-            className="bg-gray-900/80 backdrop-blur-sm border border-gray-700 text-gray-200 text-xs rounded-lg px-2 py-1.5
-                       hover:border-amber-600/50 focus:outline-none focus:border-amber-500 transition-colors cursor-pointer"
-            title="Switch active map"
-            aria-label="Switch active map"
-          >
-            {gameStore.maps.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.name || 'Untitled Map'}
-              </option>
-            ))}
-          </select>
+          />
         )}
         {campaign.calendar && (
           <ClockOverlay
@@ -1110,61 +988,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
           unconditionally; if `activeTool` ever leaked into a player
           session (state-restore edge case, view-mode swap) the player
           would see drawing controls. Explicit gate closes that hole. */}
-      {effectiveIsDM && activeTool === 'select' && (
-        <div
-          className="absolute top-16 right-4 flex flex-col gap-1 bg-gray-900/90 backdrop-blur-sm border border-gray-700/50 rounded-xl p-2 shadow-xl"
-          style={{ zIndex: Z.TOOLBAR }}
-          role="toolbar"
-          aria-label="Drawing tools"
-        >
-          <p className="text-xs text-gray-500 uppercase tracking-wider text-center mb-1">Drawing</p>
-          <Tooltip text="Free Draw (F)">
-            <button
-              onClick={() => setActiveTool('draw-free')}
-              aria-label="Free draw"
-              className="w-11 h-11 p-2 rounded-lg flex items-center justify-center bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
-            >
-              <Pencil className="w-5 h-5" aria-hidden="true" />
-            </button>
-          </Tooltip>
-          <Tooltip text="Draw Line (L)">
-            <button
-              onClick={() => setActiveTool('draw-line')}
-              aria-label="Draw line"
-              className="w-11 h-11 p-2 rounded-lg flex items-center justify-center bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
-            >
-              <Ruler className="w-5 h-5" aria-hidden="true" />
-            </button>
-          </Tooltip>
-          <Tooltip text="Draw Rectangle (R)">
-            <button
-              onClick={() => setActiveTool('draw-rect')}
-              aria-label="Draw rectangle"
-              className="w-11 h-11 p-2 rounded-lg flex items-center justify-center bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
-            >
-              <Square className="w-5 h-5" aria-hidden="true" />
-            </button>
-          </Tooltip>
-          <Tooltip text="Draw Circle (C)">
-            <button
-              onClick={() => setActiveTool('draw-circle')}
-              aria-label="Draw circle"
-              className="w-11 h-11 p-2 rounded-lg flex items-center justify-center bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
-            >
-              <Circle className="w-5 h-5" aria-hidden="true" />
-            </button>
-          </Tooltip>
-          <Tooltip text="Add Text (T)">
-            <button
-              onClick={() => setActiveTool('draw-text')}
-              aria-label="Add text"
-              className="w-11 h-11 p-2 rounded-lg flex items-center justify-center bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
-            >
-              <Type className="w-5 h-5" aria-hidden="true" />
-            </button>
-          </Tooltip>
-        </div>
-      )}
+      {effectiveIsDM && activeTool === 'select' && <DrawingToolPicker onSetTool={setActiveTool} />}
 
       {/* Drawing toolbar - appears when in drawing mode. DM-only (14b). */}
       {effectiveIsDM &&
@@ -1291,48 +1115,22 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
       )}
 
       {/* Game prompts */}
-      {oaPrompt && (
-        <OpportunityAttackPrompt
-          prompt={oaPrompt}
-          onDismiss={() => setOaPrompt(null)}
-          addChatMessage={addChatMessage}
-          sendMessage={sendMessage}
-        />
-      )}
-      {concCheckPrompt && (
-        <ConcentrationCheckPrompt
-          prompt={concCheckPrompt}
-          onDismiss={() => setConcCheckPrompt(null)}
-          addChatMessage={addChatMessage}
-          sendMessage={sendMessage}
-          onConcentrationLost={handleConcentrationLost}
-        />
-      )}
-      {stabilizePrompt && (
-        <StabilizeCheckPrompt
-          prompt={stabilizePrompt}
-          character={character}
-          onDismiss={() => setStabilizePrompt(null)}
-          addChatMessage={addChatMessage}
-          sendMessage={sendMessage}
-        />
-      )}
-      {shieldPrompt && (
-        <ShieldReactionPrompt
-          prompt={shieldPrompt}
-          onDismiss={() => setShieldPrompt(null)}
-          addChatMessage={addChatMessage}
-          sendMessage={sendMessage}
-        />
-      )}
-      {counterspellPrompt && (
-        <CounterspellReactionPrompt
-          prompt={counterspellPrompt}
-          onDismiss={() => setCounterspellPrompt(null)}
-          addChatMessage={addChatMessage}
-          sendMessage={sendMessage}
-        />
-      )}
+      <GamePromptsLayer
+        oaPrompt={oaPrompt}
+        setOaPrompt={setOaPrompt}
+        concCheckPrompt={concCheckPrompt}
+        setConcCheckPrompt={setConcCheckPrompt}
+        stabilizePrompt={stabilizePrompt}
+        setStabilizePrompt={setStabilizePrompt}
+        shieldPrompt={shieldPrompt}
+        setShieldPrompt={setShieldPrompt}
+        counterspellPrompt={counterspellPrompt}
+        setCounterspellPrompt={setCounterspellPrompt}
+        character={character}
+        handleConcentrationLost={handleConcentrationLost}
+        addChatMessage={addChatMessage}
+        sendMessage={sendMessage}
+      />
 
       {/* DM Map Editor fullscreen */}
       {editMapMode && effectiveIsDM && (
