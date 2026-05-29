@@ -54,7 +54,7 @@ cd bmo/pi && ./venv/bin/python -m pytest
 
 ### 1. VTT → BMO (control plane)
 
-**Transport:** HTTP JSON to `http://bmo.local:5000` (configurable via `BMO_PI_URL` env on VTT side).
+**Transport:** HTTP JSON to the resolved BMO base URL — by default `https://bmo.mybmoai.work` (the Cloudflare tunnel), configurable via `BMO_PI_URL` env / settings / mDNS discovery (see precedence below).
 
 **Client:** `dnd-app/src/main/bmo-bridge.ts`
 
@@ -81,10 +81,10 @@ cd bmo/pi && ./venv/bin/python -m pytest
 **Resolved BMO URL precedence (VTT side, see `dnd-app/src/main/bmo-config.ts`):**
 
 ```
-settings.bmoPiBaseUrl  >  discoveredBmoUrl (via _bmo._tcp mDNS)  >  $BMO_PI_URL  >  http://bmo.local:5000
+settings.bmoPiBaseUrl  >  discoveredBmoUrl (via _bmo._tcp mDNS)  >  $BMO_PI_URL  >  BMO_PI_URL_DEFAULT
 ```
 
-Pi advertises `_bmo._tcp` on port 5000 via `/etc/avahi/services/bmo.service`. The VTT's main process (`src/main/lan-discovery.ts`) browses it via `bonjour-service` and emits `BMO_RESOLVED_URL` to the renderer. Fallback: 3 s after starting the mDNS browse with no hit, fire a direct HTTP probe at `bmo.local:5000/health` (helps Windows machines where the firewall blocks UDP 5353).
+The final fallback is `BMO_PI_URL_DEFAULT` in `bmo-config.ts`, currently `https://bmo.mybmoai.work` (the Cloudflare tunnel) — **not** `http://bmo.local:5000`. `bmo.local:5000` is only the mDNS *direct-probe target*: Pi advertises `_bmo._tcp` on port 5000 via `/etc/avahi/services/bmo.service`; the VTT main process (`src/main/lan-discovery.ts`) browses it via `bonjour-service` and, 3 s after a no-hit browse, fires a direct HTTP probe at `bmo.local:5000/health` (helps Windows machines where the firewall blocks UDP 5353). A successful discovery/probe sets `discoveredBmoUrl`; otherwise requests go to the tunnel default.
 
 ### 2. BMO → VTT (callback plane)
 

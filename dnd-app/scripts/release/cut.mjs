@@ -130,9 +130,34 @@ if (existsSync(lockPath)) {
   console.log(`✓ dnd-app/package-lock.json: → ${version}`)
 }
 
+// Keep the version strings in the READMEs in sync so they never drift from
+// package.json again. Each entry: file + a regex whose FIRST capture group is
+// the literal to replace with the new `vX.Y.Z`. Missing files / no-match are
+// non-fatal (logged) so a doc rename never blocks a release.
+const README_VERSION_SITES = [
+  // dnd-app/README.md → "**Current version:** v2.2.2"
+  { path: join(DND_APP_ROOT, 'README.md'), re: /(\*\*Current version:\*\* v)\d+\.\d+\.\d+/ },
+  // root README.md → "**`dnd-app`** at **v2.2.2**."
+  { path: join(REPO_ROOT, 'README.md'), re: /(\*\*`dnd-app`\*\* at \*\*v)\d+\.\d+\.\d+/ }
+]
+for (const { path, re } of README_VERSION_SITES) {
+  if (!existsSync(path)) {
+    console.log(`! version-sync: ${path} not found — skipped`)
+    continue
+  }
+  const before = readFileSync(path, 'utf-8')
+  const after = before.replace(re, `$1${version}`)
+  if (after === before) {
+    console.log(`! version-sync: no version match in ${path} — skipped (check the regex if the README format changed)`)
+  } else {
+    writeFileSync(path, after)
+    console.log(`✓ version-sync: ${path} → v${version}`)
+  }
+}
+
 // ── 4. commit + tag + push master ─────────────────────────────────────────
 
-sh('git add dnd-app/package.json dnd-app/package-lock.json')
+sh('git add dnd-app/package.json dnd-app/package-lock.json dnd-app/README.md README.md')
 sh(`git commit -m "chore(release): bump dnd-app to ${tag}"`)
 sh(`git tag ${tag}`)
 console.log(`✓ Committed and tagged ${tag}`)
