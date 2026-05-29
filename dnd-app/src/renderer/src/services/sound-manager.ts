@@ -344,6 +344,19 @@ export function reinit(): void {
 }
 
 /**
+ * Phase 27g — tear down all active playback without re-initializing. Stops the
+ * ambient loop, stops every custom track, and clears the custom-override map so
+ * a stale session's audio doesn't leak across a game-session unmount. Call sites
+ * that use custom sounds must re-register after the next mount. Kept separate
+ * from {@link reinit} so refreshing sound data mid-session is non-destructive.
+ */
+export function dispose(): void {
+  playbackStopAmbient()
+  playbackStopAllCustomAudio()
+  playbackCustomOverrides.clear()
+}
+
+/**
  * Plays the sound associated with the given event.
  * Uses round-robin across the pool to allow overlapping plays.
  * Does nothing if the system is disabled or not initialized.

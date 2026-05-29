@@ -49,6 +49,14 @@ export default function InGamePage(): JSX.Element {
     return () => clearTimeout(timeout)
   }, [])
 
+  // Phase 27g — tear down audio when leaving the game session so ambient loops
+  // and custom tracks don't leak across navigation.
+  useEffect(() => {
+    return () => {
+      import('../services/sound-manager').then(({ dispose }) => dispose())
+    }
+  }, [])
+
   const campaign = campaigns.find((c) => c.id === campaignId) ?? null
   // Phase 17b — CoDM gets the same gameplay perms + view as DM (full
   // hidden-token visibility, DM-only stat lines, fog brush, kick, etc.).

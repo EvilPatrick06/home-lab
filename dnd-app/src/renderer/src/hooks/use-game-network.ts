@@ -5,10 +5,7 @@ import type {
   DiceResultPayload,
   MessageType,
   NarrationPayload,
-  PlayAmbientPayload,
-  PlaySoundPayload,
   ShopUpdatePayload,
-  StopAmbientPayload,
   TimeRequestPayload,
   TimerStartPayload,
   TimeSharePayload,
@@ -17,8 +14,6 @@ import type {
 } from '../network'
 import { onClientMessage, onHostMessage } from '../network'
 import { getTokenStats } from '../services/game/token-stats'
-import type { AmbientSound, SoundEvent } from '../services/sound-manager'
-import { playAmbient, play as playSound, setAmbientVolume, stopAmbient } from '../services/sound-manager'
 import { useAiDmStore } from '../stores/use-ai-dm-store'
 import { useGameStore } from '../stores/use-game-store'
 import type { ChatMessage } from '../stores/use-lobby-store'
@@ -112,19 +107,9 @@ export function useGameNetwork({
       if (msg.type === 'dm:timer-stop') {
         gs.stopTimer()
       }
-      if (msg.type === 'dm:play-sound') {
-        const payload = msg.payload as PlaySoundPayload
-        playSound(payload.event as SoundEvent)
-      }
-      if (msg.type === 'dm:play-ambient') {
-        const payload = msg.payload as PlayAmbientPayload
-        if (payload.volume !== undefined) setAmbientVolume(payload.volume)
-        playAmbient(payload.ambient as AmbientSound)
-      }
-      if (msg.type === 'dm:stop-ambient') {
-        const _stopPayload = msg.payload as StopAmbientPayload
-        stopAmbient()
-      }
+      // Phase 27d — audio (dm:play-sound / dm:play-ambient / dm:stop-ambient) is
+      // handled by the store-based client handler (client-handlers.ts); handling
+      // it here too caused a double-play on clients.
       if (msg.type === 'game:dice-result') {
         const payload = msg.payload as DiceResultPayload
         trigger3dDice({
