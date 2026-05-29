@@ -229,6 +229,16 @@ export default function PlayerBottomBar({
               View Sheet
             </button>
             <button
+              onClick={() => character && useGameStore.getState().requestCenterOnEntity(character.id)}
+              disabled={!character}
+              title="Center the map on your character (Phase 16a)"
+              className="px-3 py-2 text-xs font-semibold rounded-lg bg-gray-800/60 border border-gray-700/50
+            text-gray-200 hover:bg-amber-600/30 hover:border-amber-500/50 hover:text-amber-300
+            transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Center on Me
+            </button>
+            <button
               onClick={onAction}
               className="px-3 py-2 text-xs font-semibold rounded-lg bg-gray-800/60 border border-gray-700/50
             text-gray-200 hover:bg-amber-600/30 hover:border-amber-500/50 hover:text-amber-300

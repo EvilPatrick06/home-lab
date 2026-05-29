@@ -121,7 +121,9 @@ export interface MapTokenSliceState {
     targetGridY: number
   ) => void
   centerOnEntityId: string | null
-  requestCenterOnEntity: (entityId: string) => void
+  /** Phase 16a — true when the pending center request came from auto-pan (debounced) vs an explicit user action (immediate). */
+  centerViaAutoPan: boolean
+  requestCenterOnEntity: (entityId: string, viaAutoPan?: boolean) => void
   clearCenterRequest: () => void
   pendingFallDamage: { tokenId: string; mapId: string; height: number } | null
   setPendingFallDamage: (pending: { tokenId: string; mapId: string; height: number } | null) => void

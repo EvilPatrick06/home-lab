@@ -278,8 +278,10 @@ export const createMapTokenSlice: StateCreator<GameStoreState, [], [], MapTokenS
   // --- Center on entity ---
 
   centerOnEntityId: null,
-  requestCenterOnEntity: (entityId: string) => set({ centerOnEntityId: entityId }),
-  clearCenterRequest: () => set({ centerOnEntityId: null }),
+  centerViaAutoPan: false,
+  requestCenterOnEntity: (entityId: string, viaAutoPan = false) =>
+    set({ centerOnEntityId: entityId, centerViaAutoPan: viaAutoPan }),
+  clearCenterRequest: () => set({ centerOnEntityId: null, centerViaAutoPan: false }),
 
   // --- Click-to-place token ---
 

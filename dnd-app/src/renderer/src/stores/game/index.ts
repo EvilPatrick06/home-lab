@@ -106,6 +106,7 @@ export const useGameStore = create<GameStoreState>()((...a) => {
         groupRollResults: [],
         currentFloor: 0,
         centerOnEntityId: null,
+        centerViaAutoPan: false,
         sessionLog: [],
         currentSessionId: `session-${Date.now()}`,
         currentSessionLabel: `Session 1`,

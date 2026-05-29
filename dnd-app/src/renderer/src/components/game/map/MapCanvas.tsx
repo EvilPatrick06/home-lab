@@ -61,6 +61,26 @@ import type { WeatherOverlayLayer } from './weather-overlay'
 
 const FloorSelector = lazy(() => import('./FloorSelector'))
 
+/** Phase 16g — spreadsheet-style column label (0→A, 25→Z, 26→AA, …). */
+function columnLabel(n: number): string {
+  if (n < 0) return String(n)
+  let s = ''
+  let x = n
+  do {
+    s = String.fromCharCode(65 + (x % 26)) + s
+    x = Math.floor(x / 26) - 1
+  } while (x >= 0)
+  return s
+}
+
+/** Phase 16g — hover grid-coordinate label: "A1" for square grids, axial "x,y" for hex/gridless. */
+function formatGridLabel(gridX: number, gridY: number, gridType: string): string {
+  if (gridType === 'square') return `${columnLabel(gridX)}${gridY + 1}`
+  return `${gridX},${gridY}`
+}
+
+const GRID_HUD_KEY = 'dnd-vtt-grid-coord-hud'
+
 interface MapCanvasProps {
   map: GameMap | null
   isHost: boolean
@@ -146,6 +166,12 @@ export default function MapCanvas({
   // Pan and zoom state
   const zoomRef = useRef(1)
   const panRef = useRef({ x: 0, y: 0 })
+  // Phase 16a — timestamp of the last manual pan/zoom; auto-pan-on-turn-change is suppressed
+  // for 5s after the user manually moves the camera, so it doesn't fight them.
+  const lastManualPanAtRef = useRef(0)
+  // Phase 16g — hover grid-coordinate readout (toggleable, per-viewer via localStorage).
+  const [showGridHud, setShowGridHud] = useState(() => localStorage.getItem(GRID_HUD_KEY) !== 'false')
+  const [hoverCoord, setHoverCoord] = useState<string | null>(null)
   const isPanningRef = useRef(false)
   const panStartRef = useRef({ x: 0, y: 0 })
   const spaceHeldRef = useRef(false)
@@ -613,6 +639,48 @@ export default function MapCanvas({
     return createWheelHandler({ zoom: zoomRef, pan: panRef }, applyTransform)(el)
   }, [applyTransform])
 
+  // Phase 16g — hover grid-coordinate HUD. Compute the cell under the cursor on pointermove
+  // (mirrors the pointer→grid math used by click-to-place); clear on leave. Skipped entirely
+  // when the readout is toggled off, so there's no per-move cost.
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el || !showGridHud || !map) return
+    const cellSize = map.grid.cellSize
+    const gridType = map.grid.type
+    const onMove = (e: PointerEvent): void => {
+      const rect = el.getBoundingClientRect()
+      const worldX = (e.clientX - rect.left - panRef.current.x) / zoomRef.current
+      const worldY = (e.clientY - rect.top - panRef.current.y) / zoomRef.current
+      setHoverCoord(formatGridLabel(Math.floor(worldX / cellSize), Math.floor(worldY / cellSize), gridType))
+    }
+    const onLeave = (): void => setHoverCoord(null)
+    el.addEventListener('pointermove', onMove)
+    el.addEventListener('pointerleave', onLeave)
+    return () => {
+      el.removeEventListener('pointermove', onMove)
+      el.removeEventListener('pointerleave', onLeave)
+    }
+  }, [showGridHud, map])
+
+  // Phase 16a — stamp the last manual pan/zoom. Wheel = zoom; pointerdown with the pan triggers
+  // (space held or middle mouse button) = drag-pan. Token clicks (plain left button) don't count.
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const stamp = (): void => {
+      lastManualPanAtRef.current = Date.now()
+    }
+    const onPointerDown = (e: PointerEvent): void => {
+      if (spaceHeldRef.current || e.button === 1) stamp()
+    }
+    el.addEventListener('wheel', stamp, { passive: true })
+    el.addEventListener('pointerdown', onPointerDown)
+    return () => {
+      el.removeEventListener('wheel', stamp)
+      el.removeEventListener('pointerdown', onPointerDown)
+    }
+  }, [])
+
   // Keyboard pan
   const keysHeldRef = useRef(new Set<string>())
   const panAnimRef = useRef<number>(0)
@@ -694,9 +762,16 @@ export default function MapCanvas({
 
   // Center map on entity
   const centerOnEntityId = useGameStore((s) => s.centerOnEntityId)
+  const centerViaAutoPan = useGameStore((s) => s.centerViaAutoPan)
   const clearCenterRequest = useGameStore((s) => s.clearCenterRequest)
   useEffect(() => {
     if (!centerOnEntityId || !map || !containerRef.current) return
+    // Phase 16a — auto-pan (turn change) is suppressed for 5s after a manual pan/zoom so the
+    // camera doesn't fight the user. An explicit "Center on Me" (viaAutoPan === false) ignores this.
+    if (centerViaAutoPan && Date.now() - lastManualPanAtRef.current < 5000) {
+      clearCenterRequest()
+      return
+    }
     const token = map.tokens.find((t) => t.entityId === centerOnEntityId)
     if (!token) {
       clearCenterRequest()
@@ -710,7 +785,7 @@ export default function MapCanvas({
     }
     applyTransform()
     clearCenterRequest()
-  }, [centerOnEntityId, map, applyTransform, clearCenterRequest])
+  }, [centerOnEntityId, centerViaAutoPan, map, applyTransform, clearCenterRequest])
 
   // Ping rendering — animate active pings on the map
   useEffect(() => {
@@ -898,6 +973,27 @@ export default function MapCanvas({
       aria-label="Game map canvas"
     >
       <div ref={containerRef} className="w-full h-full" />
+      {/* Phase 16g — hover grid-coordinate readout + its toggle. */}
+      {showGridHud && hoverCoord && (
+        <div className="absolute bottom-2 right-2 z-20 bg-black/60 text-white text-xs px-2 py-1 rounded pointer-events-none font-mono">
+          {hoverCoord}
+        </div>
+      )}
+      <button
+        onClick={() => {
+          const next = !showGridHud
+          setShowGridHud(next)
+          localStorage.setItem(GRID_HUD_KEY, next ? 'true' : 'false')
+          if (!next) setHoverCoord(null)
+        }}
+        title={showGridHud ? 'Hide grid coordinates' : 'Show grid coordinates'}
+        aria-label="Toggle grid coordinate readout"
+        className={`absolute bottom-2 left-2 z-20 px-2 py-1 text-xs font-mono rounded cursor-pointer transition-colors ${
+          showGridHud ? 'bg-amber-600/70 text-white' : 'bg-black/50 text-gray-400 hover:text-gray-200'
+        }`}
+      >
+        A1
+      </button>
       {map && (
         // Phase 17j — moved from bottom-3 to top-3 right-3 so the button no
         // longer overlaps the chat Send button (which lives at the bottom

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { getAutoPanOnTurnChange, setAutoPanOnTurnChange } from '../../../services/game/auto-pan-pref'
 import { useGameStore } from '../../../stores/use-game-store'
 import type { InitiativeEntry } from '../../../types/game-state'
 import { InitiativeTracker } from '../dm'
@@ -67,10 +68,13 @@ export default function InitiativeOverlay({ isDM }: InitiativeOverlayProps): JSX
     const token = activeMap?.tokens.find((t) => t.entityId === entry.entityId)
     return token?.visibleToPlayers !== false
   })()
+  // Phase 16a — per-viewer toggle (default ON). Skip the auto-pan when the viewer turned it off.
+  const [autoPan, setAutoPan] = useState(getAutoPanOnTurnChange)
   useEffect(() => {
     if (!activeEntryId || !activeEntryVisible) return
-    useGameStore.getState().requestCenterOnEntity(activeEntryId)
-  }, [activeEntryId, activeEntryVisible])
+    if (!autoPan) return
+    useGameStore.getState().requestCenterOnEntity(activeEntryId, true)
+  }, [activeEntryId, activeEntryVisible, autoPan])
   const round = useGameStore((s) => s.round)
   const startInitiative = useGameStore((s) => s.startInitiative)
   const nextTurn = useGameStore((s) => s.nextTurn)
@@ -116,13 +120,30 @@ export default function InitiativeOverlay({ isDM }: InitiativeOverlayProps): JSX
         <div className="bg-gray-900/70 backdrop-blur-sm border border-gray-700/50 rounded-xl p-3">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs text-amber-400 font-semibold">Round {initiative.round}</span>
-            <button
-              onClick={() => setExpanded(false)}
-              aria-label="Minimize initiative tracker"
-              className="text-gray-500 hover:text-gray-300 text-xs cursor-pointer"
-            >
-              Minimize
-            </button>
+            <div className="flex items-center gap-3">
+              <label
+                className="flex items-center gap-1 text-[10px] text-gray-400 cursor-pointer select-none"
+                title="Pan the camera to the active token each turn (this viewer only)"
+              >
+                <input
+                  type="checkbox"
+                  checked={autoPan}
+                  onChange={(e) => {
+                    setAutoPan(e.target.checked)
+                    setAutoPanOnTurnChange(e.target.checked)
+                  }}
+                  className="cursor-pointer"
+                />
+                Auto-pan
+              </label>
+              <button
+                onClick={() => setExpanded(false)}
+                aria-label="Minimize initiative tracker"
+                className="text-gray-500 hover:text-gray-300 text-xs cursor-pointer"
+              >
+                Minimize
+              </button>
+            </div>
           </div>
           <InitiativeTracker
             initiative={{ ...initiative, entries: filteredEntries }}
