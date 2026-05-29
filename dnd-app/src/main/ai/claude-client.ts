@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk'
-import { classifyProviderError, type LLMProvider } from './llm-provider'
+import { classifyProviderError, type LLMProvider, withRequestTimeout } from './llm-provider'
 import type { ChatMessage, StreamCallbacks } from './types'
 
 let apiKey: string | undefined
@@ -41,7 +41,7 @@ export const claudeProvider: LLMProvider = {
           system: systemPrompt,
           messages: apiMessages
         },
-        { signal: abortSignal }
+        { signal: withRequestTimeout(abortSignal) }
       )
 
       let fullText = ''
@@ -72,12 +72,15 @@ export const claudeProvider: LLMProvider = {
     }))
 
     try {
-      const response = await client.messages.create({
-        model,
-        max_tokens: 4096,
-        system: systemPrompt,
-        messages: apiMessages
-      })
+      const response = await client.messages.create(
+        {
+          model,
+          max_tokens: 4096,
+          system: systemPrompt,
+          messages: apiMessages
+        },
+        { signal: withRequestTimeout() }
+      )
 
       return response.content
         .filter((block): block is Anthropic.TextBlock => block.type === 'text')

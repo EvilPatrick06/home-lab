@@ -33,10 +33,9 @@ export const geminiProvider: LLMProvider = {
   ): Promise<void> {
     try {
       const client = getClient()
-      const genModel = client.getGenerativeModel({
-        model,
-        systemInstruction: systemPrompt
-      })
+      // Phase 17d (NET-8) — enforce a 120s request timeout (this SDK's RequestOptions has no
+      // `signal`; caller abort is handled by the `abortSignal?.aborted` checks in the stream loop).
+      const genModel = client.getGenerativeModel({ model, systemInstruction: systemPrompt }, { timeout: 120_000 })
 
       const history = messages.slice(0, -1).map((m) => ({
         role: toGeminiRole(m.role),
@@ -72,10 +71,8 @@ export const geminiProvider: LLMProvider = {
 
   async chatOnce(systemPrompt: string, messages: ChatMessage[], model: string): Promise<string> {
     const client = getClient()
-    const genModel = client.getGenerativeModel({
-      model,
-      systemInstruction: systemPrompt
-    })
+    // Phase 17d (NET-8) — 120s request timeout (cloud calls can't hang forever).
+    const genModel = client.getGenerativeModel({ model, systemInstruction: systemPrompt }, { timeout: 120_000 })
 
     const history = messages.slice(0, -1).map((m) => ({
       role: toGeminiRole(m.role),

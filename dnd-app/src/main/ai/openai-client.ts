@@ -1,5 +1,5 @@
 import OpenAI from 'openai'
-import { classifyProviderError, type LLMProvider } from './llm-provider'
+import { classifyProviderError, type LLMProvider, withRequestTimeout } from './llm-provider'
 import type { ChatMessage, StreamCallbacks } from './types'
 
 let apiKey: string | undefined
@@ -44,7 +44,7 @@ export const openaiProvider: LLMProvider = {
           stream: true,
           max_tokens: 4096
         },
-        { signal: abortSignal }
+        { signal: withRequestTimeout(abortSignal) }
       )
 
       let fullText = ''
@@ -76,11 +76,14 @@ export const openaiProvider: LLMProvider = {
     ]
 
     try {
-      const response = await client.chat.completions.create({
-        model,
-        messages: apiMessages,
-        max_tokens: 4096
-      })
+      const response = await client.chat.completions.create(
+        {
+          model,
+          messages: apiMessages,
+          max_tokens: 4096
+        },
+        { signal: withRequestTimeout() }
+      )
 
       return response.choices[0]?.message?.content ?? ''
     } catch (error) {

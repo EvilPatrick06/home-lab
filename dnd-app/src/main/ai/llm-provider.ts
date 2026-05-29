@@ -88,6 +88,15 @@ export class LLMProviderError extends Error {
   }
 }
 
+/**
+ * Phase 17d (NET-8) — combine the caller's abort signal (if any) with a hard request timeout so
+ * cloud calls can't hang forever. Mirrors the Ollama client's 120s default.
+ */
+export function withRequestTimeout(signal?: AbortSignal, ms = 120_000): AbortSignal {
+  const timeout = AbortSignal.timeout(ms)
+  return signal ? AbortSignal.any([signal, timeout]) : timeout
+}
+
 /** Classify a raw API error into a standardized LLM error. */
 export function classifyProviderError(provider: AiProviderType, error: unknown): Error {
   if (error instanceof LLMAuthError || error instanceof LLMRateLimitError || error instanceof LLMProviderError) {
