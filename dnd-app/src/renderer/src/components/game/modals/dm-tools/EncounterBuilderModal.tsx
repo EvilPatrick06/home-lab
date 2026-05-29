@@ -6,6 +6,11 @@ import {
   getMonsterXP
 } from '../../../../services/combat/encounter-cr-calculator'
 import { load5eMonsters } from '../../../../services/data-provider'
+import { smartPlaceTokens } from '../../../../services/game-actions/token-placement'
+import { useGameStore } from '../../../../stores/use-game-store'
+import type { InitiativeEntry } from '../../../../types/game-state'
+import type { MapToken } from '../../../../types/map'
+import { getSizeTokenDimensions } from '../../../../types/monster'
 import { logger } from '../../../../utils/logger'
 import { Skeleton } from '../../../ui'
 
@@ -141,6 +146,93 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
     onBroadcastResult(
       `Encounter started! Monsters: ${monsterList} (Total XP: ${encounter.totalXP.toLocaleString()}, Adjusted XP: ${encounter.adjustedXP.toLocaleString()}, Difficulty: ${encounter.difficulty})`
     )
+
+    // Phase 26b — place tokens on the active map and seed initiative.
+    const gameStore = useGameStore.getState()
+    const activeMap = gameStore.maps.find((m) => m.id === gameStore.activeMapId)
+    if (!activeMap) {
+      addToast('No active map — open a map before starting the encounter', 'warning')
+      onClose()
+      return
+    }
+
+    const rollD20 = (): number => Math.floor(Math.random() * 20) + 1
+
+    // Build placeable tokens for each selected monster × count.
+    const toPlace = selectedMonsters.flatMap((entry) => {
+      const data = allMonsters.find((m) => m.name === entry.name && m.cr === entry.cr)
+      const dims = getSizeTokenDimensions(
+        ((data?.size as string) ?? 'medium') as Parameters<typeof getSizeTokenDimensions>[0]
+      )
+      const hp = (data?.hp as number) ?? 1
+      const ac = (data?.ac as number) ?? 10
+      const dex = (data?.abilityScores as { dex?: number } | undefined)?.dex ?? 10
+      const initMod = Math.floor((dex - 10) / 2)
+      const speed = (data?.speed as { walk?: number } | undefined)?.walk ?? 30
+      return Array.from({ length: entry.count }, (_, i) => ({
+        id: crypto.randomUUID(),
+        entityId: crypto.randomUUID(),
+        entityType: 'enemy' as const,
+        label: entry.count > 1 ? `${entry.name} ${i + 1}` : entry.name,
+        sizeX: dims.x,
+        sizeY: dims.y,
+        visibleToPlayers: false,
+        conditions: [],
+        currentHP: hp,
+        maxHP: hp,
+        ac,
+        walkSpeed: speed,
+        monsterStatBlockId: (data?.id as string) ?? entry.id,
+        initiativeModifier: initMod
+      }))
+    })
+
+    const placed = smartPlaceTokens(activeMap, toPlace)
+    for (const token of placed) gameStore.addToken(activeMap.id, token as MapToken)
+
+    // Build initiative entries. With group init, one shared roll per monster name.
+    const entries: InitiativeEntry[] = []
+    if (gameStore.groupInitiativeEnabled) {
+      const byName = new Map<string, typeof placed>()
+      for (const t of placed) {
+        const key = t.monsterStatBlockId ?? t.label ?? t.id ?? crypto.randomUUID()
+        const list = byName.get(key) ?? []
+        list.push(t)
+        byName.set(key, list)
+      }
+      for (const [, group] of byName) {
+        const first = group[0]
+        const mod = first.initiativeModifier ?? 0
+        const roll = rollD20()
+        entries.push({
+          id: crypto.randomUUID(),
+          entityId: first.entityId ?? first.id ?? crypto.randomUUID(),
+          entityName: (first.label ?? 'Enemy').replace(/\s\d+$/, ''),
+          entityType: 'enemy',
+          roll,
+          modifier: mod,
+          total: roll + mod,
+          isActive: false
+        })
+      }
+    } else {
+      for (const t of placed) {
+        const mod = t.initiativeModifier ?? 0
+        const roll = rollD20()
+        entries.push({
+          id: crypto.randomUUID(),
+          entityId: t.entityId ?? t.id ?? crypto.randomUUID(),
+          entityName: t.label ?? 'Enemy',
+          entityType: 'enemy',
+          roll,
+          modifier: mod,
+          total: roll + mod,
+          isActive: false
+        })
+      }
+    }
+
+    if (entries.length > 0) gameStore.startInitiative(entries)
     onClose()
   }
 
