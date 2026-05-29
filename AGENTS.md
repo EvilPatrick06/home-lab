@@ -52,7 +52,7 @@ cd dungeon-scholar && npm test && npm run build
 | Main process | Node.js. Can use `node:*` modules, electron APIs, fs. |
 | Renderer | Browser sandbox. Goes through `preload/index.ts` for privileged ops. |
 | State | zustand stores in `src/renderer/src/stores/*`. Register in `register-stores.ts`. |
-| IPC | define channels in `src/shared/ipc-channels.ts`. Handlers in `src/main/ipc/`. |
+| IPC | define channels in `src/shared/ipc-channels.ts`. Handlers in `src/main/ipc/`. After editing `ipc-channels.ts`, regenerate the surface doc (`npm run gen:ipc-surface`) and commit `docs/IPC-SURFACE.md` alongside (28g.6; CI gate 28e.9 enforces no drift). Multi-arg handlers validate their arg tuple via `withArgsSchema` (`src/main/ipc/_safe.ts`); single-payload handlers via `withSchema`. |
 | Types | shared types in `src/shared/`, domain types in `src/renderer/src/types/`. |
 | Validation | zod schemas for runtime (`src/shared/ipc-schemas.ts`). |
 | Data | game content JSON in `src/renderer/public/data/5e/`. TS-exported data in `src/renderer/src/data/`. |
