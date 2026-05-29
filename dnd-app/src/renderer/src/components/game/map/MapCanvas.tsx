@@ -32,6 +32,7 @@ import { getTokenStats } from '../../../services/game/token-stats'
 import { getDragPayload, hasLibraryDrag } from '../../../services/library/drag-data'
 import { getPlayerFloor, getTokenFloor } from '../../../services/map/floor-filtering'
 import { monsterToTokenData } from '../../../services/map/monster-to-token'
+import { collectPreloadImagePaths } from '../../../services/map/preload-adjacent'
 import { useGameStore } from '../../../stores/use-game-store'
 import type { TurnState } from '../../../types/game-state'
 import type { GameMap, MapToken } from '../../../types/map'
@@ -51,6 +52,7 @@ import {
   waitForContainerDimensions
 } from './map-pixi-setup'
 import { clearMeasurement } from './measurement-tool'
+import { renderPins } from './pin-layer'
 
 // Re-export map-utils functions so they are available to map subsystem consumers
 export { calculateZoomToFit, getGridLabel }
@@ -148,6 +150,7 @@ export default function MapCanvas({
   const gridLabelContainerRef = useRef<Container | null>(null)
   const fogGraphicsRef = useRef<Graphics | null>(null)
   const tokenContainerRef = useRef<Container | null>(null)
+  const pinsContainerRef = useRef<Container | null>(null)
   const selectionBoxGraphicsRef = useRef<Graphics | null>(null)
   const pingGraphicsRef = useRef<Graphics | null>(null)
   const measureGraphicsRef = useRef<Graphics | null>(null)
@@ -275,6 +278,7 @@ export default function MapCanvas({
       moveOverlayRef.current = layers.moveOverlay
       aoeOverlayRef.current = layers.aoeOverlay
       tokenContainerRef.current = layers.tokenContainer
+      pinsContainerRef.current = layers.pinsContainer
       occlusionContainerRef.current = layers.occlusionContainer
       selectionBoxGraphicsRef.current = layers.selectionBoxGraphics
       pingGraphicsRef.current = layers.pingGraphics
@@ -371,6 +375,16 @@ export default function MapCanvas({
     }
     loadBg()
   }, [initialized, map?.imagePath, applyTransform])
+
+  // Phase 16f — preload textures of portal-linked maps so switching to one has no asset-load
+  // stutter. Host only (clients receive map data lazily on switch); capped + best-effort.
+  const allMaps = useGameStore((s) => s.maps)
+  useEffect(() => {
+    if (!isHost || !map) return
+    for (const path of collectPreloadImagePaths(map, allMaps)) {
+      void Assets.load(path).catch(() => {})
+    }
+  }, [isHost, map, allMaps])
 
   // Clear stale drag/measurement state when tool changes
   useEffect(() => {
@@ -631,6 +645,20 @@ export default function MapCanvas({
   useEffect(() => {
     if (initialized) renderTokens()
   }, [initialized, renderTokens])
+
+  // Phase 16b — render map pins (filtered by viewer visibility + current floor).
+  useEffect(() => {
+    const container = pinsContainerRef.current
+    if (!initialized || !container || !map) {
+      container?.removeChildren().forEach((c) => c.destroy({ children: true }))
+      return
+    }
+    const pins = (map.pins ?? []).filter((p) => {
+      if (!isHost && p.visibleToPlayers === false) return false
+      return (p.floor ?? 0) === currentFloor
+    })
+    renderPins(container, pins, map.grid.cellSize, zoomRef.current)
+  }, [initialized, map, isHost, currentFloor])
 
   // Mouse wheel zoom
   useEffect(() => {

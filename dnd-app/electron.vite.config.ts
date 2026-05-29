@@ -51,7 +51,7 @@ export default defineConfig(async () => {
       build: {
         // Phase 14g (§A4) — faster prod builds + smaller package: esbuild minify (20-40× terser),
         // no sourcemaps shipped, skip gzip-size reporting (a measurable build cost).
-        minify: 'esbuild',
+        minify: 'esbuild' as const,
         sourcemap: false,
         reportCompressedSize: false,
         rollupOptions: {

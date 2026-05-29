@@ -165,6 +165,7 @@ describe('createMapLayers', () => {
       'moveOverlay',
       'aoeOverlay',
       'tokenContainer',
+      'pinsContainer',
       'fogGraphics',
       'lightingGraphics',
       'wallGraphics',
@@ -190,6 +191,8 @@ describe('createMapLayers', () => {
     expect((layers.wallGraphics as unknown as { label: string }).label).toBe('walls')
     expect((layers.lightingGraphics as unknown as { label: string }).label).toBe('lighting')
     expect((layers.measureGraphics as unknown as { label: string }).label).toBe('measure')
+    // Phase 16b — the pins layer exists and is labelled.
+    expect((layers.pinsContainer as unknown as { label: string }).label).toBe('pins')
   })
 
   it('world container is added to the stage', async () => {

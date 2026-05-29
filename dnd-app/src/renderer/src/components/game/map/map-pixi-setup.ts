@@ -14,6 +14,8 @@ export interface MapLayers {
   aoeOverlay: Graphics
   tokenContainer: Container
   occlusionContainer: Container
+  /** Phase 16b — map pins (spatial bookmarks with journal/NPC/location links), above tokens, below fog. */
+  pinsContainer: Container
   selectionBoxGraphics: Graphics
   pingGraphics: Graphics
   fogGraphics: Graphics
@@ -133,6 +135,11 @@ export function createMapLayers(app: Application): MapLayers {
   occlusionContainer.label = 'occlusion'
   world.addChild(occlusionContainer)
 
+  // Phase 16b — map pins layer (between tokens and fog so pins read above tokens but hide under fog)
+  const pinsContainer = new Container()
+  pinsContainer.label = 'pins'
+  world.addChild(pinsContainer)
+
   // Selection box overlay (above tokens, below pings)
   const selectionBoxGraphics = new Graphics()
   selectionBoxGraphics.label = 'selection-box'
@@ -180,6 +187,7 @@ export function createMapLayers(app: Application): MapLayers {
     aoeOverlay,
     tokenContainer,
     occlusionContainer,
+    pinsContainer,
     selectionBoxGraphics,
     pingGraphics,
     fogGraphics,
