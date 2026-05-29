@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { getIceConfig, resetIceConfig, setIceConfig } from '../../../../network'
 
 interface TurnEntry {
@@ -14,6 +15,7 @@ interface NetworkSettingsModalProps {
 }
 
 export default function NetworkSettingsModal({ onClose }: NetworkSettingsModalProps): JSX.Element {
+  useEscapeKey(onClose)
   const [entries, setEntries] = useState<TurnEntry[]>([])
   const [saving, setSaving] = useState(false)
 

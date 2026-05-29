@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { addToast } from '../../../../hooks/use-toast'
 import { useNetworkStore } from '../../../../stores/network-store'
 import { useCampaignStore } from '../../../../stores/use-campaign-store'
@@ -19,6 +20,7 @@ export default function SharedJournalModal({
   localPeerId,
   onClose
 }: SharedJournalModalProps): JSX.Element {
+  useEscapeKey(onClose)
   const sendMessage = useNetworkStore((s) => s.sendMessage)
   const journal = useGameStore((s) => s.sharedJournal)
 

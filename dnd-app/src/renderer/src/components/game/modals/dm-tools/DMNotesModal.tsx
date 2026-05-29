@@ -1,3 +1,4 @@
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { FloatingWindow } from '../../../ui'
 import { DMNotepad } from '../../dm'
 
@@ -10,6 +11,8 @@ interface DMNotesModalProps {
 }
 
 export default function DMNotesModal({ onClose, floating, onFloat }: DMNotesModalProps): JSX.Element {
+  // Phase 17e (GUI-8) — Escape closes the docked modal (not the floating window, which manages itself).
+  useEscapeKey(onClose, !floating)
   if (floating) {
     return (
       <FloatingWindow

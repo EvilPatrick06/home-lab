@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { CONFLICT_DEMANDS, generateSentientItem, type SentientItemProperties } from '../../../../data/sentient-items'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 
 interface SentientItemModalProps {
   onClose: () => void
@@ -11,6 +12,7 @@ function abilityMod(score: number): string {
 }
 
 export default function SentientItemModal({ onClose }: SentientItemModalProps): JSX.Element {
+  useEscapeKey(onClose)
   const [item, setItem] = useState<SentientItemProperties | null>(null)
 
   const handleGenerate = (): void => {

@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from 'react'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { useGameStore } from '../../../../stores/use-game-store'
 import type { Handout, HandoutPage } from '../../../../types/game-state'
 import ModalFormFooter from '../shared/ModalFormFooter'
@@ -9,6 +10,7 @@ interface HandoutModalProps {
 }
 
 export default function HandoutModal({ onClose, onShareHandout }: HandoutModalProps): JSX.Element {
+  useEscapeKey(onClose)
   const handouts = useGameStore((s) => s.handouts)
   const addHandout = useGameStore((s) => s.addHandout)
   const updateHandout = useGameStore((s) => s.updateHandout)
