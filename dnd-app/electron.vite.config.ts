@@ -1,12 +1,15 @@
-import { createRequire } from 'module'
+import { readFileSync } from 'fs'
 import { resolve } from 'path'
+import { fileURLToPath } from 'url'
 import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import type { Plugin } from 'vite'
 
-const require = createRequire(import.meta.url)
-const pkg = require('./package.json') as { version: string }
+// Phase 33e — read package.json without CJS createRequire (config runs as ESM).
+const pkg = JSON.parse(readFileSync(fileURLToPath(new URL('./package.json', import.meta.url)), 'utf-8')) as {
+  version: string
+}
 
 async function analyzePlugin(): Promise<Plugin | null> {
   if (process.env.ANALYZE !== '1') return null

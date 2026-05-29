@@ -16,7 +16,6 @@
     "lockfile-lint",
     "npm-check-updates",
     "oxlint",
-    "ts-prune",
     "type-coverage"
   ]
 }
