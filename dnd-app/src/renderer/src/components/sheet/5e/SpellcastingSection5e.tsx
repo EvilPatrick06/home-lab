@@ -63,6 +63,11 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
   const [showMulticlassAdvisor, setShowMulticlassAdvisor] = useState(false)
   const [showSpellPrepOptimizer, setShowSpellPrepOptimizer] = useState(false)
   const [spellDragOver, setSpellDragOver] = useState(false)
+  // Phase 23b — in-sheet spell search + filters (session-local).
+  const [spellSearch, setSpellSearch] = useState('')
+  const [filterRitual, setFilterRitual] = useState(false)
+  const [filterConcentration, setFilterConcentration] = useState(false)
+  const [filterPreparedOnly, setFilterPreparedOnly] = useState(false)
 
   // Library spell drop handler
   const handleSpellDrop = useCallback(
@@ -187,9 +192,19 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
     }
   }
 
+  // Phase 23b — apply search + filters before grouping.
+  const query = spellSearch.trim().toLowerCase()
+  const visibleSpells = allSpells.filter((s) => {
+    if (query && !s.name.toLowerCase().includes(query)) return false
+    if (filterRitual && !(s as { ritual?: boolean }).ritual) return false
+    if (filterConcentration && !(s as { concentration?: boolean }).concentration) return false
+    if (filterPreparedOnly && s.level > 0 && !preparedSpellIds.includes(s.id)) return false
+    return true
+  })
+
   // Group spells by level
   const spellsByLevel = new Map<number, SpellEntry[]>()
-  for (const spell of allSpells) {
+  for (const spell of visibleSpells) {
     const group = spellsByLevel.get(spell.level) ?? []
     group.push(spell)
     spellsByLevel.set(spell.level, group)
@@ -519,6 +534,37 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
           </button>
         )}
       </div>
+
+      {/* Phase 23b — spell search + filters */}
+      {allSpells.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2 mb-2">
+          <input
+            type="text"
+            value={spellSearch}
+            onChange={(e) => setSpellSearch(e.target.value)}
+            placeholder="Search spells..."
+            className="flex-1 min-w-[140px] text-xs bg-gray-800 border border-gray-700 rounded px-2 py-1 text-gray-200 focus:outline-none focus:border-amber-500"
+            aria-label="Search spells"
+          />
+          {(
+            [
+              ['Ritual', filterRitual, setFilterRitual],
+              ['Conc.', filterConcentration, setFilterConcentration],
+              ['Prepared', filterPreparedOnly, setFilterPreparedOnly]
+            ] as const
+          ).map(([label, active, set]) => (
+            <button
+              key={label}
+              onClick={() => set((v) => !v)}
+              className={`text-xs px-2 py-1 rounded border cursor-pointer ${
+                active ? 'border-amber-500 bg-amber-900/30 text-amber-300' : 'border-gray-700 text-gray-400'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Known spells by level */}
       <SpellList5e

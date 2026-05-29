@@ -102,13 +102,29 @@ function MagicItemCard5e({
                       return
                     }
                   }
-                  const updated = {
-                    ...latest,
-                    magicItems: getEffectiveMagicItems(latest).map((mi, idx) =>
-                      idx === i ? { ...mi, attuned: !mi.attuned } : mi
-                    ),
-                    updatedAt: new Date().toISOString()
-                  } as Character5e
+                  // Phase 23f — attunement is canonical instance state in
+                  // `state.magicItemAttuned[instanceId]` (read by getEffectiveMagicItems
+                  // for mechanics). Toggle there instead of the legacy magicItems array
+                  // so the bonus actually applies and both panels agree.
+                  const effective = getEffectiveMagicItems(latest)
+                  const instanceId = (effective[i] as unknown as { __instanceId?: string }).__instanceId
+                  const updated = instanceId
+                    ? ({
+                        ...latest,
+                        state: {
+                          ...latest.state,
+                          magicItemAttuned: {
+                            ...latest.state?.magicItemAttuned,
+                            [instanceId]: !item.attuned
+                          }
+                        },
+                        updatedAt: new Date().toISOString()
+                      } as Character5e)
+                    : ({
+                        ...latest,
+                        magicItems: effective.map((mi, idx) => (idx === i ? { ...mi, attuned: !mi.attuned } : mi)),
+                        updatedAt: new Date().toISOString()
+                      } as Character5e)
                   saveAndBroadcast(updated)
                 }}
                 className={`text-xs shrink-0 ${item.attuned ? 'text-purple-400' : 'text-gray-500'} ${!readonly ? 'cursor-pointer hover:text-purple-300' : ''}`}
