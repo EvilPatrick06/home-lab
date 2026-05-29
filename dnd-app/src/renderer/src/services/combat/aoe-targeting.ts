@@ -115,8 +115,9 @@ function getSphereCells(originX: number, originY: number, radiusFt: number): Arr
  * Cone: emanates from origin in a direction, widening.
  * PHB 2024: A cone's width at any point equals the distance from its origin.
  * We check each cell against the cone's angular bounds and distance.
+ * Exported for Phase 17c (LOG-5) so `findTokensInArea` can use true cone geometry.
  */
-function getConeCells(
+export function getConeCells(
   originX: number,
   originY: number,
   lengthFt: number,

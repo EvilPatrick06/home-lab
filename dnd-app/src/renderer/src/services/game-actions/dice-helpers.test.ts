@@ -127,11 +127,20 @@ describe('findTokensInArea', () => {
     })
   })
 
-  describe('cone shape', () => {
-    it('uses same logic as cube', () => {
-      const result = findTokensInArea(tokensGrid, 0, 0, 4, 'cone')
+  describe('cone shape (17c LOG-5 — true cone geometry, not a square)', () => {
+    it('includes tokens along the facing direction and excludes perpendicular ones', () => {
+      // Cone from (0,0) facing +x (0°): B at (3,0) is straight ahead; C at (0,3) is 90° to the side.
+      const result = findTokensInArea(tokensGrid, 0, 0, 4, 'cone', undefined, 0)
       const labels = result.map((t) => t.label)
-      expect(labels).toContain('A')
+      expect(labels).toContain('B')
+      expect(labels).not.toContain('C')
+    })
+
+    it('respects the cone direction (facing +y now includes the side token, excludes ahead)', () => {
+      const result = findTokensInArea(tokensGrid, 0, 0, 4, 'cone', undefined, 90)
+      const labels = result.map((t) => t.label)
+      expect(labels).toContain('C')
+      expect(labels).not.toContain('B')
     })
   })
 

@@ -2,6 +2,7 @@
  * Dice rolling helpers for action execution.
  */
 
+import { getConeCells } from '../combat/aoe-targeting'
 import { rollMultiple } from '../dice/dice-service'
 
 export function rollDiceFormula(formula: string): { rolls: number[]; total: number } {
@@ -32,8 +33,17 @@ export function findTokensInArea(
   originY: number,
   radiusCells: number,
   shape: string,
-  widthCells?: number
+  widthCells?: number,
+  /** Phase 17c (LOG-5) — cone facing in degrees (0 = +x). Required for true cone geometry. */
+  directionDeg?: number
 ): import('../../types/map').MapToken[] {
+  // Phase 17c (LOG-5) — a cone is no longer approximated by a square. Build the cone's cell set
+  // once (getConeCells, 5ft cells) and test membership; cells are { x, y } in absolute grid coords.
+  let coneCellSet: Set<string> | null = null
+  if (shape === 'cone') {
+    const cells = getConeCells(originX, originY, radiusCells * 5, directionDeg ?? 0)
+    coneCellSet = new Set(cells.map((c) => `${c.x},${c.y}`))
+  }
   return tokens.filter((t) => {
     const dx = t.gridX - originX
     const dy = t.gridY - originY
@@ -42,8 +52,9 @@ export function findTokensInArea(
       case 'emanation':
       case 'cylinder':
         return Math.sqrt(dx * dx + dy * dy) <= radiusCells
-      case 'cube':
-      case 'cone': {
+      case 'cone':
+        return coneCellSet?.has(`${t.gridX},${t.gridY}`) ?? false
+      case 'cube': {
         const half = radiusCells
         return Math.abs(dx) <= half && Math.abs(dy) <= half
       }

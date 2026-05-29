@@ -315,7 +315,8 @@ export function executeApplyAreaEffect(
     originY,
     radiusCells,
     shape,
-    action.widthOrHeight as number | undefined
+    action.widthOrHeight as number | undefined,
+    action.direction as number | undefined
   )
 
   if (affectedTokens.length === 0) return true
