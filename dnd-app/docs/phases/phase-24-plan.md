@@ -151,4 +151,9 @@ Several `catch { /* ignore */ }` blocks in `apply-level-up.ts` and `level-up-spe
 10. Manual: ASI on a 19 STR ability shows wasted-point warning; on 18 it does not.
 
 ## Completed
-(no items completed yet)
+
+> **PHASE 24 PARTIAL — 2026-05-29 (overnight autonomous pass; verifiable backend bugs done, apply-pipeline + wizard-UI items deferred & logged).** 4-gate green (lint 0, tsc web+node 0, vitest 6504/6504).
+> - **24c DONE** — `getSlotProgression` half-caster branch returns `{}` for level < 2 (Paladin/Ranger had a phantom L1 slot), else `FULL_CASTER_SLOTS[ceil(level/2)]`. Tests added (Paladin/Ranger 1=`{}`, 2=`{1:2}`).
+> - **24j DONE** — AsiAbilityPicker shows "+1 will be wasted (cap is 20)" when a +2 targets a score of 19.
+> - **24k DONE** — all 8 silent `} catch { /* ignore */ }` in apply-level-up.ts (3) + level-up-spells.ts (5) now `catch (err) { logger.warn(...) }`.
+> - **DEFERRED (apply-pipeline rewrites + wizard UI; need real-character app verification, high-risk on the leveling critical path):** 24a subclass write-back + feature load, 24b hit-dice-per-class, 24d HP post-ASI CON + roll lock, 24e multiclass skill profs, 24f spell swap, 24g cantrip picker, 24h feat sub-choice validation, 24i secondary-class resources loop. Live for a focused follow-up.

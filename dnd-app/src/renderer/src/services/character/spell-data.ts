@@ -441,8 +441,10 @@ export function getSlotProgression(classId: string, level: number): Record<numbe
     return FULL_CASTER_SLOTS[level] ?? {}
   }
   if (HALF_CASTERS_5E.includes(classId)) {
-    const effectiveLevel = Math.ceil(level / 2)
-    return effectiveLevel >= 1 ? (FULL_CASTER_SLOTS[effectiveLevel] ?? {}) : {}
+    // Phase 24c — half-casters (Paladin/Ranger) get NO slots at level 1;
+    // spellcasting starts at level 2. ceil(1/2)=1 previously leaked {1:2} at L1.
+    if (level < 2) return {}
+    return FULL_CASTER_SLOTS[Math.ceil(level / 2)] ?? {}
   }
   return {}
 }

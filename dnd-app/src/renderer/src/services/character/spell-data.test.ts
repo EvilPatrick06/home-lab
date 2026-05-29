@@ -28,6 +28,13 @@ describe('getSlotProgression', () => {
     expect(slots).toEqual({ 1: 4, 2: 2 })
   })
 
+  it('gives half-casters no slots at level 1, slots from level 2 (Phase 24c)', () => {
+    expect(getSlotProgression('paladin', 1)).toEqual({})
+    expect(getSlotProgression('paladin', 2)).toEqual({ 1: 2 })
+    expect(getSlotProgression('ranger', 1)).toEqual({})
+    expect(getSlotProgression('ranger', 2)).toEqual({ 1: 2 })
+  })
+
   it('returns Pact Magic slots for warlock', () => {
     const slots = getSlotProgression('warlock', 5)
     expect(slots).toEqual({ 3: 2 })

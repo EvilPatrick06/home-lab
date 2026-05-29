@@ -3,6 +3,7 @@ import { getEffectiveClasses, getEffectiveKnownSpells } from '../../services/cha
 import { load5eSpecies, load5eSpells, load5eSubclasses } from '../../services/data-provider'
 import type { Character5e } from '../../types/character-5e'
 import type { SpellEntry } from '../../types/character-common'
+import { logger } from '../../utils/logger'
 
 /** Convert a raw spell record from the data provider into a SpellEntry */
 export function toSpellEntry(
@@ -65,8 +66,8 @@ export async function resolveLevelUpSpells(
           newSpells.push(toSpellEntry(raw))
         }
       }
-    } catch {
-      /* ignore */
+    } catch (err) {
+      logger.warn('[level-up] loader/resolve failed:', err)
     }
   }
 
@@ -82,8 +83,8 @@ export async function resolveLevelUpSpells(
           }
         }
       }
-    } catch {
-      /* ignore */
+    } catch (err) {
+      logger.warn('[level-up] loader/resolve failed:', err)
     }
   }
 
@@ -99,8 +100,8 @@ export async function resolveLevelUpSpells(
           }
         }
       }
-    } catch {
-      /* ignore */
+    } catch (err) {
+      logger.warn('[level-up] loader/resolve failed:', err)
     }
   }
 
@@ -128,8 +129,8 @@ export async function resolveLevelUpSpells(
           }
         }
       }
-    } catch {
-      /* ignore */
+    } catch (err) {
+      logger.warn('[level-up] loader/resolve failed:', err)
     }
   }
 
@@ -157,8 +158,8 @@ export async function resolveLevelUpSpells(
           }
         }
       }
-    } catch {
-      /* ignore */
+    } catch (err) {
+      logger.warn('[level-up] loader/resolve failed:', err)
     }
   }
 

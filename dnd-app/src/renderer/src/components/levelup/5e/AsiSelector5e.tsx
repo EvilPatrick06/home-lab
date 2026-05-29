@@ -290,6 +290,10 @@ export function AsiAbilityPicker5e({
           )
         })}
       </div>
+      {/* Phase 24j — warn when a +2 would overflow the 20 cap (apply clamps to 20). */}
+      {mode === '+2' && selection[0] && character.abilityScores[selection[0]] === 19 && (
+        <p className="mt-1 text-xs text-amber-400">+1 will be wasted (cap is 20)</p>
+      )}
     </div>
   )
 }

@@ -21,6 +21,7 @@ import type { Character5e, Character5eV3, MulticlassEntry } from '../../types/ch
 import { migrateCharacter5eFromV3ToV4 } from '../../types/character-5e-migration'
 import type { AbilityName, AbilityScoreSet } from '../../types/character-common'
 import { abilityModifier } from '../../types/character-common'
+import { logger } from '../../utils/logger'
 import { resolveLevelUpSpells, toSpellEntry } from './level-up-spells'
 import type { HpChoice } from './types'
 
@@ -70,8 +71,8 @@ export async function apply5eLevelUp(
         multiclassing: cls.multiclassing
       }
     }
-  } catch {
-    /* ignore */
+  } catch (err) {
+    logger.warn('[level-up] loader/resolve failed:', err)
   }
 
   // Phase 15c.5 — read v3-shaped views off the v4 character via the helpers.
@@ -198,8 +199,8 @@ export async function apply5eLevelUp(
         )
       }
     }
-  } catch {
-    /* ignore */
+  } catch (err) {
+    logger.warn('[level-up] loader/resolve failed:', err)
   }
 
   // 7. Load new spells (delegated to helper)
@@ -367,8 +368,8 @@ export async function apply5eLevelUp(
         if (found) {
           updatedKnownSpells.push(toSpellEntry(found, { prepared: true, source: 'class' }))
         }
-      } catch {
-        /* ignore */
+      } catch (err) {
+        logger.warn('[level-up] loader/resolve failed:', err)
       }
     }
   }
