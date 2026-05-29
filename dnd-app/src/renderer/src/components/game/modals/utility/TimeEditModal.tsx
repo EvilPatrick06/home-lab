@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { useBastionStore } from '../../../../stores/use-bastion-store'
 import { useGameStore } from '../../../../stores/use-game-store'
 import type { CalendarConfig } from '../../../../types/campaign'
@@ -17,6 +18,7 @@ export default function TimeEditModal({
   onClose,
   onBroadcastTimeSync
 }: TimeEditModalProps): JSX.Element {
+  useEscapeKey(onClose)
   const inGameTime = useGameStore((s) => s.inGameTime)
   const advanceTimeDays = useGameStore((s) => s.advanceTimeDays)
   const setInGameTime = useGameStore((s) => s.setInGameTime)

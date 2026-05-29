@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { LIGHT_SOURCE_LABELS, LIGHT_SOURCES } from '../../../../data/light-sources'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { useGameStore } from '../../../../stores/use-game-store'
 import type { LightAnimation, LightAnimationType } from '../../../../types/campaign'
 
@@ -8,6 +9,7 @@ interface LightSourceModalProps {
 }
 
 export default function LightSourceModal({ onClose }: LightSourceModalProps): JSX.Element {
+  useEscapeKey(onClose)
   const [entityName, setEntityName] = useState('')
   const [selectedSource, setSelectedSource] = useState('torch')
   const [animationType, setAnimationType] = useState<LightAnimationType | 'none'>('none')

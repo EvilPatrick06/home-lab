@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { useNetworkStore } from '../../../../stores/network-store'
 import { useLobbyStore } from '../../../../stores/use-lobby-store'
 
@@ -9,6 +10,7 @@ interface WhisperModalProps {
 }
 
 export default function WhisperModal({ isDM = true, senderName, onClose }: WhisperModalProps): JSX.Element {
+  useEscapeKey(onClose)
   const players = useLobbyStore((s) => s.players)
   const addChatMessage = useLobbyStore((s) => s.addChatMessage)
   const localPeerId = useNetworkStore((s) => s.localPeerId)
