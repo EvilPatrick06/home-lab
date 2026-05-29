@@ -2,7 +2,7 @@ import type { Dirent } from 'node:fs'
 import { readdir, unlink } from 'node:fs/promises'
 import { join } from 'node:path'
 import { is, optimizer } from '@electron-toolkit/utils'
-import { app, BrowserWindow, nativeImage, shell } from 'electron'
+import { app, BrowserWindow, dialog, nativeImage, shell } from 'electron'
 import { initFromSavedConfig } from './ai/ai-service'
 import { applyBmoBaseUrlFromSettings } from './bmo-config'
 import { bmoCspConnectFragment } from './bmo-csp'
@@ -15,14 +15,35 @@ import { isUpdateInProgress, maybeAutoCheckOnLaunch, registerUpdateHandlers } fr
 
 // ── Unhandled Error Handlers ──
 
+// Phase 17d (RUN-15) — a process-level uncaught error/rejection leaves the main
+// process in an undefined state; continuing risks corrupt writes. Log it, show a
+// fatal dialog, then quit. Guarded so a cascade of follow-on errors doesn't stack
+// dialogs or re-enter the quit path.
+let fatalShutdownStarted = false
+function handleFatal(kind: 'FATAL' | 'ERROR', label: string, reason: unknown): void {
+  const msg = reason instanceof Error ? reason.message : String(reason)
+  const stack = reason instanceof Error ? reason.stack : undefined
+  logToFile(kind, `${label}: ${msg}`, stack)
+  if (fatalShutdownStarted) return
+  fatalShutdownStarted = true
+  try {
+    // showErrorBox is synchronous and safe to call before/after `ready`.
+    dialog.showErrorBox(
+      'D&D VTT — Fatal Error',
+      `${label}.\n\n${msg}\n\nThe app needs to close to avoid corrupting saved data. A crash log was written.`
+    )
+  } catch {
+    // If even the dialog fails, fall through to exit.
+  }
+  app.exit(1)
+}
+
 process.on('uncaughtException', (error) => {
-  logToFile('FATAL', `Uncaught exception: ${error.message}`, error.stack)
+  handleFatal('FATAL', 'Uncaught exception', error)
 })
 
 process.on('unhandledRejection', (reason) => {
-  const msg = reason instanceof Error ? reason.message : String(reason)
-  const stack = reason instanceof Error ? reason.stack : undefined
-  logToFile('ERROR', `Unhandled rejection: ${msg}`, stack)
+  handleFatal('ERROR', 'Unhandled rejection', reason)
 })
 
 // Register plugin:// scheme as privileged (must be before app.whenReady)
