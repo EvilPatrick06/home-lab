@@ -7,7 +7,7 @@ vi.mock('./chat-commands/index', () => ({
 
 import type { Character5e } from '../types/character-5e'
 import { executeCommand } from './chat-commands/index'
-import { executeMacro, expandRepeatBlocks, resolveMacroVariables } from './macro-engine'
+import { executeMacro, expandConditionalBlocks, expandRepeatBlocks, resolveMacroVariables } from './macro-engine'
 
 function makeCharacter(overrides?: Partial<Character5e>): Character5e {
   return {
@@ -265,5 +265,61 @@ describe('executeMacro multi-line dispatch (16D)', () => {
     // Level 5 → proficiency +3
     expect(mockExecuteCommand).toHaveBeenNthCalledWith(1, '/roll 1d20++3 for Eldrin', ctx)
     expect(mockExecuteCommand).toHaveBeenNthCalledWith(2, '/roll 1d20++3 for Eldrin', ctx)
+  })
+})
+
+describe('expandConditionalBlocks (16D)', () => {
+  const bloodied = makeCharacter({ hitPoints: { current: 20, maximum: 50, temporary: 0 } })
+  const healthy = makeCharacter({ hitPoints: { current: 50, maximum: 50, temporary: 0 } })
+
+  it('picks the truthy branch when the condition holds (bloodied)', () => {
+    const out = expandConditionalBlocks('{if $self.hp < $self.maxhp/2}2d6{else}1d6{/if}', bloodied)
+    expect(out).toBe('2d6')
+  })
+
+  it('picks the falsy branch when the condition fails (healthy)', () => {
+    const out = expandConditionalBlocks('{if $self.hp < $self.maxhp/2}2d6{else}1d6{/if}', healthy)
+    expect(out).toBe('1d6')
+  })
+
+  it('supports an {if} with no {else} (empty when false)', () => {
+    expect(expandConditionalBlocks('{if $level >= 5}bonus{/if}', healthy)).toBe('bonus')
+    expect(expandConditionalBlocks('{if $level >= 99}bonus{/if}', healthy)).toBe('')
+  })
+
+  it('respects arithmetic precedence and unary minus', () => {
+    // mod.dex = +2 (score 14); 2 + 1 * 3 = 5 > -1 → truthy
+    expect(expandConditionalBlocks('{if $mod.dex + 1 * 3 > -1}y{else}n{/if}', healthy)).toBe('y')
+  })
+
+  it('leaves a string with no {if} untouched', () => {
+    expect(expandConditionalBlocks('plain 2d6+3', healthy)).toBe('plain 2d6+3')
+  })
+
+  it('throws MacroSyntaxError on a malformed condition', () => {
+    expect(() => expandConditionalBlocks('{if foo bar}a{/if}', healthy)).toThrow()
+  })
+})
+
+describe('executeMacro — conditionals (16D)', () => {
+  const mockExecuteCommand = vi.mocked(executeCommand)
+  const bloodied = makeCharacter({ hitPoints: { current: 10, maximum: 50, temporary: 0 } })
+
+  it('rolls the bloodied die via a conditional macro', () => {
+    mockExecuteCommand.mockClear()
+    const macro = { name: 'Smite', command: '{if $self.hp < $self.maxhp/2}3d8{else}1d8{/if}' } as never
+    const ctx = { addSystemMessage: vi.fn() } as never
+    executeMacro(macro, ctx, bloodied)
+    expect(mockExecuteCommand).toHaveBeenCalledWith('/roll 3d8', ctx)
+  })
+
+  it('surfaces a clear chat error and does not throw on malformed conditional', () => {
+    mockExecuteCommand.mockClear()
+    const addSystemMessage = vi.fn()
+    const macro = { name: 'Broken', command: '{if foo bar}a{/if}' } as never
+    const ctx = { addSystemMessage } as never
+    expect(() => executeMacro(macro, ctx, bloodied)).not.toThrow()
+    expect(addSystemMessage).toHaveBeenCalledWith(expect.stringContaining('syntax error in {if ...}'))
+    expect(mockExecuteCommand).not.toHaveBeenCalled()
   })
 })
