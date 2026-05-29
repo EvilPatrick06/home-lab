@@ -1,27 +1,20 @@
 name: Release
 
-# Triggered by pushing a `v*` tag. Builds the dnd-app on Windows + Linux
-# runners in parallel and uploads artifacts to a GitHub Release.
+# Triggered by pushing a `v*` tag. Builds dnd-app on Windows + Linux and uploads to the
+# tag's GitHub Release.
 #
-# Flow:
-#   1. preflight — verify package.json version matches the tag, then run
-#      lint + typecheck (both tsconfigs) + tests. Hard-fails the whole release
-#      if anything is off, so we never ship a broken / mis-versioned build.
-#   2. build (matrix Win + Linux) — electron-builder builds + publishes the
-#      installer/AppImage/blockmap/latest.yml to the tag's release.
-#   3. verify-assets — after both matrix jobs complete, lists the release's
-#      assets and fails if any of the 6 expected platform/installer files are
-#      missing. Catches silent partial-upload failures (like the 2026-05-16
-#      incident where v2.0.1/v2.0.2 shipped 3/8 and 1/8 assets respectively).
+# Phase 14h — 4-job graph so the slow vitest run no longer blocks the electron-builder matrix:
+#   1. checks-fast (ubuntu) — version-match + lint + typecheck (both tsconfigs). The gate `build`
+#      waits on. NO vitest here.
+#   2. test (ubuntu, sharded ×3) — vitest, runs IN PARALLEL with `build`.
+#   3. build (matrix Win+Linux, needs checks-fast) — electron-builder with `--publish never`,
+#      hands dist/* off as an artifact. (Ollama is no longer bundled — 14a.)
+#   4. publish (ubuntu, needs [test, build]) — uploads the built assets + install-linux.sh to
+#      the release, then verifies the 6 expected assets. Gated on BOTH tests and a clean build,
+#      so a test-failing build never ships.
 #
-# The package.json version MUST match the tag, otherwise electron-builder
-# names artifacts with the wrong version and publishes to the wrong release.
-# `scripts/release/cut.mjs` handles the bump-commit-tag-push dance.
-#
-# Ollama bundling: Windows only. Linux AppImage exceeds GitHub Releases'
-# 2 GiB single-asset cap when Ollama is bundled, so Linux ships a small
-# (~150 MB) AppImage and the user installs Ollama via the official script;
-# the app auto-detects it on next launch.
+# The package.json version MUST match the tag (electron-builder names artifacts by it).
+# `scripts/release/cut.mjs` handles the bump-commit-tag-push dance and pre-creates the release.
 
 on:
   push:
@@ -31,9 +24,14 @@ on:
 permissions:
   contents: write
 
+# Never cancel a mid-publish release run; queue same-tag re-runs instead (§B5).
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
 jobs:
-  preflight:
-    name: Preflight (version match + lint + typecheck + test)
+  checks-fast:
+    name: Fast checks (version + lint + typecheck)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -50,14 +48,14 @@ jobs:
           cache-dependency-path: dnd-app/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --prefer-offline --no-audit --no-fund
 
       - name: Verify package.json version matches tag
         run: |
           PKG_VER=$(node -p "require('./package.json').version")
           TAG_VER="${GITHUB_REF_NAME#v}"
           if [ "$PKG_VER" != "$TAG_VER" ]; then
-            echo "::error::package.json version ($PKG_VER) does not match tag ($TAG_VER). Use scripts/release/cut.mjs to cut releases — it bumps package.json + package-lock.json before pushing the tag, so electron-builder names artifacts correctly and publishes to the right release."
+            echo "::error::package.json version ($PKG_VER) does not match tag ($TAG_VER). Use scripts/release/cut.mjs to cut releases — it bumps package.json + package-lock.json before pushing the tag."
             exit 1
           fi
           echo "Version match: $PKG_VER"
@@ -71,26 +69,16 @@ jobs:
       - name: Typecheck (node tsconfig)
         run: npx tsc --noEmit -p tsconfig.node.json
 
-      - name: Test
-        run: npm test
-
-  build:
-    name: Build & publish (${{ matrix.os }})
-    needs: preflight
+  test:
+    name: Test (shard ${{ matrix.shard }}/3)
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: windows-latest
-            release-script: release
-          - os: ubuntu-latest
-            release-script: release:linux
-    runs-on: ${{ matrix.os }}
-
+        shard: [1, 2, 3]
     defaults:
       run:
         working-directory: dnd-app
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -103,53 +91,54 @@ jobs:
           cache-dependency-path: dnd-app/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --prefer-offline --no-audit --no-fund
 
-      # Bundles the full Ollama distribution (binary + GPU runner libs) into
-      # resources/ollama/windows/ so electron-builder's win.extraResources
-      # picks it up. Windows only — Linux AppImage exceeds GitHub's 2 GiB
-      # asset cap with Ollama bundled.
-      #
-      # Two-step caching: resolve the latest Ollama release tag, then
-      # restore the extracted tree from cache if we already shipped a
-      # build against that tag. The ~2 GB archive only downloads when
-      # the upstream tag bumps — saves 5–10 min per Windows release
-      # when Ollama hasn't changed since the prior cut.
-      - name: Resolve latest Ollama tag
-        if: matrix.os == 'windows-latest'
-        id: ollama-tag
-        shell: bash
-        env:
-          # Authenticated GitHub API requests get 5000/hr instead of 60/hr.
-          # v2.1.34's Windows build failed with `curl: (22) ... 403` because
-          # this step was anonymous and the runner's shared IP had been
-          # rate-limited. Using the workflow's GITHUB_TOKEN scopes the call
-          # to this run only — no extra secret needed.
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          tag=$(curl -fsSL https://api.github.com/repos/ollama/ollama/releases/latest \
-                  -H "Accept: application/vnd.github+json" \
-                  -H "Authorization: Bearer ${GH_TOKEN}" \
-                  -H "X-GitHub-Api-Version: 2022-11-28" \
-                  -H "User-Agent: dnd-vtt-build" \
-                | jq -r '.tag_name')
-          echo "tag=$tag" >> "$GITHUB_OUTPUT"
-          echo "Resolved Ollama tag: $tag"
+      - name: Test (shard ${{ matrix.shard }}/3)
+        run: npx vitest run --shard=${{ matrix.shard }}/3
 
-      - name: Cache bundled Ollama
-        if: matrix.os == 'windows-latest'
-        id: cache-ollama
+  build:
+    name: Build (${{ matrix.os }})
+    needs: checks-fast
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            builder-flag: '--win'
+          - os: ubuntu-latest
+            builder-flag: '--linux'
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: dnd-app
+    env:
+      # Cache the Electron zip + winCodeSign/nsis/AppImage-tool downloads between runs (§B2).
+      ELECTRON_CACHE: ${{ github.workspace }}/.cache/electron
+      ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.cache/electron-builder
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: dnd-app/package-lock.json
+
+      # Per-OS key — never share Win↔Linux electron-builder caches.
+      - name: Cache Electron / electron-builder downloads
         uses: actions/cache@v4
         with:
-          path: dnd-app/resources/ollama/windows
-          key: ollama-windows-${{ steps.ollama-tag.outputs.tag }}
+          path: |
+            ${{ github.workspace }}/.cache/electron
+            ${{ github.workspace }}/.cache/electron-builder
+          key: ${{ runner.os }}-electron-${{ hashFiles('dnd-app/package-lock.json') }}
 
-      - name: Bundle Ollama (Windows)
-        if: matrix.os == 'windows-latest' && steps.cache-ollama.outputs.cache-hit != 'true'
-        run: node scripts/build/fetch-ollama.mjs --platform=windows
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit --no-fund
 
-      # AppImage build needs GTK and friends on the runner so the bundled
-      # binary can launch its smoke-test.
+      # AppImage build needs GTK and friends on the runner for the bundled-binary smoke-test.
       - name: Linux build deps
         if: matrix.os == 'ubuntu-latest'
         run: |
@@ -159,25 +148,15 @@ jobs:
             xdg-utils libatspi2.0-0 libuuid1 libsecret-1-0
         working-directory: .
 
-      - name: Build & publish
-        env:
-          # Auto-injected by Actions; electron-builder picks it up for `--publish always`.
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm run ${{ matrix.release-script }}
+      # Build the installer/AppImage but DO NOT publish — the `publish` job uploads after tests
+      # pass, so a test-failing build never reaches users.
+      - name: Build (no publish)
+        run: |
+          npm run build:index
+          npx electron-vite build
+          npx electron-builder ${{ matrix.builder-flag }} --publish never
 
-      # Adds the one-line installer script to the release alongside the
-      # AppImage so users can `curl -fsSL .../install-linux.sh | bash`.
-      # Linux runner only — uploads once per release (Windows would clobber
-      # the same asset with the same content). Runs after publish so the
-      # release exists.
-      - name: Upload Linux install script
-        if: matrix.os == 'ubuntu-latest'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload "${{ github.ref_name }}" scripts/build/install-linux.sh --clobber
-
-      - name: Upload artifacts (debug)
-        if: always()
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: dist-${{ matrix.os }}
@@ -186,15 +165,33 @@ jobs:
             dnd-app/dist/*.AppImage
             dnd-app/dist/*.yml
             dnd-app/dist/*.blockmap
-          if-no-files-found: warn
-          retention-days: 14
+          if-no-files-found: error
+          retention-days: 1
 
-  verify-assets:
-    name: Verify release assets
-    needs: build
+  publish:
+    name: Publish + verify assets
+    needs: [test, build]
     runs-on: ubuntu-latest
     steps:
-      - name: Check expected assets are present
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          merge-multiple: true
+
+      - name: Upload assets to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "${{ github.ref_name }}" \
+            release-assets/* \
+            dnd-app/scripts/build/install-linux.sh \
+            --clobber
+
+      - name: Verify expected assets are present
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
@@ -210,11 +207,9 @@ jobs:
           )
           echo "Expected assets:"
           printf '  %s\n' "${EXPECTED[@]}"
-          echo ""
           PRESENT=$(gh release view "$GITHUB_REF_NAME" --repo "$REPO" --json assets --jq '.assets[].name')
           echo "Present assets:"
           echo "$PRESENT" | sed 's/^/  /'
-          echo ""
           MISSING=()
           for asset in "${EXPECTED[@]}"; do
             if ! echo "$PRESENT" | grep -qFx "$asset"; then
@@ -227,3 +222,13 @@ jobs:
             exit 1
           fi
           echo "All 6 platform/installer assets present (source tarballs auto-attach via GitHub)."
+
+      # On failure only, keep a short-retention copy of the built binaries for debugging (§B4).
+      - name: Upload diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-assets-debug
+          path: release-assets/*
+          if-no-files-found: warn
+          retention-days: 3
