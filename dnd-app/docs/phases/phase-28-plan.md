@@ -711,4 +711,9 @@ Each of the 9 gap areas gets its own narrow scan:
 
 ## Completed
 
+> **PHASE 28 PARTIAL — 2026-05-29 (overnight autonomous pass; high-value contained sweep done, large audit rollup otherwise deferred).** 4-gate green (lint 0, tsc web+node 0, vitest 6514/6514).
+> - **28a.1 DONE** — Math.random → cryptoRandom/cryptoRollDie sweep across 10 renderer files (GameLayout, ReactionPrompts, GamePrompts, PlayerHUDEffects, NPCGeneratorModal, MapEditorRightPanel, treasure-generator-utils, TablesPanel, builder/types, dawn-recharge). Data-table sites skipped per Phase 15 sequencing.
+> - **28a.3 DONE (prior)** — GAME_LOAD_JSON JSON.parse containment landed in Phase 17b.
+> - **DEFERRED (large audit rollup; many items overlap Phases 29–33 or need BMO/app/two-window verification):** 28a.2 BMO sync-receiver hardening (loopback bind + CORS + body/rate limits), 28b AI surface refresh (Claude model list, SDK 1.x, prompt caching, max_tokens), 28c bmoPiFetch retry + BridgeResponse + graceful shutdown + RENDERER_URL validation, 28d typed character pipeline + save-queue + casts sweep + migrateData contract, 28e CI hardening (check:full, dnd-app-ci.yml, lint rules), 28f UI polish (button semantics, tokens, aria, virtualization), 28g docs (BMO key, plugin trust model, allowlist), 28h test-coverage uplift, 28i coverage-gap audits. These remain the live Phase-28 backlog.
+
 - 28c.5 — peerjs reconnection DONE (`src/renderer/src/network/host-manager.ts:277-310`, `client-manager.ts:57`, `registry-client.ts:196`) — exponential backoff (1s/2s/4s/8s/16s/30s cap) + max-attempts + jitter present; "Reconnecting..." badge at `src/renderer/src/components/lobby/PlayerCard.tsx:167`.
