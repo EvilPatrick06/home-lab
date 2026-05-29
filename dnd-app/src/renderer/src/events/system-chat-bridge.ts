@@ -4,6 +4,8 @@
  * Lobby store subscribes and adds messages to chat.
  */
 
+import { logger } from '../utils/logger'
+
 export interface SystemChatMessage {
   senderId: string
   senderName: string
@@ -29,7 +31,7 @@ export function publishSystemChat(msg: SystemChatMessage): void {
     try {
       h(msg)
     } catch (e) {
-      console.error('[SystemChatBridge] Handler error:', e)
+      logger.error('[SystemChatBridge] Handler error:', e)
     }
   }
 }

@@ -9,10 +9,19 @@ import { scanPlugins } from '../plugins/plugin-scanner'
 import { deletePluginStorage, getPluginStorage, setPluginStorage } from '../plugins/plugin-storage'
 import { handle } from './_safe'
 
-const PluginIdSchema = z.string().min(1).max(200)
+// Phase 22i — tightened plugin-id format. Conservative charset (alnum + -_.,
+// must start alnum, ≤64) blocks path-traversal (`../`), separators, and unicode
+// tricks before the id is ever used to build a file path. All plugin handlers
+// route their id through parsePluginId, so this one schema hardens every site.
+const PluginIdSchema = z
+  .string()
+  .min(1)
+  .max(64)
+  .regex(/^[a-z0-9][a-z0-9\-_.]{0,63}$/i, 'Invalid plugin id format')
 const PluginKeySchema = z.string().min(1).max(500)
 
-function parsePluginId(raw: unknown): { ok: true; id: string } | { ok: false; err: string } {
+// Exported for unit testing (Phase 22i).
+export function parsePluginId(raw: unknown): { ok: true; id: string } | { ok: false; err: string } {
   const r = PluginIdSchema.safeParse(raw)
   if (r.success) {
     return { ok: true, id: r.data }

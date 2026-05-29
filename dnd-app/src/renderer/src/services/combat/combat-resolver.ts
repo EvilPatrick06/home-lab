@@ -12,6 +12,7 @@ import { useGameStore } from '../../stores/use-game-store'
 import type { Character5e } from '../../types/character-5e'
 import type { EntityCondition, TurnState } from '../../types/game-state'
 import type { MapToken, WallSegment } from '../../types/map'
+import { logger } from '../../utils/logger'
 import { getDamageTypeFeatEffects } from '../character/feat-mechanics-5e'
 import { type DiceRollOptions, type DiceRollResult, roll, rollD20, rollQuiet } from '../dice/dice-service'
 import {
@@ -920,7 +921,7 @@ function applyDamageToToken(token: MapToken, damage: number): void {
   const gameStore = useGameStore.getState()
   const map = gameStore.maps.find((m) => m.id === gameStore.activeMapId)
   if (!map) {
-    console.warn(
+    logger.warn(
       `[CombatResolver] applyDamageToToken: no active map found (activeMapId=${gameStore.activeMapId}). Damage of ${damage} to "${token.label}" was not applied.`
     )
     return

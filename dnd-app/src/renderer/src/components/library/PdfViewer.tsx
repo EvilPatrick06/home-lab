@@ -1,6 +1,7 @@
 import type { PDFDocumentProxy } from 'pdfjs-dist'
 import * as pdfjsLib from 'pdfjs-dist'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { logger } from '../../utils/logger'
 import type { DrawingStroke, DrawingTool, PageDrawings } from './PdfDrawingOverlay'
 
 // Fetch the worker script and create a blob URL — works in both dev and production Electron
@@ -12,7 +13,7 @@ import PdfDrawingOverlay, { DrawingToolbar } from './PdfDrawingOverlay'
     const blob = new Blob([text], { type: 'application/javascript' })
     pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(blob)
   } catch (err) {
-    console.warn('[PdfViewer] Failed to load worker, PDF parsing will run on main thread:', err)
+    logger.warn('[PdfViewer] Failed to load worker, PDF parsing will run on main thread:', err)
   }
 })()
 

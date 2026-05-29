@@ -52,7 +52,7 @@ vi.mock('../plugins/plugin-storage', () => ({
 }))
 
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
-import { registerPluginHandlers } from './plugin-handlers'
+import { parsePluginId, registerPluginHandlers } from './plugin-handlers'
 
 describe('plugin-handlers', () => {
   beforeEach(() => {
@@ -166,6 +166,25 @@ describe('plugin-handlers', () => {
       const result = await handler({}, 'my-plugin', 'key1')
       expect(result).toBe('stored-value')
       expect(getPluginStorage).toHaveBeenCalledWith('my-plugin', 'key1')
+    })
+  })
+
+  // Phase 22i — plugin-id format validation (path-traversal / namespace hardening).
+  describe('parsePluginId', () => {
+    it('accepts a well-formed id', () => {
+      expect(parsePluginId('my-plugin_1.2')).toEqual({ ok: true, id: 'my-plugin_1.2' })
+    })
+
+    it.each([
+      ['../etc/passwd'],
+      [''],
+      ['a/b'],
+      ['a'.repeat(200)],
+      ['-leading'],
+      [null],
+      [undefined]
+    ])('rejects malformed id %s', (input) => {
+      expect(parsePluginId(input).ok).toBe(false)
     })
   })
 })
