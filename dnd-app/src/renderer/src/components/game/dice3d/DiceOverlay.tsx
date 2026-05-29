@@ -93,6 +93,10 @@ export default function DiceOverlay(): JSX.Element {
   const [size, setSize] = useState({ width: 0, height: 0 })
   const [rollRequest, setRollRequest] = useState<DiceRollRequest | null>(null)
   const [visible, setVisible] = useState(false)
+  // Phase 17e (GUI-3) — track the roll-dismiss timeouts so they're cleared if the component
+  // unmounts mid-roll (otherwise setState fires on an unmounted component).
+  const dismissTimeoutsRef = useRef<Array<ReturnType<typeof setTimeout>>>([])
+  useEffect(() => () => dismissTimeoutsRef.current.forEach(clearTimeout), [])
 
   useEffect(() => {
     const el = containerRef.current
@@ -130,10 +134,12 @@ export default function DiceOverlay(): JSX.Element {
       })
     }
 
-    setTimeout(() => {
+    const t1 = setTimeout(() => {
       setVisible(false)
-      setTimeout(() => setRollRequest(null), 300)
+      const t2 = setTimeout(() => setRollRequest(null), 300)
+      dismissTimeoutsRef.current.push(t2)
     }, 200)
+    dismissTimeoutsRef.current.push(t1)
   }, [])
 
   useEffect(() => {

@@ -144,6 +144,8 @@ Verification re-run on 2026-05-19 against current code. Several items have lande
 
 **Acceptance:** `safeHandler` wrapper covers every registered handler in the three files (grep for raw `ipcMain.handle` outside `safeHandler` should return zero hits except for the schema-validated streaming setups). Cloud API integration tests pass with a 120s upper bound. Builder load failures show a toast and don't lock the builder slot. A scripted dialog with no windows returns a structured error.
 
+> **17e PARTIAL — DONE 2026-05-29 (subscription + timeout leaks):** GUI-2 (`DmAlertTray` subscribes in `useEffect`, not a `useState` initializer — cleanup now runs, listeners no longer accumulate), GUI-3 (`DiceOverlay` tracks both nested roll-dismiss `setTimeout`s in a ref + clears on unmount), GUI-11 (`ShopView` tracks the 10s haggle auto-resolve timeout + clears on unmount/re-haggle). **REMAINING 17e:** GUI-4 (dice-textures/physics dispose audit), GUI-7 (RulingApprovalModal Escape/backdrop/Dismiss), GUI-8 (11 modals missing Escape), GUI-9 (`Modal.tsx` header/scroll split).
+
 ### 17e — GUI fixes
 
 **Files:** `src/renderer/src/components/game/overlays/DmAlertTray.tsx`, `dice3d/DiceOverlay.tsx`, `dice3d/DiceRenderer.tsx`, `dice3d/dice-textures.ts`, `dice3d/dice-physics.ts`, `player/ShopView.tsx`, `modals/utility/RulingApprovalModal.tsx`, and the 11 modal files listed in step 5, `components/ui/Modal.tsx`

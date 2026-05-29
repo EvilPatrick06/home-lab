@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 /**
  * Phase 18b — DmAlert gains an optional `actions` array. Each action is
@@ -51,13 +51,15 @@ function useAlerts(): DmAlert[] {
   const [, setTick] = useState(0)
   const rerender = useCallback(() => setTick((t) => t + 1), [])
 
-  // Subscribe on mount, unsubscribe on unmount
-  useState(() => {
+  // Phase 17e (GUI-2) — subscribe in useEffect so the cleanup actually runs. The previous
+  // `useState(() => {…; return cleanup})` treated the returned function as initial state, so
+  // listeners accumulated forever (the unsubscribe never fired).
+  useEffect(() => {
     listeners.push(rerender)
     return () => {
       listeners = listeners.filter((fn) => fn !== rerender)
     }
-  })
+  }, [rerender])
 
   return alerts
 }

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { trigger3dDice } from '../../../components/game/dice3d'
 import type { HaggleRequestPayload, ShopItem, ShopItemCategory } from '../../../network'
@@ -105,6 +105,14 @@ export default function ShopView(): JSX.Element | null {
   const sendMessage = useNetworkStore((s) => s.sendMessage)
   const localPeerId = useNetworkStore((s) => s.localPeerId)
 
+  // Phase 17e (GUI-11) — track the haggle auto-resolve timeout so it's cleared on unmount/navigate.
+  const haggleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(
+    () => () => {
+      if (haggleTimeoutRef.current) clearTimeout(haggleTimeoutRef.current)
+    },
+    []
+  )
   const [activeTab, setActiveTab] = useState<'buy' | 'sell' | 'history'>('buy')
   const [categoryFilter, setCategoryFilter] = useState<ShopItemCategory | 'all'>('all')
   const [searchQuery, setSearchQuery] = useState('')
@@ -212,7 +220,8 @@ export default function ShopView(): JSX.Element | null {
     sendMessage('player:haggle-request', hagglePayload)
 
     // Auto-resolve locally after timeout (DM may not respond)
-    setTimeout(() => {
+    if (haggleTimeoutRef.current) clearTimeout(haggleTimeoutRef.current)
+    haggleTimeoutRef.current = setTimeout(() => {
       setHagglePending((current) => (current === item.id ? null : current))
       // Haggling disabled for this item after one attempt
       setHaggleDisabledItems((prev) => new Set([...prev, item.id]))
