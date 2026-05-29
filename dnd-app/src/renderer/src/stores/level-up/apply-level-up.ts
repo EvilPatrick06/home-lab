@@ -421,17 +421,24 @@ export async function apply5eLevelUp(
     abilityScores: updatedScores,
     hitPoints: { current: newCurrentHP, maximum: newMaxHP, temporary: character.hitPoints.temporary },
     hitDice: (() => {
-      const levelsGained = targetLevel - currentLevel
-      const classIdx = character.hitDice.findIndex(
-        (hd) => hd.dieType === (updatedClasses.find((c) => c.name.toLowerCase() === primaryClassId)?.hitDie ?? 8)
-      )
-      if (classIdx >= 0) {
-        return character.hitDice.map((hd, i) =>
-          i === classIdx ? { ...hd, current: hd.current + levelsGained, maximum: hd.maximum + levelsGained } : hd
-        )
+      // Phase 24b — per-class HD pools. Each level gained adds 1 HD to the class
+      // taken at that level (classLevelChoices), using that class's die.
+      const dieFor = (classId: string): number =>
+        updatedClasses.find((c) => c.name.toLowerCase() === classId)?.hitDie ?? 8
+      const pools = new Map<string, { current: number; maximum: number; dieType: number; classId: string }>()
+      // Seed from existing entries (legacy entries default to the primary class).
+      for (const hd of character.hitDice) {
+        const cid = hd.classId ?? primaryClassId
+        pools.set(cid, { current: hd.current, maximum: hd.maximum, dieType: hd.dieType, classId: cid })
       }
-      const newDie = updatedClasses.find((c) => c.name.toLowerCase() === primaryClassId)?.hitDie ?? 8
-      return [...character.hitDice, { current: levelsGained, maximum: levelsGained, dieType: newDie }]
+      for (let lvl = currentLevel + 1; lvl <= targetLevel; lvl++) {
+        const cid = classLevelChoices[lvl] ?? primaryClassId
+        const pool = pools.get(cid) ?? { current: 0, maximum: 0, dieType: dieFor(cid), classId: cid }
+        pool.current += 1
+        pool.maximum += 1
+        pools.set(cid, pool)
+      }
+      return Array.from(pools.values())
     })(),
     proficiencies: updatedProficiencies,
     spellcasting: spellcastingInfo,
@@ -445,23 +452,26 @@ export async function apply5eLevelUp(
     feats: updatedFeats,
     wildShapeUses: updatedWildShapeUses,
     classResources: (() => {
+      // Phase 24i — accumulate resources across EVERY class, not just the primary,
+      // so multiclass features (Action Surge + Pact Magic, etc.) all appear.
       const wisMod = Math.floor((updatedScores.wisdom - 10) / 2)
-      const newResources = getClassResources(
-        primaryClassId,
-        updatedClasses.find((c) => c.name.toLowerCase() === primaryClassId)?.level ?? targetLevel,
-        wisMod
-      )
-      if (newResources.length === 0) return character.classResources
       const oldResources = character.classResources ?? []
-      return newResources.map((nr) => {
-        const old = oldResources.find((or) => or.id === nr.id)
-        if (old && old.max === nr.max) return { ...nr, current: old.current }
-        if (old) {
-          const gained = nr.max - old.max
-          return { ...nr, current: Math.min(nr.max, old.current + Math.max(0, gained)) }
+      const merged = new Map<string, (typeof oldResources)[number]>()
+      for (const cls of updatedClasses) {
+        for (const nr of getClassResources(cls.name.toLowerCase(), cls.level, wisMod)) {
+          const old = oldResources.find((or) => or.id === nr.id)
+          if (old && old.max === nr.max) {
+            merged.set(nr.id, { ...nr, current: old.current })
+          } else if (old) {
+            const gained = nr.max - old.max
+            merged.set(nr.id, { ...nr, current: Math.min(nr.max, old.current + Math.max(0, gained)) })
+          } else {
+            merged.set(nr.id, nr)
+          }
         }
-        return nr
-      })
+      }
+      if (merged.size === 0) return character.classResources
+      return Array.from(merged.values())
     })(),
     speciesResources: (() => {
       const newResources = getSpeciesResources(

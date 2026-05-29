@@ -194,6 +194,9 @@ export interface HitDiceEntry {
   current: number
   maximum: number
   dieType: number
+  /** Phase 24b — which class this HD pool belongs to (lowercase id). Optional for
+   * legacy entries; defaults to the primary class when reading. */
+  classId?: string
 }
 
 export function totalHitDiceRemaining(hitDice: HitDiceEntry[]): number {
