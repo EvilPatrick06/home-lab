@@ -110,8 +110,6 @@
       "icon": "resources/icon.ico",
       "legalTrademarks": "D&D Virtual Tabletop",
       "requestedExecutionLevel": "asInvoker",
-      "signAndEditExecutable": false,
-      "sign": "./scripts/sign.mjs",
       "target": [
         "nsis"
       ]
