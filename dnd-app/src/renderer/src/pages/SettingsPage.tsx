@@ -369,9 +369,7 @@ function PluginManager(): JSX.Element {
               {!!plugin.manifest.description && (
                 <p className="text-xs text-gray-400 mt-1 truncate">{plugin.manifest.description}</p>
               )}
-              {!!plugin.manifest.author && (
-                <p className="text-xs text-gray-500 mt-0.5">by {plugin.manifest.author}</p>
-              )}
+              {!!plugin.manifest.author && <p className="text-xs text-gray-500 mt-0.5">by {plugin.manifest.author}</p>}
               {plugin.error && <p className="text-xs text-red-400 mt-1">{plugin.error}</p>}
             </div>
             <div className="flex items-center gap-2 shrink-0">
@@ -941,6 +939,7 @@ export async function restoreDefaultSettings(): Promise<void> {
   accessStore.setReducedMotion(false)
   accessStore.setScreenReaderMode(false)
   accessStore.setTooltipsEnabled(true)
+  accessStore.setFontStyle('system')
 
   // Reset theme
   setTheme('dark')
@@ -1018,6 +1017,8 @@ export default function SettingsPage(): JSX.Element {
   const setScreenReaderMode = useAccessibilityStore((s) => s.setScreenReaderMode)
   const tooltipsEnabled = useAccessibilityStore((s) => s.tooltipsEnabled)
   const setTooltipsEnabled = useAccessibilityStore((s) => s.setTooltipsEnabled)
+  const fontStyle = useAccessibilityStore((s) => s.fontStyle)
+  const setFontStyle = useAccessibilityStore((s) => s.setFontStyle)
 
   // Audio settings
   const [masterVolume, setMasterVolume] = useState(() => getVolume() * 100)
@@ -1243,6 +1244,7 @@ export default function SettingsPage(): JSX.Element {
                 setReducedMotion(false)
                 setScreenReaderMode(false)
                 setTooltipsEnabled(true)
+                setFontStyle('system')
               }}
               className="px-2 py-0.5 text-xs bg-gray-900 border border-gray-600 rounded text-gray-100 hover:text-red-300 cursor-pointer"
             >
@@ -1298,6 +1300,36 @@ export default function SettingsPage(): JSX.Element {
                     }`}
                   >
                     <div className="text-xs font-medium text-gray-200">{opt.label}</div>
+                    <div className="text-xs text-gray-500">{opt.description}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Font Style (Phase 18i) */}
+            <div>
+              <span className="text-sm text-gray-300 block mb-2">Heading Font</span>
+              <div className="grid grid-cols-2 gap-2">
+                {(
+                  [
+                    { value: 'system', label: 'System', description: 'Default sans-serif headings' },
+                    { value: 'fantasy', label: 'Fantasy', description: 'Cinzel serif headings' }
+                  ] as const
+                ).map((opt) => (
+                  <button
+                    key={opt.value}
+                    onClick={() => setFontStyle(opt.value)}
+                    className={`p-2 rounded-lg border text-left transition-colors cursor-pointer ${
+                      fontStyle === opt.value
+                        ? 'border-amber-500 bg-amber-900/20'
+                        : 'border-gray-700 bg-gray-800/30 hover:border-gray-600'
+                    }`}
+                  >
+                    <div
+                      className={`text-xs font-medium text-gray-200${opt.value === 'fantasy' ? ' fantasy-font' : ''}`}
+                    >
+                      <h3 className="text-xs font-medium">{opt.label}</h3>
+                    </div>
                     <div className="text-xs text-gray-500">{opt.description}</div>
                   </button>
                 ))}

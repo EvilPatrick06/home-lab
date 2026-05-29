@@ -40,6 +40,7 @@ function App(): JSX.Element {
   const [shortcutsOpen, setShortcutsOpen] = useState(false)
   const uiScale = useAccessibilityStore((s) => s.uiScale)
   const colorblindMode = useAccessibilityStore((s) => s.colorblindMode)
+  const fontStyle = useAccessibilityStore((s) => s.fontStyle)
 
   // Initialize game system registry and notification service
   useEffect(() => {
@@ -104,6 +105,11 @@ function App(): JSX.Element {
   useEffect(() => {
     applyColorblindFilter(colorblindMode)
   }, [colorblindMode])
+
+  // Phase 18i — toggle the Cinzel fantasy heading font on <body>
+  useEffect(() => {
+    document.body.classList.toggle('fantasy-font', fontStyle === 'fantasy')
+  }, [fontStyle])
 
   const handleGlobalKeyDown = useCallback(
     (e: KeyboardEvent) => {

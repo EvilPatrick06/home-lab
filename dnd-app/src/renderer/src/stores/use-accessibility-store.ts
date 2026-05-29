@@ -3,6 +3,9 @@ import { SETTINGS_KEYS } from '../constants'
 
 export type ColorblindMode = 'none' | 'deuteranopia' | 'protanopia' | 'tritanopia'
 
+/** Phase 18i — heading font family. `fantasy` swaps headers to Cinzel; body stays system. */
+export type FontStyle = 'system' | 'fantasy'
+
 export interface KeyCombo {
   key: string
   ctrl?: boolean
@@ -16,6 +19,7 @@ interface AccessibilityState {
   reducedMotion: boolean
   screenReaderMode: boolean
   tooltipsEnabled: boolean
+  fontStyle: FontStyle
   customKeybindings: Record<string, KeyCombo> | null // null = use defaults
 
   setUiScale: (scale: number) => void
@@ -23,6 +27,7 @@ interface AccessibilityState {
   setReducedMotion: (v: boolean) => void
   setScreenReaderMode: (v: boolean) => void
   setTooltipsEnabled: (v: boolean) => void
+  setFontStyle: (v: FontStyle) => void
   setCustomKeybinding: (action: string, combo: KeyCombo) => void
   resetKeybinding: (action: string) => void
   resetAllKeybindings: () => void
@@ -50,6 +55,7 @@ function persist(state: AccessibilityState): void {
         reducedMotion: state.reducedMotion,
         screenReaderMode: state.screenReaderMode,
         tooltipsEnabled: state.tooltipsEnabled,
+        fontStyle: state.fontStyle,
         customKeybindings: state.customKeybindings
       })
     )
@@ -82,6 +88,7 @@ export const useAccessibilityStore = create<AccessibilityState>((set, get) => ({
   reducedMotion: (saved.reducedMotion as boolean) ?? osReducedMotion,
   screenReaderMode: (saved.screenReaderMode as boolean) ?? false,
   tooltipsEnabled: (saved.tooltipsEnabled as boolean) ?? true,
+  fontStyle: (saved.fontStyle as FontStyle) ?? 'system',
   customKeybindings: (saved.customKeybindings as Record<string, KeyCombo> | null) ?? null,
 
   setUiScale: (scale) => {
@@ -107,6 +114,11 @@ export const useAccessibilityStore = create<AccessibilityState>((set, get) => ({
 
   setTooltipsEnabled: (v) => {
     set({ tooltipsEnabled: v })
+    persist(get())
+  },
+
+  setFontStyle: (v) => {
+    set({ fontStyle: v })
     persist(get())
   },
 
