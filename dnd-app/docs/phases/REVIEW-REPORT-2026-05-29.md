@@ -6,19 +6,7 @@ Only open/actionable items: problems, errors, security concerns, suggestions, ou
 
 ## 🚨 Problems / debt (open)
 
-- **20g — renderer-side security events never reach the audit log.** `logSecurityEvent` (`security-log.ts`) is main-process only; renderer events (kick/ban in `network/host-manager.ts`, network-message Zod rejections in `network/host-message-handlers.ts`) have no path to it. No `LOG_SECURITY_EVENT` preload→main channel exists. *Action: add the channel + forward the two renderer sites.*
-- **LOG-11 — Tiny-creature cover unimplementable.** `cover-calculator.ts` clamps creature cover to half but can't exclude Tiny creatures: `MapToken` (`types/map.ts:103-104`) has only `sizeX`/`sizeY` (footprint, min 1), no size category. *Action: add `sizeCategory` (or resolve from `monsterStatBlockId`) + skip Tiny.*
-- **God-object files (oversized).** `PdfViewer.tsx` (1832), `GameLayout.tsx` (1360), `data-provider.ts` (1178), `library-service.ts` (1176), `DowntimeModal.tsx` (1131), `client-handlers.ts` (1120), `MapCanvas.tsx` (1118), `import-dnd-beyond.ts` (729), `build-character-5e.ts` (682). *Action: split per follow-up phases.*
-- **15h legacy interfaces still live.** `SpellEntry` (~62 refs), `WeaponEntry` (~40), `ArmorEntry` (~34) in `character-common.ts` are still heavily live despite "removed in Phase 15c" boundary-allow comments; `MigrationReportModal` + orphan-detection unbuilt. Release-time (v3.0.0) work for the dormant v4 schema flip. (`FeatEntry` is already at 0 refs.) *Action: finish the removal sweep or drop the "removed" comments.*
-- **17d/35 IPC sweep partial.** 4 raw `ipcMain.handle` sites still unwrapped by the `_safe` `handle()` / `withSchema` helper — all in `updater.ts` (`APP_VERSION`, `UPDATE_CHECK`, `UPDATE_DOWNLOAD`, `UPDATE_INSTALL`). *Action: route them through the wrapper.*
-
----
-
-## 🔒 Security concerns (code-verified)
-
-- **🟠 Game-discovery registry auth is opt-in and OFF by default.** `bmo/pi/app.py`: `GET /api/games` (`:4937`) + `GET /api/games/stream` (`:5000`) have no auth (open for discovery, CORS `*` `:76`). Mutations POST/PATCH/DELETE/heartbeat (`:4944–4998`) call `_registry_authorized()` (`:4906`) which **returns `True` when `BMO_REGISTRY_API_KEY` is unset** (default) — so by default anyone reaching the Pi can register/patch/deregister games (only 30/min + 4 KB cap). *Action: set `BMO_REGISTRY_API_KEY` before any external exposure.*
-- **🟠 App-wide Flask auth gate is also opt-in.** `_bmo_optional_api_key()` (`app.py:245–266`) allows all requests when `BMO_API_KEY` is unset (`:254`). The Cloudflare tunnel (`bmo.mybmoai.work` → `:5000`) thus exposes `/api/chat`, `/api/discord/*` to anyone **unless** `BMO_API_KEY` is set or Cloudflare Access JWT is on. *Action: set `BMO_API_KEY` and/or enable Access JWT before exposing the tunnel.*
-- **🟡 20g (above)** is also a security gap (kick/ban + rejected-message events aren't audit-logged).
+- **15h legacy interfaces — v3.0.0 removal still pending.** `SpellEntry` (~62 refs), `WeaponEntry` (~40), `ArmorEntry` (~34) in `character-common.ts` remain the LIVE character-sheet shape; the EntryRef/v4-schema migration that would retire them — plus the unbuilt `MigrationReportModal` + orphan-detection — is gated on the dormant v3.0.0 schema flip (`CURRENT_SCHEMA_VERSION` still 3). (The misleading "removed in Phase 15c" comments were corrected; `FeatEntry` is already at 0 refs.) *Action: do the removal sweep when v4 flips — not before, or the sheet breaks.*
 
 ---
 
@@ -74,25 +62,7 @@ Only open/actionable items: problems, errors, security concerns, suggestions, ou
 
 ---
 
-## 📋 Undone — owner action
-
-- **Phase 37f — activate the Pi fan-tuning** (code is on master):
-  ```bash
-  cd ~/home-lab && git pull
-  bash bmo/setup-bmo.sh          # rewrites /boot/firmware/config.txt (fan_temp3_speed=255)
-  sudo systemctl daemon-reload && sudo systemctl restart bmo-fan
-  sudo reboot                    # config.txt only applies at boot
-  ```
-  Note: `vcgencmd get_throttled` on this Pi reports `0xe0000` (sticky under-voltage/throttle history) — `health_check.sh` now surfaces that; it's intended, not a regression.
-- **Pi venv not yet updated to the pinned `zeroconf` 0.149.7** (the pin is in `bmo/pi/requirements.txt:454`; the installed venv version is runtime state not visible in the repo — run the install to apply it):
-  ```bash
-  cd ~/home-lab && git pull && bmo/pi/venv/bin/pip install -r bmo/pi/requirements.txt
-  ```
-
----
-
 ## 🚫 Out of scope (for dnd-app phase work)
 
 - **Large public-dir assets** — `monsters.json` (~32k lines), 130+ MP3s under `public/sounds/`. CDN / lazy-download is a distribution decision, not a code fix.
 - **Electron 40 EOL planning** — schedule an upgrade cadence before the 40.x line goes EOL.
-- **BMO / Dungeon-Scholar `/docs` entries** — separate domains; not tracked here.
