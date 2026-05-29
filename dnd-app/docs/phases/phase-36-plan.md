@@ -248,3 +248,5 @@ None. As of 2026-05-19, no Phase 36 artifacts exist:
 - `dnd-app/docs/decisions/` — directory does not exist.
 
 `bmoPiBaseUrl` settings plumbing from Phase 32 already exists (`SettingsPage.tsx:667`, `bmo-config.ts:48`) and is the intended hook point for the remote-loader's base URL.
+
+> **PHASE 36 DEFERRED — 2026-05-29 (overnight autonomous pass).** Pi-hosted library + offline cache: slim seed bundle, Pi library API, remote-loader + cache + invalidation; depends on the Phase 32 Pi authority. This is a large architectural rewrite whose correctness can only be verified with a running Pi library service and installer-size verification, which isn't available in this headless session. Attempting it blind would rewrite/delete the working networking core and very likely break multiplayer + the 6500-test gate. Per the "log confusion and move on" directive it is deferred intact for a focused, app-verified follow-up. No code changed; depends-on chain (29→30→31→32) and 36's Pi dependency remain the blockers.

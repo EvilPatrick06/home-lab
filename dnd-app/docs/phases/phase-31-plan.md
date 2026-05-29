@@ -223,3 +223,5 @@ flowchart LR
 ## Completed
 
 (None — Phase 31 has not been started. Phase 30 dependency `GameAuthority` is also absent from the codebase as of 2026-05-19; cannot proceed until it lands.)
+
+> **PHASE 31 DEFERRED — 2026-05-29 (overnight autonomous pass).** Live-state sync overhaul: shard registry + diff engine replacing every bespoke broadcaster; depends on Phase 30's GameAuthority. This is a large architectural rewrite whose correctness can only be verified with two live peers exchanging shard diffs, which isn't available in this headless session. Attempting it blind would rewrite/delete the working networking core and very likely break multiplayer + the 6500-test gate. Per the "log confusion and move on" directive it is deferred intact for a focused, app-verified follow-up. No code changed; depends-on chain (29→30→31→32) and 36's Pi dependency remain the blockers.
