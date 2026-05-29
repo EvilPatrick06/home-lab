@@ -234,5 +234,18 @@ describe('client-manager', () => {
         sendMessage({ type: 'chat:message', payload: { message: 'test' } })
       }).not.toThrow()
     })
+
+    it('swallows a circular-reference payload instead of crashing (NET-5)', () => {
+      // A circular payload makes JSON.stringify throw; the broadcast path must
+      // catch it so one malformed message never tears down the connection.
+      const circular: Record<string, unknown> = { message: 'loop' }
+      circular.self = circular
+
+      expect(() => {
+        sendMessage({ type: 'chat:message', payload: circular as never })
+      }).not.toThrow()
+      // The stringify threw before reaching the wire, so nothing was sent.
+      expect(mockConn.send).not.toHaveBeenCalled()
+    })
   })
 })
