@@ -17,6 +17,8 @@ function HitPointsBar5e({ character, effectiveCharacter, readonly }: HitPointsBa
   const [hpCurrent, setHpCurrent] = useState(effectiveCharacter.hitPoints.current)
   const [hpMax, setHpMax] = useState(effectiveCharacter.hitPoints.maximum)
   const [hpTemp, setHpTemp] = useState(effectiveCharacter.hitPoints.temporary)
+  // Phase 23j — quick damage/heal/temp helper.
+  const [quickAmt, setQuickAmt] = useState('')
 
   useEffect(() => {
     setHpCurrent(effectiveCharacter.hitPoints.current)
@@ -28,15 +30,10 @@ function HitPointsBar5e({ character, effectiveCharacter, readonly }: HitPointsBa
     effectiveCharacter.hitPoints.temporary
   ])
 
-  const saveHP = (): void => {
+  const persistHitPoints = (hp: { current: number; maximum: number; temporary: number }): void => {
     const latest = useCharacterStore.getState().characters.find((c) => c.id === character.id) || character
-    const updated = {
-      ...latest,
-      hitPoints: { current: hpCurrent, maximum: Math.max(1, hpMax), temporary: Math.max(0, hpTemp) },
-      updatedAt: new Date().toISOString()
-    }
+    const updated = { ...latest, hitPoints: hp, updatedAt: new Date().toISOString() }
     saveCharacter(updated)
-    setEditingHP(false)
 
     const { role, sendMessage } = useNetworkStore.getState()
     if (role === 'host' && updated.playerId !== 'local') {
@@ -47,6 +44,30 @@ function HitPointsBar5e({ character, effectiveCharacter, readonly }: HitPointsBa
       })
       useLobbyStore.getState().setRemoteCharacter(updated.id, updated as Character)
     }
+  }
+
+  const saveHP = (): void => {
+    persistHitPoints({ current: hpCurrent, maximum: Math.max(1, hpMax), temporary: Math.max(0, hpTemp) })
+    setEditingHP(false)
+  }
+
+  // Phase 23j — damage hits temp HP first; heal caps at max; temp uses 5e "take higher".
+  const applyHpDelta = (kind: 'damage' | 'heal' | 'temp'): void => {
+    const amount = Math.max(0, parseInt(quickAmt, 10) || 0)
+    if (amount === 0) return
+    const hp = effectiveCharacter.hitPoints
+    let next = { current: hp.current, maximum: hp.maximum, temporary: hp.temporary }
+    if (kind === 'damage') {
+      const fromTemp = Math.min(hp.temporary, amount)
+      const fromCurrent = amount - fromTemp
+      next = { ...next, temporary: hp.temporary - fromTemp, current: Math.max(0, hp.current - fromCurrent) }
+    } else if (kind === 'heal') {
+      next = { ...next, current: Math.min(hp.maximum, hp.current + amount) }
+    } else {
+      next = { ...next, temporary: Math.max(hp.temporary, amount) }
+    }
+    persistHitPoints(next)
+    setQuickAmt('')
   }
 
   return (
@@ -123,6 +144,37 @@ function HitPointsBar5e({ character, effectiveCharacter, readonly }: HitPointsBa
             effectiveCharacter.hitPoints.current <= Math.floor(effectiveCharacter.hitPoints.maximum / 2) && (
               <div className="text-xs text-red-500 font-bold uppercase tracking-wider mt-0.5">Bloodied</div>
             )}
+          {/* Phase 23j — quick damage / heal / temp-HP */}
+          {!readonly && (
+            <div className="flex items-center gap-1 mt-1">
+              <input
+                type="number"
+                value={quickAmt}
+                onChange={(e) => setQuickAmt(e.target.value)}
+                placeholder="0"
+                className="w-12 text-xs bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-gray-200 focus:outline-none focus:border-amber-500"
+                aria-label="HP amount"
+              />
+              <button
+                onClick={() => applyHpDelta('damage')}
+                className="text-xs px-1.5 py-0.5 rounded bg-red-900/40 text-red-300 hover:bg-red-800/50 cursor-pointer"
+              >
+                Dmg
+              </button>
+              <button
+                onClick={() => applyHpDelta('heal')}
+                className="text-xs px-1.5 py-0.5 rounded bg-green-900/40 text-green-300 hover:bg-green-800/50 cursor-pointer"
+              >
+                Heal
+              </button>
+              <button
+                onClick={() => applyHpDelta('temp')}
+                className="text-xs px-1.5 py-0.5 rounded bg-blue-900/40 text-blue-300 hover:bg-blue-800/50 cursor-pointer"
+              >
+                Temp
+              </button>
+            </div>
+          )}
           {/* Hit Point Dice */}
           {(() => {
             const remaining = effectiveCharacter.hitDice.reduce((s, h) => s + h.current, 0)

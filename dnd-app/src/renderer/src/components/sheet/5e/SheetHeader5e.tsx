@@ -1,10 +1,12 @@
 import { useRef, useState } from 'react'
 import { xpThresholdForNextLevel } from '../../../data/xp-thresholds'
-import { getEffectiveClasses } from '../../../services/character/effective-character-5e'
+import { getEffectiveClasses, getEffectiveFeats } from '../../../services/character/effective-character-5e'
+import { roll } from '../../../services/dice/dice-service'
 import { PRESET_ICONS } from '../../../stores/use-builder-store'
 import { useCharacterStore } from '../../../stores/use-character-store'
 import { is5eCharacter } from '../../../types/character'
 import type { Character5e } from '../../../types/character-5e'
+import { abilityModifier, formatMod } from '../../../types/character-common'
 import { CharacterIcon, getCharacterIconProps } from '../../builder/shared/IconPicker'
 
 interface SheetHeader5eProps {
@@ -32,6 +34,14 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
   const subtitle = `${character.background} \u00B7 ${character.alignment || 'No alignment'}`
 
   const iconProps = getCharacterIconProps(character)
+
+  // Phase 23l — initiative roll from the sheet: 1d20 + DEX (+ proficiency if Alert).
+  const profBonus = Math.ceil(character.level / 4) + 1
+  const hasAlert = getEffectiveFeats(character).some((f) => f.name?.toLowerCase() === 'alert')
+  const initMod = abilityModifier(character.abilityScores.dexterity) + (hasAlert ? profBonus : 0)
+  const rollInitiative = (): void => {
+    roll(`1d20${initMod >= 0 ? '+' : ''}${initMod}`, { label: `${character.name} Initiative` })
+  }
 
   const saveName = (): void => {
     const trimmed = nameValue.trim()
@@ -205,6 +215,14 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
           Level {character.level} {speciesName} {className}
         </p>
         <p className="text-gray-500 text-sm">{subtitle}</p>
+        {/* Phase 23l — roll initiative straight from the sheet header. */}
+        <button
+          onClick={rollInitiative}
+          className="mt-1 inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded border border-gray-700 text-gray-300 hover:border-amber-500 hover:text-amber-400 cursor-pointer"
+          title={`Roll Initiative (1d20 ${formatMod(initMod)})`}
+        >
+          🎲 Initiative {formatMod(initMod)}
+        </button>
         {/* Leveling mode + XP display */}
         <div className="flex items-center gap-2 mt-0.5">
           {readonly ? (
