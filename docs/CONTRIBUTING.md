@@ -110,8 +110,7 @@ some stuff
       throw new Error(`unhandled: ${_exhaustive}`)
   }
   ```
-- **File naming:** kebab-case (e.g., `chat-panel.tsx`, not `ChatPanel.tsx` for files — React components inside are PascalCase).
-- **Wait — actually our codebase uses PascalCase for component files** (`CharacterSheet5ePage.tsx`). Match what's there. Biome enforces.
+- **File naming:** React component files are **PascalCase** (`CharacterSheet5ePage.tsx`, `ChatPanel.tsx`); non-component files (services, hooks, utils, stores) are **kebab-case** (`use-library-entry.ts`, `combat-resolver.ts`). Match the surrounding directory; biome enforces.
 - **Tests colocated:** `foo.test.ts` next to `foo.ts`, vitest.
 
 ### React performance (dnd-app/)

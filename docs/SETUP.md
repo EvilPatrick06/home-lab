@@ -41,7 +41,7 @@ npx tsc --noEmit                # type check
 npm run build                   # electron-vite build (current platform; no installer)
 npm run build:win               # Windows NSIS installer
 npm run build:linux             # Linux AppImage
-npm run build:cross             # Both (Linux host needs `wine` for the Windows cross-compile)
+npm run build:cross             # Both, on one host (local cross-compile only — a Linux host needs `wine` for the Windows target). NOTE: official releases do NOT use this; the Release workflow builds Windows + Linux on separate CI runners (no wine).
 
 # Release (publishes to GitHub Releases — requires GH_TOKEN env var)
 npm run release                 # Windows-only (default — keep for back-compat)

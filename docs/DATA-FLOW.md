@@ -56,15 +56,19 @@ Gitignored locally after initial pull. Fetch on demand via `git lfs pull`. Total
 
 **dnd-app writes to:**
 
+Paths use Electron's `app.getPath('userData')`, which on both Windows and Linux maps to `<appData>/<name>` (the `name` field from `dnd-app/package.json`, **not** `productName`). Verified 2026-05-17 against a real Windows install + the Linux verbose Chromium log.
+
 | Kind | Windows path | Linux path |
 |---|---|---|
-| Characters | `%APPDATA%/dnd-vtt/characters/*.json` | `~/.config/dnd-vtt/characters/*.json` |
-| Campaigns | `%APPDATA%/dnd-vtt/campaigns/*.json` | `~/.config/dnd-vtt/campaigns/*.json` |
-| Homebrew content | `%APPDATA%/dnd-vtt/homebrew/*.json` | `~/.config/dnd-vtt/homebrew/*.json` |
+| Characters | `%APPDATA%\dnd-vtt\characters\*.json` | `~/.config/dnd-vtt/characters/*.json` |
+| Campaigns | `%APPDATA%\dnd-vtt\campaigns\*.json` | `~/.config/dnd-vtt/campaigns/*.json` |
+| Homebrew content | `%APPDATA%\dnd-vtt\homebrew\*.json` | `~/.config/dnd-vtt/homebrew/*.json` |
 | Game state (session) | RAM only, peerjs-synced across players | — |
-| Book notes | `%APPDATA%/dnd-vtt/books/*.json` | `~/.config/dnd-vtt/books/*.json` |
-| Image library | `%APPDATA%/dnd-vtt/images/` | `~/.config/dnd-vtt/images/` |
-| Map library | `%APPDATA%/dnd-vtt/maps/` | `~/.config/dnd-vtt/maps/` |
+| Book notes | `%APPDATA%\dnd-vtt\books\*.json` | `~/.config/dnd-vtt/books/*.json` |
+| Image library | `%APPDATA%\dnd-vtt\images\` | `~/.config/dnd-vtt/images/` |
+| Map library | `%APPDATA%\dnd-vtt\maps\` | `~/.config/dnd-vtt/maps/` |
+
+`productName` in package.json is `"D&D Virtual Tabletop"` — that's the friendly title shown in the Start menu / window chrome / installer UI, but it is **not** the userData directory name. Easy to confuse since other Electron apps DO use productName for userData (depends on Electron version + whether the app calls `app.setName`).
 
 Not in git. Each user has their own. Back up via OS-level tools (OneDrive, Time Machine, rsync).
 
