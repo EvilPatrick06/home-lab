@@ -206,3 +206,5 @@ Commit cadence: one commit per sub-phase, `feat(ipc): ...` prefix. One release a
 
 ## Completed
 - (none — Phase 35 not started; `src/main/ipc/withSchema.ts` does not exist; only 9 of ~141 `ipcMain.handle` sites validate, all via inline `safeParse`)
+
+> **PHASE 35 DEFERRED — 2026-05-29 (overnight autonomous pass).** The `withSchema` sweep changes the IPC envelope shape for ~50 storage channels (and ~80 more across AI/audio/plugin/discord/cloud/LAN/FS), which requires updating every renderer caller to the new `{ ok, data } | { ok, error, issues }` shape and reconciling with the Phase-17 `handle`/`safeHandler` wrapper already applied to these files. A partial sweep leaves an inconsistent contract; a `withSchema` foundation with no consumers is dead code. Correctness needs renderer round-trip + app verification. Deferred intact. NOTE: Phase 17 NET-6 already wrapped ai/storage/plugin handlers in `safeHandler` (throw→error-envelope containment); Phase 20 added Zod validation to AI_CONFIGURE/AI_CHAT_STREAM + plugin-id; so the highest-risk surfaces already have *some* validation/containment. The remaining gap is per-channel payload schemas, deferred here.

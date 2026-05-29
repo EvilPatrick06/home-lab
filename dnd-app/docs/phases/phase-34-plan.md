@@ -209,3 +209,5 @@ flowchart LR
 
 ## Completed
 (none — Phase 34 unstarted as of 2026-05-19: no `src/renderer/src/i18n/` directory, no `i18next`/`react-i18next` in `dnd-app/package.json` dependencies, no `scripts/i18n/` directory, zero `useTranslation`/`useT` usages anywhere in `src/renderer/src/`.)
+
+> **PHASE 34 DEFERRED — 2026-05-29 (overnight autonomous pass).** i18n is a whole-app sweep: install a framework (34a), then externalize every hardcoded English string across lobby, in-game, builder, sheet, level-up, settings, library, AI, toasts/aria (34b–34j), plus a lint rule + CI gate (34k). The foundation alone (34a) adds an unused framework (knip would flag it) and every subsequent sub-phase rewrites user-visible rendering that needs visual/locale verification. No safe standalone slice exists. Deferred intact for a focused pass; no code changed.
