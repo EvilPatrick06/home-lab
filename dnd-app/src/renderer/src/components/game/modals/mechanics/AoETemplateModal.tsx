@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import type { MapToken } from '../../../../types/map'
 import type { AoEConfig, AoEShape, Direction8 } from '../../map/aoe-overlay'
 import { getAoECells } from '../../map/aoe-overlay'
@@ -45,6 +46,7 @@ export default function AoETemplateModal({
   onClose,
   onPreview
 }: AoETemplateModalProps): JSX.Element {
+  useEscapeKey(onClose)
   const [shape, setShape] = useState<AoEShape>('sphere')
   const [sizeFeet, setSizeFeet] = useState(20)
   const [direction, setDirection] = useState<Direction8>('N')
@@ -95,7 +97,7 @@ export default function AoETemplateModal({
 
   return (
     <div className="fixed inset-0 z-30 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-[440px] max-h-[85vh] overflow-y-auto shadow-2xl">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-gray-200">

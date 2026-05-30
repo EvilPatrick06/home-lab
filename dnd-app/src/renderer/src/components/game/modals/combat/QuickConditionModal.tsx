@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { CONDITIONS_5E } from '../../../../data/conditions'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { getTokenStats } from '../../../../services/game/token-stats'
 import { useGameStore } from '../../../../stores/use-game-store'
 import { useLobbyStore } from '../../../../stores/use-lobby-store'
@@ -13,6 +14,7 @@ export default function QuickConditionModal({
   onClose,
   preselectedEntities = []
 }: QuickConditionModalProps): JSX.Element {
+  useEscapeKey(onClose)
   const conditions = useGameStore((s) => s.conditions)
   const initiative = useGameStore((s) => s.initiative)
   const maps = useGameStore((s) => s.maps)
@@ -93,7 +95,7 @@ export default function QuickConditionModal({
 
   return (
     <div className="fixed inset-0 z-20 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-md w-full mx-4 shadow-2xl">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold text-gray-200">Quick Conditions</h3>

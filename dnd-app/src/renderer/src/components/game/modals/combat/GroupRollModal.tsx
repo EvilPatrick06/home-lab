@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { trigger3dDice } from '../../../../components/game/dice3d'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { rollSingle } from '../../../../services/dice/dice-service'
 import { useCharacterStore } from '../../../../stores/use-character-store'
 import { useLobbyStore } from '../../../../stores/use-lobby-store'
@@ -53,6 +54,7 @@ const SKILLS = [
 ]
 
 export default function GroupRollModal({ onClose, onBroadcastResult }: GroupRollModalProps) {
+  useEscapeKey(onClose)
   const [checkType, setCheckType] = useState<CheckType>('ability')
   const [ability, setAbility] = useState('strength')
   const [skill, setSkill] = useState('Perception')
@@ -129,7 +131,11 @@ export default function GroupRollModal({ onClose, onBroadcastResult }: GroupRoll
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+      onClick={onClose}
+      role="presentation"
+    >
       <div
         className="bg-gray-900 border border-gray-700 rounded-xl shadow-2xl w-full max-w-lg mx-4"
         onClick={(e) => e.stopPropagation()}

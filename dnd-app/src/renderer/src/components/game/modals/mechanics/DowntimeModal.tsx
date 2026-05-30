@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { addToast } from '../../../../hooks/use-toast'
 import { type LanguageEntry, load5eLanguages } from '../../../../services/data-provider'
 import {
@@ -39,6 +40,7 @@ export default function DowntimeModal({
   onSaveCampaign,
   onBroadcastResult
 }: DowntimeModalProps): JSX.Element {
+  useEscapeKey(onClose)
   const [tab, setTab] = useState<DowntimeTab>('activities')
   const [activities, setActivities] = useState<DowntimeActivity[]>([])
   const [extendedActivities, setExtendedActivities] = useState<ExtendedDowntimeActivity[]>([])
@@ -84,7 +86,11 @@ export default function DowntimeModal({
   ]
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={onClose}>
+    <div
+      className="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
+      onClick={onClose}
+      role="presentation"
+    >
       <div
         className="bg-gray-900 border border-gray-700 rounded-xl w-[600px] max-h-[85vh] overflow-hidden shadow-2xl flex flex-col"
         onClick={(e) => e.stopPropagation()}

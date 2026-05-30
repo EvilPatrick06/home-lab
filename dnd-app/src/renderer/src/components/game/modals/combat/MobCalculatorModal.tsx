@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 
 interface MobCalculatorModalProps {
   onClose: () => void
@@ -33,6 +34,7 @@ function getAttackersPerHit(d20Needed: number): number {
 }
 
 export default function MobCalculatorModal({ onClose, onBroadcastResult }: MobCalculatorModalProps): JSX.Element {
+  useEscapeKey(onClose)
   const [attackerCount, setAttackerCount] = useState(10)
   const [attackBonus, setAttackBonus] = useState(4)
   const [targetAC, setTargetAC] = useState(15)
@@ -74,7 +76,11 @@ export default function MobCalculatorModal({ onClose, onBroadcastResult }: MobCa
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+      onClick={onClose}
+      role="presentation"
+    >
       <div
         className="bg-gray-900 border border-gray-700 rounded-xl shadow-2xl w-full max-w-lg flex flex-col"
         onClick={(e) => e.stopPropagation()}

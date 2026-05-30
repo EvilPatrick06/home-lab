@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { trigger3dDice } from '../../../../components/game/dice3d'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { rollSingle } from '../../../../services/dice/dice-service'
 import type { Character } from '../../../../types/character'
 import type { Character5e } from '../../../../types/character-5e'
@@ -42,6 +43,7 @@ const STUDY_APPROACHES = [
 type AbilityKey = 'strength' | 'dexterity' | 'constitution' | 'intelligence' | 'wisdom' | 'charisma'
 
 export default function StudyActionModal({ character, onClose, onBroadcastResult }: StudyActionModalProps) {
+  useEscapeKey(onClose)
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
   const [result, setResult] = useState<{ roll: number; modifier: number; total: number } | null>(null)
 
@@ -81,7 +83,11 @@ export default function StudyActionModal({ character, onClose, onBroadcastResult
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+      onClick={onClose}
+      role="presentation"
+    >
       <div
         className="bg-gray-900 border border-gray-700 rounded-xl shadow-2xl w-full max-w-md mx-4"
         onClick={(e) => e.stopPropagation()}

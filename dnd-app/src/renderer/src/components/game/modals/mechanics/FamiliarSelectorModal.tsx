@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { getFamiliarForms } from '../../../../services/character/companion-service'
 import { load5eMonsters } from '../../../../services/data-provider'
 import type { Companion5e } from '../../../../types/companion'
@@ -25,6 +26,7 @@ export default function FamiliarSelectorModal({
   onDismiss,
   onResummon
 }: FamiliarSelectorModalProps): JSX.Element {
+  useEscapeKey(onClose)
   const [_monsters, setMonsters] = useState<MonsterStatBlock[]>([])
   const [forms, setForms] = useState<MonsterStatBlock[]>([])
   const [selected, setSelected] = useState<MonsterStatBlock | null>(null)
@@ -52,7 +54,11 @@ export default function FamiliarSelectorModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center" onClick={onClose}>
+    <div
+      className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center"
+      onClick={onClose}
+      role="presentation"
+    >
       <div
         className="bg-gray-900 border border-gray-700 rounded-xl w-[700px] max-h-[80vh] flex flex-col shadow-2xl"
         onClick={(e) => e.stopPropagation()}

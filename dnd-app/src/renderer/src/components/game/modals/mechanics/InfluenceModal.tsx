@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { trigger3dDice } from '../../../../components/game/dice3d'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { rollSingle } from '../../../../services/dice/dice-service'
 import type { Character } from '../../../../types/character'
 import type { Character5e } from '../../../../types/character-5e'
@@ -20,6 +21,7 @@ const INFLUENCE_APPROACHES = [
 ]
 
 export default function InfluenceModal({ character, onClose, onBroadcastResult }: InfluenceModalProps): JSX.Element {
+  useEscapeKey(onClose)
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [result, setResult] = useState<{ roll: number; total: number; modifier: number } | null>(null)
 
@@ -46,7 +48,7 @@ export default function InfluenceModal({ character, onClose, onBroadcastResult }
 
   return (
     <div className="fixed inset-0 z-30 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-[420px] max-h-[80vh] overflow-y-auto shadow-2xl">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-gray-200">Influence Action</h3>

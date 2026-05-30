@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { getTokenSizeCategory, isAdjacent } from '../../../../services/combat/combat-rules'
 import { useGameStore } from '../../../../stores/use-game-store'
 import type { Character } from '../../../../types/character'
@@ -24,11 +25,12 @@ export default function MountModal({
   const activeMapId = useGameStore((s) => s.activeMapId)
   const maps = useGameStore((s) => s.maps)
   const [selectedMountType, setSelectedMountType] = useState<Record<string, 'controlled' | 'independent'>>({})
+  useEscapeKey(onClose)
 
   if (!character || !attackerToken) {
     return (
       <div className="fixed inset-0 z-30 flex items-center justify-center">
-        <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+        <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
         <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-6 text-center">
           <p className="text-gray-400">No character selected</p>
           <button onClick={onClose} className="mt-3 px-4 py-1 text-sm bg-gray-700 rounded cursor-pointer">
@@ -130,7 +132,7 @@ export default function MountModal({
 
   return (
     <div className="fixed inset-0 z-30 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-[400px] max-h-[80vh] overflow-y-auto shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">

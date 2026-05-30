@@ -519,6 +519,7 @@ export async function loadSpells(): Promise<SpellEntry[]> {
   const raw = (await load5eSpells()) as unknown as Array<Record<string, unknown>>
   return raw.map((s) => ({
     id: String(s.id ?? ''),
+    // boundary-allow: canonical spell loader (services/character) mapping 5e JSON into SpellEntry — loading, not inlining library data
     name: String(s.name ?? ''),
     level: Number(s.level ?? 0),
     school: String(s.school ?? ''),

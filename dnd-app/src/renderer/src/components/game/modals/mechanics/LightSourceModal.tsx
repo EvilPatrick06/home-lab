@@ -44,7 +44,7 @@ export default function LightSourceModal({ onClose }: LightSourceModalProps): JS
 
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-80 shadow-2xl">
         <h3 className="text-sm font-semibold text-amber-400 mb-3">Light Source</h3>
 

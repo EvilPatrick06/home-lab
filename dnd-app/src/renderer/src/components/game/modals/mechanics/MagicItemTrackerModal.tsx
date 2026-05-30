@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import type { Campaign } from '../../../../types/campaign'
 
 const MagicItemTracker = lazy(() => import('../../../campaign/MagicItemTracker'))
@@ -9,9 +10,10 @@ interface MagicItemTrackerModalProps {
 }
 
 export default function MagicItemTrackerModal({ campaign, onClose }: MagicItemTrackerModalProps): JSX.Element {
+  useEscapeKey(onClose)
   return (
     <div className="fixed inset-0 z-30 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-[480px] max-h-[80vh] overflow-y-auto shadow-2xl">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-amber-400">Magic Item Distribution</h3>

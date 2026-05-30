@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { getWildShapeEligibleBeasts } from '../../../../services/character/companion-service'
 import { load5eMonsters } from '../../../../services/data-provider'
 import type { MonsterStatBlock } from '../../../../types/monster'
@@ -23,6 +24,7 @@ export default function WildShapeBrowserModal({
   onRevert,
   onUseAdjust
 }: WildShapeBrowserModalProps): JSX.Element {
+  useEscapeKey(onClose)
   const [_allMonsters, setAllMonsters] = useState<MonsterStatBlock[]>([])
   const [eligible, setEligible] = useState<MonsterStatBlock[]>([])
   const [selected, setSelected] = useState<MonsterStatBlock | null>(null)
@@ -39,7 +41,11 @@ export default function WildShapeBrowserModal({
   const filtered = query ? eligible.filter((m) => m.name.toLowerCase().includes(query.toLowerCase())) : eligible
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center" onClick={onClose}>
+    <div
+      className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center"
+      onClick={onClose}
+      role="presentation"
+    >
       <div
         className="bg-gray-900 border border-gray-700 rounded-xl w-[750px] max-h-[80vh] flex flex-col shadow-2xl"
         onClick={(e) => e.stopPropagation()}

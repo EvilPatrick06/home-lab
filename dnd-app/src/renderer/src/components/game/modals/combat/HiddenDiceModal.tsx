@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { useGameStore } from '../../../../stores/use-game-store'
 import { useLobbyStore } from '../../../../stores/use-lobby-store'
 import { cryptoRandom } from '../../../../utils/crypto-random'
@@ -19,6 +20,7 @@ function parseDiceFormula(formula: string): { count: number; sides: number; modi
 }
 
 export default function HiddenDiceModal({ onClose }: HiddenDiceModalProps): JSX.Element {
+  useEscapeKey(onClose)
   const [formula, setFormula] = useState('1d20')
   const hiddenDiceResults = useGameStore((s) => s.hiddenDiceResults)
   const addHiddenDiceResult = useGameStore((s) => s.addHiddenDiceResult)
@@ -61,7 +63,7 @@ export default function HiddenDiceModal({ onClose }: HiddenDiceModalProps): JSX.
 
   return (
     <div className="fixed inset-0 z-20 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-md w-full mx-4 shadow-2xl">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold text-purple-300">Hidden Dice (DM Only)</h3>
