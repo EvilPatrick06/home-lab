@@ -254,6 +254,7 @@ const identifyCommand: ChatCommand = {
       return
     }
     // Phase 15c.5 — `identified` is per-character intent → store as a ref override.
+    // boundary cast: read the runtime-injected __instanceId not present on the static entry type
     const targetInstanceId = (magicItems[itemIndex] as unknown as { __instanceId: string }).__instanceId
     const updated: Character5e = {
       ...character,

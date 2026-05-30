@@ -65,6 +65,7 @@ export function getEffectiveClasses(character: Character5e): CharacterClass5e[] 
 
 export function getEffectiveKnownSpells(character: Character5e): SpellEntry[] {
   const entries = useLibraryStore.getState().entries as LibraryEntries
+  // boundary cast: untyped library hydration → concrete entry shape
   return hydrate(character.knownSpellRefs, entries.spells) as unknown as SpellEntry[]
 }
 
@@ -136,6 +137,7 @@ export function getEffectiveFeats(character: Character5e): Array<{
   effects?: HomebrewFeatEffect[]
 }> {
   const entries = useLibraryStore.getState().entries as LibraryEntries
+  // boundary cast: untyped library hydration → concrete entry shape
   return hydrate(character.featRefs, entries.feats) as unknown as Array<{
     id: string
     name: string
@@ -148,6 +150,7 @@ export function getEffectiveFeats(character: Character5e): Array<{
 
 export function getEffectiveConditions(character: Character5e): ActiveCondition[] {
   const entries = useLibraryStore.getState().entries as LibraryEntries
+  // boundary cast: untyped library hydration → concrete entry shape
   const hydrated = hydrate(character.conditionRefs, entries.conditions) as unknown as Array<{
     name: string
     description?: string

@@ -639,6 +639,7 @@ export async function load5eTrinkets(): Promise<Record<string, unknown>[]> {
 
 export async function load5eSounds(): Promise<Record<string, unknown>[]> {
   const events = await load5eSoundEvents()
+  // boundary cast: concrete SoundEntry[] → indexless Record[] for the loosely-typed sounds API
   return events.soundFileMappings as unknown as Record<string, unknown>[]
 }
 

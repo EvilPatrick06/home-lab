@@ -90,6 +90,7 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
   useEffect(() => {
     setMonstersLoading(true)
     load5eMonsters()
+      // boundary cast: full MonsterStatBlock[] reinterpreted as the lighter {name,cr,xp,...} MonsterData index shape
       .then((data) => setAllMonsters(data as unknown as MonsterData[]))
       .catch((err) => {
         logger.error('Failed to load monsters', err)

@@ -67,7 +67,7 @@ export default function MicrophoneSettings(): JSX.Element {
         streamRef.current = stream
 
         const ctx = new (
-          window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+          window.AudioContext || (window as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
         )()
         audioContextRef.current = ctx
         const source = ctx.createMediaStreamSource(stream)

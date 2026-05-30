@@ -183,9 +183,11 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
     }
     case 'trinkets': {
       const data = await load5eTrinkets()
-      // Trinkets are string arrays — convert to named objects
+      // Trinkets are string arrays — convert to named objects.
+      // boundary cast: loader is typed Record[] but the data is actually string[] at runtime.
       const trinketItems = (data as unknown as string[]).map((t, i) => ({
         id: `trinket-${i}`,
+        // boundary cast: defensive object-shaped fallback for non-string entries
         name: typeof t === 'string' ? t : ((t as unknown as Record<string, unknown>).name ?? 'Unknown')
       }))
       return [...toLibraryItems(trinketItems, category), ...hbItems]
@@ -223,8 +225,8 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
       // CraftingToolEntry is {tool, items[]} — flatten items
       const craftingItems: Record<string, unknown>[] = []
       for (const group of data) {
-        for (const recipe of (group as unknown as { tool: string; items: Record<string, unknown>[] }).items) {
-          craftingItems.push({ ...recipe, toolType: (group as unknown as { tool: string }).tool })
+        for (const recipe of group.items) {
+          craftingItems.push({ ...recipe, toolType: group.tool })
         }
       }
       return [...toLibraryItems(craftingItems, category), ...hbItems]
@@ -239,36 +241,39 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
     }
     case 'treasure-tables': {
       const data = await load5eTreasureTables()
+      // boundary cast: fixed-key TreasureTablesFile → indexable Record for dynamic entry iteration
       const tables = data as unknown as Record<string, unknown>
       return toLibraryItems(
         Object.entries(tables).map(([key, val]) => ({
           id: key,
           name: key,
-          ...(val as unknown as Record<string, unknown>)
+          ...(val as Record<string, unknown>)
         })),
         category
       )
     }
     case 'random-tables': {
       const data = await load5eRandomTables()
+      // boundary cast: fixed-key RandomTablesFile → indexable Record for dynamic entry iteration
       const tables = data as unknown as Record<string, unknown>
       return toLibraryItems(
         Object.entries(tables).map(([key, val]) => ({
           id: key,
           name: key,
-          ...(val as unknown as Record<string, unknown>)
+          ...(val as Record<string, unknown>)
         })),
         category
       )
     }
     case 'chase-tables': {
       const data = await load5eChaseTables()
+      // boundary cast: fixed-key ChaseTablesFile → indexable Record for dynamic entry iteration
       const tables = data as unknown as Record<string, unknown>
       return toLibraryItems(
         Object.entries(tables).map(([key, val]) => ({
           id: key,
           name: key,
-          ...(val as unknown as Record<string, unknown>)
+          ...(val as Record<string, unknown>)
         })),
         category
       )
@@ -324,11 +329,7 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
       const cfData = await load5eClassFeatures()
       const items: Record<string, unknown>[] = []
       for (const [className, classData] of Object.entries(cfData)) {
-        for (const feat of (classData as unknown as Record<string, unknown>).features as {
-          level: number
-          name: string
-          description: string
-        }[]) {
+        for (const feat of classData.features) {
           items.push({
             id: `${className}-${feat.name}-${feat.level}`,
             name: feat.name,
@@ -347,7 +348,7 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
     case 'adventure-seeds': {
       const data = await load5eAdventureSeeds()
       const items: Record<string, unknown>[] = []
-      for (const [range, seeds] of Object.entries(data as unknown as Record<string, unknown>)) {
+      for (const [range, seeds] of Object.entries(data as Record<string, unknown>)) {
         if (!Array.isArray(seeds)) continue
         for (const [i, seed] of seeds.entries()) {
           items.push({
@@ -355,10 +356,9 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
             name:
               typeof seed === 'string'
                 ? seed.slice(0, 80)
-                : ((seed as unknown as Record<string, unknown>).name ?? `Seed ${i + 1}`),
+                : ((seed as Record<string, unknown>).name ?? `Seed ${i + 1}`),
             levelRange: range,
-            description:
-              typeof seed === 'string' ? seed : ((seed as unknown as Record<string, unknown>).description ?? '')
+            description: typeof seed === 'string' ? seed : ((seed as Record<string, unknown>).description ?? '')
           })
         }
       }
@@ -366,16 +366,14 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
     }
     case 'calendars': {
       const data = await load5eCalendarPresets()
-      const presets = (data as unknown as Record<string, unknown>).presets as unknown as
-        | Record<string, unknown>
-        | undefined
+      const presets = data.presets as Record<string, unknown> | undefined
       if (!presets) return hbItems
       const items = Object.entries(presets).map(([key, val]) => ({
         id: key,
         name:
-          (val as unknown as Record<string, unknown>).name ??
+          (val as Record<string, unknown>).name ??
           key.replace(/-/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
-        ...(val as unknown as Record<string, unknown>)
+        ...(val as Record<string, unknown>)
       }))
       return [...toLibraryItems(items, category), ...hbItems]
     }
@@ -389,7 +387,7 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
     }
     case 'npc-names': {
       const data = await load5eNpcNames()
-      const nameData = data as unknown as Record<string, unknown>
+      const nameData = data as Record<string, unknown>
       const items = Object.entries(nameData).map(([species, names]) => {
         const nameObj = names as Record<string, string[]>
         return {
@@ -408,6 +406,7 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
       const items = Object.entries(data).map(([key, val]) => ({
         id: key,
         name:
+          // boundary cast: concrete LightSourceEntry → indexless Record for spread/dynamic field reads
           (val as unknown as Record<string, unknown>).label ??
           key.replace(/-/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
         ...(val as unknown as Record<string, unknown>)
@@ -423,7 +422,7 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
           .replace(/^./, (c: string) => c.toUpperCase())
           .trim(),
         entries: Array.isArray(val) ? val : [],
-        ...(typeof val === 'object' && !Array.isArray(val) ? (val as unknown as Record<string, unknown>) : {})
+        ...(typeof val === 'object' && !Array.isArray(val) ? (val as Record<string, unknown>) : {})
       }))
       return toLibraryItems(items, category)
     }
@@ -434,11 +433,12 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
         const presetMaps = await load5eBuiltInMaps()
         for (const m of presetMaps) {
           items.push({
-            id: ((m as unknown as Record<string, unknown>).id as string) ?? '',
-            name: ((m as unknown as Record<string, unknown>).name as string) ?? 'Unknown Map',
+            id: m.id ?? '',
+            name: m.name ?? 'Unknown Map',
             category: 'maps',
             source: 'official',
-            summary: ((m as unknown as Record<string, unknown>).preview as string) ?? 'Preset Map',
+            summary: m.preview ?? 'Preset Map',
+            // boundary cast: concrete BuiltInMapEntry → indexless Record for LibraryItem.data
             data: m as unknown as Record<string, unknown>
           })
         }
@@ -449,6 +449,7 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
       try {
         const result = await window.api.mapLibrary.list()
         if (result?.success && Array.isArray(result.data)) {
+          // boundary cast: IPC map-list payload → Record for dynamic field reads (gridWidth/gridHeight)
           for (const m of result.data as unknown as Record<string, unknown>[]) {
             items.push({
               id: (m.id as string) ?? '',

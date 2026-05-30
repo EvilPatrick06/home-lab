@@ -351,6 +351,7 @@ export const commands: ChatCommand[] = [
       try {
         const { load5eRandomTables } = await import('../../services/data-provider')
         const tables = await load5eRandomTables()
+        // boundary cast: fixed-key RandomTablesFile → indexable Record for dynamic table lookup
         const table = (tables as unknown as Record<string, unknown>)[tableName] as
           | Array<{ min: number; max: number; result: string }>
           | undefined

@@ -92,6 +92,7 @@ let cachedActivities: DowntimeActivity[] | null = null
 export async function loadDowntimeActivities(): Promise<DowntimeActivity[]> {
   if (cachedActivities) return cachedActivities
   const data = await load5eDowntime()
+  // boundary cast: untyped JSON loader (Record<string, unknown>[]) → concrete DowntimeActivity[]
   cachedActivities = data as unknown as DowntimeActivity[]
   return cachedActivities
 }

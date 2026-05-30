@@ -131,5 +131,5 @@ export function getSpeciesSpellProgression(
  */
 export async function loadSpeciesSpellData(): Promise<Record<string, unknown>> {
   const data = await load5eSpeciesSpells()
-  return data as unknown as Record<string, unknown>
+  return data
 }

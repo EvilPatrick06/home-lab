@@ -51,7 +51,7 @@ function safeTickerRemove(app: Application | null, fn: (...args: unknown[]) => v
   // React useEffect cleanup ordering can't crash the renderer.
   if (!app) return
   try {
-    if (!(app as unknown as { destroyed?: boolean }).destroyed && app.ticker) {
+    if (!(app as { destroyed?: boolean }).destroyed && app.ticker) {
       app.ticker.remove(fn)
     }
   } catch {
@@ -62,7 +62,7 @@ function safeTickerRemove(app: Application | null, fn: (...args: unknown[]) => v
 function ensureTicker(app: Application): void {
   if (tickerBound && appRef === app) return
   if (appRef && appRef !== app) {
-    safeTickerRemove(appRef, tick as unknown as (...args: unknown[]) => void)
+    safeTickerRemove(appRef, tick)
   }
   app.ticker.add(tick)
   appRef = app
@@ -118,7 +118,7 @@ export function cancelTokenAnimation(tokenId: string): void {
  */
 export function destroyTokenAnimations(): void {
   activeAnimations.clear()
-  safeTickerRemove(appRef, tick as unknown as (...args: unknown[]) => void)
+  safeTickerRemove(appRef, tick)
   appRef = null
   tickerBound = false
 }

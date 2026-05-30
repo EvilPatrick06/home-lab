@@ -275,7 +275,7 @@ export function createCombatAnimationLayer(app: Application): {
     skull.y = cy
 
     addParticle({
-      gfx: skull as unknown as Graphics, // Text shares DisplayObject base
+      gfx: skull,
       elapsed: 0,
       duration,
       update(dt, p) {
@@ -351,7 +351,7 @@ export function createCombatAnimationLayer(app: Application): {
     label.y = cy
 
     addParticle({
-      gfx: label as unknown as Graphics,
+      gfx: label,
       elapsed: 0,
       duration,
       update(dt, p) {

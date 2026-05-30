@@ -79,15 +79,15 @@ function parseCostToCopper(costStr: string): number {
 // --- Hooks ---
 
 function useCraftingData(): CraftingToolEntry[] {
-  return useEquipmentData(() => load5eCrafting().then((d) => d as unknown as CraftingToolEntry[]), [])
+  return useEquipmentData(() => load5eCrafting().then((d) => d as CraftingToolEntry[]), [])
 }
 
 function useEquipmentDatabase(): EquipmentDatabase {
   return useEquipmentData(
     () =>
       load5eEquipment().then((d) => ({
-        weapons: (d.weapons as unknown as WeaponData5e[]) ?? [],
-        armor: (d.armor as unknown as ArmorData5e[]) ?? []
+        weapons: (d.weapons as WeaponData5e[]) ?? [],
+        armor: (d.armor as ArmorData5e[]) ?? []
       })),
     { weapons: [], armor: [] }
   )

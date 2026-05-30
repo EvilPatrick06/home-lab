@@ -18,7 +18,7 @@ export function toLibraryItems(
   source: 'official' | 'homebrew' = 'official'
 ): LibraryItem[] {
   const built = items.map((raw) => {
-    const item = (raw !== null && typeof raw === 'object' ? raw : {}) as unknown as Record<string, unknown>
+    const item = (raw !== null && typeof raw === 'object' ? raw : {}) as Record<string, unknown>
     return {
       id: (item.id as string) || (item.name as string) || category,
       name: (item.name as string) ?? 'Unknown',

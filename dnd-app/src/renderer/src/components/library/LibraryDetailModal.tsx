@@ -277,6 +277,7 @@ export default function LibraryDetailModal({
         <div className="flex-1 overflow-y-auto p-5 min-h-0">
           {(['monsters', 'creatures', 'npcs'] as LibraryCategory[]).includes(item.category) &&
           item.data.abilityScores ? (
+            // boundary cast: untyped library data hydrated into the concrete MonsterStatBlock shape
             <MonsterStatBlockView monster={item.data as unknown as MonsterStatBlock} />
           ) : item.category === 'spells' ? (
             <SpellCardView spell={item.data} />

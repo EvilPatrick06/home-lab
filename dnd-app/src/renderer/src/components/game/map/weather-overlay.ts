@@ -138,7 +138,7 @@ export class WeatherOverlayLayer {
       // Guard against destroyed Application — useEffect cleanup can
       // race with app.destroy() and crash on the linked-list walk.
       try {
-        if (!(this.app as unknown as { destroyed?: boolean }).destroyed && this.app.ticker) {
+        if (!(this.app as { destroyed?: boolean }).destroyed && this.app.ticker) {
           this.app.ticker.remove(this.tickerBound)
         }
       } catch {

@@ -344,6 +344,7 @@ export function executeAddJournalEntry(action: DmAction, _gameStore: GameStoreSn
   if (!campaign) {
     // Fallback to postDmChatMessage if no campaign is found
     postDmChatMessage(
+      // boundary cast: minimal no-op accessors stub (omits getGameStore) for the no-campaign fallback path
       {
         getLobbyStore: () => ({ getState: () => ({ addChatMessage: () => {} }) }),
         getNetworkStore: () => ({ getState: () => ({ sendMessage: () => {} }) })

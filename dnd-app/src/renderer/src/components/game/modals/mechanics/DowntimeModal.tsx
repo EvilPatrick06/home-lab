@@ -72,6 +72,7 @@ export default function DowntimeModal({
 
   const saveCampaign = (c: Campaign): void => {
     onSaveCampaign?.(c)
+    // boundary cast: IPC saveCampaign takes Record<string, unknown>; Campaign has no index signature
     window.api.saveCampaign(c as unknown as Record<string, unknown>)
   }
 

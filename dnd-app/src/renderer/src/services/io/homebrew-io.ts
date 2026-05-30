@@ -86,6 +86,7 @@ export async function importHomebrew(
 
     try {
       await window.api.saveHomebrew({
+        // boundary cast: concrete interface → indexless Record for the IPC param
         ...(item as unknown as Record<string, unknown>),
         __conflictMode: conflictMode
       })

@@ -82,7 +82,7 @@ export default class ErrorBoundary extends Component<Props, State> {
         '--- Window State ---',
         `URL: ${window.location.href}`,
         `Viewport: ${window.innerWidth}x${window.innerHeight}`,
-        `Memory: ${JSON.stringify((performance as unknown as { memory?: unknown }).memory ?? 'N/A')}`
+        `Memory: ${JSON.stringify((performance as { memory?: unknown }).memory ?? 'N/A')}`
       ].join('\n')
 
       const path = await window.api.showSaveDialog({

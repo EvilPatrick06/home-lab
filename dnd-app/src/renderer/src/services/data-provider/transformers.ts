@@ -125,7 +125,8 @@ export function backgroundToOption(bg: BackgroundData): SelectableOption {
   if (equipment.length > 0) {
     const eqValue =
       typeof equipment[0] === 'string'
-        ? (equipment as unknown as string[]).join(', ')
+        ? // boundary cast: legacy data shape — runtime string[] under the typed BackgroundEquipmentOption[]
+          (equipment as unknown as string[]).join(', ')
         : equipment.map((e) => `Option ${e.option}: ${e.items.join(', ')}`).join(' | ')
     details.push({ label: 'Equipment', value: eqValue })
   }

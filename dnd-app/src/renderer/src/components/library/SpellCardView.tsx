@@ -77,7 +77,7 @@ interface SpellCardViewProps {
 }
 
 function SpellCardView({ spell }: SpellCardViewProps): JSX.Element {
-  const s = spell as unknown as SpellData
+  const s = spell as SpellData
   const levelSchool =
     s.level === 0 || s.level === undefined
       ? `${s.school ?? 'Unknown'} cantrip`

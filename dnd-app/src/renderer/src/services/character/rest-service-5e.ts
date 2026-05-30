@@ -433,6 +433,7 @@ export function applyLongRest(character: Character5e): LongRestResult {
         restored = Math.min(mi.charges.max, mi.charges.current + Math.max(0, roll))
       }
     }
+    // boundary cast: read the runtime-injected __instanceId not present on the static entry type
     const instanceId = (mi as unknown as { __instanceId: string }).__instanceId
     newMagicItemCharges[instanceId] = restored
     magicItemsRestored.push(mi.name)

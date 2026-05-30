@@ -4,7 +4,8 @@ import type { MapToken } from '../../../types/map'
 import { drawTokenStatusRing } from './combat-animations'
 
 // Module-level cache for loaded token image textures
-const tokenTextureCache = new Map<string, Texture>()
+// `null` is a transient "load in progress" sentinel; readers treat it as falsy.
+const tokenTextureCache = new Map<string, Texture | null>()
 
 const VALID_IMAGE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.webp']
 
@@ -170,7 +171,7 @@ export function createTokenSprite(
       avatarContainer.addChild(circle)
 
       if (hasValidImage && !tokenTextureCache.has(token.imagePath!)) {
-        tokenTextureCache.set(token.imagePath!, null as unknown as Texture)
+        tokenTextureCache.set(token.imagePath!, null)
         Assets.load(token.imagePath!)
           .then((texture: Texture) => {
             tokenTextureCache.set(token.imagePath!, texture)

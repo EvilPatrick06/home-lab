@@ -41,6 +41,7 @@ export default function DiscordIntegrationSettings(): JSX.Element {
   useEffect(() => {
     const loadConfig = async () => {
       try {
+        // boundary cast: IPC getConfig is typed flat in preload but resolves to a {success, config} wrapper at runtime
         const result = (await window.api.discord.getConfig()) as unknown as DiscordConfigResponse
         if (result.success && result.config) {
           setConfig({

@@ -61,7 +61,7 @@ export function useEquipmentDatabase(): EquipmentDatabase | null {
   const [db, setDb] = useState<EquipmentDatabase | null>(null)
   useEffect(() => {
     load5eEquipment()
-      .then((data) => setDb(data as unknown as EquipmentDatabase))
+      .then((data) => setDb(data as EquipmentDatabase))
       .catch((err) => logger.error('Failed to load equipment data:', err))
   }, [])
   return db

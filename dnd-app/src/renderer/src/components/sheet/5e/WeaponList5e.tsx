@@ -52,7 +52,7 @@ export interface WeaponData5e {
 }
 
 export function useWeaponDatabase(): WeaponData5e[] {
-  return useEquipmentData(() => load5eEquipment().then((d) => (d.weapons as unknown as WeaponData5e[]) ?? []), [])
+  return useEquipmentData(() => load5eEquipment().then((d) => (d.weapons as WeaponData5e[]) ?? []), [])
 }
 
 export function weaponDataToEntry(item: WeaponData5e, character: Character5e): WeaponEntry {

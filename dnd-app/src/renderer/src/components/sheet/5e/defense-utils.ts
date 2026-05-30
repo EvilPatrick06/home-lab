@@ -26,7 +26,7 @@ export interface ArmorData5e {
 }
 
 export function useArmorDatabase(): ArmorData5e[] {
-  return useEquipmentData(() => load5eEquipment().then((d) => (d.armor as unknown as ArmorData5e[]) ?? []), [])
+  return useEquipmentData(() => load5eEquipment().then((d) => (d.armor as ArmorData5e[]) ?? []), [])
 }
 
 export function armorDataToEntry(a: ArmorData5e): ArmorEntry {
@@ -119,7 +119,7 @@ export function useToolDescriptions(): ToolData[] {
     () =>
       load5eEquipment().then(
         (data) =>
-          ((data.gear ?? []) as unknown as Array<{ category?: string } & ToolData>).filter(
+          ((data.gear ?? []) as Array<{ category?: string } & ToolData>).filter(
             (g) => g.category === 'Tool'
           ) as ToolData[]
       ),

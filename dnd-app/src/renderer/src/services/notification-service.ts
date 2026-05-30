@@ -171,7 +171,7 @@ export function isSupported(): boolean {
 /** Load notification templates from the data store (includes plugin overrides). */
 export async function loadTemplates(): Promise<Record<string, { title: string; body: string }>> {
   const data = await load5eNotificationTemplates()
-  return data as unknown as Record<string, { title: string; body: string }>
+  return data
 }
 
 /** Return a shallow copy of the current configuration (for settings UI). */

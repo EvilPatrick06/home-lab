@@ -27,6 +27,7 @@ export default function TablesPanel(): JSX.Element {
       const tableEntries: TableEntry[] = []
 
       // Process the random tables data
+      // boundary cast: concrete RandomTablesFile reinterpreted as an open string-keyed map for generic iteration
       for (const [key, value] of Object.entries(data as unknown as RandomTableData)) {
         if (Array.isArray(value)) {
           // Simple array table

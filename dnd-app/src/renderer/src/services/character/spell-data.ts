@@ -515,6 +515,7 @@ export function hasAnySpellcasting(classId: string): boolean {
  * Loads the full 5e spell list from the JSON data file.
  */
 export async function loadSpells(): Promise<SpellEntry[]> {
+  // boundary cast: concrete SpellData[] → indexless Record for defensive field-by-field reads
   const raw = (await load5eSpells()) as unknown as Array<Record<string, unknown>>
   return raw.map((s) => ({
     id: String(s.id ?? ''),

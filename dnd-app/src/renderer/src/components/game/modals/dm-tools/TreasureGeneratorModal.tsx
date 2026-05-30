@@ -260,7 +260,7 @@ export default function TreasureGeneratorModal({
 
   useEffect(() => {
     load5eTreasureTables()
-      .then((data) => setTreasureData(data as unknown as TreasureTableData))
+      .then((data) => setTreasureData(data as TreasureTableData))
       .catch((e) => logger.warn('[TreasureGenerator] Failed to load treasure tables', e))
   }, [])
 

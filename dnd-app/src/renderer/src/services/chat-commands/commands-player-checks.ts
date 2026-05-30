@@ -116,6 +116,7 @@ const abilityCommand: ChatCommand = {
 
     if (abilityName && ctx.character) {
       // Auto-detect modifier from character ability scores
+      // boundary cast: fixed-key AbilityScoreSet → indexable Record for dynamic ability lookup
       const char = ctx.character as unknown as { abilityScores?: Record<string, number> }
       const score = char.abilityScores?.[abilityName] ?? 10
       modifier = Math.floor((score - 10) / 2)
@@ -178,6 +179,7 @@ const saveCommand: ChatCommand = {
       modifier = manualMod
     } else if (ctx.character) {
       // Auto-detect modifier from character ability scores + save proficiency
+      // boundary cast: fixed-key AbilityScoreSet → indexable Record for dynamic ability lookup
       const char = ctx.character as unknown as {
         abilityScores?: Record<string, number>
         level?: number

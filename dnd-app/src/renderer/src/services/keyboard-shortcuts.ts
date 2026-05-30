@@ -151,7 +151,7 @@ export function getShortcuts(): ShortcutDefinition[] {
 /** Load shortcut definitions from the data store (includes plugin additions). */
 export async function loadShortcutDefinitions(): Promise<ShortcutDefinition[]> {
   const data = await load5eKeyboardShortcuts()
-  return data as unknown as ShortcutDefinition[]
+  return data as ShortcutDefinition[]
 }
 
 /** Get shortcut definitions grouped by category (with custom overrides applied). */

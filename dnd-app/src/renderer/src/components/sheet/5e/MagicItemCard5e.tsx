@@ -107,6 +107,7 @@ function MagicItemCard5e({
                   // for mechanics). Toggle there instead of the legacy magicItems array
                   // so the bonus actually applies and both panels agree.
                   const effective = getEffectiveMagicItems(latest)
+                  // boundary cast: hydrated entries carry a synthetic __instanceId not on the public MagicItemEntry5e
                   const instanceId = (effective[i] as unknown as { __instanceId?: string }).__instanceId
                   const updated = instanceId
                     ? ({

@@ -19,6 +19,7 @@ function findMagicItem(characterId: string, itemName: string) {
   const idx = magicItems.findIndex((e) => e.name.toLowerCase() === lower)
   if (idx < 0) return null
   const item = magicItems[idx]
+  // boundary cast: read the runtime-injected __instanceId not present on the static entry type
   const instanceId = (item as unknown as { __instanceId: string }).__instanceId
   return { char, idx, item, instanceId, magicItems }
 }

@@ -74,6 +74,7 @@ export default function ChaseTrackerModal({ onClose, onBroadcastResult }: ChaseT
 
   useEffect(() => {
     load5eChaseTables()
+      // boundary cast: ChaseTablesFile stores ChaseComplication[] objects; this view reinterprets them as string[]
       .then((data) => setChaseTables(data as unknown as ChaseTableData))
       .catch((e) => logger.warn('[ChaseTracker] Failed to load chase tables', e))
   }, [])

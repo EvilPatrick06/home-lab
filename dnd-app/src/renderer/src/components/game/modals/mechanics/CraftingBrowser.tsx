@@ -86,7 +86,7 @@ export default function CraftingBrowser({ characterTools, onStartCrafting }: Cra
 
     // Standard crafting items
     for (const toolEntry of craftingData) {
-      for (const item of toolEntry.items as unknown as CraftingItem[]) {
+      for (const item of toolEntry.items as CraftingItem[]) {
         items.push({
           name: item.name,
           tool: toolEntry.tool,

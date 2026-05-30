@@ -42,7 +42,7 @@ export function useLibraryCategory<C extends LibraryCategory>(
 ): LibraryEntry<C>[] {
   const entries = useLibraryEntries(category)
   useEffect(() => {
-    useLibraryStore.getState().loadCategory(category, async () => (await loader()) as unknown as LibraryEntry[])
+    useLibraryStore.getState().loadCategory(category, async () => (await loader()) as LibraryEntry[])
   }, [category, loader])
   return entries
 }
@@ -100,7 +100,7 @@ export function useHydratedClassList(
         subclass: cr.subclassRef?.entryId,
         hitDie:
           (entry?.hitDie as number) ??
-          ((entry?.coreTraits as Record<string, unknown> | undefined)?.hitPointDie as unknown as number) ??
+          ((entry?.coreTraits as Record<string, unknown> | undefined)?.hitPointDie as number) ??
           10
       }
     })

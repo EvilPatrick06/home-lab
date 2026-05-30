@@ -480,7 +480,7 @@ export async function importAllData(): Promise<BackupStats | null> {
   if (booksConfig?.customBooks && Array.isArray(booksConfig.customBooks)) {
     for (const book of booksConfig.customBooks) {
       await window.api.books
-        .add(book as unknown as Parameters<typeof window.api.books.add>[0])
+        .add(book as Parameters<typeof window.api.books.add>[0])
         .catch((e) => logger.warn(`[Import] Failed to add book config ${book.id}`, e))
     }
   }

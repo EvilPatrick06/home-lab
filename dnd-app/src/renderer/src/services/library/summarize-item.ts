@@ -15,7 +15,7 @@ export function summarizeItem(item: Record<string, unknown>, category: LibraryCa
     case 'spells':
       return `Level ${item.level ?? '?'} ${item.school ?? ''} - ${(item.spellList as string[])?.join(', ') ?? ''}`
     case 'classes':
-      return `${(item.coreTraits as unknown as Record<string, unknown>)?.hitPointDie ?? '?'} | ${((item.coreTraits as unknown as Record<string, unknown>)?.primaryAbility as string[])?.join(', ') ?? ''}`
+      return `${(item.coreTraits as Record<string, unknown>)?.hitPointDie ?? '?'} | ${((item.coreTraits as Record<string, unknown>)?.primaryAbility as string[])?.join(', ') ?? ''}`
     case 'subclasses':
       return `${((item.className as string) ?? '').charAt(0).toUpperCase() + ((item.className as string) ?? '').slice(1)} - Level ${item.level ?? '?'}`
     case 'species': {
@@ -103,7 +103,7 @@ export function summarizeItem(item: Record<string, unknown>, category: LibraryCa
     case 'planes':
       return `${((item.category as string) ?? '').replace(/^./, (c: string) => c.toUpperCase())} Plane`
     case 'npc-names': {
-      const nameData = item as unknown as Record<string, unknown>
+      const nameData = item
       const male = (nameData.male as string[] | undefined)?.length ?? 0
       const female = (nameData.female as string[] | undefined)?.length ?? 0
       const neutral = (nameData.neutral as string[] | undefined)?.length ?? 0

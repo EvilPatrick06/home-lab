@@ -88,6 +88,7 @@ export default function AsiModal(): JSX.Element {
       spellcasting: spellcastingClasses.includes(classId)
         ? { ability: 'intelligence' as AbilityName, spellSaveDC: 10, spellAttackBonus: 0 }
         : undefined
+      // boundary cast: partial stand-in character for feat eligibility; omits the full Character5e field set
     } as unknown as Character5e
   }, [abilityScores, buildSlots, selectedSkills, slotLevel])
 

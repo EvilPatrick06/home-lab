@@ -91,6 +91,7 @@ export default function SpellsTab5e(): JSX.Element {
     // When classLevelChoices exists (multiclass), add those classes too
     const state = useBuilderStore.getState()
     if ('classLevelChoices' in state) {
+      // boundary cast: store type has no index signature; reach optional classLevelChoices via Record
       const choices = (state as unknown as Record<string, unknown>).classLevelChoices as
         | Record<number, string>
         | undefined

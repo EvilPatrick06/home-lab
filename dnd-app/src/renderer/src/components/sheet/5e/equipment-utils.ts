@@ -22,7 +22,7 @@ export interface GearItem {
 }
 
 export function useGearDatabase(): GearItem[] {
-  return useEquipmentData(() => load5eEquipment().then((d) => (d.gear as unknown as GearItem[]) ?? []), [])
+  return useEquipmentData(() => load5eEquipment().then((d) => (d.gear as GearItem[]) ?? []), [])
 }
 
 export function getGearCost(item: GearItem): string {

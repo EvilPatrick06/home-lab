@@ -36,7 +36,7 @@ export default function MulticlassLevelBar5e(): JSX.Element {
   // Get eligibility for multiclassing
   const classOptions = useMemo((): ClassOption[] => {
     const currentClasses = [primaryClassName]
-    const eligibility = getEligibleClasses(abilityScores as unknown as Record<string, number>, currentClasses)
+    const eligibility = getEligibleClasses(abilityScores, currentClasses)
 
     return allClasses.map((cls) => {
       if (cls.id === primaryClassId) {

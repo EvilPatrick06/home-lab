@@ -69,6 +69,7 @@ export default function NPCGeneratorModal({ onClose, onBroadcastResult }: NPCGen
   useEffect(() => {
     load5eRandomTables()
       .then((json) => {
+        // boundary cast: RandomTablesFile lacks the npcTraits/npcNames subtables this view requires
         setData(json as unknown as RandomTablesData)
         setError(null)
       })

@@ -57,7 +57,7 @@ function formatUsage(u: SpeciesTrait['usageLimit']): string {
 }
 
 function SpeciesDetailView({ species }: SpeciesDetailViewProps): JSX.Element {
-  const s = species as unknown as SpeciesData
+  const s = species as SpeciesData
   const traits = s.traits ?? []
 
   return (

@@ -22,7 +22,7 @@ interface BackgroundDetailViewProps {
 }
 
 function BackgroundDetailView({ background }: BackgroundDetailViewProps): JSX.Element {
-  const b = background as unknown as BackgroundData
+  const b = background as BackgroundData
 
   return (
     <div className="bg-gray-900 border border-amber-800/40 rounded-lg overflow-hidden">

@@ -46,7 +46,7 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
   // sum coins / lb. across rows or open the full character sheet.
   const treasure = is5e ? (character as Character5e).treasure : undefined
   const totalWeight = equipment.reduce((sum, item) => {
-    const w = ((item as unknown as Record<string, unknown>).weight as number | undefined) ?? 0
+    const w = item.weight ?? 0
     return sum + w * (item.quantity || 1)
   }, 0)
   const strScore = is5e ? ((character as Character5e).abilityScores?.strength ?? 10) : 10
@@ -259,6 +259,7 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
                         if (!latest || !is5eCharacter(latest)) return
                         const l = latest as Character5e
                         // Phase 15c.5 — charge state lives in state.magicItemCharges, keyed by instanceId.
+                        // boundary cast: hydrated entries carry a synthetic __instanceId not on the public MagicItemEntry5e
                         const miInstanceId = (mi as unknown as { __instanceId: string }).__instanceId
                         const updated = {
                           ...l,
@@ -289,6 +290,7 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
           ) : (
             equipment.map((item, i) => {
               const isExpanded = expandedIndex === i
+              // boundary cast: EquipmentItem has no index signature; read optional/legacy fields (consumable, …) via Record
               const itemAny = item as unknown as Record<string, unknown>
               const description = (itemAny.description as string) || null
               const weight = (itemAny.weight as number) || null

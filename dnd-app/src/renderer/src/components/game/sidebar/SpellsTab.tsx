@@ -93,6 +93,7 @@ export default function SpellsTab(): JSX.Element {
     let cancelled = false
     // Phase 15e / 22 H4 — go through the library truth store, not the direct IPC bypass.
     load5eSpells().then((data) => {
+      // boundary cast: SpellData (components: string) reinterpreted as SpellIndexEntry (components object + path)
       const spellData = data as unknown as SpellIndexEntry[]
       if (!cancelled) {
         setSpells(spellData)

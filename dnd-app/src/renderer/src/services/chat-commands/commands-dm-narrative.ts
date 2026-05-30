@@ -81,6 +81,7 @@ const nameCommand: ChatCommand = {
   category: 'dm',
   execute: async (args, ctx) => {
     try {
+      // boundary cast: NpcNamesFile (fixed-key entries) → nested Record for dynamic species/gender lookup
       const data = (await load5eNpcNames()) as unknown as Record<string, Record<string, string[]>>
       const parts = args.trim().toLowerCase().split(/\s+/).filter(Boolean)
       const speciesList = Object.keys(data)
@@ -148,6 +149,7 @@ const randomCommand: ChatCommand = {
     }
 
     try {
+      // boundary cast: fixed-key RandomTablesFile → indexable Record for dynamic table lookup
       const data = (await load5eRandomTables()) as unknown as Record<string, unknown>
       const table = data[tableName]
 
