@@ -52,13 +52,7 @@ Only open/actionable items: problems, errors, security concerns, suggestions, ou
 | **36** Pi-hosted library | seed bundle + Pi library API + remote-loader + cache. Nothing built. (`bmoPiBaseUrl` is **not** orphaned — it's already wired through `registry-client`/`bmo-config`/Settings, but only for the Phase 29 game registry, not a library.) | 32 |
 | **34** i18n sweep | 34a foundation shipped; 34b–34j string sweeps, 34k lint+key-gen, 34l docs remain. No `useT()` consumers yet. | none — large per-area churn |
 
-**Phase 28 tail** (security/AI/network/docs groups done; these remain):
-- **28d** — pipeline typing **done** (`Character5e` tree → `src/shared/types/{character-5e,character-common,companion,library}.ts`, re-exported; `stat-mutations.ts` + `character-context.ts` type `char` as `Character5eV3`, ~57 inline casts removed). Save-queue dead no-op **fixed** (`save-queue.ts` now prunes the map). UUID-truncation audit **done** (all sites pair the slice with a ms timestamp → collision-safe; hardened the one no-timestamp site). Short-rest class-resource no-op **fixed** (`shortRestRestore !== 0`). Remaining: `as unknown as` sweep (~194 non-test sites).
-- **28f** UI polish: `<div onClick>` → `<button>` (74 sites); centralized color tokens. *(window min-size + long-list virtualization already done.)*
-- **28h** test coverage: baseline gate, lobby/onboarding flow tests, BrowserWindow security regression spec. *(Current `LobbyPage.test.tsx` is import-smoke only; `vitest.config.ts` coverage scoped to `services/**`+`data/**`, no thresholds.)*
-- **28i** 9 narrow coverage-gap audits.
-
-*Recommendation: split the 28 tail into themed phases (28-debt / 28-ux / 28-coverage). (28g docs landed.)*
+**Phase 28 tail — DONE** (shipped this run): 28d (Character5e pipeline typing to `src/shared/types/`, save-queue + short-rest fixes, UUID audit, `as unknown as` sweep 195→123 with the rest documented as boundary casts), 28f (all 74 `<div onClick>` made keyboard-accessible — backdrops got `role=presentation` + Escape via `useEscapeKey`, button-like got `<button>`/role+keydown), 28h (BrowserWindow security regression spec + real LobbyPage flow test + coverage-floor gate in CI), 28i (9 coverage-gap suites = 115 tests for untested `src/main` modules). Only open 28-tail remnant: **centralized color tokens** (open design item — also under Suggestions).
 
 ---
 
