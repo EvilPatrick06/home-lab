@@ -68,6 +68,7 @@ export type {
   TradeRequestPayload,
   TradeResponsePayload,
   TradeResultPayload,
+  TransferDmPayload,
   TurnEndPayload,
   TypingPayload,
   WhisperPayload,

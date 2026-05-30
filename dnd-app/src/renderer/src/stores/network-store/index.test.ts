@@ -28,6 +28,7 @@ describe('network store index', () => {
     expect(state).toHaveProperty('error')
     expect(state).toHaveProperty('disconnectReason')
     expect(state).toHaveProperty('latencyMs')
+    expect(state).toHaveProperty('localIsDM')
   })
 
   it('store has initial state values', async () => {
@@ -44,6 +45,7 @@ describe('network store index', () => {
     expect(state.error).toBeNull()
     expect(state.disconnectReason).toBeNull()
     expect(state.latencyMs).toBeNull()
+    expect(state.localIsDM).toBe(false)
   })
 
   it('store has action methods', async () => {
@@ -52,6 +54,7 @@ describe('network store index', () => {
     expect(typeof state.hostGame).toBe('function')
     expect(typeof state.stopHosting).toBe('function')
     expect(typeof state.kickPlayer).toBe('function')
+    expect(typeof state.transferDm).toBe('function')
     expect(typeof state.joinGame).toBe('function')
     expect(typeof state.disconnect).toBe('function')
     expect(typeof state.sendMessage).toBe('function')
@@ -62,6 +65,152 @@ describe('network store index', () => {
     expect(typeof state.setConnectionState).toBe('function')
     expect(typeof state.setError).toBe('function')
     expect(typeof state.clearDisconnectReason).toBe('function')
+  })
+})
+
+describe('transferDm action (Phase 30e)', () => {
+  it('host: sets isDM on the new DM, clears others, flips localIsDM, broadcasts dm:transfer-dm', async () => {
+    const { useNetworkStore } = await import('./index')
+    const { useLobbyStore } = await import('../use-lobby-store')
+
+    const sent: Array<{ type: string; payload: unknown }> = []
+    useLobbyStore.setState({
+      players: [
+        {
+          peerId: 'host',
+          clientId: 'host',
+          role: 'host',
+          displayName: 'Host',
+          characterId: null,
+          characterName: null,
+          isReady: true,
+          isHost: true,
+          isDM: true
+        },
+        {
+          peerId: 'p2',
+          clientId: 'p2',
+          role: 'player',
+          displayName: 'P2',
+          characterId: null,
+          characterName: null,
+          isReady: true,
+          isHost: false
+        }
+      ]
+    })
+    useNetworkStore.setState({
+      role: 'host',
+      localPeerId: 'host',
+      localIsDM: true,
+      peers: [
+        {
+          peerId: 'host',
+          clientId: 'host',
+          role: 'host',
+          displayName: 'Host',
+          characterId: null,
+          characterName: null,
+          isReady: true,
+          isHost: true,
+          isDM: true
+        },
+        {
+          peerId: 'p2',
+          clientId: 'p2',
+          role: 'player',
+          displayName: 'P2',
+          characterId: null,
+          characterName: null,
+          isReady: true,
+          isHost: false
+        }
+      ],
+      // Stub the wire so the test stays hermetic — assert the broadcast call shape.
+      sendMessage: (type, payload) => {
+        sent.push({ type, payload })
+      }
+    })
+
+    useNetworkStore.getState().transferDm('p2')
+
+    const peers = useNetworkStore.getState().peers
+    expect(peers.find((p) => p.peerId === 'p2')?.isDM).toBe(true)
+    expect(peers.find((p) => p.peerId === 'host')?.isDM).toBe(false)
+    expect(useNetworkStore.getState().localIsDM).toBe(false)
+
+    const lobby = useLobbyStore.getState().players
+    expect(lobby.find((p) => p.peerId === 'p2')?.isDM).toBe(true)
+    expect(lobby.find((p) => p.peerId === 'host')?.isDM).toBe(false)
+
+    expect(sent).toEqual([{ type: 'dm:transfer-dm', payload: { newDmPeerId: 'p2' } }])
+  })
+
+  it('host: transferring back to self sets localIsDM true', async () => {
+    const { useNetworkStore } = await import('./index')
+    useNetworkStore.setState({
+      role: 'host',
+      localPeerId: 'host',
+      localIsDM: false,
+      peers: [
+        {
+          peerId: 'host',
+          clientId: 'host',
+          role: 'host',
+          displayName: 'Host',
+          characterId: null,
+          characterName: null,
+          isReady: true,
+          isHost: true,
+          isDM: false
+        }
+      ],
+      sendMessage: () => {}
+    })
+    useNetworkStore.getState().transferDm('host')
+    expect(useNetworkStore.getState().localIsDM).toBe(true)
+    expect(useNetworkStore.getState().peers.find((p) => p.peerId === 'host')?.isDM).toBe(true)
+  })
+
+  it('non-host: transferDm is a no-op', async () => {
+    const { useNetworkStore } = await import('./index')
+    const sent: unknown[] = []
+    useNetworkStore.setState({
+      role: 'client',
+      localPeerId: 'p2',
+      localIsDM: false,
+      peers: [
+        {
+          peerId: 'host',
+          clientId: 'host',
+          role: 'host',
+          displayName: 'Host',
+          characterId: null,
+          characterName: null,
+          isReady: true,
+          isHost: true,
+          isDM: true
+        },
+        {
+          peerId: 'p2',
+          clientId: 'p2',
+          role: 'player',
+          displayName: 'P2',
+          characterId: null,
+          characterName: null,
+          isReady: true,
+          isHost: false
+        }
+      ],
+      sendMessage: (type, payload) => {
+        sent.push({ type, payload })
+      }
+    })
+    useNetworkStore.getState().transferDm('p2')
+    // Unchanged — clients can't transfer authority.
+    expect(useNetworkStore.getState().peers.find((p) => p.peerId === 'p2')?.isDM).toBeUndefined()
+    expect(useNetworkStore.getState().localIsDM).toBe(false)
+    expect(sent).toHaveLength(0)
   })
 })
 

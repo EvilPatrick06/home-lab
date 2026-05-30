@@ -32,6 +32,7 @@ export const MESSAGE_TYPES = [
   'dm:chat-timeout',
   'dm:promote-codm',
   'dm:demote-codm',
+  'dm:transfer-dm',
   'dm:game-start',
   'dm:game-end',
   'dm:character-update',
@@ -298,6 +299,15 @@ export interface ChatTimeoutPayload {
 export interface CoDMPayload {
   peerId: string
   isCoDM: boolean
+}
+
+/**
+ * Phase 30e — hand DM (game-rule) authority to another peer over the mesh.
+ * The network host stays put; only the `isDM` flag moves. `newDmPeerId` is the
+ * peer that becomes the sole DM (every other peer's `isDM` clears).
+ */
+export interface TransferDmPayload {
+  newDmPeerId: string
 }
 
 export interface ColorChangePayload {

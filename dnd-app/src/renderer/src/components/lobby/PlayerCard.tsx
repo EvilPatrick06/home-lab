@@ -14,6 +14,8 @@ interface PlayerCardProps {
   onChatTimeout?: () => void
   onPromoteCoDM?: () => void
   onDemoteCoDM?: () => void
+  /** Phase 30e: DM-only — hand DM authority to this player. Network host stays put. */
+  onMakeDM?: () => void
   onColorChange?: (color: string) => void
   /** Phase 29d: colors currently held by *other* peers — disable those in the picker. */
   usedByOtherPeers?: ReadonlySet<string>
@@ -35,6 +37,7 @@ export default memo(function PlayerCard({
   onChatTimeout,
   onPromoteCoDM,
   onDemoteCoDM,
+  onMakeDM,
   onColorChange,
   usedByOtherPeers,
   onPromoteToPlayer,
@@ -331,6 +334,18 @@ export default memo(function PlayerCard({
                   </svg>
                 </button>
               )}
+
+          {/* Phase 30e: transfer DM authority (DM-only, network host stays put) */}
+          {onMakeDM && (
+            <button
+              type="button"
+              onClick={onMakeDM}
+              title="Make DM (transfer DM authority)"
+              className="px-2 py-1 rounded text-xs font-medium transition-colors cursor-pointer bg-amber-900/30 text-amber-400 hover:bg-amber-900/50 hover:text-amber-300"
+            >
+              Make DM
+            </button>
+          )}
 
           <div className="w-px h-5 bg-gray-700 mx-0.5" />
 

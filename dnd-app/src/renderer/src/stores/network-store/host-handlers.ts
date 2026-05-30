@@ -71,6 +71,10 @@ const MESSAGE_PERMISSION: Partial<Record<MessageType, Permission>> = {
   'dm:ban-player': 'ban_player',
   'dm:promote-codm': 'promote_codm',
   'dm:demote-codm': 'demote_codm',
+  // Phase 30e — DM-authority transfer. Reuses the promote_codm key as the
+  // defensive inbound gate (only a current DM may hand off authority); the
+  // network host is exempt from this check as it is for every other type.
+  'dm:transfer-dm': 'promote_codm',
   'dm:role-change': 'change_player_role',
   'player:trade-request': 'edit_party_inventory',
   'player:journal-add': 'manage_journal',

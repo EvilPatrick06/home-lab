@@ -64,13 +64,16 @@ export default function InGamePage(): JSX.Element {
   // Host-management actions (promote/demote, transfer-host) stay gated to
   // the literal host elsewhere; for the InGame view itself, CoDM === DM.
   const localPeerId = useNetworkStore((s) => s.localPeerId)
+  const localIsDM = useNetworkStore((s) => s.localIsDM)
   const lobbyPlayers = useLobbyStore((s) => s.players)
   // Phase 29e — gate DM tools through the permission system (use_dm_tools) rather
   // than the `role === 'host' || isCoDM` literal. localHasPermission falls back to
   // the legacy host/CoDM check for campaigns that predate the permissions block.
+  // Phase 30e — pass the local DM-authority flag so a transferred DM gets tools.
   const isDM = localHasPermission('use_dm_tools', campaign, {
     networkRole,
     localPeerId,
+    isDM: localIsDM,
     peers: lobbyPlayers
   })
   const effectiveDM = isDM || networkRole === 'none'

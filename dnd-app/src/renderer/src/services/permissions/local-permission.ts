@@ -19,8 +19,21 @@ export interface LocalIdentityInput {
   networkRole: 'none' | 'host' | 'client'
   localPeerId: string | null
   localClientId?: string | null
-  /** Lobby players, used to detect the local CoDM flag + resolve clientId. */
-  peers?: Array<{ peerId: string; clientId?: string; isCoDM?: boolean; roleId?: string; role?: string }>
+  /**
+   * Phase 30e — explicit DM (game-rule) authority for the local user, decoupled
+   * from the network host. Sourced from the network store's `localIsDM`. Used
+   * when the local peer isn't found in `peers` (or that entry has no `isDM`).
+   */
+  isDM?: boolean
+  /** Lobby players, used to detect the local CoDM/DM flag + resolve clientId. */
+  peers?: Array<{
+    peerId: string
+    clientId?: string
+    isCoDM?: boolean
+    isDM?: boolean
+    roleId?: string
+    role?: string
+  }>
 }
 
 export function buildLocalPeer(input: LocalIdentityInput): PeerInfo {
@@ -37,6 +50,10 @@ export function buildLocalPeer(input: LocalIdentityInput): PeerInfo {
     isReady: true,
     isHost,
     isCoDM: me?.isCoDM === true,
+    // Phase 30e — explicit DM authority. Prefer the peer-list entry's flag,
+    // else the caller-supplied `isDM` (the store's localIsDM). Left undefined
+    // when neither is set so resolvePeerRoleId falls back to isHost (legacy).
+    isDM: me?.isDM ?? input.isDM,
     // Standalone host with no explicit role → DM.
     roleId: me?.roleId ?? (isHost ? 'role-dm' : undefined)
   }
@@ -54,8 +71,11 @@ export function localHasPermission(
 ): boolean {
   const peer = buildLocalPeer(identity)
   if (!campaign?.permissions) {
-    // Legacy fallback: host / standalone / CoDM behave as DM (all perms).
-    return peer.isHost || peer.isCoDM === true
+    // Legacy fallback: explicit DM authority (when set) wins; otherwise host /
+    // standalone / CoDM behave as DM (all perms). Phase 30e — honoring `isDM`
+    // means a transferred-away host loses DM perms and the new DM gains them
+    // even on campaigns that predate the permissions block.
+    return peer.isDM ?? (peer.isHost || peer.isCoDM === true)
   }
   return hasPermission(peer, key, campaign)
 }

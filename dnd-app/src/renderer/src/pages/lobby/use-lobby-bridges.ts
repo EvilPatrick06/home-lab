@@ -53,6 +53,7 @@ function usePeerSync(localPeerId: string | null): void {
           isHost: peer.isHost,
           color: peer.color,
           isCoDM: peer.isCoDM,
+          isDM: peer.isDM,
           latencyMs: peer.latencyMs,
           status: 'connected'
         })
@@ -63,6 +64,7 @@ function usePeerSync(localPeerId: string | null): void {
           characterName: peer.characterName,
           color: peer.color,
           isCoDM: peer.isCoDM,
+          isDM: peer.isDM,
           latencyMs: peer.latencyMs,
           status: 'connected'
         })

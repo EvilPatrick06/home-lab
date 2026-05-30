@@ -254,6 +254,11 @@ const CoDMPayloadSchema = z.object({
   isCoDM: z.boolean()
 })
 
+// Phase 30e — transfer DM authority to another peer (network host unchanged).
+const TransferDmPayloadSchema = z.object({
+  newDmPeerId: z.string()
+})
+
 const ColorChangePayloadSchema = z.object({
   color: z.string()
 })
@@ -601,6 +606,7 @@ const PAYLOAD_SCHEMAS: Partial<Record<MessageTypeString, z.ZodType>> = {
   'dm:chat-timeout': ChatTimeoutPayloadSchema,
   'dm:promote-codm': CoDMPayloadSchema,
   'dm:demote-codm': CoDMPayloadSchema,
+  'dm:transfer-dm': TransferDmPayloadSchema,
   'dm:character-update': CharacterUpdatePayloadSchema,
   'dm:shop-update': ShopUpdatePayloadSchema,
   'dm:slow-mode': SlowModePayloadSchema,

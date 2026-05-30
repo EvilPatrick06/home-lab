@@ -124,6 +124,12 @@ export interface LobbyPlayer {
    */
   previewColor?: string | null
   isCoDM?: boolean
+  /**
+   * Phase 30e — explicit DM (game-rule) authority, decoupled from `isHost`
+   * (network host). Set by a `dm:transfer-dm` flow. When unset, DM status falls
+   * back to `isHost` (legacy: the host is the DM). Mirrors `PeerInfo.isDM`.
+   */
+  isDM?: boolean
   diceColors?: DiceColors
   status?: 'connected' | 'reconnecting' | 'disconnected'
   latencyMs?: number

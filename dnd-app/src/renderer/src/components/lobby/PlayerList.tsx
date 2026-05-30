@@ -16,7 +16,9 @@ export default function PlayerList(): JSX.Element {
   const updatePlayer = useLobbyStore((s) => s.updatePlayer)
   const localPeerId = useNetworkStore((s) => s.localPeerId)
   const role = useNetworkStore((s) => s.role)
+  const localIsDM = useNetworkStore((s) => s.localIsDM)
   const sendMessage = useNetworkStore((s) => s.sendMessage)
+  const transferDm = useNetworkStore((s) => s.transferDm)
   const removePeer = useNetworkStore((s) => s.removePeer)
 
   const { campaignId } = useParams<{ campaignId: string }>()
@@ -29,7 +31,7 @@ export default function PlayerList(): JSX.Element {
   // than `role === 'host'`. `isHostView` (the moderation-capable view) maps to
   // use_dm_tools; individual actions check their own permission key.
   const can = (key: Permission): boolean =>
-    localHasPermission(key, campaign, { networkRole: role, localPeerId, peers: players })
+    localHasPermission(key, campaign, { networkRole: role, localPeerId, isDM: localIsDM, peers: players })
   const isHostView = can('use_dm_tools')
   const aiDmEnabled = campaign?.aiDm?.enabled ?? false
   const aiDmOllamaModel = campaign?.aiDm?.ollamaModel ?? 'llama3.1'
@@ -110,6 +112,13 @@ export default function PlayerList(): JSX.Element {
   const handleDemoteCoDM = (peerId: string): void => {
     updatePlayer(peerId, { isCoDM: false })
     sendMessage('dm:demote-codm', { peerId, isCoDM: false })
+  }
+
+  // Phase 30e — hand DM authority to another peer. Routes through the store
+  // action (NOT raw sendMessage) so the host applies the isDM change locally
+  // *and* broadcasts dm:transfer-dm. The network host stays put.
+  const handleMakeDM = (peerId: string): void => {
+    transferDm(peerId)
   }
 
   // Phase 29e: DM-only spectator/player role toggle (broadcasts dm:role-change).
@@ -196,6 +205,14 @@ export default function PlayerList(): JSX.Element {
                 }
                 onDemoteCoDM={
                   can('demote_codm') && !isLocal && !player.isHost ? () => handleDemoteCoDM(player.peerId) : undefined
+                }
+                onMakeDM={
+                  // Phase 30e — only the network host can transfer DM authority
+                  // (transferDm is host-only). Gated on the same promote_codm key
+                  // as the Co-DM action; hidden once the target already holds it.
+                  role === 'host' && can('promote_codm') && !isLocal && !player.isDM
+                    ? () => handleMakeDM(player.peerId)
+                    : undefined
                 }
                 onColorChange={isLocal ? handleColorChange : undefined}
                 usedByOtherPeers={isLocal ? usedByOthers : undefined}

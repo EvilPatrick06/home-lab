@@ -27,6 +27,7 @@ export default function CharacterSelector({ onSelect }: CharacterSelectorProps):
   const { characters, loading, loadCharacters } = useCharacterStore()
   const localPeerId = useNetworkStore((s) => s.localPeerId)
   const networkRole = useNetworkStore((s) => s.role)
+  const localIsDM = useNetworkStore((s) => s.localIsDM)
   const players = useLobbyStore((s) => s.players)
   const localPlayer = players.find((p) => p.peerId === localPeerId)
   const campaign = useCampaignStore((s) => s.campaigns.find((c) => c.id === campaignId)) ?? null
@@ -39,6 +40,7 @@ export default function CharacterSelector({ onSelect }: CharacterSelectorProps):
   const canSkipCharacter = localHasPermission('use_dm_tools', campaign, {
     networkRole,
     localPeerId,
+    isDM: localIsDM,
     peers: players
   })
   // Phase 17c — Source the current selection from the lobby store so the

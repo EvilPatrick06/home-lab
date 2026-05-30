@@ -51,6 +51,7 @@ export default function CharacterSheet5ePage(): JSX.Element {
 
   const localPeerId = useNetworkStore((s) => s.localPeerId)
   const role = useNetworkStore((s) => s.role)
+  const localIsDM = useNetworkStore((s) => s.localIsDM)
   const players = useLobbyStore((s) => s.players)
   // Phase 29e — campaign lookup must run before the `!character` early-return
   // so it stays in a fixed hook-call position. Selector returns undefined when
@@ -106,6 +107,7 @@ export default function CharacterSheet5ePage(): JSX.Element {
     return localHasPermission('edit_any_sheet', campaign, {
       networkRole: role,
       localPeerId,
+      isDM: localIsDM,
       peers: players
     })
   })()

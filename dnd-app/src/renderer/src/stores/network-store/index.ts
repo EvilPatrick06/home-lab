@@ -73,6 +73,7 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
   error: null,
   disconnectReason: null,
   latencyMs: null,
+  localIsDM: false,
 
   // --- Host actions ---
 
@@ -163,7 +164,10 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
       set({
         connectionState: 'connected',
         inviteCode,
-        localPeerId: getPeerId()
+        localPeerId: getPeerId(),
+        // Phase 30e — the network host starts as DM (legacy: host === DM).
+        // `transferDm` later moves authority without moving the host.
+        localIsDM: true
       })
 
       return inviteCode
@@ -192,7 +196,8 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
       peers: [],
       error: null,
       disconnectReason: null,
-      latencyMs: null
+      latencyMs: null,
+      localIsDM: false
     })
   },
 
@@ -210,6 +215,23 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
     setTimeout(() => {
       useLobbyStore.getState().removePlayer(peerId)
     }, 1500)
+  },
+
+  transferDm: (newDmPeerId: string) => {
+    // Phase 30e — DM authority transfer. The network host stays put; only the
+    // `isDM` flag moves. Host-only: a client has no peers to broadcast to and
+    // its outbound `dm:transfer-dm` would just be relayed back by the host.
+    if (get().role !== 'host') return
+    // Apply locally to every peer + the lobby mirror so the UI (PlayerCard
+    // badges, DM-tool gates) reacts immediately on the host before the wire
+    // round-trip.
+    for (const peer of get().peers) {
+      const isDM = peer.peerId === newDmPeerId
+      get().updatePeer(peer.peerId, { isDM })
+      useLobbyStore.getState().updatePlayer(peer.peerId, { isDM })
+    }
+    set({ localIsDM: newDmPeerId === get().localPeerId })
+    get().sendMessage('dm:transfer-dm', { newDmPeerId })
   },
 
   // --- Client actions ---
@@ -254,7 +276,8 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
             localPeerId: null,
             peers: [],
             error: reason,
-            disconnectReason
+            disconnectReason,
+            localIsDM: false
           })
         })
       )
@@ -299,7 +322,8 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
         localPeerId: null,
         peers: [],
         error: null,
-        disconnectReason: null
+        disconnectReason: null,
+        localIsDM: false
       })
     }
   },

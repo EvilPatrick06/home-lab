@@ -8,7 +8,8 @@ import type {
   NetworkGameState,
   NetworkMessage,
   PeerInfo,
-  RoleChangePayload
+  RoleChangePayload,
+  TransferDmPayload
 } from '../../network'
 import { playAmbient as playAmbientSound, stopAmbient } from '../../services/sound-manager'
 import { logger } from '../../utils/logger'
@@ -201,6 +202,20 @@ export function handleClientMessage(
       const payload = message.payload as CoDMPayload
       get().updatePeer(payload.peerId, { isCoDM: false })
       useLobbyStore.getState().updatePlayer(payload.peerId, { isCoDM: false })
+      break
+    }
+
+    case 'dm:transfer-dm': {
+      // Phase 30e — the host transferred DM authority. Set `isDM` on the named
+      // peer and clear it on everyone else, then update the local flag so this
+      // client's DM-tool gates flip on/off accordingly.
+      const payload = message.payload as TransferDmPayload
+      for (const peer of get().peers) {
+        const isDM = peer.peerId === payload.newDmPeerId
+        get().updatePeer(peer.peerId, { isDM })
+        useLobbyStore.getState().updatePlayer(peer.peerId, { isDM })
+      }
+      set({ localIsDM: payload.newDmPeerId === get().localPeerId })
       break
     }
 
