@@ -47,7 +47,6 @@ Only open/actionable items: problems, errors, security concerns, suggestions, ou
 - **Discord→VTT relay has no delivery guarantee.** `bmo/pi/agents/vtt_sync.py:134–147` `_post_to_vtt` is fire-and-forget on a daemon thread, returns `True` immediately, logs-and-drops on failure — no retry/queue/dedup (payloads have a `timestamp` but no event id, `:150–181`). A Discord roll is silently dropped if the VTT `:5001` is down. *Action (if it matters): bounded retry + an event id the VTT can dedup on.*
 - **BMO↔dnd-app HTTP endpoints are unversioned** (`grep -c api/v1 app.py` = 0). A breaking change to `/api/games` or the `:5001` callback shape would break older in-session clients silently. *Action: add `/api/v1/…` before the next breaking change.*
 - **`bmo-peerjs` :9000 (optional self-hosted signaling).** `bmo/setup-bmo.sh:197–202` runs a PeerJS container; dnd-app can point WebRTC signaling at it (not a hard dependency — public PeerJS cloud also works). If self-hosted and the container is down, that path fails with no health surface. *Action: surface its health if you rely on it.*
-- **GitHub Actions Node.js 20 deprecation (CI maintenance).** The release + CI workflows pin `actions/checkout@v4`, `actions/setup-node@v4`, `actions/download-artifact@v4`, which run on Node 20. GitHub forces Node 24 on 2026-06-16 and removes Node 20 on 2026-09-16 (annotation on every run as of v2.2.10, 2026-05-30). *Action: bump those actions to versions that support Node 24 before 2026-06-16, or set `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true`.*
 
 ---
 
