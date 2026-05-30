@@ -80,7 +80,6 @@ export type {
   DiceRollHiddenPayload,
   DiceRollPayload,
   DrawingAddPayload,
-  DrawingRemovePayload,
   DrawingsClearPayload,
   FileSharingPayload,
   FogRevealPayload,

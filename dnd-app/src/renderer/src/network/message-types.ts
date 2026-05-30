@@ -23,9 +23,7 @@ export const MESSAGE_TYPES = [
   'dm:fog-reveal',
   'dm:token-move',
   'dm:initiative-update',
-  'dm:initiative-delta',
   'dm:condition-update',
-  'dm:condition-delta',
   'dm:kick-player',
   'dm:ban-player',
   'dm:unban-player',
@@ -55,13 +53,8 @@ export const MESSAGE_TYPES = [
   'dm:stop-ambient',
   'dm:play-custom-audio',
   'dm:stop-custom-audio',
-  'dm:vision-update',
   'dm:drawing-add',
-  'dm:drawing-remove',
   'dm:drawings-clear',
-  'dm:region-add',
-  'dm:region-remove',
-  'dm:region-update',
   'chat:message',
   'chat:file',
   'chat:whisper',
@@ -209,26 +202,6 @@ export interface ConditionUpdatePayload {
   targetId: string
   condition: string
   active: boolean
-}
-
-// Phase 29h: delta payloads. Stop shipping the full initiative /
-// condition arrays on every change; ship only the diff. Clients apply
-// add/remove/update against their local mirror. `round` /
-// `currentIndex` / `turnMode` are optional so an array-only change
-// doesn't carry stale meta.
-export interface InitiativeDeltaPayload {
-  round?: number
-  currentIndex?: number
-  turnMode?: 'initiative' | 'free'
-  added: import('../types/game-state').InitiativeEntry[]
-  removed: string[]
-  updated: import('../types/game-state').InitiativeEntry[]
-}
-
-export interface ConditionDeltaPayload {
-  added: import('../types/game-state').EntityCondition[]
-  removed: string[]
-  updated: import('../types/game-state').EntityCondition[]
 }
 
 // Phase 29h: reconnect resync. A client returning with the same
@@ -653,11 +626,6 @@ export interface DrawingAddPayload {
     visibleToPlayers?: boolean
     floor?: number
   }
-}
-
-export interface DrawingRemovePayload {
-  mapId: string
-  drawingId: string
 }
 
 export interface DrawingsClearPayload {

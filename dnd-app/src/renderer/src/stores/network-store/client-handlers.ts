@@ -61,22 +61,15 @@ import {
   handleTimeSync,
   handleTradeCancel,
   handleTradeRequest,
-  handleTradeResult,
-  handleVisionUpdate
+  handleTradeResult
 } from './client-handlers/game-action-handlers'
 import {
-  handleConditionDelta,
   handleConditionUpdate,
   handleDrawingAdd,
-  handleDrawingRemove,
   handleDrawingsClear,
   handleFogReveal,
-  handleInitiativeDelta,
   handleInitiativeUpdate,
   handleMapChange,
-  handleRegionAdd,
-  handleRegionRemove,
-  handleRegionUpdate,
   handleTokenMove
 } from './client-handlers/game-sync-handlers'
 import { applyGameState, handleGameStateUpdate } from './client-handlers/shared'
@@ -330,28 +323,8 @@ export function handleClientMessage(
       break
     }
 
-    case 'dm:drawing-remove': {
-      handleDrawingRemove(message)
-      break
-    }
-
     case 'dm:drawings-clear': {
       handleDrawingsClear(message)
-      break
-    }
-
-    case 'dm:region-add': {
-      handleRegionAdd(message)
-      break
-    }
-
-    case 'dm:region-remove': {
-      handleRegionRemove(message)
-      break
-    }
-
-    case 'dm:region-update': {
-      handleRegionUpdate(message)
       break
     }
 
@@ -365,18 +338,8 @@ export function handleClientMessage(
       break
     }
 
-    case 'dm:initiative-delta': {
-      handleInitiativeDelta(message)
-      break
-    }
-
     case 'dm:condition-update': {
       handleConditionUpdate(message)
-      break
-    }
-
-    case 'dm:condition-delta': {
-      handleConditionDelta(message)
       break
     }
 
@@ -428,11 +391,6 @@ export function handleClientMessage(
 
     case 'chat:whisper': {
       handleWhisper(message)
-      break
-    }
-
-    case 'dm:vision-update': {
-      handleVisionUpdate(message)
       break
     }
 

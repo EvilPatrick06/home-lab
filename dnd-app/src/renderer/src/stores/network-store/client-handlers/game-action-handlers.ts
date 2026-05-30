@@ -36,11 +36,6 @@ export function handleFileSharing(message: NetworkMessage): void {
   useLobbyStore.getState().setFileSharingEnabled(payload.enabled)
 }
 
-export function handleVisionUpdate(message: NetworkMessage): void {
-  const payload = message.payload as { partyVisionCells: Array<{ x: number; y: number }> }
-  useGameStore.getState().setPartyVisionCells(payload.partyVisionCells)
-}
-
 export function handleReactionPrompt(message: NetworkMessage): void {
   const payload = message.payload as ReactionPromptPayload
   useGameStore.getState().setPendingReactionPrompt({

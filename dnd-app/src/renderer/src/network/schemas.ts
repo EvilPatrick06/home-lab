@@ -131,25 +131,7 @@ const ConditionUpdatePayloadSchema = z.object({
   active: z.boolean()
 })
 
-// Phase 29h: delta + resync schemas. Pass-through validation for the
-// inner entity shapes (`InitiativeEntry`, `EntityCondition`) since
-// they're internal game state — the network surface only enforces
-// add/remove/update shape.
-const InitiativeDeltaPayloadSchema = z.object({
-  round: z.number().optional(),
-  currentIndex: z.number().optional(),
-  turnMode: z.string().optional(),
-  added: z.array(z.unknown()),
-  removed: z.array(z.string()),
-  updated: z.array(z.unknown())
-})
-
-const ConditionDeltaPayloadSchema = z.object({
-  added: z.array(z.unknown()),
-  removed: z.array(z.string()),
-  updated: z.array(z.unknown())
-})
-
+// Phase 29h: resync schemas.
 const ResyncRequestPayloadSchema = z.object({
   lastSequence: z.number().int().nonnegative(),
   lastClientId: z.string().min(1).max(64)
@@ -611,9 +593,7 @@ const PAYLOAD_SCHEMAS: Partial<Record<MessageTypeString, z.ZodType>> = {
   'dm:fog-reveal': FogRevealPayloadSchema,
   'dm:token-move': TokenMovePayloadSchema,
   'dm:initiative-update': InitiativeUpdatePayloadSchema,
-  'dm:initiative-delta': InitiativeDeltaPayloadSchema,
   'dm:condition-update': ConditionUpdatePayloadSchema,
-  'dm:condition-delta': ConditionDeltaPayloadSchema,
   'player:resync-request': ResyncRequestPayloadSchema,
   'game:state-resync': StateResyncPayloadSchema,
   batch: BatchPayloadSchema,
