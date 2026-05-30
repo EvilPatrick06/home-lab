@@ -36,6 +36,14 @@ export interface ShardRecipient {
 export interface ShardBroadcasterOptions {
   /** Live connected-peer list, used only when a shard has a `permissionFilter`. */
   getRecipients?: () => ShardRecipient[]
+  /**
+   * Phase 31 — coalesce window (ms). When > 0, rapid `onChange`s on a shard
+   * (e.g. a token drag emitting a frame per pointer-move) collapse into a single
+   * delta computed from the LATEST value, restoring the throttle the old
+   * per-feature broadcasters had. 0/undefined → broadcast immediately on each
+   * change (the default; tests rely on synchronous delivery).
+   */
+  coalesceMs?: number
 }
 
 /** Build a wire envelope. Sync deltas carry their ordering in `delta.sequence`;
@@ -52,13 +60,19 @@ export function createShardBroadcaster(
   const unsubscribes: Array<() => void> = []
   /** Live monotonic sequence per shard name; reused by the resync reply. */
   const seqByShard = new Map<string, number>()
+  const coalesceMs = opts?.coalesceMs ?? 0
 
   function start(): void {
     for (const shard of getShards()) {
       let prev = shard.read()
       seqByShard.set(shard.name, 0)
+      let timer: ReturnType<typeof setTimeout> | null = null
 
-      const off = shard.onChange((next) => {
+      // Diff the LATEST value against prev and ship it. Called immediately
+      // (coalesceMs=0) or once per coalesce window after a burst of changes.
+      const flush = (): void => {
+        timer = null
+        const next = shard.read()
         const seq = (seqByShard.get(shard.name) ?? 0) + 1
 
         // Permission-aware path: a filtered shard with a recipient list ships a
@@ -82,8 +96,24 @@ export function createShardBroadcaster(
         seqByShard.set(shard.name, seq)
         delta.sequence = seq
         transport.broadcast(envelope('sync:delta', { shard: shard.name, delta }))
+      }
+
+      const off = shard.onChange(() => {
+        if (coalesceMs > 0) {
+          // Coalesce a burst into one flush of the final value.
+          if (timer) return
+          timer = setTimeout(flush, coalesceMs)
+        } else {
+          flush()
+        }
       })
-      unsubscribes.push(off)
+      unsubscribes.push(() => {
+        if (timer) {
+          clearTimeout(timer)
+          timer = null
+        }
+        off()
+      })
     }
 
     // Answer resync requests with a full replace at the shard's live sequence.

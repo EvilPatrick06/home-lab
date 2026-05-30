@@ -120,6 +120,62 @@ describe('createShardBroadcaster (Phase 31c)', () => {
     broadcaster.stop()
   })
 
+  it('coalesces a burst of changes into one delta of the final value (coalesceMs)', () => {
+    vi.useFakeTimers()
+    try {
+      const { shard, set } = makeBoxShard('bc-coalesce', { hp: 10 })
+      registerShard(shard)
+
+      const hub = new MemoryHub()
+      const host = new MemoryTransport(hub, makePeer('host', true))
+      const client = new MemoryTransport(hub, makePeer('client'))
+      const recv = vi.fn()
+      client.onMessage(recv)
+
+      const broadcaster = createShardBroadcaster(host, { coalesceMs: 50 })
+      broadcaster.start()
+
+      // Three rapid changes within the window (e.g. a token drag).
+      set({ hp: 9 })
+      set({ hp: 8 })
+      set({ hp: 7 })
+      // Nothing shipped yet — debounced.
+      expect(syncDeltas(recv).filter((d) => d.shard === 'bc-coalesce')).toHaveLength(0)
+
+      vi.advanceTimersByTime(50)
+
+      const deltas = syncDeltas(recv).filter((d) => d.shard === 'bc-coalesce')
+      expect(deltas).toHaveLength(1) // one coalesced delta
+      expect(deltas[0].delta.sequence).toBe(1) // one sequence bump
+      expect(applyDelta({ hp: 10 }, deltas[0].delta)).toEqual({ hp: 7 }) // the FINAL value
+
+      broadcaster.stop()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('stop() cancels a pending coalesced flush', () => {
+    vi.useFakeTimers()
+    try {
+      const { shard, set } = makeBoxShard('bc-coalesce-stop', { hp: 10 })
+      registerShard(shard)
+      const hub = new MemoryHub()
+      const host = new MemoryTransport(hub, makePeer('host', true))
+      const client = new MemoryTransport(hub, makePeer('client'))
+      const recv = vi.fn()
+      client.onMessage(recv)
+      const broadcaster = createShardBroadcaster(host, { coalesceMs: 50 })
+      broadcaster.start()
+      set({ hp: 9 })
+      broadcaster.stop() // before the window elapses
+      vi.advanceTimersByTime(50)
+      expect(syncDeltas(recv).filter((d) => d.shard === 'bc-coalesce-stop')).toHaveLength(0)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('answers a resync-request with a full replace at the live sequence', () => {
     const { shard, set } = makeBoxShard('bc-resync', { hp: 10 })
     registerShard(shard)

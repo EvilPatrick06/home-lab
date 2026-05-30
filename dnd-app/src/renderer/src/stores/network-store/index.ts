@@ -111,7 +111,11 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
         // Phase 31j — feeds the per-recipient permission filter for filtered
         // shards. No-op for unfiltered shards (conditions/initiative), which
         // keep broadcasting the structural diff to all.
-        getRecipients: () => getConnectedPeers().map((p) => ({ peerId: p.peerId, clientId: p.clientId }))
+        getRecipients: () => getConnectedPeers().map((p) => ({ peerId: p.peerId, clientId: p.clientId })),
+        // Phase 31 — coalesce a burst of changes (e.g. a token drag) into one
+        // delta of the final value, restoring the throttle the old per-feature
+        // broadcasters had.
+        coalesceMs: 50
       })
       shardBroadcaster.start()
       listenerCleanups.push(() => shardBroadcaster.stop())
