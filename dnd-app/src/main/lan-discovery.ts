@@ -11,7 +11,7 @@
  * both sources into one GameCard render path.
  */
 
-import { Bonjour, type BrowserConfig, type Service } from 'bonjour-service'
+import Bonjour from 'bonjour-service'
 import { BrowserWindow } from 'electron'
 import { IPC_CHANNELS } from '../shared/ipc-channels'
 import {
@@ -22,6 +22,13 @@ import {
 } from '../shared/ipc-schemas'
 import { setDiscoveredBmoUrl } from './bmo-config'
 import { logToFile } from './log'
+
+// bonjour-service@1.4 switched to `export = Bonjour` (a class merged with a
+// namespace): `Service` is a namespace VALUE and `BrowserConfig` is no longer
+// re-exported at the package root, so derive the TYPES we need from the class
+// surface (the default-imported `Bonjour` is usable as both value + instance type).
+type Service = InstanceType<typeof Bonjour.Service>
+type BrowserConfig = NonNullable<Parameters<Bonjour['find']>[0]>
 
 const SERVICE_TYPE = 'dndvtt'
 const BMO_SERVICE_TYPE = 'bmo'
