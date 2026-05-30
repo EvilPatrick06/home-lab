@@ -12,9 +12,17 @@ export interface PeerInfo {
   characterId: string | null
   characterName: string | null
   isReady: boolean
+  /** Network role: owns the PeerJS mesh. Phase 30 decouples this from DM authority. */
   isHost: boolean
   color?: string
   isCoDM?: boolean
+  /**
+   * Phase 30d — explicit DM (game-rule) authority, decoupled from `isHost`
+   * (network host). When undefined it falls back to `isHost` (legacy: the host
+   * is the DM), so existing sessions are unchanged. Set explicitly so a non-host
+   * player can be the DM, or the network host can hand off DM authority (30e).
+   */
+  isDM?: boolean
   /** Phase 29 — explicit campaign role id (into `campaign.permissions.roles`).
    * When unset, `hasPermission` derives a built-in role from `isHost`/`isCoDM`/`role`. */
   roleId?: string

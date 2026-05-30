@@ -13,7 +13,10 @@ import type { Permission } from '../../types/permissions'
 /** Map a peer to a campaign role id. Prefers an explicit `roleId`, else derives a built-in. */
 export function resolvePeerRoleId(peer: PeerInfo): string {
   if (peer.roleId) return peer.roleId
-  if (peer.isHost) return 'role-dm'
+  // Phase 30d — DM authority is `isDM` (decoupled from the network host). Falls
+  // back to `isHost` when unset, so legacy sessions where the host is the DM are
+  // unchanged; a host with `isDM === false` is explicitly NOT the DM.
+  if (peer.isDM ?? peer.isHost) return 'role-dm'
   if (peer.isCoDM) return 'role-codm'
   if (peer.role === 'spectator') return 'role-spectator'
   return 'role-player'

@@ -322,6 +322,7 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
       // Other message types are uniformly broadcast — they don't carry DM-only data.
       if (type === 'game:state-update') {
         const peers = getConnectedPeers()
+        const campaign = useCampaignStore.getState().campaigns.find((c) => c.id === get().campaignId) ?? null
         const baseHeader = {
           type,
           senderId: getPeerId() || '',
@@ -333,7 +334,18 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
           // updates (hidden-token transitions, etc.). Only the literal host
           // role short-circuits visibility transforms; promote a CoDM to
           // 'host' for transform purposes too.
-          const role = p.isCoDM === true ? 'host' : (p.role ?? (p.isHost ? 'host' : 'player'))
+          //
+          // Phase 30d — DM authority is decoupled from the network host. A peer
+          // that holds the DM-only view permissions (hidden tokens + DM-only
+          // stats) also gets the unfiltered 'host' transform bucket. The
+          // isHost/isCoDM checks stay as a fast path and the legacy fallback for
+          // campaigns with no permissions block (mirrors the setGameStateProvider
+          // gate above).
+          const seesAll =
+            p.isHost ||
+            p.isCoDM === true ||
+            (hasPermission(p, 'view_hidden_tokens', campaign) && hasPermission(p, 'view_dm_only_stats', campaign))
+          const role = seesAll ? 'host' : (p.role ?? 'player')
           const transformed = transformUpdatePayloadForPeer(payload, role)
           if (transformed === null) continue
           const message: NetworkMessage = {
