@@ -44,7 +44,7 @@ Only open/actionable items: problems, errors, security concerns, suggestions, ou
 - **Test-coverage gaps** — `systems/dnd5e/` only `registry.test.ts`; no modal/form/keyboard-nav integration tests; thin `src/main/` coverage; no WebRTC-reconnection or a11y tests; **no cloud-relay live integration test** (each side faked).
 - **Orphaned dev tooling.** `oxlint` (1.67 — a whole second linter), `jscpd` (copy-paste detector), `type-coverage` are installed but have **no script/CI/hook call site** (masked from knip's unused-dependency check by its `ignoreDependencies` list). *Action: wire them into CI or drop them.*
 - **Doc gaps** — no TypeDoc/Storybook; no `GameSystemPlugin` developer guide.
-- **Package `overrides` (9 entries, was 7)** — document why each is pinned (incl. the new exact pins `scheduler`/`entities`); recheck on dep bumps.
+- **Package `overrides` (9 entries)** — ✅ now documented in `docs/DEPENDENCIES.md` (each override's consumer + reason: CVE-floor vs dedup/pin). *Remaining action: recheck/prune on dep bumps per that doc.*
 - **5e shared-JSON sync has no CI gate.** Five files duplicated dnd-app↔`bmo/pi/data/5e/`, kept in sync only by manually running `bmo/pi/scripts/sync-shared-5e-json.sh`. *Action: CI check that fails if the two trees diverge.*
 - **CI workflow proliferation.** FOUR workflows trigger on `dnd-app/**` (`ci.yml`, `dnd-app-ci.yml`, `dnd-app-validate-5e.yml`, + `security-audit.yml`); `ci.yml` and `dnd-app-ci.yml` both run lint + both tsc configs every push. *Action: merge/dedupe or document why each exists.*
 - **22k `throttle` utility is opt-in** — zero production call-sites.
@@ -65,4 +65,4 @@ Only open/actionable items: problems, errors, security concerns, suggestions, ou
 ## 🚫 Out of scope (for dnd-app phase work)
 
 - **Large public-dir assets** — `monsters.json` (~35k lines), ~260 MP3s under `public/sounds/`. CDN / lazy-download is a distribution decision, not a code fix.
-- **Electron upgrade cadence** — the immediate EOL pressure is resolved (40→42 shipped in v2.3.0; E42 supported through 2026-10-20), but there's still no documented cadence for staying on a supported major. *Action: schedule a recurring Electron-bump check.*
+- **Electron upgrade cadence** — immediate EOL pressure resolved (40→42 in v2.3.0; E42 supported through ~2026-10-20). ✅ Cadence + bump procedure now documented in `docs/DEPENDENCIES.md`. *Remaining action: set a recurring reminder to bump before the running major's EOL.*
