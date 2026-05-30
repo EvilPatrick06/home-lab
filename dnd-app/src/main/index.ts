@@ -5,7 +5,7 @@ import { is, optimizer } from '@electron-toolkit/utils'
 import { app, BrowserWindow, dialog, nativeImage, shell } from 'electron'
 import { disposeAiService, initFromSavedConfig } from './ai/ai-service'
 import { stopSyncReceiver } from './bmo-bridge'
-import { applyBmoApiKeyFromSettings, applyBmoBaseUrlFromSettings } from './bmo-config'
+import { applyBmoBaseUrlFromSettings } from './bmo-config'
 import { bmoCspConnectFragment } from './bmo-csp'
 import { registerIpcHandlers } from './ipc'
 import { logToFile } from './log'
@@ -280,7 +280,6 @@ app.whenReady().then(async () => {
   const st = await loadSettings()
   if (st.success && st.data) {
     applyBmoBaseUrlFromSettings(st.data)
-    applyBmoApiKeyFromSettings(st.data)
   }
 
   // Install React DevTools in dev mode

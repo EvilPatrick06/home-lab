@@ -90,14 +90,11 @@ async function bmoPiFetchOnce(path: string, options?: RequestInit): Promise<Brid
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS)
 
   try {
-    // BMO is fail-closed: non-localhost requests need Authorization: Bearer.
-    const apiKey = getBmoApiKey()
     const res = await fetch(`${getBmoBaseUrl()}${path}`, {
       ...options,
       signal: controller.signal,
       headers: {
         'Content-Type': 'application/json',
-        ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
         ...options?.headers
       }
     })

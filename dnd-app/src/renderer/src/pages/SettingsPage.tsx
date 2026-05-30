@@ -671,43 +671,9 @@ function CloudBackupSection(): JSX.Element {
   })
   const [loading, setLoading] = useState<string | null>(null)
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null)
-  const [bmoPiBaseUrl, setBmoPiBaseUrl] = useState('')
-  const [bmoApiKey, setBmoApiKey] = useState('')
-
-  useEffect(() => {
-    window.api.loadSettings().then((s) => {
-      const obj = s && typeof s === 'object' ? (s as Record<string, unknown>) : {}
-      setBmoPiBaseUrl(typeof obj.bmoPiBaseUrl === 'string' ? obj.bmoPiBaseUrl : '')
-      setBmoApiKey(typeof obj.bmoApiKey === 'string' ? obj.bmoApiKey : '')
-    })
-  }, [])
-
-  const saveBmoPiUrl = async (): Promise<void> => {
-    setLoading('bmo-url')
-    setMessage(null)
-    try {
-      const settings = await window.api.loadSettings()
-      const result = await window.api.saveSettings({
-        ...settings,
-        bmoPiBaseUrl: bmoPiBaseUrl.trim() || undefined,
-        // BMO is now secure-by-default (fail-closed): non-localhost requests need
-        // this key. Read it from the Pi with `cat ~/.bmo_api_key`.
-        bmoApiKey: bmoApiKey.trim() || undefined
-      })
-      if (result.success) {
-        setMessage({
-          text: 'BMO Pi settings saved. The app uses them for the Pi bridge, game registry, cloud sync, and connection policy.',
-          type: 'success'
-        })
-      } else {
-        setMessage({ text: result.error ?? 'Failed to save', type: 'error' })
-      }
-    } catch {
-      setMessage({ text: 'Failed to save BMO settings', type: 'error' })
-    } finally {
-      setLoading(null)
-    }
-  }
+  // The Pi base URL is preset for everyone (the public tunnel default + LAN
+  // mDNS auto-discovery) and BMO is reachable without an API key, so there's
+  // nothing to configure here — just the backup actions below.
 
   const handleCheckStatus = async (): Promise<void> => {
     setLoading('status')
@@ -722,7 +688,7 @@ function CloudBackupSection(): JSX.Element {
         error: result.error
       }))
       if (!result.configured && result.error) {
-        setMessage({ text: 'Could not reach the Pi. Check that it is online and the URL is correct.', type: 'error' })
+        setMessage({ text: 'Could not reach the Pi. Check that it is online.', type: 'error' })
       } else if (result.configured) {
         setMessage({ text: 'Connected to BMO Pi', type: 'success' })
       }
@@ -794,65 +760,6 @@ function CloudBackupSection(): JSX.Element {
         Back up campaign data to Google Drive via rclone on BMO Pi. Credentials are stored on the Pi — nothing is stored
         locally.
       </p>
-
-      <div className="space-y-1.5">
-        <label className="text-xs text-gray-400 block" htmlFor="bmo-pi-base-url">
-          BMO Pi base URL
-        </label>
-        <div className="flex flex-wrap gap-2 items-center">
-          <input
-            id="bmo-pi-base-url"
-            type="url"
-            name="bmo-pi-base-url"
-            autoComplete="off"
-            placeholder="https://bmo.mybmoai.work"
-            value={bmoPiBaseUrl}
-            onChange={(e) => setBmoPiBaseUrl(e.target.value)}
-            className="flex-1 min-w-[12rem] px-2 py-1.5 text-sm rounded-lg bg-gray-800 border border-gray-700 text-gray-200"
-          />
-          <button
-            type="button"
-            onClick={saveBmoPiUrl}
-            disabled={loading === 'bmo-url'}
-            className="px-3 py-1.5 text-sm rounded-lg border bg-gray-800 border-gray-700 text-gray-300 hover:border-amber-600 hover:text-amber-400 transition-colors cursor-pointer disabled:opacity-50"
-          >
-            {loading === 'bmo-url' ? 'Saving...' : 'Save URL'}
-          </button>
-        </div>
-        <p className="text-xs text-gray-500">
-          When set, overrides the <code className="text-gray-400">BMO_PI_URL</code> environment variable for this app.
-        </p>
-      </div>
-
-      <div className="space-y-1.5">
-        <label className="text-xs text-gray-400 block" htmlFor="bmo-api-key">
-          BMO API key
-        </label>
-        <div className="flex flex-wrap gap-2 items-center">
-          <input
-            id="bmo-api-key"
-            type="password"
-            name="bmo-api-key"
-            autoComplete="off"
-            placeholder="Required for off-Pi access"
-            value={bmoApiKey}
-            onChange={(e) => setBmoApiKey(e.target.value)}
-            className="flex-1 min-w-[12rem] px-2 py-1.5 text-sm rounded-lg bg-gray-800 border border-gray-700 text-gray-200"
-          />
-          <button
-            type="button"
-            onClick={saveBmoPiUrl}
-            disabled={loading === 'bmo-url'}
-            className="px-3 py-1.5 text-sm rounded-lg border bg-gray-800 border-gray-700 text-gray-300 hover:border-amber-600 hover:text-amber-400 transition-colors cursor-pointer disabled:opacity-50"
-          >
-            {loading === 'bmo-url' ? 'Saving...' : 'Save'}
-          </button>
-        </div>
-        <p className="text-xs text-gray-500">
-          BMO requires this for any non-localhost request (it auto-generates one on first boot). Get it from the Pi with{' '}
-          <code className="text-gray-400">cat ~/.bmo_api_key</code>.
-        </p>
-      </div>
 
       {/* Status display */}
       {message && (

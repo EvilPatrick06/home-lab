@@ -224,57 +224,18 @@ def _get_secret_key() -> str:
 app.config["SECRET_KEY"] = _get_secret_key()
 
 
-def _resolve_or_create_secret(env_var: str, file_name: str) -> str:
-    """Return a stable secret: env var > persisted file > generate + persist (0600).
-
-    Mirrors `_get_secret_key`. Used to make the API gate secure-by-DEFAULT: rather
-    than failing OPEN when no key is configured (the old behavior — any LAN/tunnel
-    client could reach the app), we mint a random key on first boot and persist it
-    so the gate is always enforced. The owner reads the generated value to configure
-    remote clients (`cat ~/<file_name>`).
-    """
-    env = (os.environ.get(env_var) or "").strip()
-    if env:
-        return env
-    key_path = os.path.join(os.path.expanduser("~"), file_name)
-    try:
-        with open(key_path, "r") as f:
-            key = f.read().strip()
-        if key:
-            return key
-    except FileNotFoundError:
-        pass
-    key = secrets.token_urlsafe(32)
-    try:
-        with open(key_path, "w") as f:
-            f.write(key)
-        os.chmod(key_path, 0o600)
-    except OSError:
-        # Read-only home (e.g. a locked-down container): fall back to an
-        # in-memory key. Still secure (random, non-empty); just not stable
-        # across restarts, which only forces clients to re-read it.
-        pass
-    return key
-
-
-# LAN/internet hardening (secure by default): require Authorization: Bearer for
-# non-localhost HTTP and SocketIO connects (the kiosk on 127.0.0.1 is exempt).
-# Auto-generated + persisted to ~/.bmo_api_key when BMO_API_KEY is unset, so the
-# front door is NEVER open by default. See docs/SECURITY.md.
-BMO_API_KEY = _resolve_or_create_secret("BMO_API_KEY", ".bmo_api_key")
+# Optional LAN/internet hardening (OPT-IN): when BMO_API_KEY is set in the env,
+# non-localhost HTTP + SocketIO connects must present `Authorization: Bearer <key>`
+# (the kiosk on 127.0.0.1 is exempt). When UNSET (the default), the app is open —
+# any client can reach the Pi without a key, which is what the VTT relies on so it
+# works out of the box. Set the env var only if you expose the Cloudflare tunnel to
+# the public internet and want to lock it down. See docs/SECURITY.md.
+BMO_API_KEY = (os.environ.get("BMO_API_KEY") or "").strip()
 # Optional STRICTER second credential for the registry mutation routes
-# (announce/heartbeat/deregister). Left opt-in (env-only): when unset, those
-# routes fall back to the front-door BMO_API_KEY gate (no longer fail open).
+# (announce/heartbeat/deregister). Opt-in (env-only): when unset, those routes fall
+# back to the front-door BMO_API_KEY gate (which is itself open unless BMO_API_KEY
+# is set).
 BMO_REGISTRY_API_KEY = (os.environ.get("BMO_REGISTRY_API_KEY") or "").strip()
-
-if os.environ.get("BMO_API_KEY"):
-    log.info("[security] BMO_API_KEY loaded from environment; non-localhost requests require it.")
-else:
-    log.info(
-        "[security] BMO_API_KEY auto-generated and persisted at ~/.bmo_api_key. "
-        "Remote clients (e.g. the VTT) must send it as 'Authorization: Bearer <key>'. "
-        "Read it with: cat ~/.bmo_api_key"
-    )
 
 
 def _bmo_client_is_trusted_localhost() -> bool:
@@ -310,9 +271,12 @@ def _bmo_optional_api_key():
     # the actual route's method allowlist doesn't 405 them.
     if request.method == "OPTIONS" and p.startswith("/api/games"):
         return ("", 204)
-    # BMO_API_KEY is always set (auto-generated when unconfigured), so the gate
-    # is always enforced — no fail-open path. Unauthenticated exemptions below
-    # are limited to health/static + trusted localhost.
+    # Default (no BMO_API_KEY env set): the app is OPEN — the VTT and any LAN
+    # client reach the Pi without a key. The gate below only engages when the
+    # owner opts in by setting BMO_API_KEY (then non-localhost callers need the
+    # Bearer; health/static + trusted localhost stay exempt).
+    if not BMO_API_KEY:
+        return None
     if p in ("/health", "/favicon.ico") or p.startswith("/static/"):
         return None
     if _bmo_client_is_trusted_localhost():

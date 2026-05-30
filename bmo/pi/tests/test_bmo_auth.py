@@ -19,6 +19,17 @@ def _ctx(path: str, remote: str = "127.0.0.1", headers: dict | None = None):
     )
 
 
+def test_open_by_default_when_no_key(monkeypatch):
+    """Default posture: BMO_API_KEY unset → the app is OPEN (the VTT and any LAN
+    client reach the Pi with no key). Auth only engages when the owner opts in."""
+    monkeypatch.setattr(app_module, "BMO_API_KEY", "")
+    with _ctx("/api/chat", remote="203.0.113.7"):
+        assert app_module._bmo_optional_api_key() is None
+    # Registry mutations are likewise open by default (front-door gate is open).
+    with _ctx("/api/games", remote="203.0.113.7"):
+        assert app_module._registry_authorized() is True
+
+
 def test_localhost_is_exempt(monkeypatch):
     monkeypatch.setattr(app_module, "BMO_API_KEY", "k")
     with _ctx("/api/games"):
