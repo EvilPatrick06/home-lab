@@ -52,23 +52,8 @@ export function startGameSync(sendMessage: SendMessageFn): void {
 
   let prevMaps: GameMap[] = useGameStore.getState().maps
   let prevActiveMapId: string | null = useGameStore.getState().activeMapId
-  let prevTurnMode = useGameStore.getState().turnMode
-  let prevIsPaused = useGameStore.getState().isPaused
-  let prevTurnStates = useGameStore.getState().turnStates
-  let prevPartyVisionCells = useGameStore.getState().partyVisionCells
-  // Phase 17ad — also watch the sharedJournal array. Previously journal
-  // entries only synced as part of the full game-state payload sent at
-  // peer join, so a player or DM adding a new shared entry mid-session
-  // was invisible to everyone else.
-  let prevSharedJournal = useGameStore.getState().sharedJournal
 
   unsubscribe = useGameStore.subscribe((state) => {
-    // Sync party vision cells
-    if (state.partyVisionCells !== prevPartyVisionCells) {
-      prevPartyVisionCells = state.partyVisionCells
-      sendMessage('dm:vision-update', { partyVisionCells: state.partyVisionCells })
-    }
-
     if (state.activeMapId !== prevActiveMapId) {
       prevActiveMapId = state.activeMapId
       const map = state.maps.find((m) => m.id === state.activeMapId)
@@ -107,34 +92,33 @@ export function startGameSync(sendMessage: SendMessageFn): void {
     // `dm:condition-delta` per-change broadcast that used to live here is gone.
     // Conditions stay in buildFullGameStatePayload so the join snapshot still
     // seeds initial state before the shard delta stream begins.
-
-    if (state.turnMode !== prevTurnMode || state.isPaused !== prevIsPaused) {
-      prevTurnMode = state.turnMode
-      prevIsPaused = state.isPaused
-      sendMessage('game:state-update', {
-        turnMode: state.turnMode,
-        isPaused: state.isPaused
-      })
-    }
-
-    if (state.turnStates !== prevTurnStates) {
-      prevTurnStates = state.turnStates
-      sendMessage('game:state-update', { turnStates: state.turnStates })
-    }
-
-    // Phase 17ad — sharedJournal incremental broadcast. The reference
-    // changes whenever an entry is added / updated / deleted (each store
-    // mutation returns a fresh array). Ships the full sharedJournal in
-    // the state-update payload; per-peer filtering (visibility ===
-    // 'private' authored-by-other-player) happens at the client render
-    // surface, not at the network layer — fine for now since private
-    // entries are still visible to their author + the host, and players
-    // currently see all shared entries. (Future phase: per-entry
-    // visibility filtering at this broadcast for true private.)
-    if (state.sharedJournal !== prevSharedJournal) {
-      prevSharedJournal = state.sharedJournal
-      sendMessage('game:state-update', { sharedJournal: state.sharedJournal })
-    }
+    //
+    // Phase 31k — the LAST bespoke per-change broadcasts here are migrated onto
+    // the shard pipeline:
+    //   - `turnMode` + `isPaused` (was a `game:state-update { turnMode, isPaused }`
+    //     block) → folded into initiative-shard. `turnMode` was ALREADY synced by
+    //     initiative-shard, so it had been double-synced; the whole block is gone.
+    //   - `turnStates` (was `game:state-update { turnStates }`) → turn-states-shard,
+    //     a permission-FILTERED shard (keys for hidden-token entities are stripped
+    //     for players, reusing filterGameStateForRole — same hidden-token rule as
+    //     tokens/fog).
+    //   - `sharedJournal` (was `game:state-update { sharedJournal }`, Phase 17ad)
+    //     → shared-journal-shard, UNFILTERED (the shared/player-visible journal;
+    //     the DM-only journal is a separate store; per-entry private visibility
+    //     stays a render-surface concern).
+    //   - `partyVisionCells` (was `dm:vision-update`) → party-vision-shard,
+    //     UNFILTERED (computed from player tokens — no DM-only data).
+    // All four stay in buildFullGameStatePayload so the role-filtered join
+    // snapshot still seeds them; the old message types + client handlers remain
+    // for 31l back-compat.
+    //
+    // `activeMapId` is intentionally LEFT on the bespoke `dm:map-change` path
+    // above (not migrated): that broadcast is a map SWITCH that asynchronously
+    // encodes + ships the target map's full image data so a client switching to
+    // a map it doesn't yet hold can render it. A scalar `activeMapId` shard can't
+    // carry that side effect, and keeping `dm:map-change` while also adding a
+    // shard would double-sync the scalar — exactly the redundancy this phase
+    // removes. So `dm:map-change` stays the single source for map switching.
 
     // Phase 31h — map tokens now stream to clients via the shard broadcaster
     // (`sync:delta`) through the per-recipient permissionFilter (the DM gets the

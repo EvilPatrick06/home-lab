@@ -16,35 +16,47 @@ import type { Shard } from '../shard'
  * them. (The `dm:initiative-delta` message type + its client handler remain
  * for 31l back-compat; the host just no longer originates that broadcast.)
  *
- * The synced value bundles the three fields the old block watched together:
+ * The synced value bundles the four fields the old block watched together:
  * `initiative` (the `{ entries, currentIndex, round } | null` combat record),
  * the top-level `round` counter (the campaign-wide round, distinct from
- * `initiative.round`), and `turnMode` (`'initiative' | 'free'`). Bundling them
- * in one shard preserves the old "any of these three changed → broadcast"
- * coupling so a single combat mutation that touches more than one field still
- * replicates atomically.
+ * `initiative.round`), `turnMode` (`'initiative' | 'free'`), and — as of Phase
+ * 31k — `isPaused` (the pause flag). Bundling them in one shard preserves the
+ * old "any of these changed → broadcast" coupling so a single combat mutation
+ * that touches more than one field still replicates atomically.
+ *
+ * Phase 31k — `isPaused` folded in here. It used to ride a bespoke
+ * `game:state-update { turnMode, isPaused }` broadcast in `startGameSync`
+ * alongside `turnMode`, but `turnMode` was ALREADY synced by this shard, so
+ * `turnMode` was double-synced. That whole bespoke block is gone:
+ * `turnMode` + `isPaused` now both stream via this shard (`isPaused` lives
+ * top-level on the game store next to `turnMode`, set via the same game-flow
+ * `setPaused`/`setTurnMode` setters, so folding it here is the cleanest option
+ * — no separate single-field shard needed). The `game:state-update` message
+ * type + its client handler remain for 31l back-compat; the host just no longer
+ * originates that pause/mode broadcast.
  *
  * Round-trip: `structuralDiff` produces a per-key object patch over the bundle
  * — `entries` (an array of `{ id }` records) gets an order-exact array patch,
- * `round`/`currentIndex`/`turnMode` get primitive replaces, and a non-null ⇄
- * `null` initiative transition falls through to a whole-value replace. Apply
- * writes all three keys back via `setState`, mirroring conditions-shard (no
- * single setter sets all three).
+ * `round`/`currentIndex`/`turnMode`/`isPaused` get primitive replaces, and a
+ * non-null ⇄ `null` initiative transition falls through to a whole-value
+ * replace. Apply writes all keys back via `setState`, mirroring conditions-shard
+ * (no single setter sets all of them).
  *
  * Like conditions-shard, the game store is a plain zustand store (no
  * `subscribeWithSelector`), so `onChange` subscribes to the whole store and
- * fires only when one of the three watched references/values changes —
- * mirroring how `startGameSync` watched them.
+ * fires only when one of the watched references/values changes — mirroring how
+ * `startGameSync` watched them.
  */
 interface InitiativeShardValue {
   initiative: InitiativeState | null
   round: number
   turnMode: 'initiative' | 'free'
+  isPaused: boolean
 }
 
 function readValue(): InitiativeShardValue {
   const s = useGameStore.getState()
-  return { initiative: s.initiative, round: s.round, turnMode: s.turnMode }
+  return { initiative: s.initiative, round: s.round, turnMode: s.turnMode, isPaused: s.isPaused }
 }
 
 const initiativeShard: Shard<InitiativeShardValue> = {
@@ -54,12 +66,19 @@ const initiativeShard: Shard<InitiativeShardValue> = {
     let prevInitiative = useGameStore.getState().initiative
     let prevRound = useGameStore.getState().round
     let prevTurnMode = useGameStore.getState().turnMode
+    let prevIsPaused = useGameStore.getState().isPaused
     return useGameStore.subscribe((state) => {
-      if (state.initiative !== prevInitiative || state.round !== prevRound || state.turnMode !== prevTurnMode) {
+      if (
+        state.initiative !== prevInitiative ||
+        state.round !== prevRound ||
+        state.turnMode !== prevTurnMode ||
+        state.isPaused !== prevIsPaused
+      ) {
         prevInitiative = state.initiative
         prevRound = state.round
         prevTurnMode = state.turnMode
-        cb({ initiative: state.initiative, round: state.round, turnMode: state.turnMode })
+        prevIsPaused = state.isPaused
+        cb({ initiative: state.initiative, round: state.round, turnMode: state.turnMode, isPaused: state.isPaused })
       }
     })
   },
@@ -69,7 +88,8 @@ const initiativeShard: Shard<InitiativeShardValue> = {
     useGameStore.setState({
       initiative: next.initiative,
       round: next.round,
-      turnMode: next.turnMode
+      turnMode: next.turnMode,
+      isPaused: next.isPaused
     })
   }
 }
