@@ -28,7 +28,8 @@ function makePeer(peerId: string, isHost = false): PeerInfo {
  */
 function makeBoxShard<T>(
   name: string,
-  initial: T
+  initial: T,
+  permissionFilter?: (value: T, recipientClientId: string) => T
 ): {
   shard: Shard<T>
   set: (next: T) => void
@@ -48,7 +49,8 @@ function makeBoxShard<T>(
     diff: (prev, next) => structuralDiff(prev, next),
     applyDelta: (delta) => {
       value = applyDelta(value, delta)
-    }
+    },
+    ...(permissionFilter ? { permissionFilter } : {})
   }
   return {
     shard,
@@ -169,5 +171,165 @@ describe('createShardBroadcaster (Phase 31c)', () => {
     set({ hp: 5 })
 
     expect(syncDeltas(recv).filter((d) => d.shard === 'bc-stop')).toHaveLength(0)
+  })
+})
+
+describe('createShardBroadcaster permission filtering (Phase 31j)', () => {
+  it('ships a per-recipient filtered replace to each peer on a filtered shard', () => {
+    // Filter strips `secret` for the DM-less player ('c-bob') but keeps it for
+    // the privileged client ('c-alice').
+    const { shard, set } = makeBoxShard<{ hp: number; secret?: string }>(
+      'bc-filtered',
+      { hp: 10, secret: 'top' },
+      (value, clientId) => (clientId === 'c-alice' ? value : { hp: value.hp })
+    )
+    registerShard(shard)
+
+    const hub = new MemoryHub()
+    const host = new MemoryTransport(hub, makePeer('host', true))
+    const alice = new MemoryTransport(hub, makePeer('alice'))
+    const bob = new MemoryTransport(hub, makePeer('bob'))
+    const recvAlice = vi.fn()
+    const recvBob = vi.fn()
+    alice.onMessage(recvAlice)
+    bob.onMessage(recvBob)
+
+    const broadcaster = createShardBroadcaster(host, {
+      getRecipients: () => [
+        { peerId: 'alice', clientId: 'c-alice' },
+        { peerId: 'bob', clientId: 'c-bob' }
+      ]
+    })
+    broadcaster.start()
+
+    set({ hp: 9, secret: 'newtop' })
+
+    const aliceDeltas = syncDeltas(recvAlice).filter((d) => d.shard === 'bc-filtered')
+    const bobDeltas = syncDeltas(recvBob).filter((d) => d.shard === 'bc-filtered')
+
+    expect(aliceDeltas).toHaveLength(1)
+    expect(bobDeltas).toHaveLength(1)
+    // Both are full replaces sharing one sequence.
+    expect(aliceDeltas[0].delta.kind).toBe('replace')
+    expect(bobDeltas[0].delta.kind).toBe('replace')
+    expect(aliceDeltas[0].delta.sequence).toBe(1)
+    expect(bobDeltas[0].delta.sequence).toBe(1)
+    // Alice sees the secret; Bob's is stripped.
+    expect(aliceDeltas[0].delta.payload).toEqual({ hp: 9, secret: 'newtop' })
+    expect(bobDeltas[0].delta.payload).toEqual({ hp: 9 })
+
+    broadcaster.stop()
+  })
+
+  it('bumps the shared sequence once per change across recipients', () => {
+    const { shard, set } = makeBoxShard<{ n: number; secret?: string }>(
+      'bc-filtered-seq',
+      { n: 0, secret: 's' },
+      (value, clientId) => (clientId === 'c-alice' ? value : { n: value.n })
+    )
+    registerShard(shard)
+
+    const hub = new MemoryHub()
+    const host = new MemoryTransport(hub, makePeer('host', true))
+    const alice = new MemoryTransport(hub, makePeer('alice'))
+    const bob = new MemoryTransport(hub, makePeer('bob'))
+    const recvAlice = vi.fn()
+    const recvBob = vi.fn()
+    alice.onMessage(recvAlice)
+    bob.onMessage(recvBob)
+
+    const broadcaster = createShardBroadcaster(host, {
+      getRecipients: () => [
+        { peerId: 'alice', clientId: 'c-alice' },
+        { peerId: 'bob', clientId: 'c-bob' }
+      ]
+    })
+    broadcaster.start()
+
+    set({ n: 1, secret: 's' })
+    set({ n: 2, secret: 's' })
+
+    const aliceSeqs = syncDeltas(recvAlice)
+      .filter((d) => d.shard === 'bc-filtered-seq')
+      .map((d) => d.delta.sequence)
+    const bobSeqs = syncDeltas(recvBob)
+      .filter((d) => d.shard === 'bc-filtered-seq')
+      .map((d) => d.delta.sequence)
+
+    expect(aliceSeqs).toEqual([1, 2])
+    expect(bobSeqs).toEqual([1, 2])
+
+    broadcaster.stop()
+  })
+
+  it('answers a resync-request with a filtered replace for the requester', () => {
+    const { shard, set } = makeBoxShard<{ hp: number; secret?: string }>(
+      'bc-filtered-resync',
+      { hp: 10, secret: 'top' },
+      (value, clientId) => (clientId === 'c-alice' ? value : { hp: value.hp })
+    )
+    registerShard(shard)
+
+    const hub = new MemoryHub()
+    const host = new MemoryTransport(hub, makePeer('host', true))
+    const bob = new MemoryTransport(hub, makePeer('bob'))
+    const recvBob = vi.fn()
+    bob.onMessage(recvBob)
+
+    const broadcaster = createShardBroadcaster(host, {
+      getRecipients: () => [
+        { peerId: 'alice', clientId: 'c-alice' },
+        { peerId: 'bob', clientId: 'c-bob' }
+      ]
+    })
+    broadcaster.start()
+
+    set({ hp: 8, secret: 'top' }) // seq 1
+
+    bob.send('host', {
+      type: 'sync:resync-request',
+      payload: { shard: 'bc-filtered-resync' },
+      senderId: 'bob',
+      senderName: 'bob',
+      timestamp: 0,
+      sequence: 0
+    })
+
+    const replies = syncDeltas(recvBob).filter((d) => d.shard === 'bc-filtered-resync' && d.delta.kind === 'replace')
+    // The replace reply (resync) is the last entry; bob never sees the secret.
+    const resyncReply = replies[replies.length - 1]
+    expect(resyncReply.delta.payload).toEqual({ hp: 8 })
+    expect(resyncReply.delta.sequence).toBe(1)
+
+    broadcaster.stop()
+  })
+
+  it('falls back to an unfiltered broadcast when no getRecipients is supplied', () => {
+    // Filtered shard but no recipient list → behavior-preserving: structural
+    // diff broadcast to all, no filtering applied.
+    const { shard, set } = makeBoxShard<{ hp: number; secret?: string }>(
+      'bc-filtered-nofallback',
+      { hp: 10, secret: 'top' },
+      (value) => ({ hp: value.hp })
+    )
+    registerShard(shard)
+
+    const hub = new MemoryHub()
+    const host = new MemoryTransport(hub, makePeer('host', true))
+    const client = new MemoryTransport(hub, makePeer('client'))
+    const recv = vi.fn()
+    client.onMessage(recv)
+
+    const broadcaster = createShardBroadcaster(host)
+    broadcaster.start()
+
+    set({ hp: 9, secret: 'top' })
+
+    const deltas = syncDeltas(recv).filter((d) => d.shard === 'bc-filtered-nofallback')
+    expect(deltas).toHaveLength(1)
+    // Structural diff (patch), not a per-recipient replace — secret survives.
+    expect(deltas[0].delta.kind).toBe('patch')
+
+    broadcaster.stop()
   })
 })

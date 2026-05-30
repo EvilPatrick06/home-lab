@@ -107,7 +107,12 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
       // clients via the shard broadcaster (`sync:delta`) instead of the bespoke
       // per-change broadcasts in startGameSync. It subscribes to every shard
       // registered by the barrel import above.
-      const shardBroadcaster = createShardBroadcaster(createP2PTransport())
+      const shardBroadcaster = createShardBroadcaster(createP2PTransport(), {
+        // Phase 31j — feeds the per-recipient permission filter for filtered
+        // shards. No-op for unfiltered shards (conditions/initiative), which
+        // keep broadcasting the structural diff to all.
+        getRecipients: () => getConnectedPeers().map((p) => ({ peerId: p.peerId, clientId: p.clientId }))
+      })
       shardBroadcaster.start()
       listenerCleanups.push(() => shardBroadcaster.stop())
       listenerCleanups.push(

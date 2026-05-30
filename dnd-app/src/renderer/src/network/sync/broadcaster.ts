@@ -14,7 +14,29 @@ import type { Delta } from './shard'
  *
  * `stop()` unsubscribes everything. Additive in 31c: nothing constructs this
  * until the host wires it in 31e.
+ *
+ * Phase 31j — permission-aware per-recipient sync. When a shard declares a
+ * `permissionFilter` AND the host supplies `opts.getRecipients`, the broadcaster
+ * abandons the unfiltered structural-diff broadcast for that shard and instead
+ * ships a per-recipient full `replace` carrying `permissionFilter(next, clientId)`
+ * to each peer. A single shared sequence is bumped once per change (so the
+ * applier's monotonic check still holds across recipients). Shards without a
+ * filter — or any shard when no recipient list is available — keep the original
+ * structural-diff broadcast verbatim. Additive: nothing filters until a shard
+ * registers a `permissionFilter` (conditions/initiative don't yet).
  */
+
+/** A sync recipient: the wire `peerId` to send to + the stable `clientId` the
+ * shard's `permissionFilter` keys on. */
+export interface ShardRecipient {
+  peerId: string
+  clientId: string
+}
+
+export interface ShardBroadcasterOptions {
+  /** Live connected-peer list, used only when a shard has a `permissionFilter`. */
+  getRecipients?: () => ShardRecipient[]
+}
 
 /** Build a wire envelope. Sync deltas carry their ordering in `delta.sequence`;
  * the envelope `sequence`/`timestamp`/`sender*` fields are unused by the sync
@@ -23,7 +45,10 @@ function envelope(type: NetworkMessage['type'], payload: unknown): NetworkMessag
   return { type, payload, senderId: '', senderName: '', timestamp: 0, sequence: 0 }
 }
 
-export function createShardBroadcaster(transport: TransportAdapter): { start: () => void; stop: () => void } {
+export function createShardBroadcaster(
+  transport: TransportAdapter,
+  opts?: ShardBroadcasterOptions
+): { start: () => void; stop: () => void } {
   const unsubscribes: Array<() => void> = []
   /** Live monotonic sequence per shard name; reused by the resync reply. */
   const seqByShard = new Map<string, number>()
@@ -34,16 +59,28 @@ export function createShardBroadcaster(transport: TransportAdapter): { start: ()
       seqByShard.set(shard.name, 0)
 
       const off = shard.onChange((next) => {
+        const seq = (seqByShard.get(shard.name) ?? 0) + 1
+
+        // Permission-aware path: a filtered shard with a recipient list ships a
+        // per-recipient full `replace`. Bump the shared sequence once so the
+        // applier's monotonic check holds identically across every recipient.
+        if (shard.permissionFilter && opts?.getRecipients) {
+          seqByShard.set(shard.name, seq)
+          prev = next
+          for (const recipient of opts.getRecipients()) {
+            const filtered = shard.permissionFilter(next, recipient.clientId)
+            const delta: Delta = { kind: 'replace', payload: filtered, sequence: seq }
+            transport.send(recipient.peerId, envelope('sync:delta', { shard: shard.name, delta }))
+          }
+          return
+        }
+
+        // Unfiltered path (conditions/initiative today): structural diff to all.
         const delta = shard.diff(prev, next)
         prev = next
         if (!delta) return
-        const seq = (seqByShard.get(shard.name) ?? 0) + 1
         seqByShard.set(shard.name, seq)
         delta.sequence = seq
-        // TODO(31j): when `shard.permissionFilter` is set, ship a per-recipient
-        // filtered value using the GameAuthority peer list instead of an
-        // unfiltered broadcast. Broadcast can't per-peer-filter, so for now the
-        // common (filter-less) case broadcasts the raw delta to everyone.
         transport.broadcast(envelope('sync:delta', { shard: shard.name, delta }))
       })
       unsubscribes.push(off)
@@ -55,7 +92,22 @@ export function createShardBroadcaster(transport: TransportAdapter): { start: ()
       const { shard: shardName } = message.payload as { shard: string }
       const shard = getShards().find((s) => s.name === shardName)
       if (!shard) return
-      const delta: Delta = { kind: 'replace', payload: shard.read(), sequence: seqByShard.get(shardName) ?? 0 }
+      const sequence = seqByShard.get(shardName) ?? 0
+
+      // Filtered shard: reply with the requester's filtered value. Match the
+      // requesting peer's clientId from the recipient list by its peerId.
+      if (shard.permissionFilter && opts?.getRecipients) {
+        const requester = opts.getRecipients().find((r) => r.peerId === fromPeerId)
+        if (requester) {
+          const filtered = shard.permissionFilter(shard.read(), requester.clientId)
+          const delta: Delta = { kind: 'replace', payload: filtered, sequence }
+          transport.send(fromPeerId, envelope('sync:delta', { shard: shardName, delta }))
+          return
+        }
+        // Unknown requester (not in the peer list): fall through to unfiltered.
+      }
+
+      const delta: Delta = { kind: 'replace', payload: shard.read(), sequence }
       transport.send(fromPeerId, envelope('sync:delta', { shard: shardName, delta }))
     })
     unsubscribes.push(offMsg)
