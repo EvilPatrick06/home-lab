@@ -54,9 +54,9 @@ const MODAL_SHELL_STYLE = {
 
 function ModalShell({ children, onClose }) {
   return (
-    <div className="fixed inset-0 bg-black/85 backdrop-blur z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div
-        className="rounded max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col relative"
+        className="rounded-sm max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col relative"
         style={MODAL_SHELL_STYLE}
       >
         {children}
@@ -75,7 +75,7 @@ function OrgPicker({ orgs, onPick, onClose }) {
         <button
           onClick={onClose}
           aria-label="Close Spell of Tome Creation"
-          className="p-2 hover:bg-amber-900/30 rounded text-amber-300"
+          className="p-2 hover:bg-amber-900/30 rounded-sm text-amber-300"
         >
           <X className="w-5 h-5" aria-hidden="true" />
         </button>
@@ -95,7 +95,7 @@ function OrgPicker({ orgs, onPick, onClose }) {
             <button
               key={org.id}
               onClick={() => onPick(org.id)}
-              className="w-full text-left p-3 rounded transition border-2 border-amber-700/50 hover:border-amber-400 hover:bg-amber-900/20 text-amber-100 italic"
+              className="w-full text-left p-3 rounded-sm transition border-2 border-amber-700/50 hover:border-amber-400 hover:bg-amber-900/20 text-amber-100 italic"
               style={{ background: 'rgba(10, 6, 4, 0.5)' }}
             >
               <div className="font-bold flex items-center gap-2">
@@ -110,11 +110,11 @@ function OrgPicker({ orgs, onPick, onClose }) {
         {/* Phase 38h round-3 suggestion: "View schema" disclosure for power
             users who want to author tomes from scratch without round-tripping
             through an LLM. Collapsed by default. */}
-        <details className="mt-4 p-3 rounded border border-amber-700/40" style={{ background: 'rgba(10, 6, 4, 0.4)' }}>
+        <details className="mt-4 p-3 rounded-sm border border-amber-700/40" style={{ background: 'rgba(10, 6, 4, 0.4)' }}>
           <summary className="cursor-pointer text-xs italic text-amber-300 hover:text-amber-200">
             ⓘ View tome JSON schema (for hand-authoring)
           </summary>
-          <pre className="mt-3 text-[10px] overflow-x-auto whitespace-pre rounded p-3" style={{
+          <pre className="mt-3 text-[10px] overflow-x-auto whitespace-pre rounded-sm p-3" style={{
             background: 'rgba(0,0,0,0.45)',
             border: '1px solid rgba(180, 83, 9, 0.4)',
             color: '#fde68a',
@@ -173,7 +173,7 @@ function PromptViewer({ org, examTarget, setExamTarget, finalPrompt, copied, onC
         <button
           onClick={onBack}
           aria-label="Back to spell picker"
-          className="p-2 hover:bg-amber-900/30 rounded text-amber-300"
+          className="p-2 hover:bg-amber-900/30 rounded-sm text-amber-300"
         >
           <ArrowLeft className="w-5 h-5" aria-hidden="true" />
         </button>
@@ -184,7 +184,7 @@ function PromptViewer({ org, examTarget, setExamTarget, finalPrompt, copied, onC
         <button
           onClick={onClose}
           aria-label="Close Spell of Tome Creation"
-          className="p-2 hover:bg-amber-900/30 rounded text-amber-300"
+          className="p-2 hover:bg-amber-900/30 rounded-sm text-amber-300"
         >
           <X className="w-5 h-5" aria-hidden="true" />
         </button>
@@ -200,7 +200,7 @@ function PromptViewer({ org, examTarget, setExamTarget, finalPrompt, copied, onC
             onChange={(e) => setExamTarget(e.target.value)}
             placeholder={org.examTargetPlaceholder}
             maxLength={250}
-            className="w-full p-2 rounded border-2 focus:outline-none italic text-amber-50"
+            className="w-full p-2 rounded-sm border-2 focus:outline-hidden italic text-amber-50"
             style={{ background: 'rgba(10, 6, 4, 0.7)', borderColor: 'rgba(120, 53, 15, 0.7)' }}
           />
         </label>
@@ -209,7 +209,7 @@ function PromptViewer({ org, examTarget, setExamTarget, finalPrompt, copied, onC
         </p>
         <pre
           data-testid="prompt-preview"
-          className="rounded p-4 text-xs whitespace-pre-wrap overflow-auto max-h-[40vh]"
+          className="rounded-sm p-4 text-xs whitespace-pre-wrap overflow-auto max-h-[40vh]"
           style={{
             background: 'rgba(10, 6, 4, 0.7)',
             border: '1px solid rgba(120, 53, 15, 0.5)',
@@ -223,7 +223,7 @@ function PromptViewer({ org, examTarget, setExamTarget, finalPrompt, copied, onC
       <div className="p-4 border-t border-amber-700/50 flex gap-2">
         <button
           onClick={onCopy}
-          className="flex-1 py-3 font-bold rounded flex items-center justify-center gap-2 text-amber-950 border-2 border-amber-300 italic"
+          className="flex-1 py-3 font-bold rounded-sm flex items-center justify-center gap-2 text-amber-950 border-2 border-amber-300 italic"
           style={{
             background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)',
             boxShadow: '0 0 20px rgba(245, 158, 11, 0.5)',

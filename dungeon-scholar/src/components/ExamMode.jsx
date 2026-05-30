@@ -250,7 +250,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
     const past = Array.isArray(tomeProgress?.practiceExams) ? tomeProgress.practiceExams : [];
     return (
       <div className="space-y-4 max-w-3xl mx-auto">
-        <div className="flex items-center gap-3 p-5 rounded relative" style={{
+        <div className="flex items-center gap-3 p-5 rounded-sm relative" style={{
           background: 'linear-gradient(135deg, rgba(67, 56, 202, 0.5) 0%, rgba(10, 6, 4, 0.95) 100%)',
           border: '3px double rgba(129, 140, 248, 0.6)',
           boxShadow: '0 0 24px rgba(129, 140, 248, 0.2), inset 0 0 24px rgba(0,0,0,0.5)',
@@ -260,13 +260,13 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
             <h2 className="text-2xl font-bold text-indigo-200 italic" style={{ textShadow: '0 0 12px rgba(129, 140, 248, 0.4)' }}>The Trial of Hours</h2>
             <div className="text-xs italic text-indigo-400 tracking-[0.2em]">⏳ Timed practice exam ⏳</div>
           </div>
-          <button onClick={onExit} className="px-3 py-2 rounded border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
+          <button onClick={onExit} className="px-3 py-2 rounded-sm border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
             <ArrowLeft className="w-4 h-4 inline mr-1" /> Home
           </button>
         </div>
 
         {quizPool.length < 5 ? (
-          <div className="p-4 rounded text-amber-200 italic flex items-start gap-2" style={{ background: 'rgba(127, 29, 29, 0.4)', border: '2px solid #ef4444' }}>
+          <div className="p-4 rounded-sm text-amber-200 italic flex items-start gap-2" style={{ background: 'rgba(127, 29, 29, 0.4)', border: '2px solid #ef4444' }}>
             <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0 text-red-300" />
             <div>This tome has only {quizPool.length} riddle{quizPool.length === 1 ? '' : 's'} — too few for a practice exam. Regenerate the tome with the updated prompt to populate the deck.</div>
           </div>
@@ -283,7 +283,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
                   <button key={preset.id}
                     onClick={() => !disabled && startExam({ ...preset, count: effective })}
                     disabled={disabled}
-                    className="p-4 rounded text-left disabled:opacity-40 disabled:cursor-not-allowed transition hover:brightness-110"
+                    className="p-4 rounded-sm text-left disabled:opacity-40 disabled:cursor-not-allowed transition hover:brightness-110"
                     style={{
                       background: 'linear-gradient(135deg, rgba(67, 56, 202, 0.4) 0%, rgba(10, 6, 4, 0.95) 100%)',
                       border: '2px solid rgba(129, 140, 248, 0.5)',
@@ -303,14 +303,14 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
             </div>
 
             {past.length > 0 && (
-              <div className="p-4 rounded" style={{
+              <div className="p-4 rounded-sm" style={{
                 background: 'linear-gradient(135deg, rgba(120, 53, 15, 0.35) 0%, rgba(10, 6, 4, 0.9) 100%)',
                 border: '2px solid rgba(245, 158, 11, 0.4)',
               }}>
                 <div className="flex items-center gap-2 mb-3">
                   <Award className="w-4 h-4 text-amber-300" />
                   <h3 className="text-sm italic font-bold text-amber-200 tracking-wider">Past Trials</h3>
-                  <div className="flex-1 h-px bg-gradient-to-r from-amber-700/40 to-transparent" />
+                  <div className="flex-1 h-px bg-linear-to-r from-amber-700/40 to-transparent" />
                   <span className="text-[10px] italic text-amber-700">last {Math.min(5, past.length)} of {past.length}</span>
                 </div>
                 <div className="space-y-1 text-xs italic">
@@ -341,7 +341,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
                         type="button"
                         onClick={() => setSelectedTrial({ ...rec, isAbandoned })}
                         title="Click for breakdown"
-                        className={`w-full text-left flex items-center gap-3 text-amber-100 rounded px-1.5 py-1 hover:bg-amber-900/30 focus:bg-amber-900/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 ${isAbandoned ? 'opacity-60 italic' : ''}`}
+                        className={`w-full text-left flex items-center gap-3 text-amber-100 rounded-sm px-1.5 py-1 hover:bg-amber-900/30 focus:bg-amber-900/40 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-400 ${isAbandoned ? 'opacity-60 italic' : ''}`}
                       >
                         <span className="text-amber-700 tabular-nums">{rec.startedAt ? new Date(rec.startedAt).toLocaleDateString() : '—'}</span>
                         <span>{rec.totalCount} riddles · {Math.floor((rec.durationSec || 0) / 60)}m {(rec.durationSec || 0) % 60}s</span>
@@ -356,7 +356,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
                         </span>
                         {rec.status === 'timeout' && <span className="text-[10px] text-red-300 italic">timed out</span>}
                         {isAbandoned && (
-                          <span className="text-[10px] px-1.5 py-0.5 rounded not-italic" style={{
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-sm not-italic" style={{
                             background: 'rgba(63, 63, 70, 0.4)', border: '1px solid rgba(120, 113, 108, 0.55)', color: 'rgba(214, 211, 209, 0.85)',
                           }}>abandoned</span>
                         )}
@@ -388,7 +388,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
 
     return (
       <div className="space-y-3 max-w-3xl mx-auto">
-        <div className="p-3 rounded sticky top-0 z-20 backdrop-blur" style={{
+        <div className="p-3 rounded-sm sticky top-0 z-20 backdrop-blur-sm" style={{
           background: 'linear-gradient(135deg, rgba(67, 56, 202, 0.65) 0%, rgba(10, 6, 4, 0.97) 100%)',
           border: '2px solid rgba(129, 140, 248, 0.55)',
         }}>
@@ -401,12 +401,12 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
               Riddle <span className="font-bold tabular-nums">{currentIdx + 1}</span> of <span className="font-bold tabular-nums">{sample.length}</span> · {answeredCount} answered
             </div>
             <button onClick={() => setShowSubmitConfirm(true)}
-              className="px-3 py-1.5 rounded text-xs font-bold italic border-2 border-amber-400 text-amber-100"
+              className="px-3 py-1.5 rounded-sm text-xs font-bold italic border-2 border-amber-400 text-amber-100"
               style={{ background: 'rgba(120, 53, 15, 0.6)' }}>
               Submit Exam
             </button>
           </div>
-          <div className="h-1.5 rounded overflow-hidden mt-2" style={{ background: 'rgba(0,0,0,0.45)' }}>
+          <div className="h-1.5 rounded-sm overflow-hidden mt-2" style={{ background: 'rgba(0,0,0,0.45)' }}>
             <div className="h-full transition-all" style={{
               width: `${(answeredCount / sample.length) * 100}%`,
               background: 'linear-gradient(to right, #6366f1, #a855f7)',
@@ -414,7 +414,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
           </div>
         </div>
 
-        <div className="p-5 rounded" style={{
+        <div className="p-5 rounded-sm" style={{
           background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.85) 0%, rgba(15, 6, 20, 0.95) 100%)',
           border: '3px double rgba(126, 34, 206, 0.6)',
           boxShadow: '0 0 24px rgba(168, 85, 247, 0.18), inset 0 0 24px rgba(0,0,0,0.5)',
@@ -431,33 +431,33 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
             return (
               <div className="flex items-center gap-2 flex-wrap mb-3 pb-2 border-b border-purple-700/30">
                 {q.domain ? (
-                  <span className="text-[10px] italic uppercase tracking-wider px-2 py-0.5 rounded font-bold" style={{
+                  <span className="text-[10px] italic uppercase tracking-wider px-2 py-0.5 rounded-sm font-bold" style={{
                     background: 'rgba(67, 56, 202, 0.35)', border: '1px solid rgba(129, 140, 248, 0.55)', color: '#c7d2fe',
                   }}>{q.domain}</span>
                 ) : (
-                  <span className="text-[10px] italic uppercase tracking-wider px-2 py-0.5 rounded" style={{
+                  <span className="text-[10px] italic uppercase tracking-wider px-2 py-0.5 rounded-sm" style={{
                     background: 'rgba(63, 63, 70, 0.25)', border: '1px dashed rgba(120, 113, 108, 0.45)', color: 'rgba(214, 211, 209, 0.7)',
                   }} title="No domain tagged on this riddle">domain —</span>
                 )}
                 {hasDifficulty ? (
-                  <span className="flex items-center gap-1 px-2 py-0.5 rounded" style={{ background: 'rgba(120, 53, 15, 0.35)', border: '1px solid rgba(245, 158, 11, 0.5)' }}>
+                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-sm" style={{ background: 'rgba(120, 53, 15, 0.35)', border: '1px solid rgba(245, 158, 11, 0.5)' }}>
                     <span className="text-xs italic tabular-nums" title={`Difficulty ${Math.min(5, Math.max(1, Math.round(q.difficulty)))}/5`}>
                       <span style={{ color: '#fbbf24' }}>{'▰'.repeat(Math.min(5, Math.max(1, Math.round(q.difficulty))))}</span>
                       <span style={{ color: 'rgba(120, 53, 15, 0.7)' }}>{'▱'.repeat(5 - Math.min(5, Math.max(1, Math.round(q.difficulty))))}</span>
                     </span>
                   </span>
                 ) : (!hideOptionalChips && (
-                  <span className="flex items-center gap-1 px-2 py-0.5 rounded" style={{ background: 'rgba(63, 63, 70, 0.2)', border: '1px dashed rgba(120, 113, 108, 0.4)', color: 'rgba(214, 211, 209, 0.7)' }} title="Per-riddle difficulty not rated by the tome author">
+                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-sm" style={{ background: 'rgba(63, 63, 70, 0.2)', border: '1px dashed rgba(120, 113, 108, 0.4)', color: 'rgba(214, 211, 209, 0.7)' }} title="Per-riddle difficulty not rated by the tome author">
                     <span className="text-xs tabular-nums">▱▱▱▱▱</span>
                     <span className="text-[9px] italic">not rated</span>
                   </span>
                 ))}
                 {hasBloom ? (
-                  <span className="text-[10px] uppercase tracking-wider italic px-2 py-0.5 rounded font-bold" style={{
+                  <span className="text-[10px] uppercase tracking-wider italic px-2 py-0.5 rounded-sm font-bold" style={{
                     background: 'rgba(6, 78, 59, 0.35)', border: '1px solid rgba(16, 185, 129, 0.5)', color: '#a7f3d0',
                   }}>{q.bloomLevel}</span>
                 ) : (!hideOptionalChips && (
-                  <span className="text-[10px] uppercase tracking-wider italic px-2 py-0.5 rounded" style={{
+                  <span className="text-[10px] uppercase tracking-wider italic px-2 py-0.5 rounded-sm" style={{
                     background: 'rgba(63, 63, 70, 0.2)', border: '1px dashed rgba(120, 113, 108, 0.4)', color: 'rgba(214, 211, 209, 0.7)',
                   }} title="Bloom's-level not tagged on this riddle">bloom —</span>
                 ))}
@@ -480,7 +480,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
                 const picked = a === i;
                 return (
                   <button key={i} onClick={() => setAnswerAt(currentIdx, i)}
-                    className="w-full text-left p-3 rounded border-2 italic text-amber-50 transition"
+                    className="w-full text-left p-3 rounded-sm border-2 italic text-amber-50 transition"
                     style={{
                       background: picked ? 'rgba(126, 34, 206, 0.55)' : 'rgba(31, 12, 41, 0.6)',
                       borderColor: picked ? 'rgba(168, 85, 247, 0.9)' : 'rgba(126, 34, 206, 0.5)',
@@ -496,7 +496,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
           {isTF && (
             <div className="grid grid-cols-2 gap-3">
               <button onClick={() => setAnswerAt(currentIdx, true)}
-                className="p-4 rounded font-bold border-2 italic"
+                className="p-4 rounded-sm font-bold border-2 italic"
                 style={{
                   borderColor: a === true ? '#10b981' : 'rgba(16, 185, 129, 0.5)',
                   background: a === true ? 'rgba(6, 78, 59, 0.7)' : 'rgba(6, 78, 59, 0.3)',
@@ -504,7 +504,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
                   boxShadow: a === true ? '0 0 12px rgba(16, 185, 129, 0.5)' : 'none',
                 }}>⚖ Verily True ⚖</button>
               <button onClick={() => setAnswerAt(currentIdx, false)}
-                className="p-4 rounded font-bold border-2 italic"
+                className="p-4 rounded-sm font-bold border-2 italic"
                 style={{
                   borderColor: a === false ? '#ef4444' : 'rgba(239, 68, 68, 0.5)',
                   background: a === false ? 'rgba(127, 29, 29, 0.7)' : 'rgba(127, 29, 29, 0.3)',
@@ -523,7 +523,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
                   setAnswerAt(currentIdx, e.target.value);
                 }}
                 placeholder="Inscribe thy answer..."
-                className="w-full p-3 rounded border-2 focus:outline-none italic text-amber-50"
+                className="w-full p-3 rounded-sm border-2 focus:outline-hidden italic text-amber-50"
                 style={{ background: 'rgba(31, 12, 41, 0.6)', borderColor: 'rgba(126, 34, 206, 0.5)' }}
                 autoFocus
               />
@@ -536,7 +536,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
 
         <div className="flex items-center gap-2">
           <button onClick={() => goTo(-1)} disabled={currentIdx === 0}
-            className="px-3 py-2 rounded text-sm font-bold italic border-2 border-amber-700 text-amber-200 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="px-3 py-2 rounded-sm text-sm font-bold italic border-2 border-amber-700 text-amber-200 disabled:opacity-40 disabled:cursor-not-allowed"
             style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
             <ArrowLeft className="w-4 h-4 inline mr-1" /> Prior
           </button>
@@ -544,15 +544,15 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
             ✦ Tap an option to lock thine answer — advance with Next. Thou may revisit prior riddles.
           </div>
           <button onClick={() => goTo(1)} disabled={currentIdx >= sample.length - 1}
-            className="px-3 py-2 rounded text-sm font-bold italic border-2 border-indigo-400 text-indigo-100 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="px-3 py-2 rounded-sm text-sm font-bold italic border-2 border-indigo-400 text-indigo-100 disabled:opacity-40 disabled:cursor-not-allowed"
             style={{ background: 'rgba(67, 56, 202, 0.55)' }}>
             Next <ArrowRight className="w-4 h-4 inline ml-1" />
           </button>
         </div>
 
         {showSubmitConfirm && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-            <div className="max-w-md rounded p-5" style={{
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4">
+            <div className="max-w-md rounded-sm p-5" style={{
               background: 'linear-gradient(135deg, rgba(67, 56, 202, 0.75) 0%, rgba(10, 6, 4, 0.97) 100%)',
               border: '3px solid rgba(129, 140, 248, 0.7)',
               boxShadow: '0 0 30px rgba(129, 140, 248, 0.3)',
@@ -566,12 +566,12 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
               </p>
               <div className="flex gap-2">
                 <button onClick={() => setShowSubmitConfirm(false)}
-                  className="flex-1 px-3 py-2 rounded text-sm font-bold italic border-2 border-amber-700 text-amber-200"
+                  className="flex-1 px-3 py-2 rounded-sm text-sm font-bold italic border-2 border-amber-700 text-amber-200"
                   style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
                   Keep going
                 </button>
                 <button onClick={() => doSubmit('submitted')}
-                  className="flex-1 px-3 py-2 rounded text-sm font-bold italic border-2 border-emerald-400 text-emerald-100"
+                  className="flex-1 px-3 py-2 rounded-sm text-sm font-bold italic border-2 border-emerald-400 text-emerald-100"
                   style={{ background: 'rgba(6, 78, 59, 0.7)' }}>
                   Submit
                 </button>
@@ -598,7 +598,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
 
     return (
       <div className="space-y-4 max-w-3xl mx-auto">
-        <div className="p-5 rounded text-center" style={{
+        <div className="p-5 rounded-sm text-center" style={{
           background: 'linear-gradient(135deg, rgba(67, 56, 202, 0.55) 0%, rgba(10, 6, 4, 0.96) 100%)',
           border: '3px double rgba(129, 140, 248, 0.65)',
           boxShadow: '0 0 30px rgba(129, 140, 248, 0.25), inset 0 0 25px rgba(0,0,0,0.5)',
@@ -614,7 +614,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
           </div>
         </div>
 
-        <div className="p-4 rounded" style={{
+        <div className="p-4 rounded-sm" style={{
           background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.45) 0%, rgba(10, 6, 4, 0.95) 100%)',
           border: '2px solid rgba(16, 185, 129, 0.45)',
         }}>
@@ -626,14 +626,14 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
                 : row.pct >= 55 ? { bg: 'rgba(245, 158, 11, 0.18)', border: 'rgba(245, 158, 11, 0.55)', text: '#fde68a' }
                 : { bg: 'rgba(239, 68, 68, 0.22)', border: '#ef4444', text: '#fecaca' };
               return (
-                <div key={row.domain} className="p-2 rounded" style={{ background: c.bg, border: `1.5px solid ${c.border}` }}>
+                <div key={row.domain} className="p-2 rounded-sm" style={{ background: c.bg, border: `1.5px solid ${c.border}` }}>
                   <div className="flex items-baseline justify-between gap-2">
                     <div className="text-xs italic font-bold truncate" style={{ color: c.text }}>{row.domain}</div>
                     <div className="text-xs italic tabular-nums font-bold" style={{ color: c.text }}>
                       {row.correct}/{row.total} · {row.pct}%
                     </div>
                   </div>
-                  <div className="h-1.5 rounded overflow-hidden mt-1" style={{ background: 'rgba(0,0,0,0.45)' }}>
+                  <div className="h-1.5 rounded-sm overflow-hidden mt-1" style={{ background: 'rgba(0,0,0,0.45)' }}>
                     <div className="h-full transition-all" style={{ width: `${row.pct}%`, background: c.border }} />
                   </div>
                 </div>
@@ -643,7 +643,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
         </div>
 
         {wrongs.length > 0 && (
-          <details className="p-3 rounded" style={{
+          <details className="p-3 rounded-sm" style={{
             background: 'rgba(127, 29, 29, 0.35)',
             border: '2px solid rgba(239, 68, 68, 0.5)',
           }}>
@@ -662,7 +662,7 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
                   correctLabel = q.correctAnswer || (q.acceptedAnswers || [])[0] || '';
                 }
                 return (
-                  <div key={w.i} className="p-2 rounded" style={{ background: 'rgba(10, 6, 4, 0.5)', border: '1px solid rgba(239, 68, 68, 0.35)' }}>
+                  <div key={w.i} className="p-2 rounded-sm" style={{ background: 'rgba(10, 6, 4, 0.5)', border: '1px solid rgba(239, 68, 68, 0.35)' }}>
                     <div className="text-amber-100 mb-1">
                       <span className="text-amber-700 mr-1">Q{w.i + 1}.</span>
                       <RichContent as={null} text={q.question} />
@@ -685,12 +685,12 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
             setAnswers([]);
             setCurrentIdx(0);
             setPhase('setup');
-          }} className="flex-1 px-4 py-3 rounded text-sm font-bold italic border-2 border-indigo-400 text-indigo-100"
+          }} className="flex-1 px-4 py-3 rounded-sm text-sm font-bold italic border-2 border-indigo-400 text-indigo-100"
             style={{ background: 'rgba(67, 56, 202, 0.55)' }}>
             <Clock className="w-4 h-4 inline mr-1" /> Another Trial
           </button>
           <button onClick={onExit}
-            className="flex-1 px-4 py-3 rounded text-sm font-bold italic border-2 border-amber-700 text-amber-200"
+            className="flex-1 px-4 py-3 rounded-sm text-sm font-bold italic border-2 border-amber-700 text-amber-200"
             style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
             <ArrowLeft className="w-4 h-4 inline mr-1" /> Home
           </button>
@@ -738,7 +738,7 @@ function TrialDetailModal({ rec, onClose }) {
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="max-w-2xl w-full rounded p-5 overflow-y-auto"
+        className="max-w-2xl w-full rounded-sm p-5 overflow-y-auto"
         style={{
           background: 'linear-gradient(135deg, rgba(67, 56, 202, 0.65) 0%, rgba(10, 6, 4, 0.97) 100%)',
           border: '3px double rgba(129, 140, 248, 0.6)',
@@ -755,7 +755,7 @@ function TrialDetailModal({ rec, onClose }) {
           </div>
           <button
             onClick={onClose}
-            className="px-3 py-1.5 rounded text-xs font-bold italic border-2 border-amber-700 text-amber-200"
+            className="px-3 py-1.5 rounded-sm text-xs font-bold italic border-2 border-amber-700 text-amber-200"
             style={{ background: 'rgba(41, 24, 12, 0.7)' }}
             aria-label="Close trial breakdown"
           >
@@ -764,27 +764,27 @@ function TrialDetailModal({ rec, onClose }) {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4 text-xs italic">
-          <div className="p-2 rounded" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(129, 140, 248, 0.4)' }}>
+          <div className="p-2 rounded-sm" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(129, 140, 248, 0.4)' }}>
             <div className="text-[10px] uppercase tracking-wider text-indigo-400">Score</div>
             <div className="text-lg font-bold tabular-nums" style={{ color: statusColor }}>
               {rec?.isAbandoned ? '—' : `${rec?.scorePct ?? 0}%`}
             </div>
           </div>
-          <div className="p-2 rounded" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(129, 140, 248, 0.4)' }}>
+          <div className="p-2 rounded-sm" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(129, 140, 248, 0.4)' }}>
             <div className="text-[10px] uppercase tracking-wider text-indigo-400">Answered</div>
             <div className="text-lg font-bold tabular-nums text-amber-100">{rec?.answered ?? 0}/{rec?.totalCount ?? 0}</div>
           </div>
-          <div className="p-2 rounded" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(129, 140, 248, 0.4)' }}>
+          <div className="p-2 rounded-sm" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(129, 140, 248, 0.4)' }}>
             <div className="text-[10px] uppercase tracking-wider text-indigo-400">Correct</div>
             <div className="text-lg font-bold tabular-nums text-amber-100">{rec?.correct ?? 0}</div>
           </div>
-          <div className="p-2 rounded" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(129, 140, 248, 0.4)' }}>
+          <div className="p-2 rounded-sm" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(129, 140, 248, 0.4)' }}>
             <div className="text-[10px] uppercase tracking-wider text-indigo-400">Duration</div>
             <div className="text-lg font-bold tabular-nums text-amber-100">{durM}m {durS}s</div>
           </div>
         </div>
 
-        <div className="text-[11px] italic mb-3 px-2 py-1 rounded inline-block" style={{ background: 'rgba(0,0,0,0.4)', color: statusColor, border: `1px solid ${statusColor}` }}>
+        <div className="text-[11px] italic mb-3 px-2 py-1 rounded-sm inline-block" style={{ background: 'rgba(0,0,0,0.4)', color: statusColor, border: `1px solid ${statusColor}` }}>
           Status: {statusLabel}
         </div>
 
@@ -804,14 +804,14 @@ function TrialDetailModal({ rec, onClose }) {
                 const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
                 const color = pct >= 75 ? '#a7f3d0' : pct >= 60 ? '#fde68a' : '#fecaca';
                 return (
-                  <div key={d} className="p-2 rounded text-xs italic" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(129, 140, 248, 0.3)' }}>
+                  <div key={d} className="p-2 rounded-sm text-xs italic" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(129, 140, 248, 0.3)' }}>
                     <div className="flex items-baseline justify-between gap-2 mb-1">
                       <span className="text-amber-100 truncate">{d}</span>
                       <span className="tabular-nums font-bold" style={{ color }}>
                         {correct}/{total} · {pct}%
                       </span>
                     </div>
-                    <div className="h-1.5 rounded overflow-hidden" style={{ background: 'rgba(0,0,0,0.5)' }}>
+                    <div className="h-1.5 rounded-sm overflow-hidden" style={{ background: 'rgba(0,0,0,0.5)' }}>
                       <div className="h-full" style={{ width: `${pct}%`, background: color }} />
                     </div>
                     {answered < total && (

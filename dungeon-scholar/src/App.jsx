@@ -1068,7 +1068,7 @@ class ErrorBoundary extends React.Component {
     if (!this.state.hasError) return this.props.children;
     const message = (this.state.error && (this.state.error.message || String(this.state.error))) || 'Unknown error';
     return (
-      <div className="max-w-2xl mx-auto my-12 p-6 rounded relative" style={{
+      <div className="max-w-2xl mx-auto my-12 p-6 rounded-sm relative" style={{
         background: 'linear-gradient(135deg, rgba(80, 20, 20, 0.92) 0%, rgba(20, 6, 6, 0.97) 100%)',
         border: '3px double rgba(220, 38, 38, 0.7)',
         boxShadow: '0 0 40px rgba(220, 38, 38, 0.3)',
@@ -1081,17 +1081,17 @@ class ErrorBoundary extends React.Component {
         </p>
         <details className="mb-4 text-xs italic text-amber-100/70">
           <summary className="cursor-pointer hover:text-amber-100">Technical details</summary>
-          <pre className="mt-2 p-2 rounded overflow-x-auto text-[10px] whitespace-pre-wrap" style={{
+          <pre className="mt-2 p-2 rounded-sm overflow-x-auto text-[10px] whitespace-pre-wrap" style={{
             background: 'rgba(0, 0, 0, 0.4)', border: '1px solid rgba(120, 53, 15, 0.4)', color: '#fde68a',
           }}>{message}</pre>
         </details>
         <div className="flex gap-2 flex-wrap">
-          <button onClick={this.resetError} className="px-4 py-2 rounded text-sm font-bold italic border-2 border-amber-300 text-amber-950"
+          <button onClick={this.resetError} className="px-4 py-2 rounded-sm text-sm font-bold italic border-2 border-amber-300 text-amber-950"
             style={{ background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)' }}>
             ← Return to Hearth
           </button>
           <button onClick={() => { if (typeof window !== 'undefined') window.location.reload(); }}
-            className="px-4 py-2 rounded text-sm italic border-2 border-amber-700 text-amber-200"
+            className="px-4 py-2 rounded-sm text-sm italic border-2 border-amber-700 text-amber-200"
             style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
             Reload page
           </button>
@@ -3098,7 +3098,7 @@ export default function DungeonScholarApp() {
                 mapping is unambiguous for screen-reader + tooltip users. Counts read
                 from the same source-of-truth expressions the destination pages use. */}
             <div
-              className="px-3 py-2 rounded border-2 border-amber-700/60 flex items-center gap-2"
+              className="px-3 py-2 rounded-sm border-2 border-amber-700/60 flex items-center gap-2"
               style={{
                 background: 'linear-gradient(to bottom, rgba(120, 53, 15, 0.5), rgba(41, 24, 12, 0.85))',
                 boxShadow: '0 0 10px rgba(245, 158, 11, 0.15), inset 0 0 10px rgba(0,0,0,0.4)',
@@ -3111,7 +3111,7 @@ export default function DungeonScholarApp() {
             </div>
             <button
               onClick={() => setScreen('quests')}
-              className="p-2 hover:bg-purple-900/30 rounded transition border-2 border-purple-700/50 hover:border-purple-500 relative"
+              className="p-2 hover:bg-purple-900/30 rounded-sm transition border-2 border-purple-700/50 hover:border-purple-500 relative"
               title={claimableQuestCount > 0 ? `Quest Board (${claimableQuestCount} ready to claim)` : 'Quest Board'}
               aria-label={claimableQuestCount > 0 ? `Open Quest Board, ${claimableQuestCount} reward${claimableQuestCount === 1 ? '' : 's'} ready to claim` : 'Open Quest Board'}
             >
@@ -3124,7 +3124,7 @@ export default function DungeonScholarApp() {
             </button>
             <button
               onClick={() => setScreen('library')}
-              className="p-2 hover:bg-amber-900/30 rounded transition border-2 border-amber-700/50 hover:border-amber-500 relative"
+              className="p-2 hover:bg-amber-900/30 rounded-sm transition border-2 border-amber-700/50 hover:border-amber-500 relative"
               title={`Library (${playerState.library.length} tome${playerState.library.length === 1 ? '' : 's'})`}
               aria-label={`Open Library, ${playerState.library.length} tome${playerState.library.length === 1 ? '' : 's'}`}
             >
@@ -3143,7 +3143,7 @@ export default function DungeonScholarApp() {
               return (
                 <button
                   onClick={() => setScreen('inventory')}
-                  className="p-2 hover:bg-emerald-900/30 rounded transition border-2 border-emerald-700/50 hover:border-emerald-500 relative"
+                  className="p-2 hover:bg-emerald-900/30 rounded-sm transition border-2 border-emerald-700/50 hover:border-emerald-500 relative"
                   title={`The Hoard (${inventoryCount} item${inventoryCount === 1 ? '' : 's'} stowed)`}
                   aria-label={`Open The Hoard, ${inventoryCount} item${inventoryCount === 1 ? '' : 's'} stowed`}
                 >
@@ -3158,7 +3158,7 @@ export default function DungeonScholarApp() {
             })()}
             <button
               onClick={() => setScreen('shop')}
-              className="p-2 hover:bg-amber-900/30 rounded transition border-2 border-amber-700/50 hover:border-amber-500"
+              className="p-2 hover:bg-amber-900/30 rounded-sm transition border-2 border-amber-700/50 hover:border-amber-500"
               title="Marketplace"
               aria-label="Open Marketplace"
             >
@@ -3166,7 +3166,7 @@ export default function DungeonScholarApp() {
             </button>
             <button
               onClick={() => setShowAchievements(true)}
-              className="p-2 hover:bg-amber-900/30 rounded transition border-2 border-amber-700/50 hover:border-amber-500"
+              className="p-2 hover:bg-amber-900/30 rounded-sm transition border-2 border-amber-700/50 hover:border-amber-500"
               title="Hall of Glory"
               aria-label="Open Hall of Glory (achievements)"
             >
@@ -3233,7 +3233,7 @@ export default function DungeonScholarApp() {
                   if (screen === 'flashcards') clearSession(SESSION_KIND.FLASHCARDS);
                   setScreen('home');
                 }}
-                className="px-3 py-2 hover:bg-amber-900/30 rounded transition border-2 border-amber-700/50 hover:border-amber-500 flex items-center gap-2 text-amber-200"
+                className="px-3 py-2 hover:bg-amber-900/30 rounded-sm transition border-2 border-amber-700/50 hover:border-amber-500 flex items-center gap-2 text-amber-200"
               >
                 <Home className="w-4 h-4" /> Hearth
               </button>
@@ -3243,7 +3243,7 @@ export default function DungeonScholarApp() {
 
         <main id="main-content" tabIndex={-1}>
         <ErrorBoundary onReset={() => setScreen('home')}>
-        <div className="mb-6 p-4 rounded relative" style={{
+        <div className="mb-6 p-4 rounded-sm relative" style={{
           background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.9) 0%, rgba(20, 12, 6, 0.9) 100%)',
           border: '2px solid rgba(180, 83, 9, 0.5)',
           boxShadow: '0 0 30px rgba(180, 83, 9, 0.15), inset 0 0 20px rgba(0,0,0,0.5)',
@@ -3715,7 +3715,7 @@ function OrnatePanel({ children, color = 'amber', className = '', glow = true })
   };
   const c = colorMap[color] || colorMap.amber;
   return (
-    <div className={`relative rounded p-5 ${className}`} style={{
+    <div className={`relative rounded-sm p-5 ${className}`} style={{
       background: `linear-gradient(135deg, ${c.bgVar} 0%, var(--panel-end, rgba(10, 6, 4, 0.9)) 100%)`,
       border: `2px solid ${c.border}`,
       boxShadow: glow ? `0 0 25px ${c.glow}, inset 0 0 20px rgba(0,0,0,0.5)` : 'inset 0 0 20px rgba(0,0,0,0.5)',
@@ -3761,7 +3761,7 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
       {claimableQuestCount > 0 && (
         <button
           onClick={() => setScreen('quests')}
-          className="w-full p-4 rounded relative flex items-center justify-between transition hover:scale-[1.01] text-left"
+          className="w-full p-4 rounded-sm relative flex items-center justify-between transition hover:scale-[1.01] text-left"
           style={{
             background: 'linear-gradient(135deg, rgba(120, 53, 15, 0.6) 0%, rgba(41, 24, 12, 0.95) 100%)',
             border: '3px double rgba(245, 158, 11, 0.7)',
@@ -3783,7 +3783,7 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
         </button>
       )}
 
-      <div className="p-6 rounded relative" style={{
+      <div className="p-6 rounded-sm relative" style={{
         background: 'linear-gradient(135deg, rgba(120, 53, 15, 0.4) 0%, rgba(41, 24, 12, 0.9) 100%)',
         border: '3px double rgba(245, 158, 11, 0.6)',
         boxShadow: '0 0 30px rgba(245, 158, 11, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
@@ -3808,28 +3808,28 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
           <div className="flex gap-2 flex-wrap">
             <button
               onClick={onShowPrompt}
-              className="px-4 py-2 rounded text-sm border-2 border-amber-700 text-amber-200 flex items-center gap-2 hover:bg-amber-900/30 italic"
+              className="px-4 py-2 rounded-sm text-sm border-2 border-amber-700 text-amber-200 flex items-center gap-2 hover:bg-amber-900/30 italic"
               style={{ background: 'rgba(41, 24, 12, 0.7)' }}
             >
               <Wand2 className="w-4 h-4" /> Forge with Magic
             </button>
             <button
               onClick={onPaste}
-              className="px-4 py-2 rounded text-sm border-2 border-amber-700 text-amber-200 flex items-center gap-2 hover:bg-amber-900/30 italic"
+              className="px-4 py-2 rounded-sm text-sm border-2 border-amber-700 text-amber-200 flex items-center gap-2 hover:bg-amber-900/30 italic"
               style={{ background: 'rgba(41, 24, 12, 0.7)' }}
             >
               <Copy className="w-4 h-4" /> Paste Tome Text
             </button>
             <button
               onClick={onImportCode}
-              className="px-4 py-2 rounded text-sm border-2 border-purple-700 text-purple-200 flex items-center gap-2 hover:bg-purple-900/30 italic"
+              className="px-4 py-2 rounded-sm text-sm border-2 border-purple-700 text-purple-200 flex items-center gap-2 hover:bg-purple-900/30 italic"
               style={{ background: 'rgba(31, 12, 41, 0.7)' }}
             >
               <Hash className="w-4 h-4" /> Import Share Code
             </button>
             <button
               onClick={onImport}
-              className="px-4 py-2 rounded text-sm font-bold text-amber-950 border-2 border-amber-300 flex items-center gap-2 italic"
+              className="px-4 py-2 rounded-sm text-sm font-bold text-amber-950 border-2 border-amber-300 flex items-center gap-2 italic"
               style={{
                 background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)',
                 boxShadow: '0 0 15px rgba(245, 158, 11, 0.4)',
@@ -3842,7 +3842,7 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
       </div>
 
       {playerState.library.length === 0 && (
-        <div className="text-center py-12 px-6 rounded relative" style={{
+        <div className="text-center py-12 px-6 rounded-sm relative" style={{
           background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.7) 0%, rgba(10, 6, 4, 0.9) 100%)',
           border: '3px double rgba(180, 83, 9, 0.5)',
           boxShadow: '0 0 40px rgba(180, 83, 9, 0.2), inset 0 0 30px rgba(0,0,0,0.6)',
@@ -3876,7 +3876,7 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
             return (
               <div
                 key={tome.id}
-                className="rounded p-5 relative transition"
+                className="rounded-sm p-5 relative transition"
                 style={{
                   background: isActive
                     ? 'linear-gradient(135deg, rgba(120, 53, 15, 0.6) 0%, rgba(41, 24, 12, 0.95) 100%)'
@@ -3893,7 +3893,7 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
                 <div className="absolute bottom-1 right-1 text-amber-700/60 text-xs">⚜</div>
 
                 {isActive && (
-                  <div className="absolute top-3 right-3 text-xs px-3 py-1 rounded text-amber-950 font-bold tracking-wider" style={{
+                  <div className="absolute top-3 right-3 text-xs px-3 py-1 rounded-sm text-amber-950 font-bold tracking-wider" style={{
                     background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)',
                     boxShadow: '0 0 10px rgba(245, 158, 11, 0.5)',
                     border: '1px solid #92400e',
@@ -3903,7 +3903,7 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
                 )}
 
                 <div className="flex items-start gap-3 mb-3">
-                  <BookMarked className="w-8 h-8 text-amber-400 flex-shrink-0 mt-1" style={{ filter: 'drop-shadow(0 0 6px rgba(245, 158, 11, 0.5))' }} />
+                  <BookMarked className="w-8 h-8 text-amber-400 shrink-0 mt-1" style={{ filter: 'drop-shadow(0 0 6px rgba(245, 158, 11, 0.5))' }} />
                   <div className="flex-1 min-w-0">
                     {renamingId === tome.id ? (
                       <div className="flex gap-1">
@@ -3915,7 +3915,7 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
                             if (e.key === 'Enter') submitRename(tome.id);
                             if (e.key === 'Escape') setRenamingId(null);
                           }}
-                          className="flex-1 p-1 rounded border-2 text-sm italic text-amber-50"
+                          className="flex-1 p-1 rounded-sm border-2 text-sm italic text-amber-50"
                           style={{ background: 'rgba(20, 12, 6, 0.7)', borderColor: 'rgba(245, 158, 11, 0.6)' }}
                           autoFocus
                         />
@@ -3950,17 +3950,17 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
                 {(subject || author || difficulty) && (
                   <div className="flex flex-wrap gap-2 mb-3 text-xs">
                     {subject && (
-                      <span className="px-2 py-0.5 rounded italic" style={{
+                      <span className="px-2 py-0.5 rounded-sm italic" style={{
                         background: 'rgba(31, 12, 41, 0.7)', border: '1px solid rgba(126, 34, 206, 0.5)', color: '#d8b4fe',
                       }}>📚 {subject}</span>
                     )}
                     {author && (
-                      <span className="px-2 py-0.5 rounded italic" style={{
+                      <span className="px-2 py-0.5 rounded-sm italic" style={{
                         background: 'rgba(12, 24, 41, 0.7)', border: '1px solid rgba(29, 78, 216, 0.5)', color: '#93c5fd',
                       }}>✒️ {author}</span>
                     )}
                     {difficulty && (
-                      <span className="px-2 py-0.5 rounded italic" style={{
+                      <span className="px-2 py-0.5 rounded-sm italic" style={{
                         background: 'rgba(41, 12, 12, 0.7)', border: '1px solid rgba(185, 28, 28, 0.5)', color: '#fca5a5',
                       }}>{'★'.repeat(difficulty)}{'☆'.repeat(5 - difficulty)}</span>
                     )}
@@ -3969,7 +3969,7 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
                 {tags.length > 0 && (
                   <div className="flex flex-wrap gap-1 mb-3">
                     {tags.map((tag, ti) => (
-                      <span key={ti} className="px-2 py-0.5 rounded text-[10px] italic" style={{
+                      <span key={ti} className="px-2 py-0.5 rounded-sm text-[10px] italic" style={{
                         background: 'rgba(120, 53, 15, 0.4)', border: '1px solid rgba(245, 158, 11, 0.4)', color: '#fcd34d',
                       }}>#{tag}</span>
                     ))}
@@ -4002,14 +4002,14 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
                   <div className="flex gap-2 mt-3">
                     <button
                       onClick={() => { onDelete(tome.id); setConfirmDelete(null); }}
-                      className="flex-1 py-2 rounded text-sm font-bold border-2 border-red-400 text-red-100 italic"
+                      className="flex-1 py-2 rounded-sm text-sm font-bold border-2 border-red-400 text-red-100 italic"
                       style={{ background: 'linear-gradient(to bottom, #dc2626 0%, #991b1b 100%)' }}
                     >
                       Confirm Banishment
                     </button>
                     <button
                       onClick={() => setConfirmDelete(null)}
-                      className="px-4 py-2 rounded text-sm border-2 border-amber-700 text-amber-200 italic"
+                      className="px-4 py-2 rounded-sm text-sm border-2 border-amber-700 text-amber-200 italic"
                       style={{ background: 'rgba(41, 24, 12, 0.7)' }}
                     >
                       Cancel
@@ -4020,7 +4020,7 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
                     {!isActive && (
                       <button
                         onClick={() => onSwitch(tome.id)}
-                        className="flex-1 min-w-[120px] py-2 rounded text-sm font-bold text-amber-950 border-2 border-amber-300 italic"
+                        className="flex-1 min-w-[120px] py-2 rounded-sm text-sm font-bold text-amber-950 border-2 border-amber-300 italic"
                         style={{
                           background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)',
                           boxShadow: '0 0 12px rgba(245, 158, 11, 0.4)',
@@ -4032,7 +4032,7 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
                     {isActive && (
                       <button
                         onClick={() => setScreen('home')}
-                        className="flex-1 min-w-[120px] py-2 rounded text-sm font-bold text-amber-950 border-2 border-amber-300 italic"
+                        className="flex-1 min-w-[120px] py-2 rounded-sm text-sm font-bold text-amber-950 border-2 border-amber-300 italic"
                         style={{
                           background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)',
                           boxShadow: '0 0 12px rgba(245, 158, 11, 0.4)',
@@ -4051,7 +4051,7 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
                         the icon's state. Title= still appears on mouse hover. */}
                     <button
                       onClick={() => onTogglePin?.(tome.id)}
-                      className={`px-3 py-2 rounded text-sm border-2 hover:bg-amber-900/30 flex items-center gap-1.5 ${tome.pinned ? 'border-amber-400 text-amber-200' : 'border-amber-700 text-amber-400'}`}
+                      className={`px-3 py-2 rounded-sm text-sm border-2 hover:bg-amber-900/30 flex items-center gap-1.5 ${tome.pinned ? 'border-amber-400 text-amber-200' : 'border-amber-700 text-amber-400'}`}
                       style={{ background: tome.pinned ? 'rgba(120, 53, 15, 0.7)' : 'rgba(41, 24, 12, 0.7)' }}
                       title={tome.pinned ? `Unpin "${meta.title || 'this tome'}" from top` : `Pin "${meta.title || 'this tome'}" to top`}
                       aria-label={tome.pinned ? `Unpin tome "${meta.title || 'untitled'}" from the top` : `Pin tome "${meta.title || 'untitled'}" to the top`}
@@ -4062,7 +4062,7 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
                     </button>
                     <button
                       onClick={() => onShare(tome.id)}
-                      className="px-3 py-2 rounded text-sm border-2 border-purple-700 text-purple-300 hover:bg-purple-900/30"
+                      className="px-3 py-2 rounded-sm text-sm border-2 border-purple-700 text-purple-300 hover:bg-purple-900/30"
                       style={{ background: 'rgba(31, 12, 41, 0.7)' }}
                       title={`Share "${meta.title || 'this tome'}"`}
                       aria-label={`Share tome "${meta.title || 'untitled'}"`}
@@ -4071,7 +4071,7 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
                     </button>
                     <button
                       onClick={() => onEditMetadata(tome.id)}
-                      className="px-3 py-2 rounded text-sm border-2 border-amber-700 text-amber-300 hover:bg-amber-900/30"
+                      className="px-3 py-2 rounded-sm text-sm border-2 border-amber-700 text-amber-300 hover:bg-amber-900/30"
                       style={{ background: 'rgba(41, 24, 12, 0.7)' }}
                       title={`Edit metadata for "${meta.title || 'this tome'}"`}
                       aria-label={`Edit metadata for tome "${meta.title || 'untitled'}"`}
@@ -4080,7 +4080,7 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
                     </button>
                     <button
                       onClick={() => startRename(tome)}
-                      className="px-3 py-2 rounded text-sm border-2 border-amber-700 text-amber-300 hover:bg-amber-900/30"
+                      className="px-3 py-2 rounded-sm text-sm border-2 border-amber-700 text-amber-300 hover:bg-amber-900/30"
                       style={{ background: 'rgba(41, 24, 12, 0.7)' }}
                       title={`Rename "${meta.title || 'this tome'}"`}
                       aria-label={`Rename tome "${meta.title || 'untitled'}"`}
@@ -4089,7 +4089,7 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
                     </button>
                     <button
                       onClick={() => onDuplicate(tome.id)}
-                      className="px-3 py-2 rounded text-sm border-2 border-emerald-700 text-emerald-300 hover:bg-emerald-900/30"
+                      className="px-3 py-2 rounded-sm text-sm border-2 border-emerald-700 text-emerald-300 hover:bg-emerald-900/30"
                       style={{ background: 'rgba(12, 41, 27, 0.7)' }}
                       title={`Duplicate "${meta.title || 'this tome'}" with fresh progress`}
                       aria-label={`Duplicate tome "${meta.title || 'untitled'}" with fresh progress`}
@@ -4098,7 +4098,7 @@ function LibraryScreen({ playerState, onSwitch, onDelete, onRename, onDuplicate,
                     </button>
                     <button
                       onClick={() => setConfirmDelete(tome.id)}
-                      className="px-3 py-2 rounded text-sm border-2 border-red-800 text-red-300 hover:bg-red-900/30"
+                      className="px-3 py-2 rounded-sm text-sm border-2 border-red-800 text-red-300 hover:bg-red-900/30"
                       style={{ background: 'rgba(41, 12, 12, 0.6)' }}
                       title={`Banish "${meta.title || 'this tome'}"`}
                       aria-label={`Banish tome "${meta.title || 'untitled'}"`}
@@ -4130,7 +4130,7 @@ function CollapsibleGroup({ title, icon, color = 'amber', defaultOpen = true, ch
     purple:   { border: 'rgba(126, 34, 206, 0.55)', text: '#d8b4fe', glow: 'rgba(168, 85, 247, 0.18)' },
   }[color] || { border: 'rgba(180, 83, 9, 0.55)', text: '#fcd34d', glow: 'rgba(245, 158, 11, 0.18)' };
   return (
-    <div className="rounded relative" style={{
+    <div className="rounded-sm relative" style={{
       background: 'linear-gradient(135deg, rgba(20, 12, 6, 0.55) 0%, rgba(10, 6, 4, 0.92) 100%)',
       border: `2px solid ${palette.border}`,
       boxShadow: `0 0 20px ${palette.glow}, inset 0 0 18px rgba(0,0,0,0.5)`,
@@ -4156,7 +4156,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
   if (!courseSet) {
     return (
       <div className="space-y-6">
-        <div className="text-center py-12 px-6 rounded relative" style={{
+        <div className="text-center py-12 px-6 rounded-sm relative" style={{
           background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.7) 0%, rgba(10, 6, 4, 0.9) 100%)',
           border: '3px double rgba(180, 83, 9, 0.5)',
           boxShadow: '0 0 40px rgba(180, 83, 9, 0.2), inset 0 0 30px rgba(0,0,0,0.6)',
@@ -4179,7 +4179,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
             {playerState.library.length > 0 && (
               <button
                 onClick={onOpenLibrary}
-                className="px-6 py-3 font-bold rounded flex items-center gap-2 transition text-amber-950 border-2 border-amber-300 italic"
+                className="px-6 py-3 font-bold rounded-sm flex items-center gap-2 transition text-amber-950 border-2 border-amber-300 italic"
                 style={{
                   background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 50%, #b45309 100%)',
                   boxShadow: '0 0 20px rgba(245, 158, 11, 0.5)',
@@ -4190,7 +4190,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
             )}
             <button
               onClick={onImport}
-              className="px-6 py-3 font-bold rounded flex items-center gap-2 transition text-amber-200 border-2 border-amber-700 italic"
+              className="px-6 py-3 font-bold rounded-sm flex items-center gap-2 transition text-amber-200 border-2 border-amber-700 italic"
               style={{
                 background: 'linear-gradient(to bottom, rgba(120, 53, 15, 0.6) 0%, rgba(41, 24, 12, 0.9) 100%)',
               }}
@@ -4199,7 +4199,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
             </button>
             <button
               onClick={onPaste}
-              className="px-6 py-3 font-bold rounded flex items-center gap-2 transition text-amber-200 border-2 border-amber-700 italic"
+              className="px-6 py-3 font-bold rounded-sm flex items-center gap-2 transition text-amber-200 border-2 border-amber-700 italic"
               style={{
                 background: 'linear-gradient(to bottom, rgba(120, 53, 15, 0.6) 0%, rgba(41, 24, 12, 0.9) 100%)',
               }}
@@ -4208,7 +4208,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
             </button>
             <button
               onClick={onImportCode}
-              className="px-6 py-3 font-bold rounded flex items-center gap-2 transition text-purple-200 border-2 border-purple-700 italic"
+              className="px-6 py-3 font-bold rounded-sm flex items-center gap-2 transition text-purple-200 border-2 border-purple-700 italic"
               style={{
                 background: 'linear-gradient(to bottom, rgba(76, 29, 149, 0.6) 0%, rgba(31, 12, 41, 0.9) 100%)',
               }}
@@ -4217,7 +4217,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
             </button>
             <button
               onClick={onShowPrompt}
-              className="px-6 py-3 font-bold rounded flex items-center gap-2 transition text-amber-200 border-2 border-amber-700 italic"
+              className="px-6 py-3 font-bold rounded-sm flex items-center gap-2 transition text-amber-200 border-2 border-amber-700 italic"
               style={{
                 background: 'linear-gradient(to bottom, rgba(120, 53, 15, 0.6) 0%, rgba(41, 24, 12, 0.9) 100%)',
               }}
@@ -4233,28 +4233,28 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
           </h3>
           <div className="grid md:grid-cols-2 gap-4 text-sm">
             <div className="flex gap-3">
-              <Brain className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
+              <Brain className="w-5 h-5 text-cyan-400 shrink-0 mt-0.5" />
               <div>
                 <div className="font-bold text-cyan-300 italic">Scrolls of Knowledge</div>
                 <div className="text-amber-100/70 text-xs">Term and definition pairs for memorization</div>
               </div>
             </div>
             <div className="flex gap-3">
-              <Target className="w-5 h-5 text-purple-400 flex-shrink-0 mt-0.5" />
+              <Target className="w-5 h-5 text-purple-400 shrink-0 mt-0.5" />
               <div>
                 <div className="font-bold text-purple-300 italic">Riddles of Wisdom</div>
                 <div className="text-amber-100/70 text-xs">Multiple choice, true/false, and arcane riddles</div>
               </div>
             </div>
             <div className="flex gap-3">
-              <FlaskConical className="w-5 h-5 text-rose-400 flex-shrink-0 mt-0.5" />
+              <FlaskConical className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
               <div>
                 <div className="font-bold text-rose-300 italic">Trials of Skill</div>
                 <div className="text-amber-100/70 text-xs">Hands-on quests with steps and validation</div>
               </div>
             </div>
             <div className="flex gap-3">
-              <MessageSquare className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+              <MessageSquare className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
               <div>
                 <div className="font-bold text-amber-300 italic">The Oracle's Wisdom</div>
                 <div className="text-amber-100/70 text-xs">Reference text the AI sage draws upon</div>
@@ -4271,13 +4271,13 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
               row with a warning preamble so the user can't mis-click. */}
           <div className="flex flex-wrap gap-3">
             {!playerState.tutorialCompleted && !playerState.tutorialStarted && (
-              <button onClick={onRestartTutorial} className="px-4 py-2 rounded flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic"
+              <button onClick={onRestartTutorial} className="px-4 py-2 rounded-sm flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic"
                 style={{ background: 'rgba(31, 12, 41, 0.7)' }}>
                 <Compass className="w-4 h-4" /> Begin Tutorial
               </button>
             )}
             {(playerState.tutorialCompleted || playerState.tutorialStartedAndSkipped) && (
-              <button onClick={onRestartTutorial} className="px-4 py-2 rounded flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic"
+              <button onClick={onRestartTutorial} className="px-4 py-2 rounded-sm flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic"
                 style={{ background: 'rgba(31, 12, 41, 0.7)' }}>
                 <Compass className="w-4 h-4" /> Replay Tutorial
               </button>
@@ -4286,7 +4286,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
           </div>
           <div className="mt-3 pt-3 border-t border-red-900/40">
             <div className="text-[10px] uppercase tracking-wider italic text-red-400/80 mb-2 font-bold">⚠ Destructive</div>
-            <button onClick={onResetProgress} className="px-4 py-2 rounded flex items-center gap-2 text-sm border-2 border-red-800 text-red-300 hover:bg-red-900/30 italic"
+            <button onClick={onResetProgress} className="px-4 py-2 rounded-sm flex items-center gap-2 text-sm border-2 border-red-800 text-red-300 hover:bg-red-900/30 italic"
               style={{ background: 'rgba(41, 12, 12, 0.7)' }}
               aria-label="Begin Anew — permanently erases all local progress (a confirmation dialog will appear)">
               <RotateCcw className="w-4 h-4" aria-hidden="true" /> Begin Anew
@@ -4303,7 +4303,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
 
   return (
     <div className="space-y-6">
-      <div className="p-6 rounded relative" style={{
+      <div className="p-6 rounded-sm relative" style={{
         background: 'linear-gradient(135deg, rgba(120, 53, 15, 0.4) 0%, rgba(41, 24, 12, 0.9) 100%)',
         border: '3px double rgba(245, 158, 11, 0.5)',
         boxShadow: '0 0 30px rgba(245, 158, 11, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
@@ -4329,17 +4329,17 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
             {(courseSet.metadata.subject || courseSet.metadata.author || courseSet.metadata.difficulty) && (
               <div className="flex flex-wrap gap-2 mt-2 text-xs">
                 {courseSet.metadata.subject && (
-                  <span className="px-2 py-0.5 rounded italic" style={{
+                  <span className="px-2 py-0.5 rounded-sm italic" style={{
                     background: 'rgba(31, 12, 41, 0.7)', border: '1px solid rgba(126, 34, 206, 0.5)', color: '#d8b4fe',
                   }}>📚 {courseSet.metadata.subject}</span>
                 )}
                 {courseSet.metadata.author && (
-                  <span className="px-2 py-0.5 rounded italic" style={{
+                  <span className="px-2 py-0.5 rounded-sm italic" style={{
                     background: 'rgba(12, 24, 41, 0.7)', border: '1px solid rgba(29, 78, 216, 0.5)', color: '#93c5fd',
                   }}>✒️ {courseSet.metadata.author}</span>
                 )}
                 {courseSet.metadata.difficulty && (
-                  <span className="px-2 py-0.5 rounded italic" style={{
+                  <span className="px-2 py-0.5 rounded-sm italic" style={{
                     background: 'rgba(41, 12, 12, 0.7)', border: '1px solid rgba(185, 28, 28, 0.5)', color: '#fca5a5',
                   }}>{'★'.repeat(courseSet.metadata.difficulty)}{'☆'.repeat(5 - courseSet.metadata.difficulty)}</span>
                 )}
@@ -4348,7 +4348,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
             {courseSet.metadata.tags && courseSet.metadata.tags.length > 0 && (
               <div className="flex flex-wrap gap-1 mt-2">
                 {courseSet.metadata.tags.map((tag, ti) => (
-                  <span key={ti} className="px-2 py-0.5 rounded text-[10px] italic" style={{
+                  <span key={ti} className="px-2 py-0.5 rounded-sm text-[10px] italic" style={{
                     background: 'rgba(120, 53, 15, 0.4)', border: '1px solid rgba(245, 158, 11, 0.4)', color: '#fcd34d',
                   }}>#{tag}</span>
                 ))}
@@ -4365,7 +4365,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
           </div>
           <button
             onClick={onOpenLibrary}
-            className="px-4 py-2 rounded text-sm border-2 border-amber-700 text-amber-200 flex items-center gap-2 hover:bg-amber-900/30 italic"
+            className="px-4 py-2 rounded-sm text-sm border-2 border-amber-700 text-amber-200 flex items-center gap-2 hover:bg-amber-900/30 italic"
             style={{ background: 'rgba(41, 24, 12, 0.7)' }}
           >
             <Library className="w-4 h-4" /> Library ({playerState.library.length})
@@ -4564,13 +4564,13 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
               row with a warning preamble so the user can't mis-click. */}
           <div className="flex flex-wrap gap-3">
             {!playerState.tutorialCompleted && !playerState.tutorialStarted && (
-              <button onClick={onRestartTutorial} className="px-4 py-2 rounded flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic"
+              <button onClick={onRestartTutorial} className="px-4 py-2 rounded-sm flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic"
                 style={{ background: 'rgba(31, 12, 41, 0.7)' }}>
                 <Compass className="w-4 h-4" /> Begin Tutorial
               </button>
             )}
             {(playerState.tutorialCompleted || playerState.tutorialStartedAndSkipped) && (
-              <button onClick={onRestartTutorial} className="px-4 py-2 rounded flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic"
+              <button onClick={onRestartTutorial} className="px-4 py-2 rounded-sm flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic"
                 style={{ background: 'rgba(31, 12, 41, 0.7)' }}>
                 <Compass className="w-4 h-4" /> Replay Tutorial
               </button>
@@ -4579,7 +4579,7 @@ function HomeScreen({ courseSet, tomeProgress, setScreen, trackModeUse, onImport
           </div>
           <div className="mt-3 pt-3 border-t border-red-900/40">
             <div className="text-[10px] uppercase tracking-wider italic text-red-400/80 mb-2 font-bold">⚠ Destructive</div>
-            <button onClick={onResetProgress} className="px-4 py-2 rounded flex items-center gap-2 text-sm border-2 border-red-800 text-red-300 hover:bg-red-900/30 italic"
+            <button onClick={onResetProgress} className="px-4 py-2 rounded-sm flex items-center gap-2 text-sm border-2 border-red-800 text-red-300 hover:bg-red-900/30 italic"
               style={{ background: 'rgba(41, 12, 12, 0.7)' }}
               aria-label="Begin Anew — permanently erases all local progress (a confirmation dialog will appear)">
               <RotateCcw className="w-4 h-4" aria-hidden="true" /> Begin Anew
@@ -4633,7 +4633,7 @@ function AudioPanel() {
       <div className="space-y-3 text-sm">
         <div className="flex items-center gap-3 flex-wrap">
           <button onClick={toggleMute}
-            className={`px-4 py-2 rounded flex items-center gap-2 italic border-2 ${muted ? 'border-stone-600 text-stone-300' : 'border-emerald-600 text-emerald-200'}`}
+            className={`px-4 py-2 rounded-sm flex items-center gap-2 italic border-2 ${muted ? 'border-stone-600 text-stone-300' : 'border-emerald-600 text-emerald-200'}`}
             style={{ background: muted ? 'rgba(31, 24, 12, 0.7)' : 'rgba(6, 78, 59, 0.4)' }}>
             {muted ? '🔇 Sound: Off' : '🔊 Sound: On'}
           </button>
@@ -4662,7 +4662,7 @@ function AudioPanel() {
             onClick={onReset}
             disabled={atDefaults}
             title={`Reset Music to ${Math.round(defaults.bgmVolume * 100)}% and Effects to ${Math.round(defaults.sfxVolume * 100)}%`}
-            className="px-3 py-1.5 rounded text-xs italic border-2 border-amber-700 text-amber-200 hover:bg-amber-900/30 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
+            className="px-3 py-1.5 rounded-sm text-xs italic border-2 border-amber-700 text-amber-200 hover:bg-amber-900/30 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
             style={{ background: 'rgba(41, 24, 12, 0.7)' }}
           >
             <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" /> Reset to defaults
@@ -4697,7 +4697,7 @@ function ThemePanel({ currentTheme, onSetTheme }) {
               key={o.id}
               onClick={() => onSetTheme?.(o.id)}
               aria-pressed={active}
-              className={`text-left p-3 rounded border-2 italic transition ${active ? 'border-amber-300 text-amber-100' : 'border-amber-700 text-amber-200 hover:border-amber-500'}`}
+              className={`text-left p-3 rounded-sm border-2 italic transition ${active ? 'border-amber-300 text-amber-100' : 'border-amber-700 text-amber-200 hover:border-amber-500'}`}
               style={{
                 background: active ? 'rgba(120, 53, 15, 0.5)' : 'rgba(41, 24, 12, 0.7)',
                 boxShadow: active ? '0 0 12px rgba(245, 158, 11, 0.4)' : 'none',
@@ -4745,7 +4745,7 @@ function BloomBadge({ level }) {
   if (!level || typeof level !== 'string') return null;
   const palette = BLOOM_PALETTE[level.toLowerCase()] || BLOOM_PALETTE.remember;
   return (
-    <span className="text-[10px] uppercase tracking-wider italic px-2 py-0.5 rounded font-bold"
+    <span className="text-[10px] uppercase tracking-wider italic px-2 py-0.5 rounded-sm font-bold"
       style={{ background: palette.bg, border: `1px solid ${palette.border}`, color: palette.text }}
       title={`Bloom's level: ${level}`}>
       {level}
@@ -4760,14 +4760,14 @@ function FilteredModeBanner({ domainFilter, onExitFilter, accent = 'emerald' }) 
       ? { bg: 'rgba(29, 78, 216, 0.32)', border: '#60a5fa', text: '#dbeafe' }
       : { bg: 'rgba(16, 185, 129, 0.32)', border: '#10b981', text: '#a7f3d0' };
   return (
-    <div className="flex items-center justify-between gap-3 p-2.5 rounded text-xs italic"
+    <div className="flex items-center justify-between gap-3 p-2.5 rounded-sm text-xs italic"
       style={{ background: palette.bg, border: `1.5px solid ${palette.border}`, color: palette.text }}>
       <span className="flex items-center gap-2">
         <BookOpen className="w-4 h-4" />
         Studying: <span className="font-bold">{domainFilter}</span>
       </span>
       {onExitFilter && (
-        <button onClick={onExitFilter} className="px-2.5 py-1 rounded text-[11px] italic font-bold hover:bg-black/30 transition"
+        <button onClick={onExitFilter} className="px-2.5 py-1 rounded-sm text-[11px] italic font-bold hover:bg-black/30 transition"
           style={{ background: 'rgba(0,0,0,0.35)', border: `1px solid ${palette.border}` }}>
           ← Back to Codex
         </button>
@@ -4792,7 +4792,7 @@ function ModeCard({ title, desc, icon, color, onClick, featured, disabled, disab
       disabled={!!disabled}
       title={disabled ? (disabledReason || 'Unavailable for the active tome') : undefined}
       aria-disabled={!!disabled}
-      className={`text-left rounded p-5 transition-all group relative overflow-hidden ${featured ? 'md:col-span-2' : ''} ${disabled ? 'cursor-not-allowed opacity-50' : 'hover:scale-[1.02]'}`}
+      className={`text-left rounded-sm p-5 transition-all group relative overflow-hidden ${featured ? 'md:col-span-2' : ''} ${disabled ? 'cursor-not-allowed opacity-50' : 'hover:scale-[1.02]'}`}
       style={{
         // Phase 38g: background sourced from CSS vars so light theme can
         // re-theme without a React subscription. Border + glow stay solid.
@@ -4807,7 +4807,7 @@ function ModeCard({ title, desc, icon, color, onClick, featured, disabled, disab
       <div className="absolute bottom-1 right-1 text-amber-700/60 text-xs">⚜</div>
 
       {featured && (
-        <div className="absolute top-3 right-3 text-xs px-3 py-1 rounded text-amber-950 font-bold tracking-wider" style={{
+        <div className="absolute top-3 right-3 text-xs px-3 py-1 rounded-sm text-amber-950 font-bold tracking-wider" style={{
           background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)',
           boxShadow: '0 0 10px rgba(245, 158, 11, 0.5)',
           border: '1px solid #92400e',
@@ -4815,7 +4815,7 @@ function ModeCard({ title, desc, icon, color, onClick, featured, disabled, disab
           ★ LEGENDARY ★
         </div>
       )}
-      <div className={`w-14 h-14 rounded bg-gradient-to-br ${c.grad} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform border-2 border-amber-600/50`} style={{
+      <div className={`w-14 h-14 rounded-sm bg-linear-to-br ${c.grad} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform border-2 border-amber-600/50`} style={{
         boxShadow: `0 0 15px ${c.glow}`,
       }}>
         {icon}
@@ -4963,7 +4963,7 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
   if (reviewMode && reviewDeck.length > 0 && index >= reviewDeck.length) {
     return (
       <div className="space-y-4 max-w-2xl mx-auto">
-        <div className="p-6 rounded text-center" style={{
+        <div className="p-6 rounded-sm text-center" style={{
           background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.5) 0%, rgba(10, 6, 4, 0.95) 100%)',
           border: '3px double rgba(16, 185, 129, 0.6)',
           boxShadow: '0 0 30px rgba(16, 185, 129, 0.25), inset 0 0 25px rgba(0,0,0,0.5)',
@@ -4977,7 +4977,7 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
           </div>
         </div>
         <button onClick={() => onExitReviewMode?.()}
-          className="w-full py-3 px-4 rounded font-bold italic border-2 border-amber-400 text-amber-100"
+          className="w-full py-3 px-4 rounded-sm font-bold italic border-2 border-amber-400 text-amber-100"
           style={{ background: 'rgba(120, 53, 15, 0.7)' }}>
           <Home className="w-4 h-4 inline mr-2" /> Return Home
         </button>
@@ -4999,7 +4999,7 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
       </div>
       {reviewMode ? (
         <button onClick={() => onExitReviewMode?.()}
-          className="w-full py-3 px-4 rounded font-bold italic border-2 border-amber-400 text-amber-100"
+          className="w-full py-3 px-4 rounded-sm font-bold italic border-2 border-amber-400 text-amber-100"
           style={{ background: 'rgba(120, 53, 15, 0.7)' }}>
           <Home className="w-4 h-4 inline mr-2" /> Return Home
         </button>
@@ -5008,7 +5008,7 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
         // beyond the header Hearth (which the QA report noted as easy to miss).
         <div className="grid grid-cols-2 gap-3">
           <button onClick={() => onExitFilter?.()} disabled={!onExitFilter}
-            className="py-3 px-4 rounded italic border-2 border-amber-700 text-amber-200 disabled:opacity-30 disabled:cursor-not-allowed"
+            className="py-3 px-4 rounded-sm italic border-2 border-amber-700 text-amber-200 disabled:opacity-30 disabled:cursor-not-allowed"
             style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
             <ArrowLeft className="w-4 h-4 inline mr-2" /> {domainFilter ? 'Clear Filter' : 'Back'}
           </button>
@@ -5023,7 +5023,7 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
         <FilteredModeBanner domainFilter={domainFilter} onExitFilter={onExitFilter} accent="sapphire" />
       )}
       {reviewMode && (
-        <div className="p-2 rounded text-center text-xs italic"
+        <div className="p-2 rounded-sm text-center text-xs italic"
           style={{ background: 'rgba(29, 78, 216, 0.35)', border: '1.5px solid rgba(59, 130, 246, 0.55)', color: '#bfdbfe' }}>
           ✦ Review mode — {reviewDeck.length} scroll{reviewDeck.length === 1 ? '' : 's'} scheduled for today
         </div>
@@ -5044,7 +5044,7 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
         </span>
         <span>Studied this session: {reviewed}</span>
       </div>
-      <div onClick={() => setFlipped(!flipped)} className="rounded p-8 min-h-[300px] flex items-center justify-center cursor-pointer transition relative" style={{
+      <div onClick={() => setFlipped(!flipped)} className="rounded-sm p-8 min-h-[300px] flex items-center justify-center cursor-pointer transition relative" style={{
         background: 'linear-gradient(135deg, rgba(12, 24, 41, 0.85) 0%, rgba(6, 12, 20, 0.95) 100%)',
         border: '3px double rgba(29, 78, 216, 0.6)', boxShadow: '0 0 30px rgba(59, 130, 246, 0.25), inset 0 0 25px rgba(0,0,0,0.5)',
       }}>
@@ -5058,25 +5058,25 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
         <>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             <button onClick={() => rate(SRS_RATINGS.again)}
-              className="py-3 rounded font-bold border-2 border-red-400 text-red-200 italic"
+              className="py-3 rounded-sm font-bold border-2 border-red-400 text-red-200 italic"
               style={{ background: 'rgba(127, 29, 29, 0.55)' }}
               title="I forgot completely — show this scroll again soon">
               ⚔ Again
             </button>
             <button onClick={() => rate(SRS_RATINGS.hard)}
-              className="py-3 rounded font-bold border-2 border-amber-500 text-amber-200 italic"
+              className="py-3 rounded-sm font-bold border-2 border-amber-500 text-amber-200 italic"
               style={{ background: 'rgba(146, 64, 14, 0.55)' }}
               title="Recalled with struggle — short interval">
               ⚔ Hard
             </button>
             <button onClick={() => rate(SRS_RATINGS.good)}
-              className="py-3 rounded font-bold border-2 border-emerald-400 text-emerald-200 italic"
+              className="py-3 rounded-sm font-bold border-2 border-emerald-400 text-emerald-200 italic"
               style={{ background: 'rgba(6, 78, 59, 0.55)' }}
               title="Recalled with effort — standard interval">
               ⚔ Good
             </button>
             <button onClick={() => rate(SRS_RATINGS.easy)}
-              className="py-3 rounded font-bold border-2 border-yellow-300 text-yellow-100 italic"
+              className="py-3 rounded-sm font-bold border-2 border-yellow-300 text-yellow-100 italic"
               style={{ background: 'rgba(120, 90, 8, 0.6)' }}
               title="Instant recall — long interval">
               ⚔ Easy
@@ -5089,8 +5089,8 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
       )}
       {!flipped && !reviewMode && (
         <div className="flex gap-2">
-          <button onClick={() => { setIndex((index - 1 + cards.length) % cards.length); setFlipped(false); }} className="flex-1 py-2 rounded border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(41, 24, 12, 0.7)' }}>← Prior</button>
-          <button onClick={() => { setIndex((index + 1) % cards.length); setFlipped(false); }} className="flex-1 py-2 rounded border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(41, 24, 12, 0.7)' }}>Skip →</button>
+          <button onClick={() => { setIndex((index - 1 + cards.length) % cards.length); setFlipped(false); }} className="flex-1 py-2 rounded-sm border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(41, 24, 12, 0.7)' }}>← Prior</button>
+          <button onClick={() => { setIndex((index + 1) % cards.length); setFlipped(false); }} className="flex-1 py-2 rounded-sm border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(41, 24, 12, 0.7)' }}>Skip →</button>
         </div>
       )}
       {!flipped && reviewMode && (
@@ -5406,7 +5406,7 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
       {/* Phase 30d QA #7: explicit "back" affordance instead of just the header Hearth. */}
       {domainFilter && (
         <button onClick={() => onExitFilter?.()}
-          className="w-full py-3 px-4 rounded italic border-2 border-amber-700 text-amber-200"
+          className="w-full py-3 px-4 rounded-sm italic border-2 border-amber-700 text-amber-200"
           style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
           <ArrowLeft className="w-4 h-4 inline mr-2" /> Clear Filter
         </button>
@@ -5427,7 +5427,7 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
         <span className="flex items-center gap-2 flex-wrap">
           🔮 Riddle {Math.min(progressCount + 1, questions.length)} of {questions.length}
           {resumedRecently && (
-            <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded not-italic ml-1" style={{
+            <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded-sm not-italic ml-1" style={{
               background: 'rgba(6, 78, 59, 0.45)', border: '1px solid rgba(16, 185, 129, 0.6)', color: '#a7f3d0',
             }} aria-live="polite">· resumed</span>
           )}
@@ -5455,7 +5455,7 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
                 : ''}
         </div>
       )}
-      <div className="rounded p-6 relative" style={{
+      <div className="rounded-sm p-6 relative" style={{
         background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.85) 0%, rgba(15, 6, 20, 0.95) 100%)',
         border: '3px double rgba(126, 34, 206, 0.6)', boxShadow: '0 0 30px rgba(168, 85, 247, 0.25), inset 0 0 25px rgba(0,0,0,0.5)',
       }}>
@@ -5473,20 +5473,20 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
           return (
             <div className="flex items-center gap-2 flex-wrap mb-4 pb-3 border-b border-purple-700/40">
               {q.domain ? (
-                <span className="text-[10px] italic uppercase tracking-wider px-2 py-0.5 rounded font-bold" style={{
+                <span className="text-[10px] italic uppercase tracking-wider px-2 py-0.5 rounded-sm font-bold" style={{
                   background: 'rgba(126, 34, 206, 0.35)', border: '1px solid rgba(168, 85, 247, 0.6)', color: '#e9d5ff',
                 }}>{q.domain}</span>
               ) : (
-                <span className="text-[10px] italic uppercase tracking-wider px-2 py-0.5 rounded" style={{
+                <span className="text-[10px] italic uppercase tracking-wider px-2 py-0.5 rounded-sm" style={{
                   background: 'rgba(63, 63, 70, 0.25)', border: '1px dashed rgba(120, 113, 108, 0.45)', color: 'rgba(214, 211, 209, 0.7)',
                 }} title="No domain tagged on this riddle">domain —</span>
               )}
               {hasDifficulty ? (
-                <span className="flex items-center gap-1 px-2 py-0.5 rounded" style={{ background: 'rgba(120, 53, 15, 0.35)', border: '1px solid rgba(245, 158, 11, 0.5)' }}>
+                <span className="flex items-center gap-1 px-2 py-0.5 rounded-sm" style={{ background: 'rgba(120, 53, 15, 0.35)', border: '1px solid rgba(245, 158, 11, 0.5)' }}>
                   <DifficultyStars value={q.difficulty} />
                 </span>
               ) : (!hideOptionalChips && (
-                <span className="flex items-center gap-1 px-2 py-0.5 rounded" style={{ background: 'rgba(63, 63, 70, 0.2)', border: '1px dashed rgba(120, 113, 108, 0.4)', color: 'rgba(214, 211, 209, 0.7)' }} title="Per-riddle difficulty not rated by the tome author">
+                <span className="flex items-center gap-1 px-2 py-0.5 rounded-sm" style={{ background: 'rgba(63, 63, 70, 0.2)', border: '1px dashed rgba(120, 113, 108, 0.4)', color: 'rgba(214, 211, 209, 0.7)' }} title="Per-riddle difficulty not rated by the tome author">
                   <span className="text-xs tabular-nums">▱▱▱▱▱</span>
                   <span className="text-[9px] italic">not rated</span>
                 </span>
@@ -5494,7 +5494,7 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
               {hasBloom ? (
                 <BloomBadge level={q.bloomLevel} />
               ) : (!hideOptionalChips && (
-                <span className="text-[10px] uppercase tracking-wider italic px-2 py-0.5 rounded" style={{
+                <span className="text-[10px] uppercase tracking-wider italic px-2 py-0.5 rounded-sm" style={{
                   background: 'rgba(63, 63, 70, 0.2)', border: '1px dashed rgba(120, 113, 108, 0.4)', color: 'rgba(214, 211, 209, 0.7)',
                 }} title="Bloom's-level not tagged on this riddle">bloom —</span>
               ))}
@@ -5515,17 +5515,17 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
             </div>
             <div className="grid grid-cols-3 gap-2">
               <button onClick={() => setConfidence('low')}
-                className="p-3 rounded font-bold border-2 border-zinc-400 text-zinc-200 italic"
+                className="p-3 rounded-sm font-bold border-2 border-zinc-400 text-zinc-200 italic"
                 style={{ background: 'rgba(63, 63, 70, 0.45)' }}>
                 ✦ Uncertain
               </button>
               <button onClick={() => setConfidence('med')}
-                className="p-3 rounded font-bold border-2 border-amber-400 text-amber-200 italic"
+                className="p-3 rounded-sm font-bold border-2 border-amber-400 text-amber-200 italic"
                 style={{ background: 'rgba(120, 53, 15, 0.45)' }}>
                 ✦ Likely
               </button>
               <button onClick={() => setConfidence('high')}
-                className="p-3 rounded font-bold border-2 border-emerald-400 text-emerald-200 italic"
+                className="p-3 rounded-sm font-bold border-2 border-emerald-400 text-emerald-200 italic"
                 style={{ background: 'rgba(6, 78, 59, 0.45)' }}>
                 ✦ Confident
               </button>
@@ -5535,7 +5535,7 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
         {!answered && confidence && (
           <div className="mb-3 flex items-center gap-2 text-[11px] italic">
             <span className="text-amber-700">Thy confidence:</span>
-            <span className="px-2 py-0.5 rounded border italic font-bold" style={
+            <span className="px-2 py-0.5 rounded-sm border italic font-bold" style={
               confidence === 'high' ? { borderColor: '#10b981', color: '#a7f3d0', background: 'rgba(6, 78, 59, 0.35)' }
               : confidence === 'med' ? { borderColor: '#fbbf24', color: '#fde68a', background: 'rgba(120, 53, 15, 0.35)' }
               :                        { borderColor: '#a1a1aa', color: '#e4e4e7', background: 'rgba(63, 63, 70, 0.35)' }
@@ -5547,7 +5547,7 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
         {!answered && confidence && isMC && (
           <div className="space-y-2">
             {q.options.map((opt, i) => (
-              <button key={i} onClick={() => handleAnswer(i === q.correctIndex)} className="w-full text-left p-3 rounded border-2 transition text-amber-50"
+              <button key={i} onClick={() => handleAnswer(i === q.correctIndex)} className="w-full text-left p-3 rounded-sm border-2 transition text-amber-50"
                 style={{ background: 'rgba(31, 12, 41, 0.6)', borderColor: 'rgba(126, 34, 206, 0.5)' }}>
                 <span className="text-purple-400 font-bold mr-2">{String.fromCharCode(65 + i)}.</span>{opt}
               </button>
@@ -5556,8 +5556,8 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
         )}
         {!answered && confidence && isTF && (
           <div className="grid grid-cols-2 gap-3">
-            <button onClick={() => handleAnswer(q.correctAnswer === true)} className="p-4 rounded font-bold border-2 border-emerald-400 text-emerald-200 italic" style={{ background: 'rgba(6, 78, 59, 0.4)' }}>⚖ Verily True ⚖</button>
-            <button onClick={() => handleAnswer(q.correctAnswer === false)} className="p-4 rounded font-bold border-2 border-red-400 text-red-200 italic" style={{ background: 'rgba(127, 29, 29, 0.4)' }}>⚖ A Falsehood ⚖</button>
+            <button onClick={() => handleAnswer(q.correctAnswer === true)} className="p-4 rounded-sm font-bold border-2 border-emerald-400 text-emerald-200 italic" style={{ background: 'rgba(6, 78, 59, 0.4)' }}>⚖ Verily True ⚖</button>
+            <button onClick={() => handleAnswer(q.correctAnswer === false)} className="p-4 rounded-sm font-bold border-2 border-red-400 text-red-200 italic" style={{ background: 'rgba(127, 29, 29, 0.4)' }}>⚖ A Falsehood ⚖</button>
           </div>
         )}
         {!answered && confidence && isFIB && (
@@ -5565,10 +5565,10 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
             <input type="text" value={textAnswer} onChange={(e) => setTextAnswer(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter' && textAnswer.trim() && !grading) submitFillBlankWithOracle(); }}
               disabled={grading}
-              placeholder="Inscribe thy answer..." className="w-full p-3 rounded border-2 focus:outline-none italic text-amber-50"
+              placeholder="Inscribe thy answer..." className="w-full p-3 rounded-sm border-2 focus:outline-hidden italic text-amber-50"
               style={{ background: 'rgba(31, 12, 41, 0.6)', borderColor: 'rgba(126, 34, 206, 0.5)' }} autoFocus />
             <button onClick={submitFillBlankWithOracle}
-              disabled={!textAnswer.trim() || grading} className="w-full py-3 font-bold rounded disabled:opacity-50 text-amber-50 border-2 border-purple-400 italic flex items-center justify-center gap-2"
+              disabled={!textAnswer.trim() || grading} className="w-full py-3 font-bold rounded-sm disabled:opacity-50 text-amber-50 border-2 border-purple-400 italic flex items-center justify-center gap-2"
               style={{ background: 'linear-gradient(to bottom, #a855f7 0%, #6b21a8 100%)', boxShadow: '0 0 20px rgba(168, 85, 247, 0.4)' }}>
               {grading ? (<><Loader2 className="w-4 h-4 animate-spin" /> The Oracle deliberates...</>) : 'Submit Thy Answer'}
             </button>
@@ -5576,7 +5576,7 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
         )}
         {answered && (
           <div className="space-y-3">
-            <div className="p-4 rounded border-2 space-y-2" style={{
+            <div className="p-4 rounded-sm border-2 space-y-2" style={{
               background: answered.correct ? 'rgba(6, 78, 59, 0.5)' : 'rgba(127, 29, 29, 0.5)',
               borderColor: answered.correct ? 'rgba(16, 185, 129, 0.7)' : 'rgba(239, 68, 68, 0.7)',
             }}>
@@ -5584,15 +5584,15 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
                 {answered.correct ? <Check className="w-5 h-5 text-emerald-400" /> : <X className="w-5 h-5 text-red-400" />}
                 <span>{answered.correct ? '⚔ Strike True! ⚔' : (answered.skipped ? '↳ Skipped — Added to Tome of Failures' : '✗ The Blow Falters')}</span>
                 {answered.overridden && (
-                  <span className="text-xs px-2 py-0.5 rounded border border-amber-400/60 text-amber-200 italic">overridden</span>
+                  <span className="text-xs px-2 py-0.5 rounded-sm border border-amber-400/60 text-amber-200 italic">overridden</span>
                 )}
                 {answered.source === 'oracle' && (
-                  <span className="text-xs px-2 py-0.5 rounded border border-purple-400/60 text-purple-200 italic flex items-center gap-1">
+                  <span className="text-xs px-2 py-0.5 rounded-sm border border-purple-400/60 text-purple-200 italic flex items-center gap-1">
                     <Wand2 className="w-3 h-3" /> Graded by the Oracle
                   </span>
                 )}
                 {answered.source === 'fallback' && (
-                  <span className="text-xs px-2 py-0.5 rounded border border-amber-700/60 text-amber-300 italic" title={answered.fallbackReason || ''}>
+                  <span className="text-xs px-2 py-0.5 rounded-sm border border-amber-700/60 text-amber-300 italic" title={answered.fallbackReason || ''}>
                     Tome match (Oracle silent)
                   </span>
                 )}
@@ -5611,7 +5611,7 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
                       ? '· calibrated'
                       : '';
                   return (
-                    <span className="text-xs px-2 py-0.5 rounded border italic flex items-center gap-1" style={
+                    <span className="text-xs px-2 py-0.5 rounded-sm border italic flex items-center gap-1" style={
                       answered.confidence === 'high' ? { borderColor: '#10b981', color: '#a7f3d0', background: 'rgba(6, 78, 59, 0.35)' }
                       : answered.confidence === 'med' ? { borderColor: '#fbbf24', color: '#fde68a', background: 'rgba(120, 53, 15, 0.35)' }
                       :                                  { borderColor: '#a1a1aa', color: '#e4e4e7', background: 'rgba(63, 63, 70, 0.35)' }
@@ -5637,25 +5637,25 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
             {isFIB && (answered.source === 'oracle' || answered.source === 'fallback') && (
               <div className="flex gap-2 flex-wrap">
                 {!answered.correct && (
-                  <button onClick={() => overrideVerdict(true)} className="flex-1 py-2 rounded text-xs italic border-2 border-emerald-500 text-emerald-200 flex items-center justify-center gap-1" style={{ background: 'rgba(6, 78, 59, 0.4)' }}>
+                  <button onClick={() => overrideVerdict(true)} className="flex-1 py-2 rounded-sm text-xs italic border-2 border-emerald-500 text-emerald-200 flex items-center justify-center gap-1" style={{ background: 'rgba(6, 78, 59, 0.4)' }}>
                     <Check className="w-3 h-3" /> Mark as correct
                   </button>
                 )}
                 {answered.correct && (
-                  <button onClick={() => overrideVerdict(false)} className="flex-1 py-2 rounded text-xs italic border-2 border-red-500 text-red-200 flex items-center justify-center gap-1" style={{ background: 'rgba(127, 29, 29, 0.4)' }}>
+                  <button onClick={() => overrideVerdict(false)} className="flex-1 py-2 rounded-sm text-xs italic border-2 border-red-500 text-red-200 flex items-center justify-center gap-1" style={{ background: 'rgba(127, 29, 29, 0.4)' }}>
                     <X className="w-3 h-3" /> Mark as wrong
                   </button>
                 )}
               </div>
             )}
-            <button onClick={next} className="w-full py-3 font-bold rounded text-amber-50 border-2 border-purple-400 italic" style={{ background: 'linear-gradient(to bottom, #a855f7 0%, #6b21a8 100%)', boxShadow: '0 0 20px rgba(168, 85, 247, 0.4)' }}>Next Riddle →</button>
+            <button onClick={next} className="w-full py-3 font-bold rounded-sm text-amber-50 border-2 border-purple-400 italic" style={{ background: 'linear-gradient(to bottom, #a855f7 0%, #6b21a8 100%)', boxShadow: '0 0 20px rgba(168, 85, 247, 0.4)' }}>Next Riddle →</button>
           </div>
         )}
         {!answered && (
           <div className="mt-3 flex justify-end">
             <button
               onClick={handleSkip}
-              className="px-3 py-1.5 rounded text-xs border-2 border-red-800 text-red-300 hover:bg-red-900/30 italic flex items-center gap-1"
+              className="px-3 py-1.5 rounded-sm text-xs border-2 border-red-800 text-red-300 hover:bg-red-900/30 italic flex items-center gap-1"
               style={{ background: 'rgba(41, 12, 12, 0.6)' }}
               title="Skip — counts as wrong, breaks streak"
             >
@@ -5722,7 +5722,7 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
             <button key={i} onClick={() => {
               const resumeStep = inProgress ? Math.min(progress.step ?? 0, Math.max(0, totalStages - 1)) : 0;
               setSelectedLab(lab); setStep(resumeStep); setFeedback(null); setTextAnswer('');
-            }} className="w-full text-left p-4 rounded transition relative" style={{
+            }} className="w-full text-left p-4 rounded-sm transition relative" style={{
               background: 'linear-gradient(135deg, rgba(41, 12, 27, 0.85) 0%, rgba(20, 6, 13, 0.95) 100%)',
               border: '2px solid rgba(190, 24, 93, 0.5)', boxShadow: '0 0 15px rgba(244, 63, 94, 0.15)',
             }}>
@@ -5734,12 +5734,12 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
               <div className="text-xs text-amber-700 mt-2 italic flex items-center gap-2 flex-wrap">
                 <span>⚔ {totalStages} stages ⚔</span>
                 {isCompleted && (
-                  <span className="px-2 py-0.5 rounded text-[10px] uppercase tracking-wider font-bold not-italic" style={{
+                  <span className="px-2 py-0.5 rounded-sm text-[10px] uppercase tracking-wider font-bold not-italic" style={{
                     background: 'rgba(6, 78, 59, 0.55)', border: '1px solid rgba(16, 185, 129, 0.6)', color: '#a7f3d0',
                   }}>Completed</span>
                 )}
                 {inProgress && (
-                  <span className="px-2 py-0.5 rounded text-[10px] uppercase tracking-wider font-bold not-italic" style={{
+                  <span className="px-2 py-0.5 rounded-sm text-[10px] uppercase tracking-wider font-bold not-italic" style={{
                     background: 'rgba(120, 53, 15, 0.55)', border: '1px solid rgba(245, 158, 11, 0.6)', color: '#fde68a',
                   }}>In progress · stage {(progress.step ?? 0) + 1} of {totalStages}</span>
                 )}
@@ -5916,7 +5916,7 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
       <button onClick={handleBackToTrials} className="flex items-center gap-2 text-amber-600 hover:text-amber-400 italic">
         <ArrowLeft className="w-4 h-4" /> Back to Trials
       </button>
-      <div className="rounded p-6 relative" style={{
+      <div className="rounded-sm p-6 relative" style={{
         background: 'linear-gradient(135deg, rgba(41, 12, 27, 0.85) 0%, rgba(20, 6, 13, 0.95) 100%)',
         border: '3px double rgba(190, 24, 93, 0.6)', boxShadow: '0 0 25px rgba(244, 63, 94, 0.2)',
       }}>
@@ -5935,7 +5935,7 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
         {currentStep && !feedback && (
           <div className="space-y-3">
             <RichContent as="div" text={currentStep.prompt || currentStep.question}
-              className="p-4 rounded text-amber-50 italic"
+              className="p-4 rounded-sm text-amber-50 italic"
               style={{ background: 'rgba(41, 12, 27, 0.7)', border: '1px solid rgba(190, 24, 93, 0.4)' }} />
             {currentStep.options ? (
               <div className="space-y-2">
@@ -5944,7 +5944,7 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
                   ⌨ Hotkeys: 1–{currentStep.options.length} or A–{String.fromCharCode(64 + currentStep.options.length)} to pick
                 </div>
                 {currentStep.options.map((opt, i) => (
-                  <button key={i} onClick={() => submitStep(i === currentStep.correctIndex)} className="w-full text-left p-3 rounded border-2 text-amber-50" style={{ background: 'rgba(41, 12, 27, 0.6)', borderColor: 'rgba(190, 24, 93, 0.5)' }}>
+                  <button key={i} onClick={() => submitStep(i === currentStep.correctIndex)} className="w-full text-left p-3 rounded-sm border-2 text-amber-50" style={{ background: 'rgba(41, 12, 27, 0.6)', borderColor: 'rgba(190, 24, 93, 0.5)' }}>
                     <span className="text-rose-300 font-bold mr-2">{String.fromCharCode(65 + i)}.</span>{opt}
                   </button>
                 ))}
@@ -5952,11 +5952,11 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
             ) : (
               <div className="space-y-2">
                 <input type="text" value={textAnswer} onChange={(e) => setTextAnswer(e.target.value)}
-                  placeholder="Inscribe thy answer..." className="w-full p-3 rounded border-2 focus:outline-none italic text-amber-50"
+                  placeholder="Inscribe thy answer..." className="w-full p-3 rounded-sm border-2 focus:outline-hidden italic text-amber-50"
                   disabled={grading}
                   onKeyDown={(e) => { if (e.key === 'Enter' && textAnswer.trim() && !grading) submitTextWithOracle(); }}
                   style={{ background: 'rgba(41, 12, 27, 0.6)', borderColor: 'rgba(190, 24, 93, 0.5)' }} />
-                <button onClick={submitTextWithOracle} disabled={!textAnswer.trim() || grading} className="w-full py-3 font-bold rounded disabled:opacity-50 text-amber-50 border-2 border-rose-400 italic flex items-center justify-center gap-2"
+                <button onClick={submitTextWithOracle} disabled={!textAnswer.trim() || grading} className="w-full py-3 font-bold rounded-sm disabled:opacity-50 text-amber-50 border-2 border-rose-400 italic flex items-center justify-center gap-2"
                   style={{ background: 'linear-gradient(to bottom, #f43f5e 0%, #9f1239 100%)', boxShadow: '0 0 20px rgba(244, 63, 94, 0.4)' }}>
                   {grading ? (<><Loader2 className="w-4 h-4 animate-spin" /> The Oracle deliberates...</>) : 'Submit Stage'}
                 </button>
@@ -5965,7 +5965,7 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
             <div className="pt-2 mt-2 border-t border-amber-900/40 flex justify-end">
               <button
                 onClick={skipStep}
-                className="px-3 py-1.5 rounded text-xs border-2 border-red-800 text-red-300 hover:bg-red-900/30 italic flex items-center gap-1"
+                className="px-3 py-1.5 rounded-sm text-xs border-2 border-red-800 text-red-300 hover:bg-red-900/30 italic flex items-center gap-1"
                 style={{ background: 'rgba(41, 12, 12, 0.6)' }}
                 title="Skip this stage — counts as failed, abandons the trial"
               >
@@ -5975,7 +5975,7 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
           </div>
         )}
         {feedback && (
-          <div className="p-4 rounded border-2 space-y-3" style={{
+          <div className="p-4 rounded-sm border-2 space-y-3" style={{
             background: feedback.correct ? 'rgba(6, 78, 59, 0.5)' : 'rgba(127, 29, 29, 0.5)',
             borderColor: feedback.correct ? 'rgba(16, 185, 129, 0.7)' : 'rgba(239, 68, 68, 0.7)',
           }}>
@@ -5983,15 +5983,15 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
               {feedback.correct ? <Check className="w-5 h-5 text-emerald-400" /> : <X className="w-5 h-5 text-red-400" />}
               <span>{feedback.correct ? '⚔ Stage Conquered! ⚔' : (feedback.skipped ? '↳ Skipped — Trial Abandoned' : '✗ Try Again, Brave One')}</span>
               {feedback.overridden && (
-                <span className="text-xs px-2 py-0.5 rounded border border-amber-400/60 text-amber-200 italic">overridden</span>
+                <span className="text-xs px-2 py-0.5 rounded-sm border border-amber-400/60 text-amber-200 italic">overridden</span>
               )}
               {feedback.source === 'oracle' && (
-                <span className="text-xs px-2 py-0.5 rounded border border-purple-400/60 text-purple-200 italic flex items-center gap-1">
+                <span className="text-xs px-2 py-0.5 rounded-sm border border-purple-400/60 text-purple-200 italic flex items-center gap-1">
                   <Wand2 className="w-3 h-3" /> Graded by the Oracle
                 </span>
               )}
               {feedback.source === 'fallback' && (
-                <span className="text-xs px-2 py-0.5 rounded border border-amber-700/60 text-amber-300 italic" title={feedback.fallbackReason || ''}>
+                <span className="text-xs px-2 py-0.5 rounded-sm border border-amber-700/60 text-amber-300 italic" title={feedback.fallbackReason || ''}>
                   Tome match (Oracle silent)
                 </span>
               )}
@@ -6009,17 +6009,17 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
               <div className="flex items-center justify-between gap-2 pt-2 border-t border-amber-900/40 flex-wrap">
                 <div className="flex gap-2">
                   {!feedback.correct && (
-                    <button onClick={() => overrideVerdict(true)} className="px-3 py-1.5 rounded text-xs italic border-2 border-emerald-500 text-emerald-200 flex items-center gap-1" style={{ background: 'rgba(6, 78, 59, 0.4)' }}>
+                    <button onClick={() => overrideVerdict(true)} className="px-3 py-1.5 rounded-sm text-xs italic border-2 border-emerald-500 text-emerald-200 flex items-center gap-1" style={{ background: 'rgba(6, 78, 59, 0.4)' }}>
                       <Check className="w-3 h-3" /> Mark as correct
                     </button>
                   )}
                   {feedback.correct && (
-                    <button onClick={() => overrideVerdict(false)} className="px-3 py-1.5 rounded text-xs italic border-2 border-red-500 text-red-200 flex items-center gap-1" style={{ background: 'rgba(127, 29, 29, 0.4)' }}>
+                    <button onClick={() => overrideVerdict(false)} className="px-3 py-1.5 rounded-sm text-xs italic border-2 border-red-500 text-red-200 flex items-center gap-1" style={{ background: 'rgba(127, 29, 29, 0.4)' }}>
                       <X className="w-3 h-3" /> Mark as wrong
                     </button>
                   )}
                 </div>
-                <button onClick={continueAfterGrade} className="px-4 py-2 rounded text-sm font-bold italic border-2 border-amber-300 text-amber-950 flex items-center gap-2"
+                <button onClick={continueAfterGrade} className="px-4 py-2 rounded-sm text-sm font-bold italic border-2 border-amber-300 text-amber-950 flex items-center gap-2"
                   style={{ background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)', boxShadow: '0 0 12px rgba(245, 158, 11, 0.5)' }}>
                   Continue <ChevronRight className="w-4 h-4" />
                 </button>
@@ -6295,7 +6295,7 @@ ${fullKb}
   return (
     <div className="flex flex-col h-[70vh] max-w-3xl mx-auto">
       {/* Mode toggle */}
-      <div className="flex items-center justify-between mb-2 p-3 rounded gap-3 flex-wrap" style={{
+      <div className="flex items-center justify-between mb-2 p-3 rounded-sm gap-3 flex-wrap" style={{
         background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.8) 0%, rgba(20, 12, 6, 0.9) 100%)',
         border: '2px solid rgba(180, 83, 9, 0.5)',
       }}>
@@ -6309,17 +6309,17 @@ ${fullKb}
           {messages.length > 0 && (
             <button
               onClick={() => setShowClearConfirm(true)}
-              className="px-2 py-1.5 rounded text-xs italic border-2 border-red-800 text-red-300 hover:bg-red-900/30 flex items-center gap-1"
+              className="px-2 py-1.5 rounded-sm text-xs italic border-2 border-red-800 text-red-300 hover:bg-red-900/30 flex items-center gap-1"
               style={{ background: 'rgba(41, 12, 12, 0.6)' }}
               title="Clear chat history"
             >
               <Trash2 className="w-3 h-3" /> Clear
             </button>
           )}
-          <div className="flex gap-1 p-1 rounded" style={{ background: 'rgba(10, 6, 4, 0.7)', border: '1px solid rgba(120, 53, 15, 0.4)' }}>
+          <div className="flex gap-1 p-1 rounded-sm" style={{ background: 'rgba(10, 6, 4, 0.7)', border: '1px solid rgba(120, 53, 15, 0.4)' }}>
             <button
               onClick={() => setMode('oracle')}
-              className="px-3 py-1.5 rounded text-xs font-bold italic transition flex items-center gap-1"
+              className="px-3 py-1.5 rounded-sm text-xs font-bold italic transition flex items-center gap-1"
               style={mode === 'oracle' ? {
                 background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)',
                 color: '#451a03',
@@ -6330,7 +6330,7 @@ ${fullKb}
             </button>
             <button
               onClick={() => setMode('search')}
-              className="px-3 py-1.5 rounded text-xs font-bold italic transition flex items-center gap-1"
+              className="px-3 py-1.5 rounded-sm text-xs font-bold italic transition flex items-center gap-1"
               style={mode === 'search' ? {
                 background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)',
                 color: '#451a03',
@@ -6373,7 +6373,7 @@ ${fullKb}
           if (m.role === 'system_notice') {
             return (
               <div key={i} className="flex justify-center">
-                <div className="px-4 py-2 rounded text-xs italic max-w-[90%] text-center" style={{
+                <div className="px-4 py-2 rounded-sm text-xs italic max-w-[90%] text-center" style={{
                   background: 'rgba(120, 53, 15, 0.4)',
                   border: '1px solid rgba(245, 158, 11, 0.5)',
                   color: '#fde047',
@@ -6386,7 +6386,7 @@ ${fullKb}
           if (m.role === 'user') {
             return (
               <div key={i} className="flex justify-end">
-                <div className="max-w-[80%] p-3 rounded" style={{
+                <div className="max-w-[80%] p-3 rounded-sm" style={{
                   background: 'linear-gradient(to bottom, rgba(120, 53, 15, 0.6), rgba(41, 24, 12, 0.8))',
                   border: '1px solid rgba(245, 158, 11, 0.5)',
                   color: '#fef3c7',
@@ -6401,7 +6401,7 @@ ${fullKb}
           return (
             <div key={i} className="flex justify-start">
               <div className="max-w-[90%] flex flex-col gap-2">
-                <div className="p-3 rounded" style={{
+                <div className="p-3 rounded-sm" style={{
                   background: isSearch ? 'rgba(12, 24, 41, 0.7)' : 'rgba(41, 24, 12, 0.7)',
                   border: `1px solid ${isSearch ? 'rgba(59, 130, 246, 0.4)' : 'rgba(245, 158, 11, 0.3)'}`,
                   color: '#fef3c7',
@@ -6413,7 +6413,7 @@ ${fullKb}
                 </div>
                 {/* Sources */}
                 {m.sources && m.sources.length > 0 && (
-                  <div className="rounded p-2 text-xs" style={{
+                  <div className="rounded-sm p-2 text-xs" style={{
                     background: 'rgba(20, 12, 6, 0.7)',
                     border: '1px solid rgba(120, 53, 15, 0.5)',
                   }}>
@@ -6425,7 +6425,7 @@ ${fullKb}
                         const sourceLabel = `[${si + 1}] ${s.icon} ${s.typeLabel}`;
                         const preview = s.text.length > 100 ? s.text.slice(0, 100) + '...' : s.text;
                         return (
-                          <div key={si} className="rounded" style={{
+                          <div key={si} className="rounded-sm" style={{
                             background: 'rgba(41, 24, 12, 0.5)',
                             border: '1px solid rgba(120, 53, 15, 0.4)',
                           }}>
@@ -6433,11 +6433,11 @@ ${fullKb}
                               onClick={() => toggleSource(i, si)}
                               className="w-full text-left p-2 flex items-start gap-2 hover:bg-amber-900/20"
                             >
-                              <span className="text-amber-400 font-bold flex-shrink-0">{sourceLabel}</span>
+                              <span className="text-amber-400 font-bold shrink-0">{sourceLabel}</span>
                               <span className="text-amber-100/70 italic flex-1">
                                 {expanded ? s.text : preview}
                               </span>
-                              <ChevronRight className={`w-3 h-3 text-amber-600 flex-shrink-0 mt-1 transition-transform ${expanded ? 'rotate-90' : ''}`} />
+                              <ChevronRight className={`w-3 h-3 text-amber-600 shrink-0 mt-1 transition-transform ${expanded ? 'rotate-90' : ''}`} />
                             </button>
                           </div>
                         );
@@ -6452,7 +6452,7 @@ ${fullKb}
 
         {loading && (
           <div className="flex justify-start">
-            <div className="p-3 rounded" style={{ background: 'rgba(41, 24, 12, 0.7)', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
+            <div className="p-3 rounded-sm" style={{ background: 'rgba(41, 24, 12, 0.7)', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
               <Loader2 className="w-5 h-5 animate-spin text-amber-400" />
             </div>
           </div>
@@ -6471,13 +6471,13 @@ ${fullKb}
           onKeyDown={(e) => e.key === 'Enter' && send()}
           placeholder={mode === 'oracle' ? 'Ask the Oracle...' : 'Search the tome...'}
           disabled={loading}
-          className="flex-1 p-3 rounded border-2 focus:outline-none italic text-amber-50"
+          className="flex-1 p-3 rounded-sm border-2 focus:outline-hidden italic text-amber-50"
           style={{ background: 'rgba(41, 24, 12, 0.7)', borderColor: 'rgba(180, 83, 9, 0.5)' }}
         />
         <button
           onClick={send}
           disabled={!input.trim() || loading}
-          className="px-4 py-3 font-bold rounded disabled:opacity-50 flex items-center gap-2 text-amber-950 border-2 border-amber-300 italic"
+          className="px-4 py-3 font-bold rounded-sm disabled:opacity-50 flex items-center gap-2 text-amber-950 border-2 border-amber-300 italic"
           style={{ background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)', boxShadow: '0 0 15px rgba(245, 158, 11, 0.4)' }}
         >
           {mode === 'oracle' ? <><Send className="w-4 h-4" /> Speak</> : <><BookOpen className="w-4 h-4" /> Search</>}
@@ -6486,8 +6486,8 @@ ${fullKb}
 
       {/* Clear chat confirm */}
       {showClearConfirm && (
-        <div className="fixed inset-0 bg-black/85 backdrop-blur z-50 flex items-center justify-center p-4">
-          <div className="rounded max-w-md w-full overflow-hidden flex flex-col relative" style={{
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="rounded-sm max-w-md w-full overflow-hidden flex flex-col relative" style={{
             background: 'linear-gradient(135deg, rgba(80, 20, 20, 0.95) 0%, rgba(20, 6, 6, 0.99) 100%)',
             border: '3px double rgba(220, 38, 38, 0.7)',
             boxShadow: '0 0 40px rgba(220, 38, 38, 0.4)',
@@ -6496,7 +6496,7 @@ ${fullKb}
               <h3 className="text-lg font-bold text-red-300 italic flex items-center gap-2">
                 <Trash2 className="w-5 h-5" /> Clear Chat History
               </h3>
-              <button onClick={() => setShowClearConfirm(false)} className="p-2 hover:bg-red-900/30 rounded text-red-300" aria-label="Cancel clearing chat history">
+              <button onClick={() => setShowClearConfirm(false)} className="p-2 hover:bg-red-900/30 rounded-sm text-red-300" aria-label="Cancel clearing chat history">
                 <X className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
@@ -6508,14 +6508,14 @@ ${fullKb}
             <div className="p-4 border-t border-red-700/50 flex gap-2">
               <button
                 onClick={() => setShowClearConfirm(false)}
-                className="flex-1 py-2 rounded border-2 border-amber-700 text-amber-200 italic"
+                className="flex-1 py-2 rounded-sm border-2 border-amber-700 text-amber-200 italic"
                 style={{ background: 'rgba(41, 24, 12, 0.7)' }}
               >
                 Cancel
               </button>
               <button
                 onClick={clearChat}
-                className="flex-1 py-2 font-bold rounded text-amber-50 border-2 border-red-400 italic"
+                className="flex-1 py-2 font-bold rounded-sm text-amber-50 border-2 border-red-400 italic"
                 style={{ background: 'linear-gradient(to bottom, #dc2626 0%, #991b1b 100%)' }}
               >
                 Clear
@@ -6569,7 +6569,7 @@ function MistakeVault({ courseSet, tomeProgress, playerState, onRemove, checkAch
         Tap the green ✓ to mark a foe vanquished (grants +5 XP). Or revisit it in a study mode to clear it by answering correctly.
       </p>
       {vault.map((item, i) => (
-        <div key={i} className="p-4 rounded relative" style={{
+        <div key={i} className="p-4 rounded-sm relative" style={{
           background: 'linear-gradient(135deg, rgba(41, 12, 12, 0.7) 0%, rgba(20, 6, 6, 0.9) 100%)',
           border: '2px solid rgba(185, 28, 28, 0.5)',
         }}>
@@ -6578,10 +6578,10 @@ function MistakeVault({ courseSet, tomeProgress, playerState, onRemove, checkAch
               <div className="text-xs text-red-400 tracking-[0.3em] mb-1 italic">⚔ {(item._type || 'item').toUpperCase()} ⚔</div>
               <div className="text-amber-50 mb-2 italic">{item.question || item.front || item.term || item.title}</div>
               {item.explanation && (
-                <div className="text-sm text-amber-100/70 mt-2 p-2 rounded italic" style={{ background: 'rgba(20, 12, 6, 0.6)', border: '1px solid rgba(120, 53, 15, 0.4)' }}>{item.explanation}</div>
+                <div className="text-sm text-amber-100/70 mt-2 p-2 rounded-sm italic" style={{ background: 'rgba(20, 12, 6, 0.6)', border: '1px solid rgba(120, 53, 15, 0.4)' }}>{item.explanation}</div>
               )}
             </div>
-            <button onClick={() => { onRemove(item); awardXP(5); }} className="px-3 py-1 rounded text-sm border-2 border-emerald-400 text-emerald-200" style={{ background: 'rgba(6, 78, 59, 0.5)' }}
+            <button onClick={() => { onRemove(item); awardXP(5); }} className="px-3 py-1 rounded-sm text-sm border-2 border-emerald-400 text-emerald-200" style={{ background: 'rgba(6, 78, 59, 0.5)' }}
               title="Mark vanquished (+5 XP) — dismisses this entry (undoable for a moment)"
               aria-label={`Mark vanquished and dismiss: ${(item.question || item.front || item.term || item.title || '').slice(0, 80)}`}>
               <Check className="w-4 h-4" aria-hidden="true" />
@@ -6662,7 +6662,7 @@ function RunHistoryScreen({ playerState, setScreen }) {
 
   return (
     <div className="space-y-6">
-      <div className="p-6 rounded relative" style={{
+      <div className="p-6 rounded-sm relative" style={{
         background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.7) 0%, rgba(10, 6, 4, 0.95) 100%)',
         border: '3px double rgba(168, 85, 247, 0.6)',
         boxShadow: '0 0 30px rgba(168, 85, 247, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
@@ -6719,7 +6719,7 @@ function RunHistoryScreen({ playerState, setScreen }) {
 
       {summary.totalRuns === 0 ? (
         <div className="text-center py-12">
-          <button onClick={() => setScreen('dungeon')} className="px-5 py-3 rounded font-bold italic border-2 border-red-400 text-amber-50 inline-flex items-center gap-2"
+          <button onClick={() => setScreen('dungeon')} className="px-5 py-3 rounded-sm font-bold italic border-2 border-red-400 text-amber-50 inline-flex items-center gap-2"
             style={{ background: 'linear-gradient(to bottom, #dc2626 0%, #991b1b 100%)', boxShadow: '0 0 18px rgba(220, 38, 38, 0.4)' }}>
             <Swords className="w-4 h-4" /> Begin a Delve
           </button>
@@ -6731,14 +6731,14 @@ function RunHistoryScreen({ playerState, setScreen }) {
             "Uncategorized". Always shows so the player can see when a new
             tome's analytics start landing. */}
         {totalAnswered > 0 && (
-          <div className="p-4 rounded" style={{
+          <div className="p-4 rounded-sm" style={{
             background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.6) 0%, rgba(10, 6, 4, 0.95) 100%)',
             border: '2px solid rgba(126, 34, 206, 0.45)',
           }}>
             <div className="flex items-center gap-2 mb-3">
               <span className="text-base">🎯</span>
               <h3 className="text-sm font-bold italic text-purple-200 tracking-wider">Accuracy by Domain</h3>
-              <div className="flex-1 h-px bg-gradient-to-r from-purple-700/40 to-transparent" />
+              <div className="flex-1 h-px bg-linear-to-r from-purple-700/40 to-transparent" />
               <span className="text-[10px] italic text-amber-700">{totalAnswered} answered · {domainStats.length} domain{domainStats.length === 1 ? '' : 's'}</span>
             </div>
             <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-2">
@@ -6750,7 +6750,7 @@ function RunHistoryScreen({ playerState, setScreen }) {
                             : pct >= 50 ? { bg: 'rgba(245, 158, 11, 0.22)', border: 'rgba(245, 158, 11, 0.6)', text: '#fde68a' }
                             :             { bg: 'rgba(239, 68, 68, 0.25)',  border: '#ef4444', text: '#fecaca' };
                 return (
-                  <div key={b.domain} className="p-3 rounded" style={{
+                  <div key={b.domain} className="p-3 rounded-sm" style={{
                     background: ramp.bg,
                     border: `1.5px solid ${ramp.border}`,
                   }}>
@@ -6763,7 +6763,7 @@ function RunHistoryScreen({ playerState, setScreen }) {
                     <div className="text-[10px] italic text-amber-100/70 mt-1">
                       {b.correct}/{b.total} correct
                     </div>
-                    <div className="h-1.5 rounded mt-2 overflow-hidden" style={{ background: 'rgba(0,0,0,0.45)' }}>
+                    <div className="h-1.5 rounded-sm mt-2 overflow-hidden" style={{ background: 'rgba(0,0,0,0.45)' }}>
                       <div className="h-full" style={{
                         width: `${pct}%`,
                         background: ramp.border,
@@ -6784,7 +6784,7 @@ function RunHistoryScreen({ playerState, setScreen }) {
           {/* Polish: sortable column header bar. Each header is a button that
               toggles sort direction (or switches sortKey on a different
               column). Sort indicator is appended to the label. */}
-          <div className="flex flex-wrap gap-2 items-center px-3 py-2 rounded text-[11px] italic"
+          <div className="flex flex-wrap gap-2 items-center px-3 py-2 rounded-sm text-[11px] italic"
                style={{ background: 'rgba(10, 6, 4, 0.45)', border: '1px solid rgba(120, 53, 15, 0.3)' }}>
             <span className="text-amber-700 mr-1">Sort by:</span>
             {[
@@ -6798,7 +6798,7 @@ function RunHistoryScreen({ playerState, setScreen }) {
               const active = sortKey === k;
               return (
                 <button key={k} onClick={() => toggleSort(k)}
-                  className="px-2 py-1 rounded transition"
+                  className="px-2 py-1 rounded-sm transition"
                   style={{
                     background: active ? 'rgba(245, 158, 11, 0.2)' : 'transparent',
                     border: `1px solid ${active ? 'rgba(245, 158, 11, 0.6)' : 'rgba(120, 53, 15, 0.3)'}`,
@@ -6815,7 +6815,7 @@ function RunHistoryScreen({ playerState, setScreen }) {
             const isOpen = expanded === run.runId;
             const dateLabel = new Date(run.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
             return (
-              <div key={run.runId} className="rounded relative overflow-hidden" style={{
+              <div key={run.runId} className="rounded-sm relative overflow-hidden" style={{
                 background: run.won
                   ? 'linear-gradient(135deg, rgba(6, 78, 59, 0.4) 0%, rgba(10, 6, 4, 0.95) 100%)'
                   : 'linear-gradient(135deg, rgba(127, 29, 29, 0.4) 0%, rgba(10, 6, 4, 0.95) 100%)',
@@ -6825,7 +6825,7 @@ function RunHistoryScreen({ playerState, setScreen }) {
                   onClick={() => setExpanded(isOpen ? null : run.runId)}
                   className="w-full p-4 text-left flex items-center gap-3 flex-wrap"
                 >
-                  <span className="text-2xl flex-shrink-0">{boss?.icon || '⚔'}</span>
+                  <span className="text-2xl shrink-0">{boss?.icon || '⚔'}</span>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className={`text-sm font-bold italic ${run.won ? 'text-emerald-200' : 'text-red-200'}`}>
@@ -6923,8 +6923,8 @@ function RunHistoryScreen({ playerState, setScreen }) {
                             {log.map((q, i) => (
                               <div key={i} className="flex items-start gap-2 text-xs italic" style={{ background: 'rgba(10, 6, 4, 0.5)', padding: '6px 8px', borderRadius: '4px' }}>
                                 {q.correct
-                                  ? <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0 mt-0.5" />
-                                  : <X className="w-3.5 h-3.5 text-red-400 flex-shrink-0 mt-0.5" />}
+                                  ? <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                                  : <X className="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" />}
                                 <div className="flex-1 min-w-0">
                                   <div className="text-amber-100/80 truncate">{q.prompt}</div>
                                   <div className="text-amber-700 flex flex-wrap gap-x-1.5 gap-y-1 items-center">
@@ -7135,7 +7135,7 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
 
   return (
     <div className="space-y-6">
-      <div className="p-6 rounded relative" style={{
+      <div className="p-6 rounded-sm relative" style={{
         background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.7) 0%, rgba(10, 6, 4, 0.95) 100%)',
         border: '3px double rgba(16, 185, 129, 0.6)',
         boxShadow: '0 0 30px rgba(16, 185, 129, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
@@ -7155,7 +7155,7 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
               ⚜ Mastery by domain ⚜
             </div>
           </div>
-          <button onClick={() => setScreen('home')} className="px-3 py-2 rounded text-sm border-2 border-amber-700 text-amber-200 italic hover:bg-amber-900/30"
+          <button onClick={() => setScreen('home')} className="px-3 py-2 rounded-sm text-sm border-2 border-amber-700 text-amber-200 italic hover:bg-amber-900/30"
             style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
             <ArrowLeft className="w-4 h-4 inline mr-1" /> Home
           </button>
@@ -7166,7 +7166,7 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
           <select
             value={selectedTomeId}
             onChange={(e) => setSelectedTomeId(e.target.value)}
-            className="w-full p-2 rounded text-amber-50 italic border-2 border-emerald-700"
+            className="w-full p-2 rounded-sm text-amber-50 italic border-2 border-emerald-700"
             style={{ background: 'rgba(6, 78, 59, 0.5)' }}
           >
             <option value="combined">Combined (all tomes)</option>
@@ -7194,7 +7194,7 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
           computed honestly. Shows the picker either way (set/clear is
           always available) and the daily-target stats once a date is set. */}
       {!isCombined && selectedTome && onSetExamDate && (
-        <div className="p-4 rounded" style={{
+        <div className="p-4 rounded-sm" style={{
           background: 'linear-gradient(135deg, rgba(120, 53, 15, 0.45) 0%, rgba(10, 6, 4, 0.95) 100%)',
           border: '2px solid rgba(245, 158, 11, 0.5)',
           boxShadow: '0 0 18px rgba(245, 158, 11, 0.15), inset 0 0 16px rgba(0,0,0,0.4)',
@@ -7202,10 +7202,10 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
           <div className="flex items-center gap-2 mb-3">
             <Calendar className="w-5 h-5 text-amber-300" style={{ filter: 'drop-shadow(0 0 6px rgba(245, 158, 11, 0.5))' }} />
             <h3 className="text-sm font-bold italic text-amber-200 tracking-wider">Exam Pace</h3>
-            <div className="flex-1 h-px bg-gradient-to-r from-amber-700/40 to-transparent" />
+            <div className="flex-1 h-px bg-linear-to-r from-amber-700/40 to-transparent" />
             {examDate && (
               <button onClick={() => onSetExamDate(selectedTomeId, null)}
-                className="text-[10px] italic px-2 py-0.5 rounded border border-amber-700 text-amber-300 hover:bg-amber-900/40">
+                className="text-[10px] italic px-2 py-0.5 rounded-sm border border-amber-700 text-amber-300 hover:bg-amber-900/40">
                 Clear
               </button>
             )}
@@ -7217,7 +7217,7 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
               value={examDate || ''}
               min={todayIso}
               onChange={(e) => onSetExamDate(selectedTomeId, e.target.value || null)}
-              className="px-2 py-1 rounded text-amber-50 italic border-2 border-amber-700"
+              className="px-2 py-1 rounded-sm text-amber-50 italic border-2 border-amber-700"
               style={{ background: 'rgba(41, 24, 12, 0.6)', colorScheme: 'dark' }}
             />
           </div>
@@ -7243,15 +7243,15 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
           )}
           {examPace && examPace.status === 'upcoming' && (
             <div className="grid grid-cols-3 gap-2">
-              <div className="p-2 rounded text-center" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
+              <div className="p-2 rounded-sm text-center" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
                 <div className="text-[10px] uppercase tracking-wider italic font-bold text-amber-700">Days Remaining</div>
                 <div className="text-xl font-bold tabular-nums italic text-amber-200">{examPace.daysRemaining}</div>
               </div>
-              <div className="p-2 rounded text-center" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
+              <div className="p-2 rounded-sm text-center" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
                 <div className="text-[10px] uppercase tracking-wider italic font-bold text-amber-700">Quiz Items</div>
                 <div className="text-xl font-bold tabular-nums italic text-amber-200">{examPace.total}</div>
               </div>
-              <div className="p-2 rounded text-center" style={{ background: 'rgba(120, 53, 15, 0.5)', border: '1.5px solid rgba(251, 191, 36, 0.7)', boxShadow: 'inset 0 0 8px rgba(245, 158, 11, 0.15)' }}>
+              <div className="p-2 rounded-sm text-center" style={{ background: 'rgba(120, 53, 15, 0.5)', border: '1.5px solid rgba(251, 191, 36, 0.7)', boxShadow: 'inset 0 0 8px rgba(245, 158, 11, 0.15)' }}>
                 <div className="text-[10px] uppercase tracking-wider italic font-bold text-amber-300">Daily Target</div>
                 <div className="text-xl font-bold tabular-nums italic text-amber-100" style={{ textShadow: '0 0 6px rgba(245, 158, 11, 0.5)' }}>
                   {examPace.dailyTarget}/day
@@ -7287,7 +7287,7 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
               ? { bg: 'rgba(239, 68, 68, 0.30)', border: '#ef4444', text: '#fecaca' }
               : { bg: 'rgba(63, 63, 70, 0.45)', border: '#a1a1aa', text: '#e4e4e7' };
         return (
-          <div className="p-4 rounded" style={{
+          <div className="p-4 rounded-sm" style={{
             background: 'linear-gradient(135deg, rgba(67, 56, 202, 0.4) 0%, rgba(10, 6, 4, 0.95) 100%)',
             border: '2px solid rgba(129, 140, 248, 0.55)',
             boxShadow: '0 0 18px rgba(129, 140, 248, 0.18), inset 0 0 16px rgba(0,0,0,0.4)',
@@ -7295,13 +7295,13 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
             <div className="flex items-center gap-2 mb-3">
               <TrendingUp className="w-5 h-5 text-indigo-300" style={{ filter: 'drop-shadow(0 0 6px rgba(129, 140, 248, 0.6))' }} />
               <h3 className="text-sm font-bold italic text-indigo-200 tracking-wider">Predicted Exam Score</h3>
-              <div className="flex-1 h-px bg-gradient-to-r from-indigo-700/40 to-transparent" />
+              <div className="flex-1 h-px bg-linear-to-r from-indigo-700/40 to-transparent" />
               {/* Phase 37c QA P4: "no data" badge contradicts the visible
                   Domain-tagged Accuracy panel below when only the sample-
                   threshold gate isn't met (not actually missing data).
                   Rename to "below threshold" so the headline matches the
                   body explanation. */}
-              <span className="text-[10px] italic px-2 py-0.5 rounded font-bold tracking-wider" style={{
+              <span className="text-[10px] italic px-2 py-0.5 rounded-sm font-bold tracking-wider" style={{
                 background: confPalette.bg, color: confPalette.text, border: `1px solid ${confPalette.border}`,
               }}>
                 {p.confidence === 'none' ? 'below threshold' : p.confidence}
@@ -7315,7 +7315,7 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
                 {showRing ? `${ringPct}%` : '—'}
               </div>
               <div className="flex-1 min-w-[200px]">
-                <div className="h-3 rounded overflow-hidden mb-2" style={{ background: 'rgba(0,0,0,0.45)' }}>
+                <div className="h-3 rounded-sm overflow-hidden mb-2" style={{ background: 'rgba(0,0,0,0.45)' }}>
                   {showRing && (
                     <div className="h-full transition-all" style={{ width: `${ringPct}%`, background: `linear-gradient(to right, ${ringColor}90, ${ringColor})` }} />
                   )}
@@ -7365,7 +7365,7 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
                       onClick={() => onStudyDomain('quiz', m.domain)}
                       title={`Study ${m.domain} riddles to unlock its prediction slot`}
                       aria-label={`Study ${m.domain} domain — ${m.weight}% of exam weight`}
-                      className="text-[10px] italic px-1.5 py-0.5 rounded hover:brightness-125 transition" style={{
+                      className="text-[10px] italic px-1.5 py-0.5 rounded-sm hover:brightness-125 transition" style={{
                         background: 'rgba(67, 56, 202, 0.5)', border: '1px solid rgba(129, 140, 248, 0.7)', color: '#e0e7ff', cursor: 'pointer',
                       }}>
                       ↗ {m.domain} · {m.weight}%
@@ -7379,10 +7379,10 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
       })()}
 
       {totals.total === 0 ? (
-        <div className="text-center py-12 rounded" style={{ background: 'rgba(10, 6, 4, 0.6)', border: '2px dashed rgba(16, 185, 129, 0.4)' }}>
+        <div className="text-center py-12 rounded-sm" style={{ background: 'rgba(10, 6, 4, 0.6)', border: '2px dashed rgba(16, 185, 129, 0.4)' }}>
           <div className="text-emerald-300 italic text-lg mb-2">No domain data yet.</div>
           <div className="text-emerald-700 italic text-sm mb-4">Brave the dungeon — every riddle answered tags its domain for this codex.</div>
-          <button onClick={() => setScreen('dungeon')} className="px-5 py-3 rounded font-bold italic border-2 border-red-400 text-amber-50 inline-flex items-center gap-2"
+          <button onClick={() => setScreen('dungeon')} className="px-5 py-3 rounded-sm font-bold italic border-2 border-red-400 text-amber-50 inline-flex items-center gap-2"
             style={{ background: 'linear-gradient(to bottom, #dc2626 0%, #991b1b 100%)', boxShadow: '0 0 18px rgba(220, 38, 38, 0.4)' }}>
             <Swords className="w-4 h-4" /> Begin a Delve
           </button>
@@ -7390,7 +7390,7 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
       ) : (
         <>
           {/* Overall progress bar */}
-          <div className="p-4 rounded" style={{
+          <div className="p-4 rounded-sm" style={{
             background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.6) 0%, rgba(10, 6, 4, 0.95) 100%)',
             border: '2px solid rgba(16, 185, 129, 0.45)',
           }}>
@@ -7408,7 +7408,7 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
                 {totals.correct}/{totals.total} · {overallPct}%
               </div>
             </div>
-            <div className="h-3 rounded overflow-hidden" style={{ background: 'rgba(0,0,0,0.45)' }}>
+            <div className="h-3 rounded-sm overflow-hidden" style={{ background: 'rgba(0,0,0,0.45)' }}>
               <div className="h-full transition-all" style={{ width: `${overallPct}%`, background: rampForPct(overallPct).fill }} />
             </div>
             <div className="text-[10px] italic text-emerald-300/80 mt-2">
@@ -7421,7 +7421,7 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
               matching items in the studied tome). Tie-breaks favor
               higher exam weight, then larger sample size. */}
           {weakestDomain && (
-            <div className="p-4 rounded" style={{
+            <div className="p-4 rounded-sm" style={{
               background: 'linear-gradient(135deg, rgba(127, 29, 29, 0.5) 0%, rgba(10, 6, 4, 0.95) 100%)',
               border: '2px solid rgba(239, 68, 68, 0.6)',
               boxShadow: '0 0 18px rgba(239, 68, 68, 0.18), inset 0 0 16px rgba(0,0,0,0.4)',
@@ -7429,7 +7429,7 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
               <div className="flex items-center gap-2 mb-2">
                 <Flame className="w-5 h-5 text-red-300" style={{ filter: 'drop-shadow(0 0 6px rgba(239, 68, 68, 0.6))' }} />
                 <h3 className="text-sm font-bold italic text-red-200 tracking-wider">Weakest Domain</h3>
-                <div className="flex-1 h-px bg-gradient-to-r from-red-700/50 to-transparent" />
+                <div className="flex-1 h-px bg-linear-to-r from-red-700/50 to-transparent" />
                 <span className="text-[10px] italic text-amber-700 tracking-wider">auto-targeted</span>
               </div>
               <div className="flex items-baseline justify-between gap-2 mb-3 flex-wrap">
@@ -7443,14 +7443,14 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
               <div className="flex flex-wrap gap-2">
                 {quizDomainSet.has(weakestDomain.domain) && (
                   <button onClick={() => onStudyDomain('quiz', weakestDomain.domain)}
-                    className="px-3 py-2 rounded text-sm font-bold border-2 border-purple-400 text-purple-100 italic hover:bg-purple-900/40"
+                    className="px-3 py-2 rounded-sm text-sm font-bold border-2 border-purple-400 text-purple-100 italic hover:bg-purple-900/40"
                     style={{ background: 'rgba(126, 34, 206, 0.5)' }}>
                     <Target className="w-4 h-4 inline mr-1" /> Practice via Riddles
                   </button>
                 )}
                 {flashcardDomainSet.has(weakestDomain.domain) && (
                   <button onClick={() => onStudyDomain('flashcards', weakestDomain.domain)}
-                    className="px-3 py-2 rounded text-sm font-bold border-2 border-sky-400 text-sky-100 italic hover:bg-sky-900/40"
+                    className="px-3 py-2 rounded-sm text-sm font-bold border-2 border-sky-400 text-sky-100 italic hover:bg-sky-900/40"
                     style={{ background: 'rgba(29, 78, 216, 0.5)' }}>
                     <Scroll className="w-4 h-4 inline mr-1" /> Practice via Scrolls
                   </button>
@@ -7483,18 +7483,18 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
               const hasQuiz = quizDomainSet.has(s.domain);
               const hasFlashcards = flashcardDomainSet.has(s.domain);
               return (
-                <div key={s.domain} className="p-3 rounded" style={{ background: ramp.bg, border: `1.5px solid ${ramp.border}` }}>
+                <div key={s.domain} className="p-3 rounded-sm" style={{ background: ramp.bg, border: `1.5px solid ${ramp.border}` }}>
                   <div className="flex items-baseline justify-between gap-2 mb-2">
                     <div className="flex items-baseline gap-2 flex-wrap min-w-0">
                       <div className="text-sm italic font-bold truncate" style={{ color: ramp.text }}>{s.domain}</div>
                       {showWeight && (
-                        <span className="text-[10px] italic tracking-wider px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,0,0,0.4)', color: ramp.text, border: `1px solid ${ramp.border}` }}>
+                        <span className="text-[10px] italic tracking-wider px-1.5 py-0.5 rounded-sm" style={{ background: 'rgba(0,0,0,0.4)', color: ramp.text, border: `1px solid ${ramp.border}` }}>
                           {weight}% of exam
                         </span>
                       )}
                       {lowSample && (
                         <span
-                          className="text-[10px] italic tracking-wider px-1.5 py-0.5 rounded"
+                          className="text-[10px] italic tracking-wider px-1.5 py-0.5 rounded-sm"
                           title={`Color ramp gates at ${DOMAIN_VERDICT_MIN_SAMPLE}+ attempts so a tiny perfect sample doesn't read as mastery. Practice ${DOMAIN_VERDICT_MIN_SAMPLE - s.total} more for a stable verdict.`}
                           style={{ background: 'rgba(0,0,0,0.4)', color: '#fde68a', border: '1px solid rgba(245, 158, 11, 0.6)' }}
                         >
@@ -7506,21 +7506,21 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
                       {s.correct}/{s.total} · {pct}%
                     </div>
                   </div>
-                  <div className="h-2 rounded overflow-hidden mb-2" style={{ background: 'rgba(0,0,0,0.45)' }}>
+                  <div className="h-2 rounded-sm overflow-hidden mb-2" style={{ background: 'rgba(0,0,0,0.45)' }}>
                     <div className="h-full transition-all" style={{ width: `${pct}%`, background: ramp.fill }} />
                   </div>
                   {(hasQuiz || hasFlashcards) && (
                     <div className="flex flex-wrap gap-2">
                       {hasQuiz && (
                         <button onClick={() => onStudyDomain('quiz', s.domain)}
-                          className="px-3 py-1.5 rounded text-xs font-bold border-2 border-purple-400 text-purple-100 italic"
+                          className="px-3 py-1.5 rounded-sm text-xs font-bold border-2 border-purple-400 text-purple-100 italic"
                           style={{ background: 'rgba(126, 34, 206, 0.45)' }}>
                           <Target className="w-3 h-3 inline mr-1" /> Study via Riddles
                         </button>
                       )}
                       {hasFlashcards && (
                         <button onClick={() => onStudyDomain('flashcards', s.domain)}
-                          className="px-3 py-1.5 rounded text-xs font-bold border-2 border-sky-400 text-sky-100 italic"
+                          className="px-3 py-1.5 rounded-sm text-xs font-bold border-2 border-sky-400 text-sky-100 italic"
                           style={{ background: 'rgba(29, 78, 216, 0.45)' }}>
                           <Scroll className="w-3 h-3 inline mr-1" /> Study via Scrolls
                         </button>
@@ -7543,14 +7543,14 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
               expectation vs reality (ideal: high → 90%+, med → ~70%,
               low → ~40-50%). */}
           {calibrationTotal > 0 && (
-            <div className="p-4 rounded" style={{
+            <div className="p-4 rounded-sm" style={{
               background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.55) 0%, rgba(10, 6, 4, 0.95) 100%)',
               border: '2px solid rgba(16, 185, 129, 0.45)',
             }}>
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-base">⚖</span>
                 <h3 className="text-sm font-bold italic text-emerald-200 tracking-wider">Confidence Calibration</h3>
-                <div className="flex-1 h-px bg-gradient-to-r from-emerald-700/40 to-transparent" />
+                <div className="flex-1 h-px bg-linear-to-r from-emerald-700/40 to-transparent" />
                 <span className="text-[10px] italic text-amber-700">{calibrationTotal} rated</span>
               </div>
               <div className="grid grid-cols-3 gap-2 mb-2">
@@ -7586,7 +7586,7 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
                   const bandLo = Math.max(0, ideal - CAL_BAND);
                   const bandHi = Math.min(100, ideal + CAL_BAND);
                   return (
-                    <div key={key} className="p-2.5 rounded" style={{
+                    <div key={key} className="p-2.5 rounded-sm" style={{
                       background: palette.bg,
                       border: `1.5px solid ${palette.border}`,
                     }}>
@@ -7632,7 +7632,7 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
                         </div>
                       )}
                       {verdict && (
-                        <div className="text-[10px] italic mt-1.5 px-1.5 py-0.5 rounded text-center font-bold" style={{
+                        <div className="text-[10px] italic mt-1.5 px-1.5 py-0.5 rounded-sm text-center font-bold" style={{
                           background: verdict === 'calibrated' ? 'rgba(16, 185, 129, 0.35)'
                             : verdict === 'overconfident' ? 'rgba(239, 68, 68, 0.35)'
                             : 'rgba(245, 158, 11, 0.35)',
@@ -7661,7 +7661,7 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
           library). The SVG curve covers +0d → +30d; the four milestone
           tiles surface Now / +1d / +7d / +30d for quick scanning. */}
       {memoryCoverage.total > 0 && (
-        <div className="p-4 rounded" style={{
+        <div className="p-4 rounded-sm" style={{
           background: 'linear-gradient(135deg, rgba(29, 78, 216, 0.4) 0%, rgba(10, 6, 4, 0.95) 100%)',
           border: '2px solid rgba(59, 130, 246, 0.55)',
           boxShadow: '0 0 18px rgba(59, 130, 246, 0.15), inset 0 0 16px rgba(0,0,0,0.4)',
@@ -7669,7 +7669,7 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
           <div className="flex items-center gap-2 mb-3">
             <Brain className="w-5 h-5 text-sky-300" style={{ filter: 'drop-shadow(0 0 6px rgba(59, 130, 246, 0.55))' }} />
             <h3 className="text-sm font-bold italic text-sky-200 tracking-wider">Memory Forecast</h3>
-            <div className="flex-1 h-px bg-gradient-to-r from-sky-700/40 to-transparent" />
+            <div className="flex-1 h-px bg-linear-to-r from-sky-700/40 to-transparent" />
             {/* Phase 33h: when forecast is locked, hide the redundant
                 "X of Y scrolls rated" badge — the same number is in the
                 consolidated unlock message below. Keep it visible once
@@ -7702,7 +7702,7 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
               </div>
               <button
                 onClick={() => setScreen('flashcards')}
-                className="inline-flex items-center gap-1 px-3 py-1 rounded text-xs italic font-bold hover:brightness-110"
+                className="inline-flex items-center gap-1 px-3 py-1 rounded-sm text-xs italic font-bold hover:brightness-110"
                 style={{
                   background: 'linear-gradient(to bottom, #38bdf8 0%, #0369a1 100%)',
                   border: '2px solid rgba(56, 189, 248, 0.7)',
@@ -7756,7 +7756,7 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
                     pct >= 25 ? '#fdba74' :
                     '#fecaca';
                   return (
-                    <div key={m.offsetDays} className="p-2 rounded text-center" style={{
+                    <div key={m.offsetDays} className="p-2 rounded-sm text-center" style={{
                       background: 'rgba(0,0,0,0.4)',
                       border: '1px solid rgba(59, 130, 246, 0.4)',
                     }}>
@@ -7800,7 +7800,7 @@ function DomainStudyScreen({ playerState, setScreen, onMarkVisited, onStudyDomai
 
 function RecordTile({ label, value, sub }) {
   return (
-    <div className="p-3 rounded relative" style={{
+    <div className="p-3 rounded-sm relative" style={{
       background: 'linear-gradient(135deg, rgba(120, 53, 15, 0.45) 0%, rgba(41, 24, 12, 0.85) 100%)',
       border: '1px solid rgba(245, 158, 11, 0.4)',
       boxShadow: 'inset 0 0 12px rgba(0,0,0,0.4)',
@@ -7852,7 +7852,7 @@ function ShopScreen({ playerState, setScreen, onPurchase }) {
 
   return (
     <div className="space-y-6">
-      <div className="p-6 rounded relative" style={{
+      <div className="p-6 rounded-sm relative" style={{
         background: 'linear-gradient(135deg, rgba(120, 53, 15, 0.5) 0%, rgba(10, 6, 4, 0.95) 100%)',
         border: '3px double rgba(245, 158, 11, 0.6)',
         boxShadow: '0 0 30px rgba(245, 158, 11, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
@@ -7877,7 +7877,7 @@ function ShopScreen({ playerState, setScreen, onPurchase }) {
               </div>
             </div>
           </div>
-          <div className="px-4 py-2 rounded border-2 border-amber-700/60 flex items-center gap-2" style={{
+          <div className="px-4 py-2 rounded-sm border-2 border-amber-700/60 flex items-center gap-2" style={{
             background: 'linear-gradient(to bottom, rgba(120, 53, 15, 0.5), rgba(41, 24, 12, 0.85))',
             boxShadow: '0 0 10px rgba(245, 158, 11, 0.2), inset 0 0 10px rgba(0,0,0,0.4)',
           }}>
@@ -7894,7 +7894,7 @@ function ShopScreen({ playerState, setScreen, onPurchase }) {
           <button
             key={t.id}
             onClick={() => setActiveTab(t.id)}
-            className="px-4 py-2.5 rounded font-bold italic text-sm border-2 flex items-center gap-2 transition"
+            className="px-4 py-2.5 rounded-sm font-bold italic text-sm border-2 flex items-center gap-2 transition"
             style={{
               borderColor: activeTab === t.id ? 'rgba(245, 158, 11, 0.85)' : 'rgba(126, 34, 206, 0.5)',
               background: activeTab === t.id
@@ -7936,7 +7936,7 @@ function ShopScreen({ playerState, setScreen, onPurchase }) {
               : !canAfford ? (usesDevotion ? 'Insufficient devotion' : usesTokens ? 'Insufficient tokens' : 'Insufficient gold')
               : 'Purchase';
             return (
-              <div key={item.id} className="p-5 rounded relative" style={{
+              <div key={item.id} className="p-5 rounded-sm relative" style={{
                 background: locked
                   ? 'linear-gradient(135deg, rgba(15, 8, 20, 0.6) 0%, rgba(10, 6, 4, 0.95) 100%)'
                   : owned || atCap
@@ -7955,7 +7955,7 @@ function ShopScreen({ playerState, setScreen, onPurchase }) {
                 <div className="absolute bottom-1 right-1 text-amber-700/60 text-xs">⚜</div>
 
                 <div className="flex items-start gap-3 mb-3">
-                  <div className="text-3xl flex-shrink-0">{item.icon}</div>
+                  <div className="text-3xl shrink-0">{item.icon}</div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-baseline justify-between gap-2 flex-wrap">
                       <h3 className={`font-bold italic text-sm ${locked ? 'text-amber-700/70' : 'text-amber-200'}`}
@@ -7999,7 +7999,7 @@ function ShopScreen({ playerState, setScreen, onPurchase }) {
                   <button
                     onClick={() => { if (!disabled) { setPendingPurchase(item); setPurchaseError(null); } }}
                     disabled={disabled}
-                    className="px-3 py-1.5 rounded text-xs font-bold italic border-2 flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-3 py-1.5 rounded-sm text-xs font-bold italic border-2 flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
                     style={disabled
                       ? { background: 'rgba(31, 12, 41, 0.6)', borderColor: 'rgba(126, 34, 206, 0.4)', color: '#a78bfa' }
                       : { background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)', borderColor: '#fde047', color: '#451a03', boxShadow: '0 0 12px rgba(245, 158, 11, 0.5)' }}
@@ -8015,8 +8015,8 @@ function ShopScreen({ playerState, setScreen, onPurchase }) {
       )}
 
       {pendingPurchase && (
-        <div className="fixed inset-0 bg-black/85 backdrop-blur z-50 flex items-center justify-center p-4">
-          <div className="rounded max-w-md w-full overflow-hidden flex flex-col relative" style={{
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="rounded-sm max-w-md w-full overflow-hidden flex flex-col relative" style={{
             background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.99) 0%, rgba(10, 6, 4, 1) 100%)',
             border: '3px double rgba(245, 158, 11, 0.7)',
             boxShadow: '0 0 60px rgba(245, 158, 11, 0.4)',
@@ -8034,7 +8034,7 @@ function ShopScreen({ playerState, setScreen, onPurchase }) {
                 </h3>
                 <p className="text-sm text-amber-100/80 italic mt-2">{pendingPurchase.description}</p>
               </div>
-              <div className="px-4 py-3 rounded border border-amber-700/60 inline-flex items-center gap-2" style={{ background: 'rgba(120, 53, 15, 0.4)' }}>
+              <div className="px-4 py-3 rounded-sm border border-amber-700/60 inline-flex items-center gap-2" style={{ background: 'rgba(120, 53, 15, 0.4)' }}>
                 <span className="text-xs text-amber-700 italic">Cost:</span>
                 <Coins className="w-4 h-4 text-amber-300" />
                 <span className="text-amber-200 font-bold italic tabular-nums">{pendingPurchase.price}</span>
@@ -8044,19 +8044,19 @@ function ShopScreen({ playerState, setScreen, onPurchase }) {
                 Thou hast <span className="text-amber-300 font-bold">{playerState.gold || 0}</span> gold.
               </div>
               {purchaseError && (
-                <div className="px-3 py-2 rounded text-sm italic border border-red-500/60 text-red-200" style={{ background: 'rgba(127, 29, 29, 0.4)' }}>
+                <div className="px-3 py-2 rounded-sm text-sm italic border border-red-500/60 text-red-200" style={{ background: 'rgba(127, 29, 29, 0.4)' }}>
                   {purchaseError}
                 </div>
               )}
             </div>
             <div className="p-4 border-t border-amber-700/50 flex gap-2">
               <button onClick={() => { setPendingPurchase(null); setPurchaseError(null); }}
-                className="flex-1 py-3 rounded border-2 border-amber-700 text-amber-200 italic"
+                className="flex-1 py-3 rounded-sm border-2 border-amber-700 text-amber-200 italic"
                 style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
                 Cancel
               </button>
               <button onClick={tryBuy}
-                className="flex-1 py-3 font-bold rounded flex items-center justify-center gap-2 text-amber-950 border-2 border-amber-300 italic"
+                className="flex-1 py-3 font-bold rounded-sm flex items-center justify-center gap-2 text-amber-950 border-2 border-amber-300 italic"
                 style={{ background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)', boxShadow: '0 0 20px rgba(245, 158, 11, 0.5)' }}>
                 <Coins className="w-4 h-4" /> Confirm Purchase
               </button>
@@ -8113,7 +8113,7 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
               <h3 className="text-lg font-bold text-amber-200 italic tracking-wider" style={{ textShadow: '0 0 8px rgba(245, 158, 11, 0.3)' }}>
                 {cat.label}
               </h3>
-              <div className="flex-1 h-px bg-gradient-to-r from-amber-700/50 to-transparent" />
+              <div className="flex-1 h-px bg-linear-to-r from-amber-700/50 to-transparent" />
               <span className="text-xs text-amber-700 italic">
                 {items.length} kind{items.length === 1 ? '' : 's'}
               </span>
@@ -8122,7 +8122,7 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
               {items.map((it) => {
                 const isEquipped = it.slot && equipped[it.slot] === it.id;
                 return (
-                <div key={it.id} className="p-4 rounded relative" style={{
+                <div key={it.id} className="p-4 rounded-sm relative" style={{
                   background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.65) 0%, rgba(10, 6, 4, 0.95) 100%)',
                   border: `2px solid ${isEquipped ? 'rgba(245, 158, 11, 0.7)' : 'rgba(126, 34, 206, 0.45)'}`,
                   boxShadow: isEquipped
@@ -8134,7 +8134,7 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
                   <div className="absolute bottom-1 left-1 text-amber-700/60 text-xs">⚜</div>
                   <div className="absolute bottom-1 right-1 text-amber-700/60 text-xs">⚜</div>
                   <div className="flex items-start gap-3">
-                    <div className="text-3xl flex-shrink-0">{it.icon}</div>
+                    <div className="text-3xl shrink-0">{it.icon}</div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-baseline justify-between gap-2">
                         <h4 className="font-bold text-amber-200 italic text-sm" style={{ textShadow: '0 0 6px rgba(245, 158, 11, 0.3)' }}>
@@ -8149,7 +8149,7 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
                           {isEquipped ? (
                             <button
                               onClick={() => onUnequip && onUnequip(it.slot)}
-                              className="px-2 py-1 rounded text-[11px] italic"
+                              className="px-2 py-1 rounded-sm text-[11px] italic"
                               style={{
                                 background: 'rgba(31,17,8,0.7)',
                                 border: '1px solid rgba(245,158,11,0.6)',
@@ -8161,7 +8161,7 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
                           ) : (
                             <button
                               onClick={() => onEquip && onEquip(it.id)}
-                              className="px-2 py-1 rounded text-[11px] italic"
+                              className="px-2 py-1 rounded-sm text-[11px] italic"
                               style={{
                                 background: 'rgba(120,53,15,0.55)',
                                 border: '1px solid rgba(245,158,11,0.6)',
@@ -8187,7 +8187,7 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
                                   if (isThis) onUnequipPotion(i);
                                   else onEquipPotion(it.id, i);
                                 }}
-                                className="px-2 py-0.5 rounded text-[10px] italic"
+                                className="px-2 py-0.5 rounded-sm text-[10px] italic"
                                 style={{
                                   background: isThis ? 'rgba(120,53,15,0.7)' : 'rgba(31,17,8,0.6)',
                                   border: `1px solid ${isThis ? 'rgba(245,158,11,0.8)' : 'rgba(120,53,15,0.4)'}`,
@@ -8221,7 +8221,7 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
 
   return (
     <div className="space-y-6">
-      <div className="p-6 rounded relative" style={{
+      <div className="p-6 rounded-sm relative" style={{
         background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.4) 0%, rgba(10, 6, 4, 0.95) 100%)',
         border: '3px double rgba(16, 185, 129, 0.6)',
         boxShadow: '0 0 30px rgba(16, 185, 129, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
@@ -8246,7 +8246,7 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
               </div>
             </div>
           </div>
-          <div className="px-4 py-2 rounded border-2 border-amber-700/60 flex items-center gap-2" style={{
+          <div className="px-4 py-2 rounded-sm border-2 border-amber-700/60 flex items-center gap-2" style={{
             background: 'linear-gradient(to bottom, rgba(120, 53, 15, 0.5), rgba(41, 24, 12, 0.85))',
             boxShadow: '0 0 10px rgba(245, 158, 11, 0.2), inset 0 0 10px rgba(0,0,0,0.4)',
           }}>
@@ -8265,7 +8265,7 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
-              className="px-3 py-2 rounded text-sm italic font-bold tracking-wide"
+              className="px-3 py-2 rounded-sm text-sm italic font-bold tracking-wide"
               style={{
                 background: active ? 'rgba(41, 24, 12, 0.85)' : 'rgba(20, 12, 6, 0.5)',
                 border: `2px solid ${active ? t.accent : 'rgba(120, 53, 15, 0.3)'}`,
@@ -8281,7 +8281,7 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
 
       {tab === 'gear' && (
         <>
-          <div className="rounded p-4 relative" style={{
+          <div className="rounded-sm p-4 relative" style={{
             background: 'linear-gradient(135deg, rgba(120, 53, 15, 0.35) 0%, rgba(10, 6, 4, 0.92) 100%)',
             border: '2px solid rgba(245, 158, 11, 0.45)',
             boxShadow: '0 0 12px rgba(245, 158, 11, 0.15), inset 0 0 12px rgba(0,0,0,0.5)',
@@ -8291,7 +8291,7 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
               <h3 className="text-base font-bold text-amber-200 italic tracking-wider" style={{ textShadow: '0 0 8px rgba(245,158,11,0.3)' }}>
                 Loadout
               </h3>
-              <div className="flex-1 h-px bg-gradient-to-r from-amber-700/50 to-transparent" />
+              <div className="flex-1 h-px bg-linear-to-r from-amber-700/50 to-transparent" />
               <span className="text-[10px] text-amber-700 italic">Equipped gear is active inside the dungeon.</span>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -8299,7 +8299,7 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
                 const equippedId = equipped[s.id];
                 const item = equippedId ? findItem(equippedId) : null;
                 return (
-                  <div key={s.id} className="p-3 rounded flex items-center gap-2" style={{
+                  <div key={s.id} className="p-3 rounded-sm flex items-center gap-2" style={{
                     background: 'rgba(31,17,8,0.6)',
                     border: `1px solid ${item ? 'rgba(245,158,11,0.6)' : 'rgba(120,53,15,0.4)'}`,
                   }}>
@@ -8326,7 +8326,7 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
           </div>
 
           {tabItemCount === 0 ? (
-            <div className="text-center py-12 px-6 rounded relative" style={{
+            <div className="text-center py-12 px-6 rounded-sm relative" style={{
               background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.5) 0%, rgba(10, 6, 4, 0.9) 100%)',
               border: '2px dashed rgba(126, 34, 206, 0.4)',
             }}>
@@ -8344,7 +8344,7 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
 
       {tab === 'potions' && (
         <>
-          <div className="rounded p-4 relative" style={{
+          <div className="rounded-sm p-4 relative" style={{
             background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.35) 0%, rgba(10, 6, 4, 0.92) 100%)',
             border: '2px solid rgba(34, 197, 94, 0.45)',
             boxShadow: '0 0 12px rgba(34, 197, 94, 0.15), inset 0 0 12px rgba(0,0,0,0.5)',
@@ -8354,7 +8354,7 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
               <h3 className="text-base font-bold text-emerald-200 italic tracking-wider" style={{ textShadow: '0 0 8px rgba(34,197,94,0.3)' }}>
                 Potion Quick-Slots
               </h3>
-              <div className="flex-1 h-px bg-gradient-to-r from-emerald-700/50 to-transparent" />
+              <div className="flex-1 h-px bg-linear-to-r from-emerald-700/50 to-transparent" />
               <span className="text-[10px] text-amber-700 italic">Hotkeys 1 · 2 · 3</span>
             </div>
             <div className="grid grid-cols-3 gap-2">
@@ -8363,11 +8363,11 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
                 const item = id ? findItem(id) : null;
                 const count = item ? (inv[item.id] || 0) : 0;
                 return (
-                  <div key={i} className="p-2 rounded flex items-center gap-2" style={{
+                  <div key={i} className="p-2 rounded-sm flex items-center gap-2" style={{
                     background: 'rgba(31,17,8,0.6)',
                     border: `1px solid ${item ? 'rgba(34,197,94,0.6)' : 'rgba(120,53,15,0.4)'}`,
                   }}>
-                    <div className="w-8 h-8 flex items-center justify-center rounded text-xl" style={{
+                    <div className="w-8 h-8 flex items-center justify-center rounded-sm text-xl" style={{
                       background: 'rgba(0,0,0,0.4)',
                       border: '1px solid rgba(120,53,15,0.4)',
                     }}>
@@ -8395,7 +8395,7 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
           </div>
 
           {tabItemCount === 0 ? (
-            <div className="text-center py-12 px-6 rounded relative" style={{
+            <div className="text-center py-12 px-6 rounded-sm relative" style={{
               background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.35) 0%, rgba(10, 6, 4, 0.9) 100%)',
               border: '2px dashed rgba(34, 197, 94, 0.4)',
             }}>
@@ -8423,11 +8423,11 @@ function InventoryScreen({ playerState, setScreen, onEquip, onUnequip, onEquipPo
       )}
 
       <div className="text-center pt-2 flex flex-wrap justify-center gap-2">
-        <button onClick={() => setScreen('shop')} className="px-4 py-2 rounded text-xs italic border-2 border-amber-700 text-amber-300 hover:bg-amber-900/30 inline-flex items-center gap-2"
+        <button onClick={() => setScreen('shop')} className="px-4 py-2 rounded-sm text-xs italic border-2 border-amber-700 text-amber-300 hover:bg-amber-900/30 inline-flex items-center gap-2"
           style={{ background: 'rgba(41, 24, 12, 0.5)' }}>
           <ShoppingBag className="w-3.5 h-3.5" /> Browse the Marketplace
         </button>
-        <button onClick={() => setScreen('crafting')} className="px-4 py-2 rounded text-xs italic border-2 border-emerald-700 text-emerald-300 hover:bg-emerald-900/30 inline-flex items-center gap-2"
+        <button onClick={() => setScreen('crafting')} className="px-4 py-2 rounded-sm text-xs italic border-2 border-emerald-700 text-emerald-300 hover:bg-emerald-900/30 inline-flex items-center gap-2"
           style={{ background: 'rgba(6, 78, 59, 0.4)' }}>
           🌿 The Brewing Bench
         </button>
@@ -8475,7 +8475,7 @@ function BestiaryScreen({ playerState, setScreen }) {
 
   return (
     <div className="space-y-6">
-      <div className="p-6 rounded relative" style={{
+      <div className="p-6 rounded-sm relative" style={{
         background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.55) 0%, rgba(10, 6, 4, 0.95) 100%)',
         border: '3px double rgba(168, 85, 247, 0.6)',
         boxShadow: '0 0 30px rgba(168, 85, 247, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
@@ -8498,7 +8498,7 @@ function BestiaryScreen({ playerState, setScreen }) {
             </div>
           </div>
           <button onClick={() => setScreen('home')}
-            className="px-3 py-2 rounded text-xs italic border-2 border-purple-700 text-purple-300 hover:bg-purple-900/30"
+            className="px-3 py-2 rounded-sm text-xs italic border-2 border-purple-700 text-purple-300 hover:bg-purple-900/30"
             style={{ background: 'rgba(31, 12, 41, 0.45)' }}>
             ← Return to the Hearth
           </button>
@@ -8516,7 +8516,7 @@ function BestiaryScreen({ playerState, setScreen }) {
               <h3 className="text-lg font-bold italic tracking-wider" style={{ color: meta.accent, textShadow: `0 0 8px ${meta.accent}66` }}>
                 {meta.name}
               </h3>
-              <div className="flex-1 h-px bg-gradient-to-r from-amber-700/50 to-transparent" />
+              <div className="flex-1 h-px bg-linear-to-r from-amber-700/50 to-transparent" />
               <span className="text-xs text-amber-700 italic">
                 {entries.filter(e => tracked[e.kind]).length}/{entries.length} found
               </span>
@@ -8528,7 +8528,7 @@ function BestiaryScreen({ playerState, setScreen }) {
                 const defeats = status?.defeats || 0;
                 const isBoss = entry.tier === 'boss';
                 return (
-                  <div key={entry.kind} className="p-4 rounded relative" style={{
+                  <div key={entry.kind} className="p-4 rounded-sm relative" style={{
                     background: seen
                       ? 'linear-gradient(135deg, rgba(31, 17, 8, 0.9) 0%, rgba(10, 6, 4, 0.97) 100%)'
                       : 'linear-gradient(135deg, rgba(15, 12, 18, 0.85) 0%, rgba(6, 4, 8, 0.95) 100%)',
@@ -8607,7 +8607,7 @@ function StableScreen({ playerState, setScreen, onEquipPet, onUnequipPet }) {
 
   return (
     <div className="space-y-6">
-      <div className="p-6 rounded relative" style={{
+      <div className="p-6 rounded-sm relative" style={{
         background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.45) 0%, rgba(10, 6, 4, 0.95) 100%)',
         border: '3px double rgba(16, 185, 129, 0.6)',
         boxShadow: '0 0 30px rgba(16, 185, 129, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
@@ -8630,7 +8630,7 @@ function StableScreen({ playerState, setScreen, onEquipPet, onUnequipPet }) {
             </div>
           </div>
           <button onClick={() => setScreen('home')}
-            className="px-3 py-2 rounded text-xs italic border-2 border-emerald-700 text-emerald-300 hover:bg-emerald-900/30"
+            className="px-3 py-2 rounded-sm text-xs italic border-2 border-emerald-700 text-emerald-300 hover:bg-emerald-900/30"
             style={{ background: 'rgba(6, 78, 59, 0.45)' }}>
             ← Return to the Hearth
           </button>
@@ -8638,7 +8638,7 @@ function StableScreen({ playerState, setScreen, onEquipPet, onUnequipPet }) {
       </div>
 
       {ownedPets.length === 0 && (
-        <div className="p-6 rounded text-center text-sm italic text-amber-700"
+        <div className="p-6 rounded-sm text-center text-sm italic text-amber-700"
           style={{ background: 'rgba(0,0,0,0.5)', border: '2px dashed rgba(120,53,15,0.4)' }}>
           Thou hast no familiars yet. Visit the Marketplace and purchase a Stable egg to hatch one.
         </div>
@@ -8657,7 +8657,7 @@ function StableScreen({ playerState, setScreen, onEquipPet, onUnequipPet }) {
               : Math.min(100, Math.floor(((xp - prevThreshold) / (nextThreshold - prevThreshold)) * 100));
             const isEquipped = equippedPet === def.id;
             return (
-              <div key={def.id} className="p-4 rounded" style={{
+              <div key={def.id} className="p-4 rounded-sm" style={{
                 background: 'linear-gradient(135deg, rgba(31, 17, 8, 0.9) 0%, rgba(10, 6, 4, 0.97) 100%)',
                 border: `2px solid ${isEquipped ? 'rgba(16, 185, 129, 0.7)' : 'rgba(245, 158, 11, 0.4)'}`,
                 boxShadow: isEquipped ? '0 0 14px rgba(16, 185, 129, 0.3)' : 'none',
@@ -8683,7 +8683,7 @@ function StableScreen({ playerState, setScreen, onEquipPet, onUnequipPet }) {
                     <span>{isMax ? 'Maxed' : `XP ${xp - prevThreshold}/${nextThreshold - prevThreshold}`}</span>
                     <span className="tabular-nums">Total: {xp}</span>
                   </div>
-                  <div className="h-2 rounded overflow-hidden" style={{ background: 'rgba(0,0,0,0.5)' }}>
+                  <div className="h-2 rounded-sm overflow-hidden" style={{ background: 'rgba(0,0,0,0.5)' }}>
                     <div className="h-full" style={{
                       width: `${pctToNext}%`,
                       background: isMax
@@ -8695,13 +8695,13 @@ function StableScreen({ playerState, setScreen, onEquipPet, onUnequipPet }) {
                 <div className="flex justify-end">
                   {isEquipped ? (
                     <button onClick={() => onUnequipPet?.()}
-                      className="px-3 py-1.5 rounded text-xs italic border-2 border-emerald-700 text-emerald-200 hover:bg-emerald-900/30"
+                      className="px-3 py-1.5 rounded-sm text-xs italic border-2 border-emerald-700 text-emerald-200 hover:bg-emerald-900/30"
                       style={{ background: 'rgba(6, 78, 59, 0.5)' }}>
                       Dismiss
                     </button>
                   ) : (
                     <button onClick={() => onEquipPet?.(def.id)}
-                      className="px-3 py-1.5 rounded text-xs italic border-2 border-amber-700 text-amber-200 hover:bg-amber-900/30"
+                      className="px-3 py-1.5 rounded-sm text-xs italic border-2 border-amber-700 text-amber-200 hover:bg-amber-900/30"
                       style={{ background: 'rgba(41, 24, 12, 0.6)' }}>
                       Equip
                     </button>
@@ -8718,11 +8718,11 @@ function StableScreen({ playerState, setScreen, onEquipPet, onUnequipPet }) {
           <div className="flex items-center gap-2">
             <span className="text-base">🥚</span>
             <h3 className="text-sm font-bold italic text-amber-300 tracking-wider">Awaiting Hatch</h3>
-            <div className="flex-1 h-px bg-gradient-to-r from-amber-700/50 to-transparent" />
+            <div className="flex-1 h-px bg-linear-to-r from-amber-700/50 to-transparent" />
           </div>
           <div className="grid md:grid-cols-3 gap-2">
             {lockedPets.map((def) => (
-              <div key={def.id} className="p-3 rounded text-xs italic" style={{
+              <div key={def.id} className="p-3 rounded-sm text-xs italic" style={{
                 background: 'rgba(15, 12, 18, 0.85)',
                 border: '2px dashed rgba(120, 53, 15, 0.4)',
                 opacity: 0.7,
@@ -8772,14 +8772,14 @@ function SpellbookContent({ playerState, onEquipSpell, onUnequipSpell }) {
   return (
     <div className="space-y-4">
       {/* Quick-slot row */}
-      <div className="p-4 rounded" style={{
+      <div className="p-4 rounded-sm" style={{
         background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.6) 0%, rgba(10, 6, 4, 0.95) 100%)',
         border: '2px solid rgba(126, 34, 206, 0.4)',
       }}>
         <div className="flex items-center gap-2 mb-2">
           <span className="text-base">✦</span>
           <h4 className="text-xs font-bold italic text-amber-200 tracking-wider">Cast Slots</h4>
-          <div className="flex-1 h-px bg-gradient-to-r from-amber-700/40 to-transparent" />
+          <div className="flex-1 h-px bg-linear-to-r from-amber-700/40 to-transparent" />
           <span className="text-[10px] italic text-amber-700">
             {pendingSlot !== null ? `Choose a spell for slot ${'ZXC'[pendingSlot]}…` : 'Click empty slot then a spell · click filled slot to clear'}
           </span>
@@ -8791,7 +8791,7 @@ function SpellbookContent({ playerState, onEquipSpell, onUnequipSpell }) {
             const isPending = pendingSlot === i;
             return (
               <button key={i} onClick={() => handleSlotClick(i)}
-                className="p-2 rounded flex items-center gap-2 text-left"
+                className="p-2 rounded-sm flex items-center gap-2 text-left"
                 style={{
                   background: isPending ? 'rgba(59, 130, 246, 0.3)' : 'rgba(0,0,0,0.35)',
                   border: `1px solid ${def ? 'rgba(96, 165, 250, 0.6)' : isPending ? '#60a5fa' : 'rgba(120, 53, 15, 0.3)'}`,
@@ -8817,7 +8817,7 @@ function SpellbookContent({ playerState, onEquipSpell, onUnequipSpell }) {
           const slotIdx = equipped.indexOf(def.id);
           const isEquipped = slotIdx >= 0;
           return (
-            <div key={def.id} className="p-4 rounded" style={{
+            <div key={def.id} className="p-4 rounded-sm" style={{
               background: isKnown
                 ? 'linear-gradient(135deg, rgba(31, 17, 8, 0.9) 0%, rgba(10, 6, 4, 0.97) 100%)'
                 : 'linear-gradient(135deg, rgba(15, 12, 18, 0.85) 0%, rgba(6, 4, 8, 0.95) 100%)',
@@ -8845,13 +8845,13 @@ function SpellbookContent({ playerState, onEquipSpell, onUnequipSpell }) {
                 <div className="flex justify-end">
                   {isEquipped ? (
                     <button onClick={() => onUnequipSpell?.(slotIdx)}
-                      className="px-3 py-1.5 rounded text-xs italic border-2 border-sky-700 text-sky-200 hover:bg-sky-900/30"
+                      className="px-3 py-1.5 rounded-sm text-xs italic border-2 border-sky-700 text-sky-200 hover:bg-sky-900/30"
                       style={{ background: 'rgba(12, 24, 41, 0.5)' }}>
                       Unslot ({'ZXC'[slotIdx]})
                     </button>
                   ) : (
                     <button onClick={() => handleAssign(def.id)}
-                      className="px-3 py-1.5 rounded text-xs italic border-2 border-amber-700 text-amber-200 hover:bg-amber-900/30"
+                      className="px-3 py-1.5 rounded-sm text-xs italic border-2 border-amber-700 text-amber-200 hover:bg-amber-900/30"
                       style={{ background: 'rgba(41, 24, 12, 0.6)' }}>
                       {pendingSlot !== null ? `Assign to ${'ZXC'[pendingSlot]}` : 'Slot'}
                     </button>
@@ -8873,7 +8873,7 @@ function SpellbookScreen({ playerState, setScreen, onEquipSpell, onUnequipSpell 
 
   return (
     <div className="space-y-6">
-      <div className="p-6 rounded relative" style={{
+      <div className="p-6 rounded-sm relative" style={{
         background: 'linear-gradient(135deg, rgba(12, 24, 41, 0.55) 0%, rgba(10, 6, 4, 0.95) 100%)',
         border: '3px double rgba(59, 130, 246, 0.6)',
         boxShadow: '0 0 30px rgba(59, 130, 246, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
@@ -8896,7 +8896,7 @@ function SpellbookScreen({ playerState, setScreen, onEquipSpell, onUnequipSpell 
             </div>
           </div>
           <button onClick={() => setScreen('home')}
-            className="px-3 py-2 rounded text-xs italic border-2 border-sky-700 text-sky-300 hover:bg-sky-900/30"
+            className="px-3 py-2 rounded-sm text-xs italic border-2 border-sky-700 text-sky-300 hover:bg-sky-900/30"
             style={{ background: 'rgba(12, 24, 41, 0.45)' }}>
             ← Return to the Hearth
           </button>
@@ -8939,7 +8939,7 @@ function CalendarScreen({ playerState, setScreen, onClaim }) {
 
   return (
     <div className="space-y-6">
-      <div className="p-6 rounded relative" style={{
+      <div className="p-6 rounded-sm relative" style={{
         background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.55) 0%, rgba(10, 6, 4, 0.95) 100%)',
         border: '3px double rgba(245, 158, 11, 0.6)',
         boxShadow: '0 0 30px rgba(245, 158, 11, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
@@ -8962,7 +8962,7 @@ function CalendarScreen({ playerState, setScreen, onClaim }) {
             </div>
           </div>
           <button onClick={() => setScreen('home')}
-            className="px-3 py-2 rounded text-xs italic border-2 border-amber-700 text-amber-300 hover:bg-amber-900/30"
+            className="px-3 py-2 rounded-sm text-xs italic border-2 border-amber-700 text-amber-300 hover:bg-amber-900/30"
             style={{ background: 'rgba(41, 24, 12, 0.6)' }}>
             ← Return to the Hearth
           </button>
@@ -8971,26 +8971,26 @@ function CalendarScreen({ playerState, setScreen, onClaim }) {
 
       {/* Stats ribbon */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
-        <div className="p-3 rounded" style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
+        <div className="p-3 rounded-sm" style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
           <div className="text-[10px] uppercase italic text-amber-700">Current Streak</div>
           <div className="text-lg font-bold italic text-amber-200">🔥 {streak}</div>
         </div>
-        <div className="p-3 rounded" style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
+        <div className="p-3 rounded-sm" style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
           <div className="text-[10px] uppercase italic text-amber-700">Longest</div>
           <div className="text-lg font-bold italic text-amber-200">{longest}</div>
         </div>
-        <div className="p-3 rounded" style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
+        <div className="p-3 rounded-sm" style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
           <div className="text-[10px] uppercase italic text-amber-700">Total Logins</div>
           <div className="text-lg font-bold italic text-amber-200">{totalLogins}</div>
         </div>
-        <div className="p-3 rounded" style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(168, 85, 247, 0.5)' }}>
+        <div className="p-3 rounded-sm" style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(168, 85, 247, 0.5)' }}>
           <div className="text-[10px] uppercase italic text-purple-300">Devotion</div>
           <div className="text-lg font-bold italic text-purple-200">✦ {devotion}</div>
         </div>
       </div>
 
       {/* Claim button */}
-      <div className="p-4 rounded text-center" style={{
+      <div className="p-4 rounded-sm text-center" style={{
         background: claimedToday
           ? 'linear-gradient(135deg, rgba(31, 41, 55, 0.7) 0%, rgba(10, 6, 4, 0.95) 100%)'
           : 'linear-gradient(135deg, rgba(120, 53, 15, 0.6) 0%, rgba(10, 6, 4, 0.95) 100%)',
@@ -9009,7 +9009,7 @@ function CalendarScreen({ playerState, setScreen, onClaim }) {
                `Streak broken — start anew at Day ${cycleDayIdx}.`}
             </div>
             <button onClick={tryClaim}
-              className="px-6 py-3 rounded text-base italic border-2 font-bold"
+              className="px-6 py-3 rounded-sm text-base italic border-2 font-bold"
               style={{
                 background: 'linear-gradient(135deg, #b45309 0%, #f59e0b 100%)',
                 border: '2px solid #fbbf24',
@@ -9031,7 +9031,7 @@ function CalendarScreen({ playerState, setScreen, onClaim }) {
         <div className="flex items-center gap-2">
           <span className="text-base">📅</span>
           <h3 className="text-sm font-bold italic text-amber-300 tracking-wider">The Seven-Day Cycle</h3>
-          <div className="flex-1 h-px bg-gradient-to-r from-amber-700/50 to-transparent" />
+          <div className="flex-1 h-px bg-linear-to-r from-amber-700/50 to-transparent" />
         </div>
         <div className="grid grid-cols-2 md:grid-cols-7 gap-2">
           {DAILY_REWARDS.map((reward) => {
@@ -9039,7 +9039,7 @@ function CalendarScreen({ playerState, setScreen, onClaim }) {
             const isClaimedToday = reward.day === cycleDayIdx && claimedToday;
             const isPast = streak > 0 && reward.day < cycleDayIdx;
             return (
-              <div key={reward.day} className="p-3 rounded text-center" style={{
+              <div key={reward.day} className="p-3 rounded-sm text-center" style={{
                 background: isToday
                   ? 'linear-gradient(135deg, rgba(120, 53, 15, 0.6) 0%, rgba(10, 6, 4, 0.95) 100%)'
                   : isClaimedToday
@@ -9105,7 +9105,7 @@ function AscensionScreen({ playerState, setScreen, onAscend }) {
 
   return (
     <div className="space-y-6">
-      <div className="p-6 rounded relative" style={{
+      <div className="p-6 rounded-sm relative" style={{
         background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.55) 0%, rgba(10, 6, 4, 0.95) 100%)',
         border: '3px double rgba(245, 158, 11, 0.7)',
         boxShadow: '0 0 30px rgba(245, 158, 11, 0.3), inset 0 0 30px rgba(0,0,0,0.5)',
@@ -9128,7 +9128,7 @@ function AscensionScreen({ playerState, setScreen, onAscend }) {
             </div>
           </div>
           <button onClick={() => setScreen('home')}
-            className="px-3 py-2 rounded text-xs italic border-2 border-amber-700 text-amber-300 hover:bg-amber-900/30"
+            className="px-3 py-2 rounded-sm text-xs italic border-2 border-amber-700 text-amber-300 hover:bg-amber-900/30"
             style={{ background: 'rgba(41, 24, 12, 0.6)' }}>
             ← Return to the Hearth
           </button>
@@ -9137,19 +9137,19 @@ function AscensionScreen({ playerState, setScreen, onAscend }) {
 
       {/* Stats ribbon */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
-        <div className="p-3 rounded" style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
+        <div className="p-3 rounded-sm" style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
           <div className="text-[10px] uppercase italic text-amber-700">Current Level</div>
           <div className="text-lg font-bold italic text-amber-200">{lvl} / {REQ}</div>
         </div>
-        <div className="p-3 rounded" style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
+        <div className="p-3 rounded-sm" style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
           <div className="text-[10px] uppercase italic text-amber-700">Ascensions</div>
           <div className="text-lg font-bold italic text-amber-200">🌟 {ascensions}</div>
         </div>
-        <div className="p-3 rounded" style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(245, 158, 11, 0.5)' }}>
+        <div className="p-3 rounded-sm" style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(245, 158, 11, 0.5)' }}>
           <div className="text-[10px] uppercase italic text-amber-700">Tokens</div>
           <div className="text-lg font-bold italic text-amber-200">🪙 {tokens}</div>
         </div>
-        <div className="p-3 rounded" style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
+        <div className="p-3 rounded-sm" style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
           <div className="text-[10px] uppercase italic text-amber-700">Last Ascension</div>
           <div className="text-sm font-bold italic text-amber-200">{lastAscended || '—'}</div>
         </div>
@@ -9157,7 +9157,7 @@ function AscensionScreen({ playerState, setScreen, onAscend }) {
 
       {/* What is preserved / lost */}
       <div className="grid md:grid-cols-2 gap-3">
-        <div className="p-4 rounded" style={{
+        <div className="p-4 rounded-sm" style={{
           background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.4) 0%, rgba(10, 6, 4, 0.95) 100%)',
           border: '2px solid rgba(16, 185, 129, 0.5)',
         }}>
@@ -9173,7 +9173,7 @@ function AscensionScreen({ playerState, setScreen, onAscend }) {
             <li>Total lifetime XP recorded in tomes</li>
           </ul>
         </div>
-        <div className="p-4 rounded" style={{
+        <div className="p-4 rounded-sm" style={{
           background: 'linear-gradient(135deg, rgba(120, 53, 15, 0.4) 0%, rgba(10, 6, 4, 0.95) 100%)',
           border: '2px solid rgba(245, 158, 11, 0.5)',
         }}>
@@ -9189,7 +9189,7 @@ function AscensionScreen({ playerState, setScreen, onAscend }) {
       </div>
 
       {/* Ascend action */}
-      <div className="p-6 rounded text-center" style={{
+      <div className="p-6 rounded-sm text-center" style={{
         background: ready
           ? 'linear-gradient(135deg, rgba(245, 158, 11, 0.45) 0%, rgba(10, 6, 4, 0.95) 100%)'
           : 'linear-gradient(135deg, rgba(31, 41, 55, 0.5) 0%, rgba(10, 6, 4, 0.95) 100%)',
@@ -9204,7 +9204,7 @@ function AscensionScreen({ playerState, setScreen, onAscend }) {
           <div>
             <div className="text-amber-200 italic mb-3 text-base">The cycle awaits thy renewal.</div>
             <button onClick={() => setConfirming(true)}
-              className="px-6 py-3 rounded text-base italic font-bold border-2"
+              className="px-6 py-3 rounded-sm text-base italic font-bold border-2"
               style={{
                 background: 'linear-gradient(135deg, #b45309 0%, #f59e0b 100%)',
                 borderColor: '#fbbf24',
@@ -9221,7 +9221,7 @@ function AscensionScreen({ playerState, setScreen, onAscend }) {
             </div>
             <div className="flex gap-3 justify-center">
               <button onClick={tryAscend}
-                className="px-5 py-2.5 rounded text-sm italic font-bold border-2"
+                className="px-5 py-2.5 rounded-sm text-sm italic font-bold border-2"
                 style={{
                   background: 'linear-gradient(135deg, #b45309 0%, #f59e0b 100%)',
                   borderColor: '#fbbf24',
@@ -9230,7 +9230,7 @@ function AscensionScreen({ playerState, setScreen, onAscend }) {
                 ✓ Yes — Ascend
               </button>
               <button onClick={() => setConfirming(false)}
-                className="px-5 py-2.5 rounded text-sm italic border-2 border-stone-600 text-stone-300 hover:bg-stone-800/30"
+                className="px-5 py-2.5 rounded-sm text-sm italic border-2 border-stone-600 text-stone-300 hover:bg-stone-800/30"
                 style={{ background: 'rgba(31, 24, 12, 0.7)' }}>
                 ✕ Hold the Course
               </button>
@@ -9267,7 +9267,7 @@ function CraftingScreen({ playerState, setScreen, onCraft }) {
 
   return (
     <div className="space-y-6">
-      <div className="p-6 rounded relative" style={{
+      <div className="p-6 rounded-sm relative" style={{
         background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.4) 0%, rgba(10, 6, 4, 0.95) 100%)',
         border: '3px double rgba(16, 185, 129, 0.6)',
         boxShadow: '0 0 30px rgba(16, 185, 129, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
@@ -9291,7 +9291,7 @@ function CraftingScreen({ playerState, setScreen, onCraft }) {
               </div>
             </div>
           </div>
-          <button onClick={() => setScreen('inventory')} className="px-3 py-2 rounded text-xs italic border-2 border-emerald-700 text-emerald-300 hover:bg-emerald-900/30"
+          <button onClick={() => setScreen('inventory')} className="px-3 py-2 rounded-sm text-xs italic border-2 border-emerald-700 text-emerald-300 hover:bg-emerald-900/30"
             style={{ background: 'rgba(6, 78, 59, 0.45)' }}>
             ← Back to The Hoard
           </button>
@@ -9299,14 +9299,14 @@ function CraftingScreen({ playerState, setScreen, onCraft }) {
       </div>
 
       {/* Ingredient inventory ribbon */}
-      <div className="p-4 rounded" style={{
+      <div className="p-4 rounded-sm" style={{
         background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.6) 0%, rgba(10, 6, 4, 0.95) 100%)',
         border: '2px solid rgba(126, 34, 206, 0.4)',
       }}>
         <div className="flex items-center gap-2 mb-2">
           <span className="text-base">🧺</span>
           <h4 className="text-xs font-bold italic text-amber-200 tracking-wider">Reagents on hand</h4>
-          <div className="flex-1 h-px bg-gradient-to-r from-amber-700/40 to-transparent" />
+          <div className="flex-1 h-px bg-linear-to-r from-amber-700/40 to-transparent" />
           <span className="text-[10px] italic text-amber-700">{ownedIngredients.length}/{ingredients.length} kinds</span>
         </div>
         {ownedIngredients.length === 0 ? (
@@ -9316,7 +9316,7 @@ function CraftingScreen({ playerState, setScreen, onCraft }) {
         ) : (
           <div className="flex flex-wrap gap-2">
             {ownedIngredients.map(it => (
-              <div key={it.id} className="px-2 py-1 rounded flex items-center gap-1 text-xs italic"
+              <div key={it.id} className="px-2 py-1 rounded-sm flex items-center gap-1 text-xs italic"
                    style={{
                      background: 'rgba(0,0,0,0.4)',
                      border: '1px solid rgba(120,53,15,0.4)',
@@ -9338,7 +9338,7 @@ function CraftingScreen({ playerState, setScreen, onCraft }) {
           <h3 className="text-lg font-bold text-amber-200 italic tracking-wider" style={{ textShadow: '0 0 8px rgba(245, 158, 11, 0.3)' }}>
             Known Recipes
           </h3>
-          <div className="flex-1 h-px bg-gradient-to-r from-amber-700/50 to-transparent" />
+          <div className="flex-1 h-px bg-linear-to-r from-amber-700/50 to-transparent" />
           <span className="text-xs text-amber-700 italic">{RECIPES.length} brews</span>
         </div>
         <div className="grid md:grid-cols-2 gap-3">
@@ -9348,7 +9348,7 @@ function CraftingScreen({ playerState, setScreen, onCraft }) {
             const ownedResult = inv[recipe.resultId] || 0;
             const isFlash = feedback && feedback.recipeId === recipe.id;
             return (
-              <div key={recipe.id} className="p-4 rounded relative" style={{
+              <div key={recipe.id} className="p-4 rounded-sm relative" style={{
                 background: 'linear-gradient(135deg, rgba(20, 30, 24, 0.7) 0%, rgba(10, 6, 4, 0.95) 100%)',
                 border: `2px solid ${canCraft ? 'rgba(34, 197, 94, 0.55)' : 'rgba(120, 53, 15, 0.4)'}`,
                 boxShadow: canCraft ? '0 0 14px rgba(34, 197, 94, 0.18)' : 'inset 0 0 12px rgba(0,0,0,0.4)',
@@ -9386,7 +9386,7 @@ function CraftingScreen({ playerState, setScreen, onCraft }) {
                 <button
                   onClick={() => tryCraft(recipe)}
                   disabled={!canCraft}
-                  className="w-full px-3 py-2 rounded text-xs italic font-bold"
+                  className="w-full px-3 py-2 rounded-sm text-xs italic font-bold"
                   style={{
                     background: canCraft
                       ? 'linear-gradient(to bottom, #34d399 0%, #059669 100%)'
@@ -9416,7 +9416,7 @@ function QuestCard({ q, onClaim }) {
   const pct = Math.min(100, (q.progress / q.target) * 100);
   const goldReward = Math.max(1, Math.floor(q.xp * 0.1));
   return (
-    <div className="p-5 rounded relative" style={{
+    <div className="p-5 rounded-sm relative" style={{
       background: q.claimed
         ? 'linear-gradient(135deg, rgba(6, 78, 59, 0.5) 0%, rgba(10, 6, 4, 0.9) 100%)'
         : q.claimable
@@ -9439,7 +9439,7 @@ function QuestCard({ q, onClaim }) {
       <div className="absolute bottom-1 right-1 text-amber-700/60 text-xs">⚜</div>
 
       <div className="flex items-start gap-3 mb-3">
-        <div className="text-3xl flex-shrink-0">{q.icon}</div>
+        <div className="text-3xl shrink-0">{q.icon}</div>
         <div className="flex-1 min-w-0">
           <h3 className="font-bold text-amber-200 italic text-sm" style={{ textShadow: '0 0 6px rgba(245, 158, 11, 0.3)' }}>
             {q.title}
@@ -9449,7 +9449,7 @@ function QuestCard({ q, onClaim }) {
           </p>
         </div>
         {q.claimed && (
-          <CheckCircle2 className="w-6 h-6 text-emerald-400 flex-shrink-0" style={{ filter: 'drop-shadow(0 0 6px rgba(16, 185, 129, 0.6))' }} />
+          <CheckCircle2 className="w-6 h-6 text-emerald-400 shrink-0" style={{ filter: 'drop-shadow(0 0 6px rgba(16, 185, 129, 0.6))' }} />
         )}
       </div>
 
@@ -9489,7 +9489,7 @@ function QuestCard({ q, onClaim }) {
         ) : q.claimable ? (
           <button
             onClick={() => onClaim(q.id)}
-            className="px-3 py-1.5 rounded text-xs font-bold text-amber-950 border-2 border-amber-300 italic flex items-center gap-1 hover:scale-105 active:scale-95 transition"
+            className="px-3 py-1.5 rounded-sm text-xs font-bold text-amber-950 border-2 border-amber-300 italic flex items-center gap-1 hover:scale-105 active:scale-95 transition"
             style={{
               background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)',
               boxShadow: '0 0 12px rgba(245, 158, 11, 0.5)',
@@ -9515,7 +9515,7 @@ function QuestSection({ tagline, subtitle, emptyMsg, quests, onClaim, onClaimAll
 
   return (
     <div className="space-y-4">
-      <div className="p-5 rounded relative flex items-center justify-between flex-wrap gap-3" style={{
+      <div className="p-5 rounded-sm relative flex items-center justify-between flex-wrap gap-3" style={{
         background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.7) 0%, rgba(10, 6, 4, 0.95) 100%)',
         border: '2px solid rgba(168, 85, 247, 0.5)',
         boxShadow: '0 0 25px rgba(168, 85, 247, 0.15), inset 0 0 20px rgba(0,0,0,0.5)',
@@ -9533,7 +9533,7 @@ function QuestSection({ tagline, subtitle, emptyMsg, quests, onClaim, onClaimAll
         {claimableCount > 0 && (
           <button
             onClick={onClaimAll}
-            className="px-4 py-2 rounded text-sm font-bold border-2 border-amber-300 italic flex items-center gap-2 text-amber-950"
+            className="px-4 py-2 rounded-sm text-sm font-bold border-2 border-amber-300 italic flex items-center gap-2 text-amber-950"
             style={{
               background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)',
               boxShadow: '0 0 20px rgba(245, 158, 11, 0.5)',
@@ -9592,14 +9592,14 @@ function StoryStepCard({ step, idx, status, claimable, progress, target, isFinal
         : 'inset 0 0 20px rgba(0,0,0,0.5)';
 
   return (
-    <div className="p-4 rounded relative" style={{ background: bg, border, boxShadow: shadow }}>
+    <div className="p-4 rounded-sm relative" style={{ background: bg, border, boxShadow: shadow }}>
       <div className="absolute top-1 left-1 text-amber-700/60 text-xs">⚜</div>
       <div className="absolute top-1 right-1 text-amber-700/60 text-xs">⚜</div>
       <div className="absolute bottom-1 left-1 text-amber-700/60 text-xs">⚜</div>
       <div className="absolute bottom-1 right-1 text-amber-700/60 text-xs">⚜</div>
 
       <div className="flex items-start gap-3">
-        <div className="flex-shrink-0 w-9 h-9 rounded-full border-2 flex items-center justify-center text-xs font-bold italic" style={{
+        <div className="shrink-0 w-9 h-9 rounded-full border-2 flex items-center justify-center text-xs font-bold italic" style={{
           borderColor: isClaimed ? 'rgba(16, 185, 129, 0.7)' : isCurrent ? 'rgba(245, 158, 11, 0.7)' : 'rgba(60, 35, 80, 0.6)',
           background: isClaimed ? 'rgba(6, 78, 59, 0.6)' : isCurrent ? 'rgba(120, 53, 15, 0.5)' : 'rgba(10, 6, 4, 0.7)',
           color: isClaimed ? '#34d399' : isCurrent ? '#fde047' : '#6b4f8f',
@@ -9624,7 +9624,7 @@ function StoryStepCard({ step, idx, status, claimable, progress, target, isFinal
 
           {isCurrent && (
             <>
-              <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded text-xs font-bold italic" style={{
+              <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-sm text-xs font-bold italic" style={{
                 background: 'linear-gradient(to bottom, rgba(120, 53, 15, 0.4), rgba(41, 24, 12, 0.7))',
                 border: '1px solid rgba(245, 158, 11, 0.5)',
                 color: '#fde047',
@@ -9666,7 +9666,7 @@ function StoryStepCard({ step, idx, status, claimable, progress, target, isFinal
             ) : claimable && isCurrent ? (
               <button
                 onClick={onClaim}
-                className="px-3 py-1.5 rounded text-xs font-bold text-amber-950 border-2 border-amber-300 italic flex items-center gap-1"
+                className="px-3 py-1.5 rounded-sm text-xs font-bold text-amber-950 border-2 border-amber-300 italic flex items-center gap-1"
                 style={{
                   background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)',
                   boxShadow: '0 0 12px rgba(245, 158, 11, 0.5)',
@@ -9694,7 +9694,7 @@ function StoryChainView({ chainStatus, onClaimStep }) {
 
   return (
     <div className="space-y-4">
-      <div className="p-5 rounded relative" style={{
+      <div className="p-5 rounded-sm relative" style={{
         background: completed
           ? 'linear-gradient(135deg, rgba(120, 53, 15, 0.55) 0%, rgba(10, 6, 4, 0.95) 100%)'
           : 'linear-gradient(135deg, rgba(31, 12, 41, 0.7) 0%, rgba(10, 6, 4, 0.95) 100%)',
@@ -9709,7 +9709,7 @@ function StoryChainView({ chainStatus, onClaimStep }) {
         <div className="absolute bottom-1 right-1 text-amber-700/60 text-xs">⚜</div>
 
         <div className="flex items-start gap-4">
-          <div className="text-5xl flex-shrink-0">{chain.icon}</div>
+          <div className="text-5xl shrink-0">{chain.icon}</div>
           <div className="flex-1 min-w-0">
             <h3 className="text-xl font-bold text-amber-200 italic" style={{ textShadow: '0 0 8px rgba(245, 158, 11, 0.4)' }}>
               {chain.title}
@@ -9806,7 +9806,7 @@ function QuestBoard({
   return (
     <div className="space-y-6">
       {/* Top brand header */}
-      <div className="p-6 rounded relative" style={{
+      <div className="p-6 rounded-sm relative" style={{
         background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.7) 0%, rgba(10, 6, 4, 0.95) 100%)',
         border: '3px double rgba(168, 85, 247, 0.6)',
         boxShadow: '0 0 40px rgba(168, 85, 247, 0.2), inset 0 0 30px rgba(0,0,0,0.5)',
@@ -9840,7 +9840,7 @@ function QuestBoard({
           <button
             key={t.id}
             onClick={() => setActiveTab(t.id)}
-            className="px-5 py-2.5 rounded font-bold italic text-sm border-2 flex items-center gap-2 transition"
+            className="px-5 py-2.5 rounded-sm font-bold italic text-sm border-2 flex items-center gap-2 transition"
             style={{
               borderColor: activeTab === t.id ? 'rgba(245, 158, 11, 0.85)' : 'rgba(126, 34, 206, 0.5)',
               background: activeTab === t.id
@@ -9905,8 +9905,8 @@ function QuestBoard({
 function WelcomeModal({ onStart, onSkip }) {
   useEscapeKey(onSkip);
   return (
-    <div className="fixed inset-0 bg-black/90 backdrop-blur z-50 flex items-center justify-center p-4">
-      <div className="rounded max-w-2xl w-full overflow-hidden flex flex-col relative" style={{
+    <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="rounded-sm max-w-2xl w-full overflow-hidden flex flex-col relative" style={{
         background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.99) 0%, rgba(10, 6, 4, 1) 100%)',
         border: '4px double rgba(245, 158, 11, 0.7)',
         boxShadow: '0 0 60px rgba(245, 158, 11, 0.4)',
@@ -9936,11 +9936,11 @@ function WelcomeModal({ onStart, onSkip }) {
           </div>
         </div>
         <div className="p-4 border-t border-amber-700/50 flex gap-2">
-          <button onClick={onSkip} className="flex-1 py-3 rounded border-2 border-amber-700 text-amber-200 italic"
+          <button onClick={onSkip} className="flex-1 py-3 rounded-sm border-2 border-amber-700 text-amber-200 italic"
             style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
             Walk Alone
           </button>
-          <button onClick={onStart} className="flex-1 py-3 font-bold rounded flex items-center justify-center gap-2 text-amber-950 border-2 border-amber-300 italic"
+          <button onClick={onStart} className="flex-1 py-3 font-bold rounded-sm flex items-center justify-center gap-2 text-amber-950 border-2 border-amber-300 italic"
             style={{ background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)', boxShadow: '0 0 20px rgba(245, 158, 11, 0.5)' }}>
             <Compass className="w-4 h-4" /> Begin the Awakening
           </button>
@@ -9957,7 +9957,7 @@ function TutorialPanel({ stepIndex, collapsed, onToggle, onAdvance, onSkip, onAc
 
   return (
     <div className="fixed bottom-4 right-4 z-40 max-w-sm w-full md:w-96" style={{ pointerEvents: 'auto' }}>
-      <div className="rounded relative" style={{
+      <div className="rounded-sm relative" style={{
         background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.97) 0%, rgba(10, 6, 4, 0.99) 100%)',
         border: '3px double rgba(168, 85, 247, 0.7)',
         boxShadow: '0 0 30px rgba(168, 85, 247, 0.4), inset 0 0 20px rgba(0,0,0,0.5)',
@@ -10006,13 +10006,13 @@ function TutorialPanel({ stepIndex, collapsed, onToggle, onAdvance, onSkip, onAc
                 step.actionLabel ? (
                   <button
                     onClick={() => onAction(step.id)}
-                    className="flex-1 py-2 rounded text-sm font-bold text-amber-50 border-2 border-purple-300 italic"
+                    className="flex-1 py-2 rounded-sm text-sm font-bold text-amber-50 border-2 border-purple-300 italic"
                     style={{ background: 'linear-gradient(to bottom, #a855f7 0%, #6b21a8 100%)', boxShadow: '0 0 12px rgba(168, 85, 247, 0.4)' }}
                   >
                     {step.actionLabel}
                   </button>
                 ) : (
-                  <div className="flex-1 py-2 px-3 rounded text-xs italic text-purple-300 text-center" style={{
+                  <div className="flex-1 py-2 px-3 rounded-sm text-xs italic text-purple-300 text-center" style={{
                     background: 'rgba(31, 12, 41, 0.6)', border: '1px dashed rgba(168, 85, 247, 0.5)',
                   }}>
                     {step.completionLabel}
@@ -10024,7 +10024,7 @@ function TutorialPanel({ stepIndex, collapsed, onToggle, onAdvance, onSkip, onAc
                     if (step.actionLabel) onAction(step.id);
                     onAdvance(step.id);
                   }}
-                  className="flex-1 py-2 rounded text-sm font-bold text-amber-50 border-2 border-purple-300 italic"
+                  className="flex-1 py-2 rounded-sm text-sm font-bold text-amber-50 border-2 border-purple-300 italic"
                   style={{ background: 'linear-gradient(to bottom, #a855f7 0%, #6b21a8 100%)', boxShadow: '0 0 12px rgba(168, 85, 247, 0.4)' }}
                 >
                   {step.completionLabel}
@@ -10032,7 +10032,7 @@ function TutorialPanel({ stepIndex, collapsed, onToggle, onAdvance, onSkip, onAc
               )}
               <button
                 onClick={onSkip}
-                className="px-3 py-2 rounded text-xs border-2 border-amber-700 text-amber-300 hover:bg-amber-900/30 italic"
+                className="px-3 py-2 rounded-sm text-xs border-2 border-amber-700 text-amber-300 hover:bg-amber-900/30 italic"
                 style={{ background: 'rgba(41, 24, 12, 0.7)' }}
                 title="Skip the tutorial — thy path is thine own"
               >
@@ -10092,8 +10092,8 @@ function ShareTomeModal({ tome, onClose }) {
   if (!tome) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/85 backdrop-blur z-50 flex items-center justify-center p-4">
-      <div className="rounded max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col relative" style={{
+    <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="rounded-sm max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col relative" style={{
         background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.97) 0%, rgba(10, 6, 4, 0.99) 100%)',
         border: '3px double rgba(168, 85, 247, 0.6)',
         boxShadow: '0 0 40px rgba(168, 85, 247, 0.3)',
@@ -10107,7 +10107,7 @@ function ShareTomeModal({ tome, onClose }) {
           <h3 className="text-xl font-bold text-purple-300 flex items-center gap-2 italic">
             <Share2 className="w-5 h-5" /> ✦ Share Thy Tome ✦
           </h3>
-          <button onClick={onClose} className="p-2 hover:bg-purple-900/30 rounded text-purple-300" aria-label="Close share dialog">
+          <button onClick={onClose} className="p-2 hover:bg-purple-900/30 rounded-sm text-purple-300" aria-label="Close share dialog">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -10123,7 +10123,7 @@ function ShareTomeModal({ tome, onClose }) {
             // share code is still reachable behind a disclosure for users who
             // need it (e.g., pasting into a chat that strips attachments).
             <>
-              <div className="p-3 rounded text-sm italic" style={{
+              <div className="p-3 rounded-sm text-sm italic" style={{
                 background: 'rgba(120, 53, 15, 0.35)',
                 border: '1px solid rgba(245, 158, 11, 0.5)',
                 color: '#fde68a',
@@ -10132,7 +10132,7 @@ function ShareTomeModal({ tome, onClose }) {
               </div>
               <button
                 onClick={() => downloadTomeJson(tome)}
-                className="py-3 font-bold rounded flex items-center justify-center gap-2 text-amber-50 border-2 border-emerald-300 italic"
+                className="py-3 font-bold rounded-sm flex items-center justify-center gap-2 text-amber-50 border-2 border-emerald-300 italic"
                 style={{ background: 'linear-gradient(to bottom, #10b981 0%, #047857 100%)', boxShadow: '0 0 20px rgba(16, 185, 129, 0.5)' }}
               >
                 <Download className="w-4 h-4" /> Download Tome JSON
@@ -10149,13 +10149,13 @@ function ShareTomeModal({ tome, onClose }) {
                     ref={textareaRef}
                     value={code || ''}
                     readOnly
-                    className="w-full min-h-[120px] p-3 rounded border-2 focus:outline-none text-amber-50 font-mono text-xs"
+                    className="w-full min-h-[120px] p-3 rounded-sm border-2 focus:outline-hidden text-amber-50 font-mono text-xs"
                     style={{ background: 'rgba(10, 6, 4, 0.7)', borderColor: 'rgba(126, 34, 206, 0.5)', fontFamily: 'monospace', wordBreak: 'break-all' }}
                     onFocus={(e) => e.target.select()}
                   />
                   <button
                     onClick={copy}
-                    className="w-full py-2 rounded flex items-center justify-center gap-2 text-amber-50 border-2 border-purple-300 italic text-sm"
+                    className="w-full py-2 rounded-sm flex items-center justify-center gap-2 text-amber-50 border-2 border-purple-300 italic text-sm"
                     style={{ background: 'linear-gradient(to bottom, #a855f7 0%, #6b21a8 100%)' }}
                   >
                     {copied ? <><Check className="w-4 h-4" /> Inscribed!</> : <><Copy className="w-4 h-4" /> Copy Share Code</>}
@@ -10169,7 +10169,7 @@ function ShareTomeModal({ tome, onClose }) {
                 ref={textareaRef}
                 value={code || ''}
                 readOnly
-                className="flex-1 min-h-[200px] p-3 rounded border-2 focus:outline-none text-amber-50 font-mono text-xs"
+                className="flex-1 min-h-[200px] p-3 rounded-sm border-2 focus:outline-hidden text-amber-50 font-mono text-xs"
                 style={{ background: 'rgba(10, 6, 4, 0.7)', borderColor: 'rgba(126, 34, 206, 0.5)', fontFamily: 'monospace', wordBreak: 'break-all' }}
                 onFocus={(e) => e.target.select()}
               />
@@ -10186,9 +10186,9 @@ function ShareTomeModal({ tome, onClose }) {
           )}
         </div>
         <div className="p-4 border-t border-purple-700/50 flex gap-2">
-          <button onClick={onClose} className="px-6 py-3 rounded border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(41, 24, 12, 0.7)' }}>Close</button>
+          <button onClick={onClose} className="px-6 py-3 rounded-sm border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(41, 24, 12, 0.7)' }}>Close</button>
           {!isLarge && (
-            <button onClick={copy} className="flex-1 py-3 font-bold rounded flex items-center justify-center gap-2 text-amber-50 border-2 border-purple-300 italic"
+            <button onClick={copy} className="flex-1 py-3 font-bold rounded-sm flex items-center justify-center gap-2 text-amber-50 border-2 border-purple-300 italic"
               style={{ background: 'linear-gradient(to bottom, #a855f7 0%, #6b21a8 100%)', boxShadow: '0 0 20px rgba(168, 85, 247, 0.5)' }}>
               {copied ? <><Check className="w-4 h-4" /> Inscribed!</> : <><Copy className="w-4 h-4" /> Copy Share Code</>}
             </button>
@@ -10215,8 +10215,8 @@ function ImportCodeModal({ onClose, onSubmit }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/85 backdrop-blur z-50 flex items-center justify-center p-4">
-      <div className="rounded max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col relative" style={{
+    <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="rounded-sm max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col relative" style={{
         background: 'linear-gradient(135deg, rgba(31, 12, 41, 0.97) 0%, rgba(10, 6, 4, 0.99) 100%)',
         border: '3px double rgba(168, 85, 247, 0.6)',
         boxShadow: '0 0 40px rgba(168, 85, 247, 0.3)',
@@ -10230,7 +10230,7 @@ function ImportCodeModal({ onClose, onSubmit }) {
           <h3 className="text-xl font-bold text-purple-300 flex items-center gap-2 italic">
             <Hash className="w-5 h-5" /> ✦ Import Share Code ✦
           </h3>
-          <button onClick={onClose} className="p-2 hover:bg-purple-900/30 rounded text-purple-300" aria-label="Close import share code dialog">
+          <button onClick={onClose} className="p-2 hover:bg-purple-900/30 rounded-sm text-purple-300" aria-label="Close import share code dialog">
             <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
@@ -10242,7 +10242,7 @@ function ImportCodeModal({ onClose, onSubmit }) {
             value={text}
             onChange={(e) => { setText(e.target.value); setError(''); }}
             placeholder="TOME-V1:..."
-            className="flex-1 min-h-[200px] p-3 rounded border-2 focus:outline-none text-amber-50 font-mono text-xs"
+            className="flex-1 min-h-[200px] p-3 rounded-sm border-2 focus:outline-hidden text-amber-50 font-mono text-xs"
             style={{
               background: 'rgba(10, 6, 4, 0.7)',
               borderColor: 'rgba(126, 34, 206, 0.5)',
@@ -10252,7 +10252,7 @@ function ImportCodeModal({ onClose, onSubmit }) {
             autoFocus
           />
           {error && (
-            <div className="p-3 rounded text-sm italic" style={{
+            <div className="p-3 rounded-sm text-sm italic" style={{
               background: 'rgba(127, 29, 29, 0.5)',
               border: '1px solid rgba(239, 68, 68, 0.7)',
               color: '#fecaca',
@@ -10262,8 +10262,8 @@ function ImportCodeModal({ onClose, onSubmit }) {
           )}
         </div>
         <div className="p-4 border-t border-purple-700/50 flex gap-2">
-          <button onClick={onClose} className="px-6 py-3 rounded border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(41, 24, 12, 0.7)' }}>Cancel</button>
-          <button onClick={handleSubmit} disabled={!text.trim()} className="flex-1 py-3 font-bold rounded flex items-center justify-center gap-2 text-amber-50 border-2 border-purple-300 italic disabled:opacity-50 disabled:cursor-not-allowed"
+          <button onClick={onClose} className="px-6 py-3 rounded-sm border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(41, 24, 12, 0.7)' }}>Cancel</button>
+          <button onClick={handleSubmit} disabled={!text.trim()} className="flex-1 py-3 font-bold rounded-sm flex items-center justify-center gap-2 text-amber-50 border-2 border-purple-300 italic disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ background: 'linear-gradient(to bottom, #a855f7 0%, #6b21a8 100%)', boxShadow: '0 0 20px rgba(168, 85, 247, 0.5)' }}>
             <Hash className="w-4 h-4" /> Decode & Inscribe
           </button>
@@ -10313,8 +10313,8 @@ function MetadataEditModal({ tome, onSave, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/85 backdrop-blur z-50 flex items-center justify-center p-4">
-      <div className="rounded max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col relative" style={{
+    <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="rounded-sm max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col relative" style={{
         background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.97) 0%, rgba(10, 6, 4, 0.99) 100%)',
         border: '3px double rgba(245, 158, 11, 0.6)',
         boxShadow: '0 0 40px rgba(245, 158, 11, 0.3)',
@@ -10328,7 +10328,7 @@ function MetadataEditModal({ tome, onSave, onClose }) {
           <h3 className="text-xl font-bold text-amber-300 flex items-center gap-2 italic">
             <Tag className="w-5 h-5" /> ✦ Edit Tome Metadata ✦
           </h3>
-          <button onClick={onClose} className="p-2 hover:bg-amber-900/30 rounded text-amber-300" aria-label="Close edit metadata dialog">
+          <button onClick={onClose} className="p-2 hover:bg-amber-900/30 rounded-sm text-amber-300" aria-label="Close edit metadata dialog">
             <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
@@ -10338,7 +10338,7 @@ function MetadataEditModal({ tome, onSave, onClose }) {
             <input type="text" value={title}
               onChange={(e) => setTitle(e.target.value.slice(0, 200))}
               maxLength={200}
-              className="w-full p-2 rounded border-2 focus:outline-none italic text-amber-50"
+              className="w-full p-2 rounded-sm border-2 focus:outline-hidden italic text-amber-50"
               style={{ background: 'rgba(20, 12, 6, 0.7)', borderColor: 'rgba(180, 83, 9, 0.5)' }} />
             {/* Phase 33h QA P9: bumped char counter contrast (was
                 text-amber-700/70 — barely readable). */}
@@ -10359,7 +10359,7 @@ function MetadataEditModal({ tome, onSave, onClose }) {
                 setDescription(next);
               }}
               rows={2}
-              className="w-full p-2 rounded border-2 focus:outline-none italic text-amber-50"
+              className="w-full p-2 rounded-sm border-2 focus:outline-hidden italic text-amber-50"
               style={{ background: 'rgba(20, 12, 6, 0.7)', borderColor: 'rgba(180, 83, 9, 0.5)' }} />
             <div className={`text-xs italic text-right mt-1 tabular-nums ${description.length > 600 ? 'text-red-300 font-bold' : 'text-amber-300'}`}>
               {description.length}/600
@@ -10386,7 +10386,7 @@ function MetadataEditModal({ tome, onSave, onClose }) {
                 allowed; edited-and-over = red error + save blocked + Trim
                 button. */}
             {description.length > 600 && descriptionUnchanged && (
-              <div className="mt-2 p-2 rounded text-xs italic flex items-center gap-2 flex-wrap" style={{
+              <div className="mt-2 p-2 rounded-sm text-xs italic flex items-center gap-2 flex-wrap" style={{
                 background: 'rgba(120, 53, 15, 0.35)', border: '1px solid rgba(245, 158, 11, 0.55)', color: '#fde68a',
               }}>
                 <span className="flex-1">
@@ -10395,7 +10395,7 @@ function MetadataEditModal({ tome, onSave, onClose }) {
                 <button
                   type="button"
                   onClick={() => setDescription(description.slice(0, 600))}
-                  className="px-3 py-1 rounded border border-amber-400 text-amber-100 hover:bg-amber-900/40"
+                  className="px-3 py-1 rounded-sm border border-amber-400 text-amber-100 hover:bg-amber-900/40"
                   style={{ background: 'rgba(120, 53, 15, 0.55)' }}
                 >
                   Trim to 600
@@ -10403,7 +10403,7 @@ function MetadataEditModal({ tome, onSave, onClose }) {
               </div>
             )}
             {description.length > 600 && !descriptionUnchanged && (
-              <div className="mt-2 p-2 rounded text-xs italic flex items-center gap-2 flex-wrap" style={{
+              <div className="mt-2 p-2 rounded-sm text-xs italic flex items-center gap-2 flex-wrap" style={{
                 background: 'rgba(127, 29, 29, 0.4)', border: '1px solid rgba(239, 68, 68, 0.6)', color: '#fecaca',
               }}>
                 <span className="flex-1">
@@ -10412,7 +10412,7 @@ function MetadataEditModal({ tome, onSave, onClose }) {
                 <button
                   type="button"
                   onClick={() => setDescription(description.slice(0, 600))}
-                  className="px-3 py-1 rounded border border-red-400 text-red-100 hover:bg-red-900/40"
+                  className="px-3 py-1 rounded-sm border border-red-400 text-red-100 hover:bg-red-900/40"
                   style={{ background: 'rgba(127, 29, 29, 0.6)' }}
                 >
                   Trim to 600
@@ -10424,13 +10424,13 @@ function MetadataEditModal({ tome, onSave, onClose }) {
             <div>
               <label className="text-xs text-amber-600 tracking-wider italic mb-1 block">📚 SUBJECT</label>
               <input type="text" value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="e.g., Cybersecurity"
-                className="w-full p-2 rounded border-2 focus:outline-none italic text-amber-50"
+                className="w-full p-2 rounded-sm border-2 focus:outline-hidden italic text-amber-50"
                 style={{ background: 'rgba(20, 12, 6, 0.7)', borderColor: 'rgba(180, 83, 9, 0.5)' }} />
             </div>
             <div>
               <label className="text-xs text-amber-600 tracking-wider italic mb-1 block">✒️ AUTHOR</label>
               <input type="text" value={author} onChange={(e) => setAuthor(e.target.value)} placeholder="Optional"
-                className="w-full p-2 rounded border-2 focus:outline-none italic text-amber-50"
+                className="w-full p-2 rounded-sm border-2 focus:outline-hidden italic text-amber-50"
                 style={{ background: 'rgba(20, 12, 6, 0.7)', borderColor: 'rgba(180, 83, 9, 0.5)' }} />
             </div>
           </div>
@@ -10439,7 +10439,7 @@ function MetadataEditModal({ tome, onSave, onClose }) {
             <div className="flex gap-2">
               {[0, 1, 2, 3, 4, 5].map(d => (
                 <button key={d} onClick={() => setDifficulty(d)}
-                  className="flex-1 py-2 rounded border-2 italic text-sm"
+                  className="flex-1 py-2 rounded-sm border-2 italic text-sm"
                   style={{
                     background: difficulty === d ? 'rgba(120, 53, 15, 0.6)' : 'rgba(41, 24, 12, 0.5)',
                     borderColor: difficulty === d ? 'rgba(245, 158, 11, 0.8)' : 'rgba(120, 53, 15, 0.4)',
@@ -10454,16 +10454,16 @@ function MetadataEditModal({ tome, onSave, onClose }) {
             <label className="text-xs text-amber-600 tracking-wider italic mb-1 block">🏷️ TAGS (comma-separated)</label>
             <input type="text" value={tagsText} onChange={(e) => setTagsText(e.target.value)}
               placeholder="e.g., security+, cert-prep, exam-2024"
-              className="w-full p-2 rounded border-2 focus:outline-none italic text-amber-50"
+              className="w-full p-2 rounded-sm border-2 focus:outline-hidden italic text-amber-50"
               style={{ background: 'rgba(20, 12, 6, 0.7)', borderColor: 'rgba(180, 83, 9, 0.5)' }} />
           </div>
         </div>
         <div className="p-4 border-t border-amber-700/50 flex gap-2">
-          <button onClick={onClose} className="px-6 py-3 rounded border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(41, 24, 12, 0.7)' }} aria-label="Cancel metadata edit">Cancel</button>
+          <button onClick={onClose} className="px-6 py-3 rounded-sm border-2 border-amber-700 text-amber-200 italic" style={{ background: 'rgba(41, 24, 12, 0.7)' }} aria-label="Cancel metadata edit">Cancel</button>
           <button onClick={submit}
             disabled={descriptionBlocksSave || title.length > 200}
             title={descriptionBlocksSave ? `Trim description ${description.length - 600} chars before saving` : (title.length > 200 ? 'Trim title before saving' : undefined)}
-            className="flex-1 py-3 font-bold rounded flex items-center justify-center gap-2 text-amber-950 border-2 border-amber-300 italic disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex-1 py-3 font-bold rounded-sm flex items-center justify-center gap-2 text-amber-950 border-2 border-amber-300 italic disabled:opacity-40 disabled:cursor-not-allowed"
             style={{ background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)', boxShadow: '0 0 20px rgba(245, 158, 11, 0.5)' }}>
             <Check className="w-4 h-4" /> Save Metadata
           </button>
@@ -10479,8 +10479,8 @@ function ResetConfirmModal({ onConfirm, onCancel }) {
   const isMatch = confirmText.trim().toUpperCase() === 'BEGIN ANEW';
 
   return (
-    <div className="fixed inset-0 bg-black/85 backdrop-blur z-50 flex items-center justify-center p-4">
-      <div className="rounded max-w-md w-full overflow-hidden flex flex-col relative" style={{
+    <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="rounded-sm max-w-md w-full overflow-hidden flex flex-col relative" style={{
         background: 'linear-gradient(135deg, rgba(80, 20, 20, 0.95) 0%, rgba(20, 6, 6, 0.99) 100%)',
         border: '3px double rgba(220, 38, 38, 0.7)',
         boxShadow: '0 0 40px rgba(220, 38, 38, 0.4)',
@@ -10494,7 +10494,7 @@ function ResetConfirmModal({ onConfirm, onCancel }) {
           <h3 className="text-xl font-bold text-red-300 flex items-center gap-2 italic">
             <Skull className="w-5 h-5" /> ⚠ Erase Thy Saga ⚠
           </h3>
-          <button onClick={onCancel} className="p-2 hover:bg-red-900/30 rounded text-red-300" aria-label="Cancel and close erase saga dialog">
+          <button onClick={onCancel} className="p-2 hover:bg-red-900/30 rounded-sm text-red-300" aria-label="Cancel and close erase saga dialog">
             <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
@@ -10514,7 +10514,7 @@ function ResetConfirmModal({ onConfirm, onCancel }) {
             onChange={(e) => setConfirmText(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter' && isMatch) onConfirm(); }}
             placeholder="BEGIN ANEW"
-            className="w-full p-3 rounded border-2 focus:outline-none italic text-amber-50 tracking-wider"
+            className="w-full p-3 rounded-sm border-2 focus:outline-hidden italic text-amber-50 tracking-wider"
             style={{
               background: 'rgba(20, 6, 6, 0.8)',
               borderColor: isMatch ? 'rgba(239, 68, 68, 0.8)' : 'rgba(120, 53, 15, 0.5)',
@@ -10526,7 +10526,7 @@ function ResetConfirmModal({ onConfirm, onCancel }) {
         <div className="p-4 border-t border-red-700/50 flex gap-2">
           <button
             onClick={onCancel}
-            className="flex-1 py-3 rounded border-2 border-amber-700 text-amber-200 italic"
+            className="flex-1 py-3 rounded-sm border-2 border-amber-700 text-amber-200 italic"
             style={{ background: 'rgba(41, 24, 12, 0.7)' }}
           >
             Cancel
@@ -10534,7 +10534,7 @@ function ResetConfirmModal({ onConfirm, onCancel }) {
           <button
             onClick={onConfirm}
             disabled={!isMatch}
-            className="flex-1 py-3 font-bold rounded text-amber-50 border-2 border-red-400 italic disabled:opacity-30 disabled:cursor-not-allowed"
+            className="flex-1 py-3 font-bold rounded-sm text-amber-50 border-2 border-red-400 italic disabled:opacity-30 disabled:cursor-not-allowed"
             style={{
               background: 'linear-gradient(to bottom, #dc2626 0%, #991b1b 100%)',
               boxShadow: isMatch ? '0 0 20px rgba(220, 38, 38, 0.5)' : 'none',
@@ -10573,13 +10573,13 @@ function ConfirmModal({ title, body, confirmLabel = 'Confirm', cancelLabel = 'Ca
   const confirmIsDanger = confirmVariant === 'danger';
   return (
     <div
-      className="fixed inset-0 bg-black/85 backdrop-blur z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4"
       role="alertdialog"
       aria-modal="true"
       aria-labelledby="ds-confirm-title"
       aria-describedby="ds-confirm-body"
     >
-      <div className="rounded max-w-md w-full overflow-hidden flex flex-col relative" style={{
+      <div className="rounded-sm max-w-md w-full overflow-hidden flex flex-col relative" style={{
         background: confirmIsDanger
           ? 'linear-gradient(135deg, rgba(80, 20, 20, 0.97) 0%, rgba(20, 6, 6, 0.99) 100%)'
           : 'linear-gradient(135deg, rgba(41, 24, 12, 0.97) 0%, rgba(10, 6, 4, 0.99) 100%)',
@@ -10604,7 +10604,7 @@ function ConfirmModal({ title, body, confirmLabel = 'Confirm', cancelLabel = 'Ca
           <button
             ref={cancelRef}
             onClick={onCancel}
-            className="flex-1 py-3 rounded font-bold italic border-2 border-amber-700 text-amber-200"
+            className="flex-1 py-3 rounded-sm font-bold italic border-2 border-amber-700 text-amber-200"
             style={{ background: 'rgba(41, 24, 12, 0.7)' }}
           >
             {cancelLabel}
@@ -10612,7 +10612,7 @@ function ConfirmModal({ title, body, confirmLabel = 'Confirm', cancelLabel = 'Ca
           <button
             onClick={onConfirm}
             aria-label={confirmLabel}
-            className={`flex-1 py-3 rounded font-bold italic border-2 ${confirmIsDanger ? 'border-red-300 text-amber-50' : 'border-amber-300 text-amber-950'}`}
+            className={`flex-1 py-3 rounded-sm font-bold italic border-2 ${confirmIsDanger ? 'border-red-300 text-amber-50' : 'border-amber-300 text-amber-950'}`}
             style={{
               background: confirmIsDanger
                 ? 'linear-gradient(to bottom, #dc2626 0%, #991b1b 100%)'
@@ -10646,8 +10646,8 @@ function PasteTomeModal({ onClose, onSubmit }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/85 backdrop-blur z-50 flex items-center justify-center p-4">
-      <div className="rounded max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col relative" style={{
+    <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="rounded-sm max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col relative" style={{
         background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.97) 0%, rgba(10, 6, 4, 0.99) 100%)',
         border: '3px double rgba(245, 158, 11, 0.6)',
         boxShadow: '0 0 40px rgba(245, 158, 11, 0.3)',
@@ -10661,7 +10661,7 @@ function PasteTomeModal({ onClose, onSubmit }) {
           <h3 className="text-xl font-bold text-amber-300 flex items-center gap-2 italic">
             <Copy className="w-5 h-5" /> ✦ Paste Tome Text ✦
           </h3>
-          <button onClick={onClose} className="p-2 hover:bg-amber-900/30 rounded text-amber-300" aria-label="Close paste tome dialog">
+          <button onClick={onClose} className="p-2 hover:bg-amber-900/30 rounded-sm text-amber-300" aria-label="Close paste tome dialog">
             <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
@@ -10673,7 +10673,7 @@ function PasteTomeModal({ onClose, onSubmit }) {
             value={text}
             onChange={(e) => { setText(e.target.value); setError(''); }}
             placeholder='{"metadata": {"title": "..."}, "flashcards": [...], ...}'
-            className="flex-1 min-h-[300px] p-3 rounded border-2 focus:outline-none text-amber-50 font-mono text-xs"
+            className="flex-1 min-h-[300px] p-3 rounded-sm border-2 focus:outline-hidden text-amber-50 font-mono text-xs"
             style={{
               background: 'rgba(10, 6, 4, 0.7)',
               borderColor: 'rgba(180, 83, 9, 0.5)',
@@ -10682,7 +10682,7 @@ function PasteTomeModal({ onClose, onSubmit }) {
             autoFocus
           />
           {error && (
-            <div className="p-3 rounded text-sm italic" style={{
+            <div className="p-3 rounded-sm text-sm italic" style={{
               background: 'rgba(127, 29, 29, 0.5)',
               border: '1px solid rgba(239, 68, 68, 0.7)',
               color: '#fecaca',
@@ -10694,7 +10694,7 @@ function PasteTomeModal({ onClose, onSubmit }) {
         <div className="p-4 border-t border-amber-700/50 flex gap-2">
           <button
             onClick={onClose}
-            className="px-6 py-3 rounded border-2 border-amber-700 text-amber-200 italic"
+            className="px-6 py-3 rounded-sm border-2 border-amber-700 text-amber-200 italic"
             style={{ background: 'rgba(41, 24, 12, 0.7)' }}
           >
             Cancel
@@ -10703,7 +10703,7 @@ function PasteTomeModal({ onClose, onSubmit }) {
             onClick={handleSubmit}
             disabled={!text.trim()}
             title={text.trim() ? 'Inscribe the pasted tome' : 'Paste tome JSON to enable'}
-            className="flex-1 py-3 font-bold rounded flex items-center justify-center gap-2 text-amber-950 border-2 border-amber-300 italic disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex-1 py-3 font-bold rounded-sm flex items-center justify-center gap-2 text-amber-950 border-2 border-amber-300 italic disabled:opacity-40 disabled:cursor-not-allowed"
             style={{
               background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)',
               boxShadow: '0 0 20px rgba(245, 158, 11, 0.5)',
@@ -10744,8 +10744,8 @@ function AchievementsModal({ playerState, onClose }) {
   const categoryOrder = ['milestone', 'dungeon', 'streak', 'volume', 'labs', 'cards', 'quiz', 'oracle', 'level', 'mastery', 'devotion', 'vault', 'xp', 'special'];
 
   return (
-    <div className="fixed inset-0 bg-black/85 backdrop-blur z-50 flex items-center justify-center p-4">
-      <div className="rounded max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col relative" style={{
+    <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="rounded-sm max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col relative" style={{
         background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.97) 0%, rgba(10, 6, 4, 0.99) 100%)',
         border: '3px double rgba(245, 158, 11, 0.6)', boxShadow: '0 0 40px rgba(245, 158, 11, 0.3)',
       }}>
@@ -10753,7 +10753,7 @@ function AchievementsModal({ playerState, onClose }) {
           <h3 className="text-xl font-bold text-amber-300 flex items-center gap-2 italic">
             <Trophy className="w-5 h-5" /> ⚔ Hall of Glory ({playerState.achievements.length}/{ACHIEVEMENTS.length}) ⚔
           </h3>
-          <button onClick={onClose} className="p-2 hover:bg-amber-900/30 rounded text-amber-300" aria-label="Close Hall of Glory"><X className="w-5 h-5" aria-hidden="true" /></button>
+          <button onClick={onClose} className="p-2 hover:bg-amber-900/30 rounded-sm text-amber-300" aria-label="Close Hall of Glory"><X className="w-5 h-5" aria-hidden="true" /></button>
         </div>
         <div className="p-4 overflow-y-auto overscroll-contain flex-1 space-y-5">
           {categoryOrder.filter(c => grouped[c]).map(cat => {
@@ -10766,7 +10766,7 @@ function AchievementsModal({ playerState, onClose }) {
                   {achievements.map(a => {
                     const unlocked = playerState.achievements.includes(a.id);
                     return (
-                      <div key={a.id} className="p-3 rounded border-2" style={{
+                      <div key={a.id} className="p-3 rounded-sm border-2" style={{
                         background: unlocked ? 'rgba(120, 53, 15, 0.4)' : 'rgba(41, 24, 12, 0.4)',
                         borderColor: unlocked ? 'rgba(245, 158, 11, 0.7)' : 'rgba(75, 75, 75, 0.5)',
                         opacity: unlocked ? 1 : 0.5, boxShadow: unlocked ? '0 0 12px rgba(245, 158, 11, 0.2)' : 'none',
@@ -10795,20 +10795,20 @@ function TitlesModal({ playerState, onSelect, onClose }) {
   useEscapeKey(onClose);
   const currentLevel = playerState.level;
   return (
-    <div className="fixed inset-0 bg-black/85 backdrop-blur z-50 flex items-center justify-center p-4">
-      <div className="rounded max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col relative" style={{
+    <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="rounded-sm max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col relative" style={{
         background: 'linear-gradient(135deg, rgba(41, 24, 12, 0.97) 0%, rgba(10, 6, 4, 0.99) 100%)',
         border: '3px double rgba(245, 158, 11, 0.6)', boxShadow: '0 0 40px rgba(245, 158, 11, 0.3)',
       }}>
         <div className="p-4 border-b border-amber-700/50 flex justify-between items-center">
           <h3 className="text-xl font-bold text-amber-300 italic">⚔ Choose Thy Title ⚔</h3>
-          <button onClick={onClose} className="p-2 hover:bg-amber-900/30 rounded text-amber-300" aria-label="Close choose title dialog"><X className="w-5 h-5" aria-hidden="true" /></button>
+          <button onClick={onClose} className="p-2 hover:bg-amber-900/30 rounded-sm text-amber-300" aria-label="Close choose title dialog"><X className="w-5 h-5" aria-hidden="true" /></button>
         </div>
         <div className="p-4 overflow-y-auto overscroll-contain flex-1 space-y-4">
           <div>
             <h4 className="text-sm text-amber-600 mb-2 tracking-[0.3em] italic">⚜ TITLES OF RANK ⚜</h4>
             <div className="space-y-2">
-              <button onClick={() => onSelect(null)} className="w-full text-left p-3 rounded border-2" style={{
+              <button onClick={() => onSelect(null)} className="w-full text-left p-3 rounded-sm border-2" style={{
                 background: !playerState.selectedTitle ? 'rgba(120, 53, 15, 0.5)' : 'rgba(41, 24, 12, 0.4)',
                 borderColor: !playerState.selectedTitle ? 'rgba(245, 158, 11, 0.8)' : 'rgba(120, 53, 15, 0.5)',
               }}>
@@ -10826,7 +10826,7 @@ function TitlesModal({ playerState, onSelect, onClose }) {
                 return (
                   <div
                     key={t.name}
-                    className="p-3 rounded border-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+                    className="p-3 rounded-sm border-2 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-400"
                     tabIndex={unlocked ? -1 : 0}
                     title={hint}
                     style={{
@@ -10853,7 +10853,7 @@ function TitlesModal({ playerState, onSelect, onClose }) {
               {Object.entries(SPECIAL_TITLES).map(([key, t]) => {
                 const unlocked = playerState.unlockedTitles.includes(key);
                 return (
-                  <button key={key} onClick={() => unlocked && onSelect(key)} disabled={!unlocked} className="w-full text-left p-3 rounded border-2 disabled:cursor-not-allowed" style={{
+                  <button key={key} onClick={() => unlocked && onSelect(key)} disabled={!unlocked} className="w-full text-left p-3 rounded-sm border-2 disabled:cursor-not-allowed" style={{
                     background: playerState.selectedTitle === key ? 'rgba(126, 34, 206, 0.4)' : unlocked ? 'rgba(41, 24, 12, 0.5)' : 'rgba(20, 12, 6, 0.4)',
                     borderColor: playerState.selectedTitle === key ? 'rgba(168, 85, 247, 0.8)' : unlocked ? 'rgba(120, 53, 15, 0.5)' : 'rgba(45, 30, 20, 0.5)',
                     opacity: unlocked ? 1 : 0.4,

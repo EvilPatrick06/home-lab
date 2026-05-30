@@ -13,7 +13,7 @@ function summarize(state) {
 function Card({ heading, state, onPick, pickLabel, pickColor, ariaLabel }) {
   const s = summarize(state);
   return (
-    <div className="flex-1 p-4 rounded border-2 border-amber-700"
+    <div className="flex-1 p-4 rounded-sm border-2 border-amber-700"
          style={{ background: 'rgba(41, 24, 12, 0.7)' }}>
       <div className="text-xs text-amber-700 tracking-[0.3em] mb-2">{heading}</div>
       <div className="text-amber-200 text-lg font-bold italic">Level {s.level}</div>
@@ -27,7 +27,7 @@ function Card({ heading, state, onPick, pickLabel, pickColor, ariaLabel }) {
         onClick={onPick}
         title={ariaLabel}
         aria-label={ariaLabel}
-        className={`mt-4 w-full px-3 py-2 rounded border-2 italic text-sm hover:opacity-90 ${pickColor}`}
+        className={`mt-4 w-full px-3 py-2 rounded-sm border-2 italic text-sm hover:opacity-90 ${pickColor}`}
       >
         {pickLabel}
       </button>
@@ -39,7 +39,7 @@ export function MergeChooser({ localState, cloudState, onResolve }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center"
          style={{ background: 'rgba(0,0,0,0.85)' }}>
-      <div className="max-w-2xl w-[92%] p-6 rounded border-2 border-amber-600"
+      <div className="max-w-2xl w-[92%] p-6 rounded-sm border-2 border-amber-600"
            style={{ background: 'rgba(20, 12, 6, 0.97)' }}>
         <h2 className="text-xl font-bold text-amber-300 italic mb-2">
           ⚔ Two Journals Discovered ⚔
@@ -68,7 +68,7 @@ export function MergeChooser({ localState, cloudState, onResolve }) {
         <button
           onClick={() => onResolve('cancel')}
           aria-label="Cancel sign-in and keep this device's progress unchanged"
-          className="mt-5 w-full px-3 py-2 rounded border-2 border-stone-700 text-stone-300 italic text-sm hover:bg-stone-900/40"
+          className="mt-5 w-full px-3 py-2 rounded-sm border-2 border-stone-700 text-stone-300 italic text-sm hover:bg-stone-900/40"
         >
           Cancel sign-in (keep this device unchanged)
         </button>

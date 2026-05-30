@@ -86,7 +86,7 @@ const summarizePetPassive = (def, level) => {
 function LoadoutSelect({ label, icon, currentId, items, onChange, emptyLabel, summary, disabled }) {
   const has = !!currentId;
   return (
-    <div className="p-2 rounded" style={{
+    <div className="p-2 rounded-sm" style={{
       background: 'rgba(0,0,0,0.35)',
       border: `1px solid ${has ? 'rgba(245,158,11,0.55)' : 'rgba(120,53,15,0.3)'}`,
     }}>
@@ -97,7 +97,7 @@ function LoadoutSelect({ label, icon, currentId, items, onChange, emptyLabel, su
         value={currentId || ''}
         disabled={!!disabled}
         onChange={(e) => onChange && onChange(e.target.value || null)}
-        className="w-full mt-1 px-2 py-1 rounded text-xs italic focus:outline-none"
+        className="w-full mt-1 px-2 py-1 rounded-sm text-xs italic focus:outline-hidden"
         style={{
           background: 'rgba(20,12,4,0.85)',
           color: has ? '#fde68a' : '#a8a29e',
@@ -1978,7 +1978,7 @@ function drawPlayer(ctx, px, py, facing, walkFrame, equipped = {}, swingT = 0) {
         ctx.fillRect(cx - 2, headTop + 11, 4, 1);
       } else {
         // 25i-3: soft hood shadow band under the brim so the lower
-        // face reads as "in shadow" rather than flat-dark like the
+        // face reads as "in shadow-sm" rather than flat-dark like the
         // rest of the head interior.
         ctx.globalAlpha = 0.5;
         ctx.fillStyle = '#000';
@@ -2391,7 +2391,7 @@ function BattleModal({
             post-answer state during the reveal flash; once the parent
             commits the real change, displayHp/displayMobHp coalesce
             with the prop values seamlessly. */}
-        <div className="flex items-center justify-between gap-3 mb-3 px-2 py-2 rounded"
+        <div className="flex items-center justify-between gap-3 mb-3 px-2 py-2 rounded-sm"
              style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(120,53,15,0.4)' }}>
           <div>
             <div className="text-[10px] italic text-amber-700">Thee · {displayHp}/{maxHp}</div>
@@ -2426,7 +2426,7 @@ function BattleModal({
                 key={i}
                 onClick={() => handle(i)}
                 disabled={!!revealResult}
-                className="text-left px-3 py-2 rounded italic"
+                className="text-left px-3 py-2 rounded-sm italic"
                 style={{ background: bg, border: `1px solid ${border}`, color, cursor: revealResult ? 'default' : 'pointer' }}
               >
                 {opt}
@@ -2449,7 +2449,7 @@ function BattleModal({
         {revealResult && !revealResult.correct && (
           <button
             onClick={advanceAfterWrong}
-            className="mt-3 px-3 py-2 rounded italic w-full text-sm font-bold"
+            className="mt-3 px-3 py-2 rounded-sm italic w-full text-sm font-bold"
             style={{
               background: 'linear-gradient(to bottom, #b45309 0%, #78350f 100%)',
               border: '2px solid #fbbf24',
@@ -2464,7 +2464,7 @@ function BattleModal({
           <button
             onClick={() => { if (!revealResult) onFlee(); }}
             disabled={!!revealResult}
-            className="mt-3 px-3 py-2 rounded italic w-full text-sm"
+            className="mt-3 px-3 py-2 rounded-sm italic w-full text-sm"
             style={{
               background: 'rgba(31,24,12,0.55)',
               border: '1px solid rgba(59,130,246,0.6)',
@@ -2516,19 +2516,19 @@ function EndRunOverlay({ runState, biome, summary, onExit, onNewDelve }) {
             : 'Thy quest ends here. Return when thou art ready.'}
         </div>
         <div className="grid grid-cols-2 gap-2 text-xs italic mb-4">
-          <div className="p-2 rounded" style={{ background: 'rgba(0,0,0,0.4)' }}>
+          <div className="p-2 rounded-sm" style={{ background: 'rgba(0,0,0,0.4)' }}>
             <div className="text-amber-700">Foes felled</div>
             <div className="text-amber-200">{summary.score}</div>
           </div>
-          <div className="p-2 rounded" style={{ background: 'rgba(0,0,0,0.4)' }}>
+          <div className="p-2 rounded-sm" style={{ background: 'rgba(0,0,0,0.4)' }}>
             <div className="text-amber-700">HP remaining</div>
             <div className="text-amber-200">{summary.hp} / {summary.maxHp}</div>
           </div>
-          <div className="p-2 rounded" style={{ background: 'rgba(0,0,0,0.4)' }}>
+          <div className="p-2 rounded-sm" style={{ background: 'rgba(0,0,0,0.4)' }}>
             <div className="text-amber-700">Mistakes</div>
             <div className="text-amber-200">{summary.mistakes}</div>
           </div>
-          <div className="p-2 rounded" style={{ background: 'rgba(0,0,0,0.4)' }}>
+          <div className="p-2 rounded-sm" style={{ background: 'rgba(0,0,0,0.4)' }}>
             <div className="text-amber-700">Best streak</div>
             <div className="text-amber-200">{summary.maxStreak}</div>
           </div>
@@ -2550,7 +2550,7 @@ function EndRunOverlay({ runState, biome, summary, onExit, onNewDelve }) {
           {onNewDelve && (
             <button
               onClick={onNewDelve}
-              className="px-4 py-2 rounded italic font-bold"
+              className="px-4 py-2 rounded-sm italic font-bold"
               style={{
                 background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)',
                 color: '#451a03',
@@ -2562,7 +2562,7 @@ function EndRunOverlay({ runState, biome, summary, onExit, onNewDelve }) {
           )}
           <button
             onClick={onExit}
-            className="px-4 py-2 rounded italic"
+            className="px-4 py-2 rounded-sm italic"
             style={{
               background: 'rgba(120,53,15,0.7)',
               border: '1px solid rgba(245,158,11,0.8)',
@@ -3932,7 +3932,7 @@ export default function DungeonExplore({
           </div>
         </div>
 
-        <div className="rounded p-5 relative" style={{
+        <div className="rounded-sm p-5 relative" style={{
           background: `linear-gradient(135deg, rgba(20,10,4,0.9) 0%, rgba(10,6,4,0.97) 100%)`,
           border: `3px double ${biome.accent}`,
           boxShadow: `0 0 30px ${biome.accent}, inset 0 0 30px rgba(0,0,0,0.6)`,
@@ -3964,7 +3964,7 @@ export default function DungeonExplore({
                   key={id}
                   disabled={!unlocked}
                   onClick={() => setDifficulty(id)}
-                  className="px-3 py-1.5 rounded text-xs italic"
+                  className="px-3 py-1.5 rounded-sm text-xs italic"
                   style={{
                     background: selected ? 'rgba(120,53,15,0.7)' : 'rgba(31,24,12,0.5)',
                     border: `1px solid ${selected ? 'rgba(245,158,11,0.8)' : 'rgba(120,53,15,0.4)'}`,
@@ -3982,19 +3982,19 @@ export default function DungeonExplore({
 
           {/* Stats grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-center mb-4">
-            <div className="p-2 rounded" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(239,68,68,0.4)' }}>
+            <div className="p-2 rounded-sm" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(239,68,68,0.4)' }}>
               <div className="text-[10px] uppercase italic text-amber-700">Lives</div>
               <div className="text-xl text-red-400 italic">❤ {effectiveMaxHp}</div>
             </div>
-            <div className="p-2 rounded" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(59,130,246,0.4)' }}>
+            <div className="p-2 rounded-sm" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(59,130,246,0.4)' }}>
               <div className="text-[10px] uppercase italic text-amber-700">Shields</div>
               <div className="text-xl text-blue-400 italic">🛡 {effectiveMaxShield}</div>
             </div>
-            <div className="p-2 rounded" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(245,158,11,0.4)' }}>
+            <div className="p-2 rounded-sm" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(245,158,11,0.4)' }}>
               <div className="text-[10px] uppercase italic text-amber-700">XP Mul</div>
               <div className="text-xl text-amber-300 italic">×{(diffConfig.xpMul * equipBonuses.xpMul).toFixed(2)}</div>
             </div>
-            <div className="p-2 rounded" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(245,158,11,0.4)' }}>
+            <div className="p-2 rounded-sm" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(245,158,11,0.4)' }}>
               <div className="text-[10px] uppercase italic text-amber-700">Gold Mul</div>
               <div className="text-xl text-yellow-300 italic">×{(diffConfig.goldMul * equipBonuses.goldMul).toFixed(2)}</div>
             </div>
@@ -4002,7 +4002,7 @@ export default function DungeonExplore({
 
           {/* Boss preview */}
           {bossDisp && (
-            <div className="p-3 rounded mb-4 flex items-center gap-3" style={{
+            <div className="p-3 rounded-sm mb-4 flex items-center gap-3" style={{
               background: 'rgba(0,0,0,0.4)',
               border: `1px solid ${biome.accent}`,
             }}>
@@ -4024,7 +4024,7 @@ export default function DungeonExplore({
             <div className="flex items-center gap-2 mb-2">
               <span className="text-base">⚔</span>
               <h4 className="text-xs font-bold italic text-amber-200 tracking-wider">Loadout</h4>
-              <div className="flex-1 h-px bg-gradient-to-r from-amber-700/40 to-transparent" />
+              <div className="flex-1 h-px bg-linear-to-r from-amber-700/40 to-transparent" />
               <span className="text-[10px] italic text-amber-700">
                 {canEdit ? 'Swap before delve' : 'Manage in The Hoard'}
               </span>
@@ -4078,7 +4078,7 @@ export default function DungeonExplore({
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-base">🧪</span>
                 <h4 className="text-xs font-bold italic text-amber-200 tracking-wider">Potion Quick-Slots</h4>
-                <div className="flex-1 h-px bg-gradient-to-r from-amber-700/40 to-transparent" />
+                <div className="flex-1 h-px bg-linear-to-r from-amber-700/40 to-transparent" />
                 <span className="text-[10px] italic text-amber-700">Hotkeys 1 · 2 · 3</span>
               </div>
               <div className="grid grid-cols-3 gap-2 text-xs italic">
@@ -4117,7 +4117,7 @@ export default function DungeonExplore({
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-base">✨</span>
                 <h4 className="text-xs font-bold italic text-amber-200 tracking-wider">Spell Quick-Slots</h4>
-                <div className="flex-1 h-px bg-gradient-to-r from-amber-700/40 to-transparent" />
+                <div className="flex-1 h-px bg-linear-to-r from-amber-700/40 to-transparent" />
                 <span className="text-[10px] italic text-amber-700">Hotkeys Z · X · C</span>
               </div>
               <div className="grid grid-cols-3 gap-2 text-xs italic">
@@ -4150,7 +4150,7 @@ export default function DungeonExplore({
           <div className="text-center">
             <button
               onClick={beginRun}
-              className="px-6 py-3 rounded font-bold italic text-lg"
+              className="px-6 py-3 rounded-sm font-bold italic text-lg"
               style={{
                 background: 'linear-gradient(to bottom, #fde047 0%, #f59e0b 100%)',
                 color: '#451a03',
@@ -4185,7 +4185,7 @@ export default function DungeonExplore({
       <div
         ref={containerRef}
         tabIndex={0}
-        className="mx-auto outline-none rounded relative select-none"
+        className="mx-auto outline-hidden rounded-sm relative select-none"
         style={{
           width: '100%',
           maxWidth: CANVAS_W,
@@ -4246,7 +4246,7 @@ export default function DungeonExplore({
                   key={i}
                   onClick={() => usePotion(i)}
                   disabled={!usable}
-                  className="rounded text-center"
+                  className="rounded-sm text-center"
                   style={{
                     width: 60, height: 44,
                     background: usable ? 'rgba(0,0,0,0.65)' : 'rgba(0,0,0,0.4)',
@@ -4273,7 +4273,7 @@ export default function DungeonExplore({
         {runState === 'alive' && (playerState?.equippedSpells || []).some(Boolean) && (
           <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2"
                style={{ bottom: 60, pointerEvents: 'auto' }}>
-            <div className="flex items-center gap-1 px-2 py-1 rounded"
+            <div className="flex items-center gap-1 px-2 py-1 rounded-sm"
                  style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(96, 165, 250, 0.45)' }}
                  title={`Mana: ${mana}/${maxMana}`}>
               {Array.from({ length: maxMana }).map((_, i) => (
@@ -4299,7 +4299,7 @@ export default function DungeonExplore({
                     key={i}
                     onClick={() => castSpell(i)}
                     disabled={!info}
-                    className="rounded text-center"
+                    className="rounded-sm text-center"
                     style={{
                       width: 60, height: 44,
                       background: info && canCast ? 'rgba(0,0,0,0.65)' : 'rgba(0,0,0,0.4)',
@@ -4321,7 +4321,7 @@ export default function DungeonExplore({
 
         {/* Reveal hint — shown briefly above the battle modal after Sigil of Clarity. */}
         {revealedAnswer && battle && (
-          <div className="absolute left-1/2 -translate-x-1/2 px-3 py-2 rounded text-xs italic"
+          <div className="absolute left-1/2 -translate-x-1/2 px-3 py-2 rounded-sm text-xs italic"
                style={{
                  top: 110,
                  background: 'rgba(0,0,0,0.85)',
@@ -4341,7 +4341,7 @@ export default function DungeonExplore({
           && !isBossDoorAdjacent() && isOnHarvestablePlant() && (
           <div className="absolute left-1/2 -translate-x-1/2"
                style={{ bottom: 110, pointerEvents: 'none' }}>
-            <div className="px-3 py-2 rounded text-xs italic"
+            <div className="px-3 py-2 rounded-sm text-xs italic"
                  style={{
                    background: 'rgba(0,0,0,0.7)',
                    border: '1px solid rgba(34, 197, 94, 0.6)',
@@ -4361,7 +4361,7 @@ export default function DungeonExplore({
                style={{ bottom: 110, pointerEvents: 'auto' }}>
             {bossKeyFound ? (
               <button onClick={unlockBossDoorHere}
-                className="px-4 py-2 rounded text-sm italic font-bold"
+                className="px-4 py-2 rounded-sm text-sm italic font-bold"
                 style={{
                   background: 'linear-gradient(to bottom, #fde047 0%, #b45309 100%)',
                   border: '2px solid #fde047',
@@ -4372,7 +4372,7 @@ export default function DungeonExplore({
                 ⚷ [E] Unlock Chamber
               </button>
             ) : (
-              <div className="px-3 py-2 rounded text-xs italic"
+              <div className="px-3 py-2 rounded-sm text-xs italic"
                    style={{
                      background: 'rgba(0,0,0,0.7)',
                      border: '1px solid rgba(120, 53, 15, 0.6)',
@@ -4390,13 +4390,13 @@ export default function DungeonExplore({
           <div className="absolute left-1/2 -translate-x-1/2 flex gap-2"
                style={{ top: 42, pointerEvents: 'none' }}>
             {reviveAvailable && (
-              <div className="px-2 py-1 rounded text-[11px] italic"
+              <div className="px-2 py-1 rounded-sm text-[11px] italic"
                    style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid #f97316', color: '#fdba74' }}>
                 🔥 Phoenix Ember active
               </div>
             )}
             {xpBuffRemaining > 0 && (
-              <div className="px-2 py-1 rounded text-[11px] italic"
+              <div className="px-2 py-1 rounded-sm text-[11px] italic"
                    style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid #fbbf24', color: '#fde047' }}>
                 ☕ +25% XP · {xpBuffRemaining} left
               </div>
@@ -4406,7 +4406,7 @@ export default function DungeonExplore({
 
         {/* Transient notice banner */}
         {notice && (
-          <div className="absolute left-1/2 -translate-x-1/2 px-3 py-2 rounded text-xs italic"
+          <div className="absolute left-1/2 -translate-x-1/2 px-3 py-2 rounded-sm text-xs italic"
                style={{
                  top: 80,
                  background: 'rgba(0,0,0,0.78)',
@@ -4457,17 +4457,17 @@ export default function DungeonExplore({
       <div className="flex justify-center select-none">
         <div className="grid grid-cols-3 gap-1" style={{ width: 180 }}>
           <div />
-          <button onClick={() => tryMove(0, -1, 'up')} className="rounded text-amber-300"
+          <button onClick={() => tryMove(0, -1, 'up')} className="rounded-sm text-amber-300"
             style={{ background: 'rgba(31,24,12,0.7)', border: '1px solid rgba(120,53,15,0.5)', height: 44 }}>▲</button>
           <div />
-          <button onClick={() => tryMove(-1, 0, 'left')} className="rounded text-amber-300"
+          <button onClick={() => tryMove(-1, 0, 'left')} className="rounded-sm text-amber-300"
             style={{ background: 'rgba(31,24,12,0.7)', border: '1px solid rgba(120,53,15,0.5)', height: 44 }}>◀</button>
-          <button onClick={() => onExit && onExit()} className="rounded text-amber-700 text-xs italic"
+          <button onClick={() => onExit && onExit()} className="rounded-sm text-amber-700 text-xs italic"
             style={{ background: 'rgba(31,24,12,0.7)', border: '1px solid rgba(120,53,15,0.5)', height: 44 }}>Esc</button>
-          <button onClick={() => tryMove(1, 0, 'right')} className="rounded text-amber-300"
+          <button onClick={() => tryMove(1, 0, 'right')} className="rounded-sm text-amber-300"
             style={{ background: 'rgba(31,24,12,0.7)', border: '1px solid rgba(120,53,15,0.5)', height: 44 }}>▶</button>
           <div />
-          <button onClick={() => tryMove(0, 1, 'down')} className="rounded text-amber-300"
+          <button onClick={() => tryMove(0, 1, 'down')} className="rounded-sm text-amber-300"
             style={{ background: 'rgba(31,24,12,0.7)', border: '1px solid rgba(120,53,15,0.5)', height: 44 }}>▼</button>
           <div />
         </div>

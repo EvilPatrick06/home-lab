@@ -6,7 +6,7 @@ export function ProfileChip({ user, syncStatus, onOpen }) {
   return (
     <button
       onClick={onOpen}
-      className="flex items-center gap-2 px-2 py-1 rounded border border-amber-800 hover:bg-amber-900/20 italic"
+      className="flex items-center gap-2 px-2 py-1 rounded-sm border border-amber-800 hover:bg-amber-900/20 italic"
       title="Account"
     >
       {user.avatarUrl && (

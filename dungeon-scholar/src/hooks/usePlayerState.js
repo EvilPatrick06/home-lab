@@ -232,7 +232,7 @@ export function usePlayerState(defaultState, user = null) {
     return () => {
       window.removeEventListener('beforeunload', onUnload);
       document.removeEventListener('visibilitychange', onVisibility);
-      window.removeEventListener('blur', onBlur);
+      window.removeEventListener('blur-sm', onBlur);
       flushLocal();
     };
   }, [flushLocal, flushCloud]);
