@@ -93,3 +93,7 @@ expected broadcast is emitted; an unauthorized intent is rejected + audited (20g
 ## Completed
 
 - 30b — TransportAdapter interface (pre-existing stub, `transport/transport-adapter.ts`).
+- 30b.1 — DONE (`transport/p2p-transport.ts`) — P2PTransport wraps host-manager; +6 tests.
+- 30b.2 — DONE (`transport/memory-transport.ts`) — MemoryTransport + MemoryHub; +6 tests.
+- 30a — DONE (`authority/game-authority.ts`) — GameAuthority: validate→dispatch→broadcast over a transport; +`registerDefault` fallback; +5 tests over MemoryTransport.
+- 30c — DONE (`stores/network-store/index.ts`) — host inbound dispatch now flows through `GameAuthority` over a `P2PTransport`; the whole `handleHostMessage` switch is the default handler (behavior-preserving — `host-connection` still validates upstream, broadcasts unchanged). Full vitest 6740 green. **Next: 30d** — peel per-type handlers off the monolith + decouple host(network) from DM(role).

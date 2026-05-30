@@ -36,6 +36,7 @@ export type IntentHandler = (message: NetworkMessage, ctx: IntentContext) => voi
 
 export class GameAuthority {
   private readonly handlers = new Map<MessageType, IntentHandler>()
+  private defaultHandler: IntentHandler | null = null
   private unsubscribe: (() => void) | null = null
 
   constructor(private readonly transport: TransportAdapter) {}
@@ -43,6 +44,17 @@ export class GameAuthority {
   /** Register the handler for an intent type. Last registration wins. */
   register(type: MessageType, handler: IntentHandler): void {
     this.handlers.set(type, handler)
+  }
+
+  /**
+   * Register a fallback handler for any intent type with no specific handler.
+   * 30c uses this so the host can delegate its whole existing dispatch
+   * (`handleHostMessage`) to the authority in one move; per-type handlers can
+   * then be peeled off the monolith incrementally (30d+) without a big-bang
+   * rewrite. Last registration wins.
+   */
+  registerDefault(handler: IntentHandler): void {
+    this.defaultHandler = handler
   }
 
   /** Begin consuming inbound intents from the transport. Idempotent. */
@@ -60,7 +72,7 @@ export class GameAuthority {
   private handleIntent(peerId: string, message: NetworkMessage): void {
     // Reuse the structural validator; it audits the rejection (20g) itself.
     if (!validateMessage(message)) return
-    const handler = this.handlers.get(message.type)
+    const handler = this.handlers.get(message.type) ?? this.defaultHandler
     if (!handler) {
       auditSecurityEvent('authority.unhandled_intent', { peerId, type: message.type })
       return

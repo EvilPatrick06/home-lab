@@ -95,6 +95,33 @@ describe('GameAuthority', () => {
     expect(chatHandler).not.toHaveBeenCalled()
   })
 
+  it('falls back to registerDefault for types with no specific handler (30c)', () => {
+    const { clientT, authority } = setup()
+    const specific = vi.fn()
+    const fallback = vi.fn()
+    authority.register('chat:message', specific)
+    authority.registerDefault(fallback)
+    authority.start()
+
+    // chat:message → specific handler
+    clientT.send('host', makeChat('hi'))
+    expect(specific).toHaveBeenCalledTimes(1)
+    expect(fallback).not.toHaveBeenCalled()
+
+    // a valid whisper has no specific handler → default handler
+    const whisper: NetworkMessage = {
+      type: 'chat:whisper',
+      payload: { targetPeerId: 'host', message: 'psst' },
+      senderId: 'c1',
+      senderName: 'c1',
+      timestamp: 0,
+      sequence: 0
+    }
+    clientT.send('host', whisper)
+    expect(fallback).toHaveBeenCalledTimes(1)
+    expect(fallback).toHaveBeenCalledWith(whisper, expect.objectContaining({ peerId: 'c1' }))
+  })
+
   it('stop() detaches the listener', () => {
     const { clientT, authority } = setup()
     const handler = vi.fn()

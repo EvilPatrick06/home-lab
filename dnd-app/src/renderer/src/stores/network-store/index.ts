@@ -17,7 +17,6 @@ import {
   kickPeer,
   onClientMessage,
   onDisconnected,
-  onHostMessage,
   onPeerJoined,
   onPeerLeft,
   resetToDefaults,
@@ -27,6 +26,8 @@ import {
   startHosting,
   stopHosting
 } from '../../network'
+import { GameAuthority } from '../../network/authority/game-authority'
+import { createP2PTransport } from '../../network/transport/p2p-transport'
 import { hasPermission } from '../../services/permissions/has-permission'
 import { useCampaignStore } from '../use-campaign-store'
 import { useGameStore } from '../use-game-store'
@@ -87,6 +88,15 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
       const inviteCode = await startHosting(displayName, existingInviteCode)
 
       clearListenerCleanups()
+      // 30c: the host's inbound dispatch now flows through GameAuthority over a
+      // P2PTransport instead of a direct host-manager onMessage subscription.
+      // The whole existing handleHostMessage switch is registered as the default
+      // handler — behavior-preserving (host-connection still validates upstream;
+      // handleHostMessage still broadcasts via host-manager). Per-type handlers
+      // peel off the monolith incrementally in 30d+.
+      const hostAuthority = new GameAuthority(createP2PTransport())
+      hostAuthority.registerDefault((message, ctx) => handleHostMessage(message, ctx.peerId, get, set))
+      hostAuthority.start()
       listenerCleanups.push(
         onPeerJoined((peer: PeerInfo) => {
           get().addPeer(peer)
@@ -116,9 +126,7 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
         onPeerLeft((peer: PeerInfo) => {
           get().removePeer(peer.peerId)
         }),
-        onHostMessage((message: NetworkMessage, fromPeerId: string) => {
-          handleHostMessage(message, fromPeerId, get, set)
-        })
+        () => hostAuthority.stop()
       )
 
       // Provide game state for full syncs when new players connect.
