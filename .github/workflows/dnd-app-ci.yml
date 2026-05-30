@@ -8,10 +8,18 @@ on:
   push:
     paths:
       - 'dnd-app/**'
+      # The shared-5e-sync test (scripts/audit/shared-5e-sync.test.ts) compares
+      # dnd-app's 5e JSON against the bmo mirror, so a bmo-side-only edit must
+      # also re-run this gate or a divergence would slip through.
+      - 'bmo/pi/data/5e/**'
       - '.github/workflows/dnd-app-ci.yml'
   pull_request:
     paths:
       - 'dnd-app/**'
+      # The shared-5e-sync test (scripts/audit/shared-5e-sync.test.ts) compares
+      # dnd-app's 5e JSON against the bmo mirror, so a bmo-side-only edit must
+      # also re-run this gate or a divergence would slip through.
+      - 'bmo/pi/data/5e/**'
       - '.github/workflows/dnd-app-ci.yml'
 
 jobs:
