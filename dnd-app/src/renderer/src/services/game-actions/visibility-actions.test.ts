@@ -66,14 +66,22 @@ describe('visibility-actions', () => {
   })
 
   describe('executeRevealFog', () => {
-    it('reveals fog on the active map and broadcasts', async () => {
+    it('reveals fog on the active map (shard owns sync — no direct dm:fog-reveal send)', async () => {
       const { executeRevealFog } = await import('./visibility-actions')
+      const sendMessage = vi.fn()
+      const localStores = {
+        ...makeStores(),
+        getNetworkStore: vi.fn(() => ({
+          getState: () => ({ sendMessage })
+        })) as unknown as StoreAccessors['getNetworkStore']
+      }
       const gs = makeGameStore()
       const map = makeActiveMap()
       const action: DmAction = { action: 'reveal_fog', cells: [{ x: 1, y: 2 }] }
-      const result = executeRevealFog(action, gs, map, stores)
+      const result = executeRevealFog(action, gs, map, localStores)
       expect(result).toBe(true)
       expect(gs.revealFog).toHaveBeenCalledWith('map-1', [{ x: 1, y: 2 }])
+      expect(sendMessage).not.toHaveBeenCalled()
     })
 
     it('throws if no active map', async () => {
@@ -93,14 +101,22 @@ describe('visibility-actions', () => {
   })
 
   describe('executeHideFog', () => {
-    it('hides fog on the active map', async () => {
+    it('hides fog on the active map (shard owns sync — no direct dm:fog-reveal send)', async () => {
       const { executeHideFog } = await import('./visibility-actions')
+      const sendMessage = vi.fn()
+      const localStores = {
+        ...makeStores(),
+        getNetworkStore: vi.fn(() => ({
+          getState: () => ({ sendMessage })
+        })) as unknown as StoreAccessors['getNetworkStore']
+      }
       const gs = makeGameStore()
       const map = makeActiveMap()
       const action: DmAction = { action: 'hide_fog', cells: [{ x: 3, y: 4 }] }
-      const result = executeHideFog(action, gs, map, stores)
+      const result = executeHideFog(action, gs, map, localStores)
       expect(result).toBe(true)
       expect(gs.hideFog).toHaveBeenCalledWith('map-1', [{ x: 3, y: 4 }])
+      expect(sendMessage).not.toHaveBeenCalled()
     })
 
     it('throws if no active map', async () => {

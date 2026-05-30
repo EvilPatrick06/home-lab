@@ -12,14 +12,14 @@ export function executeRevealFog(
   action: DmAction,
   gameStore: GameStoreSnapshot,
   activeMap: ActiveMap,
-  stores: StoreAccessors
+  _stores: StoreAccessors
 ): boolean {
   if (!activeMap) throw new Error('No active map')
   const cells = action.cells as Array<{ x: number; y: number }>
   if (!Array.isArray(cells)) throw new Error('Missing cells array')
+  // Sync handled by fog-shard (Phase 31g); no direct dm:fog-reveal send. (The
+  // old direct send was also a no-op on clients — it omitted mapId.)
   gameStore.revealFog(activeMap.id, cells)
-  const sendMsg = stores.getNetworkStore().getState().sendMessage
-  sendMsg('dm:fog-reveal', { cells, reveal: true })
   return true
 }
 
@@ -27,14 +27,13 @@ export function executeHideFog(
   action: DmAction,
   gameStore: GameStoreSnapshot,
   activeMap: ActiveMap,
-  stores: StoreAccessors
+  _stores: StoreAccessors
 ): boolean {
   if (!activeMap) throw new Error('No active map')
   const cells = action.cells as Array<{ x: number; y: number }>
   if (!Array.isArray(cells)) throw new Error('Missing cells array')
+  // Sync handled by fog-shard (Phase 31g); no direct dm:fog-reveal send.
   gameStore.hideFog(activeMap.id, cells)
-  const sendMsg = stores.getNetworkStore().getState().sendMessage
-  sendMsg('dm:fog-reveal', { cells, reveal: false })
   return true
 }
 
