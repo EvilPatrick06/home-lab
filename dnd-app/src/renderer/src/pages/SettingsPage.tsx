@@ -994,9 +994,6 @@ export async function restoreDefaultSettings(): Promise<void> {
   setTheme('dark')
 }
 
-// Legacy export name preserved for any caller still using it.
-export const factoryResetAllSettings = resetAllData
-
 export default function SettingsPage(): JSX.Element {
   const { t } = useT()
   const navigate = useNavigate()
