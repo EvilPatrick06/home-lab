@@ -35,10 +35,15 @@ import { resolveEffects } from './effect-resolver-5e'
 import { resolveUnarmedStrike as resolveUnarmedStrikeBase } from './unarmed-strike-resolver'
 
 // Re-export orphan utilities so consumers can access them through this module
-export { formatAttackResult, applyDamageToToken, buildAttackSummary, doubleDiceInFormula, rollDamage }
-
 // Re-export base unarmed strike resolver for consumers that do not need weather support
-export { resolveUnarmedStrikeBase }
+export {
+  applyDamageToToken,
+  buildAttackSummary,
+  doubleDiceInFormula,
+  formatAttackResult,
+  resolveUnarmedStrikeBase,
+  rollDamage
+}
 
 // ─── Types ────────────────────────────────────────────────────
 

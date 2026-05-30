@@ -21,21 +21,6 @@ import type {
   ShoveResult
 } from './combat-resolver'
 
-/** @internal Type aliases wired for knip — combat-resolver pipeline types */
-export type {
-  AttackRequest,
-  CombatAttackResult,
-  AttackType,
-  DeathSaveResult,
-  DeathSaveState,
-  GrappleRequest,
-  GrappleResult,
-  ShoveRequest,
-  ShoveResult,
-  SavingThrowRequest,
-  SavingThrowResult
-}
-
 // Re-export attack-resolver utilities for barrel access through damage-resolver
 export {
   applyDamageToToken,
@@ -54,9 +39,22 @@ export {
   spendLegendaryAction,
   useLegendaryResistance
 } from './combat-resolver'
-
 // Re-export combat-rules utility for barrel access through damage-resolver
 export { getEffectiveSpeed } from './combat-rules'
+/** @internal Type aliases wired for knip — combat-resolver pipeline types */
+export type {
+  AttackRequest,
+  AttackType,
+  CombatAttackResult,
+  DeathSaveResult,
+  DeathSaveState,
+  GrappleRequest,
+  GrappleResult,
+  SavingThrowRequest,
+  SavingThrowResult,
+  ShoveRequest,
+  ShoveResult
+}
 
 // === Types ===
 

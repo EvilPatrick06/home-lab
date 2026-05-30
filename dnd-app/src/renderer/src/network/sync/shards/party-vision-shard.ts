@@ -50,5 +50,5 @@ const partyVisionShard: Shard<PartyVisionShardValue> = {
 
 registerShard(partyVisionShard)
 
-export { partyVisionShard }
 export type { PartyVisionShardValue }
+export { partyVisionShard }

@@ -834,4 +834,4 @@ export function getLastTokenEstimate(campaignId: string): number {
 }
 
 // Re-export mutation functions
-export { applyMutations, applyLongRestMutations, applyShortRestMutations, describeChange, isNegativeChange }
+export { applyLongRestMutations, applyMutations, applyShortRestMutations, describeChange, isNegativeChange }

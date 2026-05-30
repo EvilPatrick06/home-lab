@@ -96,5 +96,5 @@ const initiativeShard: Shard<InitiativeShardValue> = {
 
 registerShard(initiativeShard)
 
-export { initiativeShard }
 export type { InitiativeShardValue }
+export { initiativeShard }

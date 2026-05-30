@@ -291,7 +291,7 @@ export default function ChatInput(): JSX.Element {
                      placeholder-gray-600 focus:border-amber-500 focus:outline-none
                      transition-colors text-sm disabled:opacity-50 ${
                        isChatMuted ? 'border-red-700/50' : 'border-gray-700'
-                     }`}
+}`}
         />
         <button
           onClick={handleSend}

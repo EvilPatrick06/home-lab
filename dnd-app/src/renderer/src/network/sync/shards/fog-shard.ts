@@ -117,5 +117,5 @@ const fogShard: Shard<FogShardValue> = {
 
 registerShard(fogShard)
 
-export { fogShard }
 export type { FogShardValue }
+export { fogShard }

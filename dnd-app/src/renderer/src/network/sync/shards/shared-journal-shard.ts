@@ -54,5 +54,5 @@ const sharedJournalShard: Shard<SharedJournalShardValue> = {
 
 registerShard(sharedJournalShard)
 
-export { sharedJournalShard }
 export type { SharedJournalShardValue }
+export { sharedJournalShard }

@@ -706,4 +706,4 @@ type _CheckSyncResyncRequest = AssertAssignable<
 >
 
 // Export for testing
-export { NetworkMessageEnvelopeSchema, PAYLOAD_SCHEMAS, AnyPayloadSchema }
+export { AnyPayloadSchema, NetworkMessageEnvelopeSchema, PAYLOAD_SCHEMAS }

@@ -224,9 +224,6 @@ export function getFilteredCommands(partial: string, isDM: boolean): ChatCommand
   return getCommands(isDM).filter((c) => c.name.startsWith(search) || c.aliases.some((a) => a.startsWith(search)))
 }
 
-// Re-export types for backward compatibility
-export type { ChatCommand, CommandContext, CommandResult }
-
 // Re-export combat types from commands-player-combat barrel
 export type {
   AttackOptions,
@@ -236,3 +233,5 @@ export type {
   GrappleResult,
   ShoveResult
 } from './commands-player-combat'
+// Re-export types for backward compatibility
+export type { ChatCommand, CommandContext, CommandResult }

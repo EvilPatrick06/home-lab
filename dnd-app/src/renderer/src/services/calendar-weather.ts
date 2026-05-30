@@ -6,7 +6,7 @@ import type { Weather as CalendarTypesWeather, MoonPhase, SunPosition, TimeBreak
 type _CalendarTypesWeather = CalendarTypesWeather
 
 // Re-export calendar types for external consumers
-export type { SunPosition, MoonPhase, TimeBreakdown }
+export type { MoonPhase, SunPosition, TimeBreakdown }
 
 interface UseWeatherState {
   weather: Weather

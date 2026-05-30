@@ -14,11 +14,11 @@ import {
 } from './equipment-utilities'
 import { applyAbilityBonuses, collectHomebrewFeatEffects, type HomebrewFeatEffect } from './homebrew-effects'
 
+export type { EncumbranceResult, LifestyleLevel, ToolSkillInteraction }
 // Re-export armor-class-calculator exports so existing consumers can import from this module
-export { calculateArmorClass5e }
-
 // Re-export equipment-utilities exports so existing consumers can import from this module
 export {
+  calculateArmorClass5e,
   calculateEncumbrance,
   calculateLifestyleCost,
   getToolSkillAdvantage,
@@ -27,7 +27,6 @@ export {
   sumEquipmentWeight,
   TOOL_SKILL_INTERACTIONS
 }
-export type { EncumbranceResult, LifestyleLevel, ToolSkillInteraction }
 
 interface SpeciesData {
   speed: number

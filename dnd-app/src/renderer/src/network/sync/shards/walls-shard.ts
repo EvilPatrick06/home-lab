@@ -71,5 +71,5 @@ const wallsShard: Shard<WallsShardValue> = {
 
 registerShard(wallsShard)
 
-export { wallsShard }
 export type { WallsShardValue }
+export { wallsShard }

@@ -12,14 +12,14 @@ import type {
 
 // Re-export class/feature data types for consumers that access them through build-tree
 export type {
-  ClassProficiencies,
   ClassArmorTraining,
-  ClassWeaponProficiency,
+  ClassFeature,
+  ClassProficiencies,
   ClassSkillProficiencies,
-  FeatureUsesPerRest,
-  FeatureSavingThrow,
+  ClassWeaponProficiency,
   FeatureGrantedSpell,
-  ClassFeature
+  FeatureSavingThrow,
+  FeatureUsesPerRest
 }
 
 // 2024 PHB: All classes get subclass at level 3

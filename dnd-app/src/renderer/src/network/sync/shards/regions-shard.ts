@@ -81,5 +81,5 @@ const regionsShard: Shard<RegionsShardValue> = {
 
 registerShard(regionsShard)
 
-export { regionsShard }
 export type { RegionsShardValue }
+export { regionsShard }

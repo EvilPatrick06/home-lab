@@ -97,27 +97,29 @@ import {
   speciesToOption,
   subclassToOption
 } from './data-provider/transformers'
-export { DATA_PATHS }
 
 // Re-export the extracted-data loader types so consumers keep importing them
 // from `./data-provider` unchanged.
-export type { ConditionEntry, LanguageEntry, LightSourceEntry, SkillEntry, VariantItemEntry, WeaponMasteryEntry }
-
-// `formatPrerequisites` lives in ./data-provider/transformers but is part of
-// this module's public surface (used by character-builder consumers).
-export { formatPrerequisites }
-
 // Re-export world/data types for consumers that access them through data-provider
 export type {
   BastionFacilitiesData,
+  ConditionEntry,
+  LanguageEntry,
+  LightSourceEntry,
   MonsterAction,
   MonsterSpeed,
   MonsterSpellcasting,
   MonsterStatBlockData,
   MonsterTrait,
+  SkillEntry,
+  ThemesFile,
   TrinketsFile,
-  ThemesFile
+  VariantItemEntry,
+  WeaponMasteryEntry
 }
+// `formatPrerequisites` lives in ./data-provider/transformers but is part of
+// this module's public surface (used by character-builder consumers).
+export { DATA_PATHS, formatPrerequisites }
 
 const jsonCache = new Map<string, unknown>()
 

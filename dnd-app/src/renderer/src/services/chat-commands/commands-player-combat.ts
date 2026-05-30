@@ -12,13 +12,13 @@ import type { ChatCommand } from './types'
 
 // Re-export combat types for consumers that access them through the chat-commands barrel
 export type {
+  AoETargetResult,
   AttackOptions,
   AttackResult,
   DeathSaveResult,
   DeathSaveState,
   GrappleResult,
-  ShoveResult,
-  AoETargetResult
+  ShoveResult
 }
 
 const grappleCommand: ChatCommand = {

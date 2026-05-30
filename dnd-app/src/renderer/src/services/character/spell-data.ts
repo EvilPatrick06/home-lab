@@ -17,15 +17,15 @@ import { load5eSpellSlots, load5eSpells } from '../data-provider'
 
 // Re-export structured spell types for consumers that access them through spell-data
 export type {
-  SpellAction,
-  SpellRange,
-  SpellComponents,
-  SpellDuration,
-  SpellDamageData,
-  SpellHealingData,
-  SpellD20Modifier,
+  HigherLevelCasting,
   HigherLevelScalingEntry,
-  HigherLevelCasting
+  SpellAction,
+  SpellComponents,
+  SpellD20Modifier,
+  SpellDamageData,
+  SpellDuration,
+  SpellHealingData,
+  SpellRange
 }
 
 // Module-level caches (populated from spell-slots.json)

@@ -82,5 +82,5 @@ const drawingsShard: Shard<DrawingsShardValue> = {
 
 registerShard(drawingsShard)
 
-export { drawingsShard }
 export type { DrawingsShardValue }
+export { drawingsShard }

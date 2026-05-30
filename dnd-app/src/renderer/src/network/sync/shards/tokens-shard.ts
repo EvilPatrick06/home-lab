@@ -165,5 +165,5 @@ const tokensShard: Shard<TokensShardValue> = {
 
 registerShard(tokensShard)
 
-export { tokensShard }
 export type { TokensShardValue }
+export { tokensShard }

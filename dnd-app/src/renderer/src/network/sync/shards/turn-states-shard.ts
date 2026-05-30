@@ -129,5 +129,5 @@ const turnStatesShard: Shard<TurnStatesShardValue> = {
 
 registerShard(turnStatesShard)
 
-export { turnStatesShard }
 export type { TurnStatesShardValue }
+export { turnStatesShard }
