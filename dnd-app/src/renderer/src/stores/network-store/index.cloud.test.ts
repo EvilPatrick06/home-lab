@@ -115,4 +115,41 @@ describe('network store — cloud client', () => {
     const relay = socket.lastEmit('relay')
     expect(relay?.payload).toMatchObject({ target_peer_id: 'host1' })
   })
+
+  it('host leaving the relay tears the cloud client down into a disconnected state', async () => {
+    await useNetworkStore.getState().joinGame('ROOM42', 'Alice', 'cloud')
+    // Learn the host from the relay's peers list (role:'host' → isHost:true).
+    socket.fire('peers', {
+      peers: [{ peer_id: 'host1', client_id: 'ch', role: 'host', display_name: 'DM' }],
+      host_peer_id: 'host1'
+    })
+    expect(useNetworkStore.getState().peers.some((p) => p.isHost)).toBe(true)
+    // The Pi relay reports the host socket dropped.
+    socket.fire('peer-left', { peer_id: 'host1', was_host: true })
+    const st = useNetworkStore.getState()
+    expect(st.connectionState).toBe('disconnected')
+    expect(st.role).toBe('none')
+    expect(st.peers).toEqual([])
+    expect(st.error).toBe('Host left the session')
+    expect(st.connectionMode).toBe('p2p')
+    // Relay socket was closed during teardown.
+    expect(socket.disconnected).toBe(true)
+  })
+
+  it('a non-host peer leaving only removes that peer (client stays connected)', async () => {
+    await useNetworkStore.getState().joinGame('ROOM42', 'Alice', 'cloud')
+    socket.fire('peers', {
+      peers: [
+        { peer_id: 'host1', client_id: 'ch', role: 'host', display_name: 'DM' },
+        { peer_id: 'p2', client_id: 'c2', role: 'player', display_name: 'Bob' }
+      ],
+      host_peer_id: 'host1'
+    })
+    socket.fire('peer-left', { peer_id: 'p2', was_host: false })
+    const st = useNetworkStore.getState()
+    expect(st.connectionState).toBe('connected')
+    expect(st.role).toBe('client')
+    expect(st.peers.map((p) => p.peerId)).not.toContain('p2')
+    expect(st.peers.map((p) => p.peerId)).toContain('host1')
+  })
 })

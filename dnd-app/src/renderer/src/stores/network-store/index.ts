@@ -406,7 +406,35 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
             handleClientMessage(message, get, set)
           }),
           transport.onPeerJoin((peer: PeerInfo) => get().addPeer(peer)),
-          transport.onPeerLeave((peerId: string) => get().removePeer(peerId)),
+          transport.onPeerLeave((peerId: string) => {
+            // Phase 32 — cloud host-disconnect handling. The Pi relay is a dumb
+            // relay, not the authority: when the HOST socket drops there is no
+            // host-migration, so a cloud client whose host left is effectively
+            // disconnected — its `sendMessage` would find no `isHost` peer and
+            // silently drop every intent. Detect the host's departure (via the
+            // `isHost` flag the relay set on the known host peer) and tear down
+            // into the same disconnected state the P2P drop path produces,
+            // surfacing the reconnect UI instead of a connected-but-broken
+            // session. A non-host peer leaving is just a normal removePeer.
+            const hostLeft = get().peers.some((p) => p.peerId === peerId && p.isHost)
+            if (hostLeft) {
+              clearListenerCleanups()
+              set({
+                connectionState: 'disconnected',
+                role: 'none',
+                inviteCode: null,
+                campaignId: null,
+                localPeerId: null,
+                peers: [],
+                error: 'Host left the session',
+                disconnectReason: null,
+                localIsDM: false,
+                connectionMode: 'p2p'
+              })
+              return
+            }
+            get().removePeer(peerId)
+          }),
           () => shardApplier.stop(),
           () => {
             transport.close()
