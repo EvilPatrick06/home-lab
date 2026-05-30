@@ -11,39 +11,6 @@ const MAX_IMAGE_BYTES = 4 * 1024 * 1024
 
 const imageCache = new Map<string, string>()
 
-// Phase 29h: token-move throttle. A rapid drag can fire dozens of
-// updates per second; ship at most ~15 Hz (67ms tick) and drop
-// intermediate positions so each per-token broadcast carries the
-// latest grid position only.
-const TOKEN_MOVE_FLUSH_MS = 67
-interface PendingTokenMove {
-  mapId: string
-  tokenId: string
-  gridX: number
-  gridY: number
-}
-const pendingTokenMoves = new Map<string, PendingTokenMove>()
-let tokenMoveFlushTimer: ReturnType<typeof setTimeout> | null = null
-
-function flushPendingTokenMoves(sendMessage: SendMessageFn): void {
-  if (pendingTokenMoves.size === 0) {
-    tokenMoveFlushTimer = null
-    return
-  }
-  for (const move of pendingTokenMoves.values()) {
-    sendMessage('dm:token-move', move)
-  }
-  pendingTokenMoves.clear()
-  tokenMoveFlushTimer = null
-}
-
-function queueTokenMove(sendMessage: SendMessageFn, move: PendingTokenMove): void {
-  pendingTokenMoves.set(`${move.mapId}:${move.tokenId}`, move)
-  if (!tokenMoveFlushTimer) {
-    tokenMoveFlushTimer = setTimeout(() => flushPendingTokenMoves(sendMessage), TOKEN_MOVE_FLUSH_MS)
-  }
-}
-
 async function encodeMapImage(imagePath: string): Promise<string | null> {
   if (!imagePath || imagePath.startsWith('data:')) return imagePath
   if (imageCache.has(imagePath)) return imageCache.get(imagePath)!
@@ -177,33 +144,17 @@ export function startGameSync(sendMessage: SendMessageFn): void {
         const prevMap = oldMaps.find((m) => m.id === map.id)
         if (!prevMap) continue
 
-        if (map.tokens !== prevMap.tokens) {
-          for (const token of map.tokens) {
-            const prevToken = prevMap.tokens.find((t) => t.id === token.id)
-            if (!prevToken) {
-              sendMessage('game:state-update', { addToken: { mapId: map.id, token } })
-            } else if (prevToken.gridX !== token.gridX || prevToken.gridY !== token.gridY) {
-              queueTokenMove(sendMessage, {
-                mapId: map.id,
-                tokenId: token.id,
-                gridX: token.gridX,
-                gridY: token.gridY
-              })
-            } else if (prevToken !== token) {
-              sendMessage('game:state-update', {
-                updateToken: { mapId: map.id, tokenId: token.id, updates: token }
-              })
-            }
-          }
-
-          for (const prevToken of prevMap.tokens) {
-            if (!map.tokens.some((t) => t.id === prevToken.id)) {
-              sendMessage('game:state-update', {
-                removeToken: { mapId: map.id, tokenId: prevToken.id }
-              })
-            }
-          }
-        }
+        // Phase 31h — map tokens now stream to clients via the shard broadcaster
+        // (`sync:delta`) through the per-recipient permissionFilter (the DM gets
+        // the full token set incl. hidden tokens + DM-only fields, players get
+        // only the player-visible tokens with hidden ones dropped and DM-only
+        // fields stripped — reusing filterGameStateForRole), wired in the network
+        // store's hostGame. The bespoke per-token add/update/move/remove broadcast
+        // that used to live here (on `map.tokens !== prevMap.tokens`) is gone, as
+        // is the now-unused token-move throttle. Tokens stay in
+        // buildFullGameStatePayload so the role-filtered join snapshot still seeds
+        // them. (The token message types + their client handlers remain for 31l
+        // back-compat.)
 
         // Phase 31g — fog-of-war now streams to clients via the shard
         // broadcaster (`sync:delta`) through the per-recipient permissionFilter
@@ -289,11 +240,6 @@ export function stopGameSync(): void {
     unsubscribe()
     unsubscribe = null
   }
-  if (tokenMoveFlushTimer) {
-    clearTimeout(tokenMoveFlushTimer)
-    tokenMoveFlushTimer = null
-  }
-  pendingTokenMoves.clear()
 }
 
 /**

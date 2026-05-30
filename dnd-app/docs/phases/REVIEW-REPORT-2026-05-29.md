@@ -6,6 +6,7 @@ Only open/actionable items: problems, errors, security concerns, suggestions, ou
 
 ## 🚨 Problems / debt (open)
 
+- **Phase 31 — shard broadcaster has no coalescing (token-drag chattiness).** Migrating tokens onto the shard pipeline (31h) removed the old `TOKEN_MOVE_FLUSH_MS` throttle in `game-sync.ts`; the broadcaster now ships a delta on every shard `onChange`, so a token drag emits a per-recipient token-list replace per frame. *Action (Phase 31 follow-up): add a small debounce/coalesce window to `createShardBroadcaster` so rapid `onChange`s collapse into one delta — being addressed next as a 31 infra enhancement.*
 - **15h legacy interfaces — v3.0.0 removal still pending.** `SpellEntry` (~62 refs), `WeaponEntry` (~40), `ArmorEntry` (~34) in `character-common.ts` remain the LIVE character-sheet shape; the EntryRef/v4-schema migration that would retire them — plus the unbuilt `MigrationReportModal` + orphan-detection — is gated on the dormant v3.0.0 schema flip (`CURRENT_SCHEMA_VERSION` still 3). (The misleading "removed in Phase 15c" comments were corrected; `FeatEntry` is already at 0 refs.) *Action: do the removal sweep when v4 flips — not before, or the sheet breaks.*
 
 ---
