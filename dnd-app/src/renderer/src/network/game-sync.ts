@@ -1,25 +1,7 @@
 import { useGameStore } from '../stores/use-game-store'
-import type { InitiativeEntry, InitiativeState } from '../types/game-state'
 import type { GameMap } from '../types/map'
 import { logger } from '../utils/logger'
 import type { MessageType } from './types'
-
-function diffById<T extends { id: string }>(prev: T[], next: T[]): { added: T[]; removed: string[]; updated: T[] } {
-  const prevById = new Map(prev.map((e) => [e.id, e]))
-  const nextById = new Map(next.map((e) => [e.id, e]))
-  const added: T[] = []
-  const removed: string[] = []
-  const updated: T[] = []
-  for (const [id, entry] of nextById) {
-    const prevEntry = prevById.get(id)
-    if (!prevEntry) added.push(entry)
-    else if (prevEntry !== entry) updated.push(entry)
-  }
-  for (const id of prevById.keys()) {
-    if (!nextById.has(id)) removed.push(id)
-  }
-  return { added, removed, updated }
-}
 
 type SendMessageFn = (type: MessageType, payload: unknown) => void
 
@@ -103,8 +85,6 @@ export function startGameSync(sendMessage: SendMessageFn): void {
 
   let prevMaps: GameMap[] = useGameStore.getState().maps
   let prevActiveMapId: string | null = useGameStore.getState().activeMapId
-  let prevInitiative: InitiativeState | null = useGameStore.getState().initiative
-  let prevRound = useGameStore.getState().round
   let prevTurnMode = useGameStore.getState().turnMode
   let prevIsPaused = useGameStore.getState().isPaused
   let prevTurnStates = useGameStore.getState().turnStates
@@ -148,30 +128,13 @@ export function startGameSync(sendMessage: SendMessageFn): void {
       }
     }
 
-    if (state.initiative !== prevInitiative || state.round !== prevRound || state.turnMode !== prevTurnMode) {
-      const nextEntries: InitiativeEntry[] = state.initiative?.entries ?? []
-      const prevEntries: InitiativeEntry[] = prevInitiative?.entries ?? []
-      const diff = diffById(prevEntries, nextEntries)
-      const metaChanged =
-        prevInitiative?.round !== state.initiative?.round ||
-        prevInitiative?.currentIndex !== state.initiative?.currentIndex ||
-        prevTurnMode !== state.turnMode
-      if (diff.added.length || diff.removed.length || diff.updated.length || metaChanged) {
-        // Phase 29h: emit a delta instead of the full array. Receiver
-        // applies add/remove/update against its local mirror.
-        sendMessage('dm:initiative-delta', {
-          round: state.initiative?.round,
-          currentIndex: state.initiative?.currentIndex,
-          turnMode: state.turnMode,
-          added: diff.added,
-          removed: diff.removed,
-          updated: diff.updated
-        })
-      }
-      prevInitiative = state.initiative
-      prevRound = state.round
-    }
-
+    // Phase 31f — initiative (the `{ entries, currentIndex, round }` combat
+    // record + the top-level `round` counter + `turnMode`) now streams to
+    // clients via the shard broadcaster (`sync:delta`), wired in the network
+    // store's hostGame. The bespoke `dm:initiative-delta` per-change broadcast
+    // that used to live here is gone; initiative stays in
+    // buildFullGameStatePayload so the join snapshot still seeds it.
+    //
     // Phase 31e — conditions now stream to clients via the shard broadcaster
     // (`sync:delta`), wired in the network store's hostGame. The bespoke
     // `dm:condition-delta` per-change broadcast that used to live here is gone.
