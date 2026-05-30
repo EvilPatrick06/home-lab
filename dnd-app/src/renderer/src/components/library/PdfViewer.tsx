@@ -260,7 +260,9 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
         canvas.width = viewport.width
         canvas.height = viewport.height
 
-        await page.render({ canvasContext: context, viewport }).promise
+        // pdfjs 6 requires the `canvas` element in RenderParameters (canvasContext
+        // is kept for backwards-compat but `canvas` is the recommended field).
+        await page.render({ canvas, canvasContext: context, viewport }).promise
         renderedPagesRef.current.add(pageNum)
         setRenderedPages((prev) => new Set(prev).add(pageNum))
 
