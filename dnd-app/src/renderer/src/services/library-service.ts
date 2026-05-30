@@ -47,7 +47,8 @@ import {
   load5eTreasureTables,
   load5eTrinkets,
   load5eVehicles,
-  load5eWeaponMastery
+  load5eWeaponMastery,
+  loadJson
 } from './data-provider'
 import { homebrewToLibraryItems, toLibraryItems } from './library/library-item-builders'
 import { SOUND_INVENTORY } from './library/sound-inventory'
@@ -512,11 +513,11 @@ export async function loadCategoryItems(category: LibraryCategory, homebrew: Hom
       const allRules: Record<string, unknown>[] = []
       for (const file of ruleFiles) {
         try {
-          const resp = await fetch(`/data/5e/rules/${file}.json`)
-          if (resp.ok) {
-            const data = await resp.json()
-            if (Array.isArray(data)) allRules.push(...data)
-          }
+          // Route through loadJson so the Phase 36 Pi remote-library/cache path
+          // is used (./data/5e/... maps to the Pi); falls back to the bundled
+          // file on miss/disable. (Was a raw fetch that bypassed the cache.)
+          const data = await loadJson<unknown>(`./data/5e/rules/${file}.json`)
+          if (Array.isArray(data)) allRules.push(...(data as Record<string, unknown>[]))
         } catch {
           /* skip missing files */
         }

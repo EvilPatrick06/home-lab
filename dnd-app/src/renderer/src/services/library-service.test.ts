@@ -45,7 +45,10 @@ vi.mock('./data-provider', () => ({
   load5eTreasureTables: vi.fn(() => Promise.resolve({})),
   load5eTrinkets: mockLoadFn,
   load5eVehicles: mockLoadFn,
-  load5eWeaponMastery: mockLoadFn
+  load5eWeaponMastery: mockLoadFn,
+  // The 'rules' category now routes its 8 files through loadJson (Phase 36 Pi
+  // cache path) instead of a raw fetch.
+  loadJson: vi.fn(() => Promise.resolve([]))
 }))
 
 // Mock window.api for characters, campaigns, bastions
@@ -81,6 +84,20 @@ describe('library-service', () => {
       expect(items).toHaveLength(1)
       expect(items[0].name).toBe('Fireball')
       expect(items[0].category).toBe('spells')
+    })
+
+    it('loads rules category via data-provider loadJson (Pi cache path, not raw fetch)', async () => {
+      const { loadJson } = await import('./data-provider')
+      vi.mocked(loadJson).mockResolvedValue([
+        { name: 'Attack Rolls', description: 'When you make an attack...' }
+      ] as never)
+      const items = await loadCategoryItems('rules', [])
+      // 8 rule files, each returns the 1-entry array above → 8 items.
+      expect(items).toHaveLength(8)
+      expect(items[0].name).toBe('Attack Rolls')
+      expect(items[0].category).toBe('rules')
+      // Proves routing through loadJson with the ./data/5e/rules/<f>.json path.
+      expect(loadJson).toHaveBeenCalledWith('./data/5e/rules/combat.json')
     })
 
     it('loads characters from window.api', async () => {
