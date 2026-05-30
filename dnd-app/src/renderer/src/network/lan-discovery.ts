@@ -74,6 +74,8 @@ export function subscribeToLan(onEvent: (event: LanEvent) => void): () => void {
     // identically; if we ever need a "LAN" pill the type union expands.
     onEvent({
       type: 'found',
+      // Boundary cast: toRegistryEntry takes Record<string, unknown>; LanGameEntry
+      // is a concrete interface (no index signature), so the reinterpret is required.
       game: { ...toRegistryEntry(entry as unknown as Record<string, unknown>), source: 'pi' }
     })
   })

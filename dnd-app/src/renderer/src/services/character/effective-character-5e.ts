@@ -57,7 +57,7 @@ export function getEffectiveClasses(character: Character5e): CharacterClass5e[] 
       level: cr.level,
       subclass: cr.subclassRef?.entryId,
       hitDie: ((entry?.hitDie as number) ??
-        ((entry?.coreTraits as Record<string, unknown> | undefined)?.hitPointDie as unknown as number) ??
+        ((entry?.coreTraits as Record<string, unknown> | undefined)?.hitPointDie as number) ??
         10) as number
     }
   })
@@ -82,35 +82,39 @@ export function getEffectivePreparedSpellIds(character: Character5e): string[] {
 
 export function getEffectiveWeapons(character: Character5e): WeaponEntry[] {
   const entries = useLibraryStore.getState().entries as LibraryEntries
-  const hydrated = hydrate(character.weaponRefs, entries.weapons) as unknown as WeaponEntry[]
+  // Cast once to the entry shape (untyped library hydration) while preserving the
+  // synthetic `__instanceId` so the id read below stays typed.
+  const hydrated = hydrate(character.weaponRefs, entries.weapons) as unknown as Array<
+    WeaponEntry & { __instanceId: string }
+  >
   // Attach instance-state `equipped` from state.weaponEquipped if present.
   const equippedMap = character.state?.weaponEquipped
   if (!equippedMap) return hydrated
-  return hydrated.map((w) => {
-    const instanceId = (w as unknown as { __instanceId: string }).__instanceId
-    return { ...w, equipped: equippedMap[instanceId] === true } as WeaponEntry
-  })
+  return hydrated.map((w) => ({ ...w, equipped: equippedMap[w.__instanceId] === true }))
 }
 
 export function getEffectiveArmor(character: Character5e): ArmorEntry[] {
   const entries = useLibraryStore.getState().entries as LibraryEntries
-  const hydrated = hydrate(character.armorRefs, entries.armor) as unknown as ArmorEntry[]
+  const hydrated = hydrate(character.armorRefs, entries.armor) as unknown as Array<
+    ArmorEntry & { __instanceId: string }
+  >
   const equippedMap = character.state?.armorEquipped
   if (!equippedMap) return hydrated
-  return hydrated.map((a) => {
-    const instanceId = (a as unknown as { __instanceId: string }).__instanceId
-    return { ...a, equipped: equippedMap[instanceId] === true } as ArmorEntry
-  })
+  return hydrated.map((a) => ({ ...a, equipped: equippedMap[a.__instanceId] === true }))
 }
 
 export function getEffectiveMagicItems(character: Character5e): MagicItemEntry5e[] {
   const entries = useLibraryStore.getState().entries as LibraryEntries
-  const hydrated = hydrate(character.magicItemRefs, entries['magic-items']) as unknown as MagicItemEntry5e[]
+  // Cast once to the entry shape (untyped library hydration) while preserving the
+  // synthetic `__instanceId` so the id read below stays typed.
+  const hydrated = hydrate(character.magicItemRefs, entries['magic-items']) as unknown as Array<
+    MagicItemEntry5e & { __instanceId: string }
+  >
   const attunedMap = character.state?.magicItemAttuned
   const chargesMap = character.state?.magicItemCharges
   if (!attunedMap && !chargesMap) return hydrated
   return hydrated.map((m) => {
-    const instanceId = (m as unknown as { __instanceId: string }).__instanceId
+    const instanceId = m.__instanceId
     return {
       ...m,
       attuned: attunedMap?.[instanceId] === true,

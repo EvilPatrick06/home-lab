@@ -39,13 +39,16 @@ function findTokenByLabel(
 
 function isInBounds(x: number, y: number, activeMap: ActiveMap): boolean {
   if (!activeMap) return false
-  const gridW = (activeMap as unknown as Record<string, unknown>).gridWidth as number | undefined
-  const gridH = (activeMap as unknown as Record<string, unknown>).gridHeight as number | undefined
+  // GameMap has no gridWidth/gridHeight; probe optionally for legacy/AI-supplied map shapes.
+  const gridW = (activeMap as { gridWidth?: number }).gridWidth
+  const gridH = (activeMap as { gridHeight?: number }).gridHeight
   if (gridW == null || gridH == null) return true
   return x >= 0 && y >= 0 && x < gridW && y < gridH
 }
 
 function validateOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: ActiveMap): ActionValidationResult {
+  // DmAction's payload fields are `[key: string]: unknown`; each case reinterprets the opaque
+  // action to the shape its handler emitted. A single `as` can't bridge unknown→concrete here.
   const ok = (): ActionValidationResult => ({ action, valid: true })
   const fail = (reason: string): ActionValidationResult => ({ action, valid: false, reason })
 

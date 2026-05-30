@@ -3,7 +3,6 @@ import { dynamicKeys } from '../constants'
 import { addToast } from '../hooks/use-toast'
 import { getEffectiveArmor, getEffectiveConditions } from '../services/character/effective-character-5e'
 import type { Character } from '../types/character'
-import type { Character5eV3 } from '../types/character-5e'
 import { migrateCharacter5eFromV3ToV4 } from '../types/character-5e-migration'
 import type { ActiveCondition } from '../types/character-common'
 import { logger } from '../utils/logger'
@@ -14,7 +13,9 @@ import { logger } from '../utils/logger'
 // saves pass through unchanged. Non-5e characters pass through untouched.
 function applyV4Migration(character: Character): Character {
   if (character.gameSystem !== 'dnd5e') return character
-  return migrateCharacter5eFromV3ToV4(character as unknown as Character5eV3) as unknown as Character
+  // Character is Character5e; Character5eV3 only adds optional v3 fields, so a
+  // Character flows into the v3-typed param and the v4 result flows back out.
+  return migrateCharacter5eFromV3ToV4(character)
 }
 
 function cleanupCharacterLocalStorage(characterId: string) {
@@ -57,11 +58,13 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
         set({ loading: false })
         return
       }
-      const characters = (
-        rawData.filter(
-          (c) => c != null && typeof c === 'object' && typeof (c as Record<string, unknown>).id === 'string'
-        ) as unknown as Character[]
-      ).map(applyV4Migration)
+      const characters =
+        // boundary: deserialized IPC payload (Record<string, unknown>[]) reinterpreted as persisted Characters
+        (
+          rawData.filter(
+            (c) => c != null && typeof c === 'object' && typeof (c as Record<string, unknown>).id === 'string'
+          ) as unknown as Character[]
+        ).map(applyV4Migration)
       set({ characters, loading: false })
     } catch (error) {
       logger.error('Failed to load characters:', error)
@@ -71,6 +74,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
 
   saveCharacter: async (character: Character) => {
     try {
+      // boundary: IPC serialization param is Record<string, unknown>; an interface has no index signature
       const result = await window.api.saveCharacter(character as unknown as Record<string, unknown>)
       if (result && typeof result === 'object' && 'success' in result) {
         const typedResult = result as { success: boolean; error?: string }
@@ -171,8 +175,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     const char = characters.find((c) => c.id === characterId)
     if (!char) return
 
-    const char5e = char as unknown as Character5eV3
-    const currentArmor = getEffectiveArmor(char5e)
+    const currentArmor = getEffectiveArmor(char)
     const updatedArmor = currentArmor.map((a) => {
       if (a.id === armorId) {
         return { ...a, equipped: !a.equipped }
@@ -186,12 +189,12 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
 
     // Phase 15c.5 — rebuild v3 armor + re-derive v4 refs/state via the shim.
     const updated = migrateCharacter5eFromV3ToV4({
-      ...char5e,
+      ...char,
       armor: updatedArmor,
       armorRefs: undefined,
-      state: { ...char5e.state, armorEquipped: undefined },
+      state: { ...char.state, armorEquipped: undefined },
       updatedAt: new Date().toISOString()
-    }) as unknown as Character
+    })
     await get().saveCharacter(updated)
   },
 
@@ -207,16 +210,15 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     // chips after a few death-save toggles. Now we replace if a
     // same-named condition already exists (so duration counters
     // refresh) and skip the stale duplicate entry.
-    const char5e = char as unknown as Character5eV3
-    const existing = getEffectiveConditions(char5e)
+    const existing = getEffectiveConditions(char)
     const filteredExisting = existing.filter((c) => c.name !== condition.name)
     const conditions = [...filteredExisting, condition]
     const updated = migrateCharacter5eFromV3ToV4({
-      ...char5e,
+      ...char,
       conditions,
       conditionRefs: undefined,
       updatedAt: new Date().toISOString()
-    }) as unknown as Character
+    })
     await get().saveCharacter(updated)
   },
 
@@ -225,14 +227,13 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     const char = characters.find((c) => c.id === characterId)
     if (!char) return
 
-    const char5e = char as unknown as Character5eV3
-    const conditions = getEffectiveConditions(char5e).filter((c) => c.name !== conditionName)
+    const conditions = getEffectiveConditions(char).filter((c) => c.name !== conditionName)
     const updated = migrateCharacter5eFromV3ToV4({
-      ...char5e,
+      ...char,
       conditions,
       conditionRefs: undefined,
       updatedAt: new Date().toISOString()
-    }) as unknown as Character
+    })
     await get().saveCharacter(updated)
   },
 
@@ -241,8 +242,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     const char = characters.find((c) => c.id === characterId)
     if (!char) return
 
-    const char5e = char as unknown as Character5eV3
-    const existing = getEffectiveConditions(char5e)
+    const existing = getEffectiveConditions(char)
     // Phase 15c.5 — condition `value` (e.g. exhaustion level) has no v4 home;
     // the value is dropped on the shim. Presence is still tracked via conditionRefs.
     const conditions =
@@ -250,11 +250,11 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
         ? existing.filter((c) => c.name !== conditionName)
         : existing.map((c) => (c.name === conditionName ? { ...c, value: newValue } : c))
     const updated = migrateCharacter5eFromV3ToV4({
-      ...char5e,
+      ...char,
       conditions,
       conditionRefs: undefined,
       updatedAt: new Date().toISOString()
-    }) as unknown as Character
+    })
     await get().saveCharacter(updated)
   }
 }))

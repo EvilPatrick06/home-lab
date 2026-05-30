@@ -15,7 +15,7 @@ function formatMod(mod: number): string {
 export async function loadCharacterById(id: string): Promise<Record<string, unknown> | null> {
   const result = await loadCharacterFromStorage(id)
   if (result.success && result.data) {
-    return result.data as unknown as Record<string, unknown>
+    return result.data
   }
   return null
 }

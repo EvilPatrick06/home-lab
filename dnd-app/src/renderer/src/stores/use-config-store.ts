@@ -318,7 +318,7 @@ function mergeHomebrew<T>(
     result.push(entryWithSource as (typeof result)[number])
   }
 
-  return result as unknown as T
+  return result as T
 }
 
 function mergePluginData<T>(
@@ -335,7 +335,7 @@ function mergePluginData<T>(
   for (const entry of pluginEntries) {
     result.push(entry as (typeof result)[number])
   }
-  return result as unknown as T
+  return result as T
 }
 
 function categoryToHomebrewKey(category: DataCategory): string {

@@ -40,6 +40,7 @@ export const usePluginStore = create<PluginStoreState>((set, get) => ({
     try {
       const result = await window.api.plugins.scan()
       if (result.success && result.data) {
+        // boundary: IPC scan result types manifest as Record<string, unknown>; reinterpret as typed PluginManifest
         let plugins = result.data as unknown as PluginStatus[]
 
         for (const plugin of plugins) {
@@ -110,6 +111,7 @@ export const usePluginStore = create<PluginStoreState>((set, get) => ({
     try {
       const result = await window.api.plugins.scan()
       if (result.success && result.data) {
+        // boundary: IPC scan result types manifest as Record<string, unknown>; reinterpret as typed PluginManifest
         const plugins = syncLoadedStatus(result.data as unknown as PluginStatus[])
         set({ plugins })
       }

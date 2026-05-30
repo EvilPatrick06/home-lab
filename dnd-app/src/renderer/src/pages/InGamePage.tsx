@@ -108,7 +108,9 @@ export default function InGamePage(): JSX.Element {
     if (gameCampaignId !== campaign.id) {
       const saved = campaign.savedGameState
 
-      // Ensure we don't overwrite a newer local auto-save with an older campaign state
+      // Ensure we don't overwrite a newer local auto-save with an older campaign state.
+      // `lastSaveTimestamp` isn't on the canonical store state, so read it via an
+      // out-of-type view (defaults to 0 when absent) — behavior preserved.
       const currentStoreState = useGameStore.getState() as unknown as { lastSaveTimestamp?: number }
       const localTimestamp = currentStoreState.lastSaveTimestamp || 0
       const incomingTimestamp = saved?.lastSaveTimestamp || 0

@@ -319,6 +319,7 @@ export function registerAiHandlers(): void {
 
   handle(IPC_CHANNELS.AI_RESTORE_CONVERSATION, async (_event, campaignId: string, data: Record<string, unknown>) => {
     sanitizeCampaignId(campaignId)
+    // IPC boundary: renderer hands back type-erased JSON typed as Record; assert the domain shape.
     const result = await saveConversation(campaignId, data as unknown as ConversationData)
     if (!result.success) return { success: false, error: result.error }
     return { success: true }
@@ -415,6 +416,7 @@ export function registerAiHandlers(): void {
   handle(IPC_CHANNELS.AI_SYNC_COMBAT_STATE, async (_event, campaignId: string, state: Record<string, unknown>) => {
     try {
       const memMgr = getMemoryManager(campaignId)
+      // IPC boundary: renderer payload is type-erased Record; assert the domain shape.
       await memMgr.updateCombatState(state as unknown as CombatState)
       return { success: true }
     } catch (error) {
@@ -583,6 +585,7 @@ export function registerAiHandlers(): void {
 
   handle(IPC_CHANNELS.AI_TRIGGER_STATE_UPDATE, async (_event, state: Record<string, unknown>) => {
     try {
+      // IPC boundary: renderer payload is type-erased Record; assert the domain shape.
       const results = processStateUpdate(state as unknown as GameStateSnapshot)
       return { success: true, fired: results }
     } catch (error) {

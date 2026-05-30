@@ -441,11 +441,10 @@ function UpdateSection(): JSX.Element {
     }
     // Hydrate the auto-update prefs from persisted settings.
     window.api.loadSettings().then((s) => {
-      const data = s as unknown as Record<string, unknown>
-      setAutoCheckUpdates(data.autoCheckUpdates === true)
-      setAutoDownloadUpdates(data.autoDownloadUpdates === true)
-      setAutoRestartAfterUpdate(data.autoRestartAfterUpdate === true)
-      setAutoInstallSilent(data.autoInstallSilent === true)
+      setAutoCheckUpdates(s.autoCheckUpdates === true)
+      setAutoDownloadUpdates(s.autoDownloadUpdates === true)
+      setAutoRestartAfterUpdate(s.autoRestartAfterUpdate === true)
+      setAutoInstallSilent(s.autoInstallSilent === true)
     })
     return () => {
       window.api.update.removeStatusListener()

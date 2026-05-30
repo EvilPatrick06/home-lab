@@ -127,7 +127,7 @@ export function handleNewConnection(conn: DataConnection, state: HostStateAccess
     }
 
     if (!validateMessage(message)) {
-      logger.warn('[HostManager] Invalid message from', peerId, (message as unknown as Record<string, unknown>)?.type)
+      logger.warn('[HostManager] Invalid message from', peerId, message.type)
       return
     }
 
