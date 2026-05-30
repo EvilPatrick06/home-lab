@@ -64,6 +64,9 @@ export interface RegistryAnnouncePayload {
   game_system: string
   is_private: boolean
   peer_id: string
+  /** Phase 32 — 'p2p' (WebRTC mesh) or 'cloud' (Pi relay). Optional; the Pi
+   * registry tolerates extra fields, and the game-list UI can badge cloud games. */
+  hosting_mode?: 'p2p' | 'cloud'
 }
 
 export type RegistryEvent =
@@ -80,6 +83,12 @@ function resolveBase(input?: string | null): string {
   const raw = (input ?? '').trim()
   if (!raw) return DEFAULT_BASE_URL
   return raw.replace(/\/+$/, '')
+}
+
+/** Resolve the BMO Pi base URL (settings → mDNS → default). Exported so the
+ * Phase 32 cloud relay reuses the exact same precedence the registry client uses. */
+export async function resolveBmoBaseUrl(override?: string): Promise<string> {
+  return getBaseUrl(override)
 }
 
 async function getBaseUrl(override?: string): Promise<string> {

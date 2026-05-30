@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
+import CloudStatusPanel from '../components/game/cloud/CloudStatusPanel'
 import { LobbyLayout } from '../components/lobby'
 import { Button, Modal } from '../components/ui'
 import { JOINED_SESSIONS_KEY, LAST_SESSION_KEY, LOBBY_COPY_TIMEOUT_MS } from '../constants'
@@ -28,6 +29,9 @@ export default function LobbyPage(): JSX.Element {
 
   const { setCampaignId, setIsHost, addPlayer, reset: resetLobby } = useLobbyStore()
   const { connectionState, inviteCode, localPeerId, displayName, role, disconnect, latencyMs } = useNetworkStore()
+  // Phase 32 — cloud relay status (DM-only panel below).
+  const connectionMode = useNetworkStore((s) => s.connectionMode)
+  const networkPeers = useNetworkStore((s) => s.peers)
   const { campaigns, loadCampaigns, saveCampaign } = useCampaignStore()
 
   const [showLeaveModal, setShowLeaveModal] = useState(false)
@@ -182,6 +186,7 @@ export default function LobbyPage(): JSX.Element {
   const campaignMaxPlayers = campaign?.settings?.maxPlayers ?? null
   const campaignMaxSpectators = campaign?.settings?.maxSpectators ?? null
   const campaignIsPrivate = campaign?.settings?.isPrivate ?? null
+  const campaignHostingMode = campaign?.hostingMode ?? 'p2p'
 
   useEffect(() => {
     if (!isHost || !campaignName || !inviteCode || !localPeerId || !displayName) return
@@ -197,7 +202,8 @@ export default function LobbyPage(): JSX.Element {
       max_spectators: campaignMaxSpectators ?? 5,
       game_system: campaignSystem || 'dnd5e',
       is_private: campaignIsPrivate ?? false,
-      peer_id: localPeerId
+      peer_id: localPeerId,
+      hosting_mode: campaignHostingMode
     }).catch((err) => logger.warn('[Lobby] announce failed:', err))
     return () => {
       cancelled = true
@@ -211,6 +217,7 @@ export default function LobbyPage(): JSX.Element {
     campaignMaxPlayers,
     campaignMaxSpectators,
     campaignIsPrivate,
+    campaignHostingMode,
     inviteCode,
     localPeerId,
     displayName
@@ -448,6 +455,18 @@ export default function LobbyPage(): JSX.Element {
           </div>
         )}
       </div>
+
+      {/* Phase 32 — cloud-relay status (DM-only; hidden for P2P games). */}
+      {isHost && connectionMode === 'cloud' && (
+        <div className="mb-4 flex-shrink-0">
+          <CloudStatusPanel
+            connectionMode={connectionMode}
+            isDM={isHost}
+            connected={connectionState === 'connected'}
+            peers={networkPeers}
+          />
+        </div>
+      )}
 
       {/* Main lobby layout */}
       <div className="flex-1 min-h-0">

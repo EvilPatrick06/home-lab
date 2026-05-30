@@ -238,10 +238,23 @@ export function destroyPeer(): void {
 }
 
 /**
+ * Phase 32 — cloud-relay peer-id override. A cloud-hosted/joined session has no
+ * PeerJS peer, so `localPeerId` is null; the cloud session sets this so the host
+ * dispatch + outgoing messages stamp the correct (generated) peer id. Cleared on
+ * teardown. Null → fall back to the PeerJS `localPeerId` (the P2P default).
+ */
+let peerIdOverride: string | null = null
+
+/** Set (or clear, with null) the cloud peer-id override. */
+export function setPeerIdOverride(id: string | null): void {
+  peerIdOverride = id
+}
+
+/**
  * Get the current peer ID, or null if no peer exists.
  */
 export function getPeerId(): string | null {
-  return localPeerId
+  return peerIdOverride ?? localPeerId
 }
 
 /**

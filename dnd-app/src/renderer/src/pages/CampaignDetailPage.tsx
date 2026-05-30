@@ -104,7 +104,10 @@ export default function CampaignDetailPage(): JSX.Element {
       if (networkState.role !== 'none') {
         networkState.disconnect()
       }
-      await hostGame(hostName, campaign.inviteCode)
+      // Phase 32 — a campaign flagged for cloud hosting routes through the Pi
+      // relay; otherwise the P2P mesh (the default).
+      const mode = campaign.hostingMode === 'cloud' ? 'cloud' : 'p2p'
+      await hostGame(hostName, campaign.inviteCode, mode)
       navigate(`/lobby/${campaign.id}`)
     } catch (error) {
       logger.error('Failed to start game:', error)

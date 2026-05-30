@@ -57,6 +57,8 @@ export default function CampaignWizard(): JSX.Element {
   const [turnMode, setTurnMode] = useState<TurnMode>('initiative')
   const [lobbyMessage, setLobbyMessage] = useState('')
   const [isPublic, setIsPublic] = useState(true)
+  // Phase 32 — 'p2p' (this device) vs 'cloud' (Pi relay). Default p2p.
+  const [hostingMode, setHostingMode] = useState<'p2p' | 'cloud'>('p2p')
   const [campaignType, setCampaignType] = useState<CampaignType>('custom')
   const [selectedAdventureId, setSelectedAdventureId] = useState<string | null>(null)
   const [customRules, setCustomRules] = useState<CustomRule[]>([])
@@ -184,6 +186,7 @@ export default function CampaignWizard(): JSX.Element {
         presetId: selectedAdventureId ?? undefined,
         dmId: 'local-dm',
         turnMode,
+        hostingMode,
         maps: campaignMaps,
         activeMapId: campaignMaps.length > 0 ? campaignMaps[0].id : undefined,
         npcs:
@@ -330,7 +333,7 @@ export default function CampaignWizard(): JSX.Element {
 
       {step === 1 && (
         <DetailsStep
-          data={{ name, description, maxPlayers, turnMode, lobbyMessage, isPublic }}
+          data={{ name, description, maxPlayers, turnMode, lobbyMessage, isPublic, hostingMode }}
           onChange={(data) => {
             setName(data.name)
             setDescription(data.description)
@@ -338,6 +341,7 @@ export default function CampaignWizard(): JSX.Element {
             setTurnMode(data.turnMode)
             setLobbyMessage(data.lobbyMessage)
             setIsPublic(data.isPublic)
+            setHostingMode(data.hostingMode)
           }}
         />
       )}

@@ -12,6 +12,7 @@ import {
   broadcastMessage,
   disconnect as clientDisconnect,
   connectToHost,
+  generateInviteCode,
   getConnectedPeers,
   getPeerId,
   kickPeer,
@@ -27,17 +28,21 @@ import {
   stopHosting
 } from '../../network'
 import { GameAuthority } from '../../network/authority/game-authority'
+import { setHostOutboundOverride } from '../../network/host-manager'
+import { setPeerIdOverride } from '../../network/peer-manager'
 import { createShardApplier } from '../../network/sync/applier'
 import { createShardBroadcaster } from '../../network/sync/broadcaster'
 // Phase 31e — importing the shard barrel runs each shard module's top-level
 // registerShard() so the broadcaster/applier below see the migrated features.
 import '../../network/sync/shards'
 import { createP2PTransport } from '../../network/transport/p2p-transport'
+import type { TransportAdapter } from '../../network/transport/transport-adapter'
 import { hasPermission } from '../../services/permissions/has-permission'
 import { useCampaignStore } from '../use-campaign-store'
 import { useGameStore } from '../use-game-store'
 import { useLobbyStore } from '../use-lobby-store'
 import { handleClientMessage } from './client-handlers'
+import { connectCloudSession } from './cloud-session'
 import { handleHostMessage } from './host-handlers'
 import type { NetworkState } from './types'
 
@@ -48,6 +53,12 @@ function clearListenerCleanups(): void {
   for (const fn of listenerCleanups) fn()
   listenerCleanups.length = 0
 }
+
+// Phase 32 — the active Pi-relay transport while a cloud session is live. The
+// cloud client's `sendMessage` routes through it (point-to-point to the host);
+// the cloud HOST routes via the host-manager outbound override instead, so this
+// is read on the client path only. Cleared on teardown.
+let activeCloudTransport: TransportAdapter | null = null
 
 // Phase 29i: per-role filter cache. Filtering a full game state for
 // each joining peer is the slowest path in our broadcast pipeline —
@@ -79,16 +90,121 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
   disconnectReason: null,
   latencyMs: null,
   localIsDM: false,
+  connectionMode: 'p2p',
 
   // --- Host actions ---
 
-  hostGame: async (displayName: string, existingInviteCode?: string) => {
+  hostGame: async (displayName: string, existingInviteCode?: string, mode: 'p2p' | 'cloud' = 'p2p') => {
     set({
       connectionState: 'connecting',
       error: null,
       displayName,
-      role: 'host'
+      role: 'host',
+      connectionMode: mode
     })
+
+    // Phase 32 — Pi-relayed cloud host. There is no PeerJS mesh: the DM client
+    // opens one Socket.IO connection to the Pi relay and the existing host
+    // dispatch (GameAuthority + handleHostMessage + shard broadcaster) runs over
+    // it. The host-manager outbound override + peer-id override reroute every
+    // `broadcastMessage`/`sendToPeer`/`getConnectedPeers`/`getPeerId` call to the
+    // relay, so the whole host path works unchanged — no PeerJS state involved.
+    if (mode === 'cloud') {
+      try {
+        const inviteCode = existingInviteCode || generateInviteCode()
+        clearListenerCleanups()
+        const { transport, self } = await connectCloudSession({
+          inviteCode,
+          displayName,
+          role: 'host'
+        })
+        activeCloudTransport = transport
+
+        // Reroute the host outbound + peer-registry primitives to the relay.
+        setPeerIdOverride(self.peerId)
+        setHostOutboundOverride({
+          broadcast: (m) => transport.broadcast(m),
+          broadcastExcluding: (m, exclude) => transport.broadcastExcluding(exclude, m),
+          sendToPeer: (peerId, m) => transport.send(peerId, m),
+          kick: (peerId) => transport.disconnect(peerId),
+          getPeers: () => get().peers,
+          getPeerInfo: (peerId) => get().peers.find((p) => p.peerId === peerId)
+        })
+
+        const hostAuthority = new GameAuthority(transport)
+        hostAuthority.registerDefault((message, ctx) => handleHostMessage(message, ctx.peerId, get, set))
+        hostAuthority.start()
+
+        const shardBroadcaster = createShardBroadcaster(transport, {
+          getRecipients: () => get().peers.map((p) => ({ peerId: p.peerId, clientId: p.clientId })),
+          coalesceMs: 50
+        })
+        shardBroadcaster.start()
+        listenerCleanups.push(() => shardBroadcaster.stop())
+
+        listenerCleanups.push(
+          useGameStore.subscribe(() => {
+            gameStateVersion++
+            filteredStateCache.clear()
+          }),
+          transport.onPeerJoin((peer: PeerInfo) => {
+            get().addPeer(peer)
+            // The joiner gets the full player-filtered state snapshot (no P2P
+            // host-connection handshake exists on the relay) plus the async
+            // map-image payload — two partial `game:state-update`s the client
+            // merges (mirrors the P2P join flow).
+            const header = {
+              senderId: self.peerId,
+              senderName: displayName,
+              sequence: 0
+            }
+            transport.send(peer.peerId, {
+              type: 'game:state-update' as const,
+              payload: buildFilteredStateForRole('player'),
+              timestamp: Date.now(),
+              ...header
+            })
+            import('../../network/game-sync')
+              .then(({ buildFullGameStatePayload }) => buildFullGameStatePayload())
+              .then((fullState) => {
+                const maps = fullState.maps as Array<Record<string, unknown>>
+                if (!maps?.length) return
+                const transformed = transformUpdatePayloadForPeer({ mapsWithImages: maps }, 'player')
+                if (!transformed) return
+                transport.send(peer.peerId, {
+                  type: 'game:state-update' as const,
+                  payload: transformed,
+                  timestamp: Date.now(),
+                  ...header
+                })
+              })
+          }),
+          transport.onPeerLeave((peerId: string) => get().removePeer(peerId)),
+          () => hostAuthority.stop(),
+          () => {
+            transport.close()
+            activeCloudTransport = null
+            setHostOutboundOverride(null)
+            setPeerIdOverride(null)
+          }
+        )
+
+        set({
+          connectionState: 'connected',
+          inviteCode,
+          localPeerId: self.peerId,
+          localIsDM: true
+        })
+        return inviteCode
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : 'Failed to host cloud game'
+        setHostOutboundOverride(null)
+        setPeerIdOverride(null)
+        activeCloudTransport = null
+        set({ connectionState: 'error', error: errorMsg, role: 'none', connectionMode: 'p2p' })
+        throw err
+      }
+    }
 
     try {
       const inviteCode = await startHosting(displayName, existingInviteCode)
@@ -205,6 +321,9 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
 
   stopHosting: () => {
     setGameStateProvider(null)
+    // Phase 32 — for a cloud host the listener-cleanup chain closes the relay
+    // transport + clears the host-manager/peer-id overrides; the P2P calls below
+    // are harmless no-ops in that mode.
     clearListenerCleanups()
     stopHosting()
     resetToDefaults()
@@ -218,7 +337,8 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
       error: null,
       disconnectReason: null,
       latencyMs: null,
-      localIsDM: false
+      localIsDM: false,
+      connectionMode: 'p2p'
     })
   },
 
@@ -257,13 +377,56 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
 
   // --- Client actions ---
 
-  joinGame: async (inviteCode: string, displayName: string) => {
+  joinGame: async (inviteCode: string, displayName: string, mode: 'p2p' | 'cloud' = 'p2p') => {
     set({
       connectionState: 'connecting',
       error: null,
       displayName,
-      role: 'client'
+      role: 'client',
+      connectionMode: mode
     })
+
+    // Phase 32 — join a Pi-relayed cloud game. One Socket.IO connection; inbound
+    // host messages flow to `handleClientMessage`, shard deltas to the applier
+    // (both subscribe the same transport). Outgoing intents route to the host in
+    // `sendMessage`'s cloud-client branch.
+    if (mode === 'cloud') {
+      try {
+        clearListenerCleanups()
+        const { transport, self } = await connectCloudSession({
+          inviteCode,
+          displayName,
+          role: 'player'
+        })
+        activeCloudTransport = transport
+        const shardApplier = createShardApplier(transport)
+        shardApplier.start()
+        listenerCleanups.push(
+          transport.onMessage((_fromPeerId: string, message: NetworkMessage) => {
+            handleClientMessage(message, get, set)
+          }),
+          transport.onPeerJoin((peer: PeerInfo) => get().addPeer(peer)),
+          transport.onPeerLeave((peerId: string) => get().removePeer(peerId)),
+          () => shardApplier.stop(),
+          () => {
+            transport.close()
+            activeCloudTransport = null
+          }
+        )
+        set({
+          connectionState: 'connected',
+          inviteCode,
+          localPeerId: self.peerId
+        })
+        return
+      } catch (err) {
+        clearListenerCleanups()
+        activeCloudTransport = null
+        const errorMsg = err instanceof Error ? err.message : 'Failed to join cloud game'
+        set({ connectionState: 'error', error: errorMsg, role: 'none', connectionMode: 'p2p' })
+        throw err
+      }
+    }
 
     try {
       clearListenerCleanups()
@@ -341,6 +504,8 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
     if (role === 'host') {
       get().stopHosting()
     } else if (role === 'client') {
+      // Phase 32 — clearListenerCleanups() above closed the relay transport for a
+      // cloud client; clientDisconnect()/resetToDefaults() are P2P no-ops there.
       clientDisconnect()
       resetToDefaults()
       set({
@@ -352,7 +517,8 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
         peers: [],
         error: null,
         disconnectReason: null,
-        localIsDM: false
+        localIsDM: false,
+        connectionMode: 'p2p'
       })
     }
   },
@@ -360,7 +526,25 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
   // --- Shared actions ---
 
   sendMessage: (type: MessageType, payload: unknown) => {
-    const { role, displayName } = get()
+    const { role, displayName, connectionMode } = get()
+    // Phase 32 — cloud client: route the intent point-to-point to the host (the
+    // authority), never broadcast at other players. The cloud HOST falls through
+    // to the host branch below — its broadcastMessage/sendToPeer/getConnectedPeers
+    // calls are rerouted to the relay by the host-manager outbound override.
+    if (connectionMode === 'cloud' && role === 'client' && activeCloudTransport) {
+      const host = get().peers.find((p) => p.isHost)
+      if (host) {
+        activeCloudTransport.send(host.peerId, {
+          type,
+          payload,
+          senderId: get().localPeerId ?? '',
+          senderName: displayName,
+          timestamp: Date.now(),
+          sequence: 0
+        })
+      }
+      return
+    }
     // Phase 29e — structural transport gate: only the network host owns the
     // per-peer routing path (filtered state, transform for visibility, etc).
     // Clients fan out via the host. Not a permission gate. Phase 30 will

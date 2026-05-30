@@ -40,6 +40,31 @@ const globalMessageTimestamps = { value: [] as number[] }
 const connections = new Map<string, DataConnection>()
 const peerInfoMap = new Map<string, PeerInfo>()
 
+/**
+ * Phase 32 — cloud-relay outbound override. When a cloud (Pi-relayed) session is
+ * active, the host's outbound primitives must route to the relay transport
+ * instead of the PeerJS mesh. `handleHostMessage` + the store's `sendMessage`
+ * call `broadcastMessage` / `broadcastExcluding` / `sendToPeer` / `kickPeer` and
+ * read `getConnectedPeers` / `getPeerInfo` by name, so installing this override
+ * reroutes the entire host outbound + peer-registry path WITHOUT touching the
+ * dispatch logic. Null → the PeerJS path (the P2P default). Set/cleared by the
+ * network store's cloud host branch.
+ */
+export interface HostOutboundOverride {
+  broadcast: (msg: NetworkMessage) => void
+  broadcastExcluding: (msg: NetworkMessage, excludePeerId: string) => void
+  sendToPeer: (peerId: string, msg: NetworkMessage) => void
+  kick: (peerId: string) => void
+  getPeers: () => PeerInfo[]
+  getPeerInfo: (peerId: string) => PeerInfo | undefined
+}
+let outboundOverride: HostOutboundOverride | null = null
+
+/** Set (or clear, with null) the cloud outbound override. */
+export function setHostOutboundOverride(o: HostOutboundOverride | null): void {
+  outboundOverride = o
+}
+
 // Ban system
 const bannedClients = new Map<string, BanClientEntry>()
 const bannedNames = new Set<string>()
@@ -394,6 +419,10 @@ function clientIdsForPeers(peerIds: Iterable<string>): string[] {
 
 /** Send a message to all connected peers. */
 export function broadcastMessage(msg: NetworkMessage): void {
+  if (outboundOverride) {
+    outboundOverride.broadcast(msg)
+    return
+  }
   const peerIds = Array.from(connections.keys())
   for (const peerId of peerIds) {
     queueForPeer(peerId, msg)
@@ -405,6 +434,10 @@ export function broadcastMessage(msg: NetworkMessage): void {
 
 /** Broadcast to all peers except the specified one (rebroadcast without echo). */
 export function broadcastExcluding(msg: NetworkMessage, excludePeerId: string): void {
+  if (outboundOverride) {
+    outboundOverride.broadcastExcluding(msg, excludePeerId)
+    return
+  }
   const peerIds: string[] = []
   for (const [peerId] of connections) {
     if (peerId === excludePeerId) continue
@@ -416,6 +449,10 @@ export function broadcastExcluding(msg: NetworkMessage, excludePeerId: string): 
 
 /** Send a message to a specific peer. */
 export function sendToPeer(peerId: string, msg: NetworkMessage): void {
+  if (outboundOverride) {
+    outboundOverride.sendToPeer(peerId, msg)
+    return
+  }
   if (!connections.has(peerId)) {
     logger.warn('[HostManager] No connection found for peer:', peerId)
     return
@@ -427,19 +464,24 @@ export function sendToPeer(peerId: string, msg: NetworkMessage): void {
 
 /** Kick a peer from the game. */
 export function kickPeer(peerId: string): void {
-  const kickPayload: KickPayload = { peerId, reason: 'Kicked by DM' }
-  const kickMsg = buildMessage('dm:kick-player', kickPayload)
-  // 20g — audit moderation actions.
+  // 20g — audit moderation actions on both transports.
   auditSecurityEvent('host.kick', {
     peerId,
-    displayName: peerInfoMap.get(peerId)?.displayName,
+    displayName: (outboundOverride?.getPeerInfo(peerId) ?? peerInfoMap.get(peerId))?.displayName,
     campaignId
   })
+  if (outboundOverride) {
+    outboundOverride.kick(peerId)
+    return
+  }
+  const kickPayload: KickPayload = { peerId, reason: 'Kicked by DM' }
+  const kickMsg = buildMessage('dm:kick-player', kickPayload)
   disconnectPeer(peerId, kickMsg)
 }
 
 /** Get all currently connected peers (not including the host). */
 export function getConnectedPeers(): PeerInfo[] {
+  if (outboundOverride) return outboundOverride.getPeers()
   return Array.from(peerInfoMap.values())
 }
 
@@ -603,6 +645,7 @@ export function setGameStateProvider(provider: GameStateProvider | null): void {
 
 /** Look up a connected peer's info by their peer ID. */
 export function getPeerInfo(peerId: string): PeerInfo | undefined {
+  if (outboundOverride) return outboundOverride.getPeerInfo(peerId)
   return peerInfoMap.get(peerId)
 }
 

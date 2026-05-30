@@ -9,6 +9,9 @@ interface DetailsData {
   turnMode: TurnMode
   lobbyMessage: string
   isPublic: boolean
+  /** Phase 32 — 'p2p' = this device hosts the WebRTC mesh; 'cloud' = the
+   * always-on Pi relays the session. Default 'p2p'. */
+  hostingMode: 'p2p' | 'cloud'
 }
 
 interface DetailsStepProps {
@@ -150,6 +153,42 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
               <div className="font-semibold text-sm">Private</div>
               <div className="text-xs text-gray-400 mt-1">
                 Shown with a lock icon in the list; joiners must enter the invite code as a password.
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-gray-400 mb-2 text-sm">Hosting</label>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => update('hostingMode', 'p2p')}
+              className={`flex-1 p-3 rounded-lg border text-left transition-all cursor-pointer
+                ${
+                  data.hostingMode === 'p2p'
+                    ? 'border-amber-500 bg-amber-900/20'
+                    : 'border-gray-700 bg-gray-900/50 hover:border-gray-600'
+                }`}
+            >
+              <div className="font-semibold text-sm">This device</div>
+              <div className="text-xs text-gray-400 mt-1">
+                Peer-to-peer: your computer hosts. Must stay online and reachable.
+              </div>
+            </button>
+            <button
+              type="button"
+              onClick={() => update('hostingMode', 'cloud')}
+              className={`flex-1 p-3 rounded-lg border text-left transition-all cursor-pointer
+                ${
+                  data.hostingMode === 'cloud'
+                    ? 'border-amber-500 bg-amber-900/20'
+                    : 'border-gray-700 bg-gray-900/50 hover:border-gray-600'
+                }`}
+            >
+              <div className="font-semibold text-sm">Pi cloud relay</div>
+              <div className="text-xs text-gray-400 mt-1">
+                Players connect through the always-on BMO Pi — no NAT/firewall setup.
               </div>
             </button>
           </div>

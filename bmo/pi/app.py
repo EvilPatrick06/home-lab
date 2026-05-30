@@ -5371,6 +5371,7 @@ def on_disconnect():
 # `register_ide(app, socketio, agent)` is called below after init_services()
 # so the blueprint can resolve a live agent reference.
 from routes.ide import register_ide, cleanup_client_session
+from routes.game_relay_ws import register_game_relay
 
 # ── Main ─────────────────────────────────────────────────────────────
 
@@ -5378,6 +5379,8 @@ if __name__ == "__main__":
     init_services()
     # Wire the IDE blueprint + SocketIO handlers now that `agent` is live.
     register_ide(app, socketio, agent)
+    # Phase 32 — cloud multiplayer relay on the `/game` Socket.IO namespace.
+    register_game_relay(socketio, api_key=BMO_API_KEY)
     # Restore music playback from last session (if any)
     if music:
         try:

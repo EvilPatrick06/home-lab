@@ -18,8 +18,14 @@ export interface NetworkState {
    * moves it. Initial false (standalone / client until proven otherwise).
    */
   localIsDM: boolean
+  /**
+   * Phase 32 — transport in use for the current session. `'p2p'` is the WebRTC
+   * mesh (a player laptop hosts); `'cloud'` routes everything through the
+   * always-on Pi's Socket.IO relay. Default `'p2p'`; set by `hostGame`/`joinGame`.
+   */
+  connectionMode: 'p2p' | 'cloud'
 
-  hostGame: (displayName: string, existingInviteCode?: string) => Promise<string>
+  hostGame: (displayName: string, existingInviteCode?: string, mode?: 'p2p' | 'cloud') => Promise<string>
   stopHosting: () => void
   kickPlayer: (peerId: string) => void
   /**
@@ -29,7 +35,7 @@ export interface NetworkState {
    * applies the same change.
    */
   transferDm: (newDmPeerId: string) => void
-  joinGame: (inviteCode: string, displayName: string) => Promise<void>
+  joinGame: (inviteCode: string, displayName: string, mode?: 'p2p' | 'cloud') => Promise<void>
   disconnect: () => void
   sendMessage: (type: MessageType, payload: unknown) => void
   setDisplayName: (name: string) => void
