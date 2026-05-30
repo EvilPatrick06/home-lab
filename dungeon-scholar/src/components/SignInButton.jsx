@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Github } from 'lucide-react';
+// lucide-react v1 removed brand icons (Github); use the generic sign-in icon
+// (button text retains the GitHub context).
+import { LogIn } from 'lucide-react';
 import { signInWithGitHub, isSupabaseConfigured } from '../services/supabase.js';
 
 export function SignInButton() {
@@ -26,7 +28,7 @@ export function SignInButton() {
         className="px-4 py-2 rounded flex items-center gap-2 text-sm border-2 border-purple-700 text-purple-200 hover:bg-purple-900/30 italic disabled:opacity-60"
         style={{ background: 'rgba(31, 12, 41, 0.7)' }}
       >
-        <Github className="w-4 h-4" /> {busy ? 'Connecting…' : 'Sign in with GitHub to sync'}
+        <LogIn className="w-4 h-4" /> {busy ? 'Connecting…' : 'Sign in with GitHub to sync'}
       </button>
       <span className="text-[11px] text-amber-700 italic pl-1">
         Optional — your progress is already saved on this device.
