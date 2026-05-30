@@ -1,13 +1,5 @@
+import type { Character5eV3 } from '../../shared/types/character-5e'
 import { loadCharacter as loadCharacterFromStorage } from '../storage/character-storage'
-
-interface AbilityScores {
-  strength: number
-  dexterity: number
-  constitution: number
-  intelligence: number
-  wisdom: number
-  charisma: number
-}
 
 function abilityModifier(score: number): number {
   return Math.floor((score - 10) / 2)
@@ -32,7 +24,8 @@ export async function loadCharacterById(id: string): Promise<Record<string, unkn
  * Format a character object for AI context injection.
  */
 export function formatCharacterForContext(char: Record<string, unknown>): string {
-  return formatCharacter5e(char)
+  // Storage hands back opaque persisted JSON; at runtime it's the v3 character shape.
+  return formatCharacter5e(char as unknown as Character5eV3)
 }
 
 /**
@@ -49,19 +42,19 @@ export function formatCharacterAbbreviated(char: Record<string, unknown>): strin
   return `${char.name}: HP ${hp.current}/${hp.maximum} AC ${char.armorClass}${condStr}`
 }
 
-function formatCharacter5e(c: Record<string, unknown>): string {
+function formatCharacter5e(c: Character5eV3): string {
   const lines: string[] = []
-  const classes = c.classes as Array<{ name: string; subclass?: string; level: number }>
+  const classes = c.classes!
   const className = classes.map((cl) => `${cl.name}${cl.subclass ? ` (${cl.subclass})` : ''} ${cl.level}`).join(' / ')
-  const subspecies = c.subspecies as string | undefined
+  const subspecies = c.subspecies
   lines.push(
     `**${c.name}** — Level ${c.level} ${c.species}${subspecies ? ` (${subspecies})` : ''} ${className} (5e 2024)`
   )
 
-  const hp = c.hitPoints as { current: number; maximum: number; temporary: number }
+  const hp = c.hitPoints
   lines.push(`HP: ${hp.current}/${hp.maximum}${hp.temporary > 0 ? ` +${hp.temporary} temp` : ''} | AC: ${c.armorClass}`)
 
-  const abs = c.abilityScores as AbilityScores
+  const abs = c.abilityScores
   const scores = [
     `STR ${abs.strength} (${formatMod(abilityModifier(abs.strength))})`,
     `DEX ${abs.dexterity} (${formatMod(abilityModifier(abs.dexterity))})`,
@@ -72,25 +65,19 @@ function formatCharacter5e(c: Record<string, unknown>): string {
   ]
   lines.push(`Abilities: ${scores.join(' | ')}`)
 
-  const speed = c.speed as number
-  const speeds = c.speeds as { fly: number; swim: number; climb: number; burrow: number }
+  const speed = c.speed
+  const speeds = c.speeds
   const speedParts = [`${speed} ft`]
   if (speeds?.fly > 0) speedParts.push(`fly ${speeds.fly} ft`)
   if (speeds?.swim > 0) speedParts.push(`swim ${speeds.swim} ft`)
   if (speeds?.climb > 0) speedParts.push(`climb ${speeds.climb} ft`)
   if (speeds?.burrow > 0) speedParts.push(`burrow ${speeds.burrow} ft`)
-  lines.push(`Speed: ${speedParts.join(', ')} | Initiative: ${formatMod(c.initiative as number)}`)
+  lines.push(`Speed: ${speedParts.join(', ')} | Initiative: ${formatMod(c.initiative)}`)
 
-  const profs = c.proficiencies as {
-    savingThrows: string[]
-    weapons: string[]
-    armor: string[]
-    tools: string[]
-    languages: string[]
-  }
+  const profs = c.proficiencies
   if (profs?.savingThrows?.length > 0) lines.push(`Saving Throw Proficiencies: ${profs.savingThrows.join(', ')}`)
 
-  const skills = c.skills as Array<{ name: string; proficient: boolean; expertise?: boolean }>
+  const skills = c.skills
   const proficientSkills = skills?.filter((s) => s.proficient) || []
   if (proficientSkills.length > 0) {
     const skillList = proficientSkills.map((s) => `${s.name}${s.expertise ? ' (expertise)' : ''}`).join(', ')
@@ -102,17 +89,13 @@ function formatCharacter5e(c: Record<string, unknown>): string {
   if (profs?.tools?.length > 0) lines.push(`Tool Proficiencies: ${profs.tools.join(', ')}`)
   if (profs?.languages?.length > 0) lines.push(`Languages: ${profs.languages.join(', ')}`)
 
-  const spellcasting = c.spellcasting as {
-    spellSaveDC: number
-    spellAttackBonus: number
-    ability: string
-  } | null
+  const spellcasting = c.spellcasting
   if (spellcasting) {
     lines.push(
       `Spellcasting: Save DC ${spellcasting.spellSaveDC} | Attack ${formatMod(spellcasting.spellAttackBonus)} | Ability: ${spellcasting.ability}`
     )
 
-    const spellSlotLevels = c.spellSlotLevels as Record<number, { current: number; max: number }>
+    const spellSlotLevels = c.spellSlotLevels
     const slotParts: string[] = []
     for (let lvl = 1; lvl <= 9; lvl++) {
       const slot = spellSlotLevels?.[lvl]
@@ -122,7 +105,7 @@ function formatCharacter5e(c: Record<string, unknown>): string {
     }
     if (slotParts.length > 0) lines.push(`Spell Slots: ${slotParts.join(' | ')}`)
 
-    const pactSlots = c.pactMagicSlotLevels as Record<string, { current: number; max: number }> | undefined
+    const pactSlots = c.pactMagicSlotLevels
     if (pactSlots) {
       const pactParts: string[] = []
       for (const [lvl, slot] of Object.entries(pactSlots)) {
@@ -131,8 +114,8 @@ function formatCharacter5e(c: Record<string, unknown>): string {
       if (pactParts.length > 0) lines.push(`Pact Magic Slots: ${pactParts.join(' | ')}`)
     }
 
-    const preparedSpellIds = (c.preparedSpellIds as string[]) || []
-    const knownSpells = (c.knownSpells as Array<{ id: string; name: string }>) || []
+    const preparedSpellIds = c.preparedSpellIds || []
+    const knownSpells = c.knownSpells || []
     if (preparedSpellIds.length > 0) {
       const preparedNames = knownSpells.filter((s) => preparedSpellIds.includes(s.id)).map((s) => s.name)
       if (preparedNames.length > 0) lines.push(`Prepared Spells: ${preparedNames.join(', ')}`)
@@ -141,18 +124,18 @@ function formatCharacter5e(c: Record<string, unknown>): string {
     }
   }
 
-  const classResources = c.classResources as Array<{ name: string; current: number; max: number }> | undefined
+  const classResources = c.classResources
   if (classResources && classResources.length > 0) {
     const resParts = classResources.map((r) => `${r.name}: ${r.current}/${r.max}`)
     lines.push(`Class Resources: ${resParts.join(' | ')}`)
   }
 
-  const wildShapeUses = c.wildShapeUses as { current: number; max: number } | undefined
+  const wildShapeUses = c.wildShapeUses
   if (wildShapeUses && wildShapeUses.max > 0) {
     lines.push(`Wild Shape Uses: ${wildShapeUses.current}/${wildShapeUses.max}`)
   }
 
-  const hitDice = c.hitDice as Array<{ current: number; maximum: number; dieType: number }> | undefined
+  const hitDice = c.hitDice
   if (hitDice && hitDice.length > 0) {
     const hdRemaining = hitDice.reduce((s, h) => s + h.current, 0)
     const hdMax = hitDice.reduce((s, h) => s + h.maximum, 0)
@@ -162,34 +145,34 @@ function formatCharacter5e(c: Record<string, unknown>): string {
     lines.push(`Hit Dice Remaining: ${c.level}/${c.level}`)
   }
 
-  const armor = (c.armor as Array<{ name: string; acBonus: number; equipped: boolean }>) || []
+  const armor = c.armor || []
   const equippedArmor = armor.filter((a) => a.equipped)
   if (equippedArmor.length > 0) {
     lines.push(`Equipped Armor: ${equippedArmor.map((a) => `${a.name} (AC +${a.acBonus})`).join(', ')}`)
   }
 
-  const weapons = (c.weapons as Array<{ name: string; damage: string; damageType: string; attackBonus: number }>) || []
+  const weapons = c.weapons || []
   if (weapons.length > 0) {
     lines.push(
       `Weapons: ${weapons.map((w) => `${w.name} (${w.damage} ${w.damageType}, ${formatMod(w.attackBonus)} to hit)`).join(', ')}`
     )
   }
 
-  const treasure = c.treasure as Record<string, number>
+  const treasure = c.treasure
   if (treasure) {
     const currency: string[] = []
     if (treasure.pp > 0) currency.push(`${treasure.pp} pp`)
     if (treasure.gp > 0) currency.push(`${treasure.gp} gp`)
-    if (treasure.ep > 0) currency.push(`${treasure.ep} ep`)
+    if ((treasure.ep ?? 0) > 0) currency.push(`${treasure.ep} ep`)
     if (treasure.sp > 0) currency.push(`${treasure.sp} sp`)
     if (treasure.cp > 0) currency.push(`${treasure.cp} cp`)
     if (currency.length > 0) lines.push(`Currency: ${currency.join(', ')}`)
   }
 
-  const features = (c.features as Array<{ name: string; source: string; description: string }>) || []
+  const features = c.features || []
   if (features.length > 0) {
     // Split species traits from other features
-    const speciesName = c.species as string
+    const speciesName = c.species
     const speciesTraits = features.filter((f) => f.source === speciesName)
     const otherFeatures = features.filter((f) => f.source !== speciesName)
 
@@ -207,18 +190,18 @@ function formatCharacter5e(c: Record<string, unknown>): string {
     }
   }
 
-  const feats = c.feats as Array<{ id: string; name: string; description: string }> | undefined
+  const feats = c.feats
   if (feats && feats.length > 0) {
     lines.push(`Feats: ${feats.map((f) => f.name).join(', ')}`)
   }
 
-  const speciesResources = c.speciesResources as Array<{ name: string; current: number; max: number }> | undefined
+  const speciesResources = c.speciesResources
   if (speciesResources && speciesResources.length > 0) {
     const resParts = speciesResources.map((r) => `${r.name}: ${r.current}/${r.max}`)
     lines.push(`Species Resources: ${resParts.join(' | ')}`)
   }
 
-  const conditions = (c.conditions as Array<{ name: string; value?: number }>) || []
+  const conditions = c.conditions || []
   if (conditions.length > 0) {
     lines.push(
       `Active Conditions: ${conditions.map((cond) => (cond.value ? `${cond.name} ${cond.value}` : cond.name)).join(', ')}`
@@ -226,15 +209,15 @@ function formatCharacter5e(c: Record<string, unknown>): string {
   }
 
   if (hp.current === 0) {
-    const deathSaves = c.deathSaves as { successes: number; failures: number }
+    const deathSaves = c.deathSaves
     lines.push(`Death Saves: ${deathSaves.successes} successes / ${deathSaves.failures} failures`)
   }
 
   if (c.heroicInspiration) lines.push(`Heroic Inspiration: Yes`)
 
-  const resistances = (c.resistances as string[]) || []
-  const immunities = (c.immunities as string[]) || []
-  const vulnerabilities = (c.vulnerabilities as string[]) || []
+  const resistances = c.resistances || []
+  const immunities = c.immunities || []
+  const vulnerabilities = c.vulnerabilities || []
   if (resistances.length > 0) lines.push(`Resistances: ${resistances.join(', ')}`)
   if (immunities.length > 0) lines.push(`Immunities: ${immunities.join(', ')}`)
   if (vulnerabilities.length > 0) lines.push(`Vulnerabilities: ${vulnerabilities.join(', ')}`)

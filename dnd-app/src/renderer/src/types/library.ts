@@ -1,25 +1,12 @@
-export interface BaseLibraryEntry {
-  id: string
-  name: string
-  source?: string
-  description?: string
-  createdAt?: string
-  updatedAt?: string
-  pluginId?: string
-}
+// Phase 28d — the library reference types in the Character5e transitive closure
+// (BaseLibraryEntry, LibraryEntry, DeepPartial, EntryRef, MergedEntry) moved to
+// `src/shared/types/library.ts` so the Electron main process can reach them.
+// Re-exported here so existing renderer imports keep resolving unchanged; the
+// runtime guard (isEntryRef), library catalog types, and LIBRARY_GROUPS data
+// below stay in this file.
+export type { BaseLibraryEntry, DeepPartial, EntryRef, LibraryEntry, MergedEntry } from '../../../shared/types/library'
 
-export type LibraryEntry<_C extends string = string> = BaseLibraryEntry & Record<string, unknown>
-
-export type DeepPartial<T> =
-  T extends ReadonlyArray<infer _U> ? T : T extends object ? { [K in keyof T]?: DeepPartial<T[K]> } : T
-
-export interface EntryRef<C extends string = string> {
-  entryId: string
-  entryType: C
-  overrides?: DeepPartial<LibraryEntry<C>>
-}
-
-export type MergedEntry<C extends string = string> = LibraryEntry<C>
+import type { BaseLibraryEntry, EntryRef } from '../../../shared/types/library'
 
 export function isEntryRef(value: unknown): value is EntryRef {
   if (typeof value !== 'object' || value === null) return false

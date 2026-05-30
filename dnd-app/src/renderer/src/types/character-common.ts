@@ -1,13 +1,25 @@
-export interface AbilityScoreSet {
-  strength: number
-  dexterity: number
-  constitution: number
-  intelligence: number
-  wisdom: number
-  charisma: number
-}
+// Phase 28d — the type-only members in the `Character5e` transitive closure
+// (AbilityScoreSet, AbilityName, MagicItemRarity5e, CampaignHistoryEntry,
+// SpellEntry, WeaponEntry, ArmorEntry, Currency, ClassFeatureEntry,
+// ActiveCondition, ClassResource) moved to `src/shared/types/character-common.ts`
+// so the Electron main process can reach them. They are re-exported here so all
+// existing renderer imports keep resolving unchanged. Runtime values (constants,
+// helper functions) and renderer-only types stay in this file.
+export type {
+  AbilityName,
+  AbilityScoreSet,
+  ActiveCondition,
+  ArmorEntry,
+  CampaignHistoryEntry,
+  ClassFeatureEntry,
+  ClassResource,
+  Currency,
+  MagicItemRarity5e,
+  SpellEntry,
+  WeaponEntry
+} from '../../../shared/types/character-common'
 
-export type AbilityName = keyof AbilityScoreSet
+import type { AbilityName } from '../../../shared/types/character-common'
 
 export const ABILITY_NAMES: AbilityName[] = [
   'strength',
@@ -19,8 +31,6 @@ export const ABILITY_NAMES: AbilityName[] = [
 ]
 
 export type Rarity = 'common' | 'uncommon' | 'rare' | 'unique'
-
-export type MagicItemRarity5e = 'common' | 'uncommon' | 'rare' | 'very-rare' | 'legendary' | 'artifact'
 
 export type BuildSlotCategory =
   | 'ancestry'
@@ -105,14 +115,6 @@ export function abilityModifier(score: number): number {
   return Math.floor((score - 10) / 2)
 }
 
-export interface CampaignHistoryEntry {
-  campaignId: string
-  campaignName: string
-  joinedAt: string
-  leftAt?: string
-  role: 'player' | 'dm'
-}
-
 export function formatMod(mod: number): string {
   return mod >= 0 ? `+${mod}` : `${mod}`
 }
@@ -125,103 +127,8 @@ export function isBloodied(currentHP: number, maxHP: number): boolean {
   return currentHP > 0 && currentHP <= Math.floor(maxHP / 2)
 }
 
-// === Character-sheet entry shapes ===
-// NOTE (15h): SpellEntry/WeaponEntry/ArmorEntry/ClassFeatureEntry are the LIVE
-// character-sheet shapes (~136 references). The EntryRef/v4-schema migration that
-// would replace them — plus the MigrationReportModal + orphan-detection UX — is
-// gated on the dormant v3.0.0 schema flip (CURRENT_SCHEMA_VERSION still 3). Do not
-// "finish removing" these until that flip lands, or the sheet breaks.
-
-export interface SpellEntry {
-  id: string
-  // boundary-allow: legacy entry-shape interface still live across the character sheet (~136 refs); EntryRef/v4-schema removal is deferred to the dormant v3.0.0 flip (15h)
-  name: string
-  level: number
-  description: string
-  castingTime: string
-  range: string
-  duration: string
-  components: string
-  school?: string
-  concentration?: boolean
-  ritual?: boolean
-  traditions?: string[]
-  traits?: string[]
-  heightened?: Record<string, string>
-  higherLevels?: string
-  classes?: string[]
-  prepared?: boolean
-  source?: 'species' | 'class' | 'feat' | 'item'
-  innateUses?: { max: number; remaining: number }
-}
-
-export interface WeaponEntry {
-  id: string
-  name: string
-  damage: string
-  damageType: string
-  attackBonus: number
-  properties: string[]
-  description?: string
-  hands?: string
-  group?: string
-  bulk?: string
-  range?: string
-  proficient?: boolean
-  mastery?: string
-  cost?: string
-  weight?: number
-}
-
-export interface ArmorEntry {
-  id: string
-  name: string
-  acBonus: number
-  equipped: boolean
-  type: 'armor' | 'shield' | 'clothing'
-  description?: string
-  category?: string
-  dexCap?: number | null
-  stealthDisadvantage?: boolean
-  checkPenalty?: number
-  speedPenalty?: number
-  strength?: number
-  bulk?: number
-  hardness?: number
-  shieldHP?: number
-  shieldBT?: number
-  currentShieldHP?: number
-  cost?: string
-  weight?: number
-}
-
-export interface Currency {
-  cp: number
-  sp: number
-  gp: number
-  pp: number
-  ep?: number
-}
-
-export interface ClassFeatureEntry {
-  // boundary-allow: legacy entry-shape interface still live across the character sheet (~136 refs); EntryRef/v4-schema removal is deferred to the dormant v3.0.0 flip (15h)
-  level: number
-  name: string
-  source: string
-  description: string
-}
-
-export interface ActiveCondition {
-  name: string
-  type: 'condition' | 'buff'
-  isCustom: boolean
-  value?: number
-}
-
-export interface ClassResource {
-  id: string
-  name: string
-  current: number
-  max: number
-  shortRestRestore: number | 'all'
-}
+// Phase 28d — the entry-shape types (SpellEntry/WeaponEntry/ArmorEntry/
+// ClassFeatureEntry), Currency, ActiveCondition, and ClassResource moved to
+// `src/shared/types/character-common.ts` (re-exported at the top of this file).
+// The 15h note about these being the LIVE character-sheet shapes gated on the
+// dormant v3.0.0 schema flip now lives alongside the definitions there.

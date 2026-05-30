@@ -1,3 +1,5 @@
+import type { Character5eV3, Feature } from '../../shared/types/character-5e'
+import type { AbilityName } from '../../shared/types/character-common'
 import { logToFile } from '../log'
 import { loadCharacter, saveCharacter } from '../storage/character-storage'
 import { repairJson, StatChangesBlockSchema, type ValidationIssue, validateStatChanges } from './ai-schemas'
@@ -61,20 +63,31 @@ export function stripStatChanges(response: string): string {
   return response.replace(/\s*\[STAT_CHANGES\][\s\S]*?\[\/STAT_CHANGES\]\s*/g, '').trim()
 }
 
+interface SpellSlot {
+  current: number
+  max: number
+}
+
+/** Short-form ability key used by the `set_ability_score` AI mutation. */
+type AbilityShort = 'str' | 'dex' | 'con' | 'int' | 'wis' | 'cha'
+
+// Phase 28d — persisted characters are still the v3 inline-array shape at runtime
+// (CURRENT_SCHEMA_VERSION === 3; the v4 ref migration is dormant until v3.0.0), so
+// these mutation functions type `char` as `Character5eV3` — the canonical type that
+// carries the inline `conditions`/`weapons`/`armor` fields this logic reads and writes.
+// Character5eV3 fields are mutable, so the apply step writes back in place without casts.
+
 /** Find the spell slot record for a given level, checking both regular and Pact Magic slots. */
-function findSlotRecord(
-  char: Record<string, unknown>,
-  level: number
-): { slot: { current: number; max: number }; isPact: boolean } | null {
-  const regularSlots = char.spellSlotLevels as Record<number, { current: number; max: number }> | undefined
+function findSlotRecord(char: Character5eV3, level: number): { slot: SpellSlot; isPact: boolean } | null {
+  const regularSlots = char.spellSlotLevels
   if (regularSlots?.[level]) return { slot: regularSlots[level], isPact: false }
-  const pactSlots = char.pactMagicSlotLevels as Record<number, { current: number; max: number }> | undefined
+  const pactSlots = char.pactMagicSlotLevels
   if (pactSlots?.[level]) return { slot: pactSlots[level], isPact: true }
   return null
 }
 
 /** Validate a single change against a 5e character. */
-function validateChange(char: Record<string, unknown>, change: StatChange): string | null {
+function validateChange(char: Character5eV3, change: StatChange): string | null {
   switch (change.type) {
     case 'damage':
       return change.value <= 0 ? 'Damage must be positive' : null
@@ -83,13 +96,13 @@ function validateChange(char: Record<string, unknown>, change: StatChange): stri
     case 'temp_hp':
       return change.value < 0 ? 'Temp HP must be non-negative' : null
     case 'add_condition': {
-      const conditions = (char.conditions as Array<{ name: string }>) || []
+      const conditions = char.conditions || []
       return conditions.some((c) => c.name.toLowerCase() === change.name.toLowerCase())
         ? `Already has condition: ${change.name}`
         : null
     }
     case 'remove_condition': {
-      const conditions = (char.conditions as Array<{ name: string }>) || []
+      const conditions = char.conditions || []
       return !conditions.some((c) => c.name.toLowerCase() === change.name.toLowerCase())
         ? `Does not have condition: ${change.name}`
         : null
@@ -110,7 +123,7 @@ function validateChange(char: Record<string, unknown>, change: StatChange): stri
     case 'add_item':
       return null
     case 'remove_item': {
-      const equipment = (char.equipment as Array<{ name: string; quantity: number }>) || []
+      const equipment = char.equipment || []
       const item = equipment.find((e) => e.name.toLowerCase() === change.name.toLowerCase())
       if (!item) return `Item not found: ${change.name}`
       const qty = change.quantity ?? 1
@@ -118,21 +131,21 @@ function validateChange(char: Record<string, unknown>, change: StatChange): stri
     }
     case 'gold': {
       const denom = change.denomination ?? 'gp'
-      const treasure = char.treasure as Record<string, number>
+      const treasure = char.treasure
       const current = treasure?.[denom] ?? 0
       return current + change.value < 0 ? `Not enough ${denom} (have ${current}, need ${-change.value})` : null
     }
     case 'xp':
       return change.value <= 0 ? 'XP must be positive' : null
     case 'use_class_resource': {
-      const resources = char.classResources as Array<{ name: string; current: number; max: number }> | undefined
+      const resources = char.classResources
       const resource = resources?.find((r) => r.name.toLowerCase() === change.name.toLowerCase())
       if (!resource) return `Class resource not found: ${change.name}`
       const amount = change.amount ?? 1
       return resource.current < amount ? `Not enough ${change.name} (have ${resource.current})` : null
     }
     case 'restore_class_resource': {
-      const resources = char.classResources as Array<{ name: string; current: number; max: number }> | undefined
+      const resources = char.classResources
       return !resources?.find((r) => r.name.toLowerCase() === change.name.toLowerCase())
         ? `Class resource not found: ${change.name}`
         : null
@@ -142,9 +155,9 @@ function validateChange(char: Record<string, unknown>, change: StatChange): stri
     case 'npc_attitude':
       return null // Informational only — logged in chat, not applied to character
     case 'hit_dice': {
-      const hitDice = char.hitDice as Array<{ current: number; maximum: number; dieType: number }> | undefined
-      const remaining = hitDice ? hitDice.reduce((s, h) => s + h.current, 0) : (char.level as number)
-      const max = hitDice ? hitDice.reduce((s, h) => s + h.maximum, 0) : (char.level as number)
+      const hitDice = char.hitDice
+      const remaining = hitDice ? hitDice.reduce((s, h) => s + h.current, 0) : char.level
+      const max = hitDice ? hitDice.reduce((s, h) => s + h.maximum, 0) : char.level
       const newVal = remaining + change.value
       if (newVal < 0) return `Not enough hit dice (have ${remaining})`
       if (newVal > max) return `Hit dice cannot exceed maximum (${max})`
@@ -166,7 +179,7 @@ function validateChange(char: Record<string, unknown>, change: StatChange): stri
     case 'revoke_feature':
       return null
     case 'reduce_exhaustion': {
-      const conditions = (char.conditions as Array<{ name: string; value?: number }>) || []
+      const conditions = char.conditions || []
       return !conditions.some((c) => c.name.toLowerCase() === 'exhaustion') ? 'No exhaustion to reduce' : null
     }
     default:
@@ -175,10 +188,10 @@ function validateChange(char: Record<string, unknown>, change: StatChange): stri
 }
 
 /** Apply a single mutation to the character object in place. */
-function applyChange(char: Record<string, unknown>, change: StatChange): void {
+function applyChange(char: Character5eV3, change: StatChange): void {
   switch (change.type) {
     case 'damage': {
-      const hp = char.hitPoints as { current: number; maximum: number; temporary: number }
+      const hp = char.hitPoints
       let remaining = change.value
       if (hp.temporary > 0) {
         const absorbed = Math.min(hp.temporary, remaining)
@@ -189,32 +202,30 @@ function applyChange(char: Record<string, unknown>, change: StatChange): void {
       break
     }
     case 'heal': {
-      const hp = char.hitPoints as { current: number; maximum: number; temporary: number }
+      const hp = char.hitPoints
       const wasZero = hp.current === 0
       hp.current = Math.min(hp.maximum, hp.current + change.value)
       if (wasZero && hp.current > 0) {
-        ;(char.deathSaves as { successes: number; failures: number }) = { successes: 0, failures: 0 }
+        char.deathSaves = { successes: 0, failures: 0 }
       }
       break
     }
     case 'temp_hp': {
-      const hp = char.hitPoints as { current: number; maximum: number; temporary: number }
+      const hp = char.hitPoints
       hp.temporary = Math.max(hp.temporary, change.value)
       break
     }
     case 'add_condition': {
-      const conditions = char.conditions as Array<{ name: string; type: string; isCustom: boolean }>
+      const conditions = char.conditions!
       conditions.push({ name: change.name, type: 'condition', isCustom: false })
       break
     }
     case 'remove_condition': {
-      char.conditions = (char.conditions as Array<{ name: string }>).filter(
-        (c) => c.name.toLowerCase() !== change.name.toLowerCase()
-      )
+      char.conditions = char.conditions!.filter((c) => c.name.toLowerCase() !== change.name.toLowerCase())
       break
     }
     case 'death_save': {
-      const ds = char.deathSaves as { successes: number; failures: number }
+      const ds = char.deathSaves
       if (change.success) {
         ds.successes = Math.min(3, ds.successes + 1)
       } else {
@@ -223,7 +234,7 @@ function applyChange(char: Record<string, unknown>, change: StatChange): void {
       break
     }
     case 'reset_death_saves': {
-      ;(char.deathSaves as { successes: number; failures: number }) = { successes: 0, failures: 0 }
+      char.deathSaves = { successes: 0, failures: 0 }
       break
     }
     case 'expend_spell_slot': {
@@ -238,7 +249,7 @@ function applyChange(char: Record<string, unknown>, change: StatChange): void {
       break
     }
     case 'add_item': {
-      const equipment = char.equipment as Array<{ name: string; quantity: number; description?: string }>
+      const equipment = char.equipment
       const existing = equipment.find((e) => e.name.toLowerCase() === change.name.toLowerCase())
       if (existing) {
         existing.quantity += change.quantity ?? 1
@@ -248,7 +259,7 @@ function applyChange(char: Record<string, unknown>, change: StatChange): void {
       break
     }
     case 'remove_item': {
-      const equipment = char.equipment as Array<{ name: string; quantity: number }>
+      const equipment = char.equipment
       const item = equipment.find((e) => e.name.toLowerCase() === change.name.toLowerCase())
       if (item) {
         item.quantity -= change.quantity ?? 1
@@ -260,28 +271,28 @@ function applyChange(char: Record<string, unknown>, change: StatChange): void {
     }
     case 'gold': {
       const denom = change.denomination ?? 'gp'
-      const treasure = char.treasure as Record<string, number>
+      const treasure = char.treasure
       treasure[denom] = Math.max(0, (treasure[denom] ?? 0) + change.value)
       break
     }
     case 'xp': {
-      ;(char as Record<string, unknown>).xp = ((char.xp as number) || 0) + change.value
+      char.xp = (char.xp || 0) + change.value
       break
     }
     case 'use_class_resource': {
-      const resources = char.classResources as Array<{ name: string; current: number; max: number }>
+      const resources = char.classResources!
       const resource = resources.find((r) => r.name.toLowerCase() === change.name.toLowerCase())!
       resource.current = Math.max(0, resource.current - (change.amount ?? 1))
       break
     }
     case 'restore_class_resource': {
-      const resources = char.classResources as Array<{ name: string; current: number; max: number }>
+      const resources = char.classResources!
       const resource = resources.find((r) => r.name.toLowerCase() === change.name.toLowerCase())!
       resource.current = Math.min(resource.max, resource.current + (change.amount ?? resource.max))
       break
     }
     case 'heroic_inspiration': {
-      ;(char as Record<string, unknown>).heroicInspiration = change.grant
+      char.heroicInspiration = change.grant
       break
     }
     case 'npc_attitude': {
@@ -289,7 +300,7 @@ function applyChange(char: Record<string, unknown>, change: StatChange): void {
       break
     }
     case 'hit_dice': {
-      const hitDice = char.hitDice as Array<{ current: number; maximum: number; dieType: number }> | undefined
+      const hitDice = char.hitDice
       if (hitDice && hitDice.length > 0) {
         let delta = change.value
         if (delta > 0) {
@@ -312,7 +323,7 @@ function applyChange(char: Record<string, unknown>, change: StatChange): void {
       break
     }
     case 'set_ability_score': {
-      const abilityMap: Record<string, string> = {
+      const abilityMap: Record<AbilityShort, AbilityName> = {
         str: 'strength',
         dex: 'dexterity',
         con: 'constitution',
@@ -320,39 +331,40 @@ function applyChange(char: Record<string, unknown>, change: StatChange): void {
         wis: 'wisdom',
         cha: 'charisma'
       }
-      const abilityScores = char.abilityScores as Record<string, number> | undefined
-      if (abilityScores) {
-        const fullName = abilityMap[change.ability]
-        if (fullName) abilityScores[fullName] = change.value
-        // Also update short-form keys if present
-        abilityScores[change.ability] = change.value
-      }
+      const abilityScores = char.abilityScores
+      const fullName = abilityMap[change.ability]
+      if (fullName)
+        abilityScores[fullName] = change.value
+        // Also update short-form keys if a legacy character carries them. Short keys
+        // (str/dex/…) aren't part of the canonical AbilityScoreSet, so this writes
+        // through a record view of the same object — behavior preserved from the prior
+        // `as Record<string, number>` cast.
+      ;(abilityScores as unknown as Record<string, number>)[change.ability] = change.value
       break
     }
     case 'grant_feature': {
-      const features = char.features as
-        | Array<{ id: string; name: string; description?: string; source?: string }>
-        | undefined
-      if (features) {
-        features.push({
-          id: crypto.randomUUID(),
-          name: change.name,
-          description: change.description,
-          source: 'AI DM'
-        })
-      }
+      // AI-DM-granted features carry a runtime `id` (for later removal by the sheet)
+      // that the canonical `Feature` shape doesn't model, and `description` may be
+      // absent at runtime. The persisted `features` array is structurally looser than
+      // `Feature`; this narrows to that runtime shape so the id + optional description
+      // ride along exactly as before (no JSON-shape change).
+      const features = char.features as Array<Omit<Feature, 'description'> & { id?: string; description?: string }>
+      features.push({
+        id: crypto.randomUUID(),
+        name: change.name,
+        description: change.description,
+        source: 'AI DM'
+      })
       break
     }
     case 'revoke_feature': {
-      const features = char.features as Array<{ id: string; name: string }> | undefined
-      if (features) {
-        const idx = features.findIndex((f) => f.name.toLowerCase() === change.name.toLowerCase())
-        if (idx !== -1) features.splice(idx, 1)
-      }
+      const features = char.features
+      const idx = features.findIndex((f) => f.name.toLowerCase() === change.name.toLowerCase())
+      if (idx !== -1) features.splice(idx, 1)
       break
     }
     case 'reduce_exhaustion': {
-      const conditions = char.conditions as Array<{ name: string; value?: number }> | undefined
+      const conditions = char.conditions
       const exh = conditions?.find((c) => c.name.toLowerCase() === 'exhaustion')
       if (exh) {
         if (exh.value && exh.value > 1) {
@@ -375,7 +387,9 @@ export async function applyMutations(characterId: string, changes: StatChange[])
     return { applied: [], rejected: changes.map((c) => ({ change: c, reason: 'Character not found' })) }
   }
 
-  const char = result.data as unknown as Record<string, unknown>
+  // One narrowing at the opaque-storage boundary: storage returns persisted JSON
+  // typed as `Record<string, unknown>`, which at runtime is the v3 character shape.
+  const char = result.data as unknown as Character5eV3
   const applied: StatChange[] = []
   const rejected: Array<{ change: StatChange; reason: string }> = []
 
@@ -390,8 +404,8 @@ export async function applyMutations(characterId: string, changes: StatChange[])
   }
 
   if (applied.length > 0) {
-    ;(char as Record<string, unknown>).updatedAt = new Date().toISOString()
-    await saveCharacter(char as Record<string, unknown>)
+    char.updatedAt = new Date().toISOString()
+    await saveCharacter(char as unknown as Record<string, unknown>)
   }
 
   return { applied, rejected }
@@ -410,11 +424,12 @@ export async function applyLongRestMutations(characterId: string): Promise<Mutat
     }
   }
 
-  const char = result.data as unknown as Record<string, unknown>
+  // One narrowing at the opaque-storage boundary (see applyMutations).
+  const char = result.data as unknown as Character5eV3
   const changes: StatChange[] = []
 
   // Restore HP to max and clear temp HP
-  const hp = char.hitPoints as { current: number; maximum: number; temporary: number } | undefined
+  const hp = char.hitPoints
   if (hp) {
     if (hp.current < hp.maximum) {
       changes.push({ type: 'heal', value: hp.maximum - hp.current, reason: 'long rest' })
@@ -426,7 +441,7 @@ export async function applyLongRestMutations(characterId: string): Promise<Mutat
   }
 
   // Restore all spell slots to max
-  const regularSlots = char.spellSlotLevels as Record<string, { current: number; max: number }> | undefined
+  const regularSlots = char.spellSlotLevels
   if (regularSlots) {
     for (const [levelStr, slot] of Object.entries(regularSlots)) {
       const level = Number(levelStr)
@@ -437,7 +452,7 @@ export async function applyLongRestMutations(characterId: string): Promise<Mutat
   }
 
   // Pact Magic slots also restore on long rest (in addition to short rest)
-  const pactSlots = char.pactMagicSlotLevels as Record<string, { current: number; max: number }> | undefined
+  const pactSlots = char.pactMagicSlotLevels
   if (pactSlots) {
     for (const [levelStr, slot] of Object.entries(pactSlots)) {
       const level = Number(levelStr)
@@ -448,7 +463,7 @@ export async function applyLongRestMutations(characterId: string): Promise<Mutat
   }
 
   // Restore all class resources
-  const resources = char.classResources as Array<{ name: string; current: number; max: number }> | undefined
+  const resources = char.classResources
   if (resources) {
     for (const resource of resources) {
       if (resource.current < resource.max) {
@@ -458,7 +473,7 @@ export async function applyLongRestMutations(characterId: string): Promise<Mutat
   }
 
   // Restore half total hit dice (min 1)
-  const hitDice = char.hitDice as Array<{ current: number; maximum: number; dieType: number }> | undefined
+  const hitDice = char.hitDice
   if (hitDice && hitDice.length > 0) {
     const totalMax = hitDice.reduce((s, h) => s + h.maximum, 0)
     const totalCurrent = hitDice.reduce((s, h) => s + h.current, 0)
@@ -470,7 +485,7 @@ export async function applyLongRestMutations(characterId: string): Promise<Mutat
   }
 
   // PHB 2024: Long rest reduces Exhaustion by 1 level
-  const conditions = char.conditions as Array<{ name: string; value?: number }> | undefined
+  const conditions = char.conditions
   const exhaustion = conditions?.find((c) => c.name.toLowerCase() === 'exhaustion')
   if (exhaustion) {
     changes.push({ type: 'reduce_exhaustion', reason: 'long rest' })
@@ -494,8 +509,8 @@ export async function applyLongRestMutations(characterId: string): Promise<Mutat
   }
 
   if (applied.length > 0) {
-    ;(char as Record<string, unknown>).updatedAt = new Date().toISOString()
-    await saveCharacter(char as Record<string, unknown>)
+    char.updatedAt = new Date().toISOString()
+    await saveCharacter(char as unknown as Record<string, unknown>)
   }
   return { applied, rejected }
 }
@@ -510,11 +525,12 @@ export async function applyShortRestMutations(characterId: string): Promise<Muta
     return { applied: [], rejected: [] }
   }
 
-  const char = result.data as unknown as Record<string, unknown>
+  // One narrowing at the opaque-storage boundary (see applyMutations).
+  const char = result.data as unknown as Character5eV3
   const changes: StatChange[] = []
 
   // Restore Pact Magic slots to max (Warlock short rest recovery)
-  const pactSlots = char.pactMagicSlotLevels as Record<string, { current: number; max: number }> | undefined
+  const pactSlots = char.pactMagicSlotLevels
   if (pactSlots) {
     for (const [levelStr, slot] of Object.entries(pactSlots)) {
       const level = Number(levelStr)
@@ -524,16 +540,21 @@ export async function applyShortRestMutations(characterId: string): Promise<Muta
     }
   }
 
-  // Restore short-rest class resources (those that recharge on short rest)
-  // We restore all class resources since we can't easily distinguish short vs long rest resources.
-  // The system prompt instructs the DM to only trigger short_rest when appropriate.
-  const resources = char.classResources as
-    | Array<{ name: string; current: number; max: number; recharge?: string }>
-    | undefined
+  // Restore short-rest class resources. A resource recharges on a short rest
+  // when `shortRestRestore !== 0` (mirrors rest-service-5e.ts, the canonical
+  // renderer rest path). `'all'` restores to max (no amount → applyChange caps
+  // at max); a number restores that many, capped at max. (28d: the old branch
+  // gated on a non-existent `recharge === 'short'` field and never fired.)
+  const resources = char.classResources
   if (resources) {
     for (const resource of resources) {
-      if (resource.current < resource.max && resource.recharge === 'short') {
-        changes.push({ type: 'restore_class_resource', name: resource.name, reason: 'short rest' })
+      if (resource.shortRestRestore !== 0 && resource.current < resource.max) {
+        changes.push({
+          type: 'restore_class_resource',
+          name: resource.name,
+          amount: resource.shortRestRestore === 'all' ? undefined : resource.shortRestRestore,
+          reason: 'short rest'
+        })
       }
     }
   }
@@ -555,8 +576,8 @@ export async function applyShortRestMutations(characterId: string): Promise<Muta
   }
 
   if (applied.length > 0) {
-    ;(char as Record<string, unknown>).updatedAt = new Date().toISOString()
-    await saveCharacter(char as Record<string, unknown>)
+    char.updatedAt = new Date().toISOString()
+    await saveCharacter(char as unknown as Record<string, unknown>)
   }
   return { applied, rejected }
 }

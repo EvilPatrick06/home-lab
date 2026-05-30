@@ -1,19 +1,8 @@
-export type CompanionType = 'familiar' | 'wildShape' | 'steed' | 'summoned'
-
-export interface Companion5e {
-  id: string
-  type: CompanionType
-  name: string
-  monsterStatBlockId: string
-  currentHP: number
-  maxHP: number
-  tokenId?: string // linked MapToken.id when placed on map
-  ownerId: string // Character5e.id
-  dismissed: boolean // familiars can be dismissed to pocket dimension
-  sourceSpell?: string // "find-familiar", "find-steed", "summon-beast"
-  concentrationCasterId?: string
-  createdAt: string
-}
+// Phase 28d — CompanionType and Companion5e moved to
+// `src/shared/types/companion.ts` so the Electron main process can reach them
+// (they're in the Character5e transitive closure). Re-exported here so existing
+// renderer imports keep resolving unchanged; the runtime constants below stay.
+export type { Companion5e, CompanionType } from '../../../shared/types/companion'
 
 export const STANDARD_FAMILIAR_FORMS = [
   'bat',

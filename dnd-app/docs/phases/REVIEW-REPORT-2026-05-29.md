@@ -53,7 +53,7 @@ Only open/actionable items: problems, errors, security concerns, suggestions, ou
 | **34** i18n sweep | 34a foundation shipped; 34b–34j string sweeps, 34k lint+key-gen, 34l docs remain. No `useT()` consumers yet. | none — large per-area churn |
 
 **Phase 28 tail** (security/AI/network/docs groups done; these remain):
-- **28d** type the character pipeline (`stat-mutations.ts` still `Record<string,unknown>`); `as unknown as` sweep (~194 non-test sites); save-queue dead no-op (`save-queue.ts:41-50`); UUID-truncation audit (~20 sites). *(migrateData return-value contract already done.)*
+- **28d** — pipeline typing **done** (`Character5e` tree → `src/shared/types/{character-5e,character-common,companion,library}.ts`, re-exported; `stat-mutations.ts` + `character-context.ts` type `char` as `Character5eV3`, ~57 inline casts removed). Save-queue dead no-op **fixed** (`save-queue.ts` now prunes the map). UUID-truncation audit **done** (all sites pair the slice with a ms timestamp → collision-safe; hardened the one no-timestamp site). Short-rest class-resource no-op **fixed** (`shortRestRestore !== 0`). Remaining: `as unknown as` sweep (~194 non-test sites).
 - **28f** UI polish: `<div onClick>` → `<button>` (74 sites); centralized color tokens. *(window min-size + long-list virtualization already done.)*
 - **28h** test coverage: baseline gate, lobby/onboarding flow tests, BrowserWindow security regression spec. *(Current `LobbyPage.test.tsx` is import-smoke only; `vitest.config.ts` coverage scoped to `services/**`+`data/**`, no thresholds.)*
 - **28i** 9 narrow coverage-gap audits.

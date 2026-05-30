@@ -30,27 +30,31 @@ export async function withSaveLock<T>(scope: string, id: string, fn: () => Promi
   )
 
   // Store a never-rejecting handle so subsequent callers don't trip on error.
-  queues.set(
-    key,
-    next.catch(() => undefined)
-  )
+  // Keep the SAME reference we store so the finally below can identity-compare
+  // against it (the old code re-created `next.catch(...)`, a fresh promise, so
+  // the equality check always failed and the map was never pruned).
+  const handle = next.catch(() => undefined)
+  queues.set(key, handle)
 
   try {
     return await next
   } finally {
-    // Clean up if no one else queued behind us. Avoids unbounded growth of
-    // the map over the lifetime of the app.
-    if (queues.get(key) === next.catch(() => undefined)) {
-      // (the catch wrapper above is a *new* promise, so the equality check
-      //  always fails — fall through to the simpler "delete if last" below)
+    // Delete the entry only if no later caller has queued behind us (which
+    // would have replaced the stored handle). This bounds the map to the set
+    // of ids with an in-flight save, instead of growing by O(unique ids) for
+    // the lifetime of the app.
+    if (queues.get(key) === handle) {
+      queues.delete(key)
     }
-    // Safe simpler cleanup: just leave it. The map grows by O(unique ids),
-    // which for a campaign-scoped app is bounded by hundreds — well within
-    // memory budget. If this becomes a concern, switch to a WeakRef strategy.
   }
 }
 
 /** TEST ONLY — clear all queue state. */
 export function _resetSaveQueueForTest(): void {
   queues.clear()
+}
+
+/** TEST ONLY — number of live queue entries (asserts cleanup bounds the map). */
+export function _saveQueueSizeForTest(): number {
+  return queues.size
 }

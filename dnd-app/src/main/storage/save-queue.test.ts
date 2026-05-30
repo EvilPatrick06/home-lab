@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { _resetSaveQueueForTest, withSaveLock } from './save-queue'
+import { _resetSaveQueueForTest, _saveQueueSizeForTest, withSaveLock } from './save-queue'
 
 describe('withSaveLock', () => {
   beforeEach(() => {
@@ -82,6 +82,28 @@ describe('withSaveLock', () => {
     expect(order[1]).toBe('B:start')
     expect(order[2]).toBe('B:end')
     expect(order[3]).toBe('A:end')
+  })
+
+  it('prunes the queue map once all work for a key settles', async () => {
+    expect(_saveQueueSizeForTest()).toBe(0)
+    await withSaveLock('character', 'id-1', async () => 1)
+    // After the only caller settles, its entry must be deleted (no leak).
+    expect(_saveQueueSizeForTest()).toBe(0)
+
+    // Concurrent calls collapse back to 0 once both finish.
+    await Promise.all([
+      withSaveLock('character', 'id-2', async () => 2),
+      withSaveLock('character', 'id-2', async () => 3),
+      withSaveLock('campaign', 'id-2', async () => 4)
+    ])
+    expect(_saveQueueSizeForTest()).toBe(0)
+  })
+
+  it('prunes the map even when a save throws', async () => {
+    await withSaveLock('test', 'boom', async () => {
+      throw new Error('x')
+    }).catch(() => undefined)
+    expect(_saveQueueSizeForTest()).toBe(0)
   })
 
   it("propagates fn errors but doesn't poison the lock", async () => {

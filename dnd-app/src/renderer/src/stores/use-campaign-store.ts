@@ -256,7 +256,9 @@ export const useCampaignStore = create<CampaignState>((set, get) => ({
       if (!role) return perms
       const copy: Role = {
         ...role,
-        id: `role-${crypto.randomUUID().slice(0, 8)}`,
+        // 28d: pair the truncated UUID with a ms timestamp like every other ID
+        // site, so a collision needs same-ms generation AND a uuid8 match.
+        id: `role-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
         name: `${role.name} (Copy)`,
         isBuiltIn: false,
         permissions: [...role.permissions]
