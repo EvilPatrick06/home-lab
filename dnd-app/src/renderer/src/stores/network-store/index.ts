@@ -27,6 +27,11 @@ import {
   stopHosting
 } from '../../network'
 import { GameAuthority } from '../../network/authority/game-authority'
+import { createShardApplier } from '../../network/sync/applier'
+import { createShardBroadcaster } from '../../network/sync/broadcaster'
+// Phase 31e — importing the shard barrel runs each shard module's top-level
+// registerShard() so the broadcaster/applier below see the migrated features.
+import '../../network/sync/shards'
 import { createP2PTransport } from '../../network/transport/p2p-transport'
 import { hasPermission } from '../../services/permissions/has-permission'
 import { useCampaignStore } from '../use-campaign-store'
@@ -98,6 +103,13 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
       const hostAuthority = new GameAuthority(createP2PTransport())
       hostAuthority.registerDefault((message, ctx) => handleHostMessage(message, ctx.peerId, get, set))
       hostAuthority.start()
+      // Phase 31e — the host's per-shard state (conditions, …) now streams to
+      // clients via the shard broadcaster (`sync:delta`) instead of the bespoke
+      // per-change broadcasts in startGameSync. It subscribes to every shard
+      // registered by the barrel import above.
+      const shardBroadcaster = createShardBroadcaster(createP2PTransport())
+      shardBroadcaster.start()
+      listenerCleanups.push(() => shardBroadcaster.stop())
       listenerCleanups.push(
         onPeerJoined((peer: PeerInfo) => {
           get().addPeer(peer)
@@ -250,6 +262,14 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
         onClientMessage((message: NetworkMessage) => {
           handleClientMessage(message, get, set)
         }),
+        (() => {
+          // Phase 31e — the client applies host shard deltas (`sync:delta`) via
+          // the shard applier, which writes received conditions back into the
+          // game store. Stopped on disconnect by clearListenerCleanups().
+          const shardApplier = createShardApplier(createP2PTransport())
+          shardApplier.start()
+          return () => shardApplier.stop()
+        })(),
         onDisconnected((reason: string) => {
           // Determine if this was a kick or ban based on the reason string
           let disconnectReason: 'kicked' | 'banned' | null = null

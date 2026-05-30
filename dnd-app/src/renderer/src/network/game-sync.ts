@@ -1,5 +1,5 @@
 import { useGameStore } from '../stores/use-game-store'
-import type { EntityCondition, InitiativeEntry, InitiativeState } from '../types/game-state'
+import type { InitiativeEntry, InitiativeState } from '../types/game-state'
 import type { GameMap } from '../types/map'
 import { logger } from '../utils/logger'
 import type { MessageType } from './types'
@@ -105,7 +105,6 @@ export function startGameSync(sendMessage: SendMessageFn): void {
   let prevActiveMapId: string | null = useGameStore.getState().activeMapId
   let prevInitiative: InitiativeState | null = useGameStore.getState().initiative
   let prevRound = useGameStore.getState().round
-  let prevConditions: EntityCondition[] = useGameStore.getState().conditions
   let prevTurnMode = useGameStore.getState().turnMode
   let prevIsPaused = useGameStore.getState().isPaused
   let prevTurnStates = useGameStore.getState().turnStates
@@ -173,13 +172,11 @@ export function startGameSync(sendMessage: SendMessageFn): void {
       prevRound = state.round
     }
 
-    if (state.conditions !== prevConditions) {
-      const diff = diffById(prevConditions, state.conditions)
-      if (diff.added.length || diff.removed.length || diff.updated.length) {
-        sendMessage('dm:condition-delta', diff)
-      }
-      prevConditions = state.conditions
-    }
+    // Phase 31e — conditions now stream to clients via the shard broadcaster
+    // (`sync:delta`), wired in the network store's hostGame. The bespoke
+    // `dm:condition-delta` per-change broadcast that used to live here is gone.
+    // Conditions stay in buildFullGameStatePayload so the join snapshot still
+    // seeds initial state before the shard delta stream begins.
 
     if (state.turnMode !== prevTurnMode || state.isPaused !== prevIsPaused) {
       prevTurnMode = state.turnMode
