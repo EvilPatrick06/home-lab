@@ -29,9 +29,9 @@ export function __setCloudSocketFactoryForTests(factory: CloudSocketFactory | nu
 }
 
 function genCloudPeerId(): string {
-  const c = (globalThis as { crypto?: Crypto }).crypto
-  if (c?.randomUUID) return `cloud-${c.randomUUID()}`
-  return `cloud-${Math.random().toString(36).slice(2)}-${Date.now().toString(36)}`
+  // crypto.randomUUID is always available in the Electron renderer + the Node
+  // test env (same as getOrCreateClientId); no Math.random fallback (forbidden 28e.3).
+  return `cloud-${crypto.randomUUID()}`
 }
 
 export interface CloudSessionHandle {
