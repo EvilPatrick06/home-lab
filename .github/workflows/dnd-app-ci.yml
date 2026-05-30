@@ -40,6 +40,8 @@ jobs:
         run: npm run validate:content
       - name: Tests
         run: npm test
+      - name: Coverage baseline (28h)
+        run: npm run test:coverage
       - name: Security audit
         run: npm run audit:ci
       - name: Circular deps

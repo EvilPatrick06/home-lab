@@ -10,7 +10,17 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       include: ['src/renderer/src/services/**', 'src/renderer/src/data/**'],
-      reporter: ['text', 'text-summary']
+      reporter: ['text', 'text-summary'],
+      // Phase 28h — baseline FLOOR (a few points below the current services/data
+      // coverage: stmts 64 / branch 54 / funcs 63 / lines 65). Fails CI on a real
+      // regression — a deleted suite or a big untested addition — without flaking
+      // on minor churn. Raise as coverage climbs; never set above the actual.
+      thresholds: {
+        statements: 60,
+        branches: 50,
+        functions: 58,
+        lines: 60
+      }
     }
   },
   resolve: {
