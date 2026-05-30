@@ -561,6 +561,22 @@ const InspectResponsePayloadSchema = z.object({
   targetPeerId: z.string()
 })
 
+// Phase 31c/31d — live-state sync. The delta's recursive patch structure is
+// validated structurally by `applyDelta` (not zod), so the schema only enforces
+// the envelope shape (kind + sequence + opaque payload).
+const SyncDeltaPayloadSchema = z.object({
+  shard: z.string(),
+  delta: z.object({
+    kind: z.enum(['replace', 'patch']),
+    payload: z.unknown(),
+    sequence: z.number()
+  })
+})
+
+const SyncResyncRequestPayloadSchema = z.object({
+  shard: z.string()
+})
+
 // Generic passthrough for messages with no specific payload structure
 const AnyPayloadSchema = z.unknown()
 
@@ -642,7 +658,9 @@ const PAYLOAD_SCHEMAS: Partial<Record<MessageTypeString, z.ZodType>> = {
   'player:inspect-request': InspectRequestPayloadSchema,
   'player:haggle-request': HaggleRequestPayloadSchema,
   pong: PongPayloadSchema,
-  'dm:inspect-response': InspectResponsePayloadSchema
+  'dm:inspect-response': InspectResponsePayloadSchema,
+  'sync:delta': SyncDeltaPayloadSchema,
+  'sync:resync-request': SyncResyncRequestPayloadSchema
 }
 
 // ── Validation Function ──
@@ -701,6 +719,10 @@ type _CheckReactionResponse = AssertAssignable<ReactionResponsePayload, z.infer<
 type _CheckHaggleRequest = AssertAssignable<
   import('./message-types').HaggleRequestPayload,
   z.infer<typeof HaggleRequestPayloadSchema>
+>
+type _CheckSyncResyncRequest = AssertAssignable<
+  import('./message-types').SyncResyncRequestPayload,
+  z.infer<typeof SyncResyncRequestPayloadSchema>
 >
 
 // Export for testing

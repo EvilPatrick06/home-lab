@@ -95,6 +95,8 @@ export const MESSAGE_TYPES = [
   'dm:inspect-response',
   'dm:push-macros',
   'dm:light-source-update',
+  'sync:delta',
+  'sync:resync-request',
   'ping',
   'pong',
   'batch'
@@ -660,4 +662,17 @@ export interface DrawingRemovePayload {
 
 export interface DrawingsClearPayload {
   mapId: string
+}
+
+// Phase 31c/31d — generic live-state sync. The host-side broadcaster ships a
+// per-shard `Delta` (replace or structural patch) tagged with a monotonic
+// sequence; the client-side applier applies in-order patches and requests a
+// full replace via `sync:resync-request` when it detects a sequence gap.
+export interface SyncDeltaPayload {
+  shard: string
+  delta: import('./sync/shard').Delta
+}
+
+export interface SyncResyncRequestPayload {
+  shard: string
 }
