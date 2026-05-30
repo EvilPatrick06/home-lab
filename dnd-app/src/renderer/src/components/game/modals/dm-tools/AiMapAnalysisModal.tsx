@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { getTokenStats } from '../../../../services/game/token-stats'
 import { useGameStore } from '../../../../stores/use-game-store'
 
@@ -15,6 +16,8 @@ export default function AiMapAnalysisModal({ onClose }: AiMapAnalysisModalProps)
   const activeMapId = useGameStore((s) => s.activeMapId)
   const initiative = useGameStore((s) => s.initiative)
   const conditions = useGameStore((s) => s.conditions)
+
+  useEscapeKey(onClose)
 
   const handleAnalyze = async (): Promise<void> => {
     setLoading(true)
@@ -81,7 +84,11 @@ export default function AiMapAnalysisModal({ onClose }: AiMapAnalysisModalProps)
   const tokenCount = activeMap?.tokens.length ?? 0
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={onClose}>
+    <div
+      className="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
+      onClick={onClose}
+      role="presentation"
+    >
       <div
         className="bg-gray-900 border border-gray-700 rounded-lg shadow-xl w-[640px] max-h-[80vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}

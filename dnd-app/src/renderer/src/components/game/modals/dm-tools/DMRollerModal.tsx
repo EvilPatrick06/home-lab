@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 import { trigger3dDice } from '../../../../components/game/dice3d'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import type { DiceRevealPayload } from '../../../../network'
 import type { MonsterStatBlockData } from '../../../../services/data-provider'
 import { load5eMonsterById } from '../../../../services/data-provider'
@@ -49,6 +50,8 @@ export default function DMRollerModal({ onClose, onMinimize, onRestore }: DMRoll
   const [selectedEntityId, setSelectedEntityId] = useState<string | null>(null)
   const [rollResults, setRollResults] = useState<RollResult[]>([])
   const [loadedMonsters, setLoadedMonsters] = useState<Record<string, MonsterStatBlock>>({})
+
+  useEscapeKey(onClose, !minimized)
 
   const activeMapId = useGameStore((s) => s.activeMapId)
   const maps = useGameStore((s) => s.maps)
@@ -236,7 +239,7 @@ export default function DMRollerModal({ onClose, onMinimize, onRestore }: DMRoll
 
   return (
     <div className="fixed inset-0 z-20 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-3xl w-full mx-4 shadow-2xl max-h-[85vh] flex flex-col">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold text-purple-300">DM Roller</h3>

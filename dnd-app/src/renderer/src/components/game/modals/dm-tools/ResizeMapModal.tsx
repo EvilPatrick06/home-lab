@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 
 interface ResizeMapModalProps {
   currentWidthPixels: number
@@ -18,6 +19,8 @@ export default function ResizeMapModal({
   const [width, setWidth] = useState(Math.round(currentWidthPixels / cellSize))
   const [height, setHeight] = useState(Math.round(currentHeightPixels / cellSize))
 
+  useEscapeKey(onClose)
+
   const clamp = (value: number, min: number, max: number): number => Math.max(min, Math.min(max, value))
 
   const handleResize = (): void => {
@@ -29,7 +32,7 @@ export default function ResizeMapModal({
 
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-5 max-w-sm w-full mx-4 shadow-2xl">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-gray-200">Resize Map</h3>

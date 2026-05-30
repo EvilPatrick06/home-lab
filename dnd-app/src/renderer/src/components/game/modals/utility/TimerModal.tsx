@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { useNetworkStore } from '../../../../stores/network-store'
 import { useGameStore } from '../../../../stores/use-game-store'
 
@@ -7,6 +8,7 @@ interface TimerModalProps {
 }
 
 export default function TimerModal({ onClose }: TimerModalProps): JSX.Element {
+  useEscapeKey(onClose)
   const [seconds, setSeconds] = useState(60)
   const [targetName, setTargetName] = useState('')
   const startTimer = useGameStore((s) => s.startTimer)
@@ -27,7 +29,7 @@ export default function TimerModal({ onClose }: TimerModalProps): JSX.Element {
 
   return (
     <div className="fixed inset-0 z-20 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-xs w-full mx-4 shadow-2xl">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold text-gray-200">Turn Timer</h3>

@@ -1,3 +1,4 @@
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { getEffectiveClasses, getEffectiveKnownSpells } from '../../../../services/character/effective-character-5e'
 import type { Character5e } from '../../../../types/character-5e'
 
@@ -12,11 +13,12 @@ function abilityMod(score: number): string {
 }
 
 export default function CharacterInspectModal({ characterData, onClose }: CharacterInspectModalProps): JSX.Element {
+  useEscapeKey(onClose)
   const char = characterData as Character5e
   if (!char || !char.name) {
     return (
       <div className="fixed inset-0 z-20 flex items-center justify-center">
-        <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+        <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
         <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-md w-full mx-4 shadow-2xl">
           <p className="text-xs text-gray-400">No character data available.</p>
           <button
@@ -62,7 +64,7 @@ export default function CharacterInspectModal({ characterData, onClose }: Charac
 
   return (
     <div className="fixed inset-0 z-20 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-2xl w-full mx-4 shadow-2xl max-h-[85vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between mb-3 shrink-0">

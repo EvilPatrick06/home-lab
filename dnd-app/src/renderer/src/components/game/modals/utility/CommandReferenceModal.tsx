@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { getCommands } from '../../../../services/chat-commands'
 
 interface CommandReferenceModalProps {
@@ -7,6 +8,7 @@ interface CommandReferenceModalProps {
 }
 
 export default function CommandReferenceModal({ isDM, onClose }: CommandReferenceModalProps): JSX.Element {
+  useEscapeKey(onClose)
   const [search, setSearch] = useState('')
   const allCommands = getCommands(isDM)
 
@@ -63,7 +65,7 @@ export default function CommandReferenceModal({ isDM, onClose }: CommandReferenc
 
   return (
     <div className="fixed inset-0 z-20 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-5 max-w-lg w-full mx-4 shadow-2xl max-h-[80vh] flex flex-col">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold text-amber-400">Chat Commands</h3>

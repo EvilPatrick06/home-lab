@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { useNetworkStore } from '../../../../stores/network-store'
 import { useGameStore } from '../../../../stores/use-game-store'
 import { useLobbyStore } from '../../../../stores/use-lobby-store'
@@ -14,6 +15,7 @@ interface ItemTradeModalProps {
 type TradePhase = 'compose' | 'awaiting' | 'incoming'
 
 export default function ItemTradeModal({ character, playerName, onClose }: ItemTradeModalProps): JSX.Element {
+  useEscapeKey(onClose)
   const sendMessage = useNetworkStore((s) => s.sendMessage)
   const localPeerId = useNetworkStore((s) => s.localPeerId)
   const players = useLobbyStore((s) => s.players)
@@ -117,7 +119,7 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
 
   return (
     <div className="fixed inset-0 z-20 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-lg w-full mx-4 shadow-2xl max-h-[80vh] flex flex-col">
         <div className="flex items-center justify-between mb-3 shrink-0">
           <h3 className="text-sm font-semibold text-gray-200">Item Trade</h3>

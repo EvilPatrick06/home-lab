@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import type { ShopItem } from '../../../../network'
 import { load5eEquipment, load5eMagicItems } from '../../../../services/data-provider'
 import { useNetworkStore } from '../../../../stores/network-store'
@@ -44,6 +45,8 @@ export default function DMShopModal({ onClose }: DMShopModalProps): JSX.Element 
   // Local UI state
   const [shopNameInput, setShopNameInput] = useState(shopName || 'General Store')
   const [importMode, setImportMode] = useState<'none' | 'equipment' | 'magic'>('none')
+
+  useEscapeKey(onClose, importMode === 'none')
 
   // Cached data for presets (loaded on demand)
   const [equipmentData, setEquipmentData] = useState<EquipmentFile | null>(null)
@@ -146,7 +149,7 @@ export default function DMShopModal({ onClose }: DMShopModalProps): JSX.Element 
   // =========================================================================
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/60" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-[56rem] max-h-[90vh] flex flex-col shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">

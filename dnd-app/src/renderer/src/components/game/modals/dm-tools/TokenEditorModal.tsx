@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { loadStatBlockById } from '../../../../services/data-provider'
 import { useGameStore } from '../../../../stores/use-game-store'
 import type { MapToken } from '../../../../types/map'
@@ -34,6 +35,8 @@ function getSizeLabel(sizeX: number, sizeY: number): string {
 
 export default function TokenEditorModal({ token, mapId, onClose }: TokenEditorModalProps): JSX.Element {
   const updateToken = useGameStore((s) => s.updateToken)
+
+  useEscapeKey(onClose)
 
   const [label, setLabel] = useState(token.label)
   const [labelFontSize, setLabelFontSize] = useState(token.labelFontSize ?? 12)
@@ -112,7 +115,7 @@ export default function TokenEditorModal({ token, mapId, onClose }: TokenEditorM
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-96 max-h-[90vh] overflow-y-auto shadow-2xl">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-gray-200">Edit Token</h3>

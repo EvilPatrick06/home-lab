@@ -21,7 +21,7 @@ export default function SentientItemModal({ onClose }: SentientItemModalProps): 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/60" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900 border border-gray-700 rounded-xl w-[480px] max-h-[85vh] overflow-y-auto shadow-2xl">
         <div className="flex items-center justify-between px-5 py-3 border-b border-gray-800">
           <h2 className="text-base font-semibold text-amber-400">Sentient Item Generator</h2>

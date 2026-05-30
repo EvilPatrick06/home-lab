@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { trigger3dDice } from '../../../../components/game/dice3d'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { rollSingle } from '../../../../services/dice/dice-service'
 import { getTokenStats } from '../../../../services/game/token-stats'
 import { useGameStore } from '../../../../stores/use-game-store'
@@ -46,6 +47,7 @@ export default function HelpModal({
   onClose,
   onBroadcastResult
 }: HelpModalProps): JSX.Element {
+  useEscapeKey(onClose)
   const [mode, setMode] = useState<HelpMode | null>(null)
   const [selectedAllyId, setSelectedAllyId] = useState<string | null>(null)
   const [selectedSkill, setSelectedSkill] = useState<string>('Athletics')
@@ -125,7 +127,7 @@ export default function HelpModal({
 
   return (
     <div className="fixed inset-0 z-30 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-[420px] max-h-[80vh] overflow-y-auto shadow-2xl">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-gray-200">

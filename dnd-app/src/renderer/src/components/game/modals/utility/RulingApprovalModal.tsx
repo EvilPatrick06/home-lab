@@ -71,6 +71,7 @@ export default function RulingApprovalModal(): JSX.Element | null {
       onClick={(e) => {
         if (e.target === e.currentTarget) dismiss()
       }}
+      role="presentation"
     >
       <div className="bg-gray-900 border border-amber-500/50 rounded-xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col">
         {/* Header */}

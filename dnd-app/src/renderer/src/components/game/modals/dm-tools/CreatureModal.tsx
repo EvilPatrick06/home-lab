@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { addToast } from '../../../../hooks/use-toast'
 import { load5eMonsters, searchMonsters } from '../../../../services/data-provider'
 import type { Companion5e } from '../../../../types/companion'
@@ -67,6 +68,8 @@ export default function CreatureModal({
   const [customHP, setCustomHP] = useState('')
   const [concentration, setConcentration] = useState(true)
 
+  useEscapeKey(onClose)
+
   useEffect(() => {
     load5eMonsters()
       .then(setMonsters)
@@ -115,7 +118,11 @@ export default function CreatureModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center" onClick={onClose}>
+    <div
+      className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center"
+      onClick={onClose}
+      role="presentation"
+    >
       <div
         className="bg-gray-900 border border-gray-700 rounded-xl w-[900px] max-h-[80vh] flex flex-col shadow-2xl"
         onClick={(e) => e.stopPropagation()}

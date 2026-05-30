@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 
 interface DisputeModalProps {
   /** The AI ruling text being disputed */
@@ -21,11 +22,12 @@ export default function DisputeModal({
   onOverride,
   onClose
 }: DisputeModalProps): JSX.Element {
+  useEscapeKey(onClose)
   const [dmNote, setDmNote] = useState('')
 
   return (
     <div className="fixed inset-0 z-30 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-[28rem] shadow-2xl">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-amber-400">Rule Dispute</h3>

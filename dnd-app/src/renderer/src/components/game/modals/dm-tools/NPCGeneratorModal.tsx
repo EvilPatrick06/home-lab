@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { load5eRandomTables } from '../../../../services/data-provider'
 import { cryptoRandom, cryptoRollDie } from '../../../../utils/crypto-random'
 
@@ -65,6 +66,8 @@ export default function NPCGeneratorModal({ onClose, onBroadcastResult }: NPCGen
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [npc, setNpc] = useState<GeneratedNPC | null>(null)
+
+  useEscapeKey(onClose)
 
   useEffect(() => {
     load5eRandomTables()
@@ -173,7 +176,7 @@ export default function NPCGeneratorModal({ onClose, onBroadcastResult }: NPCGen
   if (loading) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center">
-        <div className="absolute inset-0 bg-black/50" onClick={onClose} aria-hidden="true" />
+        <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" aria-hidden="true" />
         <div className="relative bg-gray-900 border border-gray-700 rounded-xl max-w-2xl w-full mx-4 p-8 text-center">
           <p className="text-gray-400 text-sm">Loading tables…</p>
         </div>
@@ -184,7 +187,7 @@ export default function NPCGeneratorModal({ onClose, onBroadcastResult }: NPCGen
   if (error || !data) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center">
-        <div className="absolute inset-0 bg-black/50" onClick={onClose} aria-hidden="true" />
+        <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" aria-hidden="true" />
         <div className="relative bg-gray-900 border border-gray-700 rounded-xl max-w-2xl w-full mx-4 p-8 text-center">
           <p className="text-red-400 text-sm">{error ?? 'Failed to load data'}</p>
           <button
@@ -200,7 +203,7 @@ export default function NPCGeneratorModal({ onClose, onBroadcastResult }: NPCGen
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} aria-hidden="true" />
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" aria-hidden="true" />
       <div className="relative bg-gray-900 border border-gray-700 rounded-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800 sticky top-0 bg-gray-900 z-10">

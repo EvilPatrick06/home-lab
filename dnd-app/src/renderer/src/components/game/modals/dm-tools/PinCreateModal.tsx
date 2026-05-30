@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import type { MapPin, MapPinIcon } from '../../../../types/map'
 
 /**
@@ -31,6 +32,8 @@ export default function PinCreateModal({ gridX, gridY, onCreate, onClose }: PinC
   const [visibleToPlayers, setVisibleToPlayers] = useState(true)
   const [linkedJournalId, setLinkedJournalId] = useState('')
 
+  useEscapeKey(onClose)
+
   const submit = (): void => {
     if (!label.trim()) return
     onCreate({
@@ -48,7 +51,7 @@ export default function PinCreateModal({ gridX, gridY, onCreate, onClose }: PinC
 
   return (
     <div className="fixed inset-0 z-30 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 w-[360px] shadow-2xl space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-gray-200">

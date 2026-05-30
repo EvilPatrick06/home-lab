@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from 'react'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import type { Handout, HandoutPage } from '../../../../types/game-state'
 
 interface HandoutViewerModalProps {
@@ -13,6 +14,8 @@ export default function HandoutViewerModal({ handout, onClose }: HandoutViewerMo
   const [activePage, setActivePage] = useState(0)
   const dragStart = useRef({ x: 0, y: 0 })
   const offsetStart = useRef({ x: 0, y: 0 })
+
+  useEscapeKey(onClose)
 
   // Filter out dmOnly pages (DM strips them before sharing)
   const visiblePages = useMemo<HandoutPage[]>(() => {
@@ -65,7 +68,7 @@ export default function HandoutViewerModal({ handout, onClose }: HandoutViewerMo
 
   return (
     <div className="fixed inset-0 z-20 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/60" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-3xl w-full mx-4 shadow-2xl max-h-[85vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between mb-3 shrink-0">

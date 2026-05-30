@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { load5eTreasureTables } from '../../../../services/data-provider'
 import { rollMultiple, rollSingle } from '../../../../services/dice/dice-service'
 import { cryptoRandom } from '../../../../utils/crypto-random'
@@ -258,6 +259,8 @@ export default function TreasureGeneratorModal({
   const [result, setResult] = useState<TreasureResult | null>(null)
   const [treasureData, setTreasureData] = useState<TreasureTableData | null>(null)
 
+  useEscapeKey(onClose)
+
   useEffect(() => {
     load5eTreasureTables()
       .then((data) => setTreasureData(data as TreasureTableData))
@@ -293,7 +296,11 @@ export default function TreasureGeneratorModal({
   const tiers: CrTier[] = ['0-4', '5-10', '11-16', '17+']
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+      onClick={onClose}
+      role="presentation"
+    >
       <div
         className="bg-gray-900 border border-gray-700 rounded-xl shadow-2xl w-full max-w-xl max-h-[85vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { addToast } from '../../../../hooks/use-toast'
 import {
   calculateEncounterDifficulty,
@@ -86,6 +87,8 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
   const [activeWave, setActiveWave] = useState(1)
   const [maxWave, setMaxWave] = useState(1)
   const [mapId, setMapId] = useState<string>('')
+
+  useEscapeKey(onClose)
 
   useEffect(() => {
     setMonstersLoading(true)
@@ -346,7 +349,11 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+      onClick={onClose}
+      role="presentation"
+    >
       <div
         className="bg-gray-900 border border-gray-700 rounded-xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import type { ShopItem } from '../../../../network'
 import { load5eEquipment, load5eMagicItems } from '../../../../services/data-provider'
 import type { EquipmentFile, MagicItemData } from '../../../../types/data'
@@ -26,6 +27,8 @@ export default function ShopImportModal({ importMode, onClose, onImport }: ShopI
   const [magicItemsData, setMagicItemsData] = useState<MagicItemData[]>([])
   const [importSearch, setImportSearch] = useState('')
   const [selectedImports, setSelectedImports] = useState<Set<string>>(new Set())
+
+  useEscapeKey(onClose)
 
   // Load data on demand
   useEffect(() => {
@@ -86,7 +89,7 @@ export default function ShopImportModal({ importMode, onClose, onImport }: ShopI
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/60" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-[44rem] max-h-[85vh] flex flex-col shadow-2xl">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-bold text-amber-400">

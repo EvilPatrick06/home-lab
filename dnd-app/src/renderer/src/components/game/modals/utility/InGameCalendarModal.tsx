@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import {
   getMoonPhaseWithOverride,
   getSeason,
@@ -63,6 +64,7 @@ function formatHour(decimalHour: number): string {
 }
 
 export default function InGameCalendarModal({ calendar, onClose, isDM }: InGameCalendarModalProps): JSX.Element {
+  useEscapeKey(onClose)
   const inGameTime = useGameStore((s) => s.inGameTime)
   const advanceTimeSeconds = useGameStore((s) => s.advanceTimeSeconds)
   const weatherOverride = useGameStore((s) => s.weatherOverride)
@@ -75,7 +77,7 @@ export default function InGameCalendarModal({ calendar, onClose, isDM }: InGameC
   if (!inGameTime) {
     return (
       <div className="fixed inset-0 z-30 flex items-center justify-center">
-        <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+        <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
         <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-6 text-center">
           <p className="text-gray-400 text-sm">No in-game time configured</p>
           <button onClick={onClose} className="mt-3 px-4 py-1 text-sm bg-gray-700 rounded cursor-pointer">
@@ -101,7 +103,7 @@ export default function InGameCalendarModal({ calendar, onClose, isDM }: InGameC
 
   return (
     <div className="fixed inset-0 z-30 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900 border border-gray-700 rounded-xl w-[480px] max-h-[85vh] overflow-y-auto shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">

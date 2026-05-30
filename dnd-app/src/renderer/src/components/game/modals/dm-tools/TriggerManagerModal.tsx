@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { useGameStore } from '../../../../stores/use-game-store'
 import type { DmTrigger } from '../../../../types/game-state'
 
@@ -40,6 +41,8 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
   const removeTrigger = useGameStore((s) => s.removeTrigger)
   const toggleTrigger = useGameStore((s) => s.toggleTrigger)
   const fireTrigger = useGameStore((s) => s.fireTrigger)
+
+  useEscapeKey(onClose)
 
   const [showForm, setShowForm] = useState(false)
   const [history, setHistory] = useState<Array<{ triggerId: string; triggerName: string; timestamp: number }>>([])
@@ -136,7 +139,11 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
   const labelClass = 'text-xs text-gray-400 mb-0.5 block'
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={onClose}>
+    <div
+      className="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
+      onClick={onClose}
+      role="presentation"
+    >
       <div
         className="bg-gray-900 border border-gray-700 rounded-lg shadow-xl w-[680px] max-h-[80vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
