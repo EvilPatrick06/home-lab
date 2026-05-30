@@ -90,3 +90,8 @@ smbus2
 luma.oled
 spidev
 Pillow
+
+# flatbuffers — PyPI's date-versioned 20181003210633 release sorts ABOVE all
+# semver releases, so a bare --upgrade DOWNGRADES to a 2018 build and breaks
+# onnxruntime. Cap below it (transitive via onnxruntime/openwakeword).
+flatbuffers<26
