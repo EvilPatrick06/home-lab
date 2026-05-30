@@ -1,3 +1,4 @@
+import { useEscapeKey } from '../../hooks/use-escape-key'
 import { formatKeyCombo, getEffectiveShortcuts } from '../../services/keyboard-shortcuts'
 
 interface ShortcutsOverlayProps {
@@ -44,6 +45,8 @@ export default function ShortcutsOverlay({
   onClose,
   context = 'global'
 }: ShortcutsOverlayProps): JSX.Element | null {
+  useEscapeKey(onClose, open)
+
   if (!open) return null
 
   // Load effective shortcuts (includes user customizations)
@@ -52,7 +55,7 @@ export default function ShortcutsOverlay({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/70" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/70" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900 border border-gray-700 rounded-lg p-6 max-w-md w-full mx-4 max-h-[80vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold">Keyboard Shortcuts</h2>

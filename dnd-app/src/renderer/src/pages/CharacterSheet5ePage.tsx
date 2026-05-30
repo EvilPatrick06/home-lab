@@ -20,6 +20,7 @@ import SkillsSection5e from '../components/sheet/5e/SkillsSection5e'
 import SpellcastingSection5e from '../components/sheet/5e/SpellcastingSection5e'
 import ErrorBoundary from '../components/ui/ErrorBoundary'
 import Modal from '../components/ui/Modal'
+import { useEscapeKey } from '../hooks/use-escape-key'
 import { addToast } from '../hooks/use-toast'
 
 const PrintSheet = lazy(() => import('../components/sheet/shared/PrintSheet'))
@@ -74,6 +75,8 @@ export default function CharacterSheet5ePage(): JSX.Element {
   // the inner <ErrorBoundary>, clearing its caught-error state so the user
   // can retry rendering without reloading the entire app.
   const [sheetErrorKey, setSheetErrorKey] = useState(0)
+
+  useEscapeKey(() => setShowVersionHistory(false), showVersionHistory)
 
   if (!character) {
     return (
@@ -400,7 +403,11 @@ export default function CharacterSheet5ePage(): JSX.Element {
       {/* Version History Modal */}
       {showVersionHistory && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setShowVersionHistory(false)} />
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setShowVersionHistory(false)}
+            role="presentation"
+          />
           <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-full max-w-lg max-h-[70vh] flex flex-col shadow-2xl">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-semibold text-amber-400">Version History</h3>

@@ -21,7 +21,7 @@ export default function NarrowModalShell({
   useEscapeKey(onClose)
   return (
     <div className={`fixed inset-0 ${zIndex} flex items-center justify-center`}>
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-96 shadow-2xl">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-gray-200">{title}</h3>

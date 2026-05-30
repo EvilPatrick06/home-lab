@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from 'react'
+import { useEscapeKey } from '../../../hooks/use-escape-key'
 import {
   getEffectiveClasses,
   getEffectiveKnownSpells,
@@ -61,6 +62,8 @@ export default function SpellPrepModal({ character, onClose }: SpellPrepModalPro
   const initiative = useGameStore((s) => s.initiative)
   const inCombat = !!initiative
 
+  useEscapeKey(onClose)
+
   const char5e = is5eCharacter(character) ? (character as Character5e) : null
   const isPreparedCaster = !!char5e && PREPARED_CASTER_CLASSES.has(primaryClassId(char5e))
 
@@ -103,7 +106,7 @@ export default function SpellPrepModal({ character, onClose }: SpellPrepModalPro
   if (!char5e || !isPreparedCaster) {
     return (
       <div className="fixed inset-0 z-20 flex items-end justify-center pb-20">
-        <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+        <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
         <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-md w-full mx-4">
           <p className="text-sm text-gray-300">
             Spell preparation is only available for Cleric, Druid, Paladin, and Wizard characters.

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useEscapeKey } from '../../../hooks/use-escape-key'
 
 /**
  * Phase 15d — Personal player journal.
@@ -61,6 +62,8 @@ export default function PlayerNotesPanel({ characterId, onClose }: PlayerNotesPa
   const [activeId, setActiveId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
 
+  useEscapeKey(onClose)
+
   useEffect(() => {
     if (!characterId) return
     setNotes(loadNotes(characterId))
@@ -121,7 +124,7 @@ export default function PlayerNotesPanel({ characterId, onClose }: PlayerNotesPa
   if (!characterId) {
     return (
       <div className="fixed inset-0 z-20 flex items-end justify-center pb-20">
-        <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+        <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
         <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-md w-full mx-4">
           <p className="text-sm text-gray-300">Select a character first to access your personal notes.</p>
           <button

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useEscapeKey } from '../../../hooks/use-escape-key'
 import { loadAllStatBlocks, searchMonsters } from '../../../services/data-provider'
 import type { MonsterStatBlock } from '../../../types/monster'
 
@@ -51,11 +52,13 @@ export default function CreatureSearchModal({
     }
   }, [open])
 
+  useEscapeKey(onClose, open)
+
   if (!open) return null
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-4 w-96 max-h-[80vh] shadow-2xl flex flex-col">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold text-gray-200">{title}</h3>

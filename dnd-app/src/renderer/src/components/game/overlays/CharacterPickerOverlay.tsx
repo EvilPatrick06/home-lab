@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router'
+import { useEscapeKey } from '../../../hooks/use-escape-key'
 import { getEffectiveClasses } from '../../../services/character/effective-character-5e'
 import { useCharacterStore } from '../../../stores/use-character-store'
 import type { Character } from '../../../types/character'
@@ -20,6 +21,8 @@ export default function CharacterPickerOverlay({
   const navigate = useNavigate()
   const { characters, loadCharacters } = useCharacterStore()
 
+  useEscapeKey(onClose)
+
   // Load characters from the main process via IPC
   useEffect(() => {
     loadCharacters()
@@ -27,7 +30,7 @@ export default function CharacterPickerOverlay({
 
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-96 shadow-2xl max-h-[70vh] flex flex-col">
         <h3 className="text-sm font-semibold text-amber-400 mb-3">Select a Character</h3>
         <p className="text-xs text-gray-400 mb-3">Choose a character to view the game as a player.</p>

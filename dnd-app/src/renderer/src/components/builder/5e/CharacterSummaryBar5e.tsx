@@ -69,7 +69,18 @@ function EditableHP({
   const hpColor = displayHP >= maxHP ? 'text-green-400' : displayHP > maxHP / 2 ? 'text-yellow-400' : 'text-red-400'
 
   return (
-    <div className="text-center cursor-pointer" onClick={() => !editingHP && startEditHP()}>
+    <div
+      className="text-center cursor-pointer"
+      role="button"
+      tabIndex={0}
+      onClick={() => !editingHP && startEditHP()}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          if (!editingHP) startEditHP()
+        }
+      }}
+    >
       <div className="text-xs text-gray-500">HP</div>
       {editingHP ? (
         <input

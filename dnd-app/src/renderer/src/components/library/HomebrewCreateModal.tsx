@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react'
+import { useEscapeKey } from '../../hooks/use-escape-key'
 import { addToast } from '../../hooks/use-toast'
 import type { HomebrewFeatEffect } from '../../services/character/homebrew-effects'
 import { validateHomebrew } from '../../services/homebrew-validation'
@@ -134,6 +135,8 @@ export default function HomebrewCreateModal({
   const existingCampaignId = existingItem?.data._campaignId as string | undefined
   const [campaignOnly, setCampaignOnly] = useState<boolean>(isEditing ? !!existingCampaignId : !!activeCampaignId)
 
+  useEscapeKey(onClose)
+
   const updateField = (key: string, value: unknown): void => {
     setFormData((prev) => ({ ...prev, [key]: value }))
   }
@@ -235,7 +238,11 @@ export default function HomebrewCreateModal({
   const editableFields = Object.entries(formData).filter(([k]) => !EDITABLE_SKIP.has(k))
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={handleBackdropClick}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      onClick={handleBackdropClick}
+      role="presentation"
+    >
       <div className="absolute inset-0 bg-black/70" aria-hidden="true" />
       <div className="relative bg-gray-900 border border-gray-700 rounded-lg w-full max-w-2xl mx-4 max-h-[85vh] flex flex-col">
         <div className="flex items-center justify-between p-5 border-b border-gray-800">
