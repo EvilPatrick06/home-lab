@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 import type { MapToken } from '../../../../types/map'
 import type { AoEConfig, AoEShape, Direction8 } from '../../map/aoe-overlay'
 import { getAoECells } from '../../map/aoe-overlay'
@@ -46,6 +47,7 @@ export default function AoETemplateModal({
   onClose,
   onPreview
 }: AoETemplateModalProps): JSX.Element {
+  const { t } = useT()
   useEscapeKey(onClose)
   const [shape, setShape] = useState<AoEShape>('sphere')
   const [sizeFeet, setSizeFeet] = useState(20)
@@ -101,12 +103,12 @@ export default function AoETemplateModal({
       <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-[440px] max-h-[85vh] overflow-y-auto shadow-2xl">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-gray-200">
-            {step === 'config' ? 'AoE Template' : 'Place Template'}
+            {step === 'config' ? t('game.aoeTemplateModal.title') : t('game.aoeTemplateModal.placeTitle')}
           </h3>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-300 text-lg cursor-pointer"
-            aria-label="Close"
+            aria-label={t('common.actions.close')}
           >
             &times;
           </button>
@@ -116,7 +118,7 @@ export default function AoETemplateModal({
           <div className="space-y-4">
             {/* Shape selection */}
             <div>
-              <span className="text-xs text-gray-400 block mb-1">Shape:</span>
+              <span className="text-xs text-gray-400 block mb-1">{t('game.aoeTemplateModal.shape')}</span>
               <div className="grid grid-cols-3 gap-1">
                 {SHAPES.map((s) => (
                   <button
@@ -128,8 +130,8 @@ export default function AoETemplateModal({
                         : 'bg-gray-800 border-gray-700 text-gray-400 hover:bg-gray-700'
                     }`}
                   >
-                    <div className="font-semibold">{s.label}</div>
-                    <div className="text-[9px] text-gray-500">{s.desc}</div>
+                    <div className="font-semibold">{t(`game.aoeTemplateModal.shapes.${s.id}.label`)}</div>
+                    <div className="text-[9px] text-gray-500">{t(`game.aoeTemplateModal.shapes.${s.id}.desc`)}</div>
                   </button>
                 ))}
               </div>
@@ -138,7 +140,15 @@ export default function AoETemplateModal({
             {/* Size */}
             <div>
               <span className="text-xs text-gray-400 block mb-1">
-                {shape === 'cone' || shape === 'line' ? 'Length' : shape === 'cube' ? 'Side' : 'Radius'}: {sizeFeet} ft
+                {t('game.aoeTemplateModal.sizeLabel', {
+                  dimension:
+                    shape === 'cone' || shape === 'line'
+                      ? t('game.aoeTemplateModal.length')
+                      : shape === 'cube'
+                        ? t('game.aoeTemplateModal.side')
+                        : t('game.aoeTemplateModal.radius'),
+                  size: sizeFeet
+                })}
               </span>
               <div className="flex gap-1 flex-wrap">
                 {SIZE_PRESETS.map((s) => (
@@ -158,7 +168,7 @@ export default function AoETemplateModal({
             {/* Direction (for cone/line) */}
             {currentShape.needsDirection && (
               <div>
-                <span className="text-xs text-gray-400 block mb-1">Direction:</span>
+                <span className="text-xs text-gray-400 block mb-1">{t('game.aoeTemplateModal.direction')}</span>
                 <div className="grid grid-cols-8 gap-1">
                   {DIRECTIONS.map((d) => (
                     <button
@@ -178,7 +188,9 @@ export default function AoETemplateModal({
             {/* Width for line */}
             {shape === 'line' && (
               <div>
-                <span className="text-xs text-gray-400 block mb-1">Width: {widthFeet} ft</span>
+                <span className="text-xs text-gray-400 block mb-1">
+                  {t('game.aoeTemplateModal.width', { size: widthFeet })}
+                </span>
                 <div className="flex gap-1">
                   {[5, 10, 15].map((w) => (
                     <button
@@ -198,10 +210,10 @@ export default function AoETemplateModal({
             {/* Origin position */}
             <div>
               <span className="text-xs text-gray-400 block mb-1">
-                Origin: ({originX}, {originY})
+                {t('game.aoeTemplateModal.origin', { x: originX, y: originY })}
               </span>
               <div className="flex gap-2 items-center">
-                <label className="text-xs text-gray-500">X:</label>
+                <label className="text-xs text-gray-500">{t('game.aoeTemplateModal.x')}</label>
                 <input
                   type="number"
                   min={0}
@@ -210,7 +222,7 @@ export default function AoETemplateModal({
                   onChange={(e) => setOriginX(parseInt(e.target.value, 10) || 0)}
                   className="w-16 px-2 py-1 text-xs bg-gray-800 border border-gray-700 rounded text-white"
                 />
-                <label className="text-xs text-gray-500">Y:</label>
+                <label className="text-xs text-gray-500">{t('game.aoeTemplateModal.y')}</label>
                 <input
                   type="number"
                   min={0}
@@ -220,17 +232,20 @@ export default function AoETemplateModal({
                   className="w-16 px-2 py-1 text-xs bg-gray-800 border border-gray-700 rounded text-white"
                 />
               </div>
-              <p className="text-xs text-gray-600 mt-1">Click on the map to set origin after placing.</p>
+              <p className="text-xs text-gray-600 mt-1">{t('game.aoeTemplateModal.originHint')}</p>
             </div>
 
             {/* Preview info */}
             <div className="bg-gray-800 rounded-lg px-3 py-2">
               <div className="text-xs text-gray-400">
-                Affected cells: <span className="text-white font-semibold">{affectedCells.length}</span>
+                {t('game.aoeTemplateModal.affectedCells')}{' '}
+                <span className="text-white font-semibold">{affectedCells.length}</span>
               </div>
               {affectedTokens.length > 0 && (
                 <div className="text-xs text-red-400 mt-1">
-                  Tokens inside: {affectedTokens.map((t) => t.label).join(', ')}
+                  {t('game.aoeTemplateModal.tokensInside', {
+                    tokens: affectedTokens.map((tok) => tok.label).join(', ')
+                  })}
                 </div>
               )}
             </div>
@@ -239,7 +254,7 @@ export default function AoETemplateModal({
               onClick={() => onPlace(config)}
               className="w-full px-4 py-3 bg-red-600 hover:bg-red-500 text-white font-semibold rounded-lg cursor-pointer text-sm"
             >
-              Place Template on Map
+              {t('game.aoeTemplateModal.placeButton')}
             </button>
           </div>
         )}

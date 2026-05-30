@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
+import { useT } from '../../../i18n'
 import { load5eEnvironmentalEffects } from '../../../services/data-provider'
 import { useGameStore } from '../../../stores/use-game-store'
 import type { ActiveEnvironmentalEffect, EnvironmentalEffect } from '../../../types/dm-toolbox'
 
-const CATEGORY_LABELS: Record<EnvironmentalEffect['category'], string> = {
-  weather: 'Weather',
-  terrain: 'Terrain',
-  magical: 'Magical',
-  planar: 'Planar'
+const CATEGORY_LABEL_KEYS: Record<EnvironmentalEffect['category'], string> = {
+  weather: 'game.environmentalEffectsPanel.categoryWeather',
+  terrain: 'game.environmentalEffectsPanel.categoryTerrain',
+  magical: 'game.environmentalEffectsPanel.categoryMagical',
+  planar: 'game.environmentalEffectsPanel.categoryPlanar'
 }
 
 const CATEGORY_ORDER: EnvironmentalEffect['category'][] = ['weather', 'terrain', 'magical', 'planar']
@@ -18,6 +19,7 @@ interface EnvironmentalEffectsPanelProps {
 }
 
 export default function EnvironmentalEffectsPanel({ onBroadcastResult }: EnvironmentalEffectsPanelProps): JSX.Element {
+  const { t } = useT()
   const { activeEnvironmentalEffects, addEnvironmentalEffect, removeEnvironmentalEffect } = useGameStore(
     useShallow((s) => ({
       activeEnvironmentalEffects: s.activeEnvironmentalEffects,
@@ -67,9 +69,9 @@ export default function EnvironmentalEffectsPanel({ onBroadcastResult }: Environ
         appliedAt: Date.now()
       }
       addEnvironmentalEffect(active)
-      onBroadcastResult?.(`Environmental Effect: ${effect.name} applied to the scene.`)
+      onBroadcastResult?.(t('game.environmentalEffectsPanel.appliedToast', { name: effect.name }))
     },
-    [addEnvironmentalEffect, onBroadcastResult]
+    [addEnvironmentalEffect, onBroadcastResult, t]
   )
 
   const handleRemove = useCallback(
@@ -82,7 +84,7 @@ export default function EnvironmentalEffectsPanel({ onBroadcastResult }: Environ
   if (loading) {
     return (
       <div className="space-y-3">
-        <div className="text-xs text-gray-500">Loading environmental effects...</div>
+        <div className="text-xs text-gray-500">{t('game.environmentalEffectsPanel.loading')}</div>
       </div>
     )
   }
@@ -92,7 +94,7 @@ export default function EnvironmentalEffectsPanel({ onBroadcastResult }: Environ
       {/* Active effects */}
       {activeEnvironmentalEffects.length > 0 && (
         <div>
-          <span className="text-xs text-gray-500 uppercase">Active Effects</span>
+          <span className="text-xs text-gray-500 uppercase">{t('game.environmentalEffectsPanel.activeEffects')}</span>
           <div className="mt-1 space-y-1">
             {activeEnvironmentalEffects.map((a) => (
               <div
@@ -103,7 +105,7 @@ export default function EnvironmentalEffectsPanel({ onBroadcastResult }: Environ
                 <button
                   type="button"
                   onClick={() => handleRemove(a.id)}
-                  title="Remove effect"
+                  title={t('game.environmentalEffectsPanel.removeEffect')}
                   className="shrink-0 w-6 h-6 rounded flex items-center justify-center text-gray-400 hover:text-red-400 hover:bg-red-900/30 transition-colors cursor-pointer"
                 >
                   &#215;
@@ -116,10 +118,10 @@ export default function EnvironmentalEffectsPanel({ onBroadcastResult }: Environ
 
       {/* Search */}
       <div>
-        <span className="text-xs text-gray-500 uppercase">Add Effect</span>
+        <span className="text-xs text-gray-500 uppercase">{t('game.environmentalEffectsPanel.addEffect')}</span>
         <input
           type="text"
-          placeholder="Search effects..."
+          placeholder={t('game.environmentalEffectsPanel.searchPlaceholder')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="mt-1 w-full px-2 py-1.5 text-sm bg-gray-800 border border-gray-700 rounded text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50"
@@ -134,7 +136,7 @@ export default function EnvironmentalEffectsPanel({ onBroadcastResult }: Environ
 
           return (
             <div key={cat}>
-              <span className="text-xs text-gray-500 uppercase">{CATEGORY_LABELS[cat]}</span>
+              <span className="text-xs text-gray-500 uppercase">{t(CATEGORY_LABEL_KEYS[cat])}</span>
               <div className="mt-1 space-y-1">
                 {items.map((effect) => {
                   const isExpanded = expandedId === effect.id
@@ -145,14 +147,17 @@ export default function EnvironmentalEffectsPanel({ onBroadcastResult }: Environ
                           <span className="text-white text-sm font-medium">{effect.name}</span>
                           {effect.saveDC != null && (
                             <span className="ml-1.5 text-xs px-1.5 py-0.5 rounded bg-gray-700/80 text-gray-300">
-                              DC {effect.saveDC} {effect.saveAbility ?? ''}
+                              {t('game.environmentalEffectsPanel.dc', {
+                                dc: effect.saveDC,
+                                ability: effect.saveAbility ?? ''
+                              })}
                             </span>
                           )}
                         </div>
                         <button
                           type="button"
                           onClick={() => handleAdd(effect)}
-                          title={`Add ${effect.name}`}
+                          title={t('game.environmentalEffectsPanel.addNamed', { name: effect.name })}
                           className="shrink-0 w-6 h-6 rounded flex items-center justify-center bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white transition-colors cursor-pointer"
                         >
                           +
@@ -163,7 +168,9 @@ export default function EnvironmentalEffectsPanel({ onBroadcastResult }: Environ
                         onClick={() => setExpandedId(isExpanded ? null : effect.id)}
                         className="mt-1 text-xs text-gray-500 hover:text-gray-400 cursor-pointer"
                       >
-                        {isExpanded ? 'Hide' : 'Show'} description
+                        {isExpanded
+                          ? t('game.environmentalEffectsPanel.hideDescription')
+                          : t('game.environmentalEffectsPanel.showDescription')}
                       </button>
                       {isExpanded && (
                         <p className="mt-1 text-xs text-gray-400 leading-relaxed">
@@ -185,7 +192,9 @@ export default function EnvironmentalEffectsPanel({ onBroadcastResult }: Environ
         })}
       </div>
 
-      {filteredBySearch.length === 0 && <div className="text-xs text-gray-500">No effects match your search.</div>}
+      {filteredBySearch.length === 0 && (
+        <div className="text-xs text-gray-500">{t('game.environmentalEffectsPanel.noMatch')}</div>
+      )}
     </div>
   )
 }

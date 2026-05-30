@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 
 interface ResizeMapModalProps {
   currentWidthPixels: number
@@ -16,6 +17,7 @@ export default function ResizeMapModal({
   onResize,
   onClose
 }: ResizeMapModalProps): JSX.Element {
+  const { t } = useT()
   const [width, setWidth] = useState(Math.round(currentWidthPixels / cellSize))
   const [height, setHeight] = useState(Math.round(currentHeightPixels / cellSize))
 
@@ -35,11 +37,11 @@ export default function ResizeMapModal({
       <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-5 max-w-sm w-full mx-4 shadow-2xl">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-gray-200">Resize Map</h3>
+          <h3 className="text-sm font-semibold text-gray-200">{t('game.resizeMapModal.title')}</h3>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-300 text-lg cursor-pointer"
-            aria-label="Close"
+            aria-label={t('common.actions.close')}
           >
             &times;
           </button>
@@ -47,13 +49,15 @@ export default function ResizeMapModal({
 
         <div className="space-y-4">
           <p className="text-xs text-gray-400">
-            Current size: {Math.round(currentWidthPixels / cellSize)} x {Math.round(currentHeightPixels / cellSize)}{' '}
-            cells
+            {t('game.resizeMapModal.currentSize', {
+              width: Math.round(currentWidthPixels / cellSize),
+              height: Math.round(currentHeightPixels / cellSize)
+            })}
           </p>
 
           <div className="flex gap-3">
             <div className="flex-1">
-              <label className="text-xs text-gray-400 block mb-1">New Width (cells)</label>
+              <label className="text-xs text-gray-400 block mb-1">{t('game.resizeMapModal.newWidth')}</label>
               <input
                 type="number"
                 value={width}
@@ -64,7 +68,7 @@ export default function ResizeMapModal({
               />
             </div>
             <div className="flex-1">
-              <label className="text-xs text-gray-400 block mb-1">New Height (cells)</label>
+              <label className="text-xs text-gray-400 block mb-1">{t('game.resizeMapModal.newHeight')}</label>
               <input
                 type="number"
                 value={height}
@@ -77,18 +81,15 @@ export default function ResizeMapModal({
           </div>
 
           <p className="text-xs text-gray-500">
-            Total size: {newPixelWidth} x {newPixelHeight} px
+            {t('game.resizeMapModal.totalSize', { width: newPixelWidth, height: newPixelHeight })}
           </p>
-          <p className="text-xs text-amber-500/80">
-            Note: Content outside the new bounds boundaries will be hidden but preserved. Background maps will not
-            resize.
-          </p>
+          <p className="text-xs text-amber-500/80">{t('game.resizeMapModal.note')}</p>
 
           <button
             onClick={handleResize}
             className="w-full py-2 text-xs font-semibold rounded-lg bg-amber-600 hover:bg-amber-500 text-white transition-colors cursor-pointer"
           >
-            Apply Resize
+            {t('game.resizeMapModal.apply')}
           </button>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import rarityOptionsJson from '@data/ui/rarity-options.json'
+import { useT } from '../../../i18n'
 import { load5eRarityOptions } from '../../../services/data-provider'
 import type { Rarity } from '../../../types/character-common'
 
@@ -22,6 +23,7 @@ export default function SelectionFilterBar({
   onRarityChange,
   onSearchChange
 }: SelectionFilterBarProps): JSX.Element {
+  const { t } = useT()
   return (
     <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-700">
       <div className="flex gap-1">
@@ -44,7 +46,7 @@ export default function SelectionFilterBar({
           type="text"
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Search..."
+          placeholder={t('builder.selectionFilterBar.searchPlaceholder')}
           className="w-full bg-gray-800 border border-gray-600 rounded px-3 py-1.5 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-amber-500"
         />
       </div>

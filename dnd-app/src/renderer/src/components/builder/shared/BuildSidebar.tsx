@@ -1,10 +1,12 @@
 import { useMemo } from 'react'
+import { useT } from '../../../i18n'
 import { useBuilderStore } from '../../../stores/use-builder-store'
 import MulticlassLevelBar5e from '../5e/MulticlassLevelBar5e'
 import BuildLevelGroup from './BuildLevelGroup'
 import IconPicker from './IconPicker'
 
 export default function BuildSidebar(): JSX.Element {
+  const { t } = useT()
   const buildSlots = useBuilderStore((s) => s.buildSlots)
   const targetLevel = useBuilderStore((s) => s.targetLevel)
   const characterName = useBuilderStore((s) => s.characterName)
@@ -43,13 +45,13 @@ export default function BuildSidebar(): JSX.Element {
           type="text"
           value={characterName}
           onChange={(e) => setCharacterName(e.target.value)}
-          placeholder="Character Name"
-          aria-label="Character name"
+          placeholder={t('builder.buildSidebar.characterNamePlaceholder')}
+          aria-label={t('builder.buildSidebar.characterNameAria')}
           className="w-full bg-gray-800 border border-gray-600 rounded px-3 py-1.5 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-amber-500"
         />
         <div className="flex items-center gap-2">
           <label htmlFor="builder-level" className="text-xs text-gray-400">
-            Level
+            {t('builder.buildSidebar.level')}
           </label>
           <input
             id="builder-level"

@@ -1,3 +1,4 @@
+import { useT } from '../../../i18n'
 import { useGameStore } from '../../../stores/use-game-store'
 
 interface ActionEconomyBarProps {
@@ -9,14 +10,13 @@ interface ActionEconomyBarProps {
 }
 
 function MovementSlot({ remaining, max }: { remaining: number; max: number }): JSX.Element {
+  const { t } = useT()
   const pct = max > 0 ? remaining / max : 0
   const color = pct > 0.5 ? 'text-green-400' : pct > 0 ? 'text-amber-400' : 'text-red-400'
   return (
     <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-800/60">
-      <span className="text-xs text-gray-500 uppercase tracking-wider">Move</span>
-      <span className={`text-xs font-bold ${color}`}>
-        {remaining}/{max} ft
-      </span>
+      <span className="text-xs text-gray-500 uppercase tracking-wider">{t('game.actionEconomyBar.move')}</span>
+      <span className={`text-xs font-bold ${color}`}>{t('game.actionEconomyBar.feet', { remaining, max })}</span>
     </div>
   )
 }
@@ -34,13 +34,16 @@ function ResourceDot({
   statusLabel?: string
   onClick?: () => void
 }): JSX.Element {
+  const { t } = useT()
   const dotColor = used ? 'bg-gray-600' : availableColor
   const textColor = used ? 'text-gray-500' : 'text-gray-300'
   return (
     <button
       onClick={onClick}
       disabled={!onClick}
-      aria-label={`${used ? 'Used' : 'Use'} ${label}`}
+      aria-label={
+        used ? t('game.actionEconomyBar.usedResource', { label }) : t('game.actionEconomyBar.useResource', { label })
+      }
       className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-800/60 ${onClick ? 'cursor-pointer hover:bg-gray-700/60' : 'cursor-default'}`}
     >
       <span className={`w-2.5 h-2.5 rounded-full ${dotColor} shrink-0`} />
@@ -56,6 +59,7 @@ export default function ActionEconomyBar({
   isMyTurn,
   onEndTurn
 }: ActionEconomyBarProps): JSX.Element {
+  const { t } = useT()
   const turnState = useGameStore((s) => s.turnStates[entityId])
   const useAction = useGameStore((s) => s.useAction)
   const useBonusAction = useGameStore((s) => s.useBonusAction)
@@ -79,18 +83,18 @@ export default function ActionEconomyBar({
 
   // Show special status on action if dash/disengage/dodge is active
   const actionStatusLabel = turnState?.isDashing
-    ? 'Dash'
+    ? t('game.actionEconomyBar.dash')
     : turnState?.isDisengaging
-      ? 'Disengage'
+      ? t('game.actionEconomyBar.disengage')
       : turnState?.isDodging
-        ? 'Dodge'
+        ? t('game.actionEconomyBar.dodge')
         : undefined
 
   return (
     <div
       className="absolute top-14 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 px-3 py-1.5 bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-xl shadow-lg"
       role="status"
-      aria-label={`Turn resources for ${entityName}`}
+      aria-label={t('game.actionEconomyBar.turnResources', { entityName })}
     >
       <span className="text-xs text-gray-500 font-semibold mr-1 max-w-[80px] truncate" title={entityName}>
         {entityName}
@@ -100,13 +104,17 @@ export default function ActionEconomyBar({
 
       {isMounted && (
         <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-900/40 border border-emerald-700/30">
-          <span className="text-xs text-emerald-400 font-semibold">(Mounted)</span>
-          {mountSpeed > 0 && <span className="text-xs text-emerald-300">{mountSpeed} ft</span>}
+          <span className="text-xs text-emerald-400 font-semibold">{t('game.actionEconomyBar.mounted')}</span>
+          {mountSpeed > 0 && (
+            <span className="text-xs text-emerald-300">
+              {t('game.actionEconomyBar.speedFeet', { speed: mountSpeed })}
+            </span>
+          )}
         </div>
       )}
 
       <ResourceDot
-        label="Action"
+        label={t('game.actionEconomyBar.action')}
         used={actionUsed}
         availableColor="bg-green-500"
         statusLabel={actionStatusLabel}
@@ -114,21 +122,21 @@ export default function ActionEconomyBar({
       />
 
       <ResourceDot
-        label="Bonus"
+        label={t('game.actionEconomyBar.bonus')}
         used={bonusActionUsed}
         availableColor="bg-blue-500"
         onClick={isDM ? () => useBonusAction(entityId) : undefined}
       />
 
       <ResourceDot
-        label="Reaction"
+        label={t('game.actionEconomyBar.reaction')}
         used={reactionUsed}
         availableColor="bg-yellow-500"
         onClick={isDM ? () => useReaction(entityId) : undefined}
       />
 
       <ResourceDot
-        label="Object"
+        label={t('game.actionEconomyBar.object')}
         used={freeInteractionUsed}
         availableColor="bg-purple-500"
         onClick={isDM ? () => useFreeInteraction(entityId) : undefined}
@@ -137,10 +145,10 @@ export default function ActionEconomyBar({
       {isMyTurn && (
         <button
           onClick={onEndTurn}
-          aria-label="End turn"
+          aria-label={t('game.actionEconomyBar.endTurnAria')}
           className="ml-1 px-3 py-1 text-xs font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded-lg cursor-pointer transition-colors"
         >
-          End Turn
+          {t('game.actionEconomyBar.endTurn')}
         </button>
       )}
     </div>

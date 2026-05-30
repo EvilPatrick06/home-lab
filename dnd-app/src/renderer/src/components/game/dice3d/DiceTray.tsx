@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useT } from '../../../i18n'
 import type { DiceTrayEntry } from '.'
 import { onDiceTrayUpdate } from '.'
 
@@ -39,6 +40,7 @@ function getDieIcon(formula: string): string {
 }
 
 export default function DiceTray(): JSX.Element {
+  const { t } = useT()
   const [entries, setEntries] = useState<DiceTrayEntry[]>([])
   const [position, setPosition] = useState<Position>({ x: -1, y: -1 })
   const [isDragging, setIsDragging] = useState(false)
@@ -121,7 +123,7 @@ export default function DiceTray(): JSX.Element {
       className="fixed z-50 pointer-events-auto"
       style={{ left: position.x, top: position.y }}
       role="region"
-      aria-label="Dice results"
+      aria-label={t('game.diceTray.ariaLabel')}
       aria-live="polite"
     >
       {/* Header — draggable */}
@@ -133,23 +135,23 @@ export default function DiceTray(): JSX.Element {
       >
         <div className="flex items-center gap-2">
           <span className="text-gray-400 text-xs">&#x2630;</span>
-          <span className="text-xs font-medium text-gray-300">Dice Tray</span>
+          <span className="text-xs font-medium text-gray-300">{t('game.diceTray.title')}</span>
           <span className="text-xs text-gray-500">({entries.length})</span>
         </div>
         <div className="flex items-center gap-1">
           <button
             onClick={() => setCollapsed((c) => !c)}
             className="text-gray-400 hover:text-gray-200 text-xs px-1"
-            title={collapsed ? 'Expand' : 'Collapse'}
-            aria-label={collapsed ? 'Expand dice tray' : 'Collapse dice tray'}
+            title={collapsed ? t('game.diceTray.expand') : t('game.diceTray.collapse')}
+            aria-label={collapsed ? t('game.diceTray.expandTray') : t('game.diceTray.collapseTray')}
           >
             {collapsed ? '+' : '-'}
           </button>
           <button
             onClick={clearAll}
             className="text-gray-400 hover:text-red-400 text-xs px-1"
-            title="Clear all"
-            aria-label="Clear all dice results"
+            title={t('game.diceTray.clearAll')}
+            aria-label={t('game.diceTray.clearAllResults')}
           >
             x
           </button>
@@ -178,7 +180,7 @@ export default function DiceTray(): JSX.Element {
                 <span className="text-lg font-bold text-amber-300">{entry.total}</span>
                 <button
                   onClick={() => removeEntry(entry.id)}
-                  aria-label={`Dismiss ${entry.formula} result`}
+                  aria-label={t('game.diceTray.dismissResult', { formula: entry.formula })}
                   className="text-gray-500 hover:text-red-400 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
                 >
                   x

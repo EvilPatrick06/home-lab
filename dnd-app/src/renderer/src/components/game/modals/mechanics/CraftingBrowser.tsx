@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { addToast } from '../../../../hooks/use-toast'
+import { useT } from '../../../../i18n'
 import { load5eCrafting, loadJson } from '../../../../services/data-provider'
 import type { CraftingToolEntry } from '../../../../types/data'
 import { logger } from '../../../../utils/logger'
@@ -43,6 +44,7 @@ const RECIPE_FILES = [
 ]
 
 export default function CraftingBrowser({ characterTools, onStartCrafting }: CraftingBrowserProps): JSX.Element {
+  const { t } = useT()
   const [craftingData, setCraftingData] = useState<CraftingToolEntry[]>([])
   const [recipes, setRecipes] = useState<RecipeFile[]>([])
   const [search, setSearch] = useState('')
@@ -53,20 +55,20 @@ export default function CraftingBrowser({ characterTools, onStartCrafting }: Cra
       .then(setCraftingData)
       .catch((err) => {
         logger.error('Failed to load crafting data', err)
-        addToast('Failed to load crafting data', 'error')
+        addToast(t('game.craftingBrowser.loadDataError'), 'error')
         setCraftingData([])
       })
     Promise.all(RECIPE_FILES.map((f) => loadJson<RecipeFile>(f)))
       .then(setRecipes)
       .catch((err) => {
         logger.error('Failed to load crafting recipes', err)
-        addToast('Failed to load crafting recipes', 'error')
+        addToast(t('game.craftingBrowser.loadRecipesError'), 'error')
         setRecipes([])
       })
   }, [])
 
   const hasTool = useCallback(
-    (toolName: string): boolean => characterTools.some((t) => t.toLowerCase() === toolName.toLowerCase()),
+    (toolName: string): boolean => characterTools.some((tool) => tool.toLowerCase() === toolName.toLowerCase()),
     [characterTools]
   )
 
@@ -134,12 +136,12 @@ export default function CraftingBrowser({ characterTools, onStartCrafting }: Cra
     })
   }, [allItems, category, search])
 
-  const categories: { id: CraftingCategory; label: string }[] = [
-    { id: 'all', label: 'All' },
-    { id: 'weapon', label: 'Weapons' },
-    { id: 'armor', label: 'Armor' },
-    { id: 'gear', label: 'Gear' },
-    { id: 'recipe', label: 'Recipes' }
+  const categories: { id: CraftingCategory }[] = [
+    { id: 'all' },
+    { id: 'weapon' },
+    { id: 'armor' },
+    { id: 'gear' },
+    { id: 'recipe' }
   ]
 
   return (
@@ -147,7 +149,7 @@ export default function CraftingBrowser({ characterTools, onStartCrafting }: Cra
       {/* Search */}
       <input
         type="text"
-        placeholder="Search items..."
+        placeholder={t('game.craftingBrowser.searchPlaceholder')}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-1.5 text-xs text-gray-200 placeholder-gray-500"
@@ -163,14 +165,16 @@ export default function CraftingBrowser({ characterTools, onStartCrafting }: Cra
               category === c.id ? 'bg-amber-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
             }`}
           >
-            {c.label}
+            {t(`game.craftingBrowser.categories.${c.id}`)}
           </button>
         ))}
       </div>
 
       {/* Item list */}
       <div className="max-h-[350px] overflow-y-auto space-y-1">
-        {filtered.length === 0 && <p className="text-xs text-gray-500 text-center py-4">No items found.</p>}
+        {filtered.length === 0 && (
+          <p className="text-xs text-gray-500 text-center py-4">{t('game.craftingBrowser.noItems')}</p>
+        )}
         {filtered.map((item, i) => (
           <div
             key={`${item.name}-${item.tool}-${i}`}
@@ -185,7 +189,9 @@ export default function CraftingBrowser({ characterTools, onStartCrafting }: Cra
                     {item.name}
                   </span>
                   {item.dc && (
-                    <span className="text-xs px-1.5 py-0.5 bg-red-600/20 text-red-400 rounded">DC {item.dc}</span>
+                    <span className="text-xs px-1.5 py-0.5 bg-red-600/20 text-red-400 rounded">
+                      {t('game.craftingBrowser.dc', { dc: item.dc })}
+                    </span>
                   )}
                 </div>
                 <div className="flex items-center gap-3 mt-0.5 text-xs text-gray-500">
@@ -193,9 +199,7 @@ export default function CraftingBrowser({ characterTools, onStartCrafting }: Cra
                     {item.hasProficiency ? '\u2713' : '\u2717'} {item.tool}
                   </span>
                   <span>{item.cost}</span>
-                  <span>
-                    {item.days} day{item.days !== 1 ? 's' : ''}
-                  </span>
+                  <span>{t('game.craftingBrowser.days', { count: item.days })}</span>
                 </div>
                 {item.description && <p className="text-xs text-gray-500 mt-0.5">{item.description}</p>}
               </div>
@@ -204,7 +208,7 @@ export default function CraftingBrowser({ characterTools, onStartCrafting }: Cra
                 disabled={!item.hasProficiency}
                 className="px-2 py-1 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed ml-2 shrink-0"
               >
-                Craft
+                {t('game.craftingBrowser.craft')}
               </button>
             </div>
           </div>
@@ -212,9 +216,7 @@ export default function CraftingBrowser({ characterTools, onStartCrafting }: Cra
       </div>
 
       {/* Multi-crafter note */}
-      <p className="text-xs text-gray-500 italic">
-        Multiple characters can combine efforts, each contributing 5 GP of progress per day.
-      </p>
+      <p className="text-xs text-gray-500 italic">{t('game.craftingBrowser.multiCrafterNote')}</p>
     </div>
   )
 }

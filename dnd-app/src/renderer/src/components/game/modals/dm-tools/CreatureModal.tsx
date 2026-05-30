@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { addToast } from '../../../../hooks/use-toast'
+import { i18n, useT } from '../../../../i18n'
 import { load5eMonsters, searchMonsters } from '../../../../services/data-provider'
 import type { Companion5e } from '../../../../types/companion'
 import type { MonsterStatBlock } from '../../../../types/monster'
@@ -38,12 +39,12 @@ const TYPE_OPTIONS = [
   'Giant'
 ] as const
 const CR_OPTIONS = [
-  { label: 'CR 0', max: 0 },
-  { label: 'CR 1/8-1/4', max: 0.25 },
-  { label: 'CR 1/2-1', max: 1 },
-  { label: 'CR 2-4', max: 4 },
-  { label: 'CR 5-10', max: 10 },
-  { label: 'CR 11+', max: 30 }
+  { label: i18n.t('game.creatureModal.cr0'), max: 0 },
+  { label: i18n.t('game.creatureModal.cr18_14'), max: 0.25 },
+  { label: i18n.t('game.creatureModal.cr12_1'), max: 1 },
+  { label: i18n.t('game.creatureModal.cr2_4'), max: 4 },
+  { label: i18n.t('game.creatureModal.cr5_10'), max: 10 },
+  { label: i18n.t('game.creatureModal.cr11plus'), max: 30 }
 ] as const
 
 export default function CreatureModal({
@@ -55,6 +56,7 @@ export default function CreatureModal({
   spellName,
   initialTab = 'browse'
 }: CreatureModalProps): JSX.Element {
+  const { t } = useT()
   const [tab, setTab] = useState<CreatureTab>(initialTab)
   const [monsters, setMonsters] = useState<MonsterStatBlock[]>([])
   const [query, setQuery] = useState('')
@@ -75,7 +77,7 @@ export default function CreatureModal({
       .then(setMonsters)
       .catch((err) => {
         logger.error('Failed to load monsters', err)
-        addToast('Failed to load creatures', 'error')
+        addToast(t('game.creatureModal.loadFailed'), 'error')
         setMonsters([])
       })
   }, [])
@@ -136,7 +138,7 @@ export default function CreatureModal({
                 tab === 'browse' ? 'text-amber-400 border-b-2 border-amber-400' : 'text-gray-500 hover:text-gray-300'
               }`}
             >
-              Browse
+              {t('game.creatureModal.browse')}
             </button>
             <button
               onClick={() => setTab('summon')}
@@ -144,9 +146,11 @@ export default function CreatureModal({
                 tab === 'summon' ? 'text-purple-400 border-b-2 border-purple-400' : 'text-gray-500 hover:text-gray-300'
               }`}
             >
-              Summon
+              {t('game.creatureModal.summon')}
             </button>
-            {tab === 'summon' && spellName && <span className="text-xs text-gray-500">via {spellName}</span>}
+            {tab === 'summon' && spellName && (
+              <span className="text-xs text-gray-500">{t('game.creatureModal.viaSpell', { spell: spellName })}</span>
+            )}
           </div>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-300 text-xl cursor-pointer">
             x
@@ -159,7 +163,7 @@ export default function CreatureModal({
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search creatures..."
+            placeholder={t('game.creatureModal.searchPlaceholder')}
             className={`w-full px-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-200 placeholder-gray-500 focus:outline-none ${
               tab === 'browse' ? 'focus:border-amber-500' : 'focus:border-purple-500'
             }`}
@@ -170,7 +174,7 @@ export default function CreatureModal({
               onChange={(e) => setTypeFilter(e.target.value || null)}
               className="px-2 py-1 bg-gray-800 border border-gray-700 rounded text-xs text-gray-300 cursor-pointer"
             >
-              <option value="">All Types</option>
+              <option value="">{t('game.creatureModal.allTypes')}</option>
               {TYPE_OPTIONS.map((t) => (
                 <option key={t} value={t}>
                   {t}
@@ -182,7 +186,7 @@ export default function CreatureModal({
               onChange={(e) => setSizeFilter(e.target.value || null)}
               className="px-2 py-1 bg-gray-800 border border-gray-700 rounded text-xs text-gray-300 cursor-pointer"
             >
-              <option value="">All Sizes</option>
+              <option value="">{t('game.creatureModal.allSizes')}</option>
               {SIZE_OPTIONS.map((s) => (
                 <option key={s} value={s}>
                   {s}
@@ -197,7 +201,7 @@ export default function CreatureModal({
               }}
               className="px-2 py-1 bg-gray-800 border border-gray-700 rounded text-xs text-gray-300 cursor-pointer"
             >
-              <option value="">All CRs</option>
+              <option value="">{t('game.creatureModal.allCrs')}</option>
               {CR_OPTIONS.map((c) => (
                 <option key={c.label} value={c.max}>
                   {c.label}
@@ -205,7 +209,7 @@ export default function CreatureModal({
               ))}
             </select>
             <span className="text-xs text-gray-500 self-center ml-auto">
-              {filtered.length} creature{filtered.length !== 1 ? 's' : ''}
+              {t('game.creatureModal.creatureCount', { count: filtered.length })}
             </span>
           </div>
 
@@ -216,14 +220,18 @@ export default function CreatureModal({
                 type="text"
                 value={customName}
                 onChange={(e) => setCustomName(e.target.value)}
-                placeholder="Custom name (optional)"
+                placeholder={t('game.creatureModal.customNamePlaceholder')}
                 className="flex-1 px-2 py-1 bg-gray-800 border border-gray-700 rounded text-xs text-gray-200 placeholder-gray-500 focus:outline-none focus:border-purple-500"
               />
               <input
                 type="number"
                 value={customHP}
                 onChange={(e) => setCustomHP(e.target.value)}
-                placeholder={selected ? `HP (${selected.hp})` : 'Custom HP'}
+                placeholder={
+                  selected
+                    ? t('game.creatureModal.hpPlaceholder', { hp: selected.hp })
+                    : t('game.creatureModal.customHpPlaceholder')
+                }
                 min={1}
                 className="w-24 px-2 py-1 bg-gray-800 border border-gray-700 rounded text-xs text-gray-200 placeholder-gray-500 focus:outline-none focus:border-purple-500"
               />
@@ -234,7 +242,7 @@ export default function CreatureModal({
                   onChange={(e) => setConcentration(e.target.checked)}
                   className="rounded"
                 />
-                Concentration
+                {t('game.creatureModal.concentration')}
               </label>
             </div>
           )}
@@ -258,13 +266,17 @@ export default function CreatureModal({
               >
                 <div className="text-sm text-gray-200 font-medium">{m.name}</div>
                 <div className="text-xs text-gray-500">
-                  {m.size} {m.type} - CR {m.cr}
+                  {t('game.creatureModal.sizeTypeCr', { size: m.size, type: m.type, cr: m.cr })}
                 </div>
               </button>
             ))}
-            {filtered.length === 0 && <div className="text-gray-500 text-xs text-center p-4">No creatures found</div>}
+            {filtered.length === 0 && (
+              <div className="text-gray-500 text-xs text-center p-4">{t('game.creatureModal.noCreaturesFound')}</div>
+            )}
             {filtered.length > 200 && (
-              <div className="text-gray-600 text-xs text-center p-2">Showing first 200 of {filtered.length}</div>
+              <div className="text-gray-600 text-xs text-center p-2">
+                {t('game.creatureModal.showingFirst', { count: filtered.length })}
+              </div>
             )}
           </div>
 
@@ -278,7 +290,7 @@ export default function CreatureModal({
                     onClick={handlePlaceOnMap}
                     className="w-full px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white text-sm font-semibold rounded-lg transition-colors cursor-pointer"
                   >
-                    Place on Map
+                    {t('game.creatureModal.placeOnMap')}
                   </button>
                 )}
                 {tab === 'summon' && onSummon && characterId && (
@@ -286,12 +298,12 @@ export default function CreatureModal({
                     onClick={handleSummon}
                     className="w-full px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold rounded-lg transition-colors cursor-pointer"
                   >
-                    Summon {customName.trim() || selected.name}
+                    {t('game.creatureModal.summonNamed', { name: customName.trim() || selected.name })}
                   </button>
                 )}
               </div>
             ) : (
-              <div className="text-gray-500 text-sm text-center mt-20">Select a creature to view its stat block</div>
+              <div className="text-gray-500 text-sm text-center mt-20">{t('game.creatureModal.selectPrompt')}</div>
             )}
           </div>
         </div>

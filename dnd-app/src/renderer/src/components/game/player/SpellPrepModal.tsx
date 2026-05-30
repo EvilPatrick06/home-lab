@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react'
 import { useEscapeKey } from '../../../hooks/use-escape-key'
+import { useT } from '../../../i18n'
 import {
   getEffectiveClasses,
   getEffectiveKnownSpells,
@@ -58,6 +59,7 @@ function maxPreparedFor(char: Character5e): number {
 }
 
 export default function SpellPrepModal({ character, onClose }: SpellPrepModalProps): JSX.Element {
+  const { t } = useT()
   const saveCharacter = useCharacterStore((s) => s.saveCharacter)
   const initiative = useGameStore((s) => s.initiative)
   const inCombat = !!initiative
@@ -108,15 +110,13 @@ export default function SpellPrepModal({ character, onClose }: SpellPrepModalPro
       <div className="fixed inset-0 z-20 flex items-end justify-center pb-20">
         <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
         <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-md w-full mx-4">
-          <p className="text-sm text-gray-300">
-            Spell preparation is only available for Cleric, Druid, Paladin, and Wizard characters.
-          </p>
+          <p className="text-sm text-gray-300">{t('game.spellPrepModal.preparedCasterOnly')}</p>
           <button
             type="button"
             onClick={onClose}
             className="mt-3 px-3 py-1.5 text-xs rounded bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
           >
-            Close
+            {t('common.actions.close')}
           </button>
         </div>
       </div>
@@ -129,16 +129,16 @@ export default function SpellPrepModal({ character, onClose }: SpellPrepModalPro
       <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-lg w-full mx-4 shadow-2xl max-h-[60vh] flex flex-col">
         <div className="flex items-center justify-between mb-2 shrink-0">
           <div>
-            <h3 className="text-sm font-semibold text-gray-200">Prepare Spells</h3>
+            <h3 className="text-sm font-semibold text-gray-200">{t('game.spellPrepModal.prepareSpells')}</h3>
             <p className="text-xs text-gray-500">
-              {preparedCount} / {maxPrepared} prepared
+              {t('game.spellPrepModal.preparedCount', { count: preparedCount, max: maxPrepared })}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="text-gray-500 hover:text-gray-300 text-lg cursor-pointer"
-            aria-label="Close"
+            aria-label={t('common.actions.close')}
           >
             &times;
           </button>
@@ -146,13 +146,13 @@ export default function SpellPrepModal({ character, onClose }: SpellPrepModalPro
 
         {inCombat && (
           <p className="text-[11px] text-amber-300 bg-amber-900/30 border border-amber-700/40 rounded px-2 py-1 mb-2">
-            Locked during combat. Spell preparation requires a long rest (or being out of initiative).
+            {t('game.spellPrepModal.lockedDuringCombat')}
           </p>
         )}
 
         <div className="flex-1 overflow-y-auto space-y-1 pr-1">
           {leveled.length === 0 ? (
-            <p className="text-xs text-gray-500 py-4 text-center">No leveled spells learned yet.</p>
+            <p className="text-xs text-gray-500 py-4 text-center">{t('game.spellPrepModal.noLeveledSpells')}</p>
           ) : (
             leveled.map((spell) => {
               const isPrepared = preparedSet.has(spell.id)
@@ -173,9 +173,13 @@ export default function SpellPrepModal({ character, onClose }: SpellPrepModalPro
                 >
                   <div className="text-left">
                     <div className="font-medium">{spell.name}</div>
-                    <div className="text-[9px] text-gray-500">Level {spell.level}</div>
+                    <div className="text-[9px] text-gray-500">
+                      {t('game.spellPrepModal.spellLevel', { level: spell.level })}
+                    </div>
                   </div>
-                  <span className="text-xs">{isPrepared ? '✓ Prepared' : 'Not prepared'}</span>
+                  <span className="text-xs">
+                    {isPrepared ? t('game.spellPrepModal.prepared') : t('game.spellPrepModal.notPrepared')}
+                  </span>
                 </button>
               )
             })

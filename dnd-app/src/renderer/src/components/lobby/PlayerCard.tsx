@@ -1,4 +1,5 @@
 import { memo, useState } from 'react'
+import { useT } from '../../i18n'
 import { PLAYER_COLORS } from '../../network'
 import type { LobbyPlayer } from '../../stores/use-lobby-store'
 
@@ -43,6 +44,7 @@ export default memo(function PlayerCard({
   onPromoteToPlayer,
   onDemoteToSpectator
 }: PlayerCardProps): JSX.Element {
+  const { t } = useT()
   const isSpectator = player.role === 'spectator'
   const avatarLetter = player.displayName.charAt(0).toUpperCase()
   const [showColorPicker, setShowColorPicker] = useState(false)
@@ -87,10 +89,12 @@ export default memo(function PlayerCard({
             disabled={!isLocal || !onColorChange}
             aria-label={
               isLocal
-                ? `Your avatar — click to pick your border color (currently ${player.color || 'default'})`
-                : `${player.displayName}'s avatar`
+                ? t('lobby.playerCard.avatarLocalAria', {
+                    color: player.color || t('lobby.playerCard.defaultColor')
+                  })
+                : t('lobby.playerCard.avatarAria', { name: player.displayName })
             }
-            title={isLocal && onColorChange ? 'Click to pick your color' : undefined}
+            title={isLocal && onColorChange ? t('lobby.playerCard.pickColorTitle') : undefined}
           >
             {player.characterPortraitUrl ? (
               <img
@@ -117,7 +121,7 @@ export default memo(function PlayerCard({
             <div
               className="pointer-events-none absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-gray-900 border border-amber-500 flex items-center justify-center"
               aria-hidden="true"
-              title="Click avatar to change color"
+              title={t('lobby.playerCard.changeColorTitle')}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -138,11 +142,11 @@ export default memo(function PlayerCard({
               className={`text-sm truncate ${player.isHost ? 'font-bold text-amber-400' : 'font-medium text-gray-200'}`}
             >
               {player.displayName}
-              {isLocal && <span className="text-gray-500 font-normal"> (you)</span>}
+              {isLocal && <span className="text-gray-500 font-normal">{t('lobby.playerCard.you')}</span>}
             </span>
             {player.isHost && (
               <span className="flex-shrink-0 text-xs font-bold px-1.5 py-0.5 rounded bg-amber-600/30 text-amber-400 uppercase tracking-wide">
-                DM
+                {t('lobby.playerCard.dmBadge')}
               </span>
             )}
             {/* Phase 29e — the Co-DM badge is purely visual. Reflect the
@@ -151,12 +155,12 @@ export default memo(function PlayerCard({
                 isCoDM → role-codm in hasPermission. */}
             {player.isCoDM && !player.isHost && (
               <span className="flex-shrink-0 text-xs font-bold px-1.5 py-0.5 rounded bg-purple-600/30 text-purple-400 uppercase tracking-wide">
-                Co-DM
+                {t('lobby.playerCard.coDmBadge')}
               </span>
             )}
             {isSpectator && (
               <span className="flex-shrink-0 text-xs font-bold px-1.5 py-0.5 rounded bg-sky-700/40 text-sky-300 uppercase tracking-wide">
-                Spectator
+                {t('lobby.playerCard.spectatorBadge')}
               </span>
             )}
           </div>
@@ -168,15 +172,17 @@ export default memo(function PlayerCard({
               {player.characterName}
             </button>
           ) : (
-            <p className="text-xs text-gray-500 truncate">{player.characterName || 'No character selected'}</p>
+            <p className="text-xs text-gray-500 truncate">
+              {player.characterName || t('lobby.playerCard.noCharacterSelected')}
+            </p>
           )}
           {player.status === 'reconnecting' ? (
-            <span className="text-xs text-amber-400 animate-pulse">Reconnecting...</span>
+            <span className="text-xs text-amber-400 animate-pulse">{t('lobby.playerCard.reconnecting')}</span>
           ) : player.status === 'disconnected' ? (
             // Phase 17e — explicit disconnected (set by Kick) renders as a
             // red pill, not the yellow "Reconnecting" used for transient
             // drops. The card is removed after a short grace.
-            <span className="text-xs text-red-400 font-semibold">Disconnected</span>
+            <span className="text-xs text-red-400 font-semibold">{t('lobby.playerCard.disconnected')}</span>
           ) : (
             player.latencyMs != null && (
               <span
@@ -188,7 +194,7 @@ export default memo(function PlayerCard({
                       : 'text-red-400'
                 }`}
               >
-                Ping: {player.latencyMs}ms
+                {t('lobby.playerCard.ping', { ms: player.latencyMs })}
               </span>
             )
           )}
@@ -209,12 +215,14 @@ export default memo(function PlayerCard({
               onClick={onToggleLocalMute}
               aria-pressed={isLocallyMuted}
               aria-label={
-                isLocallyMuted ? `Unmute ${player.displayName} (local)` : `Mute ${player.displayName} (local)`
+                isLocallyMuted
+                  ? t('lobby.playerCard.unmuteAria', { name: player.displayName })
+                  : t('lobby.playerCard.muteAria', { name: player.displayName })
               }
               title={
                 isLocallyMuted
-                  ? `Unmute ${player.displayName} for your audio (local-only)`
-                  : `Mute ${player.displayName} for your audio (local-only)`
+                  ? t('lobby.playerCard.unmuteTitle', { name: player.displayName })
+                  : t('lobby.playerCard.muteTitle', { name: player.displayName })
               }
               className={`p-1 rounded transition-all cursor-pointer ${
                 isLocallyMuted
@@ -238,7 +246,7 @@ export default memo(function PlayerCard({
 
           {/* Ready indicator */}
           {player.isReady ? (
-            <div className="text-green-400" title="Ready">
+            <div className="text-green-400" title={t('lobby.playerCard.readyTitle')}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
                 <path
                   fillRule="evenodd"
@@ -248,7 +256,7 @@ export default memo(function PlayerCard({
               </svg>
             </div>
           ) : (
-            <div className="text-gray-600" title="Not ready">
+            <div className="text-gray-600" title={t('lobby.playerCard.notReadyTitle')}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
                 <path fillRule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z" clipRule="evenodd" />
               </svg>
@@ -273,7 +281,7 @@ export default memo(function PlayerCard({
                   setShowColorPicker(false)
                 }}
                 disabled={taken}
-                title={taken ? `${color} (taken)` : color}
+                title={taken ? t('lobby.playerCard.colorTaken', { color }) : color}
                 className={`w-5 h-5 rounded-full border-2 transition-colors ${
                   isSelected
                     ? 'border-white cursor-pointer'
@@ -295,7 +303,7 @@ export default memo(function PlayerCard({
           {onChatTimeout && (
             <button
               onClick={onChatTimeout}
-              title="Timeout chat (5 min)"
+              title={t('lobby.playerCard.timeoutChatTitle')}
               className="p-1.5 rounded transition-colors cursor-pointer text-gray-600 hover:text-amber-400 hover:bg-gray-800"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
@@ -313,7 +321,7 @@ export default memo(function PlayerCard({
             ? onDemoteCoDM && (
                 <button
                   onClick={onDemoteCoDM}
-                  title="Demote from Co-DM"
+                  title={t('lobby.playerCard.demoteCoDmTitle')}
                   className="p-1.5 rounded transition-colors cursor-pointer bg-purple-900/40 text-purple-400 hover:bg-purple-900/60"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
@@ -325,7 +333,7 @@ export default memo(function PlayerCard({
             : onPromoteCoDM && (
                 <button
                   onClick={onPromoteCoDM}
-                  title="Promote to Co-DM"
+                  title={t('lobby.playerCard.promoteCoDmTitle')}
                   className="p-1.5 rounded transition-colors cursor-pointer text-gray-600 hover:text-purple-400 hover:bg-gray-800"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
@@ -340,10 +348,10 @@ export default memo(function PlayerCard({
             <button
               type="button"
               onClick={onMakeDM}
-              title="Make DM (transfer DM authority)"
+              title={t('lobby.playerCard.makeDmTitle')}
               className="px-2 py-1 rounded text-xs font-medium transition-colors cursor-pointer bg-amber-900/30 text-amber-400 hover:bg-amber-900/50 hover:text-amber-300"
             >
-              Make DM
+              {t('lobby.playerCard.makeDm')}
             </button>
           )}
 
@@ -353,10 +361,10 @@ export default memo(function PlayerCard({
           {onKick && (
             <button
               onClick={onKick}
-              title="Kick player"
+              title={t('lobby.playerCard.kickTitle')}
               className="px-2 py-1 rounded text-xs font-medium transition-colors cursor-pointer bg-red-900/30 text-red-400 hover:bg-red-900/50 hover:text-red-300"
             >
-              Kick
+              {t('lobby.playerCard.kick')}
             </button>
           )}
 
@@ -364,10 +372,10 @@ export default memo(function PlayerCard({
           {onBan && (
             <button
               onClick={onBan}
-              title="Ban player"
+              title={t('lobby.playerCard.banTitle')}
               className="px-2 py-1 rounded text-xs font-medium transition-colors cursor-pointer bg-red-950/40 text-red-500 hover:bg-red-900/60 hover:text-red-300"
             >
-              Ban
+              {t('lobby.playerCard.ban')}
             </button>
           )}
 
@@ -376,20 +384,20 @@ export default memo(function PlayerCard({
             <button
               type="button"
               onClick={onPromoteToPlayer}
-              title="Promote to player"
+              title={t('lobby.playerCard.promotePlayerTitle')}
               className="px-2 py-1 rounded text-xs font-medium transition-colors cursor-pointer bg-sky-900/40 text-sky-300 hover:bg-sky-900/60 hover:text-sky-200"
             >
-              Promote
+              {t('lobby.playerCard.promote')}
             </button>
           )}
           {!isSpectator && onDemoteToSpectator && (
             <button
               type="button"
               onClick={onDemoteToSpectator}
-              title="Demote to spectator"
+              title={t('lobby.playerCard.demoteSpectatorTitle')}
               className="px-2 py-1 rounded text-xs font-medium transition-colors cursor-pointer bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-gray-200"
             >
-              Demote
+              {t('lobby.playerCard.demote')}
             </button>
           )}
         </div>

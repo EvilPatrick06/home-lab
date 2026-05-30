@@ -1,11 +1,12 @@
 import { useNavigate } from 'react-router'
+import { useT } from '../i18n'
 import { useNetworkStore } from '../stores/network-store'
 
 const menuItems = [
   {
-    label: 'Your Characters',
+    labelKey: 'pages.mainMenuPage.charactersLabel',
     path: '/characters',
-    description: 'Browse your heroes from past and present campaigns',
+    descriptionKey: 'pages.mainMenuPage.charactersDescription',
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 shrink-0">
         <path
@@ -17,9 +18,9 @@ const menuItems = [
     )
   },
   {
-    label: 'My Campaigns',
+    labelKey: 'pages.mainMenuPage.campaignsLabel',
     path: '/make',
-    description: 'View, create, and manage your campaigns',
+    descriptionKey: 'pages.mainMenuPage.campaignsDescription',
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 shrink-0">
         <path d="M11.25 4.533A9.707 9.707 0 0 0 6 3a9.735 9.735 0 0 0-3.25.555.75.75 0 0 0-.5.707v14.25a.75.75 0 0 0 1 .707A8.237 8.237 0 0 1 6 18.75c1.995 0 3.823.707 5.25 1.886V4.533ZM12.75 20.636A8.214 8.214 0 0 1 18 18.75c.966 0 1.89.166 2.75.47a.75.75 0 0 0 1-.708V4.262a.75.75 0 0 0-.5-.707A9.735 9.735 0 0 0 18 3a9.707 9.707 0 0 0-5.25 1.533v16.103Z" />
@@ -27,9 +28,9 @@ const menuItems = [
     )
   },
   {
-    label: 'Library',
+    labelKey: 'pages.mainMenuPage.libraryLabel',
     path: '/library',
-    description: 'Browse, import, and export monsters, creatures, NPCs, and more',
+    descriptionKey: 'pages.mainMenuPage.libraryDescription',
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 shrink-0">
         <path d="M5.566 4.657A4.505 4.505 0 0 1 6.75 4.5h10.5c.41 0 .806.055 1.183.157A3 3 0 0 0 15.75 3h-7.5a3 3 0 0 0-2.684 1.657ZM2.25 12a3 3 0 0 1 3-3h13.5a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3v-6ZM5.25 7.5c-.41 0-.806.055-1.184.157A3 3 0 0 1 6.75 6h10.5a3 3 0 0 1 2.683 1.657A4.505 4.505 0 0 0 18.75 7.5H5.25Z" />
@@ -37,9 +38,9 @@ const menuItems = [
     )
   },
   {
-    label: 'Join Game',
+    labelKey: 'pages.mainMenuPage.joinGameLabel',
     path: '/join',
-    description: 'Connect to a game hosted by your Dungeon Master',
+    descriptionKey: 'pages.mainMenuPage.joinGameDescription',
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 shrink-0">
         <path
@@ -51,9 +52,9 @@ const menuItems = [
     )
   },
   {
-    label: 'Bastions',
+    labelKey: 'pages.mainMenuPage.bastionsLabel',
     path: '/bastions',
-    description: 'Manage your strongholds, rooms, and hirelings',
+    descriptionKey: 'pages.mainMenuPage.bastionsDescription',
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 shrink-0">
         <path
@@ -65,9 +66,9 @@ const menuItems = [
     )
   },
   {
-    label: 'About & Data',
+    labelKey: 'pages.mainMenuPage.aboutLabel',
     path: '/about',
-    description: 'App info, updates, and backup/restore your data',
+    descriptionKey: 'pages.mainMenuPage.aboutDescription',
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 shrink-0">
         <path
@@ -81,6 +82,7 @@ const menuItems = [
 ]
 
 export default function MainMenuPage(): JSX.Element {
+  const { t } = useT()
   const navigate = useNavigate()
   const disconnectReason = useNetworkStore((s) => s.disconnectReason)
   const clearDisconnectReason = useNetworkStore((s) => s.clearDisconnectReason)
@@ -97,12 +99,12 @@ export default function MainMenuPage(): JSX.Element {
         >
           <span className={`text-sm ${disconnectReason === 'banned' ? 'text-red-300' : 'text-amber-300'}`}>
             {disconnectReason === 'kicked'
-              ? 'You were kicked from the game by the DM.'
-              : 'You were banned from the game by the DM.'}
+              ? t('pages.mainMenuPage.kickedMessage')
+              : t('pages.mainMenuPage.bannedMessage')}
           </span>
           <button
             onClick={clearDisconnectReason}
-            aria-label="Dismiss"
+            aria-label={t('pages.mainMenuPage.dismiss')}
             className={`ml-4 cursor-pointer ${
               disconnectReason === 'banned' ? 'text-red-400 hover:text-red-200' : 'text-amber-400 hover:text-amber-200'
             }`}
@@ -121,11 +123,11 @@ export default function MainMenuPage(): JSX.Element {
       )}
 
       <div className="text-center">
-        <h1 className="text-5xl font-bold tracking-wider text-amber-400 mb-2">D&D Virtual Tabletop</h1>
-        <p className="text-gray-400 text-lg">Your adventure awaits</p>
+        <h1 className="text-5xl font-bold tracking-wider text-amber-400 mb-2">{t('pages.mainMenuPage.appTitle')}</h1>
+        <p className="text-gray-400 text-lg">{t('pages.mainMenuPage.tagline')}</p>
       </div>
 
-      <nav aria-label="Main navigation" className="flex flex-col gap-4 w-full max-w-md mt-8">
+      <nav aria-label={t('pages.mainMenuPage.mainNavigation')} className="flex flex-col gap-4 w-full max-w-md mt-8">
         {menuItems.map((item) => (
           <button
             key={item.path}
@@ -137,16 +139,18 @@ export default function MainMenuPage(): JSX.Element {
             <span className="text-gray-500 group-hover:text-amber-500 transition-colors">{item.icon}</span>
             <div>
               <div className="text-xl font-semibold text-gray-100 group-hover:text-amber-400 transition-colors">
-                {item.label}
+                {t(item.labelKey)}
               </div>
-              <div className="text-sm text-gray-500 mt-1">{item.description}</div>
+              <div className="text-sm text-gray-500 mt-1">{t(item.descriptionKey)}</div>
             </div>
           </button>
         ))}
       </nav>
 
       <p className="text-gray-600 text-sm mt-4">
-        Version {typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'dev'}
+        {t('pages.mainMenuPage.version', {
+          version: typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'dev'
+        })}
       </p>
     </div>
   )

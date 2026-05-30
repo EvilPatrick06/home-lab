@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 import { loadStatBlockById } from '../../../../services/data-provider'
 import { useGameStore } from '../../../../stores/use-game-store'
 import type { MapToken } from '../../../../types/map'
@@ -34,6 +35,7 @@ function getSizeLabel(sizeX: number, sizeY: number): string {
 }
 
 export default function TokenEditorModal({ token, mapId, onClose }: TokenEditorModalProps): JSX.Element {
+  const { t } = useT()
   const updateToken = useGameStore((s) => s.updateToken)
 
   useEscapeKey(onClose)
@@ -102,7 +104,7 @@ export default function TokenEditorModal({ token, mapId, onClose }: TokenEditorM
     const file = e.target.files?.[0]
     if (!file) return
     if (file.size > 500 * 1024) {
-      alert('Image size must be less than 500KB')
+      alert(t('game.tokenEditorModal.imageTooLarge'))
       return
     }
     const reader = new FileReader()
@@ -118,11 +120,11 @@ export default function TokenEditorModal({ token, mapId, onClose }: TokenEditorM
       <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-96 max-h-[90vh] overflow-y-auto shadow-2xl">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-gray-200">Edit Token</h3>
+          <h3 className="text-sm font-semibold text-gray-200">{t('game.tokenEditorModal.title')}</h3>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-300 text-lg cursor-pointer"
-            aria-label="Close"
+            aria-label={t('common.actions.close')}
           >
             &times;
           </button>
@@ -131,7 +133,7 @@ export default function TokenEditorModal({ token, mapId, onClose }: TokenEditorM
         <div className="space-y-3">
           {/* Label */}
           <div className="flex items-center justify-between">
-            <label className="text-xs text-gray-400">Label (1-3 chars)</label>
+            <label className="text-xs text-gray-400">{t('game.tokenEditorModal.label')}</label>
             <input
               type="text"
               value={label}
@@ -143,7 +145,7 @@ export default function TokenEditorModal({ token, mapId, onClose }: TokenEditorM
 
           {/* Label Font Size */}
           <div className="flex items-center justify-between">
-            <label className="text-xs text-gray-400">Label Font Size</label>
+            <label className="text-xs text-gray-400">{t('game.tokenEditorModal.labelFontSize')}</label>
             <input
               type="number"
               min={8}
@@ -156,7 +158,7 @@ export default function TokenEditorModal({ token, mapId, onClose }: TokenEditorM
 
           {/* Token Color */}
           <div className="flex items-center justify-between">
-            <label className="text-xs text-gray-400">Token Color</label>
+            <label className="text-xs text-gray-400">{t('game.tokenEditorModal.tokenColor')}</label>
             <div className="flex items-center gap-2">
               <input
                 type="color"
@@ -170,7 +172,7 @@ export default function TokenEditorModal({ token, mapId, onClose }: TokenEditorM
 
           {/* Border Color */}
           <div className="flex items-center justify-between">
-            <label className="text-xs text-gray-400">Border Color</label>
+            <label className="text-xs text-gray-400">{t('game.tokenEditorModal.borderColor')}</label>
             <div className="flex items-center gap-2">
               <input
                 type="color"
@@ -184,21 +186,21 @@ export default function TokenEditorModal({ token, mapId, onClose }: TokenEditorM
 
           {/* Border Style */}
           <div className="flex items-center justify-between">
-            <label className="text-xs text-gray-400">Border Style</label>
+            <label className="text-xs text-gray-400">{t('game.tokenEditorModal.borderStyle')}</label>
             <select
               value={borderStyle}
               onChange={(e) => handleBorderStyleChange(e.target.value)}
               className="w-24 px-2 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-200 text-xs focus:outline-none focus:border-amber-500"
             >
-              <option value="solid">Solid</option>
-              <option value="dashed">Dashed</option>
-              <option value="double">Double</option>
+              <option value="solid">{t('game.tokenEditorModal.solid')}</option>
+              <option value="dashed">{t('game.tokenEditorModal.dashed')}</option>
+              <option value="double">{t('game.tokenEditorModal.double')}</option>
             </select>
           </div>
 
           {/* Size Override */}
           <div className="flex items-center justify-between">
-            <label className="text-xs text-gray-400">Size Override</label>
+            <label className="text-xs text-gray-400">{t('game.tokenEditorModal.sizeOverride')}</label>
             <select
               value={sizeLabel}
               onChange={(e) => handleSizeChange(e.target.value)}
@@ -214,7 +216,7 @@ export default function TokenEditorModal({ token, mapId, onClose }: TokenEditorM
 
           {/* Token Image */}
           <div className="flex flex-col gap-2 mt-2 pt-2 border-t border-gray-800">
-            <label className="text-xs text-gray-400">Token Image</label>
+            <label className="text-xs text-gray-400">{t('game.tokenEditorModal.tokenImage')}</label>
             <input
               type="file"
               accept="image/png,image/jpeg,image/webp"
@@ -225,14 +227,14 @@ export default function TokenEditorModal({ token, mapId, onClose }: TokenEditorM
               <div className="flex items-center gap-3 mt-1">
                 <img
                   src={token.imagePath}
-                  alt="Token preview"
+                  alt={t('game.tokenEditorModal.tokenPreview')}
                   className="w-12 h-12 rounded-full object-cover border border-gray-600"
                 />
                 <button
                   onClick={() => applyUpdate({ imagePath: undefined })}
                   className="text-xs text-red-400 hover:text-red-300 px-2 py-1 bg-red-900/20 rounded border border-red-900/50 cursor-pointer"
                 >
-                  Remove Image
+                  {t('game.tokenEditorModal.removeImage')}
                 </button>
               </div>
             )}
@@ -246,19 +248,23 @@ export default function TokenEditorModal({ token, mapId, onClose }: TokenEditorM
               onClick={() => setShowLinkedStatBlock(!showLinkedStatBlock)}
               className="w-full flex items-center justify-between text-xs font-semibold text-gray-300 hover:text-amber-400 transition-colors cursor-pointer"
             >
-              <span>View Stat Block</span>
+              <span>{t('game.tokenEditorModal.viewStatBlock')}</span>
               <span className="text-gray-500 text-xs">{showLinkedStatBlock ? '\u25B2' : '\u25BC'}</span>
             </button>
             {showLinkedStatBlock && (
               <div className="mt-2">
-                {loadingStatBlock && <p className="text-xs text-gray-500">Loading stat block...</p>}
+                {loadingStatBlock && (
+                  <p className="text-xs text-gray-500">{t('game.tokenEditorModal.loadingStatBlock')}</p>
+                )}
                 {!loadingStatBlock && linkedMonster && (
-                  <Suspense fallback={<div className="text-xs text-gray-500">Loading...</div>}>
+                  <Suspense fallback={<div className="text-xs text-gray-500">{t('common.states.loading')}</div>}>
                     <UnifiedStatBlock statBlock={monsterToDisplay(linkedMonster)} />
                   </Suspense>
                 )}
                 {!loadingStatBlock && !linkedMonster && (
-                  <p className="text-xs text-gray-500">Creature not found: {token.monsterStatBlockId}</p>
+                  <p className="text-xs text-gray-500">
+                    {t('game.tokenEditorModal.creatureNotFound', { id: token.monsterStatBlockId })}
+                  </p>
                 )}
               </div>
             )}
@@ -271,7 +277,7 @@ export default function TokenEditorModal({ token, mapId, onClose }: TokenEditorM
             onClick={onClose}
             className="px-4 py-1.5 text-xs font-semibold rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 transition-colors cursor-pointer"
           >
-            Done
+            {t('game.tokenEditorModal.done')}
           </button>
         </div>
       </div>

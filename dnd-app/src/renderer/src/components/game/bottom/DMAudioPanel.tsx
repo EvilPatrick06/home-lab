@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { addToast } from '../../../hooks/use-toast'
+import { useT } from '../../../i18n'
 import {
   advance as advancePlaylist,
   createPlaylist,
@@ -49,6 +50,7 @@ export async function loadAmbientTrackData(): Promise<unknown> {
 }
 
 export default function DMAudioPanel(): JSX.Element {
+  const { t } = useT()
   const [activeAmbient, setActiveAmbient] = useState<AmbientSound | null>(null)
   const [ambientVol, setAmbientVol] = useState(() => Math.round(getAmbientVolume() * 100))
   const [masterVol, setMasterVol] = useState(() => Math.round(getVolume() * 100))
@@ -302,7 +304,7 @@ export default function DMAudioPanel(): JSX.Element {
         try {
           const buffer = await window.api.readFileBinary(filePath)
           if (buffer.byteLength > 1024 * 1024) {
-            addToast(`"${entry.displayName}" is over 1MB — playing DM-only`, 'info')
+            addToast(t('game.dmAudioPanel.overSizeLimit', { name: entry.displayName }), 'info')
           } else {
             const bytes = new Uint8Array(buffer)
             let binary = ''
@@ -326,7 +328,7 @@ export default function DMAudioPanel(): JSX.Element {
         }
       }
     },
-    [campaignId, customAudioEntries, isHost, sendMessage]
+    [campaignId, customAudioEntries, isHost, sendMessage, t]
   )
 
   const handleCustomVolumeChange = useCallback((fileName: string, vol: number) => {
@@ -397,7 +399,9 @@ export default function DMAudioPanel(): JSX.Element {
     <div className="flex flex-col gap-2">
       {/* Ambient tracks grid */}
       <div>
-        <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1 block">Ambient Music</span>
+        <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1 block">
+          {t('game.dmAudioPanel.ambientMusic')}
+        </span>
         <div className="grid grid-cols-3 gap-1">
           {AMBIENT_TRACKS.map((track) => {
             const isActive = activeAmbient === track.id
@@ -411,7 +415,11 @@ export default function DMAudioPanel(): JSX.Element {
                     ? 'bg-amber-600/30 border border-amber-500/50 text-amber-300 shadow-[0_0_6px_rgba(245,158,11,0.15)]'
                     : 'bg-gray-800/60 border border-gray-700/50 text-gray-300 hover:bg-amber-600/20 hover:border-amber-500/40 hover:text-amber-300'
                 } ${isFading ? 'opacity-60' : ''}`}
-                title={isActive ? `Stop ${track.label}` : `Play ${track.label}`}
+                title={
+                  isActive
+                    ? t('game.dmAudioPanel.stopTrack', { label: track.label })
+                    : t('game.dmAudioPanel.playTrack', { label: track.label })
+                }
               >
                 <span className="text-xs">{track.icon}</span>
                 <span className="truncate">{track.label}</span>
@@ -424,11 +432,13 @@ export default function DMAudioPanel(): JSX.Element {
 
       {/* Volume sliders */}
       <div className="border-t border-gray-700/40 pt-1.5">
-        <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1 block">Volume</span>
+        <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1 block">
+          {t('game.dmAudioPanel.volume')}
+        </span>
         <div className="space-y-1.5">
           {/* Ambient volume */}
           <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-400 w-14 shrink-0">Ambient</span>
+            <span className="text-xs text-gray-400 w-14 shrink-0">{t('game.dmAudioPanel.ambient')}</span>
             <input
               type="range"
               min={0}
@@ -441,7 +451,7 @@ export default function DMAudioPanel(): JSX.Element {
           </div>
           {/* Master volume */}
           <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-400 w-14 shrink-0">Master</span>
+            <span className="text-xs text-gray-400 w-14 shrink-0">{t('game.dmAudioPanel.master')}</span>
             <input
               type="range"
               min={0}
@@ -457,7 +467,9 @@ export default function DMAudioPanel(): JSX.Element {
 
       {/* Quick SFX buttons */}
       <div className="border-t border-gray-700/40 pt-1.5">
-        <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1 block">Quick SFX</span>
+        <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1 block">
+          {t('game.dmAudioPanel.quickSfx')}
+        </span>
         <div className="flex flex-wrap gap-1">
           {QUICK_SFX.map((sfx) => (
             <button
@@ -474,13 +486,15 @@ export default function DMAudioPanel(): JSX.Element {
       {/* Custom Sounds */}
       <div className="border-t border-gray-700/40 pt-1.5">
         <div className="flex items-center justify-between mb-1">
-          <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Custom Sounds</span>
+          <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
+            {t('game.dmAudioPanel.customSounds')}
+          </span>
           <button
             onClick={handleUploadCustom}
             disabled={uploading || !campaignId}
             className="px-2 py-0.5 text-xs font-medium rounded bg-amber-600/20 border border-amber-500/40 text-amber-300 hover:bg-amber-600/30 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {uploading ? 'Uploading...' : '+ Upload'}
+            {uploading ? t('game.dmAudioPanel.uploading') : t('game.dmAudioPanel.upload')}
           </button>
         </div>
 
@@ -504,7 +518,9 @@ export default function DMAudioPanel(): JSX.Element {
         {/* Custom audio list */}
         {filteredCustom.length === 0 ? (
           <p className="text-[9px] text-gray-600 italic">
-            {customAudioEntries.length === 0 ? 'No custom sounds uploaded yet.' : 'No sounds in this category.'}
+            {customAudioEntries.length === 0
+              ? t('game.dmAudioPanel.noCustomSounds')
+              : t('game.dmAudioPanel.noSoundsInCategory')}
           </p>
         ) : (
           <div className="space-y-1 max-h-40 overflow-y-auto">
@@ -518,7 +534,7 @@ export default function DMAudioPanel(): JSX.Element {
                       ? 'bg-amber-600/40 text-amber-300'
                       : 'bg-gray-700/60 text-gray-400 hover:text-gray-200'
                   }`}
-                  title={entry.playing ? 'Stop' : 'Play'}
+                  title={entry.playing ? t('game.dmAudioPanel.stop') : t('game.dmAudioPanel.play')}
                 >
                   {entry.playing ? '\u25A0' : '\u25B6'}
                 </button>
@@ -534,7 +550,7 @@ export default function DMAudioPanel(): JSX.Element {
                   value={entry.volume}
                   onChange={(e) => handleCustomVolumeChange(entry.fileName, Number(e.target.value))}
                   className="w-12 h-1 accent-amber-500 cursor-pointer"
-                  title={`Volume: ${entry.volume}%`}
+                  title={t('game.dmAudioPanel.volumePercent', { value: entry.volume })}
                 />
 
                 {/* Loop toggle */}
@@ -545,7 +561,7 @@ export default function DMAudioPanel(): JSX.Element {
                       ? 'bg-blue-600/30 text-blue-300 border border-blue-500/50'
                       : 'bg-gray-700/40 text-gray-500 border border-gray-700/40 hover:text-gray-400'
                   }`}
-                  title={entry.loop ? 'Loop: On' : 'Loop: Off'}
+                  title={entry.loop ? t('game.dmAudioPanel.loopOn') : t('game.dmAudioPanel.loopOff')}
                 >
                   {'\u21BB'}
                 </button>
@@ -554,7 +570,7 @@ export default function DMAudioPanel(): JSX.Element {
                 <button
                   onClick={() => handleDeleteCustom(entry.fileName)}
                   className="text-gray-600 hover:text-red-400 transition-colors cursor-pointer text-xs"
-                  title="Delete"
+                  title={t('common.actions.delete')}
                 >
                   &times;
                 </button>
@@ -567,7 +583,9 @@ export default function DMAudioPanel(): JSX.Element {
       {/* Playlists (Phase 27j) */}
       <div className="border-t border-gray-700/40 pt-1.5">
         <div className="flex items-center justify-between mb-1">
-          <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Playlists</span>
+          <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
+            {t('game.dmAudioPanel.playlists')}
+          </span>
         </div>
         <div className="flex gap-1 mb-1.5">
           <input
@@ -575,7 +593,7 @@ export default function DMAudioPanel(): JSX.Element {
             value={newPlaylistName}
             onChange={(e) => setNewPlaylistName(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleCreatePlaylist()}
-            placeholder="New playlist name..."
+            placeholder={t('game.dmAudioPanel.newPlaylistPlaceholder')}
             className="flex-1 min-w-0 px-2 py-0.5 text-xs bg-gray-800/60 border border-gray-700/50 rounded text-gray-200 placeholder-gray-600"
           />
           <button
@@ -583,12 +601,12 @@ export default function DMAudioPanel(): JSX.Element {
             disabled={!newPlaylistName.trim()}
             className="px-2 py-0.5 text-xs font-medium rounded bg-amber-600/20 border border-amber-500/40 text-amber-300 hover:bg-amber-600/30 transition-all cursor-pointer disabled:opacity-50"
           >
-            + New
+            {t('game.dmAudioPanel.newPlaylist')}
           </button>
         </div>
 
         {playlists.length === 0 ? (
-          <p className="text-[9px] text-gray-600 italic">No playlists yet.</p>
+          <p className="text-[9px] text-gray-600 italic">{t('game.dmAudioPanel.noPlaylists')}</p>
         ) : (
           <div className="space-y-1.5 max-h-52 overflow-y-auto">
             {playlists.map((pl) => {
@@ -604,7 +622,7 @@ export default function DMAudioPanel(): JSX.Element {
                           ? 'bg-amber-600/40 text-amber-300'
                           : 'bg-gray-700/60 text-gray-400 hover:text-gray-200'
                       }`}
-                      title={isPlaying ? 'Stop' : 'Play'}
+                      title={isPlaying ? t('game.dmAudioPanel.stop') : t('game.dmAudioPanel.play')}
                     >
                       {isPlaying ? '■' : '▶'}
                     </button>
@@ -615,7 +633,7 @@ export default function DMAudioPanel(): JSX.Element {
                       <button
                         onClick={handleSkipTrack}
                         className="text-[9px] px-1 py-0.5 rounded bg-gray-700/60 text-gray-300 hover:text-amber-300 cursor-pointer"
-                        title="Skip"
+                        title={t('game.dmAudioPanel.skip')}
                       >
                         {'⏭'}
                       </button>
@@ -625,7 +643,7 @@ export default function DMAudioPanel(): JSX.Element {
                       className={`text-[9px] px-1 py-0.5 rounded cursor-pointer ${
                         pl.shuffle ? 'bg-blue-600/30 text-blue-300' : 'bg-gray-700/40 text-gray-500'
                       }`}
-                      title="Shuffle"
+                      title={t('game.dmAudioPanel.shuffle')}
                     >
                       {'\u{1F500}'}
                     </button>
@@ -634,14 +652,14 @@ export default function DMAudioPanel(): JSX.Element {
                       className={`text-[9px] px-1 py-0.5 rounded cursor-pointer ${
                         pl.loopPlaylist ? 'bg-blue-600/30 text-blue-300' : 'bg-gray-700/40 text-gray-500'
                       }`}
-                      title="Loop playlist"
+                      title={t('game.dmAudioPanel.loopPlaylist')}
                     >
                       {'↻'}
                     </button>
                     <button
                       onClick={() => handleDeletePlaylist(pl.id)}
                       className="text-gray-600 hover:text-red-400 transition-colors cursor-pointer text-xs"
-                      title="Delete playlist"
+                      title={t('game.dmAudioPanel.deletePlaylist')}
                     >
                       &times;
                     </button>
@@ -677,7 +695,7 @@ export default function DMAudioPanel(): JSX.Element {
                       }}
                       className="flex-1 min-w-0 px-1 py-0.5 text-[9px] bg-gray-800/60 border border-gray-700/50 rounded text-gray-300"
                     >
-                      <option value="">+ Add ambient...</option>
+                      <option value="">{t('game.dmAudioPanel.addAmbient')}</option>
                       {AMBIENT_TRACKS.map((track) => (
                         <option key={track.id} value={track.id}>
                           {track.label}
@@ -692,7 +710,7 @@ export default function DMAudioPanel(): JSX.Element {
                         }}
                         className="flex-1 min-w-0 px-1 py-0.5 text-[9px] bg-gray-800/60 border border-gray-700/50 rounded text-gray-300"
                       >
-                        <option value="">+ Add custom...</option>
+                        <option value="">{t('game.dmAudioPanel.addCustom')}</option>
                         {customAudioEntries.map((entry) => (
                           <option key={entry.fileName} value={entry.fileName}>
                             {entry.displayName}

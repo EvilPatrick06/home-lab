@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useT } from '../../../i18n'
 
 interface NarrationOverlayProps {
   text: string
@@ -7,6 +8,7 @@ interface NarrationOverlayProps {
 }
 
 export default function NarrationOverlay({ text, onDismiss, autoDismissSeconds }: NarrationOverlayProps): JSX.Element {
+  const { t } = useT()
   const [visible, setVisible] = useState(false)
   const [remaining, setRemaining] = useState(autoDismissSeconds ?? 0)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -83,7 +85,9 @@ export default function NarrationOverlay({ text, onDismiss, autoDismissSeconds }
         {/* Auto-dismiss countdown */}
         {autoDismissSeconds && autoDismissSeconds > 0 && remaining > 0 && (
           <div className="mt-4 flex flex-col items-center gap-1">
-            <span className="text-xs text-amber-700/60 font-serif">{remaining}s</span>
+            <span className="text-xs text-amber-700/60 font-serif">
+              {t('game.narrationOverlay.countdown', { remaining })}
+            </span>
             <div className="w-32 h-1 bg-amber-200 rounded-full overflow-hidden">
               <div
                 className="h-full bg-amber-600/60 rounded-full transition-all duration-1000"
@@ -95,14 +99,14 @@ export default function NarrationOverlay({ text, onDismiss, autoDismissSeconds }
 
         {/* Click to dismiss hint */}
         <p className="mt-4 text-center text-xs text-amber-700/40 font-serif">
-          Click anywhere or press Escape to dismiss
+          {t('game.narrationOverlay.dismissHint')}
         </p>
 
         {/* Close button */}
         <button
           onClick={handleDismiss}
           className="absolute top-2 right-3 text-amber-700/40 hover:text-amber-700 text-lg cursor-pointer transition-colors"
-          title="Dismiss"
+          title={t('game.narrationOverlay.dismiss')}
         >
           &#10005;
         </button>

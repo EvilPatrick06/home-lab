@@ -1,5 +1,6 @@
 import { memo } from 'react'
 import { getMagicItemEffects } from '../../../data/effect-definitions'
+import { useT } from '../../../i18n'
 import {
   getEffectiveArmor,
   getEffectiveMagicItems,
@@ -26,15 +27,6 @@ const RARITY_COLOR: Record<string, string> = {
   artifact: 'border-red-500 text-red-400'
 }
 
-const RARITY_LABEL: Record<string, string> = {
-  common: 'Common',
-  uncommon: 'Uncommon',
-  rare: 'Rare',
-  'very-rare': 'Very Rare',
-  legendary: 'Legendary',
-  artifact: 'Artifact'
-}
-
 function MagicItemCard5e({
   item,
   index,
@@ -44,6 +36,15 @@ function MagicItemCard5e({
   saveAndBroadcast,
   setBuyWarning
 }: MagicItemCard5eProps): JSX.Element {
+  const { t } = useT()
+  const RARITY_LABEL: Record<string, string> = {
+    common: t('sheet.magicItemCard.rarityCommon'),
+    uncommon: t('sheet.magicItemCard.rarityUncommon'),
+    rare: t('sheet.magicItemCard.rarityRare'),
+    'very-rare': t('sheet.magicItemCard.rarityVeryRare'),
+    legendary: t('sheet.magicItemCard.rarityLegendary'),
+    artifact: t('sheet.magicItemCard.rarityArtifact')
+  }
   const i = index
   const isUnidentified = item.identified === false
   const colors = isUnidentified
@@ -63,10 +64,12 @@ function MagicItemCard5e({
         <div className="flex items-center justify-between">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium truncate italic">Unidentified {item.type || 'Magic'} Item</span>
+              <span className="text-sm font-medium truncate italic">
+                {t('sheet.magicItemCard.unidentifiedItem', { type: item.type || t('sheet.magicItemCard.magic') })}
+              </span>
               <span className="text-xs text-gray-600 shrink-0">???</span>
             </div>
-            <div className="text-xs text-gray-600 mt-0.5">This item has not been identified.</div>
+            <div className="text-xs text-gray-600 mt-0.5">{t('sheet.magicItemCard.notIdentified')}</div>
           </div>
         </div>
       </div>
@@ -75,7 +78,7 @@ function MagicItemCard5e({
 
   const displayName = isUnidentified ? item.name : item.name
   const displayRarity = isUnidentified
-    ? `??? ${RARITY_LABEL[item.rarity] ?? item.rarity}`
+    ? t('sheet.magicItemCard.unknownRarity', { rarity: RARITY_LABEL[item.rarity] ?? item.rarity })
     : (RARITY_LABEL[item.rarity] ?? item.rarity)
 
   return (
@@ -85,7 +88,9 @@ function MagicItemCard5e({
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium truncate">{displayName}</span>
             <span className="text-xs text-gray-500 shrink-0">{displayRarity}</span>
-            {isUnidentified && <span className="text-xs text-yellow-500 shrink-0 italic">Unidentified</span>}
+            {isUnidentified && (
+              <span className="text-xs text-yellow-500 shrink-0 italic">{t('sheet.magicItemCard.unidentified')}</span>
+            )}
             {item.attunement && (
               <button
                 disabled={readonly}
@@ -97,7 +102,7 @@ function MagicItemCard5e({
                   if (!item.attuned) {
                     const attunedCount = getEffectiveMagicItems(latest).filter((mi) => mi.attuned).length
                     if (attunedCount >= 3) {
-                      setBuyWarning('Cannot attune — maximum 3 items already attuned.')
+                      setBuyWarning(t('sheet.magicItemCard.cannotAttune'))
                       setTimeout(() => setBuyWarning(null), 3000)
                       return
                     }
@@ -129,9 +134,9 @@ function MagicItemCard5e({
                   saveAndBroadcast(updated)
                 }}
                 className={`text-xs shrink-0 ${item.attuned ? 'text-purple-400' : 'text-gray-500'} ${!readonly ? 'cursor-pointer hover:text-purple-300' : ''}`}
-                title={!readonly ? 'Click to toggle attunement' : undefined}
+                title={!readonly ? t('sheet.magicItemCard.toggleAttunement') : undefined}
               >
-                {item.attuned ? '(Attuned)' : '(Requires Attunement)'}
+                {item.attuned ? t('sheet.magicItemCard.attuned') : t('sheet.magicItemCard.requiresAttunement')}
               </button>
             )}
             {hasEffects && <span className="text-[9px] text-cyan-500 shrink-0">FX</span>}
@@ -141,7 +146,7 @@ function MagicItemCard5e({
         {/* Charges */}
         {item.charges && (
           <div className="flex items-center gap-1 mr-2 shrink-0">
-            <span className="text-xs text-gray-500">Charges:</span>
+            <span className="text-xs text-gray-500">{t('sheet.magicItemCard.charges')}</span>
             <button
               disabled={readonly || item.charges.current <= 0}
               onClick={() => {
@@ -209,7 +214,7 @@ function MagicItemCard5e({
               saveAndBroadcast(updated)
             }}
             className="text-gray-600 hover:text-red-400 cursor-pointer text-xs ml-2 shrink-0"
-            title="Remove magic item"
+            title={t('sheet.magicItemCard.removeMagicItem')}
           >
             &#x2715;
           </button>
@@ -229,9 +234,9 @@ function MagicItemCard5e({
               saveAndBroadcast(updated)
             }}
             className="text-xs text-green-400 hover:text-green-300 cursor-pointer ml-2 shrink-0 border border-green-600 rounded px-1.5 py-0.5"
-            title="Identify this magic item"
+            title={t('sheet.magicItemCard.identifyTitle')}
           >
-            Identify
+            {t('sheet.magicItemCard.identify')}
           </button>
         )}
       </div>
@@ -255,7 +260,7 @@ function MagicItemCard5e({
               }}
               className="bg-gray-800 border border-gray-700 rounded px-1.5 py-0.5 text-xs text-gray-300 focus:outline-none focus:border-purple-500"
             >
-              <option value="">Link to weapon...</option>
+              <option value="">{t('sheet.magicItemCard.linkToWeapon')}</option>
               {weapons.map((w) => (
                 <option key={w.id} value={w.id}>
                   {w.name}
@@ -280,7 +285,7 @@ function MagicItemCard5e({
               }}
               className="bg-gray-800 border border-gray-700 rounded px-1.5 py-0.5 text-xs text-gray-300 focus:outline-none focus:border-purple-500"
             >
-              <option value="">Link to armor...</option>
+              <option value="">{t('sheet.magicItemCard.linkToArmor')}</option>
               {armors.map((a) => (
                 <option key={a.id} value={a.id}>
                   {a.name}
@@ -290,12 +295,16 @@ function MagicItemCard5e({
           )}
           {item.linkedWeaponId && (
             <span className="text-[9px] text-cyan-400">
-              Linked: {weapons.find((w) => w.id === item.linkedWeaponId)?.name ?? 'Unknown'}
+              {t('sheet.magicItemCard.linked', {
+                name: weapons.find((w) => w.id === item.linkedWeaponId)?.name ?? t('sheet.magicItemCard.unknown')
+              })}
             </span>
           )}
           {item.linkedArmorId && (
             <span className="text-[9px] text-cyan-400">
-              Linked: {armors.find((a) => a.id === item.linkedArmorId)?.name ?? 'Unknown'}
+              {t('sheet.magicItemCard.linked', {
+                name: armors.find((a) => a.id === item.linkedArmorId)?.name ?? t('sheet.magicItemCard.unknown')
+              })}
             </span>
           )}
         </div>
@@ -305,12 +314,16 @@ function MagicItemCard5e({
         <div className="mt-0.5">
           {item.linkedWeaponId && (
             <span className="text-[9px] text-cyan-400">
-              Linked: {weapons.find((w) => w.id === item.linkedWeaponId)?.name ?? 'Unknown weapon'}
+              {t('sheet.magicItemCard.linked', {
+                name: weapons.find((w) => w.id === item.linkedWeaponId)?.name ?? t('sheet.magicItemCard.unknownWeapon')
+              })}
             </span>
           )}
           {item.linkedArmorId && (
             <span className="text-[9px] text-cyan-400">
-              Linked: {armors.find((a) => a.id === item.linkedArmorId)?.name ?? 'Unknown armor'}
+              {t('sheet.magicItemCard.linked', {
+                name: armors.find((a) => a.id === item.linkedArmorId)?.name ?? t('sheet.magicItemCard.unknownArmor')
+              })}
             </span>
           )}
         </div>

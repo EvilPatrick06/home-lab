@@ -1,4 +1,5 @@
 import { memo, useState } from 'react'
+import { useT } from '../../../i18n'
 import type { SpellEntry } from '../../../types/character-common'
 
 function parseComponents(comp?: string): { V: boolean; S: boolean; M: boolean; desc?: string } {
@@ -44,6 +45,7 @@ const SpellRow = memo(function SpellRow({
   isConcentrating,
   concentratingSpell
 }: SpellRowProps): JSX.Element {
+  const { t } = useT()
   const [expanded, setExpanded] = useState(false)
   const [showSlotPicker, setShowSlotPicker] = useState(false)
   const isPrepared = preparedSpellIds.includes(spell.id)
@@ -80,7 +82,7 @@ const SpellRow = memo(function SpellRow({
             className={`flex-shrink-0 w-4 h-4 ml-2 rounded border transition-colors ${
               isPrepared ? 'bg-amber-500 border-amber-400' : 'border-gray-600 bg-gray-800'
             } ${readonly ? 'opacity-50 cursor-default' : 'cursor-pointer hover:border-amber-500'}`}
-            title={isPrepared ? 'Unprepare spell' : 'Prepare spell'}
+            title={isPrepared ? t('sheet.spellList.unprepareSpell') : t('sheet.spellList.prepareSpell')}
           >
             {isPrepared && (
               <svg className="w-4 h-4 text-gray-900" viewBox="0 0 16 16" fill="currentColor">
@@ -96,9 +98,15 @@ const SpellRow = memo(function SpellRow({
           <div className="flex items-center gap-2">
             <span className="text-gray-200">{spell.name}</span>
             {isSpecies && (
-              <span className="text-xs text-purple-400 border border-purple-700 rounded px-1">Species</span>
+              <span className="text-xs text-purple-400 border border-purple-700 rounded px-1">
+                {t('sheet.spellList.species')}
+              </span>
             )}
-            {isItem && <span className="text-xs text-teal-400 border border-teal-700 rounded px-1">Item</span>}
+            {isItem && (
+              <span className="text-xs text-teal-400 border border-teal-700 rounded px-1">
+                {t('sheet.spellList.item')}
+              </span>
+            )}
             {spell.concentration && (
               <span className="text-xs text-yellow-500 border border-yellow-700 rounded px-1">C</span>
             )}
@@ -109,19 +117,27 @@ const SpellRow = memo(function SpellRow({
               return (
                 <>
                   {c.V && (
-                    <span className="text-xs text-sky-400 border border-sky-700 rounded px-1" title="Verbal">
+                    <span
+                      className="text-xs text-sky-400 border border-sky-700 rounded px-1"
+                      title={t('sheet.spellList.verbal')}
+                    >
                       V
                     </span>
                   )}
                   {c.S && (
-                    <span className="text-xs text-orange-400 border border-orange-700 rounded px-1" title="Somatic">
+                    <span
+                      className="text-xs text-orange-400 border border-orange-700 rounded px-1"
+                      title={t('sheet.spellList.somatic')}
+                    >
                       S
                     </span>
                   )}
                   {c.M && (
                     <span
                       className={`text-xs ${costWarning ? 'text-red-400 border-red-700' : 'text-emerald-400 border-emerald-700'} border rounded px-1`}
-                      title={c.desc ? `Material: ${c.desc}` : 'Material component required'}
+                      title={
+                        c.desc ? t('sheet.spellList.material', { desc: c.desc }) : t('sheet.spellList.materialRequired')
+                      }
                     >
                       M
                     </span>
@@ -145,7 +161,7 @@ const SpellRow = memo(function SpellRow({
                       className={`w-3 h-3 rounded-full border transition-colors ${
                         isFilled ? 'bg-purple-500 border-purple-400' : 'border-gray-600 bg-gray-800'
                       } ${readonly ? 'cursor-default' : 'cursor-pointer hover:border-purple-400'}`}
-                      title={isFilled ? 'Use innate casting' : 'Restore innate casting'}
+                      title={isFilled ? t('sheet.spellList.useInnate') : t('sheet.spellList.restoreInnate')}
                     />
                   )
                 })}
@@ -161,13 +177,15 @@ const SpellRow = memo(function SpellRow({
       {expanded && (
         <div className="px-3 pb-2 text-xs text-gray-400 space-y-1">
           <div className="flex gap-3 text-gray-500">
-            <span>Duration: {spell.duration}</span>
-            <span>Components: {spell.components}</span>
-            {spell.school && <span>School: {spell.school}</span>}
+            <span>{t('sheet.spellList.duration', { duration: spell.duration })}</span>
+            <span>{t('sheet.spellList.components', { components: spell.components })}</span>
+            {spell.school && <span>{t('sheet.spellList.school', { school: spell.school })}</span>}
           </div>
           <p className="leading-relaxed whitespace-pre-wrap">{spell.description}</p>
           {spell.higherLevels && (
-            <p className="text-xs text-blue-300 italic mt-1">At Higher Levels: {spell.higherLevels}</p>
+            <p className="text-xs text-blue-300 italic mt-1">
+              {t('sheet.spellList.atHigherLevels', { higherLevels: spell.higherLevels })}
+            </p>
           )}
           {!readonly && !isCantrip && (
             <div className="flex gap-2 pt-1 flex-wrap">
@@ -175,18 +193,18 @@ const SpellRow = memo(function SpellRow({
                 <button
                   onClick={() => onCastRitual(spell)}
                   className="px-2 py-0.5 rounded bg-blue-700/50 text-blue-300 hover:bg-blue-600/50 cursor-pointer text-xs transition-colors"
-                  title="Cast as ritual (no spell slot, +10 min casting time)"
+                  title={t('sheet.spellList.castAsRitualTitle')}
                 >
-                  Cast as Ritual
+                  {t('sheet.spellList.castAsRitual')}
                 </button>
               )}
               {spell.concentration && isConcentrating && onConcentrationWarning && (
                 <button
                   onClick={() => onConcentrationWarning(spell)}
                   className="px-2 py-0.5 rounded bg-yellow-700/50 text-yellow-300 hover:bg-yellow-600/50 cursor-pointer text-xs transition-colors"
-                  title="You are already concentrating — casting this will end your current concentration"
+                  title={t('sheet.spellList.castDropConcentrationTitle')}
                 >
-                  Cast (Drop Concentration)
+                  {t('sheet.spellList.castDropConcentration')}
                 </button>
               )}
               {onCastSpell && !isSpecies && spellSlotLevels && (
@@ -194,13 +212,13 @@ const SpellRow = memo(function SpellRow({
                   <button
                     onClick={() => setShowSlotPicker(!showSlotPicker)}
                     className="px-2 py-0.5 rounded bg-amber-700/50 text-amber-300 hover:bg-amber-600/50 cursor-pointer text-xs transition-colors"
-                    title="Cast using a spell slot"
+                    title={t('sheet.spellList.castUsingSlotTitle')}
                   >
-                    {showSlotPicker ? 'Cancel' : 'Cast'}
+                    {showSlotPicker ? t('common.actions.cancel') : t('sheet.spellList.cast')}
                   </button>
                   {showSlotPicker && (
                     <div className="flex items-center gap-1">
-                      <span className="text-xs text-gray-500">Slot:</span>
+                      <span className="text-xs text-gray-500">{t('sheet.spellList.slot')}</span>
                       {Array.from({ length: 10 - spell.level }, (_, i) => spell.level + i)
                         .filter((lvl) => spellSlotLevels[lvl] && spellSlotLevels[lvl].current > 0)
                         .map((lvl) => (
@@ -215,14 +233,20 @@ const SpellRow = memo(function SpellRow({
                                 ? 'bg-amber-600 text-white hover:bg-amber-500'
                                 : 'bg-indigo-700/60 text-indigo-200 hover:bg-indigo-600/60'
                             }`}
-                            title={`Cast at level ${lvl} (${spellSlotLevels[lvl].current}/${spellSlotLevels[lvl].max} remaining)`}
+                            title={t('sheet.spellList.castAtLevelTitle', {
+                              level: lvl,
+                              current: spellSlotLevels[lvl].current,
+                              max: spellSlotLevels[lvl].max
+                            })}
                           >
                             {lvl}
                           </button>
                         ))}
                       {Array.from({ length: 10 - spell.level }, (_, i) => spell.level + i).filter(
                         (lvl) => spellSlotLevels[lvl] && spellSlotLevels[lvl].current > 0
-                      ).length === 0 && <span className="text-xs text-red-400">No slots available</span>}
+                      ).length === 0 && (
+                        <span className="text-xs text-red-400">{t('sheet.spellList.noSlotsAvailable')}</span>
+                      )}
                     </div>
                   )}
                 </>
@@ -271,6 +295,7 @@ export default function SpellList5e({
   isConcentrating,
   concentratingSpell
 }: SpellList5eProps): JSX.Element | null {
+  const { t } = useT()
   if (spellsByLevel.size === 0) return null
 
   return (
@@ -280,7 +305,9 @@ export default function SpellList5e({
         .map(([level, spells]) => (
           <div key={level} className="mb-2">
             <div className="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-1">
-              {level === 0 ? 'Cantrips' : `${level}${ordinal(level)} Level`}
+              {level === 0
+                ? t('sheet.spellList.cantrips')
+                : t('sheet.spellList.levelLabel', { level: `${level}${ordinal(level)}` })}
             </div>
             {spells.map((spell) => (
               <SpellRow

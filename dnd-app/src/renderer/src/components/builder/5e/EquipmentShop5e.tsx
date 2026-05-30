@@ -1,5 +1,7 @@
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useMemo, useRef, useState } from 'react'
+import { useT } from '../../../i18n'
+import type { TranslationKeys } from '../../../i18n/types'
 import type { EquipmentDatabase } from './gear-tab-types'
 
 interface ShopItem {
@@ -53,6 +55,7 @@ export default function EquipmentShop5e({
   onAdd: (name: string, cost: string) => void
   onClose: () => void
 }): JSX.Element {
+  const { t } = useT()
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState<'all' | 'weapon' | 'armor' | 'gear'>('all')
 
@@ -80,19 +83,21 @@ export default function EquipmentShop5e({
   return (
     <div className="border border-gray-700 rounded-lg bg-gray-900/80 overflow-hidden">
       <div className="flex items-center justify-between px-3 py-2 bg-gray-800/80 border-b border-gray-700">
-        <span className="text-xs font-bold tracking-widest text-amber-400 uppercase">Equipment Shop</span>
+        <span className="text-xs font-bold tracking-widest text-amber-400 uppercase">
+          {t('builder.equipmentShop.title')}
+        </span>
         <button
           onClick={onClose}
           className="text-gray-400 hover:text-white text-sm px-1.5 py-0.5 rounded hover:bg-gray-700 transition-colors"
         >
-          Close
+          {t('common.actions.close')}
         </button>
       </div>
 
       <div className="px-3 py-2 border-b border-gray-800 space-y-2">
         <input
           type="text"
-          placeholder="Search equipment..."
+          placeholder={t('builder.equipmentShop.searchPlaceholder')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full text-sm bg-gray-800 border border-gray-700 rounded px-2.5 py-1.5 text-gray-200 placeholder:text-gray-500 outline-none focus:border-amber-500/50"
@@ -108,7 +113,7 @@ export default function EquipmentShop5e({
                   : 'bg-gray-800 text-gray-400 border border-gray-700 hover:bg-gray-700'
               }`}
             >
-              {f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
+              {t(`builder.equipmentShop.filter.${f}` as TranslationKeys)}
             </button>
           ))}
         </div>
@@ -116,7 +121,7 @@ export default function EquipmentShop5e({
 
       <div ref={shopParentRef} className="max-h-64 overflow-y-auto">
         {filtered.length === 0 ? (
-          <p className="text-sm text-gray-500 italic px-3 py-4 text-center">No items match your search.</p>
+          <p className="text-sm text-gray-500 italic px-3 py-4 text-center">{t('builder.equipmentShop.noMatch')}</p>
         ) : (
           <div style={{ height: `${shopVirtualizer.getTotalSize()}px`, position: 'relative', width: '100%' }}>
             {shopVirtualizer.getVirtualItems().map((virtualItem) => {
@@ -146,7 +151,7 @@ export default function EquipmentShop5e({
                       onClick={() => onAdd(item.name, item.cost)}
                       className="text-xs text-amber-400 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded px-2 py-0.5 shrink-0 transition-colors"
                     >
-                      Add
+                      {t('builder.equipmentShop.add')}
                     </button>
                   </div>
                 </div>

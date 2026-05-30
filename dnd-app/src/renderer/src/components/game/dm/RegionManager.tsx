@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react'
+import { useT } from '../../../i18n'
 import { useGameStore } from '../../../stores/use-game-store'
 import type { GameMap, RegionAction, RegionShape, RegionTrigger, SceneRegion } from '../../../types/map'
 
@@ -8,17 +9,17 @@ interface RegionManagerProps {
 
 type RegionShapeType = 'circle' | 'rectangle' | 'polygon'
 
-const TRIGGER_LABELS: Record<RegionTrigger, string> = {
-  enter: 'On Enter',
-  leave: 'On Leave',
-  'start-turn': 'Start of Turn',
-  'end-turn': 'End of Turn'
+const TRIGGER_LABEL_KEYS: Record<RegionTrigger, string> = {
+  enter: 'game.regionManager.triggerEnter',
+  leave: 'game.regionManager.triggerLeave',
+  'start-turn': 'game.regionManager.triggerStartTurn',
+  'end-turn': 'game.regionManager.triggerEndTurn'
 }
 
-const ACTION_LABELS: Record<RegionAction['type'], string> = {
-  'alert-dm': 'Alert DM',
-  teleport: 'Teleport',
-  'apply-condition': 'Apply Condition'
+const ACTION_LABEL_KEYS: Record<RegionAction['type'], string> = {
+  'alert-dm': 'game.regionManager.actionAlertDm',
+  teleport: 'game.regionManager.actionTeleport',
+  'apply-condition': 'game.regionManager.actionApplyCondition'
 }
 
 const COMMON_CONDITIONS = [
@@ -35,6 +36,7 @@ const COMMON_CONDITIONS = [
 ]
 
 export default function RegionManager({ activeMap }: RegionManagerProps): JSX.Element {
+  const { t } = useT()
   const gameStore = useGameStore()
   const regions = activeMap?.regions ?? []
 
@@ -45,7 +47,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
   const [shapeType, setShapeType] = useState<RegionShapeType>('rectangle')
   const [trigger, setTrigger] = useState<RegionTrigger>('enter')
   const [actionType, setActionType] = useState<RegionAction['type']>('alert-dm')
-  const [alertMessage, setAlertMessage] = useState('A creature entered the region!')
+  const [alertMessage, setAlertMessage] = useState(t('game.regionManager.defaultAlert'))
   const [condition, setCondition] = useState('Prone')
   const [teleportX, setTeleportX] = useState(0)
   const [teleportY, setTeleportY] = useState(0)
@@ -68,7 +70,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
     setShapeType('rectangle')
     setTrigger('enter')
     setActionType('alert-dm')
-    setAlertMessage('A creature entered the region!')
+    setAlertMessage(t('game.regionManager.defaultAlert'))
     setCondition('Prone')
     setTeleportX(0)
     setTeleportY(0)
@@ -85,7 +87,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
     setShapeRectH(4)
     setShapePolyPoints('3,3 7,3 5,7')
     setEditingId(null)
-  }, [])
+  }, [t])
 
   const buildShape = useCallback((): RegionShape => {
     switch (shapeType) {
@@ -212,7 +214,9 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Regions</h3>
+        <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+          {t('game.regionManager.title')}
+        </h3>
         <button
           onClick={() => {
             resetForm()
@@ -220,39 +224,39 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
           }}
           className="px-2 py-0.5 text-xs rounded bg-amber-600 text-white hover:bg-amber-500 cursor-pointer"
         >
-          {showForm ? 'Cancel' : '+ New'}
+          {showForm ? t('common.actions.cancel') : t('game.regionManager.newButton')}
         </button>
       </div>
 
       {showForm && (
         <div className="space-y-2 bg-gray-800/50 rounded-lg p-2 border border-gray-700">
           <div>
-            <label className={labelClass}>Name</label>
+            <label className={labelClass}>{t('game.regionManager.name')}</label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Trap, Teleporter..."
+              placeholder={t('game.regionManager.namePlaceholder')}
               className={inputClass}
             />
           </div>
 
           <div>
-            <label className={labelClass}>Shape</label>
+            <label className={labelClass}>{t('game.regionManager.shape')}</label>
             <select
               value={shapeType}
               onChange={(e) => setShapeType(e.target.value as RegionShapeType)}
               className={inputClass}
             >
-              <option value="rectangle">Rectangle</option>
-              <option value="circle">Circle</option>
-              <option value="polygon">Polygon</option>
+              <option value="rectangle">{t('game.regionManager.shapeRectangle')}</option>
+              <option value="circle">{t('game.regionManager.shapeCircle')}</option>
+              <option value="polygon">{t('game.regionManager.shapePolygon')}</option>
             </select>
           </div>
 
           {shapeType === 'rectangle' && (
             <div className="grid grid-cols-4 gap-1">
               <div>
-                <label className={labelClass}>X</label>
+                <label className={labelClass}>{t('game.regionManager.x')}</label>
                 <input
                   type="number"
                   value={shapeRectX}
@@ -261,7 +265,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
                 />
               </div>
               <div>
-                <label className={labelClass}>Y</label>
+                <label className={labelClass}>{t('game.regionManager.y')}</label>
                 <input
                   type="number"
                   value={shapeRectY}
@@ -270,7 +274,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
                 />
               </div>
               <div>
-                <label className={labelClass}>W</label>
+                <label className={labelClass}>{t('game.regionManager.w')}</label>
                 <input
                   type="number"
                   value={shapeRectW}
@@ -280,7 +284,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
                 />
               </div>
               <div>
-                <label className={labelClass}>H</label>
+                <label className={labelClass}>{t('game.regionManager.h')}</label>
                 <input
                   type="number"
                   value={shapeRectH}
@@ -295,7 +299,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
           {shapeType === 'circle' && (
             <div className="grid grid-cols-3 gap-1">
               <div>
-                <label className={labelClass}>Center X</label>
+                <label className={labelClass}>{t('game.regionManager.centerX')}</label>
                 <input
                   type="number"
                   value={shapeCircleCX}
@@ -304,7 +308,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
                 />
               </div>
               <div>
-                <label className={labelClass}>Center Y</label>
+                <label className={labelClass}>{t('game.regionManager.centerY')}</label>
                 <input
                   type="number"
                   value={shapeCircleCY}
@@ -313,7 +317,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
                 />
               </div>
               <div>
-                <label className={labelClass}>Radius</label>
+                <label className={labelClass}>{t('game.regionManager.radius')}</label>
                 <input
                   type="number"
                   value={shapeCircleR}
@@ -327,7 +331,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
 
           {shapeType === 'polygon' && (
             <div>
-              <label className={labelClass}>Points (x,y pairs separated by spaces)</label>
+              <label className={labelClass}>{t('game.regionManager.points')}</label>
               <input
                 value={shapePolyPoints}
                 onChange={(e) => setShapePolyPoints(e.target.value)}
@@ -339,29 +343,29 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
 
           <div className="grid grid-cols-2 gap-1">
             <div>
-              <label className={labelClass}>Trigger</label>
+              <label className={labelClass}>{t('game.regionManager.trigger')}</label>
               <select
                 value={trigger}
                 onChange={(e) => setTrigger(e.target.value as RegionTrigger)}
                 className={inputClass}
               >
-                {Object.entries(TRIGGER_LABELS).map(([k, v]) => (
+                {Object.entries(TRIGGER_LABEL_KEYS).map(([k, v]) => (
                   <option key={k} value={k}>
-                    {v}
+                    {t(v)}
                   </option>
                 ))}
               </select>
             </div>
             <div>
-              <label className={labelClass}>Action</label>
+              <label className={labelClass}>{t('game.regionManager.action')}</label>
               <select
                 value={actionType}
                 onChange={(e) => setActionType(e.target.value as RegionAction['type'])}
                 className={inputClass}
               >
-                {Object.entries(ACTION_LABELS).map(([k, v]) => (
+                {Object.entries(ACTION_LABEL_KEYS).map(([k, v]) => (
                   <option key={k} value={k}>
-                    {v}
+                    {t(v)}
                   </option>
                 ))}
               </select>
@@ -370,14 +374,14 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
 
           {actionType === 'alert-dm' && (
             <div>
-              <label className={labelClass}>Alert Message</label>
+              <label className={labelClass}>{t('game.regionManager.alertMessage')}</label>
               <input value={alertMessage} onChange={(e) => setAlertMessage(e.target.value)} className={inputClass} />
             </div>
           )}
 
           {actionType === 'apply-condition' && (
             <div>
-              <label className={labelClass}>Condition</label>
+              <label className={labelClass}>{t('game.regionManager.condition')}</label>
               <select value={condition} onChange={(e) => setCondition(e.target.value)} className={inputClass}>
                 {COMMON_CONDITIONS.map((c) => (
                   <option key={c} value={c}>
@@ -391,16 +395,16 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
           {actionType === 'teleport' && (
             <div className="grid grid-cols-3 gap-1">
               <div className="col-span-3">
-                <label className={labelClass}>Target Map ID (blank = current)</label>
+                <label className={labelClass}>{t('game.regionManager.targetMapId')}</label>
                 <input
                   value={teleportMapId}
                   onChange={(e) => setTeleportMapId(e.target.value)}
-                  placeholder="Current map"
+                  placeholder={t('game.regionManager.currentMapPlaceholder')}
                   className={inputClass}
                 />
               </div>
               <div>
-                <label className={labelClass}>Grid X</label>
+                <label className={labelClass}>{t('game.regionManager.gridX')}</label>
                 <input
                   type="number"
                   value={teleportX}
@@ -409,7 +413,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
                 />
               </div>
               <div>
-                <label className={labelClass}>Grid Y</label>
+                <label className={labelClass}>{t('game.regionManager.gridY')}</label>
                 <input
                   type="number"
                   value={teleportY}
@@ -428,7 +432,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
                 onChange={(e) => setVisibleToPlayers(e.target.checked)}
                 className="accent-cyan-500 w-3 h-3 cursor-pointer"
               />
-              <span className="text-xs text-gray-400">Visible to players</span>
+              <span className="text-xs text-gray-400">{t('game.regionManager.visibleToPlayers')}</span>
             </label>
             <label className="flex items-center gap-1.5 cursor-pointer">
               <input
@@ -437,12 +441,12 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
                 onChange={(e) => setOneShot(e.target.checked)}
                 className="accent-cyan-500 w-3 h-3 cursor-pointer"
               />
-              <span className="text-xs text-gray-400">One-shot</span>
+              <span className="text-xs text-gray-400">{t('game.regionManager.oneShot')}</span>
             </label>
           </div>
 
           <div>
-            <label className={labelClass}>Color</label>
+            <label className={labelClass}>{t('game.regionManager.color')}</label>
             <input
               type="color"
               value={color}
@@ -456,15 +460,13 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
             disabled={!name.trim()}
             className="w-full py-1.5 text-xs rounded-lg bg-amber-600 text-white hover:bg-amber-500 disabled:opacity-40 cursor-pointer"
           >
-            {editingId ? 'Update Region' : 'Create Region'}
+            {editingId ? t('game.regionManager.updateRegion') : t('game.regionManager.createRegion')}
           </button>
         </div>
       )}
 
       {regions.length === 0 && !showForm && (
-        <p className="text-xs text-gray-600 text-center py-4">
-          No regions defined. Click "+ New" to create trigger zones.
-        </p>
+        <p className="text-xs text-gray-600 text-center py-4">{t('game.regionManager.empty')}</p>
       )}
 
       {regions.map((region) => (
@@ -481,27 +483,27 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
                 }
                 className="px-1.5 py-0.5 text-[9px] rounded bg-gray-700 text-gray-400 hover:text-white cursor-pointer"
               >
-                {region.enabled ? 'Disable' : 'Enable'}
+                {region.enabled ? t('game.regionManager.disable') : t('game.regionManager.enable')}
               </button>
               <button
                 onClick={() => handleEdit(region)}
                 className="px-1.5 py-0.5 text-[9px] rounded bg-gray-700 text-gray-400 hover:text-white cursor-pointer"
               >
-                Edit
+                {t('game.regionManager.edit')}
               </button>
               <button
                 onClick={() => activeMap && gameStore.removeRegion(activeMap.id, region.id)}
                 className="px-1.5 py-0.5 text-[9px] rounded bg-red-900/50 text-red-400 hover:text-red-200 cursor-pointer"
               >
-                Del
+                {t('game.regionManager.del')}
               </button>
             </div>
           </div>
           <div className="text-gray-500 space-x-2">
             <span>{region.shape.type}</span>
-            <span>{TRIGGER_LABELS[region.trigger]}</span>
-            <span className="text-amber-400">{ACTION_LABELS[region.action.type]}</span>
-            {region.oneShot && <span className="text-cyan-400">(one-shot)</span>}
+            <span>{t(TRIGGER_LABEL_KEYS[region.trigger])}</span>
+            <span className="text-amber-400">{t(ACTION_LABEL_KEYS[region.action.type])}</span>
+            {region.oneShot && <span className="text-cyan-400">{t('game.regionManager.oneShotTag')}</span>}
           </div>
         </div>
       ))}
@@ -511,7 +513,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
           onClick={() => gameStore.clearRegions(activeMap.id)}
           className="w-full px-3 py-1.5 text-xs bg-red-900/30 border border-red-800 rounded-lg text-red-300 hover:bg-red-900/50 cursor-pointer"
         >
-          Clear All Regions ({regions.length})
+          {t('game.regionManager.clearAll', { count: regions.length })}
         </button>
       )}
     </div>

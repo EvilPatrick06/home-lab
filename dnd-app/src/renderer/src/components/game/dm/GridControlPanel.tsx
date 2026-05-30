@@ -1,3 +1,4 @@
+import { useT } from '../../../i18n'
 import type { GridSettings } from '../../../types/map'
 
 const DEFAULT_CELL_SIZE = 40
@@ -8,6 +9,7 @@ interface GridControlPanelProps {
 }
 
 export default function GridControlPanel({ grid, onUpdate }: GridControlPanelProps): JSX.Element {
+  const { t } = useT()
   const handleResetToDefault = (): void => {
     onUpdate({ cellSize: DEFAULT_CELL_SIZE, offsetX: 0, offsetY: 0 })
   }
@@ -15,19 +17,21 @@ export default function GridControlPanel({ grid, onUpdate }: GridControlPanelPro
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-semibold text-gray-200">Grid Settings</h4>
+        <h4 className="text-sm font-semibold text-gray-200">{t('game.gridControlPanel.title')}</h4>
         <button
           onClick={handleResetToDefault}
           className="px-2 py-0.5 text-xs rounded bg-gray-800 border border-gray-700 text-gray-400 hover:bg-gray-700 hover:text-gray-200 transition-colors cursor-pointer"
-          title="Reset cell size to 40px and offsets to 0"
+          title={t('game.gridControlPanel.resetTitle')}
         >
-          Reset to Default (40px)
+          {t('game.gridControlPanel.resetToDefault')}
         </button>
       </div>
 
       {/* Cell Size */}
       <div className="space-y-1">
-        <label className="text-xs text-gray-400 uppercase tracking-wider">Cell Size: {grid.cellSize}px</label>
+        <label className="text-xs text-gray-400 uppercase tracking-wider">
+          {t('game.gridControlPanel.cellSize', { size: grid.cellSize })}
+        </label>
         <input
           type="range"
           min={20}
@@ -44,7 +48,9 @@ export default function GridControlPanel({ grid, onUpdate }: GridControlPanelPro
 
       {/* X Offset */}
       <div className="space-y-1">
-        <label className="text-xs text-gray-400 uppercase tracking-wider">X Offset: {grid.offsetX}px</label>
+        <label className="text-xs text-gray-400 uppercase tracking-wider">
+          {t('game.gridControlPanel.xOffset', { offset: grid.offsetX })}
+        </label>
         <input
           type="range"
           min={-50}
@@ -61,7 +67,9 @@ export default function GridControlPanel({ grid, onUpdate }: GridControlPanelPro
 
       {/* Y Offset */}
       <div className="space-y-1">
-        <label className="text-xs text-gray-400 uppercase tracking-wider">Y Offset: {grid.offsetY}px</label>
+        <label className="text-xs text-gray-400 uppercase tracking-wider">
+          {t('game.gridControlPanel.yOffset', { offset: grid.offsetY })}
+        </label>
         <input
           type="range"
           min={-50}
@@ -78,7 +86,7 @@ export default function GridControlPanel({ grid, onUpdate }: GridControlPanelPro
 
       {/* Grid Color */}
       <div className="space-y-1">
-        <label className="text-xs text-gray-400 uppercase tracking-wider">Grid Color</label>
+        <label className="text-xs text-gray-400 uppercase tracking-wider">{t('game.gridControlPanel.gridColor')}</label>
         <div className="flex items-center gap-2">
           <input
             type="color"
@@ -93,7 +101,7 @@ export default function GridControlPanel({ grid, onUpdate }: GridControlPanelPro
       {/* Opacity */}
       <div className="space-y-1">
         <label className="text-xs text-gray-400 uppercase tracking-wider">
-          Opacity: {Math.round(grid.opacity * 100)}%
+          {t('game.gridControlPanel.opacity', { percent: Math.round(grid.opacity * 100) })}
         </label>
         <input
           type="range"
@@ -107,7 +115,7 @@ export default function GridControlPanel({ grid, onUpdate }: GridControlPanelPro
 
       {/* Grid Type */}
       <div className="space-y-1">
-        <label className="text-xs text-gray-400 uppercase tracking-wider">Grid Type</label>
+        <label className="text-xs text-gray-400 uppercase tracking-wider">{t('game.gridControlPanel.gridType')}</label>
         <div className="flex gap-1 flex-wrap">
           <button
             onClick={() => onUpdate({ type: 'square' })}
@@ -115,7 +123,7 @@ export default function GridControlPanel({ grid, onUpdate }: GridControlPanelPro
               grid.type === 'square' ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
             }`}
           >
-            Square
+            {t('game.gridControlPanel.square')}
           </button>
           <button
             onClick={() => onUpdate({ type: 'hex' })}
@@ -123,7 +131,7 @@ export default function GridControlPanel({ grid, onUpdate }: GridControlPanelPro
               grid.type === 'hex' ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
             }`}
           >
-            Hex
+            {t('game.gridControlPanel.hex')}
           </button>
           <button
             onClick={() => onUpdate({ type: 'gridless' })}
@@ -131,7 +139,7 @@ export default function GridControlPanel({ grid, onUpdate }: GridControlPanelPro
               grid.type === 'gridless' ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
             }`}
           >
-            Gridless
+            {t('game.gridControlPanel.gridless')}
           </button>
         </div>
       </div>
@@ -143,7 +151,7 @@ export default function GridControlPanel({ grid, onUpdate }: GridControlPanelPro
           grid.enabled ? 'bg-green-900/30 border-green-700 text-green-400' : 'bg-gray-800 border-gray-700 text-gray-400'
         }`}
       >
-        Grid {grid.enabled ? 'ON' : 'OFF'}
+        {grid.enabled ? t('game.gridControlPanel.gridOn') : t('game.gridControlPanel.gridOff')}
       </button>
     </div>
   )

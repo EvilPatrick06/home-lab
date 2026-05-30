@@ -1,6 +1,7 @@
 import type { PDFDocumentProxy } from 'pdfjs-dist'
 import * as pdfjsLib from 'pdfjs-dist'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useT } from '../../i18n'
 import type { DrawingStroke, DrawingTool, PageDrawings } from './PdfDrawingOverlay'
 import PdfDrawingOverlay, { DrawingToolbar } from './PdfDrawingOverlay'
 import { generateId, initPdfWorker } from './pdf-viewer/pdf-helpers'
@@ -16,6 +17,7 @@ export type { AnnotationEntry, BookmarkEntry, PdfViewerProps, SearchHighlight, T
 initPdfWorker()
 
 export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook }: PdfViewerProps): JSX.Element {
+  const { t } = useT()
   const [pdfDoc, setPdfDoc] = useState<PDFDocumentProxy | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(0)
@@ -83,7 +85,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
         const result = await window.api.books.readFile(filePath)
 
         if (!result.success || !result.data) {
-          setError(result.error ?? 'Failed to read PDF file')
+          setError(result.error ?? t('library.pdfViewer.readFailed'))
           setLoading(false)
           return
         }
@@ -150,7 +152,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
 
             // Append cross-book references
             if (CROSS_BOOK_REFS[bookId]) {
-              entries.push({ title: '─── Cross References ───', page: 0, level: 0 })
+              entries.push({ title: t('library.pdfViewer.crossReferences'), page: 0, level: 0 })
               entries.push(...CROSS_BOOK_REFS[bookId])
             }
 
@@ -176,7 +178,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
             if (FALLBACK_TOC[bookId]) {
               const entries = [...FALLBACK_TOC[bookId]]
               if (CROSS_BOOK_REFS[bookId]) {
-                entries.push({ title: '─── Cross References ───', page: 0, level: 0 })
+                entries.push({ title: t('library.pdfViewer.crossReferences'), page: 0, level: 0 })
                 entries.push(...CROSS_BOOK_REFS[bookId])
               }
               setTocEntries(entries)
@@ -194,7 +196,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
         }
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'Failed to load PDF')
+          setError(err instanceof Error ? err.message : t('library.pdfViewer.loadFailed'))
           setLoading(false)
         }
       }
@@ -704,7 +706,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
       id: generateId(),
       bookId,
       page: currentPage,
-      label: `Page ${currentPage}`,
+      label: t('library.pdfViewer.pageLabel', { page: currentPage }),
       createdAt: new Date().toISOString()
     }
     setBookmarks((prev) => [...prev, bookmark])
@@ -799,7 +801,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
       <div className="fixed inset-0 z-50 bg-gray-950 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin w-12 h-12 border-4 border-amber-400 border-t-transparent rounded-full mx-auto mb-4" />
-          <p className="text-gray-300 text-lg">Loading {title}...</p>
+          <p className="text-gray-300 text-lg">{t('library.pdfViewer.loadingTitle', { title })}</p>
         </div>
       </div>
     )
@@ -809,13 +811,13 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
     return (
       <div className="fixed inset-0 z-50 bg-gray-950 flex items-center justify-center">
         <div className="text-center max-w-md">
-          <p className="text-red-400 text-lg mb-2">Failed to load PDF</p>
+          <p className="text-red-400 text-lg mb-2">{t('library.pdfViewer.loadFailed')}</p>
           <p className="text-gray-400 text-sm mb-4">{error}</p>
           <button
             onClick={onClose}
             className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg transition-colors"
           >
-            Close
+            {t('common.actions.close')}
           </button>
         </div>
       </div>
@@ -829,7 +831,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
         <button
           onClick={onClose}
           className="px-2 py-1 text-gray-400 hover:text-gray-200 transition-colors"
-          title="Close (Esc)"
+          title={t('library.pdfViewer.closeEsc')}
         >
           ✕
         </button>
@@ -877,7 +879,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
         <button
           onClick={() => setScale((s) => Math.max(s - 0.2, 0.4))}
           className="px-2 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded transition-colors"
-          title="Zoom out (Ctrl+-)"
+          title={t('library.pdfViewer.zoomOut')}
         >
           −
         </button>
@@ -885,7 +887,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
         <button
           onClick={() => setScale((s) => Math.min(s + 0.2, 3.0))}
           className="px-2 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded transition-colors"
-          title="Zoom in (Ctrl++)"
+          title={t('library.pdfViewer.zoomIn')}
         >
           +
         </button>
@@ -901,7 +903,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
           className={`px-2 py-1 rounded text-sm transition-colors ${
             searchOpen ? 'bg-amber-600 text-white' : 'bg-gray-800 hover:bg-gray-700 text-gray-300'
           }`}
-          title="Search (Ctrl+F)"
+          title={t('library.pdfViewer.searchTitle')}
         >
           🔍
         </button>
@@ -912,7 +914,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
           className={`px-2 py-1 rounded text-sm transition-colors ${
             twoPageView ? 'bg-amber-600 text-white' : 'bg-gray-800 hover:bg-gray-700 text-gray-300'
           }`}
-          title={twoPageView ? 'Single page view' : 'Two-page view'}
+          title={twoPageView ? t('library.pdfViewer.singlePageView') : t('library.pdfViewer.twoPageView')}
         >
           📖
         </button>
@@ -923,7 +925,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
           className={`px-2 py-1 rounded text-sm transition-colors ${
             showToc ? 'bg-amber-600 text-white' : 'bg-gray-800 hover:bg-gray-700 text-gray-300'
           }`}
-          title="Table of Contents"
+          title={t('library.pdfViewer.tableOfContents')}
         >
           <svg
             viewBox="0 0 24 24"
@@ -946,7 +948,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
           className={`px-2 py-1 rounded text-sm transition-colors ${
             showBookmarks ? 'bg-amber-600 text-white' : 'bg-gray-800 hover:bg-gray-700 text-gray-300'
           }`}
-          title="Bookmarks & annotations"
+          title={t('library.pdfViewer.bookmarksAnnotations')}
         >
           📑
         </button>
@@ -957,7 +959,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
           className={`px-2 py-1 rounded text-sm transition-colors ${
             isPageBookmarked ? 'bg-amber-500/20 text-amber-400' : 'bg-gray-800 hover:bg-gray-700 text-gray-300'
           }`}
-          title={isPageBookmarked ? 'Page bookmarked' : 'Bookmark this page'}
+          title={isPageBookmarked ? t('library.pdfViewer.pageBookmarked') : t('library.pdfViewer.bookmarkPage')}
         >
           {isPageBookmarked ? '🔖' : '📌'}
         </button>
@@ -966,7 +968,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
         <button
           onClick={() => setShowAnnotationInput(!showAnnotationInput)}
           className="px-2 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded text-sm transition-colors"
-          title="Add annotation"
+          title={t('library.pdfViewer.addAnnotation')}
         >
           📝
         </button>
@@ -1006,19 +1008,22 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
                 }
               }
             }}
-            placeholder="Search text..."
+            placeholder={t('library.pdfViewer.searchPlaceholder')}
             className="flex-1 max-w-sm bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-200 focus:outline-none focus:border-amber-500"
           />
           <button
             onClick={handleSearch}
             className="px-3 py-1 bg-amber-600 hover:bg-amber-500 text-white rounded text-sm transition-colors"
           >
-            Search
+            {t('library.pdfViewer.search')}
           </button>
           {searchResults.length > 0 && (
             <>
               <span className="text-sm text-gray-400">
-                {currentSearchIdx + 1} of {searchResults.length} pages
+                {t('library.pdfViewer.searchPagesCount', {
+                  current: currentSearchIdx + 1,
+                  total: searchResults.length
+                })}
               </span>
               <button
                 onClick={prevSearchResult}
@@ -1035,7 +1040,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
             </>
           )}
           {searchResults.length === 0 && searchQuery.trim() && (
-            <span className="text-sm text-gray-500">No results</span>
+            <span className="text-sm text-gray-500">{t('library.pdfViewer.noResults')}</span>
           )}
         </div>
       )}
@@ -1043,7 +1048,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
       {/* Annotation input */}
       {showAnnotationInput && (
         <div className="flex items-center gap-2 px-4 py-2 bg-gray-900/90 border-b border-gray-800 shrink-0">
-          <span className="text-sm text-gray-400">Note for page {currentPage}:</span>
+          <span className="text-sm text-gray-400">{t('library.pdfViewer.noteForPage', { page: currentPage })}</span>
           <input
             type="text"
             value={annotationText}
@@ -1051,7 +1056,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
             onKeyDown={(e) => {
               if (e.key === 'Enter') addAnnotation()
             }}
-            placeholder="Type your annotation..."
+            placeholder={t('library.pdfViewer.annotationPlaceholder')}
             className="flex-1 max-w-md bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-200 focus:outline-none focus:border-amber-500"
             autoFocus
           />
@@ -1060,13 +1065,13 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
             disabled={!annotationText.trim()}
             className="px-3 py-1 bg-amber-600 hover:bg-amber-500 text-white rounded text-sm transition-colors disabled:opacity-40"
           >
-            Add
+            {t('library.pdfViewer.add')}
           </button>
           <button
             onClick={() => setShowAnnotationInput(false)}
             className="px-2 py-1 text-gray-400 hover:text-gray-200 text-sm"
           >
-            Cancel
+            {t('common.actions.cancel')}
           </button>
         </div>
       )}
@@ -1077,7 +1082,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
         {showToc && tocEntries.length > 0 && (
           <div className="w-64 bg-gray-900 border-r border-gray-800 shrink-0 flex flex-col">
             <div className="p-3 border-b border-gray-800">
-              <h3 className="text-sm font-bold text-amber-400">Table of Contents</h3>
+              <h3 className="text-sm font-bold text-amber-400">{t('library.pdfViewer.tableOfContents')}</h3>
             </div>
             <div className="flex-1 overflow-y-auto p-1">
               {(() => {
@@ -1184,9 +1189,9 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
         {/* Bookmarks & Annotations sidebar */}
         {showBookmarks && (
           <div className="w-64 bg-gray-900 border-r border-gray-800 overflow-y-auto shrink-0 p-3">
-            <h3 className="text-sm font-bold text-amber-400 mb-3">Bookmarks</h3>
+            <h3 className="text-sm font-bold text-amber-400 mb-3">{t('library.pdfViewer.bookmarks')}</h3>
             {bookmarks.length === 0 ? (
-              <p className="text-xs text-gray-500">No bookmarks yet</p>
+              <p className="text-xs text-gray-500">{t('library.pdfViewer.noBookmarks')}</p>
             ) : (
               <div className="space-y-1 mb-4">
                 {bookmarks
@@ -1212,9 +1217,9 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
               </div>
             )}
 
-            <h3 className="text-sm font-bold text-amber-400 mb-3 mt-4">Annotations</h3>
+            <h3 className="text-sm font-bold text-amber-400 mb-3 mt-4">{t('library.pdfViewer.annotations')}</h3>
             {annotations.length === 0 ? (
-              <p className="text-xs text-gray-500">No annotations yet</p>
+              <p className="text-xs text-gray-500">{t('library.pdfViewer.noAnnotations')}</p>
             ) : (
               <div className="space-y-2">
                 {annotations
@@ -1226,7 +1231,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
                           onClick={() => goToPage(ann.page)}
                           className="text-xs text-amber-500 hover:text-amber-400"
                         >
-                          Page {ann.page}
+                          {t('library.pdfViewer.pageLabel', { page: ann.page })}
                         </button>
                         <button
                           onClick={() => removeAnnotation(ann.id)}

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useT } from '../../../../i18n'
 
 export interface Participant {
   id: string
@@ -35,6 +36,7 @@ export default function ChaseControls({
   onRemove,
   onAddParticipant
 }: ChaseControlsProps): JSX.Element {
+  const { t } = useT()
   const [newName, setNewName] = useState('')
   const [newIsQuarry, setNewIsQuarry] = useState(false)
   const [newConMod, setNewConMod] = useState(1)
@@ -51,7 +53,7 @@ export default function ChaseControls({
     <>
       {/* Participant List */}
       <div className="space-y-2">
-        <label className="block text-xs text-gray-400">Participants</label>
+        <label className="block text-xs text-gray-400">{t('game.chaseControls.participants')}</label>
         {participants.map((p, idx) => (
           <div
             key={p.id}
@@ -73,19 +75,19 @@ export default function ChaseControls({
                     p.isQuarry ? 'bg-red-900/50 text-red-400' : 'bg-blue-900/50 text-blue-400'
                   }`}
                 >
-                  {p.isQuarry ? 'Quarry' : 'Pursuer'}
+                  {p.isQuarry ? t('game.chaseControls.quarry') : t('game.chaseControls.pursuer')}
                 </span>
               </div>
             </div>
 
             {/* Zone */}
             <div className="text-xs text-gray-400">
-              Zone <span className="text-white font-medium">{p.position}</span>
+              {t('game.chaseControls.zone')} <span className="text-white font-medium">{p.position}</span>
             </div>
 
             {/* Speed */}
             <div className="flex items-center gap-1">
-              <label className="text-xs text-gray-500">Spd:</label>
+              <label className="text-xs text-gray-500">{t('game.chaseControls.spd')}</label>
               <input
                 type="number"
                 value={p.speed}
@@ -97,7 +99,7 @@ export default function ChaseControls({
 
             {/* CON Mod */}
             <div className="flex items-center gap-1">
-              <label className="text-xs text-gray-500">CON:</label>
+              <label className="text-xs text-gray-500">{t('game.chaseControls.con')}</label>
               <input
                 type="number"
                 value={p.conModifier}
@@ -108,7 +110,7 @@ export default function ChaseControls({
 
             {/* Dashes */}
             <div className="text-xs text-gray-500">
-              Dashes:{' '}
+              {t('game.chaseControls.dashes')}{' '}
               <span className={p.dashesUsed > getFreeDashes(p.conModifier) ? 'text-red-400' : 'text-amber-400'}>
                 {p.dashesUsed}
               </span>
@@ -122,13 +124,13 @@ export default function ChaseControls({
                   onClick={() => onMove(p.id)}
                   className="px-2 py-1 bg-blue-700 hover:bg-blue-600 text-white text-xs rounded"
                 >
-                  Move
+                  {t('game.chaseControls.move')}
                 </button>
                 <button
                   onClick={() => onDash(p.id)}
                   className="px-2 py-1 bg-orange-700 hover:bg-orange-600 text-white text-xs rounded"
                 >
-                  Dash
+                  {t('game.chaseControls.dash')}
                 </button>
               </div>
             )}
@@ -147,14 +149,14 @@ export default function ChaseControls({
           type="text"
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
-          placeholder="Participant name..."
+          placeholder={t('game.chaseControls.namePlaceholder')}
           className="flex-1 bg-gray-800 border border-gray-600 rounded px-3 py-1.5 text-sm text-white placeholder-gray-500"
           onKeyDown={(e) => {
             if (e.key === 'Enter') handleAdd()
           }}
         />
         <div className="flex items-center gap-1">
-          <label className="text-xs text-gray-500">CON:</label>
+          <label className="text-xs text-gray-500">{t('game.chaseControls.con')}</label>
           <input
             type="number"
             value={newConMod}
@@ -169,10 +171,10 @@ export default function ChaseControls({
             onChange={(e) => setNewIsQuarry(e.target.checked)}
             className="rounded"
           />
-          Quarry
+          {t('game.chaseControls.quarry')}
         </label>
         <button onClick={handleAdd} className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-white text-sm rounded">
-          Add
+          {t('game.chaseControls.add')}
         </button>
       </div>
     </>

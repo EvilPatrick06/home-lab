@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { AUTO_REJOIN_KEY, JOINED_SESSIONS_KEY, LAST_SESSION_KEY } from '../../constants'
 import { addToast } from '../../hooks/use-toast'
+import { i18n, useT } from '../../i18n'
 import { exportCampaignToFile } from '../../services/io/campaign-io'
 import { useCampaignStore } from '../../stores/use-campaign-store'
 import type { Campaign } from '../../types/campaign'
@@ -41,14 +42,14 @@ function loadJoinedSessions(): JoinedSession[] {
 
 function formatTimeAgo(timestamp: number): string {
   const seconds = Math.floor((Date.now() - timestamp) / 1000)
-  if (seconds < 60) return 'just now'
+  if (seconds < 60) return i18n.t('campaign.startStep.justNow')
   const minutes = Math.floor(seconds / 60)
-  if (minutes < 60) return `${minutes}m ago`
+  if (minutes < 60) return i18n.t('campaign.startStep.minutesAgo', { minutes })
   const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
+  if (hours < 24) return i18n.t('campaign.startStep.hoursAgo', { hours })
   const days = Math.floor(hours / 24)
-  if (days === 1) return 'yesterday'
-  return `${days}d ago`
+  if (days === 1) return i18n.t('campaign.startStep.yesterday')
+  return i18n.t('campaign.startStep.daysAgo', { days })
 }
 
 function maskInviteCode(code: string): string {
@@ -61,6 +62,7 @@ interface StartStepProps {
 }
 
 export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Element {
+  const { t } = useT()
   const navigate = useNavigate()
   const allCampaigns = useCampaignStore((s) => s.campaigns)
   const campaigns = allCampaigns.filter((c) => !c.archived)
@@ -129,7 +131,7 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
     try {
       await exportCampaignToFile(campaign)
     } catch {
-      addToast('Failed to export campaign. Please try again.', 'error')
+      addToast(t('campaign.startStep.exportFailed'), 'error')
     }
   }
 
@@ -138,7 +140,7 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
       await deleteCampaign(id)
       setConfirmDelete(null)
     } catch {
-      addToast('Failed to delete campaign. Please try again.', 'error')
+      addToast(t('campaign.startStep.deleteFailed'), 'error')
       setConfirmDelete(null)
     }
   }
@@ -147,10 +149,10 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
     try {
       await deleteAllCampaigns()
       setShowDeleteAllConfirm(false)
-      addToast('All campaigns deleted', 'success')
+      addToast(t('campaign.startStep.allDeleted'), 'success')
     } catch {
       setShowDeleteAllConfirm(false)
-      addToast('Failed to delete all campaigns. Please try again.', 'error')
+      addToast(t('campaign.startStep.deleteAllFailed'), 'error')
     }
   }
 
@@ -168,8 +170,8 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
 
   return (
     <div className="max-w-2xl">
-      <h2 className="text-2xl font-bold text-gray-100 mb-2">Choose your Campaign</h2>
-      <p className="text-gray-400 text-sm mb-8">Pick up where you left off or create something new.</p>
+      <h2 className="text-2xl font-bold text-gray-100 mb-2">{t('campaign.startStep.title')}</h2>
+      <p className="text-gray-400 text-sm mb-8">{t('campaign.startStep.subtitle')}</p>
 
       {/* Quick Resume */}
       {quickResumeTarget && (
@@ -178,24 +180,28 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
             &#9889;
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs uppercase tracking-wider text-amber-500/70 font-semibold mb-0.5">Quick Resume</p>
+            <p className="text-xs uppercase tracking-wider text-amber-500/70 font-semibold mb-0.5">
+              {t('campaign.startStep.quickResume')}
+            </p>
             <h3 className="text-sm font-semibold text-gray-100 truncate">
               {quickResumeTarget.type === 'hosted'
                 ? quickResumeTarget.campaign.name
-                : quickResumeTarget.session.campaignName || 'Unknown Campaign'}
+                : quickResumeTarget.session.campaignName || t('campaign.startStep.unknownCampaign')}
             </h3>
             <p className="text-xs text-gray-500 mt-0.5">
               {quickResumeTarget.type === 'hosted' ? (
                 <>
-                  <span className="text-amber-400/70">Hosted</span>
+                  <span className="text-amber-400/70">{t('campaign.startStep.hosted')}</span>
                   <span className="mx-1.5">&middot;</span>
-                  Updated {formatTimeAgo(new Date(quickResumeTarget.campaign.updatedAt).getTime())}
+                  {t('campaign.startStep.updated', {
+                    when: formatTimeAgo(new Date(quickResumeTarget.campaign.updatedAt).getTime())
+                  })}
                 </>
               ) : (
                 <>
-                  <span className="text-emerald-400/70">Joined</span>
+                  <span className="text-emerald-400/70">{t('campaign.startStep.joined')}</span>
                   <span className="mx-1.5">&middot;</span>
-                  as {quickResumeTarget.session.displayName}
+                  {t('campaign.startStep.asPlayer', { name: quickResumeTarget.session.displayName })}
                   <span className="mx-1.5">&middot;</span>
                   {formatTimeAgo(quickResumeTarget.session.timestamp)}
                 </>
@@ -207,7 +213,7 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
             className="px-5 py-2.5 text-sm font-semibold rounded-lg bg-amber-600 hover:bg-amber-500
               text-white transition-colors cursor-pointer flex-shrink-0"
           >
-            Resume
+            {t('campaign.startStep.resume')}
           </button>
         </div>
       )}
@@ -222,9 +228,9 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
         >
           <div className="text-3xl mb-3">&#10010;</div>
           <h3 className="text-lg font-semibold text-gray-100 group-hover:text-amber-400 transition-colors">
-            Create New
+            {t('campaign.startStep.createNew')}
           </h3>
-          <p className="text-xs text-gray-500 mt-1">Start a new campaign with the step-by-step wizard.</p>
+          <p className="text-xs text-gray-500 mt-1">{t('campaign.startStep.createNewDesc')}</p>
         </button>
 
         {/* Your Campaigns (hosted) */}
@@ -238,12 +244,12 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
         >
           <div className="text-3xl mb-3">&#128193;</div>
           <h3 className="text-lg font-semibold text-gray-100 group-hover:text-amber-400 transition-colors">
-            Your Campaigns
+            {t('campaign.startStep.yourCampaigns')}
           </h3>
           <p className="text-xs text-gray-500 mt-1">
             {campaigns.length > 0
-              ? `${campaigns.length} active campaign${campaigns.length !== 1 ? 's' : ''} found.`
-              : 'No active campaigns yet.'}
+              ? t('campaign.startStep.activeCampaignsFound', { count: campaigns.length })
+              : t('campaign.startStep.noActiveCampaigns')}
           </p>
         </button>
       </div>
@@ -254,7 +260,9 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
             onClick={() => setShowHosted(!showHosted)}
             className="text-xs text-gray-500 hover:text-amber-400 transition-colors underline"
           >
-            {showHosted && campaigns.length === 0 ? `Show ${archivedCampaigns.length} Archived` : ''}
+            {showHosted && campaigns.length === 0
+              ? t('campaign.startStep.showArchived', { count: archivedCampaigns.length })
+              : ''}
           </button>
         </div>
       )}
@@ -272,10 +280,9 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
           >
             <div className="flex-shrink-0 text-2xl">&#8634;</div>
             <div className="flex-1">
-              <h3 className="text-base font-semibold text-gray-100">Joined Games</h3>
+              <h3 className="text-base font-semibold text-gray-100">{t('campaign.startStep.joinedGames')}</h3>
               <p className="text-xs text-gray-500 mt-0.5">
-                {joinedSessionsList.length} game{joinedSessionsList.length !== 1 ? 's' : ''} you&apos;ve joined as a
-                player.
+                {t('campaign.startStep.joinedGamesCount', { count: joinedSessionsList.length })}
               </p>
             </div>
             <svg
@@ -298,12 +305,13 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
                 <div key={session.campaignId} className="px-4 py-3 flex items-center gap-3 hover:bg-gray-800/50">
                   <div className="flex-1 min-w-0">
                     <span className="text-sm font-semibold text-gray-100 truncate block">
-                      {session.campaignName || 'Unknown Campaign'}
+                      {session.campaignName || t('campaign.startStep.unknownCampaign')}
                     </span>
                     <div className="text-xs text-gray-500 mt-0.5">
-                      Code: <span className="font-mono text-gray-400">{maskInviteCode(session.inviteCode)}</span>
+                      {t('campaign.startStep.code')}{' '}
+                      <span className="font-mono text-gray-400">{maskInviteCode(session.inviteCode)}</span>
                       <span className="mx-1.5">&middot;</span>
-                      as {session.displayName}
+                      {t('campaign.startStep.asPlayer', { name: session.displayName })}
                       <span className="mx-1.5">&middot;</span>
                       {formatTimeAgo(session.timestamp)}
                     </div>
@@ -313,13 +321,13 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
                     className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500
                       text-white transition-colors cursor-pointer flex-shrink-0"
                   >
-                    Rejoin
+                    {t('campaign.startStep.rejoin')}
                   </button>
                   <button
                     onClick={() => handleRemoveJoinedSession(session.campaignId)}
                     className="p-1.5 rounded-md text-gray-500 hover:text-gray-300 hover:bg-gray-700/50
                       transition-colors cursor-pointer flex-shrink-0"
-                    title="Remove"
+                    title={t('campaign.startStep.remove')}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -343,18 +351,18 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
           <div className="border border-gray-700 rounded-xl overflow-hidden">
             {campaigns.length === 0 ? (
               <div className="px-6 py-8 text-center text-gray-500 text-sm">
-                No active hosted campaigns. Create one first!
+                {t('campaign.startStep.noHostedCampaigns')}
               </div>
             ) : (
               <div>
                 <div className="px-4 py-2 flex justify-between items-center border-b border-gray-800 bg-gray-800/30">
-                  <h4 className="text-sm font-semibold text-gray-300">Active Campaigns</h4>
+                  <h4 className="text-sm font-semibold text-gray-300">{t('campaign.startStep.activeCampaigns')}</h4>
                   <button
                     onClick={() => setShowDeleteAllConfirm(true)}
                     className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-gray-700 hover:bg-red-600/30
                       text-gray-400 hover:text-red-400 transition-colors cursor-pointer"
                   >
-                    Delete All
+                    {t('campaign.startStep.deleteAll')}
                   </button>
                 </div>
                 <div className="max-h-80 overflow-y-auto divide-y divide-gray-800">
@@ -368,12 +376,9 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
                           </span>
                         </div>
                         <div className="text-xs text-gray-500 mt-0.5">
-                          Updated {formatDate(c.updatedAt)}
+                          {t('campaign.startStep.updated', { when: formatDate(c.updatedAt) })}
                           {c.maps?.length > 0 && (
-                            <>
-                              {' '}
-                              &middot; {c.maps.length} map{c.maps.length !== 1 ? 's' : ''}
-                            </>
+                            <> &middot; {t('campaign.startStep.mapCount', { count: c.maps.length })}</>
                           )}
                         </div>
                       </div>
@@ -383,15 +388,15 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
                           className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-600 hover:bg-amber-500
                             text-white transition-colors cursor-pointer"
                         >
-                          Open
+                          {t('campaign.startStep.open')}
                         </button>
                         <button
                           onClick={() => handleExport(c)}
                           className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-gray-700 hover:bg-gray-600
                             text-gray-300 transition-colors cursor-pointer"
-                          title="Export to file"
+                          title={t('campaign.startStep.exportToFile')}
                         >
-                          Export
+                          {t('campaign.startStep.export')}
                         </button>
                         {confirmDelete === c.id ? (
                           <div className="flex gap-1">
@@ -400,14 +405,14 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
                               className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-red-600 hover:bg-red-500
                                 text-white transition-colors cursor-pointer"
                             >
-                              Confirm
+                              {t('common.actions.confirm')}
                             </button>
                             <button
                               onClick={() => setConfirmDelete(null)}
                               className="px-2 py-1.5 text-xs rounded-lg bg-gray-700 hover:bg-gray-600
                                 text-gray-300 transition-colors cursor-pointer"
                             >
-                              Cancel
+                              {t('common.actions.cancel')}
                             </button>
                           </div>
                         ) : (
@@ -415,9 +420,9 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
                             onClick={() => setConfirmDelete(c.id)}
                             className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-gray-700 hover:bg-red-600/30
                               text-gray-400 hover:text-red-400 transition-colors cursor-pointer"
-                            title="Delete campaign"
+                            title={t('campaign.startStep.deleteCampaign')}
                           >
-                            Delete
+                            {t('common.actions.delete')}
                           </button>
                         )}
                       </div>
@@ -431,7 +436,7 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
           {archivedCampaigns.length > 0 && (
             <div className="border border-gray-700 rounded-xl overflow-hidden opacity-80 hover:opacity-100 transition-opacity">
               <div className="px-4 py-2 border-b border-gray-800 bg-gray-800/30">
-                <h4 className="text-sm font-semibold text-gray-400">Archived Campaigns</h4>
+                <h4 className="text-sm font-semibold text-gray-400">{t('campaign.startStep.archivedCampaigns')}</h4>
               </div>
               <div className="max-h-80 overflow-y-auto divide-y divide-gray-800">
                 {archivedCampaigns.map((c) => (
@@ -440,29 +445,31 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-semibold text-gray-400 truncate">{c.name}</span>
                         <span className="text-xs px-1.5 py-0.5 rounded-full font-semibold bg-gray-700 text-gray-300">
-                          Archived
+                          {t('campaign.startStep.archivedBadge')}
                         </span>
                       </div>
-                      <div className="text-xs text-gray-600 mt-0.5">Updated {formatDate(c.updatedAt)}</div>
+                      <div className="text-xs text-gray-600 mt-0.5">
+                        {t('campaign.startStep.updated', { when: formatDate(c.updatedAt) })}
+                      </div>
                     </div>
                     <div className="flex gap-1.5 shrink-0">
                       <button
                         onClick={async () => {
                           await useCampaignStore.getState().unarchiveCampaign(c.id)
-                          addToast('Campaign unarchived', 'success')
+                          addToast(t('campaign.startStep.campaignUnarchived'), 'success')
                         }}
                         className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-gray-700 hover:bg-gray-600
                           text-gray-300 transition-colors cursor-pointer"
                       >
-                        Unarchive
+                        {t('campaign.startStep.unarchive')}
                       </button>
                       <button
                         onClick={() => setConfirmDelete(c.id)}
                         className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-gray-700 hover:bg-red-600/30
                           text-gray-500 hover:text-red-400 transition-colors cursor-pointer"
-                        title="Delete campaign"
+                        title={t('campaign.startStep.deleteCampaign')}
                       >
-                        Delete
+                        {t('common.actions.delete')}
                       </button>
                     </div>
                     {confirmDelete === c.id && (
@@ -472,14 +479,14 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
                           className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-red-600 hover:bg-red-500
                             text-white transition-colors cursor-pointer"
                         >
-                          Confirm
+                          {t('common.actions.confirm')}
                         </button>
                         <button
                           onClick={() => setConfirmDelete(null)}
                           className="px-2 py-1.5 text-xs rounded-lg bg-gray-700 hover:bg-gray-600
                             text-gray-300 transition-colors cursor-pointer"
                         >
-                          Cancel
+                          {t('common.actions.cancel')}
                         </button>
                       </div>
                     )}
@@ -493,9 +500,9 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
 
       <ConfirmDialog
         open={showDeleteAllConfirm}
-        title="Delete All Campaigns?"
-        message={`This will permanently delete all ${campaigns.length} campaign${campaigns.length !== 1 ? 's' : ''} and their data. This action cannot be undone.`}
-        confirmLabel="Delete All"
+        title={t('campaign.startStep.deleteAllTitle')}
+        message={t('campaign.startStep.deleteAllMessage', { count: campaigns.length })}
+        confirmLabel={t('campaign.startStep.deleteAll')}
         variant="danger"
         onConfirm={handleDeleteAll}
         onCancel={() => setShowDeleteAllConfirm(false)}

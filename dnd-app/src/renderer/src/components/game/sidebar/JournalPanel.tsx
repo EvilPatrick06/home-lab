@@ -2,6 +2,7 @@ import Placeholder from '@tiptap/extension-placeholder'
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { useCallback, useMemo, useState } from 'react'
+import { useT } from '../../../i18n'
 import { useNetworkStore } from '../../../stores/network-store'
 import { useGameStore } from '../../../stores/use-game-store'
 import type { SharedJournalEntry } from '../../../types/game-state'
@@ -47,6 +48,7 @@ function ToolbarButton({ onClick, isActive, title, children }: ToolbarButtonProp
 // ---------------------------------------------------------------------------
 
 export default function JournalPanel({ campaignId, isDM, playerName }: JournalPanelProps): JSX.Element {
+  const { t } = useT()
   const entries = useGameStore((s) => s.sharedJournal)
   const addJournalEntry = useGameStore((s) => s.addJournalEntry)
   const updateJournalEntry = useGameStore((s) => s.updateJournalEntry)
@@ -96,7 +98,7 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
         }
       }),
       Placeholder.configure({
-        placeholder: 'Write your journal entry here...'
+        placeholder: t('game.journalPanel.editorPlaceholder')
       })
     ],
     editorProps: {
@@ -130,7 +132,7 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
     const now = Date.now()
     const newEntry: SharedJournalEntry = {
       id: crypto.randomUUID(),
-      title: 'Untitled Entry',
+      title: t('game.journalPanel.untitledEntry'),
       content: '',
       authorPeerId: localPeerId || 'local',
       authorName,
@@ -169,13 +171,13 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
 
     useNetworkStore.getState().sendMessage('player:journal-update', {
       entryId: selectedEntry.id,
-      title: editTitle.trim() || 'Untitled Entry',
+      title: editTitle.trim() || t('game.journalPanel.untitledEntry'),
       content: html,
       updatedAt: now
     })
 
     updateJournalEntry(selectedEntry.id, {
-      title: editTitle.trim() || 'Untitled Entry',
+      title: editTitle.trim() || t('game.journalPanel.untitledEntry'),
       content: html
     } as Parameters<typeof updateJournalEntry>[1])
     setIsEditing(false)
@@ -208,7 +210,7 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
 
   const handleAddLink = (): void => {
     if (!editor) return
-    const url = window.prompt('Enter URL:')
+    const url = window.prompt(t('game.journalPanel.enterUrl'))
     if (url) {
       editor.chain().focus().setLink({ href: url }).run()
     }
@@ -237,13 +239,15 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
     <div className="flex flex-col h-full bg-gray-900 text-gray-100">
       {/* Header */}
       <div className="shrink-0 px-3 py-2 border-b border-gray-700/50 flex items-center justify-between">
-        <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Journal</span>
+        <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+          {t('game.journalPanel.title')}
+        </span>
         <button
           onClick={handleCreate}
-          title="New entry"
+          title={t('game.journalPanel.newEntry')}
           className="px-2 py-1 text-xs font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded transition-colors cursor-pointer"
         >
-          + New
+          {t('game.journalPanel.newButton')}
         </button>
       </div>
 
@@ -253,7 +257,7 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search entries..."
+          placeholder={t('game.journalPanel.searchPlaceholder')}
           className="w-full px-2 py-1 rounded bg-gray-800 border border-gray-700 text-xs text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
         />
       </div>
@@ -264,7 +268,7 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
         <div className="shrink-0 max-h-48 overflow-y-auto border-b border-gray-700/50">
           {visibleEntries.length === 0 ? (
             <p className="text-xs text-gray-500 text-center py-4">
-              {searchQuery.trim() ? 'No matching entries' : 'No journal entries yet'}
+              {searchQuery.trim() ? t('game.journalPanel.noMatching') : t('game.journalPanel.noEntries')}
             </p>
           ) : (
             <div className="divide-y divide-gray-800/50">
@@ -286,7 +290,7 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
                           e.stopPropagation()
                           handleDelete(entry.id)
                         }}
-                        title="Delete entry"
+                        title={t('game.journalPanel.deleteEntry')}
                         className="w-5 h-5 flex items-center justify-center text-gray-600 hover:text-red-400 cursor-pointer text-xs shrink-0"
                       >
                         &#10005;
@@ -314,7 +318,7 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
                   className="flex-1 px-2 py-1 rounded bg-gray-800 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
-                  placeholder="Entry title"
+                  placeholder={t('game.journalPanel.entryTitlePlaceholder')}
                 />
               ) : (
                 <span className="flex-1 text-sm font-medium text-gray-200 truncate">{selectedEntry.title}</span>
@@ -325,22 +329,22 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
                     onClick={handleSave}
                     className="px-2 py-1 text-xs font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded transition-colors cursor-pointer"
                   >
-                    Save
+                    {t('common.actions.save')}
                   </button>
                   <button
                     onClick={handleCancelEdit}
                     className="px-2 py-1 text-xs text-gray-400 hover:text-gray-200 cursor-pointer"
                   >
-                    Cancel
+                    {t('common.actions.cancel')}
                   </button>
                 </div>
               ) : canEdit ? (
                 <button
                   onClick={handleStartEdit}
-                  title="Edit entry"
+                  title={t('game.journalPanel.editEntry')}
                   className="px-2 py-1 text-xs font-semibold text-gray-400 hover:text-amber-400 border border-gray-700 hover:border-amber-600/50 rounded transition-colors cursor-pointer"
                 >
-                  Edit
+                  {t('game.journalPanel.edit')}
                 </button>
               ) : null}
             </div>
@@ -351,14 +355,14 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
                 <ToolbarButton
                   onClick={() => editor.chain().focus().toggleBold().run()}
                   isActive={editor.isActive('bold')}
-                  title="Bold"
+                  title={t('game.journalPanel.bold')}
                 >
                   B
                 </ToolbarButton>
                 <ToolbarButton
                   onClick={() => editor.chain().focus().toggleItalic().run()}
                   isActive={editor.isActive('italic')}
-                  title="Italic"
+                  title={t('game.journalPanel.italic')}
                 >
                   <span className="italic">I</span>
                 </ToolbarButton>
@@ -366,21 +370,21 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
                 <ToolbarButton
                   onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
                   isActive={editor.isActive('heading', { level: 1 })}
-                  title="Heading 1"
+                  title={t('game.journalPanel.heading1')}
                 >
                   H1
                 </ToolbarButton>
                 <ToolbarButton
                   onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
                   isActive={editor.isActive('heading', { level: 2 })}
-                  title="Heading 2"
+                  title={t('game.journalPanel.heading2')}
                 >
                   H2
                 </ToolbarButton>
                 <ToolbarButton
                   onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
                   isActive={editor.isActive('heading', { level: 3 })}
-                  title="Heading 3"
+                  title={t('game.journalPanel.heading3')}
                 >
                   H3
                 </ToolbarButton>
@@ -388,7 +392,7 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
                 <ToolbarButton
                   onClick={() => editor.chain().focus().toggleBulletList().run()}
                   isActive={editor.isActive('bulletList')}
-                  title="Bullet list"
+                  title={t('game.journalPanel.bulletList')}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
                     <path
@@ -401,7 +405,7 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
                 <ToolbarButton
                   onClick={() => editor.chain().focus().toggleOrderedList().run()}
                   isActive={editor.isActive('orderedList')}
-                  title="Ordered list"
+                  title={t('game.journalPanel.orderedList')}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
                     <path
@@ -421,7 +425,11 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
                   </svg>
                 </ToolbarButton>
                 <div className="w-px h-5 bg-gray-700 mx-1" />
-                <ToolbarButton onClick={handleAddLink} isActive={editor.isActive('link')} title="Add link">
+                <ToolbarButton
+                  onClick={handleAddLink}
+                  isActive={editor.isActive('link')}
+                  title={t('game.journalPanel.addLink')}
+                >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
                     <path d="M12.232 4.232a2.5 2.5 0 0 1 3.536 3.536l-1.225 1.224a.75.75 0 0 0 1.061 1.06l1.224-1.224a4 4 0 0 0-5.656-5.656l-3 3a4 4 0 0 0 .225 5.865.75.75 0 0 0 .977-1.138 2.5 2.5 0 0 1-.142-3.667l3-3Z" />
                     <path d="M11.603 7.963a.75.75 0 0 0-.977 1.138 2.5 2.5 0 0 1 .142 3.667l-3 3a2.5 2.5 0 0 1-3.536-3.536l1.225-1.224a.75.75 0 0 0-1.061-1.06l-1.224 1.224a4 4 0 1 0 5.656 5.656l3-3a4 4 0 0 0-.225-5.865Z" />
@@ -437,13 +445,17 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
 
             {/* Entry metadata footer */}
             <div className="shrink-0 px-3 py-1 border-t border-gray-700/50 flex items-center justify-between">
-              <span className="text-xs text-gray-600">by {selectedEntry.authorName}</span>
-              <span className="text-xs text-gray-600">Updated {formatDate(selectedEntry.updatedAt)}</span>
+              <span className="text-xs text-gray-600">
+                {t('game.journalPanel.by', { author: selectedEntry.authorName })}
+              </span>
+              <span className="text-xs text-gray-600">
+                {t('game.journalPanel.updated', { date: formatDate(selectedEntry.updatedAt) })}
+              </span>
             </div>
           </div>
         ) : (
           <div className="flex-1 flex items-center justify-center">
-            <p className="text-xs text-gray-600">Select an entry or create a new one</p>
+            <p className="text-xs text-gray-600">{t('game.journalPanel.selectOrCreate')}</p>
           </div>
         )}
       </div>

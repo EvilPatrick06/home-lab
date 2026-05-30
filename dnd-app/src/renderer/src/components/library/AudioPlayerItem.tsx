@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { addToast } from '../../hooks/use-toast'
+import { useT } from '../../i18n'
 import { logger } from '../../utils/logger'
 
 interface AudioPlayerItemProps {
@@ -19,6 +20,7 @@ export default function AudioPlayerItem({
   isFavorite,
   onToggleFavorite
 }: AudioPlayerItemProps): JSX.Element {
+  const { t } = useT()
   const [playing, setPlaying] = useState(false)
   const [progress, setProgress] = useState(0)
   const [duration, setDuration] = useState(0)
@@ -52,7 +54,7 @@ export default function AudioPlayerItem({
     const onMeta = (): void => setDuration(audio.duration)
     const onError = (): void => {
       logger.warn('[AudioPlayerItem] Failed to load audio:', path)
-      addToast(`Failed to load audio: ${item.name}`, 'error')
+      addToast(t('library.audioPlayerItem.loadFailed', { name: item.name }), 'error')
       setPlaying(false)
     }
     const onEnded = (): void => {
@@ -82,7 +84,7 @@ export default function AudioPlayerItem({
       // toast + inline badge instead.
       if (!hasPath || !audioRef.current) {
         if (!missingSource) setMissingSource(true)
-        addToast(`No audio source for "${item.name}"`, 'error')
+        addToast(t('library.audioPlayerItem.noSourceFor', { name: item.name }), 'error')
         return
       }
 
@@ -101,7 +103,7 @@ export default function AudioPlayerItem({
         if (result && typeof result.then === 'function') {
           result.catch((err: unknown) => {
             logger.warn('[AudioPlayerItem] audio.play() failed:', err)
-            addToast(`Could not play "${item.name}"`, 'error')
+            addToast(t('library.audioPlayerItem.couldNotPlay', { name: item.name }), 'error')
             setPlaying(false)
             cancelAnimationFrame(animRef.current)
           })
@@ -144,9 +146,9 @@ export default function AudioPlayerItem({
           {(!hasPath || missingSource) && (
             <span
               className="text-xs bg-red-900/40 text-red-300 px-1.5 py-0.5 rounded-full flex-shrink-0"
-              title="No audio source path was provided for this entry"
+              title={t('library.audioPlayerItem.noSourceTitle')}
             >
-              No source
+              {t('library.audioPlayerItem.noSource')}
             </span>
           )}
         </div>
@@ -177,7 +179,7 @@ export default function AudioPlayerItem({
           className={`text-lg flex-shrink-0 transition-colors cursor-pointer ${
             isFavorite ? 'text-amber-400' : 'text-gray-600 hover:text-gray-400'
           }`}
-          title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+          title={isFavorite ? t('library.audioPlayerItem.removeFavorite') : t('library.audioPlayerItem.addFavorite')}
         >
           {isFavorite ? '★' : '☆'}
         </button>

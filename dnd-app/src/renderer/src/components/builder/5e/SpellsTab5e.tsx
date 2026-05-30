@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
+import { useT } from '../../../i18n'
 import { getSpellsFromTraits } from '../../../services/character/auto-populate-5e'
 import {
   getCantripsKnown,
@@ -17,6 +18,7 @@ import SpellPicker5e from './SpellPicker5e'
 import SpellSummary5e, { ordinal, type SpellData, SpellRow } from './SpellSummary5e'
 
 export default function SpellsTab5e(): JSX.Element {
+  const { t } = useT()
   const buildSlots = useBuilderStore((s) => s.buildSlots)
   const classSlot = buildSlots.find((s) => s.category === 'class')
   const speciesSlot = buildSlots.find((s) => s.category === 'ancestry')
@@ -185,12 +187,12 @@ export default function SpellsTab5e(): JSX.Element {
         if (!spell) return
 
         if (spell.level === 0 && cantripsMax > 0 && selectedCantripsCount >= cantripsMax) {
-          setWarning(`Cantrip limit reached (${cantripsMax}). Deselect one before adding another.`)
+          setWarning(t('builder.spellsTab.cantripLimit', { max: cantripsMax }))
           return
         }
 
         if (spell.level > 0 && preparedMax !== null && selectedLeveledCount >= preparedMax) {
-          setWarning(`Prepared spells limit reached (${preparedMax}). Deselect one before adding another.`)
+          setWarning(t('builder.spellsTab.preparedLimit', { max: preparedMax }))
           return
         }
 
@@ -200,7 +202,12 @@ export default function SpellsTab5e(): JSX.Element {
             .filter((lvl) => (slotProgression[lvl] ?? 0) > 0)
             .reduce((max, lvl) => Math.max(max, lvl), 0)
           if (spell.level > maxSpellLevel) {
-            setWarning(`You can't learn level ${spell.level} spells yet. Max spell level: ${maxSpellLevel || 'none'}.`)
+            setWarning(
+              t('builder.spellsTab.maxLevelWarning', {
+                level: spell.level,
+                maxLevel: maxSpellLevel || t('builder.spellsTab.none')
+              })
+            )
             return
           }
         }
@@ -218,16 +225,17 @@ export default function SpellsTab5e(): JSX.Element {
       preparedMax,
       selectedLeveledCount,
       slotProgression,
-      alwaysPreparedIds
+      alwaysPreparedIds,
+      t
     ]
   )
 
   if (!classSlot?.selectedName) {
     return (
       <div>
-        <SectionBanner label="SPELLS" />
+        <SectionBanner label={t('builder.spellsTab.sectionTitle')} />
         <div className="px-4 py-6 text-center">
-          <p className="text-sm text-gray-500 italic">Select a class first to see available spell lists.</p>
+          <p className="text-sm text-gray-500 italic">{t('builder.spellsTab.selectClassFirst')}</p>
         </div>
       </div>
     )
@@ -238,15 +246,13 @@ export default function SpellsTab5e(): JSX.Element {
     if (speciesSpells.length > 0) {
       return (
         <div>
-          <SectionBanner label="SPELLS" />
+          <SectionBanner label={t('builder.spellsTab.sectionTitle')} />
           <div className="px-4 py-3 border-b border-gray-800">
-            <p className="text-sm text-gray-500">
-              {className} is not a spellcasting class, but you have spells from your species traits.
-            </p>
+            <p className="text-sm text-gray-500">{t('builder.spellsTab.nonCasterWithSpecies', { className })}</p>
           </div>
           <div className="px-4 py-2">
             <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
-              Species Spells ({speciesSpells.length})
+              {t('builder.spellsTab.speciesSpellsHeader', { count: speciesSpells.length })}
             </div>
             {speciesSpells.map((spell) => (
               <SpellRow
@@ -273,12 +279,10 @@ export default function SpellsTab5e(): JSX.Element {
 
     return (
       <div>
-        <SectionBanner label="SPELLS" />
+        <SectionBanner label={t('builder.spellsTab.sectionTitle')} />
         <div className="px-4 py-6 text-center">
-          <p className="text-sm text-gray-500">{className} is not a spellcasting class.</p>
-          <p className="text-xs text-gray-600 mt-1">
-            Spellcasting becomes available through subclass features like Eldritch Knight or Arcane Trickster.
-          </p>
+          <p className="text-sm text-gray-500">{t('builder.spellsTab.nonCaster', { className })}</p>
+          <p className="text-xs text-gray-600 mt-1">{t('builder.spellsTab.nonCasterHint')}</p>
         </div>
       </div>
     )
@@ -286,7 +290,7 @@ export default function SpellsTab5e(): JSX.Element {
 
   return (
     <div>
-      <SectionBanner label="SPELLS" />
+      <SectionBanner label={t('builder.spellsTab.sectionTitle')} />
 
       {/* Header with slot info */}
       <div className="px-4 py-3 border-b border-gray-800">
@@ -302,15 +306,17 @@ export default function SpellsTab5e(): JSX.Element {
             ) : (
               <span className="text-amber-300 font-medium">{className}</span>
             )}{' '}
-            spell list
+            {t('builder.spellsTab.spellList')}
           </p>
-          <span className="text-xs text-gray-500">Level {targetLevel}</span>
+          <span className="text-xs text-gray-500">{t('builder.spellsTab.levelLabel', { level: targetLevel })}</span>
         </div>
 
         {Object.keys(slotProgression).length > 0 && (
           <div className="mb-2">
             {isWarlockPactMagic(classId) && (
-              <div className="text-xs text-purple-400 uppercase tracking-wide mb-1">Pact Magic Slots</div>
+              <div className="text-xs text-purple-400 uppercase tracking-wide mb-1">
+                {t('builder.spellsTab.pactMagicSlots')}
+              </div>
             )}
             <div className="flex gap-2">
               {Object.entries(slotProgression).map(([lvl, count]) => (
@@ -335,7 +341,7 @@ export default function SpellsTab5e(): JSX.Element {
 
         {cantripsMax > 0 && (
           <div className="text-xs text-gray-500 mb-1">
-            Cantrips known:{' '}
+            {t('builder.spellsTab.cantripsKnown')}{' '}
             <span className={selectedCantripsCount >= cantripsMax ? 'text-red-400' : 'text-amber-400'}>
               {selectedCantripsCount}
             </span>{' '}
@@ -345,7 +351,7 @@ export default function SpellsTab5e(): JSX.Element {
 
         {preparedMax !== null && (
           <div className="text-xs text-gray-500 mb-1">
-            Prepared Spells:{' '}
+            {t('builder.spellsTab.preparedSpells')}{' '}
             <span className={selectedLeveledCount >= preparedMax ? 'text-red-400' : 'text-amber-400'}>
               {selectedLeveledCount}
             </span>{' '}
@@ -355,15 +361,17 @@ export default function SpellsTab5e(): JSX.Element {
 
         {speciesSpells.length > 0 && (
           <div className="text-xs text-gray-500 mb-1">
-            Species spells:<span className="text-amber-400">{speciesSpells.length}</span>
-            <span className="text-gray-600 ml-1">(auto-included)</span>
+            {t('builder.spellsTab.speciesSpellsLabel')}
+            <span className="text-amber-400">{speciesSpells.length}</span>
+            <span className="text-gray-600 ml-1">{t('builder.spellsTab.autoIncluded')}</span>
           </div>
         )}
 
         {alwaysPreparedIds.size > 0 && (
           <div className="text-xs text-gray-500 mb-1">
-            Always prepared: <span className="text-green-400">{alwaysPreparedIds.size}</span>
-            <span className="text-gray-600 ml-1">(from class features, not counted against limit)</span>
+            {t('builder.spellsTab.alwaysPreparedLabel')}{' '}
+            <span className="text-green-400">{alwaysPreparedIds.size}</span>
+            <span className="text-gray-600 ml-1">{t('builder.spellsTab.fromClassFeatures')}</span>
           </div>
         )}
 
@@ -376,8 +384,8 @@ export default function SpellsTab5e(): JSX.Element {
             onChange={(e) => setShowAllSpells(e.target.checked)}
             className="accent-amber-500"
           />
-          Show All Spells
-          {showAllSpells && <span className="text-orange-400">(off-list spells marked)</span>}
+          {t('builder.spellsTab.showAllSpells')}
+          {showAllSpells && <span className="text-orange-400">{t('builder.spellsTab.offListMarked')}</span>}
         </label>
       </div>
 
@@ -406,8 +414,10 @@ export default function SpellsTab5e(): JSX.Element {
         <div className="border-b border-gray-800">
           <div className="px-4 py-1 bg-gray-900/60">
             <span className="text-xs font-semibold text-green-400 uppercase">
-              Always Prepared
-              <span className="text-gray-600 ml-1">({alwaysPreparedIds.size})</span>
+              {t('builder.spellsTab.alwaysPreparedHeader')}
+              <span className="text-gray-600 ml-1">
+                {t('builder.spellsTab.count', { count: alwaysPreparedIds.size })}
+              </span>
             </span>
           </div>
           {Array.from(alwaysPreparedIds).map((id) => {
@@ -440,8 +450,10 @@ export default function SpellsTab5e(): JSX.Element {
         <div className="border-b border-gray-800">
           <div className="px-4 py-1 bg-gray-900/60">
             <span className="text-xs font-semibold text-purple-400 uppercase">
-              Species Spells
-              <span className="text-gray-600 ml-1">({speciesSpells.length})</span>
+              {t('builder.spellsTab.speciesSpellsHeaderPlain')}
+              <span className="text-gray-600 ml-1">
+                {t('builder.spellsTab.count', { count: speciesSpells.length })}
+              </span>
             </span>
           </div>
           {speciesSpells.map((spell) => (

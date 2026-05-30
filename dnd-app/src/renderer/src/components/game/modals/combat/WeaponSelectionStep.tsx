@@ -2,6 +2,7 @@ import { getMasteryDescription, type MasteryProperty } from '../../../../data/we
 
 type _MasteryProperty = MasteryProperty
 
+import { useT } from '../../../../i18n'
 import { formatMod } from '../../../../types/character-common'
 import type { AttackWeapon, UnarmedMode } from './attack-utils'
 
@@ -32,11 +33,12 @@ export function WeaponSelectionStep({
   onSelectWeapon,
   onSelectUnarmed
 }: WeaponSelectionStepProps): JSX.Element {
+  const { t } = useT()
   return (
     <div className="space-y-2">
       {isOffhandAttack && (
         <div className="text-xs text-cyan-400 bg-cyan-900/20 border border-cyan-700/40 rounded-lg px-3 py-1.5">
-          Off-hand Attack — choose a different Light weapon (ability modifier not added to damage)
+          {t('game.weaponSelectionStep.offhandInfo')}
         </div>
       )}
       {weapons.map((w, i) => {
@@ -62,29 +64,38 @@ export function WeaponSelectionStep({
             <div className="flex justify-between">
               <span className="text-sm font-semibold text-gray-200">{w.name}</span>
               {isUnarmedEntry ? (
-                <span className="text-xs text-amber-400 font-mono">3 modes</span>
+                <span className="text-xs text-amber-400 font-mono">{t('game.weaponSelectionStep.threeModes')}</span>
               ) : (
                 <span className="text-xs text-amber-400 font-mono">
-                  {isImprovisedEntry ? `${formatMod(strMod)} to hit` : `${formatMod(getAttackMod())} to hit`}
+                  {isImprovisedEntry
+                    ? t('game.weaponSelectionStep.toHit', { mod: formatMod(strMod) })
+                    : t('game.weaponSelectionStep.toHit', { mod: formatMod(getAttackMod()) })}
                 </span>
               )}
             </div>
             <div className="text-xs text-gray-400 mt-0.5">
               {isUnarmedEntry ? (
-                `1 + STR mod (${Math.max(1, 1 + strMod)}) bludgeoning / Grapple / Shove`
+                t('game.weaponSelectionStep.unarmedDesc', { value: Math.max(1, 1 + strMod) })
               ) : isImprovisedEntry ? (
-                '1d4 bludgeoning (no proficiency)'
+                t('game.weaponSelectionStep.improvisedDesc')
               ) : (
                 <>
                   {w.damage} {w.damageType}
-                  {w.range && <span className="ml-2 text-gray-500">Range: {w.range}</span>}
+                  {w.range && (
+                    <span className="ml-2 text-gray-500">
+                      {t('game.weaponSelectionStep.range', { range: w.range })}
+                    </span>
+                  )}
                   {w.properties?.length > 0 && <span className="ml-2 text-gray-500">{w.properties.join(', ')}</span>}
                 </>
               )}
             </div>
             {w.mastery && masteryChoices?.includes(w.mastery) && (
               <div className="text-xs text-purple-300 mt-0.5">
-                Mastery: {w.mastery} — {getMasteryDescription(w.mastery)}
+                {t('game.weaponSelectionStep.mastery', {
+                  mastery: w.mastery,
+                  description: getMasteryDescription(w.mastery)
+                })}
               </div>
             )}
           </button>
@@ -104,39 +115,37 @@ interface UnarmedModeStepProps {
 }
 
 export function UnarmedModeStep({ strMod, unarmedStrikeDC, onSelectMode, onBack }: UnarmedModeStepProps): JSX.Element {
+  const { t } = useT()
   return (
     <div className="space-y-2">
       <button
         onClick={() => onSelectMode('damage')}
         className="w-full text-left px-3 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg cursor-pointer"
       >
-        <div className="text-sm font-semibold text-gray-200">Damage</div>
+        <div className="text-sm font-semibold text-gray-200">{t('game.unarmedModeStep.damage')}</div>
         <div className="text-xs text-gray-400">
-          Attack roll (STR + PB). Hit: {Math.max(1, 1 + strMod)} bludgeoning damage.
+          {t('game.unarmedModeStep.damageDesc', { value: Math.max(1, 1 + strMod) })}
         </div>
       </button>
       <button
         onClick={() => onSelectMode('grapple')}
         className="w-full text-left px-3 py-2 bg-gray-800 hover:bg-gray-700 border border-blue-700/50 rounded-lg cursor-pointer"
       >
-        <div className="text-sm font-semibold text-blue-300">Grapple</div>
+        <div className="text-sm font-semibold text-blue-300">{t('game.unarmedModeStep.grapple')}</div>
         <div className="text-xs text-gray-400">
-          Target within 5ft, max 1 size larger. Target STR/DEX save vs DC {unarmedStrikeDC}.
-          <span className="text-yellow-400 ml-1">Requires free hand.</span>
+          {t('game.unarmedModeStep.grappleDesc', { dc: unarmedStrikeDC })}
+          <span className="text-yellow-400 ml-1">{t('game.unarmedModeStep.requiresFreeHand')}</span>
         </div>
       </button>
       <button
         onClick={() => onSelectMode('shove')}
         className="w-full text-left px-3 py-2 bg-gray-800 hover:bg-gray-700 border border-orange-700/50 rounded-lg cursor-pointer"
       >
-        <div className="text-sm font-semibold text-orange-300">Shove</div>
-        <div className="text-xs text-gray-400">
-          Target within 5ft, max 1 size larger. Target STR/DEX save vs DC {unarmedStrikeDC}. On fail: push 5ft OR knock
-          Prone.
-        </div>
+        <div className="text-sm font-semibold text-orange-300">{t('game.unarmedModeStep.shove')}</div>
+        <div className="text-xs text-gray-400">{t('game.unarmedModeStep.shoveDesc', { dc: unarmedStrikeDC })}</div>
       </button>
       <button onClick={onBack} className="text-xs text-gray-500 hover:text-gray-300 cursor-pointer">
-        Back
+        {t('game.unarmedModeStep.back')}
       </button>
     </div>
   )

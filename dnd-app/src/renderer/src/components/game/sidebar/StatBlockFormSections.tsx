@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useT } from '../../../i18n'
 import type { SidebarEntryStatBlock } from '../../../types/game-state'
 
 const SPELLCASTING_ABILITIES = ['Intelligence', 'Wisdom', 'Charisma']
@@ -44,6 +45,7 @@ interface NameDescRowProps {
 }
 
 export function NameDescRows({ items, onChange, showCost = false }: NameDescRowProps): JSX.Element {
+  const { t } = useT()
   const addRow = (): void => {
     onChange([...items, { name: '', description: '' }])
   }
@@ -71,14 +73,14 @@ export function NameDescRows({ items, onChange, showCost = false }: NameDescRowP
               value={item.name}
               onChange={(e) => updateRow(idx, 'name', e.target.value)}
               className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
-              placeholder="Name"
+              placeholder={t('game.statBlockFormSections.namePlaceholder')}
             />
             <textarea
               value={item.description}
               onChange={(e) => updateRow(idx, 'description', e.target.value)}
               className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500 resize-none"
               rows={2}
-              placeholder="Description"
+              placeholder={t('game.statBlockFormSections.descriptionPlaceholder')}
             />
             {showCost && (
               <input
@@ -86,7 +88,7 @@ export function NameDescRows({ items, onChange, showCost = false }: NameDescRowP
                 value={item.cost ?? ''}
                 onChange={(e) => updateRow(idx, 'cost', e.target.value)}
                 className="w-16 px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
-                placeholder="Cost"
+                placeholder={t('game.statBlockFormSections.costPlaceholder')}
                 min={1}
               />
             )}
@@ -95,14 +97,14 @@ export function NameDescRows({ items, onChange, showCost = false }: NameDescRowP
             type="button"
             onClick={() => removeRow(idx)}
             className="text-gray-500 hover:text-red-400 text-xs mt-0.5 cursor-pointer shrink-0"
-            title="Remove"
+            title={t('game.statBlockFormSections.remove')}
           >
             &#10005;
           </button>
         </div>
       ))}
       <button type="button" onClick={addRow} className="text-xs text-gray-500 hover:text-amber-400 cursor-pointer">
-        + Add
+        {t('game.statBlockFormSections.add')}
       </button>
     </div>
   )
@@ -125,17 +127,18 @@ export function SpellcastingSection({
   onUpdate,
   onSlotUpdate
 }: SpellcastingSectionProps): JSX.Element {
+  const { t } = useT()
   return (
-    <CollapsibleSection title="Spellcasting">
+    <CollapsibleSection title={t('game.statBlockFormSections.spellcasting')}>
       <label className="flex items-center gap-1.5 text-xs text-gray-300 cursor-pointer mb-1">
         <input type="checkbox" checked={!!spellcasting} onChange={onToggle} className="accent-amber-500" />
-        Enable Spellcasting
+        {t('game.statBlockFormSections.enableSpellcasting')}
       </label>
       {spellcasting && (
         <div className="space-y-1">
           <div className="grid grid-cols-3 gap-1">
             <div>
-              <label className="text-[9px] text-gray-500 uppercase">Ability</label>
+              <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockFormSections.ability')}</label>
               <select
                 value={spellcasting.ability}
                 onChange={(e) => onUpdate({ ability: e.target.value })}
@@ -149,7 +152,7 @@ export function SpellcastingSection({
               </select>
             </div>
             <div>
-              <label className="text-[9px] text-gray-500 uppercase">Save DC</label>
+              <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockFormSections.saveDc')}</label>
               <input
                 type="number"
                 value={spellcasting.dc}
@@ -158,7 +161,7 @@ export function SpellcastingSection({
               />
             </div>
             <div>
-              <label className="text-[9px] text-gray-500 uppercase">Atk Bonus</label>
+              <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockFormSections.atkBonus')}</label>
               <input
                 type="number"
                 value={spellcasting.attackBonus}
@@ -168,7 +171,9 @@ export function SpellcastingSection({
             </div>
           </div>
           <div>
-            <label className="text-[9px] text-gray-500 uppercase block mb-0.5">Spell Slots by Level</label>
+            <label className="text-[9px] text-gray-500 uppercase block mb-0.5">
+              {t('game.statBlockFormSections.spellSlotsByLevel')}
+            </label>
             <div className="grid grid-cols-9 gap-0.5">
               {Array.from({ length: 9 }, (_, i) => String(i + 1)).map((level) => (
                 <div key={level} className="text-center">
@@ -185,7 +190,9 @@ export function SpellcastingSection({
             </div>
           </div>
           <div>
-            <label className="text-[9px] text-gray-500 uppercase">Spells (comma-separated)</label>
+            <label className="text-[9px] text-gray-500 uppercase">
+              {t('game.statBlockFormSections.spellsCommaSeparated')}
+            </label>
             <textarea
               value={spellcasting.spells?.join(', ') ?? ''}
               onChange={(e) =>
@@ -195,7 +202,7 @@ export function SpellcastingSection({
               }
               className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500 resize-none"
               rows={2}
-              placeholder="Fireball, Shield, Counterspell, ..."
+              placeholder={t('game.statBlockFormSections.spellsPlaceholder')}
             />
           </div>
         </div>

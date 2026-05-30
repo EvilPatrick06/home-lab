@@ -1,5 +1,6 @@
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { usePanelResize } from '../../../hooks/use-panel-resize'
+import { useT } from '../../../i18n'
 import { useNetworkStore } from '../../../stores/network-store'
 import { useMacroStore } from '../../../stores/use-macro-store'
 import type { Campaign } from '../../../types/campaign'
@@ -28,6 +29,7 @@ export default function DMBottomBar({
   onDispute,
   onLinkClick
 }: DMBottomBarProps): JSX.Element {
+  const { t } = useT()
   const handleOpenModal = (modal: string): void => {
     onOpenModal?.(modal)
   }
@@ -48,8 +50,8 @@ export default function DMBottomBar({
           className="px-3 py-1
             bg-gray-800 border border-gray-700/50 rounded-t-lg text-gray-400 hover:text-gray-200
             cursor-pointer transition-colors"
-          title={collapsed ? 'Expand bottom bar' : 'Collapse bottom bar'}
-          aria-label={collapsed ? 'Expand bottom bar' : 'Collapse bottom bar'}
+          title={collapsed ? t('game.dmBottomBar.expand') : t('game.dmBottomBar.collapse')}
+          aria-label={collapsed ? t('game.dmBottomBar.expand') : t('game.dmBottomBar.collapse')}
           aria-expanded={!collapsed}
         >
           {collapsed ? (
@@ -67,9 +69,9 @@ export default function DMBottomBar({
           className="px-2 py-0.5 text-xs
             bg-gray-800 border border-gray-700/50 rounded-t-lg text-gray-400 hover:text-amber-300
             cursor-pointer transition-colors"
-          title="Share your macros with all players"
+          title={t('game.dmBottomBar.shareMacrosTitle')}
         >
-          Share Macros
+          {t('game.dmBottomBar.shareMacros')}
         </button>
       </div>
 

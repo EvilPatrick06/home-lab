@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useT } from '../../../i18n'
 import { load5eMonsters } from '../../../services/data-provider'
 import type { MonsterStatBlock } from '../../../types/monster'
 
 export default function MonstersTab(): JSX.Element {
+  const { t } = useT()
   const [monsters, setMonsters] = useState<MonsterStatBlock[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -41,7 +43,7 @@ export default function MonstersTab(): JSX.Element {
     return result.slice(0, 100)
   }, [monsters, search, crFilter])
 
-  if (loading) return <p className="text-xs text-gray-500 text-center py-4">Loading monsters...</p>
+  if (loading) return <p className="text-xs text-gray-500 text-center py-4">{t('game.monstersTab.loading')}</p>
 
   return (
     <div className="flex flex-col gap-2 min-h-0">
@@ -49,7 +51,7 @@ export default function MonstersTab(): JSX.Element {
         type="text"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        placeholder="Search monsters..."
+        placeholder={t('game.monstersTab.searchPlaceholder')}
         className="w-full px-2.5 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-xs text-gray-100 placeholder-gray-500 focus:outline-none focus:border-amber-500/60"
       />
 
@@ -60,7 +62,7 @@ export default function MonstersTab(): JSX.Element {
             crFilter === null ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400 hover:text-gray-200'
           }`}
         >
-          All CR
+          {t('game.monstersTab.allCr')}
         </button>
         {crValues.slice(0, 15).map((cr) => (
           <button
@@ -76,13 +78,13 @@ export default function MonstersTab(): JSX.Element {
       </div>
 
       <div className="text-xs text-gray-500">
-        {filtered.length} monster{filtered.length !== 1 ? 's' : ''}
+        {t('game.monstersTab.monsterCount', { count: filtered.length })}
         {filtered.length === 100 ? '+' : ''}
       </div>
 
       <div className="flex-1 overflow-y-auto space-y-1.5 min-h-0">
         {filtered.length === 0 ? (
-          <p className="text-xs text-gray-500 text-center py-4">No matching monsters</p>
+          <p className="text-xs text-gray-500 text-center py-4">{t('game.monstersTab.noMatching')}</p>
         ) : (
           filtered.map((m) => <MonsterCard key={m.id} monster={m} />)
         )}
@@ -92,6 +94,7 @@ export default function MonstersTab(): JSX.Element {
 }
 
 function MonsterCard({ monster }: { monster: MonsterStatBlock }): JSX.Element {
+  const { t } = useT()
   const [expanded, setExpanded] = useState(false)
 
   return (
@@ -119,7 +122,7 @@ function MonsterCard({ monster }: { monster: MonsterStatBlock }): JSX.Element {
             <span className="text-gray-300 col-span-2">
               {monster.hp} ({monster.hitDice})
             </span>
-            <span className="text-gray-500">Speed</span>
+            <span className="text-gray-500">{t('game.monstersTab.speed')}</span>
             <span className="text-gray-300 col-span-2">
               {monster.speed.walk}ft
               {monster.speed.fly ? `, fly ${monster.speed.fly}ft` : ''}

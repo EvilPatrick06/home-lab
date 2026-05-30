@@ -1,4 +1,5 @@
 import { useCharacterEditor } from '../../../hooks/use-character-editor'
+import { useT } from '../../../i18n'
 import type { Character } from '../../../types/character'
 import type { Character5e } from '../../../types/character-5e'
 import {
@@ -25,6 +26,7 @@ interface EquipmentSection5eProps {
 }
 
 export default function EquipmentSection5e({ character, readonly }: EquipmentSection5eProps): JSX.Element {
+  const { t } = useT()
   const { getLatest, saveAndBroadcast } = useCharacterEditor(character.id)
 
   const saveCurrencyDenom = (denom: string, newValue: number): void => {
@@ -40,7 +42,7 @@ export default function EquipmentSection5e({ character, readonly }: EquipmentSec
   const currency = character.treasure
 
   return (
-    <SheetSectionWrapper title="Equipment & Currency">
+    <SheetSectionWrapper title={t('sheet.equipmentSection.title')}>
       {/* Currency as coins */}
       <div className="flex flex-wrap gap-3 mb-3 justify-center">
         <CoinBadge label="PP" value={currency.pp} readonly={readonly} onSave={(v) => saveCurrencyDenom('pp', v)} />
@@ -75,7 +77,11 @@ export default function EquipmentSection5e({ character, readonly }: EquipmentSec
           <div className="mb-3">
             <div
               className="relative h-5 bg-gray-800 rounded-full overflow-hidden border border-gray-700"
-              title={`Carrying Capacity: STR (${strScore}) × 15 = ${capacity.carry} lb. Drag/Lift/Push: ${capacity.dragLiftPush} lb.`}
+              title={t('sheet.equipmentSection.carryingCapacityTooltip', {
+                str: strScore,
+                carry: capacity.carry,
+                dragLiftPush: capacity.dragLiftPush
+              })}
             >
               <div
                 className={`absolute inset-y-0 left-0 ${barColor} transition-all`}
@@ -86,9 +92,11 @@ export default function EquipmentSection5e({ character, readonly }: EquipmentSec
               </div>
             </div>
             {status === 'encumbered' && (
-              <p className="text-xs text-amber-400 mt-1">Encumbered! Speed reduced to 5 ft.</p>
+              <p className="text-xs text-amber-400 mt-1">{t('sheet.equipmentSection.encumbered')}</p>
             )}
-            {status === 'over-limit' && <p className="text-xs text-red-400 mt-1">Over carry limit! Cannot move.</p>}
+            {status === 'over-limit' && (
+              <p className="text-xs text-red-400 mt-1">{t('sheet.equipmentSection.overLimit')}</p>
+            )}
           </div>
         )
       })()}

@@ -1,3 +1,4 @@
+import { useT } from '../../../i18n'
 import { getEffectiveClasses } from '../../../services/character/effective-character-5e'
 import type { Character5e } from '../../../types/character-5e'
 import { abilityModifier } from '../../../types/character-common'
@@ -80,17 +81,18 @@ export function LevelUpSummaryBar5e({
   newSpellCount: number
   incompleteChoices: string[]
 }): JSX.Element {
+  const { t } = useT()
   return (
     <div
       className={`bg-gray-900 border rounded-lg p-4 sticky bottom-0 ${incompleteChoices.length > 0 ? 'border-amber-600/50' : 'border-gray-700'}`}
     >
       <div className="flex items-center gap-6 flex-wrap text-sm">
         <span className="text-gray-400">
-          Level <span className="text-amber-400 font-bold">{currentLevel}</span> &rarr;{' '}
+          {t('levelup.summaryBar.level')} <span className="text-amber-400 font-bold">{currentLevel}</span> &rarr;{' '}
           <span className="text-amber-400 font-bold">{targetLevel}</span>
         </span>
         <span className="text-gray-400">
-          HP:{' '}
+          {t('levelup.summaryBar.hp')}{' '}
           <span className="text-green-400 font-bold">
             {character.hitPoints.maximum} &rarr; {summary.newMaxHP}
           </span>
@@ -107,13 +109,13 @@ export function LevelUpSummaryBar5e({
         )}
         {newSpellCount > 0 && (
           <span className="text-gray-400">
-            +<span className="text-blue-400 font-bold">{newSpellCount}</span> spell
-            {newSpellCount !== 1 ? 's' : ''}
+            +<span className="text-blue-400 font-bold">{newSpellCount}</span>
+            {t('levelup.summaryBar.spellSuffix', { count: newSpellCount })}
           </span>
         )}
         {incompleteChoices.length > 0 && (
           <span className="text-amber-400 font-semibold ml-auto">
-            {incompleteChoices.length} choice{incompleteChoices.length !== 1 ? 's' : ''} remaining
+            {t('levelup.summaryBar.choicesRemaining', { count: incompleteChoices.length })}
           </span>
         )}
       </div>

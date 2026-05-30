@@ -14,6 +14,7 @@ import {
 import type { CampaignScopeFilter } from '../components/library/LibraryFilterBar'
 import { BackButton, Button, EmptyState, Skeleton } from '../components/ui'
 import { addToast } from '../hooks/use-toast'
+import { useT } from '../i18n'
 import { exportEntities, importEntities, reIdItems } from '../services/io/entity-io'
 import { loadCategoryItems, searchAllCategories, summarizeItem } from '../services/library-service'
 import {
@@ -41,6 +42,7 @@ const NAV_ROUTES: Record<string, string> = {
 }
 
 export default function LibraryPage(): JSX.Element {
+  const { t } = useT()
   const [searchParams] = useSearchParams()
   const returnTo = searchParams.get('from') || '/'
   const navigate = useNavigate()
@@ -135,10 +137,10 @@ export default function LibraryPage(): JSX.Element {
       .then(() => setInitialLoading(false))
       .catch((err) => {
         logger.error('Failed to load homebrew', err)
-        addToast('Failed to load library homebrew', 'error')
+        addToast(t('pages.libraryPage.toastHomebrewLoadFailed'), 'error')
         setInitialLoading(false)
       })
-  }, [loadHomebrew])
+  }, [loadHomebrew, t])
 
   // Compute homebrew counts per category
   const homebrewCounts = useMemo(() => {
@@ -181,7 +183,7 @@ export default function LibraryPage(): JSX.Element {
       .catch((err) => {
         if (!cancelled) {
           logger.error('Failed to load category items', selectedCategory, err)
-          addToast(`Failed to load ${selectedCategory}`, 'error')
+          addToast(t('pages.libraryPage.toastCategoryLoadFailed', { category: selectedCategory }), 'error')
           setOfficialItems([])
         }
       })
@@ -191,7 +193,7 @@ export default function LibraryPage(): JSX.Element {
     return () => {
       cancelled = true
     }
-  }, [selectedCategory, setItems, setLoading])
+  }, [selectedCategory, setItems, setLoading, t])
 
   // Global search when no category is selected
   useEffect(() => {
@@ -208,7 +210,7 @@ export default function LibraryPage(): JSX.Element {
       .catch((err) => {
         if (!cancelled) {
           logger.error('Failed to search library', err)
-          addToast('Search failed', 'error')
+          addToast(t('pages.libraryPage.toastSearchFailed'), 'error')
           setGlobalSearchResults([])
         }
       })
@@ -218,7 +220,7 @@ export default function LibraryPage(): JSX.Element {
     return () => {
       cancelled = true
     }
-  }, [selectedCategory, debouncedSearch, homebrewEntries])
+  }, [selectedCategory, debouncedSearch, homebrewEntries, t])
 
   // Merge official items with homebrew items for current category
   const mergedItems = useMemo(() => {
@@ -388,14 +390,14 @@ export default function LibraryPage(): JSX.Element {
       .catch((err) => {
         if (!cancelled) {
           logger.error('Failed to load favorites', err)
-          addToast('Failed to load favorites', 'error')
+          addToast(t('pages.libraryPage.toastFavoritesLoadFailed'), 'error')
           setFavoriteItems([])
         }
       })
     return () => {
       cancelled = true
     }
-  }, [showFavorites, favorites, recentlyViewed, homebrewEntries])
+  }, [showFavorites, favorites, recentlyViewed, homebrewEntries, t])
 
   // Sort/filter config for current category
   const sortOptions = useMemo(() => getSortOptions(selectedCategory ?? 'global'), [selectedCategory])
@@ -455,24 +457,24 @@ export default function LibraryPage(): JSX.Element {
       if (!hbId) return
       const ok = await deleteHomebrewEntry(item.category, hbId)
       if (ok) {
-        addToast(`Deleted "${item.name}"`, 'success')
+        addToast(t('pages.libraryPage.toastDeleted', { name: item.name }), 'success')
         setSelectedItem(null)
       }
     },
-    [deleteHomebrewEntry]
+    [deleteHomebrewEntry, t]
   )
 
   const handleSaveHomebrew = useCallback(
     async (entry: HomebrewEntry) => {
       const ok = await saveHomebrewEntry(entry)
       if (ok) {
-        addToast(`Saved "${entry.name}"`, 'success')
+        addToast(t('pages.libraryPage.toastSaved', { name: entry.name }), 'success')
         setHomebrewModal(null)
       } else {
-        addToast('Failed to save', 'error')
+        addToast(t('pages.libraryPage.toastSaveFailed'), 'error')
       }
     },
-    [saveHomebrewEntry]
+    [saveHomebrewEntry, t]
   )
 
   const handleImport = useCallback(async () => {
@@ -487,16 +489,16 @@ export default function LibraryPage(): JSX.Element {
       for (const item of importedItems) {
         await window.api.saveCustomCreature(item as unknown as Record<string, unknown>)
       }
-      addToast(`Imported ${importedItems.length} creature(s)`, 'success')
+      addToast(t('pages.libraryPage.toastImported', { count: importedItems.length }), 'success')
       handleSelectCategory(selectedCategory ?? 'monsters')
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Import failed'
+      const msg = err instanceof Error ? err.message : t('pages.libraryPage.toastImportFailed')
       addToast(msg, 'error')
       logger.error(err)
     } finally {
       setImporting(false)
     }
-  }, [handleSelectCategory, selectedCategory])
+  }, [handleSelectCategory, selectedCategory, t])
 
   const handleExportAll = useCallback(async () => {
     if (filteredItems.length === 0) return
@@ -506,14 +508,14 @@ export default function LibraryPage(): JSX.Element {
         'monster',
         filteredItems.map((i) => i.data)
       )
-      if (ok) addToast(`Exported ${filteredItems.length} item(s)`, 'success')
+      if (ok) addToast(t('pages.libraryPage.toastExported', { count: filteredItems.length }), 'success')
     } catch (err) {
-      addToast('Export failed', 'error')
+      addToast(t('pages.libraryPage.toastExportFailed'), 'error')
       logger.error(err)
     } finally {
       setExporting(false)
     }
-  }, [filteredItems])
+  }, [filteredItems, t])
 
   const handleCreateButton = useCallback(() => {
     if (selectedCategory && NAV_CATEGORIES.has(selectedCategory)) {
@@ -547,24 +549,26 @@ export default function LibraryPage(): JSX.Element {
       <div className="flex items-center justify-between mb-4">
         <h1
           className="text-3xl font-bold text-amber-400"
-          title={`${totalGroupCount} groups, ${totalCategoryCount} categories available`}
+          title={t('pages.libraryPage.headerTitle', { groups: totalGroupCount, categories: totalCategoryCount })}
         >
-          Library
+          {t('pages.libraryPage.title')}
         </h1>
         <div className="flex gap-2">
           {selectedCategory && BESTIARY_CATEGORIES.has(selectedCategory) && (
             <Button variant="secondary" onClick={handleImport} disabled={importing}>
-              {importing ? 'Importing...' : 'Import'}
+              {importing ? t('pages.libraryPage.importing') : t('pages.libraryPage.import')}
             </Button>
           )}
           {selectedCategory && BESTIARY_CATEGORIES.has(selectedCategory) && filteredItems.length > 0 && (
             <Button variant="secondary" onClick={handleExportAll} disabled={exporting}>
-              Export All ({filteredItems.length})
+              {t('pages.libraryPage.exportAll', { count: filteredItems.length })}
             </Button>
           )}
           {selectedCategory && (
             <Button variant="primary" onClick={handleCreateButton}>
-              {NAV_CATEGORIES.has(selectedCategory) ? 'Create' : 'Create Custom'}
+              {NAV_CATEGORIES.has(selectedCategory)
+                ? t('pages.libraryPage.create')
+                : t('pages.libraryPage.createCustom')}
             </Button>
           )}
         </div>
@@ -576,7 +580,11 @@ export default function LibraryPage(): JSX.Element {
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder={selectedCategory ? `Search ${catDef?.label ?? selectedCategory}...` : 'Search all categories...'}
+          placeholder={
+            selectedCategory
+              ? t('pages.libraryPage.searchCategory', { category: catDef?.label ?? selectedCategory })
+              : t('pages.libraryPage.searchAll')
+          }
           className="w-full max-w-md bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
         />
       </div>
@@ -618,8 +626,8 @@ export default function LibraryPage(): JSX.Element {
             favoriteItems.length === 0 ? (
               <div className="flex-1 flex items-center justify-center p-6">
                 <EmptyState
-                  title="No favorites yet"
-                  description="Click the ☆ star on any item to add it to your favorites."
+                  title={t('pages.libraryPage.noFavoritesTitle')}
+                  description={t('pages.libraryPage.noFavoritesDescription')}
                 />
               </div>
             ) : (
@@ -628,7 +636,7 @@ export default function LibraryPage(): JSX.Element {
                 loading={false}
                 onSelectItem={handleSelectItem}
                 onCreateNew={() => {}}
-                categoryLabel="Favorites"
+                categoryLabel={t('pages.libraryPage.favorites')}
                 favorites={favorites}
                 onToggleFavorite={toggleFavorite}
               />
@@ -651,20 +659,20 @@ export default function LibraryPage(): JSX.Element {
                   </div>
                 ) : filteredGlobalItems.length === 0 ? (
                   <EmptyState
-                    title="No results found"
-                    description={`No items match "${debouncedSearch}" across all categories with current filters.`}
+                    title={t('pages.libraryPage.noResultsTitle')}
+                    description={t('pages.libraryPage.noResultsGlobalDescription', { query: debouncedSearch })}
                   />
                 ) : (
                   <div>
                     <h2 className="text-lg font-bold text-gray-200 mb-3">
-                      Search Results ({filteredGlobalItems.length})
+                      {t('pages.libraryPage.searchResultsCount', { count: filteredGlobalItems.length })}
                     </h2>
                     <LibraryItemList
                       items={filteredGlobalItems}
                       loading={false}
                       onSelectItem={handleSelectItem}
                       onCreateNew={() => {}}
-                      categoryLabel="Search Results"
+                      categoryLabel={t('pages.libraryPage.searchResults')}
                       favorites={favorites}
                       onToggleFavorite={toggleFavorite}
                     />
@@ -676,13 +684,13 @@ export default function LibraryPage(): JSX.Element {
                   {recentlyViewed.length > 0 && (
                     <section className="mb-8">
                       <div className="flex items-center justify-between mb-3 border-b border-gray-800 pb-2">
-                        <h2 className="text-lg font-bold text-gray-200">Recently Viewed</h2>
+                        <h2 className="text-lg font-bold text-gray-200">{t('pages.libraryPage.recentlyViewed')}</h2>
                         <button
                           onClick={clearRecentlyViewed}
                           className="text-xs uppercase tracking-wider text-gray-500 hover:text-red-400 transition-colors cursor-pointer"
-                          title="Clear Recently Viewed list"
+                          title={t('pages.libraryPage.clearRecentlyViewedTitle')}
                         >
-                          Clear
+                          {t('pages.libraryPage.clear')}
                         </button>
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
@@ -722,8 +730,8 @@ export default function LibraryPage(): JSX.Element {
           ) : !loading && filteredItems.length === 0 && debouncedSearch.trim() ? (
             <div className="flex-1 flex items-center justify-center p-6">
               <EmptyState
-                title="No results found"
-                description={`No items match "${debouncedSearch}" in this category.`}
+                title={t('pages.libraryPage.noResultsTitle')}
+                description={t('pages.libraryPage.noResultsCategoryDescription', { query: debouncedSearch })}
               />
             </div>
           ) : (
@@ -781,7 +789,7 @@ export default function LibraryPage(): JSX.Element {
                 }, 1000)
               }
             } catch {
-              addToast('Could not open referenced book', 'error')
+              addToast(t('pages.libraryPage.toastBookOpenFailed'), 'error')
             }
           }}
         />

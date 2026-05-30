@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { addToast } from '../../../hooks/use-toast'
+import { i18n, useT } from '../../../i18n'
 import { getEffectiveClasses, getEffectiveFeats } from '../../../services/character/effective-character-5e'
 import { formatPrerequisites, load5eFeats, load5eSpells } from '../../../services/data-provider'
 import { useLevelUpStore } from '../../../stores/use-level-up-store'
@@ -20,6 +21,7 @@ export function EpicBoonSelector5e({
   onSelect: (sel: { id: string; name: string; description: string } | null) => void
   character: Character5e
 }): JSX.Element {
+  const { t } = useT()
   const [feats, setFeats] = useState<FeatData[]>([])
   const [expanded, setExpanded] = useState(false)
 
@@ -28,7 +30,7 @@ export function EpicBoonSelector5e({
       .then(setFeats)
       .catch((err) => {
         logger.error('Failed to load epic boons', err)
-        addToast('Failed to load epic boons', 'error')
+        addToast(i18n.t('levelup.epicBoonSelector.loadFailed'), 'error')
         setFeats([])
       })
   }, [])
@@ -38,14 +40,19 @@ export function EpicBoonSelector5e({
   return (
     <div className={`rounded ${isIncomplete ? 'ring-1 ring-amber-600/50 p-1 -m-1' : ''}`}>
       <div className="text-sm text-gray-400 mb-1 flex items-center gap-2">
-        {slot.label}:{isIncomplete && <span className="text-xs text-amber-500 font-semibold uppercase">Required</span>}
+        {slot.label}:
+        {isIncomplete && (
+          <span className="text-xs text-amber-500 font-semibold uppercase">
+            {t('levelup.epicBoonSelector.required')}
+          </span>
+        )}
       </div>
       {selection ? (
         <div className="bg-purple-900/20 border border-purple-700/50 rounded-lg p-2">
           <div className="flex items-center justify-between">
             <span className="text-purple-300 font-semibold text-sm">{selection.name}</span>
             <button onClick={() => onSelect(null)} className="text-xs text-gray-500 hover:text-red-400 cursor-pointer">
-              Change
+              {t('levelup.epicBoonSelector.change')}
             </button>
           </div>
           <p className="text-xs text-gray-500 mt-1 line-clamp-2">{selection.description}</p>
@@ -56,7 +63,7 @@ export function EpicBoonSelector5e({
             onClick={() => setExpanded(!expanded)}
             className="text-xs text-purple-400 hover:text-purple-300 cursor-pointer"
           >
-            {expanded ? 'Hide Epic Boons' : 'Select an Epic Boon'}
+            {expanded ? t('levelup.epicBoonSelector.hide') : t('levelup.epicBoonSelector.select')}
           </button>
           {expanded && (
             <div className="mt-2 max-h-48 overflow-y-auto space-y-1">
@@ -83,14 +90,16 @@ export function EpicBoonSelector5e({
                     </p>
                     {!meetsPrereqs && formatPrerequisites(feat.prerequisites).length > 0 && (
                       <p className="text-xs text-red-400 mt-0.5">
-                        Requires: {formatPrerequisites(feat.prerequisites).join(', ')}
+                        {t('levelup.epicBoonSelector.requires', {
+                          prereqs: formatPrerequisites(feat.prerequisites).join(', ')
+                        })}
                       </p>
                     )}
                   </button>
                 )
               })}
               {feats.length === 0 && (
-                <p className="text-xs text-gray-500 text-center py-2">No Epic Boon feats found.</p>
+                <p className="text-xs text-gray-500 text-center py-2">{t('levelup.epicBoonSelector.noFeats')}</p>
               )}
             </div>
           )}
@@ -101,6 +110,7 @@ export function EpicBoonSelector5e({
 }
 
 function BlessedWarriorCantripPicker(): JSX.Element {
+  const { t } = useT()
   const blessedWarriorCantrips = useLevelUpStore((s) => s.blessedWarriorCantrips)
   const setBlessedWarriorCantrips = useLevelUpStore((s) => s.setBlessedWarriorCantrips)
   const [allSpells, setAllSpells] = useState<
@@ -112,7 +122,7 @@ function BlessedWarriorCantripPicker(): JSX.Element {
       .then(setAllSpells)
       .catch((err) => {
         logger.error('Failed to load spells', err)
-        addToast('Failed to load spells', 'error')
+        addToast(i18n.t('levelup.blessedWarriorCantripPicker.loadFailed'), 'error')
         setAllSpells([])
       })
   }, [])
@@ -139,7 +149,7 @@ function BlessedWarriorCantripPicker(): JSX.Element {
   return (
     <div className="mt-2 border border-blue-700/50 rounded-lg bg-blue-900/10 p-2">
       <div className="text-xs font-semibold text-blue-400 uppercase tracking-wide mb-1">
-        Choose 2 Cleric Cantrips ({blessedWarriorCantrips.length}/2)
+        {t('levelup.blessedWarriorCantripPicker.heading', { count: blessedWarriorCantrips.length })}
       </div>
       <div className="max-h-36 overflow-y-auto space-y-0.5">
         {clericCantrips.map((spell) => {
@@ -174,6 +184,7 @@ function BlessedWarriorCantripPicker(): JSX.Element {
 }
 
 function DruidicWarriorCantripPicker(): JSX.Element {
+  const { t } = useT()
   const druidicWarriorCantrips = useLevelUpStore((s) => s.druidicWarriorCantrips)
   const setDruidicWarriorCantrips = useLevelUpStore((s) => s.setDruidicWarriorCantrips)
   const [allSpells, setAllSpells] = useState<
@@ -185,7 +196,7 @@ function DruidicWarriorCantripPicker(): JSX.Element {
       .then(setAllSpells)
       .catch((err) => {
         logger.error('Failed to load spells', err)
-        addToast('Failed to load spells', 'error')
+        addToast(i18n.t('levelup.druidicWarriorCantripPicker.loadFailed'), 'error')
         setAllSpells([])
       })
   }, [])
@@ -212,7 +223,7 @@ function DruidicWarriorCantripPicker(): JSX.Element {
   return (
     <div className="mt-2 border border-green-700/50 rounded-lg bg-green-900/10 p-2">
       <div className="text-xs font-semibold text-green-400 uppercase tracking-wide mb-1">
-        Choose 2 Druid Cantrips ({druidicWarriorCantrips.length}/2)
+        {t('levelup.druidicWarriorCantripPicker.heading', { count: druidicWarriorCantrips.length })}
       </div>
       <div className="max-h-36 overflow-y-auto space-y-0.5">
         {druidCantrips.map((spell) => {
@@ -257,6 +268,7 @@ export function FightingStyleSelector5e({
   selection: { id: string; name: string; description: string } | null
   onSelect: (sel: { id: string; name: string; description: string } | null) => void
 }): JSX.Element {
+  const { t } = useT()
   const [feats, setFeats] = useState<FeatData[]>([])
   const [expanded, setExpanded] = useState(false)
 
@@ -277,7 +289,7 @@ export function FightingStyleSelector5e({
       })
       .catch((err) => {
         logger.error('Failed to load fighting style feats', err)
-        addToast('Failed to load fighting styles', 'error')
+        addToast(i18n.t('levelup.fightingStyleSelector.loadFailed'), 'error')
         setFeats([])
       })
   }, [character.buildChoices.classId])
@@ -311,14 +323,19 @@ export function FightingStyleSelector5e({
   return (
     <div className={`rounded ${isIncomplete ? 'ring-1 ring-amber-600/50 p-1 -m-1' : ''}`}>
       <div className="text-sm text-gray-400 mb-1 flex items-center gap-2">
-        {slot.label}:{isIncomplete && <span className="text-xs text-amber-500 font-semibold uppercase">Required</span>}
+        {slot.label}:
+        {isIncomplete && (
+          <span className="text-xs text-amber-500 font-semibold uppercase">
+            {t('levelup.fightingStyleSelector.required')}
+          </span>
+        )}
       </div>
       {selection ? (
         <div className="bg-blue-900/20 border border-blue-700/50 rounded-lg p-2">
           <div className="flex items-center justify-between">
             <span className="text-blue-300 font-semibold text-sm">{selection.name}</span>
             <button onClick={() => onSelect(null)} className="text-xs text-gray-500 hover:text-red-400 cursor-pointer">
-              Change
+              {t('levelup.fightingStyleSelector.change')}
             </button>
           </div>
           <p className="text-xs text-gray-500 mt-1 line-clamp-2">{selection.description}</p>
@@ -331,7 +348,7 @@ export function FightingStyleSelector5e({
             onClick={() => setExpanded(!expanded)}
             className="text-xs text-blue-400 hover:text-blue-300 cursor-pointer"
           >
-            {expanded ? 'Hide Fighting Styles' : 'Select a Fighting Style'}
+            {expanded ? t('levelup.fightingStyleSelector.hide') : t('levelup.fightingStyleSelector.select')}
           </button>
           {expanded && (
             <div className="mt-2 max-h-48 overflow-y-auto space-y-1">
@@ -349,7 +366,7 @@ export function FightingStyleSelector5e({
                 </button>
               ))}
               {available.length === 0 && (
-                <p className="text-xs text-gray-500 text-center py-2">No Fighting Style feats available.</p>
+                <p className="text-xs text-gray-500 text-center py-2">{t('levelup.fightingStyleSelector.noFeats')}</p>
               )}
             </div>
           )}

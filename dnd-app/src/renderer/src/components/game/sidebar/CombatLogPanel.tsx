@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useT } from '../../../i18n'
 import { exportCombatLogCSV, exportCombatLogJSON } from '../../../services/io/combat-log-export'
 import { useGameStore } from '../../../stores/use-game-store'
 import type { CombatLogEntry } from '../../../types/game-state'
@@ -208,10 +209,13 @@ function LogEntry({ entry }: { entry: CombatLogEntry }): JSX.Element {
 }
 
 function RoundDivider({ round }: { round: number }): JSX.Element {
+  const { t } = useT()
   return (
     <div className="flex items-center gap-2 py-1.5">
       <div className="flex-1 h-px bg-gray-700/50" />
-      <span className="text-xs font-bold text-amber-500/80 uppercase tracking-wider shrink-0">Round {round}</span>
+      <span className="text-xs font-bold text-amber-500/80 uppercase tracking-wider shrink-0">
+        {t('game.combatLogPanel.round', { round })}
+      </span>
       <div className="flex-1 h-px bg-gray-700/50" />
     </div>
   )
@@ -245,6 +249,7 @@ function SummaryBar({
 // ---------------------------------------------------------------------------
 
 export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.Element {
+  const { t } = useT()
   const [activeTab, setActiveTab] = useState<TabId>('log')
 
   const combatLog = useGameStore((s) => s.combatLog)
@@ -314,37 +319,37 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
     <div
       className="w-80 h-full bg-gray-900/95 border-l border-gray-700 flex flex-col min-h-0"
       role="region"
-      aria-label="Combat log"
+      aria-label={t('game.combatLogPanel.regionLabel')}
     >
       {/* Header */}
       <div className="shrink-0 flex items-center justify-between px-3 py-2 border-b border-gray-700">
         <div className="flex items-center gap-2">
-          <h2 className="text-sm font-bold text-gray-100">Combat Log</h2>
+          <h2 className="text-sm font-bold text-gray-100">{t('game.combatLogPanel.title')}</h2>
           {round > 0 && (
             <span className="text-xs font-semibold text-amber-500 bg-amber-900/30 px-1.5 py-0.5 rounded">
-              Round {round}
+              {t('game.combatLogPanel.round', { round })}
             </span>
           )}
         </div>
         <div className="flex items-center gap-1">
           <button
             onClick={() => handleExport('csv')}
-            title="Export CSV"
+            title={t('game.combatLogPanel.exportCsv')}
             className="px-1.5 py-0.5 text-[9px] font-bold text-gray-400 bg-gray-800 rounded hover:text-amber-400 hover:bg-gray-700 transition-colors uppercase cursor-pointer"
           >
-            CSV
+            {t('game.combatLogPanel.csv')}
           </button>
           <button
             onClick={() => handleExport('json')}
-            title="Export JSON"
+            title={t('game.combatLogPanel.exportJson')}
             className="px-1.5 py-0.5 text-[9px] font-bold text-gray-400 bg-gray-800 rounded hover:text-amber-400 hover:bg-gray-700 transition-colors uppercase cursor-pointer mr-1"
           >
-            JSON
+            {t('game.combatLogPanel.json')}
           </button>
           <button
             onClick={handleClear}
-            title="Clear log"
-            aria-label="Clear combat log"
+            title={t('game.combatLogPanel.clearLog')}
+            aria-label={t('game.combatLogPanel.clearLogAria')}
             className="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-red-400 rounded hover:bg-gray-800 cursor-pointer transition-colors"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
@@ -359,8 +364,8 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
             <button
               onClick={onClose}
               className="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-gray-300 rounded hover:bg-gray-800 cursor-pointer transition-colors"
-              title="Close"
-              aria-label="Close combat log"
+              title={t('common.actions.close')}
+              aria-label={t('game.combatLogPanel.closeAria')}
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
                 <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
@@ -380,7 +385,7 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
               : 'bg-gray-800 text-gray-400 hover:text-gray-200 hover:bg-gray-700'
           }`}
         >
-          Live Log
+          {t('game.combatLogPanel.liveLog')}
         </button>
         <button
           onClick={() => setActiveTab('summary')}
@@ -390,7 +395,7 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
               : 'bg-gray-800 text-gray-400 hover:text-gray-200 hover:bg-gray-700'
           }`}
         >
-          Summary
+          {t('game.combatLogPanel.summary')}
         </button>
       </div>
 
@@ -400,8 +405,8 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
           {combatLog.length === 0 ? (
             <EmptyState
               compact
-              title="No combat events recorded yet."
-              description="Events will appear here during combat."
+              title={t('game.combatLogPanel.noEventsTitle')}
+              description={t('game.combatLogPanel.noEventsDescription')}
             />
           ) : (
             <>
@@ -422,24 +427,26 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
       ) : (
         <div className="flex-1 overflow-y-auto px-3 py-2 min-h-0">
           {combatLog.length === 0 ? (
-            <EmptyState compact title="No combat data to summarize." />
+            <EmptyState compact title={t('game.combatLogPanel.noDataToSummarize')} />
           ) : (
             <div className="space-y-4">
               {/* Totals banner */}
               <div className="bg-gray-800/60 rounded-lg p-3 border border-gray-700/30">
-                <div className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-2">Combat Overview</div>
+                <div className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-2">
+                  {t('game.combatLogPanel.combatOverview')}
+                </div>
                 <div className="grid grid-cols-3 gap-3">
                   <div className="text-center">
                     <div className="text-lg font-bold text-gray-100">{highestRound}</div>
-                    <div className="text-xs text-gray-500">Rounds</div>
+                    <div className="text-xs text-gray-500">{t('game.combatLogPanel.rounds')}</div>
                   </div>
                   <div className="text-center">
                     <div className="text-lg font-bold text-red-400">{totalDamage}</div>
-                    <div className="text-xs text-gray-500">Total Dmg</div>
+                    <div className="text-xs text-gray-500">{t('game.combatLogPanel.totalDmg')}</div>
                   </div>
                   <div className="text-center">
                     <div className="text-lg font-bold text-green-400">{totalHealed}</div>
-                    <div className="text-xs text-gray-500">Total Healed</div>
+                    <div className="text-xs text-gray-500">{t('game.combatLogPanel.totalHealed')}</div>
                   </div>
                 </div>
               </div>
@@ -452,25 +459,30 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
                       <span className="text-xs font-semibold text-gray-200">{summary.entityName}</span>
                       {summary.kills > 0 && (
                         <span className="text-xs font-bold text-red-400 bg-red-900/30 px-1.5 py-0.5 rounded">
-                          {summary.kills} kill{summary.kills !== 1 ? 's' : ''}
+                          {t('game.combatLogPanel.kills', { count: summary.kills })}
                         </span>
                       )}
                     </div>
                     <div className="space-y-1.5">
                       <SummaryBar
-                        label="Dealt"
+                        label={t('game.combatLogPanel.dealt')}
                         value={summary.damageDealt}
                         maxValue={maxDamageDealt}
                         color="bg-red-500"
                       />
                       <SummaryBar
-                        label="Taken"
+                        label={t('game.combatLogPanel.taken')}
                         value={summary.damageTaken}
                         maxValue={maxDamageTaken}
                         color="bg-orange-500"
                       />
                       {summary.healed > 0 && (
-                        <SummaryBar label="Healed" value={summary.healed} maxValue={maxHealed} color="bg-green-500" />
+                        <SummaryBar
+                          label={t('game.combatLogPanel.healed')}
+                          value={summary.healed}
+                          maxValue={maxHealed}
+                          color="bg-green-500"
+                        />
                       )}
                     </div>
                   </div>
@@ -479,7 +491,9 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
 
               {/* Event type breakdown */}
               <div className="bg-gray-800/40 rounded-lg p-2.5 border border-gray-700/30">
-                <div className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-2">Event Breakdown</div>
+                <div className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-2">
+                  {t('game.combatLogPanel.eventBreakdown')}
+                </div>
                 <div className="grid grid-cols-2 gap-x-3 gap-y-1">
                   {(['damage', 'heal', 'attack', 'condition', 'save', 'death', 'other'] as const).map((type) => {
                     const count = combatLog.filter((e) => e.type === type).length

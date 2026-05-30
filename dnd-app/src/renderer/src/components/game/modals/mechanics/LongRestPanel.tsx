@@ -1,3 +1,4 @@
+import { useT } from '../../../../i18n'
 import { getEffectiveClasses } from '../../../../services/character/effective-character-5e'
 import { getLongRestPreview } from '../../../../services/character/rest-service-5e'
 import type { Character5e } from '../../../../types/character-5e'
@@ -21,6 +22,7 @@ export function initLongRestStates(pcs: Character5e[]): Record<string, PCLongRes
 }
 
 export default function LongRestPanel({ pcs, states, onStatesChange }: LongRestPanelProps): JSX.Element {
+  const { t } = useT()
   const toggleSelected = (pcId: string): void => {
     const state = states[pcId]
     if (!state) return
@@ -50,7 +52,7 @@ export default function LongRestPanel({ pcs, states, onStatesChange }: LongRestP
               />
               <span className="text-sm font-semibold text-gray-200">{pc.name}</span>
               <span className="text-xs text-gray-500">
-                Lv{pc.level}{' '}
+                {t('game.longRestPanel.level', { level: pc.level })}{' '}
                 {getEffectiveClasses(pc)
                   .map((c) => c.name)
                   .join('/')}
@@ -62,33 +64,46 @@ export default function LongRestPanel({ pcs, states, onStatesChange }: LongRestP
                 <div className="text-xs text-gray-400 flex flex-wrap gap-x-4 gap-y-0.5">
                   {preview.currentHP < preview.maxHP && (
                     <span>
-                      HP: {preview.currentHP} → <span className="text-green-400">{preview.maxHP}</span>
+                      {t('game.longRestPanel.hpPrefix', { current: preview.currentHP })}{' '}
+                      <span className="text-green-400">{preview.maxHP}</span>
                     </span>
                   )}
                   {preview.currentHD < preview.maxHD && (
                     <span>
-                      HD: {preview.currentHD} → <span className="text-green-400">{preview.maxHD}</span>
+                      {t('game.longRestPanel.hdPrefix', { current: preview.currentHD })}{' '}
+                      <span className="text-green-400">{preview.maxHD}</span>
                     </span>
                   )}
                   {preview.spellSlotsToRestore.length > 0 && (
-                    <span className="text-blue-400">Spell slots restored</span>
+                    <span className="text-blue-400">{t('game.longRestPanel.spellSlotsRestored')}</span>
                   )}
                   {preview.pactSlotsToRestore.length > 0 && (
-                    <span className="text-purple-400">Pact magic restored</span>
+                    <span className="text-purple-400">{t('game.longRestPanel.pactMagicRestored')}</span>
                   )}
                   {preview.classResourcesToRestore.length > 0 && (
-                    <span>Resources: {preview.classResourcesToRestore.map((r) => r.name).join(', ')}</span>
+                    <span>
+                      {t('game.longRestPanel.resources', {
+                        list: preview.classResourcesToRestore.map((r) => r.name).join(', ')
+                      })}
+                    </span>
                   )}
                   {preview.exhaustionReduction && (
                     <span className="text-yellow-400">
-                      Exhaustion {preview.currentExhaustionLevel} → {preview.currentExhaustionLevel - 1}
+                      {t('game.longRestPanel.exhaustion', {
+                        from: preview.currentExhaustionLevel,
+                        to: preview.currentExhaustionLevel - 1
+                      })}
                     </span>
                   )}
-                  {preview.heroicInspirationGain && <span className="text-amber-400">Heroic Inspiration</span>}
-                  {preview.wildShapeRestore && <span>Wild Shape restored</span>}
-                  {preview.deathSavesReset && <span>Death saves reset</span>}
+                  {preview.heroicInspirationGain && (
+                    <span className="text-amber-400">{t('game.longRestPanel.heroicInspiration')}</span>
+                  )}
+                  {preview.wildShapeRestore && <span>{t('game.longRestPanel.wildShapeRestored')}</span>}
+                  {preview.deathSavesReset && <span>{t('game.longRestPanel.deathSavesReset')}</span>}
                   {preview.innateSpellsToRestore.length > 0 && (
-                    <span>Innate spells: {preview.innateSpellsToRestore.join(', ')}</span>
+                    <span>
+                      {t('game.longRestPanel.innateSpells', { list: preview.innateSpellsToRestore.join(', ') })}
+                    </span>
                   )}
                 </div>
                 {preview.currentHP === preview.maxHP &&
@@ -96,7 +111,9 @@ export default function LongRestPanel({ pcs, states, onStatesChange }: LongRestP
                   preview.spellSlotsToRestore.length === 0 &&
                   preview.classResourcesToRestore.length === 0 &&
                   !preview.exhaustionReduction &&
-                  !preview.deathSavesReset && <div className="text-xs text-gray-600 italic">Already fully rested</div>}
+                  !preview.deathSavesReset && (
+                    <div className="text-xs text-gray-600 italic">{t('game.longRestPanel.alreadyRested')}</div>
+                  )}
               </div>
             )}
           </div>

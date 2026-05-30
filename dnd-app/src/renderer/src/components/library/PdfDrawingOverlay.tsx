@@ -1,5 +1,6 @@
 import type React from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useT } from '../../i18n'
 
 // Drawing tool types
 export type DrawingTool = 'none' | 'highlighter' | 'pencil' | 'marker' | 'eraser'
@@ -250,15 +251,16 @@ export function DrawingToolbar({
   hasStrokes,
   hasRedo
 }: DrawingToolbarProps): JSX.Element {
+  const { t } = useT()
   const [showPicker, setShowPicker] = useState(false)
 
   const tools: Array<{ id: DrawingTool; label: string; icon: React.ReactNode }> = [
-    { id: 'highlighter', label: 'Highlighter', icon: '🖍️' },
-    { id: 'pencil', label: 'Pencil', icon: '✏️' },
-    { id: 'marker', label: 'Marker', icon: '🖊️' },
+    { id: 'highlighter', label: t('library.pdfDrawingOverlay.highlighter'), icon: '🖍️' },
+    { id: 'pencil', label: t('library.pdfDrawingOverlay.pencil'), icon: '✏️' },
+    { id: 'marker', label: t('library.pdfDrawingOverlay.marker'), icon: '🖊️' },
     {
       id: 'eraser',
-      label: 'Eraser',
+      label: t('library.pdfDrawingOverlay.eraser'),
       icon: (
         <svg
           viewBox="0 0 24 24"
@@ -301,7 +303,11 @@ export function DrawingToolbar({
           <button
             onClick={() => setShowPicker(!showPicker)}
             className="px-2 py-1 bg-gray-800 hover:bg-gray-700 rounded text-sm transition-colors flex items-center gap-1"
-            title={activeTool === 'eraser' ? 'Size' : 'Color & Size'}
+            title={
+              activeTool === 'eraser'
+                ? t('library.pdfDrawingOverlay.size')
+                : t('library.pdfDrawingOverlay.colorAndSize')
+            }
           >
             {activeTool !== 'eraser' && (
               <span
@@ -309,7 +315,7 @@ export function DrawingToolbar({
                 style={{ backgroundColor: color }}
               />
             )}
-            <span className="text-gray-400 text-xs">{size}px</span>
+            <span className="text-gray-400 text-xs">{t('library.pdfDrawingOverlay.px', { size })}</span>
           </button>
         </>
       )}
@@ -322,7 +328,7 @@ export function DrawingToolbar({
         className={`px-2 py-1 rounded text-sm transition-colors ${
           hasStrokes ? 'bg-gray-800 hover:bg-gray-700 text-gray-300' : 'bg-gray-800/50 text-gray-600 cursor-not-allowed'
         }`}
-        title="Undo last stroke"
+        title={t('library.pdfDrawingOverlay.undoStroke')}
       >
         ↩
       </button>
@@ -332,7 +338,7 @@ export function DrawingToolbar({
         className={`px-2 py-1 rounded text-sm transition-colors ${
           hasRedo ? 'bg-gray-800 hover:bg-gray-700 text-gray-300' : 'bg-gray-800/50 text-gray-600 cursor-not-allowed'
         }`}
-        title="Redo stroke"
+        title={t('library.pdfDrawingOverlay.redoStroke')}
       >
         ↪
       </button>
@@ -344,7 +350,7 @@ export function DrawingToolbar({
             ? 'bg-gray-800 hover:bg-red-900/50 text-gray-300 hover:text-red-300'
             : 'bg-gray-800/50 text-gray-600 cursor-not-allowed'
         }`}
-        title="Clear page drawings"
+        title={t('library.pdfDrawingOverlay.clearPage')}
       >
         🗑️
       </button>
@@ -355,7 +361,7 @@ export function DrawingToolbar({
           {/* Colors — hidden for eraser */}
           {activeTool !== 'eraser' && (
             <>
-              <p className="text-xs text-gray-500 uppercase mb-1">Color</p>
+              <p className="text-xs text-gray-500 uppercase mb-1">{t('library.pdfDrawingOverlay.color')}</p>
               <div className="flex flex-wrap gap-1.5 mb-2">
                 {TOOL_COLORS.map((c) => (
                   <button
@@ -374,7 +380,7 @@ export function DrawingToolbar({
               <div className="flex items-center gap-2 mb-3">
                 <label
                   className="relative w-8 h-8 rounded-full overflow-hidden border-2 border-gray-600 cursor-pointer hover:border-amber-400 transition-colors"
-                  title="Pick any color"
+                  title={t('library.pdfDrawingOverlay.pickAnyColor')}
                 >
                   <input
                     type="color"
@@ -409,7 +415,7 @@ export function DrawingToolbar({
           )}
 
           {/* Sizes */}
-          <p className="text-xs text-gray-500 uppercase mb-1">Size</p>
+          <p className="text-xs text-gray-500 uppercase mb-1">{t('library.pdfDrawingOverlay.size')}</p>
           <div className="flex items-center gap-2">
             {sizes.map((s) => (
               <button
@@ -422,7 +428,7 @@ export function DrawingToolbar({
                     ? 'bg-amber-600/30 border border-amber-500'
                     : 'bg-gray-800 hover:bg-gray-700 border border-gray-700'
                 }`}
-                title={`${s}px`}
+                title={t('library.pdfDrawingOverlay.px', { size: s })}
               >
                 <span
                   className="rounded-full bg-current"
@@ -440,7 +446,7 @@ export function DrawingToolbar({
             onClick={() => setShowPicker(false)}
             className="mt-2 w-full text-xs text-gray-400 hover:text-gray-200 py-1"
           >
-            Done
+            {t('library.pdfDrawingOverlay.done')}
           </button>
         </div>
       )}

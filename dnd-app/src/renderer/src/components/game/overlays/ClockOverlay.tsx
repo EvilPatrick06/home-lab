@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { LIGHT_SOURCE_LABELS } from '../../../data/light-sources'
+import { i18n, useT } from '../../../i18n'
 import { useGameStore } from '../../../stores/use-game-store'
 import type { CalendarConfig } from '../../../types/campaign'
 import type { TimeOfDayPhase } from '../../../utils/calendar-utils'
@@ -31,12 +32,12 @@ const PHASE_ICONS: Record<TimeOfDayPhase, string> = {
 }
 
 function formatRemainingTime(seconds: number): string {
-  if (seconds <= 0) return 'expired'
-  if (seconds < 60) return `${seconds}s`
-  if (seconds < 3600) return `${Math.ceil(seconds / 60)} min`
+  if (seconds <= 0) return i18n.t('game.clockOverlay.expired')
+  if (seconds < 60) return i18n.t('game.clockOverlay.seconds', { seconds })
+  if (seconds < 3600) return i18n.t('game.clockOverlay.minutes', { minutes: Math.ceil(seconds / 60) })
   const hrs = Math.floor(seconds / 3600)
   const mins = Math.ceil((seconds % 3600) / 60)
-  return mins > 0 ? `${hrs} hr ${mins} min` : `${hrs} hr`
+  return mins > 0 ? i18n.t('game.clockOverlay.hoursMinutes', { hrs, mins }) : i18n.t('game.clockOverlay.hours', { hrs })
 }
 
 export default function ClockOverlay({
@@ -48,6 +49,7 @@ export default function ClockOverlay({
   onLightSource,
   onPhaseChange
 }: ClockOverlayProps): JSX.Element {
+  const { t } = useT()
   const [expanded, setExpanded] = useState(false)
   const inGameTime = useGameStore((s) => s.inGameTime)
   const activeLightSources = useGameStore((s) => s.activeLightSources)
@@ -105,7 +107,7 @@ export default function ClockOverlay({
           onClick={() => (isDM ? setExpanded(true) : undefined)}
           className={`flex items-center gap-1.5 px-3 py-1.5 bg-gray-900/70 backdrop-blur-sm border border-gray-700/50
             rounded-xl text-xs transition-colors ${isDM ? 'cursor-pointer hover:bg-gray-800/70' : 'cursor-default'}`}
-          title={isDM ? 'Click to expand clock controls' : formattedTime}
+          title={isDM ? t('game.clockOverlay.expandTitle') : formattedTime}
         >
           <span>{icon}</span>
           <span className="text-gray-200 font-medium">{formatInGameTimeOfDay(inGameTime.totalSeconds, calendar)}</span>
@@ -126,56 +128,56 @@ export default function ClockOverlay({
               onClick={() => setExpanded(false)}
               className="text-gray-500 hover:text-gray-300 text-xs cursor-pointer"
             >
-              x
+              {t('game.clockOverlay.closeGlyph')}
             </button>
           </div>
 
           {/* Quick advance buttons */}
           <div className="px-3 py-2 border-b border-gray-800">
-            <div className="text-xs text-gray-500 mb-1.5">Quick Advance</div>
+            <div className="text-xs text-gray-500 mb-1.5">{t('game.clockOverlay.quickAdvance')}</div>
             <div className="flex flex-wrap gap-1">
               <button
                 onClick={() => handleQuickAdvance(6)}
                 className="px-2 py-1 text-xs bg-gray-800 hover:bg-gray-700 rounded text-gray-300 cursor-pointer"
               >
-                +6s
+                {t('game.clockOverlay.advance6s')}
               </button>
               <button
                 onClick={() => handleQuickAdvance(60)}
                 className="px-2 py-1 text-xs bg-gray-800 hover:bg-gray-700 rounded text-gray-300 cursor-pointer"
               >
-                +1 min
+                {t('game.clockOverlay.advance1min')}
               </button>
               <button
                 onClick={() => handleQuickAdvance(600)}
                 className="px-2 py-1 text-xs bg-gray-800 hover:bg-gray-700 rounded text-gray-300 cursor-pointer"
               >
-                +10 min
+                {t('game.clockOverlay.advance10min')}
               </button>
               <button
                 onClick={() => handleQuickAdvance(3600)}
                 className="px-2 py-1 text-xs bg-gray-800 hover:bg-gray-700 rounded text-gray-300 cursor-pointer"
               >
-                +1 hr
+                {t('game.clockOverlay.advance1hr')}
               </button>
             </div>
           </div>
 
           {/* Rest buttons */}
           <div className="px-3 py-2 border-b border-gray-800">
-            <div className="text-xs text-gray-500 mb-1.5">Rest</div>
+            <div className="text-xs text-gray-500 mb-1.5">{t('game.clockOverlay.rest')}</div>
             <div className="flex gap-1">
               <button
                 onClick={onShortRest}
                 className="flex-1 px-2 py-1 text-xs bg-blue-900/30 hover:bg-blue-800/40 rounded text-blue-300 cursor-pointer"
               >
-                Short Rest (1 hr)
+                {t('game.clockOverlay.shortRest')}
               </button>
               <button
                 onClick={onLongRest}
                 className="flex-1 px-2 py-1 text-xs bg-purple-900/30 hover:bg-purple-800/40 rounded text-purple-300 cursor-pointer"
               >
-                Long Rest (8 hr)
+                {t('game.clockOverlay.longRest')}
               </button>
             </div>
           </div>
@@ -183,7 +185,7 @@ export default function ClockOverlay({
           {/* Active light sources */}
           {lightSourcesWithTime.length > 0 && (
             <div className="px-3 py-2 border-b border-gray-800">
-              <div className="text-xs text-gray-500 mb-1.5">Light Sources</div>
+              <div className="text-xs text-gray-500 mb-1.5">{t('game.clockOverlay.lightSources')}</div>
               <div className="space-y-1">
                 {lightSourcesWithTime.map((ls) => (
                   <div key={ls.id} className="flex items-center justify-between text-xs">
@@ -191,7 +193,7 @@ export default function ClockOverlay({
                       {LIGHT_SOURCE_LABELS[ls.sourceName] ?? ls.sourceName} ({ls.entityName})
                     </span>
                     <span className="text-gray-400">
-                      {ls.remaining === Infinity ? 'permanent' : formatRemainingTime(ls.remaining)}
+                      {ls.remaining === Infinity ? t('game.clockOverlay.permanent') : formatRemainingTime(ls.remaining)}
                     </span>
                   </div>
                 ))}
@@ -205,7 +207,7 @@ export default function ClockOverlay({
               onClick={onLightSource}
               className="w-full px-2 py-1.5 text-xs bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/30 rounded text-yellow-300 cursor-pointer"
             >
-              Light a Source...
+              {t('game.clockOverlay.lightSource')}
             </button>
           </div>
 
@@ -215,7 +217,7 @@ export default function ClockOverlay({
               onClick={onEditTime}
               className="w-full px-2 py-1.5 text-xs bg-amber-600/20 hover:bg-amber-600/30 border border-amber-500/30 rounded text-amber-300 cursor-pointer"
             >
-              Advance Days / Edit Time...
+              {t('game.clockOverlay.editTime')}
             </button>
           </div>
         </div>

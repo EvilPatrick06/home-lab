@@ -1,5 +1,6 @@
 import type { StateCreator } from 'zustand'
 import { addToast } from '../../../hooks/use-toast'
+import { i18n } from '../../../i18n'
 import { getCantripsKnown, getPreparedSpellMax } from '../../../services/character/spell-data'
 import { getOptionsForSlot, load5eBackgrounds, load5eClasses, load5eSpecies } from '../../../services/data-provider'
 import { filterOptions } from '../../../types/builder'
@@ -37,7 +38,7 @@ export const createSelectionSlice: StateCreator<BuilderState, [], [], SelectionS
       allOptions = await getOptionsForSlot(gameSystem, slot.category, context)
     } catch (err) {
       logger.error('[Builder] Failed to load options for slot', slotId, err)
-      addToast(`Failed to load options for ${slot.label}`, 'warning')
+      addToast(i18n.t('notify.selectionSlice.loadOptionsFailed', { label: slot.label }), 'warning')
       return
     }
     if (allOptions.length === 0) {

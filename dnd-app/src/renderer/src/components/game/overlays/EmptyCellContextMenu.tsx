@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useT } from '../../../i18n'
 import { load5eMonsters } from '../../../services/data-provider'
 import { useGameStore } from '../../../stores/use-game-store'
 import { useLobbyStore } from '../../../stores/use-lobby-store'
@@ -28,6 +29,7 @@ export default function EmptyCellContextMenu({
   onPlaceToken,
   onAddPin
 }: EmptyCellContextMenuProps): JSX.Element {
+  const { t } = useT()
   const menuRef = useRef<HTMLDivElement>(null)
   const [showSearch, setShowSearch] = useState(false)
   const [search, setSearch] = useState('')
@@ -129,7 +131,7 @@ export default function EmptyCellContextMenu({
             onClick={() => setShowSearch(true)}
             className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-gray-800 transition-colors cursor-pointer"
           >
-            Summon Monster
+            {t('game.emptyCellContextMenu.summonMonster')}
           </button>
           <button
             onClick={() => {
@@ -138,7 +140,7 @@ export default function EmptyCellContextMenu({
             }}
             className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-gray-800 transition-colors cursor-pointer"
           >
-            Place Token
+            {t('game.emptyCellContextMenu.placeToken')}
           </button>
           {/* Phase 16B — DM-only "Add Pin" entry. Spatial bookmark on the map. */}
           {onAddPin && (
@@ -150,7 +152,7 @@ export default function EmptyCellContextMenu({
               }}
               className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-gray-800 transition-colors cursor-pointer"
             >
-              Add Pin
+              {t('game.emptyCellContextMenu.addPin')}
             </button>
           )}
         </>
@@ -160,13 +162,13 @@ export default function EmptyCellContextMenu({
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search monsters..."
+            placeholder={t('game.emptyCellContextMenu.searchPlaceholder')}
             className="w-full bg-gray-800 border border-gray-600 rounded px-2 py-1.5 text-xs text-gray-100 focus:outline-none focus:border-amber-500 mb-1.5"
             autoFocus
           />
           <div className="max-h-48 overflow-y-auto space-y-0.5">
             {monsters.length === 0 && search.trim() && (
-              <p className="text-xs text-gray-500 italic px-2 py-1">No matches</p>
+              <p className="text-xs text-gray-500 italic px-2 py-1">{t('game.emptyCellContextMenu.noMatches')}</p>
             )}
             {monsters.map((m) => (
               <button
@@ -175,7 +177,7 @@ export default function EmptyCellContextMenu({
                 className="w-full text-left px-2 py-1.5 text-xs text-gray-200 hover:bg-gray-700 rounded transition-colors cursor-pointer flex items-center justify-between"
               >
                 <span>{m.name}</span>
-                <span className="text-xs text-gray-500">CR {m.cr}</span>
+                <span className="text-xs text-gray-500">{t('game.emptyCellContextMenu.cr', { cr: m.cr })}</span>
               </button>
             ))}
           </div>

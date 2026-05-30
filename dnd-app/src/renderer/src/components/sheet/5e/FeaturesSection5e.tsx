@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { getBonusFeatCount } from '../../../data/xp-thresholds'
+import { useT } from '../../../i18n'
 import { getEffectiveFeats } from '../../../services/character/effective-character-5e'
 import { load5eInvocations, load5eMetamagic } from '../../../services/data-provider'
 import { useNetworkStore } from '../../../stores/network-store'
@@ -17,16 +18,23 @@ interface FeaturesSection5eProps {
 }
 
 export default function FeaturesSection5e({ character, readonly }: FeaturesSection5eProps): JSX.Element {
+  const { t } = useT()
   const rawClassFeatures = character.classFeatures ?? []
   // Annotate Elemental Fury with the chosen option
   const elementalFuryChoice = character.buildChoices?.elementalFuryChoice
   const classFeatures = rawClassFeatures.map((f) => {
     if (f.name === 'Elemental Fury' && elementalFuryChoice) {
-      const choiceName = elementalFuryChoice === 'potent-spellcasting' ? 'Potent Spellcasting' : 'Primal Strike'
+      const choiceName =
+        elementalFuryChoice === 'potent-spellcasting'
+          ? t('sheet.features.potentSpellcasting')
+          : t('sheet.features.primalStrike')
       return { ...f, name: `${f.name} (${choiceName})` }
     }
     if (f.name === 'Improved Elemental Fury' && elementalFuryChoice) {
-      const choiceName = elementalFuryChoice === 'potent-spellcasting' ? 'Potent Spellcasting' : 'Primal Strike'
+      const choiceName =
+        elementalFuryChoice === 'potent-spellcasting'
+          ? t('sheet.features.potentSpellcasting')
+          : t('sheet.features.primalStrike')
       return { ...f, name: `${f.name} (${choiceName})` }
     }
     return f
@@ -200,11 +208,11 @@ export default function FeaturesSection5e({ character, readonly }: FeaturesSecti
   if (!hasFeatures && readonly) return <></>
 
   return (
-    <SheetSectionWrapper title="Features & Feats">
+    <SheetSectionWrapper title={t('sheet.features.title')}>
       {/* Class features */}
       {classFeatures.length > 0 && (
         <div className="mb-3">
-          <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Class Features</div>
+          <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('sheet.features.classFeatures')}</div>
           {classFeatures.map((f, i) => (
             <FeatureRow key={`cf-${i}`} feature={f} />
           ))}
@@ -214,7 +222,7 @@ export default function FeaturesSection5e({ character, readonly }: FeaturesSecti
       {/* Species traits */}
       {character.features.length > 0 && (
         <div className="mb-3">
-          <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Species Traits</div>
+          <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('sheet.features.speciesTraits')}</div>
           {character.features.map((f, i) => (
             <FeatureRow key={`feat-${i}`} feature={f} />
           ))}
@@ -224,7 +232,7 @@ export default function FeaturesSection5e({ character, readonly }: FeaturesSecti
       {/* 5e feats */}
       {(feats.length > 0 || !readonly) && (
         <div className="mb-3">
-          <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Feats</div>
+          <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('sheet.features.feats')}</div>
           {feats.map((f) => (
             <FeatureRow
               key={f.id}
@@ -238,14 +246,16 @@ export default function FeaturesSection5e({ character, readonly }: FeaturesSecti
               onClick={() => setShowPicker(true)}
               className="mt-2 text-xs text-amber-400 hover:text-amber-300 transition-colors cursor-pointer"
             >
-              + Add Feat
+              {t('sheet.features.addFeat')}
             </button>
           )}
 
           {/* Eldritch Invocations */}
           {invocationsKnown.length > 0 && (
             <div className="mt-3">
-              <div className="text-xs text-purple-400 uppercase tracking-wide mb-1">Eldritch Invocations</div>
+              <div className="text-xs text-purple-400 uppercase tracking-wide mb-1">
+                {t('sheet.features.eldritchInvocations')}
+              </div>
               {(() => {
                 const counts = new Map<string, number>()
                 const order: string[] = []
@@ -256,7 +266,11 @@ export default function FeaturesSection5e({ character, readonly }: FeaturesSecti
                 return order.map((invId) => {
                   const inv = invocationData.find((d) => d.id === invId)
                   const count = counts.get(invId) ?? 1
-                  const label = inv ? (count > 1 ? `${inv.name} (x${count})` : inv.name) : invId
+                  const label = inv
+                    ? count > 1
+                      ? t('sheet.features.invocationCount', { name: inv.name, count })
+                      : inv.name
+                    : invId
                   return inv ? (
                     <FeatureRow key={invId} feature={{ name: label, description: inv.description }} />
                   ) : (
@@ -272,13 +286,16 @@ export default function FeaturesSection5e({ character, readonly }: FeaturesSecti
           {/* Metamagic Options */}
           {metamagicKnown.length > 0 && (
             <div className="mt-3">
-              <div className="text-xs text-red-400 uppercase tracking-wide mb-1">Metamagic</div>
+              <div className="text-xs text-red-400 uppercase tracking-wide mb-1">{t('sheet.features.metamagic')}</div>
               {metamagicKnown.map((mmId) => {
                 const mm = metamagicData.find((d) => d.id === mmId)
                 return mm ? (
                   <FeatureRow
                     key={mmId}
-                    feature={{ name: `${mm.name} (${mm.sorceryPointCost} SP)`, description: mm.description }}
+                    feature={{
+                      name: t('sheet.features.metamagicCost', { name: mm.name, cost: mm.sorceryPointCost }),
+                      description: mm.description
+                    }}
                   />
                 ) : (
                   <div key={mmId} className="text-xs text-gray-500 px-2 py-1">
@@ -304,8 +321,8 @@ export default function FeaturesSection5e({ character, readonly }: FeaturesSecti
       {(bonusFeats.length > 0 || bonusFeatsAvailable > 0) && (
         <div className="mb-3">
           <div className="flex items-center gap-2 mb-1">
-            <div className="text-xs text-amber-400 uppercase tracking-wide">Bonus Feats</div>
-            <span className="text-xs text-gray-500">(Post-Level 20)</span>
+            <div className="text-xs text-amber-400 uppercase tracking-wide">{t('sheet.features.bonusFeats')}</div>
+            <span className="text-xs text-gray-500">{t('sheet.features.postLevel20')}</span>
           </div>
 
           {bonusFeats.map((f) => (
@@ -319,14 +336,14 @@ export default function FeaturesSection5e({ character, readonly }: FeaturesSecti
           {bonusFeatsAvailable > 0 && !readonly && (
             <div className="mt-1 flex items-center gap-2">
               <span className="text-xs text-amber-300 font-semibold">
-                {bonusFeatsAvailable} Bonus Feat{bonusFeatsAvailable > 1 ? 's' : ''} Available
+                {t('sheet.features.bonusFeatsAvailable', { count: bonusFeatsAvailable })}
               </span>
               {!showBonusFeatPicker && (
                 <button
                   onClick={() => setShowBonusFeatPicker(true)}
                   className="text-xs text-amber-400 hover:text-amber-300 transition-colors cursor-pointer"
                 >
-                  + Select Feat
+                  {t('sheet.features.selectFeat')}
                 </button>
               )}
             </div>
@@ -351,14 +368,14 @@ export default function FeaturesSection5e({ character, readonly }: FeaturesSecti
       {/* Custom Features (DM-granted) */}
       {(customFeatures.length > 0 || !readonly) && (
         <div className="mb-3">
-          <div className="text-xs text-cyan-400 uppercase tracking-wide mb-1">Custom Features</div>
+          <div className="text-xs text-cyan-400 uppercase tracking-wide mb-1">{t('sheet.features.customFeatures')}</div>
 
           {customFeatures.map((f) => (
             <div key={f.id} className="flex items-start gap-2">
               <div className="flex-1">
                 <FeatureRow
                   feature={{
-                    name: `${f.name}${f.temporary ? ' (Temporary)' : ''}`,
+                    name: `${f.name}${f.temporary ? t('sheet.features.temporarySuffix') : ''}`,
                     description: f.description,
                     source: f.source
                   }}
@@ -375,7 +392,7 @@ export default function FeaturesSection5e({ character, readonly }: FeaturesSecti
               onClick={() => setShowGrantForm(true)}
               className="mt-2 text-xs text-cyan-400 hover:text-cyan-300 transition-colors cursor-pointer"
             >
-              + Grant Feature
+              {t('sheet.features.grantFeature')}
             </button>
           )}
 
@@ -383,7 +400,7 @@ export default function FeaturesSection5e({ character, readonly }: FeaturesSecti
             <div className="mt-2 bg-gray-800/50 rounded p-3 space-y-2">
               <input
                 type="text"
-                placeholder="Feature name"
+                placeholder={t('sheet.features.featureNamePlaceholder')}
                 value={grantName}
                 onChange={(e) => setGrantName(e.target.value)}
                 className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 focus:outline-none focus:border-cyan-500"
@@ -391,7 +408,7 @@ export default function FeaturesSection5e({ character, readonly }: FeaturesSecti
               <div className="flex gap-2">
                 <input
                   type="text"
-                  placeholder="Source"
+                  placeholder={t('sheet.features.sourcePlaceholder')}
                   value={grantSource}
                   onChange={(e) => setGrantSource(e.target.value)}
                   className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 focus:outline-none focus:border-cyan-500"
@@ -403,11 +420,11 @@ export default function FeaturesSection5e({ character, readonly }: FeaturesSecti
                     onChange={(e) => setGrantTemporary(e.target.checked)}
                     className="rounded"
                   />
-                  Temporary
+                  {t('sheet.features.temporary')}
                 </label>
               </div>
               <textarea
-                placeholder="Description (optional)"
+                placeholder={t('sheet.features.descriptionPlaceholder')}
                 value={grantDescription}
                 onChange={(e) => setGrantDescription(e.target.value)}
                 rows={2}
@@ -418,14 +435,14 @@ export default function FeaturesSection5e({ character, readonly }: FeaturesSecti
                   onClick={() => setShowGrantForm(false)}
                   className="px-3 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded text-gray-300 cursor-pointer"
                 >
-                  Cancel
+                  {t('common.actions.cancel')}
                 </button>
                 <button
                   onClick={handleGrantFeature}
                   disabled={!grantName.trim()}
                   className="px-3 py-1 text-xs bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 rounded text-white cursor-pointer"
                 >
-                  Grant
+                  {t('sheet.features.grant')}
                 </button>
               </div>
             </div>

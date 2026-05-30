@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useT } from '../../../i18n'
 import { getEffectiveKnownSpells } from '../../../services/character/effective-character-5e'
 import { load5eSpells } from '../../../services/data-provider'
 import { useNetworkStore } from '../../../stores/network-store'
@@ -37,6 +38,7 @@ export default function HighElfCantripSwapModal5e({
   open,
   onClose
 }: HighElfCantripSwapModal5eProps): JSX.Element | null {
+  const { t } = useT()
   const [wizardCantrips, setWizardCantrips] = useState<SpellData[]>([])
   const [selectedCantripId, setSelectedCantripId] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
@@ -119,22 +121,20 @@ export default function HighElfCantripSwapModal5e({
   if (!open) return null
 
   return (
-    <Modal open={open} onClose={onClose} title="High Elf Cantrip Swap">
+    <Modal open={open} onClose={onClose} title={t('sheet.highElfCantripSwap.title')}>
       <div className="space-y-4">
-        <p className="text-sm text-gray-400">
-          As a High Elf, you can replace your species cantrip with a different Wizard cantrip after a Long Rest.
-        </p>
+        <p className="text-sm text-gray-400">{t('sheet.highElfCantripSwap.description')}</p>
 
         {currentSpeciesCantrip && (
           <div className="text-sm">
-            <span className="text-gray-500">Current cantrip: </span>
+            <span className="text-gray-500">{t('sheet.highElfCantripSwap.currentCantrip')} </span>
             <span className="text-purple-400 font-medium">{currentSpeciesCantrip.name}</span>
           </div>
         )}
 
         <input
           type="text"
-          placeholder="Search cantrips..."
+          placeholder={t('sheet.highElfCantripSwap.searchCantripsPlaceholder')}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full px-3 py-1.5 text-sm bg-gray-800 border border-gray-700 rounded text-gray-200 placeholder-gray-500 focus:border-purple-500 focus:outline-none"
@@ -159,7 +159,7 @@ export default function HighElfCantripSwapModal5e({
             </button>
           ))}
           {filteredCantrips.length === 0 && (
-            <p className="text-sm text-gray-500 text-center py-4">No matching cantrips found.</p>
+            <p className="text-sm text-gray-500 text-center py-4">{t('sheet.highElfCantripSwap.noMatchingCantrips')}</p>
           )}
         </div>
 
@@ -172,14 +172,14 @@ export default function HighElfCantripSwapModal5e({
             }}
             className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-gray-800 transition-colors text-gray-300"
           >
-            Keep Current
+            {t('sheet.highElfCantripSwap.keepCurrent')}
           </button>
           <button
             onClick={handleConfirm}
             disabled={!selectedCantripId}
             className="px-4 py-2 text-sm bg-purple-600 hover:bg-purple-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded font-semibold transition-colors"
           >
-            Swap Cantrip
+            {t('sheet.highElfCantripSwap.swapCantrip')}
           </button>
         </div>
       </div>

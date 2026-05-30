@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useCharacterEditor } from '../../../hooks/use-character-editor'
+import { useT } from '../../../i18n'
 import { roll } from '../../../services/dice/dice-service'
 import type { Character5e } from '../../../types/character-5e'
 import { type AbilityName, abilityModifier, formatMod } from '../../../types/character-common'
@@ -20,6 +21,7 @@ interface ToolProficiencies5eProps {
 }
 
 export default function ToolProficiencies5e({ character, readonly }: ToolProficiencies5eProps): JSX.Element {
+  const { t } = useT()
   const { getLatest, saveAndBroadcast } = useCharacterEditor(character.id)
   const [expandedTool, setExpandedTool] = useState<string | null>(null)
   const [showToolVariantPicker, setShowToolVariantPicker] = useState<string | null>(null)
@@ -36,7 +38,7 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
     const key = (ability ?? 'intelligence').toLowerCase() as AbilityName
     const score = character.abilityScores[key] ?? 10
     const mod = abilityModifier(score) + profBonus
-    roll(`1d20${mod >= 0 ? '+' : ''}${mod}`, { label: `${toolName} check` })
+    roll(`1d20${mod >= 0 ? '+' : ''}${mod}`, { label: t('sheet.toolProficiencies.toolCheckLabel', { tool: toolName }) })
   }
 
   const addProficiency = (field: 'armor' | 'tools', value: string): void => {
@@ -56,17 +58,13 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
     <div className="space-y-1 text-sm text-gray-400">
       {character.proficiencies.armor.length > 0 && (
         <div>
-          <span className="text-gray-500">Armor: </span>
+          <span className="text-gray-500">{t('sheet.toolProficiencies.armorLabel')} </span>
           {character.proficiencies.armor.map((prof, idx) => {
             const armorDescriptions: Record<string, string> = {
-              'light armor':
-                'Made from supple materials, light armor lets agile adventurers keep their full DEX modifier to AC. Examples: Padded (AC 11), Leather (AC 11), Studded Leather (AC 12).',
-              'medium armor':
-                'Offers more protection but limits mobility. Add DEX modifier to AC (max +2). Examples: Hide (AC 12), Chain Shirt (AC 13), Breastplate (AC 14), Half Plate (AC 15).',
-              'heavy armor':
-                'The best protection at the cost of mobility. No DEX modifier added to AC. Some impose stealth disadvantage. Examples: Ring Mail (AC 14), Chain Mail (AC 16), Splint (AC 17), Plate (AC 18).',
-              shields:
-                'A shield is carried in one hand. Wielding a shield increases your AC by 2. You can benefit from only one shield at a time.'
+              'light armor': t('sheet.toolProficiencies.lightArmorDesc'),
+              'medium armor': t('sheet.toolProficiencies.mediumArmorDesc'),
+              'heavy armor': t('sheet.toolProficiencies.heavyArmorDesc'),
+              shields: t('sheet.toolProficiencies.shieldsDesc')
             }
             const desc = armorDescriptions[prof.toLowerCase()]
             return (
@@ -90,7 +88,7 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
               onClick={() => setShowAddArmorProf(true)}
               className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer ml-2"
             >
-              + Add
+              {t('sheet.toolProficiencies.add')}
             </button>
           )}
           {!readonly && showAddArmorProf && (
@@ -111,7 +109,7 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
                 ))}
               <input
                 type="text"
-                placeholder="Custom..."
+                placeholder={t('sheet.toolProficiencies.customPlaceholder')}
                 value={customProfInput}
                 onChange={(e) => setCustomProfInput(e.target.value)}
                 onKeyDown={(e) => {
@@ -127,7 +125,7 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
                 onClick={() => setShowAddArmorProf(false)}
                 className="text-xs text-gray-500 hover:text-gray-300 cursor-pointer"
               >
-                Cancel
+                {t('common.actions.cancel')}
               </button>
             </div>
           )}
@@ -135,7 +133,7 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
       )}
       {character.proficiencies.tools.length > 0 && (
         <div>
-          <span className="text-gray-500">Tools: </span>
+          <span className="text-gray-500">{t('sheet.toolProficiencies.toolsLabel')} </span>
           <div className="inline">
             {character.proficiencies.tools.map((tool, idx) => {
               const normalizedTool = tool
@@ -177,8 +175,11 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
                     <button
                       onClick={() => rollToolCheck(tool, toolData?.ability)}
                       className="ml-1 text-[11px] text-amber-500 hover:text-amber-300 cursor-pointer"
-                      title={`Roll ${tool} check (1d20 + PROF + ${(toolData?.ability ?? 'INT').slice(0, 3).toUpperCase()})`}
-                      aria-label={`Roll ${tool} check`}
+                      title={t('sheet.toolProficiencies.rollToolCheckTitle', {
+                        tool,
+                        ability: (toolData?.ability ?? 'INT').slice(0, 3).toUpperCase()
+                      })}
+                      aria-label={t('sheet.toolProficiencies.rollToolCheckAria', { tool })}
                     >
                       🎲
                       {toolData?.ability
@@ -194,7 +195,9 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
                   )}
                   {showingVariants && generic && genericBase && (
                     <div className="text-xs bg-gray-800/50 rounded px-2 py-1 mt-1 mb-1">
-                      <div className="text-gray-500 mb-1">Choose a specific {genericBase}:</div>
+                      <div className="text-gray-500 mb-1">
+                        {t('sheet.toolProficiencies.chooseSpecific', { base: genericBase })}
+                      </div>
                       <div className="flex flex-wrap gap-1">
                         {GENERIC_TOOL_VARIANTS[genericBase]?.map((variant) => (
                           <button
@@ -234,7 +237,7 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
               onClick={() => setShowAddToolProf(true)}
               className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer ml-2"
             >
-              + Add
+              {t('sheet.toolProficiencies.add')}
             </button>
           )}
           {!readonly && showAddToolProf && (
@@ -298,7 +301,7 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
               <div className="flex items-center gap-1">
                 <input
                   type="text"
-                  placeholder="Custom tool..."
+                  placeholder={t('sheet.toolProficiencies.customToolPlaceholder')}
                   value={customProfInput}
                   onChange={(e) => setCustomProfInput(e.target.value)}
                   onKeyDown={(e) => {
@@ -321,7 +324,7 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
                   disabled={!customProfInput.trim()}
                   className="px-2 py-0.5 text-xs bg-amber-600 hover:bg-amber-500 disabled:opacity-50 rounded text-white cursor-pointer"
                 >
-                  Add
+                  {t('sheet.toolProficiencies.addConfirm')}
                 </button>
                 <button
                   onClick={() => {
@@ -330,7 +333,7 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
                   }}
                   className="text-xs text-gray-500 hover:text-gray-300 cursor-pointer"
                 >
-                  Cancel
+                  {t('common.actions.cancel')}
                 </button>
               </div>
             </div>

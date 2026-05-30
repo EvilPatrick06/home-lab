@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { getMasteryDescription } from '../../../data/weapon-mastery'
 import { useEquipmentData } from '../../../hooks/use-equipment-data'
+import { i18n, useT } from '../../../i18n'
 import type { WeaponContext } from '../../../services/combat/effect-resolver-5e'
 import { resolveEffects } from '../../../services/combat/effect-resolver-5e'
 import { load5eEquipment } from '../../../services/data-provider'
@@ -16,26 +17,33 @@ const PROPERTY_ABBREVIATIONS: Record<string, string> = {
   Ammunition: 'Ammo'
 }
 
-const PROPERTY_TOOLTIPS: Record<string, string> = {
-  Ammunition: 'Requires ammunition to make a ranged attack; draws ammo as part of the attack',
-  Finesse: 'Use STR or DEX for attack and damage rolls',
-  Heavy: 'Small creatures have disadvantage on attack rolls',
-  Light: 'Can engage in two-weapon fighting with another Light weapon',
-  Loading: 'Only one attack per action regardless of extra attacks',
-  Range: 'Can make ranged attacks at the specified normal/long range',
-  Reach: 'Adds 5 feet to your melee attack reach',
-  Thrown: 'Can be thrown for a ranged attack using STR',
-  'Two-Handed': 'Requires two hands to attack with this weapon',
-  Versatile: 'Can be used with one or two hands (two-handed damage in parentheses)',
-  Nick: 'Extra attack as part of the Attack action, not a bonus action',
-  Push: 'On hit, push Large or smaller target 10 feet straight away',
-  Sap: 'On hit, target has disadvantage on next attack roll before your next turn',
-  Slow: 'On hit, target speed reduced by 10 feet until start of your next turn',
-  Topple: 'On hit, target must succeed on CON save or be knocked Prone',
-  Vex: 'On hit, gain advantage on next attack roll against this target before your next turn',
-  Graze: 'On miss, deal damage equal to ability modifier used for the attack',
-  Cleave: 'On hit, can make another attack against a different adjacent creature',
-  Special: 'This weapon has a special property described in its entry'
+// Phase 34 — property tooltips resolved at render via the active i18n
+// instance (keyed by the raw PHB property name).
+const PROPERTY_TOOLTIP_KEYS: Record<string, string> = {
+  Ammunition: 'sheet.weaponList.propertyTooltips.ammunition',
+  Finesse: 'sheet.weaponList.propertyTooltips.finesse',
+  Heavy: 'sheet.weaponList.propertyTooltips.heavy',
+  Light: 'sheet.weaponList.propertyTooltips.light',
+  Loading: 'sheet.weaponList.propertyTooltips.loading',
+  Range: 'sheet.weaponList.propertyTooltips.range',
+  Reach: 'sheet.weaponList.propertyTooltips.reach',
+  Thrown: 'sheet.weaponList.propertyTooltips.thrown',
+  'Two-Handed': 'sheet.weaponList.propertyTooltips.twoHanded',
+  Versatile: 'sheet.weaponList.propertyTooltips.versatile',
+  Nick: 'sheet.weaponList.propertyTooltips.nick',
+  Push: 'sheet.weaponList.propertyTooltips.push',
+  Sap: 'sheet.weaponList.propertyTooltips.sap',
+  Slow: 'sheet.weaponList.propertyTooltips.slow',
+  Topple: 'sheet.weaponList.propertyTooltips.topple',
+  Vex: 'sheet.weaponList.propertyTooltips.vex',
+  Graze: 'sheet.weaponList.propertyTooltips.graze',
+  Cleave: 'sheet.weaponList.propertyTooltips.cleave',
+  Special: 'sheet.weaponList.propertyTooltips.special'
+}
+
+function propertyTooltip(prop: string): string {
+  const key = PROPERTY_TOOLTIP_KEYS[prop]
+  return key ? i18n.t(key) : prop
 }
 
 // --- Weapon data types ---
@@ -88,6 +96,7 @@ interface WeaponRowProps {
 }
 
 export function WeaponRow({ weapon, onRemove, onSell, character, weaponDatabase }: WeaponRowProps): JSX.Element {
+  const { t } = useT()
   const [expanded, setExpanded] = useState(false)
   // Dynamically compute attack bonus and damage modifier from character stats
   const profBonus = Math.ceil(character.level / 4) + 1
@@ -189,7 +198,7 @@ export function WeaponRow({ weapon, onRemove, onSell, character, weaponDatabase 
             <span
               key={prop}
               className="text-xs px-1 py-0.5 rounded bg-gray-700/50 text-gray-400 border border-gray-600"
-              title={PROPERTY_TOOLTIPS[prop] ?? prop}
+              title={propertyTooltip(prop)}
             >
               {PROPERTY_ABBREVIATIONS[prop] ?? prop}
             </span>
@@ -207,7 +216,7 @@ export function WeaponRow({ weapon, onRemove, onSell, character, weaponDatabase 
             <button
               onClick={onSell}
               className="text-gray-600 hover:text-green-400 cursor-pointer ml-1"
-              title="Sell (half price)"
+              title={t('sheet.weaponList.sellHalfPrice')}
             >
               &#x24;
             </button>
@@ -216,7 +225,7 @@ export function WeaponRow({ weapon, onRemove, onSell, character, weaponDatabase 
             <button
               onClick={onRemove}
               className="text-gray-600 hover:text-red-400 cursor-pointer ml-1"
-              title="Remove weapon"
+              title={t('sheet.weaponList.removeWeapon')}
             >
               &#x2715;
             </button>
@@ -227,23 +236,28 @@ export function WeaponRow({ weapon, onRemove, onSell, character, weaponDatabase 
         <div className="text-xs text-gray-500 py-1 pl-2 space-y-0.5">
           {weapon.properties.length > 0 && (
             <div>
-              <span className="text-gray-600">Properties:</span> {weapon.properties.join(', ')}
+              <span className="text-gray-600">{t('sheet.weaponList.properties')}</span> {weapon.properties.join(', ')}
             </div>
           )}
           {(weapon.cost || dbWeapon?.cost) && (
             <div>
-              <span className="text-gray-600">Cost:</span> {weapon.cost || dbWeapon?.cost}
+              <span className="text-gray-600">{t('sheet.weaponList.cost')}</span> {weapon.cost || dbWeapon?.cost}
             </div>
           )}
           {dbWeapon?.weight != null && (
             <div>
-              <span className="text-gray-600">Weight:</span> {dbWeapon.weight} lb
+              <span className="text-gray-600">{t('sheet.weaponList.weight')}</span>{' '}
+              {t('sheet.weaponList.weightValue', { weight: dbWeapon.weight })}
             </div>
           )}
           {weapon.description || dbWeapon ? (
             <div>
               {weapon.description ||
-                `${dbWeapon?.category ?? ''} weapon. ${dbWeapon?.damage} ${dbWeapon?.damageType} damage.`}
+                t('sheet.weaponList.descriptionFallback', {
+                  category: dbWeapon?.category ?? '',
+                  damage: dbWeapon?.damage,
+                  damageType: dbWeapon?.damageType
+                })}
             </div>
           ) : null}
         </div>

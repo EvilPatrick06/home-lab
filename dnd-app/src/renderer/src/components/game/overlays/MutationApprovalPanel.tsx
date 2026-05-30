@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { i18n, useT } from '../../../i18n'
 import { type PendingMutationSet, useAiDmStore } from '../../../stores/use-ai-dm-store'
 
 /** Human-readable label for a stat change type */
@@ -6,55 +7,83 @@ function changeLabel(change: { type: string; [key: string]: unknown }): string {
   const type = change.type
   switch (type) {
     case 'damage':
-      return `${change.value} ${change.damageType ?? ''} damage`
+      return i18n.t('game.mutationApprovalPanel.damage', { value: change.value, damageType: change.damageType ?? '' })
     case 'heal':
-      return `Heal ${change.value} HP`
+      return i18n.t('game.mutationApprovalPanel.heal', { value: change.value })
     case 'temp_hp':
-      return `${change.value} temp HP`
+      return i18n.t('game.mutationApprovalPanel.tempHp', { value: change.value })
     case 'add_condition':
-      return `Add condition: ${change.name}`
+      return i18n.t('game.mutationApprovalPanel.addCondition', { name: change.name })
     case 'remove_condition':
-      return `Remove condition: ${change.name}`
+      return i18n.t('game.mutationApprovalPanel.removeCondition', { name: change.name })
     case 'death_save':
-      return `Death save ${change.success ? '✓' : '✗'}`
+      return i18n.t('game.mutationApprovalPanel.deathSave', { result: change.success ? '✓' : '✗' })
     case 'reset_death_saves':
-      return 'Reset death saves'
+      return i18n.t('game.mutationApprovalPanel.resetDeathSaves')
     case 'expend_spell_slot':
-      return `Expend spell slot (level ${change.level})`
+      return i18n.t('game.mutationApprovalPanel.expendSpellSlot', { level: change.level })
     case 'restore_spell_slot':
-      return `Restore spell slot (level ${change.level})`
+      return i18n.t('game.mutationApprovalPanel.restoreSpellSlot', { level: change.level })
     case 'add_item':
-      return `Gain: ${change.name}${(change.quantity as number) > 1 ? ` ×${change.quantity}` : ''}`
+      return i18n.t('game.mutationApprovalPanel.addItem', {
+        name: change.name,
+        qty: (change.quantity as number) > 1 ? ` ×${change.quantity}` : ''
+      })
     case 'remove_item':
-      return `Lose: ${change.name}${(change.quantity as number) > 1 ? ` ×${change.quantity}` : ''}`
+      return i18n.t('game.mutationApprovalPanel.removeItem', {
+        name: change.name,
+        qty: (change.quantity as number) > 1 ? ` ×${change.quantity}` : ''
+      })
     case 'gold':
-      return `${(change.value as number) >= 0 ? '+' : ''}${change.value} ${change.denomination ?? 'gp'}`
+      return i18n.t('game.mutationApprovalPanel.gold', {
+        sign: (change.value as number) >= 0 ? '+' : '',
+        value: change.value,
+        denomination: change.denomination ?? 'gp'
+      })
     case 'xp':
-      return `+${change.value} XP`
+      return i18n.t('game.mutationApprovalPanel.xp', { value: change.value })
     case 'use_class_resource':
-      return `Use: ${change.name}`
+      return i18n.t('game.mutationApprovalPanel.useClassResource', { name: change.name })
     case 'restore_class_resource':
-      return `Restore: ${change.name}`
+      return i18n.t('game.mutationApprovalPanel.restoreClassResource', { name: change.name })
     case 'heroic_inspiration':
-      return `Inspiration ${change.grant ? 'granted' : 'used'}`
+      return i18n.t('game.mutationApprovalPanel.heroicInspiration', {
+        state: change.grant ? i18n.t('game.mutationApprovalPanel.granted') : i18n.t('game.mutationApprovalPanel.used')
+      })
     case 'hit_dice':
-      return `Hit dice ${(change.value as number) >= 0 ? '+' : ''}${change.value}`
+      return i18n.t('game.mutationApprovalPanel.hitDice', {
+        sign: (change.value as number) >= 0 ? '+' : '',
+        value: change.value
+      })
     case 'creature_damage':
-      return `${change.targetLabel}: ${change.value} ${change.damageType ?? ''} dmg`
+      return i18n.t('game.mutationApprovalPanel.creatureDamage', {
+        target: change.targetLabel,
+        value: change.value,
+        damageType: change.damageType ?? ''
+      })
     case 'creature_heal':
-      return `${change.targetLabel}: heal ${change.value}`
+      return i18n.t('game.mutationApprovalPanel.creatureHeal', { target: change.targetLabel, value: change.value })
     case 'creature_add_condition':
-      return `${change.targetLabel}: +${change.name}`
+      return i18n.t('game.mutationApprovalPanel.creatureAddCondition', {
+        target: change.targetLabel,
+        name: change.name
+      })
     case 'creature_remove_condition':
-      return `${change.targetLabel}: -${change.name}`
+      return i18n.t('game.mutationApprovalPanel.creatureRemoveCondition', {
+        target: change.targetLabel,
+        name: change.name
+      })
     case 'creature_kill':
-      return `${change.targetLabel}: killed`
+      return i18n.t('game.mutationApprovalPanel.creatureKill', { target: change.targetLabel })
     case 'set_ability_score':
-      return `${(change.ability as string).toUpperCase()} → ${change.value}`
+      return i18n.t('game.mutationApprovalPanel.setAbilityScore', {
+        ability: (change.ability as string).toUpperCase(),
+        value: change.value
+      })
     case 'grant_feature':
-      return `Grant: ${change.name}`
+      return i18n.t('game.mutationApprovalPanel.grantFeature', { name: change.name })
     case 'revoke_feature':
-      return `Revoke: ${change.name}`
+      return i18n.t('game.mutationApprovalPanel.revokeFeature', { name: change.name })
     default:
       return type
   }
@@ -78,6 +107,7 @@ function changeColor(type: string): string {
 }
 
 function CountdownTimer({ timestamp }: { timestamp: number }): JSX.Element {
+  const { t } = useT()
   const [remaining, setRemaining] = useState(60)
 
   useEffect(() => {
@@ -88,7 +118,11 @@ function CountdownTimer({ timestamp }: { timestamp: number }): JSX.Element {
     return () => clearInterval(interval)
   }, [timestamp])
 
-  return <span className={`text-xs font-mono ${remaining <= 10 ? 'text-red-400' : 'text-gray-500'}`}>{remaining}s</span>
+  return (
+    <span className={`text-xs font-mono ${remaining <= 10 ? 'text-red-400' : 'text-gray-500'}`}>
+      {t('game.mutationApprovalPanel.countdown', { remaining })}
+    </span>
+  )
 }
 
 function MutationCard({
@@ -100,8 +134,12 @@ function MutationCard({
   onApprove: () => void
   onReject: () => void
 }): JSX.Element {
+  const { t } = useT()
   // Group by character/creature name
-  const charName = (set.mutations[0]?.characterName as string) || (set.mutations[0]?.targetLabel as string) || 'Unknown'
+  const charName =
+    (set.mutations[0]?.characterName as string) ||
+    (set.mutations[0]?.targetLabel as string) ||
+    t('game.mutationApprovalPanel.unknown')
 
   return (
     <div className="bg-gray-800/90 border border-gray-700 rounded-lg p-2.5 space-y-2">
@@ -127,13 +165,13 @@ function MutationCard({
           onClick={onApprove}
           className="flex-1 px-2 py-1 text-xs font-medium bg-emerald-700/60 hover:bg-emerald-600/80 text-emerald-200 border border-emerald-600/50 rounded cursor-pointer transition-colors"
         >
-          ✓ Approve
+          {t('game.mutationApprovalPanel.approve')}
         </button>
         <button
           onClick={onReject}
           className="flex-1 px-2 py-1 text-xs font-medium bg-red-900/60 hover:bg-red-800/80 text-red-300 border border-red-700/50 rounded cursor-pointer transition-colors"
         >
-          ✗ Reject
+          {t('game.mutationApprovalPanel.reject')}
         </button>
       </div>
     </div>
@@ -141,6 +179,7 @@ function MutationCard({
 }
 
 export default function MutationApprovalPanel(): JSX.Element | null {
+  const { t } = useT()
   const pendingMutations = useAiDmStore((s) => s.pendingMutations)
   const approveMutations = useAiDmStore((s) => s.approveMutations)
   const rejectMutations = useAiDmStore((s) => s.rejectMutations)
@@ -157,7 +196,7 @@ export default function MutationApprovalPanel(): JSX.Element | null {
             onClick={approveAllMutations}
             className="px-2.5 py-1 text-xs font-semibold bg-emerald-700/70 hover:bg-emerald-600/90 text-emerald-200 border border-emerald-600/50 rounded-lg cursor-pointer transition-colors"
           >
-            ✓ Approve All ({pendingMutations.length})
+            {t('game.mutationApprovalPanel.approveAll', { count: pendingMutations.length })}
           </button>
         </div>
       )}

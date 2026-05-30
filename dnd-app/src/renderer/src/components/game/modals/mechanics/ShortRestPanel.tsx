@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react'
+import { useT } from '../../../../i18n'
 import { getEffectiveClasses } from '../../../../services/character/effective-character-5e'
 import {
   getShortRestPreview,
@@ -49,6 +50,7 @@ export function initShortRestStates(pcs: Character5e[]): Record<string, PCShortR
 }
 
 export default function ShortRestPanel({ pcs, states, onStatesChange }: ShortRestPanelProps): JSX.Element {
+  const { t } = useT()
   const [, setRenderKey] = useState(0)
 
   const updateState = useCallback(
@@ -114,10 +116,10 @@ export default function ShortRestPanel({ pcs, states, onStatesChange }: ShortRes
               />
               <span className="text-sm font-semibold text-gray-200">{pc.name}</span>
               <span className="text-xs text-gray-500">
-                Lv{pc.level} {classes.map((c) => c.name).join('/')}
+                {t('game.shortRestPanel.levelPrefix', { level: pc.level })} {classes.map((c) => c.name).join('/')}
               </span>
               <span className="ml-auto text-xs text-gray-400">
-                HP: {pc.hitPoints.current}/{pc.hitPoints.maximum}
+                {t('game.shortRestPanel.hp', { current: pc.hitPoints.current, max: pc.hitPoints.maximum })}
               </span>
             </div>
 
@@ -125,7 +127,7 @@ export default function ShortRestPanel({ pcs, states, onStatesChange }: ShortRes
               <div className="space-y-2 pl-6">
                 {/* HD info */}
                 <div className="text-xs text-gray-400">
-                  Hit Dice:{' '}
+                  {t('game.shortRestPanel.hitDice')}{' '}
                   <span className="text-amber-400 font-semibold">
                     {pc.hitDice.reduce((s, h) => s + h.current, 0)}/{pc.hitDice.reduce((s, h) => s + h.maximum, 0)}
                   </span>
@@ -137,13 +139,13 @@ export default function ShortRestPanel({ pcs, states, onStatesChange }: ShortRes
                 </div>
 
                 {pc.hitDice.reduce((s, h) => s + h.current, 0) === 0 ? (
-                  <div className="text-xs text-red-400">No Hit Dice remaining.</div>
+                  <div className="text-xs text-red-400">{t('game.shortRestPanel.noHitDice')}</div>
                 ) : !state.rolled ? (
                   <div className="flex items-center gap-2 flex-wrap">
                     {/* Die size selector for multiclass */}
                     {isMulticlass && dieSizes.length > 1 && (
                       <div className="flex items-center gap-1">
-                        <span className="text-xs text-gray-500">Die:</span>
+                        <span className="text-xs text-gray-500">{t('game.shortRestPanel.die')}</span>
                         {dieSizes.map((d) => (
                           <button
                             key={d}
@@ -161,7 +163,7 @@ export default function ShortRestPanel({ pcs, states, onStatesChange }: ShortRes
                     )}
                     {/* Dice count */}
                     <div className="flex items-center gap-1">
-                      <span className="text-xs text-gray-500">Spend:</span>
+                      <span className="text-xs text-gray-500">{t('game.shortRestPanel.spend')}</span>
                       <input
                         type="number"
                         min={0}
@@ -183,14 +185,14 @@ export default function ShortRestPanel({ pcs, states, onStatesChange }: ShortRes
                       <span className="text-xs text-gray-500">
                         d{isMulticlass ? state.selectedDieSize : (classes[0]?.hitDie ?? 8)}
                       </span>
-                      <span className="text-xs text-gray-500">+ {conMod} CON</span>
+                      <span className="text-xs text-gray-500">{t('game.shortRestPanel.conMod', { mod: conMod })}</span>
                     </div>
                     <button
                       onClick={() => handleRollDice(pc.id)}
                       disabled={state.diceCount === 0}
                       className="px-3 py-1 text-xs font-semibold rounded bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white cursor-pointer transition-colors"
                     >
-                      Roll
+                      {t('game.shortRestPanel.roll')}
                     </button>
                   </div>
                 ) : (
@@ -198,18 +200,20 @@ export default function ShortRestPanel({ pcs, states, onStatesChange }: ShortRes
                   <div className="space-y-1">
                     {state.rolls.map((r, i) => (
                       <div key={i} className="flex items-center gap-1.5 text-xs text-gray-300">
-                        <span className="text-gray-500">Die {i + 1}:</span>
+                        <span className="text-gray-500">{t('game.shortRestPanel.dieN', { n: i + 1 })}</span>
                         <span className="inline-flex items-center justify-center w-6 h-6 bg-amber-900/50 border border-amber-600/50 rounded text-amber-300 font-bold text-xs">
                           {r.rawRoll}
                         </span>
                         <span className="text-gray-500">+ {r.conMod}</span>
                         <span className="text-gray-600">=</span>
-                        <span className="text-green-400 font-semibold">+{r.healing} HP</span>
+                        <span className="text-green-400 font-semibold">
+                          {t('game.shortRestPanel.healingHp', { healing: r.healing })}
+                        </span>
                       </div>
                     ))}
                     {state.rolls.length > 0 && (
                       <div className="text-xs font-semibold text-green-400 pt-1 border-t border-gray-700/50">
-                        Total: +{totalHealing} HP
+                        {t('game.shortRestPanel.totalHp', { total: totalHealing })}
                         <span className="text-gray-500 font-normal ml-2">
                           ({pc.hitPoints.current} →{' '}
                           {Math.min(pc.hitPoints.maximum, pc.hitPoints.current + totalHealing)})
@@ -223,7 +227,9 @@ export default function ShortRestPanel({ pcs, states, onStatesChange }: ShortRes
                 {state.preview.arcaneRecoveryEligible && (
                   <div className="border-t border-gray-700/30 pt-2 mt-2">
                     <div className="text-xs text-purple-400 font-semibold mb-1">
-                      Arcane Recovery (recover up to {state.preview.arcaneRecoverySlotsToRecover} slot levels)
+                      {t('game.shortRestPanel.arcaneRecovery', {
+                        slots: state.preview.arcaneRecoverySlotsToRecover
+                      })}
                     </div>
                     <div className="flex flex-wrap gap-1">
                       {Object.entries(pc.spellSlotLevels ?? {})
@@ -263,13 +269,13 @@ export default function ShortRestPanel({ pcs, states, onStatesChange }: ShortRes
                   state.preview.warlockPactSlots ||
                   state.preview.wildShapeRegain) && (
                   <div className="text-xs text-gray-500 mt-1">
-                    Will also restore:{' '}
+                    {t('game.shortRestPanel.willAlsoRestore')}{' '}
                     {[
                       ...state.preview.restorableClassResources.map((r) => r.name),
                       ...state.preview.restorableSpeciesResources.map((r) => r.name),
-                      state.preview.warlockPactSlots ? 'Pact Magic Slots' : '',
-                      state.preview.wildShapeRegain ? 'Wild Shape (+1)' : '',
-                      state.preview.rangerTireless ? 'Exhaustion -1' : ''
+                      state.preview.warlockPactSlots ? t('game.shortRestPanel.pactMagicSlots') : '',
+                      state.preview.wildShapeRegain ? t('game.shortRestPanel.wildShapeRegain') : '',
+                      state.preview.rangerTireless ? t('game.shortRestPanel.exhaustionMinus1') : ''
                     ]
                       .filter(Boolean)
                       .join(', ')}

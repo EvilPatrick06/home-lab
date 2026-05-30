@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 import { useGameStore } from '../../../../stores/use-game-store'
 import type { DmTrigger } from '../../../../types/game-state'
 
@@ -36,6 +37,7 @@ function generateId(): string {
 }
 
 export default function TriggerManagerModal({ onClose }: TriggerManagerModalProps): JSX.Element {
+  const { t } = useT()
   const triggers = useGameStore((s) => s.triggers)
   const addTrigger = useGameStore((s) => s.addTrigger)
   const removeTrigger = useGameStore((s) => s.removeTrigger)
@@ -150,8 +152,12 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-100">AI Proactive Triggers</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-white text-xl leading-none cursor-pointer">
+          <h2 className="text-lg font-semibold text-gray-100">{t('game.triggerManagerModal.title')}</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-white text-xl leading-none cursor-pointer"
+            aria-label={t('common.actions.close')}
+          >
             x
           </button>
         </div>
@@ -160,69 +166,77 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
           {/* Trigger list */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-300">Triggers ({triggers.length})</span>
+              <span className="text-sm font-medium text-gray-300">
+                {t('game.triggerManagerModal.triggers', { count: triggers.length })}
+              </span>
               <button
                 onClick={() => setShowForm(!showForm)}
                 className="px-3 py-1 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer"
               >
-                {showForm ? 'Cancel' : '+ New Trigger'}
+                {showForm ? t('common.actions.cancel') : t('game.triggerManagerModal.newTrigger')}
               </button>
             </div>
 
             {triggers.length === 0 && !showForm && (
-              <p className="text-xs text-gray-500 italic">No triggers configured. Create one to get started.</p>
+              <p className="text-xs text-gray-500 italic">{t('game.triggerManagerModal.empty')}</p>
             )}
 
             <div className="space-y-2">
-              {triggers.map((t) => (
+              {triggers.map((trig) => (
                 <div
-                  key={t.id}
+                  key={trig.id}
                   className={`border rounded-lg p-3 ${
-                    t.enabled ? 'border-gray-600 bg-gray-800/50' : 'border-gray-700 bg-gray-800/20 opacity-60'
+                    trig.enabled ? 'border-gray-600 bg-gray-800/50' : 'border-gray-700 bg-gray-800/20 opacity-60'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => toggleTrigger(t.id)}
+                        onClick={() => toggleTrigger(trig.id)}
                         className={`w-8 h-4 rounded-full relative cursor-pointer transition-colors ${
-                          t.enabled ? 'bg-amber-600' : 'bg-gray-600'
+                          trig.enabled ? 'bg-amber-600' : 'bg-gray-600'
                         }`}
                       >
                         <span
                           className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-transform ${
-                            t.enabled ? 'left-4' : 'left-0.5'
+                            trig.enabled ? 'left-4' : 'left-0.5'
                           }`}
                         />
                       </button>
-                      <span className="text-sm font-medium text-gray-200">{t.name}</span>
-                      {t.oneShot && (
-                        <span className="text-xs px-1.5 py-0.5 bg-blue-900/50 text-blue-300 rounded">one-shot</span>
+                      <span className="text-sm font-medium text-gray-200">{trig.name}</span>
+                      {trig.oneShot && (
+                        <span className="text-xs px-1.5 py-0.5 bg-blue-900/50 text-blue-300 rounded">
+                          {t('game.triggerManagerModal.oneShotBadge')}
+                        </span>
                       )}
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <span className="text-xs text-gray-500">fired {t.firedCount ?? 0}x</span>
+                      <span className="text-xs text-gray-500">
+                        {t('game.triggerManagerModal.fired', { count: trig.firedCount ?? 0 })}
+                      </span>
                       <button
-                        onClick={() => handleTestFire(t)}
+                        onClick={() => handleTestFire(trig)}
                         className="px-2 py-0.5 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
-                        title="Test fire this trigger"
+                        title={t('game.triggerManagerModal.testFireTooltip')}
                       >
-                        Test
+                        {t('game.triggerManagerModal.test')}
                       </button>
                       <button
-                        onClick={() => removeTrigger(t.id)}
+                        onClick={() => removeTrigger(trig.id)}
                         className="px-2 py-0.5 text-xs bg-red-900/40 hover:bg-red-900/60 text-red-400 rounded cursor-pointer"
                       >
-                        Delete
+                        {t('common.actions.delete')}
                       </button>
                     </div>
                   </div>
                   <div className="mt-1.5 flex gap-3 text-xs text-gray-400">
                     <span>
-                      Event: <span className="text-gray-300">{EVENT_LABELS[t.event]}</span>
+                      {t('game.triggerManagerModal.eventLabel')}{' '}
+                      <span className="text-gray-300">{t(`game.triggerManagerModal.events.${trig.event}`)}</span>
                     </span>
                     <span>
-                      Action: <span className="text-gray-300">{ACTION_LABELS[t.action]}</span>
+                      {t('game.triggerManagerModal.actionLabel')}{' '}
+                      <span className="text-gray-300">{t(`game.triggerManagerModal.actions.${trig.action}`)}</span>
                     </span>
                   </div>
                 </div>
@@ -233,44 +247,44 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
           {/* Create trigger form */}
           {showForm && (
             <div className="border border-amber-700/50 rounded-lg p-4 bg-gray-800/40 space-y-3">
-              <h3 className="text-sm font-medium text-amber-300">New Trigger</h3>
+              <h3 className="text-sm font-medium text-amber-300">{t('game.triggerManagerModal.newTriggerTitle')}</h3>
 
               <div>
-                <label className={labelClass}>Name</label>
+                <label className={labelClass}>{t('game.triggerManagerModal.name')}</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g., Boss enters phase 2"
+                  placeholder={t('game.triggerManagerModal.namePlaceholder')}
                   className={inputClass}
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className={labelClass}>Event Type</label>
+                  <label className={labelClass}>{t('game.triggerManagerModal.eventType')}</label>
                   <select
                     value={event}
                     onChange={(e) => setEvent(e.target.value as TriggerEvent)}
                     className={inputClass}
                   >
-                    {EVENT_OPTIONS.map(([val, label]) => (
+                    {EVENT_OPTIONS.map(([val]) => (
                       <option key={val} value={val}>
-                        {label}
+                        {t(`game.triggerManagerModal.events.${val}`)}
                       </option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className={labelClass}>Action</label>
+                  <label className={labelClass}>{t('game.triggerManagerModal.action')}</label>
                   <select
                     value={action}
                     onChange={(e) => setAction(e.target.value as TriggerAction)}
                     className={inputClass}
                   >
-                    {ACTION_OPTIONS.map(([val, label]) => (
+                    {ACTION_OPTIONS.map(([val]) => (
                       <option key={val} value={val}>
-                        {label}
+                        {t(`game.triggerManagerModal.actions.${val}`)}
                       </option>
                     ))}
                   </select>
@@ -279,19 +293,19 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
 
               {/* Condition fields */}
               <div className="space-y-2">
-                <span className="text-xs text-gray-400 font-medium">Condition</span>
+                <span className="text-xs text-gray-400 font-medium">{t('game.triggerManagerModal.condition')}</span>
 
                 {(event === 'initiative_change' ||
                   event === 'hp_threshold' ||
                   event === 'token_enter_region' ||
                   event === 'condition_applied') && (
                   <div>
-                    <label className={labelClass}>Entity ID (optional)</label>
+                    <label className={labelClass}>{t('game.triggerManagerModal.entityId')}</label>
                     <input
                       type="text"
                       value={entityId}
                       onChange={(e) => setEntityId(e.target.value)}
-                      placeholder="Leave blank for any entity"
+                      placeholder={t('game.triggerManagerModal.entityIdPlaceholder')}
                       className={inputClass}
                     />
                   </div>
@@ -299,7 +313,7 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
 
                 {event === 'hp_threshold' && (
                   <div>
-                    <label className={labelClass}>HP Threshold (%)</label>
+                    <label className={labelClass}>{t('game.triggerManagerModal.hpThreshold')}</label>
                     <input
                       type="number"
                       value={threshold}
@@ -313,12 +327,12 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
 
                 {event === 'token_enter_region' && (
                   <div>
-                    <label className={labelClass}>Region ID</label>
+                    <label className={labelClass}>{t('game.triggerManagerModal.regionId')}</label>
                     <input
                       type="text"
                       value={regionId}
                       onChange={(e) => setRegionId(e.target.value)}
-                      placeholder="ID of the target region"
+                      placeholder={t('game.triggerManagerModal.regionIdPlaceholder')}
                       className={inputClass}
                     />
                   </div>
@@ -326,12 +340,12 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
 
                 {event === 'condition_applied' && (
                   <div>
-                    <label className={labelClass}>Condition Name</label>
+                    <label className={labelClass}>{t('game.triggerManagerModal.conditionName')}</label>
                     <input
                       type="text"
                       value={conditionName}
                       onChange={(e) => setConditionName(e.target.value)}
-                      placeholder="e.g., Frightened, Poisoned"
+                      placeholder={t('game.triggerManagerModal.conditionNamePlaceholder')}
                       className={inputClass}
                     />
                   </div>
@@ -339,7 +353,7 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
 
                 {event === 'time_elapsed' && (
                   <div>
-                    <label className={labelClass}>Elapsed Seconds</label>
+                    <label className={labelClass}>{t('game.triggerManagerModal.elapsedSeconds')}</label>
                     <input
                       type="number"
                       value={elapsed}
@@ -353,15 +367,23 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
 
               {/* Action payload fields */}
               <div className="space-y-2">
-                <span className="text-xs text-gray-400 font-medium">Action Config</span>
+                <span className="text-xs text-gray-400 font-medium">{t('game.triggerManagerModal.actionConfig')}</span>
 
                 {(action === 'show_message' || action === 'narrate') && (
                   <div>
-                    <label className={labelClass}>{action === 'narrate' ? 'Narration Prompt' : 'Message Text'}</label>
+                    <label className={labelClass}>
+                      {action === 'narrate'
+                        ? t('game.triggerManagerModal.narrationPrompt')
+                        : t('game.triggerManagerModal.messageText')}
+                    </label>
                     <textarea
                       value={messageText}
                       onChange={(e) => setMessageText(e.target.value)}
-                      placeholder={action === 'narrate' ? 'Describe the scene...' : 'Message to display...'}
+                      placeholder={
+                        action === 'narrate'
+                          ? t('game.triggerManagerModal.narrationPlaceholder')
+                          : t('game.triggerManagerModal.messagePlaceholder')
+                      }
                       className={`${inputClass} h-16 resize-none`}
                     />
                   </div>
@@ -369,12 +391,12 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
 
                 {action === 'play_sound' && (
                   <div>
-                    <label className={labelClass}>Sound Event ID</label>
+                    <label className={labelClass}>{t('game.triggerManagerModal.soundEventId')}</label>
                     <input
                       type="text"
                       value={soundId}
                       onChange={(e) => setSoundId(e.target.value)}
-                      placeholder="e.g., combat.hit.critical"
+                      placeholder={t('game.triggerManagerModal.soundEventIdPlaceholder')}
                       className={inputClass}
                     />
                   </div>
@@ -382,12 +404,12 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
 
                 {action === 'spawn_creature' && (
                   <div>
-                    <label className={labelClass}>Creature ID</label>
+                    <label className={labelClass}>{t('game.triggerManagerModal.creatureId')}</label>
                     <input
                       type="text"
                       value={creatureId}
                       onChange={(e) => setCreatureId(e.target.value)}
-                      placeholder="ID from creatures.json"
+                      placeholder={t('game.triggerManagerModal.creatureIdPlaceholder')}
                       className={inputClass}
                     />
                   </div>
@@ -395,15 +417,15 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
 
                 {action === 'change_lighting' && (
                   <div>
-                    <label className={labelClass}>Lighting Level</label>
+                    <label className={labelClass}>{t('game.triggerManagerModal.lightingLevel')}</label>
                     <select
                       value={lightingLevel}
                       onChange={(e) => setLightingLevel(e.target.value as 'bright' | 'dim' | 'darkness')}
                       className={inputClass}
                     >
-                      <option value="bright">Bright</option>
-                      <option value="dim">Dim</option>
-                      <option value="darkness">Darkness</option>
+                      <option value="bright">{t('game.triggerManagerModal.bright')}</option>
+                      <option value="dim">{t('game.triggerManagerModal.dim')}</option>
+                      <option value="darkness">{t('game.triggerManagerModal.darkness')}</option>
                     </select>
                   </div>
                 )}
@@ -417,7 +439,7 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
                     onChange={(e) => setOneShot(e.target.checked)}
                     className="rounded"
                   />
-                  One-shot (disable after first fire)
+                  {t('game.triggerManagerModal.oneShot')}
                 </label>
               </div>
 
@@ -426,14 +448,14 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
                   onClick={resetForm}
                   className="px-3 py-1.5 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
                 >
-                  Cancel
+                  {t('common.actions.cancel')}
                 </button>
                 <button
                   onClick={handleCreate}
                   disabled={!name.trim()}
                   className="px-3 py-1.5 text-xs bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded cursor-pointer"
                 >
-                  Create Trigger
+                  {t('game.triggerManagerModal.createTrigger')}
                 </button>
               </div>
             </div>
@@ -442,7 +464,9 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
           {/* Trigger history */}
           {history.length > 0 && (
             <div>
-              <span className="text-xs font-medium text-gray-400 block mb-1.5">Fire History</span>
+              <span className="text-xs font-medium text-gray-400 block mb-1.5">
+                {t('game.triggerManagerModal.fireHistory')}
+              </span>
               <div className="space-y-1 max-h-32 overflow-y-auto">
                 {history.map((h, i) => (
                   <div key={`${h.triggerId}-${h.timestamp}-${i}`} className="text-xs text-gray-500 flex gap-2">
@@ -461,7 +485,7 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
             onClick={onClose}
             className="px-4 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
           >
-            Close
+            {t('common.actions.close')}
           </button>
         </div>
       </div>

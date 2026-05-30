@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useT } from '../../../i18n'
 import type { SidebarEntryStatBlock } from '../../../types/game-state'
 import { CollapsibleSection, NameDescRows, SpellcastingSection } from './StatBlockFormSections'
 
@@ -27,6 +28,7 @@ interface StatBlockFormProps {
 }
 
 function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element {
+  const { t } = useT()
   const [editing, setEditing] = useState(false)
   const sb = statBlock ?? {}
 
@@ -123,14 +125,14 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
           onClick={() => setEditing((e) => !e)}
           className="text-xs px-2 py-0.5 rounded cursor-pointer bg-gray-800 text-gray-400 hover:text-gray-200 border border-gray-700"
         >
-          {editing ? 'Preview' : 'Edit'}
+          {editing ? t('game.statBlockForm.preview') : t('game.statBlockForm.edit')}
         </button>
       </div>
       {/* Identity */}
-      <CollapsibleSection title="Identity">
+      <CollapsibleSection title={t('game.statBlockForm.identity')}>
         <div className="grid grid-cols-2 gap-1">
           <div>
-            <label className="text-[9px] text-gray-500 uppercase">Size</label>
+            <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockForm.size')}</label>
             <select
               value={sb.size ?? ''}
               onChange={(e) => update({ size: (e.target.value || undefined) as SidebarEntryStatBlock['size'] })}
@@ -145,50 +147,50 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
             </select>
           </div>
           <div>
-            <label className="text-[9px] text-gray-500 uppercase">Creature Type</label>
+            <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockForm.creatureType')}</label>
             <input
               type="text"
               value={sb.creatureType ?? ''}
               onChange={(e) => update({ creatureType: e.target.value || undefined })}
               className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
-              placeholder="e.g. Fiend"
+              placeholder={t('game.statBlockForm.creatureTypePlaceholder')}
             />
           </div>
           <div>
-            <label className="text-[9px] text-gray-500 uppercase">Alignment</label>
+            <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockForm.alignment')}</label>
             <input
               type="text"
               value={sb.alignment ?? ''}
               onChange={(e) => update({ alignment: e.target.value || undefined })}
               className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
-              placeholder="e.g. Chaotic Evil"
+              placeholder={t('game.statBlockForm.alignmentPlaceholder')}
             />
           </div>
           <div>
-            <label className="text-[9px] text-gray-500 uppercase">CR</label>
+            <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockForm.cr')}</label>
             <input
               type="text"
               value={sb.cr ?? ''}
               onChange={(e) => update({ cr: e.target.value || undefined })}
               className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
-              placeholder="e.g. 5"
+              placeholder={t('game.statBlockForm.crPlaceholder')}
             />
           </div>
           <div>
-            <label className="text-[9px] text-gray-500 uppercase">XP</label>
+            <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockForm.xp')}</label>
             <input
               type="number"
               value={sb.xp ?? ''}
               onChange={(e) => update({ xp: e.target.value ? parseInt(e.target.value, 10) || undefined : undefined })}
               className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
-              placeholder="e.g. 1800"
+              placeholder={t('game.statBlockForm.xpPlaceholder')}
             />
           </div>
         </div>
       </CollapsibleSection>
 
       {/* Ability Scores */}
-      <CollapsibleSection title="Ability Scores">
+      <CollapsibleSection title={t('game.statBlockForm.abilityScores')}>
         <div className="grid grid-cols-6 gap-1">
           {ABILITY_NAMES.map((ab) => {
             const score = sb.abilityScores?.[ab] ?? 10
@@ -211,10 +213,10 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
       </CollapsibleSection>
 
       {/* Combat */}
-      <CollapsibleSection title="Combat">
+      <CollapsibleSection title={t('game.statBlockForm.combat')}>
         <div className="grid grid-cols-2 gap-1">
           <div>
-            <label className="text-[9px] text-gray-500 uppercase">AC</label>
+            <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockForm.ac')}</label>
             <input
               type="number"
               value={sb.ac ?? ''}
@@ -223,19 +225,19 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
             />
           </div>
           <div>
-            <label className="text-[9px] text-gray-500 uppercase">AC Source</label>
+            <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockForm.acSource')}</label>
             <input
               type="text"
               value={sb.acSource ?? ''}
               onChange={(e) => update({ acSource: e.target.value || undefined })}
               className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
-              placeholder="e.g. natural armor"
+              placeholder={t('game.statBlockForm.acSourcePlaceholder')}
             />
           </div>
         </div>
         <div className="grid grid-cols-3 gap-1 mt-1">
           <div>
-            <label className="text-[9px] text-gray-500 uppercase">HP Max</label>
+            <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockForm.hpMax')}</label>
             <input
               type="number"
               value={sb.hpMax ?? ''}
@@ -244,7 +246,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
             />
           </div>
           <div>
-            <label className="text-[9px] text-gray-500 uppercase">HP Current</label>
+            <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockForm.hpCurrent')}</label>
             <input
               type="number"
               value={sb.hpCurrent ?? ''}
@@ -253,7 +255,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
             />
           </div>
           <div>
-            <label className="text-[9px] text-gray-500 uppercase">HP Temp</label>
+            <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockForm.hpTemp')}</label>
             <input
               type="number"
               value={sb.hpTemp ?? ''}
@@ -263,7 +265,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
           </div>
         </div>
         <div className="mt-1">
-          <label className="text-[9px] text-gray-500 uppercase block mb-0.5">Speeds (ft)</label>
+          <label className="text-[9px] text-gray-500 uppercase block mb-0.5">{t('game.statBlockForm.speedsFt')}</label>
           <div className="grid grid-cols-5 gap-1">
             {(['walk', 'fly', 'swim', 'climb', 'burrow'] as const).map((type) => (
               <div key={type}>
@@ -283,9 +285,11 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
       </CollapsibleSection>
 
       {/* Proficiencies */}
-      <CollapsibleSection title="Proficiencies">
+      <CollapsibleSection title={t('game.statBlockForm.proficiencies')}>
         <div>
-          <label className="text-[9px] text-gray-500 uppercase block mb-0.5">Saving Throws</label>
+          <label className="text-[9px] text-gray-500 uppercase block mb-0.5">
+            {t('game.statBlockForm.savingThrows')}
+          </label>
           <div className="flex flex-wrap gap-1.5">
             {SAVE_NAMES.map((save) => (
               <label key={save} className="flex items-center gap-0.5 text-xs text-gray-300 cursor-pointer">
@@ -301,7 +305,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
           </div>
         </div>
         <div className="mt-1">
-          <label className="text-[9px] text-gray-500 uppercase block mb-0.5">Skills</label>
+          <label className="text-[9px] text-gray-500 uppercase block mb-0.5">{t('game.statBlockForm.skills')}</label>
           {(sb.skills ?? []).map((skill, idx) => (
             <div key={idx} className="flex gap-1 items-center mb-0.5">
               <input
@@ -309,7 +313,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
                 value={skill.name}
                 onChange={(e) => updateSkill(idx, 'name', e.target.value)}
                 className="flex-1 px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
-                placeholder="Skill name"
+                placeholder={t('game.statBlockForm.skillNamePlaceholder')}
               />
               <input
                 type="number"
@@ -322,14 +326,14 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
                 onChange={(e) => updateSkill(idx, 'proficiency', e.target.value)}
                 className="px-1 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
               >
-                <option value="proficient">Prof</option>
-                <option value="expertise">Expert</option>
+                <option value="proficient">{t('game.statBlockForm.prof')}</option>
+                <option value="expertise">{t('game.statBlockForm.expert')}</option>
               </select>
               <button
                 type="button"
                 onClick={() => removeSkill(idx)}
                 className="text-gray-500 hover:text-red-400 text-xs cursor-pointer"
-                title="Remove"
+                title={t('game.statBlockForm.remove')}
               >
                 &#10005;
               </button>
@@ -340,16 +344,16 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
             onClick={addSkill}
             className="text-xs text-gray-500 hover:text-amber-400 cursor-pointer"
           >
-            + Add Skill
+            {t('game.statBlockForm.addSkill')}
           </button>
         </div>
       </CollapsibleSection>
 
       {/* Defenses */}
-      <CollapsibleSection title="Defenses">
+      <CollapsibleSection title={t('game.statBlockForm.defenses')}>
         <div className="space-y-1">
           <div>
-            <label className="text-[9px] text-gray-500 uppercase">Resistances</label>
+            <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockForm.resistances')}</label>
             <input
               type="text"
               value={sb.resistances?.join(', ') ?? ''}
@@ -357,21 +361,21 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
                 update({ resistances: e.target.value ? parseCommaSeparated(e.target.value) : undefined })
               }
               className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
-              placeholder="fire, cold, ..."
+              placeholder={t('game.statBlockForm.resistancesPlaceholder')}
             />
           </div>
           <div>
-            <label className="text-[9px] text-gray-500 uppercase">Immunities</label>
+            <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockForm.immunities')}</label>
             <input
               type="text"
               value={sb.immunities?.join(', ') ?? ''}
               onChange={(e) => update({ immunities: e.target.value ? parseCommaSeparated(e.target.value) : undefined })}
               className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
-              placeholder="poison, necrotic, ..."
+              placeholder={t('game.statBlockForm.immunitiesPlaceholder')}
             />
           </div>
           <div>
-            <label className="text-[9px] text-gray-500 uppercase">Vulnerabilities</label>
+            <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockForm.vulnerabilities')}</label>
             <input
               type="text"
               value={sb.vulnerabilities?.join(', ') ?? ''}
@@ -379,11 +383,11 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
                 update({ vulnerabilities: e.target.value ? parseCommaSeparated(e.target.value) : undefined })
               }
               className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
-              placeholder="radiant, ..."
+              placeholder={t('game.statBlockForm.vulnerabilitiesPlaceholder')}
             />
           </div>
           <div>
-            <label className="text-[9px] text-gray-500 uppercase">Condition Immunities</label>
+            <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockForm.conditionImmunities')}</label>
             <input
               type="text"
               value={sb.conditionImmunities?.join(', ') ?? ''}
@@ -391,17 +395,17 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
                 update({ conditionImmunities: e.target.value ? parseCommaSeparated(e.target.value) : undefined })
               }
               className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
-              placeholder="charmed, frightened, ..."
+              placeholder={t('game.statBlockForm.conditionImmunitiesPlaceholder')}
             />
           </div>
         </div>
       </CollapsibleSection>
 
       {/* Senses */}
-      <CollapsibleSection title="Senses">
+      <CollapsibleSection title={t('game.statBlockForm.senses')}>
         <div className="space-y-1">
           <div>
-            <label className="text-[9px] text-gray-500 uppercase">Passive Perception</label>
+            <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockForm.passivePerception')}</label>
             <input
               type="number"
               value={sb.passivePerception ?? ''}
@@ -410,48 +414,48 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
             />
           </div>
           <div>
-            <label className="text-[9px] text-gray-500 uppercase">Senses</label>
+            <label className="text-[9px] text-gray-500 uppercase">{t('game.statBlockForm.sensesLabel')}</label>
             <input
               type="text"
               value={sb.senses?.join(', ') ?? ''}
               onChange={(e) => update({ senses: e.target.value ? parseCommaSeparated(e.target.value) : undefined })}
               className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
-              placeholder="darkvision 60 ft., blindsight 30 ft."
+              placeholder={t('game.statBlockForm.sensesPlaceholder')}
             />
           </div>
         </div>
       </CollapsibleSection>
 
       {/* Traits & Actions */}
-      <CollapsibleSection title="Traits">
+      <CollapsibleSection title={t('game.statBlockForm.traits')}>
         <NameDescRows
           items={sb.traits ?? []}
           onChange={(items) => update({ traits: items.length ? items : undefined })}
         />
       </CollapsibleSection>
 
-      <CollapsibleSection title="Actions">
+      <CollapsibleSection title={t('game.statBlockForm.actions')}>
         <NameDescRows
           items={sb.actions ?? []}
           onChange={(items) => update({ actions: items.length ? items : undefined })}
         />
       </CollapsibleSection>
 
-      <CollapsibleSection title="Bonus Actions">
+      <CollapsibleSection title={t('game.statBlockForm.bonusActions')}>
         <NameDescRows
           items={sb.bonusActions ?? []}
           onChange={(items) => update({ bonusActions: items.length ? items : undefined })}
         />
       </CollapsibleSection>
 
-      <CollapsibleSection title="Reactions">
+      <CollapsibleSection title={t('game.statBlockForm.reactions')}>
         <NameDescRows
           items={sb.reactions ?? []}
           onChange={(items) => update({ reactions: items.length ? items : undefined })}
         />
       </CollapsibleSection>
 
-      <CollapsibleSection title="Legendary Actions">
+      <CollapsibleSection title={t('game.statBlockForm.legendaryActions')}>
         <NameDescRows
           items={sb.legendaryActions ?? []}
           onChange={(items) => update({ legendaryActions: items.length ? items : undefined })}
@@ -459,7 +463,7 @@ function StatBlockForm({ statBlock, onChange }: StatBlockFormProps): JSX.Element
         />
       </CollapsibleSection>
 
-      <CollapsibleSection title="Lair Actions">
+      <CollapsibleSection title={t('game.statBlockForm.lairActions')}>
         <NameDescRows
           items={sb.lairActions ?? []}
           onChange={(items) => update({ lairActions: items.length ? items : undefined })}

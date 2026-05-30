@@ -1,3 +1,5 @@
+import { useT } from '../../i18n'
+
 interface SpinnerProps {
   size?: 'sm' | 'md' | 'lg'
   className?: string
@@ -10,11 +12,12 @@ const sizeClasses = {
 }
 
 export default function Spinner({ size = 'md', className = '' }: SpinnerProps): JSX.Element {
+  const { t } = useT()
   return (
     <div
       className={`${sizeClasses[size]} border-amber-400 border-t-transparent rounded-full animate-spin ${className}`}
       role="status"
-      aria-label="Loading"
+      aria-label={t('ui.spinner.loadingLabel')}
     />
   )
 }

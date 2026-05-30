@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useT } from '../../../i18n'
 import { load5eMonsters, searchMonsters } from '../../../services/data-provider'
 import { getTokenStats } from '../../../services/game/token-stats'
 import { monsterToTokenData } from '../../../services/map/monster-to-token'
@@ -20,6 +21,7 @@ export default function TokenPlacer({
   onRemoveToken,
   placingActive
 }: TokenPlacerProps): JSX.Element {
+  const { t } = useT()
   const [name, setName] = useState('')
   const [entityType, setEntityType] = useState<'player' | 'npc' | 'enemy'>('enemy')
   const [currentHP, setCurrentHP] = useState('')
@@ -140,7 +142,7 @@ export default function TokenPlacer({
     const file = e.target.files?.[0]
     if (!file) return
     if (file.size > 500 * 1024) {
-      alert('Image size must be less than 500KB')
+      alert(t('game.tokenPlacer.imageTooLarge'))
       return
     }
     const reader = new FileReader()
@@ -152,25 +154,49 @@ export default function TokenPlacer({
 
   // 2024 PHB creature size presets
   const sizeOptions = [
-    { label: 'Tiny', x: 1, y: 1, desc: '2.5 ft (shares square)' },
-    { label: 'Small', x: 1, y: 1, desc: '5 ft' },
-    { label: 'Medium', x: 1, y: 1, desc: '5 ft' },
-    { label: 'Large', x: 2, y: 2, desc: '10 ft (2\u00d72)' },
-    { label: 'Huge', x: 3, y: 3, desc: '15 ft (3\u00d73)' },
-    { label: 'Gargantuan', x: 4, y: 4, desc: '20 ft (4\u00d74)' }
+    { label: 'Tiny', x: 1, y: 1, labelText: t('game.tokenPlacer.sizeTiny'), desc: t('game.tokenPlacer.sizeTinyDesc') },
+    {
+      label: 'Small',
+      x: 1,
+      y: 1,
+      labelText: t('game.tokenPlacer.sizeSmall'),
+      desc: t('game.tokenPlacer.sizeSmallDesc')
+    },
+    {
+      label: 'Medium',
+      x: 1,
+      y: 1,
+      labelText: t('game.tokenPlacer.sizeMedium'),
+      desc: t('game.tokenPlacer.sizeMediumDesc')
+    },
+    {
+      label: 'Large',
+      x: 2,
+      y: 2,
+      labelText: t('game.tokenPlacer.sizeLarge'),
+      desc: t('game.tokenPlacer.sizeLargeDesc')
+    },
+    { label: 'Huge', x: 3, y: 3, labelText: t('game.tokenPlacer.sizeHuge'), desc: t('game.tokenPlacer.sizeHugeDesc') },
+    {
+      label: 'Gargantuan',
+      x: 4,
+      y: 4,
+      labelText: t('game.tokenPlacer.sizeGargantuan'),
+      desc: t('game.tokenPlacer.sizeGargantuanDesc')
+    }
   ]
 
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Place Token</h3>
+      <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">{t('game.tokenPlacer.title')}</h3>
 
       {/* Monster Search */}
       {allMonsters.length > 0 && (
         <div className="relative" ref={dropdownRef}>
-          <label className="block text-xs text-gray-500 mb-1">Search Monsters</label>
+          <label className="block text-xs text-gray-500 mb-1">{t('game.tokenPlacer.searchMonsters')}</label>
           <input
             type="text"
-            placeholder="Type to search (e.g. Goblin, Dragon)..."
+            placeholder={t('game.tokenPlacer.searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => {
@@ -194,9 +220,9 @@ export default function TokenPlacer({
                     </span>
                   </div>
                   <div className="flex gap-2 text-xs text-gray-500">
-                    <span>CR {m.cr}</span>
-                    <span>HP {m.hp}</span>
-                    <span>AC {m.ac}</span>
+                    <span>{t('game.tokenPlacer.crValue', { cr: m.cr })}</span>
+                    <span>{t('game.tokenPlacer.hpValue', { hp: m.hp })}</span>
+                    <span>{t('game.tokenPlacer.acValue', { ac: m.ac })}</span>
                   </div>
                 </button>
               ))}
@@ -210,15 +236,15 @@ export default function TokenPlacer({
         <div className="flex items-center justify-between bg-amber-900/20 border border-amber-800/40 rounded-lg px-2 py-1.5">
           <div className="flex items-center gap-2">
             <span className="text-xs text-amber-400 font-semibold">{selectedMonster.name}</span>
-            <span className="text-xs text-gray-500">CR {selectedMonster.cr}</span>
+            <span className="text-xs text-gray-500">{t('game.tokenPlacer.crValue', { cr: selectedMonster.cr })}</span>
           </div>
           <div className="flex gap-1">
             <button
               onClick={() => setShowStatBlock(!showStatBlock)}
               className="text-xs text-gray-400 hover:text-amber-400 transition-colors cursor-pointer px-1"
-              title="Toggle stat block"
+              title={t('game.tokenPlacer.toggleStatBlock')}
             >
-              {showStatBlock ? 'Hide' : 'Stats'}
+              {showStatBlock ? t('game.tokenPlacer.hide') : t('game.tokenPlacer.stats')}
             </button>
             <button
               onClick={() => {
@@ -230,7 +256,7 @@ export default function TokenPlacer({
                 setWalkSpeed('')
               }}
               className="text-gray-500 hover:text-red-400 transition-colors cursor-pointer text-xs"
-              title="Clear selection"
+              title={t('game.tokenPlacer.clearSelection')}
             >
               &#x2715;
             </button>
@@ -248,7 +274,7 @@ export default function TokenPlacer({
       <div>
         <input
           type="text"
-          placeholder="Token name"
+          placeholder={t('game.tokenPlacer.tokenNamePlaceholder')}
           value={name}
           onChange={(e) => setName(e.target.value)}
           className="w-full p-2 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
@@ -257,7 +283,7 @@ export default function TokenPlacer({
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="block text-xs text-gray-500">Token Image</label>
+        <label className="block text-xs text-gray-500">{t('game.tokenPlacer.tokenImage')}</label>
         <div className="flex items-center gap-2">
           <input
             type="file"
@@ -269,7 +295,7 @@ export default function TokenPlacer({
             <button
               onClick={() => setImagePath(undefined)}
               className="text-xs text-red-400 hover:text-red-300 px-2 py-1 bg-red-900/20 rounded border border-red-900/50 cursor-pointer flex-shrink-0"
-              title="Remove image"
+              title={t('game.tokenPlacer.removeImage')}
             >
               &#x2715;
             </button>
@@ -278,7 +304,7 @@ export default function TokenPlacer({
       </div>
 
       <div>
-        <label className="block text-xs text-gray-500 mb-1">Entity Type</label>
+        <label className="block text-xs text-gray-500 mb-1">{t('game.tokenPlacer.entityType')}</label>
         <div className="flex gap-1">
           {(['player', 'npc', 'enemy'] as const).map((type) => (
             <button
@@ -295,10 +321,10 @@ export default function TokenPlacer({
 
       <div className="flex gap-2">
         <div className="flex-1">
-          <label className="block text-xs text-gray-500 mb-1">HP</label>
+          <label className="block text-xs text-gray-500 mb-1">{t('game.tokenPlacer.hp')}</label>
           <input
             type="number"
-            placeholder="Current"
+            placeholder={t('game.tokenPlacer.currentPlaceholder')}
             value={currentHP}
             onChange={(e) => setCurrentHP(e.target.value)}
             className="w-full p-2 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
@@ -309,7 +335,7 @@ export default function TokenPlacer({
           <label className="block text-xs text-gray-500 mb-1">&nbsp;</label>
           <input
             type="number"
-            placeholder="Max"
+            placeholder={t('game.tokenPlacer.maxPlaceholder')}
             value={maxHP}
             onChange={(e) => setMaxHP(e.target.value)}
             className="w-full p-2 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
@@ -320,10 +346,10 @@ export default function TokenPlacer({
 
       <div className="flex gap-2">
         <div className="flex-1">
-          <label className="block text-xs text-gray-500 mb-1">AC</label>
+          <label className="block text-xs text-gray-500 mb-1">{t('game.tokenPlacer.ac')}</label>
           <input
             type="number"
-            placeholder="AC"
+            placeholder={t('game.tokenPlacer.acPlaceholder')}
             value={ac}
             onChange={(e) => setAc(e.target.value)}
             className="w-full p-2 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
@@ -331,7 +357,7 @@ export default function TokenPlacer({
           />
         </div>
         <div className="flex-1">
-          <label className="block text-xs text-gray-500 mb-1">Walk Speed (ft)</label>
+          <label className="block text-xs text-gray-500 mb-1">{t('game.tokenPlacer.walkSpeed')}</label>
           <input
             type="number"
             placeholder="30"
@@ -344,7 +370,7 @@ export default function TokenPlacer({
       </div>
 
       <div>
-        <label className="block text-xs text-gray-500 mb-1">Creature Size</label>
+        <label className="block text-xs text-gray-500 mb-1">{t('game.tokenPlacer.creatureSize')}</label>
         <div className="grid grid-cols-3 gap-1">
           {sizeOptions.map((opt) => (
             <button
@@ -360,7 +386,7 @@ export default function TokenPlacer({
                   creatureSize === opt.label ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                 }`}
             >
-              {opt.label}
+              {opt.labelText}
             </button>
           ))}
         </div>
@@ -369,11 +395,11 @@ export default function TokenPlacer({
 
       {/* Special speeds (optional) */}
       <div>
-        <label className="block text-xs text-gray-500 mb-1">Speeds (optional, ft)</label>
+        <label className="block text-xs text-gray-500 mb-1">{t('game.tokenPlacer.speedsOptional')}</label>
         <div className="flex gap-2">
           <input
             type="number"
-            placeholder="Fly"
+            placeholder={t('game.tokenPlacer.flyPlaceholder')}
             value={flySpeed}
             onChange={(e) => setFlySpeed(e.target.value)}
             className="flex-1 p-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
@@ -381,7 +407,7 @@ export default function TokenPlacer({
           />
           <input
             type="number"
-            placeholder="Swim"
+            placeholder={t('game.tokenPlacer.swimPlaceholder')}
             value={swimSpeed}
             onChange={(e) => setSwimSpeed(e.target.value)}
             className="flex-1 p-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
@@ -389,7 +415,7 @@ export default function TokenPlacer({
           />
           <input
             type="number"
-            placeholder="Climb"
+            placeholder={t('game.tokenPlacer.climbPlaceholder')}
             value={climbSpeed}
             onChange={(e) => setClimbSpeed(e.target.value)}
             className="flex-1 p-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
@@ -404,14 +430,18 @@ export default function TokenPlacer({
         className="w-full py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-sm
           font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
       >
-        {placingActive ? 'Click map to place' : 'Prepare Token'}
+        {placingActive ? t('game.tokenPlacer.clickToPlace') : t('game.tokenPlacer.prepareToken')}
       </button>
 
-      {placingActive && <p className="text-xs text-amber-400 text-center">Click on the map to place the token</p>}
+      {placingActive && (
+        <p className="text-xs text-amber-400 text-center">{t('game.tokenPlacer.clickMapInstruction')}</p>
+      )}
 
       {tokens.length > 0 && (
         <div className="mt-3 border-t border-gray-800 pt-3">
-          <h4 className="text-xs text-gray-500 uppercase tracking-wider mb-2">Existing Tokens ({tokens.length})</h4>
+          <h4 className="text-xs text-gray-500 uppercase tracking-wider mb-2">
+            {t('game.tokenPlacer.existingTokens', { count: tokens.length })}
+          </h4>
           <div className="space-y-1 max-h-48 overflow-y-auto">
             {tokens.map((token) => {
               const stats = getTokenStats(token)
@@ -460,7 +490,7 @@ export default function TokenPlacer({
                   <button
                     onClick={() => onRemoveToken(token.id)}
                     className="text-gray-500 hover:text-red-400 text-xs cursor-pointer ml-2 flex-shrink-0"
-                    title="Remove token"
+                    title={t('game.tokenPlacer.removeToken')}
                   >
                     &#x2715;
                   </button>

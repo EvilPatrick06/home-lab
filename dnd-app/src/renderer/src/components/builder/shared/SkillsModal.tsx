@@ -1,5 +1,6 @@
 import skillsJson from '@data/5e/game/mechanics/skills.json'
 import { useMemo } from 'react'
+import { useT } from '../../../i18n'
 import { useBuilderStore } from '../../../stores/use-builder-store'
 import type { AbilityName } from '../../../types/character-common'
 import { abilityModifier, formatMod } from '../../../types/character-common'
@@ -9,6 +10,7 @@ const SKILLS_5E: Array<{ name: string; ability: AbilityName }> = (
 ).map((s) => ({ name: s.name, ability: s.ability as AbilityName }))
 
 export default function SkillsModal(): JSX.Element {
+  const { t } = useT()
   const abilityScores = useBuilderStore((s) => s.abilityScores)
   const selectedSkills = useBuilderStore((s) => s.selectedSkills)
   const setSelectedSkills = useBuilderStore((s) => s.setSelectedSkills)
@@ -50,7 +52,7 @@ export default function SkillsModal(): JSX.Element {
     <div className="absolute inset-0 z-20 flex flex-col bg-gray-900/98 backdrop-blur-sm">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">
-        <h2 className="text-lg font-bold text-gray-100">Skill Proficiencies</h2>
+        <h2 className="text-lg font-bold text-gray-100">{t('builder.skillsModal.title')}</h2>
         <button onClick={closeCustomModal} className="text-gray-400 hover:text-gray-200 text-xl leading-none px-2">
           ✕
         </button>
@@ -60,11 +62,14 @@ export default function SkillsModal(): JSX.Element {
       <div className="flex-1 overflow-y-auto p-6">
         <p className="text-sm text-gray-400 mb-4">
           {isCustomBackground
-            ? `Choose ${maxSkills} skill proficiencies (${maxSkills - 2} from class + 2 from custom background)`
+            ? t('builder.skillsModal.instructionCustom', { maxSkills, fromClass: maxSkills - 2 })
             : classSkillOptions.length > 0
-              ? `Choose ${maxSkills} from: ${classSkillOptions.join(', ')}`
-              : `Select ${maxSkills} skill proficiencies for your character`}
-          . Proficiency bonus: {formatMod(profBonus)}
+              ? t('builder.skillsModal.instructionClassOptions', {
+                  maxSkills,
+                  options: classSkillOptions.join(', ')
+                })
+              : t('builder.skillsModal.instructionDefault', { maxSkills })}
+          {t('builder.skillsModal.profBonus', { bonus: formatMod(profBonus) })}
         </p>
 
         <div className="grid grid-cols-2 gap-1">
@@ -112,15 +117,15 @@ export default function SkillsModal(): JSX.Element {
       {/* Footer */}
       <div className="flex items-center justify-between px-4 py-3 border-t border-gray-700 bg-gray-900">
         <span className="text-xs text-gray-500">
-          Selected: {selectedSkills.length}/{maxSkills}
-          {atCap ? ' (at maximum)' : ''}
+          {t('builder.skillsModal.selected', { count: selectedSkills.length, max: maxSkills })}
+          {atCap ? t('builder.skillsModal.atMaximum') : ''}
         </span>
         <div className="flex gap-2">
           <button
             onClick={closeCustomModal}
             className="px-4 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 rounded transition-colors"
           >
-            Cancel
+            {t('common.actions.cancel')}
           </button>
           <button
             onClick={confirmSkills}
@@ -134,10 +139,10 @@ export default function SkillsModal(): JSX.Element {
             }`}
           >
             {isConfirmed
-              ? 'Confirmed'
+              ? t('builder.skillsModal.confirmed')
               : selectedSkills.length < maxSkills
-                ? `Select ${maxSkills - selectedSkills.length} more`
-                : 'Confirm Skills'}
+                ? t('builder.skillsModal.selectMore', { count: maxSkills - selectedSkills.length })
+                : t('builder.skillsModal.confirmSkills')}
           </button>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import CalendarStep from '../../components/campaign/CalendarStep'
 import { Button, Card, Modal } from '../../components/ui'
+import { useT } from '../../i18n'
 import { getSeason, type SunPosition, type TimeBreakdown, type WeatherOverride } from '../../services/calendar-service'
 import { type MoonPhase, useWeather } from '../../services/calendar-weather'
 
@@ -17,6 +18,7 @@ interface CalendarCardProps {
 }
 
 export default function CalendarCard({ campaign, saveCampaign }: CalendarCardProps): JSX.Element {
+  const { t } = useT()
   const [showCalendarEdit, setShowCalendarEdit] = useState(false)
   const [editCalendar, setEditCalendar] = useState<CalendarConfig | null>(null)
 
@@ -47,62 +49,66 @@ export default function CalendarCard({ campaign, saveCampaign }: CalendarCardPro
     <>
       <Card>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-lg font-semibold">Calendar</h3>
+          <h3 className="text-lg font-semibold">{t('pages.calendarCard.calendar')}</h3>
           <button onClick={openCalendarEdit} className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer">
-            Edit
+            {t('pages.calendarCard.edit')}
           </button>
         </div>
         {campaign.calendar ? (
           <div className="space-y-2 text-xs">
             <div className="flex items-center gap-2">
-              <span className="text-gray-500">Preset:</span>
+              <span className="text-gray-500">{t('pages.calendarCard.preset')}</span>
               <span className="text-gray-200 capitalize">{campaign.calendar.preset.replace(/-/g, ' ')}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-gray-500">Months:</span>
+              <span className="text-gray-500">{t('pages.calendarCard.months')}</span>
               <span className="text-gray-200">{campaign.calendar.months.length}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-gray-500">Days per Year:</span>
+              <span className="text-gray-500">{t('pages.calendarCard.daysPerYear')}</span>
               <span className="text-gray-200">{campaign.calendar.daysPerYear}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-gray-500">Starting Year:</span>
+              <span className="text-gray-500">{t('pages.calendarCard.startingYear')}</span>
               <span className="text-gray-200">
                 {campaign.calendar.startingYear} {campaign.calendar.yearLabel}
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-gray-500">Hours per Day:</span>
+              <span className="text-gray-500">{t('pages.calendarCard.hoursPerDay')}</span>
               <span className="text-gray-200">{campaign.calendar.hoursPerDay}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-gray-500">Exact Time:</span>
+              <span className="text-gray-500">{t('pages.calendarCard.exactTime')}</span>
               <span className="text-gray-200 capitalize">{campaign.calendar.exactTimeDefault}</span>
             </div>
             {weather && (
               <div className="flex items-center gap-2 mt-1 pt-1 border-t border-gray-700/50">
-                <span className="text-gray-500">Weather:</span>
+                <span className="text-gray-500">{t('pages.calendarCard.weather')}</span>
                 <span className="text-gray-200 capitalize">{weather.condition.replace(/-/g, ' ')}</span>
                 <span className="text-gray-400 text-xs">({weather.temperature})</span>
               </div>
             )}
           </div>
         ) : (
-          <p className="text-gray-500 text-sm">No calendar configured.</p>
+          <p className="text-gray-500 text-sm">{t('pages.calendarCard.noCalendar')}</p>
         )}
       </Card>
 
       {/* Calendar Edit Modal */}
-      <Modal open={showCalendarEdit} onClose={() => setShowCalendarEdit(false)} title="Edit Calendar">
+      <Modal
+        open={showCalendarEdit}
+        onClose={() => setShowCalendarEdit(false)}
+        title={t('pages.calendarCard.editCalendar')}
+      >
         <div className="max-h-[60vh] overflow-y-auto pr-1">
           <CalendarStep calendar={editCalendar} onChange={setEditCalendar} />
         </div>
         <div className="flex gap-3 justify-end mt-4">
           <Button variant="secondary" onClick={() => setShowCalendarEdit(false)}>
-            Cancel
+            {t('common.actions.cancel')}
           </Button>
-          <Button onClick={handleSaveCalendar}>Save</Button>
+          <Button onClick={handleSaveCalendar}>{t('common.actions.save')}</Button>
         </div>
       </Modal>
     </>

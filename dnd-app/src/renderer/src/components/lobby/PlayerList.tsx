@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
+import { useT } from '../../i18n'
 import { banPeer, chatMutePeer, kickPeer } from '../../network'
 import { localHasPermission } from '../../services/permissions/local-permission'
 import { useNetworkStore } from '../../stores/network-store'
@@ -9,6 +10,7 @@ import type { Permission } from '../../types/permissions'
 import { PlayerCard } from '.'
 
 export default function PlayerList(): JSX.Element {
+  const { t } = useT()
   const navigate = useNavigate()
   const players = useLobbyStore((s) => s.players)
   const locallyMutedPeers = useLobbyStore((s) => s.locallyMutedPeers)
@@ -62,11 +64,16 @@ export default function PlayerList(): JSX.Element {
     for (const player of players) {
       const pPlayer = prev.find((p) => p.peerId === player.peerId)
       if (!pPlayer) {
-        newAnns.push({ id: `join-${player.peerId}-${Date.now()}`, text: `${player.displayName} has joined the lobby` })
+        newAnns.push({
+          id: `join-${player.peerId}-${Date.now()}`,
+          text: t('lobby.playerList.announceJoined', { name: player.displayName })
+        })
       } else if (pPlayer.isReady !== player.isReady) {
         newAnns.push({
           id: `ready-${player.peerId}-${Date.now()}`,
-          text: `${player.displayName} is ${player.isReady ? 'ready' : 'no longer ready'}`
+          text: player.isReady
+            ? t('lobby.playerList.announceReady', { name: player.displayName })
+            : t('lobby.playerList.announceNotReady', { name: player.displayName })
         })
       }
     }
@@ -74,7 +81,10 @@ export default function PlayerList(): JSX.Element {
     // Check leaves
     for (const pPlayer of prev) {
       if (!players.find((p) => p.peerId === pPlayer.peerId)) {
-        newAnns.push({ id: `leave-${pPlayer.peerId}-${Date.now()}`, text: `${pPlayer.displayName} has left the lobby` })
+        newAnns.push({
+          id: `leave-${pPlayer.peerId}-${Date.now()}`,
+          text: t('lobby.playerList.announceLeft', { name: pPlayer.displayName })
+        })
       }
     }
 
@@ -83,7 +93,7 @@ export default function PlayerList(): JSX.Element {
     }
 
     prevPlayersRef.current = players
-  }, [players])
+  }, [players, t])
 
   const handleViewCharacter = (characterId: string | null): void => {
     if (!characterId) return
@@ -155,8 +165,8 @@ export default function PlayerList(): JSX.Element {
         ))}
       </div>
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
-        <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wide">Players</h2>
-        <span className="text-xs text-gray-500">{players.length} connected</span>
+        <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wide">{t('lobby.playerList.heading')}</h2>
+        <span className="text-xs text-gray-500">{t('lobby.playerList.connected', { count: players.length })}</span>
       </div>
 
       <div className="flex-1 overflow-y-auto p-3 space-y-2">
@@ -164,18 +174,20 @@ export default function PlayerList(): JSX.Element {
         {aiDmEnabled && (
           <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-purple-900/20 border border-purple-700/30">
             <div className="w-8 h-8 rounded-full bg-purple-800/50 flex items-center justify-center text-purple-300 text-sm font-bold shrink-0">
-              AI
+              {t('lobby.playerList.aiAvatar')}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-purple-200">AI Dungeon Master</div>
-              <div className="text-xs text-purple-400">Ollama ({aiDmOllamaModel})</div>
+              <div className="text-sm font-medium text-purple-200">{t('lobby.playerList.aiDungeonMaster')}</div>
+              <div className="text-xs text-purple-400">{t('lobby.playerList.aiModel', { model: aiDmOllamaModel })}</div>
             </div>
-            <span className="text-xs text-green-400 bg-green-900/30 px-2 py-0.5 rounded-full">Ready</span>
+            <span className="text-xs text-green-400 bg-green-900/30 px-2 py-0.5 rounded-full">
+              {t('lobby.playerList.aiReady')}
+            </span>
           </div>
         )}
 
         {sortedPlayers.length === 0 && !aiDmEnabled ? (
-          <p className="text-sm text-gray-600 text-center py-8">Waiting for players...</p>
+          <p className="text-sm text-gray-600 text-center py-8">{t('lobby.playerList.waitingForPlayers')}</p>
         ) : (
           sortedPlayers.map((player) => {
             const isLocal = player.peerId === localPeerId

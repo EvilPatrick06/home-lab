@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useT } from '../../../i18n'
 import type { InitiativeEntry } from '../../../types/game-state'
 
 interface InitiativeControlsProps {
@@ -41,6 +42,7 @@ export default function InitiativeControls({
   onNextTurn,
   onEndInitiative
 }: InitiativeControlsProps): JSX.Element {
+  const { t } = useT()
   const [showAddForm, setShowAddForm] = useState(false)
   const [addName, setAddName] = useState('')
   const [addInit, setAddInit] = useState('')
@@ -69,10 +71,12 @@ export default function InitiativeControls({
                       : 'text-gray-300'
               }`}
             >
-              {timerExpired ? 'TIME!' : formatTime(timeRemaining)}
+              {timerExpired ? t('game.initiativeControls.timeUp') : formatTime(timeRemaining)}
             </span>
             {timerExpired && timerAction === 'warning' && (
-              <span className="text-[9px] text-red-400/70 animate-pulse">Turn expired</span>
+              <span className="text-[9px] text-red-400/70 animate-pulse">
+                {t('game.initiativeControls.turnExpired')}
+              </span>
             )}
           </div>
           <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
@@ -89,7 +93,9 @@ export default function InitiativeControls({
       {/* Delayed entries */}
       {delayedEntries.length > 0 && isHost && (
         <div className="border-t border-gray-700/50 pt-1">
-          <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Delayed</div>
+          <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">
+            {t('game.initiativeControls.delayed')}
+          </div>
           {delayedEntries.map((entry) => (
             <div
               key={entry.id}
@@ -109,12 +115,12 @@ export default function InitiativeControls({
                 onClick={() => onReenterDelayed(entry)}
                 className="text-xs px-1.5 py-0.5 rounded bg-amber-700/50 text-amber-300 hover:bg-amber-600/50 cursor-pointer"
               >
-                Re-enter
+                {t('game.initiativeControls.reEnter')}
               </button>
               <button
                 onClick={() => onRemoveDelayed(entry.entityId)}
-                aria-label="Remove delayed entry"
-                title="Remove delayed entry"
+                aria-label={t('game.initiativeControls.removeDelayed')}
+                title={t('game.initiativeControls.removeDelayed')}
                 className="text-gray-600 hover:text-red-400 cursor-pointer"
               >
                 &#x2715;
@@ -131,14 +137,14 @@ export default function InitiativeControls({
             <div className="flex gap-1 items-center">
               <input
                 type="text"
-                placeholder="Name"
+                placeholder={t('game.initiativeControls.namePlaceholder')}
                 value={addName}
                 onChange={(e) => setAddName(e.target.value)}
                 className="flex-1 p-1 rounded bg-gray-800 border border-gray-700 text-gray-100 placeholder-gray-600 text-xs focus:outline-none focus:border-amber-500"
               />
               <input
                 type="number"
-                placeholder="Init"
+                placeholder={t('game.initiativeControls.initPlaceholder')}
                 value={addInit}
                 onChange={(e) => setAddInit(e.target.value)}
                 className="w-12 p-1 rounded bg-gray-800 border border-gray-700 text-gray-100 text-center text-xs focus:outline-none focus:border-amber-500"
@@ -148,9 +154,9 @@ export default function InitiativeControls({
                 onChange={(e) => setAddType(e.target.value as 'player' | 'npc' | 'enemy')}
                 className="w-14 p-1 rounded bg-gray-800 border border-gray-700 text-gray-200 text-xs cursor-pointer"
               >
-                <option value="player">PC</option>
-                <option value="npc">NPC</option>
-                <option value="enemy">Foe</option>
+                <option value="player">{t('game.initiativeControls.typePlayer')}</option>
+                <option value="npc">{t('game.initiativeControls.typeNpc')}</option>
+                <option value="enemy">{t('game.initiativeControls.typeEnemy')}</option>
               </select>
               <button
                 onClick={() => {
@@ -173,12 +179,12 @@ export default function InitiativeControls({
                 }}
                 className="px-2 py-1 text-xs rounded bg-green-700 text-white hover:bg-green-600 cursor-pointer"
               >
-                Add
+                {t('game.initiativeControls.add')}
               </button>
               <button
                 onClick={() => setShowAddForm(false)}
-                aria-label="Cancel adding entry"
-                title="Cancel"
+                aria-label={t('game.initiativeControls.cancelAdding')}
+                title={t('common.actions.cancel')}
                 className="text-gray-500 hover:text-gray-300 text-xs cursor-pointer"
               >
                 &#x2715;
@@ -189,33 +195,33 @@ export default function InitiativeControls({
               onClick={() => setShowAddForm(true)}
               className="w-full py-1 text-xs rounded bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-gray-200 transition-colors cursor-pointer"
             >
-              + Add Entry
+              {t('game.initiativeControls.addEntry')}
             </button>
           )}
-          <div className="flex gap-1" role="group" aria-label="Initiative turn controls">
+          <div className="flex gap-1" role="group" aria-label={t('game.initiativeControls.turnControls')}>
             <button
               onClick={onPrevTurn}
-              aria-label="Previous turn"
+              aria-label={t('game.initiativeControls.previousTurn')}
               className="flex-1 py-1.5 text-xs rounded-lg bg-gray-800 text-gray-400
                 hover:bg-gray-700 hover:text-gray-200 transition-colors cursor-pointer"
             >
-              Prev
+              {t('game.initiativeControls.prev')}
             </button>
             <button
               onClick={onNextTurn}
-              aria-label="Next turn"
+              aria-label={t('game.initiativeControls.nextTurn')}
               className="flex-2 py-1.5 text-xs rounded-lg bg-amber-600 hover:bg-amber-500 text-white
                 font-semibold transition-colors cursor-pointer"
             >
-              Next Turn
+              {t('game.initiativeControls.nextTurn')}
             </button>
             <button
               onClick={onEndInitiative}
-              aria-label="End initiative"
+              aria-label={t('game.initiativeControls.endInitiative')}
               className="flex-1 py-1.5 text-xs rounded-lg bg-gray-800 text-gray-400
                 hover:bg-red-700 hover:text-white transition-colors cursor-pointer"
             >
-              End
+              {t('game.initiativeControls.end')}
             </button>
           </div>
         </>

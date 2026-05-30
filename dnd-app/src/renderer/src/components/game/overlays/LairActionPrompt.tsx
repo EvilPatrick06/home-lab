@@ -1,7 +1,9 @@
+import { useT } from '../../../i18n'
 import { useGameStore } from '../../../stores/use-game-store'
 import { useLobbyStore } from '../../../stores/use-lobby-store'
 
 export default function LairActionPrompt(): JSX.Element | null {
+  const { t } = useT()
   const pendingLairAction = useGameStore((s) => s.pendingLairAction)
   const setPendingLairAction = useGameStore((s) => s.setPendingLairAction)
   const addChatMessage = useLobbyStore((s) => s.addChatMessage)
@@ -27,9 +29,11 @@ export default function LairActionPrompt(): JSX.Element | null {
   return (
     <div className="absolute top-12 left-1/2 -translate-x-1/2 z-40 bg-gray-900/95 border border-amber-500/60 rounded-xl shadow-2xl p-4 w-96 max-w-[90vw]">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-xs font-bold text-amber-400">Lair Action — {pendingLairAction.creatureName}</h3>
+        <h3 className="text-xs font-bold text-amber-400">
+          {t('game.lairActionPrompt.title', { creatureName: pendingLairAction.creatureName })}
+        </h3>
         <button onClick={handleSkip} className="text-xs text-gray-400 hover:text-gray-200 cursor-pointer">
-          Skip
+          {t('game.lairActionPrompt.skip')}
         </button>
       </div>
       <div className="space-y-1.5">

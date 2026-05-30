@@ -1,4 +1,5 @@
 import { type ReactNode, useCallback, useEffect, useId, useRef, useState } from 'react'
+import { useT } from '../../i18n'
 
 /**
  * Phase 16C — Non-blocking floating window primitive.
@@ -74,6 +75,7 @@ export default function FloatingWindow({
   resizable = true,
   onClose
 }: FloatingWindowProps): JSX.Element {
+  const { t } = useT()
   const headerId = useId()
   const persisted = loadRect(storageKey)
   const [rect, setRect] = useState<PersistedRect>(
@@ -172,7 +174,7 @@ export default function FloatingWindow({
         <button
           type="button"
           onClick={onClose}
-          aria-label={`Close ${title}`}
+          aria-label={t('ui.floatingWindow.closeLabel', { title })}
           className="text-gray-500 hover:text-gray-200 text-base cursor-pointer leading-none"
         >
           &times;

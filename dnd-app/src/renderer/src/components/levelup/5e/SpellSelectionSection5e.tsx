@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useT } from '../../../i18n'
 import { getEffectiveClasses, getEffectiveKnownSpells } from '../../../services/character/effective-character-5e'
 import {
   getCantripsKnown,
@@ -37,6 +38,7 @@ export default function SpellSelectionSection5e({
   character,
   targetLevel
 }: SpellSelectionSection5eProps): JSX.Element | null {
+  const { t } = useT()
   const newSpellIds = useLevelUpStore((s) => s.newSpellIds)
   const toggleNewSpell = useLevelUpStore((s) => s.toggleNewSpell)
   const setSpellsRequired = useLevelUpStore((s) => s.setSpellsRequired)
@@ -220,25 +222,27 @@ export default function SpellSelectionSection5e({
   return (
     <div className={`bg-gray-900/50 border rounded-lg p-4 ${isIncomplete ? 'border-amber-600/50' : 'border-gray-800'}`}>
       <h3 className="text-sm font-semibold text-amber-400 uppercase tracking-wide mb-3 flex items-center gap-2">
-        New Spells Available
-        {isIncomplete && <span className="text-xs text-amber-500 font-semibold">REQUIRED</span>}
+        {t('levelup.spellSelection.heading')}
+        {isIncomplete && (
+          <span className="text-xs text-amber-500 font-semibold">{t('levelup.spellSelection.required')}</span>
+        )}
       </h3>
       {subclassNewSpells.length > 0 && (
         <div className="mb-3 bg-green-900/20 border border-green-800 rounded p-2">
           <div className="text-xs font-semibold text-green-400 uppercase tracking-wide mb-1">
-            Always Prepared (Subclass)
+            {t('levelup.spellSelection.alwaysPrepared')}
           </div>
           <div className="text-xs text-gray-400">{subclassNewSpells.join(', ')}</div>
         </div>
       )}
       {canPick >= 0 && (
         <div className={`text-xs mb-2 ${isIncomplete ? 'text-amber-400' : 'text-gray-500'}`}>
-          Select {canPick} new prepared spell{canPick !== 1 ? 's' : ''} ({newSpellIds.length}/{canPick} selected)
+          {t('levelup.spellSelection.selectCount', { count: canPick, selected: newSpellIds.length })}
         </div>
       )}
       {canPick < 0 && (
         <div className="text-xs text-gray-500 mb-2">
-          Select spells to add to your prepared list ({newSpellIds.length} selected)
+          {t('levelup.spellSelection.selectUnlimited', { selected: newSpellIds.length })}
         </div>
       )}
 
@@ -249,16 +253,18 @@ export default function SpellSelectionSection5e({
           onChange={(e) => setShowAllSpells(e.target.checked)}
           className="accent-amber-500"
         />
-        Show All Spells
-        {showAllSpells && <span className="text-orange-400">(off-list spells marked)</span>}
+        {t('levelup.spellSelection.showAll')}
+        {showAllSpells && <span className="text-orange-400">{t('levelup.spellSelection.offListMarked')}</span>}
       </label>
 
       {/* Phase 24g — cantrip picker */}
       {cantripsToLearn > 0 && (
         <div className="mb-3 border border-gray-800 rounded p-2">
           <div className="text-xs font-semibold text-amber-400 uppercase tracking-wide mb-1">
-            New Cantrips ({newCantripIds.length}/{cantripsToLearn})
-            {newCantripIds.length < cantripsToLearn && <span className="ml-2 text-amber-500">REQUIRED</span>}
+            {t('levelup.spellSelection.newCantrips', { selected: newCantripIds.length, max: cantripsToLearn })}
+            {newCantripIds.length < cantripsToLearn && (
+              <span className="ml-2 text-amber-500">{t('levelup.spellSelection.required')}</span>
+            )}
           </div>
           <div className="max-h-40 overflow-y-auto space-y-0.5">
             {availableCantrips.map((c) => {
@@ -295,7 +301,7 @@ export default function SpellSelectionSection5e({
       {maxSwaps > 0 && swappableSpells.length > 0 && (
         <div className="mb-3 border border-gray-800 rounded p-2">
           <div className="text-xs font-semibold text-amber-400 uppercase tracking-wide mb-1">
-            Replace a Prepared Spell ({spellSwaps.length}/{maxSwaps})
+            {t('levelup.spellSelection.replacePrepared', { selected: spellSwaps.length, max: maxSwaps })}
           </div>
           {spellSwaps.map((sw) => {
             const removed = effectiveKnownSpells.find((s) => s.id === sw.removeId)
@@ -321,7 +327,7 @@ export default function SpellSelectionSection5e({
                 onChange={(e) => setSwapRemoveId(e.target.value)}
                 className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
               >
-                <option value="">-- Spell to replace --</option>
+                <option value="">{t('levelup.spellSelection.spellToReplace')}</option>
                 {swappableSpells
                   .filter((s) => !spellSwaps.some((sw) => sw.removeId === s.id))
                   .map((s) => (
@@ -341,12 +347,12 @@ export default function SpellSelectionSection5e({
                   }}
                   className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
                 >
-                  <option value="">-- Replacement spell --</option>
+                  <option value="">{t('levelup.spellSelection.replacementSpell')}</option>
                   {availableSpells
                     .filter((s) => s.level <= maxSpellLevel)
                     .map((s) => (
                       <option key={s.id} value={s.id}>
-                        {s.name} (lvl {s.level})
+                        {t('levelup.spellSelection.spellWithLevel', { name: s.name, level: s.level })}
                       </option>
                     ))}
                 </select>
@@ -357,9 +363,9 @@ export default function SpellSelectionSection5e({
       )}
 
       {loading ? (
-        <div className="text-sm text-gray-500">Loading spells...</div>
+        <div className="text-sm text-gray-500">{t('levelup.spellSelection.loading')}</div>
       ) : availableSpells.length === 0 ? (
-        <div className="text-sm text-gray-500">No new spells available at this level.</div>
+        <div className="text-sm text-gray-500">{t('levelup.spellSelection.noNewSpells')}</div>
       ) : (
         <div className="max-h-64 overflow-y-auto space-y-3">
           {Array.from(byLevel.entries())
@@ -367,8 +373,7 @@ export default function SpellSelectionSection5e({
             .map(([level, spells]) => (
               <div key={level}>
                 <div className="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-1">
-                  {level}
-                  {ordinal(level)} Level
+                  {t('levelup.spellSelection.levelGroup', { levelOrdinal: `${level}${ordinal(level)}` })}
                 </div>
                 <div className="space-y-0.5">
                   {spells.map((spell) => {
@@ -397,14 +402,18 @@ export default function SpellSelectionSection5e({
                         <span>{spell.name}</span>
                         {showAllSpells && !spell.classes?.some((c) => c.toLowerCase() === spellListClass) && (
                           <span className="text-xs text-orange-400 border border-orange-700 rounded px-1">
-                            Off-List
+                            {t('levelup.spellSelection.offList')}
                           </span>
                         )}
                         {spell.concentration && (
-                          <span className="text-xs text-yellow-500 border border-yellow-700 rounded px-1">C</span>
+                          <span className="text-xs text-yellow-500 border border-yellow-700 rounded px-1">
+                            {t('levelup.spellSelection.concentration')}
+                          </span>
                         )}
                         {spell.ritual && (
-                          <span className="text-xs text-blue-400 border border-blue-700 rounded px-1">R</span>
+                          <span className="text-xs text-blue-400 border border-blue-700 rounded px-1">
+                            {t('levelup.spellSelection.ritual')}
+                          </span>
                         )}
                       </button>
                     )

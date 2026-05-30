@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 import type { Handout, HandoutPage } from '../../../../types/game-state'
 
 interface HandoutViewerModalProps {
@@ -8,6 +9,7 @@ interface HandoutViewerModalProps {
 }
 
 export default function HandoutViewerModal({ handout, onClose }: HandoutViewerModalProps): JSX.Element {
+  const { t } = useT()
   const [scale, setScale] = useState(1)
   const [offset, setOffset] = useState({ x: 0, y: 0 })
   const [dragging, setDragging] = useState(false)
@@ -81,14 +83,14 @@ export default function HandoutViewerModal({ handout, onClose }: HandoutViewerMo
                   onClick={resetView}
                   className="px-2 py-0.5 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
                 >
-                  Reset
+                  {t('game.handoutViewerModal.reset')}
                 </button>
               </>
             )}
             <button
               onClick={onClose}
               className="text-gray-500 hover:text-gray-300 text-lg cursor-pointer"
-              aria-label="Close"
+              aria-label={t('common.actions.close')}
             >
               &times;
             </button>
@@ -111,7 +113,7 @@ export default function HandoutViewerModal({ handout, onClose }: HandoutViewerMo
                     : 'bg-gray-800/40 border border-b-0 border-gray-700/30 text-gray-400 hover:bg-gray-700/40'
                 }`}
               >
-                {page.label || `Page ${idx + 1}`}
+                {page.label || t('game.handoutViewerModal.pageFallback', { num: idx + 1 })}
               </button>
             ))}
           </div>

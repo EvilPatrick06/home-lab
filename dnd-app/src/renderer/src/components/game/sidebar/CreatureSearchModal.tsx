@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useEscapeKey } from '../../../hooks/use-escape-key'
+import { useT } from '../../../i18n'
 import { loadAllStatBlocks, searchMonsters } from '../../../services/data-provider'
 import type { MonsterStatBlock } from '../../../types/monster'
 
@@ -16,6 +17,7 @@ export default function CreatureSearchModal({
   title,
   onSelect
 }: CreatureSearchModalProps): JSX.Element | null {
+  const { t } = useT()
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<MonsterStatBlock[]>([])
   const [allCreatures, setAllCreatures] = useState<MonsterStatBlock[]>([])
@@ -70,15 +72,19 @@ export default function CreatureSearchModal({
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search creatures by name, type, or tag..."
+          placeholder={t('game.creatureSearchModal.searchPlaceholder')}
           className="w-full px-3 py-2 rounded-lg bg-gray-800 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500 mb-2"
           autoFocus
         />
         <div className="flex-1 overflow-y-auto space-y-1 min-h-0 max-h-80">
-          {!creaturesLoaded && <p className="text-xs text-gray-500 text-center py-4">Loading creatures...</p>}
+          {!creaturesLoaded && (
+            <p className="text-xs text-gray-500 text-center py-4">{t('game.creatureSearchModal.loadingCreatures')}</p>
+          )}
           {creaturesLoaded && searchResults.length === 0 && (
             <p className="text-xs text-gray-500 text-center py-4">
-              {searchQuery ? 'No creatures found' : 'Type to search'}
+              {searchQuery
+                ? t('game.creatureSearchModal.noCreaturesFound')
+                : t('game.creatureSearchModal.typeToSearch')}
             </p>
           )}
           {searchResults.map((monster) => (
@@ -93,7 +99,7 @@ export default function CreatureSearchModal({
                   {monster.size} {monster.type} | CR {monster.cr}
                 </div>
               </div>
-              <span className="text-xs text-amber-400 shrink-0 ml-2">Select</span>
+              <span className="text-xs text-amber-400 shrink-0 ml-2">{t('game.creatureSearchModal.select')}</span>
             </button>
           ))}
         </div>

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useT } from '../../i18n'
 import type { CustomRule } from '../../types/campaign'
 import { Button, Input } from '../ui'
 
@@ -26,6 +27,7 @@ const CATEGORY_COLORS: Record<RuleCategory, string> = {
 }
 
 export default function RulesStep({ rules, onChange }: RulesStepProps): JSX.Element {
+  const { t } = useT()
   const [showForm, setShowForm] = useState(false)
   const [newName, setNewName] = useState('')
   const [newDescription, setNewDescription] = useState('')
@@ -54,10 +56,8 @@ export default function RulesStep({ rules, onChange }: RulesStepProps): JSX.Elem
 
   return (
     <div>
-      <h2 className="text-xl font-semibold mb-2">House Rules</h2>
-      <p className="text-gray-400 text-sm mb-6">
-        Add custom house rules for your campaign. This step is optional and you can add more later.
-      </p>
+      <h2 className="text-xl font-semibold mb-2">{t('campaign.rulesStep.title')}</h2>
+      <p className="text-gray-400 text-sm mb-6">{t('campaign.rulesStep.subtitle')}</p>
 
       <div className="max-w-2xl">
         {rules.length > 0 && (
@@ -79,7 +79,7 @@ export default function RulesStep({ rules, onChange }: RulesStepProps): JSX.Elem
                 <button
                   onClick={() => handleRemove(rule.id)}
                   className="text-gray-500 hover:text-red-400 transition-colors cursor-pointer text-lg shrink-0"
-                  title="Remove rule"
+                  title={t('campaign.rulesStep.removeRule')}
                 >
                   &times;
                 </button>
@@ -91,26 +91,26 @@ export default function RulesStep({ rules, onChange }: RulesStepProps): JSX.Elem
         {showForm ? (
           <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-5 space-y-4">
             <Input
-              label="Rule Name"
-              placeholder="e.g. Critical Hit Bonus"
+              label={t('campaign.rulesStep.ruleName')}
+              placeholder={t('campaign.rulesStep.ruleNamePlaceholder')}
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
             />
 
             <div>
-              <label className="block text-gray-400 mb-2 text-sm">Description</label>
+              <label className="block text-gray-400 mb-2 text-sm">{t('campaign.rulesStep.description')}</label>
               <textarea
                 className="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
                   placeholder-gray-600 focus:outline-none focus:border-amber-500 transition-colors resize-none"
                 rows={2}
-                placeholder="Describe how this rule works..."
+                placeholder={t('campaign.rulesStep.descriptionPlaceholder')}
                 value={newDescription}
                 onChange={(e) => setNewDescription(e.target.value)}
               />
             </div>
 
             <div>
-              <label className="block text-gray-400 mb-2 text-sm">Category</label>
+              <label className="block text-gray-400 mb-2 text-sm">{t('campaign.rulesStep.category')}</label>
               <select
                 className="p-3 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
                   focus:outline-none focus:border-amber-500 transition-colors cursor-pointer"
@@ -119,7 +119,7 @@ export default function RulesStep({ rules, onChange }: RulesStepProps): JSX.Elem
               >
                 {CATEGORIES.map((cat) => (
                   <option key={cat.value} value={cat.value}>
-                    {cat.label}
+                    {t(`campaign.rulesStep.categoryLabel.${cat.value}`)}
                   </option>
                 ))}
               </select>
@@ -127,21 +127,21 @@ export default function RulesStep({ rules, onChange }: RulesStepProps): JSX.Elem
 
             <div className="flex gap-3">
               <Button onClick={handleAdd} disabled={!newName.trim()}>
-                Add Rule
+                {t('campaign.rulesStep.addRule')}
               </Button>
               <Button variant="secondary" onClick={() => setShowForm(false)}>
-                Cancel
+                {t('common.actions.cancel')}
               </Button>
             </div>
           </div>
         ) : (
           <Button variant="secondary" onClick={() => setShowForm(true)}>
-            + Add Rule
+            {t('campaign.rulesStep.addRuleButton')}
           </Button>
         )}
 
         {rules.length === 0 && !showForm && (
-          <p className="text-gray-500 text-sm mt-4">No house rules added. You can skip this step or add rules later.</p>
+          <p className="text-gray-500 text-sm mt-4">{t('campaign.rulesStep.emptyState')}</p>
         )}
       </div>
     </div>

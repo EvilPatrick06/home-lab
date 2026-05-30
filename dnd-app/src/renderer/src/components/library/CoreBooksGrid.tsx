@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useT } from '../../i18n'
 import { Button, EmptyState } from '../ui'
 
 interface BookConfig {
@@ -36,6 +37,7 @@ interface CoreBooksGridProps {
 }
 
 export default function CoreBooksGrid({ onOpenBook }: CoreBooksGridProps): JSX.Element {
+  const { t } = useT()
   const [books, setBooks] = useState<BookConfig[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -58,13 +60,16 @@ export default function CoreBooksGrid({ onOpenBook }: CoreBooksGridProps): JSX.E
     async (coreDef?: { key: string; title: string }) => {
       try {
         const result = await window.api.showOpenDialog({
-          title: coreDef ? `Select ${coreDef.title} PDF` : 'Select PDF Book',
+          title: coreDef
+            ? t('library.coreBooksGrid.selectBookPdf', { title: coreDef.title })
+            : t('library.coreBooksGrid.selectPdfBook'),
           filters: [{ name: 'PDF Files', extensions: ['pdf'] }]
         })
         if (!result) return
 
         const bookId = coreDef?.key ?? globalThis.crypto.randomUUID()
-        const title = coreDef?.title ?? result.split(/[/\\]/).pop()?.replace('.pdf', '') ?? 'Untitled Book'
+        const title =
+          coreDef?.title ?? result.split(/[/\\]/).pop()?.replace('.pdf', '') ?? t('library.coreBooksGrid.untitledBook')
 
         const config: BookConfig = {
           id: bookId,
@@ -86,13 +91,13 @@ export default function CoreBooksGrid({ onOpenBook }: CoreBooksGridProps): JSX.E
   const handleImportBook = useCallback(async () => {
     try {
       const result = await window.api.showOpenDialog({
-        title: 'Import PDF Book',
+        title: t('library.coreBooksGrid.importPdfBook'),
         filters: [{ name: 'PDF Files', extensions: ['pdf'] }]
       })
       if (!result) return
 
       const bookId = globalThis.crypto.randomUUID()
-      const fileName = result.split(/[/\\]/).pop()?.replace('.pdf', '') ?? 'Untitled Book'
+      const fileName = result.split(/[/\\]/).pop()?.replace('.pdf', '') ?? t('library.coreBooksGrid.untitledBook')
 
       // Import (copy) into userData/books/
       const importResult = await window.api.books.import(result, fileName, bookId)
@@ -143,7 +148,7 @@ export default function CoreBooksGrid({ onOpenBook }: CoreBooksGridProps): JSX.E
     <div className="p-4 space-y-6">
       {/* Core Books */}
       <section>
-        <h3 className="text-lg font-bold text-amber-400 mb-3">Core Rulebooks</h3>
+        <h3 className="text-lg font-bold text-amber-400 mb-3">{t('library.coreBooksGrid.coreRulebooks')}</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {coreBooks.map((book) => (
             <div
@@ -161,12 +166,12 @@ export default function CoreBooksGrid({ onOpenBook }: CoreBooksGridProps): JSX.E
                       onClick={() => onOpenBook(book.config!)}
                       className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded text-sm font-medium transition-colors"
                     >
-                      Open
+                      {t('library.coreBooksGrid.open')}
                     </button>
                     <button
                       onClick={() => handleRemoveBook(book.key)}
                       className="px-2 py-1.5 bg-gray-800 hover:bg-red-900/50 text-gray-400 hover:text-red-400 rounded text-sm transition-colors"
-                      title="Remove book link"
+                      title={t('library.coreBooksGrid.removeBookLink')}
                     >
                       ✕
                     </button>
@@ -176,7 +181,7 @@ export default function CoreBooksGrid({ onOpenBook }: CoreBooksGridProps): JSX.E
                     onClick={() => handleBrowseForBook({ key: book.key, title: book.title })}
                     className="mt-2 px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded text-sm transition-colors"
                   >
-                    📂 Link PDF
+                    {t('library.coreBooksGrid.linkPdf')}
                   </button>
                 )}
               </div>
@@ -188,14 +193,17 @@ export default function CoreBooksGrid({ onOpenBook }: CoreBooksGridProps): JSX.E
       {/* Custom Books */}
       <section>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-lg font-bold text-gray-300">Custom Books</h3>
+          <h3 className="text-lg font-bold text-gray-300">{t('library.coreBooksGrid.customBooks')}</h3>
           <Button variant="secondary" onClick={handleImportBook}>
-            + Import PDF
+            {t('library.coreBooksGrid.importPdf')}
           </Button>
         </div>
 
         {customBooks.length === 0 ? (
-          <EmptyState title="No custom books" description="Import your own PDF books to read them here." />
+          <EmptyState
+            title={t('library.coreBooksGrid.noCustomBooks')}
+            description={t('library.coreBooksGrid.noCustomBooksDesc')}
+          />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
             {customBooks.map((book) => (
@@ -207,14 +215,16 @@ export default function CoreBooksGrid({ onOpenBook }: CoreBooksGridProps): JSX.E
                   <span className="text-2xl">📓</span>
                   <div className="flex-1 min-w-0">
                     <h4 className="text-sm font-medium text-gray-200 truncate">{book.title}</h4>
-                    <p className="text-xs text-gray-500">Added {new Date(book.addedAt).toLocaleDateString()}</p>
+                    <p className="text-xs text-gray-500">
+                      {t('library.coreBooksGrid.added', { date: new Date(book.addedAt).toLocaleDateString() })}
+                    </p>
                   </div>
                   <div className="flex gap-1">
                     <button
                       onClick={() => onOpenBook(book)}
                       className="px-2 py-1 bg-amber-600 hover:bg-amber-500 text-white rounded text-xs transition-colors"
                     >
-                      Open
+                      {t('library.coreBooksGrid.open')}
                     </button>
                     <button
                       onClick={() => handleRemoveBook(book.id)}

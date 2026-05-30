@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useT } from '../../i18n'
 import { setDragPayload } from '../../services/library/drag-data'
 import type { LibraryCategory, LibraryItem } from '../../types/library'
 import { getCategoryDef } from '../../types/library'
@@ -210,6 +211,7 @@ export default function LibraryDetailModal({
   onCloneAsHomebrew,
   onDelete
 }: LibraryDetailModalProps): JSX.Element {
+  const { t } = useT()
   const catDef = getCategoryDef(item.category)
   const fields = getDisplayFields(item.data, item.category)
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -246,7 +248,7 @@ export default function LibraryDetailModal({
             {DRAGGABLE_CATEGORIES.has(item.category) && (
               <span
                 className="text-gray-600 cursor-grab active:cursor-grabbing select-none"
-                title="Drag to map or character sheet"
+                title={t('library.libraryDetailModal.dragHint')}
               >
                 ⠿
               </span>
@@ -257,10 +259,14 @@ export default function LibraryDetailModal({
               <div className="flex items-center gap-2 mt-0.5">
                 <span className="text-xs text-gray-500">{catDef?.label ?? item.category}</span>
                 {item.source === 'homebrew' && (
-                  <span className="text-xs bg-purple-600/30 text-purple-300 px-1.5 py-0.5 rounded-full">Homebrew</span>
+                  <span className="text-xs bg-purple-600/30 text-purple-300 px-1.5 py-0.5 rounded-full">
+                    {t('library.libraryDetailModal.homebrew')}
+                  </span>
                 )}
                 {item.source === 'official' && (
-                  <span className="text-xs bg-blue-600/30 text-blue-300 px-1.5 py-0.5 rounded-full">Official</span>
+                  <span className="text-xs bg-blue-600/30 text-blue-300 px-1.5 py-0.5 rounded-full">
+                    {t('library.libraryDetailModal.official')}
+                  </span>
                 )}
               </div>
             </div>
@@ -268,7 +274,7 @@ export default function LibraryDetailModal({
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-300 text-2xl leading-none cursor-pointer"
-            aria-label="Close"
+            aria-label={t('common.actions.close')}
           >
             &times;
           </button>
@@ -302,7 +308,7 @@ export default function LibraryDetailModal({
               onClick={() => onCloneAsHomebrew(item)}
               className="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold transition-colors cursor-pointer"
             >
-              Clone as Homebrew
+              {t('library.libraryDetailModal.cloneAsHomebrew')}
             </button>
           )}
           {item.source === 'homebrew' && (
@@ -311,7 +317,7 @@ export default function LibraryDetailModal({
                 onClick={() => onCloneAsHomebrew(item)}
                 className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-sm font-semibold transition-colors cursor-pointer"
               >
-                Edit
+                {t('library.libraryDetailModal.edit')}
               </button>
               {onDelete && (
                 <>
@@ -321,13 +327,13 @@ export default function LibraryDetailModal({
                         onClick={() => onDelete(item)}
                         className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white text-sm font-semibold transition-colors cursor-pointer"
                       >
-                        Confirm Delete
+                        {t('library.libraryDetailModal.confirmDelete')}
                       </button>
                       <button
                         onClick={() => setConfirmDelete(false)}
                         className="px-4 py-2 rounded-lg border border-gray-600 hover:bg-gray-800 text-gray-200 text-sm font-semibold transition-colors cursor-pointer"
                       >
-                        Cancel
+                        {t('common.actions.cancel')}
                       </button>
                     </>
                   ) : (
@@ -335,7 +341,7 @@ export default function LibraryDetailModal({
                       onClick={() => setConfirmDelete(true)}
                       className="px-4 py-2 rounded-lg bg-red-700 hover:bg-red-600 text-white text-sm font-semibold transition-colors cursor-pointer"
                     >
-                      Delete
+                      {t('common.actions.delete')}
                     </button>
                   )}
                 </>
@@ -346,7 +352,7 @@ export default function LibraryDetailModal({
             onClick={onClose}
             className="ml-auto px-4 py-2 rounded-lg border border-gray-600 hover:bg-gray-800 text-gray-200 text-sm font-semibold transition-colors cursor-pointer"
           >
-            Close
+            {t('common.actions.close')}
           </button>
         </div>
       </div>

@@ -1,3 +1,4 @@
+import { useT } from '../../../i18n'
 import type { CombatTimerConfig } from '../../../types/campaign'
 import type { MapToken } from '../../../types/map'
 
@@ -54,9 +55,12 @@ export default function InitiativeSetupForm({
   onUpdateTimerConfig,
   onRollInitiative
 }: InitiativeSetupFormProps): JSX.Element {
+  const { t } = useT()
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Initiative</h3>
+      <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+        {t('game.initiativeSetupForm.title')}
+      </h3>
 
       {isHost ? (
         <>
@@ -65,7 +69,7 @@ export default function InitiativeSetupForm({
               <div key={i} className="flex gap-1 items-center">
                 <input
                   type="text"
-                  placeholder="Name"
+                  placeholder={t('game.initiativeSetupForm.namePlaceholder')}
                   value={entry.name}
                   onChange={(e) => onUpdateNewEntry(i, { name: e.target.value })}
                   className="flex-1 p-1.5 rounded bg-gray-800 border border-gray-700 text-gray-100
@@ -73,7 +77,7 @@ export default function InitiativeSetupForm({
                 />
                 <input
                   type="number"
-                  placeholder="Mod"
+                  placeholder={t('game.initiativeSetupForm.modPlaceholder')}
                   value={entry.modifier}
                   onChange={(e) => onUpdateNewEntry(i, { modifier: e.target.value })}
                   className="w-12 p-1.5 rounded bg-gray-800 border border-gray-700 text-gray-100
@@ -88,13 +92,13 @@ export default function InitiativeSetupForm({
                   }
                   className="w-16 p-1.5 rounded bg-gray-800 border border-gray-700 text-gray-200 text-xs cursor-pointer"
                 >
-                  <option value="player">PC</option>
-                  <option value="npc">NPC</option>
-                  <option value="enemy">Foe</option>
+                  <option value="player">{t('game.initiativeSetupForm.typePlayer')}</option>
+                  <option value="npc">{t('game.initiativeSetupForm.typeNpc')}</option>
+                  <option value="enemy">{t('game.initiativeSetupForm.typeEnemy')}</option>
                 </select>
                 <label
                   className="flex items-center gap-0.5 cursor-pointer"
-                  title="Surprised (Disadvantage on initiative)"
+                  title={t('game.initiativeSetupForm.surprisedTitle')}
                 >
                   <input
                     type="checkbox"
@@ -102,23 +106,23 @@ export default function InitiativeSetupForm({
                     onChange={(e) => onUpdateNewEntry(i, { surprised: e.target.checked })}
                     className="w-3 h-3 accent-amber-500"
                   />
-                  <span className="text-[9px] text-gray-500">S</span>
+                  <span className="text-[9px] text-gray-500">{t('game.initiativeSetupForm.surprisedAbbr')}</span>
                 </label>
                 {entry.entityType === 'enemy' && (
                   <>
                     <input
                       type="number"
-                      placeholder="LR"
+                      placeholder={t('game.initiativeSetupForm.lrPlaceholder')}
                       min={0}
                       value={entry.legendaryResistances}
                       onChange={(e) => onUpdateNewEntry(i, { legendaryResistances: e.target.value })}
                       className="w-8 p-1 rounded bg-gray-800 border border-gray-700 text-gray-100
                         text-center focus:outline-none focus:border-orange-500 text-xs"
-                      title="Legendary Resistances (e.g. 3)"
+                      title={t('game.initiativeSetupForm.lrTitle')}
                     />
                     <label
                       className="flex items-center gap-0.5 cursor-pointer"
-                      title="In Lair (adds Lair Action at Init 20)"
+                      title={t('game.initiativeSetupForm.inLairTitle')}
                     >
                       <input
                         type="checkbox"
@@ -126,7 +130,7 @@ export default function InitiativeSetupForm({
                         onChange={(e) => onUpdateNewEntry(i, { inLair: e.target.checked })}
                         className="w-3 h-3 accent-purple-500"
                       />
-                      <span className="text-[9px] text-gray-500">L</span>
+                      <span className="text-[9px] text-gray-500">{t('game.initiativeSetupForm.inLairAbbr')}</span>
                     </label>
                   </>
                 )}
@@ -143,7 +147,9 @@ export default function InitiativeSetupForm({
           {/* From Map tokens */}
           {tokens.length > 0 && (
             <div className="border-t border-gray-700/50 pt-2 mt-1">
-              <p className="text-xs text-gray-500 uppercase tracking-wider mb-1.5">From Map</p>
+              <p className="text-xs text-gray-500 uppercase tracking-wider mb-1.5">
+                {t('game.initiativeSetupForm.fromMap')}
+              </p>
               <div className="space-y-1 max-h-28 overflow-y-auto">
                 {tokens.map((token) => (
                   <label
@@ -199,7 +205,7 @@ export default function InitiativeSetupForm({
                   className="w-full mt-1.5 py-1 text-xs rounded bg-gray-800 text-amber-400
                     hover:bg-gray-700 hover:text-amber-300 transition-colors cursor-pointer"
                 >
-                  Add {checkedTokenIds.size} Checked
+                  {t('game.initiativeSetupForm.addChecked', { count: checkedTokenIds.size })}
                 </button>
               )}
             </div>
@@ -211,11 +217,17 @@ export default function InitiativeSetupForm({
               onClick={() => onSetShowTimerConfig(!showTimerConfig)}
               className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-200 cursor-pointer w-full"
             >
-              <span className="uppercase tracking-wider font-semibold">Turn Timer</span>
+              <span className="uppercase tracking-wider font-semibold">{t('game.initiativeSetupForm.turnTimer')}</span>
               <span className="text-gray-600 text-[9px]">{showTimerConfig ? '\u25B2' : '\u25BC'}</span>
               {timerEnabled && (
                 <span className="ml-auto text-green-400 text-[9px]">
-                  {timerSeconds}s / {timerAction === 'auto-skip' ? 'Auto-skip' : 'Warning'}
+                  {t('game.initiativeSetupForm.timerSummary', {
+                    seconds: timerSeconds,
+                    action:
+                      timerAction === 'auto-skip'
+                        ? t('game.initiativeSetupForm.autoSkip')
+                        : t('game.initiativeSetupForm.warning')
+                  })}
                 </span>
               )}
             </button>
@@ -228,12 +240,12 @@ export default function InitiativeSetupForm({
                     onChange={(e) => onUpdateTimerConfig({ enabled: e.target.checked })}
                     className="w-3 h-3 accent-amber-500"
                   />
-                  Enable turn timer
+                  {t('game.initiativeSetupForm.enableTurnTimer')}
                 </label>
                 {timerEnabled && (
                   <>
                     <div className="flex items-center gap-1 flex-wrap">
-                      <span className="text-xs text-gray-500 mr-1">Seconds:</span>
+                      <span className="text-xs text-gray-500 mr-1">{t('game.initiativeSetupForm.seconds')}</span>
                       {TIMER_PRESETS.map((preset) => (
                         <button
                           key={preset}
@@ -247,7 +259,7 @@ export default function InitiativeSetupForm({
                               : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                           }`}
                         >
-                          {preset}s
+                          {t('game.initiativeSetupForm.presetSeconds', { seconds: preset })}
                         </button>
                       ))}
                       <input
@@ -263,11 +275,11 @@ export default function InitiativeSetupForm({
                           }
                         }}
                         className="w-14 p-0.5 rounded bg-gray-800 border border-gray-700 text-gray-100 text-center text-xs focus:outline-none focus:border-amber-500"
-                        title="Custom seconds (10-600)"
+                        title={t('game.initiativeSetupForm.customSecondsTitle')}
                       />
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-gray-500">On expire:</span>
+                      <span className="text-xs text-gray-500">{t('game.initiativeSetupForm.onExpire')}</span>
                       <button
                         onClick={() => onUpdateTimerConfig({ action: 'warning' })}
                         className={`px-1.5 py-0.5 text-xs rounded cursor-pointer ${
@@ -276,7 +288,7 @@ export default function InitiativeSetupForm({
                             : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                         }`}
                       >
-                        Warning
+                        {t('game.initiativeSetupForm.warning')}
                       </button>
                       <button
                         onClick={() => onUpdateTimerConfig({ action: 'auto-skip' })}
@@ -286,7 +298,7 @@ export default function InitiativeSetupForm({
                             : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                         }`}
                       >
-                        Auto-skip
+                        {t('game.initiativeSetupForm.autoSkip')}
                       </button>
                     </div>
                   </>
@@ -305,7 +317,7 @@ export default function InitiativeSetupForm({
               disabled={newEntries.length > 0 && !newEntries[newEntries.length - 1].name.trim()}
               title={
                 newEntries.length > 0 && !newEntries[newEntries.length - 1].name.trim()
-                  ? 'Enter a name on the current row first'
+                  ? t('game.initiativeSetupForm.enterNameFirst')
                   : undefined
               }
               className="flex-1 py-1.5 text-xs rounded-lg bg-gray-800 text-gray-400
@@ -313,20 +325,23 @@ export default function InitiativeSetupForm({
                 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-800
                 disabled:hover:text-gray-400"
             >
-              + Add
+              {t('game.initiativeSetupForm.addRow')}
             </button>
             <button
               onClick={() => {
                 if (newEntries.length > 0) {
                   const last = newEntries[newEntries.length - 1]
-                  onSetNewEntries([...newEntries, { ...last, name: `${last.name} (copy)` }])
+                  onSetNewEntries([
+                    ...newEntries,
+                    { ...last, name: t('game.initiativeSetupForm.copySuffix', { name: last.name }) }
+                  ])
                 }
               }}
               className="py-1.5 px-2 text-xs rounded-lg bg-gray-800 text-gray-400
                 hover:bg-gray-700 hover:text-gray-200 transition-colors cursor-pointer"
-              title="Duplicate last row"
+              title={t('game.initiativeSetupForm.duplicateLastRow')}
             >
-              Dup
+              {t('game.initiativeSetupForm.dup')}
             </button>
             <button
               onClick={onRollInitiative}
@@ -334,12 +349,12 @@ export default function InitiativeSetupForm({
               className="flex-1 py-1.5 text-xs rounded-lg bg-amber-600 hover:bg-amber-500 text-white
                 font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
-              Roll Initiative
+              {t('game.initiativeSetupForm.rollInitiative')}
             </button>
           </div>
         </>
       ) : (
-        <p className="text-xs text-gray-500 text-center py-4">Waiting for DM to start initiative...</p>
+        <p className="text-xs text-gray-500 text-center py-4">{t('game.initiativeSetupForm.waitingForDm')}</p>
       )}
     </div>
   )

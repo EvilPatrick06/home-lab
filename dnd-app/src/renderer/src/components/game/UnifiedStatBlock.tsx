@@ -1,3 +1,4 @@
+import { useT } from '../../i18n'
 import type { DisplayStatBlock } from '../../utils/stat-block-converter'
 
 interface UnifiedStatBlockProps {
@@ -48,6 +49,7 @@ function TraitBlock({
 }
 
 export default function UnifiedStatBlock({ statBlock }: UnifiedStatBlockProps): JSX.Element {
+  const { t } = useT()
   const sb = statBlock
 
   return (
@@ -64,21 +66,21 @@ export default function UnifiedStatBlock({ statBlock }: UnifiedStatBlockProps): 
         {/* AC, HP, Speed */}
         <div className="space-y-0.5 text-sm">
           <div className="flex gap-1">
-            <span className="text-amber-500 font-semibold">AC</span>
+            <span className="text-amber-500 font-semibold">{t('game.unifiedStatBlock.ac')}</span>
             <span className="text-gray-300">
               {sb.ac}
               {sb.acSource ? ` (${sb.acSource})` : ''}
             </span>
           </div>
           <div className="flex gap-1">
-            <span className="text-amber-500 font-semibold">HP</span>
+            <span className="text-amber-500 font-semibold">{t('game.unifiedStatBlock.hp')}</span>
             <span className="text-gray-300">
               {sb.hp}
               {sb.hpFormula ? ` (${sb.hpFormula})` : ''}
             </span>
           </div>
           <div className="flex gap-1">
-            <span className="text-amber-500 font-semibold">Speed</span>
+            <span className="text-amber-500 font-semibold">{t('game.unifiedStatBlock.speed')}</span>
             <span className="text-gray-300">{sb.speed}</span>
           </div>
         </div>
@@ -87,12 +89,12 @@ export default function UnifiedStatBlock({ statBlock }: UnifiedStatBlockProps): 
 
         {/* Ability Scores */}
         <div className="grid grid-cols-6 gap-1">
-          <AbilityRow label="STR" score={sb.abilities.str} />
-          <AbilityRow label="DEX" score={sb.abilities.dex} />
-          <AbilityRow label="CON" score={sb.abilities.con} />
-          <AbilityRow label="INT" score={sb.abilities.int} />
-          <AbilityRow label="WIS" score={sb.abilities.wis} />
-          <AbilityRow label="CHA" score={sb.abilities.cha} />
+          <AbilityRow label={t('game.unifiedStatBlock.str')} score={sb.abilities.str} />
+          <AbilityRow label={t('game.unifiedStatBlock.dex')} score={sb.abilities.dex} />
+          <AbilityRow label={t('game.unifiedStatBlock.con')} score={sb.abilities.con} />
+          <AbilityRow label={t('game.unifiedStatBlock.int')} score={sb.abilities.int} />
+          <AbilityRow label={t('game.unifiedStatBlock.wis')} score={sb.abilities.wis} />
+          <AbilityRow label={t('game.unifiedStatBlock.cha')} score={sb.abilities.cha} />
         </div>
 
         <SectionDivider />
@@ -101,43 +103,43 @@ export default function UnifiedStatBlock({ statBlock }: UnifiedStatBlockProps): 
         <div className="space-y-0.5 text-xs">
           {sb.savingThrows && (
             <div>
-              <span className="text-amber-500 font-semibold">Saving Throws </span>
+              <span className="text-amber-500 font-semibold">{t('game.unifiedStatBlock.savingThrows')}</span>
               <span className="text-gray-300">{sb.savingThrows}</span>
             </div>
           )}
           {sb.skills && (
             <div>
-              <span className="text-amber-500 font-semibold">Skills </span>
+              <span className="text-amber-500 font-semibold">{t('game.unifiedStatBlock.skills')}</span>
               <span className="text-gray-300">{sb.skills}</span>
             </div>
           )}
           {sb.damageResistances && (
             <div>
-              <span className="text-amber-500 font-semibold">Damage Resistances </span>
+              <span className="text-amber-500 font-semibold">{t('game.unifiedStatBlock.damageResistances')}</span>
               <span className="text-gray-300">{sb.damageResistances}</span>
             </div>
           )}
           {sb.damageImmunities && (
             <div>
-              <span className="text-amber-500 font-semibold">Damage Immunities </span>
+              <span className="text-amber-500 font-semibold">{t('game.unifiedStatBlock.damageImmunities')}</span>
               <span className="text-gray-300">{sb.damageImmunities}</span>
             </div>
           )}
           {sb.conditionImmunities && (
             <div>
-              <span className="text-amber-500 font-semibold">Condition Immunities </span>
+              <span className="text-amber-500 font-semibold">{t('game.unifiedStatBlock.conditionImmunities')}</span>
               <span className="text-gray-300">{sb.conditionImmunities}</span>
             </div>
           )}
           {sb.senses && (
             <div>
-              <span className="text-amber-500 font-semibold">Senses </span>
+              <span className="text-amber-500 font-semibold">{t('game.unifiedStatBlock.senses')}</span>
               <span className="text-gray-300">{sb.senses}</span>
             </div>
           )}
           {sb.languages && (
             <div>
-              <span className="text-amber-500 font-semibold">Languages </span>
+              <span className="text-amber-500 font-semibold">{t('game.unifiedStatBlock.languages')}</span>
               <span className="text-gray-300">{sb.languages}</span>
             </div>
           )}
@@ -145,16 +147,16 @@ export default function UnifiedStatBlock({ statBlock }: UnifiedStatBlockProps): 
             <div className="flex gap-4">
               {sb.cr && (
                 <div>
-                  <span className="text-amber-500 font-semibold">CR </span>
+                  <span className="text-amber-500 font-semibold">{t('game.unifiedStatBlock.cr')}</span>
                   <span className="text-gray-300">
                     {sb.cr}
-                    {sb.xp !== undefined ? ` (${sb.xp.toLocaleString()} XP)` : ''}
+                    {sb.xp !== undefined ? t('game.unifiedStatBlock.xp', { xp: sb.xp.toLocaleString() }) : ''}
                   </span>
                 </div>
               )}
               {sb.proficiencyBonus && (
                 <div>
-                  <span className="text-amber-500 font-semibold">PB </span>
+                  <span className="text-amber-500 font-semibold">{t('game.unifiedStatBlock.pb')}</span>
                   <span className="text-gray-300">+{sb.proficiencyBonus}</span>
                 </div>
               )}
@@ -182,29 +184,33 @@ export default function UnifiedStatBlock({ statBlock }: UnifiedStatBlockProps): 
           <>
             <SectionDivider />
             <div className="text-xs">
-              <span className="text-amber-400 font-semibold italic">Spellcasting. </span>
+              <span className="text-amber-400 font-semibold italic">{t('game.unifiedStatBlock.spellcasting')}</span>
               <span className="text-gray-300">
                 {sb.spellcasting.description ??
-                  `Spell save DC ${sb.spellcasting.dc}, +${sb.spellcasting.attackBonus} to hit with spell attacks (${sb.spellcasting.ability})`}
+                  t('game.unifiedStatBlock.spellcastingFallback', {
+                    dc: sb.spellcasting.dc,
+                    attackBonus: sb.spellcasting.attackBonus,
+                    ability: sb.spellcasting.ability
+                  })}
               </span>
             </div>
           </>
         )}
 
         {/* Actions */}
-        <TraitBlock items={sb.actions ?? []} heading="Actions" />
+        <TraitBlock items={sb.actions ?? []} heading={t('game.unifiedStatBlock.actions')} />
 
         {/* Bonus Actions */}
-        <TraitBlock items={sb.bonusActions ?? []} heading="Bonus Actions" />
+        <TraitBlock items={sb.bonusActions ?? []} heading={t('game.unifiedStatBlock.bonusActions')} />
 
         {/* Reactions */}
-        <TraitBlock items={sb.reactions ?? []} heading="Reactions" />
+        <TraitBlock items={sb.reactions ?? []} heading={t('game.unifiedStatBlock.reactions')} />
 
         {/* Legendary Actions */}
-        <TraitBlock items={sb.legendaryActions ?? []} heading="Legendary Actions" />
+        <TraitBlock items={sb.legendaryActions ?? []} heading={t('game.unifiedStatBlock.legendaryActions')} />
 
         {/* Lair Actions */}
-        <TraitBlock items={sb.lairActions ?? []} heading="Lair Actions" />
+        <TraitBlock items={sb.lairActions ?? []} heading={t('game.unifiedStatBlock.lairActions')} />
       </div>
     </div>
   )

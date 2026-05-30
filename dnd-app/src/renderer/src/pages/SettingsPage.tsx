@@ -45,6 +45,7 @@ import type { NotificationEvent } from '../services/notification-service'
 type _NotificationEvent = NotificationEvent
 
 import { DISPLAY_NAME_KEY } from '../constants'
+import { useT } from '../i18n'
 import * as NotificationService from '../services/notification-service'
 import {
   getAmbientVolume,
@@ -67,11 +68,11 @@ import { getAllSystems, unregisterSystem } from '../systems/init'
 import type { UserProfile } from '../types/user'
 import { logger } from '../utils/logger'
 
-const THEME_LABELS: Record<ThemeName, string> = {
-  dark: 'Dark',
-  parchment: 'Parchment',
-  'high-contrast': 'High Contrast',
-  'royal-purple': 'Royal Purple'
+const THEME_LABEL_KEYS: Record<ThemeName, string> = {
+  dark: 'pages.settingsPage.themeDark',
+  parchment: 'pages.settingsPage.themeParchment',
+  'high-contrast': 'pages.settingsPage.themeHighContrast',
+  'royal-purple': 'pages.settingsPage.themeRoyalPurple'
 }
 
 const THEME_PREVIEWS: Record<ThemeName, { bg: string; accent: string; text: string }> = {
@@ -81,18 +82,34 @@ const THEME_PREVIEWS: Record<ThemeName, { bg: string; accent: string; text: stri
   'royal-purple': { bg: 'bg-purple-950', accent: 'bg-purple-500', text: 'text-gray-200' }
 }
 
-const CATEGORY_LABELS: Record<string, string> = {
-  combat: 'Combat',
-  navigation: 'Navigation',
-  tools: 'Tools',
-  general: 'General'
+const CATEGORY_LABEL_KEYS: Record<string, string> = {
+  combat: 'pages.settingsPage.categoryCombat',
+  navigation: 'pages.settingsPage.categoryNavigation',
+  tools: 'pages.settingsPage.categoryTools',
+  general: 'pages.settingsPage.categoryGeneral'
 }
 
-const COLORBLIND_OPTIONS: { mode: ColorblindMode; label: string; description: string }[] = [
-  { mode: 'none', label: 'None', description: 'No color filter' },
-  { mode: 'deuteranopia', label: 'Deuteranopia', description: 'Red-green (most common)' },
-  { mode: 'protanopia', label: 'Protanopia', description: 'Red-blind' },
-  { mode: 'tritanopia', label: 'Tritanopia', description: 'Blue-yellow' }
+const COLORBLIND_OPTIONS: { mode: ColorblindMode; labelKey: string; descriptionKey: string }[] = [
+  {
+    mode: 'none',
+    labelKey: 'pages.settingsPage.colorblindNone',
+    descriptionKey: 'pages.settingsPage.colorblindNoneDesc'
+  },
+  {
+    mode: 'deuteranopia',
+    labelKey: 'pages.settingsPage.colorblindDeuteranopia',
+    descriptionKey: 'pages.settingsPage.colorblindDeuteranopiaDesc'
+  },
+  {
+    mode: 'protanopia',
+    labelKey: 'pages.settingsPage.colorblindProtanopia',
+    descriptionKey: 'pages.settingsPage.colorblindProtanopiaDesc'
+  },
+  {
+    mode: 'tritanopia',
+    labelKey: 'pages.settingsPage.colorblindTritanopia',
+    descriptionKey: 'pages.settingsPage.colorblindTritanopiaDesc'
+  }
 ]
 
 interface SettingsSectionProps {
@@ -110,6 +127,7 @@ function Section({ title, children }: SettingsSectionProps): JSX.Element {
 }
 
 function KeybindingEditor(): JSX.Element {
+  const { t } = useT()
   const grouped = getShortcutsByCategory()
   const customKeybindings = useAccessibilityStore((s) => s.customKeybindings)
   const setCustomKeybinding = useAccessibilityStore((s) => s.setCustomKeybinding)
@@ -186,7 +204,7 @@ function KeybindingEditor(): JSX.Element {
       {Object.entries(grouped).map(([category, shortcuts]) => (
         <div key={category} className="mb-4 last:mb-0">
           <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-            {CATEGORY_LABELS[category] ?? category}
+            {CATEGORY_LABEL_KEYS[category] ? t(CATEGORY_LABEL_KEYS[category]) : category}
           </div>
           <div className="space-y-1">
             {shortcuts.map((shortcut) => (
@@ -207,7 +225,7 @@ function KeybindingEditor(): JSX.Element {
                   </kbd>
                   {capturing === shortcut.action ? (
                     <div className="flex items-center gap-1">
-                      <span className="text-xs text-amber-400 animate-pulse">Press a key...</span>
+                      <span className="text-xs text-amber-400 animate-pulse">{t('pages.settingsPage.pressAKey')}</span>
                       <button
                         onClick={() => {
                           setCapturing(null)
@@ -216,7 +234,7 @@ function KeybindingEditor(): JSX.Element {
                         }}
                         className="px-2 py-0.5 text-xs bg-gray-700 border border-gray-600 rounded text-gray-400 hover:text-gray-200 cursor-pointer"
                       >
-                        Cancel
+                        {t('common.actions.cancel')}
                       </button>
                     </div>
                   ) : (
@@ -224,7 +242,7 @@ function KeybindingEditor(): JSX.Element {
                       onClick={() => setCapturing(shortcut.action)}
                       className="px-2 py-0.5 text-xs bg-gray-700 border border-gray-600 rounded text-gray-400 hover:text-gray-200 hover:border-amber-600 cursor-pointer"
                     >
-                      Rebind
+                      {t('pages.settingsPage.rebind')}
                     </button>
                   )}
                   {isCustom(shortcut.action) && (
@@ -232,7 +250,7 @@ function KeybindingEditor(): JSX.Element {
                       onClick={() => resetKeybinding(shortcut.action)}
                       className="px-2 py-0.5 text-xs bg-gray-900 border border-gray-600 rounded text-gray-100 hover:text-red-300 cursor-pointer"
                     >
-                      Reset
+                      {t('pages.settingsPage.reset')}
                     </button>
                   )}
                 </div>
@@ -245,13 +263,15 @@ function KeybindingEditor(): JSX.Element {
       {/* Conflict modal */}
       {conflict && pendingCombo && (
         <div className="mt-3 p-3 bg-red-900/30 border border-red-700/50 rounded-lg">
-          <p className="text-xs text-red-300 mb-2">This key combo conflicts with &quot;{conflict.description}&quot;.</p>
+          <p className="text-xs text-red-300 mb-2">
+            {t('pages.settingsPage.keyConflict', { description: conflict.description })}
+          </p>
           <div className="flex gap-2">
             <button
               onClick={handleSwap}
               className="px-3 py-1 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer"
             >
-              Swap bindings
+              {t('pages.settingsPage.swapBindings')}
             </button>
             <button
               onClick={() => {
@@ -261,7 +281,7 @@ function KeybindingEditor(): JSX.Element {
               }}
               className="px-3 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
             >
-              Cancel
+              {t('common.actions.cancel')}
             </button>
           </div>
         </div>
@@ -273,7 +293,7 @@ function KeybindingEditor(): JSX.Element {
             onClick={resetAllKeybindings}
             className="px-3 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded text-gray-400 hover:text-red-400 hover:border-red-600 cursor-pointer"
           >
-            Reset All to Defaults
+            {t('pages.settingsPage.resetAllToDefaults')}
           </button>
         </div>
       )}
@@ -282,6 +302,7 @@ function KeybindingEditor(): JSX.Element {
 }
 
 function PluginManager(): JSX.Element {
+  const { t } = useT()
   const plugins = usePluginStore((s) => s.plugins)
   const initialized = usePluginStore((s) => s.initialized)
   const enablePlugin = usePluginStore((s) => s.enablePlugin)
@@ -301,16 +322,21 @@ function PluginManager(): JSX.Element {
       } else {
         await enablePlugin(plugin.id)
       }
-      addToast(`Plugin "${plugin.manifest.name}" ${plugin.enabled ? 'disabled' : 'enabled'}`, 'success')
+      addToast(
+        plugin.enabled
+          ? t('pages.settingsPage.toastPluginDisabled', { name: plugin.manifest.name })
+          : t('pages.settingsPage.toastPluginEnabled', { name: plugin.manifest.name }),
+        'success'
+      )
     } catch {
-      addToast('Failed to toggle plugin', 'error')
+      addToast(t('pages.settingsPage.toastPluginToggleFailed'), 'error')
     }
   }
 
   const handleInstall = async (): Promise<void> => {
     const result = await installPlugin()
     if (result.success) {
-      addToast('Plugin installed', 'success')
+      addToast(t('pages.settingsPage.toastPluginInstalled'), 'success')
     } else if (result.error && result.error !== 'Cancelled') {
       addToast(result.error, 'error')
     }
@@ -319,14 +345,14 @@ function PluginManager(): JSX.Element {
   const handleUninstall = async (plugin: (typeof plugins)[number]): Promise<void> => {
     const result = await uninstallPlugin(plugin.id)
     if (result.success) {
-      addToast(`Plugin "${plugin.manifest.name}" uninstalled`, 'success')
+      addToast(t('pages.settingsPage.toastPluginUninstalled', { name: plugin.manifest.name }), 'success')
     } else {
-      addToast(result.error ?? 'Uninstall failed', 'error')
+      addToast(result.error ?? t('pages.settingsPage.toastUninstallFailed'), 'error')
     }
   }
 
   if (!initialized) {
-    return <p className="text-xs text-gray-500">Scanning plugins...</p>
+    return <p className="text-xs text-gray-500">{t('pages.settingsPage.scanningPlugins')}</p>
   }
 
   return (
@@ -334,19 +360,21 @@ function PluginManager(): JSX.Element {
       {/* Phase 28g.2 — plugin trust-model warning. Plugins run with full access
           to game data; only install ones you trust. */}
       <p className="text-[11px] text-amber-400/90 bg-amber-900/20 border border-amber-700/40 rounded px-2 py-1">
-        ⚠ Plugins have full access to your game data — only install plugins from sources you trust.
+        {t('pages.settingsPage.pluginTrustWarning')}
       </p>
       <div className="flex items-center justify-between">
         <p className="text-xs text-gray-400">
           {plugins.length === 0
-            ? 'No plugins installed.'
-            : `${plugins.length} plugin${plugins.length !== 1 ? 's' : ''} found.`}
+            ? t('pages.settingsPage.noPluginsInstalled')
+            : plugins.length !== 1
+              ? t('pages.settingsPage.pluginsFoundPlural', { count: plugins.length })
+              : t('pages.settingsPage.pluginsFoundSingular', { count: plugins.length })}
         </p>
         <button
           onClick={handleInstall}
           className="px-3 py-1.5 text-xs rounded-lg bg-amber-600 hover:bg-amber-500 text-white transition-colors cursor-pointer"
         >
-          Install from File
+          {t('pages.settingsPage.installFromFile')}
         </button>
       </div>
 
@@ -370,16 +398,24 @@ function PluginManager(): JSX.Element {
                   {plugin.manifest.type}
                 </span>
                 {plugin.loaded && (
-                  <span className="text-xs px-1.5 py-0.5 rounded bg-green-900/50 text-green-400">Loaded</span>
+                  <span className="text-xs px-1.5 py-0.5 rounded bg-green-900/50 text-green-400">
+                    {t('pages.settingsPage.pluginLoaded')}
+                  </span>
                 )}
                 {plugin.error && (
-                  <span className="text-xs px-1.5 py-0.5 rounded bg-red-900/50 text-red-400">Error</span>
+                  <span className="text-xs px-1.5 py-0.5 rounded bg-red-900/50 text-red-400">
+                    {t('pages.settingsPage.pluginError')}
+                  </span>
                 )}
               </div>
               {!!plugin.manifest.description && (
                 <p className="text-xs text-gray-400 mt-1 truncate">{plugin.manifest.description}</p>
               )}
-              {!!plugin.manifest.author && <p className="text-xs text-gray-500 mt-0.5">by {plugin.manifest.author}</p>}
+              {!!plugin.manifest.author && (
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {t('pages.settingsPage.pluginBy', { author: plugin.manifest.author })}
+                </p>
+              )}
               {plugin.error && <p className="text-xs text-red-400 mt-1">{plugin.error}</p>}
             </div>
             <div className="flex items-center gap-2 shrink-0">
@@ -398,7 +434,7 @@ function PluginManager(): JSX.Element {
                 onClick={() => handleUninstall(plugin)}
                 className="px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded text-gray-400 hover:text-red-400 hover:border-red-600 cursor-pointer"
               >
-                Uninstall
+                {t('pages.settingsPage.uninstall')}
               </button>
             </div>
           </div>
@@ -418,6 +454,7 @@ interface UpdateStatusInfo {
 }
 
 function UpdateSection(): JSX.Element {
+  const { t } = useT()
   const [status, setStatus] = useState<UpdateStatusInfo>({ state: 'idle' })
   const [appVersion, setAppVersion] = useState<string>('')
   const listenerRegistered = useRef(false)
@@ -474,7 +511,7 @@ function UpdateSection(): JSX.Element {
       const result = await window.api.update.checkForUpdates()
       setStatus(result as UpdateStatusInfo)
     } catch {
-      setStatus({ state: 'error', message: 'Failed to check for updates' })
+      setStatus({ state: 'error', message: t('pages.settingsPage.checkUpdatesFailed') })
     }
   }
 
@@ -484,7 +521,7 @@ function UpdateSection(): JSX.Element {
       const result = await window.api.update.downloadUpdate()
       setStatus(result as UpdateStatusInfo)
     } catch {
-      setStatus({ state: 'error', message: 'Download failed' })
+      setStatus({ state: 'error', message: t('pages.settingsPage.downloadFailed') })
     }
   }
 
@@ -492,7 +529,7 @@ function UpdateSection(): JSX.Element {
     try {
       await window.api.update.installUpdate()
     } catch {
-      setStatus({ state: 'error', message: 'Install failed' })
+      setStatus({ state: 'error', message: t('pages.settingsPage.installFailed') })
     }
   }
 
@@ -501,23 +538,25 @@ function UpdateSection(): JSX.Element {
       case 'idle':
         return ''
       case 'checking':
-        return 'Checking for updates...'
+        return t('pages.settingsPage.checkingForUpdates')
       case 'available':
-        return `Version ${status.version ?? 'unknown'} is available`
+        return t('pages.settingsPage.versionAvailable', { version: status.version ?? 'unknown' })
       case 'not-available':
-        return 'You are on the latest version'
+        return t('pages.settingsPage.onLatestVersion')
       case 'downloading':
-        return `Downloading update... ${status.percent ?? 0}%`
+        return t('pages.settingsPage.downloadingUpdate', { percent: status.percent ?? 0 })
       case 'downloaded':
-        return `Version ${status.version ?? 'unknown'} downloaded and ready to install`
+        return t('pages.settingsPage.versionDownloaded', { version: status.version ?? 'unknown' })
       case 'error':
-        return status.message ?? 'An error occurred'
+        return status.message ?? t('pages.settingsPage.errorOccurred')
     }
   }
 
   return (
     <div className="space-y-3">
-      {appVersion && <p className="text-xs text-gray-500">Current version: {appVersion}</p>}
+      {appVersion && (
+        <p className="text-xs text-gray-500">{t('pages.settingsPage.currentVersion', { version: appVersion })}</p>
+      )}
 
       {/* Status display */}
       {status.state !== 'idle' && (
@@ -553,7 +592,7 @@ function UpdateSection(): JSX.Element {
             onClick={handleCheck}
             className="px-4 py-1.5 text-sm rounded-lg border bg-gray-800 border-gray-700 text-gray-300 hover:border-amber-600 hover:text-amber-400 transition-colors cursor-pointer"
           >
-            Check for Updates
+            {t('pages.settingsPage.checkForUpdates')}
           </button>
         )}
         {status.state === 'available' && (
@@ -561,7 +600,7 @@ function UpdateSection(): JSX.Element {
             onClick={handleDownload}
             className="px-4 py-1.5 text-sm rounded-lg bg-amber-600 hover:bg-amber-500 text-white transition-colors cursor-pointer"
           >
-            Download Update
+            {t('pages.settingsPage.downloadUpdate')}
           </button>
         )}
         {status.state === 'downloaded' && (
@@ -569,15 +608,17 @@ function UpdateSection(): JSX.Element {
             onClick={handleInstall}
             className="px-4 py-1.5 text-sm rounded-lg bg-green-600 hover:bg-green-500 text-white transition-colors cursor-pointer"
           >
-            Install & Restart
+            {t('pages.settingsPage.installAndRestart')}
           </button>
         )}
-        {status.state === 'checking' && <span className="text-sm text-gray-400 animate-pulse">Checking...</span>}
+        {status.state === 'checking' && (
+          <span className="text-sm text-gray-400 animate-pulse">{t('pages.settingsPage.checking')}</span>
+        )}
       </div>
 
       {/* v2.1.16 auto-update preferences. All four default off; opt-in. */}
       <div className="mt-3 pt-3 border-t border-gray-800 space-y-2">
-        <p className="text-xs uppercase tracking-wider text-gray-500">Auto-update preferences</p>
+        <p className="text-xs uppercase tracking-wider text-gray-500">{t('pages.settingsPage.autoUpdatePrefs')}</p>
         <label className="flex items-start gap-2 text-xs text-gray-300 cursor-pointer">
           <input
             type="checkbox"
@@ -589,10 +630,8 @@ function UpdateSection(): JSX.Element {
             className="mt-0.5 w-3.5 h-3.5 accent-amber-500 cursor-pointer"
           />
           <span>
-            Auto-check for updates on launch
-            <span className="block text-xs text-gray-500">
-              App pings the release feed ~5 s after startup. Status shows here.
-            </span>
+            {t('pages.settingsPage.autoCheckLabel')}
+            <span className="block text-xs text-gray-500">{t('pages.settingsPage.autoCheckDesc')}</span>
           </span>
         </label>
         <label className="flex items-start gap-2 text-xs text-gray-300 cursor-pointer">
@@ -607,10 +646,8 @@ function UpdateSection(): JSX.Element {
             className="mt-0.5 w-3.5 h-3.5 accent-amber-500 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           />
           <span>
-            Auto-download when an update is found
-            <span className="block text-xs text-gray-500">
-              Skips the "Download Update" button. Requires auto-check enabled.
-            </span>
+            {t('pages.settingsPage.autoDownloadLabel')}
+            <span className="block text-xs text-gray-500">{t('pages.settingsPage.autoDownloadDesc')}</span>
           </span>
         </label>
         <label className="flex items-start gap-2 text-xs text-gray-300 cursor-pointer">
@@ -625,10 +662,8 @@ function UpdateSection(): JSX.Element {
             className="mt-0.5 w-3.5 h-3.5 accent-amber-500 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           />
           <span>
-            Auto-restart after download finishes
-            <span className="block text-xs text-gray-500">
-              No "Install & Restart" click needed. Triggers ~1.5 s after the download completes.
-            </span>
+            {t('pages.settingsPage.autoRestartLabel')}
+            <span className="block text-xs text-gray-500">{t('pages.settingsPage.autoRestartDesc')}</span>
           </span>
         </label>
         <label className="flex items-start gap-2 text-xs text-gray-300 cursor-pointer">
@@ -642,11 +677,8 @@ function UpdateSection(): JSX.Element {
             className="mt-0.5 w-3.5 h-3.5 accent-amber-500 cursor-pointer"
           />
           <span>
-            Silent install (skip the installer UI)
-            <span className="block text-xs text-gray-500">
-              Re-uses your previous install location + settings via NSIS /S. Visible installer is the safer default;
-              flip on for unattended updates.
-            </span>
+            {t('pages.settingsPage.silentInstallLabel')}
+            <span className="block text-xs text-gray-500">{t('pages.settingsPage.silentInstallDesc')}</span>
           </span>
         </label>
       </div>
@@ -664,6 +696,7 @@ interface CloudSyncState {
 }
 
 function CloudBackupSection(): JSX.Element {
+  const { t } = useT()
   const [syncState, setSyncState] = useState<CloudSyncState>({
     configured: false,
     remotes: [],
@@ -688,12 +721,12 @@ function CloudBackupSection(): JSX.Element {
         error: result.error
       }))
       if (!result.configured && result.error) {
-        setMessage({ text: 'Could not reach the Pi. Check that it is online.', type: 'error' })
+        setMessage({ text: t('pages.settingsPage.cloudPiUnreachable'), type: 'error' })
       } else if (result.configured) {
-        setMessage({ text: 'Connected to BMO Pi', type: 'success' })
+        setMessage({ text: t('pages.settingsPage.cloudConnected'), type: 'success' })
       }
     } catch {
-      setMessage({ text: 'Failed to connect to BMO Pi. Is it running?', type: 'error' })
+      setMessage({ text: t('pages.settingsPage.cloudConnectFailed'), type: 'error' })
     } finally {
       setLoading(null)
     }
@@ -706,7 +739,7 @@ function CloudBackupSection(): JSX.Element {
       // Load the current campaigns to pick the first one (or the most recently used)
       const campaigns = await window.api.loadCampaigns()
       if (!campaigns || campaigns.length === 0) {
-        setMessage({ text: 'No campaigns to backup', type: 'error' })
+        setMessage({ text: t('pages.settingsPage.noCampaignsToBackup'), type: 'error' })
         return
       }
       const campaign = campaigns[0] as { id: string; name: string }
@@ -716,12 +749,12 @@ function CloudBackupSection(): JSX.Element {
           ...prev,
           lastBackupTime: new Date().toISOString()
         }))
-        setMessage({ text: result.message ?? 'Backup completed successfully', type: 'success' })
+        setMessage({ text: result.message ?? t('pages.settingsPage.backupCompleted'), type: 'success' })
       } else {
-        setMessage({ text: result.error ?? 'Backup failed', type: 'error' })
+        setMessage({ text: result.error ?? t('pages.settingsPage.backupFailed'), type: 'error' })
       }
     } catch {
-      setMessage({ text: 'Backup failed. Is BMO Pi reachable?', type: 'error' })
+      setMessage({ text: t('pages.settingsPage.backupFailedReachable'), type: 'error' })
     } finally {
       setLoading(null)
     }
@@ -740,15 +773,17 @@ function CloudBackupSection(): JSX.Element {
         setMessage({
           text:
             result.campaigns.length > 0
-              ? `Found ${result.campaigns.length} backed-up campaign${result.campaigns.length !== 1 ? 's' : ''}`
-              : 'No backups found on Google Drive',
+              ? result.campaigns.length !== 1
+                ? t('pages.settingsPage.foundBackupsPlural', { count: result.campaigns.length })
+                : t('pages.settingsPage.foundBackupsSingular', { count: result.campaigns.length })
+              : t('pages.settingsPage.noBackupsFound'),
           type: 'success'
         })
       } else {
-        setMessage({ text: result.error ?? 'Failed to list backups', type: 'error' })
+        setMessage({ text: result.error ?? t('pages.settingsPage.listBackupsFailed'), type: 'error' })
       }
     } catch {
-      setMessage({ text: 'Failed to list backups. Is BMO Pi reachable?', type: 'error' })
+      setMessage({ text: t('pages.settingsPage.listBackupsFailedReachable'), type: 'error' })
     } finally {
       setLoading(null)
     }
@@ -756,10 +791,7 @@ function CloudBackupSection(): JSX.Element {
 
   return (
     <div className="space-y-3">
-      <p className="text-xs text-gray-400">
-        Back up campaign data to Google Drive via rclone on BMO Pi. Credentials are stored on the Pi — nothing is stored
-        locally.
-      </p>
+      <p className="text-xs text-gray-400">{t('pages.settingsPage.cloudBackupDesc')}</p>
 
       {/* Status display */}
       {message && (
@@ -777,9 +809,13 @@ function CloudBackupSection(): JSX.Element {
       {/* Remote info */}
       {syncState.configured && (
         <div className="text-xs text-gray-400 space-y-1">
-          {syncState.remotes.length > 0 && <p>Configured remotes: {syncState.remotes.join(', ')}</p>}
-          {syncState.version && <p>Rclone version: {syncState.version}</p>}
-          {syncState.lastBackupTime && <p>Last backup: {new Date(syncState.lastBackupTime).toLocaleString()}</p>}
+          {syncState.remotes.length > 0 && (
+            <p>{t('pages.settingsPage.configuredRemotes', { remotes: syncState.remotes.join(', ') })}</p>
+          )}
+          {syncState.version && <p>{t('pages.settingsPage.rcloneVersion', { version: syncState.version })}</p>}
+          {syncState.lastBackupTime && (
+            <p>{t('pages.settingsPage.lastBackup', { time: new Date(syncState.lastBackupTime).toLocaleString() })}</p>
+          )}
         </div>
       )}
 
@@ -790,28 +826,28 @@ function CloudBackupSection(): JSX.Element {
           disabled={loading === 'status'}
           className="px-4 py-1.5 text-sm rounded-lg border bg-gray-800 border-gray-700 text-gray-300 hover:border-amber-600 hover:text-amber-400 transition-colors cursor-pointer disabled:opacity-50"
         >
-          {loading === 'status' ? 'Checking...' : 'Check Status'}
+          {loading === 'status' ? t('pages.settingsPage.checking') : t('pages.settingsPage.checkStatus')}
         </button>
         <button
           onClick={handleBackupNow}
           disabled={loading === 'backup'}
           className="px-4 py-1.5 text-sm rounded-lg border bg-gray-800 border-gray-700 text-gray-300 hover:border-amber-600 hover:text-amber-400 transition-colors cursor-pointer disabled:opacity-50"
         >
-          {loading === 'backup' ? 'Backing up...' : 'Backup Now'}
+          {loading === 'backup' ? t('pages.settingsPage.backingUp') : t('pages.settingsPage.backupNow')}
         </button>
         <button
           onClick={handleListBackups}
           disabled={loading === 'list'}
           className="px-4 py-1.5 text-sm rounded-lg border bg-gray-800 border-gray-700 text-gray-300 hover:border-amber-600 hover:text-amber-400 transition-colors cursor-pointer disabled:opacity-50"
         >
-          {loading === 'list' ? 'Loading...' : 'List Backups'}
+          {loading === 'list' ? t('common.states.loading') : t('pages.settingsPage.listBackups')}
         </button>
       </div>
 
       {/* Backed-up campaigns list */}
       {syncState.campaigns.length > 0 && (
         <div className="space-y-1">
-          <p className="text-xs text-gray-400 font-semibold">Backed-up Campaigns</p>
+          <p className="text-xs text-gray-400 font-semibold">{t('pages.settingsPage.backedUpCampaigns')}</p>
           {syncState.campaigns.map((c) => (
             <div
               key={c.id}
@@ -928,6 +964,7 @@ export async function restoreDefaultSettings(): Promise<void> {
 export const factoryResetAllSettings = resetAllData
 
 export default function SettingsPage(): JSX.Element {
+  const { t } = useT()
   const navigate = useNavigate()
   const [activeTheme, setActiveTheme] = useState<ThemeName>(getTheme())
   const [gridOpacity, setGridOpacity] = useState(() => {
@@ -1060,7 +1097,7 @@ export default function SettingsPage(): JSX.Element {
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate(-1)}
-              aria-label="Go back"
+              aria-label={t('pages.settingsPage.goBack')}
               className="text-gray-400 hover:text-gray-200 transition-colors cursor-pointer"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
@@ -1071,14 +1108,14 @@ export default function SettingsPage(): JSX.Element {
                 />
               </svg>
             </button>
-            <h1 className="text-xl font-bold text-gray-100">Settings</h1>
+            <h1 className="text-xl font-bold text-gray-100">{t('pages.settingsPage.title')}</h1>
           </div>
           {returnTo?.startsWith('/game/') && (
             <button
               onClick={() => navigate(returnTo)}
               className="px-3 py-1.5 text-sm bg-amber-600 hover:bg-amber-500 text-white rounded font-semibold transition-colors cursor-pointer"
             >
-              Return to game
+              {t('pages.settingsPage.returnToGame')}
             </button>
           )}
         </div>
@@ -1087,13 +1124,13 @@ export default function SettingsPage(): JSX.Element {
       {/* Content */}
       <div className="max-w-3xl mx-auto px-6 py-6 space-y-6">
         {/* Profile */}
-        <Section title="Profile">
+        <Section title={t('pages.settingsPage.profile')}>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-300">Display Name</span>
+            <span className="text-sm text-gray-300">{t('pages.settingsPage.displayName')}</span>
             <input
               type="text"
               maxLength={32}
-              placeholder="Your name"
+              placeholder={t('pages.settingsPage.yourName')}
               value={profileName}
               onChange={(e) => setProfileName(e.target.value)}
               onBlur={() => saveProfile(profileName)}
@@ -1103,11 +1140,11 @@ export default function SettingsPage(): JSX.Element {
               className="w-48 px-3 py-1.5 text-sm bg-gray-900 border border-gray-700 rounded-lg text-gray-200 placeholder-gray-600 focus:border-amber-500 focus:outline-none"
             />
           </div>
-          <p className="text-xs text-gray-500 mt-2">Used as your default name when joining games.</p>
+          <p className="text-xs text-gray-500 mt-2">{t('pages.settingsPage.displayNameHint')}</p>
         </Section>
 
         {/* Theme */}
-        <Section title="Theme">
+        <Section title={t('pages.settingsPage.theme')}>
           <div className="grid grid-cols-2 gap-3">
             {getThemeNames().map((theme) => {
               const preview = THEME_PREVIEWS[theme]
@@ -1128,8 +1165,8 @@ export default function SettingsPage(): JSX.Element {
                     <div className={`w-4 h-4 rounded ${preview.accent}`} />
                   </div>
                   <div className="text-left">
-                    <div className="text-sm font-medium text-gray-200">{THEME_LABELS[theme]}</div>
-                    {isActive && <div className="text-xs text-amber-400">Active</div>}
+                    <div className="text-sm font-medium text-gray-200">{t(THEME_LABEL_KEYS[theme])}</div>
+                    {isActive && <div className="text-xs text-amber-400">{t('pages.settingsPage.active')}</div>}
                   </div>
                 </button>
               )
@@ -1138,7 +1175,7 @@ export default function SettingsPage(): JSX.Element {
         </Section>
 
         {/* Audio */}
-        <Section title="Audio">
+        <Section title={t('pages.settingsPage.audio')}>
           <div className="flex justify-end mb-2">
             <button
               onClick={() => {
@@ -1149,12 +1186,12 @@ export default function SettingsPage(): JSX.Element {
               }}
               className="px-2 py-0.5 text-xs bg-gray-900 border border-gray-600 rounded text-gray-100 hover:text-red-300 cursor-pointer"
             >
-              Reset Audio Defaults
+              {t('pages.settingsPage.resetAudioDefaults')}
             </button>
           </div>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-300">Sound System</span>
+              <span className="text-sm text-gray-300">{t('pages.settingsPage.soundSystem')}</span>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
                   type="checkbox"
@@ -1167,7 +1204,7 @@ export default function SettingsPage(): JSX.Element {
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-300">Mute All Sounds</span>
+              <span className="text-sm text-gray-300">{t('pages.settingsPage.muteAllSounds')}</span>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
                   type="checkbox"
@@ -1181,7 +1218,7 @@ export default function SettingsPage(): JSX.Element {
             </div>
 
             <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-300 w-32">Master Volume</span>
+              <span className="text-sm text-gray-300 w-32">{t('pages.settingsPage.masterVolume')}</span>
               <input
                 type="range"
                 min="0"
@@ -1195,7 +1232,7 @@ export default function SettingsPage(): JSX.Element {
             </div>
 
             <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-300 w-32">Ambient Music</span>
+              <span className="text-sm text-gray-300 w-32">{t('pages.settingsPage.ambientMusic')}</span>
               <input
                 type="range"
                 min="0"
@@ -1211,12 +1248,12 @@ export default function SettingsPage(): JSX.Element {
         </Section>
 
         {/* Microphone (Phase 17r) */}
-        <Section title="Microphone">
+        <Section title={t('pages.settingsPage.microphone')}>
           <MicrophoneSettings />
         </Section>
 
         {/* Accessibility */}
-        <Section title="Accessibility">
+        <Section title={t('pages.settingsPage.accessibility')}>
           <div className="flex justify-end mb-2">
             <button
               onClick={() => {
@@ -1229,14 +1266,14 @@ export default function SettingsPage(): JSX.Element {
               }}
               className="px-2 py-0.5 text-xs bg-gray-900 border border-gray-600 rounded text-gray-100 hover:text-red-300 cursor-pointer"
             >
-              Reset Accessibility Defaults
+              {t('pages.settingsPage.resetAccessibilityDefaults')}
             </button>
           </div>
           <div className="space-y-5">
             {/* UI Scale */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-300">UI Scale</span>
+                <span className="text-sm text-gray-300">{t('pages.settingsPage.uiScale')}</span>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-gray-400 w-10 text-right">{uiScale}%</span>
                   {uiScale !== 100 && (
@@ -1244,7 +1281,7 @@ export default function SettingsPage(): JSX.Element {
                       onClick={() => setUiScale(100)}
                       className="px-2 py-0.5 text-xs bg-gray-700 border border-gray-600 rounded text-gray-400 hover:text-gray-200 cursor-pointer"
                     >
-                      Reset
+                      {t('pages.settingsPage.reset')}
                     </button>
                   )}
                 </div>
@@ -1257,7 +1294,7 @@ export default function SettingsPage(): JSX.Element {
                 value={uiScale}
                 onChange={(e) => setUiScale(Number(e.target.value))}
                 className="w-full h-1 accent-amber-500 cursor-pointer"
-                aria-label="UI Scale"
+                aria-label={t('pages.settingsPage.uiScale')}
               />
               <div className="flex justify-between text-xs text-gray-600 mt-1">
                 <span>75%</span>
@@ -1268,7 +1305,7 @@ export default function SettingsPage(): JSX.Element {
 
             {/* Colorblind Mode */}
             <div>
-              <span className="text-sm text-gray-300 block mb-2">Colorblind Mode</span>
+              <span className="text-sm text-gray-300 block mb-2">{t('pages.settingsPage.colorblindMode')}</span>
               <div className="grid grid-cols-2 gap-2">
                 {COLORBLIND_OPTIONS.map((opt) => (
                   <button
@@ -1280,8 +1317,8 @@ export default function SettingsPage(): JSX.Element {
                         : 'border-gray-700 bg-gray-800/30 hover:border-gray-600'
                     }`}
                   >
-                    <div className="text-xs font-medium text-gray-200">{opt.label}</div>
-                    <div className="text-xs text-gray-500">{opt.description}</div>
+                    <div className="text-xs font-medium text-gray-200">{t(opt.labelKey)}</div>
+                    <div className="text-xs text-gray-500">{t(opt.descriptionKey)}</div>
                   </button>
                 ))}
               </div>
@@ -1289,12 +1326,20 @@ export default function SettingsPage(): JSX.Element {
 
             {/* Font Style (Phase 18i) */}
             <div>
-              <span className="text-sm text-gray-300 block mb-2">Heading Font</span>
+              <span className="text-sm text-gray-300 block mb-2">{t('pages.settingsPage.headingFont')}</span>
               <div className="grid grid-cols-2 gap-2">
                 {(
                   [
-                    { value: 'system', label: 'System', description: 'Default sans-serif headings' },
-                    { value: 'fantasy', label: 'Fantasy', description: 'Cinzel serif headings' }
+                    {
+                      value: 'system',
+                      labelKey: 'pages.settingsPage.fontSystem',
+                      descriptionKey: 'pages.settingsPage.fontSystemDesc'
+                    },
+                    {
+                      value: 'fantasy',
+                      labelKey: 'pages.settingsPage.fontFantasy',
+                      descriptionKey: 'pages.settingsPage.fontFantasyDesc'
+                    }
                   ] as const
                 ).map((opt) => (
                   <button
@@ -1309,9 +1354,9 @@ export default function SettingsPage(): JSX.Element {
                     <div
                       className={`text-xs font-medium text-gray-200${opt.value === 'fantasy' ? ' fantasy-font' : ''}`}
                     >
-                      <h3 className="text-xs font-medium">{opt.label}</h3>
+                      <h3 className="text-xs font-medium">{t(opt.labelKey)}</h3>
                     </div>
-                    <div className="text-xs text-gray-500">{opt.description}</div>
+                    <div className="text-xs text-gray-500">{t(opt.descriptionKey)}</div>
                   </button>
                 ))}
               </div>
@@ -1321,8 +1366,8 @@ export default function SettingsPage(): JSX.Element {
             <div className="space-y-3">
               <label className="flex items-center justify-between cursor-pointer">
                 <div>
-                  <span className="text-sm text-gray-300">Reduced Motion</span>
-                  <p className="text-xs text-gray-500">Disable combat animations and dice physics</p>
+                  <span className="text-sm text-gray-300">{t('pages.settingsPage.reducedMotion')}</span>
+                  <p className="text-xs text-gray-500">{t('pages.settingsPage.reducedMotionDesc')}</p>
                 </div>
                 <input
                   type="checkbox"
@@ -1334,8 +1379,8 @@ export default function SettingsPage(): JSX.Element {
 
               <label className="flex items-center justify-between cursor-pointer">
                 <div>
-                  <span className="text-sm text-gray-300">Screen Reader Mode</span>
-                  <p className="text-xs text-gray-500">Enable extra ARIA live region announcements</p>
+                  <span className="text-sm text-gray-300">{t('pages.settingsPage.screenReaderMode')}</span>
+                  <p className="text-xs text-gray-500">{t('pages.settingsPage.screenReaderModeDesc')}</p>
                 </div>
                 <input
                   type="checkbox"
@@ -1347,8 +1392,8 @@ export default function SettingsPage(): JSX.Element {
 
               <label className="flex items-center justify-between cursor-pointer">
                 <div>
-                  <span className="text-sm text-gray-300">Tooltips</span>
-                  <p className="text-xs text-gray-500">Show tooltips on hover over buttons</p>
+                  <span className="text-sm text-gray-300">{t('pages.settingsPage.tooltips')}</span>
+                  <p className="text-xs text-gray-500">{t('pages.settingsPage.tooltipsDesc')}</p>
                 </div>
                 <input
                   type="checkbox"
@@ -1362,7 +1407,7 @@ export default function SettingsPage(): JSX.Element {
         </Section>
 
         {/* Grid Preferences */}
-        <Section title="Grid">
+        <Section title={t('pages.settingsPage.grid')}>
           <div className="flex justify-end mb-2">
             <button
               onClick={() => {
@@ -1371,12 +1416,12 @@ export default function SettingsPage(): JSX.Element {
               }}
               className="px-2 py-0.5 text-xs bg-gray-900 border border-gray-600 rounded text-gray-100 hover:text-red-300 cursor-pointer"
             >
-              Reset Grid Defaults
+              {t('pages.settingsPage.resetGridDefaults')}
             </button>
           </div>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-300">Grid Opacity</span>
+              <span className="text-sm text-gray-300">{t('pages.settingsPage.gridOpacity')}</span>
               <div className="flex items-center gap-3">
                 <input
                   type="range"
@@ -1390,7 +1435,7 @@ export default function SettingsPage(): JSX.Element {
               </div>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-300">Grid Color</span>
+              <span className="text-sm text-gray-300">{t('pages.settingsPage.gridColor')}</span>
               <div className="flex items-center gap-2">
                 <input
                   type="color"
@@ -1405,9 +1450,9 @@ export default function SettingsPage(): JSX.Element {
         </Section>
 
         {/* Dice Roller */}
-        <Section title="Dice Roller">
+        <Section title={t('pages.settingsPage.diceRoller')}>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-300">Default Dice Mode</span>
+            <span className="text-sm text-gray-300">{t('pages.settingsPage.defaultDiceMode')}</span>
             <div className="flex gap-2">
               {(['3d', '2d'] as const).map((mode) => (
                 <button
@@ -1419,7 +1464,7 @@ export default function SettingsPage(): JSX.Element {
                       : 'bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-600'
                   }`}
                 >
-                  {mode === '3d' ? '3D Dice' : '2D Quick Roll'}
+                  {mode === '3d' ? t('pages.settingsPage.dice3d') : t('pages.settingsPage.dice2d')}
                 </button>
               ))}
             </div>
@@ -1427,7 +1472,7 @@ export default function SettingsPage(): JSX.Element {
         </Section>
 
         {/* Notifications */}
-        <Section title="Notifications">
+        <Section title={t('pages.settingsPage.notifications')}>
           <div className="flex justify-end mb-2">
             <button
               onClick={() => {
@@ -1437,16 +1482,16 @@ export default function SettingsPage(): JSX.Element {
               }}
               className="px-2 py-0.5 text-xs bg-gray-900 border border-gray-600 rounded text-gray-100 hover:text-red-300 cursor-pointer"
             >
-              Reset Notification Defaults
+              {t('pages.settingsPage.resetNotificationDefaults')}
             </button>
           </div>
           {!NotificationService.isSupported() && (
-            <p className="text-xs text-yellow-400 mb-3">Desktop notifications are not available in this environment.</p>
+            <p className="text-xs text-yellow-400 mb-3">{t('pages.settingsPage.notificationsUnavailable')}</p>
           )}
           <label className="flex items-center justify-between cursor-pointer">
             <div>
-              <span className="text-sm text-gray-300">Enable Notifications</span>
-              <p className="text-xs text-gray-500">Show desktop notifications for game events</p>
+              <span className="text-sm text-gray-300">{t('pages.settingsPage.enableNotifications')}</span>
+              <p className="text-xs text-gray-500">{t('pages.settingsPage.enableNotificationsDesc')}</p>
             </div>
             <input
               type="checkbox"
@@ -1461,8 +1506,8 @@ export default function SettingsPage(): JSX.Element {
           </label>
           <label className="flex items-center justify-between cursor-pointer mt-3">
             <div>
-              <span className="text-sm text-gray-300">Notification Sound</span>
-              <p className="text-xs text-gray-500">Play a sound with each notification</p>
+              <span className="text-sm text-gray-300">{t('pages.settingsPage.notificationSound')}</span>
+              <p className="text-xs text-gray-500">{t('pages.settingsPage.notificationSoundDesc')}</p>
             </div>
             <input
               type="checkbox"
@@ -1473,8 +1518,8 @@ export default function SettingsPage(): JSX.Element {
           </label>
           <label className="flex items-center justify-between cursor-pointer mt-3">
             <div>
-              <span className="text-sm text-gray-300">Only When Unfocused</span>
-              <p className="text-xs text-gray-500">Only show notifications when the window is not in focus</p>
+              <span className="text-sm text-gray-300">{t('pages.settingsPage.onlyWhenUnfocused')}</span>
+              <p className="text-xs text-gray-500">{t('pages.settingsPage.onlyWhenUnfocusedDesc')}</p>
             </div>
             <input
               type="checkbox"
@@ -1484,7 +1529,7 @@ export default function SettingsPage(): JSX.Element {
             />
           </label>
           <div className="mt-4 space-y-2">
-            <p className="text-xs text-gray-400 font-semibold">Event Toggles</p>
+            <p className="text-xs text-gray-400 font-semibold">{t('pages.settingsPage.eventToggles')}</p>
             {(
               [
                 'your-turn',
@@ -1516,14 +1561,14 @@ export default function SettingsPage(): JSX.Element {
           </div>
           <button
             className="mt-3 px-3 py-1 text-xs bg-gray-800 text-gray-300 rounded hover:bg-gray-700 cursor-pointer"
-            onClick={() => NotificationService.notify('your-turn', 'Test Character')}
+            onClick={() => NotificationService.notify('your-turn', t('pages.settingsPage.testCharacter'))}
           >
-            Test Notification
+            {t('pages.settingsPage.testNotification')}
           </button>
         </Section>
 
         {/* Auto-Save */}
-        <Section title="Auto-Save">
+        <Section title={t('pages.settingsPage.autoSave')}>
           <div className="flex justify-end mb-2">
             <button
               onClick={() => {
@@ -1534,14 +1579,14 @@ export default function SettingsPage(): JSX.Element {
               }}
               className="px-2 py-0.5 text-xs bg-gray-900 border border-gray-600 rounded text-gray-100 hover:text-red-300 cursor-pointer"
             >
-              Reset Auto-Save Defaults
+              {t('pages.settingsPage.resetAutoSaveDefaults')}
             </button>
           </div>
           <div className="space-y-4">
             <label className="flex items-center justify-between cursor-pointer">
               <div>
-                <span className="text-sm text-gray-300">Enable Auto-Save</span>
-                <p className="text-xs text-gray-500">Periodically save game state during sessions</p>
+                <span className="text-sm text-gray-300">{t('pages.settingsPage.enableAutoSave')}</span>
+                <p className="text-xs text-gray-500">{t('pages.settingsPage.enableAutoSaveDesc')}</p>
               </div>
               <input
                 type="checkbox"
@@ -1555,7 +1600,7 @@ export default function SettingsPage(): JSX.Element {
               />
             </label>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-300">Interval (minutes)</span>
+              <span className="text-sm text-gray-300">{t('pages.settingsPage.intervalMinutes')}</span>
               <input
                 type="number"
                 min={1}
@@ -1578,10 +1623,8 @@ export default function SettingsPage(): JSX.Element {
         </Section>
 
         {/* Import/Export Settings */}
-        <Section title="Settings Import / Export">
-          <p className="text-xs text-gray-400 mb-3">
-            Export your app preferences to a file, or import settings from another device.
-          </p>
+        <Section title={t('pages.settingsPage.settingsImportExport')}>
+          <p className="text-xs text-gray-400 mb-3">{t('pages.settingsPage.settingsImportExportDesc')}</p>
           <div className="flex gap-2">
             <button
               onClick={async () => {
@@ -1597,14 +1640,14 @@ export default function SettingsPage(): JSX.Element {
                   // Use the globally defined __APP_VERSION__ constant
                   const appVersion = __APP_VERSION__
                   const ok = await exportEntities('settings', [{ settings, preferences: prefs, appVersion }])
-                  if (ok) addToast('Settings exported', 'success')
+                  if (ok) addToast(t('pages.settingsPage.toastSettingsExported'), 'success')
                 } catch {
-                  addToast('Settings export failed', 'error')
+                  addToast(t('pages.settingsPage.toastSettingsExportFailed'), 'error')
                 }
               }}
               className="px-4 py-1.5 text-sm rounded-lg border bg-gray-800 border-gray-700 text-gray-300 hover:border-amber-600 hover:text-amber-400 transition-colors cursor-pointer"
             >
-              Export Settings
+              {t('pages.settingsPage.exportSettings')}
             </button>
             <button
               onClick={async () => {
@@ -1620,7 +1663,10 @@ export default function SettingsPage(): JSX.Element {
                   if (item.appVersion && item.appVersion !== __APP_VERSION__) {
                     if (
                       !window.confirm(
-                        `These settings are from app version ${item.appVersion}, but you are running ${__APP_VERSION__}. Import anyway?`
+                        t('pages.settingsPage.versionMismatchConfirm', {
+                          fileVersion: item.appVersion,
+                          appVersion: __APP_VERSION__
+                        })
                       )
                     ) {
                       return
@@ -1638,45 +1684,48 @@ export default function SettingsPage(): JSX.Element {
                     }
                   }
 
-                  addToast('Settings imported. Reloading to apply modifications...', 'success')
+                  addToast(t('pages.settingsPage.toastSettingsImported'), 'success')
                   setTimeout(() => window.location.reload(), 1500)
                 } catch (err) {
-                  addToast(err instanceof Error ? err.message : 'Settings import failed', 'error')
+                  addToast(
+                    err instanceof Error ? err.message : t('pages.settingsPage.toastSettingsImportFailed'),
+                    'error'
+                  )
                 }
               }}
               className="px-4 py-1.5 text-sm rounded-lg border bg-gray-800 border-gray-700 text-gray-300 hover:border-amber-600 hover:text-amber-400 transition-colors cursor-pointer"
             >
-              Import Settings
+              {t('pages.settingsPage.importSettings')}
             </button>
             <button
               onClick={async () => {
                 try {
                   const result = await importDndBeyondCharacter()
                   if (result) {
-                    addToast('D&D Beyond character imported', 'success')
+                    addToast(t('pages.settingsPage.toastDdbImported'), 'success')
                   }
                 } catch {
-                  addToast('D&D Beyond import failed', 'error')
+                  addToast(t('pages.settingsPage.toastDdbImportFailed'), 'error')
                 }
               }}
               className="px-4 py-1.5 text-sm rounded-lg border bg-gray-800 border-gray-700 text-gray-300 hover:border-purple-600 hover:text-purple-400 transition-colors cursor-pointer"
             >
-              D&D Beyond Import
+              {t('pages.settingsPage.ddbImport')}
             </button>
           </div>
         </Section>
 
         {/* Content Packs & Plugins */}
-        <Section title="Content Packs & Plugins">
+        <Section title={t('pages.settingsPage.contentPacksPlugins')}>
           <PluginManager />
         </Section>
 
         {/* Game Systems */}
-        <Section title="Registered Game Systems">
+        <Section title={t('pages.settingsPage.registeredGameSystems')}>
           {(() => {
             const systems = getAllSystems()
             if (systems.length === 0) {
-              return <p className="text-xs text-gray-500">No game systems registered.</p>
+              return <p className="text-xs text-gray-500">{t('pages.settingsPage.noGameSystems')}</p>
             }
             return (
               <div className="space-y-2">
@@ -1690,11 +1739,11 @@ export default function SettingsPage(): JSX.Element {
                       <button
                         onClick={() => {
                           unregisterSystem(sys.id)
-                          addToast(`Unregistered system "${sys.name}"`, 'success')
+                          addToast(t('pages.settingsPage.toastSystemUnregistered', { name: sys.name }), 'success')
                         }}
                         className="px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded text-gray-400 hover:text-red-400 hover:border-red-600 cursor-pointer"
                       >
-                        Remove
+                        {t('pages.settingsPage.remove')}
                       </button>
                     )}
                   </div>
@@ -1705,76 +1754,66 @@ export default function SettingsPage(): JSX.Element {
         </Section>
 
         {/* Updates */}
-        <Section title="Updates">
+        <Section title={t('pages.settingsPage.updates')}>
           <UpdateSection />
         </Section>
 
         {/* Cloud Backup */}
-        <Section title="Cloud Backup">
+        <Section title={t('pages.settingsPage.cloudBackup')}>
           <CloudBackupSection />
         </Section>
 
         {/* Ollama AI */}
-        <Section title="Ollama AI">
+        <Section title={t('pages.settingsPage.ollamaAi')}>
           <OllamaManagement />
         </Section>
 
         {/* Discord Integration */}
-        <Section title="Discord Integration">
+        <Section title={t('pages.settingsPage.discordIntegration')}>
           <DiscordIntegrationSettings />
         </Section>
 
         {/* Keybindings */}
-        <Section title="Keybindings">
+        <Section title={t('pages.settingsPage.keybindings')}>
           <KeybindingEditor />
         </Section>
 
         {/* Phase 17q — Reset / Restore — two scoped operations.
             "Restore Default Settings" is non-destructive (preferences only).
             "Reset All Data" is the legacy Factory Reset, renamed for clarity. */}
-        <Section title="Reset / Restore">
+        <Section title={t('pages.settingsPage.resetRestore')}>
           <p className="text-xs text-amber-300 mb-2">
-            <strong className="text-amber-200">Restore Default Settings</strong> — non-destructive. Resets theme, audio
-            levels, accessibility options, keybindings, and turn-server config to their defaults. Your campaigns,
-            characters, library, homebrew, macros, drafts, and notifications are NOT touched.
+            <strong className="text-amber-200">{t('pages.settingsPage.restoreDefaultSettings')}</strong>
+            {t('pages.settingsPage.restoreDefaultSettingsDesc')}
           </p>
           <button
             type="button"
             onClick={async () => {
-              if (
-                window.confirm(
-                  'Restore default settings? Theme, audio, accessibility, keybindings, and turn-server config will reset. Characters, campaigns, library, and macros will be untouched.'
-                )
-              ) {
+              if (window.confirm(t('pages.settingsPage.restoreDefaultsConfirm'))) {
                 await restoreDefaultSettings()
                 window.location.reload()
               }
             }}
             className="px-4 py-1.5 text-sm rounded-lg border bg-amber-900/30 border-amber-700/50 text-amber-200 hover:bg-amber-800/50 hover:text-amber-100 transition-colors cursor-pointer"
           >
-            Restore Default Settings
+            {t('pages.settingsPage.restoreDefaultSettings')}
           </button>
 
           <p className="text-xs text-red-400 mt-6 mb-2">
-            <strong className="text-red-300">Reset All Data</strong> — destructive. Wipes ALL stored data: settings,
-            campaigns, characters, library, homebrew, macros, drafts, notification history, autosaves. This cannot be
-            undone.
+            <strong className="text-red-300">{t('pages.settingsPage.resetAllData')}</strong>
+            {t('pages.settingsPage.resetAllDataDesc')}
           </p>
           <button
             type="button"
             onClick={async () => {
-              if (
-                window.confirm(
-                  'Reset all data? This will WIPE campaigns, characters, library entries, macros, drafts, and all settings. This cannot be undone.'
-                )
-              ) {
+              if (window.confirm(t('pages.settingsPage.resetAllDataConfirm'))) {
                 await resetAllData()
                 window.location.reload()
               }
             }}
             className="px-4 py-1.5 text-sm rounded-lg border bg-red-900/30 border-red-700/50 text-red-300 hover:bg-red-800/50 hover:text-red-100 transition-colors cursor-pointer"
           >
-            Reset All Data
+            {t('pages.settingsPage.resetAllData')}
           </button>
         </Section>
       </div>

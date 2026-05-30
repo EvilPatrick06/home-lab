@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useT } from '../../../i18n'
 import { type ChatCommand, type CommandResult, getFilteredCommands } from '../../../services/chat-commands'
 
 // Ensure imported types are used for type-safety
@@ -18,6 +19,7 @@ export default function CommandAutocomplete({
   onSelect,
   visible
 }: CommandAutocompleteProps): JSX.Element | null {
+  const { t } = useT()
   const [selectedIndex, setSelectedIndex] = useState(0)
 
   const search = input.startsWith('/') ? input.slice(1) : ''
@@ -65,7 +67,11 @@ export default function CommandAutocomplete({
             <span className="text-gray-600 text-xs">({cmd.aliases.map((a) => `/${a}`).join(', ')})</span>
           )}
           <span className="text-gray-500 flex-1 truncate">{cmd.description}</span>
-          {cmd.dmOnly && <span className="text-[9px] bg-red-600/30 text-red-400 px-1 py-0.5 rounded shrink-0">DM</span>}
+          {cmd.dmOnly && (
+            <span className="text-[9px] bg-red-600/30 text-red-400 px-1 py-0.5 rounded shrink-0">
+              {t('game.commandAutocomplete.dmBadge')}
+            </span>
+          )}
         </button>
       ))}
     </div>

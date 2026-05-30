@@ -1,3 +1,5 @@
+import { useT } from '../../../i18n'
+
 export type DmToolId = 'select' | 'token' | 'fog-reveal' | 'fog-hide' | 'measure' | 'terrain' | 'wall' | 'fill'
 
 interface DMToolbarProps {
@@ -9,15 +11,15 @@ interface DMToolbarProps {
   canRedo?: boolean
 }
 
-const tools: Array<{ id: DmToolId; label: string; icon: string; shortcut: string }> = [
-  { id: 'select', label: 'Select', icon: '\u{1F5B1}', shortcut: 'V' },
-  { id: 'token', label: 'Token', icon: '\u{1F3AF}', shortcut: 'T' },
-  { id: 'fog-reveal', label: 'Reveal Fog', icon: '\u{1F441}', shortcut: 'R' },
-  { id: 'fog-hide', label: 'Hide Fog', icon: '\u{1F32B}', shortcut: 'H' },
-  { id: 'wall', label: 'Wall', icon: '\u{1F9F1}', shortcut: 'W' },
-  { id: 'measure', label: 'Measure', icon: '\u{1F4CF}', shortcut: 'M' },
-  { id: 'terrain', label: 'Terrain', icon: '\u{1F3D4}', shortcut: 'G' },
-  { id: 'fill', label: 'Fill Terrain', icon: '\u{1F3A8}', shortcut: 'F' }
+const toolMeta: Array<{ id: DmToolId; labelKey: string; icon: string; shortcut: string }> = [
+  { id: 'select', labelKey: 'game.dmToolbar.select', icon: '\u{1F5B1}', shortcut: 'V' },
+  { id: 'token', labelKey: 'game.dmToolbar.token', icon: '\u{1F3AF}', shortcut: 'T' },
+  { id: 'fog-reveal', labelKey: 'game.dmToolbar.revealFog', icon: '\u{1F441}', shortcut: 'R' },
+  { id: 'fog-hide', labelKey: 'game.dmToolbar.hideFog', icon: '\u{1F32B}', shortcut: 'H' },
+  { id: 'wall', labelKey: 'game.dmToolbar.wall', icon: '\u{1F9F1}', shortcut: 'W' },
+  { id: 'measure', labelKey: 'game.dmToolbar.measure', icon: '\u{1F4CF}', shortcut: 'M' },
+  { id: 'terrain', labelKey: 'game.dmToolbar.terrain', icon: '\u{1F3D4}', shortcut: 'G' },
+  { id: 'fill', labelKey: 'game.dmToolbar.fillTerrain', icon: '\u{1F3A8}', shortcut: 'F' }
 ]
 
 export default function DMToolbar({
@@ -28,16 +30,18 @@ export default function DMToolbar({
   canUndo,
   canRedo
 }: DMToolbarProps): JSX.Element {
+  const { t } = useT()
+  const tools = toolMeta.map((tm) => ({ ...tm, label: t(tm.labelKey) }))
   return (
     <div className="flex flex-col gap-1 bg-gray-900 border border-gray-700 rounded-lg p-2 shadow-xl">
-      <p className="text-xs text-gray-500 uppercase tracking-wider text-center mb-1">DM Tools</p>
+      <p className="text-xs text-gray-500 uppercase tracking-wider text-center mb-1">{t('game.dmToolbar.dmTools')}</p>
       {tools.map((tool) => (
         <button
           key={tool.id}
           onClick={() => onToolChange(tool.id)}
           // Phase 17ae — clearer hover hint + aria-current so the active
           // tool is announced to screen readers (and visually obvious).
-          title={`${tool.label} — press ${tool.shortcut}`}
+          title={t('game.dmToolbar.toolTooltip', { label: tool.label, shortcut: tool.shortcut })}
           aria-label={tool.label}
           aria-current={activeTool === tool.id ? 'true' : undefined}
           className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg transition-colors cursor-pointer
@@ -56,8 +60,8 @@ export default function DMToolbar({
           <button
             onClick={onUndo}
             disabled={!canUndo}
-            title="Undo (Ctrl+Z)"
-            aria-label="Undo"
+            title={t('game.dmToolbar.undoTitle')}
+            aria-label={t('game.dmToolbar.undo')}
             className="w-10 h-8 rounded-lg flex items-center justify-center text-sm transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed text-gray-400 hover:bg-gray-800 hover:text-gray-200"
           >
             &#8630;
@@ -65,8 +69,8 @@ export default function DMToolbar({
           <button
             onClick={onRedo}
             disabled={!canRedo}
-            title="Redo (Ctrl+Y)"
-            aria-label="Redo"
+            title={t('game.dmToolbar.redoTitle')}
+            aria-label={t('game.dmToolbar.redo')}
             className="w-10 h-8 rounded-lg flex items-center justify-center text-sm transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed text-gray-400 hover:bg-gray-800 hover:text-gray-200"
           >
             &#8631;

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { i18n, useT } from '../../../i18n'
 
 interface CraftableItem {
   name: string
@@ -21,11 +22,11 @@ interface CraftingRecipeList5eProps {
 function categoryLabel(cat: string): string {
   switch (cat) {
     case 'weapon':
-      return 'Weapon'
+      return i18n.t('sheet.craftingRecipeList.weapon')
     case 'armor':
-      return 'Armor'
+      return i18n.t('sheet.craftingRecipeList.armor')
     case 'gear':
-      return 'Gear'
+      return i18n.t('sheet.craftingRecipeList.gear')
     default:
       return cat
   }
@@ -49,6 +50,7 @@ export default function CraftingRecipeList5e({
   readonly,
   onCraft
 }: CraftingRecipeList5eProps): JSX.Element {
+  const { t } = useT()
   const [expandedTools, setExpandedTools] = useState<Record<string, boolean>>({})
 
   const toggleTool = (tool: string): void => {
@@ -82,7 +84,7 @@ export default function CraftingRecipeList5e({
                 <span className="text-sm font-medium text-gray-200">{entry.tool}</span>
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-gray-500">
-                    {entry.items.length} recipe{entry.items.length !== 1 ? 's' : ''}
+                    {t('sheet.craftingRecipeList.recipes', { count: entry.items.length })}
                   </span>
                   <svg
                     className={`w-3.5 h-3.5 text-gray-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
@@ -114,7 +116,7 @@ export default function CraftingRecipeList5e({
                         <div className="flex items-center gap-3 mt-0.5">
                           <span className="text-xs text-amber-400">{item.rawMaterialCost}</span>
                           <span className="text-xs text-gray-500">
-                            {item.craftingTimeDays} day{item.craftingTimeDays !== 1 ? 's' : ''}
+                            {t('sheet.craftingRecipeList.days', { count: item.craftingTimeDays })}
                           </span>
                         </div>
                       </div>
@@ -123,7 +125,7 @@ export default function CraftingRecipeList5e({
                           onClick={() => onCraft(item)}
                           className="ml-2 px-2.5 py-1 text-xs bg-amber-600 hover:bg-amber-500 rounded text-white cursor-pointer transition-colors flex-shrink-0"
                         >
-                          Craft
+                          {t('sheet.craftingRecipeList.craft')}
                         </button>
                       )}
                     </div>

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useT } from '../../../i18n'
 import { getEffectiveClasses } from '../../../services/character/effective-character-5e'
 import type { Character } from '../../../types/character'
 import { is5eCharacter } from '../../../types/character'
@@ -9,19 +10,22 @@ interface CharacterMiniSheetProps {
 }
 
 export default function CharacterMiniSheet({ character }: CharacterMiniSheetProps): JSX.Element {
+  const { t } = useT()
   const [featuresExpanded, setFeaturesExpanded] = useState(false)
 
   if (!character) {
-    return <div className="p-4 text-center text-gray-500 text-sm">No character selected</div>
+    return (
+      <div className="p-4 text-center text-gray-500 text-sm">{t('game.characterMiniSheet.noCharacterSelected')}</div>
+    )
   }
 
   const abilityLabels: Record<string, string> = {
-    strength: 'STR',
-    dexterity: 'DEX',
-    constitution: 'CON',
-    intelligence: 'INT',
-    wisdom: 'WIS',
-    charisma: 'CHA'
+    strength: t('game.characterMiniSheet.abilityStr'),
+    dexterity: t('game.characterMiniSheet.abilityDex'),
+    constitution: t('game.characterMiniSheet.abilityCon'),
+    intelligence: t('game.characterMiniSheet.abilityInt'),
+    wisdom: t('game.characterMiniSheet.abilityWis'),
+    charisma: t('game.characterMiniSheet.abilityCha')
   }
 
   return (
@@ -43,7 +47,9 @@ export default function CharacterMiniSheet({ character }: CharacterMiniSheetProp
 
       {/* Ability scores */}
       <div>
-        <h4 className="text-xs text-gray-500 uppercase tracking-wider mb-1.5">Ability Scores</h4>
+        <h4 className="text-xs text-gray-500 uppercase tracking-wider mb-1.5">
+          {t('game.characterMiniSheet.abilityScores')}
+        </h4>
         <div className="grid grid-cols-3 gap-1">
           {ABILITY_NAMES.map((ability) => {
             const score = character.abilityScores[ability]
@@ -61,7 +67,9 @@ export default function CharacterMiniSheet({ character }: CharacterMiniSheetProp
 
       {/* Saving throws */}
       <div>
-        <h4 className="text-xs text-gray-500 uppercase tracking-wider mb-1.5">Saving Throws</h4>
+        <h4 className="text-xs text-gray-500 uppercase tracking-wider mb-1.5">
+          {t('game.characterMiniSheet.savingThrows')}
+        </h4>
         {is5eCharacter(character) && (
           <div className="space-y-0.5">
             {ABILITY_NAMES.map((ability) => {
@@ -83,7 +91,7 @@ export default function CharacterMiniSheet({ character }: CharacterMiniSheetProp
 
       {/* Skills */}
       <div>
-        <h4 className="text-xs text-gray-500 uppercase tracking-wider mb-1.5">Skills</h4>
+        <h4 className="text-xs text-gray-500 uppercase tracking-wider mb-1.5">{t('game.characterMiniSheet.skills')}</h4>
         <div className="space-y-0.5 max-h-40 overflow-y-auto">
           {is5eCharacter(character) &&
             character.skills.map((skill) => {
@@ -118,7 +126,7 @@ export default function CharacterMiniSheet({ character }: CharacterMiniSheetProp
           <span className={`text-xs text-gray-500 transition-transform ${featuresExpanded ? 'rotate-90' : ''}`}>
             &#9654;
           </span>
-          <h4 className="text-xs text-gray-500 uppercase tracking-wider">Features</h4>
+          <h4 className="text-xs text-gray-500 uppercase tracking-wider">{t('game.characterMiniSheet.features')}</h4>
         </button>
         {featuresExpanded && (
           <div className="mt-1.5 space-y-1 max-h-40 overflow-y-auto">

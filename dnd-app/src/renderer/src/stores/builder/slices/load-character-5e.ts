@@ -1,4 +1,5 @@
 import { addToast } from '../../../hooks/use-toast'
+import { i18n } from '../../../i18n'
 import { generate5eBuildSlots } from '../../../services/character/build-tree-5e'
 import {
   getEffectiveClasses,
@@ -217,7 +218,7 @@ export function loadCharacterForEdit5e(character: Character5e, set: SetState, ge
   Promise.all([load5eSpecies(), load5eClasses(), load5eBackgrounds()])
     .catch((err) => {
       logger.error('Failed to load SRD data for character edit:', err)
-      addToast('Some character data failed to load — the builder may be incomplete.', 'warning')
+      addToast(i18n.t('notify.loadCharacter5e.partialLoadFailed'), 'warning')
       return [[], [], []] as [
         Awaited<ReturnType<typeof load5eSpecies>>,
         Awaited<ReturnType<typeof load5eClasses>>,

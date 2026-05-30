@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useT } from '../../../../i18n'
 import type { Character } from '../../../../types/character'
 import { abilityModifier } from '../../../../types/character-common'
 import NarrowModalShell from '../shared/NarrowModalShell'
@@ -16,6 +17,7 @@ export default function JumpModal({
   onClose,
   onBroadcastResult
 }: JumpModalProps): JSX.Element {
+  const { t } = useT()
   const [jumpType, setJumpType] = useState<'long' | 'high'>('long')
   const [runningStart, setRunningStart] = useState(true)
 
@@ -31,10 +33,10 @@ export default function JumpModal({
   const remainingAfterJump = Math.max(0, movementRemaining - jumpDist)
 
   return (
-    <NarrowModalShell title="Jump Calculator" onClose={onClose}>
+    <NarrowModalShell title={t('game.jumpModal.title')} onClose={onClose}>
       {/* Jump Type */}
       <div className="mb-3">
-        <span className="text-xs text-gray-400">Jump Type:</span>
+        <span className="text-xs text-gray-400">{t('game.jumpModal.jumpType')}</span>
         <div className="flex gap-2 mt-1">
           <button
             onClick={() => setJumpType('long')}
@@ -42,7 +44,7 @@ export default function JumpModal({
               jumpType === 'long' ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
             }`}
           >
-            Long Jump
+            {t('game.jumpModal.longJump')}
           </button>
           <button
             onClick={() => setJumpType('high')}
@@ -50,7 +52,7 @@ export default function JumpModal({
               jumpType === 'high' ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
             }`}
           >
-            High Jump
+            {t('game.jumpModal.highJump')}
           </button>
         </div>
       </div>
@@ -64,44 +66,51 @@ export default function JumpModal({
             onChange={(e) => setRunningStart(e.target.checked)}
             className="accent-amber-600"
           />
-          <span className="text-xs text-gray-300">Running start (10ft move before jump)</span>
+          <span className="text-xs text-gray-300">{t('game.jumpModal.runningStart')}</span>
         </label>
-        {!runningStart && <p className="text-xs text-yellow-400 mt-1">Standing jump = half distance</p>}
+        {!runningStart && <p className="text-xs text-yellow-400 mt-1">{t('game.jumpModal.standingHalf')}</p>}
       </div>
 
       {/* Result */}
       <div className="bg-gray-800 rounded-lg p-4 text-center mb-4">
         <div className="text-xs text-gray-400 mb-1">
-          {jumpType === 'long' ? 'Long Jump Distance' : 'High Jump Height'}
+          {jumpType === 'long' ? t('game.jumpModal.longJumpDistance') : t('game.jumpModal.highJumpHeight')}
         </div>
-        <div className="text-3xl font-bold text-amber-400 font-mono">{jumpDist} ft</div>
+        <div className="text-3xl font-bold text-amber-400 font-mono">
+          {t('game.jumpModal.feet', { dist: jumpDist })}
+        </div>
         <div className="text-xs text-gray-500 mt-1">
           {jumpType === 'long'
-            ? `STR score (${strScore})${!runningStart ? ' / 2' : ''}`
-            : `3 + STR mod (${strMod})${!runningStart ? ' / 2' : ''}`}
+            ? `${t('game.jumpModal.strScore', { score: strScore })}${!runningStart ? t('game.jumpModal.halfSuffix') : ''}`
+            : `${t('game.jumpModal.strMod', { mod: strMod })}${!runningStart ? t('game.jumpModal.halfSuffix') : ''}`}
         </div>
-        <div className="text-xs text-gray-400 mt-2">Each foot costs 1 ft of movement</div>
+        <div className="text-xs text-gray-400 mt-2">{t('game.jumpModal.eachFootCosts')}</div>
         <div className={`text-xs mt-1 ${remainingAfterJump > 0 ? 'text-green-400' : 'text-red-400'}`}>
-          Movement remaining: {movementRemaining} ft → {remainingAfterJump} ft
+          {t('game.jumpModal.movementRemaining', { before: movementRemaining, after: remainingAfterJump })}
         </div>
         {jumpDist > movementRemaining && (
-          <div className="text-xs text-red-400 mt-1">Not enough movement for full jump!</div>
+          <div className="text-xs text-red-400 mt-1">{t('game.jumpModal.notEnough')}</div>
         )}
       </div>
 
-      <div className="text-xs text-gray-500 mb-3">Landing in difficult terrain: DC 10 Acrobatics or fall Prone.</div>
+      <div className="text-xs text-gray-500 mb-3">{t('game.jumpModal.difficultTerrain')}</div>
 
       <button
         onClick={() => {
-          const typeStr = jumpType === 'long' ? 'Long Jump' : 'High Jump'
+          const typeStr = jumpType === 'long' ? t('game.jumpModal.longJump') : t('game.jumpModal.highJump')
           onBroadcastResult(
-            `${character.name} makes a ${typeStr} (${runningStart ? 'running' : 'standing'}): ${jumpDist} ft!`
+            t('game.jumpModal.broadcast', {
+              name: character.name,
+              type: typeStr,
+              start: runningStart ? t('game.jumpModal.running') : t('game.jumpModal.standing'),
+              dist: jumpDist
+            })
           )
           onClose()
         }}
         className="w-full px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-lg cursor-pointer text-sm"
       >
-        Jump!
+        {t('game.jumpModal.jump')}
       </button>
     </NarrowModalShell>
   )

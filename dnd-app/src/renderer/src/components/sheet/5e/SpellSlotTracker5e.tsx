@@ -1,3 +1,4 @@
+import { useT } from '../../../i18n'
 import { useCharacterStore } from '../../../stores/use-character-store'
 import type { Character } from '../../../types/character'
 import type { Character5e } from '../../../types/character-5e'
@@ -18,6 +19,7 @@ export default function SpellSlotTracker5e({
   pactMagicSlotLevels,
   isPureWarlock
 }: SpellSlotTracker5eProps): JSX.Element | null {
+  const { t } = useT()
   const hasSpellSlots = Object.keys(spellSlotLevels).length > 0
   const hasPactSlots = Object.keys(pactMagicSlotLevels).length > 0
 
@@ -108,7 +110,7 @@ export default function SpellSlotTracker5e({
             onClick={handleLongRest}
             className="text-xs px-3 py-1 rounded bg-amber-600 hover:bg-amber-500 text-gray-900 font-semibold transition-colors"
           >
-            Restore Slots
+            {t('sheet.spellSlotTracker.restoreSlots')}
           </button>
         </div>
       )}
@@ -116,7 +118,7 @@ export default function SpellSlotTracker5e({
       {/* Spell slots */}
       {hasSpellSlots && (
         <SpellSlotGrid5e
-          label={isPureWarlock ? 'Pact Magic Slots' : 'Spell Slots'}
+          label={isPureWarlock ? t('sheet.spellSlotTracker.pactMagicSlots') : t('sheet.spellSlotTracker.spellSlots')}
           slotLevels={spellSlotLevels}
           onSlotClick={handleSlotClick}
           readonly={!!readonly}
@@ -127,7 +129,7 @@ export default function SpellSlotTracker5e({
       {/* Pact Magic Slots (multiclass warlock + other caster) */}
       {hasPactSlots && (
         <SpellSlotGrid5e
-          label="Pact Magic Slots"
+          label={t('sheet.spellSlotTracker.pactMagicSlots')}
           slotLevels={pactMagicSlotLevels}
           onSlotClick={handlePactSlotClick}
           readonly={!!readonly}

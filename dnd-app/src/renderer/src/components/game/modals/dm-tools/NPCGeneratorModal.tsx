@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 import { load5eRandomTables } from '../../../../services/data-provider'
 import { cryptoRandom, cryptoRollDie } from '../../../../utils/crypto-random'
 
@@ -62,6 +63,7 @@ function pickFromTable<T>(arr: T[], dSides: number): T {
 }
 
 export default function NPCGeneratorModal({ onClose, onBroadcastResult }: NPCGeneratorModalProps): JSX.Element {
+  const { t } = useT()
   const [data, setData] = useState<RandomTablesData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -77,7 +79,7 @@ export default function NPCGeneratorModal({ onClose, onBroadcastResult }: NPCGen
         setError(null)
       })
       .catch((err) => {
-        setError(err instanceof Error ? err.message : 'Failed to load')
+        setError(err instanceof Error ? err.message : t('game.npcGeneratorModal.failedToLoad'))
       })
       .finally(() => setLoading(false))
   }, [])
@@ -158,16 +160,16 @@ export default function NPCGeneratorModal({ onClose, onBroadcastResult }: NPCGen
     if (!npc) return
     const lines = [
       `**${npc.name}**`,
-      `*Appearance:* ${npc.appearance}`,
-      `*High Ability:* ${npc.highAbility}`,
-      `*Low Ability:* ${npc.lowAbility}`,
-      `*Talent:* ${npc.talent}`,
-      `*Mannerism:* ${npc.mannerism}`,
-      `*Interaction:* ${npc.interactionTrait}`,
-      `*Ideal:* ${npc.ideal}`,
-      `*Bond:* ${npc.bond}`,
-      `*Flaw:* ${npc.flaw}`,
-      `*Secret:* ${npc.secret}`
+      t('game.npcGeneratorModal.shareAppearance', { value: npc.appearance }),
+      t('game.npcGeneratorModal.shareHighAbility', { value: npc.highAbility }),
+      t('game.npcGeneratorModal.shareLowAbility', { value: npc.lowAbility }),
+      t('game.npcGeneratorModal.shareTalent', { value: npc.talent }),
+      t('game.npcGeneratorModal.shareMannerism', { value: npc.mannerism }),
+      t('game.npcGeneratorModal.shareInteraction', { value: npc.interactionTrait }),
+      t('game.npcGeneratorModal.shareIdeal', { value: npc.ideal }),
+      t('game.npcGeneratorModal.shareBond', { value: npc.bond }),
+      t('game.npcGeneratorModal.shareFlaw', { value: npc.flaw }),
+      t('game.npcGeneratorModal.shareSecret', { value: npc.secret })
     ]
     onBroadcastResult(lines.join('\n'))
     onClose()
@@ -178,7 +180,7 @@ export default function NPCGeneratorModal({ onClose, onBroadcastResult }: NPCGen
       <div className="fixed inset-0 z-50 flex items-center justify-center">
         <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" aria-hidden="true" />
         <div className="relative bg-gray-900 border border-gray-700 rounded-xl max-w-2xl w-full mx-4 p-8 text-center">
-          <p className="text-gray-400 text-sm">Loading tables…</p>
+          <p className="text-gray-400 text-sm">{t('game.npcGeneratorModal.loadingTables')}</p>
         </div>
       </div>
     )
@@ -189,12 +191,12 @@ export default function NPCGeneratorModal({ onClose, onBroadcastResult }: NPCGen
       <div className="fixed inset-0 z-50 flex items-center justify-center">
         <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" aria-hidden="true" />
         <div className="relative bg-gray-900 border border-gray-700 rounded-xl max-w-2xl w-full mx-4 p-8 text-center">
-          <p className="text-red-400 text-sm">{error ?? 'Failed to load data'}</p>
+          <p className="text-red-400 text-sm">{error ?? t('game.npcGeneratorModal.failedToLoadData')}</p>
           <button
             onClick={onClose}
             className="mt-3 px-4 py-1.5 text-sm bg-amber-600 hover:bg-amber-500 rounded text-white cursor-pointer"
           >
-            Close
+            {t('common.actions.close')}
           </button>
         </div>
       </div>
@@ -207,11 +209,11 @@ export default function NPCGeneratorModal({ onClose, onBroadcastResult }: NPCGen
       <div className="relative bg-gray-900 border border-gray-700 rounded-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800 sticky top-0 bg-gray-900 z-10">
-          <h3 className="text-sm font-semibold text-amber-400">NPC Generator</h3>
+          <h3 className="text-sm font-semibold text-amber-400">{t('game.npcGeneratorModal.title')}</h3>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-300 text-lg cursor-pointer"
-            aria-label="Close"
+            aria-label={t('common.actions.close')}
           >
             &times;
           </button>
@@ -223,38 +225,62 @@ export default function NPCGeneratorModal({ onClose, onBroadcastResult }: NPCGen
               onClick={rollAll}
               className="px-4 py-2 text-sm font-medium bg-amber-600 hover:bg-amber-500 rounded text-white cursor-pointer"
             >
-              Roll All
+              {t('game.npcGeneratorModal.rollAll')}
             </button>
             {npc && (
               <button
                 onClick={handleShareToChat}
                 className="px-4 py-2 text-sm font-medium bg-amber-600/80 hover:bg-amber-600 rounded text-amber-100 cursor-pointer"
               >
-                Share to Chat
+                {t('game.npcGeneratorModal.shareToChat')}
               </button>
             )}
           </div>
 
           {!npc ? (
-            <p className="text-gray-500 text-sm py-8 text-center">Click &quot;Roll All&quot; to generate an NPC.</p>
+            <p className="text-gray-500 text-sm py-8 text-center">{t('game.npcGeneratorModal.emptyHint')}</p>
           ) : (
             <div className="space-y-3">
               {/* Name */}
-              <TraitRow label="Name" value={npc.name} onReroll={() => reroll('name')} />
-              <TraitRow label="Appearance" value={npc.appearance} onReroll={() => reroll('appearance')} />
-              <TraitRow label="High Ability" value={npc.highAbility} onReroll={() => reroll('highAbility')} />
-              <TraitRow label="Low Ability" value={npc.lowAbility} onReroll={() => reroll('lowAbility')} />
-              <TraitRow label="Talent" value={npc.talent} onReroll={() => reroll('talent')} />
-              <TraitRow label="Mannerism" value={npc.mannerism} onReroll={() => reroll('mannerism')} />
+              <TraitRow label={t('game.npcGeneratorModal.name')} value={npc.name} onReroll={() => reroll('name')} />
               <TraitRow
-                label="Interaction Trait"
+                label={t('game.npcGeneratorModal.appearance')}
+                value={npc.appearance}
+                onReroll={() => reroll('appearance')}
+              />
+              <TraitRow
+                label={t('game.npcGeneratorModal.highAbility')}
+                value={npc.highAbility}
+                onReroll={() => reroll('highAbility')}
+              />
+              <TraitRow
+                label={t('game.npcGeneratorModal.lowAbility')}
+                value={npc.lowAbility}
+                onReroll={() => reroll('lowAbility')}
+              />
+              <TraitRow
+                label={t('game.npcGeneratorModal.talent')}
+                value={npc.talent}
+                onReroll={() => reroll('talent')}
+              />
+              <TraitRow
+                label={t('game.npcGeneratorModal.mannerism')}
+                value={npc.mannerism}
+                onReroll={() => reroll('mannerism')}
+              />
+              <TraitRow
+                label={t('game.npcGeneratorModal.interactionTrait')}
                 value={npc.interactionTrait}
                 onReroll={() => reroll('interactionTrait')}
               />
-              <TraitRow label="Ideal" value={npc.ideal} onReroll={() => reroll('ideal')} />
-              <TraitRow label="Bond" value={npc.bond} onReroll={() => reroll('bond')} />
-              <TraitRow label="Flaw" value={npc.flaw} onReroll={() => reroll('flaw')} />
-              <TraitRow label="Secret" value={npc.secret} onReroll={() => reroll('secret')} />
+              <TraitRow label={t('game.npcGeneratorModal.ideal')} value={npc.ideal} onReroll={() => reroll('ideal')} />
+              <TraitRow label={t('game.npcGeneratorModal.bond')} value={npc.bond} onReroll={() => reroll('bond')} />
+              <TraitRow label={t('game.npcGeneratorModal.flaw')} value={npc.flaw} onReroll={() => reroll('flaw')} />
+              <TraitRow
+                label={t('game.npcGeneratorModal.secret')}
+                value={npc.secret}
+                onReroll={() => reroll('secret')}
+              />
             </div>
           )}
         </div>
@@ -264,6 +290,7 @@ export default function NPCGeneratorModal({ onClose, onBroadcastResult }: NPCGen
 }
 
 function TraitRow({ label, value, onReroll }: { label: string; value: string; onReroll: () => void }): JSX.Element {
+  const { t } = useT()
   return (
     <div className="flex items-start gap-2 py-1.5 border-b border-gray-800 last:border-0">
       <span className="text-xs text-gray-400 shrink-0 w-28">{label}</span>
@@ -271,8 +298,8 @@ function TraitRow({ label, value, onReroll }: { label: string; value: string; on
       <button
         onClick={onReroll}
         className="shrink-0 w-6 h-6 flex items-center justify-center text-gray-500 hover:text-amber-400 hover:bg-amber-600/20 rounded cursor-pointer"
-        title="Re-roll"
-        aria-label={`Re-roll ${label}`}
+        title={t('game.npcGeneratorModal.reroll')}
+        aria-label={t('game.npcGeneratorModal.rerollAria', { label })}
       >
         ⟳
       </button>

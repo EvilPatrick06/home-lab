@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router'
 import { useEscapeKey } from '../../../hooks/use-escape-key'
+import { useT } from '../../../i18n'
 import { getEffectiveClasses } from '../../../services/character/effective-character-5e'
 import { useCharacterStore } from '../../../stores/use-character-store'
 import type { Character } from '../../../types/character'
@@ -18,6 +19,7 @@ export default function CharacterPickerOverlay({
   onSelect,
   onClose
 }: CharacterPickerOverlayProps): JSX.Element {
+  const { t } = useT()
   const navigate = useNavigate()
   const { characters, loadCharacters } = useCharacterStore()
 
@@ -32,11 +34,11 @@ export default function CharacterPickerOverlay({
     <div className="fixed inset-0 z-40 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-96 shadow-2xl max-h-[70vh] flex flex-col">
-        <h3 className="text-sm font-semibold text-amber-400 mb-3">Select a Character</h3>
-        <p className="text-xs text-gray-400 mb-3">Choose a character to view the game as a player.</p>
+        <h3 className="text-sm font-semibold text-amber-400 mb-3">{t('game.characterPickerOverlay.title')}</h3>
+        <p className="text-xs text-gray-400 mb-3">{t('game.characterPickerOverlay.subtitle')}</p>
         <div className="flex-1 overflow-y-auto space-y-1 mb-3">
           {characters.length === 0 && (
-            <p className="text-xs text-gray-500 italic">No characters found. Create one first.</p>
+            <p className="text-xs text-gray-500 italic">{t('game.characterPickerOverlay.noCharacters')}</p>
           )}
           {characters.map((c) => (
             <button
@@ -50,7 +52,7 @@ export default function CharacterPickerOverlay({
               <div>
                 <div className="text-sm text-gray-200">{c.name}</div>
                 <div className="text-xs text-gray-500">
-                  Level {c.level}{' '}
+                  {t('game.characterPickerOverlay.level', { level: c.level })}{' '}
                   {is5eCharacter(c)
                     ? getEffectiveClasses(c)
                         .map((cl) => cl.name)
@@ -69,13 +71,13 @@ export default function CharacterPickerOverlay({
             }}
             className="flex-1 px-3 py-2 text-xs font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded-lg cursor-pointer"
           >
-            Create New Character
+            {t('game.characterPickerOverlay.createNew')}
           </button>
           <button
             onClick={onClose}
             className="px-3 py-2 text-xs font-semibold bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg cursor-pointer"
           >
-            Cancel
+            {t('common.actions.cancel')}
           </button>
         </div>
       </div>

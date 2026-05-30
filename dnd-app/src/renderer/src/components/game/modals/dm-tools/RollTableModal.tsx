@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useT } from '../../../../i18n'
 import { rollFormula } from '../../../../services/dice/dice-engine'
 import { useCampaignStore } from '../../../../stores/use-campaign-store'
 import { useLobbyStore } from '../../../../stores/use-lobby-store'
@@ -175,6 +176,7 @@ const BUILT_IN_TABLES: RollTable[] = [
 const MAX_HISTORY = 10
 
 export default function RollTableModal({ onClose }: RollTableModalProps): JSX.Element {
+  const { t } = useT()
   const [tab, setTab] = useState<'builtin' | 'custom' | 'create'>('builtin')
   const [editingTable, setEditingTable] = useState<RollTable | null>(null)
   const [rollHistory, setRollHistory] = useState<RollHistoryItem[]>([])
@@ -276,7 +278,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
             id: crypto.randomUUID(),
             senderId: 'system',
             senderName: 'System',
-            content: `[Roll Table] Invalid formula: ${table.diceFormula}`,
+            content: t('game.rollTableModal.invalidFormula', { formula: table.diceFormula }),
             timestamp: Date.now(),
             isSystem: true
           })
@@ -287,7 +289,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
         matchedEntry = matchedIndex >= 0 ? table.entries[matchedIndex] : undefined
       }
 
-      let resultText = matchedEntry?.text ?? 'No matching entry'
+      let resultText = matchedEntry?.text ?? t('game.rollTableModal.noMatchingEntry')
 
       // Resolve sub-table references
       resultText = resolveSubtables(resultText)
@@ -340,7 +342,11 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
         id: crypto.randomUUID(),
         senderId: 'system',
         senderName: 'System',
-        content: `[${item.tableName}] Rolled ${item.roll} -- ${item.result}`,
+        content: t('game.rollTableModal.shareLine', {
+          tableName: item.tableName,
+          roll: item.roll,
+          result: item.result
+        }),
         timestamp: Date.now(),
         isSystem: true
       })
@@ -425,7 +431,9 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
             <span className="text-xs font-semibold text-gray-200">{table.name}</span>
             <span className="text-xs text-gray-500 ml-2">({table.diceFormula})</span>
             {table.builtIn && (
-              <span className="text-[9px] text-amber-500/70 ml-2 uppercase tracking-wider">Built-in</span>
+              <span className="text-[9px] text-amber-500/70 ml-2 uppercase tracking-wider">
+                {t('game.rollTableModal.builtIn')}
+              </span>
             )}
           </div>
           <div className="flex gap-1">
@@ -434,7 +442,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
               disabled={isAnimating}
               className="px-2 py-1 text-xs font-semibold bg-amber-600 hover:bg-amber-500 disabled:bg-amber-800 disabled:cursor-wait text-white rounded cursor-pointer"
             >
-              {isAnimating ? 'Rolling...' : 'Roll'}
+              {isAnimating ? t('game.rollTableModal.rolling') : t('game.rollTableModal.roll')}
             </button>
             {showControls && (
               <>
@@ -442,13 +450,13 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
                   onClick={() => handleEdit(table)}
                   className="px-2 py-1 text-xs font-semibold bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
                 >
-                  Edit
+                  {t('game.rollTableModal.edit')}
                 </button>
                 <button
                   onClick={() => handleDelete(table.id)}
                   className="px-2 py-1 text-xs font-semibold bg-gray-700 hover:bg-red-600 text-gray-300 hover:text-white rounded cursor-pointer"
                 >
-                  Del
+                  {t('game.rollTableModal.del')}
                 </button>
               </>
             )}
@@ -468,7 +476,11 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
                   {entry.min === entry.max ? entry.min : `${entry.min}-${entry.max}`}
                 </span>{' '}
                 {entry.text}
-                {entry.weight !== undefined && <span className="text-gray-600 ml-1">(w:{entry.weight})</span>}
+                {entry.weight !== undefined && (
+                  <span className="text-gray-600 ml-1">
+                    {t('game.rollTableModal.weightIndicator', { weight: entry.weight })}
+                  </span>
+                )}
                 {entry.subtable && <span className="text-cyan-500/70 ml-1">-&gt; {`{{${entry.subtable}}}`}</span>}
               </div>
             )
@@ -484,10 +496,11 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
       <div className="relative bg-gray-900 border border-gray-700 rounded-xl shadow-2xl w-[600px] max-h-[85vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">
-          <h2 className="text-sm font-bold text-amber-400">Roll Tables</h2>
+          <h2 className="text-sm font-bold text-amber-400">{t('game.rollTableModal.title')}</h2>
           <button
             onClick={onClose}
             className="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-700 text-gray-400 hover:text-gray-200 cursor-pointer"
+            aria-label={t('common.actions.close')}
           >
             X
           </button>
@@ -504,7 +517,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
               tab === 'builtin' ? 'text-amber-400 border-b-2 border-amber-400' : 'text-gray-400 hover:text-gray-200'
             }`}
           >
-            Built-in Tables
+            {t('game.rollTableModal.builtInTables')}
           </button>
           <button
             onClick={() => {
@@ -515,7 +528,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
               tab === 'custom' ? 'text-amber-400 border-b-2 border-amber-400' : 'text-gray-400 hover:text-gray-200'
             }`}
           >
-            My Tables
+            {t('game.rollTableModal.myTables')}
           </button>
           <button
             onClick={() => setTab('create')}
@@ -523,7 +536,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
               tab === 'create' ? 'text-amber-400 border-b-2 border-amber-400' : 'text-gray-400 hover:text-gray-200'
             }`}
           >
-            {editingTable ? 'Edit Table' : 'Create Table'}
+            {editingTable ? t('game.rollTableModal.editTable') : t('game.rollTableModal.createTable')}
           </button>
         </div>
 
@@ -538,9 +551,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
           {tab === 'custom' && (
             <div className="space-y-3">
               {customTables.length === 0 && (
-                <p className="text-xs text-gray-500 italic text-center py-6">
-                  No custom roll tables yet. Create one to get started.
-                </p>
+                <p className="text-xs text-gray-500 italic text-center py-6">{t('game.rollTableModal.emptyCustom')}</p>
               )}
               {customTables.map((table) => renderTableCard(table, true))}
             </div>
@@ -550,40 +561,41 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
           {tab === 'create' && (
             <div className="space-y-3">
               <div>
-                <label className="text-xs text-gray-400 block mb-1">Table Name</label>
+                <label className="text-xs text-gray-400 block mb-1">{t('game.rollTableModal.tableName')}</label>
                 <input
                   type="text"
                   value={tableName}
                   onChange={(e) => setTableName(e.target.value)}
-                  placeholder="e.g., Random Encounter"
+                  placeholder={t('game.rollTableModal.tableNamePlaceholder')}
                   className="w-full bg-gray-800 border border-gray-600 rounded px-2 py-1.5 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
                 />
               </div>
               <div>
-                <label className="text-xs text-gray-400 block mb-1">Dice Formula</label>
+                <label className="text-xs text-gray-400 block mb-1">{t('game.rollTableModal.diceFormula')}</label>
                 <input
                   type="text"
                   value={diceFormula}
                   onChange={(e) => setDiceFormula(e.target.value)}
-                  placeholder="e.g., 1d6, 1d100"
+                  placeholder={t('game.rollTableModal.diceFormulaPlaceholder')}
                   className="w-full bg-gray-800 border border-gray-600 rounded px-2 py-1.5 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
                 />
               </div>
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="text-xs text-gray-400">Entries</label>
+                  <label className="text-xs text-gray-400">{t('game.rollTableModal.entries')}</label>
                   <div className="flex gap-1">
                     <button
                       onClick={addEntry}
                       className="px-2 py-0.5 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
                     >
-                      + Add Entry
+                      {t('game.rollTableModal.addEntry')}
                     </button>
                   </div>
                 </div>
                 <p className="text-[9px] text-gray-600 mb-1.5">
-                  Tip: Use {`{{Table Name}}`} in result text for nested sub-table rolls. Add optional weight for
-                  weighted entries.
+                  {t('game.rollTableModal.tipBefore')}
+                  {`{{Table Name}}`}
+                  {t('game.rollTableModal.tipAfter')}
                 </p>
                 <div className="space-y-1.5 max-h-[30vh] overflow-y-auto">
                   {entries.map((entry, i) => (
@@ -593,7 +605,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
                         value={entry.min}
                         onChange={(e) => updateEntry(i, 'min', parseInt(e.target.value, 10) || 0)}
                         className="w-12 bg-gray-800 border border-gray-600 rounded px-1.5 py-1 text-xs text-gray-100 text-center focus:outline-none focus:border-amber-500"
-                        title="Min"
+                        title={t('game.rollTableModal.min')}
                       />
                       <span className="text-xs text-gray-500">-</span>
                       <input
@@ -601,13 +613,13 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
                         value={entry.max}
                         onChange={(e) => updateEntry(i, 'max', parseInt(e.target.value, 10) || 0)}
                         className="w-12 bg-gray-800 border border-gray-600 rounded px-1.5 py-1 text-xs text-gray-100 text-center focus:outline-none focus:border-amber-500"
-                        title="Max"
+                        title={t('game.rollTableModal.max')}
                       />
                       <input
                         type="text"
                         value={entry.text}
                         onChange={(e) => updateEntry(i, 'text', e.target.value)}
-                        placeholder="Result text..."
+                        placeholder={t('game.rollTableModal.resultTextPlaceholder')}
                         className="flex-1 bg-gray-800 border border-gray-600 rounded px-2 py-1 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
                       />
                       <input
@@ -617,13 +629,14 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
                           const val = e.target.value.trim()
                           updateEntryWeight(i, val === '' ? undefined : parseInt(val, 10) || 0)
                         }}
-                        placeholder="Wt"
-                        title="Weight (optional)"
+                        placeholder={t('game.rollTableModal.weightPlaceholder')}
+                        title={t('game.rollTableModal.weightTitle')}
                         className="w-10 bg-gray-800 border border-gray-600 rounded px-1 py-1 text-xs text-gray-100 text-center focus:outline-none focus:border-amber-500"
                       />
                       <button
                         onClick={() => removeEntry(i)}
                         className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-red-400 cursor-pointer"
+                        aria-label={t('game.rollTableModal.removeEntry')}
                       >
                         X
                       </button>
@@ -636,7 +649,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
                 disabled={!tableName.trim()}
                 className="w-full py-2 text-xs font-semibold bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-lg cursor-pointer disabled:cursor-not-allowed"
               >
-                {editingTable ? 'Update Table' : 'Save Table'}
+                {editingTable ? t('game.rollTableModal.updateTable') : t('game.rollTableModal.saveTable')}
               </button>
             </div>
           )}
@@ -645,7 +658,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
           {rollHistory.length > 0 && (
             <div className="border-t border-gray-700 pt-3">
               <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1.5 block">
-                Roll History (last {MAX_HISTORY})
+                {t('game.rollTableModal.rollHistory', { count: MAX_HISTORY })}
               </span>
               <div className="space-y-1">
                 {rollHistory.map((item) => (
@@ -655,15 +668,15 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
                   >
                     <div className="flex-1 min-w-0">
                       <span className="text-amber-400 font-semibold">[{item.tableName}]</span>{' '}
-                      <span className="text-gray-500">Rolled {item.roll}:</span>{' '}
+                      <span className="text-gray-500">{t('game.rollTableModal.rolled', { roll: item.roll })}</span>{' '}
                       <span className="text-gray-300 truncate">{item.result}</span>
                     </div>
                     <button
                       onClick={() => handleShareResult(item)}
                       className="ml-2 px-1.5 py-0.5 text-[9px] bg-gray-700 hover:bg-gray-600 text-gray-400 hover:text-white rounded cursor-pointer whitespace-nowrap"
-                      title="Share to chat"
+                      title={t('game.rollTableModal.shareToChat')}
                     >
-                      Share
+                      {t('game.rollTableModal.share')}
                     </button>
                   </div>
                 ))}

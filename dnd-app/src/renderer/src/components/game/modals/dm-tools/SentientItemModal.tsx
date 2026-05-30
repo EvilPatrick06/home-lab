@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { CONFLICT_DEMANDS, generateSentientItem, type SentientItemProperties } from '../../../../data/sentient-items'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 
 interface SentientItemModalProps {
   onClose: () => void
@@ -12,6 +13,7 @@ function abilityMod(score: number): string {
 }
 
 export default function SentientItemModal({ onClose }: SentientItemModalProps): JSX.Element {
+  const { t } = useT()
   useEscapeKey(onClose)
   const [item, setItem] = useState<SentientItemProperties | null>(null)
 
@@ -24,8 +26,12 @@ export default function SentientItemModal({ onClose }: SentientItemModalProps): 
       <div className="absolute inset-0 bg-black/60" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900 border border-gray-700 rounded-xl w-[480px] max-h-[85vh] overflow-y-auto shadow-2xl">
         <div className="flex items-center justify-between px-5 py-3 border-b border-gray-800">
-          <h2 className="text-base font-semibold text-amber-400">Sentient Item Generator</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-300 text-lg cursor-pointer">
+          <h2 className="text-base font-semibold text-amber-400">{t('game.sentientItemModal.title')}</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-300 text-lg cursor-pointer"
+            aria-label={t('common.actions.close')}
+          >
             &times;
           </button>
         </div>
@@ -35,18 +41,22 @@ export default function SentientItemModal({ onClose }: SentientItemModalProps): 
             onClick={handleGenerate}
             className="w-full px-4 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-medium transition-colors cursor-pointer"
           >
-            {item ? 'Re-roll Properties' : 'Generate Sentient Item'}
+            {item ? t('game.sentientItemModal.reroll') : t('game.sentientItemModal.generate')}
           </button>
 
           {item && (
             <div className="space-y-3">
               <div className="bg-gray-800/60 border border-gray-700/50 rounded-lg p-3">
-                <h3 className="text-xs font-semibold text-gray-400 uppercase mb-1">Alignment</h3>
+                <h3 className="text-xs font-semibold text-gray-400 uppercase mb-1">
+                  {t('game.sentientItemModal.alignment')}
+                </h3>
                 <p className="text-sm text-gray-200">{item.alignment}</p>
               </div>
 
               <div className="bg-gray-800/60 border border-gray-700/50 rounded-lg p-3">
-                <h3 className="text-xs font-semibold text-gray-400 uppercase mb-1">Communication</h3>
+                <h3 className="text-xs font-semibold text-gray-400 uppercase mb-1">
+                  {t('game.sentientItemModal.communication')}
+                </h3>
                 <p className="text-sm text-gray-200 capitalize">{item.communication.method}</p>
                 {item.communication.description && (
                   <p className="text-xs text-gray-400 mt-1">{item.communication.description}</p>
@@ -54,27 +64,42 @@ export default function SentientItemModal({ onClose }: SentientItemModalProps): 
               </div>
 
               <div className="bg-gray-800/60 border border-gray-700/50 rounded-lg p-3">
-                <h3 className="text-xs font-semibold text-gray-400 uppercase mb-1">Senses</h3>
+                <h3 className="text-xs font-semibold text-gray-400 uppercase mb-1">
+                  {t('game.sentientItemModal.senses')}
+                </h3>
                 <p className="text-sm text-gray-200">{item.senses}</p>
               </div>
 
               <div className="bg-gray-800/60 border border-gray-700/50 rounded-lg p-3">
-                <h3 className="text-xs font-semibold text-gray-400 uppercase mb-1">Mental Ability Scores</h3>
+                <h3 className="text-xs font-semibold text-gray-400 uppercase mb-1">
+                  {t('game.sentientItemModal.mentalScores')}
+                </h3>
                 <div className="flex gap-4 text-sm text-gray-200">
                   <span>
-                    INT: {item.mentalScores.intelligence} ({abilityMod(item.mentalScores.intelligence)})
+                    {t('game.sentientItemModal.int', {
+                      score: item.mentalScores.intelligence,
+                      mod: abilityMod(item.mentalScores.intelligence)
+                    })}
                   </span>
                   <span>
-                    WIS: {item.mentalScores.wisdom} ({abilityMod(item.mentalScores.wisdom)})
+                    {t('game.sentientItemModal.wis', {
+                      score: item.mentalScores.wisdom,
+                      mod: abilityMod(item.mentalScores.wisdom)
+                    })}
                   </span>
                   <span>
-                    CHA: {item.mentalScores.charisma} ({abilityMod(item.mentalScores.charisma)})
+                    {t('game.sentientItemModal.cha', {
+                      score: item.mentalScores.charisma,
+                      mod: abilityMod(item.mentalScores.charisma)
+                    })}
                   </span>
                 </div>
               </div>
 
               <div className="bg-gray-800/60 border border-gray-700/50 rounded-lg p-3">
-                <h3 className="text-xs font-semibold text-gray-400 uppercase mb-1">Special Purpose</h3>
+                <h3 className="text-xs font-semibold text-gray-400 uppercase mb-1">
+                  {t('game.sentientItemModal.specialPurpose')}
+                </h3>
                 <p className="text-sm text-amber-300 font-medium">{item.specialPurpose.name}</p>
                 {item.specialPurpose.description && (
                   <p className="text-xs text-gray-400 mt-1">{item.specialPurpose.description}</p>
@@ -83,7 +108,9 @@ export default function SentientItemModal({ onClose }: SentientItemModalProps): 
 
               {CONFLICT_DEMANDS.length > 0 && (
                 <div className="bg-gray-800/60 border border-gray-700/50 rounded-lg p-3">
-                  <h3 className="text-xs font-semibold text-gray-400 uppercase mb-1">Conflict Demands</h3>
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase mb-1">
+                    {t('game.sentientItemModal.conflictDemands')}
+                  </h3>
                   <div className="space-y-1">
                     {CONFLICT_DEMANDS.map((d) => (
                       <p key={d.name} className="text-xs text-gray-300">

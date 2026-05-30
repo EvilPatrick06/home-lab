@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Z } from '../../../constants'
 import { LANGUAGE_DESCRIPTIONS } from '../../../data/language-descriptions'
+import { useT } from '../../../i18n'
 import { load5eLanguageD12Table } from '../../../services/data-provider'
 import { useBuilderStore } from '../../../stores/use-builder-store'
 import { RARE_LANGUAGES_5E, STANDARD_LANGUAGES_5E } from '../../../types/character-common'
@@ -94,6 +95,7 @@ function LanguageTooltip({
 }
 
 export default function LanguagesTab5e(): JSX.Element {
+  const { t } = useT()
   const speciesLanguages = useBuilderStore((s) => s.speciesLanguages)
   const speciesExtraLangCount = useBuilderStore((s) => s.speciesExtraLangCount)
   const bgLanguageCount = useBuilderStore((s) => s.bgLanguageCount)
@@ -167,7 +169,7 @@ export default function LanguagesTab5e(): JSX.Element {
 
   return (
     <div>
-      <SectionBanner label="LANGUAGES" />
+      <SectionBanner label={t('builder.languagesTab.sectionTitle')} />
       <div className="px-4 py-3 space-y-3 border-b border-gray-800">
         {/* Known languages displayed as green pills */}
         {allKnownLanguages.length > 0 ? (
@@ -195,7 +197,7 @@ export default function LanguagesTab5e(): JSX.Element {
                       <button
                         onClick={() => handleRemoveChosenLanguage(lang)}
                         className={`ml-0.5 hover:text-red-400 transition-colors ${isRare ? 'text-purple-400' : 'text-green-400'}`}
-                        title={`Remove ${lang}`}
+                        title={t('builder.languagesTab.removeLanguage', { lang })}
                       >
                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -209,7 +211,7 @@ export default function LanguagesTab5e(): JSX.Element {
             })}
           </div>
         ) : (
-          <span className="text-sm text-gray-500 italic">No languages known</span>
+          <span className="text-sm text-gray-500 italic">{t('builder.languagesTab.noLanguages')}</span>
         )}
 
         {/* Language chooser when bonus slots are available */}
@@ -217,19 +219,21 @@ export default function LanguagesTab5e(): JSX.Element {
           <div className="space-y-2">
             <div className="flex items-center gap-3">
               <span className="text-xs text-amber-400 font-semibold">
-                {remainingSlots} language{remainingSlots !== 1 ? 's' : ''} remaining
+                {t('builder.languagesTab.remaining', { count: remainingSlots })}
               </span>
               <button
                 onClick={handleD12Roll}
                 className="text-xs px-2.5 py-1 rounded bg-amber-600 hover:bg-amber-500 text-gray-900 font-semibold cursor-pointer"
               >
-                Roll d12
+                {t('builder.languagesTab.rollD12')}
               </button>
             </div>
 
             {lastRoll && (
               <div className="text-xs text-amber-300 bg-amber-900/30 border border-amber-700/50 rounded px-2.5 py-1.5">
-                <span className="font-mono text-amber-400">d12: {lastRoll.roll}</span>
+                <span className="font-mono text-amber-400">
+                  {t('builder.languagesTab.d12Roll', { roll: lastRoll.roll })}
+                </span>
                 <span className="mx-1.5 text-gray-600">&rarr;</span>
                 <span className="font-medium">{lastRoll.language}</span>
               </div>
@@ -257,7 +261,7 @@ export default function LanguagesTab5e(): JSX.Element {
         )}
 
         {remainingSlots === 0 && totalBonusSlots > 0 && (
-          <div className="text-xs text-green-400 font-medium">All language slots filled.</div>
+          <div className="text-xs text-green-400 font-medium">{t('builder.languagesTab.allFilled')}</div>
         )}
       </div>
     </div>

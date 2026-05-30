@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
+import { useT } from '../../i18n'
 import { useNetworkStore } from '../../stores/network-store'
 import { useAiDmStore } from '../../stores/use-ai-dm-store'
 import { useCampaignStore } from '../../stores/use-campaign-store'
 import { useLobbyStore } from '../../stores/use-lobby-store'
 
 export default function ReadyButton(): JSX.Element {
+  const { t } = useT()
   const navigate = useNavigate()
   const { campaignId } = useParams<{ campaignId: string }>()
   const players = useLobbyStore((s) => s.players)
@@ -79,10 +81,10 @@ export default function ReadyButton(): JSX.Element {
     return (
       <div className="space-y-2">
         <button
-          aria-label={isReady ? 'Mark as not ready' : 'Mark as ready'}
+          aria-label={isReady ? t('lobby.readyButton.markNotReadyAria') : t('lobby.readyButton.markReadyAria')}
           onClick={handleToggleReady}
           disabled={!colorConfirmed}
-          title={!colorConfirmed ? 'Confirm your color first' : undefined}
+          title={!colorConfirmed ? t('lobby.readyButton.confirmColorTitle') : undefined}
           className={`w-full py-2 rounded-lg font-medium text-sm transition-all
             ${
               !colorConfirmed
@@ -92,11 +94,15 @@ export default function ReadyButton(): JSX.Element {
                   : 'bg-transparent border border-gray-600 text-gray-400 hover:border-green-600 hover:text-green-400 cursor-pointer'
             }`}
         >
-          {!colorConfirmed ? 'Confirm Color First' : isReady ? 'DM Ready' : 'Mark Ready'}
+          {!colorConfirmed
+            ? t('lobby.readyButton.confirmColorFirst')
+            : isReady
+              ? t('lobby.readyButton.dmReady')
+              : t('lobby.readyButton.markReady')}
         </button>
         <div className="flex flex-col gap-1 w-full">
           <button
-            aria-label="Start game session"
+            aria-label={t('lobby.readyButton.startGameAria')}
             onClick={handleStartGame}
             disabled={!canStartGame}
             className={`w-full py-3 rounded-lg font-bold text-lg transition-all
@@ -122,18 +128,20 @@ export default function ReadyButton(): JSX.Element {
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   ></path>
                 </svg>
-                Starting...
+                {t('lobby.readyButton.starting')}
               </>
             ) : !everyoneReady ? (
-              'Waiting for Players...'
+              t('lobby.readyButton.waitingForPlayers')
             ) : !aiReady ? (
-              'Waiting for AI DM...'
+              t('lobby.readyButton.waitingForAiDm')
             ) : (
-              'Start Game'
+              t('lobby.readyButton.startGame')
             )}
           </button>
           {!aiReady && sceneStatus === 'preparing' && !overrideAiWait && (
-            <p className="text-xs text-amber-400/80 text-center animate-pulse">Waiting for AI DM to prepare scene...</p>
+            <p className="text-xs text-amber-400/80 text-center animate-pulse">
+              {t('lobby.readyButton.preparingScene')}
+            </p>
           )}
         </div>
       </div>
@@ -143,10 +151,10 @@ export default function ReadyButton(): JSX.Element {
   // Players see ready toggle
   return (
     <button
-      aria-label={isReady ? 'Mark as not ready' : 'Mark as ready'}
+      aria-label={isReady ? t('lobby.readyButton.markNotReadyAria') : t('lobby.readyButton.markReadyAria')}
       onClick={handleToggleReady}
       disabled={!colorConfirmed}
-      title={!colorConfirmed ? 'Confirm your color first' : undefined}
+      title={!colorConfirmed ? t('lobby.readyButton.confirmColorTitle') : undefined}
       className={`w-full py-3 rounded-lg font-bold text-lg transition-all
         ${
           !colorConfirmed
@@ -156,7 +164,11 @@ export default function ReadyButton(): JSX.Element {
               : 'bg-transparent border-2 border-green-600 text-green-400 hover:bg-green-900/20 cursor-pointer'
         }`}
     >
-      {!colorConfirmed ? 'Confirm Color First' : isReady ? 'Ready!' : 'Ready'}
+      {!colorConfirmed
+        ? t('lobby.readyButton.confirmColorFirst')
+        : isReady
+          ? t('lobby.readyButton.readyDone')
+          : t('lobby.readyButton.ready')}
     </button>
   )
 }

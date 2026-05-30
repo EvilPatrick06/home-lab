@@ -1,5 +1,6 @@
 import creatureTypesJson from '@data/5e/dm/npcs/creature-types.json'
 import { useState } from 'react'
+import { useT } from '../../../i18n'
 import type { MonsterSpeed, MonsterSpellcasting, MonsterTrait } from '../../../services/data-provider'
 import { load5eCreatureTypes } from '../../../services/data-provider'
 import type { CreatureSize, CreatureType, MonsterAction, MonsterStatBlock } from '../../../types/monster'
@@ -70,14 +71,17 @@ function CollapsibleSection({
 }
 
 function ActionListEditor({
-  label,
+  title,
+  addLabel,
   actions,
   onChange
 }: {
-  label: string
+  title: string
+  addLabel: string
   actions: MonsterAction[]
   onChange: (actions: MonsterAction[]) => void
 }): JSX.Element {
+  const { t } = useT()
   const addAction = (): void => {
     onChange([...actions, { name: '', description: '' }])
   }
@@ -89,7 +93,7 @@ function ActionListEditor({
   }
 
   return (
-    <CollapsibleSection title={`${label} (${actions.length})`}>
+    <CollapsibleSection title={title}>
       {actions.map((action, i) => (
         <div key={i} className="space-y-1 bg-gray-800/30 rounded p-2">
           <div className="flex gap-1">
@@ -97,7 +101,7 @@ function ActionListEditor({
               type="text"
               value={action.name}
               onChange={(e) => updateAction(i, { name: e.target.value })}
-              placeholder="Action name"
+              placeholder={t('game.statBlockEditor.actionNamePlaceholder')}
               className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100"
             />
             <button
@@ -110,7 +114,7 @@ function ActionListEditor({
           <textarea
             value={action.description}
             onChange={(e) => updateAction(i, { description: e.target.value })}
-            placeholder="Description"
+            placeholder={t('game.statBlockEditor.descriptionPlaceholder')}
             className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 h-16 resize-none"
           />
           <div className="flex gap-1">
@@ -121,10 +125,10 @@ function ActionListEditor({
               }
               className="bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-200"
             >
-              <option value="">No attack</option>
-              <option value="melee">Melee</option>
-              <option value="ranged">Ranged</option>
-              <option value="melee-or-ranged">Melee/Ranged</option>
+              <option value="">{t('game.statBlockEditor.noAttack')}</option>
+              <option value="melee">{t('game.statBlockEditor.melee')}</option>
+              <option value="ranged">{t('game.statBlockEditor.ranged')}</option>
+              <option value="melee-or-ranged">{t('game.statBlockEditor.meleeOrRanged')}</option>
             </select>
             {action.attackType && (
               <>
@@ -134,21 +138,21 @@ function ActionListEditor({
                   onChange={(e) =>
                     updateAction(i, { toHit: e.target.value ? parseInt(e.target.value, 10) : undefined })
                   }
-                  placeholder="+Hit"
+                  placeholder={t('game.statBlockEditor.toHitPlaceholder')}
                   className="w-12 bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-100 text-center"
                 />
                 <input
                   type="text"
                   value={action.damageDice ?? ''}
                   onChange={(e) => updateAction(i, { damageDice: e.target.value || undefined })}
-                  placeholder="Damage dice"
+                  placeholder={t('game.statBlockEditor.damageDicePlaceholder')}
                   className="w-20 bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-100"
                 />
                 <input
                   type="text"
                   value={action.damageType ?? ''}
                   onChange={(e) => updateAction(i, { damageType: e.target.value || undefined })}
-                  placeholder="Type"
+                  placeholder={t('game.statBlockEditor.typePlaceholder')}
                   className="w-16 bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-100"
                 />
               </>
@@ -157,7 +161,7 @@ function ActionListEditor({
         </div>
       ))}
       <button onClick={addAction} className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer">
-        + Add {label.replace(/s$/, '')}
+        {addLabel}
       </button>
     </CollapsibleSection>
   )
@@ -171,22 +175,23 @@ function TraitListEditor({
   traits: MonsterTrait[]
   onChange: (traits: MonsterTrait[]) => void
 }): JSX.Element {
+  const { t } = useT()
   return (
-    <CollapsibleSection title={`Traits (${traits.length})`}>
+    <CollapsibleSection title={t('game.statBlockEditor.traitsTitle', { count: traits.length })}>
       {traits.map((trait, i) => (
         <div key={i} className="flex gap-1">
           <input
             type="text"
             value={trait.name}
             onChange={(e) => onChange(traits.map((t, idx) => (idx === i ? { ...t, name: e.target.value } : t)))}
-            placeholder="Name"
+            placeholder={t('game.statBlockEditor.namePlaceholder')}
             className="w-28 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100"
           />
           <input
             type="text"
             value={trait.description}
             onChange={(e) => onChange(traits.map((t, idx) => (idx === i ? { ...t, description: e.target.value } : t)))}
-            placeholder="Description"
+            placeholder={t('game.statBlockEditor.descriptionPlaceholder')}
             className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100"
           />
           <button
@@ -201,13 +206,14 @@ function TraitListEditor({
         onClick={() => onChange([...traits, { name: '', description: '' }])}
         className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer"
       >
-        + Add Trait
+        {t('game.statBlockEditor.addTrait')}
       </button>
     </CollapsibleSection>
   )
 }
 
 export default function StatBlockEditor({ value, onChange }: StatBlockEditorProps): JSX.Element {
+  const { t } = useT()
   const update = <K extends keyof MonsterStatBlock>(key: K, val: MonsterStatBlock[K]): void => {
     onChange({ ...value, [key]: val })
   }
@@ -218,10 +224,10 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
   return (
     <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
       {/* Basic */}
-      <CollapsibleSection title="Basic" defaultOpen>
+      <CollapsibleSection title={t('game.statBlockEditor.sectionBasic')} defaultOpen>
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="text-xs text-gray-500">Name</label>
+            <label className="text-xs text-gray-500">{t('game.statBlockEditor.name')}</label>
             <input
               type="text"
               value={value.name ?? ''}
@@ -230,7 +236,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             />
           </div>
           <div>
-            <label className="text-xs text-gray-500">Alignment</label>
+            <label className="text-xs text-gray-500">{t('game.statBlockEditor.alignment')}</label>
             <input
               type="text"
               value={value.alignment ?? ''}
@@ -239,7 +245,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             />
           </div>
           <div>
-            <label className="text-xs text-gray-500">Size</label>
+            <label className="text-xs text-gray-500">{t('game.statBlockEditor.size')}</label>
             <select
               value={value.size ?? 'Medium'}
               onChange={(e) => update('size', e.target.value as CreatureSize)}
@@ -253,7 +259,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             </select>
           </div>
           <div>
-            <label className="text-xs text-gray-500">Type</label>
+            <label className="text-xs text-gray-500">{t('game.statBlockEditor.type')}</label>
             <select
               value={value.type ?? 'Humanoid'}
               onChange={(e) => update('type', e.target.value as CreatureType)}
@@ -267,17 +273,17 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             </select>
           </div>
           <div>
-            <label className="text-xs text-gray-500">CR</label>
+            <label className="text-xs text-gray-500">{t('game.statBlockEditor.cr')}</label>
             <input
               type="text"
               value={value.cr ?? ''}
               onChange={(e) => update('cr', e.target.value)}
               className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100"
-              placeholder="e.g. 1/4"
+              placeholder={t('game.statBlockEditor.crPlaceholder')}
             />
           </div>
           <div>
-            <label className="text-xs text-gray-500">XP</label>
+            <label className="text-xs text-gray-500">{t('game.statBlockEditor.xp')}</label>
             <input
               type="number"
               value={value.xp ?? ''}
@@ -289,10 +295,10 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
       </CollapsibleSection>
 
       {/* Combat */}
-      <CollapsibleSection title="Combat" defaultOpen>
+      <CollapsibleSection title={t('game.statBlockEditor.sectionCombat')} defaultOpen>
         <div className="grid grid-cols-3 gap-2">
           <div>
-            <label className="text-xs text-gray-500">AC</label>
+            <label className="text-xs text-gray-500">{t('game.statBlockEditor.ac')}</label>
             <input
               type="number"
               value={value.ac ?? ''}
@@ -301,17 +307,17 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             />
           </div>
           <div>
-            <label className="text-xs text-gray-500">AC Type</label>
+            <label className="text-xs text-gray-500">{t('game.statBlockEditor.acType')}</label>
             <input
               type="text"
               value={value.acType ?? ''}
               onChange={(e) => update('acType', e.target.value)}
               className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100"
-              placeholder="Natural Armor"
+              placeholder={t('game.statBlockEditor.acTypePlaceholder')}
             />
           </div>
           <div>
-            <label className="text-xs text-gray-500">HP</label>
+            <label className="text-xs text-gray-500">{t('game.statBlockEditor.hp')}</label>
             <input
               type="number"
               value={value.hp ?? ''}
@@ -320,19 +326,19 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             />
           </div>
           <div>
-            <label className="text-xs text-gray-500">Hit Dice</label>
+            <label className="text-xs text-gray-500">{t('game.statBlockEditor.hitDice')}</label>
             <input
               type="text"
               value={value.hitDice ?? ''}
               onChange={(e) => update('hitDice', e.target.value)}
               className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100"
-              placeholder="2d8+4"
+              placeholder={t('game.statBlockEditor.hitDicePlaceholder')}
             />
           </div>
         </div>
         <div className="grid grid-cols-5 gap-1 mt-2">
           <div>
-            <label className="text-xs text-gray-500">Walk</label>
+            <label className="text-xs text-gray-500">{t('game.statBlockEditor.walk')}</label>
             <input
               type="number"
               value={speed.walk ?? 0}
@@ -341,7 +347,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             />
           </div>
           <div>
-            <label className="text-xs text-gray-500">Fly</label>
+            <label className="text-xs text-gray-500">{t('game.statBlockEditor.fly')}</label>
             <input
               type="number"
               value={speed.fly ?? ''}
@@ -352,7 +358,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             />
           </div>
           <div>
-            <label className="text-xs text-gray-500">Swim</label>
+            <label className="text-xs text-gray-500">{t('game.statBlockEditor.swim')}</label>
             <input
               type="number"
               value={speed.swim ?? ''}
@@ -363,7 +369,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             />
           </div>
           <div>
-            <label className="text-xs text-gray-500">Climb</label>
+            <label className="text-xs text-gray-500">{t('game.statBlockEditor.climb')}</label>
             <input
               type="number"
               value={speed.climb ?? ''}
@@ -374,7 +380,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             />
           </div>
           <div>
-            <label className="text-xs text-gray-500">Burrow</label>
+            <label className="text-xs text-gray-500">{t('game.statBlockEditor.burrow')}</label>
             <input
               type="number"
               value={speed.burrow ?? ''}
@@ -388,7 +394,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
       </CollapsibleSection>
 
       {/* Ability Scores */}
-      <CollapsibleSection title="Ability Scores">
+      <CollapsibleSection title={t('game.statBlockEditor.sectionAbilityScores')}>
         <div className="grid grid-cols-6 gap-1">
           {(['str', 'dex', 'con', 'int', 'wis', 'cha'] as const).map((ab) => (
             <div key={ab}>
@@ -405,7 +411,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
       </CollapsibleSection>
 
       {/* Saving Throws */}
-      <CollapsibleSection title="Saving Throws">
+      <CollapsibleSection title={t('game.statBlockEditor.sectionSavingThrows')}>
         <div className="grid grid-cols-3 gap-2">
           {(['str', 'dex', 'con', 'int', 'wis', 'cha'] as const).map((ab) => {
             const saves = value.savingThrows ?? {}
@@ -445,7 +451,9 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
       </CollapsibleSection>
 
       {/* Skills */}
-      <CollapsibleSection title={`Skills (${Object.keys(value.skills ?? {}).length})`}>
+      <CollapsibleSection
+        title={t('game.statBlockEditor.skillsTitle', { count: Object.keys(value.skills ?? {}).length })}
+      >
         <div className="space-y-1">
           {Object.entries(value.skills ?? {}).map(([skill, bonus]) => (
             <div key={skill} className="flex gap-1 items-center">
@@ -501,15 +509,15 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
           }}
           className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer mt-1"
         >
-          + Add Skill
+          {t('game.statBlockEditor.addSkill')}
         </button>
       </CollapsibleSection>
 
       {/* Defenses */}
-      <CollapsibleSection title="Defenses">
+      <CollapsibleSection title={t('game.statBlockEditor.sectionDefenses')}>
         <div className="space-y-1">
           <div>
-            <label className="text-xs text-gray-500">Resistances (comma-separated)</label>
+            <label className="text-xs text-gray-500">{t('game.statBlockEditor.resistances')}</label>
             <input
               type="text"
               value={(value.resistances ?? []).join(', ')}
@@ -526,7 +534,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             />
           </div>
           <div>
-            <label className="text-xs text-gray-500">Vulnerabilities</label>
+            <label className="text-xs text-gray-500">{t('game.statBlockEditor.vulnerabilities')}</label>
             <input
               type="text"
               value={(value.vulnerabilities ?? []).join(', ')}
@@ -543,7 +551,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             />
           </div>
           <div>
-            <label className="text-xs text-gray-500">Damage Immunities</label>
+            <label className="text-xs text-gray-500">{t('game.statBlockEditor.damageImmunities')}</label>
             <input
               type="text"
               value={(value.damageImmunities ?? []).join(', ')}
@@ -560,7 +568,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             />
           </div>
           <div>
-            <label className="text-xs text-gray-500">Condition Immunities</label>
+            <label className="text-xs text-gray-500">{t('game.statBlockEditor.conditionImmunities')}</label>
             <input
               type="text"
               value={(value.conditionImmunities ?? []).join(', ')}
@@ -580,10 +588,10 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
       </CollapsibleSection>
 
       {/* Senses & Languages */}
-      <CollapsibleSection title="Senses & Languages">
+      <CollapsibleSection title={t('game.statBlockEditor.sectionSensesLanguages')}>
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="text-xs text-gray-500">Passive Perception</label>
+            <label className="text-xs text-gray-500">{t('game.statBlockEditor.passivePerception')}</label>
             <input
               type="number"
               value={value.senses?.passivePerception ?? 10}
@@ -597,7 +605,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             />
           </div>
           <div>
-            <label className="text-xs text-gray-500">Darkvision (ft)</label>
+            <label className="text-xs text-gray-500">{t('game.statBlockEditor.darkvision')}</label>
             <input
               type="number"
               value={value.senses?.darkvision ?? ''}
@@ -612,7 +620,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
           </div>
         </div>
         <div>
-          <label className="text-xs text-gray-500">Languages (comma-separated)</label>
+          <label className="text-xs text-gray-500">{t('game.statBlockEditor.languages')}</label>
           <input
             type="text"
             value={(value.languages ?? []).join(', ')}
@@ -634,23 +642,38 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
       <TraitListEditor traits={value.traits ?? []} onChange={(t) => update('traits', t)} />
 
       {/* Actions */}
-      <ActionListEditor label="Actions" actions={value.actions ?? []} onChange={(a) => update('actions', a)} />
+      <ActionListEditor
+        title={t('game.statBlockEditor.actionsTitle', { count: (value.actions ?? []).length })}
+        addLabel={t('game.statBlockEditor.addAction')}
+        actions={value.actions ?? []}
+        onChange={(a) => update('actions', a)}
+      />
 
       {/* Bonus Actions */}
       <ActionListEditor
-        label="Bonus Actions"
+        title={t('game.statBlockEditor.bonusActionsTitle', { count: (value.bonusActions ?? []).length })}
+        addLabel={t('game.statBlockEditor.addBonusAction')}
         actions={value.bonusActions ?? []}
         onChange={(a) => update('bonusActions', a)}
       />
 
       {/* Reactions */}
-      <ActionListEditor label="Reactions" actions={value.reactions ?? []} onChange={(a) => update('reactions', a)} />
+      <ActionListEditor
+        title={t('game.statBlockEditor.reactionsTitle', { count: (value.reactions ?? []).length })}
+        addLabel={t('game.statBlockEditor.addReaction')}
+        actions={value.reactions ?? []}
+        onChange={(a) => update('reactions', a)}
+      />
 
       {/* Legendary Actions */}
-      <CollapsibleSection title={`Legendary Actions (${value.legendaryActions?.actions.length ?? 0})`}>
+      <CollapsibleSection
+        title={t('game.statBlockEditor.legendaryActionsTitle', {
+          count: value.legendaryActions?.actions.length ?? 0
+        })}
+      >
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <label className="text-xs text-gray-500">Uses per round</label>
+            <label className="text-xs text-gray-500">{t('game.statBlockEditor.usesPerRound')}</label>
             <input
               type="number"
               value={value.legendaryActions?.uses ?? 3}
@@ -675,7 +698,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
                     actions[i] = { ...actions[i], name: e.target.value }
                     update('legendaryActions', { uses: value.legendaryActions?.uses ?? 3, actions })
                   }}
-                  placeholder="Action name"
+                  placeholder={t('game.statBlockEditor.actionNamePlaceholder')}
                   className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100"
                 />
                 <button
@@ -699,7 +722,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
                   actions[i] = { ...actions[i], description: e.target.value }
                   update('legendaryActions', { uses: value.legendaryActions?.uses ?? 3, actions })
                 }}
-                placeholder="Description"
+                placeholder={t('game.statBlockEditor.descriptionPlaceholder')}
                 className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 h-12 resize-none"
               />
             </div>
@@ -713,7 +736,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             }
             className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer"
           >
-            + Add Legendary Action
+            {t('game.statBlockEditor.addLegendaryAction')}
           </button>
         </div>
       </CollapsibleSection>

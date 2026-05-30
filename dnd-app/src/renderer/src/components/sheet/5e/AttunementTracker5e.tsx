@@ -1,3 +1,4 @@
+import { useT } from '../../../i18n'
 import { getEffectiveMagicItems } from '../../../services/character/effective-character-5e'
 import type { Character5e } from '../../../types/character-5e'
 
@@ -18,11 +19,14 @@ interface AttunementTracker5eProps {
  * longer the source — migrate any entries into magic items.)
  */
 export default function AttunementTracker5e({ character }: AttunementTracker5eProps): JSX.Element {
+  const { t } = useT()
   const attunedItems = getEffectiveMagicItems(character).filter((mi) => mi.attuned)
 
   return (
     <div className="mb-3">
-      <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Attunement ({attunedItems.length}/3)</div>
+      <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">
+        {t('sheet.attunementTracker.attunement', { count: attunedItems.length })}
+      </div>
       <div className="flex gap-2">
         {[0, 1, 2].map((slotIdx) => {
           const item = attunedItems[slotIdx]
@@ -40,7 +44,7 @@ export default function AttunementTracker5e({ character }: AttunementTracker5ePr
                   {item.name}
                 </div>
               ) : (
-                <span>Empty</span>
+                <span>{t('sheet.attunementTracker.empty')}</span>
               )}
             </div>
           )

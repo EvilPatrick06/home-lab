@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { addToast } from '../../../hooks/use-toast'
+import { useT } from '../../../i18n'
 import { load5eFeats } from '../../../services/data-provider'
 import type { Character5e } from '../../../types/character-5e'
 import type { FeatData } from '../../../types/data'
@@ -15,6 +16,7 @@ interface FeatPickerProps {
 }
 
 export function FeatPicker({ character, takenFeatIds, onSelect, onClose }: FeatPickerProps): JSX.Element {
+  const { t } = useT()
   const [allFeats, setAllFeats] = useState<FeatData[]>([])
   const [categoryFilter, setCategoryFilter] = useState<string>('all')
   const [search, setSearch] = useState('')
@@ -25,11 +27,11 @@ export function FeatPicker({ character, takenFeatIds, onSelect, onClose }: FeatP
         .then(setAllFeats)
         .catch((err) => {
           logger.error('Failed to load feats', err)
-          addToast('Failed to load feats', 'error')
+          addToast(t('sheet.featPicker.failedToLoadFeats'), 'error')
           setAllFeats([])
         })
     }
-  }, [allFeats.length])
+  }, [allFeats.length, t])
 
   const filteredFeats = allFeats.filter((f) => {
     if (takenFeatIds.has(f.id) && !f.repeatable) return false
@@ -42,9 +44,9 @@ export function FeatPicker({ character, takenFeatIds, onSelect, onClose }: FeatP
   return (
     <div className="mt-2 border border-gray-700 rounded-lg p-3 bg-gray-900/80">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-xs text-gray-400 font-semibold">Select a Feat</span>
+        <span className="text-xs text-gray-400 font-semibold">{t('sheet.featPicker.selectFeat')}</span>
         <button onClick={onClose} className="text-xs text-gray-500 hover:text-gray-300 cursor-pointer">
-          Cancel
+          {t('common.actions.cancel')}
         </button>
       </div>
 
@@ -60,7 +62,7 @@ export function FeatPicker({ character, takenFeatIds, onSelect, onClose }: FeatP
                 : 'border border-gray-600 text-gray-400 hover:text-gray-200'
             }`}
           >
-            {cat === 'all' ? 'All' : cat}
+            {cat === 'all' ? t('sheet.featPicker.all') : cat}
           </button>
         ))}
       </div>
@@ -68,7 +70,7 @@ export function FeatPicker({ character, takenFeatIds, onSelect, onClose }: FeatP
       {/* Search */}
       <input
         type="text"
-        placeholder="Search feats..."
+        placeholder={t('sheet.featPicker.searchFeatsPlaceholder')}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         className="w-full px-2 py-1 text-sm bg-gray-800 border border-gray-700 rounded text-gray-200 placeholder-gray-500 mb-2"
@@ -80,7 +82,7 @@ export function FeatPicker({ character, takenFeatIds, onSelect, onClose }: FeatP
           <FeatPickerRow key={feat.id} feat={feat} character={character} onSelect={onSelect} />
         ))}
         {filteredFeats.length === 0 && (
-          <p className="text-xs text-gray-500 text-center py-2">No matching feats found.</p>
+          <p className="text-xs text-gray-500 text-center py-2">{t('sheet.featPicker.noMatchingFeats')}</p>
         )}
       </div>
     </div>
@@ -95,6 +97,7 @@ interface BonusFeatPickerProps {
 }
 
 export function BonusFeatPicker({ character, bonusFeats, onSelect, onClose }: BonusFeatPickerProps): JSX.Element {
+  const { t } = useT()
   const [allFeats, setAllFeats] = useState<FeatData[]>([])
   const [bonusFeatCategory, setBonusFeatCategory] = useState<string>('all')
   const [bonusFeatSearch, setBonusFeatSearch] = useState('')
@@ -105,20 +108,20 @@ export function BonusFeatPicker({ character, bonusFeats, onSelect, onClose }: Bo
         .then(setAllFeats)
         .catch((err) => {
           logger.error('Failed to load feats', err)
-          addToast('Failed to load feats', 'error')
+          addToast(t('sheet.featPicker.failedToLoadFeats'), 'error')
           setAllFeats([])
         })
     }
-  }, [allFeats.length])
+  }, [allFeats.length, t])
 
   const takenBonusIds = new Set(bonusFeats.map((bf) => bf.id))
 
   return (
     <div className="mt-2 border border-amber-700/50 rounded-lg p-3 bg-gray-900/80">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-xs text-amber-300 font-semibold">Select Bonus Feat</span>
+        <span className="text-xs text-amber-300 font-semibold">{t('sheet.featPicker.selectBonusFeat')}</span>
         <button onClick={onClose} className="text-xs text-gray-500 hover:text-gray-300 cursor-pointer">
-          Cancel
+          {t('common.actions.cancel')}
         </button>
       </div>
 
@@ -133,14 +136,14 @@ export function BonusFeatPicker({ character, bonusFeats, onSelect, onClose }: Bo
                 : 'border border-gray-600 text-gray-400 hover:text-gray-200'
             }`}
           >
-            {cat === 'all' ? 'All' : cat}
+            {cat === 'all' ? t('sheet.featPicker.all') : cat}
           </button>
         ))}
       </div>
 
       <input
         type="text"
-        placeholder="Search feats..."
+        placeholder={t('sheet.featPicker.searchFeatsPlaceholder')}
         value={bonusFeatSearch}
         onChange={(e) => setBonusFeatSearch(e.target.value)}
         className="w-full px-2 py-1 text-sm bg-gray-800 border border-gray-700 rounded text-gray-200 placeholder-gray-500 mb-2"

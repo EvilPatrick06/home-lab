@@ -3,10 +3,12 @@ import { useLocation, useNavigate, useParams } from 'react-router'
 import CharacterBuilder5e from '../components/builder/5e/CharacterBuilder5e'
 import { applyBuilderDraft, clearBuilderDraft, loadBuilderDraft, useAutoSaveBuilderDraft } from '../hooks/use-auto-save'
 import { addToast } from '../hooks/use-toast'
+import { useT } from '../i18n'
 import { useBuilderStore } from '../stores/use-builder-store'
 import type { Character } from '../types/character'
 
 export default function CreateCharacterPage(): JSX.Element {
+  const { t } = useT()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const phase = useBuilderStore((s) => s.phase)
@@ -56,8 +58,8 @@ export default function CreateCharacterPage(): JSX.Element {
       applyBuilderDraft(draft)
     }
     setDraftPrompt(false)
-    addToast('Draft resumed', 'info')
-  }, [])
+    addToast(t('pages.createCharacterPage.draftResumed'), 'info')
+  }, [t])
 
   const handleDiscardDraft = useCallback((): void => {
     clearBuilderDraft()
@@ -69,12 +71,12 @@ export default function CreateCharacterPage(): JSX.Element {
     const handler = (e: KeyboardEvent): void => {
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
         e.preventDefault()
-        addToast('Use the Save button to save your character', 'info')
+        addToast(t('pages.createCharacterPage.useSaveButton'), 'info')
       }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [])
+  }, [t])
 
   // Phase 17m — quick "Library" link from the character builder so players
   // can look up spells / items / species / class detail without leaving the
@@ -87,33 +89,31 @@ export default function CreateCharacterPage(): JSX.Element {
         type="button"
         onClick={() => navigate(`/library?from=${encodeURIComponent(location.pathname)}`)}
         className="fixed top-3 right-14 z-50 px-3 py-1 text-xs font-medium bg-gray-900/80 border border-gray-700 rounded-lg text-amber-300 hover:text-amber-200 hover:border-amber-600/50 transition-colors cursor-pointer backdrop-blur-sm"
-        title="Open the library (spells, items, species, classes, etc.)"
+        title={t('pages.createCharacterPage.libraryTitle')}
       >
-        Library
+        {t('pages.createCharacterPage.library')}
       </button>
       <CharacterBuilder5e />
       {draftPrompt && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/70" />
           <div className="relative bg-gray-900 border border-gray-700 rounded-lg p-6 max-w-sm w-full mx-4">
-            <h3 className="text-lg font-semibold mb-2">Resume Draft?</h3>
-            <p className="text-gray-400 text-sm mb-4">
-              You have an unsaved character draft. Would you like to resume where you left off?
-            </p>
+            <h3 className="text-lg font-semibold mb-2">{t('pages.createCharacterPage.resumeDraftTitle')}</h3>
+            <p className="text-gray-400 text-sm mb-4">{t('pages.createCharacterPage.resumeDraftPrompt')}</p>
             <div className="flex gap-3 justify-end">
               <button
                 onClick={handleDiscardDraft}
                 className="px-4 py-2 border border-gray-600 rounded-lg hover:bg-gray-800
                   transition-colors cursor-pointer text-sm"
               >
-                Discard
+                {t('pages.createCharacterPage.discard')}
               </button>
               <button
                 onClick={handleResumeDraft}
                 className="px-4 py-2 bg-amber-600 hover:bg-amber-500 rounded-lg
                   transition-colors cursor-pointer text-sm font-semibold text-white"
               >
-                Resume
+                {t('pages.createCharacterPage.resume')}
               </button>
             </div>
           </div>

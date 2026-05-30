@@ -1,3 +1,5 @@
+import { useT } from '../../../i18n'
+
 export function PrimalOrderSelector5e({
   slot,
   selection,
@@ -7,6 +9,7 @@ export function PrimalOrderSelector5e({
   selection: 'magician' | 'warden' | null
   onSelect: (sel: 'magician' | 'warden' | null) => void
 }): JSX.Element {
+  const { t } = useT()
   const options: Array<{ id: 'magician' | 'warden'; name: string; description: string }> = [
     {
       id: 'magician',
@@ -26,7 +29,12 @@ export function PrimalOrderSelector5e({
   return (
     <div className={`rounded ${isIncomplete ? 'ring-1 ring-amber-600/50 p-1 -m-1' : ''}`}>
       <div className="text-sm text-gray-400 mb-2 flex items-center gap-2">
-        {slot.label}:{isIncomplete && <span className="text-xs text-amber-500 font-semibold uppercase">Required</span>}
+        {slot.label}:
+        {isIncomplete && (
+          <span className="text-xs text-amber-500 font-semibold uppercase">
+            {t('levelup.primalOrderSelector.required')}
+          </span>
+        )}
       </div>
       <div className="space-y-1">
         {options.map((opt) => (
@@ -57,6 +65,7 @@ export function DivineOrderSelector5e({
   selection: 'protector' | 'thaumaturge' | null
   onSelect: (sel: 'protector' | 'thaumaturge' | null) => void
 }): JSX.Element {
+  const { t } = useT()
   const options: Array<{ id: 'protector' | 'thaumaturge'; name: string; description: string }> = [
     {
       id: 'protector',
@@ -76,7 +85,12 @@ export function DivineOrderSelector5e({
   return (
     <div className={`rounded ${isIncomplete ? 'ring-1 ring-amber-600/50 p-1 -m-1' : ''}`}>
       <div className="text-sm text-gray-400 mb-2 flex items-center gap-2">
-        {slot.label}:{isIncomplete && <span className="text-xs text-amber-500 font-semibold uppercase">Required</span>}
+        {slot.label}:
+        {isIncomplete && (
+          <span className="text-xs text-amber-500 font-semibold uppercase">
+            {t('levelup.divineOrderSelector.required')}
+          </span>
+        )}
       </div>
       <div className="space-y-1">
         {options.map((opt) => (
@@ -105,6 +119,7 @@ export function ElementalFurySelector5e({
   selection: 'potent-spellcasting' | 'primal-strike' | null
   onSelect: (sel: 'potent-spellcasting' | 'primal-strike' | null) => void
 }): JSX.Element {
+  const { t } = useT()
   const options: Array<{ id: 'potent-spellcasting' | 'primal-strike'; name: string; description: string }> = [
     {
       id: 'potent-spellcasting',
@@ -124,8 +139,12 @@ export function ElementalFurySelector5e({
   return (
     <div className={`rounded ${isIncomplete ? 'ring-1 ring-amber-600/50 p-1 -m-1' : ''}`}>
       <div className="text-sm text-gray-400 mb-2 flex items-center gap-2">
-        Elemental Fury:
-        {isIncomplete && <span className="text-xs text-amber-500 font-semibold uppercase">Required</span>}
+        {t('levelup.elementalFurySelector.heading')}
+        {isIncomplete && (
+          <span className="text-xs text-amber-500 font-semibold uppercase">
+            {t('levelup.elementalFurySelector.required')}
+          </span>
+        )}
       </div>
       <div className="space-y-1">
         {options.map((opt) => (

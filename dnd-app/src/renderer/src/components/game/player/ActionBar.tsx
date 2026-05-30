@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useT } from '../../../i18n'
 
 interface ActionBarProps {
   isMyTurn: boolean
@@ -11,65 +12,25 @@ interface Actions5e {
   reaction: boolean
 }
 
-// D&D 5e 2024 PHB actions
+// D&D 5e 2024 PHB actions. Display label + tooltip are resolved at render via
+// i18n keys (game.actionBar.actionLabel.<id> / actionTooltip.<id>).
 const ACTIONS_5E = [
-  { id: 'attack', label: 'Attack', type: 'action' as const, tooltip: 'Make a melee or ranged attack' },
-  { id: 'dash', label: 'Dash', type: 'action' as const, tooltip: 'Double your movement for this turn' },
-  {
-    id: 'disengage',
-    label: 'Disengage',
-    type: 'action' as const,
-    tooltip: 'Move without provoking Opportunity Attacks'
-  },
-  {
-    id: 'dodge',
-    label: 'Dodge',
-    type: 'action' as const,
-    tooltip:
-      'Until your next turn: attacks against you have Disadvantage, DEX saves have Advantage. Lost if Incapacitated or Speed is 0.'
-  },
-  {
-    id: 'help',
-    label: 'Help',
-    type: 'action' as const,
-    tooltip:
-      'Assist Check (requires proficiency), Assist Attack (must be within 5 ft of enemy), or Administer First Aid (DC 10 Medicine to stabilize)'
-  },
-  { id: 'hide', label: 'Hide', type: 'action' as const, tooltip: 'Make a Stealth check to become Hidden' },
-  {
-    id: 'influence',
-    label: 'Influence',
-    type: 'action' as const,
-    tooltip: 'CHA (Deception/Intimidation/Performance/Persuasion) or WIS (Animal Handling)'
-  },
-  {
-    id: 'magic',
-    label: 'Magic',
-    type: 'action' as const,
-    tooltip: 'Cast a spell, use a magic item, or use a magical feature'
-  },
-  {
-    id: 'ready',
-    label: 'Ready',
-    type: 'action' as const,
-    tooltip: 'Prepare an action with a trigger (uses your Reaction)'
-  },
-  { id: 'search', label: 'Search', type: 'action' as const, tooltip: 'WIS (Insight/Medicine/Perception/Survival)' },
-  {
-    id: 'study',
-    label: 'Study',
-    type: 'action' as const,
-    tooltip: 'INT (Arcana/History/Investigation/Nature/Religion)'
-  },
-  {
-    id: 'utilize',
-    label: 'Utilize',
-    type: 'action' as const,
-    tooltip: 'Use a nonmagical object or interact with an object'
-  }
+  { id: 'attack', type: 'action' as const },
+  { id: 'dash', type: 'action' as const },
+  { id: 'disengage', type: 'action' as const },
+  { id: 'dodge', type: 'action' as const },
+  { id: 'help', type: 'action' as const },
+  { id: 'hide', type: 'action' as const },
+  { id: 'influence', type: 'action' as const },
+  { id: 'magic', type: 'action' as const },
+  { id: 'ready', type: 'action' as const },
+  { id: 'search', type: 'action' as const },
+  { id: 'study', type: 'action' as const },
+  { id: 'utilize', type: 'action' as const }
 ]
 
 export default function ActionBar({ isMyTurn, onAction }: ActionBarProps): JSX.Element {
+  const { t } = useT()
   const [actions5e, setActions5e] = useState<Actions5e>({
     action: false,
     bonusAction: false,
@@ -105,7 +66,7 @@ export default function ActionBar({ isMyTurn, onAction }: ActionBarProps): JSX.E
               actions5e.action ? 'bg-gray-600 border-gray-600' : 'bg-amber-600 border-amber-500'
             }`}
           />
-          <span className="text-[9px] text-gray-500 mt-0.5">Act</span>
+          <span className="text-[9px] text-gray-500 mt-0.5">{t('game.actionBar.act')}</span>
         </div>
         <div className="flex flex-col items-center">
           <div
@@ -113,7 +74,7 @@ export default function ActionBar({ isMyTurn, onAction }: ActionBarProps): JSX.E
               actions5e.bonusAction ? 'bg-gray-600 border-gray-600' : 'bg-green-600 border-green-500'
             }`}
           />
-          <span className="text-[9px] text-gray-500 mt-0.5">Bonus</span>
+          <span className="text-[9px] text-gray-500 mt-0.5">{t('game.actionBar.bonus')}</span>
         </div>
         <div className="flex flex-col items-center">
           <div
@@ -121,7 +82,7 @@ export default function ActionBar({ isMyTurn, onAction }: ActionBarProps): JSX.E
               actions5e.reaction ? 'bg-gray-600 border-gray-600' : 'bg-blue-600 border-blue-500'
             }`}
           />
-          <span className="text-[9px] text-gray-500 mt-0.5">React</span>
+          <span className="text-[9px] text-gray-500 mt-0.5">{t('game.actionBar.react')}</span>
         </div>
       </div>
 
@@ -134,7 +95,13 @@ export default function ActionBar({ isMyTurn, onAction }: ActionBarProps): JSX.E
               key={action.id}
               onClick={() => handleAction5e(action.id, action.type)}
               disabled={spent || !isMyTurn}
-              title={!isMyTurn ? 'Not your turn' : spent ? 'Action already used this turn' : action.tooltip}
+              title={
+                !isMyTurn
+                  ? t('game.actionBar.notYourTurn')
+                  : spent
+                    ? t('game.actionBar.actionUsed')
+                    : t(`game.actionBar.actionTooltip.${action.id}`)
+              }
               className={`px-2.5 py-1 text-xs rounded-lg transition-colors cursor-pointer
                 ${
                   spent
@@ -143,7 +110,7 @@ export default function ActionBar({ isMyTurn, onAction }: ActionBarProps): JSX.E
                 }
                 disabled:opacity-50 disabled:cursor-not-allowed`}
             >
-              {action.label}
+              {t(`game.actionBar.actionLabel.${action.id}`)}
             </button>
           )
         })}
@@ -151,10 +118,10 @@ export default function ActionBar({ isMyTurn, onAction }: ActionBarProps): JSX.E
         <button
           onClick={() => onAction?.('mount')}
           disabled={!isMyTurn}
-          title="Mount or dismount a creature (costs half your speed)"
+          title={t('game.actionBar.mountTitle')}
           className="px-2.5 py-1 text-xs rounded-lg transition-colors cursor-pointer bg-gray-800/50 text-gray-400 hover:bg-green-700 hover:text-white border border-gray-700 border-dashed disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Mount
+          {t('game.actionBar.mount')}
         </button>
       </div>
     </div>

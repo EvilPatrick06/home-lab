@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 import { getWildShapeEligibleBeasts } from '../../../../services/character/companion-service'
 import { load5eMonsters } from '../../../../services/data-provider'
 import type { MonsterStatBlock } from '../../../../types/monster'
@@ -24,6 +25,7 @@ export default function WildShapeBrowserModal({
   onRevert,
   onUseAdjust
 }: WildShapeBrowserModalProps): JSX.Element {
+  const { t } = useT()
   useEscapeKey(onClose)
   const [_allMonsters, setAllMonsters] = useState<MonsterStatBlock[]>([])
   const [eligible, setEligible] = useState<MonsterStatBlock[]>([])
@@ -52,10 +54,18 @@ export default function WildShapeBrowserModal({
       >
         <div className="px-4 py-3 border-b border-gray-700 flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-bold text-green-400">Wild Shape</h2>
+            <h2 className="text-lg font-bold text-green-400">{t('game.wildShapeBrowserModal.title')}</h2>
             <span className="text-xs text-gray-500">
-              Level {druidLevel} Druid — Beasts up to CR {maxCR}
-              {druidLevel >= 8 ? ' (flying OK)' : druidLevel >= 4 ? ' (swim OK)' : ''}
+              {t('game.wildShapeBrowserModal.subtitle', {
+                level: druidLevel,
+                cr: maxCR,
+                suffix:
+                  druidLevel >= 8
+                    ? t('game.wildShapeBrowserModal.flyingOk')
+                    : druidLevel >= 4
+                      ? t('game.wildShapeBrowserModal.swimOk')
+                      : ''
+              })}
             </span>
           </div>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-300 text-xl cursor-pointer">
@@ -66,7 +76,7 @@ export default function WildShapeBrowserModal({
         {/* Uses bar */}
         <div className="px-4 py-2 bg-gray-800/50 border-b border-gray-700/50 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-300">Wild Shape Uses:</span>
+            <span className="text-sm text-gray-300">{t('game.wildShapeBrowserModal.usesLabel')}</span>
             <div className="flex items-center gap-1.5">
               <button
                 onClick={() => onUseAdjust(-1)}
@@ -92,7 +102,7 @@ export default function WildShapeBrowserModal({
               onClick={onRevert}
               className="px-3 py-1 text-xs bg-red-700/80 hover:bg-red-600 text-white rounded cursor-pointer"
             >
-              Revert to Normal Form
+              {t('game.wildShapeBrowserModal.revert')}
             </button>
           )}
         </div>
@@ -102,7 +112,7 @@ export default function WildShapeBrowserModal({
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Filter beasts..."
+            placeholder={t('game.wildShapeBrowserModal.filterPlaceholder')}
             className="w-full px-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-green-500"
           />
         </div>
@@ -122,11 +132,13 @@ export default function WildShapeBrowserModal({
               >
                 <div className="text-sm text-gray-200 font-medium">{m.name}</div>
                 <div className="text-xs text-gray-500">
-                  {m.size} Beast — CR {m.cr} — HP {m.hp}
+                  {t('game.wildShapeBrowserModal.beastMeta', { size: m.size, cr: m.cr, hp: m.hp })}
                 </div>
               </button>
             ))}
-            {filtered.length === 0 && <div className="text-gray-500 text-xs text-center p-4">No eligible beasts</div>}
+            {filtered.length === 0 && (
+              <div className="text-gray-500 text-xs text-center p-4">{t('game.wildShapeBrowserModal.noBeasts')}</div>
+            )}
           </div>
 
           {/* Stat block + transform */}
@@ -143,14 +155,16 @@ export default function WildShapeBrowserModal({
                   className="w-full px-4 py-2 bg-green-600 hover:bg-green-500 text-white text-sm font-semibold rounded-lg transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   {activeFormId
-                    ? 'Already Transformed'
+                    ? t('game.wildShapeBrowserModal.alreadyTransformed')
                     : wildShapeUses.current <= 0
-                      ? 'No Uses Left'
-                      : `Transform into ${selected.name}`}
+                      ? t('game.wildShapeBrowserModal.noUsesLeft')
+                      : t('game.wildShapeBrowserModal.transformInto', { name: selected.name })}
                 </button>
               </div>
             ) : (
-              <div className="text-gray-500 text-sm text-center mt-20">Select a beast to view its stat block</div>
+              <div className="text-gray-500 text-sm text-center mt-20">
+                {t('game.wildShapeBrowserModal.selectPrompt')}
+              </div>
             )}
           </div>
         </div>

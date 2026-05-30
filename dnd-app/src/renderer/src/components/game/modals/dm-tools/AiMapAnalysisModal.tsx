@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 import { getTokenStats } from '../../../../services/game/token-stats'
 import { useGameStore } from '../../../../stores/use-game-store'
 
@@ -8,6 +9,7 @@ interface AiMapAnalysisModalProps {
 }
 
 export default function AiMapAnalysisModal({ onClose }: AiMapAnalysisModalProps): JSX.Element {
+  const { t } = useT()
   const [analysis, setAnalysis] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -71,7 +73,7 @@ export default function AiMapAnalysisModal({ onClose }: AiMapAnalysisModalProps)
       if (result.success && result.analysis) {
         setAnalysis(result.analysis)
       } else {
-        setError(result.error ?? 'Analysis failed')
+        setError(result.error ?? t('game.aiMapAnalysisModal.analysisFailed'))
       }
     } catch (err) {
       setError((err as Error).message)
@@ -95,7 +97,7 @@ export default function AiMapAnalysisModal({ onClose }: AiMapAnalysisModalProps)
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-100">AI Map Analysis</h2>
+          <h2 className="text-lg font-semibold text-gray-100">{t('game.aiMapAnalysisModal.title')}</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-white text-xl leading-none cursor-pointer">
             x
           </button>
@@ -112,15 +114,19 @@ export default function AiMapAnalysisModal({ onClose }: AiMapAnalysisModalProps)
                     {activeMap.grid?.cellSize
                       ? `${Math.floor(activeMap.width / activeMap.grid.cellSize)}x${Math.floor(activeMap.height / activeMap.grid.cellSize)}`
                       : `${activeMap.width}x${activeMap.height}`}{' '}
-                    grid
+                    {t('game.aiMapAnalysisModal.grid')}
                   </span>
                   <span className="text-gray-500 ml-2">
-                    {tokenCount} token{tokenCount !== 1 ? 's' : ''}
+                    {t('game.aiMapAnalysisModal.tokenCount', { count: tokenCount })}
                   </span>
-                  {initiative && <span className="text-amber-400 ml-2">Round {initiative.round}</span>}
+                  {initiative && (
+                    <span className="text-amber-400 ml-2">
+                      {t('game.aiMapAnalysisModal.round', { round: initiative.round })}
+                    </span>
+                  )}
                 </>
               ) : (
-                <span className="text-gray-500 italic">No active map selected</span>
+                <span className="text-gray-500 italic">{t('game.aiMapAnalysisModal.noActiveMap')}</span>
               )}
             </div>
           </div>
@@ -131,7 +137,7 @@ export default function AiMapAnalysisModal({ onClose }: AiMapAnalysisModalProps)
             disabled={loading || !activeMap}
             className="w-full px-4 py-2.5 text-sm font-medium bg-purple-700 hover:bg-purple-600 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-lg cursor-pointer transition-colors"
           >
-            {loading ? 'Analyzing...' : 'Analyze Map State'}
+            {loading ? t('game.aiMapAnalysisModal.analyzing') : t('game.aiMapAnalysisModal.analyzeMapState')}
           </button>
 
           {/* Error */}
@@ -142,7 +148,9 @@ export default function AiMapAnalysisModal({ onClose }: AiMapAnalysisModalProps)
           {/* Analysis result */}
           {analysis && (
             <div className="bg-gray-800/60 border border-gray-700/50 rounded-lg p-4">
-              <h3 className="text-sm font-medium text-purple-300 mb-2">Tactical Analysis</h3>
+              <h3 className="text-sm font-medium text-purple-300 mb-2">
+                {t('game.aiMapAnalysisModal.tacticalAnalysis')}
+              </h3>
               <div className="text-sm text-gray-300 whitespace-pre-wrap leading-relaxed">{analysis}</div>
             </div>
           )}
@@ -150,7 +158,7 @@ export default function AiMapAnalysisModal({ onClose }: AiMapAnalysisModalProps)
           {/* Token summary */}
           {activeMap && activeMap.tokens.length > 0 && (
             <div>
-              <h3 className="text-xs font-medium text-gray-400 mb-1.5">Current Tokens</h3>
+              <h3 className="text-xs font-medium text-gray-400 mb-1.5">{t('game.aiMapAnalysisModal.currentTokens')}</h3>
               <div className="space-y-1">
                 {activeMap.tokens.map((token) => {
                   const maxHP = getTokenStats(token).maxHP
@@ -193,7 +201,7 @@ export default function AiMapAnalysisModal({ onClose }: AiMapAnalysisModalProps)
             onClick={onClose}
             className="px-4 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
           >
-            Close
+            {t('common.actions.close')}
           </button>
         </div>
       </div>

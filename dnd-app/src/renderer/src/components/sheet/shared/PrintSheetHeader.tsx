@@ -1,3 +1,4 @@
+import { useT } from '../../../i18n'
 import { getEffectiveClasses } from '../../../services/character/effective-character-5e'
 import type { Character5e, CharacterClass5e } from '../../../types/character-5e'
 import { formatMod } from '../../../types/character-common'
@@ -8,6 +9,7 @@ interface PrintSheetHeaderProps {
 }
 
 export default function PrintSheetHeader({ character, proficiencyBonus: pb }: PrintSheetHeaderProps): JSX.Element {
+  const { t } = useT()
   const classStr = getEffectiveClasses(character)
     .map((c: CharacterClass5e) => `${c.name}${c.subclass ? ` (${c.subclass})` : ''} ${c.level}`)
     .join(' / ')
@@ -19,25 +21,25 @@ export default function PrintSheetHeader({ character, proficiencyBonus: pb }: Pr
       </h1>
       <div className="mt-1 flex flex-wrap gap-x-6 gap-y-0.5 text-sm" style={{ fontSize: '9pt' }}>
         <span>
-          <strong>Class:</strong> {classStr}
+          <strong>{t('sheet.printSheetHeader.class')}</strong> {classStr}
         </span>
         <span>
-          <strong>Level:</strong> {character.level}
+          <strong>{t('sheet.printSheetHeader.level')}</strong> {character.level}
         </span>
         <span>
-          <strong>Species:</strong> {character.species}
+          <strong>{t('sheet.printSheetHeader.species')}</strong> {character.species}
           {character.subspecies ? ` (${character.subspecies})` : ''}
         </span>
         <span>
-          <strong>Background:</strong> {character.background}
+          <strong>{t('sheet.printSheetHeader.background')}</strong> {character.background}
         </span>
         {character.alignment && (
           <span>
-            <strong>Alignment:</strong> {character.alignment}
+            <strong>{t('sheet.printSheetHeader.alignment')}</strong> {character.alignment}
           </span>
         )}
         <span>
-          <strong>Proficiency Bonus:</strong> {formatMod(pb)}
+          <strong>{t('sheet.printSheetHeader.proficiencyBonus')}</strong> {formatMod(pb)}
         </span>
       </div>
     </div>

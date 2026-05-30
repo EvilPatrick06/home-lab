@@ -1,5 +1,6 @@
 import builtInMapsJson from '@data/5e/world/built-in-maps.json'
 import { useCallback, useState } from 'react'
+import { useT } from '../../i18n'
 import { load5eBuiltInMaps } from '../../services/data-provider'
 import type { GameMap } from '../../types/map'
 import { logger } from '../../utils/logger'
@@ -20,6 +21,7 @@ export async function loadBuiltInMapData(): Promise<unknown> {
 }
 
 export default function MapConfigStep({ maps, campaignId, onChange, adventureMaps }: MapConfigStepProps): JSX.Element {
+  const { t } = useT()
   const [showAddForm, setShowAddForm] = useState(false)
   const [newMapName, setNewMapName] = useState('')
   const [newGridSize, setNewGridSize] = useState(40)
@@ -121,18 +123,15 @@ export default function MapConfigStep({ maps, campaignId, onChange, adventureMap
 
   return (
     <div>
-      <h2 className="text-xl font-semibold mb-2">Map Configuration</h2>
-      <p className="text-gray-400 text-sm mb-6">
-        Add maps for your campaign. You can use built-in maps or upload your own images. The full map editor will be
-        available in-game.
-      </p>
+      <h2 className="text-xl font-semibold mb-2">{t('campaign.mapConfigStep.title')}</h2>
+      <p className="text-gray-400 text-sm mb-6">{t('campaign.mapConfigStep.subtitle')}</p>
 
       <div className="max-w-2xl space-y-6">
         {/* Adventure maps (read-only preview) */}
         {adventureMaps && adventureMaps.length > 0 && (
           <div>
             <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
-              From Adventure ({adventureMaps.length})
+              {t('campaign.mapConfigStep.fromAdventure', { count: adventureMaps.length })}
             </h3>
             <div className="space-y-2">
               {adventureMaps.map((am) => (
@@ -145,7 +144,9 @@ export default function MapConfigStep({ maps, campaignId, onChange, adventureMap
                     <span className="font-semibold text-sm">{am.name}</span>
                     <span className="text-xs text-gray-500 font-mono">{am.id}</span>
                   </div>
-                  <span className="text-xs px-2 py-0.5 rounded bg-amber-700/40 text-amber-300">Adventure</span>
+                  <span className="text-xs px-2 py-0.5 rounded bg-amber-700/40 text-amber-300">
+                    {t('campaign.mapConfigStep.adventureBadge')}
+                  </span>
                 </div>
               ))}
             </div>
@@ -161,13 +162,15 @@ export default function MapConfigStep({ maps, campaignId, onChange, adventureMap
             ${dragOver ? 'border-amber-500 bg-amber-900/10' : 'border-gray-700 hover:border-gray-600'}`}
         >
           <div className="text-3xl mb-2">{'\uD83D\uDDFA'}</div>
-          <p className="text-gray-400 mb-1">Drag and drop map images here</p>
-          <p className="text-gray-500 text-sm">PNG, JPG, or WebP</p>
+          <p className="text-gray-400 mb-1">{t('campaign.mapConfigStep.dropPrompt')}</p>
+          <p className="text-gray-500 text-sm">{t('campaign.mapConfigStep.supportedFormats')}</p>
         </div>
 
         {/* Built-in maps */}
         <div>
-          <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Built-in Maps</h3>
+          <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
+            {t('campaign.mapConfigStep.builtInMaps')}
+          </h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {BUILT_IN_MAPS.map((bm) => {
               const isAdded = maps.some((m) => m.id === bm.id || m.name === bm.name)
@@ -185,7 +188,7 @@ export default function MapConfigStep({ maps, campaignId, onChange, adventureMap
                 >
                   <div className="font-semibold text-sm mb-1">{bm.name}</div>
                   <div className="text-xs text-gray-500">{bm.preview}</div>
-                  {isAdded && <div className="text-xs text-amber-400 mt-2">Added</div>}
+                  {isAdded && <div className="text-xs text-amber-400 mt-2">{t('campaign.mapConfigStep.added')}</div>}
                 </button>
               )
             })}
@@ -196,7 +199,7 @@ export default function MapConfigStep({ maps, campaignId, onChange, adventureMap
         {maps.length > 0 && (
           <div>
             <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
-              Campaign Maps ({maps.length})
+              {t('campaign.mapConfigStep.campaignMaps', { count: maps.length })}
             </h3>
             <div className="space-y-2">
               {maps.map((map) => (
@@ -207,13 +210,13 @@ export default function MapConfigStep({ maps, campaignId, onChange, adventureMap
                   <div>
                     <span className="font-semibold text-sm">{map.name}</span>
                     <span className="text-gray-500 text-xs ml-2">
-                      Grid: {map.grid.cellSize}px | {map.grid.type}
+                      {t('campaign.mapConfigStep.gridInfo', { size: map.grid.cellSize, type: map.grid.type })}
                     </span>
                   </div>
                   <button
                     onClick={() => handleRemoveMap(map.id)}
                     className="text-gray-500 hover:text-red-400 transition-colors cursor-pointer text-lg"
-                    title="Remove map"
+                    title={t('campaign.mapConfigStep.removeMap')}
                   >
                     &times;
                   </button>
@@ -227,14 +230,14 @@ export default function MapConfigStep({ maps, campaignId, onChange, adventureMap
         {showAddForm ? (
           <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-5 space-y-4">
             <Input
-              label="Map Name"
-              placeholder="e.g. Dragon's Lair"
+              label={t('campaign.mapConfigStep.mapName')}
+              placeholder={t('campaign.mapConfigStep.mapNamePlaceholder')}
               value={newMapName}
               onChange={(e) => setNewMapName(e.target.value)}
             />
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-gray-400 text-sm">Grid Cell Size (px)</label>
+                <label className="text-gray-400 text-sm">{t('campaign.mapConfigStep.gridCellSize')}</label>
                 <button
                   onClick={() => setNewGridSize(40)}
                   className={`px-2 py-0.5 text-xs rounded border transition-colors cursor-pointer ${
@@ -243,7 +246,7 @@ export default function MapConfigStep({ maps, campaignId, onChange, adventureMap
                       : 'border-gray-700 bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-gray-200'
                   }`}
                 >
-                  Reset to Default (40px)
+                  {t('campaign.mapConfigStep.resetToDefault')}
                 </button>
               </div>
               <input
@@ -255,28 +258,24 @@ export default function MapConfigStep({ maps, campaignId, onChange, adventureMap
                 value={newGridSize}
                 onChange={(e) => setNewGridSize(Math.max(20, Math.min(100, parseInt(e.target.value, 10) || 40)))}
               />
-              <span className="text-gray-500 text-sm ml-3">20 - 100 px</span>
+              <span className="text-gray-500 text-sm ml-3">{t('campaign.mapConfigStep.gridSizeRange')}</span>
             </div>
             <div className="flex gap-3">
               <Button onClick={handleAddCustomMap} disabled={!newMapName.trim()}>
-                Add Map
+                {t('campaign.mapConfigStep.addMap')}
               </Button>
               <Button variant="secondary" onClick={() => setShowAddForm(false)}>
-                Cancel
+                {t('common.actions.cancel')}
               </Button>
             </div>
           </div>
         ) : (
           <Button variant="secondary" onClick={() => setShowAddForm(true)}>
-            + Add Custom Map
+            {t('campaign.mapConfigStep.addCustomMap')}
           </Button>
         )}
 
-        {maps.length === 0 && (
-          <p className="text-gray-500 text-sm">
-            No maps added yet. You can add maps later from the campaign detail page.
-          </p>
-        )}
+        {maps.length === 0 && <p className="text-gray-500 text-sm">{t('campaign.mapConfigStep.emptyState')}</p>}
       </div>
     </div>
   )

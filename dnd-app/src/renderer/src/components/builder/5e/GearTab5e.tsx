@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useT } from '../../../i18n'
 import { useBuilderStore } from '../../../stores/use-builder-store'
 import { deductWithConversion, parseCost, totalInCopper } from '../../../utils/currency'
 import SectionBanner from '../shared/SectionBanner'
@@ -70,39 +71,40 @@ function EditableCurrencyCircle({
 }
 
 function ItemDetailView({ item }: { item: ReturnType<typeof lookupItem> }): JSX.Element | null {
-  if (!item) return <p className="text-xs text-gray-500 italic px-2 py-1">No mechanical data available.</p>
+  const { t } = useT()
+  if (!item) return <p className="text-xs text-gray-500 italic px-2 py-1">{t('builder.gearTab.noMechanicalData')}</p>
 
   if (item.type === 'weapon') {
     const w = item.data
     const weaponProps = w.properties ?? []
     const costStr = w.cost ?? ''
-    const weightStr = w.weight !== undefined ? `${w.weight} lb.` : ''
+    const weightStr = w.weight !== undefined ? t('builder.gearTab.weightValue', { weight: w.weight }) : ''
     return (
       <div className="px-2 py-1.5 space-y-1 text-xs text-gray-400">
         <div className="flex gap-4">
           <span>
-            <span className="text-gray-500">Damage:</span>{' '}
+            <span className="text-gray-500">{t('builder.gearTab.damageLabel')}</span>{' '}
             <span className="text-red-400 font-medium">
               {w.damage} {w.damageType}
             </span>
           </span>
           <span>
-            <span className="text-gray-500">Type:</span> {w.category}
+            <span className="text-gray-500">{t('builder.gearTab.typeLabel')}</span> {w.category}
           </span>
         </div>
         <div className="flex gap-4">
           {weightStr && (
             <span>
-              <span className="text-gray-500">Weight:</span> {weightStr}
+              <span className="text-gray-500">{t('builder.gearTab.weightLabel')}</span> {weightStr}
             </span>
           )}
           <span>
-            <span className="text-gray-500">Cost:</span> {costStr}
+            <span className="text-gray-500">{t('builder.gearTab.costLabel')}</span> {costStr}
           </span>
         </div>
         {weaponProps.length > 0 && (
           <div>
-            <span className="text-gray-500">Properties:</span> {weaponProps.join(', ')}
+            <span className="text-gray-500">{t('builder.gearTab.propertiesLabel')}</span> {weaponProps.join(', ')}
           </div>
         )}
         {w.description && <div className="text-gray-500 mt-1">{w.description}</div>}
@@ -121,24 +123,27 @@ function ItemDetailView({ item }: { item: ReturnType<typeof lookupItem> }): JSX.
       <div className="px-2 py-1.5 space-y-1 text-xs text-gray-400">
         <div className="flex gap-4">
           <span>
-            <span className="text-gray-500">AC:</span> <span className="text-blue-400 font-medium">{acStr}</span>
+            <span className="text-gray-500">{t('builder.gearTab.acLabel')}</span>{' '}
+            <span className="text-blue-400 font-medium">{acStr}</span>
           </span>
           <span>
-            <span className="text-gray-500">Type:</span> {a.category}
+            <span className="text-gray-500">{t('builder.gearTab.typeLabel')}</span> {a.category}
           </span>
         </div>
         <div className="flex gap-4">
           <span>
-            <span className="text-gray-500">Weight:</span> {a.weight} lb.
+            <span className="text-gray-500">{t('builder.gearTab.weightLabel')}</span>{' '}
+            {t('builder.gearTab.weightValue', { weight: a.weight })}
           </span>
           <span>
-            <span className="text-gray-500">Cost:</span> {a.cost}
+            <span className="text-gray-500">{t('builder.gearTab.costLabel')}</span> {a.cost}
           </span>
         </div>
-        {!!a.stealthDisadvantage && <div className="text-yellow-500">Stealth Disadvantage</div>}
+        {!!a.stealthDisadvantage && <div className="text-yellow-500">{t('builder.gearTab.stealthDisadvantage')}</div>}
         {!!a.strengthRequirement && (
           <div>
-            <span className="text-gray-500">Str Required:</span> {String(a.strengthRequirement)}
+            <span className="text-gray-500">{t('builder.gearTab.strRequiredLabel')}</span>{' '}
+            {String(a.strengthRequirement)}
           </div>
         )}
         {typeof a.description === 'string' && a.description && (
@@ -156,11 +161,12 @@ function ItemDetailView({ item }: { item: ReturnType<typeof lookupItem> }): JSX.
       <div className="flex gap-4">
         {g.weight !== undefined && (
           <span>
-            <span className="text-gray-500">Weight:</span> {g.weight} lb.
+            <span className="text-gray-500">{t('builder.gearTab.weightLabel')}</span>{' '}
+            {t('builder.gearTab.weightValue', { weight: g.weight })}
           </span>
         )}
         <span>
-          <span className="text-gray-500">Cost:</span> {g.cost}
+          <span className="text-gray-500">{t('builder.gearTab.costLabel')}</span> {g.cost}
         </span>
       </div>
     </div>
@@ -176,6 +182,7 @@ function InventoryItem({
   equipDb: EquipmentDatabase | null
   onRemove: () => void
 }): JSX.Element {
+  const { t } = useT()
   const [expanded, setExpanded] = useState(false)
   const looked = expanded ? lookupItem(equipDb, item.name) : null
 
@@ -197,7 +204,11 @@ function InventoryItem({
         <div className="flex items-center gap-2 min-w-0">
           <span className={`text-xs transition-transform ${expanded ? 'rotate-90' : ''}`}>&#9654;</span>
           <span className="truncate">{item.name}</span>
-          {item.quantity > 1 && <span className="text-xs text-gray-500 font-medium">x{item.quantity}</span>}
+          {item.quantity > 1 && (
+            <span className="text-xs text-gray-500 font-medium">
+              {t('builder.gearTab.quantity', { quantity: item.quantity })}
+            </span>
+          )}
         </div>
         <button
           onClick={(e) => {
@@ -205,8 +216,8 @@ function InventoryItem({
             onRemove()
           }}
           className="text-gray-600 hover:text-red-400 transition-colors ml-2 shrink-0 text-xs px-1"
-          title="Remove item"
-          aria-label="Remove item"
+          title={t('builder.gearTab.removeItem')}
+          aria-label={t('builder.gearTab.removeItem')}
         >
           ✕
         </button>
@@ -221,6 +232,7 @@ function InventoryItem({
 }
 
 export default function GearTab5e(): JSX.Element {
+  const { t } = useT()
   const classEquipment = useBuilderStore((s) => s.classEquipment)
   const bgEquipment = useBuilderStore((s) => s.bgEquipment)
   const currency = useBuilderStore((s) => s.currency)
@@ -268,7 +280,12 @@ export default function GearTab5e(): JSX.Element {
         const totalCp = totalInCopper(currency)
         const costCp = cost.amount * { pp: 1000, gp: 100, sp: 10, cp: 1 }[cost.currency]
         setShopWarning(
-          `Not enough funds (need ${cost.amount} ${cost.currency.toUpperCase()} = ${costCp} cp, have ${totalCp} cp total)`
+          t('builder.gearTab.notEnoughFunds', {
+            amount: cost.amount,
+            currency: cost.currency.toUpperCase(),
+            costCp,
+            totalCp
+          })
         )
         if (shopWarningTimerRef.current !== null) clearTimeout(shopWarningTimerRef.current)
         shopWarningTimerRef.current = setTimeout(() => setShopWarning(null), 3000)
@@ -283,7 +300,7 @@ export default function GearTab5e(): JSX.Element {
   return (
     <div>
       {/* Currency */}
-      <SectionBanner label="CURRENCY" />
+      <SectionBanner label={t('builder.gearTab.sectionCurrency')} />
       <div className="flex justify-center gap-4 px-4 py-4 border-b border-gray-800">
         {CURRENCY_CONFIG.map((c) => (
           <EditableCurrencyCircle
@@ -304,7 +321,7 @@ export default function GearTab5e(): JSX.Element {
           onClick={() => setShowShop(!showShop)}
           className="w-full text-sm text-gray-300 bg-gray-700/50 border border-gray-600/50 rounded-lg px-4 py-2 hover:bg-gray-700 transition-colors"
         >
-          {showShop ? 'Hide Shop' : 'Shop'}
+          {showShop ? t('builder.gearTab.hideShop') : t('builder.gearTab.shop')}
         </button>
       </div>
 
@@ -321,7 +338,7 @@ export default function GearTab5e(): JSX.Element {
       )}
 
       {/* Inventory */}
-      <SectionBanner label="INVENTORY" />
+      <SectionBanner label={t('builder.gearTab.sectionInventory')} />
       <div className="px-4 py-3">
         {hasEquipment ? (
           <div>
@@ -335,7 +352,7 @@ export default function GearTab5e(): JSX.Element {
             ))}
           </div>
         ) : (
-          <p className="text-sm text-gray-500 italic">Select a class and background to see starting equipment.</p>
+          <p className="text-sm text-gray-500 italic">{t('builder.gearTab.emptyInventory')}</p>
         )}
       </div>
     </div>

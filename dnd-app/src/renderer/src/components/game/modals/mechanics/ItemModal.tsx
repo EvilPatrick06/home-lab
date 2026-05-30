@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { trigger3dDice } from '../../../../components/game/dice3d'
 import { getConsumableEffects } from '../../../../data/effect-definitions'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 import { getEffectiveMagicItems } from '../../../../services/character/effective-character-5e'
 import { rollMultiple } from '../../../../services/dice/dice-service'
 import { useCharacterStore } from '../../../../stores/use-character-store'
@@ -27,6 +28,7 @@ function rollDice(formula: string): { total: number; rolls: number[]; formula: s
 }
 
 export default function ItemModal({ character, onClose, onUseItem }: ItemModalProps): JSX.Element {
+  const { t } = useT()
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null)
   const [rollResult, setRollResult] = useState<{
     itemName: string
@@ -59,7 +61,7 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
     const effectSource = getConsumableEffects(item.name)
     if (!effectSource) {
       // No known effects, just broadcast usage
-      if (onUseItem) onUseItem(item.name, `${character.name} uses ${item.name}`)
+      if (onUseItem) onUseItem(item.name, t('game.itemModal.usesItem', { name: character.name, item: item.name }))
       return
     }
 
@@ -92,9 +94,15 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
         }
 
         if (onUseItem) {
+          const rollBreakdown = `${result.rolls.join('+')}${effect.dice.includes('+') ? `+${effect.dice.split('+')[1]}` : ''}`
           onUseItem(
             item.name,
-            `${character.name} drinks ${item.name} and heals ${result.total} HP! [${result.rolls.join('+')}${effect.dice.includes('+') ? `+${effect.dice.split('+')[1]}` : ''}]`
+            t('game.itemModal.drinksHeals', {
+              name: character.name,
+              item: item.name,
+              hp: result.total,
+              breakdown: rollBreakdown
+            })
           )
         }
         return
@@ -118,19 +126,22 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
 
         setRollResult({ itemName: item.name, total: effect.value, rolls: [], formula: '', effectType: 'temp_hp' })
         if (onUseItem) {
-          onUseItem(item.name, `${character.name} drinks ${item.name} and gains ${effect.value} temporary HP!`)
+          onUseItem(
+            item.name,
+            t('game.itemModal.drinksTempHp', { name: character.name, item: item.name, hp: effect.value })
+          )
         }
         return
       }
     }
 
     // Fallback: just broadcast
-    if (onUseItem) onUseItem(item.name, `${character.name} uses ${item.name}`)
+    if (onUseItem) onUseItem(item.name, t('game.itemModal.usesItem', { name: character.name, item: item.name }))
   }
 
   const handleUseItem = (item: { name: string; quantity: number }): void => {
     if (onUseItem) {
-      onUseItem(item.name, `${character.name} uses ${item.name}`)
+      onUseItem(item.name, t('game.itemModal.usesItem', { name: character.name, item: item.name }))
     }
   }
 
@@ -139,11 +150,11 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
       <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-lg w-full mx-4 shadow-2xl max-h-[60vh] flex flex-col">
         <div className="flex items-center justify-between mb-3 shrink-0">
-          <h3 className="text-sm font-semibold text-gray-200">Equipment & Items</h3>
+          <h3 className="text-sm font-semibold text-gray-200">{t('game.itemModal.title')}</h3>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-300 text-lg cursor-pointer"
-            aria-label="Close"
+            aria-label={t('common.actions.close')}
           >
             &times;
           </button>
@@ -155,7 +166,9 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
         {treasure && (
           <div className="mb-3 grid grid-cols-2 gap-2 text-[11px] shrink-0">
             <div className="rounded-lg border border-gray-700/50 bg-gray-800/40 px-3 py-2">
-              <div className="text-[9px] uppercase tracking-wider text-gray-500 mb-1">Currency</div>
+              <div className="text-[9px] uppercase tracking-wider text-gray-500 mb-1">
+                {t('game.itemModal.currency')}
+              </div>
               <div className="flex flex-wrap gap-x-3 gap-y-0.5 font-mono text-gray-300">
                 {treasure.pp > 0 && (
                   <span>
@@ -179,10 +192,12 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
               </div>
             </div>
             <div className="rounded-lg border border-gray-700/50 bg-gray-800/40 px-3 py-2">
-              <div className="text-[9px] uppercase tracking-wider text-gray-500 mb-1">Carry weight</div>
+              <div className="text-[9px] uppercase tracking-wider text-gray-500 mb-1">
+                {t('game.itemModal.carryWeight')}
+              </div>
               <div className={`font-mono text-sm ${isEncumbered ? 'text-red-400' : 'text-gray-200'}`}>
                 {totalWeight.toFixed(1)} / {carryCapacity} lb
-                {isEncumbered && <span className="ml-1 text-xs uppercase">Encumbered</span>}
+                {isEncumbered && <span className="ml-1 text-xs uppercase">{t('game.itemModal.encumbered')}</span>}
               </div>
             </div>
           </div>
@@ -202,7 +217,9 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
               <div
                 className={`text-2xl font-bold font-mono ${rollResult.effectType === 'healing' ? 'text-green-400' : 'text-blue-400'}`}
               >
-                {rollResult.effectType === 'healing' ? `+${rollResult.total} HP` : `${rollResult.total} Temp HP`}
+                {rollResult.effectType === 'healing'
+                  ? t('game.itemModal.healResult', { total: rollResult.total })
+                  : t('game.itemModal.tempHpResult', { total: rollResult.total })}
               </div>
               {rollResult.rolls.length > 0 && (
                 <div className="flex gap-1 justify-center mt-1">
@@ -224,7 +241,7 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
               onClick={() => setRollResult(null)}
               className="w-full mt-2 py-1 text-xs text-gray-400 hover:text-gray-300 cursor-pointer"
             >
-              Dismiss
+              {t('game.itemModal.dismiss')}
             </button>
           </div>
         )}
@@ -233,7 +250,9 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
           {/* Magic items with charges */}
           {magicItems.filter((mi) => mi.charges).length > 0 && (
             <div className="mb-2">
-              <div className="text-xs text-purple-400 uppercase tracking-wide mb-1">Magic Items (Charges)</div>
+              <div className="text-xs text-purple-400 uppercase tracking-wide mb-1">
+                {t('game.itemModal.magicItemsCharges')}
+              </div>
               {magicItems
                 .filter((mi) => mi.charges)
                 .map((mi, i) => (
@@ -254,7 +273,12 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
                         if (onUseItem) {
                           onUseItem(
                             mi.name,
-                            `${character.name} uses ${mi.name} (${mi.charges.current - 1}/${mi.charges.max} charges remaining)`
+                            t('game.itemModal.usesCharge', {
+                              name: character.name,
+                              item: mi.name,
+                              current: mi.charges.current - 1,
+                              max: mi.charges.max
+                            })
                           )
                         }
                         const latest = useCharacterStore.getState().characters.find((c) => c.id === character.id)
@@ -279,7 +303,7 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
                       disabled={!mi.charges || mi.charges.current <= 0}
                       className="w-full mt-1 py-1 text-xs rounded bg-purple-600/80 text-white hover:bg-purple-500 transition-colors cursor-pointer font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
                     >
-                      Use Charge ({mi.charges?.current} remaining)
+                      {t('game.itemModal.useCharge', { current: mi.charges?.current })}
                     </button>
                   </div>
                 ))}
@@ -288,7 +312,7 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
 
           {/* Regular equipment */}
           {equipment.length === 0 ? (
-            <p className="text-xs text-gray-500 text-center py-4">No equipment</p>
+            <p className="text-xs text-gray-500 text-center py-4">{t('game.itemModal.noEquipment')}</p>
           ) : (
             equipment.map((item, i) => {
               const isExpanded = expandedIndex === i
@@ -323,7 +347,7 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
                     <div className="flex items-center gap-2">
                       {'isEquipped' in item && (item as { isEquipped?: boolean }).isEquipped && (
                         <span className="text-[9px] text-green-400 bg-green-900/30 border border-green-700/30 rounded px-1.5 py-0.5">
-                          Equipped
+                          {t('game.itemModal.equipped')}
                         </span>
                       )}
                     </div>
@@ -333,22 +357,22 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
                     <div className="px-3 pb-2 space-y-1.5 border-t border-gray-700/30">
                       {description && <p className="text-[11px] text-gray-400 pt-1.5">{description}</p>}
                       <div className="flex items-center gap-3 text-xs text-gray-500">
-                        {weight != null && <span>Weight: {weight} lb</span>}
-                        {cost && <span>Cost: {cost}</span>}
+                        {weight != null && <span>{t('game.itemModal.weight', { weight })}</span>}
+                        {cost && <span>{t('game.itemModal.cost', { cost })}</span>}
                       </div>
                       {hasEffect ? (
                         <button
                           onClick={() => handleUseConsumable(item, i)}
                           className="w-full py-1.5 text-xs rounded bg-green-600/80 text-white hover:bg-green-500 transition-colors cursor-pointer font-semibold"
                         >
-                          Use {item.name} (Auto-Apply Effect)
+                          {t('game.itemModal.useAutoApply', { name: item.name })}
                         </button>
                       ) : (
                         <button
                           onClick={() => handleUseItem(item)}
                           className="w-full py-1 text-xs rounded bg-amber-600/80 text-white hover:bg-amber-500 transition-colors cursor-pointer font-semibold"
                         >
-                          {isConsumable ? 'Use Item (Consumable)' : 'Use Item'}
+                          {isConsumable ? t('game.itemModal.useConsumable') : t('game.itemModal.useItem')}
                         </button>
                       )}
                     </div>

@@ -7,6 +7,7 @@ import {
   type Season as WeatherSeason,
   weatherToOverride
 } from '../../../../data/weather-tables'
+import { useT } from '../../../../i18n'
 import { useGameStore } from '../../../../stores/use-game-store'
 
 const WEATHER_PRESETS = [
@@ -48,6 +49,7 @@ function cToF(c: number): number {
 }
 
 export default function WeatherOverridePanel(): JSX.Element {
+  const { t } = useT()
   const weatherOverride = useGameStore((s) => s.weatherOverride)
   const setWeatherOverride = useGameStore((s) => s.setWeatherOverride)
   const savedWeatherPresets = useGameStore((s) => s.savedWeatherPresets)
@@ -114,7 +116,7 @@ export default function WeatherOverridePanel(): JSX.Element {
   return (
     <div className="border-t border-gray-800 pt-3">
       <div className="flex items-center justify-between mb-2">
-        <div className="text-xs font-semibold text-gray-300">Weather Override</div>
+        <div className="text-xs font-semibold text-gray-300">{t('game.weatherOverridePanel.title')}</div>
         <div className="flex items-center gap-1">
           <button
             onClick={() => {
@@ -127,7 +129,7 @@ export default function WeatherOverridePanel(): JSX.Element {
                 : 'bg-gray-800 text-gray-400 border border-gray-700 hover:bg-gray-700'
             }`}
           >
-            Auto
+            {t('game.weatherOverridePanel.auto')}
           </button>
           <button
             onClick={() => setWeatherMode('manual')}
@@ -137,7 +139,7 @@ export default function WeatherOverridePanel(): JSX.Element {
                 : 'bg-gray-800 text-gray-400 border border-gray-700 hover:bg-gray-700'
             }`}
           >
-            Manual
+            {t('game.weatherOverridePanel.manual')}
           </button>
         </div>
       </div>
@@ -146,7 +148,9 @@ export default function WeatherOverridePanel(): JSX.Element {
         <div className="space-y-3 bg-gray-800/50 rounded-lg p-3">
           {/* Preset Dropdown */}
           <div>
-            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Preset</label>
+            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">
+              {t('game.weatherOverridePanel.preset')}
+            </label>
             <select
               value={wPreset}
               onChange={(e) => setWPreset(e.target.value)}
@@ -162,11 +166,13 @@ export default function WeatherOverridePanel(): JSX.Element {
 
           {/* Custom Description */}
           <div>
-            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Description</label>
+            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">
+              {t('game.weatherOverridePanel.description')}
+            </label>
             <textarea
               value={wDescription}
               onChange={(e) => setWDescription(e.target.value)}
-              placeholder="A thick fog rolls in from the marshlands..."
+              placeholder={t('game.weatherOverridePanel.descriptionPlaceholder')}
               rows={2}
               className="w-full px-2 py-1 text-xs bg-gray-800 border border-gray-700 rounded text-gray-200 resize-none"
             />
@@ -176,9 +182,7 @@ export default function WeatherOverridePanel(): JSX.Element {
           <div>
             <div className="flex items-center justify-between mb-1">
               <label className="text-xs text-gray-500 uppercase tracking-wide">
-                Temperature: {wTemp}
-                {'\u00b0'}
-                {wTempUnit}
+                {t('game.weatherOverridePanel.temperature', { temp: wTemp, unit: wTempUnit })}
               </label>
               <button
                 onClick={() => {
@@ -220,7 +224,9 @@ export default function WeatherOverridePanel(): JSX.Element {
 
           {/* Wind Speed */}
           <div>
-            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Wind Speed</label>
+            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">
+              {t('game.weatherOverridePanel.windSpeed')}
+            </label>
             <select
               value={wWind}
               onChange={(e) => setWWind(e.target.value)}
@@ -236,7 +242,9 @@ export default function WeatherOverridePanel(): JSX.Element {
 
           {/* Mechanical Effects Checkboxes */}
           <div>
-            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Mechanical Effects</label>
+            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">
+              {t('game.weatherOverridePanel.mechanicalEffects')}
+            </label>
             <div className="grid grid-cols-2 gap-1">
               {MECHANICAL_EFFECTS.map((effect) => (
                 <label key={effect} className="flex items-center gap-1.5 text-[11px] text-gray-300 cursor-pointer">
@@ -254,7 +262,9 @@ export default function WeatherOverridePanel(): JSX.Element {
 
           {/* Random Weather Generator */}
           <div className="border-t border-gray-700 pt-2">
-            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Generate Random Weather</label>
+            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">
+              {t('game.weatherOverridePanel.generateRandom')}
+            </label>
             <div className="flex items-center gap-2">
               <select
                 value={randomClimate}
@@ -291,7 +301,7 @@ export default function WeatherOverridePanel(): JSX.Element {
                 }}
                 className="px-3 py-1 text-xs bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 rounded text-purple-300 cursor-pointer whitespace-nowrap"
               >
-                Roll
+                {t('game.weatherOverridePanel.roll')}
               </button>
             </div>
           </div>
@@ -302,14 +312,14 @@ export default function WeatherOverridePanel(): JSX.Element {
               onClick={applyWeatherOverride}
               className="px-3 py-1.5 text-xs bg-amber-600/20 hover:bg-amber-600/30 border border-amber-500/30 rounded text-amber-300 cursor-pointer"
             >
-              Apply Override
+              {t('game.weatherOverridePanel.applyOverride')}
             </button>
             <div className="flex items-center gap-1 flex-1">
               <input
                 type="text"
                 value={presetSaveName}
                 onChange={(e) => setPresetSaveName(e.target.value)}
-                placeholder="Preset name..."
+                placeholder={t('game.weatherOverridePanel.presetNamePlaceholder')}
                 className="flex-1 px-2 py-1 text-xs bg-gray-800 border border-gray-700 rounded text-gray-200"
               />
               <button
@@ -317,7 +327,7 @@ export default function WeatherOverridePanel(): JSX.Element {
                 disabled={!presetSaveName.trim()}
                 className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded text-gray-300 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                Save
+                {t('common.actions.save')}
               </button>
             </div>
           </div>
@@ -325,7 +335,9 @@ export default function WeatherOverridePanel(): JSX.Element {
           {/* Saved Presets */}
           {savedWeatherPresets.length > 0 && (
             <div>
-              <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Saved Presets</label>
+              <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">
+                {t('game.weatherOverridePanel.savedPresets')}
+              </label>
               <div className="flex flex-wrap gap-1">
                 {savedWeatherPresets.map((sp) => (
                   <div key={sp.name} className="flex items-center gap-0.5">
@@ -338,7 +350,7 @@ export default function WeatherOverridePanel(): JSX.Element {
                     <button
                       onClick={() => removeSavedWeatherPreset(sp.name)}
                       className="px-1 py-0.5 text-xs bg-gray-700 hover:bg-red-700/50 rounded-r text-gray-500 hover:text-red-300 cursor-pointer"
-                      title="Remove preset"
+                      title={t('game.weatherOverridePanel.removePreset')}
                     >
                       x
                     </button>

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { trigger3dDice } from '../../../components/game/dice3d'
+import { i18n, useT } from '../../../i18n'
 import type { HaggleRequestPayload, ShopItem, ShopItemCategory } from '../../../network'
 import { rollSingle } from '../../../services/dice/dice-service'
 import { useNetworkStore } from '../../../stores/network-store'
@@ -19,26 +20,13 @@ interface TransactionRecord {
   result?: string
 }
 
-const CATEGORY_LABELS: Record<ShopItemCategory | 'all', string> = {
-  all: 'All',
-  weapon: 'Weapons',
-  armor: 'Armor',
-  potion: 'Potions',
-  scroll: 'Scrolls',
-  wondrous: 'Wondrous',
-  tool: 'Tools',
-  adventuring: 'Adventuring',
-  trade: 'Trade Goods',
-  other: 'Other'
-}
-
 function formatPrice(price: ShopItem['price']): string {
   const parts: string[] = []
   if (price.pp) parts.push(`${price.pp} pp`)
   if (price.gp) parts.push(`${price.gp} gp`)
   if (price.sp) parts.push(`${price.sp} sp`)
   if (price.cp) parts.push(`${price.cp} cp`)
-  return parts.join(', ') || 'Free'
+  return parts.join(', ') || i18n.t('game.shopView.free')
 }
 
 function priceInCp(price: ShopItem['price']): number {
@@ -93,6 +81,7 @@ function addCurrency(character: Character, price: ShopItem['price']): Character 
 }
 
 export default function ShopView(): JSX.Element | null {
+  const { t } = useT()
   const { shopOpen, shopName, shopInventory, closeShop } = useGameStore(
     useShallow((s) => ({
       shopOpen: s.shopOpen,
@@ -189,7 +178,7 @@ export default function ShopView(): JSX.Element | null {
         itemName,
         price: sellPrice,
         timestamp: Date.now(),
-        result: `Sold for ${formatPrice(sellPrice)}`
+        result: t('game.shopView.soldFor', { price: formatPrice(sellPrice) })
       },
       ...prev
     ])
@@ -207,7 +196,7 @@ export default function ShopView(): JSX.Element | null {
           : 0
         : 0
     const total = roll + chaMod + profBonus
-    trigger3dDice({ formula: '1d20', rolls: [roll], total, rollerName: localChar?.name ?? 'Player' })
+    trigger3dDice({ formula: '1d20', rolls: [roll], total, rollerName: localChar?.name ?? t('game.shopView.player') })
 
     setHagglePending(item.id)
     const hagglePayload: HaggleRequestPayload = {
@@ -235,7 +224,7 @@ export default function ShopView(): JSX.Element | null {
         itemName: item.name,
         price: item.price,
         timestamp: Date.now(),
-        result: `Persuasion: ${roll} + ${chaMod + profBonus} = ${total}`
+        result: t('game.shopView.persuasionResult', { roll, modifier: chaMod + profBonus, total })
       },
       ...prev
     ])
@@ -244,8 +233,13 @@ export default function ShopView(): JSX.Element | null {
   // Player's current gold display
   const playerGold =
     localChar && is5eCharacter(localChar)
-      ? `${localChar.treasure.pp ?? 0} pp, ${localChar.treasure.gp ?? 0} gp, ${localChar.treasure.sp ?? 0} sp, ${localChar.treasure.cp ?? 0} cp`
-      : 'N/A'
+      ? t('game.shopView.purseAmount', {
+          pp: localChar.treasure.pp ?? 0,
+          gp: localChar.treasure.gp ?? 0,
+          sp: localChar.treasure.sp ?? 0,
+          cp: localChar.treasure.cp ?? 0
+        })
+      : t('game.shopView.notApplicable')
 
   // Sellable equipment from character
   const sellableItems = localChar && is5eCharacter(localChar) ? localChar.equipment.filter((e) => e.quantity > 0) : []
@@ -256,7 +250,7 @@ export default function ShopView(): JSX.Element | null {
       <div className="flex items-center justify-between px-3 py-2 border-b border-gray-700/50">
         <h3 className="text-sm font-semibold text-amber-400">{shopName}</h3>
         <div className="flex items-center gap-3">
-          <span className="text-xs text-gray-400">Purse: {playerGold}</span>
+          <span className="text-xs text-gray-400">{t('game.shopView.purse', { amount: playerGold })}</span>
           <button onClick={closeShop} className="text-xs text-gray-500 hover:text-gray-300 cursor-pointer">
             &#10005;
           </button>
@@ -273,7 +267,7 @@ export default function ShopView(): JSX.Element | null {
               activeTab === tab ? 'text-amber-400 border-b-2 border-amber-400' : 'text-gray-500 hover:text-gray-300'
             }`}
           >
-            {tab}
+            {t(`game.shopView.tab_${tab}`)}
           </button>
         ))}
       </div>
@@ -287,7 +281,7 @@ export default function ShopView(): JSX.Element | null {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search items..."
+              placeholder={t('game.shopView.searchPlaceholder')}
               className="flex-1 px-2 py-1 rounded bg-gray-800 border border-gray-700 text-xs text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
             />
             <select
@@ -295,10 +289,10 @@ export default function ShopView(): JSX.Element | null {
               onChange={(e) => setCategoryFilter(e.target.value as ShopItemCategory | 'all')}
               className="px-2 py-1 rounded bg-gray-800 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
             >
-              <option value="all">All</option>
+              <option value="all">{t('game.shopView.category.all')}</option>
               {Array.from(availableCategories).map((cat) => (
                 <option key={cat} value={cat}>
-                  {CATEGORY_LABELS[cat as ShopItemCategory] ?? cat}
+                  {t(`game.shopView.category.${cat}`)}
                 </option>
               ))}
             </select>
@@ -307,7 +301,7 @@ export default function ShopView(): JSX.Element | null {
           {/* Items list */}
           <div className="space-y-1 max-h-48 overflow-y-auto">
             {filteredItems.length === 0 ? (
-              <EmptyState compact title="No items available" />
+              <EmptyState compact title={t('game.shopView.noItemsAvailable')} />
             ) : (
               filteredItems.map((item) => {
                 const affordable = localChar ? canAfford(localChar, item.price) : false
@@ -342,7 +336,7 @@ export default function ShopView(): JSX.Element | null {
                             : 'bg-gray-700 text-gray-500 cursor-not-allowed'
                         }`}
                       >
-                        Buy
+                        {t('game.shopView.buy')}
                       </button>
                       <button
                         onClick={() => handleHaggle(item)}
@@ -353,7 +347,7 @@ export default function ShopView(): JSX.Element | null {
                             : 'bg-gray-700 text-gray-500 cursor-not-allowed'
                         }`}
                       >
-                        {hagglePending === item.id ? 'Haggling...' : 'Haggle'}
+                        {hagglePending === item.id ? t('game.shopView.haggling') : t('game.shopView.haggle')}
                       </button>
                     </div>
                   </div>
@@ -367,9 +361,9 @@ export default function ShopView(): JSX.Element | null {
       {/* Sell tab */}
       {activeTab === 'sell' && (
         <div className="p-2 space-y-1 max-h-48 overflow-y-auto">
-          <p className="text-xs text-gray-500 mb-1">Sell items at 50% value</p>
+          <p className="text-xs text-gray-500 mb-1">{t('game.shopView.sellAtHalf')}</p>
           {sellableItems.length === 0 ? (
-            <EmptyState compact title="No items to sell" />
+            <EmptyState compact title={t('game.shopView.noItemsToSell')} />
           ) : (
             sellableItems.map((item, idx) => {
               const shopRef = shopInventory.find((si) => si.name.toLowerCase() === item.name.toLowerCase())
@@ -382,7 +376,9 @@ export default function ShopView(): JSX.Element | null {
                 >
                   <div className="flex-1 min-w-0">
                     <span className="text-sm text-gray-200">{item.name}</span>
-                    <span className="text-xs text-gray-500 ml-1.5">x{item.quantity}</span>
+                    <span className="text-xs text-gray-500 ml-1.5">
+                      {t('game.shopView.quantity', { count: item.quantity })}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 ml-2 shrink-0">
                     <span className="text-xs text-amber-400">{formatPrice(sellPrice)}</span>
@@ -390,7 +386,7 @@ export default function ShopView(): JSX.Element | null {
                       onClick={() => handleSell(item.name)}
                       className="text-xs px-2 py-0.5 rounded bg-amber-700 hover:bg-amber-600 text-white cursor-pointer"
                     >
-                      Sell 1
+                      {t('game.shopView.sellOne')}
                     </button>
                   </div>
                 </div>
@@ -404,7 +400,7 @@ export default function ShopView(): JSX.Element | null {
       {activeTab === 'history' && (
         <div className="p-2 space-y-1 max-h-48 overflow-y-auto">
           {transactions.length === 0 ? (
-            <EmptyState compact title="No transactions yet" />
+            <EmptyState compact title={t('game.shopView.noTransactions')} />
           ) : (
             transactions.map((tx) => (
               <div key={tx.id} className="flex items-center justify-between bg-gray-800/50 rounded px-2 py-1">
@@ -418,7 +414,7 @@ export default function ShopView(): JSX.Element | null {
                           : 'bg-purple-900/40 text-purple-400'
                     }`}
                   >
-                    {tx.type}
+                    {t(`game.shopView.txType_${tx.type}`)}
                   </span>
                   <span className="text-xs text-gray-300">{tx.itemName}</span>
                 </div>

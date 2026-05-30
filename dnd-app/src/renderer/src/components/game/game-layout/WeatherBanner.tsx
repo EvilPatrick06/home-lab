@@ -1,3 +1,4 @@
+import { useT } from '../../../i18n'
 import { getWeatherEffects, type WeatherType } from '../../../services/weather-mechanics'
 
 interface WeatherBannerProps {
@@ -11,12 +12,13 @@ interface WeatherBannerProps {
  * in GameLayout — same markup, same effect lookup.
  */
 export default function WeatherBanner({ preset }: WeatherBannerProps): JSX.Element | null {
+  const { t } = useT()
   if (!preset || preset === 'clear') return null
   const effects = getWeatherEffects(preset)
   const mechanics: string[] = []
-  if (effects.disadvantageRanged) mechanics.push('Disadv. on ranged attacks')
-  if (effects.speedModifier < 1) mechanics.push(`Speed x${effects.speedModifier}`)
-  if (effects.disadvantagePerception) mechanics.push('Disadv. on Perception')
+  if (effects.disadvantageRanged) mechanics.push(t('game.weatherBanner.disadvRanged'))
+  if (effects.speedModifier < 1) mechanics.push(t('game.weatherBanner.speedModifier', { value: effects.speedModifier }))
+  if (effects.disadvantagePerception) mechanics.push(t('game.weatherBanner.disadvPerception'))
   return (
     <div className="absolute top-12 left-1/2 -translate-x-1/2 z-[2] px-3 py-1.5 bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-lg shadow-lg pointer-events-none max-w-md text-center">
       <span className="text-xs font-semibold text-amber-300">{effects.description}</span>

@@ -1,4 +1,5 @@
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 import { getEffectiveClasses, getEffectiveKnownSpells } from '../../../../services/character/effective-character-5e'
 import type { Character5e } from '../../../../types/character-5e'
 
@@ -13,6 +14,7 @@ function abilityMod(score: number): string {
 }
 
 export default function CharacterInspectModal({ characterData, onClose }: CharacterInspectModalProps): JSX.Element {
+  const { t } = useT()
   useEscapeKey(onClose)
   const char = characterData as Character5e
   if (!char || !char.name) {
@@ -20,12 +22,12 @@ export default function CharacterInspectModal({ characterData, onClose }: Charac
       <div className="fixed inset-0 z-20 flex items-center justify-center">
         <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
         <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-md w-full mx-4 shadow-2xl">
-          <p className="text-xs text-gray-400">No character data available.</p>
+          <p className="text-xs text-gray-400">{t('game.characterInspectModal.noData')}</p>
           <button
             onClick={onClose}
             className="mt-2 px-3 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
           >
-            Close
+            {t('common.actions.close')}
           </button>
         </div>
       </div>
@@ -71,13 +73,14 @@ export default function CharacterInspectModal({ characterData, onClose }: Charac
           <div>
             <h3 className="text-sm font-semibold text-gray-200">{char.name}</h3>
             <p className="text-xs text-gray-400">
-              {classes} &middot; {char.species ?? 'Unknown Species'} &middot; {char.background ?? ''}
+              {classes} &middot; {char.species ?? t('game.characterInspectModal.unknownSpecies')} &middot;{' '}
+              {char.background ?? ''}
             </p>
           </div>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-300 text-lg cursor-pointer"
-            aria-label="Close"
+            aria-label={t('common.actions.close')}
           >
             &times;
           </button>
@@ -101,21 +104,27 @@ export default function CharacterInspectModal({ characterData, onClose }: Charac
           {/* HP / AC / Speed / Initiative */}
           <div className="grid grid-cols-4 gap-1.5">
             <div className="bg-gray-800/60 border border-gray-700/40 rounded-lg p-2 text-center">
-              <div className="text-xs text-gray-500 uppercase font-semibold">HP</div>
+              <div className="text-xs text-gray-500 uppercase font-semibold">{t('game.characterInspectModal.hp')}</div>
               <div className="text-sm font-bold text-green-400">
                 {char.hitPoints?.current ?? '?'} / {char.hitPoints?.maximum ?? '?'}
               </div>
             </div>
             <div className="bg-gray-800/60 border border-gray-700/40 rounded-lg p-2 text-center">
-              <div className="text-xs text-gray-500 uppercase font-semibold">AC</div>
+              <div className="text-xs text-gray-500 uppercase font-semibold">{t('game.characterInspectModal.ac')}</div>
               <div className="text-sm font-bold text-blue-400">{char.armorClass ?? '?'}</div>
             </div>
             <div className="bg-gray-800/60 border border-gray-700/40 rounded-lg p-2 text-center">
-              <div className="text-xs text-gray-500 uppercase font-semibold">Speed</div>
-              <div className="text-sm font-bold text-gray-200">{char.speed ?? 30} ft</div>
+              <div className="text-xs text-gray-500 uppercase font-semibold">
+                {t('game.characterInspectModal.speed')}
+              </div>
+              <div className="text-sm font-bold text-gray-200">
+                {t('game.characterInspectModal.speedValue', { speed: char.speed ?? 30 })}
+              </div>
             </div>
             <div className="bg-gray-800/60 border border-gray-700/40 rounded-lg p-2 text-center">
-              <div className="text-xs text-gray-500 uppercase font-semibold">Initiative</div>
+              <div className="text-xs text-gray-500 uppercase font-semibold">
+                {t('game.characterInspectModal.initiative')}
+              </div>
               <div className="text-sm font-bold text-gray-200">{abilityMod(abilities.dexterity ?? 10)}</div>
             </div>
           </div>
@@ -123,7 +132,9 @@ export default function CharacterInspectModal({ characterData, onClose }: Charac
           {/* Proficiencies */}
           {allProficiencies.length > 0 && (
             <div>
-              <h4 className="text-xs text-gray-500 uppercase font-semibold mb-1">Proficiencies</h4>
+              <h4 className="text-xs text-gray-500 uppercase font-semibold mb-1">
+                {t('game.characterInspectModal.proficiencies')}
+              </h4>
               <p className="text-xs text-gray-300">{allProficiencies.join(', ')}</p>
             </div>
           )}
@@ -131,7 +142,9 @@ export default function CharacterInspectModal({ characterData, onClose }: Charac
           {/* Saving Throws */}
           {char.proficiencies.savingThrows.length > 0 && (
             <div>
-              <h4 className="text-xs text-gray-500 uppercase font-semibold mb-1">Saving Throws</h4>
+              <h4 className="text-xs text-gray-500 uppercase font-semibold mb-1">
+                {t('game.characterInspectModal.savingThrows')}
+              </h4>
               <p className="text-xs text-gray-300">{char.proficiencies.savingThrows.join(', ')}</p>
             </div>
           )}
@@ -139,13 +152,15 @@ export default function CharacterInspectModal({ characterData, onClose }: Charac
           {/* Skills */}
           {char.skills && char.skills.length > 0 && (
             <div>
-              <h4 className="text-xs text-gray-500 uppercase font-semibold mb-1">Skills</h4>
+              <h4 className="text-xs text-gray-500 uppercase font-semibold mb-1">
+                {t('game.characterInspectModal.skills')}
+              </h4>
               <div className="grid grid-cols-2 gap-0.5">
                 {char.skills.map((skill) => (
                   <div key={skill.name} className="text-xs text-gray-300">
                     {skill.name}
-                    {skill.proficient ? ' (proficient)' : ''}
-                    {skill.expertise ? ' (expertise)' : ''}
+                    {skill.proficient ? t('game.characterInspectModal.proficientSuffix') : ''}
+                    {skill.expertise ? t('game.characterInspectModal.expertiseSuffix') : ''}
                   </div>
                 ))}
               </div>
@@ -155,14 +170,16 @@ export default function CharacterInspectModal({ characterData, onClose }: Charac
           {/* Equipment */}
           {equipment.length > 0 && (
             <div>
-              <h4 className="text-xs text-gray-500 uppercase font-semibold mb-1">Equipment</h4>
+              <h4 className="text-xs text-gray-500 uppercase font-semibold mb-1">
+                {t('game.characterInspectModal.equipment')}
+              </h4>
               <div className="grid grid-cols-2 gap-0.5">
                 {equipment.map((item) => {
                   const name = typeof item === 'string' ? item : item.name
                   const qty = typeof item === 'string' ? 1 : (item.quantity ?? 1)
                   return (
                     <div key={name} className="text-xs text-gray-300">
-                      {qty > 1 ? `${qty}x ` : ''}
+                      {qty > 1 ? t('game.characterInspectModal.qtyPrefix', { qty }) : ''}
                       {name}
                     </div>
                   )
@@ -174,7 +191,9 @@ export default function CharacterInspectModal({ characterData, onClose }: Charac
           {/* Spells */}
           {spells.length > 0 && (
             <div>
-              <h4 className="text-xs text-gray-500 uppercase font-semibold mb-1">Spells</h4>
+              <h4 className="text-xs text-gray-500 uppercase font-semibold mb-1">
+                {t('game.characterInspectModal.spells')}
+              </h4>
               <div className="grid grid-cols-2 gap-0.5">
                 {spells.map((spell) => (
                   <div key={spell.id} className="text-xs text-gray-300">

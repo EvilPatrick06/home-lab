@@ -1,3 +1,4 @@
+import { useT } from '../../i18n'
 import type { GameSystem } from '../../types/game-system'
 import { GAME_SYSTEMS } from '../../types/game-system'
 
@@ -7,14 +8,13 @@ interface SystemStepProps {
 }
 
 export default function SystemStep({ selected, onSelect }: SystemStepProps): JSX.Element {
+  const { t } = useT()
   const systems = Object.values(GAME_SYSTEMS)
 
   return (
     <div>
-      <h2 className="text-xl font-semibold mb-2">Choose a Game System</h2>
-      <p className="text-gray-400 text-sm mb-6">
-        Select the rule system for your campaign. This determines available adventures, rules, and character options.
-      </p>
+      <h2 className="text-xl font-semibold mb-2">{t('campaign.systemStep.title')}</h2>
+      <p className="text-gray-400 text-sm mb-6">{t('campaign.systemStep.subtitle')}</p>
 
       <div
         className="grid gap-4 max-w-2xl"

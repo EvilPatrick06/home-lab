@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useT } from '../../i18n'
 import { logger } from '../../utils/logger'
 
 const DISMISSED_KEY = 'dnd-vtt-update-dismissed'
@@ -6,6 +7,7 @@ const DISMISSED_KEY = 'dnd-vtt-update-dismissed'
 type Stage = 'hidden' | 'prompt' | 'downloading' | 'ready'
 
 export default function UpdatePrompt(): JSX.Element | null {
+  const { t } = useT()
   const [stage, setStage] = useState<Stage>('hidden')
   const [version, setVersion] = useState<string | null>(null)
   const [percent, setPercent] = useState(0)
@@ -71,25 +73,25 @@ export default function UpdatePrompt(): JSX.Element | null {
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/70" />
       <div className="relative bg-gray-900 border border-gray-700 rounded-lg p-6 max-w-sm w-full mx-4">
-        <h3 className="text-lg font-semibold mb-2">Update Available</h3>
+        <h3 className="text-lg font-semibold mb-2">{t('ui.updatePrompt.title')}</h3>
 
         {stage === 'prompt' && (
           <>
-            <p className="text-gray-400 text-sm mb-4">Version {version} is available. Would you like to update now?</p>
+            <p className="text-gray-400 text-sm mb-4">{t('ui.updatePrompt.available', { version })}</p>
             <div className="flex gap-3 justify-end">
               <button
                 onClick={handleLater}
                 className="px-4 py-2 border border-gray-600 rounded-lg hover:bg-gray-800
                   transition-colors cursor-pointer text-sm"
               >
-                Update Later
+                {t('ui.updatePrompt.updateLater')}
               </button>
               <button
                 onClick={handleUpdateNow}
                 className="px-4 py-2 rounded-lg transition-colors cursor-pointer text-sm
                   font-semibold text-white bg-amber-600 hover:bg-amber-500"
               >
-                Update Now
+                {t('ui.updatePrompt.updateNow')}
               </button>
             </div>
           </>
@@ -97,7 +99,7 @@ export default function UpdatePrompt(): JSX.Element | null {
 
         {stage === 'downloading' && (
           <>
-            <p className="text-gray-400 text-sm mb-3">Downloading update...</p>
+            <p className="text-gray-400 text-sm mb-3">{t('ui.updatePrompt.downloading')}</p>
             <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden mb-1">
               <div
                 className="h-full bg-amber-500 rounded-full transition-all duration-300"
@@ -110,21 +112,21 @@ export default function UpdatePrompt(): JSX.Element | null {
 
         {stage === 'ready' && (
           <>
-            <p className="text-gray-400 text-sm mb-4">Version {version} is ready to install. The app will restart.</p>
+            <p className="text-gray-400 text-sm mb-4">{t('ui.updatePrompt.ready', { version })}</p>
             <div className="flex gap-3 justify-end">
               <button
                 onClick={handleLater}
                 className="px-4 py-2 border border-gray-600 rounded-lg hover:bg-gray-800
                   transition-colors cursor-pointer text-sm"
               >
-                Later
+                {t('ui.updatePrompt.later')}
               </button>
               <button
                 onClick={handleUpdateNow}
                 className="px-4 py-2 rounded-lg transition-colors cursor-pointer text-sm
                   font-semibold text-white bg-green-600 hover:bg-green-500"
               >
-                Restart &amp; Update
+                {t('ui.updatePrompt.restartAndUpdate')}
               </button>
             </div>
           </>

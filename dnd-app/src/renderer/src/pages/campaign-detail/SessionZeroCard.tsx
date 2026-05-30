@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { SessionZeroData } from '../../components/campaign/SessionZeroStep'
 import SessionZeroStep from '../../components/campaign/SessionZeroStep'
 import { Button, Card, Modal } from '../../components/ui'
+import { useT } from '../../i18n'
 import type { Campaign, CustomRule } from '../../types/campaign'
 
 interface SessionZeroCardProps {
@@ -10,6 +11,7 @@ interface SessionZeroCardProps {
 }
 
 export default function SessionZeroCard({ campaign, saveCampaign }: SessionZeroCardProps): JSX.Element | null {
+  const { t } = useT()
   const [showSessionZeroEdit, setShowSessionZeroEdit] = useState(false)
   const [editSessionZero, setEditSessionZero] = useState<SessionZeroData>({
     contentLimits: [],
@@ -55,29 +57,31 @@ export default function SessionZeroCard({ campaign, saveCampaign }: SessionZeroC
     <>
       <Card>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-lg font-semibold">Session Zero</h3>
+          <h3 className="text-lg font-semibold">{t('pages.sessionZeroCard.title')}</h3>
           <button onClick={openSessionZeroEdit} className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer">
-            Edit
+            {t('pages.sessionZeroCard.edit')}
           </button>
         </div>
         <div className="space-y-2 text-xs">
           <div className="flex items-center gap-2">
-            <span className="text-gray-500">Tone:</span>
+            <span className="text-gray-500">{t('pages.sessionZeroCard.tone')}</span>
             <span className="text-gray-200 capitalize">{campaign.sessionZero.tone}</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-gray-500">PvP:</span>
+            <span className="text-gray-500">{t('pages.sessionZeroCard.pvp')}</span>
             <span className={campaign.sessionZero.pvpAllowed ? 'text-red-400' : 'text-green-400'}>
-              {campaign.sessionZero.pvpAllowed ? 'Allowed' : 'Not Allowed'}
+              {campaign.sessionZero.pvpAllowed
+                ? t('pages.sessionZeroCard.allowed')
+                : t('pages.sessionZeroCard.notAllowed')}
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-gray-500">Character Death:</span>
+            <span className="text-gray-500">{t('pages.sessionZeroCard.characterDeath')}</span>
             <span className="text-gray-200 capitalize">{campaign.sessionZero.characterDeathExpectation}</span>
           </div>
           {campaign.sessionZero.contentLimits.length > 0 && (
             <div>
-              <span className="text-gray-500">Content Limits:</span>
+              <span className="text-gray-500">{t('pages.sessionZeroCard.contentLimits')}</span>
               <div className="flex flex-wrap gap-1 mt-1">
                 {campaign.sessionZero.contentLimits.map((l) => (
                   <span key={l} className="text-xs bg-red-900/30 text-red-300 px-2 py-0.5 rounded">
@@ -89,7 +93,7 @@ export default function SessionZeroCard({ campaign, saveCampaign }: SessionZeroC
           )}
           {campaign.sessionZero.playSchedule && (
             <div>
-              <span className="text-gray-500">Schedule:</span>{' '}
+              <span className="text-gray-500">{t('pages.sessionZeroCard.schedule')}</span>{' '}
               <span className="text-gray-200">{campaign.sessionZero.playSchedule}</span>
             </div>
           )}
@@ -97,7 +101,11 @@ export default function SessionZeroCard({ campaign, saveCampaign }: SessionZeroC
       </Card>
 
       {/* Session Zero Edit Modal */}
-      <Modal open={showSessionZeroEdit} onClose={() => setShowSessionZeroEdit(false)} title="Edit Session Zero">
+      <Modal
+        open={showSessionZeroEdit}
+        onClose={() => setShowSessionZeroEdit(false)}
+        title={t('pages.sessionZeroCard.editTitle')}
+      >
         <div className="max-h-[60vh] overflow-y-auto pr-1">
           <SessionZeroStep
             data={editSessionZero}
@@ -108,9 +116,9 @@ export default function SessionZeroCard({ campaign, saveCampaign }: SessionZeroC
         </div>
         <div className="flex gap-3 justify-end mt-4">
           <Button variant="secondary" onClick={() => setShowSessionZeroEdit(false)}>
-            Cancel
+            {t('common.actions.cancel')}
           </Button>
-          <Button onClick={handleSaveSessionZero}>Save</Button>
+          <Button onClick={handleSaveSessionZero}>{t('common.actions.save')}</Button>
         </div>
       </Modal>
     </>

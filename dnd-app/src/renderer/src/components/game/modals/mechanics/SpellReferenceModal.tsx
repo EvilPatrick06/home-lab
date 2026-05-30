@@ -1,4 +1,5 @@
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 import QuickReferencePanel from '../../sidebar/QuickReferencePanel'
 
 interface SpellReferenceModalProps {
@@ -6,17 +7,18 @@ interface SpellReferenceModalProps {
 }
 
 export default function SpellReferenceModal({ onClose }: SpellReferenceModalProps): JSX.Element {
+  const { t } = useT()
   useEscapeKey(onClose)
   return (
     <div className="fixed inset-0 z-30 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900 border border-gray-700 rounded-xl w-[700px] max-h-[85vh] overflow-hidden shadow-2xl flex flex-col">
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
-          <h3 className="text-sm font-semibold text-gray-200">Quick Reference</h3>
+          <h3 className="text-sm font-semibold text-gray-200">{t('game.spellReferenceModal.title')}</h3>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-300 text-lg cursor-pointer"
-            aria-label="Close"
+            aria-label={t('common.actions.close')}
           >
             &times;
           </button>

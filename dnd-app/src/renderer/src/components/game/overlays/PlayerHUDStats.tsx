@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useT } from '../../../i18n'
 import type { Character5e, HitPoints } from '../../../types/character-5e'
 
 interface PlayerHUDStatsProps {
@@ -22,6 +23,7 @@ export default function PlayerHUDStats({
   onEditHP,
   renderSlotPips
 }: PlayerHUDStatsProps): JSX.Element {
+  const { t } = useT()
   const [editingHP, setEditingHP] = useState(false)
   const [hpInput, setHpInput] = useState('')
 
@@ -43,7 +45,7 @@ export default function PlayerHUDStats({
 
       {/* HP bar (click to edit) */}
       <div className="flex items-center gap-1 min-w-[140px]">
-        <span className="text-xs text-gray-500">HP</span>
+        <span className="text-xs text-gray-500">{t('game.playerHUDStats.hp')}</span>
         {editingHP ? (
           <input
             type="number"
@@ -63,7 +65,7 @@ export default function PlayerHUDStats({
               setEditingHP(true)
               setHpInput(String(hp.current))
             }}
-            title="Click to edit HP"
+            title={t('game.playerHUDStats.editHpTitle')}
           >
             <div className="h-3.5 bg-gray-800/80 rounded-full overflow-hidden">
               <div
@@ -73,7 +75,11 @@ export default function PlayerHUDStats({
             </div>
             <span className="absolute inset-0 flex items-center justify-center text-[9px] font-semibold text-white drop-shadow">
               {hp.current}/{hp.maximum}
-              {hp.temporary > 0 && <span className="text-blue-300 ml-0.5">(+{hp.temporary})</span>}
+              {hp.temporary > 0 && (
+                <span className="text-blue-300 ml-0.5">
+                  {t('game.playerHUDStats.tempBonus', { temp: hp.temporary })}
+                </span>
+              )}
             </span>
           </div>
         )}
@@ -81,14 +87,14 @@ export default function PlayerHUDStats({
         <button
           onClick={() => onAdjustHP(-1)}
           className="w-5 h-5 text-xs bg-red-900/40 hover:bg-red-800/60 text-red-300 rounded cursor-pointer"
-          title="Take 1 damage"
+          title={t('game.playerHUDStats.take1Damage')}
         >
           -
         </button>
         <button
           onClick={() => onAdjustHP(1)}
           className="w-5 h-5 text-xs bg-green-900/40 hover:bg-green-800/60 text-green-300 rounded cursor-pointer"
-          title="Heal 1 HP"
+          title={t('game.playerHUDStats.heal1Hp')}
         >
           +
         </button>
@@ -96,7 +102,7 @@ export default function PlayerHUDStats({
 
       {/* AC */}
       <div className="flex items-center gap-1 text-xs">
-        <span className="text-gray-500">AC</span>
+        <span className="text-gray-500">{t('game.playerHUDStats.ac')}</span>
         <span className="font-semibold text-gray-100">{ac}</span>
       </div>
 

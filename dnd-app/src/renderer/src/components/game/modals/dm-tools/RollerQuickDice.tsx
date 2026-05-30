@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 import { trigger3dDice } from '../../../../components/game/dice3d'
+import { useT } from '../../../../i18n'
 import type { DiceRollHiddenPayload } from '../../../../network'
 import { useNetworkStore } from '../../../../stores/network-store'
 import { rollDice } from '../../../../utils/dice-utils'
@@ -22,6 +23,7 @@ interface RollerQuickDiceProps {
 }
 
 export default function RollerQuickDice({ autoMinimize, onRevealQuickResult }: RollerQuickDiceProps): JSX.Element {
+  const { t } = useT()
   const [quickExpression, setQuickExpression] = useState('')
   const [quickCount, setQuickCount] = useState(1)
   const [quickHiddenDefault, setQuickHiddenDefault] = useState(true)
@@ -102,7 +104,7 @@ export default function RollerQuickDice({ autoMinimize, onRevealQuickResult }: R
 
   return (
     <div className="border-b border-gray-700/50 pb-3 mb-3 space-y-2">
-      <div className="text-[9px] text-gray-500 uppercase tracking-wider">Quick Roll</div>
+      <div className="text-[9px] text-gray-500 uppercase tracking-wider">{t('game.rollerQuickDice.quickRoll')}</div>
       {/* Dice buttons row */}
       <div className="flex items-center gap-1 flex-wrap">
         {QUICK_DICE.map((die) => (
@@ -124,11 +126,11 @@ export default function RollerQuickDice({ autoMinimize, onRevealQuickResult }: R
           onKeyDown={(e) => {
             if (e.key === 'Enter') handleQuickExpression()
           }}
-          placeholder="2d6+3"
+          placeholder={t('game.rollerQuickDice.expressionPlaceholder')}
           className="flex-1 px-2 py-1 bg-gray-800 border border-gray-700 rounded text-xs text-gray-200 placeholder-gray-500 focus:outline-none focus:border-amber-500"
         />
         <label className="flex items-center gap-1 text-xs text-gray-500 shrink-0">
-          <span>x</span>
+          <span>{t('game.rollerQuickDice.times')}</span>
           <input
             type="number"
             min={1}
@@ -142,7 +144,7 @@ export default function RollerQuickDice({ autoMinimize, onRevealQuickResult }: R
           type="text"
           value={quickLabel}
           onChange={(e) => setQuickLabel(e.target.value)}
-          placeholder="Label"
+          placeholder={t('game.rollerQuickDice.labelPlaceholder')}
           className="w-20 px-2 py-1 bg-gray-800 border border-gray-700 rounded text-xs text-gray-200 placeholder-gray-500 focus:outline-none focus:border-amber-500"
         />
         <button
@@ -150,7 +152,7 @@ export default function RollerQuickDice({ autoMinimize, onRevealQuickResult }: R
           disabled={!quickExpression.trim()}
           className="px-2 py-1 text-xs rounded bg-amber-600 hover:bg-amber-500 text-white font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
-          Roll
+          {t('game.rollerQuickDice.roll')}
         </button>
       </div>
       {/* Hidden toggle */}
@@ -162,7 +164,7 @@ export default function RollerQuickDice({ autoMinimize, onRevealQuickResult }: R
             onChange={(e) => setQuickHiddenDefault(e.target.checked)}
             className="rounded accent-purple-500"
           />
-          Hidden by default
+          {t('game.rollerQuickDice.hiddenByDefault')}
         </label>
       </div>
       {/* Quick roll results */}
@@ -181,10 +183,12 @@ export default function RollerQuickDice({ autoMinimize, onRevealQuickResult }: R
                   onClick={() => onRevealQuickResult(qr)}
                   className="text-[8px] px-1 py-0.5 bg-green-600/30 text-green-400 rounded cursor-pointer hover:bg-green-600/50"
                 >
-                  Reveal
+                  {t('game.rollerQuickDice.reveal')}
                 </button>
                 {qr.hidden && (
-                  <span className="text-[8px] px-1 py-0.5 bg-gray-700/50 text-gray-500 rounded">Hidden</span>
+                  <span className="text-[8px] px-1 py-0.5 bg-gray-700/50 text-gray-500 rounded">
+                    {t('game.rollerQuickDice.hidden')}
+                  </span>
                 )}
               </span>
             </div>
@@ -193,7 +197,7 @@ export default function RollerQuickDice({ autoMinimize, onRevealQuickResult }: R
             onClick={() => setQuickResults([])}
             className="text-[9px] text-gray-600 hover:text-red-400 cursor-pointer"
           >
-            Clear Quick Rolls
+            {t('game.rollerQuickDice.clearQuickRolls')}
           </button>
         </div>
       )}

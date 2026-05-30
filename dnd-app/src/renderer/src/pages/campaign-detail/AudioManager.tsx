@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { AudioStep } from '../../components/campaign'
 import type { CustomAudioEntry } from '../../components/campaign/AudioStep'
 import { Button, Card, Modal } from '../../components/ui'
+import { useT } from '../../i18n'
 import type { Campaign } from '../../types/campaign'
 
 interface AudioManagerProps {
@@ -10,6 +11,7 @@ interface AudioManagerProps {
 }
 
 export default function AudioManager({ campaign, saveCampaign }: AudioManagerProps): JSX.Element {
+  const { t } = useT()
   const [showAudioAdd, setShowAudioAdd] = useState(false)
   const [newAudioEntries, setNewAudioEntries] = useState<CustomAudioEntry[]>([])
   const [editingAudioId, setEditingAudioId] = useState<string | null>(null)
@@ -61,10 +63,12 @@ export default function AudioManager({ campaign, saveCampaign }: AudioManagerPro
     <>
       <Card>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-lg font-semibold">Custom Audio ({(campaign.customAudio ?? []).length})</h3>
+          <h3 className="text-lg font-semibold">
+            {t('pages.audioManager.customAudio', { count: (campaign.customAudio ?? []).length })}
+          </h3>
         </div>
         {(campaign.customAudio ?? []).length === 0 ? (
-          <p className="text-gray-500 text-sm">No custom audio files added.</p>
+          <p className="text-gray-500 text-sm">{t('pages.audioManager.noCustomAudio')}</p>
         ) : (
           <div className="space-y-2">
             {(campaign.customAudio ?? []).map((audio) => (
@@ -89,13 +93,13 @@ export default function AudioManager({ campaign, saveCampaign }: AudioManagerPro
                     onClick={() => openEditAudioEntry(audio)}
                     className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer"
                   >
-                    Edit
+                    {t('pages.audioManager.edit')}
                   </button>
                   <button
                     onClick={() => handleDeleteAudioEntry(audio.id)}
                     className="text-xs text-gray-400 hover:text-red-400 cursor-pointer"
                   >
-                    Delete
+                    {t('common.actions.delete')}
                   </button>
                 </div>
               </div>
@@ -109,30 +113,34 @@ export default function AudioManager({ campaign, saveCampaign }: AudioManagerPro
           }}
           className="mt-3 text-xs text-amber-400 hover:text-amber-300 cursor-pointer"
         >
-          + Add Audio
+          {t('pages.audioManager.addAudio')}
         </button>
       </Card>
 
       {/* Add Audio Modal */}
-      <Modal open={showAudioAdd} onClose={() => setShowAudioAdd(false)} title="Add Custom Audio">
+      <Modal open={showAudioAdd} onClose={() => setShowAudioAdd(false)} title={t('pages.audioManager.addCustomAudio')}>
         <div className="max-h-[60vh] overflow-y-auto pr-1">
           <AudioStep audioEntries={newAudioEntries} onChange={setNewAudioEntries} />
         </div>
         <div className="flex gap-3 justify-end mt-4">
           <Button variant="secondary" onClick={() => setShowAudioAdd(false)}>
-            Cancel
+            {t('common.actions.cancel')}
           </Button>
           <Button onClick={handleAddAudio} disabled={newAudioEntries.length === 0}>
-            Add
+            {t('pages.audioManager.add')}
           </Button>
         </div>
       </Modal>
 
       {/* Audio Entry Edit Modal */}
-      <Modal open={editingAudioId !== null} onClose={() => setEditingAudioId(null)} title="Edit Audio Entry">
+      <Modal
+        open={editingAudioId !== null}
+        onClose={() => setEditingAudioId(null)}
+        title={t('pages.audioManager.editAudioEntry')}
+      >
         <div className="space-y-3">
           <div>
-            <label className="block text-gray-400 text-xs mb-1">Display Name</label>
+            <label className="block text-gray-400 text-xs mb-1">{t('pages.audioManager.displayName')}</label>
             <input
               type="text"
               value={audioEntryForm.displayName}
@@ -141,7 +149,7 @@ export default function AudioManager({ campaign, saveCampaign }: AudioManagerPro
             />
           </div>
           <div>
-            <label className="block text-gray-400 text-xs mb-1">Category</label>
+            <label className="block text-gray-400 text-xs mb-1">{t('pages.audioManager.category')}</label>
             <select
               value={audioEntryForm.category}
               onChange={(e) =>
@@ -149,17 +157,17 @@ export default function AudioManager({ campaign, saveCampaign }: AudioManagerPro
               }
               className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
             >
-              <option value="music">Music</option>
-              <option value="ambient">Ambient</option>
-              <option value="effect">Effect</option>
+              <option value="music">{t('pages.audioManager.music')}</option>
+              <option value="ambient">{t('pages.audioManager.ambient')}</option>
+              <option value="effect">{t('pages.audioManager.effect')}</option>
             </select>
           </div>
         </div>
         <div className="flex gap-3 justify-end mt-4">
           <Button variant="secondary" onClick={() => setEditingAudioId(null)}>
-            Cancel
+            {t('common.actions.cancel')}
           </Button>
-          <Button onClick={handleSaveAudioEntry}>Save</Button>
+          <Button onClick={handleSaveAudioEntry}>{t('common.actions.save')}</Button>
         </div>
       </Modal>
     </>

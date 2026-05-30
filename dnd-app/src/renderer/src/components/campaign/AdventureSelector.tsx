@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useT } from '../../i18n'
 import { type Adventure, type AdventureChapter, loadAdventures } from '../../services/adventure-loader'
 import type { CampaignType } from '../../types/campaign'
 import type { GameSystem } from '../../types/game-system'
@@ -106,6 +107,7 @@ function ToggleRow({
 }
 
 function ChapterDetail({ chapter, index }: { chapter: AdventureChapter; index: number }): JSX.Element {
+  const { t } = useT()
   const [expanded, setExpanded] = useState(false)
   return (
     <div className="bg-gray-800/30 rounded-lg p-3">
@@ -114,18 +116,28 @@ function ChapterDetail({ chapter, index }: { chapter: AdventureChapter; index: n
         className="w-full text-left flex items-center gap-2 cursor-pointer"
       >
         <span className="text-gray-500 text-xs">{expanded ? '\u25BC' : '\u25B6'}</span>
-        <span className="text-xs text-amber-400 font-mono">Ch. {index + 1}</span>
+        <span className="text-xs text-amber-400 font-mono">
+          {t('campaign.adventureSelector.chapterShort', { num: index + 1 })}
+        </span>
         <span className="text-sm font-semibold">{chapter.title}</span>
       </button>
       {expanded && (
         <div className="mt-2 ml-6 space-y-2">
           <p className="text-sm text-gray-400">{chapter.description}</p>
-          {chapter.maps.length > 0 && <div className="text-xs text-gray-500">Maps: {chapter.maps.join(', ')}</div>}
+          {chapter.maps.length > 0 && (
+            <div className="text-xs text-gray-500">
+              {t('campaign.adventureSelector.mapsList', { maps: chapter.maps.join(', ') })}
+            </div>
+          )}
           {chapter.encounters.length > 0 && (
-            <div className="text-xs text-gray-500">Encounters: {chapter.encounters.join(', ')}</div>
+            <div className="text-xs text-gray-500">
+              {t('campaign.adventureSelector.encountersList', { encounters: chapter.encounters.join(', ') })}
+            </div>
           )}
           {chapter.keyEvents && chapter.keyEvents.length > 0 && (
-            <div className="text-xs text-gray-500">Key Events: {chapter.keyEvents.join(', ')}</div>
+            <div className="text-xs text-gray-500">
+              {t('campaign.adventureSelector.keyEventsList', { events: chapter.keyEvents.join(', ') })}
+            </div>
           )}
         </div>
       )}
@@ -148,6 +160,7 @@ export default function AdventureSelector({
   excludedMapIds,
   onExcludedMapsChange
 }: AdventureSelectorProps): JSX.Element {
+  const { t } = useT()
   const [adventures, setAdventures] = useState<Adventure[]>([])
   const [loadingAdventures, setLoadingAdventures] = useState(false)
 
@@ -184,10 +197,8 @@ export default function AdventureSelector({
 
   return (
     <div>
-      <h2 className="text-xl font-semibold mb-2">Campaign Type</h2>
-      <p className="text-gray-400 text-sm mb-6">
-        Start from a pre-made adventure or build your own world from scratch.
-      </p>
+      <h2 className="text-xl font-semibold mb-2">{t('campaign.adventureSelector.title')}</h2>
+      <p className="text-gray-400 text-sm mb-6">{t('campaign.adventureSelector.subtitle')}</p>
 
       <div className="flex gap-4 max-w-2xl mb-6">
         <button
@@ -203,8 +214,8 @@ export default function AdventureSelector({
             }`}
         >
           <div className="text-2xl mb-2">{'\uD83D\uDCD6'}</div>
-          <div className="font-semibold">Start from Adventure</div>
-          <div className="text-sm text-gray-400 mt-1">Choose a pre-built adventure module with maps and encounters</div>
+          <div className="font-semibold">{t('campaign.adventureSelector.startFromAdventure')}</div>
+          <div className="text-sm text-gray-400 mt-1">{t('campaign.adventureSelector.startFromAdventureDesc')}</div>
         </button>
 
         <button
@@ -220,19 +231,19 @@ export default function AdventureSelector({
             }`}
         >
           <div className="text-2xl mb-2">{'\u2728'}</div>
-          <div className="font-semibold">Custom Campaign</div>
-          <div className="text-sm text-gray-400 mt-1">Build your own world with custom maps, NPCs, and encounters</div>
+          <div className="font-semibold">{t('campaign.adventureSelector.customCampaign')}</div>
+          <div className="text-sm text-gray-400 mt-1">{t('campaign.adventureSelector.customCampaignDesc')}</div>
         </button>
       </div>
 
       {campaignType === 'preset' && (
         <div>
-          <h3 className="text-lg font-semibold mb-3">Available Adventures</h3>
+          <h3 className="text-lg font-semibold mb-3">{t('campaign.adventureSelector.availableAdventures')}</h3>
           {loadingAdventures ? (
-            <div className="text-gray-500 py-4">Loading adventures...</div>
+            <div className="text-gray-500 py-4">{t('campaign.adventureSelector.loadingAdventures')}</div>
           ) : adventures.length === 0 ? (
             <div className="border border-dashed border-gray-700 rounded-lg p-8 text-center text-gray-500">
-              <p>No adventures available for this system yet.</p>
+              <p>{t('campaign.adventureSelector.noAdventures')}</p>
             </div>
           ) : (
             <>
@@ -256,12 +267,10 @@ export default function AdventureSelector({
                       <div className="text-sm text-gray-400 mb-3">{adventure.description}</div>
                       <div className="text-xs text-gray-500 flex gap-3">
                         <span>
-                          {adventure.chapters.length} chapter{adventure.chapters.length !== 1 ? 's' : ''}
+                          {t('campaign.adventureSelector.chapterCount', { count: adventure.chapters.length })}
                         </span>
                         {adventure.npcs && adventure.npcs.length > 0 && (
-                          <span>
-                            {adventure.npcs.length} NPC{adventure.npcs.length !== 1 ? 's' : ''}
-                          </span>
+                          <span>{t('campaign.adventureSelector.npcCount', { count: adventure.npcs.length })}</span>
                         )}
                       </div>
                     </Card>
@@ -278,14 +287,21 @@ export default function AdventureSelector({
                       <h3 className="text-lg font-bold">{selectedAdventure.name}</h3>
                       {selectedAdventure.levelRange && (
                         <span className="text-xs text-gray-400">
-                          Levels {selectedAdventure.levelRange.min}&ndash;{selectedAdventure.levelRange.max}
+                          {t('campaign.adventureSelector.levels', {
+                            min: selectedAdventure.levelRange.min,
+                            max: selectedAdventure.levelRange.max
+                          })}
                         </span>
                       )}
                     </div>
                   </div>
 
                   {/* Chapters */}
-                  <CollapsibleSection title="Chapters" count={selectedAdventure.chapters.length} defaultOpen>
+                  <CollapsibleSection
+                    title={t('campaign.adventureSelector.sectionChapters')}
+                    count={selectedAdventure.chapters.length}
+                    defaultOpen
+                  >
                     {selectedAdventure.chapters.map((ch, i) => (
                       <ChapterDetail key={i} chapter={ch} index={i} />
                     ))}
@@ -293,7 +309,10 @@ export default function AdventureSelector({
 
                   {/* NPCs */}
                   {selectedAdventure.npcs && selectedAdventure.npcs.length > 0 && (
-                    <CollapsibleSection title="NPCs" count={selectedAdventure.npcs.length}>
+                    <CollapsibleSection
+                      title={t('campaign.adventureSelector.sectionNpcs')}
+                      count={selectedAdventure.npcs.length}
+                    >
                       {selectedAdventure.npcs.map((npc) => (
                         <ToggleRow
                           key={npc.id}
@@ -319,7 +338,10 @@ export default function AdventureSelector({
 
                   {/* Lore */}
                   {selectedAdventure.lore && selectedAdventure.lore.length > 0 && (
-                    <CollapsibleSection title="Lore" count={selectedAdventure.lore.length}>
+                    <CollapsibleSection
+                      title={t('campaign.adventureSelector.sectionLore')}
+                      count={selectedAdventure.lore.length}
+                    >
                       {selectedAdventure.lore.map((lore) => (
                         <ToggleRow
                           key={lore.id}
@@ -344,7 +366,10 @@ export default function AdventureSelector({
 
                   {/* Encounters */}
                   {selectedAdventure.encounters && selectedAdventure.encounters.length > 0 && (
-                    <CollapsibleSection title="Encounters" count={selectedAdventure.encounters.length}>
+                    <CollapsibleSection
+                      title={t('campaign.adventureSelector.sectionEncounters')}
+                      count={selectedAdventure.encounters.length}
+                    >
                       {selectedAdventure.encounters.map((enc) => (
                         <ToggleRow
                           key={enc.id}
@@ -364,7 +389,10 @@ export default function AdventureSelector({
 
                   {/* Maps */}
                   {selectedAdventure.mapAssignments && selectedAdventure.mapAssignments.length > 0 && (
-                    <CollapsibleSection title="Maps" count={selectedAdventure.mapAssignments.length}>
+                    <CollapsibleSection
+                      title={t('campaign.adventureSelector.sectionMaps')}
+                      count={selectedAdventure.mapAssignments.length}
+                    >
                       {selectedAdventure.mapAssignments.map((assign) => {
                         const chapter = selectedAdventure.chapters[assign.chapterIndex]
                         return (
@@ -377,7 +405,10 @@ export default function AdventureSelector({
                               <span className="text-sm font-semibold">{assign.builtInMapId}</span>
                               {chapter && (
                                 <span className="text-xs text-gray-500">
-                                  Ch. {assign.chapterIndex + 1}: {chapter.title}
+                                  {t('campaign.adventureSelector.chapterLabel', {
+                                    num: assign.chapterIndex + 1,
+                                    title: chapter.title
+                                  })}
                                 </span>
                               )}
                             </div>

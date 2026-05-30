@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useT } from '../../../../../i18n'
 import { LIFESTYLE_COSTS, type LifestyleLevel } from '../../../../../services/character/stat-calculator-5e'
 import { rollSingle } from '../../../../../services/dice/dice-service'
 import {
@@ -25,6 +26,7 @@ export default function ExtendedTab({
   characterName?: string
   onBroadcastResult?: (message: string) => void
 }): JSX.Element {
+  const { t } = useT()
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [checkResults, setCheckResults] = useState<Array<{ check: string; roll: number; success: boolean }>>([])
   const [resultText, setResultText] = useState('')
@@ -61,9 +63,15 @@ export default function ExtendedTab({
       return false
     })
 
-    const text = match?.result ?? `${successes} successes \u2014 DM determines the outcome.`
+    const text = match?.result ?? t('game.extendedTab.successesFallback', { count: successes })
     setResultText(text)
-    onBroadcastResult?.(`**${characterName ?? 'Character'}** \u2014 ${selected.name} result: ${text}`)
+    onBroadcastResult?.(
+      t('game.extendedTab.broadcastResult', {
+        name: characterName ?? t('game.extendedTab.characterFallback'),
+        activity: selected.name,
+        text
+      })
+    )
   }
 
   const handleRollComplication = async (): Promise<void> => {
@@ -80,15 +88,13 @@ export default function ExtendedTab({
     const entry = rollComplication(tables, tableId)
     if (entry) {
       setComplicationText(entry.result)
-      onBroadcastResult?.(`**Complication:** ${entry.result}`)
+      onBroadcastResult?.(t('game.extendedTab.broadcastComplication', { result: entry.result }))
     }
   }
 
   return (
     <div className="space-y-3">
-      <p className="text-xs text-gray-500">
-        DMG extended activities with dice resolution. Select an activity, roll the required checks, then see results.
-      </p>
+      <p className="text-xs text-gray-500">{t('game.extendedTab.intro')}</p>
 
       {/* Activity list */}
       <div className="space-y-1">
@@ -104,8 +110,10 @@ export default function ExtendedTab({
           >
             <div className="font-semibold">{act.name}</div>
             <div className="text-xs text-gray-500 mt-0.5">
-              {act.minimumDuration ?? 'Varies'}{' '}
-              {act.costPerDayGP > 0 ? `\u2014 ${act.costPerDayGP} GP/day` : '\u2014 Free'}
+              {act.minimumDuration ?? t('game.extendedTab.varies')}{' '}
+              {act.costPerDayGP > 0
+                ? t('game.extendedTab.costPerDay', { gold: act.costPerDayGP })
+                : t('game.extendedTab.free')}
             </div>
           </button>
         ))}
@@ -119,14 +127,15 @@ export default function ExtendedTab({
 
           {selected.requirements && selected.requirements.length > 0 && (
             <div className="text-xs text-gray-500">
-              <span className="font-semibold text-gray-400">Requirements:</span> {selected.requirements.join(', ')}
+              <span className="font-semibold text-gray-400">{t('game.extendedTab.requirements')}</span>{' '}
+              {selected.requirements.join(', ')}
             </div>
           )}
 
           {/* Lifestyle selector for carousing */}
           {selected.costs && (
             <div className="space-y-1">
-              <label className="text-xs text-gray-400 font-semibold">Lifestyle:</label>
+              <label className="text-xs text-gray-400 font-semibold">{t('game.extendedTab.lifestyle')}</label>
               <div className="flex flex-wrap gap-1">
                 {Object.entries(selected.costs).map(([tier, info]) => {
                   const phbCost = LIFESTYLE_COSTS[tier as LifestyleLevel]
@@ -140,8 +149,11 @@ export default function ExtendedTab({
                           : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
                       }`}
                     >
-                      {tier} ({info.costPerDayGP} GP/day
-                      {phbCost !== undefined && phbCost !== info.costPerDayGP ? ` + ${phbCost} GP/day living` : ''})
+                      {tier} ({t('game.extendedTab.lifestyleCost', { gold: info.costPerDayGP })}
+                      {phbCost !== undefined && phbCost !== info.costPerDayGP
+                        ? t('game.extendedTab.lifestyleLiving', { gold: phbCost })
+                        : ''}
+                      )
                     </button>
                   )
                 })}
@@ -153,7 +165,7 @@ export default function ExtendedTab({
           {selected.checks && selected.checks.length > 0 && (
             <div className="space-y-1">
               <label className="text-xs text-gray-400 font-semibold">
-                Resolution Checks (DC {selected.dcBase ?? '?'}):
+                {t('game.extendedTab.resolutionChecks', { dc: selected.dcBase ?? '?' })}
               </label>
               {selected.checks.map((check, i) => {
                 const existing = checkResults[i]
@@ -166,7 +178,8 @@ export default function ExtendedTab({
                           existing.success ? 'bg-green-600/20 text-green-400' : 'bg-red-600/20 text-red-400'
                         }`}
                       >
-                        {existing.roll} \u2014 {existing.success ? 'Success' : 'Fail'}
+                        {existing.roll} \u2014{' '}
+                        {existing.success ? t('game.extendedTab.success') : t('game.extendedTab.fail')}
                       </span>
                     ) : (
                       <button
@@ -174,7 +187,7 @@ export default function ExtendedTab({
                         disabled={i > checkResults.length}
                         className="px-2 py-0.5 text-xs bg-purple-600 hover:bg-purple-500 text-white rounded cursor-pointer disabled:opacity-40"
                       >
-                        Roll
+                        {t('game.extendedTab.roll')}
                       </button>
                     )}
                   </div>
@@ -187,7 +200,10 @@ export default function ExtendedTab({
                   onClick={resolveResults}
                   className="mt-1 px-3 py-1 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer"
                 >
-                  Resolve ({checkResults.filter((r) => r.success).length}/{selected.checks.length} successes)
+                  {t('game.extendedTab.resolve', {
+                    successes: checkResults.filter((r) => r.success).length,
+                    total: selected.checks.length
+                  })}
                 </button>
               )}
             </div>
@@ -196,11 +212,11 @@ export default function ExtendedTab({
           {/* Research: single Intelligence check */}
           {selected.id === 'research' && selected.dcGuidelines && (
             <div className="space-y-1">
-              <label className="text-xs text-gray-400 font-semibold">DC Guidelines:</label>
+              <label className="text-xs text-gray-400 font-semibold">{t('game.extendedTab.dcGuidelines')}</label>
               <div className="flex flex-wrap gap-1">
                 {Object.entries(selected.dcGuidelines).map(([label, dc]) => (
                   <span key={label} className="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded">
-                    {label}: DC {dc}
+                    {t('game.extendedTab.dcGuideline', { label, dc })}
                   </span>
                 ))}
               </div>
@@ -209,13 +225,16 @@ export default function ExtendedTab({
                   onClick={() => {
                     const roll = rollSingle(20)
                     setCheckResults([{ check: 'Intelligence', roll, success: roll >= 10 }])
-                    const msg = `**${characterName ?? 'Character'}** \u2014 Research roll: ${roll}`
+                    const msg = t('game.extendedTab.researchBroadcast', {
+                      name: characterName ?? t('game.extendedTab.characterFallback'),
+                      roll
+                    })
                     onBroadcastResult?.(msg)
-                    setResultText(`Intelligence check: ${roll}. DM determines what lore is revealed based on the DC.`)
+                    setResultText(t('game.extendedTab.researchResult', { roll }))
                   }}
                   className="px-3 py-1 text-xs bg-purple-600 hover:bg-purple-500 text-white rounded cursor-pointer"
                 >
-                  Roll Intelligence Check
+                  {t('game.extendedTab.rollIntelligence')}
                 </button>
               )}
             </div>
@@ -224,7 +243,7 @@ export default function ExtendedTab({
           {/* Results display */}
           {resultText && (
             <div className="bg-amber-600/10 border border-amber-500/30 rounded-lg p-2">
-              <span className="text-xs text-amber-400 font-semibold">Result: </span>
+              <span className="text-xs text-amber-400 font-semibold">{t('game.extendedTab.result')}</span>
               <span className="text-xs text-gray-200">{resultText}</span>
             </div>
           )}
@@ -232,7 +251,7 @@ export default function ExtendedTab({
           {/* Favor examples */}
           {selected.favorExamples && resultText && (
             <div className="text-xs text-gray-500">
-              <span className="font-semibold text-gray-400">Favor examples:</span>
+              <span className="font-semibold text-gray-400">{t('game.extendedTab.favorExamples')}</span>
               <ul className="list-disc ml-4 mt-0.5 space-y-0.5">
                 {selected.favorExamples.map((f, i) => (
                   <li key={i}>{f}</li>
@@ -246,7 +265,7 @@ export default function ExtendedTab({
             <div className="pt-1 border-t border-gray-700">
               {complicationText ? (
                 <div className="bg-red-600/10 border border-red-500/30 rounded-lg p-2">
-                  <span className="text-xs text-red-400 font-semibold">Complication: </span>
+                  <span className="text-xs text-red-400 font-semibold">{t('game.extendedTab.complication')}</span>
                   <span className="text-xs text-gray-200">{complicationText}</span>
                 </div>
               ) : (
@@ -254,7 +273,7 @@ export default function ExtendedTab({
                   onClick={handleRollComplication}
                   className="px-3 py-1 text-xs bg-red-600/50 hover:bg-red-600 text-red-200 rounded cursor-pointer"
                 >
-                  Roll for Complication (Optional)
+                  {t('game.extendedTab.rollComplication')}
                 </button>
               )}
             </div>

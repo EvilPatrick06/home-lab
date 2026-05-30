@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react'
 import { useEscapeKey } from '../../hooks/use-escape-key'
 import { addToast } from '../../hooks/use-toast'
+import { i18n, useT } from '../../i18n'
 import type { HomebrewFeatEffect } from '../../services/character/homebrew-effects'
 import { validateHomebrew } from '../../services/homebrew-validation'
 import { exportAllHomebrew, type HomebrewCollisionChoice, importHomebrew } from '../../services/io/homebrew-io'
@@ -110,6 +111,7 @@ export default function HomebrewCreateModal({
   onSave,
   onClose
 }: HomebrewCreateModalProps): JSX.Element {
+  const { t } = useT()
   const catDef = getCategoryDef(category)
   const isEditing = !!existingItem?.data._homebrewId
   const basedOn = existingItem?.data._basedOn as string | undefined
@@ -172,7 +174,7 @@ export default function HomebrewCreateModal({
     if (category === 'spells') {
       const formula = (formData.diceFormula as string)?.trim()
       if (formula && !/^\d+d\d+([+-]\d+)?$/.test(formula)) {
-        addToast(`Invalid dice formula "${formula}" — use e.g. 8d6 or 2d8+3`, 'error')
+        addToast(t('library.homebrewCreateModal.invalidDiceFormula', { formula }), 'error')
         return
       }
     }
@@ -196,11 +198,14 @@ export default function HomebrewCreateModal({
     // don't stop the save.
     const validation = validateHomebrew(entry)
     if (!validation.valid) {
-      addToast(`Cannot save: ${validation.errors.join(', ')}`, 'error')
+      addToast(t('library.homebrewCreateModal.cannotSave', { errors: validation.errors.join(', ') }), 'error')
       return
     }
     if (validation.warnings.length > 0) {
-      addToast(`Saved with warnings: ${validation.warnings.join(', ')}`, 'warning')
+      addToast(
+        t('library.homebrewCreateModal.savedWithWarnings', { warnings: validation.warnings.join(', ') }),
+        'warning'
+      )
     }
 
     setSaving(true)
@@ -250,9 +255,15 @@ export default function HomebrewCreateModal({
             {catDef && <span className="text-2xl">{catDef.icon}</span>}
             <div>
               <h2 className="text-xl font-bold text-gray-100">
-                {isEditing ? 'Edit' : 'Create'} Custom {catDef?.label ?? category}
+                {isEditing
+                  ? t('library.homebrewCreateModal.editCustom', { type: catDef?.label ?? category })
+                  : t('library.homebrewCreateModal.createCustom', { type: catDef?.label ?? category })}
               </h2>
-              {basedOn && <p className="text-xs text-gray-500 mt-0.5">Based on: {existingItem?.name}</p>}
+              {basedOn && (
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {t('library.homebrewCreateModal.basedOn', { name: existingItem?.name })}
+                </p>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -260,31 +271,41 @@ export default function HomebrewCreateModal({
             <button
               onClick={async () => {
                 const ok = await exportAllHomebrew()
-                addToast(ok ? 'Homebrew exported' : 'No homebrew to export', ok ? 'success' : 'info')
+                addToast(
+                  ok ? t('library.homebrewCreateModal.exported') : t('library.homebrewCreateModal.nothingToExport'),
+                  ok ? 'success' : 'info'
+                )
               }}
               className="text-xs px-2 py-1 rounded border border-gray-600 text-gray-300 hover:border-amber-500 hover:text-amber-400 cursor-pointer"
             >
-              Export All
+              {t('library.homebrewCreateModal.exportAll')}
             </button>
             <button
               onClick={async () => {
                 const summary = await importHomebrew(resolveCollision)
                 if (summary) {
-                  const skipped = summary.skipped > 0 ? `, ${summary.skipped} skipped` : ''
+                  const skipped =
+                    summary.skipped > 0
+                      ? t('library.homebrewCreateModal.skippedSuffix', { count: summary.skipped })
+                      : ''
                   addToast(
-                    `Imported ${summary.imported} item${summary.imported === 1 ? '' : 's'}, ${summary.errors} error${summary.errors === 1 ? '' : 's'}${skipped}`,
+                    t('library.homebrewCreateModal.importSummary', {
+                      imported: t('library.homebrewCreateModal.importedItems', { count: summary.imported }),
+                      errors: t('library.homebrewCreateModal.errorsCount', { count: summary.errors }),
+                      skipped
+                    }),
                     summary.errors > 0 ? 'warning' : 'success'
                   )
                 }
               }}
               className="text-xs px-2 py-1 rounded border border-gray-600 text-gray-300 hover:border-amber-500 hover:text-amber-400 cursor-pointer"
             >
-              Import
+              {t('library.homebrewCreateModal.import')}
             </button>
             <button
               onClick={onClose}
               className="text-gray-500 hover:text-gray-300 text-2xl leading-none cursor-pointer"
-              aria-label="Close"
+              aria-label={t('common.actions.close')}
             >
               &times;
             </button>
@@ -303,7 +324,7 @@ export default function HomebrewCreateModal({
                     onClick={() => removeField(key)}
                     className="text-xs text-red-400 hover:text-red-300 cursor-pointer"
                   >
-                    Remove
+                    {t('library.homebrewCreateModal.remove')}
                   </button>
                 )}
               </div>
@@ -316,16 +337,18 @@ export default function HomebrewCreateModal({
           {category === 'feats' && (
             <div className="pt-4 border-t border-gray-800">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-xs font-semibold text-amber-400 uppercase tracking-wider">Mechanical Effects</p>
+                <p className="text-xs font-semibold text-amber-400 uppercase tracking-wider">
+                  {t('library.homebrewCreateModal.mechanicalEffects')}
+                </p>
                 <button
                   onClick={addEffect}
                   className="text-xs px-2 py-0.5 rounded border border-gray-600 text-gray-300 hover:border-amber-500 hover:text-amber-400 cursor-pointer"
                 >
-                  + Add Effect
+                  {t('library.homebrewCreateModal.addEffect')}
                 </button>
               </div>
               {effects.length === 0 && (
-                <p className="text-xs text-gray-500">No effects — this feat will be informational only.</p>
+                <p className="text-xs text-gray-500">{t('library.homebrewCreateModal.noEffects')}</p>
               )}
               <div className="space-y-2">
                 {effects.map((effect, idx) => (
@@ -341,14 +364,14 @@ export default function HomebrewCreateModal({
           )}
 
           <div className="pt-4 border-t border-gray-800">
-            <p className="text-xs text-gray-500 mb-2">Add custom field</p>
+            <p className="text-xs text-gray-500 mb-2">{t('library.homebrewCreateModal.addCustomField')}</p>
             <div className="flex gap-2">
               <input
                 type="text"
                 value={newFieldKey}
                 onChange={(e) => setNewFieldKey(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && addField()}
-                placeholder="Field name..."
+                placeholder={t('library.homebrewCreateModal.fieldNamePlaceholder')}
                 className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100 focus:border-amber-500 focus:outline-none"
               />
               <button
@@ -356,7 +379,7 @@ export default function HomebrewCreateModal({
                 disabled={!newFieldKey.trim()}
                 className="px-3 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-gray-200 text-sm transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Add
+                {t('library.homebrewCreateModal.add')}
               </button>
             </div>
           </div>
@@ -372,11 +395,15 @@ export default function HomebrewCreateModal({
                 className="w-4 h-4 rounded border-gray-600 bg-gray-800 text-amber-500 focus:ring-amber-500"
               />
               <span className="text-sm text-gray-300">
-                Campaign-only{activeCampaign ? ` (${activeCampaign.name})` : ''}
+                {activeCampaign
+                  ? t('library.homebrewCreateModal.campaignOnlyNamed', { name: activeCampaign.name })
+                  : t('library.homebrewCreateModal.campaignOnly')}
               </span>
             </label>
             <p className="text-xs text-gray-500 mt-1 ml-6">
-              {campaignOnly ? 'Visible only in this campaign; deleted with it.' : 'Global — visible in every campaign.'}
+              {campaignOnly
+                ? t('library.homebrewCreateModal.campaignScopedDesc')
+                : t('library.homebrewCreateModal.globalScopeDesc')}
             </p>
           </div>
         )}
@@ -387,13 +414,17 @@ export default function HomebrewCreateModal({
             disabled={saving || !(formData.name as string)?.trim()}
             className="px-5 py-2.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-semibold transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {saving ? 'Saving...' : isEditing ? 'Save Changes' : 'Create Entry'}
+            {saving
+              ? t('library.homebrewCreateModal.saving')
+              : isEditing
+                ? t('library.homebrewCreateModal.saveChanges')
+                : t('library.homebrewCreateModal.createEntry')}
           </button>
           <button
             onClick={onClose}
             className="px-4 py-2.5 rounded-lg border border-gray-600 hover:bg-gray-800 text-gray-200 font-semibold transition-colors cursor-pointer"
           >
-            Cancel
+            {t('common.actions.cancel')}
           </button>
         </div>
       </div>
@@ -403,30 +434,32 @@ export default function HomebrewCreateModal({
         <div className="fixed inset-0 z-[60] flex items-center justify-center" role="dialog" aria-modal="true">
           <div className="absolute inset-0 bg-black/70" aria-hidden="true" />
           <div className="relative bg-gray-900 border border-gray-700 rounded-lg w-full max-w-sm mx-4 p-5">
-            <h3 className="text-lg font-bold text-gray-100 mb-2">Homebrew already exists</h3>
+            <h3 className="text-lg font-bold text-gray-100 mb-2">{t('library.homebrewCreateModal.collisionTitle')}</h3>
             <p className="text-sm text-gray-400 mb-4">
-              An entry with this id already exists as{' '}
-              <span className="text-gray-200">"{collisionPrompt.existing.name}"</span>. The file you're importing calls
-              it <span className="text-gray-200">"{collisionPrompt.incoming.name}"</span>. What should happen?
+              {t('library.homebrewCreateModal.collisionExistsAs')}{' '}
+              <span className="text-gray-200">"{collisionPrompt.existing.name}"</span>
+              {t('library.homebrewCreateModal.collisionImportCalls')}{' '}
+              <span className="text-gray-200">"{collisionPrompt.incoming.name}"</span>
+              {t('library.homebrewCreateModal.collisionWhatShouldHappen')}
             </p>
             <div className="flex flex-col gap-2">
               <button
                 onClick={() => collisionPrompt.resolve('copy')}
                 className="px-4 py-2 rounded bg-amber-600 hover:bg-amber-500 text-white font-semibold text-sm cursor-pointer"
               >
-                Import as a copy (new id)
+                {t('library.homebrewCreateModal.collisionImportCopy')}
               </button>
               <button
                 onClick={() => collisionPrompt.resolve('replace')}
                 className="px-4 py-2 rounded border border-red-600 text-red-300 hover:bg-red-900/30 font-semibold text-sm cursor-pointer"
               >
-                Replace the existing entry
+                {t('library.homebrewCreateModal.collisionReplace')}
               </button>
               <button
                 onClick={() => collisionPrompt.resolve('skip')}
                 className="px-4 py-2 rounded border border-gray-600 text-gray-300 hover:bg-gray-800 font-semibold text-sm cursor-pointer"
               >
-                Skip this one
+                {t('library.homebrewCreateModal.collisionSkip')}
               </button>
             </div>
           </div>
@@ -446,7 +479,9 @@ function renderEditField(key: string, value: unknown, onChange: (key: string, va
           onChange={(e) => onChange(key, e.target.checked)}
           className="w-4 h-4 rounded border-gray-600 bg-gray-800 text-amber-500 focus:ring-amber-500"
         />
-        <span className="text-sm text-gray-300">{value ? 'Yes' : 'No'}</span>
+        <span className="text-sm text-gray-300">
+          {value ? i18n.t('library.homebrewCreateModal.yes') : i18n.t('library.homebrewCreateModal.no')}
+        </span>
       </label>
     )
   }
@@ -487,7 +522,7 @@ function renderEditField(key: string, value: unknown, onChange: (key: string, va
               .filter(Boolean)
           )
         }
-        placeholder="Comma separated values..."
+        placeholder={i18n.t('library.homebrewCreateModal.commaSeparatedPlaceholder')}
         className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100 focus:border-amber-500 focus:outline-none"
       />
     )
@@ -540,6 +575,7 @@ function EffectRow({
   onChange: (e: HomebrewFeatEffect) => void
   onRemove: () => void
 }): JSX.Element {
+  const { t } = useT()
   const changeType = (type: HomebrewFeatEffect['type']): void => {
     switch (type) {
       case 'ability_bonus':
@@ -604,7 +640,11 @@ function EffectRow({
           type="text"
           value={effect.target}
           onChange={(e) => onChange({ ...effect, target: e.target.value })}
-          placeholder={effect.type === 'skill_proficiency' ? 'Skill name' : 'Damage type'}
+          placeholder={
+            effect.type === 'skill_proficiency'
+              ? t('library.homebrewCreateModal.skillNamePlaceholder')
+              : t('library.homebrewCreateModal.damageTypePlaceholder')
+          }
           className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
         />
       )}
@@ -623,13 +663,13 @@ function EffectRow({
           type="text"
           value={effect.description}
           onChange={(e) => onChange({ ...effect, description: e.target.value })}
-          placeholder="Description"
+          placeholder={t('library.homebrewCreateModal.descriptionPlaceholder')}
           className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
         />
       )}
 
       <button onClick={onRemove} className="ml-auto text-xs text-red-400 hover:text-red-300 cursor-pointer">
-        Remove
+        {t('library.homebrewCreateModal.remove')}
       </button>
     </div>
   )

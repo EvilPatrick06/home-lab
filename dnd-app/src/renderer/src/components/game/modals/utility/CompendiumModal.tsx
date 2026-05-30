@@ -1,5 +1,6 @@
 import Fuse from 'fuse.js'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useT } from '../../../../i18n'
 import { loadCategoryItems } from '../../../../services/library-service'
 import { useLibraryStore } from '../../../../stores/use-library-store'
 import { useLibraryUiStore } from '../../../../stores/use-library-ui-store'
@@ -33,6 +34,7 @@ const TABS: { id: LibraryCategory; label: string }[] = [
 ]
 
 export default function CompendiumModal({ onClose }: CompendiumModalProps): JSX.Element {
+  const { t } = useT()
   const [activeTab, setActiveTab] = useState<LibraryCategory>('actions')
   const [search, setSearch] = useState('')
   const [tabData, setTabData] = useState<LibraryItem[]>([])
@@ -109,14 +111,14 @@ export default function CompendiumModal({ onClose }: CompendiumModalProps): JSX.
       <Modal
         open={true}
         onClose={onClose}
-        title="Rules Compendium"
+        title={t('game.compendiumModal.title')}
         className={`max-w-5xl w-full h-[80vh] !overflow-hidden ${isDragging ? 'pointer-events-none' : ''}`}
       >
         <div className="flex flex-col h-full min-h-0">
           {/* Search */}
           <input
             type="text"
-            placeholder="Search..."
+            placeholder={t('game.compendiumModal.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full mb-3 bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-gray-200 outline-none focus:border-amber-500/50 shrink-0"
@@ -134,7 +136,7 @@ export default function CompendiumModal({ onClose }: CompendiumModalProps): JSX.
                     : 'bg-gray-800/40 border border-gray-700/30 text-gray-400 hover:bg-gray-700/40 hover:text-gray-300'
                 }`}
               >
-                {tab.label}
+                {t(`game.compendiumModal.tabs.${tab.id}`)}
               </button>
             ))}
           </div>
@@ -146,7 +148,9 @@ export default function CompendiumModal({ onClose }: CompendiumModalProps): JSX.
               loading={loading}
               onSelectItem={setSelectedItem}
               onCreateNew={() => {}}
-              categoryLabel={TABS.find((t) => t.id === activeTab)?.label ?? activeTab}
+              categoryLabel={
+                TABS.some((tab) => tab.id === activeTab) ? t(`game.compendiumModal.tabs.${activeTab}`) : activeTab
+              }
               category={activeTab}
               favorites={favorites}
               onToggleFavorite={toggleFavorite}

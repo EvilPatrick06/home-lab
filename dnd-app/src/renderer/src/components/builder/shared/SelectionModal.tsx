@@ -1,9 +1,11 @@
+import { useT } from '../../../i18n'
 import { useBuilderStore } from '../../../stores/use-builder-store'
 import SelectionDetailPanel from './SelectionDetailPanel'
 import SelectionFilterBar from './SelectionFilterBar'
 import SelectionOptionList from './SelectionOptionList'
 
 export default function SelectionModal(): JSX.Element | null {
+  const { t } = useT()
   const modal = useBuilderStore((s) => s.selectionModal)
   const closeModal = useBuilderStore((s) => s.closeSelectionModal)
   const setRarityFilter = useBuilderStore((s) => s.setModalRarityFilter)
@@ -51,14 +53,14 @@ export default function SelectionModal(): JSX.Element | null {
       {/* Footer */}
       <div className="flex items-center justify-between px-4 py-3 border-t border-gray-700 bg-gray-900">
         <span className="text-xs text-gray-500">
-          {modal.filteredOptions.length} option{modal.filteredOptions.length !== 1 ? 's' : ''}
+          {t('builder.selectionModal.optionCount', { count: modal.filteredOptions.length })}
         </span>
         <div className="flex gap-2">
           <button
             onClick={closeModal}
             className="px-4 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 rounded transition-colors"
           >
-            Cancel
+            {t('common.actions.cancel')}
           </button>
           <button
             onClick={() => {
@@ -67,7 +69,7 @@ export default function SelectionModal(): JSX.Element | null {
             disabled={!modal.previewOptionId}
             className="px-4 py-2 text-sm bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white font-medium rounded transition-colors"
           >
-            Accept
+            {t('builder.selectionModal.accept')}
           </button>
         </div>
       </div>

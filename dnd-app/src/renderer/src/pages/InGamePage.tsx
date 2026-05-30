@@ -5,6 +5,7 @@ import GameLayout from '../components/game/GameLayout'
 import { Spinner } from '../components/ui'
 import { LOADING_GRACE_PERIOD_MS, Z } from '../constants'
 import { useAutoSaveGame } from '../hooks/use-auto-save'
+import { useT } from '../i18n'
 import { localHasPermission } from '../services/permissions/local-permission'
 import { useNetworkStore } from '../stores/network-store'
 import { useBastionStore } from '../stores/use-bastion-store'
@@ -15,6 +16,7 @@ import { useLobbyStore } from '../stores/use-lobby-store'
 import { totalSecondsFromDateTime } from '../utils/calendar-utils'
 
 export default function InGamePage(): JSX.Element {
+  const { t } = useT()
   const navigate = useNavigate()
   const { campaignId } = useParams<{ campaignId: string }>()
 
@@ -176,7 +178,7 @@ export default function InGamePage(): JSX.Element {
     return (
       <div className="h-screen flex flex-col items-center justify-center bg-gray-950 text-gray-100">
         <Spinner size="lg" />
-        <p className="text-gray-400 mt-4">Loading campaign...</p>
+        <p className="text-gray-400 mt-4">{t('pages.inGamePage.loadingCampaign')}</p>
       </div>
     )
   }
@@ -186,23 +188,25 @@ export default function InGamePage(): JSX.Element {
       <div className="h-screen flex flex-col items-center justify-center bg-gray-950 text-gray-100">
         <div className="text-center">
           <Swords className="w-12 h-12 mx-auto mb-4 text-gray-400" aria-hidden="true" />
-          <h1 className="text-2xl font-bold mb-2">No Campaign Found</h1>
+          <h1 className="text-2xl font-bold mb-2">{t('pages.inGamePage.noCampaignFound')}</h1>
           <p className="text-gray-400 mb-6">
-            {campaignId ? `Campaign "${campaignId}" could not be loaded.` : 'No campaign ID specified.'}
+            {campaignId
+              ? t('pages.inGamePage.campaignCouldNotLoad', { id: campaignId })
+              : t('pages.inGamePage.noCampaignId')}
           </p>
           <button
             onClick={() => navigate('/')}
             className="px-5 py-2.5 rounded-lg font-semibold bg-amber-600 hover:bg-amber-500
               text-white transition-colors cursor-pointer"
           >
-            Back to Menu
+            {t('pages.inGamePage.backToMenu')}
           </button>
         </div>
       </div>
     )
   }
 
-  const playerName = displayName || 'Player'
+  const playerName = displayName || t('pages.inGamePage.defaultPlayerName')
 
   return (
     <>
@@ -216,14 +220,14 @@ export default function InGamePage(): JSX.Element {
         >
           <div className="bg-gray-900 border border-red-500/50 rounded-xl p-6 max-w-sm w-full mx-4 text-center">
             <div className="w-8 h-8 border-2 border-red-400 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-            <h2 className="text-lg font-bold text-red-400 mb-2">Connection Lost</h2>
+            <h2 className="text-lg font-bold text-red-400 mb-2">{t('pages.inGamePage.connectionLost')}</h2>
             <p className="text-sm text-gray-400 mb-1">
-              {reconnectAttempt > 0 ? `Reconnecting... (attempt ${reconnectAttempt}/3)` : 'Attempting to reconnect...'}
+              {reconnectAttempt > 0
+                ? t('pages.inGamePage.reconnectingAttempt', { attempt: reconnectAttempt })
+                : t('pages.inGamePage.attemptingReconnect')}
             </p>
             {reconnectAttempt >= 3 && (
-              <p className="text-xs text-red-400/70 mb-3">
-                Multiple reconnection attempts failed. The host may have ended the session.
-              </p>
+              <p className="text-xs text-red-400/70 mb-3">{t('pages.inGamePage.reconnectFailed')}</p>
             )}
             <div className="flex gap-3 justify-center mt-4">
               <button
@@ -232,14 +236,14 @@ export default function InGamePage(): JSX.Element {
                 className="px-4 py-2 text-sm font-semibold bg-amber-600 hover:bg-amber-500 text-white
                   rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Reconnect
+                {t('pages.inGamePage.reconnect')}
               </button>
               <button
                 onClick={() => navigate('/')}
                 className="px-4 py-2 text-sm font-semibold border border-gray-600 hover:bg-gray-800
                   text-gray-300 rounded-lg transition-colors cursor-pointer"
               >
-                Leave Game
+                {t('pages.inGamePage.leaveGame')}
               </button>
             </div>
           </div>

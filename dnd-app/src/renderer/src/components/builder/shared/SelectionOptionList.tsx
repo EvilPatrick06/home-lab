@@ -1,3 +1,4 @@
+import { useT } from '../../../i18n'
 import type { SelectableOption } from '../../../types/character-common'
 
 interface SelectionOptionListProps {
@@ -20,10 +21,11 @@ export default function SelectionOptionList({
   selectedOptionId,
   onPreview
 }: SelectionOptionListProps): JSX.Element {
+  const { t } = useT()
   if (options.length === 0) {
     return (
       <div className="flex-1 flex items-center justify-center text-gray-500 text-sm p-4">
-        No options match your filters
+        {t('builder.selectionOptionList.noMatch')}
       </div>
     )
   }
@@ -50,7 +52,9 @@ export default function SelectionOptionList({
               <span className={`text-sm font-medium ${isPreviewing ? 'text-amber-300' : 'text-gray-200'}`}>
                 {option.name}
               </span>
-              {isSelected && <span className="text-green-400 text-xs">✓ Selected</span>}
+              {isSelected && (
+                <span className="text-green-400 text-xs">{t('builder.selectionOptionList.selected')}</span>
+              )}
             </div>
             <div className="text-xs text-gray-500 mt-0.5 truncate">{option.description}</div>
             {option.traits.length > 0 && (

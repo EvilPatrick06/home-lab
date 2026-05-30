@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Z } from '../../../../constants'
+import { useT } from '../../../../i18n'
 import { useAiDmStore } from '../../../../stores/use-ai-dm-store'
 
 /**
@@ -7,6 +8,7 @@ import { useAiDmStore } from '../../../../stores/use-ai-dm-store'
  * Displays the pending actions and lets the DM approve or override them.
  */
 export default function RulingApprovalModal(): JSX.Element | null {
+  const { t } = useT()
   const pendingActions = useAiDmStore((s) => s.pendingActions)
   const approvePendingActions = useAiDmStore((s) => s.approvePendingActions)
   const rejectPendingActions = useAiDmStore((s) => s.rejectPendingActions)
@@ -33,34 +35,51 @@ export default function RulingApprovalModal(): JSX.Element | null {
   const actionSummaries = pendingActions.actions.map((a) => {
     switch (a.action) {
       case 'update_token':
-        return `Update ${a.label}: ${a.hp !== undefined ? `HP -> ${a.hp}` : ''}${a.ac !== undefined ? ` AC -> ${a.ac}` : ''}${a.conditions ? ` Conditions: ${(a.conditions as string[]).join(', ')}` : ''}`
+        return t('game.rulingApprovalModal.updateToken', {
+          label: a.label,
+          hp: a.hp !== undefined ? t('game.rulingApprovalModal.hpPart', { hp: a.hp }) : '',
+          ac: a.ac !== undefined ? t('game.rulingApprovalModal.acPart', { ac: a.ac }) : '',
+          conditions: a.conditions
+            ? t('game.rulingApprovalModal.conditionsPart', { conditions: (a.conditions as string[]).join(', ') })
+            : ''
+        })
       case 'place_token':
       case 'place_creature':
-        return `Place ${a.label || a.creatureName} at (${a.gridX}, ${a.gridY})`
+        return t('game.rulingApprovalModal.placeToken', {
+          label: a.label || a.creatureName,
+          x: a.gridX,
+          y: a.gridY
+        })
       case 'move_token':
-        return `Move ${a.label} to (${a.gridX}, ${a.gridY})`
+        return t('game.rulingApprovalModal.moveToken', { label: a.label, x: a.gridX, y: a.gridY })
       case 'remove_token':
-        return `Remove ${a.label}`
+        return t('game.rulingApprovalModal.removeToken', { label: a.label })
       case 'add_entity_condition':
-        return `Add ${a.condition} to ${a.entityLabel}`
+        return t('game.rulingApprovalModal.addCondition', { condition: a.condition, entity: a.entityLabel })
       case 'remove_entity_condition':
-        return `Remove ${a.condition} from ${a.entityLabel}`
+        return t('game.rulingApprovalModal.removeCondition', { condition: a.condition, entity: a.entityLabel })
       case 'start_initiative':
-        return `Start initiative combat`
+        return t('game.rulingApprovalModal.startInitiative')
       case 'next_turn':
-        return `Advance to next turn`
+        return t('game.rulingApprovalModal.nextTurn')
       case 'end_initiative':
-        return `End initiative combat`
+        return t('game.rulingApprovalModal.endInitiative')
       case 'set_ambient_light':
-        return `Set lighting to ${a.level}`
+        return t('game.rulingApprovalModal.setLighting', { level: a.level })
       case 'advance_time':
-        return `Advance time${a.hours ? ` ${a.hours}h` : ''}${a.minutes ? ` ${a.minutes}m` : ''}`
+        return t('game.rulingApprovalModal.advanceTime', {
+          hours: a.hours ? t('game.rulingApprovalModal.hoursPart', { hours: a.hours }) : '',
+          minutes: a.minutes ? t('game.rulingApprovalModal.minutesPart', { minutes: a.minutes }) : ''
+        })
       case 'system_message':
-        return `System message: "${(a.message as string)?.slice(0, 80)}..."`
+        return t('game.rulingApprovalModal.systemMessage', { message: (a.message as string)?.slice(0, 80) })
       case 'sound_effect':
-        return `Play sound: ${a.sound}`
+        return t('game.rulingApprovalModal.soundEffect', { sound: a.sound })
       default:
-        return `${a.action}: ${JSON.stringify(a).slice(0, 100)}`
+        return t('game.rulingApprovalModal.defaultAction', {
+          action: a.action,
+          json: JSON.stringify(a).slice(0, 100)
+        })
     }
   })
 
@@ -76,15 +95,15 @@ export default function RulingApprovalModal(): JSX.Element | null {
       <div className="bg-gray-900 border border-amber-500/50 rounded-xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center gap-2 px-5 py-3 border-b border-gray-700 bg-amber-600/10">
-          <span className="text-amber-400 font-bold text-lg">AI DM Ruling</span>
-          <span className="text-xs text-gray-400 ml-auto">{pendingActions.actions.length} action(s)</span>
+          <span className="text-amber-400 font-bold text-lg">{t('game.rulingApprovalModal.title')}</span>
+          <span className="text-xs text-gray-400 ml-auto">
+            {t('game.rulingApprovalModal.actionCount', { count: pendingActions.actions.length })}
+          </span>
         </div>
 
         {/* Action List */}
         <div className="flex-1 overflow-y-auto p-5 space-y-3">
-          <p className="text-xs text-gray-400 mb-2">
-            The AI DM wants to execute the following actions. Review and approve or override:
-          </p>
+          <p className="text-xs text-gray-400 mb-2">{t('game.rulingApprovalModal.intro')}</p>
 
           <div className="space-y-1.5">
             {actionSummaries.map((summary, i) => (
@@ -97,12 +116,12 @@ export default function RulingApprovalModal(): JSX.Element | null {
 
           {/* DM Note for override */}
           <div className="mt-4">
-            <label className="block text-xs text-gray-400 mb-1">DM Note (optional, for override)</label>
+            <label className="block text-xs text-gray-400 mb-1">{t('game.rulingApprovalModal.dmNoteLabel')}</label>
             <input
               type="text"
               value={dmNote}
               onChange={(e) => setDmNote(e.target.value)}
-              placeholder="Reason for override..."
+              placeholder={t('game.rulingApprovalModal.dmNotePlaceholder')}
               className="w-full px-3 py-1.5 bg-gray-800 border border-gray-700 rounded text-sm text-gray-300 placeholder-gray-600 focus:border-amber-500 focus:outline-none"
             />
           </div>
@@ -116,9 +135,9 @@ export default function RulingApprovalModal(): JSX.Element | null {
               setDmNote('')
             }}
             className="px-4 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-200 text-sm rounded font-medium"
-            title="Dismiss without applying or logging an override"
+            title={t('game.rulingApprovalModal.dismissTitle')}
           >
-            Dismiss
+            {t('game.rulingApprovalModal.dismiss')}
           </button>
           <button
             onClick={() => {
@@ -127,7 +146,7 @@ export default function RulingApprovalModal(): JSX.Element | null {
             }}
             className="px-4 py-1.5 bg-red-600/80 hover:bg-red-500 text-white text-sm rounded font-medium"
           >
-            Override
+            {t('game.rulingApprovalModal.override')}
           </button>
           <button
             onClick={() => {
@@ -136,7 +155,7 @@ export default function RulingApprovalModal(): JSX.Element | null {
             }}
             className="px-4 py-1.5 bg-green-600 hover:bg-green-500 text-white text-sm rounded font-medium"
           >
-            Approve
+            {t('game.rulingApprovalModal.approve')}
           </button>
         </div>
       </div>

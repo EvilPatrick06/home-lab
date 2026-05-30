@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { MAX_DISPLAY_NAME_LENGTH } from '../../constants'
+import { useT } from '../../i18n'
 import { Input, Modal } from '../ui'
 
 interface HostNamePromptProps {
@@ -15,6 +16,7 @@ export default function HostNamePrompt({
   onSubmit,
   onCancel
 }: HostNamePromptProps): JSX.Element | null {
+  const { t } = useT()
   const [name, setName] = useState(defaultName)
 
   useEffect(() => {
@@ -34,17 +36,15 @@ export default function HostNamePrompt({
   }
 
   return (
-    <Modal open={open} onClose={onCancel} title="Choose Host Name" className="max-w-sm">
-      <p className="text-gray-400 text-sm mb-4">
-        This name appears next to the &ldquo;DM&rdquo; badge in the lobby and chat.
-      </p>
+    <Modal open={open} onClose={onCancel} title={t('campaign.hostNamePrompt.title')} className="max-w-sm">
+      <p className="text-gray-400 text-sm mb-4">{t('campaign.hostNamePrompt.description')}</p>
 
       <Input
-        label="Host Name"
+        label={t('campaign.hostNamePrompt.hostName')}
         value={name}
         onChange={(e) => setName(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Dungeon Master"
+        placeholder={t('campaign.hostNamePrompt.hostNamePlaceholder')}
         maxLength={MAX_DISPLAY_NAME_LENGTH}
         autoFocus
       />
@@ -56,7 +56,7 @@ export default function HostNamePrompt({
           className="px-4 py-2 border border-gray-600 rounded-lg hover:bg-gray-800
             transition-colors cursor-pointer text-sm"
         >
-          Cancel
+          {t('common.actions.cancel')}
         </button>
         <button
           type="button"
@@ -66,7 +66,7 @@ export default function HostNamePrompt({
             font-semibold text-white bg-amber-600 hover:bg-amber-500
             disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed"
         >
-          Start Hosting
+          {t('campaign.hostNamePrompt.startHosting')}
         </button>
       </div>
     </Modal>

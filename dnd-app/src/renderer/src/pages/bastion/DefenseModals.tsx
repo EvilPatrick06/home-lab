@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Modal from '../../components/ui/Modal'
+import { useT } from '../../i18n'
 import type { Bastion } from '../../types/bastion'
 import type { BastionModalsProps } from './bastion-modal-types'
 
@@ -14,6 +15,7 @@ export function RecruitDefendersModal({
   selectedBastion: Bastion | undefined
   recruitDefenders: BastionModalsProps['recruitDefenders']
 }): JSX.Element {
+  const { t } = useT()
   const [recruitBarrackId, setRecruitBarrackId] = useState('')
   const [recruitNames, setRecruitNames] = useState('')
 
@@ -31,20 +33,20 @@ export function RecruitDefendersModal({
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="Recruit Defenders">
+    <Modal open={open} onClose={onClose} title={t('pages.recruitDefendersModal.title')}>
       <div className="space-y-4">
         {barracks.length === 0 ? (
-          <p className="text-sm text-gray-400">You need a Barrack facility to recruit defenders.</p>
+          <p className="text-sm text-gray-400">{t('pages.recruitDefendersModal.needBarrack')}</p>
         ) : (
           <>
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-gray-500">Barrack</label>
+              <label className="text-xs text-gray-500">{t('pages.recruitDefendersModal.barrack')}</label>
               <select
                 value={recruitBarrackId}
                 onChange={(e) => setRecruitBarrackId(e.target.value)}
                 className="bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
               >
-                <option value="">Select barrack...</option>
+                <option value="">{t('pages.recruitDefendersModal.selectBarrack')}</option>
                 {barracks.map((b) => {
                   const count = selectedBastion?.defenders.filter((d) => d.barrackId === b.id).length ?? 0
                   const max = b.space === 'vast' ? 25 : 12
@@ -57,16 +59,16 @@ export function RecruitDefendersModal({
               </select>
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-gray-500">Names (comma-separated, max 4)</label>
+              <label className="text-xs text-gray-500">{t('pages.recruitDefendersModal.namesLabel')}</label>
               <input
                 type="text"
                 value={recruitNames}
                 onChange={(e) => setRecruitNames(e.target.value)}
-                placeholder="e.g. Brynn, Torval, Elda, Garth"
+                placeholder={t('pages.recruitDefendersModal.namesPlaceholder')}
                 className="bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
               />
             </div>
-            <p className="text-xs text-gray-500">Cost: 50 GP per defender</p>
+            <p className="text-xs text-gray-500">{t('pages.recruitDefendersModal.cost')}</p>
           </>
         )}
         <div className="flex gap-2 justify-end">
@@ -74,14 +76,14 @@ export function RecruitDefendersModal({
             onClick={onClose}
             className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-gray-800 transition-colors"
           >
-            Cancel
+            {t('common.actions.cancel')}
           </button>
           <button
             onClick={handleRecruit}
             disabled={!recruitBarrackId || !recruitNames.trim()}
             className="px-4 py-2 text-sm bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded font-semibold transition-colors"
           >
-            Recruit
+            {t('pages.recruitDefendersModal.recruit')}
           </button>
         </div>
       </div>
@@ -100,6 +102,7 @@ export function BuildWallsModal({
   selectedBastion: Bastion | undefined
   buildDefensiveWalls: BastionModalsProps['buildDefensiveWalls']
 }): JSX.Element {
+  const { t } = useT()
   const [wallSquares, setWallSquares] = useState(1)
 
   const handleBuildWalls = (): void => {
@@ -110,11 +113,11 @@ export function BuildWallsModal({
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="Build Defensive Walls">
+    <Modal open={open} onClose={onClose} title={t('pages.buildWallsModal.title')}>
       <div className="space-y-4">
-        <p className="text-sm text-gray-400">Each 5-ft square costs 250 GP and takes 10 days to build.</p>
+        <p className="text-sm text-gray-400">{t('pages.buildWallsModal.costHint')}</p>
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-gray-500">Squares to build</label>
+          <label className="text-xs text-gray-500">{t('pages.buildWallsModal.squaresToBuild')}</label>
           <input
             type="number"
             min={1}
@@ -125,9 +128,9 @@ export function BuildWallsModal({
           />
         </div>
         <div className="text-xs text-gray-400">
-          Cost: {wallSquares * 250} GP &middot; Time: {wallSquares * 10} days
+          {t('pages.buildWallsModal.costTime', { cost: wallSquares * 250, days: wallSquares * 10 })}
           {selectedBastion?.defensiveWalls && (
-            <> &middot; Current: {selectedBastion.defensiveWalls.squaresBuilt} squares</>
+            <> {t('pages.buildWallsModal.current', { squares: selectedBastion.defensiveWalls.squaresBuilt })}</>
           )}
         </div>
         <div className="flex gap-2 justify-end">
@@ -135,13 +138,13 @@ export function BuildWallsModal({
             onClick={onClose}
             className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-gray-800 transition-colors"
           >
-            Cancel
+            {t('common.actions.cancel')}
           </button>
           <button
             onClick={handleBuildWalls}
             className="px-4 py-2 text-sm bg-amber-600 hover:bg-amber-500 text-white rounded font-semibold transition-colors"
           >
-            Build ({wallSquares * 250} GP)
+            {t('pages.buildWallsModal.build', { cost: wallSquares * 250 })}
           </button>
         </div>
       </div>

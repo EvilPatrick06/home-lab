@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useEscapeKey } from '../../../hooks/use-escape-key'
+import { useT } from '../../../i18n'
 
 /**
  * Phase 15d — Personal player journal.
@@ -58,6 +59,7 @@ function generateId(): string {
 }
 
 export default function PlayerNotesPanel({ characterId, onClose }: PlayerNotesPanelProps): JSX.Element {
+  const { t } = useT()
   const [notes, setNotes] = useState<PlayerNote[]>([])
   const [activeId, setActiveId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
@@ -91,7 +93,7 @@ export default function PlayerNotesPanel({ characterId, onClose }: PlayerNotesPa
     const now = new Date().toISOString()
     const note: PlayerNote = {
       id: generateId(),
-      title: 'Untitled note',
+      title: t('game.playerNotesPanel.untitledNote'),
       content: '',
       createdAt: now,
       updatedAt: now,
@@ -126,13 +128,13 @@ export default function PlayerNotesPanel({ characterId, onClose }: PlayerNotesPa
       <div className="fixed inset-0 z-20 flex items-end justify-center pb-20">
         <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
         <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-md w-full mx-4">
-          <p className="text-sm text-gray-300">Select a character first to access your personal notes.</p>
+          <p className="text-sm text-gray-300">{t('game.playerNotesPanel.selectCharacterFirst')}</p>
           <button
             type="button"
             onClick={onClose}
             className="mt-3 px-3 py-1.5 text-xs rounded bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
           >
-            Close
+            {t('common.actions.close')}
           </button>
         </div>
       </div>
@@ -145,14 +147,14 @@ export default function PlayerNotesPanel({ characterId, onClose }: PlayerNotesPa
       <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-3xl w-full mx-4 shadow-2xl max-h-[70vh] flex flex-col">
         <div className="flex items-center justify-between mb-3 shrink-0">
           <div>
-            <h3 className="text-sm font-semibold text-gray-200">My Notes</h3>
-            <p className="text-xs text-gray-500">Private — stored locally, never synced to the DM or other players.</p>
+            <h3 className="text-sm font-semibold text-gray-200">{t('game.playerNotesPanel.myNotes')}</h3>
+            <p className="text-xs text-gray-500">{t('game.playerNotesPanel.privateNote')}</p>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="text-gray-500 hover:text-gray-300 text-lg cursor-pointer"
-            aria-label="Close my notes"
+            aria-label={t('game.playerNotesPanel.closeNotes')}
           >
             &times;
           </button>
@@ -165,7 +167,7 @@ export default function PlayerNotesPanel({ characterId, onClose }: PlayerNotesPa
               type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search notes..."
+              placeholder={t('game.playerNotesPanel.searchPlaceholder')}
               className="px-2 py-1 text-xs rounded bg-gray-800 border border-gray-700/50 text-gray-200"
             />
             <button
@@ -173,11 +175,13 @@ export default function PlayerNotesPanel({ characterId, onClose }: PlayerNotesPa
               onClick={handleCreate}
               className="px-2 py-1.5 text-xs rounded bg-amber-700/40 border border-amber-600/40 text-amber-200 hover:bg-amber-700/60 cursor-pointer"
             >
-              + New note
+              {t('game.playerNotesPanel.newNote')}
             </button>
             <div className="flex-1 overflow-y-auto space-y-1">
               {filtered.length === 0 ? (
-                <p className="text-[11px] text-gray-500 py-4 text-center">{search ? 'No matches.' : 'No notes yet.'}</p>
+                <p className="text-[11px] text-gray-500 py-4 text-center">
+                  {search ? t('game.playerNotesPanel.noMatches') : t('game.playerNotesPanel.noNotes')}
+                </p>
               ) : (
                 filtered.map((n) => (
                   <button
@@ -190,7 +194,7 @@ export default function PlayerNotesPanel({ characterId, onClose }: PlayerNotesPa
                         : 'bg-gray-800/40 hover:bg-gray-800 text-gray-300'
                     }`}
                   >
-                    <div className="font-medium truncate">{n.title || 'Untitled'}</div>
+                    <div className="font-medium truncate">{n.title || t('game.playerNotesPanel.untitled')}</div>
                     {n.tags.length > 0 && <div className="text-[9px] text-gray-500 truncate">{n.tags.join(' · ')}</div>}
                   </button>
                 ))
@@ -206,7 +210,7 @@ export default function PlayerNotesPanel({ characterId, onClose }: PlayerNotesPa
                   type="text"
                   value={active.title}
                   onChange={(e) => handleUpdate({ title: e.target.value })}
-                  placeholder="Title"
+                  placeholder={t('game.playerNotesPanel.titlePlaceholder')}
                   className="px-2 py-1 text-sm rounded bg-gray-800 border border-gray-700/50 text-gray-100"
                 />
                 <input
@@ -220,28 +224,32 @@ export default function PlayerNotesPanel({ characterId, onClose }: PlayerNotesPa
                         .filter(Boolean)
                     })
                   }
-                  placeholder="Tags (comma-separated)"
+                  placeholder={t('game.playerNotesPanel.tagsPlaceholder')}
                   className="px-2 py-1 text-[11px] rounded bg-gray-800 border border-gray-700/50 text-gray-300"
                 />
                 <textarea
                   value={active.content}
                   onChange={(e) => handleUpdate({ content: e.target.value })}
-                  placeholder="Write your private notes…"
+                  placeholder={t('game.playerNotesPanel.contentPlaceholder')}
                   className="flex-1 min-h-[8rem] px-2 py-1.5 text-xs rounded bg-gray-800 border border-gray-700/50 text-gray-200 resize-none font-mono"
                 />
                 <div className="flex items-center justify-between text-xs text-gray-500">
-                  <span>Updated {new Date(active.updatedAt).toLocaleString()}</span>
+                  <span>
+                    {t('game.playerNotesPanel.updated', { time: new Date(active.updatedAt).toLocaleString() })}
+                  </span>
                   <button
                     type="button"
                     onClick={() => handleDelete(active.id)}
                     className="px-2 py-0.5 rounded bg-red-900/40 border border-red-700/40 text-red-300 hover:bg-red-900/60 cursor-pointer"
                   >
-                    Delete
+                    {t('common.actions.delete')}
                   </button>
                 </div>
               </>
             ) : (
-              <p className="text-xs text-gray-500 self-center justify-self-center">Select or create a note.</p>
+              <p className="text-xs text-gray-500 self-center justify-self-center">
+                {t('game.playerNotesPanel.selectOrCreate')}
+              </p>
             )}
           </div>
         </div>

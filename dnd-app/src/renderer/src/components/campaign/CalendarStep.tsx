@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { buildCalendarConfig, CALENDAR_PRESETS, PRESET_LABELS } from '../../data/calendar-presets'
+import { useT } from '../../i18n'
 import type { CalendarConfig, CalendarMonth, CalendarPresetId } from '../../types/campaign'
 import { formatInGameTime, totalSecondsFromDateTime } from '../../utils/calendar-utils'
 
@@ -9,6 +10,7 @@ interface CalendarStepProps {
 }
 
 export default function CalendarStep({ calendar, onChange }: CalendarStepProps): JSX.Element {
+  const { t } = useT()
   const [enabled, setEnabled] = useState(calendar !== null)
   const [preset, setPreset] = useState<CalendarPresetId>(calendar?.preset ?? 'harptos')
   const [startingYear, setStartingYear] = useState(calendar?.startingYear ?? 1492)
@@ -70,8 +72,8 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
 
   return (
     <div>
-      <h2 className="text-xl font-semibold mb-2">Calendar & Time</h2>
-      <p className="text-gray-400 text-sm mb-6">Track in-game time during sessions. This is optional.</p>
+      <h2 className="text-xl font-semibold mb-2">{t('campaign.calendarStep.title')}</h2>
+      <p className="text-gray-400 text-sm mb-6">{t('campaign.calendarStep.subtitle')}</p>
 
       <div className="max-w-2xl space-y-4">
         {/* Enable toggle */}
@@ -82,14 +84,16 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
             onChange={(e) => handleEnable(e.target.checked)}
             className="w-4 h-4 accent-amber-500"
           />
-          <span className="text-sm text-gray-200">Enable in-game time tracking</span>
+          <span className="text-sm text-gray-200">{t('campaign.calendarStep.enableTracking')}</span>
         </label>
 
         {enabled && (
           <>
             {/* Preset cards */}
             <div>
-              <label className="text-xs font-semibold text-gray-400 mb-2 block">Calendar System</label>
+              <label className="text-xs font-semibold text-gray-400 mb-2 block">
+                {t('campaign.calendarStep.calendarSystem')}
+              </label>
               <div className="grid grid-cols-2 gap-2">
                 {(Object.keys(PRESET_LABELS) as CalendarPresetId[]).map((id) => (
                   <button
@@ -103,10 +107,10 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                   >
                     <div className="font-semibold">{PRESET_LABELS[id]}</div>
                     <div className="text-xs text-gray-500 mt-0.5">
-                      {id === 'gregorian' && '12 months, 365 days'}
-                      {id === 'harptos' && 'Forgotten Realms, 12+5 festival days'}
-                      {id === 'simple-day-counter' && 'No months, just "Day N"'}
-                      {id === 'custom' && 'Define your own months'}
+                      {id === 'gregorian' && t('campaign.calendarStep.presetDesc.gregorian')}
+                      {id === 'harptos' && t('campaign.calendarStep.presetDesc.harptos')}
+                      {id === 'simple-day-counter' && t('campaign.calendarStep.presetDesc.simpleDayCounter')}
+                      {id === 'custom' && t('campaign.calendarStep.presetDesc.custom')}
                     </div>
                   </button>
                 ))}
@@ -116,7 +120,9 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
             {/* Custom months editor */}
             {preset === 'custom' && (
               <div>
-                <label className="text-xs font-semibold text-gray-400 mb-2 block">Custom Months</label>
+                <label className="text-xs font-semibold text-gray-400 mb-2 block">
+                  {t('campaign.calendarStep.customMonths')}
+                </label>
                 <div className="space-y-1 max-h-48 overflow-y-auto">
                   {customMonths.map((m, i) => (
                     <div key={i} className="flex gap-2 items-center">
@@ -129,7 +135,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                           emitChange(undefined, undefined, undefined, updated)
                         }}
                         className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
-                        placeholder="Month name"
+                        placeholder={t('campaign.calendarStep.monthNamePlaceholder')}
                       />
                       <input
                         type="number"
@@ -143,7 +149,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                         }}
                         className="w-16 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
                       />
-                      <span className="text-xs text-gray-500">days</span>
+                      <span className="text-xs text-gray-500">{t('campaign.calendarStep.days')}</span>
                       {customMonths.length > 1 && (
                         <button
                           onClick={() => {
@@ -167,10 +173,10 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                   }}
                   className="mt-1 text-xs text-amber-400 hover:text-amber-300 cursor-pointer"
                 >
-                  + Add Month
+                  {t('campaign.calendarStep.addMonth')}
                 </button>
                 <div className="mt-2">
-                  <label className="text-xs text-gray-500 block mb-1">Year Label</label>
+                  <label className="text-xs text-gray-500 block mb-1">{t('campaign.calendarStep.yearLabel')}</label>
                   <input
                     value={customYearLabel}
                     onChange={(e) => {
@@ -178,7 +184,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                       emitChange(undefined, undefined, undefined, undefined, e.target.value)
                     }}
                     className="w-24 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
-                    placeholder="Year"
+                    placeholder={t('campaign.calendarStep.yearLabelPlaceholder')}
                   />
                 </div>
               </div>
@@ -186,11 +192,13 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
 
             {/* Starting date/time */}
             <div>
-              <label className="text-xs font-semibold text-gray-400 mb-2 block">Starting Date & Time</label>
+              <label className="text-xs font-semibold text-gray-400 mb-2 block">
+                {t('campaign.calendarStep.startingDateTime')}
+              </label>
               <div className="flex gap-3 items-end flex-wrap">
                 {preset !== 'simple-day-counter' && (
                   <div>
-                    <label className="text-xs text-gray-500 block mb-1">Year</label>
+                    <label className="text-xs text-gray-500 block mb-1">{t('campaign.calendarStep.year')}</label>
                     <input
                       type="number"
                       value={startingYear}
@@ -205,7 +213,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                 )}
                 {months.length > 0 && (
                   <div>
-                    <label className="text-xs text-gray-500 block mb-1">Month</label>
+                    <label className="text-xs text-gray-500 block mb-1">{t('campaign.calendarStep.month')}</label>
                     <select
                       value={startMonth}
                       onChange={(e) => {
@@ -224,7 +232,9 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                 )}
                 <div>
                   <label className="text-xs text-gray-500 block mb-1">
-                    {preset === 'simple-day-counter' ? 'Starting Day' : 'Day'}
+                    {preset === 'simple-day-counter'
+                      ? t('campaign.calendarStep.startingDay')
+                      : t('campaign.calendarStep.day')}
                   </label>
                   <input
                     type="number"
@@ -236,7 +246,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500 block mb-1">Hour</label>
+                  <label className="text-xs text-gray-500 block mb-1">{t('campaign.calendarStep.hour')}</label>
                   <select
                     value={startHour}
                     onChange={(e) => setStartHour(parseInt(e.target.value, 10))}
@@ -258,7 +268,9 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
 
             {/* Exact time mode */}
             <div>
-              <label className="text-xs font-semibold text-gray-400 mb-2 block">Time Display Mode</label>
+              <label className="text-xs font-semibold text-gray-400 mb-2 block">
+                {t('campaign.calendarStep.timeDisplayMode')}
+              </label>
               <select
                 value={exactTimeDefault}
                 onChange={(e) => {
@@ -268,17 +280,17 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                 }}
                 className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
               >
-                <option value="always">Always show exact time</option>
-                <option value="contextual">Contextual (AI decides)</option>
-                <option value="never">Never show exact time (narrative only)</option>
+                <option value="always">{t('campaign.calendarStep.timeMode.always')}</option>
+                <option value="contextual">{t('campaign.calendarStep.timeMode.contextual')}</option>
+                <option value="never">{t('campaign.calendarStep.timeMode.never')}</option>
               </select>
-              <p className="text-xs text-gray-500 mt-1">Controls when the AI DM includes numeric time in responses.</p>
+              <p className="text-xs text-gray-500 mt-1">{t('campaign.calendarStep.timeModeHint')}</p>
             </div>
 
             {/* Preview */}
             {previewTime && (
               <div className="bg-gray-800/50 rounded-lg px-4 py-3 border border-gray-700/30">
-                <div className="text-xs text-gray-500 mb-1">Preview</div>
+                <div className="text-xs text-gray-500 mb-1">{t('campaign.calendarStep.preview')}</div>
                 <div className="text-sm text-amber-300 font-medium">{previewTime}</div>
               </div>
             )}

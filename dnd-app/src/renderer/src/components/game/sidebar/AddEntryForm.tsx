@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useT } from '../../../i18n'
 import { getTokenStats } from '../../../services/game/token-stats'
 import type { PlaceType, SidebarCategory, SidebarEntry, SidebarEntryStatBlock } from '../../../types/game-state'
 import type { GameMap, MapToken } from '../../../types/map'
@@ -39,6 +40,7 @@ export default function AddEntryForm({
   onAdd,
   onCancel
 }: AddEntryFormProps): JSX.Element {
+  const { t } = useT()
   const [newName, setNewName] = useState('')
   const [newDesc, setNewDesc] = useState('')
   const [newVisible, setNewVisible] = useState(false)
@@ -105,7 +107,9 @@ export default function AddEntryForm({
         {/* Quick Add from Board Tokens (not for places) */}
         {!isPlaces && availableBoardTokens.length > 0 && (
           <div className="space-y-1">
-            <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Quick Add from Board</span>
+            <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
+              {t('game.addEntryForm.quickAddFromBoard')}
+            </span>
             <div className="max-h-24 overflow-y-auto space-y-0.5">
               {availableBoardTokens.map((token) => (
                 <button
@@ -137,7 +141,7 @@ export default function AddEntryForm({
             onClick={() => setCreatureSearchOpen(true)}
             className="w-full py-1.5 text-xs text-center text-purple-400 bg-purple-400/10 hover:bg-purple-400/20 border border-purple-500/30 rounded cursor-pointer transition-colors"
           >
-            Import from Creature DB
+            {t('game.addEntryForm.importFromCreatureDb')}
           </button>
         )}
 
@@ -155,10 +159,10 @@ export default function AddEntryForm({
             }}
             className="w-full px-2 py-1.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-400 focus:outline-none focus:border-amber-500 cursor-pointer"
           >
-            <option value="">Use Template...</option>
-            {NPC_TEMPLATES.map((t) => (
-              <option key={t.name} value={t.name}>
-                {t.name} (CR {t.statBlock.cr})
+            <option value="">{t('game.addEntryForm.useTemplate')}</option>
+            {NPC_TEMPLATES.map((tpl) => (
+              <option key={tpl.name} value={tpl.name}>
+                {tpl.name} (CR {tpl.statBlock.cr})
               </option>
             ))}
           </select>
@@ -170,7 +174,7 @@ export default function AddEntryForm({
             onClick={() => setShowNpcGenerator(true)}
             className="w-full py-1.5 text-xs text-center text-emerald-400 bg-emerald-400/10 hover:bg-emerald-400/20 border border-emerald-500/30 rounded cursor-pointer transition-colors"
           >
-            Generate Random NPC
+            {t('game.addEntryForm.generateRandomNpc')}
           </button>
         )}
 
@@ -191,7 +195,7 @@ export default function AddEntryForm({
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           className="w-full px-2 py-1 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
-          placeholder="Name"
+          placeholder={t('game.addEntryForm.namePlaceholder')}
         />
 
         {/* Places-specific fields */}
@@ -202,7 +206,7 @@ export default function AddEntryForm({
               onChange={(e) => setNewPlaceType(e.target.value as PlaceType | '')}
               className="w-full px-2 py-1 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
             >
-              <option value="">Place type (optional)</option>
+              <option value="">{t('game.addEntryForm.placeTypeOptional')}</option>
               {PLACE_TYPES.map((pt) => (
                 <option key={pt} value={pt}>
                   {pt.charAt(0).toUpperCase() + pt.slice(1)}
@@ -214,7 +218,7 @@ export default function AddEntryForm({
               onChange={(e) => setNewParentId(e.target.value)}
               className="w-full px-2 py-1 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
             >
-              <option value="">Parent (root level)</option>
+              <option value="">{t('game.addEntryForm.parentRootLevel')}</option>
               {entries.map((e) => (
                 <option key={e.id} value={e.id}>
                   {e.name}
@@ -226,7 +230,7 @@ export default function AddEntryForm({
               onChange={(e) => setNewLinkedMapId(e.target.value)}
               className="w-full px-2 py-1 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
             >
-              <option value="">Linked map (optional)</option>
+              <option value="">{t('game.addEntryForm.linkedMapOptional')}</option>
               {maps.map((m) => (
                 <option key={m.id} value={m.id}>
                   {m.name}
@@ -241,7 +245,7 @@ export default function AddEntryForm({
           onChange={(e) => setNewDesc(e.target.value)}
           className="w-full px-2 py-1 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500 resize-none"
           rows={2}
-          placeholder="Description (optional)"
+          placeholder={t('game.addEntryForm.descriptionOptional')}
         />
 
         {/* Visibility toggle */}
@@ -252,7 +256,7 @@ export default function AddEntryForm({
             onChange={(e) => setNewVisible(e.target.checked)}
             className="accent-amber-500"
           />
-          Visible to players
+          {t('game.addEntryForm.visibleToPlayers')}
         </label>
 
         {/* Stat Block section (allies/enemies only) */}
@@ -263,7 +267,9 @@ export default function AddEntryForm({
               onClick={() => setShowNewStatBlock(!showNewStatBlock)}
               className="w-full flex items-center justify-between px-2 py-1.5 text-[11px] font-semibold text-gray-300 hover:text-amber-400 transition-colors cursor-pointer"
             >
-              <span>Stat Block {newStatBlock ? '(configured)' : ''}</span>
+              <span>
+                {t('game.addEntryForm.statBlock')} {newStatBlock ? t('game.addEntryForm.configured') : ''}
+              </span>
               <span className="text-gray-500 text-xs">{showNewStatBlock ? '\u25B2' : '\u25BC'}</span>
             </button>
             {showNewStatBlock && (
@@ -280,10 +286,10 @@ export default function AddEntryForm({
             disabled={!newName.trim()}
             className="px-2 py-0.5 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer disabled:opacity-50"
           >
-            Add
+            {t('game.addEntryForm.add')}
           </button>
           <button onClick={onCancel} className="px-2 py-0.5 text-xs text-gray-400 hover:text-gray-200 cursor-pointer">
-            Cancel
+            {t('common.actions.cancel')}
           </button>
         </div>
       </div>
@@ -292,7 +298,7 @@ export default function AddEntryForm({
       <CreatureSearchModal
         open={creatureSearchOpen}
         onClose={() => setCreatureSearchOpen(false)}
-        title="Import from Creature DB"
+        title={t('game.addEntryForm.importFromCreatureDb')}
         onSelect={importCreature}
       />
     </>

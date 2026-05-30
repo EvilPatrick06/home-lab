@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 
 interface NarrowModalShellProps {
   title: string
@@ -18,6 +19,7 @@ export default function NarrowModalShell({
   children,
   zIndex = 'z-30'
 }: NarrowModalShellProps): JSX.Element {
+  const { t } = useT()
   useEscapeKey(onClose)
   return (
     <div className={`fixed inset-0 ${zIndex} flex items-center justify-center`}>
@@ -28,7 +30,7 @@ export default function NarrowModalShell({
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-300 text-lg cursor-pointer"
-            aria-label="Close"
+            aria-label={t('common.actions.close')}
           >
             &times;
           </button>

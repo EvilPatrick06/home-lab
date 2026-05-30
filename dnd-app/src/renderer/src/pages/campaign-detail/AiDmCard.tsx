@@ -2,6 +2,7 @@ import { useState } from 'react'
 import AiProviderSetup from '../../components/campaign/AiProviderSetup'
 import { Button, Card, Modal } from '../../components/ui'
 import { AI_PROVIDER_LABELS, DEFAULT_AI_MODEL, DEFAULT_AI_PROVIDER, DEFAULT_OLLAMA_URL } from '../../constants'
+import { useT } from '../../i18n'
 import type { AiProviderType, Campaign } from '../../types/campaign'
 
 interface AiDmCardProps {
@@ -10,6 +11,7 @@ interface AiDmCardProps {
 }
 
 export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX.Element {
+  const { t } = useT()
   const [showAiDmModal, setShowAiDmModal] = useState(false)
   const [aiDmConfig, setAiDmConfig] = useState<{
     enabled: boolean
@@ -49,33 +51,35 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
   }
 
   const providerLabel = AI_PROVIDER_LABELS[campaign.aiDm?.provider ?? 'ollama'] ?? 'Ollama'
-  const displayModel = campaign.aiDm?.model ?? campaign.aiDm?.ollamaModel ?? 'default'
+  const displayModel = campaign.aiDm?.model ?? campaign.aiDm?.ollamaModel ?? t('pages.aiDmCard.defaultModel')
 
   return (
     <>
-      <Card title="AI Dungeon Master">
+      <Card title={t('pages.aiDmCard.title')}>
         {campaign.aiDm?.enabled ? (
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <span className="text-xs px-2 py-0.5 rounded-full bg-green-900/40 text-green-300">Enabled</span>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-green-900/40 text-green-300">
+                {t('pages.aiDmCard.enabled')}
+              </span>
               <span className="text-xs text-gray-400">{providerLabel}</span>
               <span className="text-xs text-gray-500">{displayModel}</span>
             </div>
             <button onClick={openConfigure} className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer">
-              Configure
+              {t('pages.aiDmCard.configure')}
             </button>
           </div>
         ) : (
           <div>
-            <p className="text-gray-500 text-sm mb-2">AI DM is not enabled for this campaign.</p>
+            <p className="text-gray-500 text-sm mb-2">{t('pages.aiDmCard.notEnabled')}</p>
             <button onClick={openEnable} className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer">
-              Enable AI DM
+              {t('pages.aiDmCard.enableAiDm')}
             </button>
           </div>
         )}
       </Card>
 
-      <Modal open={showAiDmModal} onClose={() => setShowAiDmModal(false)} title="Configure AI Dungeon Master">
+      <Modal open={showAiDmModal} onClose={() => setShowAiDmModal(false)} title={t('pages.aiDmCard.configureTitle')}>
         <div className="max-h-[60vh] overflow-y-auto">
           <AiProviderSetup
             enabled={aiDmConfig.enabled}
@@ -89,7 +93,7 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
         </div>
         <div className="flex gap-3 justify-end mt-4">
           <Button variant="secondary" onClick={() => setShowAiDmModal(false)}>
-            Cancel
+            {t('common.actions.cancel')}
           </Button>
           <Button
             onClick={async () => {
@@ -120,7 +124,7 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
               setShowAiDmModal(false)
             }}
           >
-            Save
+            {t('common.actions.save')}
           </Button>
         </div>
       </Modal>

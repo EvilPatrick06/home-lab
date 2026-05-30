@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 import { load5eChaseTables } from '../../../../services/data-provider'
 import { cryptoRandom } from '../../../../utils/crypto-random'
 import { logger } from '../../../../utils/logger'
@@ -53,6 +54,7 @@ const MAX_ROUNDS = 10
 const ESCAPE_DISTANCE = 3
 
 export default function ChaseTrackerModal({ onClose, onBroadcastResult }: ChaseTrackerModalProps): JSX.Element {
+  const { t } = useT()
   useEscapeKey(onClose)
   const [participants, setParticipants] = useState<Participant[]>([
     { id: crypto.randomUUID(), name: 'Quarry', position: 3, speed: 30, dashesUsed: 0, conModifier: 1, isQuarry: true },
@@ -134,10 +136,10 @@ export default function ChaseTrackerModal({ onClose, onBroadcastResult }: ChaseT
 
     if (newDashCount > freeDashes) {
       onBroadcastResult(
-        `${p.name} Dashes (${newDashCount}/${freeDashes} free)! DC 10 CON save required or gain 1 Exhaustion.`
+        t('game.chaseTrackerModal.dashOverFree', { name: p.name, used: newDashCount, free: freeDashes })
       )
     } else {
-      onBroadcastResult(`${p.name} Dashes (${newDashCount}/${freeDashes} free).`)
+      onBroadcastResult(t('game.chaseTrackerModal.dashFree', { name: p.name, used: newDashCount, free: freeDashes }))
     }
     moveParticipant(id, 1)
   }
@@ -150,7 +152,7 @@ export default function ChaseTrackerModal({ onClose, onBroadcastResult }: ChaseT
 
     const comp = rollComplication()
     setCurrentComplication(comp)
-    onBroadcastResult(`${p.name} moves ${zones} zone(s). Complication: ${comp}`)
+    onBroadcastResult(t('game.chaseTrackerModal.moves', { name: p.name, zones, complication: comp }))
   }
 
   const updateSpeed = (id: string, speed: number): void => {
@@ -172,14 +174,14 @@ export default function ChaseTrackerModal({ onClose, onBroadcastResult }: ChaseT
       )
       if (closestPursuer >= ESCAPE_DISTANCE) {
         setChaseEnded(true)
-        setEndMessage(`${quarry.name} escaped! The quarry got ${closestPursuer} zones ahead.`)
-        onBroadcastResult(`Chase ended: ${quarry.name} escaped!`)
+        setEndMessage(t('game.chaseTrackerModal.escapedDetail', { name: quarry.name, zones: closestPursuer }))
+        onBroadcastResult(t('game.chaseTrackerModal.chaseEndedEscaped', { name: quarry.name }))
         return
       }
       if (closestPursuer === 0) {
         setChaseEnded(true)
-        setEndMessage(`${quarry.name} was caught!`)
-        onBroadcastResult(`Chase ended: ${quarry.name} was caught!`)
+        setEndMessage(t('game.chaseTrackerModal.caught', { name: quarry.name }))
+        onBroadcastResult(t('game.chaseTrackerModal.chaseEndedCaught', { name: quarry.name }))
         return
       }
     }
@@ -189,8 +191,8 @@ export default function ChaseTrackerModal({ onClose, onBroadcastResult }: ChaseT
       const nextRound = currentRound + 1
       if (nextRound > MAX_ROUNDS) {
         setChaseEnded(true)
-        setEndMessage('Chase ended after 10 rounds. The quarry escaped!')
-        onBroadcastResult('Chase ended after 10 rounds. The quarry escaped!')
+        setEndMessage(t('game.chaseTrackerModal.endedRounds'))
+        onBroadcastResult(t('game.chaseTrackerModal.endedRounds'))
         return
       }
       setCurrentRound(nextRound)
@@ -229,15 +231,15 @@ export default function ChaseTrackerModal({ onClose, onBroadcastResult }: ChaseT
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-3 border-b border-gray-700">
           <div className="flex items-center gap-4">
-            <h2 className="text-lg font-bold text-amber-400">Chase Tracker</h2>
+            <h2 className="text-lg font-bold text-amber-400">{t('game.chaseTrackerModal.title')}</h2>
             <span className="text-xs text-gray-400">
-              Round {currentRound}/{MAX_ROUNDS}
+              {t('game.chaseTrackerModal.round', { current: currentRound, max: MAX_ROUNDS })}
             </span>
           </div>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-white text-xl leading-none px-1"
-            aria-label="Close"
+            aria-label={t('common.actions.close')}
           >
             &times;
           </button>
@@ -247,7 +249,7 @@ export default function ChaseTrackerModal({ onClose, onBroadcastResult }: ChaseT
         <div className="flex-1 overflow-y-auto p-5 space-y-4">
           {/* Complication Type */}
           <div className="flex items-center gap-3">
-            <label className="text-xs text-gray-400">Setting:</label>
+            <label className="text-xs text-gray-400">{t('game.chaseTrackerModal.setting')}</label>
             <button
               onClick={() => setComplicationType('urban')}
               className={`px-3 py-1 text-xs rounded border ${
@@ -256,7 +258,7 @@ export default function ChaseTrackerModal({ onClose, onBroadcastResult }: ChaseT
                   : 'bg-gray-800 border-gray-600 text-gray-400 hover:border-gray-500'
               }`}
             >
-              Urban
+              {t('game.chaseTrackerModal.urban')}
             </button>
             <button
               onClick={() => setComplicationType('wilderness')}
@@ -266,7 +268,7 @@ export default function ChaseTrackerModal({ onClose, onBroadcastResult }: ChaseT
                   : 'bg-gray-800 border-gray-600 text-gray-400 hover:border-gray-500'
               }`}
             >
-              Wilderness
+              {t('game.chaseTrackerModal.wilderness')}
             </button>
           </div>
 
@@ -281,7 +283,7 @@ export default function ChaseTrackerModal({ onClose, onBroadcastResult }: ChaseT
                 onClick={resetChase}
                 className="mt-2 px-3 py-1 bg-amber-600 hover:bg-amber-500 text-white text-xs rounded"
               >
-                Reset Chase
+                {t('game.chaseTrackerModal.resetChase')}
               </button>
             </div>
           )}
@@ -289,7 +291,9 @@ export default function ChaseTrackerModal({ onClose, onBroadcastResult }: ChaseT
           {/* Current Complication */}
           {currentComplication && !chaseEnded && (
             <div className="bg-purple-900/30 border border-purple-700 rounded-lg p-3">
-              <div className="text-xs text-purple-400 font-semibold mb-1">Complication</div>
+              <div className="text-xs text-purple-400 font-semibold mb-1">
+                {t('game.chaseTrackerModal.complication')}
+              </div>
               <div className="text-sm text-purple-200">{currentComplication}</div>
             </div>
           )}
@@ -312,21 +316,21 @@ export default function ChaseTrackerModal({ onClose, onBroadcastResult }: ChaseT
         {/* Footer */}
         <div className="flex items-center justify-between px-5 py-3 border-t border-gray-700">
           <div className="text-xs text-gray-500">
-            Escape at {ESCAPE_DISTANCE}+ zones apart. Chase ends after {MAX_ROUNDS} rounds.
+            {t('game.chaseTrackerModal.footerHint', { escape: ESCAPE_DISTANCE, rounds: MAX_ROUNDS })}
           </div>
           <div className="flex gap-2">
             <button
               onClick={onClose}
               className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm rounded"
             >
-              Close
+              {t('common.actions.close')}
             </button>
             {!chaseEnded && (
               <button
                 onClick={nextTurn}
                 className="px-4 py-1.5 bg-amber-600 hover:bg-amber-500 text-white text-sm rounded font-medium"
               >
-                Next Turn
+                {t('game.chaseTrackerModal.nextTurn')}
               </button>
             )}
           </div>

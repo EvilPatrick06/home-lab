@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useT } from '../../i18n'
 import { getEffectiveMagicItems } from '../../services/character/effective-character-5e'
 import { useCharacterStore } from '../../stores/use-character-store'
 import type { Campaign } from '../../types/campaign'
@@ -25,15 +26,6 @@ const RARITY_COLORS: Record<MagicItemRarity5e, string> = {
   artifact: 'text-red-400 bg-red-900/30'
 }
 
-const RARITY_LABELS: Record<MagicItemRarity5e, string> = {
-  common: 'Common',
-  uncommon: 'Uncommon',
-  rare: 'Rare',
-  'very-rare': 'Very Rare',
-  legendary: 'Legendary',
-  artifact: 'Artifact'
-}
-
 function getLevelTier(level: number): string {
   if (level <= 4) return '1-4'
   if (level <= 10) return '5-10'
@@ -46,6 +38,7 @@ interface MagicItemTrackerProps {
 }
 
 export default function MagicItemTracker({ campaign }: MagicItemTrackerProps): JSX.Element {
+  const { t } = useT()
   const characters = useCharacterStore((s) => s.characters)
 
   const { itemsByRarity, totalItems, averageLevel, tier, characterItems } = useMemo(() => {
@@ -98,9 +91,9 @@ export default function MagicItemTracker({ campaign }: MagicItemTrackerProps): J
     totalItems < recommendedTotal * 0.7 ? 'behind' : totalItems > recommendedTotal * 1.3 ? 'ahead' : 'on-track'
 
   const statusLabel: Record<string, { text: string; color: string }> = {
-    behind: { text: 'Behind Curve', color: 'text-red-400 bg-red-900/30' },
-    'on-track': { text: 'On Track', color: 'text-green-400 bg-green-900/30' },
-    ahead: { text: 'Ahead of Curve', color: 'text-amber-400 bg-amber-900/30' }
+    behind: { text: t('campaign.magicItemTracker.statusBehind'), color: 'text-red-400 bg-red-900/30' },
+    'on-track': { text: t('campaign.magicItemTracker.statusOnTrack'), color: 'text-green-400 bg-green-900/30' },
+    ahead: { text: t('campaign.magicItemTracker.statusAhead'), color: 'text-amber-400 bg-amber-900/30' }
   }
 
   return (
@@ -108,9 +101,10 @@ export default function MagicItemTracker({ campaign }: MagicItemTrackerProps): J
       {/* Summary */}
       <div className="flex items-center justify-between">
         <div className="text-xs text-gray-400">
-          Avg Party Level: <span className="text-gray-200 font-medium">{averageLevel}</span>
+          {t('campaign.magicItemTracker.avgPartyLevel')}{' '}
+          <span className="text-gray-200 font-medium">{averageLevel}</span>
           <span className="text-gray-600 mx-1.5">|</span>
-          Tier: <span className="text-gray-200 font-medium">{tier}</span>
+          {t('campaign.magicItemTracker.tier')} <span className="text-gray-200 font-medium">{tier}</span>
         </div>
         <span className={`text-xs px-2 py-0.5 rounded-full ${statusLabel[status].color}`}>
           {statusLabel[status].text}
@@ -127,7 +121,7 @@ export default function MagicItemTracker({ campaign }: MagicItemTrackerProps): J
           return (
             <div key={rarity} className="flex items-center gap-2">
               <span className={`text-xs w-16 shrink-0 px-1.5 py-0.5 rounded text-center ${RARITY_COLORS[rarity]}`}>
-                {RARITY_LABELS[rarity]}
+                {t(`campaign.magicItemTracker.rarity.${rarity}`)}
               </span>
               <div className="flex-1 h-3 bg-gray-800 rounded-full overflow-hidden">
                 <div
@@ -147,13 +141,15 @@ export default function MagicItemTracker({ campaign }: MagicItemTrackerProps): J
 
       {/* Total */}
       <div className="text-xs text-gray-500 text-center">
-        Total: {totalItems} / {recommendedTotal} items (DMG recommended for tier {tier})
+        {t('campaign.magicItemTracker.total', { total: totalItems, recommended: recommendedTotal, tier })}
       </div>
 
       {/* Per-Character Breakdown */}
       {characterItems.length > 0 && (
         <div className="border-t border-gray-800 pt-2">
-          <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">By Character</div>
+          <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">
+            {t('campaign.magicItemTracker.byCharacter')}
+          </div>
           <div className="space-y-1.5">
             {characterItems.map((char) => (
               <div key={char.name}>
@@ -163,7 +159,7 @@ export default function MagicItemTracker({ campaign }: MagicItemTrackerProps): J
                     <span
                       key={i}
                       className={`text-[9px] px-1.5 py-0.5 rounded ${RARITY_COLORS[item.rarity]}`}
-                      title={RARITY_LABELS[item.rarity]}
+                      title={t(`campaign.magicItemTracker.rarity.${item.rarity}`)}
                     >
                       {item.name}
                     </span>

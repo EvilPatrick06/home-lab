@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useCharacterEditor } from '../../../hooks/use-character-editor'
+import { useT } from '../../../i18n'
 import { getEffectiveClasses, getEffectiveKnownSpells } from '../../../services/character/effective-character-5e'
 import { computeSpellcastingInfo } from '../../../services/character/spell-data'
 import type { Character5e } from '../../../types/character-5e'
@@ -18,6 +19,7 @@ export default function AttackCalculator5e({
   readonly,
   weaponDatabase
 }: AttackCalculator5eProps): JSX.Element {
+  const { t } = useT()
   const { getLatest, saveAndBroadcast } = useCharacterEditor(character.id)
   const [showAddWeaponProf, setShowAddWeaponProf] = useState(false)
   const [customWeaponProf, setCustomWeaponProf] = useState('')
@@ -52,13 +54,16 @@ export default function AttackCalculator5e({
       {/* Spell attack for 5e */}
       {spellAttack && (
         <div className="border-t border-gray-800 pt-2 mt-2">
-          <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Spellcasting</div>
+          <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">
+            {t('sheet.attackCalculator.spellcasting')}
+          </div>
           <div className="flex gap-4 text-sm">
             <span className="text-gray-400">
-              Attack: <span className="text-amber-400 font-mono">{formatMod(spellAttack.bonus)}</span>
+              {t('sheet.attackCalculator.attack')}{' '}
+              <span className="text-amber-400 font-mono">{formatMod(spellAttack.bonus)}</span>
             </span>
             <span className="text-gray-400">
-              Save DC: <span className="text-amber-400 font-mono">{spellAttack.dc}</span>
+              {t('sheet.attackCalculator.saveDC')} <span className="text-amber-400 font-mono">{spellAttack.dc}</span>
             </span>
           </div>
         </div>
@@ -67,14 +72,14 @@ export default function AttackCalculator5e({
       {/* Weapon Proficiencies */}
       {(character.proficiencies.weapons.length > 0 || !readonly) && (
         <div className="border-t border-gray-800 pt-2 mt-2">
-          <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Weapon Proficiencies</div>
+          <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">
+            {t('sheet.attackCalculator.weaponProficiencies')}
+          </div>
           <div className="flex flex-wrap gap-1.5">
             {character.proficiencies.weapons.map((prof) => {
               const weaponProfDescriptions: Record<string, string> = {
-                'simple weapons':
-                  'Includes clubs, daggers, greatclubs, handaxes, javelins, light hammers, maces, quarterstaffs, sickles, and spears.',
-                'martial weapons':
-                  'Includes battleaxes, flails, glaives, greataxes, greatswords, halberds, lances, longswords, mauls, morningstars, pikes, rapiers, scimitars, shortswords, tridents, war picks, and warhammers.'
+                'simple weapons': t('sheet.attackCalculator.simpleWeaponsDesc'),
+                'martial weapons': t('sheet.attackCalculator.martialWeaponsDesc')
               }
               const desc =
                 weaponProfDescriptions[prof.toLowerCase()] ||
@@ -107,7 +112,7 @@ export default function AttackCalculator5e({
                 onClick={() => setShowAddWeaponProf(true)}
                 className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer"
               >
-                + Add
+                {t('sheet.attackCalculator.add')}
               </button>
             )}
           </div>
@@ -137,7 +142,7 @@ export default function AttackCalculator5e({
                 ))}
               <input
                 type="text"
-                placeholder="Custom..."
+                placeholder={t('sheet.attackCalculator.customPlaceholder')}
                 value={customWeaponProf}
                 onChange={(e) => setCustomWeaponProf(e.target.value)}
                 onKeyDown={(e) => {
@@ -167,7 +172,7 @@ export default function AttackCalculator5e({
                 }}
                 className="text-xs text-gray-500 hover:text-gray-300 cursor-pointer"
               >
-                Cancel
+                {t('common.actions.cancel')}
               </button>
             </div>
           )}
@@ -182,7 +187,9 @@ export default function AttackCalculator5e({
         if (damageCantrips.length === 0) return null
         return (
           <div className="border-t border-gray-800 pt-2 mt-2">
-            <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Damage Cantrips</div>
+            <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">
+              {t('sheet.attackCalculator.damageCantrips')}
+            </div>
             {damageCantrips.map((spell) => {
               const damageMatch = spell.description.match(/(\d+d\d+)\s+(\w+)\s+damage/)
               const damageStr = damageMatch ? `${damageMatch[1]} ${damageMatch[2]}` : ''
@@ -201,7 +208,9 @@ export default function AttackCalculator5e({
                   <div className="flex items-center gap-4 text-xs">
                     {spellAttack && (
                       <span className="text-amber-400 font-mono">
-                        {isSaveSpell ? `DC ${spellAttack.dc}` : formatMod(spellAttack.bonus)}
+                        {isSaveSpell
+                          ? t('sheet.attackCalculator.dc', { dc: spellAttack.dc })
+                          : formatMod(spellAttack.bonus)}
                       </span>
                     )}
                     {damageStr && <span className="text-red-400 font-medium">{damageStr}</span>}

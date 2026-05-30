@@ -1,15 +1,18 @@
+import { useT } from '../../../i18n'
+import type { TranslationKeys } from '../../../i18n/types'
 import { useBuilderStore } from '../../../stores/use-builder-store'
 import type { ContentTab } from '../../../types/builder'
 
-const TABS: Array<{ id: ContentTab; label: string }> = [
-  { id: 'details', label: 'About' },
-  { id: 'special-abilities', label: 'Specials' },
-  { id: 'languages', label: 'Languages' },
-  { id: 'spells', label: 'Spells' },
-  { id: 'gear', label: 'Gear' }
+const TABS: Array<{ id: ContentTab; labelKey: TranslationKeys }> = [
+  { id: 'details', labelKey: 'builder.contentTabs.details' },
+  { id: 'special-abilities', labelKey: 'builder.contentTabs.specialAbilities' },
+  { id: 'languages', labelKey: 'builder.contentTabs.languages' },
+  { id: 'spells', labelKey: 'builder.contentTabs.spells' },
+  { id: 'gear', labelKey: 'builder.contentTabs.gear' }
 ]
 
 export default function ContentTabs5e(): JSX.Element {
+  const { t } = useT()
   const activeTab = useBuilderStore((s) => s.activeTab)
   const setActiveTab = useBuilderStore((s) => s.setActiveTab)
 
@@ -25,7 +28,7 @@ export default function ContentTabs5e(): JSX.Element {
               : 'text-gray-400 border-transparent hover:text-gray-200 hover:border-gray-600'
           }`}
         >
-          {tab.label}
+          {t(tab.labelKey)}
         </button>
       ))}
     </div>

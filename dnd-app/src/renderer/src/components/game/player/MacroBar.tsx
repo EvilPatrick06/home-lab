@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useT } from '../../../i18n'
 import { getEffectiveWeapons } from '../../../services/character/effective-character-5e'
 import { useMacroStore } from '../../../stores/use-macro-store'
 import type { Character } from '../../../types/character'
@@ -40,6 +41,7 @@ const SKILL_ABILITIES: Record<string, string> = {
 }
 
 export default function MacroBar({ character, onRoll }: MacroBarProps): JSX.Element | null {
+  const { t } = useT()
   const [showAll, setShowAll] = useState(false)
   const [customFormula, setCustomFormula] = useState('')
   const [customLabel, setCustomLabel] = useState('')
@@ -102,7 +104,7 @@ export default function MacroBar({ character, onRoll }: MacroBarProps): JSX.Elem
 
   const handleCustomRoll = (): void => {
     if (!customFormula.trim()) return
-    onRoll(customFormula.trim(), customLabel.trim() || 'Custom')
+    onRoll(customFormula.trim(), customLabel.trim() || t('game.macroBar.custom'))
     setCustomFormula('')
     setCustomLabel('')
   }
@@ -126,14 +128,14 @@ export default function MacroBar({ character, onRoll }: MacroBarProps): JSX.Elem
       <button
         onClick={() => onRoll(macro.formula, macro.label)}
         className={`px-2 py-1 text-xs font-medium rounded border transition-colors cursor-pointer ${macro.color}`}
-        title={`Roll ${macro.formula}`}
+        title={t('game.macroBar.rollFormula', { formula: macro.formula })}
       >
         {macro.label}
       </button>
       <button
         onClick={() => handlePinToHotbar(macro)}
         className="absolute -top-1.5 -right-1.5 w-4 h-4 text-[8px] rounded-full bg-gray-900 border border-gray-600 text-gray-400 hover:text-amber-400 hover:border-amber-500 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
-        title="Pin to hotbar"
+        title={t('game.macroBar.pinToHotbar')}
       >
         +
       </button>
@@ -155,9 +157,9 @@ export default function MacroBar({ character, onRoll }: MacroBarProps): JSX.Elem
       <button
         onClick={() => setShowAll(!showAll)}
         className="shrink-0 px-1.5 py-1 text-[9px] text-gray-500 hover:text-gray-300 cursor-pointer border border-gray-700/30 rounded"
-        title={showAll ? 'Show proficient only' : 'Show all skills'}
+        title={showAll ? t('game.macroBar.showProficientOnly') : t('game.macroBar.showAllSkills')}
       >
-        {showAll ? 'Less' : 'All'}
+        {showAll ? t('game.macroBar.less') : t('game.macroBar.all')}
       </button>
 
       {/* Custom formula */}
@@ -169,7 +171,7 @@ export default function MacroBar({ character, onRoll }: MacroBarProps): JSX.Elem
           onKeyDown={(e) => {
             if (e.key === 'Enter') handleCustomRoll()
           }}
-          placeholder="2d6+3"
+          placeholder={t('game.macroBar.customPlaceholder')}
           className="w-16 bg-gray-800 border border-gray-700 rounded px-1.5 py-0.5 text-xs text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
         />
         <button
@@ -177,7 +179,7 @@ export default function MacroBar({ character, onRoll }: MacroBarProps): JSX.Elem
           disabled={!customFormula.trim()}
           className="px-1.5 py-0.5 text-xs bg-amber-600/40 border border-amber-500/50 text-amber-300 rounded cursor-pointer hover:bg-amber-600/60 disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          Roll
+          {t('game.macroBar.roll')}
         </button>
       </div>
     </div>

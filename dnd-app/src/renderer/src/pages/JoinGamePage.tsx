@@ -9,6 +9,7 @@ import {
   JOINED_SESSIONS_KEY,
   LAST_SESSION_KEY
 } from '../constants'
+import { useT } from '../i18n'
 import { type LanEvent, startLanScan, stopLanScan, subscribeToLan } from '../network/lan-discovery'
 import { listGames, type RegistryEvent, type RegistryGameEntry, subscribeToRegistry } from '../network/registry-client'
 import { useNetworkStore } from '../stores/network-store'
@@ -21,6 +22,7 @@ type PendingTarget = {
 } | null
 
 export default function JoinGamePage(): JSX.Element {
+  const { t } = useT()
   const navigate = useNavigate()
   const { connectionState, error, joinGame, setError, campaignId } = useNetworkStore()
 
@@ -205,7 +207,7 @@ export default function JoinGamePage(): JSX.Element {
       if (!navigatedRef.current) {
         navigatedRef.current = true
         setWaitingForCampaign(false)
-        useNetworkStore.getState().setError('Timed out waiting for host to send campaign data. Please try again.')
+        useNetworkStore.getState().setError(t('pages.joinGamePage.timeoutError'))
         useNetworkStore.getState().disconnect()
       }
     }, 15000)
@@ -288,7 +290,7 @@ export default function JoinGamePage(): JSX.Element {
       if (target && code === target.game.invite_code) {
         void connectWithCode(code, displayName.trim())
       } else {
-        setError('Invalid invite code for that game.')
+        setError(t('pages.joinGamePage.invalidInviteCode'))
       }
     },
     [pwTarget, displayName, connectWithCode, setError]
@@ -308,8 +310,8 @@ export default function JoinGamePage(): JSX.Element {
     <div className="p-8 h-screen overflow-y-auto">
       <BackButton />
 
-      <h1 className="text-3xl font-bold mb-2">Join Game</h1>
-      <p className="text-gray-500 mb-6">Pick a game from the list, or enter an invite code from your DM.</p>
+      <h1 className="text-3xl font-bold mb-2">{t('pages.joinGamePage.title')}</h1>
+      <p className="text-gray-500 mb-6">{t('pages.joinGamePage.subtitle')}</p>
 
       {autoRejoining && (
         <div
@@ -318,34 +320,36 @@ export default function JoinGamePage(): JSX.Element {
           aria-live="polite"
         >
           <Spinner size="sm" />
-          Reconnecting to game...
+          {t('pages.joinGamePage.reconnecting')}
         </div>
       )}
 
       <div className="flex items-center gap-3 mb-4">
         <Input
-          label="Display Name"
+          label={t('pages.joinGamePage.displayNameLabel')}
           value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
-          placeholder="Enter your name"
+          placeholder={t('pages.joinGamePage.displayNamePlaceholder')}
           maxLength={30}
           className="max-w-xs"
         />
         <div className="flex-1" />
         <Button variant="secondary" onClick={() => setShowManualForm((v) => !v)} className="text-sm">
-          {showManualForm ? 'Hide invite code' : 'Have an invite code?'}
+          {showManualForm ? t('pages.joinGamePage.hideInviteCode') : t('pages.joinGamePage.haveInviteCode')}
         </Button>
       </div>
 
       {showManualForm && (
         <div className="flex items-end gap-2 mb-6">
           <div className="flex-1 max-w-sm">
-            <label className="block text-gray-400 mb-1 text-xs uppercase tracking-wider">Invite Code</label>
+            <label className="block text-gray-400 mb-1 text-xs uppercase tracking-wider">
+              {t('pages.joinGamePage.inviteCodeLabel')}
+            </label>
             <input
               type="text"
               value={manualInviteCode}
               onChange={(e) => setManualInviteCode(e.target.value.toUpperCase().replace(/\s+/g, ''))}
-              placeholder="e.g. ABC123"
+              placeholder={t('pages.joinGamePage.inviteCodePlaceholder')}
               maxLength={INVITE_CODE_LENGTH + 2}
               className="w-full p-2 rounded-md bg-gray-800 border border-gray-700 text-gray-100 font-mono tracking-[0.2em] uppercase focus:outline-none focus:border-amber-500"
             />
@@ -354,10 +358,10 @@ export default function JoinGamePage(): JSX.Element {
             {isConnecting ? (
               <span className="flex items-center gap-2">
                 <Spinner size="sm" />
-                Connecting...
+                {t('pages.joinGamePage.connecting')}
               </span>
             ) : (
-              'Connect'
+              t('pages.joinGamePage.connect')
             )}
           </Button>
         </div>
@@ -367,14 +371,16 @@ export default function JoinGamePage(): JSX.Element {
         <div className="flex items-center gap-3 p-3 rounded-lg bg-amber-900/20 border border-amber-700/30 mb-4">
           <Spinner size="sm" />
           <span className="text-sm text-amber-300">
-            {waitingForCampaign ? 'Connected! Waiting for campaign data...' : 'Connecting to host...'}
+            {waitingForCampaign
+              ? t('pages.joinGamePage.waitingForCampaignData')
+              : t('pages.joinGamePage.connectingToHost')}
           </span>
         </div>
       )}
 
       {error && (
         <div className="p-3 rounded-lg bg-red-900/20 border border-red-700/30 mb-4">
-          <p className="text-sm text-red-300 font-medium">Connection failed</p>
+          <p className="text-sm text-red-300 font-medium">{t('pages.joinGamePage.connectionFailed')}</p>
           <p className="text-xs text-red-400/70 mt-1">{error}</p>
         </div>
       )}

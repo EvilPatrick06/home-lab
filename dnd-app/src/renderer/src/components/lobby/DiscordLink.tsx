@@ -1,8 +1,11 @@
+import { useT } from '../../i18n'
+
 interface DiscordLinkProps {
   url: string
 }
 
 export default function DiscordLink({ url }: DiscordLinkProps): JSX.Element {
+  const { t } = useT()
   return (
     <a
       href={url}
@@ -23,7 +26,7 @@ export default function DiscordLink({ url }: DiscordLinkProps): JSX.Element {
           clipRule="evenodd"
         />
       </svg>
-      Join Discord
+      {t('lobby.discordLink.join')}
     </a>
   )
 }

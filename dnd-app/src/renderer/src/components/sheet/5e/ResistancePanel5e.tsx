@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useCharacterEditor } from '../../../hooks/use-character-editor'
+import { useT } from '../../../i18n'
 import type { Character } from '../../../types/character'
 import type { Character5e } from '../../../types/character-5e'
 
@@ -11,6 +12,7 @@ interface ResistancePanel5eProps {
 }
 
 export default function ResistancePanel5e({ character, readonly }: ResistancePanel5eProps): JSX.Element {
+  const { t } = useT()
   const { getLatest, saveAndBroadcast } = useCharacterEditor(character.id)
   const [showDefenseAdder, setShowDefenseAdder] = useState<null | 'resistance' | 'immunity' | 'vulnerability'>(null)
   const [customDefenseInput, setCustomDefenseInput] = useState('')
@@ -27,7 +29,9 @@ export default function ResistancePanel5e({ character, readonly }: ResistancePan
         <div className="mb-3 space-y-2">
           {(character.resistances ?? []).length > 0 && (
             <div>
-              <div className="text-xs text-blue-400 uppercase tracking-wide mb-1">Resistances</div>
+              <div className="text-xs text-blue-400 uppercase tracking-wide mb-1">
+                {t('sheet.resistancePanel.resistances')}
+              </div>
               <div className="flex flex-wrap gap-1.5">
                 {(character.resistances ?? []).map((r) => {
                   const key = `res-${r}`
@@ -73,7 +77,9 @@ export default function ResistancePanel5e({ character, readonly }: ResistancePan
           )}
           {(character.immunities ?? []).length > 0 && (
             <div>
-              <div className="text-xs text-green-400 uppercase tracking-wide mb-1">Immunities</div>
+              <div className="text-xs text-green-400 uppercase tracking-wide mb-1">
+                {t('sheet.resistancePanel.immunities')}
+              </div>
               <div className="flex flex-wrap gap-1.5">
                 {(character.immunities ?? []).map((im) => {
                   const key = `imm-${im}`
@@ -119,7 +125,9 @@ export default function ResistancePanel5e({ character, readonly }: ResistancePan
           )}
           {(character.vulnerabilities ?? []).length > 0 && (
             <div>
-              <div className="text-xs text-red-400 uppercase tracking-wide mb-1">Vulnerabilities</div>
+              <div className="text-xs text-red-400 uppercase tracking-wide mb-1">
+                {t('sheet.resistancePanel.vulnerabilities')}
+              </div>
               <div className="flex flex-wrap gap-1.5">
                 {(character.vulnerabilities ?? []).map((v) => {
                   const key = `vuln-${v}`
@@ -173,19 +181,19 @@ export default function ResistancePanel5e({ character, readonly }: ResistancePan
             onClick={() => setShowDefenseAdder('resistance')}
             className="text-xs text-blue-400 hover:text-blue-300 cursor-pointer"
           >
-            + Resistance
+            {t('sheet.resistancePanel.addResistance')}
           </button>
           <button
             onClick={() => setShowDefenseAdder('immunity')}
             className="text-xs text-green-400 hover:text-green-300 cursor-pointer"
           >
-            + Immunity
+            {t('sheet.resistancePanel.addImmunity')}
           </button>
           <button
             onClick={() => setShowDefenseAdder('vulnerability')}
             className="text-xs text-red-400 hover:text-red-300 cursor-pointer"
           >
-            + Vulnerability
+            {t('sheet.resistancePanel.addVulnerability')}
           </button>
         </div>
       )}
@@ -203,7 +211,7 @@ export default function ResistancePanel5e({ character, readonly }: ResistancePan
                     : 'text-red-400'
               }`}
             >
-              Add {showDefenseAdder}
+              {t('sheet.resistancePanel.addType', { type: showDefenseAdder })}
             </span>
             <button
               onClick={() => {
@@ -212,10 +220,10 @@ export default function ResistancePanel5e({ character, readonly }: ResistancePan
               }}
               className="text-xs text-gray-500 hover:text-gray-300 cursor-pointer"
             >
-              Cancel
+              {t('common.actions.cancel')}
             </button>
           </div>
-          <div className="text-xs text-gray-500 mb-1">Damage Types</div>
+          <div className="text-xs text-gray-500 mb-1">{t('sheet.resistancePanel.damageTypes')}</div>
           <div className="flex flex-wrap gap-1">
             {DAMAGE_TYPES.map((dt) => (
               <button
@@ -257,7 +265,7 @@ export default function ResistancePanel5e({ character, readonly }: ResistancePan
           </div>
           {showDefenseAdder === 'immunity' && (
             <>
-              <div className="text-xs text-gray-500 mt-2 mb-1">Condition Immunities</div>
+              <div className="text-xs text-gray-500 mt-2 mb-1">{t('sheet.resistancePanel.conditionImmunities')}</div>
               <div className="flex flex-wrap gap-1">
                 {CONDITION_IMMUNITIES.map((cond) => (
                   <button
@@ -287,7 +295,7 @@ export default function ResistancePanel5e({ character, readonly }: ResistancePan
           <div className="flex items-center gap-2 mt-2">
             <input
               type="text"
-              placeholder="Custom..."
+              placeholder={t('sheet.resistancePanel.customPlaceholder')}
               value={customDefenseInput}
               onChange={(e) => setCustomDefenseInput(e.target.value)}
               onKeyDown={(e) => {
@@ -343,7 +351,7 @@ export default function ResistancePanel5e({ character, readonly }: ResistancePan
               disabled={!customDefenseInput.trim()}
               className="px-2 py-1 text-xs bg-amber-600 hover:bg-amber-500 disabled:opacity-50 rounded text-white cursor-pointer"
             >
-              Add
+              {t('sheet.resistancePanel.add')}
             </button>
           </div>
         </div>

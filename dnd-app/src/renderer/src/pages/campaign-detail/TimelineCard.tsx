@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Card } from '../../components/ui'
+import { useT } from '../../i18n'
 import {
   buildTimelineItems,
   getCategoryColor,
@@ -18,6 +19,7 @@ interface TimelineCardProps {
 }
 
 export default function TimelineCard({ campaign, saveCampaign }: TimelineCardProps): JSX.Element {
+  const { t } = useT()
   const [showAdd, setShowAdd] = useState(false)
   const [newMilestone, setNewMilestone] = useState({
     title: '',
@@ -53,12 +55,12 @@ export default function TimelineCard({ campaign, saveCampaign }: TimelineCardPro
   return (
     <Card>
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-lg font-semibold">Timeline</h3>
+        <h3 className="text-lg font-semibold">{t('pages.timelineCard.title')}</h3>
         <button
           onClick={() => setShowAdd(!showAdd)}
           className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer"
         >
-          {showAdd ? 'Cancel' : '+ Milestone'}
+          {showAdd ? t('common.actions.cancel') : t('pages.timelineCard.addMilestone')}
         </button>
       </div>
 
@@ -67,14 +69,14 @@ export default function TimelineCard({ campaign, saveCampaign }: TimelineCardPro
         <div className="mb-4 p-3 bg-gray-800/50 rounded-lg space-y-2">
           <input
             type="text"
-            placeholder="Milestone title"
+            placeholder={t('pages.timelineCard.milestoneTitlePlaceholder')}
             value={newMilestone.title}
             onChange={(e) => setNewMilestone((m) => ({ ...m, title: e.target.value }))}
             className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
           />
           <input
             type="text"
-            placeholder="Description (optional)"
+            placeholder={t('pages.timelineCard.descriptionPlaceholder')}
             value={newMilestone.description}
             onChange={(e) => setNewMilestone((m) => ({ ...m, description: e.target.value }))}
             className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
@@ -93,11 +95,11 @@ export default function TimelineCard({ campaign, saveCampaign }: TimelineCardPro
               }
               className="bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
             >
-              <option value="story">Story</option>
-              <option value="combat">Combat</option>
-              <option value="discovery">Discovery</option>
-              <option value="achievement">Achievement</option>
-              <option value="custom">Custom</option>
+              <option value="story">{t('pages.timelineCard.categoryStory')}</option>
+              <option value="combat">{t('pages.timelineCard.categoryCombat')}</option>
+              <option value="discovery">{t('pages.timelineCard.categoryDiscovery')}</option>
+              <option value="achievement">{t('pages.timelineCard.categoryAchievement')}</option>
+              <option value="custom">{t('pages.timelineCard.categoryCustom')}</option>
             </select>
           </div>
           <button
@@ -105,16 +107,14 @@ export default function TimelineCard({ campaign, saveCampaign }: TimelineCardPro
             disabled={!newMilestone.title.trim()}
             className="px-3 py-1.5 text-sm rounded bg-amber-600 text-white hover:bg-amber-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
-            Add
+            {t('pages.timelineCard.add')}
           </button>
         </div>
       )}
 
       {/* Timeline */}
       {items.length === 0 ? (
-        <p className="text-sm text-gray-500 italic">
-          No timeline entries yet. Add a milestone or create journal entries.
-        </p>
+        <p className="text-sm text-gray-500 italic">{t('pages.timelineCard.noEntries')}</p>
       ) : (
         <div className="overflow-x-auto">
           <div className="flex items-start gap-0 min-w-max py-2">

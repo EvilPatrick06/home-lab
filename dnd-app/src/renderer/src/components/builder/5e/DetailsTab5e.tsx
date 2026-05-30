@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useT } from '../../../i18n'
 import { load5eBackgrounds, load5eClasses, load5eFeats } from '../../../services/data-provider'
 import { useLibraryCategory } from '../../../services/library/use-library-entry'
 import { useBuilderStore } from '../../../stores/use-builder-store'
@@ -9,6 +10,7 @@ import BackstoryEditor5e, { VariantChoicesSection } from './BackstoryEditor5e'
 import PersonalityEditor5e from './PersonalityEditor5e'
 
 export default function DetailsTab5e(): JSX.Element {
+  const { t } = useT()
   const buildSlots = useBuilderStore((s) => s.buildSlots)
   const backgroundEquipmentChoice = useBuilderStore((s) => s.backgroundEquipmentChoice)
   const classEquipmentChoice = useBuilderStore((s) => s.classEquipmentChoice)
@@ -80,17 +82,21 @@ export default function DetailsTab5e(): JSX.Element {
       {/* ORIGIN FEAT */}
       {originFeat && (
         <>
-          <SectionBanner label="ORIGIN FEAT" />
+          <SectionBanner label={t('builder.detailsTab.sectionOriginFeat')} />
           <div className="px-4 py-3 border-b border-gray-800">
             <button
               onClick={() => setOriginFeatExpanded(!originFeatExpanded)}
               className="flex items-center gap-2 cursor-pointer hover:bg-gray-800/30 rounded px-1 -mx-1 py-0.5 transition-colors w-full text-left"
             >
               <span className="text-xs px-2 py-0.5 rounded bg-amber-900/50 text-amber-300 border border-amber-700">
-                Origin
+                {t('builder.detailsTab.originBadge')}
               </span>
               <span className="text-sm text-gray-200 font-medium">{originFeat}</span>
-              <span className="text-xs text-gray-500">(from {backgroundSlot?.selectedName ?? 'Background'})</span>
+              <span className="text-xs text-gray-500">
+                {t('builder.detailsTab.fromBackground', {
+                  background: backgroundSlot?.selectedName ?? t('builder.detailsTab.backgroundFallback')
+                })}
+              </span>
               <span className="text-gray-600 text-xs ml-auto">{originFeatExpanded ? '\u25BE' : '\u25B8'}</span>
             </button>
             {originFeatExpanded && originFeatDescription && (
@@ -105,15 +111,15 @@ export default function DetailsTab5e(): JSX.Element {
       {/* HUMAN VERSATILE FEAT */}
       {isHuman && (
         <>
-          <SectionBanner label="VERSATILE FEAT (HUMAN)" />
+          <SectionBanner label={t('builder.detailsTab.sectionVersatileFeat')} />
           <div className="px-4 py-3 border-b border-gray-800">
-            <p className="text-xs text-gray-500 mb-2">As a Human, you gain an additional Origin feat of your choice.</p>
+            <p className="text-xs text-gray-500 mb-2">{t('builder.detailsTab.versatileFeatHint')}</p>
             <select
               value={versatileFeatId ?? ''}
               onChange={(e) => setVersatileFeat(e.target.value || null)}
               className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1.5 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
             >
-              <option value="">Select an Origin Feat...</option>
+              <option value="">{t('builder.detailsTab.selectOriginFeat')}</option>
               {originFeats
                 .filter((f) => {
                   // Exclude the background's origin feat (by name, ignoring parenthetical)
@@ -131,7 +137,7 @@ export default function DetailsTab5e(): JSX.Element {
               <div className="mt-2 bg-gray-800/60 border border-gray-700 rounded px-3 py-2">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-xs px-2 py-0.5 rounded bg-purple-900/50 text-purple-300 border border-purple-700">
-                    Versatile
+                    {t('builder.detailsTab.versatileBadge')}
                   </span>
                   <span className="text-sm text-gray-200 font-medium">{selectedVersatileFeat.name}</span>
                 </div>
@@ -147,9 +153,9 @@ export default function DetailsTab5e(): JSX.Element {
       {/* STARTING EQUIPMENT CHOICE */}
       {backgroundId && backgroundId !== 'custom' && (
         <>
-          <SectionBanner label="STARTING EQUIPMENT" />
+          <SectionBanner label={t('builder.detailsTab.sectionStartingEquipment')} />
           <div className="px-4 py-3 border-b border-gray-800">
-            <p className="text-xs text-gray-500 mb-2">Choose your starting equipment from your background:</p>
+            <p className="text-xs text-gray-500 mb-2">{t('builder.detailsTab.chooseBackgroundEquipment')}</p>
             <div className="flex gap-2">
               <button
                 onClick={() => useBuilderStore.getState().setBackgroundEquipmentChoice('equipment')}
@@ -161,7 +167,7 @@ export default function DetailsTab5e(): JSX.Element {
                       : 'bg-gray-800 text-gray-400 border-gray-700 hover:border-gray-600'
                 }`}
               >
-                Background Equipment
+                {t('builder.detailsTab.backgroundEquipmentBtn')}
               </button>
               <button
                 onClick={() => useBuilderStore.getState().setBackgroundEquipmentChoice('gold')}
@@ -173,16 +179,14 @@ export default function DetailsTab5e(): JSX.Element {
                       : 'bg-gray-800 text-gray-400 border-gray-700 hover:border-gray-600'
                 }`}
               >
-                50 GP Instead
+                {t('builder.detailsTab.goldInsteadBtn')}
               </button>
             </div>
             {backgroundEquipmentChoice === null && (
-              <p className="text-xs text-amber-400 mt-2">Please select an option above.</p>
+              <p className="text-xs text-amber-400 mt-2">{t('builder.detailsTab.selectOptionAbove')}</p>
             )}
             {backgroundEquipmentChoice === 'gold' && (
-              <p className="text-xs text-gray-500 mt-2">
-                Replaces background equipment with 50 GP. Class starting equipment is separate (shown below).
-              </p>
+              <p className="text-xs text-gray-500 mt-2">{t('builder.detailsTab.goldReplaceNote')}</p>
             )}
           </div>
         </>
@@ -191,12 +195,12 @@ export default function DetailsTab5e(): JSX.Element {
       {/* CLASS STARTING EQUIPMENT */}
       {classEquipmentOptions && (
         <>
-          <SectionBanner label="CLASS STARTING EQUIPMENT" />
+          <SectionBanner label={t('builder.detailsTab.sectionClassStartingEquipment')} />
           <div className="px-4 py-3 border-b border-gray-800">
             <p className="text-xs text-gray-500 mb-2">
-              Choose your class starting equipment option:
+              {t('builder.detailsTab.chooseClassEquipment')}
               {backgroundEquipmentChoice === 'gold' && (
-                <span className="text-gray-600 ml-1">(Always included regardless of background choice)</span>
+                <span className="text-gray-600 ml-1">{t('builder.detailsTab.alwaysIncluded')}</span>
               )}
             </p>
             <div className="flex gap-2">
@@ -212,15 +216,17 @@ export default function DetailsTab5e(): JSX.Element {
                         : 'bg-gray-800 text-gray-400 border-gray-700 hover:border-gray-600'
                   }`}
                 >
-                  <div className="font-semibold">Option {option.label}</div>
+                  <div className="font-semibold">{t('builder.detailsTab.optionLabel', { label: option.label })}</div>
                   <div className="text-xs mt-0.5 opacity-75">
-                    {option.items.length > 0 ? option.items.join(', ') : `${option.gp} GP`}
+                    {option.items.length > 0
+                      ? option.items.join(', ')
+                      : t('builder.detailsTab.gpAmount', { gp: option.gp })}
                   </div>
                 </button>
               ))}
             </div>
             {classEquipmentChoice === null && (
-              <p className="text-xs text-amber-400 mt-2">Choose one of the options above to continue.</p>
+              <p className="text-xs text-amber-400 mt-2">{t('builder.detailsTab.chooseToContinue')}</p>
             )}
             {(() => {
               const chosen = classEquipmentOptions.find((o) => o.label === classEquipmentChoice)
@@ -231,10 +237,10 @@ export default function DetailsTab5e(): JSX.Element {
                     {chosen.items.length > 0 ? (
                       chosen.items.map((item, i) => <div key={`${i}-${item}`}>{item}</div>)
                     ) : (
-                      <div className="text-amber-400">{chosen.gp} GP</div>
+                      <div className="text-amber-400">{t('builder.detailsTab.gpAmount', { gp: chosen.gp })}</div>
                     )}
                     {chosen.items.length > 0 && chosen.gp > 0 && (
-                      <div className="text-amber-400 mt-1">+ {chosen.gp} GP</div>
+                      <div className="text-amber-400 mt-1">{t('builder.detailsTab.gpPlus', { gp: chosen.gp })}</div>
                     )}
                   </div>
                 </div>
@@ -250,7 +256,7 @@ export default function DetailsTab5e(): JSX.Element {
       {/* ASI HISTORY */}
       {asiSlots.length > 0 && (
         <>
-          <SectionBanner label="ASI HISTORY" />
+          <SectionBanner label={t('builder.detailsTab.sectionAsiHistory')} />
           <div className="border-b border-gray-800">
             {asiSlots.map((slot) => {
               const isConfirmed = slot.selectedId === 'confirmed'
@@ -261,12 +267,12 @@ export default function DetailsTab5e(): JSX.Element {
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-xs bg-gray-700 text-gray-400 px-2 py-0.5 rounded font-mono">
-                      Lv {slot.level}
+                      {t('builder.detailsTab.levelLabel', { level: slot.level })}
                     </span>
                     {isConfirmed ? (
                       <span className="text-sm text-green-400">{slot.selectedName}</span>
                     ) : (
-                      <span className="text-sm text-gray-500 italic">Not chosen</span>
+                      <span className="text-sm text-gray-500 italic">{t('builder.detailsTab.notChosen')}</span>
                     )}
                   </div>
                   {isConfirmed ? (
@@ -274,7 +280,7 @@ export default function DetailsTab5e(): JSX.Element {
                       onClick={() => useBuilderStore.getState().resetAsi(slot.id)}
                       className="text-xs text-amber-400 hover:text-amber-300 transition-colors"
                     >
-                      Edit
+                      {t('builder.detailsTab.edit')}
                     </button>
                   ) : (
                     <button
@@ -286,7 +292,7 @@ export default function DetailsTab5e(): JSX.Element {
                       }
                       className="text-xs text-amber-400 hover:text-amber-300 transition-colors"
                     >
-                      Choose
+                      {t('builder.detailsTab.choose')}
                     </button>
                   )}
                 </div>

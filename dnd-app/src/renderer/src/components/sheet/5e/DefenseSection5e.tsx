@@ -1,3 +1,4 @@
+import { useT } from '../../../i18n'
 import type { Character5e } from '../../../types/character-5e'
 import SheetSectionWrapper from '../shared/SheetSectionWrapper'
 import ArmorManager5e from './ArmorManager5e'
@@ -10,8 +11,9 @@ interface DefenseSection5eProps {
 }
 
 export default function DefenseSection5e({ character, readonly }: DefenseSection5eProps): JSX.Element {
+  const { t } = useT()
   return (
-    <SheetSectionWrapper title="Defense">
+    <SheetSectionWrapper title={t('sheet.defenseSection.title')}>
       <ArmorManager5e character={character} readonly={readonly} />
       <ResistancePanel5e character={character} readonly={readonly} />
       <ToolProficiencies5e character={character} readonly={readonly} />

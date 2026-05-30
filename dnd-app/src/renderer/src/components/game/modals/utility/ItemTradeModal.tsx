@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 import { useNetworkStore } from '../../../../stores/network-store'
 import { useGameStore } from '../../../../stores/use-game-store'
 import { useLobbyStore } from '../../../../stores/use-lobby-store'
@@ -15,6 +16,7 @@ interface ItemTradeModalProps {
 type TradePhase = 'compose' | 'awaiting' | 'incoming'
 
 export default function ItemTradeModal({ character, playerName, onClose }: ItemTradeModalProps): JSX.Element {
+  const { t } = useT()
   useEscapeKey(onClose)
   const sendMessage = useNetworkStore((s) => s.sendMessage)
   const localPeerId = useNetworkStore((s) => s.localPeerId)
@@ -122,11 +124,11 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
       <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-lg w-full mx-4 shadow-2xl max-h-[80vh] flex flex-col">
         <div className="flex items-center justify-between mb-3 shrink-0">
-          <h3 className="text-sm font-semibold text-gray-200">Item Trade</h3>
+          <h3 className="text-sm font-semibold text-gray-200">{t('game.itemTradeModal.title')}</h3>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-300 text-lg cursor-pointer"
-            aria-label="Close"
+            aria-label={t('common.actions.close')}
           >
             &times;
           </button>
@@ -149,13 +151,15 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
           <div className="flex-1 overflow-y-auto space-y-3 min-h-0">
             {/* Target player */}
             <div>
-              <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Trade With</label>
+              <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
+                {t('game.itemTradeModal.tradeWith')}
+              </label>
               <select
                 value={targetPeerId}
                 onChange={(e) => setTargetPeerId(e.target.value)}
                 className="w-full mt-1 bg-gray-800 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-200 outline-none cursor-pointer"
               >
-                <option value="">Select a player...</option>
+                <option value="">{t('game.itemTradeModal.selectPlayer')}</option>
                 {otherPlayers.map((p) => (
                   <option key={p.peerId} value={p.peerId}>
                     {p.displayName}
@@ -167,7 +171,7 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
             {/* Offered items */}
             <div>
               <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
-                Your Items to Offer
+                {t('game.itemTradeModal.yourItems')}
               </label>
               <div className="mt-1 max-h-32 overflow-y-auto space-y-0.5">
                 {equipment.map((item) => {
@@ -197,13 +201,17 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
                     </div>
                   )
                 })}
-                {equipment.length === 0 && <p className="text-xs text-gray-500">No items in inventory.</p>}
+                {equipment.length === 0 && (
+                  <p className="text-xs text-gray-500">{t('game.itemTradeModal.noItemsInventory')}</p>
+                )}
               </div>
             </div>
 
             {/* Offered gold */}
             <div className="flex items-center gap-2">
-              <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Gold to Offer (gp)</label>
+              <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
+                {t('game.itemTradeModal.goldToOffer')}
+              </label>
               <input
                 type="number"
                 min={0}
@@ -216,11 +224,11 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
             {/* Requested items */}
             <div>
               <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
-                Items You Want (comma-separated)
+                {t('game.itemTradeModal.itemsYouWant')}
               </label>
               <input
                 type="text"
-                placeholder="e.g. Longsword, Health Potion"
+                placeholder={t('game.itemTradeModal.itemsWantPlaceholder')}
                 value={requestedItemsText}
                 onChange={(e) => setRequestedItemsText(e.target.value)}
                 className="w-full mt-1 bg-gray-800 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-200 outline-none focus:border-amber-500/50"
@@ -230,7 +238,7 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
             {/* Requested gold */}
             <div className="flex items-center gap-2">
               <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
-                Gold Requested (gp)
+                {t('game.itemTradeModal.goldRequested')}
               </label>
               <input
                 type="number"
@@ -247,19 +255,19 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
               disabled={!targetPeerId || (offeredItems.length === 0 && offeredGold === 0)}
               className="w-full py-2 text-xs font-semibold rounded-lg bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white cursor-pointer transition-colors"
             >
-              Send Trade Offer
+              {t('game.itemTradeModal.sendOffer')}
             </button>
           </div>
         )}
 
         {phase === 'awaiting' && (
           <div className="flex-1 flex flex-col items-center justify-center gap-3 py-8">
-            <div className="animate-pulse text-amber-400 text-sm">Waiting for response...</div>
+            <div className="animate-pulse text-amber-400 text-sm">{t('game.itemTradeModal.waitingResponse')}</div>
             <button
               onClick={handleCancel}
               className="px-4 py-1.5 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg cursor-pointer"
             >
-              Cancel Trade
+              {t('game.itemTradeModal.cancelTrade')}
             </button>
           </div>
         )}
@@ -268,30 +276,32 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
           <div className="flex-1 overflow-y-auto space-y-3 min-h-0">
             <div className="bg-amber-900/20 border border-amber-600/30 rounded-lg p-3">
               <p className="text-xs text-amber-300 font-semibold mb-2">
-                Trade offer from {pendingTradeOffer.fromPlayerName}
+                {t('game.itemTradeModal.offerFrom', { name: pendingTradeOffer.fromPlayerName })}
               </p>
               {pendingTradeOffer.offeredItems.length > 0 && (
                 <div className="mb-2">
-                  <span className="text-xs text-gray-500 uppercase">They offer:</span>
+                  <span className="text-xs text-gray-500 uppercase">{t('game.itemTradeModal.theyOffer')}</span>
                   <ul className="mt-0.5 space-y-0.5">
                     {pendingTradeOffer.offeredItems.map((item) => (
                       <li key={item.name} className="text-xs text-gray-300">
-                        {item.quantity}x {item.name}
+                        {t('game.itemTradeModal.qtyName', { qty: item.quantity, name: item.name })}
                       </li>
                     ))}
                   </ul>
                 </div>
               )}
               {pendingTradeOffer.offeredGold > 0 && (
-                <p className="text-xs text-yellow-400 mb-2">+ {Math.floor(pendingTradeOffer.offeredGold / 100)} gp</p>
+                <p className="text-xs text-yellow-400 mb-2">
+                  {t('game.itemTradeModal.plusGold', { gold: Math.floor(pendingTradeOffer.offeredGold / 100) })}
+                </p>
               )}
               {pendingTradeOffer.requestedItems.length > 0 && (
                 <div className="mb-2">
-                  <span className="text-xs text-gray-500 uppercase">They want:</span>
+                  <span className="text-xs text-gray-500 uppercase">{t('game.itemTradeModal.theyWant')}</span>
                   <ul className="mt-0.5 space-y-0.5">
                     {pendingTradeOffer.requestedItems.map((item) => (
                       <li key={item.name} className="text-xs text-gray-300">
-                        {item.quantity}x {item.name}
+                        {t('game.itemTradeModal.qtyName', { qty: item.quantity, name: item.name })}
                       </li>
                     ))}
                   </ul>
@@ -299,7 +309,9 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
               )}
               {pendingTradeOffer.requestedGold > 0 && (
                 <p className="text-xs text-yellow-400">
-                  They want {Math.floor(pendingTradeOffer.requestedGold / 100)} gp from you
+                  {t('game.itemTradeModal.wantGoldFromYou', {
+                    gold: Math.floor(pendingTradeOffer.requestedGold / 100)
+                  })}
                 </p>
               )}
               {(() => {
@@ -336,7 +348,7 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
                 if (postTrade > cap) {
                   return (
                     <p className="text-xs text-red-300 bg-red-900/30 border border-red-700/40 rounded px-2 py-1 mb-2">
-                      Warning: accepting puts you at {postTrade.toFixed(1)}/{cap} lb — over carrying capacity.
+                      {t('game.itemTradeModal.weightWarning', { weight: postTrade.toFixed(1), cap })}
                     </p>
                   )
                 }
@@ -348,13 +360,13 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
                 onClick={handleAccept}
                 className="flex-1 py-2 text-xs font-semibold rounded-lg bg-green-700 hover:bg-green-600 text-white cursor-pointer"
               >
-                Accept
+                {t('game.itemTradeModal.accept')}
               </button>
               <button
                 onClick={handleDecline}
                 className="flex-1 py-2 text-xs font-semibold rounded-lg bg-red-700 hover:bg-red-600 text-white cursor-pointer"
               >
-                Decline
+                {t('game.itemTradeModal.decline')}
               </button>
             </div>
           </div>

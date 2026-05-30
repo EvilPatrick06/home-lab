@@ -1,8 +1,10 @@
 import { useMemo } from 'react'
+import { useT } from '../../../i18n'
 import { type ExpertiseGrant, getExpertiseGrants } from '../../../services/character/build-tree-5e'
 import { useBuilderStore } from '../../../stores/use-builder-store'
 
 export default function ExpertiseModal(): JSX.Element {
+  const { t } = useT()
   const activeExpertiseSlotId = useBuilderStore((s) => s.activeExpertiseSlotId)
   const buildSlots = useBuilderStore((s) => s.buildSlots)
   const selectedSkills = useBuilderStore((s) => s.selectedSkills)
@@ -85,9 +87,11 @@ export default function ExpertiseModal(): JSX.Element {
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">
         <h2 className="text-lg font-bold text-gray-100">
-          {grant?.restrictedSkills ? 'Scholar' : 'Expertise'}
+          {grant?.restrictedSkills ? t('builder.expertiseModal.scholar') : t('builder.expertiseModal.expertise')}
           {expertiseSlot && (
-            <span className="text-sm font-normal text-gray-500 ml-2">(Level {expertiseSlot.level})</span>
+            <span className="text-sm font-normal text-gray-500 ml-2">
+              {t('builder.expertiseModal.levelSuffix', { lvl: expertiseSlot.level })}
+            </span>
           )}
         </h2>
         <button onClick={closeCustomModal} className="text-gray-400 hover:text-gray-200 text-xl leading-none px-2">
@@ -98,17 +102,16 @@ export default function ExpertiseModal(): JSX.Element {
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-6">
         <p className="text-sm text-gray-400 mb-4">
-          Choose {maxSelections} skill{maxSelections > 1 ? 's' : ''} to gain expertise in. Your proficiency bonus is
-          doubled for ability checks using {maxSelections > 1 ? 'these skills' : 'this skill'}.
+          {t('builder.expertiseModal.instruction', { count: maxSelections })}
           {grant?.restrictedSkills && (
-            <span className="text-amber-400 ml-1">Restricted to: {grant.restrictedSkills.join(', ')}</span>
+            <span className="text-amber-400 ml-1">
+              {t('builder.expertiseModal.restrictedTo', { skills: grant.restrictedSkills.join(', ') })}
+            </span>
           )}
         </p>
 
         {options.length === 0 ? (
-          <p className="text-sm text-gray-500">
-            No eligible skills. You need proficiency in skills first (from class/background selection).
-          </p>
+          <p className="text-sm text-gray-500">{t('builder.expertiseModal.noEligibleSkills')}</p>
         ) : (
           <div className="grid grid-cols-2 gap-1">
             {options.map((opt) => {
@@ -140,7 +143,7 @@ export default function ExpertiseModal(): JSX.Element {
                     {isSelected ? '\u25CF' : ''}
                   </span>
                   <span className="flex-1 truncate">{opt.name}</span>
-                  {opt.isTools && <span className="text-xs text-gray-500">Tool</span>}
+                  {opt.isTools && <span className="text-xs text-gray-500">{t('builder.expertiseModal.tool')}</span>}
                 </button>
               )
             })}
@@ -151,15 +154,15 @@ export default function ExpertiseModal(): JSX.Element {
       {/* Footer */}
       <div className="flex items-center justify-between px-4 py-3 border-t border-gray-700 bg-gray-900">
         <span className="text-xs text-gray-500">
-          Selected: {currentSelections.length}/{maxSelections}
-          {atCap ? ' (at maximum)' : ''}
+          {t('builder.expertiseModal.selected', { count: currentSelections.length, max: maxSelections })}
+          {atCap ? t('builder.expertiseModal.atMaximum') : ''}
         </span>
         <div className="flex gap-2">
           <button
             onClick={closeCustomModal}
             className="px-4 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 rounded transition-colors"
           >
-            Cancel
+            {t('common.actions.cancel')}
           </button>
           <button
             onClick={() => confirmExpertise(slotId)}
@@ -173,10 +176,10 @@ export default function ExpertiseModal(): JSX.Element {
             }`}
           >
             {isConfirmed
-              ? 'Confirmed'
+              ? t('builder.expertiseModal.confirmed')
               : currentSelections.length < maxSelections
-                ? `Select ${maxSelections - currentSelections.length} more`
-                : 'Confirm Expertise'}
+                ? t('builder.expertiseModal.selectMore', { count: maxSelections - currentSelections.length })
+                : t('builder.expertiseModal.confirmExpertise')}
           </button>
         </div>
       </div>

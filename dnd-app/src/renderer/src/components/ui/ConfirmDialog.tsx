@@ -1,3 +1,4 @@
+import { useT } from '../../i18n'
 import Modal from './Modal'
 
 interface ConfirmDialogProps {
@@ -20,12 +21,13 @@ export default function ConfirmDialog({
   open,
   title,
   message,
-  confirmLabel = 'Confirm',
-  cancelLabel = 'Cancel',
+  confirmLabel,
+  cancelLabel,
   variant = 'danger',
   onConfirm,
   onCancel
 }: ConfirmDialogProps): JSX.Element | null {
+  const { t } = useT()
   return (
     <Modal open={open} onClose={onCancel} title={title} className="max-w-sm">
       <p className="text-gray-400 text-sm mb-4">{message}</p>
@@ -36,7 +38,7 @@ export default function ConfirmDialog({
           className="px-4 py-2 border border-gray-600 rounded-lg hover:bg-gray-800
             transition-colors cursor-pointer text-sm"
         >
-          {cancelLabel}
+          {cancelLabel ?? t('common.actions.cancel')}
         </button>
         <button
           type="button"
@@ -44,7 +46,7 @@ export default function ConfirmDialog({
           className={`px-4 py-2 rounded-lg transition-colors cursor-pointer text-sm
             font-semibold text-white ${variantStyles[variant]}`}
         >
-          {confirmLabel}
+          {confirmLabel ?? t('common.actions.confirm')}
         </button>
       </div>
     </Modal>

@@ -1,8 +1,10 @@
 import { ALIGNMENT_DESCRIPTIONS } from '../../../data/alignment-descriptions'
+import { useT } from '../../../i18n'
 import { useBuilderStore } from '../../../stores/use-builder-store'
 import SectionBanner from '../shared/SectionBanner'
 
 export default function AppearanceEditor5e(): JSX.Element {
+  const { t } = useT()
   const characterGender = useBuilderStore((s) => s.characterGender)
   const characterDeity = useBuilderStore((s) => s.characterDeity)
   const characterAge = useBuilderStore((s) => s.characterAge)
@@ -16,47 +18,47 @@ export default function AppearanceEditor5e(): JSX.Element {
 
   return (
     <>
-      <SectionBanner label="CHARACTER DETAILS" />
+      <SectionBanner label={t('builder.appearanceEditor.sectionDetails')} />
       <div className="px-4 py-3 space-y-3 border-b border-gray-800">
         <div className="grid grid-cols-4 gap-3">
           <div className="flex flex-col gap-1">
-            <label className="text-xs text-gray-500">Gender</label>
+            <label className="text-xs text-gray-500">{t('builder.appearanceEditor.gender')}</label>
             <input
               type="text"
               value={characterGender}
               onChange={(e) => useBuilderStore.setState({ characterGender: e.target.value })}
-              placeholder="Not set"
+              placeholder={t('builder.appearanceEditor.notSet')}
               className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs text-gray-500">Deity</label>
+            <label className="text-xs text-gray-500">{t('builder.appearanceEditor.deity')}</label>
             <input
               type="text"
               value={characterDeity}
               onChange={(e) => useBuilderStore.setState({ characterDeity: e.target.value })}
-              placeholder="Not set"
+              placeholder={t('builder.appearanceEditor.notSet')}
               className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs text-gray-500">Age</label>
+            <label className="text-xs text-gray-500">{t('builder.appearanceEditor.age')}</label>
             <input
               type="text"
               value={characterAge}
               onChange={(e) => useBuilderStore.setState({ characterAge: e.target.value })}
-              placeholder="Not set"
+              placeholder={t('builder.appearanceEditor.notSet')}
               className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs text-gray-500">Alignment</label>
+            <label className="text-xs text-gray-500">{t('builder.appearanceEditor.alignment')}</label>
             <select
               value={characterAlignment}
               onChange={(e) => useBuilderStore.setState({ characterAlignment: e.target.value })}
               className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
             >
-              <option value="">Not set</option>
+              <option value="">{t('builder.appearanceEditor.notSet')}</option>
               <option value="Lawful Good">Lawful Good</option>
               <option value="Neutral Good">Neutral Good</option>
               <option value="Chaotic Good">Chaotic Good</option>
@@ -74,64 +76,64 @@ export default function AppearanceEditor5e(): JSX.Element {
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div className="flex flex-col gap-1">
-            <label className="text-xs text-gray-500">Height</label>
+            <label className="text-xs text-gray-500">{t('builder.appearanceEditor.height')}</label>
             <input
               type="text"
               value={characterHeight}
               onChange={(e) => useBuilderStore.setState({ characterHeight: e.target.value })}
-              placeholder="e.g. 5'10&quot;"
+              placeholder={t('builder.appearanceEditor.heightPlaceholder')}
               className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs text-gray-500">Weight</label>
+            <label className="text-xs text-gray-500">{t('builder.appearanceEditor.weight')}</label>
             <input
               type="text"
               value={characterWeight}
               onChange={(e) => useBuilderStore.setState({ characterWeight: e.target.value })}
-              placeholder="e.g. 180 lbs"
+              placeholder={t('builder.appearanceEditor.weightPlaceholder')}
               className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
             />
           </div>
         </div>
         <div className="grid grid-cols-3 gap-3">
           <div className="flex flex-col gap-1">
-            <label className="text-xs text-gray-500">Eyes</label>
+            <label className="text-xs text-gray-500">{t('builder.appearanceEditor.eyes')}</label>
             <input
               type="text"
               value={characterEyes}
               onChange={(e) => useBuilderStore.setState({ characterEyes: e.target.value })}
-              placeholder="Not set"
+              placeholder={t('builder.appearanceEditor.notSet')}
               className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs text-gray-500">Hair</label>
+            <label className="text-xs text-gray-500">{t('builder.appearanceEditor.hair')}</label>
             <input
               type="text"
               value={characterHair}
               onChange={(e) => useBuilderStore.setState({ characterHair: e.target.value })}
-              placeholder="Not set"
+              placeholder={t('builder.appearanceEditor.notSet')}
               className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs text-gray-500">Skin</label>
+            <label className="text-xs text-gray-500">{t('builder.appearanceEditor.skin')}</label>
             <input
               type="text"
               value={characterSkin}
               onChange={(e) => useBuilderStore.setState({ characterSkin: e.target.value })}
-              placeholder="Not set"
+              placeholder={t('builder.appearanceEditor.notSet')}
               className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
             />
           </div>
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-gray-500">Appearance</label>
+          <label className="text-xs text-gray-500">{t('builder.appearanceEditor.appearance')}</label>
           <textarea
             value={characterAppearance}
             onChange={(e) => useBuilderStore.setState({ characterAppearance: e.target.value })}
-            placeholder="Describe your character's appearance..."
+            placeholder={t('builder.appearanceEditor.appearancePlaceholder')}
             rows={2}
             className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500 resize-y"
           />

@@ -1,3 +1,4 @@
+import { useT } from '../../../i18n'
 import {
   getEffectiveFeats,
   getEffectiveKnownSpells,
@@ -11,6 +12,7 @@ interface PrintSheetSpellsProps {
 }
 
 export default function PrintSheetSpells({ character }: PrintSheetSpellsProps): JSX.Element {
+  const { t } = useT()
   const knownSpells = getEffectiveKnownSpells(character)
   const preparedSpellIds = getEffectivePreparedSpellIds(character)
   const feats = getEffectiveFeats(character)
@@ -34,7 +36,7 @@ export default function PrintSheetSpells({ character }: PrintSheetSpellsProps): 
             className="mb-1 text-xs font-bold uppercase tracking-wider border-b border-gray-400 pb-0.5"
             style={{ fontSize: '8pt' }}
           >
-            Spells
+            {t('sheet.printSheetSpells.spells')}
           </h2>
           {sortedSpellLevels.map((lvl) => {
             const spells = spellsByLevel[lvl]
@@ -42,10 +44,10 @@ export default function PrintSheetSpells({ character }: PrintSheetSpellsProps): 
             return (
               <div key={lvl} className="mt-1.5">
                 <div className="text-[8pt] font-bold">
-                  {lvl === 0 ? 'Cantrips' : `Level ${lvl}`}
+                  {lvl === 0 ? t('sheet.printSheetSpells.cantrips') : t('sheet.printSheetSpells.level', { level: lvl })}
                   {slotInfo && (
                     <span className="font-normal text-gray-500 ml-1">
-                      ({slotInfo.current}/{slotInfo.max} slots)
+                      {t('sheet.printSheetSpells.slots', { current: slotInfo.current, max: slotInfo.max })}
                     </span>
                   )}
                 </div>
@@ -74,7 +76,7 @@ export default function PrintSheetSpells({ character }: PrintSheetSpellsProps): 
             className="mb-1 text-xs font-bold uppercase tracking-wider border-b border-gray-400 pb-0.5"
             style={{ fontSize: '8pt' }}
           >
-            Features &amp; Traits
+            {t('sheet.printSheetSpells.featuresAndTraits')}
           </h2>
           <div className="mt-0.5 space-y-1 text-[8.5pt]">
             {character.features.map((f: Feature, i: number) => (
@@ -95,7 +97,7 @@ export default function PrintSheetSpells({ character }: PrintSheetSpellsProps): 
             className="mb-1 text-xs font-bold uppercase tracking-wider border-b border-gray-400 pb-0.5"
             style={{ fontSize: '8pt' }}
           >
-            Feats
+            {t('sheet.printSheetSpells.feats')}
           </h2>
           <div className="mt-0.5 space-y-1 text-[8.5pt]">
             {feats.map((f: { id: string; name: string; description: string }) => (
@@ -115,27 +117,27 @@ export default function PrintSheetSpells({ character }: PrintSheetSpellsProps): 
             className="mb-1 text-xs font-bold uppercase tracking-wider border-b border-gray-400 pb-0.5"
             style={{ fontSize: '8pt' }}
           >
-            Character Details
+            {t('sheet.printSheetSpells.characterDetails')}
           </h2>
           <div className="mt-0.5 space-y-0.5 text-[8.5pt]">
             {character.details.personality && (
               <div>
-                <strong>Personality:</strong> {character.details.personality}
+                <strong>{t('sheet.printSheetSpells.personality')}</strong> {character.details.personality}
               </div>
             )}
             {character.details.ideals && (
               <div>
-                <strong>Ideals:</strong> {character.details.ideals}
+                <strong>{t('sheet.printSheetSpells.ideals')}</strong> {character.details.ideals}
               </div>
             )}
             {character.details.bonds && (
               <div>
-                <strong>Bonds:</strong> {character.details.bonds}
+                <strong>{t('sheet.printSheetSpells.bonds')}</strong> {character.details.bonds}
               </div>
             )}
             {character.details.flaws && (
               <div>
-                <strong>Flaws:</strong> {character.details.flaws}
+                <strong>{t('sheet.printSheetSpells.flaws')}</strong> {character.details.flaws}
               </div>
             )}
           </div>
@@ -149,7 +151,7 @@ export default function PrintSheetSpells({ character }: PrintSheetSpellsProps): 
             className="mb-1 text-xs font-bold uppercase tracking-wider border-b border-gray-400 pb-0.5"
             style={{ fontSize: '8pt' }}
           >
-            Backstory
+            {t('sheet.printSheetSpells.backstory')}
           </h2>
           <div className="mt-0.5 text-[8.5pt] whitespace-pre-wrap">{character.backstory}</div>
         </div>

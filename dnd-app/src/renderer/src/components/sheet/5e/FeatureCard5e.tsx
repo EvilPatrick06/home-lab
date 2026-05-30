@@ -1,4 +1,5 @@
 import { memo, useState } from 'react'
+import { useT } from '../../../i18n'
 import { formatPrerequisites } from '../../../services/data-provider'
 import type { Character5e } from '../../../types/character-5e'
 import type { FeatData } from '../../../types/data'
@@ -10,6 +11,7 @@ interface FeatureRowProps {
 }
 
 function FeatureRowImpl({ feature, onRemove }: FeatureRowProps): JSX.Element {
+  const { t } = useT()
   const [expanded, setExpanded] = useState(false)
   return (
     <div className="border-b border-gray-800 last:border-0">
@@ -22,7 +24,11 @@ function FeatureRowImpl({ feature, onRemove }: FeatureRowProps): JSX.Element {
           {feature.source && <span className="text-xs text-gray-500">({feature.source})</span>}
         </div>
         <div className="flex items-center gap-2">
-          {feature.level != null && <span className="text-xs text-gray-600 font-mono">Lv {feature.level}</span>}
+          {feature.level != null && (
+            <span className="text-xs text-gray-600 font-mono">
+              {t('sheet.featureCard.level', { lvl: feature.level })}
+            </span>
+          )}
           {onRemove && (
             <span
               role="button"
@@ -38,7 +44,7 @@ function FeatureRowImpl({ feature, onRemove }: FeatureRowProps): JSX.Element {
                 }
               }}
               className="text-gray-600 hover:text-red-400 transition-colors cursor-pointer ml-1"
-              title="Remove feat"
+              title={t('sheet.featureCard.removeFeat')}
             >
               &times;
             </span>
@@ -59,6 +65,7 @@ interface FeatPickerRowProps {
 }
 
 function FeatPickerRowImpl({ feat, character, onSelect }: FeatPickerRowProps): JSX.Element {
+  const { t } = useT()
   const [expanded, setExpanded] = useState(false)
   const meetsPrereqs = meetsFeatPrerequisites(character, feat.prerequisites)
   return (
@@ -80,14 +87,14 @@ function FeatPickerRowImpl({ feat, character, onSelect }: FeatPickerRowProps): J
               : 'bg-gray-700 text-gray-500 cursor-not-allowed'
           }`}
         >
-          Add
+          {t('sheet.featureCard.add')}
         </button>
       </div>
       {expanded && (
         <div className="px-2 pb-2">
           {formatPrerequisites(feat.prerequisites).length > 0 && (
             <p className={`text-xs mb-1 ${meetsPrereqs ? 'text-yellow-500' : 'text-red-400'}`}>
-              Requires: {formatPrerequisites(feat.prerequisites).join(', ')}
+              {t('sheet.featureCard.requires', { prereqs: formatPrerequisites(feat.prerequisites).join(', ') })}
             </p>
           )}
           <p className="text-xs text-gray-400 whitespace-pre-wrap">

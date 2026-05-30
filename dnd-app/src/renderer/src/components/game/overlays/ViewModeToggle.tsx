@@ -1,3 +1,4 @@
+import { useT } from '../../../i18n'
 import { Tooltip } from '../../ui'
 
 interface ViewModeToggleProps {
@@ -7,7 +8,8 @@ interface ViewModeToggleProps {
 }
 
 export default function ViewModeToggle({ viewMode, onToggle, characterName }: ViewModeToggleProps): JSX.Element {
-  const label = viewMode === 'dm' ? 'Switch to Player View' : 'Switch to DM View'
+  const { t } = useT()
+  const label = viewMode === 'dm' ? t('game.viewModeToggle.switchToPlayer') : t('game.viewModeToggle.switchToDM')
   return (
     <Tooltip text={label}>
       <button
@@ -19,7 +21,7 @@ export default function ViewModeToggle({ viewMode, onToggle, characterName }: Vi
             : 'bg-amber-600/90 hover:bg-amber-500/90 text-white border border-amber-500'
         }`}
       >
-        {viewMode === 'dm' ? 'DM' : characterName || 'Player'}
+        {viewMode === 'dm' ? t('game.viewModeToggle.dm') : characterName || t('game.viewModeToggle.player')}
       </button>
     </Tooltip>
   )

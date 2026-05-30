@@ -1,4 +1,5 @@
 import { lazy, Suspense, useCallback, useMemo, useState } from 'react'
+import { useT } from '../../../i18n'
 import {
   getEffectiveClasses,
   getEffectiveKnownSpells,
@@ -37,6 +38,7 @@ interface SpellcastingSection5eProps {
 }
 
 export default function SpellcastingSection5e({ character, readonly }: SpellcastingSection5eProps): JSX.Element {
+  const { t } = useT()
   // Phase 15c.5 — derive known spells (v3 shape) from v4 refs via the truth
   // store. Hydrated entries carry overrides + react to library mutations.
   const knownSpells: SpellEntry[] = useMemo(
@@ -252,7 +254,7 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
   }
 
   function handleCastRitual(spell: SpellEntry): void {
-    setRitualMessage(`Casting ${spell.name} as a ritual (10 minutes, no slot used).`)
+    setRitualMessage(t('sheet.spellcastingSection.ritualMessage', { spell: spell.name }))
     setTimeout(() => setRitualMessage(null), 4000)
 
     const lobby = useLobbyStore.getState()
@@ -262,7 +264,7 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
       id: `ritual-${Date.now()}`,
       senderId: localPeerId ?? 'local',
       senderName: localPlayer?.displayName ?? character.name,
-      content: `${character.name} casts ${spell.name} as a ritual (10 min, no slot used).`,
+      content: t('sheet.spellcastingSection.ritualChat', { name: character.name, spell: spell.name }),
       timestamp: Date.now(),
       isSystem: true
     })
@@ -289,9 +291,11 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
     const localPeerId = useNetworkStore.getState().localPeerId
     const localPlayer = lobby.players.find((p) => p.peerId === localPeerId)
     const isUpcast = slotLevel > spell.level
-    let content = `${character.name} casts ${spell.name} (Level ${slotLevel} slot)${isUpcast ? ' [Upcast]' : ''}.`
+    let content = isUpcast
+      ? t('sheet.spellcastingSection.castUpcast', { name: character.name, spell: spell.name, level: slotLevel })
+      : t('sheet.spellcastingSection.cast', { name: character.name, spell: spell.name, level: slotLevel })
     if (isUpcast && spell.higherLevels) {
-      content += ` At Higher Levels: ${spell.higherLevels}`
+      content += t('sheet.spellcastingSection.atHigherLevels', { higherLevels: spell.higherLevels })
     }
     lobby.addChatMessage({
       id: `cast-${Date.now()}`,
@@ -338,7 +342,7 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
 
   return (
     <SheetSectionWrapper
-      title="Spellcasting"
+      title={t('sheet.spellcastingSection.title')}
       onDragOver={(e: React.DragEvent) => {
         if (hasLibraryDrag(e)) {
           e.preventDefault()
@@ -361,15 +365,16 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
       {concentrationConfirm && (
         <div className="mb-3 bg-yellow-900/30 border border-yellow-700/50 rounded px-3 py-2">
           <p className="text-xs text-yellow-300 mb-2">
-            You are concentrating on <strong>{turnState?.concentratingSpell}</strong>. Casting{' '}
-            <strong>{concentrationConfirm.name}</strong> will end that concentration. Continue?
+            {t('sheet.spellcastingSection.concentratingOn')} <strong>{turnState?.concentratingSpell}</strong>
+            {t('sheet.spellcastingSection.castingWillEnd1')} <strong>{concentrationConfirm.name}</strong>
+            {t('sheet.spellcastingSection.castingWillEnd2')}
           </p>
           <div className="flex gap-2">
             <button
               onClick={confirmConcentrationSwitch}
               className="px-2 py-0.5 text-xs rounded bg-yellow-600 text-white hover:bg-yellow-500 cursor-pointer"
             >
-              Yes, Switch
+              {t('sheet.spellcastingSection.yesSwitch')}
             </button>
             <button
               onClick={() => {
@@ -378,7 +383,7 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
               }}
               className="px-2 py-0.5 text-xs rounded bg-gray-700 text-gray-300 hover:bg-gray-600 cursor-pointer"
             >
-              Cancel
+              {t('common.actions.cancel')}
             </button>
           </div>
         </div>
@@ -411,20 +416,21 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
         return (
           <div className="mb-3 flex gap-4 text-sm text-gray-400">
             <span>
-              Ability: <span className="text-amber-400 capitalize">{scInfo.ability}</span>
+              {t('sheet.spellcastingSection.ability')}{' '}
+              <span className="text-amber-400 capitalize">{scInfo.ability}</span>
             </span>
             <span>
-              DC: <span className="text-amber-400">{scInfo.spellSaveDC}</span>
+              {t('sheet.spellcastingSection.dc')} <span className="text-amber-400">{scInfo.spellSaveDC}</span>
             </span>
             <span>
-              Attack:{' '}
+              {t('sheet.spellcastingSection.attack')}{' '}
               <span className="text-amber-400">
                 {scInfo.spellAttackBonus >= 0 ? '+' : ''}
                 {scInfo.spellAttackBonus}
               </span>
             </span>
             {isMulticlassSpellcaster(classesForCalc) ? (
-              <span className="text-purple-400 text-xs">(Multiclass Slots)</span>
+              <span className="text-purple-400 text-xs">{t('sheet.spellcastingSection.multiclassSlots')}</span>
             ) : null}
           </div>
         )
@@ -454,13 +460,14 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
         return (
           <div className="mb-3 flex gap-4 text-sm text-gray-400">
             <span>
-              Species Ability: <span className="text-purple-400 capitalize">{speciesAbility}</span>
+              {t('sheet.spellcastingSection.speciesAbility')}{' '}
+              <span className="text-purple-400 capitalize">{speciesAbility}</span>
             </span>
             <span>
-              DC: <span className="text-purple-400">{dc}</span>
+              {t('sheet.spellcastingSection.dc')} <span className="text-purple-400">{dc}</span>
             </span>
             <span>
-              Attack:{' '}
+              {t('sheet.spellcastingSection.attack')}{' '}
               <span className="text-purple-400">
                 {attackBonus >= 0 ? '+' : ''}
                 {attackBonus}
@@ -486,12 +493,13 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
             <div className="mb-3 flex gap-4 text-xs text-gray-500">
               {cantripsMax > 0 && (
                 <span>
-                  Cantrips: <span className="text-amber-400">{cantrips.length}</span>/{cantripsMax}
+                  {t('sheet.spellcastingSection.cantrips')} <span className="text-amber-400">{cantrips.length}</span>/
+                  {cantripsMax}
                 </span>
               )}
               {cantripsMax === 0 && cantrips.length > 0 && (
                 <span>
-                  Cantrips: <span className="text-amber-400">{cantrips.length}</span>
+                  {t('sheet.spellcastingSection.cantrips')} <span className="text-amber-400">{cantrips.length}</span>
                 </span>
               )}
               {nonCantrips.length > 0 &&
@@ -502,11 +510,13 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
                   return (
                     <>
                       <span>
-                        Prepared Spells: <span className="text-amber-400">{preparedCount}</span>
+                        {t('sheet.spellcastingSection.preparedSpells')}{' '}
+                        <span className="text-amber-400">{preparedCount}</span>
                         {maxPrepared != null && <span className="text-gray-500">/{maxPrepared}</span>}
                       </span>
                       <span>
-                        Total Known: <span className="text-amber-400">{nonCantrips.length}</span>
+                        {t('sheet.spellcastingSection.totalKnown')}{' '}
+                        <span className="text-amber-400">{nonCantrips.length}</span>
                       </span>
                     </>
                   )
@@ -522,7 +532,7 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
             onClick={() => setShowMulticlassAdvisor(true)}
             className="px-2 py-1 text-xs rounded transition-colors cursor-pointer bg-purple-600/30 text-purple-300 hover:bg-purple-600/50"
           >
-            Multiclass Advisor
+            {t('sheet.spellcastingSection.multiclassAdvisor')}
           </button>
         )}
         {knownSpells.filter((s) => s.level > 0).length > 0 && (
@@ -530,7 +540,7 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
             onClick={() => setShowSpellPrepOptimizer(true)}
             className="px-2 py-1 text-xs rounded transition-colors cursor-pointer bg-blue-600/30 text-blue-300 hover:bg-blue-600/50"
           >
-            Optimize Prep
+            {t('sheet.spellcastingSection.optimizePrep')}
           </button>
         )}
       </div>
@@ -542,9 +552,9 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
             type="text"
             value={spellSearch}
             onChange={(e) => setSpellSearch(e.target.value)}
-            placeholder="Search spells..."
+            placeholder={t('sheet.spellcastingSection.searchPlaceholder')}
             className="flex-1 min-w-[140px] text-xs bg-gray-800 border border-gray-700 rounded px-2 py-1 text-gray-200 focus:outline-none focus:border-amber-500"
-            aria-label="Search spells"
+            aria-label={t('sheet.spellcastingSection.searchAria')}
           />
           {(
             [

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useCharacterEditor } from '../../../hooks/use-character-editor'
+import { useT } from '../../../i18n'
 import { getEffectiveMagicItems } from '../../../services/character/effective-character-5e'
 import { load5eMagicItems } from '../../../services/data-provider'
 import type { Character5e } from '../../../types/character-5e'
@@ -14,6 +15,7 @@ interface MagicItemsPanelProps {
 }
 
 export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPanelProps): JSX.Element {
+  const { t } = useT()
   const { getLatest, saveAndBroadcast } = useCharacterEditor(character.id)
   const [showMagicItemPicker, setShowMagicItemPicker] = useState(false)
   const [magicItemSearch, setMagicItemSearch] = useState('')
@@ -57,12 +59,12 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
       {(characterMagicItems.length > 0 || !readonly) && (
         <div className="mb-3">
           <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">
-            Magic Items
+            {t('sheet.magicItemsPanel.title')}
             {characterMagicItems.some((mi) => mi.attunement) && (
               <span className="ml-2 text-purple-400 normal-case">
                 {/* Phase 23f — single source: attuned items from getEffectiveMagicItems
                     (which projects state.magicItemAttuned). Matches AttunementTracker. */}
-                Attuned: {characterMagicItems.filter((mi) => mi.attuned).length}/3
+                {t('sheet.magicItemsPanel.attuned', { count: characterMagicItems.filter((mi) => mi.attuned).length })}
               </span>
             )}
           </div>
@@ -83,7 +85,7 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
               ))}
             </div>
           ) : (
-            <p className="text-sm text-gray-500">No magic items.</p>
+            <p className="text-sm text-gray-500">{t('sheet.magicItemsPanel.empty')}</p>
           )}
           {!readonly && (
             <div className="mt-2">
@@ -91,14 +93,18 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                 <div className="bg-gray-800/50 rounded p-3 space-y-2">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs text-purple-400 font-medium">
-                      {showManualMagicItem ? 'Manual Entry' : 'Magic Item Browser'}
+                      {showManualMagicItem
+                        ? t('sheet.magicItemsPanel.manualEntry')
+                        : t('sheet.magicItemsPanel.browserTitle')}
                     </span>
                     <div className="flex gap-2">
                       <button
                         onClick={() => setShowManualMagicItem(!showManualMagicItem)}
                         className="text-xs text-gray-400 hover:text-gray-300 cursor-pointer underline"
                       >
-                        {showManualMagicItem ? 'Browse SRD' : 'Manual Entry'}
+                        {showManualMagicItem
+                          ? t('sheet.magicItemsPanel.browseSrd')
+                          : t('sheet.magicItemsPanel.manualEntry')}
                       </button>
                       <button
                         onClick={() => {
@@ -110,7 +116,7 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                         }}
                         className="text-xs text-gray-500 hover:text-gray-300 cursor-pointer"
                       >
-                        Close
+                        {t('common.actions.close')}
                       </button>
                     </div>
                   </div>
@@ -119,7 +125,7 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                     <div className="space-y-2">
                       <input
                         type="text"
-                        placeholder="Item name"
+                        placeholder={t('sheet.magicItemsPanel.itemNamePlaceholder')}
                         value={manualMagicItem.name}
                         onChange={(e) => setManualMagicItem((f) => ({ ...f, name: e.target.value }))}
                         className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 focus:outline-none focus:border-purple-500"
@@ -146,7 +152,7 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                             onChange={(e) => setManualMagicItem((f) => ({ ...f, attunement: e.target.checked }))}
                             className="rounded"
                           />
-                          Attunement
+                          {t('sheet.magicItemsPanel.attunement')}
                         </label>
                         <label className="flex items-center gap-1 text-xs text-yellow-500 cursor-pointer">
                           <input
@@ -155,12 +161,12 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                             onChange={(e) => setGiveUnidentified(e.target.checked)}
                             className="rounded"
                           />
-                          Unidentified
+                          {t('sheet.magicItemsPanel.unidentified')}
                         </label>
                       </div>
                       <input
                         type="text"
-                        placeholder="Description (optional)"
+                        placeholder={t('sheet.magicItemsPanel.descriptionPlaceholder')}
                         value={manualMagicItem.description}
                         onChange={(e) => setManualMagicItem((f) => ({ ...f, description: e.target.value }))}
                         className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 focus:outline-none focus:border-purple-500"
@@ -191,7 +197,7 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                           disabled={!manualMagicItem.name.trim()}
                           className="px-3 py-1 text-xs bg-purple-600 hover:bg-purple-500 disabled:opacity-50 rounded text-white cursor-pointer"
                         >
-                          Add
+                          {t('sheet.magicItemsPanel.add')}
                         </button>
                       </div>
                     </div>
@@ -200,7 +206,7 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                       <div className="flex gap-2">
                         <input
                           type="text"
-                          placeholder="Search magic items..."
+                          placeholder={t('sheet.magicItemsPanel.searchPlaceholder')}
                           value={magicItemSearch}
                           onChange={(e) => setMagicItemSearch(e.target.value)}
                           className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 focus:outline-none focus:border-purple-500"
@@ -210,7 +216,7 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                           onChange={(e) => setMagicItemRarityFilter(e.target.value)}
                           className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 focus:outline-none focus:border-purple-500"
                         >
-                          <option value="all">All Rarities</option>
+                          <option value="all">{t('sheet.magicItemsPanel.allRarities')}</option>
                           <option value="common">Common</option>
                           <option value="uncommon">Uncommon</option>
                           <option value="rare">Rare</option>
@@ -225,7 +231,7 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                             onChange={(e) => setGiveUnidentified(e.target.checked)}
                             className="rounded"
                           />
-                          Unidentified
+                          {t('sheet.magicItemsPanel.unidentified')}
                         </label>
                       </div>
                       <div className="max-h-48 overflow-y-auto space-y-0.5">
@@ -273,7 +279,11 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                                   {item.name}
                                 </span>
                                 <div className="flex items-center gap-2 shrink-0 ml-2">
-                                  {item.attunement && <span className="text-[9px] text-purple-500">Attune</span>}
+                                  {item.attunement && (
+                                    <span className="text-[9px] text-purple-500">
+                                      {t('sheet.magicItemsPanel.attune')}
+                                    </span>
+                                  )}
                                   <span className="text-xs text-gray-600 capitalize">
                                     {item.rarity.replace('-', ' ')}
                                   </span>
@@ -282,7 +292,7 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                             )
                           })}
                         {magicItems.length === 0 && (
-                          <p className="text-xs text-gray-500 text-center py-2">Loading magic items...</p>
+                          <p className="text-xs text-gray-500 text-center py-2">{t('sheet.magicItemsPanel.loading')}</p>
                         )}
                       </div>
                     </div>
@@ -300,7 +310,7 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                   }}
                   className="text-xs text-purple-400 hover:text-purple-300 cursor-pointer"
                 >
-                  + Add Magic Item
+                  {t('sheet.magicItemsPanel.addMagicItem')}
                 </button>
               )}
             </div>

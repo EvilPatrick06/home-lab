@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useT } from '../../../i18n'
 import type { Character5e, HitDiceEntry, HitPoints } from '../../../types/character-5e'
 import type { ClassResource } from '../../../types/character-common'
 
@@ -29,6 +30,7 @@ export default function PlayerHUDActions({
   onToggleInspiration,
   renderSlotPips
 }: PlayerHUDActionsProps): JSX.Element {
+  const { t } = useT()
   const [editingTempHP, setEditingTempHP] = useState(false)
   const [tempHPInput, setTempHPInput] = useState('')
 
@@ -47,7 +49,7 @@ export default function PlayerHUDActions({
     <>
       {/* Temp HP */}
       <div className="flex items-center gap-2">
-        <span className="text-xs text-gray-500 w-14">Temp HP:</span>
+        <span className="text-xs text-gray-500 w-14">{t('game.playerHUDActions.tempHp')}</span>
         {editingTempHP ? (
           <input
             type="number"
@@ -72,14 +74,16 @@ export default function PlayerHUDActions({
           </button>
         )}
         <span className="text-xs text-gray-600 ml-2">|</span>
-        <span className="text-xs text-gray-500">Spd: {speed}ft</span>
-        <span className="text-xs text-gray-500">Init: {formatModFn(dexMod)}</span>
+        <span className="text-xs text-gray-500">{t('game.playerHUDActions.speed', { speed })}</span>
+        <span className="text-xs text-gray-500">{t('game.playerHUDActions.init', { mod: formatModFn(dexMod) })}</span>
       </div>
 
       {/* Spell Slots (full view) */}
       {Object.keys(char5e.spellSlotLevels ?? {}).length > 0 && (
         <div>
-          <span className="text-[9px] text-gray-500 uppercase tracking-wider">Spell Slots</span>
+          <span className="text-[9px] text-gray-500 uppercase tracking-wider">
+            {t('game.playerHUDActions.spellSlots')}
+          </span>
           <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-0.5">
             {Object.entries(char5e.spellSlotLevels)
               .filter(([, s]) => s.max > 0)
@@ -91,7 +95,9 @@ export default function PlayerHUDActions({
       {/* Pact Magic */}
       {char5e.pactMagicSlotLevels && Object.keys(char5e.pactMagicSlotLevels).length > 0 && (
         <div>
-          <span className="text-[9px] text-gray-500 uppercase tracking-wider">Pact Magic</span>
+          <span className="text-[9px] text-gray-500 uppercase tracking-wider">
+            {t('game.playerHUDActions.pactMagic')}
+          </span>
           <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-0.5">
             {Object.entries(char5e.pactMagicSlotLevels)
               .filter(([, s]) => s.max > 0)
@@ -103,11 +109,15 @@ export default function PlayerHUDActions({
       {/* Class Resources */}
       {classResources.length > 0 && (
         <div>
-          <span className="text-[9px] text-gray-500 uppercase tracking-wider">Class Resources</span>
+          <span className="text-[9px] text-gray-500 uppercase tracking-wider">
+            {t('game.playerHUDActions.classResources')}
+          </span>
           <div className="space-y-0.5 mt-0.5">
             {classResources.map((r) => (
               <div key={r.id} className="flex items-center gap-1.5 text-xs">
-                <span className="text-gray-400 text-xs min-w-[80px]">{r.name}:</span>
+                <span className="text-gray-400 text-xs min-w-[80px]">
+                  {t('game.playerHUDActions.resourceName', { name: r.name })}
+                </span>
                 <span className="text-amber-300 font-semibold text-xs">
                   {r.current}/{r.max}
                 </span>
@@ -134,7 +144,7 @@ export default function PlayerHUDActions({
       {/* Hit Dice & Heroic Inspiration */}
       <div className="flex items-center gap-4">
         <span className="text-xs text-gray-500">
-          Hit Dice:{' '}
+          {t('game.playerHUDActions.hitDice')}{' '}
           <span className="text-amber-300">
             {hitDice.reduce((s, h) => s + h.current, 0)}/{hitDice.reduce((s, h) => s + h.maximum, 0)}
           </span>
@@ -147,9 +157,9 @@ export default function PlayerHUDActions({
               ? 'bg-amber-600/30 text-amber-300 border-amber-500/50'
               : 'bg-gray-800 text-gray-500 border-gray-700'
           }`}
-          title="Heroic Inspiration: Reroll any d20 immediately after rolling. You must use the new roll. (Humans regain on Long Rest)"
+          title={t('game.playerHUDActions.inspirationTitle')}
         >
-          {char5e.heroicInspiration ? '\u2605 Inspired' : '\u2606 Inspiration'}
+          {char5e.heroicInspiration ? t('game.playerHUDActions.inspired') : t('game.playerHUDActions.inspiration')}
         </button>
       </div>
     </>

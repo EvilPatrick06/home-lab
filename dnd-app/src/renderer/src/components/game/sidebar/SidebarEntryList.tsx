@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useT } from '../../../i18n'
 import { useGameStore } from '../../../stores/use-game-store'
 import type { PlaceType, SidebarCategory, SidebarEntry, SidebarEntryStatBlock } from '../../../types/game-state'
 import type { MonsterStatBlock } from '../../../types/monster'
@@ -21,10 +22,10 @@ const PLACE_TYPES: PlaceType[] = [
   'landmark'
 ]
 
-const CATEGORY_LABELS: Record<SidebarCategory, string> = {
-  allies: 'Allies',
-  enemies: 'Enemies',
-  places: 'Places'
+const CATEGORY_LABEL_KEYS: Record<SidebarCategory, string> = {
+  allies: 'game.sidebarEntryList.categoryAllies',
+  enemies: 'game.sidebarEntryList.categoryEnemies',
+  places: 'game.sidebarEntryList.categoryPlaces'
 }
 
 interface SidebarEntryListProps {
@@ -42,6 +43,7 @@ export default function SidebarEntryList({
   onAddToInitiative,
   onReadAloud
 }: SidebarEntryListProps): JSX.Element {
+  const { t } = useT()
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
   const [editDesc, setEditDesc] = useState('')
@@ -164,20 +166,22 @@ export default function SidebarEntryList({
   const placesEditForm =
     isPlaces && editingId ? (
       <div className="bg-gray-800/50 border border-gray-700/30 rounded-lg p-2.5 space-y-2">
-        <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Editing Place</span>
+        <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
+          {t('game.sidebarEntryList.editingPlace')}
+        </span>
         <input
           type="text"
           value={editName}
           onChange={(e) => setEditName(e.target.value)}
           className="w-full px-2 py-1 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
-          placeholder="Name"
+          placeholder={t('game.sidebarEntryList.namePlaceholder')}
         />
         <select
           value={editPlaceType}
           onChange={(e) => setEditPlaceType(e.target.value as PlaceType | '')}
           className="w-full px-2 py-1 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
         >
-          <option value="">No type</option>
+          <option value="">{t('game.sidebarEntryList.noType')}</option>
           {PLACE_TYPES.map((pt) => (
             <option key={pt} value={pt}>
               {pt.charAt(0).toUpperCase() + pt.slice(1)}
@@ -189,7 +193,7 @@ export default function SidebarEntryList({
           onChange={(e) => setEditParentId(e.target.value)}
           className="w-full px-2 py-1 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
         >
-          <option value="">(Root level)</option>
+          <option value="">{t('game.sidebarEntryList.rootLevel')}</option>
           {entries
             .filter((e) => e.id !== editingId)
             .map((e) => (
@@ -203,7 +207,7 @@ export default function SidebarEntryList({
           onChange={(e) => setEditLinkedMapId(e.target.value)}
           className="w-full px-2 py-1 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
         >
-          <option value="">No linked map</option>
+          <option value="">{t('game.sidebarEntryList.noLinkedMap')}</option>
           {maps.map((m) => (
             <option key={m.id} value={m.id}>
               {m.name}
@@ -215,27 +219,27 @@ export default function SidebarEntryList({
           onChange={(e) => setEditDesc(e.target.value)}
           className="w-full px-2 py-1 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500 resize-none"
           rows={2}
-          placeholder="Description"
+          placeholder={t('game.sidebarEntryList.descriptionPlaceholder')}
         />
         <textarea
           value={editNotes}
           onChange={(e) => setEditNotes(e.target.value)}
           className="w-full px-2 py-1 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500 resize-none"
           rows={2}
-          placeholder="DM Notes (hidden from players)"
+          placeholder={t('game.sidebarEntryList.dmNotesPlaceholder')}
         />
         <div className="flex gap-1">
           <button
             onClick={saveEdit}
             className="px-2 py-0.5 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer"
           >
-            Save
+            {t('common.actions.save')}
           </button>
           <button
             onClick={() => setEditingId(null)}
             className="px-2 py-0.5 text-xs text-gray-400 hover:text-gray-200 cursor-pointer"
           >
-            Cancel
+            {t('common.actions.cancel')}
           </button>
         </div>
       </div>
@@ -260,7 +264,9 @@ export default function SidebarEntryList({
         </>
       ) : (
         <>
-          {visibleEntries.length === 0 && <p className="text-xs text-gray-500 text-center py-4">No entries</p>}
+          {visibleEntries.length === 0 && (
+            <p className="text-xs text-gray-500 text-center py-4">{t('game.sidebarEntryList.noEntries')}</p>
+          )}
 
           {visibleEntries.map((entry) => (
             <div key={entry.id} onContextMenu={(e) => handleContextMenu(e, entry.id)}>
@@ -312,7 +318,7 @@ export default function SidebarEntryList({
                   }}
                   className="w-full px-4 py-1.5 text-left text-xs text-gray-300 hover:bg-gray-800 hover:text-gray-100 cursor-pointer"
                 >
-                  Move to {CATEGORY_LABELS[target]}
+                  {t('game.sidebarEntryList.moveToCategory', { category: t(CATEGORY_LABEL_KEYS[target]) })}
                 </button>
               ))}
               <div className="border-t border-gray-700/50 my-0.5" />
@@ -323,7 +329,7 @@ export default function SidebarEntryList({
                 }}
                 className="w-full px-4 py-1.5 text-left text-xs text-gray-300 hover:bg-gray-800 hover:text-gray-100 cursor-pointer"
               >
-                Toggle Visibility
+                {t('game.sidebarEntryList.toggleVisibility')}
               </button>
               <button
                 onClick={() => {
@@ -332,7 +338,7 @@ export default function SidebarEntryList({
                 }}
                 className="w-full px-4 py-1.5 text-left text-xs text-red-400 hover:bg-gray-800 hover:text-red-300 cursor-pointer"
               >
-                Delete
+                {t('common.actions.delete')}
               </button>
             </div>
           )}
@@ -355,7 +361,7 @@ export default function SidebarEntryList({
             onClick={() => setShowAdd(true)}
             className="w-full py-2 text-xs text-gray-500 hover:text-amber-400 border border-dashed border-gray-700 hover:border-amber-600/50 rounded-lg transition-colors cursor-pointer"
           >
-            + Add {isPlaces ? 'Place' : 'Entry'}
+            {isPlaces ? t('game.sidebarEntryList.addPlace') : t('game.sidebarEntryList.addEntry')}
           </button>
         ))}
 
@@ -366,7 +372,7 @@ export default function SidebarEntryList({
           setCreatureSearchOpen(false)
           setCreatureSearchTarget(null)
         }}
-        title="Link from Creature DB"
+        title={t('game.sidebarEntryList.linkFromCreatureDb')}
         onSelect={linkCreatureToEntry}
       />
     </div>

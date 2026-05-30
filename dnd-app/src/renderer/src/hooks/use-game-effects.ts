@@ -1,5 +1,6 @@
 import { type MutableRefObject, useCallback, useEffect } from 'react'
 import { pushDmAlert } from '../components/game/overlays/DmAlertTray'
+import { i18n } from '../i18n'
 import type { MessageType, TypingPayload } from '../network'
 import { startGameSync, stopGameSync } from '../network'
 import { speakNarrationThroughBmo } from '../services/bmo-narration'
@@ -99,7 +100,7 @@ export function useGameEffects({
 
       void speakNarrationThroughBmo(text).then((result) => {
         if (!result.success) {
-          pushDmAlert('error', `BMO narration failed: ${result.error ?? 'Unknown error'}`)
+          pushDmAlert('error', i18n.t('notify.gameEffects.narrationFailed', { error: result.error ?? 'Unknown error' }))
         }
       })
     },

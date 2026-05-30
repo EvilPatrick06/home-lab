@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useT } from '../../i18n'
 import { Button, Input } from '../ui'
 
 export interface UsernamePromptProps {
@@ -7,6 +8,7 @@ export interface UsernamePromptProps {
 }
 
 export default function UsernamePrompt({ onSubmit, onCancel }: UsernamePromptProps): JSX.Element {
+  const { t } = useT()
   const [name, setName] = useState('')
   const valid = name.trim().length >= 1 && name.trim().length <= 30
 
@@ -17,10 +19,8 @@ export default function UsernamePrompt({ onSubmit, onCancel }: UsernamePromptPro
       aria-modal="true"
     >
       <div className="bg-gray-900 border border-gray-700 rounded-lg p-6 max-w-sm w-full">
-        <h2 className="text-lg font-semibold text-gray-100 mb-1">What should we call you?</h2>
-        <p className="text-sm text-gray-400 mb-4">
-          Pick a display name. Other players will see this in chat, the player list, and the host's lobby.
-        </p>
+        <h2 className="text-lg font-semibold text-gray-100 mb-1">{t('lobby.usernamePrompt.title')}</h2>
+        <p className="text-sm text-gray-400 mb-4">{t('lobby.usernamePrompt.desc')}</p>
         <Input
           value={name}
           autoFocus
@@ -29,15 +29,15 @@ export default function UsernamePrompt({ onSubmit, onCancel }: UsernamePromptPro
             if (e.key === 'Enter' && valid) onSubmit(name.trim())
             if (e.key === 'Escape') onCancel()
           }}
-          placeholder="e.g. Patrick"
+          placeholder={t('lobby.usernamePrompt.placeholder')}
           maxLength={30}
         />
         <div className="flex justify-end gap-2 mt-4">
           <Button variant="secondary" onClick={onCancel} className="text-sm">
-            Cancel
+            {t('common.actions.cancel')}
           </Button>
           <Button onClick={() => onSubmit(name.trim())} disabled={!valid} className="text-sm">
-            Continue
+            {t('lobby.usernamePrompt.continue')}
           </Button>
         </div>
       </div>

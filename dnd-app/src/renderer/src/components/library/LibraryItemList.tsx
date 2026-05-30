@@ -1,5 +1,6 @@
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useRef, useState } from 'react'
+import { useT } from '../../i18n'
 import { setDragPayload } from '../../services/library/drag-data'
 import type { LibraryCategory, LibraryItem } from '../../types/library'
 import { getCategoryDef } from '../../types/library'
@@ -38,6 +39,7 @@ export default function LibraryItemList({
   favorites,
   onToggleFavorite
 }: LibraryItemListProps): JSX.Element {
+  const { t } = useT()
   const parentRef = useRef<HTMLDivElement>(null)
   const [draggingId, setDraggingId] = useState<string | null>(null)
 
@@ -56,7 +58,7 @@ export default function LibraryItemList({
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
           </svg>
-          <span>Loading {categoryLabel}...</span>
+          <span>{t('library.libraryItemList.loadingCategory', { category: categoryLabel })}</span>
         </div>
       </div>
     )
@@ -78,13 +80,13 @@ export default function LibraryItemList({
             d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
           />
         </svg>
-        <p className="text-lg mb-1">No items found</p>
-        <p className="text-sm mb-4">Try adjusting your search or filters</p>
+        <p className="text-lg mb-1">{t('library.libraryItemList.noItemsFound')}</p>
+        <p className="text-sm mb-4">{t('library.libraryItemList.adjustSearch')}</p>
         <button
           onClick={onCreateNew}
           className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-sm font-semibold transition-colors cursor-pointer"
         >
-          Create Custom {categoryLabel}
+          {t('library.libraryItemList.createCustom', { category: categoryLabel })}
         </button>
       </div>
     )
@@ -153,7 +155,7 @@ export default function LibraryItemList({
                       </span>
                       {item.source === 'homebrew' && (
                         <span className="text-xs bg-purple-600/30 text-purple-300 px-1.5 py-0.5 rounded-full flex-shrink-0">
-                          Homebrew
+                          {t('library.libraryItemList.homebrew')}
                         </span>
                       )}
                     </div>
@@ -168,7 +170,9 @@ export default function LibraryItemList({
                       className={`text-lg flex-shrink-0 transition-colors cursor-pointer ${
                         isFav ? 'text-amber-400' : 'text-gray-600 hover:text-gray-400'
                       }`}
-                      title={isFav ? 'Remove from favorites' : 'Add to favorites'}
+                      title={
+                        isFav ? t('library.libraryItemList.removeFavorite') : t('library.libraryItemList.addFavorite')
+                      }
                     >
                       {isFav ? '★' : '☆'}
                     </button>

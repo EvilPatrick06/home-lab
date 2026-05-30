@@ -1,5 +1,6 @@
 import adventureSeedsJson from '@data/5e/world/adventure-seeds.json'
 import { useState } from 'react'
+import { useT } from '../../i18n'
 import { load5eAdventureSeeds } from '../../services/data-provider'
 import { cryptoRandom } from '../../utils/crypto-random'
 
@@ -42,6 +43,7 @@ interface AdventureWizardProps {
 }
 
 export default function AdventureWizard({ onSave, onCancel }: AdventureWizardProps): JSX.Element {
+  const { t } = useT()
   const [step, setStep] = useState(0)
   const [data, setData] = useState<AdventureData>({ ...EMPTY_ADVENTURE })
 
@@ -57,21 +59,25 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
 
   const steps = [
     {
-      title: 'Step 1: Lay Out the Premise',
-      description: 'Define the adventure hook, villain or situation, and setting.',
+      title: t('campaign.adventureWizard.step1Title'),
+      description: t('campaign.adventureWizard.step1Desc'),
       content: (
         <div className="space-y-3">
           <div>
-            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Adventure Title</label>
+            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">
+              {t('campaign.adventureWizard.adventureTitle')}
+            </label>
             <input
               value={data.title}
               onChange={(e) => update('title', e.target.value)}
-              placeholder="The Lost Mine of..."
+              placeholder={t('campaign.adventureWizard.adventureTitlePlaceholder')}
               className="w-full px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded text-gray-200"
             />
           </div>
           <div>
-            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Level Tier</label>
+            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">
+              {t('campaign.adventureWizard.levelTier')}
+            </label>
             <div className="flex gap-1.5">
               {Object.keys(ADVENTURE_SEEDS).map((tier) => (
                 <button
@@ -83,41 +89,47 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
                       : 'bg-gray-800 border-gray-700 text-gray-400 hover:bg-gray-700'
                   }`}
                 >
-                  Lvl {tier}
+                  {t('campaign.adventureWizard.levelTierOption', { tier })}
                 </button>
               ))}
             </div>
           </div>
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-xs text-gray-500 uppercase tracking-wide">Premise / Situation</label>
+              <label className="text-xs text-gray-500 uppercase tracking-wide">
+                {t('campaign.adventureWizard.premise')}
+              </label>
               <button onClick={rollSeed} className="text-xs text-purple-400 hover:text-purple-300 cursor-pointer">
-                Roll Random Seed
+                {t('campaign.adventureWizard.rollRandomSeed')}
               </button>
             </div>
             <textarea
               value={data.premise}
               onChange={(e) => update('premise', e.target.value)}
-              placeholder="What is going on? What situation will the characters encounter?"
+              placeholder={t('campaign.adventureWizard.premisePlaceholder')}
               rows={3}
               className="w-full px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded text-gray-200 resize-none"
             />
           </div>
           <div>
-            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Villain / Antagonist</label>
+            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">
+              {t('campaign.adventureWizard.villain')}
+            </label>
             <input
               value={data.villain}
               onChange={(e) => update('villain', e.target.value)}
-              placeholder="Who or what is the primary threat?"
+              placeholder={t('campaign.adventureWizard.villainPlaceholder')}
               className="w-full px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded text-gray-200"
             />
           </div>
           <div>
-            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Setting / Location</label>
+            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">
+              {t('campaign.adventureWizard.setting')}
+            </label>
             <input
               value={data.setting}
               onChange={(e) => update('setting', e.target.value)}
-              placeholder="Where does this adventure take place?"
+              placeholder={t('campaign.adventureWizard.settingPlaceholder')}
               className="w-full px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded text-gray-200"
             />
           </div>
@@ -125,82 +137,85 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
       )
     },
     {
-      title: 'Step 2: Draw In the Players',
-      description: 'Define personal stakes and connections to backstories.',
-      content: (
-        <div className="space-y-3">
-          <div>
-            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Adventure Hook</label>
-            <textarea
-              value={data.hook}
-              onChange={(e) => update('hook', e.target.value)}
-              placeholder="How do the characters learn about this adventure? A patron, a rumor, a supernatural omen?"
-              rows={3}
-              className="w-full px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded text-gray-200 resize-none"
-            />
-          </div>
-          <div>
-            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Personal Stakes</label>
-            <textarea
-              value={data.playerStakes}
-              onChange={(e) => update('playerStakes', e.target.value)}
-              placeholder="What connections do the characters have to this situation? How does it affect people they care about?"
-              rows={3}
-              className="w-full px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded text-gray-200 resize-none"
-            />
-          </div>
-        </div>
-      )
-    },
-    {
-      title: 'Step 3: Plan Encounters',
-      description: 'Outline the combat, social, and exploration encounters.',
+      title: t('campaign.adventureWizard.step2Title'),
+      description: t('campaign.adventureWizard.step2Desc'),
       content: (
         <div className="space-y-3">
           <div>
             <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">
-              Key Encounters (combat, social, exploration)
+              {t('campaign.adventureWizard.adventureHook')}
+            </label>
+            <textarea
+              value={data.hook}
+              onChange={(e) => update('hook', e.target.value)}
+              placeholder={t('campaign.adventureWizard.adventureHookPlaceholder')}
+              rows={3}
+              className="w-full px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded text-gray-200 resize-none"
+            />
+          </div>
+          <div>
+            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">
+              {t('campaign.adventureWizard.personalStakes')}
+            </label>
+            <textarea
+              value={data.playerStakes}
+              onChange={(e) => update('playerStakes', e.target.value)}
+              placeholder={t('campaign.adventureWizard.personalStakesPlaceholder')}
+              rows={3}
+              className="w-full px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded text-gray-200 resize-none"
+            />
+          </div>
+        </div>
+      )
+    },
+    {
+      title: t('campaign.adventureWizard.step3Title'),
+      description: t('campaign.adventureWizard.step3Desc'),
+      content: (
+        <div className="space-y-3">
+          <div>
+            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">
+              {t('campaign.adventureWizard.keyEncounters')}
             </label>
             <textarea
               value={data.encounters}
               onChange={(e) => update('encounters', e.target.value)}
-              placeholder={
-                "1. (Exploration) The party investigates the abandoned mine...\n2. (Social) They negotiate with the miners' guild...\n3. (Combat) Ambush by kobolds in the tunnels..."
-              }
+              placeholder={t('campaign.adventureWizard.keyEncountersPlaceholder')}
               rows={6}
               className="w-full px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded text-gray-200 resize-none"
             />
           </div>
           <div className="text-xs text-gray-500 bg-gray-800/50 rounded p-2">
-            Mix encounter types for variety. Use a blend of combat, social interaction, and exploration. Successive
-            encounters should build tension toward the climax.
+            {t('campaign.adventureWizard.encountersHint')}
           </div>
         </div>
       )
     },
     {
-      title: 'Step 4: Bring It to an End',
-      description: 'Define the climax, resolution, and consequences.',
+      title: t('campaign.adventureWizard.step4Title'),
+      description: t('campaign.adventureWizard.step4Desc'),
       content: (
         <div className="space-y-3">
           <div>
-            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Climax</label>
+            <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">
+              {t('campaign.adventureWizard.climax')}
+            </label>
             <textarea
               value={data.climax}
               onChange={(e) => update('climax', e.target.value)}
-              placeholder="What is the final confrontation or challenge? How does tension peak?"
+              placeholder={t('campaign.adventureWizard.climaxPlaceholder')}
               rows={3}
               className="w-full px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded text-gray-200 resize-none"
             />
           </div>
           <div>
             <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">
-              Resolution & Consequences
+              {t('campaign.adventureWizard.resolution')}
             </label>
             <textarea
               value={data.resolution}
               onChange={(e) => update('resolution', e.target.value)}
-              placeholder="What happens after the climax? What are the consequences for success or failure? What seeds does this plant for future adventures?"
+              placeholder={t('campaign.adventureWizard.resolutionPlaceholder')}
               rows={3}
               className="w-full px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded text-gray-200 resize-none"
             />
@@ -246,7 +261,7 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
           onClick={step === 0 ? onCancel : () => setStep(step - 1)}
           className="px-3 py-1.5 text-xs bg-gray-800 hover:bg-gray-700 rounded text-gray-300 cursor-pointer"
         >
-          {step === 0 ? 'Cancel' : 'Back'}
+          {step === 0 ? t('common.actions.cancel') : t('campaign.adventureWizard.back')}
         </button>
         {step < steps.length - 1 ? (
           <button
@@ -254,14 +269,14 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
             disabled={!canProceed}
             className="px-4 py-1.5 text-xs bg-amber-600/20 hover:bg-amber-600/30 border border-amber-500/30 rounded text-amber-300 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Next
+            {t('campaign.adventureWizard.next')}
           </button>
         ) : (
           <button
             onClick={() => onSave(data)}
             className="px-4 py-1.5 text-xs bg-green-600/20 hover:bg-green-600/30 border border-green-500/30 rounded text-green-300 cursor-pointer"
           >
-            Save Adventure
+            {t('campaign.adventureWizard.saveAdventure')}
           </button>
         )}
       </div>

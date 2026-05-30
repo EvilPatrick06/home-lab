@@ -1,3 +1,4 @@
+import { useT } from '../../../../i18n'
 import { type CoverType, getCoverACBonus, type MasteryEffectResult } from '../../../../services/combat/combat-rules'
 import { formatMod } from '../../../../types/character-common'
 import type { MapToken } from '../../../../types/map'
@@ -55,6 +56,7 @@ export function AttackResultStep({
   onClose: _onClose,
   getMasteryEffect
 }: AttackResultStepProps): JSX.Element {
+  const { t } = useT()
   const coverBonus = getCoverACBonus(cover)
   const targetAC = (selectedTarget.ac ?? 10) + coverBonus
 
@@ -90,22 +92,28 @@ export function AttackResultStep({
           d20: {attackRoll.d20}
           {attackRoll.d20_2 !== undefined ? `, ${attackRoll.d20_2}` : ''} {formatMod(attackRoll.modifier)}
           {attackRoll.d20_2 !== undefined && (
-            <span className="text-gray-500 ml-1">(took {attackRoll.total - attackRoll.modifier})</span>
-          )}
-        </div>
-        <div className="text-xs text-gray-400 mt-1">
-          vs AC {targetAC}
-          {coverBonus > 0 && (
-            <span className="text-blue-400 ml-1">
-              ({selectedTarget.ac ?? 10} + {coverBonus} cover)
+            <span className="text-gray-500 ml-1">
+              {t('game.attackResultStep.took', { value: attackRoll.total - attackRoll.modifier })}
             </span>
           )}
         </div>
-        {attackRoll.isCrit && <div className="text-sm text-green-400 font-bold mt-1">NATURAL 20 - CRITICAL HIT!</div>}
-        {attackRoll.isFumble && <div className="text-sm text-red-400 font-bold mt-1">NATURAL 1 - AUTOMATIC MISS!</div>}
+        <div className="text-xs text-gray-400 mt-1">
+          {t('game.attackResultStep.vsAc', { ac: targetAC })}
+          {coverBonus > 0 && (
+            <span className="text-blue-400 ml-1">
+              {t('game.attackResultStep.coverBreakdown', { base: selectedTarget.ac ?? 10, bonus: coverBonus })}
+            </span>
+          )}
+        </div>
+        {attackRoll.isCrit && (
+          <div className="text-sm text-green-400 font-bold mt-1">{t('game.attackResultStep.naturalCrit')}</div>
+        )}
+        {attackRoll.isFumble && (
+          <div className="text-sm text-red-400 font-bold mt-1">{t('game.attackResultStep.naturalMiss')}</div>
+        )}
         {!attackRoll.isCrit && !attackRoll.isFumble && (
           <div className={`text-sm font-bold mt-1 ${isHit ? 'text-green-400' : 'text-red-400'}`}>
-            {isHit ? 'HIT' : 'MISS'}
+            {isHit ? t('game.attackResultStep.hit') : t('game.attackResultStep.miss')}
           </div>
         )}
       </div>
@@ -116,8 +124,15 @@ export function AttackResultStep({
           className="w-full px-4 py-3 bg-red-600 hover:bg-red-500 text-white font-semibold rounded-lg cursor-pointer text-sm"
         >
           {isUnarmed
-            ? `Apply Damage (${Math.max(1, getDamageMod())} bludgeoning)`
-            : `Roll Damage (${attackRoll.isCrit ? `${(parseDamageDice(selectedWeapon?.damage ?? '')?.count ?? 1) * 2}` : (parseDamageDice(selectedWeapon?.damage ?? '')?.count ?? 1)}d${parseDamageDice(selectedWeapon?.damage ?? '')?.sides ?? 8} ${formatMod(getDamageMod())} ${selectedWeapon?.damageType ?? ''})`}
+            ? t('game.attackResultStep.applyDamageUnarmed', { value: Math.max(1, getDamageMod()) })
+            : t('game.attackResultStep.rollDamage', {
+                count: attackRoll.isCrit
+                  ? (parseDamageDice(selectedWeapon?.damage ?? '')?.count ?? 1) * 2
+                  : (parseDamageDice(selectedWeapon?.damage ?? '')?.count ?? 1),
+                sides: parseDamageDice(selectedWeapon?.damage ?? '')?.sides ?? 8,
+                mod: formatMod(getDamageMod()),
+                damageType: selectedWeapon?.damageType ?? ''
+              })}
         </button>
       )}
 
@@ -147,15 +162,18 @@ export function AttackResultStep({
             <div className="space-y-2">
               {grazeEffect && grazeEffect.grazeDamage != null && grazeEffect.grazeDamage > 0 && (
                 <div className="px-3 py-2 bg-amber-900/30 border border-amber-500/50 rounded-lg">
-                  <div className="text-xs text-amber-300 font-semibold">Graze Mastery</div>
+                  <div className="text-xs text-amber-300 font-semibold">{t('game.attackResultStep.grazeMastery')}</div>
                   <div className="text-[11px] text-gray-300 mt-0.5">
-                    On miss: deal {grazeEffect.grazeDamage} {selectedWeapon.damageType} damage (ability modifier)
+                    {t('game.attackResultStep.grazeOnMiss', {
+                      damage: grazeEffect.grazeDamage,
+                      damageType: selectedWeapon.damageType
+                    })}
                   </div>
                   <button
                     onClick={() => onApplyGraze(grazeEffect.grazeDamage!)}
                     className="mt-1 w-full py-1 text-xs rounded bg-amber-600 hover:bg-amber-500 text-white cursor-pointer font-semibold"
                   >
-                    Apply Graze Damage ({grazeEffect.grazeDamage})
+                    {t('game.attackResultStep.applyGraze', { damage: grazeEffect.grazeDamage })}
                   </button>
                 </div>
               )}
@@ -163,7 +181,7 @@ export function AttackResultStep({
                 onClick={() => onBroadcastMiss(targetAC)}
                 className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg cursor-pointer text-sm"
               >
-                Miss - Close
+                {t('game.attackResultStep.missClose')}
               </button>
             </div>
           )

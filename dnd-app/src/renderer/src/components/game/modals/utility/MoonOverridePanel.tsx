@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useT } from '../../../../i18n'
 import { useGameStore } from '../../../../stores/use-game-store'
 
 const MOON_PHASE_NAMES = [
@@ -24,6 +25,7 @@ const MOON_PHASE_EMOJIS: Record<string, string> = {
 }
 
 export default function MoonOverridePanel(): JSX.Element {
+  const { t } = useT()
   const moonOverride = useGameStore((s) => s.moonOverride)
   const setMoonOverride = useGameStore((s) => s.setMoonOverride)
 
@@ -41,7 +43,7 @@ export default function MoonOverridePanel(): JSX.Element {
   return (
     <div className="border-t border-gray-800 pt-3">
       <div className="flex items-center justify-between mb-2">
-        <div className="text-xs font-semibold text-gray-300">Moon Override</div>
+        <div className="text-xs font-semibold text-gray-300">{t('game.moonOverridePanel.title')}</div>
         <div className="flex items-center gap-1">
           <button
             onClick={() => {
@@ -54,7 +56,7 @@ export default function MoonOverridePanel(): JSX.Element {
                 : 'bg-gray-800 text-gray-400 border border-gray-700 hover:bg-gray-700'
             }`}
           >
-            Auto
+            {t('game.moonOverridePanel.auto')}
           </button>
           <button
             onClick={() => setMoonMode('manual')}
@@ -64,7 +66,7 @@ export default function MoonOverridePanel(): JSX.Element {
                 : 'bg-gray-800 text-gray-400 border border-gray-700 hover:bg-gray-700'
             }`}
           >
-            Manual
+            {t('game.moonOverridePanel.manual')}
           </button>
         </div>
       </div>
@@ -91,7 +93,7 @@ export default function MoonOverridePanel(): JSX.Element {
             onClick={applyMoonOverride}
             className="px-3 py-1.5 text-xs bg-amber-600/20 hover:bg-amber-600/30 border border-amber-500/30 rounded text-amber-300 cursor-pointer"
           >
-            Apply Moon Override
+            {t('game.moonOverridePanel.apply')}
           </button>
         </div>
       )}

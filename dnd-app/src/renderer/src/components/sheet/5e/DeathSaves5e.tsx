@@ -1,4 +1,5 @@
 import { trigger3dDice } from '../../../components/game/dice3d'
+import { useT } from '../../../i18n'
 import { rollSingle } from '../../../services/dice/dice-service'
 import { useNetworkStore } from '../../../stores/network-store'
 import { useCharacterStore } from '../../../stores/use-character-store'
@@ -17,6 +18,7 @@ export default function DeathSaves5e({
   effectiveCharacter,
   readonly
 }: DeathSaves5eProps): JSX.Element | null {
+  const { t } = useT()
   const saveCharacter = useCharacterStore((s) => s.saveCharacter)
   const deathSaves = effectiveCharacter.deathSaves
 
@@ -74,9 +76,9 @@ export default function DeathSaves5e({
 
     if (roll === 1) {
       newFailures = Math.min(3, newFailures + 2)
-      resultMsg = `Death Save: Natural 1! Two failures (${newFailures}/3)`
+      resultMsg = t('sheet.deathSaves.natural1', { failures: newFailures })
     } else if (roll === 20) {
-      resultMsg = `Death Save: Natural 20! Regains 1 HP!`
+      resultMsg = t('sheet.deathSaves.natural20')
       const latest = useCharacterStore.getState().characters.find((c) => c.id === character.id) || character
       const updated = {
         ...latest,
@@ -101,10 +103,10 @@ export default function DeathSaves5e({
       return
     } else if (roll >= 10) {
       newSuccesses = Math.min(3, newSuccesses + 1)
-      resultMsg = `Death Save: ${roll} - Success! (${newSuccesses}/3)`
+      resultMsg = t('sheet.deathSaves.success', { roll, successes: newSuccesses })
     } else {
       newFailures = Math.min(3, newFailures + 1)
-      resultMsg = `Death Save: ${roll} - Failure (${newFailures}/3)`
+      resultMsg = t('sheet.deathSaves.failure', { roll, failures: newFailures })
     }
 
     saveDeathSaves(newSuccesses, newFailures)
@@ -115,7 +117,7 @@ export default function DeathSaves5e({
   return (
     <div className="mt-3 bg-gray-900/50 border border-gray-700 rounded-lg p-3">
       <div className="flex items-center gap-4 flex-wrap">
-        <span className="text-sm text-gray-400 font-semibold">Death Saves:</span>
+        <span className="text-sm text-gray-400 font-semibold">{t('sheet.deathSaves.deathSaves')}</span>
 
         {/* Successes */}
         <div className="flex items-center gap-1">
@@ -125,7 +127,7 @@ export default function DeathSaves5e({
               onClick={() => toggleSuccess(i)}
               disabled={readonly}
               className={`text-lg ${readonly ? '' : 'cursor-pointer'}`}
-              title={`Success ${i + 1}`}
+              title={t('sheet.deathSaves.successN', { n: i + 1 })}
             >
               {i < deathSaves.successes ? (
                 <span className="text-green-500">{'\u25CF'}</span>
@@ -134,7 +136,7 @@ export default function DeathSaves5e({
               )}
             </button>
           ))}
-          <span className="text-xs text-gray-500 ml-1">Successes</span>
+          <span className="text-xs text-gray-500 ml-1">{t('sheet.deathSaves.successes')}</span>
         </div>
 
         <span className="text-gray-600">|</span>
@@ -147,7 +149,7 @@ export default function DeathSaves5e({
               onClick={() => toggleFailure(i)}
               disabled={readonly}
               className={`text-lg ${readonly ? '' : 'cursor-pointer'}`}
-              title={`Failure ${i + 1}`}
+              title={t('sheet.deathSaves.failureN', { n: i + 1 })}
             >
               {i < deathSaves.failures ? (
                 <span className="text-red-500">{'\u25CF'}</span>
@@ -156,7 +158,7 @@ export default function DeathSaves5e({
               )}
             </button>
           ))}
-          <span className="text-xs text-gray-500 ml-1">Failures</span>
+          <span className="text-xs text-gray-500 ml-1">{t('sheet.deathSaves.failures')}</span>
         </div>
 
         {/* Roll Death Save button */}
@@ -165,7 +167,7 @@ export default function DeathSaves5e({
             onClick={rollDeathSave}
             className="px-2.5 py-1 text-xs bg-amber-700 hover:bg-amber-600 rounded text-white font-semibold cursor-pointer"
           >
-            Roll Death Save
+            {t('sheet.deathSaves.rollDeathSave')}
           </button>
         )}
 
@@ -175,14 +177,18 @@ export default function DeathSaves5e({
             onClick={resetDeathSaves}
             className="px-2 py-0.5 text-xs bg-gray-700 hover:bg-gray-600 rounded text-gray-300 ml-auto"
           >
-            Reset
+            {t('sheet.deathSaves.reset')}
           </button>
         )}
       </div>
 
       {/* Status messages */}
-      {deathSaves.successes >= 3 && <div className="mt-2 text-sm text-green-400 font-semibold">Stabilized!</div>}
-      {deathSaves.failures >= 3 && <div className="mt-2 text-sm text-red-400 font-semibold">Dead!</div>}
+      {deathSaves.successes >= 3 && (
+        <div className="mt-2 text-sm text-green-400 font-semibold">{t('sheet.deathSaves.stabilized')}</div>
+      )}
+      {deathSaves.failures >= 3 && (
+        <div className="mt-2 text-sm text-red-400 font-semibold">{t('sheet.deathSaves.dead')}</div>
+      )}
     </div>
   )
 }

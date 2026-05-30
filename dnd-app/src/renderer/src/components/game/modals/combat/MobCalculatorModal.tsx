@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 
 interface MobCalculatorModalProps {
   onClose: () => void
@@ -34,6 +35,7 @@ function getAttackersPerHit(d20Needed: number): number {
 }
 
 export default function MobCalculatorModal({ onClose, onBroadcastResult }: MobCalculatorModalProps): JSX.Element {
+  const { t } = useT()
   useEscapeKey(onClose)
   const [attackerCount, setAttackerCount] = useState(10)
   const [attackBonus, setAttackBonus] = useState(4)
@@ -68,9 +70,15 @@ export default function MobCalculatorModal({ onClose, onBroadcastResult }: MobCa
   }
 
   const handleBroadcast = (): void => {
-    let message = `Mob Attack: ${hits} out of ${attackerCount} attackers hit (AC ${targetAC}, +${attackBonus} to hit, need ${d20Needed}+).`
+    let message = t('game.mobCalculatorModal.broadcast', {
+      hits,
+      attackerCount,
+      targetAC,
+      attackBonus,
+      d20Needed
+    })
     if (avgDamagePerHit > 0) {
-      message += ` Total damage: ${totalDamage} (${avgDamagePerHit} avg per hit).`
+      message += t('game.mobCalculatorModal.broadcastDamage', { totalDamage, avgDamagePerHit })
     }
     onBroadcastResult(message)
   }
@@ -87,11 +95,11 @@ export default function MobCalculatorModal({ onClose, onBroadcastResult }: MobCa
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-3 border-b border-gray-700">
-          <h2 className="text-lg font-bold text-amber-400">Mob Attack Calculator</h2>
+          <h2 className="text-lg font-bold text-amber-400">{t('game.mobCalculatorModal.title')}</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-white text-xl leading-none px-1"
-            aria-label="Close"
+            aria-label={t('common.actions.close')}
           >
             &times;
           </button>
@@ -102,7 +110,9 @@ export default function MobCalculatorModal({ onClose, onBroadcastResult }: MobCa
           {/* Inputs */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs text-gray-400 mb-1">Number of Attackers</label>
+              <label className="block text-xs text-gray-400 mb-1">
+                {t('game.mobCalculatorModal.numberOfAttackers')}
+              </label>
               <input
                 type="number"
                 min={1}
@@ -116,7 +126,7 @@ export default function MobCalculatorModal({ onClose, onBroadcastResult }: MobCa
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-400 mb-1">Attack Bonus</label>
+              <label className="block text-xs text-gray-400 mb-1">{t('game.mobCalculatorModal.attackBonus')}</label>
               <input
                 type="number"
                 min={-5}
@@ -130,7 +140,7 @@ export default function MobCalculatorModal({ onClose, onBroadcastResult }: MobCa
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-400 mb-1">Target AC</label>
+              <label className="block text-xs text-gray-400 mb-1">{t('game.mobCalculatorModal.targetAc')}</label>
               <input
                 type="number"
                 min={1}
@@ -145,7 +155,8 @@ export default function MobCalculatorModal({ onClose, onBroadcastResult }: MobCa
             </div>
             <div>
               <label className="block text-xs text-gray-400 mb-1">
-                Damage per Hit <span className="text-gray-600">(e.g. 1d8+3)</span>
+                {t('game.mobCalculatorModal.damagePerHit')}{' '}
+                <span className="text-gray-600">{t('game.mobCalculatorModal.damagePerHitHint')}</span>
               </label>
               <input
                 type="text"
@@ -154,7 +165,7 @@ export default function MobCalculatorModal({ onClose, onBroadcastResult }: MobCa
                   setDamagePerHit(e.target.value)
                   setShowResult(false)
                 }}
-                placeholder="1d8+3"
+                placeholder={t('game.mobCalculatorModal.damagePlaceholder')}
                 className="w-full bg-gray-800 border border-gray-600 rounded px-3 py-1.5 text-sm text-white placeholder-gray-500"
               />
             </div>
@@ -162,9 +173,13 @@ export default function MobCalculatorModal({ onClose, onBroadcastResult }: MobCa
 
           {/* d20 Needed indicator */}
           <div className="bg-gray-800 rounded-lg border border-gray-700 p-3 text-center">
-            <span className="text-xs text-gray-400">d20 roll needed to hit:</span>{' '}
+            <span className="text-xs text-gray-400">{t('game.mobCalculatorModal.d20NeededLabel')}</span>{' '}
             <span className="text-lg font-bold text-amber-400">
-              {d20Needed >= 21 ? 'Impossible' : d20Needed <= 1 ? 'Auto-hit' : `${d20Needed}+`}
+              {d20Needed >= 21
+                ? t('game.mobCalculatorModal.impossible')
+                : d20Needed <= 1
+                  ? t('game.mobCalculatorModal.autoHit')
+                  : `${d20Needed}+`}
             </span>
           </div>
 
@@ -173,7 +188,7 @@ export default function MobCalculatorModal({ onClose, onBroadcastResult }: MobCa
             onClick={handleCalculate}
             className="w-full px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white text-sm rounded font-medium"
           >
-            Calculate
+            {t('game.mobCalculatorModal.calculate')}
           </button>
 
           {/* Result */}
@@ -182,23 +197,23 @@ export default function MobCalculatorModal({ onClose, onBroadcastResult }: MobCa
               <div className="text-center">
                 <div className="text-2xl font-bold text-white">
                   <span className="text-green-400">{hits}</span>
-                  <span className="text-gray-500 text-lg mx-1">of</span>
+                  <span className="text-gray-500 text-lg mx-1">{t('game.mobCalculatorModal.of')}</span>
                   <span>{attackerCount}</span>
-                  <span className="text-gray-400 text-lg ml-2">hit</span>
+                  <span className="text-gray-400 text-lg ml-2">{t('game.mobCalculatorModal.hit')}</span>
                 </div>
                 <div className="text-sm text-gray-500 mt-1">
-                  {misses} miss{misses !== 1 ? 'es' : ''}
+                  {t('game.mobCalculatorModal.misses', { count: misses })}
                   <span className="mx-2 text-gray-700">|</span>
-                  {attackersPerHit} attacker{attackersPerHit !== 1 ? 's' : ''} per hit
+                  {t('game.mobCalculatorModal.attackersPerHit', { count: attackersPerHit })}
                 </div>
               </div>
 
               {avgDamagePerHit > 0 && (
                 <div className="text-center border-t border-gray-700 pt-3">
-                  <div className="text-xs text-gray-400">Total Damage (avg)</div>
+                  <div className="text-xs text-gray-400">{t('game.mobCalculatorModal.totalDamageAvg')}</div>
                   <div className="text-xl font-bold text-red-400">{totalDamage}</div>
                   <div className="text-xs text-gray-500">
-                    {hits} hits x {avgDamagePerHit} avg damage
+                    {t('game.mobCalculatorModal.hitsAvg', { hits, avg: avgDamagePerHit })}
                   </div>
                 </div>
               )}
@@ -207,13 +222,13 @@ export default function MobCalculatorModal({ onClose, onBroadcastResult }: MobCa
 
           {/* Reference Table */}
           <div>
-            <div className="text-xs text-gray-500 mb-2">DMG Mob Attack Reference</div>
+            <div className="text-xs text-gray-500 mb-2">{t('game.mobCalculatorModal.reference')}</div>
             <div className="border border-gray-700 rounded overflow-hidden">
               <table className="w-full text-xs">
                 <thead>
                   <tr className="bg-gray-800 text-gray-400">
-                    <th className="text-left px-3 py-1.5">d20 Needed</th>
-                    <th className="text-left px-3 py-1.5">Attackers per Hit</th>
+                    <th className="text-left px-3 py-1.5">{t('game.mobCalculatorModal.d20Needed')}</th>
+                    <th className="text-left px-3 py-1.5">{t('game.mobCalculatorModal.attackersPerHitCol')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -234,7 +249,9 @@ export default function MobCalculatorModal({ onClose, onBroadcastResult }: MobCa
                         }`}
                       >
                         <td className="px-3 py-1.5">{row.d20Needed}</td>
-                        <td className="px-3 py-1.5">{row.attackersPerHit} per hit</td>
+                        <td className="px-3 py-1.5">
+                          {t('game.mobCalculatorModal.perHit', { count: row.attackersPerHit })}
+                        </td>
                       </tr>
                     )
                   })}
@@ -247,14 +264,14 @@ export default function MobCalculatorModal({ onClose, onBroadcastResult }: MobCa
         {/* Footer */}
         <div className="flex items-center justify-end gap-2 px-5 py-3 border-t border-gray-700">
           <button onClick={onClose} className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm rounded">
-            Close
+            {t('common.actions.close')}
           </button>
           {showResult && (
             <button
               onClick={handleBroadcast}
               className="px-4 py-1.5 bg-amber-600 hover:bg-amber-500 text-white text-sm rounded font-medium"
             >
-              Broadcast Result
+              {t('game.mobCalculatorModal.broadcastResult')}
             </button>
           )}
         </div>

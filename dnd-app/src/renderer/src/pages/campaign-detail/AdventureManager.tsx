@@ -3,6 +3,7 @@ import AdventureImportWizard from '../../components/campaign/AdventureImportWiza
 import type { AdventureData } from '../../components/campaign/AdventureWizard'
 import AdventureWizard from '../../components/campaign/AdventureWizard'
 import { Button, Card, Modal } from '../../components/ui'
+import { useT } from '../../i18n'
 import { type AdventureImportResult, exportAdventure } from '../../services/io/adventure-io'
 import type { AdventureEntry, Campaign } from '../../types/campaign'
 
@@ -12,6 +13,7 @@ interface AdventureManagerProps {
 }
 
 export default function AdventureManager({ campaign, saveCampaign }: AdventureManagerProps): JSX.Element {
+  const { t } = useT()
   const [showWizard, setShowWizard] = useState(false)
   const [showImportWizard, setShowImportWizard] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -83,7 +85,7 @@ export default function AdventureManager({ campaign, saveCampaign }: AdventureMa
 
   return (
     <>
-      <Card title={`Adventures (${adventures.length})`}>
+      <Card title={t('pages.adventureManager.adventures', { count: adventures.length })}>
         {showWizard ? (
           <AdventureWizard
             onSave={(adventureData: AdventureData) => {
@@ -104,9 +106,7 @@ export default function AdventureManager({ campaign, saveCampaign }: AdventureMa
         ) : (
           <>
             {adventures.length === 0 ? (
-              <p className="text-gray-500 text-sm mb-3">
-                No adventures planned yet. Use the DMG 4-step process to create one.
-              </p>
+              <p className="text-gray-500 text-sm mb-3">{t('pages.adventureManager.noAdventures')}</p>
             ) : (
               <div className="space-y-2 mb-3">
                 {adventures.map((adv) => (
@@ -115,30 +115,34 @@ export default function AdventureManager({ campaign, saveCampaign }: AdventureMa
                       <span className="text-sm font-semibold text-gray-200">{adv.title}</span>
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-gray-500 bg-gray-700 px-1.5 py-0.5 rounded">
-                          Lvl {adv.levelTier}
+                          {t('pages.adventureManager.lvl', { levelTier: adv.levelTier })}
                         </span>
                         <button
                           onClick={() => openEdit(adv)}
                           className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer"
                         >
-                          Edit
+                          {t('pages.adventureManager.edit')}
                         </button>
                         <button
                           onClick={() => handleExport(adv)}
                           className="text-xs text-blue-400 hover:text-blue-300 cursor-pointer"
                         >
-                          Export
+                          {t('pages.adventureManager.export')}
                         </button>
                         <button
                           onClick={() => handleDelete(adv.id)}
                           className="text-xs text-red-400 hover:text-red-300 cursor-pointer"
                         >
-                          Delete
+                          {t('common.actions.delete')}
                         </button>
                       </div>
                     </div>
                     <div className="text-xs text-gray-400 line-clamp-2">{adv.premise}</div>
-                    {adv.villain && <div className="text-xs text-gray-500 mt-1">Antagonist: {adv.villain}</div>}
+                    {adv.villain && (
+                      <div className="text-xs text-gray-500 mt-1">
+                        {t('pages.adventureManager.antagonist', { villain: adv.villain })}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -148,13 +152,13 @@ export default function AdventureManager({ campaign, saveCampaign }: AdventureMa
                 onClick={() => setShowWizard(true)}
                 className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer"
               >
-                + Create Adventure
+                {t('pages.adventureManager.createAdventure')}
               </button>
               <button
                 onClick={() => setShowImportWizard(true)}
                 className="text-xs text-blue-400 hover:text-blue-300 cursor-pointer"
               >
-                Import Adventure
+                {t('pages.adventureManager.importAdventure')}
               </button>
             </div>
           </>
@@ -169,10 +173,10 @@ export default function AdventureManager({ campaign, saveCampaign }: AdventureMa
       />
 
       {/* Adventure Edit Modal */}
-      <Modal open={editingId !== null} onClose={() => setEditingId(null)} title="Edit Adventure">
+      <Modal open={editingId !== null} onClose={() => setEditingId(null)} title={t('pages.adventureManager.editTitle')}>
         <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
           <div>
-            <label className="block text-gray-400 text-xs mb-1">Title *</label>
+            <label className="block text-gray-400 text-xs mb-1">{t('pages.adventureManager.titleLabel')}</label>
             <input
               type="text"
               value={form.title}
@@ -181,20 +185,20 @@ export default function AdventureManager({ campaign, saveCampaign }: AdventureMa
             />
           </div>
           <div>
-            <label className="block text-gray-400 text-xs mb-1">Level Tier</label>
+            <label className="block text-gray-400 text-xs mb-1">{t('pages.adventureManager.levelTier')}</label>
             <select
               value={form.levelTier}
               onChange={(e) => setForm((f) => ({ ...f, levelTier: e.target.value }))}
               className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
             >
-              <option value="1-4">1-4 (Local Heroes)</option>
-              <option value="5-10">5-10 (Heroes of the Realm)</option>
-              <option value="11-16">11-16 (Masters of the Realm)</option>
-              <option value="17-20">17-20 (Masters of the World)</option>
+              <option value="1-4">{t('pages.adventureManager.tier1to4')}</option>
+              <option value="5-10">{t('pages.adventureManager.tier5to10')}</option>
+              <option value="11-16">{t('pages.adventureManager.tier11to16')}</option>
+              <option value="17-20">{t('pages.adventureManager.tier17to20')}</option>
             </select>
           </div>
           <div>
-            <label className="block text-gray-400 text-xs mb-1">Premise</label>
+            <label className="block text-gray-400 text-xs mb-1">{t('pages.adventureManager.premise')}</label>
             <textarea
               value={form.premise}
               onChange={(e) => setForm((f) => ({ ...f, premise: e.target.value }))}
@@ -202,7 +206,7 @@ export default function AdventureManager({ campaign, saveCampaign }: AdventureMa
             />
           </div>
           <div>
-            <label className="block text-gray-400 text-xs mb-1">Adventure Hook</label>
+            <label className="block text-gray-400 text-xs mb-1">{t('pages.adventureManager.adventureHook')}</label>
             <textarea
               value={form.hook}
               onChange={(e) => setForm((f) => ({ ...f, hook: e.target.value }))}
@@ -211,7 +215,9 @@ export default function AdventureManager({ campaign, saveCampaign }: AdventureMa
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-gray-400 text-xs mb-1">Villain / Antagonist</label>
+              <label className="block text-gray-400 text-xs mb-1">
+                {t('pages.adventureManager.villainAntagonist')}
+              </label>
               <input
                 type="text"
                 value={form.villain}
@@ -220,7 +226,7 @@ export default function AdventureManager({ campaign, saveCampaign }: AdventureMa
               />
             </div>
             <div>
-              <label className="block text-gray-400 text-xs mb-1">Setting</label>
+              <label className="block text-gray-400 text-xs mb-1">{t('pages.adventureManager.setting')}</label>
               <input
                 type="text"
                 value={form.setting}
@@ -230,7 +236,7 @@ export default function AdventureManager({ campaign, saveCampaign }: AdventureMa
             </div>
           </div>
           <div>
-            <label className="block text-gray-400 text-xs mb-1">Player Stakes</label>
+            <label className="block text-gray-400 text-xs mb-1">{t('pages.adventureManager.playerStakes')}</label>
             <textarea
               value={form.playerStakes}
               onChange={(e) => setForm((f) => ({ ...f, playerStakes: e.target.value }))}
@@ -238,7 +244,7 @@ export default function AdventureManager({ campaign, saveCampaign }: AdventureMa
             />
           </div>
           <div>
-            <label className="block text-gray-400 text-xs mb-1">Encounters</label>
+            <label className="block text-gray-400 text-xs mb-1">{t('pages.adventureManager.encounters')}</label>
             <textarea
               value={form.encounters}
               onChange={(e) => setForm((f) => ({ ...f, encounters: e.target.value }))}
@@ -246,7 +252,7 @@ export default function AdventureManager({ campaign, saveCampaign }: AdventureMa
             />
           </div>
           <div>
-            <label className="block text-gray-400 text-xs mb-1">Climax</label>
+            <label className="block text-gray-400 text-xs mb-1">{t('pages.adventureManager.climax')}</label>
             <textarea
               value={form.climax}
               onChange={(e) => setForm((f) => ({ ...f, climax: e.target.value }))}
@@ -254,7 +260,7 @@ export default function AdventureManager({ campaign, saveCampaign }: AdventureMa
             />
           </div>
           <div>
-            <label className="block text-gray-400 text-xs mb-1">Resolution</label>
+            <label className="block text-gray-400 text-xs mb-1">{t('pages.adventureManager.resolution')}</label>
             <textarea
               value={form.resolution}
               onChange={(e) => setForm((f) => ({ ...f, resolution: e.target.value }))}
@@ -264,10 +270,10 @@ export default function AdventureManager({ campaign, saveCampaign }: AdventureMa
         </div>
         <div className="flex gap-3 justify-end mt-4">
           <Button variant="secondary" onClick={() => setEditingId(null)}>
-            Cancel
+            {t('common.actions.cancel')}
           </Button>
           <Button onClick={handleSave} disabled={!form.title.trim()}>
-            Save
+            {t('common.actions.save')}
           </Button>
         </div>
       </Modal>

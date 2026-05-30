@@ -14,6 +14,7 @@ import {
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { addToast } from '../../../hooks/use-toast'
+import { useT } from '../../../i18n'
 import { load5eMonsterById } from '../../../services/data-provider'
 import { rollSingle } from '../../../services/dice/dice-service'
 import { exportEntities, importEntities, reIdItems } from '../../../services/io/entity-io'
@@ -47,17 +48,17 @@ interface LeftSidebarProps {
   onReadAloud?: (text: string, style: 'chat' | 'dramatic') => void
 }
 
-const SECTIONS: { id: SectionId; label: string; icon: LucideIcon }[] = [
-  { id: 'characters', label: 'Characters', icon: User },
-  { id: 'npcs', label: 'NPCs', icon: Drama },
-  { id: 'allies', label: 'Allies', icon: Shield },
-  { id: 'enemies', label: 'Enemies', icon: Swords },
-  { id: 'places', label: 'Places', icon: Castle },
-  { id: 'bastions', label: 'Bastions', icon: Building2 },
-  { id: 'tables', label: 'Tables', icon: Dices },
-  { id: 'party-loot', label: 'Party Loot', icon: Coins },
-  { id: 'combat-log', label: 'Combat Log', icon: ClipboardList },
-  { id: 'journal', label: 'Journal', icon: BookOpen }
+const SECTIONS: { id: SectionId; labelKey: string; icon: LucideIcon }[] = [
+  { id: 'characters', labelKey: 'game.leftSidebar.characters', icon: User },
+  { id: 'npcs', labelKey: 'game.leftSidebar.npcs', icon: Drama },
+  { id: 'allies', labelKey: 'game.leftSidebar.allies', icon: Shield },
+  { id: 'enemies', labelKey: 'game.leftSidebar.enemies', icon: Swords },
+  { id: 'places', labelKey: 'game.leftSidebar.places', icon: Castle },
+  { id: 'bastions', labelKey: 'game.leftSidebar.bastions', icon: Building2 },
+  { id: 'tables', labelKey: 'game.leftSidebar.tables', icon: Dices },
+  { id: 'party-loot', labelKey: 'game.leftSidebar.partyLoot', icon: Coins },
+  { id: 'combat-log', labelKey: 'game.leftSidebar.combatLog', icon: ClipboardList },
+  { id: 'journal', labelKey: 'game.leftSidebar.journal', icon: BookOpen }
 ]
 
 export default function LeftSidebar({
@@ -69,6 +70,7 @@ export default function LeftSidebar({
   onToggleCollapse,
   onReadAloud
 }: LeftSidebarProps): JSX.Element {
+  const { t } = useT()
   const navigate = useNavigate()
   const [expandedSection, setExpandedSection] = useState<SectionId | null>(null)
 
@@ -151,9 +153,9 @@ export default function LeftSidebar({
       const items = reIdItems(result.items)
       const npcs = [...campaign.npcs, ...items]
       await saveCamp({ ...campaign, npcs, updatedAt: new Date().toISOString() })
-      addToast(`Imported ${items.length} NPC(s)`, 'success')
+      addToast(t('game.leftSidebar.importedNpcs', { count: items.length }), 'success')
     } catch (err) {
-      addToast(err instanceof Error ? err.message : 'NPC import failed', 'error')
+      addToast(err instanceof Error ? err.message : t('game.leftSidebar.npcImportFailed'), 'error')
     }
   }
 
@@ -161,9 +163,9 @@ export default function LeftSidebar({
     if (campaign.npcs.length === 0) return
     try {
       const ok = await exportEntities('npc', campaign.npcs)
-      if (ok) addToast(`Exported ${campaign.npcs.length} NPC(s)`, 'success')
+      if (ok) addToast(t('game.leftSidebar.exportedNpcs', { count: campaign.npcs.length }), 'success')
     } catch {
-      addToast('NPC export failed', 'error')
+      addToast(t('game.leftSidebar.npcExportFailed'), 'error')
     }
   }
 
@@ -223,16 +225,18 @@ export default function LeftSidebar({
                         }}
                         className="text-xs px-1.5 py-0.5 rounded bg-gray-700 text-gray-300 hover:bg-amber-600 hover:text-white transition-colors cursor-pointer shrink-0 ml-1"
                       >
-                        {canEdit ? 'Edit' : 'View'}
+                        {canEdit ? t('game.leftSidebar.edit') : t('game.leftSidebar.view')}
                       </button>
                     </div>
                   ) : (
-                    <div className="text-xs text-gray-500 mt-0.5">No character</div>
+                    <div className="text-xs text-gray-500 mt-0.5">{t('game.leftSidebar.noCharacter')}</div>
                   )}
                 </div>
               )
             })}
-            {players.length === 0 && <p className="text-xs text-gray-500 text-center py-2">No players connected</p>}
+            {players.length === 0 && (
+              <p className="text-xs text-gray-500 text-center py-2">{t('game.leftSidebar.noPlayersConnected')}</p>
+            )}
           </div>
         )
       case 'npcs':
@@ -277,7 +281,7 @@ export default function LeftSidebar({
         return (
           <div className="space-y-1.5">
             {gameBastions.length === 0 ? (
-              <p className="text-xs text-gray-500 text-center py-2">No bastions</p>
+              <p className="text-xs text-gray-500 text-center py-2">{t('game.leftSidebar.noBastions')}</p>
             ) : (
               gameBastions.map((bastion) => {
                 const owner = characters.find((c) => c.id === bastion.ownerId)
@@ -287,10 +291,10 @@ export default function LeftSidebar({
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-200 truncate">{bastion.name}</span>
                     </div>
-                    <div className="text-xs text-gray-400 mt-0.5">{owner?.name ?? 'Unknown'}</div>
+                    <div className="text-xs text-gray-400 mt-0.5">{owner?.name ?? t('game.leftSidebar.unknown')}</div>
                     <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
-                      <span>{facilityCount} facilities</span>
-                      <span>{bastion.defenders.length} defenders</span>
+                      <span>{t('game.leftSidebar.facilities', { count: facilityCount })}</span>
+                      <span>{t('game.leftSidebar.defenders', { count: bastion.defenders.length })}</span>
                       <span className="text-yellow-400/70">{bastion.treasury} GP</span>
                     </div>
                   </div>
@@ -306,7 +310,9 @@ export default function LeftSidebar({
           <div className="space-y-1.5">
             {/* Currency summary */}
             <div className="bg-gray-800/50 rounded-lg p-2">
-              <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Currency</div>
+              <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">
+                {t('game.leftSidebar.currency')}
+              </div>
               <div className="flex items-center gap-2 text-xs flex-wrap">
                 {partyInventory.currency.pp > 0 && (
                   <span className="text-gray-200">{partyInventory.currency.pp} PP</span>
@@ -325,7 +331,7 @@ export default function LeftSidebar({
             </div>
             {/* Items summary */}
             {partyInventory.items.length === 0 ? (
-              <p className="text-xs text-gray-500 text-center py-2">No loot items</p>
+              <p className="text-xs text-gray-500 text-center py-2">{t('game.leftSidebar.noLootItems')}</p>
             ) : (
               partyInventory.items.slice(0, 8).map((item) => (
                 <div key={item.id} className="bg-gray-800/50 rounded-lg p-2 flex items-center justify-between">
@@ -340,13 +346,15 @@ export default function LeftSidebar({
               ))
             )}
             {partyInventory.items.length > 8 && (
-              <p className="text-xs text-gray-500 text-center">+{partyInventory.items.length - 8} more items</p>
+              <p className="text-xs text-gray-500 text-center">
+                {t('game.leftSidebar.moreItems', { count: partyInventory.items.length - 8 })}
+              </p>
             )}
           </div>
         )
       case 'combat-log':
         return (
-          <Suspense fallback={<p className="text-xs text-gray-500 text-center py-4">Loading...</p>}>
+          <Suspense fallback={<p className="text-xs text-gray-500 text-center py-4">{t('common.states.loading')}</p>}>
             <CombatLogPanel />
           </Suspense>
         )
@@ -354,7 +362,7 @@ export default function LeftSidebar({
         const localPlayer = players.find((p) => p.peerId === localPeerId)
         const playerName = localPlayer?.displayName ?? 'Player'
         return (
-          <Suspense fallback={<p className="text-xs text-gray-500 text-center py-4">Loading...</p>}>
+          <Suspense fallback={<p className="text-xs text-gray-500 text-center py-4">{t('common.states.loading')}</p>}>
             <JournalPanel campaignId={campaignId} isDM={isDM} playerName={playerName} />
           </Suspense>
         )
@@ -368,12 +376,12 @@ export default function LeftSidebar({
       <div
         className="w-3 h-full bg-gray-900/85 backdrop-blur-sm border-r border-gray-700/50 flex flex-col items-center"
         role="region"
-        aria-label="Game sidebar collapsed"
+        aria-label={t('game.leftSidebar.sidebarCollapsed')}
       >
         <button
           onClick={onToggleCollapse}
-          title="Expand sidebar"
-          aria-label="Expand sidebar"
+          title={t('game.leftSidebar.expandSidebar')}
+          aria-label={t('game.leftSidebar.expandSidebar')}
           aria-expanded={false}
           className="mt-2 w-3 h-8 flex items-center justify-center text-gray-500 hover:text-gray-300 cursor-pointer"
         >
@@ -393,15 +401,15 @@ export default function LeftSidebar({
     <div
       className="w-56 h-full bg-gray-900/85 backdrop-blur-sm border-r border-gray-700/50 flex flex-col min-h-0"
       role="region"
-      aria-label="Game sidebar"
+      aria-label={t('game.leftSidebar.regionLabel')}
     >
       {/* Sidebar header with collapse */}
       <div className="shrink-0 px-3 pt-2 pb-2 border-b border-gray-700/50">
         <div className="flex items-center justify-end">
           <button
             onClick={onToggleCollapse}
-            title="Collapse sidebar"
-            aria-label="Collapse sidebar"
+            title={t('game.leftSidebar.collapseSidebar')}
+            aria-label={t('game.leftSidebar.collapseSidebar')}
             aria-expanded={true}
             className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-gray-300 cursor-pointer rounded hover:bg-gray-800"
           >
@@ -423,13 +431,13 @@ export default function LeftSidebar({
             onClick={() => navigate(getCharacterSheetPath(character), { state: { returnTo } })}
             className="w-full py-1.5 text-xs font-semibold text-amber-400 bg-amber-900/20 hover:bg-amber-900/40 border border-amber-700/50 rounded-lg transition-colors cursor-pointer"
           >
-            My Character
+            {t('game.leftSidebar.myCharacter')}
           </button>
         </div>
       )}
 
       {/* Accordion sections */}
-      <nav className="flex-1 overflow-y-auto min-h-0" role="navigation" aria-label="Sidebar sections">
+      <nav className="flex-1 overflow-y-auto min-h-0" role="navigation" aria-label={t('game.leftSidebar.sectionsNav')}>
         {SECTIONS.map((section) => (
           <div key={section.id} className="border-b border-gray-800/50">
             <div className="flex items-center">
@@ -453,7 +461,9 @@ export default function LeftSidebar({
                   />
                 </svg>
                 <section.icon className="w-4 h-4 text-gray-400 shrink-0" aria-hidden="true" />
-                <span className="text-xs font-semibold text-gray-300 uppercase tracking-wider">{section.label}</span>
+                <span className="text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                  {t(section.labelKey)}
+                </span>
                 {section.id === 'party-loot' && partyInventory.items.length > 0 && (
                   <span className="ml-auto text-[9px] bg-amber-600/30 text-amber-300 border border-amber-700/30 rounded-full px-1.5 py-0.5 leading-none">
                     {partyInventory.items.length}
@@ -464,8 +474,8 @@ export default function LeftSidebar({
                 <div className="flex items-center gap-1 pr-2">
                   <button
                     onClick={handleImportNpcs}
-                    title="Import NPCs"
-                    aria-label="Import NPCs"
+                    title={t('game.leftSidebar.importNpcs')}
+                    aria-label={t('game.leftSidebar.importNpcs')}
                     className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-amber-400 cursor-pointer rounded hover:bg-gray-800"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">
@@ -475,8 +485,8 @@ export default function LeftSidebar({
                   </button>
                   <button
                     onClick={handleExportNpcs}
-                    title="Export NPCs"
-                    aria-label="Export NPCs"
+                    title={t('game.leftSidebar.exportNpcs')}
+                    aria-label={t('game.leftSidebar.exportNpcs')}
                     className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-amber-400 cursor-pointer rounded hover:bg-gray-800"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">

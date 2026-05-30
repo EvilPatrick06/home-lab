@@ -6,6 +6,9 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     testTimeout: 15000,
+    // Phase 34 — init i18n before each test file so `useT()` renders resolve to
+    // English instead of echoing the raw key.
+    setupFiles: ['./src/test-setup.ts'],
     include: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'scripts/**/*.test.ts'],
     coverage: {
       provider: 'v8',

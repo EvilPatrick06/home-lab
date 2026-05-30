@@ -1,3 +1,4 @@
+import { useT } from '../../i18n'
 import { useNetworkStore } from '../../stores/network-store'
 import { useLobbyStore } from '../../stores/use-lobby-store'
 
@@ -19,6 +20,7 @@ import { useLobbyStore } from '../../stores/use-lobby-store'
  *   - the color is already confirmed (no-op)
  */
 export default function ColorConfirmButton(): JSX.Element | null {
+  const { t } = useT()
   const players = useLobbyStore((s) => s.players)
   const localPeerId = useNetworkStore((s) => s.localPeerId)
   const role = useNetworkStore((s) => s.role)
@@ -57,12 +59,12 @@ export default function ColorConfirmButton(): JSX.Element | null {
   }
 
   const label = isConfirmed
-    ? 'Color Confirmed'
+    ? t('lobby.colorConfirmButton.confirmed')
     : isTaken
-      ? 'Color Taken — Pick Another'
+      ? t('lobby.colorConfirmButton.taken')
       : !localColor
-        ? 'Pick a Color First'
-        : 'Confirm Color'
+        ? t('lobby.colorConfirmButton.pickFirst')
+        : t('lobby.colorConfirmButton.confirm')
 
   return (
     <button

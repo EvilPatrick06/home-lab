@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 import { useGameStore } from '../../../../stores/use-game-store'
 import { useLobbyStore } from '../../../../stores/use-lobby-store'
 import { cryptoRandom } from '../../../../utils/crypto-random'
@@ -20,6 +21,7 @@ function parseDiceFormula(formula: string): { count: number; sides: number; modi
 }
 
 export default function HiddenDiceModal({ onClose }: HiddenDiceModalProps): JSX.Element {
+  const { t } = useT()
   useEscapeKey(onClose)
   const [formula, setFormula] = useState('1d20')
   const hiddenDiceResults = useGameStore((s) => s.hiddenDiceResults)
@@ -51,7 +53,7 @@ export default function HiddenDiceModal({ onClose }: HiddenDiceModalProps): JSX.
       id: `msg-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
       senderId: 'dm',
       senderName: 'DM',
-      content: `rolled ${result.formula}`,
+      content: t('game.hiddenDiceModal.rolled', { formula: result.formula }),
       timestamp: Date.now(),
       isSystem: false,
       isDiceRoll: true,
@@ -66,11 +68,11 @@ export default function HiddenDiceModal({ onClose }: HiddenDiceModalProps): JSX.
       <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-md w-full mx-4 shadow-2xl">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-purple-300">Hidden Dice (DM Only)</h3>
+          <h3 className="text-sm font-semibold text-purple-300">{t('game.hiddenDiceModal.title')}</h3>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-300 text-lg cursor-pointer"
-            aria-label="Close"
+            aria-label={t('common.actions.close')}
           >
             &times;
           </button>
@@ -103,20 +105,20 @@ export default function HiddenDiceModal({ onClose }: HiddenDiceModalProps): JSX.
               if (e.key === 'Enter') handleRoll()
             }}
             className="flex-1 px-2 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-100 text-xs focus:outline-none focus:border-purple-500"
-            placeholder="e.g. 2d6+3"
+            placeholder={t('game.hiddenDiceModal.formulaPlaceholder')}
           />
           <button
             onClick={handleRoll}
             className="px-4 py-1.5 text-xs font-semibold rounded-lg bg-purple-600 hover:bg-purple-500 text-white transition-colors cursor-pointer"
           >
-            Roll
+            {t('game.hiddenDiceModal.roll')}
           </button>
         </div>
 
         {/* Results */}
         <div className="max-h-48 overflow-y-auto space-y-2">
           {hiddenDiceResults.length === 0 ? (
-            <p className="text-xs text-gray-500 text-center py-3">No hidden rolls yet</p>
+            <p className="text-xs text-gray-500 text-center py-3">{t('game.hiddenDiceModal.noRolls')}</p>
           ) : (
             hiddenDiceResults
               .slice()
@@ -128,14 +130,14 @@ export default function HiddenDiceModal({ onClose }: HiddenDiceModalProps): JSX.
                       formula={result.formula}
                       rolls={result.rolls}
                       total={result.total}
-                      rollerName="DM (Hidden)"
+                      rollerName={t('game.hiddenDiceModal.dmHidden')}
                     />
                   </div>
                   <button
                     onClick={() => handleReveal(result)}
                     className="px-2 py-1 text-xs bg-gray-800 hover:bg-amber-600/30 text-gray-400 hover:text-amber-300 rounded transition-colors cursor-pointer shrink-0"
                   >
-                    Reveal
+                    {t('game.hiddenDiceModal.reveal')}
                   </button>
                 </div>
               ))
@@ -147,7 +149,7 @@ export default function HiddenDiceModal({ onClose }: HiddenDiceModalProps): JSX.
             onClick={clearHiddenDiceResults}
             className="mt-2 text-xs text-gray-500 hover:text-red-400 cursor-pointer"
           >
-            Clear All
+            {t('game.hiddenDiceModal.clearAll')}
           </button>
         )}
       </div>

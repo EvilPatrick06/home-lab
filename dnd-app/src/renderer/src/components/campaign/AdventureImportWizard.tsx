@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useT } from '../../i18n'
 import { type AdventureImportResult, importAdventure } from '../../services/io/adventure-io'
 import { Button, Modal } from '../ui'
 
@@ -11,6 +12,7 @@ interface AdventureImportWizardProps {
 type WizardStep = 'select' | 'preview' | 'confirm'
 
 export default function AdventureImportWizard({ open, onClose, onImport }: AdventureImportWizardProps): JSX.Element {
+  const { t } = useT()
   const [step, setStep] = useState<WizardStep>('select')
   const [importData, setImportData] = useState<AdventureImportResult | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -22,13 +24,13 @@ export default function AdventureImportWizard({ open, onClose, onImport }: Adven
       setError(null)
       const result = await importAdventure()
       if (!result) {
-        setError('Invalid adventure file or import cancelled.')
+        setError(t('campaign.adventureImportWizard.errorInvalid'))
         return
       }
       setImportData(result)
       setStep('preview')
     } catch {
-      setError('Failed to read adventure file.')
+      setError(t('campaign.adventureImportWizard.errorRead'))
     }
   }
 
@@ -52,13 +54,13 @@ export default function AdventureImportWizard({ open, onClose, onImport }: Adven
   }
 
   return (
-    <Modal open={open} onClose={handleClose} title="Import Adventure">
+    <Modal open={open} onClose={handleClose} title={t('campaign.adventureImportWizard.title')}>
       <div className="space-y-4">
         {step === 'select' && (
           <>
-            <p className="text-sm text-gray-400">Select a .dndadv file to import an adventure module.</p>
+            <p className="text-sm text-gray-400">{t('campaign.adventureImportWizard.selectPrompt')}</p>
             {error && <p className="text-sm text-red-400">{error}</p>}
-            <Button onClick={handleSelectFile}>Choose File</Button>
+            <Button onClick={handleSelectFile}>{t('campaign.adventureImportWizard.chooseFile')}</Button>
           </>
         )}
 
@@ -66,7 +68,9 @@ export default function AdventureImportWizard({ open, onClose, onImport }: Adven
           <>
             <div className="bg-gray-800/50 rounded-lg p-3">
               <h4 className="text-sm font-semibold text-amber-400">{importData.adventure.title}</h4>
-              <p className="text-xs text-gray-400 mt-1">Level: {importData.adventure.levelTier}</p>
+              <p className="text-xs text-gray-400 mt-1">
+                {t('campaign.adventureImportWizard.levelLabel', { level: importData.adventure.levelTier })}
+              </p>
               <p className="text-xs text-gray-400">{importData.adventure.premise}</p>
             </div>
 
@@ -78,7 +82,7 @@ export default function AdventureImportWizard({ open, onClose, onImport }: Adven
                   onChange={(e) => setIncludeEncounters(e.target.checked)}
                   className="accent-amber-500"
                 />
-                Include {importData.encounters.length} encounter(s)
+                {t('campaign.adventureImportWizard.includeEncounters', { count: importData.encounters.length })}
               </label>
               <label className="flex items-center gap-2 text-sm text-gray-300">
                 <input
@@ -87,15 +91,15 @@ export default function AdventureImportWizard({ open, onClose, onImport }: Adven
                   onChange={(e) => setIncludeNpcs(e.target.checked)}
                   className="accent-amber-500"
                 />
-                Include {importData.npcs.length} NPC(s)
+                {t('campaign.adventureImportWizard.includeNpcs', { count: importData.npcs.length })}
               </label>
             </div>
 
             <div className="flex gap-2 justify-end">
               <Button variant="secondary" onClick={() => setStep('select')}>
-                Back
+                {t('campaign.adventureImportWizard.back')}
               </Button>
-              <Button onClick={() => setStep('confirm')}>Review</Button>
+              <Button onClick={() => setStep('confirm')}>{t('campaign.adventureImportWizard.review')}</Button>
             </div>
           </>
         )}
@@ -103,17 +107,21 @@ export default function AdventureImportWizard({ open, onClose, onImport }: Adven
         {step === 'confirm' && importData && (
           <>
             <p className="text-sm text-gray-400">
-              Ready to import <span className="text-amber-400 font-medium">{importData.adventure.title}</span>
+              {t('campaign.adventureImportWizard.readyToImport')}{' '}
+              <span className="text-amber-400 font-medium">{importData.adventure.title}</span>
               {includeEncounters &&
                 importData.encounters.length > 0 &&
-                ` with ${importData.encounters.length} encounter(s)`}
-              {includeNpcs && importData.npcs.length > 0 && ` and ${importData.npcs.length} NPC(s)`}.
+                t('campaign.adventureImportWizard.withEncounters', { count: importData.encounters.length })}
+              {includeNpcs &&
+                importData.npcs.length > 0 &&
+                t('campaign.adventureImportWizard.andNpcs', { count: importData.npcs.length })}
+              {'.'}
             </p>
             <div className="flex gap-2 justify-end">
               <Button variant="secondary" onClick={() => setStep('preview')}>
-                Back
+                {t('campaign.adventureImportWizard.back')}
               </Button>
-              <Button onClick={handleConfirm}>Import</Button>
+              <Button onClick={handleConfirm}>{t('campaign.adventureImportWizard.import')}</Button>
             </div>
           </>
         )}

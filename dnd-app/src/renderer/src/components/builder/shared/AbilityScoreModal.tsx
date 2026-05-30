@@ -1,5 +1,6 @@
 import abilityScoreConfigJson from '@data/5e/character/ability-score-config.json'
 import { useState } from 'react'
+import { useT } from '../../../i18n'
 import type { AbilityScoreMethod } from '../../../stores/use-builder-store'
 import { POINT_BUY_BUDGET, POINT_BUY_COSTS, STANDARD_ARRAY, useBuilderStore } from '../../../stores/use-builder-store'
 import type { AbilityName } from '../../../types/character-common'
@@ -14,6 +15,7 @@ const METHODS: Array<{ id: AbilityScoreMethod; label: string; desc: string }> =
   abilityScoreConfigJson.methods as Array<{ id: AbilityScoreMethod; label: string; desc: string }>
 
 export default function AbilityScoreModal(): JSX.Element {
+  const { t } = useT()
   const abilityScores = useBuilderStore((s) => s.abilityScores)
   const setAbilityScores = useBuilderStore((s) => s.setAbilityScores)
   const confirmAbilityScores = useBuilderStore((s) => s.confirmAbilityScores)
@@ -61,10 +63,13 @@ export default function AbilityScoreModal(): JSX.Element {
   const confirmHint = (() => {
     if (method === 'standard' && !canConfirm) {
       const assigned = Object.values(standardAssignments).filter((v) => v !== null).length
-      return `Assign all 6 abilities to confirm (${assigned}/6)`
+      return t('builder.abilityScoreModal.confirmHintStandard', { assigned })
     }
     if (method === 'pointBuy' && !canConfirm) {
-      return `Spend all ${POINT_BUY_BUDGET} points to confirm (${pointsRemaining} remaining)`
+      return t('builder.abilityScoreModal.confirmHintPointBuy', {
+        budget: POINT_BUY_BUDGET,
+        remaining: pointsRemaining
+      })
     }
     return null
   })()
@@ -89,7 +94,7 @@ export default function AbilityScoreModal(): JSX.Element {
     <div className="absolute inset-0 z-20 flex flex-col bg-gray-900/98 backdrop-blur-sm">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">
-        <h2 className="text-lg font-bold text-gray-100">Ability Scores</h2>
+        <h2 className="text-lg font-bold text-gray-100">{t('builder.abilityScoreModal.title')}</h2>
         <button onClick={closeCustomModal} className="text-gray-400 hover:text-gray-200 text-xl leading-none px-2">
           ✕
         </button>
@@ -118,7 +123,11 @@ export default function AbilityScoreModal(): JSX.Element {
         {/* Method-specific info */}
         {method === 'pointBuy' && (
           <div className={`text-sm mb-3 ${pointsRemaining < 0 ? 'text-red-400' : 'text-gray-400'}`}>
-            Points: {pointsSpent}/{POINT_BUY_BUDGET} ({pointsRemaining} remaining)
+            {t('builder.abilityScoreModal.points', {
+              spent: pointsSpent,
+              budget: POINT_BUY_BUDGET,
+              remaining: pointsRemaining
+            })}
           </div>
         )}
         {method === 'roll' && (
@@ -126,13 +135,15 @@ export default function AbilityScoreModal(): JSX.Element {
             onClick={rollScores}
             className="mb-3 px-3 py-1.5 text-xs bg-gray-800 border border-gray-600 rounded hover:bg-gray-700 text-gray-300 transition-colors"
           >
-            Re-roll All
+            {t('builder.abilityScoreModal.rerollAll')}
           </button>
         )}
         {method === 'standard' && (
           <div className="mb-3">
             <p className="text-xs text-gray-500 mb-2">
-              Assign each value to an ability. Available: {availableValues.join(', ') || 'All assigned'}
+              {t('builder.abilityScoreModal.assignHint', {
+                available: availableValues.join(', ') || t('builder.abilityScoreModal.allAssigned')
+              })}
             </p>
             <div className="flex items-center gap-2 flex-wrap">
               {suggestedScores && (
@@ -144,14 +155,18 @@ export default function AbilityScoreModal(): JSX.Element {
                   }}
                   className="px-3 py-1 text-xs bg-amber-900/30 border border-amber-500/50 text-amber-300 rounded hover:bg-amber-900/50 transition-colors"
                 >
-                  Use Suggested for {selectedClassId.charAt(0).toUpperCase() + selectedClassId.slice(1)}
+                  {t('builder.abilityScoreModal.useSuggested', {
+                    class: selectedClassId.charAt(0).toUpperCase() + selectedClassId.slice(1)
+                  })}
                 </button>
               )}
               <button
                 onClick={() => setShowRefTable(!showRefTable)}
                 className="px-2 py-1 text-xs text-gray-400 hover:text-gray-200 border border-gray-700 rounded transition-colors"
               >
-                {showRefTable ? 'Hide' : 'Show'} Class Reference
+                {showRefTable
+                  ? t('builder.abilityScoreModal.hideClassReference')
+                  : t('builder.abilityScoreModal.showClassReference')}
               </button>
             </div>
             {showRefTable && (
@@ -159,7 +174,9 @@ export default function AbilityScoreModal(): JSX.Element {
                 <table className="w-full text-xs">
                   <thead>
                     <tr className="bg-gray-800 text-gray-400">
-                      <th className="px-2 py-1 text-left font-semibold">Class</th>
+                      <th className="px-2 py-1 text-left font-semibold">
+                        {t('builder.abilityScoreModal.classHeader')}
+                      </th>
                       {ABILITY_NAMES.map((ab) => (
                         <th key={ab} className="px-1.5 py-1 text-center font-semibold uppercase">
                           {ab.slice(0, 3)}
@@ -268,7 +285,9 @@ export default function AbilityScoreModal(): JSX.Element {
                   {method === 'standard' && standardAssignments[ab] == null ? '--' : formatMod(mod)}
                 </div>
                 {method === 'pointBuy' && (
-                  <div className="text-xs text-gray-600 mt-0.5">{POINT_BUY_COSTS[score] ?? 0} pts</div>
+                  <div className="text-xs text-gray-600 mt-0.5">
+                    {t('builder.abilityScoreModal.points_pts', { pts: POINT_BUY_COSTS[score] ?? 0 })}
+                  </div>
                 )}
               </div>
             )
@@ -281,12 +300,12 @@ export default function AbilityScoreModal(): JSX.Element {
         <div className="flex flex-col">
           <span className="text-xs text-gray-500">
             {method === 'standard'
-              ? 'Standard Array'
+              ? t('builder.abilityScoreModal.methodStandard')
               : method === 'pointBuy'
-                ? 'Point Buy'
+                ? t('builder.abilityScoreModal.methodPointBuy')
                 : method === 'roll'
-                  ? 'Rolled'
-                  : 'Custom'}
+                  ? t('builder.abilityScoreModal.methodRolled')
+                  : t('builder.abilityScoreModal.methodCustom')}
           </span>
           {confirmHint && <span className="text-xs text-amber-400 mt-0.5">{confirmHint}</span>}
         </div>
@@ -295,7 +314,7 @@ export default function AbilityScoreModal(): JSX.Element {
             onClick={closeCustomModal}
             className="px-4 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 rounded transition-colors"
           >
-            Cancel
+            {t('common.actions.cancel')}
           </button>
           <button
             onClick={confirmAbilityScores}
@@ -308,7 +327,7 @@ export default function AbilityScoreModal(): JSX.Element {
                   : 'bg-amber-600 hover:bg-amber-500 text-white'
             }`}
           >
-            {isConfirmed ? 'Confirmed' : 'Confirm Scores'}
+            {isConfirmed ? t('builder.abilityScoreModal.confirmed') : t('builder.abilityScoreModal.confirmScores')}
           </button>
         </div>
       </div>

@@ -1,3 +1,5 @@
+import { i18n, useT } from '../../i18n'
+
 export interface InstalledModel {
   name: string
   size: number
@@ -33,6 +35,11 @@ export const TIER_STYLES: Record<PerformanceTier, { label: string; className: st
   insufficient: { label: 'Insufficient', className: 'text-red-400 bg-red-900/30' }
 }
 
+/** Render-time localized label for a performance tier. */
+export function getTierLabel(tier: PerformanceTier): string {
+  return i18n.t(`ui.ollamaModelList.tier.${tier}`)
+}
+
 export type ActiveOp =
   | { type: 'pull'; model: string; percent: number }
   | { type: 'ollama-update'; percent: number }
@@ -48,12 +55,12 @@ export function formatBytes(bytes: number): string {
 export function timeAgo(isoDate: string): string {
   const diff = Date.now() - new Date(isoDate).getTime()
   const days = Math.floor(diff / 86400000)
-  if (days < 1) return 'today'
-  if (days === 1) return '1 day ago'
-  if (days < 30) return `${days} days ago`
+  if (days < 1) return i18n.t('ui.ollamaModelList.timeAgo.today')
+  if (days === 1) return i18n.t('ui.ollamaModelList.timeAgo.oneDay')
+  if (days < 30) return i18n.t('ui.ollamaModelList.timeAgo.days', { days })
   const months = Math.floor(days / 30)
-  if (months === 1) return '1 month ago'
-  return `${months} months ago`
+  if (months === 1) return i18n.t('ui.ollamaModelList.timeAgo.oneMonth')
+  return i18n.t('ui.ollamaModelList.timeAgo.months', { months })
 }
 
 interface InstalledModelListProps {
@@ -77,26 +84,29 @@ export function InstalledModelList({
   onDelete,
   onUpdateAll
 }: InstalledModelListProps): JSX.Element {
+  const { t } = useT()
   // Build a lookup from curated model ID to its data
   const curatedLookup = new Map(curatedModels.map((c) => [c.id.replace(/:latest$/, ''), c]))
 
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
-        <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Installed Models</h4>
+        <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+          {t('ui.ollamaModelList.installedModels')}
+        </h4>
         {models.length > 0 && (
           <button
             onClick={onUpdateAll}
             disabled={isBusy}
             className="text-xs text-amber-400 hover:text-amber-300 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Update All
+            {t('ui.ollamaModelList.updateAll')}
           </button>
         )}
       </div>
 
       {models.length === 0 ? (
-        <p className="text-sm text-gray-500">No models installed yet.</p>
+        <p className="text-sm text-gray-500">{t('ui.ollamaModelList.noModels')}</p>
       ) : (
         <div className="space-y-1.5">
           {models.map((model) => {
@@ -123,8 +133,10 @@ export function InstalledModelList({
                     {model.family && (
                       <span className="text-xs text-gray-500 bg-gray-700/60 px-1.5 py-0.5 rounded">{model.family}</span>
                     )}
-                    {tierStyle && (
-                      <span className={`text-xs px-1.5 py-0.5 rounded ${tierStyle.className}`}>{tierStyle.label}</span>
+                    {tier && tierStyle && (
+                      <span className={`text-xs px-1.5 py-0.5 rounded ${tierStyle.className}`}>
+                        {getTierLabel(tier)}
+                      </span>
                     )}
                   </div>
                   <div className="text-xs text-gray-500 mt-0.5">
@@ -149,7 +161,7 @@ export function InstalledModelList({
                     <button
                       onClick={() => onPull(model.name)}
                       disabled={isBusy}
-                      title="Update model"
+                      title={t('ui.ollamaModelList.updateModelTitle')}
                       className="p-1.5 text-gray-500 hover:text-amber-400 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                     >
                       <svg
@@ -168,7 +180,7 @@ export function InstalledModelList({
                     <button
                       onClick={() => onDelete(model.name)}
                       disabled={isBusy}
-                      title="Delete model"
+                      title={t('ui.ollamaModelList.deleteModelTitle')}
                       className="p-1.5 text-gray-500 hover:text-red-400 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                     >
                       {isDeleting ? (
@@ -208,11 +220,14 @@ interface AvailableModelListProps {
 }
 
 export function AvailableModelList({ models, activeOp, isBusy, vram, onPull }: AvailableModelListProps): JSX.Element {
+  const { t } = useT()
   if (models.length === 0) return <></>
 
   return (
     <div>
-      <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Available Models</h4>
+      <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+        {t('ui.ollamaModelList.availableModels')}
+      </h4>
       <div className="space-y-1.5">
         {models.map((model) => {
           const isPulling = activeOp?.type === 'pull' && activeOp.model === model.id
@@ -223,8 +238,8 @@ export function AvailableModelList({ models, activeOp, isBusy, vram, onPull }: A
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-sm text-gray-300 font-medium">{model.name}</span>
-                  {tierStyle && (
-                    <span className={`text-xs px-1.5 py-0.5 rounded ${tierStyle.className}`}>{tierStyle.label}</span>
+                  {tier && tierStyle && (
+                    <span className={`text-xs px-1.5 py-0.5 rounded ${tierStyle.className}`}>{getTierLabel(tier)}</span>
                   )}
                 </div>
                 <div className="text-xs text-gray-500 mt-0.5">
@@ -249,7 +264,7 @@ export function AvailableModelList({ models, activeOp, isBusy, vram, onPull }: A
                   disabled={isBusy}
                   className="ml-3 px-3 py-1 text-xs rounded-lg border border-gray-700 text-gray-400 hover:border-amber-600 hover:text-amber-400 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                 >
-                  Install
+                  {t('ui.ollamaModelList.install')}
                 </button>
               )}
             </div>

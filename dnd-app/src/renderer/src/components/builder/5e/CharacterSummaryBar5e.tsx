@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useT } from '../../../i18n'
 import type { ArmorForAC, DerivedStats5e } from '../../../services/character/stat-calculator-5e'
 import { calculate5eStats } from '../../../services/character/stat-calculator-5e'
 import { load5eClasses, load5eSpecies } from '../../../services/data-provider'
@@ -22,6 +23,7 @@ function EditableHP({
   onChangeHP: (hp: number | null) => void
   onChangeTempHP: (hp: number) => void
 }): JSX.Element {
+  const { t } = useT()
   const [editingHP, setEditingHP] = useState(false)
   const [editingTemp, setEditingTemp] = useState(false)
   const [draftHP, setDraftHP] = useState('')
@@ -81,7 +83,7 @@ function EditableHP({
         }
       }}
     >
-      <div className="text-xs text-gray-500">HP</div>
+      <div className="text-xs text-gray-500">{t('builder.summaryBar.hp')}</div>
       {editingHP ? (
         <input
           ref={hpRef}
@@ -103,7 +105,7 @@ function EditableHP({
                 e.stopPropagation()
                 startEditTemp()
               }}
-              title="Temp HP"
+              title={t('builder.summaryBar.tempHp')}
             >
               +
               {editingTemp ? (
@@ -129,6 +131,7 @@ function EditableHP({
 }
 
 function CompletionBadge(): JSX.Element {
+  const { t } = useT()
   const characterName = useBuilderStore((s) => s.characterName)
   const buildSlots = useBuilderStore((s) => s.buildSlots)
   const backgroundAbilityBonuses = useBuilderStore((s) => s.backgroundAbilityBonuses)
@@ -189,7 +192,7 @@ function CompletionBadge(): JSX.Element {
   return (
     <span
       className={`${color} text-xs font-bold px-1.5 py-0.5 rounded`}
-      title={`${completed}/${total} foundation steps complete`}
+      title={t('builder.summaryBar.completionTitle', { completed, total })}
     >
       {completed}/{total}
     </span>
@@ -197,6 +200,7 @@ function CompletionBadge(): JSX.Element {
 }
 
 export default function CharacterSummaryBar5e(): JSX.Element {
+  const { t } = useT()
   const { buildSlots, characterName, abilityScores, targetLevel, iconType, iconPreset, iconCustom } = useBuilderStore()
   const currentHP = useBuilderStore((s) => s.currentHP)
   const tempHP = useBuilderStore((s) => s.tempHP)
@@ -336,16 +340,18 @@ export default function CharacterSummaryBar5e(): JSX.Element {
           size="md"
         />
         <div className="min-w-0">
-          <div className="font-semibold truncate text-gray-100">{characterName || 'Unnamed Character'}</div>
+          <div className="font-semibold truncate text-gray-100">
+            {characterName || t('builder.summaryBar.unnamedCharacter')}
+          </div>
           <div className="text-xs text-gray-500 truncate">
             {(() => {
               const cls = classSlot?.selectedName
               const sp = speciesSlot?.selectedName
-              const lv = `Lv ${targetLevel}`
+              const lv = t('builder.summaryBar.level', { level: targetLevel })
               if (cls && sp) return `${lv} ${sp} ${cls}`
-              if (cls) return `${lv} ${cls} — pick a species`
-              if (sp) return `${lv} ${sp} — pick a class`
-              return `${lv} — pick a class`
+              if (cls) return t('builder.summaryBar.pickSpecies', { lv, cls })
+              if (sp) return t('builder.summaryBar.pickClassWithSpecies', { lv, sp })
+              return t('builder.summaryBar.pickClass', { lv })
             })()}
           </div>
         </div>
@@ -403,14 +409,14 @@ export default function CharacterSummaryBar5e(): JSX.Element {
 
       {/* AC */}
       <div className="text-center">
-        <div className="text-xs text-gray-500">AC</div>
+        <div className="text-xs text-gray-500">{t('builder.summaryBar.ac')}</div>
         <div className="font-bold">{ac}</div>
       </div>
 
       {/* Speed */}
       <div className="text-center">
-        <div className="text-xs text-gray-500">Speed</div>
-        <div className="font-semibold">{speed} ft</div>
+        <div className="text-xs text-gray-500">{t('builder.summaryBar.speed')}</div>
+        <div className="font-semibold">{t('builder.summaryBar.speedValue', { speed })}</div>
       </div>
     </div>
   )

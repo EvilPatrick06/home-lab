@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 import type { ShopItem } from '../../../../network'
 import { load5eEquipment, load5eMagicItems } from '../../../../services/data-provider'
 import type { EquipmentFile, MagicItemData } from '../../../../types/data'
@@ -23,6 +24,7 @@ interface ShopImportModalProps {
 }
 
 export default function ShopImportModal({ importMode, onClose, onImport }: ShopImportModalProps): JSX.Element {
+  const { t } = useT()
   const [equipmentData, setEquipmentData] = useState<EquipmentFile | null>(null)
   const [magicItemsData, setMagicItemsData] = useState<MagicItemData[]>([])
   const [importSearch, setImportSearch] = useState('')
@@ -93,9 +95,15 @@ export default function ShopImportModal({ importMode, onClose, onImport }: ShopI
       <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-[44rem] max-h-[85vh] flex flex-col shadow-2xl">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-bold text-amber-400">
-            {importMode === 'equipment' ? 'Import from Equipment' : 'Import from Magic Items'}
+            {importMode === 'equipment'
+              ? t('game.shopImportModal.titleEquipment')
+              : t('game.shopImportModal.titleMagic')}
           </h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-300 text-xl leading-none cursor-pointer">
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-300 text-xl leading-none cursor-pointer"
+            aria-label={t('common.actions.close')}
+          >
             &times;
           </button>
         </div>
@@ -104,14 +112,14 @@ export default function ShopImportModal({ importMode, onClose, onImport }: ShopI
           type="text"
           value={importSearch}
           onChange={(e) => setImportSearch(e.target.value)}
-          placeholder="Search items..."
+          placeholder={t('game.shopImportModal.searchPlaceholder')}
           className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500 mb-3"
         />
 
         <div className="flex-1 overflow-y-auto min-h-0 space-y-0.5">
           {filteredImports.length === 0 && (
             <p className="text-xs text-gray-500 italic py-4 text-center">
-              {importableItems.length === 0 ? 'Loading data...' : 'No items match your search.'}
+              {importableItems.length === 0 ? t('game.shopImportModal.loadingData') : t('game.shopImportModal.noMatch')}
             </p>
           )}
           {filteredImports.slice(0, 200).map((item) => (
@@ -133,26 +141,28 @@ export default function ShopImportModal({ importMode, onClose, onImport }: ShopI
           ))}
           {filteredImports.length > 200 && (
             <p className="text-xs text-gray-500 text-center py-2">
-              Showing first 200 of {filteredImports.length} results. Narrow your search.
+              {t('game.shopImportModal.showingFirst', { count: filteredImports.length })}
             </p>
           )}
         </div>
 
         <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-700">
-          <span className="text-xs text-gray-400">{selectedImports.size} selected</span>
+          <span className="text-xs text-gray-400">
+            {t('game.shopImportModal.selected', { count: selectedImports.size })}
+          </span>
           <div className="flex gap-2">
             <button
               onClick={onClose}
               className="px-3 py-1.5 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
             >
-              Cancel
+              {t('common.actions.cancel')}
             </button>
             <button
               onClick={handleImportSelected}
               disabled={selectedImports.size === 0}
               className="px-3 py-1.5 text-xs bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded cursor-pointer"
             >
-              Add Selected
+              {t('game.shopImportModal.addSelected')}
             </button>
           </div>
         </div>

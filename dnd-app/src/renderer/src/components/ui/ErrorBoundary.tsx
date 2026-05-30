@@ -1,4 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react'
+import { i18n } from '../../i18n'
 import { logger } from '../../utils/logger'
 
 interface Props {
@@ -86,8 +87,8 @@ export default class ErrorBoundary extends Component<Props, State> {
       ].join('\n')
 
       const path = await window.api.showSaveDialog({
-        title: 'Save Bug Report',
-        filters: [{ name: 'Text Files', extensions: ['txt'] }]
+        title: i18n.t('ui.errorBoundary.saveBugReport'),
+        filters: [{ name: i18n.t('ui.errorBoundary.textFilesFilter'), extensions: ['txt'] }]
       })
       if (path) {
         await window.api.writeFile(path, report)
@@ -114,10 +115,8 @@ export default class ErrorBoundary extends Component<Props, State> {
       return (
         <div className="h-screen w-screen flex items-center justify-center bg-gray-950 text-gray-100">
           <div className="max-w-lg w-full mx-4 bg-gray-900 border border-red-500/50 rounded-xl p-8 shadow-2xl">
-            <h1 className="text-xl font-bold text-red-400 mb-2">Something went wrong</h1>
-            <p className="text-sm text-gray-400 mb-4">
-              The application encountered an unexpected error. You can try again or restart the app.
-            </p>
+            <h1 className="text-xl font-bold text-red-400 mb-2">{i18n.t('ui.errorBoundary.title')}</h1>
+            <p className="text-sm text-gray-400 mb-4">{i18n.t('ui.errorBoundary.description')}</p>
             {this.state.error && (
               <pre className="text-xs text-red-300/80 bg-gray-950 rounded-lg p-3 mb-6 overflow-auto max-h-40 border border-gray-800">
                 {this.state.error.message}
@@ -128,19 +127,19 @@ export default class ErrorBoundary extends Component<Props, State> {
                 onClick={this.handleRetry}
                 className="flex-1 px-4 py-2.5 text-sm font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded-lg cursor-pointer transition-colors"
               >
-                Try Again
+                {i18n.t('ui.errorBoundary.tryAgain')}
               </button>
               <button
                 onClick={this.handleRestart}
                 className="flex-1 px-4 py-2.5 text-sm font-semibold bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg cursor-pointer transition-colors"
               >
-                Restart App
+                {i18n.t('ui.errorBoundary.restartApp')}
               </button>
               <button
                 onClick={this.handleCopyErrorReport}
                 className="px-4 py-2.5 text-sm font-semibold bg-gray-800 hover:bg-gray-700 text-gray-400 rounded-lg cursor-pointer transition-colors"
               >
-                Copy Error Report
+                {i18n.t('ui.errorBoundary.copyErrorReport')}
               </button>
               <button
                 onClick={() => {
@@ -148,7 +147,7 @@ export default class ErrorBoundary extends Component<Props, State> {
                 }}
                 className="px-4 py-2.5 text-sm font-semibold bg-gray-800 hover:bg-gray-700 text-gray-400 rounded-lg cursor-pointer transition-colors"
               >
-                Save Bug Report
+                {i18n.t('ui.errorBoundary.saveBugReport')}
               </button>
             </div>
           </div>

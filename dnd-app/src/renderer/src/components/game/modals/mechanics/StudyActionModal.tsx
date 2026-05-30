@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { trigger3dDice } from '../../../../components/game/dice3d'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 import { rollSingle } from '../../../../services/dice/dice-service'
 import type { Character } from '../../../../types/character'
 import type { Character5e } from '../../../../types/character-5e'
@@ -43,6 +44,7 @@ const STUDY_APPROACHES = [
 type AbilityKey = 'strength' | 'dexterity' | 'constitution' | 'intelligence' | 'wisdom' | 'charisma'
 
 export default function StudyActionModal({ character, onClose, onBroadcastResult }: StudyActionModalProps) {
+  const { t } = useT()
   useEscapeKey(onClose)
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
   const [result, setResult] = useState<{ roll: number; modifier: number; total: number } | null>(null)
@@ -74,9 +76,21 @@ export default function StudyActionModal({ character, onClose, onBroadcastResult
   const handleDone = () => {
     if (result && selectedIndex !== null) {
       const approach = STUDY_APPROACHES[selectedIndex]
-      const natLabel = result.roll === 20 ? ' (Natural 20!)' : result.roll === 1 ? ' (Natural 1!)' : ''
+      const natLabel =
+        result.roll === 20
+          ? t('game.studyActionModal.natLabel20')
+          : result.roll === 1
+            ? t('game.studyActionModal.natLabel1')
+            : ''
       onBroadcastResult(
-        `${char5e.name} uses the Study action with ${approach.skill}: rolled ${result.total} (d20: ${result.roll} ${formatMod(result.modifier)})${natLabel}`
+        t('game.studyActionModal.broadcastResult', {
+          name: char5e.name,
+          skill: approach.skill,
+          total: result.total,
+          roll: result.roll,
+          mod: formatMod(result.modifier),
+          natLabel
+        })
       )
     }
     onClose()
@@ -95,8 +109,8 @@ export default function StudyActionModal({ character, onClose, onBroadcastResult
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-700">
           <div>
-            <h2 className="text-lg font-bold text-amber-400">Study</h2>
-            <p className="text-xs text-gray-500 mt-0.5">Intelligence-based investigation</p>
+            <h2 className="text-lg font-bold text-amber-400">{t('game.studyActionModal.title')}</h2>
+            <p className="text-xs text-gray-500 mt-0.5">{t('game.studyActionModal.subtitle')}</p>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-white text-xl leading-none">
             &times;
@@ -126,7 +140,9 @@ export default function StudyActionModal({ character, onClose, onBroadcastResult
                   </span>
                   <span className="text-sm font-mono text-gray-400">{formatMod(mod)}</span>
                 </div>
-                <p className="text-xs text-gray-500 leading-relaxed">{approach.desc}</p>
+                <p className="text-xs text-gray-500 leading-relaxed">
+                  {t(`game.studyActionModal.desc.${approach.skill.toLowerCase()}`)}
+                </p>
               </button>
             )
           })}
@@ -137,7 +153,7 @@ export default function StudyActionModal({ character, onClose, onBroadcastResult
               onClick={handleRoll}
               className="w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-lg transition-colors text-sm mt-2"
             >
-              Roll {STUDY_APPROACHES[selectedIndex].skill} Check
+              {t('game.studyActionModal.rollCheck', { skill: STUDY_APPROACHES[selectedIndex].skill })}
             </button>
           )}
 
@@ -158,20 +174,26 @@ export default function StudyActionModal({ character, onClose, onBroadcastResult
                       result.roll === 20 ? 'text-green-400' : result.roll === 1 ? 'text-red-400' : ''
                     }`}
                   >
-                    d20: {result.roll}
+                    {t('game.studyActionModal.d20', { roll: result.roll })}
                   </span>
                   <span className="mx-1">+</span>
-                  <span>mod: {formatMod(result.modifier)}</span>
+                  <span>{t('game.studyActionModal.mod', { mod: formatMod(result.modifier) })}</span>
                 </div>
-                {result.roll === 20 && <div className="text-green-400 text-xs font-semibold mt-1">Natural 20!</div>}
-                {result.roll === 1 && <div className="text-red-400 text-xs font-semibold mt-1">Natural 1!</div>}
+                {result.roll === 20 && (
+                  <div className="text-green-400 text-xs font-semibold mt-1">
+                    {t('game.studyActionModal.natural20')}
+                  </div>
+                )}
+                {result.roll === 1 && (
+                  <div className="text-red-400 text-xs font-semibold mt-1">{t('game.studyActionModal.natural1')}</div>
+                )}
               </div>
 
               <button
                 onClick={handleDone}
                 className="w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-lg transition-colors text-sm"
               >
-                Done
+                {t('game.studyActionModal.done')}
               </button>
             </div>
           )}

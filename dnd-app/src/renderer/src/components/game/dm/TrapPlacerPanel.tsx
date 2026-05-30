@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
+import { useT } from '../../../i18n'
 import { load5eTraps } from '../../../services/data-provider'
 import { useGameStore } from '../../../stores/use-game-store'
 import type { PlacedTrap, Trap } from '../../../types/dm-toolbox'
@@ -13,6 +14,7 @@ export default function TrapPlacerPanel({
   onBroadcastResult,
   onSelectTrapForPlacement
 }: TrapPlacerPanelProps): JSX.Element {
+  const { t } = useT()
   const { placedTraps, removeTrap, triggerTrap, revealTrap, updatePlacedTrap } = useGameStore(
     useShallow((s) => ({
       placedTraps: s.placedTraps,
@@ -76,12 +78,17 @@ export default function TrapPlacerPanel({
     (placed: PlacedTrap) => {
       const trapData = trapById.get(placed.trapId)
       triggerTrap(placed.id)
+      const damageSuffix = trapData?.damage ? t('game.trapPlacerPanel.damageSuffix', { damage: trapData.damage }) : ''
       const msg = trapData
-        ? `${placed.name} triggered! ${trapData.effect}${trapData.damage ? ` Damage: ${trapData.damage}` : ''}`
-        : `${placed.name} triggered!`
+        ? t('game.trapPlacerPanel.triggeredWithEffect', {
+            name: placed.name,
+            effect: trapData.effect,
+            damage: damageSuffix
+          })
+        : t('game.trapPlacerPanel.triggered', { name: placed.name })
       onBroadcastResult(msg)
     },
-    [triggerTrap, trapById, onBroadcastResult]
+    [triggerTrap, trapById, onBroadcastResult, t]
   )
 
   const handleRemove = useCallback(
@@ -94,7 +101,7 @@ export default function TrapPlacerPanel({
   if (loading) {
     return (
       <div className="space-y-3">
-        <div className="text-xs text-gray-500">Loading traps...</div>
+        <div className="text-xs text-gray-500">{t('game.trapPlacerPanel.loading')}</div>
       </div>
     )
   }
@@ -104,7 +111,7 @@ export default function TrapPlacerPanel({
       {/* Placed traps */}
       {placedTraps.length > 0 && (
         <div>
-          <span className="text-xs text-gray-500 uppercase">Placed Traps</span>
+          <span className="text-xs text-gray-500 uppercase">{t('game.trapPlacerPanel.placedTraps')}</span>
           <div className="mt-1 space-y-1 max-h-40 overflow-y-auto">
             {placedTraps.map((placed) => {
               const trapData = trapById.get(placed.trapId)
@@ -115,7 +122,9 @@ export default function TrapPlacerPanel({
                     <div className="flex items-center gap-2 min-w-0 flex-1">
                       <span
                         className={`shrink-0 w-2 h-2 rounded-full ${placed.armed ? 'bg-green-500' : 'bg-gray-500'}`}
-                        title={placed.armed ? 'Armed' : 'Triggered'}
+                        title={
+                          placed.armed ? t('game.trapPlacerPanel.armed') : t('game.trapPlacerPanel.triggeredStatus')
+                        }
                       />
                       <span className="text-white text-sm font-medium truncate">{placed.name}</span>
                       <span className="shrink-0 text-xs text-gray-500">
@@ -129,7 +138,7 @@ export default function TrapPlacerPanel({
                           onClick={() => handleTrigger(placed)}
                           className="px-2 py-0.5 text-xs font-medium rounded bg-orange-600 hover:bg-orange-500 text-white transition-colors cursor-pointer"
                         >
-                          Trigger
+                          {t('game.trapPlacerPanel.trigger')}
                         </button>
                       )}
                       {!placed.revealed && (
@@ -138,21 +147,21 @@ export default function TrapPlacerPanel({
                           onClick={() => handleReveal(placed)}
                           className="px-2 py-0.5 text-xs font-medium rounded bg-blue-600 hover:bg-blue-500 text-white transition-colors cursor-pointer"
                         >
-                          Reveal
+                          {t('game.trapPlacerPanel.reveal')}
                         </button>
                       )}
                       <button
                         type="button"
                         onClick={() => handleToggleArmed(placed)}
-                        title={placed.armed ? 'Disarm' : 'Re-arm'}
+                        title={placed.armed ? t('game.trapPlacerPanel.disarm') : t('game.trapPlacerPanel.reArm')}
                         className="px-2 py-0.5 text-xs text-gray-400 hover:text-white transition-colors cursor-pointer"
                       >
-                        {placed.armed ? 'Disarm' : 'Re-arm'}
+                        {placed.armed ? t('game.trapPlacerPanel.disarm') : t('game.trapPlacerPanel.reArm')}
                       </button>
                       <button
                         type="button"
                         onClick={() => handleRemove(placed.id)}
-                        title="Remove trap"
+                        title={t('game.trapPlacerPanel.removeTrap')}
                         className="w-6 h-6 rounded flex items-center justify-center text-gray-400 hover:text-red-400 hover:bg-red-900/30 transition-colors cursor-pointer"
                       >
                         &#215;
@@ -164,24 +173,26 @@ export default function TrapPlacerPanel({
                     onClick={() => setExpandedPlacedId(isExpanded ? null : placed.id)}
                     className="mt-1 text-xs text-gray-500 hover:text-gray-400 cursor-pointer"
                   >
-                    {isExpanded ? 'Hide' : 'Show'} details
+                    {isExpanded ? t('game.trapPlacerPanel.hideDetails') : t('game.trapPlacerPanel.showDetails')}
                   </button>
                   {isExpanded && trapData && (
                     <div className="mt-2 space-y-1 text-xs text-gray-400">
                       <p>
-                        <span className="text-gray-500">Detection:</span> {trapData.detection}
+                        <span className="text-gray-500">{t('game.trapPlacerPanel.detection')}</span>{' '}
+                        {trapData.detection}
                       </p>
                       <p>
-                        <span className="text-gray-500">Disarm:</span> {trapData.disarm}
+                        <span className="text-gray-500">{t('game.trapPlacerPanel.disarmLabel')}</span> {trapData.disarm}
                       </p>
                       {trapData.damage && (
                         <p>
-                          <span className="text-gray-500">Damage:</span> {trapData.damage}
+                          <span className="text-gray-500">{t('game.trapPlacerPanel.damage')}</span> {trapData.damage}
                         </p>
                       )}
                       {trapData.saveDC != null && (
                         <p>
-                          <span className="text-gray-500">Save:</span> DC {trapData.saveDC} {trapData.saveAbility ?? ''}
+                          <span className="text-gray-500">{t('game.trapPlacerPanel.save')}</span>{' '}
+                          {t('game.trapPlacerPanel.dc', { dc: trapData.saveDC, ability: trapData.saveAbility ?? '' })}
                         </p>
                       )}
                     </div>
@@ -195,10 +206,10 @@ export default function TrapPlacerPanel({
 
       {/* Available traps */}
       <div>
-        <span className="text-xs text-gray-500 uppercase">Available Traps</span>
+        <span className="text-xs text-gray-500 uppercase">{t('game.trapPlacerPanel.availableTraps')}</span>
         <input
           type="text"
-          placeholder="Search traps..."
+          placeholder={t('game.trapPlacerPanel.searchPlaceholder')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="mt-1 w-full px-2 py-1.5 text-sm bg-gray-800 border border-gray-700 rounded text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50"
@@ -224,10 +235,10 @@ export default function TrapPlacerPanel({
                     <button
                       type="button"
                       onClick={() => handleSelectForPlacement(trap)}
-                      title={`Place ${trap.name} on map`}
+                      title={t('game.trapPlacerPanel.placeTitle', { name: trap.name })}
                       className="shrink-0 px-2 py-0.5 text-xs rounded bg-amber-600/80 hover:bg-amber-500 text-white transition-colors cursor-pointer"
                     >
-                      Place
+                      {t('game.trapPlacerPanel.place')}
                     </button>
                   )}
                 </div>
@@ -236,24 +247,25 @@ export default function TrapPlacerPanel({
                   onClick={() => setExpandedTrapId(isExpanded ? null : trap.id)}
                   className="mt-1 text-xs text-gray-500 hover:text-gray-400 cursor-pointer"
                 >
-                  {isExpanded ? 'Hide' : 'Show'} details
+                  {isExpanded ? t('game.trapPlacerPanel.hideDetails') : t('game.trapPlacerPanel.showDetails')}
                 </button>
                 {isExpanded && (
                   <div className="mt-2 space-y-1 text-xs text-gray-400">
                     <p>
-                      <span className="text-gray-500">Detection:</span> {trap.detection}
+                      <span className="text-gray-500">{t('game.trapPlacerPanel.detection')}</span> {trap.detection}
                     </p>
                     <p>
-                      <span className="text-gray-500">Disarm:</span> {trap.disarm}
+                      <span className="text-gray-500">{t('game.trapPlacerPanel.disarmLabel')}</span> {trap.disarm}
                     </p>
                     {trap.damage && (
                       <p>
-                        <span className="text-gray-500">Damage:</span> {trap.damage}
+                        <span className="text-gray-500">{t('game.trapPlacerPanel.damage')}</span> {trap.damage}
                       </p>
                     )}
                     {trap.saveDC != null && (
                       <p>
-                        <span className="text-gray-500">Save:</span> DC {trap.saveDC} {trap.saveAbility ?? ''}
+                        <span className="text-gray-500">{t('game.trapPlacerPanel.save')}</span>{' '}
+                        {t('game.trapPlacerPanel.dc', { dc: trap.saveDC, ability: trap.saveAbility ?? '' })}
                       </p>
                     )}
                     <p className="leading-relaxed">{trap.description}</p>
@@ -265,7 +277,7 @@ export default function TrapPlacerPanel({
         </div>
       </div>
 
-      {filteredTraps.length === 0 && <div className="text-xs text-gray-500">No traps match your search.</div>}
+      {filteredTraps.length === 0 && <div className="text-xs text-gray-500">{t('game.trapPlacerPanel.noMatch')}</div>}
     </div>
   )
 }

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
+import { useT } from '../../../i18n'
 import { load5eCurses, load5eDiseases } from '../../../services/data-provider'
 import { useGameStore } from '../../../stores/use-game-store'
 import type { ActiveCurse, ActiveDisease, Curse, Disease } from '../../../types/dm-toolbox'
@@ -9,6 +10,7 @@ interface DiseaseCurseTrackerProps {
 }
 
 export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseTrackerProps): JSX.Element {
+  const { t } = useT()
   const { activeDiseases, addDisease, updateDisease, removeDisease, activeCurses, addCurse, updateCurse, removeCurse } =
     useGameStore(
       useShallow((s) => ({
@@ -74,9 +76,9 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
       failCount: 0
     }
     addDisease(active)
-    onBroadcastResult(`${targetName} contracted ${disease.name}.`)
+    onBroadcastResult(t('game.diseaseCurseTracker.contractedToast', { target: targetName, disease: disease.name }))
     setAddDiseaseTarget('')
-  }, [addDiseaseTarget, addDiseaseId, diseases, addDisease, onBroadcastResult])
+  }, [addDiseaseTarget, addDiseaseId, diseases, addDisease, onBroadcastResult, t])
 
   const handleAddCurse = useCallback(() => {
     const targetName = addCurseTarget.trim()
@@ -93,28 +95,28 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
       source: curse.source
     }
     addCurse(active)
-    onBroadcastResult(`${targetName} is afflicted with ${curse.name}.`)
+    onBroadcastResult(t('game.diseaseCurseTracker.afflictedToast', { target: targetName, curse: curse.name }))
     setAddCurseTarget('')
-  }, [addCurseTarget, addCurseId, curses, addCurse, onBroadcastResult])
+  }, [addCurseTarget, addCurseId, curses, addCurse, onBroadcastResult, t])
 
   const handleRemoveDisease = useCallback(
     (ad: ActiveDisease) => {
       removeDisease(ad.id)
-      onBroadcastResult(`${ad.targetName} was cured of ${ad.name}.`)
+      onBroadcastResult(t('game.diseaseCurseTracker.curedToast', { target: ad.targetName, disease: ad.name }))
     },
-    [removeDisease, onBroadcastResult]
+    [removeDisease, onBroadcastResult, t]
   )
 
   const handleRemoveCurse = useCallback(
     (ac: ActiveCurse) => {
       removeCurse(ac.id)
-      onBroadcastResult(`${ac.targetName} was freed from ${ac.name}.`)
+      onBroadcastResult(t('game.diseaseCurseTracker.freedToast', { target: ac.targetName, curse: ac.name }))
     },
-    [removeCurse, onBroadcastResult]
+    [removeCurse, onBroadcastResult, t]
   )
 
   if (loading) {
-    return <div className="text-xs text-gray-500 p-2">Loading diseases and curses...</div>
+    return <div className="text-xs text-gray-500 p-2">{t('game.diseaseCurseTracker.loading')}</div>
   }
 
   return (
@@ -122,7 +124,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
       {/* Active Diseases */}
       <section>
         <h3 className="text-sm font-semibold text-amber-400 flex items-center gap-2">
-          Active Diseases
+          {t('game.diseaseCurseTracker.activeDiseases')}
           <span className="px-1.5 py-0.5 text-xs rounded bg-gray-700/60 text-gray-300">{activeDiseases.length}</span>
         </h3>
 
@@ -141,12 +143,14 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
                     >
                       <span className={`text-xs transition-transform ${isExpanded ? 'rotate-90' : ''}`}>▶</span>
                       <span className="font-medium text-gray-200 truncate">{ad.name}</span>
-                      <span className="text-gray-500 text-xs truncate">— {ad.targetName}</span>
+                      <span className="text-gray-500 text-xs truncate">
+                        {t('game.diseaseCurseTracker.targetSuffix', { target: ad.targetName })}
+                      </span>
                     </button>
 
                     {/* Success/Fail counters */}
                     <div className="flex items-center gap-2 mt-2">
-                      <span className="text-xs text-gray-500">Saves:</span>
+                      <span className="text-xs text-gray-500">{t('game.diseaseCurseTracker.saves')}</span>
                       <div className="flex items-center gap-0.5">
                         <button
                           type="button"
@@ -203,22 +207,23 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
                     {isExpanded && def && (
                       <div className="mt-2 pt-2 border-t border-gray-700 space-y-1 text-xs text-gray-400">
                         <p>
-                          <span className="text-gray-500">Symptoms:</span> {def.symptoms}
+                          <span className="text-gray-500">{t('game.diseaseCurseTracker.symptoms')}</span> {def.symptoms}
                         </p>
                         <p>
-                          <span className="text-gray-500">DC:</span> {def.saveDC} {def.saveAbility}
+                          <span className="text-gray-500">{t('game.diseaseCurseTracker.dc')}</span> {def.saveDC}{' '}
+                          {def.saveAbility}
                         </p>
                         <p className="text-amber-600/90">
-                          <span className="text-amber-500/80">Cure:</span> {def.cure}
+                          <span className="text-amber-500/80">{t('game.diseaseCurseTracker.cure')}</span> {def.cure}
                         </p>
                         {ad.notes && (
                           <p>
-                            <span className="text-gray-500">Notes:</span> {ad.notes}
+                            <span className="text-gray-500">{t('game.diseaseCurseTracker.notes')}</span> {ad.notes}
                           </p>
                         )}
                         <input
                           type="text"
-                          placeholder="Add notes..."
+                          placeholder={t('game.diseaseCurseTracker.addNotes')}
                           value={ad.notes ?? ''}
                           onChange={(e) => updateDisease(ad.id, { notes: e.target.value })}
                           className="w-full mt-1 px-2 py-1 text-xs bg-gray-900/60 border border-gray-600 rounded text-gray-300 placeholder-gray-500"
@@ -230,7 +235,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
                     type="button"
                     onClick={() => handleRemoveDisease(ad)}
                     className="shrink-0 w-6 h-6 rounded text-red-400 hover:bg-red-900/40 hover:text-red-300 text-xs font-bold"
-                    title="Remove (cured)"
+                    title={t('game.diseaseCurseTracker.removeCured')}
                   >
                     ✕
                   </button>
@@ -255,7 +260,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
           </select>
           <input
             type="text"
-            placeholder="Target name"
+            placeholder={t('game.diseaseCurseTracker.targetName')}
             value={addDiseaseTarget}
             onChange={(e) => setAddDiseaseTarget(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleAddDisease()}
@@ -267,7 +272,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
             disabled={!addDiseaseTarget.trim()}
             className="px-2 py-1 text-xs font-medium rounded bg-amber-600/30 border border-amber-500/50 text-amber-300 hover:bg-amber-600/40 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Add Disease
+            {t('game.diseaseCurseTracker.addDisease')}
           </button>
         </div>
       </section>
@@ -275,7 +280,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
       {/* Active Curses */}
       <section>
         <h3 className="text-sm font-semibold text-amber-400 flex items-center gap-2">
-          Active Curses
+          {t('game.diseaseCurseTracker.activeCurses')}
           <span className="px-1.5 py-0.5 text-xs rounded bg-gray-700/60 text-gray-300">{activeCurses.length}</span>
         </h3>
 
@@ -294,30 +299,34 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
                     >
                       <span className={`text-xs transition-transform ${isExpanded ? 'rotate-90' : ''}`}>▶</span>
                       <span className="font-medium text-gray-200 truncate">{ac.name}</span>
-                      <span className="text-gray-500 text-xs truncate">— {ac.targetName}</span>
+                      <span className="text-gray-500 text-xs truncate">
+                        {t('game.diseaseCurseTracker.targetSuffix', { target: ac.targetName })}
+                      </span>
                     </button>
 
                     {isExpanded && def && (
                       <div className="mt-2 pt-2 border-t border-gray-700 space-y-1 text-xs text-gray-400">
                         <p>
-                          <span className="text-gray-500">Effect:</span> {def.effect}
+                          <span className="text-gray-500">{t('game.diseaseCurseTracker.effect')}</span> {def.effect}
                         </p>
                         <p className="text-amber-600/90">
-                          <span className="text-amber-500/80">Removal:</span> {def.removal}
+                          <span className="text-amber-500/80">{t('game.diseaseCurseTracker.removal')}</span>{' '}
+                          {def.removal}
                         </p>
                         {def.saveDC != null && (
                           <p>
-                            <span className="text-gray-500">DC:</span> {def.saveDC} {def.saveAbility ?? ''}
+                            <span className="text-gray-500">{t('game.diseaseCurseTracker.dc')}</span> {def.saveDC}{' '}
+                            {def.saveAbility ?? ''}
                           </p>
                         )}
                         {ac.notes && (
                           <p>
-                            <span className="text-gray-500">Notes:</span> {ac.notes}
+                            <span className="text-gray-500">{t('game.diseaseCurseTracker.notes')}</span> {ac.notes}
                           </p>
                         )}
                         <input
                           type="text"
-                          placeholder="Add notes..."
+                          placeholder={t('game.diseaseCurseTracker.addNotes')}
                           value={ac.notes ?? ''}
                           onChange={(e) => updateCurse(ac.id, { notes: e.target.value })}
                           className="w-full mt-1 px-2 py-1 text-xs bg-gray-900/60 border border-gray-600 rounded text-gray-300 placeholder-gray-500"
@@ -329,7 +338,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
                     type="button"
                     onClick={() => handleRemoveCurse(ac)}
                     className="shrink-0 w-6 h-6 rounded text-red-400 hover:bg-red-900/40 hover:text-red-300 text-xs font-bold"
-                    title="Remove (cured)"
+                    title={t('game.diseaseCurseTracker.removeCured')}
                   >
                     ✕
                   </button>
@@ -354,7 +363,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
           </select>
           <input
             type="text"
-            placeholder="Target name"
+            placeholder={t('game.diseaseCurseTracker.targetName')}
             value={addCurseTarget}
             onChange={(e) => setAddCurseTarget(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleAddCurse()}
@@ -366,7 +375,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
             disabled={!addCurseTarget.trim()}
             className="px-2 py-1 text-xs font-medium rounded bg-amber-600/30 border border-amber-500/50 text-amber-300 hover:bg-amber-600/40 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Add Curse
+            {t('game.diseaseCurseTracker.addCurse')}
           </button>
         </div>
       </section>

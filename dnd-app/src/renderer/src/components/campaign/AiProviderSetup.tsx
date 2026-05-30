@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { AI_PROVIDER_LABELS, AI_PROVIDERS, DEFAULT_OLLAMA_URL } from '../../constants'
+import { useT } from '../../i18n'
 import type { AiProviderType } from '../../types/campaign'
 import { Button, Card } from '../ui'
 
@@ -43,6 +44,7 @@ export default function AiProviderSetup({
   onProviderReady,
   onChange
 }: AiProviderSetupProps): JSX.Element {
+  const { t } = useT()
   const [setupPhase, setSetupPhase] = useState<SetupPhase>('idle')
   const [ollamaInstalled, setOllamaInstalled] = useState(false)
   const [ollamaRunning, setOllamaRunning] = useState(false)
@@ -152,23 +154,23 @@ export default function AiProviderSetup({
         setSetupPhase('downloading')
         setDownloadProgress(0)
         const dlResult = await window.api.ai.downloadOllama()
-        if (!dlResult.success) throw new Error(dlResult.error || 'Download failed')
+        if (!dlResult.success) throw new Error(dlResult.error || t('campaign.aiProviderSetup.errorDownload'))
         setSetupPhase('installing')
         const installResult = await window.api.ai.installOllama(dlResult.path!)
-        if (!installResult.success) throw new Error(installResult.error || 'Installation failed')
+        if (!installResult.success) throw new Error(installResult.error || t('campaign.aiProviderSetup.errorInstall'))
         setOllamaInstalled(true)
       }
       if (!ollamaRunning) {
         setSetupPhase('starting')
         const startResult = await window.api.ai.startOllama()
-        if (!startResult.success) throw new Error(startResult.error || 'Failed to start Ollama')
+        if (!startResult.success) throw new Error(startResult.error || t('campaign.aiProviderSetup.errorStart'))
         setOllamaRunning(true)
       }
       if (!modelReady) {
         setSetupPhase('pulling')
         setPullProgress(0)
         const pullResult = await window.api.ai.pullModel(model)
-        if (!pullResult.success) throw new Error(pullResult.error || 'Failed to pull model')
+        if (!pullResult.success) throw new Error(pullResult.error || t('campaign.aiProviderSetup.errorPull'))
         setModelReady(true)
         const installed = await window.api.ai.listInstalledModels()
         setInstalledModels(installed)
@@ -193,12 +195,12 @@ export default function AiProviderSetup({
         setSetupPhase('ready')
         onProviderReady(true)
       } else {
-        setErrorMessage(result.error || 'API key validation failed')
+        setErrorMessage(result.error || t('campaign.aiProviderSetup.errorKeyValidation'))
         onProviderReady(false)
       }
     } catch {
       setKeyValid(false)
-      setErrorMessage('Failed to validate API key')
+      setErrorMessage(t('campaign.aiProviderSetup.errorKeyValidationFailed'))
       onProviderReady(false)
     } finally {
       setValidatingKey(false)
@@ -206,15 +208,17 @@ export default function AiProviderSetup({
   }
 
   const gpuDesc =
-    vramMB > 0 ? `NVIDIA GPU detected (${Math.round(vramMB / 1024)} GB VRAM)` : 'No NVIDIA GPU detected (CPU mode)'
+    vramMB > 0
+      ? t('campaign.aiProviderSetup.gpuDetected', { gb: Math.round(vramMB / 1024) })
+      : t('campaign.aiProviderSetup.gpuNotDetected')
 
   const modelFitsGpu = (m: CuratedModel): boolean => vramMB === 0 || m.vramMB <= vramMB
   const isSetupBusy = ['downloading', 'installing', 'starting', 'pulling'].includes(setupPhase)
 
   return (
     <div>
-      <h2 className="text-xl font-semibold mb-2">AI Dungeon Master</h2>
-      <p className="text-gray-400 text-sm mb-6">Optionally enable an AI-powered Dungeon Master for your campaign.</p>
+      <h2 className="text-xl font-semibold mb-2">{t('campaign.aiProviderSetup.title')}</h2>
+      <p className="text-gray-400 text-sm mb-6">{t('campaign.aiProviderSetup.subtitle')}</p>
 
       <div className="max-w-2xl space-y-4">
         {/* Enable toggle */}
@@ -227,11 +231,8 @@ export default function AiProviderSetup({
               className="w-5 h-5 rounded bg-gray-800 border-gray-600 text-amber-500 focus:ring-amber-500"
             />
             <div>
-              <span className="font-medium">Enable AI Dungeon Master</span>
-              <p className="text-gray-400 text-sm mt-0.5">
-                The AI will narrate scenes, run combat, manage NPCs, and track character stats. You keep full DM
-                controls and can override at any time.
-              </p>
+              <span className="font-medium">{t('campaign.aiProviderSetup.enable')}</span>
+              <p className="text-gray-400 text-sm mt-0.5">{t('campaign.aiProviderSetup.enableDesc')}</p>
             </div>
           </label>
         </Card>
@@ -240,7 +241,7 @@ export default function AiProviderSetup({
           <>
             {/* Provider Selector */}
             <Card>
-              <h3 className="font-medium mb-3">AI Provider</h3>
+              <h3 className="font-medium mb-3">{t('campaign.aiProviderSetup.provider')}</h3>
               <div className="grid grid-cols-2 gap-2 mb-4">
                 {AI_PROVIDERS.map((p) => (
                   <button
@@ -280,7 +281,7 @@ export default function AiProviderSetup({
               {isCloud && (
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">API Key</label>
+                    <label className="block text-sm text-gray-400 mb-1">{t('campaign.aiProviderSetup.apiKey')}</label>
                     <div className="flex gap-2">
                       <input
                         type="password"
@@ -289,21 +290,29 @@ export default function AiProviderSetup({
                           setKeyValid(null)
                           onChange({ enabled, provider, model, ollamaUrl, apiKey: e.target.value })
                         }}
-                        placeholder={`Enter your ${AI_PROVIDER_LABELS[provider]} API key`}
+                        placeholder={t('campaign.aiProviderSetup.apiKeyPlaceholder', {
+                          provider: AI_PROVIDER_LABELS[provider]
+                        })}
                         className="flex-1 bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm focus:outline-none focus:border-amber-500"
                       />
                       <Button onClick={handleValidateKey} disabled={!apiKey.trim() || validatingKey}>
-                        {validatingKey ? 'Checking...' : 'Validate'}
+                        {validatingKey
+                          ? t('campaign.aiProviderSetup.checking')
+                          : t('campaign.aiProviderSetup.validate')}
                       </Button>
                     </div>
-                    {keyValid === true && <p className="text-green-400 text-xs mt-1">API key is valid</p>}
+                    {keyValid === true && (
+                      <p className="text-green-400 text-xs mt-1">{t('campaign.aiProviderSetup.apiKeyValid')}</p>
+                    )}
                     {keyValid === false && (
-                      <p className="text-red-400 text-xs mt-1">{errorMessage || 'Invalid API key'}</p>
+                      <p className="text-red-400 text-xs mt-1">
+                        {errorMessage || t('campaign.aiProviderSetup.apiKeyInvalid')}
+                      </p>
                     )}
                   </div>
 
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">Model</label>
+                    <label className="block text-sm text-gray-400 mb-1">{t('campaign.aiProviderSetup.model')}</label>
                     <select
                       value={model}
                       onChange={(e) => onChange({ enabled, provider, model: e.target.value, ollamaUrl, apiKey })}
@@ -324,30 +333,34 @@ export default function AiProviderSetup({
                 <div className="space-y-4">
                   <div className="space-y-2 mb-4">
                     <StatusItem
-                      label="Ollama installed"
+                      label={t('campaign.aiProviderSetup.statusInstalled')}
                       done={ollamaInstalled}
                       active={setupPhase === 'downloading' || setupPhase === 'installing'}
                       progress={setupPhase === 'downloading' ? downloadProgress : undefined}
                       phaseLabel={
                         setupPhase === 'downloading'
-                          ? `Downloading... ${downloadProgress}%`
+                          ? t('campaign.aiProviderSetup.downloading', { percent: downloadProgress })
                           : setupPhase === 'installing'
-                            ? 'Installing...'
+                            ? t('campaign.aiProviderSetup.installing')
                             : undefined
                       }
                     />
                     <StatusItem
-                      label="Ollama running"
+                      label={t('campaign.aiProviderSetup.statusRunning')}
                       done={ollamaRunning}
                       active={setupPhase === 'starting'}
-                      phaseLabel={setupPhase === 'starting' ? 'Starting server...' : undefined}
+                      phaseLabel={setupPhase === 'starting' ? t('campaign.aiProviderSetup.startingServer') : undefined}
                     />
                     <StatusItem
-                      label="Model ready"
+                      label={t('campaign.aiProviderSetup.statusModelReady')}
                       done={modelReady}
                       active={setupPhase === 'pulling'}
                       progress={setupPhase === 'pulling' ? pullProgress : undefined}
-                      phaseLabel={setupPhase === 'pulling' ? `Pulling model... ${pullProgress}%` : undefined}
+                      phaseLabel={
+                        setupPhase === 'pulling'
+                          ? t('campaign.aiProviderSetup.pullingModel', { percent: pullProgress })
+                          : undefined
+                      }
                     />
                   </div>
 
@@ -356,24 +369,26 @@ export default function AiProviderSetup({
                       {errorMessage && <p className="text-red-400 text-sm mb-2">{errorMessage}</p>}
                       <Button onClick={handleAutoSetup} disabled={isSetupBusy || setupPhase === 'detecting'}>
                         {isSetupBusy
-                          ? 'Setting up...'
+                          ? t('campaign.aiProviderSetup.settingUp')
                           : setupPhase === 'error'
-                            ? 'Retry Setup'
+                            ? t('campaign.aiProviderSetup.retrySetup')
                             : setupPhase === 'detecting'
-                              ? 'Detecting...'
+                              ? t('campaign.aiProviderSetup.detecting')
                               : !ollamaInstalled
-                                ? 'Install & Setup'
+                                ? t('campaign.aiProviderSetup.installSetup')
                                 : !ollamaRunning
-                                  ? 'Start & Setup'
-                                  : 'Pull Model'}
+                                  ? t('campaign.aiProviderSetup.startSetup')
+                                  : t('campaign.aiProviderSetup.pullModel')}
                       </Button>
                     </div>
                   )}
 
-                  {setupPhase === 'ready' && <p className="text-green-400 text-sm mb-4">Ready to go!</p>}
+                  {setupPhase === 'ready' && (
+                    <p className="text-green-400 text-sm mb-4">{t('campaign.aiProviderSetup.readyToGo')}</p>
+                  )}
 
                   <div className="mb-4">
-                    <label className="block text-sm text-gray-400 mb-1">Model</label>
+                    <label className="block text-sm text-gray-400 mb-1">{t('campaign.aiProviderSetup.model')}</label>
                     <select
                       value={model}
                       onChange={(e) => {
@@ -390,15 +405,17 @@ export default function AiProviderSetup({
                       {curatedModels.map((m) => (
                         <option key={m.id} value={m.id}>
                           {m.name} — {m.desc}
-                          {!modelFitsGpu(m) ? ' (may be slow)' : ''}
-                          {installedModels.some((i: string) => i.startsWith(m.id.split(':')[0])) ? ' (installed)' : ''}
+                          {!modelFitsGpu(m) ? t('campaign.aiProviderSetup.mayBeSlow') : ''}
+                          {installedModels.some((i: string) => i.startsWith(m.id.split(':')[0]))
+                            ? t('campaign.aiProviderSetup.installedSuffix')
+                            : ''}
                         </option>
                       ))}
                       {installedModels
                         .filter((m: string) => !curatedModels.some((c) => m.startsWith(c.id.split(':')[0])))
                         .map((m: string) => (
                           <option key={m} value={m}>
-                            {m} (installed)
+                            {t('campaign.aiProviderSetup.installedModelOption', { model: m })}
                           </option>
                         ))}
                     </select>
@@ -406,7 +423,9 @@ export default function AiProviderSetup({
                   </div>
 
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">Ollama URL</label>
+                    <label className="block text-sm text-gray-400 mb-1">
+                      {t('campaign.aiProviderSetup.ollamaUrl')}
+                    </label>
                     <input
                       type="text"
                       value={ollamaUrl}
@@ -419,13 +438,9 @@ export default function AiProviderSetup({
                       }`}
                     />
                     {ollamaUrl && !isValidUrl(ollamaUrl) && (
-                      <p className="text-red-400 text-xs mt-1">
-                        Please enter a valid URL (e.g. http://localhost:11434)
-                      </p>
+                      <p className="text-red-400 text-xs mt-1">{t('campaign.aiProviderSetup.invalidUrl')}</p>
                     )}
-                    <p className="text-gray-500 text-xs mt-1">
-                      Default: http://localhost:11434. Change this to point to a remote GPU server.
-                    </p>
+                    <p className="text-gray-500 text-xs mt-1">{t('campaign.aiProviderSetup.urlHint')}</p>
                   </div>
                 </div>
               )}

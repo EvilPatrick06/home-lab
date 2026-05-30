@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { type ConditionDef, getBuffs5e } from '../../../data/conditions'
 import { addToast } from '../../../hooks/use-toast'
+import { useT } from '../../../i18n'
 import type { EntityCondition } from '../../../types/game-state'
 import { logger } from '../../../utils/logger'
 
@@ -33,6 +34,7 @@ export default function ConditionTracker({
   isHost,
   onRemoveCondition
 }: ConditionTrackerProps): JSX.Element {
+  const { t } = useT()
   // Load available buffs for identifying positive conditions
   const [buffs, setBuffs] = useState<ConditionDef[]>([])
   useEffect(() => {
@@ -40,14 +42,14 @@ export default function ConditionTracker({
       .then(setBuffs)
       .catch((err) => {
         logger.error('Failed to load condition buffs', err)
-        addToast('Failed to load condition data', 'error')
+        addToast(t('game.conditionTracker.loadFailed'), 'error')
         setBuffs([])
       })
-  }, [])
+  }, [t])
   const buffNames = new Set(buffs.map((b) => b.name.toLowerCase()))
 
   if (conditions.length === 0) {
-    return <div className="text-xs text-gray-500 text-center py-2">No active conditions</div>
+    return <div className="text-xs text-gray-500 text-center py-2">{t('game.conditionTracker.noConditions')}</div>
   }
 
   return (
@@ -55,20 +57,23 @@ export default function ConditionTracker({
     // with each row carrying an aria-label that summarizes the condition
     // name + value + duration; the decorative emoji icon is aria-hidden
     // so it doesn't double-read.
-    <ul className="space-y-1" aria-label="Active conditions">
+    <ul className="space-y-1" aria-label={t('game.conditionTracker.activeConditions')}>
       {conditions.map((cond) => {
         const isBuff = buffNames.has(cond.condition.toLowerCase())
         const icon = CONDITION_ICONS[cond.condition.toLowerCase()] ?? (isBuff ? '\u{2B50}' : '\u{26A0}')
         const durationText =
           cond.duration === 'permanent'
-            ? 'Permanent'
-            : `${cond.duration} round${cond.duration !== 1 ? 's' : ''} remaining`
+            ? t('game.conditionTracker.permanent')
+            : t('game.conditionTracker.roundsRemaining', { count: cond.duration })
 
         return (
           <li
             key={cond.id}
             className="flex items-center gap-2 p-1.5 rounded-lg bg-gray-800/50 text-xs"
-            aria-label={`${cond.condition}${cond.value !== undefined ? ` ${cond.value}` : ''}, ${durationText}`}
+            aria-label={t('game.conditionTracker.conditionAriaLabel', {
+              name: cond.value !== undefined ? `${cond.condition} ${cond.value}` : cond.condition,
+              duration: durationText
+            })}
           >
             <span className="text-base" aria-hidden="true">
               {icon}
@@ -86,8 +91,8 @@ export default function ConditionTracker({
               <button
                 onClick={() => onRemoveCondition(cond.id)}
                 className="text-gray-500 hover:text-red-400 cursor-pointer text-xs flex-shrink-0"
-                aria-label={`Remove condition ${cond.condition}`}
-                title="Remove condition"
+                aria-label={t('game.conditionTracker.removeConditionNamed', { name: cond.condition })}
+                title={t('game.conditionTracker.removeCondition')}
               >
                 &#x2715;
               </button>

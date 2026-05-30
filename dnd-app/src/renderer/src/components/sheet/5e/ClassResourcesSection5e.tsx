@@ -1,3 +1,4 @@
+import { useT } from '../../../i18n'
 import { useNetworkStore } from '../../../stores/network-store'
 import { useCharacterStore } from '../../../stores/use-character-store'
 import { useLobbyStore } from '../../../stores/use-lobby-store'
@@ -15,6 +16,7 @@ export default function ClassResourcesSection5e({
   character,
   readonly
 }: ClassResourcesSection5eProps): JSX.Element | null {
+  const { t } = useT()
   const classResources = character.classResources ?? []
   const speciesResources = character.speciesResources ?? []
   if (classResources.length === 0 && speciesResources.length === 0) return null
@@ -69,10 +71,10 @@ export default function ClassResourcesSection5e({
         <span className="text-xs text-gray-500">
           (
           {resource.shortRestRestore === 'all'
-            ? 'Short Rest: all'
+            ? t('sheet.classResources.shortRestAll')
             : resource.shortRestRestore > 0
-              ? `Short Rest: ${resource.shortRestRestore}`
-              : 'Long Rest only'}
+              ? t('sheet.classResources.shortRestN', { count: resource.shortRestRestore })
+              : t('sheet.classResources.longRestOnly')}
           )
         </span>
       </div>
@@ -87,7 +89,7 @@ export default function ClassResourcesSection5e({
               className={`w-5 h-5 rounded-full border-2 transition-colors ${
                 isFilled ? 'bg-amber-500 border-amber-400' : 'bg-transparent border-gray-600'
               } ${!readonly ? 'cursor-pointer hover:border-amber-400' : 'cursor-default'}`}
-              title={isFilled ? 'Click to expend' : 'Click to restore'}
+              title={isFilled ? t('sheet.classResources.clickToExpend') : t('sheet.classResources.clickToRestore')}
             />
           )
         })}
@@ -96,12 +98,14 @@ export default function ClassResourcesSection5e({
   )
 
   return (
-    <SheetSectionWrapper title="Resources">
+    <SheetSectionWrapper title={t('sheet.classResources.title')}>
       <div className="space-y-3">
         {classResources.length > 0 && (
           <>
             {classResources.length > 0 && speciesResources.length > 0 && (
-              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Class</div>
+              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                {t('sheet.classResources.class')}
+              </div>
             )}
             {classResources.map((r) => renderResource(r, handleClassToggle))}
           </>
@@ -109,7 +113,9 @@ export default function ClassResourcesSection5e({
         {speciesResources.length > 0 && (
           <>
             {classResources.length > 0 && speciesResources.length > 0 && (
-              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mt-2">Species</div>
+              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mt-2">
+                {t('sheet.classResources.species')}
+              </div>
             )}
             {speciesResources.map((r) => renderResource(r, handleSpeciesToggle))}
           </>

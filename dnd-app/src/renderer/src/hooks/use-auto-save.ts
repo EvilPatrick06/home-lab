@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { i18n } from '../i18n'
 import { saveGameState } from '../services/io/game-state-saver'
 import type { AbilityScoreMethod } from '../stores/use-builder-store'
 import { useBuilderStore } from '../stores/use-builder-store'
@@ -30,7 +31,7 @@ export function useAutoSaveGame(campaign: Campaign | null, isDM: boolean): void 
       lastSaveRef.current = now
       saveGameState(campaign).catch((err) => {
         logger.error('[AutoSave] Failed:', err)
-        addToast('Auto-save failed', 'warning')
+        addToast(i18n.t('notify.autoSave.failed'), 'warning')
       })
     }, 10_000)
 

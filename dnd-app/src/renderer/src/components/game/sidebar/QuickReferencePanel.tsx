@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useT } from '../../../i18n'
 import EquipmentTab from './EquipmentTab'
 import MonstersTab from './MonstersTab'
 import SpellsTab from './SpellsTab'
@@ -19,8 +20,8 @@ type TabId =
   | 'equipment'
 
 interface ReferenceItem {
-  title: string
-  description: string
+  titleKey: string
+  descriptionKey: string
 }
 
 interface QuickReferencePanelProps {
@@ -31,235 +32,274 @@ interface QuickReferencePanelProps {
 // Static reference data
 // ---------------------------------------------------------------------------
 
-const TABS: { id: TabId; label: string }[] = [
-  { id: 'actions', label: 'Actions' },
-  { id: 'conditions', label: 'Conditions' },
-  { id: 'cover', label: 'Cover' },
-  { id: 'damage-types', label: 'Damage Types' },
-  { id: 'weapons', label: 'Weapons' },
-  { id: 'dcs', label: 'DCs' },
-  { id: 'spells', label: 'Spells' },
-  { id: 'monsters', label: 'Monsters' },
-  { id: 'equipment', label: 'Equipment' }
+const TABS: { id: TabId; labelKey: string }[] = [
+  { id: 'actions', labelKey: 'game.quickReferencePanel.tabActions' },
+  { id: 'conditions', labelKey: 'game.quickReferencePanel.tabConditions' },
+  { id: 'cover', labelKey: 'game.quickReferencePanel.tabCover' },
+  { id: 'damage-types', labelKey: 'game.quickReferencePanel.tabDamageTypes' },
+  { id: 'weapons', labelKey: 'game.quickReferencePanel.tabWeapons' },
+  { id: 'dcs', labelKey: 'game.quickReferencePanel.tabDcs' },
+  { id: 'spells', labelKey: 'game.quickReferencePanel.tabSpells' },
+  { id: 'monsters', labelKey: 'game.quickReferencePanel.tabMonsters' },
+  { id: 'equipment', labelKey: 'game.quickReferencePanel.tabEquipment' }
 ]
 
 const ACTIONS: ReferenceItem[] = [
   {
-    title: 'Attack',
-    description:
-      'Attack with a weapon or Unarmed Strike. Unarmed Strike options: Damage (1 + STR mod Bludgeoning), Grapple (target makes STR/DEX save vs DC 8 + STR mod + PB), or Shove (same save; push 5 ft. or knock Prone).'
+    titleKey: 'game.quickReferencePanel.actions.attack.title',
+    descriptionKey: 'game.quickReferencePanel.actions.attack.description'
   },
   {
-    title: 'Dash',
-    description: 'For the rest of the turn, give yourself extra movement equal to your Speed.'
+    titleKey: 'game.quickReferencePanel.actions.dash.title',
+    descriptionKey: 'game.quickReferencePanel.actions.dash.description'
   },
   {
-    title: 'Disengage',
-    description: "Your movement doesn't provoke Opportunity Attacks for the rest of the turn."
+    titleKey: 'game.quickReferencePanel.actions.disengage.title',
+    descriptionKey: 'game.quickReferencePanel.actions.disengage.description'
   },
   {
-    title: 'Dodge',
-    description:
-      'Until the start of your next turn, attack rolls against you have Disadvantage, and you make DEX saves with Advantage. Lost if Incapacitated or Speed is 0.'
+    titleKey: 'game.quickReferencePanel.actions.dodge.title',
+    descriptionKey: 'game.quickReferencePanel.actions.dodge.description'
   },
   {
-    title: 'Help',
-    description:
-      "Help another creature's ability check or attack roll, or administer First Aid (DC 10 WIS (Medicine) to stabilize a creature with 0 HP)."
+    titleKey: 'game.quickReferencePanel.actions.help.title',
+    descriptionKey: 'game.quickReferencePanel.actions.help.description'
   },
   {
-    title: 'Hide',
-    description: 'Make a Dexterity (Stealth) check to become hidden.'
+    titleKey: 'game.quickReferencePanel.actions.hide.title',
+    descriptionKey: 'game.quickReferencePanel.actions.hide.description'
   },
   {
-    title: 'Influence',
-    description:
-      "Make a Charisma (Deception, Intimidation, Performance, or Persuasion) or Wisdom (Animal Handling) check to alter a creature's attitude."
+    titleKey: 'game.quickReferencePanel.actions.influence.title',
+    descriptionKey: 'game.quickReferencePanel.actions.influence.description'
   },
   {
-    title: 'Magic',
-    description: 'Cast a spell, use a magic item, or use a magical feature.'
+    titleKey: 'game.quickReferencePanel.actions.magic.title',
+    descriptionKey: 'game.quickReferencePanel.actions.magic.description'
   },
   {
-    title: 'Ready',
-    description: 'Prepare to take an action in response to a trigger you define (uses your Reaction).'
+    titleKey: 'game.quickReferencePanel.actions.ready.title',
+    descriptionKey: 'game.quickReferencePanel.actions.ready.description'
   },
   {
-    title: 'Search',
-    description: 'Make a Wisdom (Insight, Medicine, Perception, or Survival) check.'
+    titleKey: 'game.quickReferencePanel.actions.search.title',
+    descriptionKey: 'game.quickReferencePanel.actions.search.description'
   },
   {
-    title: 'Study',
-    description: 'Make an Intelligence (Arcana, History, Investigation, Nature, or Religion) check.'
+    titleKey: 'game.quickReferencePanel.actions.study.title',
+    descriptionKey: 'game.quickReferencePanel.actions.study.description'
   },
   {
-    title: 'Utilize',
-    description: 'Use a nonmagical object.'
+    titleKey: 'game.quickReferencePanel.actions.utilize.title',
+    descriptionKey: 'game.quickReferencePanel.actions.utilize.description'
   }
 ]
 
 const CONDITIONS: ReferenceItem[] = [
   {
-    title: 'Blinded',
-    description: "Can't see. Auto-fail sight checks. Attacks have disadvantage. Attacks against have advantage."
+    titleKey: 'game.quickReferencePanel.conditions.blinded.title',
+    descriptionKey: 'game.quickReferencePanel.conditions.blinded.description'
   },
   {
-    title: 'Charmed',
-    description: "Can't attack the charmer. The charmer has advantage on social checks against you."
+    titleKey: 'game.quickReferencePanel.conditions.charmed.title',
+    descriptionKey: 'game.quickReferencePanel.conditions.charmed.description'
   },
   {
-    title: 'Deafened',
-    description: "Can't hear. Auto-fail hearing checks."
+    titleKey: 'game.quickReferencePanel.conditions.deafened.title',
+    descriptionKey: 'game.quickReferencePanel.conditions.deafened.description'
   },
   {
-    title: 'Exhaustion',
-    description: 'Cumulative levels 1-6. Each level imposes -2 to d20 rolls. Speed reduced. Death at level 6.'
+    titleKey: 'game.quickReferencePanel.conditions.exhaustion.title',
+    descriptionKey: 'game.quickReferencePanel.conditions.exhaustion.description'
   },
   {
-    title: 'Frightened',
-    description:
-      "Disadvantage on ability checks and attacks while the source of fear is within line of sight. Can't willingly move closer to the source."
+    titleKey: 'game.quickReferencePanel.conditions.frightened.title',
+    descriptionKey: 'game.quickReferencePanel.conditions.frightened.description'
   },
   {
-    title: 'Grappled',
-    description: "Speed becomes 0. Can't benefit from any bonus to speed."
+    titleKey: 'game.quickReferencePanel.conditions.grappled.title',
+    descriptionKey: 'game.quickReferencePanel.conditions.grappled.description'
   },
   {
-    title: 'Incapacitated',
-    description: "Can't take actions or reactions."
+    titleKey: 'game.quickReferencePanel.conditions.incapacitated.title',
+    descriptionKey: 'game.quickReferencePanel.conditions.incapacitated.description'
   },
   {
-    title: 'Invisible',
-    description:
-      'Impossible to see without magic or special senses. Advantage on attacks. Attacks against have disadvantage.'
+    titleKey: 'game.quickReferencePanel.conditions.invisible.title',
+    descriptionKey: 'game.quickReferencePanel.conditions.invisible.description'
   },
   {
-    title: 'Paralyzed',
-    description:
-      "Incapacitated. Can't move or speak. Auto-fail STR/DEX saves. Attacks against have advantage. Melee hits are automatic critical hits."
+    titleKey: 'game.quickReferencePanel.conditions.paralyzed.title',
+    descriptionKey: 'game.quickReferencePanel.conditions.paralyzed.description'
   },
   {
-    title: 'Petrified',
-    description: 'Turned to stone. Weight multiplied by 10. Incapacitated and unaware. Resistance to all damage.'
+    titleKey: 'game.quickReferencePanel.conditions.petrified.title',
+    descriptionKey: 'game.quickReferencePanel.conditions.petrified.description'
   },
   {
-    title: 'Poisoned',
-    description: 'Disadvantage on attack rolls and ability checks.'
+    titleKey: 'game.quickReferencePanel.conditions.poisoned.title',
+    descriptionKey: 'game.quickReferencePanel.conditions.poisoned.description'
   },
   {
-    title: 'Prone',
-    description:
-      'Disadvantage on attack rolls. Melee attacks against have advantage. Ranged attacks against have disadvantage. Must use half movement to stand.'
+    titleKey: 'game.quickReferencePanel.conditions.prone.title',
+    descriptionKey: 'game.quickReferencePanel.conditions.prone.description'
   },
   {
-    title: 'Restrained',
-    description:
-      'Speed becomes 0. Attacks have disadvantage. Attacks against have advantage. Disadvantage on DEX saves.'
+    titleKey: 'game.quickReferencePanel.conditions.restrained.title',
+    descriptionKey: 'game.quickReferencePanel.conditions.restrained.description'
   },
   {
-    title: 'Stunned',
-    description:
-      "Incapacitated. Can't move. Can speak only falteringly. Auto-fail STR/DEX saves. Attacks against have advantage."
+    titleKey: 'game.quickReferencePanel.conditions.stunned.title',
+    descriptionKey: 'game.quickReferencePanel.conditions.stunned.description'
   },
   {
-    title: 'Unconscious',
-    description:
-      'Incapacitated, prone, drop held items. Auto-fail STR/DEX saves. Attacks against have advantage. Melee hits are automatic critical hits.'
+    titleKey: 'game.quickReferencePanel.conditions.unconscious.title',
+    descriptionKey: 'game.quickReferencePanel.conditions.unconscious.description'
   },
   {
-    title: 'Bloodied',
-    description: 'A creature is Bloodied while it has half its Hit Points or fewer remaining.'
+    titleKey: 'game.quickReferencePanel.conditions.bloodied.title',
+    descriptionKey: 'game.quickReferencePanel.conditions.bloodied.description'
   }
 ]
 
 const COVER: ReferenceItem[] = [
   {
-    title: 'Half Cover (+2 AC, +2 DEX saves)',
-    description:
-      "An obstacle blocks at least half of the target's body. Examples: low wall, furniture, another creature."
+    titleKey: 'game.quickReferencePanel.cover.half.title',
+    descriptionKey: 'game.quickReferencePanel.cover.half.description'
   },
   {
-    title: 'Three-Quarters Cover (+5 AC, +5 DEX saves)',
-    description:
-      "An obstacle blocks at least three-quarters of the target's body. Examples: arrow slit, thick tree trunk."
+    titleKey: 'game.quickReferencePanel.cover.threeQuarters.title',
+    descriptionKey: 'game.quickReferencePanel.cover.threeQuarters.description'
   },
   {
-    title: 'Total Cover',
-    description: 'The target is completely concealed. Cannot be targeted directly by attacks or spells.'
+    titleKey: 'game.quickReferencePanel.cover.total.title',
+    descriptionKey: 'game.quickReferencePanel.cover.total.description'
   }
 ]
 
 const DAMAGE_TYPES: ReferenceItem[] = [
-  { title: 'Acid', description: 'Corrosive chemicals and digestive enzymes.' },
-  { title: 'Bludgeoning', description: 'Blunt force -- hammers, falling, constriction.' },
-  { title: 'Cold', description: 'Freezing cold, ice, and arctic winds.' },
-  { title: 'Fire', description: 'Flames, searing heat, and lava.' },
-  { title: 'Force', description: 'Pure magical energy -- Magic Missile, Eldritch Blast.' },
-  { title: 'Lightning', description: 'Electrical bolts and shocks.' },
-  { title: 'Necrotic', description: 'Life-draining dark energy.' },
-  { title: 'Piercing', description: 'Stabbing and puncturing -- arrows, spears, bites.' },
-  { title: 'Poison', description: 'Venoms and toxic substances.' },
-  { title: 'Psychic', description: 'Mental assault and psychic intrusion.' },
-  { title: 'Radiant', description: 'Divine light and searing brilliance.' },
-  { title: 'Slashing', description: 'Cutting and cleaving -- swords, axes, claws.' },
-  { title: 'Thunder', description: 'Concussive sound waves and sonic booms.' }
+  {
+    titleKey: 'game.quickReferencePanel.damageTypes.acid.title',
+    descriptionKey: 'game.quickReferencePanel.damageTypes.acid.description'
+  },
+  {
+    titleKey: 'game.quickReferencePanel.damageTypes.bludgeoning.title',
+    descriptionKey: 'game.quickReferencePanel.damageTypes.bludgeoning.description'
+  },
+  {
+    titleKey: 'game.quickReferencePanel.damageTypes.cold.title',
+    descriptionKey: 'game.quickReferencePanel.damageTypes.cold.description'
+  },
+  {
+    titleKey: 'game.quickReferencePanel.damageTypes.fire.title',
+    descriptionKey: 'game.quickReferencePanel.damageTypes.fire.description'
+  },
+  {
+    titleKey: 'game.quickReferencePanel.damageTypes.force.title',
+    descriptionKey: 'game.quickReferencePanel.damageTypes.force.description'
+  },
+  {
+    titleKey: 'game.quickReferencePanel.damageTypes.lightning.title',
+    descriptionKey: 'game.quickReferencePanel.damageTypes.lightning.description'
+  },
+  {
+    titleKey: 'game.quickReferencePanel.damageTypes.necrotic.title',
+    descriptionKey: 'game.quickReferencePanel.damageTypes.necrotic.description'
+  },
+  {
+    titleKey: 'game.quickReferencePanel.damageTypes.piercing.title',
+    descriptionKey: 'game.quickReferencePanel.damageTypes.piercing.description'
+  },
+  {
+    titleKey: 'game.quickReferencePanel.damageTypes.poison.title',
+    descriptionKey: 'game.quickReferencePanel.damageTypes.poison.description'
+  },
+  {
+    titleKey: 'game.quickReferencePanel.damageTypes.psychic.title',
+    descriptionKey: 'game.quickReferencePanel.damageTypes.psychic.description'
+  },
+  {
+    titleKey: 'game.quickReferencePanel.damageTypes.radiant.title',
+    descriptionKey: 'game.quickReferencePanel.damageTypes.radiant.description'
+  },
+  {
+    titleKey: 'game.quickReferencePanel.damageTypes.slashing.title',
+    descriptionKey: 'game.quickReferencePanel.damageTypes.slashing.description'
+  },
+  {
+    titleKey: 'game.quickReferencePanel.damageTypes.thunder.title',
+    descriptionKey: 'game.quickReferencePanel.damageTypes.thunder.description'
+  }
 ]
 
 const WEAPONS: ReferenceItem[] = [
   {
-    title: 'Ammunition',
-    description:
-      'Requires ammunition to make a ranged attack. Each attack expends one piece of ammo. Drawing ammo is part of the attack.'
+    titleKey: 'game.quickReferencePanel.weapons.ammunition.title',
+    descriptionKey: 'game.quickReferencePanel.weapons.ammunition.description'
   },
   {
-    title: 'Finesse',
-    description: 'Use your choice of STR or DEX modifier for attack and damage rolls.'
+    titleKey: 'game.quickReferencePanel.weapons.finesse.title',
+    descriptionKey: 'game.quickReferencePanel.weapons.finesse.description'
   },
   {
-    title: 'Heavy',
-    description: 'Small creatures have disadvantage on attack rolls with this weapon.'
+    titleKey: 'game.quickReferencePanel.weapons.heavy.title',
+    descriptionKey: 'game.quickReferencePanel.weapons.heavy.description'
   },
   {
-    title: 'Light',
-    description: 'Can engage in two-weapon fighting when wielded alongside another light weapon.'
+    titleKey: 'game.quickReferencePanel.weapons.light.title',
+    descriptionKey: 'game.quickReferencePanel.weapons.light.description'
   },
   {
-    title: 'Loading',
-    description:
-      'You can fire only one piece of ammunition per action, bonus action, or reaction, regardless of number of attacks.'
+    titleKey: 'game.quickReferencePanel.weapons.loading.title',
+    descriptionKey: 'game.quickReferencePanel.weapons.loading.description'
   },
   {
-    title: 'Range',
-    description:
-      'Listed as two numbers: normal range and long range. Attacks beyond normal range have disadvantage. Cannot attack beyond long range.'
+    titleKey: 'game.quickReferencePanel.weapons.range.title',
+    descriptionKey: 'game.quickReferencePanel.weapons.range.description'
   },
   {
-    title: 'Reach',
-    description: 'Adds 5 feet to your melee reach when you attack with it and for opportunity attacks.'
+    titleKey: 'game.quickReferencePanel.weapons.reach.title',
+    descriptionKey: 'game.quickReferencePanel.weapons.reach.description'
   },
   {
-    title: 'Thrown',
-    description:
-      'Can be thrown to make a ranged attack using the same ability modifier you would use for a melee attack.'
+    titleKey: 'game.quickReferencePanel.weapons.thrown.title',
+    descriptionKey: 'game.quickReferencePanel.weapons.thrown.description'
   },
   {
-    title: 'Two-Handed',
-    description: 'Requires two hands when you make an attack with it.'
+    titleKey: 'game.quickReferencePanel.weapons.twoHanded.title',
+    descriptionKey: 'game.quickReferencePanel.weapons.twoHanded.description'
   },
   {
-    title: 'Versatile',
-    description:
-      'Can be used with one or two hands. A damage value in parentheses appears with the property and is the damage when used with two hands.'
+    titleKey: 'game.quickReferencePanel.weapons.versatile.title',
+    descriptionKey: 'game.quickReferencePanel.weapons.versatile.description'
   }
 ]
 
 const DCS: ReferenceItem[] = [
-  { title: 'Very Easy', description: 'DC 5' },
-  { title: 'Easy', description: 'DC 10' },
-  { title: 'Medium', description: 'DC 15' },
-  { title: 'Hard', description: 'DC 20' },
-  { title: 'Very Hard', description: 'DC 25' },
-  { title: 'Nearly Impossible', description: 'DC 30' }
+  {
+    titleKey: 'game.quickReferencePanel.dcs.veryEasy.title',
+    descriptionKey: 'game.quickReferencePanel.dcs.veryEasy.description'
+  },
+  {
+    titleKey: 'game.quickReferencePanel.dcs.easy.title',
+    descriptionKey: 'game.quickReferencePanel.dcs.easy.description'
+  },
+  {
+    titleKey: 'game.quickReferencePanel.dcs.medium.title',
+    descriptionKey: 'game.quickReferencePanel.dcs.medium.description'
+  },
+  {
+    titleKey: 'game.quickReferencePanel.dcs.hard.title',
+    descriptionKey: 'game.quickReferencePanel.dcs.hard.description'
+  },
+  {
+    titleKey: 'game.quickReferencePanel.dcs.veryHard.title',
+    descriptionKey: 'game.quickReferencePanel.dcs.veryHard.description'
+  },
+  {
+    titleKey: 'game.quickReferencePanel.dcs.nearlyImpossible.title',
+    descriptionKey: 'game.quickReferencePanel.dcs.nearlyImpossible.description'
+  }
 ]
 
 // ---------------------------------------------------------------------------
@@ -267,12 +307,13 @@ const DCS: ReferenceItem[] = [
 // ---------------------------------------------------------------------------
 
 function ReferenceList({ items }: { items: ReferenceItem[] }): JSX.Element {
+  const { t } = useT()
   return (
     <div className="space-y-1.5">
       {items.map((item) => (
-        <div key={item.title} className="bg-gray-800/50 rounded-lg px-3 py-2 border border-gray-700/30">
-          <div className="text-xs font-semibold text-amber-400">{item.title}</div>
-          <p className="text-[11px] text-gray-300 mt-0.5 leading-relaxed">{item.description}</p>
+        <div key={item.titleKey} className="bg-gray-800/50 rounded-lg px-3 py-2 border border-gray-700/30">
+          <div className="text-xs font-semibold text-amber-400">{t(item.titleKey)}</div>
+          <p className="text-[11px] text-gray-300 mt-0.5 leading-relaxed">{t(item.descriptionKey)}</p>
         </div>
       ))}
     </div>
@@ -284,6 +325,7 @@ function ReferenceList({ items }: { items: ReferenceItem[] }): JSX.Element {
 // ---------------------------------------------------------------------------
 
 export default function QuickReferencePanel({ onClose }: QuickReferencePanelProps): JSX.Element {
+  const { t } = useT()
   const [activeTab, setActiveTab] = useState<TabId>('actions')
 
   const renderTabContent = (): JSX.Element => {
@@ -313,12 +355,12 @@ export default function QuickReferencePanel({ onClose }: QuickReferencePanelProp
     <div className="w-80 h-full bg-gray-900/95 border-l border-gray-700 flex flex-col min-h-0">
       {/* Header */}
       <div className="shrink-0 flex items-center justify-between px-3 py-2 border-b border-gray-700">
-        <h2 className="text-sm font-bold text-gray-100">Quick Reference</h2>
+        <h2 className="text-sm font-bold text-gray-100">{t('game.quickReferencePanel.title')}</h2>
         {onClose && (
           <button
             onClick={onClose}
             className="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-gray-300 rounded hover:bg-gray-800 cursor-pointer transition-colors"
-            title="Close"
+            title={t('common.actions.close')}
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
               <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
@@ -339,7 +381,7 @@ export default function QuickReferencePanel({ onClose }: QuickReferencePanelProp
                 : 'bg-gray-800 text-gray-400 hover:text-gray-200 hover:bg-gray-700'
             }`}
           >
-            {tab.label}
+            {t(tab.labelKey)}
           </button>
         ))}
       </div>

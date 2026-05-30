@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useT } from '../../i18n'
 import type { TurnMode } from '../../types/campaign'
 import { Input } from '../ui'
 
@@ -20,6 +21,7 @@ interface DetailsStepProps {
 }
 
 export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.Element {
+  const { t } = useT()
   const update = <K extends keyof DetailsData>(key: K, value: DetailsData[K]): void => {
     onChange({ ...data, [key]: value })
   }
@@ -33,32 +35,32 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
 
   return (
     <div>
-      <h2 className="text-xl font-semibold mb-2">Campaign Details</h2>
-      <p className="text-gray-400 text-sm mb-6">Give your campaign a name and configure basic settings.</p>
+      <h2 className="text-xl font-semibold mb-2">{t('campaign.detailsStep.title')}</h2>
+      <p className="text-gray-400 text-sm mb-6">{t('campaign.detailsStep.subtitle')}</p>
 
       <div className="max-w-lg space-y-5">
         <Input
-          label="Campaign Name"
-          placeholder="e.g. The Dragon's Lair"
+          label={t('campaign.detailsStep.campaignName')}
+          placeholder={t('campaign.detailsStep.campaignNamePlaceholder')}
           value={data.name}
           onChange={(e) => update('name', e.target.value)}
           required
         />
 
         <div>
-          <label className="block text-gray-400 mb-2 text-sm">Description</label>
+          <label className="block text-gray-400 mb-2 text-sm">{t('campaign.detailsStep.description')}</label>
           <textarea
             className="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
               placeholder-gray-600 focus:outline-none focus:border-amber-500 transition-colors resize-none"
             rows={3}
-            placeholder="A brief description of your campaign..."
+            placeholder={t('campaign.detailsStep.descriptionPlaceholder')}
             value={data.description}
             onChange={(e) => update('description', e.target.value)}
           />
         </div>
 
         <div>
-          <label className="block text-gray-400 mb-2 text-sm">Max Players</label>
+          <label className="block text-gray-400 mb-2 text-sm">{t('campaign.detailsStep.maxPlayers')}</label>
           <input
             type="number"
             min={2}
@@ -75,11 +77,11 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
               update('maxPlayers', val)
             }}
           />
-          <span className="text-gray-500 text-sm ml-3">2 - 8 players</span>
+          <span className="text-gray-500 text-sm ml-3">{t('campaign.detailsStep.maxPlayersRange')}</span>
         </div>
 
         <div>
-          <label className="block text-gray-400 mb-2 text-sm">Turn Mode</label>
+          <label className="block text-gray-400 mb-2 text-sm">{t('campaign.detailsStep.turnMode')}</label>
           <div className="flex gap-3">
             <button
               type="button"
@@ -91,8 +93,8 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
                     : 'border-gray-700 bg-gray-900/50 hover:border-gray-600'
                 }`}
             >
-              <div className="font-semibold text-sm">Initiative</div>
-              <div className="text-xs text-gray-400 mt-1">Turn order based on initiative rolls</div>
+              <div className="font-semibold text-sm">{t('campaign.detailsStep.initiative')}</div>
+              <div className="text-xs text-gray-400 mt-1">{t('campaign.detailsStep.initiativeDesc')}</div>
             </button>
             <button
               type="button"
@@ -104,26 +106,26 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
                     : 'border-gray-700 bg-gray-900/50 hover:border-gray-600'
                 }`}
             >
-              <div className="font-semibold text-sm">Free</div>
-              <div className="text-xs text-gray-400 mt-1">Players act in any order</div>
+              <div className="font-semibold text-sm">{t('campaign.detailsStep.free')}</div>
+              <div className="text-xs text-gray-400 mt-1">{t('campaign.detailsStep.freeDesc')}</div>
             </button>
           </div>
         </div>
 
         <div>
-          <label className="block text-gray-400 mb-2 text-sm">Lobby Message (optional)</label>
+          <label className="block text-gray-400 mb-2 text-sm">{t('campaign.detailsStep.lobbyMessage')}</label>
           <textarea
             className="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
               placeholder-gray-600 focus:outline-none focus:border-amber-500 transition-colors resize-none"
             rows={2}
-            placeholder="A message players see when joining the lobby..."
+            placeholder={t('campaign.detailsStep.lobbyMessagePlaceholder')}
             value={data.lobbyMessage}
             onChange={(e) => update('lobbyMessage', e.target.value)}
           />
         </div>
 
         <div>
-          <label className="block text-gray-400 mb-2 text-sm">Visibility</label>
+          <label className="block text-gray-400 mb-2 text-sm">{t('campaign.detailsStep.visibility')}</label>
           <div className="flex gap-3">
             <button
               type="button"
@@ -135,10 +137,8 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
                     : 'border-gray-700 bg-gray-900/50 hover:border-gray-600'
                 }`}
             >
-              <div className="font-semibold text-sm">Public</div>
-              <div className="text-xs text-gray-400 mt-1">
-                Announces to the game-list registry so anyone can find and join.
-              </div>
+              <div className="font-semibold text-sm">{t('campaign.detailsStep.public')}</div>
+              <div className="text-xs text-gray-400 mt-1">{t('campaign.detailsStep.publicDesc')}</div>
             </button>
             <button
               type="button"
@@ -150,16 +150,14 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
                     : 'border-gray-700 bg-gray-900/50 hover:border-gray-600'
                 }`}
             >
-              <div className="font-semibold text-sm">Private</div>
-              <div className="text-xs text-gray-400 mt-1">
-                Shown with a lock icon in the list; joiners must enter the invite code as a password.
-              </div>
+              <div className="font-semibold text-sm">{t('campaign.detailsStep.private')}</div>
+              <div className="text-xs text-gray-400 mt-1">{t('campaign.detailsStep.privateDesc')}</div>
             </button>
           </div>
         </div>
 
         <div>
-          <label className="block text-gray-400 mb-2 text-sm">Hosting</label>
+          <label className="block text-gray-400 mb-2 text-sm">{t('campaign.detailsStep.hosting')}</label>
           <div className="flex gap-3">
             <button
               type="button"
@@ -171,10 +169,8 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
                     : 'border-gray-700 bg-gray-900/50 hover:border-gray-600'
                 }`}
             >
-              <div className="font-semibold text-sm">This device</div>
-              <div className="text-xs text-gray-400 mt-1">
-                Peer-to-peer: your computer hosts. Must stay online and reachable.
-              </div>
+              <div className="font-semibold text-sm">{t('campaign.detailsStep.hostingThisDevice')}</div>
+              <div className="text-xs text-gray-400 mt-1">{t('campaign.detailsStep.hostingThisDeviceDesc')}</div>
             </button>
             <button
               type="button"
@@ -186,10 +182,8 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
                     : 'border-gray-700 bg-gray-900/50 hover:border-gray-600'
                 }`}
             >
-              <div className="font-semibold text-sm">Pi cloud relay</div>
-              <div className="text-xs text-gray-400 mt-1">
-                Players connect through the always-on BMO Pi — no NAT/firewall setup.
-              </div>
+              <div className="font-semibold text-sm">{t('campaign.detailsStep.hostingCloud')}</div>
+              <div className="text-xs text-gray-400 mt-1">{t('campaign.detailsStep.hostingCloudDesc')}</div>
             </button>
           </div>
         </div>

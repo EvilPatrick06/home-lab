@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useT } from '../../../i18n'
 import { getAutoPanOnTurnChange, setAutoPanOnTurnChange } from '../../../services/game/auto-pan-pref'
 import { useGameStore } from '../../../stores/use-game-store'
 import type { InitiativeEntry } from '../../../types/game-state'
@@ -17,6 +18,7 @@ function PortraitCircle({
   size: 'sm' | 'md'
   onClick?: () => void
 }): JSX.Element {
+  const { t } = useT()
   const px = size === 'sm' ? 'w-5 h-5 text-[9px]' : 'w-8 h-8 text-xs'
 
   const bgColor =
@@ -28,9 +30,9 @@ function PortraitCircle({
     return (
       <button
         onClick={onClick}
-        aria-label={`Center on ${entry.entityName}`}
+        aria-label={t('game.initiativeOverlay.centerOn', { name: entry.entityName })}
         className={`${px} rounded-full flex-shrink-0 overflow-hidden ${activeRing} ${onClick ? 'cursor-pointer hover:brightness-125' : ''}`}
-        title={`Center on ${entry.entityName}`}
+        title={t('game.initiativeOverlay.centerOn', { name: entry.entityName })}
       >
         <img src={entry.portraitUrl} alt={entry.entityName} className="w-full h-full object-cover" />
       </button>
@@ -41,8 +43,8 @@ function PortraitCircle({
     <button
       onClick={onClick}
       className={`${px} rounded-full flex-shrink-0 flex items-center justify-center font-bold text-white ${bgColor} ${activeRing} ${onClick ? 'cursor-pointer hover:brightness-125' : ''}`}
-      aria-label={`Center on ${entry.entityName}`}
-      title={`Center on ${entry.entityName}`}
+      aria-label={t('game.initiativeOverlay.centerOn', { name: entry.entityName })}
+      title={t('game.initiativeOverlay.centerOn', { name: entry.entityName })}
     >
       {entry.entityName.charAt(0).toUpperCase()}
     </button>
@@ -50,6 +52,7 @@ function PortraitCircle({
 }
 
 export default function InitiativeOverlay({ isDM }: InitiativeOverlayProps): JSX.Element {
+  const { t } = useT()
   const [expanded, setExpanded] = useState(false)
   const initiative = useGameStore((s) => s.initiative)
   // Phase 16A — auto-pan to the active token whenever the turn changes.
@@ -115,15 +118,17 @@ export default function InitiativeOverlay({ isDM }: InitiativeOverlayProps): JSX
       <div
         className="absolute top-3 left-1/2 -translate-x-1/2 z-10 w-80"
         role="region"
-        aria-label="Initiative tracker expanded"
+        aria-label={t('game.initiativeOverlay.trackerExpanded')}
       >
         <div className="bg-gray-900/70 backdrop-blur-sm border border-gray-700/50 rounded-xl p-3">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-amber-400 font-semibold">Round {initiative.round}</span>
+            <span className="text-xs text-amber-400 font-semibold">
+              {t('game.initiativeOverlay.round', { round: initiative.round })}
+            </span>
             <div className="flex items-center gap-3">
               <label
                 className="flex items-center gap-1 text-xs text-gray-400 cursor-pointer select-none"
-                title="Pan the camera to the active token each turn (this viewer only)"
+                title={t('game.initiativeOverlay.autoPanTitle')}
               >
                 <input
                   type="checkbox"
@@ -134,14 +139,14 @@ export default function InitiativeOverlay({ isDM }: InitiativeOverlayProps): JSX
                   }}
                   className="cursor-pointer"
                 />
-                Auto-pan
+                {t('game.initiativeOverlay.autoPan')}
               </label>
               <button
                 onClick={() => setExpanded(false)}
-                aria-label="Minimize initiative tracker"
+                aria-label={t('game.initiativeOverlay.minimizeAria')}
                 className="text-gray-500 hover:text-gray-300 text-xs cursor-pointer"
               >
-                Minimize
+                {t('game.initiativeOverlay.minimize')}
               </button>
             </div>
           </div>
@@ -168,13 +173,19 @@ export default function InitiativeOverlay({ isDM }: InitiativeOverlayProps): JSX
   }
 
   return (
-    <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10" role="region" aria-label="Initiative tracker">
+    <div
+      className="absolute top-3 left-1/2 -translate-x-1/2 z-10"
+      role="region"
+      aria-label={t('game.initiativeOverlay.tracker')}
+    >
       <div
         className="bg-gray-900/70 backdrop-blur-sm border border-gray-700/50 rounded-xl px-3 py-2 cursor-pointer hover:bg-gray-900/80 transition-colors"
         onClick={() => setExpanded(true)}
       >
         <div className="flex items-center gap-3">
-          <span className="text-xs text-amber-400 font-semibold">R{initiative.round}</span>
+          <span className="text-xs text-amber-400 font-semibold">
+            {t('game.initiativeOverlay.roundShort', { round: initiative.round })}
+          </span>
           <div className="flex items-center gap-1.5">
             {visibleEntries.map((entry) => (
               <div
@@ -202,7 +213,7 @@ export default function InitiativeOverlay({ isDM }: InitiativeOverlayProps): JSX
                   e.stopPropagation()
                   prevTurn()
                 }}
-                aria-label="Previous turn"
+                aria-label={t('game.initiativeOverlay.previousTurn')}
                 className="w-5 h-5 rounded flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 text-xs cursor-pointer"
               >
                 &#9664;
@@ -212,7 +223,7 @@ export default function InitiativeOverlay({ isDM }: InitiativeOverlayProps): JSX
                   e.stopPropagation()
                   nextTurn()
                 }}
-                aria-label="Next turn"
+                aria-label={t('game.initiativeOverlay.nextTurn')}
                 className="w-5 h-5 rounded flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 text-xs cursor-pointer"
               >
                 &#9654;
@@ -222,9 +233,9 @@ export default function InitiativeOverlay({ isDM }: InitiativeOverlayProps): JSX
                   e.stopPropagation()
                   endInitiative()
                 }}
-                aria-label="End combat"
+                aria-label={t('game.initiativeOverlay.endCombat')}
                 className="w-5 h-5 rounded flex items-center justify-center text-gray-400 hover:text-red-400 hover:bg-gray-700 text-xs cursor-pointer"
-                title="End Initiative"
+                title={t('game.initiativeOverlay.endInitiative')}
               >
                 &#10005;
               </button>

@@ -1,7 +1,9 @@
 import { useRef } from 'react'
+import { useT } from '../../../i18n'
 import { PRESET_ICONS, useBuilderStore } from '../../../stores/use-builder-store'
 
 export default function IconPicker(): JSX.Element {
+  const { t } = useT()
   const iconType = useBuilderStore((s) => s.iconType)
   const iconPreset = useBuilderStore((s) => s.iconPreset)
   const iconCustom = useBuilderStore((s) => s.iconCustom)
@@ -23,7 +25,7 @@ export default function IconPicker(): JSX.Element {
 
   return (
     <div className="space-y-3">
-      <div className="text-xs text-gray-400 font-semibold uppercase">Character Icon</div>
+      <div className="text-xs text-gray-400 font-semibold uppercase">{t('builder.iconPicker.title')}</div>
 
       {/* Current icon preview */}
       <div className="flex items-center gap-3">
@@ -41,7 +43,7 @@ export default function IconPicker(): JSX.Element {
               iconType === 'letter' ? 'bg-amber-900/30 text-amber-300' : 'bg-gray-800 text-gray-400'
             }`}
           >
-            Letter
+            {t('builder.iconPicker.letter')}
           </button>
           <button
             onClick={() => setIconType('preset')}
@@ -49,7 +51,7 @@ export default function IconPicker(): JSX.Element {
               iconType === 'preset' ? 'bg-amber-900/30 text-amber-300' : 'bg-gray-800 text-gray-400'
             }`}
           >
-            Preset
+            {t('builder.iconPicker.preset')}
           </button>
           <button
             onClick={() => fileRef.current?.click()}
@@ -57,7 +59,7 @@ export default function IconPicker(): JSX.Element {
               iconType === 'custom' ? 'bg-amber-900/30 text-amber-300' : 'bg-gray-800 text-gray-400'
             }`}
           >
-            Upload
+            {t('builder.iconPicker.upload')}
           </button>
         </div>
         <input ref={fileRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />

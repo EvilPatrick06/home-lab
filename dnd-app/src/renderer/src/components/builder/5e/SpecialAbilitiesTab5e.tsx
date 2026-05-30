@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useT } from '../../../i18n'
 import { load5eBackgrounds, load5eSpecies } from '../../../services/data-provider'
 import { useBuilderStore } from '../../../stores/use-builder-store'
 import type { AbilityName } from '../../../types/character-common'
@@ -65,6 +66,7 @@ const ELF_KEEN_SENSES_OPTIONS = ['Insight', 'Perception', 'Survival']
 const SPECIES_WITH_SPELL_ABILITY_CHOICE = ['elf', 'tiefling', 'gnome']
 
 export default function SpecialAbilitiesTab5e(): JSX.Element {
+  const { t } = useT()
   const buildSlots = useBuilderStore((s) => s.buildSlots)
   const backgroundAbilityBonuses = useBuilderStore((s) => s.backgroundAbilityBonuses)
   const setBackgroundAbilityBonuses = useBuilderStore((s) => s.setBackgroundAbilityBonuses)
@@ -190,13 +192,13 @@ export default function SpecialAbilitiesTab5e(): JSX.Element {
     const bgSlot = buildSlots.find((s) => s.category === 'background')
     return (
       <div className="px-4 py-8 text-center space-y-3">
-        <p className="text-sm text-gray-500">Select a background first to configure ability bonuses.</p>
+        <p className="text-sm text-gray-500">{t('builder.specialAbilitiesTab.selectBackgroundFirst')}</p>
         {bgSlot && (
           <button
             onClick={() => openSelectionModal(bgSlot.id)}
             className="px-4 py-2 text-sm bg-amber-600 hover:bg-amber-500 text-white rounded font-semibold transition-colors cursor-pointer"
           >
-            Choose Background
+            {t('builder.specialAbilitiesTab.chooseBackground')}
           </button>
         )}
       </div>
@@ -214,12 +216,14 @@ export default function SpecialAbilitiesTab5e(): JSX.Element {
 
   return (
     <div>
-      <SectionBanner label="BACKGROUND ABILITY BONUSES" />
+      <SectionBanner label={t('builder.specialAbilitiesTab.sectionBackgroundBonuses')} />
       <div className="px-4 py-3 space-y-3 border-b border-gray-800">
         <p className="text-xs text-gray-500">
           {isCustomBackground
-            ? 'Choose any 3 ability scores for your custom background. Total must equal 3 points.'
-            : `Your background grants bonuses to ${joinWithAnd(allowedAbilities.map((a) => ABILITY_FULL_NAMES[a]))}. Choose how to distribute 3 points.`}
+            ? t('builder.specialAbilitiesTab.customBackgroundHint')
+            : t('builder.specialAbilitiesTab.backgroundGrantsHint', {
+                abilities: joinWithAnd(allowedAbilities.map((a) => ABILITY_FULL_NAMES[a]))
+              })}
         </p>
         <div className="flex gap-2">
           <button
@@ -230,7 +234,7 @@ export default function SpecialAbilitiesTab5e(): JSX.Element {
                 : 'border-gray-600 text-gray-400 hover:border-gray-400'
             }`}
           >
-            +2 / +1
+            {t('builder.specialAbilitiesTab.mode21')}
           </button>
           <button
             onClick={() => handleBonusModeChange('1-1-1')}
@@ -240,14 +244,14 @@ export default function SpecialAbilitiesTab5e(): JSX.Element {
                 : 'border-gray-600 text-gray-400 hover:border-gray-400'
             }`}
           >
-            +1 / +1 / +1
+            {t('builder.specialAbilitiesTab.mode111')}
           </button>
         </div>
 
         {bonusMode === '2-1' ? (
           <div className="space-y-2">
             <div>
-              <span className="text-xs text-gray-500">+2 Bonus</span>
+              <span className="text-xs text-gray-500">{t('builder.specialAbilitiesTab.bonus2')}</span>
               <div className="flex flex-wrap gap-1.5 mt-1">
                 {displayAbilities.map((ab) => {
                   const is2 = backgroundAbilityBonuses[ab] === 2
@@ -272,7 +276,7 @@ export default function SpecialAbilitiesTab5e(): JSX.Element {
               </div>
             </div>
             <div>
-              <span className="text-xs text-gray-500">+1 Bonus</span>
+              <span className="text-xs text-gray-500">{t('builder.specialAbilitiesTab.bonus1')}</span>
               <div className="flex flex-wrap gap-1.5 mt-1">
                 {displayAbilities.map((ab) => {
                   const is1 = backgroundAbilityBonuses[ab] === 1
@@ -300,7 +304,7 @@ export default function SpecialAbilitiesTab5e(): JSX.Element {
         ) : (
           <div>
             <span className="text-xs text-gray-500">
-              Choose 3 abilities for +1 each ({Object.keys(backgroundAbilityBonuses).length}/3)
+              {t('builder.specialAbilitiesTab.choose3', { count: Object.keys(backgroundAbilityBonuses).length })}
             </span>
             <div className="flex flex-wrap gap-1.5 mt-1">
               {displayAbilities.map((ab) => {
@@ -327,15 +331,17 @@ export default function SpecialAbilitiesTab5e(): JSX.Element {
           </div>
         )}
 
-        {totalBonusPoints === 3 && <div className="text-xs text-green-400 font-medium">All bonus points assigned.</div>}
+        {totalBonusPoints === 3 && (
+          <div className="text-xs text-green-400 font-medium">{t('builder.specialAbilitiesTab.allAssigned')}</div>
+        )}
       </div>
 
       {/* Size choice (when species allows multiple sizes) */}
       {sizeOptions && sizeOptions.length > 1 && (
         <>
-          <SectionBanner label="SIZE" />
+          <SectionBanner label={t('builder.specialAbilitiesTab.sectionSize')} />
           <div className="px-4 py-3 border-b border-gray-800">
-            <p className="text-xs text-gray-500 mb-2">Your species can be different sizes. Choose one:</p>
+            <p className="text-xs text-gray-500 mb-2">{t('builder.specialAbilitiesTab.sizeHint')}</p>
             <div className="flex gap-2">
               {sizeOptions.map((size) => (
                 <button
@@ -358,11 +364,9 @@ export default function SpecialAbilitiesTab5e(): JSX.Element {
       {/* Species Spellcasting Ability Picker (Elf, Tiefling, Gnome) */}
       {showSpellAbilityPicker && (
         <>
-          <SectionBanner label="SPECIES SPELLCASTING ABILITY" />
+          <SectionBanner label={t('builder.specialAbilitiesTab.sectionSpellcastingAbility')} />
           <div className="px-4 py-3 border-b border-gray-800">
-            <p className="text-xs text-gray-500 mb-2">
-              Choose the spellcasting ability for your species spells and cantrips:
-            </p>
+            <p className="text-xs text-gray-500 mb-2">{t('builder.specialAbilitiesTab.spellcastingHint')}</p>
             <div className="flex gap-2">
               {(['intelligence', 'wisdom', 'charisma'] as const).map((ab) => (
                 <button
@@ -380,8 +384,9 @@ export default function SpecialAbilitiesTab5e(): JSX.Element {
             </div>
             {speciesSpellcastingAbility && (
               <div className="text-xs text-purple-400 mt-2">
-                Using {speciesSpellcastingAbility.charAt(0).toUpperCase() + speciesSpellcastingAbility.slice(1)} for
-                species spells.
+                {t('builder.specialAbilitiesTab.usingAbility', {
+                  ability: speciesSpellcastingAbility.charAt(0).toUpperCase() + speciesSpellcastingAbility.slice(1)
+                })}
               </div>
             )}
           </div>
@@ -391,9 +396,9 @@ export default function SpecialAbilitiesTab5e(): JSX.Element {
       {/* Elf Keen Senses Skill Picker */}
       {speciesId === 'elf' && (
         <>
-          <SectionBanner label="KEEN SENSES" />
+          <SectionBanner label={t('builder.specialAbilitiesTab.sectionKeenSenses')} />
           <div className="px-4 py-3 border-b border-gray-800">
-            <p className="text-xs text-gray-500 mb-2">You have proficiency in one of the following skills:</p>
+            <p className="text-xs text-gray-500 mb-2">{t('builder.specialAbilitiesTab.keenSensesHint')}</p>
             <div className="flex gap-2">
               {ELF_KEEN_SENSES_OPTIONS.map((skill) => (
                 <button

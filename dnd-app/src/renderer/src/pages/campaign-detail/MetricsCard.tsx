@@ -1,4 +1,5 @@
 import { Card } from '../../components/ui'
+import { useT } from '../../i18n'
 import { createEmptyMetrics, formatPlaytime } from '../../services/metrics-tracker'
 import type { Campaign } from '../../types/campaign'
 
@@ -7,19 +8,20 @@ interface MetricsCardProps {
 }
 
 export default function MetricsCard({ campaign }: MetricsCardProps): JSX.Element {
+  const { t } = useT()
   const m = campaign.metrics ?? createEmptyMetrics()
 
   const stats = [
-    { label: 'Sessions Played', value: m.sessionsPlayed },
-    { label: 'Total Playtime', value: formatPlaytime(m.totalPlaytimeSeconds) },
-    { label: 'Encounters', value: m.encountersCompleted },
-    { label: 'Damage Dealt', value: m.totalDamageDealt.toLocaleString() },
-    { label: 'Healing Done', value: m.totalHealingDone.toLocaleString() }
+    { label: t('pages.metricsCard.sessionsPlayed'), value: m.sessionsPlayed },
+    { label: t('pages.metricsCard.totalPlaytime'), value: formatPlaytime(m.totalPlaytimeSeconds) },
+    { label: t('pages.metricsCard.encounters'), value: m.encountersCompleted },
+    { label: t('pages.metricsCard.damageDealt'), value: m.totalDamageDealt.toLocaleString() },
+    { label: t('pages.metricsCard.healingDone'), value: m.totalHealingDone.toLocaleString() }
   ]
 
   return (
     <Card>
-      <h3 className="text-lg font-semibold mb-3">Campaign Metrics</h3>
+      <h3 className="text-lg font-semibold mb-3">{t('pages.metricsCard.title')}</h3>
       <div className="grid grid-cols-2 gap-y-2 text-sm">
         {stats.map((s) => (
           <div key={s.label} className="contents">
@@ -31,7 +33,7 @@ export default function MetricsCard({ campaign }: MetricsCardProps): JSX.Element
       {m.lastSessionDate && (
         <div className="mt-3 pt-3 border-t border-gray-800">
           <span className="text-gray-500 text-xs">
-            Last session: {new Date(m.lastSessionDate).toLocaleDateString()}
+            {t('pages.metricsCard.lastSession', { date: new Date(m.lastSessionDate).toLocaleDateString() })}
           </span>
         </div>
       )}

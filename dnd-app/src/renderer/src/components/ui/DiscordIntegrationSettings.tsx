@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { addToast } from '../../hooks/use-toast'
+import { useT } from '../../i18n'
 
 interface DiscordConfig {
   enabled: boolean
@@ -24,6 +25,7 @@ interface DiscordConfigResponse {
 }
 
 export default function DiscordIntegrationSettings(): JSX.Element {
+  const { t } = useT()
   const [config, setConfig] = useState<DiscordConfig>({
     enabled: false,
     dmMode: 'webhook',
@@ -54,14 +56,14 @@ export default function DiscordIntegrationSettings(): JSX.Element {
           })
         }
       } catch {
-        addToast('Failed to load Discord configuration', 'error')
+        addToast(t('ui.discordIntegration.loadFailed'), 'error')
       } finally {
         setLoading(false)
       }
     }
 
     loadConfig()
-  }, [])
+  }, [t])
 
   const handleSave = useCallback(async () => {
     setSaving(true)
@@ -76,7 +78,7 @@ export default function DiscordIntegrationSettings(): JSX.Element {
 
       const result = await window.api.discord.saveConfig(configToSave)
       if (result.success) {
-        addToast('Discord settings saved', 'success')
+        addToast(t('ui.discordIntegration.saveSuccess'), 'success')
         setHasChanges(false)
         // Reload to get the masked values
         const refreshed = (await window.api.discord.getConfig()) as unknown as DiscordConfigResponse
@@ -88,14 +90,14 @@ export default function DiscordIntegrationSettings(): JSX.Element {
           }))
         }
       } else {
-        addToast((result as { error?: string }).error || 'Failed to save Discord settings', 'error')
+        addToast((result as { error?: string }).error || t('ui.discordIntegration.saveFailed'), 'error')
       }
     } catch {
-      addToast('Failed to save Discord settings', 'error')
+      addToast(t('ui.discordIntegration.saveFailed'), 'error')
     } finally {
       setSaving(false)
     }
-  }, [config])
+  }, [config, t])
 
   const handleTest = useCallback(async () => {
     setTesting(true)
@@ -107,16 +109,16 @@ export default function DiscordIntegrationSettings(): JSX.Element {
 
       const result = await window.api.discord.testConnection()
       if (result.success) {
-        addToast('Test message sent to Discord successfully!', 'success')
+        addToast(t('ui.discordIntegration.testSuccess'), 'success')
       } else {
-        addToast(result.error || 'Failed to send test message', 'error')
+        addToast(result.error || t('ui.discordIntegration.testSendFailed'), 'error')
       }
     } catch {
-      addToast('Test connection failed', 'error')
+      addToast(t('ui.discordIntegration.testConnectionFailed'), 'error')
     } finally {
       setTesting(false)
     }
-  }, [hasChanges, handleSave])
+  }, [hasChanges, handleSave, t])
 
   const updateConfig = useCallback((updates: Partial<DiscordConfig>) => {
     setConfig((prev) => ({ ...prev, ...updates }))
@@ -124,7 +126,7 @@ export default function DiscordIntegrationSettings(): JSX.Element {
   }, [])
 
   if (loading) {
-    return <p className="text-xs text-gray-500">Loading Discord configuration...</p>
+    return <p className="text-xs text-gray-500">{t('ui.discordIntegration.loading')}</p>
   }
 
   return (
@@ -132,8 +134,8 @@ export default function DiscordIntegrationSettings(): JSX.Element {
       {/* Enable/Disable Toggle */}
       <label className="flex items-center justify-between cursor-pointer">
         <div>
-          <span className="text-sm text-gray-300">Push to Discord</span>
-          <p className="text-xs text-gray-500">Forward AI DM narration to Discord</p>
+          <span className="text-sm text-gray-300">{t('ui.discordIntegration.pushToDiscord')}</span>
+          <p className="text-xs text-gray-500">{t('ui.discordIntegration.pushToDiscordDesc')}</p>
         </div>
         <input
           type="checkbox"
@@ -147,7 +149,7 @@ export default function DiscordIntegrationSettings(): JSX.Element {
         <>
           {/* DM Mode Selection */}
           <div className="space-y-2 pt-2 border-t border-gray-700/50">
-            <span className="text-sm text-gray-300 block">Integration Mode</span>
+            <span className="text-sm text-gray-300 block">{t('ui.discordIntegration.integrationMode')}</span>
             <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={() => updateConfig({ dmMode: 'webhook' })}
@@ -157,8 +159,8 @@ export default function DiscordIntegrationSettings(): JSX.Element {
                     : 'border-gray-700 bg-gray-800/30 hover:border-gray-600'
                 }`}
               >
-                <div className="text-xs font-medium text-gray-200">Webhook</div>
-                <div className="text-xs text-gray-500">Send to channel via webhook URL</div>
+                <div className="text-xs font-medium text-gray-200">{t('ui.discordIntegration.webhook')}</div>
+                <div className="text-xs text-gray-500">{t('ui.discordIntegration.webhookDesc')}</div>
               </button>
               <button
                 onClick={() => updateConfig({ dmMode: 'bot-api' })}
@@ -168,8 +170,8 @@ export default function DiscordIntegrationSettings(): JSX.Element {
                     : 'border-gray-700 bg-gray-800/30 hover:border-gray-600'
                 }`}
               >
-                <div className="text-xs font-medium text-gray-200">Bot DM</div>
-                <div className="text-xs text-gray-500">Send DM via bot token + user ID</div>
+                <div className="text-xs font-medium text-gray-200">{t('ui.discordIntegration.botDm')}</div>
+                <div className="text-xs text-gray-500">{t('ui.discordIntegration.botDmDesc')}</div>
               </button>
             </div>
           </div>
@@ -178,7 +180,7 @@ export default function DiscordIntegrationSettings(): JSX.Element {
           {config.dmMode === 'webhook' && (
             <div className="space-y-3 pt-2">
               <div>
-                <label className="text-sm text-gray-300 block mb-1">Webhook URL</label>
+                <label className="text-sm text-gray-300 block mb-1">{t('ui.discordIntegration.webhookUrlLabel')}</label>
                 <input
                   type="password"
                   placeholder="https://discord.com/api/webhooks/..."
@@ -186,9 +188,7 @@ export default function DiscordIntegrationSettings(): JSX.Element {
                   onChange={(e) => updateConfig({ webhookUrl: e.target.value })}
                   className="w-full px-3 py-2 text-sm bg-gray-900 border border-gray-700 rounded-lg text-gray-200 placeholder-gray-600 focus:border-amber-500 focus:outline-none"
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                  Create a webhook in Discord channel settings → Integrations → Webhooks
-                </p>
+                <p className="text-xs text-gray-500 mt-1">{t('ui.discordIntegration.webhookHelp')}</p>
               </div>
             </div>
           )}
@@ -197,38 +197,33 @@ export default function DiscordIntegrationSettings(): JSX.Element {
           {config.dmMode === 'bot-api' && (
             <div className="space-y-3 pt-2">
               <div>
-                <label className="text-sm text-gray-300 block mb-1">Bot Token</label>
+                <label className="text-sm text-gray-300 block mb-1">{t('ui.discordIntegration.botTokenLabel')}</label>
                 <input
                   type="password"
-                  placeholder="Bot token from Discord Developer Portal"
+                  placeholder={t('ui.discordIntegration.botTokenPlaceholder')}
                   value={config.botToken}
                   onChange={(e) => updateConfig({ botToken: e.target.value })}
                   className="w-full px-3 py-2 text-sm bg-gray-900 border border-gray-700 rounded-lg text-gray-200 placeholder-gray-600 focus:border-amber-500 focus:outline-none"
                 />
-                <p className="text-xs text-gray-500 mt-1">From Discord Developer Portal → Bot → Token</p>
+                <p className="text-xs text-gray-500 mt-1">{t('ui.discordIntegration.botTokenHelp')}</p>
               </div>
               <div>
-                <label className="text-sm text-gray-300 block mb-1">User ID</label>
+                <label className="text-sm text-gray-300 block mb-1">{t('ui.discordIntegration.userIdLabel')}</label>
                 <input
                   type="text"
-                  placeholder="Discord user ID to receive DMs"
+                  placeholder={t('ui.discordIntegration.userIdPlaceholder')}
                   value={config.userId}
                   onChange={(e) => updateConfig({ userId: e.target.value })}
                   className="w-full px-3 py-2 text-sm bg-gray-900 border border-gray-700 rounded-lg text-gray-200 placeholder-gray-600 focus:border-amber-500 focus:outline-none"
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                  Right-click your profile in Discord with Developer Mode enabled
-                </p>
+                <p className="text-xs text-gray-500 mt-1">{t('ui.discordIntegration.userIdHelp')}</p>
               </div>
             </div>
           )}
 
           {/* Info Box */}
           <div className="p-3 bg-blue-900/20 border border-blue-700/30 rounded-lg">
-            <p className="text-xs text-blue-300">
-              AI DM narration will be sent to Discord after each response. Technical metadata like [DM_ACTIONS] and
-              [STAT_CHANGES] is automatically filtered out.
-            </p>
+            <p className="text-xs text-blue-300">{t('ui.discordIntegration.infoBox')}</p>
           </div>
         </>
       )}
@@ -240,7 +235,7 @@ export default function DiscordIntegrationSettings(): JSX.Element {
           disabled={saving || !hasChanges}
           className="px-4 py-1.5 text-sm rounded-lg bg-amber-600 hover:bg-amber-500 text-white transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {saving ? 'Saving...' : 'Save Settings'}
+          {saving ? t('ui.discordIntegration.saving') : t('ui.discordIntegration.saveSettings')}
         </button>
         {config.enabled && (
           <button
@@ -248,10 +243,10 @@ export default function DiscordIntegrationSettings(): JSX.Element {
             disabled={testing || hasChanges}
             className="px-4 py-1.5 text-sm rounded-lg bg-gray-700 hover:bg-gray-600 text-gray-200 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {testing ? 'Testing...' : 'Test Connection'}
+            {testing ? t('ui.discordIntegration.testing') : t('ui.discordIntegration.testConnection')}
           </button>
         )}
-        {hasChanges && <span className="text-xs text-amber-400 ml-2">Unsaved changes</span>}
+        {hasChanges && <span className="text-xs text-amber-400 ml-2">{t('ui.discordIntegration.unsavedChanges')}</span>}
       </div>
     </div>
   )

@@ -1,3 +1,4 @@
+import { useT } from '../../../../i18n'
 import { getEffectiveClasses, getEffectiveWeapons } from '../../../../services/character/effective-character-5e'
 import type { Character5e } from '../../../../types/character-5e'
 import { type AbilityName, abilityModifier as charAbilityMod, formatMod } from '../../../../types/character-common'
@@ -22,16 +23,21 @@ function PCBlock({
   char: Character5e
   onRoll: (entityName: string, label: string, modifier: number) => void
 }): JSX.Element {
+  const { t } = useT()
   const profBonus = Math.floor((char.level - 1) / 4) + 2
   const charWeapons = getEffectiveWeapons(char)
   return (
     <div className="space-y-3">
       <div className="text-xs text-gray-400">
-        Level {char.level}{' '}
+        {t('game.rollerEntityBlock.level', { level: char.level })}{' '}
         {getEffectiveClasses(char)
           .map((c) => c.name)
           .join('/')}{' '}
-        | HP: {char.hitPoints.current}/{char.hitPoints.maximum} | AC: {char.armorClass}
+        {t('game.rollerEntityBlock.pcMeta', {
+          hp: char.hitPoints.current,
+          max: char.hitPoints.maximum,
+          ac: char.armorClass
+        })}
       </div>
 
       {/* Ability Scores */}
@@ -45,7 +51,13 @@ function PCBlock({
                 <div className="text-[9px] text-gray-500 uppercase">{ab.slice(0, 3)}</div>
                 <div className="text-xs text-gray-200 font-semibold">{score}</div>
                 <button
-                  onClick={() => onRoll(char.name, `${ab.slice(0, 3).toUpperCase()} Check`, mod)}
+                  onClick={() =>
+                    onRoll(
+                      char.name,
+                      t('game.rollerEntityBlock.checkLabel', { ability: ab.slice(0, 3).toUpperCase() }),
+                      mod
+                    )
+                  }
                   className="text-[9px] text-amber-400 hover:text-amber-300 cursor-pointer"
                 >
                   {formatMod(mod)}
@@ -58,7 +70,9 @@ function PCBlock({
 
       {/* Saves */}
       <div>
-        <div className="text-[9px] text-gray-500 uppercase tracking-wider mb-1">Saving Throws</div>
+        <div className="text-[9px] text-gray-500 uppercase tracking-wider mb-1">
+          {t('game.rollerEntityBlock.savingThrows')}
+        </div>
         <div className="flex flex-wrap gap-1">
           {(['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma'] as AbilityName[]).map(
             (ab) => {
@@ -68,7 +82,13 @@ function PCBlock({
               return (
                 <button
                   key={ab}
-                  onClick={() => onRoll(char.name, `${ab.slice(0, 3).toUpperCase()} Save`, totalMod)}
+                  onClick={() =>
+                    onRoll(
+                      char.name,
+                      t('game.rollerEntityBlock.saveLabel', { ability: ab.slice(0, 3).toUpperCase() }),
+                      totalMod
+                    )
+                  }
                   className={`px-1.5 py-0.5 text-xs rounded cursor-pointer ${
                     isProficient ? 'bg-amber-600/30 text-amber-300' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                   }`}
@@ -83,7 +103,9 @@ function PCBlock({
 
       {/* Skills */}
       <div>
-        <div className="text-[9px] text-gray-500 uppercase tracking-wider mb-1">Skills</div>
+        <div className="text-[9px] text-gray-500 uppercase tracking-wider mb-1">
+          {t('game.rollerEntityBlock.skills')}
+        </div>
         <div className="flex flex-wrap gap-1">
           {(char.skills ?? [])
             .filter((s) => s.proficient || s.expertise)
@@ -109,18 +131,27 @@ function PCBlock({
       {/* Weapons */}
       {charWeapons.length > 0 && (
         <div>
-          <div className="text-[9px] text-gray-500 uppercase tracking-wider mb-1">Attacks</div>
+          <div className="text-[9px] text-gray-500 uppercase tracking-wider mb-1">
+            {t('game.rollerEntityBlock.attacks')}
+          </div>
           <div className="space-y-1">
             {charWeapons.map((w) => (
               <div key={w.id} className="flex items-center gap-2 bg-gray-800/30 rounded px-2 py-1">
                 <span className="text-xs text-gray-200 flex-1">
-                  {w.name}: {formatMod(w.attackBonus)} to hit, {w.damage} {w.damageType}
+                  {w.name}:{' '}
+                  {t('game.rollerEntityBlock.weaponLine', {
+                    bonus: formatMod(w.attackBonus),
+                    damage: w.damage,
+                    type: w.damageType
+                  })}
                 </span>
                 <button
-                  onClick={() => onRoll(char.name, `${w.name} Attack`, w.attackBonus)}
+                  onClick={() =>
+                    onRoll(char.name, t('game.rollerEntityBlock.attackLabel', { name: w.name }), w.attackBonus)
+                  }
                   className="text-[9px] px-1.5 py-0.5 bg-red-600/30 text-red-300 rounded cursor-pointer hover:bg-red-600/50"
                 >
-                  Attack
+                  {t('game.rollerEntityBlock.attack')}
                 </button>
               </div>
             ))}
@@ -144,11 +175,13 @@ function MonsterBlock({
   onRoll: (entityName: string, label: string, modifier: number) => void
   onDamageRoll: (entityName: string, action: MonsterAction) => void
 }): JSX.Element {
+  const { t } = useT()
   return (
     <div className="space-y-3">
       <div className="text-xs text-gray-400">
         {monster.size} {monster.type}
-        {monster.subtype ? ` (${monster.subtype})` : ''} | CR {monster.cr} | HP: {monster.hp} | AC: {monster.ac}
+        {monster.subtype ? ` (${monster.subtype})` : ''}
+        {t('game.rollerEntityBlock.monsterMeta', { cr: monster.cr, hp: monster.hp, ac: monster.ac })}
         {monster.acType ? ` (${monster.acType})` : ''}
       </div>
 
@@ -162,7 +195,9 @@ function MonsterBlock({
               <div className="text-[9px] text-gray-500 uppercase">{ab}</div>
               <div className="text-xs text-gray-200 font-semibold">{score}</div>
               <button
-                onClick={() => onRoll(monster.name, `${ab.toUpperCase()} Check`, mod)}
+                onClick={() =>
+                  onRoll(monster.name, t('game.rollerEntityBlock.checkLabel', { ability: ab.toUpperCase() }), mod)
+                }
                 className="text-[9px] text-amber-400 hover:text-amber-300 cursor-pointer"
               >
                 {formatMod(mod)}
@@ -175,12 +210,20 @@ function MonsterBlock({
       {/* Saves */}
       {monster.savingThrows && Object.keys(monster.savingThrows).length > 0 && (
         <div>
-          <div className="text-[9px] text-gray-500 uppercase tracking-wider mb-1">Saving Throws</div>
+          <div className="text-[9px] text-gray-500 uppercase tracking-wider mb-1">
+            {t('game.rollerEntityBlock.savingThrows')}
+          </div>
           <div className="flex flex-wrap gap-1">
             {Object.entries(monster.savingThrows).map(([ab, mod]) => (
               <button
                 key={ab}
-                onClick={() => onRoll(monster.name, `${ab.toUpperCase()} Save`, mod as number)}
+                onClick={() =>
+                  onRoll(
+                    monster.name,
+                    t('game.rollerEntityBlock.saveLabel', { ability: ab.toUpperCase() }),
+                    mod as number
+                  )
+                }
                 className="px-1.5 py-0.5 text-xs bg-amber-600/30 text-amber-300 rounded cursor-pointer"
               >
                 {ab.toUpperCase()} {formatMod(mod as number)}
@@ -193,7 +236,9 @@ function MonsterBlock({
       {/* Skills */}
       {monster.skills && Object.keys(monster.skills).length > 0 && (
         <div>
-          <div className="text-[9px] text-gray-500 uppercase tracking-wider mb-1">Skills</div>
+          <div className="text-[9px] text-gray-500 uppercase tracking-wider mb-1">
+            {t('game.rollerEntityBlock.skills')}
+          </div>
           <div className="flex flex-wrap gap-1">
             {Object.entries(monster.skills).map(([skill, mod]) => (
               <button
@@ -211,7 +256,9 @@ function MonsterBlock({
       {/* Traits */}
       {monster.traits && monster.traits.length > 0 && (
         <div>
-          <div className="text-[9px] text-gray-500 uppercase tracking-wider mb-1">Traits</div>
+          <div className="text-[9px] text-gray-500 uppercase tracking-wider mb-1">
+            {t('game.rollerEntityBlock.traits')}
+          </div>
           {monster.traits.map((t, i) => (
             <div key={i} className="text-xs text-gray-400 mb-1">
               <span className="text-gray-200 font-semibold">{t.name}.</span> {t.description}
@@ -222,7 +269,9 @@ function MonsterBlock({
 
       {/* Actions */}
       <div>
-        <div className="text-[9px] text-gray-500 uppercase tracking-wider mb-1">Actions</div>
+        <div className="text-[9px] text-gray-500 uppercase tracking-wider mb-1">
+          {t('game.rollerEntityBlock.actions')}
+        </div>
         <div className="space-y-1">
           {monster.actions.map((action, i) => (
             <div key={i} className="bg-gray-800/30 rounded px-2 py-1">
@@ -230,12 +279,20 @@ function MonsterBlock({
                 <span className="text-xs text-gray-200 font-semibold">{action.name}</span>
                 {action.toHit != null && (
                   <>
-                    <span className="text-xs text-gray-500">{formatMod(action.toHit)} to hit</span>
+                    <span className="text-xs text-gray-500">
+                      {t('game.rollerEntityBlock.toHit', { bonus: formatMod(action.toHit) })}
+                    </span>
                     <button
-                      onClick={() => onRoll(monster.name, `${action.name} Attack`, action.toHit!)}
+                      onClick={() =>
+                        onRoll(
+                          monster.name,
+                          t('game.rollerEntityBlock.attackLabel', { name: action.name }),
+                          action.toHit!
+                        )
+                      }
                       className="text-[9px] px-1.5 py-0.5 bg-red-600/30 text-red-300 rounded cursor-pointer hover:bg-red-600/50"
                     >
-                      Roll Attack
+                      {t('game.rollerEntityBlock.rollAttack')}
                     </button>
                   </>
                 )}
@@ -244,15 +301,17 @@ function MonsterBlock({
                     onClick={() => onDamageRoll(monster.name, action)}
                     className="text-[9px] px-1.5 py-0.5 bg-orange-600/30 text-orange-300 rounded cursor-pointer hover:bg-orange-600/50"
                   >
-                    Roll Damage
+                    {t('game.rollerEntityBlock.rollDamage')}
                   </button>
                 )}
               </div>
               <div className="text-xs text-gray-400 mt-0.5">
                 {action.damageDice && `${action.damageDice} ${action.damageType ?? ''}`}
-                {action.reach && ` | Reach ${action.reach}ft`}
+                {action.reach && t('game.rollerEntityBlock.reach', { reach: action.reach })}
                 {action.rangeNormal &&
-                  ` | Range ${action.rangeNormal}${action.rangeLong ? `/${action.rangeLong}` : ''}ft`}
+                  t('game.rollerEntityBlock.range', {
+                    range: `${action.rangeNormal}${action.rangeLong ? `/${action.rangeLong}` : ''}`
+                  })}
               </div>
             </div>
           ))}
@@ -262,7 +321,9 @@ function MonsterBlock({
       {/* Bonus Actions */}
       {monster.bonusActions && monster.bonusActions.length > 0 && (
         <div>
-          <div className="text-[9px] text-gray-500 uppercase tracking-wider mb-1">Bonus Actions</div>
+          <div className="text-[9px] text-gray-500 uppercase tracking-wider mb-1">
+            {t('game.rollerEntityBlock.bonusActions')}
+          </div>
           {monster.bonusActions.map((ba, i) => (
             <div key={i} className="text-xs text-gray-400 mb-1">
               <span className="text-gray-200 font-semibold">{ba.name}.</span> {ba.description}
@@ -274,7 +335,9 @@ function MonsterBlock({
       {/* Reactions */}
       {monster.reactions && monster.reactions.length > 0 && (
         <div>
-          <div className="text-[9px] text-gray-500 uppercase tracking-wider mb-1">Reactions</div>
+          <div className="text-[9px] text-gray-500 uppercase tracking-wider mb-1">
+            {t('game.rollerEntityBlock.reactions')}
+          </div>
           {monster.reactions.map((r, i) => (
             <div key={i} className="text-xs text-gray-400 mb-1">
               <span className="text-gray-200 font-semibold">{r.name}.</span> {r.description}
@@ -296,11 +359,12 @@ export default function RollerEntityBlock({
   onRoll,
   onDamageRoll
 }: RollerEntityBlockProps): JSX.Element {
+  const { t } = useT()
   if (characterData) {
     return <PCBlock char={characterData} onRoll={onRoll} />
   }
   if (monsterData) {
     return <MonsterBlock monster={monsterData} onRoll={onRoll} onDamageRoll={onDamageRoll} />
   }
-  return <p className="text-xs text-gray-500 text-center py-4">No stat block available for this entity.</p>
+  return <p className="text-xs text-gray-500 text-center py-4">{t('game.rollerEntityBlock.noStatBlock')}</p>
 }

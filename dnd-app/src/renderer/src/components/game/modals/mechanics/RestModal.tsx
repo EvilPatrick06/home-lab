@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 import {
   applyLongRest,
   applyShortRest,
@@ -63,6 +64,7 @@ function syncRestResult(
 }
 
 export default function RestModal({ mode, campaignCharacterIds, onClose, onApply }: RestModalProps): JSX.Element {
+  const { t } = useT()
   useEscapeKey(onClose)
   const characters = useCharacterStore((s) => s.characters)
   const remoteCharacters = useLobbyStore((s) => s.remoteCharacters)
@@ -143,12 +145,12 @@ export default function RestModal({ mode, campaignCharacterIds, onClose, onApply
       <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-5 max-w-2xl w-full mx-4 shadow-2xl max-h-[85vh] flex flex-col">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-amber-400">
-            {mode === 'shortRest' ? 'Short Rest (1 Hour)' : 'Long Rest (8 Hours)'}
+            {mode === 'shortRest' ? t('game.restModal.shortTitle') : t('game.restModal.longTitle')}
           </h3>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-300 text-lg cursor-pointer"
-            aria-label="Close"
+            aria-label={t('common.actions.close')}
           >
             &times;
           </button>
@@ -156,22 +158,22 @@ export default function RestModal({ mode, campaignCharacterIds, onClose, onApply
 
         {applied ? (
           <div className="text-center py-8">
-            <div className="text-green-400 text-lg font-semibold mb-2">Rest Complete!</div>
+            <div className="text-green-400 text-lg font-semibold mb-2">{t('game.restModal.complete')}</div>
             <p className="text-gray-400 text-sm">
-              {mode === 'shortRest' ? 'Short rest applied successfully.' : 'Long rest applied successfully.'}
+              {mode === 'shortRest' ? t('game.restModal.shortApplied') : t('game.restModal.longApplied')}
             </p>
             <button
               onClick={onClose}
               className="mt-4 px-4 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg cursor-pointer"
             >
-              Close
+              {t('common.actions.close')}
             </button>
           </div>
         ) : (
           <>
             <div className="flex-1 overflow-y-auto space-y-3 mb-4">
               {pcs.length === 0 ? (
-                <p className="text-xs text-gray-500 text-center py-4">No characters found in this campaign.</p>
+                <p className="text-xs text-gray-500 text-center py-4">{t('game.restModal.noCharacters')}</p>
               ) : mode === 'shortRest' ? (
                 <ShortRestPanel pcs={pcs} states={shortRestStates} onStatesChange={setShortRestStates} />
               ) : (
@@ -182,21 +184,21 @@ export default function RestModal({ mode, campaignCharacterIds, onClose, onApply
             {/* Footer */}
             <div className="flex items-center justify-between border-t border-gray-700/50 pt-3">
               <span className="text-xs text-gray-500">
-                {selectedCount} of {pcs.length} characters selected
+                {t('game.restModal.selectedCount', { selected: selectedCount, total: pcs.length })}
               </span>
               <div className="flex gap-2">
                 <button
                   onClick={onClose}
                   className="px-4 py-2 text-sm border border-gray-600 rounded-lg hover:bg-gray-800 text-gray-300 cursor-pointer transition-colors"
                 >
-                  Cancel
+                  {t('common.actions.cancel')}
                 </button>
                 <button
                   onClick={mode === 'shortRest' ? handleApplyShortRest : handleApplyLongRest}
                   disabled={selectedCount === 0 || (mode === 'shortRest' && !allRolled)}
                   className="px-4 py-2 text-sm font-semibold rounded-lg bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white cursor-pointer transition-colors"
                 >
-                  Apply {mode === 'shortRest' ? 'Short' : 'Long'} Rest
+                  {mode === 'shortRest' ? t('game.restModal.applyShort') : t('game.restModal.applyLong')}
                 </button>
               </div>
             </div>

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import Modal from '../../components/ui/Modal'
+import { useT } from '../../i18n'
 import type {
   BasicFacilityDef,
   BasicFacilityType,
@@ -27,6 +28,7 @@ export function AddBasicFacilityModal({
   basicFacilityDefs: BasicFacilityDef[]
   startConstruction: BastionModalsProps['startConstruction']
 }): JSX.Element {
+  const { t } = useT()
   const [basicType, setBasicType] = useState<BasicFacilityType>('bedroom')
   const [basicSpace, setBasicSpace] = useState<FacilitySpace>('roomy')
 
@@ -44,10 +46,10 @@ export function AddBasicFacilityModal({
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="Add Basic Facility">
+    <Modal open={open} onClose={onClose} title={t('pages.addBasicFacilityModal.title')}>
       <div className="space-y-4">
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-gray-500">Type</label>
+          <label className="text-xs text-gray-500">{t('pages.addBasicFacilityModal.type')}</label>
           <select
             value={basicType}
             onChange={(e) => setBasicType(e.target.value as BasicFacilityType)}
@@ -66,39 +68,50 @@ export function AddBasicFacilityModal({
           )}
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-gray-500">Size</label>
+          <label className="text-xs text-gray-500">{t('pages.addBasicFacilityModal.size')}</label>
           <select
             value={basicSpace}
             onChange={(e) => setBasicSpace(e.target.value as FacilitySpace)}
             className="bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
           >
             <option value="cramped">
-              Cramped ({BASIC_FACILITY_COSTS.cramped.gp} GP, {BASIC_FACILITY_COSTS.cramped.days} days)
+              {t('pages.addBasicFacilityModal.cramped', {
+                gp: BASIC_FACILITY_COSTS.cramped.gp,
+                days: BASIC_FACILITY_COSTS.cramped.days
+              })}
             </option>
             <option value="roomy">
-              Roomy ({BASIC_FACILITY_COSTS.roomy.gp} GP, {BASIC_FACILITY_COSTS.roomy.days} days)
+              {t('pages.addBasicFacilityModal.roomy', {
+                gp: BASIC_FACILITY_COSTS.roomy.gp,
+                days: BASIC_FACILITY_COSTS.roomy.days
+              })}
             </option>
             <option value="vast">
-              Vast ({BASIC_FACILITY_COSTS.vast.gp} GP, {BASIC_FACILITY_COSTS.vast.days} days)
+              {t('pages.addBasicFacilityModal.vast', {
+                gp: BASIC_FACILITY_COSTS.vast.gp,
+                days: BASIC_FACILITY_COSTS.vast.days
+              })}
             </option>
           </select>
         </div>
         <div className="text-xs text-gray-400">
-          Cost: {BASIC_FACILITY_COSTS[basicSpace].gp} GP &middot; Construction: {BASIC_FACILITY_COSTS[basicSpace].days}{' '}
-          days
+          {t('pages.addBasicFacilityModal.costConstruction', {
+            gp: BASIC_FACILITY_COSTS[basicSpace].gp,
+            days: BASIC_FACILITY_COSTS[basicSpace].days
+          })}
         </div>
         <div className="flex gap-2 justify-end">
           <button
             onClick={onClose}
             className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-gray-800 transition-colors"
           >
-            Cancel
+            {t('common.actions.cancel')}
           </button>
           <button
             onClick={handleAddBasic}
             className="px-4 py-2 text-sm bg-amber-600 hover:bg-amber-500 text-white rounded font-semibold transition-colors"
           >
-            Build ({BASIC_FACILITY_COSTS[basicSpace].gp} GP)
+            {t('pages.addBasicFacilityModal.build', { gp: BASIC_FACILITY_COSTS[basicSpace].gp })}
           </button>
         </div>
       </div>
@@ -125,6 +138,7 @@ export function AddSpecialFacilityModal({
   owner5e: Character5e | null
   addSpecialFacility: BastionModalsProps['addSpecialFacility']
 }): JSX.Element {
+  const { t } = useT()
   const [settingFilter, setSettingFilter] = useState<'all' | 'core' | 'fr' | 'eberron'>('all')
   const [selectedSpecialType, setSelectedSpecialType] = useState<SpecialFacilityType | null>(null)
   const [factionOverride, setFactionOverride] = useState(false)
@@ -159,14 +173,14 @@ export function AddSpecialFacilityModal({
   }
 
   return (
-    <Modal open={open} onClose={handleClose} title="Add Special Facility">
+    <Modal open={open} onClose={handleClose} title={t('pages.addSpecialFacilityModal.title')}>
       <div className="space-y-4">
         {selectedBastion &&
           selectedBastion.specialFacilities.length +
             selectedBastion.construction.filter((p) => p.projectType === 'add-special').length >=
             maxSpecial && (
             <div className="text-sm text-red-400 bg-red-900/20 border border-red-800 rounded p-2">
-              Maximum special facilities reached ({maxSpecial}). Remove or swap one first.
+              {t('pages.addSpecialFacilityModal.maxReached', { max: maxSpecial })}
             </div>
           )}
         {/* Setting filter */}
@@ -177,7 +191,7 @@ export function AddSpecialFacilityModal({
               onClick={() => setSettingFilter(s)}
               className={`px-2 py-1 text-xs rounded transition-colors ${settingFilter === s ? 'bg-amber-700 text-white' : 'bg-gray-800 text-gray-400 hover:text-gray-200'}`}
             >
-              {s === 'all' ? 'All' : SETTING_LABELS[s]}
+              {s === 'all' ? t('pages.addSpecialFacilityModal.all') : SETTING_LABELS[s]}
             </button>
           ))}
         </div>
@@ -222,16 +236,18 @@ export function AddSpecialFacilityModal({
                     </span>
                   </div>
                   {eligibility.eligible ? (
-                    <span className="text-xs text-green-400">Eligible</span>
+                    <span className="text-xs text-green-400">{t('pages.addSpecialFacilityModal.eligible')}</span>
                   ) : isFaction ? (
-                    <span className="text-xs text-yellow-400">Faction</span>
+                    <span className="text-xs text-yellow-400">{t('pages.addSpecialFacilityModal.faction')}</span>
                   ) : (
-                    <span className="text-xs text-red-400">Ineligible</span>
+                    <span className="text-xs text-red-400">{t('pages.addSpecialFacilityModal.ineligible')}</span>
                   )}
                 </div>
                 <p className="text-xs text-gray-500 mt-1 line-clamp-2">{def.description}</p>
                 {!eligibility.eligible && eligibility.reason && (
-                  <p className="text-xs text-red-400 mt-1">Requires: {eligibility.reason}</p>
+                  <p className="text-xs text-red-400 mt-1">
+                    {t('pages.addSpecialFacilityModal.requires', { reason: eligibility.reason })}
+                  </p>
                 )}
                 <div className="flex gap-2 mt-1">
                   {def.orders.map((o) => (
@@ -241,7 +257,7 @@ export function AddSpecialFacilityModal({
                   ))}
                   {def.charm && (
                     <span className="text-xs px-1.5 py-0.5 rounded border bg-purple-900/30 text-purple-300 border-purple-700">
-                      Charm
+                      {t('pages.addSpecialFacilityModal.charm')}
                     </span>
                   )}
                 </div>
@@ -257,7 +273,7 @@ export function AddSpecialFacilityModal({
             onChange={(e) => setFactionOverride(e.target.checked)}
             className="rounded bg-gray-800 border-gray-600"
           />
-          Override faction requirement (I meet this faction prerequisite)
+          {t('pages.addSpecialFacilityModal.overrideFaction')}
         </label>
         {/* Selected facility detail */}
         {selectedSpecialDef &&
@@ -272,30 +288,42 @@ export function AddSpecialFacilityModal({
                 <p className="text-xs text-gray-400 mt-1">{selectedSpecialDef.description}</p>
                 {selectedSpecialDef.charm && (
                   <div className="mt-2 text-xs text-purple-300">
-                    Charm: {selectedSpecialDef.charm.description} ({selectedSpecialDef.charm.duration})
+                    {t('pages.addSpecialFacilityModal.charmDetail', {
+                      description: selectedSpecialDef.charm.description,
+                      duration: selectedSpecialDef.charm.duration
+                    })}
                   </div>
                 )}
                 {selectedSpecialDef.permanentBenefit && (
-                  <div className="mt-1 text-xs text-amber-300">Benefit: {selectedSpecialDef.permanentBenefit}</div>
+                  <div className="mt-1 text-xs text-amber-300">
+                    {t('pages.addSpecialFacilityModal.benefit', { benefit: selectedSpecialDef.permanentBenefit })}
+                  </div>
                 )}
                 <div className="mt-2 text-xs text-gray-400">
-                  Cost: <span className={canAffordBp ? 'text-purple-400' : 'text-red-400'}>{costs.bp} BP</span>
+                  {t('pages.addSpecialFacilityModal.cost')}{' '}
+                  <span className={canAffordBp ? 'text-purple-400' : 'text-red-400'}>{costs.bp} BP</span>
                   {costs.gp > 0 && (
                     <>
                       {' '}
                       &middot; <span className={canAffordGp ? 'text-yellow-400' : 'text-red-400'}>{costs.gp} GP</span>
                     </>
                   )}
-                  {costs.days > 0 && <> &middot; Construction: {costs.days} days</>}
+                  {costs.days > 0 && <> {t('pages.addSpecialFacilityModal.constructionDays', { days: costs.days })}</>}
                 </div>
                 {!canAffordBp && (
                   <div className="mt-1 text-xs text-red-400">
-                    Not enough BP (have {selectedBastion?.bastionPoints ?? 0} BP, need {costs.bp} BP)
+                    {t('pages.addSpecialFacilityModal.notEnoughBp', {
+                      have: selectedBastion?.bastionPoints ?? 0,
+                      need: costs.bp
+                    })}
                   </div>
                 )}
                 {!canAffordGp && costs.gp > 0 && (
                   <div className="mt-1 text-xs text-red-400">
-                    Not enough gold (have {selectedBastion?.treasury ?? 0} GP, need {costs.gp} GP)
+                    {t('pages.addSpecialFacilityModal.notEnoughGold', {
+                      have: selectedBastion?.treasury ?? 0,
+                      need: costs.gp
+                    })}
                   </div>
                 )}
               </div>
@@ -308,7 +336,7 @@ export function AddSpecialFacilityModal({
             }}
             className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-gray-800 transition-colors"
           >
-            Cancel
+            {t('common.actions.cancel')}
           </button>
           <button
             onClick={handleAddSpecial}
@@ -325,7 +353,7 @@ export function AddSpecialFacilityModal({
             }
             className="px-4 py-2 text-sm bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded font-semibold transition-colors"
           >
-            Build Facility
+            {t('pages.addSpecialFacilityModal.buildFacility')}
             {selectedSpecialDef
               ? ` (${(SPECIAL_FACILITY_COSTS[selectedSpecialDef.level] ?? SPECIAL_FACILITY_COSTS[5]).bp} BP)`
               : ''}

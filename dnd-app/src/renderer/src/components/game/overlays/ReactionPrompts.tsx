@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useT } from '../../../i18n'
 import type { MessageType } from '../../../network'
 import type { ReactionPromptState } from '../../../stores/game/types'
 import { cryptoRollDie } from '../../../utils/crypto-random'
@@ -33,6 +34,7 @@ export function ShieldReactionPrompt({
   addChatMessage,
   sendMessage
 }: ShieldPromptProps): JSX.Element {
+  const { t } = useT()
   const gameStore = useGameStore.getState()
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined)
   const [remaining, setRemaining] = useState(AUTO_DISMISS_MS / 1000)
@@ -55,17 +57,21 @@ export function ShieldReactionPrompt({
       <div className="absolute inset-0 bg-black/50" />
       <div className="relative bg-gray-900 border border-cyan-500 rounded-xl p-5 w-96 shadow-2xl">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-semibold text-cyan-400">Shield Reaction</h3>
-          <span className="text-xs text-gray-500">{remaining}s</span>
+          <h3 className="text-sm font-semibold text-cyan-400">{t('game.shieldReactionPrompt.title')}</h3>
+          <span className="text-xs text-gray-500">{t('game.shieldReactionPrompt.countdown', { remaining })}</span>
         </div>
         <p className="text-xs text-gray-300 mb-4">
-          <span className="text-red-300 font-semibold">{prompt.attackerName}</span> rolled{' '}
-          <span className="text-white font-bold">{prompt.attackRoll}</span> to hit{' '}
-          <span className="text-cyan-300 font-semibold">{prompt.entityName}</span> (AC{' '}
-          <span className="text-white font-bold">{prompt.currentAC}</span>).
+          <span className="text-red-300 font-semibold">{prompt.attackerName}</span>{' '}
+          {t('game.shieldReactionPrompt.rolled')} <span className="text-white font-bold">{prompt.attackRoll}</span>{' '}
+          {t('game.shieldReactionPrompt.toHit')}{' '}
+          <span className="text-cyan-300 font-semibold">{prompt.entityName}</span>{' '}
+          {t('game.shieldReactionPrompt.acOpen')} <span className="text-white font-bold">{prompt.currentAC}</span>
+          {t('game.shieldReactionPrompt.acClose')}
           <br />
-          Cast <span className="text-cyan-300 font-semibold">Shield</span>? (+5 AC ={' '}
-          <span className="text-white font-bold">{shieldedAC}</span>)
+          {t('game.shieldReactionPrompt.cast')}{' '}
+          <span className="text-cyan-300 font-semibold">{t('game.shieldReactionPrompt.shield')}</span>
+          {t('game.shieldReactionPrompt.plus5')} <span className="text-white font-bold">{shieldedAC}</span>
+          {t('game.shieldReactionPrompt.closeParen')}
         </p>
         <div className="flex gap-2">
           <button
@@ -88,13 +94,13 @@ export function ShieldReactionPrompt({
             }}
             className="flex-1 px-3 py-2 text-xs font-semibold bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg cursor-pointer"
           >
-            Cast Shield
+            {t('game.shieldReactionPrompt.castShield')}
           </button>
           <button
             onClick={onDismiss}
             className="flex-1 px-3 py-2 text-xs font-semibold bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg cursor-pointer"
           >
-            No
+            {t('game.shieldReactionPrompt.no')}
           </button>
         </div>
       </div>
@@ -126,6 +132,7 @@ export function CounterspellReactionPrompt({
   addChatMessage,
   sendMessage
 }: CounterspellPromptProps): JSX.Element {
+  const { t } = useT()
   const gameStore = useGameStore.getState()
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined)
   const [remaining, setRemaining] = useState(AUTO_DISMISS_MS / 1000)
@@ -151,18 +158,23 @@ export function CounterspellReactionPrompt({
       <div className="absolute inset-0 bg-black/50" />
       <div className="relative bg-gray-900 border border-violet-500 rounded-xl p-5 w-96 shadow-2xl">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-semibold text-violet-400">Counterspell</h3>
-          <span className="text-xs text-gray-500">{remaining}s</span>
+          <h3 className="text-sm font-semibold text-violet-400">{t('game.counterspellReactionPrompt.title')}</h3>
+          <span className="text-xs text-gray-500">{t('game.counterspellReactionPrompt.countdown', { remaining })}</span>
         </div>
         <p className="text-xs text-gray-300 mb-3">
-          <span className="text-red-300 font-semibold">{prompt.casterName}</span> is casting{' '}
-          <span className="text-violet-300 font-semibold">{prompt.spellName}</span> (level{' '}
-          <span className="text-white font-bold">{prompt.spellLevel}</span>)!
+          <span className="text-red-300 font-semibold">{prompt.casterName}</span>{' '}
+          {t('game.counterspellReactionPrompt.isCasting')}{' '}
+          <span className="text-violet-300 font-semibold">{prompt.spellName}</span>{' '}
+          {t('game.counterspellReactionPrompt.levelOpen')}{' '}
+          <span className="text-white font-bold">{prompt.spellLevel}</span>
+          {t('game.counterspellReactionPrompt.levelClose')}
         </p>
 
         {slotOptions.length > 1 && (
           <div className="flex items-center gap-2 mb-3">
-            <span className="text-xs text-gray-500 uppercase tracking-wider">Slot Level</span>
+            <span className="text-xs text-gray-500 uppercase tracking-wider">
+              {t('game.counterspellReactionPrompt.slotLevel')}
+            </span>
             <div className="flex gap-1">
               {slotOptions.map((lvl) => (
                 <button
@@ -181,8 +193,8 @@ export function CounterspellReactionPrompt({
 
         <p className="text-xs text-gray-500 mb-3">
           {autoSuccess
-            ? 'Auto-success: slot level >= spell level.'
-            : `Requires DC ${10 + prompt.spellLevel} ability check to counter.`}
+            ? t('game.counterspellReactionPrompt.autoSuccess')
+            : t('game.counterspellReactionPrompt.requiresCheck', { dc: 10 + prompt.spellLevel })}
         </p>
 
         <div className="flex gap-2">
@@ -213,13 +225,13 @@ export function CounterspellReactionPrompt({
             }}
             className="flex-1 px-3 py-2 text-xs font-semibold bg-violet-600 hover:bg-violet-500 text-white rounded-lg cursor-pointer"
           >
-            Cast Counterspell
+            {t('game.counterspellReactionPrompt.castCounterspell')}
           </button>
           <button
             onClick={onDismiss}
             className="flex-1 px-3 py-2 text-xs font-semibold bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg cursor-pointer"
           >
-            No
+            {t('game.counterspellReactionPrompt.no')}
           </button>
         </div>
       </div>

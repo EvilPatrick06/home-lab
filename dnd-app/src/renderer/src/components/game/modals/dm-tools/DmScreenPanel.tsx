@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { CONDITIONS_5E } from '../../../../data/conditions'
+import { useT } from '../../../../i18n'
 
 interface DmScreenPanelProps {
   onClose: () => void
@@ -68,6 +69,7 @@ function CollapsibleSection({
 }
 
 export default function DmScreenPanel({ onClose }: DmScreenPanelProps): JSX.Element {
+  const { t } = useT()
   useEffect(() => {
     const handler = (e: KeyboardEvent): void => {
       if (e.key === 'Escape') onClose()
@@ -80,7 +82,7 @@ export default function DmScreenPanel({ onClose }: DmScreenPanelProps): JSX.Elem
     <div className="fixed right-0 top-0 h-full w-80 bg-gray-900 border-l border-gray-700 shadow-2xl z-50 flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-gray-700 bg-gray-900/95">
-        <h2 className="text-sm font-bold text-amber-400">DM Screen</h2>
+        <h2 className="text-sm font-bold text-amber-400">{t('game.dmScreenPanel.title')}</h2>
         <button
           onClick={onClose}
           className="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-700 text-gray-400 hover:text-gray-200 cursor-pointer"
@@ -91,7 +93,7 @@ export default function DmScreenPanel({ onClose }: DmScreenPanelProps): JSX.Elem
 
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto">
-        <CollapsibleSection title="Conditions" defaultOpen>
+        <CollapsibleSection title={t('game.dmScreenPanel.conditions')} defaultOpen>
           <div className="space-y-1">
             {CONDITIONS_5E.length > 0 ? (
               CONDITIONS_5E.map((c) => (
@@ -101,12 +103,12 @@ export default function DmScreenPanel({ onClose }: DmScreenPanelProps): JSX.Elem
                 </div>
               ))
             ) : (
-              <p className="text-xs text-gray-500 italic">Loading conditions...</p>
+              <p className="text-xs text-gray-500 italic">{t('game.dmScreenPanel.loadingConditions')}</p>
             )}
           </div>
         </CollapsibleSection>
 
-        <CollapsibleSection title="Actions in Combat" defaultOpen>
+        <CollapsibleSection title={t('game.dmScreenPanel.actionsInCombat')} defaultOpen>
           <div className="space-y-1.5">
             {COMBAT_ACTIONS.map((a) => (
               <div key={a.name}>
@@ -117,7 +119,7 @@ export default function DmScreenPanel({ onClose }: DmScreenPanelProps): JSX.Elem
           </div>
         </CollapsibleSection>
 
-        <CollapsibleSection title="Cover Rules" defaultOpen>
+        <CollapsibleSection title={t('game.dmScreenPanel.coverRules')} defaultOpen>
           <div className="space-y-1.5">
             {COVER_RULES.map((c) => (
               <div key={c.type}>
@@ -129,7 +131,7 @@ export default function DmScreenPanel({ onClose }: DmScreenPanelProps): JSX.Elem
           </div>
         </CollapsibleSection>
 
-        <CollapsibleSection title="Difficulty Classes" defaultOpen>
+        <CollapsibleSection title={t('game.dmScreenPanel.difficultyClasses')} defaultOpen>
           <div className="grid grid-cols-2 gap-1">
             {DIFFICULTY_CLASSES.map((d) => (
               <div key={d.dc} className="flex items-center gap-2">
@@ -140,7 +142,7 @@ export default function DmScreenPanel({ onClose }: DmScreenPanelProps): JSX.Elem
           </div>
         </CollapsibleSection>
 
-        <CollapsibleSection title="Travel Pace" defaultOpen>
+        <CollapsibleSection title={t('game.dmScreenPanel.travelPace')} defaultOpen>
           <div className="space-y-1.5">
             {TRAVEL_PACES.map((p) => (
               <div key={p.pace}>

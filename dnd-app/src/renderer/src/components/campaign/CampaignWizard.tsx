@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { DEFAULT_AI_MODEL, DEFAULT_AI_PROVIDER, DEFAULT_OLLAMA_URL } from '../../constants'
 import { addToast } from '../../hooks/use-toast'
+import { useT } from '../../i18n'
 import { type Adventure, loadAdventures } from '../../services/adventure-loader'
 import { useCampaignStore } from '../../stores/use-campaign-store'
 import {
@@ -37,7 +38,22 @@ const STEPS = [
   'Review'
 ]
 
+// Phase 34 — i18n leaf keys parallel to STEPS (used for the step-name display).
+const STEP_KEYS = [
+  'system',
+  'details',
+  'aiDm',
+  'adventure',
+  'sessionZero',
+  'rules',
+  'calendar',
+  'maps',
+  'audio',
+  'review'
+]
+
 export default function CampaignWizard(): JSX.Element {
+  const { t } = useT()
   const navigate = useNavigate()
   const createCampaign = useCampaignStore((s) => s.createCampaign)
   const saveCampaign = useCampaignStore((s) => s.saveCampaign)
@@ -286,17 +302,14 @@ export default function CampaignWizard(): JSX.Element {
           })
         } catch (configErr) {
           logger.error('Failed to configure AI DM after campaign creation:', configErr)
-          addToast(
-            'Campaign created, but AI DM configuration failed. You can reconfigure it from the campaign settings.',
-            'error'
-          )
+          addToast(t('campaign.campaignWizard.aiConfigFailed'), 'error')
         }
       }
 
       navigate(`/campaign/${campaign.id}`)
     } catch (error) {
       logger.error('Failed to create campaign:', error)
-      addToast('Failed to create campaign. Please try again.', 'error')
+      addToast(t('campaign.campaignWizard.createFailed'), 'error')
     } finally {
       setSubmitting(false)
     }
@@ -325,7 +338,11 @@ export default function CampaignWizard(): JSX.Element {
         ))}
       </div>
       <p className="text-gray-400 text-sm mb-8">
-        Step {step + 1} of {STEPS.length}: {STEPS[step]}
+        {t('campaign.campaignWizard.stepIndicator', {
+          current: step + 1,
+          total: STEPS.length,
+          name: t(`campaign.campaignWizard.steps.${STEP_KEYS[step]}`)
+        })}
       </p>
 
       {/* Step content */}
@@ -439,18 +456,18 @@ export default function CampaignWizard(): JSX.Element {
         <div className="flex gap-4 mt-8 max-w-2xl">
           {step > 0 && (
             <Button variant="secondary" onClick={handleBack}>
-              Back
+              {t('campaign.campaignWizard.back')}
             </Button>
           )}
           <Button onClick={handleNext} disabled={!canAdvance()}>
-            Next
+            {t('campaign.campaignWizard.next')}
           </Button>
         </div>
       )}
       {step === STEPS.length - 1 && step > 0 && (
         <div className="flex gap-4 mt-4 max-w-2xl">
           <Button variant="secondary" onClick={handleBack}>
-            Back
+            {t('campaign.campaignWizard.back')}
           </Button>
         </div>
       )}

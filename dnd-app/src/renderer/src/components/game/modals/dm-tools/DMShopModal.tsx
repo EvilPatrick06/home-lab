@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 import type { ShopItem } from '../../../../network'
 import { load5eEquipment, load5eMagicItems } from '../../../../services/data-provider'
 import { useNetworkStore } from '../../../../stores/network-store'
@@ -41,9 +42,10 @@ export default function DMShopModal({ onClose }: DMShopModalProps): JSX.Element 
     updateShopItem
   } = useGameStore()
   const sendMessage = useNetworkStore((s) => s.sendMessage)
+  const { t } = useT()
 
   // Local UI state
-  const [shopNameInput, setShopNameInput] = useState(shopName || 'General Store')
+  const [shopNameInput, setShopNameInput] = useState(shopName || t('game.dmShopModal.generalStore'))
   const [importMode, setImportMode] = useState<'none' | 'equipment' | 'magic'>('none')
 
   useEscapeKey(onClose, importMode === 'none')
@@ -120,7 +122,7 @@ export default function DMShopModal({ onClose }: DMShopModalProps): JSX.Element 
   }
 
   const handleOpenShop = (): void => {
-    const name = shopNameInput || 'General Store'
+    const name = shopNameInput || t('game.dmShopModal.generalStore')
     openShop(name)
     sendMessage('dm:shop-update', { shopInventory: buildPlayerInventory(shopInventory, shopMarkup), shopName: name })
   }
@@ -153,7 +155,7 @@ export default function DMShopModal({ onClose }: DMShopModalProps): JSX.Element 
       <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-[56rem] max-h-[90vh] flex flex-col shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-amber-400">Shop Management</h2>
+          <h2 className="text-lg font-bold text-amber-400">{t('game.dmShopModal.title')}</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-300 text-xl leading-none cursor-pointer">
             &times;
           </button>
@@ -162,7 +164,7 @@ export default function DMShopModal({ onClose }: DMShopModalProps): JSX.Element 
         {/* Top bar: name, markup, broadcast */}
         <div className="flex items-end gap-3 mb-4">
           <div className="flex-1">
-            <label className="block text-xs text-gray-400 mb-1">Shop Name</label>
+            <label className="block text-xs text-gray-400 mb-1">{t('game.dmShopModal.shopName')}</label>
             <input
               type="text"
               value={shopNameInput}
@@ -170,12 +172,14 @@ export default function DMShopModal({ onClose }: DMShopModalProps): JSX.Element 
                 setShopNameInput(e.target.value)
                 if (shopOpen) openShop(e.target.value)
               }}
-              placeholder="General Store"
+              placeholder={t('game.dmShopModal.generalStore')}
               className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
             />
           </div>
           <div className="w-48">
-            <label className="block text-xs text-gray-400 mb-1">Markup: {Math.round(shopMarkup * 100)}%</label>
+            <label className="block text-xs text-gray-400 mb-1">
+              {t('game.dmShopModal.markup', { percent: Math.round(shopMarkup * 100) })}
+            </label>
             <input
               type="range"
               min={50}
@@ -191,7 +195,7 @@ export default function DMShopModal({ onClose }: DMShopModalProps): JSX.Element 
                 onClick={handleOpenShop}
                 className="px-4 py-1.5 bg-amber-600 hover:bg-amber-500 text-white text-sm font-medium rounded transition-colors cursor-pointer whitespace-nowrap"
               >
-                Open for Players
+                {t('game.dmShopModal.openForPlayers')}
               </button>
             ) : (
               <>
@@ -199,37 +203,39 @@ export default function DMShopModal({ onClose }: DMShopModalProps): JSX.Element 
                   onClick={handleBroadcast}
                   className="px-3 py-1.5 bg-green-700 hover:bg-green-600 text-white text-xs font-medium rounded transition-colors cursor-pointer whitespace-nowrap"
                 >
-                  Broadcast
+                  {t('game.dmShopModal.broadcast')}
                 </button>
                 <button
                   onClick={handleCloseShop}
                   className="px-3 py-1.5 bg-red-800 hover:bg-red-700 text-red-200 text-xs font-medium rounded transition-colors cursor-pointer whitespace-nowrap"
                 >
-                  Close Shop
+                  {t('game.dmShopModal.closeShop')}
                 </button>
               </>
             )}
           </div>
         </div>
 
-        {shopOpen && <span className="text-xs text-green-400 mb-2 block">Shop is open for players</span>}
+        {shopOpen && <span className="text-xs text-green-400 mb-2 block">{t('game.dmShopModal.shopIsOpen')}</span>}
 
         {/* Presets */}
         <div className="mb-4">
-          <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Load Preset Inventory</h3>
+          <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
+            {t('game.dmShopModal.loadPreset')}
+          </h3>
           <div className="flex flex-wrap gap-1">
             {Object.entries(PRESETS).map(([key, def]) => (
               <div key={key} className="flex">
                 <button
                   onClick={() => loadPreset(key, true)}
-                  title="Replace current inventory"
+                  title={t('game.dmShopModal.replaceInventory')}
                   className="text-[11px] px-2 py-1 bg-gray-800 border border-gray-700 rounded-l text-gray-300 hover:text-amber-300 hover:border-amber-600 cursor-pointer"
                 >
                   {def.label}
                 </button>
                 <button
                   onClick={() => loadPreset(key, false)}
-                  title="Add to current inventory"
+                  title={t('game.dmShopModal.addToInventory')}
                   className="text-[11px] px-1.5 py-1 bg-gray-800 border border-l-0 border-gray-700 rounded-r text-gray-500 hover:text-green-400 hover:border-green-600 cursor-pointer"
                 >
                   +
@@ -248,13 +254,13 @@ export default function DMShopModal({ onClose }: DMShopModalProps): JSX.Element 
             onClick={() => setImportMode('equipment')}
             className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 text-xs rounded cursor-pointer"
           >
-            Import from Equipment
+            {t('game.dmShopModal.importEquipment')}
           </button>
           <button
             onClick={() => setImportMode('magic')}
             className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 text-xs rounded cursor-pointer"
           >
-            Import from Magic Items
+            {t('game.dmShopModal.importMagic')}
           </button>
         </div>
 

@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import { useT } from '../../../i18n'
 
 interface SpellSlotGridProps {
   label: string
@@ -15,6 +16,7 @@ function SpellSlotGrid5e({
   readonly,
   isPact = false
 }: SpellSlotGridProps): JSX.Element {
+  const { t } = useT()
   return (
     <div className="mb-3">
       <div className={`text-xs uppercase tracking-wide mb-1 ${isPact ? 'text-purple-400' : 'text-gray-500'}`}>
@@ -45,11 +47,11 @@ function SpellSlotGrid5e({
                       title={
                         isFilled
                           ? isPact
-                            ? 'Use pact slot'
-                            : 'Use slot'
+                            ? t('sheet.spellSlotGrid.usePactSlot')
+                            : t('sheet.spellSlotGrid.useSlot')
                           : isPact
-                            ? 'Recover pact slot'
-                            : 'Recover slot'
+                            ? t('sheet.spellSlotGrid.recoverPactSlot')
+                            : t('sheet.spellSlotGrid.recoverSlot')
                       }
                     />
                   )

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useT } from '../../i18n'
 import { useBastionStore } from '../../stores/use-bastion-store'
 import type { Bastion } from '../../types/bastion'
 import { getBpPerTurn } from '../../types/bastion'
@@ -22,6 +23,7 @@ export function SummaryCard({
 }
 
 function FactionRenownSection({ bastion }: { bastion: Bastion }): JSX.Element {
+  const { t } = useT()
   const [newFaction, setNewFaction] = useState('')
   const renown = bastion.factionRenown ?? {}
   const factions = Object.entries(renown)
@@ -32,7 +34,7 @@ function FactionRenownSection({ bastion }: { bastion: Bastion }): JSX.Element {
 
   return (
     <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
-      <h3 className="text-sm font-semibold text-gray-200 mb-3">Faction Renown</h3>
+      <h3 className="text-sm font-semibold text-gray-200 mb-3">{t('pages.overviewTab.factionRenown')}</h3>
       {factions.length > 0 ? (
         <div className="space-y-2 mb-3">
           {factions.map(([name, value]) => (
@@ -70,14 +72,14 @@ function FactionRenownSection({ bastion }: { bastion: Bastion }): JSX.Element {
           ))}
         </div>
       ) : (
-        <p className="text-xs text-gray-500 mb-3">No faction renown tracked yet.</p>
+        <p className="text-xs text-gray-500 mb-3">{t('pages.overviewTab.noFactionRenown')}</p>
       )}
       <div className="flex gap-2">
         <input
           type="text"
           value={newFaction}
           onChange={(e) => setNewFaction(e.target.value)}
-          placeholder="Faction name..."
+          placeholder={t('pages.overviewTab.factionNamePlaceholder')}
           className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
           onKeyDown={(e) => {
             if (e.key === 'Enter' && newFaction.trim()) {
@@ -96,7 +98,7 @@ function FactionRenownSection({ bastion }: { bastion: Bastion }): JSX.Element {
           }}
           className="px-3 py-1 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded transition-colors"
         >
-          Add Faction
+          {t('pages.overviewTab.addFaction')}
         </button>
       </div>
     </div>
@@ -114,6 +116,7 @@ export function OverviewTab({
   maxSpecial: number
   onStartTurn: () => void
 }): JSX.Element {
+  const { t } = useT()
   const daysSinceTurn = bastion.inGameTime.currentDay - bastion.inGameTime.lastBastionTurnDay
   const daysUntilTurn = Math.max(0, bastion.inGameTime.turnFrequencyDays - daysSinceTurn)
   const turnReady = daysUntilTurn === 0
@@ -122,25 +125,34 @@ export function OverviewTab({
     <div className="space-y-6">
       {/* Summary cards */}
       <div className="grid grid-cols-5 gap-4">
-        <SummaryCard label="Basic Facilities" value={bastion.basicFacilities.length} />
-        <SummaryCard label="Special Facilities" value={`${bastion.specialFacilities.length}/${maxSpecial}`} />
-        <SummaryCard label="Defenders" value={bastion.defenders.length} />
-        <SummaryCard label="Treasury" value={`${bastion.treasury} GP`} accent />
-        <SummaryCard label="Bastion Points" value={`${bastion.bastionPoints} BP`} accent />
+        <SummaryCard label={t('pages.overviewTab.basicFacilities')} value={bastion.basicFacilities.length} />
+        <SummaryCard
+          label={t('pages.overviewTab.specialFacilities')}
+          value={`${bastion.specialFacilities.length}/${maxSpecial}`}
+        />
+        <SummaryCard label={t('pages.overviewTab.defenders')} value={bastion.defenders.length} />
+        <SummaryCard label={t('pages.overviewTab.treasury')} value={`${bastion.treasury} GP`} accent />
+        <SummaryCard label={t('pages.overviewTab.bastionPoints')} value={`${bastion.bastionPoints} BP`} accent />
       </div>
 
       {/* Turn status */}
       <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-sm font-semibold text-gray-200">Bastion Turn Status</h3>
+            <h3 className="text-sm font-semibold text-gray-200">{t('pages.overviewTab.turnStatus')}</h3>
             <p className="text-xs text-gray-500 mt-1">
               {turnReady
-                ? 'A bastion turn is ready! Assign orders and roll for events.'
-                : `Next turn in ${daysUntilTurn} day${daysUntilTurn !== 1 ? 's' : ''} (every ${bastion.inGameTime.turnFrequencyDays} days)`}
+                ? t('pages.overviewTab.turnReady')
+                : t('pages.overviewTab.nextTurnIn', {
+                    days: daysUntilTurn,
+                    plural: daysUntilTurn !== 1 ? 's' : '',
+                    frequency: bastion.inGameTime.turnFrequencyDays
+                  })}
             </p>
             {getBpPerTurn(ownerLevel) > 0 && (
-              <p className="text-xs text-purple-400 mt-1">Earning {getBpPerTurn(ownerLevel)} BP per turn</p>
+              <p className="text-xs text-purple-400 mt-1">
+                {t('pages.overviewTab.earningBpPerTurn', { bp: getBpPerTurn(ownerLevel) })}
+              </p>
             )}
           </div>
           <button
@@ -149,7 +161,7 @@ export function OverviewTab({
               turnReady ? 'bg-amber-600 hover:bg-amber-500 text-white' : 'bg-gray-800 text-gray-400 hover:text-gray-200'
             }`}
           >
-            {turnReady ? 'Start Turn' : 'Force Turn'}
+            {turnReady ? t('pages.overviewTab.startTurn') : t('pages.overviewTab.forceTurn')}
           </button>
         </div>
       </div>
@@ -157,7 +169,7 @@ export function OverviewTab({
       {/* Construction queue */}
       {bastion.construction.length > 0 && (
         <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
-          <h3 className="text-sm font-semibold text-gray-200 mb-3">Construction Queue</h3>
+          <h3 className="text-sm font-semibold text-gray-200 mb-3">{t('pages.overviewTab.constructionQueue')}</h3>
           <div className="space-y-2">
             {bastion.construction.map((p) => {
               const pct = p.daysRequired > 0 ? Math.round((p.daysCompleted / p.daysRequired) * 100) : 100
@@ -166,11 +178,15 @@ export function OverviewTab({
                   <div className="flex items-center justify-between text-xs mb-1">
                     <span className="text-gray-300 capitalize">
                       {p.projectType === 'add-special' && p.specialFacilityName
-                        ? `Building: ${p.specialFacilityName}`
+                        ? t('pages.overviewTab.building', { name: p.specialFacilityName })
                         : `${p.projectType.replace(/-/g, ' ')}${p.facilityType ? `: ${p.facilityType}` : ''}`}
                     </span>
                     <span className="text-gray-500">
-                      {p.daysCompleted}/{p.daysRequired} days ({p.cost} GP)
+                      {t('pages.overviewTab.constructionProgress', {
+                        completed: p.daysCompleted,
+                        required: p.daysRequired,
+                        cost: p.cost
+                      })}
                     </span>
                   </div>
                   <div className="w-full bg-gray-700 rounded-full h-1.5">
@@ -186,7 +202,7 @@ export function OverviewTab({
       {/* Active orders */}
       {bastion.specialFacilities.some((f) => f.currentOrder) && (
         <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
-          <h3 className="text-sm font-semibold text-gray-200 mb-3">Active Orders</h3>
+          <h3 className="text-sm font-semibold text-gray-200 mb-3">{t('pages.overviewTab.activeOrders')}</h3>
           {bastion.specialFacilities
             .filter((f) => f.currentOrder)
             .map((f) => (
@@ -203,7 +219,7 @@ export function OverviewTab({
       {/* Active Charms */}
       {(bastion.activeCharms ?? []).length > 0 && (
         <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
-          <h3 className="text-sm font-semibold text-purple-300 mb-3">Active Charms</h3>
+          <h3 className="text-sm font-semibold text-purple-300 mb-3">{t('pages.overviewTab.activeCharms')}</h3>
           <div className="space-y-2">
             {bastion.activeCharms.map((charm, i) => {
               const remaining = charm.grantedOnDay + charm.durationDays - bastion.inGameTime.currentDay
@@ -217,7 +233,10 @@ export function OverviewTab({
                     <span className="text-gray-500 ml-2">{charm.description}</span>
                   </div>
                   <span className="text-gray-400">
-                    {remaining} day{remaining !== 1 ? 's' : ''} left
+                    {t('pages.overviewTab.daysLeft', {
+                      remaining,
+                      plural: remaining !== 1 ? 's' : ''
+                    })}
                   </span>
                 </div>
               )
@@ -231,11 +250,11 @@ export function OverviewTab({
 
       {/* Notes */}
       <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
-        <h3 className="text-sm font-semibold text-gray-200 mb-2">Notes</h3>
+        <h3 className="text-sm font-semibold text-gray-200 mb-2">{t('pages.overviewTab.notes')}</h3>
         <textarea
           value={bastion.notes}
           onChange={(e) => useBastionStore.getState().updateNotes(bastion.id, e.target.value)}
-          placeholder="Bastion notes..."
+          placeholder={t('pages.overviewTab.notesPlaceholder')}
           rows={4}
           className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500 resize-y"
         />

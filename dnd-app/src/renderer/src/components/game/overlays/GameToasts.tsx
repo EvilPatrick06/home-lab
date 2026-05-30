@@ -1,3 +1,4 @@
+import { useT } from '../../../i18n'
 import { useGameStore } from '../../../stores/use-game-store'
 
 // --- Time Request Toast ---
@@ -7,15 +8,18 @@ interface TimeRequestToastProps {
 }
 
 export function TimeRequestToast({ toast, onDismiss }: TimeRequestToastProps): JSX.Element {
+  const { t } = useT()
   return (
     <div className="fixed top-28 left-1/2 -translate-x-1/2 z-40">
       <div className="bg-gray-900 border border-cyan-500/50 rounded-xl px-4 py-3 shadow-xl flex items-center gap-3">
-        <span className="text-xs text-gray-200">{toast.requesterName} wants to know the current time</span>
+        <span className="text-xs text-gray-200">
+          {t('game.timeRequestToast.message', { name: toast.requesterName })}
+        </span>
         <button
           onClick={onDismiss}
           className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
         >
-          Dismiss
+          {t('game.timeRequestToast.dismiss')}
         </button>
       </div>
     </div>
@@ -31,11 +35,15 @@ interface RestRequestToastProps {
 }
 
 export function RestRequestToast({ toast, onDismiss, onShortRest, onLongRest }: RestRequestToastProps): JSX.Element {
+  const { t } = useT()
   return (
     <div className="fixed top-28 left-1/2 -translate-x-1/2 z-40">
       <div className="bg-gray-900 border border-green-500/50 rounded-xl px-4 py-3 shadow-xl flex items-center gap-3">
         <span className="text-xs text-gray-200">
-          {toast.playerName} requests a {toast.restType === 'short' ? 'Short' : 'Long'} Rest
+          {t('game.restRequestToast.message', {
+            name: toast.playerName,
+            restType: toast.restType === 'short' ? t('game.restRequestToast.short') : t('game.restRequestToast.long')
+          })}
         </span>
         <button
           onClick={() => {
@@ -45,13 +53,13 @@ export function RestRequestToast({ toast, onDismiss, onShortRest, onLongRest }: 
           }}
           className="px-2 py-1 text-xs bg-green-600 hover:bg-green-500 text-white rounded cursor-pointer"
         >
-          Accept
+          {t('game.restRequestToast.accept')}
         </button>
         <button
           onClick={onDismiss}
           className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
         >
-          Dismiss
+          {t('game.restRequestToast.dismiss')}
         </button>
       </div>
     </div>
@@ -65,14 +73,15 @@ interface PhaseChangeToastProps {
 }
 
 export function PhaseChangeToast({ toast, onDismiss }: PhaseChangeToastProps): JSX.Element {
+  const { t } = useT()
   const gameStore = useGameStore()
 
   return (
     <div className="fixed top-16 left-1/2 -translate-x-1/2 z-40">
       <div className="bg-gray-900 border border-purple-500/50 rounded-xl px-4 py-3 shadow-xl flex items-center gap-3">
         <span className="text-xs text-gray-200">
-          It's now <span className="text-purple-300 font-semibold">{toast.phase}</span>. Update ambient lighting to{' '}
-          <span className="text-amber-300">{toast.suggestedLight}</span>?
+          {t('game.phaseChangeToast.itsNow')} <span className="text-purple-300 font-semibold">{toast.phase}</span>.{' '}
+          {t('game.phaseChangeToast.updateLighting')} <span className="text-amber-300">{toast.suggestedLight}</span>?
         </span>
         <button
           onClick={() => {
@@ -81,13 +90,13 @@ export function PhaseChangeToast({ toast, onDismiss }: PhaseChangeToastProps): J
           }}
           className="px-2 py-1 text-xs bg-purple-600 hover:bg-purple-500 text-white rounded cursor-pointer"
         >
-          Yes
+          {t('game.phaseChangeToast.yes')}
         </button>
         <button
           onClick={onDismiss}
           className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
         >
-          No
+          {t('game.phaseChangeToast.no')}
         </button>
       </div>
     </div>
@@ -101,21 +110,22 @@ interface LongRestWarningProps {
 }
 
 export function LongRestWarning({ onOverride, onCancel }: LongRestWarningProps): JSX.Element {
+  const { t } = useT()
   return (
     <div className="fixed top-16 left-1/2 -translate-x-1/2 z-40">
       <div className="bg-gray-900 border border-red-500/50 rounded-xl px-4 py-3 shadow-xl flex items-center gap-3">
-        <span className="text-xs text-gray-200">Less than 24 hours since last Long Rest. Override?</span>
+        <span className="text-xs text-gray-200">{t('game.longRestWarning.message')}</span>
         <button
           onClick={onOverride}
           className="px-2 py-1 text-xs bg-red-600 hover:bg-red-500 text-white rounded cursor-pointer"
         >
-          Override
+          {t('game.longRestWarning.override')}
         </button>
         <button
           onClick={onCancel}
           className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
         >
-          Cancel
+          {t('common.actions.cancel')}
         </button>
       </div>
     </div>
@@ -128,13 +138,14 @@ interface AoEDismissProps {
 }
 
 export function AoEDismissButton({ onClear }: AoEDismissProps): JSX.Element {
+  const { t } = useT()
   return (
     <div className="fixed top-16 right-4 z-30">
       <button
         onClick={onClear}
         className="px-3 py-1.5 text-xs font-semibold bg-red-600 hover:bg-red-500 text-white rounded-lg cursor-pointer shadow-lg"
       >
-        Clear AoE Template
+        {t('game.aoeDismissButton.clear')}
       </button>
     </div>
   )
@@ -158,22 +169,23 @@ export function FogToolbar({
   dynamicFogEnabled,
   onDynamicFogToggle
 }: FogToolbarProps): JSX.Element {
+  const { t } = useT()
   return (
     <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 bg-gray-900/90 backdrop-blur-sm border border-gray-700/50 rounded-xl px-3 py-2">
       <button
         onClick={() => onSetTool('fog-reveal')}
         className={`px-2 py-1 text-xs rounded-lg cursor-pointer ${activeTool === 'fog-reveal' ? 'bg-green-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}
       >
-        Reveal
+        {t('game.fogToolbar.reveal')}
       </button>
       <button
         onClick={() => onSetTool('fog-hide')}
         className={`px-2 py-1 text-xs rounded-lg cursor-pointer ${activeTool === 'fog-hide' ? 'bg-red-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}
       >
-        Hide
+        {t('game.fogToolbar.hide')}
       </button>
       <div className="border-l border-gray-700 h-5 mx-1" />
-      <span className="text-xs text-gray-400">Brush:</span>
+      <span className="text-xs text-gray-400">{t('game.fogToolbar.brush')}</span>
       {[1, 2, 3, 5].map((size) => (
         <button
           key={size}
@@ -193,7 +205,7 @@ export function FogToolbar({
               onChange={(e) => onDynamicFogToggle(e.target.checked)}
               className="accent-cyan-500 w-3 h-3 cursor-pointer"
             />
-            <span className="text-xs text-gray-400">Dynamic Vision</span>
+            <span className="text-xs text-gray-400">{t('game.fogToolbar.dynamicVision')}</span>
           </label>
         </>
       )}
@@ -202,7 +214,7 @@ export function FogToolbar({
         onClick={() => onSetTool('select')}
         className="px-2 py-1 text-xs rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
       >
-        Done
+        {t('game.fogToolbar.done')}
       </button>
     </div>
   )
@@ -216,6 +228,7 @@ interface WallToolbarProps {
 }
 
 export function WallToolbar({ wallType, onSetWallType, onDone }: WallToolbarProps): JSX.Element {
+  const { t } = useT()
   return (
     <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 bg-gray-900/90 backdrop-blur-sm border border-gray-700/50 rounded-xl px-3 py-2">
       {(['solid', 'door', 'window'] as const).map((type) => (
@@ -236,13 +249,13 @@ export function WallToolbar({ wallType, onSetWallType, onDone }: WallToolbarProp
         </button>
       ))}
       <div className="border-l border-gray-700 h-5 mx-1" />
-      <span className="text-xs text-gray-400">Click grid intersections to place walls</span>
+      <span className="text-xs text-gray-400">{t('game.wallToolbar.instructions')}</span>
       <div className="border-l border-gray-700 h-5 mx-1" />
       <button
         onClick={onDone}
         className="px-2 py-1 text-xs rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
       >
-        Done
+        {t('game.wallToolbar.done')}
       </button>
     </div>
   )
@@ -289,13 +302,31 @@ export function DrawingToolbar({
   onClearDrawings,
   isHost
 }: DrawingToolbarProps): JSX.Element {
+  const { t } = useT()
+  const toolLabels: Record<(typeof DRAWING_TOOLS)[number]['id'], string> = {
+    'draw-free': t('game.drawingToolbar.toolFree'),
+    'draw-line': t('game.drawingToolbar.toolLine'),
+    'draw-rect': t('game.drawingToolbar.toolRect'),
+    'draw-circle': t('game.drawingToolbar.toolCircle'),
+    'draw-text': t('game.drawingToolbar.toolText')
+  }
+  const colorLabels: Record<string, string> = {
+    '#ffffff': t('game.drawingToolbar.colorWhite'),
+    '#ff0000': t('game.drawingToolbar.colorRed'),
+    '#00ff00': t('game.drawingToolbar.colorGreen'),
+    '#0000ff': t('game.drawingToolbar.colorBlue'),
+    '#ffff00': t('game.drawingToolbar.colorYellow'),
+    '#ff00ff': t('game.drawingToolbar.colorMagenta'),
+    '#00ffff': t('game.drawingToolbar.colorCyan'),
+    '#000000': t('game.drawingToolbar.colorBlack')
+  }
   return (
     <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 bg-gray-900/90 backdrop-blur-sm border border-gray-700/50 rounded-xl px-3 py-2">
       {DRAWING_TOOLS.map((tool) => (
         <button
           key={tool.id}
           onClick={() => onSetTool(tool.id)}
-          title={tool.label}
+          title={toolLabels[tool.id]}
           className={`px-2 py-1 text-sm rounded-lg cursor-pointer ${
             activeTool === tool.id ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
           }`}
@@ -306,7 +337,7 @@ export function DrawingToolbar({
 
       <div className="border-l border-gray-700 h-5 mx-1" />
 
-      <span className="text-xs text-gray-400">Size:</span>
+      <span className="text-xs text-gray-400">{t('game.drawingToolbar.size')}</span>
       {[1, 2, 3, 5, 8].map((size) => (
         <button
           key={size}
@@ -321,12 +352,12 @@ export function DrawingToolbar({
 
       <div className="border-l border-gray-700 h-5 mx-1" />
 
-      <span className="text-xs text-gray-400">Color:</span>
+      <span className="text-xs text-gray-400">{t('game.drawingToolbar.color')}</span>
       {DRAWING_COLORS.map((c) => (
         <button
           key={c.value}
           onClick={() => onSetColor(c.value)}
-          title={c.label}
+          title={colorLabels[c.value] ?? c.value}
           className={`w-6 h-6 rounded cursor-pointer border-2 ${
             color === c.value ? 'border-amber-500' : 'border-gray-600'
           }`}
@@ -339,10 +370,10 @@ export function DrawingToolbar({
           <div className="border-l border-gray-700 h-5 mx-1" />
           <button
             onClick={onClearDrawings}
-            title="Clear All Drawings"
+            title={t('game.drawingToolbar.clearAll')}
             className="px-2 py-1 text-xs rounded-lg bg-red-900/50 text-red-300 hover:bg-red-800/60 cursor-pointer"
           >
-            🗑️ Clear
+            {t('game.drawingToolbar.clear')}
           </button>
         </>
       )}

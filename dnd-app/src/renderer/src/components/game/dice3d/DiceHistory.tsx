@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useT } from '../../../i18n'
 import { useGameStore } from '../../../stores/use-game-store'
 import type { DiceRollRecord } from '../../../types/game-state'
 
@@ -7,6 +8,7 @@ interface DiceHistoryProps {
 }
 
 export default function DiceHistory({ onClose }: DiceHistoryProps): JSX.Element {
+  const { t } = useT()
   const diceHistory: DiceRollRecord[] = useGameStore((s) => s.diceHistory)
   const [filterPlayer, setFilterPlayer] = useState<string | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -41,14 +43,16 @@ export default function DiceHistory({ onClose }: DiceHistoryProps): JSX.Element 
     <div className="w-72 h-full bg-gray-900/95 border-l border-gray-700 flex flex-col min-h-0">
       {/* Header */}
       <div className="shrink-0 flex items-center justify-between px-3 py-2 border-b border-gray-700">
-        <h2 className="text-sm font-bold text-gray-100">Dice History</h2>
+        <h2 className="text-sm font-bold text-gray-100">{t('game.diceHistory.title')}</h2>
         <div className="flex items-center gap-1">
-          <span className="text-xs text-gray-500">{diceHistory.length} rolls</span>
+          <span className="text-xs text-gray-500">
+            {t('game.diceHistory.rollCount', { count: diceHistory.length })}
+          </span>
           {onClose && (
             <button
               onClick={onClose}
               className="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-gray-300 rounded hover:bg-gray-800 cursor-pointer transition-colors"
-              title="Close"
+              title={t('common.actions.close')}
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
                 <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
@@ -69,7 +73,7 @@ export default function DiceHistory({ onClose }: DiceHistoryProps): JSX.Element 
                 : 'bg-gray-800 text-gray-400 hover:text-gray-200 hover:bg-gray-700'
             }`}
           >
-            All
+            {t('game.diceHistory.all')}
           </button>
           {playerNames.map((name) => (
             <button
@@ -91,8 +95,8 @@ export default function DiceHistory({ onClose }: DiceHistoryProps): JSX.Element 
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-2 min-h-0 space-y-1">
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
-            <p className="text-xs text-gray-500">No dice rolls yet.</p>
-            <p className="text-xs text-gray-600 mt-1">Rolls will appear here as they happen.</p>
+            <p className="text-xs text-gray-500">{t('game.diceHistory.noRolls')}</p>
+            <p className="text-xs text-gray-600 mt-1">{t('game.diceHistory.rollsWillAppear')}</p>
           </div>
         ) : (
           filtered.map((roll) => (
@@ -134,8 +138,12 @@ export default function DiceHistory({ onClose }: DiceHistoryProps): JSX.Element 
                 >
                   {roll.total}
                 </span>
-                {roll.isCritical && <span className="text-[9px] text-amber-400 font-bold">CRIT!</span>}
-                {roll.isFumble && <span className="text-[9px] text-red-400 font-bold">FUMBLE</span>}
+                {roll.isCritical && (
+                  <span className="text-[9px] text-amber-400 font-bold">{t('game.diceHistory.crit')}</span>
+                )}
+                {roll.isFumble && (
+                  <span className="text-[9px] text-red-400 font-bold">{t('game.diceHistory.fumble')}</span>
+                )}
               </div>
             </div>
           ))

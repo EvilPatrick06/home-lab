@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { CharacterCard, ConfirmDialog, Spinner } from '../components/ui'
 import { addToast } from '../hooks/use-toast'
+import { useT } from '../i18n'
 import { exportCharacterToFile, importCharacterFromFile } from '../services/io/character-io'
 import { importDndBeyondCharacter } from '../services/io/import-dnd-beyond'
 import { importFoundryCharacter } from '../services/io/import-foundry'
@@ -13,14 +14,15 @@ import { logger } from '../utils/logger'
 
 type StatusFilter = 'active' | 'retired' | 'deceased' | 'all'
 
-const filterTabs: Array<{ key: StatusFilter; label: string }> = [
-  { key: 'active', label: 'Active' },
-  { key: 'retired', label: 'Retired' },
-  { key: 'deceased', label: 'Deceased' },
-  { key: 'all', label: 'All' }
+const filterTabs: Array<{ key: StatusFilter; labelKey: string }> = [
+  { key: 'active', labelKey: 'pages.viewCharactersPage.filterActive' },
+  { key: 'retired', labelKey: 'pages.viewCharactersPage.filterRetired' },
+  { key: 'deceased', labelKey: 'pages.viewCharactersPage.filterDeceased' },
+  { key: 'all', labelKey: 'pages.viewCharactersPage.filterAll' }
 ]
 
 export default function ViewCharactersPage(): JSX.Element {
+  const { t } = useT()
   const navigate = useNavigate()
   const { characters, loading, loadCharacters, deleteCharacter, deleteAllCharacters, saveCharacter } =
     useCharacterStore()
@@ -49,13 +51,13 @@ export default function ViewCharactersPage(): JSX.Element {
   const handleDelete = async (id: string): Promise<void> => {
     await deleteCharacter(id)
     setShowDeleteConfirm(null)
-    addToast('Character deleted', 'success')
+    addToast(t('pages.viewCharactersPage.toastDeleted'), 'success')
   }
 
   const handleDeleteAll = async (): Promise<void> => {
     await deleteAllCharacters()
     setShowDeleteAllConfirm(false)
-    addToast('All characters deleted', 'success')
+    addToast(t('pages.viewCharactersPage.toastAllDeleted'), 'success')
   }
 
   const handleExport = async (characterId: string): Promise<void> => {
@@ -63,10 +65,10 @@ export default function ViewCharactersPage(): JSX.Element {
     if (!character) return
     try {
       const saved = await exportCharacterToFile(character)
-      if (saved) addToast('Character exported', 'success')
+      if (saved) addToast(t('pages.viewCharactersPage.toastExported'), 'success')
     } catch (err) {
       logger.error('Failed to export character:', err)
-      addToast('Failed to export character', 'error')
+      addToast(t('pages.viewCharactersPage.toastExportFailed'), 'error')
     }
   }
 
@@ -76,10 +78,10 @@ export default function ViewCharactersPage(): JSX.Element {
       const character = await importCharacterFromFile()
       if (character) {
         await saveCharacter(character)
-        addToast('Character imported successfully', 'success')
+        addToast(t('pages.viewCharactersPage.toastImported'), 'success')
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to import character'
+      const message = err instanceof Error ? err.message : t('pages.viewCharactersPage.toastImportFailed')
       addToast(message, 'error')
     }
   }
@@ -90,11 +92,11 @@ export default function ViewCharactersPage(): JSX.Element {
       const character = await importDndBeyondCharacter()
       if (character) {
         await saveCharacter(character)
-        addToast(`Imported "${character.name}" from D&D Beyond`, 'success')
+        addToast(t('pages.viewCharactersPage.toastImportedDdb', { name: character.name }), 'success')
       }
     } catch (err) {
       logger.error('DDB import failed:', err)
-      addToast('Failed to import D&D Beyond character', 'error')
+      addToast(t('pages.viewCharactersPage.toastImportDdbFailed'), 'error')
     }
   }
 
@@ -104,11 +106,11 @@ export default function ViewCharactersPage(): JSX.Element {
       const character = await importFoundryCharacter()
       if (character) {
         await saveCharacter(character)
-        addToast(`Imported "${character.name}" from Foundry VTT`, 'success')
+        addToast(t('pages.viewCharactersPage.toastImportedFoundry', { name: character.name }), 'success')
       }
     } catch (err) {
       logger.error('Foundry import failed:', err)
-      addToast('Failed to import Foundry VTT character', 'error')
+      addToast(t('pages.viewCharactersPage.toastImportFoundryFailed'), 'error')
     }
   }
 
@@ -117,11 +119,11 @@ export default function ViewCharactersPage(): JSX.Element {
     if (!character) return
     try {
       const success = await exportCharacterToPdf(character)
-      if (success) addToast('Character exported to PDF', 'success')
-      else addToast('Failed to export PDF', 'error')
+      if (success) addToast(t('pages.viewCharactersPage.toastExportedPdf'), 'success')
+      else addToast(t('pages.viewCharactersPage.toastExportPdfFailed'), 'error')
     } catch (err) {
       logger.error('PDF export failed:', err)
-      addToast('Failed to export PDF', 'error')
+      addToast(t('pages.viewCharactersPage.toastExportPdfFailed'), 'error')
     }
   }
 
@@ -143,11 +145,11 @@ export default function ViewCharactersPage(): JSX.Element {
         onClick={() => navigate('/')}
         className="text-amber-400 hover:text-amber-300 hover:underline mb-6 block cursor-pointer"
       >
-        &larr; Back to Menu
+        &larr; {t('pages.viewCharactersPage.backToMenu')}
       </button>
 
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold">Your Characters</h1>
+        <h1 className="text-3xl font-bold">{t('pages.viewCharactersPage.title')}</h1>
         <div className="flex items-center gap-2">
           {characters.length > 0 && (
             <button
@@ -156,7 +158,7 @@ export default function ViewCharactersPage(): JSX.Element {
                          text-gray-400 hover:text-red-400 rounded-lg font-semibold text-sm
                          transition-colors cursor-pointer"
             >
-              Delete All
+              {t('pages.viewCharactersPage.deleteAll')}
             </button>
           )}
           <div className="relative" ref={importMenuRef}>
@@ -166,7 +168,7 @@ export default function ViewCharactersPage(): JSX.Element {
                          text-gray-300 hover:text-amber-400 rounded-lg font-semibold text-sm
                          transition-colors cursor-pointer flex items-center gap-1"
             >
-              Import
+              {t('pages.viewCharactersPage.import')}
               <span className="text-xs">{showImportMenu ? '\u25B2' : '\u25BC'}</span>
             </button>
             {showImportMenu && (
@@ -175,19 +177,19 @@ export default function ViewCharactersPage(): JSX.Element {
                   onClick={handleImport}
                   className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-amber-400 cursor-pointer"
                 >
-                  From File (.dndchar)
+                  {t('pages.viewCharactersPage.importFromFile')}
                 </button>
                 <button
                   onClick={handleImportDdb}
                   className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-amber-400 cursor-pointer"
                 >
-                  D&D Beyond JSON
+                  {t('pages.viewCharactersPage.importDdb')}
                 </button>
                 <button
                   onClick={handleImportFoundry}
                   className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-amber-400 cursor-pointer"
                 >
-                  Foundry VTT JSON
+                  {t('pages.viewCharactersPage.importFoundry')}
                 </button>
               </div>
             )}
@@ -197,7 +199,7 @@ export default function ViewCharactersPage(): JSX.Element {
             className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg
                        font-semibold text-sm transition-colors cursor-pointer"
           >
-            + New Character
+            {t('pages.viewCharactersPage.newCharacter')}
           </button>
         </div>
       </div>
@@ -208,7 +210,7 @@ export default function ViewCharactersPage(): JSX.Element {
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search characters by name..."
+          placeholder={t('pages.viewCharactersPage.searchPlaceholder')}
           className="w-full max-w-md px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
             placeholder-gray-500 focus:border-amber-500 focus:outline-none transition-colors text-sm"
         />
@@ -226,7 +228,7 @@ export default function ViewCharactersPage(): JSX.Element {
                 : 'border-transparent text-gray-500 hover:text-gray-300'
             }`}
           >
-            {tab.label}
+            {t(tab.labelKey)}
             {tab.key !== 'all' && (
               <span className="ml-1.5 text-xs text-gray-600">
                 {characters.filter((c) => c.status === tab.key).length}
@@ -240,20 +242,20 @@ export default function ViewCharactersPage(): JSX.Element {
       {loading ? (
         <div className="flex flex-col items-center justify-center py-12 gap-3">
           <Spinner size="lg" />
-          <span className="text-sm text-gray-500">Loading characters...</span>
+          <span className="text-sm text-gray-500">{t('pages.viewCharactersPage.loadingCharacters')}</span>
         </div>
       ) : characters.length === 0 ? (
         <div className="border border-dashed border-gray-700 rounded-lg p-12 text-center text-gray-500">
           <Swords className="w-10 h-10 mx-auto mb-4 text-gray-500" aria-hidden="true" />
-          <p className="text-xl mb-2">No characters yet</p>
-          <p className="mb-4">Create your first character to begin your adventure.</p>
+          <p className="text-xl mb-2">{t('pages.viewCharactersPage.noCharactersYet')}</p>
+          <p className="mb-4">{t('pages.viewCharactersPage.createFirstPrompt')}</p>
           <div className="flex justify-center gap-3">
             <button
               onClick={() => navigate('/characters/5e/create')}
               className="px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg
                          font-semibold transition-colors cursor-pointer"
             >
-              Create Character
+              {t('pages.viewCharactersPage.createCharacter')}
             </button>
             <button
               onClick={handleImport}
@@ -261,16 +263,18 @@ export default function ViewCharactersPage(): JSX.Element {
                          text-gray-300 hover:text-amber-400 rounded-lg font-semibold
                          transition-colors cursor-pointer"
             >
-              Import Character
+              {t('pages.viewCharactersPage.importCharacter')}
             </button>
           </div>
         </div>
       ) : filteredCharacters.length === 0 ? (
         <div className="text-center text-gray-500 py-12">
           <p className="text-lg mb-1">
-            {searchQuery ? `No characters matching "${searchQuery}"` : `No ${statusFilter} characters`}
+            {searchQuery
+              ? t('pages.viewCharactersPage.noMatching', { query: searchQuery })
+              : t('pages.viewCharactersPage.noStatusCharacters', { status: statusFilter })}
           </p>
-          <p className="text-sm">Try a different filter or create a new character.</p>
+          <p className="text-sm">{t('pages.viewCharactersPage.tryDifferentFilter')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -289,9 +293,9 @@ export default function ViewCharactersPage(): JSX.Element {
 
       <ConfirmDialog
         open={!!showDeleteConfirm}
-        title="Delete Character?"
-        message="This action cannot be undone. The character will be permanently deleted."
-        confirmLabel="Delete"
+        title={t('pages.viewCharactersPage.deleteTitle')}
+        message={t('pages.viewCharactersPage.deleteMessage')}
+        confirmLabel={t('common.actions.delete')}
         variant="danger"
         onConfirm={() => showDeleteConfirm && handleDelete(showDeleteConfirm)}
         onCancel={() => setShowDeleteConfirm(null)}
@@ -299,9 +303,13 @@ export default function ViewCharactersPage(): JSX.Element {
 
       <ConfirmDialog
         open={showDeleteAllConfirm}
-        title="Delete All Characters?"
-        message={`This will permanently delete all ${characters.length} character${characters.length !== 1 ? 's' : ''}. This action cannot be undone.`}
-        confirmLabel="Delete All"
+        title={t('pages.viewCharactersPage.deleteAllTitle')}
+        message={
+          characters.length !== 1
+            ? t('pages.viewCharactersPage.deleteAllMessagePlural', { count: characters.length })
+            : t('pages.viewCharactersPage.deleteAllMessageSingular', { count: characters.length })
+        }
+        confirmLabel={t('pages.viewCharactersPage.deleteAll')}
         variant="danger"
         onConfirm={handleDeleteAll}
         onCancel={() => setShowDeleteAllConfirm(false)}

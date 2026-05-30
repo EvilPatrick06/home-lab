@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { xpThresholdForNextLevel } from '../../../data/xp-thresholds'
+import { useT } from '../../../i18n'
 import { getEffectiveClasses, getEffectiveFeats } from '../../../services/character/effective-character-5e'
 import { roll } from '../../../services/dice/dice-service'
 import { PRESET_ICONS } from '../../../stores/use-builder-store'
@@ -17,6 +18,7 @@ interface SheetHeader5eProps {
 }
 
 export default function SheetHeader5e({ character, onEdit, onClose, readonly }: SheetHeader5eProps): JSX.Element {
+  const { t } = useT()
   const saveCharacter = useCharacterStore((s) => s.saveCharacter)
   const [editingName, setEditingName] = useState(false)
   const [nameValue, setNameValue] = useState(character.name)
@@ -31,7 +33,7 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
     ? effectiveClasses.map((c) => `${c.name} ${c.level}`).join(' / ')
     : effectiveClasses.map((c) => c.name).join(' / ')
   const speciesName = character.subspecies ? `${character.subspecies} ${character.species}` : character.species
-  const subtitle = `${character.background} \u00B7 ${character.alignment || 'No alignment'}`
+  const subtitle = `${character.background} \u00B7 ${character.alignment || t('sheet.sheetHeader.noAlignment')}`
 
   const iconProps = getCharacterIconProps(character)
 
@@ -40,7 +42,9 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
   const hasAlert = getEffectiveFeats(character).some((f) => f.name?.toLowerCase() === 'alert')
   const initMod = abilityModifier(character.abilityScores.dexterity) + (hasAlert ? profBonus : 0)
   const rollInitiative = (): void => {
-    roll(`1d20${initMod >= 0 ? '+' : ''}${initMod}`, { label: `${character.name} Initiative` })
+    roll(`1d20${initMod >= 0 ? '+' : ''}${initMod}`, {
+      label: t('sheet.sheetHeader.initiativeRollLabel', { name: character.name })
+    })
   }
 
   const saveName = (): void => {
@@ -135,8 +139,8 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
           <button
             onClick={() => setShowIconPicker(!showIconPicker)}
             className="cursor-pointer"
-            aria-label="Change character icon"
-            title="Change icon"
+            aria-label={t('sheet.sheetHeader.changeIconAria')}
+            title={t('sheet.sheetHeader.changeIconTitle')}
           >
             <CharacterIcon {...iconProps} size="lg" />
           </button>
@@ -151,13 +155,13 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
                 onClick={() => saveIcon(undefined, undefined)}
                 className="px-2 py-1 text-xs rounded bg-gray-800 text-gray-400 hover:bg-gray-700"
               >
-                Letter
+                {t('sheet.sheetHeader.letter')}
               </button>
               <button
                 onClick={() => fileRef.current?.click()}
                 className="px-2 py-1 text-xs rounded bg-gray-800 text-gray-400 hover:bg-gray-700"
               >
-                Upload
+                {t('sheet.sheetHeader.upload')}
               </button>
             </div>
             <div className="grid grid-cols-8 gap-1">
@@ -206,32 +210,32 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
                 setEditingName(true)
               }
             }}
-            title={!readonly ? 'Click to edit name' : undefined}
+            title={!readonly ? t('sheet.sheetHeader.clickToEditName') : undefined}
           >
             {character.name}
           </h2>
         )}
         <p className="text-gray-400">
-          Level {character.level} {speciesName} {className}
+          {t('sheet.sheetHeader.levelLine', { level: character.level, speciesName, className })}
         </p>
         <p className="text-gray-500 text-sm">{subtitle}</p>
         {/* Phase 23l — roll initiative straight from the sheet header. */}
         <button
           onClick={rollInitiative}
           className="mt-1 inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded border border-gray-700 text-gray-300 hover:border-amber-500 hover:text-amber-400 cursor-pointer"
-          title={`Roll Initiative (1d20 ${formatMod(initMod)})`}
+          title={t('sheet.sheetHeader.rollInitiativeTitle', { mod: formatMod(initMod) })}
         >
-          🎲 Initiative {formatMod(initMod)}
+          🎲 {t('sheet.sheetHeader.initiative', { mod: formatMod(initMod) })}
         </button>
         {/* Leveling mode + XP display */}
         <div className="flex items-center gap-2 mt-0.5">
           {readonly ? (
             character.levelingMode === 'xp' && (
               <span className="text-xs text-gray-500">
-                XP: <span className="text-gray-300">{character.xp}</span>
+                {t('sheet.sheetHeader.xpLabel')} <span className="text-gray-300">{character.xp}</span>
                 <span className="text-gray-600">
                   {' '}
-                  / {character.level >= 20 ? 'MAX' : xpThresholdForNextLevel(character.level)}
+                  / {character.level >= 20 ? t('sheet.sheetHeader.xpMax') : xpThresholdForNextLevel(character.level)}
                 </span>
               </span>
             )
@@ -247,12 +251,12 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
                   saveCharacter(updated)
                 }}
               >
-                <option value="milestone">Milestone</option>
-                <option value="xp">XP</option>
+                <option value="milestone">{t('sheet.sheetHeader.milestone')}</option>
+                <option value="xp">{t('sheet.sheetHeader.xp')}</option>
               </select>
               {character.levelingMode === 'xp' && (
                 <div className="flex items-center gap-1">
-                  <span className="text-xs text-gray-500">XP:</span>
+                  <span className="text-xs text-gray-500">{t('sheet.sheetHeader.xpColon')}</span>
                   <input
                     type="number"
                     className="w-20 text-xs bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-gray-300 focus:outline-none focus:border-amber-500"
@@ -267,7 +271,7 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
                     }}
                   />
                   <span className="text-xs text-gray-600">
-                    / {character.level >= 20 ? 'MAX' : xpThresholdForNextLevel(character.level)}
+                    / {character.level >= 20 ? t('sheet.sheetHeader.xpMax') : xpThresholdForNextLevel(character.level)}
                   </span>
                 </div>
               )}
@@ -277,7 +281,7 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
         {/* Heroic Inspiration (5e) */}
         <div className="flex items-center gap-1 mt-0.5 relative">
           {readonly ? (
-            <span className="text-lg" title="Heroic Inspiration">
+            <span className="text-lg" title={t('sheet.sheetHeader.heroicInspiration')}>
               {character.heroicInspiration ? '\u2605' : '\u2606'}
             </span>
           ) : (
@@ -285,7 +289,9 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
               className="text-lg cursor-pointer"
               onClick={toggleInspiration}
               title={
-                character.heroicInspiration ? 'Give Heroic Inspiration to another player' : 'Gain Heroic Inspiration'
+                character.heroicInspiration
+                  ? t('sheet.sheetHeader.giveHeroicInspiration')
+                  : t('sheet.sheetHeader.gainHeroicInspiration')
               }
             >
               {character.heroicInspiration ? (
@@ -295,14 +301,14 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
               )}
             </button>
           )}
-          <span className="text-xs text-gray-500">Heroic Inspiration</span>
+          <span className="text-xs text-gray-500">{t('sheet.sheetHeader.heroicInspiration')}</span>
 
           {/* Transfer dropdown */}
           {showInspirationTransfer && (
             <div className="absolute top-full left-0 mt-1 z-50 bg-gray-900 border border-amber-500/50 rounded-lg p-2 shadow-xl w-56">
-              <p className="text-xs text-amber-400 font-semibold mb-1.5">Give Inspiration To:</p>
+              <p className="text-xs text-amber-400 font-semibold mb-1.5">{t('sheet.sheetHeader.giveInspirationTo')}</p>
               {transferTargets.length === 0 ? (
-                <p className="text-xs text-gray-500">No eligible characters</p>
+                <p className="text-xs text-gray-500">{t('sheet.sheetHeader.noEligibleCharacters')}</p>
               ) : (
                 transferTargets.map((t) => (
                   <button
@@ -319,7 +325,7 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
                   onClick={removeInspiration}
                   className="w-full text-left px-2 py-1 text-xs text-gray-400 hover:bg-gray-800 rounded cursor-pointer"
                 >
-                  Remove (don't transfer)
+                  {t('sheet.sheetHeader.removeNoTransfer')}
                 </button>
               </div>
             </div>
@@ -333,13 +339,13 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
             onClick={onEdit}
             className="px-3 py-1.5 text-sm bg-amber-600 hover:bg-amber-500 text-white rounded transition-colors"
           >
-            Edit
+            {t('sheet.sheetHeader.edit')}
           </button>
         )}
         {onClose && (
           <button
             onClick={onClose}
-            aria-label="Close"
+            aria-label={t('common.actions.close')}
             className="text-gray-500 hover:text-gray-300 text-2xl cursor-pointer w-8 h-8 flex items-center justify-center"
           >
             <span aria-hidden="true">&times;</span>

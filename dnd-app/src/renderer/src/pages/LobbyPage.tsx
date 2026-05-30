@@ -4,6 +4,7 @@ import CloudStatusPanel from '../components/game/cloud/CloudStatusPanel'
 import { LobbyLayout } from '../components/lobby'
 import { Button, Modal } from '../components/ui'
 import { JOINED_SESSIONS_KEY, LAST_SESSION_KEY, LOBBY_COPY_TIMEOUT_MS } from '../constants'
+import { useT } from '../i18n'
 import {
   onClientMessage,
   setHostCampaignId,
@@ -24,6 +25,7 @@ import { logger } from '../utils/logger'
 import { useLobbyBridges } from './lobby/use-lobby-bridges'
 
 export default function LobbyPage(): JSX.Element {
+  const { t } = useT()
   const navigate = useNavigate()
   const { campaignId } = useParams<{ campaignId: string }>()
 
@@ -345,12 +347,12 @@ export default function LobbyPage(): JSX.Element {
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center gap-4">
           <button onClick={handleLeave} className="text-amber-400 hover:text-amber-300 hover:underline cursor-pointer">
-            &larr; Leave Lobby
+            &larr; {t('pages.lobbyPage.leaveLobby')}
           </button>
 
           <div className="h-6 w-px bg-gray-700" />
 
-          <h1 className="text-2xl font-bold text-gray-100">{campaign?.name || 'Game Lobby'}</h1>
+          <h1 className="text-2xl font-bold text-gray-100">{campaign?.name || t('pages.lobbyPage.gameLobby')}</h1>
 
           {/* Connection status */}
           <div className="flex items-center gap-1.5">
@@ -365,7 +367,7 @@ export default function LobbyPage(): JSX.Element {
             />
             <span className="text-xs text-gray-500 capitalize">{reconnecting ? 'reconnecting' : connectionState}</span>
             {role === 'client' && latencyMs != null && (
-              <span className="text-xs text-gray-400 ml-1">Ping: {latencyMs}ms</span>
+              <span className="text-xs text-gray-400 ml-1">{t('pages.lobbyPage.ping', { ms: latencyMs })}</span>
             )}
           </div>
 
@@ -375,19 +377,19 @@ export default function LobbyPage(): JSX.Element {
               {sceneStatus === 'preparing' && (
                 <>
                   <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-                  <span className="text-xs text-amber-400">AI DM preparing scene...</span>
+                  <span className="text-xs text-amber-400">{t('pages.lobbyPage.scenePreparing')}</span>
                 </>
               )}
               {sceneStatus === 'ready' && (
                 <>
                   <div className="w-2 h-2 rounded-full bg-green-400" />
-                  <span className="text-xs text-green-400">Scene ready</span>
+                  <span className="text-xs text-green-400">{t('pages.lobbyPage.sceneReady')}</span>
                 </>
               )}
               {sceneStatus === 'error' && (
                 <>
                   <div className="w-2 h-2 rounded-full bg-red-400" />
-                  <span className="text-xs text-red-400">Scene prep failed</span>
+                  <span className="text-xs text-red-400">{t('pages.lobbyPage.scenePrepFailed')}</span>
                 </>
               )}
             </div>
@@ -400,12 +402,12 @@ export default function LobbyPage(): JSX.Element {
             that doesn't exist). */}
         {inviteCode && campaign?.settings?.isPrivate === true && (
           <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-500 uppercase tracking-wide">Invite Code:</span>
+            <span className="text-xs text-gray-500 uppercase tracking-wide">{t('pages.lobbyPage.inviteCode')}</span>
             <button
               onClick={handleCopyInviteCode}
               className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-800 border border-gray-700
                          hover:border-amber-600/50 transition-colors cursor-pointer group"
-              title="Click to copy"
+              title={t('pages.lobbyPage.clickToCopy')}
             >
               <span className="font-mono text-lg font-bold text-amber-400 tracking-widest">{inviteCode}</span>
               <svg
@@ -418,7 +420,7 @@ export default function LobbyPage(): JSX.Element {
                 <path d="M4.5 6A1.5 1.5 0 0 0 3 7.5v9A1.5 1.5 0 0 0 4.5 18h7a1.5 1.5 0 0 0 1.5-1.5v-5.879a1.5 1.5 0 0 0-.44-1.06L9.44 6.439A1.5 1.5 0 0 0 8.378 6H4.5Z" />
               </svg>
             </button>
-            {codeCopied && <span className="text-xs text-green-400 animate-pulse">Copied!</span>}
+            {codeCopied && <span className="text-xs text-green-400 animate-pulse">{t('pages.lobbyPage.copied')}</span>}
           </div>
         )}
         {/* MP-7 (v2.1.31 QA): host can flip Public↔Private mid-session without
@@ -430,7 +432,9 @@ export default function LobbyPage(): JSX.Element {
                 campaign.settings?.isPrivate ? 'bg-gray-800 text-gray-300' : 'bg-emerald-900/40 text-emerald-300'
               }`}
             >
-              {campaign.settings?.isPrivate ? 'Private — invite only' : 'Public — listed in browser'}
+              {campaign.settings?.isPrivate
+                ? t('pages.lobbyPage.privateInviteOnly')
+                : t('pages.lobbyPage.publicListed')}
             </span>
             <button
               type="button"
@@ -448,9 +452,9 @@ export default function LobbyPage(): JSX.Element {
               className="text-xs uppercase tracking-wider px-2 py-0.5 rounded-full
                          bg-gray-800 border border-gray-700 text-gray-300
                          hover:border-amber-500/60 hover:text-amber-300 cursor-pointer transition-colors"
-              title="Toggle whether this game is listed in the public browser"
+              title={t('pages.lobbyPage.togglePublicTitle')}
             >
-              {campaign.settings?.isPrivate ? 'Make Public' : 'Make Private'}
+              {campaign.settings?.isPrivate ? t('pages.lobbyPage.makePublic') : t('pages.lobbyPage.makePrivate')}
             </button>
           </div>
         )}
@@ -474,21 +478,21 @@ export default function LobbyPage(): JSX.Element {
       </div>
 
       {/* Leave confirmation modal */}
-      <Modal open={showLeaveModal} onClose={() => setShowLeaveModal(false)} title="Leave Lobby?">
+      <Modal
+        open={showLeaveModal}
+        onClose={() => setShowLeaveModal(false)}
+        title={t('pages.lobbyPage.leaveLobbyTitle')}
+      >
         <p className="text-gray-400 mb-6">
-          Are you sure you want to disconnect and return to the main menu?
-          {isHost && (
-            <span className="block mt-2 text-amber-400 text-sm">
-              As the host, leaving will end the session for all players.
-            </span>
-          )}
+          {t('pages.lobbyPage.leaveConfirm')}
+          {isHost && <span className="block mt-2 text-amber-400 text-sm">{t('pages.lobbyPage.hostLeaveWarning')}</span>}
         </p>
         <div className="flex gap-3 justify-end">
           <Button variant="secondary" onClick={() => setShowLeaveModal(false)}>
-            Stay
+            {t('pages.lobbyPage.stay')}
           </Button>
           <Button variant="danger" onClick={confirmLeave}>
-            Leave
+            {t('pages.lobbyPage.leave')}
           </Button>
         </div>
       </Modal>

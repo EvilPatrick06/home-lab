@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { pushDmAlert } from '../components/game/overlays/DmAlertTray'
+import { i18n } from '../i18n'
 import { type AiRendererAction, parseRendererActions, stripActionTags } from '../services/ai-renderer-actions'
 import type { Campaign } from '../types/campaign'
 import { logger } from '../utils/logger'
@@ -162,7 +163,7 @@ export const useAiDmStore = create<AiDmState>((set, get) => ({
         executeDmActions(pendingActions.actions, true)
       })
       .catch((err) => {
-        pushDmAlert('error', 'Failed to run approved AI actions')
+        pushDmAlert('error', i18n.t('notify.aiDmStore.runApprovedFailed'))
         logger.error('[ai-dm] game-action-executor import failed', err)
       })
     set({ pendingActions: null })
@@ -190,7 +191,7 @@ export const useAiDmStore = create<AiDmState>((set, get) => ({
       const still = state.pendingMutations.find((m) => m.id === mutationSet.id)
       if (still) {
         set({ pendingMutations: state.pendingMutations.filter((m) => m.id !== mutationSet.id) })
-        pushDmAlert('warning', `AI mutations auto-rejected (60s timeout)`)
+        pushDmAlert('warning', i18n.t('notify.aiDmStore.mutationsAutoRejected'))
       }
     }, 60_000)
     set((state) => ({
@@ -512,7 +513,7 @@ export const useAiDmStore = create<AiDmState>((set, get) => ({
           safetyTimeoutId: null,
           lastError: data.error
         })
-        pushDmAlert('error', `AI DM: ${data.error}`)
+        pushDmAlert('error', i18n.t('notify.aiDmStore.aiDmError', { error: data.error }))
       }
     }
 

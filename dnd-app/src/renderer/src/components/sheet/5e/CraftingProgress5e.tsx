@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useT } from '../../../i18n'
 
 interface ScrollCostEntry {
   cost: number
@@ -24,6 +25,7 @@ export default function CraftingProgress5e({
   readonly,
   onCraftScroll
 }: CraftingProgress5eProps): JSX.Element {
+  const { t } = useT()
   const [scrollLevelFilter, setScrollLevelFilter] = useState<number | 'all'>('all')
   const [scrollExpanded, setScrollExpanded] = useState(false)
 
@@ -37,10 +39,10 @@ export default function CraftingProgress5e({
           onClick={() => setScrollExpanded(!scrollExpanded)}
           className="w-full flex items-center justify-between px-3 py-2 bg-purple-900/20 hover:bg-purple-900/30 transition-colors cursor-pointer"
         >
-          <span className="text-sm font-medium text-purple-300">Spell Scrolls</span>
+          <span className="text-sm font-medium text-purple-300">{t('sheet.craftingProgress.spellScrolls')}</span>
           <div className="flex items-center gap-2">
             <span className="text-xs text-gray-500">
-              {preparedSpells.length} spell{preparedSpells.length !== 1 ? 's' : ''} available
+              {t('sheet.craftingProgress.spellsAvailable', { count: preparedSpells.length })}
             </span>
             <svg
               className={`w-3.5 h-3.5 text-gray-500 transition-transform ${scrollExpanded ? 'rotate-180' : ''}`}
@@ -57,13 +59,13 @@ export default function CraftingProgress5e({
           <div className="border-t border-gray-700">
             {/* Level filter */}
             <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-800">
-              <span className="text-xs text-gray-500">Level:</span>
+              <span className="text-xs text-gray-500">{t('sheet.craftingProgress.level')}</span>
               <div className="flex gap-1">
                 <button
                   onClick={() => setScrollLevelFilter('all')}
                   className={`px-2 py-0.5 text-xs rounded ${scrollLevelFilter === 'all' ? 'bg-purple-700 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}
                 >
-                  All
+                  {t('sheet.craftingProgress.all')}
                 </button>
                 {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((lvl) => (
                   <button
@@ -78,7 +80,7 @@ export default function CraftingProgress5e({
             </div>
 
             {filteredScrollSpells.length === 0 ? (
-              <div className="px-3 py-3 text-xs text-gray-500">No spells available at this level.</div>
+              <div className="px-3 py-3 text-xs text-gray-500">{t('sheet.craftingProgress.noSpellsAtLevel')}</div>
             ) : (
               filteredScrollSpells.map((spell, idx) => {
                 const scrollInfo = scrollCosts[spell.level]
@@ -94,13 +96,17 @@ export default function CraftingProgress5e({
                       <div className="flex items-center gap-2">
                         <span className="text-gray-200 font-medium truncate">{spell.name}</span>
                         <span className="text-xs px-1.5 py-0.5 rounded border text-purple-400 bg-purple-900/30 border-purple-700/50">
-                          {spell.level === 0 ? 'Cantrip' : `Level ${spell.level}`}
+                          {spell.level === 0
+                            ? t('sheet.craftingProgress.cantrip')
+                            : t('sheet.craftingProgress.levelN', { level: spell.level })}
                         </span>
                       </div>
                       <div className="flex items-center gap-3 mt-0.5">
-                        <span className="text-xs text-amber-400">{scrollInfo.cost.toLocaleString()} GP</span>
+                        <span className="text-xs text-amber-400">
+                          {t('sheet.craftingProgress.gp', { cost: scrollInfo.cost.toLocaleString() })}
+                        </span>
                         <span className="text-xs text-gray-500">
-                          {scrollInfo.days} day{scrollInfo.days !== 1 ? 's' : ''}
+                          {t('sheet.craftingProgress.days', { count: scrollInfo.days })}
                         </span>
                       </div>
                     </div>
@@ -109,7 +115,7 @@ export default function CraftingProgress5e({
                         onClick={() => onCraftScroll(spell)}
                         className="ml-2 px-2.5 py-1 text-xs bg-purple-600 hover:bg-purple-500 rounded text-white cursor-pointer transition-colors flex-shrink-0"
                       >
-                        Craft
+                        {t('sheet.craftingProgress.craft')}
                       </button>
                     )}
                   </div>

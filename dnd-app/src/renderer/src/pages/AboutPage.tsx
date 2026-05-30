@@ -2,51 +2,52 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { ConfirmDialog } from '../components/ui'
 import { addToast } from '../hooks/use-toast'
+import { useT } from '../i18n'
 import { exportAllData, importAllData } from '../services/io/import-export'
 import { logger } from '../utils/logger'
 
-const FEATURES = [
-  'Character Builder (D&D 5e 2024 PHB rules)',
-  'Character Sheets with full stat calculation',
-  'Level-Up Wizard (class features, spells, ASIs, feats)',
-  'Campaign Management with adventure modules',
-  'Interactive Battle Map (PixiJS) with grid, tokens, fog of war',
-  'Initiative Tracker with surprise rules',
-  '3D Dice with physics engine (Three.js + cannon-es)',
-  'P2P Multiplayer via WebRTC',
-  'AI Dungeon Master (Claude, OpenAI, Gemini, Ollama)',
-  'Bastion System (2024 DMG rules)',
-  'Crafting System, Shop System',
-  'NPC/Monster/Creature Management with stat blocks',
-  'Weapon Mastery, Species heritage/lineage options',
-  'Warlock Invocations, Sorcerer Metamagic',
-  'Area of Effect templates, Terrain & lighting overlays',
-  'Ray-cast lighting, wall system, cover calculation',
-  'Journal system (TipTap rich text), handouts',
-  'Sound Manager with 60+ sound events',
-  'Calendar/time system with day/night cycle',
-  'Mount & Vehicle system, Downtime activities',
-  '167+ chat commands across 26 command modules',
-  'Undo/redo, auto-save, theme system',
-  'Import/export characters and campaigns'
-]
-
 const TECH_STACK = [
-  { name: 'Electron 40', detail: 'Desktop framework' },
-  { name: 'React 19', detail: 'UI library' },
-  { name: 'TypeScript 5.9', detail: 'Type safety' },
-  { name: 'Tailwind CSS v4', detail: 'Styling' },
-  { name: 'Zustand v5', detail: 'State management' },
-  { name: 'PeerJS', detail: 'WebRTC P2P networking' },
-  { name: 'PixiJS 8', detail: 'Map rendering' },
-  { name: 'Three.js', detail: '3D dice physics' },
-  { name: 'TipTap', detail: 'Rich text editor' },
-  { name: 'Vitest', detail: 'Testing framework' },
-  { name: 'electron-vite', detail: 'Build tooling' }
-]
+  { name: 'Electron 40', detailKey: 'pages.aboutPage.techDesktopFramework' },
+  { name: 'React 19', detailKey: 'pages.aboutPage.techUiLibrary' },
+  { name: 'TypeScript 5.9', detailKey: 'pages.aboutPage.techTypeSafety' },
+  { name: 'Tailwind CSS v4', detailKey: 'pages.aboutPage.techStyling' },
+  { name: 'Zustand v5', detailKey: 'pages.aboutPage.techStateManagement' },
+  { name: 'PeerJS', detailKey: 'pages.aboutPage.techWebrtc' },
+  { name: 'PixiJS 8', detailKey: 'pages.aboutPage.techMapRendering' },
+  { name: 'Three.js', detailKey: 'pages.aboutPage.techDicePhysics' },
+  { name: 'TipTap', detailKey: 'pages.aboutPage.techRichText' },
+  { name: 'Vitest', detailKey: 'pages.aboutPage.techTestingFramework' },
+  { name: 'electron-vite', detailKey: 'pages.aboutPage.techBuildTooling' }
+] as const
 
 export default function AboutPage(): JSX.Element {
+  const { t } = useT()
   const navigate = useNavigate()
+  const FEATURES = [
+    t('pages.aboutPage.featureCharacterBuilder'),
+    t('pages.aboutPage.featureCharacterSheets'),
+    t('pages.aboutPage.featureLevelUpWizard'),
+    t('pages.aboutPage.featureCampaignManagement'),
+    t('pages.aboutPage.featureBattleMap'),
+    t('pages.aboutPage.featureInitiativeTracker'),
+    t('pages.aboutPage.featureDice'),
+    t('pages.aboutPage.featureMultiplayer'),
+    t('pages.aboutPage.featureAiDm'),
+    t('pages.aboutPage.featureBastion'),
+    t('pages.aboutPage.featureCraftingShop'),
+    t('pages.aboutPage.featureNpcManagement'),
+    t('pages.aboutPage.featureWeaponMastery'),
+    t('pages.aboutPage.featureInvocationsMetamagic'),
+    t('pages.aboutPage.featureAoeTerrain'),
+    t('pages.aboutPage.featureLighting'),
+    t('pages.aboutPage.featureJournal'),
+    t('pages.aboutPage.featureSoundManager'),
+    t('pages.aboutPage.featureCalendar'),
+    t('pages.aboutPage.featureMountVehicle'),
+    t('pages.aboutPage.featureChatCommands'),
+    t('pages.aboutPage.featureUndoRedo'),
+    t('pages.aboutPage.featureImportExport')
+  ]
   const [updateStatus, setUpdateStatus] = useState<
     'idle' | 'checking' | 'up-to-date' | 'available' | 'downloading' | 'downloaded' | 'error'
   >('idle')
@@ -90,13 +91,23 @@ export default function AboutPage(): JSX.Element {
       const stats = await exportAllData()
       if (stats) {
         addToast(
-          `Exported ${stats.characters} character${stats.characters !== 1 ? 's' : ''}, ${stats.campaigns} campaign${stats.campaigns !== 1 ? 's' : ''}, ${stats.bastions} bastion${stats.bastions !== 1 ? 's' : ''}, ${stats.customCreatures} creature${stats.customCreatures !== 1 ? 's' : ''}, ${stats.homebrew} homebrew`,
+          t('pages.aboutPage.exportedStats', {
+            characters: stats.characters,
+            charactersPlural: stats.characters !== 1 ? 's' : '',
+            campaigns: stats.campaigns,
+            campaignsPlural: stats.campaigns !== 1 ? 's' : '',
+            bastions: stats.bastions,
+            bastionsPlural: stats.bastions !== 1 ? 's' : '',
+            customCreatures: stats.customCreatures,
+            creaturesPlural: stats.customCreatures !== 1 ? 's' : '',
+            homebrew: stats.homebrew
+          }),
           'success'
         )
       }
     } catch (err) {
       logger.error('Export all failed:', err)
-      addToast('Failed to export data', 'error')
+      addToast(t('pages.aboutPage.exportFailed'), 'error')
     } finally {
       setExporting(false)
     }
@@ -108,12 +119,22 @@ export default function AboutPage(): JSX.Element {
       const stats = await importAllData()
       if (stats) {
         addToast(
-          `Imported ${stats.characters} character${stats.characters !== 1 ? 's' : ''}, ${stats.campaigns} campaign${stats.campaigns !== 1 ? 's' : ''}, ${stats.bastions} bastion${stats.bastions !== 1 ? 's' : ''}, ${stats.customCreatures} creature${stats.customCreatures !== 1 ? 's' : ''}, ${stats.homebrew} homebrew`,
+          t('pages.aboutPage.importedStats', {
+            characters: stats.characters,
+            charactersPlural: stats.characters !== 1 ? 's' : '',
+            campaigns: stats.campaigns,
+            campaignsPlural: stats.campaigns !== 1 ? 's' : '',
+            bastions: stats.bastions,
+            bastionsPlural: stats.bastions !== 1 ? 's' : '',
+            customCreatures: stats.customCreatures,
+            creaturesPlural: stats.customCreatures !== 1 ? 's' : '',
+            homebrew: stats.homebrew
+          }),
           'success'
         )
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to import data'
+      const message = err instanceof Error ? err.message : t('pages.aboutPage.importFailed')
       addToast(message, 'error')
     } finally {
       setImporting(false)
@@ -128,14 +149,14 @@ export default function AboutPage(): JSX.Element {
           onClick={() => navigate('/')}
           className="text-amber-400 hover:text-amber-300 hover:underline mb-8 block cursor-pointer text-sm"
         >
-          &larr; Back to Menu
+          {t('pages.aboutPage.backToMenu')}
         </button>
 
         {/* Hero */}
         <div className="text-center mb-10">
           <div className="text-6xl mb-3">&#9876;</div>
-          <h1 className="text-3xl font-bold text-amber-400 mb-1">D&D Virtual Tabletop</h1>
-          <p className="text-gray-500 text-sm mb-3">Version {appVersion}</p>
+          <h1 className="text-3xl font-bold text-amber-400 mb-1">{t('pages.aboutPage.appTitle')}</h1>
+          <p className="text-gray-500 text-sm mb-3">{t('pages.aboutPage.version', { appVersion })}</p>
           <div className="flex flex-col items-center gap-2">
             <button
               onClick={() => {
@@ -166,13 +187,15 @@ export default function AboutPage(): JSX.Element {
               disabled={updateStatus === 'checking' || updateStatus === 'downloading'}
               className="px-4 py-1.5 text-xs font-medium rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {updateStatus === 'idle' && 'Check for Updates'}
-              {updateStatus === 'checking' && 'Checking...'}
-              {updateStatus === 'up-to-date' && 'Up to date'}
-              {updateStatus === 'available' && `Update ${updateVersion ?? ''} available!`}
-              {updateStatus === 'downloading' && 'Downloading...'}
-              {updateStatus === 'downloaded' && 'Update ready!'}
-              {updateStatus === 'error' && `Check failed${errorMsg ? `: ${errorMsg}` : ''}`}
+              {updateStatus === 'idle' && t('pages.aboutPage.checkForUpdates')}
+              {updateStatus === 'checking' && t('pages.aboutPage.checking')}
+              {updateStatus === 'up-to-date' && t('pages.aboutPage.upToDate')}
+              {updateStatus === 'available' &&
+                t('pages.aboutPage.updateAvailable', { updateVersion: updateVersion ?? '' })}
+              {updateStatus === 'downloading' && t('pages.aboutPage.downloading')}
+              {updateStatus === 'downloaded' && t('pages.aboutPage.updateReady')}
+              {updateStatus === 'error' &&
+                t('pages.aboutPage.checkFailed', { errorSuffix: errorMsg ? `: ${errorMsg}` : '' })}
             </button>
 
             {/* Download button */}
@@ -188,7 +211,7 @@ export default function AboutPage(): JSX.Element {
                 }}
                 className="px-4 py-1.5 text-xs font-medium rounded-lg bg-amber-600 hover:bg-amber-500 text-white cursor-pointer"
               >
-                Download v{updateVersion}
+                {t('pages.aboutPage.downloadVersion', { updateVersion })}
               </button>
             )}
 
@@ -212,26 +235,24 @@ export default function AboutPage(): JSX.Element {
                   onClick={() => window.api.update.installUpdate()}
                   className="px-4 py-1.5 text-xs font-medium rounded-lg bg-green-600 hover:bg-green-500 text-white cursor-pointer"
                 >
-                  Update &amp; Restart
+                  {t('pages.aboutPage.updateAndRestart')}
                 </button>
-                <p className="text-xs text-gray-500">Will also install automatically on next app close</p>
+                <p className="text-xs text-gray-500">{t('pages.aboutPage.installOnClose')}</p>
               </>
             )}
           </div>
         </div>
 
         <p className="text-gray-300 text-center leading-relaxed mb-10 max-w-xl mx-auto">
-          A desktop application for playing Dungeons & Dragons 5th Edition online with friends. Create characters, build
-          campaigns, and adventure together — no browser required.
+          {t('pages.aboutPage.appDescription')}
         </p>
 
         {/* Data Management */}
         <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-5 mb-6">
-          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Data Management</h2>
-          <p className="text-gray-500 text-sm mb-4">
-            Export all your characters, campaigns, bastions, and preferences to a single backup file, or restore from a
-            previous backup.
-          </p>
+          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
+            {t('pages.aboutPage.dataManagement')}
+          </h2>
+          <p className="text-gray-500 text-sm mb-4">{t('pages.aboutPage.dataManagementDesc')}</p>
           <div className="flex gap-3">
             <button
               onClick={handleExportAll}
@@ -239,7 +260,7 @@ export default function AboutPage(): JSX.Element {
               className="px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg
                 font-semibold text-sm transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {exporting ? 'Exporting...' : 'Export All Data'}
+              {exporting ? t('pages.aboutPage.exporting') : t('pages.aboutPage.exportAllData')}
             </button>
             <button
               onClick={() => setShowImportConfirm(true)}
@@ -248,7 +269,7 @@ export default function AboutPage(): JSX.Element {
                 text-gray-300 hover:text-amber-400 rounded-lg font-semibold text-sm
                 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {importing ? 'Importing...' : 'Import Data'}
+              {importing ? t('pages.aboutPage.importing') : t('pages.aboutPage.importData')}
             </button>
           </div>
         </div>
@@ -257,14 +278,16 @@ export default function AboutPage(): JSX.Element {
         <div className="flex gap-4 mb-10 justify-center">
           <div className="bg-gray-900/60 border border-gray-800 rounded-lg px-5 py-3 text-center">
             <div className="text-2xl mb-1">&#9876;</div>
-            <div className="text-sm font-semibold">D&D 5th Edition</div>
-            <div className="text-xs text-green-400 mt-1">Full Support</div>
+            <div className="text-sm font-semibold">{t('pages.aboutPage.dnd5e')}</div>
+            <div className="text-xs text-green-400 mt-1">{t('pages.aboutPage.fullSupport')}</div>
           </div>
         </div>
 
         {/* Features */}
         <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-5 mb-6">
-          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Features</h2>
+          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
+            {t('pages.aboutPage.features')}
+          </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5">
             {FEATURES.map((feature) => (
               <div key={feature} className="flex items-center gap-2 text-sm">
@@ -277,12 +300,14 @@ export default function AboutPage(): JSX.Element {
 
         {/* Tech Stack */}
         <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-5 mb-6">
-          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Tech Stack</h2>
+          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
+            {t('pages.aboutPage.techStack')}
+          </h2>
           <div className="grid grid-cols-2 gap-3">
-            {TECH_STACK.map((t) => (
-              <div key={t.name} className="flex items-center justify-between">
-                <span className="text-sm text-gray-200 font-medium">{t.name}</span>
-                <span className="text-xs text-gray-500">{t.detail}</span>
+            {TECH_STACK.map((tech) => (
+              <div key={tech.name} className="flex items-center justify-between">
+                <span className="text-sm text-gray-200 font-medium">{tech.name}</span>
+                <span className="text-xs text-gray-500">{t(tech.detailKey)}</span>
               </div>
             ))}
           </div>
@@ -290,26 +315,30 @@ export default function AboutPage(): JSX.Element {
 
         {/* Credits */}
         <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-5 mb-6">
-          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Credits</h2>
+          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
+            {t('pages.aboutPage.credits')}
+          </h2>
           <div className="space-y-3">
             <div>
-              <div className="text-xs font-semibold text-gray-500 uppercase mb-1">Created by</div>
+              <div className="text-xs font-semibold text-gray-500 uppercase mb-1">{t('pages.aboutPage.createdBy')}</div>
               <div className="text-sm text-gray-300">Gavin Knotts</div>
             </div>
             <div>
-              <div className="text-xs font-semibold text-gray-500 uppercase mb-1">Built with</div>
-              <div className="text-sm text-gray-300">Developed with Cursor AI</div>
+              <div className="text-xs font-semibold text-gray-500 uppercase mb-1">{t('pages.aboutPage.builtWith')}</div>
+              <div className="text-sm text-gray-300">{t('pages.aboutPage.builtWithDetail')}</div>
             </div>
           </div>
         </div>
 
         {/* Legal & Licensing */}
         <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-5 mb-10">
-          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Legal &amp; Licensing</h2>
+          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
+            {t('pages.aboutPage.legalLicensing')}
+          </h2>
           <div className="space-y-4">
             <div>
               <div className="text-xs font-semibold text-gray-500 uppercase mb-1">
-                D&amp;D 5e SRD Attribution (CC-BY-4.0)
+                {t('pages.aboutPage.srdAttributionLabel')}
               </div>
               <p className="text-xs text-gray-500 leading-relaxed">
                 This work includes material taken from the System Reference Document 5.2 (&ldquo;SRD 5.2&rdquo;) by
@@ -327,7 +356,9 @@ export default function AboutPage(): JSX.Element {
               </p>
             </div>
             <div>
-              <div className="text-xs font-semibold text-gray-500 uppercase mb-1">Fan Content Policy</div>
+              <div className="text-xs font-semibold text-gray-500 uppercase mb-1">
+                {t('pages.aboutPage.fanContentLabel')}
+              </div>
               <p className="text-xs text-gray-500 leading-relaxed">
                 D&amp;D Virtual Tabletop is unofficial Fan Content permitted under the{' '}
                 <a
@@ -343,34 +374,31 @@ export default function AboutPage(): JSX.Element {
               </p>
             </div>
             <div>
-              <div className="text-xs font-semibold text-gray-500 uppercase mb-1">Trademark Notice</div>
-              <p className="text-xs text-gray-500 leading-relaxed">
-                Dungeons &amp; Dragons, D&amp;D, and Wizards of the Coast are trademarks of Wizards of the Coast LLC.
-                This application is not affiliated with, endorsed by, or sponsored by Wizards of the Coast. All
-                trademarks are property of their respective owners.
-              </p>
+              <div className="text-xs font-semibold text-gray-500 uppercase mb-1">
+                {t('pages.aboutPage.trademarkLabel')}
+              </div>
+              <p className="text-xs text-gray-500 leading-relaxed">{t('pages.aboutPage.trademarkNotice')}</p>
             </div>
             <div>
-              <div className="text-xs font-semibold text-gray-500 uppercase mb-1">Open Source Libraries</div>
-              <p className="text-xs text-gray-500 leading-relaxed">
-                This application uses open-source libraries under MIT and other permissive licenses, including React,
-                Electron, PeerJS, PixiJS, Zustand, Tailwind CSS, and React Router.
-              </p>
+              <div className="text-xs font-semibold text-gray-500 uppercase mb-1">
+                {t('pages.aboutPage.openSourceLabel')}
+              </div>
+              <p className="text-xs text-gray-500 leading-relaxed">{t('pages.aboutPage.openSourceLibraries')}</p>
             </div>
           </div>
         </div>
 
         <div className="text-center text-xs text-gray-600 pb-6">
           <div>&copy; 2025-2026 Gavin Knotts</div>
-          <div className="mt-1">Game content used under Creative Commons Attribution 4.0 International License.</div>
+          <div className="mt-1">{t('pages.aboutPage.gameContentNotice')}</div>
         </div>
       </div>
 
       <ConfirmDialog
         open={showImportConfirm}
-        title="Import Data from Backup?"
-        message="Importing will restore characters, campaigns, bastions, and preferences from the backup file. Existing data with the same IDs will be overwritten."
-        confirmLabel="Import"
+        title={t('pages.aboutPage.importConfirmTitle')}
+        message={t('pages.aboutPage.importConfirmMessage')}
+        confirmLabel={t('pages.aboutPage.importConfirmLabel')}
         variant="warning"
         onConfirm={handleImportAll}
         onCancel={() => setShowImportConfirm(false)}

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { addToast } from '../../../hooks/use-toast'
+import { i18n, useT } from '../../../i18n'
 import { getEffectiveClasses } from '../../../services/character/effective-character-5e'
 import { load5eInvocations, load5eMetamagic } from '../../../services/data-provider'
 import { MULTICLASS_SKILL_GRANTS } from '../../../stores/level-up/apply-level-up'
@@ -53,6 +54,7 @@ export function ClassLevelSelector({
   selectedClassId: string
   onSelect: (classId: string) => void
 }): JSX.Element {
+  const { t } = useT()
   // Current class is always available
   const currentClassIds = new Set(getEffectiveClasses(character).map((c) => c.name.toLowerCase()))
   currentClassIds.add(character.buildChoices.classId)
@@ -70,7 +72,7 @@ export function ClassLevelSelector({
     <div
       className={`flex items-center gap-2 mb-1 px-1 py-1 rounded ${isMulticlass ? 'bg-purple-900/20 border border-purple-700/30' : ''}`}
     >
-      <span className="text-xs text-gray-500">Class:</span>
+      <span className="text-xs text-gray-500">{t('levelup.classLevelSelector.class')}</span>
       <select
         value={selectedClassId}
         onChange={(e) => onSelect(e.target.value)}
@@ -79,11 +81,11 @@ export function ClassLevelSelector({
         {eligibleClasses.map((cls) => (
           <option key={cls.id ?? cls.name.toLowerCase()} value={cls.id ?? cls.name.toLowerCase()}>
             {cls.name} ({cls.coreTraits.hitPointDie})
-            {!currentClassIds.has(cls.id ?? cls.name.toLowerCase()) ? ' [NEW]' : ''}
+            {!currentClassIds.has(cls.id ?? cls.name.toLowerCase()) ? t('levelup.classLevelSelector.newSuffix') : ''}
           </option>
         ))}
       </select>
-      {isMulticlass && <span className="text-xs text-purple-400">Multiclass</span>}
+      {isMulticlass && <span className="text-xs text-purple-400">{t('levelup.classLevelSelector.multiclass')}</span>}
     </div>
   )
 }
@@ -137,6 +139,7 @@ export function InvocationSection5e({
   targetLevel: number
   classLevelChoices: Record<number, string>
 }): JSX.Element | null {
+  const { t } = useT()
   const invocationSelections = useLevelUpStore((s) => s.invocationSelections)
   const setInvocationSelections = useLevelUpStore((s) => s.setInvocationSelections)
   const [allInvocations, setAllInvocations] = useState<InvocationData[]>([])
@@ -147,7 +150,7 @@ export function InvocationSection5e({
       .then(setAllInvocations)
       .catch((err) => {
         logger.error('Failed to load invocations', err)
-        addToast('Failed to load invocations', 'error')
+        addToast(i18n.t('levelup.invocationSection.loadFailed'), 'error')
         setAllInvocations([])
       })
   }, [])
@@ -211,8 +214,8 @@ export function InvocationSection5e({
     if (!inv.prerequisites) return null
     if (inv.prerequisites.cantrip) return inv.prerequisites.cantrip
     if (inv.prerequisites.invocation) return inv.prerequisites.invocation
-    if (inv.prerequisites.requiresDamageCantrip) return 'a damage cantrip'
-    if (inv.prerequisites.requiresAttackRollCantrip) return 'an attack roll cantrip'
+    if (inv.prerequisites.requiresDamageCantrip) return t('levelup.invocationSection.damageCantrip')
+    if (inv.prerequisites.requiresAttackRollCantrip) return t('levelup.invocationSection.attackRollCantrip')
     return null
   }
 
@@ -221,15 +224,23 @@ export function InvocationSection5e({
   return (
     <div className={`bg-gray-900/50 border rounded-lg p-4 ${isIncomplete ? 'border-amber-600/50' : 'border-gray-800'}`}>
       <h3 className="text-lg font-bold text-purple-400 mb-1 flex items-center gap-2">
-        Eldritch Invocations
-        {isIncomplete && <span className="text-xs text-amber-500 font-semibold uppercase">Required</span>}
+        {t('levelup.invocationSection.heading')}
+        {isIncomplete && (
+          <span className="text-xs text-amber-500 font-semibold uppercase">
+            {t('levelup.invocationSection.required')}
+          </span>
+        )}
       </h3>
       <p className={`text-xs mb-3 ${isIncomplete ? 'text-amber-400' : 'text-gray-500'}`}>
-        Warlock Level {warlockLevel}: {invocationSelections.length}/{maxInvocations} invocations known
+        {t('levelup.invocationSection.known', {
+          level: warlockLevel,
+          selected: invocationSelections.length,
+          max: maxInvocations
+        })}
       </p>
       <input
         type="text"
-        placeholder="Search invocations..."
+        placeholder={t('levelup.invocationSection.searchPlaceholder')}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         className="w-full px-2 py-1 text-sm bg-gray-800 border border-gray-700 rounded text-gray-200 placeholder-gray-500 mb-3"
@@ -256,9 +267,17 @@ export function InvocationSection5e({
               <div className="flex items-center gap-2">
                 <div className="text-sm font-semibold">
                   {inv.name}
-                  {inv.isPactBoon && <span className="text-xs text-amber-400 ml-1">(Pact Boon)</span>}
-                  {inv.repeatable && <span className="text-xs text-cyan-400 ml-1">(Repeatable)</span>}
-                  {count > 1 && <span className="text-xs text-purple-300 ml-1">x{count}</span>}
+                  {inv.isPactBoon && (
+                    <span className="text-xs text-amber-400 ml-1">{t('levelup.invocationSection.pactBoon')}</span>
+                  )}
+                  {inv.repeatable && (
+                    <span className="text-xs text-cyan-400 ml-1">{t('levelup.invocationSection.repeatable')}</span>
+                  )}
+                  {count > 1 && (
+                    <span className="text-xs text-purple-300 ml-1">
+                      {t('levelup.invocationSection.count', { n: count })}
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-1 ml-auto">
                   {selected && inv.repeatable && (
@@ -276,17 +295,23 @@ export function InvocationSection5e({
                         }
                       }}
                       className="text-xs text-gray-400 hover:text-red-400 px-1 cursor-pointer"
-                      title="Remove one"
+                      title={t('levelup.invocationSection.removeOne')}
                     >
                       &minus;
                     </span>
                   )}
                   {inv.levelRequirement > 0 && (
-                    <span className="text-xs text-gray-500">Lv {inv.levelRequirement}+</span>
+                    <span className="text-xs text-gray-500">
+                      {t('levelup.invocationSection.levelRequirement', { level: inv.levelRequirement })}
+                    </span>
                   )}
                 </div>
               </div>
-              {inv.prerequisites && <p className="text-xs text-yellow-500 mt-0.5">Requires: {getPrereqLabel(inv)}</p>}
+              {inv.prerequisites && (
+                <p className="text-xs text-yellow-500 mt-0.5">
+                  {t('levelup.invocationSection.requires', { label: getPrereqLabel(inv) })}
+                </p>
+              )}
               <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{inv.description}</p>
             </button>
           )
@@ -329,6 +354,7 @@ export function MetamagicSection5e({
   targetLevel: number
   classLevelChoices: Record<number, string>
 }): JSX.Element | null {
+  const { t } = useT()
   const metamagicSelections = useLevelUpStore((s) => s.metamagicSelections)
   const setMetamagicSelections = useLevelUpStore((s) => s.setMetamagicSelections)
   const [allMetamagic, setAllMetamagic] = useState<MetamagicData[]>([])
@@ -338,7 +364,7 @@ export function MetamagicSection5e({
       .then(setAllMetamagic)
       .catch((err) => {
         logger.error('Failed to load metamagic', err)
-        addToast('Failed to load metamagic', 'error')
+        addToast(i18n.t('levelup.metamagicSection.loadFailed'), 'error')
         setAllMetamagic([])
       })
   }, [])
@@ -361,11 +387,19 @@ export function MetamagicSection5e({
   return (
     <div className={`bg-gray-900/50 border rounded-lg p-4 ${isIncomplete ? 'border-amber-600/50' : 'border-gray-800'}`}>
       <h3 className="text-lg font-bold text-red-400 mb-1 flex items-center gap-2">
-        Metamagic Options
-        {isIncomplete && <span className="text-xs text-amber-500 font-semibold uppercase">Required</span>}
+        {t('levelup.metamagicSection.heading')}
+        {isIncomplete && (
+          <span className="text-xs text-amber-500 font-semibold uppercase">
+            {t('levelup.metamagicSection.required')}
+          </span>
+        )}
       </h3>
       <p className={`text-xs mb-3 ${isIncomplete ? 'text-amber-400' : 'text-gray-500'}`}>
-        Sorcerer Level {sorcererLevel}: {metamagicSelections.length}/{maxOptions} options known
+        {t('levelup.metamagicSection.known', {
+          level: sorcererLevel,
+          selected: metamagicSelections.length,
+          max: maxOptions
+        })}
       </p>
       <div className="space-y-1">
         {allMetamagic.map((mm) => {
@@ -387,7 +421,9 @@ export function MetamagicSection5e({
             >
               <div className="flex items-center gap-2">
                 <span className="text-sm font-semibold">{mm.name}</span>
-                <span className="text-xs text-gray-500 ml-auto">{mm.sorceryPointCost} SP</span>
+                <span className="text-xs text-gray-500 ml-auto">
+                  {t('levelup.metamagicSection.sorceryPointCost', { cost: mm.sorceryPointCost })}
+                </span>
               </div>
               <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{mm.description}</p>
             </button>
@@ -412,6 +448,7 @@ export function MulticlassSkillSection5e({
   targetLevel: number
   classLevelChoices: Record<number, string>
 }): JSX.Element | null {
+  const { t } = useT()
   const multiclassSkillSelections = useLevelUpStore((s) => s.multiclassSkillSelections)
   const setMulticlassSkillSelection = useLevelUpStore((s) => s.setMulticlassSkillSelection)
 
@@ -431,7 +468,9 @@ export function MulticlassSkillSection5e({
 
   return (
     <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-4">
-      <h3 className="text-sm font-semibold text-amber-400 uppercase tracking-wide mb-3">Multiclass Skills</h3>
+      <h3 className="text-sm font-semibold text-amber-400 uppercase tracking-wide mb-3">
+        {t('levelup.multiclassSkillSection.heading')}
+      </h3>
       {Array.from(newGrantClasses).map((cid) => {
         const grant = MULTICLASS_SKILL_GRANTS[cid]
         const options = grant.options[0] === '__any__' ? allSkillNames : grant.options
@@ -441,9 +480,12 @@ export function MulticlassSkillSection5e({
         return (
           <div key={cid} className="mb-2">
             <div className={`text-xs mb-1 ${incomplete ? 'text-amber-400' : 'text-gray-500'}`}>
-              {cid.charAt(0).toUpperCase() + cid.slice(1)}: choose {grant.count} skill
-              {grant.count > 1 ? 's' : ''} ({chosen.length}/{grant.count})
-              {incomplete && <span className="ml-2 font-semibold">REQUIRED</span>}
+              {t('levelup.multiclassSkillSection.chooseSkills', {
+                className: cid.charAt(0).toUpperCase() + cid.slice(1),
+                count: grant.count,
+                chosen: chosen.length
+              })}
+              {incomplete && <span className="ml-2 font-semibold">{t('levelup.multiclassSkillSection.required')}</span>}
             </div>
             <div className="flex flex-wrap gap-1">
               {options.map((skill) => {

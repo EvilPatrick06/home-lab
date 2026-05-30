@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router'
 import LevelUpWizard5e from '../components/levelup/5e/LevelUpWizard5e'
+import { useT } from '../i18n'
 import { useNetworkStore } from '../stores/network-store'
 import { useCharacterStore } from '../stores/use-character-store'
 import { useLevelUpStore } from '../stores/use-level-up-store'
@@ -10,6 +11,7 @@ import type { Character5e } from '../types/character-5e'
 import { logger } from '../utils/logger'
 
 export default function LevelUp5ePage(): JSX.Element {
+  const { t } = useT()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const location = useLocation()
@@ -44,12 +46,12 @@ export default function LevelUp5ePage(): JSX.Element {
     return (
       <div className="p-8 h-screen flex items-center justify-center">
         <div className="text-center text-gray-500">
-          <p className="text-xl mb-2">Character not found</p>
+          <p className="text-xl mb-2">{t('pages.levelUp5ePage.characterNotFound')}</p>
           <button
             onClick={() => navigate(returnTo || '/characters')}
             className="text-amber-400 hover:text-amber-300 hover:underline"
           >
-            Go back
+            {t('pages.levelUp5ePage.goBack')}
           </button>
         </div>
       </div>
@@ -60,12 +62,12 @@ export default function LevelUp5ePage(): JSX.Element {
     return (
       <div className="p-8 h-screen flex items-center justify-center">
         <div className="text-center text-gray-500">
-          <p className="text-xl mb-2">Already at maximum level</p>
+          <p className="text-xl mb-2">{t('pages.levelUp5ePage.maxLevel')}</p>
           <button
             onClick={() => navigate(returnTo || `/characters/5e/${character.id}`)}
             className="text-amber-400 hover:text-amber-300 hover:underline"
           >
-            Go back
+            {t('pages.levelUp5ePage.goBack')}
           </button>
         </div>
       </div>
@@ -102,7 +104,7 @@ export default function LevelUp5ePage(): JSX.Element {
       navigate(returnTo || `/characters/5e/${updated.id}`)
     } catch (err) {
       logger.error('Failed to apply level up:', err)
-      setError(err instanceof Error ? err.message : 'Failed to apply level up')
+      setError(err instanceof Error ? err.message : t('pages.levelUp5ePage.applyFailed'))
     } finally {
       setSaving(false)
     }
@@ -117,16 +119,20 @@ export default function LevelUp5ePage(): JSX.Element {
             onClick={handleBack}
             className="text-gray-400 hover:text-gray-200 text-sm flex items-center gap-1 transition-colors"
           >
-            &larr; Back
+            &larr; {t('pages.levelUp5ePage.back')}
           </button>
           <div className="w-px h-4 bg-gray-700" />
-          <span className="text-sm text-gray-300 font-semibold">Level Up: {character.name}</span>
+          <span className="text-sm text-gray-300 font-semibold">
+            {t('pages.levelUp5ePage.levelUpTitle', { name: character.name })}
+          </span>
         </div>
 
         <div className="flex items-center gap-3">
           {incompleteChoices.length > 0 && (
             <span className="text-xs text-amber-400">
-              {incompleteChoices.length} choice{incompleteChoices.length !== 1 ? 's' : ''} remaining
+              {incompleteChoices.length !== 1
+                ? t('pages.levelUp5ePage.choicesRemainingPlural', { count: incompleteChoices.length })
+                : t('pages.levelUp5ePage.choicesRemainingSingular', { count: incompleteChoices.length })}
             </span>
           )}
           <button
@@ -134,7 +140,7 @@ export default function LevelUp5ePage(): JSX.Element {
             disabled={saving || incompleteChoices.length > 0}
             className="px-4 py-1.5 text-sm font-semibold bg-green-600 hover:bg-green-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded transition-colors"
           >
-            {saving ? 'Applying...' : 'Apply Level Up'}
+            {saving ? t('pages.levelUp5ePage.applying') : t('pages.levelUp5ePage.applyLevelUp')}
           </button>
         </div>
       </div>
@@ -150,7 +156,9 @@ export default function LevelUp5ePage(): JSX.Element {
 
           {incompleteChoices.length > 0 && (
             <div className="mb-4 px-4 py-3 bg-amber-900/20 border border-amber-700/50 rounded-lg">
-              <div className="text-xs font-semibold text-amber-400 uppercase tracking-wide mb-2">Choices Remaining</div>
+              <div className="text-xs font-semibold text-amber-400 uppercase tracking-wide mb-2">
+                {t('pages.levelUp5ePage.choicesRemainingHeading')}
+              </div>
               <div className="flex flex-wrap gap-1.5">
                 {incompleteChoices.map((choice, i) => (
                   <span

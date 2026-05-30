@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { trigger3dDice } from '../../../../components/game/dice3d'
+import { useT } from '../../../../i18n'
 import { rollMultiple } from '../../../../services/dice/dice-service'
 import { getTokenStats } from '../../../../services/game/token-stats'
 import { useGameStore } from '../../../../stores/use-game-store'
@@ -19,6 +20,7 @@ export default function FallingDamageModal({
   onApplyDamage,
   onBroadcastResult
 }: FallingDamageModalProps): JSX.Element {
+  const { t } = useT()
   const [height, setHeight] = useState(20)
   const [selectedTokenId, setSelectedTokenId] = useState<string | null>(null)
   const [result, setResult] = useState<{ rolls: number[]; total: number } | null>(null)
@@ -64,17 +66,18 @@ export default function FallingDamageModal({
     }
 
     onBroadcastResult(
-      `${selectedToken.label} falls ${height} ft! Takes ${result.total} bludgeoning damage and is knocked Prone.`
+      t('game.fallingDamageModal.broadcast', { target: selectedToken.label, height, damage: result.total })
     )
     onClose()
   }
 
   return (
-    <NarrowModalShell title="Falling Damage" onClose={onClose}>
+    <NarrowModalShell title={t('game.fallingDamageModal.title')} onClose={onClose}>
       {/* Height slider */}
       <div className="mb-4">
         <label className="text-xs text-gray-400">
-          Fall Height: <span className="text-white font-bold">{height} ft</span>
+          {t('game.fallingDamageModal.fallHeight')}{' '}
+          <span className="text-white font-bold">{t('game.fallingDamageModal.feet', { height })}</span>
         </label>
         <input
           type="range"
@@ -89,15 +92,17 @@ export default function FallingDamageModal({
           className="w-full mt-1 accent-amber-600"
         />
         <div className="flex justify-between text-xs text-gray-600">
-          <span>10 ft</span>
-          <span>200 ft</span>
+          <span>{t('game.fallingDamageModal.tenFt')}</span>
+          <span>{t('game.fallingDamageModal.twoHundredFt')}</span>
         </div>
-        <div className="text-xs text-gray-500 mt-1">Damage: {diceCount}d6 bludgeoning + Prone</div>
+        <div className="text-xs text-gray-500 mt-1">
+          {t('game.fallingDamageModal.damageInfo', { count: diceCount })}
+        </div>
       </div>
 
       {/* Target selection */}
       <div className="mb-4">
-        <span className="text-xs text-gray-400">Target:</span>
+        <span className="text-xs text-gray-400">{t('game.fallingDamageModal.target')}</span>
         <div className="space-y-1 mt-1 max-h-32 overflow-y-auto">
           {tokens.map((token) => (
             <button
@@ -120,12 +125,14 @@ export default function FallingDamageModal({
                 <span className="text-sm text-gray-200">
                   {token.label}
                   {token.elevation ? (
-                    <span className="text-blue-400 ml-1 text-xs">({token.elevation}ft up)</span>
+                    <span className="text-blue-400 ml-1 text-xs">
+                      {t('game.fallingDamageModal.elevationUp', { elevation: token.elevation })}
+                    </span>
                   ) : null}
                 </span>
                 {token.currentHP != null && (
                   <span className="text-xs text-gray-500">
-                    HP: {token.currentHP}/{getTokenStats(token).maxHP}
+                    {t('game.fallingDamageModal.hp', { current: token.currentHP, max: getTokenStats(token).maxHP })}
                   </span>
                 )}
               </div>
@@ -140,12 +147,12 @@ export default function FallingDamageModal({
           disabled={!selectedToken || diceCount <= 0}
           className="w-full px-4 py-3 bg-red-600 hover:bg-red-500 text-white font-semibold rounded-lg cursor-pointer text-sm disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Roll {diceCount}d6 Falling Damage
+          {t('game.fallingDamageModal.rollFalling', { count: diceCount })}
         </button>
       ) : (
         <div className="space-y-3">
           <div className="bg-gray-800 rounded-lg p-4 text-center">
-            <div className="text-xs text-gray-400 mb-1">Bludgeoning Damage</div>
+            <div className="text-xs text-gray-400 mb-1">{t('game.fallingDamageModal.bludgeoningDamage')}</div>
             <div className="text-3xl font-bold text-red-400 font-mono mb-1">{result.total}</div>
             <div className="flex gap-1 justify-center flex-wrap">
               {result.rolls.map((r, i) => (
@@ -157,20 +164,18 @@ export default function FallingDamageModal({
                 </span>
               ))}
             </div>
-            <div className="text-xs text-orange-400 mt-2">+ Prone condition</div>
+            <div className="text-xs text-orange-400 mt-2">{t('game.fallingDamageModal.proneCondition')}</div>
           </div>
           <button
             onClick={handleApply}
             className="w-full px-4 py-3 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-lg cursor-pointer text-sm"
           >
-            Apply {result.total} damage + Prone to {selectedToken?.label}
+            {t('game.fallingDamageModal.applyProne', { total: result.total, target: selectedToken?.label })}
           </button>
         </div>
       )}
 
-      <div className="text-xs text-gray-600 mt-2">
-        Water landing: Reaction for DC 15 STR(Athletics) or DEX(Acrobatics) = half damage.
-      </div>
+      <div className="text-xs text-gray-600 mt-2">{t('game.fallingDamageModal.waterLanding')}</div>
     </NarrowModalShell>
   )
 }

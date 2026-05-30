@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { isWearableItem } from '../../../data/wearable-items'
 import { useCharacterEditor } from '../../../hooks/use-character-editor'
+import { useT } from '../../../i18n'
 import { getDragPayload, hasLibraryDrag } from '../../../services/library/drag-data'
 import { loadCategoryItems } from '../../../services/library-service'
 import type { Character } from '../../../types/character'
@@ -23,6 +24,7 @@ interface EquipmentListPanel5eProps {
 }
 
 export default function EquipmentListPanel5e({ character, readonly }: EquipmentListPanel5eProps): JSX.Element {
+  const { t } = useT()
   const { getLatest, saveAndBroadcast } = useCharacterEditor(character.id)
   const equipment = character.equipment
   const hasEquipment = equipment.length > 0
@@ -222,7 +224,7 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
       }
       const result = deductWithConversion(currentCurrency, cost)
       if (!result) {
-        setBuyWarning(`Not enough funds for ${item.name}`)
+        setBuyWarning(t('sheet.equipmentList.notEnoughFunds', { name: item.name }))
         if (buyWarningTimerRef.current) clearTimeout(buyWarningTimerRef.current)
         buyWarningTimerRef.current = setTimeout(() => setBuyWarning(null), 3000)
         return
@@ -284,7 +286,7 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
       onDragLeave={() => setEquipDragOver(false)}
       onDrop={handleEquipmentDrop}
     >
-      <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Equipment</div>
+      <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('sheet.equipmentList.equipment')}</div>
       {hasEquipment ? (
         <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-3">
           {equipment.map((item, i) => (
@@ -310,17 +312,17 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
                     <button
                       onClick={() => setExpandedPack(expandedPack === i ? null : i)}
                       className="ml-1 px-1.5 py-0.5 text-xs bg-gray-700 hover:bg-gray-600 rounded text-gray-300 cursor-pointer flex-shrink-0"
-                      title="View pack contents"
+                      title={t('sheet.equipmentList.viewPackContents')}
                     >
-                      {expandedPack === i ? 'Hide' : 'Contents'}
+                      {expandedPack === i ? t('sheet.equipmentList.hide') : t('sheet.equipmentList.contents')}
                     </button>
                   ) : (
                     <button
                       onClick={() => handleOpenPack(i)}
                       className="ml-1 px-1.5 py-0.5 text-xs bg-amber-600 hover:bg-amber-500 rounded text-white cursor-pointer flex-shrink-0"
-                      title="Open pack into individual items"
+                      title={t('sheet.equipmentList.openPack')}
                     >
-                      Open
+                      {t('sheet.equipmentList.open')}
                     </button>
                   ))}
                 {!readonly && (
@@ -329,22 +331,22 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
                       <button
                         onClick={() => handleUseConsumable(i)}
                         className="ml-1 px-1.5 py-0.5 text-xs bg-blue-700 hover:bg-blue-600 rounded text-white cursor-pointer flex-shrink-0"
-                        title="Use one (decrements quantity)"
+                        title={t('sheet.equipmentList.useOne')}
                       >
-                        Use
+                        {t('sheet.equipmentList.use')}
                       </button>
                     )}
                     <button
                       onClick={() => handleSellEquipment(i)}
                       className="ml-1 text-gray-600 hover:text-green-400 cursor-pointer text-xs flex-shrink-0"
-                      title="Sell (half price)"
+                      title={t('sheet.equipmentList.sellHalfPrice')}
                     >
                       &#x24;
                     </button>
                     <button
                       onClick={() => handleRemoveEquipment(i)}
                       className="ml-2 text-gray-600 hover:text-red-400 cursor-pointer text-xs flex-shrink-0"
-                      title="Remove item"
+                      title={t('sheet.equipmentList.removeItem')}
                     >
                       &#x2715;
                     </button>
@@ -358,7 +360,7 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
                   if (!contents) return null
                   return (
                     <div className="text-xs text-gray-500 py-1 pl-2 bg-gray-800/30 rounded mt-0.5 mb-0.5">
-                      <div className="text-gray-400 mb-1 font-medium">Pack Contents:</div>
+                      <div className="text-gray-400 mb-1 font-medium">{t('sheet.equipmentList.packContents')}</div>
                       {contents.map((c, ci) => (
                         <div key={ci} className="flex items-center gap-1 py-0.5">
                           <span className="text-gray-300">{c.name}</span>
@@ -372,7 +374,7 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
                 <div className="text-xs text-gray-500 py-1 pl-2">
                   {item.description ||
                     gearDatabase.find((g) => g.name.toLowerCase() === item.name.toLowerCase())?.description ||
-                    'No description available.'}
+                    t('sheet.equipmentList.noDescription')}
                   {!readonly &&
                     isGenericTool(item.name) &&
                     (() => {
@@ -382,7 +384,7 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
                       if (!variants) return null
                       return (
                         <div className="mt-2">
-                          <div className="text-gray-400 mb-1">Choose a specific {base}:</div>
+                          <div className="text-gray-400 mb-1">{t('sheet.equipmentList.chooseSpecific', { base })}</div>
                           <div className="flex flex-wrap gap-1">
                             {variants.map((variant) => (
                               <button
@@ -420,7 +422,7 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
           ))}
         </div>
       ) : (
-        <p className="text-sm text-gray-500">No equipment.</p>
+        <p className="text-sm text-gray-500">{t('sheet.equipmentList.noEquipment')}</p>
       )}
 
       {!readonly && (
@@ -430,7 +432,7 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
               <div className="flex gap-2">
                 <input
                   type="text"
-                  placeholder="Item name"
+                  placeholder={t('sheet.equipmentList.itemNamePlaceholder')}
                   value={equipmentForm.name}
                   onChange={(e) => setEquipmentForm((f) => ({ ...f, name: e.target.value }))}
                   className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
@@ -438,7 +440,7 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
                 <input
                   type="number"
                   min={1}
-                  placeholder="Qty"
+                  placeholder={t('sheet.equipmentList.qtyPlaceholder')}
                   value={equipmentForm.quantity}
                   onChange={(e) => setEquipmentForm((f) => ({ ...f, quantity: e.target.value }))}
                   className="w-16 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 text-center focus:outline-none focus:border-amber-500"
@@ -450,7 +452,7 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
                   disabled={!equipmentForm.name.trim()}
                   className="px-3 py-1 text-xs bg-amber-600 hover:bg-amber-500 disabled:opacity-50 rounded text-white cursor-pointer"
                 >
-                  Add
+                  {t('sheet.equipmentList.add')}
                 </button>
                 <button
                   onClick={() => {
@@ -459,16 +461,16 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
                   }}
                   className="px-3 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded text-gray-300 cursor-pointer"
                 >
-                  Cancel
+                  {t('common.actions.cancel')}
                 </button>
               </div>
             </div>
           ) : showGearShop ? (
             <div className="bg-gray-800/50 rounded p-3 space-y-2">
-              <div className="text-xs text-gray-400 font-medium mb-1">Gear Shop</div>
+              <div className="text-xs text-gray-400 font-medium mb-1">{t('sheet.equipmentList.gearShop')}</div>
               <input
                 type="text"
-                placeholder="Search gear..."
+                placeholder={t('sheet.equipmentList.searchGearPlaceholder')}
                 value={gearSearch}
                 onChange={(e) => setGearSearch(e.target.value)}
                 className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
@@ -486,17 +488,19 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
                   >
                     <span className="text-gray-300">{item.name}</span>
                     <div className="flex items-center gap-2">
-                      <span className="text-gray-500">{getGearCost(item) || 'free'}</span>
+                      <span className="text-gray-500">{getGearCost(item) || t('sheet.equipmentList.free')}</span>
                       <button
                         onClick={() => handleBuyGear(item)}
                         className="px-2 py-0.5 bg-amber-600 hover:bg-amber-500 rounded text-white cursor-pointer"
                       >
-                        Buy
+                        {t('sheet.equipmentList.buy')}
                       </button>
                     </div>
                   </div>
                 ))}
-                {filteredGear.length === 0 && <p className="text-xs text-gray-500 text-center py-2">No items found.</p>}
+                {filteredGear.length === 0 && (
+                  <p className="text-xs text-gray-500 text-center py-2">{t('sheet.equipmentList.noItemsFound')}</p>
+                )}
               </div>
               <div className="flex justify-end">
                 <button
@@ -507,7 +511,7 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
                   }}
                   className="px-3 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded text-gray-300 cursor-pointer"
                 >
-                  Close
+                  {t('common.actions.close')}
                 </button>
               </div>
             </div>
@@ -517,13 +521,13 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
                 onClick={() => setShowAddEquipment(true)}
                 className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer"
               >
-                + Add Item
+                {t('sheet.equipmentList.addItem')}
               </button>
               <button
                 onClick={() => setShowGearShop(true)}
                 className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer"
               >
-                + Shop
+                {t('sheet.equipmentList.shop')}
               </button>
             </div>
           )}

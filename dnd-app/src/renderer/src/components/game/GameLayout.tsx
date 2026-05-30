@@ -9,6 +9,7 @@ import { useGameShortcuts } from '../../hooks/use-game-shortcuts'
 import { addToast } from '../../hooks/use-toast'
 import type { PortalEntryInfo } from '../../hooks/use-token-movement'
 import { useTokenMovement } from '../../hooks/use-token-movement'
+import { useT } from '../../i18n'
 import { useChatBridge } from '../../pages/lobby/use-lobby-bridges'
 import { buildContentIndex } from '../../services/library/content-index'
 import { loadCategoryItems } from '../../services/library-service'
@@ -96,6 +97,7 @@ interface GameLayoutProps {
 }
 
 export default function GameLayout({ campaign, isDM, character, playerName }: GameLayoutProps): JSX.Element {
+  const { t } = useT()
   const navigate = useNavigate()
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [editMapMode, setEditMapMode] = useState(false)
@@ -434,10 +436,10 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
     const next = campaign.calendar?.preset ?? null
     const prev = prevCalendarPresetRef.current
     if (prev !== null && next !== null && prev !== next) {
-      addToast(`Calendar changed to ${next.replace(/-/g, ' ')}.`, 'info')
+      addToast(t('game.gameLayout.calendarChanged', { preset: next.replace(/-/g, ' ') }), 'info')
     }
     prevCalendarPresetRef.current = next
-  }, [campaign.calendar?.preset])
+  }, [campaign.calendar?.preset, t])
 
   const handleViewModeToggle = (): void => {
     if (viewMode === 'player') {
@@ -554,7 +556,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
     <div
       className="h-screen w-screen relative overflow-hidden bg-gray-950 text-gray-100"
       role="application"
-      aria-label="Game session"
+      aria-label={t('game.gameLayout.gameSession')}
     >
       {/* Phase 29f — view-as-role banner so the DM knows why their tools vanished. */}
       {viewAs && (
@@ -568,7 +570,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
       )}
 
       {/* Map layer */}
-      <div className="absolute inset-0" role="region" aria-label="Game map">
+      <div className="absolute inset-0" role="region" aria-label={t('game.gameLayout.gameMap')}>
         <MapCanvas
           key={mapKey}
           map={activeMap}
@@ -656,7 +658,11 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
       </div>
 
       {/* Left sidebar */}
-      <div className="absolute top-0 left-0 bottom-0 z-10 flex" role="region" aria-label="Game sidebar">
+      <div
+        className="absolute top-0 left-0 bottom-0 z-10 flex"
+        role="region"
+        aria-label={t('game.gameLayout.gameSidebar')}
+      >
         <div
           style={{ width: sidebarCollapsed ? 48 : sidebarWidth }}
           className="h-full shrink-0 transition-[width] duration-200"
@@ -699,7 +705,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
         className="absolute bottom-0 right-0 z-10 flex flex-col"
         style={{ left: sidebarLeftPx, height: bottomCollapsed ? 40 : bottomBarHeight }}
         role="region"
-        aria-label="Game controls"
+        aria-label={t('game.gameLayout.gameControls')}
       >
         {!bottomCollapsed && (
           <ResizeHandle direction="vertical" onResize={handleBottomResize} onDoubleClick={handleBottomDoubleClick} />
@@ -764,7 +770,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
       <div
         className="absolute top-3 right-3 z-40 flex items-center gap-2"
         role="region"
-        aria-label="Game controls toolbar"
+        aria-label={t('game.gameLayout.gameControlsToolbar')}
       >
         {isDM && <ViewModeToggle viewMode={viewMode} onToggle={handleViewModeToggle} characterName={character?.name} />}
         {/* Phase 29f — View-as-role debug selector (DM only). */}

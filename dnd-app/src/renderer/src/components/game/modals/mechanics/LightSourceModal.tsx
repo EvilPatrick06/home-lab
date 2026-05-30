@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { LIGHT_SOURCE_LABELS, LIGHT_SOURCES } from '../../../../data/light-sources'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 import { useGameStore } from '../../../../stores/use-game-store'
 import type { LightAnimation, LightAnimationType } from '../../../../types/campaign'
 
@@ -9,6 +10,7 @@ interface LightSourceModalProps {
 }
 
 export default function LightSourceModal({ onClose }: LightSourceModalProps): JSX.Element {
+  const { t } = useT()
   useEscapeKey(onClose)
   const [entityName, setEntityName] = useState('')
   const [selectedSource, setSelectedSource] = useState('torch')
@@ -30,7 +32,7 @@ export default function LightSourceModal({ onClose }: LightSourceModalProps): JS
     if (!source) return
 
     // Try to find a token for this entity
-    const token = tokens.find((t) => t.label.toLowerCase() === entityName.toLowerCase())
+    const token = tokens.find((tok) => tok.label.toLowerCase() === entityName.toLowerCase())
     const entityId = token?.entityId ?? entityName
 
     const animation: LightAnimation | undefined =
@@ -46,27 +48,27 @@ export default function LightSourceModal({ onClose }: LightSourceModalProps): JS
     <div className="fixed inset-0 z-40 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-80 shadow-2xl">
-        <h3 className="text-sm font-semibold text-amber-400 mb-3">Light Source</h3>
+        <h3 className="text-sm font-semibold text-amber-400 mb-3">{t('game.lightSourceModal.title')}</h3>
 
         <div className="space-y-3">
           <div>
-            <label className="text-xs text-gray-400 block mb-1">Character / Token</label>
+            <label className="text-xs text-gray-400 block mb-1">{t('game.lightSourceModal.characterToken')}</label>
             <select
               value={entityName}
               onChange={(e) => setEntityName(e.target.value)}
               className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-200"
             >
-              <option value="">Select...</option>
-              {tokens.map((t) => (
-                <option key={t.id} value={t.label}>
-                  {t.label}
+              <option value="">{t('game.lightSourceModal.selectPlaceholder')}</option>
+              {tokens.map((tok) => (
+                <option key={tok.id} value={tok.label}>
+                  {tok.label}
                 </option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="text-xs text-gray-400 block mb-1">Source Type</label>
+            <label className="text-xs text-gray-400 block mb-1">{t('game.lightSourceModal.sourceType')}</label>
             <select
               value={selectedSource}
               onChange={(e) => setSelectedSource(e.target.value)}
@@ -74,7 +76,10 @@ export default function LightSourceModal({ onClose }: LightSourceModalProps): JS
             >
               {sourceKeys.map((key) => {
                 const def = LIGHT_SOURCES[key]
-                const dur = def.durationSeconds === Infinity ? 'permanent' : `${def.durationSeconds / 60} min`
+                const dur =
+                  def.durationSeconds === Infinity
+                    ? t('game.lightSourceModal.permanent')
+                    : t('game.lightSourceModal.minutes', { minutes: def.durationSeconds / 60 })
                 return (
                   <option key={key} value={key}>
                     {LIGHT_SOURCE_LABELS[key]} ({dur})
@@ -85,23 +90,25 @@ export default function LightSourceModal({ onClose }: LightSourceModalProps): JS
           </div>
 
           <div>
-            <label className="text-xs text-gray-400 block mb-1">Animation</label>
+            <label className="text-xs text-gray-400 block mb-1">{t('game.lightSourceModal.animation')}</label>
             <select
               value={animationType}
               onChange={(e) => setAnimationType(e.target.value as LightAnimationType | 'none')}
               className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-200"
             >
-              <option value="none">None</option>
-              <option value="flicker">Flicker</option>
-              <option value="pulse">Pulse</option>
-              <option value="wave">Wave</option>
+              <option value="none">{t('game.lightSourceModal.none')}</option>
+              <option value="flicker">{t('game.lightSourceModal.flicker')}</option>
+              <option value="pulse">{t('game.lightSourceModal.pulse')}</option>
+              <option value="wave">{t('game.lightSourceModal.wave')}</option>
             </select>
           </div>
 
           {animationType !== 'none' && (
             <>
               <div>
-                <label className="text-xs text-gray-400 block mb-1">Intensity: {animationIntensity}%</label>
+                <label className="text-xs text-gray-400 block mb-1">
+                  {t('game.lightSourceModal.intensity', { value: animationIntensity })}
+                </label>
                 <input
                   type="range"
                   min={0}
@@ -114,7 +121,9 @@ export default function LightSourceModal({ onClose }: LightSourceModalProps): JS
               </div>
 
               <div>
-                <label className="text-xs text-gray-400 block mb-1">Speed: {animationSpeed.toFixed(1)}x</label>
+                <label className="text-xs text-gray-400 block mb-1">
+                  {t('game.lightSourceModal.speed', { value: animationSpeed.toFixed(1) })}
+                </label>
                 <input
                   type="range"
                   min={0.1}
@@ -134,13 +143,13 @@ export default function LightSourceModal({ onClose }: LightSourceModalProps): JS
               disabled={!entityName.trim()}
               className="flex-1 px-3 py-2 text-xs font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded-lg cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              Light It
+              {t('game.lightSourceModal.lightIt')}
             </button>
             <button
               onClick={onClose}
               className="px-3 py-2 text-xs font-semibold bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg cursor-pointer"
             >
-              Cancel
+              {t('common.actions.cancel')}
             </button>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useT } from '../../i18n'
 import { useCampaignStore } from '../../stores/use-campaign-store'
 import type { Campaign, PlayerOverride } from '../../types/campaign'
 import {
@@ -22,6 +23,7 @@ type TriState = 'grant' | 'default' | 'deny'
  * tracked as a reconciliation gap with the lobby peer identity.
  */
 export default function PlayerOverridesPanel({ campaign }: { campaign: Campaign }): JSX.Element {
+  const { t } = useT()
   const setPlayerOverride = useCampaignStore((s) => s.setPlayerOverride)
   const clearPlayerOverride = useCampaignStore((s) => s.clearPlayerOverride)
   const [expandedId, setExpandedId] = useState<string | null>(null)
@@ -29,7 +31,7 @@ export default function PlayerOverridesPanel({ campaign }: { campaign: Campaign 
   const overrides = campaign.permissions?.playerOverrides ?? {}
 
   if (campaign.players.length === 0) {
-    return <p className="text-xs text-gray-500 italic">No players in this campaign yet.</p>
+    return <p className="text-xs text-gray-500 italic">{t('campaign.playerOverridesPanel.noPlayers')}</p>
   }
 
   return (
@@ -67,11 +69,13 @@ export default function PlayerOverridesPanel({ campaign }: { campaign: Campaign 
               <span className="text-sm font-semibold text-gray-100">{player.displayName}</span>
               {count > 0 && (
                 <span className="text-xs text-gray-500">
-                  {count} override{count === 1 ? '' : 's'}
+                  {t('campaign.playerOverridesPanel.overrideCount', { count })}
                 </span>
               )}
               {conflicts.length > 0 && (
-                <span className="text-[10px] text-red-400 border border-red-700 rounded px-1">conflict</span>
+                <span className="text-[10px] text-red-400 border border-red-700 rounded px-1">
+                  {t('campaign.playerOverridesPanel.conflict')}
+                </span>
               )}
               {count > 0 && (
                 <button
@@ -79,7 +83,7 @@ export default function PlayerOverridesPanel({ campaign }: { campaign: Campaign 
                   onClick={() => clearPlayerOverride(campaign.id, player.userId)}
                   className="ml-auto text-xs text-gray-400 hover:text-red-300 cursor-pointer"
                 >
-                  Clear
+                  {t('campaign.playerOverridesPanel.clear')}
                 </button>
               )}
             </div>
@@ -112,7 +116,7 @@ export default function PlayerOverridesPanel({ campaign }: { campaign: Campaign 
                                     : 'bg-gray-800 text-gray-500 hover:text-gray-300'
                                 }`}
                               >
-                                {opt}
+                                {t(`campaign.playerOverridesPanel.triState.${opt}`)}
                               </button>
                             ))}
                           </div>

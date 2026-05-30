@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useT } from '../../../i18n'
 import type { Character } from '../../../types/character'
 import type { Character5e } from '../../../types/character-5e'
 
@@ -9,23 +10,19 @@ interface BackgroundPanel5eProps {
   saveAndBroadcast: (updated: Character5e) => void
 }
 
-const SENSE_DESCRIPTIONS: Record<string, string> = {
-  darkvision:
-    'You can see in dim light within range as if it were bright light, and in darkness as if it were dim light. You discern colors in that darkness only as shades of gray.',
-  blindsight:
-    'You can perceive your surroundings without relying on sight, within a specific radius. Creatures without this sense are effectively blinded with regard to creatures with it.',
-  tremorsense:
-    'You can detect and pinpoint the origin of vibrations within a specific radius, provided you and the source are in contact with the same ground or substance.',
-  truesight:
-    'You can see in normal and magical darkness, see invisible creatures and objects, automatically detect visual illusions and succeed on saving throws against them, and perceive the original form of a shapechanger or a creature transformed by magic.'
-}
-
 export default function BackgroundPanel5e({
   character,
   readonly,
   getLatest,
   saveAndBroadcast
 }: BackgroundPanel5eProps): JSX.Element {
+  const { t } = useT()
+  const SENSE_DESCRIPTIONS: Record<string, string> = {
+    darkvision: t('sheet.backgroundPanel.darkvisionDesc'),
+    blindsight: t('sheet.backgroundPanel.blindsightDesc'),
+    tremorsense: t('sheet.backgroundPanel.tremorsenseDesc'),
+    truesight: t('sheet.backgroundPanel.truesightDesc')
+  }
   const [expandedSense, setExpandedSense] = useState<string | null>(null)
   const [showSensePicker, setShowSensePicker] = useState(false)
   const [customSenseInput, setCustomSenseInput] = useState('')
@@ -36,7 +33,7 @@ export default function BackgroundPanel5e({
 
   return (
     <div className="mb-3">
-      <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Senses</div>
+      <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('sheet.backgroundPanel.senses')}</div>
       {character.senses && character.senses.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mb-1">
           {character.senses.map((sense) => {
@@ -88,13 +85,13 @@ export default function BackgroundPanel5e({
           onClick={() => setShowSensePicker(true)}
           className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer"
         >
-          + Add Sense
+          {t('sheet.backgroundPanel.addSense')}
         </button>
       )}
       {!readonly && showSensePicker && (
         <div className="bg-gray-800/50 rounded p-3 space-y-2 mt-1">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-amber-400 font-medium">Add Sense</span>
+            <span className="text-xs text-amber-400 font-medium">{t('sheet.backgroundPanel.addSenseTitle')}</span>
             <button
               onClick={() => {
                 setShowSensePicker(false)
@@ -102,7 +99,7 @@ export default function BackgroundPanel5e({
               }}
               className="text-xs text-gray-500 hover:text-gray-300 cursor-pointer"
             >
-              Cancel
+              {t('common.actions.cancel')}
             </button>
           </div>
           <div className="flex flex-wrap gap-1">
@@ -136,7 +133,7 @@ export default function BackgroundPanel5e({
           <div className="flex items-center gap-2">
             <input
               type="text"
-              placeholder="Custom sense..."
+              placeholder={t('sheet.backgroundPanel.customSensePlaceholder')}
               value={customSenseInput}
               onChange={(e) => setCustomSenseInput(e.target.value)}
               onKeyDown={(e) => {
@@ -172,7 +169,7 @@ export default function BackgroundPanel5e({
               disabled={!customSenseInput.trim()}
               className="px-2 py-1 text-xs bg-amber-600 hover:bg-amber-500 disabled:opacity-50 rounded text-white cursor-pointer"
             >
-              Add
+              {t('sheet.backgroundPanel.add')}
             </button>
           </div>
         </div>

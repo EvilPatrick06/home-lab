@@ -1,4 +1,5 @@
 import { type ReactNode, useCallback, useEffect, useId, useRef } from 'react'
+import { useT } from '../../i18n'
 
 interface ModalProps {
   open: boolean
@@ -17,6 +18,7 @@ export default function Modal({
   className = 'max-w-lg',
   hideHeader = false
 }: ModalProps): JSX.Element | null {
+  const { t } = useT()
   const dialogRef = useRef<HTMLDivElement>(null)
   const previousFocusRef = useRef<HTMLElement | null>(null)
   const titleId = useId()
@@ -92,7 +94,7 @@ export default function Modal({
             <button
               onClick={onClose}
               className="text-gray-500 hover:text-gray-300 text-2xl leading-none cursor-pointer ml-auto"
-              aria-label="Close dialog"
+              aria-label={t('ui.modal.closeDialog')}
             >
               &times;
             </button>

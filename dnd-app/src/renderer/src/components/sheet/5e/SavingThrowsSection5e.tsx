@@ -1,3 +1,4 @@
+import { useT } from '../../../i18n'
 import { getEffectiveClasses } from '../../../services/character/effective-character-5e'
 import type { Character5e } from '../../../types/character-5e'
 import { ABILITY_NAMES, abilityModifier, formatMod } from '../../../types/character-common'
@@ -9,6 +10,7 @@ interface SavingThrowsSection5eProps {
 }
 
 export default function SavingThrowsSection5e({ character }: SavingThrowsSection5eProps): JSX.Element {
+  const { t } = useT()
   const profBonus = Math.ceil(character.level / 4) + 1
 
   // Phase 15c.5 — derive class list (v3 shape) from v4 classRefs via the truth store.
@@ -27,7 +29,7 @@ export default function SavingThrowsSection5e({ character }: SavingThrowsSection
   })()
 
   return (
-    <SheetSectionWrapper title="Saving Throws">
+    <SheetSectionWrapper title={t('sheet.savingThrowsSection.title')}>
       <div className="grid grid-cols-3 gap-2">
         {ABILITY_NAMES.map((ab) => {
           const isProficient = effectiveProficientSaves.includes(ab)

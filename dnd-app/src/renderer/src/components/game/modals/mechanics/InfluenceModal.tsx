@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { trigger3dDice } from '../../../../components/game/dice3d'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 import { rollSingle } from '../../../../services/dice/dice-service'
 import type { Character } from '../../../../types/character'
 import type { Character5e } from '../../../../types/character-5e'
@@ -13,14 +14,15 @@ interface InfluenceModalProps {
 }
 
 const INFLUENCE_APPROACHES = [
-  { skill: 'Deception', ability: 'charisma' as const, desc: 'Deceive a creature that understands you' },
-  { skill: 'Intimidation', ability: 'charisma' as const, desc: 'Intimidate a creature' },
-  { skill: 'Performance', ability: 'charisma' as const, desc: 'Amuse a creature' },
-  { skill: 'Persuasion', ability: 'charisma' as const, desc: 'Persuade a creature that understands you' },
-  { skill: 'Animal Handling', ability: 'wisdom' as const, desc: 'Coax a Beast or Monstrosity' }
+  { skill: 'Deception', ability: 'charisma' as const, descKey: 'deception' },
+  { skill: 'Intimidation', ability: 'charisma' as const, descKey: 'intimidation' },
+  { skill: 'Performance', ability: 'charisma' as const, descKey: 'performance' },
+  { skill: 'Persuasion', ability: 'charisma' as const, descKey: 'persuasion' },
+  { skill: 'Animal Handling', ability: 'wisdom' as const, descKey: 'animalHandling' }
 ]
 
 export default function InfluenceModal({ character, onClose, onBroadcastResult }: InfluenceModalProps): JSX.Element {
+  const { t } = useT()
   useEscapeKey(onClose)
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [result, setResult] = useState<{ roll: number; total: number; modifier: number } | null>(null)
@@ -51,11 +53,11 @@ export default function InfluenceModal({ character, onClose, onBroadcastResult }
       <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-[420px] max-h-[80vh] overflow-y-auto shadow-2xl">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-gray-200">Influence Action</h3>
+          <h3 className="text-sm font-semibold text-gray-200">{t('game.influenceModal.title')}</h3>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-300 text-lg cursor-pointer"
-            aria-label="Close"
+            aria-label={t('common.actions.close')}
           >
             &times;
           </button>
@@ -85,18 +87,21 @@ export default function InfluenceModal({ character, onClose, onBroadcastResult }
                   <span className="text-sm font-semibold text-gray-200">{appr.skill}</span>
                   <span className="text-xs text-amber-400 font-mono">{formatMod(mod)}</span>
                 </div>
-                <div className="text-xs text-gray-400">{appr.desc}</div>
+                <div className="text-xs text-gray-400">{t(`game.influenceModal.descs.${appr.descKey}`)}</div>
               </button>
             )
           })}
         </div>
 
         <div className="text-xs text-gray-500 bg-gray-800 rounded-lg px-3 py-2 mb-4">
-          <div className="font-semibold text-gray-400 mb-1">NPC Willingness (DM determines):</div>
+          <div className="font-semibold text-gray-400 mb-1">{t('game.influenceModal.npcWillingness')}</div>
           <div className="text-xs">
-            <span className="text-green-400">Willing</span> — auto-success &nbsp;|&nbsp;
-            <span className="text-yellow-400">Hesitant</span> — check DC 15 or INT score &nbsp;|&nbsp;
-            <span className="text-red-400">Unwilling</span> — auto-fail
+            <span className="text-green-400">{t('game.influenceModal.willing')}</span>
+            {t('game.influenceModal.willingDesc')} &nbsp;|&nbsp;
+            <span className="text-yellow-400">{t('game.influenceModal.hesitant')}</span>
+            {t('game.influenceModal.hesitantDesc')} &nbsp;|&nbsp;
+            <span className="text-red-400">{t('game.influenceModal.unwilling')}</span>
+            {t('game.influenceModal.unwillingDesc')}
           </div>
         </div>
 
@@ -105,7 +110,7 @@ export default function InfluenceModal({ character, onClose, onBroadcastResult }
             onClick={handleRoll}
             className="w-full px-4 py-3 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-lg cursor-pointer text-sm"
           >
-            Roll {approach.skill} (d20 {formatMod(modifier)})
+            {t('game.influenceModal.roll', { skill: approach.skill, mod: formatMod(modifier) })}
           </button>
         ) : (
           <div className="space-y-3">
@@ -128,28 +133,36 @@ export default function InfluenceModal({ character, onClose, onBroadcastResult }
                 </span>
               </div>
               <div className="text-xs text-gray-400">
-                d20: {result.roll} {formatMod(result.modifier)}
+                {t('game.influenceModal.d20Result', { roll: result.roll, mod: formatMod(result.modifier) })}
               </div>
-              {result.roll === 20 && <div className="text-sm text-green-400 font-bold mt-1">Natural 20!</div>}
-              {result.roll === 1 && <div className="text-sm text-red-400 font-bold mt-1">Natural 1!</div>}
+              {result.roll === 20 && (
+                <div className="text-sm text-green-400 font-bold mt-1">{t('game.influenceModal.natural20')}</div>
+              )}
+              {result.roll === 1 && (
+                <div className="text-sm text-red-400 font-bold mt-1">{t('game.influenceModal.natural1')}</div>
+              )}
             </div>
             <button
               onClick={() => {
                 onBroadcastResult(
-                  `${character.name} uses Influence (${approach.skill}): rolled ${result.total} (${result.roll}${formatMod(result.modifier)})`
+                  t('game.influenceModal.broadcast', {
+                    name: character.name,
+                    skill: approach.skill,
+                    total: result.total,
+                    roll: result.roll,
+                    mod: formatMod(result.modifier)
+                  })
                 )
                 onClose()
               }}
               className="w-full px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-lg cursor-pointer text-sm"
             >
-              Done
+              {t('game.influenceModal.done')}
             </button>
           </div>
         )}
 
-        <div className="text-xs text-gray-600 mt-2">
-          Failed attempts: wait 24 hours to retry same approach on same NPC.
-        </div>
+        <div className="text-xs text-gray-600 mt-2">{t('game.influenceModal.failedNote')}</div>
       </div>
     </div>
   )

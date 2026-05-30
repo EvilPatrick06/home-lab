@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { addToast } from '../../hooks/use-toast'
+import { useT } from '../../i18n'
 import {
   type ActiveOp,
   AvailableModelList,
   type CuratedModel,
   getPerformanceTier,
+  getTierLabel,
   type InstalledModel,
   InstalledModelList,
   type PerformanceTier,
@@ -20,6 +22,7 @@ interface VersionInfo {
 }
 
 export default function OllamaManagement(): JSX.Element {
+  const { t } = useT()
   const [ollamaStatus, setOllamaStatus] = useState<{
     installed: boolean
     running: boolean
@@ -100,35 +103,35 @@ export default function OllamaManagement(): JSX.Element {
     try {
       const dl = await window.api.ai.downloadOllama()
       if (!dl.success || !dl.path) {
-        addToast(dl.error ?? 'Failed to download Ollama', 'error')
+        addToast(dl.error ?? t('ui.ollamaManagement.downloadFailed'), 'error')
         return
       }
       const inst = await window.api.ai.installOllama(dl.path)
       if (!inst.success) {
-        addToast(inst.error ?? 'Failed to install Ollama', 'error')
+        addToast(inst.error ?? t('ui.ollamaManagement.installFailed'), 'error')
         return
       }
-      addToast('Ollama installed', 'success')
+      addToast(t('ui.ollamaManagement.installed'), 'success')
       await refreshAll()
     } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Ollama install failed', 'error')
+      addToast(err instanceof Error ? err.message : t('ui.ollamaManagement.installError'), 'error')
     } finally {
       setInstalling(false)
     }
-  }, [refreshAll])
+  }, [refreshAll, t])
 
   const handleStart = useCallback(async () => {
     setStarting(true)
     try {
       await window.api.ai.startOllama()
-      addToast('Ollama started', 'success')
+      addToast(t('ui.ollamaManagement.started'), 'success')
       await refreshAll()
     } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Failed to start Ollama', 'error')
+      addToast(err instanceof Error ? err.message : t('ui.ollamaManagement.startFailed'), 'error')
     } finally {
       setStarting(false)
     }
-  }, [refreshAll])
+  }, [refreshAll, t])
 
   const checkForUpdate = useCallback(async () => {
     setCheckingUpdate(true)
@@ -137,35 +140,35 @@ export default function OllamaManagement(): JSX.Element {
       if (result.success && result.data) {
         setVersionInfo(result.data)
         if (!result.data.updateAvailable) {
-          addToast('Ollama is up to date', 'success')
+          addToast(t('ui.ollamaManagement.upToDate'), 'success')
         }
       } else {
-        addToast(result.error ?? 'Failed to check for updates', 'error')
+        addToast(result.error ?? t('ui.ollamaManagement.checkUpdatesFailed'), 'error')
       }
     } catch {
-      addToast('Failed to check for updates', 'error')
+      addToast(t('ui.ollamaManagement.checkUpdatesFailed'), 'error')
     } finally {
       setCheckingUpdate(false)
     }
-  }, [])
+  }, [t])
 
   const handleUpdateOllama = useCallback(async () => {
     setActiveOp({ type: 'ollama-update', percent: 0 })
     try {
       const result = await window.api.ai.updateOllama()
       if (result.success) {
-        addToast('Ollama updated successfully! Restart Ollama to use the new version.', 'success')
+        addToast(t('ui.ollamaManagement.updateSuccess'), 'success')
         setVersionInfo(null)
         await refreshAll()
       } else {
-        addToast(result.error ?? 'Update failed', 'error')
+        addToast(result.error ?? t('ui.ollamaManagement.updateFailed'), 'error')
       }
     } catch {
-      addToast('Ollama update failed', 'error')
+      addToast(t('ui.ollamaManagement.updateError'), 'error')
     } finally {
       setActiveOp(null)
     }
-  }, [refreshAll])
+  }, [refreshAll, t])
 
   const handlePullModel = useCallback(
     async (modelId: string) => {
@@ -173,18 +176,18 @@ export default function OllamaManagement(): JSX.Element {
       try {
         const result = await window.api.ai.pullModel(modelId)
         if (result.success) {
-          addToast(`Model ${modelId} is up to date`, 'success')
+          addToast(t('ui.ollamaManagement.modelUpToDate', { model: modelId }), 'success')
           await refreshModels()
         } else {
-          addToast(result.error ?? `Failed to pull ${modelId}`, 'error')
+          addToast(result.error ?? t('ui.ollamaManagement.pullFailed', { model: modelId }), 'error')
         }
       } catch {
-        addToast(`Failed to pull ${modelId}`, 'error')
+        addToast(t('ui.ollamaManagement.pullFailed', { model: modelId }), 'error')
       } finally {
         setActiveOp(null)
       }
     },
-    [refreshModels]
+    [refreshModels, t]
   )
 
   const handleDeleteModel = useCallback(
@@ -193,18 +196,18 @@ export default function OllamaManagement(): JSX.Element {
       try {
         const result = await window.api.ai.deleteModel(modelName)
         if (result.success) {
-          addToast(`Deleted ${modelName}`, 'success')
+          addToast(t('ui.ollamaManagement.deleted', { model: modelName }), 'success')
           await refreshModels()
         } else {
-          addToast(result.error ?? `Failed to delete ${modelName}`, 'error')
+          addToast(result.error ?? t('ui.ollamaManagement.deleteFailed', { model: modelName }), 'error')
         }
       } catch {
-        addToast(`Failed to delete ${modelName}`, 'error')
+        addToast(t('ui.ollamaManagement.deleteFailed', { model: modelName }), 'error')
       } finally {
         setActiveOp(null)
       }
     },
-    [refreshModels]
+    [refreshModels, t]
   )
 
   const handleUpdateAllModels = useCallback(async () => {
@@ -213,13 +216,13 @@ export default function OllamaManagement(): JSX.Element {
       try {
         await window.api.ai.pullModel(model.name)
       } catch {
-        addToast(`Failed to update ${model.name}`, 'error')
+        addToast(t('ui.ollamaManagement.updateModelFailed', { model: model.name }), 'error')
       }
     }
-    addToast('All models updated', 'success')
+    addToast(t('ui.ollamaManagement.allModelsUpdated'), 'success')
     setActiveOp(null)
     await refreshModels()
-  }, [installedModels, refreshModels])
+  }, [installedModels, refreshModels, t])
 
   const handleCustomPull = useCallback(async () => {
     const name = customModelName.trim()
@@ -239,7 +242,7 @@ export default function OllamaManagement(): JSX.Element {
     return (
       <div className="flex items-center gap-2 py-4">
         <div className="w-4 h-4 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
-        <span className="text-sm text-gray-400">Detecting Ollama...</span>
+        <span className="text-sm text-gray-400">{t('ui.ollamaManagement.detecting')}</span>
       </div>
     )
   }
@@ -248,12 +251,12 @@ export default function OllamaManagement(): JSX.Element {
     return (
       <div className="space-y-3">
         <p className="text-sm text-gray-400">
-          Ollama is not installed. Install it during campaign setup, or visit{' '}
+          {t('ui.ollamaManagement.notInstalledLead')}{' '}
           <button
             onClick={() => window.open('https://ollama.com', '_blank')}
             className="text-amber-400 hover:underline cursor-pointer"
           >
-            ollama.com
+            {t('ui.ollamaManagement.ollamaComLink')}
           </button>
           .
         </p>
@@ -263,14 +266,14 @@ export default function OllamaManagement(): JSX.Element {
             disabled={installing}
             className="px-3 py-1.5 text-sm font-medium rounded bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white cursor-pointer transition-colors"
           >
-            {installing ? 'Installing Ollama…' : 'Install Ollama'}
+            {installing ? t('ui.ollamaManagement.installingOllama') : t('ui.ollamaManagement.installOllama')}
           </button>
           <button
             onClick={refreshAll}
             disabled={installing}
             className="text-xs text-gray-500 hover:text-gray-300 transition-colors cursor-pointer disabled:opacity-50"
           >
-            Re-check
+            {t('ui.ollamaManagement.reCheck')}
           </button>
         </div>
       </div>
@@ -283,7 +286,9 @@ export default function OllamaManagement(): JSX.Element {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className={`w-2 h-2 rounded-full ${ollamaStatus.running ? 'bg-green-400' : 'bg-gray-500'}`} />
-          <span className="text-sm text-gray-300">{ollamaStatus.running ? 'Running' : 'Stopped'}</span>
+          <span className="text-sm text-gray-300">
+            {ollamaStatus.running ? t('ui.ollamaManagement.running') : t('ui.ollamaManagement.stopped')}
+          </span>
           {/* Only show a version when one actually resolved. `installed` is the
               string 'unknown' when the version API was unreachable (Ollama
               stopped), which previously rendered a meaningless "vunknown". */}
@@ -293,7 +298,9 @@ export default function OllamaManagement(): JSX.Element {
         </div>
         <div className="flex items-center gap-2">
           {versionInfo?.updateAvailable && (
-            <span className="text-xs text-amber-400">v{versionInfo.latest} available</span>
+            <span className="text-xs text-amber-400">
+              {t('ui.ollamaManagement.versionAvailable', { version: versionInfo.latest })}
+            </span>
           )}
           {versionInfo?.updateAvailable ? (
             <button
@@ -301,7 +308,9 @@ export default function OllamaManagement(): JSX.Element {
               disabled={isBusy}
               className="px-3 py-1 text-xs rounded-lg bg-amber-600 hover:bg-amber-500 text-white transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {activeOp?.type === 'ollama-update' ? `Updating... ${activeOp.percent}%` : 'Update Ollama'}
+              {activeOp?.type === 'ollama-update'
+                ? t('ui.ollamaManagement.updating', { percent: activeOp.percent })
+                : t('ui.ollamaManagement.updateOllama')}
             </button>
           ) : (
             <button
@@ -309,7 +318,7 @@ export default function OllamaManagement(): JSX.Element {
               disabled={checkingUpdate || isBusy}
               className="px-3 py-1 text-xs rounded-lg border border-gray-700 text-gray-400 hover:border-gray-600 hover:text-gray-300 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {checkingUpdate ? 'Checking...' : 'Check for Updates'}
+              {checkingUpdate ? t('ui.ollamaManagement.checking') : t('ui.ollamaManagement.checkForUpdates')}
             </button>
           )}
         </div>
@@ -328,7 +337,7 @@ export default function OllamaManagement(): JSX.Element {
       {/* VRAM Info */}
       {vram > 0 && (
         <div className="flex items-center gap-3 px-3 py-2 bg-gray-800/40 rounded-lg">
-          <span className="text-xs text-gray-400">GPU VRAM:</span>
+          <span className="text-xs text-gray-400">{t('ui.ollamaManagement.gpuVram')}</span>
           <div className="flex-1 bg-gray-700 rounded-full h-1.5">
             <div className="bg-amber-500 h-1.5 rounded-full" style={{ width: '100%' }} />
           </div>
@@ -337,19 +346,19 @@ export default function OllamaManagement(): JSX.Element {
       )}
       {vram === 0 && ollamaStatus.running && (
         <div className="text-xs text-gray-500 px-3 py-2 bg-gray-800/40 rounded-lg">
-          GPU VRAM not detected (no NVIDIA GPU found). Model performance estimates unavailable.
+          {t('ui.ollamaManagement.vramNotDetected')}
         </div>
       )}
 
       {!ollamaStatus.running && (
         <div className="flex items-center justify-between gap-3">
-          <div className="text-xs text-gray-500">Ollama is installed but not running. Start it to manage models.</div>
+          <div className="text-xs text-gray-500">{t('ui.ollamaManagement.notRunning')}</div>
           <button
             onClick={handleStart}
             disabled={starting || isBusy}
             className="px-3 py-1 text-xs rounded-lg bg-green-700 hover:bg-green-600 text-white transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
           >
-            {starting ? 'Starting…' : 'Start Ollama'}
+            {starting ? t('ui.ollamaManagement.starting') : t('ui.ollamaManagement.startOllama')}
           </button>
         </div>
       )}
@@ -369,7 +378,7 @@ export default function OllamaManagement(): JSX.Element {
               return (
                 <div className="px-3 py-2.5 bg-green-900/10 border border-green-800/30 rounded-lg">
                   <h4 className="text-xs font-semibold text-green-400 uppercase tracking-wider mb-2">
-                    Recommended for Your GPU
+                    {t('ui.ollamaManagement.recommendedForGpu')}
                   </h4>
                   <div className="flex flex-wrap gap-2">
                     {recommended.map((m) => {
@@ -383,13 +392,13 @@ export default function OllamaManagement(): JSX.Element {
                           className="flex items-center gap-1.5 px-2.5 py-1 text-xs bg-gray-800/60 rounded-lg border border-gray-700 hover:border-green-600 hover:text-green-400 text-gray-300 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                         >
                           <span>{m.name}</span>
-                          <span className={`text-xs px-1 py-0.5 rounded ${style.className}`}>{style.label}</span>
+                          <span className={`text-xs px-1 py-0.5 rounded ${style.className}`}>{getTierLabel(tier)}</span>
                         </button>
                       )
                     })}
                   </div>
                   <p className="text-xs text-gray-500 mt-1.5">
-                    These models should run well with your {(vram / 1000).toFixed(1)}GB VRAM.
+                    {t('ui.ollamaManagement.recommendedHelp', { vram: (vram / 1000).toFixed(1) })}
                   </p>
                 </div>
               )
@@ -418,14 +427,16 @@ export default function OllamaManagement(): JSX.Element {
 
           {/* Custom Model Pull */}
           <div>
-            <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Pull Custom Model</h4>
+            <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+              {t('ui.ollamaManagement.pullCustomModel')}
+            </h4>
             <div className="flex gap-2">
               <input
                 type="text"
                 value={customModelName}
                 onChange={(e) => setCustomModelName(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleCustomPull()}
-                placeholder="e.g. llama3.2:1b"
+                placeholder={t('ui.ollamaManagement.customModelPlaceholder')}
                 disabled={isBusy}
                 className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-gray-200 placeholder-gray-600 focus:outline-none focus:border-amber-500 disabled:opacity-50"
               />
@@ -434,16 +445,16 @@ export default function OllamaManagement(): JSX.Element {
                 disabled={isBusy || !customModelName.trim()}
                 className="px-4 py-1.5 text-sm rounded-lg border border-gray-700 text-gray-400 hover:border-amber-600 hover:text-amber-400 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
               >
-                Pull
+                {t('ui.ollamaManagement.pull')}
               </button>
             </div>
             <p className="text-xs text-gray-600 mt-1.5">
-              Browse models at{' '}
+              {t('ui.ollamaManagement.browseModelsAt')}{' '}
               <button
                 onClick={() => window.open('https://ollama.com/library', '_blank')}
                 className="text-gray-500 hover:text-amber-400 cursor-pointer"
               >
-                ollama.com/library
+                {t('ui.ollamaManagement.ollamaLibraryLink')}
               </button>
             </p>
           </div>

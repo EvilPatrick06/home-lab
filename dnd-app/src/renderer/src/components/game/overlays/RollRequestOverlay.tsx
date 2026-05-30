@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { trigger3dDice } from '../../../components/game/dice3d'
 import { SKILLS_5E } from '../../../data/skills'
+import { useT } from '../../../i18n'
 import { rollSingle } from '../../../services/dice/dice-service'
 import type { Character } from '../../../types/character'
 import type { Character5e } from '../../../types/character-5e'
@@ -22,16 +23,16 @@ interface RollRequestOverlayProps {
 
 type AbilityKey = 'strength' | 'dexterity' | 'constitution' | 'intelligence' | 'wisdom' | 'charisma'
 
-const ABILITY_LABELS: Record<string, string> = {
-  strength: 'Strength',
-  dexterity: 'Dexterity',
-  constitution: 'Constitution',
-  intelligence: 'Intelligence',
-  wisdom: 'Wisdom',
-  charisma: 'Charisma'
-}
-
 export default function RollRequestOverlay({ request, character, onRoll, onDismiss }: RollRequestOverlayProps) {
+  const { t } = useT()
+  const abilityLabels: Record<string, string> = {
+    strength: t('game.rollRequestOverlay.strength'),
+    dexterity: t('game.rollRequestOverlay.dexterity'),
+    constitution: t('game.rollRequestOverlay.constitution'),
+    intelligence: t('game.rollRequestOverlay.intelligence'),
+    wisdom: t('game.rollRequestOverlay.wisdom'),
+    charisma: t('game.rollRequestOverlay.charisma')
+  }
   const [result, setResult] = useState<{ roll: number; modifier: number; total: number; success: boolean } | null>(null)
   const [visible, setVisible] = useState(false)
 
@@ -54,10 +55,12 @@ export default function RollRequestOverlay({ request, character, onRoll, onDismi
 
   const getRequestLabel = (): string => {
     if (request.type === 'skill' && request.skill) {
-      return `${request.skill} Check`
+      return t('game.rollRequestOverlay.skillCheck', { skill: request.skill })
     }
-    const abilityLabel = ABILITY_LABELS[request.ability ?? ''] ?? request.ability ?? 'Unknown'
-    return request.type === 'save' ? `${abilityLabel} Saving Throw` : `${abilityLabel} Check`
+    const abilityLabel = abilityLabels[request.ability ?? ''] ?? request.ability ?? t('game.rollRequestOverlay.unknown')
+    return request.type === 'save'
+      ? t('game.rollRequestOverlay.savingThrow', { ability: abilityLabel })
+      : t('game.rollRequestOverlay.abilityCheck', { ability: abilityLabel })
   }
 
   const getModifier = (): number => {
@@ -120,11 +123,17 @@ export default function RollRequestOverlay({ request, character, onRoll, onDismi
             <>
               {/* Request Info */}
               <div className="text-center mb-3">
-                <div className="text-xs text-amber-400/70 uppercase tracking-wider font-medium mb-1">DM Requests</div>
+                <div className="text-xs text-amber-400/70 uppercase tracking-wider font-medium mb-1">
+                  {t('game.rollRequestOverlay.dmRequests')}
+                </div>
                 <div className="text-lg font-bold text-white">{getRequestLabel()}</div>
-                {!request.isSecret && <div className="text-sm text-gray-400 mt-0.5">DC {request.dc}</div>}
+                {!request.isSecret && (
+                  <div className="text-sm text-gray-400 mt-0.5">
+                    {t('game.rollRequestOverlay.dc', { dc: request.dc })}
+                  </div>
+                )}
                 {request.isSecret && (
-                  <div className="text-xs text-purple-400 mt-0.5">Secret roll &mdash; DC hidden</div>
+                  <div className="text-xs text-purple-400 mt-0.5">{t('game.rollRequestOverlay.secretRoll')}</div>
                 )}
               </div>
 
@@ -135,16 +144,16 @@ export default function RollRequestOverlay({ request, character, onRoll, onDismi
                   className="w-full py-3 bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white font-bold rounded-lg transition-colors text-sm flex items-center justify-center gap-2"
                 >
                   <span className="text-lg">&#9860;</span>
-                  Roll d20 {formatMod(modifier)}
+                  {t('game.rollRequestOverlay.rollD20', { mod: formatMod(modifier) })}
                 </button>
               ) : (
                 <div className="text-center">
-                  <div className="text-sm text-gray-400 mb-2">No character loaded</div>
+                  <div className="text-sm text-gray-400 mb-2">{t('game.rollRequestOverlay.noCharacterLoaded')}</div>
                   <button
                     onClick={handleRoll}
                     className="w-full py-3 bg-gray-700 hover:bg-gray-600 text-white font-bold rounded-lg transition-colors text-sm"
                   >
-                    Roll d20 (no modifier)
+                    {t('game.rollRequestOverlay.rollD20NoMod')}
                   </button>
                 </div>
               )}
@@ -165,7 +174,7 @@ export default function RollRequestOverlay({ request, character, onRoll, onDismi
                     result.roll === 20 ? 'text-green-400' : result.roll === 1 ? 'text-red-400' : ''
                   }`}
                 >
-                  d20: {result.roll}
+                  {t('game.rollRequestOverlay.d20Roll', { roll: result.roll })}
                 </span>{' '}
                 {formatMod(result.modifier)}
               </div>
@@ -177,11 +186,15 @@ export default function RollRequestOverlay({ request, character, onRoll, onDismi
                       : 'bg-red-900/50 text-red-400 border border-red-700'
                   }`}
                 >
-                  {result.success ? 'Success' : 'Failure'}
+                  {result.success ? t('game.rollRequestOverlay.success') : t('game.rollRequestOverlay.failure')}
                 </span>
               )}
-              {result.roll === 20 && <div className="text-green-400 text-xs font-semibold mt-1">Natural 20!</div>}
-              {result.roll === 1 && <div className="text-red-400 text-xs font-semibold mt-1">Natural 1!</div>}
+              {result.roll === 20 && (
+                <div className="text-green-400 text-xs font-semibold mt-1">{t('game.rollRequestOverlay.nat20')}</div>
+              )}
+              {result.roll === 1 && (
+                <div className="text-red-400 text-xs font-semibold mt-1">{t('game.rollRequestOverlay.nat1')}</div>
+              )}
             </div>
           )}
         </div>

@@ -1,4 +1,5 @@
 import { Fragment, useMemo, useState } from 'react'
+import { useT } from '../../../i18n'
 
 export interface SpellData {
   id: string
@@ -36,6 +37,7 @@ export function SpellRow({
   onToggle: () => void
   isOffList?: boolean
 }): JSX.Element {
+  const { t } = useT()
   const [expanded, setExpanded] = useState(false)
   return (
     <div className="border-b border-gray-800/50 last:border-0">
@@ -52,12 +54,14 @@ export function SpellRow({
           <span className={`text-sm ${selected ? 'text-gray-200' : 'text-gray-400'} flex items-center gap-1.5`}>
             {spell.name}
             {isOffList && (
-              <span className="text-xs text-orange-400 border border-orange-700 rounded px-1">Off-List</span>
+              <span className="text-xs text-orange-400 border border-orange-700 rounded px-1">
+                {t('builder.spellSummary.offList')}
+              </span>
             )}
           </span>
           <div className="flex items-center gap-2 text-xs text-gray-500">
-            {spell.concentration && <span className="text-yellow-600">C</span>}
-            {spell.ritual && <span className="text-blue-500">R</span>}
+            {spell.concentration && <span className="text-yellow-600">{t('builder.spellSummary.concentration')}</span>}
+            {spell.ritual && <span className="text-blue-500">{t('builder.spellSummary.ritual')}</span>}
             <span>{spell.school}</span>
           </div>
         </button>
@@ -72,7 +76,7 @@ export function SpellRow({
           <p className="leading-relaxed">{spell.description}</p>
           {spell.higherLevels && (
             <p className="text-gray-500">
-              <span className="font-semibold">At Higher Levels:</span> {spell.higherLevels}
+              <span className="font-semibold">{t('builder.spellSummary.atHigherLevels')}</span> {spell.higherLevels}
             </p>
           )}
         </div>
@@ -90,6 +94,7 @@ export default function SpellSummary5e({
   allSpells: SpellData[]
   onRemove: (id: string) => void
 }): JSX.Element {
+  const { t } = useT()
   const [collapsed, setCollapsed] = useState(false)
 
   const grouped = useMemo(() => {
@@ -112,7 +117,7 @@ export default function SpellSummary5e({
         className="w-full px-4 py-1.5 bg-amber-900/20 flex items-center justify-between cursor-pointer hover:bg-amber-900/30 transition-colors"
       >
         <span className="text-xs font-semibold text-amber-400 uppercase tracking-wide">
-          Your Selected Spells ({selectedSpellIds.length})
+          {t('builder.spellSummary.selectedSpells', { count: selectedSpellIds.length })}
         </span>
         <span className="text-gray-500 text-xs">{collapsed ? '\u25B8' : '\u25BE'}</span>
       </button>
@@ -121,7 +126,9 @@ export default function SpellSummary5e({
           {grouped.map(([level, spells]) => (
             <Fragment key={level}>
               <div className="text-xs font-semibold text-gray-500 uppercase">
-                {level === 0 ? 'Cantrips' : `${level}${ordinal(level)} Level`}
+                {level === 0
+                  ? t('builder.spellSummary.cantrips')
+                  : t('builder.spellSummary.levelHeader', { level, ord: ordinal(level) })}
               </div>
               {spells.map((spell) => (
                 <div key={spell.id} className="flex items-center justify-between py-0.5">
@@ -130,7 +137,7 @@ export default function SpellSummary5e({
                     onClick={() => onRemove(spell.id)}
                     className="text-xs text-gray-500 hover:text-red-400 px-1.5 py-0.5 rounded hover:bg-gray-800 transition-colors cursor-pointer"
                   >
-                    Remove
+                    {t('builder.spellSummary.remove')}
                   </button>
                 </div>
               ))}

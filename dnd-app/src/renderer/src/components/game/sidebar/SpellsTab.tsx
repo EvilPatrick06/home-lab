@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { SPELL_SCHOOLS } from '../../../constants'
+import { useT } from '../../../i18n'
 import type {
   HigherLevelCasting,
   HigherLevelScalingEntry,
@@ -29,8 +30,9 @@ type _HigherLevelCasting = HigherLevelCasting
 const SPELL_LEVELS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 function SpellCard({ spell }: { spell: SpellIndexEntry }): JSX.Element {
+  const { t } = useT()
   const [expanded, setExpanded] = useState(false)
-  const levelLabel = spell.level === 0 ? 'Cantrip' : `Level ${spell.level}`
+  const levelLabel = spell.level === 0 ? t('game.spellsTab.cantrip') : t('game.spellsTab.level', { level: spell.level })
   const classList = spell.classes.join(', ')
 
   return (
@@ -47,17 +49,17 @@ function SpellCard({ spell }: { spell: SpellIndexEntry }): JSX.Element {
       </div>
       <div className="flex items-center gap-2 mt-0.5">
         {spell.school && <span className="text-xs text-gray-400">{spell.school}</span>}
-        {spell.ritual && <span className="text-xs text-blue-400/70">Ritual</span>}
+        {spell.ritual && <span className="text-xs text-blue-400/70">{t('game.spellsTab.ritual')}</span>}
       </div>
       {expanded && (
         <div className="mt-2 pt-2 border-t border-gray-700/30 space-y-1">
           <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 text-xs">
-            <span className="text-gray-500">Components</span>
+            <span className="text-gray-500">{t('game.spellsTab.components')}</span>
             <span className="text-gray-300">{Object.values(spell.components).filter(Boolean).join(', ')}</span>
           </div>
           {classList && (
             <div className="text-xs text-gray-500 mt-1">
-              Classes: <span className="text-gray-400">{classList}</span>
+              {t('game.spellsTab.classes')} <span className="text-gray-400">{classList}</span>
             </div>
           )}
           <p className="text-[11px] text-gray-300 mt-1.5 leading-relaxed">{spell.classes.join(', ')}</p>
@@ -81,6 +83,7 @@ function resolveCantripsKnown(classId: string, level: number): number {
 }
 
 export default function SpellsTab(): JSX.Element {
+  const { t } = useT()
   const [spells, setSpells] = useState<SpellIndexEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -123,7 +126,7 @@ export default function SpellsTab(): JSX.Element {
   }, [spells, search, levelFilter, schoolFilter])
 
   if (loading) {
-    return <p className="text-xs text-gray-500 text-center py-4">Loading spells...</p>
+    return <p className="text-xs text-gray-500 text-center py-4">{t('game.spellsTab.loading')}</p>
   }
 
   return (
@@ -133,7 +136,7 @@ export default function SpellsTab(): JSX.Element {
         type="text"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        placeholder="Search spells..."
+        placeholder={t('game.spellsTab.searchPlaceholder')}
         className="w-full px-2.5 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-xs text-gray-100 placeholder-gray-500 focus:outline-none focus:border-amber-500/60"
       />
 
@@ -145,7 +148,7 @@ export default function SpellsTab(): JSX.Element {
             levelFilter === null ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400 hover:text-gray-200'
           }`}
         >
-          All
+          {t('game.spellsTab.all')}
         </button>
         {SPELL_LEVELS.map((lvl) => (
           <button
@@ -168,7 +171,7 @@ export default function SpellsTab(): JSX.Element {
             schoolFilter === null ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400 hover:text-gray-200'
           }`}
         >
-          All Schools
+          {t('game.spellsTab.allSchools')}
         </button>
         {SPELL_SCHOOLS.map((school) => (
           <button
@@ -184,13 +187,11 @@ export default function SpellsTab(): JSX.Element {
       </div>
 
       {/* Results count */}
-      <div className="text-xs text-gray-500">
-        {filtered.length} spell{filtered.length !== 1 ? 's' : ''} found
-      </div>
+      <div className="text-xs text-gray-500">{t('game.spellsTab.spellCount', { count: filtered.length })}</div>
 
       {/* Caster quick-reference */}
       <div className="flex flex-wrap items-center gap-1">
-        <span className="text-xs text-gray-500">Ref:</span>
+        <span className="text-xs text-gray-500">{t('game.spellsTab.ref')}</span>
         {casterClasses.map((cls) => (
           <button
             key={cls}
@@ -206,7 +207,7 @@ export default function SpellsTab(): JSX.Element {
       {refClass && (
         <div className="bg-gray-800/50 border border-gray-700/30 rounded-lg px-2 py-1.5 space-y-1">
           <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-400">Lv</span>
+            <span className="text-xs text-gray-400">{t('game.spellsTab.lv')}</span>
             <input
               type="number"
               min={1}
@@ -216,11 +217,13 @@ export default function SpellsTab(): JSX.Element {
               className="w-10 bg-gray-800 border border-gray-600 rounded text-center text-xs text-gray-200 px-0.5 py-0.5"
             />
             <span className="text-xs text-gray-300">
-              Cantrips: <span className="text-amber-400 font-semibold">{resolveCantripsKnown(refClass, refLevel)}</span>
+              {t('game.spellsTab.cantripsLabel')}{' '}
+              <span className="text-amber-400 font-semibold">{resolveCantripsKnown(refClass, refLevel)}</span>
             </span>
             {refClass === 'warlock' && (
               <span className="text-xs text-gray-300">
-                Pact slot lv: <span className="text-purple-400 font-semibold">{getWarlockMaxSpellLevel(refLevel)}</span>
+                {t('game.spellsTab.pactSlotLv')}{' '}
+                <span className="text-purple-400 font-semibold">{getWarlockMaxSpellLevel(refLevel)}</span>
               </span>
             )}
           </div>
@@ -230,7 +233,7 @@ export default function SpellsTab(): JSX.Element {
       {/* Spell list */}
       <div className="flex-1 overflow-y-auto space-y-1.5 min-h-0">
         {filtered.length === 0 ? (
-          <p className="text-xs text-gray-500 text-center py-4">No matching spells</p>
+          <p className="text-xs text-gray-500 text-center py-4">{t('game.spellsTab.noMatching')}</p>
         ) : (
           filtered.map((spell) => <SpellCard key={spell.id} spell={spell} />)
         )}

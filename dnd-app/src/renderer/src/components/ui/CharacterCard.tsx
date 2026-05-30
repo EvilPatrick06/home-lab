@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import { useT } from '../../i18n'
 import { getEffectiveClasses } from '../../services/character/effective-character-5e'
 import type { Character } from '../../types/character'
 import { computeDynamicAC } from '../../utils/ac-calculator'
@@ -19,13 +20,14 @@ export default memo(function CharacterCard({
   onExport,
   onExportPdf
 }: CharacterCardProps): JSX.Element {
+  const { t } = useT()
   const classes = getEffectiveClasses(character)
-  const className = classes.map((c) => c.name).join(' / ') || 'Unknown Class'
+  const className = classes.map((c) => c.name).join(' / ') || t('ui.characterCard.unknownClass')
   const speciesName = character.species
   const subclass = classes[0]?.subclass
   const alignment = character.alignment
 
-  const systemLabel = 'D&D 5e'
+  const systemLabel = t('ui.characterCard.systemLabel')
   const systemColor = 'bg-red-900/50 text-red-400'
 
   const dynamicAC = computeDynamicAC(character)
@@ -45,7 +47,7 @@ export default memo(function CharacterCard({
           <div>
             <h3 className="text-lg font-semibold group-hover:text-amber-400 transition-colors">{character.name}</h3>
             <p className="text-gray-400 text-sm">
-              Level {character.level} {speciesName} {className}
+              {t('ui.characterCard.levelLine', { level: character.level, species: speciesName, class: className })}
             </p>
             {subclass && <p className="text-gray-500 text-xs mt-0.5">{subclass}</p>}
             {alignment && <p className="text-gray-500 text-xs">{alignment}</p>}
@@ -69,9 +71,9 @@ export default memo(function CharacterCard({
                 onExportPdf()
               }}
               className="text-gray-600 hover:text-amber-400 transition-colors text-xs cursor-pointer px-1.5 py-1 font-medium"
-              title="Export to PDF"
+              title={t('ui.characterCard.exportPdfTitle')}
             >
-              PDF
+              {t('ui.characterCard.pdf')}
             </button>
           )}
           {onExport && (
@@ -81,7 +83,7 @@ export default memo(function CharacterCard({
                 onExport()
               }}
               className="text-gray-600 hover:text-amber-400 transition-colors text-sm cursor-pointer px-2 py-1"
-              title="Export character"
+              title={t('ui.characterCard.exportTitle')}
             >
               &#8663;
             </button>
@@ -92,7 +94,7 @@ export default memo(function CharacterCard({
               onDelete()
             }}
             className="text-gray-600 hover:text-red-400 transition-colors text-sm cursor-pointer px-2 py-1"
-            title="Delete character"
+            title={t('ui.characterCard.deleteTitle')}
           >
             &#10005;
           </button>
@@ -101,13 +103,13 @@ export default memo(function CharacterCard({
 
       <div className="flex gap-3 mt-3">
         <div className="text-xs text-gray-500">
-          HP:{' '}
+          {t('ui.characterCard.hpLabel')}{' '}
           <span className="text-green-400">
             {displayHP}/{character.hitPoints.maximum}
           </span>
         </div>
         <div className="text-xs text-gray-500">
-          AC: <span className="text-gray-300">{dynamicAC}</span>
+          {t('ui.characterCard.acLabel')} <span className="text-gray-300">{dynamicAC}</span>
         </div>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import { memo, useEffect, useState } from 'react'
+import { useT } from '../../../i18n'
 import { useNetworkStore } from '../../../stores/network-store'
 import { useCharacterStore } from '../../../stores/use-character-store'
 import { useLobbyStore } from '../../../stores/use-lobby-store'
@@ -12,6 +13,7 @@ interface HitPointsBar5eProps {
 }
 
 function HitPointsBar5e({ character, effectiveCharacter, readonly }: HitPointsBar5eProps): JSX.Element {
+  const { t } = useT()
   const saveCharacter = useCharacterStore((s) => s.saveCharacter)
   const [editingHP, setEditingHP] = useState(false)
   const [hpCurrent, setHpCurrent] = useState(effectiveCharacter.hitPoints.current)
@@ -82,9 +84,9 @@ function HitPointsBar5e({ character, effectiveCharacter, readonly }: HitPointsBa
             : 'border-gray-700 hover:border-gray-500 cursor-pointer'
       }`}
       onClick={readonly ? undefined : () => !editingHP && setEditingHP(true)}
-      title={readonly ? undefined : editingHP ? undefined : 'Click to edit HP'}
+      title={readonly ? undefined : editingHP ? undefined : t('sheet.hitPointsBar.clickToEditHp')}
     >
-      <div className="text-xs text-gray-400 uppercase">HP</div>
+      <div className="text-xs text-gray-400 uppercase">{t('sheet.hitPointsBar.hp')}</div>
       {editingHP ? (
         <div className="space-y-1 mt-1">
           <div className="flex items-center justify-center gap-1">
@@ -103,7 +105,7 @@ function HitPointsBar5e({ character, effectiveCharacter, readonly }: HitPointsBa
             />
           </div>
           <div className="flex items-center justify-center gap-1">
-            <span className="text-xs text-gray-500">Temp:</span>
+            <span className="text-xs text-gray-500">{t('sheet.hitPointsBar.temp')}</span>
             <input
               type="number"
               value={hpTemp}
@@ -119,7 +121,7 @@ function HitPointsBar5e({ character, effectiveCharacter, readonly }: HitPointsBa
               }}
               className="px-2 py-0.5 text-xs bg-green-700 hover:bg-green-600 rounded text-white"
             >
-              Save
+              {t('common.actions.save')}
             </button>
             <button
               onClick={(e) => {
@@ -128,7 +130,7 @@ function HitPointsBar5e({ character, effectiveCharacter, readonly }: HitPointsBa
               }}
               className="px-2 py-0.5 text-xs bg-gray-700 hover:bg-gray-600 rounded text-gray-300"
             >
-              Cancel
+              {t('common.actions.cancel')}
             </button>
           </div>
         </div>
@@ -139,12 +141,16 @@ function HitPointsBar5e({ character, effectiveCharacter, readonly }: HitPointsBa
             {effectiveCharacter.hitPoints.maximum}
           </div>
           {effectiveCharacter.hitPoints.temporary > 0 && (
-            <div className="text-xs text-blue-400">+{effectiveCharacter.hitPoints.temporary} temp</div>
+            <div className="text-xs text-blue-400">
+              {t('sheet.hitPointsBar.tempAmount', { amount: effectiveCharacter.hitPoints.temporary })}
+            </div>
           )}
           {/* Bloodied indicator */}
           {effectiveCharacter.hitPoints.current > 0 &&
             effectiveCharacter.hitPoints.current <= Math.floor(effectiveCharacter.hitPoints.maximum / 2) && (
-              <div className="text-xs text-red-500 font-bold uppercase tracking-wider mt-0.5">Bloodied</div>
+              <div className="text-xs text-red-500 font-bold uppercase tracking-wider mt-0.5">
+                {t('sheet.hitPointsBar.bloodied')}
+              </div>
             )}
           {/* Phase 23j — quick damage / heal / temp-HP */}
           {!readonly && (
@@ -155,25 +161,25 @@ function HitPointsBar5e({ character, effectiveCharacter, readonly }: HitPointsBa
                 onChange={(e) => setQuickAmt(e.target.value)}
                 placeholder="0"
                 className="w-12 text-xs bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-gray-200 focus:outline-none focus:border-amber-500"
-                aria-label="HP amount"
+                aria-label={t('sheet.hitPointsBar.hpAmount')}
               />
               <button
                 onClick={() => applyHpDelta('damage')}
                 className="text-xs px-1.5 py-0.5 rounded bg-red-900/40 text-red-300 hover:bg-red-800/50 cursor-pointer"
               >
-                Dmg
+                {t('sheet.hitPointsBar.dmg')}
               </button>
               <button
                 onClick={() => applyHpDelta('heal')}
                 className="text-xs px-1.5 py-0.5 rounded bg-green-900/40 text-green-300 hover:bg-green-800/50 cursor-pointer"
               >
-                Heal
+                {t('sheet.hitPointsBar.heal')}
               </button>
               <button
                 onClick={() => applyHpDelta('temp')}
                 className="text-xs px-1.5 py-0.5 rounded bg-blue-900/40 text-blue-300 hover:bg-blue-800/50 cursor-pointer"
               >
-                Temp
+                {t('sheet.hitPointsBar.tempButton')}
               </button>
             </div>
           )}
@@ -190,7 +196,9 @@ function HitPointsBar5e({ character, effectiveCharacter, readonly }: HitPointsBa
               return (
                 <div className="text-xs text-gray-500 mt-0.5">
                   {remaining}/{total} ({diceDisplay})
-                  {spent > 0 && <span className="text-red-400 ml-1">({spent} spent)</span>}
+                  {spent > 0 && (
+                    <span className="text-red-400 ml-1">{t('sheet.hitPointsBar.spent', { count: spent })}</span>
+                  )}
                 </div>
               )
             }
@@ -198,7 +206,9 @@ function HitPointsBar5e({ character, effectiveCharacter, readonly }: HitPointsBa
             return (
               <div className="text-xs text-gray-500 mt-0.5">
                 {remaining}/{total} d{hitDie}
-                {spent > 0 && <span className="text-red-400 ml-1">({spent} spent)</span>}
+                {spent > 0 && (
+                  <span className="text-red-400 ml-1">{t('sheet.hitPointsBar.spent', { count: spent })}</span>
+                )}
               </div>
             )
           })()}

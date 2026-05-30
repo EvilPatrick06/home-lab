@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useT } from '../../../i18n'
 import {
   getMulticlassAdvice,
   type MulticlassAdvice,
@@ -24,14 +25,15 @@ export default function MulticlassAdvisor({
   abilityScores,
   currentClasses
 }: MulticlassAdvisorProps): JSX.Element {
+  const { t } = useT()
   const advice = useMemo(() => getMulticlassAdvice(abilityScores, currentClasses), [abilityScores, currentClasses])
 
   return (
-    <Modal open={open} onClose={onClose} title="Multiclass Advisor">
+    <Modal open={open} onClose={onClose} title={t('sheet.multiclassAdvisor.title')}>
       <div className="space-y-4 max-h-[60vh] overflow-y-auto">
         {/* Eligibility Table */}
         <div>
-          <h4 className="text-sm font-semibold text-amber-400 mb-2">Class Eligibility</h4>
+          <h4 className="text-sm font-semibold text-amber-400 mb-2">{t('sheet.multiclassAdvisor.classEligibility')}</h4>
           <div className="space-y-1">
             {advice.eligible.map((e) => (
               <div
@@ -48,7 +50,7 @@ export default function MulticlassAdvisor({
                     </span>
                   ))}
                   <span className={`text-xs font-bold ${e.eligible ? 'text-green-400' : 'text-red-400'}`}>
-                    {e.eligible ? 'Eligible' : 'Ineligible'}
+                    {e.eligible ? t('sheet.multiclassAdvisor.eligible') : t('sheet.multiclassAdvisor.ineligible')}
                   </span>
                 </div>
               </div>
@@ -59,13 +61,15 @@ export default function MulticlassAdvisor({
         {/* Proficiency Gains */}
         {advice.gains.length > 0 && (
           <div>
-            <h4 className="text-sm font-semibold text-amber-400 mb-2">Proficiency Gains</h4>
+            <h4 className="text-sm font-semibold text-amber-400 mb-2">
+              {t('sheet.multiclassAdvisor.proficiencyGains')}
+            </h4>
             <div className="space-y-1">
               {advice.gains.map((g) => (
                 <div key={g.className} className="text-sm">
                   <span className="text-gray-200 font-medium">{g.className}:</span>{' '}
                   <span className="text-gray-400">
-                    {g.proficiencies.length > 0 ? g.proficiencies.join(', ') : 'None'}
+                    {g.proficiencies.length > 0 ? g.proficiencies.join(', ') : t('sheet.multiclassAdvisor.none')}
                   </span>
                 </div>
               ))}
@@ -76,7 +80,7 @@ export default function MulticlassAdvisor({
         {/* Warnings */}
         {advice.warnings.length > 0 && (
           <div>
-            <h4 className="text-sm font-semibold text-red-400 mb-2">Warnings</h4>
+            <h4 className="text-sm font-semibold text-red-400 mb-2">{t('sheet.multiclassAdvisor.warnings')}</h4>
             <div className="space-y-2">
               {advice.warnings.map((w) => (
                 <div key={w.className} className="p-2 rounded bg-red-900/20 border border-red-900/40">

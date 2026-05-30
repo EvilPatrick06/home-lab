@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useT } from '../../../i18n'
 import {
   analyzePreparation,
   buildCasterSummary,
@@ -44,19 +45,20 @@ export default function SpellPrepOptimizer({
   classId,
   level
 }: SpellPrepOptimizerProps): JSX.Element {
+  const { t } = useT()
   const analysis = useMemo(() => analyzePreparation(preparedSpells, knownSpells), [preparedSpells, knownSpells])
 
   // Build a caster summary using the character's actual class and level
   const casterSummary = useMemo(() => buildCasterSummary(classId ?? '', level ?? 1), [classId, level])
 
   return (
-    <Modal open={open} onClose={onClose} title="Spell Preparation Helper">
+    <Modal open={open} onClose={onClose} title={t('sheet.spellPrepOptimizer.title')}>
       <div className="space-y-4 max-h-[60vh] overflow-y-auto">
         {/* Diversity */}
         <div>
-          <h4 className="text-sm font-semibold text-amber-400 mb-2">School Diversity</h4>
+          <h4 className="text-sm font-semibold text-amber-400 mb-2">{t('sheet.spellPrepOptimizer.schoolDiversity')}</h4>
           {analysis.diversity.length === 0 ? (
-            <p className="text-sm text-gray-500">No spells prepared</p>
+            <p className="text-sm text-gray-500">{t('sheet.spellPrepOptimizer.noSpellsPrepared')}</p>
           ) : (
             <div className="space-y-1.5">
               {analysis.diversity.map((d) => (
@@ -73,43 +75,46 @@ export default function SpellPrepOptimizer({
             </div>
           )}
           {analysis.missingSchools.length > 0 && (
-            <p className="text-xs text-gray-500 mt-2">Missing: {analysis.missingSchools.join(', ')}</p>
+            <p className="text-xs text-gray-500 mt-2">
+              {t('sheet.spellPrepOptimizer.missing', { schools: analysis.missingSchools.join(', ') })}
+            </p>
           )}
         </div>
 
         {/* Concentration */}
         <div>
           <h4 className="text-sm font-semibold text-amber-400 mb-2">
-            Concentration ({analysis.concentrationSpells.length})
+            {t('sheet.spellPrepOptimizer.concentration', { count: analysis.concentrationSpells.length })}
           </h4>
           {analysis.concentrationWarning && (
-            <p className="text-xs text-red-400 mb-2">
-              Over 40% of your prepared spells require concentration. Consider diversifying.
-            </p>
+            <p className="text-xs text-red-400 mb-2">{t('sheet.spellPrepOptimizer.concentrationWarning')}</p>
           )}
           {analysis.concentrationSpells.length > 0 ? (
             <ul className="space-y-1">
               {analysis.concentrationSpells.map((s) => (
                 <li key={s.spellName} className="text-sm text-gray-300">
-                  {s.spellName} <span className="text-gray-500">(level {s.level})</span>
+                  {s.spellName}{' '}
+                  <span className="text-gray-500">{t('sheet.spellPrepOptimizer.spellLevel', { level: s.level })}</span>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-gray-500">No concentration spells prepared</p>
+            <p className="text-sm text-gray-500">{t('sheet.spellPrepOptimizer.noConcentrationSpells')}</p>
           )}
         </div>
 
         {/* Caster Summary */}
         {casterSummary.ability && (
           <div>
-            <h4 className="text-sm font-semibold text-amber-400 mb-2">Caster Info</h4>
+            <h4 className="text-sm font-semibold text-amber-400 mb-2">{t('sheet.spellPrepOptimizer.casterInfo')}</h4>
             <p className="text-xs text-gray-400">
-              Spellcasting Ability: <span className="text-gray-200">{casterSummary.ability}</span>
+              {t('sheet.spellPrepOptimizer.spellcastingAbility')}{' '}
+              <span className="text-gray-200">{casterSummary.ability}</span>
               {casterSummary.maxCantrips > 0 && (
                 <>
                   {' '}
-                  &middot; Max Cantrips: <span className="text-gray-200">{casterSummary.maxCantrips}</span>
+                  &middot; {t('sheet.spellPrepOptimizer.maxCantrips')}{' '}
+                  <span className="text-gray-200">{casterSummary.maxCantrips}</span>
                 </>
               )}
             </p>
@@ -119,7 +124,9 @@ export default function SpellPrepOptimizer({
         {/* Ritual Suggestions */}
         {analysis.ritualSuggestions.length > 0 && (
           <div>
-            <h4 className="text-sm font-semibold text-amber-400 mb-2">Ritual Suggestions</h4>
+            <h4 className="text-sm font-semibold text-amber-400 mb-2">
+              {t('sheet.spellPrepOptimizer.ritualSuggestions')}
+            </h4>
             <ul className="space-y-1">
               {analysis.ritualSuggestions.map((s) => (
                 <li key={s.spellName} className="text-sm text-gray-300">

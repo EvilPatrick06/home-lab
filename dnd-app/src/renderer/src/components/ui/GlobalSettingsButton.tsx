@@ -1,7 +1,9 @@
 import { Settings } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router'
+import { useT } from '../../i18n'
 
 export default function GlobalSettingsButton(): JSX.Element | null {
+  const { t } = useT()
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -19,8 +21,8 @@ export default function GlobalSettingsButton(): JSX.Element | null {
       className="fixed top-3 right-3 z-50 w-8 h-8 flex items-center justify-center rounded-full
                  bg-gray-900/80 border border-gray-700 text-gray-400 hover:text-amber-400
                  hover:border-amber-600/50 transition-colors cursor-pointer"
-      aria-label={onSettings ? 'Close settings' : 'Open settings'}
-      title={onSettings ? 'Close settings' : 'Settings'}
+      aria-label={onSettings ? t('ui.globalSettingsButton.closeSettings') : t('ui.globalSettingsButton.openSettings')}
+      title={onSettings ? t('ui.globalSettingsButton.closeSettings') : t('ui.globalSettingsButton.settings')}
     >
       <Settings className="w-4 h-4" aria-hidden="true" />
     </button>

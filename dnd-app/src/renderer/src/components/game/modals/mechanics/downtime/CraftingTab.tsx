@@ -1,3 +1,4 @@
+import { useT } from '../../../../../i18n'
 import {
   addDowntimeProgress,
   advanceTrackedDowntime,
@@ -28,6 +29,7 @@ export default function CraftingTab({
   saveCampaign: (c: Campaign) => void
   onBroadcastResult?: (message: string) => void
 }): JSX.Element {
+  const { t } = useT()
   const characterTools = character?.proficiencies.tools ?? []
 
   // Show active crafting progress
@@ -40,22 +42,20 @@ export default function CraftingTab({
     const entry: DowntimeProgressEntry = {
       id: `craft-${Date.now()}-${cryptoRandom().toString(36).slice(2, 8)}`,
       activityId: 'crafting',
-      activityName: `Craft: ${item}`,
+      activityName: t('game.craftingTab.craftActivity', { item }),
       characterId,
-      characterName: characterName ?? 'Unknown',
+      characterName: characterName ?? t('game.craftingTab.unknown'),
       daysSpent: 0,
       daysRequired: days,
       goldSpent: 0,
       goldRequired: 0,
       startedAt: new Date().toISOString(),
-      details: `${item} (${tool}, materials: ${cost})`,
+      details: t('game.craftingTab.craftDetails', { item, tool, cost }),
       craftingRecipeId: recipeId ?? item.toLowerCase().replace(/\s+/g, '-'),
       status: 'in-progress'
     }
     saveCampaign(addDowntimeProgress(campaign, entry))
-    onBroadcastResult?.(
-      `**${characterName}** started crafting: ${item} (${tool}) \u2014 ${days} day${days !== 1 ? 's' : ''}, materials: ${cost}`
-    )
+    onBroadcastResult?.(t('game.craftingTab.broadcastStarted', { name: characterName, item, tool, count: days, cost }))
   }
 
   const handleAdvanceCrafting = (entryId: string, days: number): void => {
@@ -64,10 +64,16 @@ export default function CraftingTab({
     const entry = (updated.downtimeProgress ?? []).find((e) => e.id === entryId)
     if (entry) {
       if (complete) {
-        onBroadcastResult?.(`**${entry.characterName}** finished crafting: ${entry.activityName}!`)
+        onBroadcastResult?.(
+          t('game.craftingTab.broadcastFinished', { name: entry.characterName, activity: entry.activityName })
+        )
       } else {
         onBroadcastResult?.(
-          `**${entry.characterName}** crafting progress: ${entry.daysSpent}/${entry.daysRequired} days`
+          t('game.craftingTab.broadcastProgress', {
+            name: entry.characterName,
+            spent: entry.daysSpent,
+            required: entry.daysRequired
+          })
         )
       }
     }
@@ -78,13 +84,13 @@ export default function CraftingTab({
       {/* Active crafting progress */}
       {craftingEntries.length > 0 && (
         <div className="space-y-2">
-          <h3 className="text-xs font-semibold text-gray-400">Active Crafting</h3>
+          <h3 className="text-xs font-semibold text-gray-400">{t('game.craftingTab.activeCrafting')}</h3>
           {craftingEntries.map((entry) => (
             <div key={entry.id} className="bg-gray-800/50 border border-gray-700 rounded-lg p-3">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs font-semibold text-amber-300">{entry.activityName}</span>
                 <span className="text-xs text-gray-500">
-                  {entry.daysSpent}/{entry.daysRequired} days
+                  {t('game.craftingTab.daysProgress', { spent: entry.daysSpent, required: entry.daysRequired })}
                 </span>
               </div>
               {entry.details && <p className="text-xs text-gray-500 mb-1">{entry.details}</p>}
@@ -100,34 +106,44 @@ export default function CraftingTab({
                   disabled={entry.daysSpent >= entry.daysRequired}
                   className="px-2 py-0.5 text-xs bg-blue-600 hover:bg-blue-500 text-white rounded cursor-pointer disabled:opacity-40"
                 >
-                  +1 Day
+                  {t('game.craftingTab.plusOneDay')}
                 </button>
                 <button
                   onClick={() => handleAdvanceCrafting(entry.id, 5)}
                   disabled={entry.daysSpent >= entry.daysRequired}
                   className="px-2 py-0.5 text-xs bg-blue-600 hover:bg-blue-500 text-white rounded cursor-pointer disabled:opacity-40"
                 >
-                  +5 Days
+                  {t('game.craftingTab.plusFiveDays')}
                 </button>
                 {entry.daysSpent >= entry.daysRequired && (
                   <button
                     onClick={() => {
                       saveCampaign(updateDowntimeProgress(campaign, entry.id, { status: 'completed' }))
-                      onBroadcastResult?.(`**${entry.characterName}** completed crafting: ${entry.activityName}!`)
+                      onBroadcastResult?.(
+                        t('game.craftingTab.broadcastCompleted', {
+                          name: entry.characterName,
+                          activity: entry.activityName
+                        })
+                      )
                     }}
                     className="px-2 py-0.5 text-xs bg-green-600 hover:bg-green-500 text-white rounded cursor-pointer"
                   >
-                    Complete
+                    {t('game.craftingTab.complete')}
                   </button>
                 )}
                 <button
                   onClick={() => {
                     saveCampaign(removeDowntimeProgress(campaign, entry.id))
-                    onBroadcastResult?.(`**${entry.characterName}** abandoned crafting: ${entry.activityName}`)
+                    onBroadcastResult?.(
+                      t('game.craftingTab.broadcastAbandoned', {
+                        name: entry.characterName,
+                        activity: entry.activityName
+                      })
+                    )
                   }}
                   className="px-2 py-0.5 text-xs bg-red-600/50 hover:bg-red-600 text-red-300 rounded cursor-pointer ml-auto"
                 >
-                  Abandon
+                  {t('game.craftingTab.abandon')}
                 </button>
               </div>
             </div>

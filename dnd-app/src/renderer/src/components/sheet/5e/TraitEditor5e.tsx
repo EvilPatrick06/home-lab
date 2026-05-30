@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { LANGUAGE_DESCRIPTIONS } from '../../../data/language-descriptions'
+import { useT } from '../../../i18n'
 import type { Character } from '../../../types/character'
 import type { Character5e } from '../../../types/character-5e'
 import { ALL_LANGUAGES_5E } from '../../../types/character-common'
@@ -17,6 +18,7 @@ export default function TraitEditor5e({
   getLatest,
   saveAndBroadcast
 }: TraitEditor5eProps): JSX.Element {
+  const { t } = useT()
   const [showAddPet, setShowAddPet] = useState(false)
   const [petName, setPetName] = useState('')
   const [petType, setPetType] = useState('')
@@ -113,7 +115,7 @@ export default function TraitEditor5e({
     <>
       {/* Pets */}
       <div className="mb-3">
-        <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Pets</div>
+        <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('sheet.traitEditor.pets')}</div>
         {pets.length > 0 ? (
           <div className="space-y-1">
             {pets.map((pet, i) => (
@@ -126,7 +128,7 @@ export default function TraitEditor5e({
                   <button
                     onClick={() => handleRemovePet(i)}
                     className="text-gray-600 hover:text-red-400 cursor-pointer text-xs ml-2"
-                    title="Remove pet"
+                    title={t('sheet.traitEditor.removePet')}
                   >
                     &#x2715;
                   </button>
@@ -135,7 +137,7 @@ export default function TraitEditor5e({
             ))}
           </div>
         ) : (
-          <p className="text-sm text-gray-500">No pets.</p>
+          <p className="text-sm text-gray-500">{t('sheet.traitEditor.noPets')}</p>
         )}
         {!readonly && (
           <div className="mt-2">
@@ -144,7 +146,7 @@ export default function TraitEditor5e({
                 <div className="flex gap-2">
                   <input
                     type="text"
-                    placeholder="Pet name"
+                    placeholder={t('sheet.traitEditor.petNamePlaceholder')}
                     value={petName}
                     onChange={(e) => setPetName(e.target.value)}
                     onKeyDown={(e) => {
@@ -154,7 +156,7 @@ export default function TraitEditor5e({
                   />
                   <input
                     type="text"
-                    placeholder="Type (e.g. Wolf)"
+                    placeholder={t('sheet.traitEditor.petTypePlaceholder')}
                     value={petType}
                     onChange={(e) => setPetType(e.target.value)}
                     onKeyDown={(e) => {
@@ -169,7 +171,7 @@ export default function TraitEditor5e({
                     disabled={!petName.trim()}
                     className="px-3 py-1 text-xs bg-amber-600 hover:bg-amber-500 disabled:opacity-50 rounded text-white cursor-pointer"
                   >
-                    Add
+                    {t('sheet.traitEditor.add')}
                   </button>
                   <button
                     onClick={() => {
@@ -179,7 +181,7 @@ export default function TraitEditor5e({
                     }}
                     className="px-3 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded text-gray-300 cursor-pointer"
                   >
-                    Cancel
+                    {t('common.actions.cancel')}
                   </button>
                 </div>
               </div>
@@ -188,7 +190,7 @@ export default function TraitEditor5e({
                 onClick={() => setShowAddPet(true)}
                 className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer"
               >
-                + Add Pet
+                {t('sheet.traitEditor.addPet')}
               </button>
             )}
           </div>
@@ -198,7 +200,7 @@ export default function TraitEditor5e({
       {/* Languages as green pills */}
       {languages.length > 0 && (
         <div className="mb-3">
-          <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Languages</div>
+          <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('sheet.traitEditor.languages')}</div>
           <div className="flex flex-wrap gap-1.5">
             {languages.map((lang) => {
               const desc = character.languageDescriptions?.[lang] || LANGUAGE_DESCRIPTIONS[lang]
@@ -220,7 +222,7 @@ export default function TraitEditor5e({
                           handleRemoveLanguage(lang)
                         }}
                         className="text-green-500 hover:text-red-400 cursor-pointer ml-0.5"
-                        title="Remove language"
+                        title={t('sheet.traitEditor.removeLanguage')}
                       >
                         &#x2715;
                       </button>
@@ -241,10 +243,10 @@ export default function TraitEditor5e({
         <div className="mb-3">
           {showAddLanguage === 'list' ? (
             <div className="bg-gray-800/50 rounded p-3 space-y-2">
-              <div className="text-xs text-gray-400 font-medium mb-1">Standard Languages</div>
+              <div className="text-xs text-gray-400 font-medium mb-1">{t('sheet.traitEditor.standardLanguages')}</div>
               <input
                 type="text"
-                placeholder="Search languages..."
+                placeholder={t('sheet.traitEditor.searchLanguagesPlaceholder')}
                 value={langSearch}
                 onChange={(e) => setLangSearch(e.target.value)}
                 className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
@@ -275,23 +277,23 @@ export default function TraitEditor5e({
                   }}
                   className="px-3 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded text-gray-300 cursor-pointer"
                 >
-                  Close
+                  {t('common.actions.close')}
                 </button>
               </div>
             </div>
           ) : showAddLanguage === 'custom' ? (
             <div className="bg-gray-800/50 rounded p-3 space-y-2">
-              <div className="text-xs text-gray-400 font-medium mb-1">Custom Language</div>
+              <div className="text-xs text-gray-400 font-medium mb-1">{t('sheet.traitEditor.customLanguage')}</div>
               <input
                 type="text"
-                placeholder="Language name"
+                placeholder={t('sheet.traitEditor.languageNamePlaceholder')}
                 value={newLanguage}
                 onChange={(e) => setNewLanguage(e.target.value)}
                 className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
               />
               <input
                 type="text"
-                placeholder="Description (optional)"
+                placeholder={t('sheet.traitEditor.descriptionPlaceholder')}
                 value={newLangDesc}
                 onChange={(e) => setNewLangDesc(e.target.value)}
                 onKeyDown={(e) => {
@@ -305,7 +307,7 @@ export default function TraitEditor5e({
                   disabled={!newLanguage.trim()}
                   className="px-3 py-1 text-xs bg-amber-600 hover:bg-amber-500 disabled:opacity-50 rounded text-white cursor-pointer"
                 >
-                  Add
+                  {t('sheet.traitEditor.add')}
                 </button>
                 <button
                   onClick={() => {
@@ -315,7 +317,7 @@ export default function TraitEditor5e({
                   }}
                   className="px-3 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded text-gray-300 cursor-pointer"
                 >
-                  Cancel
+                  {t('common.actions.cancel')}
                 </button>
               </div>
             </div>
@@ -325,13 +327,13 @@ export default function TraitEditor5e({
                 onClick={() => setShowAddLanguage('list')}
                 className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer"
               >
-                + Standard Language
+                {t('sheet.traitEditor.addStandardLanguage')}
               </button>
               <button
                 onClick={() => setShowAddLanguage('custom')}
                 className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer"
               >
-                + Custom Language
+                {t('sheet.traitEditor.addCustomLanguage')}
               </button>
             </div>
           )}

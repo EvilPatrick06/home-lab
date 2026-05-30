@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react'
+import { useT } from '../../i18n'
 
 interface ResizeHandleProps {
   direction: 'horizontal' | 'vertical'
@@ -7,6 +8,7 @@ interface ResizeHandleProps {
 }
 
 export default function ResizeHandle({ direction, onResize, onDoubleClick }: ResizeHandleProps): JSX.Element {
+  const { t } = useT()
   const dragging = useRef(false)
   const lastPos = useRef(0)
 
@@ -56,7 +58,7 @@ export default function ResizeHandle({ direction, onResize, onDoubleClick }: Res
       className={`group flex items-center justify-center shrink-0 ${
         isH ? 'w-2 cursor-col-resize hover:bg-blue-500/20' : 'h-2 cursor-row-resize hover:bg-blue-500/20'
       } transition-colors`}
-      title="Drag to resize, double-click to collapse/expand"
+      title={t('game.resizeHandle.title')}
     >
       {/* Dotted grab indicator */}
       <div className={`flex ${isH ? 'flex-col' : 'flex-row'} gap-[3px]`}>

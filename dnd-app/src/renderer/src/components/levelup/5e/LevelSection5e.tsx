@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useT } from '../../../i18n'
 import { getExpertiseGrants } from '../../../services/character/build-tree-5e'
 import { getEffectiveClasses } from '../../../services/character/effective-character-5e'
 import { getSlotProgression, isWarlockPactMagic } from '../../../services/character/spell-data'
@@ -50,6 +51,7 @@ export default function LevelSection5e({
   classIdForLevel,
   hitDieForLevel
 }: LevelSection5eProps): JSX.Element {
+  const { t } = useT()
   const asiSelections = useLevelUpStore((s) => s.asiSelections)
   const setAsiSelection = useLevelUpStore((s) => s.setAsiSelection)
   const generalFeatSelections = useLevelUpStore((s) => s.generalFeatSelections)
@@ -130,7 +132,7 @@ export default function LevelSection5e({
 
   return (
     <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-4">
-      <h3 className="text-lg font-bold text-amber-400 mb-3">Level {level}</h3>
+      <h3 className="text-lg font-bold text-amber-400 mb-3">{t('levelup.levelSection.levelHeading', { level })}</h3>
 
       <div className="space-y-3">
         {/* HP */}
@@ -239,7 +241,7 @@ export default function LevelSection5e({
             {slot.selectedId ? (
               <span className="text-amber-400">{slot.selectedName}</span>
             ) : (
-              <span className="text-gray-500 italic">Not selected</span>
+              <span className="text-gray-500 italic">{t('levelup.levelSection.notSelected')}</span>
             )}
           </div>
         ))}
@@ -247,7 +249,9 @@ export default function LevelSection5e({
         {/* New class features */}
         {features.length > 0 && (
           <div>
-            <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">New Features</div>
+            <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">
+              {t('levelup.levelSection.newFeatures')}
+            </div>
             {features.map((f, i) => (
               <div key={i} className="text-sm">
                 <span className="text-amber-400 font-semibold">{f.name}</span>
@@ -262,13 +266,15 @@ export default function LevelSection5e({
           <div>
             <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">
               {isWarlockPactMagic(classIdForLevel ?? effectiveClasses[0]?.name?.toLowerCase() ?? '')
-                ? 'Pact Slot Changes'
-                : 'Spell Slot Changes'}
+                ? t('levelup.levelSection.pactSlotChanges')
+                : t('levelup.levelSection.spellSlotChanges')}
             </div>
             {newSlotInfo.map((info) => (
               <div key={info.level} className="text-sm text-purple-400">
-                +{info.count} {info.level}
-                {ordinal(info.level)} level slot{info.count > 1 ? 's' : ''}
+                {t('levelup.levelSection.spellSlotGain', {
+                  count: info.count,
+                  levelOrdinal: `${info.level}${ordinal(info.level)}`
+                })}
               </div>
             ))}
           </div>

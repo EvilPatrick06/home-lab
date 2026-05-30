@@ -1,3 +1,4 @@
+import { useT } from '../../i18n'
 import type { LibraryCategory } from '../../types/library'
 import { LIBRARY_GROUPS } from '../../types/library'
 
@@ -12,6 +13,7 @@ export default function LibraryCategoryGrid({
   itemCounts,
   totalCounts
 }: LibraryCategoryGridProps): JSX.Element {
+  const { t } = useT()
   return (
     <div className="space-y-8">
       {LIBRARY_GROUPS.filter((g) => g.categories.length > 0).map((group) => (
@@ -35,8 +37,10 @@ export default function LibraryCategoryGrid({
                   </span>
                   {(total > 0 || hbCount > 0) && (
                     <span className="text-xs text-gray-500">
-                      {total > 0 ? `${total} items` : ''}
-                      {hbCount > 0 ? `${total > 0 ? ' · ' : ''}${hbCount} custom` : ''}
+                      {total > 0 ? t('library.libraryCategoryGrid.itemsCount', { count: total }) : ''}
+                      {hbCount > 0
+                        ? `${total > 0 ? ' · ' : ''}${t('library.libraryCategoryGrid.customCount', { count: hbCount })}`
+                        : ''}
                     </span>
                   )}
                 </button>

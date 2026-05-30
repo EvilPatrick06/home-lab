@@ -1,3 +1,4 @@
+import { useT } from '../../../i18n'
 import type { Character5e } from '../../../types/character-5e'
 import type { BuildSlot } from '../../../types/character-common'
 
@@ -22,6 +23,7 @@ export function ExpertiseSelector5e({
   allExpertiseSelections: Record<string, string[]>
   onSelect: (skills: string[]) => void
 }): JSX.Element {
+  const { t } = useT()
   if (!grant) return <></>
 
   // Gather already-expertise skills (from character + other slots in this level-up)
@@ -60,19 +62,23 @@ export function ExpertiseSelector5e({
     }
   }
 
-  const label = grant.restrictedSkills ? 'Scholar (Expertise)' : 'Expertise'
+  const label = grant.restrictedSkills
+    ? t('levelup.expertiseSelector.scholarLabel')
+    : t('levelup.expertiseSelector.expertiseLabel')
   const isIncomplete = selection.length < grant.count
 
   return (
     <div className={`rounded ${isIncomplete ? 'ring-1 ring-amber-600/50 p-1 -m-1' : ''}`}>
       <div className="text-sm text-gray-400 mb-1 flex items-center gap-2">
-        <span>
-          {label}: Choose {grant.count} skill{grant.count > 1 ? 's' : ''}
-        </span>
+        <span>{t('levelup.expertiseSelector.chooseSkills', { label, count: grant.count })}</span>
         <span className={isIncomplete ? 'text-amber-400' : 'text-green-400'}>
           ({selection.length}/{grant.count})
         </span>
-        {isIncomplete && <span className="text-xs text-amber-500 font-semibold uppercase">Required</span>}
+        {isIncomplete && (
+          <span className="text-xs text-amber-500 font-semibold uppercase">
+            {t('levelup.expertiseSelector.required')}
+          </span>
+        )}
       </div>
       <div className="flex flex-wrap gap-1">
         {allOptions.map((skill) => {
@@ -94,7 +100,7 @@ export function ExpertiseSelector5e({
           )
         })}
         {allOptions.length === 0 && (
-          <p className="text-xs text-gray-500 italic">No eligible skills available for expertise.</p>
+          <p className="text-xs text-gray-500 italic">{t('levelup.expertiseSelector.noEligible')}</p>
         )}
       </div>
     </div>

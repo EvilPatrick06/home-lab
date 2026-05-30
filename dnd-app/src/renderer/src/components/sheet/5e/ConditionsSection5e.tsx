@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { BUFFS_5E, type ConditionDef, getConditionsForSystem } from '../../../data/conditions'
+import { useT } from '../../../i18n'
 import { getEffectiveConditions } from '../../../services/character/effective-character-5e'
 import { useCharacterStore } from '../../../stores/use-character-store'
 import type { Character5e } from '../../../types/character-5e'
@@ -12,6 +13,7 @@ interface ConditionsSection5eProps {
 }
 
 export default function ConditionsSection5e({ character, readonly }: ConditionsSection5eProps): JSX.Element {
+  const { t } = useT()
   const [showPicker, setShowPicker] = useState(false)
   const [pickerTab, setPickerTab] = useState<'conditions' | 'buffs' | 'custom'>('conditions')
   const [customName, setCustomName] = useState('')
@@ -65,16 +67,16 @@ export default function ConditionsSection5e({ character, readonly }: ConditionsS
   }
 
   return (
-    <SheetSectionWrapper title="Status Effects" defaultOpen={activeConditions.length > 0}>
+    <SheetSectionWrapper title={t('sheet.conditions.title')} defaultOpen={activeConditions.length > 0}>
       {activeConditions.length === 0 && !showPicker && (
         <div className="flex items-center justify-between">
-          <p className="text-sm text-gray-500">No active conditions.</p>
+          <p className="text-sm text-gray-500">{t('sheet.conditions.noActiveConditions')}</p>
           {!readonly && (
             <button
               onClick={() => setShowPicker(true)}
               className="text-sm text-amber-400 hover:text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded px-3 py-1.5 cursor-pointer transition-colors"
             >
-              + Add Condition, Buff, or Custom Effect
+              {t('sheet.conditions.addConditionBuffCustom')}
             </button>
           )}
         </div>
@@ -96,7 +98,7 @@ export default function ConditionsSection5e({ character, readonly }: ConditionsS
                           <button
                             onClick={() => updateConditionValue(character.id, cond.name, cond.value! - 1)}
                             className="w-4 h-4 flex items-center justify-center text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer transition-colors"
-                            title="Decrease"
+                            title={t('sheet.conditions.decrease')}
                           >
                             -
                           </button>
@@ -110,7 +112,7 @@ export default function ConditionsSection5e({ character, readonly }: ConditionsS
                               return d?.maxValue != null && cond.value! >= d.maxValue
                             })()}
                             className="w-4 h-4 flex items-center justify-center text-xs bg-gray-700 hover:bg-gray-600 disabled:opacity-40 disabled:cursor-not-allowed text-gray-300 rounded cursor-pointer transition-colors"
-                            title="Increase"
+                            title={t('sheet.conditions.increase')}
                           >
                             +
                           </button>
@@ -122,7 +124,7 @@ export default function ConditionsSection5e({ character, readonly }: ConditionsS
                     <button
                       onClick={() => handleRemoveCondition(cond.name)}
                       className="text-gray-500 hover:text-red-400 transition-colors cursor-pointer"
-                      title={`Remove ${cond.name}`}
+                      title={t('sheet.conditions.removeNamed', { name: cond.name })}
                     >
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -133,8 +135,13 @@ export default function ConditionsSection5e({ character, readonly }: ConditionsS
                 {def && <p className="text-xs text-gray-400 mt-1">{def.description}</p>}
                 {cond.name === 'Exhaustion' && cond.value != null && cond.value > 0 && (
                   <div className="text-xs text-amber-400 mt-1 bg-amber-900/20 rounded px-2 py-1">
-                    d20 Tests: {cond.value * -2} | Speed: -{cond.value * 5} ft
-                    {cond.value >= 6 && <span className="text-red-400 font-bold ml-2">DEATH</span>}
+                    {t('sheet.conditions.exhaustionEffect', {
+                      tests: cond.value * -2,
+                      speed: cond.value * 5
+                    })}
+                    {cond.value >= 6 && (
+                      <span className="text-red-400 font-bold ml-2">{t('sheet.conditions.death')}</span>
+                    )}
                   </div>
                 )}
               </div>
@@ -146,7 +153,7 @@ export default function ConditionsSection5e({ character, readonly }: ConditionsS
               onClick={() => setShowPicker(true)}
               className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer"
             >
-              + Add Condition
+              {t('sheet.conditions.addCondition')}
             </button>
           )}
         </div>
@@ -162,7 +169,7 @@ export default function ConditionsSection5e({ character, readonly }: ConditionsS
                   pickerTab === 'conditions' ? 'bg-red-900/50 text-red-300' : 'text-gray-500 hover:text-gray-300'
                 }`}
               >
-                Conditions
+                {t('sheet.conditions.tabConditions')}
               </button>
               <button
                 onClick={() => setPickerTab('buffs')}
@@ -170,7 +177,7 @@ export default function ConditionsSection5e({ character, readonly }: ConditionsS
                   pickerTab === 'buffs' ? 'bg-green-900/50 text-green-300' : 'text-gray-500 hover:text-gray-300'
                 }`}
               >
-                Buffs
+                {t('sheet.conditions.tabBuffs')}
               </button>
               <button
                 onClick={() => setPickerTab('custom')}
@@ -178,14 +185,14 @@ export default function ConditionsSection5e({ character, readonly }: ConditionsS
                   pickerTab === 'custom' ? 'bg-amber-900/50 text-amber-300' : 'text-gray-500 hover:text-gray-300'
                 }`}
               >
-                Custom
+                {t('sheet.conditions.tabCustom')}
               </button>
             </div>
             <button
               onClick={() => setShowPicker(false)}
               className="text-gray-500 hover:text-gray-300 text-xs cursor-pointer"
             >
-              Close
+              {t('common.actions.close')}
             </button>
           </div>
 
@@ -195,7 +202,7 @@ export default function ConditionsSection5e({ character, readonly }: ConditionsS
                 type="text"
                 value={customName}
                 onChange={(e) => setCustomName(e.target.value)}
-                placeholder="Condition name..."
+                placeholder={t('sheet.conditions.conditionNamePlaceholder')}
                 className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
               />
               <div className="flex items-center gap-3">
@@ -206,7 +213,7 @@ export default function ConditionsSection5e({ character, readonly }: ConditionsS
                       customType === 'condition' ? 'bg-red-900/50 text-red-300' : 'text-gray-500'
                     }`}
                   >
-                    Condition
+                    {t('sheet.conditions.condition')}
                   </button>
                   <button
                     onClick={() => setCustomType('buff')}
@@ -214,14 +221,14 @@ export default function ConditionsSection5e({ character, readonly }: ConditionsS
                       customType === 'buff' ? 'bg-green-900/50 text-green-300' : 'text-gray-500'
                     }`}
                   >
-                    Buff
+                    {t('sheet.conditions.buff')}
                   </button>
                 </div>
                 <input
                   type="number"
                   value={customValue}
                   onChange={(e) => setCustomValue(e.target.value)}
-                  placeholder="Value"
+                  placeholder={t('sheet.conditions.valuePlaceholder')}
                   className="w-16 bg-gray-800 border border-gray-700 rounded px-2 py-0.5 text-xs text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
                 />
                 <button
@@ -229,7 +236,7 @@ export default function ConditionsSection5e({ character, readonly }: ConditionsS
                   disabled={!customName.trim()}
                   className="text-xs px-3 py-1 bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-gray-900 disabled:cursor-not-allowed rounded cursor-pointer"
                 >
-                  Add
+                  {t('sheet.conditions.add')}
                 </button>
               </div>
             </div>

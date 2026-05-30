@@ -1,3 +1,4 @@
+import { useT } from '../../../i18n'
 import { useCharacterStore } from '../../../stores/use-character-store'
 import type { Character5e } from '../../../types/character-5e'
 import SheetSectionWrapper from '../shared/SheetSectionWrapper'
@@ -27,6 +28,7 @@ function saveField(character: Character5e, updater: (latest: Character5e) => Cha
 }
 
 export default function NotesSection5e({ character, readonly }: NotesSection5eProps): JSX.Element {
+  const { t } = useT()
   const backstory = character.backstory
   const personality = character.details.personality ?? ''
   const notes = character.notes
@@ -39,14 +41,16 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
     'bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-200 focus:outline-none focus:border-amber-500'
 
   return (
-    <SheetSectionWrapper title="Notes & Backstory">
+    <SheetSectionWrapper title={t('sheet.notesSection.title')}>
       {/* Alignment / Status / XP row */}
       <div className="flex flex-wrap items-end gap-4 mb-4">
         {/* Alignment */}
         <div className="flex flex-col">
-          <label className="text-xs text-gray-500 uppercase tracking-wide mb-1">Alignment</label>
+          <label className="text-xs text-gray-500 uppercase tracking-wide mb-1">
+            {t('sheet.notesSection.alignment')}
+          </label>
           {readonly ? (
-            <span className="text-sm text-gray-300">{character.alignment || 'None'}</span>
+            <span className="text-sm text-gray-300">{character.alignment || t('sheet.notesSection.none')}</span>
           ) : (
             <select
               className={selectClass}
@@ -62,7 +66,7 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
             >
               {ALIGNMENTS.map((a) => (
                 <option key={a} value={a}>
-                  {a || '-- None --'}
+                  {a || t('sheet.notesSection.noneOption')}
                 </option>
               ))}
             </select>
@@ -71,7 +75,7 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
 
         {/* Status */}
         <div className="flex flex-col">
-          <label className="text-xs text-gray-500 uppercase tracking-wide mb-1">Status</label>
+          <label className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('sheet.notesSection.status')}</label>
           {readonly ? (
             <span className="text-sm text-gray-300 capitalize">{character.status}</span>
           ) : (
@@ -87,9 +91,9 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
                 }))
               }}
             >
-              <option value="active">Active</option>
-              <option value="retired">Retired</option>
-              <option value="deceased">Deceased</option>
+              <option value="active">{t('sheet.notesSection.statusActive')}</option>
+              <option value="retired">{t('sheet.notesSection.statusRetired')}</option>
+              <option value="deceased">{t('sheet.notesSection.statusDeceased')}</option>
             </select>
           )}
         </div>
@@ -97,7 +101,7 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
         {/* XP */}
         {character.levelingMode === 'xp' && (
           <div className="flex flex-col">
-            <label className="text-xs text-gray-500 uppercase tracking-wide mb-1">XP</label>
+            <label className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('sheet.notesSection.xp')}</label>
             {readonly ? (
               <span className="text-sm text-gray-300">{character.xp}</span>
             ) : (
@@ -122,14 +126,14 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
 
       {/* Personality */}
       <div className="mb-3">
-        <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Personality</div>
+        <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('sheet.notesSection.personality')}</div>
         {readonly ? (
-          <p className="text-sm text-gray-400">{personality || 'None'}</p>
+          <p className="text-sm text-gray-400">{personality || t('sheet.notesSection.none')}</p>
         ) : (
           <textarea
             className={textareaClass}
             defaultValue={personality}
-            placeholder="Personality traits..."
+            placeholder={t('sheet.notesSection.personalityPlaceholder')}
             onBlur={(e) => {
               const val = e.target.value
               saveField(character, (latest) => ({
@@ -144,14 +148,14 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
 
       {/* Ideals, Bonds, Flaws */}
       <div className="mb-3">
-        <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Ideals</div>
+        <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('sheet.notesSection.ideals')}</div>
         {readonly ? (
-          <p className="text-sm text-gray-400">{character.details.ideals || 'None'}</p>
+          <p className="text-sm text-gray-400">{character.details.ideals || t('sheet.notesSection.none')}</p>
         ) : (
           <textarea
             className={textareaClass}
             defaultValue={character.details.ideals ?? ''}
-            placeholder="Ideals..."
+            placeholder={t('sheet.notesSection.idealsPlaceholder')}
             onBlur={(e) => {
               const val = e.target.value
               saveField(character, (latest) => ({
@@ -165,14 +169,14 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
       </div>
 
       <div className="mb-3">
-        <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Bonds</div>
+        <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('sheet.notesSection.bonds')}</div>
         {readonly ? (
-          <p className="text-sm text-gray-400">{character.details.bonds || 'None'}</p>
+          <p className="text-sm text-gray-400">{character.details.bonds || t('sheet.notesSection.none')}</p>
         ) : (
           <textarea
             className={textareaClass}
             defaultValue={character.details.bonds ?? ''}
-            placeholder="Bonds..."
+            placeholder={t('sheet.notesSection.bondsPlaceholder')}
             onBlur={(e) => {
               const val = e.target.value
               saveField(character, (latest) => ({
@@ -186,14 +190,14 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
       </div>
 
       <div className="mb-3">
-        <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Flaws</div>
+        <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('sheet.notesSection.flaws')}</div>
         {readonly ? (
-          <p className="text-sm text-gray-400">{character.details.flaws || 'None'}</p>
+          <p className="text-sm text-gray-400">{character.details.flaws || t('sheet.notesSection.none')}</p>
         ) : (
           <textarea
             className={textareaClass}
             defaultValue={character.details.flaws ?? ''}
-            placeholder="Flaws..."
+            placeholder={t('sheet.notesSection.flawsPlaceholder')}
             onBlur={(e) => {
               const val = e.target.value
               saveField(character, (latest) => ({
@@ -208,16 +212,16 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
 
       {/* Backstory */}
       <div className="mb-3">
-        <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Backstory</div>
+        <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('sheet.notesSection.backstory')}</div>
         {readonly ? (
           <p className="text-sm text-gray-400 bg-gray-900/50 border border-gray-700 rounded-lg p-3 whitespace-pre-wrap">
-            {backstory || 'None'}
+            {backstory || t('sheet.notesSection.none')}
           </p>
         ) : (
           <textarea
             className={textareaClass}
             defaultValue={backstory}
-            placeholder="Character backstory..."
+            placeholder={t('sheet.notesSection.backstoryPlaceholder')}
             onBlur={(e) => {
               const val = e.target.value
               saveField(character, (latest) => ({
@@ -232,14 +236,14 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
 
       {/* Notes */}
       <div className="mb-4">
-        <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Notes</div>
+        <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('sheet.notesSection.notes')}</div>
         {readonly ? (
-          <p className="text-sm text-gray-400 whitespace-pre-wrap">{notes || 'None'}</p>
+          <p className="text-sm text-gray-400 whitespace-pre-wrap">{notes || t('sheet.notesSection.none')}</p>
         ) : (
           <textarea
             className={textareaClass}
             defaultValue={notes}
-            placeholder="Additional notes..."
+            placeholder={t('sheet.notesSection.notesPlaceholder')}
             onBlur={(e) => {
               const val = e.target.value
               saveField(character, (latest) => ({
@@ -254,19 +258,21 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
 
       {/* Character Details subsection */}
       <div className="border-t border-gray-700 pt-3">
-        <div className="text-xs text-gray-500 uppercase tracking-wide mb-2">Character Details</div>
+        <div className="text-xs text-gray-500 uppercase tracking-wide mb-2">
+          {t('sheet.notesSection.characterDetails')}
+        </div>
         <div className="grid grid-cols-3 gap-3">
           {/* Gender */}
           <div className="flex flex-col">
-            <label className="text-xs text-gray-500 mb-0.5">Gender</label>
+            <label className="text-xs text-gray-500 mb-0.5">{t('sheet.notesSection.gender')}</label>
             {readonly ? (
-              <span className="text-sm text-gray-300">{character.details.gender || '-'}</span>
+              <span className="text-sm text-gray-300">{character.details.gender || t('sheet.notesSection.dash')}</span>
             ) : (
               <input
                 type="text"
                 className={inputClass}
                 defaultValue={character.details.gender ?? ''}
-                placeholder="Gender"
+                placeholder={t('sheet.notesSection.gender')}
                 onBlur={(e) => {
                   const val = e.target.value
                   saveField(character, (latest) => ({
@@ -280,15 +286,15 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
           </div>
           {/* Deity */}
           <div className="flex flex-col">
-            <label className="text-xs text-gray-500 mb-0.5">Deity</label>
+            <label className="text-xs text-gray-500 mb-0.5">{t('sheet.notesSection.deity')}</label>
             {readonly ? (
-              <span className="text-sm text-gray-300">{character.details.deity || '-'}</span>
+              <span className="text-sm text-gray-300">{character.details.deity || t('sheet.notesSection.dash')}</span>
             ) : (
               <input
                 type="text"
                 className={inputClass}
                 defaultValue={character.details.deity ?? ''}
-                placeholder="Deity"
+                placeholder={t('sheet.notesSection.deity')}
                 onBlur={(e) => {
                   const val = e.target.value
                   saveField(character, (latest) => ({
@@ -302,15 +308,15 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
           </div>
           {/* Age */}
           <div className="flex flex-col">
-            <label className="text-xs text-gray-500 mb-0.5">Age</label>
+            <label className="text-xs text-gray-500 mb-0.5">{t('sheet.notesSection.age')}</label>
             {readonly ? (
-              <span className="text-sm text-gray-300">{character.details.age || '-'}</span>
+              <span className="text-sm text-gray-300">{character.details.age || t('sheet.notesSection.dash')}</span>
             ) : (
               <input
                 type="text"
                 className={inputClass}
                 defaultValue={character.details.age ?? ''}
-                placeholder="Age"
+                placeholder={t('sheet.notesSection.age')}
                 onBlur={(e) => {
                   const val = e.target.value
                   saveField(character, (latest) => ({
@@ -324,15 +330,15 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
           </div>
           {/* Height */}
           <div className="flex flex-col">
-            <label className="text-xs text-gray-500 mb-0.5">Height</label>
+            <label className="text-xs text-gray-500 mb-0.5">{t('sheet.notesSection.height')}</label>
             {readonly ? (
-              <span className="text-sm text-gray-300">{character.details.height || '-'}</span>
+              <span className="text-sm text-gray-300">{character.details.height || t('sheet.notesSection.dash')}</span>
             ) : (
               <input
                 type="text"
                 className={inputClass}
                 defaultValue={character.details.height ?? ''}
-                placeholder="Height"
+                placeholder={t('sheet.notesSection.height')}
                 onBlur={(e) => {
                   const val = e.target.value
                   saveField(character, (latest) => ({
@@ -346,15 +352,15 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
           </div>
           {/* Weight */}
           <div className="flex flex-col">
-            <label className="text-xs text-gray-500 mb-0.5">Weight</label>
+            <label className="text-xs text-gray-500 mb-0.5">{t('sheet.notesSection.weight')}</label>
             {readonly ? (
-              <span className="text-sm text-gray-300">{character.details.weight || '-'}</span>
+              <span className="text-sm text-gray-300">{character.details.weight || t('sheet.notesSection.dash')}</span>
             ) : (
               <input
                 type="text"
                 className={inputClass}
                 defaultValue={character.details.weight ?? ''}
-                placeholder="Weight"
+                placeholder={t('sheet.notesSection.weight')}
                 onBlur={(e) => {
                   const val = e.target.value
                   saveField(character, (latest) => ({
@@ -368,15 +374,15 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
           </div>
           {/* Eyes */}
           <div className="flex flex-col">
-            <label className="text-xs text-gray-500 mb-0.5">Eyes</label>
+            <label className="text-xs text-gray-500 mb-0.5">{t('sheet.notesSection.eyes')}</label>
             {readonly ? (
-              <span className="text-sm text-gray-300">{character.details.eyes || '-'}</span>
+              <span className="text-sm text-gray-300">{character.details.eyes || t('sheet.notesSection.dash')}</span>
             ) : (
               <input
                 type="text"
                 className={inputClass}
                 defaultValue={character.details.eyes ?? ''}
-                placeholder="Eyes"
+                placeholder={t('sheet.notesSection.eyes')}
                 onBlur={(e) => {
                   const val = e.target.value
                   saveField(character, (latest) => ({
@@ -390,15 +396,15 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
           </div>
           {/* Hair */}
           <div className="flex flex-col">
-            <label className="text-xs text-gray-500 mb-0.5">Hair</label>
+            <label className="text-xs text-gray-500 mb-0.5">{t('sheet.notesSection.hair')}</label>
             {readonly ? (
-              <span className="text-sm text-gray-300">{character.details.hair || '-'}</span>
+              <span className="text-sm text-gray-300">{character.details.hair || t('sheet.notesSection.dash')}</span>
             ) : (
               <input
                 type="text"
                 className={inputClass}
                 defaultValue={character.details.hair ?? ''}
-                placeholder="Hair"
+                placeholder={t('sheet.notesSection.hair')}
                 onBlur={(e) => {
                   const val = e.target.value
                   saveField(character, (latest) => ({
@@ -412,15 +418,15 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
           </div>
           {/* Skin */}
           <div className="flex flex-col">
-            <label className="text-xs text-gray-500 mb-0.5">Skin</label>
+            <label className="text-xs text-gray-500 mb-0.5">{t('sheet.notesSection.skin')}</label>
             {readonly ? (
-              <span className="text-sm text-gray-300">{character.details.skin || '-'}</span>
+              <span className="text-sm text-gray-300">{character.details.skin || t('sheet.notesSection.dash')}</span>
             ) : (
               <input
                 type="text"
                 className={inputClass}
                 defaultValue={character.details.skin ?? ''}
-                placeholder="Skin"
+                placeholder={t('sheet.notesSection.skin')}
                 onBlur={(e) => {
                   const val = e.target.value
                   saveField(character, (latest) => ({
@@ -435,14 +441,14 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
         </div>
         {/* Appearance */}
         <div className="mt-3">
-          <label className="text-xs text-gray-500 mb-0.5 block">Appearance</label>
+          <label className="text-xs text-gray-500 mb-0.5 block">{t('sheet.notesSection.appearance')}</label>
           {readonly ? (
-            <p className="text-sm text-gray-300">{character.details.appearance || '-'}</p>
+            <p className="text-sm text-gray-300">{character.details.appearance || t('sheet.notesSection.dash')}</p>
           ) : (
             <textarea
               className={textareaClass}
               defaultValue={character.details.appearance ?? ''}
-              placeholder="Describe your character's appearance..."
+              placeholder={t('sheet.notesSection.appearancePlaceholder')}
               onBlur={(e) => {
                 const val = e.target.value
                 saveField(character, (latest) => ({

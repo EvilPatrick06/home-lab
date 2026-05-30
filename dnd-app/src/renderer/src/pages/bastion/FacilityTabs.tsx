@@ -25,6 +25,7 @@ import {
   SAMPLE_GUILDS,
   TREASURE_TABLE
 } from '../../data/bastion-events'
+import { useT } from '../../i18n'
 import { useBastionStore } from '../../stores/use-bastion-store'
 import type { BasicFacilityDef, Bastion, BastionFacilitiesData, SpecialFacilityDef } from '../../types/bastion'
 import { ENLARGE_COSTS, FACILITY_SPACE_SQUARES } from '../../types/bastion'
@@ -47,11 +48,12 @@ type _EventTypes =
 
 /** Show facility-relevant reference data from bastion event tables */
 function FacilityReferenceData({ facilityType }: { facilityType: string }): JSX.Element | null {
+  const { t } = useT()
   switch (facilityType) {
     case 'gaming-hall':
       return GAMING_HALL_WINNINGS.length > 0 ? (
         <div className="mt-2 text-xs text-gray-500">
-          <span className="text-gray-400 font-medium">Winnings table:</span>{' '}
+          <span className="text-gray-400 font-medium">{t('pages.facilityTabs.winningsTable')}</span>{' '}
           {GAMING_HALL_WINNINGS.map((w) => w.description).join('; ')}
         </div>
       ) : null
@@ -59,11 +61,11 @@ function FacilityReferenceData({ facilityType }: { facilityType: string }): JSX.
     case 'menagerie':
       return MENAGERIE_CREATURES.length > 0 ? (
         <div className="mt-2 text-xs text-gray-500">
-          <span className="text-gray-400 font-medium">Available creatures:</span>{' '}
+          <span className="text-gray-400 font-medium">{t('pages.facilityTabs.availableCreatures')}</span>{' '}
           {MENAGERIE_CREATURES.map((c) => `${c.name} (CR ${c.cr}, ${c.cost} GP)`).join(', ')}
           {CREATURE_COSTS_BY_CR.length > 0 && (
             <span className="ml-1">
-              | Cost by CR: {CREATURE_COSTS_BY_CR.map((e) => `CR ${e.cr}=${e.cost} GP`).join(', ')}
+              {t('pages.facilityTabs.costByCr')} {CREATURE_COSTS_BY_CR.map((e) => `CR ${e.cr}=${e.cost} GP`).join(', ')}
             </span>
           )}
         </div>
@@ -72,22 +74,23 @@ function FacilityReferenceData({ facilityType }: { facilityType: string }): JSX.
     case 'training-area':
       return EXPERT_TRAINERS.length > 0 ? (
         <div className="mt-2 text-xs text-gray-500">
-          <span className="text-gray-400 font-medium">Expert trainers:</span>{' '}
-          {EXPERT_TRAINERS.map((t) => `${t.name} (${t.type})`).join(', ')}
+          <span className="text-gray-400 font-medium">{t('pages.facilityTabs.expertTrainers')}</span>{' '}
+          {EXPERT_TRAINERS.map((trainer) => `${trainer.name} (${trainer.type})`).join(', ')}
         </div>
       ) : null
 
     case 'pub':
       return PUB_SPECIALS.length > 0 ? (
         <div className="mt-2 text-xs text-gray-500">
-          <span className="text-gray-400 font-medium">Pub specials:</span> {PUB_SPECIALS.map((p) => p.name).join(', ')}
+          <span className="text-gray-400 font-medium">{t('pages.facilityTabs.pubSpecials')}</span>{' '}
+          {PUB_SPECIALS.map((p) => p.name).join(', ')}
         </div>
       ) : null
 
     case 'guildhall':
       return SAMPLE_GUILDS.length > 0 ? (
         <div className="mt-2 text-xs text-gray-500">
-          <span className="text-gray-400 font-medium">Sample guilds:</span>{' '}
+          <span className="text-gray-400 font-medium">{t('pages.facilityTabs.sampleGuilds')}</span>{' '}
           {SAMPLE_GUILDS.map((g) => g.guildType).join(', ')}
         </div>
       ) : null
@@ -95,7 +98,7 @@ function FacilityReferenceData({ facilityType }: { facilityType: string }): JSX.
     case 'emerald-enclave-grove':
       return EMERALD_ENCLAVE_CREATURES.length > 0 ? (
         <div className="mt-2 text-xs text-gray-500">
-          <span className="text-gray-400 font-medium">Enclave creatures:</span>{' '}
+          <span className="text-gray-400 font-medium">{t('pages.facilityTabs.enclaveCreatures')}</span>{' '}
           {EMERALD_ENCLAVE_CREATURES.map((c) => `${c.creatureType} (CR ${c.cr})`).join(', ')}
         </div>
       ) : null
@@ -104,7 +107,7 @@ function FacilityReferenceData({ facilityType }: { facilityType: string }): JSX.
     case 'artificers-forge':
       return FORGE_CONSTRUCTS.length > 0 ? (
         <div className="mt-2 text-xs text-gray-500">
-          <span className="text-gray-400 font-medium">Constructs:</span>{' '}
+          <span className="text-gray-400 font-medium">{t('pages.facilityTabs.constructs')}</span>{' '}
           {FORGE_CONSTRUCTS.map((f) => `${f.name} (CR ${f.cr}, ${f.costGP} GP, ${f.timeDays} days)`).join(', ')}
         </div>
       ) : null
@@ -140,19 +143,24 @@ export function BasicTab({
   onAdd: () => void
   onRemove: (id: string) => void
 }): JSX.Element {
+  const { t } = useT()
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-200">Basic Facilities ({bastion.basicFacilities.length})</h2>
+        <h2 className="text-lg font-semibold text-gray-200">
+          {t('pages.facilityTabs.basicFacilities', { count: bastion.basicFacilities.length })}
+        </h2>
         <button
           onClick={onAdd}
           className="px-3 py-1.5 text-sm bg-amber-600 hover:bg-amber-500 text-white rounded transition-colors"
         >
-          + Add Basic Facility
+          {t('pages.facilityTabs.addBasicFacility')}
         </button>
       </div>
       {bastion.basicFacilities.length === 0 ? (
-        <div className="text-sm text-gray-500 bg-gray-900 rounded-lg p-4">No basic facilities.</div>
+        <div className="text-sm text-gray-500 bg-gray-900 rounded-lg p-4">
+          {t('pages.facilityTabs.noBasicFacilities')}
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {bastion.basicFacilities.map((f) => {
@@ -164,7 +172,7 @@ export function BasicTab({
                     <span className="font-medium text-sm text-gray-100">{f.name}</span>
                     <span
                       className="text-xs px-1.5 py-0.5 rounded bg-gray-800 text-gray-400 border border-gray-700 capitalize"
-                      title={`${FACILITY_SPACE_SQUARES[f.space]} squares`}
+                      title={t('pages.facilityTabs.squaresTitle', { squares: FACILITY_SPACE_SQUARES[f.space] })}
                     >
                       {f.space} ({FACILITY_SPACE_SQUARES[f.space]} sq)
                     </span>
@@ -173,7 +181,7 @@ export function BasicTab({
                     onClick={() => onRemove(f.id)}
                     className="text-xs text-red-400 hover:text-red-300 transition-colors"
                   >
-                    Remove
+                    {t('pages.facilityTabs.remove')}
                   </button>
                 </div>
                 {def && <p className="text-xs text-gray-500">{def.description}</p>}
@@ -195,6 +203,7 @@ function AcquireCreaturePanel({
   facilityId: string
   facilityType: string
 }): JSX.Element {
+  const { t } = useT()
   const creatures =
     facilityType === 'emerald-enclave-grove'
       ? EMERALD_ENCLAVE_CREATURES.map((c) => ({
@@ -208,7 +217,7 @@ function AcquireCreaturePanel({
 
   return (
     <div className="mt-2 bg-gray-800/50 rounded p-3 border border-gray-700">
-      <h4 className="text-xs font-medium text-gray-300 mb-2">Acquire Creature</h4>
+      <h4 className="text-xs font-medium text-gray-300 mb-2">{t('pages.facilityTabs.acquireCreature')}</h4>
       <div className="space-y-1 max-h-40 overflow-y-auto">
         {creatures.map((c) => (
           <div
@@ -246,9 +255,10 @@ function AcquireCreaturePanel({
 }
 
 function CreateConstructPanel({ bastion }: { bastion: Bastion }): JSX.Element {
+  const { t } = useT()
   return (
     <div className="mt-2 bg-gray-800/50 rounded p-3 border border-gray-700">
-      <h4 className="text-xs font-medium text-gray-300 mb-2">Create Construct</h4>
+      <h4 className="text-xs font-medium text-gray-300 mb-2">{t('pages.facilityTabs.createConstruct')}</h4>
       <div className="space-y-1 max-h-40 overflow-y-auto">
         {FORGE_CONSTRUCTS.map((c) => (
           <div
@@ -301,24 +311,28 @@ export function SpecialTab({
   onRemove: (id: string) => void
   onConfigure: (id: string, config: Record<string, unknown>) => void
 }): JSX.Element {
+  const { t } = useT()
   const [expandedPanel, setExpandedPanel] = useState<string | null>(null)
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-gray-200">
-          Special Facilities ({bastion.specialFacilities.length}/{maxSpecial})
+          {t('pages.facilityTabs.specialFacilities', {
+            count: bastion.specialFacilities.length,
+            max: maxSpecial
+          })}
         </h2>
         <button
           onClick={onAdd}
           disabled={bastion.specialFacilities.length >= maxSpecial}
           className="px-3 py-1.5 text-sm bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded transition-colors"
         >
-          + Add Special Facility
+          {t('pages.facilityTabs.addSpecialFacility')}
         </button>
       </div>
       {bastion.specialFacilities.length === 0 ? (
         <div className="text-sm text-gray-500 bg-gray-900 rounded-lg p-4">
-          No special facilities. Add one to get started.
+          {t('pages.facilityTabs.noSpecialFacilities')}
         </div>
       ) : (
         <div className="space-y-3">
@@ -344,9 +358,12 @@ export function SpecialTab({
                     )}
                     <span
                       className="text-xs px-1.5 py-0.5 rounded bg-gray-800 text-gray-400 border border-gray-700 capitalize"
-                      title={`${FACILITY_SPACE_SQUARES[f.space]} squares${
+                      title={`${t('pages.facilityTabs.squaresTitle', { squares: FACILITY_SPACE_SQUARES[f.space] })}${
                         !f.enlarged && f.space !== 'vast'
-                          ? ` | Enlarge: ${ENLARGE_COSTS[f.space === 'cramped' ? 'cramped-roomy' : 'roomy-vast']?.gp ?? '?'} GP, ${ENLARGE_COSTS[f.space === 'cramped' ? 'cramped-roomy' : 'roomy-vast']?.days ?? '?'} days`
+                          ? t('pages.facilityTabs.enlargeTitleSuffix', {
+                              gp: ENLARGE_COSTS[f.space === 'cramped' ? 'cramped-roomy' : 'roomy-vast']?.gp ?? '?',
+                              days: ENLARGE_COSTS[f.space === 'cramped' ? 'cramped-roomy' : 'roomy-vast']?.days ?? '?'
+                            })
                           : ''
                       }`}
                     >
@@ -354,7 +371,7 @@ export function SpecialTab({
                     </span>
                     {f.enlarged && (
                       <span className="text-xs px-1.5 py-0.5 rounded bg-blue-900/30 text-blue-300 border border-blue-700">
-                        Enlarged
+                        {t('pages.facilityTabs.enlarged')}
                       </span>
                     )}
                     {f.currentOrder && (
@@ -367,17 +384,22 @@ export function SpecialTab({
                     onClick={() => onRemove(f.id)}
                     className="text-xs text-red-400 hover:text-red-300 transition-colors"
                   >
-                    Remove
+                    {t('pages.facilityTabs.remove')}
                   </button>
                 </div>
                 {def && <p className="text-xs text-gray-500 mb-2">{def.description}</p>}
                 {def?.charm && (
                   <div className="text-xs text-purple-300 mb-2">
-                    Charm: {def.charm.description} ({def.charm.duration})
+                    {t('pages.facilityTabs.charmDetail', {
+                      description: def.charm.description,
+                      duration: def.charm.duration
+                    })}
                   </div>
                 )}
                 {def?.permanentBenefit && (
-                  <div className="text-xs text-amber-300 mb-2">Benefit: {def.permanentBenefit}</div>
+                  <div className="text-xs text-amber-300 mb-2">
+                    {t('pages.facilityTabs.benefit', { benefit: def.permanentBenefit })}
+                  </div>
                 )}
                 {/* Order types */}
                 {def && def.orders.length > 0 && (
@@ -392,39 +414,41 @@ export function SpecialTab({
                 {/* Hirelings */}
                 {def && def.hirelingCount > 0 && (
                   <div className="text-xs text-gray-500">
-                    Hirelings:{' '}
-                    {f.hirelingNames.length > 0 ? f.hirelingNames.join(', ') : `0/${def.hirelingCount} assigned`}
+                    {t('pages.facilityTabs.hirelings')}{' '}
+                    {f.hirelingNames.length > 0
+                      ? f.hirelingNames.join(', ')
+                      : t('pages.facilityTabs.hirelingsAssigned', { count: def.hirelingCount })}
                   </div>
                 )}
                 {/* Type-specific config */}
                 {f.type === 'garden' && (
                   <div className="flex items-center gap-2 mt-2">
-                    <span className="text-xs text-gray-500">Type:</span>
+                    <span className="text-xs text-gray-500">{t('pages.facilityTabs.type')}</span>
                     <select
                       value={f.gardenType || 'herb'}
                       onChange={(e) => onConfigure(f.id, { gardenType: e.target.value })}
                       className="bg-gray-800 border border-gray-700 rounded px-2 py-0.5 text-xs text-gray-300 focus:outline-none focus:border-amber-500"
                     >
-                      <option value="decorative">Decorative</option>
-                      <option value="food">Food</option>
-                      <option value="herb">Herb</option>
-                      <option value="poison">Poison</option>
+                      <option value="decorative">{t('pages.facilityTabs.gardenDecorative')}</option>
+                      <option value="food">{t('pages.facilityTabs.gardenFood')}</option>
+                      <option value="herb">{t('pages.facilityTabs.gardenHerb')}</option>
+                      <option value="poison">{t('pages.facilityTabs.gardenPoison')}</option>
                     </select>
                   </div>
                 )}
                 {f.type === 'training-area' && (
                   <div className="flex items-center gap-2 mt-2">
-                    <span className="text-xs text-gray-500">Trainer:</span>
+                    <span className="text-xs text-gray-500">{t('pages.facilityTabs.trainer')}</span>
                     <select
                       value={f.trainerType || 'battle'}
                       onChange={(e) => onConfigure(f.id, { trainerType: e.target.value })}
                       className="bg-gray-800 border border-gray-700 rounded px-2 py-0.5 text-xs text-gray-300 focus:outline-none focus:border-amber-500"
                     >
-                      <option value="battle">Battle</option>
-                      <option value="skills">Skills</option>
-                      <option value="tools">Tools</option>
-                      <option value="unarmed-combat">Unarmed Combat</option>
-                      <option value="weapon">Weapon</option>
+                      <option value="battle">{t('pages.facilityTabs.trainerBattle')}</option>
+                      <option value="skills">{t('pages.facilityTabs.trainerSkills')}</option>
+                      <option value="tools">{t('pages.facilityTabs.trainerTools')}</option>
+                      <option value="unarmed-combat">{t('pages.facilityTabs.trainerUnarmedCombat')}</option>
+                      <option value="weapon">{t('pages.facilityTabs.trainerWeapon')}</option>
                     </select>
                   </div>
                 )}
@@ -433,7 +457,7 @@ export function SpecialTab({
                   f.creatures &&
                   f.creatures.length > 0 && (
                     <div className="mt-2">
-                      <span className="text-xs text-gray-500">Creatures: </span>
+                      <span className="text-xs text-gray-500">{t('pages.facilityTabs.creatures')} </span>
                       {f.creatures.map((c, i) => (
                         <span key={i} className="text-xs text-gray-300">
                           {c.name} ({c.size}){i < (f.creatures?.length ?? 0) - 1 ? ', ' : ''}
@@ -450,7 +474,9 @@ export function SpecialTab({
                       onClick={() => setExpandedPanel(expandedPanel === f.id ? null : f.id)}
                       className="mt-2 px-2 py-1 text-xs bg-green-700 hover:bg-green-600 text-white rounded transition-colors"
                     >
-                      {expandedPanel === f.id ? 'Hide Creatures' : 'Acquire Creature'}
+                      {expandedPanel === f.id
+                        ? t('pages.facilityTabs.hideCreatures')
+                        : t('pages.facilityTabs.acquireCreature')}
                     </button>
                     {expandedPanel === f.id && (
                       <AcquireCreaturePanel bastion={bastion} facilityId={f.id} facilityType={f.type} />
@@ -464,7 +490,9 @@ export function SpecialTab({
                       onClick={() => setExpandedPanel(expandedPanel === f.id ? null : f.id)}
                       className="mt-2 px-2 py-1 text-xs bg-orange-700 hover:bg-orange-600 text-white rounded transition-colors"
                     >
-                      {expandedPanel === f.id ? 'Hide Constructs' : 'Create Construct'}
+                      {expandedPanel === f.id
+                        ? t('pages.facilityTabs.hideConstructs')
+                        : t('pages.facilityTabs.createConstruct')}
                     </button>
                     {expandedPanel === f.id && <CreateConstructPanel bastion={bastion} />}
                   </>

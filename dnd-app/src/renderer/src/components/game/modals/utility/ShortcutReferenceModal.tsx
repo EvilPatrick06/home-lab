@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useT } from '../../../../i18n'
 import type { ShortcutDefinition } from '../../../../services/keyboard-shortcuts'
 import { formatKeyCombo, getShortcutsByCategory } from '../../../../services/keyboard-shortcuts'
 
@@ -34,6 +35,7 @@ function KeyCombo({ shortcut }: { shortcut: ShortcutDefinition }): JSX.Element {
 }
 
 export default function ShortcutReferenceModal({ onClose }: ShortcutReferenceModalProps): JSX.Element {
+  const { t } = useT()
   const grouped = getShortcutsByCategory()
 
   // Close on Escape key
@@ -61,11 +63,11 @@ export default function ShortcutReferenceModal({ onClose }: ShortcutReferenceMod
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-700">
-          <h2 className="text-lg font-bold text-amber-400">Keyboard Shortcuts</h2>
+          <h2 className="text-lg font-bold text-amber-400">{t('game.shortcutReferenceModal.title')}</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-white text-xl leading-none cursor-pointer"
-            aria-label="Close"
+            aria-label={t('common.actions.close')}
           >
             &times;
           </button>
@@ -79,7 +81,9 @@ export default function ShortcutReferenceModal({ onClose }: ShortcutReferenceMod
             return (
               <div key={categoryKey}>
                 <h3 className="text-sm font-semibold text-amber-400/80 uppercase tracking-wider mb-2">
-                  {CATEGORY_LABELS[categoryKey] ?? categoryKey}
+                  {CATEGORY_LABELS[categoryKey]
+                    ? t(`game.shortcutReferenceModal.categories.${categoryKey}`)
+                    : categoryKey}
                 </h3>
                 <div className="space-y-1">
                   {shortcuts.map((shortcut) => (
@@ -100,11 +104,11 @@ export default function ShortcutReferenceModal({ onClose }: ShortcutReferenceMod
         {/* Footer */}
         <div className="px-5 py-3 border-t border-gray-700">
           <p className="text-xs text-gray-500 text-center">
-            Press{' '}
+            {t('game.shortcutReferenceModal.footerPress')}{' '}
             <kbd className="px-1.5 py-0.5 text-xs font-mono text-amber-400 bg-gray-800 border border-gray-600 rounded">
               /
             </kbd>{' '}
-            anytime to toggle this reference
+            {t('game.shortcutReferenceModal.footerToggle')}
           </p>
         </div>
       </div>

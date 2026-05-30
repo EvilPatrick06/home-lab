@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useT } from '../../i18n'
 import type { RegistryGameEntry } from '../../network/registry-client'
 import { GameCard } from '.'
 
@@ -12,6 +13,7 @@ export interface GameListProps {
 }
 
 export default function GameList({ games, registryConnected, onJoin, onSpectate }: GameListProps): JSX.Element {
+  const { t } = useT()
   const [search, setSearch] = useState('')
   const [systemFilter, setSystemFilter] = useState<string>('all')
   const [sort, setSort] = useState<SortOption>('newest')
@@ -49,7 +51,7 @@ export default function GameList({ games, registryConnected, onJoin, onSpectate 
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by game or host…"
+            placeholder={t('lobby.gameList.searchPlaceholder')}
             className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-amber-500"
           />
         </div>
@@ -61,7 +63,7 @@ export default function GameList({ games, registryConnected, onJoin, onSpectate 
           >
             {systems.map((s) => (
               <option key={s} value={s}>
-                {s === 'all' ? 'All systems' : s}
+                {s === 'all' ? t('lobby.gameList.allSystems') : s}
               </option>
             ))}
           </select>
@@ -70,30 +72,26 @@ export default function GameList({ games, registryConnected, onJoin, onSpectate 
             onChange={(e) => setSort(e.target.value as SortOption)}
             className="px-2 py-2 bg-gray-900 border border-gray-700 rounded-md text-sm text-gray-200"
           >
-            <option value="newest">Newest first</option>
-            <option value="name-asc">Name A→Z</option>
-            <option value="players-desc">Most players</option>
+            <option value="newest">{t('lobby.gameList.sortNewest')}</option>
+            <option value="name-asc">{t('lobby.gameList.sortNameAsc')}</option>
+            <option value="players-desc">{t('lobby.gameList.sortPlayersDesc')}</option>
           </select>
           <label className="flex items-center gap-1 text-xs text-gray-400 select-none cursor-pointer">
             <input type="checkbox" checked={hideFull} onChange={(e) => setHideFull(e.target.checked)} />
-            Hide full
+            {t('lobby.gameList.hideFull')}
           </label>
         </div>
       </div>
 
       {!registryConnected && (
         <div className="flex items-center gap-2 px-3 py-2 rounded-md bg-amber-900/20 border border-amber-700/40">
-          <span className="text-xs text-amber-300">
-            No Pi registry connected — showing LAN games only. Configure BMO connection in Settings to see public games.
-          </span>
+          <span className="text-xs text-amber-300">{t('lobby.gameList.noRegistry')}</span>
         </div>
       )}
 
       {filtered.length === 0 ? (
         <div className="rounded-lg border border-dashed border-gray-700 p-10 text-center">
-          <p className="text-gray-500 text-sm">
-            No games found. Adjust your filters, or ask your DM for an invite code.
-          </p>
+          <p className="text-gray-500 text-sm">{t('lobby.gameList.noGames')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">

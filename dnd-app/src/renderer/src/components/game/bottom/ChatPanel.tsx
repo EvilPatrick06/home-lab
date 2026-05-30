@@ -8,6 +8,7 @@
 import { useVirtualizer } from '@tanstack/react-virtual'
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { addToast } from '../../../hooks/use-toast'
+import { useT } from '../../../i18n'
 import { speakNarrationThroughBmo } from '../../../services/bmo-narration'
 import { type CommandContext, executeCommand } from '../../../services/chat-commands'
 import { lookupContent } from '../../../services/library/content-index'
@@ -43,6 +44,7 @@ const BottomChatMessage = memo(function BottomChatMessage({
   onLinkClick?: (category: string, name: string) => void
   renderPreview?: (category: LibraryCategory, name: string) => React.ReactNode | null
 }): JSX.Element {
+  const { t } = useT()
   if (msg.isDiceRoll && msg.diceResult) {
     return (
       <DiceResult
@@ -57,24 +59,24 @@ const BottomChatMessage = memo(function BottomChatMessage({
     return (
       <div className="py-1 pl-2 border-l-2 border-amber-500/50 group">
         <div className="flex items-start justify-between">
-          <span className="text-xs font-semibold text-amber-400 block mb-0.5">Dungeon Master</span>
+          <span className="text-xs font-semibold text-amber-400 block mb-0.5">{t('game.chatPanel.dungeonMaster')}</span>
           <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
             {isDM && aiNarrationText && onSpeakNarration && (
               <button
                 onClick={() => onSpeakNarration(aiNarrationText)}
                 className="text-[9px] text-gray-600 hover:text-amber-400 cursor-pointer"
-                title="Speak this narration through BMO"
+                title={t('game.chatPanel.speakTitle')}
               >
-                Speak
+                {t('game.chatPanel.speak')}
               </button>
             )}
             {isDM && onDispute && (
               <button
                 onClick={() => onDispute(msg.content)}
                 className="text-[9px] text-gray-600 hover:text-amber-400 cursor-pointer"
-                title="Dispute this ruling"
+                title={t('game.chatPanel.disputeTitle')}
               >
-                Dispute
+                {t('game.chatPanel.dispute')}
               </button>
             )}
           </div>
@@ -123,6 +125,7 @@ export default function ChatPanel({
   onDispute,
   onLinkClick
 }: ChatPanelProps): JSX.Element {
+  const { t } = useT()
   const [input, setInput] = useState('')
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -167,7 +170,7 @@ export default function ChatPanel({
     addChatMessage({
       id: `msg-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
       senderId: 'system',
-      senderName: 'System',
+      senderName: t('game.chatPanel.systemSender'),
       content,
       timestamp: Date.now(),
       isSystem: true
@@ -193,14 +196,14 @@ export default function ChatPanel({
         localPeerId: localPeerId || 'local',
         addSystemMessage: addSysMsg,
         broadcastSystemMessage: broadcastSysMsg,
-        addErrorMessage: (err) => addSysMsg(`Error: ${err}`),
+        addErrorMessage: (err) => addSysMsg(t('game.chatPanel.errorPrefix', { error: err })),
         openModal: onOpenModal
       }
 
       const result = executeCommand(trimmed, ctx)
       if (result) {
         if (result.error) {
-          addSysMsg(`Error: ${result.error}`)
+          addSysMsg(t('game.chatPanel.errorPrefix', { error: result.error }))
         }
         setInput('')
         return
@@ -222,7 +225,7 @@ export default function ChatPanel({
       id: `msg-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
       senderId: localPeerId || 'local',
       senderName: playerName,
-      content: `rolled ${result.formula}`,
+      content: t('game.chatPanel.rolled', { formula: result.formula }),
       timestamp: Date.now(),
       isSystem: false,
       isDiceRoll: true,
@@ -265,7 +268,7 @@ export default function ChatPanel({
   const handleSpeakNarration = async (text: string): Promise<void> => {
     const result = await speakNarrationThroughBmo(text)
     if (!result.success) {
-      addToast(result.error ?? 'Failed to send narration to BMO', 'error')
+      addToast(result.error ?? t('game.chatPanel.narrationFailed'), 'error')
     }
   }
 
@@ -281,7 +284,7 @@ export default function ChatPanel({
           onKeyDown={(e) => {
             if (e.key === 'Enter') handleSend()
           }}
-          placeholder="Type a message or /command..."
+          placeholder={t('game.chatPanel.placeholder')}
           className="flex-1 px-2 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
             placeholder-gray-600 focus:outline-none focus:border-amber-500 text-sm"
         />
@@ -291,7 +294,7 @@ export default function ChatPanel({
           className="px-2.5 py-1.5 text-xs rounded-lg bg-amber-600 hover:bg-amber-500 text-white
             font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
-          Send
+          {t('game.chatPanel.send')}
         </button>
       </div>
     )
@@ -302,7 +305,7 @@ export default function ChatPanel({
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-2 min-h-0" aria-live="polite">
         {chatMessages.length === 0 ? (
-          <p className="text-sm text-gray-500 text-center py-4">No messages yet</p>
+          <p className="text-sm text-gray-500 text-center py-4">{t('game.chatPanel.noMessages')}</p>
         ) : (
           <div style={{ height: `${virtualizer.getTotalSize()}px`, position: 'relative', width: '100%' }}>
             {virtualizer.getVirtualItems().map((virtualItem) => {
@@ -350,7 +353,7 @@ export default function ChatPanel({
                   style={{ animationDelay: '300ms' }}
                 />
               </span>
-              AI DM is typing...
+              {t('game.chatPanel.aiTyping')}
             </div>
             {aiStreamingText && (
               <div className="text-sm text-gray-200 mt-0.5 max-h-20 overflow-hidden font-sans">
@@ -362,7 +365,7 @@ export default function ChatPanel({
 
         {/* AI error display */}
         {aiEnabled && aiLastError && !aiIsTyping && (
-          <div className="py-1 text-xs text-red-400 italic">AI DM error: {aiLastError}</div>
+          <div className="py-1 text-xs text-red-400 italic">{t('game.chatPanel.aiError', { error: aiLastError })}</div>
         )}
       </div>
 
@@ -370,9 +373,13 @@ export default function ChatPanel({
       {isDM && aiEnabled && (
         <div className="border-t border-gray-800/50 px-2 py-1 shrink-0 flex items-center gap-2 text-xs">
           <span className={`w-1.5 h-1.5 rounded-full ${aiIsTyping ? 'bg-amber-400 animate-pulse' : 'bg-green-500'}`} />
-          <span className="text-gray-500">AI {aiIsTyping ? 'responding' : 'ready'}</span>
-          <span className="text-gray-600 ml-auto" title="Estimated conversation tokens">
-            ~{Math.ceil(aiMessages.reduce((sum, m) => sum + m.content.length, 0) / 4).toLocaleString()} / 23,000 tokens
+          <span className="text-gray-500">
+            {aiIsTyping ? t('game.chatPanel.aiResponding') : t('game.chatPanel.aiReady')}
+          </span>
+          <span className="text-gray-600 ml-auto" title={t('game.chatPanel.tokensTitle')}>
+            {t('game.chatPanel.tokens', {
+              used: Math.ceil(aiMessages.reduce((sum, m) => sum + m.content.length, 0) / 4).toLocaleString()
+            })}
           </span>
         </div>
       )}
@@ -392,7 +399,7 @@ export default function ChatPanel({
             onKeyDown={(e) => {
               if (e.key === 'Enter' && (!showAutocomplete || input.includes(' '))) handleSend()
             }}
-            placeholder="Type a message or /command..."
+            placeholder={t('game.chatPanel.placeholder')}
             className="flex-1 px-2 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
               placeholder-gray-600 focus:outline-none focus:border-amber-500 text-sm"
           />
@@ -409,7 +416,7 @@ export default function ChatPanel({
             onClick={() => onOpenModal?.('commandRef')}
             className="px-1.5 py-1.5 text-xs rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-gray-200
               transition-colors cursor-pointer border border-gray-700"
-            title="Command reference"
+            title={t('game.chatPanel.commandReference')}
           >
             ?
           </button>

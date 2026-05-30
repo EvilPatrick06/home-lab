@@ -1,6 +1,7 @@
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
+import { useT } from '../../../i18n'
 import { getEffectiveClasses } from '../../../services/character/effective-character-5e'
 import { parseDiceFormula, rollDice } from '../../../services/dice/dice-engine'
 import { getCurrentAmbient, subscribeToCurrentAmbient } from '../../../services/sound-manager'
@@ -86,6 +87,7 @@ export default function PlayerBottomBar({
   onOpenModal,
   onLinkClick
 }: PlayerBottomBarProps): JSX.Element {
+  const { t } = useT()
   const navigate = useNavigate()
   const sendMessage = useNetworkStore((s) => s.sendMessage)
   const [toolsOpen, setToolsOpen] = useState(false)
@@ -128,7 +130,7 @@ export default function PlayerBottomBar({
       id: `msg-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
       senderId: localPeerId || 'local',
       senderName: playerName,
-      content: `${label}: rolled ${formula}`,
+      content: t('game.playerBottomBar.macroRolled', { label, formula }),
       timestamp: Date.now(),
       isSystem: false,
       isDiceRoll: true,
@@ -172,8 +174,8 @@ export default function PlayerBottomBar({
         className="absolute -top-5 left-1/2 -translate-x-1/2 z-10 px-3 py-1
           bg-gray-800 border border-gray-700/50 rounded-t-lg text-gray-400 hover:text-gray-200
           cursor-pointer transition-colors"
-        title={collapsed ? 'Expand bottom bar' : 'Collapse bottom bar'}
-        aria-label={collapsed ? 'Expand bottom bar' : 'Collapse bottom bar'}
+        title={collapsed ? t('game.playerBottomBar.expand') : t('game.playerBottomBar.collapse')}
+        aria-label={collapsed ? t('game.playerBottomBar.expand') : t('game.playerBottomBar.collapse')}
         aria-expanded={!collapsed}
       >
         {collapsed ? (
@@ -190,7 +192,7 @@ export default function PlayerBottomBar({
         <div
           className="absolute -top-5 right-3 z-10 px-2.5 py-0.5 text-xs flex items-center gap-1
             bg-gray-800 border border-gray-700/50 rounded-t-lg text-amber-300"
-          title={`Currently playing: ${currentAmbient}`}
+          title={t('game.playerBottomBar.currentlyPlaying', { track: currentAmbient })}
         >
           <span aria-hidden>\u266A</span>
           <span className="font-medium">{currentAmbient.replace(/^ambient-/, '')}</span>
@@ -233,17 +235,17 @@ export default function PlayerBottomBar({
             text-gray-200 hover:bg-amber-600/30 hover:border-amber-500/50 hover:text-amber-300
             transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              View Sheet
+              {t('game.playerBottomBar.viewSheet')}
             </button>
             <button
               onClick={() => character && useGameStore.getState().requestCenterOnEntity(character.id)}
               disabled={!character}
-              title="Center the map on your character (Phase 16a)"
+              title={t('game.playerBottomBar.centerOnMeTitle')}
               className="px-3 py-2 text-xs font-semibold rounded-lg bg-gray-800/60 border border-gray-700/50
             text-gray-200 hover:bg-amber-600/30 hover:border-amber-500/50 hover:text-amber-300
             transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              Center on Me
+              {t('game.playerBottomBar.centerOnMe')}
             </button>
             <button
               onClick={onAction}
@@ -251,7 +253,7 @@ export default function PlayerBottomBar({
             text-gray-200 hover:bg-amber-600/30 hover:border-amber-500/50 hover:text-amber-300
             transition-all cursor-pointer"
             >
-              Do an Action
+              {t('game.playerBottomBar.doAnAction')}
             </button>
             <button
               onClick={onItem}
@@ -259,7 +261,7 @@ export default function PlayerBottomBar({
             text-gray-200 hover:bg-amber-600/30 hover:border-amber-500/50 hover:text-amber-300
             transition-all cursor-pointer"
             >
-              Use an Item
+              {t('game.playerBottomBar.useAnItem')}
             </button>
 
             {/* Tools dropdown */}
@@ -272,7 +274,7 @@ export default function PlayerBottomBar({
               text-gray-200 hover:bg-gray-700/60 hover:text-gray-100
               transition-all cursor-pointer"
               >
-                Tools...
+                {t('game.playerBottomBar.tools')}
               </button>
 
               {toolsOpen && (
@@ -280,7 +282,7 @@ export default function PlayerBottomBar({
                   {/* Combat & Movement */}
                   <div className="px-2 pt-2 pb-1">
                     <span className="text-[9px] text-gray-500 uppercase tracking-wider font-semibold">
-                      Combat & Movement
+                      {t('game.playerBottomBar.combatMovement')}
                     </span>
                   </div>
                   <button
@@ -290,7 +292,7 @@ export default function PlayerBottomBar({
                     }}
                     className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-gray-800 hover:text-gray-100 transition-colors cursor-pointer"
                   >
-                    Dice Roller
+                    {t('game.playerBottomBar.diceRoller')}
                   </button>
                   {/* Phase 15b: player measurement + LoS tools. Local-only —
                       the measurement line is drawn to the player's own
@@ -304,7 +306,7 @@ export default function PlayerBottomBar({
                       }}
                       className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-gray-800 hover:text-gray-100 transition-colors cursor-pointer"
                     >
-                      Measure Distance
+                      {t('game.playerBottomBar.measureDistance')}
                     </button>
                   )}
                   {onCheckLos && (
@@ -315,7 +317,7 @@ export default function PlayerBottomBar({
                       }}
                       className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-gray-800 hover:text-gray-100 transition-colors cursor-pointer"
                     >
-                      Check Line of Sight
+                      {t('game.playerBottomBar.checkLineOfSight')}
                     </button>
                   )}
                   <button
@@ -325,7 +327,7 @@ export default function PlayerBottomBar({
                     }}
                     className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-gray-800 hover:text-gray-100 transition-colors cursor-pointer"
                   >
-                    Jump Calculator
+                    {t('game.playerBottomBar.jumpCalculator')}
                   </button>
                   <button
                     onClick={() => {
@@ -334,7 +336,7 @@ export default function PlayerBottomBar({
                     }}
                     className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-gray-800 hover:text-gray-100 transition-colors cursor-pointer"
                   >
-                    Falling Damage
+                    {t('game.playerBottomBar.fallingDamage')}
                   </button>
                   <button
                     onClick={() => {
@@ -343,7 +345,7 @@ export default function PlayerBottomBar({
                     }}
                     className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-gray-800 hover:text-gray-100 transition-colors cursor-pointer"
                   >
-                    Travel Pace Reference
+                    {t('game.playerBottomBar.travelPaceReference')}
                   </button>
                   <button
                     onClick={() => {
@@ -352,7 +354,7 @@ export default function PlayerBottomBar({
                     }}
                     className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-gray-800 hover:text-gray-100 transition-colors cursor-pointer"
                   >
-                    Conditions Viewer
+                    {t('game.playerBottomBar.conditionsViewer')}
                   </button>
                   {onLightSource && (
                     <button
@@ -362,14 +364,16 @@ export default function PlayerBottomBar({
                       }}
                       className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-gray-800 hover:text-gray-100 transition-colors cursor-pointer"
                     >
-                      Light Sources
+                      {t('game.playerBottomBar.lightSources')}
                     </button>
                   )}
 
                   {/* Reference */}
                   <div className="border-t border-gray-700/40 mx-2 mt-1" />
                   <div className="px-2 pt-2 pb-1">
-                    <span className="text-[9px] text-gray-500 uppercase tracking-wider font-semibold">Reference</span>
+                    <span className="text-[9px] text-gray-500 uppercase tracking-wider font-semibold">
+                      {t('game.playerBottomBar.reference')}
+                    </span>
                   </div>
                   {/* Phase 15f: in-game spell prep — visible to all but the
                       modal itself gates by class (prepared casters only) and
@@ -382,7 +386,7 @@ export default function PlayerBottomBar({
                       }}
                       className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-gray-800 hover:text-gray-100 transition-colors cursor-pointer"
                     >
-                      Prepare Spells
+                      {t('game.playerBottomBar.prepareSpells')}
                     </button>
                   )}
                   <button
@@ -392,7 +396,7 @@ export default function PlayerBottomBar({
                     }}
                     className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-gray-800 hover:text-gray-100 transition-colors cursor-pointer"
                   >
-                    Quick Reference
+                    {t('game.playerBottomBar.quickReference')}
                   </button>
                   <button
                     onClick={() => {
@@ -401,7 +405,7 @@ export default function PlayerBottomBar({
                     }}
                     className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-gray-800 hover:text-gray-100 transition-colors cursor-pointer"
                   >
-                    Command Reference
+                    {t('game.playerBottomBar.commandReference')}
                   </button>
                   <button
                     onClick={() => {
@@ -410,13 +414,15 @@ export default function PlayerBottomBar({
                     }}
                     className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-gray-800 hover:text-gray-100 transition-colors cursor-pointer"
                   >
-                    Shortcut Reference
+                    {t('game.playerBottomBar.shortcutReference')}
                   </button>
 
                   {/* Social */}
                   <div className="border-t border-gray-700/40 mx-2 mt-1" />
                   <div className="px-2 pt-2 pb-1">
-                    <span className="text-[9px] text-gray-500 uppercase tracking-wider font-semibold">Social</span>
+                    <span className="text-[9px] text-gray-500 uppercase tracking-wider font-semibold">
+                      {t('game.playerBottomBar.social')}
+                    </span>
                   </div>
                   {/* Phase 15d: personal journal — private, local-only notes
                       for the player. Never broadcast / synced; stored in
@@ -429,7 +435,7 @@ export default function PlayerBottomBar({
                       }}
                       className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-gray-800 hover:text-gray-100 transition-colors cursor-pointer"
                     >
-                      My Notes
+                      {t('game.playerBottomBar.myNotes')}
                     </button>
                   )}
                   {onWhisper && (
@@ -440,7 +446,7 @@ export default function PlayerBottomBar({
                       }}
                       className="w-full px-3 py-2 text-left text-xs text-purple-300 hover:bg-gray-800 hover:text-purple-200 transition-colors cursor-pointer"
                     >
-                      Whisper
+                      {t('game.playerBottomBar.whisper')}
                     </button>
                   )}
                   {onCheckTime && (
@@ -451,17 +457,17 @@ export default function PlayerBottomBar({
                       }}
                       className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-gray-800 hover:text-gray-100 transition-colors cursor-pointer"
                     >
-                      Check Time
+                      {t('game.playerBottomBar.checkTime')}
                     </button>
                   )}
                   <button
                     onClick={() => {
                       setToolsOpen(false)
-                      const msg = `${playerName} requests a Short Rest.`
+                      const msg = t('game.playerBottomBar.requestsShortRest', { playerName })
                       addChatMessage({
                         id: `msg-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
                         senderId: 'system',
-                        senderName: 'System',
+                        senderName: t('game.playerBottomBar.systemSender'),
                         content: msg,
                         timestamp: Date.now(),
                         isSystem: true
@@ -470,16 +476,16 @@ export default function PlayerBottomBar({
                     }}
                     className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-gray-800 hover:text-gray-100 transition-colors cursor-pointer"
                   >
-                    Request Short Rest
+                    {t('game.playerBottomBar.requestShortRest')}
                   </button>
                   <button
                     onClick={() => {
                       setToolsOpen(false)
-                      const msg = `${playerName} requests a Long Rest.`
+                      const msg = t('game.playerBottomBar.requestsLongRest', { playerName })
                       addChatMessage({
                         id: `msg-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
                         senderId: 'system',
-                        senderName: 'System',
+                        senderName: t('game.playerBottomBar.systemSender'),
                         content: msg,
                         timestamp: Date.now(),
                         isSystem: true
@@ -488,7 +494,7 @@ export default function PlayerBottomBar({
                     }}
                     className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-gray-800 hover:text-gray-100 transition-colors cursor-pointer"
                   >
-                    Request Long Rest
+                    {t('game.playerBottomBar.requestLongRest')}
                   </button>
                   {onDowntime && (
                     <button
@@ -498,7 +504,7 @@ export default function PlayerBottomBar({
                       }}
                       className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-gray-800 hover:text-gray-100 transition-colors cursor-pointer"
                     >
-                      Downtime Activity
+                      {t('game.playerBottomBar.downtimeActivity')}
                     </button>
                   )}
                   {onTrade && (
@@ -509,7 +515,7 @@ export default function PlayerBottomBar({
                       }}
                       className="w-full px-3 py-2 text-left text-xs text-amber-300 hover:bg-gray-800 hover:text-amber-200 transition-colors cursor-pointer"
                     >
-                      Trade Items
+                      {t('game.playerBottomBar.tradeItems')}
                     </button>
                   )}
                   {onJournal && (
@@ -520,7 +526,7 @@ export default function PlayerBottomBar({
                       }}
                       className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-gray-800 hover:text-gray-100 transition-colors cursor-pointer"
                     >
-                      Shared Journal
+                      {t('game.playerBottomBar.sharedJournal')}
                     </button>
                   )}
                   {onCompendium && (
@@ -531,7 +537,7 @@ export default function PlayerBottomBar({
                       }}
                       className="w-full px-3 py-2 text-left text-xs text-gray-300 hover:bg-gray-800 hover:text-gray-100 transition-colors cursor-pointer"
                     >
-                      Compendium
+                      {t('game.playerBottomBar.compendium')}
                     </button>
                   )}
                 </div>
@@ -546,7 +552,7 @@ export default function PlayerBottomBar({
               text-amber-400 hover:bg-amber-600/30 hover:border-amber-500/50 hover:text-amber-300
               transition-all cursor-pointer"
               >
-                Find Familiar
+                {t('game.playerBottomBar.findFamiliar')}
               </button>
             )}
             {isDruid && (
@@ -556,7 +562,7 @@ export default function PlayerBottomBar({
               text-green-400 hover:bg-green-600/30 hover:border-green-500/50 hover:text-green-300
               transition-all cursor-pointer"
               >
-                Wild Shape
+                {t('game.playerBottomBar.wildShape')}
               </button>
             )}
             {isPaladin && (
@@ -566,7 +572,7 @@ export default function PlayerBottomBar({
               text-blue-400 hover:bg-blue-600/30 hover:border-blue-500/50 hover:text-blue-300
               transition-all cursor-pointer"
               >
-                Find Steed
+                {t('game.playerBottomBar.findSteed')}
               </button>
             )}
           </div>

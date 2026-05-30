@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
+import { useT } from '../i18n'
 
 interface AvailabilityResponse {
   userId: string
@@ -44,13 +45,14 @@ const AVAILABILITY_COLORS: Record<AvailabilityResponse['available'], string> = {
   maybe: 'bg-amber-600/30 border-amber-500/50'
 }
 
-const AVAILABILITY_LABELS: Record<AvailabilityResponse['available'], string> = {
-  yes: 'Available',
-  no: 'Unavailable',
-  maybe: 'Maybe'
+const AVAILABILITY_LABEL_KEYS: Record<AvailabilityResponse['available'], string> = {
+  yes: 'pages.calendarPage.available',
+  no: 'pages.calendarPage.unavailable',
+  maybe: 'pages.calendarPage.maybe'
 }
 
 export default function CalendarPage(): JSX.Element {
+  const { t } = useT()
   const navigate = useNavigate()
   const today = new Date()
   const [currentYear, setCurrentYear] = useState(today.getFullYear())
@@ -112,7 +114,7 @@ export default function CalendarPage(): JSX.Element {
         const filtered = s.responses.filter((r) => r.userId !== 'local-user')
         return {
           ...s,
-          responses: [...filtered, { userId: 'local-user', displayName: 'You', available: value }]
+          responses: [...filtered, { userId: 'local-user', displayName: t('pages.calendarPage.you'), available: value }]
         }
       })
     )
@@ -141,10 +143,10 @@ export default function CalendarPage(): JSX.Element {
         onClick={() => navigate('/')}
         className="text-amber-400 hover:text-amber-300 hover:underline mb-6 block cursor-pointer"
       >
-        &larr; Back to Menu
+        {t('pages.calendarPage.backToMenu')}
       </button>
 
-      <h1 className="text-3xl font-bold mb-6">Session Calendar</h1>
+      <h1 className="text-3xl font-bold mb-6">{t('pages.calendarPage.title')}</h1>
 
       <div className="flex gap-8 max-w-4xl">
         {/* Calendar grid */}
@@ -221,11 +223,11 @@ export default function CalendarPage(): JSX.Element {
           <div className="flex items-center gap-4 mt-4 text-xs text-gray-500">
             <div className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-amber-400" />
-              Proposed session
+              {t('pages.calendarPage.proposedSession')}
             </div>
             <div className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full ring-1 ring-amber-400" />
-              Today
+              {t('pages.calendarPage.today')}
             </div>
           </div>
         </div>
@@ -245,12 +247,13 @@ export default function CalendarPage(): JSX.Element {
               {selectedSession ? (
                 <div className="space-y-4">
                   <p className="text-sm text-gray-400">
-                    Proposed by <span className="text-amber-400">{selectedSession.proposedBy}</span>
+                    {t('pages.calendarPage.proposedBy')}{' '}
+                    <span className="text-amber-400">{selectedSession.proposedBy}</span>
                   </p>
 
                   {/* Availability buttons */}
                   <div>
-                    <p className="text-sm text-gray-400 mb-2">Your availability:</p>
+                    <p className="text-sm text-gray-400 mb-2">{t('pages.calendarPage.yourAvailability')}</p>
                     <div className="flex gap-2">
                       {(['yes', 'no', 'maybe'] as AvailabilityResponse['available'][]).map((value) => (
                         <button
@@ -266,7 +269,7 @@ export default function CalendarPage(): JSX.Element {
                             }
                           `}
                         >
-                          {AVAILABILITY_LABELS[value]}
+                          {t(AVAILABILITY_LABEL_KEYS[value])}
                         </button>
                       ))}
                     </div>
@@ -275,7 +278,7 @@ export default function CalendarPage(): JSX.Element {
                   {/* Responses */}
                   {selectedSession.responses.length > 0 && (
                     <div>
-                      <p className="text-sm text-gray-400 mb-2">Responses:</p>
+                      <p className="text-sm text-gray-400 mb-2">{t('pages.calendarPage.responses')}</p>
                       <div className="space-y-1.5">
                         {selectedSession.responses.map((r) => (
                           <div key={r.userId} className="flex items-center justify-between text-sm">
@@ -289,7 +292,7 @@ export default function CalendarPage(): JSX.Element {
                                     : 'text-amber-400'
                               }
                             >
-                              {AVAILABILITY_LABELS[r.available]}
+                              {t(AVAILABILITY_LABEL_KEYS[r.available])}
                             </span>
                           </div>
                         ))}
@@ -301,24 +304,24 @@ export default function CalendarPage(): JSX.Element {
                     onClick={() => removeSession(selectedDay)}
                     className="w-full px-3 py-1.5 rounded-lg text-sm text-red-400 border border-red-800 hover:bg-red-900/30 cursor-pointer transition-colors mt-2"
                   >
-                    Remove Session
+                    {t('pages.calendarPage.removeSession')}
                   </button>
                 </div>
               ) : (
                 <div className="space-y-3">
-                  <p className="text-sm text-gray-500">No session proposed for this date.</p>
+                  <p className="text-sm text-gray-500">{t('pages.calendarPage.noSessionProposed')}</p>
                   <button
                     onClick={proposeSession}
                     className="w-full px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-semibold text-sm cursor-pointer transition-colors"
                   >
-                    Propose Session
+                    {t('pages.calendarPage.proposeSession')}
                   </button>
                 </div>
               )}
             </div>
           ) : (
             <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-5">
-              <p className="text-sm text-gray-500">Select a day to propose a session or mark your availability.</p>
+              <p className="text-sm text-gray-500">{t('pages.calendarPage.selectDayPrompt')}</p>
             </div>
           )}
         </div>

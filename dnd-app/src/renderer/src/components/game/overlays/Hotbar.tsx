@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useT } from '../../../i18n'
 import type { Macro } from '../../../stores/use-macro-store'
 import { useMacroStore } from '../../../stores/use-macro-store'
 
@@ -48,6 +49,16 @@ function SlotEditor({
   onRemove,
   onPickFromLibrary
 }: SlotEditorProps): JSX.Element {
+  const { t } = useT()
+  const colorLabels: Record<string, string> = {
+    'bg-red-900/40': t('game.hotbar.colorRed'),
+    'bg-orange-900/40': t('game.hotbar.colorOrange'),
+    'bg-amber-900/40': t('game.hotbar.colorAmber'),
+    'bg-green-900/40': t('game.hotbar.colorGreen'),
+    'bg-blue-900/40': t('game.hotbar.colorBlue'),
+    'bg-purple-900/40': t('game.hotbar.colorPurple'),
+    'bg-gray-800/60': t('game.hotbar.colorGray')
+  }
   const [name, setName] = useState(macro?.name ?? '')
   const [command, setCommand] = useState(macro?.command ?? '')
   const [icon, setIcon] = useState(macro?.icon ?? '')
@@ -90,7 +101,8 @@ function SlotEditor({
       className="w-72 bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-3 shadow-2xl z-50"
     >
       <div className="text-[11px] font-semibold text-amber-400 mb-2">
-        {macro ? 'Edit Macro' : 'New Macro'} — Slot {SLOT_LABELS[slotIndex]}
+        {macro ? t('game.hotbar.editMacro') : t('game.hotbar.newMacro')}{' '}
+        {t('game.hotbar.slot', { slot: SLOT_LABELS[slotIndex] })}
       </div>
 
       <div className="space-y-2">
@@ -98,20 +110,20 @@ function SlotEditor({
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Macro name"
+          placeholder={t('game.hotbar.macroNamePlaceholder')}
           className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
         />
         <input
           type="text"
           value={command}
           onChange={(e) => setCommand(e.target.value)}
-          placeholder="/roll 1d20+$mod.str or 2d6+3"
+          placeholder={t('game.hotbar.commandPlaceholder')}
           className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500 font-mono"
         />
 
         {/* Icon picker */}
         <div>
-          <div className="text-xs text-gray-500 mb-1">Icon</div>
+          <div className="text-xs text-gray-500 mb-1">{t('game.hotbar.icon')}</div>
           <div className="flex flex-wrap gap-1">
             {ICON_PRESETS.map((emoji) => (
               <button
@@ -127,23 +139,21 @@ function SlotEditor({
 
         {/* Color picker */}
         <div>
-          <div className="text-xs text-gray-500 mb-1">Color</div>
+          <div className="text-xs text-gray-500 mb-1">{t('game.hotbar.color')}</div>
           <div className="flex gap-1">
             {COLOR_PRESETS.map((c) => (
               <button
                 key={c.value}
                 onClick={() => setColor(c.value)}
                 className={`w-6 h-6 rounded cursor-pointer transition-all ${c.value} ${color === c.value ? 'ring-1 ring-amber-500 scale-110' : 'hover:scale-105'}`}
-                title={c.label}
+                title={colorLabels[c.value] ?? c.value}
               />
             ))}
           </div>
         </div>
 
         {/* Variables reference */}
-        <div className="text-[9px] text-gray-600 leading-tight">
-          Variables: $mod.str/dex/con/int/wis/cha, $prof, $level, $self, $target
-        </div>
+        <div className="text-[9px] text-gray-600 leading-tight">{t('game.hotbar.variablesReference')}</div>
       </div>
 
       <div className="flex gap-1.5 mt-3">
@@ -152,24 +162,24 @@ function SlotEditor({
           disabled={!name.trim() || !command.trim()}
           className="flex-1 px-2 py-1 text-xs font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          Save
+          {t('common.actions.save')}
         </button>
         {macro && (
           <button
             onClick={() => onRemove(slotIndex)}
             className="px-2 py-1 text-xs font-semibold bg-red-900/50 hover:bg-red-800/60 text-red-300 rounded cursor-pointer"
           >
-            Remove
+            {t('game.hotbar.remove')}
           </button>
         )}
         <button
           onClick={() => onPickFromLibrary(slotIndex)}
           className="px-2 py-1 text-xs text-gray-400 hover:text-gray-200 border border-gray-700/50 rounded cursor-pointer"
         >
-          Library
+          {t('game.hotbar.library')}
         </button>
         <button onClick={onClose} className="px-2 py-1 text-xs text-gray-500 hover:text-gray-300 cursor-pointer">
-          Cancel
+          {t('common.actions.cancel')}
         </button>
       </div>
     </div>
@@ -184,6 +194,7 @@ interface LibraryPickerProps {
 }
 
 function LibraryPicker({ macros, position, onPick, onClose }: LibraryPickerProps): JSX.Element {
+  const { t } = useT()
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -206,9 +217,9 @@ function LibraryPicker({ macros, position, onPick, onClose }: LibraryPickerProps
       style={style}
       className="w-52 max-h-64 overflow-y-auto bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-2 shadow-2xl z-50"
     >
-      <div className="text-[11px] font-semibold text-amber-400 mb-1.5">Macro Library</div>
+      <div className="text-[11px] font-semibold text-amber-400 mb-1.5">{t('game.hotbar.macroLibrary')}</div>
       {macros.length === 0 ? (
-        <div className="text-xs text-gray-500 italic py-2">No saved macros</div>
+        <div className="text-xs text-gray-500 italic py-2">{t('game.hotbar.noSavedMacros')}</div>
       ) : (
         macros.map((m) => (
           <button
@@ -228,13 +239,14 @@ function LibraryPicker({ macros, position, onPick, onClose }: LibraryPickerProps
         onClick={onClose}
         className="w-full mt-1 px-2 py-1 text-xs text-gray-500 hover:text-gray-300 cursor-pointer"
       >
-        Close
+        {t('common.actions.close')}
       </button>
     </div>
   )
 }
 
 export default function Hotbar({ characterId, onExecuteMacro }: HotbarProps): JSX.Element {
+  const { t } = useT()
   const hotbar = useMacroStore((s) => s.hotbar)
   const macros = useMacroStore((s) => s.macros)
   const { setHotbarSlot, clearHotbarSlot, swapHotbarSlots } = useMacroStore()
@@ -348,7 +360,7 @@ export default function Hotbar({ characterId, onExecuteMacro }: HotbarProps): JS
     <>
       <div
         role="toolbar"
-        aria-label="Quick action hotbar"
+        aria-label={t('game.hotbar.toolbarLabel')}
         className="flex items-center gap-1 px-2 py-1 bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-xl"
       >
         {hotbar.map((slot, index) => (
@@ -370,11 +382,13 @@ export default function Hotbar({ characterId, onExecuteMacro }: HotbarProps): JS
             `}
             title={
               slot
-                ? `${slot.name}\n${slot.command}\n\nClick to execute · Right-click to edit`
-                : `Slot ${SLOT_LABELS[index]} (empty)\nClick or right-click to assign`
+                ? t('game.hotbar.slotFilledTitle', { name: slot.name, command: slot.command })
+                : t('game.hotbar.slotEmptyTitle', { slot: SLOT_LABELS[index] })
             }
             aria-label={
-              slot ? `Hotbar slot ${SLOT_LABELS[index]}: ${slot.name}` : `Hotbar slot ${SLOT_LABELS[index]}: empty`
+              slot
+                ? t('game.hotbar.slotFilledAria', { slot: SLOT_LABELS[index], name: slot.name })
+                : t('game.hotbar.slotEmptyAria', { slot: SLOT_LABELS[index] })
             }
           >
             {slot ? (

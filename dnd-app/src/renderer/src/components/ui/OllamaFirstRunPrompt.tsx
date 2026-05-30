@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { addToast } from '../../hooks/use-toast'
+import { useT } from '../../i18n'
 
 /**
  * Phase 14c — one-time "Install Ollama for local AI?" prompt.
@@ -13,6 +14,7 @@ import { addToast } from '../../hooks/use-toast'
 const FLAG_KEY = 'dnd-vtt-ollama-first-run-prompted'
 
 export default function OllamaFirstRunPrompt(): JSX.Element | null {
+  const { t } = useT()
   const [show, setShow] = useState(false)
   const [installing, setInstalling] = useState(false)
 
@@ -42,18 +44,18 @@ export default function OllamaFirstRunPrompt(): JSX.Element | null {
     try {
       const dl = await window.api.ai.downloadOllama()
       if (!dl.success || !dl.path) {
-        addToast(dl.error ?? 'Failed to download Ollama', 'error')
+        addToast(dl.error ?? t('ui.ollamaFirstRun.downloadFailed'), 'error')
         return
       }
       const inst = await window.api.ai.installOllama(dl.path)
       if (!inst.success) {
-        addToast(inst.error ?? 'Failed to install Ollama', 'error')
+        addToast(inst.error ?? t('ui.ollamaFirstRun.installFailed'), 'error')
         return
       }
-      addToast('Ollama installed — local AI is ready', 'success')
+      addToast(t('ui.ollamaFirstRun.installedReady'), 'success')
       dismiss()
     } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Ollama install failed', 'error')
+      addToast(err instanceof Error ? err.message : t('ui.ollamaFirstRun.installError'), 'error')
     } finally {
       setInstalling(false)
     }
@@ -64,10 +66,10 @@ export default function OllamaFirstRunPrompt(): JSX.Element | null {
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[100]">
       <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-xl w-[420px] p-5 space-y-4">
-        <h2 className="text-lg font-semibold text-gray-100">Install Ollama for local AI?</h2>
+        <h2 className="text-lg font-semibold text-gray-100">{t('ui.ollamaFirstRun.title')}</h2>
         <p className="text-sm text-gray-300 leading-relaxed">
-          Ollama runs AI models locally on your machine — no API key, no cloud. The app can install it for you now, or
-          you can do this later in <span className="text-amber-400">Settings → Ollama AI</span>.
+          {t('ui.ollamaFirstRun.descriptionLead')}{' '}
+          <span className="text-amber-400">{t('ui.ollamaFirstRun.settingsPath')}</span>.
         </p>
         <div className="flex justify-end gap-2 pt-1">
           <button
@@ -75,14 +77,14 @@ export default function OllamaFirstRunPrompt(): JSX.Element | null {
             disabled={installing}
             className="px-3 py-1.5 text-sm rounded bg-gray-700 hover:bg-gray-600 text-gray-200 cursor-pointer disabled:opacity-50"
           >
-            Not now
+            {t('ui.ollamaFirstRun.notNow')}
           </button>
           <button
             onClick={handleInstall}
             disabled={installing}
             className="px-3 py-1.5 text-sm font-medium rounded bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white cursor-pointer"
           >
-            {installing ? 'Installing…' : 'Install'}
+            {installing ? t('ui.ollamaFirstRun.installing') : t('ui.ollamaFirstRun.install')}
           </button>
         </div>
       </div>

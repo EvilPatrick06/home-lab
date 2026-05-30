@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react'
 import { trigger3dDice } from '../../../../components/game/dice3d'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 import type { DiceRevealPayload } from '../../../../network'
 import type { MonsterStatBlockData } from '../../../../services/data-provider'
 import { load5eMonsterById } from '../../../../services/data-provider'
@@ -46,6 +47,7 @@ interface EntityOption {
 }
 
 export default function DMRollerModal({ onClose, onMinimize, onRestore }: DMRollerModalProps): JSX.Element {
+  const { t } = useT()
   const [minimized, setMinimized] = useState(false)
   const [selectedEntityId, setSelectedEntityId] = useState<string | null>(null)
   const [rollResults, setRollResults] = useState<RollResult[]>([])
@@ -166,7 +168,7 @@ export default function DMRollerModal({ onClose, onMinimize, onRestore }: DMRoll
           {
             id: `roll-${Date.now()}-${crypto.randomUUID().slice(0, 6)}`,
             entityName,
-            label: `${action.name} Damage`,
+            label: t('game.dmRollerModal.actionDamage', { action: action.name }),
             roll: total,
             modifier: 0,
             total,
@@ -242,11 +244,11 @@ export default function DMRollerModal({ onClose, onMinimize, onRestore }: DMRoll
       <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-3xl w-full mx-4 shadow-2xl max-h-[85vh] flex flex-col">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-purple-300">DM Roller</h3>
+          <h3 className="text-sm font-semibold text-purple-300">{t('game.dmRollerModal.title')}</h3>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-300 text-lg cursor-pointer"
-            aria-label="Close"
+            aria-label={t('common.actions.close')}
           >
             &times;
           </button>
@@ -264,9 +266,9 @@ export default function DMRollerModal({ onClose, onMinimize, onRestore }: DMRoll
               onChange={(e) => handleSelectEntity(e.target.value)}
               className="w-full mb-3 px-2 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-100 text-xs focus:outline-none focus:border-purple-500"
             >
-              <option value="">Select an entity...</option>
+              <option value="">{t('game.dmRollerModal.selectEntity')}</option>
               {entities.filter((e) => e.type === 'pc').length > 0 && (
-                <optgroup label="PCs">
+                <optgroup label={t('game.dmRollerModal.pcs')}>
                   {entities
                     .filter((e) => e.type === 'pc')
                     .map((e) => (
@@ -277,7 +279,7 @@ export default function DMRollerModal({ onClose, onMinimize, onRestore }: DMRoll
                 </optgroup>
               )}
               {entities.filter((e) => e.type === 'enemy').length > 0 && (
-                <optgroup label="Enemies">
+                <optgroup label={t('game.dmRollerModal.enemies')}>
                   {entities
                     .filter((e) => e.type === 'enemy')
                     .map((e) => (
@@ -288,7 +290,7 @@ export default function DMRollerModal({ onClose, onMinimize, onRestore }: DMRoll
                 </optgroup>
               )}
               {entities.filter((e) => e.type === 'ally').length > 0 && (
-                <optgroup label="Allies/NPCs">
+                <optgroup label={t('game.dmRollerModal.alliesNpcs')}>
                   {entities
                     .filter((e) => e.type === 'ally')
                     .map((e) => (
@@ -303,9 +305,7 @@ export default function DMRollerModal({ onClose, onMinimize, onRestore }: DMRoll
             {/* Stat block */}
             <div className="flex-1 overflow-y-auto">
               {!selectedEntity && (
-                <p className="text-xs text-gray-500 text-center py-8">
-                  Select an entity to view its stat block and roll dice.
-                </p>
+                <p className="text-xs text-gray-500 text-center py-8">{t('game.dmRollerModal.selectPrompt')}</p>
               )}
               {selectedEntity && (
                 <RollerEntityBlock
@@ -320,10 +320,12 @@ export default function DMRollerModal({ onClose, onMinimize, onRestore }: DMRoll
 
           {/* Right: Roll results */}
           <div className="w-64 shrink-0 flex flex-col min-h-0 border-l border-gray-700/50 pl-3">
-            <div className="text-[9px] text-gray-500 uppercase tracking-wider mb-2">Roll History</div>
+            <div className="text-[9px] text-gray-500 uppercase tracking-wider mb-2">
+              {t('game.dmRollerModal.rollHistory')}
+            </div>
             <div className="flex-1 overflow-y-auto space-y-1.5">
               {rollResults.length === 0 ? (
-                <p className="text-xs text-gray-600 text-center py-4">No rolls yet</p>
+                <p className="text-xs text-gray-600 text-center py-4">{t('game.dmRollerModal.noRolls')}</p>
               ) : (
                 rollResults.map((r) => (
                   <div key={r.id} className="bg-gray-800/50 rounded p-1.5">
@@ -337,7 +339,7 @@ export default function DMRollerModal({ onClose, onMinimize, onRestore }: DMRoll
                         onClick={() => revealResult(r)}
                         className="text-[8px] px-1 py-0.5 bg-green-600/30 text-green-400 rounded cursor-pointer hover:bg-green-600/50"
                       >
-                        Reveal
+                        {t('game.dmRollerModal.reveal')}
                       </button>
                       <button
                         onClick={() => {
@@ -345,7 +347,7 @@ export default function DMRollerModal({ onClose, onMinimize, onRestore }: DMRoll
                         }}
                         className="text-[8px] px-1 py-0.5 bg-gray-700/50 text-gray-500 rounded cursor-pointer"
                       >
-                        Hidden
+                        {t('game.dmRollerModal.hidden')}
                       </button>
                     </div>
                   </div>
@@ -357,7 +359,7 @@ export default function DMRollerModal({ onClose, onMinimize, onRestore }: DMRoll
                 onClick={() => setRollResults([])}
                 className="mt-1 text-[9px] text-gray-600 hover:text-red-400 cursor-pointer"
               >
-                Clear All
+                {t('game.dmRollerModal.clearAll')}
               </button>
             )}
           </div>

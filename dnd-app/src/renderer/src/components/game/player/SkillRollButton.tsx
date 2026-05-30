@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { SKILLS_5E } from '../../../data/skills'
+import { useT } from '../../../i18n'
 import {
   getToolSkillAdvantage as getToolAdvantage,
   TOOL_SKILL_INTERACTIONS
@@ -33,6 +34,7 @@ function rollD20(): number {
 }
 
 export default function SkillRollButton({ character, onRoll }: SkillRollButtonProps): JSX.Element {
+  const { t } = useT()
   const [open, setOpen] = useState(false)
   const [tab, setTab] = useState<'skills' | 'saves'>('skills')
   const [advantage, setAdvantage] = useState<'normal' | 'advantage' | 'disadvantage'>('normal')
@@ -102,7 +104,11 @@ export default function SkillRollButton({ character, onRoll }: SkillRollButtonPr
         entityConditions.some((ec) => autoFailConditions.includes(ec.condition))
       ) {
         const failCondition = entityConditions.find((ec) => autoFailConditions.includes(ec.condition))
-        onRoll({ formula: `${label}: Auto-FAIL (${failCondition?.condition})`, total: 0, rolls: [0] })
+        onRoll({
+          formula: t('game.skillRollButton.autoFail', { label, reason: failCondition?.condition }),
+          total: 0,
+          rolls: [0]
+        })
         setOpen(false)
         return
       }
@@ -110,14 +116,22 @@ export default function SkillRollButton({ character, onRoll }: SkillRollButtonPr
 
     // PHB 2024: Deafened — auto-fail hearing-based Perception checks
     if (isSkillCheck && skillName === 'Perception' && entityConditions.some((ec) => ec.condition === 'Deafened')) {
-      onRoll({ formula: `${label}: Auto-FAIL (Deafened — hearing-based)`, total: 0, rolls: [0] })
+      onRoll({
+        formula: t('game.skillRollButton.autoFail', { label, reason: t('game.skillRollButton.deafenedHearing') }),
+        total: 0,
+        rolls: [0]
+      })
       setOpen(false)
       return
     }
 
     // PHB 2024: Blinded — auto-fail sight-based Perception checks
     if (isSkillCheck && skillName === 'Perception' && entityConditions.some((ec) => ec.condition === 'Blinded')) {
-      onRoll({ formula: `${label}: Auto-FAIL (Blinded — sight-based)`, total: 0, rolls: [0] })
+      onRoll({
+        formula: t('game.skillRollButton.autoFail', { label, reason: t('game.skillRollButton.blindedSight') }),
+        total: 0,
+        rolls: [0]
+      })
       setOpen(false)
       return
     }
@@ -135,7 +149,7 @@ export default function SkillRollButton({ character, onRoll }: SkillRollButtonPr
         const tool = getToolSkillAdvantage(skillName)
         if (tool) {
           effectiveAdvantage = 'advantage'
-          toolAdvNote = ` [Tool+Skill: ${tool}]`
+          toolAdvNote = t('game.skillRollButton.toolSkillNote', { tool })
         }
       }
     }
@@ -165,7 +179,10 @@ export default function SkillRollButton({ character, onRoll }: SkillRollButtonPr
     let roll: number
     let allRolls: number[]
     let formula: string
-    const exhNote = exhaustionPenalty !== 0 ? ` [Exh ${exhaustionLevel}: ${exhaustionPenalty}]` : ''
+    const exhNote =
+      exhaustionPenalty !== 0
+        ? t('game.skillRollButton.exhaustionNote', { level: exhaustionLevel, penalty: exhaustionPenalty })
+        : ''
 
     if (effectiveAdvantage === 'normal') {
       roll = rollD20()
@@ -176,12 +193,13 @@ export default function SkillRollButton({ character, onRoll }: SkillRollButtonPr
       const r2 = rollD20()
       allRolls = [r1, r2]
       roll = effectiveAdvantage === 'advantage' ? Math.max(r1, r2) : Math.min(r1, r2)
-      const advLabel = effectiveAdvantage === 'advantage' ? 'Adv' : 'Dis'
+      const advLabel =
+        effectiveAdvantage === 'advantage' ? t('game.skillRollButton.adv') : t('game.skillRollButton.dis')
       formula = `1d20${effectiveMod >= 0 ? '+' : ''}${effectiveMod} (${advLabel}${toolAdvNote})${exhNote}`
     }
 
     const total = roll + effectiveMod
-    onRoll({ formula: `${label}: ${formula}`, total, rolls: allRolls })
+    onRoll({ formula: t('game.skillRollButton.rollFormula', { label, formula }), total, rolls: allRolls })
     setOpen(false)
   }
 
@@ -195,7 +213,7 @@ export default function SkillRollButton({ character, onRoll }: SkillRollButtonPr
             ? 'bg-amber-600/30 text-amber-300 border border-amber-500/50'
             : 'bg-gray-800 border border-gray-700 text-gray-400 hover:text-gray-200'
         }`}
-        title={`Skill & Save Rolls (${toolInteractionCount} tool-skill interactions)`}
+        title={t('game.skillRollButton.buttonTitle', { count: toolInteractionCount })}
       >
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
           <path
@@ -216,7 +234,7 @@ export default function SkillRollButton({ character, onRoll }: SkillRollButtonPr
                 tab === 'skills' ? 'text-amber-400 border-b-2 border-amber-500' : 'text-gray-400 hover:text-gray-200'
               }`}
             >
-              Skills
+              {t('game.skillRollButton.skills')}
             </button>
             <button
               onClick={() => setTab('saves')}
@@ -224,7 +242,7 @@ export default function SkillRollButton({ character, onRoll }: SkillRollButtonPr
                 tab === 'saves' ? 'text-amber-400 border-b-2 border-amber-500' : 'text-gray-400 hover:text-gray-200'
               }`}
             >
-              Saves
+              {t('game.skillRollButton.saves')}
             </button>
           </div>
 
@@ -245,7 +263,11 @@ export default function SkillRollButton({ character, onRoll }: SkillRollButtonPr
                       : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                   }`}
               >
-                {mode === 'normal' ? 'Normal' : mode === 'advantage' ? 'Adv' : 'Dis'}
+                {mode === 'normal'
+                  ? t('game.skillRollButton.normal')
+                  : mode === 'advantage'
+                    ? t('game.skillRollButton.adv')
+                    : t('game.skillRollButton.dis')}
               </button>
             ))}
           </div>
@@ -276,9 +298,9 @@ export default function SkillRollButton({ character, onRoll }: SkillRollButtonPr
                       {toolAdvTool && (
                         <span
                           className="text-[8px] text-green-400 bg-green-900/30 px-1 rounded"
-                          title={`Advantage from ${toolAdvTool} + ${skill.name}`}
+                          title={t('game.skillRollButton.advantageFrom', { tool: toolAdvTool, skill: skill.name })}
                         >
-                          ADV
+                          {t('game.skillRollButton.advBadge')}
                         </span>
                       )}
                       <span
@@ -298,7 +320,9 @@ export default function SkillRollButton({ character, onRoll }: SkillRollButtonPr
                 return (
                   <button
                     key={ability}
-                    onClick={() => doRoll(`${ABILITY_LABELS[ability]} Save`, mod)}
+                    onClick={() =>
+                      doRoll(t('game.skillRollButton.saveLabel', { ability: ABILITY_LABELS[ability] }), mod)
+                    }
                     className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-gray-800 cursor-pointer text-left"
                   >
                     <div className="flex items-center gap-1.5">

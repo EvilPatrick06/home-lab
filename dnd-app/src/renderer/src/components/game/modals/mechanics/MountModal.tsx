@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 import { getTokenSizeCategory, isAdjacent } from '../../../../services/combat/combat-rules'
 import { useGameStore } from '../../../../stores/use-game-store'
 import type { Character } from '../../../../types/character'
@@ -20,6 +21,7 @@ export default function MountModal({
   onClose,
   onBroadcastResult
 }: MountModalProps): JSX.Element {
+  const { t } = useT()
   const turnStates = useGameStore((s) => s.turnStates)
   const updateToken = useGameStore((s) => s.updateToken)
   const activeMapId = useGameStore((s) => s.activeMapId)
@@ -32,9 +34,9 @@ export default function MountModal({
       <div className="fixed inset-0 z-30 flex items-center justify-center">
         <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
         <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-6 text-center">
-          <p className="text-gray-400">No character selected</p>
+          <p className="text-gray-400">{t('game.mountModal.noCharacter')}</p>
           <button onClick={onClose} className="mt-3 px-4 py-1 text-sm bg-gray-700 rounded cursor-pointer">
-            Close
+            {t('common.actions.close')}
           </button>
         </div>
       </div>
@@ -84,7 +86,11 @@ export default function MountModal({
     }
 
     onBroadcastResult?.(
-      `${character.name} dismounts from ${mountToken?.label ?? 'mount'} (costs ${mountSpeed} ft of movement)`
+      t('game.mountModal.dismountResult', {
+        name: character.name,
+        mount: mountToken?.label ?? t('game.mountModal.mountFallback'),
+        speed: mountSpeed
+      })
     )
     onClose()
   }
@@ -116,7 +122,12 @@ export default function MountModal({
     updateToken(activeMap.id, targetToken.id, { riderId: character.id })
 
     onBroadcastResult?.(
-      `${character.name} mounts ${targetToken.label} (${mountType}, costs ${mountSpeed} ft of movement)`
+      t('game.mountModal.mountResult', {
+        name: character.name,
+        mount: targetToken.label,
+        type: mountType,
+        speed: mountSpeed
+      })
     )
     onClose()
   }
@@ -136,11 +147,13 @@ export default function MountModal({
       <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-[400px] max-h-[80vh] overflow-y-auto shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-gray-200">{isMounted ? 'Mounted Combat' : 'Mount / Dismount'}</h3>
+          <h3 className="text-sm font-semibold text-gray-200">
+            {isMounted ? t('game.mountModal.titleMounted') : t('game.mountModal.titleMount')}
+          </h3>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-300 text-lg cursor-pointer"
-            aria-label="Close"
+            aria-label={t('common.actions.close')}
           >
             &times;
           </button>
@@ -150,14 +163,16 @@ export default function MountModal({
           /* Currently mounted */
           <div className="space-y-3">
             <div className="p-3 bg-gray-800 rounded-lg border border-green-700/50">
-              <div className="text-xs text-gray-400 mb-1">Currently mounted on:</div>
+              <div className="text-xs text-gray-400 mb-1">{t('game.mountModal.currentlyMountedOn')}</div>
               <div className="text-sm font-semibold text-green-400">{mountToken.label}</div>
               <div className="text-xs text-gray-500 mt-1">
-                Type:{' '}
-                <span className="text-amber-400">{ts.mountType === 'controlled' ? 'Controlled' : 'Independent'}</span>
+                {t('game.mountModal.typeLabel')}{' '}
+                <span className="text-amber-400">
+                  {ts.mountType === 'controlled' ? t('game.mountModal.controlled') : t('game.mountModal.independent')}
+                </span>
               </div>
               {ts.mountType === 'controlled' && (
-                <div className="text-xs text-gray-500 mt-0.5">Mount can only: Dash, Disengage, Dodge</div>
+                <div className="text-xs text-gray-500 mt-0.5">{t('game.mountModal.controlledNote')}</div>
               )}
             </div>
 
@@ -166,23 +181,26 @@ export default function MountModal({
               disabled={(ts?.movementRemaining ?? 0) < mountSpeed}
               className="w-full px-4 py-3 bg-red-700 hover:bg-red-600 text-white font-semibold rounded-lg cursor-pointer text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Dismount ({mountSpeed} ft of movement)
+              {t('game.mountModal.dismountButton', { speed: mountSpeed })}
             </button>
             {(ts?.movementRemaining ?? 0) < mountSpeed && (
-              <div className="text-xs text-red-400 text-center">Not enough movement remaining</div>
+              <div className="text-xs text-red-400 text-center">{t('game.mountModal.notEnoughMovement')}</div>
             )}
           </div>
         ) : (
           /* Not mounted - show candidates */
           <div className="space-y-3">
             {mountCandidates.length === 0 ? (
-              <div className="text-sm text-gray-500 text-center py-4">
-                No valid mounts nearby. Must be adjacent and at least 1 size larger.
-              </div>
+              <div className="text-sm text-gray-500 text-center py-4">{t('game.mountModal.noValidMounts')}</div>
             ) : (
               <div className="space-y-2">
                 {mountCandidates.map((token) => {
-                  const sizeNames = ['Tiny/Small/Med', 'Large', 'Huge', 'Gargantuan']
+                  const sizeNames = [
+                    t('game.mountModal.sizeTinySmallMed'),
+                    t('game.mountModal.sizeLarge'),
+                    t('game.mountModal.sizeHuge'),
+                    t('game.mountModal.sizeGargantuan')
+                  ]
                   const sizeIdx = Math.min(getTokenSizeCategory(token) - 1, sizeNames.length - 1)
                   const mt = selectedMountType[token.id] ?? 'controlled'
                   return (
@@ -202,7 +220,7 @@ export default function MountModal({
                               : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
                           }`}
                         >
-                          Controlled
+                          {t('game.mountModal.controlled')}
                         </button>
                         <button
                           onClick={() => setSelectedMountType((s) => ({ ...s, [token.id]: 'independent' }))}
@@ -212,7 +230,7 @@ export default function MountModal({
                               : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
                           }`}
                         >
-                          Independent
+                          {t('game.mountModal.independent')}
                         </button>
                       </div>
                       <button
@@ -220,7 +238,7 @@ export default function MountModal({
                         disabled={(ts?.movementRemaining ?? 0) < mountSpeed}
                         className="w-full px-3 py-1.5 bg-green-700 hover:bg-green-600 text-white text-xs font-semibold rounded cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        Mount ({mountSpeed} ft)
+                        {t('game.mountModal.mountButton', { speed: mountSpeed })}
                       </button>
                     </div>
                   )
@@ -229,7 +247,7 @@ export default function MountModal({
             )}
             {(ts?.movementRemaining ?? 0) < mountSpeed && mountCandidates.length > 0 && (
               <div className="text-xs text-red-400 text-center">
-                Not enough movement remaining ({mountSpeed} ft needed)
+                {t('game.mountModal.notEnoughMovementNeeded', { speed: mountSpeed })}
               </div>
             )}
           </div>
@@ -237,11 +255,11 @@ export default function MountModal({
 
         {/* Rules summary */}
         <div className="mt-4 border-t border-gray-700 pt-3 space-y-1">
-          <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Mounted Combat Rules</div>
-          <div className="text-xs text-gray-500">Mounting/dismounting costs half your speed</div>
-          <div className="text-xs text-gray-500">Controlled mount: Can only Dash, Disengage, or Dodge</div>
-          <div className="text-xs text-gray-500">Independent mount: Acts on its own initiative turn</div>
-          <div className="text-xs text-gray-500">Mount must be at least 1 size larger than rider</div>
+          <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">{t('game.mountModal.rulesTitle')}</div>
+          <div className="text-xs text-gray-500">{t('game.mountModal.ruleCost')}</div>
+          <div className="text-xs text-gray-500">{t('game.mountModal.ruleControlled')}</div>
+          <div className="text-xs text-gray-500">{t('game.mountModal.ruleIndependent')}</div>
+          <div className="text-xs text-gray-500">{t('game.mountModal.ruleSize')}</div>
         </div>
       </div>
     </div>

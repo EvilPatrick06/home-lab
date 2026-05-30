@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useT } from '../../../i18n'
 import { useCharacterStore } from '../../../stores/use-character-store'
 import { useGameStore } from '../../../stores/use-game-store'
 import type { Character5e } from '../../../types/character-5e'
@@ -28,6 +29,7 @@ export default function SpellSlotTracker({
   onSlotChange,
   characterId
 }: SpellSlotTrackerProps): JSX.Element {
+  const { t } = useT()
   const [localSlots, setLocalSlots] = useState(externalSlots ?? DEFAULT_5E_SLOTS)
   const [lastCastMessage, setLastCastMessage] = useState<string | null>(null)
 
@@ -58,13 +60,13 @@ export default function SpellSlotTracker({
       const ts = turnStates[characterId]
       if (ts && !ts.actionUsed) {
         useGameStore.getState().useAction(characterId)
-        setLastCastMessage(`Level ${level} slot used — Action consumed`)
+        setLastCastMessage(t('game.spellSlotTracker.actionConsumed', { level }))
         // Auto-clear message after 3s
         setTimeout(() => setLastCastMessage(null), 3000)
       } else if (ts?.actionUsed && !ts.bonusActionUsed) {
         // If action already used, this might be a bonus action spell
         useGameStore.getState().useBonusAction(characterId)
-        setLastCastMessage(`Level ${level} slot used — Bonus Action consumed`)
+        setLastCastMessage(t('game.spellSlotTracker.bonusActionConsumed', { level }))
         setTimeout(() => setLastCastMessage(null), 3000)
       }
     }
@@ -98,12 +100,12 @@ export default function SpellSlotTracker({
     .map(([k]) => parseInt(k, 10))
 
   if (activeLevels.length === 0) {
-    return <div className="text-xs text-gray-500 text-center py-2">No spell slots</div>
+    return <div className="text-xs text-gray-500 text-center py-2">{t('game.spellSlotTracker.noSlots')}</div>
   }
 
   return (
     <div className="space-y-2">
-      <h4 className="text-xs text-gray-500 uppercase tracking-wider">Spell Slots</h4>
+      <h4 className="text-xs text-gray-500 uppercase tracking-wider">{t('game.spellSlotTracker.spellSlots')}</h4>
       {lastCastMessage && (
         <div className="text-[9px] text-amber-300 bg-amber-900/20 border border-amber-700/30 rounded px-1.5 py-0.5">
           {lastCastMessage}
@@ -115,7 +117,9 @@ export default function SpellSlotTracker({
           const remaining = slot.total - slot.used
           return (
             <div key={level} className="flex items-center gap-2 text-xs">
-              <span className="w-8 text-gray-500 text-right text-xs">Lv {level}</span>
+              <span className="w-8 text-gray-500 text-right text-xs">
+                {t('game.spellSlotTracker.level', { level })}
+              </span>
               <div className="flex gap-0.5">
                 {Array.from({ length: slot.total }).map((_, i) => {
                   // Phase 15h — accessibility. Each pip is a toggle that
@@ -130,14 +134,18 @@ export default function SpellSlotTracker({
                       type="button"
                       onClick={() => handleSlotClick(level)}
                       aria-pressed={!isAvailable}
-                      aria-label={`Level ${level} spell slot ${i + 1}: ${isAvailable ? 'available' : 'expended'}`}
+                      aria-label={t('game.spellSlotTracker.slotAriaLabel', {
+                        level,
+                        index: i + 1,
+                        state: isAvailable ? t('game.spellSlotTracker.available') : t('game.spellSlotTracker.expended')
+                      })}
                       className={`w-4 h-4 rounded-full border transition-colors cursor-pointer
                       ${
                         isAvailable
                           ? 'bg-amber-600 border-amber-500 hover:bg-amber-500'
                           : 'bg-gray-800 border-gray-600 hover:bg-gray-700'
                       }`}
-                      title={`Level ${level} slot ${i + 1}`}
+                      title={t('game.spellSlotTracker.slotTitle', { level, index: i + 1 })}
                     />
                   )
                 })}

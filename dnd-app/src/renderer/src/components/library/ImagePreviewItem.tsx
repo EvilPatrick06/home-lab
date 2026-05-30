@@ -1,3 +1,5 @@
+import { useT } from '../../i18n'
+
 interface ImagePreviewItemProps {
   item: {
     id: string
@@ -15,6 +17,7 @@ export default function ImagePreviewItem({
   isFavorite,
   onToggleFavorite
 }: ImagePreviewItemProps): JSX.Element {
+  const { t } = useT()
   const imageData = (item.data.data as string) ?? (item.data.path as string) ?? ''
   const isDataUrl = imageData.startsWith('data:')
 
@@ -37,7 +40,7 @@ export default function ImagePreviewItem({
         <span className="text-sm font-medium text-gray-100 group-hover:text-amber-400 transition-colors truncate block">
           {item.name}
         </span>
-        <p className="text-xs text-gray-500 truncate mt-0.5">Portrait / Icon</p>
+        <p className="text-xs text-gray-500 truncate mt-0.5">{t('library.imagePreviewItem.portraitIcon')}</p>
       </div>
 
       {/* Favorite star */}
@@ -50,7 +53,7 @@ export default function ImagePreviewItem({
           className={`text-lg flex-shrink-0 transition-colors cursor-pointer ${
             isFavorite ? 'text-amber-400' : 'text-gray-600 hover:text-gray-400'
           }`}
-          title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+          title={isFavorite ? t('library.imagePreviewItem.removeFavorite') : t('library.imagePreviewItem.addFavorite')}
         >
           {isFavorite ? '★' : '☆'}
         </button>

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useT } from '../../../i18n'
 import { load5eRandomTables } from '../../../services/data-provider'
 import { rollFormula } from '../../../services/dice/dice-engine'
 import { useLobbyStore } from '../../../stores/use-lobby-store'
@@ -15,6 +16,7 @@ interface TableEntry {
 }
 
 export default function TablesPanel(): JSX.Element {
+  const { t } = useT()
   const [tables, setTables] = useState<TableEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -58,11 +60,11 @@ export default function TablesPanel(): JSX.Element {
 
       setTables(tableEntries)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load tables')
+      setError(err instanceof Error ? err.message : t('game.tablesPanel.failedToLoad'))
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [t])
 
   useEffect(() => {
     void loadTables()
@@ -82,7 +84,7 @@ export default function TablesPanel(): JSX.Element {
     if (table.type === 'array') {
       const arrayData = table.data as string[]
       if (arrayData.length === 0) {
-        result = 'No entries in table'
+        result = t('game.tablesPanel.noEntriesInTable')
       } else {
         const roll = cryptoRollDie(arrayData.length)
         result = arrayData[roll - 1]
@@ -93,7 +95,7 @@ export default function TablesPanel(): JSX.Element {
       const formula = diceTable.die.replace('d', '') // Extract number from "d100"
       const rollResult = rollFormula(`1d${formula}`)
       if (!rollResult) {
-        result = 'Invalid dice formula'
+        result = t('game.tablesPanel.invalidDiceFormula')
       } else {
         // Find matching entry
         const matchedEntry = diceTable.entries.find((entry) => {
@@ -106,8 +108,8 @@ export default function TablesPanel(): JSX.Element {
         })
 
         result = matchedEntry
-          ? String(matchedEntry[Object.keys(matchedEntry).find((k) => k !== 'roll')!] || 'Unknown')
-          : 'No matching entry'
+          ? String(matchedEntry[Object.keys(matchedEntry).find((k) => k !== 'roll')!] || t('game.tablesPanel.unknown'))
+          : t('game.tablesPanel.noMatchingEntry')
         rollInfo = `${rollResult.formula}: ${rollResult.total}`
       }
     } else if (table.type === 'nested') {
@@ -115,12 +117,12 @@ export default function TablesPanel(): JSX.Element {
       const nestedData = table.data as Record<string, unknown>
       const subKeys = Object.keys(nestedData)
       if (subKeys.length === 0) {
-        result = 'No sub-tables available'
+        result = t('game.tablesPanel.noSubTables')
       } else {
         const randomSubKey = subKeys[Math.floor(cryptoRandom() * subKeys.length)]
         const subTable = nestedData[randomSubKey] as unknown[]
         if (!Array.isArray(subTable) || subTable.length === 0) {
-          result = 'Invalid sub-table'
+          result = t('game.tablesPanel.invalidSubTable')
         } else {
           const roll = cryptoRollDie(subTable.length)
           result = String(subTable[roll - 1])
@@ -128,7 +130,7 @@ export default function TablesPanel(): JSX.Element {
         }
       }
     } else {
-      result = 'Unsupported table type'
+      result = t('game.tablesPanel.unsupportedTableType')
     }
 
     // Add to chat — always fires now, so the user gets feedback regardless
@@ -144,7 +146,7 @@ export default function TablesPanel(): JSX.Element {
   }
 
   if (loading) {
-    return <div className="text-xs text-gray-500 text-center py-4">Loading tables...</div>
+    return <div className="text-xs text-gray-500 text-center py-4">{t('game.tablesPanel.loading')}</div>
   }
 
   if (error) {
@@ -152,7 +154,7 @@ export default function TablesPanel(): JSX.Element {
   }
 
   if (tables.length === 0) {
-    return <div className="text-xs text-gray-500 text-center py-4">No tables found</div>
+    return <div className="text-xs text-gray-500 text-center py-4">{t('game.tablesPanel.noTablesFound')}</div>
   }
 
   return (
@@ -165,14 +167,22 @@ export default function TablesPanel(): JSX.Element {
               onClick={() => rollOnTable(table)}
               className="px-2 py-1 text-xs font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer"
             >
-              Roll
+              {t('game.tablesPanel.roll')}
             </button>
           </div>
           <div className="text-xs text-gray-400">
-            {table.type === 'array' && <span>{(table.data as unknown[]).length} entries</span>}
-            {table.type === 'diceTable' && <span>Dice table ({(table.data as { die: string }).die})</span>}
+            {table.type === 'array' && (
+              <span>{t('game.tablesPanel.entries', { count: (table.data as unknown[]).length })}</span>
+            )}
+            {table.type === 'diceTable' && (
+              <span>{t('game.tablesPanel.diceTable', { die: (table.data as { die: string }).die })}</span>
+            )}
             {table.type === 'nested' && (
-              <span>Nested table ({Object.keys(table.data as Record<string, unknown>).length} categories)</span>
+              <span>
+                {t('game.tablesPanel.nestedTable', {
+                  count: Object.keys(table.data as Record<string, unknown>).length
+                })}
+              </span>
             )}
           </div>
         </div>

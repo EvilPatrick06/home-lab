@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useCharacterEditor } from '../../../hooks/use-character-editor'
+import { useT } from '../../../i18n'
 import { getEffectiveArmor, getEffectiveClasses } from '../../../services/character/effective-character-5e'
 import { useCharacterStore } from '../../../stores/use-character-store'
 import type { Character } from '../../../types/character'
@@ -17,6 +18,7 @@ interface ArmorManager5eProps {
 }
 
 export default function ArmorManager5e({ character, readonly }: ArmorManager5eProps): JSX.Element {
+  const { t } = useT()
   const { getLatest, saveAndBroadcast } = useCharacterEditor(character.id)
   const toggleArmorEquipped = useCharacterStore((s) => s.toggleArmorEquipped)
   const [showAddArmor, setShowAddArmor] = useState(false)
@@ -71,7 +73,12 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
         const rates = { pp: 1000, gp: 100, sp: 10, cp: 1 } as const
         const costCp = cost.amount * rates[cost.currency]
         setBuyWarning(
-          `Not enough funds (need ${cost.amount} ${cost.currency.toUpperCase()} = ${costCp} cp, have ${totalCp} cp total)`
+          t('sheet.armorManager.notEnoughFunds', {
+            amount: cost.amount,
+            currency: cost.currency.toUpperCase(),
+            costCp,
+            totalCp
+          })
         )
         if (warningTimerRef.current) clearTimeout(warningTimerRef.current)
         warningTimerRef.current = setTimeout(() => setBuyWarning(null), 4000)
@@ -169,7 +176,7 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
         }
         const newCurrency = deductWithConversion(currentCurrency, cost)
         if (!newCurrency) {
-          setCustomCostError('Not enough funds')
+          setCustomCostError(t('sheet.armorManager.notEnoughFundsShort'))
           if (costErrorTimerRef.current) clearTimeout(costErrorTimerRef.current)
           costErrorTimerRef.current = setTimeout(() => setCustomCostError(null), 3000)
           return
@@ -206,7 +213,7 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
       {/* AC Breakdown */}
       <div className="mb-3">
         <div className="flex items-center justify-between mb-2">
-          <div className="text-xs text-gray-500 uppercase tracking-wide">Armor Class</div>
+          <div className="text-xs text-gray-500 uppercase tracking-wide">{t('sheet.armorManager.armorClass')}</div>
           <div className="text-xl font-bold text-amber-400">{character.armorClass}</div>
         </div>
 
@@ -217,25 +224,27 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
               <span className="text-gray-400">+{equippedArmor.acBonus} AC</span>
             </div>
             {equippedArmor.category && (
-              <span className="text-xs text-gray-500 capitalize">{equippedArmor.category} armor</span>
+              <span className="text-xs text-gray-500 capitalize">
+                {t('sheet.armorManager.categoryArmor', { category: equippedArmor.category })}
+              </span>
             )}
             {equippedArmor.stealthDisadvantage && (
-              <span className="text-xs text-yellow-500 ml-2">Stealth disadvantage</span>
+              <span className="text-xs text-yellow-500 ml-2">{t('sheet.armorManager.stealthDisadvantage')}</span>
             )}
           </div>
         ) : (
           <div className="text-sm text-gray-500 mb-2">
             {(() => {
               const cNames = classes.map((c) => c.name.toLowerCase())
-              if (cNames.includes('barbarian')) return 'Unarmored Defense (10 + DEX + CON)'
-              if (cNames.includes('monk') && !equippedShield) return 'Unarmored Defense (10 + DEX + WIS)'
+              if (cNames.includes('barbarian')) return t('sheet.armorManager.unarmoredDefenseCon')
+              if (cNames.includes('monk') && !equippedShield) return t('sheet.armorManager.unarmoredDefenseWis')
               const isDracSorc = classes.some(
                 (c) =>
                   c.name.toLowerCase() === 'sorcerer' &&
                   c.subclass?.toLowerCase().replace(/\s+/g, '-') === 'draconic-sorcery'
               )
-              if (isDracSorc) return 'Draconic Resilience (10 + DEX + CHA)'
-              return 'Unarmored (10 + DEX)'
+              if (isDracSorc) return t('sheet.armorManager.draconicResilience')
+              return t('sheet.armorManager.unarmored')
             })()}
           </div>
         )}
@@ -244,7 +253,9 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
           <div className="bg-gray-800/50 rounded p-2 text-sm">
             <div className="flex justify-between">
               <span className="text-gray-300 font-medium">{equippedShield.name}</span>
-              <span className="text-amber-400 font-semibold">Shield: +{equippedShield.acBonus} AC</span>
+              <span className="text-amber-400 font-semibold">
+                {t('sheet.armorManager.shieldAc', { bonus: equippedShield.acBonus })}
+              </span>
             </div>
           </div>
         )}
@@ -253,7 +264,9 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
       {/* All armor items with equip toggle */}
       {armor.length > 0 && (
         <div className="mb-3">
-          <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Armor Inventory</div>
+          <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">
+            {t('sheet.armorManager.armorInventory')}
+          </div>
           <div className="space-y-1">
             {armor.map((a) => (
               <div key={a.id} className="flex items-center justify-between bg-gray-800/50 rounded px-2 py-1 text-sm">
@@ -264,19 +277,19 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
                       className={`w-4 h-4 rounded border cursor-pointer transition-colors ${
                         a.equipped ? 'bg-amber-500 border-amber-400' : 'border-gray-600 hover:border-gray-400'
                       }`}
-                      title={a.equipped ? 'Unequip' : 'Equip'}
+                      title={a.equipped ? t('sheet.armorManager.unequip') : t('sheet.armorManager.equip')}
                     />
                   )}
                   <span className={a.equipped ? 'text-gray-200' : 'text-gray-500'}>{a.name}</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-gray-400">
-                  <span>+{a.acBonus} AC</span>
+                  <span>{t('sheet.armorManager.acBonus', { bonus: a.acBonus })}</span>
                   <span className="capitalize">{a.type}</span>
                   {!readonly && (
                     <button
                       onClick={() => handleSellArmor(a.id)}
                       className="text-gray-600 hover:text-green-400 cursor-pointer"
-                      title="Sell (half price)"
+                      title={t('sheet.armorManager.sellHalfPrice')}
                     >
                       &#x24;
                     </button>
@@ -285,7 +298,7 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
                     <button
                       onClick={() => handleRemoveArmor(a.id)}
                       className="text-gray-600 hover:text-red-400 cursor-pointer ml-1"
-                      title="Remove armor"
+                      title={t('sheet.armorManager.removeArmor')}
                     >
                       &#x2715;
                     </button>
@@ -304,13 +317,13 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
             onClick={() => setShowCustomArmor(true)}
             className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer"
           >
-            + Custom
+            {t('sheet.armorManager.addCustom')}
           </button>
           <button
             onClick={() => setShowAddArmor(true)}
             className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer"
           >
-            + Shop
+            {t('sheet.armorManager.addShop')}
           </button>
         </div>
       )}
@@ -319,7 +332,7 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
       {!readonly && showAddArmor && (
         <div className="mb-3">
           <div className="bg-gray-800/50 rounded p-3 space-y-2">
-            <div className="text-xs text-gray-400 font-medium mb-1">Armor Shop</div>
+            <div className="text-xs text-gray-400 font-medium mb-1">{t('sheet.armorManager.armorShop')}</div>
             <select
               value={selectedArmorIdx}
               onChange={(e) => {
@@ -328,10 +341,10 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
               }}
               className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1.5 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
             >
-              <option value={-1}>-- Select armor --</option>
+              <option value={-1}>{t('sheet.armorManager.selectArmor')}</option>
               {armorDatabase.map((item, idx) => (
                 <option key={idx} value={idx}>
-                  {item.name} ({item.cost || 'free'})
+                  {item.name} ({item.cost || t('sheet.armorManager.free')})
                 </option>
               ))}
             </select>
@@ -351,7 +364,7 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
                 disabled={selectedArmorIdx < 0}
                 className="px-3 py-1 text-xs bg-amber-600 hover:bg-amber-500 disabled:opacity-50 disabled:cursor-not-allowed rounded text-white cursor-pointer"
               >
-                Buy
+                {t('sheet.armorManager.buy')}
               </button>
               <button
                 onClick={() => {
@@ -361,7 +374,7 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
                 }}
                 className="px-3 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded text-gray-300 cursor-pointer"
               >
-                Cancel
+                {t('common.actions.cancel')}
               </button>
             </div>
           </div>
@@ -372,18 +385,18 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
       {!readonly && showCustomArmor && (
         <div className="mb-3">
           <div className="bg-gray-800/50 rounded p-3 space-y-2">
-            <div className="text-xs text-gray-400 font-medium mb-1">Custom Armor</div>
+            <div className="text-xs text-gray-400 font-medium mb-1">{t('sheet.armorManager.customArmor')}</div>
             <div className="flex gap-2">
               <input
                 type="text"
-                placeholder="Name"
+                placeholder={t('sheet.armorManager.namePlaceholder')}
                 value={customForm.name}
                 onChange={(e) => setCustomForm((f) => ({ ...f, name: e.target.value }))}
                 className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
               />
               <input
                 type="number"
-                placeholder="AC Bonus"
+                placeholder={t('sheet.armorManager.acBonusPlaceholder')}
                 value={customForm.acBonus}
                 onChange={(e) => setCustomForm((f) => ({ ...f, acBonus: e.target.value }))}
                 className="w-24 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
@@ -397,20 +410,20 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
                 }
                 className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
               >
-                <option value="armor">Armor</option>
-                <option value="shield">Shield</option>
-                <option value="clothing">Clothing/Wearable</option>
+                <option value="armor">{t('sheet.armorManager.typeArmor')}</option>
+                <option value="shield">{t('sheet.armorManager.typeShield')}</option>
+                <option value="clothing">{t('sheet.armorManager.typeClothing')}</option>
               </select>
               <input
                 type="text"
-                placeholder="Category (e.g. heavy)"
+                placeholder={t('sheet.armorManager.categoryPlaceholder')}
                 value={customForm.category}
                 onChange={(e) => setCustomForm((f) => ({ ...f, category: e.target.value }))}
                 className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
               />
               <input
                 type="text"
-                placeholder="Cost (e.g. 50 gp)"
+                placeholder={t('sheet.armorManager.costPlaceholder')}
                 value={customForm.cost}
                 onChange={(e) => {
                   setCustomForm((f) => ({ ...f, cost: e.target.value }))
@@ -426,7 +439,7 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
                 disabled={!customForm.name.trim()}
                 className="px-3 py-1 text-xs bg-amber-600 hover:bg-amber-500 disabled:opacity-50 disabled:cursor-not-allowed rounded text-white cursor-pointer"
               >
-                Add
+                {t('sheet.armorManager.add')}
               </button>
               <button
                 onClick={() => {
@@ -435,7 +448,7 @@ export default function ArmorManager5e({ character, readonly }: ArmorManager5ePr
                 }}
                 className="px-3 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded text-gray-300 cursor-pointer"
               >
-                Cancel
+                {t('common.actions.cancel')}
               </button>
             </div>
           </div>

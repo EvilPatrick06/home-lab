@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 import { useNetworkStore } from '../../../../stores/network-store'
 import { useGameStore } from '../../../../stores/use-game-store'
 
@@ -8,6 +9,7 @@ interface TimerModalProps {
 }
 
 export default function TimerModal({ onClose }: TimerModalProps): JSX.Element {
+  const { t } = useT()
   useEscapeKey(onClose)
   const [seconds, setSeconds] = useState(60)
   const [targetName, setTargetName] = useState('')
@@ -15,15 +17,16 @@ export default function TimerModal({ onClose }: TimerModalProps): JSX.Element {
   const sendMessage = useNetworkStore((s) => s.sendMessage)
 
   const PRESETS = [
-    { label: '30s', value: 30 },
-    { label: '1m', value: 60 },
-    { label: '2m', value: 120 },
-    { label: '5m', value: 300 }
+    { label: t('game.timerModal.preset30s'), value: 30 },
+    { label: t('game.timerModal.preset1m'), value: 60 },
+    { label: t('game.timerModal.preset2m'), value: 120 },
+    { label: t('game.timerModal.preset5m'), value: 300 }
   ]
 
   const handleStart = (): void => {
-    startTimer(seconds, targetName || 'Turn Timer')
-    sendMessage('dm:timer-start', { seconds, targetName: targetName || 'Turn Timer' })
+    const label = targetName || t('game.timerModal.title')
+    startTimer(seconds, label)
+    sendMessage('dm:timer-start', { seconds, targetName: label })
     onClose()
   }
 
@@ -32,11 +35,11 @@ export default function TimerModal({ onClose }: TimerModalProps): JSX.Element {
       <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-xs w-full mx-4 shadow-2xl">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-gray-200">Turn Timer</h3>
+          <h3 className="text-sm font-semibold text-gray-200">{t('game.timerModal.title')}</h3>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-300 text-lg cursor-pointer"
-            aria-label="Close"
+            aria-label={t('common.actions.close')}
           >
             &times;
           </button>
@@ -44,18 +47,18 @@ export default function TimerModal({ onClose }: TimerModalProps): JSX.Element {
 
         <div className="space-y-3">
           <div>
-            <label className="text-xs text-gray-400 block mb-1">Target</label>
+            <label className="text-xs text-gray-400 block mb-1">{t('game.timerModal.target')}</label>
             <input
               type="text"
               value={targetName}
               onChange={(e) => setTargetName(e.target.value)}
-              placeholder="e.g. Player's turn"
+              placeholder={t('game.timerModal.targetPlaceholder')}
               className="w-full px-2 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-100 text-xs focus:outline-none focus:border-amber-500"
             />
           </div>
 
           <div>
-            <label className="text-xs text-gray-400 block mb-1">Duration</label>
+            <label className="text-xs text-gray-400 block mb-1">{t('game.timerModal.duration')}</label>
             <div className="flex gap-1 mb-2">
               {PRESETS.map((p) => (
                 <button
@@ -78,7 +81,7 @@ export default function TimerModal({ onClose }: TimerModalProps): JSX.Element {
               min={1}
               className="w-full px-2 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-100 text-xs focus:outline-none focus:border-amber-500"
             />
-            <span className="text-xs text-gray-500">seconds</span>
+            <span className="text-xs text-gray-500">{t('game.timerModal.seconds')}</span>
           </div>
 
           <button
@@ -86,7 +89,7 @@ export default function TimerModal({ onClose }: TimerModalProps): JSX.Element {
             className="w-full py-2 text-xs font-semibold rounded-lg bg-amber-600 hover:bg-amber-500 text-white
               transition-colors cursor-pointer"
           >
-            Start Timer
+            {t('game.timerModal.start')}
           </button>
         </div>
       </div>

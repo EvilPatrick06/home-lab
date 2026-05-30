@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { CONDITIONS_5E } from '../../../../data/conditions'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 import { getTokenStats } from '../../../../services/game/token-stats'
 import { useGameStore } from '../../../../stores/use-game-store'
 import { useLobbyStore } from '../../../../stores/use-lobby-store'
@@ -14,6 +15,7 @@ export default function QuickConditionModal({
   onClose,
   preselectedEntities = []
 }: QuickConditionModalProps): JSX.Element {
+  const { t } = useT()
   useEscapeKey(onClose)
   const conditions = useGameStore((s) => s.conditions)
   const initiative = useGameStore((s) => s.initiative)
@@ -78,7 +80,7 @@ export default function QuickConditionModal({
             id: crypto.randomUUID(),
             senderId: 'system',
             senderName: 'System',
-            content: `${entity.name} is flying and gained ${selectedCondition} — they fall!`,
+            content: t('game.quickConditionModal.flyingFall', { name: entity.name, condition: selectedCondition }),
             timestamp: Date.now(),
             isSystem: true
           })
@@ -98,11 +100,11 @@ export default function QuickConditionModal({
       <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-md w-full mx-4 shadow-2xl">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-gray-200">Quick Conditions</h3>
+          <h3 className="text-sm font-semibold text-gray-200">{t('game.quickConditionModal.title')}</h3>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-300 text-lg cursor-pointer"
-            aria-label="Close"
+            aria-label={t('common.actions.close')}
           >
             &times;
           </button>
@@ -137,7 +139,7 @@ export default function QuickConditionModal({
             onChange={(e) => setSelectedCondition(e.target.value)}
             className="flex-1 px-2 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-200 text-xs focus:outline-none focus:border-amber-500"
           >
-            <option value="">Condition...</option>
+            <option value="">{t('game.quickConditionModal.conditionPlaceholder')}</option>
             {CONDITIONS_5E.map((c) => (
               <option key={c.name} value={c.name}>
                 {c.name}
@@ -146,7 +148,9 @@ export default function QuickConditionModal({
           </select>
           {needsValue && (
             <div className="flex items-center gap-2">
-              <label className="text-xs text-gray-400 whitespace-nowrap">Exhaustion Level:</label>
+              <label className="text-xs text-gray-400 whitespace-nowrap">
+                {t('game.quickConditionModal.exhaustionLevel')}
+              </label>
               <input
                 type="number"
                 min={1}
@@ -155,18 +159,20 @@ export default function QuickConditionModal({
                 onChange={(e) => setExhaustionLevel(Math.min(6, Math.max(1, parseInt(e.target.value, 10) || 1)))}
                 className="w-16 px-2 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-200 text-xs focus:outline-none focus:border-amber-500"
               />
-              {exhaustionLevel >= 6 && <span className="text-xs text-red-400 font-semibold">Fatal!</span>}
+              {exhaustionLevel >= 6 && (
+                <span className="text-xs text-red-400 font-semibold">{t('game.quickConditionModal.fatal')}</span>
+              )}
             </div>
           )}
           {needsSource && (
             <div className="flex items-center gap-2">
-              <label className="text-xs text-gray-400 whitespace-nowrap">Source:</label>
+              <label className="text-xs text-gray-400 whitespace-nowrap">{t('game.quickConditionModal.source')}</label>
               <select
                 value={sourceEntityId}
                 onChange={(e) => setSourceEntityId(e.target.value)}
                 className="flex-1 px-2 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-200 text-xs focus:outline-none focus:border-amber-500"
               >
-                <option value="">No source...</option>
+                <option value="">{t('game.quickConditionModal.noSource')}</option>
                 {entities
                   .filter((e) => !selectedEntities.includes(e.id))
                   .map((e) => (
@@ -183,12 +189,12 @@ export default function QuickConditionModal({
               onChange={(e) => setDuration(e.target.value)}
               className="flex-1 px-2 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-200 text-xs focus:outline-none focus:border-amber-500"
             >
-              <option value="1">1 round</option>
-              <option value="2">2 rounds</option>
-              <option value="3">3 rounds</option>
-              <option value="5">5 rounds</option>
-              <option value="10">10 rounds</option>
-              <option value="permanent">Permanent</option>
+              <option value="1">{t('game.quickConditionModal.duration1')}</option>
+              <option value="2">{t('game.quickConditionModal.duration2')}</option>
+              <option value="3">{t('game.quickConditionModal.duration3')}</option>
+              <option value="5">{t('game.quickConditionModal.duration5')}</option>
+              <option value="10">{t('game.quickConditionModal.duration10')}</option>
+              <option value="permanent">{t('game.quickConditionModal.durationPermanent')}</option>
             </select>
             <button
               onClick={handleApply}
@@ -196,17 +202,19 @@ export default function QuickConditionModal({
               className="px-4 py-1.5 text-xs font-semibold rounded-lg bg-amber-600 hover:bg-amber-500 text-white
                 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Apply to {selectedEntities.length} {selectedEntities.length === 1 ? 'Entity' : 'Entities'}
+              {t('game.quickConditionModal.applyTo', { count: selectedEntities.length })}
             </button>
           </div>
         </div>
 
         {/* Active conditions */}
         <div className="border-t border-gray-800 pt-3">
-          <span className="text-xs text-gray-500 uppercase tracking-wider">Active Conditions</span>
+          <span className="text-xs text-gray-500 uppercase tracking-wider">
+            {t('game.quickConditionModal.activeConditions')}
+          </span>
           <div className="mt-2 space-y-1 max-h-40 overflow-y-auto">
             {conditions.length === 0 ? (
-              <p className="text-xs text-gray-500 text-center py-2">None</p>
+              <p className="text-xs text-gray-500 text-center py-2">{t('game.quickConditionModal.none')}</p>
             ) : (
               conditions.map((c) => (
                 <div key={c.id} className="flex items-center justify-between px-2 py-1.5 bg-gray-800/50 rounded">
@@ -218,11 +226,15 @@ export default function QuickConditionModal({
                     </span>
                     {c.sourceEntityId && (
                       <span className="text-[9px] text-amber-400 ml-1">
-                        from {entities.find((e) => e.id === c.sourceEntityId)?.name ?? 'unknown'}
+                        {t('game.quickConditionModal.fromSource', {
+                          name:
+                            entities.find((e) => e.id === c.sourceEntityId)?.name ??
+                            t('game.quickConditionModal.unknown')
+                        })}
                       </span>
                     )}
                     <span className="text-[9px] text-gray-500 ml-1">
-                      ({c.duration === 'permanent' ? 'Perm' : `${c.duration}r`})
+                      ({c.duration === 'permanent' ? t('game.quickConditionModal.perm') : `${c.duration}r`})
                     </span>
                   </div>
                   <button

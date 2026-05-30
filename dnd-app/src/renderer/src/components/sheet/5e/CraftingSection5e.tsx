@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useCharacterEditor } from '../../../hooks/use-character-editor'
 import { useEquipmentData } from '../../../hooks/use-equipment-data'
+import { useT } from '../../../i18n'
 import {
   getEffectiveArmor,
   getEffectiveKnownSpells,
@@ -156,6 +157,7 @@ interface CraftingSection5eProps {
 }
 
 export default function CraftingSection5e({ character, readonly }: CraftingSection5eProps): JSX.Element {
+  const { t } = useT()
   const { getLatest, saveAndBroadcast } = useCharacterEditor(character.id)
   const craftingData = useCraftingData()
   const equipmentDb = useEquipmentDatabase()
@@ -202,14 +204,14 @@ export default function CraftingSection5e({ character, readonly }: CraftingSecti
     const totalAvailable = totalInCopper(currentCurrency)
 
     if (totalAvailable < costInCopper) {
-      setCraftWarning(`Not enough funds for Spell Scroll of ${spell.name} (${scrollInfo.cost} GP)`)
+      setCraftWarning(t('sheet.crafting.notEnoughFundsScrollCost', { name: spell.name, cost: scrollInfo.cost }))
       setTimeout(() => setCraftWarning(null), 4000)
       return
     }
 
     const newCurrency = deductWithConversion(currentCurrency, { amount: scrollInfo.cost, currency: 'gp' })
     if (!newCurrency) {
-      setCraftWarning(`Not enough funds for Spell Scroll of ${spell.name}`)
+      setCraftWarning(t('sheet.crafting.notEnoughFundsScroll', { name: spell.name }))
       setTimeout(() => setCraftWarning(null), 4000)
       return
     }
@@ -228,7 +230,7 @@ export default function CraftingSection5e({ character, readonly }: CraftingSecti
     saveAndBroadcast(updated)
 
     setCraftWarning(null)
-    setCraftSuccess(`Crafted ${scrollName} successfully`)
+    setCraftSuccess(t('sheet.crafting.craftedSuccess', { name: scrollName }))
     setTimeout(() => setCraftSuccess(null), 3000)
   }
 
@@ -245,7 +247,7 @@ export default function CraftingSection5e({ character, readonly }: CraftingSecti
     const totalAvailable = totalInCopper(currentCurrency)
 
     if (totalAvailable < costInCopper) {
-      setCraftWarning(`Not enough funds for ${item.name} raw materials`)
+      setCraftWarning(t('sheet.crafting.notEnoughFundsRawMaterials', { name: item.name }))
       setTimeout(() => setCraftWarning(null), 4000)
       return
     }
@@ -265,7 +267,7 @@ export default function CraftingSection5e({ character, readonly }: CraftingSecti
       currency: deductDenom
     })
     if (!newCurrency) {
-      setCraftWarning(`Not enough funds for ${item.name} raw materials`)
+      setCraftWarning(t('sheet.crafting.notEnoughFundsRawMaterials', { name: item.name }))
       setTimeout(() => setCraftWarning(null), 4000)
       return
     }
@@ -344,22 +346,20 @@ export default function CraftingSection5e({ character, readonly }: CraftingSecti
     }
 
     setCraftWarning(null)
-    setCraftSuccess(`Crafted ${item.name} successfully`)
+    setCraftSuccess(t('sheet.crafting.craftedSuccess', { name: item.name }))
     setTimeout(() => setCraftSuccess(null), 3000)
   }
 
   if (matchingTools.length === 0 && !canCraftScrolls) {
     return (
-      <SheetSectionWrapper title="Crafting" defaultOpen={false}>
-        <p className="text-sm text-gray-500">
-          No tool proficiencies. Learn a tool proficiency to unlock crafting recipes.
-        </p>
+      <SheetSectionWrapper title={t('sheet.crafting.title')} defaultOpen={false}>
+        <p className="text-sm text-gray-500">{t('sheet.crafting.noToolProficiencies')}</p>
       </SheetSectionWrapper>
     )
   }
 
   return (
-    <SheetSectionWrapper title="Crafting" defaultOpen={false}>
+    <SheetSectionWrapper title={t('sheet.crafting.title')} defaultOpen={false}>
       {/* Notifications */}
       {craftWarning && (
         <div className="text-xs text-red-400 bg-red-500/10 border border-red-500/30 rounded px-2 py-1 mb-2">

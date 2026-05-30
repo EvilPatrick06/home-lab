@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useT } from '../../../i18n'
 import { formatPrerequisites, load5eFeats } from '../../../services/data-provider'
 import { useBuilderStore } from '../../../stores/use-builder-store'
 import type { Character5e } from '../../../types/character-5e'
@@ -8,6 +9,7 @@ import type { FeatData } from '../../../types/data'
 import { meetsFeatPrerequisites } from '../../../utils/feat-prerequisites'
 
 export default function AsiModal(): JSX.Element {
+  const { t } = useT()
   const abilityScores = useBuilderStore((s) => s.abilityScores)
   const activeAsiSlotId = useBuilderStore((s) => s.activeAsiSlotId)
   const confirmAsi = useBuilderStore((s) => s.confirmAsi)
@@ -149,8 +151,12 @@ export default function AsiModal(): JSX.Element {
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">
         <h2 className="text-lg font-bold text-gray-100">
-          Ability Score Improvement
-          {asiSlot && <span className="text-sm font-normal text-gray-500 ml-2">(Level {asiSlot.level})</span>}
+          {t('builder.asiModal.title')}
+          {asiSlot && (
+            <span className="text-sm font-normal text-gray-500 ml-2">
+              {t('builder.asiModal.levelSuffix', { lvl: asiSlot.level })}
+            </span>
+          )}
         </h2>
         <button onClick={closeCustomModal} className="text-gray-400 hover:text-gray-200 text-xl leading-none px-2">
           &#x2715;
@@ -166,7 +172,7 @@ export default function AsiModal(): JSX.Element {
               tab === 'asi' ? 'text-amber-300 border-b-2 border-amber-400' : 'text-gray-500 hover:text-gray-300'
             }`}
           >
-            Ability Score Improvement
+            {t('builder.asiModal.tabAsi')}
           </button>
           <button
             onClick={() => setTab('feat')}
@@ -174,7 +180,7 @@ export default function AsiModal(): JSX.Element {
               tab === 'feat' ? 'text-amber-300 border-b-2 border-amber-400' : 'text-gray-500 hover:text-gray-300'
             }`}
           >
-            Feat
+            {t('builder.asiModal.tabFeat')}
           </button>
         </div>
       )}
@@ -183,9 +189,7 @@ export default function AsiModal(): JSX.Element {
       <div className="flex-1 overflow-y-auto p-6">
         {tab === 'asi' ? (
           <>
-            <p className="text-sm text-gray-400 mb-4">
-              Choose to increase one ability score by 2, or two ability scores by 1 each. Scores cannot exceed 20.
-            </p>
+            <p className="text-sm text-gray-400 mb-4">{t('builder.asiModal.asiInstruction')}</p>
 
             {/* Mode selector */}
             <div className="flex gap-2 mb-4">
@@ -200,7 +204,7 @@ export default function AsiModal(): JSX.Element {
                     : 'bg-gray-800 border-gray-700 text-gray-400 hover:text-gray-200'
                 }`}
               >
-                +2 to One
+                {t('builder.asiModal.plus2ToOne')}
               </button>
               <button
                 onClick={() => {
@@ -213,7 +217,7 @@ export default function AsiModal(): JSX.Element {
                     : 'bg-gray-800 border-gray-700 text-gray-400 hover:text-gray-200'
                 }`}
               >
-                +1 to Two
+                {t('builder.asiModal.plus1ToTwo')}
               </button>
             </div>
 
@@ -257,13 +261,10 @@ export default function AsiModal(): JSX.Element {
           </>
         ) : (
           <>
-            <p className="text-sm text-gray-400 mb-3">
-              Choose a General feat instead of an Ability Score Improvement. Feats with unmet prerequisites are
-              disabled.
-            </p>
+            <p className="text-sm text-gray-400 mb-3">{t('builder.asiModal.featInstruction')}</p>
             <input
               type="text"
-              placeholder="Search feats..."
+              placeholder={t('builder.asiModal.searchFeats')}
               value={featSearch}
               onChange={(e) => setFeatSearch(e.target.value)}
               className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm text-gray-100 mb-3 focus:outline-none focus:border-amber-500"
@@ -297,7 +298,9 @@ export default function AsiModal(): JSX.Element {
                     </div>
                     {!meetsPrereqs && formatPrerequisites(feat.prerequisites).length > 0 && (
                       <div className="text-xs text-red-400 mt-0.5">
-                        Requires: {formatPrerequisites(feat.prerequisites).join(', ')}
+                        {t('builder.asiModal.requires', {
+                          prerequisites: formatPrerequisites(feat.prerequisites).join(', ')
+                        })}
                       </div>
                     )}
                     {meetsPrereqs && (
@@ -309,12 +312,10 @@ export default function AsiModal(): JSX.Element {
                 )
               })}
               {allFeats.length === 0 && !featsLoadError && (
-                <p className="text-xs text-gray-500 text-center py-4">Loading feats...</p>
+                <p className="text-xs text-gray-500 text-center py-4">{t('builder.asiModal.loadingFeats')}</p>
               )}
               {featsLoadError && (
-                <p className="text-xs text-red-400 text-center py-4">
-                  Failed to load feats. Please close and reopen this panel.
-                </p>
+                <p className="text-xs text-red-400 text-center py-4">{t('builder.asiModal.featsLoadError')}</p>
               )}
             </div>
           </>
@@ -326,18 +327,18 @@ export default function AsiModal(): JSX.Element {
         <span className="text-xs text-gray-500">
           {tab === 'asi'
             ? mode === '+2'
-              ? 'Increase one ability by 2'
-              : 'Increase two abilities by 1 each'
+              ? t('builder.asiModal.statusIncreaseOne')
+              : t('builder.asiModal.statusIncreaseTwo')
             : chosenFeat
-              ? `Selected: ${chosenFeat.name}`
-              : 'Choose a feat'}
+              ? t('builder.asiModal.statusSelected', { feat: chosenFeat.name })
+              : t('builder.asiModal.statusChooseFeat')}
         </span>
         <div className="flex gap-2">
           <button
             onClick={closeCustomModal}
             className="px-4 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 rounded transition-colors"
           >
-            Cancel
+            {t('common.actions.cancel')}
           </button>
           {isAlreadyConfirmed ? (
             <button
@@ -349,7 +350,7 @@ export default function AsiModal(): JSX.Element {
               }}
               className="px-4 py-2 text-sm font-medium rounded transition-colors bg-red-700 hover:bg-red-600 text-white"
             >
-              Reset & Re-choose
+              {t('builder.asiModal.resetRechoose')}
             </button>
           ) : tab === 'asi' ? (
             <button
@@ -357,7 +358,7 @@ export default function AsiModal(): JSX.Element {
               disabled={!canConfirmAsi}
               className="px-4 py-2 text-sm font-medium rounded transition-colors bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white"
             >
-              Confirm ASI
+              {t('builder.asiModal.confirmAsi')}
             </button>
           ) : (
             <button
@@ -365,7 +366,7 @@ export default function AsiModal(): JSX.Element {
               disabled={!chosenFeat}
               className="px-4 py-2 text-sm font-medium rounded transition-colors bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white"
             >
-              Confirm Feat
+              {t('builder.asiModal.confirmFeat')}
             </button>
           )}
         </div>

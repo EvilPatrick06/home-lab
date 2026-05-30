@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useT } from '../../../i18n'
 import { getEligibleClasses, getMulticlassWarnings } from '../../../services/character/multiclass-advisor'
 import { load5eClasses } from '../../../services/data-provider'
 import { useLibraryCategory } from '../../../services/library/use-library-entry'
@@ -12,6 +13,7 @@ interface ClassOption {
 }
 
 export default function MulticlassLevelBar5e(): JSX.Element {
+  const { t } = useT()
   const buildSlots = useBuilderStore((s) => s.buildSlots)
   const targetLevel = useBuilderStore((s) => s.targetLevel)
   const classLevelChoices = useBuilderStore((s) => s.classLevelChoices)
@@ -68,7 +70,9 @@ export default function MulticlassLevelBar5e(): JSX.Element {
 
   return (
     <div className="mt-3">
-      <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Class per Level</div>
+      <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">
+        {t('builder.multiclassBar.classPerLevel')}
+      </div>
       <div className="flex flex-wrap gap-1">
         {/* Level 1 is always the primary class */}
         <div className="flex items-center gap-1 bg-gray-800 rounded px-2 py-1">
@@ -91,7 +95,9 @@ export default function MulticlassLevelBar5e(): JSX.Element {
                 {classOptions.map((opt) => (
                   <option key={opt.id} value={opt.id} disabled={!opt.eligible && opt.id !== primaryClassId}>
                     {opt.name}
-                    {!opt.eligible && opt.id !== primaryClassId ? ` (Need ${opt.requirements})` : ''}
+                    {!opt.eligible && opt.id !== primaryClassId
+                      ? t('builder.multiclassBar.needRequirements', { requirements: opt.requirements })
+                      : ''}
                   </option>
                 ))}
               </select>

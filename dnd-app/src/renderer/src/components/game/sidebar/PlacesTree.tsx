@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useT } from '../../../i18n'
 import type { PlaceType, SidebarEntry } from '../../../types/game-state'
 
 const PLACE_TYPE_COLORS: Record<PlaceType, string> = {
@@ -14,17 +15,17 @@ const PLACE_TYPE_COLORS: Record<PlaceType, string> = {
   landmark: 'bg-cyan-900/60 text-cyan-300'
 }
 
-const PLACE_TYPE_LABELS: Record<PlaceType, string> = {
-  world: 'World',
-  continent: 'Continent',
-  kingdom: 'Kingdom',
-  province: 'Province',
-  city: 'City',
-  district: 'District',
-  building: 'Building',
-  room: 'Room',
-  dungeon: 'Dungeon',
-  landmark: 'Landmark'
+const PLACE_TYPE_LABEL_KEYS: Record<PlaceType, string> = {
+  world: 'game.placesTree.typeWorld',
+  continent: 'game.placesTree.typeContinent',
+  kingdom: 'game.placesTree.typeKingdom',
+  province: 'game.placesTree.typeProvince',
+  city: 'game.placesTree.typeCity',
+  district: 'game.placesTree.typeDistrict',
+  building: 'game.placesTree.typeBuilding',
+  room: 'game.placesTree.typeRoom',
+  dungeon: 'game.placesTree.typeDungeon',
+  landmark: 'game.placesTree.typeLandmark'
 }
 
 interface TreeNode {
@@ -109,6 +110,7 @@ function TreeNodeRow({
   onReadAloud,
   allEntries
 }: TreeNodeRowProps): JSX.Element {
+  const { t } = useT()
   const [expanded, setExpanded] = useState(true)
   const [moveMenuOpen, setMoveMenuOpen] = useState(false)
   const [readAloudMenuOpen, setReadAloudMenuOpen] = useState(false)
@@ -209,7 +211,7 @@ function TreeNodeRow({
           <span
             className={`text-[8px] px-1 py-0.5 rounded font-semibold uppercase tracking-wider shrink-0 ${PLACE_TYPE_COLORS[placeType]}`}
           >
-            {PLACE_TYPE_LABELS[placeType]}
+            {t(PLACE_TYPE_LABEL_KEYS[placeType])}
           </span>
         )}
 
@@ -220,7 +222,7 @@ function TreeNodeRow({
         {entry.linkedMapId && onGoToMap && (
           <button
             onClick={() => onGoToMap(entry.linkedMapId!)}
-            title="Go to linked map"
+            title={t('game.placesTree.goToLinkedMap')}
             className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-blue-400 cursor-pointer text-xs opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
           >
             &#x1F5FA;
@@ -235,7 +237,7 @@ function TreeNodeRow({
               <div className="relative">
                 <button
                   onClick={() => setReadAloudMenuOpen(!readAloudMenuOpen)}
-                  title="Read Aloud"
+                  title={t('game.placesTree.readAloud')}
                   className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-amber-400 cursor-pointer text-xs"
                 >
                   &#x1F4D6;
@@ -252,7 +254,7 @@ function TreeNodeRow({
                       }}
                       className="w-full px-3 py-1.5 text-left text-xs text-gray-300 hover:bg-gray-800 hover:text-gray-100 cursor-pointer"
                     >
-                      Send to Chat
+                      {t('game.placesTree.sendToChat')}
                     </button>
                     <button
                       onClick={() => {
@@ -261,7 +263,7 @@ function TreeNodeRow({
                       }}
                       className="w-full px-3 py-1.5 text-left text-xs text-amber-400 hover:bg-gray-800 hover:text-amber-300 cursor-pointer"
                     >
-                      Dramatic Reveal
+                      {t('game.placesTree.dramaticReveal')}
                     </button>
                   </div>
                 )}
@@ -272,7 +274,7 @@ function TreeNodeRow({
             <div className="relative">
               <button
                 onClick={() => setMoveMenuOpen(!moveMenuOpen)}
-                title="Move to..."
+                title={t('game.placesTree.moveTo')}
                 className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-amber-400 cursor-pointer text-xs"
               >
                 &#x21C5;
@@ -291,7 +293,7 @@ function TreeNodeRow({
                       !entry.parentId ? 'text-amber-400 font-semibold' : 'text-gray-300 hover:text-gray-100'
                     }`}
                   >
-                    (Root level)
+                    {t('game.placesTree.rootLevel')}
                   </button>
                   {moveTargets.map((target) => (
                     <button
@@ -308,7 +310,7 @@ function TreeNodeRow({
                     >
                       {target.placeType && (
                         <span className={`text-[7px] px-0.5 rounded mr-1 ${PLACE_TYPE_COLORS[target.placeType]}`}>
-                          {PLACE_TYPE_LABELS[target.placeType]}
+                          {t(PLACE_TYPE_LABEL_KEYS[target.placeType])}
                         </span>
                       )}
                       {target.name}
@@ -321,7 +323,7 @@ function TreeNodeRow({
             {/* Visibility toggle */}
             <button
               onClick={() => onToggleVisibility(entry.id)}
-              title={entry.visibleToPlayers ? 'Hide from players' : 'Show to players'}
+              title={entry.visibleToPlayers ? t('game.placesTree.hideFromPlayers') : t('game.placesTree.showToPlayers')}
               className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-gray-300 cursor-pointer text-xs"
             >
               {entry.visibleToPlayers ? '\u{1F441}' : '\u{1F441}\u{200D}\u{1F5E8}'}
@@ -330,7 +332,7 @@ function TreeNodeRow({
             {/* Edit */}
             <button
               onClick={() => onEdit(entry)}
-              title="Edit"
+              title={t('game.placesTree.edit')}
               className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-amber-400 cursor-pointer text-xs"
             >
               &#9998;
@@ -340,7 +342,7 @@ function TreeNodeRow({
             {!entry.isAutoPopulated && (
               <button
                 onClick={() => onRemove(entry.id)}
-                title="Delete"
+                title={t('common.actions.delete')}
                 className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-red-400 cursor-pointer text-xs"
               >
                 &#10005;
@@ -395,11 +397,12 @@ export default function PlacesTree({
   onGoToMap,
   onReadAloud
 }: PlacesTreeProps): JSX.Element {
+  const { t } = useT()
   const visibleEntries = isDM ? entries : entries.filter((e) => e.visibleToPlayers)
   const tree = buildTree(visibleEntries)
 
   if (tree.length === 0) {
-    return <p className="text-xs text-gray-500 text-center py-4">No places</p>
+    return <p className="text-xs text-gray-500 text-center py-4">{t('game.placesTree.noPlaces')}</p>
   }
 
   return (

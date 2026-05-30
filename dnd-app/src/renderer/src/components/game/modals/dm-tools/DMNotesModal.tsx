@@ -1,4 +1,5 @@
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 import { FloatingWindow } from '../../../ui'
 import { DMNotepad } from '../../dm'
 
@@ -11,13 +12,14 @@ interface DMNotesModalProps {
 }
 
 export default function DMNotesModal({ onClose, floating, onFloat }: DMNotesModalProps): JSX.Element {
+  const { t } = useT()
   // Phase 17e (GUI-8) — Escape closes the docked modal (not the floating window, which manages itself).
   useEscapeKey(onClose, !floating)
   if (floating) {
     return (
       <FloatingWindow
         storageKey="notes"
-        title="DM Notes"
+        title={t('game.dmNotesModal.title')}
         defaultPosition={{ x: 120, y: 100 }}
         defaultSize={{ width: 420, height: 460 }}
         resizable
@@ -33,22 +35,22 @@ export default function DMNotesModal({ onClose, floating, onFloat }: DMNotesModa
       <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-lg w-full mx-4 shadow-2xl max-h-[70vh] flex flex-col">
         <div className="flex items-center justify-between mb-3 shrink-0">
-          <h3 className="text-sm font-semibold text-gray-200">DM Notes</h3>
+          <h3 className="text-sm font-semibold text-gray-200">{t('game.dmNotesModal.title')}</h3>
           <div className="flex items-center gap-2">
             {onFloat && (
               <button
                 onClick={onFloat}
                 className="text-gray-500 hover:text-amber-300 text-xs cursor-pointer"
-                title="Float this panel (keeps the map interactive)"
-                aria-label="Float panel"
+                title={t('game.dmNotesModal.floatTitle')}
+                aria-label={t('game.dmNotesModal.floatAria')}
               >
-                ⇱ Float
+                {t('game.dmNotesModal.float')}
               </button>
             )}
             <button
               onClick={onClose}
               className="text-gray-500 hover:text-gray-300 text-lg cursor-pointer"
-              aria-label="Close"
+              aria-label={t('common.actions.close')}
             >
               &times;
             </button>

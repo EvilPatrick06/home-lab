@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 import { getEffectiveFeats, getEffectiveWeapons } from '../../../../services/character/effective-character-5e'
 import {
   type CoverType,
@@ -70,6 +71,7 @@ export default function AttackModal({
   onApplyDamage,
   onBroadcastResult
 }: AttackModalProps): JSX.Element {
+  const { t } = useT()
   const [step, setStep] = useState<Step>('weapon')
   const [selectedWeaponIndex, setSelectedWeaponIndex] = useState<number | null>(null)
   const [selectedTargetId, setSelectedTargetId] = useState<string | null>(null)
@@ -98,9 +100,9 @@ export default function AttackModal({
       <div className="fixed inset-0 z-30 flex items-center justify-center">
         <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
         <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-6 text-center">
-          <p className="text-gray-400">No character selected</p>
+          <p className="text-gray-400">{t('game.attackModal.noCharacter')}</p>
           <button onClick={onClose} className="mt-3 px-4 py-1 text-sm bg-gray-700 rounded cursor-pointer">
-            Close
+            {t('common.actions.close')}
           </button>
         </div>
       </div>
@@ -249,23 +251,23 @@ export default function AttackModal({
       const longRange = parseInt(longStr, 10) || normalRange * 4
       const range = checkRangedRange(attackerToken, token, normalRange, longRange)
       if (range === 'out-of-range') {
-        rangeStatus = 'Out of range'
+        rangeStatus = t('game.attackModal.rangeOutOfRange')
         rangeColor = 'text-red-400'
       } else if (range === 'long') {
         if (useGameStore.getState().underwaterCombat) {
-          rangeStatus = 'Out of range (underwater)'
+          rangeStatus = t('game.attackModal.rangeOutOfRangeUnderwater')
           rangeColor = 'text-red-400'
         } else {
-          rangeStatus = 'Long range (Disadvantage)'
+          rangeStatus = t('game.attackModal.rangeLong')
           rangeColor = 'text-yellow-400'
         }
       } else {
-        rangeStatus = 'In range'
+        rangeStatus = t('game.attackModal.rangeInRange')
         rangeColor = 'text-green-400'
       }
     } else if (attackerToken && !selectedWeapon?.range) {
       const melee = isInMeleeRange(attackerToken, token)
-      rangeStatus = melee ? 'In melee range' : 'Out of melee range'
+      rangeStatus = melee ? t('game.attackModal.rangeInMelee') : t('game.attackModal.rangeOutOfMelee')
       rangeColor = melee ? 'text-green-400' : 'text-red-400'
     }
     return { status: rangeStatus, color: rangeColor }
@@ -351,7 +353,10 @@ export default function AttackModal({
 
   const handleManualFail = (): void => {
     if (!selectedTarget) return
-    setGrappleResult({ success: false, message: `${selectedTarget.label} fails the ${unarmedMode} save (manual).` })
+    setGrappleResult({
+      success: false,
+      message: t('game.attackModal.manualFail', { target: selectedTarget.label, mode: unarmedMode })
+    })
     if (unarmedMode === 'grapple' && attackerToken) {
       // Use resolveGrapple to apply condition and log; note: this also rolls
       // but the manual-fail path overrides the result display above
@@ -371,7 +376,10 @@ export default function AttackModal({
 
   const handleManualPass = (): void => {
     if (!selectedTarget) return
-    setGrappleResult({ success: true, message: `${selectedTarget.label} resists the ${unarmedMode} (manual).` })
+    setGrappleResult({
+      success: true,
+      message: t('game.attackModal.manualPass', { target: selectedTarget.label, mode: unarmedMode })
+    })
   }
 
   const handleGrappleDone = (): void => {
@@ -433,22 +441,27 @@ export default function AttackModal({
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-gray-200">
-            {step === 'weapon' && (isOffhandAttack ? 'Off-hand Attack' : 'Choose Weapon')}
-            {step === 'unarmed-mode' && 'Unarmed Strike Mode'}
-            {step === 'target' && 'Select Target'}
+            {step === 'weapon' &&
+              (isOffhandAttack ? t('game.attackModal.offhandAttack') : t('game.attackModal.chooseWeapon'))}
+            {step === 'unarmed-mode' && t('game.attackModal.unarmedStrikeMode')}
+            {step === 'target' && t('game.attackModal.selectTarget')}
             {step === 'roll' &&
               (isUnarmed && unarmedMode !== 'damage'
-                ? `Unarmed Strike — ${unarmedMode === 'grapple' ? 'Grapple' : 'Shove'}`
+                ? unarmedMode === 'grapple'
+                  ? t('game.attackModal.unarmedStrikeGrapple')
+                  : t('game.attackModal.unarmedStrikeShove')
                 : isOffhandAttack
-                  ? 'Off-hand Attack Roll'
-                  : 'Attack Roll')}
-            {step === 'damage' && (isOffhandAttack ? 'Off-hand Result' : 'Attack Result')}
-            {step === 'result' && (isOffhandAttack ? 'Off-hand Damage' : 'Damage Applied')}
+                  ? t('game.attackModal.offhandAttackRoll')
+                  : t('game.attackModal.attackRoll'))}
+            {step === 'damage' &&
+              (isOffhandAttack ? t('game.attackModal.offhandResult') : t('game.attackModal.attackResult'))}
+            {step === 'result' &&
+              (isOffhandAttack ? t('game.attackModal.offhandDamage') : t('game.attackModal.damageApplied'))}
           </h3>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-300 text-lg cursor-pointer"
-            aria-label="Close"
+            aria-label={t('common.actions.close')}
           >
             &times;
           </button>

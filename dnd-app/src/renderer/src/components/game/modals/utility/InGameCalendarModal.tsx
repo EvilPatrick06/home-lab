@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { i18n, useT } from '../../../../i18n'
 import {
   getMoonPhaseWithOverride,
   getSeason,
@@ -58,12 +59,13 @@ const WEATHER_ICONS: Record<string, string> = {
 function formatHour(decimalHour: number): string {
   const h = Math.floor(decimalHour)
   const m = Math.round((decimalHour - h) * 60)
-  const ampm = h >= 12 ? 'PM' : 'AM'
+  const ampm = h >= 12 ? i18n.t('game.inGameCalendarModal.pm') : i18n.t('game.inGameCalendarModal.am')
   const hour12 = h % 12 || 12
   return m > 0 ? `${hour12}:${m.toString().padStart(2, '0')} ${ampm}` : `${hour12} ${ampm}`
 }
 
 export default function InGameCalendarModal({ calendar, onClose, isDM }: InGameCalendarModalProps): JSX.Element {
+  const { t } = useT()
   useEscapeKey(onClose)
   const inGameTime = useGameStore((s) => s.inGameTime)
   const advanceTimeSeconds = useGameStore((s) => s.advanceTimeSeconds)
@@ -79,9 +81,9 @@ export default function InGameCalendarModal({ calendar, onClose, isDM }: InGameC
       <div className="fixed inset-0 z-30 flex items-center justify-center">
         <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
         <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-6 text-center">
-          <p className="text-gray-400 text-sm">No in-game time configured</p>
+          <p className="text-gray-400 text-sm">{t('game.inGameCalendarModal.noTime')}</p>
           <button onClick={onClose} className="mt-3 px-4 py-1 text-sm bg-gray-700 rounded cursor-pointer">
-            Close
+            {t('common.actions.close')}
           </button>
         </div>
       </div>
@@ -107,11 +109,11 @@ export default function InGameCalendarModal({ calendar, onClose, isDM }: InGameC
       <div className="relative bg-gray-900 border border-gray-700 rounded-xl w-[480px] max-h-[85vh] overflow-y-auto shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
-          <h3 className="text-sm font-semibold text-gray-200">In-Game Calendar</h3>
+          <h3 className="text-sm font-semibold text-gray-200">{t('game.inGameCalendarModal.title')}</h3>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-300 text-lg cursor-pointer"
-            aria-label="Close"
+            aria-label={t('common.actions.close')}
           >
             &times;
           </button>
@@ -131,35 +133,48 @@ export default function InGameCalendarModal({ calendar, onClose, isDM }: InGameC
           <div className="grid grid-cols-2 gap-3">
             {/* Season */}
             <div className="bg-gray-800 rounded-lg p-3">
-              <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Season</div>
+              <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">
+                {t('game.inGameCalendarModal.season')}
+              </div>
               <div className={`text-sm font-semibold capitalize ${SEASON_COLORS[season]}`}>{season}</div>
             </div>
 
             {/* Moon Phase */}
             <div className="bg-gray-800 rounded-lg p-3">
               <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">
-                Moon{moonOverride ? ' (Override)' : ''}
+                {t('game.inGameCalendarModal.moon')}
+                {moonOverride ? t('game.inGameCalendarModal.overrideSuffix') : ''}
               </div>
               <div className="text-sm font-semibold text-gray-200">
                 {moon.emoji} {moon.name}
               </div>
-              <div className="text-xs text-gray-500">{Math.round(moon.illumination * 100)}% illumination</div>
+              <div className="text-xs text-gray-500">
+                {t('game.inGameCalendarModal.illumination', { percent: Math.round(moon.illumination * 100) })}
+              </div>
             </div>
 
             {/* Sunrise / Sunset */}
             <div className="bg-gray-800 rounded-lg p-3">
-              <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Sun</div>
-              <div className="text-xs text-gray-300">Rise: {formatHour(sunPos.sunrise)}</div>
-              <div className="text-xs text-gray-300">Set: {formatHour(sunPos.sunset)}</div>
+              <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">
+                {t('game.inGameCalendarModal.sun')}
+              </div>
+              <div className="text-xs text-gray-300">
+                {t('game.inGameCalendarModal.rise', { time: formatHour(sunPos.sunrise) })}
+              </div>
+              <div className="text-xs text-gray-300">
+                {t('game.inGameCalendarModal.set', { time: formatHour(sunPos.sunset) })}
+              </div>
               <div className={`text-xs mt-0.5 ${sunPos.isDaytime ? 'text-yellow-400' : 'text-blue-400'}`}>
-                {sunPos.isDaytime ? 'Daytime' : 'Nighttime'} ({sunPos.lightLevel})
+                {sunPos.isDaytime ? t('game.inGameCalendarModal.daytime') : t('game.inGameCalendarModal.nighttime')} (
+                {sunPos.lightLevel})
               </div>
             </div>
 
             {/* Weather */}
             <div className="bg-gray-800 rounded-lg p-3">
               <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">
-                Weather{weatherOverride ? ' (Override)' : ''}
+                {t('game.inGameCalendarModal.weather')}
+                {weatherOverride ? t('game.inGameCalendarModal.overrideSuffix') : ''}
               </div>
               <div className="text-sm font-semibold text-gray-200">
                 {WEATHER_ICONS[weather.condition] ?? ''} {weather.condition.replace('-', ' ')}
@@ -180,19 +195,19 @@ export default function InGameCalendarModal({ calendar, onClose, isDM }: InGameC
                 onChange={(e) => setShowWeatherOverlay(e.target.checked)}
                 className="accent-amber-500 w-3.5 h-3.5"
               />
-              <span className="text-xs text-gray-300">Show Weather on Map</span>
+              <span className="text-xs text-gray-300">{t('game.inGameCalendarModal.showWeather')}</span>
             </label>
           )}
 
           {/* Quick Advance */}
           <div className="border-t border-gray-800 pt-3">
-            <div className="text-xs text-gray-400 mb-2">Advance Time</div>
+            <div className="text-xs text-gray-400 mb-2">{t('game.inGameCalendarModal.advanceTime')}</div>
             <div className="flex flex-wrap gap-1.5 mb-2">
               {[
-                { label: '+10 min', seconds: 600 },
-                { label: '+1 hour', seconds: 3600 },
-                { label: '+4 hours', seconds: 14400 },
-                { label: '+8 hours', seconds: 28800 }
+                { label: t('game.inGameCalendarModal.advance10Min'), seconds: 600 },
+                { label: t('game.inGameCalendarModal.advance1Hour'), seconds: 3600 },
+                { label: t('game.inGameCalendarModal.advance4Hours'), seconds: 14400 },
+                { label: t('game.inGameCalendarModal.advance8Hours'), seconds: 28800 }
               ].map((btn) => (
                 <button
                   key={btn.label}
@@ -216,7 +231,7 @@ export default function InGameCalendarModal({ calendar, onClose, isDM }: InGameC
                 onClick={() => advanceTimeSeconds(advanceDays * calendar.hoursPerDay * 3600)}
                 className="px-3 py-1 text-xs bg-amber-600/20 hover:bg-amber-600/30 border border-amber-500/30 rounded text-amber-300 cursor-pointer"
               >
-                Advance {advanceDays} day{advanceDays > 1 ? 's' : ''}
+                {t('game.inGameCalendarModal.advanceDays', { count: advanceDays })}
               </button>
             </div>
           </div>

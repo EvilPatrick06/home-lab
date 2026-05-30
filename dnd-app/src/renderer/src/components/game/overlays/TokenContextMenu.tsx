@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useT } from '../../../i18n'
 import { getTokenSizeCategory, isAdjacent } from '../../../services/combat/combat-rules'
 import { useEffectiveTokenStats } from '../../../services/game/token-stats'
 import {
@@ -45,6 +46,7 @@ export default function TokenContextMenu({
   onAddToInitiative,
   onApplyCondition
 }: TokenContextMenuProps): JSX.Element | null {
+  const { t } = useT()
   const selectedIds = selectedTokenIds ?? []
   // Phase 15e — base stats (AC, max HP, speed) resolve live from the library for monster-backed tokens.
   const stats = useEffectiveTokenStats(token)
@@ -117,14 +119,14 @@ export default function TokenContextMenu({
       ? null
       : isOwnToken
         ? isMounted
-          ? 'Unmount'
+          ? t('game.tokenContextMenu.unmount')
           : hasMountCandidate
-            ? 'Mount'
+            ? t('game.tokenContextMenu.mount')
             : null
         : isCurrentMount
-          ? 'Unmount'
+          ? t('game.tokenContextMenu.unmount')
           : isMountCandidate
-            ? 'Mount'
+            ? t('game.tokenContextMenu.mount')
             : null
 
   if (!isDM && !isOwnToken && mountActionLabel == null) return null
@@ -230,8 +232,8 @@ export default function TokenContextMenu({
           <div className="text-xs font-semibold text-gray-200">{token.label}</div>
           {isOwnToken && token.currentHP != null && (
             <div className="text-xs text-gray-400 mt-0.5">
-              HP: {token.currentHP}/{stats.maxHP ?? '?'}
-              {stats.ac != null && <span className="ml-2">AC: {stats.ac}</span>}
+              {t('game.tokenContextMenu.hpLabel', { current: token.currentHP, max: stats.maxHP ?? '?' })}
+              {stats.ac != null && <span className="ml-2">{t('game.tokenContextMenu.acLabel', { ac: stats.ac })}</span>}
             </div>
           )}
         </div>
@@ -240,7 +242,7 @@ export default function TokenContextMenu({
             onClick={handleAddToInitiative}
             className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-gray-800 transition-colors cursor-pointer"
           >
-            Add to Initiative
+            {t('game.tokenContextMenu.addToInitiative')}
           </button>
         )}
         {isOwnToken && (
@@ -248,7 +250,7 @@ export default function TokenContextMenu({
             onClick={handleApplyCondition}
             className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-gray-800 transition-colors cursor-pointer"
           >
-            Apply Condition
+            {t('game.tokenContextMenu.applyCondition')}
           </button>
         )}
         {mountActionLabel && (
@@ -274,13 +276,13 @@ export default function TokenContextMenu({
         onClick={handleEditToken}
         className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-gray-800 transition-colors cursor-pointer"
       >
-        Edit Token
+        {t('game.tokenContextMenu.editToken')}
       </button>
       <button
         onClick={handleAddToInitiative}
         className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-gray-800 transition-colors cursor-pointer"
       >
-        Add to Initiative
+        {t('game.tokenContextMenu.addToInitiative')}
       </button>
       {showSetHP ? (
         <div className="px-4 py-2 flex items-center gap-1">
@@ -295,12 +297,14 @@ export default function TokenContextMenu({
             className="w-16 bg-gray-800 border border-gray-600 rounded px-1.5 py-0.5 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
             autoFocus
           />
-          <span className="text-xs text-gray-500">/ {stats.maxHP ?? '?'}</span>
+          <span className="text-xs text-gray-500">
+            {t('game.tokenContextMenu.maxHpSuffix', { max: stats.maxHP ?? '?' })}
+          </span>
           <button
             onClick={handleSetHP}
             className="px-2 py-0.5 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer"
           >
-            Set
+            {t('game.tokenContextMenu.set')}
           </button>
         </div>
       ) : (
@@ -308,14 +312,16 @@ export default function TokenContextMenu({
           onClick={() => setShowSetHP(true)}
           className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-gray-800 transition-colors cursor-pointer"
         >
-          Set HP{token.currentHP != null ? ` (${token.currentHP}/${stats.maxHP ?? '?'})` : ''}
+          {token.currentHP != null
+            ? t('game.tokenContextMenu.setHpWithValue', { current: token.currentHP, max: stats.maxHP ?? '?' })
+            : t('game.tokenContextMenu.setHp')}
         </button>
       )}
       <button
         onClick={handleApplyCondition}
         className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-gray-800 transition-colors cursor-pointer"
       >
-        Apply Condition
+        {t('game.tokenContextMenu.applyCondition')}
       </button>
       {isMultiSelection && (
         <>
@@ -323,7 +329,7 @@ export default function TokenContextMenu({
             onClick={handleApplyGroupCondition}
             className="w-full px-4 py-2 text-xs text-left text-amber-300 hover:bg-gray-800 transition-colors cursor-pointer"
           >
-            Apply Group Condition ({selectedTokens.length} tokens)
+            {t('game.tokenContextMenu.applyGroupCondition', { count: selectedTokens.length })}
           </button>
           {showGroupConditions && (
             <div className="ml-4 space-y-1">
@@ -369,7 +375,7 @@ export default function TokenContextMenu({
           onClick={() => createSidebarEntryFromToken('allies')}
           className="w-full px-4 py-2 text-xs text-left text-green-400 hover:bg-gray-800 transition-colors cursor-pointer"
         >
-          Add to Allies
+          {t('game.tokenContextMenu.addToAllies')}
         </button>
       )}
       {!isInEnemies && (
@@ -377,7 +383,7 @@ export default function TokenContextMenu({
           onClick={() => createSidebarEntryFromToken('enemies')}
           className="w-full px-4 py-2 text-xs text-left text-red-400 hover:bg-gray-800 transition-colors cursor-pointer"
         >
-          Add to Enemies
+          {t('game.tokenContextMenu.addToEnemies')}
         </button>
       )}
       <div className="border-t border-gray-800 my-1" />
@@ -385,7 +391,7 @@ export default function TokenContextMenu({
         onClick={handleToggleVisibility}
         className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-gray-800 transition-colors cursor-pointer"
       >
-        {token.visibleToPlayers ? 'Hide from Players' : 'Show to Players'}
+        {token.visibleToPlayers ? t('game.tokenContextMenu.hideFromPlayers') : t('game.tokenContextMenu.showToPlayers')}
       </button>
       <button
         onClick={() => {
@@ -394,7 +400,9 @@ export default function TokenContextMenu({
         }}
         className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-gray-800 transition-colors cursor-pointer"
       >
-        {token.nameVisible === false ? 'Show Name to Players' : 'Hide Name from Players'}
+        {token.nameVisible === false
+          ? t('game.tokenContextMenu.showNameToPlayers')
+          : t('game.tokenContextMenu.hideNameFromPlayers')}
       </button>
       {/* Plugin context menu items */}
       {(() => {
@@ -423,7 +431,7 @@ export default function TokenContextMenu({
         onClick={handleRemoveToken}
         className="w-full px-4 py-2 text-xs text-left text-red-400 hover:bg-gray-800 transition-colors cursor-pointer"
       >
-        Remove Token
+        {t('game.tokenContextMenu.removeToken')}
       </button>
     </div>
   )

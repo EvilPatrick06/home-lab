@@ -1,4 +1,5 @@
 import { useCallback } from 'react'
+import { useT } from '../../../../i18n'
 import { load5eMonsterById } from '../../../../services/data-provider'
 import { useGameStore } from '../../../../stores/use-game-store'
 import type { Campaign, NPC } from '../../../../types/campaign'
@@ -45,6 +46,7 @@ export default function MapEditorRightPanel({
   setSelectedTokenId,
   campaign
 }: MapEditorRightPanelProps): JSX.Element {
+  const { t } = useT()
   const gameStore = useGameStore()
 
   const handlePlaceToken = useCallback(
@@ -142,38 +144,28 @@ export default function MapEditorRightPanel({
         )}
         {rightPanel === 'terrain' && (
           <div className="space-y-3">
-            <h4 className="text-sm font-semibold text-gray-200">Terrain Painter</h4>
-            <p className="text-xs text-gray-500">
-              Select a terrain type, then click cells on the map to toggle terrain.
-            </p>
+            <h4 className="text-sm font-semibold text-gray-200">{t('game.mapEditorRightPanel.terrainPainter')}</h4>
+            <p className="text-xs text-gray-500">{t('game.mapEditorRightPanel.terrainHint')}</p>
             <div className="space-y-1.5">
               {[
                 {
                   type: 'difficult' as const,
-                  label: 'Difficult Terrain',
-                  desc: '2x movement cost',
                   color: 'bg-amber-900/50'
                 },
-                { type: 'hazard' as const, label: 'Hazard', desc: 'Dangerous area', color: 'bg-red-900/50' },
+                { type: 'hazard' as const, color: 'bg-red-900/50' },
                 {
                   type: 'water' as const,
-                  label: 'Water',
-                  desc: '2x cost (free with Swim Speed)',
                   color: 'bg-blue-900/50'
                 },
                 {
                   type: 'climbing' as const,
-                  label: 'Climbing',
-                  desc: '2x cost (free with Climb Speed)',
                   color: 'bg-purple-900/50'
                 },
                 {
                   type: 'portal' as const,
-                  label: 'Portal',
-                  desc: 'Teleports tokens',
                   color: 'bg-fuchsia-900/50'
                 }
-              ].map(({ type, label, desc, color }) => (
+              ].map(({ type, color }) => (
                 <div key={type} className="flex flex-col gap-1">
                   <button
                     onClick={() => {
@@ -186,13 +178,17 @@ export default function MapEditorRightPanel({
                         : 'border-gray-700 bg-gray-800/50 hover:border-gray-600'
                     }`}
                   >
-                    <div className="font-semibold text-gray-200">{label}</div>
-                    <div className="text-gray-500">{desc}</div>
+                    <div className="font-semibold text-gray-200">
+                      {t(`game.mapEditorRightPanel.terrain.${type}.label`)}
+                    </div>
+                    <div className="text-gray-500">{t(`game.mapEditorRightPanel.terrain.${type}.desc`)}</div>
                   </button>
 
                   {type === 'portal' && activeTool === 'terrain' && terrainPaintType === 'portal' && (
                     <div className="mt-1 p-2 rounded bg-gray-800/50 border border-fuchsia-900/30 flex flex-col gap-2">
-                      <div className="text-xs text-fuchsia-300 font-semibold mb-1">Portal Configuration</div>
+                      <div className="text-xs text-fuchsia-300 font-semibold mb-1">
+                        {t('game.mapEditorRightPanel.portalConfiguration')}
+                      </div>
                       <select
                         className="w-full bg-gray-900 border border-gray-700 rounded text-xs text-gray-200 px-2 py-1"
                         value={portalTarget?.mapId ?? ''}
@@ -204,7 +200,7 @@ export default function MapEditorRightPanel({
                           })
                         }
                       >
-                        <option value="">Select target map...</option>
+                        <option value="">{t('game.mapEditorRightPanel.selectTargetMap')}</option>
                         {gameStore.maps.map((m) => (
                           <option key={m.id} value={m.id}>
                             {m.name}
@@ -213,7 +209,9 @@ export default function MapEditorRightPanel({
                       </select>
                       <div className="flex gap-2">
                         <div className="flex-1">
-                          <label className="text-xs text-gray-400 block mb-0.5">Target X</label>
+                          <label className="text-xs text-gray-400 block mb-0.5">
+                            {t('game.mapEditorRightPanel.targetX')}
+                          </label>
                           <input
                             type="number"
                             className="w-full bg-gray-900 border border-gray-700 rounded text-xs text-gray-200 px-2 py-1"
@@ -228,7 +226,9 @@ export default function MapEditorRightPanel({
                           />
                         </div>
                         <div className="flex-1">
-                          <label className="text-xs text-gray-400 block mb-0.5">Target Y</label>
+                          <label className="text-xs text-gray-400 block mb-0.5">
+                            {t('game.mapEditorRightPanel.targetY')}
+                          </label>
                           <input
                             type="number"
                             className="w-full bg-gray-900 border border-gray-700 rounded text-xs text-gray-200 px-2 py-1"
@@ -257,7 +257,7 @@ export default function MapEditorRightPanel({
                 }}
                 className="w-full px-3 py-1.5 text-xs bg-red-900/30 border border-red-800 rounded-lg text-red-300 hover:bg-red-900/50 cursor-pointer"
               >
-                Clear All Terrain ({(activeMap.terrain ?? []).length} cells)
+                {t('game.mapEditorRightPanel.clearAllTerrain', { count: (activeMap.terrain ?? []).length })}
               </button>
             )}
           </div>

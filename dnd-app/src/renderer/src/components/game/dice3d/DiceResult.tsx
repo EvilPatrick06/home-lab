@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import { useT } from '../../../i18n'
 
 interface DiceResultProps {
   formula: string
@@ -17,6 +18,7 @@ export default memo(function DiceResult({
   dieSides,
   isCritDamage
 }: DiceResultProps): JSX.Element {
+  const { t } = useT()
   // Detect critical / fumble for d20 rolls
   const isSingleD20 = formula.match(/^1?d20/)
   const isCritical = isSingleD20 && rolls.length === 1 && rolls[0] === 20
@@ -88,9 +90,11 @@ export default memo(function DiceResult({
         })()}
       </div>
 
-      {isCritical && <p className="text-xs text-green-400 font-semibold mt-1">NATURAL 20 - CRITICAL!</p>}
-      {isFumble && <p className="text-xs text-red-400 font-semibold mt-1">NATURAL 1 - FUMBLE!</p>}
-      {isCritDamage && <p className="text-xs text-green-400 font-semibold mt-1">CRITICAL DAMAGE - Dice doubled!</p>}
+      {isCritical && <p className="text-xs text-green-400 font-semibold mt-1">{t('game.diceResult.natural20')}</p>}
+      {isFumble && <p className="text-xs text-red-400 font-semibold mt-1">{t('game.diceResult.natural1')}</p>}
+      {isCritDamage && (
+        <p className="text-xs text-green-400 font-semibold mt-1">{t('game.diceResult.criticalDamage')}</p>
+      )}
     </div>
   )
 })

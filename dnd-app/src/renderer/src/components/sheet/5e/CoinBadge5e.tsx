@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useT } from '../../../i18n'
 
 const COIN_STYLES: Record<string, string> = {
   PP: 'border-gray-400 bg-gray-500 text-white',
@@ -19,6 +20,7 @@ export default function CoinBadge({
   readonly?: boolean
   onSave: (newValue: number) => void
 }): JSX.Element {
+  const { t } = useT()
   const [editing, setEditing] = useState(false)
   const [inputValue, setInputValue] = useState(String(value))
   const inputRef = useRef<HTMLInputElement>(null)
@@ -73,7 +75,7 @@ export default function CoinBadge({
           setEditing(true)
         }
       }}
-      title={!readonly ? 'Click to edit' : undefined}
+      title={!readonly ? t('sheet.coinBadge.clickToEdit') : undefined}
     >
       <div
         className={`w-10 h-10 rounded-full border-2 ${style} flex items-center justify-center text-sm font-bold shadow-sm ${!readonly ? 'hover:opacity-80 transition-opacity' : ''}`}

@@ -1,3 +1,4 @@
+import { useT } from '../../../i18n'
 import type { Character } from '../../../types/character'
 import { abilityModifier, formatMod } from '../../../types/character-common'
 import type { EntityCondition } from '../../../types/game-state'
@@ -8,10 +9,11 @@ interface PlayerHUDProps {
 }
 
 export default function PlayerHUD({ character, conditions }: PlayerHUDProps): JSX.Element {
+  const { t } = useT()
   if (!character) {
     return (
       <div className="bg-gray-900/90 border-t border-gray-700 px-4 py-2">
-        <p className="text-sm text-gray-500">No character loaded</p>
+        <p className="text-sm text-gray-500">{t('game.playerHud.noCharacterLoaded')}</p>
       </div>
     )
   }
@@ -34,22 +36,27 @@ export default function PlayerHUD({ character, conditions }: PlayerHUDProps): JS
     <section
       className="bg-gray-900/90 border-t border-gray-700 px-4 py-2"
       role="region"
-      aria-label={`${character.name}'s status`}
+      aria-label={t('game.playerHud.statusLabel', { name: character.name })}
     >
       <div className="flex items-center gap-6">
         {/* Name and level */}
-        <div className="flex-shrink-0" aria-label={`Character: ${character.name}, level ${character.level}`}>
+        <div
+          className="flex-shrink-0"
+          aria-label={t('game.playerHud.characterLabel', { name: character.name, level: character.level })}
+        >
           <span className="text-sm font-semibold text-gray-100">{character.name}</span>
-          <span className="text-xs text-gray-500 ml-2">Lv {character.level}</span>
+          <span className="text-xs text-gray-500 ml-2">{t('game.playerHud.level', { level: character.level })}</span>
         </div>
 
         {/* HP bar */}
         <div
           className="flex items-center gap-2 min-w-[200px]"
-          aria-label={`Hit Points: ${hp.current} of ${hp.maximum}${hp.temporary > 0 ? `, plus ${hp.temporary} temporary` : ''}`}
+          aria-label={`${t('game.playerHud.hitPointsLabel', { current: hp.current, max: hp.maximum })}${
+            hp.temporary > 0 ? t('game.playerHud.temporaryHpSuffix', { temp: hp.temporary }) : ''
+          }`}
         >
           <span className="text-xs text-gray-500" aria-hidden="true">
-            HP
+            {t('game.playerHud.hp')}
           </span>
           <div className="flex-1 relative">
             <div
@@ -58,7 +65,7 @@ export default function PlayerHUD({ character, conditions }: PlayerHUDProps): JS
               aria-valuenow={hp.current}
               aria-valuemin={0}
               aria-valuemax={hp.maximum}
-              aria-label="Hit points remaining"
+              aria-label={t('game.playerHud.hitPointsRemaining')}
             >
               <div
                 className={`h-full ${hpColor} transition-all duration-300 rounded-full`}
@@ -73,9 +80,9 @@ export default function PlayerHUD({ character, conditions }: PlayerHUDProps): JS
         </div>
 
         {/* AC */}
-        <div className="flex items-center gap-1 flex-shrink-0" aria-label={`Armor Class ${ac}`}>
+        <div className="flex items-center gap-1 flex-shrink-0" aria-label={t('game.playerHud.armorClassLabel', { ac })}>
           <span className="text-xs text-gray-500" aria-hidden="true">
-            AC
+            {t('game.playerHud.ac')}
           </span>
           <span className="text-sm font-semibold text-gray-100 bg-gray-800 rounded px-2 py-0.5" aria-hidden="true">
             {ac}
@@ -83,9 +90,12 @@ export default function PlayerHUD({ character, conditions }: PlayerHUDProps): JS
         </div>
 
         {/* Initiative */}
-        <div className="flex items-center gap-1 flex-shrink-0" aria-label={`Initiative modifier ${formatMod(dexMod)}`}>
+        <div
+          className="flex items-center gap-1 flex-shrink-0"
+          aria-label={t('game.playerHud.initiativeLabel', { mod: formatMod(dexMod) })}
+        >
           <span className="text-xs text-gray-500" aria-hidden="true">
-            Init
+            {t('game.playerHud.init')}
           </span>
           <span className="text-sm font-semibold text-gray-100 bg-gray-800 rounded px-2 py-0.5" aria-hidden="true">
             {formatMod(dexMod)}
@@ -93,12 +103,12 @@ export default function PlayerHUD({ character, conditions }: PlayerHUDProps): JS
         </div>
 
         {/* Speed */}
-        <div className="flex items-center gap-1 flex-shrink-0" aria-label={`Speed ${speed} feet`}>
+        <div className="flex items-center gap-1 flex-shrink-0" aria-label={t('game.playerHud.speedLabel', { speed })}>
           <span className="text-xs text-gray-500" aria-hidden="true">
-            Speed
+            {t('game.playerHud.speed')}
           </span>
           <span className="text-sm font-semibold text-gray-100 bg-gray-800 rounded px-2 py-0.5" aria-hidden="true">
-            {speed} ft
+            {t('game.playerHud.speedFeet', { speed })}
           </span>
         </div>
 
@@ -106,10 +116,12 @@ export default function PlayerHUD({ character, conditions }: PlayerHUDProps): JS
         {conditions.length > 0 && (
           <div
             className="flex items-center gap-1 flex-shrink-0"
-            aria-label={`Active conditions: ${conditions.map((c) => `${c.condition}${c.value ? ` ${c.value}` : ''}`).join(', ')}`}
+            aria-label={t('game.playerHud.activeConditionsLabel', {
+              list: conditions.map((c) => `${c.condition}${c.value ? ` ${c.value}` : ''}`).join(', ')
+            })}
           >
             <span className="text-xs text-gray-500" aria-hidden="true">
-              Cond
+              {t('game.playerHud.cond')}
             </span>
             <div className="flex gap-1" role="list">
               {conditions.map((cond) => (
@@ -118,10 +130,20 @@ export default function PlayerHUD({ character, conditions }: PlayerHUDProps): JS
                   role="listitem"
                   className="text-xs bg-purple-600/30 text-purple-300 border border-purple-500/50
                     rounded px-1.5 py-0.5"
-                  aria-label={`Condition: ${cond.condition}${cond.value ? ` ${cond.value}` : ''}, ${
-                    cond.duration === 'permanent' ? 'permanent' : `${cond.duration} rounds remaining`
-                  }`}
-                  title={`${cond.condition}${cond.value ? ` ${cond.value}` : ''} (${cond.duration === 'permanent' ? 'Perm' : `${cond.duration}r`})`}
+                  aria-label={t('game.playerHud.conditionAriaLabel', {
+                    name: cond.value ? `${cond.condition} ${cond.value}` : cond.condition,
+                    duration:
+                      cond.duration === 'permanent'
+                        ? t('game.playerHud.permanent')
+                        : t('game.playerHud.roundsRemaining', { count: cond.duration })
+                  })}
+                  title={t('game.playerHud.conditionTitle', {
+                    name: cond.value ? `${cond.condition} ${cond.value}` : cond.condition,
+                    duration:
+                      cond.duration === 'permanent'
+                        ? t('game.playerHud.permAbbrev')
+                        : t('game.playerHud.roundsAbbrev', { count: cond.duration })
+                  })}
                 >
                   {cond.condition}
                   {cond.value ? ` ${cond.value}` : ''}

@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import { useT } from '../../i18n'
 import { renderInlineMarkdown } from '../../utils/markdown'
 
 // Subset of the species data shape we render; permissive on shape so we don't
@@ -57,6 +58,7 @@ function formatUsage(u: SpeciesTrait['usageLimit']): string {
 }
 
 function SpeciesDetailView({ species }: SpeciesDetailViewProps): JSX.Element {
+  const { t } = useT()
   const s = species as SpeciesData
   const traits = s.traits ?? []
 
@@ -64,7 +66,9 @@ function SpeciesDetailView({ species }: SpeciesDetailViewProps): JSX.Element {
     <div className="bg-gray-900 border border-amber-800/40 rounded-lg overflow-hidden">
       {/* Header */}
       <div className="bg-amber-900/30 border-b border-amber-800/40 px-3 py-2">
-        <h3 className="text-base font-bold text-amber-400">{s.name ?? 'Unknown Species'}</h3>
+        <h3 className="text-base font-bold text-amber-400">
+          {s.name ?? t('library.speciesDetailView.unknownSpecies')}
+        </h3>
         {s.creatureType && (
           <p className="text-xs text-gray-400 italic">
             {s.creatureType}
@@ -82,11 +86,11 @@ function SpeciesDetailView({ species }: SpeciesDetailViewProps): JSX.Element {
 
         <div className="space-y-0.5 text-sm">
           <div className="flex gap-1">
-            <span className="text-amber-500 font-semibold">Size</span>
+            <span className="text-amber-500 font-semibold">{t('library.speciesDetailView.size')}</span>
             <span className="text-gray-300">{formatSize(s.size)}</span>
           </div>
           <div className="flex gap-1">
-            <span className="text-amber-500 font-semibold">Speed</span>
+            <span className="text-amber-500 font-semibold">{t('library.speciesDetailView.speed')}</span>
             <span className="text-gray-300">{formatSpeed(s.speed)}</span>
           </div>
         </div>
@@ -95,19 +99,28 @@ function SpeciesDetailView({ species }: SpeciesDetailViewProps): JSX.Element {
           <>
             <div className="border-t border-amber-800/30" />
             <div className="space-y-2">
-              <h4 className="text-xs font-bold text-amber-500 uppercase tracking-wider">Traits</h4>
+              <h4 className="text-xs font-bold text-amber-500 uppercase tracking-wider">
+                {t('library.speciesDetailView.traits')}
+              </h4>
               {traits.map((trait, i) => {
                 const usage = formatUsage(trait.usageLimit)
                 return (
                   <div key={i} className="text-xs">
                     <span className="text-amber-400 font-semibold italic">
                       {trait.name}
-                      {trait.requiredCharacterLevel ? ` (level ${trait.requiredCharacterLevel}+)` : ''}.{' '}
+                      {trait.requiredCharacterLevel
+                        ? t('library.speciesDetailView.levelRequirement', { level: trait.requiredCharacterLevel })
+                        : ''}
+                      .{' '}
                     </span>
                     <span className="text-gray-300 whitespace-pre-wrap">
                       {renderInlineMarkdown(trait.description ?? '')}
                     </span>
-                    {usage && <div className="text-xs text-gray-500 mt-0.5">Usage: {usage}</div>}
+                    {usage && (
+                      <div className="text-xs text-gray-500 mt-0.5">
+                        {t('library.speciesDetailView.usage', { usage })}
+                      </div>
+                    )}
                   </div>
                 )
               })}

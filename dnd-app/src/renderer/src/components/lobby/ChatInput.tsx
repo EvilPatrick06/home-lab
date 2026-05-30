@@ -1,4 +1,5 @@
 import { type ChangeEvent, type KeyboardEvent, useEffect, useRef, useState } from 'react'
+import { useT } from '../../i18n'
 import type { ChatFilePayload } from '../../network'
 import { isModerationEnabled, setModerationEnabled } from '../../network'
 import { useNetworkStore } from '../../stores/network-store'
@@ -13,6 +14,7 @@ function generateFileMessageId(): string {
 }
 
 export default function ChatInput(): JSX.Element {
+  const { t } = useT()
   const [value, setValue] = useState('')
   const [cooldownRemaining, setCooldownRemaining] = useState(0)
   const [muteRemaining, setMuteRemaining] = useState(0)
@@ -123,8 +125,11 @@ export default function ChatInput(): JSX.Element {
       useLobbyStore.getState().addChatMessage({
         id: generateFileMessageId(),
         senderId: 'system',
-        senderName: 'System',
-        content: `File too large. Max size: ${isImage ? '5MB' : '2MB'} for ${isImage ? 'images' : 'files'}.`,
+        senderName: t('lobby.chatInput.systemSender'),
+        content: t('lobby.chatInput.fileTooLarge', {
+          maxSize: isImage ? '5MB' : '2MB',
+          kind: isImage ? t('lobby.chatInput.kindImages') : t('lobby.chatInput.kindFiles')
+        }),
         timestamp: Date.now(),
         isSystem: true
       })
@@ -144,8 +149,8 @@ export default function ChatInput(): JSX.Element {
       useLobbyStore.getState().addChatMessage({
         id: generateFileMessageId(),
         senderId: 'local',
-        senderName: 'You',
-        content: `shared a file: ${file.name}`,
+        senderName: t('lobby.chatInput.youSender'),
+        content: t('lobby.chatInput.sharedFile', { fileName: file.name }),
         timestamp: Date.now(),
         isSystem: false,
         senderColor: localPlayer?.color,
@@ -176,7 +181,7 @@ export default function ChatInput(): JSX.Element {
       {/* DM slow mode controls */}
       {isHost && (
         <div className="flex items-center gap-2 px-3 pt-2 flex-wrap">
-          <span className="text-xs text-gray-500">Slow mode:</span>
+          <span className="text-xs text-gray-500">{t('lobby.chatInput.slowModeLabel')}</span>
           {[0, 5, 10, 30, 60].map((sec) => (
             <button
               key={sec}
@@ -186,8 +191,11 @@ export default function ChatInput(): JSX.Element {
                 useLobbyStore.getState().addChatMessage({
                   id: `sys-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
                   senderId: 'system',
-                  senderName: 'System',
-                  content: sec === 0 ? 'Slow mode disabled.' : `Slow mode enabled: ${sec} seconds.`,
+                  senderName: t('lobby.chatInput.systemSender'),
+                  content:
+                    sec === 0
+                      ? t('lobby.chatInput.slowModeDisabled')
+                      : t('lobby.chatInput.slowModeEnabled', { seconds: sec }),
                   timestamp: Date.now(),
                   isSystem: true
                 })
@@ -196,11 +204,11 @@ export default function ChatInput(): JSX.Element {
                 slowModeSeconds === sec ? 'bg-amber-600/30 text-amber-400' : 'text-gray-500 hover:text-gray-300'
               }`}
             >
-              {sec === 0 ? 'Off' : `${sec}s`}
+              {sec === 0 ? t('lobby.chatInput.off') : t('lobby.chatInput.seconds', { seconds: sec })}
             </button>
           ))}
           <div className="w-px h-4 bg-gray-700 mx-1" />
-          <span className="text-xs text-gray-500">Files:</span>
+          <span className="text-xs text-gray-500">{t('lobby.chatInput.filesLabel')}</span>
           <button
             onClick={() => {
               const newVal = !fileSharingEnabled
@@ -209,8 +217,8 @@ export default function ChatInput(): JSX.Element {
               useLobbyStore.getState().addChatMessage({
                 id: `sys-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
                 senderId: 'system',
-                senderName: 'System',
-                content: newVal ? 'File sharing enabled.' : 'File sharing disabled.',
+                senderName: t('lobby.chatInput.systemSender'),
+                content: newVal ? t('lobby.chatInput.fileSharingEnabled') : t('lobby.chatInput.fileSharingDisabled'),
                 timestamp: Date.now(),
                 isSystem: true
               })
@@ -219,10 +227,10 @@ export default function ChatInput(): JSX.Element {
               fileSharingEnabled ? 'bg-amber-600/30 text-amber-400' : 'text-gray-500 hover:text-gray-300'
             }`}
           >
-            {fileSharingEnabled ? 'On' : 'Off'}
+            {fileSharingEnabled ? t('lobby.chatInput.on') : t('lobby.chatInput.off')}
           </button>
           <div className="w-px h-4 bg-gray-700 mx-1" />
-          <span className="text-xs text-gray-500">Auto-mod:</span>
+          <span className="text-xs text-gray-500">{t('lobby.chatInput.autoModLabel')}</span>
           <button
             onClick={() => {
               const newVal = !moderationOn
@@ -231,8 +239,8 @@ export default function ChatInput(): JSX.Element {
               useLobbyStore.getState().addChatMessage({
                 id: `sys-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
                 senderId: 'system',
-                senderName: 'System',
-                content: newVal ? 'Auto-moderation enabled.' : 'Auto-moderation disabled.',
+                senderName: t('lobby.chatInput.systemSender'),
+                content: newVal ? t('lobby.chatInput.autoModEnabled') : t('lobby.chatInput.autoModDisabled'),
                 timestamp: Date.now(),
                 isSystem: true
               })
@@ -241,7 +249,7 @@ export default function ChatInput(): JSX.Element {
               moderationOn ? 'bg-amber-600/30 text-amber-400' : 'text-gray-500 hover:text-gray-300'
             }`}
           >
-            {moderationOn ? 'On' : 'Off'}
+            {moderationOn ? t('lobby.chatInput.on') : t('lobby.chatInput.off')}
           </button>
         </div>
       )}
@@ -251,7 +259,7 @@ export default function ChatInput(): JSX.Element {
         {(fileSharingEnabled || isHost) && (
           <button
             onClick={() => fileInputRef.current?.click()}
-            title="Attach file"
+            title={t('lobby.chatInput.attachFile')}
             className="p-2 rounded-lg text-gray-500 hover:text-amber-400 hover:bg-gray-800 transition-colors cursor-pointer"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
@@ -273,10 +281,10 @@ export default function ChatInput(): JSX.Element {
           onKeyDown={handleKeyDown}
           placeholder={
             isChatMuted
-              ? `Muted for ${muteRemaining}s...`
+              ? t('lobby.chatInput.placeholderMuted', { seconds: muteRemaining })
               : isOnCooldown
-                ? `Slow mode (${cooldownRemaining}s)...`
-                : 'Type a message or /roll 1d20...'
+                ? t('lobby.chatInput.placeholderCooldown', { seconds: cooldownRemaining })
+                : t('lobby.chatInput.placeholder')
           }
           disabled={isInputDisabled}
           className={`flex-1 px-3 py-2 rounded-lg bg-gray-800 border text-gray-100
@@ -291,7 +299,11 @@ export default function ChatInput(): JSX.Element {
           className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-medium
                      text-sm transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isChatMuted ? `${muteRemaining}s` : isOnCooldown ? `${cooldownRemaining}s` : 'Send'}
+          {isChatMuted
+            ? t('lobby.chatInput.seconds', { seconds: muteRemaining })
+            : isOnCooldown
+              ? t('lobby.chatInput.seconds', { seconds: cooldownRemaining })
+              : t('lobby.chatInput.send')}
         </button>
       </div>
     </div>

@@ -4,6 +4,8 @@ import {
   type HigherLevelEquipment,
   rollStartingGold
 } from '../../../data/starting-equipment-table'
+import { useT } from '../../../i18n'
+import type { TranslationKeys } from '../../../i18n/types'
 import { load5eMagicItems } from '../../../services/data-provider'
 import { useLibraryCategory } from '../../../services/library/use-library-entry'
 import { useBuilderStore } from '../../../stores/use-builder-store'
@@ -19,12 +21,12 @@ const RARITY_COLORS: Record<string, string> = {
   legendary: 'text-orange-400 border-orange-600'
 }
 
-const RARITY_LABELS: Record<string, string> = {
-  common: 'Common',
-  uncommon: 'Uncommon',
-  rare: 'Rare',
-  'very-rare': 'Very Rare',
-  legendary: 'Legendary'
+const RARITY_LABEL_KEYS: Record<string, TranslationKeys> = {
+  common: 'builder.higherLevelEquipment.rarity.common',
+  uncommon: 'builder.higherLevelEquipment.rarity.uncommon',
+  rare: 'builder.higherLevelEquipment.rarity.rare',
+  'very-rare': 'builder.higherLevelEquipment.rarity.veryRare',
+  legendary: 'builder.higherLevelEquipment.rarity.legendary'
 }
 
 function MagicItemSlot({
@@ -40,8 +42,10 @@ function MagicItemSlot({
   onSelect: (item: MagicItemData) => void
   onClear: () => void
 }): JSX.Element {
+  const { t } = useT()
   const [expanded, setExpanded] = useState(false)
   const [search, setSearch] = useState('')
+  const rarityLabel = RARITY_LABEL_KEYS[rarity] ? t(RARITY_LABEL_KEYS[rarity]) : rarity
 
   // Phase 15b Step 1 — magic items live in the truth store; filter by rarity at render time.
   const allItems = useLibraryCategory('magic-items', () => load5eMagicItems()) as unknown as MagicItemData[]
@@ -60,10 +64,10 @@ function MagicItemSlot({
       <div className={`flex items-center justify-between border rounded px-2 py-1.5 ${colors}`}>
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium">{selectedItem.itemName}</span>
-          <span className="text-xs text-gray-500">{RARITY_LABELS[rarity]}</span>
+          <span className="text-xs text-gray-500">{rarityLabel}</span>
         </div>
         <button onClick={onClear} className="text-xs text-gray-500 hover:text-red-400 px-1 cursor-pointer">
-          Change
+          {t('builder.higherLevelEquipment.change')}
         </button>
       </div>
     )
@@ -76,15 +80,15 @@ function MagicItemSlot({
         className={`text-xs border rounded px-2 py-1 cursor-pointer transition-colors ${colors} hover:bg-gray-800`}
       >
         {expanded
-          ? `Hide ${RARITY_LABELS[rarity]} Items`
-          : `Select ${RARITY_LABELS[rarity]} Magic Item (Slot ${slotIndex + 1})`}
+          ? t('builder.higherLevelEquipment.hideItems', { rarity: rarityLabel })
+          : t('builder.higherLevelEquipment.selectItem', { rarity: rarityLabel, slot: slotIndex + 1 })}
       </button>
       {expanded && (
         <div className="mt-1 border border-gray-700 rounded bg-gray-900/80 overflow-hidden">
           <div className="px-2 py-1.5 border-b border-gray-800">
             <input
               type="text"
-              placeholder={`Search ${RARITY_LABELS[rarity]} items...`}
+              placeholder={t('builder.higherLevelEquipment.searchPlaceholder', { rarity: rarityLabel })}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full text-xs bg-gray-800 border border-gray-700 rounded px-2 py-1 text-gray-200 placeholder:text-gray-500 outline-none focus:border-amber-500/50"
@@ -93,7 +97,7 @@ function MagicItemSlot({
           <div className="max-h-40 overflow-y-auto">
             {filtered.length === 0 ? (
               <p className="text-xs text-gray-500 italic px-2 py-2 text-center">
-                {items.length === 0 ? 'Loading...' : 'No items match.'}
+                {items.length === 0 ? t('common.states.loading') : t('builder.higherLevelEquipment.noItemsMatch')}
               </p>
             ) : (
               filtered.map((item) => (
@@ -108,7 +112,11 @@ function MagicItemSlot({
                 >
                   <div>
                     <span className="text-sm text-gray-200">{item.name}</span>
-                    {item.attunement && <span className="text-xs text-purple-400 ml-1">(A)</span>}
+                    {item.attunement && (
+                      <span className="text-xs text-purple-400 ml-1">
+                        {t('builder.higherLevelEquipment.attunement')}
+                      </span>
+                    )}
                     <div className="text-xs text-gray-500">
                       {item.type} - {item.cost}
                     </div>
@@ -124,6 +132,7 @@ function MagicItemSlot({
 }
 
 export default function HigherLevelEquipment5e(): JSX.Element | null {
+  const { t } = useT()
   const targetLevel = useBuilderStore((s) => s.targetLevel)
   const higherLevelGoldBonus = useBuilderStore((s) => s.higherLevelGoldBonus)
   const setHigherLevelGoldBonus = useBuilderStore((s) => s.setHigherLevelGoldBonus)
@@ -185,40 +194,50 @@ export default function HigherLevelEquipment5e(): JSX.Element | null {
 
   return (
     <>
-      <SectionBanner label="HIGHER LEVEL STARTING EQUIPMENT" />
+      <SectionBanner label={t('builder.higherLevelEquipment.sectionTitle')} />
       <div className="px-4 py-3 border-b border-gray-800 space-y-3">
-        <p className="text-xs text-gray-500">
-          Characters starting at level {targetLevel} receive bonus gold and magic items per the 2024 PHB.
-        </p>
+        <p className="text-xs text-gray-500">{t('builder.higherLevelEquipment.levelIntro', { level: targetLevel })}</p>
 
         {/* Bonus Gold */}
         <div>
-          <div className="text-xs text-gray-400 uppercase tracking-wide mb-1">Bonus Starting Gold</div>
+          <div className="text-xs text-gray-400 uppercase tracking-wide mb-1">
+            {t('builder.higherLevelEquipment.bonusGoldLabel')}
+          </div>
           {hlEquip.diceCount > 0 ? (
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-300">
-                {hlEquip.baseGold} + {hlEquip.diceCount}d10 x {hlEquip.diceMultiplier} GP
+                {t('builder.higherLevelEquipment.goldFormula', {
+                  base: hlEquip.baseGold,
+                  dice: hlEquip.diceCount,
+                  multiplier: hlEquip.diceMultiplier
+                })}
               </span>
               <button
                 onClick={handleRollGold}
                 className="text-xs px-2 py-0.5 rounded bg-amber-600 hover:bg-amber-500 text-gray-900 font-semibold cursor-pointer"
               >
-                Roll
+                {t('builder.higherLevelEquipment.roll')}
               </button>
               <button
                 onClick={handleTakeAverage}
                 className="text-xs px-2 py-0.5 rounded border border-gray-600 text-gray-400 hover:text-gray-200 cursor-pointer"
               >
-                Average
+                {t('builder.higherLevelEquipment.average')}
               </button>
               {higherLevelGoldBonus > 0 && (
-                <span className="text-sm text-amber-400 font-bold">+{higherLevelGoldBonus} GP</span>
+                <span className="text-sm text-amber-400 font-bold">
+                  {t('builder.higherLevelEquipment.goldBonus', { gold: higherLevelGoldBonus })}
+                </span>
               )}
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-300">No bonus gold at this level</span>
-              {hlEquip.baseGold > 0 && <span className="text-sm text-amber-400 font-bold">+{hlEquip.baseGold} GP</span>}
+              <span className="text-sm text-gray-300">{t('builder.higherLevelEquipment.noBonusGold')}</span>
+              {hlEquip.baseGold > 0 && (
+                <span className="text-sm text-amber-400 font-bold">
+                  {t('builder.higherLevelEquipment.goldBonus', { gold: hlEquip.baseGold })}
+                </span>
+              )}
             </div>
           )}
         </div>
@@ -226,7 +245,9 @@ export default function HigherLevelEquipment5e(): JSX.Element | null {
         {/* Magic Item Slots */}
         {magicSlots.length > 0 && (
           <div>
-            <div className="text-xs text-gray-400 uppercase tracking-wide mb-1">Magic Items</div>
+            <div className="text-xs text-gray-400 uppercase tracking-wide mb-1">
+              {t('builder.higherLevelEquipment.magicItemsLabel')}
+            </div>
             <div className="space-y-1.5">
               {magicSlots.map((slot, idx) => {
                 const selected = selectedMagicItems[idx]

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { MonsterStatBlockView } from '../../components/game/dm'
+import { useT } from '../../i18n'
 import { loadAllStatBlocks, searchMonsters } from '../../services/data-provider'
 import type { MonsterStatBlock } from '../../types/monster'
 
@@ -10,6 +11,7 @@ interface MonsterLinkerProps {
 }
 
 export default function MonsterLinker({ onSelect, selectedId, showPreview }: MonsterLinkerProps): JSX.Element {
+  const { t } = useT()
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<MonsterStatBlock[]>([])
   const [allMonsters, setAllMonsters] = useState<MonsterStatBlock[]>([])
@@ -38,7 +40,7 @@ export default function MonsterLinker({ onSelect, selectedId, showPreview }: Mon
         value={query}
         onChange={(e) => handleSearch(e.target.value)}
         className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
-        placeholder="Search monsters..."
+        placeholder={t('pages.monsterLinker.searchPlaceholder')}
       />
       {results.length > 0 && (
         <div className="bg-gray-800 border border-gray-700 rounded max-h-40 overflow-y-auto">
@@ -56,9 +58,7 @@ export default function MonsterLinker({ onSelect, selectedId, showPreview }: Mon
               }`}
             >
               <span>{m.name}</span>
-              <span className="text-gray-500">
-                {m.type} &middot; CR {m.cr}
-              </span>
+              <span className="text-gray-500">{t('pages.monsterLinker.typeCr', { type: m.type, cr: m.cr })}</span>
             </button>
           ))}
         </div>

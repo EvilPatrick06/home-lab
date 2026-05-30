@@ -1,3 +1,4 @@
+import { useT } from '../../../i18n'
 import type { SelectableOption } from '../../../types/character-common'
 
 interface SelectionDetailPanelProps {
@@ -5,10 +6,11 @@ interface SelectionDetailPanelProps {
 }
 
 export default function SelectionDetailPanel({ option }: SelectionDetailPanelProps): JSX.Element {
+  const { t } = useT()
   if (!option) {
     return (
       <div className="flex-1 flex items-center justify-center text-gray-500 text-sm">
-        Select an option to view details
+        {t('builder.selectionDetail.selectToView')}
       </div>
     )
   }
@@ -63,7 +65,9 @@ export default function SelectionDetailPanel({ option }: SelectionDetailPanelPro
 
       {option.prerequisites && option.prerequisites.length > 0 && (
         <div className="mt-4 p-3 bg-red-900/20 border border-red-800/30 rounded">
-          <div className="text-xs font-semibold text-red-400 uppercase mb-1">Prerequisites</div>
+          <div className="text-xs font-semibold text-red-400 uppercase mb-1">
+            {t('builder.selectionDetail.prerequisites')}
+          </div>
           <div className="text-sm text-gray-300">{option.prerequisites.join(', ')}</div>
         </div>
       )}

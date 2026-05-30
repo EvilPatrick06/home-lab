@@ -1,5 +1,6 @@
 import sessionZeroJson from '@data/5e/world/session-zero-config.json'
 import { useState } from 'react'
+import { useT } from '../../i18n'
 import { load5eSessionZeroConfig } from '../../services/data-provider'
 import type { CustomRule } from '../../types/campaign'
 
@@ -47,6 +48,7 @@ export default function SessionZeroStep({
   customRules,
   onRulesChange
 }: SessionZeroStepProps): JSX.Element {
+  const { t } = useT()
   const [customLimit, setCustomLimit] = useState('')
   const [showRuleForm, setShowRuleForm] = useState(false)
   const [newRuleName, setNewRuleName] = useState('')
@@ -94,15 +96,13 @@ export default function SessionZeroStep({
   return (
     <div className="max-w-2xl space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-gray-100 mb-1">Session Zero</h2>
-        <p className="text-gray-400 text-sm">
-          Establish expectations and boundaries before play begins. Players can view these in the lobby.
-        </p>
+        <h2 className="text-xl font-bold text-gray-100 mb-1">{t('campaign.sessionZeroStep.title')}</h2>
+        <p className="text-gray-400 text-sm">{t('campaign.sessionZeroStep.subtitle')}</p>
       </div>
 
       {/* Tone */}
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">Campaign Tone</label>
+        <label className="block text-sm font-medium text-gray-300 mb-2">{t('campaign.sessionZeroStep.tone')}</label>
         <div className="grid grid-cols-2 gap-2">
           {TONE_OPTIONS.map((opt) => (
             <button
@@ -125,8 +125,10 @@ export default function SessionZeroStep({
 
       {/* Content Limits */}
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">Content Limits & Triggers</label>
-        <p className="text-xs text-gray-500 mb-2">Select topics that should be avoided or handled carefully.</p>
+        <label className="block text-sm font-medium text-gray-300 mb-2">
+          {t('campaign.sessionZeroStep.contentLimits')}
+        </label>
+        <p className="text-xs text-gray-500 mb-2">{t('campaign.sessionZeroStep.contentLimitsHint')}</p>
         <div className="grid grid-cols-3 gap-1.5">
           {COMMON_LIMITS.map((limit) => (
             <label
@@ -148,7 +150,7 @@ export default function SessionZeroStep({
             value={customLimit}
             onChange={(e) => setCustomLimit(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && addCustomLimit()}
-            placeholder="Add custom limit..."
+            placeholder={t('campaign.sessionZeroStep.customLimitPlaceholder')}
             className="flex-1 px-2 py-1 text-xs bg-gray-800 border border-gray-700 rounded text-gray-200"
           />
           <button
@@ -156,7 +158,7 @@ export default function SessionZeroStep({
             disabled={!customLimit.trim()}
             className="px-3 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded text-gray-300 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Add
+            {t('campaign.sessionZeroStep.add')}
           </button>
         </div>
         {data.contentLimits.filter((l) => !COMMON_LIMITS.includes(l)).length > 0 && (
@@ -181,8 +183,8 @@ export default function SessionZeroStep({
       {/* PvP */}
       <div className="flex items-center justify-between bg-gray-800 rounded-lg p-4">
         <div>
-          <div className="text-sm font-medium text-gray-300">Player vs Player Combat</div>
-          <div className="text-xs text-gray-500">Allow characters to attack or work against each other?</div>
+          <div className="text-sm font-medium text-gray-300">{t('campaign.sessionZeroStep.pvp')}</div>
+          <div className="text-xs text-gray-500">{t('campaign.sessionZeroStep.pvpHint')}</div>
         </div>
         <button
           onClick={() => update('pvpAllowed', !data.pvpAllowed)}
@@ -200,7 +202,9 @@ export default function SessionZeroStep({
 
       {/* Character Death */}
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">Character Death Expectations</label>
+        <label className="block text-sm font-medium text-gray-300 mb-2">
+          {t('campaign.sessionZeroStep.characterDeath')}
+        </label>
         <div className="grid grid-cols-2 gap-2">
           {DEATH_OPTIONS.map((opt) => (
             <button
@@ -227,8 +231,10 @@ export default function SessionZeroStep({
 
       {/* House Rules */}
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">House Rules</label>
-        <p className="text-xs text-gray-500 mb-2">Add custom house rules for your campaign. You can add more later.</p>
+        <label className="block text-sm font-medium text-gray-300 mb-2">
+          {t('campaign.sessionZeroStep.houseRules')}
+        </label>
+        <p className="text-xs text-gray-500 mb-2">{t('campaign.sessionZeroStep.houseRulesHint')}</p>
 
         {customRules.length > 0 && (
           <div className="space-y-2 mb-3">
@@ -249,7 +255,7 @@ export default function SessionZeroStep({
                 <button
                   onClick={() => handleRemoveRule(rule.id)}
                   className="text-gray-500 hover:text-red-400 transition-colors cursor-pointer text-lg shrink-0"
-                  title="Remove rule"
+                  title={t('campaign.sessionZeroStep.removeRule')}
                 >
                   &times;
                 </button>
@@ -261,26 +267,26 @@ export default function SessionZeroStep({
         {showRuleForm ? (
           <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-4 space-y-3">
             <div>
-              <label className="block text-xs text-gray-400 mb-1">Rule Name</label>
+              <label className="block text-xs text-gray-400 mb-1">{t('campaign.sessionZeroStep.ruleName')}</label>
               <input
                 value={newRuleName}
                 onChange={(e) => setNewRuleName(e.target.value)}
-                placeholder="e.g. Critical Hit Bonus"
+                placeholder={t('campaign.sessionZeroStep.ruleNamePlaceholder')}
                 className="w-full px-3 py-2 text-xs bg-gray-800 border border-gray-700 rounded text-gray-200 focus:outline-none focus:border-amber-500 transition-colors"
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-400 mb-1">Description</label>
+              <label className="block text-xs text-gray-400 mb-1">{t('campaign.sessionZeroStep.description')}</label>
               <textarea
                 value={newRuleDescription}
                 onChange={(e) => setNewRuleDescription(e.target.value)}
-                placeholder="Describe how this rule works..."
+                placeholder={t('campaign.sessionZeroStep.descriptionPlaceholder')}
                 rows={2}
                 className="w-full px-3 py-2 text-xs bg-gray-800 border border-gray-700 rounded text-gray-200 resize-none focus:outline-none focus:border-amber-500 transition-colors"
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-400 mb-1">Category</label>
+              <label className="block text-xs text-gray-400 mb-1">{t('campaign.sessionZeroStep.category')}</label>
               <select
                 value={newRuleCategory}
                 onChange={(e) => setNewRuleCategory(e.target.value as RuleCategory)}
@@ -299,13 +305,13 @@ export default function SessionZeroStep({
                 disabled={!newRuleName.trim()}
                 className="px-3 py-1.5 text-xs bg-amber-600 hover:bg-amber-500 rounded text-white cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                Add Rule
+                {t('campaign.sessionZeroStep.addRule')}
               </button>
               <button
                 onClick={() => setShowRuleForm(false)}
                 className="px-3 py-1.5 text-xs bg-gray-700 hover:bg-gray-600 rounded text-gray-300 cursor-pointer"
               >
-                Cancel
+                {t('common.actions.cancel')}
               </button>
             </div>
           </div>
@@ -314,18 +320,20 @@ export default function SessionZeroStep({
             onClick={() => setShowRuleForm(true)}
             className="px-3 py-1.5 text-xs bg-gray-700 hover:bg-gray-600 rounded text-gray-300 cursor-pointer"
           >
-            + Add Rule
+            {t('campaign.sessionZeroStep.addRuleButton')}
           </button>
         )}
       </div>
 
       {/* Play Schedule */}
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-1">Play Schedule</label>
+        <label className="block text-sm font-medium text-gray-300 mb-1">
+          {t('campaign.sessionZeroStep.playSchedule')}
+        </label>
         <textarea
           value={data.playSchedule}
           onChange={(e) => update('playSchedule', e.target.value)}
-          placeholder="e.g. Every Saturday 6-10 PM, biweekly..."
+          placeholder={t('campaign.sessionZeroStep.playSchedulePlaceholder')}
           rows={2}
           className="w-full px-3 py-2 text-xs bg-gray-800 border border-gray-700 rounded text-gray-200 resize-none"
         />
@@ -333,11 +341,13 @@ export default function SessionZeroStep({
 
       {/* Additional Notes */}
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-1">Additional Notes</label>
+        <label className="block text-sm font-medium text-gray-300 mb-1">
+          {t('campaign.sessionZeroStep.additionalNotes')}
+        </label>
         <textarea
           value={data.additionalNotes}
           onChange={(e) => update('additionalNotes', e.target.value)}
-          placeholder="Any other expectations or information for players..."
+          placeholder={t('campaign.sessionZeroStep.additionalNotesPlaceholder')}
           rows={2}
           className="w-full px-3 py-2 text-xs bg-gray-800 border border-gray-700 rounded text-gray-200 resize-none"
         />

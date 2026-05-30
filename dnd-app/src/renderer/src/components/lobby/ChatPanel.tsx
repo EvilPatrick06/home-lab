@@ -1,5 +1,6 @@
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { memo, useEffect, useRef } from 'react'
+import { useT } from '../../i18n'
 import { type ChatMessage, useLobbyStore } from '../../stores/use-lobby-store'
 import { ChatInput } from '.'
 
@@ -9,6 +10,7 @@ function formatTime(timestamp: number): string {
 }
 
 const FileAttachment = memo(function FileAttachment({ msg }: { msg: ChatMessage }): JSX.Element {
+  const { t } = useT()
   const isImage = msg.mimeType?.startsWith('image/')
 
   if (isImage && msg.fileData && msg.mimeType) {
@@ -16,7 +18,7 @@ const FileAttachment = memo(function FileAttachment({ msg }: { msg: ChatMessage 
       <div className="ml-14 mt-1">
         <img
           src={`data:${msg.mimeType};base64,${msg.fileData}`}
-          alt={msg.fileName || 'Shared image'}
+          alt={msg.fileName || t('lobby.chatPanel.sharedImageAlt')}
           className="max-w-[300px] max-h-[200px] rounded-lg border border-gray-700 object-contain"
         />
         <p className="text-xs text-gray-500 mt-0.5">{msg.fileName}</p>
@@ -41,7 +43,12 @@ const FileAttachment = memo(function FileAttachment({ msg }: { msg: ChatMessage 
     URL.revokeObjectURL(url)
   }
 
-  const fileIcon = msg.fileType === 'character' ? 'Character' : msg.fileType === 'campaign' ? 'Campaign' : 'File'
+  const fileIcon =
+    msg.fileType === 'character'
+      ? t('lobby.chatPanel.fileTypeCharacter')
+      : msg.fileType === 'campaign'
+        ? t('lobby.chatPanel.fileTypeCampaign')
+        : t('lobby.chatPanel.fileTypeFile')
 
   return (
     <div className="ml-14 mt-1">
@@ -61,7 +68,7 @@ const FileAttachment = memo(function FileAttachment({ msg }: { msg: ChatMessage 
         </svg>
         <div className="text-left">
           <p className="text-sm text-gray-200 group-hover:text-amber-300">{msg.fileName}</p>
-          <p className="text-xs text-gray-500">{fileIcon} file</p>
+          <p className="text-xs text-gray-500">{t('lobby.chatPanel.fileLabel', { type: fileIcon })}</p>
         </div>
       </button>
     </div>
@@ -69,6 +76,7 @@ const FileAttachment = memo(function FileAttachment({ msg }: { msg: ChatMessage 
 })
 
 const MessageBubble = memo(function MessageBubble({ msg }: { msg: ChatMessage }): JSX.Element {
+  const { t } = useT()
   // System messages
   if (msg.isSystem) {
     return (
@@ -129,7 +137,7 @@ const MessageBubble = memo(function MessageBubble({ msg }: { msg: ChatMessage })
                 <span className="text-gray-500 text-sm">&rarr;</span>
                 <span className="text-sm font-semibold text-amber-400">{total}</span>
                 {modifier !== 0 && (
-                  <span className="text-[11px] text-gray-500 font-mono" title="base + modifier = total">
+                  <span className="text-[11px] text-gray-500 font-mono" title={t('lobby.chatPanel.diceBreakdownTitle')}>
                     ({base} {modifier > 0 ? '+' : '−'} {Math.abs(modifier)} = {total})
                   </span>
                 )}
@@ -154,7 +162,7 @@ const MessageBubble = memo(function MessageBubble({ msg }: { msg: ChatMessage })
           >
             {msg.senderName}
           </span>
-          <span className="text-xs text-gray-500">shared a file</span>
+          <span className="text-xs text-gray-500">{t('lobby.chatPanel.sharedFile')}</span>
         </div>
         <FileAttachment msg={msg} />
       </div>
@@ -179,6 +187,7 @@ const MessageBubble = memo(function MessageBubble({ msg }: { msg: ChatMessage })
 })
 
 export default function ChatPanel(): JSX.Element {
+  const { t } = useT()
   const chatMessages = useLobbyStore((s) => s.chatMessages)
   const parentRef = useRef<HTMLDivElement>(null)
 
@@ -198,13 +207,13 @@ export default function ChatPanel(): JSX.Element {
   return (
     <div className="flex flex-col h-full">
       <div className="px-4 py-3 border-b border-gray-800">
-        <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wide">Chat</h2>
+        <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wide">{t('lobby.chatPanel.heading')}</h2>
       </div>
 
       <div ref={parentRef} className="flex-1 overflow-y-auto py-2" aria-live="polite">
         {chatMessages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
-            <p className="text-sm text-gray-600">No messages yet. Say hello!</p>
+            <p className="text-sm text-gray-600">{t('lobby.chatPanel.noMessages')}</p>
           </div>
         ) : (
           <div style={{ height: `${virtualizer.getTotalSize()}px`, position: 'relative', width: '100%' }}>

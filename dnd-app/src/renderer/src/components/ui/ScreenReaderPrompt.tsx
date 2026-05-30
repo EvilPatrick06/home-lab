@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Z } from '../../constants'
+import { useT } from '../../i18n'
 import { useAccessibilityStore } from '../../stores/use-accessibility-store'
 
 /**
@@ -11,6 +12,7 @@ import { useAccessibilityStore } from '../../stores/use-accessibility-store'
  * `screenReaderMode` (via the store), so the prompt never shows again.
  */
 export default function ScreenReaderPrompt(): JSX.Element | null {
+  const { t } = useT()
   const screenReaderModeSet = useAccessibilityStore((s) => s.screenReaderModeSet)
   const setScreenReaderMode = useAccessibilityStore((s) => s.setScreenReaderMode)
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
@@ -37,24 +39,21 @@ export default function ScreenReaderPrompt(): JSX.Element | null {
     >
       <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 max-w-sm w-full mx-4 text-center shadow-2xl">
         <h2 id="sr-prompt-title" className="text-lg font-bold text-gray-100 mb-2">
-          Do you use a screen reader?
+          {t('ui.screenReaderPrompt.title')}
         </h2>
-        <p className="text-sm text-gray-400 mb-5">
-          Enabling Screen Reader Mode adds extra announcements for combat, dice, and turn changes. You can change this
-          any time in Settings.
-        </p>
+        <p className="text-sm text-gray-400 mb-5">{t('ui.screenReaderPrompt.description')}</p>
         <div className="flex gap-3 justify-center">
           <button
             onClick={() => setScreenReaderMode(false)}
             className="px-4 py-2 text-sm rounded-lg bg-gray-700 hover:bg-gray-600 text-gray-200 cursor-pointer"
           >
-            No
+            {t('ui.screenReaderPrompt.no')}
           </button>
           <button
             onClick={() => setScreenReaderMode(true)}
             className="px-4 py-2 text-sm rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-semibold cursor-pointer"
           >
-            Yes, enable it
+            {t('ui.screenReaderPrompt.yes')}
           </button>
         </div>
       </div>

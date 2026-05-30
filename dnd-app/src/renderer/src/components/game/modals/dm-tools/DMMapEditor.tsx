@@ -1,4 +1,5 @@
 import { lazy, Suspense, useCallback, useState } from 'react'
+import { useT } from '../../../../i18n'
 import * as UndoManager from '../../../../services/undo-manager'
 import { useGameStore } from '../../../../stores/use-game-store'
 import type { Campaign } from '../../../../types/campaign'
@@ -23,6 +24,7 @@ interface DMMapEditorProps {
 }
 
 export default function DMMapEditor({ campaign, onClose }: DMMapEditorProps): JSX.Element {
+  const { t } = useT()
   const gameStore = useGameStore()
   const activeMap = gameStore.maps.find((m) => m.id === gameStore.activeMapId) ?? null
 
@@ -125,7 +127,7 @@ export default function DMMapEditor({ campaign, onClose }: DMMapEditorProps): JS
     }) => {
       const newMap: GameMap = {
         id: crypto.randomUUID(),
-        name: mapConfig.name || `Map ${gameStore.maps.length + 1}`,
+        name: mapConfig.name || t('game.dmMapEditor.defaultMapName', { num: gameStore.maps.length + 1 }),
         campaignId: campaign.id,
         imagePath: mapConfig.imageData || '',
         width: mapConfig.width * mapConfig.cellSize,
@@ -193,7 +195,9 @@ export default function DMMapEditor({ campaign, onClose }: DMMapEditorProps): JS
           onAddMap={handleAddMap}
         />
         {gameStore.initiative && (
-          <span className="text-xs text-amber-400 font-semibold">Round {gameStore.initiative.round}</span>
+          <span className="text-xs text-amber-400 font-semibold">
+            {t('game.dmMapEditor.round', { round: gameStore.initiative.round })}
+          </span>
         )}
         <div className="flex-1" />
         <button
@@ -201,13 +205,13 @@ export default function DMMapEditor({ campaign, onClose }: DMMapEditorProps): JS
           disabled={!activeMap}
           className="px-3 py-1 text-xs font-semibold text-gray-300 hover:text-white bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Resize
+          {t('game.dmMapEditor.resize')}
         </button>
         <button
           onClick={onClose}
           className="px-3 py-1 text-xs font-semibold text-gray-300 hover:text-white bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg transition-colors cursor-pointer"
         >
-          Close Editor
+          {t('game.dmMapEditor.closeEditor')}
         </button>
       </div>
 

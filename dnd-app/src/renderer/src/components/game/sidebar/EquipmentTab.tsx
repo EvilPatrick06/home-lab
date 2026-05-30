@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useT } from '../../../i18n'
 import { load5eEquipment } from '../../../services/data-provider'
 import type { EquipmentFile } from '../../../types/data'
 
@@ -9,6 +10,7 @@ interface ItemWithCategory {
 }
 
 export default function EquipmentTab(): JSX.Element {
+  const { t } = useT()
   const [equipment, setEquipment] = useState<EquipmentFile | null>(null)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -52,7 +54,7 @@ export default function EquipmentTab(): JSX.Element {
   })
 
   if (loading) {
-    return <p className="text-xs text-gray-500 text-center py-4">Loading equipment...</p>
+    return <p className="text-xs text-gray-500 text-center py-4">{t('game.equipmentTab.loading')}</p>
   }
 
   return (
@@ -61,7 +63,7 @@ export default function EquipmentTab(): JSX.Element {
         type="text"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        placeholder="Search equipment..."
+        placeholder={t('game.equipmentTab.searchPlaceholder')}
         className="w-full px-2.5 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-xs text-gray-100 placeholder-gray-500 focus:outline-none focus:border-amber-500/60"
       />
 
@@ -81,13 +83,11 @@ export default function EquipmentTab(): JSX.Element {
         ))}
       </div>
 
-      <div className="text-xs text-gray-500">
-        {filtered.length} item{filtered.length !== 1 ? 's' : ''}
-      </div>
+      <div className="text-xs text-gray-500">{t('game.equipmentTab.itemCount', { count: filtered.length })}</div>
 
       <div className="flex-1 overflow-y-auto space-y-1.5 min-h-0">
         {filtered.length === 0 ? (
-          <p className="text-xs text-gray-500 text-center py-4">No matching equipment</p>
+          <p className="text-xs text-gray-500 text-center py-4">{t('game.equipmentTab.noMatching')}</p>
         ) : (
           filtered.map((item, i) => (
             <div key={`${item.name}-${i}`} className="bg-gray-800/50 rounded-lg px-3 py-2 border border-gray-700/30">

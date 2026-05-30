@@ -1,4 +1,6 @@
 import { lazy, Suspense, useMemo } from 'react'
+import { useT } from '../../../i18n'
+import type { TranslationKeys } from '../../../i18n/types'
 import { useBuilderStore } from '../../../stores/use-builder-store'
 import ErrorBoundary from '../../ui/ErrorBoundary'
 import AbilityScoreModal from '../shared/AbilityScoreModal'
@@ -14,46 +16,47 @@ import SpellsTab5e from './SpellsTab5e'
 
 const GearTab5e = lazy(() => import('./GearTab5e'))
 
-const GUIDED_HINTS: Record<string, string> = {
-  class: "Choose your character's class. This determines your hit points, abilities, and play style.",
-  background:
-    "Pick a background that fits your character's history. This gives you skills, tools, and ability score bonuses.",
-  ancestry: 'Select your species. This determines your physical traits and special abilities.',
-  'ability-scores': 'Assign your six ability scores. These are the foundation of everything your character can do.',
-  'skill-choices': "Choose skill proficiencies. These represent your character's training and expertise.",
-  heritage: 'Select your lineage/heritage for additional species traits and abilities.',
-  subclass: 'Your subclass specialization defines your unique approach within your class.'
+const GUIDED_HINT_KEYS: Record<string, TranslationKeys> = {
+  class: 'builder.mainContent.hint.class',
+  background: 'builder.mainContent.hint.background',
+  ancestry: 'builder.mainContent.hint.ancestry',
+  'ability-scores': 'builder.mainContent.hint.abilityScores',
+  'skill-choices': 'builder.mainContent.hint.skillChoices',
+  heritage: 'builder.mainContent.hint.heritage',
+  subclass: 'builder.mainContent.hint.subclass'
 }
 
 function GuidedBanner(): JSX.Element | null {
+  const { t } = useT()
   const guidedMode = useBuilderStore((s) => s.guidedMode)
   const buildSlots = useBuilderStore((s) => s.buildSlots)
   const selectionModal = useBuilderStore((s) => s.selectionModal)
 
-  const hint = useMemo(() => {
+  const hintKey = useMemo(() => {
     if (!guidedMode) return null
     // Show hint based on the active selection modal or next unconfirmed slot
     if (selectionModal) {
       const slot = buildSlots.find((s) => s.id === selectionModal.slotId)
       if (slot) {
-        return GUIDED_HINTS[slot.category] || GUIDED_HINTS[slot.id] || null
+        return GUIDED_HINT_KEYS[slot.category] || GUIDED_HINT_KEYS[slot.id] || null
       }
     }
     // Fall back to the next unconfirmed slot
     for (const slot of buildSlots) {
       if (!slot.selectedId && !slot.isAutoGranted) {
-        return GUIDED_HINTS[slot.category] || GUIDED_HINTS[slot.id] || null
+        return GUIDED_HINT_KEYS[slot.category] || GUIDED_HINT_KEYS[slot.id] || null
       }
     }
     return null
   }, [guidedMode, buildSlots, selectionModal])
 
-  if (!hint) return null
+  if (!hintKey) return null
 
-  return <div className="px-4 py-2 bg-blue-900/30 border-b border-blue-700/40 text-xs text-blue-300">{hint}</div>
+  return <div className="px-4 py-2 bg-blue-900/30 border-b border-blue-700/40 text-xs text-blue-300">{t(hintKey)}</div>
 }
 
 function ActiveTabContent(): JSX.Element {
+  const { t } = useT()
   const activeTab = useBuilderStore((s) => s.activeTab)
 
   switch (activeTab) {
@@ -68,9 +71,9 @@ function ActiveTabContent(): JSX.Element {
     case 'gear':
       return (
         <ErrorBoundary
-          fallback={<div className="p-4 text-red-400 text-sm">Failed to load gear tab. Please restart the app.</div>}
+          fallback={<div className="p-4 text-red-400 text-sm">{t('builder.mainContent.gearTabError')}</div>}
         >
-          <Suspense fallback={<div className="p-4 text-gray-500 text-sm">Loading...</div>}>
+          <Suspense fallback={<div className="p-4 text-gray-500 text-sm">{t('common.states.loading')}</div>}>
             <GearTab5e />
           </Suspense>
         </ErrorBoundary>

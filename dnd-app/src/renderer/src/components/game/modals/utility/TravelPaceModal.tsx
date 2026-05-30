@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 import { useGameStore } from '../../../../stores/use-game-store'
 
 interface TravelPaceModalProps {
@@ -46,6 +47,7 @@ const PACES = [
 ]
 
 export default function TravelPaceModal({ onClose }: TravelPaceModalProps): JSX.Element {
+  const { t } = useT()
   useEscapeKey(onClose)
   const travelPace = useGameStore((s) => s.travelPace)
   const setTravelPace = useGameStore((s) => s.setTravelPace)
@@ -59,11 +61,11 @@ export default function TravelPaceModal({ onClose }: TravelPaceModalProps): JSX.
       <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-[480px] max-h-[80vh] overflow-y-auto shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-gray-200">Travel Pace Calculator</h3>
+          <h3 className="text-sm font-semibold text-gray-200">{t('game.travelPaceModal.title')}</h3>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-300 text-lg cursor-pointer"
-            aria-label="Close"
+            aria-label={t('common.actions.close')}
           >
             &times;
           </button>
@@ -79,7 +81,9 @@ export default function TravelPaceModal({ onClose }: TravelPaceModalProps): JSX.
                 className={`p-3 rounded-lg border ${isActive ? `${pace.borderColor} ${pace.bgColor}` : 'border-gray-700 bg-gray-800/50'}`}
               >
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className={`text-sm font-semibold ${pace.color}`}>{pace.name}</span>
+                  <span className={`text-sm font-semibold ${pace.color}`}>
+                    {t(`game.travelPaceModal.paces.${pace.value}.name`)}
+                  </span>
                   <button
                     onClick={() => setTravelPace(isActive ? null : pace.value)}
                     className={`px-2.5 py-1 text-xs font-semibold rounded cursor-pointer transition-colors ${
@@ -88,18 +92,18 @@ export default function TravelPaceModal({ onClose }: TravelPaceModalProps): JSX.
                         : 'bg-amber-600 text-white hover:bg-amber-500'
                     }`}
                   >
-                    {isActive ? 'Clear' : 'Set Active'}
+                    {isActive ? t('game.travelPaceModal.clear') : t('game.travelPaceModal.setActive')}
                   </button>
                 </div>
                 <div className="grid grid-cols-3 gap-2 text-xs text-gray-400 mb-1.5">
-                  <span>{pace.perMinute}/min</span>
-                  <span>{pace.perHour}/hr</span>
-                  <span>{pace.perDay}/day</span>
+                  <span>{t('game.travelPaceModal.perMinute', { value: pace.perMinute })}</span>
+                  <span>{t('game.travelPaceModal.perHour', { value: pace.perHour })}</span>
+                  <span>{t('game.travelPaceModal.perDay', { value: pace.perDay })}</span>
                 </div>
                 <div className="space-y-0.5">
-                  {pace.effects.map((effect, i) => (
+                  {pace.effects.map((_effect, i) => (
                     <div key={i} className="text-xs text-gray-500">
-                      {effect}
+                      {t(`game.travelPaceModal.paces.${pace.value}.effect${i}`)}
                     </div>
                   ))}
                 </div>
@@ -110,18 +114,18 @@ export default function TravelPaceModal({ onClose }: TravelPaceModalProps): JSX.
 
         {/* Distance calculator */}
         <div className="border-t border-gray-700 pt-3">
-          <div className="text-xs text-gray-400 mb-2">Distance Calculator</div>
+          <div className="text-xs text-gray-400 mb-2">{t('game.travelPaceModal.distanceCalculator')}</div>
           <div className="flex items-center gap-2 mb-2">
             <input
               type="number"
               value={distance}
               onChange={(e) => setDistance(e.target.value)}
-              placeholder="Distance"
+              placeholder={t('game.travelPaceModal.distancePlaceholder')}
               min="0"
               step="0.5"
               className="w-24 px-2 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-200 focus:outline-none focus:border-amber-500"
             />
-            <span className="text-xs text-gray-400">miles</span>
+            <span className="text-xs text-gray-400">{t('game.travelPaceModal.miles')}</span>
           </div>
           {distNum > 0 && (
             <div className="space-y-1">
@@ -131,7 +135,11 @@ export default function TravelPaceModal({ onClose }: TravelPaceModalProps): JSX.
                 const minutes = Math.round((hours - hoursWhole) * 60)
                 return (
                   <div key={pace.value} className="flex items-center justify-between text-xs">
-                    <span className={pace.color}>{pace.name}:</span>
+                    <span className={pace.color}>
+                      {t('game.travelPaceModal.paceLabel', {
+                        name: t(`game.travelPaceModal.paces.${pace.value}.name`)
+                      })}
+                    </span>
                     <span className="text-gray-300">
                       {hoursWhole > 0 ? `${hoursWhole}h ` : ''}
                       {minutes > 0 ? `${minutes}m` : hoursWhole > 0 ? '' : '0m'}

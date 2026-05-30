@@ -1,3 +1,4 @@
+import { useT } from '../../../i18n'
 import type { InitiativeEntry as InitiativeEntryType } from '../../../types/game-state'
 
 interface InitiativeEntryProps {
@@ -43,6 +44,7 @@ export default function InitiativeEntry({
   onDelayEntry,
   onCenterToken
 }: InitiativeEntryProps): JSX.Element {
+  const { t } = useT()
   return (
     <div
       draggable={isHost && !entry.isLairAction}
@@ -80,7 +82,7 @@ export default function InitiativeEntry({
           className={`w-8 h-8 rounded-full flex-shrink-0 overflow-hidden
             ${entry.isActive ? 'ring-2 ring-amber-400 animate-pulse' : ''}
             cursor-pointer hover:brightness-125`}
-          title={`Click to center on ${entry.entityName}`}
+          title={t('game.initiativeEntry.centerOn', { name: entry.entityName })}
         >
           <img src={entry.portraitUrl} alt={entry.entityName} className="w-full h-full object-cover" />
         </button>
@@ -101,7 +103,11 @@ export default function InitiativeEntry({
           }
           ${entry.isActive ? 'ring-2 ring-amber-400 animate-pulse' : ''}
           ${!entry.isLairAction ? 'cursor-pointer hover:brightness-125' : ''}`}
-          title={entry.isLairAction ? 'Lair Action' : `Click to center on ${entry.entityName}`}
+          title={
+            entry.isLairAction
+              ? t('game.initiativeEntry.lairAction')
+              : t('game.initiativeEntry.centerOn', { name: entry.entityName })
+          }
         >
           {entry.entityName.charAt(0).toUpperCase()}
         </button>
@@ -127,9 +133,15 @@ export default function InitiativeEntry({
               ? 'bg-orange-700/50 text-orange-300 hover:bg-orange-600/50'
               : 'bg-gray-800 text-gray-600'
           }`}
-          title={`Legendary Resistance: ${entry.legendaryResistances.remaining}/${entry.legendaryResistances.max} — Click to use`}
+          title={t('game.initiativeEntry.legendaryResistanceTitle', {
+            remaining: entry.legendaryResistances.remaining,
+            max: entry.legendaryResistances.max
+          })}
         >
-          LR {entry.legendaryResistances.remaining}/{entry.legendaryResistances.max}
+          {t('game.initiativeEntry.legendaryResistanceLabel', {
+            remaining: entry.legendaryResistances.remaining,
+            max: entry.legendaryResistances.max
+          })}
         </button>
       )}
 
@@ -140,9 +152,9 @@ export default function InitiativeEntry({
           className={`text-xs px-1 py-0.5 rounded cursor-pointer transition-colors ${
             entry.inLair ? 'bg-purple-700/50 text-purple-300' : 'bg-gray-800/50 text-gray-600 hover:text-gray-400'
           }`}
-          title={entry.inLair ? 'In Lair (click to toggle off)' : 'Not in lair (click to toggle on)'}
+          title={entry.inLair ? t('game.initiativeEntry.inLairToggleOff') : t('game.initiativeEntry.inLairToggleOn')}
         >
-          {entry.inLair ? 'Lair' : ''}
+          {entry.inLair ? t('game.initiativeEntry.lair') : ''}
         </button>
       )}
 
@@ -151,9 +163,9 @@ export default function InitiativeEntry({
         <button
           onClick={() => onDelayEntry(entry)}
           className="text-xs px-1 py-0.5 rounded bg-gray-700 text-gray-400 hover:text-yellow-300 hover:bg-gray-600 cursor-pointer"
-          title="Delay turn (hold and re-enter later)"
+          title={t('game.initiativeEntry.delayTitle')}
         >
-          Delay
+          {t('game.initiativeEntry.delay')}
         </button>
       )}
 
@@ -175,7 +187,7 @@ export default function InitiativeEntry({
             <span
               className="text-xs font-mono font-semibold w-7 text-center cursor-pointer hover:text-amber-400 text-gray-300"
               onClick={() => onEditStart(entry.id, entry.total)}
-              title="Click to edit"
+              title={t('game.initiativeEntry.clickToEdit')}
             >
               {entry.total}
             </span>
@@ -183,7 +195,7 @@ export default function InitiativeEntry({
           <button
             onClick={() => onRemoveEntry(entry.id)}
             className="text-gray-600 hover:text-red-400 text-xs cursor-pointer"
-            title="Remove from initiative"
+            title={t('game.initiativeEntry.removeFromInitiative')}
           >
             &#x2715;
           </button>

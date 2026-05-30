@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { getSkillDescription } from '../../../data/skills'
+import { useT } from '../../../i18n'
 import type { Character5e } from '../../../types/character-5e'
 import { abilityModifier, formatMod } from '../../../types/character-common'
 import SheetSectionWrapper from '../shared/SheetSectionWrapper'
@@ -11,11 +12,12 @@ interface SkillsSection5eProps {
 }
 
 export default function SkillsSection5e({ character, readonly: _readonly }: SkillsSection5eProps): JSX.Element {
+  const { t } = useT()
   const profBonus = Math.ceil(character.level / 4) + 1
   const [expandedSkill, setExpandedSkill] = useState<string | null>(null)
 
   return (
-    <SheetSectionWrapper title="Skills">
+    <SheetSectionWrapper title={t('sheet.skillsSection.title')}>
       <div className="grid grid-cols-2 gap-x-4 gap-y-0.5">
         {character.skills.map((skill) => {
           const abMod = abilityModifier(character.abilityScores[skill.ability])
@@ -41,8 +43,18 @@ export default function SkillsSection5e({ character, readonly: _readonly }: Skil
                 <div className="ml-6 mb-1 text-xs text-gray-500 bg-gray-800/30 rounded p-1.5">
                   <div className="text-amber-400/80 font-mono mb-0.5">
                     {formatMod(total)} = {abLabel}({formatMod(abMod)})
-                    {skill.proficient && <> + Prof({formatMod(profBonus)})</>}
-                    {skill.expertise && <> + Expertise({formatMod(profBonus)})</>}
+                    {skill.proficient && (
+                      <>
+                        {' '}
+                        + {t('sheet.skillsSection.prof')}({formatMod(profBonus)})
+                      </>
+                    )}
+                    {skill.expertise && (
+                      <>
+                        {' '}
+                        + {t('sheet.skillsSection.expertise')}({formatMod(profBonus)})
+                      </>
+                    )}
                   </div>
                   {desc && (
                     <>

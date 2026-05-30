@@ -1,3 +1,4 @@
+import { useT } from '../../../../i18n'
 import type { MasteryEffectResult } from '../../../../services/combat/combat-rules'
 import { formatMod } from '../../../../types/character-common'
 import type { MapToken } from '../../../../types/map'
@@ -40,6 +41,7 @@ export function DamageResultStep({
   setKnockOutPrompt,
   onClose
 }: DamageResultStepProps): JSX.Element {
+  const { t } = useT()
   return (
     <div className="space-y-3">
       <div
@@ -48,7 +50,8 @@ export function DamageResultStep({
         }`}
       >
         <div className="text-xs text-gray-400 mb-1">
-          {selectedWeapon.damageType} damage{isOffhandAttack && ' (Off-hand)'}
+          {t('game.damageResultStep.damageLabel', { damageType: selectedWeapon.damageType })}
+          {isOffhandAttack && t('game.damageResultStep.offhandSuffix')}
         </div>
         <div className="text-4xl font-bold font-mono text-red-400 mb-1">{damageResult.total}</div>
         <div className="flex gap-1 justify-center flex-wrap">
@@ -65,7 +68,7 @@ export function DamageResultStep({
           )}
         </div>
         {damageResult.isCrit && (
-          <div className="text-xs text-green-400 font-bold mt-2">Dice doubled for critical hit!</div>
+          <div className="text-xs text-green-400 font-bold mt-2">{t('game.damageResultStep.diceDoubled')}</div>
         )}
         {damageAppResult?.modifierDescription && (
           <div className="text-xs text-blue-400 mt-2">{damageAppResult.modifierDescription}</div>
@@ -75,31 +78,27 @@ export function DamageResultStep({
       {/* Massive damage instant death warning */}
       {damageAppResult?.instantDeath && (
         <div className="px-3 py-2 bg-red-900/50 border border-red-500 rounded-lg text-center">
-          <span className="text-sm text-red-300 font-bold">INSTANT DEATH</span>
-          <p className="text-xs text-red-400 mt-1">
-            Remaining damage equals or exceeds HP maximum — creature dies instantly.
-          </p>
+          <span className="text-sm text-red-300 font-bold">{t('game.damageResultStep.instantDeath')}</span>
+          <p className="text-xs text-red-400 mt-1">{t('game.damageResultStep.instantDeathDesc')}</p>
         </div>
       )}
 
       {/* Knock-out option (melee attack reducing to 0 HP) */}
       {knockOutPrompt && !damageAppResult?.instantDeath && (
         <div className="px-3 py-2 bg-amber-900/30 border border-amber-500/50 rounded-lg">
-          <p className="text-xs text-amber-300 mb-2">
-            This melee attack would reduce the target to 0 HP. Knock out instead?
-          </p>
+          <p className="text-xs text-amber-300 mb-2">{t('game.damageResultStep.knockOutPrompt')}</p>
           <div className="flex gap-2">
             <button
               onClick={() => onApplyDamage(true)}
               className="flex-1 px-3 py-1.5 text-xs font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded-lg cursor-pointer"
             >
-              Knock Out (1 HP + Unconscious)
+              {t('game.damageResultStep.knockOut')}
             </button>
             <button
               onClick={() => setKnockOutPrompt(false)}
               className="flex-1 px-3 py-1.5 text-xs font-semibold bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg cursor-pointer"
             >
-              Deal Full Damage
+              {t('game.damageResultStep.dealFullDamage')}
             </button>
           </div>
         </div>
@@ -108,12 +107,14 @@ export function DamageResultStep({
       {/* Weapon Mastery Effect */}
       {masteryEffect && (
         <div className="px-3 py-2 bg-indigo-900/30 border border-indigo-500/50 rounded-lg">
-          <div className="text-xs text-indigo-300 font-semibold">{masteryEffect.mastery} Mastery</div>
+          <div className="text-xs text-indigo-300 font-semibold">
+            {t('game.damageResultStep.masteryLabel', { mastery: masteryEffect.mastery })}
+          </div>
           <div className="text-[11px] text-gray-300 mt-0.5">{masteryEffect.description}</div>
           {masteryEffect.requiresSave && (
             <div className="text-xs text-yellow-400 mt-0.5">
-              Target must make a {masteryEffect.requiresSave.ability.toUpperCase()} save (DC{' '}
-              {masteryEffect.requiresSave.dc})
+              {t('game.damageResultStep.targetMustSave', { ability: masteryEffect.requiresSave.ability.toUpperCase() })}{' '}
+              {t('game.damageResultStep.dcValue', { dc: masteryEffect.requiresSave.dc })}
             </div>
           )}
         </div>
@@ -128,22 +129,22 @@ export function DamageResultStep({
                 onClick={() => onApplyDamage(false, true)}
                 className="w-full px-4 py-3 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold rounded-lg cursor-pointer text-sm"
               >
-                Apply & Off-hand Attack (Light)
+                {t('game.damageResultStep.applyOffhand')}
               </button>
             )}
           <button
             onClick={() => onApplyDamage()}
             className="w-full px-4 py-3 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-lg cursor-pointer text-sm"
           >
-            Apply {damageResult.total} damage to {selectedTarget.label}
-            {masteryEffect ? ` + ${masteryEffect.mastery}` : ''}
+            {t('game.damageResultStep.applyDamage', { total: damageResult.total, target: selectedTarget.label })}
+            {masteryEffect ? t('game.damageResultStep.masterySuffix', { mastery: masteryEffect.mastery }) : ''}
           </button>
 
           <button
             onClick={onClose}
             className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg cursor-pointer text-sm"
           >
-            Close without applying
+            {t('game.damageResultStep.closeWithoutApplying')}
           </button>
         </>
       )}

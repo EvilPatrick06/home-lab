@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { i18n, useT } from '../../../../i18n'
 import { useGameStore } from '../../../../stores/use-game-store'
 import type { CustomEffect, EffectType, MechanicalEffect } from '../../../../types/effects'
 import type { MapToken } from '../../../../types/map'
@@ -11,29 +12,30 @@ interface CustomEffectModalProps {
 }
 
 const EFFECT_TYPE_OPTIONS: Array<{ value: EffectType; label: string }> = [
-  { value: 'ac_bonus', label: 'AC Bonus' },
-  { value: 'attack_bonus', label: 'Attack Bonus' },
-  { value: 'damage_bonus', label: 'Damage Bonus' },
-  { value: 'save_bonus', label: 'Save Bonus (all)' },
-  { value: 'speed_bonus', label: 'Speed Bonus' },
-  { value: 'resistance', label: 'Resistance' },
-  { value: 'immunity', label: 'Immunity' },
-  { value: 'vulnerability', label: 'Vulnerability' },
-  { value: 'damage_reduction', label: 'Damage Reduction' },
-  { value: 'advantage_on', label: 'Advantage on...' },
-  { value: 'temp_hp', label: 'Temporary HP' },
-  { value: 'spell_dc_bonus', label: 'Spell DC Bonus' },
-  { value: 'spell_attack_bonus', label: 'Spell Attack Bonus' }
+  { value: 'ac_bonus', label: i18n.t('game.customEffectModal.effectAcBonus') },
+  { value: 'attack_bonus', label: i18n.t('game.customEffectModal.effectAttackBonus') },
+  { value: 'damage_bonus', label: i18n.t('game.customEffectModal.effectDamageBonus') },
+  { value: 'save_bonus', label: i18n.t('game.customEffectModal.effectSaveBonus') },
+  { value: 'speed_bonus', label: i18n.t('game.customEffectModal.effectSpeedBonus') },
+  { value: 'resistance', label: i18n.t('game.customEffectModal.effectResistance') },
+  { value: 'immunity', label: i18n.t('game.customEffectModal.effectImmunity') },
+  { value: 'vulnerability', label: i18n.t('game.customEffectModal.effectVulnerability') },
+  { value: 'damage_reduction', label: i18n.t('game.customEffectModal.effectDamageReduction') },
+  { value: 'advantage_on', label: i18n.t('game.customEffectModal.effectAdvantageOn') },
+  { value: 'temp_hp', label: i18n.t('game.customEffectModal.effectTempHp') },
+  { value: 'spell_dc_bonus', label: i18n.t('game.customEffectModal.effectSpellDcBonus') },
+  { value: 'spell_attack_bonus', label: i18n.t('game.customEffectModal.effectSpellAttackBonus') }
 ]
 
 const DURATION_OPTIONS = [
-  { value: '', label: 'Permanent' },
-  { value: 'rounds', label: 'Rounds' },
-  { value: 'minutes', label: 'Minutes' },
-  { value: 'hours', label: 'Hours' }
+  { value: '', label: i18n.t('game.customEffectModal.durationPermanent') },
+  { value: 'rounds', label: i18n.t('game.customEffectModal.durationRounds') },
+  { value: 'minutes', label: i18n.t('game.customEffectModal.durationMinutes') },
+  { value: 'hours', label: i18n.t('game.customEffectModal.durationHours') }
 ]
 
 export default function CustomEffectModal({ tokens, onClose, onBroadcast }: CustomEffectModalProps): JSX.Element {
+  const { t } = useT()
   useEscapeKey(onClose)
   const [name, setName] = useState('')
   const [targetId, setTargetId] = useState('')
@@ -94,10 +96,14 @@ export default function CustomEffectModal({ tokens, onClose, onBroadcast }: Cust
 
     addCustomEffect(customEffect)
 
-    const durationStr = duration ? `for ${duration.value} ${duration.type}` : '(permanent)'
+    const durationStr = duration
+      ? t('game.customEffectModal.durationFor', { value: duration.value, type: duration.type })
+      : t('game.customEffectModal.durationPermanentTag')
 
     if (onBroadcast) {
-      onBroadcast(`DM applies "${name.trim()}" to ${target.label} ${durationStr}`)
+      onBroadcast(
+        t('game.customEffectModal.applyBroadcast', { name: name.trim(), target: target.label, duration: durationStr })
+      )
     }
 
     onClose()
@@ -115,11 +121,11 @@ export default function CustomEffectModal({ tokens, onClose, onBroadcast }: Cust
       <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-[460px] max-h-[80vh] overflow-y-auto shadow-2xl">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-gray-200">Custom Effect</h3>
+          <h3 className="text-sm font-semibold text-gray-200">{t('game.customEffectModal.title')}</h3>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-300 text-lg cursor-pointer"
-            aria-label="Close"
+            aria-label={t('common.actions.close')}
           >
             &times;
           </button>
@@ -128,25 +134,25 @@ export default function CustomEffectModal({ tokens, onClose, onBroadcast }: Cust
         <div className="space-y-3">
           {/* Effect Name */}
           <div>
-            <label className="text-xs text-gray-400 block mb-1">Effect Name</label>
+            <label className="text-xs text-gray-400 block mb-1">{t('game.customEffectModal.effectName')}</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., Bless, Shield of Faith"
+              placeholder={t('game.customEffectModal.effectNamePlaceholder')}
               className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
             />
           </div>
 
           {/* Target */}
           <div>
-            <label className="text-xs text-gray-400 block mb-1">Target</label>
+            <label className="text-xs text-gray-400 block mb-1">{t('game.customEffectModal.target')}</label>
             <select
               value={targetId}
               onChange={(e) => setTargetId(e.target.value)}
               className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
             >
-              <option value="">Select target...</option>
+              <option value="">{t('game.customEffectModal.selectTarget')}</option>
               {tokens.map((t) => (
                 <option key={t.id} value={t.id}>
                   {t.label} ({t.entityType})
@@ -157,7 +163,7 @@ export default function CustomEffectModal({ tokens, onClose, onBroadcast }: Cust
 
           {/* Effect Builder */}
           <div className="bg-gray-800/50 rounded-lg p-3">
-            <div className="text-xs text-gray-400 mb-2">Add Effect</div>
+            <div className="text-xs text-gray-400 mb-2">{t('game.customEffectModal.addEffect')}</div>
             <div className="flex gap-2 flex-wrap">
               <select
                 value={effectType}
@@ -183,7 +189,7 @@ export default function CustomEffectModal({ tokens, onClose, onBroadcast }: Cust
                   type="text"
                   value={stringValue}
                   onChange={(e) => setStringValue(e.target.value)}
-                  placeholder="e.g., fire, poison"
+                  placeholder={t('game.customEffectModal.stringValuePlaceholder')}
                   className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
                 />
               )}
@@ -215,7 +221,7 @@ export default function CustomEffectModal({ tokens, onClose, onBroadcast }: Cust
 
           {/* Duration */}
           <div>
-            <label className="text-xs text-gray-400 block mb-1">Duration</label>
+            <label className="text-xs text-gray-400 block mb-1">{t('game.customEffectModal.duration')}</label>
             <div className="flex gap-2">
               <select
                 value={durationType}
@@ -246,20 +252,24 @@ export default function CustomEffectModal({ tokens, onClose, onBroadcast }: Cust
             disabled={!name.trim() || !targetId || effectsList.length === 0}
             className="w-full px-4 py-2.5 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg cursor-pointer text-sm"
           >
-            Apply Effect
+            {t('game.customEffectModal.applyEffect')}
           </button>
         </div>
 
         {/* Active Custom Effects */}
         {customEffects.length > 0 && (
           <div className="mt-4 border-t border-gray-700 pt-3">
-            <div className="text-xs text-gray-400 uppercase tracking-wide mb-2">Active Custom Effects</div>
+            <div className="text-xs text-gray-400 uppercase tracking-wide mb-2">
+              {t('game.customEffectModal.activeCustomEffects')}
+            </div>
             <div className="space-y-1">
               {customEffects.map((ce) => (
                 <div key={ce.id} className="flex items-center justify-between bg-gray-800/50 rounded px-2 py-1.5">
                   <div>
                     <span className="text-xs text-purple-300 font-medium">{ce.name}</span>
-                    <span className="text-xs text-gray-500 ml-2">on {ce.targetEntityName}</span>
+                    <span className="text-xs text-gray-500 ml-2">
+                      {t('game.customEffectModal.onTarget', { target: ce.targetEntityName })}
+                    </span>
                     {ce.duration && (
                       <span className="text-xs text-gray-600 ml-1">
                         ({ce.duration.value} {ce.duration.type})
@@ -269,7 +279,10 @@ export default function CustomEffectModal({ tokens, onClose, onBroadcast }: Cust
                   <button
                     onClick={() => {
                       removeCustomEffect(ce.id)
-                      if (onBroadcast) onBroadcast(`"${ce.name}" removed from ${ce.targetEntityName}`)
+                      if (onBroadcast)
+                        onBroadcast(
+                          t('game.customEffectModal.removedBroadcast', { name: ce.name, target: ce.targetEntityName })
+                        )
                     }}
                     className="text-gray-600 hover:text-red-400 text-xs cursor-pointer"
                   >

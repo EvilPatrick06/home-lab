@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from 'react'
+import { useT } from '../../../i18n'
 import type { SpellData } from './SpellSummary5e'
 
 export default function CantripPicker5e({
@@ -10,6 +11,7 @@ export default function CantripPicker5e({
   selectedCantrips: string[]
   onSelect: (ids: string[]) => void
 }): JSX.Element {
+  const { t } = useT()
   const clericCantrips = useMemo(
     () =>
       allSpells
@@ -32,9 +34,9 @@ export default function CantripPicker5e({
   return (
     <div className="border border-blue-700/50 rounded-lg bg-blue-900/10 p-3 mb-3">
       <div className="text-xs font-semibold text-blue-400 uppercase tracking-wide mb-2">
-        Blessed Warrior Cantrips ({selectedCantrips.length}/2)
+        {t('builder.cantripPicker.header', { count: selectedCantrips.length })}
       </div>
-      <p className="text-xs text-gray-500 mb-2">Choose 2 Cleric cantrips. They count as Paladin spells (CHA-based).</p>
+      <p className="text-xs text-gray-500 mb-2">{t('builder.cantripPicker.instruction')}</p>
       <div className="max-h-40 overflow-y-auto space-y-0.5">
         {clericCantrips.map((spell) => {
           const selected = selectedCantrips.includes(spell.id)

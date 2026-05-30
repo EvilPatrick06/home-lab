@@ -1,3 +1,4 @@
+import { useT } from '../../../i18n'
 import type { BuildSlot } from '../../../types/character-common'
 
 interface BuildSlotItemProps {
@@ -26,6 +27,7 @@ const categoryIcons: Record<string, string> = {
 }
 
 export default function BuildSlotItem({ slot, onClick }: BuildSlotItemProps): JSX.Element {
+  const { t } = useT()
   const isSelected = slot.selectedId !== null
   const isAutoGranted = slot.isAutoGranted
 
@@ -46,7 +48,7 @@ export default function BuildSlotItem({ slot, onClick }: BuildSlotItemProps): JS
         <div className="min-w-0 flex-1">
           <div className="text-xs text-gray-500 leading-tight">{slot.label}</div>
           <div className={`text-sm truncate ${isSelected ? 'text-amber-400 font-medium' : 'text-gray-400 italic'}`}>
-            {slot.selectedName ?? 'Select...'}
+            {slot.selectedName ?? t('builder.buildSlotItem.select')}
           </div>
         </div>
         {slot.required && !isSelected && <span className="text-red-400 text-xs shrink-0">*</span>}

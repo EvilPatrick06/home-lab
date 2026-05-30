@@ -1,3 +1,4 @@
+import { useT } from '../../../i18n'
 import { getEffectiveClasses } from '../../../services/character/effective-character-5e'
 import { type HpChoice, useLevelUpStore } from '../../../stores/use-level-up-store'
 import { cryptoRandom } from '../../../utils/crypto-random'
@@ -14,6 +15,7 @@ interface HpRollSection5eProps {
 }
 
 export default function HpRollSection5e({ character, level, hitDieOverride }: HpRollSection5eProps): JSX.Element {
+  const { t } = useT()
   const hpChoices = useLevelUpStore((s) => s.hpChoices)
   const hpRolls = useLevelUpStore((s) => s.hpRolls)
   const hpLocked = useLevelUpStore((s) => s.hpLocked)
@@ -54,8 +56,10 @@ export default function HpRollSection5e({ character, level, hitDieOverride }: Hp
     <div
       className={`flex items-center gap-3 flex-wrap rounded px-2 py-1 -mx-2 ${isIncomplete ? 'ring-1 ring-amber-600/50' : ''}`}
     >
-      <span className="text-sm text-gray-400">HP:</span>
-      {isIncomplete && <span className="text-xs text-amber-500 font-semibold uppercase">Required</span>}
+      <span className="text-sm text-gray-400">{t('levelup.hpRollSection.hp')}</span>
+      {isIncomplete && (
+        <span className="text-xs text-amber-500 font-semibold uppercase">{t('levelup.hpRollSection.required')}</span>
+      )}
       <button
         onClick={() => setHpChoice(level, 'average')}
         className={`px-3 py-1 text-sm rounded transition-colors ${
@@ -64,7 +68,7 @@ export default function HpRollSection5e({ character, level, hitDieOverride }: Hp
             : 'border border-gray-600 text-gray-400 hover:text-amber-400 hover:border-amber-600'
         }`}
       >
-        Average: {average}
+        {t('levelup.hpRollSection.average', { value: average })}
       </button>
       <button
         onClick={doRoll}
@@ -74,24 +78,34 @@ export default function HpRollSection5e({ character, level, hitDieOverride }: Hp
             : 'border border-gray-600 text-gray-400 hover:text-amber-400 hover:border-amber-600'
         }`}
       >
-        Roll d{hitDie}
+        {t('levelup.hpRollSection.rollDie', { die: hitDie })}
       </button>
       {choice === 'average' && (
         <span className="text-sm text-green-400">
-          +{averageHP} HP ({average} + {conMod >= 0 ? '+' : ''}
-          {conMod} CON)
+          {t('levelup.hpRollSection.averageBreakdown', {
+            total: averageHP,
+            base: average,
+            con: `${conMod >= 0 ? '+' : ''}${conMod}`
+          })}
         </span>
       )}
       {choice === 'roll' && rolled !== undefined && (
         <span className="text-sm text-green-400">
-          +{rolledHP} HP (rolled {rolled} + {conMod >= 0 ? '+' : ''}
-          {conMod} CON)
+          {t('levelup.hpRollSection.rolledBreakdown', {
+            total: rolledHP,
+            rolled,
+            con: `${conMod >= 0 ? '+' : ''}${conMod}`
+          })}
           {locked && (
-            <span className="ml-2 text-xs text-gray-500 border border-gray-600 rounded px-1 uppercase">Locked</span>
+            <span className="ml-2 text-xs text-gray-500 border border-gray-600 rounded px-1 uppercase">
+              {t('levelup.hpRollSection.locked')}
+            </span>
           )}
         </span>
       )}
-      {choice === 'roll' && rolled === undefined && <span className="text-sm text-gray-500">Click "Roll" to roll</span>}
+      {choice === 'roll' && rolled === undefined && (
+        <span className="text-sm text-gray-500">{t('levelup.hpRollSection.clickToRoll')}</span>
+      )}
     </div>
   )
 }

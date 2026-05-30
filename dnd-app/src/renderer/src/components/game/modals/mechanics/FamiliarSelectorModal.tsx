@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 import { getFamiliarForms } from '../../../../services/character/companion-service'
 import { load5eMonsters } from '../../../../services/data-provider'
 import type { Companion5e } from '../../../../types/companion'
@@ -26,6 +27,7 @@ export default function FamiliarSelectorModal({
   onDismiss,
   onResummon
 }: FamiliarSelectorModalProps): JSX.Element {
+  const { t } = useT()
   useEscapeKey(onClose)
   const [_monsters, setMonsters] = useState<MonsterStatBlock[]>([])
   const [forms, setForms] = useState<MonsterStatBlock[]>([])
@@ -64,8 +66,12 @@ export default function FamiliarSelectorModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="px-4 py-3 border-b border-gray-700 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-amber-400">Find Familiar</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-300 text-xl cursor-pointer">
+          <h2 className="text-lg font-bold text-amber-400">{t('game.familiarSelectorModal.title')}</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-300 text-xl cursor-pointer"
+            aria-label={t('common.actions.close')}
+          >
             x
           </button>
         </div>
@@ -84,7 +90,9 @@ export default function FamiliarSelectorModal({
         <div className="flex-1 flex min-h-0 overflow-hidden">
           {/* Form grid */}
           <div className="w-56 overflow-y-auto border-r border-gray-700/50 p-2">
-            <div className="text-xs text-gray-500 uppercase tracking-wider mb-2 px-1">Standard Forms</div>
+            <div className="text-xs text-gray-500 uppercase tracking-wider mb-2 px-1">
+              {t('game.familiarSelectorModal.standardForms')}
+            </div>
             <div className="grid grid-cols-2 gap-1.5">
               {forms
                 .filter((f) => !f.tags?.includes('chain-pact'))
@@ -99,13 +107,15 @@ export default function FamiliarSelectorModal({
                     }`}
                   >
                     <div className="text-xs text-gray-200 font-medium truncate">{m.name}</div>
-                    <div className="text-[9px] text-gray-500">CR {m.cr}</div>
+                    <div className="text-[9px] text-gray-500">{t('game.familiarSelectorModal.cr', { cr: m.cr })}</div>
                   </button>
                 ))}
             </div>
             {hasChainPact && (
               <>
-                <div className="text-xs text-purple-400 uppercase tracking-wider mt-3 mb-2 px-1">Pact of the Chain</div>
+                <div className="text-xs text-purple-400 uppercase tracking-wider mt-3 mb-2 px-1">
+                  {t('game.familiarSelectorModal.pactOfChain')}
+                </div>
                 <div className="grid grid-cols-2 gap-1.5">
                   {forms
                     .filter((f) => f.tags?.includes('chain-pact'))
@@ -120,7 +130,9 @@ export default function FamiliarSelectorModal({
                         }`}
                       >
                         <div className="text-xs text-gray-200 font-medium truncate">{m.name}</div>
-                        <div className="text-[9px] text-gray-500">CR {m.cr}</div>
+                        <div className="text-[9px] text-gray-500">
+                          {t('game.familiarSelectorModal.cr', { cr: m.cr })}
+                        </div>
                       </button>
                     ))}
                 </div>
@@ -137,11 +149,13 @@ export default function FamiliarSelectorModal({
                   onClick={handleSummon}
                   className="w-full px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white text-sm font-semibold rounded-lg transition-colors cursor-pointer"
                 >
-                  Summon {selected.name}
+                  {t('game.familiarSelectorModal.summon', { name: selected.name })}
                 </button>
               </div>
             ) : (
-              <div className="text-gray-500 text-sm text-center mt-20">Select a form to view its stat block</div>
+              <div className="text-gray-500 text-sm text-center mt-20">
+                {t('game.familiarSelectorModal.selectForm')}
+              </div>
             )}
           </div>
         </div>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useT } from '../../../i18n'
 import { play } from '../../../services/sound-manager'
 
 interface TurnNotificationBannerProps {
@@ -7,6 +8,7 @@ interface TurnNotificationBannerProps {
 }
 
 export default function TurnNotificationBanner({ entityName, onDismiss }: TurnNotificationBannerProps): JSX.Element {
+  const { t } = useT()
   const [visible, setVisible] = useState(true)
 
   useEffect(() => {
@@ -36,7 +38,9 @@ export default function TurnNotificationBanner({ entityName, onDismiss }: TurnNo
       aria-atomic="true"
     >
       <div className="px-6 py-3 bg-gradient-to-r from-amber-600 to-amber-500 border border-amber-400/50 rounded-xl shadow-lg shadow-amber-500/20">
-        <p className="text-sm font-bold text-white text-center">Your Turn, {entityName}!</p>
+        <p className="text-sm font-bold text-white text-center">
+          {t('game.turnNotificationBanner.yourTurn', { entityName })}
+        </p>
       </div>
     </div>
   )

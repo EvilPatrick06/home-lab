@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { loadVariantItemsForUi, VARIANT_ITEMS } from '../../../data/variant-items'
+import { useT } from '../../../i18n'
 import { DATA_PATHS, loadJson, type TrinketsFile } from '../../../services/data-provider'
 import { cryptoRandom } from '../../../utils/crypto-random'
 
@@ -9,6 +10,7 @@ import { useBuilderStore } from '../../../stores/use-builder-store'
 import SectionBanner from '../shared/SectionBanner'
 
 function TrinketRoller(): JSX.Element {
+  const { t } = useT()
   const classEquipment = useBuilderStore((s) => s.classEquipment)
   const addEquipmentItem = useBuilderStore((s) => s.addEquipmentItem)
 
@@ -32,9 +34,13 @@ function TrinketRoller(): JSX.Element {
   if (existingTrinket) {
     return (
       <div className="space-y-2">
-        <p className="text-xs text-gray-500">Your trinket has been rolled.</p>
+        <p className="text-xs text-gray-500">{t('builder.backstoryEditor.trinketRolled')}</p>
         <div className="bg-gray-800/60 border border-gray-700 rounded px-3 py-2">
-          {rollNumber && <span className="text-xs text-amber-400 font-mono mr-2">d100: {rollNumber}</span>}
+          {rollNumber && (
+            <span className="text-xs text-amber-400 font-mono mr-2">
+              {t('builder.backstoryEditor.d100', { rollNumber })}
+            </span>
+          )}
           <span className="text-sm text-gray-200">{existingTrinket.name}</span>
         </div>
       </div>
@@ -43,12 +49,12 @@ function TrinketRoller(): JSX.Element {
 
   return (
     <div className="space-y-2">
-      <p className="text-xs text-gray-500">Roll a random trinket from the d100 table.</p>
+      <p className="text-xs text-gray-500">{t('builder.backstoryEditor.rollPrompt')}</p>
       <button
         onClick={handleRoll}
         className="text-xs px-3 py-1.5 rounded bg-amber-600 hover:bg-amber-500 text-gray-900 font-semibold cursor-pointer"
       >
-        Roll Trinket
+        {t('builder.backstoryEditor.rollTrinket')}
       </button>
     </div>
   )
@@ -70,6 +76,7 @@ export function VariantChoicesSection({
   classEquipment: Array<{ name: string; quantity: number; source: string }>
   bgEquipment: Array<{ option: string; items: string[]; source: string }>
 }): JSX.Element | null {
+  const { t } = useT()
   const [rePickKey, setRePickKey] = useState<string | null>(null)
   const [loadedVariants, setLoadedVariants] = useState<boolean>(false)
 
@@ -144,7 +151,7 @@ export function VariantChoicesSection({
 
   return (
     <>
-      <SectionBanner label="EQUIPMENT CHOICES" />
+      <SectionBanner label={t('builder.backstoryEditor.sectionEquipmentChoices')} />
       <div className="px-4 py-3 border-b border-gray-800 space-y-3">
         {variantItems.map((item) => {
           const showPicker = !item.chosenVariant || rePickKey === `${item.key}-${item.eqIndex}`
@@ -160,12 +167,14 @@ export function VariantChoicesSection({
                     onClick={() => setRePickKey(`${item.key}-${item.eqIndex}`)}
                     className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer underline decoration-dotted underline-offset-2 ml-2"
                   >
-                    Choose a different one?
+                    {t('builder.backstoryEditor.chooseDifferent')}
                   </button>
                 </div>
               ) : (
                 <div>
-                  <p className="text-xs text-gray-500 mb-1.5">Choose a specific {item.config.label}:</p>
+                  <p className="text-xs text-gray-500 mb-1.5">
+                    {t('builder.backstoryEditor.chooseSpecific', { label: item.config.label })}
+                  </p>
                   <div className="flex flex-wrap gap-1.5">
                     {item.config.variants.map((variant) => (
                       <button
@@ -186,7 +195,7 @@ export function VariantChoicesSection({
                       onClick={() => setRePickKey(null)}
                       className="text-xs text-gray-500 hover:text-gray-300 cursor-pointer mt-1"
                     >
-                      Cancel
+                      {t('common.actions.cancel')}
                     </button>
                   )}
                 </div>
@@ -200,9 +209,10 @@ export function VariantChoicesSection({
 }
 
 export default function BackstoryEditor5e(): JSX.Element {
+  const { t } = useT()
   return (
     <>
-      <SectionBanner label="TRINKET" />
+      <SectionBanner label={t('builder.backstoryEditor.sectionTrinket')} />
       <div className="px-4 py-3 border-b border-gray-800">
         <TrinketRoller />
       </div>

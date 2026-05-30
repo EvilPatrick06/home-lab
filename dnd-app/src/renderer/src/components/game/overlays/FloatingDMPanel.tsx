@@ -16,6 +16,8 @@
  * - Returning to DM view always wins — it's the first action.
  */
 
+import { useT } from '../../../i18n'
+
 interface FloatingDMPanelProps {
   onSwitchToDM: () => void
   onNextTurn?: () => void
@@ -33,25 +35,26 @@ export default function FloatingDMPanel({
   aiPaused = false,
   aiDmEnabled = false
 }: FloatingDMPanelProps): JSX.Element {
+  const { t } = useT()
   return (
     <div
       className="absolute bottom-3 right-3 z-40 pointer-events-none"
       role="region"
-      aria-label="DM quick tools (player preview)"
+      aria-label={t('game.floatingDMPanel.regionLabel')}
     >
       <div className="pointer-events-auto flex flex-col gap-1 bg-gray-900/85 backdrop-blur-sm border border-amber-700/40 rounded-xl p-1.5 shadow-xl">
         <button
           onClick={onSwitchToDM}
-          title="Switch back to DM view (F5)"
-          aria-label="Switch back to DM view"
+          title={t('game.floatingDMPanel.switchToDMTitle')}
+          aria-label={t('game.floatingDMPanel.switchToDM')}
           className="w-9 h-9 rounded-lg flex items-center justify-center text-lg bg-amber-900/40 text-amber-300 hover:bg-amber-700/50 hover:text-white transition-colors cursor-pointer"
         >
           🎲
         </button>
         <button
           onClick={onOpenInitiative}
-          title="Open Initiative Tracker"
-          aria-label="Open Initiative Tracker"
+          title={t('game.floatingDMPanel.openInitiative')}
+          aria-label={t('game.floatingDMPanel.openInitiative')}
           className="w-9 h-9 rounded-lg flex items-center justify-center text-lg bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors cursor-pointer"
         >
           ⚔️
@@ -59,8 +62,8 @@ export default function FloatingDMPanel({
         {onNextTurn && (
           <button
             onClick={onNextTurn}
-            title="Next Turn"
-            aria-label="Advance to next turn"
+            title={t('game.floatingDMPanel.nextTurn')}
+            aria-label={t('game.floatingDMPanel.nextTurnAria')}
             className="w-9 h-9 rounded-lg flex items-center justify-center text-lg bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors cursor-pointer"
           >
             ➡️
@@ -69,8 +72,8 @@ export default function FloatingDMPanel({
         {aiDmEnabled && onTogglePauseAI && (
           <button
             onClick={onTogglePauseAI}
-            title={aiPaused ? 'Resume AI DM' : 'Pause AI DM'}
-            aria-label={aiPaused ? 'Resume AI DM' : 'Pause AI DM'}
+            title={aiPaused ? t('game.floatingDMPanel.resumeAI') : t('game.floatingDMPanel.pauseAI')}
+            aria-label={aiPaused ? t('game.floatingDMPanel.resumeAI') : t('game.floatingDMPanel.pauseAI')}
             className={`w-9 h-9 rounded-lg flex items-center justify-center text-lg transition-colors cursor-pointer ${
               aiPaused
                 ? 'bg-green-900/40 text-green-300 hover:bg-green-700/50 hover:text-white'

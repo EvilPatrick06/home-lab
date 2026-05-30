@@ -1,15 +1,9 @@
 import { useState } from 'react'
+import { useT } from '../../../i18n'
 import { getTheme, getThemeNames, setTheme, type ThemeName } from '../../../services/theme-manager'
 
 interface ThemeSelectorProps {
   onClose?: () => void
-}
-
-const THEME_LABELS: Record<ThemeName, string> = {
-  dark: 'Dark',
-  parchment: 'Parchment',
-  'high-contrast': 'High Contrast',
-  'royal-purple': 'Royal Purple'
 }
 
 /** Preview swatches: [background, text, accent] */
@@ -21,6 +15,13 @@ const THEME_SWATCHES: Record<ThemeName, [string, string, string]> = {
 }
 
 export default function ThemeSelector({ onClose }: ThemeSelectorProps): JSX.Element {
+  const { t } = useT()
+  const themeLabels: Record<ThemeName, string> = {
+    dark: t('game.themeSelector.dark'),
+    parchment: t('game.themeSelector.parchment'),
+    'high-contrast': t('game.themeSelector.highContrast'),
+    'royal-purple': t('game.themeSelector.royalPurple')
+  }
   const [active, setActive] = useState<ThemeName>(getTheme)
 
   const handleSelect = (theme: ThemeName): void => {
@@ -31,12 +32,12 @@ export default function ThemeSelector({ onClose }: ThemeSelectorProps): JSX.Elem
   return (
     <div className="w-56 bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl overflow-hidden shadow-xl">
       <div className="px-4 py-2.5 border-b border-gray-800 flex items-center justify-between">
-        <span className="text-xs font-semibold text-gray-200">Theme</span>
+        <span className="text-xs font-semibold text-gray-200">{t('game.themeSelector.title')}</span>
         {onClose && (
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-300 transition-colors cursor-pointer text-sm leading-none"
-            title="Close"
+            title={t('common.actions.close')}
           >
             &#10005;
           </button>
@@ -61,23 +62,25 @@ export default function ThemeSelector({ onClose }: ThemeSelectorProps): JSX.Elem
                 <span
                   className="w-3.5 h-3.5 rounded-sm border border-gray-600"
                   style={{ backgroundColor: bg }}
-                  title="Background"
+                  title={t('game.themeSelector.background')}
                 />
                 <span
                   className="w-3.5 h-3.5 rounded-sm border border-gray-600"
                   style={{ backgroundColor: text }}
-                  title="Text"
+                  title={t('game.themeSelector.text')}
                 />
                 <span
                   className="w-3.5 h-3.5 rounded-sm border border-gray-600"
                   style={{ backgroundColor: accent }}
-                  title="Accent"
+                  title={t('game.themeSelector.accent')}
                 />
               </span>
 
-              <span className="flex-1">{THEME_LABELS[name]}</span>
+              <span className="flex-1">{themeLabels[name]}</span>
 
-              {isActive && <span className="text-amber-400 text-xs font-semibold shrink-0">Active</span>}
+              {isActive && (
+                <span className="text-amber-400 text-xs font-semibold shrink-0">{t('game.themeSelector.active')}</span>
+              )}
             </button>
           )
         })}

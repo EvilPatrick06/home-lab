@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useT } from '../../../i18n'
 import { DEFAULT_LOCKS, type GeneratedNpc, type GeneratedNpcLocks, generateRandomNpc } from './npc-templates'
 
 interface RandomNpcGeneratorProps {
@@ -7,6 +8,7 @@ interface RandomNpcGeneratorProps {
 }
 
 export default function RandomNpcGenerator({ onAccept, onCancel }: RandomNpcGeneratorProps): JSX.Element {
+  const { t } = useT()
   const [generatedNpc, setGeneratedNpc] = useState<GeneratedNpc>(() => generateRandomNpc())
   const [npcLocks, setNpcLocks] = useState<GeneratedNpcLocks>({ ...DEFAULT_LOCKS })
 
@@ -26,45 +28,47 @@ export default function RandomNpcGenerator({ onAccept, onCancel }: RandomNpcGene
   return (
     <div className="bg-gray-900/60 border border-emerald-500/30 rounded-lg p-2.5 space-y-2">
       <div className="flex items-center justify-between">
-        <span className="text-xs text-emerald-400 uppercase tracking-wider font-semibold">Generated NPC</span>
+        <span className="text-xs text-emerald-400 uppercase tracking-wider font-semibold">
+          {t('game.randomNpcGenerator.generatedNpc')}
+        </span>
         <button
           onClick={() => {
             setGeneratedNpc(generateRandomNpc(npcLocks, generatedNpc))
           }}
           className="text-xs text-gray-400 hover:text-emerald-400 cursor-pointer"
-          title="Re-roll all unlocked fields"
+          title={t('game.randomNpcGenerator.rerollAllTitle')}
         >
-          Re-roll All
+          {t('game.randomNpcGenerator.rerollAll')}
         </button>
       </div>
 
       {/* Generator fields */}
       {(
         [
-          ['name', 'Name', generatedNpc.name],
-          ['species', 'Species', generatedNpc.species],
-          ['height', 'Height', generatedNpc.height],
-          ['build', 'Build', generatedNpc.build],
-          ['hairColor', 'Hair Color', generatedNpc.hairColor],
-          ['hairStyle', 'Hair Style', generatedNpc.hairStyle],
-          ['distinguishingFeature', 'Feature', generatedNpc.distinguishingFeature],
-          ['clothingStyle', 'Clothing', generatedNpc.clothingStyle],
-          ['voice', 'Voice', generatedNpc.voice],
-          ['mannerism', 'Mannerism', generatedNpc.mannerism],
-          ['personalityTrait', 'Personality', generatedNpc.personalityTrait]
+          ['name', 'game.randomNpcGenerator.fieldName', generatedNpc.name],
+          ['species', 'game.randomNpcGenerator.fieldSpecies', generatedNpc.species],
+          ['height', 'game.randomNpcGenerator.fieldHeight', generatedNpc.height],
+          ['build', 'game.randomNpcGenerator.fieldBuild', generatedNpc.build],
+          ['hairColor', 'game.randomNpcGenerator.fieldHairColor', generatedNpc.hairColor],
+          ['hairStyle', 'game.randomNpcGenerator.fieldHairStyle', generatedNpc.hairStyle],
+          ['distinguishingFeature', 'game.randomNpcGenerator.fieldFeature', generatedNpc.distinguishingFeature],
+          ['clothingStyle', 'game.randomNpcGenerator.fieldClothing', generatedNpc.clothingStyle],
+          ['voice', 'game.randomNpcGenerator.fieldVoice', generatedNpc.voice],
+          ['mannerism', 'game.randomNpcGenerator.fieldMannerism', generatedNpc.mannerism],
+          ['personalityTrait', 'game.randomNpcGenerator.fieldPersonality', generatedNpc.personalityTrait]
         ] as [keyof GeneratedNpcLocks, string, string][]
-      ).map(([field, label, value]) => (
+      ).map(([field, labelKey, value]) => (
         <div key={field} className="flex items-center gap-1">
           <button
             onClick={() => setNpcLocks((prev) => ({ ...prev, [field]: !prev[field] }))}
             className={`w-5 h-5 flex items-center justify-center text-xs shrink-0 cursor-pointer rounded ${
               npcLocks[field] ? 'text-amber-400 bg-amber-400/20' : 'text-gray-600 hover:text-gray-400'
             }`}
-            title={npcLocks[field] ? 'Unlock field' : 'Lock field'}
+            title={npcLocks[field] ? t('game.randomNpcGenerator.unlockField') : t('game.randomNpcGenerator.lockField')}
           >
             {npcLocks[field] ? '\u{1F512}' : '\u{1F513}'}
           </button>
-          <span className="text-[9px] text-gray-500 w-16 shrink-0">{label}</span>
+          <span className="text-[9px] text-gray-500 w-16 shrink-0">{t(labelKey)}</span>
           <span className="text-xs text-gray-200 flex-1 truncate">{value}</span>
           <button
             onClick={() => {
@@ -76,7 +80,7 @@ export default function RandomNpcGenerator({ onAccept, onCancel }: RandomNpcGene
               setGeneratedNpc(generateRandomNpc(singleLock, generatedNpc))
             }}
             className="w-5 h-5 flex items-center justify-center text-xs text-gray-600 hover:text-emerald-400 cursor-pointer shrink-0"
-            title={`Re-roll ${label}`}
+            title={t('game.randomNpcGenerator.rerollField', { field: t(labelKey) })}
           >
             &#8635;
           </button>
@@ -88,10 +92,10 @@ export default function RandomNpcGenerator({ onAccept, onCancel }: RandomNpcGene
           onClick={handleAccept}
           className="px-2 py-0.5 text-xs bg-emerald-600 hover:bg-emerald-500 text-white rounded cursor-pointer"
         >
-          Accept
+          {t('game.randomNpcGenerator.accept')}
         </button>
         <button onClick={onCancel} className="px-2 py-0.5 text-xs text-gray-400 hover:text-gray-200 cursor-pointer">
-          Cancel
+          {t('common.actions.cancel')}
         </button>
       </div>
     </div>

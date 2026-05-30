@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { ConfirmDialog } from '../components/ui'
 import { addToast } from '../hooks/use-toast'
+import { useT } from '../i18n'
 import { load5eBastionFacilities } from '../services/data-provider'
 import { exportEntities, importEntities, reIdItems } from '../services/io/entity-io'
 import { type BastionState, useBastionStore } from '../stores/use-bastion-store'
@@ -28,6 +29,7 @@ import {
 import { TABS, type TabId } from './bastion/bastion-constants'
 
 export default function BastionPage(): JSX.Element {
+  const { t } = useT()
   const navigate = useNavigate()
 
   // Store bindings
@@ -102,7 +104,7 @@ export default function BastionPage(): JSX.Element {
   if (loading) {
     return (
       <div className="p-8 h-screen flex items-center justify-center bg-gray-950">
-        <div className="text-gray-500">Loading bastions...</div>
+        <div className="text-gray-500">{t('pages.bastionPage.loadingBastions')}</div>
       </div>
     )
   }
@@ -116,10 +118,10 @@ export default function BastionPage(): JSX.Element {
             onClick={() => navigate('/')}
             className="text-gray-400 hover:text-gray-200 text-sm flex items-center gap-1 transition-colors"
           >
-            &larr; Main Menu
+            {t('pages.bastionPage.mainMenu')}
           </button>
           <div className="w-px h-4 bg-gray-700" />
-          <span className="text-xs text-gray-500">Bastions (2024 DMG)</span>
+          <span className="text-xs text-gray-500">{t('pages.bastionPage.bastionsDmg')}</span>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -131,16 +133,16 @@ export default function BastionPage(): JSX.Element {
                 for (const b of items) {
                   await saveBastion(b)
                 }
-                addToast(`Imported ${items.length} bastion(s)`, 'success')
+                addToast(t('pages.bastionPage.importedBastions', { count: items.length }), 'success')
                 await loadBastions()
               } catch (err) {
-                addToast(err instanceof Error ? err.message : 'Import failed', 'error')
+                addToast(err instanceof Error ? err.message : t('pages.bastionPage.importFailed'), 'error')
               }
             }}
             className="px-3 py-1.5 text-sm border border-gray-600 hover:border-amber-600 hover:bg-gray-800
               text-gray-400 hover:text-amber-400 rounded font-semibold transition-colors cursor-pointer"
           >
-            Import
+            {t('pages.bastionPage.import')}
           </button>
           {bastions.length > 0 && (
             <>
@@ -149,22 +151,22 @@ export default function BastionPage(): JSX.Element {
                   const items = selectedBastionId ? bastions.filter((b) => b.id === selectedBastionId) : bastions
                   try {
                     const ok = await exportEntities('bastion', items)
-                    if (ok) addToast(`Exported ${items.length} bastion(s)`, 'success')
+                    if (ok) addToast(t('pages.bastionPage.exportedBastions', { count: items.length }), 'success')
                   } catch {
-                    addToast('Export failed', 'error')
+                    addToast(t('pages.bastionPage.exportFailed'), 'error')
                   }
                 }}
                 className="px-3 py-1.5 text-sm border border-gray-600 hover:border-amber-600 hover:bg-gray-800
                   text-gray-400 hover:text-amber-400 rounded font-semibold transition-colors cursor-pointer"
               >
-                {selectedBastionId ? 'Export Selected' : 'Export All'}
+                {selectedBastionId ? t('pages.bastionPage.exportSelected') : t('pages.bastionPage.exportAll')}
               </button>
               <button
                 onClick={() => setShowDeleteAllConfirm(true)}
                 className="px-3 py-1.5 text-sm border border-gray-600 hover:border-red-600 hover:bg-gray-800
                   text-gray-400 hover:text-red-400 rounded font-semibold transition-colors cursor-pointer"
               >
-                Delete All
+                {t('pages.bastionPage.deleteAll')}
               </button>
             </>
           )}
@@ -172,7 +174,7 @@ export default function BastionPage(): JSX.Element {
             onClick={() => setShowCreateModal(true)}
             className="px-3 py-1.5 text-sm bg-amber-600 hover:bg-amber-500 text-white rounded font-semibold transition-colors cursor-pointer whitespace-nowrap shrink-0"
           >
-            + New Bastion
+            {t('pages.bastionPage.newBastion')}
           </button>
         </div>
       </div>
@@ -181,7 +183,7 @@ export default function BastionPage(): JSX.Element {
         {/* Sidebar */}
         <div className="w-64 border-r border-gray-800 overflow-y-auto bg-gray-900/50">
           {bastions.length === 0 ? (
-            <div className="p-4 text-center text-gray-500 text-sm">No bastions yet. Create one to get started.</div>
+            <div className="p-4 text-center text-gray-500 text-sm">{t('pages.bastionPage.noBastionsYet')}</div>
           ) : (
             bastions.map((bastion) => {
               const owner = characters.find((c) => c.id === bastion.ownerId)
@@ -200,11 +202,17 @@ export default function BastionPage(): JSX.Element {
                 >
                   <div className="text-sm font-medium text-gray-100">{bastion.name}</div>
                   <div className="text-xs text-gray-500 mt-0.5">
-                    {owner?.name ?? 'Unknown'} (Lv {owner?.level ?? '?'})
+                    {t('pages.bastionPage.ownerLevel', {
+                      name: owner?.name ?? t('pages.bastionPage.unknown'),
+                      level: owner?.level ?? '?'
+                    })}
                   </div>
                   <div className="text-xs text-gray-600 mt-0.5">
-                    {bastion.basicFacilities.length + bastion.specialFacilities.length} facilities &middot;{' '}
-                    {bastion.defenders.length} defenders &middot; {bastion.treasury} GP
+                    {t('pages.bastionPage.facilitiesDefendersTreasury', {
+                      facilities: bastion.basicFacilities.length + bastion.specialFacilities.length,
+                      defenders: bastion.defenders.length,
+                      treasury: bastion.treasury
+                    })}
                   </div>
                 </button>
               )
@@ -216,16 +224,16 @@ export default function BastionPage(): JSX.Element {
         <div className="flex-1 overflow-y-auto">
           {!selectedBastion ? (
             <div className="flex flex-col items-center justify-center h-full gap-6">
-              <div className="text-gray-500">Select a bastion from the sidebar or create a new one</div>
+              <div className="text-gray-500">{t('pages.bastionPage.selectBastionPrompt')}</div>
               {bastions.length > 0 && (
                 <div className="grid grid-cols-3 gap-4 max-w-md">
-                  <SummaryCard label="Total Bastions" value={bastions.length} />
+                  <SummaryCard label={t('pages.bastionPage.totalBastions')} value={bastions.length} />
                   <SummaryCard
-                    label="Total Defenders"
+                    label={t('pages.bastionPage.totalDefenders')}
                     value={bastions.reduce((sum, b) => sum + b.defenders.length, 0)}
                   />
                   <SummaryCard
-                    label="Total Treasury"
+                    label={t('pages.bastionPage.totalTreasury')}
                     value={`${bastions.reduce((sum, b) => sum + b.treasury, 0)} GP`}
                     accent
                   />
@@ -241,21 +249,27 @@ export default function BastionPage(): JSX.Element {
                     <h1 className="text-2xl font-bold text-gray-100">{selectedBastion.name}</h1>
                     <div className="flex items-center gap-3 mt-1">
                       <span className="text-sm text-gray-400">
-                        {ownerCharacter?.name ?? 'Unknown'} (Lv {ownerLevel})
+                        {t('pages.bastionPage.ownerLevel', {
+                          name: ownerCharacter?.name ?? t('pages.bastionPage.unknown'),
+                          level: ownerLevel
+                        })}
                       </span>
                       <span className="text-xs px-2 py-0.5 rounded bg-amber-900/50 text-amber-300 border border-amber-700">
-                        Day {selectedBastion.inGameTime.currentDay}
+                        {t('pages.bastionPage.day', { day: selectedBastion.inGameTime.currentDay })}
                       </span>
                       <span className="text-xs px-2 py-0.5 rounded bg-yellow-900/50 text-yellow-300 border border-yellow-700">
-                        Treasury: {selectedBastion.treasury} GP
+                        {t('pages.bastionPage.treasuryGp', { treasury: selectedBastion.treasury })}
                       </span>
                       <span className="text-xs px-2 py-0.5 rounded bg-purple-900/50 text-purple-300 border border-purple-700">
-                        {selectedBastion.bastionPoints} BP
+                        {t('pages.bastionPage.bastionPointsBp', { bp: selectedBastion.bastionPoints })}
                       </span>
                       <span className="text-xs px-2 py-0.5 rounded bg-gray-800 text-gray-400 border border-gray-700">
-                        {selectedBastion.specialFacilities.length +
-                          selectedBastion.construction.filter((p) => p.projectType === 'add-special').length}
-                        /{maxSpecial} special
+                        {t('pages.bastionPage.specialCount', {
+                          count:
+                            selectedBastion.specialFacilities.length +
+                            selectedBastion.construction.filter((p) => p.projectType === 'add-special').length,
+                          max: maxSpecial
+                        })}
                       </span>
                     </div>
                   </div>
@@ -264,19 +278,19 @@ export default function BastionPage(): JSX.Element {
                       onClick={() => setShowAdvanceTime(true)}
                       className="px-3 py-1.5 text-sm border border-gray-600 hover:border-amber-600 text-gray-300 hover:text-amber-400 rounded transition-colors"
                     >
-                      Advance Time
+                      {t('pages.bastionPage.advanceTime')}
                     </button>
                     <button
                       onClick={() => setShowTreasuryModal(true)}
                       className="px-3 py-1.5 text-sm border border-gray-600 hover:border-yellow-600 text-gray-300 hover:text-yellow-400 rounded transition-colors"
                     >
-                      Treasury
+                      {t('pages.bastionPage.treasury')}
                     </button>
                     <button
                       onClick={() => setShowDeleteConfirm(true)}
                       className="px-3 py-1.5 text-sm border border-red-800 hover:border-red-600 text-red-400 hover:text-red-300 rounded transition-colors"
                     >
-                      Delete
+                      {t('common.actions.delete')}
                     </button>
                   </div>
                 </div>
@@ -395,15 +409,18 @@ export default function BastionPage(): JSX.Element {
 
       <ConfirmDialog
         open={showDeleteAllConfirm}
-        title="Delete All Bastions?"
-        message={`This will permanently delete all ${bastions.length} bastion${bastions.length !== 1 ? 's' : ''} and their data. This action cannot be undone.`}
-        confirmLabel="Delete All"
+        title={t('pages.bastionPage.deleteAllTitle')}
+        message={t('pages.bastionPage.deleteAllMessage', {
+          count: bastions.length,
+          plural: bastions.length !== 1 ? 's' : ''
+        })}
+        confirmLabel={t('pages.bastionPage.deleteAll')}
         variant="danger"
         onConfirm={async () => {
           await deleteAllBastions()
           setSelectedBastionId(null)
           setShowDeleteAllConfirm(false)
-          addToast('All bastions deleted', 'success')
+          addToast(t('pages.bastionPage.allBastionsDeleted'), 'success')
         }}
         onCancel={() => setShowDeleteAllConfirm(false)}
       />

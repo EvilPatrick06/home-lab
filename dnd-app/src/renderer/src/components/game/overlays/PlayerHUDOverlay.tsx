@@ -1,4 +1,5 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useT } from '../../../i18n'
 import { resolveEffects } from '../../../services/combat/effect-resolver-5e'
 import { useNetworkStore } from '../../../stores/network-store'
 import { useCharacterStore } from '../../../stores/use-character-store'
@@ -13,6 +14,7 @@ import PlayerHUDEffects, { PlayerHUDEffectsExpanded } from './PlayerHUDEffects'
 import PlayerHUDStats from './PlayerHUDStats'
 
 function ConnectionBadge(): JSX.Element | null {
+  const { t } = useT()
   const role = useNetworkStore((s) => s.role)
   const latencyMs = useNetworkStore((s) => s.latencyMs)
   if (role !== 'client' || latencyMs === null) return null
@@ -20,9 +22,12 @@ function ConnectionBadge(): JSX.Element | null {
   const color = latencyMs < 100 ? 'bg-green-500' : latencyMs < 300 ? 'bg-yellow-500' : 'bg-red-500'
 
   return (
-    <span className="flex items-center gap-1 shrink-0" title={`Latency: ${latencyMs}ms`}>
+    <span
+      className="flex items-center gap-1 shrink-0"
+      title={t('game.playerHUDOverlay.latencyTitle', { latency: latencyMs })}
+    >
       <span className={`w-2 h-2 rounded-full ${color}`} />
-      <span className="text-[9px] text-gray-500">{latencyMs}ms</span>
+      <span className="text-[9px] text-gray-500">{t('game.playerHUDOverlay.latency', { latency: latencyMs })}</span>
     </span>
   )
 }
@@ -33,6 +38,7 @@ interface PlayerHUDOverlayProps {
 }
 
 function PlayerHUDOverlay({ character, conditions }: PlayerHUDOverlayProps): JSX.Element {
+  const { t } = useT()
   const underwaterCombat = useGameStore((s) => s.underwaterCombat)
   const ambientLight = useGameStore((s) => s.ambientLight)
   const travelPace = useGameStore((s) => s.travelPace)
@@ -275,7 +281,9 @@ function PlayerHUDOverlay({ character, conditions }: PlayerHUDOverlayProps): JSX
   // Spell slot pips renderer
   const renderSlotPips = (level: number, current: number, max: number, isPact: boolean = false): JSX.Element => (
     <div className="flex items-center gap-0.5" key={`${isPact ? 'pact' : 'spell'}-${level}`}>
-      <span className="text-[9px] text-gray-500 w-5">{isPact ? 'P' : `L${level}`}</span>
+      <span className="text-[9px] text-gray-500 w-5">
+        {isPact ? t('game.playerHUDOverlay.pactAbbr') : t('game.playerHUDOverlay.levelAbbr', { level })}
+      </span>
       {Array.from({ length: max }, (_, i) => (
         <button
           key={i}
@@ -287,7 +295,11 @@ function PlayerHUDOverlay({ character, conditions }: PlayerHUDOverlayProps): JSX
                 : 'bg-blue-500 border-blue-400'
               : 'bg-gray-700 border-gray-600'
           }`}
-          title={`${isPact ? 'Pact' : 'Spell'} slot L${level}: ${current}/${max} (click to toggle)`}
+          title={
+            isPact
+              ? t('game.playerHUDOverlay.pactSlotTitle', { level, current, max })
+              : t('game.playerHUDOverlay.spellSlotTitle', { level, current, max })
+          }
         />
       ))}
     </div>
@@ -344,7 +356,7 @@ function PlayerHUDOverlay({ character, conditions }: PlayerHUDOverlayProps): JSX
           <button
             onClick={() => setExpanded(!expanded)}
             className="text-xs text-gray-500 hover:text-gray-300 cursor-pointer ml-auto"
-            title={expanded ? 'Collapse' : 'Expand'}
+            title={expanded ? t('game.playerHUDOverlay.collapse') : t('game.playerHUDOverlay.expand')}
           >
             {expanded ? '\u25B2' : '\u25BC'}
           </button>

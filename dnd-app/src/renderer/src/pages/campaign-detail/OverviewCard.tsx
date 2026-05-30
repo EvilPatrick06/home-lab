@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Button, Card, Modal } from '../../components/ui'
+import { useT } from '../../i18n'
 import type { Campaign, TurnMode } from '../../types/campaign'
 
 interface OverviewCardProps {
@@ -8,6 +9,7 @@ interface OverviewCardProps {
 }
 
 export default function OverviewCard({ campaign, saveCampaign }: OverviewCardProps): JSX.Element {
+  const { t } = useT()
   const [showOverviewEdit, setShowOverviewEdit] = useState(false)
   const [overviewForm, setOverviewForm] = useState({
     name: '',
@@ -59,31 +61,31 @@ export default function OverviewCard({ campaign, saveCampaign }: OverviewCardPro
     <>
       <Card>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-lg font-semibold">Overview</h3>
+          <h3 className="text-lg font-semibold">{t('pages.overviewCard.title')}</h3>
           <button onClick={openOverviewEdit} className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer">
-            Edit
+            {t('pages.overviewCard.edit')}
           </button>
         </div>
         {campaign.description ? (
           <p className="text-gray-300 text-sm mb-4">{campaign.description}</p>
         ) : (
-          <p className="text-gray-500 text-sm italic mb-4">No description</p>
+          <p className="text-gray-500 text-sm italic mb-4">{t('pages.overviewCard.noDescription')}</p>
         )}
         <div className="grid grid-cols-2 gap-y-2 text-sm">
-          <span className="text-gray-400">Turn Mode</span>
+          <span className="text-gray-400">{t('pages.overviewCard.turnMode')}</span>
           <span className="capitalize">{campaign.turnMode}</span>
-          <span className="text-gray-400">Max Players</span>
+          <span className="text-gray-400">{t('pages.overviewCard.maxPlayers')}</span>
           <span>{campaign.settings.maxPlayers}</span>
-          <span className="text-gray-400">Level Range</span>
+          <span className="text-gray-400">{t('pages.overviewCard.levelRange')}</span>
           <span>
             {campaign.settings.levelRange.min} - {campaign.settings.levelRange.max}
           </span>
-          <span className="text-gray-400">Created</span>
+          <span className="text-gray-400">{t('pages.overviewCard.created')}</span>
           <span>{new Date(campaign.createdAt).toLocaleDateString()}</span>
         </div>
         {campaign.discordInviteUrl && (
           <div className="mt-4 pt-3 border-t border-gray-800">
-            <span className="text-gray-400 text-xs uppercase tracking-wider">Discord</span>
+            <span className="text-gray-400 text-xs uppercase tracking-wider">{t('pages.overviewCard.discord')}</span>
             <a
               href={campaign.discordInviteUrl}
               target="_blank"
@@ -96,17 +98,23 @@ export default function OverviewCard({ campaign, saveCampaign }: OverviewCardPro
         )}
         {campaign.settings.lobbyMessage && (
           <div className="mt-4 pt-3 border-t border-gray-800">
-            <span className="text-gray-400 text-xs uppercase tracking-wider">Lobby Message</span>
+            <span className="text-gray-400 text-xs uppercase tracking-wider">
+              {t('pages.overviewCard.lobbyMessage')}
+            </span>
             <p className="text-gray-300 text-sm mt-1">{campaign.settings.lobbyMessage}</p>
           </div>
         )}
       </Card>
 
       {/* Overview Edit Modal */}
-      <Modal open={showOverviewEdit} onClose={() => setShowOverviewEdit(false)} title="Edit Overview">
+      <Modal
+        open={showOverviewEdit}
+        onClose={() => setShowOverviewEdit(false)}
+        title={t('pages.overviewCard.editTitle')}
+      >
         <div className="space-y-3">
           <div>
-            <label className="block text-gray-400 text-xs mb-1">Campaign Name *</label>
+            <label className="block text-gray-400 text-xs mb-1">{t('pages.overviewCard.campaignNameLabel')}</label>
             <input
               type="text"
               value={overviewForm.name}
@@ -115,7 +123,7 @@ export default function OverviewCard({ campaign, saveCampaign }: OverviewCardPro
             />
           </div>
           <div>
-            <label className="block text-gray-400 text-xs mb-1">Description</label>
+            <label className="block text-gray-400 text-xs mb-1">{t('pages.overviewCard.descriptionLabel')}</label>
             <textarea
               value={overviewForm.description}
               onChange={(e) => setOverviewForm((f) => ({ ...f, description: e.target.value }))}
@@ -124,7 +132,7 @@ export default function OverviewCard({ campaign, saveCampaign }: OverviewCardPro
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-gray-400 text-xs mb-1">Max Players</label>
+              <label className="block text-gray-400 text-xs mb-1">{t('pages.overviewCard.maxPlayers')}</label>
               <input
                 type="number"
                 value={maxPlayersDraft}
@@ -142,20 +150,20 @@ export default function OverviewCard({ campaign, saveCampaign }: OverviewCardPro
               />
             </div>
             <div>
-              <label className="block text-gray-400 text-xs mb-1">Turn Mode</label>
+              <label className="block text-gray-400 text-xs mb-1">{t('pages.overviewCard.turnMode')}</label>
               <select
                 value={overviewForm.turnMode}
                 onChange={(e) => setOverviewForm((f) => ({ ...f, turnMode: e.target.value as TurnMode }))}
                 className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
               >
-                <option value="initiative">Initiative</option>
-                <option value="free">Free</option>
+                <option value="initiative">{t('pages.overviewCard.turnModeInitiative')}</option>
+                <option value="free">{t('pages.overviewCard.turnModeFree')}</option>
               </select>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-gray-400 text-xs mb-1">Level Min</label>
+              <label className="block text-gray-400 text-xs mb-1">{t('pages.overviewCard.levelMin')}</label>
               <input
                 type="number"
                 value={overviewForm.levelMin}
@@ -168,7 +176,7 @@ export default function OverviewCard({ campaign, saveCampaign }: OverviewCardPro
               />
             </div>
             <div>
-              <label className="block text-gray-400 text-xs mb-1">Level Max</label>
+              <label className="block text-gray-400 text-xs mb-1">{t('pages.overviewCard.levelMax')}</label>
               <input
                 type="number"
                 value={overviewForm.levelMax}
@@ -182,31 +190,31 @@ export default function OverviewCard({ campaign, saveCampaign }: OverviewCardPro
             </div>
           </div>
           <div>
-            <label className="block text-gray-400 text-xs mb-1">Discord Invite URL</label>
+            <label className="block text-gray-400 text-xs mb-1">{t('pages.overviewCard.discordInviteUrlLabel')}</label>
             <input
               type="url"
               value={overviewForm.discordInviteUrl}
               onChange={(e) => setOverviewForm((f) => ({ ...f, discordInviteUrl: e.target.value }))}
               className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
-              placeholder="https://discord.gg/..."
+              placeholder={t('pages.overviewCard.discordInviteUrlPlaceholder')}
             />
           </div>
           <div>
-            <label className="block text-gray-400 text-xs mb-1">Lobby Message</label>
+            <label className="block text-gray-400 text-xs mb-1">{t('pages.overviewCard.lobbyMessage')}</label>
             <textarea
               value={overviewForm.lobbyMessage}
               onChange={(e) => setOverviewForm((f) => ({ ...f, lobbyMessage: e.target.value }))}
               className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500 h-16 resize-none"
-              placeholder="Message shown to players in the lobby"
+              placeholder={t('pages.overviewCard.lobbyMessagePlaceholder')}
             />
           </div>
         </div>
         <div className="flex gap-3 justify-end mt-4">
           <Button variant="secondary" onClick={() => setShowOverviewEdit(false)}>
-            Cancel
+            {t('common.actions.cancel')}
           </Button>
           <Button onClick={handleSaveOverview} disabled={!overviewForm.name.trim()}>
-            Save
+            {t('common.actions.save')}
           </Button>
         </div>
       </Modal>

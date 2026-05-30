@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { addToast } from '../../../../hooks/use-toast'
+import { useT } from '../../../../i18n'
 import { type LanguageEntry, load5eLanguages } from '../../../../services/data-provider'
 import {
   type DowntimeActivity,
@@ -40,6 +41,7 @@ export default function DowntimeModal({
   onSaveCampaign,
   onBroadcastResult
 }: DowntimeModalProps): JSX.Element {
+  const { t } = useT()
   useEscapeKey(onClose)
   const [tab, setTab] = useState<DowntimeTab>('activities')
   const [activities, setActivities] = useState<DowntimeActivity[]>([])
@@ -51,21 +53,21 @@ export default function DowntimeModal({
       .then(setActivities)
       .catch((err) => {
         logger.error('Failed to load downtime activities', err)
-        addToast('Failed to load downtime activities', 'error')
+        addToast(t('game.downtimeModal.loadActivitiesError'), 'error')
         setActivities([])
       })
     loadExtendedDowntimeActivities()
       .then(setExtendedActivities)
       .catch((err) => {
         logger.error('Failed to load extended downtime activities', err)
-        addToast('Failed to load extended downtime activities', 'error')
+        addToast(t('game.downtimeModal.loadExtendedError'), 'error')
         setExtendedActivities([])
       })
     load5eLanguages()
       .then(setLanguages)
       .catch((err) => {
         logger.error('Failed to load languages', err)
-        addToast('Failed to load languages', 'error')
+        addToast(t('game.downtimeModal.loadLanguagesError'), 'error')
         setLanguages([])
       })
   }, [])
@@ -78,12 +80,7 @@ export default function DowntimeModal({
     window.api.saveCampaign(c as unknown as Record<string, unknown>)
   }
 
-  const tabs: { id: DowntimeTab; label: string }[] = [
-    { id: 'activities', label: 'Activities' },
-    { id: 'extended', label: 'Extended' },
-    { id: 'crafting', label: 'Crafting' },
-    { id: 'training', label: 'Training' }
-  ]
+  const tabs: { id: DowntimeTab }[] = [{ id: 'activities' }, { id: 'extended' }, { id: 'crafting' }, { id: 'training' }]
 
   return (
     <div
@@ -98,26 +95,32 @@ export default function DowntimeModal({
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700 shrink-0">
           <h2 className="text-sm font-bold text-amber-400">
-            Downtime Activities {characterName ? `\u2014 ${characterName}` : ''}
+            {characterName
+              ? t('game.downtimeModal.titleWithName', { name: characterName })
+              : t('game.downtimeModal.title')}
           </h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-300 cursor-pointer">
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-300 cursor-pointer"
+            aria-label={t('common.actions.close')}
+          >
             &#10005;
           </button>
         </div>
 
         {/* Tabs */}
         <div className="flex border-b border-gray-700 shrink-0">
-          {tabs.map((t) => (
+          {tabs.map((tabDef) => (
             <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
+              key={tabDef.id}
+              onClick={() => setTab(tabDef.id)}
               className={`flex-1 px-3 py-2 text-xs font-semibold cursor-pointer transition-colors ${
-                tab === t.id
+                tab === tabDef.id
                   ? 'text-amber-400 border-b-2 border-amber-400 bg-gray-800/50'
                   : 'text-gray-500 hover:text-gray-300'
               }`}
             >
-              {t.label}
+              {t(`game.downtimeModal.tabs.${tabDef.id}`)}
             </button>
           ))}
         </div>

@@ -1,5 +1,6 @@
 import { useCallback } from 'react'
 import { Z } from '../../../constants'
+import { useT } from '../../../i18n'
 import type { Character } from '../../../types/character'
 import { is5eCharacter } from '../../../types/character'
 import type { Character5e } from '../../../types/character-5e'
@@ -17,6 +18,7 @@ function proficiencyBonus(level: number): number {
 }
 
 function PrintSheet5e({ character, onClose }: { character: Character5e; onClose: () => void }): JSX.Element {
+  const { t } = useT()
   const pb = proficiencyBonus(character.level)
 
   const handlePrint = useCallback(() => {
@@ -42,15 +44,17 @@ function PrintSheet5e({ character, onClose }: { character: Character5e; onClose:
           onClick={handlePrint}
           className="rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
         >
-          Print
+          {t('sheet.printSheet.print')}
         </button>
         <button
           onClick={onClose}
           className="rounded bg-gray-500 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-600"
         >
-          Close
+          {t('common.actions.close')}
         </button>
-        <span className="ml-2 text-sm text-gray-600">Print preview for {character.name}</span>
+        <span className="ml-2 text-sm text-gray-600">
+          {t('sheet.printSheet.printPreviewFor', { name: character.name })}
+        </span>
       </div>
 
       {/* Sheet content */}
@@ -64,6 +68,7 @@ function PrintSheet5e({ character, onClose }: { character: Character5e; onClose:
 }
 
 export default function PrintSheet({ character, onClose }: PrintSheetProps): JSX.Element {
+  const { t } = useT()
   if (is5eCharacter(character)) {
     return <PrintSheet5e character={character} onClose={onClose} />
   }
@@ -72,9 +77,9 @@ export default function PrintSheet({ character, onClose }: PrintSheetProps): JSX
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-white" style={{ zIndex: Z.CRITICAL_OVERLAY }}>
       <div className="text-center">
-        <p className="text-lg font-semibold">Unsupported game system</p>
+        <p className="text-lg font-semibold">{t('sheet.printSheet.unsupportedSystem')}</p>
         <button onClick={onClose} className="mt-4 rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600">
-          Close
+          {t('common.actions.close')}
         </button>
       </div>
     </div>

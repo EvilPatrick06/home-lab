@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useT } from '../../../i18n'
 import { getDragPayload, hasLibraryDrag } from '../../../services/library/drag-data'
 import { play as playSound } from '../../../services/sound-manager'
 import { useGameStore } from '../../../stores/use-game-store'
@@ -52,6 +53,7 @@ export default function InitiativeTracker({
   combatTimer,
   onCombatTimerChange
 }: InitiativeTrackerProps): JSX.Element {
+  const { t } = useT()
   const [newEntries, setNewEntries] = useState<NewEntry[]>([
     { name: '', modifier: '0', entityType: 'player', surprised: false, legendaryResistances: '', inLair: false }
   ])
@@ -194,7 +196,7 @@ export default function InitiativeTracker({
         return {
           id: crypto.randomUUID(),
           entityId,
-          entityName: e.surprised ? `${e.name.trim()} (Surprised)` : e.name.trim(),
+          entityName: e.surprised ? t('game.initiativeTracker.surprisedName', { name: e.name.trim() }) : e.name.trim(),
           entityType: e.entityType,
           roll,
           modifier: mod,
@@ -289,7 +291,7 @@ export default function InitiativeTracker({
   const lairEntry: InitiativeEntry & { isLairAction?: boolean } = {
     id: '__lair-action__',
     entityId: '__lair-action__',
-    entityName: 'Lair Action',
+    entityName: t('game.initiativeTracker.lairAction'),
     entityType: 'enemy',
     roll: 20,
     modifier: 0,
@@ -314,15 +316,19 @@ export default function InitiativeTracker({
     <div
       className={`space-y-3 ${dragOver ? 'ring-2 ring-amber-500/50 ring-inset rounded-lg' : ''}`}
       role="region"
-      aria-label="Initiative tracker"
+      aria-label={t('game.initiativeTracker.trackerLabel')}
       aria-live="polite"
       onDragOver={handleInitDragOver}
       onDragLeave={handleInitDragLeave}
       onDrop={handleInitDrop}
     >
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Initiative</h3>
-        <span className="text-xs text-amber-400 font-semibold">Round {initiative.round}</span>
+        <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+          {t('game.initiativeTracker.title')}
+        </h3>
+        <span className="text-xs text-amber-400 font-semibold">
+          {t('game.initiativeTracker.round', { round: initiative.round })}
+        </span>
       </div>
 
       {/* Phase 26d — deploy pending encounter waves */}
@@ -334,9 +340,13 @@ export default function InitiativeTracker({
               key={i}
               onClick={() => deployWave(i)}
               className="px-2 py-1 text-xs rounded bg-red-700/40 border border-red-600/50 text-red-200 hover:bg-red-700/60"
-              title={w.triggerCondition ? `Trigger: ${w.triggerCondition}` : undefined}
+              title={
+                w.triggerCondition
+                  ? t('game.initiativeTracker.triggerTitle', { condition: w.triggerCondition })
+                  : undefined
+              }
             >
-              Deploy {w.name} ({w.tokens.length})
+              {t('game.initiativeTracker.deployWave', { name: w.name, count: w.tokens.length })}
             </button>
           ))}
         </div>
@@ -346,8 +356,8 @@ export default function InitiativeTracker({
         {displayEntries.length === 0 && (
           <EmptyState
             compact
-            title="No combatants in initiative."
-            description="Add creatures or roll initiative to begin combat."
+            title={t('game.initiativeTracker.emptyTitle')}
+            description={t('game.initiativeTracker.emptyDescription')}
           />
         )}
         {displayEntries.map((entry) => {

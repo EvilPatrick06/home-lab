@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 import { getCommands } from '../../../../services/chat-commands'
 
 interface CommandReferenceModalProps {
@@ -8,6 +9,7 @@ interface CommandReferenceModalProps {
 }
 
 export default function CommandReferenceModal({ isDM, onClose }: CommandReferenceModalProps): JSX.Element {
+  const { t } = useT()
   useEscapeKey(onClose)
   const [search, setSearch] = useState('')
   const allCommands = getCommands(isDM)
@@ -43,7 +45,11 @@ export default function CommandReferenceModal({ isDM, onClose }: CommandReferenc
                 {cmd.aliases.length > 0 && (
                   <span className="text-xs text-gray-500">{cmd.aliases.map((a) => `/${a}`).join(', ')}</span>
                 )}
-                {cmd.dmOnly && <span className={`text-[9px] px-1 py-0.5 rounded ${badgeColor}`}>DM</span>}
+                {cmd.dmOnly && (
+                  <span className={`text-[9px] px-1 py-0.5 rounded ${badgeColor}`}>
+                    {t('game.commandReferenceModal.dmBadge')}
+                  </span>
+                )}
               </div>
               <p className="text-xs text-gray-400 mb-1">{cmd.description}</p>
               <div className="text-xs text-gray-500 font-mono">{cmd.usage}</div>
@@ -68,11 +74,11 @@ export default function CommandReferenceModal({ isDM, onClose }: CommandReferenc
       <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-5 max-w-lg w-full mx-4 shadow-2xl max-h-[80vh] flex flex-col">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-amber-400">Chat Commands</h3>
+          <h3 className="text-sm font-semibold text-amber-400">{t('game.commandReferenceModal.title')}</h3>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-300 text-lg cursor-pointer"
-            aria-label="Close"
+            aria-label={t('common.actions.close')}
           >
             &times;
           </button>
@@ -82,16 +88,33 @@ export default function CommandReferenceModal({ isDM, onClose }: CommandReferenc
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search commands..."
+          placeholder={t('game.commandReferenceModal.searchPlaceholder')}
           className="w-full px-3 py-1.5 mb-3 rounded-lg bg-gray-800 border border-gray-700 text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500 text-sm"
         />
 
         <div className="flex-1 overflow-y-auto">
-          {renderSection('Player Commands', playerCommands, 'text-green-400', 'bg-green-600/30 text-green-400')}
-          {renderSection('DM Commands', dmCommands, 'text-amber-400', 'bg-red-600/30 text-red-400')}
-          {renderSection('AI DM Commands', aiCommands, 'text-purple-400', 'bg-purple-600/30 text-purple-400')}
+          {renderSection(
+            t('game.commandReferenceModal.playerCommands'),
+            playerCommands,
+            'text-green-400',
+            'bg-green-600/30 text-green-400'
+          )}
+          {renderSection(
+            t('game.commandReferenceModal.dmCommands'),
+            dmCommands,
+            'text-amber-400',
+            'bg-red-600/30 text-red-400'
+          )}
+          {renderSection(
+            t('game.commandReferenceModal.aiDmCommands'),
+            aiCommands,
+            'text-purple-400',
+            'bg-purple-600/30 text-purple-400'
+          )}
           {filtered.length === 0 && (
-            <p className="text-xs text-gray-500 text-center py-4">No commands found for "{search}"</p>
+            <p className="text-xs text-gray-500 text-center py-4">
+              {t('game.commandReferenceModal.noCommands', { search })}
+            </p>
           )}
         </div>
       </div>

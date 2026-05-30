@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router'
 import { VARIANT_ITEMS } from '../../../data/variant-items'
 import { clearBuilderDraft } from '../../../hooks/use-auto-save'
 import { addToast } from '../../../hooks/use-toast'
+import { useT } from '../../../i18n'
 import { getCantripsKnown, getPreparedSpellMax, hasAnySpellcasting } from '../../../services/character/spell-data'
 import { getHeritageOptions5e, load5eSpells, resolveDataPath } from '../../../services/data-provider'
 import { useLibraryCategory } from '../../../services/library/use-library-entry'
@@ -37,6 +38,7 @@ const SPECIES_WITH_SPELL_ABILITY = ['elf', 'tiefling', 'gnome']
 // fields by design.
 
 export default function CharacterBuilder5e(): JSX.Element {
+  const { t } = useT()
   const navigate = useNavigate()
   const location = useLocation()
   const returnTo = (location.state as { returnTo?: string })?.returnTo
@@ -123,7 +125,7 @@ export default function CharacterBuilder5e(): JSX.Element {
 
     // 1. Name required
     if (!characterName.trim()) {
-      issues.push('Character name is required')
+      issues.push(t('builder.characterBuilder.validation.nameRequired'))
     }
 
     // 2. Foundation slots filled
@@ -133,43 +135,44 @@ export default function CharacterBuilder5e(): JSX.Element {
     )
     const unfilledFoundation = foundationSlots.filter((s) => !s.selectedId)
     if (unfilledFoundation.length > 0) {
-      issues.push('Complete all foundation selections (species, class, background, ability scores, skills)')
+      issues.push(t('builder.characterBuilder.validation.foundationIncomplete'))
     }
 
     // 3. Alignment required
     if (!characterAlignment) {
-      issues.push('Choose an alignment (About tab)')
+      issues.push(t('builder.characterBuilder.validation.alignmentRequired'))
     }
 
     // 4. Background equipment choice required (if background selected and not custom)
     const backgroundId = buildSlots.find((s) => s.category === 'background')?.selectedId
     if (backgroundId && backgroundId !== 'custom' && backgroundEquipmentChoice === null) {
-      issues.push('Choose background equipment or 50 GP (About tab)')
+      issues.push(t('builder.characterBuilder.validation.backgroundEquipment'))
     }
 
     // 5. Class equipment choice required (if class selected)
     const classSlot = buildSlots.find((s) => s.category === 'class')
     if (classSlot?.selectedId && classEquipmentChoice === null) {
-      issues.push('Choose class starting equipment option (About tab)')
+      issues.push(t('builder.characterBuilder.validation.classEquipment'))
     }
 
     // 6. Equipment variant choices required
     const bgItems = (bgEquipment ?? []).flatMap((e) => e.items.map((item) => ({ name: item, source: e.source })))
     const allEquip = [...classEquipment, ...bgItems]
+    const equipmentVariantsMsg = t('builder.characterBuilder.validation.equipmentVariants')
     for (const item of allEquip) {
       const name = item.name.toLowerCase()
       for (const [key, config] of Object.entries(VARIANT_ITEMS)) {
         if (name.includes(key) && !config.variants.some((v) => v.toLowerCase() === name)) {
-          issues.push('Choose specific equipment variants (About tab)')
+          issues.push(equipmentVariantsMsg)
           break
         }
       }
-      if (issues[issues.length - 1] === 'Choose specific equipment variants (About tab)') break
+      if (issues[issues.length - 1] === equipmentVariantsMsg) break
     }
 
     // 7. Trinket required (only for new characters; existing characters may pre-date the trinket system)
     if (!editingCharacterId && !classEquipment.some((e) => e.source === 'trinket')) {
-      issues.push('Roll a trinket (About tab)')
+      issues.push(t('builder.characterBuilder.validation.trinket'))
     }
 
     // 8. Background ability bonuses complete (2024 5e: ASI from background)
@@ -177,31 +180,36 @@ export default function CharacterBuilder5e(): JSX.Element {
     if (backgroundSlot?.selectedId) {
       const totalBonusPoints = Object.values(backgroundAbilityBonuses).reduce((a, b) => a + b, 0)
       if (totalBonusPoints !== 3) {
-        issues.push('Assign all background ability bonuses (Specials tab)')
+        issues.push(t('builder.characterBuilder.validation.backgroundBonuses'))
       }
     }
 
     // 9. Skill proficiencies complete
     const skillSlot = buildSlots.find((s) => s.id === 'skill-choices')
     if (skillSlot?.selectedId && maxSkills > 0 && selectedSkills.length < maxSkills) {
-      issues.push(`Select all ${maxSkills} skill proficiencies (${selectedSkills.length}/${maxSkills} chosen)`)
+      issues.push(
+        t('builder.characterBuilder.validation.skillProficiencies', {
+          maxSkills,
+          selected: selectedSkills.length
+        })
+      )
     }
 
     // 10. Human Versatile feat required
     const speciesSlot = buildSlots.find((s) => s.category === 'ancestry')
     if (speciesSlot?.selectedId === 'human' && !versatileFeatId) {
-      issues.push('Select a Versatile feat (Human trait)')
+      issues.push(t('builder.characterBuilder.validation.versatileFeat'))
     }
 
     // 11. Species size choice required (Human, Tiefling can be Small or Medium)
     if (speciesSlot?.selectedId && speciesSize === '') {
-      issues.push('Choose a size in the Specials tab')
+      issues.push(t('builder.characterBuilder.validation.size'))
     }
 
     // 12. Heritage required if species has subraces
     const heritageSlot = buildSlots.find((s) => s.id === 'heritage')
     if (heritageSlot && !heritageSlot.selectedId) {
-      issues.push('Select a lineage/heritage in the Specials tab')
+      issues.push(t('builder.characterBuilder.validation.heritage'))
     }
 
     // 13. Species spellcasting ability required (Elf, Tiefling, Gnome after heritage)
@@ -211,19 +219,21 @@ export default function CharacterBuilder5e(): JSX.Element {
       heritageId &&
       !speciesSpellcastingAbility
     ) {
-      issues.push('Choose a spellcasting ability for species spells (Specials tab)')
+      issues.push(t('builder.characterBuilder.validation.spellcastingAbility'))
     }
 
     // 14. Keen Senses skill required (Elf)
     if (speciesSlot?.selectedId === 'elf' && !keenSensesSkill) {
-      issues.push('Choose a Keen Senses skill in the Specials tab')
+      issues.push(t('builder.characterBuilder.validation.keenSenses'))
     }
 
     // 15. Languages complete
     const totalBonusSlots = 2 + speciesExtraLangCount + bgLanguageCount + classExtraLangCount
     if (totalBonusSlots > 0 && chosenLanguages.length < totalBonusSlots) {
       issues.push(
-        `Choose ${totalBonusSlots - chosenLanguages.length} more language${totalBonusSlots - chosenLanguages.length !== 1 ? 's' : ''}`
+        t('builder.characterBuilder.validation.moreLanguages', {
+          count: totalBonusSlots - chosenLanguages.length
+        })
       )
     }
     // Warn if Primordial is chosen without specifying a dialect
@@ -231,7 +241,9 @@ export default function CharacterBuilder5e(): JSX.Element {
       chosenLanguages.includes('Primordial') &&
       !chosenLanguages.some((lang) => PRIMORDIAL_DIALECTS.includes(lang as (typeof PRIMORDIAL_DIALECTS)[number]))
     ) {
-      issues.push(`Primordial speakers typically know a dialect: ${PRIMORDIAL_DIALECTS.join(', ')}`)
+      issues.push(
+        t('builder.characterBuilder.validation.primordialDialect', { dialects: PRIMORDIAL_DIALECTS.join(', ') })
+      )
     }
 
     // 16. Class spell selection validation
@@ -248,20 +260,24 @@ export default function CharacterBuilder5e(): JSX.Element {
       }
 
       if (cantripsMax > 0 && cantripCount < cantripsMax) {
-        issues.push(`Select all ${cantripsMax} cantrips (${cantripCount}/${cantripsMax} chosen)`)
+        issues.push(t('builder.characterBuilder.validation.cantrips', { cantripsMax, cantripCount }))
       }
       if (preparedMax !== null && preparedMax > 0 && preparedCount < preparedMax) {
-        issues.push(`Select all ${preparedMax} prepared spells (${preparedCount}/${preparedMax} chosen)`)
+        issues.push(t('builder.characterBuilder.validation.preparedSpells', { preparedMax, preparedCount }))
       }
     }
 
     // 17. Fighting style cantrip validation
     const fightingStyleSlot = buildSlots.find((s) => s.category === 'fighting-style')
     if (fightingStyleSlot?.selectedId === 'fighting-style-blessed-warrior' && blessedWarriorCantrips.length < 2) {
-      issues.push(`Select 2 Blessed Warrior cantrips (${blessedWarriorCantrips.length}/2 chosen)`)
+      issues.push(
+        t('builder.characterBuilder.validation.blessedWarriorCantrips', { count: blessedWarriorCantrips.length })
+      )
     }
     if (fightingStyleSlot?.selectedId === 'druidic-warrior' && druidicWarriorCantrips.length < 2) {
-      issues.push(`Select 2 Druidic Warrior cantrips (${druidicWarriorCantrips.length}/2 chosen)`)
+      issues.push(
+        t('builder.characterBuilder.validation.druidicWarriorCantrips', { count: druidicWarriorCantrips.length })
+      )
     }
 
     return issues
@@ -298,21 +314,21 @@ export default function CharacterBuilder5e(): JSX.Element {
   // Check which detail and backstory fields are blank
   const blankDetailFields = useMemo(() => {
     const blank: string[] = []
-    if (!characterGender.trim()) blank.push('Gender')
-    if (!characterDeity.trim()) blank.push('Deity')
-    if (!characterAge.trim()) blank.push('Age')
-    if (!characterHeight.trim()) blank.push('Height')
-    if (!characterWeight.trim()) blank.push('Weight')
-    if (!characterEyes.trim()) blank.push('Eyes')
-    if (!characterHair.trim()) blank.push('Hair')
-    if (!characterSkin.trim()) blank.push('Skin')
-    if (!characterAppearance.trim()) blank.push('Appearance')
-    if (!characterPersonality.trim()) blank.push('Personality')
-    if (!characterIdeals.trim()) blank.push('Ideals')
-    if (!characterBonds.trim()) blank.push('Bonds')
-    if (!characterFlaws.trim()) blank.push('Flaws')
-    if (!characterBackstory.trim()) blank.push('Backstory')
-    if (!characterNotes.trim()) blank.push('Notes')
+    if (!characterGender.trim()) blank.push(t('builder.characterBuilder.field.gender'))
+    if (!characterDeity.trim()) blank.push(t('builder.characterBuilder.field.deity'))
+    if (!characterAge.trim()) blank.push(t('builder.characterBuilder.field.age'))
+    if (!characterHeight.trim()) blank.push(t('builder.characterBuilder.field.height'))
+    if (!characterWeight.trim()) blank.push(t('builder.characterBuilder.field.weight'))
+    if (!characterEyes.trim()) blank.push(t('builder.characterBuilder.field.eyes'))
+    if (!characterHair.trim()) blank.push(t('builder.characterBuilder.field.hair'))
+    if (!characterSkin.trim()) blank.push(t('builder.characterBuilder.field.skin'))
+    if (!characterAppearance.trim()) blank.push(t('builder.characterBuilder.field.appearance'))
+    if (!characterPersonality.trim()) blank.push(t('builder.characterBuilder.field.personality'))
+    if (!characterIdeals.trim()) blank.push(t('builder.characterBuilder.field.ideals'))
+    if (!characterBonds.trim()) blank.push(t('builder.characterBuilder.field.bonds'))
+    if (!characterFlaws.trim()) blank.push(t('builder.characterBuilder.field.flaws'))
+    if (!characterBackstory.trim()) blank.push(t('builder.characterBuilder.field.backstory'))
+    if (!characterNotes.trim()) blank.push(t('builder.characterBuilder.field.notes'))
     return blank
   }, [
     characterGender,
@@ -358,7 +374,7 @@ export default function CharacterBuilder5e(): JSX.Element {
       navigate(returnTo || `/characters/5e/${character.id}`)
     } catch (err) {
       logger.error('Failed to save character:', err)
-      addToast('Failed to save character. Please try again.', 'error')
+      addToast(t('builder.characterBuilder.saveError'), 'error')
     } finally {
       savingRef.current = false
       setSaving(false)
@@ -393,10 +409,12 @@ export default function CharacterBuilder5e(): JSX.Element {
             onClick={handleBack}
             className="text-gray-400 hover:text-gray-200 text-sm flex items-center gap-1 transition-colors"
           >
-            &larr; Back
+            &larr; {t('builder.characterBuilder.back')}
           </button>
           <div className="w-px h-4 bg-gray-700" />
-          <span className="text-xs text-gray-500">{editingCharacterId ? 'Edit Character' : 'Character Builder'}</span>
+          <span className="text-xs text-gray-500">
+            {editingCharacterId ? t('builder.characterBuilder.editCharacter') : t('builder.characterBuilder.title')}
+          </span>
         </div>
 
         <div className="flex items-center gap-3">
@@ -407,7 +425,7 @@ export default function CharacterBuilder5e(): JSX.Element {
               onChange={(e) => setGuidedMode(e.target.checked)}
               className="rounded"
             />
-            Guided
+            {t('builder.characterBuilder.guided')}
           </label>
           <div className="flex flex-col items-end gap-0.5">
             <button
@@ -415,7 +433,11 @@ export default function CharacterBuilder5e(): JSX.Element {
               disabled={saving || !canSave}
               className="px-4 py-1.5 text-sm font-medium bg-green-600 hover:bg-green-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded transition-colors"
             >
-              {saving ? 'Saving...' : editingCharacterId ? 'Save Changes' : 'Save Character'}
+              {saving
+                ? t('builder.characterBuilder.saving')
+                : editingCharacterId
+                  ? t('builder.characterBuilder.saveChanges')
+                  : t('builder.characterBuilder.saveCharacter')}
             </button>
             {!canSave && validation.length > 0 && (
               <span
@@ -437,7 +459,7 @@ export default function CharacterBuilder5e(): JSX.Element {
       {/* Spell data load error warning */}
       {spellDataError && (
         <div className="px-3 py-1.5 bg-yellow-900/50 border-b border-yellow-700/50 text-xs text-yellow-400 text-center">
-          ⚠ Spell data failed to load — spell selection validation is unavailable.
+          {t('builder.characterBuilder.spellDataError')}
         </div>
       )}
 
@@ -448,21 +470,25 @@ export default function CharacterBuilder5e(): JSX.Element {
       </div>
 
       {/* Backstory confirmation dialog */}
-      <Modal open={showConfirmDialog} onClose={() => setShowConfirmDialog(false)} title="Incomplete Character Details">
+      <Modal
+        open={showConfirmDialog}
+        onClose={() => setShowConfirmDialog(false)}
+        title={t('builder.characterBuilder.incompleteTitle')}
+      >
         <div className="space-y-4">
-          <p className="text-sm text-gray-400">The following fields are left blank:</p>
+          <p className="text-sm text-gray-400">{t('builder.characterBuilder.incompleteBlankFields')}</p>
           <ul className="list-disc list-inside text-sm text-amber-400 space-y-1">
             {blankDetailFields.map((field) => (
               <li key={field}>{field}</li>
             ))}
           </ul>
-          <p className="text-sm text-gray-400">Are you sure you are finished?</p>
+          <p className="text-sm text-gray-400">{t('builder.characterBuilder.incompleteConfirm')}</p>
           <div className="flex gap-2 justify-end">
             <button
               onClick={() => setShowConfirmDialog(false)}
               className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-gray-800 transition-colors"
             >
-              Go Back
+              {t('builder.characterBuilder.goBack')}
             </button>
             <button
               onClick={() => {
@@ -471,22 +497,26 @@ export default function CharacterBuilder5e(): JSX.Element {
               }}
               className="px-4 py-2 text-sm bg-green-600 hover:bg-green-500 text-white rounded font-semibold transition-colors"
             >
-              Save Anyway
+              {t('builder.characterBuilder.saveAnyway')}
             </button>
           </div>
         </div>
       </Modal>
 
       {/* Leave without saving confirmation */}
-      <Modal open={showLeaveDialog} onClose={() => setShowLeaveDialog(false)} title="Leave Without Saving?">
+      <Modal
+        open={showLeaveDialog}
+        onClose={() => setShowLeaveDialog(false)}
+        title={t('builder.characterBuilder.leaveTitle')}
+      >
         <div className="space-y-4">
-          <p className="text-sm text-gray-400">Your changes will be lost if you leave now.</p>
+          <p className="text-sm text-gray-400">{t('builder.characterBuilder.leaveBody')}</p>
           <div className="flex gap-2 justify-end">
             <button
               onClick={() => setShowLeaveDialog(false)}
               className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-gray-800 transition-colors"
             >
-              Stay
+              {t('builder.characterBuilder.stay')}
             </button>
             <button
               onClick={() => {
@@ -496,7 +526,7 @@ export default function CharacterBuilder5e(): JSX.Element {
               }}
               className="px-4 py-2 text-sm bg-red-700 hover:bg-red-600 text-white rounded font-semibold transition-colors"
             >
-              Leave
+              {t('builder.characterBuilder.leave')}
             </button>
           </div>
         </div>

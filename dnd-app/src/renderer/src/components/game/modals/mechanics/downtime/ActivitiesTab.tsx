@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useT } from '../../../../../i18n'
 import {
   addDowntimeProgress,
   advanceTrackedDowntime,
@@ -34,6 +35,7 @@ export default function ActivitiesTab({
   saveCampaign: (c: Campaign) => void
   onBroadcastResult?: (message: string) => void
 }): JSX.Element {
+  const { t } = useT()
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [days, setDays] = useState(1)
   const [selectedRarity, setSelectedRarity] = useState('')
@@ -52,7 +54,9 @@ export default function ActivitiesTab({
   const handleApply = (): void => {
     if (!selected || !cost) return
     const details =
-      selectedRarity || selectedPotion || (selected.spellLevelTable ? `Level ${selectedSpellLevel} spell` : '')
+      selectedRarity ||
+      selectedPotion ||
+      (selected.spellLevelTable ? t('game.activitiesTab.spellDetails', { level: selectedSpellLevel }) : '')
     onApply?.(selected.name, cost.days, cost.goldCost, details)
     onClose()
   }
@@ -60,13 +64,15 @@ export default function ActivitiesTab({
   const handleTrackProgress = (): void => {
     if (!selected || !cost || !characterId) return
     const details =
-      selectedRarity || selectedPotion || (selected.spellLevelTable ? `Level ${selectedSpellLevel} spell` : '')
+      selectedRarity ||
+      selectedPotion ||
+      (selected.spellLevelTable ? t('game.activitiesTab.spellDetails', { level: selectedSpellLevel }) : '')
     const entry: DowntimeProgressEntry = {
       id: `dt-${Date.now()}-${cryptoRandom().toString(36).slice(2, 8)}`,
       activityId: selected.id,
       activityName: selected.name,
       characterId,
-      characterName: characterName ?? 'Unknown',
+      characterName: characterName ?? t('game.activitiesTab.unknown'),
       daysSpent: 0,
       daysRequired: cost.days,
       goldSpent: 0,
@@ -77,7 +83,13 @@ export default function ActivitiesTab({
     }
     saveCampaign(addDowntimeProgress(campaign, entry))
     onBroadcastResult?.(
-      `**${characterName}** started tracking: ${selected.name}${details ? ` (${details})` : ''} \u2014 ${cost.days} days, ${cost.goldCost.toLocaleString()} GP`
+      t('game.activitiesTab.broadcastStarted', {
+        name: characterName,
+        activity: selected.name,
+        details: details ? ` (${details})` : '',
+        days: cost.days,
+        gold: cost.goldCost.toLocaleString()
+      })
     )
   }
 
@@ -88,11 +100,20 @@ export default function ActivitiesTab({
     if (entry) {
       if (complete) {
         onBroadcastResult?.(
-          `**${entry.characterName}** completed: ${entry.activityName}${entry.details ? ` (${entry.details})` : ''}!`
+          t('game.activitiesTab.broadcastCompleted', {
+            name: entry.characterName,
+            activity: entry.activityName,
+            details: entry.details ? ` (${entry.details})` : ''
+          })
         )
       } else {
         onBroadcastResult?.(
-          `**${entry.characterName}** advanced ${entry.activityName}: ${entry.daysSpent}/${entry.daysRequired} days`
+          t('game.activitiesTab.broadcastAdvanced', {
+            name: entry.characterName,
+            activity: entry.activityName,
+            spent: entry.daysSpent,
+            required: entry.daysRequired
+          })
         )
       }
     }
@@ -102,7 +123,9 @@ export default function ActivitiesTab({
     const entry = (campaign.downtimeProgress ?? []).find((e) => e.id === entryId)
     saveCampaign(updateDowntimeProgress(campaign, entryId, { status: 'abandoned' }))
     if (entry) {
-      onBroadcastResult?.(`**${entry.characterName}** abandoned: ${entry.activityName}`)
+      onBroadcastResult?.(
+        t('game.activitiesTab.broadcastAbandoned', { name: entry.characterName, activity: entry.activityName })
+      )
     }
   }
 
@@ -111,13 +134,13 @@ export default function ActivitiesTab({
       {/* Active progress entries */}
       {activeEntries.length > 0 && (
         <div className="space-y-2">
-          <h3 className="text-xs font-semibold text-gray-400">Active Progress</h3>
+          <h3 className="text-xs font-semibold text-gray-400">{t('game.activitiesTab.activeProgress')}</h3>
           {activeEntries.map((entry) => (
             <div key={entry.id} className="bg-gray-800/50 border border-gray-700 rounded-lg p-3">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs font-semibold text-amber-300">{entry.activityName}</span>
                 <span className="text-xs text-gray-500">
-                  {entry.daysSpent}/{entry.daysRequired} days
+                  {t('game.activitiesTab.daysProgress', { spent: entry.daysSpent, required: entry.daysRequired })}
                 </span>
               </div>
               {entry.details && <p className="text-xs text-gray-500 mb-1">{entry.details}</p>}
@@ -134,31 +157,36 @@ export default function ActivitiesTab({
                   disabled={entry.daysSpent >= entry.daysRequired}
                   className="px-2 py-0.5 text-xs bg-blue-600 hover:bg-blue-500 text-white rounded cursor-pointer disabled:opacity-40"
                 >
-                  +1 Day
+                  {t('game.activitiesTab.plusOneDay')}
                 </button>
                 <button
                   onClick={() => handleAdvance(entry.id, 5)}
                   disabled={entry.daysSpent >= entry.daysRequired}
                   className="px-2 py-0.5 text-xs bg-blue-600 hover:bg-blue-500 text-white rounded cursor-pointer disabled:opacity-40"
                 >
-                  +5 Days
+                  {t('game.activitiesTab.plusFiveDays')}
                 </button>
                 {entry.daysSpent >= entry.daysRequired && (
                   <button
                     onClick={() => {
                       saveCampaign(updateDowntimeProgress(campaign, entry.id, { status: 'completed' }))
-                      onBroadcastResult?.(`**${entry.characterName}** completed: ${entry.activityName}!`)
+                      onBroadcastResult?.(
+                        t('game.activitiesTab.broadcastCompletedSimple', {
+                          name: entry.characterName,
+                          activity: entry.activityName
+                        })
+                      )
                     }}
                     className="px-2 py-0.5 text-xs bg-green-600 hover:bg-green-500 text-white rounded cursor-pointer"
                   >
-                    Complete
+                    {t('game.activitiesTab.complete')}
                   </button>
                 )}
                 <button
                   onClick={() => handleAbandon(entry.id)}
                   className="px-2 py-0.5 text-xs bg-red-600/50 hover:bg-red-600 text-red-300 rounded cursor-pointer ml-auto"
                 >
-                  Abandon
+                  {t('game.activitiesTab.abandon')}
                 </button>
               </div>
             </div>
@@ -196,18 +224,19 @@ export default function ActivitiesTab({
 
           {selected.requirements.length > 0 && (
             <div className="text-xs text-gray-500">
-              <span className="font-semibold text-gray-400">Requirements:</span> {selected.requirements.join(', ')}
+              <span className="font-semibold text-gray-400">{t('game.activitiesTab.requirements')}</span>{' '}
+              {selected.requirements.join(', ')}
             </div>
           )}
 
           <div className="text-xs text-amber-400">
-            <span className="font-semibold">Outcome:</span> {selected.outcome}
+            <span className="font-semibold">{t('game.activitiesTab.outcome')}</span> {selected.outcome}
           </div>
 
           {/* Rarity selector */}
           {selected.rarityTable && (
             <div className="space-y-1">
-              <label className="text-xs text-gray-400 font-semibold">Item Rarity:</label>
+              <label className="text-xs text-gray-400 font-semibold">{t('game.activitiesTab.itemRarity')}</label>
               <div className="flex flex-wrap gap-1">
                 {selected.rarityTable.map((r) => (
                   <button
@@ -219,7 +248,12 @@ export default function ActivitiesTab({
                         : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
                     }`}
                   >
-                    {r.rarity} ({r.days}d, {r.goldCost.toLocaleString()} GP, Lv {r.minLevel}+)
+                    {r.rarity}{' '}
+                    {t('game.activitiesTab.rarityMeta', {
+                      days: r.days,
+                      gold: r.goldCost.toLocaleString(),
+                      level: r.minLevel
+                    })}
                   </button>
                 ))}
               </div>
@@ -229,7 +263,7 @@ export default function ActivitiesTab({
           {/* Spell level selector */}
           {selected.spellLevelTable && (
             <div className="space-y-1">
-              <label className="text-xs text-gray-400 font-semibold">Spell Level:</label>
+              <label className="text-xs text-gray-400 font-semibold">{t('game.activitiesTab.spellLevel')}</label>
               <div className="flex flex-wrap gap-1">
                 {selected.spellLevelTable.map((r) => (
                   <button
@@ -241,7 +275,10 @@ export default function ActivitiesTab({
                         : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
                     }`}
                   >
-                    {r.level === 0 ? 'Cantrip' : `Lv ${r.level}`} ({r.days}d, {r.goldCost.toLocaleString()} GP)
+                    {r.level === 0
+                      ? t('game.activitiesTab.cantrip')
+                      : t('game.activitiesTab.spellLevelLabel', { level: r.level })}{' '}
+                    {t('game.activitiesTab.spellMeta', { days: r.days, gold: r.goldCost.toLocaleString() })}
                   </button>
                 ))}
               </div>
@@ -251,7 +288,7 @@ export default function ActivitiesTab({
           {/* Potion type selector */}
           {selected.potionTable && (
             <div className="space-y-1">
-              <label className="text-xs text-gray-400 font-semibold">Potion Type:</label>
+              <label className="text-xs text-gray-400 font-semibold">{t('game.activitiesTab.potionType')}</label>
               <div className="flex flex-wrap gap-1">
                 {selected.potionTable.map((r) => (
                   <button
@@ -263,7 +300,7 @@ export default function ActivitiesTab({
                         : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
                     }`}
                   >
-                    {r.type} ({r.days}d, {r.goldCost} GP, {r.heals})
+                    {r.type} {t('game.activitiesTab.potionMeta', { days: r.days, gold: r.goldCost, heals: r.heals })}
                   </button>
                 ))}
               </div>
@@ -273,7 +310,7 @@ export default function ActivitiesTab({
           {/* Days input */}
           {selected.daysRequired > 0 && !selected.rarityTable && !selected.spellLevelTable && !selected.potionTable && (
             <div className="flex items-center gap-2">
-              <label className="text-xs text-gray-400 font-semibold">Days:</label>
+              <label className="text-xs text-gray-400 font-semibold">{t('game.activitiesTab.days')}</label>
               <input
                 type="number"
                 min={1}
@@ -288,13 +325,16 @@ export default function ActivitiesTab({
           {cost && (
             <div className="flex items-center gap-4 pt-1 border-t border-gray-700">
               <span className="text-xs text-gray-400">
-                Time:{' '}
+                {t('game.activitiesTab.time')}{' '}
                 <span className="text-white font-semibold">
-                  {cost.days} day{cost.days !== 1 ? 's' : ''}
+                  {t('game.activitiesTab.daysCount', { count: cost.days })}
                 </span>
               </span>
               <span className="text-xs text-gray-400">
-                Cost: <span className="text-amber-400 font-semibold">{cost.goldCost.toLocaleString()} GP</span>
+                {t('game.activitiesTab.cost')}{' '}
+                <span className="text-amber-400 font-semibold">
+                  {t('game.activitiesTab.goldAmount', { gold: cost.goldCost.toLocaleString() })}
+                </span>
               </span>
             </div>
           )}
@@ -305,14 +345,14 @@ export default function ActivitiesTab({
               onClick={handleApply}
               className="px-3 py-1.5 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded-lg cursor-pointer"
             >
-              Start Activity
+              {t('game.activitiesTab.startActivity')}
             </button>
             {characterId && cost && cost.days > 1 && (
               <button
                 onClick={handleTrackProgress}
                 className="px-3 py-1.5 text-xs bg-blue-600 hover:bg-blue-500 text-white rounded-lg cursor-pointer"
               >
-                Track Progress
+                {t('game.activitiesTab.trackProgress')}
               </button>
             )}
           </div>

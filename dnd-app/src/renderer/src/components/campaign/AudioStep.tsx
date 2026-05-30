@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from 'react'
+import { useT } from '../../i18n'
 import { logger } from '../../utils/logger'
 import { Button } from '../ui'
 
@@ -29,6 +30,7 @@ const CATEGORY_COLORS: Record<AudioCategory, string> = {
 }
 
 export default function AudioStep({ audioEntries, onChange }: AudioStepProps): JSX.Element {
+  const { t } = useT()
   const [isDragOver, setIsDragOver] = useState(false)
   const [previewingId, setPreviewingId] = useState<string | null>(null)
   const audioElRef = useRef<HTMLAudioElement | null>(null)
@@ -139,11 +141,8 @@ export default function AudioStep({ audioEntries, onChange }: AudioStepProps): J
 
   return (
     <div>
-      <h2 className="text-xl font-semibold mb-2">Custom Audio</h2>
-      <p className="text-gray-400 text-sm mb-6">
-        Upload custom ambient tracks, sound effects, and music for your campaign. This step is optional and you can add
-        more later from the DM Audio Panel.
-      </p>
+      <h2 className="text-xl font-semibold mb-2">{t('campaign.audioStep.title')}</h2>
+      <p className="text-gray-400 text-sm mb-6">{t('campaign.audioStep.subtitle')}</p>
 
       <div className="max-w-2xl">
         {/* Drop zone */}
@@ -156,10 +155,10 @@ export default function AudioStep({ audioEntries, onChange }: AudioStepProps): J
           }`}
         >
           <div className="text-3xl text-gray-500 mb-2">{'\u266B'}</div>
-          <p className="text-gray-300 mb-1">Drag and drop audio files here</p>
-          <p className="text-gray-500 text-sm mb-4">Supported formats: MP3, OGG, WAV, WebM, M4A</p>
+          <p className="text-gray-300 mb-1">{t('campaign.audioStep.dropPrompt')}</p>
+          <p className="text-gray-500 text-sm mb-4">{t('campaign.audioStep.supportedFormats')}</p>
           <Button variant="secondary" onClick={handleBrowseClick}>
-            Browse Files
+            {t('campaign.audioStep.browseFiles')}
           </Button>
           <input
             ref={fileInputRef}
@@ -175,7 +174,7 @@ export default function AudioStep({ audioEntries, onChange }: AudioStepProps): J
         {audioEntries.length > 0 && (
           <div className="space-y-3">
             <span className="text-sm font-semibold text-gray-300">
-              {audioEntries.length} file{audioEntries.length !== 1 ? 's' : ''} added
+              {t('campaign.audioStep.filesAdded', { count: audioEntries.length })}
             </span>
             {audioEntries.map((entry) => (
               <div
@@ -186,7 +185,11 @@ export default function AudioStep({ audioEntries, onChange }: AudioStepProps): J
                 <button
                   onClick={() => handlePreviewToggle(entry.id, entry.fileName)}
                   className="w-8 h-8 shrink-0 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-700 text-gray-300 transition-colors cursor-pointer text-sm"
-                  title={previewingId === entry.id ? 'Stop preview' : 'Preview sound'}
+                  title={
+                    previewingId === entry.id
+                      ? t('campaign.audioStep.stopPreview')
+                      : t('campaign.audioStep.previewSound')
+                  }
                 >
                   {previewingId === entry.id ? '\u25A0' : '\u25B6'}
                 </button>
@@ -197,7 +200,7 @@ export default function AudioStep({ audioEntries, onChange }: AudioStepProps): J
                   value={entry.displayName}
                   onChange={(e) => handleDisplayNameChange(entry.id, e.target.value)}
                   className="flex-1 min-w-0 bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm text-gray-100 focus:outline-none focus:border-amber-500 transition-colors"
-                  placeholder="Display name"
+                  placeholder={t('campaign.audioStep.displayName')}
                 />
 
                 {/* Category dropdown */}
@@ -208,7 +211,7 @@ export default function AudioStep({ audioEntries, onChange }: AudioStepProps): J
                 >
                   {CATEGORIES.map((cat) => (
                     <option key={cat.value} value={cat.value}>
-                      {cat.label}
+                      {t(`campaign.audioStep.category.${cat.value}`)}
                     </option>
                   ))}
                 </select>
@@ -222,7 +225,7 @@ export default function AudioStep({ audioEntries, onChange }: AudioStepProps): J
                 <button
                   onClick={() => handleRemove(entry.id)}
                   className="text-gray-500 hover:text-red-400 transition-colors cursor-pointer text-lg shrink-0"
-                  title="Remove file"
+                  title={t('campaign.audioStep.removeFile')}
                 >
                   &times;
                 </button>
@@ -232,9 +235,7 @@ export default function AudioStep({ audioEntries, onChange }: AudioStepProps): J
         )}
 
         {audioEntries.length === 0 && (
-          <p className="text-gray-500 text-sm mt-2">
-            No custom audio files added. You can skip this step or add audio later from the DM toolbar during gameplay.
-          </p>
+          <p className="text-gray-500 text-sm mt-2">{t('campaign.audioStep.emptyState')}</p>
         )}
       </div>
     </div>

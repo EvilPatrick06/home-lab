@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import Modal from '../../components/ui/Modal'
+import { useT } from '../../i18n'
 import type { Bastion, BastionOrderType, SpecialFacilityDef } from '../../types/bastion'
 import { getBpPerTurn } from '../../types/bastion'
 import { ORDER_LABELS } from './bastion-constants'
@@ -32,6 +33,7 @@ export function BastionTurnModal({
   rollAndResolveEvent: BastionModalsProps['rollAndResolveEvent']
   completeTurn: BastionModalsProps['completeTurn']
 }): JSX.Element {
+  const { t } = useT()
   const [turnOrders, setTurnOrders] = useState<
     Record<string, { orderType: BastionOrderType; details: string; cost: number }>
   >({})
@@ -77,11 +79,11 @@ export function BastionTurnModal({
   }
 
   return (
-    <Modal open={open} onClose={onClose} title={`Bastion Turn ${activeTurnNumber ?? ''}`}>
+    <Modal open={open} onClose={onClose} title={t('pages.bastionTurnModal.title', { turn: activeTurnNumber ?? '' })}>
       <div className="space-y-4">
         {turnStep === 'orders' && selectedBastion && (
           <>
-            <p className="text-sm text-gray-400">Assign orders to your special facilities, then execute the turn.</p>
+            <p className="text-sm text-gray-400">{t('pages.bastionTurnModal.assignOrdersHint')}</p>
             <label className="flex items-center gap-2 text-sm text-gray-300">
               <input
                 type="checkbox"
@@ -89,7 +91,7 @@ export function BastionTurnModal({
                 onChange={(e) => setTurnMaintain(e.target.checked)}
                 className="rounded bg-gray-800 border-gray-600"
               />
-              Issue Maintain order (triggers d100 event)
+              {t('pages.bastionTurnModal.issueMaintainOrder')}
             </label>
             <div className="space-y-2 max-h-60 overflow-y-auto">
               {selectedBastion.specialFacilities.map((facility) => {
@@ -117,7 +119,7 @@ export function BastionTurnModal({
                           }}
                           className="bg-gray-900 border border-gray-600 rounded px-2 py-1 text-xs text-gray-300 focus:outline-none focus:border-amber-500"
                         >
-                          <option value="">Idle</option>
+                          <option value="">{t('pages.bastionTurnModal.idle')}</option>
                           {def.orders.map((o) => (
                             <option key={o} value={o}>
                               {ORDER_LABELS[o]}
@@ -141,7 +143,7 @@ export function BastionTurnModal({
                         }}
                         className="w-full bg-gray-900 border border-gray-600 rounded px-2 py-1 text-xs text-gray-300 focus:outline-none focus:border-amber-500"
                       >
-                        <option value="">Select action...</option>
+                        <option value="">{t('pages.bastionTurnModal.selectAction')}</option>
                         {def.orderOptions
                           .filter((o) => o.order === currentOrder.orderType)
                           .map((o) => (
@@ -160,20 +162,20 @@ export function BastionTurnModal({
                 onClick={onClose}
                 className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-gray-800 transition-colors"
               >
-                Cancel
+                {t('common.actions.cancel')}
               </button>
               <button
                 onClick={handleExecuteTurn}
                 className="px-4 py-2 text-sm bg-amber-600 hover:bg-amber-500 text-white rounded font-semibold transition-colors"
               >
-                Execute Turn
+                {t('pages.bastionTurnModal.executeTurn')}
               </button>
             </div>
           </>
         )}
         {turnStep === 'event' && (
           <>
-            <p className="text-sm text-gray-400">Orders issued. Roll for a bastion event?</p>
+            <p className="text-sm text-gray-400">{t('pages.bastionTurnModal.ordersIssuedRollPrompt')}</p>
             <div className="flex gap-2 justify-end">
               <button
                 onClick={() => {
@@ -181,23 +183,23 @@ export function BastionTurnModal({
                 }}
                 className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-gray-800 transition-colors"
               >
-                Skip Event
+                {t('pages.bastionTurnModal.skipEvent')}
               </button>
               <button
                 onClick={handleRollEvent}
                 className="px-4 py-2 text-sm bg-amber-600 hover:bg-amber-500 text-white rounded font-semibold transition-colors"
               >
-                Roll d100 Event
+                {t('pages.bastionTurnModal.rollD100Event')}
               </button>
             </div>
           </>
         )}
         {turnStep === 'summary' && activeTurn && (
           <>
-            <h3 className="text-sm font-semibold text-gray-200">Turn Summary</h3>
+            <h3 className="text-sm font-semibold text-gray-200">{t('pages.bastionTurnModal.turnSummary')}</h3>
             {activeTurn.orders.length > 0 && (
               <div className="space-y-1">
-                <p className="text-xs text-gray-500">Orders:</p>
+                <p className="text-xs text-gray-500">{t('pages.bastionTurnModal.orders')}</p>
                 {activeTurn.orders.map((o, i) => (
                   <div key={i} className="text-xs text-gray-300 bg-gray-800 rounded px-2 py-1">
                     {o.facilityName}: {o.details || ORDER_LABELS[o.orderType]}
@@ -208,7 +210,7 @@ export function BastionTurnModal({
             )}
             {getBpPerTurn(ownerLevel) > 0 && (
               <div className="bg-purple-900/20 rounded p-2 border border-purple-800">
-                <span className="text-xs text-purple-400">Bastion Points earned:</span>
+                <span className="text-xs text-purple-400">{t('pages.bastionTurnModal.bastionPointsEarned')}</span>
                 <span className="text-xs text-gray-200 ml-1">+{getBpPerTurn(ownerLevel)} BP</span>
               </div>
             )}
@@ -225,9 +227,11 @@ export function BastionTurnModal({
             )}
             {activeTurn.eventDetails?.gamingHallWinnings && (
               <div className="bg-yellow-900/20 rounded p-2 border border-yellow-800">
-                <span className="text-xs text-yellow-400">Gaming Hall Winnings:</span>
+                <span className="text-xs text-yellow-400">{t('pages.bastionTurnModal.gamingHallWinnings')}</span>
                 <span className="text-xs text-gray-200 ml-1">
-                  {(activeTurn.eventDetails.gamingHallWinnings as { goldEarned: number }).goldEarned} GP earned
+                  {t('pages.bastionTurnModal.goldEarned', {
+                    gold: (activeTurn.eventDetails.gamingHallWinnings as { goldEarned: number }).goldEarned
+                  })}
                 </span>
               </div>
             )}
@@ -236,7 +240,7 @@ export function BastionTurnModal({
                 onClick={handleCompleteTurn}
                 className="px-4 py-2 text-sm bg-green-600 hover:bg-green-500 text-white rounded font-semibold transition-colors"
               >
-                Complete Turn
+                {t('pages.bastionTurnModal.completeTurn')}
               </button>
             </div>
           </>

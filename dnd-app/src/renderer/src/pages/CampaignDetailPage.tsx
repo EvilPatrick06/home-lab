@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router'
 import HostNamePrompt from '../components/campaign/HostNamePrompt'
 import { BackButton, Button, Card, ConfirmDialog } from '../components/ui'
 import { addToast } from '../hooks/use-toast'
+import { useT } from '../i18n'
 import { configureForCloud } from '../network'
 import { exportCampaignToFile } from '../services/io/campaign-io'
 import { exportEntities, importEntities, reIdItems } from '../services/io/entity-io'
@@ -31,6 +32,7 @@ const SessionZeroCard = lazy(() => import('./campaign-detail/SessionZeroCard'))
 const TimelineCard = lazy(() => import('./campaign-detail/TimelineCard'))
 
 export default function CampaignDetailPage(): JSX.Element {
+  const { t } = useT()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { campaigns, loading, loadCampaigns, deleteCampaign, saveCampaign } = useCampaignStore()
@@ -68,7 +70,7 @@ export default function CampaignDetailPage(): JSX.Element {
   const handleDelete = async (): Promise<void> => {
     if (!id) return
     await deleteCampaign(id)
-    addToast('Campaign deleted', 'success')
+    addToast(t('pages.campaignDetailPage.toastDeleted'), 'success')
     navigate('/')
   }
 
@@ -111,7 +113,7 @@ export default function CampaignDetailPage(): JSX.Element {
       navigate(`/lobby/${campaign.id}`)
     } catch (error) {
       logger.error('Failed to start game:', error)
-      addToast('Could not connect to local server', 'error')
+      addToast(t('pages.campaignDetailPage.toastLocalServerFailed'), 'error')
       setStarting(false)
       setShowCloudFallback(true)
     }
@@ -127,13 +129,13 @@ export default function CampaignDetailPage(): JSX.Element {
         networkState.disconnect()
       }
       configureForCloud()
-      addToast('Connecting via cloud servers...', 'info')
-      const fallbackName = hostNameDefault || 'Dungeon Master'
+      addToast(t('pages.campaignDetailPage.toastConnectingCloud'), 'info')
+      const fallbackName = hostNameDefault || t('pages.campaignDetailPage.defaultHostName')
       await hostGame(fallbackName, campaign.inviteCode)
       navigate(`/lobby/${campaign.id}`)
     } catch (error) {
       logger.error('Failed to start game via cloud:', error)
-      addToast('Cloud connection also failed. Check your internet.', 'error')
+      addToast(t('pages.campaignDetailPage.toastCloudFailed'), 'error')
       setStarting(false)
     }
   }
@@ -152,10 +154,10 @@ export default function CampaignDetailPage(): JSX.Element {
     setExporting(true)
     try {
       await exportCampaignToFile(campaign)
-      addToast('Campaign exported', 'success')
+      addToast(t('pages.campaignDetailPage.toastExported'), 'success')
     } catch (error) {
       logger.error('Failed to export campaign:', error)
-      addToast('Failed to export campaign', 'error')
+      addToast(t('pages.campaignDetailPage.toastExportFailed'), 'error')
     } finally {
       setExporting(false)
     }
@@ -166,9 +168,9 @@ export default function CampaignDetailPage(): JSX.Element {
     if (!entries.length) return
     try {
       const ok = await exportEntities('journal', entries)
-      if (ok) addToast(`Exported ${entries.length} journal entry(ies)`, 'success')
+      if (ok) addToast(t('pages.campaignDetailPage.toastJournalExported', { count: entries.length }), 'success')
     } catch {
-      addToast('Journal export failed', 'error')
+      addToast(t('pages.campaignDetailPage.toastJournalExportFailed'), 'error')
     }
   }
   const handleImportJournal = async (): Promise<void> => {
@@ -179,9 +181,9 @@ export default function CampaignDetailPage(): JSX.Element {
       const items = reIdItems(result.items)
       const entries = [...campaign.journal.entries, ...items]
       await saveCampaign({ ...campaign, journal: { entries }, updatedAt: new Date().toISOString() })
-      addToast(`Imported ${items.length} journal entry(ies)`, 'success')
+      addToast(t('pages.campaignDetailPage.toastJournalImported', { count: items.length }), 'success')
     } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Journal import failed', 'error')
+      addToast(err instanceof Error ? err.message : t('pages.campaignDetailPage.toastJournalImportFailed'), 'error')
     }
   }
 
@@ -211,21 +213,24 @@ export default function CampaignDetailPage(): JSX.Element {
     await saveCampaign({ ...campaign, journal: { entries }, updatedAt: new Date().toISOString() })
     setEditingEntry(null)
     setShowJournalModal(false)
-    addToast(editingEntry ? 'Entry updated' : 'Entry created', 'success')
+    addToast(
+      editingEntry ? t('pages.campaignDetailPage.toastEntryUpdated') : t('pages.campaignDetailPage.toastEntryCreated'),
+      'success'
+    )
   }
 
   const handleDeleteJournalEntry = async (entryId: string) => {
     if (!campaign) return
     const entries = campaign.journal.entries.filter((e) => e.id !== entryId)
     await saveCampaign({ ...campaign, journal: { entries }, updatedAt: new Date().toISOString() })
-    addToast('Entry deleted', 'success')
+    addToast(t('pages.campaignDetailPage.toastEntryDeleted'), 'success')
   }
 
   if (loading) {
     return (
       <div className="p-8 h-screen overflow-y-auto">
         <BackButton to="/" />
-        <div className="text-center text-gray-500 py-12">Loading campaign...</div>
+        <div className="text-center text-gray-500 py-12">{t('pages.campaignDetailPage.loadingCampaign')}</div>
       </div>
     )
   }
@@ -235,8 +240,8 @@ export default function CampaignDetailPage(): JSX.Element {
       <div className="p-8 h-screen overflow-y-auto">
         <BackButton to="/" />
         <div className="text-center text-gray-500 py-12">
-          <p className="text-xl mb-2">Campaign not found</p>
-          <p className="text-sm">This campaign may have been deleted.</p>
+          <p className="text-xl mb-2">{t('pages.campaignDetailPage.campaignNotFound')}</p>
+          <p className="text-sm">{t('pages.campaignDetailPage.campaignDeleted')}</p>
         </div>
       </div>
     )
@@ -262,43 +267,44 @@ export default function CampaignDetailPage(): JSX.Element {
           <div className="flex items-center gap-3 text-sm text-gray-400">
             <span>{systemConfig.name}</span>
             <span className="text-gray-600">|</span>
-            <span className="capitalize">{campaign.type} campaign</span>
+            <span className="capitalize">{t('pages.campaignDetailPage.typeCampaign', { type: campaign.type })}</span>
             <span className="text-gray-600">|</span>
             <span>
-              Invite: <span className="text-amber-400 font-mono">{campaign.inviteCode}</span>
+              {t('pages.campaignDetailPage.invite')}{' '}
+              <span className="text-amber-400 font-mono">{campaign.inviteCode}</span>
             </span>
           </div>
         </div>
         <div className="flex gap-3">
           <Button variant="secondary" onClick={() => navigate(`/library?from=/campaign/${id}`)}>
-            Library
+            {t('pages.campaignDetailPage.library')}
           </Button>
           <Button variant="secondary" onClick={handleExport} disabled={exporting}>
-            {exporting ? 'Exporting...' : 'Export'}
+            {exporting ? t('pages.campaignDetailPage.exporting') : t('pages.campaignDetailPage.export')}
           </Button>
           <Button
             variant="secondary"
             onClick={async () => {
               if (campaign.archived) {
                 await useCampaignStore.getState().unarchiveCampaign(campaign.id)
-                addToast('Campaign unarchived', 'success')
+                addToast(t('pages.campaignDetailPage.toastUnarchived'), 'success')
               } else {
                 await useCampaignStore.getState().archiveCampaign(campaign.id)
-                addToast('Campaign archived', 'success')
+                addToast(t('pages.campaignDetailPage.toastArchived'), 'success')
                 navigate('/')
               }
             }}
           >
-            {campaign.archived ? 'Unarchive' : 'Archive'}
+            {campaign.archived ? t('pages.campaignDetailPage.unarchive') : t('pages.campaignDetailPage.archive')}
           </Button>
           <Button variant="danger" onClick={() => setShowDeleteConfirm(true)}>
-            Delete
+            {t('common.actions.delete')}
           </Button>
           <Button variant="secondary" onClick={handleStartSolo}>
-            Solo Play
+            {t('pages.campaignDetailPage.soloPlay')}
           </Button>
           <Button onClick={handleStartGame} disabled={starting}>
-            {starting ? 'Starting...' : 'Host Game'}
+            {starting ? t('pages.campaignDetailPage.starting') : t('pages.campaignDetailPage.hostGame')}
           </Button>
         </div>
       </div>
@@ -319,10 +325,8 @@ export default function CampaignDetailPage(): JSX.Element {
         <LoreManager campaign={campaign} saveCampaign={saveCampaign} />
 
         {/* Players */}
-        <Card title={`Previous Players (${campaign.players.length})`}>
-          <p className="text-gray-500 text-sm mb-3">
-            Players join your campaign through the lobby when you host a game.
-          </p>
+        <Card title={t('pages.campaignDetailPage.previousPlayersTitle', { count: campaign.players.length })}>
+          <p className="text-gray-500 text-sm mb-3">{t('pages.campaignDetailPage.playersJoinHint')}</p>
           {campaign.players.length > 0 && (
             <div className="space-y-2">
               {campaign.players.map((player) => (
@@ -330,7 +334,7 @@ export default function CampaignDetailPage(): JSX.Element {
                   <div>
                     <span className="font-semibold text-sm">{player.displayName}</span>
                     <span className="text-gray-500 text-xs ml-2">
-                      Joined {new Date(player.joinedAt).toLocaleDateString()}
+                      {t('pages.campaignDetailPage.joined', { date: new Date(player.joinedAt).toLocaleDateString() })}
                     </span>
                   </div>
                 </div>
@@ -340,19 +344,18 @@ export default function CampaignDetailPage(): JSX.Element {
         </Card>
 
         {/* Permissions (Phase 29g) */}
-        <Card title="Permissions">
-          <p className="text-gray-500 text-sm mb-3">
-            Define what each role can do, then override individual players. Changes save to the campaign and propagate
-            to connected players.
-          </p>
-          <Suspense fallback={<p className="text-gray-500 text-sm">Loading…</p>}>
+        <Card title={t('pages.campaignDetailPage.permissionsTitle')}>
+          <p className="text-gray-500 text-sm mb-3">{t('pages.campaignDetailPage.permissionsHint')}</p>
+          <Suspense fallback={<p className="text-gray-500 text-sm">{t('pages.campaignDetailPage.loading')}</p>}>
             <div className="space-y-5">
               <div>
-                <h3 className="text-sm font-semibold text-gray-200 mb-2">Roles</h3>
+                <h3 className="text-sm font-semibold text-gray-200 mb-2">{t('pages.campaignDetailPage.roles')}</h3>
                 <PermissionsEditor campaign={campaign} />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-gray-200 mb-2">Player Overrides</h3>
+                <h3 className="text-sm font-semibold text-gray-200 mb-2">
+                  {t('pages.campaignDetailPage.playerOverrides')}
+                </h3>
                 <PlayerOverridesPanel campaign={campaign} />
               </div>
             </div>
@@ -378,13 +381,15 @@ export default function CampaignDetailPage(): JSX.Element {
         {/* Loot History */}
         <Card>
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-lg font-semibold">Loot History ({campaign.lootHistory?.length ?? 0})</h3>
+            <h3 className="text-lg font-semibold">
+              {t('pages.campaignDetailPage.lootHistoryTitle', { count: campaign.lootHistory?.length ?? 0 })}
+            </h3>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => {
-                  const desc = window.prompt('Enter loot description:')
+                  const desc = window.prompt(t('pages.campaignDetailPage.promptLootDescription'))
                   if (!desc) return
-                  const val = window.prompt('Enter value (optional):') || undefined
+                  const val = window.prompt(t('pages.campaignDetailPage.promptLootValue')) || undefined
                   const maxSession = campaign.journal.entries.reduce((max, e) => Math.max(max, e.sessionNumber), 0)
 
                   const newEntry = {
@@ -401,16 +406,16 @@ export default function CampaignDetailPage(): JSX.Element {
                     lootHistory: [...(campaign.lootHistory || []), newEntry],
                     updatedAt: new Date().toISOString()
                   })
-                  addToast('Loot added', 'success')
+                  addToast(t('pages.campaignDetailPage.toastLootAdded'), 'success')
                 }}
                 className="text-xs bg-amber-600/20 text-amber-400 hover:bg-amber-600/40 px-2 py-1 rounded cursor-pointer transition-colors"
               >
-                + Add Loot
+                {t('pages.campaignDetailPage.addLoot')}
               </button>
             </div>
           </div>
           {!campaign.lootHistory || campaign.lootHistory.length === 0 ? (
-            <p className="text-gray-500 text-sm">No loot recorded yet. Add items and gold awarded to the party.</p>
+            <p className="text-gray-500 text-sm">{t('pages.campaignDetailPage.noLoot')}</p>
           ) : (
             <div className="space-y-2 max-h-64 overflow-y-auto pr-2">
               {campaign.lootHistory
@@ -426,7 +431,7 @@ export default function CampaignDetailPage(): JSX.Element {
                         )}
                         <button
                           onClick={() => {
-                            if (window.confirm('Delete this loot entry?')) {
+                            if (window.confirm(t('pages.campaignDetailPage.confirmDeleteLoot'))) {
                               saveCampaign({
                                 ...campaign,
                                 lootHistory: campaign.lootHistory!.filter((l) => l.id !== entry.id),
@@ -436,18 +441,20 @@ export default function CampaignDetailPage(): JSX.Element {
                           }}
                           className="opacity-0 group-hover:opacity-100 text-xs text-red-400 hover:text-red-300 cursor-pointer transition-opacity"
                         >
-                          Delete
+                          {t('common.actions.delete')}
                         </button>
                       </div>
                     </div>
                     <div className="text-xs text-gray-500 flex items-center gap-2">
-                      <span>Session {entry.sessionNumber}</span>
+                      <span>{t('pages.campaignDetailPage.session', { number: entry.sessionNumber })}</span>
                       <span>&middot;</span>
                       <span>{new Date(entry.date).toLocaleDateString()}</span>
                       {entry.awardedTo && (
                         <>
                           <span>&middot;</span>
-                          <span className="capitalize">To: {entry.awardedTo}</span>
+                          <span className="capitalize">
+                            {t('pages.campaignDetailPage.awardedTo', { target: entry.awardedTo })}
+                          </span>
                         </>
                       )}
                     </div>
@@ -470,7 +477,7 @@ export default function CampaignDetailPage(): JSX.Element {
         </Suspense>
 
         {/* Monster Linker */}
-        <Card title="Monster Linker">
+        <Card title={t('pages.campaignDetailPage.monsterLinkerTitle')}>
           <Suspense fallback={null}>
             <MonsterLinker onSelect={setLinkedMonster} selectedId={linkedMonster?.id} showPreview />
           </Suspense>
@@ -479,7 +486,9 @@ export default function CampaignDetailPage(): JSX.Element {
         {/* Journal */}
         <Card>
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-lg font-semibold">Session Journal ({campaign.journal.entries.length})</h3>
+            <h3 className="text-lg font-semibold">
+              {t('pages.campaignDetailPage.sessionJournalTitle', { count: campaign.journal.entries.length })}
+            </h3>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => {
@@ -488,28 +497,26 @@ export default function CampaignDetailPage(): JSX.Element {
                 }}
                 className="text-xs bg-amber-600/20 text-amber-400 hover:bg-amber-600/40 px-2 py-1 rounded cursor-pointer transition-colors"
               >
-                + New Entry
+                {t('pages.campaignDetailPage.newEntry')}
               </button>
               <button
                 onClick={handleImportJournal}
                 className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer"
               >
-                Import
+                {t('pages.campaignDetailPage.import')}
               </button>
               {campaign.journal.entries.length > 0 && (
                 <button
                   onClick={() => handleExportJournal(campaign.journal.entries)}
                   className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer"
                 >
-                  Export All
+                  {t('pages.campaignDetailPage.exportAll')}
                 </button>
               )}
             </div>
           </div>
           {campaign.journal.entries.length === 0 ? (
-            <p className="text-gray-500 text-sm">
-              No journal entries yet. Add session recaps, notes, and story summaries.
-            </p>
+            <p className="text-gray-500 text-sm">{t('pages.campaignDetailPage.noJournalEntries')}</p>
           ) : (
             <div className="space-y-2">
               {campaign.journal.entries
@@ -519,7 +526,10 @@ export default function CampaignDetailPage(): JSX.Element {
                   <div key={entry.id} className="bg-gray-800/50 rounded-lg p-3 group">
                     <div className="flex items-center justify-between mb-1">
                       <span className="font-semibold text-sm">
-                        Session {entry.sessionNumber}: {entry.title}
+                        {t('pages.campaignDetailPage.journalEntryTitle', {
+                          number: entry.sessionNumber,
+                          title: entry.title
+                        })}
                       </span>
                       <div className="flex items-center gap-3">
                         <span className="text-gray-500 text-xs">{new Date(entry.date).toLocaleDateString()}</span>
@@ -531,23 +541,27 @@ export default function CampaignDetailPage(): JSX.Element {
                             }}
                             className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer"
                           >
-                            Edit
+                            {t('pages.campaignDetailPage.edit')}
                           </button>
                           <button
                             onClick={() => {
-                              if (window.confirm('Delete this journal entry?')) {
+                              if (window.confirm(t('pages.campaignDetailPage.confirmDeleteJournal'))) {
                                 handleDeleteJournalEntry(entry.id)
                               }
                             }}
                             className="text-xs text-red-400 hover:text-red-300 cursor-pointer"
                           >
-                            Delete
+                            {t('common.actions.delete')}
                           </button>
                         </div>
                       </div>
                     </div>
                     <p className="text-gray-400 text-xs line-clamp-2">{entry.content}</p>
-                    {entry.isPrivate && <span className="text-xs text-yellow-400 mt-1 inline-block">DM Only</span>}
+                    {entry.isPrivate && (
+                      <span className="text-xs text-yellow-400 mt-1 inline-block">
+                        {t('pages.campaignDetailPage.dmOnly')}
+                      </span>
+                    )}
                   </div>
                 ))}
             </div>
@@ -569,9 +583,9 @@ export default function CampaignDetailPage(): JSX.Element {
 
       <ConfirmDialog
         open={showDeleteConfirm}
-        title="Delete Campaign?"
-        message={`This action cannot be undone. The campaign "${campaign.name}" and all its data will be permanently deleted.`}
-        confirmLabel="Delete"
+        title={t('pages.campaignDetailPage.deleteTitle')}
+        message={t('pages.campaignDetailPage.deleteMessage', { name: campaign.name })}
+        confirmLabel={t('common.actions.delete')}
         variant="danger"
         onConfirm={handleDelete}
         onCancel={() => setShowDeleteConfirm(false)}
@@ -579,10 +593,10 @@ export default function CampaignDetailPage(): JSX.Element {
 
       <ConfirmDialog
         open={showCloudFallback}
-        title="Local Server Unreachable"
-        message="The local relay server could not be reached. Would you like to host using cloud servers instead? Players will connect via the public internet."
-        confirmLabel="Use Cloud"
-        cancelLabel="Cancel"
+        title={t('pages.campaignDetailPage.cloudFallbackTitle')}
+        message={t('pages.campaignDetailPage.cloudFallbackMessage')}
+        confirmLabel={t('pages.campaignDetailPage.useCloud')}
+        cancelLabel={t('common.actions.cancel')}
         variant="warning"
         onConfirm={handleCloudFallback}
         onCancel={() => setShowCloudFallback(false)}
@@ -590,7 +604,7 @@ export default function CampaignDetailPage(): JSX.Element {
 
       <HostNamePrompt
         open={showHostNamePrompt}
-        defaultName={hostNameDefault || 'Dungeon Master'}
+        defaultName={hostNameDefault || t('pages.campaignDetailPage.defaultHostName')}
         onSubmit={handleConfirmHostName}
         onCancel={() => setShowHostNamePrompt(false)}
       />

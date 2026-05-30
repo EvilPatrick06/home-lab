@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Button, Card, Modal } from '../../components/ui'
 import { addToast } from '../../hooks/use-toast'
+import { useT } from '../../i18n'
 import { exportEntities, importEntities, reIdItems } from '../../services/io/entity-io'
 import type { Campaign, LoreEntry } from '../../types/campaign'
 
@@ -18,6 +19,7 @@ interface LoreManagerProps {
 }
 
 export default function LoreManager({ campaign, saveCampaign }: LoreManagerProps): JSX.Element {
+  const { t } = useT()
   const [showModal, setShowModal] = useState(false)
   const [editing, setEditing] = useState<LoreEntry | null>(null)
   const [form, setForm] = useState({
@@ -74,9 +76,9 @@ export default function LoreManager({ campaign, saveCampaign }: LoreManagerProps
     if (!lore.length) return
     try {
       const ok = await exportEntities('lore', lore)
-      if (ok) addToast(`Exported ${lore.length} lore entry(ies)`, 'success')
+      if (ok) addToast(t('pages.loreManager.exportedLore', { count: lore.length }), 'success')
     } catch {
-      addToast('Lore export failed', 'error')
+      addToast(t('pages.loreManager.exportFailed'), 'error')
     }
   }
   const handleImport = async (): Promise<void> => {
@@ -86,9 +88,9 @@ export default function LoreManager({ campaign, saveCampaign }: LoreManagerProps
       const items = reIdItems(result.items)
       const newLore = [...lore, ...items]
       await saveCampaign({ ...campaign, lore: newLore, updatedAt: new Date().toISOString() })
-      addToast(`Imported ${items.length} lore entry(ies)`, 'success')
+      addToast(t('pages.loreManager.importedLore', { count: items.length }), 'success')
     } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Lore import failed', 'error')
+      addToast(err instanceof Error ? err.message : t('pages.loreManager.importFailed'), 'error')
     }
   }
 
@@ -96,20 +98,20 @@ export default function LoreManager({ campaign, saveCampaign }: LoreManagerProps
     <>
       <Card>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-lg font-semibold">Lore ({lore.length})</h3>
+          <h3 className="text-lg font-semibold">{t('pages.loreManager.lore', { count: lore.length })}</h3>
           <div className="flex items-center gap-2">
             <button onClick={handleImport} className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer">
-              Import
+              {t('pages.loreManager.import')}
             </button>
             {lore.length > 0 && (
               <button onClick={handleExport} className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer">
-                Export All
+                {t('pages.loreManager.exportAll')}
               </button>
             )}
           </div>
         </div>
         {lore.length === 0 ? (
-          <p className="text-gray-500 text-sm">No lore entries yet. Add world details, factions, and locations.</p>
+          <p className="text-gray-500 text-sm">{t('pages.loreManager.noLore')}</p>
         ) : (
           <div className="space-y-2">
             {lore.map((entry) => (
@@ -125,7 +127,11 @@ export default function LoreManager({ campaign, saveCampaign }: LoreManagerProps
                     <button
                       onClick={() => handleToggleVisibility(entry.id)}
                       className={`text-xs cursor-pointer ${entry.isVisibleToPlayers ? 'text-green-400 hover:text-green-300' : 'text-gray-500 hover:text-gray-400'}`}
-                      title={entry.isVisibleToPlayers ? 'Visible to players' : 'DM only'}
+                      title={
+                        entry.isVisibleToPlayers
+                          ? t('pages.loreManager.visibleToPlayers')
+                          : t('pages.loreManager.dmOnly')
+                      }
                     >
                       {entry.isVisibleToPlayers ? '\u{1F441}' : '\u{1F441}\u{FE0F}\u{200D}\u{1F5E8}\u{FE0F}'}
                     </button>
@@ -133,13 +139,13 @@ export default function LoreManager({ campaign, saveCampaign }: LoreManagerProps
                       onClick={() => openEdit(entry)}
                       className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer"
                     >
-                      Edit
+                      {t('pages.loreManager.edit')}
                     </button>
                     <button
                       onClick={() => handleDelete(entry.id)}
                       className="text-xs text-gray-400 hover:text-red-400 cursor-pointer"
                     >
-                      Delete
+                      {t('common.actions.delete')}
                     </button>
                   </div>
                 </div>
@@ -149,43 +155,47 @@ export default function LoreManager({ campaign, saveCampaign }: LoreManagerProps
           </div>
         )}
         <button onClick={openAdd} className="mt-3 text-xs text-amber-400 hover:text-amber-300 cursor-pointer">
-          + Add Lore
+          {t('pages.loreManager.addLore')}
         </button>
       </Card>
 
-      <Modal open={showModal} onClose={() => setShowModal(false)} title={editing ? 'Edit Lore' : 'Add Lore'}>
+      <Modal
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        title={editing ? t('pages.loreManager.editLore') : t('pages.loreManager.addLoreTitle')}
+      >
         <div className="space-y-3">
           <div>
-            <label className="block text-gray-400 text-xs mb-1">Title *</label>
+            <label className="block text-gray-400 text-xs mb-1">{t('pages.loreManager.titleLabel')}</label>
             <input
               type="text"
               value={form.title}
               onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
               className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
-              placeholder="Lore title"
+              placeholder={t('pages.loreManager.titlePlaceholder')}
             />
           </div>
           <div>
-            <label className="block text-gray-400 text-xs mb-1">Category</label>
+            <label className="block text-gray-400 text-xs mb-1">{t('pages.loreManager.category')}</label>
             <select
               value={form.category}
               onChange={(e) => setForm((f) => ({ ...f, category: e.target.value as LoreEntry['category'] }))}
               className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
             >
-              <option value="world">World</option>
-              <option value="faction">Faction</option>
-              <option value="location">Location</option>
-              <option value="item">Item</option>
-              <option value="other">Other</option>
+              <option value="world">{t('pages.loreManager.world')}</option>
+              <option value="faction">{t('pages.loreManager.faction')}</option>
+              <option value="location">{t('pages.loreManager.location')}</option>
+              <option value="item">{t('pages.loreManager.item')}</option>
+              <option value="other">{t('pages.loreManager.other')}</option>
             </select>
           </div>
           <div>
-            <label className="block text-gray-400 text-xs mb-1">Content</label>
+            <label className="block text-gray-400 text-xs mb-1">{t('pages.loreManager.content')}</label>
             <textarea
               value={form.content}
               onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))}
               className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500 h-32 resize-none"
-              placeholder="Lore content"
+              placeholder={t('pages.loreManager.contentPlaceholder')}
             />
           </div>
           <label className="flex items-center gap-2 text-sm text-gray-300">
@@ -195,15 +205,15 @@ export default function LoreManager({ campaign, saveCampaign }: LoreManagerProps
               onChange={(e) => setForm((f) => ({ ...f, isVisibleToPlayers: e.target.checked }))}
               className="rounded"
             />
-            Visible to players
+            {t('pages.loreManager.visibleToPlayersLabel')}
           </label>
         </div>
         <div className="flex gap-3 justify-end mt-4">
           <Button variant="secondary" onClick={() => setShowModal(false)}>
-            Cancel
+            {t('common.actions.cancel')}
           </Button>
           <Button onClick={handleSave} disabled={!form.title.trim()}>
-            {editing ? 'Save' : 'Add'}
+            {editing ? t('common.actions.save') : t('pages.loreManager.add')}
           </Button>
         </div>
       </Modal>

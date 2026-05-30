@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { i18n, useT } from '../../../i18n'
 import type { ShopItem } from '../../../network'
 import { load5ePoisons } from '../../../services/data-provider'
 import { useNetworkStore } from '../../../stores/network-store'
@@ -78,10 +79,11 @@ function formatPrice(price: ShopItem['price']): string {
   if (price.gp) parts.push(`${price.gp} gp`)
   if (price.sp) parts.push(`${price.sp} sp`)
   if (price.cp) parts.push(`${price.cp} cp`)
-  return parts.join(', ') || 'Free'
+  return parts.join(', ') || i18n.t('game.shopPanel.free')
 }
 
 export default function ShopPanel(): JSX.Element {
+  const { t } = useT()
   const { shopOpen, shopName, shopInventory, openShop, closeShop, addShopItem, removeShopItem } = useGameStore()
   const sendMessage = useNetworkStore((s) => s.sendMessage)
   const [shopNameInput, setShopNameInput] = useState(shopName)
@@ -107,8 +109,9 @@ export default function ShopPanel(): JSX.Element {
   }, [showPoisons, poisonPresets.length])
 
   const handleOpenShop = (): void => {
-    openShop(shopNameInput || 'General Store')
-    sendMessage('dm:shop-update', { shopInventory, shopName: shopNameInput || 'General Store' })
+    const name = shopNameInput || t('game.shopPanel.generalStore')
+    openShop(name)
+    sendMessage('dm:shop-update', { shopInventory, shopName: name })
   }
 
   const handleCloseShop = (): void => {
@@ -129,7 +132,7 @@ export default function ShopPanel(): JSX.Element {
 
   return (
     <div className="p-3">
-      <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wide mb-2">Shop</h3>
+      <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wide mb-2">{t('game.shopPanel.title')}</h3>
 
       {!shopOpen ? (
         <div className="space-y-2">
@@ -137,14 +140,14 @@ export default function ShopPanel(): JSX.Element {
             type="text"
             value={shopNameInput}
             onChange={(e) => setShopNameInput(e.target.value)}
-            placeholder="Shop name..."
+            placeholder={t('game.shopPanel.namePlaceholder')}
             className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
           />
           <button
             onClick={handleOpenShop}
             className="w-full py-1.5 bg-amber-600 hover:bg-amber-500 text-white text-sm font-medium rounded transition-colors cursor-pointer"
           >
-            Open Shop
+            {t('game.shopPanel.openShop')}
           </button>
         </div>
       ) : (
@@ -152,14 +155,18 @@ export default function ShopPanel(): JSX.Element {
           <div className="flex items-center justify-between">
             <span className="text-sm text-amber-400 font-medium">{shopName}</span>
             <button onClick={handleCloseShop} className="text-xs text-red-400 hover:text-red-300 cursor-pointer">
-              Close Shop
+              {t('game.shopPanel.closeShop')}
             </button>
           </div>
 
           {/* Current inventory */}
           <div className="space-y-1 max-h-40 overflow-y-auto">
             {shopInventory.length === 0 && (
-              <EmptyState compact title="No items in shop." description="Add from presets below." />
+              <EmptyState
+                compact
+                title={t('game.shopPanel.emptyTitle')}
+                description={t('game.shopPanel.emptyDescription')}
+              />
             )}
             {shopInventory.map((item) => (
               <div key={item.id} className="flex items-center justify-between bg-gray-800/50 rounded px-2 py-1 text-xs">
@@ -182,7 +189,7 @@ export default function ShopPanel(): JSX.Element {
 
           {/* Add presets */}
           <div className="border-t border-gray-700 pt-2">
-            <span className="text-xs text-gray-500">Add Items:</span>
+            <span className="text-xs text-gray-500">{t('game.shopPanel.addItems')}</span>
             <div className="flex flex-wrap gap-1 mt-1">
               {PRESET_ITEMS.filter((p) => !shopInventory.some((i) => i.id === p.id)).map((item) => (
                 <button
@@ -202,7 +209,9 @@ export default function ShopPanel(): JSX.Element {
               onClick={() => setShowPoisons(!showPoisons)}
               className="text-xs text-purple-400 hover:text-purple-300 cursor-pointer"
             >
-              {showPoisons ? 'Hide' : 'Show'} Poisons ({poisonPresets.length || '...'})
+              {showPoisons
+                ? t('game.shopPanel.hidePoisons', { count: poisonPresets.length || '...' })
+                : t('game.shopPanel.showPoisons', { count: poisonPresets.length || '...' })}
             </button>
             {showPoisons && (
               <div className="flex flex-wrap gap-1 mt-1">
@@ -226,7 +235,7 @@ export default function ShopPanel(): JSX.Element {
             onClick={handleBroadcastInventory}
             className="w-full py-1 bg-green-700 hover:bg-green-600 text-white text-xs font-medium rounded transition-colors cursor-pointer"
           >
-            Update Players
+            {t('game.shopPanel.updatePlayers')}
           </button>
         </div>
       )}

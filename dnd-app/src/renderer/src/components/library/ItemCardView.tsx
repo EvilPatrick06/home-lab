@@ -1,3 +1,4 @@
+import { useT } from '../../i18n'
 import type { LibraryCategory } from '../../types/library'
 
 const RARITY_COLORS: Record<string, string> = {
@@ -25,50 +26,68 @@ function Stat({ label, value }: { label: string; value: unknown }): JSX.Element 
 }
 
 function WeaponCard({ item }: { item: Record<string, unknown> }): JSX.Element {
+  const { t } = useT()
   const properties = Array.isArray(item.properties) ? item.properties : []
   return (
     <div className="space-y-0.5 text-sm">
-      <Stat label="Category" value={item.category} />
-      <Stat label="Damage" value={item.damage ? `${item.damage} ${item.damageType ?? ''}` : item.damageType} />
+      <Stat label={t('library.itemCardView.category')} value={item.category} />
+      <Stat
+        label={t('library.itemCardView.damage')}
+        value={item.damage ? `${item.damage} ${item.damageType ?? ''}` : item.damageType}
+      />
       {properties.length > 0 && (
         <div className="flex gap-1">
-          <span className="text-amber-500 font-semibold">Properties</span>
+          <span className="text-amber-500 font-semibold">{t('library.itemCardView.properties')}</span>
           <span className="text-gray-300">{properties.join(', ')}</span>
         </div>
       )}
-      {!!item.mastery && <Stat label="Mastery" value={item.mastery} />}
-      <Stat label="Weight" value={item.weight ? `${item.weight} lb.` : undefined} />
-      <Stat label="Cost" value={item.cost} />
+      {!!item.mastery && <Stat label={t('library.itemCardView.mastery')} value={item.mastery} />}
+      <Stat
+        label={t('library.itemCardView.weight')}
+        value={item.weight ? t('library.itemCardView.weightValue', { weight: item.weight }) : undefined}
+      />
+      <Stat label={t('library.itemCardView.cost')} value={item.cost} />
     </div>
   )
 }
 
 function ArmorCard({ item }: { item: Record<string, unknown> }): JSX.Element {
+  const { t } = useT()
   return (
     <div className="space-y-0.5 text-sm">
-      <Stat label="Category" value={item.category} />
-      <Stat label="AC" value={item.baseAC ?? item.ac} />
+      <Stat label={t('library.itemCardView.category')} value={item.category} />
+      <Stat label={t('library.itemCardView.ac')} value={item.baseAC ?? item.ac} />
       {item.dexCap !== undefined && item.dexCap !== null && (
-        <Stat label="DEX Cap" value={item.dexCap === 0 ? 'None' : `+${item.dexCap}`} />
+        <Stat
+          label={t('library.itemCardView.dexCap')}
+          value={item.dexCap === 0 ? t('library.itemCardView.none') : `+${item.dexCap}`}
+        />
       )}
       {!!item.stealthDisadvantage && (
         <div className="flex gap-1">
-          <span className="text-amber-500 font-semibold">Stealth</span>
-          <span className="text-red-400">Disadvantage</span>
+          <span className="text-amber-500 font-semibold">{t('library.itemCardView.stealth')}</span>
+          <span className="text-red-400">{t('library.itemCardView.disadvantage')}</span>
         </div>
       )}
-      <Stat label="Strength Req." value={item.strengthReq} />
-      <Stat label="Weight" value={item.weight ? `${item.weight} lb.` : undefined} />
-      <Stat label="Cost" value={item.cost} />
+      <Stat label={t('library.itemCardView.strengthReq')} value={item.strengthReq} />
+      <Stat
+        label={t('library.itemCardView.weight')}
+        value={item.weight ? t('library.itemCardView.weightValue', { weight: item.weight }) : undefined}
+      />
+      <Stat label={t('library.itemCardView.cost')} value={item.cost} />
     </div>
   )
 }
 
 function GearCard({ item }: { item: Record<string, unknown> }): JSX.Element {
+  const { t } = useT()
   return (
     <div className="space-y-0.5 text-sm">
-      <Stat label="Weight" value={item.weight ? `${item.weight} lb.` : undefined} />
-      <Stat label="Cost" value={item.cost} />
+      <Stat
+        label={t('library.itemCardView.weight')}
+        value={item.weight ? t('library.itemCardView.weightValue', { weight: item.weight }) : undefined}
+      />
+      <Stat label={t('library.itemCardView.cost')} value={item.cost} />
       {!!item.description && (
         <>
           <div className="border-t border-amber-800/30 mt-2" />
@@ -80,20 +99,21 @@ function GearCard({ item }: { item: Record<string, unknown> }): JSX.Element {
 }
 
 function MagicItemCard({ item }: { item: Record<string, unknown> }): JSX.Element {
+  const { t } = useT()
   const rarity = String(item.rarity ?? 'common').toLowerCase()
   const rarityColor = RARITY_COLORS[rarity] ?? 'text-gray-400'
 
   return (
     <div className="space-y-0.5 text-sm">
       <div className="flex gap-1">
-        <span className="text-amber-500 font-semibold">Rarity</span>
+        <span className="text-amber-500 font-semibold">{t('library.itemCardView.rarity')}</span>
         <span className={`${rarityColor} capitalize`}>{rarity}</span>
       </div>
-      <Stat label="Type" value={item.type} />
+      <Stat label={t('library.itemCardView.type')} value={item.type} />
       {!!item.attunement && (
         <div className="flex gap-1">
-          <span className="text-amber-500 font-semibold">Attunement</span>
-          <span className="text-purple-400">Required</span>
+          <span className="text-amber-500 font-semibold">{t('library.itemCardView.attunement')}</span>
+          <span className="text-purple-400">{t('library.itemCardView.required')}</span>
         </div>
       )}
       {!!item.description && (
@@ -107,6 +127,7 @@ function MagicItemCard({ item }: { item: Record<string, unknown> }): JSX.Element
 }
 
 export default function ItemCardView({ item, category }: ItemCardViewProps): JSX.Element {
+  const { t } = useT()
   let content: JSX.Element
   switch (category) {
     case 'weapons':
@@ -130,7 +151,9 @@ export default function ItemCardView({ item, category }: ItemCardViewProps): JSX
   return (
     <div className="bg-gray-900 border border-amber-800/40 rounded-lg overflow-hidden">
       <div className="bg-amber-900/30 border-b border-amber-800/40 px-3 py-2">
-        <h3 className={`text-base font-bold ${headerColor}`}>{String(item.name ?? 'Unknown Item')}</h3>
+        <h3 className={`text-base font-bold ${headerColor}`}>
+          {item.name ? String(item.name) : t('library.itemCardView.unknownItem')}
+        </h3>
         <p className="text-xs text-gray-400 italic capitalize">{category.replace(/-/g, ' ')}</p>
       </div>
       <div className="px-3 py-2">{content}</div>

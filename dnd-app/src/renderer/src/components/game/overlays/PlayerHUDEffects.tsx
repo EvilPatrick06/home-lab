@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { CONDITIONS_5E } from '../../../data/conditions'
+import { useT } from '../../../i18n'
 import { getEffectiveClasses } from '../../../services/character/effective-character-5e'
 import { resolveDeathSave } from '../../../services/combat/death-mechanics'
 import type { ResolvedEffects } from '../../../services/combat/effect-resolver-5e'
@@ -36,6 +37,7 @@ export default function PlayerHUDEffects({
   ambientLight,
   travelPace
 }: PlayerHUDEffectsProps): JSX.Element {
+  const { t } = useT()
   const [showConditionPicker, setShowConditionPicker] = useState(false)
   const [conditionNames, setConditionNames] = useState<string[]>(() => CONDITIONS_5E.map((c) => c.name))
 
@@ -86,9 +88,9 @@ export default function PlayerHUDEffects({
               <button
                 onClick={() => removeCondition(cond.id)}
                 className="text-purple-400 hover:text-red-400 cursor-pointer"
-                title="Remove condition"
+                title={t('game.playerHUDEffects.removeCondition')}
               >
-                x
+                {t('game.playerHUDEffects.removeGlyph')}
               </button>
             </span>
           ))}
@@ -100,9 +102,9 @@ export default function PlayerHUDEffects({
         <button
           onClick={() => setShowConditionPicker(!showConditionPicker)}
           className="text-[9px] text-gray-500 hover:text-purple-400 cursor-pointer border border-gray-700 rounded px-1 py-0.5"
-          title="Add condition"
+          title={t('game.playerHUDEffects.addCondition')}
         >
-          +Cond
+          {t('game.playerHUDEffects.addCond')}
         </button>
         {showConditionPicker && (
           <div className="absolute top-full mt-1 left-0 z-20 bg-gray-900 border border-gray-700 rounded-lg shadow-xl max-h-48 overflow-y-auto w-36">
@@ -154,14 +156,14 @@ export default function PlayerHUDEffects({
       {/* Bloodied */}
       {bloodied && (
         <span className="text-[9px] bg-red-600/30 text-red-300 border border-red-500/50 rounded px-1 py-0.5">
-          Bloodied
+          {t('game.playerHUDEffects.bloodied')}
         </span>
       )}
 
       {/* Environment indicators */}
       {underwaterCombat && (
         <span className="text-[9px] bg-blue-600/30 text-blue-300 border border-blue-500/50 rounded px-1 py-0.5">
-          Underwater
+          {t('game.playerHUDEffects.underwater')}
         </span>
       )}
       {ambientLight !== 'bright' && (
@@ -172,7 +174,7 @@ export default function PlayerHUDEffects({
               : 'bg-gray-600/30 text-gray-300 border border-gray-500/50'
           }`}
         >
-          {ambientLight === 'dim' ? 'Dim Light' : 'Darkness'}
+          {ambientLight === 'dim' ? t('game.playerHUDEffects.dimLight') : t('game.playerHUDEffects.darkness')}
         </span>
       )}
       {travelPace && (
@@ -185,7 +187,7 @@ export default function PlayerHUDEffects({
                 : 'bg-gray-600/20 text-gray-300 border border-gray-500/30'
           }`}
         >
-          {travelPace.charAt(0).toUpperCase() + travelPace.slice(1)} Pace
+          {t('game.playerHUDEffects.pace', { pace: travelPace.charAt(0).toUpperCase() + travelPace.slice(1) })}
         </span>
       )}
     </>
@@ -213,6 +215,7 @@ export function PlayerHUDEffectsExpanded({
   turnState,
   saveAndBroadcast
 }: PlayerHUDEffectsExpandedProps): JSX.Element {
+  const { t } = useT()
   const [deathSaveResult, setDeathSaveResult] = useState<{ roll: number; message: string } | null>(null)
 
   const toggleDeathSave = useCallback(
@@ -324,9 +327,11 @@ export function PlayerHUDEffectsExpanded({
     <>
       {/* Death Saves */}
       <div className="flex items-center gap-3">
-        <span className="text-[9px] text-gray-500 uppercase tracking-wider">Death Saves:</span>
+        <span className="text-[9px] text-gray-500 uppercase tracking-wider">
+          {t('game.playerHUDEffects.deathSaves')}
+        </span>
         <div className="flex items-center gap-1">
-          <span className="text-[9px] text-green-400">S</span>
+          <span className="text-[9px] text-green-400">{t('game.playerHUDEffects.successAbbr')}</span>
           {[0, 1, 2].map((i) => (
             <button
               key={`s-${i}`}
@@ -337,7 +342,7 @@ export function PlayerHUDEffectsExpanded({
             />
           ))}
           <span className="text-gray-600 mx-1">|</span>
-          <span className="text-[9px] text-red-400">F</span>
+          <span className="text-[9px] text-red-400">{t('game.playerHUDEffects.failureAbbr')}</span>
           {[0, 1, 2].map((i) => (
             <button
               key={`f-${i}`}
@@ -353,7 +358,7 @@ export function PlayerHUDEffectsExpanded({
             onClick={rollDeathSave}
             className="text-[9px] px-1.5 py-0.5 bg-gray-700 hover:bg-gray-600 text-gray-300 border border-gray-600 rounded cursor-pointer"
           >
-            Roll Death Save
+            {t('game.playerHUDEffects.rollDeathSave')}
           </button>
         )}
       </div>
@@ -370,7 +375,7 @@ export function PlayerHUDEffectsExpanded({
           }`}
         >
           <span>
-            d20: {deathSaveResult.roll} — {deathSaveResult.message}
+            {t('game.playerHUDEffects.d20Result', { roll: deathSaveResult.roll, message: deathSaveResult.message })}
           </span>
           <button
             onClick={() => setDeathSaveResult(null)}
@@ -387,19 +392,19 @@ export function PlayerHUDEffectsExpanded({
           <div className="space-y-0.5">
             {resolved.resistances.length > 0 && (
               <div className="text-xs">
-                <span className="text-gray-500">Resist:</span>{' '}
+                <span className="text-gray-500">{t('game.playerHUDEffects.resist')}</span>{' '}
                 <span className="text-green-400">{resolved.resistances.join(', ')}</span>
               </div>
             )}
             {resolved.immunities.length > 0 && (
               <div className="text-xs">
-                <span className="text-gray-500">Immune:</span>{' '}
+                <span className="text-gray-500">{t('game.playerHUDEffects.immune')}</span>{' '}
                 <span className="text-cyan-400">{resolved.immunities.join(', ')}</span>
               </div>
             )}
             {resolved.vulnerabilities.length > 0 && (
               <div className="text-xs">
-                <span className="text-gray-500">Vulnerable:</span>{' '}
+                <span className="text-gray-500">{t('game.playerHUDEffects.vulnerable')}</span>{' '}
                 <span className="text-red-400">{resolved.vulnerabilities.join(', ')}</span>
               </div>
             )}
@@ -409,14 +414,16 @@ export function PlayerHUDEffectsExpanded({
       {/* Custom Effects with Durations */}
       {myCustomEffects.length > 0 && (
         <div>
-          <span className="text-[9px] text-gray-500 uppercase tracking-wider">Active Effects</span>
+          <span className="text-[9px] text-gray-500 uppercase tracking-wider">
+            {t('game.playerHUDEffects.activeEffects')}
+          </span>
           <div className="space-y-0.5 mt-0.5">
             {myCustomEffects.map((ce) => (
               <div key={ce.id} className="flex items-center gap-1.5 text-xs">
                 <span className="text-indigo-300 font-medium">{ce.name}</span>
                 {ce.duration && (
                   <span className="text-gray-600">
-                    ({ce.duration.value} {ce.duration.type})
+                    {t('game.playerHUDEffects.effectDuration', { value: ce.duration.value, type: ce.duration.type })}
                   </span>
                 )}
               </div>
@@ -428,14 +435,14 @@ export function PlayerHUDEffectsExpanded({
       {/* Concentration */}
       {turnState?.concentratingSpell && (
         <div className="flex items-center gap-2">
-          <span className="text-xs text-purple-400">Concentrating:</span>
+          <span className="text-xs text-purple-400">{t('game.playerHUDEffects.concentrating')}</span>
           <span className="text-xs text-purple-300 font-semibold">{turnState.concentratingSpell}</span>
           <button
             onClick={dropConcentration}
             className="text-[9px] text-red-400 hover:text-red-300 cursor-pointer"
-            title="Drop concentration"
+            title={t('game.playerHUDEffects.dropConcentration')}
           >
-            (drop)
+            {t('game.playerHUDEffects.drop')}
           </button>
         </div>
       )}

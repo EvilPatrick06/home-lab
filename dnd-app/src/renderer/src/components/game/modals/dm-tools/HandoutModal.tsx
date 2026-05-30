@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from 'react'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 import { useGameStore } from '../../../../stores/use-game-store'
 import type { Handout, HandoutPage } from '../../../../types/game-state'
 import ModalFormFooter from '../shared/ModalFormFooter'
@@ -10,6 +11,7 @@ interface HandoutModalProps {
 }
 
 export default function HandoutModal({ onClose, onShareHandout }: HandoutModalProps): JSX.Element {
+  const { t } = useT()
   useEscapeKey(onClose)
   const handouts = useGameStore((s) => s.handouts)
   const addHandout = useGameStore((s) => s.addHandout)
@@ -110,11 +112,13 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
       <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-2xl w-full mx-4 shadow-2xl max-h-[80vh] flex flex-col">
         <div className="flex items-center justify-between mb-3 shrink-0">
-          <h3 className="text-sm font-semibold text-gray-200">{editingId ? 'Edit Handout' : 'Handouts'}</h3>
+          <h3 className="text-sm font-semibold text-gray-200">
+            {editingId ? t('game.handoutModal.editTitle') : t('game.handoutModal.title')}
+          </h3>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-300 text-lg cursor-pointer"
-            aria-label="Close"
+            aria-label={t('common.actions.close')}
           >
             &times;
           </button>
@@ -125,7 +129,7 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
           <div className="flex items-center gap-2">
             <input
               type="text"
-              placeholder="Handout title..."
+              placeholder={t('game.handoutModal.titlePlaceholder')}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200 outline-none focus:border-amber-500/50"
@@ -140,7 +144,7 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
                   contentType === 'text' ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                 }`}
               >
-                Text
+                {t('game.handoutModal.text')}
               </button>
               <button
                 onClick={() => {
@@ -151,14 +155,14 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
                   contentType === 'image' ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                 }`}
               >
-                Image
+                {t('game.handoutModal.image')}
               </button>
             </div>
           </div>
 
           {contentType === 'text' ? (
             <textarea
-              placeholder="Handout text content..."
+              placeholder={t('game.handoutModal.textPlaceholder')}
               value={content}
               onChange={(e) => setContent(e.target.value)}
               rows={4}
@@ -175,7 +179,11 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
               />
               {content && (
                 <div className="border border-gray-700/50 rounded p-1">
-                  <img src={content} alt="Preview" className="max-h-32 rounded object-contain mx-auto" />
+                  <img
+                    src={content}
+                    alt={t('game.handoutModal.preview')}
+                    className="max-h-32 rounded object-contain mx-auto"
+                  />
                 </div>
               )}
             </div>
@@ -184,20 +192,20 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
           <ModalFormFooter
             isEditing={!!editingId}
             isSaveDisabled={!title.trim() || !content.trim()}
-            saveLabel="Save"
-            editingLabel="Update"
+            saveLabel={t('common.actions.save')}
+            editingLabel={t('game.handoutModal.update')}
             onCancel={resetForm}
             onSave={handleSave}
             leftSlot={
               <>
-                <span className="text-xs text-gray-500">Visibility:</span>
+                <span className="text-xs text-gray-500">{t('game.handoutModal.visibility')}</span>
                 <select
                   value={visibility}
                   onChange={(e) => setVisibility(e.target.value as 'all' | 'dm-only')}
                   className="bg-gray-800 border border-gray-700 rounded px-2 py-0.5 text-xs text-gray-300 outline-none cursor-pointer"
                 >
-                  <option value="dm-only">DM Only</option>
-                  <option value="all">All Players</option>
+                  <option value="dm-only">{t('game.handoutModal.dmOnly')}</option>
+                  <option value="all">{t('game.handoutModal.allPlayers')}</option>
                 </select>
               </>
             }
@@ -206,13 +214,15 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
           {/* Multi-page editing */}
           {pages.length > 0 && (
             <div className="border-t border-gray-700/40 pt-2 space-y-2">
-              <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Additional Pages</span>
+              <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
+                {t('game.handoutModal.additionalPages')}
+              </span>
               {pages.map((page, idx) => (
                 <div key={page.id} className="bg-gray-800/40 border border-gray-700/30 rounded p-2 space-y-1">
                   <div className="flex items-center gap-2">
                     <input
                       type="text"
-                      placeholder={`Page ${idx + 2} label`}
+                      placeholder={t('game.handoutModal.pageLabelPlaceholder', { num: idx + 2 })}
                       value={page.label ?? ''}
                       onChange={(e) => updatePage(page.id, { label: e.target.value })}
                       className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-0.5 text-xs text-gray-200 outline-none"
@@ -224,8 +234,8 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
                       }
                       className="bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-300 outline-none cursor-pointer"
                     >
-                      <option value="text">Text</option>
-                      <option value="image">Image</option>
+                      <option value="text">{t('game.handoutModal.text')}</option>
+                      <option value="image">{t('game.handoutModal.image')}</option>
                     </select>
                     <label className="flex items-center gap-1 text-xs text-gray-400 cursor-pointer">
                       <input
@@ -234,7 +244,7 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
                         onChange={(e) => updatePage(page.id, { dmOnly: e.target.checked })}
                         className="accent-amber-500"
                       />
-                      DM Only
+                      {t('game.handoutModal.dmOnly')}
                     </label>
                     <button
                       onClick={() => removePage(page.id)}
@@ -245,7 +255,7 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
                   </div>
                   {page.contentType === 'text' ? (
                     <textarea
-                      placeholder="Page content..."
+                      placeholder={t('game.handoutModal.pageContentPlaceholder')}
                       value={page.content}
                       onChange={(e) => updatePage(page.id, { content: e.target.value })}
                       rows={2}
@@ -275,16 +285,14 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
             onClick={addPage}
             className="w-full py-1 text-xs bg-gray-800 hover:bg-gray-700 text-gray-400 border border-gray-700/40 border-dashed rounded cursor-pointer"
           >
-            + Add Page
+            {t('game.handoutModal.addPage')}
           </button>
         </div>
 
         {/* Handout List */}
         <div className="flex-1 overflow-y-auto space-y-1.5 min-h-0">
           {handouts.length === 0 ? (
-            <p className="text-xs text-gray-500 text-center py-4">
-              No handouts created yet. Use the form above to create one.
-            </p>
+            <p className="text-xs text-gray-500 text-center py-4">{t('game.handoutModal.empty')}</p>
           ) : (
             handouts.map((handout) => (
               <div
@@ -304,8 +312,11 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-medium text-gray-200 truncate">{handout.title}</p>
                   <p className="text-xs text-gray-500">
-                    {handout.contentType === 'image' ? 'Image' : 'Text'} &middot;{' '}
-                    {handout.visibility === 'all' ? 'Visible to all' : 'DM only'}
+                    {handout.contentType === 'image' ? t('game.handoutModal.image') : t('game.handoutModal.text')}{' '}
+                    &middot;{' '}
+                    {handout.visibility === 'all'
+                      ? t('game.handoutModal.visibleToAll')
+                      : t('game.handoutModal.dmOnlyShort')}
                   </p>
                 </div>
 
@@ -313,24 +324,24 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
                 <div className="flex gap-1 shrink-0">
                   <button
                     onClick={() => handleShare(handout)}
-                    title="Share with players"
+                    title={t('game.handoutModal.shareTooltip')}
                     className="px-2 py-1 text-xs bg-green-700/40 hover:bg-green-600/40 text-green-300 border border-green-600/30 rounded cursor-pointer"
                   >
-                    Share
+                    {t('game.handoutModal.share')}
                   </button>
                   <button
                     onClick={() => handleEdit(handout)}
-                    title="Edit handout"
+                    title={t('game.handoutModal.editTooltip')}
                     className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
                   >
-                    Edit
+                    {t('game.handoutModal.edit')}
                   </button>
                   <button
                     onClick={() => removeHandout(handout.id)}
-                    title="Delete handout"
+                    title={t('game.handoutModal.deleteTooltip')}
                     className="px-2 py-1 text-xs bg-red-900/40 hover:bg-red-800/40 text-red-300 border border-red-700/30 rounded cursor-pointer"
                   >
-                    Delete
+                    {t('common.actions.delete')}
                   </button>
                 </div>
               </div>

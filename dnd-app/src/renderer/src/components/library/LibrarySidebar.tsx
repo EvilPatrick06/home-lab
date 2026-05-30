@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useT } from '../../i18n'
 import type { LibraryCategory, LibraryGroup } from '../../types/library'
 import { LIBRARY_GROUPS } from '../../types/library'
 
@@ -25,6 +26,7 @@ export default function LibrarySidebar({
   onSelectCoreBooks,
   isCoreBooksSelected
 }: LibrarySidebarProps): JSX.Element {
+  const { t } = useT()
   const [expandedGroups, setExpandedGroups] = useState<Set<LibraryGroup>>(new Set())
 
   // Compute dynamic My Content categories based on homebrew counts
@@ -61,7 +63,7 @@ export default function LibrarySidebar({
         className={`w-full text-left px-4 py-3 text-sm font-semibold transition-colors cursor-pointer
           ${selectedCategory === null && !isFavoritesSelected ? 'text-amber-400 bg-gray-800/60' : 'text-gray-300 hover:text-amber-400 hover:bg-gray-800/40'}`}
       >
-        All Categories
+        {t('library.librarySidebar.allCategories')}
       </button>
 
       {onSelectFavorites && (
@@ -71,7 +73,7 @@ export default function LibrarySidebar({
             ${isFavoritesSelected ? 'text-amber-400 bg-amber-900/20 border-r-2 border-amber-500' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/40'}`}
         >
           <span className="text-base leading-none">★</span>
-          <span className="flex-1 truncate">Favorites</span>
+          <span className="flex-1 truncate">{t('library.librarySidebar.favorites')}</span>
         </button>
       )}
 
@@ -82,7 +84,7 @@ export default function LibrarySidebar({
             ${isCoreBooksSelected ? 'text-amber-400 bg-amber-900/20 border-r-2 border-amber-500' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/40'}`}
         >
           <span className="text-base leading-none">📚</span>
-          <span className="flex-1 truncate">Core Books</span>
+          <span className="flex-1 truncate">{t('library.librarySidebar.coreBooks')}</span>
         </button>
       )}
 
@@ -131,7 +133,9 @@ export default function LibrarySidebar({
                       {(total > 0 || hbCount > 0) && (
                         <span className="text-xs bg-gray-700/60 text-gray-400 px-1.5 rounded-full">
                           {total > 0 ? total : ''}
-                          {hbCount > 0 ? `${total > 0 ? ' · ' : ''}${hbCount} custom` : ''}
+                          {hbCount > 0
+                            ? `${total > 0 ? ' · ' : ''}${t('library.librarySidebar.customCount', { count: hbCount })}`
+                            : ''}
                         </span>
                       )}
                     </button>
@@ -153,7 +157,7 @@ export default function LibrarySidebar({
                       <span className="text-base leading-none">{cat.icon}</span>
                       <span className="flex-1 truncate">{cat.label}</span>
                       <span className="text-xs bg-purple-600/30 text-purple-300 px-1.5 rounded-full">
-                        {homebrewCounts[cat.id]} custom
+                        {t('library.librarySidebar.customCount', { count: homebrewCounts[cat.id] })}
                       </span>
                     </button>
                   ))}

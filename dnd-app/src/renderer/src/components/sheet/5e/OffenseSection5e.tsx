@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useCharacterEditor } from '../../../hooks/use-character-editor'
+import { useT } from '../../../i18n'
 import { getEffectiveWeapons } from '../../../services/character/effective-character-5e'
 import type { Character } from '../../../types/character'
 import type { Character5e } from '../../../types/character-5e'
@@ -17,6 +18,7 @@ interface OffenseSection5eProps {
 }
 
 export default function OffenseSection5e({ character, readonly }: OffenseSection5eProps): JSX.Element {
+  const { t } = useT()
   const { getLatest, saveAndBroadcast } = useCharacterEditor(character.id)
   // Phase 15c.5 — derive weapons (v3 shape) from v4 refs via the truth store.
   const newWeapons: WeaponEntry[] = getEffectiveWeapons(character)
@@ -105,7 +107,7 @@ export default function OffenseSection5e({ character, readonly }: OffenseSection
         }
         const newCurrency = deductWithConversion(treasureForDeduction, cost)
         if (!newCurrency) {
-          setCostError('Not enough funds')
+          setCostError(t('sheet.offenseSection.notEnoughFunds'))
           setTimeout(() => setCostError(null), 3000)
           return
         }
@@ -163,7 +165,12 @@ export default function OffenseSection5e({ character, readonly }: OffenseSection
         const totalCp = totalInCopper(currentCurrency)
         const costCp = cost.amount * rates[cost.currency]
         setBuyWarning(
-          `Not enough funds (need ${cost.amount} ${cost.currency.toUpperCase()} = ${costCp} cp, have ${totalCp} cp total)`
+          t('sheet.offenseSection.notEnoughFundsDetail', {
+            amount: cost.amount,
+            currency: cost.currency.toUpperCase(),
+            costCp,
+            totalCp
+          })
         )
         setTimeout(() => setBuyWarning(null), 4000)
         return
@@ -195,11 +202,11 @@ export default function OffenseSection5e({ character, readonly }: OffenseSection
   }
 
   return (
-    <SheetSectionWrapper title="Offense">
+    <SheetSectionWrapper title={t('sheet.offenseSection.title')}>
       {/* Weapons */}
       {newWeapons.length > 0 ? (
         <div className="mb-3">
-          <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Weapons</div>
+          <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('sheet.offenseSection.weapons')}</div>
           {newWeapons.map((w, i) => (
             <WeaponRow
               key={w.id || i}
@@ -212,7 +219,7 @@ export default function OffenseSection5e({ character, readonly }: OffenseSection
           ))}
         </div>
       ) : (
-        <p className="text-sm text-gray-500 mb-3">No weapons equipped.</p>
+        <p className="text-sm text-gray-500 mb-3">{t('sheet.offenseSection.noWeapons')}</p>
       )}
 
       {/* Add Weapon buttons */}
@@ -222,13 +229,13 @@ export default function OffenseSection5e({ character, readonly }: OffenseSection
             onClick={() => setShowCustomForm(true)}
             className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer"
           >
-            + Custom Weapon
+            {t('sheet.offenseSection.customWeapon')}
           </button>
           <button
             onClick={() => setShowSrdBrowser(true)}
             className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer"
           >
-            + Shop
+            {t('sheet.offenseSection.shop')}
           </button>
         </div>
       )}
@@ -236,18 +243,18 @@ export default function OffenseSection5e({ character, readonly }: OffenseSection
       {/* Custom weapon form */}
       {!readonly && showCustomForm && (
         <div className="bg-gray-800/50 rounded p-3 space-y-2 mb-3">
-          <div className="text-xs text-gray-400 font-medium mb-1">Custom Weapon</div>
+          <div className="text-xs text-gray-400 font-medium mb-1">{t('sheet.offenseSection.customWeaponTitle')}</div>
           <div className="flex gap-2">
             <input
               type="text"
-              placeholder="Name"
+              placeholder={t('sheet.offenseSection.namePlaceholder')}
               value={weaponForm.name}
               onChange={(e) => setWeaponForm((f) => ({ ...f, name: e.target.value }))}
               className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
             />
             <input
               type="text"
-              placeholder="Damage (1d8)"
+              placeholder={t('sheet.offenseSection.damagePlaceholder')}
               value={weaponForm.damage}
               onChange={(e) => setWeaponForm((f) => ({ ...f, damage: e.target.value }))}
               className="w-24 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
@@ -256,14 +263,14 @@ export default function OffenseSection5e({ character, readonly }: OffenseSection
           <div className="flex gap-2">
             <input
               type="text"
-              placeholder="Damage type"
+              placeholder={t('sheet.offenseSection.damageTypePlaceholder')}
               value={weaponForm.damageType}
               onChange={(e) => setWeaponForm((f) => ({ ...f, damageType: e.target.value }))}
               className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
             />
             <input
               type="text"
-              placeholder="Properties (comma-separated)"
+              placeholder={t('sheet.offenseSection.propertiesPlaceholder')}
               value={weaponForm.properties}
               onChange={(e) => setWeaponForm((f) => ({ ...f, properties: e.target.value }))}
               className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
@@ -272,7 +279,7 @@ export default function OffenseSection5e({ character, readonly }: OffenseSection
           <div className="flex gap-2">
             <input
               type="text"
-              placeholder="Cost (e.g. 25 gp)"
+              placeholder={t('sheet.offenseSection.costPlaceholder')}
               value={weaponForm.cost}
               onChange={(e) => {
                 setWeaponForm((f) => ({ ...f, cost: e.target.value }))
@@ -298,7 +305,7 @@ export default function OffenseSection5e({ character, readonly }: OffenseSection
                 onChange={(e) => setWeaponForm((f) => ({ ...f, proficient: e.target.checked }))}
                 className="rounded"
               />
-              Proficient
+              {t('sheet.offenseSection.proficient')}
             </label>
             <div className="flex-1" />
             <button
@@ -306,13 +313,13 @@ export default function OffenseSection5e({ character, readonly }: OffenseSection
               disabled={!weaponForm.name.trim()}
               className="px-3 py-1 text-xs bg-amber-600 hover:bg-amber-500 disabled:opacity-50 disabled:cursor-not-allowed rounded text-white cursor-pointer"
             >
-              Add
+              {t('sheet.offenseSection.add')}
             </button>
             <button
               onClick={() => setShowCustomForm(false)}
               className="px-3 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded text-gray-300 cursor-pointer"
             >
-              Cancel
+              {t('common.actions.cancel')}
             </button>
           </div>
         </div>
@@ -321,7 +328,7 @@ export default function OffenseSection5e({ character, readonly }: OffenseSection
       {/* SRD weapon browser */}
       {!readonly && showSrdBrowser && (
         <div className="bg-gray-800/50 rounded p-3 space-y-2 mb-3">
-          <div className="text-xs text-gray-400 font-medium mb-1">Weapon Shop</div>
+          <div className="text-xs text-gray-400 font-medium mb-1">{t('sheet.offenseSection.weaponShop')}</div>
           <select
             value={selectedWeaponIdx}
             onChange={(e) => {
@@ -330,10 +337,10 @@ export default function OffenseSection5e({ character, readonly }: OffenseSection
             }}
             className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1.5 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
           >
-            <option value={-1}>-- Select weapon --</option>
+            <option value={-1}>{t('sheet.offenseSection.selectWeapon')}</option>
             {weaponDatabase.map((item, idx) => (
               <option key={idx} value={idx}>
-                {item.name} — {item.damage} {item.damageType} ({item.cost || 'free'})
+                {item.name} — {item.damage} {item.damageType} ({item.cost || t('sheet.offenseSection.free')})
               </option>
             ))}
           </select>
@@ -356,7 +363,7 @@ export default function OffenseSection5e({ character, readonly }: OffenseSection
               disabled={selectedWeaponIdx < 0}
               className="px-3 py-1 text-xs bg-amber-600 hover:bg-amber-500 disabled:opacity-50 disabled:cursor-not-allowed rounded text-white cursor-pointer"
             >
-              Buy
+              {t('sheet.offenseSection.buy')}
             </button>
             <button
               onClick={() => {
@@ -366,7 +373,7 @@ export default function OffenseSection5e({ character, readonly }: OffenseSection
               }}
               className="px-3 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded text-gray-300 cursor-pointer"
             >
-              Cancel
+              {t('common.actions.cancel')}
             </button>
           </div>
         </div>

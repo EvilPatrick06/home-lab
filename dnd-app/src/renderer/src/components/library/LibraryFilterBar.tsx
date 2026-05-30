@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useT } from '../../i18n'
 import type { FilterConfig, SortDirection, SortField, SortOption } from '../../services/library-sort-filter'
 
 /** Phase 25c — tri-state campaign scope for homebrew visibility. */
@@ -26,6 +27,7 @@ export default function LibraryFilterBar({
   campaignScope,
   onCampaignScopeChange
 }: LibraryFilterBarProps): JSX.Element {
+  const { t } = useT()
   const activeFilterEntries = Object.entries(currentFilters).filter(([, vals]) => vals.length > 0)
   const unusedFilters = filterConfigs.filter((fc) => !(currentFilters[fc.field]?.length > 0))
 
@@ -93,7 +95,7 @@ export default function LibraryFilterBar({
     <div className="flex items-center gap-2 px-4 py-2 bg-gray-900/80 border-b border-gray-800 flex-wrap">
       {/* Sort controls */}
       <div className="flex items-center gap-1.5">
-        <span className="text-xs text-gray-500">Sort:</span>
+        <span className="text-xs text-gray-500">{t('library.libraryFilterBar.sort')}</span>
         <select
           value={currentSort.field}
           onChange={(e) => onSortChange(e.target.value as SortField, currentSort.direction)}
@@ -109,7 +111,11 @@ export default function LibraryFilterBar({
           type="button"
           onClick={() => onSortChange(currentSort.field, currentSort.direction === 'asc' ? 'desc' : 'asc')}
           className="px-1.5 py-1 rounded bg-gray-800 border border-gray-700 text-xs text-gray-300 hover:text-amber-400 transition-colors cursor-pointer"
-          title={currentSort.direction === 'asc' ? 'Ascending' : 'Descending'}
+          title={
+            currentSort.direction === 'asc'
+              ? t('library.libraryFilterBar.ascending')
+              : t('library.libraryFilterBar.descending')
+          }
         >
           {currentSort.direction === 'asc' ? '↑' : '↓'}
         </button>
@@ -120,16 +126,16 @@ export default function LibraryFilterBar({
         <>
           <div className="w-px h-5 bg-gray-700" />
           <div className="flex items-center gap-1.5">
-            <span className="text-xs text-gray-500">Homebrew:</span>
+            <span className="text-xs text-gray-500">{t('library.libraryFilterBar.homebrew')}</span>
             <select
               value={campaignScope}
               onChange={(e) => onCampaignScopeChange(e.target.value as CampaignScopeFilter)}
               className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200 focus:outline-none focus:border-amber-500"
-              title="Filter homebrew by campaign scope"
+              title={t('library.libraryFilterBar.scopeTitle')}
             >
-              <option value="all">All</option>
-              <option value="campaign">This Campaign</option>
-              <option value="global">Global Only</option>
+              <option value="all">{t('library.libraryFilterBar.scopeAll')}</option>
+              <option value="campaign">{t('library.libraryFilterBar.scopeCampaign')}</option>
+              <option value="global">{t('library.libraryFilterBar.scopeGlobal')}</option>
             </select>
           </div>
         </>
@@ -152,7 +158,7 @@ export default function LibraryFilterBar({
               type="button"
               onClick={() => handleRemoveFilterValue(field, val)}
               className="ml-0.5 hover:text-amber-200 cursor-pointer"
-              aria-label={`Remove filter ${config?.label ?? field}: ${val}`}
+              aria-label={t('library.libraryFilterBar.removeFilter', { label: config?.label ?? field, value: val })}
             >
               ×
             </button>
@@ -173,7 +179,7 @@ export default function LibraryFilterBar({
             aria-haspopup="menu"
             className="px-2 py-1 rounded bg-gray-800 border border-gray-700 text-xs text-gray-400 hover:text-gray-200 transition-colors cursor-pointer"
           >
-            + Filter
+            {t('library.libraryFilterBar.addFilter')}
           </button>
           {menuOpen && (
             <div

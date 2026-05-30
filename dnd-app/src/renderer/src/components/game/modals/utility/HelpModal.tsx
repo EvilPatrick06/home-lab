@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { trigger3dDice } from '../../../../components/game/dice3d'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 import { rollSingle } from '../../../../services/dice/dice-service'
 import { getTokenStats } from '../../../../services/game/token-stats'
 import { useGameStore } from '../../../../stores/use-game-store'
@@ -47,6 +48,7 @@ export default function HelpModal({
   onClose,
   onBroadcastResult
 }: HelpModalProps): JSX.Element {
+  const { t } = useT()
   useEscapeKey(onClose)
   const [mode, setMode] = useState<HelpMode | null>(null)
   const [selectedAllyId, setSelectedAllyId] = useState<string | null>(null)
@@ -86,14 +88,15 @@ export default function HelpModal({
     const total = roll + medicineMod
     trigger3dDice({ formula: '1d20', rolls: [roll], total, rollerName: character.name })
     const passed = total >= 10 || roll === 20
+    const modStr = `${medicineMod >= 0 ? '+' : ''}${medicineMod}`
     const resultText =
       roll === 20
-        ? `Natural 20! ${target.label} is stabilized!`
+        ? t('game.helpModal.stabilizeNat20', { target: target.label })
         : roll === 1
-          ? `Natural 1! Failed to stabilize ${target.label}.`
+          ? t('game.helpModal.stabilizeNat1', { target: target.label })
           : passed
-            ? `Rolled ${total} (${roll}${medicineMod >= 0 ? '+' : ''}${medicineMod}) vs DC 10 — ${target.label} is stabilized!`
-            : `Rolled ${total} (${roll}${medicineMod >= 0 ? '+' : ''}${medicineMod}) vs DC 10 — Failed to stabilize.`
+            ? t('game.helpModal.stabilizePassed', { total, roll, mod: modStr, target: target.label })
+            : t('game.helpModal.stabilizeFailed', { total, roll, mod: modStr })
 
     if (passed) {
       addCondition({
@@ -108,20 +111,24 @@ export default function HelpModal({
     }
 
     setStabilizeResult(resultText)
-    onBroadcastResult(`${character.name} uses Help (Stabilize) on ${target.label}: ${resultText}`)
+    onBroadcastResult(
+      t('game.helpModal.stabilizeBroadcast', { name: character.name, target: target.label, result: resultText })
+    )
   }
 
   const handleAssistCheck = (): void => {
     const ally = allyTokens.find((t) => t.id === selectedAllyId)
     if (!ally) return
-    onBroadcastResult(`${character.name} uses Help! ${ally.label}'s next ${selectedSkill} check has Advantage.`)
+    onBroadcastResult(
+      t('game.helpModal.assistCheckBroadcast', { name: character.name, ally: ally.label, skill: selectedSkill })
+    )
     onClose()
   }
 
   const handleAssistAttack = (): void => {
     const enemy = enemyTokens.find((t) => t.id === selectedEnemyId)
     if (!enemy) return
-    onBroadcastResult(`${character.name} uses Help! Next attack against ${enemy.label} has Advantage.`)
+    onBroadcastResult(t('game.helpModal.assistAttackBroadcast', { name: character.name, enemy: enemy.label }))
     onClose()
   }
 
@@ -132,17 +139,17 @@ export default function HelpModal({
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-gray-200">
             {!mode
-              ? 'Help Action'
+              ? t('game.helpModal.titleHelpAction')
               : mode === 'stabilize'
-                ? 'Stabilize'
+                ? t('game.helpModal.titleStabilize')
                 : mode === 'assist-check'
-                  ? 'Assist Ability Check'
-                  : 'Assist Attack Roll'}
+                  ? t('game.helpModal.titleAssistCheck')
+                  : t('game.helpModal.titleAssistAttack')}
           </h3>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-300 text-lg cursor-pointer"
-            aria-label="Close"
+            aria-label={t('common.actions.close')}
           >
             &times;
           </button>
@@ -156,10 +163,12 @@ export default function HelpModal({
               disabled={zeroHpAllies.length === 0}
               className="w-full text-left px-3 py-2 bg-gray-800 hover:bg-gray-700 border border-green-700/50 rounded-lg cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              <div className="text-sm font-semibold text-green-300">Stabilize</div>
+              <div className="text-sm font-semibold text-green-300">{t('game.helpModal.titleStabilize')}</div>
               <div className="text-xs text-gray-400">
-                DC 10 Medicine check on a 0-HP creature within 5ft.
-                {zeroHpAllies.length === 0 && <span className="text-red-400 ml-1">No 0-HP allies nearby.</span>}
+                {t('game.helpModal.stabilizeDesc')}
+                {zeroHpAllies.length === 0 && (
+                  <span className="text-red-400 ml-1">{t('game.helpModal.noZeroHpAllies')}</span>
+                )}
               </div>
             </button>
             <button
@@ -167,10 +176,12 @@ export default function HelpModal({
               disabled={proficientSkills.length === 0}
               className="w-full text-left px-3 py-2 bg-gray-800 hover:bg-gray-700 border border-blue-700/50 rounded-lg cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              <div className="text-sm font-semibold text-blue-300">Assist Ability Check</div>
+              <div className="text-sm font-semibold text-blue-300">{t('game.helpModal.titleAssistCheck')}</div>
               <div className="text-xs text-gray-400">
-                Choose a skill you're proficient in + an ally. Their next check with that skill has Advantage.
-                {proficientSkills.length === 0 && <span className="text-red-400 ml-1">No skill proficiencies.</span>}
+                {t('game.helpModal.assistCheckDesc')}
+                {proficientSkills.length === 0 && (
+                  <span className="text-red-400 ml-1">{t('game.helpModal.noSkillProficiencies')}</span>
+                )}
               </div>
             </button>
             <button
@@ -178,10 +189,10 @@ export default function HelpModal({
               disabled={enemyTokens.length === 0}
               className="w-full text-left px-3 py-2 bg-gray-800 hover:bg-gray-700 border border-amber-700/50 rounded-lg cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              <div className="text-sm font-semibold text-amber-300">Assist Attack Roll</div>
+              <div className="text-sm font-semibold text-amber-300">{t('game.helpModal.titleAssistAttack')}</div>
               <div className="text-xs text-gray-400">
-                Choose an enemy within 5ft. Next attack against them has Advantage.
-                {enemyTokens.length === 0 && <span className="text-red-400 ml-1">No enemies on map.</span>}
+                {t('game.helpModal.assistAttackDesc')}
+                {enemyTokens.length === 0 && <span className="text-red-400 ml-1">{t('game.helpModal.noEnemies')}</span>}
               </div>
             </button>
           </div>
@@ -191,12 +202,12 @@ export default function HelpModal({
         {mode === 'stabilize' && !stabilizeResult && (
           <div className="space-y-3">
             <div className="text-xs text-gray-400 mb-2">
-              Medicine modifier:{' '}
+              {t('game.helpModal.medicineModifier')}{' '}
               <span className="text-white font-semibold">
                 {medicineMod >= 0 ? '+' : ''}
                 {medicineMod}
               </span>{' '}
-              vs DC 10
+              {t('game.helpModal.vsDc10')}
             </div>
             <div className="space-y-1.5">
               {zeroHpAllies.map((token) => (
@@ -212,7 +223,7 @@ export default function HelpModal({
                   }`}
                 >
                   <span className="text-sm text-gray-200">{token.label}</span>
-                  <span className="text-xs text-red-400 ml-2">0 HP</span>
+                  <span className="text-xs text-red-400 ml-2">{t('game.helpModal.zeroHp')}</span>
                 </button>
               ))}
             </div>
@@ -221,11 +232,10 @@ export default function HelpModal({
               disabled={!selectedAllyId}
               className="w-full px-4 py-3 bg-green-600 hover:bg-green-500 text-white font-semibold rounded-lg cursor-pointer text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Roll Medicine (d20 {medicineMod >= 0 ? '+' : ''}
-              {medicineMod})
+              {t('game.helpModal.rollMedicine', { mod: `${medicineMod >= 0 ? '+' : ''}${medicineMod}` })}
             </button>
             <button onClick={() => setMode(null)} className="text-xs text-gray-500 hover:text-gray-300 cursor-pointer">
-              Back
+              {t('game.helpModal.back')}
             </button>
           </div>
         )}
@@ -236,7 +246,7 @@ export default function HelpModal({
               onClick={onClose}
               className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg cursor-pointer text-sm"
             >
-              Done
+              {t('game.helpModal.done')}
             </button>
           </div>
         )}
@@ -245,7 +255,7 @@ export default function HelpModal({
         {mode === 'assist-check' && (
           <div className="space-y-3">
             <div>
-              <span className="text-xs text-gray-400">Skill:</span>
+              <span className="text-xs text-gray-400">{t('game.helpModal.skillLabel')}</span>
               <div className="flex gap-1 flex-wrap mt-1">
                 {proficientSkills.map((skill) => (
                   <button
@@ -261,7 +271,7 @@ export default function HelpModal({
               </div>
             </div>
             <div>
-              <span className="text-xs text-gray-400">Ally:</span>
+              <span className="text-xs text-gray-400">{t('game.helpModal.allyLabel')}</span>
               <div className="space-y-1 mt-1">
                 {allyTokens.map((token) => (
                   <button
@@ -283,10 +293,10 @@ export default function HelpModal({
               disabled={!selectedAllyId}
               className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg cursor-pointer text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Grant Advantage on {selectedSkill}
+              {t('game.helpModal.grantAdvantageOn', { skill: selectedSkill })}
             </button>
             <button onClick={() => setMode(null)} className="text-xs text-gray-500 hover:text-gray-300 cursor-pointer">
-              Back
+              {t('game.helpModal.back')}
             </button>
           </div>
         )}
@@ -294,7 +304,7 @@ export default function HelpModal({
         {/* Assist Attack Roll */}
         {mode === 'assist-attack' && (
           <div className="space-y-3">
-            <div className="text-xs text-gray-400 mb-1">Choose an enemy within 5ft:</div>
+            <div className="text-xs text-gray-400 mb-1">{t('game.helpModal.chooseEnemy')}</div>
             <div className="space-y-1.5">
               {enemyTokens.map((token) => (
                 <button
@@ -310,7 +320,7 @@ export default function HelpModal({
                     <span className="text-sm text-gray-200">{token.label}</span>
                     {token.currentHP != null && (
                       <span className="text-xs text-gray-500">
-                        HP: {token.currentHP}/{getTokenStats(token).maxHP}
+                        {t('game.helpModal.hp', { current: token.currentHP, max: getTokenStats(token).maxHP })}
                       </span>
                     )}
                   </div>
@@ -322,10 +332,10 @@ export default function HelpModal({
               disabled={!selectedEnemyId}
               className="w-full px-4 py-3 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-lg cursor-pointer text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Grant Advantage vs Target
+              {t('game.helpModal.grantAdvantageVsTarget')}
             </button>
             <button onClick={() => setMode(null)} className="text-xs text-gray-500 hover:text-gray-300 cursor-pointer">
-              Back
+              {t('game.helpModal.back')}
             </button>
           </div>
         )}

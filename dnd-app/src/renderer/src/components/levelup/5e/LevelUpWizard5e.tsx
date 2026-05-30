@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useT } from '../../../i18n'
 import { meetsPrerequisites } from '../../../services/character/multiclass-advisor'
 import { load5eClasses } from '../../../services/data-provider'
 import { useLevelUpStore } from '../../../stores/use-level-up-store'
@@ -20,6 +21,7 @@ interface LevelUpWizard5eProps {
 }
 
 export default function LevelUpWizard5e({ character, incompleteChoices }: LevelUpWizard5eProps): JSX.Element {
+  const { t } = useT()
   const currentLevel = useLevelUpStore((s) => s.currentLevel)
   const targetLevel = useLevelUpStore((s) => s.targetLevel)
   const setTargetLevel = useLevelUpStore((s) => s.setTargetLevel)
@@ -78,7 +80,7 @@ export default function LevelUpWizard5e({ character, incompleteChoices }: LevelU
     <div className="space-y-6">
       {/* Target level selector */}
       <div className="flex items-center gap-4 bg-gray-900/50 border border-gray-800 rounded-lg p-4">
-        <label className="text-sm font-semibold text-gray-300">Target Level:</label>
+        <label className="text-sm font-semibold text-gray-300">{t('levelup.wizard.targetLevel')}</label>
         <select
           value={targetLevel}
           onChange={(e) => setTargetLevel(Number(e.target.value))}
@@ -86,20 +88,19 @@ export default function LevelUpWizard5e({ character, incompleteChoices }: LevelU
         >
           {Array.from({ length: 20 - currentLevel }, (_, i) => currentLevel + 1 + i).map((lvl) => (
             <option key={lvl} value={lvl}>
-              Level {lvl} {lvl === currentLevel + 1 ? '(+1)' : `(+${lvl - currentLevel})`}
+              {t('levelup.wizard.levelOption', { level: lvl, delta: lvl - currentLevel })}
             </option>
           ))}
         </select>
         <span className="text-xs text-gray-500">
-          Level {currentLevel} &rarr; {targetLevel}
+          {t('levelup.wizard.levelRange', { from: currentLevel, to: targetLevel })}
         </span>
       </div>
 
       {/* Multiclass prerequisite warning */}
       {!primaryClassPrereqMet && allClasses.length > 1 && (
         <div className="px-4 py-2 bg-yellow-900/20 border border-yellow-700/50 rounded-lg text-xs text-yellow-400">
-          Your ability scores do not meet the multiclass prerequisites for your primary class. Multiclassing out may be
-          restricted by your DM.
+          {t('levelup.wizard.multiclassWarning')}
         </div>
       )}
 

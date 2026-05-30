@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { addToast } from '../../../../hooks/use-toast'
+import { i18n, useT } from '../../../../i18n'
 import {
   calculateEncounterDifficulty,
   type EncounterDifficulty,
@@ -70,6 +71,7 @@ const DIFFICULTY_STYLES: Record<EncounterDifficulty, { color: string; bg: string
 }
 
 export default function EncounterBuilderModal({ onClose, onBroadcastResult }: EncounterBuilderModalProps): JSX.Element {
+  const { t } = useT()
   const [partySize, setPartySize] = useState(4)
   const [partyLevel, setPartyLevel] = useState(1)
   const [monsterSearch, setMonsterSearch] = useState('')
@@ -97,7 +99,7 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
       .then((data) => setAllMonsters(data as unknown as MonsterData[]))
       .catch((err) => {
         logger.error('Failed to load monsters', err)
-        addToast('Failed to load monsters', 'error')
+        addToast(t('game.encounterBuilderModal.loadFailed'), 'error')
         setAllMonsters([])
       })
       .finally(() => setMonstersLoading(false))
@@ -246,7 +248,12 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
       .flatMap((m) => Array.from({ length: m.count }, (_, i) => (m.count > 1 ? `${m.name} ${i + 1}` : m.name)))
       .join(', ')
     onBroadcastResult(
-      `Encounter started! Monsters: ${monsterList} (Total XP: ${encounter.totalXP.toLocaleString()}, Adjusted XP: ${encounter.adjustedXP.toLocaleString()}, Difficulty: ${encounter.difficulty})`
+      t('game.encounterBuilderModal.encounterStarted', {
+        monsters: monsterList,
+        totalXp: encounter.totalXP.toLocaleString(),
+        adjustedXp: encounter.adjustedXP.toLocaleString(),
+        difficulty: encounter.difficulty
+      })
     )
 
     // Phase 26b/26e — switch to the linked map if one is set, then place wave 1.
@@ -256,7 +263,7 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
     }
     const activeMap = useGameStore.getState().maps.find((m) => m.id === useGameStore.getState().activeMapId)
     if (!activeMap) {
-      addToast('No active map — open a map before starting the encounter', 'warning')
+      addToast(t('game.encounterBuilderModal.noActiveMapToast'), 'warning')
       onClose()
       return
     }
@@ -276,7 +283,10 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
 
     // Stash later waves as pre-built token specs for InitiativeTracker deploy.
     gameStore.setPendingWaves(
-      laterWaves.map((w) => ({ name: `Wave ${w.wave}`, tokens: buildTokens(w.entries) as never[] }))
+      laterWaves.map((w) => ({
+        name: t('game.encounterBuilderModal.waveName', { num: w.wave }),
+        tokens: buildTokens(w.entries) as never[]
+      }))
     )
 
     // Build initiative entries. With group init, one shared roll per monster name.
@@ -296,7 +306,7 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
         entries.push({
           id: crypto.randomUUID(),
           entityId: first.entityId ?? first.id ?? crypto.randomUUID(),
-          entityName: (first.label ?? 'Enemy').replace(/\s\d+$/, ''),
+          entityName: (first.label ?? t('game.encounterBuilderModal.enemy')).replace(/\s\d+$/, ''),
           entityType: 'enemy',
           roll,
           modifier: mod,
@@ -311,7 +321,7 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
         entries.push({
           id: crypto.randomUUID(),
           entityId: t.entityId ?? t.id ?? crypto.randomUUID(),
-          entityName: t.label ?? 'Enemy',
+          entityName: t.label ?? i18n.t('game.encounterBuilderModal.enemy'),
           entityType: 'enemy',
           roll,
           modifier: mod,
@@ -360,11 +370,11 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-3 border-b border-gray-700">
-          <h2 className="text-lg font-bold text-amber-400">Encounter Builder</h2>
+          <h2 className="text-lg font-bold text-amber-400">{t('game.encounterBuilderModal.title')}</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-white text-xl leading-none px-1"
-            aria-label="Close"
+            aria-label={t('common.actions.close')}
           >
             &times;
           </button>
@@ -375,7 +385,7 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
           {/* Party Config */}
           <div className="flex gap-4 items-end">
             <div>
-              <label className="block text-xs text-gray-400 mb-1">Party Size</label>
+              <label className="block text-xs text-gray-400 mb-1">{t('game.encounterBuilderModal.partySize')}</label>
               <input
                 type="number"
                 min={1}
@@ -386,7 +396,7 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-400 mb-1">Party Level</label>
+              <label className="block text-xs text-gray-400 mb-1">{t('game.encounterBuilderModal.partyLevel')}</label>
               <input
                 type="number"
                 min={1}
@@ -397,14 +407,17 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
               />
             </div>
             <div className="text-xs text-gray-500 pb-1">
-              Budgets: Low {encounter.budget.low.toLocaleString()} / Moderate{' '}
-              {encounter.budget.moderate.toLocaleString()} / High {encounter.budget.high.toLocaleString()} XP
+              {t('game.encounterBuilderModal.budgets', {
+                low: encounter.budget.low.toLocaleString(),
+                moderate: encounter.budget.moderate.toLocaleString(),
+                high: encounter.budget.high.toLocaleString()
+              })}
             </div>
           </div>
 
           {/* XP Budget Bar */}
           <div>
-            <div className="text-xs text-gray-400 mb-1">XP Budget</div>
+            <div className="text-xs text-gray-400 mb-1">{t('game.encounterBuilderModal.xpBudget')}</div>
             <div className="relative h-6 bg-gray-800 rounded-full overflow-hidden border border-gray-700">
               <div className="absolute top-0 left-0 h-full bg-green-700/60" style={{ width: `${lowPct}%` }} />
               <div
@@ -419,27 +432,27 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
               {encounter.adjustedXP > 0 && (
                 <div className="absolute top-0 h-full w-0.5 bg-white shadow-lg" style={{ left: `${xpPct}%` }}>
                   <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-xs text-white whitespace-nowrap bg-gray-900 px-1 rounded">
-                    {encounter.adjustedXP.toLocaleString()} XP
+                    {t('game.encounterBuilderModal.xpMarker', { xp: encounter.adjustedXP.toLocaleString() })}
                   </div>
                 </div>
               )}
               {/* Labels */}
               <div className="absolute inset-0 flex items-center text-xs text-white/70 pointer-events-none">
-                <span className="flex-1 text-center">Low</span>
-                <span className="flex-1 text-center">Moderate</span>
-                <span className="flex-1 text-center">High</span>
+                <span className="flex-1 text-center">{t('game.encounterBuilderModal.low')}</span>
+                <span className="flex-1 text-center">{t('game.encounterBuilderModal.moderate')}</span>
+                <span className="flex-1 text-center">{t('game.encounterBuilderModal.high')}</span>
               </div>
             </div>
           </div>
 
           {/* Monster Search */}
           <div ref={searchRef} className="relative">
-            <label className="block text-xs text-gray-400 mb-1">Search Monsters</label>
+            <label className="block text-xs text-gray-400 mb-1">{t('game.encounterBuilderModal.searchMonsters')}</label>
             <input
               type="text"
               value={monsterSearch}
               onChange={(e) => setMonsterSearch(e.target.value)}
-              placeholder="Type monster name..."
+              placeholder={t('game.encounterBuilderModal.searchPlaceholder')}
               className="w-full bg-gray-800 border border-gray-600 rounded px-3 py-1.5 text-sm text-white placeholder-gray-500"
             />
             {/* Phase 18d — skeleton while the monster list is still loading and the user is searching */}
@@ -458,7 +471,10 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
                   >
                     <span>{m.name}</span>
                     <span className="text-gray-500">
-                      CR {m.cr} ({(m.xp ?? getMonsterXP(m.cr)).toLocaleString()} XP)
+                      {t('game.encounterBuilderModal.crXp', {
+                        cr: m.cr,
+                        xp: (m.xp ?? getMonsterXP(m.cr)).toLocaleString()
+                      })}
                     </span>
                   </button>
                 ))}
@@ -469,28 +485,26 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
           {/* Phase 26e — link an encounter to a map */}
           {maps.length > 0 && (
             <div className="flex items-center gap-2">
-              <label className="text-xs text-gray-400">Map:</label>
+              <label className="text-xs text-gray-400">{t('game.encounterBuilderModal.map')}</label>
               <select
                 value={mapId}
                 onChange={(e) => setMapId(e.target.value)}
                 className="bg-gray-800 border border-gray-600 rounded px-2 py-1 text-sm text-white"
               >
-                <option value="">(use active map)</option>
+                <option value="">{t('game.encounterBuilderModal.useActiveMap')}</option>
                 {maps.map((m) => (
                   <option key={m.id} value={m.id}>
                     {m.name}
                   </option>
                 ))}
               </select>
-              <span className="text-[10px] text-gray-500">
-                Pre-position monsters with X/Y; blank = smart placement.
-              </span>
+              <span className="text-[10px] text-gray-500">{t('game.encounterBuilderModal.prePositionHint')}</span>
             </div>
           )}
 
           {/* Phase 26d — wave tabs */}
           <div className="flex items-center gap-1 flex-wrap">
-            <span className="text-xs text-gray-400 mr-1">Waves:</span>
+            <span className="text-xs text-gray-400 mr-1">{t('game.encounterBuilderModal.waves')}</span>
             {Array.from({ length: maxWave }, (_, i) => i + 1).map((w) => (
               <button
                 key={w}
@@ -501,7 +515,10 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
                     : 'border-gray-600 text-gray-400 hover:border-amber-600'
                 }`}
               >
-                Wave {w} ({selectedMonsters.filter((m) => (m.wave ?? 1) === w).length})
+                {t('game.encounterBuilderModal.waveTab', {
+                  num: w,
+                  count: selectedMonsters.filter((m) => (m.wave ?? 1) === w).length
+                })}
               </button>
             ))}
             <button
@@ -511,7 +528,7 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
               }}
               className="px-2 py-0.5 text-xs rounded border border-gray-600 text-gray-400 hover:border-amber-600"
             >
-              + Add Wave
+              {t('game.encounterBuilderModal.addWave')}
             </button>
           </div>
 
@@ -521,11 +538,11 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-gray-800 text-gray-400 text-xs">
-                    <th className="text-left px-3 py-2">Monster</th>
-                    <th className="text-center px-2 py-2">CR</th>
-                    <th className="text-center px-2 py-2">Count</th>
-                    {mapId && <th className="text-center px-2 py-2">X / Y</th>}
-                    <th className="text-center px-2 py-2">Total XP</th>
+                    <th className="text-left px-3 py-2">{t('game.encounterBuilderModal.colMonster')}</th>
+                    <th className="text-center px-2 py-2">{t('game.encounterBuilderModal.colCr')}</th>
+                    <th className="text-center px-2 py-2">{t('game.encounterBuilderModal.colCount')}</th>
+                    {mapId && <th className="text-center px-2 py-2">{t('game.encounterBuilderModal.colXy')}</th>}
+                    <th className="text-center px-2 py-2">{t('game.encounterBuilderModal.colTotalXp')}</th>
                     <th className="px-2 py-2"></th>
                   </tr>
                 </thead>
@@ -561,7 +578,7 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
                                 min={0}
                                 value={m.startX ?? ''}
                                 onChange={(e) => setMonsterCoord(m.id, 'startX', e.target.value)}
-                                placeholder="X"
+                                placeholder={t('game.encounterBuilderModal.coordX')}
                                 className="w-12 bg-gray-800 border border-gray-600 rounded px-1 py-0.5 text-xs text-white"
                               />
                               <input
@@ -569,7 +586,7 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
                                 min={0}
                                 value={m.startY ?? ''}
                                 onChange={(e) => setMonsterCoord(m.id, 'startY', e.target.value)}
-                                placeholder="Y"
+                                placeholder={t('game.encounterBuilderModal.coordY')}
                                 className="w-12 bg-gray-800 border border-gray-600 rounded px-1 py-0.5 text-xs text-white"
                               />
                             </div>
@@ -594,15 +611,17 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
           {/* Summary with color-coded difficulty indicator */}
           <div className="flex items-center justify-between bg-gray-800 rounded-lg px-4 py-3 border border-gray-700">
             <div className="text-sm text-gray-300">
-              <span className="text-gray-500">Monsters:</span>{' '}
+              <span className="text-gray-500">{t('game.encounterBuilderModal.monstersLabel')}</span>{' '}
               <span className="text-white font-medium">{totalMonsterCount}</span>
               <span className="mx-2 text-gray-600">|</span>
-              <span className="text-gray-500">Raw XP:</span>{' '}
+              <span className="text-gray-500">{t('game.encounterBuilderModal.rawXpLabel')}</span>{' '}
               <span className="text-amber-400 font-bold">{encounter.totalXP.toLocaleString()}</span>
               {encounter.multiplier > 1 && (
                 <>
                   <span className="mx-2 text-gray-600">|</span>
-                  <span className="text-gray-500">x{encounter.multiplier} =</span>{' '}
+                  <span className="text-gray-500">
+                    {t('game.encounterBuilderModal.multiplier', { multiplier: encounter.multiplier })}
+                  </span>{' '}
                   <span className="text-amber-300 font-bold">{encounter.adjustedXP.toLocaleString()}</span>
                 </>
               )}
@@ -620,20 +639,20 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
                 type="text"
                 value={presetName}
                 onChange={(e) => setPresetName(e.target.value)}
-                placeholder="Preset name..."
+                placeholder={t('game.encounterBuilderModal.presetNamePlaceholder')}
                 className="flex-1 bg-gray-800 border border-gray-600 rounded px-3 py-1.5 text-sm text-white placeholder-gray-500"
               />
               <button
                 onClick={handleSavePreset}
                 className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white text-sm rounded"
               >
-                Save
+                {t('common.actions.save')}
               </button>
               <button
                 onClick={() => setShowSavePreset(false)}
                 className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-white text-sm rounded"
               >
-                Cancel
+                {t('common.actions.cancel')}
               </button>
             </div>
           )}
@@ -645,21 +664,21 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
             onClick={() => setShowSavePreset(true)}
             className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm rounded"
           >
-            Save Preset
+            {t('game.encounterBuilderModal.savePreset')}
           </button>
           <div className="flex gap-2">
             <button
               onClick={onClose}
               className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm rounded"
             >
-              Cancel
+              {t('common.actions.cancel')}
             </button>
             <button
               onClick={handleStartInitiative}
               disabled={selectedMonsters.length === 0}
               className="px-4 py-1.5 bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white text-sm rounded font-medium"
             >
-              Place All &amp; Start Initiative
+              {t('game.encounterBuilderModal.placeAllStart')}
             </button>
           </div>
         </div>

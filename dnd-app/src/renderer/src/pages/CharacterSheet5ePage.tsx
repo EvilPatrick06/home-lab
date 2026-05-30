@@ -22,6 +22,7 @@ import ErrorBoundary from '../components/ui/ErrorBoundary'
 import Modal from '../components/ui/Modal'
 import { useEscapeKey } from '../hooks/use-escape-key'
 import { addToast } from '../hooks/use-toast'
+import { useT } from '../i18n'
 
 const PrintSheet = lazy(() => import('../components/sheet/shared/PrintSheet'))
 
@@ -39,6 +40,7 @@ import { is5eCharacter } from '../types/character'
 import type { Character5e } from '../types/character-5e'
 
 export default function CharacterSheet5ePage(): JSX.Element {
+  const { t } = useT()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const location = useLocation()
@@ -83,12 +85,12 @@ export default function CharacterSheet5ePage(): JSX.Element {
     return (
       <div className="p-8 h-screen flex items-center justify-center">
         <div className="text-center text-gray-500">
-          <p className="text-xl mb-2">Character not found</p>
+          <p className="text-xl mb-2">{t('pages.characterSheet5ePage.characterNotFound')}</p>
           <button
             onClick={() => navigate(returnTo || '/characters')}
             className="text-amber-400 hover:text-amber-300 hover:underline"
           >
-            Go back
+            {t('pages.characterSheet5ePage.goBack')}
           </button>
         </div>
       </div>
@@ -165,8 +167,15 @@ export default function CharacterSheet5ePage(): JSX.Element {
   const hdTotal = character.hitDice.reduce((s, h) => s + h.maximum, 0)
   const hitDiceInfo =
     character.hitDice.length > 1
-      ? `${hdRemaining}/${hdTotal} (${character.hitDice.map((h) => `${h.current}/${h.maximum}d${h.dieType}`).join(' + ')}) remaining`
-      : `${hdRemaining}d${character.hitDice[0]?.dieType ?? 8} remaining`
+      ? t('pages.characterSheet5ePage.hitDiceInfoMulti', {
+          remaining: hdRemaining,
+          total: hdTotal,
+          breakdown: character.hitDice.map((h) => `${h.current}/${h.maximum}d${h.dieType}`).join(' + ')
+        })
+      : t('pages.characterSheet5ePage.hitDiceInfoSingle', {
+          remaining: hdRemaining,
+          dieType: character.hitDice[0]?.dieType ?? 8
+        })
 
   const isMaxLevel = character.level >= 20
 
@@ -189,14 +198,14 @@ export default function CharacterSheet5ePage(): JSX.Element {
             onClick={handleBack}
             className="text-gray-400 hover:text-gray-200 text-sm flex items-center gap-1 transition-colors"
           >
-            &larr; Back
+            &larr; {t('pages.characterSheet5ePage.back')}
           </button>
           {returnTo?.startsWith('/game/') && (
             <button
               onClick={() => navigate(returnTo)}
               className="px-3 py-1.5 text-sm bg-amber-600 hover:bg-amber-500 text-white rounded font-semibold transition-colors"
             >
-              Return to Game
+              {t('pages.characterSheet5ePage.returnToGame')}
             </button>
           )}
           {/* Phase 17m — Library access from the character sheet so the
@@ -207,12 +216,12 @@ export default function CharacterSheet5ePage(): JSX.Element {
             type="button"
             onClick={() => navigate(`/library?from=${encodeURIComponent(location.pathname)}`)}
             className="px-3 py-1.5 text-sm border border-gray-700 text-amber-300 hover:text-amber-200 hover:border-amber-600/50 rounded transition-colors cursor-pointer"
-            title="Open the library"
+            title={t('pages.characterSheet5ePage.libraryTitle')}
           >
-            Library
+            {t('pages.characterSheet5ePage.library')}
           </button>
           <div className="w-px h-4 bg-gray-700" />
-          <span className="text-xs text-gray-500">Character Sheet</span>
+          <span className="text-xs text-gray-500">{t('pages.characterSheet5ePage.characterSheet')}</span>
         </div>
 
         {canEdit && (
@@ -225,39 +234,39 @@ export default function CharacterSheet5ePage(): JSX.Element {
                   : 'border border-gray-600 hover:border-amber-600 text-gray-300 hover:text-amber-400'
               }`}
             >
-              {isEditing ? 'Done' : 'Edit'}
+              {isEditing ? t('pages.characterSheet5ePage.done') : t('pages.characterSheet5ePage.edit')}
             </button>
             <button
               onClick={() => setShowShortRest(true)}
               className="px-3 py-1.5 text-sm border border-gray-600 hover:border-blue-600 text-gray-300 hover:text-blue-400 rounded transition-colors"
               title={hitDiceInfo}
             >
-              Short Rest
+              {t('pages.characterSheet5ePage.shortRest')}
             </button>
             <button
               onClick={() => setShowLongRestConfirm(true)}
               className="px-3 py-1.5 text-sm border border-gray-600 hover:border-purple-600 text-gray-300 hover:text-purple-400 rounded transition-colors"
             >
-              Long Rest
+              {t('pages.characterSheet5ePage.longRest')}
             </button>
             <button
               onClick={handleMakeCharacter}
               className="px-3 py-1.5 text-sm border border-gray-600 hover:border-green-600 text-gray-300 hover:text-green-400 rounded transition-colors"
             >
-              Re-Make Character
+              {t('pages.characterSheet5ePage.reMakeCharacter')}
             </button>
             <button
               onClick={handleLevelUp}
               disabled={isMaxLevel}
               className="px-3 py-1.5 text-sm bg-green-600 hover:bg-green-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded font-semibold transition-colors"
             >
-              Level Up
+              {t('pages.characterSheet5ePage.levelUp')}
             </button>
             <button
               onClick={() => setShowPrint(true)}
               className="px-3 py-1.5 text-sm border border-gray-600 hover:border-gray-500 text-gray-400 hover:text-gray-200 rounded transition-colors"
             >
-              Print
+              {t('pages.characterSheet5ePage.print')}
             </button>
             <button
               onClick={async () => {
@@ -267,13 +276,13 @@ export default function CharacterSheet5ePage(): JSX.Element {
                   const result = await window.api.listCharacterVersions(character.id)
                   if (result.success && result.data) setVersions(result.data)
                 } catch {
-                  addToast('Failed to load version history.', 'error')
+                  addToast(t('pages.characterSheet5ePage.toastVersionLoadFailed'), 'error')
                 }
                 setLoadingVersions(false)
               }}
               className="px-3 py-1.5 text-sm border border-gray-600 hover:border-gray-500 text-gray-400 hover:text-gray-200 rounded transition-colors"
             >
-              History
+              {t('pages.characterSheet5ePage.history')}
             </button>
           </div>
         )}
@@ -282,19 +291,19 @@ export default function CharacterSheet5ePage(): JSX.Element {
       {/* Level Up Banner */}
       {showLevelUpBanner && canEdit && (
         <div className="flex items-center justify-between px-4 py-2 bg-green-900/30 border-b border-green-700">
-          <span className="text-sm text-green-400 font-semibold">You have enough XP to level up!</span>
+          <span className="text-sm text-green-400 font-semibold">{t('pages.characterSheet5ePage.enoughXp')}</span>
           <div className="flex items-center gap-2">
             <button
               onClick={handleLevelUp}
               className="px-3 py-1 text-sm bg-green-600 hover:bg-green-500 text-white rounded font-semibold transition-colors"
             >
-              Level Up Now
+              {t('pages.characterSheet5ePage.levelUpNow')}
             </button>
             <button
               onClick={() => setShowLevelUpBanner(false)}
               className="px-3 py-1 text-sm border border-gray-600 text-gray-300 hover:bg-gray-800 rounded transition-colors"
             >
-              Later
+              {t('pages.characterSheet5ePage.later')}
             </button>
           </div>
         </div>
@@ -348,22 +357,32 @@ export default function CharacterSheet5ePage(): JSX.Element {
       <ShortRestModal5e character={character} open={showShortRest} onClose={() => setShowShortRest(false)} />
 
       {/* Long Rest Confirmation */}
-      <Modal open={showLongRestConfirm} onClose={() => setShowLongRestConfirm(false)} title="Long Rest">
+      <Modal
+        open={showLongRestConfirm}
+        onClose={() => setShowLongRestConfirm(false)}
+        title={t('pages.characterSheet5ePage.longRest')}
+      >
         <div className="space-y-4">
-          <p className="text-sm text-gray-400">Taking a long rest will:</p>
+          <p className="text-sm text-gray-400">{t('pages.characterSheet5ePage.longRestWill')}</p>
           <ul className="list-disc ml-5 mt-2 space-y-1 text-sm text-gray-400">
-            <li>Restore HP to maximum</li>
-            <li>Recover all Hit Point Dice</li>
-            <li>Restore all spell slots</li>
-            <li>Clear death saves</li>
-            <li>Clear temporary HP</li>
-            <li>Reduce Exhaustion by 1 level</li>
-            {getEffectiveKnownSpells(character).some((s) => s.innateUses) && <li>Restore innate spell uses</li>}
-            {character.wildShapeUses && character.wildShapeUses.max > 0 && <li>Restore all Wild Shape uses</li>}
-            {character.species?.toLowerCase() === 'human' && <li>Grant Heroic Inspiration (Human trait)</li>}
+            <li>{t('pages.characterSheet5ePage.restoreHp')}</li>
+            <li>{t('pages.characterSheet5ePage.recoverHitDice')}</li>
+            <li>{t('pages.characterSheet5ePage.restoreSpellSlots')}</li>
+            <li>{t('pages.characterSheet5ePage.clearDeathSaves')}</li>
+            <li>{t('pages.characterSheet5ePage.clearTempHp')}</li>
+            <li>{t('pages.characterSheet5ePage.reduceExhaustion')}</li>
+            {getEffectiveKnownSpells(character).some((s) => s.innateUses) && (
+              <li>{t('pages.characterSheet5ePage.restoreInnate')}</li>
+            )}
+            {character.wildShapeUses && character.wildShapeUses.max > 0 && (
+              <li>{t('pages.characterSheet5ePage.restoreWildShape')}</li>
+            )}
+            {character.species?.toLowerCase() === 'human' && (
+              <li>{t('pages.characterSheet5ePage.grantHeroicInspiration')}</li>
+            )}
           </ul>
           <div className="text-xs text-gray-500">
-            Hit Point Dice: {character.hitDice.reduce((s, h) => s + h.current, 0)}/
+            {t('pages.characterSheet5ePage.hitPointDice')} {character.hitDice.reduce((s, h) => s + h.current, 0)}/
             {character.hitDice.reduce((s, h) => s + h.maximum, 0)}
             {character.hitDice.length > 1 && (
               <span> ({character.hitDice.map((h) => `${h.current}/${h.maximum}d${h.dieType}`).join(' + ')})</span>
@@ -376,13 +395,13 @@ export default function CharacterSheet5ePage(): JSX.Element {
               onClick={() => setShowLongRestConfirm(false)}
               className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-gray-800 transition-colors"
             >
-              Cancel
+              {t('common.actions.cancel')}
             </button>
             <button
               onClick={handleLongRest}
               className="px-4 py-2 text-sm bg-purple-600 hover:bg-purple-500 text-white rounded font-semibold transition-colors"
             >
-              Take Long Rest
+              {t('pages.characterSheet5ePage.takeLongRest')}
             </button>
           </div>
         </div>
@@ -412,10 +431,10 @@ export default function CharacterSheet5ePage(): JSX.Element {
           />
           <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-full max-w-lg max-h-[70vh] flex flex-col shadow-2xl">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold text-amber-400">Version History</h3>
+              <h3 className="text-sm font-semibold text-amber-400">{t('pages.characterSheet5ePage.versionHistory')}</h3>
               <button
                 onClick={() => setShowVersionHistory(false)}
-                aria-label="Close version history"
+                aria-label={t('pages.characterSheet5ePage.closeVersionHistory')}
                 className="text-gray-500 hover:text-gray-300 text-lg cursor-pointer"
               >
                 <span aria-hidden="true">&times;</span>
@@ -423,9 +442,11 @@ export default function CharacterSheet5ePage(): JSX.Element {
             </div>
             <div className="flex-1 overflow-y-auto space-y-2">
               {loadingVersions ? (
-                <p className="text-xs text-gray-500 text-center py-4">Loading versions...</p>
+                <p className="text-xs text-gray-500 text-center py-4">
+                  {t('pages.characterSheet5ePage.loadingVersions')}
+                </p>
               ) : versions.length === 0 ? (
-                <p className="text-xs text-gray-500 text-center py-4">No previous versions saved yet.</p>
+                <p className="text-xs text-gray-500 text-center py-4">{t('pages.characterSheet5ePage.noVersions')}</p>
               ) : (
                 versions.map((v) => (
                   <div
@@ -442,14 +463,18 @@ export default function CharacterSheet5ePage(): JSX.Element {
                           minute: '2-digit'
                         })}
                       </div>
-                      <div className="text-xs text-gray-500">{(v.sizeBytes / 1024).toFixed(1)} KB</div>
+                      <div className="text-xs text-gray-500">
+                        {t('pages.characterSheet5ePage.sizeKb', { size: (v.sizeBytes / 1024).toFixed(1) })}
+                      </div>
                     </div>
                     <button
                       onClick={() => setConfirmRestoreFile(v.fileName)}
                       disabled={restoringVersion !== null}
                       className="px-3 py-1 text-xs bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded cursor-pointer transition-colors"
                     >
-                      {restoringVersion === v.fileName ? 'Restoring...' : 'Restore'}
+                      {restoringVersion === v.fileName
+                        ? t('pages.characterSheet5ePage.restoring')
+                        : t('pages.characterSheet5ePage.restore')}
                     </button>
                   </div>
                 ))
@@ -460,15 +485,19 @@ export default function CharacterSheet5ePage(): JSX.Element {
       )}
 
       {/* Version Restore Confirmation Modal */}
-      <Modal open={confirmRestoreFile !== null} onClose={() => setConfirmRestoreFile(null)} title="Restore Version">
+      <Modal
+        open={confirmRestoreFile !== null}
+        onClose={() => setConfirmRestoreFile(null)}
+        title={t('pages.characterSheet5ePage.restoreVersionTitle')}
+      >
         <div className="space-y-4">
-          <p className="text-sm text-gray-300">Restore this version? Your current save will be backed up first.</p>
+          <p className="text-sm text-gray-300">{t('pages.characterSheet5ePage.restoreVersionPrompt')}</p>
           <div className="flex gap-2 justify-end">
             <button
               onClick={() => setConfirmRestoreFile(null)}
               className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-gray-800 transition-colors"
             >
-              Cancel
+              {t('common.actions.cancel')}
             </button>
             <button
               onClick={async () => {
@@ -481,18 +510,18 @@ export default function CharacterSheet5ePage(): JSX.Element {
                   if (result.success && result.data) {
                     await useCharacterStore.getState().loadCharacters()
                     setShowVersionHistory(false)
-                    addToast('Character version restored successfully.', 'success')
+                    addToast(t('pages.characterSheet5ePage.toastVersionRestored'), 'success')
                   } else {
-                    addToast('Failed to restore version. Please try again.', 'error')
+                    addToast(t('pages.characterSheet5ePage.toastVersionRestoreFailed'), 'error')
                   }
                 } catch {
-                  addToast('Failed to restore version. Please try again.', 'error')
+                  addToast(t('pages.characterSheet5ePage.toastVersionRestoreFailed'), 'error')
                 }
                 setRestoringVersion(null)
               }}
               className="px-4 py-2 text-sm bg-amber-600 hover:bg-amber-500 text-white rounded font-semibold transition-colors"
             >
-              Restore
+              {t('pages.characterSheet5ePage.restore')}
             </button>
           </div>
         </div>

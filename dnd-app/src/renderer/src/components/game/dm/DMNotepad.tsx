@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { addToast } from '../../../hooks/use-toast'
+import { useT } from '../../../i18n'
 import { saveGameState } from '../../../services/io/game-state-saver'
 import { useCampaignStore } from '../../../stores/use-campaign-store'
 import { type SessionLogEntry, useGameStore } from '../../../stores/use-game-store'
 
 export default function DMNotepad(): JSX.Element {
+  const { t } = useT()
   const sessionLog = useGameStore((s) => s.sessionLog)
   const currentSessionLabel = useGameStore((s) => s.currentSessionLabel)
   const addLogEntry = useGameStore((s) => s.addLogEntry)
@@ -54,15 +56,13 @@ export default function DMNotepad(): JSX.Element {
       const mins = Math.floor((totalSec % 3600) / 60)
       const days = Math.floor(hours / 24)
       const hh = hours % 24
-      inGameTs =
-        days > 0
-          ? `Day ${days + 1}, ${String(hh).padStart(2, '0')}:${String(mins).padStart(2, '0')}`
-          : `${String(hh).padStart(2, '0')}:${String(mins).padStart(2, '0')}`
+      const time = `${String(hh).padStart(2, '0')}:${String(mins).padStart(2, '0')}`
+      inGameTs = days > 0 ? t('game.dmNotepad.dayTime', { day: days + 1, time }) : time
     }
     addLogEntry(content, inGameTs)
     setNewEntryText('')
     scheduleAutoSave()
-  }, [newEntryText, inGameTime, addLogEntry, scheduleAutoSave])
+  }, [newEntryText, inGameTime, addLogEntry, scheduleAutoSave, t])
 
   const handleStartEdit = useCallback((entry: SessionLogEntry) => {
     setEditingId(entry.id)
@@ -92,45 +92,48 @@ export default function DMNotepad(): JSX.Element {
     scheduleAutoSave()
   }, [startNewSession, scheduleAutoSave])
 
-  const handleExportToJournal = useCallback(async (_sessionId: string, entries: SessionLogEntry[], label: string) => {
-    const campaign = useCampaignStore.getState().getActiveCampaign()
-    if (!campaign) return
+  const handleExportToJournal = useCallback(
+    async (_sessionId: string, entries: SessionLogEntry[], label: string) => {
+      const campaign = useCampaignStore.getState().getActiveCampaign()
+      if (!campaign) return
 
-    try {
-      const maxSession = campaign.journal.entries.reduce((max, e) => Math.max(max, e.sessionNumber), 0)
-      const content = entries
-        .map((e) => {
-          const time = e.inGameTimestamp ? `[${e.inGameTimestamp}] ` : ''
-          return `${time}${e.content}`
-        })
-        .join('\n\n')
+      try {
+        const maxSession = campaign.journal.entries.reduce((max, e) => Math.max(max, e.sessionNumber), 0)
+        const content = entries
+          .map((e) => {
+            const time = e.inGameTimestamp ? `[${e.inGameTimestamp}] ` : ''
+            return `${time}${e.content}`
+          })
+          .join('\n\n')
 
-      const newEntry = {
-        id: crypto.randomUUID(),
-        sessionNumber: maxSession + 1,
-        date: new Date().toISOString(),
-        title: `DM Notes: ${label}`,
-        content,
-        isPrivate: true,
-        authorId: 'dm',
-        createdAt: new Date().toISOString()
+        const newEntry = {
+          id: crypto.randomUUID(),
+          sessionNumber: maxSession + 1,
+          date: new Date().toISOString(),
+          title: t('game.dmNotepad.journalTitle', { label }),
+          content,
+          isPrivate: true,
+          authorId: 'dm',
+          createdAt: new Date().toISOString()
+        }
+
+        const updatedCampaign = {
+          ...campaign,
+          journal: {
+            ...campaign.journal,
+            entries: [...campaign.journal.entries, newEntry]
+          },
+          updatedAt: new Date().toISOString()
+        }
+
+        await useCampaignStore.getState().saveCampaign(updatedCampaign)
+        addToast(t('game.dmNotepad.exportSuccess'), 'success')
+      } catch {
+        addToast(t('game.dmNotepad.exportFailed'), 'error')
       }
-
-      const updatedCampaign = {
-        ...campaign,
-        journal: {
-          ...campaign.journal,
-          entries: [...campaign.journal.entries, newEntry]
-        },
-        updatedAt: new Date().toISOString()
-      }
-
-      await useCampaignStore.getState().saveCampaign(updatedCampaign)
-      addToast('Notes exported to Campaign Journal', 'success')
-    } catch {
-      addToast('Failed to export notes', 'error')
-    }
-  }, [])
+    },
+    [t]
+  )
 
   // Group entries by session (reverse chronological — newest first)
   const filteredEntries = searchQuery
@@ -162,8 +165,12 @@ export default function DMNotepad(): JSX.Element {
         className="flex items-center gap-2 w-full text-left cursor-pointer"
       >
         <span className={`text-xs text-gray-500 transition-transform ${isCollapsed ? '' : 'rotate-90'}`}>&#9654;</span>
-        <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Session Notes</h3>
-        <span className="ml-auto text-[9px] text-gray-600">{sessionLog.length} entries</span>
+        <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+          {t('game.dmNotepad.sessionNotes')}
+        </h3>
+        <span className="ml-auto text-[9px] text-gray-600">
+          {t('game.dmNotepad.entriesCount', { n: sessionLog.length })}
+        </span>
       </button>
 
       {!isCollapsed && (
@@ -174,7 +181,7 @@ export default function DMNotepad(): JSX.Element {
               onClick={handleNewSession}
               className="px-2 py-1 text-xs rounded bg-amber-600/30 text-amber-300 hover:bg-amber-600/50 cursor-pointer"
             >
-              New Session
+              {t('game.dmNotepad.newSession')}
             </button>
             <span className="text-[9px] text-gray-500 truncate flex-1">{currentSessionLabel}</span>
           </div>
@@ -184,7 +191,7 @@ export default function DMNotepad(): JSX.Element {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search notes..."
+            placeholder={t('game.dmNotepad.searchPlaceholder')}
             className="w-full px-2 py-1 rounded bg-gray-800 border border-gray-700 text-xs text-gray-200 placeholder-gray-600 focus:outline-none focus:border-amber-500"
           />
 
@@ -198,7 +205,7 @@ export default function DMNotepad(): JSX.Element {
                   handleAddEntry()
                 }
               }}
-              placeholder="Add a new note... (Ctrl+Enter to save)"
+              placeholder={t('game.dmNotepad.newNotePlaceholder')}
               rows={2}
               className="flex-1 px-2 py-1.5 rounded bg-gray-800 border border-gray-700 text-xs text-gray-200 placeholder-gray-600 focus:outline-none focus:border-amber-500 resize-none"
             />
@@ -207,7 +214,7 @@ export default function DMNotepad(): JSX.Element {
               disabled={!newEntryText.trim()}
               className="px-3 py-1 text-xs rounded bg-green-600/30 text-green-300 hover:bg-green-600/50 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed self-end"
             >
-              Add
+              {t('game.dmNotepad.add')}
             </button>
           </div>
 
@@ -238,7 +245,7 @@ export default function DMNotepad(): JSX.Element {
 
             {filteredEntries.length === 0 && (
               <p className="text-xs text-gray-600 text-center py-4">
-                {searchQuery ? 'No matching notes found.' : 'No session notes yet. Add your first entry above.'}
+                {searchQuery ? t('game.dmNotepad.noMatch') : t('game.dmNotepad.empty')}
               </p>
             )}
           </div>
@@ -283,6 +290,7 @@ function SessionGroup({
   onExportJournal,
   formatRealTime
 }: SessionGroupProps): JSX.Element {
+  const { t } = useT()
   const [collapsed, setCollapsed] = useState(false)
 
   return (
@@ -294,16 +302,18 @@ function SessionGroup({
       >
         <span className={`text-xs text-gray-500 transition-transform ${collapsed ? '' : 'rotate-90'}`}>&#9654;</span>
         <span className="text-[11px] font-medium text-amber-300">{label}</span>
-        <span className="text-[9px] text-gray-500 ml-auto">{entries.length} notes</span>
+        <span className="text-[9px] text-gray-500 ml-auto">
+          {t('game.dmNotepadSession.notesCount', { n: entries.length })}
+        </span>
         <button
           onClick={(e) => {
             e.stopPropagation()
             onExportJournal()
           }}
           className="ml-2 px-1.5 py-0.5 text-[9px] bg-blue-600/30 text-blue-300 rounded hover:bg-blue-600/50 transition-colors"
-          title="Export to Campaign Journal"
+          title={t('game.dmNotepadSession.exportTitle')}
         >
-          Export
+          {t('game.dmNotepadSession.export')}
         </button>
       </button>
 
@@ -316,7 +326,9 @@ function SessionGroup({
               <div className="flex items-center gap-2 mb-0.5">
                 <span className="text-[9px] text-gray-500">{formatRealTime(entry.realTimestamp)}</span>
                 {entry.inGameTimestamp && <span className="text-[9px] text-purple-400">{entry.inGameTimestamp}</span>}
-                {entry.editedAt && <span className="text-[8px] text-gray-600">(edited)</span>}
+                {entry.editedAt && (
+                  <span className="text-[8px] text-gray-600">{t('game.dmNotepadSession.edited')}</span>
+                )}
               </div>
 
               {/* Content */}
@@ -334,13 +346,13 @@ function SessionGroup({
                       onClick={onSaveEdit}
                       className="text-[9px] px-2 py-0.5 bg-green-600/30 text-green-300 rounded cursor-pointer"
                     >
-                      Save
+                      {t('common.actions.save')}
                     </button>
                     <button
                       onClick={onCancelEdit}
                       className="text-[9px] px-2 py-0.5 bg-gray-700 text-gray-400 rounded cursor-pointer"
                     >
-                      Cancel
+                      {t('common.actions.cancel')}
                     </button>
                   </div>
                 </div>
@@ -352,7 +364,7 @@ function SessionGroup({
                       onClick={() => onStartEdit(entry)}
                       className="text-[8px] px-1.5 py-0.5 bg-gray-700 text-gray-400 rounded cursor-pointer hover:text-gray-200"
                     >
-                      Edit
+                      {t('game.dmNotepadSession.edit')}
                     </button>
                     {confirmDeleteId === entry.id ? (
                       <>
@@ -360,13 +372,13 @@ function SessionGroup({
                           onClick={() => onConfirmDelete(entry.id)}
                           className="text-[8px] px-1.5 py-0.5 bg-red-600/40 text-red-300 rounded cursor-pointer"
                         >
-                          Confirm
+                          {t('common.actions.confirm')}
                         </button>
                         <button
                           onClick={onCancelDelete}
                           className="text-[8px] px-1.5 py-0.5 bg-gray-700 text-gray-400 rounded cursor-pointer"
                         >
-                          No
+                          {t('game.dmNotepadSession.no')}
                         </button>
                       </>
                     ) : (
@@ -374,7 +386,7 @@ function SessionGroup({
                         onClick={() => onRequestDelete(entry.id)}
                         className="text-[8px] px-1.5 py-0.5 bg-gray-700 text-gray-400 rounded cursor-pointer hover:text-red-400"
                       >
-                        Del
+                        {t('game.dmNotepadSession.del')}
                       </button>
                     )}
                   </div>

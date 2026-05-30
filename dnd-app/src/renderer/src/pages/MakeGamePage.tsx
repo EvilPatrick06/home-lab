@@ -2,10 +2,12 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { CampaignWizard } from '../components/campaign'
 import { BackButton, Button } from '../components/ui'
+import { useT } from '../i18n'
 import { importCampaignFromFile } from '../services/io/campaign-io'
 import { useCampaignStore } from '../stores/use-campaign-store'
 
 export default function MakeGamePage(): JSX.Element {
+  const { t } = useT()
   const navigate = useNavigate()
   const saveCampaign = useCampaignStore((s) => s.saveCampaign)
   const [importing, setImporting] = useState(false)
@@ -24,7 +26,7 @@ export default function MakeGamePage(): JSX.Element {
         navigate(`/campaign/${result.campaign.id}`)
       }
     } catch (err) {
-      setImportError(err instanceof Error ? err.message : 'Failed to import campaign')
+      setImportError(err instanceof Error ? err.message : t('pages.makeGamePage.importFailed'))
     } finally {
       setImporting(false)
     }
@@ -35,13 +37,13 @@ export default function MakeGamePage(): JSX.Element {
       <BackButton to="/" />
 
       <div className="flex items-center justify-between mb-6 max-w-2xl">
-        <h1 className="text-3xl font-bold">Choose your Campaign or Create a New One</h1>
+        <h1 className="text-3xl font-bold">{t('pages.makeGamePage.title')}</h1>
         <div className="flex items-center gap-2">
           <Button variant="secondary" onClick={() => navigate('/library?from=/make')}>
-            Library
+            {t('pages.makeGamePage.library')}
           </Button>
           <Button variant="secondary" onClick={handleImport} disabled={importing}>
-            {importing ? 'Importing...' : 'Import .dndcamp'}
+            {importing ? t('pages.makeGamePage.importing') : t('pages.makeGamePage.importDndcamp')}
           </Button>
         </div>
       </div>

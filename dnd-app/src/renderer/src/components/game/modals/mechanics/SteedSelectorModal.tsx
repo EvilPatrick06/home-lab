@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 import { getSteedForms } from '../../../../services/character/companion-service'
 import { load5eMonsters } from '../../../../services/data-provider'
 import type { Companion5e } from '../../../../types/companion'
@@ -24,6 +25,7 @@ export default function SteedSelectorModal({
   onDismiss,
   onResummon
 }: SteedSelectorModalProps): JSX.Element {
+  const { t } = useT()
   useEscapeKey(onClose)
   const [forms, setForms] = useState<MonsterStatBlock[]>([])
   const [selected, setSelected] = useState<MonsterStatBlock | null>(null)
@@ -61,8 +63,8 @@ export default function SteedSelectorModal({
       >
         <div className="px-4 py-3 border-b border-gray-700 flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-bold text-blue-400">Find Steed</h2>
-            <span className="text-xs text-gray-500">Summon a spirit in the form of a steed</span>
+            <h2 className="text-lg font-bold text-blue-400">{t('game.steedSelectorModal.title')}</h2>
+            <span className="text-xs text-gray-500">{t('game.steedSelectorModal.subtitle')}</span>
           </div>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-300 text-xl cursor-pointer">
             x
@@ -83,7 +85,9 @@ export default function SteedSelectorModal({
         <div className="flex-1 flex min-h-0 overflow-hidden">
           {/* Steed list */}
           <div className="w-48 overflow-y-auto border-r border-gray-700/50 p-2">
-            <div className="text-xs text-gray-500 uppercase tracking-wider mb-2 px-1">Available Steeds</div>
+            <div className="text-xs text-gray-500 uppercase tracking-wider mb-2 px-1">
+              {t('game.steedSelectorModal.availableSteeds')}
+            </div>
             <div className="space-y-1">
               {forms.map((m) => (
                 <button
@@ -97,7 +101,7 @@ export default function SteedSelectorModal({
                 >
                   <div className="text-xs text-gray-200 font-medium">{m.name}</div>
                   <div className="text-[9px] text-gray-500">
-                    {m.size} — CR {m.cr} — HP {m.hp}
+                    {t('game.steedSelectorModal.steedMeta', { size: m.size, cr: m.cr, hp: m.hp })}
                   </div>
                 </button>
               ))}
@@ -110,19 +114,17 @@ export default function SteedSelectorModal({
               <div className="space-y-3">
                 <MonsterStatBlockView monster={selected} />
                 <div className="text-xs text-gray-500 bg-gray-800/50 rounded p-2">
-                  Your steed shares your initiative and acts on your turn. It can move and use its reaction on its own,
-                  but the only action it takes on its turn is the Dodge action, unless you take a Bonus Action to
-                  command it to take another action.
+                  {t('game.steedSelectorModal.statNote')}
                 </div>
                 <button
                   onClick={handleSummon}
                   className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-lg transition-colors cursor-pointer"
                 >
-                  Summon {selected.name}
+                  {t('game.steedSelectorModal.summon', { name: selected.name })}
                 </button>
               </div>
             ) : (
-              <div className="text-gray-500 text-sm text-center mt-20">Select a steed to view its stat block</div>
+              <div className="text-gray-500 text-sm text-center mt-20">{t('game.steedSelectorModal.selectPrompt')}</div>
             )}
           </div>
         </div>

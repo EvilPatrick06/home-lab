@@ -1,5 +1,6 @@
 import diceTypesJson from '@data/5e/game/mechanics/dice-types.json'
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
+import { useT } from '../../../i18n'
 import { load5eDiceTypes } from '../../../services/data-provider'
 import { parseDiceFormula, rollDice } from '../../../services/dice/dice-engine'
 import { play, playDiceSound } from '../../../services/sound-manager'
@@ -39,6 +40,7 @@ export default function DiceRoller({
   onRoll,
   allowCritDoubling = true
 }: DiceRollerProps): JSX.Element {
+  const { t } = useT()
   const [modifier, setModifier] = useState(0)
   const [customFormula, setCustomFormula] = useState('')
   const [advantage, setAdvantage] = useState<'normal' | 'advantage' | 'disadvantage'>('normal')
@@ -87,7 +89,7 @@ export default function DiceRoller({
       const rolls = rollDice(2, sides) // Double dice for crit
       const total = rolls.reduce((s, r) => s + r, 0) + modifier
       const modStr = modifier !== 0 ? (modifier > 0 ? `+${modifier}` : `${modifier}`) : ''
-      addResult(`2d${sides}${modStr} (CRIT)`, rolls, total, sides, true)
+      addResult(`2d${sides}${modStr}${t('game.diceRoller.critLabel')}`, rolls, total, sides, true)
       setLastRollWasCrit(false)
       return
     }
@@ -100,7 +102,7 @@ export default function DiceRoller({
       const chosen = advantage === 'advantage' ? Math.max(roll1[0], roll2[0]) : Math.min(roll1[0], roll2[0])
       const total = chosen + modifier
       const modStr = modifier !== 0 ? (modifier > 0 ? `+${modifier}` : `${modifier}`) : ''
-      const advLabel = advantage === 'advantage' ? ' (Adv)' : ' (Dis)'
+      const advLabel = advantage === 'advantage' ? t('game.diceRoller.advLabel') : t('game.diceRoller.disLabel')
       addResult(`1d20${modStr}${advLabel}`, allRolls, total, sides)
       // Check for crit on the chosen die
       setLastRollWasCrit(chosen === 20)
@@ -128,7 +130,7 @@ export default function DiceRoller({
     const rolls = rollDice(diceCount, parsed.sides)
     const total = rolls.reduce((sum, r) => sum + r, 0) + parsed.modifier + modifier
     const modStr = modifier !== 0 ? (modifier > 0 ? `+${modifier}` : `${modifier}`) : ''
-    const critLabel = isCritDamage ? ' (CRIT)' : ''
+    const critLabel = isCritDamage ? t('game.diceRoller.critLabel') : ''
     const formulaDisplay = isCritDamage
       ? `${diceCount}d${parsed.sides}${parsed.modifier ? (parsed.modifier > 0 ? `+${parsed.modifier}` : parsed.modifier) : ''}${modStr}${critLabel}`
       : `${customFormula}${modStr}`
@@ -145,7 +147,7 @@ export default function DiceRoller({
           onClick={() => setShowHistory((v) => !v)}
           className="px-2 py-1 text-xs rounded transition-colors cursor-pointer bg-gray-800 text-gray-400 hover:text-gray-200 hover:bg-gray-700"
         >
-          {showHistory ? 'Hide History' : 'History'}
+          {showHistory ? t('game.diceRoller.hideHistory') : t('game.diceRoller.history')}
         </button>
       </div>
       {showHistory && (
@@ -163,7 +165,7 @@ export default function DiceRoller({
             className="px-3 py-1.5 text-xs rounded-lg bg-gray-800 border border-gray-700
               text-gray-300 hover:bg-amber-600 hover:text-white hover:border-amber-500
               transition-colors cursor-pointer font-mono font-semibold"
-            aria-label={`Roll ${die.label}`}
+            aria-label={t('game.diceRoller.rollDie', { label: die.label })}
           >
             {die.label}
           </button>
@@ -173,7 +175,7 @@ export default function DiceRoller({
       {/* Modifier and advantage */}
       <div className="flex items-center gap-2">
         <div className="flex items-center gap-1">
-          <span className="text-xs text-gray-500">Mod</span>
+          <span className="text-xs text-gray-500">{t('game.diceRoller.mod')}</span>
           <div className="flex items-center bg-gray-800 rounded-lg border border-gray-700">
             <button
               onClick={() => setModifier((m) => m - 1)}
@@ -187,7 +189,7 @@ export default function DiceRoller({
             <button
               onClick={() => setModifier((m) => m + 1)}
               className="px-2 py-1 text-gray-400 hover:text-gray-200 cursor-pointer text-sm"
-              aria-label="Increase modifier"
+              aria-label={t('game.diceRoller.increaseModifier')}
             >
               +
             </button>
@@ -211,7 +213,11 @@ export default function DiceRoller({
                       : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                   }`}
               >
-                {mode === 'normal' ? 'Norm' : mode === 'advantage' ? 'Adv' : 'Dis'}
+                {mode === 'normal'
+                  ? t('game.diceRoller.normal')
+                  : mode === 'advantage'
+                    ? t('game.diceRoller.advantage')
+                    : t('game.diceRoller.disadvantage')}
               </button>
             ))}
           </div>
@@ -221,12 +227,12 @@ export default function DiceRoller({
       {/* Crit damage prompt */}
       {lastRollWasCrit && (
         <div className="flex items-center gap-2 px-3 py-1.5 bg-green-900/40 border border-green-500/50 rounded-lg">
-          <span className="text-xs text-green-300 font-semibold">CRITICAL HIT! Next damage roll doubles dice.</span>
+          <span className="text-xs text-green-300 font-semibold">{t('game.diceRoller.critHit')}</span>
           <button
             onClick={() => setLastRollWasCrit(false)}
             className="text-xs text-green-400 hover:text-green-200 cursor-pointer underline ml-auto"
           >
-            Dismiss
+            {t('game.diceRoller.dismiss')}
           </button>
         </div>
       )}
@@ -240,7 +246,7 @@ export default function DiceRoller({
           onKeyDown={(e) => {
             if (e.key === 'Enter') handleCustomRoll()
           }}
-          placeholder="2d6+3"
+          placeholder={t('game.diceRoller.customPlaceholder')}
           className="flex-1 px-2 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
             placeholder-gray-600 focus:outline-none focus:border-amber-500 text-sm font-mono"
         />
@@ -250,13 +256,17 @@ export default function DiceRoller({
           className="px-3 py-1.5 text-xs rounded-lg bg-amber-600 hover:bg-amber-500 text-white
             font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
-          Roll
+          {t('game.diceRoller.roll')}
         </button>
       </div>
 
       {/* Results */}
       {results.length > 0 && (
-        <div className="space-y-1.5 max-h-48 overflow-y-auto" aria-live="polite" aria-label="Dice roll results">
+        <div
+          className="space-y-1.5 max-h-48 overflow-y-auto"
+          aria-live="polite"
+          aria-label={t('game.diceRoller.resultsLabel')}
+        >
           {results.map((result) => (
             <div
               key={result.id}

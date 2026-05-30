@@ -2,6 +2,7 @@ import 'pixi.js/unsafe-eval' // CSP-compatible PixiJS shaders (must be before an
 import { Application, Assets, type Container, type Graphics, type Sprite } from 'pixi.js'
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { LIGHT_SOURCES } from '../../../data/light-sources'
+import { useT } from '../../../i18n'
 import {
   calculateZoomToFit,
   getActivePings,
@@ -90,6 +91,7 @@ export default function MapCanvas({
   drawingStrokeWidth,
   drawingColor
 }: MapCanvasProps): JSX.Element {
+  const { t } = useT()
   const containerRef = useRef<HTMLDivElement>(null)
   const appRef = useRef<Application | null>(null)
   const worldRef = useRef<Container | null>(null)
@@ -783,7 +785,7 @@ export default function MapCanvas({
       onDragOver={handleLibraryDragOver}
       onDrop={handleLibraryDrop}
       role="img"
-      aria-label="Game map canvas"
+      aria-label={t('game.mapCanvas.canvasLabel')}
     >
       <div ref={containerRef} className="w-full h-full" />
       {/* Phase 16f — map-switch fade overlay (always transitions; opacity flips on map change). */}
@@ -805,8 +807,8 @@ export default function MapCanvas({
           localStorage.setItem(GRID_HUD_KEY, next ? 'true' : 'false')
           if (!next) setHoverCoord(null)
         }}
-        title={showGridHud ? 'Hide grid coordinates' : 'Show grid coordinates'}
-        aria-label="Toggle grid coordinate readout"
+        title={showGridHud ? t('game.mapCanvas.hideGridCoords') : t('game.mapCanvas.showGridCoords')}
+        aria-label={t('game.mapCanvas.toggleGridReadout')}
         className={`absolute bottom-2 left-2 z-20 px-2 py-1 text-xs font-mono rounded cursor-pointer transition-colors ${
           showGridHud ? 'bg-amber-600/70 text-white' : 'bg-black/50 text-gray-400 hover:text-gray-200'
         }`}
@@ -820,13 +822,13 @@ export default function MapCanvas({
         // that cluster in the top-right.
         <button
           onClick={handleResetView}
-          title="Reset View (Home)"
-          aria-label="Reset map view (fit map to screen)"
+          title={t('game.mapCanvas.resetViewTitle')}
+          aria-label={t('game.mapCanvas.resetViewLabel')}
           className="absolute top-3 right-3 z-20 px-3 py-1.5 text-xs font-medium
             bg-gray-800/90 border border-gray-700 rounded-lg text-gray-400 hover:text-gray-200
             hover:bg-gray-700 transition-colors cursor-pointer backdrop-blur-sm"
         >
-          Reset View
+          {t('game.mapCanvas.resetView')}
         </button>
       )}
       {isHost && hasMultipleFloors && map?.floors && (
@@ -836,18 +838,18 @@ export default function MapCanvas({
       )}
       {pendingPlacement && (
         <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 bg-gray-900/90 border border-cyan-500/60 rounded-lg px-4 py-2 text-xs text-cyan-300 pointer-events-none">
-          Click to place <span className="font-semibold">{pendingPlacement.tokenData.label ?? 'token'}</span>. Press{' '}
-          <kbd className="px-1 py-0.5 bg-gray-800 rounded text-gray-200">Esc</kbd> to cancel.
+          {t('game.mapCanvas.clickToPlace')}{' '}
+          <span className="font-semibold">{pendingPlacement.tokenData.label ?? t('game.mapCanvas.tokenFallback')}</span>
+          {t('game.mapCanvas.pressEscPrefix')} <kbd className="px-1 py-0.5 bg-gray-800 rounded text-gray-200">Esc</kbd>
+          {t('game.mapCanvas.pressEscSuffix')}
         </div>
       )}
       {initError && (
         <div className="absolute inset-0 flex items-center justify-center z-20">
           <div className="bg-gray-800 border border-red-500 rounded-lg p-6 max-w-md text-center">
-            <p className="text-red-400 font-semibold text-lg mb-2">Map Renderer Error</p>
+            <p className="text-red-400 font-semibold text-lg mb-2">{t('game.mapCanvas.rendererError')}</p>
             <p className="text-gray-300 text-sm mb-4">{initError}</p>
-            <p className="text-gray-500 text-xs mb-4">
-              Try updating your GPU drivers or check the console (Ctrl+Shift+I) for details.
-            </p>
+            <p className="text-gray-500 text-xs mb-4">{t('game.mapCanvas.rendererErrorHint')}</p>
             <button
               className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded text-sm"
               onClick={() => {
@@ -855,7 +857,7 @@ export default function MapCanvas({
                 setRetryCount((c) => c + 1)
               }}
             >
-              Retry
+              {t('game.mapCanvas.retry')}
             </button>
           </div>
         </div>
@@ -869,9 +871,9 @@ export default function MapCanvas({
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center text-gray-500">
             <div className="text-5xl mb-4">&#9635;</div>
-            <p className="text-lg">No map loaded</p>
+            <p className="text-lg">{t('game.mapCanvas.noMapLoaded')}</p>
             <p className="text-sm mt-1">
-              {isHost ? 'Use the Map Selector to add a map' : 'Waiting for the DM to load a map'}
+              {isHost ? t('game.mapCanvas.useMapSelector') : t('game.mapCanvas.waitingForDm')}
             </p>
           </div>
         </div>

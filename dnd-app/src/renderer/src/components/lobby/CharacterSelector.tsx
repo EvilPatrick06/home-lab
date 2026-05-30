@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
+import { i18n, useT } from '../../i18n'
 import { getEffectiveClasses } from '../../services/character/effective-character-5e'
 import { localHasPermission } from '../../services/permissions/local-permission'
 import { useNetworkStore } from '../../stores/network-store'
@@ -17,11 +18,12 @@ function getCharacterSummary(character: Character): { name: string; level: numbe
   return {
     name: character.name,
     level: character.level,
-    className: primaryClass ? primaryClass.name : 'Unknown'
+    className: primaryClass ? primaryClass.name : i18n.t('lobby.characterSelector.unknownClass')
   }
 }
 
 export default function CharacterSelector({ onSelect }: CharacterSelectorProps): JSX.Element {
+  const { t } = useT()
   const navigate = useNavigate()
   const { campaignId } = useParams<{ campaignId: string }>()
   const { characters, loading, loadCharacters } = useCharacterStore()
@@ -96,7 +98,9 @@ export default function CharacterSelector({ onSelect }: CharacterSelectorProps):
 
   return (
     <div className="flex flex-col gap-3">
-      <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wide px-1">Your Character</h3>
+      <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wide px-1">
+        {t('lobby.characterSelector.heading')}
+      </h3>
 
       {/* Current selection */}
       <button
@@ -106,20 +110,23 @@ export default function CharacterSelector({ onSelect }: CharacterSelectorProps):
       >
         {isNoneSelected ? (
           <div>
-            <p className="font-semibold text-gray-100">Dungeon Master</p>
-            <p className="text-xs text-gray-400 mt-0.5">No character selected</p>
+            <p className="font-semibold text-gray-100">{t('lobby.characterSelector.dungeonMaster')}</p>
+            <p className="text-xs text-gray-400 mt-0.5">{t('lobby.characterSelector.noCharacterSelected')}</p>
           </div>
         ) : selectedSummary ? (
           <div>
             <p className="font-semibold text-gray-100">{selectedSummary.name}</p>
             <p className="text-xs text-gray-400 mt-0.5">
-              Level {selectedSummary.level} {selectedSummary.className}
+              {t('lobby.characterSelector.levelClass', {
+                level: selectedSummary.level,
+                className: selectedSummary.className
+              })}
             </p>
           </div>
         ) : (
           <div>
-            <p className="text-gray-400">Select a Character</p>
-            <p className="text-xs text-gray-600 mt-0.5">Click to choose</p>
+            <p className="text-gray-400">{t('lobby.characterSelector.selectCharacter')}</p>
+            <p className="text-xs text-gray-600 mt-0.5">{t('lobby.characterSelector.clickToChoose')}</p>
           </div>
         )}
         <div className="flex justify-end mt-1">
@@ -149,19 +156,19 @@ export default function CharacterSelector({ onSelect }: CharacterSelectorProps):
                 border-b border-gray-700/50
                 ${isNoneSelected ? 'bg-amber-900/20 text-amber-300' : 'hover:bg-gray-700/50 text-gray-200'}`}
             >
-              <p className="text-sm font-medium">No Character</p>
-              <p className="text-xs text-gray-500">Run the game without a player character</p>
+              <p className="text-sm font-medium">{t('lobby.characterSelector.noCharacter')}</p>
+              <p className="text-xs text-gray-500">{t('lobby.characterSelector.runWithoutCharacter')}</p>
             </button>
           )}
           {loading ? (
-            <p className="p-3 text-sm text-gray-500 text-center">Loading...</p>
+            <p className="p-3 text-sm text-gray-500 text-center">{t('common.states.loading')}</p>
           ) : characters.length === 0 && !canSkipCharacter ? (
-            <p className="p-3 text-sm text-gray-500 text-center">No characters found</p>
+            <p className="p-3 text-sm text-gray-500 text-center">{t('lobby.characterSelector.noCharactersFound')}</p>
           ) : (
             <>
               {campaignCharacters.length > 0 && (
                 <div className="px-3 py-1 bg-gray-900/80 text-xs font-bold text-gray-500 uppercase tracking-wide">
-                  Campaign Characters
+                  {t('lobby.characterSelector.campaignCharacters')}
                 </div>
               )}
               {campaignCharacters.map((character) => {
@@ -177,7 +184,7 @@ export default function CharacterSelector({ onSelect }: CharacterSelectorProps):
                   >
                     <p className="text-sm font-medium">{summary.name}</p>
                     <p className="text-xs text-gray-500">
-                      Level {summary.level} {summary.className}
+                      {t('lobby.characterSelector.levelClass', { level: summary.level, className: summary.className })}
                     </p>
                   </button>
                 )
@@ -185,7 +192,7 @@ export default function CharacterSelector({ onSelect }: CharacterSelectorProps):
 
               {otherCharacters.length > 0 && (
                 <div className="px-3 py-1 bg-gray-900/80 text-xs font-bold text-gray-500 uppercase tracking-wide">
-                  Other Characters
+                  {t('lobby.characterSelector.otherCharacters')}
                 </div>
               )}
               {otherCharacters.map((character) => {
@@ -203,12 +210,12 @@ export default function CharacterSelector({ onSelect }: CharacterSelectorProps):
                       <p className="text-sm font-medium">{summary.name}</p>
                       {character.campaignId && character.campaignId !== campaignId && (
                         <span className="text-[9px] text-amber-500/80 border border-amber-500/30 rounded px-1 ml-2 pointer-events-none">
-                          Diff Campaign
+                          {t('lobby.characterSelector.diffCampaign')}
                         </span>
                       )}
                     </div>
                     <p className="text-xs text-gray-500">
-                      Level {summary.level} {summary.className}
+                      {t('lobby.characterSelector.levelClass', { level: summary.level, className: summary.className })}
                     </p>
                   </button>
                 )
@@ -225,7 +232,7 @@ export default function CharacterSelector({ onSelect }: CharacterSelectorProps):
                    hover:border-amber-600/50 hover:text-amber-400 transition-colors cursor-pointer
                    text-center"
       >
-        + Create New Character
+        {t('lobby.characterSelector.createNewCharacter')}
       </button>
     </div>
   )

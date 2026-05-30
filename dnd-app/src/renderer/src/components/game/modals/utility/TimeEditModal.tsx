@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
+import { useT } from '../../../../i18n'
 import { useBastionStore } from '../../../../stores/use-bastion-store'
 import { useGameStore } from '../../../../stores/use-game-store'
 import type { CalendarConfig } from '../../../../types/campaign'
@@ -18,6 +19,7 @@ export default function TimeEditModal({
   onClose,
   onBroadcastTimeSync
 }: TimeEditModalProps): JSX.Element {
+  const { t } = useT()
   useEscapeKey(onClose)
   const inGameTime = useGameStore((s) => s.inGameTime)
   const advanceTimeDays = useGameStore((s) => s.advanceTimeDays)
@@ -51,7 +53,7 @@ export default function TimeEditModal({
     for (const bastion of linkedBastions) {
       if (advanceBastionTime) {
         advanceBastionTime(bastion.id, daysToAdvance)
-        msgs.push(`Bastion "${bastion.name}" advanced ${daysToAdvance} day(s)`)
+        msgs.push(t('game.timeEditModal.bastionAdvanced', { name: bastion.name, days: daysToAdvance }))
       }
     }
     setBastionMessages(msgs)
@@ -97,7 +99,7 @@ export default function TimeEditModal({
       <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
       <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-[420px] shadow-2xl max-h-[80vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-amber-400">Time Management</h3>
+          <h3 className="text-sm font-semibold text-amber-400">{t('game.timeEditModal.title')}</h3>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-300 text-xs cursor-pointer">
             x
           </button>
@@ -105,7 +107,7 @@ export default function TimeEditModal({
 
         {/* Current time display */}
         <div className="bg-gray-800/50 rounded-lg px-3 py-2 mb-4 text-xs">
-          <span className="text-gray-400">Current: </span>
+          <span className="text-gray-400">{t('game.timeEditModal.current')}</span>
           <span className="text-amber-300">{formatInGameTime(inGameTime.totalSeconds, calendar)}</span>
         </div>
 
@@ -119,7 +121,7 @@ export default function TimeEditModal({
                 : 'bg-gray-800 text-gray-400 border border-gray-700/50'
             }`}
           >
-            Advance Days
+            {t('game.timeEditModal.advanceDaysTab')}
           </button>
           <button
             onClick={() => setMode('set')}
@@ -129,14 +131,14 @@ export default function TimeEditModal({
                 : 'bg-gray-800 text-gray-400 border border-gray-700/50'
             }`}
           >
-            Set Exact Time
+            {t('game.timeEditModal.setExactTab')}
           </button>
         </div>
 
         {mode === 'advance' ? (
           <div className="space-y-3">
             <div>
-              <label className="text-xs text-gray-400 block mb-1">Days to advance</label>
+              <label className="text-xs text-gray-400 block mb-1">{t('game.timeEditModal.daysToAdvance')}</label>
               <div className="flex gap-2 items-center">
                 <input
                   type="number"
@@ -149,7 +151,7 @@ export default function TimeEditModal({
                   onClick={handleAdvanceDays}
                   className="px-4 py-1.5 text-xs font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded-lg cursor-pointer"
                 >
-                  Advance
+                  {t('game.timeEditModal.advance')}
                 </button>
               </div>
             </div>
@@ -166,7 +168,7 @@ export default function TimeEditModal({
                       : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                   }`}
                 >
-                  {d} day{d !== 1 ? 's' : ''}
+                  {t('game.timeEditModal.dayPreset', { count: d })}
                 </button>
               ))}
             </div>
@@ -185,7 +187,7 @@ export default function TimeEditModal({
             <div className="flex gap-2 flex-wrap">
               {calendar.preset !== 'simple-day-counter' && (
                 <div>
-                  <label className="text-xs text-gray-500 block mb-1">Year</label>
+                  <label className="text-xs text-gray-500 block mb-1">{t('game.timeEditModal.year')}</label>
                   <input
                     type="number"
                     value={setYear}
@@ -196,7 +198,7 @@ export default function TimeEditModal({
               )}
               {calendar.months.length > 0 && (
                 <div>
-                  <label className="text-xs text-gray-500 block mb-1">Month</label>
+                  <label className="text-xs text-gray-500 block mb-1">{t('game.timeEditModal.month')}</label>
                   <select
                     value={setMonthIndex}
                     onChange={(e) => setSetMonthIndex(parseInt(e.target.value, 10))}
@@ -211,7 +213,7 @@ export default function TimeEditModal({
                 </div>
               )}
               <div>
-                <label className="text-xs text-gray-500 block mb-1">Day</label>
+                <label className="text-xs text-gray-500 block mb-1">{t('game.timeEditModal.day')}</label>
                 <input
                   type="number"
                   value={setDay}
@@ -222,7 +224,7 @@ export default function TimeEditModal({
                 />
               </div>
               <div>
-                <label className="text-xs text-gray-500 block mb-1">Hour</label>
+                <label className="text-xs text-gray-500 block mb-1">{t('game.timeEditModal.hour')}</label>
                 <input
                   type="number"
                   value={setHour}
@@ -233,7 +235,7 @@ export default function TimeEditModal({
                 />
               </div>
               <div>
-                <label className="text-xs text-gray-500 block mb-1">Min</label>
+                <label className="text-xs text-gray-500 block mb-1">{t('game.timeEditModal.min')}</label>
                 <input
                   type="number"
                   value={setMinute}
@@ -258,7 +260,8 @@ export default function TimeEditModal({
               )
               return (
                 <div className="text-xs text-gray-400">
-                  Preview: <span className="text-amber-300">{formatInGameTime(previewSeconds, calendar)}</span>
+                  {t('game.timeEditModal.preview')}{' '}
+                  <span className="text-amber-300">{formatInGameTime(previewSeconds, calendar)}</span>
                 </div>
               )
             })()}
@@ -266,8 +269,8 @@ export default function TimeEditModal({
             {/* Backward warning */}
             {backwardWarning && (
               <div className="bg-red-900/20 border border-red-800/30 rounded-lg px-3 py-2 text-xs text-red-300">
-                <div className="font-semibold mb-1">Warning: Time Backward</div>
-                <p className="mb-2">Setting time backward will NOT reverse bastion construction or rest tracking.</p>
+                <div className="font-semibold mb-1">{t('game.timeEditModal.warningTitle')}</div>
+                <p className="mb-2">{t('game.timeEditModal.warningBody')}</p>
                 <div className="flex gap-2">
                   <button
                     onClick={() => {
@@ -284,13 +287,13 @@ export default function TimeEditModal({
                     }}
                     className="px-3 py-1 text-xs bg-red-600 hover:bg-red-500 text-white rounded cursor-pointer"
                   >
-                    Set Anyway
+                    {t('game.timeEditModal.setAnyway')}
                   </button>
                   <button
                     onClick={() => setBackwardWarning(false)}
                     className="px-3 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
                   >
-                    Cancel
+                    {t('common.actions.cancel')}
                   </button>
                 </div>
               </div>
@@ -301,7 +304,7 @@ export default function TimeEditModal({
                 onClick={handleSetTime}
                 className="px-4 py-1.5 text-xs font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded-lg cursor-pointer"
               >
-                Set Time
+                {t('game.timeEditModal.setTime')}
               </button>
             )}
           </div>

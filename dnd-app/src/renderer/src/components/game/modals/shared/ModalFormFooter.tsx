@@ -1,3 +1,5 @@
+import { useT } from '../../../../i18n'
+
 interface ModalFormFooterProps {
   isEditing: boolean
   isSaveDisabled: boolean
@@ -17,12 +19,15 @@ interface ModalFormFooterProps {
 export default function ModalFormFooter({
   isEditing,
   isSaveDisabled,
-  saveLabel = 'Save',
-  editingLabel = 'Update',
+  saveLabel,
+  editingLabel,
   onCancel,
   onSave,
   leftSlot
 }: ModalFormFooterProps): JSX.Element {
+  const { t } = useT()
+  const resolvedSaveLabel = saveLabel ?? t('common.actions.save')
+  const resolvedEditingLabel = editingLabel ?? t('game.modalFormFooter.update')
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2">{leftSlot}</div>
@@ -32,7 +37,7 @@ export default function ModalFormFooter({
             onClick={onCancel}
             className="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
           >
-            Cancel
+            {t('common.actions.cancel')}
           </button>
         )}
         <button
@@ -40,7 +45,7 @@ export default function ModalFormFooter({
           disabled={isSaveDisabled}
           className="px-3 py-1.5 text-sm bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded cursor-pointer"
         >
-          {isEditing ? editingLabel : saveLabel}
+          {isEditing ? resolvedEditingLabel : resolvedSaveLabel}
         </button>
       </div>
     </div>

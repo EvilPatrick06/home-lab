@@ -1,5 +1,6 @@
 import dmTabsJson from '@data/ui/dm-tabs.json'
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import { useT } from '../../../i18n'
 import { load5eDmTabs } from '../../../services/data-provider'
 import { useAiDmStore } from '../../../stores/use-ai-dm-store'
 import { useNarrationTtsStore } from '../../../stores/use-narration-tts-store'
@@ -40,6 +41,7 @@ const toggleOnClass =
 const toggleOffClass = btnClass
 
 export default function DMTabPanel({ onOpenModal, campaign, onDispute, onEditMap }: DMTabPanelProps): JSX.Element {
+  const { t } = useT()
   const [activeTab, setActiveTab] = useState<TabId>('combat')
 
   // AI DM store
@@ -111,13 +113,13 @@ export default function DMTabPanel({ onOpenModal, campaign, onDispute, onEditMap
         return (
           <div className="flex flex-wrap gap-1.5">
             <button className={btnClass} onClick={() => onOpenModal('initiative')}>
-              Initiative
+              {t('game.dmTabPanel.initiative')}
             </button>
             <button className={btnClass} onClick={() => onOpenModal('quickCondition')}>
-              Quick Conditions
+              {t('game.dmTabPanel.quickConditions')}
             </button>
             <button className={btnClass} onClick={() => onOpenModal('creatures')}>
-              Monster Lookup
+              {t('game.dmTabPanel.monsterLookup')}
             </button>
           </div>
         )
@@ -129,22 +131,22 @@ export default function DMTabPanel({ onOpenModal, campaign, onDispute, onEditMap
         return (
           <div className="flex flex-wrap gap-1.5">
             <button className={btnClass} onClick={() => onOpenModal('aoe')}>
-              AoE Template
+              {t('game.dmTabPanel.aoeTemplate')}
             </button>
             <button className={btnClass} onClick={() => onOpenModal('customEffect')}>
-              Custom Effect
+              {t('game.dmTabPanel.customEffect')}
             </button>
             <button className={btnClass} onClick={() => onOpenModal('spellRef')}>
-              Spell Reference
+              {t('game.dmTabPanel.spellReference')}
             </button>
             <button className={btnClass} onClick={() => onOpenModal('lightSource')}>
-              Light Source
+              {t('game.dmTabPanel.lightSource')}
             </button>
             <button className={btnClass} onClick={() => onOpenModal('summonCreature')}>
-              Summon Creature
+              {t('game.dmTabPanel.summonCreature')}
             </button>
             <button className={btnClass} onClick={() => onOpenModal('quickCondition')}>
-              Apply Condition
+              {t('game.dmTabPanel.applyCondition')}
             </button>
           </div>
         )
@@ -160,19 +162,19 @@ export default function DMTabPanel({ onOpenModal, campaign, onDispute, onEditMap
         return (
           <div className="flex flex-wrap gap-1.5">
             <button className={btnClass} onClick={onEditMap}>
-              Edit Map
+              {t('game.dmTabPanel.editMap')}
             </button>
             <button className={btnClass} onClick={() => onOpenModal('jump')}>
-              Jump Calculator
+              {t('game.dmTabPanel.jumpCalculator')}
             </button>
             <button className={btnClass} onClick={() => onOpenModal('falling')}>
-              Falling Damage
+              {t('game.dmTabPanel.fallingDamage')}
             </button>
             <button className={btnClass} onClick={() => onOpenModal('travelPace')}>
-              Travel Calculator
+              {t('game.dmTabPanel.travelCalculator')}
             </button>
             <button className={btnClass} onClick={() => onOpenModal('gridSettings')}>
-              Grid Settings
+              {t('game.dmTabPanel.gridSettings')}
             </button>
           </div>
         )
@@ -181,17 +183,19 @@ export default function DMTabPanel({ onOpenModal, campaign, onDispute, onEditMap
         return (
           <div className="flex flex-wrap gap-1.5">
             <button className={btnClass} onClick={() => onOpenModal('shortRest')}>
-              Short Rest
+              {t('game.dmTabPanel.shortRest')}
             </button>
             <button className={btnClass} onClick={() => onOpenModal('longRest')}>
-              Long Rest
+              {t('game.dmTabPanel.longRest')}
             </button>
           </div>
         )
 
       case 'audio':
         return (
-          <Suspense fallback={<div className="text-xs text-gray-500 p-2">Loading audio panel...</div>}>
+          <Suspense
+            fallback={<div className="text-xs text-gray-500 p-2">{t('game.dmTabPanel.loadingAudioPanel')}</div>}
+          >
             <DMAudioPanel />
           </Suspense>
         )
@@ -202,32 +206,35 @@ export default function DMTabPanel({ onOpenModal, campaign, onDispute, onEditMap
             {aiEnabled ? (
               <>
                 <span className="text-xs text-purple-400 font-semibold uppercase tracking-wider w-full">
-                  AI DM ({aiModel}) {aiPaused ? '\u2014 Paused' : ''}
+                  {t('game.dmTabPanel.aiDmLabel', { model: aiModel })}{' '}
+                  {aiPaused ? t('game.dmTabPanel.pausedSuffix') : ''}
                 </span>
                 <button className={aiPaused ? toggleOnClass : btnClass} onClick={() => setPaused(!aiPaused)}>
-                  {aiPaused ? 'Resume AI' : 'Pause AI'}
+                  {aiPaused ? t('game.dmTabPanel.resumeAi') : t('game.dmTabPanel.pauseAi')}
                 </button>
                 {aiIsTyping && (
                   <button
                     className="px-3 py-2 text-xs font-medium rounded-lg bg-red-900/40 border border-red-700/50 text-red-300 hover:bg-red-800/40 hover:border-red-600/50 transition-all cursor-pointer whitespace-nowrap"
                     onClick={() => cancelStream()}
                   >
-                    Cancel Response
+                    {t('game.dmTabPanel.cancelResponse')}
                   </button>
                 )}
                 <button
                   className={dmApprovalRequired ? toggleOnClass : toggleOffClass}
                   onClick={() => setDmApprovalRequired(!dmApprovalRequired)}
-                  title="Require DM approval before AI DM actions take effect"
+                  title={t('game.dmTabPanel.dmApprovalTitle')}
                 >
-                  DM Approval {dmApprovalRequired ? 'ON' : 'OFF'}
+                  {t('game.dmTabPanel.dmApproval')}{' '}
+                  {dmApprovalRequired ? t('game.dmTabPanel.on') : t('game.dmTabPanel.off')}
                 </button>
                 <button
                   className={narrationTtsEnabled ? toggleOnClass : toggleOffClass}
                   onClick={() => setNarrationTtsEnabled(!narrationTtsEnabled)}
-                  title="Send clean AI narration to BMO over the Discord DM bridge"
+                  title={t('game.dmTabPanel.speakNarrationTitle')}
                 >
-                  Speak Narration {narrationTtsEnabled ? 'ON' : 'OFF'}
+                  {t('game.dmTabPanel.speakNarration')}{' '}
+                  {narrationTtsEnabled ? t('game.dmTabPanel.on') : t('game.dmTabPanel.off')}
                 </button>
                 <button
                   className={btnClass}
@@ -236,20 +243,21 @@ export default function DMTabPanel({ onOpenModal, campaign, onDispute, onEditMap
                     setShowTokenDetail((t) => !t)
                   }}
                 >
-                  Token Budget {tokenBudget ? `(${tokenBudget.total.toLocaleString()})` : ''}
+                  {t('game.dmTabPanel.tokenBudget')}{' '}
+                  {tokenBudget ? t('game.dmTabPanel.tokenCount', { count: tokenBudget.total.toLocaleString() }) : ''}
                 </button>
 
                 {showTokenDetail && tokenBudget && (
                   <div className="w-full bg-gray-900/60 border border-gray-700/40 rounded-lg px-3 py-2 space-y-0.5">
                     {(
                       [
-                        ['Rulebook', tokenBudget.rulebookChunks],
-                        ['SRD Data', tokenBudget.srdData],
-                        ['Characters', tokenBudget.characterData],
-                        ['Campaign', tokenBudget.campaignData],
-                        ['Creatures', tokenBudget.creatures],
-                        ['Game State', tokenBudget.gameState],
-                        ['Memory', tokenBudget.memory]
+                        [t('game.dmTabPanel.budgetRulebook'), tokenBudget.rulebookChunks],
+                        [t('game.dmTabPanel.budgetSrdData'), tokenBudget.srdData],
+                        [t('game.dmTabPanel.budgetCharacters'), tokenBudget.characterData],
+                        [t('game.dmTabPanel.budgetCampaign'), tokenBudget.campaignData],
+                        [t('game.dmTabPanel.budgetCreatures'), tokenBudget.creatures],
+                        [t('game.dmTabPanel.budgetGameState'), tokenBudget.gameState],
+                        [t('game.dmTabPanel.budgetMemory'), tokenBudget.memory]
                       ] as const
                     ).map(([label, val]) => (
                       <div key={label} className="flex justify-between text-xs">
@@ -258,24 +266,28 @@ export default function DMTabPanel({ onOpenModal, campaign, onDispute, onEditMap
                       </div>
                     ))}
                     <div className="flex justify-between text-xs border-t border-gray-700 pt-0.5 mt-0.5">
-                      <span className="text-purple-400 font-semibold">Total Context</span>
+                      <span className="text-purple-400 font-semibold">{t('game.dmTabPanel.totalContext')}</span>
                       <span className="text-purple-400 font-semibold">{tokenBudget.total.toLocaleString()}</span>
                     </div>
                   </div>
                 )}
 
-                <Suspense fallback={<div className="text-xs text-gray-500 w-full">Loading context panel...</div>}>
+                <Suspense
+                  fallback={
+                    <div className="text-xs text-gray-500 w-full">{t('game.dmTabPanel.loadingContextPanel')}</div>
+                  }
+                >
                   <AiContextPanel campaignId={campaign.id} />
                 </Suspense>
 
                 {onDispute && (
                   <button className={btnClass} onClick={() => onDispute('last ruling')}>
-                    Dispute Ruling
+                    {t('game.dmTabPanel.disputeRuling')}
                   </button>
                 )}
               </>
             ) : (
-              <span className="text-xs text-gray-500">AI DM is not enabled for this campaign.</span>
+              <span className="text-xs text-gray-500">{t('game.dmTabPanel.aiDmNotEnabled')}</span>
             )}
           </div>
         )
@@ -284,18 +296,18 @@ export default function DMTabPanel({ onOpenModal, campaign, onDispute, onEditMap
         return (
           <div className="flex flex-wrap gap-1.5">
             <button className={btnClass} onClick={() => onOpenModal('notes')}>
-              DM Notes
+              {t('game.dmTabPanel.dmNotes')}
             </button>
             {campaign.calendar && (
               <button className={btnClass} onClick={() => onOpenModal('calendar')}>
-                Calendar
+                {t('game.dmTabPanel.calendar')}
               </button>
             )}
             <button className={btnClass} onClick={() => onOpenModal('chaseTracker')}>
-              Chase Tracker
+              {t('game.dmTabPanel.chaseTracker')}
             </button>
             <button className={btnClass} onClick={() => onOpenModal('magic-item-tracker')}>
-              Magic Items
+              {t('game.dmTabPanel.magicItems')}
             </button>
           </div>
         )
@@ -304,19 +316,19 @@ export default function DMTabPanel({ onOpenModal, campaign, onDispute, onEditMap
         return (
           <div className="flex flex-wrap gap-1.5">
             <button className={btnClass} onClick={() => onOpenModal('diceRoller')}>
-              Dice Roller
+              {t('game.dmTabPanel.diceRoller')}
             </button>
             <button className={btnClass} onClick={() => onOpenModal('dmRoller')}>
-              DM Roller
+              {t('game.dmTabPanel.dmRoller')}
             </button>
             <button className={btnClass} onClick={() => onOpenModal('hiddenDice')}>
-              Hidden Dice
+              {t('game.dmTabPanel.hiddenDice')}
             </button>
             <button className={btnClass} onClick={() => onOpenModal('mobCalculator')}>
-              Mob Calculator
+              {t('game.dmTabPanel.mobCalculator')}
             </button>
             <button className={btnClass} onClick={() => onOpenModal('groupRoll')}>
-              Group Roll
+              {t('game.dmTabPanel.groupRoll')}
             </button>
           </div>
         )
@@ -325,10 +337,10 @@ export default function DMTabPanel({ onOpenModal, campaign, onDispute, onEditMap
         return (
           <div className="flex flex-wrap gap-1.5">
             <button className={btnClass} onClick={() => onOpenModal('whisper')}>
-              Whisper
+              {t('game.dmTabPanel.whisper')}
             </button>
             <button className={btnClass} onClick={() => onOpenModal('shop')}>
-              Shop
+              {t('game.dmTabPanel.shop')}
             </button>
           </div>
         )
@@ -337,22 +349,22 @@ export default function DMTabPanel({ onOpenModal, campaign, onDispute, onEditMap
         return (
           <div className="flex flex-wrap gap-1.5">
             <button className={btnClass} onClick={() => onOpenModal('handout')}>
-              Handouts
+              {t('game.dmTabPanel.handouts')}
             </button>
             <button className={btnClass} onClick={() => onOpenModal('commandRef')}>
-              Command Reference
+              {t('game.dmTabPanel.commandReference')}
             </button>
             <button className={btnClass} onClick={() => onOpenModal('shortcutRef')}>
-              Shortcut Reference
+              {t('game.dmTabPanel.shortcutReference')}
             </button>
             <button className={btnClass} onClick={() => onOpenModal('spellRef')}>
-              Quick Reference
+              {t('game.dmTabPanel.quickReference')}
             </button>
             <button className={btnClass} onClick={() => onOpenModal('sharedJournal')}>
-              Journal
+              {t('game.dmTabPanel.journal')}
             </button>
             <button className={btnClass} onClick={() => onOpenModal('compendium')}>
-              Compendium
+              {t('game.dmTabPanel.compendium')}
             </button>
           </div>
         )

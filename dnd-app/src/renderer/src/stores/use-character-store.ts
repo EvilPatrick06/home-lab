@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { dynamicKeys } from '../constants'
 import { addToast } from '../hooks/use-toast'
+import { i18n } from '../i18n'
 import { getEffectiveArmor, getEffectiveConditions } from '../services/character/effective-character-5e'
 import type { Character } from '../types/character'
 import { migrateCharacter5eFromV3ToV4 } from '../types/character-5e-migration'
@@ -81,7 +82,10 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
         if (!typedResult.success) {
           const errorMessage = typedResult.error || 'Failed to save character'
           logger.error('Character save returned failure:', errorMessage, 'id:', character.id)
-          addToast(`Failed to save "${character.name}": ${errorMessage}`, 'error')
+          addToast(
+            i18n.t('notify.characterStore.saveFailedWithReason', { label: character.name, reason: errorMessage }),
+            'error'
+          )
           throw new Error(errorMessage)
         }
       }
@@ -100,7 +104,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
       logger.error('Failed to save character:', error, 'id:', character.id, 'name:', character.name)
       if (error instanceof Error && !error.message.includes('Failed to save')) {
         // Only show toast for unexpected errors, not the ones we already handled above
-        addToast(`Failed to save "${character.name}"`, 'error')
+        addToast(i18n.t('notify.characterStore.saveFailed', { label: character.name }), 'error')
       }
       throw error
     }
@@ -126,7 +130,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
         if (!typedResult.success) {
           const errorMessage = typedResult.error || 'Failed to delete character'
           logger.error('Character delete returned failure:', errorMessage, 'id:', id)
-          addToast(`Failed to delete character: ${errorMessage}`, 'error')
+          addToast(i18n.t('notify.characterStore.deleteFailedWithReason', { reason: errorMessage }), 'error')
           throw new Error(errorMessage)
         }
       }
@@ -143,7 +147,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
 
       // Show success toast
       if (character) {
-        addToast(`Deleted "${character.name}"`, 'success')
+        addToast(i18n.t('notify.characterStore.deleted', { label: character.name }), 'success')
       }
 
       cleanupCharacterLocalStorage(id)
@@ -151,7 +155,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
       logger.error('Failed to delete character:', error, 'id:', id)
       if (error instanceof Error && !error.message.includes('Failed to delete')) {
         // Only show toast for unexpected errors, not the ones we already handled above
-        addToast('Failed to delete character', 'error')
+        addToast(i18n.t('notify.characterStore.deleteFailed'), 'error')
       }
       throw error
     }

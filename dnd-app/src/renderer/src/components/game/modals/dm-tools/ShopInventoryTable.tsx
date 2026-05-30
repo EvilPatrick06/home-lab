@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useT } from '../../../../i18n'
 import type { ShopItem, ShopItemCategory, ShopItemRarity } from '../../../../network'
 
 import { applyMarkup, formatPrice, RARITY_COLORS, RARITY_OPTIONS, SHOP_CATEGORIES } from './shop-utils'
@@ -18,6 +19,7 @@ export default function ShopInventoryTable({
   onRemove,
   onUpdate
 }: ShopInventoryTableProps): JSX.Element {
+  const { t } = useT()
   const [sortKey, setSortKey] = useState<SortKey>('name')
   const [filterCategory, setFilterCategory] = useState<ShopItemCategory | 'all'>('all')
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -51,7 +53,7 @@ export default function ShopInventoryTable({
       {/* Inventory table header: sort + filter */}
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
-          Inventory ({shopInventory.length} items)
+          {t('game.shopInventoryTable.inventory', { count: shopInventory.length })}
         </h3>
         <div className="flex items-center gap-2">
           <select
@@ -59,7 +61,7 @@ export default function ShopInventoryTable({
             onChange={(e) => setFilterCategory(e.target.value as ShopItemCategory | 'all')}
             className="bg-gray-800 border border-gray-700 rounded px-2 py-0.5 text-xs text-gray-300 focus:outline-none focus:border-amber-500"
           >
-            <option value="all">All Categories</option>
+            <option value="all">{t('game.shopInventoryTable.allCategories')}</option>
             {SHOP_CATEGORIES.map((c) => (
               <option key={c} value={c}>
                 {c.charAt(0).toUpperCase() + c.slice(1)}
@@ -85,9 +87,7 @@ export default function ShopInventoryTable({
       {/* Inventory table */}
       <div className="flex-1 overflow-y-auto min-h-0 space-y-0.5 mb-3">
         {displayInventory.length === 0 && (
-          <p className="text-xs text-gray-500 italic py-4 text-center">
-            No items in shop. Use presets, import, or add custom items above.
-          </p>
+          <p className="text-xs text-gray-500 italic py-4 text-center">{t('game.shopInventoryTable.empty')}</p>
         )}
         {displayInventory.map((item) => {
           const isEditing = editingId === item.id
@@ -110,7 +110,10 @@ export default function ShopInventoryTable({
                 >
                   {item.name}
                   {item.dmNotes && (
-                    <span className="text-red-400 ml-1" title={`DM: ${item.dmNotes}`}>
+                    <span
+                      className="text-red-400 ml-1"
+                      title={t('game.shopInventoryTable.dmNoteTooltip', { note: item.dmNotes })}
+                    >
                       *
                     </span>
                   )}
@@ -134,21 +137,25 @@ export default function ShopInventoryTable({
                   <button
                     onClick={() => setEditingId(isEditing ? null : item.id)}
                     className="text-gray-500 hover:text-amber-400 cursor-pointer"
-                    title="Edit"
+                    title={t('game.shopInventoryTable.edit')}
                   >
                     {isEditing ? '\u2713' : '\u270E'}
                   </button>
                   <button
                     onClick={() => onUpdate(item.id, { isHidden: !item.isHidden })}
                     className={`cursor-pointer ${item.isHidden ? 'text-red-400 hover:text-green-400' : 'text-gray-500 hover:text-red-400'}`}
-                    title={item.isHidden ? 'Show to players' : 'Hide from players'}
+                    title={
+                      item.isHidden
+                        ? t('game.shopInventoryTable.showToPlayers')
+                        : t('game.shopInventoryTable.hideFromPlayers')
+                    }
                   >
                     {item.isHidden ? '\u25CB' : '\u25CF'}
                   </button>
                   <button
                     onClick={() => onRemove(item.id)}
                     className="text-red-400 hover:text-red-300 cursor-pointer"
-                    title="Remove"
+                    title={t('game.shopInventoryTable.remove')}
                   >
                     &times;
                   </button>
@@ -160,7 +167,7 @@ export default function ShopInventoryTable({
                 <div className="px-3 pb-2 space-y-1.5 border-t border-gray-700/50 pt-1.5">
                   <div className="grid grid-cols-4 gap-2">
                     <div>
-                      <label className="block text-xs text-gray-500 mb-0.5">Price (GP)</label>
+                      <label className="block text-xs text-gray-500 mb-0.5">{t('game.shopInventoryTable.price')}</label>
                       <input
                         type="number"
                         defaultValue={item.price.gp ?? 0}
@@ -172,11 +179,13 @@ export default function ShopInventoryTable({
                       />
                     </div>
                     <div>
-                      <label className="block text-xs text-gray-500 mb-0.5">Stock Limit</label>
+                      <label className="block text-xs text-gray-500 mb-0.5">
+                        {t('game.shopInventoryTable.stockLimit')}
+                      </label>
                       <input
                         type="number"
                         defaultValue={item.stockLimit ?? ''}
-                        placeholder="Unlimited"
+                        placeholder={t('game.shopInventoryTable.unlimited')}
                         onBlur={(e) => {
                           const val = e.target.value.trim()
                           if (val === '') {
@@ -196,7 +205,9 @@ export default function ShopInventoryTable({
                       />
                     </div>
                     <div>
-                      <label className="block text-xs text-gray-500 mb-0.5">Quantity</label>
+                      <label className="block text-xs text-gray-500 mb-0.5">
+                        {t('game.shopInventoryTable.quantity')}
+                      </label>
                       <input
                         type="number"
                         defaultValue={item.quantity}
@@ -208,7 +219,9 @@ export default function ShopInventoryTable({
                       />
                     </div>
                     <div>
-                      <label className="block text-xs text-gray-500 mb-0.5">Rarity</label>
+                      <label className="block text-xs text-gray-500 mb-0.5">
+                        {t('game.shopInventoryTable.rarity')}
+                      </label>
                       <select
                         defaultValue={item.rarity ?? 'common'}
                         onChange={(e) => onUpdate(item.id, { rarity: e.target.value as ShopItemRarity })}
@@ -223,11 +236,11 @@ export default function ShopInventoryTable({
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 mb-0.5">DM Notes (hidden from players)</label>
+                    <label className="block text-xs text-gray-500 mb-0.5">{t('game.shopInventoryTable.dmNotes')}</label>
                     <input
                       type="text"
                       defaultValue={item.dmNotes ?? ''}
-                      placeholder='e.g. "cursed", "stolen goods"'
+                      placeholder={t('game.shopInventoryTable.dmNotesPlaceholder')}
                       onBlur={(e) => onUpdate(item.id, { dmNotes: e.target.value.trim() || undefined })}
                       className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-0.5 text-[11px] text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
                     />

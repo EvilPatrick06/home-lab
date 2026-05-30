@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { BUILTIN_ROLES } from '../../data/builtin-roles'
+import { useT } from '../../i18n'
 import { useCampaignStore } from '../../stores/use-campaign-store'
 import type { Campaign, Role } from '../../types/campaign'
 import {
@@ -17,6 +18,7 @@ import {
  * editable except they cannot be deleted (the store guards that).
  */
 export default function PermissionsEditor({ campaign }: { campaign: Campaign }): JSX.Element {
+  const { t } = useT()
   const addRole = useCampaignStore((s) => s.addRole)
   const updateRole = useCampaignStore((s) => s.updateRole)
   const deleteRole = useCampaignStore((s) => s.deleteRole)
@@ -47,7 +49,7 @@ export default function PermissionsEditor({ campaign }: { campaign: Campaign }):
           value={newRoleName}
           onChange={(e) => setNewRoleName(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
-          placeholder="New role name…"
+          placeholder={t('campaign.permissionsEditor.newRolePlaceholder')}
           className="flex-1 min-w-0 px-3 py-1.5 text-sm bg-gray-800 border border-gray-700 rounded text-gray-100 placeholder-gray-500"
         />
         <button
@@ -56,7 +58,7 @@ export default function PermissionsEditor({ campaign }: { campaign: Campaign }):
           disabled={!newRoleName.trim()}
           className="px-3 py-1.5 text-sm rounded bg-amber-600 hover:bg-amber-500 text-white font-semibold cursor-pointer disabled:opacity-50"
         >
-          + Add Role
+          {t('campaign.permissionsEditor.addRole')}
         </button>
       </div>
 
@@ -99,6 +101,7 @@ function RoleRow({
   onDelete: (campaignId: string, roleId: string) => void
   onDuplicate: (campaignId: string, roleId: string) => void
 }): JSX.Element {
+  const { t } = useT()
   const granted = useMemo(() => new Set(role.permissions), [role.permissions])
 
   const setPermission = (key: Permission, on: boolean): void => {
@@ -127,7 +130,9 @@ function RoleRow({
         </button>
         <span className="text-sm font-semibold text-gray-100">{role.name}</span>
         {role.isBuiltIn && (
-          <span className="text-[10px] text-gray-500 border border-gray-600 rounded px-1">built-in</span>
+          <span className="text-[10px] text-gray-500 border border-gray-600 rounded px-1">
+            {t('campaign.permissionsEditor.builtIn')}
+          </span>
         )}
         <span className="text-xs text-gray-500">
           {role.permissions.length}/{ALL_PERMISSIONS.length}
@@ -138,14 +143,14 @@ function RoleRow({
             onClick={() => onDuplicate(campaignId, role.id)}
             className="text-xs text-gray-400 hover:text-amber-300 cursor-pointer"
           >
-            Duplicate
+            {t('campaign.permissionsEditor.duplicate')}
           </button>
           <button
             type="button"
             onClick={resetDefaults}
             className="text-xs text-gray-400 hover:text-amber-300 cursor-pointer"
           >
-            Reset
+            {t('campaign.permissionsEditor.reset')}
           </button>
           {!role.isBuiltIn && (
             <button
@@ -153,7 +158,7 @@ function RoleRow({
               onClick={() => onDelete(campaignId, role.id)}
               className="text-xs text-red-400 hover:text-red-300 cursor-pointer"
             >
-              Delete
+              {t('common.actions.delete')}
             </button>
           )}
         </div>
@@ -165,7 +170,7 @@ function RoleRow({
             type="text"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Filter permissions…"
+            placeholder={t('campaign.permissionsEditor.filterPlaceholder')}
             className="w-full px-2 py-1 text-xs bg-gray-800 border border-gray-700 rounded text-gray-200 placeholder-gray-500"
           />
           {(Object.keys(PERMISSION_GROUPS) as PermissionCategory[]).map((category) => {
@@ -185,7 +190,7 @@ function RoleRow({
                     onClick={() => setCategory(category, !allOn)}
                     className="text-[10px] text-gray-500 hover:text-amber-300 cursor-pointer"
                   >
-                    {allOn ? 'deny all' : 'grant all'}
+                    {allOn ? t('campaign.permissionsEditor.denyAll') : t('campaign.permissionsEditor.grantAll')}
                   </button>
                 </div>
                 <div className="grid grid-cols-2 gap-x-3 gap-y-1">

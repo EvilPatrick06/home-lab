@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useT } from '../../i18n'
 import { useMicSettingsStore } from '../../stores/use-mic-settings-store'
 import { logger } from '../../utils/logger'
 
@@ -12,6 +13,7 @@ import { logger } from '../../utils/logger'
  * this phase. Settings are saved and ready for a future voice integration.
  */
 export default function MicrophoneSettings(): JSX.Element {
+  const { t } = useT()
   const { deviceId, gain, pttKey, setDeviceId, setGain, setPttKey, reset } = useMicSettingsStore()
 
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([])
@@ -105,9 +107,7 @@ export default function MicrophoneSettings(): JSX.Element {
       } catch (err) {
         logger.warn('[MicSettings] getUserMedia failed:', err)
         setPermissionError(
-          err instanceof Error
-            ? `${err.name}: ${err.message}`
-            : 'Microphone permission denied or no input device available.'
+          err instanceof Error ? `${err.name}: ${err.message}` : t('settings.microphoneSettings.permissionDefault')
         )
       }
     }
@@ -152,31 +152,30 @@ export default function MicrophoneSettings(): JSX.Element {
 
   return (
     <div className="space-y-4">
-      <p className="text-xs text-gray-500">
-        Pick the mic to use, see live input levels, set a push-to-talk key, and tune input gain. Settings persist across
-        sessions and will feed a future voice-chat integration.
-      </p>
+      <p className="text-xs text-gray-500">{t('settings.microphoneSettings.intro')}</p>
 
       {/* Permission / error banner */}
       {permissionError && (
         <div className="rounded-lg border border-red-700/40 bg-red-900/20 p-3 text-xs text-red-300">
-          <strong className="text-red-200">Microphone unavailable</strong>
+          <strong className="text-red-200">{t('settings.microphoneSettings.unavailable')}</strong>
           <p className="mt-1">{permissionError}</p>
         </div>
       )}
 
       {/* Device selector */}
       <div>
-        <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">Input device</label>
+        <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">
+          {t('settings.microphoneSettings.inputDevice')}
+        </label>
         <select
           value={deviceId ?? ''}
           onChange={(e) => setDeviceId(e.target.value || null)}
           className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100 focus:border-amber-500 focus:outline-none"
         >
-          <option value="">System default</option>
+          <option value="">{t('settings.microphoneSettings.systemDefault')}</option>
           {devices.map((d, i) => (
             <option key={d.deviceId || `dev-${i}`} value={d.deviceId}>
-              {d.label || `Microphone ${i + 1}`}
+              {d.label || t('settings.microphoneSettings.microphoneN', { n: i + 1 })}
             </option>
           ))}
         </select>
@@ -184,7 +183,9 @@ export default function MicrophoneSettings(): JSX.Element {
 
       {/* Live level meter */}
       <div>
-        <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">Live level</label>
+        <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">
+          {t('settings.microphoneSettings.liveLevel')}
+        </label>
         <div className="h-3 bg-gray-800 rounded-full overflow-hidden border border-gray-700">
           <div
             className="h-full transition-[width] duration-75 ease-linear"
@@ -197,20 +198,20 @@ export default function MicrophoneSettings(): JSX.Element {
                     ? 'linear-gradient(90deg, #22c55e, #facc15)'
                     : '#22c55e'
             }}
-            aria-label={`Microphone level ${Math.round(level * 100)}%`}
+            aria-label={t('settings.microphoneSettings.micLevelAria', { percent: Math.round(level * 100) })}
             role="progressbar"
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={Math.round(level * 100)}
           />
         </div>
-        <p className="text-xs text-gray-500 mt-1">Speak into the mic — the bar should move with your voice.</p>
+        <p className="text-xs text-gray-500 mt-1">{t('settings.microphoneSettings.speakHint')}</p>
       </div>
 
       {/* Gain slider */}
       <div>
         <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">
-          Input gain ({Math.round(gain * 100)}%)
+          {t('settings.microphoneSettings.inputGain', { percent: Math.round(gain * 100) })}
         </label>
         <input
           type="range"
@@ -220,7 +221,7 @@ export default function MicrophoneSettings(): JSX.Element {
           value={gain}
           onChange={(e) => setGain(Number(e.target.value))}
           className="w-full"
-          aria-label="Microphone input gain"
+          aria-label={t('settings.microphoneSettings.inputGainAria')}
         />
         <div className="flex justify-between text-xs text-gray-500 mt-0.5">
           <span>0%</span>
@@ -231,14 +232,20 @@ export default function MicrophoneSettings(): JSX.Element {
 
       {/* Push-to-talk binding */}
       <div>
-        <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">Push-to-talk</label>
+        <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">
+          {t('settings.microphoneSettings.pushToTalk')}
+        </label>
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => setBindingPtt(true)}
             className="px-3 py-1.5 text-sm rounded-lg border border-gray-600 hover:border-amber-500 text-gray-200 hover:text-amber-300 transition-colors cursor-pointer"
           >
-            {bindingPtt ? 'Press any key… (Esc to cancel)' : pttKey ? `Key: ${pttKey}` : 'Bind a key'}
+            {bindingPtt
+              ? t('settings.microphoneSettings.pressAnyKey')
+              : pttKey
+                ? t('settings.microphoneSettings.keyBound', { key: pttKey })
+                : t('settings.microphoneSettings.bindKey')}
           </button>
           {pttKey && !bindingPtt && (
             <button
@@ -246,17 +253,17 @@ export default function MicrophoneSettings(): JSX.Element {
               onClick={() => setPttKey(null)}
               className="px-2 py-1 text-xs text-gray-500 hover:text-red-400 cursor-pointer"
             >
-              Clear
+              {t('settings.microphoneSettings.clear')}
             </button>
           )}
         </div>
-        <p className="text-xs text-gray-500 mt-1">Held while the bound key is pressed; released otherwise.</p>
+        <p className="text-xs text-gray-500 mt-1">{t('settings.microphoneSettings.pttHint')}</p>
       </div>
 
       {/* Reset to defaults */}
       <div className="pt-2 border-t border-gray-800">
         <button type="button" onClick={reset} className="text-xs text-gray-500 hover:text-gray-300 cursor-pointer">
-          Reset microphone settings
+          {t('settings.microphoneSettings.resetSettings')}
         </button>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useT } from '../../../i18n'
 import { getEffectiveFeats } from '../../../services/character/effective-character-5e'
 import { formatPrerequisites, load5eFeats } from '../../../services/data-provider'
 import type { Character5e } from '../../../types/character-5e'
@@ -37,6 +38,7 @@ export function AsiOrFeatSelector5e({
     } | null
   ) => void
 }): JSX.Element {
+  const { t } = useT()
   const [chooseFeat, setChooseFeat] = useState(!!featSelection)
 
   const handleToggle = (useFeat: boolean): void => {
@@ -56,14 +58,18 @@ export function AsiOrFeatSelector5e({
     <div className={`rounded ${isIncomplete ? 'ring-1 ring-amber-600/50 p-1 -m-1' : ''}`}>
       <div className="flex items-center gap-2 mb-2">
         <span className="text-sm text-gray-400">{slot.label}:</span>
-        {isIncomplete && <span className="text-xs text-amber-500 font-semibold uppercase">Required</span>}
+        {isIncomplete && (
+          <span className="text-xs text-amber-500 font-semibold uppercase">
+            {t('levelup.asiOrFeatSelector.required')}
+          </span>
+        )}
         <button
           onClick={() => handleToggle(false)}
           className={`px-2 py-0.5 text-xs rounded cursor-pointer transition-colors ${
             !chooseFeat ? 'bg-amber-600 text-white' : 'border border-gray-600 text-gray-400'
           }`}
         >
-          Ability Score Improvement
+          {t('levelup.asiOrFeatSelector.abilityScoreImprovement')}
         </button>
         <button
           onClick={() => handleToggle(true)}
@@ -71,7 +77,7 @@ export function AsiOrFeatSelector5e({
             chooseFeat ? 'bg-green-600 text-white' : 'border border-gray-600 text-gray-400'
           }`}
         >
-          General Feat
+          {t('levelup.asiOrFeatSelector.generalFeat')}
         </button>
       </div>
 
@@ -107,6 +113,7 @@ export function GeneralFeatPicker({
     } | null
   ) => void
 }): JSX.Element {
+  const { t } = useT()
   const [feats, setFeats] = useState<FeatData[]>([])
   const [expanded, setExpanded] = useState(false)
   const [search, setSearch] = useState('')
@@ -142,7 +149,7 @@ export function GeneralFeatPicker({
             }}
             className="text-xs text-gray-500 hover:text-red-400 cursor-pointer"
           >
-            Change
+            {t('levelup.generalFeatPicker.change')}
           </button>
         </div>
         <p className="text-xs text-gray-500 mt-1 line-clamp-2">{selection.description}</p>
@@ -159,7 +166,7 @@ export function GeneralFeatPicker({
                 }}
                 className="w-full px-2 py-1 text-sm bg-gray-800 border border-gray-700 rounded text-gray-200"
               >
-                <option value="">-- Select --</option>
+                <option value="">{t('levelup.generalFeatPicker.selectOption')}</option>
                 {config.options?.map((opt) => (
                   <option key={opt} value={opt}>
                     {opt}
@@ -178,13 +185,13 @@ export function GeneralFeatPicker({
         onClick={() => setExpanded(!expanded)}
         className="text-xs text-green-400 hover:text-green-300 cursor-pointer"
       >
-        {expanded ? 'Hide General Feats' : 'Select a General Feat'}
+        {expanded ? t('levelup.generalFeatPicker.hide') : t('levelup.generalFeatPicker.select')}
       </button>
       {expanded && (
         <div className="mt-2">
           <input
             type="text"
-            placeholder="Search feats..."
+            placeholder={t('levelup.generalFeatPicker.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full px-2 py-1 text-sm bg-gray-800 border border-gray-700 rounded text-gray-200 placeholder-gray-500 mb-2"
@@ -222,7 +229,9 @@ export function GeneralFeatPicker({
                   </div>
                   {formatPrerequisites(feat.prerequisites).length > 0 && (
                     <p className={`text-xs ${meetsPrereqs ? 'text-yellow-500' : 'text-red-400'}`}>
-                      Requires: {formatPrerequisites(feat.prerequisites).join(', ')}
+                      {t('levelup.generalFeatPicker.requires', {
+                        prereqs: formatPrerequisites(feat.prerequisites).join(', ')
+                      })}
                     </p>
                   )}
                   <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">
@@ -232,7 +241,7 @@ export function GeneralFeatPicker({
               )
             })}
             {filteredFeats.length === 0 && (
-              <p className="text-xs text-gray-500 text-center py-2">No matching feats found.</p>
+              <p className="text-xs text-gray-500 text-center py-2">{t('levelup.generalFeatPicker.noMatching')}</p>
             )}
           </div>
         </div>
@@ -252,6 +261,7 @@ export function AsiAbilityPicker5e({
   selection: AbilityName[]
   onSelect: (abilities: AbilityName[]) => void
 }): JSX.Element {
+  const { t } = useT()
   const [mode, setMode] = useState<'+2' | '+1/+1'>(selection.length === 1 ? '+2' : '+1/+1')
 
   const handleModeChange = (newMode: '+2' | '+1/+1'): void => {
@@ -280,7 +290,7 @@ export function AsiAbilityPicker5e({
             mode === '+2' ? 'bg-amber-600 text-white' : 'border border-gray-600 text-gray-400'
           }`}
         >
-          +2 to one
+          {t('levelup.asiAbilityPicker.plus2ToOne')}
         </button>
         <button
           onClick={() => handleModeChange('+1/+1')}
@@ -288,7 +298,7 @@ export function AsiAbilityPicker5e({
             mode === '+1/+1' ? 'bg-amber-600 text-white' : 'border border-gray-600 text-gray-400'
           }`}
         >
-          +1 to two
+          {t('levelup.asiAbilityPicker.plus1ToTwo')}
         </button>
       </div>
       <div className="flex flex-wrap gap-1">
@@ -319,7 +329,7 @@ export function AsiAbilityPicker5e({
       </div>
       {/* Phase 24j — warn when a +2 would overflow the 20 cap (apply clamps to 20). */}
       {mode === '+2' && selection[0] && character.abilityScores[selection[0]] === 19 && (
-        <p className="mt-1 text-xs text-amber-400">+1 will be wasted (cap is 20)</p>
+        <p className="mt-1 text-xs text-amber-400">{t('levelup.asiAbilityPicker.capWarning')}</p>
       )}
     </div>
   )
