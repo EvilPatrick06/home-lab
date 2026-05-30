@@ -191,7 +191,7 @@
     "cannon-es": "^0.20.0",
     "dotenv": "^17.4.2",
     "dpdm": "^4.2.0",
-    "electron": "^40.10.2",
+    "electron": "^42.3.0",
     "electron-builder": "^26.8.1",
     "electron-devtools-installer": "^4.0.0",
     "electron-vite": "^5.0.0",
