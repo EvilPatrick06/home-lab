@@ -23,7 +23,7 @@ Only open/actionable items: problems, errors, security concerns, suggestions, ou
 
 ## 🔒 Security (also in `docs/SECURITY-LOG.md`, gitignored)
 
-- **DM-only regions/drawings broadcast unfiltered on the wire** (low). `SceneRegion.visibleToPlayers` / `DrawingData.visibleToPlayers` are enforced ONLY at the PixiJS render surface; `network/sync/shards/regions-shard.ts` + `drawings-shard.ts` declare NO `permissionFilter`, so the full DM-only set reaches every client over the network. Predates Phase 31i (behavior-preserving). *Action: mirror `tokens-shard.ts`'s `permissionFilter` for regions + drawings.*
+- ✅ **FIXED — DM-only regions/drawings broadcast unfiltered on the wire** (was low). `regions-shard.ts` + `drawings-shard.ts` now declare a per-recipient `permissionFilter` (isHost/isCoDM fast path + `use_dm_tools` / `draw_dm_only`; deny-by-default for unknown recipients), mirroring `fog-shard`/`tokens-shard`. Hidden regions (`visibleToPlayers !== true`) and DM-only drawings (`visibleToPlayers === false`) no longer reach players over the wire — the render-surface predicate is now also enforced at the network layer. *One residual hardening (out of scope): the broadcaster resync fallback (`broadcaster.ts` L140-141) still sends `shard.read()` unfiltered to an unresolved resync requester — a pre-existing behavior shared by all filtered shards (tokens/fog), not introduced here.*
 
 ---
 

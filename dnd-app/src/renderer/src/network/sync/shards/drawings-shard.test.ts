@@ -5,8 +5,21 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 // the store under the node test environment doesn't throw.
 vi.stubGlobal('window', { api: { storage: {}, game: {} } })
 
+// The drawings shard's permissionFilter resolves the recipient clientId against
+// the live connected-peer list (host-manager). Mock it so the test drives the
+// DM-vs-player split without standing up a real PeerJS mesh.
+const connectedPeers = vi.hoisted(() => ({ value: [] as import('../../state-types').PeerInfo[] }))
+vi.mock('../../host-manager', () => ({
+  getConnectedPeers: () => connectedPeers.value
+}))
+
+import { BUILTIN_ROLES } from '../../../data/builtin-roles'
+import { useNetworkStore } from '../../../stores/network-store'
+import { useCampaignStore } from '../../../stores/use-campaign-store'
 import { useGameStore } from '../../../stores/use-game-store'
+import type { Campaign } from '../../../types/campaign'
 import type { DrawingData, GameMap } from '../../../types/map'
+import type { PeerInfo } from '../../state-types'
 import { applyDelta } from '../diff'
 import { findShard } from '../registry'
 import { type DrawingsShardValue, drawingsShard } from './drawings-shard'
@@ -39,9 +52,35 @@ function makeMap(id: string, drawings: DrawingData[] | undefined): GameMap {
   } as unknown as GameMap
 }
 
+function peer(overrides: Partial<PeerInfo>): PeerInfo {
+  return {
+    peerId: 'p',
+    clientId: 'cid',
+    role: 'player',
+    displayName: 'Someone',
+    characterId: null,
+    characterName: null,
+    isReady: true,
+    isHost: false,
+    ...overrides
+  }
+}
+
+/** A campaign whose built-in roles include the DM (has `draw_dm_only`) and the
+ * player (does not). */
+function makeCampaign(): Campaign {
+  return {
+    id: 'camp-1',
+    permissions: { roles: structuredClone(BUILTIN_ROLES), playerOverrides: {} }
+  } as unknown as Campaign
+}
+
 describe('drawings-shard (Phase 31i)', () => {
   beforeEach(() => {
     useGameStore.setState({ maps: [] })
+    connectedPeers.value = []
+    useCampaignStore.setState({ campaigns: [makeCampaign()] })
+    useNetworkStore.setState({ campaignId: 'camp-1' })
   })
 
   it('registers itself under the name "drawings"', () => {
@@ -49,8 +88,8 @@ describe('drawings-shard (Phase 31i)', () => {
     expect(findShard('drawings')).toBe(drawingsShard)
   })
 
-  it('declares NO permissionFilter (drawings are unfiltered on the wire today; visibility is render-surface only)', () => {
-    expect(drawingsShard.permissionFilter).toBeUndefined()
+  it('declares a permissionFilter (it is now a FILTERED shard)', () => {
+    expect(typeof drawingsShard.permissionFilter).toBe('function')
   })
 
   it('read() projects every map drawings into a record keyed by map id (undefined → [])', () => {
@@ -138,5 +177,43 @@ describe('drawings-shard (Phase 31i)', () => {
     off()
     useGameStore.setState({ maps: [makeMap('m-a', [makeDrawing('d-9')])] })
     expect(cb).toHaveBeenCalledTimes(1) // unsubscribed → no further calls
+  })
+
+  describe('permissionFilter (DM-only drawing visibility gate)', () => {
+    const visible = makeDrawing('d-visible', { visibleToPlayers: true })
+    const hidden = makeDrawing('d-hidden', { visibleToPlayers: false })
+    // visibleToPlayers omitted → undefined → must STAY visible to players.
+    const undef = makeDrawing('d-undef', { visibleToPlayers: undefined })
+    const value: DrawingsShardValue = { 'm-a': [visible, hidden, undef] }
+
+    it('returns the FULL drawing set for a DM-permissioned recipient', () => {
+      connectedPeers.value = [peer({ clientId: 'cid-dm', peerId: 'p-dm', roleId: 'role-dm' })]
+      expect(drawingsShard.permissionFilter?.(value, 'cid-dm')).toEqual(value)
+    })
+
+    it('returns the FULL set (incl. hidden) for the literal host (fast path)', () => {
+      connectedPeers.value = [peer({ clientId: 'cid-host', peerId: 'p-host', isHost: true })]
+      const out = drawingsShard.permissionFilter?.(value, 'cid-host') as DrawingsShardValue
+      expect(out['m-a'].map((d) => d.id)).toContain('d-hidden')
+    })
+
+    it('returns the FULL set for a co-DM (fast path)', () => {
+      connectedPeers.value = [peer({ clientId: 'cid-codm', peerId: 'p-codm', isCoDM: true })]
+      const out = drawingsShard.permissionFilter?.(value, 'cid-codm') as DrawingsShardValue
+      expect(out['m-a'].map((d) => d.id)).toContain('d-hidden')
+    })
+
+    it('DROPS only visibleToPlayers:false for a player (undefined stays visible)', () => {
+      connectedPeers.value = [peer({ clientId: 'cid-player', peerId: 'p-player', roleId: 'role-player' })]
+      const out = drawingsShard.permissionFilter?.(value, 'cid-player') as DrawingsShardValue
+      // d-hidden dropped; d-undef kept — proves `=== false`, not `!d.visibleToPlayers`.
+      expect(out['m-a'].map((d) => d.id)).toEqual(['d-visible', 'd-undef'])
+    })
+
+    it('denies-by-default (hidden dropped, undefined kept) for an unknown recipient', () => {
+      connectedPeers.value = []
+      const out = drawingsShard.permissionFilter?.(value, 'cid-ghost') as DrawingsShardValue
+      expect(out['m-a'].map((d) => d.id)).toEqual(['d-visible', 'd-undef'])
+    })
   })
 })
