@@ -9,6 +9,9 @@
  * Add a new feature shard here when migrating it onto the pipeline (31f+).
  */
 import './conditions-shard'
+import './drawings-shard'
 import './fog-shard'
 import './initiative-shard'
+import './regions-shard'
 import './tokens-shard'
+import './walls-shard'

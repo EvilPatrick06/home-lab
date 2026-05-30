@@ -136,91 +136,35 @@ export function startGameSync(sendMessage: SendMessageFn): void {
       sendMessage('game:state-update', { sharedJournal: state.sharedJournal })
     }
 
+    // Phase 31h — map tokens now stream to clients via the shard broadcaster
+    // (`sync:delta`) through the per-recipient permissionFilter (the DM gets the
+    // full token set incl. hidden tokens + DM-only fields, players get only the
+    // player-visible tokens with hidden ones dropped and DM-only fields stripped
+    // — reusing filterGameStateForRole). The bespoke per-token broadcast that
+    // used to live here is gone (tokens-shard).
+    //
+    // Phase 31g — fog-of-war now streams via the shard broadcaster through the
+    // per-recipient permissionFilter (DM = full fog state, players = revealed
+    // mask only). The bespoke `dm:fog-reveal` per-change broadcast is gone
+    // (fog-shard).
+    //
+    // Phase 31i — wall segments, scene regions, and drawings now stream via the
+    // shard broadcaster (walls-shard / regions-shard / drawings-shard, all
+    // UNFILTERED — preserving the prior all-clients wire behavior; DM-only
+    // region/drawing visibility stays a render-surface concern). The bespoke
+    // `game:state-update { wallSegments }`, `dm:region-add/update/remove`, and
+    // `dm:drawing-add/remove` per-change broadcasts that used to live here (on
+    // `map.* !== prevMap.*`) are gone. All of these features stay in
+    // buildFullGameStatePayload so the role-filtered join snapshot still seeds
+    // them, and the old message types + client handlers remain for 31l
+    // back-compat.
+    //
+    // Newly-added maps still broadcast here: `addMap` carries the full map
+    // (incl. walls/regions/drawings/tokens/fog) so a mid-session map creation
+    // reaches clients before the shard deltas for its per-map fields begin.
     if (state.maps !== prevMaps) {
       const oldMaps = prevMaps
       prevMaps = state.maps
-
-      for (const map of state.maps) {
-        const prevMap = oldMaps.find((m) => m.id === map.id)
-        if (!prevMap) continue
-
-        // Phase 31h — map tokens now stream to clients via the shard broadcaster
-        // (`sync:delta`) through the per-recipient permissionFilter (the DM gets
-        // the full token set incl. hidden tokens + DM-only fields, players get
-        // only the player-visible tokens with hidden ones dropped and DM-only
-        // fields stripped — reusing filterGameStateForRole), wired in the network
-        // store's hostGame. The bespoke per-token add/update/move/remove broadcast
-        // that used to live here (on `map.tokens !== prevMap.tokens`) is gone, as
-        // is the now-unused token-move throttle. Tokens stay in
-        // buildFullGameStatePayload so the role-filtered join snapshot still seeds
-        // them. (The token message types + their client handlers remain for 31l
-        // back-compat.)
-
-        // Phase 31g — fog-of-war now streams to clients via the shard
-        // broadcaster (`sync:delta`) through the per-recipient permissionFilter
-        // (the DM gets the full fog state, players get only the revealed mask),
-        // wired in the network store's hostGame. The bespoke `dm:fog-reveal`
-        // per-change broadcast that used to live here (on
-        // `map.fogOfWar !== prevMap.fogOfWar`) is gone. Fog stays in
-        // buildFullGameStatePayload so the role-filtered join snapshot still
-        // seeds it. (The `dm:fog-reveal` message type + its client handler
-        // remain for 31l back-compat.)
-
-        if (map.wallSegments !== prevMap.wallSegments) {
-          sendMessage('game:state-update', {
-            wallSegments: { mapId: map.id, segments: map.wallSegments }
-          })
-        }
-
-        if (map.regions !== prevMap.regions) {
-          for (const region of map.regions ?? []) {
-            if (!(prevMap.regions ?? []).some((r) => r.id === region.id)) {
-              sendMessage('dm:region-add', { mapId: map.id, region })
-            } else {
-              const prev = (prevMap.regions ?? []).find((r) => r.id === region.id)
-              if (prev && prev !== region) {
-                sendMessage('dm:region-update', { mapId: map.id, regionId: region.id, updates: region })
-              }
-            }
-          }
-          for (const prevRegion of prevMap.regions ?? []) {
-            if (!(map.regions ?? []).some((r) => r.id === prevRegion.id)) {
-              sendMessage('dm:region-remove', { mapId: map.id, regionId: prevRegion.id })
-            }
-          }
-        }
-
-        if (map.drawings !== prevMap.drawings) {
-          // Check for added drawings
-          for (const drawing of map.drawings ?? []) {
-            if (!(prevMap.drawings ?? []).some((d) => d.id === drawing.id)) {
-              sendMessage('dm:drawing-add', {
-                mapId: map.id,
-                drawing: {
-                  id: drawing.id,
-                  type: drawing.type,
-                  points: drawing.points,
-                  color: drawing.color,
-                  strokeWidth: drawing.strokeWidth,
-                  text: drawing.text,
-                  visibleToPlayers: drawing.visibleToPlayers,
-                  floor: drawing.floor
-                }
-              })
-            }
-          }
-
-          // Check for removed drawings
-          for (const prevDrawing of prevMap.drawings ?? []) {
-            if (!(map.drawings ?? []).some((d) => d.id === prevDrawing.id)) {
-              sendMessage('dm:drawing-remove', {
-                mapId: map.id,
-                drawingId: prevDrawing.id
-              })
-            }
-          }
-        }
-      }
 
       // New maps added
       for (const map of state.maps) {
