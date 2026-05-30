@@ -20,9 +20,11 @@ export default defineConfig({
     // improves cache hit rate across deploys.
     rollupOptions: {
       output: {
-        manualChunks: {
-          'vendor-react': ['react', 'react-dom'],
-          'vendor-icons': ['lucide-react'],
+        // Vite 8 (Rolldown) requires the FUNCTION form of manualChunks (the
+        // object form was removed). Same intent: isolate react + lucide vendors.
+        manualChunks(id) {
+          if (id.includes('node_modules/lucide-react')) return 'vendor-icons'
+          if (id.includes('node_modules/react')) return 'vendor-react'
         },
       },
     },
