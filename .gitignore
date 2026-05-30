@@ -106,6 +106,9 @@ bmo/pi/data/playback_state.json
 bmo/pi/data/recent_chat.json
 bmo/pi/data/settings.json
 bmo/pi/data/dnd_sessions/
+# Phase 36 — generated mirror of dnd-app's canonical 5e JSON, served by /api/library.
+# Regenerate with bmo/pi/scripts/seed-5e-library.sh; not a source of truth.
+bmo/pi/data/5e-library/
 
 # Hardware LED / local UI state (runtime)
 bmo/pi/hardware/data/

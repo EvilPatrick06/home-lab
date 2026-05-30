@@ -708,6 +708,26 @@ function CloudBackupSection(): JSX.Element {
   // mDNS auto-discovery) and BMO is reachable without an API key, so there's
   // nothing to configure here — just the backup actions below.
 
+  // Phase 36 — opt-in: load 5e library content from the Pi (bundled data is the
+  // fallback). Persisted in app settings; read by data-provider's remote loader.
+  const [piLibraryEnabled, setPiLibraryEnabled] = useState(false)
+  useEffect(() => {
+    window.api
+      .loadSettings()
+      .then((s) => setPiLibraryEnabled(s?.piLibraryEnabled === true))
+      .catch(() => {})
+  }, [])
+  const handleTogglePiLibrary = async (checked: boolean): Promise<void> => {
+    setPiLibraryEnabled(checked)
+    try {
+      const settings = await window.api.loadSettings()
+      await window.api.saveSettings({ ...settings, piLibraryEnabled: checked })
+    } catch {
+      /* revert on failure */
+      setPiLibraryEnabled(!checked)
+    }
+  }
+
   const handleCheckStatus = async (): Promise<void> => {
     setLoading('status')
     setMessage(null)
@@ -792,6 +812,20 @@ function CloudBackupSection(): JSX.Element {
   return (
     <div className="space-y-3">
       <p className="text-xs text-gray-400">{t('pages.settingsPage.cloudBackupDesc')}</p>
+
+      {/* Phase 36 — Pi library toggle */}
+      <label className="flex items-start gap-2 text-sm text-gray-300">
+        <input
+          type="checkbox"
+          checked={piLibraryEnabled}
+          onChange={(e) => void handleTogglePiLibrary(e.target.checked)}
+          className="mt-0.5 cursor-pointer"
+        />
+        <span>
+          {t('pages.settingsPage.piLibraryToggle')}
+          <span className="block text-xs text-gray-500">{t('pages.settingsPage.piLibraryDesc')}</span>
+        </span>
+      </label>
 
       {/* Status display */}
       {message && (

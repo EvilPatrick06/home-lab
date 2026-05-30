@@ -53,6 +53,7 @@ import type {
   TrinketsFile
 } from '../types/data'
 import type { MountData, MountsFile } from '../types/data/equipment-data-types'
+import { loadRemoteLibrary } from './library/remote-library'
 
 type _MountData = MountData
 type _MountsFile = MountsFile
@@ -128,6 +129,13 @@ function resolvePath(key: string): string {
 export async function loadJson<T>(path: string): Promise<T> {
   const cached = jsonCache.get(path)
   if (cached !== undefined) return cached as T
+  // Phase 36 — when the Pi library is enabled, prefer it (content-hash cached);
+  // any miss/error/disabled returns null and we fall back to the bundled file.
+  const remote = await loadRemoteLibrary<T>(path)
+  if (remote != null) {
+    jsonCache.set(path, remote)
+    return remote
+  }
   const data = (await window.api.game.loadJson(path)) as T
   jsonCache.set(path, data)
   return data

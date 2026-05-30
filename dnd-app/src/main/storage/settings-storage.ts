@@ -29,7 +29,9 @@ export const AppSettingsSchema = z
       })
       .optional(),
     /** BMO Pi HTTP base (main fetches, cloud sync, CSP). Empty/unset → BMO_PI_URL env or default. */
-    bmoPiBaseUrl: z.string().optional()
+    bmoPiBaseUrl: z.string().optional(),
+    /** Phase 36 — load 5e library content from the Pi (with bundled fallback). Default off. */
+    piLibraryEnabled: z.boolean().optional()
   })
   .passthrough()
 

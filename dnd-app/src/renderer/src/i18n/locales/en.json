@@ -6092,7 +6092,9 @@
       "restoreDefaultsConfirm": "Restore default settings? Theme, audio, accessibility, keybindings, and turn-server config will reset. Characters, campaigns, library, and macros will be untouched.",
       "resetAllData": "Reset All Data",
       "resetAllDataDesc": " — destructive. Wipes ALL stored data: settings, campaigns, characters, library, homebrew, macros, drafts, notification history, autosaves. This cannot be undone.",
-      "resetAllDataConfirm": "Reset all data? This will WIPE campaigns, characters, library entries, macros, drafts, and all settings. This cannot be undone."
+      "resetAllDataConfirm": "Reset all data? This will WIPE campaigns, characters, library entries, macros, drafts, and all settings. This cannot be undone.",
+      "piLibraryToggle": "Load library content from the Pi",
+      "piLibraryDesc": "When on, 5e content loads from the Pi library API. The bundled data is always used as a fallback."
     }
   },
   "sheet": {

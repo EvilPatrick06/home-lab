@@ -79,6 +79,14 @@ def _cache_policy(response):
             "Access-Control-Allow-Headers", "Content-Type, X-Registry-Key, Authorization"
         )
         response.headers.setdefault("Access-Control-Max-Age", "600")
+    # Phase 36: the dnd-app fetches the read-only 5e library (/api/library*) from
+    # a file:// origin too. Same LAN-public rationale as the registry — non-sensitive
+    # content, GET-only, `*` is correct.
+    if (request.path or "").startswith("/api/library"):
+        response.headers.setdefault("Access-Control-Allow-Origin", "*")
+        response.headers.setdefault("Access-Control-Allow-Methods", "GET, OPTIONS")
+        response.headers.setdefault("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        response.headers.setdefault("Access-Control-Max-Age", "86400")
     if "text/html" in response.content_type:
         # 'unsafe-eval' is REQUIRED: Alpine.js compiles its `x-data` / `@click`
         # / `x-show` expressions via `new AsyncFunction(expr)` at runtime, which
@@ -5372,6 +5380,7 @@ def on_disconnect():
 # so the blueprint can resolve a live agent reference.
 from routes.ide import register_ide, cleanup_client_session
 from routes.game_relay_ws import register_game_relay
+from routes.library_api import register_library
 
 # ── Main ─────────────────────────────────────────────────────────────
 
@@ -5381,6 +5390,9 @@ if __name__ == "__main__":
     register_ide(app, socketio, agent)
     # Phase 32 — cloud multiplayer relay on the `/game` Socket.IO namespace.
     register_game_relay(socketio, api_key=BMO_API_KEY)
+    # Phase 36 — read-only 5e library API (/api/library) serving the seeded
+    # bmo/pi/data/5e-library/ tree (empty/dormant until seed-5e-library.sh runs).
+    register_library(app)
     # Restore music playback from last session (if any)
     if music:
         try:
