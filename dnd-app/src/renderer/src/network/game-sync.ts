@@ -205,12 +205,15 @@ export function startGameSync(sendMessage: SendMessageFn): void {
           }
         }
 
-        if (map.fogOfWar !== prevMap.fogOfWar) {
-          sendMessage('dm:fog-reveal', {
-            mapId: map.id,
-            fogOfWar: map.fogOfWar
-          })
-        }
+        // Phase 31g — fog-of-war now streams to clients via the shard
+        // broadcaster (`sync:delta`) through the per-recipient permissionFilter
+        // (the DM gets the full fog state, players get only the revealed mask),
+        // wired in the network store's hostGame. The bespoke `dm:fog-reveal`
+        // per-change broadcast that used to live here (on
+        // `map.fogOfWar !== prevMap.fogOfWar`) is gone. Fog stays in
+        // buildFullGameStatePayload so the role-filtered join snapshot still
+        // seeds it. (The `dm:fog-reveal` message type + its client handler
+        // remain for 31l back-compat.)
 
         if (map.wallSegments !== prevMap.wallSegments) {
           sendMessage('game:state-update', {
