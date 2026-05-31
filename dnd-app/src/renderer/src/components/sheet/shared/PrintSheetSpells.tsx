@@ -32,10 +32,7 @@ export default function PrintSheetSpells({ character }: PrintSheetSpellsProps): 
       {/* Spells */}
       {sortedSpellLevels.length > 0 && (
         <div className="mb-4 break-inside-avoid">
-          <h2
-            className="mb-1 text-xs font-bold uppercase tracking-wider border-b border-gray-400 pb-0.5"
-            style={{ fontSize: '8pt' }}
-          >
+          <h2 className="mb-1 text-[8pt] font-bold uppercase tracking-wider border-b border-gray-400 pb-0.5">
             {t('sheet.printSheetSpells.spells')}
           </h2>
           {sortedSpellLevels.map((lvl) => {
@@ -72,10 +69,7 @@ export default function PrintSheetSpells({ character }: PrintSheetSpellsProps): 
       {/* Features */}
       {character.features.length > 0 && (
         <div className="mb-4 break-inside-avoid">
-          <h2
-            className="mb-1 text-xs font-bold uppercase tracking-wider border-b border-gray-400 pb-0.5"
-            style={{ fontSize: '8pt' }}
-          >
+          <h2 className="mb-1 text-[8pt] font-bold uppercase tracking-wider border-b border-gray-400 pb-0.5">
             {t('sheet.printSheetSpells.featuresAndTraits')}
           </h2>
           <div className="mt-0.5 space-y-1 text-[8.5pt]">
@@ -93,10 +87,7 @@ export default function PrintSheetSpells({ character }: PrintSheetSpellsProps): 
       {/* Feats */}
       {feats.length > 0 && (
         <div className="mb-4 break-inside-avoid">
-          <h2
-            className="mb-1 text-xs font-bold uppercase tracking-wider border-b border-gray-400 pb-0.5"
-            style={{ fontSize: '8pt' }}
-          >
+          <h2 className="mb-1 text-[8pt] font-bold uppercase tracking-wider border-b border-gray-400 pb-0.5">
             {t('sheet.printSheetSpells.feats')}
           </h2>
           <div className="mt-0.5 space-y-1 text-[8.5pt]">
@@ -113,10 +104,7 @@ export default function PrintSheetSpells({ character }: PrintSheetSpellsProps): 
       {/* Details */}
       {character.details && (
         <div className="mb-4 break-inside-avoid">
-          <h2
-            className="mb-1 text-xs font-bold uppercase tracking-wider border-b border-gray-400 pb-0.5"
-            style={{ fontSize: '8pt' }}
-          >
+          <h2 className="mb-1 text-[8pt] font-bold uppercase tracking-wider border-b border-gray-400 pb-0.5">
             {t('sheet.printSheetSpells.characterDetails')}
           </h2>
           <div className="mt-0.5 space-y-0.5 text-[8.5pt]">
@@ -147,10 +135,7 @@ export default function PrintSheetSpells({ character }: PrintSheetSpellsProps): 
       {/* Backstory */}
       {character.backstory && (
         <div className="mb-4 break-inside-avoid">
-          <h2
-            className="mb-1 text-xs font-bold uppercase tracking-wider border-b border-gray-400 pb-0.5"
-            style={{ fontSize: '8pt' }}
-          >
+          <h2 className="mb-1 text-[8pt] font-bold uppercase tracking-wider border-b border-gray-400 pb-0.5">
             {t('sheet.printSheetSpells.backstory')}
           </h2>
           <div className="mt-0.5 text-[8.5pt] whitespace-pre-wrap">{character.backstory}</div>

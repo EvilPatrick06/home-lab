@@ -16,10 +16,8 @@ export default function PrintSheetHeader({ character, proficiencyBonus: pb }: Pr
 
   return (
     <div className="mb-4 border-b-2 border-black pb-2">
-      <h1 className="text-2xl font-bold leading-tight" style={{ fontSize: '18pt' }}>
-        {character.name}
-      </h1>
-      <div className="mt-1 flex flex-wrap gap-x-6 gap-y-0.5 text-sm" style={{ fontSize: '9pt' }}>
+      <h1 className="text-[18pt] font-bold leading-tight">{character.name}</h1>
+      <div className="mt-1 flex flex-wrap gap-x-6 gap-y-0.5 text-[9pt]">
         <span>
           <strong>{t('sheet.printSheetHeader.class')}</strong> {classStr}
         </span>

@@ -34,10 +34,7 @@ export default function PrintSheetStats({ character, proficiencyBonus: pb }: Pri
     <>
       {/* Ability Scores */}
       <div className="mb-4">
-        <h2
-          className="mb-1 text-xs font-bold uppercase tracking-wider border-b border-gray-400 pb-0.5"
-          style={{ fontSize: '8pt' }}
-        >
+        <h2 className="mb-1 text-[8pt] font-bold uppercase tracking-wider border-b border-gray-400 pb-0.5">
           {t('sheet.printSheetStats.abilityScores')}
         </h2>
         <div className="grid grid-cols-6 gap-2 text-center mt-1">
@@ -47,9 +44,7 @@ export default function PrintSheetStats({ character, proficiencyBonus: pb }: Pri
             return (
               <div key={ab} className="border border-gray-400 rounded px-1 py-1.5">
                 <div className="text-[7pt] font-bold uppercase tracking-wide text-gray-600">{ABILITY_LABELS[ab]}</div>
-                <div className="text-lg font-bold leading-tight" style={{ fontSize: '14pt' }}>
-                  {formatMod(mod)}
-                </div>
+                <div className="text-[14pt] font-bold leading-tight">{formatMod(mod)}</div>
                 <div className="text-[8pt] text-gray-500">{score}</div>
               </div>
             )
@@ -63,10 +58,7 @@ export default function PrintSheetStats({ character, proficiencyBonus: pb }: Pri
         <div>
           {/* Saving Throws */}
           <div className="mb-3">
-            <h2
-              className="mb-1 text-xs font-bold uppercase tracking-wider border-b border-gray-400 pb-0.5"
-              style={{ fontSize: '8pt' }}
-            >
+            <h2 className="mb-1 text-[8pt] font-bold uppercase tracking-wider border-b border-gray-400 pb-0.5">
               {t('sheet.printSheetStats.savingThrows')}
             </h2>
             <div className="mt-0.5 space-y-px text-[8.5pt]">
@@ -86,10 +78,7 @@ export default function PrintSheetStats({ character, proficiencyBonus: pb }: Pri
 
           {/* Skills */}
           <div>
-            <h2
-              className="mb-1 text-xs font-bold uppercase tracking-wider border-b border-gray-400 pb-0.5"
-              style={{ fontSize: '8pt' }}
-            >
+            <h2 className="mb-1 text-[8pt] font-bold uppercase tracking-wider border-b border-gray-400 pb-0.5">
               {t('sheet.printSheetStats.skills')}
             </h2>
             <div className="mt-0.5 space-y-px text-[8.5pt]">
@@ -119,30 +108,23 @@ export default function PrintSheetStats({ character, proficiencyBonus: pb }: Pri
         <div>
           {/* Combat Stats */}
           <div className="mb-3">
-            <h2
-              className="mb-1 text-xs font-bold uppercase tracking-wider border-b border-gray-400 pb-0.5"
-              style={{ fontSize: '8pt' }}
-            >
+            <h2 className="mb-1 text-[8pt] font-bold uppercase tracking-wider border-b border-gray-400 pb-0.5">
               {t('sheet.printSheetStats.combat')}
             </h2>
             <div className="mt-1 grid grid-cols-3 gap-2 text-center">
               <div className="border border-gray-400 rounded py-1.5">
                 <div className="text-[7pt] font-bold uppercase text-gray-600">{t('sheet.printSheetStats.ac')}</div>
-                <div className="text-lg font-bold" style={{ fontSize: '14pt' }}>
-                  {character.armorClass}
-                </div>
+                <div className="text-[14pt] font-bold">{character.armorClass}</div>
               </div>
               <div className="border border-gray-400 rounded py-1.5">
                 <div className="text-[7pt] font-bold uppercase text-gray-600">
                   {t('sheet.printSheetStats.initiative')}
                 </div>
-                <div className="text-lg font-bold" style={{ fontSize: '14pt' }}>
-                  {formatMod(character.initiative)}
-                </div>
+                <div className="text-[14pt] font-bold">{formatMod(character.initiative)}</div>
               </div>
               <div className="border border-gray-400 rounded py-1.5">
                 <div className="text-[7pt] font-bold uppercase text-gray-600">{t('sheet.printSheetStats.speed')}</div>
-                <div className="text-lg font-bold" style={{ fontSize: '14pt' }}>
+                <div className="text-[14pt] font-bold">
                   {t('sheet.printSheetStats.speedValue', { speed: character.speed })}
                 </div>
               </div>
@@ -152,7 +134,7 @@ export default function PrintSheetStats({ character, proficiencyBonus: pb }: Pri
                 <div className="text-[7pt] font-bold uppercase text-gray-600">
                   {t('sheet.printSheetStats.hitPoints')}
                 </div>
-                <div className="text-base font-bold" style={{ fontSize: '12pt' }}>
+                <div className="text-[12pt] font-bold">
                   {character.hitPoints.current} / {character.hitPoints.maximum}
                 </div>
                 {character.hitPoints.temporary > 0 && (
@@ -163,9 +145,7 @@ export default function PrintSheetStats({ character, proficiencyBonus: pb }: Pri
               </div>
               <div className="border border-gray-400 rounded py-1.5">
                 <div className="text-[7pt] font-bold uppercase text-gray-600">{t('sheet.printSheetStats.hitDice')}</div>
-                <div className="text-base font-bold" style={{ fontSize: '12pt' }}>
-                  {hitDiceStr}
-                </div>
+                <div className="text-[12pt] font-bold">{hitDiceStr}</div>
                 <div className="text-[7pt] text-gray-500">
                   {t('sheet.printSheetStats.remaining', {
                     count: character.hitDice.reduce((s, h) => s + h.current, 0)
@@ -179,17 +159,13 @@ export default function PrintSheetStats({ character, proficiencyBonus: pb }: Pri
                   <div className="text-[7pt] font-bold uppercase text-gray-600">
                     {t('sheet.printSheetStats.spellSaveDc')}
                   </div>
-                  <div className="text-base font-bold" style={{ fontSize: '12pt' }}>
-                    {character.spellcasting.spellSaveDC}
-                  </div>
+                  <div className="text-[12pt] font-bold">{character.spellcasting.spellSaveDC}</div>
                 </div>
                 <div className="border border-gray-400 rounded py-1.5">
                   <div className="text-[7pt] font-bold uppercase text-gray-600">
                     {t('sheet.printSheetStats.spellAttack')}
                   </div>
-                  <div className="text-base font-bold" style={{ fontSize: '12pt' }}>
-                    {formatMod(character.spellcasting.spellAttackBonus)}
-                  </div>
+                  <div className="text-[12pt] font-bold">{formatMod(character.spellcasting.spellAttackBonus)}</div>
                 </div>
               </div>
             )}
@@ -198,10 +174,7 @@ export default function PrintSheetStats({ character, proficiencyBonus: pb }: Pri
           {/* Attacks */}
           {weapons.length > 0 && (
             <div className="mb-3">
-              <h2
-                className="mb-1 text-xs font-bold uppercase tracking-wider border-b border-gray-400 pb-0.5"
-                style={{ fontSize: '8pt' }}
-              >
+              <h2 className="mb-1 text-[8pt] font-bold uppercase tracking-wider border-b border-gray-400 pb-0.5">
                 {t('sheet.printSheetStats.attacks')}
               </h2>
               <table className="mt-0.5 w-full text-[8.5pt]">
@@ -229,10 +202,7 @@ export default function PrintSheetStats({ character, proficiencyBonus: pb }: Pri
 
           {/* Proficiencies summary */}
           <div className="mb-3">
-            <h2
-              className="mb-1 text-xs font-bold uppercase tracking-wider border-b border-gray-400 pb-0.5"
-              style={{ fontSize: '8pt' }}
-            >
+            <h2 className="mb-1 text-[8pt] font-bold uppercase tracking-wider border-b border-gray-400 pb-0.5">
               {t('sheet.printSheetStats.proficiencies')}
             </h2>
             <div className="mt-0.5 space-y-0.5 text-[8.5pt]">
@@ -264,10 +234,7 @@ export default function PrintSheetStats({ character, proficiencyBonus: pb }: Pri
       {/* Equipment */}
       {character.equipment.length > 0 && (
         <div className="mb-4 break-inside-avoid">
-          <h2
-            className="mb-1 text-xs font-bold uppercase tracking-wider border-b border-gray-400 pb-0.5"
-            style={{ fontSize: '8pt' }}
-          >
+          <h2 className="mb-1 text-[8pt] font-bold uppercase tracking-wider border-b border-gray-400 pb-0.5">
             {t('sheet.printSheetStats.equipment')}
           </h2>
           <div className="mt-0.5 columns-2 gap-4 text-[8.5pt]">
