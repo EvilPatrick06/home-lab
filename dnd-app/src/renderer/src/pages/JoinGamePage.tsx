@@ -201,6 +201,7 @@ export default function JoinGamePage(): JSX.Element {
     }
   }, [waitingForCampaign, campaignId, navigate, displayName])
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Timeout effect (deps drive the waitingForCampaign gate) uses t only for a timeout error message routed through the network store. Adding fresh-each-render t would reset the setTimeout on every render.
   useEffect(() => {
     if (!waitingForCampaign) return
     const timeout = setTimeout(() => {
@@ -283,6 +284,7 @@ export default function JoinGamePage(): JSX.Element {
     [pendingTarget, connectWithCode]
   )
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: handlePasswordSubmit useCallback (deps [pwTarget, connectWithCode]) uses t only for the invalid-invite-code error. Listing fresh-each-render t recreates the callback every render.
   const handlePasswordSubmit = useCallback(
     (code: string) => {
       const target = pwTarget

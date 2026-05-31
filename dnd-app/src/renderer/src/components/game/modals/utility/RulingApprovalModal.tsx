@@ -17,6 +17,7 @@ export default function RulingApprovalModal(): JSX.Element | null {
   // Phase 17e (GUI-7) — dismiss (clear pending actions WITHOUT applying them). Escape + backdrop
   // click both dismiss; previously the modal had only Approve/Override and no escape hatch.
   const dismiss = (): void => rejectPendingActions('')
+  // biome-ignore lint/correctness/useExhaustiveDependencies: re-bind the Escape handler only when pendingActions toggles; rejectPendingActions is a stable store action
   useEffect(() => {
     if (!pendingActions) return
     const onKey = (e: KeyboardEvent): void => {

@@ -115,6 +115,7 @@ export default function DMMapEditor({ campaign, onClose }: DMMapEditorProps): JS
     setShowCreateMap(true)
   }, [])
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: handleCreateMap useCallback uses t only for the default map name string. useT() returns a fresh t each render — listing it would recreate the callback every render.
   const handleCreateMap = useCallback(
     (mapConfig: {
       name: string

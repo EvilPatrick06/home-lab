@@ -71,6 +71,7 @@ export default function NPCGeneratorModal({ onClose, onBroadcastResult }: NPCGen
 
   useEscapeKey(onClose)
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Mount-once effect ([] deps) loads random tables; uses t only for an error message. Adding fresh-each-render t would re-run the load every render.
   useEffect(() => {
     load5eRandomTables()
       .then((json) => {
@@ -156,6 +157,7 @@ export default function NPCGeneratorModal({ onClose, onBroadcastResult }: NPCGen
     [data, npc, rollName]
   )
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: handleShareToChat useCallback uses t only to format chat share lines. Listing fresh-each-render t would recreate the callback every render.
   const handleShareToChat = useCallback(() => {
     if (!npc) return
     const lines = [

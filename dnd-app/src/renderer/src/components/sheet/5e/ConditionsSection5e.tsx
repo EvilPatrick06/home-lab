@@ -26,6 +26,7 @@ export default function ConditionsSection5e({ character, readonly }: ConditionsS
 
   // Phase 15c.5 — derive active conditions (v3 shape) from v4 refs via the
   // truth store. Hydrated entries carry the live condition library data.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: getEffectiveConditions reads only character.conditionRefs — depend on that sub-field, not the whole character identity
   const activeConditions = useMemo<ActiveCondition[]>(
     () => getEffectiveConditions(character),
     [character.conditionRefs]

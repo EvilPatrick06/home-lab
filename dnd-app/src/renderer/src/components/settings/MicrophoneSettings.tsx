@@ -53,6 +53,7 @@ export default function MicrophoneSettings(): JSX.Element {
   // Open the selected mic, route through a GainNode and AnalyserNode, and
   // drive the level meter via rAF. Re-opens whenever deviceId or gain
   // changes. Cleanup releases the stream + AudioContext.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Mic-open effect (re-runs on deviceId/gain change) opens a MediaStream + AudioContext and uses t only for an error toast. Adding fresh-each-render t would tear down and reopen the mic stream on every r
   useEffect(() => {
     let cancelled = false
 

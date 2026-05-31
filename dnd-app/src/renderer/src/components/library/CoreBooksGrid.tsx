@@ -56,6 +56,7 @@ export default function CoreBooksGrid({ onOpenBook }: CoreBooksGridProps): JSX.E
     loadBooks()
   }, [loadBooks])
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: handleBrowseForBook useCallback (deps [loadBooks]) uses t only for dialog titles / untitled-book fallback. Listing fresh-each-render t recreates the callback every render.
   const handleBrowseForBook = useCallback(
     async (coreDef?: { key: string; title: string }) => {
       try {
@@ -88,6 +89,7 @@ export default function CoreBooksGrid({ onOpenBook }: CoreBooksGridProps): JSX.E
     [loadBooks]
   )
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: handleImportBook useCallback uses t only for the open-dialog title. Listing fresh-each-render t recreates the callback every render.
   const handleImportBook = useCallback(async () => {
     try {
       const result = await window.api.showOpenDialog({

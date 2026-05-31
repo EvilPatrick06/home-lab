@@ -72,6 +72,7 @@ export default function CreatureModal({
 
   useEscapeKey(onClose)
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Mount-once effect ([] deps) loads monsters; uses t only for an error toast. useT() returns a fresh t each render — adding it would convert a mount-once load into a per-render load.
   useEffect(() => {
     load5eMonsters()
       .then(setMonsters)

@@ -47,6 +47,7 @@ export default function AudioPlayerItem({
   // `path` so they're torn down on unmount / path change (the old code created
   // the element inside the click handler and never removed listeners or cancelled
   // the RAF, leaking on unmount-mid-play).
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Effect keyed on [path, hasPath, item.name] owns the <audio> element + listeners; uses t only for an error toast. Adding fresh-each-render t would tear down/recreate the audio element (and lose listene
   useEffect(() => {
     if (!hasPath) return
     const audio = new Audio(path)
@@ -75,6 +76,7 @@ export default function AudioPlayerItem({
     }
   }, [path, hasPath, item.name])
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: handleToggle useCallback uses t only for an error toast about missing audio path. Listing fresh-each-render t recreates the callback every render.
   const handleToggle = useCallback(
     (e: React.MouseEvent): void => {
       e.stopPropagation()

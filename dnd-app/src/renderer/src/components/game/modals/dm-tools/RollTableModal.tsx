@@ -244,6 +244,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
     [allTables]
   )
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: handleRoll useCallback (deps [allTables, resolveSubtables]) uses t only for the chat-history display string. Listing fresh-each-render t recreates the callback every render.
   const handleRoll = useCallback(
     (table: RollTable): void => {
       // Weighted entry support: if any entry has a weight, use weighted random
@@ -336,6 +337,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
     [addChatMessage, resolveSubtables]
   )
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: handleShareResult useCallback uses t only to format the share line. Listing fresh-each-render t recreates the callback every render.
   const handleShareResult = useCallback(
     (item: RollHistoryItem): void => {
       addChatMessage({

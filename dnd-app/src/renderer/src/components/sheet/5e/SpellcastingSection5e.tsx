@@ -41,12 +41,14 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
   const { t } = useT()
   // Phase 15c.5 — derive known spells (v3 shape) from v4 refs via the truth
   // store. Hydrated entries carry overrides + react to library mutations.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: getEffectiveKnownSpells reads only character.knownSpellRefs — depend on that sub-field, not the whole character
   const knownSpells: SpellEntry[] = useMemo(() => getEffectiveKnownSpells(character), [character.knownSpellRefs])
   const spellSlotLevels = character.spellSlotLevels ?? {}
   const pactMagicSlotLevels = character.pactMagicSlotLevels ?? {}
   // v3 used preparedSpellIds: string[]. v4 keys prepared by stable instanceId
   // in character.state.preparedSpellIds. Derive a v3-shape array for
   // backward-compat with the rest of this file's logic.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: getEffectivePreparedSpellIds reads state.preparedSpellIds + knownSpellRefs (both listed), not the whole character
   const preparedSpellIds: string[] = useMemo(
     () => getEffectivePreparedSpellIds(character),
     [character.state?.preparedSpellIds, character.knownSpellRefs]

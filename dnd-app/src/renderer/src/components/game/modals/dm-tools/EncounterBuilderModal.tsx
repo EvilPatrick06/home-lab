@@ -92,6 +92,7 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
 
   useEscapeKey(onClose)
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Mount-once effect ([] deps) loads monsters; uses t only for an error toast. Adding the fresh-each-render t would convert it to a per-render load.
   useEffect(() => {
     setMonstersLoading(true)
     load5eMonsters()

@@ -48,6 +48,7 @@ export default function DowntimeModal({
   const [extendedActivities, setExtendedActivities] = useState<ExtendedDowntimeActivity[]>([])
   const [languages, setLanguages] = useState<LanguageEntry[]>([])
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Mount-once effect ([] deps) loads downtime activities; uses t only for error toasts. Adding fresh-each-render t would re-run the load every render.
   useEffect(() => {
     loadDowntimeActivities()
       .then(setActivities)

@@ -74,6 +74,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
   const [pendingGoToPage, setPendingGoToPage] = useState<number | null>(null)
 
   // Load PDF
+  // biome-ignore lint/correctness/useExhaustiveDependencies: PDF-load effect uses t only for error display. Adding fresh-each-render t would re-trigger the PDF load on every render. Other reactive deps (bookId/path) drive the actual reload.
   useEffect(() => {
     let cancelled = false
 
@@ -703,6 +704,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
   }, [searchResults, currentSearchIdx, goToPage])
 
   // Bookmark management
+  // biome-ignore lint/correctness/useExhaustiveDependencies: addBookmark useCallback uses t only for the bookmark label string. Listing fresh-each-render t recreates the callback every render.
   const addBookmark = useCallback(() => {
     const bookmark: BookmarkEntry = {
       id: generateId(),

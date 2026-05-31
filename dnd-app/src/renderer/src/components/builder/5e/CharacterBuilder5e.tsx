@@ -120,6 +120,7 @@ export default function CharacterBuilder5e(): JSX.Element {
   }, [speciesSlot?.selectedId])
 
   // Validation
+  // biome-ignore lint/correctness/useExhaustiveDependencies: useMemo uses t only to build validation display strings; real validation logic depends on the 26 listed reactive values. useT() returns a fresh t closure every render, so adding it would recompute the
   const validation = useMemo(() => {
     const issues: string[] = []
 
@@ -312,6 +313,7 @@ export default function CharacterBuilder5e(): JSX.Element {
   const canSave = validation.length === 0
 
   // Check which detail and backstory fields are blank
+  // biome-ignore lint/correctness/useExhaustiveDependencies: blankDetailFields useMemo uses t only for field-label display strings; logic depends on the listed character* string fields. useT() returns a fresh t each render — listing it defeats memoization.
   const blankDetailFields = useMemo(() => {
     const blank: string[] = []
     if (!characterGender.trim()) blank.push(t('builder.characterBuilder.field.gender'))

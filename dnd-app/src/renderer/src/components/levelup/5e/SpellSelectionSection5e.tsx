@@ -153,6 +153,7 @@ export default function SpellSelectionSection5e({
   )
   const maxSwaps = Math.max(0, targetLevel - character.level)
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Effect loads spells and uses effectiveKnownSpells.map(s=>s.id) only to build existingIds for filtering. effectiveKnownSpells is a fresh hydrated array every render (derived from character.knownSpellRe
   useEffect(() => {
     if (!isCaster || maxSpellLevel === 0) {
       setLoading(false)

@@ -50,6 +50,7 @@ export default function CraftingBrowser({ characterTools, onStartCrafting }: Cra
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState<CraftingCategory>('all')
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Mount-once effect ([] deps) loads crafting data + recipes; uses t only for error toasts. Adding fresh-each-render t would re-run the load every render.
   useEffect(() => {
     load5eCrafting()
       .then(setCraftingData)

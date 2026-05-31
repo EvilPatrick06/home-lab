@@ -149,6 +149,7 @@ export default function DMRollerModal({ onClose, onMinimize, onRestore }: DMRoll
   )
 
   // Roll damage
+  // biome-ignore lint/correctness/useExhaustiveDependencies: doDamageRoll useCallback uses t only for the roll label display string. useT() returns fresh t each render — listing it recreates the callback every render.
   const doDamageRoll = useCallback(
     (entityName: string, action: MonsterAction): void => {
       if (!action.damageDice) return
