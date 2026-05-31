@@ -250,6 +250,13 @@ export const IPC_CHANNELS = {
   // URL without the user installing Bonjour Print Services on Windows.
   BMO_RESOLVED_URL: 'bmo:resolved-url',
 
+  // Emitted by main with the reachability of the Pi's WebRTC signaling
+  // server (bmo-peerjs, :9000/myapp). `reachable` is null when the probe is
+  // not applicable (no LAN/http Pi target — e.g. the off-LAN tunnel default,
+  // where :9000 isn't exposed) so the renderer can show "n/a" instead of a
+  // misleading "down".
+  BMO_SIGNALING_STATUS: 'bmo:signaling-status',
+
   // === Security Audit (20g) ===
   // Renderer → main: forward a renderer-side security event (kick/ban,
   // rejected network message) to the main-process audit log. The renderer

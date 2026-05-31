@@ -249,6 +249,14 @@ const api = {
       const listener = (_e: IpcRendererEvent, payload: { url: string | null }) => cb(payload)
       ipcRenderer.on(IPC_CHANNELS.BMO_RESOLVED_URL, listener)
       return () => ipcRenderer.removeListener(IPC_CHANNELS.BMO_RESOLVED_URL, listener)
+    },
+    // Reachability of the Pi's WebRTC signaling server (bmo-peerjs :9000).
+    // `reachable: null` = probe not applicable (off-LAN tunnel target).
+    onBmoSignalingStatus: (cb: (payload: { reachable: boolean | null; host: string; port: number }) => void) => {
+      const listener = (_e: IpcRendererEvent, payload: { reachable: boolean | null; host: string; port: number }) =>
+        cb(payload)
+      ipcRenderer.on(IPC_CHANNELS.BMO_SIGNALING_STATUS, listener)
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.BMO_SIGNALING_STATUS, listener)
     }
   },
 

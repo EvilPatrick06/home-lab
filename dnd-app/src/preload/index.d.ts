@@ -717,6 +717,7 @@ interface LanAPI {
   onGameFound: (cb: (entry: LanGameEntry) => void) => () => void
   onGameRemoved: (cb: (entry: LanRemovedEntry) => void) => () => void
   onBmoResolvedUrl: (cb: (payload: { url: string | null }) => void) => () => void
+  onBmoSignalingStatus: (cb: (payload: { reachable: boolean | null; host: string; port: number }) => void) => () => void
 }
 
 declare global {

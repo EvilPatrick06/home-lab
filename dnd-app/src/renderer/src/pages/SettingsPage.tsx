@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import MicrophoneSettings from '../components/settings/MicrophoneSettings'
 import DiscordIntegrationSettings from '../components/ui/DiscordIntegrationSettings'
+import MultiplayerStatusSection from '../components/ui/MultiplayerStatusSection'
 import OllamaManagement, { type AvailableModelList, type InstalledModelList } from '../components/ui/OllamaManagement'
 import { SETTINGS_KEYS } from '../constants'
 
@@ -1830,6 +1831,11 @@ export default function SettingsPage(): JSX.Element {
         {/* Discord Integration */}
         <Section title={t('pages.settingsPage.discordIntegration')}>
           <DiscordIntegrationSettings />
+        </Section>
+
+        {/* Multiplayer — P2P signaling reachability */}
+        <Section title={t('pages.settingsPage.multiplayer')}>
+          <MultiplayerStatusSection />
         </Section>
 
         {/* Keybindings */}

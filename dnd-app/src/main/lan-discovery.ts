@@ -20,7 +20,7 @@ import {
   type ValidatedLanGameFound,
   type ValidatedLanPublish
 } from '../shared/ipc-schemas'
-import { setDiscoveredBmoUrl } from './bmo-config'
+import { getBmoBaseUrl, setDiscoveredBmoUrl } from './bmo-config'
 import { logToFile } from './log'
 
 // bonjour-service@1.4 switched to `export = Bonjour` (a class merged with a
@@ -195,6 +195,59 @@ function startBmoDiscovery(): void {
     if (knownBmoFqdns.size > 0) return
     probeDefaultBmoLocal().catch((err) => logToFile('WARN', '[lan-discovery] default-host probe failed:', String(err)))
   }, 3_000)
+
+  startSignalingProbe()
+}
+
+// ── WebRTC signaling (bmo-peerjs :9000) health probe ───────────────────
+// The P2P transport signals through the Pi's PeerServer at `host:9000/myapp`
+// (peer-manager.ts). This periodic probe surfaces whether that signaling
+// server is reachable so the UI can warn when P2P games would fail to
+// connect. It only runs against an http (LAN) Pi target — the off-LAN tunnel
+// default does not expose :9000, so probing it would false-alarm "down".
+
+const SIGNALING_PORT = 9000
+const SIGNALING_PATH = '/myapp/peerjs/id'
+let signalingProbeTimer: ReturnType<typeof setInterval> | null = null
+
+async function probeSignalingServer(): Promise<void> {
+  let host = ''
+  let applicable = false
+  try {
+    const u = new URL(getBmoBaseUrl())
+    host = u.hostname
+    // Only meaningful for a LAN/http Pi — the https tunnel default does not
+    // proxy the raw :9000 PeerServer, so treat that as "not applicable".
+    applicable = u.protocol === 'http:'
+  } catch {
+    applicable = false
+  }
+
+  if (!applicable) {
+    broadcast(IPC_CHANNELS.BMO_SIGNALING_STATUS, { reachable: null, host, port: SIGNALING_PORT })
+    return
+  }
+
+  let reachable = false
+  try {
+    const controller = new AbortController()
+    const t = setTimeout(() => controller.abort(), 1_500)
+    // PeerServer's id endpoint returns a fresh peer id with 200 — a cheap liveness ping.
+    const resp = await fetch(`http://${host}:${SIGNALING_PORT}${SIGNALING_PATH}`, { signal: controller.signal })
+    clearTimeout(t)
+    reachable = resp.ok
+  } catch {
+    reachable = false
+  }
+  broadcast(IPC_CHANNELS.BMO_SIGNALING_STATUS, { reachable, host, port: SIGNALING_PORT })
+}
+
+function startSignalingProbe(): void {
+  if (signalingProbeTimer) return
+  // Probe shortly after startup (let URL resolution settle), then on a slow
+  // cadence — signaling reachability rarely flaps.
+  setTimeout(() => probeSignalingServer().catch(() => {}), 4_000)
+  signalingProbeTimer = setInterval(() => probeSignalingServer().catch(() => {}), 30_000)
 }
 
 async function probeDefaultBmoLocal(): Promise<void> {
