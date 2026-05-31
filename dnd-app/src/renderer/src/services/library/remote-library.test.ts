@@ -10,12 +10,7 @@ function jsonResponse(body: unknown, ok = true): Response {
   } as unknown as Response
 }
 
-function setup(opts: {
-  manifest?: unknown
-  files?: Record<string, unknown>
-  store?: Map<string, string>
-  base?: string
-}) {
+function setup(opts: { manifest?: unknown; files?: Record<string, unknown>; store?: Map<string, string> }) {
   const store = opts.store ?? new Map<string, string>()
   const fetchFn = vi.fn(async (url: string | URL) => {
     const u = String(url)
@@ -34,9 +29,7 @@ function setup(opts: {
     setItem: (k, v) => {
       store.set(k, v)
     },
-    // http LAN base — the loader only attempts the Pi library against an http
-    // target (the https tunnel default is treated as unreachable; see below).
-    resolveBaseUrl: async () => opts.base ?? 'http://pi.test'
+    resolveBaseUrl: async () => 'http://pi.test'
   })
   return { fetchFn, store }
 }
@@ -65,16 +58,6 @@ describe('loadRemoteLibrary', () => {
   it('returns null when the file is not in the manifest', async () => {
     setup({ manifest: { version: '1', files: {} } })
     expect(await loadRemoteLibrary('./data/5e/spells/spells.json')).toBeNull()
-  })
-
-  it('skips the Pi (no fetch) when the base is the off-LAN https tunnel', async () => {
-    const { fetchFn } = setup({
-      base: 'https://bmo.example.work',
-      manifest: { version: '1', files: { 'spells/spells.json': { sha256: 'abc', size: 9 } } },
-      files: { 'spells/spells.json': [{ id: 'fireball' }] }
-    })
-    expect(await loadRemoteLibrary('./data/5e/spells/spells.json')).toBeNull()
-    expect(fetchFn).not.toHaveBeenCalled()
   })
 
   it('fetches + returns + caches a manifest-listed file', async () => {

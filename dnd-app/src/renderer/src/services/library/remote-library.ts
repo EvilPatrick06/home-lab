@@ -111,17 +111,12 @@ export async function loadRemoteLibrary<T>(path: string): Promise<T | null> {
   }
   const base = baseCache
 
-  // The Pi library API is served only on the LAN (http) target — the off-LAN
-  // https tunnel default doesn't expose it (returns 403 / is CORS-blocked), so
-  // attempting it there is pointless. Mirror the signaling probe: only hit an
-  // http base; otherwise fall straight back to bundled data. (Also keeps the
-  // test suite off the network, since the default base resolves to the tunnel.)
-  try {
-    if (new URL(base).protocol !== 'http:') return null
-  } catch {
-    return null
-  }
-
+  // Works against BOTH the on-LAN http Pi and the off-LAN https tunnel: BMO
+  // sends `Access-Control-Allow-Origin: *`, so the renderer can read it cross-
+  // origin either way. Off-LAN requires the tunnel's Cloudflare Access app to
+  // bypass `/api/library/*` (read-only public data); when it doesn't, the
+  // manifest fetch is redirected/blocked → null → bundled fallback (the
+  // fetch is time-boxed so that fallback is fast).
   const manifest = await getManifest(base)
   const entry = manifest?.files?.[rel]
   if (!entry) return null
