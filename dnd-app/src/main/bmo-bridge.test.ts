@@ -128,6 +128,14 @@ describe('sync receiver hardening (Phase 28a.2/.3/.4)', () => {
     }
   })
 
+  it('serves the versioned /api/v1/sync/health alias with apiVersion', async () => {
+    getBmoApiKey.mockReturnValue('secret-token')
+    const res = await fetch(`${BASE}/api/v1/sync/health`)
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body).toMatchObject({ ok: true, version: '1.0.0', apiVersion: 'v1' })
+  })
+
   it('returns 415 on non-JSON Content-Type', async () => {
     const res = await fetch(`${BASE}/api/sync`, {
       method: 'POST',

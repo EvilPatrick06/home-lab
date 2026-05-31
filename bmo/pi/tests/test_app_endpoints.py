@@ -165,6 +165,36 @@ class TestHealthEndpoint:
         response = client.get("/health")
         assert "application/json" in response.content_type
 
+    def test_health_advertises_api_version(self, client):
+        # The /health payload now carries the API contract version alongside `status`.
+        data = client.get("/health").get_json()
+        assert data.get("api_version") == "v1"
+
+
+# ── /api/v1/* versioned aliases ───────────────────────────────────────
+
+class TestApiV1Aliases:
+    """Stacked @app.route /api/v1/* decorators map to the same handlers as the bare paths."""
+
+    def test_v1_health_returns_200_with_version(self, client):
+        response = client.get("/api/v1/health")
+        assert response.status_code == 200
+        data = response.get_json()
+        assert data.get("status") == "ok"
+        assert data.get("api_version") == "v1"
+
+    def test_bare_health_still_works(self, client):
+        # The alias must not displace the unversioned path that existing probes use.
+        assert client.get("/health").status_code == 200
+
+    def test_v1_health_full_returns_200(self, client):
+        # /api/health/full returns 200 with or without a live checker; the alias must too.
+        assert client.get("/api/v1/health/full").status_code == 200
+
+    def test_v1_dm_status_alias_matches_bare(self, client):
+        # Same view function ⇒ identical status code regardless of the bot's actual state.
+        assert client.get("/api/v1/discord/dm/status").status_code == client.get("/api/discord/dm/status").status_code
+
 
 # ── /api/health/full ─────────────────────────────────────────────────
 

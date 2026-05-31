@@ -889,8 +889,11 @@ def ide_page():
 
 
 @app.route("/health")
+@app.route("/api/v1/health")
 def health():
-    return jsonify({"status": "ok"})
+    # `api_version` advertises the versioned-endpoint contract; the bare `status` key is kept
+    # verbatim so existing unversioned probes (dnd-app lan-discovery.ts) are unaffected.
+    return jsonify({"status": "ok", "api_version": "v1"})
 
 
 _HEALTH_SCHEMA_VERSION = 1
@@ -898,6 +901,7 @@ _HEALTH_REQUIRED_KEYS = ("overall", "services", "pi_stats", "down_services", "do
 
 
 @app.route("/api/health/full")
+@app.route("/api/v1/health/full")
 def api_health_full():
     """Return full health status from HealthChecker (Pi stats + service checks).
 
@@ -2753,6 +2757,7 @@ app.add_url_rule("/api/face/expression", view_func=api_oled_expression_set,
 # ── Discord DM Bot Bridge API ─────────────────────────────────────
 
 @app.route("/api/discord/dm/start", methods=["POST"])
+@app.route("/api/v1/discord/dm/start", methods=["POST"])
 def api_discord_dm_start():
     """Tell the DM bot to start a session (join Dungeon VC)."""
     data = request.json or {}
@@ -2811,6 +2816,7 @@ def api_discord_dm_start():
 
 
 @app.route("/api/discord/dm/stop", methods=["POST"])
+@app.route("/api/v1/discord/dm/stop", methods=["POST"])
 def api_discord_dm_stop():
     """Tell the DM bot to stop the session."""
     try:
@@ -2853,6 +2859,7 @@ def api_discord_dm_stop():
 
 
 @app.route("/api/discord/dm/narrate", methods=["POST"])
+@app.route("/api/v1/discord/dm/narrate", methods=["POST"])
 @limiter.limit(RATE_LIMIT_NARRATE)
 def api_discord_dm_narrate():
     """Forward narration text to the DM bot for TTS in Discord VC."""
@@ -2883,6 +2890,7 @@ def api_discord_dm_narrate():
 
 
 @app.route("/api/discord/dm/status")
+@app.route("/api/v1/discord/dm/status")
 def api_discord_dm_status():
     """Get the current DM bot session status."""
     try:

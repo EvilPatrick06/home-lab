@@ -313,8 +313,10 @@ export function startSyncReceiver(port = SYNC_RECEIVER_PORT): void {
 
     try {
       // Health check — intentionally open: no auth, no rate limit, no validation.
-      if (req.method === 'GET' && req.url === '/api/sync/health') {
-        sendJson(res, 200, { ok: true, version: '1.0.0' })
+      // `/api/v1/sync/health` is the versioned alias (mirrors BMO's /api/v1/* aliases); both
+      // map to the same response. `apiVersion` advertises the contract; `version` is retained.
+      if (req.method === 'GET' && (req.url === '/api/sync/health' || req.url === '/api/v1/sync/health')) {
+        sendJson(res, 200, { ok: true, version: '1.0.0', apiVersion: 'v1' })
         return
       }
 
