@@ -428,9 +428,9 @@ export default function CharacterBuilder5e(): JSX.Element {
           <span className="text-xs text-gray-500">
             {editingCharacterId ? t('builder.characterBuilder.editCharacter') : t('builder.characterBuilder.title')}
           </span>
-        </div>
-
-        <div className="flex items-center gap-3">
+          {/* Guided toggle sits next to the title on the left so it stays
+              vertically centered with the header row and never collides with the
+              Save button (or its validation warning) on the right. */}
           <label className="flex items-center gap-1.5 text-xs text-gray-400 select-none cursor-pointer">
             <input
               type="checkbox"
@@ -440,29 +440,33 @@ export default function CharacterBuilder5e(): JSX.Element {
             />
             {t('builder.characterBuilder.guided')}
           </label>
-          <div className="flex flex-col items-end gap-0.5">
-            <button
-              onClick={handleSave}
-              disabled={saving || !canSave}
-              className="px-4 py-1.5 text-sm font-medium bg-green-600 hover:bg-green-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded transition-colors"
+        </div>
+
+        {/* Save + its validation warning on ONE centered row: the warning is to
+            the LEFT of the button (truncated) instead of stacked beneath it, so
+            the Save button stays vertically aligned with the floating gear. */}
+        <div className="flex items-center gap-2">
+          {!canSave && validation.length > 0 && (
+            <span
+              role="alert"
+              aria-live="polite"
+              className="text-xs text-red-400 max-w-60 text-right truncate"
+              title={validation.join(', ')}
             >
-              {saving
-                ? t('builder.characterBuilder.saving')
-                : editingCharacterId
-                  ? t('builder.characterBuilder.saveChanges')
-                  : t('builder.characterBuilder.saveCharacter')}
-            </button>
-            {!canSave && validation.length > 0 && (
-              <span
-                role="alert"
-                aria-live="polite"
-                className="text-xs text-red-400 max-w-60 text-right truncate"
-                title={validation.join(', ')}
-              >
-                {validation[0]}
-              </span>
-            )}
-          </div>
+              {validation[0]}
+            </span>
+          )}
+          <button
+            onClick={handleSave}
+            disabled={saving || !canSave}
+            className="px-4 py-1.5 text-sm font-medium bg-green-600 hover:bg-green-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded transition-colors"
+          >
+            {saving
+              ? t('builder.characterBuilder.saving')
+              : editingCharacterId
+                ? t('builder.characterBuilder.saveChanges')
+                : t('builder.characterBuilder.saveCharacter')}
+          </button>
         </div>
       </div>
 
