@@ -1,8 +1,10 @@
 name: dnd-app CI
 
 # Phase 28e.2 — gate dnd-app changes on lint + forbidden-patterns + tsc (both
-# configs) + tests + circular + audit. dead-code runs non-blocking until the
-# knip baseline is clean.
+# configs) + tests + build smoke + circular + audit. dead-code runs non-blocking
+# until the knip baseline is clean. (Absorbed the former ci.yml's build smoke +
+# artifact verify on 2026-05-30, then deleted ci.yml — this is now THE everyday
+# dnd-app gate; tag-push release gating still lives in release.yml.)
 
 on:
   push:
@@ -48,6 +50,15 @@ jobs:
         run: npm run validate:content
       - name: Tests
         run: npm test
+      # Build smoke (folded in from the former ci.yml) — catches Vite config /
+      # lazy-route / missing-import failures that pure tsc + vitest miss.
+      # electron-builder packaging stays release-only (release.yml).
+      - name: Build (electron-vite)
+        run: npx electron-vite build
+      - name: Verify build artifacts
+        run: |
+          test -f out/main/index.js || { echo "missing out/main/index.js"; exit 1; }
+          test -f out/renderer/index.html || { echo "missing out/renderer/index.html"; exit 1; }
       - name: Coverage baseline (28h)
         run: npm run test:coverage
       - name: Security audit
