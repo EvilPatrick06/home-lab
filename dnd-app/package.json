@@ -186,7 +186,7 @@
     "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.3",
     "@types/three": "^0.184.1",
-    "@vitejs/plugin-react": "^5.2.0",
+    "@vitejs/plugin-react": "^6.0.2",
     "@vitest/coverage-v8": "^4.0.18",
     "cannon-es": "^0.20.0",
     "dotenv": "^17.4.2",
@@ -194,7 +194,7 @@
     "electron": "^42.3.0",
     "electron-builder": "^26.8.1",
     "electron-devtools-installer": "^4.0.0",
-    "electron-vite": "^5.0.0",
+    "electron-vite": "^6.0.0-beta.1",
     "fuse.js": "^7.3.0",
     "happy-dom": "^20.9.0",
     "husky": "^9.1.7",
@@ -214,7 +214,7 @@
     "tsx": "^4.22.3",
     "type-coverage": "^2.29.7",
     "typescript": "^6.0.3",
-    "vite": "^7.3.3",
+    "vite": "^8.0.14",
     "vitest": "^4.0.18"
   },
   "dependencies": {

@@ -21,7 +21,8 @@ const root = join(__dirname, '..', '..')
 
 const required = [
   'out/main/index.js',
-  'out/preload/index.mjs',
+  // electron-vite 6 (vite 8 / rolldown) emits the preload as .js (was .mjs under e-v 5).
+  'out/preload/index.js',
   'out/renderer/index.html',
   // Vite strips public/, so bundled 5e data lands at out/renderer/data/5e (Phase 19a).
   'out/renderer/data/5e/spells/spells.json',
