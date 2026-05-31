@@ -1,9 +1,9 @@
-import { useState } from 'react'
 import { Button, Card, Modal } from '../../components/ui'
 import { addToast } from '../../hooks/use-toast'
 import { useT } from '../../i18n'
 import { exportEntities, importEntities, reIdItems } from '../../services/io/entity-io'
 import type { Campaign, LoreEntry } from '../../types/campaign'
+import { useCrudModal } from './use-crud-modal'
 
 const LORE_CATEGORY_COLORS: Record<string, string> = {
   world: 'bg-blue-900/40 text-blue-300',
@@ -20,56 +20,36 @@ interface LoreManagerProps {
 
 export default function LoreManager({ campaign, saveCampaign }: LoreManagerProps): JSX.Element {
   const { t } = useT()
-  const [showModal, setShowModal] = useState(false)
-  const [editing, setEditing] = useState<LoreEntry | null>(null)
-  const [form, setForm] = useState({
-    title: '',
-    content: '',
-    category: 'world' as LoreEntry['category'],
-    isVisibleToPlayers: false
-  })
-
   const lore = campaign.lore ?? []
-
-  const openAdd = (): void => {
-    setEditing(null)
-    setForm({ title: '', content: '', category: 'world', isVisibleToPlayers: false })
-    setShowModal(true)
-  }
-  const openEdit = (entry: LoreEntry): void => {
-    setEditing(entry)
-    setForm({
+  const { showModal, editing, form, setForm, openAdd, openEdit, close, persist } = useCrudModal<
+    LoreEntry,
+    { title: string; content: string; category: LoreEntry['category']; isVisibleToPlayers: boolean }
+  >({
+    campaign,
+    saveCampaign,
+    emptyForm: { title: '', content: '', category: 'world', isVisibleToPlayers: false },
+    toForm: (entry) => ({
       title: entry.title,
       content: entry.content,
       category: entry.category,
       isVisibleToPlayers: entry.isVisibleToPlayers
     })
-    setShowModal(true)
-  }
+  })
+
   const handleSave = async (): Promise<void> => {
     if (!form.title.trim()) return
-    let newLore: LoreEntry[]
-    if (editing) {
-      newLore = lore.map((l) => (l.id === editing.id ? { ...l, ...form, title: form.title.trim() } : l))
-    } else {
-      newLore = [
-        ...lore,
-        { id: crypto.randomUUID(), ...form, title: form.title.trim(), createdAt: new Date().toISOString() }
-      ]
-    }
-    await saveCampaign({ ...campaign, lore: newLore, updatedAt: new Date().toISOString() })
-    setShowModal(false)
+    const newLore = editing
+      ? lore.map((l) => (l.id === editing.id ? { ...l, ...form, title: form.title.trim() } : l))
+      : [...lore, { id: crypto.randomUUID(), ...form, title: form.title.trim(), createdAt: new Date().toISOString() }]
+    await persist({ lore: newLore })
+    close()
   }
   const handleDelete = async (loreId: string): Promise<void> => {
-    await saveCampaign({
-      ...campaign,
-      lore: lore.filter((l) => l.id !== loreId),
-      updatedAt: new Date().toISOString()
-    })
+    await persist({ lore: lore.filter((l) => l.id !== loreId) })
   }
   const handleToggleVisibility = async (loreId: string): Promise<void> => {
     const updated = lore.map((l) => (l.id === loreId ? { ...l, isVisibleToPlayers: !l.isVisibleToPlayers } : l))
-    await saveCampaign({ ...campaign, lore: updated, updatedAt: new Date().toISOString() })
+    await persist({ lore: updated })
   }
 
   const handleExport = async (): Promise<void> => {
@@ -161,7 +141,7 @@ export default function LoreManager({ campaign, saveCampaign }: LoreManagerProps
 
       <Modal
         open={showModal}
-        onClose={() => setShowModal(false)}
+        onClose={() => close()}
         title={editing ? t('pages.loreManager.editLore') : t('pages.loreManager.addLoreTitle')}
       >
         <div className="space-y-3">
@@ -209,7 +189,7 @@ export default function LoreManager({ campaign, saveCampaign }: LoreManagerProps
           </label>
         </div>
         <div className="flex gap-3 justify-end mt-4">
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
+          <Button variant="secondary" onClick={() => close()}>
             {t('common.actions.cancel')}
           </Button>
           <Button onClick={handleSave} disabled={!form.title.trim()}>

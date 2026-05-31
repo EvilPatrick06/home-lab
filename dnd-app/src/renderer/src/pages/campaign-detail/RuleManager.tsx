@@ -1,7 +1,7 @@
-import { useState } from 'react'
 import { Button, Card, Modal } from '../../components/ui'
 import { useT } from '../../i18n'
 import type { Campaign, CustomRule } from '../../types/campaign'
+import { useCrudModal } from './use-crud-modal'
 
 const CATEGORY_COLORS: Record<string, string> = {
   combat: 'bg-red-900/40 text-red-300',
@@ -18,39 +18,26 @@ interface RuleManagerProps {
 
 export default function RuleManager({ campaign, saveCampaign }: RuleManagerProps): JSX.Element {
   const { t } = useT()
-  const [showModal, setShowModal] = useState(false)
-  const [editing, setEditing] = useState<CustomRule | null>(null)
-  const [form, setForm] = useState({ name: '', description: '', category: 'other' as CustomRule['category'] })
+  const { showModal, editing, form, setForm, openAdd, openEdit, close, persist } = useCrudModal<
+    CustomRule,
+    { name: string; description: string; category: CustomRule['category'] }
+  >({
+    campaign,
+    saveCampaign,
+    emptyForm: { name: '', description: '', category: 'other' },
+    toForm: (rule) => ({ name: rule.name, description: rule.description, category: rule.category })
+  })
 
-  const openAdd = (): void => {
-    setEditing(null)
-    setForm({ name: '', description: '', category: 'other' })
-    setShowModal(true)
-  }
-  const openEdit = (rule: CustomRule): void => {
-    setEditing(rule)
-    setForm({ name: rule.name, description: rule.description, category: rule.category })
-    setShowModal(true)
-  }
   const handleSave = async (): Promise<void> => {
     if (!form.name.trim()) return
-    let customRules: CustomRule[]
-    if (editing) {
-      customRules = campaign.customRules.map((r) =>
-        r.id === editing.id ? { ...r, ...form, name: form.name.trim() } : r
-      )
-    } else {
-      customRules = [...campaign.customRules, { id: crypto.randomUUID(), ...form, name: form.name.trim() }]
-    }
-    await saveCampaign({ ...campaign, customRules, updatedAt: new Date().toISOString() })
-    setShowModal(false)
+    const customRules = editing
+      ? campaign.customRules.map((r) => (r.id === editing.id ? { ...r, ...form, name: form.name.trim() } : r))
+      : [...campaign.customRules, { id: crypto.randomUUID(), ...form, name: form.name.trim() }]
+    await persist({ customRules })
+    close()
   }
   const handleDelete = async (ruleId: string): Promise<void> => {
-    await saveCampaign({
-      ...campaign,
-      customRules: campaign.customRules.filter((r) => r.id !== ruleId),
-      updatedAt: new Date().toISOString()
-    })
+    await persist({ customRules: campaign.customRules.filter((r) => r.id !== ruleId) })
   }
 
   return (
@@ -96,7 +83,7 @@ export default function RuleManager({ campaign, saveCampaign }: RuleManagerProps
 
       <Modal
         open={showModal}
-        onClose={() => setShowModal(false)}
+        onClose={() => close()}
         title={editing ? t('pages.ruleManager.editRuleTitle') : t('pages.ruleManager.addRuleTitle')}
       >
         <div className="space-y-3">
@@ -135,7 +122,7 @@ export default function RuleManager({ campaign, saveCampaign }: RuleManagerProps
           </div>
         </div>
         <div className="flex gap-3 justify-end mt-4">
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
+          <Button variant="secondary" onClick={() => close()}>
             {t('common.actions.cancel')}
           </Button>
           <Button onClick={handleSave} disabled={!form.name.trim()}>
