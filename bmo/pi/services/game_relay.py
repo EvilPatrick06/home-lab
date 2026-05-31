@@ -61,6 +61,9 @@ class GameRelay:
         # Reverse index: sid → invite_code, so `leave`/`route` can resolve a
         # socket to its room in O(1) without scanning every room.
         self._sid_room: dict[str, str] = {}
+        # Monotonic join counter → stamps each peer-ref with a stable join order
+        # so host re-election can pick the *oldest* co-DM deterministically.
+        self._join_seq = 0
 
     # ── Membership ─────────────────────────────────────────────────────
 
@@ -82,6 +85,15 @@ class GameRelay:
                 room = Room()
                 self._rooms[code] = room
             existing = [dict(p) for s, p in room.peers.items() if s != sid]
+            # Preserve a peer's original join order across a same-sid re-join so a
+            # reconnecting co-DM keeps its seniority; only mint a fresh seq for a
+            # genuinely new sid.
+            prior = room.peers.get(sid)
+            if prior is not None and "joined_seq" in prior:
+                ref["joined_seq"] = prior["joined_seq"]
+            else:
+                self._join_seq += 1
+                ref["joined_seq"] = self._join_seq
             room.peers[sid] = ref
             self._sid_room[sid] = code
             is_host = False
@@ -125,6 +137,54 @@ class GameRelay:
                 "room_empty": room_empty,
                 "remaining_sids": list(room.peers.keys()),
             }
+
+    # ── Host re-election (co-DM aware) ─────────────────────────────────
+
+    def promote_codm(self, host_sid: str, target_peer_id: str, is_co_dm: bool) -> bool:
+        """Host-only: flip a peer's `is_co_dm` flag. Returns True if applied,
+        False when `host_sid` is not the room's current host or the target peer
+        is absent. Mirrors the `kick` authority gate — only the live host may
+        grant/revoke co-DM, which in turn decides who is promotable when the host
+        drops."""
+        with self._lock:
+            code = self._sid_room.get(host_sid)
+            if code is None:
+                return False
+            room = self._rooms.get(code)
+            if room is None or room.host_sid != host_sid:
+                return False
+            sid = self._sid_for_peer(room, target_peer_id)
+            if sid is None:
+                return False
+            room.peers[sid]["is_co_dm"] = bool(is_co_dm)
+            return True
+
+    def reelect_host(self, code: str) -> dict[str, Any] | None:
+        """When a room's host slot is vacant, promote the oldest co-DM to host.
+
+        Called by the glue after a host disconnect (`leave` has already cleared
+        `host_sid`). Under the lock it picks the `is_co_dm` peer with the lowest
+        `joined_seq`, assigns `host_sid`, marks that ref `role='host'`, and
+        returns `{new_host_sid, new_host_peer_id}`. Returns None when the room is
+        gone, already has a host, or holds no co-DM — the caller then falls back
+        to the legacy teardown. A plain player must NEVER inherit authority: it
+        only ever held the filtered, non-authoritative view of game state."""
+        with self._lock:
+            room = self._rooms.get(code)
+            if room is None or room.host_sid is not None:
+                return None
+            candidates = sorted(
+                (ref.get("joined_seq", 0), sid)
+                for sid, ref in room.peers.items()
+                if ref.get("is_co_dm")
+            )
+            if not candidates:
+                return None
+            new_sid = candidates[0][1]
+            room.host_sid = new_sid
+            new_ref = room.peers.get(new_sid) or {}
+            new_ref["role"] = "host"
+            return {"new_host_sid": new_sid, "new_host_peer_id": new_ref.get("peer_id")}
 
     # ── Routing ────────────────────────────────────────────────────────
 
@@ -258,6 +318,9 @@ class GameRelay:
             "client_id": str(peer_ref.get("client_id") or ""),
             "role": str(peer_ref.get("role") or "player"),
             "display_name": str(peer_ref.get("display_name") or ""),
+            # Co-DM flag drives host re-election: only a co-DM receives the
+            # unfiltered authoritative snapshot, so only a co-DM is promotable.
+            "is_co_dm": bool(peer_ref.get("is_co_dm")),
         }
 
 

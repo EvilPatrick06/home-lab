@@ -35,6 +35,7 @@ import { createShardBroadcaster } from '../../network/sync/broadcaster'
 // Phase 31e — importing the shard barrel runs each shard module's top-level
 // registerShard() so the broadcaster/applier below see the migrated features.
 import '../../network/sync/shards'
+import { addToast } from '../../hooks/use-toast'
 import { createP2PTransport } from '../../network/transport/p2p-transport'
 import type { TransportAdapter } from '../../network/transport/transport-adapter'
 import { hasPermission } from '../../services/permissions/has-permission'
@@ -60,6 +61,14 @@ function clearListenerCleanups(): void {
 // is read on the client path only. Cleared on teardown.
 let activeCloudTransport: TransportAdapter | null = null
 
+// Phase R3b — set true only across a host-migration promotion so the cloud
+// CLIENT's listener teardown (`clearListenerCleanups`) drops its subscriptions
+// WITHOUT closing the live relay socket: the relay has already moved `host_sid`
+// to this socket, so the promoted client must keep the SAME connection and
+// re-attach as host over it (a fresh socket would get a new sid and fail to
+// claim the already-occupied host slot).
+let preserveCloudTransportOnPromotion = false
+
 // Phase 29i: per-role filter cache. Filtering a full game state for
 // each joining peer is the slowest path in our broadcast pipeline —
 // it walks every map, token, region, drawing, and handout to strip
@@ -76,6 +85,117 @@ function buildFilteredStateForRole(role: 'host' | 'player' | 'spectator'): unkno
   const result = filterGameStateForRole(buildNetworkGameState(), role)
   filteredStateCache.set(role, { version: gameStateVersion, result })
   return result
+}
+
+type StoreGet = () => NetworkState
+type StoreSet = (partial: Partial<NetworkState> | ((state: NetworkState) => Partial<NetworkState>)) => void
+
+/**
+ * Phase 32 / R3b — install the cloud-HOST machinery over an already-connected
+ * relay transport: reroute the host outbound + peer-id primitives to the relay,
+ * run the GameAuthority host dispatch + shard broadcaster, and wire host-side
+ * peer listeners (new joiners get the filtered snapshot). Pushes ALL teardown to
+ * `listenerCleanups`, including the paired override/peer-id reset + transport
+ * close — keep them together so a later disconnect never leaks the overrides.
+ *
+ * Shared by `hostGame(cloud)` (fresh DM host) and `promoteToCloudHost` (a co-DM
+ * promoted in place after host re-election) so the two paths can never drift.
+ */
+function attachCloudHostMachinery(
+  transport: TransportAdapter,
+  self: PeerInfo,
+  displayName: string,
+  get: StoreGet,
+  set: StoreSet
+): void {
+  setPeerIdOverride(self.peerId)
+  setHostOutboundOverride({
+    broadcast: (m) => transport.broadcast(m),
+    broadcastExcluding: (m, exclude) => transport.broadcastExcluding(exclude, m),
+    sendToPeer: (peerId, m) => transport.send(peerId, m),
+    kick: (peerId) => transport.disconnect(peerId),
+    getPeers: () => get().peers,
+    getPeerInfo: (peerId) => get().peers.find((p) => p.peerId === peerId)
+  })
+
+  const hostAuthority = new GameAuthority(transport)
+  hostAuthority.registerDefault((message, ctx) => handleHostMessage(message, ctx.peerId, get, set))
+  hostAuthority.start()
+
+  const shardBroadcaster = createShardBroadcaster(transport, {
+    getRecipients: () => get().peers.map((p) => ({ peerId: p.peerId, clientId: p.clientId })),
+    coalesceMs: 50
+  })
+  shardBroadcaster.start()
+  listenerCleanups.push(() => shardBroadcaster.stop())
+
+  listenerCleanups.push(
+    useGameStore.subscribe(() => {
+      gameStateVersion++
+      filteredStateCache.clear()
+    }),
+    transport.onPeerJoin((peer: PeerInfo) => {
+      get().addPeer(peer)
+      // The joiner gets the full player-filtered state snapshot (no P2P
+      // host-connection handshake exists on the relay) plus the async
+      // map-image payload — two partial `game:state-update`s the client merges.
+      const header = {
+        senderId: self.peerId,
+        senderName: displayName,
+        sequence: 0
+      }
+      transport.send(peer.peerId, {
+        type: 'game:state-update' as const,
+        payload: buildFilteredStateForRole('player'),
+        timestamp: Date.now(),
+        ...header
+      })
+      import('../../network/game-sync')
+        .then(({ buildFullGameStatePayload }) => buildFullGameStatePayload())
+        .then((fullState) => {
+          const maps = fullState.maps as Array<Record<string, unknown>>
+          if (!maps?.length) return
+          const transformed = transformUpdatePayloadForPeer({ mapsWithImages: maps }, 'player')
+          if (!transformed) return
+          transport.send(peer.peerId, {
+            type: 'game:state-update' as const,
+            payload: transformed,
+            timestamp: Date.now(),
+            ...header
+          })
+        })
+    }),
+    transport.onPeerLeave((peerId: string) => get().removePeer(peerId)),
+    () => hostAuthority.stop(),
+    () => {
+      transport.close()
+      activeCloudTransport = null
+      setHostOutboundOverride(null)
+      setPeerIdOverride(null)
+    }
+  )
+}
+
+/**
+ * Phase R3b — promote this cloud CLIENT to cloud HOST in place after the relay
+ * re-elected it (host-migration). Drops the client-only subscriptions WITHOUT
+ * closing the live socket (the relay already owns us as host), then attaches the
+ * host machinery over that same transport. The promoted co-DM already holds the
+ * unfiltered authoritative game state (it received the 'host' bucket), so there
+ * is nothing to seed — it just starts broadcasting.
+ */
+function promoteToCloudHost(transport: TransportAdapter, self: PeerInfo, get: StoreGet, set: StoreSet): void {
+  // Tear down the cloud-client listeners (onMessage/applier/peer subs) but keep
+  // the relay socket open for re-use as host.
+  preserveCloudTransportOnPromotion = true
+  clearListenerCleanups()
+  preserveCloudTransportOnPromotion = false
+
+  self.role = 'host'
+  self.isHost = true
+  self.isDM = true
+  attachCloudHostMachinery(transport, self, get().displayName, get, set)
+  set({ role: 'host', localIsDM: true, connectionState: 'connected' })
 }
 
 export const useNetworkStore = create<NetworkState>((set, get) => ({
@@ -120,74 +240,10 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
         })
         activeCloudTransport = transport
 
-        // Reroute the host outbound + peer-registry primitives to the relay.
-        setPeerIdOverride(self.peerId)
-        setHostOutboundOverride({
-          broadcast: (m) => transport.broadcast(m),
-          broadcastExcluding: (m, exclude) => transport.broadcastExcluding(exclude, m),
-          sendToPeer: (peerId, m) => transport.send(peerId, m),
-          kick: (peerId) => transport.disconnect(peerId),
-          getPeers: () => get().peers,
-          getPeerInfo: (peerId) => get().peers.find((p) => p.peerId === peerId)
-        })
-
-        const hostAuthority = new GameAuthority(transport)
-        hostAuthority.registerDefault((message, ctx) => handleHostMessage(message, ctx.peerId, get, set))
-        hostAuthority.start()
-
-        const shardBroadcaster = createShardBroadcaster(transport, {
-          getRecipients: () => get().peers.map((p) => ({ peerId: p.peerId, clientId: p.clientId })),
-          coalesceMs: 50
-        })
-        shardBroadcaster.start()
-        listenerCleanups.push(() => shardBroadcaster.stop())
-
-        listenerCleanups.push(
-          useGameStore.subscribe(() => {
-            gameStateVersion++
-            filteredStateCache.clear()
-          }),
-          transport.onPeerJoin((peer: PeerInfo) => {
-            get().addPeer(peer)
-            // The joiner gets the full player-filtered state snapshot (no P2P
-            // host-connection handshake exists on the relay) plus the async
-            // map-image payload — two partial `game:state-update`s the client
-            // merges (mirrors the P2P join flow).
-            const header = {
-              senderId: self.peerId,
-              senderName: displayName,
-              sequence: 0
-            }
-            transport.send(peer.peerId, {
-              type: 'game:state-update' as const,
-              payload: buildFilteredStateForRole('player'),
-              timestamp: Date.now(),
-              ...header
-            })
-            import('../../network/game-sync')
-              .then(({ buildFullGameStatePayload }) => buildFullGameStatePayload())
-              .then((fullState) => {
-                const maps = fullState.maps as Array<Record<string, unknown>>
-                if (!maps?.length) return
-                const transformed = transformUpdatePayloadForPeer({ mapsWithImages: maps }, 'player')
-                if (!transformed) return
-                transport.send(peer.peerId, {
-                  type: 'game:state-update' as const,
-                  payload: transformed,
-                  timestamp: Date.now(),
-                  ...header
-                })
-              })
-          }),
-          transport.onPeerLeave((peerId: string) => get().removePeer(peerId)),
-          () => hostAuthority.stop(),
-          () => {
-            transport.close()
-            activeCloudTransport = null
-            setHostOutboundOverride(null)
-            setPeerIdOverride(null)
-          }
-        )
+        // Install the host outbound overrides + GameAuthority + shard broadcaster
+        // + host-side peer listeners over the relay transport (shared with the
+        // host-migration promotion path so the two can never drift).
+        attachCloudHostMachinery(transport, self, displayName, get, set)
 
         set({
           connectionState: 'connected',
@@ -407,15 +463,14 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
           }),
           transport.onPeerJoin((peer: PeerInfo) => get().addPeer(peer)),
           transport.onPeerLeave((peerId: string) => {
-            // Phase 32 — cloud host-disconnect handling. The Pi relay is a dumb
-            // relay, not the authority: when the HOST socket drops there is no
-            // host-migration, so a cloud client whose host left is effectively
-            // disconnected — its `sendMessage` would find no `isHost` peer and
-            // silently drop every intent. Detect the host's departure (via the
-            // `isHost` flag the relay set on the known host peer) and tear down
-            // into the same disconnected state the P2P drop path produces,
-            // surfacing the reconnect UI instead of a connected-but-broken
-            // session. A non-host peer leaving is just a normal removePeer.
+            // Phase 32 / R3b — host-disconnect fallback. The relay now re-elects a
+            // co-DM server-side (→ `host-migrated`, handled below). It only emits a
+            // bare `peer-left` with `was_host` when the host dropped and NO co-DM
+            // could inherit — in that case the session is genuinely headless, so a
+            // cloud client tears down into the same disconnected state the P2P drop
+            // path produces (its `sendMessage` would otherwise find no `isHost` peer
+            // and silently drop every intent). A non-host leaving is a normal
+            // removePeer.
             const hostLeft = get().peers.some((p) => p.peerId === peerId && p.isHost)
             if (hostLeft) {
               clearListenerCleanups()
@@ -435,10 +490,32 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
             }
             get().removePeer(peerId)
           }),
+          // Phase R3b — relay-driven host migration. When the host drops and a
+          // co-DM exists, the relay moves `host_sid` to the oldest co-DM and emits
+          // this instead of `peer-left`. The elected client is authority the moment
+          // the relay says so (no client-side claim race).
+          transport.onHostMigrated?.(({ oldHostPeerId, newHostPeerId }) => {
+            if (oldHostPeerId) get().removePeer(oldHostPeerId)
+            if (newHostPeerId === self.peerId) {
+              promoteToCloudHost(transport, self, get, set)
+              addToast('You are now the DM — the previous host disconnected.', 'info')
+            } else {
+              // Another co-DM inherited authority; keep running as a client but
+              // retarget the host pointer so `sendMessage` routes intents correctly.
+              get().updatePeer(newHostPeerId, { isHost: true, role: 'host', isDM: true })
+              useLobbyStore.getState().updatePlayer(newHostPeerId, { isHost: true })
+              const name = get().peers.find((p) => p.peerId === newHostPeerId)?.displayName || 'A co-DM'
+              addToast(`${name} is now the DM — the previous host disconnected.`, 'info')
+            }
+          }) ?? (() => {}),
           () => shardApplier.stop(),
           () => {
-            transport.close()
-            activeCloudTransport = null
+            // Skip the close during a promotion: the relay already owns this socket
+            // as host, so `promoteToCloudHost` re-uses it (see the preserve flag).
+            if (!preserveCloudTransportOnPromotion) {
+              transport.close()
+              activeCloudTransport = null
+            }
           }
         )
         set({

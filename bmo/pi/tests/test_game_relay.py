@@ -145,6 +145,104 @@ def test_leave_last_peer_drops_room(relay: GameRelay) -> None:
     assert relay.room_of("sid-host") is None
 
 
+# ── host re-election (co-DM aware) ──────────────────────────────────────
+
+
+def test_normalize_peer_carries_co_dm_and_joined_seq(relay: GameRelay) -> None:
+    _join_host(relay)
+    relay.join("ABC123", "sid-codm", _peer("codm", is_co_dm=True))
+    codm = next(p for p in relay.peers_for("ABC123") if p["peer_id"] == "codm")
+    assert codm["is_co_dm"] is True
+    assert isinstance(codm["joined_seq"], int)
+    host = next(p for p in relay.peers_for("ABC123") if p["peer_id"] == "host-peer")
+    # Host joined first → strictly lower seq than the later co-DM.
+    assert host["joined_seq"] < codm["joined_seq"]
+    assert host["is_co_dm"] is False
+
+
+def test_joined_seq_stable_across_rejoin(relay: GameRelay) -> None:
+    _join_host(relay)
+    relay.join("ABC123", "sid-p1", _peer("p1", is_co_dm=True))
+    before = next(p for p in relay.peers_for("ABC123") if p["peer_id"] == "p1")["joined_seq"]
+    # Same-sid re-join keeps the original seniority (a reconnecting co-DM stays oldest).
+    relay.join("ABC123", "sid-p1", _peer("p1", is_co_dm=True, display_name="Renamed"))
+    after = next(p for p in relay.peers_for("ABC123") if p["peer_id"] == "p1")["joined_seq"]
+    assert after == before
+
+
+def test_reelect_host_picks_oldest_co_dm(relay: GameRelay) -> None:
+    _join_host(relay)  # seq 1
+    relay.join("ABC123", "sid-codm-old", _peer("codm-old", is_co_dm=True))  # seq 2
+    relay.join("ABC123", "sid-plain", _peer("plain"))  # seq 3
+    relay.join("ABC123", "sid-codm-young", _peer("codm-young", is_co_dm=True))  # seq 4
+    leave = relay.leave("sid-host")
+    assert leave["was_host"] is True
+    decision = relay.reelect_host("ABC123")
+    assert decision == {"new_host_sid": "sid-codm-old", "new_host_peer_id": "codm-old"}
+    assert relay.host_sid_for("ABC123") == "sid-codm-old"
+
+
+def test_reelect_host_promotes_ref_to_host_role(relay: GameRelay) -> None:
+    _join_host(relay)
+    relay.join("ABC123", "sid-codm", _peer("codm", is_co_dm=True))
+    relay.leave("sid-host")
+    relay.reelect_host("ABC123")
+    codm = next(p for p in relay.peers_for("ABC123") if p["peer_id"] == "codm")
+    assert codm["role"] == "host"
+
+
+def test_reelect_host_returns_none_without_co_dm(relay: GameRelay) -> None:
+    # A room of only plain players must NOT promote anyone (they hold no
+    # authoritative snapshot) — caller falls back to teardown.
+    _join_host(relay)
+    relay.join("ABC123", "sid-p1", _peer("p1"))
+    relay.join("ABC123", "sid-p2", _peer("p2"))
+    relay.leave("sid-host")
+    assert relay.reelect_host("ABC123") is None
+    assert relay.host_sid_for("ABC123") is None
+
+
+def test_reelect_host_noop_when_host_still_seated(relay: GameRelay) -> None:
+    _join_host(relay)
+    relay.join("ABC123", "sid-codm", _peer("codm", is_co_dm=True))
+    assert relay.reelect_host("ABC123") is None
+    assert relay.host_sid_for("ABC123") == "sid-host"
+
+
+def test_reelect_host_unknown_room_is_none(relay: GameRelay) -> None:
+    assert relay.reelect_host("NOPE") is None
+
+
+def test_promote_codm_host_only(relay: GameRelay) -> None:
+    _join_host(relay)
+    relay.join("ABC123", "sid-p1", _peer("p1"))
+    assert relay.promote_codm("sid-host", "p1", True) is True
+    p1 = next(p for p in relay.peers_for("ABC123") if p["peer_id"] == "p1")
+    assert p1["is_co_dm"] is True
+    # A non-host cannot mutate co-DM status.
+    assert relay.promote_codm("sid-p1", "host-peer", True) is False
+    # Revoke also works for the host.
+    assert relay.promote_codm("sid-host", "p1", False) is True
+    p1 = next(p for p in relay.peers_for("ABC123") if p["peer_id"] == "p1")
+    assert p1["is_co_dm"] is False
+
+
+def test_promote_codm_unknown_target_is_false(relay: GameRelay) -> None:
+    _join_host(relay)
+    assert relay.promote_codm("sid-host", "ghost", True) is False
+
+
+def test_promote_then_reelect_inherits(relay: GameRelay) -> None:
+    # A plain player promoted to co-DM at runtime becomes promotable on host drop.
+    _join_host(relay)
+    relay.join("ABC123", "sid-p1", _peer("p1"))
+    relay.promote_codm("sid-host", "p1", True)
+    relay.leave("sid-host")
+    decision = relay.reelect_host("ABC123")
+    assert decision is not None
+    assert decision["new_host_peer_id"] == "p1"
+
+
 # ── route ──────────────────────────────────────────────────────────────
 
 
@@ -271,7 +369,7 @@ def _first(received: list, name: str) -> dict:
     return args[0] if isinstance(args, list) else args
 
 
-def _join(client, code: str, peer_id: str, role: str = "player") -> None:
+def _join(client, code: str, peer_id: str, role: str = "player", is_co_dm: bool = False) -> None:
     client.emit(
         "join",
         {
@@ -280,6 +378,7 @@ def _join(client, code: str, peer_id: str, role: str = "player") -> None:
             "client_id": f"c-{peer_id}",
             "role": role,
             "display_name": peer_id.title(),
+            "is_co_dm": is_co_dm,
         },
         namespace=GAME_NS,
     )
@@ -374,6 +473,82 @@ def test_ws_disconnect_emits_peer_left(ws_app) -> None:
     left = _first(host.get_received(GAME_NS), "peer-left")
     assert left["peer_id"] == "p1"
     assert left["was_host"] is False
+
+
+def test_ws_host_disconnect_migrates_to_codm(ws_app) -> None:
+    app, sio = ws_app
+    host = sio.test_client(app, namespace=GAME_NS)
+    _join(host, "ROOM", "host", role="host")
+    host.get_received(GAME_NS)
+    codm = sio.test_client(app, namespace=GAME_NS)
+    _join(codm, "ROOM", "codm", is_co_dm=True)
+    codm.get_received(GAME_NS)
+    host.get_received(GAME_NS)  # drain peer-joined
+    host.disconnect(namespace=GAME_NS)
+    rcv = codm.get_received(GAME_NS)
+    assert "host-migrated" in _names(rcv)
+    migrated = _first(rcv, "host-migrated")
+    assert migrated["new_host_peer_id"] == "codm"
+    assert migrated["old_host_peer_id"] == "host"
+
+
+def test_ws_host_disconnect_without_codm_emits_peer_left(ws_app) -> None:
+    app, sio = ws_app
+    host = sio.test_client(app, namespace=GAME_NS)
+    _join(host, "ROOM", "host", role="host")
+    host.get_received(GAME_NS)
+    player = sio.test_client(app, namespace=GAME_NS)
+    _join(player, "ROOM", "p1")
+    player.get_received(GAME_NS)
+    host.disconnect(namespace=GAME_NS)
+    rcv = player.get_received(GAME_NS)
+    assert "host-migrated" not in _names(rcv)
+    left = _first(rcv, "peer-left")
+    assert left["peer_id"] == "host"
+    assert left["was_host"] is True
+
+
+def test_ws_promote_codm_then_host_disconnect_migrates(ws_app) -> None:
+    app, sio = ws_app
+    host = sio.test_client(app, namespace=GAME_NS)
+    _join(host, "ROOM", "host", role="host")
+    host.get_received(GAME_NS)
+    player = sio.test_client(app, namespace=GAME_NS)
+    _join(player, "ROOM", "p1")  # joins as a plain player
+    player.get_received(GAME_NS)
+    host.get_received(GAME_NS)
+    # Host elevates the player to co-DM at runtime.
+    host.emit("promote-codm", {"peer_id": "p1", "is_co_dm": True}, namespace=GAME_NS)
+    changed = _first(player.get_received(GAME_NS), "codm-changed")
+    assert changed["peer_id"] == "p1"
+    assert changed["is_co_dm"] is True
+    # Host drops → the freshly-minted co-DM inherits authority.
+    host.disconnect(namespace=GAME_NS)
+    migrated = _first(player.get_received(GAME_NS), "host-migrated")
+    assert migrated["new_host_peer_id"] == "p1"
+
+
+def test_ws_dm_promote_codm_message_syncs_relay_then_migrates(ws_app) -> None:
+    # The live app promotes co-DMs via a `dm:promote-codm` NetworkMessage relayed
+    # by the host (not the explicit `promote-codm` event). The relay sniffs that
+    # message so re-election still finds the promoted co-DM.
+    app, sio = ws_app
+    host = sio.test_client(app, namespace=GAME_NS)
+    _join(host, "ROOM", "host", role="host")
+    host.get_received(GAME_NS)
+    player = sio.test_client(app, namespace=GAME_NS)
+    _join(player, "ROOM", "p1")
+    player.get_received(GAME_NS)
+    host.get_received(GAME_NS)
+    host.emit(
+        "relay",
+        {"message": {"type": "dm:promote-codm", "payload": {"peerId": "p1", "isCoDM": True}}},
+        namespace=GAME_NS,
+    )
+    player.get_received(GAME_NS)  # drain the relayed message
+    host.disconnect(namespace=GAME_NS)
+    migrated = _first(player.get_received(GAME_NS), "host-migrated")
+    assert migrated["new_host_peer_id"] == "p1"
 
 
 def test_ws_connect_requires_api_key_when_set() -> None:

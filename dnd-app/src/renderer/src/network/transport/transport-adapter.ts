@@ -22,6 +22,13 @@ export interface TransportAdapter {
   onPeerJoin: (cb: (peer: PeerInfo) => void) => () => void
   /** Subscribe to peer leaves; returns an unsubscribe fn. */
   onPeerLeave: (cb: (peerId: string) => void) => () => void
+  /**
+   * Subscribe to relay-driven host migration; returns an unsubscribe fn. Fired
+   * when the relay re-elects a co-DM after the host drops — `oldHostPeerId` is
+   * the departed host, `newHostPeerId` the elected one. Optional: only the cloud
+   * WebSocket transport emits it (P2P/Memory have no server-side re-election).
+   */
+  onHostMigrated?: (cb: (info: { oldHostPeerId: string; newHostPeerId: string }) => void) => () => void
   /** Disconnect a specific peer. */
   disconnect: (peerId: string) => void
   /** Tear down the transport entirely. */

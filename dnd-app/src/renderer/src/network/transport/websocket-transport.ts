@@ -84,6 +84,7 @@ export function createWebSocketTransport(opts: WebSocketTransportOptions): Trans
   const msgCbs = new Set<(peerId: string, message: NetworkMessage) => void>()
   const joinCbs = new Set<(peer: PeerInfo) => void>()
   const leaveCbs = new Set<(peerId: string) => void>()
+  const migratedCbs = new Set<(info: { oldHostPeerId: string; newHostPeerId: string }) => void>()
 
   socket.on('peers', (payload) => {
     const data = (payload ?? {}) as { peers?: RelayPeerRef[] }
@@ -103,6 +104,16 @@ export function createWebSocketTransport(opts: WebSocketTransportOptions): Trans
     if (peerId) for (const cb of leaveCbs) cb(peerId)
   })
 
+  // Relay re-elected a co-DM to host after the previous host dropped.
+  socket.on('host-migrated', (payload) => {
+    const data = (payload ?? {}) as { old_host_peer_id?: string; new_host_peer_id?: string }
+    const info = {
+      oldHostPeerId: String(data.old_host_peer_id ?? ''),
+      newHostPeerId: String(data.new_host_peer_id ?? '')
+    }
+    for (const cb of migratedCbs) cb(info)
+  })
+
   socket.on('message', (payload) => {
     const data = (payload ?? {}) as { from_peer_id?: string; message?: NetworkMessage }
     if (data.message) {
@@ -111,13 +122,16 @@ export function createWebSocketTransport(opts: WebSocketTransportOptions): Trans
     }
   })
 
-  // Announce ourselves into the room.
+  // Announce ourselves into the room. `is_co_dm` lets the relay mark a peer
+  // promotable for host re-election (the host also keeps it in sync via the
+  // relayed dm:promote-codm message — see game_relay_ws.py).
   socket.emit('join', {
     code: opts.code,
     peer_id: opts.self.peerId,
     client_id: opts.self.clientId,
     role: opts.self.role,
-    display_name: opts.self.displayName
+    display_name: opts.self.displayName,
+    is_co_dm: opts.self.isCoDM ?? false
   })
 
   return {
@@ -136,12 +150,17 @@ export function createWebSocketTransport(opts: WebSocketTransportOptions): Trans
       leaveCbs.add(cb)
       return () => leaveCbs.delete(cb)
     },
+    onHostMigrated: (cb) => {
+      migratedCbs.add(cb)
+      return () => migratedCbs.delete(cb)
+    },
     // Host-only on the relay: ask the Pi to drop a peer's socket.
     disconnect: (peerId) => socket.emit('kick', { peer_id: peerId }),
     close: () => {
       msgCbs.clear()
       joinCbs.clear()
       leaveCbs.clear()
+      migratedCbs.clear()
       socket.disconnect()
     }
   }

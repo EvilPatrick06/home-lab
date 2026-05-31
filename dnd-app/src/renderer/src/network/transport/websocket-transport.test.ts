@@ -62,8 +62,16 @@ describe('WebSocketTransport', () => {
       peer_id: 'host',
       client_id: 'c-host',
       role: 'host',
-      display_name: 'host'
+      display_name: 'host',
+      is_co_dm: false
     })
+  })
+
+  it('join carries is_co_dm when the local peer is a co-DM', () => {
+    const codm = { ...makePeer('p1'), isCoDM: true }
+    const fake = makeFakeSocket()
+    createWebSocketTransport({ url: 'wss://pi.test', code: 'ROOM', self: codm, socketFactory: () => fake.socket })
+    expect((fake.lastEmit('join')?.payload as { is_co_dm: boolean }).is_co_dm).toBe(true)
   })
 
   it('passes apiKey through the socket factory auth', () => {
@@ -141,6 +149,23 @@ describe('WebSocketTransport', () => {
     transport.onPeerLeave(leave)
     fake.fire('peer-left', { peer_id: 'p1', was_host: false })
     expect(leave).toHaveBeenCalledWith('p1')
+  })
+
+  it('inbound host-migrated → onHostMigrated({oldHostPeerId, newHostPeerId})', () => {
+    const { fake, transport } = setup()
+    const migrated = vi.fn()
+    transport.onHostMigrated?.(migrated)
+    fake.fire('host-migrated', { old_host_peer_id: 'host', new_host_peer_id: 'codm' })
+    expect(migrated).toHaveBeenCalledWith({ oldHostPeerId: 'host', newHostPeerId: 'codm' })
+  })
+
+  it('host-migrated unsubscribe + close stop dispatching', () => {
+    const { fake, transport } = setup()
+    const migrated = vi.fn()
+    const off = transport.onHostMigrated?.(migrated)
+    off?.()
+    fake.fire('host-migrated', { old_host_peer_id: 'host', new_host_peer_id: 'codm' })
+    expect(migrated).not.toHaveBeenCalled()
   })
 
   it('disconnect(peerId) → kick emit', () => {

@@ -21,8 +21,13 @@ Wire protocol (all on the `/game` namespace):
     server → `relay-rejected` {type}            (back to sender, if unauthorized)
 - client → `kick`  {peer_id}                  (host only)
     server → `kicked` {}                         (to the target; then disconnected)
+- client → `promote-codm` {peer_id, is_co_dm}  (host only)
+    server → `codm-changed` {peer_id, is_co_dm}  (to the room)
 - transport `disconnect`
-    server → `peer-left` {peer_id, was_host}    (to the room)
+    server → `host-migrated` {old_host_peer_id, new_host_peer_id}  (host dropped,
+        a co-DM was re-elected server-side — the elected client becomes authority)
+    server → `peer-left` {peer_id, was_host}     (any other departure, or a host
+        drop with no co-DM to inherit → legacy teardown)
 """
 
 from __future__ import annotations
@@ -71,6 +76,7 @@ def register_game_relay(socketio_obj, *, api_key: str = "") -> None:
             "client_id": data.get("client_id"),
             "role": data.get("role"),
             "display_name": data.get("display_name"),
+            "is_co_dm": data.get("is_co_dm"),
         }
         result = relay.join(code, sid, peer_ref)
         join_room(code, namespace=GAME_NS)
@@ -102,6 +108,18 @@ def register_game_relay(socketio_obj, *, api_key: str = "") -> None:
             emit("relay-rejected", {"type": message.get("type")})
             return
         from_peer_id = relay.peer_id_for(sid)
+        # Keep the relay's co-DM view in sync with the host's app-level promotions
+        # so host re-election can find a promotable co-DM without any extra client
+        # wiring. `dm:promote-codm` / `dm:demote-codm` are host-authored (authorize
+        # gates them above) and carry `{peerId, isCoDM}`.
+        mtype = message.get("type")
+        if mtype in ("dm:promote-codm", "dm:demote-codm"):
+            payload = message.get("payload") or {}
+            target_pid = payload.get("peerId")
+            if target_pid:
+                relay.promote_codm(
+                    sid, str(target_pid), bool(payload.get("isCoDM", mtype == "dm:promote-codm"))
+                )
         for to_sid in relay.route(sid, target_peer_id=target, exclude_peer_id=exclude):
             emit(
                 "message",
@@ -127,14 +145,51 @@ def register_game_relay(socketio_obj, *, api_key: str = "") -> None:
             except Exception:  # pragma: no cover — defensive
                 pass
 
+    @socketio_obj.on("promote-codm", namespace=GAME_NS)
+    def on_game_promote_codm(data: Any = None):
+        # Host-only: grant/revoke a peer's co-DM status (decides who is promotable
+        # when the host drops). Mirrors the `kick` host gate via `promote_codm`.
+        sid = request.sid
+        data = data or {}
+        peer_id = data.get("peer_id")
+        if not peer_id:
+            return
+        is_co_dm = bool(data.get("is_co_dm", True))
+        if relay.promote_codm(sid, peer_id, is_co_dm):
+            emit(
+                "codm-changed",
+                {"peer_id": peer_id, "is_co_dm": is_co_dm},
+                room=relay.room_of(sid),
+                namespace=GAME_NS,
+            )
+
     @socketio_obj.on("disconnect", namespace=GAME_NS)
     def on_game_disconnect():
         sid = request.sid
         result = relay.leave(sid)
-        if result and not result["room_empty"]:
-            emit(
-                "peer-left",
-                {"peer_id": result["peer_id"], "was_host": result["was_host"]},
-                room=result["code"],
-                namespace=GAME_NS,
-            )
+        if not result or result["room_empty"]:
+            return
+        code = result["code"]
+        # Host dropped + a co-DM is available → re-elect server-side under the
+        # relay lock and tell the room. The elected client becomes the authority
+        # the instant the relay moved `host_sid` (closes the re-claim race). With
+        # no co-DM to inherit, fall back to the legacy peer-left teardown.
+        if result["was_host"]:
+            decision = relay.reelect_host(code)
+            if decision is not None:
+                emit(
+                    "host-migrated",
+                    {
+                        "old_host_peer_id": result["peer_id"],
+                        "new_host_peer_id": decision["new_host_peer_id"],
+                    },
+                    room=code,
+                    namespace=GAME_NS,
+                )
+                return
+        emit(
+            "peer-left",
+            {"peer_id": result["peer_id"], "was_host": result["was_host"]},
+            room=code,
+            namespace=GAME_NS,
+        )
