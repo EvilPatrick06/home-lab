@@ -30,8 +30,6 @@ Open/actionable items ONLY: problems, deferred, out-of-scope, future, suggestion
 - **`oxlint`/`jscpd`/`type-coverage` back the manual `tools/run-audit.js` harness (kept, not in CI).** Decision (2026-05-30): keep — deleting user-built audit tooling for a 3-devDep saving isn't worth it; wiring into CI would spam duplicates. Revisit only to remove the harness.
 - **Doc residuals.** TypeDoc is an optional headless add; Storybook needs a GUI (defer).
 - **Package `overrides` (9 entries)** documented in `docs/DEPENDENCIES.md`. *Action: recheck/prune on dep bumps.*
-- **DM Roller's own "Roll History" stays empty** (2.4.0 QA) — its quick-roll results go only to the global Dice Tray, not the modal's own history panel. `RollerQuickDice`'s local `quickResults` aren't propagated up to `DMRollerModal`'s `rollResults`; thread an `onQuickRoll` callback.
-- **Join Game Display Name prefill** (2.4.0 QA, minor) — the page already prefers the Settings profile name over the cached host name when a profile name is set (`JoinGamePage` boot effect). The reported "Dungeon Master" prefill happens only when no profile name exists and the host step seeded the localStorage key; confirm the host-name step shouldn't clear it.
 - **`throttle` util is opt-in** — zero production call-sites (candidate for removal, or a first consumer).
 - **`userData` dir keyed on app name.** Defaults to `app.getName()` (`dnd-vtt` in dev, `D&D Virtual Tabletop` packaged). Renaming either orphans saves. *Standing advisory: never rename; if forced, add a dir-move migration.*
 

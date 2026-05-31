@@ -20,9 +20,15 @@ const QUICK_DICE = ['d4', 'd6', 'd8', 'd10', 'd12', 'd20', 'd100'] as const
 interface RollerQuickDiceProps {
   autoMinimize: () => void
   onRevealQuickResult: (qr: QuickRollResult) => void
+  /** Notified for each quick roll so the parent's Roll History reflects it. */
+  onQuickRoll?: (qr: QuickRollResult) => void
 }
 
-export default function RollerQuickDice({ autoMinimize, onRevealQuickResult }: RollerQuickDiceProps): JSX.Element {
+export default function RollerQuickDice({
+  autoMinimize,
+  onRevealQuickResult,
+  onQuickRoll
+}: RollerQuickDiceProps): JSX.Element {
   const { t } = useT()
   const [quickExpression, setQuickExpression] = useState('')
   const [quickCount, setQuickCount] = useState(1)
@@ -61,9 +67,10 @@ export default function RollerQuickDice({ autoMinimize, onRevealQuickResult }: R
           }
         }
       }
+      for (const r of results) onQuickRoll?.(r)
       setQuickResults((prev) => [...results, ...prev].slice(0, 50))
     },
-    [quickCount, quickHiddenDefault, quickLabel, autoMinimize, sendMessage]
+    [quickCount, quickHiddenDefault, quickLabel, autoMinimize, sendMessage, onQuickRoll]
   )
 
   const handleQuickExpression = useCallback(() => {
@@ -98,9 +105,10 @@ export default function RollerQuickDice({ autoMinimize, onRevealQuickResult }: R
       }
     }
     if (results.length > 0) {
+      for (const r of results) onQuickRoll?.(r)
       setQuickResults((prev) => [...results, ...prev].slice(0, 50))
     }
-  }, [quickExpression, quickCount, quickHiddenDefault, quickLabel, autoMinimize, sendMessage])
+  }, [quickExpression, quickCount, quickHiddenDefault, quickLabel, autoMinimize, sendMessage, onQuickRoll])
 
   return (
     <div className="border-b border-gray-700/50 pb-3 mb-3 space-y-2">

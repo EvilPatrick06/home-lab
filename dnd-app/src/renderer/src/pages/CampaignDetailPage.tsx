@@ -74,20 +74,12 @@ export default function CampaignDetailPage(): JSX.Element {
     navigate('/')
   }
 
-  const persistHostDisplayName = async (name: string): Promise<void> => {
-    try {
-      const settings = await window.api.loadSettings()
-      const profile = settings.userProfile ?? {
-        id: crypto.randomUUID(),
-        displayName: '',
-        createdAt: new Date().toISOString()
-      }
-      profile.displayName = name
-      await window.api.saveSettings({ ...settings, userProfile: profile })
-      setHostNameDefault(name)
-    } catch (err) {
-      logger.warn('[CampaignDetail] host name save failed:', err)
-    }
+  const persistHostDisplayName = (name: string): void => {
+    // Per-session host label only. Do NOT overwrite the Settings profile
+    // displayName (the user's identity) — doing so made Join Game prefill the
+    // last host name ("Dungeon Master") instead of the profile name (2.4.0 QA).
+    // The host-name prompt still one-clicks the profile name via its mount load.
+    setHostNameDefault(name)
   }
 
   const handleStartGame = (): void => {
@@ -98,7 +90,7 @@ export default function CampaignDetailPage(): JSX.Element {
   const handleConfirmHostName = async (hostName: string): Promise<void> => {
     if (!campaign) return
     setShowHostNamePrompt(false)
-    await persistHostDisplayName(hostName)
+    persistHostDisplayName(hostName)
 
     setStarting(true)
     try {

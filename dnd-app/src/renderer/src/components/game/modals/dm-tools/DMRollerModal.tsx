@@ -234,6 +234,26 @@ export default function DMRollerModal({ onClose, onMinimize, onRestore }: DMRoll
     [addChatMessage, sendMessage]
   )
 
+  // Surface quick rolls in the modal's own Roll History (they previously only
+  // went to the global Dice Tray, leaving this panel empty — 2.4.0 QA).
+  const addQuickRollToHistory = useCallback((qr: QuickRollResult) => {
+    setRollResults((prev) =>
+      [
+        {
+          id: qr.id,
+          entityName: 'DM',
+          label: qr.label,
+          roll: qr.total,
+          modifier: 0,
+          total: qr.total,
+          formula: qr.formula,
+          timestamp: qr.timestamp
+        },
+        ...prev
+      ].slice(0, 50)
+    )
+  }, [])
+
   const monsterData = selectedEntity?.monsterData ?? (selectedEntityId ? loadedMonsters[selectedEntityId] : null)
 
   if (minimized) {
@@ -256,7 +276,11 @@ export default function DMRollerModal({ onClose, onMinimize, onRestore }: DMRoll
         </div>
 
         {/* Quick Roll Section */}
-        <RollerQuickDice autoMinimize={autoMinimize} onRevealQuickResult={revealQuickResult} />
+        <RollerQuickDice
+          autoMinimize={autoMinimize}
+          onRevealQuickResult={revealQuickResult}
+          onQuickRoll={addQuickRollToHistory}
+        />
 
         <div className="flex gap-3 flex-1 min-h-0">
           {/* Left: Entity selector + stat block */}
