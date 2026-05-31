@@ -81,7 +81,11 @@ interface AutoUpdatePrefs {
 
 async function loadAutoUpdatePrefs(): Promise<AutoUpdatePrefs> {
   const defaults: AutoUpdatePrefs = {
-    autoCheckUpdates: false,
+    // Auto-CHECK on launch defaults ON so installs surface fixes out of the box
+    // (it only checks + shows a dismissible prompt — auto-DOWNLOAD/install stay
+    // opt-in, so nothing is fetched or installed without a click). Users can
+    // turn the check off in Settings (persisted as `autoCheckUpdates: false`).
+    autoCheckUpdates: true,
     autoDownloadUpdates: false,
     autoRestartAfterUpdate: false,
     autoInstallSilent: false
@@ -91,7 +95,8 @@ async function loadAutoUpdatePrefs(): Promise<AutoUpdatePrefs> {
     const raw = await fs.readFile(path, 'utf-8')
     const data = JSON.parse(raw) as Partial<AutoUpdatePrefs>
     return {
-      autoCheckUpdates: data.autoCheckUpdates === true,
+      // Default ON when unset; only an explicit `false` disables the launch check.
+      autoCheckUpdates: data.autoCheckUpdates !== false,
       autoDownloadUpdates: data.autoDownloadUpdates === true,
       autoRestartAfterUpdate: data.autoRestartAfterUpdate === true,
       autoInstallSilent: data.autoInstallSilent === true

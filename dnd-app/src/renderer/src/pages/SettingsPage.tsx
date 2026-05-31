@@ -460,8 +460,9 @@ function UpdateSection(): JSX.Element {
   const [appVersion, setAppVersion] = useState<string>('')
   const listenerRegistered = useRef(false)
 
-  // v2.1.16: persisted auto-update preferences.
-  const [autoCheckUpdates, setAutoCheckUpdates] = useState(false)
+  // v2.1.16: persisted auto-update preferences. Auto-check defaults ON (matches
+  // the main-process default in updater.ts) so it surfaces fixes out of the box.
+  const [autoCheckUpdates, setAutoCheckUpdates] = useState(true)
   const [autoDownloadUpdates, setAutoDownloadUpdates] = useState(false)
   const [autoRestartAfterUpdate, setAutoRestartAfterUpdate] = useState(false)
   const [autoInstallSilent, setAutoInstallSilent] = useState(false)
@@ -479,7 +480,7 @@ function UpdateSection(): JSX.Element {
     }
     // Hydrate the auto-update prefs from persisted settings.
     window.api.loadSettings().then((s) => {
-      setAutoCheckUpdates(s.autoCheckUpdates === true)
+      setAutoCheckUpdates(s.autoCheckUpdates !== false)
       setAutoDownloadUpdates(s.autoDownloadUpdates === true)
       setAutoRestartAfterUpdate(s.autoRestartAfterUpdate === true)
       setAutoInstallSilent(s.autoInstallSilent === true)
