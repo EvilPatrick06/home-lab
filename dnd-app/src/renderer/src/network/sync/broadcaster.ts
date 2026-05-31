@@ -124,19 +124,21 @@ export function createShardBroadcaster(
       if (!shard) return
       const sequence = seqByShard.get(shardName) ?? 0
 
-      // Filtered shard: reply with the requester's filtered value. Match the
-      // requesting peer's clientId from the recipient list by its peerId.
-      if (shard.permissionFilter && opts?.getRecipients) {
-        const requester = opts.getRecipients().find((r) => r.peerId === fromPeerId)
-        if (requester) {
-          const filtered = shard.permissionFilter(shard.read(), requester.clientId)
-          const delta: Delta = { kind: 'replace', payload: filtered, sequence }
-          transport.send(fromPeerId, envelope('sync:delta', { shard: shardName, delta }))
-          return
-        }
-        // Unknown requester (not in the peer list): fall through to unfiltered.
+      // Filtered shard: NEVER reply with the raw (DM-level) value. Resolve the
+      // requester's clientId from the recipient list by its peerId; if it can't
+      // be resolved (unknown requester), pass `fromPeerId` — which the filter
+      // can't match to a connected peer, so it strips DM-only data
+      // (deny-by-default). Closes the resync wire-leak that previously fell
+      // through to an unfiltered `shard.read()` for an unresolved requester.
+      if (shard.permissionFilter) {
+        const requester = opts?.getRecipients?.().find((r) => r.peerId === fromPeerId)
+        const filtered = shard.permissionFilter(shard.read(), requester?.clientId ?? fromPeerId)
+        const delta: Delta = { kind: 'replace', payload: filtered, sequence }
+        transport.send(fromPeerId, envelope('sync:delta', { shard: shardName, delta }))
+        return
       }
 
+      // Unfiltered shard (walls, initiative, …): reply with the full value.
       const delta: Delta = { kind: 'replace', payload: shard.read(), sequence }
       transport.send(fromPeerId, envelope('sync:delta', { shard: shardName, delta }))
     })

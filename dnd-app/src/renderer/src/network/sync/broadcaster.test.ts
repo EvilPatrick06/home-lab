@@ -360,6 +360,48 @@ describe('createShardBroadcaster permission filtering (Phase 31j)', () => {
     broadcaster.stop()
   })
 
+  it('resync from an UNRESOLVED requester gets the filtered value, never the raw (deny-by-default)', () => {
+    // SECURITY: a filtered shard must not leak DM-level data on the resync path
+    // to a requester not in the recipient list (previously fell through to an
+    // unfiltered shard.read()).
+    const { shard, set } = makeBoxShard<{ hp: number; secret?: string }>(
+      'bc-resync-ghost',
+      { hp: 10, secret: 'top' },
+      (value, clientId) => (clientId === 'c-alice' ? value : { hp: value.hp })
+    )
+    registerShard(shard)
+
+    const hub = new MemoryHub()
+    const host = new MemoryTransport(hub, makePeer('host', true))
+    const ghost = new MemoryTransport(hub, makePeer('ghost'))
+    const recv = vi.fn()
+    ghost.onMessage(recv)
+
+    // getRecipients does NOT include 'ghost' → the requester is unresolved.
+    const broadcaster = createShardBroadcaster(host, {
+      getRecipients: () => [{ peerId: 'alice', clientId: 'c-alice' }]
+    })
+    broadcaster.start()
+    set({ hp: 9, secret: 'newtop' }) // seq 1
+
+    ghost.send('host', {
+      type: 'sync:resync-request',
+      payload: { shard: 'bc-resync-ghost' },
+      senderId: 'ghost',
+      senderName: 'ghost',
+      timestamp: 0,
+      sequence: 0
+    })
+
+    const replies = syncDeltas(recv).filter((d) => d.shard === 'bc-resync-ghost' && d.delta.kind === 'replace')
+    expect(replies).toHaveLength(1)
+    // The unresolved requester gets the stripped value — NOT the secret.
+    expect(replies[0].delta.payload).toEqual({ hp: 9 })
+    expect(replies[0].delta.payload).not.toHaveProperty('secret')
+
+    broadcaster.stop()
+  })
+
   it('falls back to an unfiltered broadcast when no getRecipients is supplied', () => {
     // Filtered shard but no recipient list → behavior-preserving: structural
     // diff broadcast to all, no filtering applied.
