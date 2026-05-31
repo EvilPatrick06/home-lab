@@ -281,11 +281,16 @@ export default function AiProviderSetup({
               {isCloud && (
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">{t('campaign.aiProviderSetup.apiKey')}</label>
+                    <label htmlFor="ai-api-key" className="block text-sm text-gray-400 mb-1">
+                      {t('campaign.aiProviderSetup.apiKey')}
+                    </label>
                     <div className="flex gap-2">
                       <input
+                        id="ai-api-key"
                         type="password"
                         value={apiKey}
+                        aria-invalid={keyValid === false}
+                        aria-describedby={keyValid !== null ? 'ai-api-key-status' : undefined}
                         onChange={(e) => {
                           setKeyValid(null)
                           onChange({ enabled, provider, model, ollamaUrl, apiKey: e.target.value })
@@ -302,10 +307,12 @@ export default function AiProviderSetup({
                       </Button>
                     </div>
                     {keyValid === true && (
-                      <p className="text-green-400 text-xs mt-1">{t('campaign.aiProviderSetup.apiKeyValid')}</p>
+                      <p id="ai-api-key-status" role="status" className="text-green-400 text-xs mt-1">
+                        {t('campaign.aiProviderSetup.apiKeyValid')}
+                      </p>
                     )}
                     {keyValid === false && (
-                      <p className="text-red-400 text-xs mt-1">
+                      <p id="ai-api-key-status" role="alert" className="text-red-400 text-xs mt-1">
                         {errorMessage || t('campaign.aiProviderSetup.apiKeyInvalid')}
                       </p>
                     )}

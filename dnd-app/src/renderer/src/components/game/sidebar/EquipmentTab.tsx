@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { useAsyncData } from '../../../hooks/use-async-data'
 import { useT } from '../../../i18n'
 import { load5eEquipment } from '../../../services/data-provider'
-import type { EquipmentFile } from '../../../types/data'
 
 interface ItemWithCategory {
   name: string
@@ -11,24 +11,10 @@ interface ItemWithCategory {
 
 export default function EquipmentTab(): JSX.Element {
   const { t } = useT()
-  const [equipment, setEquipment] = useState<EquipmentFile | null>(null)
-  const [loading, setLoading] = useState(true)
+  // Phase 15e / 22 H4 — go through the library truth store, not the direct IPC bypass.
+  const { data: equipment = null, loading } = useAsyncData(() => load5eEquipment(), [])
   const [search, setSearch] = useState('')
   const [categoryFilter, setCategoryFilter] = useState<'all' | 'weapons' | 'armor' | 'gear'>('all')
-
-  useEffect(() => {
-    let cancelled = false
-    // Phase 15e / 22 H4 — go through the library truth store, not the direct IPC bypass.
-    load5eEquipment().then((data) => {
-      if (!cancelled) {
-        setEquipment(data)
-        setLoading(false)
-      }
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [])
 
   const allItems: ItemWithCategory[] = equipment
     ? [

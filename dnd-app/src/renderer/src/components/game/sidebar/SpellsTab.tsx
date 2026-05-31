@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { SPELL_SCHOOLS } from '../../../constants'
+import { useAsyncData } from '../../../hooks/use-async-data'
 import { useT } from '../../../i18n'
 import type {
   HigherLevelCasting,
@@ -84,29 +85,17 @@ function resolveCantripsKnown(classId: string, level: number): number {
 
 export default function SpellsTab(): JSX.Element {
   const { t } = useT()
-  const [spells, setSpells] = useState<SpellIndexEntry[]>([])
-  const [loading, setLoading] = useState(true)
+  // Phase 15e / 22 H4 — go through the library truth store, not the direct IPC bypass.
+  // boundary cast: SpellData (components: string) reinterpreted as SpellIndexEntry (components object + path)
+  const { data: spells = [], loading } = useAsyncData(
+    () => load5eSpells().then((data) => data as unknown as SpellIndexEntry[]),
+    []
+  )
   const [search, setSearch] = useState('')
   const [levelFilter, setLevelFilter] = useState<number | null>(null)
   const [schoolFilter, setSchoolFilter] = useState<string | null>(null)
   const [refClass, setRefClass] = useState<string | null>(null)
   const [refLevel, setRefLevel] = useState(1)
-
-  useEffect(() => {
-    let cancelled = false
-    // Phase 15e / 22 H4 — go through the library truth store, not the direct IPC bypass.
-    load5eSpells().then((data) => {
-      // boundary cast: SpellData (components: string) reinterpreted as SpellIndexEntry (components object + path)
-      const spellData = data as unknown as SpellIndexEntry[]
-      if (!cancelled) {
-        setSpells(spellData)
-        setLoading(false)
-      }
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [])
 
   const casterClasses = useMemo(() => Object.keys(CANTRIPS_KNOWN), [])
 

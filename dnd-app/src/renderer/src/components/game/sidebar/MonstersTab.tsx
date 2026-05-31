@@ -1,28 +1,15 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
+import { useAsyncData } from '../../../hooks/use-async-data'
 import { useT } from '../../../i18n'
 import { load5eMonsters } from '../../../services/data-provider'
 import type { MonsterStatBlock } from '../../../types/monster'
 
 export default function MonstersTab(): JSX.Element {
   const { t } = useT()
-  const [monsters, setMonsters] = useState<MonsterStatBlock[]>([])
-  const [loading, setLoading] = useState(true)
+  // Phase 15e / 22 H4 — go through the library truth store, not the direct IPC bypass.
+  const { data: monsters = [], loading } = useAsyncData(() => load5eMonsters(), [])
   const [search, setSearch] = useState('')
   const [crFilter, setCrFilter] = useState<string | null>(null)
-
-  useEffect(() => {
-    let cancelled = false
-    // Phase 15e / 22 H4 — go through the library truth store, not the direct IPC bypass.
-    load5eMonsters().then((data) => {
-      if (!cancelled) {
-        setMonsters(data)
-        setLoading(false)
-      }
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [])
 
   const crValues = useMemo(() => {
     const crs = new Set(monsters.map((m) => m.cr))
