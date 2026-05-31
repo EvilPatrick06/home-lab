@@ -178,3 +178,35 @@ describe('BMO API key precedence', () => {
     expect(mod.getBmoApiKey()).toBeUndefined()
   })
 })
+
+describe('getBmoAccessHeaders (Cloudflare Access service token)', () => {
+  // The token is injected at build time as the `__CF_ACCESS_*__` defines. In
+  // tests they're absent, so simulate a baked build by setting them on
+  // globalThis (a bare identifier resolves to a globalThis property).
+  const g = globalThis as unknown as Record<string, unknown>
+  afterEach(() => {
+    delete g.__CF_ACCESS_CLIENT_ID__
+    delete g.__CF_ACCESS_CLIENT_SECRET__
+  })
+
+  it('returns no headers in an unconfigured build (defines absent)', async () => {
+    const mod = await loadFresh()
+    expect(mod.getBmoAccessHeaders()).toEqual({})
+  })
+
+  it('returns CF-Access headers when both id and secret are baked in', async () => {
+    g.__CF_ACCESS_CLIENT_ID__ = 'client-id.access'
+    g.__CF_ACCESS_CLIENT_SECRET__ = 'super-secret'
+    const mod = await loadFresh()
+    expect(mod.getBmoAccessHeaders()).toEqual({
+      'CF-Access-Client-Id': 'client-id.access',
+      'CF-Access-Client-Secret': 'super-secret'
+    })
+  })
+
+  it('returns no headers when only one of the pair is present', async () => {
+    g.__CF_ACCESS_CLIENT_ID__ = 'client-id.access'
+    const mod = await loadFresh()
+    expect(mod.getBmoAccessHeaders()).toEqual({})
+  })
+})

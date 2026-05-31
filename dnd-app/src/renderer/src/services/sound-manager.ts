@@ -200,11 +200,6 @@ function getDefaultPath(event: string): string {
   return `./sounds/${getSoundFolder(event)}/${getSoundFilename(event)}.mp3`
 }
 
-/** Resolves the variant path for a sound event at a given pool index. */
-function getVariantPath(event: string, index: number): string {
-  return `./sounds/${getSoundFolder(event)}/${getSoundFilename(event)}-${index + 1}.mp3`
-}
-
 // --- Module-level state ---
 
 const AUDIO_STORAGE_KEY = SETTINGS_KEYS.AUDIO
@@ -274,21 +269,16 @@ export function init(): void {
     const pool: HTMLAudioElement[] = []
 
     for (let i = 0; i < POOL_SIZE; i++) {
-      // Try variant file first (e.g. dice/d20-1.mp3), fall back to base file
-      const variantPath = customPath ? basePath : getVariantPath(event, i)
-      const audio = new Audio(variantPath)
+      // Pool of base-file instances for overlapping playback (round-robin).
+      // NOTE: per-event `<name>-N.mp3` variant files were never shipped — only
+      // the base file exists for every event — so the old "try variant, fall
+      // back to base" path produced ERR_FILE_NOT_FOUND for ~3×N events on every
+      // init (console spam, though sound still played via the fallback). Load
+      // the base file directly. Re-introduce variant probing only behind a
+      // manifest of files that actually exist.
+      const audio = new Audio(basePath)
       audio.preload = 'auto'
       audio.volume = muted ? 0 : volume
-      // Fallback: if variant doesn't exist, use base path
-      audio.addEventListener(
-        'error',
-        () => {
-          logger.debug('Sound variant not found, falling back to base:', event, variantPath)
-          audio.src = basePath
-          audio.load()
-        },
-        { once: true }
-      )
       pool.push(audio)
     }
 

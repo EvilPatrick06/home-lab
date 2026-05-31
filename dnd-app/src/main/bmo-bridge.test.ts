@@ -11,6 +11,7 @@ const { getBmoApiKey } = vi.hoisted(() => ({
 }))
 vi.mock('./bmo-config', () => ({
   getBmoBaseUrl: () => 'http://127.0.0.1:5000',
+  getBmoAccessHeaders: () => ({}),
   getBmoApiKey
 }))
 

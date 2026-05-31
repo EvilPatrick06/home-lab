@@ -35,7 +35,16 @@ export default defineConfig(async () => {
   const analyze = await analyzePlugin()
   return {
     main: {
-      plugins: [externalizeDepsPlugin()]
+      plugins: [externalizeDepsPlugin()],
+      // Cloudflare Access service token, baked into the MAIN bundle at build
+      // time (from CI/build secrets) so off-LAN requests to the Pi's
+      // Access-protected tunnel authenticate without any per-user setup. Only
+      // the main process holds it (never the renderer), and it's sent only to
+      // the BMO base URL. Empty string when not supplied (dev / forks).
+      define: {
+        __CF_ACCESS_CLIENT_ID__: JSON.stringify(process.env.CF_ACCESS_CLIENT_ID ?? ''),
+        __CF_ACCESS_CLIENT_SECRET__: JSON.stringify(process.env.CF_ACCESS_CLIENT_SECRET ?? '')
+      }
     },
     preload: {
       plugins: [externalizeDepsPlugin()]

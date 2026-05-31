@@ -102,3 +102,18 @@ export function applyBmoApiKeyFromSettings(settings: { bmoApiKey?: string } | nu
     userBmoApiKey = null
   }
 }
+
+// ── Cloudflare Access service token (off-LAN Pi auth) ────────────────
+// The BMO Pi is fronted by a Cloudflare Access app; off-LAN requests to the
+// tunnel get 302-redirected to a login unless they carry a service token.
+// The token is baked into the MAIN bundle at build time (electron.vite.config
+// `main.define` ← CI/build secrets), so installed apps reach Pi/cloud features
+// off-LAN with NO per-user setup, while the endpoints stay private from the
+// public internet (only holders of the token get through). Read defensively:
+// the defines are unassigned in dev/test, so a bare reference would throw.
+export function getBmoAccessHeaders(): Record<string, string> {
+  const id = typeof __CF_ACCESS_CLIENT_ID__ !== 'undefined' ? __CF_ACCESS_CLIENT_ID__ : ''
+  const secret = typeof __CF_ACCESS_CLIENT_SECRET__ !== 'undefined' ? __CF_ACCESS_CLIENT_SECRET__ : ''
+  if (!id || !secret) return {}
+  return { 'CF-Access-Client-Id': id, 'CF-Access-Client-Secret': secret }
+}

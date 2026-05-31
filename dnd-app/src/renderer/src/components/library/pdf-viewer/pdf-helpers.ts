@@ -11,7 +11,11 @@ export function initPdfWorker(): void {
   workerInitStarted = true
   ;(async () => {
     try {
-      const resp = await fetch('/pdf.worker.min.mjs')
+      // Relative path: the packaged renderer loads from `file://…/renderer/
+      // index.html`, where an absolute `/pdf.worker.min.mjs` resolves to the
+      // filesystem root (`/C:/pdf.worker.min.mjs` on Windows) → not found.
+      // `./` resolves against the renderer dir in both dev (http) and packaged.
+      const resp = await fetch('./pdf.worker.min.mjs')
       const text = await resp.text()
       const blob = new Blob([text], { type: 'application/javascript' })
       pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(blob)

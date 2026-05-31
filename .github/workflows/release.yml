@@ -151,6 +151,13 @@ jobs:
       # Build the installer/AppImage but DO NOT publish — the `publish` job uploads after tests
       # pass, so a test-failing build never reaches users.
       - name: Build (no publish)
+        env:
+          # Cloudflare Access service token baked into the MAIN bundle so off-LAN
+          # Pi/cloud features authenticate with no per-user setup. Optional: when
+          # these repo secrets are unset they resolve to '' → no auth headers sent
+          # (on-LAN is unaffected; off-LAN cloud falls back to login-gated).
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
         run: |
           npm run build:index
           npx electron-vite build

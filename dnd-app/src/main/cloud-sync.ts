@@ -9,7 +9,7 @@
 
 import { join } from 'node:path'
 import { app } from 'electron'
-import { getBmoBaseUrl } from './bmo-config'
+import { getBmoAccessHeaders, getBmoBaseUrl } from './bmo-config'
 import { logToFile } from './log'
 
 const TIMEOUT_MS = 60_000 // 60 second timeout for sync operations
@@ -50,7 +50,8 @@ async function executeRcloneCommand(
       method: 'POST',
       signal: controller.signal,
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...getBmoAccessHeaders()
       },
       body: JSON.stringify({
         command,
@@ -90,7 +91,7 @@ export async function checkRemoteStatus(): Promise<RcloneStatus> {
   try {
     const res = await fetch(`${getBmoBaseUrl()}/api/rclone/status`, {
       method: 'GET',
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json', ...getBmoAccessHeaders() }
     })
 
     if (!res.ok) {
