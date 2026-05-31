@@ -208,7 +208,7 @@ export function expandConditionalBlocks(command: string, character: Character5e 
   const re = /\{if\s+([^}]+)\}([\s\S]*?)(?:\{else\}([\s\S]*?))?\{\/if\}/g
   return command.replace(re, (_m, cond: string, truthy: string, falsy?: string) => {
     // Substitute numeric vars in the condition only.
-    const resolved = cond.replace(/\$(\w+(?:\.\w+)?)/g, (m, name: string) => {
+    const resolved = cond.replace(/\$(\w+(?:\.\w+)?)/g, (_m, name: string) => {
       const v = resolveNumericVar(name, character)
       if (v === null) throw new MacroSyntaxError(`unknown variable "$${name}"`)
       return String(v)

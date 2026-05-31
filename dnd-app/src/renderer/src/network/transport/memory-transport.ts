@@ -51,7 +51,7 @@ export class MemoryTransport implements TransportAdapter {
 
   constructor(
     private readonly hub: MemoryHub,
-    private readonly self: PeerInfo
+    self: PeerInfo
   ) {
     this.peerId = self.peerId
     hub._register(this.peerId, this, self)

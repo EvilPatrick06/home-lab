@@ -2,7 +2,7 @@ import type { StateCreator } from 'zustand'
 import type { EntityCondition } from '../../types/game-state'
 import type { ConditionsSliceState, GameStoreState } from './types'
 
-export const createConditionsSlice: StateCreator<GameStoreState, [], [], ConditionsSliceState> = (set, get) => ({
+export const createConditionsSlice: StateCreator<GameStoreState, [], [], ConditionsSliceState> = (set) => ({
   addCondition: (condition: EntityCondition) => {
     // Phase 17ac — idempotent add. Previously this blindly appended,
     // letting the same condition stack on the same entity (e.g. clicking

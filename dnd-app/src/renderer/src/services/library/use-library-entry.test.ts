@@ -23,19 +23,19 @@ describe('use-library-entry module', () => {
 describe('useLibraryStore read path (what useLibraryEntry consumes)', () => {
   it('selector returns null when category is empty', () => {
     const state = useLibraryStore.getState()
-    expect(state.entries.spells?.['fireball'] ?? null).toBeNull()
+    expect(state.entries.spells?.fireball ?? null).toBeNull()
   })
 
   it('selector returns the entry once loaded', async () => {
     await useLibraryStore.getState().loadCategory('spells', () => [{ id: 'fireball', name: 'Fireball', level: 3 }])
     const state = useLibraryStore.getState()
-    expect((state.entries.spells?.['fireball'] as { name: string })?.name).toBe('Fireball')
+    expect((state.entries.spells?.fireball as { name: string })?.name).toBe('Fireball')
   })
 
   it('selector picks up a homebrew upsert mutation', async () => {
     await useLibraryStore.getState().loadCategory('spells', () => [{ id: 'fireball', name: 'Fireball', level: 3 }])
     useLibraryStore.getState().upsertHomebrew('spells', { id: 'fireball', name: 'Fireball (rebalanced)', level: 3 })
-    const entry = useLibraryStore.getState().entries.spells?.['fireball'] as { name: string }
+    const entry = useLibraryStore.getState().entries.spells?.fireball as { name: string }
     expect(entry.name).toBe('Fireball (rebalanced)')
   })
 })

@@ -97,6 +97,7 @@ function literalShapeViolations(absPath: string): Array<{ startLine: number; end
     const line = lines[i]
     SHAPE_KEY_REGEX.lastIndex = 0
     let m: RegExpExecArray | null
+    // biome-ignore lint/suspicious/noAssignInExpressions: standard RegExp.exec() iteration idiom
     while ((m = SHAPE_KEY_REGEX.exec(line)) !== null) {
       hits.push({ line: i + 1, key: m[1] })
     }
