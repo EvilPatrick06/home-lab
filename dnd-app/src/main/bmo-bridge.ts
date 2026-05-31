@@ -56,6 +56,7 @@ function rateLimitOk(ip: string): boolean {
 export function __resetSyncReceiverState(): void {
   rateLimit.clear()
   apiKeyWarningLogged = false
+  seenEventIds.clear()
 }
 
 interface BridgeResponse {
@@ -83,6 +84,26 @@ export interface SyncEvent {
   type: 'discord_message' | 'initiative_sync' | 'state_request' | 'player_join' | 'player_leave' | 'discord_roll'
   payload: Record<string, unknown>
   timestamp: number
+  /** Idempotency key (BMO stamps a uuid; the bridge dedups retries on it). */
+  eventId?: string
+}
+
+// Dedup BMO sync events by eventId. BMO retries the POST on a transient failure
+// with the SAME eventId, so without this a roll/message could be applied twice
+// (e.g. the VTT processed the event but BMO never saw the 200 and retried). A
+// bounded insertion-ordered Set caps memory; older ids age out.
+const SEEN_EVENT_IDS_MAX = 500
+const seenEventIds = new Set<string>()
+/** True if this eventId was already handled. First sighting records the id. */
+function isDuplicateSyncEvent(eventId: string | undefined): boolean {
+  if (!eventId) return false // pre-retry BMO builds send none → never dedup
+  if (seenEventIds.has(eventId)) return true
+  seenEventIds.add(eventId)
+  if (seenEventIds.size > SEEN_EVENT_IDS_MAX) {
+    const oldest = seenEventIds.values().next().value
+    if (oldest !== undefined) seenEventIds.delete(oldest)
+  }
+  return false
 }
 
 async function bmoPiFetchOnce(path: string, options?: RequestInit): Promise<BridgeResponse> {
@@ -360,6 +381,16 @@ export function startSyncReceiver(port = SYNC_RECEIVER_PORT): void {
           const parsed = SyncEventSchema.safeParse(parsedJson)
           if (!parsed.success) {
             sendJson(res, 400, { error: 'invalid payload', issues: parsed.error.issues })
+            return
+          }
+          // Dedup retried events: ack with 200 (so BMO stops retrying) but do
+          // NOT re-forward to the renderer — the first delivery already applied it.
+          if (isDuplicateSyncEvent(parsed.data.eventId)) {
+            logToFile(
+              'INFO',
+              `[bmo-bridge] Duplicate sync event ${parsed.data.eventId} (${parsed.data.type}) — acked, not re-forwarded`
+            )
+            sendJson(res, 200, { ok: true, duplicate: true })
             return
           }
           logToFile('INFO', `[bmo-bridge] Sync event: ${parsed.data.type}`)

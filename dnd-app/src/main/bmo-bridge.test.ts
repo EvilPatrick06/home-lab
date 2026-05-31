@@ -98,6 +98,27 @@ describe('sync receiver hardening (Phase 28a.2/.3/.4)', () => {
     expect(json.ok).toBe(true)
   })
 
+  it('dedups a retried sync event by eventId (acks the duplicate, no re-forward)', async () => {
+    const event = { ...validEvent, eventId: 'evt-abc-123' }
+    const opts = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(event) }
+    const first = await fetch(`${BASE}/api/sync`, opts)
+    expect(first.status).toBe(200)
+    expect((await first.json()) as { duplicate?: boolean }).not.toHaveProperty('duplicate', true)
+    // BMO retries the same eventId after a missed 200 — must be acked but skipped.
+    const second = await fetch(`${BASE}/api/sync`, opts)
+    expect(second.status).toBe(200)
+    expect((await second.json()) as { duplicate?: boolean }).toHaveProperty('duplicate', true)
+  })
+
+  it('does NOT dedup events without an eventId (pre-retry BMO back-compat)', async () => {
+    // validEvent carries no eventId — both posts must be forwarded (no dedup).
+    const opts = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(validEvent) }
+    const a = (await (await fetch(`${BASE}/api/sync`, opts)).json()) as { duplicate?: boolean }
+    const b = (await (await fetch(`${BASE}/api/sync`, opts)).json()) as { duplicate?: boolean }
+    expect(a.duplicate).toBeUndefined()
+    expect(b.duplicate).toBeUndefined()
+  })
+
   it('health check stays open (no auth, no rate limit)', async () => {
     getBmoApiKey.mockReturnValue('secret-token')
     // Burst well past the bucket size; health remains 200.

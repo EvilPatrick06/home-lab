@@ -88,7 +88,11 @@ export type ValidatedLanGameRemoved = z.infer<typeof LanGameRemovedSchema>
 // the fields it actually consumes.
 
 const SyncEventBaseFields = {
-  timestamp: z.number().int().nonnegative()
+  timestamp: z.number().int().nonnegative(),
+  // Optional idempotency key — BMO stamps a uuid per event and retries the POST
+  // on failure with the SAME id; the bridge dedups on it so a retried roll/message
+  // isn't applied twice. Optional for back-compat with pre-retry BMO builds.
+  eventId: z.string().max(64).optional()
 }
 
 const DiscordMessagePayloadSchema = z

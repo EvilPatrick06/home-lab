@@ -17,8 +17,10 @@ import json
 import logging
 import os
 import threading
+import time
 from datetime import datetime
 from typing import Any, Dict, Optional
+from uuid import uuid4
 
 import requests
 
@@ -27,6 +29,10 @@ logger = logging.getLogger("bmo.vtt_sync")
 # The VTT's sync receiver URL — set via env or auto-discover
 VTT_SYNC_URL = os.environ.get("VTT_SYNC_URL", "http://vtt.local:5001").strip() or "http://vtt.local:5001"
 SYNC_TIMEOUT = 5  # seconds
+# Backoff delays (seconds) between the retries that follow the initial attempt;
+# 3 retries → 4 attempts total. The VTT dedups on eventId, so a retry that lands
+# after the VTT already processed the event is acked-and-ignored, not double-applied.
+RETRY_DELAYS = (0.5, 1.5, 3.0)
 
 
 # ─── VTT → Pi: Receive state from VTT ───
@@ -131,19 +137,37 @@ def register_sync_routes(app):
 
 # ─── Pi → VTT: Push events to VTT ───
 
-def _post_to_vtt(path: str, data: Dict[str, Any]) -> bool:
-    """Send a POST request to the VTT sync receiver. Non-blocking via thread."""
-    def _send():
-        try:
-            url = f"{VTT_SYNC_URL}{path}"
-            resp = requests.post(url, json=data, timeout=SYNC_TIMEOUT)
-            if resp.status_code != 200:
-                logger.warning(f"VTT sync failed: {resp.status_code} {resp.text}")
-        except requests.RequestException as e:
-            logger.warning(f"VTT sync error: {e}")
+def _send_with_retry(url: str, payload: Dict[str, Any]) -> bool:
+    """POST with bounded retry + backoff. Returns True once the VTT acks (200).
 
-    thread = threading.Thread(target=_send, daemon=True)
-    thread.start()
+    Safe to retry: the payload carries a stable `eventId` and the VTT dedups on
+    it, so re-delivering an event the VTT already applied is a no-op there.
+    """
+    attempts = len(RETRY_DELAYS) + 1
+    for attempt in range(attempts):
+        try:
+            resp = requests.post(url, json=payload, timeout=SYNC_TIMEOUT)
+            if resp.status_code == 200:
+                return True
+            logger.warning(f"VTT sync {url} HTTP {resp.status_code} (attempt {attempt + 1}/{attempts})")
+        except requests.RequestException as e:
+            logger.warning(f"VTT sync {url} error (attempt {attempt + 1}/{attempts}): {e}")
+        if attempt < len(RETRY_DELAYS):
+            time.sleep(RETRY_DELAYS[attempt])
+    logger.warning(f"VTT sync {url} dropped after {attempts} attempts (eventId={payload.get('eventId')})")
+    return False
+
+
+def _post_to_vtt(path: str, data: Dict[str, Any]) -> bool:
+    """Send a POST to the VTT sync receiver off the request thread.
+
+    Stamps a stable `eventId` (one per event, reused across retries) so the VTT
+    can dedup, then dispatches `_send_with_retry` on a daemon thread.
+    """
+    event_id = data.get("eventId") or str(uuid4())
+    payload = {**data, "eventId": event_id}
+    url = f"{VTT_SYNC_URL}{path}"
+    threading.Thread(target=_send_with_retry, args=(url, payload), daemon=True).start()
     return True
 
 
