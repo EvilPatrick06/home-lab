@@ -413,6 +413,17 @@ export default function CharacterBuilder5e(): JSX.Element {
           >
             &larr; {t('builder.characterBuilder.back')}
           </button>
+          {/* Library link — inline in the header (mirrors the Character Sheet
+              toolbar). Was previously a `fixed` floating button in
+              CreateCharacterPage that overlapped the Save Character button. */}
+          <button
+            type="button"
+            onClick={() => navigate(`/library?from=${encodeURIComponent(location.pathname)}`)}
+            className="px-2.5 py-1 text-xs border border-gray-700 text-amber-300 hover:text-amber-200 hover:border-amber-600/50 rounded transition-colors cursor-pointer"
+            title={t('pages.createCharacterPage.libraryTitle')}
+          >
+            {t('pages.createCharacterPage.library')}
+          </button>
           <div className="w-px h-4 bg-gray-700" />
           <span className="text-xs text-gray-500">
             {editingCharacterId ? t('builder.characterBuilder.editCharacter') : t('builder.characterBuilder.title')}

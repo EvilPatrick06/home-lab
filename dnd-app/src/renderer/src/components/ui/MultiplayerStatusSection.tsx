@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useT } from '../../i18n'
 import { useSignalingStatusStore } from '../../stores/use-signaling-status-store'
 
@@ -13,6 +14,13 @@ export default function MultiplayerStatusSection(): JSX.Element {
   const reachable = useSignalingStatusStore((s) => s.reachable)
   const host = useSignalingStatusStore((s) => s.host)
   const checkedAt = useSignalingStatusStore((s) => s.checkedAt)
+
+  // Trigger a fresh probe when the badge mounts so it doesn't sit on
+  // "Checking…" waiting for the periodic (30s) probe. Result arrives via the
+  // module-level BMO_SIGNALING_STATUS subscription in the store.
+  useEffect(() => {
+    window.api?.lan?.probeSignaling?.()
+  }, [])
 
   let dotClass = 'bg-gray-500'
   let text: string

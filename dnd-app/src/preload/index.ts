@@ -257,7 +257,10 @@ const api = {
         cb(payload)
       ipcRenderer.on(IPC_CHANNELS.BMO_SIGNALING_STATUS, listener)
       return () => ipcRenderer.removeListener(IPC_CHANNELS.BMO_SIGNALING_STATUS, listener)
-    }
+    },
+    // Trigger an immediate signaling probe (result arrives via the
+    // onBmoSignalingStatus broadcast). Used by the Multiplayer settings badge.
+    probeSignaling: () => ipcRenderer.invoke(IPC_CHANNELS.BMO_PROBE_SIGNALING)
   },
 
   // Settings

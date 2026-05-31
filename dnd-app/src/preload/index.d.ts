@@ -357,8 +357,6 @@ interface AppSettingsData {
   }
   /** BMO Pi HTTP API base. When set, overrides BMO_PI_URL for bridge + cloud sync + CSP. */
   bmoPiBaseUrl?: string
-  /** Phase 36 — load 5e library content from the Pi `/api/library` API (bundled data is always the fallback). Default off. */
-  piLibraryEnabled?: boolean
   /** v2.1.16 auto-update preferences (all default false / opt-in). */
   autoCheckUpdates?: boolean
   autoDownloadUpdates?: boolean
@@ -718,6 +716,7 @@ interface LanAPI {
   onGameRemoved: (cb: (entry: LanRemovedEntry) => void) => () => void
   onBmoResolvedUrl: (cb: (payload: { url: string | null }) => void) => () => void
   onBmoSignalingStatus: (cb: (payload: { reachable: boolean | null; host: string; port: number }) => void) => () => void
+  probeSignaling: () => Promise<{ ok: boolean }>
 }
 
 declare global {

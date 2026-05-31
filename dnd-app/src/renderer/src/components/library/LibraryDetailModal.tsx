@@ -48,26 +48,53 @@ interface LibraryDetailModalProps {
   onDelete?: (item: LibraryItem) => void
 }
 
+// Shared section-label style — amber accent matches the bespoke detail views
+// (SpellCardView / MonsterStatBlockView etc.) so every category reads as one
+// design language instead of the old flat gray definition list.
+const FIELD_LABEL = 'text-xs font-semibold text-amber-400 uppercase tracking-wider mb-1'
+const FIELD_GROUP = 'border-l-2 border-amber-800/30 pl-3'
+
+function renderChips(values: unknown[]): JSX.Element {
+  return (
+    <div className="flex flex-wrap gap-1">
+      {values.map((v, i) => (
+        <span
+          key={`chip-${i}`}
+          className="text-xs bg-gray-800 border border-gray-700/60 text-gray-300 px-2 py-0.5 rounded-full"
+        >
+          {humanizeValue(String(v))}
+        </span>
+      ))}
+    </div>
+  )
+}
+
 function renderField(label: string, value: unknown): JSX.Element | null {
   if (value === null || value === undefined || value === '') return null
 
   if (Array.isArray(value)) {
     if (value.length === 0) return null
-    if (typeof value[0] === 'string') {
+    // String lists → chips (e.g. proficiencies, tags, classes).
+    if (value.every((v) => typeof v !== 'object' || v === null)) {
       return (
-        <div key={label}>
-          <dt className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">{label}</dt>
-          <dd className="text-sm text-gray-200">{value.map((v) => humanizeValue(String(v))).join(', ')}</dd>
+        <div key={label} className={FIELD_GROUP}>
+          <dt className={FIELD_LABEL}>{label}</dt>
+          <dd>{renderChips(value)}</dd>
         </div>
       )
     }
+    // Object lists → styled cards (traits, actions, table rows, options).
     return (
-      <div key={label}>
-        <dt className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">{label}</dt>
-        <dd className="text-sm text-gray-200 space-y-1">
+      <div key={label} className={FIELD_GROUP}>
+        <dt className={FIELD_LABEL}>{label}</dt>
+        <dd className="space-y-2">
           {value.map((v, i) => (
-            <div key={`item-${i}`} className="pl-2 border-l border-gray-700">
-              {typeof v === 'object' ? renderObject(v as Record<string, unknown>) : String(v)}
+            <div key={`item-${i}`} className="bg-gray-800/40 border border-gray-700/40 rounded-lg px-3 py-2">
+              {typeof v === 'object' && v !== null ? (
+                renderObject(v as Record<string, unknown>)
+              ) : (
+                <span className="text-sm text-gray-200">{String(v)}</span>
+              )}
             </div>
           ))}
         </dd>
@@ -77,9 +104,9 @@ function renderField(label: string, value: unknown): JSX.Element | null {
 
   if (typeof value === 'object') {
     return (
-      <div key={label}>
-        <dt className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">{label}</dt>
-        <dd className="text-sm text-gray-200 pl-2 border-l border-gray-700">
+      <div key={label} className={FIELD_GROUP}>
+        <dt className={FIELD_LABEL}>{label}</dt>
+        <dd className="bg-gray-800/40 border border-gray-700/40 rounded-lg px-3 py-2">
           {renderObject(value as Record<string, unknown>)}
         </dd>
       </div>
@@ -87,9 +114,9 @@ function renderField(label: string, value: unknown): JSX.Element | null {
   }
 
   return (
-    <div key={label}>
-      <dt className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">{label}</dt>
-      <dd className="text-sm text-gray-200 whitespace-pre-wrap">
+    <div key={label} className={FIELD_GROUP}>
+      <dt className={FIELD_LABEL}>{label}</dt>
+      <dd className="text-sm text-gray-200 whitespace-pre-wrap leading-relaxed">
         {typeof value === 'string' ? renderInlineMarkdown(value) : String(value)}
       </dd>
     </div>
@@ -97,10 +124,14 @@ function renderField(label: string, value: unknown): JSX.Element | null {
 }
 
 function renderObject(obj: Record<string, unknown>): JSX.Element {
+  // Promote a name/title field to a bold amber heading so each card (a trait,
+  // action, equipment option, table row…) reads like the bespoke stat views.
+  const nameKey = ['name', 'title', 'label'].find((k) => typeof obj[k] === 'string' && obj[k] !== '')
   return (
     <div className="space-y-1.5">
+      {nameKey && <div className="text-sm font-semibold text-amber-300">{String(obj[nameKey])}</div>}
       {Object.entries(obj).map(([k, v]) => {
-        if (k.startsWith('_') || v === null || v === undefined) return null
+        if (k === nameKey || k.startsWith('_') || v === null || v === undefined) return null
         if (Array.isArray(v)) {
           if (v.length === 0) return null
           return (

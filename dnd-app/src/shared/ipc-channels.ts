@@ -257,6 +257,12 @@ export const IPC_CHANNELS = {
   // misleading "down".
   BMO_SIGNALING_STATUS: 'bmo:signaling-status',
 
+  // Renderer → main: trigger an immediate signaling-server reachability probe
+  // (e.g. when the Multiplayer settings badge mounts) so the result is fresh
+  // instead of waiting for the next periodic probe. Result still arrives via
+  // BMO_SIGNALING_STATUS broadcast.
+  BMO_PROBE_SIGNALING: 'bmo:probe-signaling',
+
   // === Security Audit (20g) ===
   // Renderer → main: forward a renderer-side security event (kick/ban,
   // rejected network message) to the main-process audit log. The renderer

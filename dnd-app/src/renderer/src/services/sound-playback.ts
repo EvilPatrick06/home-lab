@@ -158,8 +158,15 @@ export function playCustomAudio(
   // Stop any existing playback of this file
   stopCustomAudio(filePath)
 
-  // Convert file path to file:// URL for Audio element
-  const fileUrl = filePath.startsWith('file://') ? filePath : `file:///${filePath.replace(/\\/g, '/')}`
+  // Convert an absolute filesystem path to a file:// URL for the Audio element.
+  // POSIX paths already start with `/` (→ file:///home/...); Windows paths start
+  // with a drive letter (→ file:///C:/...). The old `file:///${path}` produced a
+  // 4-slash `file:////home/...` on Linux/macOS (load failed → "couldn't play").
+  // encodeURI handles spaces in custom-audio filenames.
+  const normalized = filePath.replace(/\\/g, '/')
+  const fileUrl = filePath.startsWith('file://')
+    ? filePath
+    : encodeURI(`file://${normalized.startsWith('/') ? '' : '/'}${normalized}`)
   const audio = new Audio(fileUrl)
   audio.loop = options?.loop ?? false
   audio.volume = muted ? 0 : Math.max(0, Math.min(1, options?.volume ?? 1))

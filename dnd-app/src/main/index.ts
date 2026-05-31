@@ -8,6 +8,7 @@ import { stopSyncReceiver } from './bmo-bridge'
 import { applyBmoBaseUrlFromSettings } from './bmo-config'
 import { bmoCspConnectFragment } from './bmo-csp'
 import { registerIpcHandlers } from './ipc'
+import { startBmoDiscovery } from './lan-discovery'
 import { logToFile } from './log'
 import { registerPluginProtocol, registerPluginScheme } from './plugins/plugin-protocol'
 import { registerCoreBooks } from './storage/book-storage'
@@ -175,14 +176,15 @@ function createWindow(): void {
     mainWindow.moveTop()
   })
 
-  // DevTools shortcut (development only)
-  if (is.dev) {
-    mainWindow.webContents.on('before-input-event', (_event, input) => {
-      if (input.control && input.shift && input.key.toLowerCase() === 'i') {
-        mainWindow.webContents.toggleDevTools()
-      }
-    })
-  }
+  // DevTools shortcut — F12 or Ctrl+Shift+I. Available in PRODUCTION too (not
+  // just dev) so users can open the console to capture errors for bug reports.
+  // Previously this was gated behind `is.dev` and only bound Ctrl+Shift+I, so
+  // F12 did nothing in a packaged build.
+  mainWindow.webContents.on('before-input-event', (_event, input) => {
+    if (input.type !== 'keyDown') return
+    const isDevToolsToggle = input.key === 'F12' || (input.control && input.shift && input.key.toLowerCase() === 'i')
+    if (isDevToolsToggle) mainWindow.webContents.toggleDevTools()
+  })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
     try {
@@ -309,6 +311,17 @@ app.whenReady().then(async () => {
   })
 
   createWindow()
+
+  // Discover the BMO Pi at boot (mDNS + LAN probe) so the resolved base URL
+  // points at the LAN Pi early — Cloud Backup status, the Pi library, and the
+  // WebRTC signaling probe all use it. Previously this only ran when a LAN game
+  // scan started (lobby/join), so on Settings the URL stayed the off-LAN tunnel
+  // default ("Could not reach the Pi") and the signaling probe never fired.
+  try {
+    startBmoDiscovery()
+  } catch (err) {
+    logToFile('WARN', `[boot] BMO discovery failed to start: ${String(err)}`)
+  }
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()

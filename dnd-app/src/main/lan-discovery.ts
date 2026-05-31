@@ -158,7 +158,7 @@ export function startLanScan(): { ok: boolean } {
  * having to install Bonjour Print Services on Windows or type a URL
  * into Settings.
  */
-function startBmoDiscovery(): void {
+export function startBmoDiscovery(): void {
   if (bmoBrowser) return
   logToFile('INFO', '[lan-discovery] BMO discovery starting (browsing _bmo._tcp)')
   bmoBrowser = getBonjour().find({ type: BMO_SERVICE_TYPE })
@@ -173,6 +173,10 @@ function startBmoDiscovery(): void {
     setDiscoveredBmoUrl(url)
     broadcast(IPC_CHANNELS.BMO_RESOLVED_URL, { url })
     logToFile('INFO', `[lan-discovery] BMO Pi discovered at ${url} (via _bmo._tcp)`)
+    // Now that we have a concrete LAN http target, re-probe signaling so the
+    // Multiplayer badge flips to reachable immediately instead of waiting for
+    // the next 30s tick.
+    probeSignalingServer().catch(() => {})
   })
   bmoBrowser.on('down', (service: Service) => {
     knownBmoFqdns.delete(service.fqdn)
@@ -210,7 +214,7 @@ const SIGNALING_PORT = 9000
 const SIGNALING_PATH = '/myapp/peerjs/id'
 let signalingProbeTimer: ReturnType<typeof setInterval> | null = null
 
-async function probeSignalingServer(): Promise<void> {
+export async function probeSignalingServer(): Promise<void> {
   let host = ''
   let applicable = false
   try {

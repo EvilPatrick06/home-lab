@@ -130,8 +130,9 @@ function resolvePath(key: string): string {
 export async function loadJson<T>(path: string): Promise<T> {
   const cached = jsonCache.get(path)
   if (cached !== undefined) return cached as T
-  // Phase 36 — when the Pi library is enabled, prefer it (content-hash cached);
-  // any miss/error/disabled returns null and we fall back to the bundled file.
+  // Phase 36 / R-lib — the Pi library is the default source (content-hash
+  // cached, time-boxed). Any miss / error / unreachable-Pi returns null and we
+  // fall back to the bundled file automatically. No user setting gates this.
   const remote = await loadRemoteLibrary<T>(path)
   if (remote != null) {
     jsonCache.set(path, remote)

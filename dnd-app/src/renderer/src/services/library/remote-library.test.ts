@@ -11,10 +11,10 @@ function jsonResponse(body: unknown, ok = true): Response {
 }
 
 function setup(opts: {
-  enabled?: boolean
   manifest?: unknown
   files?: Record<string, unknown>
   store?: Map<string, string>
+  base?: string
 }) {
   const store = opts.store ?? new Map<string, string>()
   const fetchFn = vi.fn(async (url: string | URL) => {
@@ -34,8 +34,9 @@ function setup(opts: {
     setItem: (k, v) => {
       store.set(k, v)
     },
-    resolveBaseUrl: async () => 'https://pi.test',
-    isEnabled: async () => opts.enabled ?? true
+    // http LAN base — the loader only attempts the Pi library against an http
+    // target (the https tunnel default is treated as unreachable; see below).
+    resolveBaseUrl: async () => opts.base ?? 'http://pi.test'
   })
   return { fetchFn, store }
 }
@@ -56,25 +57,28 @@ describe('mapDataPathToRel', () => {
 })
 
 describe('loadRemoteLibrary', () => {
-  it('returns null when disabled (and never fetches)', async () => {
-    const { fetchFn } = setup({ enabled: false, manifest: { version: '1', files: {} } })
-    expect(await loadRemoteLibrary('./data/5e/spells/spells.json')).toBeNull()
-    expect(fetchFn).not.toHaveBeenCalled()
-  })
-
-  it('returns null for an unmapped path', async () => {
-    setup({ enabled: true, manifest: { version: '1', files: {} } })
+  it('returns null for an unmapped path (no fetch)', async () => {
+    setup({ manifest: { version: '1', files: {} } })
     expect(await loadRemoteLibrary('./data/other/x.json')).toBeNull()
   })
 
   it('returns null when the file is not in the manifest', async () => {
-    setup({ enabled: true, manifest: { version: '1', files: {} } })
+    setup({ manifest: { version: '1', files: {} } })
     expect(await loadRemoteLibrary('./data/5e/spells/spells.json')).toBeNull()
+  })
+
+  it('skips the Pi (no fetch) when the base is the off-LAN https tunnel', async () => {
+    const { fetchFn } = setup({
+      base: 'https://bmo.example.work',
+      manifest: { version: '1', files: { 'spells/spells.json': { sha256: 'abc', size: 9 } } },
+      files: { 'spells/spells.json': [{ id: 'fireball' }] }
+    })
+    expect(await loadRemoteLibrary('./data/5e/spells/spells.json')).toBeNull()
+    expect(fetchFn).not.toHaveBeenCalled()
   })
 
   it('fetches + returns + caches a manifest-listed file', async () => {
     const { fetchFn, store } = setup({
-      enabled: true,
       manifest: { version: '1', files: { 'spells/spells.json': { sha256: 'abc', size: 9 } } },
       files: { 'spells/spells.json': [{ id: 'fireball' }] }
     })
@@ -87,7 +91,6 @@ describe('loadRemoteLibrary', () => {
   it('serves from the hash-keyed cache without refetching the file', async () => {
     const store = new Map<string, string>([['dndapp:lib:spells/spells.json:abc', JSON.stringify([{ id: 'cached' }])]])
     const { fetchFn } = setup({
-      enabled: true,
       manifest: { version: '1', files: { 'spells/spells.json': { sha256: 'abc', size: 9 } } },
       store
     })
@@ -100,7 +103,6 @@ describe('loadRemoteLibrary', () => {
   it('refetches when the content hash changed (stale cache key)', async () => {
     const store = new Map<string, string>([['dndapp:lib:spells/spells.json:OLD', JSON.stringify([{ id: 'stale' }])]])
     setup({
-      enabled: true,
       manifest: { version: '2', files: { 'spells/spells.json': { sha256: 'NEW', size: 9 } } },
       files: { 'spells/spells.json': [{ id: 'fresh' }] },
       store
@@ -110,7 +112,9 @@ describe('loadRemoteLibrary', () => {
   })
 
   it('returns null on a manifest fetch failure (→ caller falls back)', async () => {
-    setup({ enabled: true /* manifest undefined → 503 */ })
+    setup({
+      /* manifest undefined → 503 */
+    })
     expect(await loadRemoteLibrary('./data/5e/spells/spells.json')).toBeNull()
   })
 })

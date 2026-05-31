@@ -709,29 +709,19 @@ function CloudBackupSection(): JSX.Element {
   // mDNS auto-discovery) and BMO is reachable without an API key, so there's
   // nothing to configure here — just the backup actions below.
 
-  // Phase 36 — opt-in: load 5e library content from the Pi (bundled data is the
-  // fallback). Persisted in app settings; read by data-provider's remote loader.
-  const [piLibraryEnabled, setPiLibraryEnabled] = useState(false)
+  // Phase 36 / R-lib — the 5e library loads from the Pi by default and falls
+  // back to bundled data automatically when the Pi is unreachable (see
+  // services/library/remote-library.ts). There is intentionally NO setting for
+  // this — it's automatic, so no toggle is rendered here.
   useEffect(() => {
     window.api
       .loadSettings()
       .then((s) => {
-        setPiLibraryEnabled(s?.piLibraryEnabled === true)
-        // Seed the display from the persisted timestamp so it survives relaunch.
+        // Seed the backup display from the persisted timestamp so it survives relaunch.
         if (s?.lastBackupTime) setSyncState((prev) => ({ ...prev, lastBackupTime: s.lastBackupTime }))
       })
       .catch(() => {})
   }, [])
-  const handleTogglePiLibrary = async (checked: boolean): Promise<void> => {
-    setPiLibraryEnabled(checked)
-    try {
-      const settings = await window.api.loadSettings()
-      await window.api.saveSettings({ ...settings, piLibraryEnabled: checked })
-    } catch {
-      /* revert on failure */
-      setPiLibraryEnabled(!checked)
-    }
-  }
 
   const handleCheckStatus = async (): Promise<void> => {
     setLoading('status')
@@ -822,20 +812,6 @@ function CloudBackupSection(): JSX.Element {
   return (
     <div className="space-y-3">
       <p className="text-xs text-gray-400">{t('pages.settingsPage.cloudBackupDesc')}</p>
-
-      {/* Phase 36 — Pi library toggle */}
-      <label className="flex items-start gap-2 text-sm text-gray-300">
-        <input
-          type="checkbox"
-          checked={piLibraryEnabled}
-          onChange={(e) => void handleTogglePiLibrary(e.target.checked)}
-          className="mt-0.5 cursor-pointer"
-        />
-        <span>
-          {t('pages.settingsPage.piLibraryToggle')}
-          <span className="block text-xs text-gray-500">{t('pages.settingsPage.piLibraryDesc')}</span>
-        </span>
-      </label>
 
       {/* Status display */}
       {message && (

@@ -7,7 +7,14 @@
  */
 
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
-import { publishLan, startLanScan, stopLanScan, teardownLanDiscovery, unpublishLan } from '../lan-discovery'
+import {
+  probeSignalingServer,
+  publishLan,
+  startLanScan,
+  stopLanScan,
+  teardownLanDiscovery,
+  unpublishLan
+} from '../lan-discovery'
 import { logToFile } from '../log'
 import { handle } from './_safe'
 
@@ -33,6 +40,13 @@ export function registerLanHandlers(): void {
 
   handle(IPC_CHANNELS.LAN_UNPUBLISH, () => {
     unpublishLan()
+    return { ok: true }
+  })
+
+  // On-demand signaling probe so the Multiplayer settings badge gets a fresh
+  // result the moment it mounts (the periodic probe + boot probe still run).
+  handle(IPC_CHANNELS.BMO_PROBE_SIGNALING, () => {
+    void probeSignalingServer()
     return { ok: true }
   })
 

@@ -1,17 +1,21 @@
 import { resolveBmoBaseUrl } from '../../network/registry-client'
 
 /**
- * Phase 36 — remote (Pi-hosted) 5e library loader.
+ * Phase 36 / R-lib — remote (Pi-hosted) 5e library loader.
  *
- * When the `piLibraryEnabled` setting is on, `data-provider.loadJson` tries this
- * first: it fetches the Pi's `/api/library/manifest` (once per session), maps the
- * requested `./data/5e/...` path to the served rel-path, and returns the file —
- * served from a `localStorage` cache keyed by the file's content hash, or fetched
- * from `/api/library/file` and cached. ANY miss/error/disabled returns `null`, so
- * the caller falls back to the bundled (canonical) file. This is a best-effort
+ * The Pi library is the DEFAULT source — there is no user setting. On every 5e
+ * data load, `data-provider.loadJson` tries this first: it fetches the Pi's
+ * `/api/library/manifest` (once per session), maps the requested `./data/5e/...`
+ * path to the served rel-path, and returns the file — served from a
+ * `localStorage` cache keyed by the file's content hash, or fetched from
+ * `/api/library/file` and cached. ANY miss / error / unreachable-Pi returns
+ * `null`, so the caller AUTOMATICALLY falls back to the bundled (canonical)
+ * file. Fetches are time-boxed (REMOTE_TIMEOUT_MS) so an unreachable Pi falls
+ * back fast; the manifest result is cached per session (`null` = "don't retry"),
+ * so the one-time cost is paid only on the first load. This is a best-effort
  * cache/CDN layer, never a source of truth.
  *
- * Deps (fetch / localStorage / base-URL / enabled-flag) are injectable for tests.
+ * Deps (fetch / localStorage / base-URL) are injectable for tests.
  */
 
 interface LibraryManifest {
@@ -24,16 +28,11 @@ interface RemoteDeps {
   getItem: (key: string) => string | null
   setItem: (key: string, value: string) => void
   resolveBaseUrl: (override?: string) => Promise<string>
-  isEnabled: () => Promise<boolean>
 }
 
-function defaultIsEnabled(): Promise<boolean> {
-  if (typeof window === 'undefined' || !window.api?.loadSettings) return Promise.resolve(false)
-  return window.api
-    .loadSettings()
-    .then((s) => s?.piLibraryEnabled === true)
-    .catch(() => false)
-}
+// Time-box remote fetches so an unreachable / hung Pi falls back to bundled data
+// quickly instead of stalling the first library load.
+const REMOTE_TIMEOUT_MS = 3_000
 
 const deps: RemoteDeps = {
   fetchFn: (input, init) => fetch(input, init),
@@ -51,14 +50,12 @@ const deps: RemoteDeps = {
       /* quota / unavailable — caching is best-effort */
     }
   },
-  resolveBaseUrl: resolveBmoBaseUrl,
-  isEnabled: defaultIsEnabled
+  resolveBaseUrl: resolveBmoBaseUrl
 }
 
 // Per-session caches. `manifestCache === undefined` means "not yet fetched";
 // `null` means "fetched but unavailable" (don't retry this session).
 let manifestCache: LibraryManifest | null | undefined
-let enabledCache: boolean | undefined
 let baseCache: string | undefined
 
 /** Test-only — inject fake deps. */
@@ -69,7 +66,6 @@ export function __setRemoteLibraryDeps(partial: Partial<RemoteDeps>): void {
 /** Test-only — clear the per-session caches. */
 export function __resetRemoteLibrary(): void {
   manifestCache = undefined
-  enabledCache = undefined
   baseCache = undefined
 }
 
@@ -79,10 +75,20 @@ export function mapDataPathToRel(path: string): string | null {
   return m ? m[1] : null
 }
 
+async function fetchWithTimeout(url: string): Promise<Response> {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), REMOTE_TIMEOUT_MS)
+  try {
+    return await deps.fetchFn(url, { signal: controller.signal })
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 async function getManifest(base: string): Promise<LibraryManifest | null> {
   if (manifestCache !== undefined) return manifestCache
   try {
-    const resp = await deps.fetchFn(`${base}/api/library/manifest`)
+    const resp = await fetchWithTimeout(`${base}/api/library/manifest`)
     manifestCache = resp.ok ? ((await resp.json()) as LibraryManifest) : null
   } catch {
     manifestCache = null
@@ -91,13 +97,10 @@ async function getManifest(base: string): Promise<LibraryManifest | null> {
 }
 
 /**
- * Return the Pi-hosted JSON for `path`, or `null` if the Pi library is disabled /
- * the path isn't a served 5e file / anything fails (→ caller uses bundled data).
+ * Return the Pi-hosted JSON for `path`, or `null` if the path isn't a served 5e
+ * file / the Pi is unreachable / anything fails (→ caller uses bundled data).
  */
 export async function loadRemoteLibrary<T>(path: string): Promise<T | null> {
-  if (enabledCache === undefined) enabledCache = await deps.isEnabled()
-  if (!enabledCache) return null
-
   const rel = mapDataPathToRel(path)
   if (!rel) return null
 
@@ -107,6 +110,17 @@ export async function loadRemoteLibrary<T>(path: string): Promise<T | null> {
     return null
   }
   const base = baseCache
+
+  // The Pi library API is served only on the LAN (http) target — the off-LAN
+  // https tunnel default doesn't expose it (returns 403 / is CORS-blocked), so
+  // attempting it there is pointless. Mirror the signaling probe: only hit an
+  // http base; otherwise fall straight back to bundled data. (Also keeps the
+  // test suite off the network, since the default base resolves to the tunnel.)
+  try {
+    if (new URL(base).protocol !== 'http:') return null
+  } catch {
+    return null
+  }
 
   const manifest = await getManifest(base)
   const entry = manifest?.files?.[rel]
@@ -123,7 +137,7 @@ export async function loadRemoteLibrary<T>(path: string): Promise<T | null> {
   }
 
   try {
-    const resp = await deps.fetchFn(`${base}/api/library/file?path=${encodeURIComponent(rel)}`)
+    const resp = await fetchWithTimeout(`${base}/api/library/file?path=${encodeURIComponent(rel)}`)
     if (!resp.ok) return null
     const text = await resp.text()
     const data = JSON.parse(text) as T
