@@ -40,6 +40,9 @@ export default function LobbyPage(): JSX.Element {
   const [codeCopied, setCodeCopied] = useState(false)
   const [reconnecting, setReconnecting] = useState(false)
   const hasInitialized = useRef(false)
+  // Set by the explicit "Leave Lobby" button so the disconnect effect below does
+  // not override its main-menu navigation (see confirmLeave + the effect).
+  const handledLeaveRef = useRef(false)
 
   const campaign = campaigns.find((c) => c.id === campaignId)
   // Phase 29e — `isHost` here is a structural transport check used only to
@@ -105,9 +108,19 @@ export default function LobbyPage(): JSX.Element {
         // the campaign overview where they can choose Solo / Host Game again.
         role === 'none'
       if (isIntentional) {
+        // The explicit "Leave Lobby" button (confirmLeave) already navigated to
+        // the main menu the confirm dialog promises; don't override it (a
+        // just-hosted user is now role==='none', which would otherwise fall into
+        // the campaign-hub redirect below).
+        if (handledLeaveRef.current) {
+          handledLeaveRef.current = false
+          return
+        }
         logger.warn('Lobby disconnected with intentional reason:', reason)
         resetLobby()
-        navigate(role === 'none' && campaignId ? `/campaigns/${campaignId}` : '/', { replace: true })
+        // The campaign hub route is `/campaign/:id` (singular). The previous
+        // `/campaigns/${campaignId}` matched no route → "Page Not Found" on leave.
+        navigate(role === 'none' && campaignId ? `/campaign/${campaignId}` : '/', { replace: true })
       } else {
         // Temporary disconnect — keep chat, show reconnecting UI
         setReconnecting(true)
@@ -332,6 +345,7 @@ export default function LobbyPage(): JSX.Element {
 
   const confirmLeave = (): void => {
     logger.info('Player leaving lobby, role:', role)
+    handledLeaveRef.current = true
     disconnect()
     resetLobby()
     navigate('/')

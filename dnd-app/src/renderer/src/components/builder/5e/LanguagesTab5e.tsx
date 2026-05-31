@@ -74,7 +74,10 @@ function LanguageTooltip({
     })
   }, [anchorRef])
 
-  if (!pos) return null
+  // Don't render against a missing or DOM-detached anchor (e.g. after switching
+  // builder tabs): that's what left the tooltip stuck in the corner until a
+  // navigation. `pointer-events-none` keeps it from ever capturing input.
+  if (!pos || !anchorRef?.isConnected) return null
 
   return createPortal(
     <div

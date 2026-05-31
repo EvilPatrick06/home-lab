@@ -405,7 +405,7 @@ export default function CharacterBuilder5e(): JSX.Element {
   return (
     <div className="h-screen flex flex-col bg-gray-950">
       {/* Top bar */}
-      <div className="flex items-center justify-between px-3 py-1.5 bg-gray-900 border-b border-gray-800">
+      <div className="flex items-center justify-between gap-2 px-3 py-1.5 pr-12 bg-gray-900 border-b border-gray-800">
         <div className="flex items-center gap-2">
           <button
             onClick={handleBack}
@@ -456,7 +456,7 @@ export default function CharacterBuilder5e(): JSX.Element {
       </div>
 
       {/* Summary bar */}
-      <CharacterSummaryBar5e />
+      <CharacterSummaryBar5e canSave={canSave} />
 
       {/* Spell data load error warning */}
       {spellDataError && (

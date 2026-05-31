@@ -356,7 +356,17 @@ export default function JoinGamePage(): JSX.Element {
               className="w-full p-2 rounded-md bg-gray-800 border border-gray-700 text-gray-100 font-mono tracking-[0.2em] uppercase focus:outline-none focus:border-amber-500"
             />
           </div>
-          <Button onClick={handleManualConnect} disabled={!manualValid || !displayName.trim() || isConnecting}>
+          <Button
+            onClick={handleManualConnect}
+            disabled={!manualValid || !displayName.trim() || isConnecting}
+            title={
+              !displayName.trim()
+                ? t('pages.joinGamePage.displayNameRequired')
+                : !manualValid
+                  ? t('pages.joinGamePage.inviteCodePlaceholder')
+                  : undefined
+            }
+          >
             {isConnecting ? (
               <span className="flex items-center gap-2">
                 <Spinner size="sm" />

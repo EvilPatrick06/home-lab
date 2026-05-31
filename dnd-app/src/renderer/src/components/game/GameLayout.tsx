@@ -768,7 +768,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
 
       {/* Floating overlays */}
       <div
-        className="absolute top-3 right-3 z-40 flex items-center gap-2"
+        className="absolute top-3 right-3 z-40 flex items-center gap-1.5 flex-wrap justify-end max-w-[calc(100vw-2rem)]"
         role="region"
         aria-label={t('game.gameLayout.gameControlsToolbar')}
       >

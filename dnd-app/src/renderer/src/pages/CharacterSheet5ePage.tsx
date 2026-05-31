@@ -191,7 +191,7 @@ export default function CharacterSheet5ePage(): JSX.Element {
   return (
     <div className="h-screen flex flex-col bg-gray-950">
       {/* Toolbar */}
-      <div className="flex items-center justify-between px-4 py-2 bg-gray-900 border-b border-gray-800 shrink-0">
+      <div className="flex items-center justify-between gap-2 px-4 py-2 pr-12 bg-gray-900 border-b border-gray-800 shrink-0">
         <div className="flex items-center gap-3">
           <button
             onClick={handleBack}
@@ -224,7 +224,7 @@ export default function CharacterSheet5ePage(): JSX.Element {
         </div>
 
         {canEdit && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap justify-end min-w-0">
             <button
               onClick={() => setIsEditing(!isEditing)}
               className={`px-3 py-1.5 text-sm rounded transition-colors ${

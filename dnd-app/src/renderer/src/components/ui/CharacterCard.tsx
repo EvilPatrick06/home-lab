@@ -84,8 +84,11 @@ export default memo(function CharacterCard({
               }}
               className="text-gray-600 hover:text-amber-400 transition-colors text-sm cursor-pointer px-2 py-1"
               title={t('ui.characterCard.exportTitle')}
+              aria-label={t('ui.characterCard.exportTitle')}
             >
-              &#8663;
+              {/* QA: the old ⤗ glyph read as a pencil/"edit". ⬇ unambiguously means
+                  export/save-to-file (this exports a .dndchar). */}
+              &#11015;
             </button>
           )}
           <button

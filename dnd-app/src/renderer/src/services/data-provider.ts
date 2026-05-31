@@ -217,7 +217,7 @@ export async function getOptionsForSlot(
         try {
           const subclasses = await load5eSubclasses()
           const filtered = context?.selectedClassId
-            ? subclasses.filter((sc) => sc.className?.toLowerCase() === context.selectedClassId)
+            ? subclasses.filter((sc) => (sc.className ?? sc.class)?.toLowerCase() === context.selectedClassId)
             : subclasses
           return filtered.map(subclassToOption)
         } catch (error) {

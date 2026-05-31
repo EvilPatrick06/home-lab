@@ -176,12 +176,33 @@ export async function buildCharacter5e(get: GetState): Promise<Character5e> {
   const classOptionGold = chosenEntry?.gp ?? 0
   const bgEquipmentChoice = state.backgroundEquipmentChoice ?? 'equipment'
   const storeBgEquipment = state.bgEquipment
-  const bgEquipment =
-    bgEquipmentChoice === 'gold'
-      ? []
-      : storeBgEquipment.length > 0
-        ? storeBgEquipment.flatMap((e) => e.items.map((item) => ({ name: item, quantity: 1 })))
-        : (bgData?.equipment?.[0]?.items ?? []).map((item) => ({ name: item, quantity: 1 }))
+  // Background starting equipment encodes gold as a "<N> GP" pseudo-item (e.g.
+  // option A "…15 GP", option B "50 GP" — see origins/backgrounds/*.json). Credit
+  // that gold to the currency totals instead of leaving it as a non-functional
+  // inventory row (QA: a "50 GP" item appeared while the GOLD counter stayed 0).
+  const parseGoldItem = (item: string): number => {
+    const m = /^(\d+)\s*gp$/i.exec(item.trim())
+    return m ? Number(m[1]) : 0
+  }
+  const sumGold = (items: string[]): number => items.reduce((s, it) => s + parseGoldItem(it), 0)
+  const isGoldOnlyOption = (e: { items: string[] }): boolean =>
+    e.items.length > 0 && e.items.every((it) => parseGoldItem(it) > 0)
+  // `storeBgEquipment` holds BOTH of the background's options (A and B); pick the
+  // one matching the player's choice rather than flattening both (which leaked
+  // the other option's "<N> GP" into inventory). The "equipment" option carries
+  // real gear (plus a possible bundled "<N> GP"); the "gold" option is pure coin.
+  const bgOptions = storeBgEquipment.length > 0 ? storeBgEquipment : (bgData?.equipment ?? [])
+  const goldOption = bgOptions.find(isGoldOnlyOption)
+  const equipOption = bgOptions.find((e) => !isGoldOnlyOption(e)) ?? bgOptions[0]
+  let bgGold = 0
+  let bgEquipment: Array<{ name: string; quantity: number }> = []
+  if (bgEquipmentChoice === 'gold') {
+    bgGold = goldOption ? sumGold(goldOption.items) : 50
+  } else {
+    const chosen = equipOption?.items ?? []
+    bgGold = sumGold(chosen) // the equipment option's bundled gold (e.g. "15 GP")
+    bgEquipment = chosen.filter((item) => parseGoldItem(item) === 0).map((item) => ({ name: item, quantity: 1 }))
+  }
   const shopEquipment = state.classEquipment.filter((e) => e.source === 'shop' || e.source === 'trinket')
   const allEquipment = [
     ...startingEquipment.map((e: { name: string; quantity: number }) => ({ ...e, source: 'class' })),
@@ -458,10 +479,7 @@ export async function buildCharacter5e(get: GetState): Promise<Character5e> {
       cp: state.currency.cp,
       sp: state.currency.sp,
       ep: existingChar5e?.treasure?.ep ?? 0,
-      gp:
-        (bgEquipmentChoice === 'gold' ? Math.max(0, state.currency.gp + 50) : state.currency.gp) +
-        state.higherLevelGoldBonus +
-        classOptionGold,
+      gp: state.currency.gp + bgGold + state.higherLevelGoldBonus + classOptionGold,
       pp: state.currency.pp
     },
     features: [

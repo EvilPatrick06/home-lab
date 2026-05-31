@@ -160,6 +160,9 @@ export interface SubclassData {
   id?: string
   name: string
   className?: string
+  /** Actual field in subclasses.json (e.g. "barbarian"). The data uses `class`,
+   * not `className`; both are tolerated when filtering subclasses by class. */
+  class?: string
   level?: number
   description: string
   featureLevels?: number[]

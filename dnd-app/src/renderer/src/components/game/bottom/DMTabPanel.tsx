@@ -393,7 +393,7 @@ export default function DMTabPanel({ onOpenModal, campaign, onDispute, onEditMap
       {/* Tab bar — Phase 18d inserts a thin vertical divider between
           functional groups (combat / world / tools / logs) so the 13
           tabs read as four sections instead of one flat blob. */}
-      <div className="flex overflow-x-auto scrollbar-thin scrollbar-thumb-gray-700 gap-0.5 shrink-0 items-end">
+      <div className="flex overflow-x-auto scrollbar-thin scrollbar-thumb-gray-700 gap-0.5 shrink-0 items-end min-w-0">
         {TABS.map((tab, i) => {
           const prevGroup = i > 0 ? TABS[i - 1].group : tab.group
           const groupChanged = i > 0 && prevGroup !== tab.group

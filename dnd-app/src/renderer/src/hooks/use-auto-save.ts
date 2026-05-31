@@ -51,6 +51,9 @@ interface BuilderDraft {
   abilityScores: AbilityScoreSet
   timestamp: number
   // Extended fields (all optional for backward compat with old 4-field drafts)
+  iconType?: 'letter' | 'preset' | 'custom'
+  iconPreset?: string
+  iconCustom?: string
   abilityScoreMethod?: AbilityScoreMethod
   selectedSkills?: string[]
   maxSkills?: number
@@ -97,6 +100,9 @@ export function saveBuilderDraft(): void {
       characterName: state.characterName,
       gameSystem: state.gameSystem,
       abilityScores: state.abilityScores,
+      iconType: state.iconType,
+      iconPreset: state.iconPreset,
+      iconCustom: state.iconCustom,
       timestamp: Date.now(),
       abilityScoreMethod: state.abilityScoreMethod,
       selectedSkills: state.selectedSkills,
@@ -192,6 +198,9 @@ export function applyBuilderDraft(draft: BuilderDraft): void {
   if (draft.characterHair) partial.characterHair = draft.characterHair
   if (draft.characterSkin) partial.characterSkin = draft.characterSkin
   if (draft.characterAppearance) partial.characterAppearance = draft.characterAppearance
+  if (draft.iconType) partial.iconType = draft.iconType
+  if (draft.iconPreset) partial.iconPreset = draft.iconPreset
+  if (draft.iconCustom) partial.iconCustom = draft.iconCustom
 
   // Restore build slot selections if saved
   if (draft.buildSlots) {

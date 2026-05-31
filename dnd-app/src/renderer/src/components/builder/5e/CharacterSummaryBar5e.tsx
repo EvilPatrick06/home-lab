@@ -130,7 +130,7 @@ function EditableHP({
   )
 }
 
-function CompletionBadge(): JSX.Element {
+function CompletionBadge({ canSave }: { canSave: boolean }): JSX.Element {
   const { t } = useT()
   const characterName = useBuilderStore((s) => s.characterName)
   const buildSlots = useBuilderStore((s) => s.buildSlots)
@@ -182,24 +182,27 @@ function CompletionBadge(): JSX.Element {
   ])
 
   const { completed, total } = completionInfo
-  const color =
-    completed === total
-      ? 'bg-green-600 text-green-100'
-      : completed >= 4
-        ? 'bg-amber-600 text-amber-100'
-        : 'bg-red-600 text-red-100'
+  // Green ("ready") requires the FULL build to be valid (`canSave`, the same gate
+  // as the Save button), not just the 8 foundation steps — otherwise the badge
+  // read complete while required choices (trinket, subclass, equipment variants,
+  // alignment, …) were still outstanding and Save stayed disabled.
+  const color = canSave
+    ? 'bg-green-600 text-green-100'
+    : completed >= 4
+      ? 'bg-amber-600 text-amber-100'
+      : 'bg-red-600 text-red-100'
+  const title = canSave
+    ? t('builder.summaryBar.completionTitle', { completed, total })
+    : t('builder.summaryBar.completionIncompleteTitle', { completed, total })
 
   return (
-    <span
-      className={`${color} text-xs font-bold px-1.5 py-0.5 rounded`}
-      title={t('builder.summaryBar.completionTitle', { completed, total })}
-    >
+    <span className={`${color} text-xs font-bold px-1.5 py-0.5 rounded`} title={title}>
       {completed}/{total}
     </span>
   )
 }
 
-export default function CharacterSummaryBar5e(): JSX.Element {
+export default function CharacterSummaryBar5e({ canSave }: { canSave: boolean }): JSX.Element {
   const { t } = useT()
   const { buildSlots, characterName, abilityScores, targetLevel, iconType, iconPreset, iconCustom } = useBuilderStore()
   const currentHP = useBuilderStore((s) => s.currentHP)
@@ -357,7 +360,7 @@ export default function CharacterSummaryBar5e(): JSX.Element {
         </div>
       </div>
 
-      <CompletionBadge />
+      <CompletionBadge canSave={canSave} />
 
       <div className="w-px h-8 bg-gray-700" />
 
