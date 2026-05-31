@@ -31,7 +31,11 @@ export const AppSettingsSchema = z
     /** BMO Pi HTTP base (main fetches, cloud sync, CSP). Empty/unset → BMO_PI_URL env or default. */
     bmoPiBaseUrl: z.string().optional(),
     /** Phase 36 — load 5e library content from the Pi (with bundled fallback). Default off. */
-    piLibraryEnabled: z.boolean().optional()
+    piLibraryEnabled: z.boolean().optional(),
+    /** Persisted UI language (e.g. 'en', 'en-XA'). Default 'en'. */
+    language: z.string().optional(),
+    /** ISO timestamp of the last successful cloud backup — drives the staleness nudge. */
+    lastBackupTime: z.string().optional()
   })
   .passthrough()
 

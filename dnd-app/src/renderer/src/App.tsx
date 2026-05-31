@@ -10,8 +10,10 @@ import ScreenReaderPrompt from './components/ui/ScreenReaderPrompt'
 import SkipToContent from './components/ui/SkipToContent'
 import UpdatePrompt from './components/ui/UpdatePrompt'
 import { addToast } from './hooks/use-toast'
+import { i18n, SUPPORTED_LOCALES } from './i18n'
 import { setIceConfig } from './network'
 import MainMenuPage from './pages/MainMenuPage'
+import { backupStaleness } from './services/backup/backup-staleness'
 import { preloadAllData } from './services/data-provider'
 import { loadShortcutDefinitions } from './services/keyboard-shortcuts'
 import * as NotificationService from './services/notification-service'
@@ -68,8 +70,30 @@ function App(): JSX.Element {
             }))
           )
         }
+        // Apply the persisted UI language (init stays 'en' for deterministic
+        // first paint; switch here post-load if a supported locale was saved).
+        if (
+          settings.language &&
+          (SUPPORTED_LOCALES as readonly string[]).includes(settings.language) &&
+          i18n.language !== settings.language
+        ) {
+          i18n.changeLanguage(settings.language).catch((e) => logger.warn('Failed to apply saved language', e))
+        }
+        // Once-per-launch nudge when the last cloud backup is stale AND there's
+        // campaign data worth backing up (never nag fresh/empty installs).
+        const backup = backupStaleness(settings.lastBackupTime)
+        if (backup.stale) {
+          window.api
+            .loadCampaigns()
+            .then((campaigns) => {
+              if (campaigns.length > 0) {
+                addToast(i18n.t('notify.backup.staleReminder', { days: backup.daysSince ?? 0 }), 'warning', 8000)
+              }
+            })
+            .catch(() => {})
+        }
       })
-      .catch((e) => logger.warn('Failed to apply saved TURN servers at boot', e))
+      .catch((e) => logger.warn('Failed to apply saved settings at boot', e))
 
     // Warm caches for module-level data loaders so they are referenced as used exports.
     // These are fire-and-forget; errors are non-fatal (data-provider caches handle fallback).

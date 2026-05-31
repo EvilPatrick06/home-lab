@@ -1,5 +1,6 @@
-import { i18n } from './config'
+import { i18n, type SupportedLocale } from './config'
 import en from './locales/en.json'
+import enXA from './locales/en-XA.json'
 
 /**
  * Phase 34a — initialize i18next once. Idempotent; resolves after English loads.
@@ -14,7 +15,10 @@ export async function initI18n(): Promise<void> {
   // NOT `defaultNS: 'common'` — that would make `t('actions.save')` resolve
   // but break every `t('common.*')` / `t('lobby.*')` call the sweeps add.
   await i18n.init({
-    resources: { en: { translation: en } },
+    // `en-XA` is the bundled accented-English pseudo-locale (opt-in via the
+    // picker). Default `lng` stays 'en' so first paint + the test suite are
+    // deterministic; App switches post-settings-load if a locale is persisted.
+    resources: { en: { translation: en }, 'en-XA': { translation: enXA } },
     lng: 'en',
     fallbackLng: 'en',
     defaultNS: 'translation',
@@ -23,5 +27,19 @@ export async function initI18n(): Promise<void> {
   })
 }
 
-export { i18n } from './config'
+/**
+ * Switch the active locale and persist the choice to app settings so it
+ * survives a relaunch. No-ops on an unsupported locale.
+ */
+export async function setLocale(lng: SupportedLocale): Promise<void> {
+  await i18n.changeLanguage(lng)
+  try {
+    const settings = await window.api.loadSettings()
+    await window.api.saveSettings({ ...settings, language: lng })
+  } catch {
+    /* best-effort persist — the language still changed for this session */
+  }
+}
+
+export { i18n, LOCALE_LABELS, SUPPORTED_LOCALES, type SupportedLocale } from './config'
 export { useT } from './use-translation'

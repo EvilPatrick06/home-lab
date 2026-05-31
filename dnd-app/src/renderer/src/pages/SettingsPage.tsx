@@ -45,7 +45,7 @@ import type { NotificationEvent } from '../services/notification-service'
 type _NotificationEvent = NotificationEvent
 
 import { DISPLAY_NAME_KEY } from '../constants'
-import { useT } from '../i18n'
+import { i18n, LOCALE_LABELS, SUPPORTED_LOCALES, setLocale, useT } from '../i18n'
 import * as NotificationService from '../services/notification-service'
 import {
   getAmbientVolume,
@@ -714,7 +714,11 @@ function CloudBackupSection(): JSX.Element {
   useEffect(() => {
     window.api
       .loadSettings()
-      .then((s) => setPiLibraryEnabled(s?.piLibraryEnabled === true))
+      .then((s) => {
+        setPiLibraryEnabled(s?.piLibraryEnabled === true)
+        // Seed the display from the persisted timestamp so it survives relaunch.
+        if (s?.lastBackupTime) setSyncState((prev) => ({ ...prev, lastBackupTime: s.lastBackupTime }))
+      })
       .catch(() => {})
   }, [])
   const handleTogglePiLibrary = async (checked: boolean): Promise<void> => {
@@ -765,10 +769,15 @@ function CloudBackupSection(): JSX.Element {
       const campaign = campaigns[0] as { id: string; name: string }
       const result = await window.api.cloudSync.backupCampaign(campaign.id, campaign.name)
       if (result.success) {
-        setSyncState((prev) => ({
-          ...prev,
-          lastBackupTime: new Date().toISOString()
-        }))
+        const now = new Date().toISOString()
+        setSyncState((prev) => ({ ...prev, lastBackupTime: now }))
+        // Persist so both the display and the on-launch staleness nudge survive a relaunch.
+        try {
+          const s = await window.api.loadSettings()
+          await window.api.saveSettings({ ...s, lastBackupTime: now })
+        } catch {
+          /* best-effort persist */
+        }
         setMessage({ text: result.message ?? t('pages.settingsPage.backupCompleted'), type: 'success' })
       } else {
         setMessage({ text: result.error ?? t('pages.settingsPage.backupFailed'), type: 'error' })
@@ -1172,6 +1181,25 @@ export default function SettingsPage(): JSX.Element {
             />
           </div>
           <p className="text-xs text-gray-500 mt-2">{t('pages.settingsPage.displayNameHint')}</p>
+        </Section>
+
+        {/* Language */}
+        <Section title={t('pages.settingsPage.language')}>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-gray-300">{t('pages.settingsPage.language')}</span>
+            <select
+              value={i18n.language}
+              onChange={(e) => setLocale(e.target.value as (typeof SUPPORTED_LOCALES)[number])}
+              className="w-48 px-3 py-1.5 text-sm bg-gray-900 border border-gray-700 rounded-lg text-gray-200 focus:border-amber-500 focus:outline-none"
+            >
+              {SUPPORTED_LOCALES.map((loc) => (
+                <option key={loc} value={loc}>
+                  {LOCALE_LABELS[loc]}
+                </option>
+              ))}
+            </select>
+          </div>
+          <p className="text-xs text-gray-500 mt-2">{t('pages.settingsPage.languageDescription')}</p>
         </Section>
 
         {/* Theme */}

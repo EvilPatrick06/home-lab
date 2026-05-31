@@ -5061,6 +5061,9 @@
       "deleteFailedWithReason": "Failed to delete character: {{reason}}",
       "deleted": "Deleted \"{{label}}\"",
       "deleteFailed": "Failed to delete character"
+    },
+    "backup": {
+      "staleReminder": "Last cloud backup was {{days}} days ago — consider backing up."
     }
   },
   "pages": {
@@ -6094,7 +6097,9 @@
       "resetAllDataDesc": " — destructive. Wipes ALL stored data: settings, campaigns, characters, library, homebrew, macros, drafts, notification history, autosaves. This cannot be undone.",
       "resetAllDataConfirm": "Reset all data? This will WIPE campaigns, characters, library entries, macros, drafts, and all settings. This cannot be undone.",
       "piLibraryToggle": "Load library content from the Pi",
-      "piLibraryDesc": "When on, 5e content loads from the Pi library API. The bundled data is always used as a fallback."
+      "piLibraryDesc": "When on, 5e content loads from the Pi library API. The bundled data is always used as a fallback.",
+      "language": "Language",
+      "languageDescription": "Choose the interface language. (Pseudo is an accented-English testing locale.)"
     }
   },
   "sheet": {
