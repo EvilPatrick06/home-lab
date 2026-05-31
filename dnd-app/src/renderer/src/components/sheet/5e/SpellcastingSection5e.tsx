@@ -77,7 +77,7 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
       e.preventDefault()
       setSpellDragOver(false)
       const payload = getDragPayload(e)
-      if (!payload || payload.type !== 'library-spell') return
+      if (payload?.type !== 'library-spell') return
 
       const latest = useCharacterStore.getState().characters.find((c) => c.id === character.id) as
         | Character5e

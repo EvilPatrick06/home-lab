@@ -47,7 +47,7 @@ export async function importAdventure(): Promise<AdventureImportResult | null> {
  * Validate imported adventure data and return normalized result.
  */
 export function validateAdventureImport(data: AdventureExportData): AdventureImportResult | null {
-  if (!data.adventure || !data.adventure.id || !data.adventure.title) {
+  if (!data.adventure?.id || !data.adventure.title) {
     return null
   }
 

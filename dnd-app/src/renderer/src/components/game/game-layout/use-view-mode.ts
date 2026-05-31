@@ -28,7 +28,7 @@ export function useViewMode(campaignId: string): ViewModeState {
       const saved = sessionStorage.getItem(`game-viewMode-${campaignId}`)
       // Migrate the old bare-string key; an object form means "as-role" → player view.
       if (saved === 'player') return 'player'
-      if (saved && saved.startsWith('{')) {
+      if (saved?.startsWith('{')) {
         const parsed = JSON.parse(saved) as { mode?: string }
         return parsed.mode === 'self' ? 'dm' : 'player'
       }

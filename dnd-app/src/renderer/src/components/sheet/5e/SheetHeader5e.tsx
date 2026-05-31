@@ -108,7 +108,7 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
     const latest = (useCharacterStore.getState().characters.find((c) => c.id === character.id) ||
       character) as Character5e
     const target = useCharacterStore.getState().characters.find((c) => c.id === targetId)
-    if (!target || target.gameSystem !== 'dnd5e') return
+    if (target?.gameSystem !== 'dnd5e') return
 
     // Remove from self
     saveCharacter({ ...latest, heroicInspiration: false, updatedAt: new Date().toISOString() })

@@ -147,7 +147,7 @@ export function disconnect(): void {
  * senderName, timestamp, and sequence number.
  */
 export function sendMessage(msg: Omit<NetworkMessage, 'senderId' | 'senderName' | 'timestamp' | 'sequence'>): void {
-  if (!connection || !connection.open) {
+  if (!connection?.open) {
     logger.warn('[ClientManager] Cannot send message — not connected')
     return
   }

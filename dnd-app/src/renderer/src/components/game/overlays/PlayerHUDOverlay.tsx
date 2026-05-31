@@ -205,7 +205,7 @@ function PlayerHUDOverlay({ character, conditions }: PlayerHUDOverlayProps): JSX
   // Pact slot toggle
   const togglePactSlot = useCallback(
     (level: number) => {
-      if (!char5e || !char5e.pactMagicSlotLevels) return
+      if (!char5e?.pactMagicSlotLevels) return
       const latest = useCharacterStore.getState().characters.find((c) => c.id === char5e.id) as Character5e | undefined
       if (!latest || !is5eCharacter(latest) || !latest.pactMagicSlotLevels) return
 

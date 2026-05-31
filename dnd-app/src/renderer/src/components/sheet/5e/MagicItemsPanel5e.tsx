@@ -38,7 +38,7 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
 
   const getLatestTyped = (): Character5e | undefined => {
     const latest = getLatest()
-    if (!latest || latest.gameSystem !== 'dnd5e') return undefined
+    if (latest?.gameSystem !== 'dnd5e') return undefined
     return latest as Character5e
   }
 

@@ -663,7 +663,7 @@ export function setupMouseHandlers(el: HTMLElement, opts: MouseHandlerOptions): 
 
 function checkPortalTeleport(map: GameMap, tokenId: string, gridX: number, gridY: number, isHost: boolean): void {
   const portal = map.terrain?.find((t) => t.type === 'portal' && t.x === Math.round(gridX) && t.y === Math.round(gridY))
-  if (!portal || !portal.portalTarget) return
+  if (!portal?.portalTarget) return
 
   const target = portal.portalTarget
   const gs = useGameStore.getState()

@@ -46,7 +46,7 @@ function formatSpeed(speed: SpeciesData['speed']): string {
 }
 
 function formatUsage(u: SpeciesTrait['usageLimit']): string {
-  if (!u || !u.type) return ''
+  if (!u?.type) return ''
   const labels: Record<string, string> = {
     perProficiencyBonus: 'Proficiency Bonus per long rest',
     perDay: 'per day',

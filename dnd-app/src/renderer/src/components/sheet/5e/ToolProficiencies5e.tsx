@@ -43,7 +43,7 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
 
   const addProficiency = (field: 'armor' | 'tools', value: string): void => {
     const latest = getLatest()
-    if (!latest || latest.gameSystem !== 'dnd5e') return
+    if (latest?.gameSystem !== 'dnd5e') return
     const l = latest as Character5e
     if (l.proficiencies[field].includes(value)) return
     const updated = {
@@ -204,7 +204,7 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
                             key={variant}
                             onClick={() => {
                               const latest = getLatest()
-                              if (!latest || latest.gameSystem !== 'dnd5e') return
+                              if (latest?.gameSystem !== 'dnd5e') return
                               const l = latest as Character5e
                               const updated = {
                                 ...l,

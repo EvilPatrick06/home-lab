@@ -88,7 +88,7 @@ export function handleNewConnection(conn: DataConnection, state: HostStateAccess
       }
       if (raw.length > MESSAGE_SIZE_LIMIT) {
         const typeMatch = raw.slice(0, 200).match(/"type"\s*:\s*"([^"]+)"/)
-        if (!typeMatch || typeMatch[1] !== 'chat:file') {
+        if (typeMatch?.[1] !== 'chat:file') {
           logger.warn('[HostManager] Oversized non-file message from', peerId, 'size:', raw.length)
           return
         }

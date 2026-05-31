@@ -13,6 +13,8 @@
  *           circular barrel) is banned; use `stores/network-store` instead.
  *   28e.6 — CJS `require(` in electron.vite.config.ts.
  *   28e.7 — skipped/todo tests (it.skip / xit / describe.skip / .todo).
+ *   28e.8 — bare empty `catch {}` (production code) swallows errors silently;
+ *           require a body/comment, or opt out with `// allow-empty-catch:`.
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
@@ -80,6 +82,15 @@ function checkFile(file) {
     // 28e.7 — skipped/todo tests
     if (/\b(it|describe|test)\.(skip|todo)\b|\b(xit|xdescribe|xtest)\b/.test(line)) {
       violations.push({ file: rel, line: n, rule: '28e.7 skipped/todo test', text: line.trim() })
+    }
+
+    // 28e.8 — bare empty `catch {}` swallows errors with no record. A catch
+    // must have a body (even a `/* reason */` comment documenting an
+    // intentional best-effort ignore). Production code only; opt out with an
+    // inline `// allow-empty-catch: <reason>` on the same or previous line.
+    const allowEmptyCatch = /allow-empty-catch:/.test(line) || (i > 0 && /allow-empty-catch:/.test(lines[i - 1]))
+    if (/catch\s*(\([^)]*\))?\s*\{\s*\}/.test(line) && !isTest && !allowEmptyCatch) {
+      violations.push({ file: rel, line: n, rule: '28e.8 bare empty catch', text: line.trim() })
     }
   }
 }

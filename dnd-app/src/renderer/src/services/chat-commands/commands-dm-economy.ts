@@ -25,7 +25,7 @@ const dmgoldCommand: ChatCommand = {
     const lobbyState = useLobbyStore.getState()
     const player = lobbyState.players?.find((p) => p.displayName?.toLowerCase().startsWith(playerQuery.toLowerCase()))
 
-    if (!player || !player.characterId) {
+    if (!player?.characterId) {
       ctx.addSystemMessage(`Player not found or has no character: "${playerQuery}"`)
       return
     }
@@ -95,7 +95,7 @@ const xpCommand: ChatCommand = {
       // Award to specific player
       const player = players.find((p) => p.displayName?.toLowerCase().startsWith(target))
 
-      if (!player || !player.characterId) {
+      if (!player?.characterId) {
         ctx.addSystemMessage(`Player not found or has no character: "${target}"`)
         return
       }
@@ -133,7 +133,7 @@ const levelCommand: ChatCommand = {
     const lobbyState = useLobbyStore.getState()
     const player = lobbyState.players?.find((p) => p.displayName?.toLowerCase().startsWith(playerQuery.toLowerCase()))
 
-    if (!player || !player.characterId) {
+    if (!player?.characterId) {
       ctx.addSystemMessage(`Player not found or has no character: "${playerQuery}"`)
       return
     }

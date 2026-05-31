@@ -14,7 +14,7 @@ export default function CharacterTraitsPanel5e({
 
   const getLatestTyped = (): Character5e | undefined => {
     const latest = getLatest()
-    if (!latest || latest.gameSystem !== 'dnd5e') return undefined
+    if (latest?.gameSystem !== 'dnd5e') return undefined
     return latest as Character5e
   }
 

@@ -420,7 +420,7 @@ export function applyLongRest(character: Character5e): LongRestResult {
   const magicItemsRestored: string[] = []
   const newMagicItemCharges: Record<string, number> = { ...(character.state?.magicItemCharges ?? {}) }
   for (const mi of getEffectiveMagicItems(character)) {
-    if (!mi.charges || mi.charges.rechargeType !== 'long-rest' || mi.charges.current >= mi.charges.max) continue
+    if (mi.charges?.rechargeType !== 'long-rest' || mi.charges.current >= mi.charges.max) continue
     let restored = mi.charges.max
     if (mi.charges.rechargeDice) {
       const match = mi.charges.rechargeDice.match(/^(\d*)d(\d+)\s*([+-]\s*\d+)?$/)

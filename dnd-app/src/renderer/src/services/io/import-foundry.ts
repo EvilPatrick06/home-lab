@@ -112,7 +112,7 @@ export async function importFoundryCharacter(): Promise<Character5e | null> {
 
     // Detect Foundry format: must have system.abilities
     const sys = actor.system
-    if (!sys || !sys.abilities) {
+    if (!sys?.abilities) {
       logger.error('Import Foundry: not a valid Foundry VTT 5e actor export')
       return null
     }

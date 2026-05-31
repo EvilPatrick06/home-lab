@@ -191,7 +191,7 @@ export function useTokenMovement({
         for (const enemy of enemies) {
           if (triggersOpportunityAttack(movingToken, enemy, gridX, gridY, moveType)) {
             const enemyTs = gameStore.turnStates[enemy.entityId]
-            if (!enemyTs || !enemyTs.reactionUsed) {
+            if (!enemyTs?.reactionUsed) {
               setOaPrompt({
                 movingTokenLabel: movingToken.label,
                 enemyTokenId: enemy.id,

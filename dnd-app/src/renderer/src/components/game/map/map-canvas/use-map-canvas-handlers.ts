@@ -37,7 +37,7 @@ export function useMapCanvasHandlers(args: {
     async (e: React.DragEvent) => {
       e.preventDefault()
       const payload = getDragPayload(e)
-      if (!payload || payload.type !== 'library-monster' || !map) return
+      if (payload?.type !== 'library-monster' || !map) return
 
       const el = containerRef.current
       if (!el) return

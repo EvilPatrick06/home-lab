@@ -125,7 +125,7 @@ export default function AttackCalculator5e({
                     key={p}
                     onClick={() => {
                       const latest = getLatest()
-                      if (!latest || latest.gameSystem !== 'dnd5e') return
+                      if (latest?.gameSystem !== 'dnd5e') return
                       const l = latest as Character5e
                       const updated = {
                         ...l,
@@ -148,7 +148,7 @@ export default function AttackCalculator5e({
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && customWeaponProf.trim()) {
                     const latest = getLatest()
-                    if (!latest || latest.gameSystem !== 'dnd5e') return
+                    if (latest?.gameSystem !== 'dnd5e') return
                     const l = latest as Character5e
                     const updated = {
                       ...l,

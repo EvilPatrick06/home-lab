@@ -237,7 +237,7 @@ export default function InitiativeTracker({
       e.preventDefault()
       setDragOver(false)
       const payload = getDragPayload(e)
-      if (!payload || payload.type !== 'library-monster' || !onAddEntry) return
+      if (payload?.type !== 'library-monster' || !onAddEntry) return
       const { loadAllStatBlocks } = await import('../../../services/data-provider')
       const allMonsters = await loadAllStatBlocks()
       const monster = allMonsters.find((m) => m.id === payload.itemId)

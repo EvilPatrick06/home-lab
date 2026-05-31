@@ -791,7 +791,7 @@ interface CustomEffectShape {
 
 function filterMapForPlayer(m: NetworkMap): NetworkMap {
   const tokens = Array.isArray(m.tokens)
-    ? (m.tokens as MaybeHiddenToken[]).filter((t) => !t || t.isHidden !== true)
+    ? (m.tokens as MaybeHiddenToken[]).filter((t) => t?.isHidden !== true)
     : m.tokens
   return { ...m, tokens }
 }
@@ -817,7 +817,7 @@ function collectHiddenTokenIds(maps: NetworkMap[]): Set<string> {
 function filterSidebarForPlayer(entries: unknown[]): unknown[] {
   if (!Array.isArray(entries)) return entries
   return (entries as SidebarEntryShape[])
-    .filter((e) => !e || e.visibleToPlayers !== false)
+    .filter((e) => e?.visibleToPlayers !== false)
     .map((e) => {
       if (!e || typeof e !== 'object') return e
       // Strip DM-only fields: notes, monster stat-block links, full embedded statBlock
@@ -829,11 +829,11 @@ function filterSidebarForPlayer(entries: unknown[]): unknown[] {
 function filterHandoutsForPlayer(handouts: unknown[]): unknown[] {
   if (!Array.isArray(handouts)) return handouts
   return (handouts as HandoutShape[])
-    .filter((h) => !h || h.visibility !== 'dm-only')
+    .filter((h) => h?.visibility !== 'dm-only')
     .map((h) => {
       if (!h || typeof h !== 'object' || !Array.isArray(h.pages)) return h
       // Drop DM-only pages within a player-visible handout
-      return { ...h, pages: h.pages.filter((p) => !p || p.dmOnly !== true) }
+      return { ...h, pages: h.pages.filter((p) => p?.dmOnly !== true) }
     })
 }
 
@@ -881,7 +881,7 @@ export function filterGameStateForRole(
     const init = initiative as { entries: InitiativeEntryShape[] }
     initiative = {
       ...init,
-      entries: init.entries.filter((e) => !e || !e.entityId || !hiddenIds.has(e.entityId))
+      entries: init.entries.filter((e) => !e?.entityId || !hiddenIds.has(e.entityId))
     }
   }
 
@@ -895,13 +895,11 @@ export function filterGameStateForRole(
   }
 
   const conditions = Array.isArray(state.conditions)
-    ? (state.conditions as ConditionEntryShape[]).filter((c) => !c || !c.entityId || !hiddenIds.has(c.entityId))
+    ? (state.conditions as ConditionEntryShape[]).filter((c) => !c?.entityId || !hiddenIds.has(c.entityId))
     : state.conditions
 
   const customEffects = Array.isArray(state.customEffects)
-    ? (state.customEffects as CustomEffectShape[]).filter(
-        (e) => !e || !e.targetEntityId || !hiddenIds.has(e.targetEntityId)
-      )
+    ? (state.customEffects as CustomEffectShape[]).filter((e) => !e?.targetEntityId || !hiddenIds.has(e.targetEntityId))
     : state.customEffects
 
   const marchingOrder = Array.isArray(state.marchingOrder)
@@ -1007,7 +1005,7 @@ export function transformUpdatePayloadForPeer(
   if (p.addMap && typeof p.addMap === 'object') {
     const am = p.addMap as { tokens?: unknown }
     if (Array.isArray(am.tokens)) {
-      const filtered = (am.tokens as Array<{ isHidden?: boolean }>).filter((t) => !t || t.isHidden !== true)
+      const filtered = (am.tokens as Array<{ isHidden?: boolean }>).filter((t) => t?.isHidden !== true)
       p.addMap = { ...am, tokens: filtered }
     }
   }
@@ -1016,7 +1014,7 @@ export function transformUpdatePayloadForPeer(
   if (Array.isArray(p.mapsWithImages)) {
     p.mapsWithImages = (p.mapsWithImages as Array<Record<string, unknown>>).map((m) => {
       if (Array.isArray(m.tokens)) {
-        const tokens = (m.tokens as Array<{ isHidden?: boolean }>).filter((t) => !t || t.isHidden !== true)
+        const tokens = (m.tokens as Array<{ isHidden?: boolean }>).filter((t) => t?.isHidden !== true)
         return { ...m, tokens }
       }
       return m

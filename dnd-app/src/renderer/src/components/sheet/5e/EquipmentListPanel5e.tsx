@@ -55,7 +55,7 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
       e.preventDefault()
       setEquipDragOver(false)
       const payload = getDragPayload(e)
-      if (!payload || payload.type !== 'library-item') return
+      if (payload?.type !== 'library-item') return
       const latest = getLatest() as Character5e | undefined
       if (!latest) return
       const items = await loadCategoryItems(payload.category, [])
@@ -86,7 +86,7 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
   // Phase 23k — use a consumable: decrement quantity, remove the row at 0.
   const handleUseConsumable = (index: number): void => {
     const latest = getLatest()
-    if (!latest || latest.gameSystem !== 'dnd5e') return
+    if (latest?.gameSystem !== 'dnd5e') return
     const l = latest as Character5e
     const target = l.equipment[index]
     if (!target) return
@@ -391,7 +391,7 @@ export default function EquipmentListPanel5e({ character, readonly }: EquipmentL
                                 key={variant}
                                 onClick={() => {
                                   const latest = getLatest()
-                                  if (!latest || latest.gameSystem !== 'dnd5e') return
+                                  if (latest?.gameSystem !== 'dnd5e') return
                                   const l = latest as Character5e
                                   const updated = {
                                     ...l,

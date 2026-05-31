@@ -127,7 +127,7 @@ export default function CreateMapModal({ onCreateMap, onClose }: CreateMapModalP
 
   const handleImageUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (!file || !file.type.startsWith('image/')) return
+    if (!file?.type.startsWith('image/')) return
 
     const reader = new FileReader()
     reader.onload = () => {

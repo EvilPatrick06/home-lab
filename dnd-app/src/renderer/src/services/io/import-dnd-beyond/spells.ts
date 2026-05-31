@@ -35,7 +35,7 @@ export function extractSpells(data: Record<string, unknown>): {
     const spells = Array.isArray(source.spells) ? source.spells : []
     for (const s of spells) {
       const def = s.definition ?? s
-      if (!def || !def.name) continue
+      if (!def?.name) continue
 
       const id = def.id ? String(def.id) : crypto.randomUUID()
       if (seenIds.has(id)) continue

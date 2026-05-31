@@ -17,7 +17,7 @@ export default function CharacterInspectModal({ characterData, onClose }: Charac
   const { t } = useT()
   useEscapeKey(onClose)
   const char = characterData as Character5e
-  if (!char || !char.name) {
+  if (!char?.name) {
     return (
       <div className="fixed inset-0 z-20 flex items-center justify-center">
         <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
