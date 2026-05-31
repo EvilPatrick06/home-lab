@@ -26,6 +26,7 @@ export function useMapBackground(args: {
 }): void {
   const { initialized, map, containerRef, worldRef, bgSpriteRef, zoomRef, panRef, applyTransform, setBgLoadError } =
     args
+  // biome-ignore lint/correctness/useExhaustiveDependencies: refs (bgSpriteRef, worldRef, zoomRef, panRef, containerRef) + setBgLoadError are stable (useRef/setState); re-run only on init/imagePath/applyTransform (preserves original MapCanvas deps)
   useEffect(() => {
     if (!initialized || !worldRef.current) return
     const loadBg = async (): Promise<void> => {
@@ -63,6 +64,5 @@ export function useMapBackground(args: {
       }
     }
     loadBg()
-    // biome-ignore lint/correctness/useExhaustiveDependencies: refs + setBgLoadError are stable; re-run only on init/imagePath/applyTransform change (preserves original MapCanvas deps)
   }, [initialized, map?.imagePath, applyTransform])
 }

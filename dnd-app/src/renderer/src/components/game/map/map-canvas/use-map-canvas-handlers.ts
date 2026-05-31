@@ -33,6 +33,7 @@ export function useMapCanvasHandlers(args: {
     }
   }, [])
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: pan/zoom/container refs are stable (useRef); re-create only on map/currentFloor (preserves original MapCanvas deps)
   const handleLibraryDrop = useCallback(
     async (e: React.DragEvent) => {
       e.preventDefault()
@@ -59,10 +60,10 @@ export function useMapCanvasHandlers(args: {
         .getState()
         .addToken(map.id, { ...tokenData, id: crypto.randomUUID(), gridX, gridY, floor: currentFloor })
     },
-    // biome-ignore lint/correctness/useExhaustiveDependencies: pan/zoom/container refs are stable (preserves original MapCanvas deps)
     [map, currentFloor]
   )
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: container/pan/zoom refs are stable (useRef); re-create only on applyTransform/map (preserves original MapCanvas deps)
   const handleResetView = useCallback((): void => {
     // Phase 17j — fit-to-map instead of "zoom 1, pan 0". Compute the scale
     // that makes the whole map fit inside the canvas viewport with a small
@@ -88,7 +89,6 @@ export function useMapCanvasHandlers(args: {
     zoomRef.current = 1
     panRef.current = { x: 0, y: 0 }
     applyTransform()
-    // biome-ignore lint/correctness/useExhaustiveDependencies: container/pan/zoom refs are stable (preserves original MapCanvas deps)
   }, [applyTransform, map])
 
   return { handleLibraryDragOver, handleLibraryDrop, handleResetView }

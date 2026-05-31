@@ -93,7 +93,7 @@ export default function LeftSidebar({
   // Load bastions on mount
   useEffect(() => {
     loadBastions()
-  }, [loadBastions]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [loadBastions])
 
   // Collect character IDs from lobby players to filter bastions
   const playerCharacterIds = new Set(players.map((p) => p.characterId).filter(Boolean) as string[])

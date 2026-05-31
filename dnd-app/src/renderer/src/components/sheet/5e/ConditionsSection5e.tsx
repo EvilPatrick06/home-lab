@@ -28,7 +28,6 @@ export default function ConditionsSection5e({ character, readonly }: ConditionsS
   // truth store. Hydrated entries carry the live condition library data.
   const activeConditions = useMemo<ActiveCondition[]>(
     () => getEffectiveConditions(character),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [character.conditionRefs]
   )
   const allConditions = getConditionsForSystem()

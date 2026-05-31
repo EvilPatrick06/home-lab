@@ -149,7 +149,7 @@ export default function SpecialAbilitiesTab5e(): JSX.Element {
     if (hasInvalid) {
       setBackgroundAbilityBonuses({})
     }
-  }, [backgroundData, allowedAbilities.includes, backgroundAbilityBonuses, setBackgroundAbilityBonuses]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [backgroundData, allowedAbilities.includes, backgroundAbilityBonuses, setBackgroundAbilityBonuses])
 
   const handleBonusModeChange = (mode: '2-1' | '1-1-1'): void => {
     setBonusMode(mode)

@@ -258,7 +258,6 @@ export async function downloadOllama(onProgress?: (percent: number) => void): Pr
   const fileStream = createWriteStream(destPath)
   const reader = res.body.getReader()
 
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     const { done, value } = await reader.read()
     if (done) break
@@ -400,7 +399,6 @@ export async function pullModel(model: string, onProgress?: (percent: number) =>
   const decoder = new TextDecoder()
   let buffer = ''
 
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     const { done, value } = await reader.read()
     if (done) break

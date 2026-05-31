@@ -27,7 +27,6 @@ export default function RulingApprovalModal(): JSX.Element | null {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingActions])
 
   if (!pendingActions) return null

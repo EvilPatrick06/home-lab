@@ -180,7 +180,6 @@ export default function CharacterSheet5ePage(): JSX.Element {
   const isMaxLevel = character.level >= 20
 
   // XP-based level-up notification
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (character.levelingMode === 'xp' && shouldLevelUp(character.level, character.xp)) {
       setShowLevelUpBanner(true)

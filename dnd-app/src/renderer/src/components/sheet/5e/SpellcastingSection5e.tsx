@@ -41,11 +41,7 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
   const { t } = useT()
   // Phase 15c.5 — derive known spells (v3 shape) from v4 refs via the truth
   // store. Hydrated entries carry overrides + react to library mutations.
-  const knownSpells: SpellEntry[] = useMemo(
-    () => getEffectiveKnownSpells(character),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [character.knownSpellRefs]
-  )
+  const knownSpells: SpellEntry[] = useMemo(() => getEffectiveKnownSpells(character), [character.knownSpellRefs])
   const spellSlotLevels = character.spellSlotLevels ?? {}
   const pactMagicSlotLevels = character.pactMagicSlotLevels ?? {}
   // v3 used preparedSpellIds: string[]. v4 keys prepared by stable instanceId
@@ -53,7 +49,6 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
   // backward-compat with the rest of this file's logic.
   const preparedSpellIds: string[] = useMemo(
     () => getEffectivePreparedSpellIds(character),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [character.state?.preparedSpellIds, character.knownSpellRefs]
   )
   // Phase 15c.5 — derive class list (v3 shape) from v4 classRefs via the truth store.

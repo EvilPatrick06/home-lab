@@ -118,7 +118,6 @@ export function useGameEffects({
       isSystem: true
     })
     initSounds()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [addChatMessage, campaign.name])
 
   // Host: broadcast game state changes to connected clients
@@ -144,7 +143,6 @@ export function useGameEffects({
   }, [isDM, campaign.id, campaign.aiDm?.enabled])
 
   // AI DM initialization (host only)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   // biome-ignore lint/correctness/useExhaustiveDependencies: one-shot init hook — aiInitRef/addChatMessage/sendMessage are stable
   useEffect(() => {
     if (!isDM || !campaign.aiDm?.enabled || aiInitRef.current) return
@@ -297,7 +295,6 @@ export function useGameEffects({
       cleanupTimers()
       cleanupListeners()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     isDM,
     campaign.id, // Initialize AI DM (preserves sceneStatus if already set from lobby)
@@ -307,7 +304,6 @@ export function useGameEffects({
   ])
 
   // When AI DM finishes streaming, add the message to chat and broadcast
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   // biome-ignore lint/correctness/useExhaustiveDependencies: addChatMessage/sendMessage are stable props — not re-running on every render
   useEffect(() => {
     if (!isDM || !campaign.aiDm?.enabled) return
@@ -390,7 +386,6 @@ export function useGameEffects({
 
     // Save conversation (debounced)
     window.api.ai.saveConversation(campaign.id)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     aiDmStore.messages,
     activeMap,
@@ -426,7 +421,6 @@ export function useGameEffects({
         })
       }
     })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Check initial fullscreen state + listen for F11

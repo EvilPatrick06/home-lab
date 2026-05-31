@@ -31,6 +31,7 @@ export function useGridHudHover(
   setHoverCoord: (coord: string | null) => void
 ): void {
   const { containerRef, panRef, zoomRef } = refs
+  // biome-ignore lint/correctness/useExhaustiveDependencies: container/pan/zoom refs + setHoverCoord are stable; re-bind only on showGridHud/map (grid cell size; preserves original MapCanvas deps)
   useEffect(() => {
     const el = containerRef.current
     if (!el || !showGridHud || !map) return
@@ -49,7 +50,6 @@ export function useGridHudHover(
       el.removeEventListener('pointermove', onMove)
       el.removeEventListener('pointerleave', onLeave)
     }
-    // biome-ignore lint/correctness/useExhaustiveDependencies: refs + setHoverCoord are stable; re-bind only on showGridHud/map change (preserves original MapCanvas deps)
   }, [showGridHud, map])
 }
 
@@ -62,6 +62,7 @@ export function useManualPanStamp(
   lastManualPanAtRef: React.MutableRefObject<number>,
   spaceHeldRef: React.MutableRefObject<boolean>
 ): void {
+  // biome-ignore lint/correctness/useExhaustiveDependencies: mount-once effect (empty deps intentional); stable refs bound once, listeners cleaned up on unmount (preserves original MapCanvas deps)
   useEffect(() => {
     const el = containerRef.current
     if (!el) return
@@ -77,13 +78,13 @@ export function useManualPanStamp(
       el.removeEventListener('wheel', stamp)
       el.removeEventListener('pointerdown', onPointerDown)
     }
-    // biome-ignore lint/correctness/useExhaustiveDependencies: all refs are stable; bind once on mount (preserves original MapCanvas deps)
   }, [])
 }
 
 /** Double-click to ping at location. */
 export function usePingOnDoubleClick(refs: PanZoomRefs, map: GameMap | null, isHost: boolean): void {
   const { containerRef, panRef, zoomRef } = refs
+  // biome-ignore lint/correctness/useExhaustiveDependencies: pan/zoom/container refs are stable; re-bind only on map/isHost (ping source; preserves original MapCanvas deps)
   useEffect(() => {
     const el = containerRef.current
     if (!el || !map) return
@@ -97,7 +98,6 @@ export function usePingOnDoubleClick(refs: PanZoomRefs, map: GameMap | null, isH
     }
     el.addEventListener('dblclick', handler)
     return () => el.removeEventListener('dblclick', handler)
-    // biome-ignore lint/correctness/useExhaustiveDependencies: pan/zoom refs are stable; re-bind only on map/isHost change (preserves original MapCanvas deps)
   }, [map, isHost])
 }
 
@@ -127,6 +127,7 @@ export function useEmptyCellContextMenu(
   map: GameMap | null
 ): void {
   const { containerRef, worldRef, panRef, zoomRef } = refs
+  // biome-ignore lint/correctness/useExhaustiveDependencies: world/pan/zoom/container refs are stable; re-bind only on isHost/handler/map (permission + map data; preserves original MapCanvas deps)
   useEffect(() => {
     const el = containerRef.current
     if (!el || !isHost || !onEmptyCellContextMenu || !map) return
@@ -170,6 +171,5 @@ export function useEmptyCellContextMenu(
     }
     el.addEventListener('contextmenu', handler)
     return () => el.removeEventListener('contextmenu', handler)
-    // biome-ignore lint/correctness/useExhaustiveDependencies: world/pan/zoom refs are stable; re-bind only on isHost/handler/map change (preserves original MapCanvas deps)
   }, [isHost, onEmptyCellContextMenu, map])
 }

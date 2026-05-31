@@ -91,7 +91,7 @@ export default function BastionPage(): JSX.Element {
       setFacilityDefs(data.specialFacilities as SpecialFacilityDef[])
       setBasicFacilityDefs(data.basicFacilities)
     })
-  }, [loadBastions, loadCharacters, setFacilityDefs]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [loadBastions, loadCharacters, setFacilityDefs])
 
   const selectedBastion = bastions.find((b) => b.id === selectedBastionId)
   const ownerCharacter = selectedBastion ? characters.find((c) => c.id === selectedBastion.ownerId) : null

@@ -209,7 +209,6 @@ export type MapStateForVisionAnalysis = Parameters<typeof analyzeMapState>[0]
  */
 function getModelForProvider(providerType: string): string {
   // Import the config to get the currently selected model
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { getConfig } = require('./ai-service') as { getConfig: () => { model?: string } | null }
   const config = getConfig()
   return config?.model ?? (providerType === 'ollama' ? 'llama3.2' : 'gpt-4o')

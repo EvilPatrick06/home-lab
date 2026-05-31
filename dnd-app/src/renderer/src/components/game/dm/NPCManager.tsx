@@ -54,7 +54,7 @@ export default function NPCManager({
       }
     }
     loadStatBlocks()
-  }, [npcs, statBlocks]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [npcs, statBlocks])
 
   // Get effective stat block for an NPC (merge customStats over linked block)
   const getEffectiveStatBlock = (npc: NPC): MonsterStatBlock | undefined => {

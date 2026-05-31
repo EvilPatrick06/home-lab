@@ -336,7 +336,6 @@ export default function InitiativeTracker({
         <div className="flex flex-wrap gap-1">
           {pendingWaves.map((w, i) => (
             <button
-              // biome-ignore lint/suspicious/noArrayIndexKey: waves have no stable id
               key={i}
               onClick={() => deployWave(i)}
               className="px-2 py-1 text-xs rounded bg-red-700/40 border border-red-600/50 text-red-200 hover:bg-red-700/60"
