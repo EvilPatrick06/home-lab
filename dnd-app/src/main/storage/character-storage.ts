@@ -6,7 +6,28 @@ import { logToFile } from '../log'
 import { atomicWriteFile } from './atomic-write'
 import { CURRENT_SCHEMA_VERSION, migrateData } from './migrations'
 import { withSaveLock } from './save-queue'
+import { snapshotIfFirstMigration } from './snapshot'
 import type { StorageResult } from './types'
+
+/**
+ * Phase 15 — before a save file is stepped past schema v3 (the v3→v4 ref-shape boundary), copy
+ * the pristine on-disk JSON to `<path>.pre-phase-15.bak` exactly once so the user can roll back
+ * if the migration looks wrong. `migrateData` is pure and has no path, so the snapshot must be
+ * triggered here in the loader (which owns the file path). No-op once the `.bak` exists or when
+ * the file is already at/after v4.
+ */
+function snapshotBeforeMigrate(path: string, parsed: unknown): void {
+  const fromVersion =
+    parsed && typeof parsed === 'object' && typeof (parsed as Record<string, unknown>).schemaVersion === 'number'
+      ? ((parsed as Record<string, unknown>).schemaVersion as number)
+      : 1
+  try {
+    snapshotIfFirstMigration(path, fromVersion, CURRENT_SCHEMA_VERSION)
+  } catch (err) {
+    // Non-fatal: a failed pre-migration snapshot must never block loading the character.
+    logToFile('WARN', `[character-storage] pre-migration snapshot failed for ${path}:`, String(err))
+  }
+}
 
 let charactersDirReady: Promise<string> | null = null
 
@@ -161,8 +182,11 @@ export async function loadCharacters(): Promise<StorageResult<Record<string, unk
     const files = (await readdir(dir)).filter((f) => f.endsWith('.json'))
     const results = await Promise.allSettled(
       files.map(async (f) => {
-        const data = await readFile(join(dir, f), 'utf-8')
-        return migrateData(JSON.parse(data))
+        const path = join(dir, f)
+        const data = await readFile(path, 'utf-8')
+        const parsed = JSON.parse(data)
+        snapshotBeforeMigrate(path, parsed)
+        return migrateData(parsed)
       })
     )
     const characters: Record<string, unknown>[] = []
@@ -189,7 +213,9 @@ export async function loadCharacter(id: string): Promise<StorageResult<Record<st
       return { success: true, data: null }
     }
     const data = await readFile(path, 'utf-8')
-    return { success: true, data: migrateData(JSON.parse(data)) }
+    const parsed = JSON.parse(data)
+    snapshotBeforeMigrate(path, parsed)
+    return { success: true, data: migrateData(parsed) }
   } catch (err) {
     return { success: false, error: `Failed to load character: ${(err as Error).message}` }
   }

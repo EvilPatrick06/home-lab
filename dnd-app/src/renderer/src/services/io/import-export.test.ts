@@ -276,7 +276,7 @@ describe('import-export', () => {
       expect(mockWriteFile).toHaveBeenCalledTimes(1)
 
       const writtenJson = JSON.parse(mockWriteFile.mock.calls[0][1])
-      expect(writtenJson.version).toBe(3)
+      expect(writtenJson.version).toBe(4)
       expect(writtenJson.preferences['dnd-vtt-volume']).toBe('0.8')
       expect(writtenJson.preferences['other-key']).toBeUndefined()
     })
@@ -495,13 +495,13 @@ describe('import-export', () => {
 })
 
 describe('migrateBackupPayload', () => {
-  it('returns input unchanged when version is already current (v3)', () => {
-    const v3 = {
-      version: 3,
+  it('returns input unchanged when version is already current (v4)', () => {
+    const v4 = {
+      version: 4,
       characters: [{ id: 'c1' }],
       books: { config: {}, data: [] }
     }
-    expect(migrateBackupPayload(v3)).toBe(v3)
+    expect(migrateBackupPayload(v4)).toBe(v4)
   })
 
   it('returns input unchanged when version is invalid (NaN, < 1, > current)', () => {
@@ -513,7 +513,7 @@ describe('migrateBackupPayload', () => {
     expect(migrateBackupPayload(c)).toBe(c)
   })
 
-  it('walks v1 → v2 → v3, adding fields from each step', () => {
+  it('walks v1 → v2 → v3 → v4, adding fields from each step', () => {
     const v1 = {
       version: 1,
       characters: [{ id: 'c1' }],
@@ -524,7 +524,7 @@ describe('migrateBackupPayload', () => {
     }
     const result = migrateBackupPayload(v1)
 
-    expect(result.version).toBe(3)
+    expect(result.version).toBe(4)
     // From v1 → v2 step:
     expect(result.customCreatures).toEqual([])
     expect(result.homebrew).toEqual([])
@@ -539,7 +539,7 @@ describe('migrateBackupPayload', () => {
     expect(result.characters).toEqual([{ id: 'c1' }])
   })
 
-  it('walks v2 → v3, adding only the v3 fields', () => {
+  it('walks v2 → v3 → v4, adding only the v3 fields', () => {
     const v2 = {
       version: 2,
       characters: [],
@@ -552,13 +552,35 @@ describe('migrateBackupPayload', () => {
     }
     const result = migrateBackupPayload(v2)
 
-    expect(result.version).toBe(3)
+    expect(result.version).toBe(4)
     // v2 → v3 fields appear:
     expect(result.gameStates).toEqual([])
     expect(result.books).toEqual({ config: { customBooks: [] }, data: [] })
     // Existing v2 fields are preserved (not overwritten by defaults):
     expect(result.customCreatures).toEqual([{ id: 'cr-existing' }])
     expect(result.homebrew).toEqual([{ id: 'hb-existing' }])
+  })
+
+  it('walks v3 → v4, ref-migrating each dnd5e character (classes → classRefs, inline arrays stripped)', () => {
+    const v3 = {
+      version: 3,
+      characters: [
+        { id: 'c1', name: 'Aria', gameSystem: 'dnd5e', classes: [{ name: 'Wizard', level: 3, hitDie: 6 }] },
+        { id: 'c2', name: 'NotADnd5eDoc' } // no gameSystem → passed through untouched
+      ],
+      books: { config: {}, data: [] }
+    }
+    const result = migrateBackupPayload(v3)
+
+    expect(result.version).toBe(4)
+    const chars = result.characters as Array<Record<string, unknown>>
+    // dnd5e character is ref-migrated…
+    expect(chars[0].classes).toBeUndefined()
+    const classRefs = chars[0].classRefs as Array<Record<string, unknown>>
+    expect(classRefs).toHaveLength(1)
+    expect((classRefs[0].ref as Record<string, unknown>).entryId).toBe('wizard')
+    // …non-dnd5e record is left exactly as-is.
+    expect(chars[1]).toEqual({ id: 'c2', name: 'NotADnd5eDoc' })
   })
 
   it('preserves existing array values in additive fields rather than defaulting to empty', () => {

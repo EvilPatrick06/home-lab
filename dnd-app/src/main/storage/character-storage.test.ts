@@ -25,7 +25,7 @@ vi.mock('../log', () => ({
 }))
 
 vi.mock('./migrations', () => ({
-  CURRENT_SCHEMA_VERSION: 3,
+  CURRENT_SCHEMA_VERSION: 4,
   migrateData: vi.fn((data: unknown) => data)
 }))
 
@@ -68,7 +68,7 @@ describe('character-storage', () => {
 
       expect(result).toEqual({ success: true })
       expect(writeFile).toHaveBeenCalledWith(expect.stringContaining(`${VALID_UUID}.json`), expect.any(String), 'utf-8')
-      expect(character.schemaVersion).toBe(3)
+      expect(character.schemaVersion).toBe(4)
     })
 
     it('should create versioned backup when file already exists', async () => {

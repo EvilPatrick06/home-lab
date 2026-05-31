@@ -131,7 +131,9 @@ export async function importCampaign(): Promise<Record<string, unknown> | null> 
 // Full backup: Export / Import ALL data
 // ---------------------------------------------------------------------------
 
-const BACKUP_VERSION = 3
+// Phase 15 → flipped to 4 alongside CURRENT_SCHEMA_VERSION (migrations.ts). Backups now export
+// at v4 and BACKUP_MIGRATIONS[4] ref-migrates each dnd5e character on import of an older backup.
+const BACKUP_VERSION = 4
 const BACKUP_FILTER = [{ name: 'D&D VTT Backup', extensions: ['dndbackup'] }]
 
 /**

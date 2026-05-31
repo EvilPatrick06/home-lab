@@ -23,7 +23,7 @@ vi.mock('../log', () => ({
 }))
 
 vi.mock('./migrations', () => ({
-  CURRENT_SCHEMA_VERSION: 3,
+  CURRENT_SCHEMA_VERSION: 4,
   migrateData: vi.fn((data: unknown) => data)
 }))
 
@@ -59,7 +59,7 @@ describe('bastion-storage', () => {
 
       expect(result).toEqual({ success: true })
       expect(writeFile).toHaveBeenCalledWith(expect.stringContaining(`${VALID_UUID}.json`), expect.any(String), 'utf-8')
-      expect(bastion.schemaVersion).toBe(3)
+      expect(bastion.schemaVersion).toBe(4)
     })
 
     it('should return error on write failure', async () => {

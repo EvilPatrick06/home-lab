@@ -1,10 +1,12 @@
 import { migrateCharacter5eToRefs } from '../../shared/migrations/v4-character-refs'
 
-// Phase 15h — schema bump to 4 is DORMANT: it ships with the v3.0.0 release. Until then this
-// stays 3 so the migrate loop never reaches MIGRATIONS[4], and the renderer runtime shim
-// (`migrateCharacter5eFromV3ToV4`) remains the active v3→v4 conversion path. Bumping this to 4
-// (release-time) activates the on-disk migration below + the `.pre-phase-15.bak` snapshot.
-export const CURRENT_SCHEMA_VERSION = 3
+// Phase 15 → flipped to 4. The original v3.0.0-release coupling was dropped (the app is in
+// active testing, no installed-base compatibility to preserve), so the on-disk migrate loop now
+// reaches MIGRATIONS[4] (the v3→v4 Character5e refs+state conversion). The renderer runtime shim
+// (`migrateCharacter5eFromV3ToV4`) stays as a redundant safety net for the renderer-load path,
+// and the main-process loader (character-storage.ts) now writes a one-time `.pre-phase-15.bak`
+// snapshot the first time a save file crosses the v3→v4 boundary (see snapshot.ts).
+export const CURRENT_SCHEMA_VERSION = 4
 
 type Migration = (data: Record<string, unknown>) => Record<string, unknown>
 
