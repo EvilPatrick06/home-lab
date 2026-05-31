@@ -69,11 +69,18 @@ export default function SpellPrepModal({ character, onClose }: SpellPrepModalPro
   const char5e = is5eCharacter(character) ? (character as Character5e) : null
   const isPreparedCaster = !!char5e && PREPARED_CASTER_CLASSES.has(primaryClassId(char5e))
 
+  // getEffectivePreparedSpellIds reads BOTH state.preparedSpellIds AND
+  // knownSpellRefs (it maps prepared instanceIds → entryIds via knownSpellRefs),
+  // so both must be deps or the set goes stale when spells are learned/removed
+  // without a prepared-list change. We key on the two sub-fields rather than the
+  // whole char5e identity to avoid recomputing on unrelated character edits.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional sub-field deps (preparedSpellIds + knownSpellRefs), not whole char5e
   const preparedSet = useMemo(
     () => new Set(char5e ? getEffectivePreparedSpellIds(char5e) : []),
-    [char5e?.state?.preparedSpellIds]
+    [char5e?.state?.preparedSpellIds, char5e?.knownSpellRefs]
   )
   const maxPrepared = char5e ? maxPreparedFor(char5e) : 0
+  // biome-ignore lint/correctness/useExhaustiveDependencies: getEffectiveKnownSpells reads only char5e.knownSpellRefs — depend on that sub-field, not whole char5e
   const leveled = useMemo(
     () => (char5e ? getEffectiveKnownSpells(char5e) : []).filter((s) => s.level > 0),
     [char5e?.knownSpellRefs]
