@@ -27,7 +27,7 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 
 ## Defined channels
 
-*Total: **156** channel strings (from `IPC_CHANNELS`).*
+*Total: **157** channel strings (from `IPC_CHANNELS`).*
 
 ### Storage: Characters
 
@@ -393,6 +393,7 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 | `LAN_GAME_REMOVED` | `lan:game-removed` |
 | `BMO_RESOLVED_URL` | `bmo:resolved-url` |
 | `BMO_SIGNALING_STATUS` | `bmo:signaling-status` |
+| `BMO_PROBE_SIGNALING` | `bmo:probe-signaling` |
 
 ### Security Audit (20g)
 
