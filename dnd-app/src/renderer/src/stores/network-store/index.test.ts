@@ -587,6 +587,38 @@ describe('transformUpdatePayloadForPeer', () => {
     expect(out.addMap.tokens.map((t) => t.id)).toEqual(['a', 'c'])
   })
 
+  it('strips DM-only regions + drawings from addMap (security)', async () => {
+    const { transformUpdatePayloadForPeer } = await import('./index')
+    const out = transformUpdatePayloadForPeer(
+      {
+        addMap: {
+          id: 'm',
+          regions: [
+            { id: 'r-vis', visibleToPlayers: true },
+            { id: 'r-hidden', visibleToPlayers: false }
+          ],
+          drawings: [
+            { id: 'd-vis', visibleToPlayers: true },
+            { id: 'd-hidden', visibleToPlayers: false },
+            { id: 'd-undef' } // undefined visibleToPlayers → stays visible
+          ]
+        }
+      },
+      false,
+      makeLookup({})
+    ) as { addMap: { regions: Array<{ id: string }>; drawings: Array<{ id: string }> } }
+    // Player must not receive the DM-only region/drawing on a mid-session new map.
+    expect(out.addMap.regions.map((r) => r.id)).toEqual(['r-vis'])
+    expect(out.addMap.drawings.map((d) => d.id)).toEqual(['d-vis', 'd-undef'])
+  })
+
+  it('passes addMap regions/drawings through unchanged for the host', async () => {
+    const { transformUpdatePayloadForPeer } = await import('./index')
+    const addMap = { id: 'm', regions: [{ id: 'r-hidden', visibleToPlayers: false }], drawings: [] }
+    const out = transformUpdatePayloadForPeer({ addMap }, 'host') as { addMap: { regions: Array<{ id: string }> } }
+    expect(out.addMap.regions.map((r) => r.id)).toEqual(['r-hidden'])
+  })
+
   it('strips hidden tokens from each map in mapsWithImages', async () => {
     const { transformUpdatePayloadForPeer } = await import('./index')
     const lookup = makeLookup({})

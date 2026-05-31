@@ -1001,13 +1001,26 @@ export function transformUpdatePayloadForPeer(
     if (at.token?.isHidden === true) return null
   }
 
-  // 4a: addMap — strip hidden tokens from the new map
+  // 4a: addMap — strip hidden tokens AND DM-only regions/drawings from the new
+  // map. addMap broadcasts the full GameMap on mid-session map creation, so
+  // without this a player's client receives DM-only scene regions + drawings
+  // (mirrors the shard `permissionFilter` + render-surface predicates: regions
+  // require `visibleToPlayers === true`; drawings drop only `=== false`).
   if (p.addMap && typeof p.addMap === 'object') {
-    const am = p.addMap as { tokens?: unknown }
+    const am = p.addMap as { tokens?: unknown; regions?: unknown; drawings?: unknown }
+    const nextMap: Record<string, unknown> = { ...am }
     if (Array.isArray(am.tokens)) {
-      const filtered = (am.tokens as Array<{ isHidden?: boolean }>).filter((t) => t?.isHidden !== true)
-      p.addMap = { ...am, tokens: filtered }
+      nextMap.tokens = (am.tokens as Array<{ isHidden?: boolean }>).filter((t) => t?.isHidden !== true)
     }
+    if (Array.isArray(am.regions)) {
+      nextMap.regions = (am.regions as Array<{ visibleToPlayers?: boolean }>).filter((r) => r.visibleToPlayers === true)
+    }
+    if (Array.isArray(am.drawings)) {
+      nextMap.drawings = (am.drawings as Array<{ visibleToPlayers?: boolean }>).filter(
+        (d) => d.visibleToPlayers !== false
+      )
+    }
+    p.addMap = nextMap
   }
 
   // 4b: mapsWithImages — strip hidden tokens per map (post-join image bundle)
