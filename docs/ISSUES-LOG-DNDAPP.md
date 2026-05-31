@@ -24,13 +24,9 @@ New entries go at the TOP of their severity section (newest first within each se
 > code on 2026-05-29. Do not re-log dnd-app items here; add them to that report.
 >
 > Quick map of what's open (full detail + file:line in the report):
-> - **20g** — renderer-side security events not routed to the main audit log (needs a `LOG_SECURITY_EVENT` IPC channel).
-> - **LOG-11** — Tiny-creature cover exclusion needs a `sizeCategory` field on `MapToken`.
-> - God-object splits, accessibility polish, error-handling convention, test-coverage gaps — see the report's "From home-lab/docs audit" section.
+> - Knip unused exports/types, accessibility polish, error-handling convention, CI dedupe, the cloud-relay live integration gap — see the report's open sections.
 >
-> **Verified RESOLVED (do not re-fix):** Phase 23f attunement (now single-source
-> via `state.magicItemAttuned` + `getEffectiveMagicItems`); multi-floor visibility
-> (`currentFloor` wired); positional audio emitters (`updateEmitters` is called).
+> **Verified RESOLVED (do not re-fix):** **20g** (renderer security events now route via the `LOG_SECURITY_EVENT` IPC channel — `ipc-channels.ts:257` + handler `main/ipc/index.ts:208` + call-site `network/security-audit.ts`); **LOG-11** (Tiny-creature cover now uses `MapToken.sizeCategory` — `types/map.ts:113` + `cover-calculator.ts` + tests); Phase 23f attunement (single-source via `state.magicItemAttuned` + `getEffectiveMagicItems`); multi-floor visibility (`currentFloor` wired); positional audio emitters (`updateEmitters` is called).
 
 ## Critical / High / Medium / Low
 

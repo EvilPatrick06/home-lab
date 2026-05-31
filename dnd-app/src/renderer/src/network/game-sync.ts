@@ -133,11 +133,13 @@ export function startGameSync(sendMessage: SendMessageFn): void {
     // (fog-shard).
     //
     // Phase 31i — wall segments, scene regions, and drawings now stream via the
-    // shard broadcaster (walls-shard / regions-shard / drawings-shard, all
-    // UNFILTERED — preserving the prior all-clients wire behavior; DM-only
-    // region/drawing visibility stays a render-surface concern). The bespoke
-    // `game:state-update { wallSegments }`, `dm:region-add/update/remove`, and
-    // `dm:drawing-add/remove` per-change broadcasts that used to live here (on
+    // shard broadcaster (walls-shard / regions-shard / drawings-shard). walls-shard
+    // is UNFILTERED (walls aren't DM-secret). regions-shard + drawings-shard now
+    // carry a per-recipient `permissionFilter` (88ad36a) that wire-enforces DM-only
+    // visibility — `visibleToPlayers:false` regions/drawings are stripped for
+    // non-DM recipients, so it's no longer only a render-surface concern. The
+    // bespoke `game:state-update { wallSegments }`, `dm:region-add/update/remove`,
+    // and `dm:drawing-add/remove` per-change broadcasts that used to live here (on
     // `map.* !== prevMap.*`) are gone. All of these features stay in
     // buildFullGameStatePayload so the role-filtered join snapshot still seeds
     // them, and the old message types + client handlers remain for 31l
