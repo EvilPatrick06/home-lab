@@ -8,10 +8,6 @@ export function setOpenAIApiKey(key: string | undefined): void {
   apiKey = key
 }
 
-export function getOpenAIApiKey(): string | undefined {
-  return apiKey
-}
-
 function getClient(): OpenAI {
   if (!apiKey) throw new Error('OpenAI API key not configured')
   return new OpenAI({ apiKey })

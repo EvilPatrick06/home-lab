@@ -8,11 +8,6 @@ import { exportEntities, importEntities } from './entity-io'
  * files (JSON envelopes via the shared entity-io layer).
  */
 
-/** Export the provided homebrew entries to a `.dndhomebrew` file. */
-export async function exportHomebrew(items: HomebrewEntry[]): Promise<boolean> {
-  return exportEntities('homebrew', items)
-}
-
 /** Export every homebrew entry currently on disk. */
 export async function exportAllHomebrew(): Promise<boolean> {
   const all = (await window.api.loadAllHomebrew()) as unknown as HomebrewEntry[]

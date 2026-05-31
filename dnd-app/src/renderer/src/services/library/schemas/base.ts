@@ -9,5 +9,3 @@ export const BaseLibraryEntrySchema = z.object({
   updatedAt: z.string().optional(),
   pluginId: z.string().optional()
 })
-
-export type BaseLibraryEntryParsed = z.infer<typeof BaseLibraryEntrySchema>

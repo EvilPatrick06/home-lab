@@ -100,20 +100,6 @@ export function animateTokenMove(
 }
 
 /**
- * Check if a token is currently being animated.
- */
-export function isTokenAnimating(tokenId: string): boolean {
-  return activeAnimations.has(tokenId)
-}
-
-/**
- * Cancel any active animation for a token.
- */
-export function cancelTokenAnimation(tokenId: string): void {
-  activeAnimations.delete(tokenId)
-}
-
-/**
  * Clean up all animations (call on unmount).
  */
 export function destroyTokenAnimations(): void {

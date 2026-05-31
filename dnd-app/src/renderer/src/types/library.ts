@@ -6,80 +6,8 @@
 // below stay in this file.
 export type { BaseLibraryEntry, DeepPartial, EntryRef, LibraryEntry, MergedEntry } from '../../../shared/types/library'
 
-import type { BaseLibraryEntry, EntryRef } from '../../../shared/types/library'
-
-export function isEntryRef(value: unknown): value is EntryRef {
-  if (typeof value !== 'object' || value === null) return false
-  const v = value as Record<string, unknown>
-  return typeof v.entryId === 'string' && typeof v.entryType === 'string'
-}
-
 // Library-side shapes — pure entry data, no instance state. Instance state
 // (prepared/equipped/attuned/current charges) lives on consumer.state.
-
-export interface LibrarySpellEntry extends BaseLibraryEntry {
-  // boundary-allow: type definition for library shape (canonical declaration site, not data embedding)
-  level: number
-  castingTime: string
-  range: string
-  duration: string
-  components: string
-  school?: string
-  concentration?: boolean
-  ritual?: boolean
-  traditions?: string[]
-  traits?: string[]
-  heightened?: Record<string, string>
-  higherLevels?: string
-  classes?: string[]
-}
-
-export interface LibraryWeaponEntry extends BaseLibraryEntry {
-  damage: string
-  damageType: string
-  properties: string[]
-  hands?: string
-  group?: string
-  bulk?: string
-  range?: string
-  mastery?: string
-  cost?: string
-  weight?: number
-}
-
-export interface LibraryArmorEntry extends BaseLibraryEntry {
-  acBonus: number
-  type: 'armor' | 'shield' | 'clothing'
-  category?: string
-  dexCap?: number | null
-  stealthDisadvantage?: boolean
-  checkPenalty?: number
-  speedPenalty?: number
-  strength?: number
-  bulk?: number
-  hardness?: number
-  shieldHP?: number
-  shieldBT?: number
-  cost?: string
-  weight?: number
-}
-
-export interface LibraryMagicItemEntry extends BaseLibraryEntry {
-  rarity: string
-  type: string
-  requiresAttunement: boolean
-  weight?: number
-  charges?: {
-    max: number
-    rechargeType: 'dawn' | 'long-rest' | 'none'
-    rechargeDice?: string
-  }
-  grantedSpells?: Array<{
-    spellId: string
-    spellName: string
-    charges?: number
-  }>
-}
 
 export type LibraryCategory =
   | 'characters'

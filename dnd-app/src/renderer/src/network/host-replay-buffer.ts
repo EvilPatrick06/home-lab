@@ -30,10 +30,6 @@ export function registerClientBuffer(clientId: string, capacity: number = DEFAUL
   }
 }
 
-export function unregisterClientBuffer(clientId: string): void {
-  buffers.delete(clientId)
-}
-
 export function recordOutgoing(clientIds: Iterable<string>, msg: NetworkMessage): void {
   for (const clientId of clientIds) {
     const buf = buffers.get(clientId)

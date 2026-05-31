@@ -55,7 +55,7 @@ export async function captureMapScreenshot(): Promise<Buffer | null> {
 /**
  * Extract current token positions and stats from the game state passed from the renderer.
  */
-export function captureTokenPositions(gameState: {
+function captureTokenPositions(gameState: {
   maps: Array<{
     id: string
     name: string
@@ -100,7 +100,7 @@ export function captureTokenPositions(gameState: {
  * Encode a screenshot as base64 and pair with structured token position data
  * for sending to a vision-capable LLM.
  */
-export function encodeForVision(
+function encodeForVision(
   screenshot: Buffer | null,
   tokenData: MapStateData | null
 ): { imageBase64: string | null; textDescription: string } {

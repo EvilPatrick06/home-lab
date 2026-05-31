@@ -9,7 +9,7 @@
 export const GRID_HUD_KEY = 'dnd-vtt-grid-coord-hud'
 
 /** Phase 16g — spreadsheet-style column label (0→A, 25→Z, 26→AA, …). */
-export function columnLabel(n: number): string {
+function columnLabel(n: number): string {
   if (n < 0) return String(n)
   let s = ''
   let x = n

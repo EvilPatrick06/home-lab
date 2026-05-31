@@ -157,7 +157,7 @@ export async function updateGame(
   }
 }
 
-export async function heartbeatGame(inviteCode: string, config: RegistryClientConfig = {}): Promise<{ ok: boolean }> {
+async function heartbeatGame(inviteCode: string, config: RegistryClientConfig = {}): Promise<{ ok: boolean }> {
   const base = await getBaseUrl(config.baseUrl)
   try {
     const resp = await fetch(`${base}/api/games/${encodeURIComponent(inviteCode)}/heartbeat`, {

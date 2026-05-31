@@ -7,9 +7,9 @@ import type { StorageResult } from './types'
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
-export const GAME_STATE_SCHEMA_VERSION = 1
+const GAME_STATE_SCHEMA_VERSION = 1
 
-export function migrateGameState(state: unknown): Record<string, unknown> {
+function migrateGameState(state: unknown): Record<string, unknown> {
   if (!state || typeof state !== 'object') {
     return { schemaVersion: GAME_STATE_SCHEMA_VERSION }
   }

@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------
 
 import type { CombatLogEntry } from '../../types/game-state'
-import { logger } from '../../utils/logger'
 
 // --- Export functions --------------------------------------------------------
 
@@ -83,66 +82,4 @@ export interface CombatLogFilter {
   search?: string
   actor?: string
   type?: CombatLogEntry['type']
-}
-
-/**
- * Filter combat log entries by search text, actor name, and/or entry type.
- */
-export function filterCombatLog(entries: CombatLogEntry[], filter: CombatLogFilter): CombatLogEntry[] {
-  let result = entries
-
-  if (filter.type) {
-    result = result.filter((e) => e.type === filter.type)
-  }
-
-  if (filter.actor) {
-    const actor = filter.actor.toLowerCase()
-    result = result.filter(
-      (e) => e.sourceEntityName?.toLowerCase().includes(actor) || e.targetEntityName?.toLowerCase().includes(actor)
-    )
-  }
-
-  if (filter.search) {
-    const search = filter.search.toLowerCase()
-    result = result.filter(
-      (e) =>
-        e.description.toLowerCase().includes(search) ||
-        e.sourceEntityName?.toLowerCase().includes(search) ||
-        e.targetEntityName?.toLowerCase().includes(search) ||
-        e.damageType?.toLowerCase().includes(search)
-    )
-  }
-
-  return result
-}
-
-/**
- * Prompt user with a save dialog and export the log contents safely via IPC boundary.
- */
-export async function saveCombatLogToFile(
-  entries: CombatLogEntry[],
-  format: 'text' | 'json' | 'csv'
-): Promise<boolean> {
-  const content =
-    format === 'json'
-      ? exportCombatLogJSON(entries)
-      : format === 'csv'
-        ? exportCombatLogCSV(entries)
-        : exportCombatLogText(entries)
-  const extensions = format === 'json' ? ['json'] : format === 'csv' ? ['csv'] : ['txt']
-
-  try {
-    const savePath = await window.api.showSaveDialog({
-      title: `Save Combat Log (${format.toUpperCase()})`,
-      filters: [{ name: `${format.toUpperCase()} File`, extensions }]
-    })
-
-    if (savePath) {
-      await window.api.writeFile(savePath, content)
-      return true
-    }
-  } catch (err) {
-    logger.error('Failed to save combat log:', err)
-  }
-  return false
 }

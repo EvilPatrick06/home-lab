@@ -65,7 +65,7 @@ export function isSafeHref(url: string): boolean {
   }
 }
 
-export function parseChatLinks(content: string): ChatLink[] {
+function parseChatLinks(content: string): ChatLink[] {
   const links: ChatLink[] = []
 
   // 1. Parse [[name]] bracket syntax — matches against content index

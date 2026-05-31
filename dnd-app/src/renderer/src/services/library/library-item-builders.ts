@@ -38,7 +38,7 @@ export function toLibraryItems(
   return built
 }
 
-export function ingestIntoLibraryStore(category: LibraryCategory, built: readonly LibraryItem[]): void {
+function ingestIntoLibraryStore(category: LibraryCategory, built: readonly LibraryItem[]): void {
   if (built.length === 0) return
   const entries = built
     .map((b) => {

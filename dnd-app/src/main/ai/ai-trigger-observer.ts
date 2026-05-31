@@ -72,7 +72,7 @@ interface TriggerFireResult {
 
 // ── State ──
 
-let running = false
+const running = false
 let previousState: GameStateSnapshot | null = null
 let combatWasActive = false
 
@@ -82,7 +82,7 @@ let combatWasActive = false
  * Evaluate all enabled triggers against the current game state.
  * Returns an array of triggers that should fire.
  */
-export function evaluateTriggers(current: GameStateSnapshot, previous: GameStateSnapshot | null): TriggerFireResult[] {
+function evaluateTriggers(current: GameStateSnapshot, previous: GameStateSnapshot | null): TriggerFireResult[] {
   const results: TriggerFireResult[] = []
 
   for (const trigger of current.triggers) {
@@ -256,31 +256,4 @@ export function processStateUpdate(state: GameStateSnapshot): TriggerFireResult[
   }
 
   return results
-}
-
-/**
- * Start the trigger observer. After calling this, state updates will be evaluated.
- */
-export function startObserver(): void {
-  running = true
-  previousState = null
-  combatWasActive = false
-  logToFile('info', '[AI Trigger] Observer started')
-}
-
-/**
- * Stop the trigger observer.
- */
-export function stopObserver(): void {
-  running = false
-  previousState = null
-  combatWasActive = false
-  logToFile('info', '[AI Trigger] Observer stopped')
-}
-
-/**
- * Check if the observer is currently running.
- */
-export function isObserverRunning(): boolean {
-  return running
 }

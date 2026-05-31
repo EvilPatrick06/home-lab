@@ -56,7 +56,6 @@ export type {
   ShopUpdatePayload,
   SlowModePayload,
   StateUpdatePayload,
-  StopAmbientPayload,
   StopCustomAudioPayload,
   TimeRequestPayload,
   TimerStartPayload,

@@ -205,8 +205,8 @@ export async function getSystemVram(): Promise<VramInfo> {
  * step (no discrete .exe download). `installOllama` branches on them. Indeterminate progress
  * (`onProgress(-1)`) tells the UI to show a spinner, not a fake percentage bar.
  */
-export const LINUX_INSTALL_MARKER = '__ollama_linux_install_script__'
-export const MACOS_BREW_MARKER = '__ollama_macos_brew__'
+const LINUX_INSTALL_MARKER = '__ollama_linux_install_script__'
+const MACOS_BREW_MARKER = '__ollama_macos_brew__'
 
 /** True if a `brew` binary is on PATH (macOS best-effort install). */
 function hasBrew(): boolean {

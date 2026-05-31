@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const AiProviderTypeSchema = z.enum(['ollama', 'claude', 'openai', 'gemini'])
+const AiProviderTypeSchema = z.enum(['ollama', 'claude', 'openai', 'gemini'])
 
 export const AiConfigSchema = z.object({
   provider: AiProviderTypeSchema.default('ollama'),
@@ -72,7 +72,7 @@ export const LanGameFoundSchema = LanPublishSchema.extend({
   addresses: z.array(z.string()).optional()
 })
 
-export const LanGameRemovedSchema = z.object({
+const LanGameRemovedSchema = z.object({
   source: z.literal('lan'),
   peer_id: z.string(),
   invite_code: z.string().optional()

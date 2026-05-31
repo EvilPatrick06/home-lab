@@ -211,18 +211,6 @@ export interface ConditionUpdatePayload {
 // with `fallback: false`) or, if the requested cursor falls outside
 // the buffer window, marks `fallback: true` so the client falls back
 // to the existing full-state-on-join path.
-export interface ResyncRequestPayload {
-  lastSequence: number
-  lastClientId: string
-}
-
-export interface StateResyncPayload {
-  fromSequence: number
-  toSequence: number
-  fallback: boolean
-  messages?: NetworkMessage[]
-}
-
 // Phase 29i: tick-batched send queue. The host coalesces every
 // outgoing message within the same microtask into a single `batch`
 // envelope. The client iterates the inner messages and re-dispatches
@@ -230,10 +218,6 @@ export interface StateResyncPayload {
 // message's own type is what matters — `batch` is purely a transport
 // wrapper. Single-message ticks are sent without the wrapper for
 // backwards compat with v2.1.7 and earlier clients.
-export interface BatchPayload {
-  messages: NetworkMessage[]
-}
-
 export interface KickPayload {
   peerId: string
   reason?: string
@@ -293,23 +277,6 @@ export interface ColorConfirmPayload {
   color: string
 }
 
-/**
- * Phase 17d — symmetric live color preview. Player picks a color but hasn't
- * Confirmed yet. Host receives + re-broadcasts to all peers so everyone sees
- * the pending swatch (rendered with a dashed/dimmed border to signal
- * "uncommitted"). Distinct from `player:color-change` so we don't accidentally
- * advance `colorConfirmed` to true before the player actually confirms.
- *
- * `peerId` is set by the host on re-broadcast so receivers know whose preview
- * this is (the original `player:color-preview` from the player only carries
- * the color; senderId tells the host which peer it's from).
- */
-export interface ColorPreviewPayload {
-  color: string | null
-  /** Set by the host on re-broadcast. Receivers use it to update the right peer. */
-  peerId?: string
-}
-
 export interface ColorRejectedPayload {
   color: string
   reason: 'taken'
@@ -361,11 +328,6 @@ export interface WhisperPlayerPayload {
   targetPeerId: string
   targetName: string
   message: string
-}
-
-export interface WhisperReceivedPayload {
-  messageId: string
-  originalSenderId: string
 }
 
 export interface TimeRequestPayload {
@@ -513,8 +475,6 @@ export interface PlayAmbientPayload {
   volume?: number
 }
 
-export type StopAmbientPayload = Record<string, never>
-
 // Phase 27i — DM custom-audio network sync. `audioData` is base64-encoded and
 // size-capped (see schemas); clients decode it to a Blob URL and play.
 export interface PlayCustomAudioPayload {
@@ -636,11 +596,6 @@ export interface DrawingsClearPayload {
 // per-shard `Delta` (replace or structural patch) tagged with a monotonic
 // sequence; the client-side applier applies in-order patches and requests a
 // full replace via `sync:resync-request` when it detects a sequence gap.
-export interface SyncDeltaPayload {
-  shard: string
-  delta: import('./sync/shard').Delta
-}
-
 export interface SyncResyncRequestPayload {
   shard: string
 }

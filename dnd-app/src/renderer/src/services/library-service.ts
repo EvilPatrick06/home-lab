@@ -56,7 +56,6 @@ import { ACTIONS_DATA, COVER_DATA, DAMAGE_TYPES, DC_DATA } from './library/stati
 
 // Re-export the public surface that moved into the `library/` sibling modules so
 // every existing `./library-service` import path keeps resolving unchanged.
-export { SOUND_INVENTORY } from './library/sound-inventory'
 export { summarizeItem } from './library/summarize-item'
 
 export async function loadCategoryItems(category: LibraryCategory, homebrew: HomebrewEntry[]): Promise<LibraryItem[]> {

@@ -47,66 +47,6 @@ export function useLibraryCategory<C extends LibraryCategory>(
   return entries
 }
 
-// useHydratedInstances — hydrate an array of InstanceRef<C> into entries merged
-// with their per-instance overrides. Each result item carries the
-// `__instanceId` so consumers can key state lookups (state.preparedSpellIds,
-// state.magicItemAttuned, …) against it. Orphan refs (entries not present in
-// the truth store) are filtered out — consumers handle empty lists.
-export function useHydratedInstances<C extends LibraryCategory>(
-  refs: Array<{ instanceId: string; ref: EntryRef<C> }> | undefined,
-  category: C
-): Array<LibraryEntry<C> & { __instanceId: string }> {
-  const bucket = useLibraryStore((s) => s.entries[category])
-  return useMemo(() => {
-    if (!refs || refs.length === 0) return []
-    const out: Array<LibraryEntry<C> & { __instanceId: string }> = []
-    for (const instance of refs) {
-      const entry = bucket?.[instance.ref.entryId]
-      if (!entry) continue
-      const merged = instance.ref.overrides
-        ? (deepMergeObjects(
-            entry as Record<string, unknown>,
-            instance.ref.overrides as Record<string, unknown>
-          ) as LibraryEntry<C>)
-        : (entry as LibraryEntry<C>)
-      out.push({ ...merged, __instanceId: instance.instanceId })
-    }
-    return out
-  }, [refs, bucket])
-}
-
-// useHydratedClassList — convert v4 classRefs back into the v3 CharacterClass5e
-// shape so consumers that read `character.classes` for display/derivation
-// stay compatible. Returns an empty array when classRefs is absent.
-export function useHydratedClassList(
-  classRefs:
-    | Array<{
-        instanceId: string
-        ref: EntryRef<'classes'>
-        level: number
-        levelTaken?: number
-        subclassRef?: EntryRef<'subclasses'> | null
-      }>
-    | undefined
-): Array<{ name: string; level: number; subclass?: string; hitDie: number }> {
-  const bucket = useLibraryStore((s) => s.entries.classes)
-  return useMemo(() => {
-    if (!classRefs || classRefs.length === 0) return []
-    return classRefs.map((cr) => {
-      const entry = bucket?.[cr.ref.entryId] as Record<string, unknown> | undefined
-      return {
-        name: (entry?.name as string) ?? cr.ref.entryId,
-        level: cr.level,
-        subclass: cr.subclassRef?.entryId,
-        hitDie:
-          (entry?.hitDie as number) ??
-          ((entry?.coreTraits as Record<string, unknown> | undefined)?.hitPointDie as number) ??
-          10
-      }
-    })
-  }, [classRefs, bucket])
-}
-
 // useHydratedRef — resolve an EntryRef to its live entry merged with overrides
 // per Phase 15 override-merge semantics (plain objects merge, arrays replace
 // atomically, primitives replace, undefined skips). Returns null when the

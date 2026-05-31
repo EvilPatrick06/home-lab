@@ -8,10 +8,6 @@ export function setClaudeApiKey(key: string | undefined): void {
   apiKey = key
 }
 
-export function getClaudeApiKey(): string | undefined {
-  return apiKey
-}
-
 function getClient(): Anthropic {
   if (!apiKey) throw new Error('Claude API key not configured')
   return new Anthropic({ apiKey })

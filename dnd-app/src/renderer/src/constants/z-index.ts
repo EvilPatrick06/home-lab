@@ -35,5 +35,3 @@ export const Z = {
   /** Full-screen critical overlays (fatal errors, blocking prompts). */
   CRITICAL_OVERLAY: 90
 } as const
-
-export type ZLayer = keyof typeof Z

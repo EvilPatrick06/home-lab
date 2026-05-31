@@ -198,7 +198,7 @@ const PREFERENCE_KEY_MAX_LEN = 128
 /** Keys we persist in backups / restore on import: prefix + safe slug shape (defense in depth for crafted .dndbackup files). */
 const PREFERENCE_KEY_RE = /^dnd-vtt-[\w.-]+$/
 
-export function isImportablePreferenceKey(key: string): boolean {
+function isImportablePreferenceKey(key: string): boolean {
   return key.length > PREFERENCE_PREFIX.length && key.length <= PREFERENCE_KEY_MAX_LEN && PREFERENCE_KEY_RE.test(key)
 }
 

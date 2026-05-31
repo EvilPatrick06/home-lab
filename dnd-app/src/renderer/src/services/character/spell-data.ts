@@ -13,7 +13,7 @@ import type {
   SpellRange
 } from '../../types/data/spell-data-types'
 import { logger } from '../../utils/logger'
-import { load5eSpellSlots, load5eSpells } from '../data-provider'
+import { load5eSpellSlots } from '../data-provider'
 
 // Re-export structured spell types for consumers that access them through spell-data
 export type {
@@ -509,30 +509,6 @@ export function getWarlockPactSlots(classes: Array<{ classId: string; level: num
  */
 export function hasAnySpellcasting(classId: string): boolean {
   return FULL_CASTERS_5E.includes(classId) || HALF_CASTERS_5E.includes(classId) || isWarlockPactMagic(classId)
-}
-
-/**
- * Loads the full 5e spell list from the JSON data file.
- */
-export async function loadSpells(): Promise<SpellEntry[]> {
-  // boundary cast: concrete SpellData[] → indexless Record for defensive field-by-field reads
-  const raw = (await load5eSpells()) as unknown as Array<Record<string, unknown>>
-  return raw.map((s) => ({
-    id: String(s.id ?? ''),
-    // boundary-allow: canonical spell loader (services/character) mapping 5e JSON into SpellEntry — loading, not inlining library data
-    name: String(s.name ?? ''),
-    level: Number(s.level ?? 0),
-    school: String(s.school ?? ''),
-    castingTime: String(s.castingTime ?? ''),
-    range: String(s.range ?? ''),
-    duration: String(s.duration ?? ''),
-    components: String(s.components ?? ''),
-    description: String(s.description ?? ''),
-    classes: Array.isArray(s.classes) ? (s.classes as string[]) : [],
-    concentration: Boolean(s.concentration),
-    ritual: Boolean(s.ritual),
-    higherLevels: typeof s.higherLevels === 'string' ? s.higherLevels : undefined
-  }))
 }
 
 /**

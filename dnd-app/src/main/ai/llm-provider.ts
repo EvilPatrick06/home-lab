@@ -2,7 +2,7 @@ import type { ChatMessage, StreamCallbacks } from './types'
 
 export type AiProviderType = 'ollama' | 'claude' | 'openai' | 'gemini'
 
-export const AI_PROVIDER_LABELS: Record<AiProviderType, string> = {
+const AI_PROVIDER_LABELS: Record<AiProviderType, string> = {
   ollama: 'Ollama (Local)',
   claude: 'Claude (Anthropic)',
   openai: 'OpenAI',
@@ -68,7 +68,7 @@ export interface LLMProvider {
 
 // ── Standardized LLM Errors ──
 
-export class LLMAuthError extends Error {
+class LLMAuthError extends Error {
   readonly provider: AiProviderType
 
   constructor(provider: AiProviderType, message?: string) {
@@ -78,7 +78,7 @@ export class LLMAuthError extends Error {
   }
 }
 
-export class LLMRateLimitError extends Error {
+class LLMRateLimitError extends Error {
   readonly provider: AiProviderType
   readonly retryAfterMs: number | undefined
 
@@ -91,7 +91,7 @@ export class LLMRateLimitError extends Error {
   }
 }
 
-export class LLMProviderError extends Error {
+class LLMProviderError extends Error {
   readonly provider: AiProviderType
   readonly code: string | undefined
 

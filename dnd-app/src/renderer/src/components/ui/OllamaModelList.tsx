@@ -46,13 +46,13 @@ export type ActiveOp =
   | { type: 'delete'; model: string }
   | null
 
-export function formatBytes(bytes: number): string {
+function formatBytes(bytes: number): string {
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`
   if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
   return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`
 }
 
-export function timeAgo(isoDate: string): string {
+function timeAgo(isoDate: string): string {
   const diff = Date.now() - new Date(isoDate).getTime()
   const days = Math.floor(diff / 86400000)
   if (days < 1) return i18n.t('ui.ollamaModelList.timeAgo.today')

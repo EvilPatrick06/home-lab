@@ -30,20 +30,6 @@ const getDefaultIceServers = (): RTCIceServer[] => {
 let iceServers: RTCIceServer[] = getDefaultIceServers()
 
 /**
- * Configure the host IP for both signaling server and TURN relay.
- * This is the simplest way to configure networking for a custom setup.
- * @param host The host IP or domain name
- * @param port Optional port for signaling server (defaults to 9000)
- */
-export function setHost(host: string, port?: number): void {
-  customHost = host
-  customSignalingPort = port ?? 9000
-  customSignalingPath = '/myapp'
-  customSignalingSecure = false
-  iceServers = getDefaultIceServers()
-}
-
-/**
  * Configure a custom PeerJS signaling server (e.g. Pi via Cloudflare Tunnel).
  * Call before createPeer() to take effect.
  * @throws {Error} If the host does not use a secure (wss/https) scheme implicitly
@@ -124,13 +110,6 @@ export function setForceRelay(relay: boolean): void {
  */
 export function getForceRelay(): boolean {
   return forceRelay
-}
-
-/**
- * Get the current host configuration.
- */
-export function getHost(): string | null {
-  return customHost
 }
 
 /**

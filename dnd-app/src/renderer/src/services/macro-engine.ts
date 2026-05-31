@@ -92,7 +92,7 @@ export function expandRepeatBlocks(command: string): string {
 }
 
 /** Thrown by the conditional parser on malformed `{if}` syntax; surfaced as a chat error. */
-export class MacroSyntaxError extends Error {}
+class MacroSyntaxError extends Error {}
 
 const ABILITY_MAP: Record<string, keyof Character5e['abilityScores']> = {
   str: 'strength',

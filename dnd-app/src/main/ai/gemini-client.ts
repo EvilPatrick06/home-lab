@@ -8,10 +8,6 @@ export function setGeminiApiKey(key: string | undefined): void {
   apiKey = key
 }
 
-export function getGeminiApiKey(): string | undefined {
-  return apiKey
-}
-
 function getClient(): GoogleGenerativeAI {
   if (!apiKey) throw new Error('Gemini API key not configured')
   return new GoogleGenerativeAI(apiKey)

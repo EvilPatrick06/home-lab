@@ -6,7 +6,7 @@ import { atomicWriteFile } from './atomic-write'
 import { decryptOptional, encryptOptional } from './safe-secret-storage'
 import type { StorageResult } from './types'
 
-export const SETTINGS_SCHEMA_VERSION = 1
+const SETTINGS_SCHEMA_VERSION = 1
 
 export const AppSettingsSchema = z
   .object({

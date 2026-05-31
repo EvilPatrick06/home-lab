@@ -38,7 +38,7 @@ export function pushDmAlert(level: DmAlert['level'], message: string, actions?: 
 }
 
 /** Remove a single alert by id (e.g. after the user clicks one of its actions). */
-export function dismissDmAlert(id: string): void {
+function dismissDmAlert(id: string): void {
   alerts = alerts.filter((a) => a.id !== id)
   notify()
 }

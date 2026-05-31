@@ -76,7 +76,7 @@ export function resolveTokenStats(token: MapToken, monster?: MonsterStatBlock): 
  * Returns `undefined` when the token has no `monsterStatBlockId` or the entry isn't loaded
  * (bootstrap incomplete, custom/player token, deleted entry).
  */
-export function lookupTokenStatBlock(id: string | undefined): MonsterStatBlock | undefined {
+function lookupTokenStatBlock(id: string | undefined): MonsterStatBlock | undefined {
   if (!id) return undefined
   const { getEntry } = useLibraryStore.getState()
   for (const category of STAT_BLOCK_CATEGORIES) {

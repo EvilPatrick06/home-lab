@@ -20,7 +20,6 @@ import type {
   DiceTypeDef,
   DiseaseData,
   DmTabDef,
-  EncounterBudgetsFile,
   EncounterPreset,
   EquipmentFile,
   FeatData,
@@ -351,10 +350,6 @@ export async function load5eDiseases(): Promise<DiseaseData[]> {
   return ds().get('diseases', () => loadJson<DiseaseData[]>(resolvePath('diseases')))
 }
 
-export async function load5eEncounterBudgets(): Promise<EncounterBudgetsFile> {
-  return ds().get('encounterBudgets', () => loadJson<EncounterBudgetsFile>(resolvePath('encounterBudgets')))
-}
-
 export async function load5eTreasureTables(): Promise<TreasureTablesFile> {
   return ds().get('treasureTables', () => loadJson<TreasureTablesFile>(resolvePath('treasureTables')))
 }
@@ -645,12 +640,6 @@ export async function load5eDowntime(): Promise<Record<string, unknown>[]> {
 
 export async function load5eTrinkets(): Promise<Record<string, unknown>[]> {
   return ds().get('trinkets', () => loadJson<Record<string, unknown>[]>(resolvePath('trinkets')))
-}
-
-export async function load5eSounds(): Promise<Record<string, unknown>[]> {
-  const events = await load5eSoundEvents()
-  // boundary cast: concrete SoundEntry[] → indexless Record[] for the loosely-typed sounds API
-  return events.soundFileMappings as unknown as Record<string, unknown>[]
 }
 
 export async function load5eSoundEvents(): Promise<SoundEventsFile> {

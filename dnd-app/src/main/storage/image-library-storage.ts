@@ -25,13 +25,6 @@ function isValidImageId(id: string): boolean {
   return typeof id === 'string' && id.length > 0 && id.length <= 128 && IMAGE_ID_RE.test(id)
 }
 
-export interface ImageLibraryEntry {
-  id: string
-  name: string
-  fileName: string
-  savedAt: string
-}
-
 interface ImageLibraryMeta {
   id: string
   name: string

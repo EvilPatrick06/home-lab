@@ -34,24 +34,6 @@ export interface OverlayEffectState {
   duration?: number // ms, undefined = looping
 }
 
-const activeEffects = new Map<string, OverlayEffectState>()
-
-export function startEffect(id: string, type: 'audio' | 'visual', duration?: number): void {
-  activeEffects.set(id, { id, type, playing: true, startedAt: Date.now(), duration })
-}
-
-export function stopEffect(id: string): void {
-  activeEffects.delete(id)
-}
-
-export function getActiveEffects(): OverlayEffectState[] {
-  return Array.from(activeEffects.values())
-}
-
-export function isEffectPlaying(id: string): boolean {
-  return activeEffects.has(id)
-}
-
 /** Refs passed into the overlay effects hook */
 export interface OverlayRefs {
   containerRef: React.RefObject<HTMLDivElement | null>

@@ -1,14 +1,24 @@
-# Knip unused-exports prune — ready-to-apply plan
+# Knip unused-exports prune — APPLIED 2026-05-30
 
-> Classified by the `w5b-curation` workflow (2026-05-30) + verified. dnd-app is an
+> **STATUS: the 87 actionable safe-delete items below were applied** (the 2 stale
+> i18n entries — `SUPPORTED_LOCALES` / `SupportedLocale` — were skipped; the
+> language picker now uses them). Net: 45 files, −1094 lines of dead code. Cascading
+> dead helpers revealed by deleting `resolveAttack` (its private helper tree) and
+> `loadCategoryCounts` were removed too. Gated green: tsc web+node, biome (0
+> warnings), forbidden, circular, 708 files / 6943 vitest. The **229
+> keep-intentional** items (public API / barrels / `@internal` knip-wired
+> re-exports) were deliberately left — they remain as knip "unused exports" (~187
+> findings, non-blocking, `continue-on-error`); a future knip-ignore config could
+> silence them. The 6 "unsure" items were left untouched.
+>
+> Original classification (by the `w5b-curation` workflow, verified): dnd-app is an
 > internal Electron app (no external consumers), so a truly-unimported export is dead.
-> **Non-blocking** — knip runs `continue-on-error` in CI. This is dead-code cleanup, not a
-> correctness fix. Apply in tsc(both)+knip+test+build-gated waves; per item, remove the
-> `export` keyword if the symbol is still used in its own file, else delete the declaration.
+> Per item, the `export` keyword was dropped if the symbol is still used in its own
+> file, else the declaration was deleted.
 
-- **89 safe-delete** (22 types, 67 exports)
-- **229 keep-intentional** (public API / barrels / `@internal` knip-wired re-exports — do NOT delete; consider a knip-ignore)
-- **6 unsure** (review before touching)
+- **89 safe-delete** (22 types, 67 exports) — 87 applied, 2 skipped (stale)
+- **229 keep-intentional** (public API / barrels / `@internal` knip-wired re-exports — left in place)
+- **6 unsure** (left untouched)
 
 ## Safe-delete (by file)
 

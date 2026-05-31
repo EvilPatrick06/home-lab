@@ -80,14 +80,6 @@ export function registerLightAnimation(
 }
 
 /**
- * Remove a light source from the animation system.
- */
-export function unregisterLightAnimation(sourceId: string): void {
-  entries.delete(sourceId)
-  animatedRadii.delete(sourceId)
-}
-
-/**
  * Get the current animated radii for a light source.
  * Returns undefined if the source is not animated.
  */
@@ -105,7 +97,7 @@ export function hasActiveAnimations(): boolean {
 /**
  * Clear all animations and reset state.
  */
-export function clearAllAnimations(): void {
+function clearAllAnimations(): void {
   entries.clear()
   animatedRadii.clear()
   elapsedTime = 0
@@ -117,7 +109,7 @@ export function clearAllAnimations(): void {
  *
  * @param dt Delta time from the ticker (in Ticker units, ~16.67ms per frame at 60fps)
  */
-export function updateLightAnimations(dt: number): void {
+function updateLightAnimations(dt: number): void {
   const deltaSeconds = dt / 60 // PixiJS Ticker deltaTime is in frames at 60fps
 
   elapsedTime += deltaSeconds

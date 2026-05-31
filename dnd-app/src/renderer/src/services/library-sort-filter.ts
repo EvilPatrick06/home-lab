@@ -14,12 +14,6 @@ export interface FilterConfig {
   values: string[]
 }
 
-export interface LibrarySortFilterState {
-  sortField: SortField
-  sortDirection: SortDirection
-  activeFilters: Record<string, string[]>
-}
-
 const RARITY_ORDER: Record<string, number> = {
   common: 1,
   uncommon: 2,
@@ -603,25 +597,4 @@ export function filterItems(items: LibraryItem[], filters: Record<string, string
     }
     return true
   })
-}
-
-/** Compute total item counts per category (cached) */
-const categoryCountsCache = new Map<string, number>()
-let countsLoaded = false
-
-export async function loadCategoryCounts(
-  loader: (cat: LibraryCategory, hb: []) => Promise<LibraryItem[]>,
-  categories: LibraryCategory[]
-): Promise<Record<string, number>> {
-  if (countsLoaded) return Object.fromEntries(categoryCountsCache)
-
-  const results = await Promise.allSettled(categories.map((cat) => loader(cat, [])))
-  for (let i = 0; i < categories.length; i++) {
-    const r = results[i]
-    if (r.status === 'fulfilled') {
-      categoryCountsCache.set(categories[i], r.value.length)
-    }
-  }
-  countsLoaded = true
-  return Object.fromEntries(categoryCountsCache)
 }

@@ -133,65 +133,9 @@ export function createCommandContext(overrides: Partial<CommandContext> = {}): C
 // window.api mock setup
 // ---------------------------------------------------------------------------
 
-/**
- * Stubs `window.api` with sensible defaults for file IO tests.
- * Call this at module scope (not inside a test) so vi.stubGlobal is hoisted
- * before imports.
- *
- * Individual methods can be re-mocked per-test with `vi.mocked(window.api.X).mockResolvedValueOnce(...)`.
- *
- * @example
- * // At the top of a test file, before any imports that use window.api:
- * setupWindowApiMock()
- */
-export function setupWindowApiMock(
-  overrides: Partial<{
-    showOpenDialog: ReturnType<typeof vi.fn>
-    showSaveDialog: ReturnType<typeof vi.fn>
-    readFile: ReturnType<typeof vi.fn>
-    writeFile: ReturnType<typeof vi.fn>
-    saveCharacter: ReturnType<typeof vi.fn>
-    loadCharacters: ReturnType<typeof vi.fn>
-    saveCampaign: ReturnType<typeof vi.fn>
-    loadCampaigns: ReturnType<typeof vi.fn>
-  }> = {}
-): void {
-  vi.stubGlobal('window', {
-    api: {
-      showOpenDialog: vi.fn(() => Promise.resolve('/fake/path/character.json')),
-      showSaveDialog: vi.fn(() => Promise.resolve('/fake/path/output.json')),
-      readFile: vi.fn(() => Promise.resolve('{}')),
-      writeFile: vi.fn(() => Promise.resolve({ success: true })),
-      saveCharacter: vi.fn(() => Promise.resolve({ success: true })),
-      loadCharacters: vi.fn(() => Promise.resolve({ success: true, data: [] })),
-      saveCampaign: vi.fn(() => Promise.resolve({ success: true })),
-      loadCampaigns: vi.fn(() => Promise.resolve({ success: true, data: [] })),
-      ...overrides
-    }
-  })
-}
-
 // ---------------------------------------------------------------------------
 // Logger mock factory
 // ---------------------------------------------------------------------------
-
-/**
- * Returns a vi.mock factory for the renderer logger utility.
- * Use inside `vi.mock('../../utils/logger', mockLogger)`.
- *
- * @example
- * vi.mock('../../utils/logger', createLoggerMock())
- */
-export function createLoggerMock() {
-  return () => ({
-    logger: {
-      error: vi.fn(),
-      warn: vi.fn(),
-      info: vi.fn(),
-      debug: vi.fn()
-    }
-  })
-}
 
 // ---------------------------------------------------------------------------
 // Command shape assertion helpers

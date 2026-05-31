@@ -7,61 +7,11 @@ import type { AbilityAbbreviation } from './shared-enums'
 
 // === traps.json ===
 
-export interface TrapData {
-  id: string
-  // boundary-allow: type definition for library shape (canonical declaration site, not data embedding)
-  name: string
-  level: 'low' | 'mid' | 'high'
-  trigger: string
-  duration: string
-  detection: string
-  disarm: string
-  effect: string
-  damage: string
-  saveDC: number
-  saveAbility: AbilityAbbreviation
-  description: string
-}
-
 // === hazards.json ===
-
-export interface HazardData {
-  id: string
-  name: string
-  level: 'low' | 'mid' | 'high'
-  type: 'biological' | 'environmental' | 'magical'
-  effect: string
-  damage: string
-  saveDC: number
-  saveAbility: AbilityAbbreviation
-  avoidance: string
-  description: string
-}
 
 // === poisons.json ===
 
-export interface PoisonData {
-  id: string
-  name: string
-  type: 'ingested' | 'inhaled' | 'contact' | 'injury'
-  rarity: string
-  cost: string
-  saveDC: number
-  effect: string
-  duration: string
-  description: string
-}
-
 // === curses.json ===
-
-export interface CurseData {
-  id: string
-  name: string
-  type: 'personal' | 'item' | 'location'
-  effect: string
-  removal: string
-  description: string
-}
 
 // === diseases.json ===
 
@@ -82,27 +32,7 @@ export interface DiseaseData {
 
 // === environmental-effects.json ===
 
-export interface EnvironmentalEffectData {
-  id: string
-  name: string
-  category: 'weather' | 'terrain' | 'magical'
-  effect: string
-  mechanicalEffect: string
-  saveDC?: number
-  saveAbility?: AbilityAbbreviation
-  description: string
-}
-
 // === supernatural-gifts.json ===
-
-export interface SupernaturalGiftData {
-  id: string
-  name: string
-  type: 'blessing' | 'charm' | 'boon'
-  effect: string
-  description: string
-  duration?: string
-}
 
 // === downtime.json ===
 

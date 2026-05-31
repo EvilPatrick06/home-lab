@@ -23,10 +23,10 @@
 import { decode as msgpackDecode, encode as msgpackEncode } from '@msgpack/msgpack'
 import type { NetworkMessage } from './types'
 
-export const WIRE_TAG_MSGPACK = 0x01
-export const WIRE_TAG_MSGPACK_GZIP = 0x02
+const WIRE_TAG_MSGPACK = 0x01
+const WIRE_TAG_MSGPACK_GZIP = 0x02
 
-export const GZIP_THRESHOLD_BYTES = 4_096
+const GZIP_THRESHOLD_BYTES = 4_096
 
 export interface EncodeOptions {
   /**
@@ -98,18 +98,6 @@ export async function encodeMessage(msg: NetworkMessage, options: EncodeOptions 
     }
   }
   return concatTag(WIRE_TAG_MSGPACK, body)
-}
-
-/**
- * Synchronous variant. Skips gzip — used by hot paths where the
- * caller has already decided the payload is too small to benefit
- * from compression (or by code paths that can't await).
- */
-export function encodeMessageSync(msg: NetworkMessage, options: EncodeOptions = {}): string | Uint8Array {
-  if (!options.msgpack) {
-    return JSON.stringify(msg)
-  }
-  return concatTag(WIRE_TAG_MSGPACK, msgpackEncode(msg) as Uint8Array)
 }
 
 function toUint8Array(input: unknown): Uint8Array | null {

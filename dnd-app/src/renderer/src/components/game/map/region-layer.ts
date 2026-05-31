@@ -130,7 +130,3 @@ function getShapeBounds(shape: RegionShape, cellSize: number): { x: number; y: n
     }
   }
 }
-
-export function clearRegionLayer(gfx: Graphics): void {
-  gfx.clear()
-}
