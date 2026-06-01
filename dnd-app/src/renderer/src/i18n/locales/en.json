@@ -6130,6 +6130,7 @@
       "languageDescription": "Choose the interface language. (Pseudo is an accented-English testing locale.)",
       "multiplayer": "Multiplayer",
       "signalingTitle": "WebRTC signaling server",
+      "configureTurn": "Relay / TURN servers…",
       "signalingReachable": "Reachable at {{host}}:9000 — players can connect over peer-to-peer.",
       "signalingUnreachable": "Unreachable at {{host}}:9000 — peer-to-peer games may fail to connect. Check that the Pi's bmo-peerjs container is running.",
       "signalingNotApplicable": "Only checked on a direct LAN connection. Off-LAN, games run through the Pi cloud relay — no peer-to-peer signaling server is needed.",

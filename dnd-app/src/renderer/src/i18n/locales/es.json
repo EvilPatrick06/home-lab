@@ -6130,6 +6130,7 @@
       "languageDescription": "Elige el idioma de la interfaz. (Pseudo es una configuración regional de prueba en inglés con acentos.)",
       "multiplayer": "Multijugador",
       "signalingTitle": "Servidor de señalización WebRTC",
+      "configureTurn": "Servidores de relé / TURN…",
       "signalingReachable": "Accesible en {{host}}:9000 — los jugadores pueden conectarse mediante punto a punto.",
       "signalingUnreachable": "No accesible en {{host}}:9000 — las partidas punto a punto pueden no conectarse. Comprueba que el contenedor bmo-peerjs de la Pi esté en ejecución.",
       "signalingNotApplicable": "Solo se comprueba en una conexión LAN directa. Fuera de la LAN, las partidas usan el relé en la nube de la Pi: no se necesita servidor de señalización entre pares.",
