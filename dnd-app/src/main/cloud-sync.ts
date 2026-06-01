@@ -13,6 +13,11 @@ import { getBmoAccessHeaders, getBmoBaseUrl } from './bmo-config'
 import { logToFile } from './log'
 
 const TIMEOUT_MS = 60_000 // 60 second timeout for sync operations
+// A reachability/status probe must fail FAST. Without a short ceiling, the
+// "Check Status" button against an unreachable Pi (stale LAN IP, down tunnel)
+// hung for the full OS TCP timeout — tens of seconds of a spinning button that
+// read as a freeze. 8s covers tunnel + Cloudflare Access latency comfortably.
+const STATUS_TIMEOUT_MS = 8_000
 
 export interface CloudSyncResult {
   success: boolean
@@ -88,9 +93,12 @@ async function executeRcloneCommand(
  * Check if the Rclone remote is reachable and configured
  */
 export async function checkRemoteStatus(): Promise<RcloneStatus> {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), STATUS_TIMEOUT_MS)
   try {
     const res = await fetch(`${getBmoBaseUrl()}/api/rclone/status`, {
       method: 'GET',
+      signal: controller.signal,
       headers: { 'Content-Type': 'application/json', ...getBmoAccessHeaders() }
     })
 
@@ -110,12 +118,20 @@ export async function checkRemoteStatus(): Promise<RcloneStatus> {
       error: data.error
     }
   } catch (err) {
-    logToFile('ERROR', 'Failed to check rclone remote status:', String(err))
+    const reason =
+      err instanceof Error && err.name === 'AbortError'
+        ? `Pi did not respond within ${STATUS_TIMEOUT_MS / 1000}s`
+        : err instanceof Error
+          ? err.message
+          : String(err)
+    logToFile('ERROR', 'Failed to check rclone remote status:', reason)
     return {
       configured: false,
       remotes: [],
-      error: err instanceof Error ? err.message : String(err)
+      error: reason
     }
+  } finally {
+    clearTimeout(timer)
   }
 }
 

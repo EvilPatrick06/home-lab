@@ -58,7 +58,12 @@ function defaultSocketFactory(url: string, auth: Record<string, unknown>): Relay
   return io(`${url}/game`, {
     auth,
     transports: ['websocket'],
-    forceNew: true
+    forceNew: true,
+    // Bound the initial connect so an unreachable relay (down tunnel, stale
+    // LAN IP) raises `connect_error` in 8s instead of socket.io's 20s default —
+    // the cloud-host path can then surface the failure / offer the P2P fallback.
+    // Reconnection stays on (default) so a mid-session drop still recovers.
+    timeout: 8_000
   }) as unknown as RelaySocket
 }
 

@@ -22,6 +22,24 @@ const DEFAULT_BASE_URL = 'https://bmo.mybmoai.work'
 const HEARTBEAT_INTERVAL_MS = 30_000
 const BACKOFF_LADDER_MS = [1_000, 2_000, 4_000, 8_000, 16_000, 30_000]
 
+// Time-box every registry fetch. Without this, a request to an unreachable Pi
+// (a stale/adopted LAN IP, a down tunnel, client/AP isolation) hangs for the
+// full OS TCP timeout — tens of seconds on Windows. That made host-start stall
+// on the announce, the public-game browse freeze, and "Check Status" appear
+// hung. A short ceiling fails fast so the caller can fall back (host proceeds
+// without the public listing; the browse shows "no Pi" instead of spinning).
+const REGISTRY_TIMEOUT_MS = 5_000
+
+async function fetchWithTimeout(input: string, init: RequestInit = {}): Promise<Response> {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), REGISTRY_TIMEOUT_MS)
+  try {
+    return await fetch(input, { ...init, signal: controller.signal })
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 // Phase 29g+ auto-discovery: the main process publishes the BMO Pi
 // base URL it discovered via _bmo._tcp mDNS browse. We cache it here
 // so renderer fetches use the resolved IP without needing the OS to
@@ -121,7 +139,7 @@ export async function announceGame(
 ): Promise<{ ok: boolean; error?: string }> {
   const base = await getBaseUrl(config.baseUrl)
   try {
-    const resp = await fetch(`${base}/api/games`, {
+    const resp = await fetchWithTimeout(`${base}/api/games`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -143,7 +161,7 @@ export async function updateGame(
 ): Promise<{ ok: boolean; error?: string }> {
   const base = await getBaseUrl(config.baseUrl)
   try {
-    const resp = await fetch(`${base}/api/games/${encodeURIComponent(inviteCode)}`, {
+    const resp = await fetchWithTimeout(`${base}/api/games/${encodeURIComponent(inviteCode)}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(patch)
@@ -160,7 +178,7 @@ export async function updateGame(
 async function heartbeatGame(inviteCode: string, config: RegistryClientConfig = {}): Promise<{ ok: boolean }> {
   const base = await getBaseUrl(config.baseUrl)
   try {
-    const resp = await fetch(`${base}/api/games/${encodeURIComponent(inviteCode)}/heartbeat`, {
+    const resp = await fetchWithTimeout(`${base}/api/games/${encodeURIComponent(inviteCode)}/heartbeat`, {
       method: 'POST'
     })
     return { ok: resp.ok }
@@ -172,7 +190,7 @@ async function heartbeatGame(inviteCode: string, config: RegistryClientConfig = 
 export async function deregisterGame(inviteCode: string, config: RegistryClientConfig = {}): Promise<{ ok: boolean }> {
   const base = await getBaseUrl(config.baseUrl)
   try {
-    const resp = await fetch(`${base}/api/games/${encodeURIComponent(inviteCode)}`, {
+    const resp = await fetchWithTimeout(`${base}/api/games/${encodeURIComponent(inviteCode)}`, {
       method: 'DELETE'
     })
     return { ok: resp.ok }
@@ -187,7 +205,7 @@ export async function listGames(
 ): Promise<RegistryGameEntry[]> {
   const base = await getBaseUrl(config.baseUrl)
   const params = clientId ? `?client_id=${encodeURIComponent(clientId)}` : ''
-  const resp = await fetch(`${base}/api/games${params}`)
+  const resp = await fetchWithTimeout(`${base}/api/games${params}`)
   if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
   const data = (await resp.json()) as { games?: Array<Omit<RegistryGameEntry, 'source'>> }
   return (data.games ?? []).map(withSourceTag)
