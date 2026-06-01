@@ -35,6 +35,5 @@ What still needs doing. NOT here: completed work (see commits + GitHub releases)
 
 ## Bigger / undecided
 
-- **Additional UI languages** (product call) — `en` + `es` + the `en-XA` pseudo exist; more languages is a product decision.
 - **Large public-dir asset offload.** BMO needs `GET /api/sounds/manifest` + `/api/sounds/file` (the client seam + `docs/ASSET-OFFLOAD.md` are ready) before any clip loads from the Pi; a ship-thin / download-on-demand installer is still undecided.
 - **Electron EOL** — bump before E42's ~2026-10-20 EOL when `check:electron-eol` warns.
