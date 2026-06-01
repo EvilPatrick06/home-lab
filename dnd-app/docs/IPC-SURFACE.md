@@ -27,7 +27,7 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 
 ## Defined channels
 
-*Total: **157** channel strings (from `IPC_CHANNELS`).*
+*Total: **158** channel strings (from `IPC_CHANNELS`).*
 
 ### Storage: Characters
 
@@ -380,6 +380,7 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 | `CLOUD_SYNC_BACKUP` | `cloud:sync-backup` |
 | `CLOUD_SYNC_CHECK_STATUS` | `cloud:sync-check-campaign` |
 | `CLOUD_SYNC_LIST_CAMPAIGNS` | `cloud:sync-list-campaigns` |
+| `CLOUD_SYNC_RESTORE` | `cloud:sync-restore` |
 
 ### LAN Discovery (Phase 29g — mDNS / Bonjour)
 
