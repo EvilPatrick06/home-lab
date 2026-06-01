@@ -1,6 +1,7 @@
 import { i18n, type SupportedLocale } from './config'
 import en from './locales/en.json'
 import enXA from './locales/en-XA.json'
+import es from './locales/es.json'
 
 /**
  * Phase 34a — initialize i18next once. Idempotent; resolves after English loads.
@@ -18,7 +19,7 @@ export async function initI18n(): Promise<void> {
     // `en-XA` is the bundled accented-English pseudo-locale (opt-in via the
     // picker). Default `lng` stays 'en' so first paint + the test suite are
     // deterministic; App switches post-settings-load if a locale is persisted.
-    resources: { en: { translation: en }, 'en-XA': { translation: enXA } },
+    resources: { en: { translation: en }, es: { translation: es }, 'en-XA': { translation: enXA } },
     lng: 'en',
     fallbackLng: 'en',
     defaultNS: 'translation',

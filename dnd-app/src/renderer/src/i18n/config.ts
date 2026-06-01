@@ -9,12 +9,13 @@ import { initReactI18next } from 'react-i18next'
  * translation) — a testing aid that proves the picker + the key-parity gate
  * work end-to-end. Default stays `en`; en-XA is strictly opt-in via the picker.
  */
-export const SUPPORTED_LOCALES = ['en', 'en-XA'] as const
+export const SUPPORTED_LOCALES = ['en', 'es', 'en-XA'] as const
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number]
 
 /** Human-readable label per locale, for the language picker. */
 export const LOCALE_LABELS: Record<SupportedLocale, string> = {
   en: 'English',
+  es: 'Español',
   'en-XA': 'Pseudo (test)'
 }
 
