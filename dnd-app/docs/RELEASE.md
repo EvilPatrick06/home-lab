@@ -12,9 +12,23 @@ git stash pop
 ```
 
 `cut.mjs` bumps `package.json`, commits, tags, pushes, and pre-creates the GitHub
-Release with notes. The tag push triggers `.github/workflows/release.yml`.
+Release with notes **as a draft**. The tag push triggers
+`.github/workflows/release.yml`.
 
-## Expected assets (CI-verified at the publish step)
+## Draft-until-verified (do not regress)
+
+The release is created as a **draft** and is published (`gh release edit
+--draft=false --latest`, the workflow's "Publish release" step) **only after**
+the build matrix uploads all assets AND the verify-assets step confirms the 6
+expected files are present. Why: electron-updater ignores draft releases, so the
+**previous fully-built release stays "latest"** during the ~8–10 min build
+window. Before this, a pre-created-but-not-yet-built release became "latest" with
+no `latest.yml`, so the updater reported "up to date" and refused to fall back to
+the last good release — and a *failed* build left an asset-less "latest" that
+broke auto-update until the next success. With the draft flow, a failed build
+just leaves an unpublished draft and users stay on the last good version.
+
+## Expected assets (verified before the release is published)
 
 1. `dnd-vtt-${ver}-setup.exe`
 2. `dnd-vtt-${ver}-setup.exe.blockmap`
@@ -41,6 +55,15 @@ rather than `*.yml`).
   to `maximum` without re-measuring the N→N+1 delta.
 
 ## Update channels
+
+### Auto-check default
+
+Auto-**check**-on-launch defaults **ON** (`updater.ts loadAutoUpdatePrefs`: unset
+→ on; only an explicit `autoCheckUpdates: false` disables it). It only checks +
+shows a dismissible prompt — auto-**download** and auto-install stay opt-in
+(`autoDownloadUpdates`/`autoInstallSilent` default false), so nothing is fetched
+or installed without a click. Manual "Check for Updates" lives in Settings →
+Updates and on the About page.
 
 ### Windows
 electron-updater (`autoUpdater`) reads `latest.yml` + the `.blockmap` and performs

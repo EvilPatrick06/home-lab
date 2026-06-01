@@ -122,7 +122,7 @@ EOF
 # Stash any uncommitted edits (cut.mjs requires clean tree)
 git stash push -u -m "wip-during-release"
 
-# Bump + commit + tag + push + pre-create release with notes
+# Bump + commit + tag + push + pre-create release as a DRAFT with notes
 node dnd-app/scripts/release/cut.mjs X.Y.Z --notes-file /tmp/vX.Y.Z-notes.md
 #   or: cd dnd-app && npm run release:cut X.Y.Z --notes-file ...
 
@@ -132,10 +132,13 @@ git stash pop
 
 The Release workflow (`.github/workflows/release.yml`) runs on tag push:
 1. **preflight** — verifies `package.json` version matches the tag, runs `npm run lint`, `tsc --noEmit` (both web + node configs), `npm test`. Fails the whole release if anything is off.
-2. **build** matrix — Windows + Linux electron-builder uploads to the pre-existing release.
+2. **build** matrix — Windows + Linux electron-builder uploads to the pre-created (draft) release.
 3. **verify-assets** — fetches the release's assets, fails if any of the 6 expected files is missing (`dnd-vtt-${ver}-setup.exe`, `.blockmap`, `dnd-vtt-${ver}-x86_64.AppImage`, `latest.yml`, `latest-linux.yml`, `install-linux.sh`).
+4. **publish** — `gh release edit --draft=false --latest`, run ONLY after verify-assets passes. The release is a **draft** until here (cut.mjs creates it with `--draft`), so electron-updater — which ignores drafts — keeps the prior fully-built release as "latest" during the build window. This prevents an asset-less in-progress (or failed) release from becoming "latest" and breaking auto-update; a failed build just leaves an unpublished draft. **Wait for the build (~8-10 min) before "Check for Updates"** — but a draft won't show as an update, so the old "checked too early → up to date forever" trap is gone.
 
-Local pre-tag sanity check: `cd dnd-app && npm run check:release` (same gates as the CI preflight).
+Auto-**check**-for-updates on launch defaults **ON** (`updater.ts`; check-only, never auto-downloads). Manual check: Settings → Updates / About page.
+
+Local pre-tag sanity check: `cd dnd-app && npm run check:release` (same gates as the CI preflight). Headless boot smoke-test: `node dnd-app/scripts/smoke/headless-boot.mjs` (Linux+xvfb; verifies the built app launches without crashing).
 
 Release titles are the bare version (`2.1.3`, no `v`); detailed notes go in `--notes-file`.
 

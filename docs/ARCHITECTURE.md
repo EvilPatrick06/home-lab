@@ -86,6 +86,15 @@ settings.bmoPiBaseUrl  >  discoveredBmoUrl (via _bmo._tcp mDNS)  >  $BMO_PI_URL 
 
 The final fallback is `BMO_PI_URL_DEFAULT` in `bmo-config.ts`, currently `https://bmo.mybmoai.work` (the Cloudflare tunnel) — **not** `http://bmo.local:5000`. `bmo.local:5000` is only the mDNS *direct-probe target*: Pi advertises `_bmo._tcp` on port 5000 via `/etc/avahi/services/bmo.service`; the VTT main process (`src/main/lan-discovery.ts`) browses it via `bonjour-service` and, 3 s after a no-hit browse, fires a direct HTTP probe at `bmo.local:5000/health` (helps Windows machines where the firewall blocks UDP 5353). A successful discovery/probe sets `discoveredBmoUrl`; otherwise requests go to the tunnel default.
 
+Discovery resolves to a literal **IPv4** (from the mDNS `addresses`, else the responder's `referer.address`), NOT the `bmo.local` hostname — Windows can't resolve `.local` without Bonjour, which previously made Cloud Backup + the signaling probe report "could not reach the Pi" on LAN even though the Pi was up. Boot discovery runs at app start (not just on a game scan), and is what feeds `discoveredBmoUrl`.
+
+**Off-LAN access (zero per-user setup).** On-LAN uses the discovered IP directly. Off-LAN goes through the `bmo.mybmoai.work` Cloudflare Tunnel, which is gated by a Cloudflare Access app:
+- `/api/library/*` (read-only 5e content; renderer fetches it directly, BMO returns `Access-Control-Allow-Origin: *`) → a **public Access Bypass** policy.
+- `/api/games*` (multiplayer registry/relay; P2P signaling `:9000` is NOT tunnel-proxied, so off-LAN multiplayer uses the relay) → already public-bypassed.
+- `/api/rclone/*` (cloud backup, sensitive) → reached with a Cloudflare Access **service token** baked into the MAIN bundle at build (`electron.vite.config` `main.define` ← `CF_ACCESS_CLIENT_ID`/`CF_ACCESS_CLIENT_SECRET` GitHub Actions secrets), sent only from main-process fetches (`getBmoAccessHeaders()` in cloud-sync + bmo-bridge) — **never** the renderer. Empty token in unconfigured builds → no headers (on-LAN unaffected).
+
+The renderer's `connect-src` allows the `http:`/`ws:` scheme-sources so renderer LAN fetches (`/api/games` to the discovered IP) aren't CSP-blocked — the CSP is baked pre-discovery and can't wildcard arbitrary LAN IPs. Renderer runs only first-party bundled code (script-src locked, sandbox + contextIsolation), so this is a bounded relaxation.
+
 ### 2. BMO → VTT (callback plane)
 
 **Transport:** HTTP JSON back to VTT's sync receiver (VTT hosts an HTTP server in the Electron main process).

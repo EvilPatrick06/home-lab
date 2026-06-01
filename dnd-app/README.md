@@ -96,7 +96,7 @@ No pre-built download yet. The `mac` build config exists (`npm run build:mac` �
 - **BMO integration** (optional) — if you've also set up the [`bmo`](../bmo) Pi voice assistant, it's auto-discovered on the same LAN. Settings → BMO Connection lets you override the URL. The Pi unlocks Discord-bot relay, narration TTS, and a public game-discovery registry.
 
 **Settings:**
-- **Updates** — opt in to auto-check on launch / auto-download / silent install.
+- **Updates** — auto-check on launch is **on by default** (check-only, shows a prompt — never auto-downloads). Opt in separately to auto-download / auto-restart / silent install. Manual "Check for Updates" here + on the About page.
 - **Audio** — mic/speaker pick + volume.
 - **Network** — invite code length, ICE/TURN behavior, BMO override URL.
 - **Accessibility** — reduced motion (skips 3D dice physics), high-contrast theme.
@@ -133,9 +133,9 @@ npm run build:cross            # Win + Linux (requires wine on Linux for cross-c
 node scripts/release/cut.mjs X.Y.Z --notes-file=/tmp/vX.Y.Z-notes.md
 ```
 
-`cut.mjs` keeps `package.json` and the git tag in lockstep — versions drifted out of sync would silently ship 0–3 of the 6 expected assets (this bit us before v2.1.3). The release workflow's `verify-assets` job hard-fails if anything is missing.
+`cut.mjs` keeps `package.json` and the git tag in lockstep — versions drifted out of sync would silently ship 0–3 of the 6 expected assets (this bit us before v2.1.3). The release is created as a **draft** and only published after `verify-assets` confirms all 6 are present, so electron-updater (which ignores drafts) keeps the last good release as "latest" during the build — an in-progress or failed build can't become an asset-less "latest" that breaks auto-update.
 
-**Auto-update** — `electron-updater` handles diff updates on Windows (NSIS) and Linux (AppImage). Users can opt into auto-check on launch / auto-download / auto-restart / silent install via Settings → Updates.
+**Auto-update** — `electron-updater` handles diff updates on Windows (NSIS) and Linux (AppImage). Auto-**check** on launch is on by default (check-only, prompts); auto-download / auto-restart / silent install stay opt-in via Settings → Updates.
 
 **Code signing (Windows)** — builds ship **unsigned**; an unsigned installer triggers a SmartScreen "unknown publisher" prompt but installs fine. The previous custom `win.sign` hook (`scripts/sign.mjs`) and the `signAndEditExecutable: false` setting were **removed** as of v2.2.2 — they were incompatible with electron-builder 26 (`build.win.sign` was moved under `signtoolOptions` in v25) and `signAndEditExecutable: false` stripped the app icon + exe metadata. Leaving `signAndEditExecutable` at its default (`true`) preserves the icon/metadata. To add signing later, use electron-builder's native `win.signtoolOptions` with `CSC_LINK`/`CSC_KEY_PASSWORD`.
 
@@ -247,7 +247,7 @@ dnd-app/
 
 | Direction | Surface | Used for |
 |---|---|---|
-| VTT → BMO | HTTP client at `src/main/bmo-bridge.ts`. Base URL = settings.bmoPiBaseUrl > discovered URL > `BMO_PI_URL` env > `http://bmo.local:5000`. 15 s timeout. | Narration sync, combat-state push, Discord DM session control, AI memory sync |
+| VTT → BMO | HTTP client at `src/main/bmo-bridge.ts`. Base URL = settings.bmoPiBaseUrl > mDNS-discovered Pi IP > `BMO_PI_URL` env > `https://bmo.mybmoai.work` (Cloudflare tunnel default — off-LAN reach). 15 s timeout. Off-LAN cloud endpoints carry a baked Cloudflare Access service token (main-process only). | Narration sync, combat-state push, Discord DM session control, AI memory sync |
 | BMO → VTT | Sync receiver HTTP server in main on `BMO_SYNC_PORT \|\| 5001` | Discord message events, initiative updates, player join/leave, dice rolls |
 | VTT → Pi registry | REST + SSE to `:5000/api/games*` (renderer-side `network/registry-client.ts`) | Public game-list discovery |
 
