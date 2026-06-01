@@ -20,7 +20,6 @@ What still needs doing. NOT here: completed work (see commits + GitHub releases)
 
 ## a11y
 
-- **Color-only state indicators** (`MainMenuPage`, `HigherLevelEquipment5e`, `RuleManager`, `TurnEventsTab`, `MacroBar`) — pair color with text/icon/aria.
 - **Number-input `aria-label`s** — the a11y sweep mirrored sample-value placeholders, so some number inputs read `aria-label="30"`/`"0"`; give those explicit descriptive labels.
 
 ## Multiplayer
@@ -34,5 +33,4 @@ What still needs doing. NOT here: completed work (see commits + GitHub releases)
 
 ## Bigger / undecided
 
-- **Large public-dir asset offload.** BMO needs `GET /api/sounds/manifest` + `/api/sounds/file` (the client seam + `docs/ASSET-OFFLOAD.md` are ready) before any clip loads from the Pi; a ship-thin / download-on-demand installer is still undecided.
-- **Electron EOL** — bump before E42's ~2026-10-20 EOL when `check:electron-eol` warns.
+- **Ship-thin installer (decision).** The Pi `/api/sounds` endpoint + client seam are live, so the app *can* load sounds from the Pi. Actually dropping the ~130 bundled MP3s from the installer is the open call — it shrinks the download but means no sounds offline-with-no-Pi unless a download-on-first-run cache is added first.
