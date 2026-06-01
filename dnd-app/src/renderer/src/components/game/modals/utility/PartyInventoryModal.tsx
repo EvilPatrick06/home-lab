@@ -262,7 +262,7 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
                     {t(`game.partyInventoryModal.currencyLabels.${key}`)}
                   </span>
                   <input
-                    aria-label="0"
+                    aria-label={t(`game.partyInventoryModal.currencyLabels.${key}`)}
                     type="number"
                     min="0"
                     placeholder="0"

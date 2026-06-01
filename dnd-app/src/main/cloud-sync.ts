@@ -35,6 +35,9 @@ const STATUS_TIMEOUT_MS = 8_000
 const TRANSFER_TIMEOUT_MS = 180_000
 // A short ceiling for the campaign-list query (drives the restore picker).
 const LIST_TIMEOUT_MS = 15_000
+// The BMO `/backup` route caps the upload at 512 MiB (BMO_MAX_BACKUP_SIZE). Catch
+// it client-side with a clear message instead of a raw 413 after a long upload.
+const MAX_BACKUP_BYTES = 512 * 1024 * 1024
 
 export interface CloudSyncResult {
   success: boolean
@@ -132,6 +135,13 @@ export async function syncCampaignToDrive(campaignId: string, campaignName: stri
     const archivePath = join(tmpDir, 'campaign.tar.gz')
     await tarCreate({ gzip: true, file: archivePath, cwd: userData }, present)
     const { size } = await stat(archivePath)
+    if (size > MAX_BACKUP_BYTES) {
+      const mb = (n: number): number => Math.round(n / (1024 * 1024))
+      return {
+        success: false,
+        error: `This campaign's backup is ${mb(size)} MB — larger than the ${mb(MAX_BACKUP_BYTES)} MB cloud-backup limit. Trim large map/audio assets, or back it up locally (Export).`
+      }
+    }
 
     const controller = new AbortController()
     const timer = setTimeout(() => controller.abort(), TRANSFER_TIMEOUT_MS)

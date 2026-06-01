@@ -798,9 +798,15 @@ function CloudBackupSection(): JSX.Element {
     try {
       const result = await window.api.cloudSync.listRemoteCampaigns()
       if (result.success && result.campaigns) {
+        // The remote list keys on campaign id (no name stored on the Pi). Show
+        // the friendly local name where we have that campaign locally; fall back
+        // to the id for backups of campaigns not on this machine.
+        const local = ((await window.api.loadCampaigns()) ?? []) as Array<{ id: string; name: string }>
+        const nameById = new Map(local.map((c) => [c.id, c.name]))
+        const named = (result.campaigns ?? []).map((c) => ({ ...c, name: nameById.get(c.id) ?? c.id }))
         setSyncState((prev) => ({
           ...prev,
-          campaigns: result.campaigns ?? []
+          campaigns: named
         }))
         setMessage({
           text:

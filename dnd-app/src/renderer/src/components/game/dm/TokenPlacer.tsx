@@ -364,7 +364,7 @@ export default function TokenPlacer({
         <div className="flex-1">
           <label className="block text-xs text-gray-500 mb-1">{t('game.tokenPlacer.walkSpeed')}</label>
           <input
-            aria-label="30"
+            aria-label={t('game.tokenPlacer.walkSpeed')}
             type="number"
             placeholder="30"
             value={walkSpeed}
