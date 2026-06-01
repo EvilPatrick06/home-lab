@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useT } from '../../../i18n'
+import type { TranslationKeys } from '../../../i18n/types'
 import { getEffectiveWeapons } from '../../../services/character/effective-character-5e'
 import { useMacroStore } from '../../../stores/use-macro-store'
 import type { Character } from '../../../types/character'
@@ -17,6 +18,10 @@ interface MacroButton {
   formula: string
   category: 'weapon' | 'skill' | 'save' | 'custom'
   color: string
+  // Non-color descriptor for the colored button (weapon attack / damage / proficient
+  // skill / untrained skill). Color alone conveys this distinction otherwise — pair it
+  // with text for the aria-label + title so it is not color-only.
+  kind: 'weapon-attack' | 'weapon-damage' | 'skill-proficient' | 'skill-untrained'
 }
 
 const SKILL_ABILITIES: Record<string, string> = {
@@ -61,7 +66,8 @@ export default function MacroBar({ character, onRoll }: MacroBarProps): JSX.Elem
         label: `${weapon.name}: ${formatMod(atkMod)}`,
         formula: `1d20${atkMod >= 0 ? '+' : ''}${atkMod}`,
         category: 'weapon',
-        color: 'bg-red-900/40 border-red-700/50 text-red-300 hover:bg-red-800/60'
+        color: 'bg-red-900/40 border-red-700/50 text-red-300 hover:bg-red-800/60',
+        kind: 'weapon-attack'
       })
 
       if (weapon.damage) {
@@ -70,7 +76,8 @@ export default function MacroBar({ character, onRoll }: MacroBarProps): JSX.Elem
           label: `${weapon.name} dmg`,
           formula: weapon.damage,
           category: 'weapon',
-          color: 'bg-orange-900/40 border-orange-700/50 text-orange-300 hover:bg-orange-800/60'
+          color: 'bg-orange-900/40 border-orange-700/50 text-orange-300 hover:bg-orange-800/60',
+          kind: 'weapon-damage'
         })
       }
     }
@@ -93,7 +100,8 @@ export default function MacroBar({ character, onRoll }: MacroBarProps): JSX.Elem
         category: 'skill',
         color: skill.proficient
           ? 'bg-blue-900/40 border-blue-700/50 text-blue-300 hover:bg-blue-800/60'
-          : 'bg-gray-800/60 border-gray-700/50 text-gray-400 hover:bg-gray-700/60'
+          : 'bg-gray-800/60 border-gray-700/50 text-gray-400 hover:bg-gray-700/60',
+        kind: skill.proficient ? 'skill-proficient' : 'skill-untrained'
       })
     }
 
@@ -123,24 +131,39 @@ export default function MacroBar({ character, onRoll }: MacroBarProps): JSX.Elem
     })
   }
 
-  const renderMacroButton = (macro: MacroButton): JSX.Element => (
-    <div key={macro.id} className="relative group shrink-0">
-      <button
-        onClick={() => onRoll(macro.formula, macro.label)}
-        className={`px-2 py-1 text-xs font-medium rounded border transition-colors cursor-pointer ${macro.color}`}
-        title={t('game.macroBar.rollFormula', { formula: macro.formula })}
-      >
-        {macro.label}
-      </button>
-      <button
-        onClick={() => handlePinToHotbar(macro)}
-        className="absolute -top-1.5 -right-1.5 w-4 h-4 text-[8px] rounded-full bg-gray-900 border border-gray-600 text-gray-400 hover:text-amber-400 hover:border-amber-500 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
-        title={t('game.macroBar.pinToHotbar')}
-      >
-        +
-      </button>
-    </div>
-  )
+  // The button background/border color is the only signal distinguishing a weapon
+  // attack from its damage roll, and a proficient skill from an untrained one. Pair
+  // that color with a non-color label (aria-label + title) so the meaning survives
+  // for color-blind users and screen readers.
+  const KIND_LABEL_KEYS: Record<MacroButton['kind'], TranslationKeys> = {
+    'weapon-attack': 'game.macroBar.kindWeaponAttack',
+    'weapon-damage': 'game.macroBar.kindWeaponDamage',
+    'skill-proficient': 'game.macroBar.kindSkillProficient',
+    'skill-untrained': 'game.macroBar.kindSkillUntrained'
+  }
+
+  const renderMacroButton = (macro: MacroButton): JSX.Element => {
+    const kindLabel = t(KIND_LABEL_KEYS[macro.kind])
+    return (
+      <div key={macro.id} className="relative group shrink-0">
+        <button
+          onClick={() => onRoll(macro.formula, macro.label)}
+          className={`px-2 py-1 text-xs font-medium rounded border transition-colors cursor-pointer ${macro.color}`}
+          aria-label={t('game.macroBar.macroAriaLabel', { label: macro.label, kind: kindLabel })}
+          title={`${kindLabel} — ${t('game.macroBar.rollFormula', { formula: macro.formula })}`}
+        >
+          {macro.label}
+        </button>
+        <button
+          onClick={() => handlePinToHotbar(macro)}
+          className="absolute -top-1.5 -right-1.5 w-4 h-4 text-[8px] rounded-full bg-gray-900 border border-gray-600 text-gray-400 hover:text-amber-400 hover:border-amber-500 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+          title={t('game.macroBar.pinToHotbar')}
+        >
+          +
+        </button>
+      </div>
+    )
+  }
 
   return (
     <div className="flex items-center gap-1.5 px-2 py-1 overflow-x-auto">

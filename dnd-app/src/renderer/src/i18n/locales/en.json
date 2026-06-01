@@ -195,6 +195,7 @@
         "legendary": "Legendary"
       },
       "change": "Change",
+      "rarityTitle": "Rarity: {{rarity}}",
       "hideItems": "Hide {{rarity}} Items",
       "selectItem": "Select {{rarity}} Magic Item (Slot {{slot}})",
       "searchPlaceholder": "Search {{rarity}} items...",
@@ -1240,6 +1241,11 @@
     "macroBar": {
       "custom": "Custom",
       "rollFormula": "Roll {{formula}}",
+      "macroAriaLabel": "{{label}} ({{kind}})",
+      "kindWeaponAttack": "Weapon attack",
+      "kindWeaponDamage": "Weapon damage",
+      "kindSkillProficient": "Proficient skill",
+      "kindSkillUntrained": "Untrained skill",
       "pinToHotbar": "Pin to hotbar",
       "showProficientOnly": "Show proficient only",
       "showAllSkills": "Show all skills",
@@ -3670,7 +3676,8 @@
       "addDisease": "Add Disease",
       "effect": "Effect:",
       "removal": "Removal:",
-      "addCurse": "Add Curse"
+      "addCurse": "Add Curse",
+      "targetRequired": "Enter a target name first."
     },
     "dmNotepad": {
       "dayTime": "Day {{day}}, {{time}}",
@@ -3909,7 +3916,10 @@
       "addReaction": "+ Add Reaction",
       "legendaryActionsTitle": "Legendary Actions ({{count}})",
       "usesPerRound": "Uses per round",
-      "addLegendaryAction": "+ Add Legendary Action"
+      "addLegendaryAction": "+ Add Legendary Action",
+      "errorNameRequired": "Name is required.",
+      "errorNonNegative": "Must be 0 or greater.",
+      "errorAbilityRange": "Must be between 1 and 30."
     },
     "addEntryForm": {
       "quickAddFromBoard": "Quick Add from Board",
@@ -5368,7 +5378,12 @@
       "turn": "Turn {{number}}",
       "completed": "Completed",
       "inProgress": "In Progress",
-      "noDetails": "No details"
+      "noDetails": "No details",
+      "orderTypeTitle": "Order type: {{order}}",
+      "goldCost": "Gold cost",
+      "goldCostAria": "Gold cost: {{gold}} GP",
+      "goldGained": "Gold gained",
+      "goldGainedAria": "Gold gained: {{gold}} GP"
     },
     "eventsTab": {
       "eventsLog": "Events Log ({{count}})",
@@ -5527,6 +5542,8 @@
       "aboutDescription": "App info, updates, and backup/restore your data",
       "kickedMessage": "You were kicked from the game by the DM.",
       "bannedMessage": "You were banned from the game by the DM.",
+      "kickedSeverity": "Notice: removed from game",
+      "bannedSeverity": "Alert: banned from game",
       "dismiss": "Dismiss",
       "appTitle": "D&D Virtual Tabletop",
       "tagline": "Your adventure awaits",
@@ -5689,6 +5706,7 @@
       "ruleNameLabel": "Rule Name *",
       "ruleNamePlaceholder": "Rule name",
       "categoryLabel": "Category",
+      "categoryBadgeTitle": "Category: {{category}}",
       "categoryCombat": "Combat",
       "categoryExploration": "Exploration",
       "categorySocial": "Social",

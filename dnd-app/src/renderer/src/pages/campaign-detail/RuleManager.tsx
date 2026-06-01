@@ -52,7 +52,11 @@ export default function RuleManager({ campaign, saveCampaign }: RuleManagerProps
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-sm">{rule.name}</span>
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${CATEGORY_COLORS[rule.category]}`}>
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full ${CATEGORY_COLORS[rule.category]}`}
+                      title={t('pages.ruleManager.categoryBadgeTitle', { category: rule.category })}
+                      aria-label={t('pages.ruleManager.categoryBadgeTitle', { category: rule.category })}
+                    >
                       {rule.category}
                     </span>
                   </div>

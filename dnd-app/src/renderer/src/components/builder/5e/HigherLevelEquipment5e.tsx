@@ -61,7 +61,11 @@ function MagicItemSlot({
 
   if (selectedItem) {
     return (
-      <div className={`flex items-center justify-between border rounded px-2 py-1.5 ${colors}`}>
+      <div
+        className={`flex items-center justify-between border rounded px-2 py-1.5 ${colors}`}
+        title={t('builder.higherLevelEquipment.rarityTitle', { rarity: rarityLabel })}
+        aria-label={t('builder.higherLevelEquipment.rarityTitle', { rarity: rarityLabel })}
+      >
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium">{selectedItem.itemName}</span>
           <span className="text-xs text-gray-500">{rarityLabel}</span>
@@ -78,6 +82,7 @@ function MagicItemSlot({
       <button
         onClick={() => setExpanded(!expanded)}
         className={`text-xs border rounded px-2 py-1 cursor-pointer transition-colors ${colors} hover:bg-gray-800`}
+        title={t('builder.higherLevelEquipment.rarityTitle', { rarity: rarityLabel })}
       >
         {expanded
           ? t('builder.higherLevelEquipment.hideItems', { rarity: rarityLabel })

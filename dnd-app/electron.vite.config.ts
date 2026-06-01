@@ -66,26 +66,28 @@ export default defineConfig(async () => {
         minify: 'esbuild' as const,
         sourcemap: false,
         reportCompressedSize: false,
-        rollupOptions: {
+        // Vite 8 runs on Rolldown — use `rolldownOptions` (not the deprecated
+        // `rollupOptions` compat alias) and Rolldown's grouped `codeSplitting`
+        // (it replaced both the `manualChunks(id)` function and the interim
+        // `advancedChunks` name; same `CodeSplittingGroup[]` shape). Each group's
+        // `test` RegExp matches the same node_modules paths the old function
+        // checked; `[\\/]` (not `/`) keeps the patterns Windows-safe.
+        rolldownOptions: {
           output: {
-            // Code-split heavy dependencies into separate chunks
-            manualChunks(id: string) {
-              if (id.includes('node_modules/react-dom') || id.includes('node_modules/react/')) return 'vendor-react'
-              if (id.includes('node_modules/react-router')) return 'vendor-router'
-              if (
-                id.includes('node_modules/zustand') ||
-                id.includes('node_modules/zod') ||
-                id.includes('node_modules/immer')
-              )
-                return 'vendor-state'
-              if (id.includes('node_modules/three')) return 'vendor-three'
-              if (id.includes('node_modules/cannon-es')) return 'vendor-physics'
-              if (id.includes('node_modules/pixi.js') || id.includes('node_modules/@pixi')) return 'vendor-pixi'
-              if (id.includes('node_modules/@tiptap')) return 'vendor-tiptap'
-              // Phase 14g §6 — no vendor-anthropic rule: @anthropic-ai/sdk is main-process only
-              // (externalized), never in the renderer bundle, so that chunk rule never matched.
-              if (id.includes('node_modules/peerjs')) return 'vendor-peerjs'
-              if (id.includes('node_modules/pdfjs-dist')) return 'vendor-pdfjs'
+            codeSplitting: {
+              groups: [
+                { name: 'vendor-react', test: /node_modules[\\/](react-dom|react)[\\/]/ },
+                { name: 'vendor-router', test: /node_modules[\\/]react-router/ },
+                { name: 'vendor-state', test: /node_modules[\\/](zustand|zod|immer)/ },
+                { name: 'vendor-three', test: /node_modules[\\/]three/ },
+                { name: 'vendor-physics', test: /node_modules[\\/]cannon-es/ },
+                { name: 'vendor-pixi', test: /node_modules[\\/](pixi\.js|@pixi)/ },
+                { name: 'vendor-tiptap', test: /node_modules[\\/]@tiptap/ },
+                // Phase 14g §6 — no vendor-anthropic group: @anthropic-ai/sdk is main-process only
+                // (externalized), never in the renderer bundle, so that chunk rule never matched.
+                { name: 'vendor-peerjs', test: /node_modules[\\/]peerjs/ },
+                { name: 'vendor-pdfjs', test: /node_modules[\\/]pdfjs-dist/ }
+              ]
             }
           }
         }

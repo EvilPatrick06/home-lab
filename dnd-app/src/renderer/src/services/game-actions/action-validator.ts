@@ -14,37 +14,141 @@ export interface ActionValidationResult {
 }
 
 /**
- * Per-action validated-payload shapes. `DmAction`'s payload is `[key]: unknown`
- * (it's parsed from AI/LLM output), so the validator must reinterpret each action
- * to the concrete shape its handler emits. Declaring those shapes here — instead
- * of 11 inline `as unknown as {…}` casts — keeps the single unavoidable
- * boundary reinterpretation in one place (`fields`) and type-checks every field
- * access at the call sites against this registry.
+ * Discriminated union of the DM actions this validator inspects, keyed by the
+ * `action` discriminant. `DmAction` itself is the open wire shape
+ * (`{ action: string; [key]: unknown }`) parsed from AI/BMO output, so its
+ * payload fields are untyped. Rather than reinterpreting each action with a
+ * per-field cast at every call site, we declare the concrete shapes once here
+ * and narrow `DmAction` → `ValidatedDmAction` through a single runtime-checked
+ * parse boundary (`narrowAction`). Downstream cases then get checked field
+ * access with no casts.
  */
-interface ActionFields {
-  place_token: { gridX: number; gridY: number; label: string }
-  place_creature: { gridX: number; gridY: number }
-  move_token: { label: string; gridX: number; gridY: number }
-  remove_token: { label: string }
-  update_token: { label: string }
-  remove_from_initiative: { label: string }
-  reveal_fog: { cells: Array<{ x: number; y: number }> }
-  hide_fog: { cells: Array<{ x: number; y: number }> }
-  apply_area_effect: { originX: number; originY: number }
-  use_legendary_action: { entityLabel: string }
-  use_legendary_resistance: { entityLabel: string }
-  add_entity_condition: { entityLabel: string }
-  remove_entity_condition: { entityLabel: string }
-  switch_map: { mapName: string }
+type GridCell = { x: number; y: number }
+
+type ValidatedDmAction =
+  | { action: 'place_token'; gridX: number; gridY: number; label: string }
+  | { action: 'place_creature'; gridX: number; gridY: number }
+  | { action: 'move_token'; label: string; gridX: number; gridY: number }
+  | { action: 'remove_token'; label: string }
+  | { action: 'update_token'; label: string }
+  | { action: 'remove_from_initiative'; label: string }
+  | { action: 'reveal_fog'; cells: GridCell[] }
+  | { action: 'hide_fog'; cells: GridCell[] }
+  | { action: 'apply_area_effect'; originX: number; originY: number }
+  | { action: 'use_legendary_action'; entityLabel: string }
+  | { action: 'use_legendary_resistance'; entityLabel: string }
+  | { action: 'add_entity_condition'; entityLabel: string }
+  | { action: 'remove_entity_condition'; entityLabel: string }
+  | { action: 'switch_map'; mapName: string }
+
+/** Discriminants this validator knows how to narrow + inspect. */
+type ValidatedActionType = ValidatedDmAction['action']
+
+/**
+ * Action discriminants the validator has explicit field-level checks for.
+ * Declared as a `const` tuple so the `ValidatedActionType` union and this
+ * runtime guard stay in lockstep (the satisfies-check fails to compile if
+ * they drift).
+ */
+const VALIDATED_ACTION_TYPE_LIST = [
+  'place_token',
+  'place_creature',
+  'move_token',
+  'remove_token',
+  'update_token',
+  'remove_from_initiative',
+  'reveal_fog',
+  'hide_fog',
+  'apply_area_effect',
+  'use_legendary_action',
+  'use_legendary_resistance',
+  'add_entity_condition',
+  'remove_entity_condition',
+  'switch_map'
+] as const satisfies readonly ValidatedActionType[]
+
+const VALIDATED_ACTION_TYPES: ReadonlySet<string> = new Set(VALIDATED_ACTION_TYPE_LIST)
+
+function isValidatedActionType(t: string): t is ValidatedActionType {
+  return VALIDATED_ACTION_TYPES.has(t)
+}
+
+// ── Single validated parse boundary ──
+// These helpers read raw `unknown` payload fields off the open `DmAction` and
+// confirm the runtime shape. They are the only place that reinterprets the
+// opaque action; everything downstream consumes the narrowed union.
+
+function asRecord(action: DmAction): Record<string, unknown> {
+  // `DmAction` already declares `[key: string]: unknown`, so this is a widening,
+  // not a cast — kept as a single named boundary for the narrowers below.
+  return action
+}
+
+function isNumber(v: unknown): v is number {
+  return typeof v === 'number' && Number.isFinite(v)
+}
+
+function isString(v: unknown): v is string {
+  return typeof v === 'string'
+}
+
+function isGridCellArray(v: unknown): v is GridCell[] {
+  return (
+    Array.isArray(v) &&
+    v.every((c) => typeof c === 'object' && c !== null && isNumber((c as GridCell).x) && isNumber((c as GridCell).y))
+  )
 }
 
 /**
- * The single boundary reinterpretation of an opaque `DmAction` to the concrete
- * payload declared for `key`. The runtime field-checks in each case still guard
- * the actual values; this only gives the validator typed field access.
+ * Narrow an opaque `DmAction` to the typed `ValidatedDmAction` for its
+ * discriminant, or return `null` if the runtime payload doesn't match the
+ * expected shape. `null` means "shape invalid" — the validator treats that as
+ * a hard validation failure (clearer than a cast that lies and then throws on
+ * `.toLowerCase()` / arithmetic downstream).
  */
-function fields<K extends keyof ActionFields>(action: DmAction, _key: K): ActionFields[K] {
-  return action as unknown as ActionFields[K]
+function narrowAction(action: DmAction): ValidatedDmAction | null {
+  if (!isValidatedActionType(action.action)) return null
+  const r = asRecord(action)
+  switch (action.action) {
+    case 'place_token':
+      return isNumber(r.gridX) && isNumber(r.gridY) && isString(r.label)
+        ? { action: 'place_token', gridX: r.gridX, gridY: r.gridY, label: r.label }
+        : null
+    case 'place_creature':
+      return isNumber(r.gridX) && isNumber(r.gridY)
+        ? { action: 'place_creature', gridX: r.gridX, gridY: r.gridY }
+        : null
+    case 'move_token':
+      return isString(r.label) && isNumber(r.gridX) && isNumber(r.gridY)
+        ? { action: 'move_token', label: r.label, gridX: r.gridX, gridY: r.gridY }
+        : null
+    case 'remove_token':
+      return isString(r.label) ? { action: 'remove_token', label: r.label } : null
+    case 'update_token':
+      return isString(r.label) ? { action: 'update_token', label: r.label } : null
+    case 'remove_from_initiative':
+      return isString(r.label) ? { action: 'remove_from_initiative', label: r.label } : null
+    case 'reveal_fog':
+      return isGridCellArray(r.cells) ? { action: 'reveal_fog', cells: r.cells } : null
+    case 'hide_fog':
+      return isGridCellArray(r.cells) ? { action: 'hide_fog', cells: r.cells } : null
+    case 'apply_area_effect':
+      return isNumber(r.originX) && isNumber(r.originY)
+        ? { action: 'apply_area_effect', originX: r.originX, originY: r.originY }
+        : null
+    case 'use_legendary_action':
+      return isString(r.entityLabel) ? { action: 'use_legendary_action', entityLabel: r.entityLabel } : null
+    case 'use_legendary_resistance':
+      return isString(r.entityLabel) ? { action: 'use_legendary_resistance', entityLabel: r.entityLabel } : null
+    case 'add_entity_condition':
+      return isString(r.entityLabel) ? { action: 'add_entity_condition', entityLabel: r.entityLabel } : null
+    case 'remove_entity_condition':
+      return isString(r.entityLabel) ? { action: 'remove_entity_condition', entityLabel: r.entityLabel } : null
+    case 'switch_map':
+      return isString(r.mapName) ? { action: 'switch_map', mapName: r.mapName } : null
+    default:
+      return null
+  }
 }
 
 /**
@@ -81,71 +185,11 @@ function isInBounds(x: number, y: number, activeMap: ActiveMap): boolean {
 }
 
 function validateOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: ActiveMap): ActionValidationResult {
-  // DmAction's payload fields are `[key: string]: unknown`; each case reads the
-  // shape its handler emitted via `fields(action, '<action>')` (typed against the
-  // ActionFields registry above), then runtime-checks the values.
   const ok = (): ActionValidationResult => ({ action, valid: true })
   const fail = (reason: string): ActionValidationResult => ({ action, valid: false, reason })
 
+  // ── No-payload checks: these read only game state, never action fields. ──
   switch (action.action) {
-    case 'place_token': {
-      const a = fields(action, 'place_token')
-      if (!activeMap) return fail('No active map to place token on')
-      if (!isInBounds(a.gridX, a.gridY, activeMap)) {
-        return fail(`Grid position (${a.gridX}, ${a.gridY}) is out of map bounds`)
-      }
-      return ok()
-    }
-
-    case 'place_creature': {
-      const a = fields(action, 'place_creature')
-      if (!activeMap) return fail('No active map to place creature on')
-      if (!isInBounds(a.gridX, a.gridY, activeMap)) {
-        return fail(`Grid position (${a.gridX}, ${a.gridY}) is out of map bounds`)
-      }
-      return ok()
-    }
-
-    case 'move_token': {
-      const a = fields(action, 'move_token')
-      if (!activeMap) return fail('No active map')
-      const token = findTokenByLabel(activeMap, a.label)
-      if (!token) return fail(`Token "${a.label}" not found on the active map`)
-      if (!isInBounds(a.gridX, a.gridY, activeMap)) {
-        return fail(`Target position (${a.gridX}, ${a.gridY}) is out of map bounds`)
-      }
-      return ok()
-    }
-
-    case 'remove_token': {
-      const a = fields(action, 'remove_token')
-      if (!activeMap) return fail('No active map')
-      if (!findTokenByLabel(activeMap, a.label)) {
-        return fail(`Token "${a.label}" not found on the active map`)
-      }
-      return ok()
-    }
-
-    case 'update_token': {
-      const a = fields(action, 'update_token')
-      if (!activeMap) return fail('No active map')
-      if (!findTokenByLabel(activeMap, a.label)) {
-        return fail(`Token "${a.label}" not found on the active map`)
-      }
-      return ok()
-    }
-
-    case 'remove_from_initiative': {
-      const a = fields(action, 'remove_from_initiative')
-      const initiative = gameStore.initiative
-      if (!initiative || !Array.isArray(initiative.entries)) return fail('No active initiative')
-      // Phase 17c (LOG-12 / TYP-4) — InitiativeEntry exposes `entityName`, not `label`; the old
-      // `{ label?: string }` cast always read undefined, so every remove was rejected as "not found".
-      const found = initiative.entries.some((e) => e.entityName?.toLowerCase() === a.label.toLowerCase())
-      if (!found) return fail(`"${a.label}" not found in initiative order`)
-      return ok()
-    }
-
     case 'next_turn': {
       const initiative = gameStore.initiative
       if (!initiative || !Array.isArray(initiative.entries) || initiative.entries.length === 0) {
@@ -161,10 +205,71 @@ function validateOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: 
       }
       return ok()
     }
+  }
+
+  // Actions without explicit field-level validation pass through untouched.
+  if (!VALIDATED_ACTION_TYPES.has(action.action)) return ok()
+
+  // ── Single validated parse boundary: opaque DmAction → typed union. ──
+  const a = narrowAction(action)
+  if (!a) return fail(`Malformed payload for "${action.action}" action`)
+
+  // From here `a` is a fully-typed discriminated union — no field casts needed.
+  switch (a.action) {
+    case 'place_token': {
+      if (!activeMap) return fail('No active map to place token on')
+      if (!isInBounds(a.gridX, a.gridY, activeMap)) {
+        return fail(`Grid position (${a.gridX}, ${a.gridY}) is out of map bounds`)
+      }
+      return ok()
+    }
+
+    case 'place_creature': {
+      if (!activeMap) return fail('No active map to place creature on')
+      if (!isInBounds(a.gridX, a.gridY, activeMap)) {
+        return fail(`Grid position (${a.gridX}, ${a.gridY}) is out of map bounds`)
+      }
+      return ok()
+    }
+
+    case 'move_token': {
+      if (!activeMap) return fail('No active map')
+      const token = findTokenByLabel(activeMap, a.label)
+      if (!token) return fail(`Token "${a.label}" not found on the active map`)
+      if (!isInBounds(a.gridX, a.gridY, activeMap)) {
+        return fail(`Target position (${a.gridX}, ${a.gridY}) is out of map bounds`)
+      }
+      return ok()
+    }
+
+    case 'remove_token': {
+      if (!activeMap) return fail('No active map')
+      if (!findTokenByLabel(activeMap, a.label)) {
+        return fail(`Token "${a.label}" not found on the active map`)
+      }
+      return ok()
+    }
+
+    case 'update_token': {
+      if (!activeMap) return fail('No active map')
+      if (!findTokenByLabel(activeMap, a.label)) {
+        return fail(`Token "${a.label}" not found on the active map`)
+      }
+      return ok()
+    }
+
+    case 'remove_from_initiative': {
+      const initiative = gameStore.initiative
+      if (!initiative || !Array.isArray(initiative.entries)) return fail('No active initiative')
+      // Phase 17c (LOG-12 / TYP-4) — InitiativeEntry exposes `entityName`, not `label`; the old
+      // `{ label?: string }` cast always read undefined, so every remove was rejected as "not found".
+      const found = initiative.entries.some((e) => e.entityName?.toLowerCase() === a.label.toLowerCase())
+      if (!found) return fail(`"${a.label}" not found in initiative order`)
+      return ok()
+    }
 
     case 'reveal_fog':
     case 'hide_fog': {
-      const a = fields(action, 'reveal_fog')
       if (!activeMap) return fail('No active map for fog operations')
       const outOfBounds = a.cells.filter((c) => !isInBounds(c.x, c.y, activeMap))
       if (outOfBounds.length > 0) {
@@ -174,7 +279,6 @@ function validateOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: 
     }
 
     case 'apply_area_effect': {
-      const a = fields(action, 'apply_area_effect')
       if (!activeMap) return fail('No active map for area effect')
       if (!isInBounds(a.originX, a.originY, activeMap)) {
         return fail(`Area effect origin (${a.originX}, ${a.originY}) is out of map bounds`)
@@ -184,7 +288,6 @@ function validateOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: 
 
     case 'use_legendary_action':
     case 'use_legendary_resistance': {
-      const a = fields(action, 'use_legendary_action')
       if (!activeMap) return fail('No active map')
       if (!findTokenByLabel(activeMap, a.entityLabel)) {
         return fail(`Entity "${a.entityLabel}" not found on the active map`)
@@ -194,7 +297,6 @@ function validateOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: 
 
     case 'add_entity_condition':
     case 'remove_entity_condition': {
-      const a = fields(action, 'add_entity_condition')
       if (!activeMap) return fail('No active map')
       if (!findTokenByLabel(activeMap, a.entityLabel)) {
         return fail(`Entity "${a.entityLabel}" not found on the active map`)
@@ -203,7 +305,6 @@ function validateOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: 
     }
 
     case 'switch_map': {
-      const a = fields(action, 'switch_map')
       const maps = gameStore.maps ?? []
       const found = maps.some((m: { name?: string }) => m.name?.toLowerCase() === a.mapName.toLowerCase())
       if (!found) return fail(`Map "${a.mapName}" not found in campaign`)

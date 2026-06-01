@@ -157,7 +157,7 @@ journalctl -u bmo -f                          # tail main app logs
 
 On DM's laptop (running dnd-app):
 
-1. **Pi URL:** In dnd-app → **Settings** → **Cloud backup** (BMO / Google Drive section), set **BMO Pi base URL** and click **Save URL**. That value overrides `BMO_PI_URL` for main-process fetches, cloud sync, and the renderer Content Security Policy—no app restart. If the field is left empty, the app uses `BMO_PI_URL` (environment) or the built-in default `http://bmo.local:5000`.
+1. **Pi URL:** In dnd-app → **Settings** → **Cloud backup** (BMO / Google Drive section), set **BMO Pi base URL** and click **Save URL**. That value overrides `BMO_PI_URL` for main-process fetches, cloud sync, and the renderer Content Security Policy—no app restart. If the field is left empty, the app auto-discovers the Pi on-LAN (mDNS → its IP) and otherwise falls back to the built-in default `https://bmo.mybmoai.work` (the Cloudflare tunnel, for off-LAN).
 2. Test connection: use **Check Status** in the same section (rclone/health) or in-game BMO actions as needed.
 3. Open firewall port 5001 on the DM laptop for BMO callbacks (Windows Defender / iptables) when using Discord sync.
 
@@ -168,6 +168,28 @@ On Pi:
 echo 'VTT_SYNC_URL=http://<DM-laptop-ip>:5001' >> /home/patrick/home-lab/bmo/pi/.env
 sudo systemctl restart bmo
 ```
+
+### Off-LAN access (one-time, no per-user setup)
+
+On-LAN works with zero config (mDNS → the Pi's IP). Off-LAN goes through the
+`bmo.mybmoai.work` Cloudflare Tunnel, which is gated by a Cloudflare Access app.
+To let installed copies reach Pi/cloud features off-LAN with no per-player setup
+(one-time admin steps in the Cloudflare Zero Trust dashboard):
+
+1. **Library (public, read-only):** Access → Applications → add a self-hosted
+   app for `bmo.mybmoai.work/api/library/*` with one policy **Action = Bypass,
+   Include = Everyone** (same pattern as the already-public `/api/games`). The
+   renderer fetches it directly; BMO returns `Access-Control-Allow-Origin: *`.
+2. **Cloud backup (private, token):** Access → **Service Auth** → **Create
+   Service Token** (e.g. `dnd-app`, non-expiring); copy the Client ID + Secret.
+   Add a **Service Auth** policy referencing that token to the `bmo.mybmoai.work`
+   Access app (so `/api/rclone/*` stays login-gated for humans but the app's
+   token passes through). Then add the two values as GitHub Actions **repository
+   secrets** `CF_ACCESS_CLIENT_ID` / `CF_ACCESS_CLIENT_SECRET`. The release build
+   bakes them into the MAIN bundle (`electron.vite.config` `main.define`); the
+   app sends them only from main-process fetches (`getBmoAccessHeaders()`),
+   never the renderer. Builds without the secrets send no token (on-LAN
+   unaffected; off-LAN cloud stays login-gated).
 
 ## Verify end-to-end
 

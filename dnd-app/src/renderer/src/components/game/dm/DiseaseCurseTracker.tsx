@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useId, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { useT } from '../../../i18n'
 import { load5eCurses, load5eDiseases } from '../../../services/data-provider'
@@ -37,6 +37,12 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
   const [addCurseTarget, setAddCurseTarget] = useState('')
   const [addCurseId, setAddCurseId] = useState<string>('')
 
+  // Inline validation: set when an add is attempted with an empty target name.
+  const [diseaseTargetError, setDiseaseTargetError] = useState(false)
+  const [curseTargetError, setCurseTargetError] = useState(false)
+  const diseaseTargetErrorId = useId()
+  const curseTargetErrorId = useId()
+
   const loadData = useCallback(async () => {
     setLoading(true)
     try {
@@ -62,7 +68,11 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
 
   const handleAddDisease = useCallback(() => {
     const targetName = addDiseaseTarget.trim()
-    if (!targetName || !addDiseaseId) return
+    if (!targetName) {
+      setDiseaseTargetError(true)
+      return
+    }
+    if (!addDiseaseId) return
     const disease = diseases.find((d) => d.id === addDiseaseId)
     if (!disease) return
 
@@ -78,11 +88,16 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
     addDisease(active)
     onBroadcastResult(t('game.diseaseCurseTracker.contractedToast', { target: targetName, disease: disease.name }))
     setAddDiseaseTarget('')
+    setDiseaseTargetError(false)
   }, [addDiseaseTarget, addDiseaseId, diseases, addDisease, onBroadcastResult, t])
 
   const handleAddCurse = useCallback(() => {
     const targetName = addCurseTarget.trim()
-    if (!targetName || !addCurseId) return
+    if (!targetName) {
+      setCurseTargetError(true)
+      return
+    }
+    if (!addCurseId) return
     const curse = curses.find((c) => c.id === addCurseId)
     if (!curse) return
 
@@ -97,6 +112,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
     addCurse(active)
     onBroadcastResult(t('game.diseaseCurseTracker.afflictedToast', { target: targetName, curse: curse.name }))
     setAddCurseTarget('')
+    setCurseTargetError(false)
   }, [addCurseTarget, addCurseId, curses, addCurse, onBroadcastResult, t])
 
   const handleRemoveDisease = useCallback(
@@ -262,19 +278,30 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
             type="text"
             placeholder={t('game.diseaseCurseTracker.targetName')}
             value={addDiseaseTarget}
-            onChange={(e) => setAddDiseaseTarget(e.target.value)}
+            aria-invalid={diseaseTargetError || undefined}
+            aria-describedby={diseaseTargetError ? diseaseTargetErrorId : undefined}
+            onChange={(e) => {
+              setAddDiseaseTarget(e.target.value)
+              if (diseaseTargetError) setDiseaseTargetError(false)
+            }}
             onKeyDown={(e) => e.key === 'Enter' && handleAddDisease()}
-            className="px-2 py-1 text-xs w-24 bg-gray-800 border border-gray-600 rounded text-gray-300 placeholder-gray-500"
+            className={`px-2 py-1 text-xs w-24 bg-gray-800 border rounded text-gray-300 placeholder-gray-500 ${
+              diseaseTargetError ? 'border-red-500' : 'border-gray-600'
+            }`}
           />
           <button
             type="button"
             onClick={handleAddDisease}
-            disabled={!addDiseaseTarget.trim()}
-            className="px-2 py-1 text-xs font-medium rounded bg-amber-600/30 border border-amber-500/50 text-amber-300 hover:bg-amber-600/40 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-2 py-1 text-xs font-medium rounded bg-amber-600/30 border border-amber-500/50 text-amber-300 hover:bg-amber-600/40"
           >
             {t('game.diseaseCurseTracker.addDisease')}
           </button>
         </div>
+        {diseaseTargetError && (
+          <p id={diseaseTargetErrorId} role="alert" className="text-red-400 text-xs mt-1">
+            {t('game.diseaseCurseTracker.targetRequired')}
+          </p>
+        )}
       </section>
 
       {/* Active Curses */}
@@ -365,19 +392,30 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
             type="text"
             placeholder={t('game.diseaseCurseTracker.targetName')}
             value={addCurseTarget}
-            onChange={(e) => setAddCurseTarget(e.target.value)}
+            aria-invalid={curseTargetError || undefined}
+            aria-describedby={curseTargetError ? curseTargetErrorId : undefined}
+            onChange={(e) => {
+              setAddCurseTarget(e.target.value)
+              if (curseTargetError) setCurseTargetError(false)
+            }}
             onKeyDown={(e) => e.key === 'Enter' && handleAddCurse()}
-            className="px-2 py-1 text-xs w-24 bg-gray-800 border border-gray-600 rounded text-gray-300 placeholder-gray-500"
+            className={`px-2 py-1 text-xs w-24 bg-gray-800 border rounded text-gray-300 placeholder-gray-500 ${
+              curseTargetError ? 'border-red-500' : 'border-gray-600'
+            }`}
           />
           <button
             type="button"
             onClick={handleAddCurse}
-            disabled={!addCurseTarget.trim()}
-            className="px-2 py-1 text-xs font-medium rounded bg-amber-600/30 border border-amber-500/50 text-amber-300 hover:bg-amber-600/40 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-2 py-1 text-xs font-medium rounded bg-amber-600/30 border border-amber-500/50 text-amber-300 hover:bg-amber-600/40"
           >
             {t('game.diseaseCurseTracker.addCurse')}
           </button>
         </div>
+        {curseTargetError && (
+          <p id={curseTargetErrorId} role="alert" className="text-red-400 text-xs mt-1">
+            {t('game.diseaseCurseTracker.targetRequired')}
+          </p>
+        )}
       </section>
     </div>
   )

@@ -31,6 +31,7 @@
     "validate:5e": "node scripts/audit/check-5e-cross-refs.mjs",
     "validate:content": "tsx scripts/audit/validate-content-vs-schemas.ts",
     "i18n:gen-pseudo": "node scripts/i18n/gen-pseudo-locale.mjs",
+    "i18n:gen-keys": "node scripts/i18n/gen-key-union.mjs",
     "gen:ipc-surface": "node scripts/build/gen-ipc-surface.mjs",
     "sync:doc-counts": "node scripts/build/sync-doc-counts.mjs",
     "test": "vitest run",

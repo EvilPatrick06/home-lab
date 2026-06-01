@@ -195,6 +195,7 @@
         "legendary": "[‹Ļéĝéñđåŕý ···›]"
       },
       "change": "[‹Çĥåñĝé ··›]",
+      "rarityTitle": "[‹Ŕåŕîţý: {{rarity}} ····›]",
       "hideItems": "[‹Ĥîđé {{rarity}} Îţéɱš ·····›]",
       "selectItem": "[‹Šéļéçţ {{rarity}} Ṁåĝîç Îţéɱ (Šļôţ {{slot}}) ·········›]",
       "searchPlaceholder": "[‹Šéåŕçĥ {{rarity}} îţéɱš... ·····›]",
@@ -1240,6 +1241,11 @@
     "macroBar": {
       "custom": "[‹Çûšţôɱ ··›]",
       "rollFormula": "[‹Ŕôļļ {{formula}} ···›]",
+      "macroAriaLabel": "[‹{{label}} ({{kind}}) ···›]",
+      "kindWeaponAttack": "[‹Ŵéåþôñ åţţåçķ ····›]",
+      "kindWeaponDamage": "[‹Ŵéåþôñ đåɱåĝé ····›]",
+      "kindSkillProficient": "[‹Þŕôƒîçîéñţ šķîļļ ·····›]",
+      "kindSkillUntrained": "[‹Ûñţŕåîñéđ šķîļļ ····›]",
       "pinToHotbar": "[‹Þîñ ţô ĥôţƀåŕ ···›]",
       "showProficientOnly": "[‹Šĥôŵ þŕôƒîçîéñţ ôñļý ·····›]",
       "showAllSkills": "[‹Šĥôŵ åļļ šķîļļš ····›]",
@@ -3670,7 +3676,8 @@
       "addDisease": "[‹Åđđ Đîšéåšé ···›]",
       "effect": "[‹Éƒƒéçţ: ··›]",
       "removal": "[‹Ŕéɱôṽåļ: ··›]",
-      "addCurse": "[‹Åđđ Çûŕšé ··›]"
+      "addCurse": "[‹Åđđ Çûŕšé ··›]",
+      "targetRequired": "[‹Éñţéŕ å ţåŕĝéţ ñåɱé ƒîŕšţ. ······›]"
     },
     "dmNotepad": {
       "dayTime": "[‹Đåý {{day}}, {{time}} ···›]",
@@ -3909,7 +3916,10 @@
       "addReaction": "[‹+ Åđđ Ŕéåçţîôñ ···›]",
       "legendaryActionsTitle": "[‹Ļéĝéñđåŕý Åçţîôñš ({{count}}) ······›]",
       "usesPerRound": "[‹Ûšéš þéŕ ŕôûñđ ····›]",
-      "addLegendaryAction": "[‹+ Åđđ Ļéĝéñđåŕý Åçţîôñ ·····›]"
+      "addLegendaryAction": "[‹+ Åđđ Ļéĝéñđåŕý Åçţîôñ ·····›]",
+      "errorNameRequired": "[‹Ñåɱé îš ŕéǫûîŕéđ. ····›]",
+      "errorNonNegative": "[‹Ṁûšţ ƀé 0 ôŕ ĝŕéåţéŕ. ·····›]",
+      "errorAbilityRange": "[‹Ṁûšţ ƀé ƀéţŵééñ 1 åñđ 30. ·····›]"
     },
     "addEntryForm": {
       "quickAddFromBoard": "[‹Ǫûîçķ Åđđ ƒŕôɱ Ɓôåŕđ ·····›]",
@@ -5368,7 +5378,12 @@
       "turn": "[‹Ţûŕñ {{number}} ···›]",
       "completed": "[‹Çôɱþļéţéđ ···›]",
       "inProgress": "[‹Îñ Þŕôĝŕéšš ···›]",
-      "noDetails": "[‹Ñô đéţåîļš ···›]"
+      "noDetails": "[‹Ñô đéţåîļš ···›]",
+      "orderTypeTitle": "[‹Ôŕđéŕ ţýþé: {{order}} ····›]",
+      "goldCost": "[‹Ĝôļđ çôšţ ··›]",
+      "goldCostAria": "[‹Ĝôļđ çôšţ: {{gold}} ĜÞ ····›]",
+      "goldGained": "[‹Ĝôļđ ĝåîñéđ ···›]",
+      "goldGainedAria": "[‹Ĝôļđ ĝåîñéđ: {{gold}} ĜÞ ·····›]"
     },
     "eventsTab": {
       "eventsLog": "[‹Éṽéñţš Ļôĝ ({{count}}) ····›]",
@@ -5527,6 +5542,8 @@
       "aboutDescription": "[‹Åþþ îñƒô, ûþđåţéš, åñđ ƀåçķûþ/ŕéšţôŕé ýôûŕ đåţå ···········›]",
       "kickedMessage": "[‹Ýôû ŵéŕé ķîçķéđ ƒŕôɱ ţĥé ĝåɱé ƀý ţĥé ĐṀ. ·········›]",
       "bannedMessage": "[‹Ýôû ŵéŕé ƀåññéđ ƒŕôɱ ţĥé ĝåɱé ƀý ţĥé ĐṀ. ·········›]",
+      "kickedSeverity": "[‹Ñôţîçé: ŕéɱôṽéđ ƒŕôɱ ĝåɱé ······›]",
+      "bannedSeverity": "[‹Åļéŕţ: ƀåññéđ ƒŕôɱ ĝåɱé ······›]",
       "dismiss": "[‹Đîšɱîšš ··›]",
       "appTitle": "[‹Đ&Đ Ṽîŕţûåļ Ţåƀļéţôþ ·····›]",
       "tagline": "[‹Ýôûŕ åđṽéñţûŕé åŵåîţš ······›]",
@@ -5689,6 +5706,7 @@
       "ruleNameLabel": "[‹Ŕûļé Ñåɱé * ··›]",
       "ruleNamePlaceholder": "[‹Ŕûļé ñåɱé ··›]",
       "categoryLabel": "[‹Çåţéĝôŕý ··›]",
+      "categoryBadgeTitle": "[‹Çåţéĝôŕý: {{category}} ·····›]",
       "categoryCombat": "[‹Çôɱƀåţ ··›]",
       "categoryExploration": "[‹Éẋþļôŕåţîôñ ···›]",
       "categorySocial": "[‹Šôçîåļ ··›]",

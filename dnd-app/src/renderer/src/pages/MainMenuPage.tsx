@@ -93,6 +93,11 @@ export default function MainMenuPage(): JSX.Element {
       {disconnectReason && (
         <div
           role="alert"
+          title={
+            disconnectReason === 'banned'
+              ? t('pages.mainMenuPage.bannedSeverity')
+              : t('pages.mainMenuPage.kickedSeverity')
+          }
           className={`w-full max-w-md flex items-center justify-between px-4 py-3 rounded-lg border ${
             disconnectReason === 'banned' ? 'bg-red-900/30 border-red-700/50' : 'bg-amber-900/30 border-amber-700/50'
           }`}

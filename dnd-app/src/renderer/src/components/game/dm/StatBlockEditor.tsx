@@ -1,5 +1,5 @@
 import creatureTypesJson from '@data/5e/dm/npcs/creature-types.json'
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { useT } from '../../../i18n'
 import type { MonsterSpeed, MonsterSpellcasting, MonsterTrait } from '../../../services/data-provider'
 import { load5eCreatureTypes } from '../../../services/data-provider'
@@ -221,6 +221,25 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
   const abilities = value.abilityScores ?? { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 }
   const speed = value.speed ?? { walk: 30 }
 
+  // Stable ids for inline validation messages wired via aria-describedby.
+  const nameErrorId = useId()
+  const acErrorId = useId()
+  const hpErrorId = useId()
+  const abilityErrorIdBase = useId()
+
+  // Only surface the "name required" message once the field has been touched,
+  // so a freshly-opened (empty) editor isn't immediately flagged invalid.
+  const [nameTouched, setNameTouched] = useState(false)
+  const nameError = nameTouched && (value.name ?? '').trim().length === 0
+
+  // AC / HP are non-negative; an empty input commits as 0, so only a typed
+  // negative value is invalid.
+  const acError = value.ac !== undefined && value.ac < 0
+  const hpError = value.hp !== undefined && value.hp < 0
+
+  // Ability scores are always present (default 10) and must fall in 1–30.
+  const abilityError = (score: number): boolean => score < 1 || score > 30
+
   return (
     <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
       {/* Basic */}
@@ -231,9 +250,19 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             <input
               type="text"
               value={value.name ?? ''}
+              aria-invalid={nameError || undefined}
+              aria-describedby={nameError ? nameErrorId : undefined}
               onChange={(e) => update('name', e.target.value)}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100"
+              onBlur={() => setNameTouched(true)}
+              className={`w-full bg-gray-800 border rounded px-2 py-1 text-xs text-gray-100 ${
+                nameError ? 'border-red-500' : 'border-gray-700'
+              }`}
             />
+            {nameError && (
+              <p id={nameErrorId} role="alert" className="text-red-400 text-xs mt-0.5">
+                {t('game.statBlockEditor.errorNameRequired')}
+              </p>
+            )}
           </div>
           <div>
             <label className="text-xs text-gray-500">{t('game.statBlockEditor.alignment')}</label>
@@ -302,9 +331,19 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             <input
               type="number"
               value={value.ac ?? ''}
+              min={0}
+              aria-invalid={acError || undefined}
+              aria-describedby={acError ? acErrorId : undefined}
               onChange={(e) => update('ac', parseInt(e.target.value, 10) || 0)}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100"
+              className={`w-full bg-gray-800 border rounded px-2 py-1 text-xs text-gray-100 ${
+                acError ? 'border-red-500' : 'border-gray-700'
+              }`}
             />
+            {acError && (
+              <p id={acErrorId} role="alert" className="text-red-400 text-xs mt-0.5">
+                {t('game.statBlockEditor.errorNonNegative')}
+              </p>
+            )}
           </div>
           <div>
             <label className="text-xs text-gray-500">{t('game.statBlockEditor.acType')}</label>
@@ -321,9 +360,19 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             <input
               type="number"
               value={value.hp ?? ''}
+              min={0}
+              aria-invalid={hpError || undefined}
+              aria-describedby={hpError ? hpErrorId : undefined}
               onChange={(e) => update('hp', parseInt(e.target.value, 10) || 0)}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100"
+              className={`w-full bg-gray-800 border rounded px-2 py-1 text-xs text-gray-100 ${
+                hpError ? 'border-red-500' : 'border-gray-700'
+              }`}
             />
+            {hpError && (
+              <p id={hpErrorId} role="alert" className="text-red-400 text-xs mt-0.5">
+                {t('game.statBlockEditor.errorNonNegative')}
+              </p>
+            )}
           </div>
           <div>
             <label className="text-xs text-gray-500">{t('game.statBlockEditor.hitDice')}</label>
@@ -396,17 +445,32 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
       {/* Ability Scores */}
       <CollapsibleSection title={t('game.statBlockEditor.sectionAbilityScores')}>
         <div className="grid grid-cols-6 gap-1">
-          {(['str', 'dex', 'con', 'int', 'wis', 'cha'] as const).map((ab) => (
-            <div key={ab}>
-              <label className="text-xs text-gray-500 uppercase text-center block">{ab}</label>
-              <input
-                type="number"
-                value={abilities[ab]}
-                onChange={(e) => update('abilityScores', { ...abilities, [ab]: parseInt(e.target.value, 10) || 10 })}
-                className="w-full bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-100 text-center"
-              />
-            </div>
-          ))}
+          {(['str', 'dex', 'con', 'int', 'wis', 'cha'] as const).map((ab) => {
+            const hasError = abilityError(abilities[ab])
+            const errId = `${abilityErrorIdBase}-${ab}`
+            return (
+              <div key={ab}>
+                <label className="text-xs text-gray-500 uppercase text-center block">{ab}</label>
+                <input
+                  type="number"
+                  value={abilities[ab]}
+                  min={1}
+                  max={30}
+                  aria-invalid={hasError || undefined}
+                  aria-describedby={hasError ? errId : undefined}
+                  onChange={(e) => update('abilityScores', { ...abilities, [ab]: parseInt(e.target.value, 10) || 10 })}
+                  className={`w-full bg-gray-800 border rounded px-1 py-0.5 text-xs text-gray-100 text-center ${
+                    hasError ? 'border-red-500' : 'border-gray-700'
+                  }`}
+                />
+                {hasError && (
+                  <p id={errId} role="alert" className="text-red-400 text-[0.625rem] mt-0.5">
+                    {t('game.statBlockEditor.errorAbilityRange')}
+                  </p>
+                )}
+              </div>
+            )
+          })}
         </div>
       </CollapsibleSection>
 

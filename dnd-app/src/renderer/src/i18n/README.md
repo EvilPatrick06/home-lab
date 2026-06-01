@@ -44,8 +44,12 @@ Avoid interpolation variable names in the library-shape list
    (`common` for generic Save/Cancel/Close/Delete/Confirm/Loading; otherwise the
    area namespace: `lobby`, `pages`, `ui`, `campaign`, `game`, `builder`, `sheet`,
    `levelup`, `library`, `settings`, `notify`).
-2. Reference it with `t('namespace.key')`.
-3. `scripts/i18n/check-keys.mjs` (run via the `key-check` vitest test in CI)
+2. Regenerate the key union: `npm run i18n:gen-keys`
+   (`scripts/i18n/gen-key-union.mjs`). This rewrites `generated-keys.ts` so the
+   new key is part of the `TranslationKey` literal union and editors autocomplete
+   it. The `generated-keys` vitest test fails if the union drifts from `en.json`.
+3. Reference it with `t('namespace.key')`.
+4. `scripts/i18n/check-keys.mjs` (run via the `key-check` vitest test in CI)
    fails if a referenced key is missing — run it locally:
    `node scripts/i18n/check-keys.mjs`.
 
@@ -54,10 +58,15 @@ The English value should read exactly as the on-screen text — text-based tests
 
 ## Notes
 
-- `TranslationKeys` (in `types.ts`) is intentionally `string`. A generated
-  literal union of all ~5,900 keys was considered (Phase 34k) but rejected: it
-  bloats compile time and forces a regen on every string added. The runtime
-  `check-keys` gate catches missing/typo'd keys instead, at no compile cost.
+- `TranslationKeys` (in `types.ts`) is `TranslationKey | (string & {})`, where
+  `TranslationKey` is a generated literal union of every dotted key in `en.json`
+  (~5,960 members in `generated-keys.ts`, rebuilt by `npm run i18n:gen-keys`).
+  The union gives editor autocomplete + typo-catching on static `t('…')` calls;
+  the `string & {}` widening still accepts the handful of genuinely DYNAMIC keys
+  (`t(variable)`, template literals, runtime-built keys with no static leaf). The
+  ~5,960-member union was measured to compile in ~60s under `tsconfig.web.json`
+  — no slower than the old `string` stub — so the original Phase 34k "too heavy"
+  concern did not bear out. The runtime `check-keys` gate still backs it up.
 - Tests initialize i18n via `src/test-setup.ts` (a global `beforeAll`), so
   `useT()` renders resolve to English in every test file.
 - Adding a locale: drop a `locales/<lng>.json` with the same key tree and

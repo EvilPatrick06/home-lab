@@ -34,9 +34,13 @@ export function TurnsTab({ bastion, onStartTurn }: { bastion: Bastion; onStartTu
                   <span className="text-xs text-gray-500">{turn.inGameDate}</span>
                 </div>
                 {turn.resolvedAt ? (
-                  <span className="text-xs text-green-400">{t('pages.turnsTab.completed')}</span>
+                  <span className="text-xs text-green-400" title={t('pages.turnsTab.completed')}>
+                    {t('pages.turnsTab.completed')}
+                  </span>
                 ) : (
-                  <span className="text-xs text-amber-400">{t('pages.turnsTab.inProgress')}</span>
+                  <span className="text-xs text-amber-400" title={t('pages.turnsTab.inProgress')}>
+                    {t('pages.turnsTab.inProgress')}
+                  </span>
                 )}
               </div>
               {/* Orders */}
@@ -44,14 +48,33 @@ export function TurnsTab({ bastion, onStartTurn }: { bastion: Bastion; onStartTu
                 <div className="space-y-1 mb-2">
                   {turn.orders.map((o, i) => (
                     <div key={i} className="flex items-center gap-2 text-xs">
-                      <span className={`px-1.5 py-0.5 rounded border ${ORDER_COLORS[o.orderType]}`}>
+                      <span
+                        className={`px-1.5 py-0.5 rounded border ${ORDER_COLORS[o.orderType]}`}
+                        title={t('pages.turnsTab.orderTypeTitle', { order: ORDER_LABELS[o.orderType] })}
+                      >
                         {ORDER_LABELS[o.orderType]}
                       </span>
                       <span className="text-gray-300">
                         {o.facilityName}: {o.details || t('pages.turnsTab.noDetails')}
                       </span>
-                      {(o.goldCost ?? 0) > 0 && <span className="text-red-400">-{o.goldCost} GP</span>}
-                      {(o.goldGained ?? 0) > 0 && <span className="text-green-400">+{o.goldGained} GP</span>}
+                      {(o.goldCost ?? 0) > 0 && (
+                        <span
+                          className="text-red-400"
+                          title={t('pages.turnsTab.goldCost')}
+                          aria-label={t('pages.turnsTab.goldCostAria', { gold: o.goldCost ?? 0 })}
+                        >
+                          -{o.goldCost} GP
+                        </span>
+                      )}
+                      {(o.goldGained ?? 0) > 0 && (
+                        <span
+                          className="text-green-400"
+                          title={t('pages.turnsTab.goldGained')}
+                          aria-label={t('pages.turnsTab.goldGainedAria', { gold: o.goldGained ?? 0 })}
+                        >
+                          +{o.goldGained} GP
+                        </span>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -124,7 +147,13 @@ export function EventsTab({ bastion }: { bastion: Bastion }): JSX.Element {
               {turn.eventDetails && (
                 <div className="mt-2 flex flex-wrap gap-2">
                   {(turn.eventDetails as Record<string, unknown>).goldGained != null && (
-                    <span className="text-xs text-green-400">
+                    <span
+                      className="text-xs text-green-400"
+                      title={t('pages.turnsTab.goldGained')}
+                      aria-label={t('pages.turnsTab.goldGainedAria', {
+                        gold: String((turn.eventDetails as Record<string, unknown>).goldGained)
+                      })}
+                    >
                       +{String((turn.eventDetails as Record<string, unknown>).goldGained)} GP
                     </span>
                   )}
