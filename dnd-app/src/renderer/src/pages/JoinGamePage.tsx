@@ -244,11 +244,12 @@ export default function JoinGamePage(): JSX.Element {
       navigatedRef.current = false
       await persistDisplayName(name)
       const normalized = code.trim().toUpperCase()
-      // Pick the transport by the on/off-LAN heuristic: on the Pi's LAN → direct
-      // P2P; off-LAN → the cloud relay (works behind any NAT — direct P2P
-      // signaling/ICE isn't reliably reachable off-LAN). The host applies the
-      // same rule, so both sides rendezvous on the matching transport.
-      const mode = resolveConnectionMode()
+      // Prefer the host's DECLARED transport (registry `hosting_mode`) so both
+      // sides rendezvous; fall back to the on/off-LAN heuristic for a private
+      // code with no registry entry (on-LAN → P2P; off-LAN → cloud relay, which
+      // works behind any NAT — direct P2P signaling/ICE isn't reachable off-LAN).
+      const match = mergedGames.find((g) => g.invite_code === normalized)
+      const mode = resolveConnectionMode(match?.hosting_mode)
       try {
         await joinGame(normalized, name.trim(), mode)
         setWaitingForCampaign(true)
@@ -256,7 +257,7 @@ export default function JoinGamePage(): JSX.Element {
         logger.error('[JoinGame] join failed:', err)
       }
     },
-    [joinGame, persistDisplayName, setError]
+    [joinGame, persistDisplayName, setError, mergedGames]
   )
 
   // ── Entry points ──────────────────────────────────────────────────

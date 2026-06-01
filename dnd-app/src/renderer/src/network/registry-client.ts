@@ -65,6 +65,9 @@ export interface RegistryGameEntry {
   max_spectators: number
   game_system: string
   is_private: boolean
+  /** 'p2p' (WebRTC mesh) or 'cloud' (Pi relay) — the transport the host is on.
+   * A joiner MUST match it to rendezvous. */
+  hosting_mode?: 'p2p' | 'cloud'
   peer_id: string
   created_at: number
   banned_from_this_game: boolean

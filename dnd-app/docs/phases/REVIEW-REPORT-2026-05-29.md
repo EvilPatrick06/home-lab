@@ -25,7 +25,6 @@ What still needs doing. NOT here: completed work (see commits + GitHub releases)
 
 ## Multiplayer
 
-- **Registry `hosting_mode` passthrough.** The join transport uses the joiner's own on/off-LAN heuristic, not the host's declared mode, because `game_registry._serialize` drops `hosting_mode`. Wire it through (`_serialize` + announce payload + `RegistryGameEntry`) to fix the one residual mismatch: an on-LAN joiner browsing a cloud-hosted game.
 - **Managed/baked TURN** (optional) — would restore true serverless off-LAN P2P for symmetric-NAT peers (currently off-LAN routes through the Pi relay instead).
 
 ## Cloud backup

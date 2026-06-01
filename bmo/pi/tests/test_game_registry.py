@@ -87,6 +87,16 @@ def test_register_rejects_missing_required_field(registry: GameRegistry) -> None
         registry.register(bad)
 
 
+def test_hosting_mode_passthrough(registry: GameRegistry) -> None:
+    # The joiner reads hosting_mode to match the host's transport (p2p vs cloud),
+    # so it must survive register → list. Defaults to 'p2p' when omitted.
+    registry.register(_sample_entry("CLOUD1", hosting_mode="cloud"))
+    registry.register(_sample_entry("PLAIN1"))
+    by_code = {e["invite_code"]: e for e in registry.list()}
+    assert by_code["CLOUD1"]["hosting_mode"] == "cloud"
+    assert by_code["PLAIN1"]["hosting_mode"] == "p2p"
+
+
 # ── heartbeat / TTL / GC ──────────────────────────────────────────────
 
 
