@@ -72,7 +72,15 @@ export interface ClassWeaponProficiency {
 
 export interface ClassSkillProficiencies {
   count: number
-  from: string[]
+  /**
+   * Either an explicit skill list (most classes) OR the literal `'any'`
+   * (Bard, and homebrew "choose any skill" classes) — see e.g. bard.json.
+   * Consumers MUST handle the string form: `Array.isArray(from) ? from : []`
+   * (an empty list means "any skill" downstream). The string used to crash
+   * the builder's SkillsModal (`"any".join is not a function`) when a Bard
+   * was selected.
+   */
+  from: string[] | 'any'
 }
 
 export interface ClassCoreTraits {

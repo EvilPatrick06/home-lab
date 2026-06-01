@@ -310,7 +310,14 @@ export const createSelectionSlice: StateCreator<BuilderState, [], [], SelectionS
               const preparedMax = getPreparedSpellMax(optionId, targetLvl) ?? 0
               set({
                 classEquipment: [...preservedItems, ...autoItems],
-                classSkillOptions: cls.coreTraits.skillProficiencies.from,
+                // `from` is `string[] | 'any'` — Bard (and homebrew "choose any
+                // skill" classes) use the literal 'any'. Normalize the string
+                // form to [] (empty = "any skill" in SkillsModal, which then
+                // offers the full SKILLS_5E list). Storing the raw 'any' string
+                // crashed the modal: `"any".join(', ')` → c.join is not a function.
+                classSkillOptions: Array.isArray(cls.coreTraits.skillProficiencies.from)
+                  ? cls.coreTraits.skillProficiencies.from
+                  : [],
                 classEquipmentChoice: equipment.length === 1 ? equipment[0].label : null, // reset when class changes — user must choose
                 classExtraLangCount: optionId === 'rogue' ? 1 : optionId === 'ranger' ? 2 : 0,
                 chosenLanguages: [], // reset when class changes (language grants may differ)

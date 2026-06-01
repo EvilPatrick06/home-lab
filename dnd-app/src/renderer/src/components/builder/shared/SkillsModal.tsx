@@ -20,6 +20,13 @@ export default function SkillsModal(): JSX.Element {
   const closeCustomModal = useBuilderStore((s) => s.closeCustomModal)
   const buildSlots = useBuilderStore((s) => s.buildSlots)
   const classSkillOptions = useBuilderStore((s) => s.classSkillOptions)
+  // Defensive: `classSkillOptions` is typed `string[]`, but a Bard (class data
+  // `skillProficiencies.from: 'any'`), older persisted state, or homebrew could
+  // leave a non-array here. A bare string passes `.length > 0` then throws on
+  // `.join(', ')` (`"any".join is not a function`). Coerce to [] = "any skill"
+  // → the full SKILLS_5E list is offered. The class store now normalizes 'any'
+  // at the source (selection-slice); this is belt-and-suspenders.
+  const classSkillList: string[] = Array.isArray(classSkillOptions) ? classSkillOptions : []
 
   const skillSlot = buildSlots.find((s) => s.id === 'skill-choices')
   const bgSlot = buildSlots.find((s) => s.category === 'background')
@@ -34,10 +41,10 @@ export default function SkillsModal(): JSX.Element {
     () =>
       isCustomBackground
         ? SKILLS_5E
-        : classSkillOptions.length > 0
-          ? SKILLS_5E.filter((s) => classSkillOptions.includes(s.name))
+        : classSkillList.length > 0
+          ? SKILLS_5E.filter((s) => classSkillList.includes(s.name))
           : SKILLS_5E,
-    [classSkillOptions, isCustomBackground]
+    [classSkillList, isCustomBackground]
   )
 
   const toggleSkill = (skillName: string): void => {
@@ -49,24 +56,24 @@ export default function SkillsModal(): JSX.Element {
   }
 
   return (
-    <div className="absolute inset-0 z-20 flex flex-col bg-gray-900/98 backdrop-blur-sm">
+    <div className="absolute inset-0 z-20 flex flex-col bg-surface/98 backdrop-blur-sm">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">
-        <h2 className="text-lg font-bold text-gray-100">{t('builder.skillsModal.title')}</h2>
-        <button onClick={closeCustomModal} className="text-gray-400 hover:text-gray-200 text-xl leading-none px-2">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+        <h2 className="text-lg font-bold text-fg">{t('builder.skillsModal.title')}</h2>
+        <button onClick={closeCustomModal} className="text-muted hover:text-gray-200 text-xl leading-none px-2">
           ✕
         </button>
       </div>
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-6">
-        <p className="text-sm text-gray-400 mb-4">
+        <p className="text-sm text-muted mb-4">
           {isCustomBackground
             ? t('builder.skillsModal.instructionCustom', { maxSkills, fromClass: maxSkills - 2 })
-            : classSkillOptions.length > 0
+            : classSkillList.length > 0
               ? t('builder.skillsModal.instructionClassOptions', {
                   maxSkills,
-                  options: classSkillOptions.join(', ')
+                  options: classSkillList.join(', ')
                 })
               : t('builder.skillsModal.instructionDefault', { maxSkills })}
           {t('builder.skillsModal.profBonus', { bonus: formatMod(profBonus) })}
@@ -89,15 +96,15 @@ export default function SkillsModal(): JSX.Element {
                     ? 'bg-amber-900/20 text-amber-300'
                     : isDisabled
                       ? 'text-gray-600 cursor-not-allowed'
-                      : 'text-gray-300 hover:bg-gray-800'
+                      : 'text-gray-300 hover:bg-surface-2'
                 }`}
               >
                 <span
                   className={`w-4 h-4 rounded-full border-2 flex items-center justify-center text-xs shrink-0 ${
                     isProficient
-                      ? 'border-amber-400 bg-amber-400 text-gray-900'
+                      ? 'border-accent bg-accent text-gray-900'
                       : isDisabled
-                        ? 'border-gray-700'
+                        ? 'border-border'
                         : 'border-gray-600'
                   }`}
                 >
@@ -105,7 +112,7 @@ export default function SkillsModal(): JSX.Element {
                 </span>
                 <span className="flex-1 truncate">{skill.name}</span>
                 <span className="text-xs text-gray-500">{skill.ability.slice(0, 3).toUpperCase()}</span>
-                <span className={`font-mono text-sm ${isProficient ? 'text-amber-400' : 'text-gray-400'}`}>
+                <span className={`font-mono text-sm ${isProficient ? 'text-accent' : 'text-muted'}`}>
                   {formatMod(total)}
                 </span>
               </button>
@@ -115,7 +122,7 @@ export default function SkillsModal(): JSX.Element {
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between px-4 py-3 border-t border-gray-700 bg-gray-900">
+      <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-surface">
         <span className="text-xs text-gray-500">
           {t('builder.skillsModal.selected', { count: selectedSkills.length, max: maxSkills })}
           {atCap ? t('builder.skillsModal.atMaximum') : ''}
@@ -135,7 +142,7 @@ export default function SkillsModal(): JSX.Element {
                 ? 'bg-green-700 text-green-200'
                 : selectedSkills.length < maxSkills
                   ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                  : 'bg-amber-600 hover:bg-amber-500 text-white'
+                  : 'bg-amber-600 hover:bg-accent-strong text-white'
             }`}
           >
             {isConfirmed
