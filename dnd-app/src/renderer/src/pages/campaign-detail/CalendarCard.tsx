@@ -50,7 +50,7 @@ export default function CalendarCard({ campaign, saveCampaign }: CalendarCardPro
       <Card>
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-lg font-semibold">{t('pages.calendarCard.calendar')}</h3>
-          <button onClick={openCalendarEdit} className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer">
+          <button onClick={openCalendarEdit} className="text-xs text-muted hover:text-accent cursor-pointer">
             {t('pages.calendarCard.edit')}
           </button>
         </div>
@@ -83,10 +83,10 @@ export default function CalendarCard({ campaign, saveCampaign }: CalendarCardPro
               <span className="text-gray-200 capitalize">{campaign.calendar.exactTimeDefault}</span>
             </div>
             {weather && (
-              <div className="flex items-center gap-2 mt-1 pt-1 border-t border-gray-700/50">
+              <div className="flex items-center gap-2 mt-1 pt-1 border-t border-border/50">
                 <span className="text-gray-500">{t('pages.calendarCard.weather')}</span>
                 <span className="text-gray-200 capitalize">{weather.condition.replace(/-/g, ' ')}</span>
-                <span className="text-gray-400 text-xs">({weather.temperature})</span>
+                <span className="text-muted text-xs">({weather.temperature})</span>
               </div>
             )}
           </div>

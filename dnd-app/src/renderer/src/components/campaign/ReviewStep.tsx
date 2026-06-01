@@ -38,7 +38,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   exploration: 'bg-green-900/40 text-green-300',
   social: 'bg-blue-900/40 text-blue-300',
   rest: 'bg-purple-900/40 text-purple-300',
-  other: 'bg-gray-800 text-gray-300'
+  other: 'bg-surface-2 text-gray-300'
 }
 
 export default function ReviewStep({
@@ -72,19 +72,19 @@ export default function ReviewStep({
   return (
     <div>
       <h2 className="text-xl font-semibold mb-2">{t('campaign.reviewStep.title')}</h2>
-      <p className="text-gray-400 text-sm mb-6">{t('campaign.reviewStep.subtitle')}</p>
+      <p className="text-muted text-sm mb-6">{t('campaign.reviewStep.subtitle')}</p>
 
       <div className="max-w-2xl space-y-4">
         <Card>
           <h3 className="text-lg font-semibold mb-3">{t('campaign.reviewStep.general')}</h3>
           <div className="grid grid-cols-2 gap-y-2 text-sm">
-            <span className="text-gray-400">{t('campaign.reviewStep.name')}</span>
+            <span className="text-muted">{t('campaign.reviewStep.name')}</span>
             <span>{name}</span>
 
-            <span className="text-gray-400">{t('campaign.reviewStep.system')}</span>
+            <span className="text-muted">{t('campaign.reviewStep.system')}</span>
             <span>{GAME_SYSTEMS[system]?.name ?? system}</span>
 
-            <span className="text-gray-400">{t('campaign.reviewStep.type')}</span>
+            <span className="text-muted">{t('campaign.reviewStep.type')}</span>
             <span className="capitalize">
               {campaignType === 'preset'
                 ? t('campaign.reviewStep.adventureType', {
@@ -95,7 +95,7 @@ export default function ReviewStep({
 
             {description && (
               <>
-                <span className="text-gray-400">{t('campaign.reviewStep.description')}</span>
+                <span className="text-muted">{t('campaign.reviewStep.description')}</span>
                 <span>{description}</span>
               </>
             )}
@@ -105,15 +105,15 @@ export default function ReviewStep({
         <Card>
           <h3 className="text-lg font-semibold mb-3">{t('campaign.reviewStep.settings')}</h3>
           <div className="grid grid-cols-2 gap-y-2 text-sm">
-            <span className="text-gray-400">{t('campaign.reviewStep.maxPlayers')}</span>
+            <span className="text-muted">{t('campaign.reviewStep.maxPlayers')}</span>
             <span>{maxPlayers}</span>
 
-            <span className="text-gray-400">{t('campaign.reviewStep.turnMode')}</span>
+            <span className="text-muted">{t('campaign.reviewStep.turnMode')}</span>
             <span className="capitalize">{turnMode}</span>
 
             {lobbyMessage && (
               <>
-                <span className="text-gray-400">{t('campaign.reviewStep.lobbyMessage')}</span>
+                <span className="text-muted">{t('campaign.reviewStep.lobbyMessage')}</span>
                 <span>{lobbyMessage}</span>
               </>
             )}
@@ -142,13 +142,13 @@ export default function ReviewStep({
           <Card>
             <h3 className="text-lg font-semibold mb-3">{t('campaign.reviewStep.calendar')}</h3>
             <div className="grid grid-cols-2 gap-y-2 text-sm">
-              <span className="text-gray-400">{t('campaign.reviewStep.calendarSystem')}</span>
+              <span className="text-muted">{t('campaign.reviewStep.calendarSystem')}</span>
               <span>{PRESET_LABELS[calendar.preset]}</span>
-              <span className="text-gray-400">{t('campaign.reviewStep.startingYear')}</span>
+              <span className="text-muted">{t('campaign.reviewStep.startingYear')}</span>
               <span>
                 {calendar.startingYear} {calendar.yearLabel}
               </span>
-              <span className="text-gray-400">{t('campaign.reviewStep.timeDisplay')}</span>
+              <span className="text-muted">{t('campaign.reviewStep.timeDisplay')}</span>
               <span className="capitalize">{calendar.exactTimeDefault}</span>
             </div>
           </Card>
@@ -158,13 +158,13 @@ export default function ReviewStep({
           <Card>
             <h3 className="text-lg font-semibold mb-3">{t('campaign.reviewStep.aiDm')}</h3>
             <div className="grid grid-cols-2 gap-y-2 text-sm">
-              <span className="text-gray-400">{t('campaign.reviewStep.provider')}</span>
+              <span className="text-muted">{t('campaign.reviewStep.provider')}</span>
               <span>{AI_PROVIDER_LABELS[aiDm.provider] ?? aiDm.provider}</span>
-              <span className="text-gray-400">{t('campaign.reviewStep.model')}</span>
+              <span className="text-muted">{t('campaign.reviewStep.model')}</span>
               <span>{aiDm.model}</span>
               {aiDm.provider === 'ollama' && (
                 <>
-                  <span className="text-gray-400">{t('campaign.reviewStep.url')}</span>
+                  <span className="text-muted">{t('campaign.reviewStep.url')}</span>
                   <span className="text-xs text-gray-300">{aiDm.ollamaUrl}</span>
                 </>
               )}
@@ -177,7 +177,7 @@ export default function ReviewStep({
             <h3 className="text-lg font-semibold mb-3">{t('campaign.reviewStep.maps', { count: maps.length })}</h3>
             <div className="flex flex-wrap gap-2">
               {maps.map((map) => (
-                <span key={map.id} className="text-sm bg-gray-800 px-3 py-1 rounded-full text-gray-300">
+                <span key={map.id} className="text-sm bg-surface-2 px-3 py-1 rounded-full text-gray-300">
                   {map.name}
                 </span>
               ))}
@@ -190,7 +190,7 @@ export default function ReviewStep({
             <h3 className="text-lg font-semibold mb-3">
               {t('campaign.reviewStep.customAudio', { count: customAudioCount })}
             </h3>
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-muted">
               {t('campaign.reviewStep.customAudioNote', { count: customAudioCount })}
             </p>
           </Card>
@@ -200,27 +200,27 @@ export default function ReviewStep({
           <Card>
             <h3 className="text-lg font-semibold mb-3">{t('campaign.reviewStep.sessionZero')}</h3>
             <div className="grid grid-cols-2 gap-y-2 text-sm">
-              <span className="text-gray-400">{t('campaign.reviewStep.tone')}</span>
+              <span className="text-muted">{t('campaign.reviewStep.tone')}</span>
               <span className="capitalize">{sessionZero.tone}</span>
 
-              <span className="text-gray-400">{t('campaign.reviewStep.pvp')}</span>
+              <span className="text-muted">{t('campaign.reviewStep.pvp')}</span>
               <span>
                 {sessionZero.pvpAllowed ? t('campaign.reviewStep.allowed') : t('campaign.reviewStep.notAllowed')}
               </span>
 
-              <span className="text-gray-400">{t('campaign.reviewStep.characterDeath')}</span>
+              <span className="text-muted">{t('campaign.reviewStep.characterDeath')}</span>
               <span className="capitalize">{sessionZero.characterDeathExpectation}</span>
 
               {sessionZero.contentLimits.length > 0 && (
                 <>
-                  <span className="text-gray-400">{t('campaign.reviewStep.contentLimits')}</span>
+                  <span className="text-muted">{t('campaign.reviewStep.contentLimits')}</span>
                   <span>{sessionZero.contentLimits.join(', ')}</span>
                 </>
               )}
 
               {sessionZero.playSchedule.trim() && (
                 <>
-                  <span className="text-gray-400">{t('campaign.reviewStep.schedule')}</span>
+                  <span className="text-muted">{t('campaign.reviewStep.schedule')}</span>
                   <span>{sessionZero.playSchedule}</span>
                 </>
               )}

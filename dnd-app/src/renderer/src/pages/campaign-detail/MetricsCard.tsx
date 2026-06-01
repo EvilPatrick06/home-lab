@@ -25,7 +25,7 @@ export default function MetricsCard({ campaign }: MetricsCardProps): JSX.Element
       <div className="grid grid-cols-2 gap-y-2 text-sm">
         {stats.map((s) => (
           <div key={s.label} className="contents">
-            <span className="text-gray-400">{s.label}</span>
+            <span className="text-muted">{s.label}</span>
             <span className="text-gray-200 font-medium">{s.value}</span>
           </div>
         ))}

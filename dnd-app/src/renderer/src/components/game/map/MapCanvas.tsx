@@ -780,7 +780,7 @@ export default function MapCanvas({
 
   return (
     <div
-      className={`relative w-full h-full overflow-hidden bg-gray-900 ${pendingPlacement ? 'cursor-crosshair' : ''}`}
+      className={`relative w-full h-full overflow-hidden bg-surface ${pendingPlacement ? 'cursor-crosshair' : ''}`}
       onContextMenu={(e) => e.preventDefault()}
       onDragOver={handleLibraryDragOver}
       onDrop={handleLibraryDrop}
@@ -810,7 +810,7 @@ export default function MapCanvas({
         title={showGridHud ? t('game.mapCanvas.hideGridCoords') : t('game.mapCanvas.showGridCoords')}
         aria-label={t('game.mapCanvas.toggleGridReadout')}
         className={`absolute bottom-2 left-2 z-20 px-2 py-1 text-xs font-mono rounded cursor-pointer transition-colors ${
-          showGridHud ? 'bg-amber-600/70 text-white' : 'bg-black/50 text-gray-400 hover:text-gray-200'
+          showGridHud ? 'bg-amber-600/70 text-white' : 'bg-black/50 text-muted hover:text-gray-200'
         }`}
       >
         A1
@@ -826,21 +826,21 @@ export default function MapCanvas({
         </Suspense>
       )}
       {pendingPlacement && (
-        <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 bg-gray-900/90 border border-cyan-500/60 rounded-lg px-4 py-2 text-xs text-cyan-300 pointer-events-none">
+        <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 bg-surface/90 border border-cyan-500/60 rounded-lg px-4 py-2 text-xs text-cyan-300 pointer-events-none">
           {t('game.mapCanvas.clickToPlace')}{' '}
           <span className="font-semibold">{pendingPlacement.tokenData.label ?? t('game.mapCanvas.tokenFallback')}</span>
-          {t('game.mapCanvas.pressEscPrefix')} <kbd className="px-1 py-0.5 bg-gray-800 rounded text-gray-200">Esc</kbd>
+          {t('game.mapCanvas.pressEscPrefix')} <kbd className="px-1 py-0.5 bg-surface-2 rounded text-gray-200">Esc</kbd>
           {t('game.mapCanvas.pressEscSuffix')}
         </div>
       )}
       {initError && (
         <div className="absolute inset-0 flex items-center justify-center z-20">
-          <div className="bg-gray-800 border border-red-500 rounded-lg p-6 max-w-md text-center">
+          <div className="bg-surface-2 border border-red-500 rounded-lg p-6 max-w-md text-center">
             <p className="text-red-400 font-semibold text-lg mb-2">{t('game.mapCanvas.rendererError')}</p>
             <p className="text-gray-300 text-sm mb-4">{initError}</p>
             <p className="text-gray-500 text-xs mb-4">{t('game.mapCanvas.rendererErrorHint')}</p>
             <button
-              className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded text-sm"
+              className="px-4 py-2 bg-amber-600 hover:bg-accent-strong text-white rounded text-sm"
               onClick={() => {
                 setInitError(null)
                 setRetryCount((c) => c + 1)

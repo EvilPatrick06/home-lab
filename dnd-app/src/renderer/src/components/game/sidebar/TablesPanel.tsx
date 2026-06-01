@@ -160,17 +160,17 @@ export default function TablesPanel(): JSX.Element {
   return (
     <div className="space-y-2">
       {tables.map((table) => (
-        <div key={table.name} className="bg-gray-800/50 rounded-lg p-3">
+        <div key={table.name} className="bg-surface-2/50 rounded-lg p-3">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-gray-200 capitalize">{table.name.replace(/([A-Z])/g, ' $1')}</span>
             <button
               onClick={() => rollOnTable(table)}
-              className="px-2 py-1 text-xs font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer"
+              className="px-2 py-1 text-xs font-semibold bg-amber-600 hover:bg-accent-strong text-white rounded cursor-pointer"
             >
               {t('game.tablesPanel.roll')}
             </button>
           </div>
-          <div className="text-xs text-gray-400">
+          <div className="text-xs text-muted">
             {table.type === 'array' && (
               <span>{t('game.tablesPanel.entries', { count: (table.data as unknown[]).length })}</span>
             )}

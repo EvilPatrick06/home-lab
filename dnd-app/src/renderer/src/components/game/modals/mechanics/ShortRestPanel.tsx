@@ -103,7 +103,7 @@ export default function ShortRestPanel({ pcs, states, onStatesChange }: ShortRes
           <div
             key={pc.id}
             className={`border rounded-lg p-3 transition-colors ${
-              state.selected ? 'border-amber-600/50 bg-gray-800/50' : 'border-gray-700/30 bg-gray-800/20 opacity-50'
+              state.selected ? 'border-amber-600/50 bg-surface-2/50' : 'border-border/30 bg-surface-2/20 opacity-50'
             }`}
           >
             {/* Header row */}
@@ -118,7 +118,7 @@ export default function ShortRestPanel({ pcs, states, onStatesChange }: ShortRes
               <span className="text-xs text-gray-500">
                 {t('game.shortRestPanel.levelPrefix', { level: pc.level })} {classes.map((c) => c.name).join('/')}
               </span>
-              <span className="ml-auto text-xs text-gray-400">
+              <span className="ml-auto text-xs text-muted">
                 {t('game.shortRestPanel.hp', { current: pc.hitPoints.current, max: pc.hitPoints.maximum })}
               </span>
             </div>
@@ -126,9 +126,9 @@ export default function ShortRestPanel({ pcs, states, onStatesChange }: ShortRes
             {state.selected && (
               <div className="space-y-2 pl-6">
                 {/* HD info */}
-                <div className="text-xs text-gray-400">
+                <div className="text-xs text-muted">
                   {t('game.shortRestPanel.hitDice')}{' '}
-                  <span className="text-amber-400 font-semibold">
+                  <span className="text-accent font-semibold">
                     {pc.hitDice.reduce((s, h) => s + h.current, 0)}/{pc.hitDice.reduce((s, h) => s + h.maximum, 0)}
                   </span>
                   {isMulticlass && (
@@ -153,7 +153,7 @@ export default function ShortRestPanel({ pcs, states, onStatesChange }: ShortRes
                             className={`px-2 py-0.5 text-xs rounded cursor-pointer ${
                               state.selectedDieSize === d
                                 ? 'bg-amber-600 text-white'
-                                : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+                                : 'bg-gray-700 text-muted hover:bg-gray-600'
                             }`}
                           >
                             d{d}
@@ -180,7 +180,7 @@ export default function ShortRestPanel({ pcs, states, onStatesChange }: ShortRes
                             )
                           })
                         }
-                        className="w-12 bg-gray-700 border border-gray-600 rounded px-1.5 py-0.5 text-center text-xs text-gray-100 focus:outline-none focus:border-amber-500"
+                        className="w-12 bg-gray-700 border border-gray-600 rounded px-1.5 py-0.5 text-center text-xs text-fg focus:outline-none focus:border-amber-500"
                       />
                       <span className="text-xs text-gray-500">
                         d{isMulticlass ? state.selectedDieSize : (classes[0]?.hitDie ?? 8)}
@@ -190,7 +190,7 @@ export default function ShortRestPanel({ pcs, states, onStatesChange }: ShortRes
                     <button
                       onClick={() => handleRollDice(pc.id)}
                       disabled={state.diceCount === 0}
-                      className="px-3 py-1 text-xs font-semibold rounded bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white cursor-pointer transition-colors"
+                      className="px-3 py-1 text-xs font-semibold rounded bg-amber-600 hover:bg-accent-strong disabled:bg-gray-700 disabled:text-gray-500 text-white cursor-pointer transition-colors"
                     >
                       {t('game.shortRestPanel.roll')}
                     </button>
@@ -212,7 +212,7 @@ export default function ShortRestPanel({ pcs, states, onStatesChange }: ShortRes
                       </div>
                     ))}
                     {state.rolls.length > 0 && (
-                      <div className="text-xs font-semibold text-green-400 pt-1 border-t border-gray-700/50">
+                      <div className="text-xs font-semibold text-green-400 pt-1 border-t border-border/50">
                         {t('game.shortRestPanel.totalHp', { total: totalHealing })}
                         <span className="text-gray-500 font-normal ml-2">
                           ({pc.hitPoints.current} →{' '}
@@ -225,7 +225,7 @@ export default function ShortRestPanel({ pcs, states, onStatesChange }: ShortRes
 
                 {/* Arcane Recovery (Wizard) */}
                 {state.preview.arcaneRecoveryEligible && (
-                  <div className="border-t border-gray-700/30 pt-2 mt-2">
+                  <div className="border-t border-border/30 pt-2 mt-2">
                     <div className="text-xs text-purple-400 font-semibold mb-1">
                       {t('game.shortRestPanel.arcaneRecovery', {
                         slots: state.preview.arcaneRecoverySlotsToRecover
@@ -252,7 +252,7 @@ export default function ShortRestPanel({ pcs, states, onStatesChange }: ShortRes
                                   ? 'bg-purple-600 text-white'
                                   : canAdd
                                     ? 'bg-gray-700 text-gray-300 hover:bg-purple-600/30'
-                                    : 'bg-gray-800 text-gray-600 cursor-not-allowed'
+                                    : 'bg-surface-2 text-gray-600 cursor-not-allowed'
                               }`}
                             >
                               L{level} ({slots.current}/{slots.max})

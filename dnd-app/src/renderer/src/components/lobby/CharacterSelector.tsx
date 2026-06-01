@@ -106,17 +106,17 @@ export default function CharacterSelector({ onSelect }: CharacterSelectorProps):
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-full p-3 rounded-lg border text-left transition-all cursor-pointer
-                   border-gray-700 bg-gray-800/50 hover:border-gray-600"
+                   border-border bg-surface-2/50 hover:border-gray-600"
       >
         {isNoneSelected ? (
           <div>
-            <p className="font-semibold text-gray-100">{t('lobby.characterSelector.dungeonMaster')}</p>
-            <p className="text-xs text-gray-400 mt-0.5">{t('lobby.characterSelector.noCharacterSelected')}</p>
+            <p className="font-semibold text-fg">{t('lobby.characterSelector.dungeonMaster')}</p>
+            <p className="text-xs text-muted mt-0.5">{t('lobby.characterSelector.noCharacterSelected')}</p>
           </div>
         ) : selectedSummary ? (
           <div>
-            <p className="font-semibold text-gray-100">{selectedSummary.name}</p>
-            <p className="text-xs text-gray-400 mt-0.5">
+            <p className="font-semibold text-fg">{selectedSummary.name}</p>
+            <p className="text-xs text-muted mt-0.5">
               {t('lobby.characterSelector.levelClass', {
                 level: selectedSummary.level,
                 className: selectedSummary.className
@@ -125,7 +125,7 @@ export default function CharacterSelector({ onSelect }: CharacterSelectorProps):
           </div>
         ) : (
           <div>
-            <p className="text-gray-400">{t('lobby.characterSelector.selectCharacter')}</p>
+            <p className="text-muted">{t('lobby.characterSelector.selectCharacter')}</p>
             <p className="text-xs text-gray-600 mt-0.5">{t('lobby.characterSelector.clickToChoose')}</p>
           </div>
         )}
@@ -147,13 +147,13 @@ export default function CharacterSelector({ onSelect }: CharacterSelectorProps):
 
       {/* Dropdown list */}
       {isOpen && (
-        <div className="rounded-lg border border-gray-700 bg-gray-800 overflow-hidden max-h-60 overflow-y-auto">
+        <div className="rounded-lg border border-border bg-surface-2 overflow-hidden max-h-60 overflow-y-auto">
           {/* DM / Co-DM: no character option */}
           {canSkipCharacter && (
             <button
               onClick={handleSelectNone}
               className={`w-full text-left px-3 py-2.5 transition-colors cursor-pointer
-                border-b border-gray-700/50
+                border-b border-border/50
                 ${isNoneSelected ? 'bg-amber-900/20 text-amber-300' : 'hover:bg-gray-700/50 text-gray-200'}`}
             >
               <p className="text-sm font-medium">{t('lobby.characterSelector.noCharacter')}</p>
@@ -167,7 +167,7 @@ export default function CharacterSelector({ onSelect }: CharacterSelectorProps):
           ) : (
             <>
               {campaignCharacters.length > 0 && (
-                <div className="px-3 py-1 bg-gray-900/80 text-xs font-bold text-gray-500 uppercase tracking-wide">
+                <div className="px-3 py-1 bg-surface/80 text-xs font-bold text-gray-500 uppercase tracking-wide">
                   {t('lobby.characterSelector.campaignCharacters')}
                 </div>
               )}
@@ -179,7 +179,7 @@ export default function CharacterSelector({ onSelect }: CharacterSelectorProps):
                     key={character.id}
                     onClick={() => handleSelect(character)}
                     className={`w-full text-left px-3 py-2.5 transition-colors cursor-pointer
-                      border-b border-gray-700/50 last:border-b-0
+                      border-b border-border/50 last:border-b-0
                       ${isSelected ? 'bg-amber-900/20 text-amber-300' : 'hover:bg-gray-700/50 text-gray-200'}`}
                   >
                     <p className="text-sm font-medium">{summary.name}</p>
@@ -191,7 +191,7 @@ export default function CharacterSelector({ onSelect }: CharacterSelectorProps):
               })}
 
               {otherCharacters.length > 0 && (
-                <div className="px-3 py-1 bg-gray-900/80 text-xs font-bold text-gray-500 uppercase tracking-wide">
+                <div className="px-3 py-1 bg-surface/80 text-xs font-bold text-gray-500 uppercase tracking-wide">
                   {t('lobby.characterSelector.otherCharacters')}
                 </div>
               )}
@@ -203,13 +203,13 @@ export default function CharacterSelector({ onSelect }: CharacterSelectorProps):
                     key={character.id}
                     onClick={() => handleSelect(character)}
                     className={`w-full text-left px-3 py-2.5 transition-colors cursor-pointer
-                      border-b border-gray-700/50 last:border-b-0
+                      border-b border-border/50 last:border-b-0
                       ${isSelected ? 'bg-amber-900/20 text-amber-300' : 'hover:bg-gray-700/50 text-gray-200'}`}
                   >
                     <div className="flex justify-between items-start">
                       <p className="text-sm font-medium">{summary.name}</p>
                       {character.campaignId && character.campaignId !== campaignId && (
-                        <span className="text-[9px] text-amber-500/80 border border-amber-500/30 rounded px-1 ml-2 pointer-events-none">
+                        <span className="text-[9px] text-accent-strong/80 border border-amber-500/30 rounded px-1 ml-2 pointer-events-none">
                           {t('lobby.characterSelector.diffCampaign')}
                         </span>
                       )}
@@ -228,8 +228,8 @@ export default function CharacterSelector({ onSelect }: CharacterSelectorProps):
       {/* Create new character button */}
       <button
         onClick={() => navigate('/characters/5e/create', { state: { returnTo: `/lobby/${campaignId}` } })}
-        className="w-full p-2.5 rounded-lg border border-dashed border-gray-700 text-sm text-gray-400
-                   hover:border-amber-600/50 hover:text-amber-400 transition-colors cursor-pointer
+        className="w-full p-2.5 rounded-lg border border-dashed border-border text-sm text-muted
+                   hover:border-amber-600/50 hover:text-accent transition-colors cursor-pointer
                    text-center"
       >
         {t('lobby.characterSelector.createNewCharacter')}

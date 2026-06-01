@@ -52,7 +52,7 @@ export default function PrintSheetSpells({ character }: PrintSheetSpellsProps): 
                   {spells.map((sp: SpellEntry) => {
                     const isPrepared = lvl === 0 || preparedSpellIds.includes(sp.id)
                     return (
-                      <span key={sp.id} className={isPrepared ? 'font-semibold' : 'text-gray-400'}>
+                      <span key={sp.id} className={isPrepared ? 'font-semibold' : 'text-muted'}>
                         {sp.name}
                         {sp.concentration && <span className="text-[7pt] align-super ml-px">C</span>}
                         {sp.ritual && <span className="text-[7pt] align-super ml-px">R</span>}
@@ -76,7 +76,7 @@ export default function PrintSheetSpells({ character }: PrintSheetSpellsProps): 
             {character.features.map((f: Feature, i: number) => (
               <div key={`${f.name}-${i}`}>
                 <strong>{f.name}</strong>
-                <span className="text-gray-400 text-[7pt] ml-1">({f.source})</span>
+                <span className="text-muted text-[7pt] ml-1">({f.source})</span>
                 {f.description && <span className="ml-1">{f.description}</span>}
               </div>
             ))}

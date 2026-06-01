@@ -548,7 +548,7 @@ export default function LibraryPage(): JSX.Element {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h1
-          className="text-3xl font-bold text-amber-400"
+          className="text-3xl font-bold text-accent"
           title={t('pages.libraryPage.headerTitle', { groups: totalGroupCount, categories: totalCategoryCount })}
         >
           {t('pages.libraryPage.title')}
@@ -585,7 +585,7 @@ export default function LibraryPage(): JSX.Element {
               ? t('pages.libraryPage.searchCategory', { category: catDef?.label ?? selectedCategory })
               : t('pages.libraryPage.searchAll')
           }
-          className="w-full max-w-md bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+          className="w-full max-w-md bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
         />
       </div>
 
@@ -701,11 +701,11 @@ export default function LibraryPage(): JSX.Element {
                               key={`recent-${item.id}`}
                               onClick={() => handleSelectItem(item)}
                               className="group flex flex-col items-center gap-1 p-3 rounded-lg border border-gray-800
-                                bg-gray-900/50 hover:bg-gray-800/80 hover:border-amber-600/50
+                                bg-surface/50 hover:bg-surface-2/80 hover:border-amber-600/50
                                 transition-all duration-200 cursor-pointer text-center"
                             >
                               <span className="text-lg">{def?.icon ?? '📄'}</span>
-                              <span className="text-xs font-medium text-gray-200 group-hover:text-amber-400 transition-colors truncate w-full">
+                              <span className="text-xs font-medium text-gray-200 group-hover:text-accent transition-colors truncate w-full">
                                 {item.name}
                               </span>
                               <span className="text-xs text-gray-500">{def?.label ?? item.category}</span>

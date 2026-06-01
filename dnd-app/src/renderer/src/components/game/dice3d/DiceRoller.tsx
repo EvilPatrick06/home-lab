@@ -145,7 +145,7 @@ export default function DiceRoller({
       <div className="flex justify-end">
         <button
           onClick={() => setShowHistory((v) => !v)}
-          className="px-2 py-1 text-xs rounded transition-colors cursor-pointer bg-gray-800 text-gray-400 hover:text-gray-200 hover:bg-gray-700"
+          className="px-2 py-1 text-xs rounded transition-colors cursor-pointer bg-surface-2 text-muted hover:text-gray-200 hover:bg-gray-700"
         >
           {showHistory ? t('game.diceRoller.hideHistory') : t('game.diceRoller.history')}
         </button>
@@ -162,7 +162,7 @@ export default function DiceRoller({
           <button
             key={die.sides}
             onClick={() => handleQuickRoll(die.sides)}
-            className="px-3 py-1.5 text-xs rounded-lg bg-gray-800 border border-gray-700
+            className="px-3 py-1.5 text-xs rounded-lg bg-surface-2 border border-border
               text-gray-300 hover:bg-amber-600 hover:text-white hover:border-amber-500
               transition-colors cursor-pointer font-mono font-semibold"
             aria-label={t('game.diceRoller.rollDie', { label: die.label })}
@@ -176,10 +176,10 @@ export default function DiceRoller({
       <div className="flex items-center gap-2">
         <div className="flex items-center gap-1">
           <span className="text-xs text-gray-500">{t('game.diceRoller.mod')}</span>
-          <div className="flex items-center bg-gray-800 rounded-lg border border-gray-700">
+          <div className="flex items-center bg-surface-2 rounded-lg border border-border">
             <button
               onClick={() => setModifier((m) => m - 1)}
-              className="px-2 py-1 text-gray-400 hover:text-gray-200 cursor-pointer text-sm"
+              className="px-2 py-1 text-muted hover:text-gray-200 cursor-pointer text-sm"
             >
               -
             </button>
@@ -188,7 +188,7 @@ export default function DiceRoller({
             </span>
             <button
               onClick={() => setModifier((m) => m + 1)}
-              className="px-2 py-1 text-gray-400 hover:text-gray-200 cursor-pointer text-sm"
+              className="px-2 py-1 text-muted hover:text-gray-200 cursor-pointer text-sm"
               aria-label={t('game.diceRoller.increaseModifier')}
             >
               +
@@ -210,7 +210,7 @@ export default function DiceRoller({
                         : mode === 'disadvantage'
                           ? 'bg-red-600 text-white'
                           : 'bg-amber-600 text-white'
-                      : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                      : 'bg-surface-2 text-muted hover:bg-gray-700'
                   }`}
               >
                 {mode === 'normal'
@@ -247,13 +247,13 @@ export default function DiceRoller({
             if (e.key === 'Enter') handleCustomRoll()
           }}
           placeholder={t('game.diceRoller.customPlaceholder')}
-          className="flex-1 px-2 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
+          className="flex-1 px-2 py-1.5 rounded-lg bg-surface-2 border border-border text-fg
             placeholder-gray-600 focus:outline-none focus:border-amber-500 text-sm font-mono"
         />
         <button
           onClick={handleCustomRoll}
           disabled={!parseDiceFormula(customFormula)}
-          className="px-3 py-1.5 text-xs rounded-lg bg-amber-600 hover:bg-amber-500 text-white
+          className="px-3 py-1.5 text-xs rounded-lg bg-amber-600 hover:bg-accent-strong text-white
             font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           {t('game.diceRoller.roll')}

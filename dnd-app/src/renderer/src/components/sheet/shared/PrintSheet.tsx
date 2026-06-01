@@ -36,10 +36,7 @@ function PrintSheet5e({ character, onClose }: { character: Character5e; onClose:
       }}
     >
       {/* Toolbar - hidden when printing */}
-      <div
-        className="print:hidden sticky top-0 z-10 flex items-center gap-3 bg-gray-100 px-6 py-3 border-b border-gray-300 shadow-sm"
-        style={{ fontFamily: 'system-ui, sans-serif' }}
-      >
+      <div className="print:hidden sticky top-0 z-10 flex items-center gap-3 bg-gray-100 px-6 py-3 border-b border-gray-300 shadow-sm font-[system-ui,sans-serif]">
         <button
           onClick={handlePrint}
           className="rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"

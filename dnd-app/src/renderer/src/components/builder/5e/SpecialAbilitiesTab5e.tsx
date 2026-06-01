@@ -196,7 +196,7 @@ export default function SpecialAbilitiesTab5e(): JSX.Element {
         {bgSlot && (
           <button
             onClick={() => openSelectionModal(bgSlot.id)}
-            className="px-4 py-2 text-sm bg-amber-600 hover:bg-amber-500 text-white rounded font-semibold transition-colors cursor-pointer"
+            className="px-4 py-2 text-sm bg-amber-600 hover:bg-accent-strong text-white rounded font-semibold transition-colors cursor-pointer"
           >
             {t('builder.specialAbilitiesTab.chooseBackground')}
           </button>
@@ -231,7 +231,7 @@ export default function SpecialAbilitiesTab5e(): JSX.Element {
             className={`text-xs px-3 py-1 rounded border transition-colors cursor-pointer ${
               bonusMode === '2-1'
                 ? 'bg-amber-900/50 border-amber-600 text-amber-300'
-                : 'border-gray-600 text-gray-400 hover:border-gray-400'
+                : 'border-gray-600 text-muted hover:border-gray-400'
             }`}
           >
             {t('builder.specialAbilitiesTab.mode21')}
@@ -241,7 +241,7 @@ export default function SpecialAbilitiesTab5e(): JSX.Element {
             className={`text-xs px-3 py-1 rounded border transition-colors cursor-pointer ${
               bonusMode === '1-1-1'
                 ? 'bg-amber-900/50 border-amber-600 text-amber-300'
-                : 'border-gray-600 text-gray-400 hover:border-gray-400'
+                : 'border-gray-600 text-muted hover:border-gray-400'
             }`}
           >
             {t('builder.specialAbilitiesTab.mode111')}
@@ -265,7 +265,7 @@ export default function SpecialAbilitiesTab5e(): JSX.Element {
                         is2
                           ? 'bg-amber-600 border-amber-500 text-gray-900 font-bold'
                           : is1
-                            ? 'border-gray-700 text-gray-600 cursor-not-allowed'
+                            ? 'border-border text-gray-600 cursor-not-allowed'
                             : 'border-gray-600 text-gray-300 hover:border-amber-500'
                       }`}
                     >
@@ -290,7 +290,7 @@ export default function SpecialAbilitiesTab5e(): JSX.Element {
                         is1
                           ? 'bg-amber-600 border-amber-500 text-gray-900 font-bold'
                           : is2
-                            ? 'border-gray-700 text-gray-600 cursor-not-allowed'
+                            ? 'border-border text-gray-600 cursor-not-allowed'
                             : 'border-gray-600 text-gray-300 hover:border-amber-500'
                       }`}
                     >
@@ -319,7 +319,7 @@ export default function SpecialAbilitiesTab5e(): JSX.Element {
                       selected
                         ? 'bg-amber-600 border-amber-500 text-gray-900 font-bold'
                         : maxed
-                          ? 'border-gray-700 text-gray-600 cursor-not-allowed'
+                          ? 'border-border text-gray-600 cursor-not-allowed'
                           : 'border-gray-600 text-gray-300 hover:border-amber-500'
                     }`}
                   >
@@ -350,7 +350,7 @@ export default function SpecialAbilitiesTab5e(): JSX.Element {
                   className={`px-3 py-1.5 text-sm rounded border transition-colors cursor-pointer ${
                     speciesSize === size
                       ? 'bg-amber-600 border-amber-500 text-white font-semibold'
-                      : 'border-gray-600 text-gray-400 hover:border-amber-500'
+                      : 'border-gray-600 text-muted hover:border-amber-500'
                   }`}
                 >
                   {size}
@@ -375,7 +375,7 @@ export default function SpecialAbilitiesTab5e(): JSX.Element {
                   className={`px-3 py-1.5 text-sm rounded border transition-colors cursor-pointer ${
                     speciesSpellcastingAbility === ab
                       ? 'bg-purple-600 border-purple-500 text-white font-semibold'
-                      : 'border-gray-600 text-gray-400 hover:border-purple-500'
+                      : 'border-gray-600 text-muted hover:border-purple-500'
                   }`}
                 >
                   {ABILITY_LABELS[ab]}
@@ -407,7 +407,7 @@ export default function SpecialAbilitiesTab5e(): JSX.Element {
                   className={`px-3 py-1.5 text-sm rounded border transition-colors cursor-pointer ${
                     keenSensesSkill === skill
                       ? 'bg-amber-600 border-amber-500 text-white font-semibold'
-                      : 'border-gray-600 text-gray-400 hover:border-amber-500'
+                      : 'border-gray-600 text-muted hover:border-amber-500'
                   }`}
                 >
                   {skill}

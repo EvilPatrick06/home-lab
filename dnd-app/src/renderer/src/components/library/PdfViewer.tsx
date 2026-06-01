@@ -802,9 +802,9 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
 
   if (loading) {
     return (
-      <div className="fixed inset-0 z-50 bg-gray-950 flex items-center justify-center">
+      <div className="fixed inset-0 z-50 bg-base flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin w-12 h-12 border-4 border-amber-400 border-t-transparent rounded-full mx-auto mb-4" />
+          <div className="animate-spin w-12 h-12 border-4 border-accent border-t-transparent rounded-full mx-auto mb-4" />
           <p className="text-gray-300 text-lg">{t('library.pdfViewer.loadingTitle', { title })}</p>
         </div>
       </div>
@@ -813,10 +813,10 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
 
   if (error) {
     return (
-      <div className="fixed inset-0 z-50 bg-gray-950 flex items-center justify-center">
+      <div className="fixed inset-0 z-50 bg-base flex items-center justify-center">
         <div className="text-center max-w-md">
           <p className="text-red-400 text-lg mb-2">{t('library.pdfViewer.loadFailed')}</p>
-          <p className="text-gray-400 text-sm mb-4">{error}</p>
+          <p className="text-muted text-sm mb-4">{error}</p>
           <button
             onClick={onClose}
             className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg transition-colors"
@@ -829,12 +829,12 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-gray-950 flex flex-col">
+    <div className="fixed inset-0 z-50 bg-base flex flex-col">
       {/* Top toolbar */}
-      <div className="flex items-center gap-2 px-4 py-2 bg-gray-900 border-b border-gray-800 shrink-0">
+      <div className="flex items-center gap-2 px-4 py-2 bg-surface border-b border-gray-800 shrink-0">
         <button
           onClick={onClose}
-          className="px-2 py-1 text-gray-400 hover:text-gray-200 transition-colors"
+          className="px-2 py-1 text-muted hover:text-gray-200 transition-colors"
           title={t('library.pdfViewer.closeEsc')}
         >
           ✕
@@ -847,7 +847,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
         <button
           onClick={prevPage}
           disabled={currentPage <= 1}
-          className="px-2 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded disabled:opacity-40 transition-colors"
+          className="px-2 py-1 bg-surface-2 hover:bg-gray-700 text-gray-300 rounded disabled:opacity-40 transition-colors"
         >
           ◀
         </button>
@@ -867,14 +867,14 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
               if (resolved) goToPage(resolved)
               else setPageInput(getPageLabel(currentPage))
             }}
-            className="w-16 bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-center text-gray-200 text-sm"
+            className="w-16 bg-surface-2 border border-border rounded px-1 py-0.5 text-center text-gray-200 text-sm"
           />
           <span>/ {totalPages}</span>
         </div>
         <button
           onClick={nextPage}
           disabled={currentPage >= totalPages}
-          className="px-2 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded disabled:opacity-40 transition-colors"
+          className="px-2 py-1 bg-surface-2 hover:bg-gray-700 text-gray-300 rounded disabled:opacity-40 transition-colors"
         >
           ▶
         </button>
@@ -882,15 +882,15 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
         <div className="w-px h-6 bg-gray-700 mx-1" />
         <button
           onClick={() => setScale((s) => Math.max(s - 0.2, 0.4))}
-          className="px-2 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded transition-colors"
+          className="px-2 py-1 bg-surface-2 hover:bg-gray-700 text-gray-300 rounded transition-colors"
           title={t('library.pdfViewer.zoomOut')}
         >
           −
         </button>
-        <span className="text-sm text-gray-400 w-12 text-center">{Math.round(scale * 100)}%</span>
+        <span className="text-sm text-muted w-12 text-center">{Math.round(scale * 100)}%</span>
         <button
           onClick={() => setScale((s) => Math.min(s + 0.2, 3.0))}
-          className="px-2 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded transition-colors"
+          className="px-2 py-1 bg-surface-2 hover:bg-gray-700 text-gray-300 rounded transition-colors"
           title={t('library.pdfViewer.zoomIn')}
         >
           +
@@ -905,7 +905,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
             setTimeout(() => searchInputRef.current?.focus(), 100)
           }}
           className={`px-2 py-1 rounded text-sm transition-colors ${
-            searchOpen ? 'bg-amber-600 text-white' : 'bg-gray-800 hover:bg-gray-700 text-gray-300'
+            searchOpen ? 'bg-amber-600 text-white' : 'bg-surface-2 hover:bg-gray-700 text-gray-300'
           }`}
           title={t('library.pdfViewer.searchTitle')}
         >
@@ -916,7 +916,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
         <button
           onClick={() => setTwoPageView(!twoPageView)}
           className={`px-2 py-1 rounded text-sm transition-colors ${
-            twoPageView ? 'bg-amber-600 text-white' : 'bg-gray-800 hover:bg-gray-700 text-gray-300'
+            twoPageView ? 'bg-amber-600 text-white' : 'bg-surface-2 hover:bg-gray-700 text-gray-300'
           }`}
           title={twoPageView ? t('library.pdfViewer.singlePageView') : t('library.pdfViewer.twoPageView')}
         >
@@ -927,7 +927,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
         <button
           onClick={() => setShowToc(!showToc)}
           className={`px-2 py-1 rounded text-sm transition-colors ${
-            showToc ? 'bg-amber-600 text-white' : 'bg-gray-800 hover:bg-gray-700 text-gray-300'
+            showToc ? 'bg-amber-600 text-white' : 'bg-surface-2 hover:bg-gray-700 text-gray-300'
           }`}
           title={t('library.pdfViewer.tableOfContents')}
         >
@@ -950,7 +950,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
         <button
           onClick={() => setShowBookmarks(!showBookmarks)}
           className={`px-2 py-1 rounded text-sm transition-colors ${
-            showBookmarks ? 'bg-amber-600 text-white' : 'bg-gray-800 hover:bg-gray-700 text-gray-300'
+            showBookmarks ? 'bg-amber-600 text-white' : 'bg-surface-2 hover:bg-gray-700 text-gray-300'
           }`}
           title={t('library.pdfViewer.bookmarksAnnotations')}
         >
@@ -961,7 +961,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
         <button
           onClick={addBookmark}
           className={`px-2 py-1 rounded text-sm transition-colors ${
-            isPageBookmarked ? 'bg-amber-500/20 text-amber-400' : 'bg-gray-800 hover:bg-gray-700 text-gray-300'
+            isPageBookmarked ? 'bg-accent-strong/20 text-accent' : 'bg-surface-2 hover:bg-gray-700 text-gray-300'
           }`}
           title={isPageBookmarked ? t('library.pdfViewer.pageBookmarked') : t('library.pdfViewer.bookmarkPage')}
         >
@@ -971,7 +971,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
         {/* Add annotation */}
         <button
           onClick={() => setShowAnnotationInput(!showAnnotationInput)}
-          className="px-2 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded text-sm transition-colors"
+          className="px-2 py-1 bg-surface-2 hover:bg-gray-700 text-gray-300 rounded text-sm transition-colors"
           title={t('library.pdfViewer.addAnnotation')}
         >
           📝
@@ -997,7 +997,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
 
       {/* Search bar */}
       {searchOpen && (
-        <div className="flex items-center gap-2 px-4 py-2 bg-gray-900/90 border-b border-gray-800 shrink-0">
+        <div className="flex items-center gap-2 px-4 py-2 bg-surface/90 border-b border-gray-800 shrink-0">
           <input
             ref={searchInputRef}
             type="text"
@@ -1013,17 +1013,17 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
               }
             }}
             placeholder={t('library.pdfViewer.searchPlaceholder')}
-            className="flex-1 max-w-sm bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-200 focus:outline-none focus:border-amber-500"
+            className="flex-1 max-w-sm bg-surface-2 border border-border rounded px-2 py-1 text-sm text-gray-200 focus:outline-none focus:border-amber-500"
           />
           <button
             onClick={handleSearch}
-            className="px-3 py-1 bg-amber-600 hover:bg-amber-500 text-white rounded text-sm transition-colors"
+            className="px-3 py-1 bg-amber-600 hover:bg-accent-strong text-white rounded text-sm transition-colors"
           >
             {t('library.pdfViewer.search')}
           </button>
           {searchResults.length > 0 && (
             <>
-              <span className="text-sm text-gray-400">
+              <span className="text-sm text-muted">
                 {t('library.pdfViewer.searchPagesCount', {
                   current: currentSearchIdx + 1,
                   total: searchResults.length
@@ -1031,13 +1031,13 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
               </span>
               <button
                 onClick={prevSearchResult}
-                className="px-2 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded text-sm"
+                className="px-2 py-1 bg-surface-2 hover:bg-gray-700 text-gray-300 rounded text-sm"
               >
                 ▲
               </button>
               <button
                 onClick={nextSearchResult}
-                className="px-2 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded text-sm"
+                className="px-2 py-1 bg-surface-2 hover:bg-gray-700 text-gray-300 rounded text-sm"
               >
                 ▼
               </button>
@@ -1051,8 +1051,8 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
 
       {/* Annotation input */}
       {showAnnotationInput && (
-        <div className="flex items-center gap-2 px-4 py-2 bg-gray-900/90 border-b border-gray-800 shrink-0">
-          <span className="text-sm text-gray-400">{t('library.pdfViewer.noteForPage', { page: currentPage })}</span>
+        <div className="flex items-center gap-2 px-4 py-2 bg-surface/90 border-b border-gray-800 shrink-0">
+          <span className="text-sm text-muted">{t('library.pdfViewer.noteForPage', { page: currentPage })}</span>
           <input
             type="text"
             value={annotationText}
@@ -1061,19 +1061,19 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
               if (e.key === 'Enter') addAnnotation()
             }}
             placeholder={t('library.pdfViewer.annotationPlaceholder')}
-            className="flex-1 max-w-md bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-200 focus:outline-none focus:border-amber-500"
+            className="flex-1 max-w-md bg-surface-2 border border-border rounded px-2 py-1 text-sm text-gray-200 focus:outline-none focus:border-amber-500"
             autoFocus
           />
           <button
             onClick={addAnnotation}
             disabled={!annotationText.trim()}
-            className="px-3 py-1 bg-amber-600 hover:bg-amber-500 text-white rounded text-sm transition-colors disabled:opacity-40"
+            className="px-3 py-1 bg-amber-600 hover:bg-accent-strong text-white rounded text-sm transition-colors disabled:opacity-40"
           >
             {t('library.pdfViewer.add')}
           </button>
           <button
             onClick={() => setShowAnnotationInput(false)}
-            className="px-2 py-1 text-gray-400 hover:text-gray-200 text-sm"
+            className="px-2 py-1 text-muted hover:text-gray-200 text-sm"
           >
             {t('common.actions.cancel')}
           </button>
@@ -1084,9 +1084,9 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
       <div className="flex flex-1 min-h-0">
         {/* Table of Contents sidebar */}
         {showToc && tocEntries.length > 0 && (
-          <div className="w-64 bg-gray-900 border-r border-gray-800 shrink-0 flex flex-col">
+          <div className="w-64 bg-surface border-r border-gray-800 shrink-0 flex flex-col">
             <div className="p-3 border-b border-gray-800">
-              <h3 className="text-sm font-bold text-amber-400">{t('library.pdfViewer.tableOfContents')}</h3>
+              <h3 className="text-sm font-bold text-accent">{t('library.pdfViewer.tableOfContents')}</h3>
             </div>
             <div className="flex-1 overflow-y-auto p-1">
               {(() => {
@@ -1145,8 +1145,8 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
                       key={`${entry.title}-${entry.page}-${idx}`}
                       className={`flex items-center rounded transition-colors ${
                         isActive
-                          ? 'bg-amber-600/20 text-amber-400'
-                          : 'text-gray-300 hover:bg-gray-800 hover:text-gray-200'
+                          ? 'bg-amber-600/20 text-accent'
+                          : 'text-gray-300 hover:bg-surface-2 hover:text-gray-200'
                       }`}
                       style={{ paddingLeft: `${4 + entry.level * 12}px` }}
                     >
@@ -1192,8 +1192,8 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
 
         {/* Bookmarks & Annotations sidebar */}
         {showBookmarks && (
-          <div className="w-64 bg-gray-900 border-r border-gray-800 overflow-y-auto shrink-0 p-3">
-            <h3 className="text-sm font-bold text-amber-400 mb-3">{t('library.pdfViewer.bookmarks')}</h3>
+          <div className="w-64 bg-surface border-r border-gray-800 overflow-y-auto shrink-0 p-3">
+            <h3 className="text-sm font-bold text-accent mb-3">{t('library.pdfViewer.bookmarks')}</h3>
             {bookmarks.length === 0 ? (
               <p className="text-xs text-gray-500">{t('library.pdfViewer.noBookmarks')}</p>
             ) : (
@@ -1205,7 +1205,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
                       <button
                         onClick={() => goToPage(bm.page)}
                         className={`flex-1 text-left text-xs px-2 py-1 rounded transition-colors ${
-                          bm.page === currentPage ? 'bg-amber-600/20 text-amber-400' : 'text-gray-300 hover:bg-gray-800'
+                          bm.page === currentPage ? 'bg-amber-600/20 text-accent' : 'text-gray-300 hover:bg-surface-2'
                         }`}
                       >
                         🔖 {bm.label}
@@ -1221,7 +1221,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
               </div>
             )}
 
-            <h3 className="text-sm font-bold text-amber-400 mb-3 mt-4">{t('library.pdfViewer.annotations')}</h3>
+            <h3 className="text-sm font-bold text-accent mb-3 mt-4">{t('library.pdfViewer.annotations')}</h3>
             {annotations.length === 0 ? (
               <p className="text-xs text-gray-500">{t('library.pdfViewer.noAnnotations')}</p>
             ) : (
@@ -1229,11 +1229,11 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
                 {annotations
                   .sort((a, b) => a.page - b.page)
                   .map((ann) => (
-                    <div key={ann.id} className="group bg-gray-800/50 rounded p-2">
+                    <div key={ann.id} className="group bg-surface-2/50 rounded p-2">
                       <div className="flex items-center justify-between mb-1">
                         <button
                           onClick={() => goToPage(ann.page)}
-                          className="text-xs text-amber-500 hover:text-amber-400"
+                          className="text-xs text-accent-strong hover:text-accent"
                         >
                           {t('library.pdfViewer.pageLabel', { page: ann.page })}
                         </button>
@@ -1253,7 +1253,7 @@ export default function PdfViewer({ bookId, filePath, title, onClose, onOpenBook
         )}
 
         {/* Scrollable page area */}
-        <div className="flex-1 overflow-auto" ref={scrollContainerRef} style={{ willChange: 'transform' }}>
+        <div className="flex-1 overflow-auto will-change-transform" ref={scrollContainerRef}>
           <div className="flex flex-col items-center py-4">
             {(() => {
               const renderPage = (pageNum: number) => {

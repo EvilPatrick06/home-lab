@@ -69,13 +69,13 @@ export function ExpertiseSelector5e({
 
   return (
     <div className={`rounded ${isIncomplete ? 'ring-1 ring-amber-600/50 p-1 -m-1' : ''}`}>
-      <div className="text-sm text-gray-400 mb-1 flex items-center gap-2">
+      <div className="text-sm text-muted mb-1 flex items-center gap-2">
         <span>{t('levelup.expertiseSelector.chooseSkills', { label, count: grant.count })}</span>
-        <span className={isIncomplete ? 'text-amber-400' : 'text-green-400'}>
+        <span className={isIncomplete ? 'text-accent' : 'text-green-400'}>
           ({selection.length}/{grant.count})
         </span>
         {isIncomplete && (
-          <span className="text-xs text-amber-500 font-semibold uppercase">
+          <span className="text-xs text-accent-strong font-semibold uppercase">
             {t('levelup.expertiseSelector.required')}
           </span>
         )}
@@ -91,7 +91,7 @@ export function ExpertiseSelector5e({
                 isSelected
                   ? 'bg-cyan-600 text-white'
                   : selection.length >= grant.count
-                    ? 'border border-gray-700 text-gray-600 cursor-not-allowed'
+                    ? 'border border-border text-gray-600 cursor-not-allowed'
                     : 'border border-gray-600 text-gray-300 hover:border-cyan-500 hover:text-cyan-400'
               }`}
             >

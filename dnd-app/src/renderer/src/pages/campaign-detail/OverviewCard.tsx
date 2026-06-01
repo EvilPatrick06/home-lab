@@ -62,7 +62,7 @@ export default function OverviewCard({ campaign, saveCampaign }: OverviewCardPro
       <Card>
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-lg font-semibold">{t('pages.overviewCard.title')}</h3>
-          <button onClick={openOverviewEdit} className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer">
+          <button onClick={openOverviewEdit} className="text-xs text-muted hover:text-accent cursor-pointer">
             {t('pages.overviewCard.edit')}
           </button>
         </div>
@@ -72,20 +72,20 @@ export default function OverviewCard({ campaign, saveCampaign }: OverviewCardPro
           <p className="text-gray-500 text-sm italic mb-4">{t('pages.overviewCard.noDescription')}</p>
         )}
         <div className="grid grid-cols-2 gap-y-2 text-sm">
-          <span className="text-gray-400">{t('pages.overviewCard.turnMode')}</span>
+          <span className="text-muted">{t('pages.overviewCard.turnMode')}</span>
           <span className="capitalize">{campaign.turnMode}</span>
-          <span className="text-gray-400">{t('pages.overviewCard.maxPlayers')}</span>
+          <span className="text-muted">{t('pages.overviewCard.maxPlayers')}</span>
           <span>{campaign.settings.maxPlayers}</span>
-          <span className="text-gray-400">{t('pages.overviewCard.levelRange')}</span>
+          <span className="text-muted">{t('pages.overviewCard.levelRange')}</span>
           <span>
             {campaign.settings.levelRange.min} - {campaign.settings.levelRange.max}
           </span>
-          <span className="text-gray-400">{t('pages.overviewCard.created')}</span>
+          <span className="text-muted">{t('pages.overviewCard.created')}</span>
           <span>{new Date(campaign.createdAt).toLocaleDateString()}</span>
         </div>
         {campaign.discordInviteUrl && (
           <div className="mt-4 pt-3 border-t border-gray-800">
-            <span className="text-gray-400 text-xs uppercase tracking-wider">{t('pages.overviewCard.discord')}</span>
+            <span className="text-muted text-xs uppercase tracking-wider">{t('pages.overviewCard.discord')}</span>
             <a
               href={campaign.discordInviteUrl}
               target="_blank"
@@ -98,9 +98,7 @@ export default function OverviewCard({ campaign, saveCampaign }: OverviewCardPro
         )}
         {campaign.settings.lobbyMessage && (
           <div className="mt-4 pt-3 border-t border-gray-800">
-            <span className="text-gray-400 text-xs uppercase tracking-wider">
-              {t('pages.overviewCard.lobbyMessage')}
-            </span>
+            <span className="text-muted text-xs uppercase tracking-wider">{t('pages.overviewCard.lobbyMessage')}</span>
             <p className="text-gray-300 text-sm mt-1">{campaign.settings.lobbyMessage}</p>
           </div>
         )}
@@ -114,25 +112,25 @@ export default function OverviewCard({ campaign, saveCampaign }: OverviewCardPro
       >
         <div className="space-y-3">
           <div>
-            <label className="block text-gray-400 text-xs mb-1">{t('pages.overviewCard.campaignNameLabel')}</label>
+            <label className="block text-muted text-xs mb-1">{t('pages.overviewCard.campaignNameLabel')}</label>
             <input
               type="text"
               value={overviewForm.name}
               onChange={(e) => setOverviewForm((f) => ({ ...f, name: e.target.value }))}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
             />
           </div>
           <div>
-            <label className="block text-gray-400 text-xs mb-1">{t('pages.overviewCard.descriptionLabel')}</label>
+            <label className="block text-muted text-xs mb-1">{t('pages.overviewCard.descriptionLabel')}</label>
             <textarea
               value={overviewForm.description}
               onChange={(e) => setOverviewForm((f) => ({ ...f, description: e.target.value }))}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500 h-20 resize-none"
+              className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500 h-20 resize-none"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-gray-400 text-xs mb-1">{t('pages.overviewCard.maxPlayers')}</label>
+              <label className="block text-muted text-xs mb-1">{t('pages.overviewCard.maxPlayers')}</label>
               <input
                 type="number"
                 value={maxPlayersDraft}
@@ -144,17 +142,17 @@ export default function OverviewCard({ campaign, saveCampaign }: OverviewCardPro
                   setMaxPlayersDraft(String(clamped))
                   setOverviewForm((f) => ({ ...f, maxPlayers: clamped }))
                 }}
-                className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+                className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
                 min={1}
                 max={8}
               />
             </div>
             <div>
-              <label className="block text-gray-400 text-xs mb-1">{t('pages.overviewCard.turnMode')}</label>
+              <label className="block text-muted text-xs mb-1">{t('pages.overviewCard.turnMode')}</label>
               <select
                 value={overviewForm.turnMode}
                 onChange={(e) => setOverviewForm((f) => ({ ...f, turnMode: e.target.value as TurnMode }))}
-                className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+                className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
               >
                 <option value="initiative">{t('pages.overviewCard.turnModeInitiative')}</option>
                 <option value="free">{t('pages.overviewCard.turnModeFree')}</option>
@@ -163,48 +161,48 @@ export default function OverviewCard({ campaign, saveCampaign }: OverviewCardPro
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-gray-400 text-xs mb-1">{t('pages.overviewCard.levelMin')}</label>
+              <label className="block text-muted text-xs mb-1">{t('pages.overviewCard.levelMin')}</label>
               <input
                 type="number"
                 value={overviewForm.levelMin}
                 onChange={(e) =>
                   setOverviewForm((f) => ({ ...f, levelMin: Math.max(1, parseInt(e.target.value, 10) || 1) }))
                 }
-                className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+                className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
                 min={1}
                 max={20}
               />
             </div>
             <div>
-              <label className="block text-gray-400 text-xs mb-1">{t('pages.overviewCard.levelMax')}</label>
+              <label className="block text-muted text-xs mb-1">{t('pages.overviewCard.levelMax')}</label>
               <input
                 type="number"
                 value={overviewForm.levelMax}
                 onChange={(e) =>
                   setOverviewForm((f) => ({ ...f, levelMax: Math.max(1, parseInt(e.target.value, 10) || 1) }))
                 }
-                className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+                className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
                 min={1}
                 max={20}
               />
             </div>
           </div>
           <div>
-            <label className="block text-gray-400 text-xs mb-1">{t('pages.overviewCard.discordInviteUrlLabel')}</label>
+            <label className="block text-muted text-xs mb-1">{t('pages.overviewCard.discordInviteUrlLabel')}</label>
             <input
               type="url"
               value={overviewForm.discordInviteUrl}
               onChange={(e) => setOverviewForm((f) => ({ ...f, discordInviteUrl: e.target.value }))}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
               placeholder={t('pages.overviewCard.discordInviteUrlPlaceholder')}
             />
           </div>
           <div>
-            <label className="block text-gray-400 text-xs mb-1">{t('pages.overviewCard.lobbyMessage')}</label>
+            <label className="block text-muted text-xs mb-1">{t('pages.overviewCard.lobbyMessage')}</label>
             <textarea
               value={overviewForm.lobbyMessage}
               onChange={(e) => setOverviewForm((f) => ({ ...f, lobbyMessage: e.target.value }))}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500 h-16 resize-none"
+              className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500 h-16 resize-none"
               placeholder={t('pages.overviewCard.lobbyMessagePlaceholder')}
             />
           </div>

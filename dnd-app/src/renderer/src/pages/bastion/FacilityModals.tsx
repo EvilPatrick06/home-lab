@@ -53,7 +53,7 @@ export function AddBasicFacilityModal({
           <select
             value={basicType}
             onChange={(e) => setBasicType(e.target.value as BasicFacilityType)}
-            className="bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+            className="bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
           >
             {basicFacilityDefs.map((d) => (
               <option key={d.type} value={d.type}>
@@ -72,7 +72,7 @@ export function AddBasicFacilityModal({
           <select
             value={basicSpace}
             onChange={(e) => setBasicSpace(e.target.value as FacilitySpace)}
-            className="bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+            className="bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
           >
             <option value="cramped">
               {t('pages.addBasicFacilityModal.cramped', {
@@ -94,7 +94,7 @@ export function AddBasicFacilityModal({
             </option>
           </select>
         </div>
-        <div className="text-xs text-gray-400">
+        <div className="text-xs text-muted">
           {t('pages.addBasicFacilityModal.costConstruction', {
             gp: BASIC_FACILITY_COSTS[basicSpace].gp,
             days: BASIC_FACILITY_COSTS[basicSpace].days
@@ -103,13 +103,13 @@ export function AddBasicFacilityModal({
         <div className="flex gap-2 justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-gray-800 transition-colors"
+            className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-surface-2 transition-colors"
           >
             {t('common.actions.cancel')}
           </button>
           <button
             onClick={handleAddBasic}
-            className="px-4 py-2 text-sm bg-amber-600 hover:bg-amber-500 text-white rounded font-semibold transition-colors"
+            className="px-4 py-2 text-sm bg-amber-600 hover:bg-accent-strong text-white rounded font-semibold transition-colors"
           >
             {t('pages.addBasicFacilityModal.build', { gp: BASIC_FACILITY_COSTS[basicSpace].gp })}
           </button>
@@ -189,7 +189,7 @@ export function AddSpecialFacilityModal({
             <button
               key={s}
               onClick={() => setSettingFilter(s)}
-              className={`px-2 py-1 text-xs rounded transition-colors ${settingFilter === s ? 'bg-amber-700 text-white' : 'bg-gray-800 text-gray-400 hover:text-gray-200'}`}
+              className={`px-2 py-1 text-xs rounded transition-colors ${settingFilter === s ? 'bg-amber-700 text-white' : 'bg-surface-2 text-muted hover:text-gray-200'}`}
             >
               {s === 'all' ? t('pages.addSpecialFacilityModal.all') : SETTING_LABELS[s]}
             </button>
@@ -213,17 +213,17 @@ export function AddSpecialFacilityModal({
                   isSelected
                     ? 'bg-amber-900/30 border-amber-700'
                     : canSelect
-                      ? 'bg-gray-800 border-gray-700 hover:border-gray-600'
-                      : 'bg-gray-900/50 border-gray-800 opacity-60 cursor-not-allowed'
+                      ? 'bg-surface-2 border-border hover:border-gray-600'
+                      : 'bg-surface/50 border-gray-800 opacity-60 cursor-not-allowed'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-sm text-gray-100">{def.name}</span>
+                    <span className="font-medium text-sm text-fg">{def.name}</span>
                     <span
                       className={`text-xs px-1.5 py-0.5 rounded border ${
                         def.setting === 'core'
-                          ? 'bg-gray-800 text-gray-400 border-gray-700'
+                          ? 'bg-surface-2 text-muted border-border'
                           : def.setting === 'fr'
                             ? 'bg-emerald-900/30 text-emerald-400 border-emerald-700'
                             : 'bg-orange-900/30 text-orange-400 border-orange-700'
@@ -266,12 +266,12 @@ export function AddSpecialFacilityModal({
           })}
         </div>
         {/* Faction override */}
-        <label className="flex items-center gap-2 text-xs text-gray-400">
+        <label className="flex items-center gap-2 text-xs text-muted">
           <input
             type="checkbox"
             checked={factionOverride}
             onChange={(e) => setFactionOverride(e.target.checked)}
-            className="rounded bg-gray-800 border-gray-600"
+            className="rounded bg-surface-2 border-gray-600"
           />
           {t('pages.addSpecialFacilityModal.overrideFaction')}
         </label>
@@ -283,9 +283,9 @@ export function AddSpecialFacilityModal({
             const canAffordGp = selectedBastion ? selectedBastion.treasury >= costs.gp : false
             const _canAfford = canAffordBp && canAffordGp
             return (
-              <div className="bg-gray-800/50 rounded p-3 border border-gray-700">
-                <h4 className="font-medium text-sm text-gray-100">{selectedSpecialDef.name}</h4>
-                <p className="text-xs text-gray-400 mt-1">{selectedSpecialDef.description}</p>
+              <div className="bg-surface-2/50 rounded p-3 border border-border">
+                <h4 className="font-medium text-sm text-fg">{selectedSpecialDef.name}</h4>
+                <p className="text-xs text-muted mt-1">{selectedSpecialDef.description}</p>
                 {selectedSpecialDef.charm && (
                   <div className="mt-2 text-xs text-purple-300">
                     {t('pages.addSpecialFacilityModal.charmDetail', {
@@ -299,7 +299,7 @@ export function AddSpecialFacilityModal({
                     {t('pages.addSpecialFacilityModal.benefit', { benefit: selectedSpecialDef.permanentBenefit })}
                   </div>
                 )}
-                <div className="mt-2 text-xs text-gray-400">
+                <div className="mt-2 text-xs text-muted">
                   {t('pages.addSpecialFacilityModal.cost')}{' '}
                   <span className={canAffordBp ? 'text-purple-400' : 'text-red-400'}>{costs.bp} BP</span>
                   {costs.gp > 0 && (
@@ -334,7 +334,7 @@ export function AddSpecialFacilityModal({
             onClick={() => {
               handleClose()
             }}
-            className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-gray-800 transition-colors"
+            className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-surface-2 transition-colors"
           >
             {t('common.actions.cancel')}
           </button>
@@ -351,7 +351,7 @@ export function AddSpecialFacilityModal({
                 selectedBastion.bastionPoints <
                   (SPECIAL_FACILITY_COSTS[selectedSpecialDef.level]?.bp ?? SPECIAL_FACILITY_COSTS[5].bp))
             }
-            className="px-4 py-2 text-sm bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded font-semibold transition-colors"
+            className="px-4 py-2 text-sm bg-amber-600 hover:bg-accent-strong disabled:bg-gray-700 disabled:text-gray-500 text-white rounded font-semibold transition-colors"
           >
             {t('pages.addSpecialFacilityModal.buildFacility')}
             {selectedSpecialDef

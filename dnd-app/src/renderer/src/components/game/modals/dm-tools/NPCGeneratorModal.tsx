@@ -181,8 +181,8 @@ export default function NPCGeneratorModal({ onClose, onBroadcastResult }: NPCGen
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center">
         <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" aria-hidden="true" />
-        <div className="relative bg-gray-900 border border-gray-700 rounded-xl max-w-2xl w-full mx-4 p-8 text-center">
-          <p className="text-gray-400 text-sm">{t('game.npcGeneratorModal.loadingTables')}</p>
+        <div className="relative bg-surface border border-border rounded-xl max-w-2xl w-full mx-4 p-8 text-center">
+          <p className="text-muted text-sm">{t('game.npcGeneratorModal.loadingTables')}</p>
         </div>
       </div>
     )
@@ -192,11 +192,11 @@ export default function NPCGeneratorModal({ onClose, onBroadcastResult }: NPCGen
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center">
         <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" aria-hidden="true" />
-        <div className="relative bg-gray-900 border border-gray-700 rounded-xl max-w-2xl w-full mx-4 p-8 text-center">
+        <div className="relative bg-surface border border-border rounded-xl max-w-2xl w-full mx-4 p-8 text-center">
           <p className="text-red-400 text-sm">{error ?? t('game.npcGeneratorModal.failedToLoadData')}</p>
           <button
             onClick={onClose}
-            className="mt-3 px-4 py-1.5 text-sm bg-amber-600 hover:bg-amber-500 rounded text-white cursor-pointer"
+            className="mt-3 px-4 py-1.5 text-sm bg-amber-600 hover:bg-accent-strong rounded text-white cursor-pointer"
           >
             {t('common.actions.close')}
           </button>
@@ -208,10 +208,10 @@ export default function NPCGeneratorModal({ onClose, onBroadcastResult }: NPCGen
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" aria-hidden="true" />
-      <div className="relative bg-gray-900 border border-gray-700 rounded-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto shadow-2xl">
+      <div className="relative bg-surface border border-border rounded-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800 sticky top-0 bg-gray-900 z-10">
-          <h3 className="text-sm font-semibold text-amber-400">{t('game.npcGeneratorModal.title')}</h3>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800 sticky top-0 bg-surface z-10">
+          <h3 className="text-sm font-semibold text-accent">{t('game.npcGeneratorModal.title')}</h3>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-300 text-lg cursor-pointer"
@@ -225,7 +225,7 @@ export default function NPCGeneratorModal({ onClose, onBroadcastResult }: NPCGen
           <div className="flex items-center justify-between gap-2">
             <button
               onClick={rollAll}
-              className="px-4 py-2 text-sm font-medium bg-amber-600 hover:bg-amber-500 rounded text-white cursor-pointer"
+              className="px-4 py-2 text-sm font-medium bg-amber-600 hover:bg-accent-strong rounded text-white cursor-pointer"
             >
               {t('game.npcGeneratorModal.rollAll')}
             </button>
@@ -295,11 +295,11 @@ function TraitRow({ label, value, onReroll }: { label: string; value: string; on
   const { t } = useT()
   return (
     <div className="flex items-start gap-2 py-1.5 border-b border-gray-800 last:border-0">
-      <span className="text-xs text-gray-400 shrink-0 w-28">{label}</span>
+      <span className="text-xs text-muted shrink-0 w-28">{label}</span>
       <span className="text-sm text-white flex-1 min-w-0">{value}</span>
       <button
         onClick={onReroll}
-        className="shrink-0 w-6 h-6 flex items-center justify-center text-gray-500 hover:text-amber-400 hover:bg-amber-600/20 rounded cursor-pointer"
+        className="shrink-0 w-6 h-6 flex items-center justify-center text-gray-500 hover:text-accent hover:bg-amber-600/20 rounded cursor-pointer"
         title={t('game.npcGeneratorModal.reroll')}
         aria-label={t('game.npcGeneratorModal.rerollAria', { label })}
       >

@@ -344,7 +344,7 @@ export default function JoinGamePage(): JSX.Element {
       {showManualForm && (
         <div className="flex items-end gap-2 mb-6">
           <div className="flex-1 max-w-sm">
-            <label className="block text-gray-400 mb-1 text-xs uppercase tracking-wider">
+            <label className="block text-muted mb-1 text-xs uppercase tracking-wider">
               {t('pages.joinGamePage.inviteCodeLabel')}
             </label>
             <input
@@ -353,7 +353,7 @@ export default function JoinGamePage(): JSX.Element {
               onChange={(e) => setManualInviteCode(e.target.value.toUpperCase().replace(/\s+/g, ''))}
               placeholder={t('pages.joinGamePage.inviteCodePlaceholder')}
               maxLength={INVITE_CODE_LENGTH + 2}
-              className="w-full p-2 rounded-md bg-gray-800 border border-gray-700 text-gray-100 font-mono tracking-[0.2em] uppercase focus:outline-none focus:border-amber-500"
+              className="w-full p-2 rounded-md bg-surface-2 border border-border text-fg font-mono tracking-[0.2em] uppercase focus:outline-none focus:border-amber-500"
             />
           </div>
           <Button

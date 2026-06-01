@@ -79,8 +79,8 @@ export default function ColorConfirmButton(): JSX.Element | null {
             : isTaken
               ? 'bg-red-900/30 border border-red-700 text-red-300 cursor-not-allowed'
               : !localColor
-                ? 'bg-transparent border border-gray-700 text-gray-500 cursor-not-allowed'
-                : 'bg-transparent border-2 border-amber-600 text-amber-400 hover:bg-amber-900/20 cursor-pointer'
+                ? 'bg-transparent border border-border text-gray-500 cursor-not-allowed'
+                : 'bg-transparent border-2 border-amber-600 text-accent hover:bg-amber-900/20 cursor-pointer'
         }
         disabled:opacity-80`}
     >

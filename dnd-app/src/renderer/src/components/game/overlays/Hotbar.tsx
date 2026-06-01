@@ -27,7 +27,7 @@ const COLOR_PRESETS = [
   { label: 'Green', value: 'bg-green-900/40' },
   { label: 'Blue', value: 'bg-blue-900/40' },
   { label: 'Purple', value: 'bg-purple-900/40' },
-  { label: 'Gray', value: 'bg-gray-800/60' }
+  { label: 'Gray', value: 'bg-surface-2/60' }
 ]
 
 interface SlotEditorProps {
@@ -57,12 +57,12 @@ function SlotEditor({
     'bg-green-900/40': t('game.hotbar.colorGreen'),
     'bg-blue-900/40': t('game.hotbar.colorBlue'),
     'bg-purple-900/40': t('game.hotbar.colorPurple'),
-    'bg-gray-800/60': t('game.hotbar.colorGray')
+    'bg-surface-2/60': t('game.hotbar.colorGray')
   }
   const [name, setName] = useState(macro?.name ?? '')
   const [command, setCommand] = useState(macro?.command ?? '')
   const [icon, setIcon] = useState(macro?.icon ?? '')
-  const [color, setColor] = useState(macro?.color ?? 'bg-gray-800/60')
+  const [color, setColor] = useState(macro?.color ?? 'bg-surface-2/60')
   const popoverRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -98,9 +98,9 @@ function SlotEditor({
     <div
       ref={popoverRef}
       style={style}
-      className="w-72 bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-3 shadow-2xl z-50"
+      className="w-72 bg-surface/95 backdrop-blur-sm border border-border/50 rounded-xl p-3 shadow-2xl z-50"
     >
-      <div className="text-[11px] font-semibold text-amber-400 mb-2">
+      <div className="text-[11px] font-semibold text-accent mb-2">
         {macro ? t('game.hotbar.editMacro') : t('game.hotbar.newMacro')}{' '}
         {t('game.hotbar.slot', { slot: SLOT_LABELS[slotIndex] })}
       </div>
@@ -111,14 +111,14 @@ function SlotEditor({
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder={t('game.hotbar.macroNamePlaceholder')}
-          className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
+          className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500"
         />
         <input
           type="text"
           value={command}
           onChange={(e) => setCommand(e.target.value)}
           placeholder={t('game.hotbar.commandPlaceholder')}
-          className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500 font-mono"
+          className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500 font-mono"
         />
 
         {/* Icon picker */}
@@ -129,7 +129,7 @@ function SlotEditor({
               <button
                 key={emoji}
                 onClick={() => setIcon(icon === emoji ? '' : emoji)}
-                className={`w-6 h-6 text-sm rounded cursor-pointer transition-colors ${icon === emoji ? 'bg-amber-600/50 ring-1 ring-amber-500' : 'bg-gray-800 hover:bg-gray-700'}`}
+                className={`w-6 h-6 text-sm rounded cursor-pointer transition-colors ${icon === emoji ? 'bg-amber-600/50 ring-1 ring-amber-500' : 'bg-surface-2 hover:bg-gray-700'}`}
               >
                 {emoji}
               </button>
@@ -160,7 +160,7 @@ function SlotEditor({
         <button
           onClick={handleSave}
           disabled={!name.trim() || !command.trim()}
-          className="flex-1 px-2 py-1 text-xs font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex-1 px-2 py-1 text-xs font-semibold bg-amber-600 hover:bg-accent-strong text-white rounded cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {t('common.actions.save')}
         </button>
@@ -174,7 +174,7 @@ function SlotEditor({
         )}
         <button
           onClick={() => onPickFromLibrary(slotIndex)}
-          className="px-2 py-1 text-xs text-gray-400 hover:text-gray-200 border border-gray-700/50 rounded cursor-pointer"
+          className="px-2 py-1 text-xs text-muted hover:text-gray-200 border border-border/50 rounded cursor-pointer"
         >
           {t('game.hotbar.library')}
         </button>
@@ -215,9 +215,9 @@ function LibraryPicker({ macros, position, onPick, onClose }: LibraryPickerProps
     <div
       ref={ref}
       style={style}
-      className="w-52 max-h-64 overflow-y-auto bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-2 shadow-2xl z-50"
+      className="w-52 max-h-64 overflow-y-auto bg-surface/95 backdrop-blur-sm border border-border/50 rounded-xl p-2 shadow-2xl z-50"
     >
-      <div className="text-[11px] font-semibold text-amber-400 mb-1.5">{t('game.hotbar.macroLibrary')}</div>
+      <div className="text-[11px] font-semibold text-accent mb-1.5">{t('game.hotbar.macroLibrary')}</div>
       {macros.length === 0 ? (
         <div className="text-xs text-gray-500 italic py-2">{t('game.hotbar.noSavedMacros')}</div>
       ) : (
@@ -225,7 +225,7 @@ function LibraryPicker({ macros, position, onPick, onClose }: LibraryPickerProps
           <button
             key={m.id}
             onClick={() => onPick(m)}
-            className={`w-full text-left px-2 py-1.5 rounded text-xs cursor-pointer hover:bg-gray-800 flex items-center gap-2 ${m.color ?? ''}`}
+            className={`w-full text-left px-2 py-1.5 rounded text-xs cursor-pointer hover:bg-surface-2 flex items-center gap-2 ${m.color ?? ''}`}
           >
             {m.icon && <span className="text-sm">{m.icon}</span>}
             <div className="min-w-0">
@@ -361,7 +361,7 @@ export default function Hotbar({ characterId, onExecuteMacro }: HotbarProps): JS
       <div
         role="toolbar"
         aria-label={t('game.hotbar.toolbarLabel')}
-        className="flex items-center gap-1 px-2 py-1 bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-xl"
+        className="flex items-center gap-1 px-2 py-1 bg-surface/80 backdrop-blur-sm border border-border/50 rounded-xl"
       >
         {hotbar.map((slot, index) => (
           <div
@@ -375,8 +375,8 @@ export default function Hotbar({ characterId, onExecuteMacro }: HotbarProps): JS
             className={`relative w-10 h-10 rounded-lg border flex flex-col items-center justify-center cursor-pointer transition-all select-none
               ${
                 slot
-                  ? `${slot.color ?? 'bg-gray-800/60'} border-gray-600/50 hover:border-amber-500/50 hover:scale-105 active:scale-95`
-                  : 'bg-gray-800/30 border-gray-700/30 border-dashed hover:border-gray-600/50 hover:bg-gray-800/50'
+                  ? `${slot.color ?? 'bg-surface-2/60'} border-gray-600/50 hover:border-amber-500/50 hover:scale-105 active:scale-95`
+                  : 'bg-surface-2/30 border-border/30 border-dashed hover:border-gray-600/50 hover:bg-surface-2/50'
               }
               ${dragFrom === index ? 'opacity-40' : ''}
             `}
@@ -405,7 +405,7 @@ export default function Hotbar({ characterId, onExecuteMacro }: HotbarProps): JS
               <span className="text-xs font-mono text-gray-600">{SLOT_LABELS[index]}</span>
             )}
             {/* Slot number badge */}
-            <span className="absolute -top-1 -right-1 w-3.5 h-3.5 text-[8px] font-bold rounded-full bg-gray-900 border border-gray-700 text-gray-500 flex items-center justify-center">
+            <span className="absolute -top-1 -right-1 w-3.5 h-3.5 text-[8px] font-bold rounded-full bg-surface border border-border text-gray-500 flex items-center justify-center">
               {SLOT_LABELS[index]}
             </span>
           </div>

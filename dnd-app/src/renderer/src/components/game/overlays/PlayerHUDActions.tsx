@@ -60,7 +60,7 @@ export default function PlayerHUDActions({
               if (e.key === 'Enter') handleTempHPSet()
               if (e.key === 'Escape') setEditingTempHP(false)
             }}
-            className="w-12 bg-gray-800 border border-blue-500 rounded px-1 py-0.5 text-center text-xs text-gray-100 focus:outline-none"
+            className="w-12 bg-surface-2 border border-blue-500 rounded px-1 py-0.5 text-center text-xs text-fg focus:outline-none"
           />
         ) : (
           <button
@@ -115,7 +115,7 @@ export default function PlayerHUDActions({
           <div className="space-y-0.5 mt-0.5">
             {classResources.map((r) => (
               <div key={r.id} className="flex items-center gap-1.5 text-xs">
-                <span className="text-gray-400 text-xs min-w-[80px]">
+                <span className="text-muted text-xs min-w-[80px]">
                   {t('game.playerHUDActions.resourceName', { name: r.name })}
                 </span>
                 <span className="text-amber-300 font-semibold text-xs">
@@ -124,14 +124,14 @@ export default function PlayerHUDActions({
                 <button
                   onClick={() => onAdjustResource(r.id, -1)}
                   disabled={r.current <= 0}
-                  className="w-4 h-4 text-[9px] bg-red-900/40 hover:bg-red-800/60 disabled:bg-gray-800 disabled:text-gray-600 text-red-300 rounded cursor-pointer"
+                  className="w-4 h-4 text-[9px] bg-red-900/40 hover:bg-red-800/60 disabled:bg-surface-2 disabled:text-gray-600 text-red-300 rounded cursor-pointer"
                 >
                   -
                 </button>
                 <button
                   onClick={() => onAdjustResource(r.id, 1)}
                   disabled={r.current >= r.max}
-                  className="w-4 h-4 text-[9px] bg-green-900/40 hover:bg-green-800/60 disabled:bg-gray-800 disabled:text-gray-600 text-green-300 rounded cursor-pointer"
+                  className="w-4 h-4 text-[9px] bg-green-900/40 hover:bg-green-800/60 disabled:bg-surface-2 disabled:text-gray-600 text-green-300 rounded cursor-pointer"
                 >
                   +
                 </button>
@@ -155,7 +155,7 @@ export default function PlayerHUDActions({
           className={`text-xs px-1.5 py-0.5 rounded cursor-pointer border ${
             char5e.heroicInspiration
               ? 'bg-amber-600/30 text-amber-300 border-amber-500/50'
-              : 'bg-gray-800 text-gray-500 border-gray-700'
+              : 'bg-surface-2 text-gray-500 border-border'
           }`}
           title={t('game.playerHUDActions.inspirationTitle')}
         >

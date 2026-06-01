@@ -28,10 +28,10 @@ export function PrimalOrderSelector5e({
 
   return (
     <div className={`rounded ${isIncomplete ? 'ring-1 ring-amber-600/50 p-1 -m-1' : ''}`}>
-      <div className="text-sm text-gray-400 mb-2 flex items-center gap-2">
+      <div className="text-sm text-muted mb-2 flex items-center gap-2">
         {slot.label}:
         {isIncomplete && (
-          <span className="text-xs text-amber-500 font-semibold uppercase">
+          <span className="text-xs text-accent-strong font-semibold uppercase">
             {t('levelup.primalOrderSelector.required')}
           </span>
         )}
@@ -44,7 +44,7 @@ export function PrimalOrderSelector5e({
             className={`w-full text-left p-2 rounded border transition-colors ${
               selection === opt.id
                 ? 'bg-green-900/30 border-green-600 text-green-300'
-                : 'border-gray-700 hover:border-green-600 text-gray-300 hover:bg-gray-800'
+                : 'border-border hover:border-green-600 text-gray-300 hover:bg-surface-2'
             }`}
           >
             <div className="text-sm font-semibold">{opt.name}</div>
@@ -84,10 +84,10 @@ export function DivineOrderSelector5e({
 
   return (
     <div className={`rounded ${isIncomplete ? 'ring-1 ring-amber-600/50 p-1 -m-1' : ''}`}>
-      <div className="text-sm text-gray-400 mb-2 flex items-center gap-2">
+      <div className="text-sm text-muted mb-2 flex items-center gap-2">
         {slot.label}:
         {isIncomplete && (
-          <span className="text-xs text-amber-500 font-semibold uppercase">
+          <span className="text-xs text-accent-strong font-semibold uppercase">
             {t('levelup.divineOrderSelector.required')}
           </span>
         )}
@@ -100,7 +100,7 @@ export function DivineOrderSelector5e({
             className={`w-full text-left p-2 rounded border transition-colors ${
               selection === opt.id
                 ? 'bg-yellow-900/30 border-yellow-600 text-yellow-300'
-                : 'border-gray-700 hover:border-yellow-600 text-gray-300 hover:bg-gray-800'
+                : 'border-border hover:border-yellow-600 text-gray-300 hover:bg-surface-2'
             }`}
           >
             <div className="text-sm font-semibold">{opt.name}</div>
@@ -138,10 +138,10 @@ export function ElementalFurySelector5e({
 
   return (
     <div className={`rounded ${isIncomplete ? 'ring-1 ring-amber-600/50 p-1 -m-1' : ''}`}>
-      <div className="text-sm text-gray-400 mb-2 flex items-center gap-2">
+      <div className="text-sm text-muted mb-2 flex items-center gap-2">
         {t('levelup.elementalFurySelector.heading')}
         {isIncomplete && (
-          <span className="text-xs text-amber-500 font-semibold uppercase">
+          <span className="text-xs text-accent-strong font-semibold uppercase">
             {t('levelup.elementalFurySelector.required')}
           </span>
         )}
@@ -154,7 +154,7 @@ export function ElementalFurySelector5e({
             className={`w-full text-left p-2 rounded border transition-colors ${
               selection === opt.id
                 ? 'bg-orange-900/30 border-orange-600 text-orange-300'
-                : 'border-gray-700 hover:border-orange-600 text-gray-300 hover:bg-gray-800'
+                : 'border-border hover:border-orange-600 text-gray-300 hover:bg-surface-2'
             }`}
           >
             <div className="text-sm font-semibold">{opt.name}</div>

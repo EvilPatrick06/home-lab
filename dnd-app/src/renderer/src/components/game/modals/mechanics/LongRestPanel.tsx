@@ -40,7 +40,7 @@ export default function LongRestPanel({ pcs, states, onStatesChange }: LongRestP
           <div
             key={pc.id}
             className={`border rounded-lg p-3 transition-colors ${
-              state.selected ? 'border-blue-600/50 bg-gray-800/50' : 'border-gray-700/30 bg-gray-800/20 opacity-50'
+              state.selected ? 'border-blue-600/50 bg-surface-2/50' : 'border-border/30 bg-surface-2/20 opacity-50'
             }`}
           >
             <div className="flex items-center gap-3 mb-2">
@@ -61,7 +61,7 @@ export default function LongRestPanel({ pcs, states, onStatesChange }: LongRestP
 
             {state.selected && (
               <div className="pl-6 space-y-1">
-                <div className="text-xs text-gray-400 flex flex-wrap gap-x-4 gap-y-0.5">
+                <div className="text-xs text-muted flex flex-wrap gap-x-4 gap-y-0.5">
                   {preview.currentHP < preview.maxHP && (
                     <span>
                       {t('game.longRestPanel.hpPrefix', { current: preview.currentHP })}{' '}
@@ -96,7 +96,7 @@ export default function LongRestPanel({ pcs, states, onStatesChange }: LongRestP
                     </span>
                   )}
                   {preview.heroicInspirationGain && (
-                    <span className="text-amber-400">{t('game.longRestPanel.heroicInspiration')}</span>
+                    <span className="text-accent">{t('game.longRestPanel.heroicInspiration')}</span>
                   )}
                   {preview.wildShapeRestore && <span>{t('game.longRestPanel.wildShapeRestored')}</span>}
                   {preview.deathSavesReset && <span>{t('game.longRestPanel.deathSavesReset')}</span>}

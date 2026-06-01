@@ -122,7 +122,7 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
   return (
     <div className="fixed inset-0 z-20 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
-      <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-lg w-full mx-4 shadow-2xl max-h-[80vh] flex flex-col">
+      <div className="relative bg-surface/95 backdrop-blur-sm border border-border/50 rounded-xl p-4 max-w-lg w-full mx-4 shadow-2xl max-h-[80vh] flex flex-col">
         <div className="flex items-center justify-between mb-3 shrink-0">
           <h3 className="text-sm font-semibold text-gray-200">{t('game.itemTradeModal.title')}</h3>
           <button
@@ -157,7 +157,7 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
               <select
                 value={targetPeerId}
                 onChange={(e) => setTargetPeerId(e.target.value)}
-                className="w-full mt-1 bg-gray-800 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-200 outline-none cursor-pointer"
+                className="w-full mt-1 bg-surface-2 border border-border rounded px-2 py-1.5 text-xs text-gray-200 outline-none cursor-pointer"
               >
                 <option value="">{t('game.itemTradeModal.selectPlayer')}</option>
                 {otherPlayers.map((p) => (
@@ -195,7 +195,7 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
                           min={1}
                           value={selected.quantity}
                           onChange={(e) => updateItemQuantity(name, parseInt(e.target.value, 10) || 1)}
-                          className="w-12 bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-300 text-center outline-none"
+                          className="w-12 bg-surface-2 border border-border rounded px-1 py-0.5 text-xs text-gray-300 text-center outline-none"
                         />
                       )}
                     </div>
@@ -217,7 +217,7 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
                 min={0}
                 value={offeredGold}
                 onChange={(e) => setOfferedGold(Math.max(0, parseInt(e.target.value, 10) || 0))}
-                className="w-20 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200 outline-none"
+                className="w-20 bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200 outline-none"
               />
             </div>
 
@@ -227,11 +227,12 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
                 {t('game.itemTradeModal.itemsYouWant')}
               </label>
               <input
+                aria-label={t('game.itemTradeModal.itemsWantPlaceholder')}
                 type="text"
                 placeholder={t('game.itemTradeModal.itemsWantPlaceholder')}
                 value={requestedItemsText}
                 onChange={(e) => setRequestedItemsText(e.target.value)}
-                className="w-full mt-1 bg-gray-800 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-200 outline-none focus:border-amber-500/50"
+                className="w-full mt-1 bg-surface-2 border border-border rounded px-2 py-1.5 text-xs text-gray-200 outline-none focus:border-amber-500/50"
               />
             </div>
 
@@ -245,7 +246,7 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
                 min={0}
                 value={requestedGold}
                 onChange={(e) => setRequestedGold(Math.max(0, parseInt(e.target.value, 10) || 0))}
-                className="w-20 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200 outline-none"
+                className="w-20 bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200 outline-none"
               />
             </div>
 
@@ -253,7 +254,7 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
             <button
               onClick={handleSendTrade}
               disabled={!targetPeerId || (offeredItems.length === 0 && offeredGold === 0)}
-              className="w-full py-2 text-xs font-semibold rounded-lg bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white cursor-pointer transition-colors"
+              className="w-full py-2 text-xs font-semibold rounded-lg bg-amber-600 hover:bg-accent-strong disabled:bg-gray-700 disabled:text-gray-500 text-white cursor-pointer transition-colors"
             >
               {t('game.itemTradeModal.sendOffer')}
             </button>
@@ -262,7 +263,7 @@ export default function ItemTradeModal({ character, playerName, onClose }: ItemT
 
         {phase === 'awaiting' && (
           <div className="flex-1 flex flex-col items-center justify-center gap-3 py-8">
-            <div className="animate-pulse text-amber-400 text-sm">{t('game.itemTradeModal.waitingResponse')}</div>
+            <div className="animate-pulse text-accent text-sm">{t('game.itemTradeModal.waitingResponse')}</div>
             <button
               onClick={handleCancel}
               className="px-4 py-1.5 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg cursor-pointer"

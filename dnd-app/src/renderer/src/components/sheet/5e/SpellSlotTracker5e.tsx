@@ -108,7 +108,7 @@ export default function SpellSlotTracker5e({
         <div className="mb-3 flex justify-end">
           <button
             onClick={handleLongRest}
-            className="text-xs px-3 py-1 rounded bg-amber-600 hover:bg-amber-500 text-gray-900 font-semibold transition-colors"
+            className="text-xs px-3 py-1 rounded bg-amber-600 hover:bg-accent-strong text-gray-900 font-semibold transition-colors"
           >
             {t('sheet.spellSlotTracker.restoreSlots')}
           </button>

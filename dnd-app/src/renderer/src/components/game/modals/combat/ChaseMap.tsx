@@ -19,8 +19,8 @@ export default function ChaseMap({ participants, maxZones }: ChaseMapProps): JSX
   const { t } = useT()
   return (
     <div>
-      <label className="block text-xs text-gray-400 mb-2">{t('game.chaseMap.distanceTrack')}</label>
-      <div className="relative bg-gray-800 rounded-lg border border-gray-700 p-3">
+      <label className="block text-xs text-muted mb-2">{t('game.chaseMap.distanceTrack')}</label>
+      <div className="relative bg-surface-2 rounded-lg border border-border p-3">
         {/* Zone markers */}
         <div className="flex">
           {Array.from({ length: maxZones + 1 }, (_, i) => (

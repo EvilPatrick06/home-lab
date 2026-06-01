@@ -86,15 +86,15 @@ export default function NetworkSettingsModal({ onClose }: NetworkSettingsModalPr
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/60" onClick={onClose} role="presentation" />
-      <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-[520px] max-h-[80vh] overflow-y-auto shadow-2xl">
+      <div className="relative bg-surface border border-border rounded-xl p-5 w-[520px] max-h-[80vh] overflow-y-auto shadow-2xl">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">{t('game.networkSettingsModal.title')}</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-200 cursor-pointer">
+          <button onClick={onClose} className="text-muted hover:text-gray-200 cursor-pointer">
             &#10005;
           </button>
         </div>
 
-        <p className="text-sm text-gray-400 mb-4">{t('game.networkSettingsModal.description')}</p>
+        <p className="text-sm text-muted mb-4">{t('game.networkSettingsModal.description')}</p>
 
         <div className="mb-3 flex items-center justify-between">
           <span className="text-sm text-gray-300">
@@ -108,9 +108,9 @@ export default function NetworkSettingsModal({ onClose }: NetworkSettingsModalPr
 
         <div className="space-y-3 mb-4">
           {entries.map((entry, i) => (
-            <div key={i} className="bg-gray-800/50 border border-gray-700 rounded-lg p-3">
+            <div key={i} className="bg-surface-2/50 border border-border rounded-lg p-3">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs text-gray-400 font-medium">
+                <span className="text-xs text-muted font-medium">
                   {t('game.networkSettingsModal.serverN', { n: i + 1 })}
                 </span>
                 <button
@@ -124,21 +124,21 @@ export default function NetworkSettingsModal({ onClose }: NetworkSettingsModalPr
                 value={entry.urls}
                 onChange={(e) => handleChange(i, 'urls', e.target.value)}
                 placeholder={t('game.networkSettingsModal.urlPlaceholder')}
-                className="w-full bg-gray-900 border border-gray-600 rounded px-2 py-1.5 text-sm mb-2 focus:outline-none focus:border-amber-500"
+                className="w-full bg-surface border border-gray-600 rounded px-2 py-1.5 text-sm mb-2 focus:outline-none focus:border-amber-500"
               />
               <div className="grid grid-cols-2 gap-2">
                 <input
                   value={entry.username}
                   onChange={(e) => handleChange(i, 'username', e.target.value)}
                   placeholder={t('game.networkSettingsModal.usernamePlaceholder')}
-                  className="bg-gray-900 border border-gray-600 rounded px-2 py-1.5 text-sm focus:outline-none focus:border-amber-500"
+                  className="bg-surface border border-gray-600 rounded px-2 py-1.5 text-sm focus:outline-none focus:border-amber-500"
                 />
                 <input
                   type="password"
                   value={entry.credential}
                   onChange={(e) => handleChange(i, 'credential', e.target.value)}
                   placeholder={t('game.networkSettingsModal.credentialPlaceholder')}
-                  className="bg-gray-900 border border-gray-600 rounded px-2 py-1.5 text-sm focus:outline-none focus:border-amber-500"
+                  className="bg-surface border border-gray-600 rounded px-2 py-1.5 text-sm focus:outline-none focus:border-amber-500"
                 />
               </div>
             </div>
@@ -148,13 +148,13 @@ export default function NetworkSettingsModal({ onClose }: NetworkSettingsModalPr
         <div className="flex gap-2 mb-4">
           <button
             onClick={handleAdd}
-            className="px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 cursor-pointer"
+            className="px-3 py-1.5 text-xs font-medium rounded-lg bg-surface-2 hover:bg-gray-700 text-gray-300 border border-border cursor-pointer"
           >
             {t('game.networkSettingsModal.addServer')}
           </button>
           <button
             onClick={handleReset}
-            className="px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-400 border border-gray-700 cursor-pointer"
+            className="px-3 py-1.5 text-xs font-medium rounded-lg bg-surface-2 hover:bg-gray-700 text-muted border border-border cursor-pointer"
           >
             {t('game.networkSettingsModal.resetDefaults')}
           </button>
@@ -163,14 +163,14 @@ export default function NetworkSettingsModal({ onClose }: NetworkSettingsModalPr
         <div className="flex gap-2 justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 cursor-pointer"
+            className="px-4 py-2 text-sm rounded-lg bg-surface-2 hover:bg-gray-700 text-gray-300 cursor-pointer"
           >
             {t('common.actions.cancel')}
           </button>
           <button
             onClick={handleSave}
             disabled={saving}
-            className="px-4 py-2 text-sm font-medium rounded-lg bg-amber-600 hover:bg-amber-500 text-white cursor-pointer disabled:opacity-50"
+            className="px-4 py-2 text-sm font-medium rounded-lg bg-amber-600 hover:bg-accent-strong text-white cursor-pointer disabled:opacity-50"
           >
             {saving ? t('game.networkSettingsModal.saving') : t('common.actions.save')}
           </button>

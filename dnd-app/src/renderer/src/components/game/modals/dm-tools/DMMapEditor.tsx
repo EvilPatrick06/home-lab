@@ -186,9 +186,9 @@ export default function DMMapEditor({ campaign, onClose }: DMMapEditorProps): JS
   )
 
   return (
-    <div className="fixed inset-0 z-30 bg-gray-950 flex flex-col">
+    <div className="fixed inset-0 z-30 bg-base flex flex-col">
       {/* Top bar */}
-      <div className="h-10 bg-gray-900 border-b border-gray-700 flex items-center px-3 gap-3 shrink-0">
+      <div className="h-10 bg-surface border-b border-border flex items-center px-3 gap-3 shrink-0">
         <MapSelector
           maps={gameStore.maps}
           activeMapId={gameStore.activeMapId}
@@ -196,7 +196,7 @@ export default function DMMapEditor({ campaign, onClose }: DMMapEditorProps): JS
           onAddMap={handleAddMap}
         />
         {gameStore.initiative && (
-          <span className="text-xs text-amber-400 font-semibold">
+          <span className="text-xs text-accent font-semibold">
             {t('game.dmMapEditor.round', { round: gameStore.initiative.round })}
           </span>
         )}
@@ -204,13 +204,13 @@ export default function DMMapEditor({ campaign, onClose }: DMMapEditorProps): JS
         <button
           onClick={() => setShowResizeMap(true)}
           disabled={!activeMap}
-          className="px-3 py-1 text-xs font-semibold text-gray-300 hover:text-white bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-3 py-1 text-xs font-semibold text-gray-300 hover:text-white bg-surface-2 hover:bg-gray-700 border border-border rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {t('game.dmMapEditor.resize')}
         </button>
         <button
           onClick={onClose}
-          className="px-3 py-1 text-xs font-semibold text-gray-300 hover:text-white bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg transition-colors cursor-pointer"
+          className="px-3 py-1 text-xs font-semibold text-gray-300 hover:text-white bg-surface-2 hover:bg-gray-700 border border-border rounded-lg transition-colors cursor-pointer"
         >
           {t('game.dmMapEditor.closeEditor')}
         </button>
@@ -219,7 +219,7 @@ export default function DMMapEditor({ campaign, onClose }: DMMapEditorProps): JS
       {/* Main content */}
       <div className="flex-1 flex min-h-0">
         {/* Tools strip */}
-        <div className="w-12 bg-gray-900/80 border-r border-gray-700 flex flex-col items-center py-2 gap-1 shrink-0">
+        <div className="w-12 bg-surface/80 border-r border-border flex flex-col items-center py-2 gap-1 shrink-0">
           <DMToolbar
             activeTool={activeTool}
             onToolChange={setActiveTool}

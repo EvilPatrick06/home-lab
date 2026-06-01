@@ -49,7 +49,7 @@ export default function LevelUp5ePage(): JSX.Element {
           <p className="text-xl mb-2">{t('pages.levelUp5ePage.characterNotFound')}</p>
           <button
             onClick={() => navigate(returnTo || '/characters')}
-            className="text-amber-400 hover:text-amber-300 hover:underline"
+            className="text-accent hover:text-amber-300 hover:underline"
           >
             {t('pages.levelUp5ePage.goBack')}
           </button>
@@ -65,7 +65,7 @@ export default function LevelUp5ePage(): JSX.Element {
           <p className="text-xl mb-2">{t('pages.levelUp5ePage.maxLevel')}</p>
           <button
             onClick={() => navigate(returnTo || `/characters/5e/${character.id}`)}
-            className="text-amber-400 hover:text-amber-300 hover:underline"
+            className="text-accent hover:text-amber-300 hover:underline"
           >
             {t('pages.levelUp5ePage.goBack')}
           </button>
@@ -111,13 +111,13 @@ export default function LevelUp5ePage(): JSX.Element {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-gray-950">
+    <div className="h-screen flex flex-col bg-base">
       {/* Toolbar */}
-      <div className="flex items-center justify-between px-4 py-2 bg-gray-900 border-b border-gray-800 shrink-0">
+      <div className="flex items-center justify-between px-4 py-2 bg-surface border-b border-gray-800 shrink-0">
         <div className="flex items-center gap-3">
           <button
             onClick={handleBack}
-            className="text-gray-400 hover:text-gray-200 text-sm flex items-center gap-1 transition-colors"
+            className="text-muted hover:text-gray-200 text-sm flex items-center gap-1 transition-colors"
           >
             &larr; {t('pages.levelUp5ePage.back')}
           </button>
@@ -129,7 +129,7 @@ export default function LevelUp5ePage(): JSX.Element {
 
         <div className="flex items-center gap-3">
           {incompleteChoices.length > 0 && (
-            <span className="text-xs text-amber-400">
+            <span className="text-xs text-accent">
               {incompleteChoices.length !== 1
                 ? t('pages.levelUp5ePage.choicesRemainingPlural', { count: incompleteChoices.length })
                 : t('pages.levelUp5ePage.choicesRemainingSingular', { count: incompleteChoices.length })}
@@ -156,7 +156,7 @@ export default function LevelUp5ePage(): JSX.Element {
 
           {incompleteChoices.length > 0 && (
             <div className="mb-4 px-4 py-3 bg-amber-900/20 border border-amber-700/50 rounded-lg">
-              <div className="text-xs font-semibold text-amber-400 uppercase tracking-wide mb-2">
+              <div className="text-xs font-semibold text-accent uppercase tracking-wide mb-2">
                 {t('pages.levelUp5ePage.choicesRemainingHeading')}
               </div>
               <div className="flex flex-wrap gap-1.5">

@@ -83,10 +83,10 @@ export default function ExpertiseModal(): JSX.Element {
   }
 
   return (
-    <div className="absolute inset-0 z-20 flex flex-col bg-gray-900/98 backdrop-blur-sm">
+    <div className="absolute inset-0 z-20 flex flex-col bg-surface/98 backdrop-blur-sm">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">
-        <h2 className="text-lg font-bold text-gray-100">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+        <h2 className="text-lg font-bold text-fg">
           {grant?.restrictedSkills ? t('builder.expertiseModal.scholar') : t('builder.expertiseModal.expertise')}
           {expertiseSlot && (
             <span className="text-sm font-normal text-gray-500 ml-2">
@@ -94,17 +94,17 @@ export default function ExpertiseModal(): JSX.Element {
             </span>
           )}
         </h2>
-        <button onClick={closeCustomModal} className="text-gray-400 hover:text-gray-200 text-xl leading-none px-2">
+        <button onClick={closeCustomModal} className="text-muted hover:text-gray-200 text-xl leading-none px-2">
           &#x2715;
         </button>
       </div>
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-6">
-        <p className="text-sm text-gray-400 mb-4">
+        <p className="text-sm text-muted mb-4">
           {t('builder.expertiseModal.instruction', { count: maxSelections })}
           {grant?.restrictedSkills && (
-            <span className="text-amber-400 ml-1">
+            <span className="text-accent ml-1">
               {t('builder.expertiseModal.restrictedTo', { skills: grant.restrictedSkills.join(', ') })}
             </span>
           )}
@@ -128,15 +128,15 @@ export default function ExpertiseModal(): JSX.Element {
                       ? 'bg-amber-900/20 text-amber-300'
                       : isDisabled
                         ? 'text-gray-600 cursor-not-allowed'
-                        : 'text-gray-300 hover:bg-gray-800'
+                        : 'text-gray-300 hover:bg-surface-2'
                   }`}
                 >
                   <span
                     className={`w-4 h-4 rounded-full border-2 flex items-center justify-center text-xs shrink-0 ${
                       isSelected
-                        ? 'border-amber-400 bg-amber-400 text-gray-900'
+                        ? 'border-accent bg-accent text-gray-900'
                         : isDisabled
-                          ? 'border-gray-700'
+                          ? 'border-border'
                           : 'border-gray-600'
                     }`}
                   >
@@ -152,7 +152,7 @@ export default function ExpertiseModal(): JSX.Element {
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between px-4 py-3 border-t border-gray-700 bg-gray-900">
+      <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-surface">
         <span className="text-xs text-gray-500">
           {t('builder.expertiseModal.selected', { count: currentSelections.length, max: maxSelections })}
           {atCap ? t('builder.expertiseModal.atMaximum') : ''}
@@ -172,7 +172,7 @@ export default function ExpertiseModal(): JSX.Element {
                 ? 'bg-green-700 text-green-200'
                 : currentSelections.length < maxSelections
                   ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                  : 'bg-amber-600 hover:bg-amber-500 text-white'
+                  : 'bg-amber-600 hover:bg-accent-strong text-white'
             }`}
           >
             {isConfirmed

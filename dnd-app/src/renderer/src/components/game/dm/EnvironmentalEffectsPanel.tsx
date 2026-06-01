@@ -106,7 +106,7 @@ export default function EnvironmentalEffectsPanel({ onBroadcastResult }: Environ
                   type="button"
                   onClick={() => handleRemove(a.id)}
                   title={t('game.environmentalEffectsPanel.removeEffect')}
-                  className="shrink-0 w-6 h-6 rounded flex items-center justify-center text-gray-400 hover:text-red-400 hover:bg-red-900/30 transition-colors cursor-pointer"
+                  className="shrink-0 w-6 h-6 rounded flex items-center justify-center text-muted hover:text-red-400 hover:bg-red-900/30 transition-colors cursor-pointer"
                 >
                   &#215;
                 </button>
@@ -120,11 +120,12 @@ export default function EnvironmentalEffectsPanel({ onBroadcastResult }: Environ
       <div>
         <span className="text-xs text-gray-500 uppercase">{t('game.environmentalEffectsPanel.addEffect')}</span>
         <input
+          aria-label={t('game.environmentalEffectsPanel.searchPlaceholder')}
           type="text"
           placeholder={t('game.environmentalEffectsPanel.searchPlaceholder')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="mt-1 w-full px-2 py-1.5 text-sm bg-gray-800 border border-gray-700 rounded text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50"
+          className="mt-1 w-full px-2 py-1.5 text-sm bg-surface-2 border border-border rounded text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50"
         />
       </div>
 
@@ -141,7 +142,7 @@ export default function EnvironmentalEffectsPanel({ onBroadcastResult }: Environ
                 {items.map((effect) => {
                   const isExpanded = expandedId === effect.id
                   return (
-                    <div key={effect.id} className="bg-gray-800/50 border border-gray-700 rounded px-3 py-2">
+                    <div key={effect.id} className="bg-surface-2/50 border border-border rounded px-3 py-2">
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex-1 min-w-0">
                           <span className="text-white text-sm font-medium">{effect.name}</span>
@@ -166,19 +167,19 @@ export default function EnvironmentalEffectsPanel({ onBroadcastResult }: Environ
                       <button
                         type="button"
                         onClick={() => setExpandedId(isExpanded ? null : effect.id)}
-                        className="mt-1 text-xs text-gray-500 hover:text-gray-400 cursor-pointer"
+                        className="mt-1 text-xs text-gray-500 hover:text-muted cursor-pointer"
                       >
                         {isExpanded
                           ? t('game.environmentalEffectsPanel.hideDescription')
                           : t('game.environmentalEffectsPanel.showDescription')}
                       </button>
                       {isExpanded && (
-                        <p className="mt-1 text-xs text-gray-400 leading-relaxed">
+                        <p className="mt-1 text-xs text-muted leading-relaxed">
                           {effect.description}
                           {effect.mechanicalEffect && (
                             <>
                               <br />
-                              <span className="text-amber-500/80">{effect.mechanicalEffect}</span>
+                              <span className="text-accent-strong/80">{effect.mechanicalEffect}</span>
                             </>
                           )}
                         </p>

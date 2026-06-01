@@ -132,8 +132,8 @@ export default function CoreBooksGrid({ onOpenBook }: CoreBooksGridProps): JSX.E
     return (
       <div className="p-4">
         <div className="animate-pulse space-y-3">
-          <div className="h-32 bg-gray-800 rounded" />
-          <div className="h-32 bg-gray-800 rounded" />
+          <div className="h-32 bg-surface-2 rounded" />
+          <div className="h-32 bg-surface-2 rounded" />
         </div>
       </div>
     )
@@ -150,12 +150,12 @@ export default function CoreBooksGrid({ onOpenBook }: CoreBooksGridProps): JSX.E
     <div className="p-4 space-y-6">
       {/* Core Books */}
       <section>
-        <h3 className="text-lg font-bold text-amber-400 mb-3">{t('library.coreBooksGrid.coreRulebooks')}</h3>
+        <h3 className="text-lg font-bold text-accent mb-3">{t('library.coreBooksGrid.coreRulebooks')}</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {coreBooks.map((book) => (
             <div
               key={book.key}
-              className="group relative bg-gray-900 border border-gray-800 rounded-lg overflow-hidden hover:border-amber-600/50 transition-all"
+              className="group relative bg-surface border border-gray-800 rounded-lg overflow-hidden hover:border-amber-600/50 transition-all"
             >
               <div className="p-4 flex flex-col items-center text-center gap-2">
                 <span className="text-4xl">{book.icon}</span>
@@ -166,13 +166,13 @@ export default function CoreBooksGrid({ onOpenBook }: CoreBooksGridProps): JSX.E
                   <div className="flex gap-2 mt-2">
                     <button
                       onClick={() => onOpenBook(book.config!)}
-                      className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded text-sm font-medium transition-colors"
+                      className="px-3 py-1.5 bg-amber-600 hover:bg-accent-strong text-white rounded text-sm font-medium transition-colors"
                     >
                       {t('library.coreBooksGrid.open')}
                     </button>
                     <button
                       onClick={() => handleRemoveBook(book.key)}
-                      className="px-2 py-1.5 bg-gray-800 hover:bg-red-900/50 text-gray-400 hover:text-red-400 rounded text-sm transition-colors"
+                      className="px-2 py-1.5 bg-surface-2 hover:bg-red-900/50 text-muted hover:text-red-400 rounded text-sm transition-colors"
                       title={t('library.coreBooksGrid.removeBookLink')}
                     >
                       ✕
@@ -181,7 +181,7 @@ export default function CoreBooksGrid({ onOpenBook }: CoreBooksGridProps): JSX.E
                 ) : (
                   <button
                     onClick={() => handleBrowseForBook({ key: book.key, title: book.title })}
-                    className="mt-2 px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded text-sm transition-colors"
+                    className="mt-2 px-3 py-1.5 bg-surface-2 hover:bg-gray-700 text-gray-300 rounded text-sm transition-colors"
                   >
                     {t('library.coreBooksGrid.linkPdf')}
                   </button>
@@ -211,7 +211,7 @@ export default function CoreBooksGrid({ onOpenBook }: CoreBooksGridProps): JSX.E
             {customBooks.map((book) => (
               <div
                 key={book.id}
-                className="group relative bg-gray-900 border border-gray-800 rounded-lg p-3 hover:border-amber-600/50 transition-all"
+                className="group relative bg-surface border border-gray-800 rounded-lg p-3 hover:border-amber-600/50 transition-all"
               >
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">📓</span>
@@ -224,7 +224,7 @@ export default function CoreBooksGrid({ onOpenBook }: CoreBooksGridProps): JSX.E
                   <div className="flex gap-1">
                     <button
                       onClick={() => onOpenBook(book)}
-                      className="px-2 py-1 bg-amber-600 hover:bg-amber-500 text-white rounded text-xs transition-colors"
+                      className="px-2 py-1 bg-amber-600 hover:bg-accent-strong text-white rounded text-xs transition-colors"
                     >
                       {t('library.coreBooksGrid.open')}
                     </button>

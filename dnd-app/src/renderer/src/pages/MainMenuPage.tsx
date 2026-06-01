@@ -111,7 +111,7 @@ export default function MainMenuPage(): JSX.Element {
             onClick={clearDisconnectReason}
             aria-label={t('pages.mainMenuPage.dismiss')}
             className={`ml-4 cursor-pointer ${
-              disconnectReason === 'banned' ? 'text-red-400 hover:text-red-200' : 'text-amber-400 hover:text-amber-200'
+              disconnectReason === 'banned' ? 'text-red-400 hover:text-red-200' : 'text-accent hover:text-amber-200'
             }`}
           >
             <svg
@@ -128,8 +128,8 @@ export default function MainMenuPage(): JSX.Element {
       )}
 
       <div className="text-center">
-        <h1 className="text-5xl font-bold tracking-wider text-amber-400 mb-2">{t('pages.mainMenuPage.appTitle')}</h1>
-        <p className="text-gray-400 text-lg">{t('pages.mainMenuPage.tagline')}</p>
+        <h1 className="text-5xl font-bold tracking-wider text-accent mb-2">{t('pages.mainMenuPage.appTitle')}</h1>
+        <p className="text-muted text-lg">{t('pages.mainMenuPage.tagline')}</p>
       </div>
 
       <nav aria-label={t('pages.mainMenuPage.mainNavigation')} className="flex flex-col gap-4 w-full max-w-md mt-8">
@@ -138,12 +138,12 @@ export default function MainMenuPage(): JSX.Element {
             key={item.path}
             onClick={() => navigate(item.path)}
             className="group flex items-center gap-4 p-5 rounded-lg border border-gray-800
-                       bg-gray-900/50 hover:bg-gray-800/80 hover:border-amber-600/50
+                       bg-surface/50 hover:bg-surface-2/80 hover:border-amber-600/50
                        transition-all duration-200 text-left cursor-pointer"
           >
-            <span className="text-gray-500 group-hover:text-amber-500 transition-colors">{item.icon}</span>
+            <span className="text-gray-500 group-hover:text-accent-strong transition-colors">{item.icon}</span>
             <div>
-              <div className="text-xl font-semibold text-gray-100 group-hover:text-amber-400 transition-colors">
+              <div className="text-xl font-semibold text-fg group-hover:text-accent transition-colors">
                 {t(item.labelKey)}
               </div>
               <div className="text-sm text-gray-500 mt-1">{t(item.descriptionKey)}</div>

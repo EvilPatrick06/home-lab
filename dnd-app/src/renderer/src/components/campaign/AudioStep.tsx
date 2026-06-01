@@ -142,7 +142,7 @@ export default function AudioStep({ audioEntries, onChange }: AudioStepProps): J
   return (
     <div>
       <h2 className="text-xl font-semibold mb-2">{t('campaign.audioStep.title')}</h2>
-      <p className="text-gray-400 text-sm mb-6">{t('campaign.audioStep.subtitle')}</p>
+      <p className="text-muted text-sm mb-6">{t('campaign.audioStep.subtitle')}</p>
 
       <div className="max-w-2xl">
         {/* Drop zone */}
@@ -151,7 +151,7 @@ export default function AudioStep({ audioEntries, onChange }: AudioStepProps): J
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors mb-6 ${
-            isDragOver ? 'border-amber-500 bg-amber-500/10' : 'border-gray-700 hover:border-gray-600'
+            isDragOver ? 'border-amber-500 bg-accent-strong/10' : 'border-border hover:border-gray-600'
           }`}
         >
           <div className="text-3xl text-gray-500 mb-2">{'\u266B'}</div>
@@ -179,12 +179,12 @@ export default function AudioStep({ audioEntries, onChange }: AudioStepProps): J
             {audioEntries.map((entry) => (
               <div
                 key={entry.id}
-                className="bg-gray-900/50 border border-gray-800 rounded-lg p-4 flex items-center gap-3"
+                className="bg-surface/50 border border-gray-800 rounded-lg p-4 flex items-center gap-3"
               >
                 {/* Preview button */}
                 <button
                   onClick={() => handlePreviewToggle(entry.id, entry.fileName)}
-                  className="w-8 h-8 shrink-0 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-700 text-gray-300 transition-colors cursor-pointer text-sm"
+                  className="w-8 h-8 shrink-0 flex items-center justify-center rounded-full bg-surface-2 hover:bg-gray-700 text-gray-300 transition-colors cursor-pointer text-sm"
                   title={
                     previewingId === entry.id
                       ? t('campaign.audioStep.stopPreview')
@@ -199,7 +199,7 @@ export default function AudioStep({ audioEntries, onChange }: AudioStepProps): J
                   type="text"
                   value={entry.displayName}
                   onChange={(e) => handleDisplayNameChange(entry.id, e.target.value)}
-                  className="flex-1 min-w-0 bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm text-gray-100 focus:outline-none focus:border-amber-500 transition-colors"
+                  className="flex-1 min-w-0 bg-surface-2 border border-border rounded px-3 py-1.5 text-sm text-fg focus:outline-none focus:border-amber-500 transition-colors"
                   placeholder={t('campaign.audioStep.displayName')}
                 />
 
@@ -207,7 +207,7 @@ export default function AudioStep({ audioEntries, onChange }: AudioStepProps): J
                 <select
                   value={entry.category}
                   onChange={(e) => handleCategoryChange(entry.id, e.target.value as AudioCategory)}
-                  className="bg-gray-800 border border-gray-700 rounded px-2 py-1.5 text-sm text-gray-100 focus:outline-none focus:border-amber-500 transition-colors cursor-pointer"
+                  className="bg-surface-2 border border-border rounded px-2 py-1.5 text-sm text-fg focus:outline-none focus:border-amber-500 transition-colors cursor-pointer"
                 >
                   {CATEGORIES.map((cat) => (
                     <option key={cat.value} value={cat.value}>

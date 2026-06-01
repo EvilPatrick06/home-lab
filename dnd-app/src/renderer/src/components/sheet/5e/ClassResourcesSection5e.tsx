@@ -87,8 +87,8 @@ export default function ClassResourcesSection5e({
               onClick={() => onToggle(resource.id, i)}
               disabled={readonly}
               className={`w-5 h-5 rounded-full border-2 transition-colors ${
-                isFilled ? 'bg-amber-500 border-amber-400' : 'bg-transparent border-gray-600'
-              } ${!readonly ? 'cursor-pointer hover:border-amber-400' : 'cursor-default'}`}
+                isFilled ? 'bg-accent-strong border-accent' : 'bg-transparent border-gray-600'
+              } ${!readonly ? 'cursor-pointer hover:border-accent' : 'cursor-default'}`}
               title={isFilled ? t('sheet.classResources.clickToExpend') : t('sheet.classResources.clickToRestore')}
             />
           )

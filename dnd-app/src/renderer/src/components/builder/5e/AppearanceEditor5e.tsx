@@ -28,7 +28,7 @@ export default function AppearanceEditor5e(): JSX.Element {
               value={characterGender}
               onChange={(e) => useBuilderStore.setState({ characterGender: e.target.value })}
               placeholder={t('builder.appearanceEditor.notSet')}
-              className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
+              className="bg-surface-2 border border-border rounded px-2 py-1 text-sm text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500"
             />
           </div>
           <div className="flex flex-col gap-1">
@@ -38,7 +38,7 @@ export default function AppearanceEditor5e(): JSX.Element {
               value={characterDeity}
               onChange={(e) => useBuilderStore.setState({ characterDeity: e.target.value })}
               placeholder={t('builder.appearanceEditor.notSet')}
-              className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
+              className="bg-surface-2 border border-border rounded px-2 py-1 text-sm text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500"
             />
           </div>
           <div className="flex flex-col gap-1">
@@ -48,7 +48,7 @@ export default function AppearanceEditor5e(): JSX.Element {
               value={characterAge}
               onChange={(e) => useBuilderStore.setState({ characterAge: e.target.value })}
               placeholder={t('builder.appearanceEditor.notSet')}
-              className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
+              className="bg-surface-2 border border-border rounded px-2 py-1 text-sm text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500"
             />
           </div>
           <div className="flex flex-col gap-1">
@@ -56,7 +56,7 @@ export default function AppearanceEditor5e(): JSX.Element {
             <select
               value={characterAlignment}
               onChange={(e) => useBuilderStore.setState({ characterAlignment: e.target.value })}
-              className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+              className="bg-surface-2 border border-border rounded px-2 py-1 text-sm text-fg focus:outline-none focus:border-amber-500"
             >
               <option value="">{t('builder.appearanceEditor.notSet')}</option>
               <option value="Lawful Good">Lawful Good</option>
@@ -82,7 +82,7 @@ export default function AppearanceEditor5e(): JSX.Element {
               value={characterHeight}
               onChange={(e) => useBuilderStore.setState({ characterHeight: e.target.value })}
               placeholder={t('builder.appearanceEditor.heightPlaceholder')}
-              className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
+              className="bg-surface-2 border border-border rounded px-2 py-1 text-sm text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500"
             />
           </div>
           <div className="flex flex-col gap-1">
@@ -92,7 +92,7 @@ export default function AppearanceEditor5e(): JSX.Element {
               value={characterWeight}
               onChange={(e) => useBuilderStore.setState({ characterWeight: e.target.value })}
               placeholder={t('builder.appearanceEditor.weightPlaceholder')}
-              className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
+              className="bg-surface-2 border border-border rounded px-2 py-1 text-sm text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500"
             />
           </div>
         </div>
@@ -104,7 +104,7 @@ export default function AppearanceEditor5e(): JSX.Element {
               value={characterEyes}
               onChange={(e) => useBuilderStore.setState({ characterEyes: e.target.value })}
               placeholder={t('builder.appearanceEditor.notSet')}
-              className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
+              className="bg-surface-2 border border-border rounded px-2 py-1 text-sm text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500"
             />
           </div>
           <div className="flex flex-col gap-1">
@@ -114,7 +114,7 @@ export default function AppearanceEditor5e(): JSX.Element {
               value={characterHair}
               onChange={(e) => useBuilderStore.setState({ characterHair: e.target.value })}
               placeholder={t('builder.appearanceEditor.notSet')}
-              className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
+              className="bg-surface-2 border border-border rounded px-2 py-1 text-sm text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500"
             />
           </div>
           <div className="flex flex-col gap-1">
@@ -124,7 +124,7 @@ export default function AppearanceEditor5e(): JSX.Element {
               value={characterSkin}
               onChange={(e) => useBuilderStore.setState({ characterSkin: e.target.value })}
               placeholder={t('builder.appearanceEditor.notSet')}
-              className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
+              className="bg-surface-2 border border-border rounded px-2 py-1 text-sm text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500"
             />
           </div>
         </div>
@@ -135,7 +135,7 @@ export default function AppearanceEditor5e(): JSX.Element {
             onChange={(e) => useBuilderStore.setState({ characterAppearance: e.target.value })}
             placeholder={t('builder.appearanceEditor.appearancePlaceholder')}
             rows={2}
-            className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500 resize-y"
+            className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500 resize-y"
           />
         </div>
       </div>

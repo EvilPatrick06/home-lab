@@ -34,14 +34,14 @@ export default function FogBrush({
         <button
           onClick={() => onToolChange('fog-reveal')}
           className={`flex-1 py-2 text-sm rounded-lg transition-colors cursor-pointer
-            ${activeTool === 'fog-reveal' ? 'bg-green-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}
+            ${activeTool === 'fog-reveal' ? 'bg-green-600 text-white' : 'bg-surface-2 text-muted hover:bg-gray-700'}`}
         >
           {t('game.fogBrush.reveal')}
         </button>
         <button
           onClick={() => onToolChange('fog-hide')}
           className={`flex-1 py-2 text-sm rounded-lg transition-colors cursor-pointer
-            ${activeTool === 'fog-hide' ? 'bg-red-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}
+            ${activeTool === 'fog-hide' ? 'bg-red-600 text-white' : 'bg-surface-2 text-muted hover:bg-gray-700'}`}
         >
           {t('game.fogBrush.hide')}
         </button>
@@ -55,7 +55,7 @@ export default function FogBrush({
               key={size}
               onClick={() => onBrushSizeChange(size)}
               className={`flex-1 py-1.5 text-sm rounded-lg transition-colors cursor-pointer
-                ${brushSize === size ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}
+                ${brushSize === size ? 'bg-amber-600 text-white' : 'bg-surface-2 text-muted hover:bg-gray-700'}`}
             >
               {size}x{size}
             </button>
@@ -66,14 +66,14 @@ export default function FogBrush({
       <div className="flex gap-2">
         <button
           onClick={onRevealAll}
-          className="flex-1 py-1.5 text-xs rounded-lg bg-gray-800 text-gray-400
+          className="flex-1 py-1.5 text-xs rounded-lg bg-surface-2 text-muted
             hover:bg-green-700 hover:text-white transition-colors cursor-pointer"
         >
           {t('game.fogBrush.revealAll')}
         </button>
         <button
           onClick={onHideAll}
-          className="flex-1 py-1.5 text-xs rounded-lg bg-gray-800 text-gray-400
+          className="flex-1 py-1.5 text-xs rounded-lg bg-surface-2 text-muted
             hover:bg-red-700 hover:text-white transition-colors cursor-pointer"
         >
           {t('game.fogBrush.hideAll')}
@@ -88,12 +88,12 @@ export default function FogBrush({
             onChange={(e) => onDynamicFogToggle(e.target.checked)}
             className="accent-cyan-500 w-3.5 h-3.5 cursor-pointer"
           />
-          <span className="text-xs text-gray-400">{t('game.fogBrush.dynamicVision')}</span>
+          <span className="text-xs text-muted">{t('game.fogBrush.dynamicVision')}</span>
         </label>
       )}
 
       {isFogTool && (
-        <p className="text-xs text-amber-400 text-center">
+        <p className="text-xs text-accent text-center">
           {activeTool === 'fog-reveal' ? t('game.fogBrush.dragToReveal') : t('game.fogBrush.dragToHide')}
         </p>
       )}

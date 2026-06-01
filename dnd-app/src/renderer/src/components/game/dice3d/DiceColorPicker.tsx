@@ -32,7 +32,7 @@ export default function DiceColorPicker({ colors, onChange }: DiceColorPickerPro
                 setShowCustom(false)
               }}
               className={`flex flex-col items-center gap-1 p-2 rounded-lg border transition-colors ${
-                isActive ? 'border-amber-500 bg-gray-700/50' : 'border-gray-600 hover:border-gray-500 bg-gray-800/50'
+                isActive ? 'border-amber-500 bg-gray-700/50' : 'border-gray-600 hover:border-gray-500 bg-surface-2/50'
               }`}
               title={preset.label}
             >
@@ -46,7 +46,7 @@ export default function DiceColorPicker({ colors, onChange }: DiceColorPickerPro
               >
                 20
               </div>
-              <span className="text-xs text-gray-400 truncate w-full text-center">{preset.label}</span>
+              <span className="text-xs text-muted truncate w-full text-center">{preset.label}</span>
             </button>
           )
         })}
@@ -56,9 +56,7 @@ export default function DiceColorPicker({ colors, onChange }: DiceColorPickerPro
       <button
         onClick={() => setShowCustom(!showCustom)}
         className={`text-xs px-3 py-1 rounded border transition-colors ${
-          showCustom || !isPreset
-            ? 'border-amber-500 text-amber-400'
-            : 'border-gray-600 text-gray-400 hover:text-gray-300'
+          showCustom || !isPreset ? 'border-amber-500 text-accent' : 'border-gray-600 text-muted hover:text-gray-300'
         }`}
       >
         {t('game.diceColorPicker.customColors')}
@@ -66,9 +64,9 @@ export default function DiceColorPicker({ colors, onChange }: DiceColorPickerPro
 
       {/* Custom color inputs */}
       {showCustom && (
-        <div className="space-y-2 p-3 bg-gray-800/50 rounded-lg border border-gray-700">
+        <div className="space-y-2 p-3 bg-surface-2/50 rounded-lg border border-border">
           <div className="flex items-center gap-3">
-            <label className="text-xs text-gray-400 w-16">{t('game.diceColorPicker.body')}</label>
+            <label className="text-xs text-muted w-16">{t('game.diceColorPicker.body')}</label>
             <input
               type="color"
               value={colors.bodyColor}
@@ -83,12 +81,12 @@ export default function DiceColorPicker({ colors, onChange }: DiceColorPickerPro
                   onChange({ ...colors, bodyColor: e.target.value })
                 }
               }}
-              className="bg-gray-900 border border-gray-600 rounded px-2 py-1 text-xs text-gray-300 w-20 font-mono"
+              className="bg-surface border border-gray-600 rounded px-2 py-1 text-xs text-gray-300 w-20 font-mono"
               placeholder={t('game.diceColorPicker.bodyPlaceholder')}
             />
           </div>
           <div className="flex items-center gap-3">
-            <label className="text-xs text-gray-400 w-16">{t('game.diceColorPicker.numbers')}</label>
+            <label className="text-xs text-muted w-16">{t('game.diceColorPicker.numbers')}</label>
             <input
               type="color"
               value={colors.numberColor}
@@ -103,7 +101,7 @@ export default function DiceColorPicker({ colors, onChange }: DiceColorPickerPro
                   onChange({ ...colors, numberColor: e.target.value })
                 }
               }}
-              className="bg-gray-900 border border-gray-600 rounded px-2 py-1 text-xs text-gray-300 w-20 font-mono"
+              className="bg-surface border border-gray-600 rounded px-2 py-1 text-xs text-gray-300 w-20 font-mono"
               placeholder={t('game.diceColorPicker.numberPlaceholder')}
             />
           </div>

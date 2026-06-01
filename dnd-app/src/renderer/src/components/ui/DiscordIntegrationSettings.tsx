@@ -148,7 +148,7 @@ export default function DiscordIntegrationSettings(): JSX.Element {
       {config.enabled && (
         <>
           {/* DM Mode Selection */}
-          <div className="space-y-2 pt-2 border-t border-gray-700/50">
+          <div className="space-y-2 pt-2 border-t border-border/50">
             <span className="text-sm text-gray-300 block">{t('ui.discordIntegration.integrationMode')}</span>
             <div className="grid grid-cols-2 gap-2">
               <button
@@ -156,7 +156,7 @@ export default function DiscordIntegrationSettings(): JSX.Element {
                 className={`p-2 rounded-lg border text-left transition-colors cursor-pointer ${
                   config.dmMode === 'webhook'
                     ? 'border-amber-500 bg-amber-900/20'
-                    : 'border-gray-700 bg-gray-800/30 hover:border-gray-600'
+                    : 'border-border bg-surface-2/30 hover:border-gray-600'
                 }`}
               >
                 <div className="text-xs font-medium text-gray-200">{t('ui.discordIntegration.webhook')}</div>
@@ -167,7 +167,7 @@ export default function DiscordIntegrationSettings(): JSX.Element {
                 className={`p-2 rounded-lg border text-left transition-colors cursor-pointer ${
                   config.dmMode === 'bot-api'
                     ? 'border-amber-500 bg-amber-900/20'
-                    : 'border-gray-700 bg-gray-800/30 hover:border-gray-600'
+                    : 'border-border bg-surface-2/30 hover:border-gray-600'
                 }`}
               >
                 <div className="text-xs font-medium text-gray-200">{t('ui.discordIntegration.botDm')}</div>
@@ -182,11 +182,12 @@ export default function DiscordIntegrationSettings(): JSX.Element {
               <div>
                 <label className="text-sm text-gray-300 block mb-1">{t('ui.discordIntegration.webhookUrlLabel')}</label>
                 <input
+                  aria-label="https://discord.com/api/webhooks/..."
                   type="password"
                   placeholder="https://discord.com/api/webhooks/..."
                   value={config.webhookUrl}
                   onChange={(e) => updateConfig({ webhookUrl: e.target.value })}
-                  className="w-full px-3 py-2 text-sm bg-gray-900 border border-gray-700 rounded-lg text-gray-200 placeholder-gray-600 focus:border-amber-500 focus:outline-none"
+                  className="w-full px-3 py-2 text-sm bg-surface border border-border rounded-lg text-gray-200 placeholder-gray-600 focus:border-amber-500 focus:outline-none"
                 />
                 <p className="text-xs text-gray-500 mt-1">{t('ui.discordIntegration.webhookHelp')}</p>
               </div>
@@ -199,22 +200,24 @@ export default function DiscordIntegrationSettings(): JSX.Element {
               <div>
                 <label className="text-sm text-gray-300 block mb-1">{t('ui.discordIntegration.botTokenLabel')}</label>
                 <input
+                  aria-label={t('ui.discordIntegration.botTokenPlaceholder')}
                   type="password"
                   placeholder={t('ui.discordIntegration.botTokenPlaceholder')}
                   value={config.botToken}
                   onChange={(e) => updateConfig({ botToken: e.target.value })}
-                  className="w-full px-3 py-2 text-sm bg-gray-900 border border-gray-700 rounded-lg text-gray-200 placeholder-gray-600 focus:border-amber-500 focus:outline-none"
+                  className="w-full px-3 py-2 text-sm bg-surface border border-border rounded-lg text-gray-200 placeholder-gray-600 focus:border-amber-500 focus:outline-none"
                 />
                 <p className="text-xs text-gray-500 mt-1">{t('ui.discordIntegration.botTokenHelp')}</p>
               </div>
               <div>
                 <label className="text-sm text-gray-300 block mb-1">{t('ui.discordIntegration.userIdLabel')}</label>
                 <input
+                  aria-label={t('ui.discordIntegration.userIdPlaceholder')}
                   type="text"
                   placeholder={t('ui.discordIntegration.userIdPlaceholder')}
                   value={config.userId}
                   onChange={(e) => updateConfig({ userId: e.target.value })}
-                  className="w-full px-3 py-2 text-sm bg-gray-900 border border-gray-700 rounded-lg text-gray-200 placeholder-gray-600 focus:border-amber-500 focus:outline-none"
+                  className="w-full px-3 py-2 text-sm bg-surface border border-border rounded-lg text-gray-200 placeholder-gray-600 focus:border-amber-500 focus:outline-none"
                 />
                 <p className="text-xs text-gray-500 mt-1">{t('ui.discordIntegration.userIdHelp')}</p>
               </div>
@@ -229,11 +232,11 @@ export default function DiscordIntegrationSettings(): JSX.Element {
       )}
 
       {/* Action Buttons */}
-      <div className="flex items-center gap-2 pt-2 border-t border-gray-700/50">
+      <div className="flex items-center gap-2 pt-2 border-t border-border/50">
         <button
           onClick={handleSave}
           disabled={saving || !hasChanges}
-          className="px-4 py-1.5 text-sm rounded-lg bg-amber-600 hover:bg-amber-500 text-white transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-4 py-1.5 text-sm rounded-lg bg-amber-600 hover:bg-accent-strong text-white transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {saving ? t('ui.discordIntegration.saving') : t('ui.discordIntegration.saveSettings')}
         </button>
@@ -246,7 +249,7 @@ export default function DiscordIntegrationSettings(): JSX.Element {
             {testing ? t('ui.discordIntegration.testing') : t('ui.discordIntegration.testConnection')}
           </button>
         )}
-        {hasChanges && <span className="text-xs text-amber-400 ml-2">{t('ui.discordIntegration.unsavedChanges')}</span>}
+        {hasChanges && <span className="text-xs text-accent ml-2">{t('ui.discordIntegration.unsavedChanges')}</span>}
       </div>
     </div>
   )

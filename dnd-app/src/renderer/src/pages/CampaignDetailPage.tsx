@@ -256,14 +256,14 @@ export default function CampaignDetailPage(): JSX.Element {
       <div className="flex items-start justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold mb-1">{campaign.name}</h1>
-          <div className="flex items-center gap-3 text-sm text-gray-400">
+          <div className="flex items-center gap-3 text-sm text-muted">
             <span>{systemConfig.name}</span>
             <span className="text-gray-600">|</span>
             <span className="capitalize">{t('pages.campaignDetailPage.typeCampaign', { type: campaign.type })}</span>
             <span className="text-gray-600">|</span>
             <span>
               {t('pages.campaignDetailPage.invite')}{' '}
-              <span className="text-amber-400 font-mono">{campaign.inviteCode}</span>
+              <span className="text-accent font-mono">{campaign.inviteCode}</span>
             </span>
           </div>
         </div>
@@ -322,7 +322,7 @@ export default function CampaignDetailPage(): JSX.Element {
           {campaign.players.length > 0 && (
             <div className="space-y-2">
               {campaign.players.map((player) => (
-                <div key={player.userId} className="flex items-center justify-between bg-gray-800/50 rounded-lg p-3">
+                <div key={player.userId} className="flex items-center justify-between bg-surface-2/50 rounded-lg p-3">
                   <div>
                     <span className="font-semibold text-sm">{player.displayName}</span>
                     <span className="text-gray-500 text-xs ml-2">
@@ -400,7 +400,7 @@ export default function CampaignDetailPage(): JSX.Element {
                   })
                   addToast(t('pages.campaignDetailPage.toastLootAdded'), 'success')
                 }}
-                className="text-xs bg-amber-600/20 text-amber-400 hover:bg-amber-600/40 px-2 py-1 rounded cursor-pointer transition-colors"
+                className="text-xs bg-amber-600/20 text-accent hover:bg-amber-600/40 px-2 py-1 rounded cursor-pointer transition-colors"
               >
                 {t('pages.campaignDetailPage.addLoot')}
               </button>
@@ -414,12 +414,12 @@ export default function CampaignDetailPage(): JSX.Element {
                 .slice()
                 .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                 .map((entry) => (
-                  <div key={entry.id} className="bg-gray-800/50 rounded-lg p-3 group">
+                  <div key={entry.id} className="bg-surface-2/50 rounded-lg p-3 group">
                     <div className="flex items-center justify-between mb-1">
                       <span className="font-semibold text-sm">{entry.description}</span>
                       <div className="flex items-center gap-3">
                         {entry.valueFormatted && (
-                          <span className="text-amber-400 font-mono text-xs">{entry.valueFormatted}</span>
+                          <span className="text-accent font-mono text-xs">{entry.valueFormatted}</span>
                         )}
                         <button
                           onClick={() => {
@@ -487,20 +487,17 @@ export default function CampaignDetailPage(): JSX.Element {
                   setEditingEntry(null)
                   setShowJournalModal(true)
                 }}
-                className="text-xs bg-amber-600/20 text-amber-400 hover:bg-amber-600/40 px-2 py-1 rounded cursor-pointer transition-colors"
+                className="text-xs bg-amber-600/20 text-accent hover:bg-amber-600/40 px-2 py-1 rounded cursor-pointer transition-colors"
               >
                 {t('pages.campaignDetailPage.newEntry')}
               </button>
-              <button
-                onClick={handleImportJournal}
-                className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer"
-              >
+              <button onClick={handleImportJournal} className="text-xs text-muted hover:text-accent cursor-pointer">
                 {t('pages.campaignDetailPage.import')}
               </button>
               {campaign.journal.entries.length > 0 && (
                 <button
                   onClick={() => handleExportJournal(campaign.journal.entries)}
-                  className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer"
+                  className="text-xs text-muted hover:text-accent cursor-pointer"
                 >
                   {t('pages.campaignDetailPage.exportAll')}
                 </button>
@@ -515,7 +512,7 @@ export default function CampaignDetailPage(): JSX.Element {
                 .slice()
                 .sort((a, b) => b.sessionNumber - a.sessionNumber)
                 .map((entry) => (
-                  <div key={entry.id} className="bg-gray-800/50 rounded-lg p-3 group">
+                  <div key={entry.id} className="bg-surface-2/50 rounded-lg p-3 group">
                     <div className="flex items-center justify-between mb-1">
                       <span className="font-semibold text-sm">
                         {t('pages.campaignDetailPage.journalEntryTitle', {
@@ -531,7 +528,7 @@ export default function CampaignDetailPage(): JSX.Element {
                               setEditingEntry(entry)
                               setShowJournalModal(true)
                             }}
-                            className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer"
+                            className="text-xs text-accent hover:text-amber-300 cursor-pointer"
                           >
                             {t('pages.campaignDetailPage.edit')}
                           </button>
@@ -548,7 +545,7 @@ export default function CampaignDetailPage(): JSX.Element {
                         </div>
                       </div>
                     </div>
-                    <p className="text-gray-400 text-xs line-clamp-2">{entry.content}</p>
+                    <p className="text-muted text-xs line-clamp-2">{entry.content}</p>
                     {entry.isPrivate && (
                       <span className="text-xs text-yellow-400 mt-1 inline-block">
                         {t('pages.campaignDetailPage.dmOnly')}

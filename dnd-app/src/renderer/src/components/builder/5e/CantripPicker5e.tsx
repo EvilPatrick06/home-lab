@@ -50,7 +50,7 @@ export default function CantripPicker5e({
                   ? 'bg-blue-800/40 text-blue-300'
                   : selectedCantrips.length >= 2
                     ? 'text-gray-600 cursor-not-allowed'
-                    : 'text-gray-400 hover:bg-gray-800/50 hover:text-gray-300 cursor-pointer'
+                    : 'text-muted hover:bg-surface-2/50 hover:text-gray-300 cursor-pointer'
               }`}
             >
               <span

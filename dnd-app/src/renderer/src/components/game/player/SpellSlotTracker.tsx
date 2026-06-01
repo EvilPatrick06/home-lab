@@ -142,8 +142,8 @@ export default function SpellSlotTracker({
                       className={`w-4 h-4 rounded-full border transition-colors cursor-pointer
                       ${
                         isAvailable
-                          ? 'bg-amber-600 border-amber-500 hover:bg-amber-500'
-                          : 'bg-gray-800 border-gray-600 hover:bg-gray-700'
+                          ? 'bg-amber-600 border-amber-500 hover:bg-accent-strong'
+                          : 'bg-surface-2 border-gray-600 hover:bg-gray-700'
                       }`}
                       title={t('game.spellSlotTracker.slotTitle', { level, index: i + 1 })}
                     />

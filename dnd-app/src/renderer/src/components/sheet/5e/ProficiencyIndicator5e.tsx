@@ -8,14 +8,10 @@ export default function ProficiencyIndicator5e({ proficient, expertise }: Profic
     <div className="flex items-center gap-0.5">
       <span
         className={`w-2.5 h-2.5 rounded-full border ${
-          proficient
-            ? expertise
-              ? 'bg-amber-400 border-amber-400'
-              : 'bg-amber-500 border-amber-500'
-            : 'border-gray-600'
+          proficient ? (expertise ? 'bg-accent border-accent' : 'bg-accent-strong border-amber-500') : 'border-gray-600'
         }`}
       />
-      {expertise && <span className="w-2.5 h-2.5 rounded-full border bg-amber-400 border-amber-400" />}
+      {expertise && <span className="w-2.5 h-2.5 rounded-full border bg-accent border-accent" />}
     </div>
   )
 }

@@ -33,7 +33,7 @@ export async function loadDmTabData(): Promise<unknown> {
 type TabId = string
 
 const btnClass =
-  'px-3 py-2 text-xs font-medium rounded-lg bg-gray-800/60 border border-gray-700/50 text-gray-300 hover:bg-amber-600/20 hover:border-amber-500/40 hover:text-amber-300 transition-all cursor-pointer whitespace-nowrap'
+  'px-3 py-2 text-xs font-medium rounded-lg bg-surface-2/60 border border-border/50 text-gray-300 hover:bg-amber-600/20 hover:border-amber-500/40 hover:text-amber-300 transition-all cursor-pointer whitespace-nowrap'
 
 const toggleOnClass =
   'px-3 py-2 text-xs font-medium rounded-lg bg-amber-600/30 border border-amber-500/50 text-amber-300 transition-all cursor-pointer whitespace-nowrap'
@@ -248,7 +248,7 @@ export default function DMTabPanel({ onOpenModal, campaign, onDispute, onEditMap
                 </button>
 
                 {showTokenDetail && tokenBudget && (
-                  <div className="w-full bg-gray-900/60 border border-gray-700/40 rounded-lg px-3 py-2 space-y-0.5">
+                  <div className="w-full bg-surface/60 border border-border/40 rounded-lg px-3 py-2 space-y-0.5">
                     {(
                       [
                         [t('game.dmTabPanel.budgetRulebook'), tokenBudget.rulebookChunks],
@@ -262,10 +262,10 @@ export default function DMTabPanel({ onOpenModal, campaign, onDispute, onEditMap
                     ).map(([label, val]) => (
                       <div key={label} className="flex justify-between text-xs">
                         <span className="text-gray-500">{label}</span>
-                        <span className="text-gray-400">{val.toLocaleString()}</span>
+                        <span className="text-muted">{val.toLocaleString()}</span>
                       </div>
                     ))}
-                    <div className="flex justify-between text-xs border-t border-gray-700 pt-0.5 mt-0.5">
+                    <div className="flex justify-between text-xs border-t border-border pt-0.5 mt-0.5">
                       <span className="text-purple-400 font-semibold">{t('game.dmTabPanel.totalContext')}</span>
                       <span className="text-purple-400 font-semibold">{tokenBudget.total.toLocaleString()}</span>
                     </div>
@@ -406,7 +406,7 @@ export default function DMTabPanel({ onOpenModal, campaign, onDispute, onEditMap
                 className={`flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-medium rounded-t-lg whitespace-nowrap transition-all cursor-pointer shrink-0 ${
                   activeTab === tab.id
                     ? 'bg-amber-600/25 border border-b-0 border-amber-500/50 text-amber-300'
-                    : 'bg-gray-800/40 border border-b-0 border-gray-700/30 text-gray-400 hover:bg-gray-700/40 hover:text-gray-300'
+                    : 'bg-surface-2/40 border border-b-0 border-border/30 text-muted hover:bg-gray-700/40 hover:text-gray-300'
                 }`}
               >
                 <span>{tab.icon}</span>
@@ -418,7 +418,7 @@ export default function DMTabPanel({ onOpenModal, campaign, onDispute, onEditMap
       </div>
 
       {/* Tab content — scrollable */}
-      <div className="bg-gray-900/40 border border-gray-700/30 rounded-lg p-2 min-h-[60px] flex-1 overflow-y-auto">
+      <div className="bg-surface/40 border border-border/30 rounded-lg p-2 min-h-[60px] flex-1 overflow-y-auto">
         {renderTabContent()}
       </div>
     </div>

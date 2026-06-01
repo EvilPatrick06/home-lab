@@ -76,17 +76,17 @@ function HitPointsBar5e({ character, effectiveCharacter, readonly }: HitPointsBa
 
   return (
     <div
-      className={`bg-gray-900/50 border rounded-lg p-3 text-center transition-colors ${
+      className={`bg-surface/50 border rounded-lg p-3 text-center transition-colors ${
         readonly
-          ? 'border-gray-700'
+          ? 'border-border'
           : editingHP
             ? 'border-amber-500 cursor-pointer'
-            : 'border-gray-700 hover:border-gray-500 cursor-pointer'
+            : 'border-border hover:border-gray-500 cursor-pointer'
       }`}
       onClick={readonly ? undefined : () => !editingHP && setEditingHP(true)}
       title={readonly ? undefined : editingHP ? undefined : t('sheet.hitPointsBar.clickToEditHp')}
     >
-      <div className="text-xs text-gray-400 uppercase">{t('sheet.hitPointsBar.hp')}</div>
+      <div className="text-xs text-muted uppercase">{t('sheet.hitPointsBar.hp')}</div>
       {editingHP ? (
         <div className="space-y-1 mt-1">
           <div className="flex items-center justify-center gap-1">
@@ -94,14 +94,14 @@ function HitPointsBar5e({ character, effectiveCharacter, readonly }: HitPointsBa
               type="number"
               value={hpCurrent}
               onChange={(e) => setHpCurrent(parseInt(e.target.value, 10) || 0)}
-              className="w-12 bg-gray-800 border border-gray-600 rounded text-center text-sm text-green-400 focus:outline-none focus:border-amber-500"
+              className="w-12 bg-surface-2 border border-gray-600 rounded text-center text-sm text-green-400 focus:outline-none focus:border-amber-500"
             />
             <span className="text-gray-500">/</span>
             <input
               type="number"
               value={hpMax}
               onChange={(e) => setHpMax(parseInt(e.target.value, 10) || 0)}
-              className="w-12 bg-gray-800 border border-gray-600 rounded text-center text-sm text-green-400 focus:outline-none focus:border-amber-500"
+              className="w-12 bg-surface-2 border border-gray-600 rounded text-center text-sm text-green-400 focus:outline-none focus:border-amber-500"
             />
           </div>
           <div className="flex items-center justify-center gap-1">
@@ -110,7 +110,7 @@ function HitPointsBar5e({ character, effectiveCharacter, readonly }: HitPointsBa
               type="number"
               value={hpTemp}
               onChange={(e) => setHpTemp(parseInt(e.target.value, 10) || 0)}
-              className="w-10 bg-gray-800 border border-gray-600 rounded text-center text-xs text-blue-400 focus:outline-none focus:border-amber-500"
+              className="w-10 bg-surface-2 border border-gray-600 rounded text-center text-xs text-blue-400 focus:outline-none focus:border-amber-500"
             />
           </div>
           <div className="flex gap-1 justify-center">
@@ -160,7 +160,7 @@ function HitPointsBar5e({ character, effectiveCharacter, readonly }: HitPointsBa
                 value={quickAmt}
                 onChange={(e) => setQuickAmt(e.target.value)}
                 placeholder="0"
-                className="w-12 text-xs bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-gray-200 focus:outline-none focus:border-amber-500"
+                className="w-12 text-xs bg-surface-2 border border-border rounded px-1 py-0.5 text-gray-200 focus:outline-none focus:border-amber-500"
                 aria-label={t('sheet.hitPointsBar.hpAmount')}
               />
               <button

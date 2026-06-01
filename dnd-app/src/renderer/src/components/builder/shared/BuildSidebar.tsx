@@ -38,19 +38,19 @@ export default function BuildSidebar(): JSX.Element {
   }, [guidedMode, groupedSlots])
 
   return (
-    <div className="w-64 border-r border-gray-700 bg-gray-900/50 flex flex-col shrink-0">
+    <div className="w-64 border-r border-border bg-surface/50 flex flex-col shrink-0">
       {/* Character name & level */}
-      <div className="p-3 border-b border-gray-700 space-y-2">
+      <div className="p-3 border-b border-border space-y-2">
         <input
           type="text"
           value={characterName}
           onChange={(e) => setCharacterName(e.target.value)}
           placeholder={t('builder.buildSidebar.characterNamePlaceholder')}
           aria-label={t('builder.buildSidebar.characterNameAria')}
-          className="w-full bg-gray-800 border border-gray-600 rounded px-3 py-1.5 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-amber-500"
+          className="w-full bg-surface-2 border border-gray-600 rounded px-3 py-1.5 text-sm text-fg placeholder-gray-500 focus:outline-none focus:border-amber-500"
         />
         <div className="flex items-center gap-2">
-          <label htmlFor="builder-level" className="text-xs text-gray-400">
+          <label htmlFor="builder-level" className="text-xs text-muted">
             {t('builder.buildSidebar.level')}
           </label>
           <input
@@ -63,7 +63,7 @@ export default function BuildSidebar(): JSX.Element {
               const val = parseInt(e.target.value, 10)
               if (val >= 1 && val <= 20) setTargetLevel(val)
             }}
-            className="w-16 bg-gray-800 border border-gray-600 rounded px-2 py-1 text-sm text-center text-gray-100 focus:outline-none focus:border-amber-500"
+            className="w-16 bg-surface-2 border border-gray-600 rounded px-2 py-1 text-sm text-center text-fg focus:outline-none focus:border-amber-500"
           />
         </div>
         <IconPicker />

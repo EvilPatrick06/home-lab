@@ -18,7 +18,7 @@ export default function DrawingToolPicker({ onSetTool }: DrawingToolPickerProps)
   const { t } = useT()
   return (
     <div
-      className="absolute top-16 right-4 flex flex-col gap-1 bg-gray-900/90 backdrop-blur-sm border border-gray-700/50 rounded-xl p-2 shadow-xl"
+      className="absolute top-16 right-4 flex flex-col gap-1 bg-surface/90 backdrop-blur-sm border border-border/50 rounded-xl p-2 shadow-xl"
       style={{ zIndex: Z.TOOLBAR }}
       role="toolbar"
       aria-label={t('game.drawingToolPicker.toolbarLabel')}
@@ -30,7 +30,7 @@ export default function DrawingToolPicker({ onSetTool }: DrawingToolPickerProps)
         <button
           onClick={() => onSetTool('draw-free')}
           aria-label={t('game.drawingToolPicker.freeDraw')}
-          className="w-11 h-11 p-2 rounded-lg flex items-center justify-center bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
+          className="w-11 h-11 p-2 rounded-lg flex items-center justify-center bg-surface-2 text-gray-300 hover:bg-gray-700 cursor-pointer"
         >
           <Pencil className="w-5 h-5" aria-hidden="true" />
         </button>
@@ -39,7 +39,7 @@ export default function DrawingToolPicker({ onSetTool }: DrawingToolPickerProps)
         <button
           onClick={() => onSetTool('draw-line')}
           aria-label={t('game.drawingToolPicker.drawLine')}
-          className="w-11 h-11 p-2 rounded-lg flex items-center justify-center bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
+          className="w-11 h-11 p-2 rounded-lg flex items-center justify-center bg-surface-2 text-gray-300 hover:bg-gray-700 cursor-pointer"
         >
           <Ruler className="w-5 h-5" aria-hidden="true" />
         </button>
@@ -48,7 +48,7 @@ export default function DrawingToolPicker({ onSetTool }: DrawingToolPickerProps)
         <button
           onClick={() => onSetTool('draw-rect')}
           aria-label={t('game.drawingToolPicker.drawRect')}
-          className="w-11 h-11 p-2 rounded-lg flex items-center justify-center bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
+          className="w-11 h-11 p-2 rounded-lg flex items-center justify-center bg-surface-2 text-gray-300 hover:bg-gray-700 cursor-pointer"
         >
           <Square className="w-5 h-5" aria-hidden="true" />
         </button>
@@ -57,7 +57,7 @@ export default function DrawingToolPicker({ onSetTool }: DrawingToolPickerProps)
         <button
           onClick={() => onSetTool('draw-circle')}
           aria-label={t('game.drawingToolPicker.drawCircle')}
-          className="w-11 h-11 p-2 rounded-lg flex items-center justify-center bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
+          className="w-11 h-11 p-2 rounded-lg flex items-center justify-center bg-surface-2 text-gray-300 hover:bg-gray-700 cursor-pointer"
         >
           <Circle className="w-5 h-5" aria-hidden="true" />
         </button>
@@ -66,7 +66,7 @@ export default function DrawingToolPicker({ onSetTool }: DrawingToolPickerProps)
         <button
           onClick={() => onSetTool('draw-text')}
           aria-label={t('game.drawingToolPicker.addText')}
-          className="w-11 h-11 p-2 rounded-lg flex items-center justify-center bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
+          className="w-11 h-11 p-2 rounded-lg flex items-center justify-center bg-surface-2 text-gray-300 hover:bg-gray-700 cursor-pointer"
         >
           <Type className="w-5 h-5" aria-hidden="true" />
         </button>

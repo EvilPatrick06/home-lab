@@ -92,23 +92,23 @@ export default function RulingApprovalModal(): JSX.Element | null {
       }}
       role="presentation"
     >
-      <div className="bg-gray-900 border border-amber-500/50 rounded-xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col">
+      <div className="bg-surface border border-amber-500/50 rounded-xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center gap-2 px-5 py-3 border-b border-gray-700 bg-amber-600/10">
-          <span className="text-amber-400 font-bold text-lg">{t('game.rulingApprovalModal.title')}</span>
-          <span className="text-xs text-gray-400 ml-auto">
+        <div className="flex items-center gap-2 px-5 py-3 border-b border-border bg-amber-600/10">
+          <span className="text-accent font-bold text-lg">{t('game.rulingApprovalModal.title')}</span>
+          <span className="text-xs text-muted ml-auto">
             {t('game.rulingApprovalModal.actionCount', { count: pendingActions.actions.length })}
           </span>
         </div>
 
         {/* Action List */}
         <div className="flex-1 overflow-y-auto p-5 space-y-3">
-          <p className="text-xs text-gray-400 mb-2">{t('game.rulingApprovalModal.intro')}</p>
+          <p className="text-xs text-muted mb-2">{t('game.rulingApprovalModal.intro')}</p>
 
           <div className="space-y-1.5">
             {actionSummaries.map((summary, i) => (
               <div key={i} className="flex items-start gap-2 text-sm">
-                <span className="text-amber-400 mt-0.5 shrink-0">-</span>
+                <span className="text-accent mt-0.5 shrink-0">-</span>
                 <span className="text-gray-300">{summary}</span>
               </div>
             ))}
@@ -116,19 +116,19 @@ export default function RulingApprovalModal(): JSX.Element | null {
 
           {/* DM Note for override */}
           <div className="mt-4">
-            <label className="block text-xs text-gray-400 mb-1">{t('game.rulingApprovalModal.dmNoteLabel')}</label>
+            <label className="block text-xs text-muted mb-1">{t('game.rulingApprovalModal.dmNoteLabel')}</label>
             <input
               type="text"
               value={dmNote}
               onChange={(e) => setDmNote(e.target.value)}
               placeholder={t('game.rulingApprovalModal.dmNotePlaceholder')}
-              className="w-full px-3 py-1.5 bg-gray-800 border border-gray-700 rounded text-sm text-gray-300 placeholder-gray-600 focus:border-amber-500 focus:outline-none"
+              className="w-full px-3 py-1.5 bg-surface-2 border border-border rounded text-sm text-gray-300 placeholder-gray-600 focus:border-amber-500 focus:outline-none"
             />
           </div>
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-2 px-5 py-3 border-t border-gray-700">
+        <div className="flex items-center justify-end gap-2 px-5 py-3 border-t border-border">
           <button
             onClick={() => {
               dismiss()

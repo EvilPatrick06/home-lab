@@ -32,7 +32,7 @@ export default function SkillsSection5e({ character, readonly: _readonly }: Skil
             <div key={skill.name}>
               <button
                 onClick={() => setExpandedSkill(isExpanded ? null : skill.name)}
-                className="w-full flex items-center gap-2 text-sm py-0.5 cursor-pointer hover:bg-gray-800/30 rounded px-1 -mx-1 transition-colors"
+                className="w-full flex items-center gap-2 text-sm py-0.5 cursor-pointer hover:bg-surface-2/30 rounded px-1 -mx-1 transition-colors"
               >
                 <ProficiencyIndicator5e proficient={!!skill.proficient} expertise={!!skill.expertise} />
                 <span className={skill.proficient ? 'text-gray-200' : 'text-gray-500'}>{skill.name}</span>
@@ -40,8 +40,8 @@ export default function SkillsSection5e({ character, readonly: _readonly }: Skil
                 <span className="ml-auto font-mono text-xs">{formatMod(total)}</span>
               </button>
               {isExpanded && (
-                <div className="ml-6 mb-1 text-xs text-gray-500 bg-gray-800/30 rounded p-1.5">
-                  <div className="text-amber-400/80 font-mono mb-0.5">
+                <div className="ml-6 mb-1 text-xs text-gray-500 bg-surface-2/30 rounded p-1.5">
+                  <div className="text-accent/80 font-mono mb-0.5">
                     {formatMod(total)} = {abLabel}({formatMod(abMod)})
                     {skill.proficient && (
                       <>
@@ -58,7 +58,7 @@ export default function SkillsSection5e({ character, readonly: _readonly }: Skil
                   </div>
                   {desc && (
                     <>
-                      <div className="text-gray-400">{desc.description}</div>
+                      <div className="text-muted">{desc.description}</div>
                       <div className="text-gray-600 mt-0.5">{desc.uses}</div>
                     </>
                   )}

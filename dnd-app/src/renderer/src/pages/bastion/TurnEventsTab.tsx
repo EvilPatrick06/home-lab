@@ -15,20 +15,20 @@ export function TurnsTab({ bastion, onStartTurn }: { bastion: Bastion; onStartTu
         </h2>
         <button
           onClick={onStartTurn}
-          className="px-3 py-1.5 text-sm bg-amber-600 hover:bg-amber-500 text-white rounded transition-colors"
+          className="px-3 py-1.5 text-sm bg-amber-600 hover:bg-accent-strong text-white rounded transition-colors"
         >
           {t('pages.turnsTab.newTurn')}
         </button>
       </div>
       {sortedTurns.length === 0 ? (
-        <div className="text-sm text-gray-500 bg-gray-900 rounded-lg p-4">{t('pages.turnsTab.noTurns')}</div>
+        <div className="text-sm text-gray-500 bg-surface rounded-lg p-4">{t('pages.turnsTab.noTurns')}</div>
       ) : (
         <div className="space-y-3">
           {sortedTurns.map((turn) => (
-            <div key={turn.turnNumber} className="bg-gray-900 border border-gray-800 rounded-lg p-4">
+            <div key={turn.turnNumber} className="bg-surface border border-gray-800 rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs px-2 py-0.5 rounded bg-gray-800 text-gray-400 border border-gray-700 font-mono">
+                  <span className="text-xs px-2 py-0.5 rounded bg-surface-2 text-muted border border-border font-mono">
                     {t('pages.turnsTab.turn', { number: turn.turnNumber })}
                   </span>
                   <span className="text-xs text-gray-500">{turn.inGameDate}</span>
@@ -38,7 +38,7 @@ export function TurnsTab({ bastion, onStartTurn }: { bastion: Bastion; onStartTu
                     {t('pages.turnsTab.completed')}
                   </span>
                 ) : (
-                  <span className="text-xs text-amber-400" title={t('pages.turnsTab.inProgress')}>
+                  <span className="text-xs text-accent" title={t('pages.turnsTab.inProgress')}>
                     {t('pages.turnsTab.inProgress')}
                   </span>
                 )}
@@ -81,12 +81,12 @@ export function TurnsTab({ bastion, onStartTurn }: { bastion: Bastion; onStartTu
               )}
               {/* Event */}
               {turn.eventOutcome && (
-                <div className="bg-gray-800/50 rounded p-2 mt-2">
+                <div className="bg-surface-2/50 rounded p-2 mt-2">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-xs px-1.5 py-0.5 rounded bg-amber-900/50 text-amber-300 border border-amber-700">
                       d100: {turn.eventRoll}
                     </span>
-                    <span className="text-xs text-gray-400 capitalize">{turn.eventType?.replace(/-/g, ' ')}</span>
+                    <span className="text-xs text-muted capitalize">{turn.eventType?.replace(/-/g, ' ')}</span>
                   </div>
                   <p className="text-xs text-gray-300">{turn.eventOutcome}</p>
                 </div>
@@ -117,7 +117,7 @@ export function EventsTab({ bastion }: { bastion: Bastion }): JSX.Element {
         <select
           value={filterType}
           onChange={(e) => setFilterType(e.target.value)}
-          className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-300 focus:outline-none focus:border-amber-500"
+          className="bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-300 focus:outline-none focus:border-amber-500"
         >
           <option value="all">{t('pages.eventsTab.allEvents')}</option>
           {eventTypes.map((t) => (
@@ -128,20 +128,20 @@ export function EventsTab({ bastion }: { bastion: Bastion }): JSX.Element {
         </select>
       </div>
       {filteredEvents.length === 0 ? (
-        <div className="text-sm text-gray-500 bg-gray-900 rounded-lg p-4">{t('pages.eventsTab.noEvents')}</div>
+        <div className="text-sm text-gray-500 bg-surface rounded-lg p-4">{t('pages.eventsTab.noEvents')}</div>
       ) : (
         <div className="space-y-2">
           {filteredEvents.map((turn) => (
-            <div key={turn.turnNumber} className="bg-gray-900 border border-gray-800 rounded-lg p-4">
+            <div key={turn.turnNumber} className="bg-surface border border-gray-800 rounded-lg p-4">
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs px-2 py-0.5 rounded bg-gray-800 text-gray-400 border border-gray-700 font-mono">
+                <span className="text-xs px-2 py-0.5 rounded bg-surface-2 text-muted border border-border font-mono">
                   {t('pages.turnsTab.turn', { number: turn.turnNumber })}
                 </span>
                 <span className="text-xs text-gray-500">{turn.inGameDate}</span>
                 <span className="text-xs px-1.5 py-0.5 rounded bg-amber-900/50 text-amber-300 border border-amber-700">
                   d100: {turn.eventRoll}
                 </span>
-                <span className="text-xs text-gray-400 capitalize">{turn.eventType?.replace(/-/g, ' ')}</span>
+                <span className="text-xs text-muted capitalize">{turn.eventType?.replace(/-/g, ' ')}</span>
               </div>
               <p className="text-sm text-gray-200">{turn.eventOutcome}</p>
               {turn.eventDetails && (

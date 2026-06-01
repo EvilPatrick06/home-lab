@@ -213,8 +213,8 @@ export default function LeftSidebar({
               const char = findCharacterForPlayer(player.characterId)
               const canEdit = isDM || player.peerId === localPeerId
               return (
-                <div key={player.peerId} className="bg-gray-800/50 rounded-lg p-2">
-                  <div className="text-xs text-gray-400">{player.displayName}</div>
+                <div key={player.peerId} className="bg-surface-2/50 rounded-lg p-2">
+                  <div className="text-xs text-muted">{player.displayName}</div>
                   {char ? (
                     <div className="flex items-center justify-between mt-0.5">
                       <span className="text-sm text-gray-200 truncate">{char.name}</span>
@@ -287,11 +287,11 @@ export default function LeftSidebar({
                 const owner = characters.find((c) => c.id === bastion.ownerId)
                 const facilityCount = bastion.basicFacilities.length + bastion.specialFacilities.length
                 return (
-                  <div key={bastion.id} className="bg-gray-800/50 rounded-lg p-2">
+                  <div key={bastion.id} className="bg-surface-2/50 rounded-lg p-2">
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-200 truncate">{bastion.name}</span>
                     </div>
-                    <div className="text-xs text-gray-400 mt-0.5">{owner?.name ?? t('game.leftSidebar.unknown')}</div>
+                    <div className="text-xs text-muted mt-0.5">{owner?.name ?? t('game.leftSidebar.unknown')}</div>
                     <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
                       <span>{t('game.leftSidebar.facilities', { count: facilityCount })}</span>
                       <span>{t('game.leftSidebar.defenders', { count: bastion.defenders.length })}</span>
@@ -309,7 +309,7 @@ export default function LeftSidebar({
         return (
           <div className="space-y-1.5">
             {/* Currency summary */}
-            <div className="bg-gray-800/50 rounded-lg p-2">
+            <div className="bg-surface-2/50 rounded-lg p-2">
               <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">
                 {t('game.leftSidebar.currency')}
               </div>
@@ -318,9 +318,7 @@ export default function LeftSidebar({
                   <span className="text-gray-200">{partyInventory.currency.pp} PP</span>
                 )}
                 <span className="text-yellow-400">{partyInventory.currency.gp} GP</span>
-                {partyInventory.currency.ep > 0 && (
-                  <span className="text-gray-400">{partyInventory.currency.ep} EP</span>
-                )}
+                {partyInventory.currency.ep > 0 && <span className="text-muted">{partyInventory.currency.ep} EP</span>}
                 {partyInventory.currency.sp > 0 && (
                   <span className="text-gray-300">{partyInventory.currency.sp} SP</span>
                 )}
@@ -334,14 +332,14 @@ export default function LeftSidebar({
               <p className="text-xs text-gray-500 text-center py-2">{t('game.leftSidebar.noLootItems')}</p>
             ) : (
               partyInventory.items.slice(0, 8).map((item) => (
-                <div key={item.id} className="bg-gray-800/50 rounded-lg p-2 flex items-center justify-between">
+                <div key={item.id} className="bg-surface-2/50 rounded-lg p-2 flex items-center justify-between">
                   <div className="min-w-0">
                     <span className="text-xs text-gray-200 truncate block">{item.name}</span>
                     {item.rarity && item.rarity !== 'common' && (
                       <span className="text-[9px] text-gray-500 capitalize">{item.rarity}</span>
                     )}
                   </div>
-                  <span className="text-xs text-gray-400 shrink-0 ml-1">x{item.quantity}</span>
+                  <span className="text-xs text-muted shrink-0 ml-1">x{item.quantity}</span>
                 </div>
               ))
             )}
@@ -374,7 +372,7 @@ export default function LeftSidebar({
   if (collapsed) {
     return (
       <div
-        className="w-3 h-full bg-gray-900/85 backdrop-blur-sm border-r border-gray-700/50 flex flex-col items-center"
+        className="w-3 h-full bg-surface/85 backdrop-blur-sm border-r border-border/50 flex flex-col items-center"
         role="region"
         aria-label={t('game.leftSidebar.sidebarCollapsed')}
       >
@@ -399,19 +397,19 @@ export default function LeftSidebar({
 
   return (
     <div
-      className="w-56 h-full bg-gray-900/85 backdrop-blur-sm border-r border-gray-700/50 flex flex-col min-h-0"
+      className="w-56 h-full bg-surface/85 backdrop-blur-sm border-r border-border/50 flex flex-col min-h-0"
       role="region"
       aria-label={t('game.leftSidebar.regionLabel')}
     >
       {/* Sidebar header with collapse */}
-      <div className="shrink-0 px-3 pt-2 pb-2 border-b border-gray-700/50">
+      <div className="shrink-0 px-3 pt-2 pb-2 border-b border-border/50">
         <div className="flex items-center justify-end">
           <button
             onClick={onToggleCollapse}
             title={t('game.leftSidebar.collapseSidebar')}
             aria-label={t('game.leftSidebar.collapseSidebar')}
             aria-expanded={true}
-            className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-gray-300 cursor-pointer rounded hover:bg-gray-800"
+            className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-gray-300 cursor-pointer rounded hover:bg-surface-2"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">
               <path
@@ -426,10 +424,10 @@ export default function LeftSidebar({
 
       {/* My Character button (non-DM players with a character) */}
       {!isDM && character && (
-        <div className="shrink-0 px-3 py-2 border-b border-gray-700/50">
+        <div className="shrink-0 px-3 py-2 border-b border-border/50">
           <button
             onClick={() => navigate(getCharacterSheetPath(character), { state: { returnTo } })}
-            className="w-full py-1.5 text-xs font-semibold text-amber-400 bg-amber-900/20 hover:bg-amber-900/40 border border-amber-700/50 rounded-lg transition-colors cursor-pointer"
+            className="w-full py-1.5 text-xs font-semibold text-accent bg-amber-900/20 hover:bg-amber-900/40 border border-amber-700/50 rounded-lg transition-colors cursor-pointer"
           >
             {t('game.leftSidebar.myCharacter')}
           </button>
@@ -444,7 +442,7 @@ export default function LeftSidebar({
               <button
                 onClick={() => toggleSection(section.id)}
                 aria-expanded={expandedSection === section.id}
-                className="flex-1 flex items-center gap-2 px-3 py-2.5 text-left hover:bg-gray-800/50 transition-colors cursor-pointer"
+                className="flex-1 flex items-center gap-2 px-3 py-2.5 text-left hover:bg-surface-2/50 transition-colors cursor-pointer"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -460,7 +458,7 @@ export default function LeftSidebar({
                     clipRule="evenodd"
                   />
                 </svg>
-                <section.icon className="w-4 h-4 text-gray-400 shrink-0" aria-hidden="true" />
+                <section.icon className="w-4 h-4 text-muted shrink-0" aria-hidden="true" />
                 <span className="text-xs font-semibold text-gray-300 uppercase tracking-wider">
                   {t(section.labelKey)}
                 </span>
@@ -476,7 +474,7 @@ export default function LeftSidebar({
                     onClick={handleImportNpcs}
                     title={t('game.leftSidebar.importNpcs')}
                     aria-label={t('game.leftSidebar.importNpcs')}
-                    className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-amber-400 cursor-pointer rounded hover:bg-gray-800"
+                    className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-accent cursor-pointer rounded hover:bg-surface-2"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">
                       <path d="M9.25 13.25a.75.75 0 0 0 1.5 0V4.636l2.955 3.129a.75.75 0 0 0 1.09-1.03l-4.25-4.5a.75.75 0 0 0-1.09 0l-4.25 4.5a.75.75 0 1 0 1.09 1.03L9.25 4.636v8.614Z" />
@@ -487,7 +485,7 @@ export default function LeftSidebar({
                     onClick={handleExportNpcs}
                     title={t('game.leftSidebar.exportNpcs')}
                     aria-label={t('game.leftSidebar.exportNpcs')}
-                    className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-amber-400 cursor-pointer rounded hover:bg-gray-800"
+                    className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-accent cursor-pointer rounded hover:bg-surface-2"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">
                       <path d="M10.75 2.75a.75.75 0 0 0-1.5 0v8.614L6.295 8.235a.75.75 0 0 0-1.09 1.03l4.25 4.5a.75.75 0 0 0 1.09 0l4.25-4.5a.75.75 0 0 0-1.09-1.03l-2.955 3.129V2.75Z" />

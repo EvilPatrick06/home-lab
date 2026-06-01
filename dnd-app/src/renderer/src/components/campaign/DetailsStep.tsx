@@ -36,7 +36,7 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
   return (
     <div>
       <h2 className="text-xl font-semibold mb-2">{t('campaign.detailsStep.title')}</h2>
-      <p className="text-gray-400 text-sm mb-6">{t('campaign.detailsStep.subtitle')}</p>
+      <p className="text-muted text-sm mb-6">{t('campaign.detailsStep.subtitle')}</p>
 
       <div className="max-w-lg space-y-5">
         <Input
@@ -48,9 +48,10 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
         />
 
         <div>
-          <label className="block text-gray-400 mb-2 text-sm">{t('campaign.detailsStep.description')}</label>
+          <label className="block text-muted mb-2 text-sm">{t('campaign.detailsStep.description')}</label>
           <textarea
-            className="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
+            aria-label={t('campaign.detailsStep.descriptionPlaceholder')}
+            className="w-full p-3 rounded-lg bg-surface-2 border border-border text-fg
               placeholder-gray-600 focus:outline-none focus:border-amber-500 transition-colors resize-none"
             rows={3}
             placeholder={t('campaign.detailsStep.descriptionPlaceholder')}
@@ -60,12 +61,12 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
         </div>
 
         <div>
-          <label className="block text-gray-400 mb-2 text-sm">{t('campaign.detailsStep.maxPlayers')}</label>
+          <label className="block text-muted mb-2 text-sm">{t('campaign.detailsStep.maxPlayers')}</label>
           <input
             type="number"
             min={2}
             max={8}
-            className="w-24 p-3 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
+            className="w-24 p-3 rounded-lg bg-surface-2 border border-border text-fg
               focus:outline-none focus:border-amber-500 transition-colors"
             value={maxPlayersDraft}
             onChange={(e) => setMaxPlayersDraft(e.target.value)}
@@ -81,7 +82,7 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
         </div>
 
         <div>
-          <label className="block text-gray-400 mb-2 text-sm">{t('campaign.detailsStep.turnMode')}</label>
+          <label className="block text-muted mb-2 text-sm">{t('campaign.detailsStep.turnMode')}</label>
           <div className="flex gap-3">
             <button
               type="button"
@@ -90,11 +91,11 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
                 ${
                   data.turnMode === 'initiative'
                     ? 'border-amber-500 bg-amber-900/20'
-                    : 'border-gray-700 bg-gray-900/50 hover:border-gray-600'
+                    : 'border-border bg-surface/50 hover:border-gray-600'
                 }`}
             >
               <div className="font-semibold text-sm">{t('campaign.detailsStep.initiative')}</div>
-              <div className="text-xs text-gray-400 mt-1">{t('campaign.detailsStep.initiativeDesc')}</div>
+              <div className="text-xs text-muted mt-1">{t('campaign.detailsStep.initiativeDesc')}</div>
             </button>
             <button
               type="button"
@@ -103,19 +104,20 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
                 ${
                   data.turnMode === 'free'
                     ? 'border-amber-500 bg-amber-900/20'
-                    : 'border-gray-700 bg-gray-900/50 hover:border-gray-600'
+                    : 'border-border bg-surface/50 hover:border-gray-600'
                 }`}
             >
               <div className="font-semibold text-sm">{t('campaign.detailsStep.free')}</div>
-              <div className="text-xs text-gray-400 mt-1">{t('campaign.detailsStep.freeDesc')}</div>
+              <div className="text-xs text-muted mt-1">{t('campaign.detailsStep.freeDesc')}</div>
             </button>
           </div>
         </div>
 
         <div>
-          <label className="block text-gray-400 mb-2 text-sm">{t('campaign.detailsStep.lobbyMessage')}</label>
+          <label className="block text-muted mb-2 text-sm">{t('campaign.detailsStep.lobbyMessage')}</label>
           <textarea
-            className="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
+            aria-label={t('campaign.detailsStep.lobbyMessagePlaceholder')}
+            className="w-full p-3 rounded-lg bg-surface-2 border border-border text-fg
               placeholder-gray-600 focus:outline-none focus:border-amber-500 transition-colors resize-none"
             rows={2}
             placeholder={t('campaign.detailsStep.lobbyMessagePlaceholder')}
@@ -125,7 +127,7 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
         </div>
 
         <div>
-          <label className="block text-gray-400 mb-2 text-sm">{t('campaign.detailsStep.visibility')}</label>
+          <label className="block text-muted mb-2 text-sm">{t('campaign.detailsStep.visibility')}</label>
           <div className="flex gap-3">
             <button
               type="button"
@@ -134,11 +136,11 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
                 ${
                   data.isPublic
                     ? 'border-amber-500 bg-amber-900/20'
-                    : 'border-gray-700 bg-gray-900/50 hover:border-gray-600'
+                    : 'border-border bg-surface/50 hover:border-gray-600'
                 }`}
             >
               <div className="font-semibold text-sm">{t('campaign.detailsStep.public')}</div>
-              <div className="text-xs text-gray-400 mt-1">{t('campaign.detailsStep.publicDesc')}</div>
+              <div className="text-xs text-muted mt-1">{t('campaign.detailsStep.publicDesc')}</div>
             </button>
             <button
               type="button"
@@ -147,17 +149,17 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
                 ${
                   !data.isPublic
                     ? 'border-amber-500 bg-amber-900/20'
-                    : 'border-gray-700 bg-gray-900/50 hover:border-gray-600'
+                    : 'border-border bg-surface/50 hover:border-gray-600'
                 }`}
             >
               <div className="font-semibold text-sm">{t('campaign.detailsStep.private')}</div>
-              <div className="text-xs text-gray-400 mt-1">{t('campaign.detailsStep.privateDesc')}</div>
+              <div className="text-xs text-muted mt-1">{t('campaign.detailsStep.privateDesc')}</div>
             </button>
           </div>
         </div>
 
         <div>
-          <label className="block text-gray-400 mb-2 text-sm">{t('campaign.detailsStep.hosting')}</label>
+          <label className="block text-muted mb-2 text-sm">{t('campaign.detailsStep.hosting')}</label>
           <div className="flex gap-3">
             <button
               type="button"
@@ -166,11 +168,11 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
                 ${
                   data.hostingMode === 'p2p'
                     ? 'border-amber-500 bg-amber-900/20'
-                    : 'border-gray-700 bg-gray-900/50 hover:border-gray-600'
+                    : 'border-border bg-surface/50 hover:border-gray-600'
                 }`}
             >
               <div className="font-semibold text-sm">{t('campaign.detailsStep.hostingThisDevice')}</div>
-              <div className="text-xs text-gray-400 mt-1">{t('campaign.detailsStep.hostingThisDeviceDesc')}</div>
+              <div className="text-xs text-muted mt-1">{t('campaign.detailsStep.hostingThisDeviceDesc')}</div>
             </button>
             <button
               type="button"
@@ -179,11 +181,11 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
                 ${
                   data.hostingMode === 'cloud'
                     ? 'border-amber-500 bg-amber-900/20'
-                    : 'border-gray-700 bg-gray-900/50 hover:border-gray-600'
+                    : 'border-border bg-surface/50 hover:border-gray-600'
                 }`}
             >
               <div className="font-semibold text-sm">{t('campaign.detailsStep.hostingCloud')}</div>
-              <div className="text-xs text-gray-400 mt-1">{t('campaign.detailsStep.hostingCloudDesc')}</div>
+              <div className="text-xs text-muted mt-1">{t('campaign.detailsStep.hostingCloudDesc')}</div>
             </button>
           </div>
         </div>

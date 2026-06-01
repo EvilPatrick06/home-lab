@@ -8,7 +8,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   exploration: 'bg-green-900/40 text-green-300',
   social: 'bg-blue-900/40 text-blue-300',
   rest: 'bg-purple-900/40 text-purple-300',
-  other: 'bg-gray-800 text-gray-300'
+  other: 'bg-surface-2 text-gray-300'
 }
 
 interface RuleManagerProps {
@@ -48,7 +48,7 @@ export default function RuleManager({ campaign, saveCampaign }: RuleManagerProps
         ) : (
           <div className="space-y-2">
             {campaign.customRules.map((rule) => (
-              <div key={rule.id} className="bg-gray-800/50 rounded-lg p-3">
+              <div key={rule.id} className="bg-surface-2/50 rounded-lg p-3">
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-sm">{rule.name}</span>
@@ -63,24 +63,24 @@ export default function RuleManager({ campaign, saveCampaign }: RuleManagerProps
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => openEdit(rule)}
-                      className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer"
+                      className="text-xs text-muted hover:text-accent cursor-pointer"
                     >
                       {t('pages.ruleManager.edit')}
                     </button>
                     <button
                       onClick={() => handleDelete(rule.id)}
-                      className="text-xs text-gray-400 hover:text-red-400 cursor-pointer"
+                      className="text-xs text-muted hover:text-red-400 cursor-pointer"
                     >
                       {t('common.actions.delete')}
                     </button>
                   </div>
                 </div>
-                {rule.description && <p className="text-gray-400 text-xs">{rule.description}</p>}
+                {rule.description && <p className="text-muted text-xs">{rule.description}</p>}
               </div>
             ))}
           </div>
         )}
-        <button onClick={openAdd} className="mt-3 text-xs text-amber-400 hover:text-amber-300 cursor-pointer">
+        <button onClick={openAdd} className="mt-3 text-xs text-accent hover:text-amber-300 cursor-pointer">
           {t('pages.ruleManager.addRule')}
         </button>
       </Card>
@@ -92,21 +92,21 @@ export default function RuleManager({ campaign, saveCampaign }: RuleManagerProps
       >
         <div className="space-y-3">
           <div>
-            <label className="block text-gray-400 text-xs mb-1">{t('pages.ruleManager.ruleNameLabel')}</label>
+            <label className="block text-muted text-xs mb-1">{t('pages.ruleManager.ruleNameLabel')}</label>
             <input
               type="text"
               value={form.name}
               onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
               placeholder={t('pages.ruleManager.ruleNamePlaceholder')}
             />
           </div>
           <div>
-            <label className="block text-gray-400 text-xs mb-1">{t('pages.ruleManager.categoryLabel')}</label>
+            <label className="block text-muted text-xs mb-1">{t('pages.ruleManager.categoryLabel')}</label>
             <select
               value={form.category}
               onChange={(e) => setForm((f) => ({ ...f, category: e.target.value as CustomRule['category'] }))}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
             >
               <option value="combat">{t('pages.ruleManager.categoryCombat')}</option>
               <option value="exploration">{t('pages.ruleManager.categoryExploration')}</option>
@@ -116,11 +116,11 @@ export default function RuleManager({ campaign, saveCampaign }: RuleManagerProps
             </select>
           </div>
           <div>
-            <label className="block text-gray-400 text-xs mb-1">{t('pages.ruleManager.descriptionLabel')}</label>
+            <label className="block text-muted text-xs mb-1">{t('pages.ruleManager.descriptionLabel')}</label>
             <textarea
               value={form.description}
               onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500 h-20 resize-none"
+              className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500 h-20 resize-none"
               placeholder={t('pages.ruleManager.descriptionPlaceholder')}
             />
           </div>

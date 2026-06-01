@@ -53,17 +53,17 @@ export default function ChaseControls({
     <>
       {/* Participant List */}
       <div className="space-y-2">
-        <label className="block text-xs text-gray-400">{t('game.chaseControls.participants')}</label>
+        <label className="block text-xs text-muted">{t('game.chaseControls.participants')}</label>
         {participants.map((p, idx) => (
           <div
             key={p.id}
             className={`flex items-center gap-2 p-2 rounded-lg border ${
-              idx === activeIndex && !chaseEnded ? 'bg-gray-800 border-amber-600' : 'bg-gray-800/50 border-gray-700'
+              idx === activeIndex && !chaseEnded ? 'bg-surface-2 border-amber-600' : 'bg-surface-2/50 border-border'
             }`}
           >
             {/* Active indicator */}
             <div className="w-2">
-              {idx === activeIndex && !chaseEnded && <div className="w-2 h-2 rounded-full bg-amber-400" />}
+              {idx === activeIndex && !chaseEnded && <div className="w-2 h-2 rounded-full bg-accent" />}
             </div>
 
             {/* Name & role */}
@@ -81,7 +81,7 @@ export default function ChaseControls({
             </div>
 
             {/* Zone */}
-            <div className="text-xs text-gray-400">
+            <div className="text-xs text-muted">
               {t('game.chaseControls.zone')} <span className="text-white font-medium">{p.position}</span>
             </div>
 
@@ -111,7 +111,7 @@ export default function ChaseControls({
             {/* Dashes */}
             <div className="text-xs text-gray-500">
               {t('game.chaseControls.dashes')}{' '}
-              <span className={p.dashesUsed > getFreeDashes(p.conModifier) ? 'text-red-400' : 'text-amber-400'}>
+              <span className={p.dashesUsed > getFreeDashes(p.conModifier) ? 'text-red-400' : 'text-accent'}>
                 {p.dashesUsed}
               </span>
               <span className="text-gray-600">/{getFreeDashes(p.conModifier)}</span>
@@ -150,7 +150,7 @@ export default function ChaseControls({
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           placeholder={t('game.chaseControls.namePlaceholder')}
-          className="flex-1 bg-gray-800 border border-gray-600 rounded px-3 py-1.5 text-sm text-white placeholder-gray-500"
+          className="flex-1 bg-surface-2 border border-gray-600 rounded px-3 py-1.5 text-sm text-white placeholder-gray-500"
           onKeyDown={(e) => {
             if (e.key === 'Enter') handleAdd()
           }}
@@ -164,7 +164,7 @@ export default function ChaseControls({
             className="w-10 bg-gray-700 border border-gray-600 rounded px-1 py-0.5 text-xs text-white text-center"
           />
         </div>
-        <label className="flex items-center gap-1 text-xs text-gray-400">
+        <label className="flex items-center gap-1 text-xs text-muted">
           <input
             type="checkbox"
             checked={newIsQuarry}

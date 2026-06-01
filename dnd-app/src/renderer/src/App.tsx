@@ -207,7 +207,7 @@ function App(): JSX.Element {
   }, [])
 
   return (
-    <div className="relative min-h-screen bg-gray-950 text-gray-100">
+    <div className="relative min-h-screen bg-base text-fg">
       <SkipToContent />
       <ColorblindFilters />
       <ScreenReaderAnnouncer />

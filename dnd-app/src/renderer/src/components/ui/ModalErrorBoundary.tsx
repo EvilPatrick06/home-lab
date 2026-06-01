@@ -41,22 +41,22 @@ export default class ModalErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50">
-          <div className="max-w-md w-full mx-4 bg-gray-900 border border-red-500/50 rounded-xl p-6 shadow-2xl">
+          <div className="max-w-md w-full mx-4 bg-surface border border-red-500/50 rounded-xl p-6 shadow-2xl">
             <h2 className="text-lg font-bold text-red-400 mb-2">
               {this.props.modalName
                 ? i18n.t('ui.modalErrorBoundary.errorInModal', { modalName: this.props.modalName })
                 : i18n.t('ui.modalErrorBoundary.title')}
             </h2>
-            <p className="text-sm text-gray-400 mb-3">{i18n.t('ui.modalErrorBoundary.description')}</p>
+            <p className="text-sm text-muted mb-3">{i18n.t('ui.modalErrorBoundary.description')}</p>
             {this.state.error && (
-              <pre className="text-xs text-red-300/80 bg-gray-950 rounded-lg p-3 mb-4 overflow-auto max-h-32 border border-gray-800">
+              <pre className="text-xs text-red-300/80 bg-base rounded-lg p-3 mb-4 overflow-auto max-h-32 border border-gray-800">
                 {this.state.error.message}
               </pre>
             )}
             <div className="flex gap-3">
               <button
                 onClick={this.handleRetry}
-                className="flex-1 px-4 py-2 text-sm font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded-lg cursor-pointer transition-colors"
+                className="flex-1 px-4 py-2 text-sm font-semibold bg-amber-600 hover:bg-accent-strong text-white rounded-lg cursor-pointer transition-colors"
               >
                 {i18n.t('ui.modalErrorBoundary.tryAgain')}
               </button>

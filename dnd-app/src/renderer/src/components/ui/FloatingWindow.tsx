@@ -162,11 +162,11 @@ export default function FloatingWindow({
         height: rect.height,
         zIndex
       }}
-      className="bg-gray-900/95 backdrop-blur-sm border border-gray-700/60 rounded-xl shadow-2xl flex flex-col overflow-hidden"
+      className="bg-surface/95 backdrop-blur-sm border border-border/60 rounded-xl shadow-2xl flex flex-col overflow-hidden"
     >
       <div
         onMouseDown={startDrag('move')}
-        className="flex items-center justify-between px-3 py-1.5 bg-gray-800/80 border-b border-gray-700/60 cursor-move select-none"
+        className="flex items-center justify-between px-3 py-1.5 bg-surface-2/80 border-b border-border/60 cursor-move select-none"
       >
         <span id={headerId} className="text-xs font-semibold text-gray-200 truncate">
           {title}

@@ -121,7 +121,7 @@ export default function CombatStatsBar5e({ character, readonly }: CombatStatsBar
 
         {/* AC */}
         <div
-          className="bg-gray-900/50 border border-gray-700 rounded-lg p-3 text-center"
+          className="bg-surface/50 border border-border rounded-lg p-3 text-center"
           title={[
             equippedArmor ? `${equippedArmor.name}: ${equippedArmor.acBonus}` : `Unarmored: 10 + DEX`,
             equippedShield ? `Shield: +${equippedShield.acBonus}` : '',
@@ -138,7 +138,7 @@ export default function CombatStatsBar5e({ character, readonly }: CombatStatsBar
             .filter(Boolean)
             .join('\n')}
         >
-          <div className="text-xs text-gray-400 uppercase">{t('sheet.combatStatsBar.ac')}</div>
+          <div className="text-xs text-muted uppercase">{t('sheet.combatStatsBar.ac')}</div>
           <div className="text-xl font-bold">{dynamicAC}</div>
           {acEquipmentBonus > 0 && (
             <div className="text-xs text-blue-400">{t('sheet.combatStatsBar.equip', { bonus: acEquipmentBonus })}</div>
@@ -158,10 +158,10 @@ export default function CombatStatsBar5e({ character, readonly }: CombatStatsBar
 
         {/* Initiative */}
         <div
-          className="bg-gray-900/50 border border-gray-700 rounded-lg p-3 text-center"
+          className="bg-surface/50 border border-border rounded-lg p-3 text-center"
           title={initTooltipParts.join('\n')}
         >
-          <div className="text-xs text-gray-400 uppercase">{thirdStat.label}</div>
+          <div className="text-xs text-muted uppercase">{thirdStat.label}</div>
           <div className="text-xl font-bold">{thirdStat.value}</div>
           {hasAlert && <div className="text-xs text-green-400">{t('sheet.combatStatsBar.pbAlert')}</div>}
         </div>
@@ -204,10 +204,10 @@ export default function CombatStatsBar5e({ character, readonly }: CombatStatsBar
 
           return (
             <div
-              className="bg-gray-900/50 border border-gray-700 rounded-lg p-3 text-center"
+              className="bg-surface/50 border border-border rounded-lg p-3 text-center"
               title={isReduced || featSpeedBonus > 0 || resolved.speedBonus > 0 ? tooltipParts.join('\n') : undefined}
             >
-              <div className="text-xs text-gray-400 uppercase">{t('sheet.combatStatsBar.speed')}</div>
+              <div className="text-xs text-muted uppercase">{t('sheet.combatStatsBar.speed')}</div>
               <div className={`text-xl font-bold ${isReduced ? 'text-red-400' : ''}`}>
                 {t('sheet.combatStatsBar.feet', { value: effectiveSpeed })}
               </div>
@@ -232,8 +232,8 @@ export default function CombatStatsBar5e({ character, readonly }: CombatStatsBar
         })()}
 
         {/* Size */}
-        <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-3 text-center">
-          <div className="text-xs text-gray-400 uppercase">{t('sheet.combatStatsBar.size')}</div>
+        <div className="bg-surface/50 border border-border rounded-lg p-3 text-center">
+          <div className="text-xs text-muted uppercase">{t('sheet.combatStatsBar.size')}</div>
           <div className="text-xl font-bold">{characterSize}</div>
           {effectiveCharacter.creatureType && (
             <div className="text-xs text-gray-500">{effectiveCharacter.creatureType}</div>
@@ -241,10 +241,9 @@ export default function CombatStatsBar5e({ character, readonly }: CombatStatsBar
         </div>
 
         {/* Prof Bonus + Save DC + Passive Perception */}
-        <div className="col-span-5 text-sm text-gray-400 flex gap-4">
+        <div className="col-span-5 text-sm text-muted flex gap-4">
           <span>
-            {t('sheet.combatStatsBar.proficiencyBonus')}{' '}
-            <span className="text-amber-400 font-semibold">+{profBonus}</span>
+            {t('sheet.combatStatsBar.proficiencyBonus')} <span className="text-accent font-semibold">+{profBonus}</span>
           </span>
           {(() => {
             const scInfo = computeSpellcastingInfo(
@@ -266,7 +265,7 @@ export default function CombatStatsBar5e({ character, readonly }: CombatStatsBar
             return (
               <>
                 <span title={dcTooltipParts.length > 1 ? dcTooltipParts.join(' ') : undefined}>
-                  {t('sheet.combatStatsBar.saveDC')} <span className="font-semibold text-amber-400">{effectiveDC}</span>
+                  {t('sheet.combatStatsBar.saveDC')} <span className="font-semibold text-accent">{effectiveDC}</span>
                 </span>
                 <span
                   title={
@@ -276,7 +275,7 @@ export default function CombatStatsBar5e({ character, readonly }: CombatStatsBar
                   }
                 >
                   {t('sheet.combatStatsBar.spellAtk')}{' '}
-                  <span className="text-amber-400 font-semibold">{formatMod(effectiveAttack)}</span>
+                  <span className="text-accent font-semibold">{formatMod(effectiveAttack)}</span>
                 </span>
               </>
             )
@@ -297,7 +296,7 @@ export default function CombatStatsBar5e({ character, readonly }: CombatStatsBar
                 }
               >
                 {t('sheet.combatStatsBar.passivePerception')}{' '}
-                <span className={`font-semibold ${exhPenalty > 0 ? 'text-red-400' : 'text-amber-400'}`}>
+                <span className={`font-semibold ${exhPenalty > 0 ? 'text-red-400' : 'text-accent'}`}>
                   {passivePerc}
                 </span>
               </span>
@@ -307,16 +306,16 @@ export default function CombatStatsBar5e({ character, readonly }: CombatStatsBar
 
         {/* Senses */}
         {effectiveCharacter.senses && effectiveCharacter.senses.length > 0 && (
-          <div className="col-span-5 text-sm text-gray-400">
+          <div className="col-span-5 text-sm text-muted">
             {t('sheet.combatStatsBar.senses')}{' '}
-            <span className="text-amber-400">{effectiveCharacter.senses.join(', ')}</span>
+            <span className="text-accent">{effectiveCharacter.senses.join(', ')}</span>
           </div>
         )}
       </div>
 
       {/* Wild Shape Tracker (Druid level 2+) */}
       {effectiveCharacter.wildShapeUses && effectiveCharacter.wildShapeUses.max > 0 && (
-        <div className="mt-3 bg-gray-900/50 border border-green-900/50 rounded-lg p-3">
+        <div className="mt-3 bg-surface/50 border border-green-900/50 rounded-lg p-3">
           <div className="flex items-center gap-4">
             <span className="text-sm text-green-400 font-semibold">{t('sheet.combatStatsBar.wildShape')}</span>
             <div className="flex items-center gap-2">
@@ -343,7 +342,7 @@ export default function CombatStatsBar5e({ character, readonly }: CombatStatsBar
                     useLobbyStore.getState().setRemoteCharacter(updated.id, updated as Character)
                   }
                 }}
-                className="w-6 h-6 rounded bg-gray-800 border border-gray-600 hover:border-green-500 text-gray-400 hover:text-green-400 disabled:opacity-40 disabled:cursor-not-allowed text-sm font-bold flex items-center justify-center"
+                className="w-6 h-6 rounded bg-surface-2 border border-gray-600 hover:border-green-500 text-muted hover:text-green-400 disabled:opacity-40 disabled:cursor-not-allowed text-sm font-bold flex items-center justify-center"
               >
                 -
               </button>
@@ -372,7 +371,7 @@ export default function CombatStatsBar5e({ character, readonly }: CombatStatsBar
                     useLobbyStore.getState().setRemoteCharacter(updated.id, updated as Character)
                   }
                 }}
-                className="w-6 h-6 rounded bg-gray-800 border border-gray-600 hover:border-green-500 text-gray-400 hover:text-green-400 disabled:opacity-40 disabled:cursor-not-allowed text-sm font-bold flex items-center justify-center"
+                className="w-6 h-6 rounded bg-surface-2 border border-gray-600 hover:border-green-500 text-muted hover:text-green-400 disabled:opacity-40 disabled:cursor-not-allowed text-sm font-bold flex items-center justify-center"
               >
                 +
               </button>

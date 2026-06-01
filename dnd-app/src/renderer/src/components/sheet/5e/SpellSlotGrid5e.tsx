@@ -27,7 +27,7 @@ function SpellSlotGrid5e({
           .filter(([level]) => Number(level) > 0)
           .sort(([a], [b]) => Number(a) - Number(b))
           .map(([level, slots]) => (
-            <div key={level} className={`rounded px-2 py-1.5 ${isPact ? 'bg-purple-900/30' : 'bg-gray-800/50'}`}>
+            <div key={level} className={`rounded px-2 py-1.5 ${isPact ? 'bg-purple-900/30' : 'bg-surface-2/50'}`}>
               <div className="text-xs text-gray-500 text-center mb-1">{`${level}${ordinal(Number(level))}`}</div>
               <div className="flex gap-1">
                 {Array.from({ length: slots.max }, (_, i) => {
@@ -41,9 +41,9 @@ function SpellSlotGrid5e({
                         isFilled
                           ? isPact
                             ? 'bg-purple-500 border-purple-400'
-                            : 'bg-amber-500 border-amber-400'
-                          : 'border-gray-600 bg-gray-800'
-                      } ${readonly ? 'cursor-default' : isPact ? 'cursor-pointer hover:border-purple-400' : 'cursor-pointer hover:border-amber-400'}`}
+                            : 'bg-accent-strong border-accent'
+                          : 'border-gray-600 bg-surface-2'
+                      } ${readonly ? 'cursor-default' : isPact ? 'cursor-pointer hover:border-purple-400' : 'cursor-pointer hover:border-accent'}`}
                       title={
                         isFilled
                           ? isPact

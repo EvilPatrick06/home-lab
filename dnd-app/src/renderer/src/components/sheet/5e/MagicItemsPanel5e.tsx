@@ -90,7 +90,7 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
           {!readonly && (
             <div className="mt-2">
               {showMagicItemPicker ? (
-                <div className="bg-gray-800/50 rounded p-3 space-y-2">
+                <div className="bg-surface-2/50 rounded p-3 space-y-2">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs text-purple-400 font-medium">
                       {showManualMagicItem
@@ -100,7 +100,7 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                     <div className="flex gap-2">
                       <button
                         onClick={() => setShowManualMagicItem(!showManualMagicItem)}
-                        className="text-xs text-gray-400 hover:text-gray-300 cursor-pointer underline"
+                        className="text-xs text-muted hover:text-gray-300 cursor-pointer underline"
                       >
                         {showManualMagicItem
                           ? t('sheet.magicItemsPanel.browseSrd')
@@ -124,11 +124,12 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                   {showManualMagicItem ? (
                     <div className="space-y-2">
                       <input
+                        aria-label={t('sheet.magicItemsPanel.itemNamePlaceholder')}
                         type="text"
                         placeholder={t('sheet.magicItemsPanel.itemNamePlaceholder')}
                         value={manualMagicItem.name}
                         onChange={(e) => setManualMagicItem((f) => ({ ...f, name: e.target.value }))}
-                        className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 focus:outline-none focus:border-purple-500"
+                        className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg focus:outline-none focus:border-purple-500"
                       />
                       <div className="flex gap-2">
                         <select
@@ -136,7 +137,7 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                           onChange={(e) =>
                             setManualMagicItem((f) => ({ ...f, rarity: e.target.value as typeof f.rarity }))
                           }
-                          className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 focus:outline-none focus:border-purple-500"
+                          className="bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg focus:outline-none focus:border-purple-500"
                         >
                           <option value="common">Common</option>
                           <option value="uncommon">Uncommon</option>
@@ -145,7 +146,7 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                           <option value="legendary">Legendary</option>
                           <option value="artifact">Artifact</option>
                         </select>
-                        <label className="flex items-center gap-1 text-xs text-gray-400 cursor-pointer">
+                        <label className="flex items-center gap-1 text-xs text-muted cursor-pointer">
                           <input
                             type="checkbox"
                             checked={manualMagicItem.attunement}
@@ -165,11 +166,12 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                         </label>
                       </div>
                       <input
+                        aria-label={t('sheet.magicItemsPanel.descriptionPlaceholder')}
                         type="text"
                         placeholder={t('sheet.magicItemsPanel.descriptionPlaceholder')}
                         value={manualMagicItem.description}
                         onChange={(e) => setManualMagicItem((f) => ({ ...f, description: e.target.value }))}
-                        className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 focus:outline-none focus:border-purple-500"
+                        className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg focus:outline-none focus:border-purple-500"
                       />
                       <div className="flex justify-end">
                         <button
@@ -205,16 +207,17 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                     <div className="space-y-2">
                       <div className="flex gap-2">
                         <input
+                          aria-label={t('sheet.magicItemsPanel.searchPlaceholder')}
                           type="text"
                           placeholder={t('sheet.magicItemsPanel.searchPlaceholder')}
                           value={magicItemSearch}
                           onChange={(e) => setMagicItemSearch(e.target.value)}
-                          className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 focus:outline-none focus:border-purple-500"
+                          className="flex-1 bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg focus:outline-none focus:border-purple-500"
                         />
                         <select
                           value={magicItemRarityFilter}
                           onChange={(e) => setMagicItemRarityFilter(e.target.value)}
-                          className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 focus:outline-none focus:border-purple-500"
+                          className="bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg focus:outline-none focus:border-purple-500"
                         >
                           <option value="all">{t('sheet.magicItemsPanel.allRarities')}</option>
                           <option value="common">Common</option>
@@ -244,7 +247,7 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                           .slice(0, 50)
                           .map((item) => {
                             const rarityColor: Record<string, string> = {
-                              common: 'text-gray-400',
+                              common: 'text-muted',
                               uncommon: 'text-green-400',
                               rare: 'text-blue-400',
                               'very-rare': 'text-purple-400',
@@ -273,7 +276,7 @@ export default function MagicItemsPanel5e({ character, readonly }: MagicItemsPan
                                   } as Character5e
                                   saveTyped(updated)
                                 }}
-                                className="w-full flex items-center justify-between text-xs py-1 px-2 hover:bg-gray-800/50 rounded text-left cursor-pointer"
+                                className="w-full flex items-center justify-between text-xs py-1 px-2 hover:bg-surface-2/50 rounded text-left cursor-pointer"
                               >
                                 <span className={`font-medium ${rarityColor[item.rarity] ?? 'text-gray-300'}`}>
                                   {item.name}

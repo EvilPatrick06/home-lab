@@ -218,7 +218,7 @@ export default function AiProviderSetup({
   return (
     <div>
       <h2 className="text-xl font-semibold mb-2">{t('campaign.aiProviderSetup.title')}</h2>
-      <p className="text-gray-400 text-sm mb-6">{t('campaign.aiProviderSetup.subtitle')}</p>
+      <p className="text-muted text-sm mb-6">{t('campaign.aiProviderSetup.subtitle')}</p>
 
       <div className="max-w-2xl space-y-4">
         {/* Enable toggle */}
@@ -228,11 +228,11 @@ export default function AiProviderSetup({
               type="checkbox"
               checked={enabled}
               onChange={(e) => onChange({ enabled: e.target.checked, provider, model, ollamaUrl, apiKey })}
-              className="w-5 h-5 rounded bg-gray-800 border-gray-600 text-amber-500 focus:ring-amber-500"
+              className="w-5 h-5 rounded bg-surface-2 border-gray-600 text-accent-strong focus:ring-amber-500"
             />
             <div>
               <span className="font-medium">{t('campaign.aiProviderSetup.enable')}</span>
-              <p className="text-gray-400 text-sm mt-0.5">{t('campaign.aiProviderSetup.enableDesc')}</p>
+              <p className="text-muted text-sm mt-0.5">{t('campaign.aiProviderSetup.enableDesc')}</p>
             </div>
           </label>
         </Card>
@@ -268,8 +268,8 @@ export default function AiProviderSetup({
                     }}
                     className={`px-3 py-2 rounded border text-sm text-left transition-colors cursor-pointer ${
                       provider === p
-                        ? 'border-amber-500 bg-amber-500/10 text-amber-300'
-                        : 'border-gray-700 bg-gray-800 text-gray-400 hover:border-gray-500'
+                        ? 'border-amber-500 bg-accent-strong/10 text-amber-300'
+                        : 'border-border bg-surface-2 text-muted hover:border-gray-500'
                     }`}
                   >
                     {AI_PROVIDER_LABELS[p]}
@@ -281,7 +281,7 @@ export default function AiProviderSetup({
               {isCloud && (
                 <div className="space-y-4">
                   <div>
-                    <label htmlFor="ai-api-key" className="block text-sm text-gray-400 mb-1">
+                    <label htmlFor="ai-api-key" className="block text-sm text-muted mb-1">
                       {t('campaign.aiProviderSetup.apiKey')}
                     </label>
                     <div className="flex gap-2">
@@ -298,7 +298,7 @@ export default function AiProviderSetup({
                         placeholder={t('campaign.aiProviderSetup.apiKeyPlaceholder', {
                           provider: AI_PROVIDER_LABELS[provider]
                         })}
-                        className="flex-1 bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm focus:outline-none focus:border-amber-500"
+                        className="flex-1 bg-surface-2 border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-amber-500"
                       />
                       <Button onClick={handleValidateKey} disabled={!apiKey.trim() || validatingKey}>
                         {validatingKey
@@ -319,11 +319,11 @@ export default function AiProviderSetup({
                   </div>
 
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">{t('campaign.aiProviderSetup.model')}</label>
+                    <label className="block text-sm text-muted mb-1">{t('campaign.aiProviderSetup.model')}</label>
                     <select
                       value={model}
                       onChange={(e) => onChange({ enabled, provider, model: e.target.value, ollamaUrl, apiKey })}
-                      className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm focus:outline-none focus:border-amber-500"
+                      className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-amber-500"
                     >
                       {cloudModels.map((m) => (
                         <option key={m.id} value={m.id}>
@@ -395,7 +395,7 @@ export default function AiProviderSetup({
                   )}
 
                   <div className="mb-4">
-                    <label className="block text-sm text-gray-400 mb-1">{t('campaign.aiProviderSetup.model')}</label>
+                    <label className="block text-sm text-muted mb-1">{t('campaign.aiProviderSetup.model')}</label>
                     <select
                       value={model}
                       onChange={(e) => {
@@ -407,7 +407,7 @@ export default function AiProviderSetup({
                           onProviderReady(false)
                         }
                       }}
-                      className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm focus:outline-none focus:border-amber-500"
+                      className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-amber-500"
                     >
                       {curatedModels.map((m) => (
                         <option key={m.id} value={m.id}>
@@ -430,18 +430,16 @@ export default function AiProviderSetup({
                   </div>
 
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">
-                      {t('campaign.aiProviderSetup.ollamaUrl')}
-                    </label>
+                    <label className="block text-sm text-muted mb-1">{t('campaign.aiProviderSetup.ollamaUrl')}</label>
                     <input
                       type="text"
                       value={ollamaUrl}
                       onChange={(e) => onChange({ enabled, provider, model, ollamaUrl: e.target.value, apiKey })}
                       placeholder="http://localhost:11434"
-                      className={`w-full bg-gray-800 border rounded px-3 py-2 text-sm focus:outline-none ${
+                      className={`w-full bg-surface-2 border rounded px-3 py-2 text-sm focus:outline-none ${
                         ollamaUrl && !isValidUrl(ollamaUrl)
                           ? 'border-red-500 focus:border-red-500'
-                          : 'border-gray-700 focus:border-amber-500'
+                          : 'border-border focus:border-amber-500'
                       }`}
                     />
                     {ollamaUrl && !isValidUrl(ollamaUrl) && (
@@ -479,18 +477,18 @@ function StatusItem({
           done
             ? 'border-green-500 bg-green-500/20 text-green-400'
             : active
-              ? 'border-amber-500 bg-amber-500/20 text-amber-400 animate-pulse'
+              ? 'border-amber-500 bg-accent-strong/20 text-accent animate-pulse'
               : 'border-gray-600 text-gray-600'
         }`}
       >
         {done ? '\u2713' : active ? '\u2022' : ''}
       </span>
-      <span className={`text-sm ${done ? 'text-green-400' : active ? 'text-amber-400' : 'text-gray-400'}`}>
+      <span className={`text-sm ${done ? 'text-green-400' : active ? 'text-accent' : 'text-muted'}`}>
         {phaseLabel || label}
       </span>
       {active && progress !== undefined && (
         <div className="flex-1 max-w-32 h-1.5 bg-gray-700 rounded-full overflow-hidden ml-2">
-          <div className="h-full bg-amber-500 rounded-full transition-all" style={{ width: `${progress}%` }} />
+          <div className="h-full bg-accent-strong rounded-full transition-all" style={{ width: `${progress}%` }} />
         </div>
       )}
     </div>

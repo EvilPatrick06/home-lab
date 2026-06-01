@@ -38,19 +38,19 @@ export default function AbilityScoresGrid5e({ character }: AbilityScoresGrid5ePr
           return (
             <div
               key={ab}
-              className={`bg-gray-900/50 border rounded-lg p-4 text-center cursor-pointer transition-colors ${isExpanded ? 'border-amber-600 bg-gray-900/70' : 'border-gray-700 hover:border-gray-600'}`}
+              className={`bg-surface/50 border rounded-lg p-4 text-center cursor-pointer transition-colors ${isExpanded ? 'border-amber-600 bg-surface/70' : 'border-border hover:border-gray-600'}`}
               onClick={() => setExpandedAbility(isExpanded ? null : ab)}
             >
-              <div className="text-xs text-gray-400 uppercase">{FULL_NAMES[ab]}</div>
-              <div className="text-2xl font-bold text-amber-400">{score}</div>
-              <div className="text-sm text-gray-400">{formatMod(mod)}</div>
+              <div className="text-xs text-muted uppercase">{FULL_NAMES[ab]}</div>
+              <div className="text-2xl font-bold text-accent">{score}</div>
+              <div className="text-sm text-muted">{formatMod(mod)}</div>
             </div>
           )
         })}
       </div>
       {expandedAbility && (
-        <div className="mt-2 bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-xs text-gray-400">
-          <span className="text-amber-400 font-medium">{FULL_NAMES[expandedAbility]}: </span>
+        <div className="mt-2 bg-surface-2/50 border border-border rounded-lg px-4 py-2.5 text-xs text-muted">
+          <span className="text-accent font-medium">{FULL_NAMES[expandedAbility]}: </span>
           {ABILITY_DESCRIPTIONS[expandedAbility]}
         </div>
       )}

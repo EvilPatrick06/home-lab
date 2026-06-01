@@ -36,7 +36,7 @@ export default function AttunementTracker5e({ character }: AttunementTracker5ePr
               className={`flex-1 rounded-lg border p-2 text-center text-xs ${
                 item
                   ? 'border-purple-700/50 bg-purple-900/20 text-purple-300'
-                  : 'border-gray-700 bg-gray-900/30 text-gray-600'
+                  : 'border-border bg-surface/30 text-gray-600'
               }`}
             >
               {item ? (

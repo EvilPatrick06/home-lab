@@ -68,19 +68,21 @@ export default function InitiativeSetupForm({
             {newEntries.map((entry, i) => (
               <div key={i} className="flex gap-1 items-center">
                 <input
+                  aria-label={t('game.initiativeSetupForm.namePlaceholder')}
                   type="text"
                   placeholder={t('game.initiativeSetupForm.namePlaceholder')}
                   value={entry.name}
                   onChange={(e) => onUpdateNewEntry(i, { name: e.target.value })}
-                  className="flex-1 p-1.5 rounded bg-gray-800 border border-gray-700 text-gray-100
+                  className="flex-1 p-1.5 rounded bg-surface-2 border border-border text-fg
                     placeholder-gray-600 focus:outline-none focus:border-amber-500 text-xs"
                 />
                 <input
+                  aria-label={t('game.initiativeSetupForm.modPlaceholder')}
                   type="number"
                   placeholder={t('game.initiativeSetupForm.modPlaceholder')}
                   value={entry.modifier}
                   onChange={(e) => onUpdateNewEntry(i, { modifier: e.target.value })}
-                  className="w-12 p-1.5 rounded bg-gray-800 border border-gray-700 text-gray-100
+                  className="w-12 p-1.5 rounded bg-surface-2 border border-border text-fg
                     text-center focus:outline-none focus:border-amber-500 text-xs"
                 />
                 <select
@@ -90,7 +92,7 @@ export default function InitiativeSetupForm({
                       entityType: e.target.value as 'player' | 'npc' | 'enemy'
                     })
                   }
-                  className="w-16 p-1.5 rounded bg-gray-800 border border-gray-700 text-gray-200 text-xs cursor-pointer"
+                  className="w-16 p-1.5 rounded bg-surface-2 border border-border text-gray-200 text-xs cursor-pointer"
                 >
                   <option value="player">{t('game.initiativeSetupForm.typePlayer')}</option>
                   <option value="npc">{t('game.initiativeSetupForm.typeNpc')}</option>
@@ -111,12 +113,13 @@ export default function InitiativeSetupForm({
                 {entry.entityType === 'enemy' && (
                   <>
                     <input
+                      aria-label={t('game.initiativeSetupForm.lrPlaceholder')}
                       type="number"
                       placeholder={t('game.initiativeSetupForm.lrPlaceholder')}
                       min={0}
                       value={entry.legendaryResistances}
                       onChange={(e) => onUpdateNewEntry(i, { legendaryResistances: e.target.value })}
-                      className="w-8 p-1 rounded bg-gray-800 border border-gray-700 text-gray-100
+                      className="w-8 p-1 rounded bg-surface-2 border border-border text-fg
                         text-center focus:outline-none focus:border-orange-500 text-xs"
                       title={t('game.initiativeSetupForm.lrTitle')}
                     />
@@ -146,7 +149,7 @@ export default function InitiativeSetupForm({
 
           {/* From Map tokens */}
           {tokens.length > 0 && (
-            <div className="border-t border-gray-700/50 pt-2 mt-1">
+            <div className="border-t border-border/50 pt-2 mt-1">
               <p className="text-xs text-gray-500 uppercase tracking-wider mb-1.5">
                 {t('game.initiativeSetupForm.fromMap')}
               </p>
@@ -154,7 +157,7 @@ export default function InitiativeSetupForm({
                 {tokens.map((token) => (
                   <label
                     key={token.id}
-                    className="flex items-center gap-2 text-xs cursor-pointer hover:bg-gray-800/50 rounded px-1 py-0.5"
+                    className="flex items-center gap-2 text-xs cursor-pointer hover:bg-surface-2/50 rounded px-1 py-0.5"
                   >
                     <input
                       type="checkbox"
@@ -202,7 +205,7 @@ export default function InitiativeSetupForm({
                     onSetNewEntries((prev) => [...prev.filter((e) => e.name.trim()), ...toAdd])
                     onSetCheckedTokenIds(new Set())
                   }}
-                  className="w-full mt-1.5 py-1 text-xs rounded bg-gray-800 text-amber-400
+                  className="w-full mt-1.5 py-1 text-xs rounded bg-surface-2 text-accent
                     hover:bg-gray-700 hover:text-amber-300 transition-colors cursor-pointer"
                 >
                   {t('game.initiativeSetupForm.addChecked', { count: checkedTokenIds.size })}
@@ -212,10 +215,10 @@ export default function InitiativeSetupForm({
           )}
 
           {/* Turn Timer Config */}
-          <div className="border-t border-gray-700/50 pt-2 mt-1">
+          <div className="border-t border-border/50 pt-2 mt-1">
             <button
               onClick={() => onSetShowTimerConfig(!showTimerConfig)}
-              className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-200 cursor-pointer w-full"
+              className="flex items-center gap-1.5 text-xs text-muted hover:text-gray-200 cursor-pointer w-full"
             >
               <span className="uppercase tracking-wider font-semibold">{t('game.initiativeSetupForm.turnTimer')}</span>
               <span className="text-gray-600 text-[9px]">{showTimerConfig ? '\u25B2' : '\u25BC'}</span>
@@ -233,7 +236,7 @@ export default function InitiativeSetupForm({
             </button>
             {showTimerConfig && (
               <div className="mt-1.5 space-y-1.5">
-                <label className="flex items-center gap-1.5 text-xs text-gray-400 cursor-pointer">
+                <label className="flex items-center gap-1.5 text-xs text-muted cursor-pointer">
                   <input
                     type="checkbox"
                     checked={timerEnabled}
@@ -256,7 +259,7 @@ export default function InitiativeSetupForm({
                           className={`px-1.5 py-0.5 text-xs rounded cursor-pointer ${
                             timerSeconds === preset
                               ? 'bg-amber-600 text-white'
-                              : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                              : 'bg-surface-2 text-muted hover:bg-gray-700'
                           }`}
                         >
                           {t('game.initiativeSetupForm.presetSeconds', { seconds: preset })}
@@ -274,7 +277,7 @@ export default function InitiativeSetupForm({
                             onUpdateTimerConfig({ seconds: val })
                           }
                         }}
-                        className="w-14 p-0.5 rounded bg-gray-800 border border-gray-700 text-gray-100 text-center text-xs focus:outline-none focus:border-amber-500"
+                        className="w-14 p-0.5 rounded bg-surface-2 border border-border text-fg text-center text-xs focus:outline-none focus:border-amber-500"
                         title={t('game.initiativeSetupForm.customSecondsTitle')}
                       />
                     </div>
@@ -285,7 +288,7 @@ export default function InitiativeSetupForm({
                         className={`px-1.5 py-0.5 text-xs rounded cursor-pointer ${
                           timerAction === 'warning'
                             ? 'bg-amber-600 text-white'
-                            : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                            : 'bg-surface-2 text-muted hover:bg-gray-700'
                         }`}
                       >
                         {t('game.initiativeSetupForm.warning')}
@@ -295,7 +298,7 @@ export default function InitiativeSetupForm({
                         className={`px-1.5 py-0.5 text-xs rounded cursor-pointer ${
                           timerAction === 'auto-skip'
                             ? 'bg-red-600 text-white'
-                            : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                            : 'bg-surface-2 text-muted hover:bg-gray-700'
                         }`}
                       >
                         {t('game.initiativeSetupForm.autoSkip')}
@@ -320,10 +323,10 @@ export default function InitiativeSetupForm({
                   ? t('game.initiativeSetupForm.enterNameFirst')
                   : undefined
               }
-              className="flex-1 py-1.5 text-xs rounded-lg bg-gray-800 text-gray-400
+              className="flex-1 py-1.5 text-xs rounded-lg bg-surface-2 text-muted
                 hover:bg-gray-700 hover:text-gray-200 transition-colors cursor-pointer
-                disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-800
-                disabled:hover:text-gray-400"
+                disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-surface-2
+                disabled:hover:text-muted"
             >
               {t('game.initiativeSetupForm.addRow')}
             </button>
@@ -337,7 +340,7 @@ export default function InitiativeSetupForm({
                   ])
                 }
               }}
-              className="py-1.5 px-2 text-xs rounded-lg bg-gray-800 text-gray-400
+              className="py-1.5 px-2 text-xs rounded-lg bg-surface-2 text-muted
                 hover:bg-gray-700 hover:text-gray-200 transition-colors cursor-pointer"
               title={t('game.initiativeSetupForm.duplicateLastRow')}
             >
@@ -346,7 +349,7 @@ export default function InitiativeSetupForm({
             <button
               onClick={onRollInitiative}
               disabled={!newEntries.some((e) => e.name.trim())}
-              className="flex-1 py-1.5 text-xs rounded-lg bg-amber-600 hover:bg-amber-500 text-white
+              className="flex-1 py-1.5 text-xs rounded-lg bg-amber-600 hover:bg-accent-strong text-white
                 font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               {t('game.initiativeSetupForm.rollInitiative')}

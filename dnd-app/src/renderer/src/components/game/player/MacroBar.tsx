@@ -100,7 +100,7 @@ export default function MacroBar({ character, onRoll }: MacroBarProps): JSX.Elem
         category: 'skill',
         color: skill.proficient
           ? 'bg-blue-900/40 border-blue-700/50 text-blue-300 hover:bg-blue-800/60'
-          : 'bg-gray-800/60 border-gray-700/50 text-gray-400 hover:bg-gray-700/60',
+          : 'bg-surface-2/60 border-border/50 text-muted hover:bg-gray-700/60',
         kind: skill.proficient ? 'skill-proficient' : 'skill-untrained'
       })
     }
@@ -156,7 +156,7 @@ export default function MacroBar({ character, onRoll }: MacroBarProps): JSX.Elem
         </button>
         <button
           onClick={() => handlePinToHotbar(macro)}
-          className="absolute -top-1.5 -right-1.5 w-4 h-4 text-[8px] rounded-full bg-gray-900 border border-gray-600 text-gray-400 hover:text-amber-400 hover:border-amber-500 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+          className="absolute -top-1.5 -right-1.5 w-4 h-4 text-[8px] rounded-full bg-surface border border-gray-600 text-muted hover:text-accent hover:border-amber-500 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
           title={t('game.macroBar.pinToHotbar')}
         >
           +
@@ -179,7 +179,7 @@ export default function MacroBar({ character, onRoll }: MacroBarProps): JSX.Elem
       {/* Toggle all skills */}
       <button
         onClick={() => setShowAll(!showAll)}
-        className="shrink-0 px-1.5 py-1 text-[9px] text-gray-500 hover:text-gray-300 cursor-pointer border border-gray-700/30 rounded"
+        className="shrink-0 px-1.5 py-1 text-[9px] text-gray-500 hover:text-gray-300 cursor-pointer border border-border/30 rounded"
         title={showAll ? t('game.macroBar.showProficientOnly') : t('game.macroBar.showAllSkills')}
       >
         {showAll ? t('game.macroBar.less') : t('game.macroBar.all')}
@@ -195,7 +195,7 @@ export default function MacroBar({ character, onRoll }: MacroBarProps): JSX.Elem
             if (e.key === 'Enter') handleCustomRoll()
           }}
           placeholder={t('game.macroBar.customPlaceholder')}
-          className="w-16 bg-gray-800 border border-gray-700 rounded px-1.5 py-0.5 text-xs text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
+          className="w-16 bg-surface-2 border border-border rounded px-1.5 py-0.5 text-xs text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500"
         />
         <button
           onClick={handleCustomRoll}

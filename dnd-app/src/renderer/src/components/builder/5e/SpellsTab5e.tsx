@@ -251,7 +251,7 @@ export default function SpellsTab5e(): JSX.Element {
             <p className="text-sm text-gray-500">{t('builder.spellsTab.nonCasterWithSpecies', { className })}</p>
           </div>
           <div className="px-4 py-2">
-            <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
+            <div className="text-xs font-semibold text-muted uppercase tracking-wide mb-2">
               {t('builder.spellsTab.speciesSpellsHeader', { count: speciesSpells.length })}
             </div>
             {speciesSpells.map((spell) => (
@@ -322,14 +322,14 @@ export default function SpellsTab5e(): JSX.Element {
               {Object.entries(slotProgression).map(([lvl, count]) => (
                 <div
                   key={lvl}
-                  className={`rounded px-2 py-1 text-center ${isWarlockPactMagic(classId) ? 'bg-purple-900/30' : 'bg-gray-800'}`}
+                  className={`rounded px-2 py-1 text-center ${isWarlockPactMagic(classId) ? 'bg-purple-900/30' : 'bg-surface-2'}`}
                 >
                   <div className="text-xs text-gray-500">
                     {lvl}
                     {ordinal(Number(lvl))}
                   </div>
                   <div
-                    className={`text-sm font-bold ${isWarlockPactMagic(classId) ? 'text-purple-400' : 'text-amber-400'}`}
+                    className={`text-sm font-bold ${isWarlockPactMagic(classId) ? 'text-purple-400' : 'text-accent'}`}
                   >
                     {count}
                   </div>
@@ -342,7 +342,7 @@ export default function SpellsTab5e(): JSX.Element {
         {cantripsMax > 0 && (
           <div className="text-xs text-gray-500 mb-1">
             {t('builder.spellsTab.cantripsKnown')}{' '}
-            <span className={selectedCantripsCount >= cantripsMax ? 'text-red-400' : 'text-amber-400'}>
+            <span className={selectedCantripsCount >= cantripsMax ? 'text-red-400' : 'text-accent'}>
               {selectedCantripsCount}
             </span>{' '}
             / {cantripsMax}
@@ -352,7 +352,7 @@ export default function SpellsTab5e(): JSX.Element {
         {preparedMax !== null && (
           <div className="text-xs text-gray-500 mb-1">
             {t('builder.spellsTab.preparedSpells')}{' '}
-            <span className={selectedLeveledCount >= preparedMax ? 'text-red-400' : 'text-amber-400'}>
+            <span className={selectedLeveledCount >= preparedMax ? 'text-red-400' : 'text-accent'}>
               {selectedLeveledCount}
             </span>{' '}
             / {preparedMax}
@@ -362,7 +362,7 @@ export default function SpellsTab5e(): JSX.Element {
         {speciesSpells.length > 0 && (
           <div className="text-xs text-gray-500 mb-1">
             {t('builder.spellsTab.speciesSpellsLabel')}
-            <span className="text-amber-400">{speciesSpells.length}</span>
+            <span className="text-accent">{speciesSpells.length}</span>
             <span className="text-gray-600 ml-1">{t('builder.spellsTab.autoIncluded')}</span>
           </div>
         )}
@@ -412,7 +412,7 @@ export default function SpellsTab5e(): JSX.Element {
       {/* Always-prepared spells */}
       {alwaysPreparedIds.size > 0 && (
         <div className="border-b border-gray-800">
-          <div className="px-4 py-1 bg-gray-900/60">
+          <div className="px-4 py-1 bg-surface/60">
             <span className="text-xs font-semibold text-green-400 uppercase">
               {t('builder.spellsTab.alwaysPreparedHeader')}
               <span className="text-gray-600 ml-1">
@@ -448,7 +448,7 @@ export default function SpellsTab5e(): JSX.Element {
       {/* Species spells */}
       {speciesSpells.length > 0 && (
         <div className="border-b border-gray-800">
-          <div className="px-4 py-1 bg-gray-900/60">
+          <div className="px-4 py-1 bg-surface/60">
             <span className="text-xs font-semibold text-purple-400 uppercase">
               {t('builder.spellsTab.speciesSpellsHeaderPlain')}
               <span className="text-gray-600 ml-1">

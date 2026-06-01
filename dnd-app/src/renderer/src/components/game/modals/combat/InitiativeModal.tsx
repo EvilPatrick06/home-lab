@@ -71,7 +71,7 @@ export default function InitiativeModal({ onClose, floating, onFloat }: Initiati
   return (
     <div className="fixed inset-0 z-20 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
-      <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-md w-full mx-4 shadow-2xl max-h-[70vh] flex flex-col">
+      <div className="relative bg-surface/95 backdrop-blur-sm border border-border/50 rounded-xl p-4 max-w-md w-full mx-4 shadow-2xl max-h-[70vh] flex flex-col">
         <div className="flex items-center justify-between mb-3 shrink-0">
           <h3 className="text-sm font-semibold text-gray-200">{t('game.initiativeModal.title')}</h3>
           <div className="flex items-center gap-2">

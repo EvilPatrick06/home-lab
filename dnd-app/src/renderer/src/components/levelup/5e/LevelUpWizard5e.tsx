@@ -79,12 +79,12 @@ export default function LevelUpWizard5e({ character, incompleteChoices }: LevelU
   return (
     <div className="space-y-6">
       {/* Target level selector */}
-      <div className="flex items-center gap-4 bg-gray-900/50 border border-gray-800 rounded-lg p-4">
+      <div className="flex items-center gap-4 bg-surface/50 border border-gray-800 rounded-lg p-4">
         <label className="text-sm font-semibold text-gray-300">{t('levelup.wizard.targetLevel')}</label>
         <select
           value={targetLevel}
           onChange={(e) => setTargetLevel(Number(e.target.value))}
-          className="bg-gray-800 border border-gray-600 rounded px-3 py-1.5 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+          className="bg-surface-2 border border-gray-600 rounded px-3 py-1.5 text-sm text-fg focus:outline-none focus:border-amber-500"
         >
           {Array.from({ length: 20 - currentLevel }, (_, i) => currentLevel + 1 + i).map((lvl) => (
             <option key={lvl} value={lvl}>

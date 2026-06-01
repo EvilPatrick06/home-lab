@@ -149,20 +149,20 @@ export default function GroupRollModal({ onClose, onBroadcastResult }: GroupRoll
       role="presentation"
     >
       <div
-        className="bg-gray-900 border border-gray-700 rounded-xl shadow-2xl w-full max-w-lg mx-4"
+        className="bg-surface border border-border rounded-xl shadow-2xl w-full max-w-lg mx-4"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-700">
-          <h2 className="text-lg font-bold text-amber-400">{t('game.groupRollModal.title')}</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-white text-xl leading-none">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+          <h2 className="text-lg font-bold text-accent">{t('game.groupRollModal.title')}</h2>
+          <button onClick={onClose} className="text-muted hover:text-white text-xl leading-none">
             &times;
           </button>
         </div>
 
         <div className="p-5 space-y-4">
           {/* Check Type Tabs */}
-          <div className="flex gap-1 bg-gray-800 rounded-lg p-1">
+          <div className="flex gap-1 bg-surface-2 rounded-lg p-1">
             {[
               { value: 'ability' as CheckType, label: t('game.groupRollModal.abilityCheck') },
               { value: 'save' as CheckType, label: t('game.groupRollModal.savingThrow') },
@@ -172,9 +172,7 @@ export default function GroupRollModal({ onClose, onBroadcastResult }: GroupRoll
                 key={tab.value}
                 onClick={() => setCheckType(tab.value)}
                 className={`flex-1 text-sm py-2 rounded-md font-medium transition-colors ${
-                  checkType === tab.value
-                    ? 'bg-amber-600 text-white'
-                    : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                  checkType === tab.value ? 'bg-amber-600 text-white' : 'text-muted hover:text-white hover:bg-gray-700'
                 }`}
               >
                 {tab.label}
@@ -185,11 +183,11 @@ export default function GroupRollModal({ onClose, onBroadcastResult }: GroupRoll
           {/* Ability / Skill Selector */}
           {checkType === 'skill' ? (
             <div>
-              <label className="block text-sm text-gray-400 mb-1">{t('game.groupRollModal.skill')}</label>
+              <label className="block text-sm text-muted mb-1">{t('game.groupRollModal.skill')}</label>
               <select
                 value={skill}
                 onChange={(e) => setSkill(e.target.value)}
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
               >
                 {SKILLS.map((s) => (
                   <option key={s} value={s}>
@@ -200,11 +198,11 @@ export default function GroupRollModal({ onClose, onBroadcastResult }: GroupRoll
             </div>
           ) : (
             <div>
-              <label className="block text-sm text-gray-400 mb-1">{t('game.groupRollModal.ability')}</label>
+              <label className="block text-sm text-muted mb-1">{t('game.groupRollModal.ability')}</label>
               <select
                 value={ability}
                 onChange={(e) => setAbility(e.target.value)}
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
               >
                 {ABILITIES.map((a) => (
                   <option key={a.value} value={a.value}>
@@ -218,22 +216,22 @@ export default function GroupRollModal({ onClose, onBroadcastResult }: GroupRoll
           {/* DC and Options */}
           <div className="flex gap-4">
             <div className="flex-1">
-              <label className="block text-sm text-gray-400 mb-1">{t('game.groupRollModal.dc')}</label>
+              <label className="block text-sm text-muted mb-1">{t('game.groupRollModal.dc')}</label>
               <input
                 type="number"
                 min={1}
                 max={30}
                 value={dc}
                 onChange={(e) => setDc(Number(e.target.value))}
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
               />
             </div>
             <div className="flex-1">
-              <label className="block text-sm text-gray-400 mb-1">{t('game.groupRollModal.scope')}</label>
+              <label className="block text-sm text-muted mb-1">{t('game.groupRollModal.scope')}</label>
               <select
                 value={scope}
                 onChange={(e) => setScope(e.target.value as 'all' | 'selected')}
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
               >
                 <option value="all">{t('game.groupRollModal.allPlayers')}</option>
                 <option value="selected">{t('game.groupRollModal.selectedPlayers')}</option>
@@ -247,7 +245,7 @@ export default function GroupRollModal({ onClose, onBroadcastResult }: GroupRoll
               type="checkbox"
               checked={isSecret}
               onChange={(e) => setIsSecret(e.target.checked)}
-              className="rounded bg-gray-800 border-gray-600 text-amber-600 focus:ring-amber-500"
+              className="rounded bg-surface-2 border-gray-600 text-amber-600 focus:ring-amber-500"
             />
             <span className="text-sm text-gray-300">{t('game.groupRollModal.secretRoll')}</span>
           </label>
@@ -256,7 +254,7 @@ export default function GroupRollModal({ onClose, onBroadcastResult }: GroupRoll
           {!requested && (
             <button
               onClick={handleRequestRoll}
-              className="w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-lg transition-colors text-sm"
+              className="w-full py-2.5 bg-amber-600 hover:bg-accent-strong text-white font-semibold rounded-lg transition-colors text-sm"
             >
               {t('game.groupRollModal.requestRollPrefix')} {getCheckLabel()} {t('game.groupRollModal.dcSuffix', { dc })}
             </button>
@@ -265,17 +263,17 @@ export default function GroupRollModal({ onClose, onBroadcastResult }: GroupRoll
           {/* Waiting State */}
           {requested && !results && (
             <div className="text-center py-4">
-              <div className="animate-pulse text-amber-400 text-sm font-medium">{t('game.groupRollModal.waiting')}</div>
+              <div className="animate-pulse text-accent text-sm font-medium">{t('game.groupRollModal.waiting')}</div>
             </div>
           )}
 
           {/* Results Table */}
           {results && (
             <div className="space-y-3">
-              <div className="border border-gray-700 rounded-lg overflow-hidden">
+              <div className="border border-border rounded-lg overflow-hidden">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="bg-gray-800 text-gray-400">
+                    <tr className="bg-surface-2 text-muted">
                       <th className="text-left px-3 py-2 font-medium">{t('game.groupRollModal.colPlayer')}</th>
                       <th className="text-center px-3 py-2 font-medium">{t('game.groupRollModal.colRoll')}</th>
                       <th className="text-center px-3 py-2 font-medium">{t('game.groupRollModal.colMod')}</th>
@@ -298,7 +296,7 @@ export default function GroupRollModal({ onClose, onBroadcastResult }: GroupRoll
                         >
                           {r.roll}
                         </td>
-                        <td className="text-center px-3 py-2 text-gray-400">{r.mod >= 0 ? `+${r.mod}` : r.mod}</td>
+                        <td className="text-center px-3 py-2 text-muted">{r.mod >= 0 ? `+${r.mod}` : r.mod}</td>
                         <td className="text-center px-3 py-2 text-white font-semibold">{r.total}</td>
                         <td className="text-center px-3 py-2">
                           <span
@@ -323,7 +321,7 @@ export default function GroupRollModal({ onClose, onBroadcastResult }: GroupRoll
                     : 'bg-red-900/20 border-red-700 text-red-400'
                 }`}
               >
-                <div className="text-xs text-gray-400 mb-1">
+                <div className="text-xs text-muted mb-1">
                   {t('game.groupRollModal.groupCheck', { passCount, totalCount })}
                 </div>
                 <div className="text-lg font-bold">
@@ -333,7 +331,7 @@ export default function GroupRollModal({ onClose, onBroadcastResult }: GroupRoll
 
               <button
                 onClick={handleDone}
-                className="w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-lg transition-colors text-sm"
+                className="w-full py-2.5 bg-amber-600 hover:bg-accent-strong text-white font-semibold rounded-lg transition-colors text-sm"
               >
                 {t('game.groupRollModal.postResults')}
               </button>

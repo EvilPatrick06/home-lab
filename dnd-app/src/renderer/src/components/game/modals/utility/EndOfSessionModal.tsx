@@ -88,12 +88,12 @@ export default function EndOfSessionModal({ open, onClose, onSkip }: EndOfSessio
       <div className="space-y-4">
         <div className="text-gray-300 text-sm">
           <p>{t('game.endOfSessionModal.notesCount', { count: sessionLog.length })}</p>
-          <p className="text-gray-400 mt-2 text-xs">{t('game.endOfSessionModal.helperText')}</p>
+          <p className="text-muted mt-2 text-xs">{t('game.endOfSessionModal.helperText')}</p>
         </div>
 
         {recapText && (
-          <div className="mt-4 border border-gray-700 bg-gray-900 rounded-lg p-3 max-h-64 overflow-y-auto w-full">
-            <h4 className="text-amber-400 text-xs font-bold mb-2 uppercase tracking-wide">
+          <div className="mt-4 border border-border bg-surface rounded-lg p-3 max-h-64 overflow-y-auto w-full">
+            <h4 className="text-accent text-xs font-bold mb-2 uppercase tracking-wide">
               {t('game.endOfSessionModal.recapDraft')}
             </h4>
             <textarea

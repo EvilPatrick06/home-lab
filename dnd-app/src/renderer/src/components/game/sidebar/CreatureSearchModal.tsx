@@ -61,7 +61,7 @@ export default function CreatureSearchModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
-      <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-4 w-96 max-h-[80vh] shadow-2xl flex flex-col">
+      <div className="relative bg-surface border border-border rounded-xl p-4 w-96 max-h-[80vh] shadow-2xl flex flex-col">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold text-gray-200">{title}</h3>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-300 text-lg cursor-pointer">
@@ -73,7 +73,7 @@ export default function CreatureSearchModal({
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder={t('game.creatureSearchModal.searchPlaceholder')}
-          className="w-full px-3 py-2 rounded-lg bg-gray-800 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500 mb-2"
+          className="w-full px-3 py-2 rounded-lg bg-surface-2 border border-border text-xs text-fg focus:outline-none focus:border-amber-500 mb-2"
           autoFocus
         />
         <div className="flex-1 overflow-y-auto space-y-1 min-h-0 max-h-80">
@@ -91,7 +91,7 @@ export default function CreatureSearchModal({
             <button
               key={monster.id}
               onClick={() => onSelect(monster)}
-              className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-gray-800/50 hover:bg-gray-800 text-left transition-colors cursor-pointer border border-gray-700/30"
+              className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-surface-2/50 hover:bg-surface-2 text-left transition-colors cursor-pointer border border-border/30"
             >
               <div className="flex-1 min-w-0">
                 <div className="text-xs font-medium text-gray-200 truncate">{monster.name}</div>
@@ -99,7 +99,7 @@ export default function CreatureSearchModal({
                   {monster.size} {monster.type} | CR {monster.cr}
                 </div>
               </div>
-              <span className="text-xs text-amber-400 shrink-0 ml-2">{t('game.creatureSearchModal.select')}</span>
+              <span className="text-xs text-accent shrink-0 ml-2">{t('game.creatureSearchModal.select')}</span>
             </button>
           ))}
         </div>

@@ -62,11 +62,11 @@ export default function FamiliarSelectorModal({
       role="presentation"
     >
       <div
-        className="bg-gray-900 border border-gray-700 rounded-xl w-[700px] max-h-[80vh] flex flex-col shadow-2xl"
+        className="bg-surface border border-border rounded-xl w-[700px] max-h-[80vh] flex flex-col shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="px-4 py-3 border-b border-gray-700 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-amber-400">{t('game.familiarSelectorModal.title')}</h2>
+        <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+          <h2 className="text-lg font-bold text-accent">{t('game.familiarSelectorModal.title')}</h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-300 text-xl cursor-pointer"
@@ -89,7 +89,7 @@ export default function FamiliarSelectorModal({
 
         <div className="flex-1 flex min-h-0 overflow-hidden">
           {/* Form grid */}
-          <div className="w-56 overflow-y-auto border-r border-gray-700/50 p-2">
+          <div className="w-56 overflow-y-auto border-r border-border/50 p-2">
             <div className="text-xs text-gray-500 uppercase tracking-wider mb-2 px-1">
               {t('game.familiarSelectorModal.standardForms')}
             </div>
@@ -103,7 +103,7 @@ export default function FamiliarSelectorModal({
                     className={`p-2 rounded-lg text-center cursor-pointer transition-all ${
                       selected?.id === m.id
                         ? 'bg-amber-600/30 border border-amber-500/50'
-                        : 'bg-gray-800/60 border border-gray-700/50 hover:bg-gray-700/60'
+                        : 'bg-surface-2/60 border border-border/50 hover:bg-gray-700/60'
                     }`}
                   >
                     <div className="text-xs text-gray-200 font-medium truncate">{m.name}</div>
@@ -126,7 +126,7 @@ export default function FamiliarSelectorModal({
                         className={`p-2 rounded-lg text-center cursor-pointer transition-all ${
                           selected?.id === m.id
                             ? 'bg-purple-600/30 border border-purple-500/50'
-                            : 'bg-gray-800/60 border border-gray-700/50 hover:bg-gray-700/60'
+                            : 'bg-surface-2/60 border border-border/50 hover:bg-gray-700/60'
                         }`}
                       >
                         <div className="text-xs text-gray-200 font-medium truncate">{m.name}</div>
@@ -147,7 +147,7 @@ export default function FamiliarSelectorModal({
                 <MonsterStatBlockView monster={selected} />
                 <button
                   onClick={handleSummon}
-                  className="w-full px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white text-sm font-semibold rounded-lg transition-colors cursor-pointer"
+                  className="w-full px-4 py-2 bg-amber-600 hover:bg-accent-strong text-white text-sm font-semibold rounded-lg transition-colors cursor-pointer"
                 >
                   {t('game.familiarSelectorModal.summon', { name: selected.name })}
                 </button>

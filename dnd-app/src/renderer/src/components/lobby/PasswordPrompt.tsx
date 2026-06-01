@@ -20,9 +20,9 @@ export default function PasswordPrompt({ gameName, onSubmit, onCancel }: Passwor
       role="dialog"
       aria-modal="true"
     >
-      <div className="bg-gray-900 border border-gray-700 rounded-lg p-6 max-w-sm w-full">
-        <h2 className="text-lg font-semibold text-gray-100 mb-1">{t('lobby.passwordPrompt.title')}</h2>
-        <p className="text-sm text-gray-400 mb-4">
+      <div className="bg-surface border border-border rounded-lg p-6 max-w-sm w-full">
+        <h2 className="text-lg font-semibold text-fg mb-1">{t('lobby.passwordPrompt.title')}</h2>
+        <p className="text-sm text-muted mb-4">
           {t('lobby.passwordPrompt.descPrefix')} <span className="text-amber-300">{gameName}</span>
           {t('lobby.passwordPrompt.descSuffix')}
         </p>
@@ -37,7 +37,7 @@ export default function PasswordPrompt({ gameName, onSubmit, onCancel }: Passwor
           }}
           placeholder={t('lobby.passwordPrompt.placeholder')}
           maxLength={INVITE_CODE_LENGTH + 2}
-          className="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-gray-100 text-center text-xl font-mono tracking-[0.3em] uppercase focus:outline-none focus:border-amber-500"
+          className="w-full p-3 rounded-lg bg-surface-2 border border-border text-fg text-center text-xl font-mono tracking-[0.3em] uppercase focus:outline-none focus:border-amber-500"
         />
         <div className="flex justify-end gap-2 mt-4">
           <Button variant="secondary" onClick={onCancel} className="text-sm">

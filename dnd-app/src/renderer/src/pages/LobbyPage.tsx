@@ -360,13 +360,13 @@ export default function LobbyPage(): JSX.Element {
       {/* Header */}
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center gap-4">
-          <button onClick={handleLeave} className="text-amber-400 hover:text-amber-300 hover:underline cursor-pointer">
+          <button onClick={handleLeave} className="text-accent hover:text-amber-300 hover:underline cursor-pointer">
             &larr; {t('pages.lobbyPage.leaveLobby')}
           </button>
 
           <div className="h-6 w-px bg-gray-700" />
 
-          <h1 className="text-2xl font-bold text-gray-100">{campaign?.name || t('pages.lobbyPage.gameLobby')}</h1>
+          <h1 className="text-2xl font-bold text-fg">{campaign?.name || t('pages.lobbyPage.gameLobby')}</h1>
 
           {/* Connection status */}
           <div className="flex items-center gap-1.5">
@@ -375,13 +375,13 @@ export default function LobbyPage(): JSX.Element {
                 connectionState === 'connected' && !reconnecting
                   ? 'bg-green-400'
                   : connectionState === 'connecting' || reconnecting
-                    ? 'bg-amber-400 animate-pulse'
+                    ? 'bg-accent animate-pulse'
                     : 'bg-red-400'
               }`}
             />
             <span className="text-xs text-gray-500 capitalize">{reconnecting ? 'reconnecting' : connectionState}</span>
             {role === 'client' && latencyMs != null && (
-              <span className="text-xs text-gray-400 ml-1">{t('pages.lobbyPage.ping', { ms: latencyMs })}</span>
+              <span className="text-xs text-muted ml-1">{t('pages.lobbyPage.ping', { ms: latencyMs })}</span>
             )}
           </div>
 
@@ -390,8 +390,8 @@ export default function LobbyPage(): JSX.Element {
             <div className="flex items-center gap-1.5">
               {sceneStatus === 'preparing' && (
                 <>
-                  <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-                  <span className="text-xs text-amber-400">{t('pages.lobbyPage.scenePreparing')}</span>
+                  <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+                  <span className="text-xs text-accent">{t('pages.lobbyPage.scenePreparing')}</span>
                 </>
               )}
               {sceneStatus === 'ready' && (
@@ -419,16 +419,16 @@ export default function LobbyPage(): JSX.Element {
             <span className="text-xs text-gray-500 uppercase tracking-wide">{t('pages.lobbyPage.inviteCode')}</span>
             <button
               onClick={handleCopyInviteCode}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-800 border border-gray-700
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-2 border border-border
                          hover:border-amber-600/50 transition-colors cursor-pointer group"
               title={t('pages.lobbyPage.clickToCopy')}
             >
-              <span className="font-mono text-lg font-bold text-amber-400 tracking-widest">{inviteCode}</span>
+              <span className="font-mono text-lg font-bold text-accent tracking-widest">{inviteCode}</span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
                 fill="currentColor"
-                className="w-4 h-4 text-gray-500 group-hover:text-amber-400 transition-colors"
+                className="w-4 h-4 text-gray-500 group-hover:text-accent transition-colors"
               >
                 <path d="M7 3.5A1.5 1.5 0 0 1 8.5 2h3.879a1.5 1.5 0 0 1 1.06.44l3.122 3.12A1.5 1.5 0 0 1 17 6.622V12.5a1.5 1.5 0 0 1-1.5 1.5h-1v-3.379a3 3 0 0 0-.879-2.121L10.5 5.379A3 3 0 0 0 8.379 4.5H7v-1Z" />
                 <path d="M4.5 6A1.5 1.5 0 0 0 3 7.5v9A1.5 1.5 0 0 0 4.5 18h7a1.5 1.5 0 0 0 1.5-1.5v-5.879a1.5 1.5 0 0 0-.44-1.06L9.44 6.439A1.5 1.5 0 0 0 8.378 6H4.5Z" />
@@ -443,7 +443,7 @@ export default function LobbyPage(): JSX.Element {
           <div className="flex items-center gap-2">
             <span
               className={`text-xs uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                campaign.settings?.isPrivate ? 'bg-gray-800 text-gray-300' : 'bg-emerald-900/40 text-emerald-300'
+                campaign.settings?.isPrivate ? 'bg-surface-2 text-gray-300' : 'bg-emerald-900/40 text-emerald-300'
               }`}
             >
               {campaign.settings?.isPrivate
@@ -464,7 +464,7 @@ export default function LobbyPage(): JSX.Element {
                 void saveCampaign(next)
               }}
               className="text-xs uppercase tracking-wider px-2 py-0.5 rounded-full
-                         bg-gray-800 border border-gray-700 text-gray-300
+                         bg-surface-2 border border-border text-gray-300
                          hover:border-amber-500/60 hover:text-amber-300 cursor-pointer transition-colors"
               title={t('pages.lobbyPage.togglePublicTitle')}
             >
@@ -497,9 +497,9 @@ export default function LobbyPage(): JSX.Element {
         onClose={() => setShowLeaveModal(false)}
         title={t('pages.lobbyPage.leaveLobbyTitle')}
       >
-        <p className="text-gray-400 mb-6">
+        <p className="text-muted mb-6">
           {t('pages.lobbyPage.leaveConfirm')}
-          {isHost && <span className="block mt-2 text-amber-400 text-sm">{t('pages.lobbyPage.hostLeaveWarning')}</span>}
+          {isHost && <span className="block mt-2 text-accent text-sm">{t('pages.lobbyPage.hostLeaveWarning')}</span>}
         </p>
         <div className="flex gap-3 justify-end">
           <Button variant="secondary" onClick={() => setShowLeaveModal(false)}>

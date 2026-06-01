@@ -34,7 +34,7 @@ export default function CraftingProgress5e({
 
   return (
     <div className="mt-3">
-      <div className="border border-gray-700 rounded-lg overflow-hidden">
+      <div className="border border-border rounded-lg overflow-hidden">
         <button
           onClick={() => setScrollExpanded(!scrollExpanded)}
           className="w-full flex items-center justify-between px-3 py-2 bg-purple-900/20 hover:bg-purple-900/30 transition-colors cursor-pointer"
@@ -56,14 +56,14 @@ export default function CraftingProgress5e({
         </button>
 
         {scrollExpanded && (
-          <div className="border-t border-gray-700">
+          <div className="border-t border-border">
             {/* Level filter */}
             <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-800">
               <span className="text-xs text-gray-500">{t('sheet.craftingProgress.level')}</span>
               <div className="flex gap-1">
                 <button
                   onClick={() => setScrollLevelFilter('all')}
-                  className={`px-2 py-0.5 text-xs rounded ${scrollLevelFilter === 'all' ? 'bg-purple-700 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}
+                  className={`px-2 py-0.5 text-xs rounded ${scrollLevelFilter === 'all' ? 'bg-purple-700 text-white' : 'bg-surface-2 text-muted hover:bg-gray-700'}`}
                 >
                   {t('sheet.craftingProgress.all')}
                 </button>
@@ -71,7 +71,7 @@ export default function CraftingProgress5e({
                   <button
                     key={lvl}
                     onClick={() => setScrollLevelFilter(lvl)}
-                    className={`px-2 py-0.5 text-xs rounded ${scrollLevelFilter === lvl ? 'bg-purple-700 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}
+                    className={`px-2 py-0.5 text-xs rounded ${scrollLevelFilter === lvl ? 'bg-purple-700 text-white' : 'bg-surface-2 text-muted hover:bg-gray-700'}`}
                   >
                     {lvl === 0 ? 'C' : lvl}
                   </button>
@@ -90,7 +90,7 @@ export default function CraftingProgress5e({
                     key={spell.id}
                     className={`flex items-center justify-between px-3 py-2 text-sm ${
                       idx < filteredScrollSpells.length - 1 ? 'border-b border-gray-800' : ''
-                    } hover:bg-gray-900/30 transition-colors`}
+                    } hover:bg-surface/30 transition-colors`}
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
@@ -102,7 +102,7 @@ export default function CraftingProgress5e({
                         </span>
                       </div>
                       <div className="flex items-center gap-3 mt-0.5">
-                        <span className="text-xs text-amber-400">
+                        <span className="text-xs text-accent">
                           {t('sheet.craftingProgress.gp', { cost: scrollInfo.cost.toLocaleString() })}
                         </span>
                         <span className="text-xs text-gray-500">

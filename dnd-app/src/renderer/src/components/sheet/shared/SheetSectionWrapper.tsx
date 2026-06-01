@@ -25,9 +25,9 @@ export default function SheetSectionWrapper({
     <div className={`mb-4 ${className ?? ''}`} onDragOver={onDragOver} onDragLeave={onDragLeave} onDrop={onDrop}>
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between px-3 py-1.5 bg-gray-800/80 hover:bg-gray-800 transition-colors rounded-t-lg"
+        className="w-full flex items-center justify-between px-3 py-1.5 bg-surface-2/80 hover:bg-surface-2 transition-colors rounded-t-lg"
       >
-        <span className="text-xs font-bold tracking-widest text-amber-400 uppercase">{title}</span>
+        <span className="text-xs font-bold tracking-widest text-accent uppercase">{title}</span>
         <svg
           className={`w-4 h-4 text-gray-500 transition-transform ${open ? 'rotate-180' : ''}`}
           fill="none"

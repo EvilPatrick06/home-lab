@@ -141,11 +141,11 @@ export default function ShopPanel(): JSX.Element {
             value={shopNameInput}
             onChange={(e) => setShopNameInput(e.target.value)}
             placeholder={t('game.shopPanel.namePlaceholder')}
-            className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
+            className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-sm text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500"
           />
           <button
             onClick={handleOpenShop}
-            className="w-full py-1.5 bg-amber-600 hover:bg-amber-500 text-white text-sm font-medium rounded transition-colors cursor-pointer"
+            className="w-full py-1.5 bg-amber-600 hover:bg-accent-strong text-white text-sm font-medium rounded transition-colors cursor-pointer"
           >
             {t('game.shopPanel.openShop')}
           </button>
@@ -153,7 +153,7 @@ export default function ShopPanel(): JSX.Element {
       ) : (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-amber-400 font-medium">{shopName}</span>
+            <span className="text-sm text-accent font-medium">{shopName}</span>
             <button onClick={handleCloseShop} className="text-xs text-red-400 hover:text-red-300 cursor-pointer">
               {t('game.shopPanel.closeShop')}
             </button>
@@ -169,13 +169,16 @@ export default function ShopPanel(): JSX.Element {
               />
             )}
             {shopInventory.map((item) => (
-              <div key={item.id} className="flex items-center justify-between bg-gray-800/50 rounded px-2 py-1 text-xs">
+              <div
+                key={item.id}
+                className="flex items-center justify-between bg-surface-2/50 rounded px-2 py-1 text-xs"
+              >
                 <div>
                   <span className="text-gray-200">{item.name}</span>
                   <span className="text-gray-500 ml-1">({formatPrice(item.price)})</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <span className="text-gray-400">x{item.quantity}</span>
+                  <span className="text-muted">x{item.quantity}</span>
                   <button
                     onClick={() => removeShopItem(item.id)}
                     className="text-red-400 hover:text-red-300 ml-1 cursor-pointer"
@@ -188,14 +191,14 @@ export default function ShopPanel(): JSX.Element {
           </div>
 
           {/* Add presets */}
-          <div className="border-t border-gray-700 pt-2">
+          <div className="border-t border-border pt-2">
             <span className="text-xs text-gray-500">{t('game.shopPanel.addItems')}</span>
             <div className="flex flex-wrap gap-1 mt-1">
               {PRESET_ITEMS.filter((p) => !shopInventory.some((i) => i.id === p.id)).map((item) => (
                 <button
                   key={item.id}
                   onClick={() => handleAddPreset(item)}
-                  className="text-xs px-1.5 py-0.5 bg-gray-800 border border-gray-700 rounded text-gray-400 hover:text-amber-300 hover:border-amber-600 cursor-pointer"
+                  className="text-xs px-1.5 py-0.5 bg-surface-2 border border-border rounded text-muted hover:text-amber-300 hover:border-amber-600 cursor-pointer"
                 >
                   {item.name}
                 </button>
@@ -204,7 +207,7 @@ export default function ShopPanel(): JSX.Element {
           </div>
 
           {/* Poisons */}
-          <div className="border-t border-gray-700 pt-2">
+          <div className="border-t border-border pt-2">
             <button
               onClick={() => setShowPoisons(!showPoisons)}
               className="text-xs text-purple-400 hover:text-purple-300 cursor-pointer"

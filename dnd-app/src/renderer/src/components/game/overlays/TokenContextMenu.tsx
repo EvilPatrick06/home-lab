@@ -224,14 +224,14 @@ export default function TokenContextMenu({
     return (
       <div
         ref={menuRef}
-        className="absolute bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50 py-1 min-w-[160px]"
+        className="absolute bg-surface border border-border rounded-lg shadow-xl z-50 py-1 min-w-[160px]"
         style={{ left: x, top: y }}
       >
         {/* Token info header */}
         <div className="px-4 py-2 border-b border-gray-800">
           <div className="text-xs font-semibold text-gray-200">{token.label}</div>
           {isOwnToken && token.currentHP != null && (
-            <div className="text-xs text-gray-400 mt-0.5">
+            <div className="text-xs text-muted mt-0.5">
               {t('game.tokenContextMenu.hpLabel', { current: token.currentHP, max: stats.maxHP ?? '?' })}
               {stats.ac != null && <span className="ml-2">{t('game.tokenContextMenu.acLabel', { ac: stats.ac })}</span>}
             </div>
@@ -240,7 +240,7 @@ export default function TokenContextMenu({
         {isOwnToken && (
           <button
             onClick={handleAddToInitiative}
-            className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-gray-800 transition-colors cursor-pointer"
+            className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-surface-2 transition-colors cursor-pointer"
           >
             {t('game.tokenContextMenu.addToInitiative')}
           </button>
@@ -248,7 +248,7 @@ export default function TokenContextMenu({
         {isOwnToken && (
           <button
             onClick={handleApplyCondition}
-            className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-gray-800 transition-colors cursor-pointer"
+            className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-surface-2 transition-colors cursor-pointer"
           >
             {t('game.tokenContextMenu.applyCondition')}
           </button>
@@ -256,7 +256,7 @@ export default function TokenContextMenu({
         {mountActionLabel && (
           <button
             onClick={handleMountedCombatAction}
-            className="w-full px-4 py-2 text-xs text-left text-amber-300 hover:bg-gray-800 transition-colors cursor-pointer"
+            className="w-full px-4 py-2 text-xs text-left text-amber-300 hover:bg-surface-2 transition-colors cursor-pointer"
           >
             {mountActionLabel}
           </button>
@@ -269,18 +269,18 @@ export default function TokenContextMenu({
   return (
     <div
       ref={menuRef}
-      className="absolute bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50 py-1 min-w-[160px]"
+      className="absolute bg-surface border border-border rounded-lg shadow-xl z-50 py-1 min-w-[160px]"
       style={{ left: x, top: y }}
     >
       <button
         onClick={handleEditToken}
-        className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-gray-800 transition-colors cursor-pointer"
+        className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-surface-2 transition-colors cursor-pointer"
       >
         {t('game.tokenContextMenu.editToken')}
       </button>
       <button
         onClick={handleAddToInitiative}
-        className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-gray-800 transition-colors cursor-pointer"
+        className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-surface-2 transition-colors cursor-pointer"
       >
         {t('game.tokenContextMenu.addToInitiative')}
       </button>
@@ -294,7 +294,7 @@ export default function TokenContextMenu({
               if (e.key === 'Enter') handleSetHP()
               if (e.key === 'Escape') setShowSetHP(false)
             }}
-            className="w-16 bg-gray-800 border border-gray-600 rounded px-1.5 py-0.5 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
+            className="w-16 bg-surface-2 border border-gray-600 rounded px-1.5 py-0.5 text-xs text-fg focus:outline-none focus:border-amber-500"
             autoFocus
           />
           <span className="text-xs text-gray-500">
@@ -302,7 +302,7 @@ export default function TokenContextMenu({
           </span>
           <button
             onClick={handleSetHP}
-            className="px-2 py-0.5 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer"
+            className="px-2 py-0.5 text-xs bg-amber-600 hover:bg-accent-strong text-white rounded cursor-pointer"
           >
             {t('game.tokenContextMenu.set')}
           </button>
@@ -310,7 +310,7 @@ export default function TokenContextMenu({
       ) : (
         <button
           onClick={() => setShowSetHP(true)}
-          className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-gray-800 transition-colors cursor-pointer"
+          className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-surface-2 transition-colors cursor-pointer"
         >
           {token.currentHP != null
             ? t('game.tokenContextMenu.setHpWithValue', { current: token.currentHP, max: stats.maxHP ?? '?' })
@@ -319,7 +319,7 @@ export default function TokenContextMenu({
       )}
       <button
         onClick={handleApplyCondition}
-        className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-gray-800 transition-colors cursor-pointer"
+        className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-surface-2 transition-colors cursor-pointer"
       >
         {t('game.tokenContextMenu.applyCondition')}
       </button>
@@ -327,7 +327,7 @@ export default function TokenContextMenu({
         <>
           <button
             onClick={handleApplyGroupCondition}
-            className="w-full px-4 py-2 text-xs text-left text-amber-300 hover:bg-gray-800 transition-colors cursor-pointer"
+            className="w-full px-4 py-2 text-xs text-left text-amber-300 hover:bg-surface-2 transition-colors cursor-pointer"
           >
             {t('game.tokenContextMenu.applyGroupCondition', { count: selectedTokens.length })}
           </button>
@@ -352,7 +352,7 @@ export default function TokenContextMenu({
                 <button
                   key={condition}
                   onClick={() => handleSelectGroupCondition(condition)}
-                  className="w-full px-4 py-1.5 text-xs text-left text-gray-300 hover:bg-gray-800 transition-colors cursor-pointer"
+                  className="w-full px-4 py-1.5 text-xs text-left text-gray-300 hover:bg-surface-2 transition-colors cursor-pointer"
                 >
                   {condition}
                 </button>
@@ -364,7 +364,7 @@ export default function TokenContextMenu({
       {mountActionLabel && (
         <button
           onClick={handleMountedCombatAction}
-          className="w-full px-4 py-2 text-xs text-left text-amber-300 hover:bg-gray-800 transition-colors cursor-pointer"
+          className="w-full px-4 py-2 text-xs text-left text-amber-300 hover:bg-surface-2 transition-colors cursor-pointer"
         >
           {mountActionLabel}
         </button>
@@ -373,7 +373,7 @@ export default function TokenContextMenu({
       {!isInAllies && (
         <button
           onClick={() => createSidebarEntryFromToken('allies')}
-          className="w-full px-4 py-2 text-xs text-left text-green-400 hover:bg-gray-800 transition-colors cursor-pointer"
+          className="w-full px-4 py-2 text-xs text-left text-green-400 hover:bg-surface-2 transition-colors cursor-pointer"
         >
           {t('game.tokenContextMenu.addToAllies')}
         </button>
@@ -381,7 +381,7 @@ export default function TokenContextMenu({
       {!isInEnemies && (
         <button
           onClick={() => createSidebarEntryFromToken('enemies')}
-          className="w-full px-4 py-2 text-xs text-left text-red-400 hover:bg-gray-800 transition-colors cursor-pointer"
+          className="w-full px-4 py-2 text-xs text-left text-red-400 hover:bg-surface-2 transition-colors cursor-pointer"
         >
           {t('game.tokenContextMenu.addToEnemies')}
         </button>
@@ -389,7 +389,7 @@ export default function TokenContextMenu({
       <div className="border-t border-gray-800 my-1" />
       <button
         onClick={handleToggleVisibility}
-        className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-gray-800 transition-colors cursor-pointer"
+        className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-surface-2 transition-colors cursor-pointer"
       >
         {token.visibleToPlayers ? t('game.tokenContextMenu.hideFromPlayers') : t('game.tokenContextMenu.showToPlayers')}
       </button>
@@ -398,7 +398,7 @@ export default function TokenContextMenu({
           updateToken(mapId, token.id, { nameVisible: token.nameVisible === false })
           onClose()
         }}
-        className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-gray-800 transition-colors cursor-pointer"
+        className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-surface-2 transition-colors cursor-pointer"
       >
         {token.nameVisible === false
           ? t('game.tokenContextMenu.showNameToPlayers')
@@ -418,7 +418,7 @@ export default function TokenContextMenu({
                   item.onClick(token.id)
                   onClose()
                 }}
-                className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-gray-800 transition-colors cursor-pointer"
+                className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-surface-2 transition-colors cursor-pointer"
               >
                 {item.label}
               </button>
@@ -429,7 +429,7 @@ export default function TokenContextMenu({
       <div className="border-t border-gray-800 my-1" />
       <button
         onClick={handleRemoveToken}
-        className="w-full px-4 py-2 text-xs text-left text-red-400 hover:bg-gray-800 transition-colors cursor-pointer"
+        className="w-full px-4 py-2 text-xs text-left text-red-400 hover:bg-surface-2 transition-colors cursor-pointer"
       >
         {t('game.tokenContextMenu.removeToken')}
       </button>

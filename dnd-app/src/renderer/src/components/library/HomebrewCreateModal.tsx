@@ -249,12 +249,12 @@ export default function HomebrewCreateModal({
       role="presentation"
     >
       <div className="absolute inset-0 bg-black/70" aria-hidden="true" />
-      <div className="relative bg-gray-900 border border-gray-700 rounded-lg w-full max-w-2xl mx-4 max-h-[85vh] flex flex-col">
+      <div className="relative bg-surface border border-border rounded-lg w-full max-w-2xl mx-4 max-h-[85vh] flex flex-col">
         <div className="flex items-center justify-between p-5 border-b border-gray-800">
           <div className="flex items-center gap-3">
             {catDef && <span className="text-2xl">{catDef.icon}</span>}
             <div>
-              <h2 className="text-xl font-bold text-gray-100">
+              <h2 className="text-xl font-bold text-fg">
                 {isEditing
                   ? t('library.homebrewCreateModal.editCustom', { type: catDef?.label ?? category })
                   : t('library.homebrewCreateModal.createCustom', { type: catDef?.label ?? category })}
@@ -276,7 +276,7 @@ export default function HomebrewCreateModal({
                   ok ? 'success' : 'info'
                 )
               }}
-              className="text-xs px-2 py-1 rounded border border-gray-600 text-gray-300 hover:border-amber-500 hover:text-amber-400 cursor-pointer"
+              className="text-xs px-2 py-1 rounded border border-gray-600 text-gray-300 hover:border-amber-500 hover:text-accent cursor-pointer"
             >
               {t('library.homebrewCreateModal.exportAll')}
             </button>
@@ -298,7 +298,7 @@ export default function HomebrewCreateModal({
                   )
                 }
               }}
-              className="text-xs px-2 py-1 rounded border border-gray-600 text-gray-300 hover:border-amber-500 hover:text-amber-400 cursor-pointer"
+              className="text-xs px-2 py-1 rounded border border-gray-600 text-gray-300 hover:border-amber-500 hover:text-accent cursor-pointer"
             >
               {t('library.homebrewCreateModal.import')}
             </button>
@@ -316,9 +316,7 @@ export default function HomebrewCreateModal({
           {editableFields.map(([key, value]) => (
             <div key={key}>
               <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                  {formatLabel(key)}
-                </label>
+                <label className="text-xs font-semibold text-muted uppercase tracking-wider">{formatLabel(key)}</label>
                 {key !== 'name' && key !== 'description' && (
                   <button
                     onClick={() => removeField(key)}
@@ -337,12 +335,12 @@ export default function HomebrewCreateModal({
           {category === 'feats' && (
             <div className="pt-4 border-t border-gray-800">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-xs font-semibold text-amber-400 uppercase tracking-wider">
+                <p className="text-xs font-semibold text-accent uppercase tracking-wider">
                   {t('library.homebrewCreateModal.mechanicalEffects')}
                 </p>
                 <button
                   onClick={addEffect}
-                  className="text-xs px-2 py-0.5 rounded border border-gray-600 text-gray-300 hover:border-amber-500 hover:text-amber-400 cursor-pointer"
+                  className="text-xs px-2 py-0.5 rounded border border-gray-600 text-gray-300 hover:border-amber-500 hover:text-accent cursor-pointer"
                 >
                   {t('library.homebrewCreateModal.addEffect')}
                 </button>
@@ -372,7 +370,7 @@ export default function HomebrewCreateModal({
                 onChange={(e) => setNewFieldKey(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && addField()}
                 placeholder={t('library.homebrewCreateModal.fieldNamePlaceholder')}
-                className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100 focus:border-amber-500 focus:outline-none"
+                className="flex-1 bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-fg focus:border-amber-500 focus:outline-none"
               />
               <button
                 onClick={addField}
@@ -392,7 +390,7 @@ export default function HomebrewCreateModal({
                 type="checkbox"
                 checked={campaignOnly}
                 onChange={(e) => setCampaignOnly(e.target.checked)}
-                className="w-4 h-4 rounded border-gray-600 bg-gray-800 text-amber-500 focus:ring-amber-500"
+                className="w-4 h-4 rounded border-gray-600 bg-surface-2 text-accent-strong focus:ring-amber-500"
               />
               <span className="text-sm text-gray-300">
                 {activeCampaign
@@ -412,7 +410,7 @@ export default function HomebrewCreateModal({
           <button
             onClick={handleSave}
             disabled={saving || !(formData.name as string)?.trim()}
-            className="px-5 py-2.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-semibold transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-5 py-2.5 rounded-lg bg-amber-600 hover:bg-accent-strong text-white font-semibold transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {saving
               ? t('library.homebrewCreateModal.saving')
@@ -422,7 +420,7 @@ export default function HomebrewCreateModal({
           </button>
           <button
             onClick={onClose}
-            className="px-4 py-2.5 rounded-lg border border-gray-600 hover:bg-gray-800 text-gray-200 font-semibold transition-colors cursor-pointer"
+            className="px-4 py-2.5 rounded-lg border border-gray-600 hover:bg-surface-2 text-gray-200 font-semibold transition-colors cursor-pointer"
           >
             {t('common.actions.cancel')}
           </button>
@@ -433,9 +431,9 @@ export default function HomebrewCreateModal({
       {collisionPrompt && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center" role="dialog" aria-modal="true">
           <div className="absolute inset-0 bg-black/70" aria-hidden="true" />
-          <div className="relative bg-gray-900 border border-gray-700 rounded-lg w-full max-w-sm mx-4 p-5">
-            <h3 className="text-lg font-bold text-gray-100 mb-2">{t('library.homebrewCreateModal.collisionTitle')}</h3>
-            <p className="text-sm text-gray-400 mb-4">
+          <div className="relative bg-surface border border-border rounded-lg w-full max-w-sm mx-4 p-5">
+            <h3 className="text-lg font-bold text-fg mb-2">{t('library.homebrewCreateModal.collisionTitle')}</h3>
+            <p className="text-sm text-muted mb-4">
               {t('library.homebrewCreateModal.collisionExistsAs')}{' '}
               <span className="text-gray-200">"{collisionPrompt.existing.name}"</span>
               {t('library.homebrewCreateModal.collisionImportCalls')}{' '}
@@ -445,7 +443,7 @@ export default function HomebrewCreateModal({
             <div className="flex flex-col gap-2">
               <button
                 onClick={() => collisionPrompt.resolve('copy')}
-                className="px-4 py-2 rounded bg-amber-600 hover:bg-amber-500 text-white font-semibold text-sm cursor-pointer"
+                className="px-4 py-2 rounded bg-amber-600 hover:bg-accent-strong text-white font-semibold text-sm cursor-pointer"
               >
                 {t('library.homebrewCreateModal.collisionImportCopy')}
               </button>
@@ -457,7 +455,7 @@ export default function HomebrewCreateModal({
               </button>
               <button
                 onClick={() => collisionPrompt.resolve('skip')}
-                className="px-4 py-2 rounded border border-gray-600 text-gray-300 hover:bg-gray-800 font-semibold text-sm cursor-pointer"
+                className="px-4 py-2 rounded border border-gray-600 text-gray-300 hover:bg-surface-2 font-semibold text-sm cursor-pointer"
               >
                 {t('library.homebrewCreateModal.collisionSkip')}
               </button>
@@ -477,7 +475,7 @@ function renderEditField(key: string, value: unknown, onChange: (key: string, va
           type="checkbox"
           checked={value}
           onChange={(e) => onChange(key, e.target.checked)}
-          className="w-4 h-4 rounded border-gray-600 bg-gray-800 text-amber-500 focus:ring-amber-500"
+          className="w-4 h-4 rounded border-gray-600 bg-surface-2 text-accent-strong focus:ring-amber-500"
         />
         <span className="text-sm text-gray-300">
           {value ? i18n.t('library.homebrewCreateModal.yes') : i18n.t('library.homebrewCreateModal.no')}
@@ -492,7 +490,7 @@ function renderEditField(key: string, value: unknown, onChange: (key: string, va
         type="number"
         value={value}
         onChange={(e) => onChange(key, Number(e.target.value))}
-        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100 focus:border-amber-500 focus:outline-none"
+        className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-fg focus:border-amber-500 focus:outline-none"
       />
     )
   }
@@ -503,7 +501,7 @@ function renderEditField(key: string, value: unknown, onChange: (key: string, va
         value={value}
         onChange={(e) => onChange(key, e.target.value)}
         rows={4}
-        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100 focus:border-amber-500 focus:outline-none resize-y"
+        className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-fg focus:border-amber-500 focus:outline-none resize-y"
       />
     )
   }
@@ -523,7 +521,7 @@ function renderEditField(key: string, value: unknown, onChange: (key: string, va
           )
         }
         placeholder={i18n.t('library.homebrewCreateModal.commaSeparatedPlaceholder')}
-        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100 focus:border-amber-500 focus:outline-none"
+        className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-fg focus:border-amber-500 focus:outline-none"
       />
     )
   }
@@ -540,7 +538,7 @@ function renderEditField(key: string, value: unknown, onChange: (key: string, va
           }
         }}
         rows={4}
-        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100 font-mono text-xs focus:border-amber-500 focus:outline-none resize-y"
+        className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-fg font-mono text-xs focus:border-amber-500 focus:outline-none resize-y"
       />
     )
   }
@@ -550,7 +548,7 @@ function renderEditField(key: string, value: unknown, onChange: (key: string, va
       type="text"
       value={String(value ?? '')}
       onChange={(e) => onChange(key, e.target.value)}
-      className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100 focus:border-amber-500 focus:outline-none"
+      className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-fg focus:border-amber-500 focus:outline-none"
     />
   )
 }
@@ -600,11 +598,11 @@ function EffectRow({
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2 bg-gray-800/50 border border-gray-700 rounded p-2">
+    <div className="flex flex-wrap items-center gap-2 bg-surface-2/50 border border-border rounded p-2">
       <select
         value={effect.type}
         onChange={(e) => changeType(e.target.value as HomebrewFeatEffect['type'])}
-        className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
+        className="bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200"
       >
         {EFFECT_TYPES.map((t) => (
           <option key={t} value={t}>
@@ -618,7 +616,7 @@ function EffectRow({
           <select
             value={effect.target}
             onChange={(e) => onChange({ ...effect, target: e.target.value as (typeof ABILITY_OPTIONS)[number] })}
-            className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
+            className="bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200"
           >
             {ABILITY_OPTIONS.map((a) => (
               <option key={a} value={a}>
@@ -630,7 +628,7 @@ function EffectRow({
             type="number"
             value={effect.value}
             onChange={(e) => onChange({ ...effect, value: Number(e.target.value) })}
-            className="w-16 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
+            className="w-16 bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200"
           />
         </>
       )}
@@ -645,7 +643,7 @@ function EffectRow({
               ? t('library.homebrewCreateModal.skillNamePlaceholder')
               : t('library.homebrewCreateModal.damageTypePlaceholder')
           }
-          className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
+          className="flex-1 bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200"
         />
       )}
 
@@ -654,7 +652,7 @@ function EffectRow({
           type="number"
           value={effect.value}
           onChange={(e) => onChange({ ...effect, value: Number(e.target.value) })}
-          className="w-20 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
+          className="w-20 bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200"
         />
       )}
 
@@ -664,7 +662,7 @@ function EffectRow({
           value={effect.description}
           onChange={(e) => onChange({ ...effect, description: e.target.value })}
           placeholder={t('library.homebrewCreateModal.descriptionPlaceholder')}
-          className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
+          className="flex-1 bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200"
         />
       )}
 

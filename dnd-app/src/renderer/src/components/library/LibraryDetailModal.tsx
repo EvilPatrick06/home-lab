@@ -51,7 +51,7 @@ interface LibraryDetailModalProps {
 // Shared section-label style — amber accent matches the bespoke detail views
 // (SpellCardView / MonsterStatBlockView etc.) so every category reads as one
 // design language instead of the old flat gray definition list.
-const FIELD_LABEL = 'text-xs font-semibold text-amber-400 uppercase tracking-wider mb-1'
+const FIELD_LABEL = 'text-xs font-semibold text-accent uppercase tracking-wider mb-1'
 const FIELD_GROUP = 'border-l-2 border-amber-800/30 pl-3'
 
 function renderChips(values: unknown[]): JSX.Element {
@@ -60,7 +60,7 @@ function renderChips(values: unknown[]): JSX.Element {
       {values.map((v, i) => (
         <span
           key={`chip-${i}`}
-          className="text-xs bg-gray-800 border border-gray-700/60 text-gray-300 px-2 py-0.5 rounded-full"
+          className="text-xs bg-surface-2 border border-border/60 text-gray-300 px-2 py-0.5 rounded-full"
         >
           {humanizeValue(String(v))}
         </span>
@@ -89,7 +89,7 @@ function renderField(label: string, value: unknown): JSX.Element | null {
         <dt className={FIELD_LABEL}>{label}</dt>
         <dd className="space-y-2">
           {value.map((v, i) => (
-            <div key={`item-${i}`} className="bg-gray-800/40 border border-gray-700/40 rounded-lg px-3 py-2">
+            <div key={`item-${i}`} className="bg-surface-2/40 border border-border/40 rounded-lg px-3 py-2">
               {typeof v === 'object' && v !== null ? (
                 renderObject(v as Record<string, unknown>)
               ) : (
@@ -106,7 +106,7 @@ function renderField(label: string, value: unknown): JSX.Element | null {
     return (
       <div key={label} className={FIELD_GROUP}>
         <dt className={FIELD_LABEL}>{label}</dt>
-        <dd className="bg-gray-800/40 border border-gray-700/40 rounded-lg px-3 py-2">
+        <dd className="bg-surface-2/40 border border-border/40 rounded-lg px-3 py-2">
           {renderObject(value as Record<string, unknown>)}
         </dd>
       </div>
@@ -141,9 +141,7 @@ function renderObject(obj: Record<string, unknown>): JSX.Element {
                 {v.map((item, i) => (
                   <div key={`${k}-${i}`} className="text-xs text-gray-300">
                     {typeof item === 'object' && item !== null ? (
-                      <div className="pl-2 border-l border-gray-700">
-                        {renderObject(item as Record<string, unknown>)}
-                      </div>
+                      <div className="pl-2 border-l border-border">{renderObject(item as Record<string, unknown>)}</div>
                     ) : (
                       String(item)
                     )}
@@ -157,7 +155,7 @@ function renderObject(obj: Record<string, unknown>): JSX.Element {
           return (
             <div key={k}>
               <span className="text-xs text-gray-500">{formatLabel(k)}:</span>
-              <div className="pl-3 mt-0.5 border-l border-gray-700">{renderObject(v as Record<string, unknown>)}</div>
+              <div className="pl-3 mt-0.5 border-l border-border">{renderObject(v as Record<string, unknown>)}</div>
             </div>
           )
         }
@@ -286,7 +284,7 @@ export default function LibraryDetailModal({
             )}
             {catDef && <span className="text-2xl">{catDef.icon}</span>}
             <div>
-              <h2 className="text-xl font-bold text-gray-100">{item.name}</h2>
+              <h2 className="text-xl font-bold text-fg">{item.name}</h2>
               <div className="flex items-center gap-2 mt-0.5">
                 <span className="text-xs text-gray-500">{catDef?.label ?? item.category}</span>
                 {item.source === 'homebrew' && (
@@ -346,7 +344,7 @@ export default function LibraryDetailModal({
             <>
               <button
                 onClick={() => onCloneAsHomebrew(item)}
-                className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-sm font-semibold transition-colors cursor-pointer"
+                className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-accent-strong text-white text-sm font-semibold transition-colors cursor-pointer"
               >
                 {t('library.libraryDetailModal.edit')}
               </button>
@@ -362,7 +360,7 @@ export default function LibraryDetailModal({
                       </button>
                       <button
                         onClick={() => setConfirmDelete(false)}
-                        className="px-4 py-2 rounded-lg border border-gray-600 hover:bg-gray-800 text-gray-200 text-sm font-semibold transition-colors cursor-pointer"
+                        className="px-4 py-2 rounded-lg border border-gray-600 hover:bg-surface-2 text-gray-200 text-sm font-semibold transition-colors cursor-pointer"
                       >
                         {t('common.actions.cancel')}
                       </button>
@@ -381,7 +379,7 @@ export default function LibraryDetailModal({
           )}
           <button
             onClick={onClose}
-            className="ml-auto px-4 py-2 rounded-lg border border-gray-600 hover:bg-gray-800 text-gray-200 text-sm font-semibold transition-colors cursor-pointer"
+            className="ml-auto px-4 py-2 rounded-lg border border-gray-600 hover:bg-surface-2 text-gray-200 text-sm font-semibold transition-colors cursor-pointer"
           >
             {t('common.actions.close')}
           </button>

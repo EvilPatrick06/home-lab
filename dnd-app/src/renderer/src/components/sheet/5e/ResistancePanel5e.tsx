@@ -65,9 +65,7 @@ export default function ResistancePanel5e({ character, readonly }: ResistancePan
                         )}
                       </button>
                       {isExpanded && desc && (
-                        <div className="text-xs text-gray-400 bg-gray-800/50 rounded px-2 py-1 mt-1 max-w-xs">
-                          {desc}
-                        </div>
+                        <div className="text-xs text-muted bg-surface-2/50 rounded px-2 py-1 mt-1 max-w-xs">{desc}</div>
                       )}
                     </div>
                   )
@@ -113,9 +111,7 @@ export default function ResistancePanel5e({ character, readonly }: ResistancePan
                         )}
                       </button>
                       {isExpanded && desc && (
-                        <div className="text-xs text-gray-400 bg-gray-800/50 rounded px-2 py-1 mt-1 max-w-xs">
-                          {desc}
-                        </div>
+                        <div className="text-xs text-muted bg-surface-2/50 rounded px-2 py-1 mt-1 max-w-xs">{desc}</div>
                       )}
                     </div>
                   )
@@ -161,9 +157,7 @@ export default function ResistancePanel5e({ character, readonly }: ResistancePan
                         )}
                       </button>
                       {isExpanded && desc && (
-                        <div className="text-xs text-gray-400 bg-gray-800/50 rounded px-2 py-1 mt-1 max-w-xs">
-                          {desc}
-                        </div>
+                        <div className="text-xs text-muted bg-surface-2/50 rounded px-2 py-1 mt-1 max-w-xs">{desc}</div>
                       )}
                     </div>
                   )
@@ -200,7 +194,7 @@ export default function ResistancePanel5e({ character, readonly }: ResistancePan
 
       {/* Inline defense adder */}
       {!readonly && showDefenseAdder && (
-        <div className="mb-3 bg-gray-800/50 rounded p-3 space-y-2">
+        <div className="mb-3 bg-surface-2/50 rounded p-3 space-y-2">
           <div className="flex items-center justify-between">
             <span
               className={`text-xs font-medium uppercase tracking-wide ${
@@ -294,6 +288,7 @@ export default function ResistancePanel5e({ character, readonly }: ResistancePan
           )}
           <div className="flex items-center gap-2 mt-2">
             <input
+              aria-label={t('sheet.resistancePanel.customPlaceholder')}
               type="text"
               placeholder={t('sheet.resistancePanel.customPlaceholder')}
               value={customDefenseInput}
@@ -322,7 +317,7 @@ export default function ResistancePanel5e({ character, readonly }: ResistancePan
                   setCustomDefenseInput('')
                 }
               }}
-              className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
+              className="flex-1 bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg focus:outline-none focus:border-amber-500"
             />
             <button
               onClick={() => {
@@ -349,7 +344,7 @@ export default function ResistancePanel5e({ character, readonly }: ResistancePan
                 setCustomDefenseInput('')
               }}
               disabled={!customDefenseInput.trim()}
-              className="px-2 py-1 text-xs bg-amber-600 hover:bg-amber-500 disabled:opacity-50 rounded text-white cursor-pointer"
+              className="px-2 py-1 text-xs bg-amber-600 hover:bg-accent-strong disabled:opacity-50 rounded text-white cursor-pointer"
             >
               {t('sheet.resistancePanel.add')}
             </button>

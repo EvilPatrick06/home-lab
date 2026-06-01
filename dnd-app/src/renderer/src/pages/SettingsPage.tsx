@@ -77,7 +77,7 @@ const THEME_LABEL_KEYS: Record<ThemeName, string> = {
 }
 
 const THEME_PREVIEWS: Record<ThemeName, { bg: string; accent: string; text: string }> = {
-  dark: { bg: 'bg-gray-900', accent: 'bg-amber-600', text: 'text-gray-100' },
+  dark: { bg: 'bg-surface', accent: 'bg-amber-600', text: 'text-fg' },
   parchment: { bg: 'bg-amber-100', accent: 'bg-yellow-700', text: 'text-amber-950' },
   'high-contrast': { bg: 'bg-black', accent: 'bg-yellow-400', text: 'text-white' },
   'royal-purple': { bg: 'bg-purple-950', accent: 'bg-purple-500', text: 'text-gray-200' }
@@ -120,8 +120,8 @@ interface SettingsSectionProps {
 
 function Section({ title, children }: SettingsSectionProps): JSX.Element {
   return (
-    <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-5">
-      <h3 className="text-sm font-semibold text-amber-400 mb-4 uppercase tracking-wider">{title}</h3>
+    <div className="bg-surface-2/50 border border-border/50 rounded-xl p-5">
+      <h3 className="text-sm font-semibold text-accent mb-4 uppercase tracking-wider">{title}</h3>
       {children}
     </div>
   )
@@ -211,7 +211,7 @@ function KeybindingEditor(): JSX.Element {
             {shortcuts.map((shortcut) => (
               <div
                 key={shortcut.action}
-                className="flex items-center justify-between py-1.5 px-2 rounded hover:bg-gray-800/50"
+                className="flex items-center justify-between py-1.5 px-2 rounded hover:bg-surface-2/50"
               >
                 <span className="text-sm text-gray-300">{shortcut.description}</span>
                 <div className="flex items-center gap-2">
@@ -219,21 +219,21 @@ function KeybindingEditor(): JSX.Element {
                     className={`px-2 py-1 text-xs border rounded font-mono min-w-[60px] text-center ${
                       isCustom(shortcut.action)
                         ? 'bg-amber-900/30 border-amber-700/50 text-amber-300'
-                        : 'bg-gray-900 border-gray-700 text-gray-300'
+                        : 'bg-surface border-border text-gray-300'
                     }`}
                   >
                     {formatKeyCombo(shortcut)}
                   </kbd>
                   {capturing === shortcut.action ? (
                     <div className="flex items-center gap-1">
-                      <span className="text-xs text-amber-400 animate-pulse">{t('pages.settingsPage.pressAKey')}</span>
+                      <span className="text-xs text-accent animate-pulse">{t('pages.settingsPage.pressAKey')}</span>
                       <button
                         onClick={() => {
                           setCapturing(null)
                           setConflict(null)
                           setPendingCombo(null)
                         }}
-                        className="px-2 py-0.5 text-xs bg-gray-700 border border-gray-600 rounded text-gray-400 hover:text-gray-200 cursor-pointer"
+                        className="px-2 py-0.5 text-xs bg-gray-700 border border-gray-600 rounded text-muted hover:text-gray-200 cursor-pointer"
                       >
                         {t('common.actions.cancel')}
                       </button>
@@ -241,7 +241,7 @@ function KeybindingEditor(): JSX.Element {
                   ) : (
                     <button
                       onClick={() => setCapturing(shortcut.action)}
-                      className="px-2 py-0.5 text-xs bg-gray-700 border border-gray-600 rounded text-gray-400 hover:text-gray-200 hover:border-amber-600 cursor-pointer"
+                      className="px-2 py-0.5 text-xs bg-gray-700 border border-gray-600 rounded text-muted hover:text-gray-200 hover:border-amber-600 cursor-pointer"
                     >
                       {t('pages.settingsPage.rebind')}
                     </button>
@@ -249,7 +249,7 @@ function KeybindingEditor(): JSX.Element {
                   {isCustom(shortcut.action) && (
                     <button
                       onClick={() => resetKeybinding(shortcut.action)}
-                      className="px-2 py-0.5 text-xs bg-gray-900 border border-gray-600 rounded text-gray-100 hover:text-red-300 cursor-pointer"
+                      className="px-2 py-0.5 text-xs bg-surface border border-gray-600 rounded text-fg hover:text-red-300 cursor-pointer"
                     >
                       {t('pages.settingsPage.reset')}
                     </button>
@@ -270,7 +270,7 @@ function KeybindingEditor(): JSX.Element {
           <div className="flex gap-2">
             <button
               onClick={handleSwap}
-              className="px-3 py-1 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer"
+              className="px-3 py-1 text-xs bg-amber-600 hover:bg-accent-strong text-white rounded cursor-pointer"
             >
               {t('pages.settingsPage.swapBindings')}
             </button>
@@ -289,10 +289,10 @@ function KeybindingEditor(): JSX.Element {
       )}
 
       {customKeybindings && Object.keys(customKeybindings).length > 0 && (
-        <div className="mt-3 pt-3 border-t border-gray-700/50">
+        <div className="mt-3 pt-3 border-t border-border/50">
           <button
             onClick={resetAllKeybindings}
-            className="px-3 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded text-gray-400 hover:text-red-400 hover:border-red-600 cursor-pointer"
+            className="px-3 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded text-muted hover:text-red-400 hover:border-red-600 cursor-pointer"
           >
             {t('pages.settingsPage.resetAllToDefaults')}
           </button>
@@ -360,11 +360,11 @@ function PluginManager(): JSX.Element {
     <div className="space-y-3">
       {/* Phase 28g.2 — plugin trust-model warning. Plugins run with full access
           to game data; only install ones you trust. */}
-      <p className="text-[11px] text-amber-400/90 bg-amber-900/20 border border-amber-700/40 rounded px-2 py-1">
+      <p className="text-[11px] text-accent/90 bg-amber-900/20 border border-amber-700/40 rounded px-2 py-1">
         {t('pages.settingsPage.pluginTrustWarning')}
       </p>
       <div className="flex items-center justify-between">
-        <p className="text-xs text-gray-400">
+        <p className="text-xs text-muted">
           {plugins.length === 0
             ? t('pages.settingsPage.noPluginsInstalled')
             : plugins.length !== 1
@@ -373,7 +373,7 @@ function PluginManager(): JSX.Element {
         </p>
         <button
           onClick={handleInstall}
-          className="px-3 py-1.5 text-xs rounded-lg bg-amber-600 hover:bg-amber-500 text-white transition-colors cursor-pointer"
+          className="px-3 py-1.5 text-xs rounded-lg bg-amber-600 hover:bg-accent-strong text-white transition-colors cursor-pointer"
         >
           {t('pages.settingsPage.installFromFile')}
         </button>
@@ -387,7 +387,7 @@ function PluginManager(): JSX.Element {
               ? 'border-red-700/50 bg-red-900/10'
               : plugin.enabled
                 ? 'border-amber-700/30 bg-amber-900/10'
-                : 'border-gray-700/50 bg-gray-800/30'
+                : 'border-border/50 bg-surface-2/30'
           }`}
         >
           <div className="flex items-start justify-between gap-3">
@@ -395,9 +395,7 @@ function PluginManager(): JSX.Element {
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-gray-200 truncate">{plugin.manifest.name ?? plugin.id}</span>
                 <span className="text-xs text-gray-500 font-mono">v{plugin.manifest.version ?? '?'}</span>
-                <span className="text-xs px-1.5 py-0.5 rounded bg-gray-700/50 text-gray-400">
-                  {plugin.manifest.type}
-                </span>
+                <span className="text-xs px-1.5 py-0.5 rounded bg-gray-700/50 text-muted">{plugin.manifest.type}</span>
                 {plugin.loaded && (
                   <span className="text-xs px-1.5 py-0.5 rounded bg-green-900/50 text-green-400">
                     {t('pages.settingsPage.pluginLoaded')}
@@ -410,7 +408,7 @@ function PluginManager(): JSX.Element {
                 )}
               </div>
               {!!plugin.manifest.description && (
-                <p className="text-xs text-gray-400 mt-1 truncate">{plugin.manifest.description}</p>
+                <p className="text-xs text-muted mt-1 truncate">{plugin.manifest.description}</p>
               )}
               {!!plugin.manifest.author && (
                 <p className="text-xs text-gray-500 mt-0.5">
@@ -433,7 +431,7 @@ function PluginManager(): JSX.Element {
               )}
               <button
                 onClick={() => handleUninstall(plugin)}
-                className="px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded text-gray-400 hover:text-red-400 hover:border-red-600 cursor-pointer"
+                className="px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded text-muted hover:text-red-400 hover:border-red-600 cursor-pointer"
               >
                 {t('pages.settingsPage.uninstall')}
               </button>
@@ -570,7 +568,7 @@ function UpdateSection(): JSX.Element {
                 ? 'bg-green-900/30 text-green-300 border border-green-700/50'
                 : status.state === 'available'
                   ? 'bg-amber-900/30 text-amber-300 border border-amber-700/50'
-                  : 'bg-gray-800/50 text-gray-300 border border-gray-700/50'
+                  : 'bg-surface-2/50 text-gray-300 border border-border/50'
           }`}
         >
           {statusLabel()}
@@ -581,7 +579,7 @@ function UpdateSection(): JSX.Element {
       {status.state === 'downloading' && (
         <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
           <div
-            className="h-full bg-amber-500 rounded-full transition-all duration-300"
+            className="h-full bg-accent-strong rounded-full transition-all duration-300"
             style={{ width: `${status.percent ?? 0}%` }}
           />
         </div>
@@ -592,7 +590,7 @@ function UpdateSection(): JSX.Element {
         {(status.state === 'idle' || status.state === 'not-available' || status.state === 'error') && (
           <button
             onClick={handleCheck}
-            className="px-4 py-1.5 text-sm rounded-lg border bg-gray-800 border-gray-700 text-gray-300 hover:border-amber-600 hover:text-amber-400 transition-colors cursor-pointer"
+            className="px-4 py-1.5 text-sm rounded-lg border bg-surface-2 border-border text-gray-300 hover:border-amber-600 hover:text-accent transition-colors cursor-pointer"
           >
             {t('pages.settingsPage.checkForUpdates')}
           </button>
@@ -600,7 +598,7 @@ function UpdateSection(): JSX.Element {
         {status.state === 'available' && (
           <button
             onClick={handleDownload}
-            className="px-4 py-1.5 text-sm rounded-lg bg-amber-600 hover:bg-amber-500 text-white transition-colors cursor-pointer"
+            className="px-4 py-1.5 text-sm rounded-lg bg-amber-600 hover:bg-accent-strong text-white transition-colors cursor-pointer"
           >
             {t('pages.settingsPage.downloadUpdate')}
           </button>
@@ -614,7 +612,7 @@ function UpdateSection(): JSX.Element {
           </button>
         )}
         {status.state === 'checking' && (
-          <span className="text-sm text-gray-400 animate-pulse">{t('pages.settingsPage.checking')}</span>
+          <span className="text-sm text-muted animate-pulse">{t('pages.settingsPage.checking')}</span>
         )}
       </div>
 
@@ -825,7 +823,7 @@ function CloudBackupSection(): JSX.Element {
 
   return (
     <div className="space-y-3">
-      <p className="text-xs text-gray-400">{t('pages.settingsPage.cloudBackupDesc')}</p>
+      <p className="text-xs text-muted">{t('pages.settingsPage.cloudBackupDesc')}</p>
 
       {/* Status display */}
       {message && (
@@ -842,7 +840,7 @@ function CloudBackupSection(): JSX.Element {
 
       {/* Remote info */}
       {syncState.configured && (
-        <div className="text-xs text-gray-400 space-y-1">
+        <div className="text-xs text-muted space-y-1">
           {syncState.remotes.length > 0 && (
             <p>{t('pages.settingsPage.configuredRemotes', { remotes: syncState.remotes.join(', ') })}</p>
           )}
@@ -858,21 +856,21 @@ function CloudBackupSection(): JSX.Element {
         <button
           onClick={handleCheckStatus}
           disabled={loading === 'status'}
-          className="px-4 py-1.5 text-sm rounded-lg border bg-gray-800 border-gray-700 text-gray-300 hover:border-amber-600 hover:text-amber-400 transition-colors cursor-pointer disabled:opacity-50"
+          className="px-4 py-1.5 text-sm rounded-lg border bg-surface-2 border-border text-gray-300 hover:border-amber-600 hover:text-accent transition-colors cursor-pointer disabled:opacity-50"
         >
           {loading === 'status' ? t('pages.settingsPage.checking') : t('pages.settingsPage.checkStatus')}
         </button>
         <button
           onClick={handleBackupNow}
           disabled={loading === 'backup'}
-          className="px-4 py-1.5 text-sm rounded-lg border bg-gray-800 border-gray-700 text-gray-300 hover:border-amber-600 hover:text-amber-400 transition-colors cursor-pointer disabled:opacity-50"
+          className="px-4 py-1.5 text-sm rounded-lg border bg-surface-2 border-border text-gray-300 hover:border-amber-600 hover:text-accent transition-colors cursor-pointer disabled:opacity-50"
         >
           {loading === 'backup' ? t('pages.settingsPage.backingUp') : t('pages.settingsPage.backupNow')}
         </button>
         <button
           onClick={handleListBackups}
           disabled={loading === 'list'}
-          className="px-4 py-1.5 text-sm rounded-lg border bg-gray-800 border-gray-700 text-gray-300 hover:border-amber-600 hover:text-amber-400 transition-colors cursor-pointer disabled:opacity-50"
+          className="px-4 py-1.5 text-sm rounded-lg border bg-surface-2 border-border text-gray-300 hover:border-amber-600 hover:text-accent transition-colors cursor-pointer disabled:opacity-50"
         >
           {loading === 'list' ? t('common.states.loading') : t('pages.settingsPage.listBackups')}
         </button>
@@ -895,11 +893,11 @@ function CloudBackupSection(): JSX.Element {
       {/* Backed-up campaigns list */}
       {syncState.campaigns.length > 0 && (
         <div className="space-y-1">
-          <p className="text-xs text-gray-400 font-semibold">{t('pages.settingsPage.backedUpCampaigns')}</p>
+          <p className="text-xs text-muted font-semibold">{t('pages.settingsPage.backedUpCampaigns')}</p>
           {syncState.campaigns.map((c) => (
             <div
               key={c.id}
-              className="flex items-center justify-between py-1.5 px-2 rounded bg-gray-800/30 border border-gray-700/30"
+              className="flex items-center justify-between py-1.5 px-2 rounded bg-surface-2/30 border border-border/30"
             >
               <span className="text-sm text-gray-300">{c.name}</span>
               <span className="text-xs text-gray-500 font-mono">{c.id.slice(0, 8)}...</span>
@@ -1133,17 +1131,17 @@ export default function SettingsPage(): JSX.Element {
   const returnTo = (location.state as { returnTo?: string })?.returnTo
 
   return (
-    <div className="h-screen bg-gray-950 text-gray-100 overflow-y-auto">
+    <div className="h-screen bg-base text-fg overflow-y-auto">
       {/* Header — sticky so the back button + title + (fixed) gear stay visible
           while the settings content scrolls. z-40 sits just under the fixed
           GlobalSettingsButton gear (z-50). */}
-      <div className="sticky top-0 z-40 border-b border-gray-800 bg-gray-950">
+      <div className="sticky top-0 z-40 border-b border-gray-800 bg-base">
         <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate(-1)}
               aria-label={t('pages.settingsPage.goBack')}
-              className="text-gray-400 hover:text-gray-200 transition-colors cursor-pointer"
+              className="text-muted hover:text-gray-200 transition-colors cursor-pointer"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
                 <path
@@ -1153,12 +1151,12 @@ export default function SettingsPage(): JSX.Element {
                 />
               </svg>
             </button>
-            <h1 className="text-xl font-bold text-gray-100">{t('pages.settingsPage.title')}</h1>
+            <h1 className="text-xl font-bold text-fg">{t('pages.settingsPage.title')}</h1>
           </div>
           {returnTo?.startsWith('/game/') && (
             <button
               onClick={() => navigate(returnTo)}
-              className="px-3 py-1.5 text-sm bg-amber-600 hover:bg-amber-500 text-white rounded font-semibold transition-colors cursor-pointer"
+              className="px-3 py-1.5 text-sm bg-amber-600 hover:bg-accent-strong text-white rounded font-semibold transition-colors cursor-pointer"
             >
               {t('pages.settingsPage.returnToGame')}
             </button>
@@ -1173,6 +1171,7 @@ export default function SettingsPage(): JSX.Element {
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-300">{t('pages.settingsPage.displayName')}</span>
             <input
+              aria-label={t('pages.settingsPage.yourName')}
               type="text"
               maxLength={32}
               placeholder={t('pages.settingsPage.yourName')}
@@ -1182,7 +1181,7 @@ export default function SettingsPage(): JSX.Element {
               onKeyDown={(e) => {
                 if (e.key === 'Enter') saveProfile(profileName)
               }}
-              className="w-48 px-3 py-1.5 text-sm bg-gray-900 border border-gray-700 rounded-lg text-gray-200 placeholder-gray-600 focus:border-amber-500 focus:outline-none"
+              className="w-48 px-3 py-1.5 text-sm bg-surface border border-border rounded-lg text-gray-200 placeholder-gray-600 focus:border-amber-500 focus:outline-none"
             />
           </div>
           <p className="text-xs text-gray-500 mt-2">{t('pages.settingsPage.displayNameHint')}</p>
@@ -1195,7 +1194,7 @@ export default function SettingsPage(): JSX.Element {
             <select
               value={i18n.language}
               onChange={(e) => setLocale(e.target.value as (typeof SUPPORTED_LOCALES)[number])}
-              className="w-48 px-3 py-1.5 text-sm bg-gray-900 border border-gray-700 rounded-lg text-gray-200 focus:border-amber-500 focus:outline-none"
+              className="w-48 px-3 py-1.5 text-sm bg-surface border border-border rounded-lg text-gray-200 focus:border-amber-500 focus:outline-none"
             >
               {SUPPORTED_LOCALES.map((loc) => (
                 <option key={loc} value={loc}>
@@ -1218,9 +1217,7 @@ export default function SettingsPage(): JSX.Element {
                   key={theme}
                   onClick={() => handleThemeChange(theme)}
                   className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all cursor-pointer ${
-                    isActive
-                      ? 'border-amber-500 bg-gray-700/40'
-                      : 'border-gray-700 bg-gray-800/30 hover:border-gray-600'
+                    isActive ? 'border-amber-500 bg-gray-700/40' : 'border-border bg-surface-2/30 hover:border-gray-600'
                   }`}
                 >
                   <div
@@ -1230,7 +1227,7 @@ export default function SettingsPage(): JSX.Element {
                   </div>
                   <div className="text-left">
                     <div className="text-sm font-medium text-gray-200">{t(THEME_LABEL_KEYS[theme])}</div>
-                    {isActive && <div className="text-xs text-amber-400">{t('pages.settingsPage.active')}</div>}
+                    {isActive && <div className="text-xs text-accent">{t('pages.settingsPage.active')}</div>}
                   </div>
                 </button>
               )
@@ -1248,7 +1245,7 @@ export default function SettingsPage(): JSX.Element {
                 handleMutedChange(false)
                 handleEnabledChange(true)
               }}
-              className="px-2 py-0.5 text-xs bg-gray-900 border border-gray-600 rounded text-gray-100 hover:text-red-300 cursor-pointer"
+              className="px-2 py-0.5 text-xs bg-surface border border-gray-600 rounded text-fg hover:text-red-300 cursor-pointer"
             >
               {t('pages.settingsPage.resetAudioDefaults')}
             </button>
@@ -1292,7 +1289,7 @@ export default function SettingsPage(): JSX.Element {
                 disabled={!audioEnabled || audioMuted}
                 className="flex-1 h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer disabled:opacity-50"
               />
-              <span className="text-xs text-gray-400 w-8 text-right">{Math.round(masterVolume)}%</span>
+              <span className="text-xs text-muted w-8 text-right">{Math.round(masterVolume)}%</span>
             </div>
 
             <div className="flex items-center gap-4">
@@ -1306,7 +1303,7 @@ export default function SettingsPage(): JSX.Element {
                 disabled={!audioEnabled || audioMuted}
                 className="flex-1 h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer disabled:opacity-50"
               />
-              <span className="text-xs text-gray-400 w-8 text-right">{Math.round(ambientVolume)}%</span>
+              <span className="text-xs text-muted w-8 text-right">{Math.round(ambientVolume)}%</span>
             </div>
           </div>
         </Section>
@@ -1328,7 +1325,7 @@ export default function SettingsPage(): JSX.Element {
                 setTooltipsEnabled(true)
                 setFontStyle('system')
               }}
-              className="px-2 py-0.5 text-xs bg-gray-900 border border-gray-600 rounded text-gray-100 hover:text-red-300 cursor-pointer"
+              className="px-2 py-0.5 text-xs bg-surface border border-gray-600 rounded text-fg hover:text-red-300 cursor-pointer"
             >
               {t('pages.settingsPage.resetAccessibilityDefaults')}
             </button>
@@ -1339,11 +1336,11 @@ export default function SettingsPage(): JSX.Element {
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-gray-300">{t('pages.settingsPage.uiScale')}</span>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-400 w-10 text-right">{uiScale}%</span>
+                  <span className="text-sm text-muted w-10 text-right">{uiScale}%</span>
                   {uiScale !== 100 && (
                     <button
                       onClick={() => setUiScale(100)}
-                      className="px-2 py-0.5 text-xs bg-gray-700 border border-gray-600 rounded text-gray-400 hover:text-gray-200 cursor-pointer"
+                      className="px-2 py-0.5 text-xs bg-gray-700 border border-gray-600 rounded text-muted hover:text-gray-200 cursor-pointer"
                     >
                       {t('pages.settingsPage.reset')}
                     </button>
@@ -1378,7 +1375,7 @@ export default function SettingsPage(): JSX.Element {
                     className={`p-2 rounded-lg border text-left transition-colors cursor-pointer ${
                       colorblindMode === opt.mode
                         ? 'border-amber-500 bg-amber-900/20'
-                        : 'border-gray-700 bg-gray-800/30 hover:border-gray-600'
+                        : 'border-border bg-surface-2/30 hover:border-gray-600'
                     }`}
                   >
                     <div className="text-xs font-medium text-gray-200">{t(opt.labelKey)}</div>
@@ -1412,7 +1409,7 @@ export default function SettingsPage(): JSX.Element {
                     className={`p-2 rounded-lg border text-left transition-colors cursor-pointer ${
                       fontStyle === opt.value
                         ? 'border-amber-500 bg-amber-900/20'
-                        : 'border-gray-700 bg-gray-800/30 hover:border-gray-600'
+                        : 'border-border bg-surface-2/30 hover:border-gray-600'
                     }`}
                   >
                     <div
@@ -1478,7 +1475,7 @@ export default function SettingsPage(): JSX.Element {
                 handleGridOpacityChange(40)
                 handleGridColorChange('#ffffff')
               }}
-              className="px-2 py-0.5 text-xs bg-gray-900 border border-gray-600 rounded text-gray-100 hover:text-red-300 cursor-pointer"
+              className="px-2 py-0.5 text-xs bg-surface border border-gray-600 rounded text-fg hover:text-red-300 cursor-pointer"
             >
               {t('pages.settingsPage.resetGridDefaults')}
             </button>
@@ -1495,7 +1492,7 @@ export default function SettingsPage(): JSX.Element {
                   onChange={(e) => handleGridOpacityChange(Number(e.target.value))}
                   className="w-36 h-1 accent-amber-500 cursor-pointer"
                 />
-                <span className="text-sm text-gray-400 w-10 text-right">{gridOpacity}%</span>
+                <span className="text-sm text-muted w-10 text-right">{gridOpacity}%</span>
               </div>
             </div>
             <div className="flex items-center justify-between">
@@ -1507,7 +1504,7 @@ export default function SettingsPage(): JSX.Element {
                   onChange={(e) => handleGridColorChange(e.target.value)}
                   className="w-8 h-8 rounded border border-gray-600 cursor-pointer bg-transparent"
                 />
-                <span className="text-sm text-gray-400 font-mono">{gridColor}</span>
+                <span className="text-sm text-muted font-mono">{gridColor}</span>
               </div>
             </div>
           </div>
@@ -1525,7 +1522,7 @@ export default function SettingsPage(): JSX.Element {
                   className={`px-4 py-1.5 text-sm rounded-lg border transition-colors cursor-pointer ${
                     diceRollMode === mode
                       ? 'bg-amber-600 border-amber-500 text-white'
-                      : 'bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-600'
+                      : 'bg-surface-2 border-border text-muted hover:border-gray-600'
                   }`}
                 >
                   {mode === '3d' ? t('pages.settingsPage.dice3d') : t('pages.settingsPage.dice2d')}
@@ -1544,7 +1541,7 @@ export default function SettingsPage(): JSX.Element {
                 NotificationService.setEnabled(true)
                 NotificationService.setSoundEnabled(true)
               }}
-              className="px-2 py-0.5 text-xs bg-gray-900 border border-gray-600 rounded text-gray-100 hover:text-red-300 cursor-pointer"
+              className="px-2 py-0.5 text-xs bg-surface border border-gray-600 rounded text-fg hover:text-red-300 cursor-pointer"
             >
               {t('pages.settingsPage.resetNotificationDefaults')}
             </button>
@@ -1593,7 +1590,7 @@ export default function SettingsPage(): JSX.Element {
             />
           </label>
           <div className="mt-4 space-y-2">
-            <p className="text-xs text-gray-400 font-semibold">{t('pages.settingsPage.eventToggles')}</p>
+            <p className="text-xs text-muted font-semibold">{t('pages.settingsPage.eventToggles')}</p>
             {(
               [
                 'your-turn',
@@ -1624,7 +1621,7 @@ export default function SettingsPage(): JSX.Element {
             ))}
           </div>
           <button
-            className="mt-3 px-3 py-1 text-xs bg-gray-800 text-gray-300 rounded hover:bg-gray-700 cursor-pointer"
+            className="mt-3 px-3 py-1 text-xs bg-surface-2 text-gray-300 rounded hover:bg-gray-700 cursor-pointer"
             onClick={() => NotificationService.notify('your-turn', t('pages.settingsPage.testCharacter'))}
           >
             {t('pages.settingsPage.testNotification')}
@@ -1641,7 +1638,7 @@ export default function SettingsPage(): JSX.Element {
                 setAutoSaveIntervalDraft('5')
                 AutoSave.setConfig({ enabled: true, intervalMs: 300000 })
               }}
-              className="px-2 py-0.5 text-xs bg-gray-900 border border-gray-600 rounded text-gray-100 hover:text-red-300 cursor-pointer"
+              className="px-2 py-0.5 text-xs bg-surface border border-gray-600 rounded text-fg hover:text-red-300 cursor-pointer"
             >
               {t('pages.settingsPage.resetAutoSaveDefaults')}
             </button>
@@ -1680,7 +1677,7 @@ export default function SettingsPage(): JSX.Element {
                   AutoSave.setConfig({ intervalMs: val * 60000 })
                 }}
                 disabled={!autoSaveEnabled}
-                className="w-20 px-2 py-1 text-sm bg-gray-900 border border-gray-700 rounded text-gray-300 disabled:opacity-50"
+                className="w-20 px-2 py-1 text-sm bg-surface border border-border rounded text-gray-300 disabled:opacity-50"
               />
             </div>
           </div>
@@ -1688,7 +1685,7 @@ export default function SettingsPage(): JSX.Element {
 
         {/* Import/Export Settings */}
         <Section title={t('pages.settingsPage.settingsImportExport')}>
-          <p className="text-xs text-gray-400 mb-3">{t('pages.settingsPage.settingsImportExportDesc')}</p>
+          <p className="text-xs text-muted mb-3">{t('pages.settingsPage.settingsImportExportDesc')}</p>
           <div className="flex gap-2">
             <button
               onClick={async () => {
@@ -1709,7 +1706,7 @@ export default function SettingsPage(): JSX.Element {
                   addToast(t('pages.settingsPage.toastSettingsExportFailed'), 'error')
                 }
               }}
-              className="px-4 py-1.5 text-sm rounded-lg border bg-gray-800 border-gray-700 text-gray-300 hover:border-amber-600 hover:text-amber-400 transition-colors cursor-pointer"
+              className="px-4 py-1.5 text-sm rounded-lg border bg-surface-2 border-border text-gray-300 hover:border-amber-600 hover:text-accent transition-colors cursor-pointer"
             >
               {t('pages.settingsPage.exportSettings')}
             </button>
@@ -1757,7 +1754,7 @@ export default function SettingsPage(): JSX.Element {
                   )
                 }
               }}
-              className="px-4 py-1.5 text-sm rounded-lg border bg-gray-800 border-gray-700 text-gray-300 hover:border-amber-600 hover:text-amber-400 transition-colors cursor-pointer"
+              className="px-4 py-1.5 text-sm rounded-lg border bg-surface-2 border-border text-gray-300 hover:border-amber-600 hover:text-accent transition-colors cursor-pointer"
             >
               {t('pages.settingsPage.importSettings')}
             </button>
@@ -1772,7 +1769,7 @@ export default function SettingsPage(): JSX.Element {
                   addToast(t('pages.settingsPage.toastDdbImportFailed'), 'error')
                 }
               }}
-              className="px-4 py-1.5 text-sm rounded-lg border bg-gray-800 border-gray-700 text-gray-300 hover:border-purple-600 hover:text-purple-400 transition-colors cursor-pointer"
+              className="px-4 py-1.5 text-sm rounded-lg border bg-surface-2 border-border text-gray-300 hover:border-purple-600 hover:text-purple-400 transition-colors cursor-pointer"
             >
               {t('pages.settingsPage.ddbImport')}
             </button>
@@ -1794,7 +1791,7 @@ export default function SettingsPage(): JSX.Element {
             return (
               <div className="space-y-2">
                 {systems.map((sys) => (
-                  <div key={sys.id} className="flex items-center justify-between py-2 px-3 bg-gray-800/40 rounded-lg">
+                  <div key={sys.id} className="flex items-center justify-between py-2 px-3 bg-surface-2/40 rounded-lg">
                     <div className="flex-1 min-w-0">
                       <span className="text-sm text-gray-200 font-medium">{sys.name}</span>
                       <span className="text-xs text-gray-500 ml-2 font-mono">{sys.id}</span>
@@ -1805,7 +1802,7 @@ export default function SettingsPage(): JSX.Element {
                           unregisterSystem(sys.id)
                           addToast(t('pages.settingsPage.toastSystemUnregistered', { name: sys.name }), 'success')
                         }}
-                        className="px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded text-gray-400 hover:text-red-400 hover:border-red-600 cursor-pointer"
+                        className="px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded text-muted hover:text-red-400 hover:border-red-600 cursor-pointer"
                       >
                         {t('pages.settingsPage.remove')}
                       </button>

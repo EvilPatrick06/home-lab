@@ -58,8 +58,7 @@ function EditableCurrencyCircle({
             onChange={(e) => setDraft(e.target.value)}
             onBlur={commitEdit}
             onKeyDown={handleKeyDown}
-            className="w-10 h-6 text-center text-sm font-bold bg-transparent border-none outline-none appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [-moz-appearance:textfield]"
-            style={{ color: 'inherit' }}
+            className="w-10 h-6 text-center text-sm font-bold bg-transparent border-none outline-none appearance-none text-inherit [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [-moz-appearance:textfield]"
           />
         ) : (
           <span className="text-lg font-bold leading-tight">{value}</span>
@@ -80,7 +79,7 @@ function ItemDetailView({ item }: { item: ReturnType<typeof lookupItem> }): JSX.
     const costStr = w.cost ?? ''
     const weightStr = w.weight !== undefined ? t('builder.gearTab.weightValue', { weight: w.weight }) : ''
     return (
-      <div className="px-2 py-1.5 space-y-1 text-xs text-gray-400">
+      <div className="px-2 py-1.5 space-y-1 text-xs text-muted">
         <div className="flex gap-4">
           <span>
             <span className="text-gray-500">{t('builder.gearTab.damageLabel')}</span>{' '}
@@ -120,7 +119,7 @@ function ItemDetailView({ item }: { item: ReturnType<typeof lookupItem> }): JSX.
         : `${a.baseAC} + DEX`
       : `${a.baseAC}`
     return (
-      <div className="px-2 py-1.5 space-y-1 text-xs text-gray-400">
+      <div className="px-2 py-1.5 space-y-1 text-xs text-muted">
         <div className="flex gap-4">
           <span>
             <span className="text-gray-500">{t('builder.gearTab.acLabel')}</span>{' '}
@@ -156,7 +155,7 @@ function ItemDetailView({ item }: { item: ReturnType<typeof lookupItem> }): JSX.
   // Gear / fallback
   const g = item.data
   return (
-    <div className="px-2 py-1.5 space-y-1 text-xs text-gray-400">
+    <div className="px-2 py-1.5 space-y-1 text-xs text-muted">
       <div>{g.description}</div>
       <div className="flex gap-4">
         {g.weight !== undefined && (
@@ -192,7 +191,7 @@ function InventoryItem({
         role="button"
         tabIndex={0}
         aria-expanded={expanded}
-        className="flex items-center justify-between py-1.5 px-2 rounded text-sm text-gray-300 hover:bg-gray-800/60 cursor-pointer"
+        className="flex items-center justify-between py-1.5 px-2 rounded text-sm text-gray-300 hover:bg-surface-2/60 cursor-pointer"
         onClick={() => setExpanded(!expanded)}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
@@ -223,7 +222,7 @@ function InventoryItem({
         </button>
       </div>
       {expanded && (
-        <div className="ml-5 mb-1 bg-gray-800/40 rounded">
+        <div className="ml-5 mb-1 bg-surface-2/40 rounded">
           <ItemDetailView item={looked} />
         </div>
       )}

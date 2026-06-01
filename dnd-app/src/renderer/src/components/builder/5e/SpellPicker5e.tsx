@@ -36,16 +36,17 @@ export default function SpellPicker5e({
       {/* Filters */}
       <div className="px-4 py-2 border-b border-gray-800 flex gap-2 items-center">
         <input
+          aria-label={t('builder.spellPicker.searchPlaceholder')}
           type="text"
           placeholder={t('builder.spellPicker.searchPlaceholder')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-amber-600"
+          className="flex-1 bg-surface-2 border border-border rounded px-2 py-1 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-amber-600"
         />
         <select
           value={levelFilter}
           onChange={(e) => setLevelFilter(e.target.value === 'all' ? 'all' : Number(e.target.value))}
-          className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-300 focus:outline-none"
+          className="bg-surface-2 border border-border rounded px-2 py-1 text-sm text-gray-300 focus:outline-none"
         >
           <option value="all">{t('builder.spellPicker.allLevels')}</option>
           <option value="0">{t('builder.spellPicker.cantrips')}</option>
@@ -69,8 +70,8 @@ export default function SpellPicker5e({
             if (spells.length === 0) return null
             return (
               <div key={level}>
-                <div className="px-4 py-1 bg-gray-900/60 sticky top-0">
-                  <span className="text-xs font-semibold text-gray-400 uppercase">
+                <div className="px-4 py-1 bg-surface/60 sticky top-0">
+                  <span className="text-xs font-semibold text-muted uppercase">
                     {level === 0
                       ? t('builder.spellPicker.cantrips')
                       : t('builder.spellPicker.levelHeader', { level, ord: ordinal(level) })}

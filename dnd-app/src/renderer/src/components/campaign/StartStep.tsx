@@ -170,20 +170,20 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
 
   return (
     <div className="max-w-2xl">
-      <h2 className="text-2xl font-bold text-gray-100 mb-2">{t('campaign.startStep.title')}</h2>
-      <p className="text-gray-400 text-sm mb-8">{t('campaign.startStep.subtitle')}</p>
+      <h2 className="text-2xl font-bold text-fg mb-2">{t('campaign.startStep.title')}</h2>
+      <p className="text-muted text-sm mb-8">{t('campaign.startStep.subtitle')}</p>
 
       {/* Quick Resume */}
       {quickResumeTarget && (
         <div className="mb-6 p-4 rounded-xl border border-amber-700/50 bg-amber-900/15 flex items-center gap-4">
-          <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-amber-800/40 flex items-center justify-center text-amber-400 text-lg">
+          <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-amber-800/40 flex items-center justify-center text-accent text-lg">
             &#9889;
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs uppercase tracking-wider text-amber-500/70 font-semibold mb-0.5">
+            <p className="text-xs uppercase tracking-wider text-accent-strong/70 font-semibold mb-0.5">
               {t('campaign.startStep.quickResume')}
             </p>
-            <h3 className="text-sm font-semibold text-gray-100 truncate">
+            <h3 className="text-sm font-semibold text-fg truncate">
               {quickResumeTarget.type === 'hosted'
                 ? quickResumeTarget.campaign.name
                 : quickResumeTarget.session.campaignName || t('campaign.startStep.unknownCampaign')}
@@ -191,7 +191,7 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
             <p className="text-xs text-gray-500 mt-0.5">
               {quickResumeTarget.type === 'hosted' ? (
                 <>
-                  <span className="text-amber-400/70">{t('campaign.startStep.hosted')}</span>
+                  <span className="text-accent/70">{t('campaign.startStep.hosted')}</span>
                   <span className="mx-1.5">&middot;</span>
                   {t('campaign.startStep.updated', {
                     when: formatTimeAgo(new Date(quickResumeTarget.campaign.updatedAt).getTime())
@@ -210,7 +210,7 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
           </div>
           <button
             onClick={handleQuickResume}
-            className="px-5 py-2.5 text-sm font-semibold rounded-lg bg-amber-600 hover:bg-amber-500
+            className="px-5 py-2.5 text-sm font-semibold rounded-lg bg-amber-600 hover:bg-accent-strong
               text-white transition-colors cursor-pointer flex-shrink-0"
           >
             {t('campaign.startStep.resume')}
@@ -223,11 +223,11 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
         {/* Create New Campaign */}
         <button
           onClick={onNewCampaign}
-          className="group p-6 rounded-xl border-2 border-gray-700 hover:border-amber-500
-            bg-gray-800/50 hover:bg-amber-600/10 transition-all cursor-pointer text-left"
+          className="group p-6 rounded-xl border-2 border-border hover:border-amber-500
+            bg-surface-2/50 hover:bg-amber-600/10 transition-all cursor-pointer text-left"
         >
           <div className="text-3xl mb-3">&#10010;</div>
-          <h3 className="text-lg font-semibold text-gray-100 group-hover:text-amber-400 transition-colors">
+          <h3 className="text-lg font-semibold text-fg group-hover:text-accent transition-colors">
             {t('campaign.startStep.createNew')}
           </h3>
           <p className="text-xs text-gray-500 mt-1">{t('campaign.startStep.createNewDesc')}</p>
@@ -239,11 +239,11 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
           className={`group p-6 rounded-xl border-2 transition-all cursor-pointer text-left ${
             showHosted
               ? 'border-amber-500 bg-amber-600/10'
-              : 'border-gray-700 hover:border-amber-500 bg-gray-800/50 hover:bg-amber-600/10'
+              : 'border-border hover:border-amber-500 bg-surface-2/50 hover:bg-amber-600/10'
           }`}
         >
           <div className="text-3xl mb-3">&#128193;</div>
-          <h3 className="text-lg font-semibold text-gray-100 group-hover:text-amber-400 transition-colors">
+          <h3 className="text-lg font-semibold text-fg group-hover:text-accent transition-colors">
             {t('campaign.startStep.yourCampaigns')}
           </h3>
           <p className="text-xs text-gray-500 mt-1">
@@ -258,7 +258,7 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
         <div className="flex justify-end mb-4">
           <button
             onClick={() => setShowHosted(!showHosted)}
-            className="text-xs text-gray-500 hover:text-amber-400 transition-colors underline"
+            className="text-xs text-gray-500 hover:text-accent transition-colors underline"
           >
             {showHosted && campaigns.length === 0
               ? t('campaign.startStep.showArchived', { count: archivedCampaigns.length })
@@ -275,12 +275,12 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
             className={`w-full p-4 rounded-xl border-2 transition-all cursor-pointer text-left flex items-center gap-3 ${
               showJoined
                 ? 'border-emerald-500 bg-emerald-600/10'
-                : 'border-gray-700 hover:border-emerald-500 bg-gray-800/50 hover:bg-emerald-600/10'
+                : 'border-border hover:border-emerald-500 bg-surface-2/50 hover:bg-emerald-600/10'
             }`}
           >
             <div className="flex-shrink-0 text-2xl">&#8634;</div>
             <div className="flex-1">
-              <h3 className="text-base font-semibold text-gray-100">{t('campaign.startStep.joinedGames')}</h3>
+              <h3 className="text-base font-semibold text-fg">{t('campaign.startStep.joinedGames')}</h3>
               <p className="text-xs text-gray-500 mt-0.5">
                 {t('campaign.startStep.joinedGamesCount', { count: joinedSessionsList.length })}
               </p>
@@ -300,16 +300,16 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
           </button>
 
           {showJoined && (
-            <div className="mt-2 border border-gray-700 rounded-xl overflow-hidden divide-y divide-gray-800">
+            <div className="mt-2 border border-border rounded-xl overflow-hidden divide-y divide-gray-800">
               {joinedSessionsList.map((session) => (
-                <div key={session.campaignId} className="px-4 py-3 flex items-center gap-3 hover:bg-gray-800/50">
+                <div key={session.campaignId} className="px-4 py-3 flex items-center gap-3 hover:bg-surface-2/50">
                   <div className="flex-1 min-w-0">
-                    <span className="text-sm font-semibold text-gray-100 truncate block">
+                    <span className="text-sm font-semibold text-fg truncate block">
                       {session.campaignName || t('campaign.startStep.unknownCampaign')}
                     </span>
                     <div className="text-xs text-gray-500 mt-0.5">
                       {t('campaign.startStep.code')}{' '}
-                      <span className="font-mono text-gray-400">{maskInviteCode(session.inviteCode)}</span>
+                      <span className="font-mono text-muted">{maskInviteCode(session.inviteCode)}</span>
                       <span className="mx-1.5">&middot;</span>
                       {t('campaign.startStep.asPlayer', { name: session.displayName })}
                       <span className="mx-1.5">&middot;</span>
@@ -348,29 +348,29 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
       {/* Hosted campaign list */}
       {showHosted && (
         <div className="space-y-6 mb-6">
-          <div className="border border-gray-700 rounded-xl overflow-hidden">
+          <div className="border border-border rounded-xl overflow-hidden">
             {campaigns.length === 0 ? (
               <div className="px-6 py-8 text-center text-gray-500 text-sm">
                 {t('campaign.startStep.noHostedCampaigns')}
               </div>
             ) : (
               <div>
-                <div className="px-4 py-2 flex justify-between items-center border-b border-gray-800 bg-gray-800/30">
+                <div className="px-4 py-2 flex justify-between items-center border-b border-gray-800 bg-surface-2/30">
                   <h4 className="text-sm font-semibold text-gray-300">{t('campaign.startStep.activeCampaigns')}</h4>
                   <button
                     onClick={() => setShowDeleteAllConfirm(true)}
                     className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-gray-700 hover:bg-red-600/30
-                      text-gray-400 hover:text-red-400 transition-colors cursor-pointer"
+                      text-muted hover:text-red-400 transition-colors cursor-pointer"
                   >
                     {t('campaign.startStep.deleteAll')}
                   </button>
                 </div>
                 <div className="max-h-80 overflow-y-auto divide-y divide-gray-800">
                   {campaigns.map((c) => (
-                    <div key={c.id} className="px-4 py-3 flex items-center gap-3 hover:bg-gray-800/50">
+                    <div key={c.id} className="px-4 py-3 flex items-center gap-3 hover:bg-surface-2/50">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-semibold text-gray-100 truncate">{c.name}</span>
+                          <span className="text-sm font-semibold text-fg truncate">{c.name}</span>
                           <span className="text-xs px-1.5 py-0.5 rounded-full font-semibold bg-red-900/40 text-red-400">
                             {c.system ?? '5e'}
                           </span>
@@ -385,7 +385,7 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
                       <div className="flex gap-1.5 shrink-0">
                         <button
                           onClick={() => navigate(`/campaign/${c.id}`)}
-                          className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-600 hover:bg-amber-500
+                          className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-600 hover:bg-accent-strong
                             text-white transition-colors cursor-pointer"
                         >
                           {t('campaign.startStep.open')}
@@ -419,7 +419,7 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
                           <button
                             onClick={() => setConfirmDelete(c.id)}
                             className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-gray-700 hover:bg-red-600/30
-                              text-gray-400 hover:text-red-400 transition-colors cursor-pointer"
+                              text-muted hover:text-red-400 transition-colors cursor-pointer"
                             title={t('campaign.startStep.deleteCampaign')}
                           >
                             {t('common.actions.delete')}
@@ -434,16 +434,16 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
           </div>
 
           {archivedCampaigns.length > 0 && (
-            <div className="border border-gray-700 rounded-xl overflow-hidden opacity-80 hover:opacity-100 transition-opacity">
-              <div className="px-4 py-2 border-b border-gray-800 bg-gray-800/30">
-                <h4 className="text-sm font-semibold text-gray-400">{t('campaign.startStep.archivedCampaigns')}</h4>
+            <div className="border border-border rounded-xl overflow-hidden opacity-80 hover:opacity-100 transition-opacity">
+              <div className="px-4 py-2 border-b border-gray-800 bg-surface-2/30">
+                <h4 className="text-sm font-semibold text-muted">{t('campaign.startStep.archivedCampaigns')}</h4>
               </div>
               <div className="max-h-80 overflow-y-auto divide-y divide-gray-800">
                 {archivedCampaigns.map((c) => (
-                  <div key={c.id} className="px-4 py-3 flex items-center gap-3 hover:bg-gray-800/50">
+                  <div key={c.id} className="px-4 py-3 flex items-center gap-3 hover:bg-surface-2/50">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-gray-400 truncate">{c.name}</span>
+                        <span className="text-sm font-semibold text-muted truncate">{c.name}</span>
                         <span className="text-xs px-1.5 py-0.5 rounded-full font-semibold bg-gray-700 text-gray-300">
                           {t('campaign.startStep.archivedBadge')}
                         </span>
@@ -473,7 +473,7 @@ export default function StartStep({ onNewCampaign }: StartStepProps): JSX.Elemen
                       </button>
                     </div>
                     {confirmDelete === c.id && (
-                      <div className="absolute right-4 flex gap-1 bg-gray-800 p-1 rounded-lg border border-gray-700 shadow-lg">
+                      <div className="absolute right-4 flex gap-1 bg-surface-2 p-1 rounded-lg border border-border shadow-lg">
                         <button
                           onClick={() => handleDelete(c.id)}
                           className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-red-600 hover:bg-red-500

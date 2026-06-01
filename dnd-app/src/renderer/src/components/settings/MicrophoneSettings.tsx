@@ -165,13 +165,13 @@ export default function MicrophoneSettings(): JSX.Element {
 
       {/* Device selector */}
       <div>
-        <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">
+        <label className="text-xs font-semibold text-muted uppercase tracking-wider block mb-1">
           {t('settings.microphoneSettings.inputDevice')}
         </label>
         <select
           value={deviceId ?? ''}
           onChange={(e) => setDeviceId(e.target.value || null)}
-          className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100 focus:border-amber-500 focus:outline-none"
+          className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-fg focus:border-amber-500 focus:outline-none"
         >
           <option value="">{t('settings.microphoneSettings.systemDefault')}</option>
           {devices.map((d, i) => (
@@ -184,10 +184,10 @@ export default function MicrophoneSettings(): JSX.Element {
 
       {/* Live level meter */}
       <div>
-        <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">
+        <label className="text-xs font-semibold text-muted uppercase tracking-wider block mb-1">
           {t('settings.microphoneSettings.liveLevel')}
         </label>
-        <div className="h-3 bg-gray-800 rounded-full overflow-hidden border border-gray-700">
+        <div className="h-3 bg-surface-2 rounded-full overflow-hidden border border-border">
           <div
             className="h-full transition-[width] duration-75 ease-linear"
             style={{
@@ -211,7 +211,7 @@ export default function MicrophoneSettings(): JSX.Element {
 
       {/* Gain slider */}
       <div>
-        <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">
+        <label className="text-xs font-semibold text-muted uppercase tracking-wider block mb-1">
           {t('settings.microphoneSettings.inputGain', { percent: Math.round(gain * 100) })}
         </label>
         <input
@@ -233,7 +233,7 @@ export default function MicrophoneSettings(): JSX.Element {
 
       {/* Push-to-talk binding */}
       <div>
-        <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">
+        <label className="text-xs font-semibold text-muted uppercase tracking-wider block mb-1">
           {t('settings.microphoneSettings.pushToTalk')}
         </label>
         <div className="flex items-center gap-2">

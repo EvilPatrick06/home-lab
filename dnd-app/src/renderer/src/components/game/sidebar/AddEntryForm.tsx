@@ -103,7 +103,7 @@ export default function AddEntryForm({
 
   return (
     <>
-      <div className="bg-gray-800/30 border border-gray-700/30 rounded-lg p-2.5 space-y-2">
+      <div className="bg-surface-2/30 border border-border/30 rounded-lg p-2.5 space-y-2">
         {/* Quick Add from Board Tokens (not for places) */}
         {!isPlaces && availableBoardTokens.length > 0 && (
           <div className="space-y-1">
@@ -115,7 +115,7 @@ export default function AddEntryForm({
                 <button
                   key={token.id}
                   onClick={() => handleQuickAddFromToken(token)}
-                  className="w-full flex items-center gap-1.5 px-2 py-1 rounded bg-gray-900/50 hover:bg-gray-800 text-left transition-colors cursor-pointer"
+                  className="w-full flex items-center gap-1.5 px-2 py-1 rounded bg-surface/50 hover:bg-surface-2 text-left transition-colors cursor-pointer"
                 >
                   <span
                     className="w-4 h-4 rounded-full shrink-0 border border-gray-600 flex items-center justify-center text-[8px] text-white font-bold"
@@ -157,7 +157,7 @@ export default function AddEntryForm({
                 setShowNewStatBlock(true)
               }
             }}
-            className="w-full px-2 py-1.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-400 focus:outline-none focus:border-amber-500 cursor-pointer"
+            className="w-full px-2 py-1.5 rounded bg-surface border border-border text-xs text-muted focus:outline-none focus:border-amber-500 cursor-pointer"
           >
             <option value="">{t('game.addEntryForm.useTemplate')}</option>
             {NPC_TEMPLATES.map((tpl) => (
@@ -194,7 +194,7 @@ export default function AddEntryForm({
           type="text"
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
-          className="w-full px-2 py-1 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
+          className="w-full px-2 py-1 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
           placeholder={t('game.addEntryForm.namePlaceholder')}
         />
 
@@ -204,7 +204,7 @@ export default function AddEntryForm({
             <select
               value={newPlaceType}
               onChange={(e) => setNewPlaceType(e.target.value as PlaceType | '')}
-              className="w-full px-2 py-1 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full px-2 py-1 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
             >
               <option value="">{t('game.addEntryForm.placeTypeOptional')}</option>
               {PLACE_TYPES.map((pt) => (
@@ -216,7 +216,7 @@ export default function AddEntryForm({
             <select
               value={newParentId}
               onChange={(e) => setNewParentId(e.target.value)}
-              className="w-full px-2 py-1 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full px-2 py-1 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
             >
               <option value="">{t('game.addEntryForm.parentRootLevel')}</option>
               {entries.map((e) => (
@@ -228,7 +228,7 @@ export default function AddEntryForm({
             <select
               value={newLinkedMapId}
               onChange={(e) => setNewLinkedMapId(e.target.value)}
-              className="w-full px-2 py-1 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full px-2 py-1 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
             >
               <option value="">{t('game.addEntryForm.linkedMapOptional')}</option>
               {maps.map((m) => (
@@ -243,13 +243,13 @@ export default function AddEntryForm({
         <textarea
           value={newDesc}
           onChange={(e) => setNewDesc(e.target.value)}
-          className="w-full px-2 py-1 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500 resize-none"
+          className="w-full px-2 py-1 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500 resize-none"
           rows={2}
           placeholder={t('game.addEntryForm.descriptionOptional')}
         />
 
         {/* Visibility toggle */}
-        <label className="flex items-center gap-1.5 text-xs text-gray-400 cursor-pointer">
+        <label className="flex items-center gap-1.5 text-xs text-muted cursor-pointer">
           <input
             type="checkbox"
             checked={newVisible}
@@ -261,11 +261,11 @@ export default function AddEntryForm({
 
         {/* Stat Block section (allies/enemies only) */}
         {!isPlaces && (
-          <div className="border border-gray-700/40 rounded">
+          <div className="border border-border/40 rounded">
             <button
               type="button"
               onClick={() => setShowNewStatBlock(!showNewStatBlock)}
-              className="w-full flex items-center justify-between px-2 py-1.5 text-[11px] font-semibold text-gray-300 hover:text-amber-400 transition-colors cursor-pointer"
+              className="w-full flex items-center justify-between px-2 py-1.5 text-[11px] font-semibold text-gray-300 hover:text-accent transition-colors cursor-pointer"
             >
               <span>
                 {t('game.addEntryForm.statBlock')} {newStatBlock ? t('game.addEntryForm.configured') : ''}
@@ -284,11 +284,11 @@ export default function AddEntryForm({
           <button
             onClick={handleAdd}
             disabled={!newName.trim()}
-            className="px-2 py-0.5 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer disabled:opacity-50"
+            className="px-2 py-0.5 text-xs bg-amber-600 hover:bg-accent-strong text-white rounded cursor-pointer disabled:opacity-50"
           >
             {t('game.addEntryForm.add')}
           </button>
-          <button onClick={onCancel} className="px-2 py-0.5 text-xs text-gray-400 hover:text-gray-200 cursor-pointer">
+          <button onClick={onCancel} className="px-2 py-0.5 text-xs text-muted hover:text-gray-200 cursor-pointer">
             {t('common.actions.cancel')}
           </button>
         </div>

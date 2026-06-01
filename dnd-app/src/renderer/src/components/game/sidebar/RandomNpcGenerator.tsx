@@ -26,7 +26,7 @@ export default function RandomNpcGenerator({ onAccept, onCancel }: RandomNpcGene
   }
 
   return (
-    <div className="bg-gray-900/60 border border-emerald-500/30 rounded-lg p-2.5 space-y-2">
+    <div className="bg-surface/60 border border-emerald-500/30 rounded-lg p-2.5 space-y-2">
       <div className="flex items-center justify-between">
         <span className="text-xs text-emerald-400 uppercase tracking-wider font-semibold">
           {t('game.randomNpcGenerator.generatedNpc')}
@@ -35,7 +35,7 @@ export default function RandomNpcGenerator({ onAccept, onCancel }: RandomNpcGene
           onClick={() => {
             setGeneratedNpc(generateRandomNpc(npcLocks, generatedNpc))
           }}
-          className="text-xs text-gray-400 hover:text-emerald-400 cursor-pointer"
+          className="text-xs text-muted hover:text-emerald-400 cursor-pointer"
           title={t('game.randomNpcGenerator.rerollAllTitle')}
         >
           {t('game.randomNpcGenerator.rerollAll')}
@@ -62,7 +62,7 @@ export default function RandomNpcGenerator({ onAccept, onCancel }: RandomNpcGene
           <button
             onClick={() => setNpcLocks((prev) => ({ ...prev, [field]: !prev[field] }))}
             className={`w-5 h-5 flex items-center justify-center text-xs shrink-0 cursor-pointer rounded ${
-              npcLocks[field] ? 'text-amber-400 bg-amber-400/20' : 'text-gray-600 hover:text-gray-400'
+              npcLocks[field] ? 'text-accent bg-accent/20' : 'text-gray-600 hover:text-muted'
             }`}
             title={npcLocks[field] ? t('game.randomNpcGenerator.unlockField') : t('game.randomNpcGenerator.lockField')}
           >
@@ -94,7 +94,7 @@ export default function RandomNpcGenerator({ onAccept, onCancel }: RandomNpcGene
         >
           {t('game.randomNpcGenerator.accept')}
         </button>
-        <button onClick={onCancel} className="px-2 py-0.5 text-xs text-gray-400 hover:text-gray-200 cursor-pointer">
+        <button onClick={onCancel} className="px-2 py-0.5 text-xs text-muted hover:text-gray-200 cursor-pointer">
           {t('common.actions.cancel')}
         </button>
       </div>

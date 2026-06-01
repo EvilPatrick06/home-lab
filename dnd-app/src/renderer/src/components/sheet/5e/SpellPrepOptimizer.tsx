@@ -56,15 +56,15 @@ export default function SpellPrepOptimizer({
       <div className="space-y-4 max-h-[60vh] overflow-y-auto">
         {/* Diversity */}
         <div>
-          <h4 className="text-sm font-semibold text-amber-400 mb-2">{t('sheet.spellPrepOptimizer.schoolDiversity')}</h4>
+          <h4 className="text-sm font-semibold text-accent mb-2">{t('sheet.spellPrepOptimizer.schoolDiversity')}</h4>
           {analysis.diversity.length === 0 ? (
             <p className="text-sm text-gray-500">{t('sheet.spellPrepOptimizer.noSpellsPrepared')}</p>
           ) : (
             <div className="space-y-1.5">
               {analysis.diversity.map((d) => (
                 <div key={d.school} className="flex items-center gap-2">
-                  <span className="text-xs text-gray-400 w-24 truncate">{d.school}</span>
-                  <div className="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden">
+                  <span className="text-xs text-muted w-24 truncate">{d.school}</span>
+                  <div className="flex-1 h-2 bg-surface-2 rounded-full overflow-hidden">
                     <div className="h-full bg-amber-600 rounded-full" style={{ width: `${d.percentage}%` }} />
                   </div>
                   <span className="text-xs text-gray-500 w-16 text-right">
@@ -83,7 +83,7 @@ export default function SpellPrepOptimizer({
 
         {/* Concentration */}
         <div>
-          <h4 className="text-sm font-semibold text-amber-400 mb-2">
+          <h4 className="text-sm font-semibold text-accent mb-2">
             {t('sheet.spellPrepOptimizer.concentration', { count: analysis.concentrationSpells.length })}
           </h4>
           {analysis.concentrationWarning && (
@@ -106,8 +106,8 @@ export default function SpellPrepOptimizer({
         {/* Caster Summary */}
         {casterSummary.ability && (
           <div>
-            <h4 className="text-sm font-semibold text-amber-400 mb-2">{t('sheet.spellPrepOptimizer.casterInfo')}</h4>
-            <p className="text-xs text-gray-400">
+            <h4 className="text-sm font-semibold text-accent mb-2">{t('sheet.spellPrepOptimizer.casterInfo')}</h4>
+            <p className="text-xs text-muted">
               {t('sheet.spellPrepOptimizer.spellcastingAbility')}{' '}
               <span className="text-gray-200">{casterSummary.ability}</span>
               {casterSummary.maxCantrips > 0 && (
@@ -124,7 +124,7 @@ export default function SpellPrepOptimizer({
         {/* Ritual Suggestions */}
         {analysis.ritualSuggestions.length > 0 && (
           <div>
-            <h4 className="text-sm font-semibold text-amber-400 mb-2">
+            <h4 className="text-sm font-semibold text-accent mb-2">
               {t('sheet.spellPrepOptimizer.ritualSuggestions')}
             </h4>
             <ul className="space-y-1">

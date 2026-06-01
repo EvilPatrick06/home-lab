@@ -244,7 +244,7 @@ export default function FeaturesSection5e({ character, readonly }: FeaturesSecti
           {!readonly && !showPicker && (
             <button
               onClick={() => setShowPicker(true)}
-              className="mt-2 text-xs text-amber-400 hover:text-amber-300 transition-colors cursor-pointer"
+              className="mt-2 text-xs text-accent hover:text-amber-300 transition-colors cursor-pointer"
             >
               {t('sheet.features.addFeat')}
             </button>
@@ -321,7 +321,7 @@ export default function FeaturesSection5e({ character, readonly }: FeaturesSecti
       {(bonusFeats.length > 0 || bonusFeatsAvailable > 0) && (
         <div className="mb-3">
           <div className="flex items-center gap-2 mb-1">
-            <div className="text-xs text-amber-400 uppercase tracking-wide">{t('sheet.features.bonusFeats')}</div>
+            <div className="text-xs text-accent uppercase tracking-wide">{t('sheet.features.bonusFeats')}</div>
             <span className="text-xs text-gray-500">{t('sheet.features.postLevel20')}</span>
           </div>
 
@@ -341,7 +341,7 @@ export default function FeaturesSection5e({ character, readonly }: FeaturesSecti
               {!showBonusFeatPicker && (
                 <button
                   onClick={() => setShowBonusFeatPicker(true)}
-                  className="text-xs text-amber-400 hover:text-amber-300 transition-colors cursor-pointer"
+                  className="text-xs text-accent hover:text-amber-300 transition-colors cursor-pointer"
                 >
                   {t('sheet.features.selectFeat')}
                 </button>
@@ -397,23 +397,25 @@ export default function FeaturesSection5e({ character, readonly }: FeaturesSecti
           )}
 
           {!readonly && showGrantForm && (
-            <div className="mt-2 bg-gray-800/50 rounded p-3 space-y-2">
+            <div className="mt-2 bg-surface-2/50 rounded p-3 space-y-2">
               <input
+                aria-label={t('sheet.features.featureNamePlaceholder')}
                 type="text"
                 placeholder={t('sheet.features.featureNamePlaceholder')}
                 value={grantName}
                 onChange={(e) => setGrantName(e.target.value)}
-                className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 focus:outline-none focus:border-cyan-500"
+                className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg focus:outline-none focus:border-cyan-500"
               />
               <div className="flex gap-2">
                 <input
+                  aria-label={t('sheet.features.sourcePlaceholder')}
                   type="text"
                   placeholder={t('sheet.features.sourcePlaceholder')}
                   value={grantSource}
                   onChange={(e) => setGrantSource(e.target.value)}
-                  className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 focus:outline-none focus:border-cyan-500"
+                  className="flex-1 bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg focus:outline-none focus:border-cyan-500"
                 />
-                <label className="flex items-center gap-1 text-xs text-gray-400 cursor-pointer shrink-0">
+                <label className="flex items-center gap-1 text-xs text-muted cursor-pointer shrink-0">
                   <input
                     type="checkbox"
                     checked={grantTemporary}
@@ -424,11 +426,12 @@ export default function FeaturesSection5e({ character, readonly }: FeaturesSecti
                 </label>
               </div>
               <textarea
+                aria-label={t('sheet.features.descriptionPlaceholder')}
                 placeholder={t('sheet.features.descriptionPlaceholder')}
                 value={grantDescription}
                 onChange={(e) => setGrantDescription(e.target.value)}
                 rows={2}
-                className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 focus:outline-none focus:border-cyan-500 resize-none"
+                className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg focus:outline-none focus:border-cyan-500 resize-none"
               />
               <div className="flex justify-end gap-2">
                 <button

@@ -16,7 +16,7 @@ interface CompanionsSection5eProps {
 }
 
 const TYPE_COLORS: Record<CompanionType, string> = {
-  familiar: 'text-amber-400 bg-amber-900/30 border-amber-700/50',
+  familiar: 'text-accent bg-amber-900/30 border-amber-700/50',
   wildShape: 'text-green-400 bg-green-900/30 border-green-700/50',
   steed: 'text-blue-400 bg-blue-900/30 border-blue-700/50',
   summoned: 'text-purple-400 bg-purple-900/30 border-purple-700/50'
@@ -98,7 +98,7 @@ export default function CompanionsSection5e({ character, readonly }: CompanionsS
             const block = statBlocks[comp.monsterStatBlockId]
             const isExpanded = expandedId === comp.id
             const hpPct = comp.maxHP > 0 ? (comp.currentHP / comp.maxHP) * 100 : 0
-            const hpColor = hpPct > 50 ? 'bg-green-500' : hpPct > 25 ? 'bg-amber-500' : 'bg-red-500'
+            const hpColor = hpPct > 50 ? 'bg-green-500' : hpPct > 25 ? 'bg-accent-strong' : 'bg-red-500'
 
             return (
               <div key={comp.id} className={`rounded-lg border p-2 ${TYPE_COLORS[comp.type]}`}>
@@ -110,7 +110,7 @@ export default function CompanionsSection5e({ character, readonly }: CompanionsS
                     <span className="text-sm font-medium truncate">{comp.name}</span>
                     <span className="text-xs opacity-70 shrink-0">{TYPE_LABELS[comp.type]}</span>
                     {comp.dismissed && (
-                      <span className="text-xs bg-gray-700 text-gray-400 px-1.5 py-0.5 rounded-full shrink-0">
+                      <span className="text-xs bg-gray-700 text-muted px-1.5 py-0.5 rounded-full shrink-0">
                         {t('sheet.companions.dismissed')}
                       </span>
                     )}
@@ -135,7 +135,7 @@ export default function CompanionsSection5e({ character, readonly }: CompanionsS
                     {/* HP adjustment */}
                     {!readonly && (
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-400">{t('sheet.companions.hp')}</span>
+                        <span className="text-xs text-muted">{t('sheet.companions.hp')}</span>
                         <button
                           onClick={() => updateCompanion(comp.id, { currentHP: Math.max(0, comp.currentHP - 1) })}
                           className="w-5 h-5 rounded bg-gray-700 text-gray-300 hover:bg-red-700 text-xs cursor-pointer"
@@ -181,7 +181,7 @@ export default function CompanionsSection5e({ character, readonly }: CompanionsS
 
                     {/* Stat block summary */}
                     {block && (
-                      <div className="text-xs text-gray-400 bg-gray-900/50 rounded p-2 space-y-0.5">
+                      <div className="text-xs text-muted bg-surface/50 rounded p-2 space-y-0.5">
                         <div>
                           AC {block.ac}
                           {block.acType ? ` (${block.acType})` : ''} | HP {block.hp} ({block.hitDice})
@@ -239,7 +239,7 @@ export default function CompanionsSection5e({ character, readonly }: CompanionsS
           <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">{t('sheet.companions.simplePets')}</div>
           <div className="space-y-1">
             {pets.map((pet, i) => (
-              <div key={i} className="flex items-center justify-between bg-gray-800/50 rounded px-2 py-1 text-sm">
+              <div key={i} className="flex items-center justify-between bg-surface-2/50 rounded px-2 py-1 text-sm">
                 <div>
                   <span className="text-gray-300 font-medium">{pet.name}</span>
                   {pet.type && <span className="text-gray-500 text-xs ml-1.5">({pet.type})</span>}

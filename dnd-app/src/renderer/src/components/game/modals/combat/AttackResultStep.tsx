@@ -88,7 +88,7 @@ export function AttackResultStep({
             {attackRoll.total}
           </span>
         </div>
-        <div className="text-xs text-gray-400">
+        <div className="text-xs text-muted">
           d20: {attackRoll.d20}
           {attackRoll.d20_2 !== undefined ? `, ${attackRoll.d20_2}` : ''} {formatMod(attackRoll.modifier)}
           {attackRoll.d20_2 !== undefined && (
@@ -97,7 +97,7 @@ export function AttackResultStep({
             </span>
           )}
         </div>
-        <div className="text-xs text-gray-400 mt-1">
+        <div className="text-xs text-muted mt-1">
           {t('game.attackResultStep.vsAc', { ac: targetAC })}
           {coverBonus > 0 && (
             <span className="text-blue-400 ml-1">
@@ -171,7 +171,7 @@ export function AttackResultStep({
                   </div>
                   <button
                     onClick={() => onApplyGraze(grazeEffect.grazeDamage!)}
-                    className="mt-1 w-full py-1 text-xs rounded bg-amber-600 hover:bg-amber-500 text-white cursor-pointer font-semibold"
+                    className="mt-1 w-full py-1 text-xs rounded bg-amber-600 hover:bg-accent-strong text-white cursor-pointer font-semibold"
                   >
                     {t('game.attackResultStep.applyGraze', { damage: grazeEffect.grazeDamage })}
                   </button>

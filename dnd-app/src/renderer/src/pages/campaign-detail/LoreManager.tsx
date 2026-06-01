@@ -10,7 +10,7 @@ const LORE_CATEGORY_COLORS: Record<string, string> = {
   faction: 'bg-purple-900/40 text-purple-300',
   location: 'bg-green-900/40 text-green-300',
   item: 'bg-amber-900/40 text-amber-300',
-  other: 'bg-gray-800 text-gray-300'
+  other: 'bg-surface-2 text-gray-300'
 }
 
 interface LoreManagerProps {
@@ -80,11 +80,11 @@ export default function LoreManager({ campaign, saveCampaign }: LoreManagerProps
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-lg font-semibold">{t('pages.loreManager.lore', { count: lore.length })}</h3>
           <div className="flex items-center gap-2">
-            <button onClick={handleImport} className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer">
+            <button onClick={handleImport} className="text-xs text-muted hover:text-accent cursor-pointer">
               {t('pages.loreManager.import')}
             </button>
             {lore.length > 0 && (
-              <button onClick={handleExport} className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer">
+              <button onClick={handleExport} className="text-xs text-muted hover:text-accent cursor-pointer">
                 {t('pages.loreManager.exportAll')}
               </button>
             )}
@@ -95,7 +95,7 @@ export default function LoreManager({ campaign, saveCampaign }: LoreManagerProps
         ) : (
           <div className="space-y-2">
             {lore.map((entry) => (
-              <div key={entry.id} className="bg-gray-800/50 rounded-lg p-3">
+              <div key={entry.id} className="bg-surface-2/50 rounded-lg p-3">
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-sm">{entry.title}</span>
@@ -106,7 +106,7 @@ export default function LoreManager({ campaign, saveCampaign }: LoreManagerProps
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleToggleVisibility(entry.id)}
-                      className={`text-xs cursor-pointer ${entry.isVisibleToPlayers ? 'text-green-400 hover:text-green-300' : 'text-gray-500 hover:text-gray-400'}`}
+                      className={`text-xs cursor-pointer ${entry.isVisibleToPlayers ? 'text-green-400 hover:text-green-300' : 'text-gray-500 hover:text-muted'}`}
                       title={
                         entry.isVisibleToPlayers
                           ? t('pages.loreManager.visibleToPlayers')
@@ -117,24 +117,24 @@ export default function LoreManager({ campaign, saveCampaign }: LoreManagerProps
                     </button>
                     <button
                       onClick={() => openEdit(entry)}
-                      className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer"
+                      className="text-xs text-muted hover:text-accent cursor-pointer"
                     >
                       {t('pages.loreManager.edit')}
                     </button>
                     <button
                       onClick={() => handleDelete(entry.id)}
-                      className="text-xs text-gray-400 hover:text-red-400 cursor-pointer"
+                      className="text-xs text-muted hover:text-red-400 cursor-pointer"
                     >
                       {t('common.actions.delete')}
                     </button>
                   </div>
                 </div>
-                <p className="text-gray-400 text-xs line-clamp-2">{entry.content}</p>
+                <p className="text-muted text-xs line-clamp-2">{entry.content}</p>
               </div>
             ))}
           </div>
         )}
-        <button onClick={openAdd} className="mt-3 text-xs text-amber-400 hover:text-amber-300 cursor-pointer">
+        <button onClick={openAdd} className="mt-3 text-xs text-accent hover:text-amber-300 cursor-pointer">
           {t('pages.loreManager.addLore')}
         </button>
       </Card>
@@ -146,21 +146,21 @@ export default function LoreManager({ campaign, saveCampaign }: LoreManagerProps
       >
         <div className="space-y-3">
           <div>
-            <label className="block text-gray-400 text-xs mb-1">{t('pages.loreManager.titleLabel')}</label>
+            <label className="block text-muted text-xs mb-1">{t('pages.loreManager.titleLabel')}</label>
             <input
               type="text"
               value={form.title}
               onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
               placeholder={t('pages.loreManager.titlePlaceholder')}
             />
           </div>
           <div>
-            <label className="block text-gray-400 text-xs mb-1">{t('pages.loreManager.category')}</label>
+            <label className="block text-muted text-xs mb-1">{t('pages.loreManager.category')}</label>
             <select
               value={form.category}
               onChange={(e) => setForm((f) => ({ ...f, category: e.target.value as LoreEntry['category'] }))}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
             >
               <option value="world">{t('pages.loreManager.world')}</option>
               <option value="faction">{t('pages.loreManager.faction')}</option>
@@ -170,11 +170,11 @@ export default function LoreManager({ campaign, saveCampaign }: LoreManagerProps
             </select>
           </div>
           <div>
-            <label className="block text-gray-400 text-xs mb-1">{t('pages.loreManager.content')}</label>
+            <label className="block text-muted text-xs mb-1">{t('pages.loreManager.content')}</label>
             <textarea
               value={form.content}
               onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500 h-32 resize-none"
+              className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500 h-32 resize-none"
               placeholder={t('pages.loreManager.contentPlaceholder')}
             />
           </div>

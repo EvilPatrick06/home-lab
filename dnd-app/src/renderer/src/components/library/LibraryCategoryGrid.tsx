@@ -28,11 +28,11 @@ export default function LibraryCategoryGrid({
                   key={cat.id}
                   onClick={() => onSelectCategory(cat.id)}
                   className="group flex flex-col items-center gap-2 p-4 rounded-lg border border-gray-800
-                    bg-gray-900/50 hover:bg-gray-800/80 hover:border-amber-600/50
+                    bg-surface/50 hover:bg-surface-2/80 hover:border-amber-600/50
                     transition-all duration-200 cursor-pointer text-center"
                 >
                   <span className="text-2xl">{cat.icon}</span>
-                  <span className="text-sm font-medium text-gray-200 group-hover:text-amber-400 transition-colors">
+                  <span className="text-sm font-medium text-gray-200 group-hover:text-accent transition-colors">
                     {cat.label}
                   </span>
                   {(total > 0 || hbCount > 0) && (

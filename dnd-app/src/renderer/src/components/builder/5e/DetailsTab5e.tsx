@@ -86,7 +86,7 @@ export default function DetailsTab5e(): JSX.Element {
           <div className="px-4 py-3 border-b border-gray-800">
             <button
               onClick={() => setOriginFeatExpanded(!originFeatExpanded)}
-              className="flex items-center gap-2 cursor-pointer hover:bg-gray-800/30 rounded px-1 -mx-1 py-0.5 transition-colors w-full text-left"
+              className="flex items-center gap-2 cursor-pointer hover:bg-surface-2/30 rounded px-1 -mx-1 py-0.5 transition-colors w-full text-left"
             >
               <span className="text-xs px-2 py-0.5 rounded bg-amber-900/50 text-amber-300 border border-amber-700">
                 {t('builder.detailsTab.originBadge')}
@@ -100,8 +100,8 @@ export default function DetailsTab5e(): JSX.Element {
               <span className="text-gray-600 text-xs ml-auto">{originFeatExpanded ? '\u25BE' : '\u25B8'}</span>
             </button>
             {originFeatExpanded && originFeatDescription && (
-              <div className="mt-2 bg-gray-800/60 border border-gray-700 rounded px-3 py-2">
-                <p className="text-xs text-gray-400">{originFeatDescription}</p>
+              <div className="mt-2 bg-surface-2/60 border border-border rounded px-3 py-2">
+                <p className="text-xs text-muted">{originFeatDescription}</p>
               </div>
             )}
           </div>
@@ -117,7 +117,7 @@ export default function DetailsTab5e(): JSX.Element {
             <select
               value={versatileFeatId ?? ''}
               onChange={(e) => setVersatileFeat(e.target.value || null)}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1.5 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full bg-surface-2 border border-border rounded px-2 py-1.5 text-sm text-fg focus:outline-none focus:border-amber-500"
             >
               <option value="">{t('builder.detailsTab.selectOriginFeat')}</option>
               {originFeats
@@ -134,14 +134,14 @@ export default function DetailsTab5e(): JSX.Element {
                 ))}
             </select>
             {selectedVersatileFeat && (
-              <div className="mt-2 bg-gray-800/60 border border-gray-700 rounded px-3 py-2">
+              <div className="mt-2 bg-surface-2/60 border border-border rounded px-3 py-2">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-xs px-2 py-0.5 rounded bg-purple-900/50 text-purple-300 border border-purple-700">
                     {t('builder.detailsTab.versatileBadge')}
                   </span>
                   <span className="text-sm text-gray-200 font-medium">{selectedVersatileFeat.name}</span>
                 </div>
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-muted">
                   {selectedVersatileFeat.benefits.map((b) => b.description).join(' ')}
                 </p>
               </div>
@@ -163,8 +163,8 @@ export default function DetailsTab5e(): JSX.Element {
                   backgroundEquipmentChoice === 'equipment'
                     ? 'bg-amber-900/50 text-amber-300 border-amber-700'
                     : backgroundEquipmentChoice === null
-                      ? 'bg-gray-800 text-gray-400 border-amber-700/50 hover:border-amber-600'
-                      : 'bg-gray-800 text-gray-400 border-gray-700 hover:border-gray-600'
+                      ? 'bg-surface-2 text-muted border-amber-700/50 hover:border-amber-600'
+                      : 'bg-surface-2 text-muted border-border hover:border-gray-600'
                 }`}
               >
                 {t('builder.detailsTab.backgroundEquipmentBtn')}
@@ -175,15 +175,15 @@ export default function DetailsTab5e(): JSX.Element {
                   backgroundEquipmentChoice === 'gold'
                     ? 'bg-amber-900/50 text-amber-300 border-amber-700'
                     : backgroundEquipmentChoice === null
-                      ? 'bg-gray-800 text-gray-400 border-amber-700/50 hover:border-amber-600'
-                      : 'bg-gray-800 text-gray-400 border-gray-700 hover:border-gray-600'
+                      ? 'bg-surface-2 text-muted border-amber-700/50 hover:border-amber-600'
+                      : 'bg-surface-2 text-muted border-border hover:border-gray-600'
                 }`}
               >
                 {t('builder.detailsTab.goldInsteadBtn')}
               </button>
             </div>
             {backgroundEquipmentChoice === null && (
-              <p className="text-xs text-amber-400 mt-2">{t('builder.detailsTab.selectOptionAbove')}</p>
+              <p className="text-xs text-accent mt-2">{t('builder.detailsTab.selectOptionAbove')}</p>
             )}
             {backgroundEquipmentChoice === 'gold' && (
               <p className="text-xs text-gray-500 mt-2">{t('builder.detailsTab.goldReplaceNote')}</p>
@@ -212,8 +212,8 @@ export default function DetailsTab5e(): JSX.Element {
                     classEquipmentChoice === option.label
                       ? 'bg-amber-900/50 text-amber-300 border-amber-700'
                       : classEquipmentChoice === null
-                        ? 'bg-gray-800 text-gray-400 border-amber-700/50 hover:border-amber-600'
-                        : 'bg-gray-800 text-gray-400 border-gray-700 hover:border-gray-600'
+                        ? 'bg-surface-2 text-muted border-amber-700/50 hover:border-amber-600'
+                        : 'bg-surface-2 text-muted border-border hover:border-gray-600'
                   }`}
                 >
                   <div className="font-semibold">{t('builder.detailsTab.optionLabel', { label: option.label })}</div>
@@ -226,21 +226,21 @@ export default function DetailsTab5e(): JSX.Element {
               ))}
             </div>
             {classEquipmentChoice === null && (
-              <p className="text-xs text-amber-400 mt-2">{t('builder.detailsTab.chooseToContinue')}</p>
+              <p className="text-xs text-accent mt-2">{t('builder.detailsTab.chooseToContinue')}</p>
             )}
             {(() => {
               const chosen = classEquipmentOptions.find((o) => o.label === classEquipmentChoice)
               if (!classEquipmentChoice || !chosen) return null
               return (
-                <div className="mt-2 bg-gray-800/60 border border-gray-700 rounded px-3 py-2">
-                  <div className="text-xs text-gray-400 space-y-0.5">
+                <div className="mt-2 bg-surface-2/60 border border-border rounded px-3 py-2">
+                  <div className="text-xs text-muted space-y-0.5">
                     {chosen.items.length > 0 ? (
                       chosen.items.map((item, i) => <div key={`${i}-${item}`}>{item}</div>)
                     ) : (
-                      <div className="text-amber-400">{t('builder.detailsTab.gpAmount', { gp: chosen.gp })}</div>
+                      <div className="text-accent">{t('builder.detailsTab.gpAmount', { gp: chosen.gp })}</div>
                     )}
                     {chosen.items.length > 0 && chosen.gp > 0 && (
-                      <div className="text-amber-400 mt-1">{t('builder.detailsTab.gpPlus', { gp: chosen.gp })}</div>
+                      <div className="text-accent mt-1">{t('builder.detailsTab.gpPlus', { gp: chosen.gp })}</div>
                     )}
                   </div>
                 </div>
@@ -266,7 +266,7 @@ export default function DetailsTab5e(): JSX.Element {
                   className="flex items-center justify-between px-4 py-2 border-b border-gray-800/50 last:border-b-0"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-xs bg-gray-700 text-gray-400 px-2 py-0.5 rounded font-mono">
+                    <span className="text-xs bg-gray-700 text-muted px-2 py-0.5 rounded font-mono">
                       {t('builder.detailsTab.levelLabel', { level: slot.level })}
                     </span>
                     {isConfirmed ? (
@@ -278,7 +278,7 @@ export default function DetailsTab5e(): JSX.Element {
                   {isConfirmed ? (
                     <button
                       onClick={() => useBuilderStore.getState().resetAsi(slot.id)}
-                      className="text-xs text-amber-400 hover:text-amber-300 transition-colors"
+                      className="text-xs text-accent hover:text-amber-300 transition-colors"
                     >
                       {t('builder.detailsTab.edit')}
                     </button>
@@ -290,7 +290,7 @@ export default function DetailsTab5e(): JSX.Element {
                           activeAsiSlotId: slot.id
                         })
                       }
-                      className="text-xs text-amber-400 hover:text-amber-300 transition-colors"
+                      className="text-xs text-accent hover:text-amber-300 transition-colors"
                     >
                       {t('builder.detailsTab.choose')}
                     </button>

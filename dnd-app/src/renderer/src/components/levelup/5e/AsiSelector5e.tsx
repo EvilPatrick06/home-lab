@@ -57,16 +57,16 @@ export function AsiOrFeatSelector5e({
   return (
     <div className={`rounded ${isIncomplete ? 'ring-1 ring-amber-600/50 p-1 -m-1' : ''}`}>
       <div className="flex items-center gap-2 mb-2">
-        <span className="text-sm text-gray-400">{slot.label}:</span>
+        <span className="text-sm text-muted">{slot.label}:</span>
         {isIncomplete && (
-          <span className="text-xs text-amber-500 font-semibold uppercase">
+          <span className="text-xs text-accent-strong font-semibold uppercase">
             {t('levelup.asiOrFeatSelector.required')}
           </span>
         )}
         <button
           onClick={() => handleToggle(false)}
           className={`px-2 py-0.5 text-xs rounded cursor-pointer transition-colors ${
-            !chooseFeat ? 'bg-amber-600 text-white' : 'border border-gray-600 text-gray-400'
+            !chooseFeat ? 'bg-amber-600 text-white' : 'border border-gray-600 text-muted'
           }`}
         >
           {t('levelup.asiOrFeatSelector.abilityScoreImprovement')}
@@ -74,7 +74,7 @@ export function AsiOrFeatSelector5e({
         <button
           onClick={() => handleToggle(true)}
           className={`px-2 py-0.5 text-xs rounded cursor-pointer transition-colors ${
-            chooseFeat ? 'bg-green-600 text-white' : 'border border-gray-600 text-gray-400'
+            chooseFeat ? 'bg-green-600 text-white' : 'border border-gray-600 text-muted'
           }`}
         >
           {t('levelup.asiOrFeatSelector.generalFeat')}
@@ -164,7 +164,7 @@ export function GeneralFeatPicker({
                   setPendingChoices(newChoices)
                   onSelect({ ...selection, choices: { ...selection.choices, [key]: e.target.value } })
                 }}
-                className="w-full px-2 py-1 text-sm bg-gray-800 border border-gray-700 rounded text-gray-200"
+                className="w-full px-2 py-1 text-sm bg-surface-2 border border-border rounded text-gray-200"
               >
                 <option value="">{t('levelup.generalFeatPicker.selectOption')}</option>
                 {config.options?.map((opt) => (
@@ -190,11 +190,12 @@ export function GeneralFeatPicker({
       {expanded && (
         <div className="mt-2">
           <input
+            aria-label={t('levelup.generalFeatPicker.searchPlaceholder')}
             type="text"
             placeholder={t('levelup.generalFeatPicker.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full px-2 py-1 text-sm bg-gray-800 border border-gray-700 rounded text-gray-200 placeholder-gray-500 mb-2"
+            className="w-full px-2 py-1 text-sm bg-surface-2 border border-border rounded text-gray-200 placeholder-gray-500 mb-2"
           />
           <div className="max-h-48 overflow-y-auto space-y-1">
             {filteredFeats.map((feat) => {
@@ -219,8 +220,8 @@ export function GeneralFeatPicker({
                   disabled={!meetsPrereqs}
                   className={`w-full text-left border rounded p-2 transition-colors ${
                     meetsPrereqs
-                      ? 'bg-gray-800/50 hover:bg-gray-800 border-gray-700 hover:border-green-600 cursor-pointer'
-                      : 'bg-gray-900/50 border-gray-800 opacity-50 cursor-not-allowed'
+                      ? 'bg-surface-2/50 hover:bg-surface-2 border-border hover:border-green-600 cursor-pointer'
+                      : 'bg-surface/50 border-gray-800 opacity-50 cursor-not-allowed'
                   }`}
                 >
                   <div className="text-sm text-green-300 font-medium">
@@ -287,7 +288,7 @@ export function AsiAbilityPicker5e({
         <button
           onClick={() => handleModeChange('+2')}
           className={`px-2 py-0.5 text-xs rounded cursor-pointer transition-colors ${
-            mode === '+2' ? 'bg-amber-600 text-white' : 'border border-gray-600 text-gray-400'
+            mode === '+2' ? 'bg-amber-600 text-white' : 'border border-gray-600 text-muted'
           }`}
         >
           {t('levelup.asiAbilityPicker.plus2ToOne')}
@@ -295,7 +296,7 @@ export function AsiAbilityPicker5e({
         <button
           onClick={() => handleModeChange('+1/+1')}
           className={`px-2 py-0.5 text-xs rounded cursor-pointer transition-colors ${
-            mode === '+1/+1' ? 'bg-amber-600 text-white' : 'border border-gray-600 text-gray-400'
+            mode === '+1/+1' ? 'bg-amber-600 text-white' : 'border border-gray-600 text-muted'
           }`}
         >
           {t('levelup.asiAbilityPicker.plus1ToTwo')}
@@ -317,8 +318,8 @@ export function AsiAbilityPicker5e({
                 isSelected
                   ? 'bg-amber-600 text-white'
                   : atMax
-                    ? 'border border-gray-700 text-gray-600 cursor-not-allowed'
-                    : 'border border-gray-600 text-gray-300 hover:border-amber-500 hover:text-amber-400'
+                    ? 'border border-border text-gray-600 cursor-not-allowed'
+                    : 'border border-gray-600 text-gray-300 hover:border-amber-500 hover:text-accent'
               }`}
             >
               {ability.slice(0, 3)} {score}
@@ -329,7 +330,7 @@ export function AsiAbilityPicker5e({
       </div>
       {/* Phase 24j — warn when a +2 would overflow the 20 cap (apply clamps to 20). */}
       {mode === '+2' && selection[0] && character.abilityScores[selection[0]] === 19 && (
-        <p className="mt-1 text-xs text-amber-400">{t('levelup.asiAbilityPicker.capWarning')}</p>
+        <p className="mt-1 text-xs text-accent">{t('levelup.asiAbilityPicker.capWarning')}</p>
       )}
     </div>
   )

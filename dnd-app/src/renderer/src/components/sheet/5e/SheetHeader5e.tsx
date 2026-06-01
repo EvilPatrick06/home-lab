@@ -149,17 +149,17 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
         )}
 
         {showIconPicker && !readonly && (
-          <div className="absolute top-full left-0 mt-1 z-50 bg-gray-900 border border-gray-700 rounded-lg p-3 shadow-xl w-64">
+          <div className="absolute top-full left-0 mt-1 z-50 bg-surface border border-border rounded-lg p-3 shadow-xl w-64">
             <div className="flex gap-1 mb-2">
               <button
                 onClick={() => saveIcon(undefined, undefined)}
-                className="px-2 py-1 text-xs rounded bg-gray-800 text-gray-400 hover:bg-gray-700"
+                className="px-2 py-1 text-xs rounded bg-surface-2 text-muted hover:bg-gray-700"
               >
                 {t('sheet.sheetHeader.letter')}
               </button>
               <button
                 onClick={() => fileRef.current?.click()}
-                className="px-2 py-1 text-xs rounded bg-gray-800 text-gray-400 hover:bg-gray-700"
+                className="px-2 py-1 text-xs rounded bg-surface-2 text-muted hover:bg-gray-700"
               >
                 {t('sheet.sheetHeader.upload')}
               </button>
@@ -173,7 +173,7 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
                   className={`w-7 h-7 rounded flex items-center justify-center text-base transition-colors ${
                     character.iconPreset === icon.id
                       ? 'bg-amber-900/40 ring-1 ring-amber-400'
-                      : 'bg-gray-800 hover:bg-gray-700'
+                      : 'bg-surface-2 hover:bg-gray-700'
                   }`}
                 >
                   {icon.emoji}
@@ -199,11 +199,11 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
                 setNameValue(character.name)
               }
             }}
-            className="text-3xl font-bold text-amber-400 bg-gray-800 border border-amber-500 rounded px-2 py-0.5 w-full focus:outline-none"
+            className="text-3xl font-bold text-accent bg-surface-2 border border-amber-500 rounded px-2 py-0.5 w-full focus:outline-none"
           />
         ) : (
           <h2
-            className={`text-3xl font-bold text-amber-400 truncate ${!readonly ? 'cursor-pointer hover:text-amber-300' : ''}`}
+            className={`text-3xl font-bold text-accent truncate ${!readonly ? 'cursor-pointer hover:text-amber-300' : ''}`}
             onClick={() => {
               if (!readonly) {
                 setNameValue(character.name)
@@ -215,14 +215,14 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
             {character.name}
           </h2>
         )}
-        <p className="text-gray-400">
+        <p className="text-muted">
           {t('sheet.sheetHeader.levelLine', { level: character.level, speciesName, className })}
         </p>
         <p className="text-gray-500 text-sm">{subtitle}</p>
         {/* Phase 23l — roll initiative straight from the sheet header. */}
         <button
           onClick={rollInitiative}
-          className="mt-1 inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded border border-gray-700 text-gray-300 hover:border-amber-500 hover:text-amber-400 cursor-pointer"
+          className="mt-1 inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded border border-border text-gray-300 hover:border-amber-500 hover:text-accent cursor-pointer"
           title={t('sheet.sheetHeader.rollInitiativeTitle', { mod: formatMod(initMod) })}
         >
           🎲 {t('sheet.sheetHeader.initiative', { mod: formatMod(initMod) })}
@@ -242,7 +242,7 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
           ) : (
             <>
               <select
-                className="text-xs bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-gray-400 focus:outline-none focus:border-amber-500"
+                className="text-xs bg-surface-2 border border-border rounded px-1 py-0.5 text-muted focus:outline-none focus:border-amber-500"
                 value={character.levelingMode}
                 onChange={(e) => {
                   const val = e.target.value as 'xp' | 'milestone'
@@ -259,7 +259,7 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
                   <span className="text-xs text-gray-500">{t('sheet.sheetHeader.xpColon')}</span>
                   <input
                     type="number"
-                    className="w-20 text-xs bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-gray-300 focus:outline-none focus:border-amber-500"
+                    className="w-20 text-xs bg-surface-2 border border-border rounded px-1 py-0.5 text-gray-300 focus:outline-none focus:border-amber-500"
                     defaultValue={character.xp}
                     min={0}
                     onBlur={(e) => {
@@ -295,7 +295,7 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
               }
             >
               {character.heroicInspiration ? (
-                <span className="text-amber-400">{'\u2605'}</span>
+                <span className="text-accent">{'\u2605'}</span>
               ) : (
                 <span className="text-gray-500">{'\u2606'}</span>
               )}
@@ -305,8 +305,8 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
 
           {/* Transfer dropdown */}
           {showInspirationTransfer && (
-            <div className="absolute top-full left-0 mt-1 z-50 bg-gray-900 border border-amber-500/50 rounded-lg p-2 shadow-xl w-56">
-              <p className="text-xs text-amber-400 font-semibold mb-1.5">{t('sheet.sheetHeader.giveInspirationTo')}</p>
+            <div className="absolute top-full left-0 mt-1 z-50 bg-surface border border-amber-500/50 rounded-lg p-2 shadow-xl w-56">
+              <p className="text-xs text-accent font-semibold mb-1.5">{t('sheet.sheetHeader.giveInspirationTo')}</p>
               {transferTargets.length === 0 ? (
                 <p className="text-xs text-gray-500">{t('sheet.sheetHeader.noEligibleCharacters')}</p>
               ) : (
@@ -314,16 +314,16 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
                   <button
                     key={t.id}
                     onClick={() => transferInspiration(t.id)}
-                    className="w-full text-left px-2 py-1 text-xs text-gray-200 hover:bg-gray-800 rounded cursor-pointer"
+                    className="w-full text-left px-2 py-1 text-xs text-gray-200 hover:bg-surface-2 rounded cursor-pointer"
                   >
                     {t.name}
                   </button>
                 ))
               )}
-              <div className="border-t border-gray-700 mt-1.5 pt-1.5">
+              <div className="border-t border-border mt-1.5 pt-1.5">
                 <button
                   onClick={removeInspiration}
-                  className="w-full text-left px-2 py-1 text-xs text-gray-400 hover:bg-gray-800 rounded cursor-pointer"
+                  className="w-full text-left px-2 py-1 text-xs text-muted hover:bg-surface-2 rounded cursor-pointer"
                 >
                   {t('sheet.sheetHeader.removeNoTransfer')}
                 </button>
@@ -337,7 +337,7 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
         {onEdit && (
           <button
             onClick={onEdit}
-            className="px-3 py-1.5 text-sm bg-amber-600 hover:bg-amber-500 text-white rounded transition-colors"
+            className="px-3 py-1.5 text-sm bg-amber-600 hover:bg-accent-strong text-white rounded transition-colors"
           >
             {t('sheet.sheetHeader.edit')}
           </button>

@@ -39,10 +39,10 @@ export function EpicBoonSelector5e({
 
   return (
     <div className={`rounded ${isIncomplete ? 'ring-1 ring-amber-600/50 p-1 -m-1' : ''}`}>
-      <div className="text-sm text-gray-400 mb-1 flex items-center gap-2">
+      <div className="text-sm text-muted mb-1 flex items-center gap-2">
         {slot.label}:
         {isIncomplete && (
-          <span className="text-xs text-amber-500 font-semibold uppercase">
+          <span className="text-xs text-accent-strong font-semibold uppercase">
             {t('levelup.epicBoonSelector.required')}
           </span>
         )}
@@ -82,7 +82,7 @@ export function EpicBoonSelector5e({
                       setExpanded(false)
                     }}
                     disabled={!meetsPrereqs}
-                    className={`w-full text-left border rounded p-2 transition-colors ${meetsPrereqs ? 'bg-gray-800/50 hover:bg-gray-800 border-gray-700 hover:border-purple-600 cursor-pointer' : 'bg-gray-900/30 border-gray-800 opacity-50 cursor-not-allowed'}`}
+                    className={`w-full text-left border rounded p-2 transition-colors ${meetsPrereqs ? 'bg-surface-2/50 hover:bg-surface-2 border-border hover:border-purple-600 cursor-pointer' : 'bg-surface/30 border-gray-800 opacity-50 cursor-not-allowed'}`}
                   >
                     <div className="text-sm text-purple-300 font-medium">{feat.name}</div>
                     <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">
@@ -164,7 +164,7 @@ function BlessedWarriorCantripPicker(): JSX.Element {
                   ? 'bg-blue-800/40 text-blue-300'
                   : blessedWarriorCantrips.length >= 2
                     ? 'text-gray-600 cursor-not-allowed'
-                    : 'text-gray-400 hover:bg-gray-800/50 cursor-pointer'
+                    : 'text-muted hover:bg-surface-2/50 cursor-pointer'
               }`}
             >
               <span
@@ -238,7 +238,7 @@ function DruidicWarriorCantripPicker(): JSX.Element {
                   ? 'bg-green-800/40 text-green-300'
                   : druidicWarriorCantrips.length >= 2
                     ? 'text-gray-600 cursor-not-allowed'
-                    : 'text-gray-400 hover:bg-gray-800/50 cursor-pointer'
+                    : 'text-muted hover:bg-surface-2/50 cursor-pointer'
               }`}
             >
               <span
@@ -322,10 +322,10 @@ export function FightingStyleSelector5e({
 
   return (
     <div className={`rounded ${isIncomplete ? 'ring-1 ring-amber-600/50 p-1 -m-1' : ''}`}>
-      <div className="text-sm text-gray-400 mb-1 flex items-center gap-2">
+      <div className="text-sm text-muted mb-1 flex items-center gap-2">
         {slot.label}:
         {isIncomplete && (
-          <span className="text-xs text-amber-500 font-semibold uppercase">
+          <span className="text-xs text-accent-strong font-semibold uppercase">
             {t('levelup.fightingStyleSelector.required')}
           </span>
         )}
@@ -359,7 +359,7 @@ export function FightingStyleSelector5e({
                     onSelect({ id: feat.id, name: feat.name, description: feat.description })
                     setExpanded(false)
                   }}
-                  className="w-full text-left bg-gray-800/50 hover:bg-gray-800 border border-gray-700 hover:border-blue-600 rounded p-2 cursor-pointer transition-colors"
+                  className="w-full text-left bg-surface-2/50 hover:bg-surface-2 border border-border hover:border-blue-600 rounded p-2 cursor-pointer transition-colors"
                 >
                   <div className="text-sm text-blue-300 font-medium">{feat.name}</div>
                   <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{feat.description}</p>

@@ -103,16 +103,16 @@ export default function StudyActionModal({ character, onClose, onBroadcastResult
       role="presentation"
     >
       <div
-        className="bg-gray-900 border border-gray-700 rounded-xl shadow-2xl w-full max-w-md mx-4"
+        className="bg-surface border border-border rounded-xl shadow-2xl w-full max-w-md mx-4"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-700">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <div>
-            <h2 className="text-lg font-bold text-amber-400">{t('game.studyActionModal.title')}</h2>
+            <h2 className="text-lg font-bold text-accent">{t('game.studyActionModal.title')}</h2>
             <p className="text-xs text-gray-500 mt-0.5">{t('game.studyActionModal.subtitle')}</p>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-white text-xl leading-none">
+          <button onClick={onClose} className="text-muted hover:text-white text-xl leading-none">
             &times;
           </button>
         </div>
@@ -131,14 +131,14 @@ export default function StudyActionModal({ character, onClose, onBroadcastResult
                   setResult(null)
                 }}
                 className={`w-full text-left px-4 py-3 rounded-lg border transition-colors ${
-                  isSelected ? 'border-amber-500 bg-amber-900/20' : 'border-gray-700 bg-gray-800 hover:border-gray-600'
+                  isSelected ? 'border-amber-500 bg-amber-900/20' : 'border-border bg-surface-2 hover:border-gray-600'
                 }`}
               >
                 <div className="flex items-center justify-between mb-1">
-                  <span className={`text-sm font-semibold ${isSelected ? 'text-amber-400' : 'text-white'}`}>
+                  <span className={`text-sm font-semibold ${isSelected ? 'text-accent' : 'text-white'}`}>
                     {approach.skill}
                   </span>
-                  <span className="text-sm font-mono text-gray-400">{formatMod(mod)}</span>
+                  <span className="text-sm font-mono text-muted">{formatMod(mod)}</span>
                 </div>
                 <p className="text-xs text-gray-500 leading-relaxed">
                   {t(`game.studyActionModal.desc.${approach.skill.toLowerCase()}`)}
@@ -151,7 +151,7 @@ export default function StudyActionModal({ character, onClose, onBroadcastResult
           {selectedIndex !== null && !result && (
             <button
               onClick={handleRoll}
-              className="w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-lg transition-colors text-sm mt-2"
+              className="w-full py-2.5 bg-amber-600 hover:bg-accent-strong text-white font-semibold rounded-lg transition-colors text-sm mt-2"
             >
               {t('game.studyActionModal.rollCheck', { skill: STUDY_APPROACHES[selectedIndex].skill })}
             </button>
@@ -160,7 +160,7 @@ export default function StudyActionModal({ character, onClose, onBroadcastResult
           {/* Result Display */}
           {result && (
             <div className="space-y-3 mt-2">
-              <div className="text-center py-4 bg-gray-800 rounded-lg border border-gray-700">
+              <div className="text-center py-4 bg-surface-2 rounded-lg border border-border">
                 <div
                   className={`text-4xl font-bold mb-1 ${
                     result.roll === 20 ? 'text-green-400' : result.roll === 1 ? 'text-red-400' : 'text-white'
@@ -168,7 +168,7 @@ export default function StudyActionModal({ character, onClose, onBroadcastResult
                 >
                   {result.total}
                 </div>
-                <div className="text-sm text-gray-400">
+                <div className="text-sm text-muted">
                   <span
                     className={`font-mono ${
                       result.roll === 20 ? 'text-green-400' : result.roll === 1 ? 'text-red-400' : ''
@@ -191,7 +191,7 @@ export default function StudyActionModal({ character, onClose, onBroadcastResult
 
               <button
                 onClick={handleDone}
-                className="w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-lg transition-colors text-sm"
+                className="w-full py-2.5 bg-amber-600 hover:bg-accent-strong text-white font-semibold rounded-lg transition-colors text-sm"
               >
                 {t('game.studyActionModal.done')}
               </button>

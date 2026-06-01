@@ -15,9 +15,9 @@ export function SummaryCard({
   accent?: boolean
 }): JSX.Element {
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
+    <div className="bg-surface border border-gray-800 rounded-lg p-4">
       <div className="text-xs text-gray-500">{label}</div>
-      <div className={`text-xl font-bold mt-1 ${accent ? 'text-yellow-400' : 'text-gray-100'}`}>{value}</div>
+      <div className={`text-xl font-bold mt-1 ${accent ? 'text-yellow-400' : 'text-fg'}`}>{value}</div>
     </div>
   )
 }
@@ -33,14 +33,14 @@ function FactionRenownSection({ bastion }: { bastion: Bastion }): JSX.Element {
   }
 
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
+    <div className="bg-surface border border-gray-800 rounded-lg p-4">
       <h3 className="text-sm font-semibold text-gray-200 mb-3">{t('pages.overviewTab.factionRenown')}</h3>
       {factions.length > 0 ? (
         <div className="space-y-2 mb-3">
           {factions.map(([name, value]) => (
             <div
               key={name}
-              className="flex items-center justify-between text-xs bg-gray-800 rounded px-3 py-2 border border-gray-700"
+              className="flex items-center justify-between text-xs bg-surface-2 rounded px-3 py-2 border border-border"
             >
               <span className="text-gray-200 capitalize">{name.replace(/-/g, ' ')}</span>
               <div className="flex items-center gap-2">
@@ -50,7 +50,7 @@ function FactionRenownSection({ bastion }: { bastion: Bastion }): JSX.Element {
                 >
                   -
                 </button>
-                <span className="text-amber-400 font-medium w-6 text-center">{value}</span>
+                <span className="text-accent font-medium w-6 text-center">{value}</span>
                 <button
                   onClick={() => updateRenown({ ...renown, [name]: value + 1 })}
                   className="px-1.5 py-0.5 bg-gray-700 hover:bg-gray-600 rounded text-gray-300 transition-colors"
@@ -80,7 +80,7 @@ function FactionRenownSection({ bastion }: { bastion: Bastion }): JSX.Element {
           value={newFaction}
           onChange={(e) => setNewFaction(e.target.value)}
           placeholder={t('pages.overviewTab.factionNamePlaceholder')}
-          className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
+          className="flex-1 bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500"
           onKeyDown={(e) => {
             if (e.key === 'Enter' && newFaction.trim()) {
               const key = newFaction.trim().toLowerCase().replace(/\s+/g, '-')
@@ -96,7 +96,7 @@ function FactionRenownSection({ bastion }: { bastion: Bastion }): JSX.Element {
             updateRenown({ ...renown, [key]: 0 })
             setNewFaction('')
           }}
-          className="px-3 py-1 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded transition-colors"
+          className="px-3 py-1 text-xs bg-amber-600 hover:bg-accent-strong text-white rounded transition-colors"
         >
           {t('pages.overviewTab.addFaction')}
         </button>
@@ -136,7 +136,7 @@ export function OverviewTab({
       </div>
 
       {/* Turn status */}
-      <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
+      <div className="bg-surface border border-gray-800 rounded-lg p-4">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-sm font-semibold text-gray-200">{t('pages.overviewTab.turnStatus')}</h3>
@@ -158,7 +158,9 @@ export function OverviewTab({
           <button
             onClick={onStartTurn}
             className={`px-4 py-2 text-sm rounded font-semibold transition-colors ${
-              turnReady ? 'bg-amber-600 hover:bg-amber-500 text-white' : 'bg-gray-800 text-gray-400 hover:text-gray-200'
+              turnReady
+                ? 'bg-amber-600 hover:bg-accent-strong text-white'
+                : 'bg-surface-2 text-muted hover:text-gray-200'
             }`}
           >
             {turnReady ? t('pages.overviewTab.startTurn') : t('pages.overviewTab.forceTurn')}
@@ -168,13 +170,13 @@ export function OverviewTab({
 
       {/* Construction queue */}
       {bastion.construction.length > 0 && (
-        <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
+        <div className="bg-surface border border-gray-800 rounded-lg p-4">
           <h3 className="text-sm font-semibold text-gray-200 mb-3">{t('pages.overviewTab.constructionQueue')}</h3>
           <div className="space-y-2">
             {bastion.construction.map((p) => {
               const pct = p.daysRequired > 0 ? Math.round((p.daysCompleted / p.daysRequired) * 100) : 100
               return (
-                <div key={p.id} className="bg-gray-800 rounded p-2">
+                <div key={p.id} className="bg-surface-2 rounded p-2">
                   <div className="flex items-center justify-between text-xs mb-1">
                     <span className="text-gray-300 capitalize">
                       {p.projectType === 'add-special' && p.specialFacilityName
@@ -190,7 +192,7 @@ export function OverviewTab({
                     </span>
                   </div>
                   <div className="w-full bg-gray-700 rounded-full h-1.5">
-                    <div className="bg-amber-500 h-1.5 rounded-full transition-all" style={{ width: `${pct}%` }} />
+                    <div className="bg-accent-strong h-1.5 rounded-full transition-all" style={{ width: `${pct}%` }} />
                   </div>
                 </div>
               )
@@ -201,7 +203,7 @@ export function OverviewTab({
 
       {/* Active orders */}
       {bastion.specialFacilities.some((f) => f.currentOrder) && (
-        <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
+        <div className="bg-surface border border-gray-800 rounded-lg p-4">
           <h3 className="text-sm font-semibold text-gray-200 mb-3">{t('pages.overviewTab.activeOrders')}</h3>
           {bastion.specialFacilities
             .filter((f) => f.currentOrder)
@@ -218,7 +220,7 @@ export function OverviewTab({
 
       {/* Active Charms */}
       {(bastion.activeCharms ?? []).length > 0 && (
-        <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
+        <div className="bg-surface border border-gray-800 rounded-lg p-4">
           <h3 className="text-sm font-semibold text-purple-300 mb-3">{t('pages.overviewTab.activeCharms')}</h3>
           <div className="space-y-2">
             {bastion.activeCharms.map((charm, i) => {
@@ -226,13 +228,13 @@ export function OverviewTab({
               return (
                 <div
                   key={i}
-                  className="flex items-center justify-between text-xs bg-gray-800 rounded px-3 py-2 border border-gray-700"
+                  className="flex items-center justify-between text-xs bg-surface-2 rounded px-3 py-2 border border-border"
                 >
                   <div>
                     <span className="text-purple-300 font-medium">{charm.name}</span>
                     <span className="text-gray-500 ml-2">{charm.description}</span>
                   </div>
-                  <span className="text-gray-400">
+                  <span className="text-muted">
                     {t('pages.overviewTab.daysLeft', {
                       remaining,
                       plural: remaining !== 1 ? 's' : ''
@@ -249,14 +251,14 @@ export function OverviewTab({
       <FactionRenownSection bastion={bastion} />
 
       {/* Notes */}
-      <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
+      <div className="bg-surface border border-gray-800 rounded-lg p-4">
         <h3 className="text-sm font-semibold text-gray-200 mb-2">{t('pages.overviewTab.notes')}</h3>
         <textarea
           value={bastion.notes}
           onChange={(e) => useBastionStore.getState().updateNotes(bastion.id, e.target.value)}
           placeholder={t('pages.overviewTab.notesPlaceholder')}
           rows={4}
-          className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500 resize-y"
+          className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500 resize-y"
         />
       </div>
     </div>

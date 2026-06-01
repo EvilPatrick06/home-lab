@@ -411,17 +411,16 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
         )
         if (!scInfo) return null
         return (
-          <div className="mb-3 flex gap-4 text-sm text-gray-400">
+          <div className="mb-3 flex gap-4 text-sm text-muted">
             <span>
-              {t('sheet.spellcastingSection.ability')}{' '}
-              <span className="text-amber-400 capitalize">{scInfo.ability}</span>
+              {t('sheet.spellcastingSection.ability')} <span className="text-accent capitalize">{scInfo.ability}</span>
             </span>
             <span>
-              {t('sheet.spellcastingSection.dc')} <span className="text-amber-400">{scInfo.spellSaveDC}</span>
+              {t('sheet.spellcastingSection.dc')} <span className="text-accent">{scInfo.spellSaveDC}</span>
             </span>
             <span>
               {t('sheet.spellcastingSection.attack')}{' '}
-              <span className="text-amber-400">
+              <span className="text-accent">
                 {scInfo.spellAttackBonus >= 0 ? '+' : ''}
                 {scInfo.spellAttackBonus}
               </span>
@@ -455,7 +454,7 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
         const dc = 8 + proficiencyBonus + abilityMod
         const attackBonus = proficiencyBonus + abilityMod
         return (
-          <div className="mb-3 flex gap-4 text-sm text-gray-400">
+          <div className="mb-3 flex gap-4 text-sm text-muted">
             <span>
               {t('sheet.spellcastingSection.speciesAbility')}{' '}
               <span className="text-purple-400 capitalize">{speciesAbility}</span>
@@ -490,13 +489,13 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
             <div className="mb-3 flex gap-4 text-xs text-gray-500">
               {cantripsMax > 0 && (
                 <span>
-                  {t('sheet.spellcastingSection.cantrips')} <span className="text-amber-400">{cantrips.length}</span>/
+                  {t('sheet.spellcastingSection.cantrips')} <span className="text-accent">{cantrips.length}</span>/
                   {cantripsMax}
                 </span>
               )}
               {cantripsMax === 0 && cantrips.length > 0 && (
                 <span>
-                  {t('sheet.spellcastingSection.cantrips')} <span className="text-amber-400">{cantrips.length}</span>
+                  {t('sheet.spellcastingSection.cantrips')} <span className="text-accent">{cantrips.length}</span>
                 </span>
               )}
               {nonCantrips.length > 0 &&
@@ -508,12 +507,12 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
                     <>
                       <span>
                         {t('sheet.spellcastingSection.preparedSpells')}{' '}
-                        <span className="text-amber-400">{preparedCount}</span>
+                        <span className="text-accent">{preparedCount}</span>
                         {maxPrepared != null && <span className="text-gray-500">/{maxPrepared}</span>}
                       </span>
                       <span>
                         {t('sheet.spellcastingSection.totalKnown')}{' '}
-                        <span className="text-amber-400">{nonCantrips.length}</span>
+                        <span className="text-accent">{nonCantrips.length}</span>
                       </span>
                     </>
                   )
@@ -550,7 +549,7 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
             value={spellSearch}
             onChange={(e) => setSpellSearch(e.target.value)}
             placeholder={t('sheet.spellcastingSection.searchPlaceholder')}
-            className="flex-1 min-w-[140px] text-xs bg-gray-800 border border-gray-700 rounded px-2 py-1 text-gray-200 focus:outline-none focus:border-amber-500"
+            className="flex-1 min-w-[140px] text-xs bg-surface-2 border border-border rounded px-2 py-1 text-gray-200 focus:outline-none focus:border-amber-500"
             aria-label={t('sheet.spellcastingSection.searchAria')}
           />
           {(
@@ -564,7 +563,7 @@ export default function SpellcastingSection5e({ character, readonly }: Spellcast
               key={label}
               onClick={() => set((v) => !v)}
               className={`text-xs px-2 py-1 rounded border cursor-pointer ${
-                active ? 'border-amber-500 bg-amber-900/30 text-amber-300' : 'border-gray-700 text-gray-400'
+                active ? 'border-amber-500 bg-amber-900/30 text-amber-300' : 'border-border text-muted'
               }`}
             >
               {label}

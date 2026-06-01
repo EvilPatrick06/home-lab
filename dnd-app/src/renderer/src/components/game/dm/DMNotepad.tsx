@@ -192,7 +192,7 @@ export default function DMNotepad(): JSX.Element {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t('game.dmNotepad.searchPlaceholder')}
-            className="w-full px-2 py-1 rounded bg-gray-800 border border-gray-700 text-xs text-gray-200 placeholder-gray-600 focus:outline-none focus:border-amber-500"
+            className="w-full px-2 py-1 rounded bg-surface-2 border border-border text-xs text-gray-200 placeholder-gray-600 focus:outline-none focus:border-amber-500"
           />
 
           {/* New entry */}
@@ -207,7 +207,7 @@ export default function DMNotepad(): JSX.Element {
               }}
               placeholder={t('game.dmNotepad.newNotePlaceholder')}
               rows={2}
-              className="flex-1 px-2 py-1.5 rounded bg-gray-800 border border-gray-700 text-xs text-gray-200 placeholder-gray-600 focus:outline-none focus:border-amber-500 resize-none"
+              className="flex-1 px-2 py-1.5 rounded bg-surface-2 border border-border text-xs text-gray-200 placeholder-gray-600 focus:outline-none focus:border-amber-500 resize-none"
             />
             <button
               onClick={handleAddEntry}
@@ -294,11 +294,11 @@ function SessionGroup({
   const [collapsed, setCollapsed] = useState(false)
 
   return (
-    <div className="border border-gray-700/30 rounded-lg overflow-hidden">
+    <div className="border border-border/30 rounded-lg overflow-hidden">
       {/* Session header */}
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="flex items-center gap-2 w-full px-2 py-1.5 bg-gray-800/40 hover:bg-gray-800/60 cursor-pointer text-left"
+        className="flex items-center gap-2 w-full px-2 py-1.5 bg-surface-2/40 hover:bg-surface-2/60 cursor-pointer text-left"
       >
         <span className={`text-xs text-gray-500 transition-transform ${collapsed ? '' : 'rotate-90'}`}>&#9654;</span>
         <span className="text-[11px] font-medium text-amber-300">{label}</span>
@@ -321,7 +321,7 @@ function SessionGroup({
       {!collapsed && (
         <div className="divide-y divide-gray-700/30">
           {entries.map((entry) => (
-            <div key={entry.id} className="px-2 py-1.5 hover:bg-gray-800/20 group">
+            <div key={entry.id} className="px-2 py-1.5 hover:bg-surface-2/20 group">
               {/* Timestamps */}
               <div className="flex items-center gap-2 mb-0.5">
                 <span className="text-[9px] text-gray-500">{formatRealTime(entry.realTimestamp)}</span>
@@ -338,7 +338,7 @@ function SessionGroup({
                     value={editText}
                     onChange={(e) => onEditTextChange(e.target.value)}
                     rows={3}
-                    className="w-full px-2 py-1 rounded bg-gray-800 border border-amber-500 text-xs text-gray-200 focus:outline-none resize-none"
+                    className="w-full px-2 py-1 rounded bg-surface-2 border border-amber-500 text-xs text-gray-200 focus:outline-none resize-none"
                     autoFocus
                   />
                   <div className="flex gap-1">
@@ -350,7 +350,7 @@ function SessionGroup({
                     </button>
                     <button
                       onClick={onCancelEdit}
-                      className="text-[9px] px-2 py-0.5 bg-gray-700 text-gray-400 rounded cursor-pointer"
+                      className="text-[9px] px-2 py-0.5 bg-gray-700 text-muted rounded cursor-pointer"
                     >
                       {t('common.actions.cancel')}
                     </button>
@@ -362,7 +362,7 @@ function SessionGroup({
                   <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                     <button
                       onClick={() => onStartEdit(entry)}
-                      className="text-[8px] px-1.5 py-0.5 bg-gray-700 text-gray-400 rounded cursor-pointer hover:text-gray-200"
+                      className="text-[8px] px-1.5 py-0.5 bg-gray-700 text-muted rounded cursor-pointer hover:text-gray-200"
                     >
                       {t('game.dmNotepadSession.edit')}
                     </button>
@@ -376,7 +376,7 @@ function SessionGroup({
                         </button>
                         <button
                           onClick={onCancelDelete}
-                          className="text-[8px] px-1.5 py-0.5 bg-gray-700 text-gray-400 rounded cursor-pointer"
+                          className="text-[8px] px-1.5 py-0.5 bg-gray-700 text-muted rounded cursor-pointer"
                         >
                           {t('game.dmNotepadSession.no')}
                         </button>
@@ -384,7 +384,7 @@ function SessionGroup({
                     ) : (
                       <button
                         onClick={() => onRequestDelete(entry.id)}
-                        className="text-[8px] px-1.5 py-0.5 bg-gray-700 text-gray-400 rounded cursor-pointer hover:text-red-400"
+                        className="text-[8px] px-1.5 py-0.5 bg-gray-700 text-muted rounded cursor-pointer hover:text-red-400"
                       >
                         {t('game.dmNotepadSession.del')}
                       </button>

@@ -92,14 +92,14 @@ export default function LibraryFilterBar({
   }
 
   return (
-    <div className="flex items-center gap-2 px-4 py-2 bg-gray-900/80 border-b border-gray-800 flex-wrap">
+    <div className="flex items-center gap-2 px-4 py-2 bg-surface/80 border-b border-gray-800 flex-wrap">
       {/* Sort controls */}
       <div className="flex items-center gap-1.5">
         <span className="text-xs text-gray-500">{t('library.libraryFilterBar.sort')}</span>
         <select
           value={currentSort.field}
           onChange={(e) => onSortChange(e.target.value as SortField, currentSort.direction)}
-          className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200 focus:outline-none focus:border-amber-500"
+          className="bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200 focus:outline-none focus:border-amber-500"
         >
           {sortOptions.map((opt) => (
             <option key={opt.field} value={opt.field}>
@@ -110,7 +110,7 @@ export default function LibraryFilterBar({
         <button
           type="button"
           onClick={() => onSortChange(currentSort.field, currentSort.direction === 'asc' ? 'desc' : 'asc')}
-          className="px-1.5 py-1 rounded bg-gray-800 border border-gray-700 text-xs text-gray-300 hover:text-amber-400 transition-colors cursor-pointer"
+          className="px-1.5 py-1 rounded bg-surface-2 border border-border text-xs text-gray-300 hover:text-accent transition-colors cursor-pointer"
           title={
             currentSort.direction === 'asc'
               ? t('library.libraryFilterBar.ascending')
@@ -130,7 +130,7 @@ export default function LibraryFilterBar({
             <select
               value={campaignScope}
               onChange={(e) => onCampaignScopeChange(e.target.value as CampaignScopeFilter)}
-              className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200 focus:outline-none focus:border-amber-500"
+              className="bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200 focus:outline-none focus:border-amber-500"
               title={t('library.libraryFilterBar.scopeTitle')}
             >
               <option value="all">{t('library.libraryFilterBar.scopeAll')}</option>
@@ -150,7 +150,7 @@ export default function LibraryFilterBar({
         return values.map((val) => (
           <span
             key={`${field}-${val}`}
-            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-600/20 text-amber-400 text-xs"
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-600/20 text-accent text-xs"
           >
             <span className="text-gray-500">{config?.label ?? field}:</span>
             {val}
@@ -177,14 +177,14 @@ export default function LibraryFilterBar({
             }}
             aria-expanded={menuOpen}
             aria-haspopup="menu"
-            className="px-2 py-1 rounded bg-gray-800 border border-gray-700 text-xs text-gray-400 hover:text-gray-200 transition-colors cursor-pointer"
+            className="px-2 py-1 rounded bg-surface-2 border border-border text-xs text-muted hover:text-gray-200 transition-colors cursor-pointer"
           >
             {t('library.libraryFilterBar.addFilter')}
           </button>
           {menuOpen && (
             <div
               role="menu"
-              className="absolute left-0 top-full mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 min-w-[180px]"
+              className="absolute left-0 top-full mt-1 bg-surface-2 border border-border rounded-lg shadow-xl z-50 min-w-[180px]"
             >
               {unusedFilters.map((fc) => {
                 const isSubOpen = openSubmenu === fc.field
@@ -205,14 +205,14 @@ export default function LibraryFilterBar({
                     {isSubOpen && (
                       <div
                         role="menu"
-                        className="absolute left-full top-0 bg-gray-800 border border-gray-700 rounded-lg shadow-xl min-w-[140px] max-h-60 overflow-y-auto"
+                        className="absolute left-full top-0 bg-surface-2 border border-border rounded-lg shadow-xl min-w-[140px] max-h-60 overflow-y-auto"
                       >
                         {fc.values.map((val) => (
                           <button
                             type="button"
                             key={val}
                             onClick={() => handleAddFilter(fc.field, val)}
-                            className="w-full text-left px-3 py-1.5 text-xs text-gray-300 hover:bg-gray-700 hover:text-amber-400 cursor-pointer"
+                            className="w-full text-left px-3 py-1.5 text-xs text-gray-300 hover:bg-gray-700 hover:text-accent cursor-pointer"
                           >
                             {val}
                           </button>

@@ -96,8 +96,8 @@ export default function SessionZeroStep({
   return (
     <div className="max-w-2xl space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-gray-100 mb-1">{t('campaign.sessionZeroStep.title')}</h2>
-        <p className="text-gray-400 text-sm">{t('campaign.sessionZeroStep.subtitle')}</p>
+        <h2 className="text-xl font-bold text-fg mb-1">{t('campaign.sessionZeroStep.title')}</h2>
+        <p className="text-muted text-sm">{t('campaign.sessionZeroStep.subtitle')}</p>
       </div>
 
       {/* Tone */}
@@ -111,7 +111,7 @@ export default function SessionZeroStep({
               className={`text-left p-3 rounded-lg cursor-pointer border transition-colors ${
                 data.tone === opt.value
                   ? 'bg-amber-600/20 border-amber-500/40'
-                  : 'bg-gray-800 border-gray-700 hover:bg-gray-750'
+                  : 'bg-surface-2 border-border hover:bg-gray-750'
               }`}
             >
               <div className={`text-sm font-medium ${data.tone === opt.value ? 'text-amber-300' : 'text-gray-300'}`}>
@@ -151,7 +151,7 @@ export default function SessionZeroStep({
             onChange={(e) => setCustomLimit(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && addCustomLimit()}
             placeholder={t('campaign.sessionZeroStep.customLimitPlaceholder')}
-            className="flex-1 px-2 py-1 text-xs bg-gray-800 border border-gray-700 rounded text-gray-200"
+            className="flex-1 px-2 py-1 text-xs bg-surface-2 border border-border rounded text-gray-200"
           />
           <button
             onClick={addCustomLimit}
@@ -181,7 +181,7 @@ export default function SessionZeroStep({
       </div>
 
       {/* PvP */}
-      <div className="flex items-center justify-between bg-gray-800 rounded-lg p-4">
+      <div className="flex items-center justify-between bg-surface-2 rounded-lg p-4">
         <div>
           <div className="text-sm font-medium text-gray-300">{t('campaign.sessionZeroStep.pvp')}</div>
           <div className="text-xs text-gray-500">{t('campaign.sessionZeroStep.pvpHint')}</div>
@@ -189,7 +189,7 @@ export default function SessionZeroStep({
         <button
           onClick={() => update('pvpAllowed', !data.pvpAllowed)}
           className={`relative w-10 h-5 rounded-full transition-colors cursor-pointer ${
-            data.pvpAllowed ? 'bg-amber-500' : 'bg-gray-600'
+            data.pvpAllowed ? 'bg-accent-strong' : 'bg-gray-600'
           }`}
         >
           <div
@@ -213,7 +213,7 @@ export default function SessionZeroStep({
               className={`text-left p-3 rounded-lg cursor-pointer border transition-colors ${
                 data.characterDeathExpectation === opt.value
                   ? 'bg-amber-600/20 border-amber-500/40'
-                  : 'bg-gray-800 border-gray-700 hover:bg-gray-750'
+                  : 'bg-surface-2 border-border hover:bg-gray-750'
               }`}
             >
               <div
@@ -241,7 +241,7 @@ export default function SessionZeroStep({
             {customRules.map((rule) => (
               <div
                 key={rule.id}
-                className="bg-gray-900/50 border border-gray-800 rounded-lg p-3 flex items-start justify-between gap-3"
+                className="bg-surface/50 border border-gray-800 rounded-lg p-3 flex items-start justify-between gap-3"
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
@@ -250,7 +250,7 @@ export default function SessionZeroStep({
                       {rule.category}
                     </span>
                   </div>
-                  {rule.description && <p className="text-xs text-gray-400">{rule.description}</p>}
+                  {rule.description && <p className="text-xs text-muted">{rule.description}</p>}
                 </div>
                 <button
                   onClick={() => handleRemoveRule(rule.id)}
@@ -265,32 +265,32 @@ export default function SessionZeroStep({
         )}
 
         {showRuleForm ? (
-          <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-4 space-y-3">
+          <div className="bg-surface/50 border border-gray-800 rounded-lg p-4 space-y-3">
             <div>
-              <label className="block text-xs text-gray-400 mb-1">{t('campaign.sessionZeroStep.ruleName')}</label>
+              <label className="block text-xs text-muted mb-1">{t('campaign.sessionZeroStep.ruleName')}</label>
               <input
                 value={newRuleName}
                 onChange={(e) => setNewRuleName(e.target.value)}
                 placeholder={t('campaign.sessionZeroStep.ruleNamePlaceholder')}
-                className="w-full px-3 py-2 text-xs bg-gray-800 border border-gray-700 rounded text-gray-200 focus:outline-none focus:border-amber-500 transition-colors"
+                className="w-full px-3 py-2 text-xs bg-surface-2 border border-border rounded text-gray-200 focus:outline-none focus:border-amber-500 transition-colors"
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-400 mb-1">{t('campaign.sessionZeroStep.description')}</label>
+              <label className="block text-xs text-muted mb-1">{t('campaign.sessionZeroStep.description')}</label>
               <textarea
                 value={newRuleDescription}
                 onChange={(e) => setNewRuleDescription(e.target.value)}
                 placeholder={t('campaign.sessionZeroStep.descriptionPlaceholder')}
                 rows={2}
-                className="w-full px-3 py-2 text-xs bg-gray-800 border border-gray-700 rounded text-gray-200 resize-none focus:outline-none focus:border-amber-500 transition-colors"
+                className="w-full px-3 py-2 text-xs bg-surface-2 border border-border rounded text-gray-200 resize-none focus:outline-none focus:border-amber-500 transition-colors"
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-400 mb-1">{t('campaign.sessionZeroStep.category')}</label>
+              <label className="block text-xs text-muted mb-1">{t('campaign.sessionZeroStep.category')}</label>
               <select
                 value={newRuleCategory}
                 onChange={(e) => setNewRuleCategory(e.target.value as RuleCategory)}
-                className="px-3 py-2 text-xs bg-gray-800 border border-gray-700 rounded text-gray-200 focus:outline-none focus:border-amber-500 transition-colors cursor-pointer"
+                className="px-3 py-2 text-xs bg-surface-2 border border-border rounded text-gray-200 focus:outline-none focus:border-amber-500 transition-colors cursor-pointer"
               >
                 {RULE_CATEGORIES.map((cat) => (
                   <option key={cat.value} value={cat.value}>
@@ -303,7 +303,7 @@ export default function SessionZeroStep({
               <button
                 onClick={handleAddRule}
                 disabled={!newRuleName.trim()}
-                className="px-3 py-1.5 text-xs bg-amber-600 hover:bg-amber-500 rounded text-white cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                className="px-3 py-1.5 text-xs bg-amber-600 hover:bg-accent-strong rounded text-white cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {t('campaign.sessionZeroStep.addRule')}
               </button>
@@ -335,7 +335,7 @@ export default function SessionZeroStep({
           onChange={(e) => update('playSchedule', e.target.value)}
           placeholder={t('campaign.sessionZeroStep.playSchedulePlaceholder')}
           rows={2}
-          className="w-full px-3 py-2 text-xs bg-gray-800 border border-gray-700 rounded text-gray-200 resize-none"
+          className="w-full px-3 py-2 text-xs bg-surface-2 border border-border rounded text-gray-200 resize-none"
         />
       </div>
 
@@ -349,7 +349,7 @@ export default function SessionZeroStep({
           onChange={(e) => update('additionalNotes', e.target.value)}
           placeholder={t('campaign.sessionZeroStep.additionalNotesPlaceholder')}
           rows={2}
-          className="w-full px-3 py-2 text-xs bg-gray-800 border border-gray-700 rounded text-gray-200 resize-none"
+          className="w-full px-3 py-2 text-xs bg-surface-2 border border-border rounded text-gray-200 resize-none"
         />
       </div>
     </div>

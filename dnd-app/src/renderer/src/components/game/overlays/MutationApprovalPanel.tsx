@@ -142,7 +142,7 @@ function MutationCard({
     t('game.mutationApprovalPanel.unknown')
 
   return (
-    <div className="bg-gray-800/90 border border-gray-700 rounded-lg p-2.5 space-y-2">
+    <div className="bg-surface-2/90 border border-border rounded-lg p-2.5 space-y-2">
       <div className="flex items-center justify-between">
         <span className="text-xs font-semibold text-gray-200">{charName}</span>
         <CountdownTimer timestamp={set.timestamp} />

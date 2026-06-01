@@ -61,7 +61,7 @@ export default function LibrarySidebar({
       <button
         onClick={() => onSelectCategory(null)}
         className={`w-full text-left px-4 py-3 text-sm font-semibold transition-colors cursor-pointer
-          ${selectedCategory === null && !isFavoritesSelected ? 'text-amber-400 bg-gray-800/60' : 'text-gray-300 hover:text-amber-400 hover:bg-gray-800/40'}`}
+          ${selectedCategory === null && !isFavoritesSelected ? 'text-accent bg-surface-2/60' : 'text-gray-300 hover:text-accent hover:bg-surface-2/40'}`}
       >
         {t('library.librarySidebar.allCategories')}
       </button>
@@ -70,7 +70,7 @@ export default function LibrarySidebar({
         <button
           onClick={onSelectFavorites}
           className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 transition-colors cursor-pointer
-            ${isFavoritesSelected ? 'text-amber-400 bg-amber-900/20 border-r-2 border-amber-500' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/40'}`}
+            ${isFavoritesSelected ? 'text-accent bg-amber-900/20 border-r-2 border-amber-500' : 'text-muted hover:text-gray-200 hover:bg-surface-2/40'}`}
         >
           <span className="text-base leading-none">★</span>
           <span className="flex-1 truncate">{t('library.librarySidebar.favorites')}</span>
@@ -81,7 +81,7 @@ export default function LibrarySidebar({
         <button
           onClick={onSelectCoreBooks}
           className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 transition-colors cursor-pointer
-            ${isCoreBooksSelected ? 'text-amber-400 bg-amber-900/20 border-r-2 border-amber-500' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/40'}`}
+            ${isCoreBooksSelected ? 'text-accent bg-amber-900/20 border-r-2 border-amber-500' : 'text-muted hover:text-gray-200 hover:bg-surface-2/40'}`}
         >
           <span className="text-base leading-none">📚</span>
           <span className="flex-1 truncate">{t('library.librarySidebar.coreBooks')}</span>
@@ -124,14 +124,14 @@ export default function LibrarySidebar({
                       className={`w-full text-left px-4 py-1.5 text-sm flex items-center gap-2 transition-colors cursor-pointer
                         ${
                           selectedCategory === cat.id
-                            ? 'text-amber-400 bg-amber-900/20 border-r-2 border-amber-500'
-                            : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/40'
+                            ? 'text-accent bg-amber-900/20 border-r-2 border-amber-500'
+                            : 'text-muted hover:text-gray-200 hover:bg-surface-2/40'
                         }`}
                     >
                       <span className="text-base leading-none">{cat.icon}</span>
                       <span className="flex-1 truncate">{cat.label}</span>
                       {(total > 0 || hbCount > 0) && (
-                        <span className="text-xs bg-gray-700/60 text-gray-400 px-1.5 rounded-full">
+                        <span className="text-xs bg-gray-700/60 text-muted px-1.5 rounded-full">
                           {total > 0 ? total : ''}
                           {hbCount > 0
                             ? `${total > 0 ? ' · ' : ''}${t('library.librarySidebar.customCount', { count: hbCount })}`
@@ -150,8 +150,8 @@ export default function LibrarySidebar({
                       className={`w-full text-left px-4 py-1.5 text-sm flex items-center gap-2 transition-colors cursor-pointer
                         ${
                           selectedCategory === cat.id
-                            ? 'text-amber-400 bg-amber-900/20 border-r-2 border-amber-500'
-                            : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/40'
+                            ? 'text-accent bg-amber-900/20 border-r-2 border-amber-500'
+                            : 'text-muted hover:text-gray-200 hover:bg-surface-2/40'
                         }`}
                     >
                       <span className="text-base leading-none">{cat.icon}</span>

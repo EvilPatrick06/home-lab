@@ -41,7 +41,7 @@ export function SpellRow({
   const [expanded, setExpanded] = useState(false)
   return (
     <div className="border-b border-gray-800/50 last:border-0">
-      <div className="flex items-center gap-2 px-4 py-1.5 hover:bg-gray-800/30">
+      <div className="flex items-center gap-2 px-4 py-1.5 hover:bg-surface-2/30">
         <button
           onClick={onToggle}
           className={`w-4 h-4 rounded border flex items-center justify-center text-xs shrink-0 ${
@@ -51,7 +51,7 @@ export function SpellRow({
           {selected && '\u2713'}
         </button>
         <button onClick={() => setExpanded(!expanded)} className="flex-1 flex items-center justify-between text-left">
-          <span className={`text-sm ${selected ? 'text-gray-200' : 'text-gray-400'} flex items-center gap-1.5`}>
+          <span className={`text-sm ${selected ? 'text-gray-200' : 'text-muted'} flex items-center gap-1.5`}>
             {spell.name}
             {isOffList && (
               <span className="text-xs text-orange-400 border border-orange-700 rounded px-1">
@@ -67,7 +67,7 @@ export function SpellRow({
         </button>
       </div>
       {expanded && (
-        <div className="px-6 pb-2 text-xs text-gray-400 space-y-1">
+        <div className="px-6 pb-2 text-xs text-muted space-y-1">
           <div className="flex gap-3 text-gray-500">
             <span>{spell.castingTime || spell.castTime}</span>
             <span>{spell.range}</span>
@@ -116,7 +116,7 @@ export default function SpellSummary5e({
         onClick={() => setCollapsed(!collapsed)}
         className="w-full px-4 py-1.5 bg-amber-900/20 flex items-center justify-between cursor-pointer hover:bg-amber-900/30 transition-colors"
       >
-        <span className="text-xs font-semibold text-amber-400 uppercase tracking-wide">
+        <span className="text-xs font-semibold text-accent uppercase tracking-wide">
           {t('builder.spellSummary.selectedSpells', { count: selectedSpellIds.length })}
         </span>
         <span className="text-gray-500 text-xs">{collapsed ? '\u25B8' : '\u25BE'}</span>
@@ -135,7 +135,7 @@ export default function SpellSummary5e({
                   <span className="text-sm text-gray-300">{spell.name}</span>
                   <button
                     onClick={() => onRemove(spell.id)}
-                    className="text-xs text-gray-500 hover:text-red-400 px-1.5 py-0.5 rounded hover:bg-gray-800 transition-colors cursor-pointer"
+                    className="text-xs text-gray-500 hover:text-red-400 px-1.5 py-0.5 rounded hover:bg-surface-2 transition-colors cursor-pointer"
                   >
                     {t('builder.spellSummary.remove')}
                   </button>

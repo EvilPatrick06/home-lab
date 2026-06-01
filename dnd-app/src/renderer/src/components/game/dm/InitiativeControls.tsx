@@ -79,7 +79,7 @@ export default function InitiativeControls({
               </span>
             )}
           </div>
-          <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
+          <div className="h-1.5 bg-surface-2 rounded-full overflow-hidden">
             <div
               className={`h-full rounded-full transition-all duration-1000 ${timerColor} ${
                 timerFlash ? 'animate-pulse' : ''
@@ -92,14 +92,14 @@ export default function InitiativeControls({
 
       {/* Delayed entries */}
       {delayedEntries.length > 0 && isHost && (
-        <div className="border-t border-gray-700/50 pt-1">
+        <div className="border-t border-border/50 pt-1">
           <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">
             {t('game.initiativeControls.delayed')}
           </div>
           {delayedEntries.map((entry) => (
             <div
               key={entry.id}
-              className="flex items-center gap-2 p-1.5 rounded bg-gray-800/30 text-xs text-gray-400 mb-0.5"
+              className="flex items-center gap-2 p-1.5 rounded bg-surface-2/30 text-xs text-muted mb-0.5"
             >
               <span
                 className={`w-2 h-2 rounded-full flex-shrink-0 ${
@@ -136,23 +136,25 @@ export default function InitiativeControls({
           {showAddForm ? (
             <div className="flex gap-1 items-center">
               <input
+                aria-label={t('game.initiativeControls.namePlaceholder')}
                 type="text"
                 placeholder={t('game.initiativeControls.namePlaceholder')}
                 value={addName}
                 onChange={(e) => setAddName(e.target.value)}
-                className="flex-1 p-1 rounded bg-gray-800 border border-gray-700 text-gray-100 placeholder-gray-600 text-xs focus:outline-none focus:border-amber-500"
+                className="flex-1 p-1 rounded bg-surface-2 border border-border text-fg placeholder-gray-600 text-xs focus:outline-none focus:border-amber-500"
               />
               <input
+                aria-label={t('game.initiativeControls.initPlaceholder')}
                 type="number"
                 placeholder={t('game.initiativeControls.initPlaceholder')}
                 value={addInit}
                 onChange={(e) => setAddInit(e.target.value)}
-                className="w-12 p-1 rounded bg-gray-800 border border-gray-700 text-gray-100 text-center text-xs focus:outline-none focus:border-amber-500"
+                className="w-12 p-1 rounded bg-surface-2 border border-border text-fg text-center text-xs focus:outline-none focus:border-amber-500"
               />
               <select
                 value={addType}
                 onChange={(e) => setAddType(e.target.value as 'player' | 'npc' | 'enemy')}
-                className="w-14 p-1 rounded bg-gray-800 border border-gray-700 text-gray-200 text-xs cursor-pointer"
+                className="w-14 p-1 rounded bg-surface-2 border border-border text-gray-200 text-xs cursor-pointer"
               >
                 <option value="player">{t('game.initiativeControls.typePlayer')}</option>
                 <option value="npc">{t('game.initiativeControls.typeNpc')}</option>
@@ -193,7 +195,7 @@ export default function InitiativeControls({
           ) : (
             <button
               onClick={() => setShowAddForm(true)}
-              className="w-full py-1 text-xs rounded bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-gray-200 transition-colors cursor-pointer"
+              className="w-full py-1 text-xs rounded bg-surface-2 text-muted hover:bg-gray-700 hover:text-gray-200 transition-colors cursor-pointer"
             >
               {t('game.initiativeControls.addEntry')}
             </button>
@@ -202,7 +204,7 @@ export default function InitiativeControls({
             <button
               onClick={onPrevTurn}
               aria-label={t('game.initiativeControls.previousTurn')}
-              className="flex-1 py-1.5 text-xs rounded-lg bg-gray-800 text-gray-400
+              className="flex-1 py-1.5 text-xs rounded-lg bg-surface-2 text-muted
                 hover:bg-gray-700 hover:text-gray-200 transition-colors cursor-pointer"
             >
               {t('game.initiativeControls.prev')}
@@ -210,7 +212,7 @@ export default function InitiativeControls({
             <button
               onClick={onNextTurn}
               aria-label={t('game.initiativeControls.nextTurn')}
-              className="flex-2 py-1.5 text-xs rounded-lg bg-amber-600 hover:bg-amber-500 text-white
+              className="flex-2 py-1.5 text-xs rounded-lg bg-amber-600 hover:bg-accent-strong text-white
                 font-semibold transition-colors cursor-pointer"
             >
               {t('game.initiativeControls.nextTurn')}
@@ -218,7 +220,7 @@ export default function InitiativeControls({
             <button
               onClick={onEndInitiative}
               aria-label={t('game.initiativeControls.endInitiative')}
-              className="flex-1 py-1.5 text-xs rounded-lg bg-gray-800 text-gray-400
+              className="flex-1 py-1.5 text-xs rounded-lg bg-surface-2 text-muted
                 hover:bg-red-700 hover:text-white transition-colors cursor-pointer"
             >
               {t('game.initiativeControls.end')}

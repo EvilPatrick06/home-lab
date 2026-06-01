@@ -33,13 +33,13 @@ export default function MulticlassAdvisor({
       <div className="space-y-4 max-h-[60vh] overflow-y-auto">
         {/* Eligibility Table */}
         <div>
-          <h4 className="text-sm font-semibold text-amber-400 mb-2">{t('sheet.multiclassAdvisor.classEligibility')}</h4>
+          <h4 className="text-sm font-semibold text-accent mb-2">{t('sheet.multiclassAdvisor.classEligibility')}</h4>
           <div className="space-y-1">
             {advice.eligible.map((e) => (
               <div
                 key={e.className}
                 className={`flex items-center justify-between p-2 rounded text-sm ${
-                  e.eligible ? 'bg-green-900/20 text-green-300' : 'bg-gray-800/50 text-gray-500'
+                  e.eligible ? 'bg-green-900/20 text-green-300' : 'bg-surface-2/50 text-gray-500'
                 }`}
               >
                 <span className="font-medium">{e.className}</span>
@@ -61,14 +61,12 @@ export default function MulticlassAdvisor({
         {/* Proficiency Gains */}
         {advice.gains.length > 0 && (
           <div>
-            <h4 className="text-sm font-semibold text-amber-400 mb-2">
-              {t('sheet.multiclassAdvisor.proficiencyGains')}
-            </h4>
+            <h4 className="text-sm font-semibold text-accent mb-2">{t('sheet.multiclassAdvisor.proficiencyGains')}</h4>
             <div className="space-y-1">
               {advice.gains.map((g) => (
                 <div key={g.className} className="text-sm">
                   <span className="text-gray-200 font-medium">{g.className}:</span>{' '}
-                  <span className="text-gray-400">
+                  <span className="text-muted">
                     {g.proficiencies.length > 0 ? g.proficiencies.join(', ') : t('sheet.multiclassAdvisor.none')}
                   </span>
                 </div>

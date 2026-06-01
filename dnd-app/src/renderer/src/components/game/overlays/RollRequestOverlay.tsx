@@ -114,7 +114,7 @@ export default function RollRequestOverlay({ request, character, onRoll, onDismi
         visible ? 'translate-y-0' : '-translate-y-full'
       }`}
     >
-      <div className="mx-4 mt-4 w-full max-w-md bg-gray-900 border border-amber-600/50 rounded-xl shadow-2xl shadow-amber-900/20 overflow-hidden">
+      <div className="mx-4 mt-4 w-full max-w-md bg-surface border border-amber-600/50 rounded-xl shadow-2xl shadow-amber-900/20 overflow-hidden">
         {/* Urgency bar */}
         <div className="h-1 bg-gradient-to-r from-amber-600 via-purple-500 to-amber-600 animate-pulse" />
 
@@ -123,14 +123,12 @@ export default function RollRequestOverlay({ request, character, onRoll, onDismi
             <>
               {/* Request Info */}
               <div className="text-center mb-3">
-                <div className="text-xs text-amber-400/70 uppercase tracking-wider font-medium mb-1">
+                <div className="text-xs text-accent/70 uppercase tracking-wider font-medium mb-1">
                   {t('game.rollRequestOverlay.dmRequests')}
                 </div>
                 <div className="text-lg font-bold text-white">{getRequestLabel()}</div>
                 {!request.isSecret && (
-                  <div className="text-sm text-gray-400 mt-0.5">
-                    {t('game.rollRequestOverlay.dc', { dc: request.dc })}
-                  </div>
+                  <div className="text-sm text-muted mt-0.5">{t('game.rollRequestOverlay.dc', { dc: request.dc })}</div>
                 )}
                 {request.isSecret && (
                   <div className="text-xs text-purple-400 mt-0.5">{t('game.rollRequestOverlay.secretRoll')}</div>
@@ -141,14 +139,14 @@ export default function RollRequestOverlay({ request, character, onRoll, onDismi
               {character ? (
                 <button
                   onClick={handleRoll}
-                  className="w-full py-3 bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white font-bold rounded-lg transition-colors text-sm flex items-center justify-center gap-2"
+                  className="w-full py-3 bg-amber-600 hover:bg-accent-strong active:bg-amber-700 text-white font-bold rounded-lg transition-colors text-sm flex items-center justify-center gap-2"
                 >
                   <span className="text-lg">&#9860;</span>
                   {t('game.rollRequestOverlay.rollD20', { mod: formatMod(modifier) })}
                 </button>
               ) : (
                 <div className="text-center">
-                  <div className="text-sm text-gray-400 mb-2">{t('game.rollRequestOverlay.noCharacterLoaded')}</div>
+                  <div className="text-sm text-muted mb-2">{t('game.rollRequestOverlay.noCharacterLoaded')}</div>
                   <button
                     onClick={handleRoll}
                     className="w-full py-3 bg-gray-700 hover:bg-gray-600 text-white font-bold rounded-lg transition-colors text-sm"
@@ -168,7 +166,7 @@ export default function RollRequestOverlay({ request, character, onRoll, onDismi
               >
                 {result.total}
               </div>
-              <div className="text-sm text-gray-400 mb-2">
+              <div className="text-sm text-muted mb-2">
                 <span
                   className={`font-mono ${
                     result.roll === 20 ? 'text-green-400' : result.roll === 1 ? 'text-red-400' : ''

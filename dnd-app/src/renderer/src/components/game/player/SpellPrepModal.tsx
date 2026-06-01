@@ -116,12 +116,12 @@ export default function SpellPrepModal({ character, onClose }: SpellPrepModalPro
     return (
       <div className="fixed inset-0 z-20 flex items-end justify-center pb-20">
         <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
-        <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-md w-full mx-4">
+        <div className="relative bg-surface/95 backdrop-blur-sm border border-border/50 rounded-xl p-4 max-w-md w-full mx-4">
           <p className="text-sm text-gray-300">{t('game.spellPrepModal.preparedCasterOnly')}</p>
           <button
             type="button"
             onClick={onClose}
-            className="mt-3 px-3 py-1.5 text-xs rounded bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
+            className="mt-3 px-3 py-1.5 text-xs rounded bg-surface-2 text-gray-300 hover:bg-gray-700 cursor-pointer"
           >
             {t('common.actions.close')}
           </button>
@@ -133,7 +133,7 @@ export default function SpellPrepModal({ character, onClose }: SpellPrepModalPro
   return (
     <div className="fixed inset-0 z-20 flex items-end justify-center pb-20">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-lg w-full mx-4 shadow-2xl max-h-[60vh] flex flex-col">
+      <div className="relative bg-surface/95 backdrop-blur-sm border border-border/50 rounded-xl p-4 max-w-lg w-full mx-4 shadow-2xl max-h-[60vh] flex flex-col">
         <div className="flex items-center justify-between mb-2 shrink-0">
           <div>
             <h3 className="text-sm font-semibold text-gray-200">{t('game.spellPrepModal.prepareSpells')}</h3>
@@ -174,7 +174,7 @@ export default function SpellPrepModal({ character, onClose }: SpellPrepModalPro
                   className={`w-full flex items-center justify-between px-2 py-1.5 rounded text-xs transition-colors ${
                     isPrepared
                       ? 'bg-amber-900/40 border border-amber-600/40 text-amber-100'
-                      : 'bg-gray-800/40 border border-gray-700/30 text-gray-300 hover:bg-gray-800'
+                      : 'bg-surface-2/40 border border-border/30 text-gray-300 hover:bg-surface-2'
                   } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                   aria-pressed={isPrepared}
                 >

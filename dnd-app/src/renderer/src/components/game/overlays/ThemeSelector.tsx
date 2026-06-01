@@ -30,7 +30,7 @@ export default function ThemeSelector({ onClose }: ThemeSelectorProps): JSX.Elem
   }
 
   return (
-    <div className="w-56 bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl overflow-hidden shadow-xl">
+    <div className="w-56 bg-surface/95 backdrop-blur-sm border border-border/50 rounded-xl overflow-hidden shadow-xl">
       <div className="px-4 py-2.5 border-b border-gray-800 flex items-center justify-between">
         <span className="text-xs font-semibold text-gray-200">{t('game.themeSelector.title')}</span>
         {onClose && (
@@ -54,7 +54,7 @@ export default function ThemeSelector({ onClose }: ThemeSelectorProps): JSX.Elem
               key={name}
               onClick={() => handleSelect(name)}
               className={`w-full px-4 py-2 flex items-center gap-3 text-left text-xs transition-colors cursor-pointer ${
-                isActive ? 'bg-gray-800 text-gray-100' : 'text-gray-300 hover:bg-gray-800/60 hover:text-gray-100'
+                isActive ? 'bg-surface-2 text-fg' : 'text-gray-300 hover:bg-surface-2/60 hover:text-fg'
               }`}
             >
               {/* Color swatches */}
@@ -79,7 +79,7 @@ export default function ThemeSelector({ onClose }: ThemeSelectorProps): JSX.Elem
               <span className="flex-1">{themeLabels[name]}</span>
 
               {isActive && (
-                <span className="text-amber-400 text-xs font-semibold shrink-0">{t('game.themeSelector.active')}</span>
+                <span className="text-accent text-xs font-semibold shrink-0">{t('game.themeSelector.active')}</span>
               )}
             </button>
           )

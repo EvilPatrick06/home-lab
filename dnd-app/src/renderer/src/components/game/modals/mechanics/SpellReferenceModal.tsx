@@ -12,7 +12,7 @@ export default function SpellReferenceModal({ onClose }: SpellReferenceModalProp
   return (
     <div className="fixed inset-0 z-30 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
-      <div className="relative bg-gray-900 border border-gray-700 rounded-xl w-[700px] max-h-[85vh] overflow-hidden shadow-2xl flex flex-col">
+      <div className="relative bg-surface border border-border rounded-xl w-[700px] max-h-[85vh] overflow-hidden shadow-2xl flex flex-col">
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
           <h3 className="text-sm font-semibold text-gray-200">{t('game.spellReferenceModal.title')}</h3>
           <button

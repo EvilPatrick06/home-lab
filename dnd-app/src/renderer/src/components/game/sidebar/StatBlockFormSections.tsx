@@ -24,11 +24,11 @@ interface CollapsibleSectionProps {
 export function CollapsibleSection({ title, children, defaultOpen = false }: CollapsibleSectionProps): JSX.Element {
   const [open, setOpen] = useState(defaultOpen)
   return (
-    <div className="border border-gray-700/40 rounded">
+    <div className="border border-border/40 rounded">
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between px-2 py-1.5 text-[11px] font-semibold text-gray-300 hover:text-amber-400 transition-colors cursor-pointer"
+        className="w-full flex items-center justify-between px-2 py-1.5 text-[11px] font-semibold text-gray-300 hover:text-accent transition-colors cursor-pointer"
       >
         <span>{title}</span>
         <span className="text-gray-500 text-xs">{open ? '\u25B2' : '\u25BC'}</span>
@@ -72,13 +72,13 @@ export function NameDescRows({ items, onChange, showCost = false }: NameDescRowP
               type="text"
               value={item.name}
               onChange={(e) => updateRow(idx, 'name', e.target.value)}
-              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full px-1.5 py-0.5 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
               placeholder={t('game.statBlockFormSections.namePlaceholder')}
             />
             <textarea
               value={item.description}
               onChange={(e) => updateRow(idx, 'description', e.target.value)}
-              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500 resize-none"
+              className="w-full px-1.5 py-0.5 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500 resize-none"
               rows={2}
               placeholder={t('game.statBlockFormSections.descriptionPlaceholder')}
             />
@@ -87,7 +87,7 @@ export function NameDescRows({ items, onChange, showCost = false }: NameDescRowP
                 type="number"
                 value={item.cost ?? ''}
                 onChange={(e) => updateRow(idx, 'cost', e.target.value)}
-                className="w-16 px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
+                className="w-16 px-1.5 py-0.5 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
                 placeholder={t('game.statBlockFormSections.costPlaceholder')}
                 min={1}
               />
@@ -103,7 +103,7 @@ export function NameDescRows({ items, onChange, showCost = false }: NameDescRowP
           </button>
         </div>
       ))}
-      <button type="button" onClick={addRow} className="text-xs text-gray-500 hover:text-amber-400 cursor-pointer">
+      <button type="button" onClick={addRow} className="text-xs text-gray-500 hover:text-accent cursor-pointer">
         {t('game.statBlockFormSections.add')}
       </button>
     </div>
@@ -142,7 +142,7 @@ export function SpellcastingSection({
               <select
                 value={spellcasting.ability}
                 onChange={(e) => onUpdate({ ability: e.target.value })}
-                className="w-full px-1 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
+                className="w-full px-1 py-0.5 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
               >
                 {SPELLCASTING_ABILITIES.map((a) => (
                   <option key={a} value={a}>
@@ -157,7 +157,7 @@ export function SpellcastingSection({
                 type="number"
                 value={spellcasting.dc}
                 onChange={(e) => onUpdate({ dc: parseInt(e.target.value, 10) || 0 })}
-                className="w-full px-1 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 text-center focus:outline-none focus:border-amber-500"
+                className="w-full px-1 py-0.5 rounded bg-surface border border-border text-xs text-fg text-center focus:outline-none focus:border-amber-500"
               />
             </div>
             <div>
@@ -166,7 +166,7 @@ export function SpellcastingSection({
                 type="number"
                 value={spellcasting.attackBonus}
                 onChange={(e) => onUpdate({ attackBonus: parseInt(e.target.value, 10) || 0 })}
-                className="w-full px-1 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 text-center focus:outline-none focus:border-amber-500"
+                className="w-full px-1 py-0.5 rounded bg-surface border border-border text-xs text-fg text-center focus:outline-none focus:border-amber-500"
               />
             </div>
           </div>
@@ -182,7 +182,7 @@ export function SpellcastingSection({
                     type="number"
                     value={spellcasting.slots?.[level] ?? ''}
                     onChange={(e) => onSlotUpdate(level, e.target.value)}
-                    className="w-full px-0 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 text-center focus:outline-none focus:border-amber-500"
+                    className="w-full px-0 py-0.5 rounded bg-surface border border-border text-xs text-fg text-center focus:outline-none focus:border-amber-500"
                     min={0}
                   />
                 </div>
@@ -200,7 +200,7 @@ export function SpellcastingSection({
                   spells: e.target.value ? parseCommaSeparated(e.target.value) : undefined
                 })
               }
-              className="w-full px-1.5 py-0.5 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500 resize-none"
+              className="w-full px-1.5 py-0.5 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500 resize-none"
               rows={2}
               placeholder={t('game.statBlockFormSections.spellsPlaceholder')}
             />

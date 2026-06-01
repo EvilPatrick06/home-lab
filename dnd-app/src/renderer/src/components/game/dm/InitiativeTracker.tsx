@@ -326,7 +326,7 @@ export default function InitiativeTracker({
         <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
           {t('game.initiativeTracker.title')}
         </h3>
-        <span className="text-xs text-amber-400 font-semibold">
+        <span className="text-xs text-accent font-semibold">
           {t('game.initiativeTracker.round', { round: initiative.round })}
         </span>
       </div>

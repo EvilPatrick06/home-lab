@@ -12,7 +12,7 @@ export default function PlayerHUD({ character, conditions }: PlayerHUDProps): JS
   const { t } = useT()
   if (!character) {
     return (
-      <div className="bg-gray-900/90 border-t border-gray-700 px-4 py-2">
+      <div className="bg-surface/90 border-t border-border px-4 py-2">
         <p className="text-sm text-gray-500">{t('game.playerHud.noCharacterLoaded')}</p>
       </div>
     )
@@ -34,7 +34,7 @@ export default function PlayerHUD({ character, conditions }: PlayerHUDProps): JS
     // hearing a soup of decorative "HP" / "AC" / "Init" labels followed
     // by numbers.
     <section
-      className="bg-gray-900/90 border-t border-gray-700 px-4 py-2"
+      className="bg-surface/90 border-t border-border px-4 py-2"
       role="region"
       aria-label={t('game.playerHud.statusLabel', { name: character.name })}
     >
@@ -44,7 +44,7 @@ export default function PlayerHUD({ character, conditions }: PlayerHUDProps): JS
           className="flex-shrink-0"
           aria-label={t('game.playerHud.characterLabel', { name: character.name, level: character.level })}
         >
-          <span className="text-sm font-semibold text-gray-100">{character.name}</span>
+          <span className="text-sm font-semibold text-fg">{character.name}</span>
           <span className="text-xs text-gray-500 ml-2">{t('game.playerHud.level', { level: character.level })}</span>
         </div>
 
@@ -60,7 +60,7 @@ export default function PlayerHUD({ character, conditions }: PlayerHUDProps): JS
           </span>
           <div className="flex-1 relative">
             <div
-              className="h-4 bg-gray-800 rounded-full overflow-hidden"
+              className="h-4 bg-surface-2 rounded-full overflow-hidden"
               role="progressbar"
               aria-valuenow={hp.current}
               aria-valuemin={0}
@@ -84,7 +84,7 @@ export default function PlayerHUD({ character, conditions }: PlayerHUDProps): JS
           <span className="text-xs text-gray-500" aria-hidden="true">
             {t('game.playerHud.ac')}
           </span>
-          <span className="text-sm font-semibold text-gray-100 bg-gray-800 rounded px-2 py-0.5" aria-hidden="true">
+          <span className="text-sm font-semibold text-fg bg-surface-2 rounded px-2 py-0.5" aria-hidden="true">
             {ac}
           </span>
         </div>
@@ -97,7 +97,7 @@ export default function PlayerHUD({ character, conditions }: PlayerHUDProps): JS
           <span className="text-xs text-gray-500" aria-hidden="true">
             {t('game.playerHud.init')}
           </span>
-          <span className="text-sm font-semibold text-gray-100 bg-gray-800 rounded px-2 py-0.5" aria-hidden="true">
+          <span className="text-sm font-semibold text-fg bg-surface-2 rounded px-2 py-0.5" aria-hidden="true">
             {formatMod(dexMod)}
           </span>
         </div>
@@ -107,7 +107,7 @@ export default function PlayerHUD({ character, conditions }: PlayerHUDProps): JS
           <span className="text-xs text-gray-500" aria-hidden="true">
             {t('game.playerHud.speed')}
           </span>
-          <span className="text-sm font-semibold text-gray-100 bg-gray-800 rounded px-2 py-0.5" aria-hidden="true">
+          <span className="text-sm font-semibold text-fg bg-surface-2 rounded px-2 py-0.5" aria-hidden="true">
             {t('game.playerHud.speedFeet', { speed })}
           </span>
         </div>

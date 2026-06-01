@@ -125,13 +125,13 @@ export default function AudioPlayerItem({
 
   return (
     <div
-      className="flex items-center gap-3 px-4 py-3 border-b border-gray-800/50 hover:bg-gray-800/40 transition-colors cursor-pointer group"
+      className="flex items-center gap-3 px-4 py-3 border-b border-gray-800/50 hover:bg-surface-2/40 transition-colors cursor-pointer group"
       onClick={onClick}
     >
       {/* Play/Pause button */}
       <button
         onClick={handleToggle}
-        className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-700/60 hover:bg-amber-600/40 text-gray-300 hover:text-amber-400 transition-colors flex-shrink-0 cursor-pointer"
+        className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-700/60 hover:bg-amber-600/40 text-gray-300 hover:text-accent transition-colors flex-shrink-0 cursor-pointer"
       >
         {playing ? '⏸' : '▶'}
       </button>
@@ -139,10 +139,10 @@ export default function AudioPlayerItem({
       {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-gray-100 group-hover:text-amber-400 transition-colors truncate">
+          <span className="text-sm font-medium text-fg group-hover:text-accent transition-colors truncate">
             {item.name}
           </span>
-          <span className="text-xs bg-gray-700/60 text-gray-400 px-1.5 py-0.5 rounded-full flex-shrink-0">
+          <span className="text-xs bg-gray-700/60 text-muted px-1.5 py-0.5 rounded-full flex-shrink-0">
             {subcategory.replace(/\//g, ' › ')}
           </span>
           {(!hasPath || missingSource) && (
@@ -159,7 +159,7 @@ export default function AudioPlayerItem({
         <div className="flex items-center gap-2 mt-1">
           <div className="flex-1 h-1 bg-gray-700 rounded-full overflow-hidden">
             <div
-              className="h-full bg-amber-500 transition-all duration-100"
+              className="h-full bg-accent-strong transition-all duration-100"
               style={{ width: duration > 0 ? `${(progress / duration) * 100}%` : '0%' }}
             />
           </div>
@@ -179,7 +179,7 @@ export default function AudioPlayerItem({
             onToggleFavorite(item.id)
           }}
           className={`text-lg flex-shrink-0 transition-colors cursor-pointer ${
-            isFavorite ? 'text-amber-400' : 'text-gray-600 hover:text-gray-400'
+            isFavorite ? 'text-accent' : 'text-gray-600 hover:text-muted'
           }`}
           title={isFavorite ? t('library.audioPlayerItem.removeFavorite') : t('library.audioPlayerItem.addFavorite')}
         >

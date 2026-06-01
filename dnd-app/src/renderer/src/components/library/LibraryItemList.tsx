@@ -53,7 +53,7 @@ export default function LibraryItemList({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="flex items-center gap-3 text-gray-400">
+        <div className="flex items-center gap-3 text-muted">
           <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -84,7 +84,7 @@ export default function LibraryItemList({
         <p className="text-sm mb-4">{t('library.libraryItemList.adjustSearch')}</p>
         <button
           onClick={onCreateNew}
-          className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-sm font-semibold transition-colors cursor-pointer"
+          className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-accent-strong text-white text-sm font-semibold transition-colors cursor-pointer"
         >
           {t('library.libraryItemList.createCustom', { category: categoryLabel })}
         </button>
@@ -145,12 +145,12 @@ export default function LibraryItemList({
                   }}
                   onDragEnd={() => setDraggingId(null)}
                   className={`w-full text-left flex items-center gap-3 px-4 py-3 border-b border-gray-800/50
-                    hover:bg-gray-800/40 transition-colors cursor-pointer group ${draggingId === item.id ? 'opacity-50' : ''}`}
+                    hover:bg-surface-2/40 transition-colors cursor-pointer group ${draggingId === item.id ? 'opacity-50' : ''}`}
                 >
                   {catDef && <span className="text-lg leading-none flex-shrink-0">{catDef.icon}</span>}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-gray-100 group-hover:text-amber-400 transition-colors truncate">
+                      <span className="text-sm font-medium text-fg group-hover:text-accent transition-colors truncate">
                         {item.name}
                       </span>
                       {item.source === 'homebrew' && (
@@ -168,7 +168,7 @@ export default function LibraryItemList({
                         onToggleFavorite(item.id)
                       }}
                       className={`text-lg flex-shrink-0 transition-colors cursor-pointer ${
-                        isFav ? 'text-amber-400' : 'text-gray-600 hover:text-gray-400'
+                        isFav ? 'text-accent' : 'text-gray-600 hover:text-muted'
                       }`}
                       title={
                         isFav ? t('library.libraryItemList.removeFavorite') : t('library.libraryItemList.addFavorite')
@@ -178,7 +178,7 @@ export default function LibraryItemList({
                     </button>
                   )}
                   <svg
-                    className="w-4 h-4 text-gray-600 group-hover:text-gray-400 flex-shrink-0"
+                    className="w-4 h-4 text-gray-600 group-hover:text-muted flex-shrink-0"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"

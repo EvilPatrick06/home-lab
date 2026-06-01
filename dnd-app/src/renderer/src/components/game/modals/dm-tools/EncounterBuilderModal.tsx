@@ -65,7 +65,7 @@ interface MonsterData {
 const DIFFICULTY_STYLES: Record<EncounterDifficulty, { color: string; bg: string }> = {
   None: { color: 'text-gray-500', bg: 'bg-gray-700' },
   Low: { color: 'text-green-400', bg: 'bg-green-600' },
-  Moderate: { color: 'text-amber-400', bg: 'bg-amber-600' },
+  Moderate: { color: 'text-accent', bg: 'bg-amber-600' },
   High: { color: 'text-orange-400', bg: 'bg-orange-600' },
   'Over Budget': { color: 'text-red-400', bg: 'bg-red-600' }
 }
@@ -366,15 +366,15 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
       role="presentation"
     >
       <div
-        className="bg-gray-900 border border-gray-700 rounded-xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col"
+        className="bg-surface border border-border rounded-xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3 border-b border-gray-700">
-          <h2 className="text-lg font-bold text-amber-400">{t('game.encounterBuilderModal.title')}</h2>
+        <div className="flex items-center justify-between px-5 py-3 border-b border-border">
+          <h2 className="text-lg font-bold text-accent">{t('game.encounterBuilderModal.title')}</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white text-xl leading-none px-1"
+            className="text-muted hover:text-white text-xl leading-none px-1"
             aria-label={t('common.actions.close')}
           >
             &times;
@@ -386,25 +386,25 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
           {/* Party Config */}
           <div className="flex gap-4 items-end">
             <div>
-              <label className="block text-xs text-gray-400 mb-1">{t('game.encounterBuilderModal.partySize')}</label>
+              <label className="block text-xs text-muted mb-1">{t('game.encounterBuilderModal.partySize')}</label>
               <input
                 type="number"
                 min={1}
                 max={10}
                 value={partySize}
                 onChange={(e) => setPartySize(Math.max(1, Math.min(10, Number(e.target.value))))}
-                className="w-20 bg-gray-800 border border-gray-600 rounded px-2 py-1 text-sm text-white"
+                className="w-20 bg-surface-2 border border-gray-600 rounded px-2 py-1 text-sm text-white"
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-400 mb-1">{t('game.encounterBuilderModal.partyLevel')}</label>
+              <label className="block text-xs text-muted mb-1">{t('game.encounterBuilderModal.partyLevel')}</label>
               <input
                 type="number"
                 min={1}
                 max={20}
                 value={partyLevel}
                 onChange={(e) => setPartyLevel(Math.max(1, Math.min(20, Number(e.target.value))))}
-                className="w-20 bg-gray-800 border border-gray-600 rounded px-2 py-1 text-sm text-white"
+                className="w-20 bg-surface-2 border border-gray-600 rounded px-2 py-1 text-sm text-white"
               />
             </div>
             <div className="text-xs text-gray-500 pb-1">
@@ -418,8 +418,8 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
 
           {/* XP Budget Bar */}
           <div>
-            <div className="text-xs text-gray-400 mb-1">{t('game.encounterBuilderModal.xpBudget')}</div>
-            <div className="relative h-6 bg-gray-800 rounded-full overflow-hidden border border-gray-700">
+            <div className="text-xs text-muted mb-1">{t('game.encounterBuilderModal.xpBudget')}</div>
+            <div className="relative h-6 bg-surface-2 rounded-full overflow-hidden border border-border">
               <div className="absolute top-0 left-0 h-full bg-green-700/60" style={{ width: `${lowPct}%` }} />
               <div
                 className="absolute top-0 h-full bg-amber-700/60"
@@ -432,7 +432,7 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
               {/* XP marker */}
               {encounter.adjustedXP > 0 && (
                 <div className="absolute top-0 h-full w-0.5 bg-white shadow-lg" style={{ left: `${xpPct}%` }}>
-                  <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-xs text-white whitespace-nowrap bg-gray-900 px-1 rounded">
+                  <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-xs text-white whitespace-nowrap bg-surface px-1 rounded">
                     {t('game.encounterBuilderModal.xpMarker', { xp: encounter.adjustedXP.toLocaleString() })}
                   </div>
                 </div>
@@ -448,22 +448,22 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
 
           {/* Monster Search */}
           <div ref={searchRef} className="relative">
-            <label className="block text-xs text-gray-400 mb-1">{t('game.encounterBuilderModal.searchMonsters')}</label>
+            <label className="block text-xs text-muted mb-1">{t('game.encounterBuilderModal.searchMonsters')}</label>
             <input
               type="text"
               value={monsterSearch}
               onChange={(e) => setMonsterSearch(e.target.value)}
               placeholder={t('game.encounterBuilderModal.searchPlaceholder')}
-              className="w-full bg-gray-800 border border-gray-600 rounded px-3 py-1.5 text-sm text-white placeholder-gray-500"
+              className="w-full bg-surface-2 border border-gray-600 rounded px-3 py-1.5 text-sm text-white placeholder-gray-500"
             />
             {/* Phase 18d — skeleton while the monster list is still loading and the user is searching */}
             {monstersLoading && monsterSearch.trim().length >= 2 && (
-              <div className="absolute z-10 mt-1 w-full bg-gray-800 border border-gray-600 rounded shadow-lg p-3">
+              <div className="absolute z-10 mt-1 w-full bg-surface-2 border border-gray-600 rounded shadow-lg p-3">
                 <Skeleton lines={4} />
               </div>
             )}
             {showDropdown && (
-              <div className="absolute z-10 mt-1 w-full bg-gray-800 border border-gray-600 rounded shadow-lg max-h-48 overflow-y-auto">
+              <div className="absolute z-10 mt-1 w-full bg-surface-2 border border-gray-600 rounded shadow-lg max-h-48 overflow-y-auto">
                 {searchResults.map((m, i) => (
                   <button
                     key={`${m.name}-${i}`}
@@ -486,11 +486,11 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
           {/* Phase 26e — link an encounter to a map */}
           {maps.length > 0 && (
             <div className="flex items-center gap-2">
-              <label className="text-xs text-gray-400">{t('game.encounterBuilderModal.map')}</label>
+              <label className="text-xs text-muted">{t('game.encounterBuilderModal.map')}</label>
               <select
                 value={mapId}
                 onChange={(e) => setMapId(e.target.value)}
-                className="bg-gray-800 border border-gray-600 rounded px-2 py-1 text-sm text-white"
+                className="bg-surface-2 border border-gray-600 rounded px-2 py-1 text-sm text-white"
               >
                 <option value="">{t('game.encounterBuilderModal.useActiveMap')}</option>
                 {maps.map((m) => (
@@ -505,7 +505,7 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
 
           {/* Phase 26d — wave tabs */}
           <div className="flex items-center gap-1 flex-wrap">
-            <span className="text-xs text-gray-400 mr-1">{t('game.encounterBuilderModal.waves')}</span>
+            <span className="text-xs text-muted mr-1">{t('game.encounterBuilderModal.waves')}</span>
             {Array.from({ length: maxWave }, (_, i) => i + 1).map((w) => (
               <button
                 key={w}
@@ -513,7 +513,7 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
                 className={`px-2 py-0.5 text-xs rounded border ${
                   activeWave === w
                     ? 'bg-amber-600 border-amber-500 text-white'
-                    : 'border-gray-600 text-gray-400 hover:border-amber-600'
+                    : 'border-gray-600 text-muted hover:border-amber-600'
                 }`}
               >
                 {t('game.encounterBuilderModal.waveTab', {
@@ -527,7 +527,7 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
                 setMaxWave((n) => n + 1)
                 setActiveWave(maxWave + 1)
               }}
-              className="px-2 py-0.5 text-xs rounded border border-gray-600 text-gray-400 hover:border-amber-600"
+              className="px-2 py-0.5 text-xs rounded border border-gray-600 text-muted hover:border-amber-600"
             >
               {t('game.encounterBuilderModal.addWave')}
             </button>
@@ -535,10 +535,10 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
 
           {/* Selected Monsters Table (active wave) */}
           {selectedMonsters.filter((m) => (m.wave ?? 1) === activeWave).length > 0 && (
-            <div className="border border-gray-700 rounded overflow-hidden">
+            <div className="border border-border rounded overflow-hidden">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-gray-800 text-gray-400 text-xs">
+                  <tr className="bg-surface-2 text-muted text-xs">
                     <th className="text-left px-3 py-2">{t('game.encounterBuilderModal.colMonster')}</th>
                     <th className="text-center px-2 py-2">{t('game.encounterBuilderModal.colCr')}</th>
                     <th className="text-center px-2 py-2">{t('game.encounterBuilderModal.colCount')}</th>
@@ -551,9 +551,9 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
                   {selectedMonsters
                     .filter((m) => (m.wave ?? 1) === activeWave)
                     .map((m) => (
-                      <tr key={m.id} className="border-t border-gray-700/50 text-gray-200">
+                      <tr key={m.id} className="border-t border-border/50 text-gray-200">
                         <td className="px-3 py-1.5">{m.name}</td>
-                        <td className="text-center px-2 py-1.5 text-gray-400">{m.cr}</td>
+                        <td className="text-center px-2 py-1.5 text-muted">{m.cr}</td>
                         <td className="text-center px-2 py-1.5">
                           <div className="flex items-center justify-center gap-1">
                             <button
@@ -580,7 +580,7 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
                                 value={m.startX ?? ''}
                                 onChange={(e) => setMonsterCoord(m.id, 'startX', e.target.value)}
                                 placeholder={t('game.encounterBuilderModal.coordX')}
-                                className="w-12 bg-gray-800 border border-gray-600 rounded px-1 py-0.5 text-xs text-white"
+                                className="w-12 bg-surface-2 border border-gray-600 rounded px-1 py-0.5 text-xs text-white"
                               />
                               <input
                                 type="number"
@@ -588,12 +588,12 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
                                 value={m.startY ?? ''}
                                 onChange={(e) => setMonsterCoord(m.id, 'startY', e.target.value)}
                                 placeholder={t('game.encounterBuilderModal.coordY')}
-                                className="w-12 bg-gray-800 border border-gray-600 rounded px-1 py-0.5 text-xs text-white"
+                                className="w-12 bg-surface-2 border border-gray-600 rounded px-1 py-0.5 text-xs text-white"
                               />
                             </div>
                           </td>
                         )}
-                        <td className="text-center px-2 py-1.5 text-amber-400">{(m.xp * m.count).toLocaleString()}</td>
+                        <td className="text-center px-2 py-1.5 text-accent">{(m.xp * m.count).toLocaleString()}</td>
                         <td className="text-center px-2 py-1.5">
                           <button
                             onClick={() => removeMonster(m.id)}
@@ -610,13 +610,13 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
           )}
 
           {/* Summary with color-coded difficulty indicator */}
-          <div className="flex items-center justify-between bg-gray-800 rounded-lg px-4 py-3 border border-gray-700">
+          <div className="flex items-center justify-between bg-surface-2 rounded-lg px-4 py-3 border border-border">
             <div className="text-sm text-gray-300">
               <span className="text-gray-500">{t('game.encounterBuilderModal.monstersLabel')}</span>{' '}
               <span className="text-white font-medium">{totalMonsterCount}</span>
               <span className="mx-2 text-gray-600">|</span>
               <span className="text-gray-500">{t('game.encounterBuilderModal.rawXpLabel')}</span>{' '}
-              <span className="text-amber-400 font-bold">{encounter.totalXP.toLocaleString()}</span>
+              <span className="text-accent font-bold">{encounter.totalXP.toLocaleString()}</span>
               {encounter.multiplier > 1 && (
                 <>
                   <span className="mx-2 text-gray-600">|</span>
@@ -641,11 +641,11 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
                 value={presetName}
                 onChange={(e) => setPresetName(e.target.value)}
                 placeholder={t('game.encounterBuilderModal.presetNamePlaceholder')}
-                className="flex-1 bg-gray-800 border border-gray-600 rounded px-3 py-1.5 text-sm text-white placeholder-gray-500"
+                className="flex-1 bg-surface-2 border border-gray-600 rounded px-3 py-1.5 text-sm text-white placeholder-gray-500"
               />
               <button
                 onClick={handleSavePreset}
-                className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white text-sm rounded"
+                className="px-3 py-1.5 bg-amber-600 hover:bg-accent-strong text-white text-sm rounded"
               >
                 {t('common.actions.save')}
               </button>
@@ -660,7 +660,7 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-5 py-3 border-t border-gray-700">
+        <div className="flex items-center justify-between px-5 py-3 border-t border-border">
           <button
             onClick={() => setShowSavePreset(true)}
             className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm rounded"
@@ -677,7 +677,7 @@ export default function EncounterBuilderModal({ onClose, onBroadcastResult }: En
             <button
               onClick={handleStartInitiative}
               disabled={selectedMonsters.length === 0}
-              className="px-4 py-1.5 bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white text-sm rounded font-medium"
+              className="px-4 py-1.5 bg-amber-600 hover:bg-accent-strong disabled:bg-gray-700 disabled:text-gray-500 text-white text-sm rounded font-medium"
             >
               {t('game.encounterBuilderModal.placeAllStart')}
             </button>

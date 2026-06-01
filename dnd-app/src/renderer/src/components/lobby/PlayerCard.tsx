@@ -54,7 +54,7 @@ export default memo(function PlayerCard({
   // own card looked amber to themselves and gray to everyone else.
   // isLocal still adds a subtle inner ring so "this is your card" stays
   // recognizable without overriding the host styling.
-  const cardBorderClass = player.isHost ? 'border-amber-700/50 bg-amber-900/10' : 'border-gray-800 bg-gray-900/30'
+  const cardBorderClass = player.isHost ? 'border-amber-700/50 bg-amber-900/10' : 'border-gray-800 bg-surface/30'
   const localRingClass = isLocal ? 'ring-1 ring-inset ring-amber-500/30' : ''
 
   return (
@@ -69,7 +69,7 @@ export default memo(function PlayerCard({
         <div className="relative flex-shrink-0">
           <button
             type="button"
-            className={`w-11 h-11 rounded-full flex items-center justify-center overflow-hidden bg-gray-800 text-white font-bold text-sm transition-all border-[3px] focus:outline-none focus:ring-2 focus:ring-amber-300 focus:ring-offset-2 focus:ring-offset-gray-900 ${
+            className={`w-11 h-11 rounded-full flex items-center justify-center overflow-hidden bg-surface-2 text-white font-bold text-sm transition-all border-[3px] focus:outline-none focus:ring-2 focus:ring-amber-300 focus:ring-offset-2 focus:ring-offset-gray-900 ${
               isLocal && onColorChange
                 ? `cursor-pointer hover:scale-105 ${player.colorConfirmed ? '' : 'animate-pulse hover:animate-none'}`
                 : 'cursor-default'
@@ -119,7 +119,7 @@ export default memo(function PlayerCard({
               cross-viewer-visible identity. */}
           {isLocal && onColorChange && (
             <div
-              className="pointer-events-none absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-gray-900 border border-amber-500 flex items-center justify-center"
+              className="pointer-events-none absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-surface border border-amber-500 flex items-center justify-center"
               aria-hidden="true"
               title={t('lobby.playerCard.changeColorTitle')}
             >
@@ -127,7 +127,7 @@ export default memo(function PlayerCard({
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
                 fill="currentColor"
-                className="w-2.5 h-2.5 text-amber-400"
+                className="w-2.5 h-2.5 text-accent"
               >
                 <path d="M2.695 14.763l-1.262 3.154a.5.5 0 0 0 .65.65l3.155-1.262a4 4 0 0 0 1.343-.886L17.5 5.501a2.121 2.121 0 0 0-3-3L3.58 13.42a4 4 0 0 0-.885 1.343Z" />
               </svg>
@@ -139,13 +139,13 @@ export default memo(function PlayerCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span
-              className={`text-sm truncate ${player.isHost ? 'font-bold text-amber-400' : 'font-medium text-gray-200'}`}
+              className={`text-sm truncate ${player.isHost ? 'font-bold text-accent' : 'font-medium text-gray-200'}`}
             >
               {player.displayName}
               {isLocal && <span className="text-gray-500 font-normal">{t('lobby.playerCard.you')}</span>}
             </span>
             {player.isHost && (
-              <span className="flex-shrink-0 text-xs font-bold px-1.5 py-0.5 rounded bg-amber-600/30 text-amber-400 uppercase tracking-wide">
+              <span className="flex-shrink-0 text-xs font-bold px-1.5 py-0.5 rounded bg-amber-600/30 text-accent uppercase tracking-wide">
                 {t('lobby.playerCard.dmBadge')}
               </span>
             )}
@@ -167,7 +167,7 @@ export default memo(function PlayerCard({
           {player.characterName && onViewCharacter ? (
             <button
               onClick={onViewCharacter}
-              className="text-xs text-amber-400/80 hover:text-amber-300 hover:underline truncate cursor-pointer block"
+              className="text-xs text-accent/80 hover:text-amber-300 hover:underline truncate cursor-pointer block"
             >
               {player.characterName}
             </button>
@@ -177,7 +177,7 @@ export default memo(function PlayerCard({
             </p>
           )}
           {player.status === 'reconnecting' ? (
-            <span className="text-xs text-amber-400 animate-pulse">{t('lobby.playerCard.reconnecting')}</span>
+            <span className="text-xs text-accent animate-pulse">{t('lobby.playerCard.reconnecting')}</span>
           ) : player.status === 'disconnected' ? (
             // Phase 17e — explicit disconnected (set by Kick) renders as a
             // red pill, not the yellow "Reconnecting" used for transient
@@ -227,7 +227,7 @@ export default memo(function PlayerCard({
               className={`p-1 rounded transition-all cursor-pointer ${
                 isLocallyMuted
                   ? 'text-amber-300 bg-amber-900/40 ring-1 ring-amber-500/60 hover:bg-amber-900/60'
-                  : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/60'
+                  : 'text-muted hover:text-gray-200 hover:bg-surface-2/60'
               }`}
             >
               {isLocallyMuted ? (
@@ -304,7 +304,7 @@ export default memo(function PlayerCard({
             <button
               onClick={onChatTimeout}
               title={t('lobby.playerCard.timeoutChatTitle')}
-              className="p-1.5 rounded transition-colors cursor-pointer text-gray-600 hover:text-amber-400 hover:bg-gray-800"
+              className="p-1.5 rounded transition-colors cursor-pointer text-gray-600 hover:text-accent hover:bg-surface-2"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
                 <path
@@ -334,7 +334,7 @@ export default memo(function PlayerCard({
                 <button
                   onClick={onPromoteCoDM}
                   title={t('lobby.playerCard.promoteCoDmTitle')}
-                  className="p-1.5 rounded transition-colors cursor-pointer text-gray-600 hover:text-purple-400 hover:bg-gray-800"
+                  className="p-1.5 rounded transition-colors cursor-pointer text-gray-600 hover:text-purple-400 hover:bg-surface-2"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
                     <path d="M10 1a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 10 1ZM5.05 3.05a.75.75 0 0 1 1.06 0l1.062 1.06A.75.75 0 1 1 6.11 5.173L5.05 4.11a.75.75 0 0 1 0-1.06ZM14.95 3.05a.75.75 0 0 1 0 1.06l-1.06 1.062a.75.75 0 0 1-1.062-1.061l1.061-1.06a.75.75 0 0 1 1.06 0ZM3 8a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5h-1.5A.75.75 0 0 1 3 8ZM14 8a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5h-1.5A.75.75 0 0 1 14 8ZM7.172 12.828a.75.75 0 0 1 0 1.061l-1.06 1.06a.75.75 0 0 1-1.061-1.06l1.06-1.06a.75.75 0 0 1 1.06 0ZM13.889 12.828a.75.75 0 0 1 1.06 0l1.06 1.06a.75.75 0 1 1-1.06 1.061l-1.06-1.06a.75.75 0 0 1 0-1.06ZM10 14a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 10 14Z" />
@@ -349,7 +349,7 @@ export default memo(function PlayerCard({
               type="button"
               onClick={onMakeDM}
               title={t('lobby.playerCard.makeDmTitle')}
-              className="px-2 py-1 rounded text-xs font-medium transition-colors cursor-pointer bg-amber-900/30 text-amber-400 hover:bg-amber-900/50 hover:text-amber-300"
+              className="px-2 py-1 rounded text-xs font-medium transition-colors cursor-pointer bg-amber-900/30 text-accent hover:bg-amber-900/50 hover:text-amber-300"
             >
               {t('lobby.playerCard.makeDm')}
             </button>
@@ -395,7 +395,7 @@ export default memo(function PlayerCard({
               type="button"
               onClick={onDemoteToSpectator}
               title={t('lobby.playerCard.demoteSpectatorTitle')}
-              className="px-2 py-1 rounded text-xs font-medium transition-colors cursor-pointer bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-gray-200"
+              className="px-2 py-1 rounded text-xs font-medium transition-colors cursor-pointer bg-surface-2 text-muted hover:bg-gray-700 hover:text-gray-200"
             >
               {t('lobby.playerCard.demote')}
             </button>

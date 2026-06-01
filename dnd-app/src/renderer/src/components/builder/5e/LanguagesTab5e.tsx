@@ -81,7 +81,7 @@ function LanguageTooltip({
 
   return createPortal(
     <div
-      className="fixed w-64 px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg shadow-xl text-xs text-gray-300 leading-relaxed pointer-events-none"
+      className="fixed w-64 px-3 py-2 bg-surface-2 border border-gray-600 rounded-lg shadow-xl text-xs text-gray-300 leading-relaxed pointer-events-none"
       style={{
         zIndex: Z.CRITICAL_OVERLAY,
         left: pos.x,
@@ -90,7 +90,7 @@ function LanguageTooltip({
         transform: 'translateX(-50%)'
       }}
     >
-      <div className="font-semibold text-amber-400 mb-1">{lang}</div>
+      <div className="font-semibold text-accent mb-1">{lang}</div>
       {desc}
     </div>,
     document.body
@@ -221,12 +221,12 @@ export default function LanguagesTab5e(): JSX.Element {
         {remainingSlots > 0 && (
           <div className="space-y-2">
             <div className="flex items-center gap-3">
-              <span className="text-xs text-amber-400 font-semibold">
+              <span className="text-xs text-accent font-semibold">
                 {t('builder.languagesTab.remaining', { count: remainingSlots })}
               </span>
               <button
                 onClick={handleD12Roll}
-                className="text-xs px-2.5 py-1 rounded bg-amber-600 hover:bg-amber-500 text-gray-900 font-semibold cursor-pointer"
+                className="text-xs px-2.5 py-1 rounded bg-amber-600 hover:bg-accent-strong text-gray-900 font-semibold cursor-pointer"
               >
                 {t('builder.languagesTab.rollD12')}
               </button>
@@ -234,7 +234,7 @@ export default function LanguagesTab5e(): JSX.Element {
 
             {lastRoll && (
               <div className="text-xs text-amber-300 bg-amber-900/30 border border-amber-700/50 rounded px-2.5 py-1.5">
-                <span className="font-mono text-amber-400">
+                <span className="font-mono text-accent">
                   {t('builder.languagesTab.d12Roll', { roll: lastRoll.roll })}
                 </span>
                 <span className="mx-1.5 text-gray-600">&rarr;</span>
@@ -251,7 +251,7 @@ export default function LanguagesTab5e(): JSX.Element {
                       onClick={() => handleAddLanguage(lang)}
                       onMouseEnter={(e) => desc && handleMouseEnter(lang, e.currentTarget)}
                       onMouseLeave={handleMouseLeave}
-                      className="text-xs px-2 py-1 rounded border transition-colors bg-gray-800 border-gray-600 text-gray-300 hover:border-amber-500 hover:text-amber-300"
+                      className="text-xs px-2 py-1 rounded border transition-colors bg-surface-2 border-gray-600 text-gray-300 hover:border-amber-500 hover:text-amber-300"
                     >
                       {lang}
                     </button>

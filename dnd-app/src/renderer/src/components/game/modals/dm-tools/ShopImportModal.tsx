@@ -92,9 +92,9 @@ export default function ShopImportModal({ importMode, onClose, onImport }: ShopI
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/60" onClick={onClose} role="presentation" />
-      <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-[44rem] max-h-[85vh] flex flex-col shadow-2xl">
+      <div className="relative bg-surface border border-border rounded-xl p-5 w-[44rem] max-h-[85vh] flex flex-col shadow-2xl">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-bold text-amber-400">
+          <h2 className="text-lg font-bold text-accent">
             {importMode === 'equipment'
               ? t('game.shopImportModal.titleEquipment')
               : t('game.shopImportModal.titleMagic')}
@@ -113,7 +113,7 @@ export default function ShopImportModal({ importMode, onClose, onImport }: ShopI
           value={importSearch}
           onChange={(e) => setImportSearch(e.target.value)}
           placeholder={t('game.shopImportModal.searchPlaceholder')}
-          className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500 mb-3"
+          className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500 mb-3"
         />
 
         <div className="flex-1 overflow-y-auto min-h-0 space-y-0.5">
@@ -125,7 +125,7 @@ export default function ShopImportModal({ importMode, onClose, onImport }: ShopI
           {filteredImports.slice(0, 200).map((item) => (
             <label
               key={item.id}
-              className="flex items-center gap-2 bg-gray-800/50 hover:bg-gray-800 rounded px-3 py-1.5 text-xs cursor-pointer"
+              className="flex items-center gap-2 bg-surface-2/50 hover:bg-surface-2 rounded px-3 py-1.5 text-xs cursor-pointer"
             >
               <input
                 type="checkbox"
@@ -146,8 +146,8 @@ export default function ShopImportModal({ importMode, onClose, onImport }: ShopI
           )}
         </div>
 
-        <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-700">
-          <span className="text-xs text-gray-400">
+        <div className="flex items-center justify-between mt-3 pt-3 border-t border-border">
+          <span className="text-xs text-muted">
             {t('game.shopImportModal.selected', { count: selectedImports.size })}
           </span>
           <div className="flex gap-2">
@@ -160,7 +160,7 @@ export default function ShopImportModal({ importMode, onClose, onImport }: ShopI
             <button
               onClick={handleImportSelected}
               disabled={selectedImports.size === 0}
-              className="px-3 py-1.5 text-xs bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded cursor-pointer"
+              className="px-3 py-1.5 text-xs bg-amber-600 hover:bg-accent-strong disabled:bg-gray-700 disabled:text-gray-500 text-white rounded cursor-pointer"
             >
               {t('game.shopImportModal.addSelected')}
             </button>

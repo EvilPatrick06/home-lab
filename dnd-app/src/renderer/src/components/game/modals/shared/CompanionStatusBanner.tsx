@@ -23,13 +23,13 @@ export default function CompanionStatusBanner({
 }: CompanionStatusBannerProps): JSX.Element {
   const { t } = useT()
   return (
-    <div className="px-4 py-2 bg-gray-800/50 border-b border-gray-700/50">
+    <div className="px-4 py-2 bg-surface-2/50 border-b border-border/50">
       <div className="flex items-center justify-between">
         <div>
           <span className="text-sm text-gray-200 font-medium">{companion.name}</span>
           <span
             className={`ml-2 text-xs px-1.5 py-0.5 rounded-full ${
-              companion.dismissed ? 'bg-gray-700 text-gray-400' : `${activeColor}`
+              companion.dismissed ? 'bg-gray-700 text-muted' : `${activeColor}`
             }`}
           >
             {companion.dismissed ? t('game.companionStatusBanner.dismissed') : t('game.companionStatusBanner.active')}

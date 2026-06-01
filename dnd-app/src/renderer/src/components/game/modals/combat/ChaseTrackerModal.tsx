@@ -225,20 +225,20 @@ export default function ChaseTrackerModal({ onClose, onBroadcastResult }: ChaseT
       role="presentation"
     >
       <div
-        className="bg-gray-900 border border-gray-700 rounded-xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col"
+        className="bg-surface border border-border rounded-xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3 border-b border-gray-700">
+        <div className="flex items-center justify-between px-5 py-3 border-b border-border">
           <div className="flex items-center gap-4">
-            <h2 className="text-lg font-bold text-amber-400">{t('game.chaseTrackerModal.title')}</h2>
-            <span className="text-xs text-gray-400">
+            <h2 className="text-lg font-bold text-accent">{t('game.chaseTrackerModal.title')}</h2>
+            <span className="text-xs text-muted">
               {t('game.chaseTrackerModal.round', { current: currentRound, max: MAX_ROUNDS })}
             </span>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white text-xl leading-none px-1"
+            className="text-muted hover:text-white text-xl leading-none px-1"
             aria-label={t('common.actions.close')}
           >
             &times;
@@ -249,13 +249,13 @@ export default function ChaseTrackerModal({ onClose, onBroadcastResult }: ChaseT
         <div className="flex-1 overflow-y-auto p-5 space-y-4">
           {/* Complication Type */}
           <div className="flex items-center gap-3">
-            <label className="text-xs text-gray-400">{t('game.chaseTrackerModal.setting')}</label>
+            <label className="text-xs text-muted">{t('game.chaseTrackerModal.setting')}</label>
             <button
               onClick={() => setComplicationType('urban')}
               className={`px-3 py-1 text-xs rounded border ${
                 complicationType === 'urban'
                   ? 'bg-amber-600 border-amber-500 text-white'
-                  : 'bg-gray-800 border-gray-600 text-gray-400 hover:border-gray-500'
+                  : 'bg-surface-2 border-gray-600 text-muted hover:border-gray-500'
               }`}
             >
               {t('game.chaseTrackerModal.urban')}
@@ -265,7 +265,7 @@ export default function ChaseTrackerModal({ onClose, onBroadcastResult }: ChaseT
               className={`px-3 py-1 text-xs rounded border ${
                 complicationType === 'wilderness'
                   ? 'bg-amber-600 border-amber-500 text-white'
-                  : 'bg-gray-800 border-gray-600 text-gray-400 hover:border-gray-500'
+                  : 'bg-surface-2 border-gray-600 text-muted hover:border-gray-500'
               }`}
             >
               {t('game.chaseTrackerModal.wilderness')}
@@ -278,10 +278,10 @@ export default function ChaseTrackerModal({ onClose, onBroadcastResult }: ChaseT
           {/* Chase Ended */}
           {chaseEnded && (
             <div className="bg-amber-900/30 border border-amber-700 rounded-lg p-3 text-center">
-              <div className="text-amber-400 font-bold text-sm">{endMessage}</div>
+              <div className="text-accent font-bold text-sm">{endMessage}</div>
               <button
                 onClick={resetChase}
-                className="mt-2 px-3 py-1 bg-amber-600 hover:bg-amber-500 text-white text-xs rounded"
+                className="mt-2 px-3 py-1 bg-amber-600 hover:bg-accent-strong text-white text-xs rounded"
               >
                 {t('game.chaseTrackerModal.resetChase')}
               </button>
@@ -314,7 +314,7 @@ export default function ChaseTrackerModal({ onClose, onBroadcastResult }: ChaseT
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-5 py-3 border-t border-gray-700">
+        <div className="flex items-center justify-between px-5 py-3 border-t border-border">
           <div className="text-xs text-gray-500">
             {t('game.chaseTrackerModal.footerHint', { escape: ESCAPE_DISTANCE, rounds: MAX_ROUNDS })}
           </div>
@@ -328,7 +328,7 @@ export default function ChaseTrackerModal({ onClose, onBroadcastResult }: ChaseT
             {!chaseEnded && (
               <button
                 onClick={nextTurn}
-                className="px-4 py-1.5 bg-amber-600 hover:bg-amber-500 text-white text-sm rounded font-medium"
+                className="px-4 py-1.5 bg-amber-600 hover:bg-accent-strong text-white text-sm rounded font-medium"
               >
                 {t('game.chaseTrackerModal.nextTurn')}
               </button>

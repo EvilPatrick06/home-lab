@@ -13,7 +13,7 @@ export default function BackButton({ to = '/', label }: BackButtonProps): JSX.El
   return (
     <button
       onClick={() => navigate(to)}
-      className="text-amber-400 hover:text-amber-300 hover:underline mb-6 block cursor-pointer"
+      className="text-accent hover:text-amber-300 hover:underline mb-6 block cursor-pointer"
     >
       &larr; {label ?? t('ui.backButton.defaultLabel')}
     </button>

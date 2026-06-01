@@ -152,10 +152,10 @@ export default function DMShopModal({ onClose }: DMShopModalProps): JSX.Element 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/60" onClick={onClose} role="presentation" />
-      <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-[56rem] max-h-[90vh] flex flex-col shadow-2xl">
+      <div className="relative bg-surface border border-border rounded-xl p-5 w-[56rem] max-h-[90vh] flex flex-col shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-amber-400">{t('game.dmShopModal.title')}</h2>
+          <h2 className="text-lg font-bold text-accent">{t('game.dmShopModal.title')}</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-300 text-xl leading-none cursor-pointer">
             &times;
           </button>
@@ -164,7 +164,7 @@ export default function DMShopModal({ onClose }: DMShopModalProps): JSX.Element 
         {/* Top bar: name, markup, broadcast */}
         <div className="flex items-end gap-3 mb-4">
           <div className="flex-1">
-            <label className="block text-xs text-gray-400 mb-1">{t('game.dmShopModal.shopName')}</label>
+            <label className="block text-xs text-muted mb-1">{t('game.dmShopModal.shopName')}</label>
             <input
               type="text"
               value={shopNameInput}
@@ -173,11 +173,11 @@ export default function DMShopModal({ onClose }: DMShopModalProps): JSX.Element 
                 if (shopOpen) openShop(e.target.value)
               }}
               placeholder={t('game.dmShopModal.generalStore')}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
+              className="w-full bg-surface-2 border border-border rounded px-3 py-1.5 text-sm text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500"
             />
           </div>
           <div className="w-48">
-            <label className="block text-xs text-gray-400 mb-1">
+            <label className="block text-xs text-muted mb-1">
               {t('game.dmShopModal.markup', { percent: Math.round(shopMarkup * 100) })}
             </label>
             <input
@@ -193,7 +193,7 @@ export default function DMShopModal({ onClose }: DMShopModalProps): JSX.Element 
             {!shopOpen ? (
               <button
                 onClick={handleOpenShop}
-                className="px-4 py-1.5 bg-amber-600 hover:bg-amber-500 text-white text-sm font-medium rounded transition-colors cursor-pointer whitespace-nowrap"
+                className="px-4 py-1.5 bg-amber-600 hover:bg-accent-strong text-white text-sm font-medium rounded transition-colors cursor-pointer whitespace-nowrap"
               >
                 {t('game.dmShopModal.openForPlayers')}
               </button>
@@ -220,7 +220,7 @@ export default function DMShopModal({ onClose }: DMShopModalProps): JSX.Element 
 
         {/* Presets */}
         <div className="mb-4">
-          <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
+          <h3 className="text-xs font-semibold text-muted uppercase tracking-wide mb-2">
             {t('game.dmShopModal.loadPreset')}
           </h3>
           <div className="flex flex-wrap gap-1">
@@ -229,14 +229,14 @@ export default function DMShopModal({ onClose }: DMShopModalProps): JSX.Element 
                 <button
                   onClick={() => loadPreset(key, true)}
                   title={t('game.dmShopModal.replaceInventory')}
-                  className="text-[11px] px-2 py-1 bg-gray-800 border border-gray-700 rounded-l text-gray-300 hover:text-amber-300 hover:border-amber-600 cursor-pointer"
+                  className="text-[11px] px-2 py-1 bg-surface-2 border border-border rounded-l text-gray-300 hover:text-amber-300 hover:border-amber-600 cursor-pointer"
                 >
                   {def.label}
                 </button>
                 <button
                   onClick={() => loadPreset(key, false)}
                   title={t('game.dmShopModal.addToInventory')}
-                  className="text-[11px] px-1.5 py-1 bg-gray-800 border border-l-0 border-gray-700 rounded-r text-gray-500 hover:text-green-400 hover:border-green-600 cursor-pointer"
+                  className="text-[11px] px-1.5 py-1 bg-surface-2 border border-l-0 border-border rounded-r text-gray-500 hover:text-green-400 hover:border-green-600 cursor-pointer"
                 >
                   +
                 </button>
@@ -252,13 +252,13 @@ export default function DMShopModal({ onClose }: DMShopModalProps): JSX.Element 
         <div className="flex gap-2 mb-4">
           <button
             onClick={() => setImportMode('equipment')}
-            className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 text-xs rounded cursor-pointer"
+            className="px-3 py-1.5 bg-surface-2 hover:bg-gray-700 border border-border text-gray-300 text-xs rounded cursor-pointer"
           >
             {t('game.dmShopModal.importEquipment')}
           </button>
           <button
             onClick={() => setImportMode('magic')}
-            className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 text-xs rounded cursor-pointer"
+            className="px-3 py-1.5 bg-surface-2 hover:bg-gray-700 border border-border text-gray-300 text-xs rounded cursor-pointer"
           >
             {t('game.dmShopModal.importMagic')}
           </button>

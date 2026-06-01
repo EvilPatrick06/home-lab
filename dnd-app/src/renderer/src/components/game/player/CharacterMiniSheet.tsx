@@ -32,8 +32,8 @@ export default function CharacterMiniSheet({ character }: CharacterMiniSheetProp
     <div className="space-y-4 overflow-y-auto max-h-full p-1">
       {/* Header */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-100">{character.name}</h3>
-        <p className="text-xs text-gray-400">
+        <h3 className="text-sm font-semibold text-fg">{character.name}</h3>
+        <p className="text-xs text-muted">
           {is5eCharacter(character) && (
             <>
               {character.species}{' '}
@@ -55,10 +55,10 @@ export default function CharacterMiniSheet({ character }: CharacterMiniSheetProp
             const score = character.abilityScores[ability]
             const mod = abilityModifier(score)
             return (
-              <div key={ability} className="bg-gray-800/50 rounded p-1.5 text-center">
+              <div key={ability} className="bg-surface-2/50 rounded p-1.5 text-center">
                 <div className="text-[9px] text-gray-500 uppercase">{abilityLabels[ability]}</div>
-                <div className="text-sm font-semibold text-gray-100">{formatMod(mod)}</div>
-                <div className="text-xs text-gray-400">{score}</div>
+                <div className="text-sm font-semibold text-fg">{formatMod(mod)}</div>
+                <div className="text-xs text-muted">{score}</div>
               </div>
             )
           })}
@@ -79,8 +79,8 @@ export default function CharacterMiniSheet({ character }: CharacterMiniSheetProp
               const total = mod + profBonus
               return (
                 <div key={ability} className="flex items-center gap-2 text-xs">
-                  <span className={`w-2 h-2 rounded-full ${proficient ? 'bg-amber-500' : 'bg-gray-700'}`} />
-                  <span className="flex-1 text-gray-400 capitalize text-[11px]">{ability}</span>
+                  <span className={`w-2 h-2 rounded-full ${proficient ? 'bg-accent-strong' : 'bg-gray-700'}`} />
+                  <span className="flex-1 text-muted capitalize text-[11px]">{ability}</span>
                   <span className="text-gray-200 font-mono text-[11px]">{formatMod(total)}</span>
                 </div>
               )
@@ -106,10 +106,10 @@ export default function CharacterMiniSheet({ character }: CharacterMiniSheetProp
                 >
                   <span
                     className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                      skill.expertise ? 'bg-amber-400' : skill.proficient ? 'bg-amber-600' : 'bg-gray-700'
+                      skill.expertise ? 'bg-accent' : skill.proficient ? 'bg-amber-600' : 'bg-gray-700'
                     }`}
                   />
-                  <span className="flex-1 text-gray-400 text-[11px] truncate">{skill.name}</span>
+                  <span className="flex-1 text-muted text-[11px] truncate">{skill.name}</span>
                   <span className="text-gray-200 font-mono text-[11px]">{formatMod(total)}</span>
                 </div>
               )
@@ -132,7 +132,7 @@ export default function CharacterMiniSheet({ character }: CharacterMiniSheetProp
           <div className="mt-1.5 space-y-1 max-h-40 overflow-y-auto">
             {is5eCharacter(character) &&
               character.features.map((feat, i) => (
-                <div key={i} className="bg-gray-800/50 rounded p-1.5">
+                <div key={i} className="bg-surface-2/50 rounded p-1.5">
                   <p className="text-[11px] text-gray-200 font-medium">{feat.name}</p>
                   <p className="text-xs text-gray-500">{feat.source}</p>
                 </div>

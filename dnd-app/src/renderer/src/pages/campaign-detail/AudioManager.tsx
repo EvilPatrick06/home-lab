@@ -72,7 +72,7 @@ export default function AudioManager({ campaign, saveCampaign }: AudioManagerPro
         ) : (
           <div className="space-y-2">
             {(campaign.customAudio ?? []).map((audio) => (
-              <div key={audio.id} className="flex items-center justify-between bg-gray-800/50 rounded-lg p-3">
+              <div key={audio.id} className="flex items-center justify-between bg-surface-2/50 rounded-lg p-3">
                 <div>
                   <span className="font-semibold text-sm">{audio.displayName}</span>
                   <span className="text-gray-500 text-xs ml-2">{audio.fileName}</span>
@@ -91,13 +91,13 @@ export default function AudioManager({ campaign, saveCampaign }: AudioManagerPro
                   </span>
                   <button
                     onClick={() => openEditAudioEntry(audio)}
-                    className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer"
+                    className="text-xs text-muted hover:text-accent cursor-pointer"
                   >
                     {t('pages.audioManager.edit')}
                   </button>
                   <button
                     onClick={() => handleDeleteAudioEntry(audio.id)}
-                    className="text-xs text-gray-400 hover:text-red-400 cursor-pointer"
+                    className="text-xs text-muted hover:text-red-400 cursor-pointer"
                   >
                     {t('common.actions.delete')}
                   </button>
@@ -111,7 +111,7 @@ export default function AudioManager({ campaign, saveCampaign }: AudioManagerPro
             setNewAudioEntries([])
             setShowAudioAdd(true)
           }}
-          className="mt-3 text-xs text-amber-400 hover:text-amber-300 cursor-pointer"
+          className="mt-3 text-xs text-accent hover:text-amber-300 cursor-pointer"
         >
           {t('pages.audioManager.addAudio')}
         </button>
@@ -140,22 +140,22 @@ export default function AudioManager({ campaign, saveCampaign }: AudioManagerPro
       >
         <div className="space-y-3">
           <div>
-            <label className="block text-gray-400 text-xs mb-1">{t('pages.audioManager.displayName')}</label>
+            <label className="block text-muted text-xs mb-1">{t('pages.audioManager.displayName')}</label>
             <input
               type="text"
               value={audioEntryForm.displayName}
               onChange={(e) => setAudioEntryForm((f) => ({ ...f, displayName: e.target.value }))}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
             />
           </div>
           <div>
-            <label className="block text-gray-400 text-xs mb-1">{t('pages.audioManager.category')}</label>
+            <label className="block text-muted text-xs mb-1">{t('pages.audioManager.category')}</label>
             <select
               value={audioEntryForm.category}
               onChange={(e) =>
                 setAudioEntryForm((f) => ({ ...f, category: e.target.value as 'ambient' | 'effect' | 'music' }))
               }
-              className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
             >
               <option value="music">{t('pages.audioManager.music')}</option>
               <option value="ambient">{t('pages.audioManager.ambient')}</option>

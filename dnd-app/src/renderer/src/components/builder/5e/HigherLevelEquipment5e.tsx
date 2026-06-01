@@ -57,7 +57,7 @@ function MagicItemSlot({
     return items.filter((i) => i.name.toLowerCase().includes(q) || i.type.toLowerCase().includes(q))
   }, [items, search])
 
-  const colors = RARITY_COLORS[rarity] ?? 'text-gray-400 border-gray-600'
+  const colors = RARITY_COLORS[rarity] ?? 'text-muted border-gray-600'
 
   if (selectedItem) {
     return (
@@ -81,7 +81,7 @@ function MagicItemSlot({
     <div>
       <button
         onClick={() => setExpanded(!expanded)}
-        className={`text-xs border rounded px-2 py-1 cursor-pointer transition-colors ${colors} hover:bg-gray-800`}
+        className={`text-xs border rounded px-2 py-1 cursor-pointer transition-colors ${colors} hover:bg-surface-2`}
         title={t('builder.higherLevelEquipment.rarityTitle', { rarity: rarityLabel })}
       >
         {expanded
@@ -89,14 +89,15 @@ function MagicItemSlot({
           : t('builder.higherLevelEquipment.selectItem', { rarity: rarityLabel, slot: slotIndex + 1 })}
       </button>
       {expanded && (
-        <div className="mt-1 border border-gray-700 rounded bg-gray-900/80 overflow-hidden">
+        <div className="mt-1 border border-border rounded bg-surface/80 overflow-hidden">
           <div className="px-2 py-1.5 border-b border-gray-800">
             <input
+              aria-label={t('builder.higherLevelEquipment.searchPlaceholder', { rarity: rarityLabel })}
               type="text"
               placeholder={t('builder.higherLevelEquipment.searchPlaceholder', { rarity: rarityLabel })}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full text-xs bg-gray-800 border border-gray-700 rounded px-2 py-1 text-gray-200 placeholder:text-gray-500 outline-none focus:border-amber-500/50"
+              className="w-full text-xs bg-surface-2 border border-border rounded px-2 py-1 text-gray-200 placeholder:text-gray-500 outline-none focus:border-amber-500/50"
             />
           </div>
           <div className="max-h-40 overflow-y-auto">
@@ -113,7 +114,7 @@ function MagicItemSlot({
                     setExpanded(false)
                     setSearch('')
                   }}
-                  className="w-full text-left flex items-center justify-between px-2 py-1 hover:bg-gray-800 border-b border-gray-800/50 last:border-0 cursor-pointer"
+                  className="w-full text-left flex items-center justify-between px-2 py-1 hover:bg-surface-2 border-b border-gray-800/50 last:border-0 cursor-pointer"
                 >
                   <div>
                     <span className="text-sm text-gray-200">{item.name}</span>
@@ -205,7 +206,7 @@ export default function HigherLevelEquipment5e(): JSX.Element | null {
 
         {/* Bonus Gold */}
         <div>
-          <div className="text-xs text-gray-400 uppercase tracking-wide mb-1">
+          <div className="text-xs text-muted uppercase tracking-wide mb-1">
             {t('builder.higherLevelEquipment.bonusGoldLabel')}
           </div>
           {hlEquip.diceCount > 0 ? (
@@ -219,18 +220,18 @@ export default function HigherLevelEquipment5e(): JSX.Element | null {
               </span>
               <button
                 onClick={handleRollGold}
-                className="text-xs px-2 py-0.5 rounded bg-amber-600 hover:bg-amber-500 text-gray-900 font-semibold cursor-pointer"
+                className="text-xs px-2 py-0.5 rounded bg-amber-600 hover:bg-accent-strong text-gray-900 font-semibold cursor-pointer"
               >
                 {t('builder.higherLevelEquipment.roll')}
               </button>
               <button
                 onClick={handleTakeAverage}
-                className="text-xs px-2 py-0.5 rounded border border-gray-600 text-gray-400 hover:text-gray-200 cursor-pointer"
+                className="text-xs px-2 py-0.5 rounded border border-gray-600 text-muted hover:text-gray-200 cursor-pointer"
               >
                 {t('builder.higherLevelEquipment.average')}
               </button>
               {higherLevelGoldBonus > 0 && (
-                <span className="text-sm text-amber-400 font-bold">
+                <span className="text-sm text-accent font-bold">
                   {t('builder.higherLevelEquipment.goldBonus', { gold: higherLevelGoldBonus })}
                 </span>
               )}
@@ -239,7 +240,7 @@ export default function HigherLevelEquipment5e(): JSX.Element | null {
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-300">{t('builder.higherLevelEquipment.noBonusGold')}</span>
               {hlEquip.baseGold > 0 && (
-                <span className="text-sm text-amber-400 font-bold">
+                <span className="text-sm text-accent font-bold">
                   {t('builder.higherLevelEquipment.goldBonus', { gold: hlEquip.baseGold })}
                 </span>
               )}
@@ -250,7 +251,7 @@ export default function HigherLevelEquipment5e(): JSX.Element | null {
         {/* Magic Item Slots */}
         {magicSlots.length > 0 && (
           <div>
-            <div className="text-xs text-gray-400 uppercase tracking-wide mb-1">
+            <div className="text-xs text-muted uppercase tracking-wide mb-1">
               {t('builder.higherLevelEquipment.magicItemsLabel')}
             </div>
             <div className="space-y-1.5">

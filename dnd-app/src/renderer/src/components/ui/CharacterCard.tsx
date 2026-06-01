@@ -37,7 +37,7 @@ export default memo(function CharacterCard({
 
   return (
     <div
-      className="bg-gray-900/50 border border-gray-800 rounded-lg p-5 hover:border-amber-600/50
+      className="bg-surface/50 border border-gray-800 rounded-lg p-5 hover:border-amber-600/50
                  transition-all cursor-pointer group"
       onClick={onClick}
     >
@@ -45,8 +45,8 @@ export default memo(function CharacterCard({
         <div className="flex items-center gap-3">
           <CharacterIcon {...iconProps} size="md" />
           <div>
-            <h3 className="text-lg font-semibold group-hover:text-amber-400 transition-colors">{character.name}</h3>
-            <p className="text-gray-400 text-sm">
+            <h3 className="text-lg font-semibold group-hover:text-accent transition-colors">{character.name}</h3>
+            <p className="text-muted text-sm">
               {t('ui.characterCard.levelLine', { level: character.level, species: speciesName, class: className })}
             </p>
             {subclass && <p className="text-gray-500 text-xs mt-0.5">{subclass}</p>}
@@ -70,7 +70,7 @@ export default memo(function CharacterCard({
                 e.stopPropagation()
                 onExportPdf()
               }}
-              className="text-gray-600 hover:text-amber-400 transition-colors text-xs cursor-pointer px-1.5 py-1 font-medium"
+              className="text-gray-600 hover:text-accent transition-colors text-xs cursor-pointer px-1.5 py-1 font-medium"
               title={t('ui.characterCard.exportPdfTitle')}
             >
               {t('ui.characterCard.pdf')}
@@ -82,7 +82,7 @@ export default memo(function CharacterCard({
                 e.stopPropagation()
                 onExport()
               }}
-              className="text-gray-600 hover:text-amber-400 transition-colors text-sm cursor-pointer px-2 py-1"
+              className="text-gray-600 hover:text-accent transition-colors text-sm cursor-pointer px-2 py-1"
               title={t('ui.characterCard.exportTitle')}
               aria-label={t('ui.characterCard.exportTitle')}
             >

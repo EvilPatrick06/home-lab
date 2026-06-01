@@ -221,11 +221,11 @@ export default function SpellSelectionSection5e({
   }
 
   return (
-    <div className={`bg-gray-900/50 border rounded-lg p-4 ${isIncomplete ? 'border-amber-600/50' : 'border-gray-800'}`}>
-      <h3 className="text-sm font-semibold text-amber-400 uppercase tracking-wide mb-3 flex items-center gap-2">
+    <div className={`bg-surface/50 border rounded-lg p-4 ${isIncomplete ? 'border-amber-600/50' : 'border-gray-800'}`}>
+      <h3 className="text-sm font-semibold text-accent uppercase tracking-wide mb-3 flex items-center gap-2">
         {t('levelup.spellSelection.heading')}
         {isIncomplete && (
-          <span className="text-xs text-amber-500 font-semibold">{t('levelup.spellSelection.required')}</span>
+          <span className="text-xs text-accent-strong font-semibold">{t('levelup.spellSelection.required')}</span>
         )}
       </h3>
       {subclassNewSpells.length > 0 && (
@@ -233,11 +233,11 @@ export default function SpellSelectionSection5e({
           <div className="text-xs font-semibold text-green-400 uppercase tracking-wide mb-1">
             {t('levelup.spellSelection.alwaysPrepared')}
           </div>
-          <div className="text-xs text-gray-400">{subclassNewSpells.join(', ')}</div>
+          <div className="text-xs text-muted">{subclassNewSpells.join(', ')}</div>
         </div>
       )}
       {canPick >= 0 && (
-        <div className={`text-xs mb-2 ${isIncomplete ? 'text-amber-400' : 'text-gray-500'}`}>
+        <div className={`text-xs mb-2 ${isIncomplete ? 'text-accent' : 'text-gray-500'}`}>
           {t('levelup.spellSelection.selectCount', { count: canPick, selected: newSpellIds.length })}
         </div>
       )}
@@ -261,10 +261,10 @@ export default function SpellSelectionSection5e({
       {/* Phase 24g — cantrip picker */}
       {cantripsToLearn > 0 && (
         <div className="mb-3 border border-gray-800 rounded p-2">
-          <div className="text-xs font-semibold text-amber-400 uppercase tracking-wide mb-1">
+          <div className="text-xs font-semibold text-accent uppercase tracking-wide mb-1">
             {t('levelup.spellSelection.newCantrips', { selected: newCantripIds.length, max: cantripsToLearn })}
             {newCantripIds.length < cantripsToLearn && (
-              <span className="ml-2 text-amber-500">{t('levelup.spellSelection.required')}</span>
+              <span className="ml-2 text-accent-strong">{t('levelup.spellSelection.required')}</span>
             )}
           </div>
           <div className="max-h-40 overflow-y-auto space-y-0.5">
@@ -284,11 +284,11 @@ export default function SpellSelectionSection5e({
                       ? 'bg-amber-600/20 border border-amber-600 text-amber-300'
                       : cantripAtLimit
                         ? 'text-gray-600 cursor-not-allowed'
-                        : 'text-gray-300 hover:bg-gray-800 border border-transparent'
+                        : 'text-gray-300 hover:bg-surface-2 border border-transparent'
                   }`}
                 >
                   <span
-                    className={`w-4 h-4 rounded border-2 flex-shrink-0 ${selected ? 'bg-amber-500 border-amber-400' : 'border-gray-600'}`}
+                    className={`w-4 h-4 rounded border-2 flex-shrink-0 ${selected ? 'bg-accent-strong border-accent' : 'border-gray-600'}`}
                   />
                   <span>{c.name}</span>
                 </button>
@@ -301,7 +301,7 @@ export default function SpellSelectionSection5e({
       {/* Phase 24f — replace a prepared spell (one per level gained) */}
       {maxSwaps > 0 && swappableSpells.length > 0 && (
         <div className="mb-3 border border-gray-800 rounded p-2">
-          <div className="text-xs font-semibold text-amber-400 uppercase tracking-wide mb-1">
+          <div className="text-xs font-semibold text-accent uppercase tracking-wide mb-1">
             {t('levelup.spellSelection.replacePrepared', { selected: spellSwaps.length, max: maxSwaps })}
           </div>
           {spellSwaps.map((sw) => {
@@ -326,7 +326,7 @@ export default function SpellSelectionSection5e({
               <select
                 value={swapRemoveId}
                 onChange={(e) => setSwapRemoveId(e.target.value)}
-                className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
+                className="bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200"
               >
                 <option value="">{t('levelup.spellSelection.spellToReplace')}</option>
                 {swappableSpells
@@ -346,7 +346,7 @@ export default function SpellSelectionSection5e({
                       setSwapRemoveId('')
                     }
                   }}
-                  className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
+                  className="bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200"
                 >
                   <option value="">{t('levelup.spellSelection.replacementSpell')}</option>
                   {availableSpells
@@ -392,12 +392,12 @@ export default function SpellSelectionSection5e({
                             ? 'bg-amber-600/20 border border-amber-600 text-amber-300'
                             : atLimit
                               ? 'text-gray-600 cursor-not-allowed'
-                              : 'text-gray-300 hover:bg-gray-800 border border-transparent'
+                              : 'text-gray-300 hover:bg-surface-2 border border-transparent'
                         }`}
                       >
                         <span
                           className={`w-4 h-4 rounded border-2 flex-shrink-0 ${
-                            selected ? 'bg-amber-500 border-amber-400' : 'border-gray-600'
+                            selected ? 'bg-accent-strong border-accent' : 'border-gray-600'
                           }`}
                         />
                         <span>{spell.name}</span>

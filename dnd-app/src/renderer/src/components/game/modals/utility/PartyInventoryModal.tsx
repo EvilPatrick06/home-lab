@@ -23,7 +23,7 @@ const RARITY_COLORS: Record<string, string> = {
 const CURRENCY_LABELS = [
   { key: 'pp' as const, label: 'PP', color: 'text-gray-200' },
   { key: 'gp' as const, label: 'GP', color: 'text-yellow-400' },
-  { key: 'ep' as const, label: 'EP', color: 'text-gray-400' },
+  { key: 'ep' as const, label: 'EP', color: 'text-muted' },
   { key: 'sp' as const, label: 'SP', color: 'text-gray-300' },
   { key: 'cp' as const, label: 'CP', color: 'text-amber-600' }
 ]
@@ -208,7 +208,7 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
   return (
     <div className="fixed inset-0 z-20 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
-      <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-3xl w-full mx-4 shadow-2xl max-h-[85vh] flex flex-col">
+      <div className="relative bg-surface/95 backdrop-blur-sm border border-border/50 rounded-xl p-4 max-w-3xl w-full mx-4 shadow-2xl max-h-[85vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between mb-3 shrink-0">
           <div className="flex items-center gap-2">
@@ -227,7 +227,7 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
         </div>
 
         {/* Currency section */}
-        <div className="border border-gray-700/50 rounded-lg p-3 mb-3 shrink-0">
+        <div className="border border-border/50 rounded-lg p-3 mb-3 shrink-0">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
               {t('game.partyInventoryModal.currency')}
@@ -262,12 +262,13 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
                     {t(`game.partyInventoryModal.currencyLabels.${key}`)}
                   </span>
                   <input
+                    aria-label="0"
                     type="number"
                     min="0"
                     placeholder="0"
                     value={currencyAmounts[key]}
                     onChange={(e) => setCurrencyAmounts((prev) => ({ ...prev, [key]: e.target.value }))}
-                    className="w-14 bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-200 outline-none focus:border-amber-500/50 text-center"
+                    className="w-14 bg-surface-2 border border-border rounded px-1 py-0.5 text-xs text-gray-200 outline-none focus:border-amber-500/50 text-center"
                   />
                 </div>
               ))}
@@ -290,16 +291,17 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
         {/* Search + Add button */}
         <div className="flex items-center gap-2 mb-2 shrink-0">
           <input
+            aria-label={t('game.partyInventoryModal.searchPlaceholder')}
             type="text"
             placeholder={t('game.partyInventoryModal.searchPlaceholder')}
             value={searchFilter}
             onChange={(e) => setSearchFilter(e.target.value)}
-            className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200 outline-none focus:border-amber-500/50"
+            className="flex-1 bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200 outline-none focus:border-amber-500/50"
           />
           {isDM && (
             <button
               onClick={() => setShowAddForm(!showAddForm)}
-              className="px-3 py-1 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer whitespace-nowrap"
+              className="px-3 py-1 text-xs bg-amber-600 hover:bg-accent-strong text-white rounded cursor-pointer whitespace-nowrap"
             >
               {showAddForm ? t('common.actions.cancel') : t('game.partyInventoryModal.addItem')}
             </button>
@@ -308,49 +310,53 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
 
         {/* Add item form */}
         {showAddForm && isDM && (
-          <div className="border border-gray-700/50 rounded-lg p-3 mb-2 shrink-0 space-y-2">
+          <div className="border border-border/50 rounded-lg p-3 mb-2 shrink-0 space-y-2">
             <div className="grid grid-cols-3 gap-2">
               <div className="col-span-2">
                 <input
+                  aria-label={t('game.partyInventoryModal.itemNamePlaceholder')}
                   type="text"
                   placeholder={t('game.partyInventoryModal.itemNamePlaceholder')}
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
-                  className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200 outline-none focus:border-amber-500/50"
+                  className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200 outline-none focus:border-amber-500/50"
                 />
               </div>
               <input
+                aria-label={t('game.partyInventoryModal.qtyPlaceholder')}
                 type="number"
                 min="1"
                 placeholder={t('game.partyInventoryModal.qtyPlaceholder')}
                 value={newQuantity}
                 onChange={(e) => setNewQuantity(e.target.value)}
-                className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200 outline-none focus:border-amber-500/50"
+                className="bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200 outline-none focus:border-amber-500/50"
               />
             </div>
             <div className="grid grid-cols-3 gap-2">
               <input
+                aria-label={t('game.partyInventoryModal.weightPlaceholder')}
                 type="number"
                 step="0.1"
                 min="0"
                 placeholder={t('game.partyInventoryModal.weightPlaceholder')}
                 value={newWeight}
                 onChange={(e) => setNewWeight(e.target.value)}
-                className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200 outline-none focus:border-amber-500/50"
+                className="bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200 outline-none focus:border-amber-500/50"
               />
               <input
+                aria-label={t('game.partyInventoryModal.valuePlaceholder')}
                 type="number"
                 step="0.1"
                 min="0"
                 placeholder={t('game.partyInventoryModal.valuePlaceholder')}
                 value={newValue}
                 onChange={(e) => setNewValue(e.target.value)}
-                className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200 outline-none focus:border-amber-500/50"
+                className="bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200 outline-none focus:border-amber-500/50"
               />
               <select
                 value={newRarity}
                 onChange={(e) => setNewRarity(e.target.value as PartyInventoryItem['rarity'])}
-                className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200 outline-none cursor-pointer"
+                className="bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200 outline-none cursor-pointer"
               >
                 <option value="common">{t('game.partyInventoryModal.rarity.common')}</option>
                 <option value="uncommon">{t('game.partyInventoryModal.rarity.uncommon')}</option>
@@ -361,14 +367,15 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
               </select>
             </div>
             <textarea
+              aria-label={t('game.partyInventoryModal.descriptionPlaceholder')}
               placeholder={t('game.partyInventoryModal.descriptionPlaceholder')}
               value={newDescription}
               onChange={(e) => setNewDescription(e.target.value)}
               rows={2}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200 outline-none focus:border-amber-500/50 resize-y"
+              className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200 outline-none focus:border-amber-500/50 resize-y"
             />
             <div className="flex items-center justify-between">
-              <label className="flex items-center gap-1.5 text-xs text-gray-400 cursor-pointer">
+              <label className="flex items-center gap-1.5 text-xs text-muted cursor-pointer">
                 <input
                   type="checkbox"
                   checked={newAttunement}
@@ -380,7 +387,7 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
               <button
                 onClick={handleAddItem}
                 disabled={!newName.trim()}
-                className="px-3 py-1 text-xs bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded cursor-pointer"
+                className="px-3 py-1 text-xs bg-amber-600 hover:bg-accent-strong disabled:bg-gray-700 disabled:text-gray-500 text-white rounded cursor-pointer"
               >
                 {t('game.partyInventoryModal.addToInventory')}
               </button>
@@ -396,8 +403,8 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
             </p>
           ) : (
             <table className="w-full text-xs">
-              <thead className="sticky top-0 bg-gray-900/95">
-                <tr className="border-b border-gray-700/50 text-xs text-gray-500 uppercase tracking-wider">
+              <thead className="sticky top-0 bg-surface/95">
+                <tr className="border-b border-border/50 text-xs text-gray-500 uppercase tracking-wider">
                   <th className="text-left py-1.5 px-2">{t('game.partyInventoryModal.colName')}</th>
                   <th className="text-center py-1.5 px-1 w-12">{t('game.partyInventoryModal.colQty')}</th>
                   <th className="text-right py-1.5 px-1 w-14">{t('game.partyInventoryModal.colWeight')}</th>
@@ -410,7 +417,7 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
                 {filteredItems.map((item) => (
                   <tr
                     key={item.id}
-                    className="border-b border-gray-800/40 hover:bg-gray-800/30 transition-colors group"
+                    className="border-b border-gray-800/40 hover:bg-surface-2/30 transition-colors group"
                   >
                     <td className="py-1.5 px-2">
                       <div className="flex items-center gap-1.5">
@@ -446,7 +453,7 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
                         )}
                       </div>
                     </td>
-                    <td className="text-right py-1.5 px-1 text-gray-400">
+                    <td className="text-right py-1.5 px-1 text-muted">
                       {item.weight != null ? `${(item.weight * item.quantity).toFixed(1)}` : '-'}
                     </td>
                     <td className="text-right py-1.5 px-1 text-yellow-400/80">
@@ -457,7 +464,7 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
                         <select
                           value={item.assignedTo ?? ''}
                           onChange={(e) => handleTransfer(item.id, e.target.value)}
-                          className="w-full bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-300 outline-none cursor-pointer"
+                          className="w-full bg-surface-2 border border-border rounded px-1 py-0.5 text-xs text-gray-300 outline-none cursor-pointer"
                         >
                           <option value="">{t('game.partyInventoryModal.unassigned')}</option>
                           {players.map((p) => (
@@ -467,7 +474,7 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
                           ))}
                         </select>
                       ) : (
-                        <span className="text-xs text-gray-400">
+                        <span className="text-xs text-muted">
                           {item.assignedTo ? getPlayerName(item.assignedTo) : '-'}
                         </span>
                       )}
@@ -491,7 +498,7 @@ export default function PartyInventoryModal({ isDM, onClose }: PartyInventoryMod
 
         {/* Footer summary */}
         {partyInventory.items.length > 0 && (
-          <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-700/50 shrink-0">
+          <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/50 shrink-0">
             <span className="text-xs text-gray-500">
               {t('game.partyInventoryModal.totalWeight')}{' '}
               <span className="text-gray-300">

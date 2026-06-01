@@ -37,7 +37,7 @@ export default function TurnNotificationBanner({ entityName, onDismiss }: TurnNo
       aria-live="assertive"
       aria-atomic="true"
     >
-      <div className="px-6 py-3 bg-gradient-to-r from-amber-600 to-amber-500 border border-amber-400/50 rounded-xl shadow-lg shadow-amber-500/20">
+      <div className="px-6 py-3 bg-gradient-to-r from-amber-600 to-amber-500 border border-accent/50 rounded-xl shadow-lg shadow-amber-500/20">
         <p className="text-sm font-bold text-white text-center">
           {t('game.turnNotificationBanner.yourTurn', { entityName })}
         </p>

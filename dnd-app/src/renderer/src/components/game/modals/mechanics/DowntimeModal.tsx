@@ -90,12 +90,12 @@ export default function DowntimeModal({
       role="presentation"
     >
       <div
-        className="bg-gray-900 border border-gray-700 rounded-xl w-[600px] max-h-[85vh] overflow-hidden shadow-2xl flex flex-col"
+        className="bg-surface border border-border rounded-xl w-[600px] max-h-[85vh] overflow-hidden shadow-2xl flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700 shrink-0">
-          <h2 className="text-sm font-bold text-amber-400">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
+          <h2 className="text-sm font-bold text-accent">
             {characterName
               ? t('game.downtimeModal.titleWithName', { name: characterName })
               : t('game.downtimeModal.title')}
@@ -110,14 +110,14 @@ export default function DowntimeModal({
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-gray-700 shrink-0">
+        <div className="flex border-b border-border shrink-0">
           {tabs.map((tabDef) => (
             <button
               key={tabDef.id}
               onClick={() => setTab(tabDef.id)}
               className={`flex-1 px-3 py-2 text-xs font-semibold cursor-pointer transition-colors ${
                 tab === tabDef.id
-                  ? 'text-amber-400 border-b-2 border-amber-400 bg-gray-800/50'
+                  ? 'text-accent border-b-2 border-accent bg-surface-2/50'
                   : 'text-gray-500 hover:text-gray-300'
               }`}
             >

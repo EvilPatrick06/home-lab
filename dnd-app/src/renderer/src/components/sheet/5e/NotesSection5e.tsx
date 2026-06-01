@@ -34,11 +34,11 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
   const notes = character.notes
 
   const inputClass =
-    'bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-200 focus:outline-none focus:border-amber-500'
+    'bg-surface-2 border border-border rounded px-2 py-1 text-sm text-gray-200 focus:outline-none focus:border-amber-500'
   const textareaClass =
-    'bg-gray-800 border border-gray-700 rounded px-2 py-1.5 text-sm text-gray-200 w-full resize-y focus:outline-none focus:border-amber-500 min-h-[60px]'
+    'bg-surface-2 border border-border rounded px-2 py-1.5 text-sm text-gray-200 w-full resize-y focus:outline-none focus:border-amber-500 min-h-[60px]'
   const selectClass =
-    'bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-200 focus:outline-none focus:border-amber-500'
+    'bg-surface-2 border border-border rounded px-2 py-1 text-sm text-gray-200 focus:outline-none focus:border-amber-500'
 
   return (
     <SheetSectionWrapper title={t('sheet.notesSection.title')}>
@@ -128,9 +128,10 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
       <div className="mb-3">
         <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('sheet.notesSection.personality')}</div>
         {readonly ? (
-          <p className="text-sm text-gray-400">{personality || t('sheet.notesSection.none')}</p>
+          <p className="text-sm text-muted">{personality || t('sheet.notesSection.none')}</p>
         ) : (
           <textarea
+            aria-label={t('sheet.notesSection.personalityPlaceholder')}
             className={textareaClass}
             defaultValue={personality}
             placeholder={t('sheet.notesSection.personalityPlaceholder')}
@@ -150,9 +151,10 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
       <div className="mb-3">
         <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('sheet.notesSection.ideals')}</div>
         {readonly ? (
-          <p className="text-sm text-gray-400">{character.details.ideals || t('sheet.notesSection.none')}</p>
+          <p className="text-sm text-muted">{character.details.ideals || t('sheet.notesSection.none')}</p>
         ) : (
           <textarea
+            aria-label={t('sheet.notesSection.idealsPlaceholder')}
             className={textareaClass}
             defaultValue={character.details.ideals ?? ''}
             placeholder={t('sheet.notesSection.idealsPlaceholder')}
@@ -171,9 +173,10 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
       <div className="mb-3">
         <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('sheet.notesSection.bonds')}</div>
         {readonly ? (
-          <p className="text-sm text-gray-400">{character.details.bonds || t('sheet.notesSection.none')}</p>
+          <p className="text-sm text-muted">{character.details.bonds || t('sheet.notesSection.none')}</p>
         ) : (
           <textarea
+            aria-label={t('sheet.notesSection.bondsPlaceholder')}
             className={textareaClass}
             defaultValue={character.details.bonds ?? ''}
             placeholder={t('sheet.notesSection.bondsPlaceholder')}
@@ -192,9 +195,10 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
       <div className="mb-3">
         <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('sheet.notesSection.flaws')}</div>
         {readonly ? (
-          <p className="text-sm text-gray-400">{character.details.flaws || t('sheet.notesSection.none')}</p>
+          <p className="text-sm text-muted">{character.details.flaws || t('sheet.notesSection.none')}</p>
         ) : (
           <textarea
+            aria-label={t('sheet.notesSection.flawsPlaceholder')}
             className={textareaClass}
             defaultValue={character.details.flaws ?? ''}
             placeholder={t('sheet.notesSection.flawsPlaceholder')}
@@ -214,11 +218,12 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
       <div className="mb-3">
         <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('sheet.notesSection.backstory')}</div>
         {readonly ? (
-          <p className="text-sm text-gray-400 bg-gray-900/50 border border-gray-700 rounded-lg p-3 whitespace-pre-wrap">
+          <p className="text-sm text-muted bg-surface/50 border border-border rounded-lg p-3 whitespace-pre-wrap">
             {backstory || t('sheet.notesSection.none')}
           </p>
         ) : (
           <textarea
+            aria-label={t('sheet.notesSection.backstoryPlaceholder')}
             className={textareaClass}
             defaultValue={backstory}
             placeholder={t('sheet.notesSection.backstoryPlaceholder')}
@@ -238,9 +243,10 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
       <div className="mb-4">
         <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('sheet.notesSection.notes')}</div>
         {readonly ? (
-          <p className="text-sm text-gray-400 whitespace-pre-wrap">{notes || t('sheet.notesSection.none')}</p>
+          <p className="text-sm text-muted whitespace-pre-wrap">{notes || t('sheet.notesSection.none')}</p>
         ) : (
           <textarea
+            aria-label={t('sheet.notesSection.notesPlaceholder')}
             className={textareaClass}
             defaultValue={notes}
             placeholder={t('sheet.notesSection.notesPlaceholder')}
@@ -257,7 +263,7 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
       </div>
 
       {/* Character Details subsection */}
-      <div className="border-t border-gray-700 pt-3">
+      <div className="border-t border-border pt-3">
         <div className="text-xs text-gray-500 uppercase tracking-wide mb-2">
           {t('sheet.notesSection.characterDetails')}
         </div>
@@ -269,6 +275,7 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
               <span className="text-sm text-gray-300">{character.details.gender || t('sheet.notesSection.dash')}</span>
             ) : (
               <input
+                aria-label={t('sheet.notesSection.gender')}
                 type="text"
                 className={inputClass}
                 defaultValue={character.details.gender ?? ''}
@@ -291,6 +298,7 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
               <span className="text-sm text-gray-300">{character.details.deity || t('sheet.notesSection.dash')}</span>
             ) : (
               <input
+                aria-label={t('sheet.notesSection.deity')}
                 type="text"
                 className={inputClass}
                 defaultValue={character.details.deity ?? ''}
@@ -313,6 +321,7 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
               <span className="text-sm text-gray-300">{character.details.age || t('sheet.notesSection.dash')}</span>
             ) : (
               <input
+                aria-label={t('sheet.notesSection.age')}
                 type="text"
                 className={inputClass}
                 defaultValue={character.details.age ?? ''}
@@ -335,6 +344,7 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
               <span className="text-sm text-gray-300">{character.details.height || t('sheet.notesSection.dash')}</span>
             ) : (
               <input
+                aria-label={t('sheet.notesSection.height')}
                 type="text"
                 className={inputClass}
                 defaultValue={character.details.height ?? ''}
@@ -357,6 +367,7 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
               <span className="text-sm text-gray-300">{character.details.weight || t('sheet.notesSection.dash')}</span>
             ) : (
               <input
+                aria-label={t('sheet.notesSection.weight')}
                 type="text"
                 className={inputClass}
                 defaultValue={character.details.weight ?? ''}
@@ -379,6 +390,7 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
               <span className="text-sm text-gray-300">{character.details.eyes || t('sheet.notesSection.dash')}</span>
             ) : (
               <input
+                aria-label={t('sheet.notesSection.eyes')}
                 type="text"
                 className={inputClass}
                 defaultValue={character.details.eyes ?? ''}
@@ -401,6 +413,7 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
               <span className="text-sm text-gray-300">{character.details.hair || t('sheet.notesSection.dash')}</span>
             ) : (
               <input
+                aria-label={t('sheet.notesSection.hair')}
                 type="text"
                 className={inputClass}
                 defaultValue={character.details.hair ?? ''}
@@ -423,6 +436,7 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
               <span className="text-sm text-gray-300">{character.details.skin || t('sheet.notesSection.dash')}</span>
             ) : (
               <input
+                aria-label={t('sheet.notesSection.skin')}
                 type="text"
                 className={inputClass}
                 defaultValue={character.details.skin ?? ''}
@@ -446,6 +460,7 @@ export default function NotesSection5e({ character, readonly }: NotesSection5ePr
             <p className="text-sm text-gray-300">{character.details.appearance || t('sheet.notesSection.dash')}</p>
           ) : (
             <textarea
+              aria-label={t('sheet.notesSection.appearancePlaceholder')}
               className={textareaClass}
               defaultValue={character.details.appearance ?? ''}
               placeholder={t('sheet.notesSection.appearancePlaceholder')}

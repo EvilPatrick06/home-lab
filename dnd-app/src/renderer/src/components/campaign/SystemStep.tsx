@@ -14,7 +14,7 @@ export default function SystemStep({ selected, onSelect }: SystemStepProps): JSX
   return (
     <div>
       <h2 className="text-xl font-semibold mb-2">{t('campaign.systemStep.title')}</h2>
-      <p className="text-gray-400 text-sm mb-6">{t('campaign.systemStep.subtitle')}</p>
+      <p className="text-muted text-sm mb-6">{t('campaign.systemStep.subtitle')}</p>
 
       <div
         className="grid gap-4 max-w-2xl"
@@ -28,12 +28,12 @@ export default function SystemStep({ selected, onSelect }: SystemStepProps): JSX
               ${
                 selected === sys.id
                   ? 'border-amber-500 bg-amber-900/20'
-                  : 'border-gray-800 bg-gray-900/50 hover:border-gray-600'
+                  : 'border-gray-800 bg-surface/50 hover:border-gray-600'
               }`}
           >
             <div className="text-3xl mb-3">{sys.id === 'dnd5e' ? '\u2694' : '\uD83C\uDFB2'}</div>
             <div className="font-semibold text-lg mb-1">{sys.name}</div>
-            <div className="text-sm text-gray-400">
+            <div className="text-sm text-muted">
               {sys.shortName} &middot; {sys.referenceLabel}
             </div>
           </button>

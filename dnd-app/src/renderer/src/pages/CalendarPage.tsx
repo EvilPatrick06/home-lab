@@ -141,7 +141,7 @@ export default function CalendarPage(): JSX.Element {
     <div className="p-8 h-screen overflow-y-auto">
       <button
         onClick={() => navigate('/')}
-        className="text-amber-400 hover:text-amber-300 hover:underline mb-6 block cursor-pointer"
+        className="text-accent hover:text-amber-300 hover:underline mb-6 block cursor-pointer"
       >
         {t('pages.calendarPage.backToMenu')}
       </button>
@@ -155,14 +155,14 @@ export default function CalendarPage(): JSX.Element {
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={goToPreviousMonth}
-              className="px-3 py-1.5 rounded-lg border border-gray-700 hover:bg-gray-800 text-gray-300 cursor-pointer transition-colors"
+              className="px-3 py-1.5 rounded-lg border border-border hover:bg-surface-2 text-gray-300 cursor-pointer transition-colors"
             >
               &larr;
             </button>
-            <h2 className="text-xl font-semibold text-gray-100">{formatMonthYear(currentYear, currentMonth)}</h2>
+            <h2 className="text-xl font-semibold text-fg">{formatMonthYear(currentYear, currentMonth)}</h2>
             <button
               onClick={goToNextMonth}
-              className="px-3 py-1.5 rounded-lg border border-gray-700 hover:bg-gray-800 text-gray-300 cursor-pointer transition-colors"
+              className="px-3 py-1.5 rounded-lg border border-border hover:bg-surface-2 text-gray-300 cursor-pointer transition-colors"
             >
               &rarr;
             </button>
@@ -207,13 +207,13 @@ export default function CalendarPage(): JSX.Element {
                           ? `${AVAILABILITY_COLORS[myStatus]} text-gray-200`
                           : hasSession
                             ? 'border-amber-500/30 bg-amber-600/10 text-gray-200'
-                            : 'border-gray-800 hover:border-gray-600 hover:bg-gray-800/50 text-gray-300'
+                            : 'border-gray-800 hover:border-gray-600 hover:bg-surface-2/50 text-gray-300'
                     }
                     ${todayHighlight ? 'ring-1 ring-amber-400' : ''}
                   `}
                 >
                   <span>{day}</span>
-                  {hasSession && <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-0.5" />}
+                  {hasSession && <span className="w-1.5 h-1.5 rounded-full bg-accent mt-0.5" />}
                 </button>
               )
             })}
@@ -222,7 +222,7 @@ export default function CalendarPage(): JSX.Element {
           {/* Legend */}
           <div className="flex items-center gap-4 mt-4 text-xs text-gray-500">
             <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-amber-400" />
+              <span className="w-2 h-2 rounded-full bg-accent" />
               {t('pages.calendarPage.proposedSession')}
             </div>
             <div className="flex items-center gap-1.5">
@@ -235,8 +235,8 @@ export default function CalendarPage(): JSX.Element {
         {/* Detail panel */}
         <div className="w-72">
           {selectedDay ? (
-            <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-5">
-              <h3 className="text-lg font-semibold mb-3 text-gray-100">
+            <div className="bg-surface/50 border border-gray-800 rounded-lg p-5">
+              <h3 className="text-lg font-semibold mb-3 text-fg">
                 {new Date(`${selectedDay}T00:00:00`).toLocaleDateString('en-US', {
                   weekday: 'long',
                   month: 'long',
@@ -246,14 +246,14 @@ export default function CalendarPage(): JSX.Element {
 
               {selectedSession ? (
                 <div className="space-y-4">
-                  <p className="text-sm text-gray-400">
+                  <p className="text-sm text-muted">
                     {t('pages.calendarPage.proposedBy')}{' '}
-                    <span className="text-amber-400">{selectedSession.proposedBy}</span>
+                    <span className="text-accent">{selectedSession.proposedBy}</span>
                   </p>
 
                   {/* Availability buttons */}
                   <div>
-                    <p className="text-sm text-gray-400 mb-2">{t('pages.calendarPage.yourAvailability')}</p>
+                    <p className="text-sm text-muted mb-2">{t('pages.calendarPage.yourAvailability')}</p>
                     <div className="flex gap-2">
                       {(['yes', 'no', 'maybe'] as AvailabilityResponse['available'][]).map((value) => (
                         <button
@@ -265,7 +265,7 @@ export default function CalendarPage(): JSX.Element {
                             ${
                               myAvailability[selectedDay] === value
                                 ? `${AVAILABILITY_COLORS[value]} text-white`
-                                : 'border-gray-700 text-gray-400 hover:bg-gray-800'
+                                : 'border-border text-muted hover:bg-surface-2'
                             }
                           `}
                         >
@@ -278,7 +278,7 @@ export default function CalendarPage(): JSX.Element {
                   {/* Responses */}
                   {selectedSession.responses.length > 0 && (
                     <div>
-                      <p className="text-sm text-gray-400 mb-2">{t('pages.calendarPage.responses')}</p>
+                      <p className="text-sm text-muted mb-2">{t('pages.calendarPage.responses')}</p>
                       <div className="space-y-1.5">
                         {selectedSession.responses.map((r) => (
                           <div key={r.userId} className="flex items-center justify-between text-sm">
@@ -289,7 +289,7 @@ export default function CalendarPage(): JSX.Element {
                                   ? 'text-green-400'
                                   : r.available === 'no'
                                     ? 'text-red-400'
-                                    : 'text-amber-400'
+                                    : 'text-accent'
                               }
                             >
                               {t(AVAILABILITY_LABEL_KEYS[r.available])}
@@ -312,7 +312,7 @@ export default function CalendarPage(): JSX.Element {
                   <p className="text-sm text-gray-500">{t('pages.calendarPage.noSessionProposed')}</p>
                   <button
                     onClick={proposeSession}
-                    className="w-full px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-semibold text-sm cursor-pointer transition-colors"
+                    className="w-full px-4 py-2 rounded-lg bg-amber-600 hover:bg-accent-strong text-white font-semibold text-sm cursor-pointer transition-colors"
                   >
                     {t('pages.calendarPage.proposeSession')}
                   </button>
@@ -320,7 +320,7 @@ export default function CalendarPage(): JSX.Element {
               )}
             </div>
           ) : (
-            <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-5">
+            <div className="bg-surface/50 border border-gray-800 rounded-lg p-5">
               <p className="text-sm text-gray-500">{t('pages.calendarPage.selectDayPrompt')}</p>
             </div>
           )}

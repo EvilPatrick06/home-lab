@@ -3,6 +3,14 @@ import { SETTINGS_KEYS } from '../constants'
  * Theme manager for the application.
  * Overrides Tailwind v4 CSS custom properties (--color-gray-*, --color-amber-*)
  * on :root to dynamically switch themes at runtime.
+ *
+ * Semantic tokens (--color-surface, --color-border, --color-accent, … defined
+ * in styles/globals.css via `@theme inline`) are declared as `var(--color-gray-N)`
+ * / `var(--color-amber-N)`. Because the CSS cascade re-resolves `var()` references
+ * whenever the referenced custom property changes, overriding the raw gray/amber
+ * vars here automatically re-themes every semantic utility (bg-surface, text-muted,
+ * text-accent, …) with no extra wiring. The 'dark' (default) theme sets no overrides,
+ * so the semantic tokens fall back to the literal Tailwind scale values — pixel-identical.
  */
 
 import themesJson from '@data/ui/themes.json'

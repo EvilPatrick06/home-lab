@@ -201,7 +201,7 @@ export default function ChatInput(): JSX.Element {
                 })
               }}
               className={`text-xs px-1.5 py-0.5 rounded transition-colors cursor-pointer ${
-                slowModeSeconds === sec ? 'bg-amber-600/30 text-amber-400' : 'text-gray-500 hover:text-gray-300'
+                slowModeSeconds === sec ? 'bg-amber-600/30 text-accent' : 'text-gray-500 hover:text-gray-300'
               }`}
             >
               {sec === 0 ? t('lobby.chatInput.off') : t('lobby.chatInput.seconds', { seconds: sec })}
@@ -224,7 +224,7 @@ export default function ChatInput(): JSX.Element {
               })
             }}
             className={`text-xs px-1.5 py-0.5 rounded transition-colors cursor-pointer ${
-              fileSharingEnabled ? 'bg-amber-600/30 text-amber-400' : 'text-gray-500 hover:text-gray-300'
+              fileSharingEnabled ? 'bg-amber-600/30 text-accent' : 'text-gray-500 hover:text-gray-300'
             }`}
           >
             {fileSharingEnabled ? t('lobby.chatInput.on') : t('lobby.chatInput.off')}
@@ -246,7 +246,7 @@ export default function ChatInput(): JSX.Element {
               })
             }}
             className={`text-xs px-1.5 py-0.5 rounded transition-colors cursor-pointer ${
-              moderationOn ? 'bg-amber-600/30 text-amber-400' : 'text-gray-500 hover:text-gray-300'
+              moderationOn ? 'bg-amber-600/30 text-accent' : 'text-gray-500 hover:text-gray-300'
             }`}
           >
             {moderationOn ? t('lobby.chatInput.on') : t('lobby.chatInput.off')}
@@ -260,7 +260,7 @@ export default function ChatInput(): JSX.Element {
           <button
             onClick={() => fileInputRef.current?.click()}
             title={t('lobby.chatInput.attachFile')}
-            className="p-2 rounded-lg text-gray-500 hover:text-amber-400 hover:bg-gray-800 transition-colors cursor-pointer"
+            className="p-2 rounded-lg text-gray-500 hover:text-accent hover:bg-surface-2 transition-colors cursor-pointer"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
               <path
@@ -287,16 +287,16 @@ export default function ChatInput(): JSX.Element {
                 : t('lobby.chatInput.placeholder')
           }
           disabled={isInputDisabled}
-          className={`flex-1 px-3 py-2 rounded-lg bg-gray-800 border text-gray-100
+          className={`flex-1 px-3 py-2 rounded-lg bg-surface-2 border text-fg
                      placeholder-gray-600 focus:border-amber-500 focus:outline-none
                      transition-colors text-sm disabled:opacity-50 ${
-                       isChatMuted ? 'border-red-700/50' : 'border-gray-700'
+                       isChatMuted ? 'border-red-700/50' : 'border-border'
 }`}
         />
         <button
           onClick={handleSend}
           disabled={!value.trim() || isInputDisabled}
-          className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-medium
+          className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-accent-strong text-white font-medium
                      text-sm transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isChatMuted

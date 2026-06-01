@@ -71,7 +71,7 @@ export default function HandoutViewerModal({ handout, onClose }: HandoutViewerMo
   return (
     <div className="fixed inset-0 z-20 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/60" onClick={onClose} role="presentation" />
-      <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-3xl w-full mx-4 shadow-2xl max-h-[85vh] flex flex-col">
+      <div className="relative bg-surface/95 backdrop-blur-sm border border-border/50 rounded-xl p-4 max-w-3xl w-full mx-4 shadow-2xl max-h-[85vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between mb-3 shrink-0">
           <h3 className="text-sm font-semibold text-gray-200 truncate">{handout.title}</h3>
@@ -110,7 +110,7 @@ export default function HandoutViewerModal({ handout, onClose }: HandoutViewerMo
                 className={`px-3 py-1 text-xs font-medium rounded-t-lg whitespace-nowrap cursor-pointer transition-colors ${
                   activePage === idx
                     ? 'bg-amber-600/25 border border-b-0 border-amber-500/50 text-amber-300'
-                    : 'bg-gray-800/40 border border-b-0 border-gray-700/30 text-gray-400 hover:bg-gray-700/40'
+                    : 'bg-surface-2/40 border border-b-0 border-border/30 text-muted hover:bg-gray-700/40'
                 }`}
               >
                 {page.label || t('game.handoutViewerModal.pageFallback', { num: idx + 1 })}
@@ -121,7 +121,7 @@ export default function HandoutViewerModal({ handout, onClose }: HandoutViewerMo
 
         {/* Content */}
         <div
-          className={`flex-1 overflow-hidden rounded-lg border border-gray-700/40 bg-gray-800/50 min-h-0 ${
+          className={`flex-1 overflow-hidden rounded-lg border border-border/40 bg-surface-2/50 min-h-0 ${
             activeContentType === 'image' ? 'cursor-grab active:cursor-grabbing' : ''
           }`}
           onWheel={activeContentType === 'image' ? handleWheel : undefined}

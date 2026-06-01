@@ -76,7 +76,7 @@ export function ClassLevelSelector({
       <select
         value={selectedClassId}
         onChange={(e) => onSelect(e.target.value)}
-        className="bg-gray-800 border border-gray-600 rounded px-2 py-0.5 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+        className="bg-surface-2 border border-gray-600 rounded px-2 py-0.5 text-sm text-fg focus:outline-none focus:border-amber-500"
       >
         {eligibleClasses.map((cls) => (
           <option key={cls.id ?? cls.name.toLowerCase()} value={cls.id ?? cls.name.toLowerCase()}>
@@ -222,16 +222,16 @@ export function InvocationSection5e({
   const isIncomplete = invocationSelections.length < maxInvocations
 
   return (
-    <div className={`bg-gray-900/50 border rounded-lg p-4 ${isIncomplete ? 'border-amber-600/50' : 'border-gray-800'}`}>
+    <div className={`bg-surface/50 border rounded-lg p-4 ${isIncomplete ? 'border-amber-600/50' : 'border-gray-800'}`}>
       <h3 className="text-lg font-bold text-purple-400 mb-1 flex items-center gap-2">
         {t('levelup.invocationSection.heading')}
         {isIncomplete && (
-          <span className="text-xs text-amber-500 font-semibold uppercase">
+          <span className="text-xs text-accent-strong font-semibold uppercase">
             {t('levelup.invocationSection.required')}
           </span>
         )}
       </h3>
-      <p className={`text-xs mb-3 ${isIncomplete ? 'text-amber-400' : 'text-gray-500'}`}>
+      <p className={`text-xs mb-3 ${isIncomplete ? 'text-accent' : 'text-gray-500'}`}>
         {t('levelup.invocationSection.known', {
           level: warlockLevel,
           selected: invocationSelections.length,
@@ -239,11 +239,12 @@ export function InvocationSection5e({
         })}
       </p>
       <input
+        aria-label={t('levelup.invocationSection.searchPlaceholder')}
         type="text"
         placeholder={t('levelup.invocationSection.searchPlaceholder')}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="w-full px-2 py-1 text-sm bg-gray-800 border border-gray-700 rounded text-gray-200 placeholder-gray-500 mb-3"
+        className="w-full px-2 py-1 text-sm bg-surface-2 border border-border rounded text-gray-200 placeholder-gray-500 mb-3"
       />
       <div className="max-h-64 overflow-y-auto space-y-1">
         {eligible.map((inv) => {
@@ -260,15 +261,15 @@ export function InvocationSection5e({
                 selected
                   ? 'bg-purple-900/30 border-purple-600 text-purple-300'
                   : disabled
-                    ? 'border-gray-700/50 text-gray-600 cursor-not-allowed'
-                    : 'border-gray-700 hover:border-purple-600 text-gray-300 hover:bg-gray-800'
+                    ? 'border-border/50 text-gray-600 cursor-not-allowed'
+                    : 'border-border hover:border-purple-600 text-gray-300 hover:bg-surface-2'
               }`}
             >
               <div className="flex items-center gap-2">
                 <div className="text-sm font-semibold">
                   {inv.name}
                   {inv.isPactBoon && (
-                    <span className="text-xs text-amber-400 ml-1">{t('levelup.invocationSection.pactBoon')}</span>
+                    <span className="text-xs text-accent ml-1">{t('levelup.invocationSection.pactBoon')}</span>
                   )}
                   {inv.repeatable && (
                     <span className="text-xs text-cyan-400 ml-1">{t('levelup.invocationSection.repeatable')}</span>
@@ -294,7 +295,7 @@ export function InvocationSection5e({
                           removeOneInvocation(inv.id)
                         }
                       }}
-                      className="text-xs text-gray-400 hover:text-red-400 px-1 cursor-pointer"
+                      className="text-xs text-muted hover:text-red-400 px-1 cursor-pointer"
                       title={t('levelup.invocationSection.removeOne')}
                     >
                       &minus;
@@ -385,16 +386,16 @@ export function MetamagicSection5e({
   const isIncomplete = metamagicSelections.length < maxOptions
 
   return (
-    <div className={`bg-gray-900/50 border rounded-lg p-4 ${isIncomplete ? 'border-amber-600/50' : 'border-gray-800'}`}>
+    <div className={`bg-surface/50 border rounded-lg p-4 ${isIncomplete ? 'border-amber-600/50' : 'border-gray-800'}`}>
       <h3 className="text-lg font-bold text-red-400 mb-1 flex items-center gap-2">
         {t('levelup.metamagicSection.heading')}
         {isIncomplete && (
-          <span className="text-xs text-amber-500 font-semibold uppercase">
+          <span className="text-xs text-accent-strong font-semibold uppercase">
             {t('levelup.metamagicSection.required')}
           </span>
         )}
       </h3>
-      <p className={`text-xs mb-3 ${isIncomplete ? 'text-amber-400' : 'text-gray-500'}`}>
+      <p className={`text-xs mb-3 ${isIncomplete ? 'text-accent' : 'text-gray-500'}`}>
         {t('levelup.metamagicSection.known', {
           level: sorcererLevel,
           selected: metamagicSelections.length,
@@ -415,8 +416,8 @@ export function MetamagicSection5e({
                 selected
                   ? 'bg-red-900/30 border-red-600 text-red-300'
                   : atMax
-                    ? 'border-gray-700/50 text-gray-600 cursor-not-allowed'
-                    : 'border-gray-700 hover:border-red-600 text-gray-300 hover:bg-gray-800'
+                    ? 'border-border/50 text-gray-600 cursor-not-allowed'
+                    : 'border-border hover:border-red-600 text-gray-300 hover:bg-surface-2'
               }`}
             >
               <div className="flex items-center gap-2">
@@ -467,8 +468,8 @@ export function MulticlassSkillSection5e({
   if (newGrantClasses.size === 0) return null
 
   return (
-    <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-4">
-      <h3 className="text-sm font-semibold text-amber-400 uppercase tracking-wide mb-3">
+    <div className="bg-surface/50 border border-gray-800 rounded-lg p-4">
+      <h3 className="text-sm font-semibold text-accent uppercase tracking-wide mb-3">
         {t('levelup.multiclassSkillSection.heading')}
       </h3>
       {Array.from(newGrantClasses).map((cid) => {
@@ -479,7 +480,7 @@ export function MulticlassSkillSection5e({
         const incomplete = chosen.length < grant.count
         return (
           <div key={cid} className="mb-2">
-            <div className={`text-xs mb-1 ${incomplete ? 'text-amber-400' : 'text-gray-500'}`}>
+            <div className={`text-xs mb-1 ${incomplete ? 'text-accent' : 'text-gray-500'}`}>
               {t('levelup.multiclassSkillSection.chooseSkills', {
                 className: cid.charAt(0).toUpperCase() + cid.slice(1),
                 count: grant.count,
@@ -508,8 +509,8 @@ export function MulticlassSkillSection5e({
                       selected
                         ? 'bg-amber-600 border-amber-500 text-white'
                         : atMax
-                          ? 'border-gray-700/50 text-gray-600 cursor-not-allowed'
-                          : 'border-gray-700 text-gray-300 hover:border-amber-600 cursor-pointer'
+                          ? 'border-border/50 text-gray-600 cursor-not-allowed'
+                          : 'border-border text-gray-300 hover:border-amber-600 cursor-pointer'
                     }`}
                   >
                     {skill}

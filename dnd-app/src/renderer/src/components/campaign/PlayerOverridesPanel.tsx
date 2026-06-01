@@ -57,16 +57,16 @@ export default function PlayerOverridesPanel({ campaign }: { campaign: Campaign 
         }
 
         return (
-          <div key={player.userId} className="border border-gray-700 rounded-lg overflow-hidden">
-            <div className="flex items-center gap-2 px-3 py-2 bg-gray-800/60">
+          <div key={player.userId} className="border border-border rounded-lg overflow-hidden">
+            <div className="flex items-center gap-2 px-3 py-2 bg-surface-2/60">
               <button
                 type="button"
                 onClick={() => setExpandedId(expanded ? null : player.userId)}
-                className="text-gray-400 hover:text-amber-300 cursor-pointer text-sm"
+                className="text-muted hover:text-amber-300 cursor-pointer text-sm"
               >
                 {expanded ? '▼' : '▶'}
               </button>
-              <span className="text-sm font-semibold text-gray-100">{player.displayName}</span>
+              <span className="text-sm font-semibold text-fg">{player.displayName}</span>
               {count > 0 && (
                 <span className="text-xs text-gray-500">
                   {t('campaign.playerOverridesPanel.overrideCount', { count })}
@@ -81,7 +81,7 @@ export default function PlayerOverridesPanel({ campaign }: { campaign: Campaign 
                 <button
                   type="button"
                   onClick={() => clearPlayerOverride(campaign.id, player.userId)}
-                  className="ml-auto text-xs text-gray-400 hover:text-red-300 cursor-pointer"
+                  className="ml-auto text-xs text-muted hover:text-red-300 cursor-pointer"
                 >
                   {t('campaign.playerOverridesPanel.clear')}
                 </button>
@@ -92,7 +92,7 @@ export default function PlayerOverridesPanel({ campaign }: { campaign: Campaign 
               <div className="p-3 space-y-3">
                 {(Object.keys(PERMISSION_GROUPS) as PermissionCategory[]).map((category) => (
                   <div key={category}>
-                    <span className="text-xs font-semibold text-amber-400 uppercase tracking-wide capitalize">
+                    <span className="text-xs font-semibold text-accent uppercase tracking-wide capitalize">
                       {category}
                     </span>
                     <div className="mt-1 space-y-1">
@@ -113,7 +113,7 @@ export default function PlayerOverridesPanel({ campaign }: { campaign: Campaign 
                                       : opt === 'deny'
                                         ? 'bg-red-600/40 text-red-300'
                                         : 'bg-gray-600/40 text-gray-200'
-                                    : 'bg-gray-800 text-gray-500 hover:text-gray-300'
+                                    : 'bg-surface-2 text-gray-500 hover:text-gray-300'
                                 }`}
                               >
                                 {t(`campaign.playerOverridesPanel.triState.${opt}`)}

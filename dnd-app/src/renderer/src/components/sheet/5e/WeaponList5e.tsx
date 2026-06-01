@@ -182,7 +182,7 @@ export function WeaponRow({ weapon, onRemove, onSell, character, weaponDatabase 
       <div className="flex items-center justify-between py-1.5 border-b border-gray-800 last:border-0 text-sm">
         <button
           onClick={() => setExpanded(!expanded)}
-          className="flex items-center gap-2 cursor-pointer hover:bg-gray-800/30 rounded px-1 -mx-1 transition-colors"
+          className="flex items-center gap-2 cursor-pointer hover:bg-surface-2/30 rounded px-1 -mx-1 transition-colors"
         >
           <span className="text-gray-200 font-medium">{weapon.name}</span>
           <span className="text-gray-600 text-xs">{expanded ? '\u25BE' : '\u25B8'}</span>
@@ -197,7 +197,7 @@ export function WeaponRow({ weapon, onRemove, onSell, character, weaponDatabase 
           {weapon.properties.map((prop) => (
             <span
               key={prop}
-              className="text-xs px-1 py-0.5 rounded bg-gray-700/50 text-gray-400 border border-gray-600"
+              className="text-xs px-1 py-0.5 rounded bg-gray-700/50 text-muted border border-gray-600"
               title={propertyTooltip(prop)}
             >
               {PROPERTY_ABBREVIATIONS[prop] ?? prop}
@@ -205,7 +205,7 @@ export function WeaponRow({ weapon, onRemove, onSell, character, weaponDatabase 
           ))}
         </button>
         <div className="flex items-center gap-4 text-xs">
-          <span className="text-amber-400 font-mono" title={attackTooltip}>
+          <span className="text-accent font-mono" title={attackTooltip}>
             {formatMod(dynamicAttackBonus)}
           </span>
           <span className="text-red-400 font-medium" title={damageTooltipParts.join('\n')}>

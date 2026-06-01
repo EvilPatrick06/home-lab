@@ -137,8 +137,8 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
   }
 
   const inputClass =
-    'w-full bg-gray-800 border border-gray-600 rounded px-2 py-1 text-sm text-gray-200 focus:border-amber-500 focus:outline-none'
-  const labelClass = 'text-xs text-gray-400 mb-0.5 block'
+    'w-full bg-surface-2 border border-gray-600 rounded px-2 py-1 text-sm text-gray-200 focus:border-amber-500 focus:outline-none'
+  const labelClass = 'text-xs text-muted mb-0.5 block'
 
   return (
     <div
@@ -147,15 +147,15 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
       role="presentation"
     >
       <div
-        className="bg-gray-900 border border-gray-700 rounded-lg shadow-xl w-[680px] max-h-[80vh] flex flex-col"
+        className="bg-surface border border-border rounded-lg shadow-xl w-[680px] max-h-[80vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-100">{t('game.triggerManagerModal.title')}</h2>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+          <h2 className="text-lg font-semibold text-fg">{t('game.triggerManagerModal.title')}</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white text-xl leading-none cursor-pointer"
+            className="text-muted hover:text-white text-xl leading-none cursor-pointer"
             aria-label={t('common.actions.close')}
           >
             x
@@ -171,7 +171,7 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
               </span>
               <button
                 onClick={() => setShowForm(!showForm)}
-                className="px-3 py-1 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer"
+                className="px-3 py-1 text-xs bg-amber-600 hover:bg-accent-strong text-white rounded cursor-pointer"
               >
                 {showForm ? t('common.actions.cancel') : t('game.triggerManagerModal.newTrigger')}
               </button>
@@ -186,7 +186,7 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
                 <div
                   key={trig.id}
                   className={`border rounded-lg p-3 ${
-                    trig.enabled ? 'border-gray-600 bg-gray-800/50' : 'border-gray-700 bg-gray-800/20 opacity-60'
+                    trig.enabled ? 'border-gray-600 bg-surface-2/50' : 'border-border bg-surface-2/20 opacity-60'
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -229,7 +229,7 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
                       </button>
                     </div>
                   </div>
-                  <div className="mt-1.5 flex gap-3 text-xs text-gray-400">
+                  <div className="mt-1.5 flex gap-3 text-xs text-muted">
                     <span>
                       {t('game.triggerManagerModal.eventLabel')}{' '}
                       <span className="text-gray-300">{t(`game.triggerManagerModal.events.${trig.event}`)}</span>
@@ -246,7 +246,7 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
 
           {/* Create trigger form */}
           {showForm && (
-            <div className="border border-amber-700/50 rounded-lg p-4 bg-gray-800/40 space-y-3">
+            <div className="border border-amber-700/50 rounded-lg p-4 bg-surface-2/40 space-y-3">
               <h3 className="text-sm font-medium text-amber-300">{t('game.triggerManagerModal.newTriggerTitle')}</h3>
 
               <div>
@@ -293,7 +293,7 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
 
               {/* Condition fields */}
               <div className="space-y-2">
-                <span className="text-xs text-gray-400 font-medium">{t('game.triggerManagerModal.condition')}</span>
+                <span className="text-xs text-muted font-medium">{t('game.triggerManagerModal.condition')}</span>
 
                 {(event === 'initiative_change' ||
                   event === 'hp_threshold' ||
@@ -367,7 +367,7 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
 
               {/* Action payload fields */}
               <div className="space-y-2">
-                <span className="text-xs text-gray-400 font-medium">{t('game.triggerManagerModal.actionConfig')}</span>
+                <span className="text-xs text-muted font-medium">{t('game.triggerManagerModal.actionConfig')}</span>
 
                 {(action === 'show_message' || action === 'narrate') && (
                   <div>
@@ -453,7 +453,7 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
                 <button
                   onClick={handleCreate}
                   disabled={!name.trim()}
-                  className="px-3 py-1.5 text-xs bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded cursor-pointer"
+                  className="px-3 py-1.5 text-xs bg-amber-600 hover:bg-accent-strong disabled:bg-gray-700 disabled:text-gray-500 text-white rounded cursor-pointer"
                 >
                   {t('game.triggerManagerModal.createTrigger')}
                 </button>
@@ -464,14 +464,14 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
           {/* Trigger history */}
           {history.length > 0 && (
             <div>
-              <span className="text-xs font-medium text-gray-400 block mb-1.5">
+              <span className="text-xs font-medium text-muted block mb-1.5">
                 {t('game.triggerManagerModal.fireHistory')}
               </span>
               <div className="space-y-1 max-h-32 overflow-y-auto">
                 {history.map((h, i) => (
                   <div key={`${h.triggerId}-${h.timestamp}-${i}`} className="text-xs text-gray-500 flex gap-2">
                     <span className="text-gray-600">{new Date(h.timestamp).toLocaleTimeString()}</span>
-                    <span className="text-gray-400">{h.triggerName}</span>
+                    <span className="text-muted">{h.triggerName}</span>
                   </div>
                 ))}
               </div>
@@ -480,7 +480,7 @@ export default function TriggerManagerModal({ onClose }: TriggerManagerModalProp
         </div>
 
         {/* Footer */}
-        <div className="px-4 py-3 border-t border-gray-700 flex justify-end">
+        <div className="px-4 py-3 border-t border-border flex justify-end">
           <button
             onClick={onClose}
             className="px-4 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"

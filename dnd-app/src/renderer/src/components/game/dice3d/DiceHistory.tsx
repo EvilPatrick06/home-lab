@@ -40,10 +40,10 @@ export default function DiceHistory({ onClose }: DiceHistoryProps): JSX.Element 
   }, [])
 
   return (
-    <div className="w-72 h-full bg-gray-900/95 border-l border-gray-700 flex flex-col min-h-0">
+    <div className="w-72 h-full bg-surface/95 border-l border-border flex flex-col min-h-0">
       {/* Header */}
-      <div className="shrink-0 flex items-center justify-between px-3 py-2 border-b border-gray-700">
-        <h2 className="text-sm font-bold text-gray-100">{t('game.diceHistory.title')}</h2>
+      <div className="shrink-0 flex items-center justify-between px-3 py-2 border-b border-border">
+        <h2 className="text-sm font-bold text-fg">{t('game.diceHistory.title')}</h2>
         <div className="flex items-center gap-1">
           <span className="text-xs text-gray-500">
             {t('game.diceHistory.rollCount', { count: diceHistory.length })}
@@ -51,7 +51,7 @@ export default function DiceHistory({ onClose }: DiceHistoryProps): JSX.Element 
           {onClose && (
             <button
               onClick={onClose}
-              className="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-gray-300 rounded hover:bg-gray-800 cursor-pointer transition-colors"
+              className="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-gray-300 rounded hover:bg-surface-2 cursor-pointer transition-colors"
               title={t('common.actions.close')}
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
@@ -64,13 +64,13 @@ export default function DiceHistory({ onClose }: DiceHistoryProps): JSX.Element 
 
       {/* Player filter */}
       {playerNames.length > 1 && (
-        <div className="shrink-0 flex gap-1 px-3 py-2 border-b border-gray-700 flex-wrap">
+        <div className="shrink-0 flex gap-1 px-3 py-2 border-b border-border flex-wrap">
           <button
             onClick={() => setFilterPlayer(null)}
             className={`px-2 py-0.5 text-xs font-semibold rounded cursor-pointer transition-colors ${
               !filterPlayer
                 ? 'bg-amber-600 text-white'
-                : 'bg-gray-800 text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+                : 'bg-surface-2 text-muted hover:text-gray-200 hover:bg-gray-700'
             }`}
           >
             {t('game.diceHistory.all')}
@@ -82,7 +82,7 @@ export default function DiceHistory({ onClose }: DiceHistoryProps): JSX.Element 
               className={`px-2 py-0.5 text-xs font-semibold rounded cursor-pointer transition-colors ${
                 filterPlayer === name
                   ? 'bg-amber-600 text-white'
-                  : 'bg-gray-800 text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+                  : 'bg-surface-2 text-muted hover:text-gray-200 hover:bg-gray-700'
               }`}
             >
               {name}
@@ -107,7 +107,7 @@ export default function DiceHistory({ onClose }: DiceHistoryProps): JSX.Element 
                   ? 'bg-amber-900/20 border-amber-600/40'
                   : roll.isFumble
                     ? 'bg-red-900/20 border-red-600/40'
-                    : 'bg-gray-800/40 border-gray-700/30'
+                    : 'bg-surface-2/40 border-border/30'
               }`}
             >
               <div className="flex items-center justify-between gap-1">
@@ -115,7 +115,7 @@ export default function DiceHistory({ onClose }: DiceHistoryProps): JSX.Element 
                 <span className="text-[9px] text-gray-600 shrink-0">{formatTime(roll.timestamp)}</span>
               </div>
 
-              {roll.reason && <div className="text-xs text-gray-400 mt-0.5 truncate">{roll.reason}</div>}
+              {roll.reason && <div className="text-xs text-muted mt-0.5 truncate">{roll.reason}</div>}
 
               <div className="flex items-center gap-1.5 mt-1">
                 <span className="text-xs text-gray-500 font-mono">{roll.formula}</span>
@@ -133,13 +133,13 @@ export default function DiceHistory({ onClose }: DiceHistoryProps): JSX.Element 
                 <span className="text-xs text-gray-600">=</span>
                 <span
                   className={`text-xs font-bold ${
-                    roll.isCritical ? 'text-amber-400' : roll.isFumble ? 'text-red-400' : 'text-gray-100'
+                    roll.isCritical ? 'text-accent' : roll.isFumble ? 'text-red-400' : 'text-fg'
                   }`}
                 >
                   {roll.total}
                 </span>
                 {roll.isCritical && (
-                  <span className="text-[9px] text-amber-400 font-bold">{t('game.diceHistory.crit')}</span>
+                  <span className="text-[9px] text-accent font-bold">{t('game.diceHistory.crit')}</span>
                 )}
                 {roll.isFumble && (
                   <span className="text-[9px] text-red-400 font-bold">{t('game.diceHistory.fumble')}</span>

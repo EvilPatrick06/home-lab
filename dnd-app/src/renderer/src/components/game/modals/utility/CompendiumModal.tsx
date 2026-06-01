@@ -117,11 +117,12 @@ export default function CompendiumModal({ onClose }: CompendiumModalProps): JSX.
         <div className="flex flex-col h-full min-h-0">
           {/* Search */}
           <input
+            aria-label={t('game.compendiumModal.searchPlaceholder')}
             type="text"
             placeholder={t('game.compendiumModal.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full mb-3 bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-gray-200 outline-none focus:border-amber-500/50 shrink-0"
+            className="w-full mb-3 bg-surface-2 border border-border rounded-lg px-3 py-1.5 text-sm text-gray-200 outline-none focus:border-amber-500/50 shrink-0"
           />
 
           {/* Tabs */}
@@ -133,7 +134,7 @@ export default function CompendiumModal({ onClose }: CompendiumModalProps): JSX.
                 className={`px-2.5 py-1 text-xs font-medium rounded-lg whitespace-nowrap cursor-pointer transition-colors ${
                   activeTab === tab.id
                     ? 'bg-amber-600/25 border border-amber-500/50 text-amber-300'
-                    : 'bg-gray-800/40 border border-gray-700/30 text-gray-400 hover:bg-gray-700/40 hover:text-gray-300'
+                    : 'bg-surface-2/40 border border-border/30 text-muted hover:bg-gray-700/40 hover:text-gray-300'
                 }`}
               >
                 {t(`game.compendiumModal.tabs.${tab.id}`)}

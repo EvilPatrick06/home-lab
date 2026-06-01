@@ -332,7 +332,7 @@ export default function CharacterSummaryBar5e({ canSave }: { canSave: boolean })
   const speed = stats5e?.speed ?? '--'
 
   return (
-    <div className="flex items-center gap-4 px-4 py-2 bg-gray-900 border-b border-gray-700 text-sm shrink-0">
+    <div className="flex items-center gap-4 px-4 py-2 bg-surface border-b border-border text-sm shrink-0">
       {/* Name & Identity */}
       <div className="flex items-center gap-3 min-w-0">
         <CharacterIcon
@@ -343,7 +343,7 @@ export default function CharacterSummaryBar5e({ canSave }: { canSave: boolean })
           size="md"
         />
         <div className="min-w-0">
-          <div className="font-semibold truncate text-gray-100">
+          <div className="font-semibold truncate text-fg">
             {characterName || t('builder.summaryBar.unnamedCharacter')}
           </div>
           <div className="text-xs text-gray-500 truncate">
@@ -383,7 +383,7 @@ export default function CharacterSummaryBar5e({ canSave }: { canSave: boolean })
           return (
             <div key={ab} className="text-center min-w-[40px]">
               <div className="text-xs text-gray-500 uppercase">{ab.slice(0, 3)}</div>
-              <div className="font-bold text-amber-400">{formatMod(mod)}</div>
+              <div className="font-bold text-accent">{formatMod(mod)}</div>
             </div>
           )
         })}

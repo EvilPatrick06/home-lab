@@ -70,8 +70,8 @@ export default function EntryCard({
 
   return (
     <div
-      className={`bg-gray-800/50 border rounded-lg p-2.5 ${
-        !entry.visibleToPlayers && isDM ? 'border-gray-700/50 opacity-60' : 'border-gray-700/30'
+      className={`bg-surface-2/50 border rounded-lg p-2.5 ${
+        !entry.visibleToPlayers && isDM ? 'border-border/50 opacity-60' : 'border-border/30'
       }`}
     >
       {isEditing ? (
@@ -80,29 +80,29 @@ export default function EntryCard({
             type="text"
             value={editName}
             onChange={(e) => onEditNameChange(e.target.value)}
-            className="w-full px-2 py-1 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
+            className="w-full px-2 py-1 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
             placeholder={t('game.entryCard.namePlaceholder')}
           />
           <textarea
             value={editDesc}
             onChange={(e) => onEditDescChange(e.target.value)}
-            className="w-full px-2 py-1 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500 resize-none"
+            className="w-full px-2 py-1 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500 resize-none"
             rows={2}
             placeholder={t('game.entryCard.descriptionPlaceholder')}
           />
           <textarea
             value={editNotes}
             onChange={(e) => onEditNotesChange(e.target.value)}
-            className="w-full px-2 py-1 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500 resize-none"
+            className="w-full px-2 py-1 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500 resize-none"
             rows={2}
             placeholder={t('game.entryCard.dmNotesPlaceholder')}
           />
           {/* Stat Block section */}
-          <div className="border border-gray-700/40 rounded">
+          <div className="border border-border/40 rounded">
             <button
               type="button"
               onClick={onToggleStatBlock}
-              className="w-full flex items-center justify-between px-2 py-1.5 text-[11px] font-semibold text-gray-300 hover:text-amber-400 transition-colors cursor-pointer"
+              className="w-full flex items-center justify-between px-2 py-1.5 text-[11px] font-semibold text-gray-300 hover:text-accent transition-colors cursor-pointer"
             >
               <span>
                 {t('game.entryCard.statBlock')} {editStatBlock ? t('game.entryCard.configured') : ''}
@@ -118,13 +118,13 @@ export default function EntryCard({
           <div className="flex gap-1">
             <button
               onClick={onSaveEdit}
-              className="px-2 py-0.5 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer"
+              className="px-2 py-0.5 text-xs bg-amber-600 hover:bg-accent-strong text-white rounded cursor-pointer"
             >
               {t('common.actions.save')}
             </button>
             <button
               onClick={onCancelEdit}
-              className="px-2 py-0.5 text-xs text-gray-400 hover:text-gray-200 cursor-pointer"
+              className="px-2 py-0.5 text-xs text-muted hover:text-gray-200 cursor-pointer"
             >
               {t('common.actions.cancel')}
             </button>
@@ -156,10 +156,8 @@ export default function EntryCard({
                   </button>
                 )}
               </div>
-              {entry.description && (
-                <p className="text-[11px] text-gray-400 mt-0.5 line-clamp-2">{entry.description}</p>
-              )}
-              {isDM && entry.notes && <p className="text-xs text-amber-400/70 mt-1 italic">{entry.notes}</p>}
+              {entry.description && <p className="text-[11px] text-muted mt-0.5 line-clamp-2">{entry.description}</p>}
+              {isDM && entry.notes && <p className="text-xs text-accent/70 mt-1 italic">{entry.notes}</p>}
             </div>
 
             {isDM && (
@@ -168,7 +166,7 @@ export default function EntryCard({
                   <button
                     onClick={onAddToInitiative}
                     title={t('game.entryCard.addToInitiative')}
-                    className="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-amber-400 cursor-pointer text-xs font-bold"
+                    className="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-accent cursor-pointer text-xs font-bold"
                   >
                     +
                   </button>
@@ -178,21 +176,21 @@ export default function EntryCard({
                     <button
                       onClick={() => setReadAloudMenuOpen(!readAloudMenuOpen)}
                       title={t('game.entryCard.readAloud')}
-                      className="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-amber-400 cursor-pointer text-xs"
+                      className="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-accent cursor-pointer text-xs"
                     >
                       &#x1F4D6;
                     </button>
                     {readAloudMenuOpen && (
                       <div
                         ref={readAloudMenuRef}
-                        className="absolute right-0 top-7 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50 py-1 min-w-[140px]"
+                        className="absolute right-0 top-7 bg-surface border border-border rounded-lg shadow-xl z-50 py-1 min-w-[140px]"
                       >
                         <button
                           onClick={() => {
                             onReadAloud(entry.description!, 'chat')
                             setReadAloudMenuOpen(false)
                           }}
-                          className="w-full px-3 py-1.5 text-left text-xs text-gray-300 hover:bg-gray-800 hover:text-gray-100 cursor-pointer"
+                          className="w-full px-3 py-1.5 text-left text-xs text-gray-300 hover:bg-surface-2 hover:text-fg cursor-pointer"
                         >
                           {t('game.entryCard.sendToChat')}
                         </button>
@@ -201,7 +199,7 @@ export default function EntryCard({
                             onReadAloud(entry.description!, 'dramatic')
                             setReadAloudMenuOpen(false)
                           }}
-                          className="w-full px-3 py-1.5 text-left text-xs text-amber-400 hover:bg-gray-800 hover:text-amber-300 cursor-pointer"
+                          className="w-full px-3 py-1.5 text-left text-xs text-accent hover:bg-surface-2 hover:text-amber-300 cursor-pointer"
                         >
                           {t('game.entryCard.dramaticReveal')}
                         </button>
@@ -220,7 +218,7 @@ export default function EntryCard({
                 </button>
                 <button
                   onClick={onStartEdit}
-                  className="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-amber-400 cursor-pointer text-xs"
+                  className="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-accent cursor-pointer text-xs"
                   title={t('game.entryCard.edit')}
                 >
                   &#9998;
@@ -246,15 +244,12 @@ export default function EntryCard({
               {entry.statBlock && (
                 <button
                   onClick={() => setViewStatBlockId(!viewStatBlockId)}
-                  className="text-xs text-gray-500 hover:text-amber-400 cursor-pointer"
+                  className="text-xs text-gray-500 hover:text-accent cursor-pointer"
                 >
                   {viewStatBlockId ? t('game.entryCard.hideStatBlock') : t('game.entryCard.viewStatBlock')}
                 </button>
               )}
-              <button
-                onClick={onOpenCreatureSearch}
-                className="text-xs text-gray-500 hover:text-amber-400 cursor-pointer"
-              >
+              <button onClick={onOpenCreatureSearch} className="text-xs text-gray-500 hover:text-accent cursor-pointer">
                 {t('game.entryCard.linkFromCreatureDb')}
               </button>
               {entry.monsterStatBlockId && (

@@ -50,7 +50,7 @@ export default function EquipmentTab(): JSX.Element {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         placeholder={t('game.equipmentTab.searchPlaceholder')}
-        className="w-full px-2.5 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-xs text-gray-100 placeholder-gray-500 focus:outline-none focus:border-amber-500/60"
+        className="w-full px-2.5 py-1.5 rounded-lg bg-surface-2 border border-border text-xs text-fg placeholder-gray-500 focus:outline-none focus:border-amber-500/60"
       />
 
       <div className="flex gap-1">
@@ -61,7 +61,7 @@ export default function EquipmentTab(): JSX.Element {
             className={`px-2 py-0.5 text-xs font-semibold rounded cursor-pointer capitalize transition-colors ${
               categoryFilter === cat
                 ? 'bg-amber-600 text-white'
-                : 'bg-gray-800 text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+                : 'bg-surface-2 text-muted hover:text-gray-200 hover:bg-gray-700'
             }`}
           >
             {cat}
@@ -76,9 +76,9 @@ export default function EquipmentTab(): JSX.Element {
           <p className="text-xs text-gray-500 text-center py-4">{t('game.equipmentTab.noMatching')}</p>
         ) : (
           filtered.map((item, i) => (
-            <div key={`${item.name}-${i}`} className="bg-gray-800/50 rounded-lg px-3 py-2 border border-gray-700/30">
+            <div key={`${item.name}-${i}`} className="bg-surface-2/50 rounded-lg px-3 py-2 border border-border/30">
               <div className="flex items-center justify-between gap-2">
-                <div className="text-xs font-semibold text-amber-400 truncate">{item.name}</div>
+                <div className="text-xs font-semibold text-accent truncate">{item.name}</div>
                 <span className="text-xs text-gray-500 shrink-0">{item.category}</span>
               </div>
               {item.details && <p className="text-[11px] text-gray-300 mt-0.5 leading-relaxed">{item.details}</p>}

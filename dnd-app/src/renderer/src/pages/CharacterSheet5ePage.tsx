@@ -88,7 +88,7 @@ export default function CharacterSheet5ePage(): JSX.Element {
           <p className="text-xl mb-2">{t('pages.characterSheet5ePage.characterNotFound')}</p>
           <button
             onClick={() => navigate(returnTo || '/characters')}
-            className="text-amber-400 hover:text-amber-300 hover:underline"
+            className="text-accent hover:text-amber-300 hover:underline"
           >
             {t('pages.characterSheet5ePage.goBack')}
           </button>
@@ -189,20 +189,20 @@ export default function CharacterSheet5ePage(): JSX.Element {
   }, [character.levelingMode, character.xp, character.level])
 
   return (
-    <div className="h-screen flex flex-col bg-gray-950">
+    <div className="h-screen flex flex-col bg-base">
       {/* Toolbar */}
-      <div className="flex items-center justify-between gap-2 px-4 py-2 pr-12 bg-gray-900 border-b border-gray-800 shrink-0">
+      <div className="flex items-center justify-between gap-2 px-4 py-2 pr-12 bg-surface border-b border-gray-800 shrink-0">
         <div className="flex items-center gap-3">
           <button
             onClick={handleBack}
-            className="text-gray-400 hover:text-gray-200 text-sm flex items-center gap-1 transition-colors"
+            className="text-muted hover:text-gray-200 text-sm flex items-center gap-1 transition-colors"
           >
             &larr; {t('pages.characterSheet5ePage.back')}
           </button>
           {returnTo?.startsWith('/game/') && (
             <button
               onClick={() => navigate(returnTo)}
-              className="px-3 py-1.5 text-sm bg-amber-600 hover:bg-amber-500 text-white rounded font-semibold transition-colors"
+              className="px-3 py-1.5 text-sm bg-amber-600 hover:bg-accent-strong text-white rounded font-semibold transition-colors"
             >
               {t('pages.characterSheet5ePage.returnToGame')}
             </button>
@@ -214,7 +214,7 @@ export default function CharacterSheet5ePage(): JSX.Element {
           <button
             type="button"
             onClick={() => navigate(`/library?from=${encodeURIComponent(location.pathname)}`)}
-            className="px-3 py-1.5 text-sm border border-gray-700 text-amber-300 hover:text-amber-200 hover:border-amber-600/50 rounded transition-colors cursor-pointer"
+            className="px-3 py-1.5 text-sm border border-border text-amber-300 hover:text-amber-200 hover:border-amber-600/50 rounded transition-colors cursor-pointer"
             title={t('pages.characterSheet5ePage.libraryTitle')}
           >
             {t('pages.characterSheet5ePage.library')}
@@ -229,8 +229,8 @@ export default function CharacterSheet5ePage(): JSX.Element {
               onClick={() => setIsEditing(!isEditing)}
               className={`px-3 py-1.5 text-sm rounded transition-colors ${
                 isEditing
-                  ? 'bg-amber-600 hover:bg-amber-500 text-white'
-                  : 'border border-gray-600 hover:border-amber-600 text-gray-300 hover:text-amber-400'
+                  ? 'bg-amber-600 hover:bg-accent-strong text-white'
+                  : 'border border-gray-600 hover:border-amber-600 text-gray-300 hover:text-accent'
               }`}
             >
               {isEditing ? t('pages.characterSheet5ePage.done') : t('pages.characterSheet5ePage.edit')}
@@ -263,7 +263,7 @@ export default function CharacterSheet5ePage(): JSX.Element {
             </button>
             <button
               onClick={() => setShowPrint(true)}
-              className="px-3 py-1.5 text-sm border border-gray-600 hover:border-gray-500 text-gray-400 hover:text-gray-200 rounded transition-colors"
+              className="px-3 py-1.5 text-sm border border-gray-600 hover:border-gray-500 text-muted hover:text-gray-200 rounded transition-colors"
             >
               {t('pages.characterSheet5ePage.print')}
             </button>
@@ -279,7 +279,7 @@ export default function CharacterSheet5ePage(): JSX.Element {
                 }
                 setLoadingVersions(false)
               }}
-              className="px-3 py-1.5 text-sm border border-gray-600 hover:border-gray-500 text-gray-400 hover:text-gray-200 rounded transition-colors"
+              className="px-3 py-1.5 text-sm border border-gray-600 hover:border-gray-500 text-muted hover:text-gray-200 rounded transition-colors"
             >
               {t('pages.characterSheet5ePage.history')}
             </button>
@@ -300,7 +300,7 @@ export default function CharacterSheet5ePage(): JSX.Element {
             </button>
             <button
               onClick={() => setShowLevelUpBanner(false)}
-              className="px-3 py-1 text-sm border border-gray-600 text-gray-300 hover:bg-gray-800 rounded transition-colors"
+              className="px-3 py-1 text-sm border border-gray-600 text-gray-300 hover:bg-surface-2 rounded transition-colors"
             >
               {t('pages.characterSheet5ePage.later')}
             </button>
@@ -362,8 +362,8 @@ export default function CharacterSheet5ePage(): JSX.Element {
         title={t('pages.characterSheet5ePage.longRest')}
       >
         <div className="space-y-4">
-          <p className="text-sm text-gray-400">{t('pages.characterSheet5ePage.longRestWill')}</p>
-          <ul className="list-disc ml-5 mt-2 space-y-1 text-sm text-gray-400">
+          <p className="text-sm text-muted">{t('pages.characterSheet5ePage.longRestWill')}</p>
+          <ul className="list-disc ml-5 mt-2 space-y-1 text-sm text-muted">
             <li>{t('pages.characterSheet5ePage.restoreHp')}</li>
             <li>{t('pages.characterSheet5ePage.recoverHitDice')}</li>
             <li>{t('pages.characterSheet5ePage.restoreSpellSlots')}</li>
@@ -392,7 +392,7 @@ export default function CharacterSheet5ePage(): JSX.Element {
           <div className="flex gap-2 justify-end">
             <button
               onClick={() => setShowLongRestConfirm(false)}
-              className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-gray-800 transition-colors"
+              className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-surface-2 transition-colors"
             >
               {t('common.actions.cancel')}
             </button>
@@ -428,9 +428,9 @@ export default function CharacterSheet5ePage(): JSX.Element {
             onClick={() => setShowVersionHistory(false)}
             role="presentation"
           />
-          <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-full max-w-lg max-h-[70vh] flex flex-col shadow-2xl">
+          <div className="relative bg-surface border border-border rounded-xl p-5 w-full max-w-lg max-h-[70vh] flex flex-col shadow-2xl">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold text-amber-400">{t('pages.characterSheet5ePage.versionHistory')}</h3>
+              <h3 className="text-sm font-semibold text-accent">{t('pages.characterSheet5ePage.versionHistory')}</h3>
               <button
                 onClick={() => setShowVersionHistory(false)}
                 aria-label={t('pages.characterSheet5ePage.closeVersionHistory')}
@@ -450,7 +450,7 @@ export default function CharacterSheet5ePage(): JSX.Element {
                 versions.map((v) => (
                   <div
                     key={v.fileName}
-                    className="flex items-center justify-between bg-gray-800/50 rounded-lg px-3 py-2 border border-gray-700/30"
+                    className="flex items-center justify-between bg-surface-2/50 rounded-lg px-3 py-2 border border-border/30"
                   >
                     <div>
                       <div className="text-xs text-gray-200">
@@ -469,7 +469,7 @@ export default function CharacterSheet5ePage(): JSX.Element {
                     <button
                       onClick={() => setConfirmRestoreFile(v.fileName)}
                       disabled={restoringVersion !== null}
-                      className="px-3 py-1 text-xs bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded cursor-pointer transition-colors"
+                      className="px-3 py-1 text-xs bg-amber-600 hover:bg-accent-strong disabled:bg-gray-700 disabled:text-gray-500 text-white rounded cursor-pointer transition-colors"
                     >
                       {restoringVersion === v.fileName
                         ? t('pages.characterSheet5ePage.restoring')
@@ -494,7 +494,7 @@ export default function CharacterSheet5ePage(): JSX.Element {
           <div className="flex gap-2 justify-end">
             <button
               onClick={() => setConfirmRestoreFile(null)}
-              className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-gray-800 transition-colors"
+              className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-surface-2 transition-colors"
             >
               {t('common.actions.cancel')}
             </button>
@@ -518,7 +518,7 @@ export default function CharacterSheet5ePage(): JSX.Element {
                 }
                 setRestoringVersion(null)
               }}
-              className="px-4 py-2 text-sm bg-amber-600 hover:bg-amber-500 text-white rounded font-semibold transition-colors"
+              className="px-4 py-2 text-sm bg-amber-600 hover:bg-accent-strong text-white rounded font-semibold transition-colors"
             >
               {t('pages.characterSheet5ePage.restore')}
             </button>

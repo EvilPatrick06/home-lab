@@ -142,9 +142,9 @@ export default function RestModal({ mode, campaignCharacterIds, onClose, onApply
   return (
     <div className="fixed inset-0 z-20 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
-      <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-5 max-w-2xl w-full mx-4 shadow-2xl max-h-[85vh] flex flex-col">
+      <div className="relative bg-surface/95 backdrop-blur-sm border border-border/50 rounded-xl p-5 max-w-2xl w-full mx-4 shadow-2xl max-h-[85vh] flex flex-col">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-amber-400">
+          <h3 className="text-sm font-semibold text-accent">
             {mode === 'shortRest' ? t('game.restModal.shortTitle') : t('game.restModal.longTitle')}
           </h3>
           <button
@@ -159,7 +159,7 @@ export default function RestModal({ mode, campaignCharacterIds, onClose, onApply
         {applied ? (
           <div className="text-center py-8">
             <div className="text-green-400 text-lg font-semibold mb-2">{t('game.restModal.complete')}</div>
-            <p className="text-gray-400 text-sm">
+            <p className="text-muted text-sm">
               {mode === 'shortRest' ? t('game.restModal.shortApplied') : t('game.restModal.longApplied')}
             </p>
             <button
@@ -182,21 +182,21 @@ export default function RestModal({ mode, campaignCharacterIds, onClose, onApply
             </div>
 
             {/* Footer */}
-            <div className="flex items-center justify-between border-t border-gray-700/50 pt-3">
+            <div className="flex items-center justify-between border-t border-border/50 pt-3">
               <span className="text-xs text-gray-500">
                 {t('game.restModal.selectedCount', { selected: selectedCount, total: pcs.length })}
               </span>
               <div className="flex gap-2">
                 <button
                   onClick={onClose}
-                  className="px-4 py-2 text-sm border border-gray-600 rounded-lg hover:bg-gray-800 text-gray-300 cursor-pointer transition-colors"
+                  className="px-4 py-2 text-sm border border-gray-600 rounded-lg hover:bg-surface-2 text-gray-300 cursor-pointer transition-colors"
                 >
                   {t('common.actions.cancel')}
                 </button>
                 <button
                   onClick={mode === 'shortRest' ? handleApplyShortRest : handleApplyLongRest}
                   disabled={selectedCount === 0 || (mode === 'shortRest' && !allRolled)}
-                  className="px-4 py-2 text-sm font-semibold rounded-lg bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white cursor-pointer transition-colors"
+                  className="px-4 py-2 text-sm font-semibold rounded-lg bg-amber-600 hover:bg-accent-strong disabled:bg-gray-700 disabled:text-gray-500 text-white cursor-pointer transition-colors"
                 >
                   {mode === 'shortRest' ? t('game.restModal.applyShort') : t('game.restModal.applyLong')}
                 </button>

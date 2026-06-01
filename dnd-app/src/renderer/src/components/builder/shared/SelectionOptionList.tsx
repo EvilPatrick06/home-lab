@@ -45,7 +45,7 @@ export default function SelectionOptionList({
                 ? 'bg-amber-900/30 border-l-amber-400'
                 : isSelected
                   ? 'bg-green-900/20 border-l-green-500'
-                  : 'border-l-transparent hover:bg-gray-800'
+                  : 'border-l-transparent hover:bg-surface-2'
             }`}
           >
             <div className="flex items-center justify-between">
@@ -60,7 +60,7 @@ export default function SelectionOptionList({
             {option.traits.length > 0 && (
               <div className="flex gap-1 mt-1">
                 {option.traits.slice(0, 3).map((trait) => (
-                  <span key={trait} className="text-xs px-1.5 py-0.5 bg-gray-800 rounded text-gray-400">
+                  <span key={trait} className="text-xs px-1.5 py-0.5 bg-surface-2 rounded text-muted">
                     {trait}
                   </span>
                 ))}

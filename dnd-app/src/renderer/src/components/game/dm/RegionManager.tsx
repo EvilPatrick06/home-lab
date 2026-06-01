@@ -208,7 +208,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
   }, [])
 
   const inputClass =
-    'w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200 focus:border-amber-500 focus:outline-none'
+    'w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200 focus:border-amber-500 focus:outline-none'
   const labelClass = 'block text-xs text-gray-500 mb-0.5'
 
   return (
@@ -222,14 +222,14 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
             resetForm()
             setShowForm(!showForm)
           }}
-          className="px-2 py-0.5 text-xs rounded bg-amber-600 text-white hover:bg-amber-500 cursor-pointer"
+          className="px-2 py-0.5 text-xs rounded bg-amber-600 text-white hover:bg-accent-strong cursor-pointer"
         >
           {showForm ? t('common.actions.cancel') : t('game.regionManager.newButton')}
         </button>
       </div>
 
       {showForm && (
-        <div className="space-y-2 bg-gray-800/50 rounded-lg p-2 border border-gray-700">
+        <div className="space-y-2 bg-surface-2/50 rounded-lg p-2 border border-border">
           <div>
             <label className={labelClass}>{t('game.regionManager.name')}</label>
             <input
@@ -432,7 +432,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
                 onChange={(e) => setVisibleToPlayers(e.target.checked)}
                 className="accent-cyan-500 w-3 h-3 cursor-pointer"
               />
-              <span className="text-xs text-gray-400">{t('game.regionManager.visibleToPlayers')}</span>
+              <span className="text-xs text-muted">{t('game.regionManager.visibleToPlayers')}</span>
             </label>
             <label className="flex items-center gap-1.5 cursor-pointer">
               <input
@@ -441,7 +441,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
                 onChange={(e) => setOneShot(e.target.checked)}
                 className="accent-cyan-500 w-3 h-3 cursor-pointer"
               />
-              <span className="text-xs text-gray-400">{t('game.regionManager.oneShot')}</span>
+              <span className="text-xs text-muted">{t('game.regionManager.oneShot')}</span>
             </label>
           </div>
 
@@ -451,14 +451,14 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
               type="color"
               value={color}
               onChange={(e) => setColor(e.target.value)}
-              className="w-8 h-6 rounded border border-gray-700 cursor-pointer"
+              className="w-8 h-6 rounded border border-border cursor-pointer"
             />
           </div>
 
           <button
             onClick={handleSave}
             disabled={!name.trim()}
-            className="w-full py-1.5 text-xs rounded-lg bg-amber-600 text-white hover:bg-amber-500 disabled:opacity-40 cursor-pointer"
+            className="w-full py-1.5 text-xs rounded-lg bg-amber-600 text-white hover:bg-accent-strong disabled:opacity-40 cursor-pointer"
           >
             {editingId ? t('game.regionManager.updateRegion') : t('game.regionManager.createRegion')}
           </button>
@@ -472,7 +472,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
       {regions.map((region) => (
         <div
           key={region.id}
-          className={`rounded-lg border p-2 text-xs ${region.enabled ? 'border-gray-700 bg-gray-800/50' : 'border-gray-800 bg-gray-900/50 opacity-60'}`}
+          className={`rounded-lg border p-2 text-xs ${region.enabled ? 'border-border bg-surface-2/50' : 'border-gray-800 bg-surface/50 opacity-60'}`}
         >
           <div className="flex items-center justify-between mb-1">
             <span className="font-semibold text-gray-200">{region.name}</span>
@@ -481,13 +481,13 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
                 onClick={() =>
                   activeMap && gameStore.updateRegion(activeMap.id, region.id, { enabled: !region.enabled })
                 }
-                className="px-1.5 py-0.5 text-[9px] rounded bg-gray-700 text-gray-400 hover:text-white cursor-pointer"
+                className="px-1.5 py-0.5 text-[9px] rounded bg-gray-700 text-muted hover:text-white cursor-pointer"
               >
                 {region.enabled ? t('game.regionManager.disable') : t('game.regionManager.enable')}
               </button>
               <button
                 onClick={() => handleEdit(region)}
-                className="px-1.5 py-0.5 text-[9px] rounded bg-gray-700 text-gray-400 hover:text-white cursor-pointer"
+                className="px-1.5 py-0.5 text-[9px] rounded bg-gray-700 text-muted hover:text-white cursor-pointer"
               >
                 {t('game.regionManager.edit')}
               </button>
@@ -502,7 +502,7 @@ export default function RegionManager({ activeMap }: RegionManagerProps): JSX.El
           <div className="text-gray-500 space-x-2">
             <span>{region.shape.type}</span>
             <span>{t(TRIGGER_LABEL_KEYS[region.trigger])}</span>
-            <span className="text-amber-400">{t(ACTION_LABEL_KEYS[region.action.type])}</span>
+            <span className="text-accent">{t(ACTION_LABEL_KEYS[region.action.type])}</span>
             {region.oneShot && <span className="text-cyan-400">{t('game.regionManager.oneShotTag')}</span>}
           </div>
         </div>

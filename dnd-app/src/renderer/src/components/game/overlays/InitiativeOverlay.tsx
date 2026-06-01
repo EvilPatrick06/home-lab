@@ -120,14 +120,14 @@ export default function InitiativeOverlay({ isDM }: InitiativeOverlayProps): JSX
         role="region"
         aria-label={t('game.initiativeOverlay.trackerExpanded')}
       >
-        <div className="bg-gray-900/70 backdrop-blur-sm border border-gray-700/50 rounded-xl p-3">
+        <div className="bg-surface/70 backdrop-blur-sm border border-border/50 rounded-xl p-3">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-amber-400 font-semibold">
+            <span className="text-xs text-accent font-semibold">
               {t('game.initiativeOverlay.round', { round: initiative.round })}
             </span>
             <div className="flex items-center gap-3">
               <label
-                className="flex items-center gap-1 text-xs text-gray-400 cursor-pointer select-none"
+                className="flex items-center gap-1 text-xs text-muted cursor-pointer select-none"
                 title={t('game.initiativeOverlay.autoPanTitle')}
               >
                 <input
@@ -179,11 +179,11 @@ export default function InitiativeOverlay({ isDM }: InitiativeOverlayProps): JSX
       aria-label={t('game.initiativeOverlay.tracker')}
     >
       <div
-        className="bg-gray-900/70 backdrop-blur-sm border border-gray-700/50 rounded-xl px-3 py-2 cursor-pointer hover:bg-gray-900/80 transition-colors"
+        className="bg-surface/70 backdrop-blur-sm border border-border/50 rounded-xl px-3 py-2 cursor-pointer hover:bg-surface/80 transition-colors"
         onClick={() => setExpanded(true)}
       >
         <div className="flex items-center gap-3">
-          <span className="text-xs text-amber-400 font-semibold">
+          <span className="text-xs text-accent font-semibold">
             {t('game.initiativeOverlay.roundShort', { round: initiative.round })}
           </span>
           <div className="flex items-center gap-1.5">
@@ -191,7 +191,7 @@ export default function InitiativeOverlay({ isDM }: InitiativeOverlayProps): JSX
               <div
                 key={entry.id}
                 className={`flex items-center gap-1 px-2 py-0.5 rounded text-xs transition-colors ${
-                  entry.isActive ? 'bg-amber-600/30 text-amber-300 border border-amber-500/50' : 'text-gray-400'
+                  entry.isActive ? 'bg-amber-600/30 text-amber-300 border border-amber-500/50' : 'text-muted'
                 }`}
               >
                 <PortraitCircle
@@ -214,7 +214,7 @@ export default function InitiativeOverlay({ isDM }: InitiativeOverlayProps): JSX
                   prevTurn()
                 }}
                 aria-label={t('game.initiativeOverlay.previousTurn')}
-                className="w-5 h-5 rounded flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 text-xs cursor-pointer"
+                className="w-5 h-5 rounded flex items-center justify-center text-muted hover:text-white hover:bg-gray-700 text-xs cursor-pointer"
               >
                 &#9664;
               </button>
@@ -224,7 +224,7 @@ export default function InitiativeOverlay({ isDM }: InitiativeOverlayProps): JSX
                   nextTurn()
                 }}
                 aria-label={t('game.initiativeOverlay.nextTurn')}
-                className="w-5 h-5 rounded flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 text-xs cursor-pointer"
+                className="w-5 h-5 rounded flex items-center justify-center text-muted hover:text-white hover:bg-gray-700 text-xs cursor-pointer"
               >
                 &#9654;
               </button>
@@ -234,7 +234,7 @@ export default function InitiativeOverlay({ isDM }: InitiativeOverlayProps): JSX
                   endInitiative()
                 }}
                 aria-label={t('game.initiativeOverlay.endCombat')}
-                className="w-5 h-5 rounded flex items-center justify-center text-gray-400 hover:text-red-400 hover:bg-gray-700 text-xs cursor-pointer"
+                className="w-5 h-5 rounded flex items-center justify-center text-muted hover:text-red-400 hover:bg-gray-700 text-xs cursor-pointer"
                 title={t('game.initiativeOverlay.endInitiative')}
               >
                 &#10005;

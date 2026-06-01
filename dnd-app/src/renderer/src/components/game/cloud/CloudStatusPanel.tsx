@@ -41,17 +41,17 @@ export default function CloudStatusPanel({
         <span className="font-semibold text-sky-200">{t('game.cloudStatusPanel.title')}</span>
         <span
           className={`ml-auto inline-flex items-center gap-1.5 text-xs ${
-            connected ? 'text-emerald-400' : 'text-amber-400'
+            connected ? 'text-emerald-400' : 'text-accent'
           }`}
         >
           <span
-            className={`inline-block w-2 h-2 rounded-full ${connected ? 'bg-emerald-400' : 'bg-amber-400'}`}
+            className={`inline-block w-2 h-2 rounded-full ${connected ? 'bg-emerald-400' : 'bg-accent'}`}
             aria-hidden="true"
           />
           {connected ? t('game.cloudStatusPanel.connected') : t('game.cloudStatusPanel.connecting')}
         </span>
       </header>
-      <p className="text-gray-400 text-xs mb-2">{t('game.cloudStatusPanel.description')}</p>
+      <p className="text-muted text-xs mb-2">{t('game.cloudStatusPanel.description')}</p>
       {peers.length === 0 ? (
         <p className="text-gray-500 text-xs italic">{t('game.cloudStatusPanel.noPlayers')}</p>
       ) : (

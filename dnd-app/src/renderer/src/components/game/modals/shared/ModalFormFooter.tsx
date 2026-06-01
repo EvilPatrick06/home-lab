@@ -43,7 +43,7 @@ export default function ModalFormFooter({
         <button
           onClick={onSave}
           disabled={isSaveDisabled}
-          className="px-3 py-1.5 text-sm bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded cursor-pointer"
+          className="px-3 py-1.5 text-sm bg-amber-600 hover:bg-accent-strong disabled:bg-gray-700 disabled:text-gray-500 text-white rounded cursor-pointer"
         >
           {isEditing ? resolvedEditingLabel : resolvedSaveLabel}
         </button>

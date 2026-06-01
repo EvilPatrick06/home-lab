@@ -50,13 +50,13 @@ export default function PermissionsEditor({ campaign }: { campaign: Campaign }):
           onChange={(e) => setNewRoleName(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
           placeholder={t('campaign.permissionsEditor.newRolePlaceholder')}
-          className="flex-1 min-w-0 px-3 py-1.5 text-sm bg-gray-800 border border-gray-700 rounded text-gray-100 placeholder-gray-500"
+          className="flex-1 min-w-0 px-3 py-1.5 text-sm bg-surface-2 border border-border rounded text-fg placeholder-gray-500"
         />
         <button
           type="button"
           onClick={handleCreate}
           disabled={!newRoleName.trim()}
-          className="px-3 py-1.5 text-sm rounded bg-amber-600 hover:bg-amber-500 text-white font-semibold cursor-pointer disabled:opacity-50"
+          className="px-3 py-1.5 text-sm rounded bg-amber-600 hover:bg-accent-strong text-white font-semibold cursor-pointer disabled:opacity-50"
         >
           {t('campaign.permissionsEditor.addRole')}
         </button>
@@ -123,12 +123,12 @@ function RoleRow({
   const q = search.trim().toLowerCase()
 
   return (
-    <div className="border border-gray-700 rounded-lg overflow-hidden">
-      <div className="flex items-center gap-2 px-3 py-2 bg-gray-800/60">
-        <button type="button" onClick={onToggle} className="text-gray-400 hover:text-amber-300 cursor-pointer text-sm">
+    <div className="border border-border rounded-lg overflow-hidden">
+      <div className="flex items-center gap-2 px-3 py-2 bg-surface-2/60">
+        <button type="button" onClick={onToggle} className="text-muted hover:text-amber-300 cursor-pointer text-sm">
           {expanded ? '▼' : '▶'}
         </button>
-        <span className="text-sm font-semibold text-gray-100">{role.name}</span>
+        <span className="text-sm font-semibold text-fg">{role.name}</span>
         {role.isBuiltIn && (
           <span className="text-[10px] text-gray-500 border border-gray-600 rounded px-1">
             {t('campaign.permissionsEditor.builtIn')}
@@ -141,14 +141,14 @@ function RoleRow({
           <button
             type="button"
             onClick={() => onDuplicate(campaignId, role.id)}
-            className="text-xs text-gray-400 hover:text-amber-300 cursor-pointer"
+            className="text-xs text-muted hover:text-amber-300 cursor-pointer"
           >
             {t('campaign.permissionsEditor.duplicate')}
           </button>
           <button
             type="button"
             onClick={resetDefaults}
-            className="text-xs text-gray-400 hover:text-amber-300 cursor-pointer"
+            className="text-xs text-muted hover:text-amber-300 cursor-pointer"
           >
             {t('campaign.permissionsEditor.reset')}
           </button>
@@ -171,7 +171,7 @@ function RoleRow({
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder={t('campaign.permissionsEditor.filterPlaceholder')}
-            className="w-full px-2 py-1 text-xs bg-gray-800 border border-gray-700 rounded text-gray-200 placeholder-gray-500"
+            className="w-full px-2 py-1 text-xs bg-surface-2 border border-border rounded text-gray-200 placeholder-gray-500"
           />
           {(Object.keys(PERMISSION_GROUPS) as PermissionCategory[]).map((category) => {
             const keys = (PERMISSION_GROUPS[category] as readonly Permission[]).filter(
@@ -182,7 +182,7 @@ function RoleRow({
             return (
               <div key={category}>
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-xs font-semibold text-amber-400 uppercase tracking-wide capitalize">
+                  <span className="text-xs font-semibold text-accent uppercase tracking-wide capitalize">
                     {category}
                   </span>
                   <button
@@ -200,7 +200,7 @@ function RoleRow({
                         type="checkbox"
                         checked={granted.has(key)}
                         onChange={(e) => setPermission(key, e.target.checked)}
-                        className="w-3.5 h-3.5 rounded border-gray-600 bg-gray-800 text-amber-500"
+                        className="w-3.5 h-3.5 rounded border-gray-600 bg-surface-2 text-accent-strong"
                       />
                       <span>{getPermissionLabel(key)}</span>
                     </label>

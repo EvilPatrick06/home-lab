@@ -23,7 +23,7 @@ export default function ImagePreviewItem({
 
   return (
     <div
-      className="flex items-center gap-3 px-4 py-3 border-b border-gray-800/50 hover:bg-gray-800/40 transition-colors cursor-pointer group"
+      className="flex items-center gap-3 px-4 py-3 border-b border-gray-800/50 hover:bg-surface-2/40 transition-colors cursor-pointer group"
       onClick={onClick}
     >
       {/* Thumbnail */}
@@ -37,7 +37,7 @@ export default function ImagePreviewItem({
 
       {/* Info */}
       <div className="flex-1 min-w-0">
-        <span className="text-sm font-medium text-gray-100 group-hover:text-amber-400 transition-colors truncate block">
+        <span className="text-sm font-medium text-fg group-hover:text-accent transition-colors truncate block">
           {item.name}
         </span>
         <p className="text-xs text-gray-500 truncate mt-0.5">{t('library.imagePreviewItem.portraitIcon')}</p>
@@ -51,7 +51,7 @@ export default function ImagePreviewItem({
             onToggleFavorite(item.id)
           }}
           className={`text-lg flex-shrink-0 transition-colors cursor-pointer ${
-            isFavorite ? 'text-amber-400' : 'text-gray-600 hover:text-gray-400'
+            isFavorite ? 'text-accent' : 'text-gray-600 hover:text-muted'
           }`}
           title={isFavorite ? t('library.imagePreviewItem.removeFavorite') : t('library.imagePreviewItem.addFavorite')}
         >
@@ -61,7 +61,7 @@ export default function ImagePreviewItem({
 
       {/* Arrow */}
       <svg
-        className="w-4 h-4 text-gray-600 group-hover:text-gray-400 flex-shrink-0"
+        className="w-4 h-4 text-gray-600 group-hover:text-muted flex-shrink-0"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"

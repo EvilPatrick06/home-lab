@@ -52,7 +52,7 @@ export default function BackgroundPanel5e({
                   }}
                 >
                   {sense}
-                  {desc && <span className="text-amber-500/60 text-xs">{isSenseExpanded ? '\u25BE' : '?'}</span>}
+                  {desc && <span className="text-accent-strong/60 text-xs">{isSenseExpanded ? '\u25BE' : '?'}</span>}
                   {!readonly && (
                     <button
                       onClick={(e) => {
@@ -66,14 +66,14 @@ export default function BackgroundPanel5e({
                         } as Character
                         saveAndBroadcast(updated as Character5e)
                       }}
-                      className="ml-1 text-amber-400 hover:text-red-400 cursor-pointer"
+                      className="ml-1 text-accent hover:text-red-400 cursor-pointer"
                     >
                       &#x2715;
                     </button>
                   )}
                 </span>
                 {isSenseExpanded && desc && (
-                  <div className="text-xs text-gray-500 bg-gray-800/50 rounded px-2 py-1 mt-1 max-w-xs">{desc}</div>
+                  <div className="text-xs text-gray-500 bg-surface-2/50 rounded px-2 py-1 mt-1 max-w-xs">{desc}</div>
                 )}
               </div>
             )
@@ -83,15 +83,15 @@ export default function BackgroundPanel5e({
       {!readonly && !showSensePicker && (
         <button
           onClick={() => setShowSensePicker(true)}
-          className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer"
+          className="text-xs text-accent hover:text-amber-300 cursor-pointer"
         >
           {t('sheet.backgroundPanel.addSense')}
         </button>
       )}
       {!readonly && showSensePicker && (
-        <div className="bg-gray-800/50 rounded p-3 space-y-2 mt-1">
+        <div className="bg-surface-2/50 rounded p-3 space-y-2 mt-1">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-amber-400 font-medium">{t('sheet.backgroundPanel.addSenseTitle')}</span>
+            <span className="text-xs text-accent font-medium">{t('sheet.backgroundPanel.addSenseTitle')}</span>
             <button
               onClick={() => {
                 setShowSensePicker(false)
@@ -132,6 +132,7 @@ export default function BackgroundPanel5e({
           </div>
           <div className="flex items-center gap-2">
             <input
+              aria-label={t('sheet.backgroundPanel.customSensePlaceholder')}
               type="text"
               placeholder={t('sheet.backgroundPanel.customSensePlaceholder')}
               value={customSenseInput}
@@ -150,7 +151,7 @@ export default function BackgroundPanel5e({
                   setShowSensePicker(false)
                 }
               }}
-              className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
+              className="flex-1 bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg focus:outline-none focus:border-amber-500"
             />
             <button
               onClick={() => {
@@ -167,7 +168,7 @@ export default function BackgroundPanel5e({
                 setShowSensePicker(false)
               }}
               disabled={!customSenseInput.trim()}
-              className="px-2 py-1 text-xs bg-amber-600 hover:bg-amber-500 disabled:opacity-50 rounded text-white cursor-pointer"
+              className="px-2 py-1 text-xs bg-amber-600 hover:bg-accent-strong disabled:opacity-50 rounded text-white cursor-pointer"
             >
               {t('sheet.backgroundPanel.add')}
             </button>

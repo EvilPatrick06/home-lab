@@ -37,7 +37,7 @@ export default function HostNamePrompt({
 
   return (
     <Modal open={open} onClose={onCancel} title={t('campaign.hostNamePrompt.title')} className="max-w-sm">
-      <p className="text-gray-400 text-sm mb-4">{t('campaign.hostNamePrompt.description')}</p>
+      <p className="text-muted text-sm mb-4">{t('campaign.hostNamePrompt.description')}</p>
 
       <Input
         label={t('campaign.hostNamePrompt.hostName')}
@@ -53,7 +53,7 @@ export default function HostNamePrompt({
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 border border-gray-600 rounded-lg hover:bg-gray-800
+          className="px-4 py-2 border border-gray-600 rounded-lg hover:bg-surface-2
             transition-colors cursor-pointer text-sm"
         >
           {t('common.actions.cancel')}
@@ -63,7 +63,7 @@ export default function HostNamePrompt({
           onClick={handleConfirm}
           disabled={!isValid}
           className="px-4 py-2 rounded-lg transition-colors cursor-pointer text-sm
-            font-semibold text-white bg-amber-600 hover:bg-amber-500
+            font-semibold text-white bg-amber-600 hover:bg-accent-strong
             disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed"
         >
           {t('campaign.hostNamePrompt.startHosting')}

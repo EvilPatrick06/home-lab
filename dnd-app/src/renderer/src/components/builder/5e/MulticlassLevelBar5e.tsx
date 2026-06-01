@@ -75,7 +75,7 @@ export default function MulticlassLevelBar5e(): JSX.Element {
       </div>
       <div className="flex flex-wrap gap-1">
         {/* Level 1 is always the primary class */}
-        <div className="flex items-center gap-1 bg-gray-800 rounded px-2 py-1">
+        <div className="flex items-center gap-1 bg-surface-2 rounded px-2 py-1">
           <span className="text-xs text-gray-500 font-mono w-4">1</span>
           <span className="text-xs text-amber-300">{primaryClassName}</span>
         </div>
@@ -85,7 +85,7 @@ export default function MulticlassLevelBar5e(): JSX.Element {
           const selectedClassId = classLevelChoices[lvl] ?? primaryClassId
 
           return (
-            <div key={lvl} className="flex items-center gap-1 bg-gray-800 rounded px-2 py-1">
+            <div key={lvl} className="flex items-center gap-1 bg-surface-2 rounded px-2 py-1">
               <span className="text-xs text-gray-500 font-mono w-4">{lvl}</span>
               <select
                 value={selectedClassId}

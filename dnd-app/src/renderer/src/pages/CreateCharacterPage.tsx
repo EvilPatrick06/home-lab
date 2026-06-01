@@ -87,20 +87,20 @@ export default function CreateCharacterPage(): JSX.Element {
       {draftPrompt && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/70" />
-          <div className="relative bg-gray-900 border border-gray-700 rounded-lg p-6 max-w-sm w-full mx-4">
+          <div className="relative bg-surface border border-border rounded-lg p-6 max-w-sm w-full mx-4">
             <h3 className="text-lg font-semibold mb-2">{t('pages.createCharacterPage.resumeDraftTitle')}</h3>
-            <p className="text-gray-400 text-sm mb-4">{t('pages.createCharacterPage.resumeDraftPrompt')}</p>
+            <p className="text-muted text-sm mb-4">{t('pages.createCharacterPage.resumeDraftPrompt')}</p>
             <div className="flex gap-3 justify-end">
               <button
                 onClick={handleDiscardDraft}
-                className="px-4 py-2 border border-gray-600 rounded-lg hover:bg-gray-800
+                className="px-4 py-2 border border-gray-600 rounded-lg hover:bg-surface-2
                   transition-colors cursor-pointer text-sm"
               >
                 {t('pages.createCharacterPage.discard')}
               </button>
               <button
                 onClick={handleResumeDraft}
-                className="px-4 py-2 bg-amber-600 hover:bg-amber-500 rounded-lg
+                className="px-4 py-2 bg-amber-600 hover:bg-accent-strong rounded-lg
                   transition-colors cursor-pointer text-sm font-semibold text-white"
               >
                 {t('pages.createCharacterPage.resume')}

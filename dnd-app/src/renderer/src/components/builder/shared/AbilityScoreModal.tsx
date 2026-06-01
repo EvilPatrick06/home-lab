@@ -91,11 +91,11 @@ export default function AbilityScoreModal(): JSX.Element {
   }
 
   return (
-    <div className="absolute inset-0 z-20 flex flex-col bg-gray-900/98 backdrop-blur-sm">
+    <div className="absolute inset-0 z-20 flex flex-col bg-surface/98 backdrop-blur-sm">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">
-        <h2 className="text-lg font-bold text-gray-100">{t('builder.abilityScoreModal.title')}</h2>
-        <button onClick={closeCustomModal} className="text-gray-400 hover:text-gray-200 text-xl leading-none px-2">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+        <h2 className="text-lg font-bold text-fg">{t('builder.abilityScoreModal.title')}</h2>
+        <button onClick={closeCustomModal} className="text-muted hover:text-gray-200 text-xl leading-none px-2">
           ✕
         </button>
       </div>
@@ -111,7 +111,7 @@ export default function AbilityScoreModal(): JSX.Element {
               className={`px-3 py-1.5 text-xs rounded border transition-colors ${
                 method === m.id
                   ? 'bg-amber-900/30 border-amber-500/50 text-amber-300'
-                  : 'bg-gray-800 border-gray-700 text-gray-400 hover:text-gray-200'
+                  : 'bg-surface-2 border-border text-muted hover:text-gray-200'
               }`}
               title={m.desc}
             >
@@ -122,7 +122,7 @@ export default function AbilityScoreModal(): JSX.Element {
 
         {/* Method-specific info */}
         {method === 'pointBuy' && (
-          <div className={`text-sm mb-3 ${pointsRemaining < 0 ? 'text-red-400' : 'text-gray-400'}`}>
+          <div className={`text-sm mb-3 ${pointsRemaining < 0 ? 'text-red-400' : 'text-muted'}`}>
             {t('builder.abilityScoreModal.points', {
               spent: pointsSpent,
               budget: POINT_BUY_BUDGET,
@@ -133,7 +133,7 @@ export default function AbilityScoreModal(): JSX.Element {
         {method === 'roll' && (
           <button
             onClick={rollScores}
-            className="mb-3 px-3 py-1.5 text-xs bg-gray-800 border border-gray-600 rounded hover:bg-gray-700 text-gray-300 transition-colors"
+            className="mb-3 px-3 py-1.5 text-xs bg-surface-2 border border-gray-600 rounded hover:bg-gray-700 text-gray-300 transition-colors"
           >
             {t('builder.abilityScoreModal.rerollAll')}
           </button>
@@ -162,7 +162,7 @@ export default function AbilityScoreModal(): JSX.Element {
               )}
               <button
                 onClick={() => setShowRefTable(!showRefTable)}
-                className="px-2 py-1 text-xs text-gray-400 hover:text-gray-200 border border-gray-700 rounded transition-colors"
+                className="px-2 py-1 text-xs text-muted hover:text-gray-200 border border-border rounded transition-colors"
               >
                 {showRefTable
                   ? t('builder.abilityScoreModal.hideClassReference')
@@ -170,10 +170,10 @@ export default function AbilityScoreModal(): JSX.Element {
               </button>
             </div>
             {showRefTable && (
-              <div className="mt-2 border border-gray-700 rounded-lg overflow-hidden">
+              <div className="mt-2 border border-border rounded-lg overflow-hidden">
                 <table className="w-full text-xs">
                   <thead>
-                    <tr className="bg-gray-800 text-gray-400">
+                    <tr className="bg-surface-2 text-muted">
                       <th className="px-2 py-1 text-left font-semibold">
                         {t('builder.abilityScoreModal.classHeader')}
                       </th>
@@ -191,7 +191,7 @@ export default function AbilityScoreModal(): JSX.Element {
                       return (
                         <tr
                           key={cls}
-                          className={`border-t border-gray-800 ${isSelected ? 'bg-amber-900/20' : 'hover:bg-gray-800/50'} cursor-pointer transition-colors`}
+                          className={`border-t border-gray-800 ${isSelected ? 'bg-amber-900/20' : 'hover:bg-surface-2/50'} cursor-pointer transition-colors`}
                           onClick={() => {
                             if (method === 'standard') {
                               for (const ab of ABILITY_NAMES) {
@@ -206,7 +206,7 @@ export default function AbilityScoreModal(): JSX.Element {
                           {ABILITY_NAMES.map((ab) => (
                             <td
                               key={ab}
-                              className={`px-1.5 py-1 text-center ${scores[ab] >= 14 ? 'text-green-400' : scores[ab] <= 8 ? 'text-red-400' : 'text-gray-400'}`}
+                              className={`px-1.5 py-1 text-center ${scores[ab] >= 14 ? 'text-green-400' : scores[ab] <= 8 ? 'text-red-400' : 'text-muted'}`}
                             >
                               {scores[ab]}
                             </td>
@@ -228,8 +228,8 @@ export default function AbilityScoreModal(): JSX.Element {
             const mod = abilityModifier(score)
 
             return (
-              <div key={ab} className="bg-gray-800 border border-gray-700 rounded-lg p-3 text-center">
-                <div className="text-xs text-gray-400 uppercase font-semibold mb-2">{ab.slice(0, 3)}</div>
+              <div key={ab} className="bg-surface-2 border border-border rounded-lg p-3 text-center">
+                <div className="text-xs text-muted uppercase font-semibold mb-2">{ab.slice(0, 3)}</div>
 
                 {method === 'standard' ? (
                   <select
@@ -238,7 +238,7 @@ export default function AbilityScoreModal(): JSX.Element {
                       const val = e.target.value ? parseInt(e.target.value, 10) : null
                       setStandardAssignment(ab, val)
                     }}
-                    className="w-16 mx-auto bg-gray-900 border border-gray-600 rounded text-center text-lg font-bold text-gray-100 py-1 focus:outline-none focus:border-amber-500"
+                    className="w-16 mx-auto bg-surface border border-gray-600 rounded text-center text-lg font-bold text-fg py-1 focus:outline-none focus:border-amber-500"
                   >
                     <option value="">--</option>
                     {STANDARD_ARRAY.map((v, i) => {
@@ -257,15 +257,15 @@ export default function AbilityScoreModal(): JSX.Element {
                     <button
                       onClick={() => setScore(ab, score - 1)}
                       disabled={score <= 8}
-                      className="w-6 h-6 bg-gray-900 border border-gray-600 rounded text-gray-300 disabled:text-gray-700 disabled:border-gray-800"
+                      className="w-6 h-6 bg-surface border border-gray-600 rounded text-gray-300 disabled:text-gray-700 disabled:border-gray-800"
                     >
                       -
                     </button>
-                    <span className="w-8 text-lg font-bold text-gray-100 text-center">{score}</span>
+                    <span className="w-8 text-lg font-bold text-fg text-center">{score}</span>
                     <button
                       onClick={() => setScore(ab, score + 1)}
                       disabled={score >= 15}
-                      className="w-6 h-6 bg-gray-900 border border-gray-600 rounded text-gray-300 disabled:text-gray-700 disabled:border-gray-800"
+                      className="w-6 h-6 bg-surface border border-gray-600 rounded text-gray-300 disabled:text-gray-700 disabled:border-gray-800"
                     >
                       +
                     </button>
@@ -277,11 +277,11 @@ export default function AbilityScoreModal(): JSX.Element {
                     min={1}
                     max={20}
                     onChange={(e) => setScore(ab, parseInt(e.target.value, 10) || 1)}
-                    className="w-16 mx-auto bg-gray-900 border border-gray-600 rounded text-center text-lg font-bold text-gray-100 py-1 focus:outline-none focus:border-amber-500"
+                    className="w-16 mx-auto bg-surface border border-gray-600 rounded text-center text-lg font-bold text-fg py-1 focus:outline-none focus:border-amber-500"
                   />
                 )}
 
-                <div className="mt-1 text-amber-400 font-bold text-sm">
+                <div className="mt-1 text-accent font-bold text-sm">
                   {method === 'standard' && standardAssignments[ab] == null ? '--' : formatMod(mod)}
                 </div>
                 {method === 'pointBuy' && (
@@ -296,7 +296,7 @@ export default function AbilityScoreModal(): JSX.Element {
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between px-4 py-3 border-t border-gray-700 bg-gray-900">
+      <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-surface">
         <div className="flex flex-col">
           <span className="text-xs text-gray-500">
             {method === 'standard'
@@ -307,7 +307,7 @@ export default function AbilityScoreModal(): JSX.Element {
                   ? t('builder.abilityScoreModal.methodRolled')
                   : t('builder.abilityScoreModal.methodCustom')}
           </span>
-          {confirmHint && <span className="text-xs text-amber-400 mt-0.5">{confirmHint}</span>}
+          {confirmHint && <span className="text-xs text-accent mt-0.5">{confirmHint}</span>}
         </div>
         <div className="flex gap-2">
           <button
@@ -323,8 +323,8 @@ export default function AbilityScoreModal(): JSX.Element {
               isConfirmed
                 ? 'bg-green-700 text-green-200'
                 : !canConfirm
-                  ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                  : 'bg-amber-600 hover:bg-amber-500 text-white'
+                  ? 'bg-gray-600 text-muted cursor-not-allowed'
+                  : 'bg-amber-600 hover:bg-accent-strong text-white'
             }`}
           >
             {isConfirmed ? t('builder.abilityScoreModal.confirmed') : t('builder.abilityScoreModal.confirmScores')}

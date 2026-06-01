@@ -119,7 +119,7 @@ export default function CustomEffectModal({ tokens, onClose, onBroadcast }: Cust
   return (
     <div className="fixed inset-0 z-30 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
-      <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-[460px] max-h-[80vh] overflow-y-auto shadow-2xl">
+      <div className="relative bg-surface border border-border rounded-xl p-5 w-[460px] max-h-[80vh] overflow-y-auto shadow-2xl">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-gray-200">{t('game.customEffectModal.title')}</h3>
           <button
@@ -134,23 +134,23 @@ export default function CustomEffectModal({ tokens, onClose, onBroadcast }: Cust
         <div className="space-y-3">
           {/* Effect Name */}
           <div>
-            <label className="text-xs text-gray-400 block mb-1">{t('game.customEffectModal.effectName')}</label>
+            <label className="text-xs text-muted block mb-1">{t('game.customEffectModal.effectName')}</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={t('game.customEffectModal.effectNamePlaceholder')}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full bg-surface-2 border border-border rounded px-3 py-1.5 text-sm text-fg focus:outline-none focus:border-amber-500"
             />
           </div>
 
           {/* Target */}
           <div>
-            <label className="text-xs text-gray-400 block mb-1">{t('game.customEffectModal.target')}</label>
+            <label className="text-xs text-muted block mb-1">{t('game.customEffectModal.target')}</label>
             <select
               value={targetId}
               onChange={(e) => setTargetId(e.target.value)}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full bg-surface-2 border border-border rounded px-3 py-1.5 text-sm text-fg focus:outline-none focus:border-amber-500"
             >
               <option value="">{t('game.customEffectModal.selectTarget')}</option>
               {tokens.map((t) => (
@@ -162,13 +162,13 @@ export default function CustomEffectModal({ tokens, onClose, onBroadcast }: Cust
           </div>
 
           {/* Effect Builder */}
-          <div className="bg-gray-800/50 rounded-lg p-3">
-            <div className="text-xs text-gray-400 mb-2">{t('game.customEffectModal.addEffect')}</div>
+          <div className="bg-surface-2/50 rounded-lg p-3">
+            <div className="text-xs text-muted mb-2">{t('game.customEffectModal.addEffect')}</div>
             <div className="flex gap-2 flex-wrap">
               <select
                 value={effectType}
                 onChange={(e) => setEffectType(e.target.value as EffectType)}
-                className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
+                className="bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg focus:outline-none focus:border-amber-500"
               >
                 {EFFECT_TYPE_OPTIONS.map((o) => (
                   <option key={o.value} value={o.value}>
@@ -181,7 +181,7 @@ export default function CustomEffectModal({ tokens, onClose, onBroadcast }: Cust
                   type="number"
                   value={value}
                   onChange={(e) => setValue(e.target.value)}
-                  className="w-16 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 text-center focus:outline-none focus:border-amber-500"
+                  className="w-16 bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg text-center focus:outline-none focus:border-amber-500"
                 />
               )}
               {needsStringValue && (
@@ -190,12 +190,12 @@ export default function CustomEffectModal({ tokens, onClose, onBroadcast }: Cust
                   value={stringValue}
                   onChange={(e) => setStringValue(e.target.value)}
                   placeholder={t('game.customEffectModal.stringValuePlaceholder')}
-                  className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
+                  className="flex-1 bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg focus:outline-none focus:border-amber-500"
                 />
               )}
               <button
                 onClick={handleAddEffect}
-                className="px-2 py-1 text-xs bg-amber-600 hover:bg-amber-500 rounded text-white cursor-pointer"
+                className="px-2 py-1 text-xs bg-amber-600 hover:bg-accent-strong rounded text-white cursor-pointer"
               >
                 +
               </button>
@@ -221,12 +221,12 @@ export default function CustomEffectModal({ tokens, onClose, onBroadcast }: Cust
 
           {/* Duration */}
           <div>
-            <label className="text-xs text-gray-400 block mb-1">{t('game.customEffectModal.duration')}</label>
+            <label className="text-xs text-muted block mb-1">{t('game.customEffectModal.duration')}</label>
             <div className="flex gap-2">
               <select
                 value={durationType}
                 onChange={(e) => setDurationType(e.target.value)}
-                className="bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+                className="bg-surface-2 border border-border rounded px-3 py-1.5 text-sm text-fg focus:outline-none focus:border-amber-500"
               >
                 {DURATION_OPTIONS.map((o) => (
                   <option key={o.value} value={o.value}>
@@ -240,7 +240,7 @@ export default function CustomEffectModal({ tokens, onClose, onBroadcast }: Cust
                   min={1}
                   value={durationValue}
                   onChange={(e) => setDurationValue(e.target.value)}
-                  className="w-20 bg-gray-800 border border-gray-700 rounded px-2 py-1.5 text-sm text-gray-100 text-center focus:outline-none focus:border-amber-500"
+                  className="w-20 bg-surface-2 border border-border rounded px-2 py-1.5 text-sm text-fg text-center focus:outline-none focus:border-amber-500"
                 />
               )}
             </div>
@@ -250,7 +250,7 @@ export default function CustomEffectModal({ tokens, onClose, onBroadcast }: Cust
           <button
             onClick={handleApply}
             disabled={!name.trim() || !targetId || effectsList.length === 0}
-            className="w-full px-4 py-2.5 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg cursor-pointer text-sm"
+            className="w-full px-4 py-2.5 bg-amber-600 hover:bg-accent-strong disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg cursor-pointer text-sm"
           >
             {t('game.customEffectModal.applyEffect')}
           </button>
@@ -258,13 +258,13 @@ export default function CustomEffectModal({ tokens, onClose, onBroadcast }: Cust
 
         {/* Active Custom Effects */}
         {customEffects.length > 0 && (
-          <div className="mt-4 border-t border-gray-700 pt-3">
-            <div className="text-xs text-gray-400 uppercase tracking-wide mb-2">
+          <div className="mt-4 border-t border-border pt-3">
+            <div className="text-xs text-muted uppercase tracking-wide mb-2">
               {t('game.customEffectModal.activeCustomEffects')}
             </div>
             <div className="space-y-1">
               {customEffects.map((ce) => (
-                <div key={ce.id} className="flex items-center justify-between bg-gray-800/50 rounded px-2 py-1.5">
+                <div key={ce.id} className="flex items-center justify-between bg-surface-2/50 rounded px-2 py-1.5">
                   <div>
                     <span className="text-xs text-purple-300 font-medium">{ce.name}</span>
                     <span className="text-xs text-gray-500 ml-2">

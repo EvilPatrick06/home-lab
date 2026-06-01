@@ -128,7 +128,7 @@ export default function DMToolsTabContent({ onOpenModal, btnClass }: DMToolsTabC
       </button>
 
       {/* Environment toggles */}
-      <div className="w-full border-t border-gray-700/40 mt-1 pt-1.5">
+      <div className="w-full border-t border-border/40 mt-1 pt-1.5">
         <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1 block">
           {t('game.dmToolsTabContent.environment')}
         </span>
@@ -191,7 +191,7 @@ export default function DMToolsTabContent({ onOpenModal, btnClass }: DMToolsTabC
                     : level === 'dim'
                       ? 'bg-amber-700 text-white'
                       : 'bg-gray-600 text-white'
-                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                  : 'bg-surface-2 text-muted hover:bg-gray-700'
               }`}
             >
               {level.charAt(0).toUpperCase() + level.slice(1)}
@@ -213,7 +213,7 @@ export default function DMToolsTabContent({ onOpenModal, btnClass }: DMToolsTabC
               aria-pressed={travelPace === pace}
               aria-label={t('game.dmToolsTabContent.setTravelPace', { pace: pace ?? 'none' })}
               className={`px-1.5 py-0.5 text-xs rounded cursor-pointer ${
-                travelPace === pace ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                travelPace === pace ? 'bg-amber-600 text-white' : 'bg-surface-2 text-muted hover:bg-gray-700'
               }`}
             >
               {pace ? pace.charAt(0).toUpperCase() + pace.slice(1) : t('game.dmToolsTabContent.none')}
@@ -245,7 +245,7 @@ export default function DMToolsTabContent({ onOpenModal, btnClass }: DMToolsTabC
       </div>
 
       {/* Disease & Curse Tracker */}
-      <div className="w-full border-t border-gray-700/40 mt-2 pt-2">
+      <div className="w-full border-t border-border/40 mt-2 pt-2">
         <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1.5 block">
           {t('game.dmToolsTabContent.diseasesCurses')}
         </span>
@@ -255,7 +255,7 @@ export default function DMToolsTabContent({ onOpenModal, btnClass }: DMToolsTabC
       </div>
 
       {/* Environmental Effects */}
-      <div className="w-full border-t border-gray-700/40 mt-2 pt-2">
+      <div className="w-full border-t border-border/40 mt-2 pt-2">
         <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1.5 block">
           {t('game.dmToolsTabContent.environmentalEffects')}
         </span>
@@ -265,7 +265,7 @@ export default function DMToolsTabContent({ onOpenModal, btnClass }: DMToolsTabC
       </div>
 
       {/* Trap Placer */}
-      <div className="w-full border-t border-gray-700/40 mt-2 pt-2">
+      <div className="w-full border-t border-border/40 mt-2 pt-2">
         <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1.5 block">
           {t('game.dmToolsTabContent.traps')}
         </span>

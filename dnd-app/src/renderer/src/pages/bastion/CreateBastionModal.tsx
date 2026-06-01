@@ -42,7 +42,7 @@ export function CreateBastionModal({
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             placeholder={t('pages.createBastionModal.bastionNamePlaceholder')}
-            className="bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
+            className="bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500"
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -50,7 +50,7 @@ export function CreateBastionModal({
           <select
             value={newOwnerId}
             onChange={(e) => setNewOwnerId(e.target.value)}
-            className="bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+            className="bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
           >
             <option value="">{t('pages.createBastionModal.selectCharacter')}</option>
             {characters.map((c) => (
@@ -64,14 +64,14 @@ export function CreateBastionModal({
         <div className="flex gap-2 justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-gray-800 transition-colors"
+            className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-surface-2 transition-colors"
           >
             {t('common.actions.cancel')}
           </button>
           <button
             onClick={handleCreate}
             disabled={!newName.trim() || !newOwnerId}
-            className="px-4 py-2 text-sm bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded font-semibold transition-colors"
+            className="px-4 py-2 text-sm bg-amber-600 hover:bg-accent-strong disabled:bg-gray-700 disabled:text-gray-500 text-white rounded font-semibold transition-colors"
           >
             {t('pages.createBastionModal.create')}
           </button>

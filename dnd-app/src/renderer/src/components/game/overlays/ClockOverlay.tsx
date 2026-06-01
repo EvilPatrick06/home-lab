@@ -105,8 +105,8 @@ export default function ClockOverlay({
       {!expanded ? (
         <button
           onClick={() => (isDM ? setExpanded(true) : undefined)}
-          className={`flex items-center gap-1.5 px-3 py-1.5 bg-gray-900/70 backdrop-blur-sm border border-gray-700/50
-            rounded-xl text-xs transition-colors ${isDM ? 'cursor-pointer hover:bg-gray-800/70' : 'cursor-default'}`}
+          className={`flex items-center gap-1.5 px-3 py-1.5 bg-surface/70 backdrop-blur-sm border border-border/50
+            rounded-xl text-xs transition-colors ${isDM ? 'cursor-pointer hover:bg-surface-2/70' : 'cursor-default'}`}
           title={isDM ? t('game.clockOverlay.expandTitle') : formattedTime}
         >
           <span>{icon}</span>
@@ -115,7 +115,7 @@ export default function ClockOverlay({
         </button>
       ) : (
         /* Expanded DM view */
-        <div className="w-64 bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl shadow-xl overflow-hidden">
+        <div className="w-64 bg-surface/95 backdrop-blur-sm border border-border/50 rounded-xl shadow-xl overflow-hidden">
           {/* Header */}
           <div className="px-3 py-2 border-b border-gray-800 flex items-center justify-between">
             <div>
@@ -138,25 +138,25 @@ export default function ClockOverlay({
             <div className="flex flex-wrap gap-1">
               <button
                 onClick={() => handleQuickAdvance(6)}
-                className="px-2 py-1 text-xs bg-gray-800 hover:bg-gray-700 rounded text-gray-300 cursor-pointer"
+                className="px-2 py-1 text-xs bg-surface-2 hover:bg-gray-700 rounded text-gray-300 cursor-pointer"
               >
                 {t('game.clockOverlay.advance6s')}
               </button>
               <button
                 onClick={() => handleQuickAdvance(60)}
-                className="px-2 py-1 text-xs bg-gray-800 hover:bg-gray-700 rounded text-gray-300 cursor-pointer"
+                className="px-2 py-1 text-xs bg-surface-2 hover:bg-gray-700 rounded text-gray-300 cursor-pointer"
               >
                 {t('game.clockOverlay.advance1min')}
               </button>
               <button
                 onClick={() => handleQuickAdvance(600)}
-                className="px-2 py-1 text-xs bg-gray-800 hover:bg-gray-700 rounded text-gray-300 cursor-pointer"
+                className="px-2 py-1 text-xs bg-surface-2 hover:bg-gray-700 rounded text-gray-300 cursor-pointer"
               >
                 {t('game.clockOverlay.advance10min')}
               </button>
               <button
                 onClick={() => handleQuickAdvance(3600)}
-                className="px-2 py-1 text-xs bg-gray-800 hover:bg-gray-700 rounded text-gray-300 cursor-pointer"
+                className="px-2 py-1 text-xs bg-surface-2 hover:bg-gray-700 rounded text-gray-300 cursor-pointer"
               >
                 {t('game.clockOverlay.advance1hr')}
               </button>
@@ -189,10 +189,10 @@ export default function ClockOverlay({
               <div className="space-y-1">
                 {lightSourcesWithTime.map((ls) => (
                   <div key={ls.id} className="flex items-center justify-between text-xs">
-                    <span className="text-amber-400">
+                    <span className="text-accent">
                       {LIGHT_SOURCE_LABELS[ls.sourceName] ?? ls.sourceName} ({ls.entityName})
                     </span>
-                    <span className="text-gray-400">
+                    <span className="text-muted">
                       {ls.remaining === Infinity ? t('game.clockOverlay.permanent') : formatRemainingTime(ls.remaining)}
                     </span>
                   </div>

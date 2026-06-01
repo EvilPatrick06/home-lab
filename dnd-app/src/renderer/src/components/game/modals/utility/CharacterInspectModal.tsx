@@ -21,8 +21,8 @@ export default function CharacterInspectModal({ characterData, onClose }: Charac
     return (
       <div className="fixed inset-0 z-20 flex items-center justify-center">
         <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
-        <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-md w-full mx-4 shadow-2xl">
-          <p className="text-xs text-gray-400">{t('game.characterInspectModal.noData')}</p>
+        <div className="relative bg-surface/95 backdrop-blur-sm border border-border/50 rounded-xl p-4 max-w-md w-full mx-4 shadow-2xl">
+          <p className="text-xs text-muted">{t('game.characterInspectModal.noData')}</p>
           <button
             onClick={onClose}
             className="mt-2 px-3 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"
@@ -67,12 +67,12 @@ export default function CharacterInspectModal({ characterData, onClose }: Charac
   return (
     <div className="fixed inset-0 z-20 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
-      <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-2xl w-full mx-4 shadow-2xl max-h-[85vh] flex flex-col">
+      <div className="relative bg-surface/95 backdrop-blur-sm border border-border/50 rounded-xl p-4 max-w-2xl w-full mx-4 shadow-2xl max-h-[85vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between mb-3 shrink-0">
           <div>
             <h3 className="text-sm font-semibold text-gray-200">{char.name}</h3>
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-muted">
               {classes} &middot; {char.species ?? t('game.characterInspectModal.unknownSpecies')} &middot;{' '}
               {char.background ?? ''}
             </p>
@@ -92,10 +92,10 @@ export default function CharacterInspectModal({ characterData, onClose }: Charac
             {abilityOrder.map((ab) => {
               const score = abilities[ab] ?? 10
               return (
-                <div key={ab} className="bg-gray-800/60 border border-gray-700/40 rounded-lg p-2 text-center">
+                <div key={ab} className="bg-surface-2/60 border border-border/40 rounded-lg p-2 text-center">
                   <div className="text-xs text-gray-500 uppercase font-semibold">{abilityLabels[ab]}</div>
                   <div className="text-sm font-bold text-gray-200">{score}</div>
-                  <div className="text-xs text-amber-400">{abilityMod(score)}</div>
+                  <div className="text-xs text-accent">{abilityMod(score)}</div>
                 </div>
               )
             })}
@@ -103,17 +103,17 @@ export default function CharacterInspectModal({ characterData, onClose }: Charac
 
           {/* HP / AC / Speed / Initiative */}
           <div className="grid grid-cols-4 gap-1.5">
-            <div className="bg-gray-800/60 border border-gray-700/40 rounded-lg p-2 text-center">
+            <div className="bg-surface-2/60 border border-border/40 rounded-lg p-2 text-center">
               <div className="text-xs text-gray-500 uppercase font-semibold">{t('game.characterInspectModal.hp')}</div>
               <div className="text-sm font-bold text-green-400">
                 {char.hitPoints?.current ?? '?'} / {char.hitPoints?.maximum ?? '?'}
               </div>
             </div>
-            <div className="bg-gray-800/60 border border-gray-700/40 rounded-lg p-2 text-center">
+            <div className="bg-surface-2/60 border border-border/40 rounded-lg p-2 text-center">
               <div className="text-xs text-gray-500 uppercase font-semibold">{t('game.characterInspectModal.ac')}</div>
               <div className="text-sm font-bold text-blue-400">{char.armorClass ?? '?'}</div>
             </div>
-            <div className="bg-gray-800/60 border border-gray-700/40 rounded-lg p-2 text-center">
+            <div className="bg-surface-2/60 border border-border/40 rounded-lg p-2 text-center">
               <div className="text-xs text-gray-500 uppercase font-semibold">
                 {t('game.characterInspectModal.speed')}
               </div>
@@ -121,7 +121,7 @@ export default function CharacterInspectModal({ characterData, onClose }: Charac
                 {t('game.characterInspectModal.speedValue', { speed: char.speed ?? 30 })}
               </div>
             </div>
-            <div className="bg-gray-800/60 border border-gray-700/40 rounded-lg p-2 text-center">
+            <div className="bg-surface-2/60 border border-border/40 rounded-lg p-2 text-center">
               <div className="text-xs text-gray-500 uppercase font-semibold">
                 {t('game.characterInspectModal.initiative')}
               </div>

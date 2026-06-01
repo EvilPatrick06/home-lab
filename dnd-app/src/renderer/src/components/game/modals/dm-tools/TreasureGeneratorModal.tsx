@@ -307,15 +307,15 @@ export default function TreasureGeneratorModal({
       role="presentation"
     >
       <div
-        className="bg-gray-900 border border-gray-700 rounded-xl shadow-2xl w-full max-w-xl max-h-[85vh] flex flex-col"
+        className="bg-surface border border-border rounded-xl shadow-2xl w-full max-w-xl max-h-[85vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3 border-b border-gray-700">
-          <h2 className="text-lg font-bold text-amber-400">{t('game.treasureGeneratorModal.title')}</h2>
+        <div className="flex items-center justify-between px-5 py-3 border-b border-border">
+          <h2 className="text-lg font-bold text-accent">{t('game.treasureGeneratorModal.title')}</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white text-xl leading-none px-1"
+            className="text-muted hover:text-white text-xl leading-none px-1"
             aria-label={t('common.actions.close')}
           >
             &times;
@@ -326,7 +326,7 @@ export default function TreasureGeneratorModal({
         <div className="flex-1 overflow-y-auto p-5 space-y-4">
           {/* CR Tier Selector */}
           <div>
-            <label className="block text-xs text-gray-400 mb-2">{t('game.treasureGeneratorModal.crTier')}</label>
+            <label className="block text-xs text-muted mb-2">{t('game.treasureGeneratorModal.crTier')}</label>
             <div className="flex gap-2">
               {tiers.map((tier) => (
                 <button
@@ -335,7 +335,7 @@ export default function TreasureGeneratorModal({
                   className={`flex-1 px-3 py-1.5 text-sm rounded border ${
                     crTier === tier
                       ? 'bg-amber-600 border-amber-500 text-white'
-                      : 'bg-gray-800 border-gray-600 text-gray-400 hover:border-gray-500'
+                      : 'bg-surface-2 border-gray-600 text-muted hover:border-gray-500'
                   }`}
                 >
                   {t('game.treasureGeneratorModal.cr', { tier })}
@@ -346,14 +346,14 @@ export default function TreasureGeneratorModal({
 
           {/* Type Toggle */}
           <div>
-            <label className="block text-xs text-gray-400 mb-2">{t('game.treasureGeneratorModal.treasureType')}</label>
+            <label className="block text-xs text-muted mb-2">{t('game.treasureGeneratorModal.treasureType')}</label>
             <div className="flex gap-2">
               <button
                 onClick={() => setType('individual')}
                 className={`flex-1 px-3 py-1.5 text-sm rounded border ${
                   type === 'individual'
                     ? 'bg-amber-600 border-amber-500 text-white'
-                    : 'bg-gray-800 border-gray-600 text-gray-400 hover:border-gray-500'
+                    : 'bg-surface-2 border-gray-600 text-muted hover:border-gray-500'
                 }`}
               >
                 {t('game.treasureGeneratorModal.individual')}
@@ -363,7 +363,7 @@ export default function TreasureGeneratorModal({
                 className={`flex-1 px-3 py-1.5 text-sm rounded border ${
                   type === 'hoard'
                     ? 'bg-amber-600 border-amber-500 text-white'
-                    : 'bg-gray-800 border-gray-600 text-gray-400 hover:border-gray-500'
+                    : 'bg-surface-2 border-gray-600 text-muted hover:border-gray-500'
                 }`}
               >
                 {t('game.treasureGeneratorModal.hoard')}
@@ -375,7 +375,7 @@ export default function TreasureGeneratorModal({
           <button
             onClick={handleGenerate}
             disabled={!treasureData}
-            className="w-full px-4 py-2 bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white text-sm rounded font-medium"
+            className="w-full px-4 py-2 bg-amber-600 hover:bg-accent-strong disabled:bg-gray-700 disabled:text-gray-500 text-white text-sm rounded font-medium"
           >
             {t('game.treasureGeneratorModal.generate')}
           </button>
@@ -389,7 +389,7 @@ export default function TreasureGeneratorModal({
               {/* QA-S5: surface the table that was actually rolled so a
                   modest payout (e.g. just 12 GP) reads as a system
                   outcome rather than a UX bug. */}
-              <div className="px-3 py-2 rounded-md bg-gray-900/60 border border-gray-800 text-[11px] text-gray-400">
+              <div className="px-3 py-2 rounded-md bg-surface/60 border border-gray-800 text-[11px] text-muted">
                 {t('game.treasureGeneratorModal.rolledPrefix')}{' '}
                 <span className="text-amber-300 font-semibold">
                   {type === 'hoard'
@@ -403,8 +403,8 @@ export default function TreasureGeneratorModal({
                   : t('game.treasureGeneratorModal.basicCoinsTable')}
               </div>
               {/* Coins */}
-              <div className="bg-gray-800 rounded-lg border border-gray-700 p-3">
-                <h3 className="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-2">
+              <div className="bg-surface-2 rounded-lg border border-border p-3">
+                <h3 className="text-xs font-semibold text-accent uppercase tracking-wider mb-2">
                   {t('game.treasureGeneratorModal.coins')}
                 </h3>
                 <div className="flex flex-wrap gap-3 text-sm">
@@ -424,7 +424,7 @@ export default function TreasureGeneratorModal({
                     </span>
                   )}
                   {result.coins.gp > 0 && (
-                    <span className="text-amber-400 font-semibold">
+                    <span className="text-accent font-semibold">
                       {result.coins.gp.toLocaleString()} <span className="text-xs text-gray-500">GP</span>
                     </span>
                   )}
@@ -445,7 +445,7 @@ export default function TreasureGeneratorModal({
 
               {/* Gems */}
               {result.gems.length > 0 && (
-                <div className="bg-gray-800 rounded-lg border border-gray-700 p-3">
+                <div className="bg-surface-2 rounded-lg border border-border p-3">
                   <h3 className="text-xs font-semibold text-cyan-400 uppercase tracking-wider mb-2">
                     {t('game.treasureGeneratorModal.gems', { count: result.gems.length })}
                   </h3>
@@ -461,7 +461,7 @@ export default function TreasureGeneratorModal({
 
               {/* Art Objects */}
               {result.artObjects.length > 0 && (
-                <div className="bg-gray-800 rounded-lg border border-gray-700 p-3">
+                <div className="bg-surface-2 rounded-lg border border-border p-3">
                   <h3 className="text-xs font-semibold text-pink-400 uppercase tracking-wider mb-2">
                     {t('game.treasureGeneratorModal.artObjects', { count: result.artObjects.length })}
                   </h3>
@@ -477,7 +477,7 @@ export default function TreasureGeneratorModal({
 
               {/* Magic Items */}
               {result.magicItems.length > 0 && (
-                <div className="bg-gray-800 rounded-lg border border-gray-700 p-3">
+                <div className="bg-surface-2 rounded-lg border border-border p-3">
                   <h3 className="text-xs font-semibold text-purple-400 uppercase tracking-wider mb-2">
                     {t('game.treasureGeneratorModal.magicItems', { count: result.magicItems.length })}
                   </h3>
@@ -495,14 +495,14 @@ export default function TreasureGeneratorModal({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-2 px-5 py-3 border-t border-gray-700">
+        <div className="flex items-center justify-end gap-2 px-5 py-3 border-t border-border">
           <button onClick={onClose} className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm rounded">
             {t('common.actions.close')}
           </button>
           {result && (
             <button
               onClick={handleAward}
-              className="px-4 py-1.5 bg-amber-600 hover:bg-amber-500 text-white text-sm rounded font-medium"
+              className="px-4 py-1.5 bg-amber-600 hover:bg-accent-strong text-white text-sm rounded font-medium"
             >
               {t('game.treasureGeneratorModal.awardToParty')}
             </button>

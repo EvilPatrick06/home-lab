@@ -134,9 +134,9 @@ export default function ActivitiesTab({
       {/* Active progress entries */}
       {activeEntries.length > 0 && (
         <div className="space-y-2">
-          <h3 className="text-xs font-semibold text-gray-400">{t('game.activitiesTab.activeProgress')}</h3>
+          <h3 className="text-xs font-semibold text-muted">{t('game.activitiesTab.activeProgress')}</h3>
           {activeEntries.map((entry) => (
-            <div key={entry.id} className="bg-gray-800/50 border border-gray-700 rounded-lg p-3">
+            <div key={entry.id} className="bg-surface-2/50 border border-border rounded-lg p-3">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs font-semibold text-amber-300">{entry.activityName}</span>
                 <span className="text-xs text-gray-500">
@@ -147,7 +147,7 @@ export default function ActivitiesTab({
               {/* Progress bar */}
               <div className="w-full bg-gray-700 rounded-full h-1.5 mb-2">
                 <div
-                  className="bg-amber-500 h-1.5 rounded-full transition-all"
+                  className="bg-accent-strong h-1.5 rounded-full transition-all"
                   style={{ width: `${Math.min(100, (entry.daysSpent / entry.daysRequired) * 100)}%` }}
                 />
               </div>
@@ -208,7 +208,7 @@ export default function ActivitiesTab({
             className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-colors cursor-pointer ${
               selectedId === activity.id
                 ? 'bg-amber-600/20 border border-amber-500/50 text-amber-300'
-                : 'bg-gray-800/50 border border-gray-700/50 text-gray-300 hover:bg-gray-800'
+                : 'bg-surface-2/50 border border-border/50 text-gray-300 hover:bg-surface-2'
             }`}
           >
             <div className="font-semibold">{activity.name}</div>
@@ -219,24 +219,24 @@ export default function ActivitiesTab({
 
       {/* Selected activity details */}
       {selected && (
-        <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-3 space-y-2">
+        <div className="bg-surface-2/50 border border-border rounded-lg p-3 space-y-2">
           <p className="text-xs text-gray-300 leading-relaxed">{selected.description}</p>
 
           {selected.requirements.length > 0 && (
             <div className="text-xs text-gray-500">
-              <span className="font-semibold text-gray-400">{t('game.activitiesTab.requirements')}</span>{' '}
+              <span className="font-semibold text-muted">{t('game.activitiesTab.requirements')}</span>{' '}
               {selected.requirements.join(', ')}
             </div>
           )}
 
-          <div className="text-xs text-amber-400">
+          <div className="text-xs text-accent">
             <span className="font-semibold">{t('game.activitiesTab.outcome')}</span> {selected.outcome}
           </div>
 
           {/* Rarity selector */}
           {selected.rarityTable && (
             <div className="space-y-1">
-              <label className="text-xs text-gray-400 font-semibold">{t('game.activitiesTab.itemRarity')}</label>
+              <label className="text-xs text-muted font-semibold">{t('game.activitiesTab.itemRarity')}</label>
               <div className="flex flex-wrap gap-1">
                 {selected.rarityTable.map((r) => (
                   <button
@@ -245,7 +245,7 @@ export default function ActivitiesTab({
                     className={`px-2 py-0.5 text-xs rounded cursor-pointer ${
                       selectedRarity === r.rarity
                         ? 'bg-amber-600 text-white'
-                        : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+                        : 'bg-gray-700 text-muted hover:bg-gray-600'
                     }`}
                   >
                     {r.rarity}{' '}
@@ -263,7 +263,7 @@ export default function ActivitiesTab({
           {/* Spell level selector */}
           {selected.spellLevelTable && (
             <div className="space-y-1">
-              <label className="text-xs text-gray-400 font-semibold">{t('game.activitiesTab.spellLevel')}</label>
+              <label className="text-xs text-muted font-semibold">{t('game.activitiesTab.spellLevel')}</label>
               <div className="flex flex-wrap gap-1">
                 {selected.spellLevelTable.map((r) => (
                   <button
@@ -272,7 +272,7 @@ export default function ActivitiesTab({
                     className={`px-2 py-0.5 text-xs rounded cursor-pointer ${
                       selectedSpellLevel === r.level
                         ? 'bg-amber-600 text-white'
-                        : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+                        : 'bg-gray-700 text-muted hover:bg-gray-600'
                     }`}
                   >
                     {r.level === 0
@@ -288,16 +288,14 @@ export default function ActivitiesTab({
           {/* Potion type selector */}
           {selected.potionTable && (
             <div className="space-y-1">
-              <label className="text-xs text-gray-400 font-semibold">{t('game.activitiesTab.potionType')}</label>
+              <label className="text-xs text-muted font-semibold">{t('game.activitiesTab.potionType')}</label>
               <div className="flex flex-wrap gap-1">
                 {selected.potionTable.map((r) => (
                   <button
                     key={r.type}
                     onClick={() => setSelectedPotion(r.type)}
                     className={`px-2 py-0.5 text-xs rounded cursor-pointer ${
-                      selectedPotion === r.type
-                        ? 'bg-amber-600 text-white'
-                        : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+                      selectedPotion === r.type ? 'bg-amber-600 text-white' : 'bg-gray-700 text-muted hover:bg-gray-600'
                     }`}
                   >
                     {r.type} {t('game.activitiesTab.potionMeta', { days: r.days, gold: r.goldCost, heals: r.heals })}
@@ -310,29 +308,29 @@ export default function ActivitiesTab({
           {/* Days input */}
           {selected.daysRequired > 0 && !selected.rarityTable && !selected.spellLevelTable && !selected.potionTable && (
             <div className="flex items-center gap-2">
-              <label className="text-xs text-gray-400 font-semibold">{t('game.activitiesTab.days')}</label>
+              <label className="text-xs text-muted font-semibold">{t('game.activitiesTab.days')}</label>
               <input
                 type="number"
                 min={1}
                 value={days}
                 onChange={(e) => setDays(Math.max(1, parseInt(e.target.value, 10) || 1))}
-                className="w-16 bg-gray-800 border border-gray-600 rounded text-center text-xs text-gray-200 px-1 py-0.5"
+                className="w-16 bg-surface-2 border border-gray-600 rounded text-center text-xs text-gray-200 px-1 py-0.5"
               />
             </div>
           )}
 
           {/* Cost summary */}
           {cost && (
-            <div className="flex items-center gap-4 pt-1 border-t border-gray-700">
-              <span className="text-xs text-gray-400">
+            <div className="flex items-center gap-4 pt-1 border-t border-border">
+              <span className="text-xs text-muted">
                 {t('game.activitiesTab.time')}{' '}
                 <span className="text-white font-semibold">
                   {t('game.activitiesTab.daysCount', { count: cost.days })}
                 </span>
               </span>
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-muted">
                 {t('game.activitiesTab.cost')}{' '}
-                <span className="text-amber-400 font-semibold">
+                <span className="text-accent font-semibold">
                   {t('game.activitiesTab.goldAmount', { gold: cost.goldCost.toLocaleString() })}
                 </span>
               </span>
@@ -343,7 +341,7 @@ export default function ActivitiesTab({
           <div className="flex gap-2 pt-1">
             <button
               onClick={handleApply}
-              className="px-3 py-1.5 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded-lg cursor-pointer"
+              className="px-3 py-1.5 text-xs bg-amber-600 hover:bg-accent-strong text-white rounded-lg cursor-pointer"
             >
               {t('game.activitiesTab.startActivity')}
             </button>

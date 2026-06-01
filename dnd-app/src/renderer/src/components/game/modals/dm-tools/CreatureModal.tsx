@@ -127,16 +127,16 @@ export default function CreatureModal({
       role="presentation"
     >
       <div
-        className="bg-gray-900 border border-gray-700 rounded-xl w-[900px] max-h-[80vh] flex flex-col shadow-2xl"
+        className="bg-surface border border-border rounded-xl w-[900px] max-h-[80vh] flex flex-col shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header with tabs */}
-        <div className="px-4 py-3 border-b border-gray-700 flex items-center justify-between">
+        <div className="px-4 py-3 border-b border-border flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
               onClick={() => setTab('browse')}
               className={`text-sm font-bold transition-colors cursor-pointer pb-0.5 ${
-                tab === 'browse' ? 'text-amber-400 border-b-2 border-amber-400' : 'text-gray-500 hover:text-gray-300'
+                tab === 'browse' ? 'text-accent border-b-2 border-accent' : 'text-gray-500 hover:text-gray-300'
               }`}
             >
               {t('game.creatureModal.browse')}
@@ -159,13 +159,13 @@ export default function CreatureModal({
         </div>
 
         {/* Search and filters */}
-        <div className="px-4 py-2 border-b border-gray-700/50 space-y-2">
+        <div className="px-4 py-2 border-b border-border/50 space-y-2">
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t('game.creatureModal.searchPlaceholder')}
-            className={`w-full px-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-200 placeholder-gray-500 focus:outline-none ${
+            className={`w-full px-3 py-1.5 bg-surface-2 border border-border rounded-lg text-sm text-gray-200 placeholder-gray-500 focus:outline-none ${
               tab === 'browse' ? 'focus:border-amber-500' : 'focus:border-purple-500'
             }`}
           />
@@ -173,7 +173,7 @@ export default function CreatureModal({
             <select
               value={typeFilter ?? ''}
               onChange={(e) => setTypeFilter(e.target.value || null)}
-              className="px-2 py-1 bg-gray-800 border border-gray-700 rounded text-xs text-gray-300 cursor-pointer"
+              className="px-2 py-1 bg-surface-2 border border-border rounded text-xs text-gray-300 cursor-pointer"
             >
               <option value="">{t('game.creatureModal.allTypes')}</option>
               {TYPE_OPTIONS.map((t) => (
@@ -185,7 +185,7 @@ export default function CreatureModal({
             <select
               value={sizeFilter ?? ''}
               onChange={(e) => setSizeFilter(e.target.value || null)}
-              className="px-2 py-1 bg-gray-800 border border-gray-700 rounded text-xs text-gray-300 cursor-pointer"
+              className="px-2 py-1 bg-surface-2 border border-border rounded text-xs text-gray-300 cursor-pointer"
             >
               <option value="">{t('game.creatureModal.allSizes')}</option>
               {SIZE_OPTIONS.map((s) => (
@@ -200,7 +200,7 @@ export default function CreatureModal({
                 const val = e.target.value
                 setCrFilter(val ? { max: parseFloat(val) } : null)
               }}
-              className="px-2 py-1 bg-gray-800 border border-gray-700 rounded text-xs text-gray-300 cursor-pointer"
+              className="px-2 py-1 bg-surface-2 border border-border rounded text-xs text-gray-300 cursor-pointer"
             >
               <option value="">{t('game.creatureModal.allCrs')}</option>
               {CR_OPTIONS.map((c) => (
@@ -222,7 +222,7 @@ export default function CreatureModal({
                 value={customName}
                 onChange={(e) => setCustomName(e.target.value)}
                 placeholder={t('game.creatureModal.customNamePlaceholder')}
-                className="flex-1 px-2 py-1 bg-gray-800 border border-gray-700 rounded text-xs text-gray-200 placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                className="flex-1 px-2 py-1 bg-surface-2 border border-border rounded text-xs text-gray-200 placeholder-gray-500 focus:outline-none focus:border-purple-500"
               />
               <input
                 type="number"
@@ -234,9 +234,9 @@ export default function CreatureModal({
                     : t('game.creatureModal.customHpPlaceholder')
                 }
                 min={1}
-                className="w-24 px-2 py-1 bg-gray-800 border border-gray-700 rounded text-xs text-gray-200 placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                className="w-24 px-2 py-1 bg-surface-2 border border-border rounded text-xs text-gray-200 placeholder-gray-500 focus:outline-none focus:border-purple-500"
               />
-              <label className="flex items-center gap-1.5 text-xs text-gray-400 cursor-pointer shrink-0">
+              <label className="flex items-center gap-1.5 text-xs text-muted cursor-pointer shrink-0">
                 <input
                   type="checkbox"
                   checked={concentration}
@@ -252,7 +252,7 @@ export default function CreatureModal({
         {/* Content */}
         <div className="flex-1 flex min-h-0 overflow-hidden">
           {/* List */}
-          <div className="w-64 overflow-y-auto border-r border-gray-700/50">
+          <div className="w-64 overflow-y-auto border-r border-border/50">
             {filtered.slice(0, 200).map((m) => (
               <button
                 key={m.id}
@@ -262,7 +262,7 @@ export default function CreatureModal({
                     ? tab === 'browse'
                       ? 'bg-amber-600/20 border-l-2 border-amber-500'
                       : 'bg-purple-600/20 border-l-2 border-purple-500'
-                    : 'hover:bg-gray-800 border-l-2 border-transparent'
+                    : 'hover:bg-surface-2 border-l-2 border-transparent'
                 }`}
               >
                 <div className="text-sm text-gray-200 font-medium">{m.name}</div>
@@ -289,7 +289,7 @@ export default function CreatureModal({
                 {tab === 'browse' && isDM && onPlace && (
                   <button
                     onClick={handlePlaceOnMap}
-                    className="w-full px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white text-sm font-semibold rounded-lg transition-colors cursor-pointer"
+                    className="w-full px-4 py-2 bg-amber-600 hover:bg-accent-strong text-white text-sm font-semibold rounded-lg transition-colors cursor-pointer"
                   >
                     {t('game.creatureModal.placeOnMap')}
                   </button>

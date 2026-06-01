@@ -113,19 +113,19 @@ export default class ErrorBoundary extends Component<Props, State> {
         return this.props.fallback
       }
       return (
-        <div className="h-screen w-screen flex items-center justify-center bg-gray-950 text-gray-100">
-          <div className="max-w-lg w-full mx-4 bg-gray-900 border border-red-500/50 rounded-xl p-8 shadow-2xl">
+        <div className="h-screen w-screen flex items-center justify-center bg-base text-fg">
+          <div className="max-w-lg w-full mx-4 bg-surface border border-red-500/50 rounded-xl p-8 shadow-2xl">
             <h1 className="text-xl font-bold text-red-400 mb-2">{i18n.t('ui.errorBoundary.title')}</h1>
-            <p className="text-sm text-gray-400 mb-4">{i18n.t('ui.errorBoundary.description')}</p>
+            <p className="text-sm text-muted mb-4">{i18n.t('ui.errorBoundary.description')}</p>
             {this.state.error && (
-              <pre className="text-xs text-red-300/80 bg-gray-950 rounded-lg p-3 mb-6 overflow-auto max-h-40 border border-gray-800">
+              <pre className="text-xs text-red-300/80 bg-base rounded-lg p-3 mb-6 overflow-auto max-h-40 border border-gray-800">
                 {this.state.error.message}
               </pre>
             )}
             <div className="flex gap-3">
               <button
                 onClick={this.handleRetry}
-                className="flex-1 px-4 py-2.5 text-sm font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded-lg cursor-pointer transition-colors"
+                className="flex-1 px-4 py-2.5 text-sm font-semibold bg-amber-600 hover:bg-accent-strong text-white rounded-lg cursor-pointer transition-colors"
               >
                 {i18n.t('ui.errorBoundary.tryAgain')}
               </button>
@@ -137,7 +137,7 @@ export default class ErrorBoundary extends Component<Props, State> {
               </button>
               <button
                 onClick={this.handleCopyErrorReport}
-                className="px-4 py-2.5 text-sm font-semibold bg-gray-800 hover:bg-gray-700 text-gray-400 rounded-lg cursor-pointer transition-colors"
+                className="px-4 py-2.5 text-sm font-semibold bg-surface-2 hover:bg-gray-700 text-muted rounded-lg cursor-pointer transition-colors"
               >
                 {i18n.t('ui.errorBoundary.copyErrorReport')}
               </button>
@@ -145,7 +145,7 @@ export default class ErrorBoundary extends Component<Props, State> {
                 onClick={() => {
                   void this.handleSaveBugReport()
                 }}
-                className="px-4 py-2.5 text-sm font-semibold bg-gray-800 hover:bg-gray-700 text-gray-400 rounded-lg cursor-pointer transition-colors"
+                className="px-4 py-2.5 text-sm font-semibold bg-surface-2 hover:bg-gray-700 text-muted rounded-lg cursor-pointer transition-colors"
               >
                 {i18n.t('ui.errorBoundary.saveBugReport')}
               </button>

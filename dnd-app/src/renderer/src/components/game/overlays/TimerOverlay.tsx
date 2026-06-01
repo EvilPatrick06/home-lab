@@ -24,13 +24,13 @@ export default function TimerOverlay(): JSX.Element {
 
   return (
     <div className="absolute top-3 right-16 z-10" role="status" aria-label={t('game.timerOverlay.gameTimer')}>
-      <div className="bg-gray-900/70 backdrop-blur-sm border border-gray-700/50 rounded-xl px-4 py-2 min-w-[140px]">
+      <div className="bg-surface/70 backdrop-blur-sm border border-border/50 rounded-xl px-4 py-2 min-w-[140px]">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <div className="text-xs text-gray-400 truncate max-w-[80px]">{timerTargetName}</div>
+            <div className="text-xs text-muted truncate max-w-[80px]">{timerTargetName}</div>
             <div
               className={`text-lg font-mono font-bold ${
-                timerSeconds <= 10 ? 'text-red-400' : timerSeconds <= 30 ? 'text-amber-400' : 'text-gray-100'
+                timerSeconds <= 10 ? 'text-red-400' : timerSeconds <= 30 ? 'text-accent' : 'text-fg'
               }`}
             >
               {display}
@@ -46,10 +46,10 @@ export default function TimerOverlay(): JSX.Element {
           </button>
         </div>
         {/* Progress bar */}
-        <div className="h-1 bg-gray-800 rounded-full mt-1 overflow-hidden">
+        <div className="h-1 bg-surface-2 rounded-full mt-1 overflow-hidden">
           <div
             className={`h-full transition-all duration-1000 rounded-full ${
-              timerSeconds <= 10 ? 'bg-red-500' : timerSeconds <= 30 ? 'bg-amber-500' : 'bg-amber-400'
+              timerSeconds <= 10 ? 'bg-red-500' : timerSeconds <= 30 ? 'bg-accent-strong' : 'bg-accent'
             }`}
             style={{ width: `${Math.max(0, (timerSeconds / 120) * 100)}%` }}
           />

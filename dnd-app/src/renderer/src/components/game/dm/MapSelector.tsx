@@ -18,7 +18,7 @@ export default function MapSelector({ maps, activeMapId, onSelectMap, onAddMap }
           onChange={(e) => {
             if (e.target.value) onSelectMap(e.target.value)
           }}
-          className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-gray-200 focus:outline-none focus:border-amber-500 cursor-pointer"
+          className="bg-surface-2 border border-border rounded-lg px-3 py-1.5 text-sm text-gray-200 focus:outline-none focus:border-amber-500 cursor-pointer"
         >
           <option value="" disabled>
             {t('game.dmMapSelector.selectMap')}
@@ -33,7 +33,7 @@ export default function MapSelector({ maps, activeMapId, onSelectMap, onAddMap }
         <button
           onClick={onAddMap}
           title={t('game.dmMapSelector.addMap')}
-          className="px-2.5 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-400
+          className="px-2.5 py-1.5 rounded-lg bg-surface-2 border border-border text-muted
             hover:bg-gray-700 hover:text-gray-200 text-sm transition-colors cursor-pointer"
         >
           {t('game.dmMapSelector.addMapButton')}

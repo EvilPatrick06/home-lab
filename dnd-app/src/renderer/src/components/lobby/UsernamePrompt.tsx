@@ -18,9 +18,9 @@ export default function UsernamePrompt({ onSubmit, onCancel }: UsernamePromptPro
       role="dialog"
       aria-modal="true"
     >
-      <div className="bg-gray-900 border border-gray-700 rounded-lg p-6 max-w-sm w-full">
-        <h2 className="text-lg font-semibold text-gray-100 mb-1">{t('lobby.usernamePrompt.title')}</h2>
-        <p className="text-sm text-gray-400 mb-4">{t('lobby.usernamePrompt.desc')}</p>
+      <div className="bg-surface border border-border rounded-lg p-6 max-w-sm w-full">
+        <h2 className="text-lg font-semibold text-fg mb-1">{t('lobby.usernamePrompt.title')}</h2>
+        <p className="text-sm text-muted mb-4">{t('lobby.usernamePrompt.desc')}</p>
         <Input
           value={name}
           autoFocus

@@ -288,7 +288,7 @@ export function DrawingToolbar({
           key={tool.id}
           onClick={() => onToolChange(activeTool === tool.id ? 'none' : tool.id)}
           className={`px-2 py-1 rounded text-sm transition-colors ${
-            activeTool === tool.id ? 'bg-amber-600 text-white' : 'bg-gray-800 hover:bg-gray-700 text-gray-300'
+            activeTool === tool.id ? 'bg-amber-600 text-white' : 'bg-surface-2 hover:bg-gray-700 text-gray-300'
           }`}
           title={tool.label}
         >
@@ -302,7 +302,7 @@ export function DrawingToolbar({
           <div className="w-px h-6 bg-gray-700 mx-1" />
           <button
             onClick={() => setShowPicker(!showPicker)}
-            className="px-2 py-1 bg-gray-800 hover:bg-gray-700 rounded text-sm transition-colors flex items-center gap-1"
+            className="px-2 py-1 bg-surface-2 hover:bg-gray-700 rounded text-sm transition-colors flex items-center gap-1"
             title={
               activeTool === 'eraser'
                 ? t('library.pdfDrawingOverlay.size')
@@ -315,7 +315,7 @@ export function DrawingToolbar({
                 style={{ backgroundColor: color }}
               />
             )}
-            <span className="text-gray-400 text-xs">{t('library.pdfDrawingOverlay.px', { size })}</span>
+            <span className="text-muted text-xs">{t('library.pdfDrawingOverlay.px', { size })}</span>
           </button>
         </>
       )}
@@ -326,7 +326,9 @@ export function DrawingToolbar({
         onClick={onUndo}
         disabled={!hasStrokes}
         className={`px-2 py-1 rounded text-sm transition-colors ${
-          hasStrokes ? 'bg-gray-800 hover:bg-gray-700 text-gray-300' : 'bg-gray-800/50 text-gray-600 cursor-not-allowed'
+          hasStrokes
+            ? 'bg-surface-2 hover:bg-gray-700 text-gray-300'
+            : 'bg-surface-2/50 text-gray-600 cursor-not-allowed'
         }`}
         title={t('library.pdfDrawingOverlay.undoStroke')}
       >
@@ -336,7 +338,7 @@ export function DrawingToolbar({
         onClick={onRedo}
         disabled={!hasRedo}
         className={`px-2 py-1 rounded text-sm transition-colors ${
-          hasRedo ? 'bg-gray-800 hover:bg-gray-700 text-gray-300' : 'bg-gray-800/50 text-gray-600 cursor-not-allowed'
+          hasRedo ? 'bg-surface-2 hover:bg-gray-700 text-gray-300' : 'bg-surface-2/50 text-gray-600 cursor-not-allowed'
         }`}
         title={t('library.pdfDrawingOverlay.redoStroke')}
       >
@@ -347,8 +349,8 @@ export function DrawingToolbar({
         disabled={!hasStrokes}
         className={`px-2 py-1 rounded text-sm transition-colors ${
           hasStrokes
-            ? 'bg-gray-800 hover:bg-red-900/50 text-gray-300 hover:text-red-300'
-            : 'bg-gray-800/50 text-gray-600 cursor-not-allowed'
+            ? 'bg-surface-2 hover:bg-red-900/50 text-gray-300 hover:text-red-300'
+            : 'bg-surface-2/50 text-gray-600 cursor-not-allowed'
         }`}
         title={t('library.pdfDrawingOverlay.clearPage')}
       >
@@ -357,7 +359,7 @@ export function DrawingToolbar({
 
       {/* Dropdown picker */}
       {showPicker && activeTool !== 'none' && (
-        <div className="absolute top-full left-0 mt-1 bg-gray-900 border border-gray-700 rounded-lg shadow-xl p-3 z-50 min-w-48">
+        <div className="absolute top-full left-0 mt-1 bg-surface border border-border rounded-lg shadow-xl p-3 z-50 min-w-48">
           {/* Colors — hidden for eraser */}
           {activeTool !== 'eraser' && (
             <>
@@ -370,7 +372,7 @@ export function DrawingToolbar({
                       onColorChange(c)
                     }}
                     className={`w-6 h-6 rounded-full border-2 transition-transform hover:scale-110 ${
-                      c === color ? 'border-amber-400 scale-110' : 'border-gray-600'
+                      c === color ? 'border-accent scale-110' : 'border-gray-600'
                     }`}
                     style={{ backgroundColor: c }}
                   />
@@ -379,7 +381,7 @@ export function DrawingToolbar({
               {/* Color wheel + hex input */}
               <div className="flex items-center gap-2 mb-3">
                 <label
-                  className="relative w-8 h-8 rounded-full overflow-hidden border-2 border-gray-600 cursor-pointer hover:border-amber-400 transition-colors"
+                  className="relative w-8 h-8 rounded-full overflow-hidden border-2 border-gray-600 cursor-pointer hover:border-accent transition-colors"
                   title={t('library.pdfDrawingOverlay.pickAnyColor')}
                 >
                   <input
@@ -406,7 +408,7 @@ export function DrawingToolbar({
                     const v = e.target.value
                     if (!/^#[0-9a-fA-F]{6}$/.test(v)) onColorChange('#FACC15')
                   }}
-                  className="bg-gray-800 border border-gray-600 rounded px-2 py-1 text-xs text-gray-200 w-20 font-mono focus:border-amber-500 focus:outline-none"
+                  className="bg-surface-2 border border-gray-600 rounded px-2 py-1 text-xs text-gray-200 w-20 font-mono focus:border-amber-500 focus:outline-none"
                   placeholder="#FF00FF"
                   maxLength={7}
                 />
@@ -426,7 +428,7 @@ export function DrawingToolbar({
                 className={`flex items-center justify-center w-8 h-8 rounded transition-colors ${
                   s === size
                     ? 'bg-amber-600/30 border border-amber-500'
-                    : 'bg-gray-800 hover:bg-gray-700 border border-gray-700'
+                    : 'bg-surface-2 hover:bg-gray-700 border border-border'
                 }`}
                 title={t('library.pdfDrawingOverlay.px', { size: s })}
               >
@@ -444,7 +446,7 @@ export function DrawingToolbar({
 
           <button
             onClick={() => setShowPicker(false)}
-            className="mt-2 w-full text-xs text-gray-400 hover:text-gray-200 py-1"
+            className="mt-2 w-full text-xs text-muted hover:text-gray-200 py-1"
           >
             {t('library.pdfDrawingOverlay.done')}
           </button>

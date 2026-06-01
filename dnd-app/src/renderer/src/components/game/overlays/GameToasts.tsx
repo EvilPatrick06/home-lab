@@ -11,7 +11,7 @@ export function TimeRequestToast({ toast, onDismiss }: TimeRequestToastProps): J
   const { t } = useT()
   return (
     <div className="fixed top-28 left-1/2 -translate-x-1/2 z-40">
-      <div className="bg-gray-900 border border-cyan-500/50 rounded-xl px-4 py-3 shadow-xl flex items-center gap-3">
+      <div className="bg-surface border border-cyan-500/50 rounded-xl px-4 py-3 shadow-xl flex items-center gap-3">
         <span className="text-xs text-gray-200">
           {t('game.timeRequestToast.message', { name: toast.requesterName })}
         </span>
@@ -38,7 +38,7 @@ export function RestRequestToast({ toast, onDismiss, onShortRest, onLongRest }: 
   const { t } = useT()
   return (
     <div className="fixed top-28 left-1/2 -translate-x-1/2 z-40">
-      <div className="bg-gray-900 border border-green-500/50 rounded-xl px-4 py-3 shadow-xl flex items-center gap-3">
+      <div className="bg-surface border border-green-500/50 rounded-xl px-4 py-3 shadow-xl flex items-center gap-3">
         <span className="text-xs text-gray-200">
           {t('game.restRequestToast.message', {
             name: toast.playerName,
@@ -78,7 +78,7 @@ export function PhaseChangeToast({ toast, onDismiss }: PhaseChangeToastProps): J
 
   return (
     <div className="fixed top-16 left-1/2 -translate-x-1/2 z-40">
-      <div className="bg-gray-900 border border-purple-500/50 rounded-xl px-4 py-3 shadow-xl flex items-center gap-3">
+      <div className="bg-surface border border-purple-500/50 rounded-xl px-4 py-3 shadow-xl flex items-center gap-3">
         <span className="text-xs text-gray-200">
           {t('game.phaseChangeToast.itsNow')} <span className="text-purple-300 font-semibold">{toast.phase}</span>.{' '}
           {t('game.phaseChangeToast.updateLighting')} <span className="text-amber-300">{toast.suggestedLight}</span>?
@@ -113,7 +113,7 @@ export function LongRestWarning({ onOverride, onCancel }: LongRestWarningProps):
   const { t } = useT()
   return (
     <div className="fixed top-16 left-1/2 -translate-x-1/2 z-40">
-      <div className="bg-gray-900 border border-red-500/50 rounded-xl px-4 py-3 shadow-xl flex items-center gap-3">
+      <div className="bg-surface border border-red-500/50 rounded-xl px-4 py-3 shadow-xl flex items-center gap-3">
         <span className="text-xs text-gray-200">{t('game.longRestWarning.message')}</span>
         <button
           onClick={onOverride}
@@ -171,33 +171,33 @@ export function FogToolbar({
 }: FogToolbarProps): JSX.Element {
   const { t } = useT()
   return (
-    <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 bg-gray-900/90 backdrop-blur-sm border border-gray-700/50 rounded-xl px-3 py-2">
+    <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 bg-surface/90 backdrop-blur-sm border border-border/50 rounded-xl px-3 py-2">
       <button
         onClick={() => onSetTool('fog-reveal')}
-        className={`px-2 py-1 text-xs rounded-lg cursor-pointer ${activeTool === 'fog-reveal' ? 'bg-green-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}
+        className={`px-2 py-1 text-xs rounded-lg cursor-pointer ${activeTool === 'fog-reveal' ? 'bg-green-600 text-white' : 'bg-surface-2 text-gray-300 hover:bg-gray-700'}`}
       >
         {t('game.fogToolbar.reveal')}
       </button>
       <button
         onClick={() => onSetTool('fog-hide')}
-        className={`px-2 py-1 text-xs rounded-lg cursor-pointer ${activeTool === 'fog-hide' ? 'bg-red-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}
+        className={`px-2 py-1 text-xs rounded-lg cursor-pointer ${activeTool === 'fog-hide' ? 'bg-red-600 text-white' : 'bg-surface-2 text-gray-300 hover:bg-gray-700'}`}
       >
         {t('game.fogToolbar.hide')}
       </button>
-      <div className="border-l border-gray-700 h-5 mx-1" />
-      <span className="text-xs text-gray-400">{t('game.fogToolbar.brush')}</span>
+      <div className="border-l border-border h-5 mx-1" />
+      <span className="text-xs text-muted">{t('game.fogToolbar.brush')}</span>
       {[1, 2, 3, 5].map((size) => (
         <button
           key={size}
           onClick={() => onSetBrushSize(size)}
-          className={`w-6 h-6 text-xs rounded cursor-pointer ${fogBrushSize === size ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}
+          className={`w-6 h-6 text-xs rounded cursor-pointer ${fogBrushSize === size ? 'bg-amber-600 text-white' : 'bg-surface-2 text-gray-300 hover:bg-gray-700'}`}
         >
           {size}
         </button>
       ))}
       {onDynamicFogToggle && (
         <>
-          <div className="border-l border-gray-700 h-5 mx-1" />
+          <div className="border-l border-border h-5 mx-1" />
           <label className="flex items-center gap-1 cursor-pointer">
             <input
               type="checkbox"
@@ -205,14 +205,14 @@ export function FogToolbar({
               onChange={(e) => onDynamicFogToggle(e.target.checked)}
               className="accent-cyan-500 w-3 h-3 cursor-pointer"
             />
-            <span className="text-xs text-gray-400">{t('game.fogToolbar.dynamicVision')}</span>
+            <span className="text-xs text-muted">{t('game.fogToolbar.dynamicVision')}</span>
           </label>
         </>
       )}
-      <div className="border-l border-gray-700 h-5 mx-1" />
+      <div className="border-l border-border h-5 mx-1" />
       <button
         onClick={() => onSetTool('select')}
-        className="px-2 py-1 text-xs rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
+        className="px-2 py-1 text-xs rounded-lg bg-surface-2 text-gray-300 hover:bg-gray-700 cursor-pointer"
       >
         {t('game.fogToolbar.done')}
       </button>
@@ -230,7 +230,7 @@ interface WallToolbarProps {
 export function WallToolbar({ wallType, onSetWallType, onDone }: WallToolbarProps): JSX.Element {
   const { t } = useT()
   return (
-    <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 bg-gray-900/90 backdrop-blur-sm border border-gray-700/50 rounded-xl px-3 py-2">
+    <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 bg-surface/90 backdrop-blur-sm border border-border/50 rounded-xl px-3 py-2">
       {(['solid', 'door', 'window'] as const).map((type) => (
         <button
           key={type}
@@ -242,18 +242,18 @@ export function WallToolbar({ wallType, onSetWallType, onDone }: WallToolbarProp
                 : type === 'door'
                   ? 'bg-amber-600 text-white'
                   : 'bg-purple-600 text-white'
-              : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+              : 'bg-surface-2 text-gray-300 hover:bg-gray-700'
           }`}
         >
           {type}
         </button>
       ))}
-      <div className="border-l border-gray-700 h-5 mx-1" />
-      <span className="text-xs text-gray-400">{t('game.wallToolbar.instructions')}</span>
-      <div className="border-l border-gray-700 h-5 mx-1" />
+      <div className="border-l border-border h-5 mx-1" />
+      <span className="text-xs text-muted">{t('game.wallToolbar.instructions')}</span>
+      <div className="border-l border-border h-5 mx-1" />
       <button
         onClick={onDone}
-        className="px-2 py-1 text-xs rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
+        className="px-2 py-1 text-xs rounded-lg bg-surface-2 text-gray-300 hover:bg-gray-700 cursor-pointer"
       >
         {t('game.wallToolbar.done')}
       </button>
@@ -321,38 +321,38 @@ export function DrawingToolbar({
     '#000000': t('game.drawingToolbar.colorBlack')
   }
   return (
-    <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 bg-gray-900/90 backdrop-blur-sm border border-gray-700/50 rounded-xl px-3 py-2">
+    <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 bg-surface/90 backdrop-blur-sm border border-border/50 rounded-xl px-3 py-2">
       {DRAWING_TOOLS.map((tool) => (
         <button
           key={tool.id}
           onClick={() => onSetTool(tool.id)}
           title={toolLabels[tool.id]}
           className={`px-2 py-1 text-sm rounded-lg cursor-pointer ${
-            activeTool === tool.id ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+            activeTool === tool.id ? 'bg-amber-600 text-white' : 'bg-surface-2 text-gray-300 hover:bg-gray-700'
           }`}
         >
           {tool.icon}
         </button>
       ))}
 
-      <div className="border-l border-gray-700 h-5 mx-1" />
+      <div className="border-l border-border h-5 mx-1" />
 
-      <span className="text-xs text-gray-400">{t('game.drawingToolbar.size')}</span>
+      <span className="text-xs text-muted">{t('game.drawingToolbar.size')}</span>
       {[1, 2, 3, 5, 8].map((size) => (
         <button
           key={size}
           onClick={() => onSetStrokeWidth(size)}
           className={`w-6 h-6 text-xs rounded cursor-pointer ${
-            strokeWidth === size ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+            strokeWidth === size ? 'bg-amber-600 text-white' : 'bg-surface-2 text-gray-300 hover:bg-gray-700'
           }`}
         >
           {size}
         </button>
       ))}
 
-      <div className="border-l border-gray-700 h-5 mx-1" />
+      <div className="border-l border-border h-5 mx-1" />
 
-      <span className="text-xs text-gray-400">{t('game.drawingToolbar.color')}</span>
+      <span className="text-xs text-muted">{t('game.drawingToolbar.color')}</span>
       {DRAWING_COLORS.map((c) => (
         <button
           key={c.value}
@@ -367,7 +367,7 @@ export function DrawingToolbar({
 
       {isHost && onClearDrawings && (
         <>
-          <div className="border-l border-gray-700 h-5 mx-1" />
+          <div className="border-l border-border h-5 mx-1" />
           <button
             onClick={onClearDrawings}
             title={t('game.drawingToolbar.clearAll')}

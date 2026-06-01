@@ -37,17 +37,17 @@ export default function BuildSlotItem({ slot, onClick }: BuildSlotItemProps): JS
       disabled={isAutoGranted}
       className={`w-full text-left px-3 py-2 rounded border transition-colors cursor-pointer ${
         isAutoGranted
-          ? 'bg-gray-800/50 border-gray-700/50 !cursor-default opacity-60'
+          ? 'bg-surface-2/50 border-border/50 !cursor-default opacity-60'
           : isSelected
             ? 'bg-amber-900/20 border-amber-600/40 hover:border-amber-500/60 hover:bg-amber-900/30'
-            : 'bg-gray-800/60 border-gray-700 hover:border-gray-500 hover:bg-gray-800'
+            : 'bg-surface-2/60 border-border hover:border-gray-500 hover:bg-surface-2'
       }`}
     >
       <div className="flex items-center gap-2">
         <span className="text-sm shrink-0">{categoryIcons[slot.category] ?? '◆'}</span>
         <div className="min-w-0 flex-1">
           <div className="text-xs text-gray-500 leading-tight">{slot.label}</div>
-          <div className={`text-sm truncate ${isSelected ? 'text-amber-400 font-medium' : 'text-gray-400 italic'}`}>
+          <div className={`text-sm truncate ${isSelected ? 'text-accent font-medium' : 'text-muted italic'}`}>
             {slot.selectedName ?? t('builder.buildSlotItem.select')}
           </div>
         </div>

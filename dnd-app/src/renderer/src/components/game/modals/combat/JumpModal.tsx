@@ -36,12 +36,12 @@ export default function JumpModal({
     <NarrowModalShell title={t('game.jumpModal.title')} onClose={onClose}>
       {/* Jump Type */}
       <div className="mb-3">
-        <span className="text-xs text-gray-400">{t('game.jumpModal.jumpType')}</span>
+        <span className="text-xs text-muted">{t('game.jumpModal.jumpType')}</span>
         <div className="flex gap-2 mt-1">
           <button
             onClick={() => setJumpType('long')}
             className={`flex-1 px-3 py-2 text-sm rounded-lg cursor-pointer ${
-              jumpType === 'long' ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+              jumpType === 'long' ? 'bg-amber-600 text-white' : 'bg-surface-2 text-muted hover:bg-gray-700'
             }`}
           >
             {t('game.jumpModal.longJump')}
@@ -49,7 +49,7 @@ export default function JumpModal({
           <button
             onClick={() => setJumpType('high')}
             className={`flex-1 px-3 py-2 text-sm rounded-lg cursor-pointer ${
-              jumpType === 'high' ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+              jumpType === 'high' ? 'bg-amber-600 text-white' : 'bg-surface-2 text-muted hover:bg-gray-700'
             }`}
           >
             {t('game.jumpModal.highJump')}
@@ -72,19 +72,17 @@ export default function JumpModal({
       </div>
 
       {/* Result */}
-      <div className="bg-gray-800 rounded-lg p-4 text-center mb-4">
-        <div className="text-xs text-gray-400 mb-1">
+      <div className="bg-surface-2 rounded-lg p-4 text-center mb-4">
+        <div className="text-xs text-muted mb-1">
           {jumpType === 'long' ? t('game.jumpModal.longJumpDistance') : t('game.jumpModal.highJumpHeight')}
         </div>
-        <div className="text-3xl font-bold text-amber-400 font-mono">
-          {t('game.jumpModal.feet', { dist: jumpDist })}
-        </div>
+        <div className="text-3xl font-bold text-accent font-mono">{t('game.jumpModal.feet', { dist: jumpDist })}</div>
         <div className="text-xs text-gray-500 mt-1">
           {jumpType === 'long'
             ? `${t('game.jumpModal.strScore', { score: strScore })}${!runningStart ? t('game.jumpModal.halfSuffix') : ''}`
             : `${t('game.jumpModal.strMod', { mod: strMod })}${!runningStart ? t('game.jumpModal.halfSuffix') : ''}`}
         </div>
-        <div className="text-xs text-gray-400 mt-2">{t('game.jumpModal.eachFootCosts')}</div>
+        <div className="text-xs text-muted mt-2">{t('game.jumpModal.eachFootCosts')}</div>
         <div className={`text-xs mt-1 ${remainingAfterJump > 0 ? 'text-green-400' : 'text-red-400'}`}>
           {t('game.jumpModal.movementRemaining', { before: movementRemaining, after: remainingAfterJump })}
         </div>
@@ -108,7 +106,7 @@ export default function JumpModal({
           )
           onClose()
         }}
-        className="w-full px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-lg cursor-pointer text-sm"
+        className="w-full px-4 py-2 bg-amber-600 hover:bg-accent-strong text-white font-semibold rounded-lg cursor-pointer text-sm"
       >
         {t('game.jumpModal.jump')}
       </button>

@@ -33,9 +33,9 @@ export default function CharacterPickerOverlay({
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
-      <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-96 shadow-2xl max-h-[70vh] flex flex-col">
-        <h3 className="text-sm font-semibold text-amber-400 mb-3">{t('game.characterPickerOverlay.title')}</h3>
-        <p className="text-xs text-gray-400 mb-3">{t('game.characterPickerOverlay.subtitle')}</p>
+      <div className="relative bg-surface border border-border rounded-xl p-5 w-96 shadow-2xl max-h-[70vh] flex flex-col">
+        <h3 className="text-sm font-semibold text-accent mb-3">{t('game.characterPickerOverlay.title')}</h3>
+        <p className="text-xs text-muted mb-3">{t('game.characterPickerOverlay.subtitle')}</p>
         <div className="flex-1 overflow-y-auto space-y-1 mb-3">
           {characters.length === 0 && (
             <p className="text-xs text-gray-500 italic">{t('game.characterPickerOverlay.noCharacters')}</p>
@@ -44,7 +44,7 @@ export default function CharacterPickerOverlay({
             <button
               key={c.id}
               onClick={() => onSelect(c)}
-              className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-800 cursor-pointer flex items-center gap-3"
+              className="w-full text-left px-3 py-2 rounded-lg hover:bg-surface-2 cursor-pointer flex items-center gap-3"
             >
               <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-xs font-bold text-gray-300">
                 {c.name.charAt(0).toUpperCase()}
@@ -69,7 +69,7 @@ export default function CharacterPickerOverlay({
               onClose()
               navigate(getBuilderCreatePath(), { state: { returnTo: `/game/${campaignId}` } })
             }}
-            className="flex-1 px-3 py-2 text-xs font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded-lg cursor-pointer"
+            className="flex-1 px-3 py-2 text-xs font-semibold bg-amber-600 hover:bg-accent-strong text-white rounded-lg cursor-pointer"
           >
             {t('game.characterPickerOverlay.createNew')}
           </button>

@@ -53,7 +53,7 @@ export default function MoonOverridePanel(): JSX.Element {
             className={`px-2 py-0.5 text-xs rounded cursor-pointer ${
               moonMode === 'auto'
                 ? 'bg-amber-600/30 text-amber-300 border border-amber-500/40'
-                : 'bg-gray-800 text-gray-400 border border-gray-700 hover:bg-gray-700'
+                : 'bg-surface-2 text-muted border border-border hover:bg-gray-700'
             }`}
           >
             {t('game.moonOverridePanel.auto')}
@@ -63,7 +63,7 @@ export default function MoonOverridePanel(): JSX.Element {
             className={`px-2 py-0.5 text-xs rounded cursor-pointer ${
               moonMode === 'manual'
                 ? 'bg-amber-600/30 text-amber-300 border border-amber-500/40'
-                : 'bg-gray-800 text-gray-400 border border-gray-700 hover:bg-gray-700'
+                : 'bg-surface-2 text-muted border border-border hover:bg-gray-700'
             }`}
           >
             {t('game.moonOverridePanel.manual')}
@@ -72,7 +72,7 @@ export default function MoonOverridePanel(): JSX.Element {
       </div>
 
       {moonMode === 'manual' && (
-        <div className="bg-gray-800/50 rounded-lg p-3 space-y-2">
+        <div className="bg-surface-2/50 rounded-lg p-3 space-y-2">
           <div className="grid grid-cols-4 gap-1.5">
             {MOON_PHASE_NAMES.map((phaseName) => (
               <button
@@ -81,7 +81,7 @@ export default function MoonOverridePanel(): JSX.Element {
                 className={`flex flex-col items-center gap-0.5 p-2 rounded cursor-pointer border transition-colors ${
                   selectedMoonPhase === phaseName
                     ? 'bg-amber-600/20 border-amber-500/40 text-amber-300'
-                    : 'bg-gray-800 border-gray-700 text-gray-400 hover:bg-gray-700 hover:text-gray-300'
+                    : 'bg-surface-2 border-border text-muted hover:bg-gray-700 hover:text-gray-300'
                 }`}
               >
                 <span className="text-lg">{MOON_PHASE_EMOJIS[phaseName]}</span>

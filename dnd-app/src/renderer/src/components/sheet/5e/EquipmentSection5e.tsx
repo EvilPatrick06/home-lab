@@ -69,14 +69,14 @@ export default function EquipmentSection5e({ character, readonly }: EquipmentSec
           status === 'over-limit'
             ? 'bg-red-500'
             : status === 'encumbered'
-              ? 'bg-amber-500'
+              ? 'bg-accent-strong'
               : pct >= 75
-                ? 'bg-amber-500'
+                ? 'bg-accent-strong'
                 : 'bg-green-500'
         return (
           <div className="mb-3">
             <div
-              className="relative h-5 bg-gray-800 rounded-full overflow-hidden border border-gray-700"
+              className="relative h-5 bg-surface-2 rounded-full overflow-hidden border border-border"
               title={t('sheet.equipmentSection.carryingCapacityTooltip', {
                 str: strScore,
                 carry: capacity.carry,
@@ -92,7 +92,7 @@ export default function EquipmentSection5e({ character, readonly }: EquipmentSec
               </div>
             </div>
             {status === 'encumbered' && (
-              <p className="text-xs text-amber-400 mt-1">{t('sheet.equipmentSection.encumbered')}</p>
+              <p className="text-xs text-accent mt-1">{t('sheet.equipmentSection.encumbered')}</p>
             )}
             {status === 'over-limit' && (
               <p className="text-xs text-red-400 mt-1">{t('sheet.equipmentSection.overLimit')}</p>

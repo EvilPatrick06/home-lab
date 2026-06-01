@@ -21,8 +21,8 @@ export default function GridSettingsModal({ onClose }: GridSettingsModalProps): 
     return (
       <div className="fixed inset-0 z-30 flex items-center justify-center">
         <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
-        <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-6 text-center">
-          <p className="text-gray-400 text-sm">{t('game.gridSettingsModal.noActiveMap')}</p>
+        <div className="relative bg-surface border border-border rounded-xl p-6 text-center">
+          <p className="text-muted text-sm">{t('game.gridSettingsModal.noActiveMap')}</p>
           <button onClick={onClose} className="mt-3 px-4 py-1 text-sm bg-gray-700 rounded cursor-pointer">
             {t('common.actions.close')}
           </button>
@@ -40,7 +40,7 @@ export default function GridSettingsModal({ onClose }: GridSettingsModalProps): 
   return (
     <div className="fixed inset-0 z-30 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
-      <div className="relative bg-gray-900 border border-gray-700 rounded-xl w-[340px] max-h-[85vh] overflow-y-auto shadow-2xl">
+      <div className="relative bg-surface border border-border rounded-xl w-[340px] max-h-[85vh] overflow-y-auto shadow-2xl">
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
           <h3 className="text-sm font-semibold text-gray-200">
             {t('game.gridSettingsModal.title', { name: activeMap.name })}

@@ -115,9 +115,9 @@ export default function DeathSaves5e({
   }
 
   return (
-    <div className="mt-3 bg-gray-900/50 border border-gray-700 rounded-lg p-3">
+    <div className="mt-3 bg-surface/50 border border-border rounded-lg p-3">
       <div className="flex items-center gap-4 flex-wrap">
-        <span className="text-sm text-gray-400 font-semibold">{t('sheet.deathSaves.deathSaves')}</span>
+        <span className="text-sm text-muted font-semibold">{t('sheet.deathSaves.deathSaves')}</span>
 
         {/* Successes */}
         <div className="flex items-center gap-1">

@@ -17,7 +17,7 @@ export default function SelectionDetailPanel({ option }: SelectionDetailPanelPro
 
   return (
     <div className="flex-1 overflow-y-auto p-5">
-      <h3 className="text-xl font-bold text-amber-400 mb-1">{option.name}</h3>
+      <h3 className="text-xl font-bold text-accent mb-1">{option.name}</h3>
 
       <div className="flex items-center gap-2 mb-4">
         {option.rarity !== 'common' && (
@@ -41,7 +41,7 @@ export default function SelectionDetailPanel({ option }: SelectionDetailPanelPro
       {option.traits.length > 0 && (
         <div className="flex flex-wrap gap-1 mb-4">
           {option.traits.map((trait) => (
-            <span key={trait} className="text-xs px-2 py-1 bg-gray-800 border border-gray-700 rounded text-gray-300">
+            <span key={trait} className="text-xs px-2 py-1 bg-surface-2 border border-border rounded text-gray-300">
               {trait}
             </span>
           ))}
@@ -55,7 +55,7 @@ export default function SelectionDetailPanel({ option }: SelectionDetailPanelPro
           .filter((f) => f.label !== 'Description')
           .map((field, i) => (
             <div key={i}>
-              <dt className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-0.5">{field.label}</dt>
+              <dt className="text-xs font-semibold text-muted uppercase tracking-wider mb-0.5">{field.label}</dt>
               <dd className="text-sm text-gray-200 leading-relaxed">
                 {typeof field.value === 'string' ? field.value : JSON.stringify(field.value)}
               </dd>

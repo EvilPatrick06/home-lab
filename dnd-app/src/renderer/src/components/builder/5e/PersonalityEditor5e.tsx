@@ -35,7 +35,7 @@ export default function PersonalityEditor5e(): JSX.Element {
                   // who liked an earlier suggestion can hand-edit it.
                   useBuilderStore.setState({ characterPersonality: traits.join(', ') })
                 }}
-                className="text-xs px-2 py-0.5 rounded bg-amber-600 hover:bg-amber-500 text-gray-900 font-semibold cursor-pointer"
+                className="text-xs px-2 py-0.5 rounded bg-amber-600 hover:bg-accent-strong text-gray-900 font-semibold cursor-pointer"
               >
                 {t('builder.personalityEditor.rollIdeas')}
               </button>
@@ -46,7 +46,7 @@ export default function PersonalityEditor5e(): JSX.Element {
             onChange={(e) => useBuilderStore.setState({ characterPersonality: e.target.value })}
             placeholder={t('builder.personalityEditor.personalityPlaceholder')}
             rows={2}
-            className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500 resize-y"
+            className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500 resize-y"
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -56,7 +56,7 @@ export default function PersonalityEditor5e(): JSX.Element {
             onChange={(e) => useBuilderStore.setState({ characterIdeals: e.target.value })}
             placeholder={t('builder.personalityEditor.idealsPlaceholder')}
             rows={2}
-            className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500 resize-y"
+            className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500 resize-y"
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -66,7 +66,7 @@ export default function PersonalityEditor5e(): JSX.Element {
             onChange={(e) => useBuilderStore.setState({ characterBonds: e.target.value })}
             placeholder={t('builder.personalityEditor.bondsPlaceholder')}
             rows={2}
-            className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500 resize-y"
+            className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500 resize-y"
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -76,7 +76,7 @@ export default function PersonalityEditor5e(): JSX.Element {
             onChange={(e) => useBuilderStore.setState({ characterFlaws: e.target.value })}
             placeholder={t('builder.personalityEditor.flawsPlaceholder')}
             rows={2}
-            className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500 resize-y"
+            className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500 resize-y"
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -86,7 +86,7 @@ export default function PersonalityEditor5e(): JSX.Element {
             onChange={(e) => useBuilderStore.setState({ characterBackstory: e.target.value })}
             placeholder={t('builder.personalityEditor.backstoryPlaceholder')}
             rows={4}
-            className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500 resize-y"
+            className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500 resize-y"
           />
         </div>
       </div>
@@ -99,7 +99,7 @@ export default function PersonalityEditor5e(): JSX.Element {
           onChange={(e) => useBuilderStore.setState({ characterNotes: e.target.value })}
           placeholder={t('builder.personalityEditor.notesPlaceholder')}
           rows={4}
-          className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500 resize-y"
+          className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500 resize-y"
         />
       </div>
     </>

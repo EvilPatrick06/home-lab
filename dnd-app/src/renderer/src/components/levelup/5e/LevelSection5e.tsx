@@ -131,8 +131,8 @@ export default function LevelSection5e({
   })()
 
   return (
-    <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-4">
-      <h3 className="text-lg font-bold text-amber-400 mb-3">{t('levelup.levelSection.levelHeading', { level })}</h3>
+    <div className="bg-surface/50 border border-gray-800 rounded-lg p-4">
+      <h3 className="text-lg font-bold text-accent mb-3">{t('levelup.levelSection.levelHeading', { level })}</h3>
 
       <div className="space-y-3">
         {/* HP */}
@@ -237,9 +237,9 @@ export default function LevelSection5e({
         {/* Other feat slots */}
         {otherFeatSlots.map((slot) => (
           <div key={slot.id} className="text-sm">
-            <span className="text-gray-400">{slot.label}: </span>
+            <span className="text-muted">{slot.label}: </span>
             {slot.selectedId ? (
-              <span className="text-amber-400">{slot.selectedName}</span>
+              <span className="text-accent">{slot.selectedName}</span>
             ) : (
               <span className="text-gray-500 italic">{t('levelup.levelSection.notSelected')}</span>
             )}
@@ -254,7 +254,7 @@ export default function LevelSection5e({
             </div>
             {features.map((f, i) => (
               <div key={i} className="text-sm">
-                <span className="text-amber-400 font-semibold">{f.name}</span>
+                <span className="text-accent font-semibold">{f.name}</span>
                 <p className="text-gray-500 text-xs mt-0.5 line-clamp-2">{f.description}</p>
               </div>
             ))}

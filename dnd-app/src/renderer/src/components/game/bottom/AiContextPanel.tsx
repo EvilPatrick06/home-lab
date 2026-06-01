@@ -80,7 +80,7 @@ export default function AiContextPanel({ campaignId }: AiContextPanelProps): JSX
   const totalSize = files.reduce((sum, f) => sum + f.size, 0)
 
   return (
-    <div className="w-full bg-gray-900/60 border border-gray-700/40 rounded-lg px-3 py-2 mt-1.5">
+    <div className="w-full bg-surface/60 border border-border/40 rounded-lg px-3 py-2 mt-1.5">
       <div className="flex items-center justify-between mb-1.5">
         <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
           {t('game.aiContextPanel.heading')}
@@ -92,7 +92,7 @@ export default function AiContextPanel({ campaignId }: AiContextPanelProps): JSX
           <button
             onClick={refresh}
             disabled={loading}
-            className="px-1.5 py-0.5 text-xs rounded bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-gray-300 transition-colors cursor-pointer disabled:opacity-50"
+            className="px-1.5 py-0.5 text-xs rounded bg-surface-2 text-muted hover:bg-gray-700 hover:text-gray-300 transition-colors cursor-pointer disabled:opacity-50"
           >
             {loading ? t('common.states.loading') : t('game.aiContextPanel.refresh')}
           </button>
@@ -113,7 +113,7 @@ export default function AiContextPanel({ campaignId }: AiContextPanelProps): JSX
           {files.map((file) => (
             <div key={file.name}>
               <div className="flex items-center justify-between py-0.5">
-                <span className="text-xs text-gray-400 font-mono truncate mr-2">{file.name}</span>
+                <span className="text-xs text-muted font-mono truncate mr-2">{file.name}</span>
                 <div className="flex items-center gap-1.5 shrink-0">
                   <span className="text-xs text-gray-600">{formatSize(file.size)}</span>
                   <button
@@ -121,7 +121,7 @@ export default function AiContextPanel({ campaignId }: AiContextPanelProps): JSX
                     className={`px-1.5 py-0.5 text-xs rounded transition-colors cursor-pointer ${
                       viewingFile === file.name
                         ? 'bg-purple-600/30 text-purple-300 border border-purple-500/40'
-                        : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-gray-300'
+                        : 'bg-surface-2 text-muted hover:bg-gray-700 hover:text-gray-300'
                     }`}
                   >
                     {viewingFile === file.name ? t('game.aiContextPanel.hide') : t('game.aiContextPanel.view')}
@@ -134,7 +134,7 @@ export default function AiContextPanel({ campaignId }: AiContextPanelProps): JSX
                   {loadingContent ? (
                     <div className="text-xs text-gray-600 py-1">{t('common.states.loading')}</div>
                   ) : (
-                    <pre className="text-xs text-gray-400 bg-gray-950/60 border border-gray-800/60 rounded p-2 max-h-48 overflow-auto whitespace-pre-wrap break-words font-mono leading-relaxed">
+                    <pre className="text-xs text-muted bg-base/60 border border-gray-800/60 rounded p-2 max-h-48 overflow-auto whitespace-pre-wrap break-words font-mono leading-relaxed">
                       {fileContent || t('game.aiContextPanel.empty')}
                     </pre>
                   )}

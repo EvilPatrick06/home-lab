@@ -126,7 +126,7 @@ export default function WeatherOverridePanel(): JSX.Element {
             className={`px-2 py-0.5 text-xs rounded cursor-pointer ${
               weatherMode === 'auto'
                 ? 'bg-amber-600/30 text-amber-300 border border-amber-500/40'
-                : 'bg-gray-800 text-gray-400 border border-gray-700 hover:bg-gray-700'
+                : 'bg-surface-2 text-muted border border-border hover:bg-gray-700'
             }`}
           >
             {t('game.weatherOverridePanel.auto')}
@@ -136,7 +136,7 @@ export default function WeatherOverridePanel(): JSX.Element {
             className={`px-2 py-0.5 text-xs rounded cursor-pointer ${
               weatherMode === 'manual'
                 ? 'bg-amber-600/30 text-amber-300 border border-amber-500/40'
-                : 'bg-gray-800 text-gray-400 border border-gray-700 hover:bg-gray-700'
+                : 'bg-surface-2 text-muted border border-border hover:bg-gray-700'
             }`}
           >
             {t('game.weatherOverridePanel.manual')}
@@ -145,7 +145,7 @@ export default function WeatherOverridePanel(): JSX.Element {
       </div>
 
       {weatherMode === 'manual' && (
-        <div className="space-y-3 bg-gray-800/50 rounded-lg p-3">
+        <div className="space-y-3 bg-surface-2/50 rounded-lg p-3">
           {/* Preset Dropdown */}
           <div>
             <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">
@@ -154,7 +154,7 @@ export default function WeatherOverridePanel(): JSX.Element {
             <select
               value={wPreset}
               onChange={(e) => setWPreset(e.target.value)}
-              className="w-full px-2 py-1 text-xs bg-gray-800 border border-gray-700 rounded text-gray-200"
+              className="w-full px-2 py-1 text-xs bg-surface-2 border border-border rounded text-gray-200"
             >
               {WEATHER_PRESETS.map((p) => (
                 <option key={p} value={p}>
@@ -174,7 +174,7 @@ export default function WeatherOverridePanel(): JSX.Element {
               onChange={(e) => setWDescription(e.target.value)}
               placeholder={t('game.weatherOverridePanel.descriptionPlaceholder')}
               rows={2}
-              className="w-full px-2 py-1 text-xs bg-gray-800 border border-gray-700 rounded text-gray-200 resize-none"
+              className="w-full px-2 py-1 text-xs bg-surface-2 border border-border rounded text-gray-200 resize-none"
             />
           </div>
 
@@ -230,7 +230,7 @@ export default function WeatherOverridePanel(): JSX.Element {
             <select
               value={wWind}
               onChange={(e) => setWWind(e.target.value)}
-              className="w-full px-2 py-1 text-xs bg-gray-800 border border-gray-700 rounded text-gray-200"
+              className="w-full px-2 py-1 text-xs bg-surface-2 border border-border rounded text-gray-200"
             >
               {WIND_SPEEDS.map((ws) => (
                 <option key={ws} value={ws}>
@@ -261,7 +261,7 @@ export default function WeatherOverridePanel(): JSX.Element {
           </div>
 
           {/* Random Weather Generator */}
-          <div className="border-t border-gray-700 pt-2">
+          <div className="border-t border-border pt-2">
             <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">
               {t('game.weatherOverridePanel.generateRandom')}
             </label>
@@ -269,7 +269,7 @@ export default function WeatherOverridePanel(): JSX.Element {
               <select
                 value={randomClimate}
                 onChange={(e) => setRandomClimate(e.target.value as Climate)}
-                className="flex-1 px-2 py-1 text-xs bg-gray-800 border border-gray-700 rounded text-gray-200"
+                className="flex-1 px-2 py-1 text-xs bg-surface-2 border border-border rounded text-gray-200"
               >
                 {CLIMATES.map((c) => (
                   <option key={c.value} value={c.value}>
@@ -280,7 +280,7 @@ export default function WeatherOverridePanel(): JSX.Element {
               <select
                 value={randomSeason}
                 onChange={(e) => setRandomSeason(e.target.value as WeatherSeason)}
-                className="flex-1 px-2 py-1 text-xs bg-gray-800 border border-gray-700 rounded text-gray-200"
+                className="flex-1 px-2 py-1 text-xs bg-surface-2 border border-border rounded text-gray-200"
               >
                 {SEASONS.map((s) => (
                   <option key={s.value} value={s.value}>
@@ -320,7 +320,7 @@ export default function WeatherOverridePanel(): JSX.Element {
                 value={presetSaveName}
                 onChange={(e) => setPresetSaveName(e.target.value)}
                 placeholder={t('game.weatherOverridePanel.presetNamePlaceholder')}
-                className="flex-1 px-2 py-1 text-xs bg-gray-800 border border-gray-700 rounded text-gray-200"
+                className="flex-1 px-2 py-1 text-xs bg-surface-2 border border-border rounded text-gray-200"
               />
               <button
                 onClick={handleSavePreset}

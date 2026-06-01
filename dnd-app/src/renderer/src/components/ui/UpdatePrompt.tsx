@@ -72,16 +72,16 @@ export default function UpdatePrompt(): JSX.Element | null {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/70" />
-      <div className="relative bg-gray-900 border border-gray-700 rounded-lg p-6 max-w-sm w-full mx-4">
+      <div className="relative bg-surface border border-border rounded-lg p-6 max-w-sm w-full mx-4">
         <h3 className="text-lg font-semibold mb-2">{t('ui.updatePrompt.title')}</h3>
 
         {stage === 'prompt' && (
           <>
-            <p className="text-gray-400 text-sm mb-4">{t('ui.updatePrompt.available', { version })}</p>
+            <p className="text-muted text-sm mb-4">{t('ui.updatePrompt.available', { version })}</p>
             <div className="flex gap-3 justify-end">
               <button
                 onClick={handleLater}
-                className="px-4 py-2 border border-gray-600 rounded-lg hover:bg-gray-800
+                className="px-4 py-2 border border-gray-600 rounded-lg hover:bg-surface-2
                   transition-colors cursor-pointer text-sm"
               >
                 {t('ui.updatePrompt.updateLater')}
@@ -89,7 +89,7 @@ export default function UpdatePrompt(): JSX.Element | null {
               <button
                 onClick={handleUpdateNow}
                 className="px-4 py-2 rounded-lg transition-colors cursor-pointer text-sm
-                  font-semibold text-white bg-amber-600 hover:bg-amber-500"
+                  font-semibold text-white bg-amber-600 hover:bg-accent-strong"
               >
                 {t('ui.updatePrompt.updateNow')}
               </button>
@@ -99,10 +99,10 @@ export default function UpdatePrompt(): JSX.Element | null {
 
         {stage === 'downloading' && (
           <>
-            <p className="text-gray-400 text-sm mb-3">{t('ui.updatePrompt.downloading')}</p>
-            <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden mb-1">
+            <p className="text-muted text-sm mb-3">{t('ui.updatePrompt.downloading')}</p>
+            <div className="w-full h-2 bg-surface-2 rounded-full overflow-hidden mb-1">
               <div
-                className="h-full bg-amber-500 rounded-full transition-all duration-300"
+                className="h-full bg-accent-strong rounded-full transition-all duration-300"
                 style={{ width: `${percent}%` }}
               />
             </div>
@@ -112,11 +112,11 @@ export default function UpdatePrompt(): JSX.Element | null {
 
         {stage === 'ready' && (
           <>
-            <p className="text-gray-400 text-sm mb-4">{t('ui.updatePrompt.ready', { version })}</p>
+            <p className="text-muted text-sm mb-4">{t('ui.updatePrompt.ready', { version })}</p>
             <div className="flex gap-3 justify-end">
               <button
                 onClick={handleLater}
-                className="px-4 py-2 border border-gray-600 rounded-lg hover:bg-gray-800
+                className="px-4 py-2 border border-gray-600 rounded-lg hover:bg-surface-2
                   transition-colors cursor-pointer text-sm"
               >
                 {t('ui.updatePrompt.later')}

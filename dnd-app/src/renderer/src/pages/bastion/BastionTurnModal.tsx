@@ -83,13 +83,13 @@ export function BastionTurnModal({
       <div className="space-y-4">
         {turnStep === 'orders' && selectedBastion && (
           <>
-            <p className="text-sm text-gray-400">{t('pages.bastionTurnModal.assignOrdersHint')}</p>
+            <p className="text-sm text-muted">{t('pages.bastionTurnModal.assignOrdersHint')}</p>
             <label className="flex items-center gap-2 text-sm text-gray-300">
               <input
                 type="checkbox"
                 checked={turnMaintain}
                 onChange={(e) => setTurnMaintain(e.target.checked)}
-                className="rounded bg-gray-800 border-gray-600"
+                className="rounded bg-surface-2 border-gray-600"
               />
               {t('pages.bastionTurnModal.issueMaintainOrder')}
             </label>
@@ -98,9 +98,9 @@ export function BastionTurnModal({
                 const def = facilityDefs.find((d) => d.type === facility.type)
                 const currentOrder = turnOrders[facility.id]
                 return (
-                  <div key={facility.id} className="bg-gray-800 rounded p-3 border border-gray-700">
+                  <div key={facility.id} className="bg-surface-2 rounded p-3 border border-border">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-gray-100">{facility.name}</span>
+                      <span className="text-sm font-medium text-fg">{facility.name}</span>
                       {def && def.orders.length > 0 && (
                         <select
                           value={currentOrder?.orderType ?? ''}
@@ -117,7 +117,7 @@ export function BastionTurnModal({
                               })
                             }
                           }}
-                          className="bg-gray-900 border border-gray-600 rounded px-2 py-1 text-xs text-gray-300 focus:outline-none focus:border-amber-500"
+                          className="bg-surface border border-gray-600 rounded px-2 py-1 text-xs text-gray-300 focus:outline-none focus:border-amber-500"
                         >
                           <option value="">{t('pages.bastionTurnModal.idle')}</option>
                           {def.orders.map((o) => (
@@ -141,7 +141,7 @@ export function BastionTurnModal({
                             [facility.id]: { ...currentOrder, details: selectedName, cost: option?.cost ?? 0 }
                           })
                         }}
-                        className="w-full bg-gray-900 border border-gray-600 rounded px-2 py-1 text-xs text-gray-300 focus:outline-none focus:border-amber-500"
+                        className="w-full bg-surface border border-gray-600 rounded px-2 py-1 text-xs text-gray-300 focus:outline-none focus:border-amber-500"
                       >
                         <option value="">{t('pages.bastionTurnModal.selectAction')}</option>
                         {def.orderOptions
@@ -160,13 +160,13 @@ export function BastionTurnModal({
             <div className="flex gap-2 justify-end">
               <button
                 onClick={onClose}
-                className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-gray-800 transition-colors"
+                className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-surface-2 transition-colors"
               >
                 {t('common.actions.cancel')}
               </button>
               <button
                 onClick={handleExecuteTurn}
-                className="px-4 py-2 text-sm bg-amber-600 hover:bg-amber-500 text-white rounded font-semibold transition-colors"
+                className="px-4 py-2 text-sm bg-amber-600 hover:bg-accent-strong text-white rounded font-semibold transition-colors"
               >
                 {t('pages.bastionTurnModal.executeTurn')}
               </button>
@@ -175,19 +175,19 @@ export function BastionTurnModal({
         )}
         {turnStep === 'event' && (
           <>
-            <p className="text-sm text-gray-400">{t('pages.bastionTurnModal.ordersIssuedRollPrompt')}</p>
+            <p className="text-sm text-muted">{t('pages.bastionTurnModal.ordersIssuedRollPrompt')}</p>
             <div className="flex gap-2 justify-end">
               <button
                 onClick={() => {
                   setTurnStep('summary')
                 }}
-                className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-gray-800 transition-colors"
+                className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-surface-2 transition-colors"
               >
                 {t('pages.bastionTurnModal.skipEvent')}
               </button>
               <button
                 onClick={handleRollEvent}
-                className="px-4 py-2 text-sm bg-amber-600 hover:bg-amber-500 text-white rounded font-semibold transition-colors"
+                className="px-4 py-2 text-sm bg-amber-600 hover:bg-accent-strong text-white rounded font-semibold transition-colors"
               >
                 {t('pages.bastionTurnModal.rollD100Event')}
               </button>
@@ -201,7 +201,7 @@ export function BastionTurnModal({
               <div className="space-y-1">
                 <p className="text-xs text-gray-500">{t('pages.bastionTurnModal.orders')}</p>
                 {activeTurn.orders.map((o, i) => (
-                  <div key={i} className="text-xs text-gray-300 bg-gray-800 rounded px-2 py-1">
+                  <div key={i} className="text-xs text-gray-300 bg-surface-2 rounded px-2 py-1">
                     {o.facilityName}: {o.details || ORDER_LABELS[o.orderType]}
                     {o.goldCost ? ` (-${o.goldCost} GP)` : ''}
                   </div>
@@ -215,12 +215,12 @@ export function BastionTurnModal({
               </div>
             )}
             {activeTurn.eventOutcome && (
-              <div className="bg-gray-800 rounded p-3 border border-gray-700">
+              <div className="bg-surface-2 rounded p-3 border border-border">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-xs px-2 py-0.5 rounded bg-amber-900/50 text-amber-300 border border-amber-700">
                     d100: {activeTurn.eventRoll}
                   </span>
-                  <span className="text-xs text-gray-400">{activeTurn.eventType}</span>
+                  <span className="text-xs text-muted">{activeTurn.eventType}</span>
                 </div>
                 <p className="text-sm text-gray-200">{activeTurn.eventOutcome}</p>
               </div>

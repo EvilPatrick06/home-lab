@@ -15,7 +15,7 @@ export default function Spinner({ size = 'md', className = '' }: SpinnerProps): 
   const { t } = useT()
   return (
     <div
-      className={`${sizeClasses[size]} border-amber-400 border-t-transparent rounded-full animate-spin ${className}`}
+      className={`${sizeClasses[size]} border-accent border-t-transparent rounded-full animate-spin ${className}`}
       role="status"
       aria-label={t('ui.spinner.loadingLabel')}
     />

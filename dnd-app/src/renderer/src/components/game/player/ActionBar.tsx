@@ -59,7 +59,7 @@ export default function ActionBar({ isMyTurn, onAction }: ActionBarProps): JSX.E
   return (
     <div className="flex items-center gap-3">
       {/* Action economy indicators */}
-      <div className="flex items-center gap-2 pr-3 border-r border-gray-700">
+      <div className="flex items-center gap-2 pr-3 border-r border-border">
         <div className="flex flex-col items-center">
           <div
             className={`w-4 h-4 rounded-full border-2 ${
@@ -105,8 +105,8 @@ export default function ActionBar({ isMyTurn, onAction }: ActionBarProps): JSX.E
               className={`px-2.5 py-1 text-xs rounded-lg transition-colors cursor-pointer
                 ${
                   spent
-                    ? 'bg-gray-800 text-gray-600 cursor-not-allowed'
-                    : 'bg-gray-800 text-gray-300 hover:bg-amber-600 hover:text-white'
+                    ? 'bg-surface-2 text-gray-600 cursor-not-allowed'
+                    : 'bg-surface-2 text-gray-300 hover:bg-amber-600 hover:text-white'
                 }
                 disabled:opacity-50 disabled:cursor-not-allowed`}
             >
@@ -119,7 +119,7 @@ export default function ActionBar({ isMyTurn, onAction }: ActionBarProps): JSX.E
           onClick={() => onAction?.('mount')}
           disabled={!isMyTurn}
           title={t('game.actionBar.mountTitle')}
-          className="px-2.5 py-1 text-xs rounded-lg transition-colors cursor-pointer bg-gray-800/50 text-gray-400 hover:bg-green-700 hover:text-white border border-gray-700 border-dashed disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-2.5 py-1 text-xs rounded-lg transition-colors cursor-pointer bg-surface-2/50 text-muted hover:bg-green-700 hover:text-white border border-border border-dashed disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {t('game.actionBar.mount')}
         </button>

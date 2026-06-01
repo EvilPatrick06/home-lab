@@ -110,7 +110,7 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
   return (
     <div className="fixed inset-0 z-20 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
-      <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-2xl w-full mx-4 shadow-2xl max-h-[80vh] flex flex-col">
+      <div className="relative bg-surface/95 backdrop-blur-sm border border-border/50 rounded-xl p-4 max-w-2xl w-full mx-4 shadow-2xl max-h-[80vh] flex flex-col">
         <div className="flex items-center justify-between mb-3 shrink-0">
           <h3 className="text-sm font-semibold text-gray-200">
             {editingId ? t('game.handoutModal.editTitle') : t('game.handoutModal.title')}
@@ -125,23 +125,24 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
         </div>
 
         {/* Create / Edit Form */}
-        <div className="border border-gray-700/50 rounded-lg p-3 mb-3 space-y-2 shrink-0">
+        <div className="border border-border/50 rounded-lg p-3 mb-3 space-y-2 shrink-0">
           <div className="flex items-center gap-2">
             <input
+              aria-label={t('game.handoutModal.titlePlaceholder')}
               type="text"
               placeholder={t('game.handoutModal.titlePlaceholder')}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200 outline-none focus:border-amber-500/50"
+              className="flex-1 bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200 outline-none focus:border-amber-500/50"
             />
-            <div className="flex rounded overflow-hidden border border-gray-700">
+            <div className="flex rounded overflow-hidden border border-border">
               <button
                 onClick={() => {
                   setContentType('text')
                   setContent('')
                 }}
                 className={`px-2 py-1 text-xs cursor-pointer ${
-                  contentType === 'text' ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                  contentType === 'text' ? 'bg-amber-600 text-white' : 'bg-surface-2 text-muted hover:bg-gray-700'
                 }`}
               >
                 {t('game.handoutModal.text')}
@@ -152,7 +153,7 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
                   setContent('')
                 }}
                 className={`px-2 py-1 text-xs cursor-pointer ${
-                  contentType === 'image' ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                  contentType === 'image' ? 'bg-amber-600 text-white' : 'bg-surface-2 text-muted hover:bg-gray-700'
                 }`}
               >
                 {t('game.handoutModal.image')}
@@ -162,11 +163,12 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
 
           {contentType === 'text' ? (
             <textarea
+              aria-label={t('game.handoutModal.textPlaceholder')}
               placeholder={t('game.handoutModal.textPlaceholder')}
               value={content}
               onChange={(e) => setContent(e.target.value)}
               rows={4}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200 outline-none focus:border-amber-500/50 resize-y"
+              className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200 outline-none focus:border-amber-500/50 resize-y"
             />
           ) : (
             <div className="space-y-2">
@@ -175,10 +177,10 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
                 type="file"
                 accept="image/*"
                 onChange={handleFileUpload}
-                className="w-full text-xs text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:bg-gray-700 file:text-gray-300 file:cursor-pointer hover:file:bg-gray-600"
+                className="w-full text-xs text-muted file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:bg-gray-700 file:text-gray-300 file:cursor-pointer hover:file:bg-gray-600"
               />
               {content && (
-                <div className="border border-gray-700/50 rounded p-1">
+                <div className="border border-border/50 rounded p-1">
                   <img
                     src={content}
                     alt={t('game.handoutModal.preview')}
@@ -202,7 +204,7 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
                 <select
                   value={visibility}
                   onChange={(e) => setVisibility(e.target.value as 'all' | 'dm-only')}
-                  className="bg-gray-800 border border-gray-700 rounded px-2 py-0.5 text-xs text-gray-300 outline-none cursor-pointer"
+                  className="bg-surface-2 border border-border rounded px-2 py-0.5 text-xs text-gray-300 outline-none cursor-pointer"
                 >
                   <option value="dm-only">{t('game.handoutModal.dmOnly')}</option>
                   <option value="all">{t('game.handoutModal.allPlayers')}</option>
@@ -213,31 +215,32 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
 
           {/* Multi-page editing */}
           {pages.length > 0 && (
-            <div className="border-t border-gray-700/40 pt-2 space-y-2">
+            <div className="border-t border-border/40 pt-2 space-y-2">
               <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
                 {t('game.handoutModal.additionalPages')}
               </span>
               {pages.map((page, idx) => (
-                <div key={page.id} className="bg-gray-800/40 border border-gray-700/30 rounded p-2 space-y-1">
+                <div key={page.id} className="bg-surface-2/40 border border-border/30 rounded p-2 space-y-1">
                   <div className="flex items-center gap-2">
                     <input
+                      aria-label={t('game.handoutModal.pageLabelPlaceholder', { num: idx + 2 })}
                       type="text"
                       placeholder={t('game.handoutModal.pageLabelPlaceholder', { num: idx + 2 })}
                       value={page.label ?? ''}
                       onChange={(e) => updatePage(page.id, { label: e.target.value })}
-                      className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-0.5 text-xs text-gray-200 outline-none"
+                      className="flex-1 bg-surface-2 border border-border rounded px-2 py-0.5 text-xs text-gray-200 outline-none"
                     />
                     <select
                       value={page.contentType}
                       onChange={(e) =>
                         updatePage(page.id, { contentType: e.target.value as 'text' | 'image', content: '' })
                       }
-                      className="bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-300 outline-none cursor-pointer"
+                      className="bg-surface-2 border border-border rounded px-1 py-0.5 text-xs text-gray-300 outline-none cursor-pointer"
                     >
                       <option value="text">{t('game.handoutModal.text')}</option>
                       <option value="image">{t('game.handoutModal.image')}</option>
                     </select>
-                    <label className="flex items-center gap-1 text-xs text-gray-400 cursor-pointer">
+                    <label className="flex items-center gap-1 text-xs text-muted cursor-pointer">
                       <input
                         type="checkbox"
                         checked={page.dmOnly ?? false}
@@ -255,11 +258,12 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
                   </div>
                   {page.contentType === 'text' ? (
                     <textarea
+                      aria-label={t('game.handoutModal.pageContentPlaceholder')}
                       placeholder={t('game.handoutModal.pageContentPlaceholder')}
                       value={page.content}
                       onChange={(e) => updatePage(page.id, { content: e.target.value })}
                       rows={2}
-                      className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200 outline-none resize-y"
+                      className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200 outline-none resize-y"
                     />
                   ) : (
                     <input
@@ -274,7 +278,7 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
                         }
                         reader.readAsDataURL(file)
                       }}
-                      className="w-full text-xs text-gray-400 file:mr-2 file:py-0.5 file:px-2 file:rounded file:border-0 file:text-xs file:bg-gray-700 file:text-gray-300 file:cursor-pointer"
+                      className="w-full text-xs text-muted file:mr-2 file:py-0.5 file:px-2 file:rounded file:border-0 file:text-xs file:bg-gray-700 file:text-gray-300 file:cursor-pointer"
                     />
                   )}
                 </div>
@@ -283,7 +287,7 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
           )}
           <button
             onClick={addPage}
-            className="w-full py-1 text-xs bg-gray-800 hover:bg-gray-700 text-gray-400 border border-gray-700/40 border-dashed rounded cursor-pointer"
+            className="w-full py-1 text-xs bg-surface-2 hover:bg-gray-700 text-muted border border-border/40 border-dashed rounded cursor-pointer"
           >
             {t('game.handoutModal.addPage')}
           </button>
@@ -297,7 +301,7 @@ export default function HandoutModal({ onClose, onShareHandout }: HandoutModalPr
             handouts.map((handout) => (
               <div
                 key={handout.id}
-                className="flex items-center gap-2 bg-gray-800/60 border border-gray-700/40 rounded-lg p-2"
+                className="flex items-center gap-2 bg-surface-2/60 border border-border/40 rounded-lg p-2"
               >
                 {/* Thumbnail / icon */}
                 <div className="w-10 h-10 rounded bg-gray-700/50 flex items-center justify-center shrink-0 overflow-hidden">

@@ -56,44 +56,43 @@ export default function TimelineCard({ campaign, saveCampaign }: TimelineCardPro
     <Card>
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-lg font-semibold">{t('pages.timelineCard.title')}</h3>
-        <button
-          onClick={() => setShowAdd(!showAdd)}
-          className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer"
-        >
+        <button onClick={() => setShowAdd(!showAdd)} className="text-xs text-muted hover:text-accent cursor-pointer">
           {showAdd ? t('common.actions.cancel') : t('pages.timelineCard.addMilestone')}
         </button>
       </div>
 
       {/* Add milestone form */}
       {showAdd && (
-        <div className="mb-4 p-3 bg-gray-800/50 rounded-lg space-y-2">
+        <div className="mb-4 p-3 bg-surface-2/50 rounded-lg space-y-2">
           <input
+            aria-label={t('pages.timelineCard.milestoneTitlePlaceholder')}
             type="text"
             placeholder={t('pages.timelineCard.milestoneTitlePlaceholder')}
             value={newMilestone.title}
             onChange={(e) => setNewMilestone((m) => ({ ...m, title: e.target.value }))}
-            className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+            className="w-full bg-surface border border-border rounded px-2 py-1.5 text-sm text-fg focus:outline-none focus:border-amber-500"
           />
           <input
+            aria-label={t('pages.timelineCard.descriptionPlaceholder')}
             type="text"
             placeholder={t('pages.timelineCard.descriptionPlaceholder')}
             value={newMilestone.description}
             onChange={(e) => setNewMilestone((m) => ({ ...m, description: e.target.value }))}
-            className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+            className="w-full bg-surface border border-border rounded px-2 py-1.5 text-sm text-fg focus:outline-none focus:border-amber-500"
           />
           <div className="flex gap-2">
             <input
               type="date"
               value={newMilestone.date}
               onChange={(e) => setNewMilestone((m) => ({ ...m, date: e.target.value }))}
-              className="flex-1 bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+              className="flex-1 bg-surface border border-border rounded px-2 py-1.5 text-sm text-fg focus:outline-none focus:border-amber-500"
             />
             <select
               value={newMilestone.category}
               onChange={(e) =>
                 setNewMilestone((m) => ({ ...m, category: e.target.value as TimelineMilestone['category'] }))
               }
-              className="bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+              className="bg-surface border border-border rounded px-2 py-1.5 text-sm text-fg focus:outline-none focus:border-amber-500"
             >
               <option value="story">{t('pages.timelineCard.categoryStory')}</option>
               <option value="combat">{t('pages.timelineCard.categoryCombat')}</option>
@@ -105,7 +104,7 @@ export default function TimelineCard({ campaign, saveCampaign }: TimelineCardPro
           <button
             onClick={handleAddMilestone}
             disabled={!newMilestone.title.trim()}
-            className="px-3 py-1.5 text-sm rounded bg-amber-600 text-white hover:bg-amber-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            className="px-3 py-1.5 text-sm rounded bg-amber-600 text-white hover:bg-accent-strong disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             {t('pages.timelineCard.add')}
           </button>
@@ -128,7 +127,7 @@ export default function TimelineCard({ campaign, saveCampaign }: TimelineCardPro
                     <p className="text-xs text-gray-500">{new Date(item.date).toLocaleDateString()}</p>
                     <span
                       className={`inline-block text-[9px] px-1 py-0.5 rounded mt-0.5 ${
-                        item.type === 'milestone' ? 'bg-amber-900/40 text-amber-400' : 'bg-gray-800 text-gray-500'
+                        item.type === 'milestone' ? 'bg-amber-900/40 text-accent' : 'bg-surface-2 text-gray-500'
                       }`}
                     >
                       {item.type}

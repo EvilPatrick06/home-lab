@@ -35,7 +35,7 @@ function ToolbarButton({ onClick, isActive, title, children }: ToolbarButtonProp
       onClick={onClick}
       title={title}
       className={`w-7 h-7 flex items-center justify-center rounded text-xs font-bold transition-colors cursor-pointer ${
-        isActive ? 'bg-amber-600 text-white' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+        isActive ? 'bg-amber-600 text-white' : 'text-muted hover:text-gray-200 hover:bg-gray-700'
       }`}
     >
       {children}
@@ -94,7 +94,7 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
         heading: { levels: [1, 2, 3] },
         link: {
           openOnClick: false,
-          HTMLAttributes: { class: 'text-amber-400 underline hover:text-amber-300' }
+          HTMLAttributes: { class: 'text-accent underline hover:text-amber-300' }
         }
       }),
       Placeholder.configure({
@@ -236,36 +236,36 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
   // -------------------------------------------------------------------------
 
   return (
-    <div className="flex flex-col h-full bg-gray-900 text-gray-100">
+    <div className="flex flex-col h-full bg-surface text-fg">
       {/* Header */}
-      <div className="shrink-0 px-3 py-2 border-b border-gray-700/50 flex items-center justify-between">
-        <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+      <div className="shrink-0 px-3 py-2 border-b border-border/50 flex items-center justify-between">
+        <span className="text-xs font-semibold text-muted uppercase tracking-wider">
           {t('game.journalPanel.title')}
         </span>
         <button
           onClick={handleCreate}
           title={t('game.journalPanel.newEntry')}
-          className="px-2 py-1 text-xs font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded transition-colors cursor-pointer"
+          className="px-2 py-1 text-xs font-semibold bg-amber-600 hover:bg-accent-strong text-white rounded transition-colors cursor-pointer"
         >
           {t('game.journalPanel.newButton')}
         </button>
       </div>
 
       {/* Search */}
-      <div className="shrink-0 px-3 py-2 border-b border-gray-700/50">
+      <div className="shrink-0 px-3 py-2 border-b border-border/50">
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder={t('game.journalPanel.searchPlaceholder')}
-          className="w-full px-2 py-1 rounded bg-gray-800 border border-gray-700 text-xs text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
+          className="w-full px-2 py-1 rounded bg-surface-2 border border-border text-xs text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500"
         />
       </div>
 
       {/* Main area: list + editor stacked vertically */}
       <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
         {/* Entry list */}
-        <div className="shrink-0 max-h-48 overflow-y-auto border-b border-gray-700/50">
+        <div className="shrink-0 max-h-48 overflow-y-auto border-b border-border/50">
           {visibleEntries.length === 0 ? (
             <p className="text-xs text-gray-500 text-center py-4">
               {searchQuery.trim() ? t('game.journalPanel.noMatching') : t('game.journalPanel.noEntries')}
@@ -279,7 +279,7 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
                   className={`px-3 py-2 cursor-pointer transition-colors ${
                     selectedId === entry.id
                       ? 'bg-amber-900/20 border-l-2 border-l-amber-500'
-                      : 'hover:bg-gray-800/50 border-l-2 border-l-transparent'
+                      : 'hover:bg-surface-2/50 border-l-2 border-l-transparent'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-1">
@@ -311,13 +311,13 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
         {selectedEntry ? (
           <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
             {/* Title + action buttons */}
-            <div className="shrink-0 px-3 py-2 border-b border-gray-700/50 flex items-center gap-2">
+            <div className="shrink-0 px-3 py-2 border-b border-border/50 flex items-center gap-2">
               {isEditing ? (
                 <input
                   type="text"
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
-                  className="flex-1 px-2 py-1 rounded bg-gray-800 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
+                  className="flex-1 px-2 py-1 rounded bg-surface-2 border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
                   placeholder={t('game.journalPanel.entryTitlePlaceholder')}
                 />
               ) : (
@@ -327,13 +327,13 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
                 <div className="flex items-center gap-1 shrink-0">
                   <button
                     onClick={handleSave}
-                    className="px-2 py-1 text-xs font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded transition-colors cursor-pointer"
+                    className="px-2 py-1 text-xs font-semibold bg-amber-600 hover:bg-accent-strong text-white rounded transition-colors cursor-pointer"
                   >
                     {t('common.actions.save')}
                   </button>
                   <button
                     onClick={handleCancelEdit}
-                    className="px-2 py-1 text-xs text-gray-400 hover:text-gray-200 cursor-pointer"
+                    className="px-2 py-1 text-xs text-muted hover:text-gray-200 cursor-pointer"
                   >
                     {t('common.actions.cancel')}
                   </button>
@@ -342,7 +342,7 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
                 <button
                   onClick={handleStartEdit}
                   title={t('game.journalPanel.editEntry')}
-                  className="px-2 py-1 text-xs font-semibold text-gray-400 hover:text-amber-400 border border-gray-700 hover:border-amber-600/50 rounded transition-colors cursor-pointer"
+                  className="px-2 py-1 text-xs font-semibold text-muted hover:text-accent border border-border hover:border-amber-600/50 rounded transition-colors cursor-pointer"
                 >
                   {t('game.journalPanel.edit')}
                 </button>
@@ -351,7 +351,7 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
 
             {/* Formatting toolbar (visible only when editing) */}
             {isEditing && editor && (
-              <div className="shrink-0 px-3 py-1.5 border-b border-gray-700/50 flex items-center gap-0.5 flex-wrap">
+              <div className="shrink-0 px-3 py-1.5 border-b border-border/50 flex items-center gap-0.5 flex-wrap">
                 <ToolbarButton
                   onClick={() => editor.chain().focus().toggleBold().run()}
                   isActive={editor.isActive('bold')}
@@ -444,7 +444,7 @@ export default function JournalPanel({ campaignId, isDM, playerName }: JournalPa
             </div>
 
             {/* Entry metadata footer */}
-            <div className="shrink-0 px-3 py-1 border-t border-gray-700/50 flex items-center justify-between">
+            <div className="shrink-0 px-3 py-1 border-t border-border/50 flex items-center justify-between">
               <span className="text-xs text-gray-600">
                 {t('game.journalPanel.by', { author: selectedEntry.authorName })}
               </span>

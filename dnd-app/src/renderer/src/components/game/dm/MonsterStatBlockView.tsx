@@ -21,7 +21,7 @@ function AbilityRow({ label, score }: { label: string; score: number }): JSX.Ele
     <div className="text-center">
       <div className="text-xs text-gray-500 uppercase">{label}</div>
       <div className="text-sm font-semibold text-gray-200">{score}</div>
-      <div className="text-xs text-amber-400">{formatModifier(score)}</div>
+      <div className="text-xs text-accent">{formatModifier(score)}</div>
     </div>
   )
 }
@@ -45,7 +45,7 @@ function ActionQuickRef({ action }: { action: MonsterAction }): JSX.Element {
             {conditions.map((c) => c.condition.slice(0, 3)).join('/')}
           </span>
         )}
-        {summary && <span className="text-amber-400/80">{summary}</span>}
+        {summary && <span className="text-accent/80">{summary}</span>}
       </div>
     </div>
   )
@@ -59,18 +59,18 @@ function MonsterStatBlockView({ monster, compact = false }: MonsterStatBlockView
     )
 
     return (
-      <div className="bg-gray-800/80 border border-gray-700 rounded-lg p-2 space-y-1">
+      <div className="bg-surface-2/80 border border-border rounded-lg p-2 space-y-1">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-semibold text-amber-400">{monster.name}</span>
+          <span className="text-sm font-semibold text-accent">{monster.name}</span>
           <span className="text-xs text-gray-500">{t('game.monsterStatBlockView.crValue', { cr: monster.cr })}</span>
         </div>
-        <div className="flex gap-3 text-xs text-gray-400">
+        <div className="flex gap-3 text-xs text-muted">
           <span>{t('game.monsterStatBlockView.acValue', { ac: monster.ac })}</span>
           <span>{t('game.monsterStatBlockView.hpValue', { hp: monster.hp })}</span>
           <span>{t('game.monsterStatBlockView.feet', { value: monster.speed.walk })}</span>
         </div>
         {keyActions.length > 0 && (
-          <div className="space-y-0.5 border-t border-gray-700/50 pt-1 mt-1">
+          <div className="space-y-0.5 border-t border-border/50 pt-1 mt-1">
             {keyActions.slice(0, 4).map((a, i) => (
               <ActionQuickRef key={i} action={a} />
             ))}
@@ -86,11 +86,11 @@ function MonsterStatBlockView({ monster, compact = false }: MonsterStatBlockView
   }
 
   return (
-    <div className="bg-gray-900 border border-amber-800/40 rounded-lg overflow-hidden">
+    <div className="bg-surface border border-amber-800/40 rounded-lg overflow-hidden">
       {/* Header */}
       <div className="bg-amber-900/30 border-b border-amber-800/40 px-3 py-2">
-        <h3 className="text-base font-bold text-amber-400">{monster.name}</h3>
-        <p className="text-xs text-gray-400">
+        <h3 className="text-base font-bold text-accent">{monster.name}</h3>
+        <p className="text-xs text-muted">
           {monster.size} {monster.type}
           {monster.subtype ? ` (${monster.subtype})` : ''}, {monster.alignment}
         </p>
@@ -100,20 +100,20 @@ function MonsterStatBlockView({ monster, compact = false }: MonsterStatBlockView
         {/* AC, HP, Speed */}
         <div className="space-y-0.5 text-sm">
           <div className="flex gap-1">
-            <span className="text-amber-500 font-semibold">{t('game.monsterStatBlockView.ac')}</span>
+            <span className="text-accent-strong font-semibold">{t('game.monsterStatBlockView.ac')}</span>
             <span className="text-gray-300">
               {monster.ac}
               {monster.acType ? ` (${monster.acType})` : ''}
             </span>
           </div>
           <div className="flex gap-1">
-            <span className="text-amber-500 font-semibold">{t('game.monsterStatBlockView.hp')}</span>
+            <span className="text-accent-strong font-semibold">{t('game.monsterStatBlockView.hp')}</span>
             <span className="text-gray-300">
               {monster.hp} ({monster.hitDice})
             </span>
           </div>
           <div className="flex gap-1">
-            <span className="text-amber-500 font-semibold">{t('game.monsterStatBlockView.speed')}</span>
+            <span className="text-accent-strong font-semibold">{t('game.monsterStatBlockView.speed')}</span>
             <span className="text-gray-300">
               {monster.speed.walk} ft
               {monster.speed.fly ? `, fly ${monster.speed.fly} ft${monster.speed.hover ? ' (hover)' : ''}` : ''}
@@ -143,7 +143,7 @@ function MonsterStatBlockView({ monster, compact = false }: MonsterStatBlockView
         <div className="space-y-0.5 text-xs">
           {monster.savingThrows && Object.keys(monster.savingThrows).length > 0 && (
             <div>
-              <span className="text-amber-500 font-semibold">{t('game.monsterStatBlockView.savingThrows')}</span>
+              <span className="text-accent-strong font-semibold">{t('game.monsterStatBlockView.savingThrows')}</span>
               <span className="text-gray-300">
                 {Object.entries(monster.savingThrows)
                   .filter(([, v]) => v !== undefined)
@@ -154,7 +154,7 @@ function MonsterStatBlockView({ monster, compact = false }: MonsterStatBlockView
           )}
           {monster.skills && Object.keys(monster.skills).length > 0 && (
             <div>
-              <span className="text-amber-500 font-semibold">{t('game.monsterStatBlockView.skills')}</span>
+              <span className="text-accent-strong font-semibold">{t('game.monsterStatBlockView.skills')}</span>
               <span className="text-gray-300">
                 {Object.entries(monster.skills)
                   .map(([k, v]) => `${k} ${v >= 0 ? '+' : ''}${v}`)
@@ -164,24 +164,28 @@ function MonsterStatBlockView({ monster, compact = false }: MonsterStatBlockView
           )}
           {monster.resistances && monster.resistances.length > 0 && (
             <div>
-              <span className="text-amber-500 font-semibold">{t('game.monsterStatBlockView.resistances')}</span>
+              <span className="text-accent-strong font-semibold">{t('game.monsterStatBlockView.resistances')}</span>
               <span className="text-gray-300">{monster.resistances.join(', ')}</span>
             </div>
           )}
           {monster.damageImmunities && monster.damageImmunities.length > 0 && (
             <div>
-              <span className="text-amber-500 font-semibold">{t('game.monsterStatBlockView.damageImmunities')}</span>
+              <span className="text-accent-strong font-semibold">
+                {t('game.monsterStatBlockView.damageImmunities')}
+              </span>
               <span className="text-gray-300">{monster.damageImmunities.join(', ')}</span>
             </div>
           )}
           {monster.conditionImmunities && monster.conditionImmunities.length > 0 && (
             <div>
-              <span className="text-amber-500 font-semibold">{t('game.monsterStatBlockView.conditionImmunities')}</span>
+              <span className="text-accent-strong font-semibold">
+                {t('game.monsterStatBlockView.conditionImmunities')}
+              </span>
               <span className="text-gray-300">{monster.conditionImmunities.join(', ')}</span>
             </div>
           )}
           <div>
-            <span className="text-amber-500 font-semibold">{t('game.monsterStatBlockView.senses')}</span>
+            <span className="text-accent-strong font-semibold">{t('game.monsterStatBlockView.senses')}</span>
             <span className="text-gray-300">
               {[
                 monster.senses.blindsight ? `Blindsight ${monster.senses.blindsight} ft` : null,
@@ -195,18 +199,18 @@ function MonsterStatBlockView({ monster, compact = false }: MonsterStatBlockView
             </span>
           </div>
           <div>
-            <span className="text-amber-500 font-semibold">{t('game.monsterStatBlockView.languages')}</span>
+            <span className="text-accent-strong font-semibold">{t('game.monsterStatBlockView.languages')}</span>
             <span className="text-gray-300">{monster.languages.length > 0 ? monster.languages.join(', ') : '—'}</span>
           </div>
           <div className="flex gap-4">
             <div>
-              <span className="text-amber-500 font-semibold">{t('game.monsterStatBlockView.cr')}</span>
+              <span className="text-accent-strong font-semibold">{t('game.monsterStatBlockView.cr')}</span>
               <span className="text-gray-300">
                 {t('game.monsterStatBlockView.crXp', { cr: monster.cr, xp: monster.xp.toLocaleString() })}
               </span>
             </div>
             <div>
-              <span className="text-amber-500 font-semibold">{t('game.monsterStatBlockView.pb')}</span>
+              <span className="text-accent-strong font-semibold">{t('game.monsterStatBlockView.pb')}</span>
               <span className="text-gray-300">+{monster.proficiencyBonus}</span>
             </div>
           </div>
@@ -219,7 +223,7 @@ function MonsterStatBlockView({ monster, compact = false }: MonsterStatBlockView
             <div className="space-y-1.5">
               {monster.traits.map((trait, i) => (
                 <div key={i} className="text-xs">
-                  <span className="text-amber-400 font-semibold italic">{trait.name}. </span>
+                  <span className="text-accent font-semibold italic">{trait.name}. </span>
                   <span className="text-gray-300">{renderInlineMarkdown(trait.description)}</span>
                 </div>
               ))}
@@ -232,7 +236,7 @@ function MonsterStatBlockView({ monster, compact = false }: MonsterStatBlockView
           <>
             <div className="border-t border-amber-800/30" />
             <div className="text-xs space-y-1">
-              <div className="text-amber-400 font-semibold italic">
+              <div className="text-accent font-semibold italic">
                 {t('game.monsterStatBlockView.spellcasting')}{' '}
                 <span className="text-gray-300 font-normal">
                   {monster.spellcasting.notes
@@ -263,14 +267,14 @@ function MonsterStatBlockView({ monster, compact = false }: MonsterStatBlockView
         {/* Actions */}
         <div className="border-t border-amber-800/30" />
         <div className="space-y-1.5">
-          <h4 className="text-xs font-bold text-amber-500 uppercase tracking-wider">
+          <h4 className="text-xs font-bold text-accent-strong uppercase tracking-wider">
             {t('game.monsterStatBlockView.actions')}
           </h4>
           {monster.actions.map((action, i) => {
             const conditions = extractConditionsFromDescription(action.description)
             return (
               <div key={i} className="text-xs">
-                <span className="text-amber-400 font-semibold italic">
+                <span className="text-accent font-semibold italic">
                   {action.name}
                   {action.recharge ? t('game.monsterStatBlockView.recharge', { recharge: action.recharge }) : ''}.{' '}
                 </span>
@@ -295,12 +299,12 @@ function MonsterStatBlockView({ monster, compact = false }: MonsterStatBlockView
           <>
             <div className="border-t border-amber-800/30" />
             <div className="space-y-1.5">
-              <h4 className="text-xs font-bold text-amber-500 uppercase tracking-wider">
+              <h4 className="text-xs font-bold text-accent-strong uppercase tracking-wider">
                 {t('game.monsterStatBlockView.bonusActions')}
               </h4>
               {monster.bonusActions.map((action, i) => (
                 <div key={i} className="text-xs">
-                  <span className="text-amber-400 font-semibold italic">{action.name}. </span>
+                  <span className="text-accent font-semibold italic">{action.name}. </span>
                   <span className="text-gray-300">{renderInlineMarkdown(action.description)}</span>
                 </div>
               ))}
@@ -313,12 +317,12 @@ function MonsterStatBlockView({ monster, compact = false }: MonsterStatBlockView
           <>
             <div className="border-t border-amber-800/30" />
             <div className="space-y-1.5">
-              <h4 className="text-xs font-bold text-amber-500 uppercase tracking-wider">
+              <h4 className="text-xs font-bold text-accent-strong uppercase tracking-wider">
                 {t('game.monsterStatBlockView.reactions')}
               </h4>
               {monster.reactions.map((action, i) => (
                 <div key={i} className="text-xs">
-                  <span className="text-amber-400 font-semibold italic">{action.name}. </span>
+                  <span className="text-accent font-semibold italic">{action.name}. </span>
                   <span className="text-gray-300">{renderInlineMarkdown(action.description)}</span>
                 </div>
               ))}
@@ -331,7 +335,7 @@ function MonsterStatBlockView({ monster, compact = false }: MonsterStatBlockView
           <>
             <div className="border-t border-amber-800/30" />
             <div className="space-y-1.5">
-              <h4 className="text-xs font-bold text-amber-500 uppercase tracking-wider">
+              <h4 className="text-xs font-bold text-accent-strong uppercase tracking-wider">
                 {t('game.monsterStatBlockView.legendaryActions')}
               </h4>
               <p className="text-xs text-gray-500">
@@ -339,7 +343,7 @@ function MonsterStatBlockView({ monster, compact = false }: MonsterStatBlockView
               </p>
               {monster.legendaryActions.actions.map((action, i) => (
                 <div key={i} className="text-xs">
-                  <span className="text-amber-400 font-semibold italic">{action.name}. </span>
+                  <span className="text-accent font-semibold italic">{action.name}. </span>
                   <span className="text-gray-300">{renderInlineMarkdown(action.description)}</span>
                 </div>
               ))}

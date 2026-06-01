@@ -39,11 +39,11 @@ export default function MonsterLinker({ onSelect, selectedId, showPreview }: Mon
         type="text"
         value={query}
         onChange={(e) => handleSearch(e.target.value)}
-        className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+        className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
         placeholder={t('pages.monsterLinker.searchPlaceholder')}
       />
       {results.length > 0 && (
-        <div className="bg-gray-800 border border-gray-700 rounded max-h-40 overflow-y-auto">
+        <div className="bg-surface-2 border border-border rounded max-h-40 overflow-y-auto">
           {results.map((m) => (
             <button
               key={m.id}
@@ -54,7 +54,7 @@ export default function MonsterLinker({ onSelect, selectedId, showPreview }: Mon
                 setResults([])
               }}
               className={`w-full text-left px-3 py-1.5 text-xs hover:bg-gray-700 cursor-pointer flex items-center justify-between ${
-                selectedId === m.id ? 'text-amber-400' : 'text-gray-300'
+                selectedId === m.id ? 'text-accent' : 'text-gray-300'
               }`}
             >
               <span>{m.name}</span>

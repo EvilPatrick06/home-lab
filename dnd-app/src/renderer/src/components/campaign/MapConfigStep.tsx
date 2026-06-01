@@ -124,13 +124,13 @@ export default function MapConfigStep({ maps, campaignId, onChange, adventureMap
   return (
     <div>
       <h2 className="text-xl font-semibold mb-2">{t('campaign.mapConfigStep.title')}</h2>
-      <p className="text-gray-400 text-sm mb-6">{t('campaign.mapConfigStep.subtitle')}</p>
+      <p className="text-muted text-sm mb-6">{t('campaign.mapConfigStep.subtitle')}</p>
 
       <div className="max-w-2xl space-y-6">
         {/* Adventure maps (read-only preview) */}
         {adventureMaps && adventureMaps.length > 0 && (
           <div>
-            <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
+            <h3 className="text-sm font-semibold text-muted uppercase tracking-wider mb-3">
               {t('campaign.mapConfigStep.fromAdventure', { count: adventureMaps.length })}
             </h3>
             <div className="space-y-2">
@@ -159,16 +159,16 @@ export default function MapConfigStep({ maps, campaignId, onChange, adventureMap
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors
-            ${dragOver ? 'border-amber-500 bg-amber-900/10' : 'border-gray-700 hover:border-gray-600'}`}
+            ${dragOver ? 'border-amber-500 bg-amber-900/10' : 'border-border hover:border-gray-600'}`}
         >
           <div className="text-3xl mb-2">{'\uD83D\uDDFA'}</div>
-          <p className="text-gray-400 mb-1">{t('campaign.mapConfigStep.dropPrompt')}</p>
+          <p className="text-muted mb-1">{t('campaign.mapConfigStep.dropPrompt')}</p>
           <p className="text-gray-500 text-sm">{t('campaign.mapConfigStep.supportedFormats')}</p>
         </div>
 
         {/* Built-in maps */}
         <div>
-          <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
+          <h3 className="text-sm font-semibold text-muted uppercase tracking-wider mb-3">
             {t('campaign.mapConfigStep.builtInMaps')}
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -183,12 +183,12 @@ export default function MapConfigStep({ maps, campaignId, onChange, adventureMap
                     ${
                       isAdded
                         ? 'border-amber-500/50 bg-amber-900/10 opacity-60 cursor-not-allowed'
-                        : 'border-gray-800 bg-gray-900/50 hover:border-gray-600'
+                        : 'border-gray-800 bg-surface/50 hover:border-gray-600'
                     }`}
                 >
                   <div className="font-semibold text-sm mb-1">{bm.name}</div>
                   <div className="text-xs text-gray-500">{bm.preview}</div>
-                  {isAdded && <div className="text-xs text-amber-400 mt-2">{t('campaign.mapConfigStep.added')}</div>}
+                  {isAdded && <div className="text-xs text-accent mt-2">{t('campaign.mapConfigStep.added')}</div>}
                 </button>
               )
             })}
@@ -198,14 +198,14 @@ export default function MapConfigStep({ maps, campaignId, onChange, adventureMap
         {/* Added maps list */}
         {maps.length > 0 && (
           <div>
-            <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
+            <h3 className="text-sm font-semibold text-muted uppercase tracking-wider mb-3">
               {t('campaign.mapConfigStep.campaignMaps', { count: maps.length })}
             </h3>
             <div className="space-y-2">
               {maps.map((map) => (
                 <div
                   key={map.id}
-                  className="bg-gray-900/50 border border-gray-800 rounded-lg p-3 flex items-center justify-between"
+                  className="bg-surface/50 border border-gray-800 rounded-lg p-3 flex items-center justify-between"
                 >
                   <div>
                     <span className="font-semibold text-sm">{map.name}</span>
@@ -228,7 +228,7 @@ export default function MapConfigStep({ maps, campaignId, onChange, adventureMap
 
         {/* Add custom map form */}
         {showAddForm ? (
-          <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-5 space-y-4">
+          <div className="bg-surface/50 border border-gray-800 rounded-lg p-5 space-y-4">
             <Input
               label={t('campaign.mapConfigStep.mapName')}
               placeholder={t('campaign.mapConfigStep.mapNamePlaceholder')}
@@ -237,13 +237,13 @@ export default function MapConfigStep({ maps, campaignId, onChange, adventureMap
             />
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-gray-400 text-sm">{t('campaign.mapConfigStep.gridCellSize')}</label>
+                <label className="text-muted text-sm">{t('campaign.mapConfigStep.gridCellSize')}</label>
                 <button
                   onClick={() => setNewGridSize(40)}
                   className={`px-2 py-0.5 text-xs rounded border transition-colors cursor-pointer ${
                     newGridSize === 40
                       ? 'border-amber-500/50 text-amber-300 bg-amber-900/10'
-                      : 'border-gray-700 bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-gray-200'
+                      : 'border-border bg-surface-2 text-muted hover:bg-gray-700 hover:text-gray-200'
                   }`}
                 >
                   {t('campaign.mapConfigStep.resetToDefault')}
@@ -253,7 +253,7 @@ export default function MapConfigStep({ maps, campaignId, onChange, adventureMap
                 type="number"
                 min={20}
                 max={100}
-                className="w-24 p-3 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
+                className="w-24 p-3 rounded-lg bg-surface-2 border border-border text-fg
                   focus:outline-none focus:border-amber-500 transition-colors"
                 value={newGridSize}
                 onChange={(e) => setNewGridSize(Math.max(20, Math.min(100, parseInt(e.target.value, 10) || 40)))}

@@ -58,7 +58,7 @@ export default function AdventureImportWizard({ open, onClose, onImport }: Adven
       <div className="space-y-4">
         {step === 'select' && (
           <>
-            <p className="text-sm text-gray-400">{t('campaign.adventureImportWizard.selectPrompt')}</p>
+            <p className="text-sm text-muted">{t('campaign.adventureImportWizard.selectPrompt')}</p>
             {error && <p className="text-sm text-red-400">{error}</p>}
             <Button onClick={handleSelectFile}>{t('campaign.adventureImportWizard.chooseFile')}</Button>
           </>
@@ -66,12 +66,12 @@ export default function AdventureImportWizard({ open, onClose, onImport }: Adven
 
         {step === 'preview' && importData && (
           <>
-            <div className="bg-gray-800/50 rounded-lg p-3">
-              <h4 className="text-sm font-semibold text-amber-400">{importData.adventure.title}</h4>
-              <p className="text-xs text-gray-400 mt-1">
+            <div className="bg-surface-2/50 rounded-lg p-3">
+              <h4 className="text-sm font-semibold text-accent">{importData.adventure.title}</h4>
+              <p className="text-xs text-muted mt-1">
                 {t('campaign.adventureImportWizard.levelLabel', { level: importData.adventure.levelTier })}
               </p>
-              <p className="text-xs text-gray-400">{importData.adventure.premise}</p>
+              <p className="text-xs text-muted">{importData.adventure.premise}</p>
             </div>
 
             <div className="space-y-2">
@@ -106,9 +106,9 @@ export default function AdventureImportWizard({ open, onClose, onImport }: Adven
 
         {step === 'confirm' && importData && (
           <>
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-muted">
               {t('campaign.adventureImportWizard.readyToImport')}{' '}
-              <span className="text-amber-400 font-medium">{importData.adventure.title}</span>
+              <span className="text-accent font-medium">{importData.adventure.title}</span>
               {includeEncounters &&
                 importData.encounters.length > 0 &&
                 t('campaign.adventureImportWizard.withEncounters', { count: importData.encounters.length })}

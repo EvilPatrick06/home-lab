@@ -61,11 +61,11 @@ function SaveCampaignButton({ onSave }: { onSave: () => Promise<void> }): JSX.El
   return (
     <div className="px-4 py-2 border-b border-gray-800">
       <div className="flex items-center justify-between">
-        <span className="text-xs text-gray-400">{t('game.settingsDropdown.campaign')}</span>
+        <span className="text-xs text-muted">{t('game.settingsDropdown.campaign')}</span>
         <button
           onClick={handleSave}
           disabled={saving}
-          className="px-2 py-0.5 text-xs rounded transition-colors cursor-pointer bg-amber-600/30 text-amber-400 hover:bg-amber-600/50 disabled:opacity-50"
+          className="px-2 py-0.5 text-xs rounded transition-colors cursor-pointer bg-amber-600/30 text-accent hover:bg-amber-600/50 disabled:opacity-50"
         >
           {saving ? t('game.settingsDropdown.saving') : t('common.actions.save')}
         </button>
@@ -85,8 +85,8 @@ function CalendarSettingsSection({
   return (
     <div className="px-4 py-2 border-b border-gray-800">
       <div className="flex items-center justify-between mb-1">
-        <span className="text-xs text-gray-400">{t('game.settingsDropdown.calendar')}</span>
-        <span className="text-xs text-amber-400">{PRESET_LABELS[calendar.preset]}</span>
+        <span className="text-xs text-muted">{t('game.settingsDropdown.calendar')}</span>
+        <span className="text-xs text-accent">{PRESET_LABELS[calendar.preset]}</span>
       </div>
       {inGameTime && <div className="text-xs text-gray-500">{formatInGameTime(inGameTime.totalSeconds, calendar)}</div>}
     </div>
@@ -103,7 +103,7 @@ function AiDmSettingsSection(): JSX.Element {
   return (
     <div className="px-4 py-2 border-b border-gray-800">
       <div className="flex items-center justify-between mb-1">
-        <span className="text-xs text-gray-400">{t('game.settingsDropdown.aiDm')}</span>
+        <span className="text-xs text-muted">{t('game.settingsDropdown.aiDm')}</span>
         <span className="text-xs text-purple-400 capitalize">{aiModel}</span>
       </div>
       <div className="flex items-center justify-between">
@@ -144,10 +144,10 @@ function DiceColorSection(): JSX.Element {
   return (
     <div className="px-4 py-2 border-b border-gray-800">
       <div className="flex items-center justify-between">
-        <span className="text-xs text-gray-400">{t('game.settingsDropdown.diceColors')}</span>
+        <span className="text-xs text-muted">{t('game.settingsDropdown.diceColors')}</span>
         <button
           onClick={() => setExpanded((v) => !v)}
-          className="px-2 py-0.5 text-xs rounded transition-colors cursor-pointer bg-gray-800 text-gray-300 hover:text-gray-100 hover:bg-gray-700"
+          className="px-2 py-0.5 text-xs rounded transition-colors cursor-pointer bg-surface-2 text-gray-300 hover:text-fg hover:bg-gray-700"
         >
           {expanded ? t('common.actions.close') : t('game.settingsDropdown.edit')}
         </button>
@@ -190,10 +190,10 @@ function SoundCustomizationSection(): JSX.Element {
   return (
     <div className="px-4 py-2 border-b border-gray-800">
       <div className="flex items-center justify-between">
-        <span className="text-xs text-gray-400">{t('game.settingsDropdown.soundOverrides')}</span>
+        <span className="text-xs text-muted">{t('game.settingsDropdown.soundOverrides')}</span>
         <button
           onClick={() => setExpanded((v) => !v)}
-          className="px-2 py-0.5 text-xs rounded transition-colors cursor-pointer bg-gray-800 text-gray-300 hover:text-gray-100 hover:bg-gray-700"
+          className="px-2 py-0.5 text-xs rounded transition-colors cursor-pointer bg-surface-2 text-gray-300 hover:text-fg hover:bg-gray-700"
         >
           {expanded ? t('common.actions.close') : t('game.settingsDropdown.editCount', { count: customSounds.size })}
         </button>
@@ -218,7 +218,7 @@ function SoundCustomizationSection(): JSX.Element {
           )}
           {unusedEvents.length > 0 && (
             <select
-              className="w-full mt-1 p-1 text-xs rounded bg-gray-800 border border-gray-700 text-gray-300"
+              className="w-full mt-1 p-1 text-xs rounded bg-surface-2 border border-border text-gray-300"
               value=""
               onChange={(e) => {
                 if (e.target.value) handleAdd(e.target.value as SoundEvent)
@@ -247,7 +247,7 @@ function GlobalSettingsLink(): JSX.Element {
   return (
     <button
       onClick={() => navigate('/settings', { state: { returnTo: location.pathname } })}
-      className="w-full px-4 py-2 text-left text-xs text-amber-300 hover:bg-gray-800 hover:text-amber-200 transition-colors cursor-pointer flex items-center justify-between"
+      className="w-full px-4 py-2 text-left text-xs text-amber-300 hover:bg-surface-2 hover:text-amber-200 transition-colors cursor-pointer flex items-center justify-between"
     >
       <span>{t('game.settingsDropdown.globalSettings')}</span>
       <span aria-hidden className="text-gray-500">
@@ -263,10 +263,10 @@ function ThemeSection(): JSX.Element {
   return (
     <div className="px-4 py-2 border-b border-gray-800">
       <div className="flex items-center justify-between">
-        <span className="text-xs text-gray-400">{t('game.settingsDropdown.theme')}</span>
+        <span className="text-xs text-muted">{t('game.settingsDropdown.theme')}</span>
         <button
           onClick={() => setExpanded((v) => !v)}
-          className="px-2 py-0.5 text-xs rounded transition-colors cursor-pointer bg-gray-800 text-gray-300 hover:text-gray-100 hover:bg-gray-700"
+          className="px-2 py-0.5 text-xs rounded transition-colors cursor-pointer bg-surface-2 text-gray-300 hover:text-fg hover:bg-gray-700"
         >
           {expanded ? t('common.actions.close') : t('game.settingsDropdown.edit')}
         </button>
@@ -322,18 +322,18 @@ export default function SettingsDropdown({
           aria-label={t('game.settingsDropdown.gameSettingsAria')}
           aria-haspopup="menu"
           aria-expanded={isOpen}
-          className="w-9 h-9 bg-gray-900/70 backdrop-blur-sm border border-gray-700/50 rounded-xl
-            flex items-center justify-center text-gray-400 hover:text-gray-200 cursor-pointer transition-colors"
+          className="w-9 h-9 bg-surface/70 backdrop-blur-sm border border-border/50 rounded-xl
+            flex items-center justify-center text-muted hover:text-gray-200 cursor-pointer transition-colors"
         >
           <Settings className="w-5 h-5" aria-hidden="true" />
         </button>
       </Tooltip>
 
       {isOpen && (
-        <div className="absolute right-0 top-11 w-64 bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl overflow-hidden shadow-xl">
+        <div className="absolute right-0 top-11 w-64 bg-surface/95 backdrop-blur-sm border border-border/50 rounded-xl overflow-hidden shadow-xl">
           {/* Campaign info */}
           <div className="px-4 py-3 border-b border-gray-800">
-            <div className="text-sm font-semibold text-gray-100 truncate">{campaign.name}</div>
+            <div className="text-sm font-semibold text-fg truncate">{campaign.name}</div>
             <div className="text-xs text-gray-500 mt-0.5">
               {t('game.settingsDropdown.playerCount', { count: playerCount })}
             </div>
@@ -343,7 +343,7 @@ export default function SettingsDropdown({
           {isDM && (
             <div className="px-4 py-2 border-b border-gray-800">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-400">{t('game.settingsDropdown.turnMode')}</span>
+                <span className="text-xs text-muted">{t('game.settingsDropdown.turnMode')}</span>
                 <select
                   value={turnMode}
                   onChange={(e) => {
@@ -354,7 +354,7 @@ export default function SettingsDropdown({
                       setTurnMode(val)
                     }
                   }}
-                  className="bg-gray-800 border border-gray-700 rounded px-2 py-0.5 text-xs text-gray-200"
+                  className="bg-surface-2 border border-border rounded px-2 py-0.5 text-xs text-gray-200"
                 >
                   <option value="free">{t('game.settingsDropdown.turnModeFree')}</option>
                   <option value="initiative">{t('game.settingsDropdown.turnModeInitiative')}</option>
@@ -367,7 +367,7 @@ export default function SettingsDropdown({
           {isDM && (
             <div className="px-4 py-2 border-b border-gray-800">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-400">{t('game.settingsDropdown.gameStatus')}</span>
+                <span className="text-xs text-muted">{t('game.settingsDropdown.gameStatus')}</span>
                 <button
                   onClick={() => setPaused(!isPaused)}
                   className={`px-2 py-0.5 text-xs rounded transition-colors cursor-pointer ${
@@ -403,13 +403,13 @@ export default function SettingsDropdown({
           {/* Fullscreen toggle */}
           <div className="px-4 py-2 border-b border-gray-800">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-400">{t('game.settingsDropdown.fullscreen')}</span>
+              <span className="text-xs text-muted">{t('game.settingsDropdown.fullscreen')}</span>
               <button
                 onClick={onToggleFullscreen}
                 aria-label={
                   isFullscreen ? t('game.settingsDropdown.exitFullscreen') : t('game.settingsDropdown.enterFullscreen')
                 }
-                className="px-2 py-0.5 text-xs rounded transition-colors cursor-pointer bg-gray-800 text-gray-300 hover:text-gray-100 hover:bg-gray-700"
+                className="px-2 py-0.5 text-xs rounded transition-colors cursor-pointer bg-surface-2 text-gray-300 hover:text-fg hover:bg-gray-700"
               >
                 {isFullscreen ? t('game.settingsDropdown.exitF11') : t('game.settingsDropdown.enterF11')}
               </button>
@@ -427,14 +427,14 @@ export default function SettingsDropdown({
             {isDM && onCreateCharacter && (
               <button
                 onClick={onCreateCharacter}
-                className="w-full px-4 py-2 text-left text-xs text-gray-300 hover:bg-gray-800 hover:text-gray-100 transition-colors cursor-pointer"
+                className="w-full px-4 py-2 text-left text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
               >
                 {t('game.settingsDropdown.createCharacter')}
               </button>
             )}
             <button
               onClick={() => onLeaveGame(`/lobby/${campaign.id}`)}
-              className="w-full px-4 py-2 text-left text-xs text-gray-300 hover:bg-gray-800 hover:text-gray-100 transition-colors cursor-pointer"
+              className="w-full px-4 py-2 text-left text-xs text-gray-300 hover:bg-surface-2 hover:text-fg transition-colors cursor-pointer"
             >
               {t('game.settingsDropdown.returnToLobby')}
             </button>

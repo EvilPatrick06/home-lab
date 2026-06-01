@@ -25,7 +25,7 @@ export default function IconPicker(): JSX.Element {
 
   return (
     <div className="space-y-3">
-      <div className="text-xs text-gray-400 font-semibold uppercase">{t('builder.iconPicker.title')}</div>
+      <div className="text-xs text-muted font-semibold uppercase">{t('builder.iconPicker.title')}</div>
 
       {/* Current icon preview */}
       <div className="flex items-center gap-3">
@@ -40,7 +40,7 @@ export default function IconPicker(): JSX.Element {
           <button
             onClick={() => setIconType('letter')}
             className={`px-2 py-1 text-xs rounded ${
-              iconType === 'letter' ? 'bg-amber-900/30 text-amber-300' : 'bg-gray-800 text-gray-400'
+              iconType === 'letter' ? 'bg-amber-900/30 text-amber-300' : 'bg-surface-2 text-muted'
             }`}
           >
             {t('builder.iconPicker.letter')}
@@ -48,7 +48,7 @@ export default function IconPicker(): JSX.Element {
           <button
             onClick={() => setIconType('preset')}
             className={`px-2 py-1 text-xs rounded ${
-              iconType === 'preset' ? 'bg-amber-900/30 text-amber-300' : 'bg-gray-800 text-gray-400'
+              iconType === 'preset' ? 'bg-amber-900/30 text-amber-300' : 'bg-surface-2 text-muted'
             }`}
           >
             {t('builder.iconPicker.preset')}
@@ -56,7 +56,7 @@ export default function IconPicker(): JSX.Element {
           <button
             onClick={() => fileRef.current?.click()}
             className={`px-2 py-1 text-xs rounded ${
-              iconType === 'custom' ? 'bg-amber-900/30 text-amber-300' : 'bg-gray-800 text-gray-400'
+              iconType === 'custom' ? 'bg-amber-900/30 text-amber-300' : 'bg-surface-2 text-muted'
             }`}
           >
             {t('builder.iconPicker.upload')}
@@ -75,7 +75,7 @@ export default function IconPicker(): JSX.Element {
             className={`w-8 h-8 rounded flex items-center justify-center text-lg transition-colors ${
               iconType === 'preset' && iconPreset === icon.id
                 ? 'bg-amber-900/40 ring-1 ring-amber-400'
-                : 'bg-gray-800 hover:bg-gray-700'
+                : 'bg-surface-2 hover:bg-gray-700'
             }`}
           >
             {icon.emoji}
@@ -111,7 +111,7 @@ export function CharacterIcon({
       <img
         src={iconCustom}
         alt={name}
-        className={`${sizeClasses[size]} rounded bg-gray-800 border border-gray-600 object-cover shrink-0`}
+        className={`${sizeClasses[size]} rounded bg-surface-2 border border-gray-600 object-cover shrink-0`}
       />
     )
   }
@@ -120,7 +120,7 @@ export function CharacterIcon({
     const preset = PRESET_ICONS.find((p) => p.id === iconPreset)
     return (
       <div
-        className={`${sizeClasses[size]} rounded bg-gray-800 border border-gray-600 flex items-center justify-center shrink-0`}
+        className={`${sizeClasses[size]} rounded bg-surface-2 border border-gray-600 flex items-center justify-center shrink-0`}
       >
         {preset?.emoji ?? '?'}
       </div>
@@ -129,7 +129,7 @@ export function CharacterIcon({
 
   return (
     <div
-      className={`${sizeClasses[size]} rounded bg-gray-800 border border-gray-600 flex items-center justify-center text-amber-400 font-bold shrink-0`}
+      className={`${sizeClasses[size]} rounded bg-surface-2 border border-gray-600 flex items-center justify-center text-accent font-bold shrink-0`}
     >
       {name ? name[0].toUpperCase() : '?'}
     </div>

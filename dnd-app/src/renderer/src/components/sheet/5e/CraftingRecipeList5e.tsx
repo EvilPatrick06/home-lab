@@ -41,7 +41,7 @@ function categoryColor(cat: string): string {
     case 'gear':
       return 'text-green-400 bg-green-900/30 border-green-700/50'
     default:
-      return 'text-gray-400 bg-gray-900/30 border-gray-700/50'
+      return 'text-muted bg-surface/30 border-border/50'
   }
 }
 
@@ -76,10 +76,10 @@ export default function CraftingRecipeList5e({
         {matchingTools.map((entry) => {
           const isExpanded = expandedTools[entry.tool] ?? false
           return (
-            <div key={entry.tool} className="border border-gray-700 rounded-lg overflow-hidden">
+            <div key={entry.tool} className="border border-border rounded-lg overflow-hidden">
               <button
                 onClick={() => toggleTool(entry.tool)}
-                className="w-full flex items-center justify-between px-3 py-2 bg-gray-800/60 hover:bg-gray-800 transition-colors cursor-pointer"
+                className="w-full flex items-center justify-between px-3 py-2 bg-surface-2/60 hover:bg-surface-2 transition-colors cursor-pointer"
               >
                 <span className="text-sm font-medium text-gray-200">{entry.tool}</span>
                 <div className="flex items-center gap-2">
@@ -98,13 +98,13 @@ export default function CraftingRecipeList5e({
               </button>
 
               {isExpanded && (
-                <div className="border-t border-gray-700">
+                <div className="border-t border-border">
                   {entry.items.map((item, idx) => (
                     <div
                       key={item.name}
                       className={`flex items-center justify-between px-3 py-2 text-sm ${
                         idx < entry.items.length - 1 ? 'border-b border-gray-800' : ''
-                      } hover:bg-gray-900/30 transition-colors`}
+                      } hover:bg-surface/30 transition-colors`}
                     >
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
@@ -114,7 +114,7 @@ export default function CraftingRecipeList5e({
                           </span>
                         </div>
                         <div className="flex items-center gap-3 mt-0.5">
-                          <span className="text-xs text-amber-400">{item.rawMaterialCost}</span>
+                          <span className="text-xs text-accent">{item.rawMaterialCost}</span>
                           <span className="text-xs text-gray-500">
                             {t('sheet.craftingRecipeList.days', { count: item.craftingTimeDays })}
                           </span>
@@ -123,7 +123,7 @@ export default function CraftingRecipeList5e({
                       {!readonly && (
                         <button
                           onClick={() => onCraft(item)}
-                          className="ml-2 px-2.5 py-1 text-xs bg-amber-600 hover:bg-amber-500 rounded text-white cursor-pointer transition-colors flex-shrink-0"
+                          className="ml-2 px-2.5 py-1 text-xs bg-amber-600 hover:bg-accent-strong rounded text-white cursor-pointer transition-colors flex-shrink-0"
                         >
                           {t('sheet.craftingRecipeList.craft')}
                         </button>

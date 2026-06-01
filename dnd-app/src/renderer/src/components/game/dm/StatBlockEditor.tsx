@@ -57,10 +57,10 @@ function CollapsibleSection({
 }): JSX.Element {
   const [open, setOpen] = useState(defaultOpen)
   return (
-    <div className="border border-gray-700/50 rounded-lg overflow-hidden">
+    <div className="border border-border/50 rounded-lg overflow-hidden">
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between px-3 py-2 bg-gray-800/50 hover:bg-gray-800 text-xs font-semibold text-gray-300 cursor-pointer"
+        className="w-full flex items-center justify-between px-3 py-2 bg-surface-2/50 hover:bg-surface-2 text-xs font-semibold text-gray-300 cursor-pointer"
       >
         <span>{title}</span>
         <span className="text-gray-500">{open ? '\u25BC' : '\u25B6'}</span>
@@ -95,14 +95,14 @@ function ActionListEditor({
   return (
     <CollapsibleSection title={title}>
       {actions.map((action, i) => (
-        <div key={i} className="space-y-1 bg-gray-800/30 rounded p-2">
+        <div key={i} className="space-y-1 bg-surface-2/30 rounded p-2">
           <div className="flex gap-1">
             <input
               type="text"
               value={action.name}
               onChange={(e) => updateAction(i, { name: e.target.value })}
               placeholder={t('game.statBlockEditor.actionNamePlaceholder')}
-              className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100"
+              className="flex-1 bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg"
             />
             <button
               onClick={() => removeAction(i)}
@@ -115,7 +115,7 @@ function ActionListEditor({
             value={action.description}
             onChange={(e) => updateAction(i, { description: e.target.value })}
             placeholder={t('game.statBlockEditor.descriptionPlaceholder')}
-            className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 h-16 resize-none"
+            className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg h-16 resize-none"
           />
           <div className="flex gap-1">
             <select
@@ -123,7 +123,7 @@ function ActionListEditor({
               onChange={(e) =>
                 updateAction(i, { attackType: (e.target.value as MonsterAction['attackType']) || undefined })
               }
-              className="bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-200"
+              className="bg-surface-2 border border-border rounded px-1 py-0.5 text-xs text-gray-200"
             >
               <option value="">{t('game.statBlockEditor.noAttack')}</option>
               <option value="melee">{t('game.statBlockEditor.melee')}</option>
@@ -139,28 +139,28 @@ function ActionListEditor({
                     updateAction(i, { toHit: e.target.value ? parseInt(e.target.value, 10) : undefined })
                   }
                   placeholder={t('game.statBlockEditor.toHitPlaceholder')}
-                  className="w-12 bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-100 text-center"
+                  className="w-12 bg-surface-2 border border-border rounded px-1 py-0.5 text-xs text-fg text-center"
                 />
                 <input
                   type="text"
                   value={action.damageDice ?? ''}
                   onChange={(e) => updateAction(i, { damageDice: e.target.value || undefined })}
                   placeholder={t('game.statBlockEditor.damageDicePlaceholder')}
-                  className="w-20 bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-100"
+                  className="w-20 bg-surface-2 border border-border rounded px-1 py-0.5 text-xs text-fg"
                 />
                 <input
                   type="text"
                   value={action.damageType ?? ''}
                   onChange={(e) => updateAction(i, { damageType: e.target.value || undefined })}
                   placeholder={t('game.statBlockEditor.typePlaceholder')}
-                  className="w-16 bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-100"
+                  className="w-16 bg-surface-2 border border-border rounded px-1 py-0.5 text-xs text-fg"
                 />
               </>
             )}
           </div>
         </div>
       ))}
-      <button onClick={addAction} className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer">
+      <button onClick={addAction} className="text-xs text-accent hover:text-amber-300 cursor-pointer">
         {addLabel}
       </button>
     </CollapsibleSection>
@@ -185,14 +185,14 @@ function TraitListEditor({
             value={trait.name}
             onChange={(e) => onChange(traits.map((t, idx) => (idx === i ? { ...t, name: e.target.value } : t)))}
             placeholder={t('game.statBlockEditor.namePlaceholder')}
-            className="w-28 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100"
+            className="w-28 bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg"
           />
           <input
             type="text"
             value={trait.description}
             onChange={(e) => onChange(traits.map((t, idx) => (idx === i ? { ...t, description: e.target.value } : t)))}
             placeholder={t('game.statBlockEditor.descriptionPlaceholder')}
-            className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100"
+            className="flex-1 bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg"
           />
           <button
             onClick={() => onChange(traits.filter((_, idx) => idx !== i))}
@@ -204,7 +204,7 @@ function TraitListEditor({
       ))}
       <button
         onClick={() => onChange([...traits, { name: '', description: '' }])}
-        className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer"
+        className="text-xs text-accent hover:text-amber-300 cursor-pointer"
       >
         {t('game.statBlockEditor.addTrait')}
       </button>
@@ -254,8 +254,8 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
               aria-describedby={nameError ? nameErrorId : undefined}
               onChange={(e) => update('name', e.target.value)}
               onBlur={() => setNameTouched(true)}
-              className={`w-full bg-gray-800 border rounded px-2 py-1 text-xs text-gray-100 ${
-                nameError ? 'border-red-500' : 'border-gray-700'
+              className={`w-full bg-surface-2 border rounded px-2 py-1 text-xs text-fg ${
+                nameError ? 'border-red-500' : 'border-border'
               }`}
             />
             {nameError && (
@@ -270,7 +270,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
               type="text"
               value={value.alignment ?? ''}
               onChange={(e) => update('alignment', e.target.value)}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100"
+              className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg"
             />
           </div>
           <div>
@@ -278,7 +278,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             <select
               value={value.size ?? 'Medium'}
               onChange={(e) => update('size', e.target.value as CreatureSize)}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
+              className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200"
             >
               {SIZES.map((s) => (
                 <option key={s} value={s}>
@@ -292,7 +292,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             <select
               value={value.type ?? 'Humanoid'}
               onChange={(e) => update('type', e.target.value as CreatureType)}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
+              className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200"
             >
               {TYPES.map((t) => (
                 <option key={t} value={t}>
@@ -307,7 +307,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
               type="text"
               value={value.cr ?? ''}
               onChange={(e) => update('cr', e.target.value)}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100"
+              className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg"
               placeholder={t('game.statBlockEditor.crPlaceholder')}
             />
           </div>
@@ -317,7 +317,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
               type="number"
               value={value.xp ?? ''}
               onChange={(e) => update('xp', parseInt(e.target.value, 10) || 0)}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100"
+              className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg"
             />
           </div>
         </div>
@@ -335,8 +335,8 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
               aria-invalid={acError || undefined}
               aria-describedby={acError ? acErrorId : undefined}
               onChange={(e) => update('ac', parseInt(e.target.value, 10) || 0)}
-              className={`w-full bg-gray-800 border rounded px-2 py-1 text-xs text-gray-100 ${
-                acError ? 'border-red-500' : 'border-gray-700'
+              className={`w-full bg-surface-2 border rounded px-2 py-1 text-xs text-fg ${
+                acError ? 'border-red-500' : 'border-border'
               }`}
             />
             {acError && (
@@ -351,7 +351,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
               type="text"
               value={value.acType ?? ''}
               onChange={(e) => update('acType', e.target.value)}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100"
+              className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg"
               placeholder={t('game.statBlockEditor.acTypePlaceholder')}
             />
           </div>
@@ -364,8 +364,8 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
               aria-invalid={hpError || undefined}
               aria-describedby={hpError ? hpErrorId : undefined}
               onChange={(e) => update('hp', parseInt(e.target.value, 10) || 0)}
-              className={`w-full bg-gray-800 border rounded px-2 py-1 text-xs text-gray-100 ${
-                hpError ? 'border-red-500' : 'border-gray-700'
+              className={`w-full bg-surface-2 border rounded px-2 py-1 text-xs text-fg ${
+                hpError ? 'border-red-500' : 'border-border'
               }`}
             />
             {hpError && (
@@ -380,7 +380,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
               type="text"
               value={value.hitDice ?? ''}
               onChange={(e) => update('hitDice', e.target.value)}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100"
+              className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg"
               placeholder={t('game.statBlockEditor.hitDicePlaceholder')}
             />
           </div>
@@ -392,7 +392,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
               type="number"
               value={speed.walk ?? 0}
               onChange={(e) => update('speed', { ...speed, walk: parseInt(e.target.value, 10) || 0 })}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-100 text-center"
+              className="w-full bg-surface-2 border border-border rounded px-1 py-0.5 text-xs text-fg text-center"
             />
           </div>
           <div>
@@ -403,7 +403,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
               onChange={(e) =>
                 update('speed', { ...speed, fly: e.target.value ? parseInt(e.target.value, 10) : undefined })
               }
-              className="w-full bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-100 text-center"
+              className="w-full bg-surface-2 border border-border rounded px-1 py-0.5 text-xs text-fg text-center"
             />
           </div>
           <div>
@@ -414,7 +414,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
               onChange={(e) =>
                 update('speed', { ...speed, swim: e.target.value ? parseInt(e.target.value, 10) : undefined })
               }
-              className="w-full bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-100 text-center"
+              className="w-full bg-surface-2 border border-border rounded px-1 py-0.5 text-xs text-fg text-center"
             />
           </div>
           <div>
@@ -425,7 +425,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
               onChange={(e) =>
                 update('speed', { ...speed, climb: e.target.value ? parseInt(e.target.value, 10) : undefined })
               }
-              className="w-full bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-100 text-center"
+              className="w-full bg-surface-2 border border-border rounded px-1 py-0.5 text-xs text-fg text-center"
             />
           </div>
           <div>
@@ -436,7 +436,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
               onChange={(e) =>
                 update('speed', { ...speed, burrow: e.target.value ? parseInt(e.target.value, 10) : undefined })
               }
-              className="w-full bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-100 text-center"
+              className="w-full bg-surface-2 border border-border rounded px-1 py-0.5 text-xs text-fg text-center"
             />
           </div>
         </div>
@@ -459,8 +459,8 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
                   aria-invalid={hasError || undefined}
                   aria-describedby={hasError ? errId : undefined}
                   onChange={(e) => update('abilityScores', { ...abilities, [ab]: parseInt(e.target.value, 10) || 10 })}
-                  className={`w-full bg-gray-800 border rounded px-1 py-0.5 text-xs text-gray-100 text-center ${
-                    hasError ? 'border-red-500' : 'border-gray-700'
+                  className={`w-full bg-surface-2 border rounded px-1 py-0.5 text-xs text-fg text-center ${
+                    hasError ? 'border-red-500' : 'border-border'
                   }`}
                 />
                 {hasError && (
@@ -505,7 +505,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
                     type="number"
                     value={saves[ab] ?? 0}
                     onChange={(e) => update('savingThrows', { ...saves, [ab]: parseInt(e.target.value, 10) || 0 })}
-                    className="w-10 bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-100 text-center"
+                    className="w-10 bg-surface-2 border border-border rounded px-1 py-0.5 text-xs text-fg text-center"
                   />
                 )}
               </div>
@@ -530,7 +530,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
                   next[e.target.value] = val ?? 0
                   update('skills', next)
                 }}
-                className="flex-1 bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-200"
+                className="flex-1 bg-surface-2 border border-border rounded px-1 py-0.5 text-xs text-gray-200"
               >
                 {COMMON_SKILLS.map((s) => (
                   <option key={s} value={s}>
@@ -547,7 +547,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
                     [skill]: parseInt(e.target.value, 10) || 0
                   })
                 }
-                className="w-12 bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-100 text-center"
+                className="w-12 bg-surface-2 border border-border rounded px-1 py-0.5 text-xs text-fg text-center"
               />
               <button
                 onClick={() => {
@@ -571,7 +571,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
             const available = COMMON_SKILLS.find((s) => !used.has(s)) ?? 'Custom'
             update('skills', { ...value.skills, [available]: 0 })
           }}
-          className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer mt-1"
+          className="text-xs text-accent hover:text-amber-300 cursor-pointer mt-1"
         >
           {t('game.statBlockEditor.addSkill')}
         </button>
@@ -594,7 +594,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
                     .filter(Boolean)
                 )
               }
-              className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100"
+              className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg"
             />
           </div>
           <div>
@@ -611,7 +611,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
                     .filter(Boolean)
                 )
               }
-              className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100"
+              className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg"
             />
           </div>
           <div>
@@ -628,7 +628,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
                     .filter(Boolean)
                 )
               }
-              className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100"
+              className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg"
             />
           </div>
           <div>
@@ -645,7 +645,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
                     .filter(Boolean)
                 )
               }
-              className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100"
+              className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg"
             />
           </div>
         </div>
@@ -665,7 +665,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
                   passivePerception: parseInt(e.target.value, 10) || 10
                 })
               }
-              className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100"
+              className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg"
             />
           </div>
           <div>
@@ -679,7 +679,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
                   darkvision: e.target.value ? parseInt(e.target.value, 10) : undefined
                 })
               }
-              className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100"
+              className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg"
             />
           </div>
         </div>
@@ -697,7 +697,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
                   .filter(Boolean)
               )
             }
-            className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100"
+            className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg"
           />
         </div>
       </CollapsibleSection>
@@ -747,12 +747,12 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
                   actions: value.legendaryActions?.actions ?? []
                 })
               }
-              className="w-12 bg-gray-800 border border-gray-700 rounded px-1 py-0.5 text-xs text-gray-100 text-center"
+              className="w-12 bg-surface-2 border border-border rounded px-1 py-0.5 text-xs text-fg text-center"
               min={1}
             />
           </div>
           {(value.legendaryActions?.actions ?? []).map((action, i) => (
-            <div key={i} className="space-y-1 bg-gray-800/30 rounded p-2">
+            <div key={i} className="space-y-1 bg-surface-2/30 rounded p-2">
               <div className="flex gap-1">
                 <input
                   type="text"
@@ -763,7 +763,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
                     update('legendaryActions', { uses: value.legendaryActions?.uses ?? 3, actions })
                   }}
                   placeholder={t('game.statBlockEditor.actionNamePlaceholder')}
-                  className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100"
+                  className="flex-1 bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg"
                 />
                 <button
                   onClick={() => {
@@ -787,7 +787,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
                   update('legendaryActions', { uses: value.legendaryActions?.uses ?? 3, actions })
                 }}
                 placeholder={t('game.statBlockEditor.descriptionPlaceholder')}
-                className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 h-12 resize-none"
+                className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg h-12 resize-none"
               />
             </div>
           ))}
@@ -798,7 +798,7 @@ export default function StatBlockEditor({ value, onChange }: StatBlockEditorProp
                 actions: [...(value.legendaryActions?.actions ?? []), { name: '', description: '' }]
               })
             }
-            className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer"
+            className="text-xs text-accent hover:text-amber-300 cursor-pointer"
           >
             {t('game.statBlockEditor.addLegendaryAction')}
           </button>

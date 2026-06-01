@@ -41,7 +41,7 @@ export default function PlayerHUDStats({
   return (
     <>
       {/* Name */}
-      <span className="text-sm font-semibold text-gray-100 shrink-0">{characterName}</span>
+      <span className="text-sm font-semibold text-fg shrink-0">{characterName}</span>
 
       {/* HP bar (click to edit) */}
       <div className="flex items-center gap-1 min-w-[140px]">
@@ -56,7 +56,7 @@ export default function PlayerHUDStats({
               if (e.key === 'Enter') handleHPEdit()
               if (e.key === 'Escape') setEditingHP(false)
             }}
-            className="w-14 bg-gray-800 border border-amber-500 rounded px-1 py-0.5 text-center text-xs text-gray-100 focus:outline-none"
+            className="w-14 bg-surface-2 border border-amber-500 rounded px-1 py-0.5 text-center text-xs text-fg focus:outline-none"
           />
         ) : (
           <div
@@ -67,7 +67,7 @@ export default function PlayerHUDStats({
             }}
             title={t('game.playerHUDStats.editHpTitle')}
           >
-            <div className="h-3.5 bg-gray-800/80 rounded-full overflow-hidden">
+            <div className="h-3.5 bg-surface-2/80 rounded-full overflow-hidden">
               <div
                 className={`h-full ${hpColor} transition-all duration-300 rounded-full`}
                 style={{ width: `${hpPercent}%` }}
@@ -103,7 +103,7 @@ export default function PlayerHUDStats({
       {/* AC */}
       <div className="flex items-center gap-1 text-xs">
         <span className="text-gray-500">{t('game.playerHUDStats.ac')}</span>
-        <span className="font-semibold text-gray-100">{ac}</span>
+        <span className="font-semibold text-fg">{ac}</span>
       </div>
 
       {/* Spell slot pips (collapsed -- just show counts) */}

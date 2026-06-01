@@ -88,10 +88,10 @@ export default function ReadyButton(): JSX.Element {
           className={`w-full py-2 rounded-lg font-medium text-sm transition-all
             ${
               !colorConfirmed
-                ? 'bg-transparent border border-gray-700 text-gray-600 cursor-not-allowed'
+                ? 'bg-transparent border border-border text-gray-600 cursor-not-allowed'
                 : isReady
                   ? 'bg-green-600/30 border border-green-600 text-green-400 cursor-pointer'
-                  : 'bg-transparent border border-gray-600 text-gray-400 hover:border-green-600 hover:text-green-400 cursor-pointer'
+                  : 'bg-transparent border border-gray-600 text-muted hover:border-green-600 hover:text-green-400 cursor-pointer'
             }`}
         >
           {!colorConfirmed
@@ -109,7 +109,7 @@ export default function ReadyButton(): JSX.Element {
               ${
                 canStartGame
                   ? 'bg-green-600 hover:bg-green-500 text-white shadow-lg shadow-green-900/30 cursor-pointer'
-                  : 'bg-gray-800 border border-gray-700 text-gray-500 cursor-not-allowed'
+                  : 'bg-surface-2 border border-border text-gray-500 cursor-not-allowed'
               }
               disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2`}
           >
@@ -139,9 +139,7 @@ export default function ReadyButton(): JSX.Element {
             )}
           </button>
           {!aiReady && sceneStatus === 'preparing' && !overrideAiWait && (
-            <p className="text-xs text-amber-400/80 text-center animate-pulse">
-              {t('lobby.readyButton.preparingScene')}
-            </p>
+            <p className="text-xs text-accent/80 text-center animate-pulse">{t('lobby.readyButton.preparingScene')}</p>
           )}
         </div>
       </div>
@@ -158,7 +156,7 @@ export default function ReadyButton(): JSX.Element {
       className={`w-full py-3 rounded-lg font-bold text-lg transition-all
         ${
           !colorConfirmed
-            ? 'bg-transparent border-2 border-gray-700 text-gray-600 cursor-not-allowed'
+            ? 'bg-transparent border-2 border-border text-gray-600 cursor-not-allowed'
             : isReady
               ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-900/30 cursor-pointer'
               : 'bg-transparent border-2 border-green-600 text-green-400 hover:bg-green-900/20 cursor-pointer'

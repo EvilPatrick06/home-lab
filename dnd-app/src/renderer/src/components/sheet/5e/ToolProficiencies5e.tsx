@@ -55,7 +55,7 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
   }
 
   return (
-    <div className="space-y-1 text-sm text-gray-400">
+    <div className="space-y-1 text-sm text-muted">
       {character.proficiencies.armor.length > 0 && (
         <div>
           <span className="text-gray-500">{t('sheet.toolProficiencies.armorLabel')} </span>
@@ -71,9 +71,9 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
               <span key={prof} className="inline">
                 {idx > 0 && ', '}
                 {desc ? (
-                  <span className="group relative text-amber-400 cursor-help underline decoration-dotted underline-offset-2">
+                  <span className="group relative text-accent cursor-help underline decoration-dotted underline-offset-2">
                     {prof}
-                    <span className="absolute bottom-full left-0 mb-1 hidden group-hover:block bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-300 w-72 z-10 shadow-lg">
+                    <span className="absolute bottom-full left-0 mb-1 hidden group-hover:block bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-300 w-72 z-10 shadow-lg">
                       {desc}
                     </span>
                   </span>
@@ -86,7 +86,7 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
           {!readonly && !showAddArmorProf && (
             <button
               onClick={() => setShowAddArmorProf(true)}
-              className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer ml-2"
+              className="text-xs text-accent hover:text-amber-300 cursor-pointer ml-2"
             >
               {t('sheet.toolProficiencies.add')}
             </button>
@@ -108,6 +108,7 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
                   </button>
                 ))}
               <input
+                aria-label={t('sheet.toolProficiencies.customPlaceholder')}
                 type="text"
                 placeholder={t('sheet.toolProficiencies.customPlaceholder')}
                 value={customProfInput}
@@ -119,7 +120,7 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
                     setShowAddArmorProf(false)
                   }
                 }}
-                className="bg-gray-800 border border-gray-700 rounded px-2 py-0.5 text-xs text-gray-100 w-28 focus:outline-none focus:border-amber-500"
+                className="bg-surface-2 border border-border rounded px-2 py-0.5 text-xs text-fg w-28 focus:outline-none focus:border-amber-500"
               />
               <button
                 onClick={() => setShowAddArmorProf(false)}
@@ -167,14 +168,14 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
                         if (generic && !readonly) setShowToolVariantPicker(tool)
                       }
                     }}
-                    className={`${toolData || generic ? 'text-amber-400 hover:text-amber-300 cursor-pointer underline decoration-dotted underline-offset-2' : 'text-gray-400'}`}
+                    className={`${toolData || generic ? 'text-accent hover:text-amber-300 cursor-pointer underline decoration-dotted underline-offset-2' : 'text-muted'}`}
                   >
                     {tool}
                   </button>
                   {!readonly && (
                     <button
                       onClick={() => rollToolCheck(tool, toolData?.ability)}
-                      className="ml-1 text-[11px] text-amber-500 hover:text-amber-300 cursor-pointer"
+                      className="ml-1 text-[11px] text-accent-strong hover:text-amber-300 cursor-pointer"
                       title={t('sheet.toolProficiencies.rollToolCheckTitle', {
                         tool,
                         ability: (toolData?.ability ?? 'INT').slice(0, 3).toUpperCase()
@@ -188,13 +189,13 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
                     </button>
                   )}
                   {(isExpanded || showingVariants) && toolData?.description && (
-                    <div className="text-xs text-gray-500 bg-gray-800/50 rounded px-2 py-1 mt-1 mb-1">
+                    <div className="text-xs text-gray-500 bg-surface-2/50 rounded px-2 py-1 mt-1 mb-1">
                       {toolData.description}
                       {toolData.ability && <span className="text-gray-600 ml-1">({toolData.ability})</span>}
                     </div>
                   )}
                   {showingVariants && generic && genericBase && (
-                    <div className="text-xs bg-gray-800/50 rounded px-2 py-1 mt-1 mb-1">
+                    <div className="text-xs bg-surface-2/50 rounded px-2 py-1 mt-1 mb-1">
                       <div className="text-gray-500 mb-1">
                         {t('sheet.toolProficiencies.chooseSpecific', { base: genericBase })}
                       </div>
@@ -235,7 +236,7 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
           {!readonly && !showAddToolProf && (
             <button
               onClick={() => setShowAddToolProf(true)}
-              className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer ml-2"
+              className="text-xs text-accent hover:text-amber-300 cursor-pointer ml-2"
             >
               {t('sheet.toolProficiencies.add')}
             </button>
@@ -300,6 +301,7 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
               </div>
               <div className="flex items-center gap-1">
                 <input
+                  aria-label={t('sheet.toolProficiencies.customToolPlaceholder')}
                   type="text"
                   placeholder={t('sheet.toolProficiencies.customToolPlaceholder')}
                   value={customProfInput}
@@ -311,7 +313,7 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
                       setShowAddToolProf(false)
                     }
                   }}
-                  className="bg-gray-800 border border-gray-700 rounded px-2 py-0.5 text-xs text-gray-100 w-40 focus:outline-none focus:border-amber-500"
+                  className="bg-surface-2 border border-border rounded px-2 py-0.5 text-xs text-fg w-40 focus:outline-none focus:border-amber-500"
                 />
                 <button
                   onClick={() => {
@@ -322,7 +324,7 @@ export default function ToolProficiencies5e({ character, readonly }: ToolProfici
                     }
                   }}
                   disabled={!customProfInput.trim()}
-                  className="px-2 py-0.5 text-xs bg-amber-600 hover:bg-amber-500 disabled:opacity-50 rounded text-white cursor-pointer"
+                  className="px-2 py-0.5 text-xs bg-amber-600 hover:bg-accent-strong disabled:opacity-50 rounded text-white cursor-pointer"
                 >
                   {t('sheet.toolProficiencies.addConfirm')}
                 </button>

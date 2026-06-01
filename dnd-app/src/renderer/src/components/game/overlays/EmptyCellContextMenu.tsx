@@ -122,14 +122,14 @@ export default function EmptyCellContextMenu({
   return (
     <div
       ref={menuRef}
-      className="absolute bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50 py-1 min-w-[180px]"
+      className="absolute bg-surface border border-border rounded-lg shadow-xl z-50 py-1 min-w-[180px]"
       style={{ left: screenX, top: screenY }}
     >
       {!showSearch ? (
         <>
           <button
             onClick={() => setShowSearch(true)}
-            className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-gray-800 transition-colors cursor-pointer"
+            className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-surface-2 transition-colors cursor-pointer"
           >
             {t('game.emptyCellContextMenu.summonMonster')}
           </button>
@@ -138,7 +138,7 @@ export default function EmptyCellContextMenu({
               onPlaceToken()
               onClose()
             }}
-            className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-gray-800 transition-colors cursor-pointer"
+            className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-surface-2 transition-colors cursor-pointer"
           >
             {t('game.emptyCellContextMenu.placeToken')}
           </button>
@@ -150,7 +150,7 @@ export default function EmptyCellContextMenu({
                 onAddPin(gridX, gridY)
                 onClose()
               }}
-              className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-gray-800 transition-colors cursor-pointer"
+              className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-surface-2 transition-colors cursor-pointer"
             >
               {t('game.emptyCellContextMenu.addPin')}
             </button>
@@ -163,7 +163,7 @@ export default function EmptyCellContextMenu({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t('game.emptyCellContextMenu.searchPlaceholder')}
-            className="w-full bg-gray-800 border border-gray-600 rounded px-2 py-1.5 text-xs text-gray-100 focus:outline-none focus:border-amber-500 mb-1.5"
+            className="w-full bg-surface-2 border border-gray-600 rounded px-2 py-1.5 text-xs text-fg focus:outline-none focus:border-amber-500 mb-1.5"
             autoFocus
           />
           <div className="max-h-48 overflow-y-auto space-y-0.5">

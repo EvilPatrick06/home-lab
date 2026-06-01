@@ -105,7 +105,7 @@ export default function MapEditorRightPanel({
   )
 
   return (
-    <div className="w-72 bg-gray-900/80 border-l border-gray-700 flex flex-col shrink-0">
+    <div className="w-72 bg-surface/80 border-l border-border flex flex-col shrink-0">
       <div className="flex gap-0.5 p-1.5 border-b border-gray-800">
         {(['tokens', 'fog', 'terrain', 'regions', 'grid', 'npcs', 'notes', 'shop'] as const).map((tab) => (
           <button
@@ -175,7 +175,7 @@ export default function MapEditorRightPanel({
                     className={`w-full text-left px-3 py-2 rounded-lg border text-xs transition-colors cursor-pointer ${
                       activeTool === 'terrain' && terrainPaintType === type
                         ? `border-amber-500 ${color}`
-                        : 'border-gray-700 bg-gray-800/50 hover:border-gray-600'
+                        : 'border-border bg-surface-2/50 hover:border-gray-600'
                     }`}
                   >
                     <div className="font-semibold text-gray-200">
@@ -185,12 +185,12 @@ export default function MapEditorRightPanel({
                   </button>
 
                   {type === 'portal' && activeTool === 'terrain' && terrainPaintType === 'portal' && (
-                    <div className="mt-1 p-2 rounded bg-gray-800/50 border border-fuchsia-900/30 flex flex-col gap-2">
+                    <div className="mt-1 p-2 rounded bg-surface-2/50 border border-fuchsia-900/30 flex flex-col gap-2">
                       <div className="text-xs text-fuchsia-300 font-semibold mb-1">
                         {t('game.mapEditorRightPanel.portalConfiguration')}
                       </div>
                       <select
-                        className="w-full bg-gray-900 border border-gray-700 rounded text-xs text-gray-200 px-2 py-1"
+                        className="w-full bg-surface border border-border rounded text-xs text-gray-200 px-2 py-1"
                         value={portalTarget?.mapId ?? ''}
                         onChange={(e) =>
                           setPortalTarget({
@@ -209,12 +209,12 @@ export default function MapEditorRightPanel({
                       </select>
                       <div className="flex gap-2">
                         <div className="flex-1">
-                          <label className="text-xs text-gray-400 block mb-0.5">
+                          <label className="text-xs text-muted block mb-0.5">
                             {t('game.mapEditorRightPanel.targetX')}
                           </label>
                           <input
                             type="number"
-                            className="w-full bg-gray-900 border border-gray-700 rounded text-xs text-gray-200 px-2 py-1"
+                            className="w-full bg-surface border border-border rounded text-xs text-gray-200 px-2 py-1"
                             value={portalTarget?.gridX ?? 0}
                             onChange={(e) =>
                               setPortalTarget({
@@ -226,12 +226,12 @@ export default function MapEditorRightPanel({
                           />
                         </div>
                         <div className="flex-1">
-                          <label className="text-xs text-gray-400 block mb-0.5">
+                          <label className="text-xs text-muted block mb-0.5">
                             {t('game.mapEditorRightPanel.targetY')}
                           </label>
                           <input
                             type="number"
-                            className="w-full bg-gray-900 border border-gray-700 rounded text-xs text-gray-200 px-2 py-1"
+                            className="w-full bg-surface border border-border rounded text-xs text-gray-200 px-2 py-1"
                             value={portalTarget?.gridY ?? 0}
                             onChange={(e) =>
                               setPortalTarget({

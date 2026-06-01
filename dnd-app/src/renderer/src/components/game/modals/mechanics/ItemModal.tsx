@@ -148,7 +148,7 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
   return (
     <div className="fixed inset-0 z-20 flex items-end justify-center pb-20">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
-      <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-lg w-full mx-4 shadow-2xl max-h-[60vh] flex flex-col">
+      <div className="relative bg-surface/95 backdrop-blur-sm border border-border/50 rounded-xl p-4 max-w-lg w-full mx-4 shadow-2xl max-h-[60vh] flex flex-col">
         <div className="flex items-center justify-between mb-3 shrink-0">
           <h3 className="text-sm font-semibold text-gray-200">{t('game.itemModal.title')}</h3>
           <button
@@ -165,7 +165,7 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
             full character sheet to see your coins" round-trip. */}
         {treasure && (
           <div className="mb-3 grid grid-cols-2 gap-2 text-[11px] shrink-0">
-            <div className="rounded-lg border border-gray-700/50 bg-gray-800/40 px-3 py-2">
+            <div className="rounded-lg border border-border/50 bg-surface-2/40 px-3 py-2">
               <div className="text-[9px] uppercase tracking-wider text-gray-500 mb-1">
                 {t('game.itemModal.currency')}
               </div>
@@ -191,7 +191,7 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
                 </span>
               </div>
             </div>
-            <div className="rounded-lg border border-gray-700/50 bg-gray-800/40 px-3 py-2">
+            <div className="rounded-lg border border-border/50 bg-surface-2/40 px-3 py-2">
               <div className="text-[9px] uppercase tracking-wider text-gray-500 mb-1">
                 {t('game.itemModal.carryWeight')}
               </div>
@@ -213,7 +213,7 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
             }`}
           >
             <div className="text-center">
-              <div className="text-xs text-gray-400 mb-1">{rollResult.itemName}</div>
+              <div className="text-xs text-muted mb-1">{rollResult.itemName}</div>
               <div
                 className={`text-2xl font-bold font-mono ${rollResult.effectType === 'healing' ? 'text-green-400' : 'text-blue-400'}`}
               >
@@ -232,14 +232,14 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
                     </span>
                   ))}
                   {rollResult.formula.includes('+') && (
-                    <span className="text-xs text-gray-400 self-center">+{rollResult.formula.split('+')[1]}</span>
+                    <span className="text-xs text-muted self-center">+{rollResult.formula.split('+')[1]}</span>
                   )}
                 </div>
               )}
             </div>
             <button
               onClick={() => setRollResult(null)}
-              className="w-full mt-2 py-1 text-xs text-gray-400 hover:text-gray-300 cursor-pointer"
+              className="w-full mt-2 py-1 text-xs text-muted hover:text-gray-300 cursor-pointer"
             >
               {t('game.itemModal.dismiss')}
             </button>
@@ -328,11 +328,11 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
               return (
                 <div
                   key={`${item.name}-${i}`}
-                  className="bg-gray-800/50 border border-gray-700/30 rounded-lg overflow-hidden"
+                  className="bg-surface-2/50 border border-border/30 rounded-lg overflow-hidden"
                 >
                   <button
                     onClick={() => setExpandedIndex(isExpanded ? null : i)}
-                    className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-800/80 cursor-pointer transition-colors"
+                    className="w-full flex items-center justify-between px-3 py-2 hover:bg-surface-2/80 cursor-pointer transition-colors"
                   >
                     <div className="flex items-center gap-2">
                       <span className={`text-xs transition-transform ${isExpanded ? 'rotate-90' : ''}`}>&#9654;</span>
@@ -354,8 +354,8 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
                   </button>
 
                   {isExpanded && (
-                    <div className="px-3 pb-2 space-y-1.5 border-t border-gray-700/30">
-                      {description && <p className="text-[11px] text-gray-400 pt-1.5">{description}</p>}
+                    <div className="px-3 pb-2 space-y-1.5 border-t border-border/30">
+                      {description && <p className="text-[11px] text-muted pt-1.5">{description}</p>}
                       <div className="flex items-center gap-3 text-xs text-gray-500">
                         {weight != null && <span>{t('game.itemModal.weight', { weight })}</span>}
                         {cost && <span>{t('game.itemModal.cost', { cost })}</span>}
@@ -370,7 +370,7 @@ export default function ItemModal({ character, onClose, onUseItem }: ItemModalPr
                       ) : (
                         <button
                           onClick={() => handleUseItem(item)}
-                          className="w-full py-1 text-xs rounded bg-amber-600/80 text-white hover:bg-amber-500 transition-colors cursor-pointer font-semibold"
+                          className="w-full py-1 text-xs rounded bg-amber-600/80 text-white hover:bg-accent-strong transition-colors cursor-pointer font-semibold"
                         >
                           {isConsumable ? t('game.itemModal.useConsumable') : t('game.itemModal.useItem')}
                         </button>

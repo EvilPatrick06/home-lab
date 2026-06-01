@@ -333,11 +333,11 @@ export default function CampaignWizard(): JSX.Element {
         {STEPS.map((_, i) => (
           <div
             key={i}
-            className={`flex-1 h-2 rounded-full transition-colors ${i <= step ? 'bg-amber-500' : 'bg-gray-700'}`}
+            className={`flex-1 h-2 rounded-full transition-colors ${i <= step ? 'bg-accent-strong' : 'bg-gray-700'}`}
           />
         ))}
       </div>
-      <p className="text-gray-400 text-sm mb-8">
+      <p className="text-muted text-sm mb-8">
         {t('campaign.campaignWizard.stepIndicator', {
           current: step + 1,
           total: STEPS.length,

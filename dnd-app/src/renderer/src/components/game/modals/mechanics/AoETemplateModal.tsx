@@ -100,7 +100,7 @@ export default function AoETemplateModal({
   return (
     <div className="fixed inset-0 z-30 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
-      <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-[440px] max-h-[85vh] overflow-y-auto shadow-2xl">
+      <div className="relative bg-surface border border-border rounded-xl p-5 w-[440px] max-h-[85vh] overflow-y-auto shadow-2xl">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-gray-200">
             {step === 'config' ? t('game.aoeTemplateModal.title') : t('game.aoeTemplateModal.placeTitle')}
@@ -118,7 +118,7 @@ export default function AoETemplateModal({
           <div className="space-y-4">
             {/* Shape selection */}
             <div>
-              <span className="text-xs text-gray-400 block mb-1">{t('game.aoeTemplateModal.shape')}</span>
+              <span className="text-xs text-muted block mb-1">{t('game.aoeTemplateModal.shape')}</span>
               <div className="grid grid-cols-3 gap-1">
                 {SHAPES.map((s) => (
                   <button
@@ -127,7 +127,7 @@ export default function AoETemplateModal({
                     className={`px-2 py-2 text-xs rounded-lg cursor-pointer border ${
                       shape === s.id
                         ? 'bg-red-900/40 border-red-500 text-red-300'
-                        : 'bg-gray-800 border-gray-700 text-gray-400 hover:bg-gray-700'
+                        : 'bg-surface-2 border-border text-muted hover:bg-gray-700'
                     }`}
                   >
                     <div className="font-semibold">{t(`game.aoeTemplateModal.shapes.${s.id}.label`)}</div>
@@ -139,7 +139,7 @@ export default function AoETemplateModal({
 
             {/* Size */}
             <div>
-              <span className="text-xs text-gray-400 block mb-1">
+              <span className="text-xs text-muted block mb-1">
                 {t('game.aoeTemplateModal.sizeLabel', {
                   dimension:
                     shape === 'cone' || shape === 'line'
@@ -156,7 +156,7 @@ export default function AoETemplateModal({
                     key={s}
                     onClick={() => setSizeFeet(s)}
                     className={`px-2 py-1 text-xs rounded cursor-pointer ${
-                      sizeFeet === s ? 'bg-red-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                      sizeFeet === s ? 'bg-red-600 text-white' : 'bg-surface-2 text-muted hover:bg-gray-700'
                     }`}
                   >
                     {s}ft
@@ -168,14 +168,14 @@ export default function AoETemplateModal({
             {/* Direction (for cone/line) */}
             {currentShape.needsDirection && (
               <div>
-                <span className="text-xs text-gray-400 block mb-1">{t('game.aoeTemplateModal.direction')}</span>
+                <span className="text-xs text-muted block mb-1">{t('game.aoeTemplateModal.direction')}</span>
                 <div className="grid grid-cols-8 gap-1">
                   {DIRECTIONS.map((d) => (
                     <button
                       key={d.id}
                       onClick={() => setDirection(d.id)}
                       className={`px-1 py-1.5 text-xs rounded cursor-pointer ${
-                        direction === d.id ? 'bg-red-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                        direction === d.id ? 'bg-red-600 text-white' : 'bg-surface-2 text-muted hover:bg-gray-700'
                       }`}
                     >
                       {d.label}
@@ -188,7 +188,7 @@ export default function AoETemplateModal({
             {/* Width for line */}
             {shape === 'line' && (
               <div>
-                <span className="text-xs text-gray-400 block mb-1">
+                <span className="text-xs text-muted block mb-1">
                   {t('game.aoeTemplateModal.width', { size: widthFeet })}
                 </span>
                 <div className="flex gap-1">
@@ -197,7 +197,7 @@ export default function AoETemplateModal({
                       key={w}
                       onClick={() => setWidthFeet(w)}
                       className={`px-3 py-1 text-xs rounded cursor-pointer ${
-                        widthFeet === w ? 'bg-red-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                        widthFeet === w ? 'bg-red-600 text-white' : 'bg-surface-2 text-muted hover:bg-gray-700'
                       }`}
                     >
                       {w}ft
@@ -209,7 +209,7 @@ export default function AoETemplateModal({
 
             {/* Origin position */}
             <div>
-              <span className="text-xs text-gray-400 block mb-1">
+              <span className="text-xs text-muted block mb-1">
                 {t('game.aoeTemplateModal.origin', { x: originX, y: originY })}
               </span>
               <div className="flex gap-2 items-center">
@@ -220,7 +220,7 @@ export default function AoETemplateModal({
                   max={gridWidth - 1}
                   value={originX}
                   onChange={(e) => setOriginX(parseInt(e.target.value, 10) || 0)}
-                  className="w-16 px-2 py-1 text-xs bg-gray-800 border border-gray-700 rounded text-white"
+                  className="w-16 px-2 py-1 text-xs bg-surface-2 border border-border rounded text-white"
                 />
                 <label className="text-xs text-gray-500">{t('game.aoeTemplateModal.y')}</label>
                 <input
@@ -229,15 +229,15 @@ export default function AoETemplateModal({
                   max={gridHeight - 1}
                   value={originY}
                   onChange={(e) => setOriginY(parseInt(e.target.value, 10) || 0)}
-                  className="w-16 px-2 py-1 text-xs bg-gray-800 border border-gray-700 rounded text-white"
+                  className="w-16 px-2 py-1 text-xs bg-surface-2 border border-border rounded text-white"
                 />
               </div>
               <p className="text-xs text-gray-600 mt-1">{t('game.aoeTemplateModal.originHint')}</p>
             </div>
 
             {/* Preview info */}
-            <div className="bg-gray-800 rounded-lg px-3 py-2">
-              <div className="text-xs text-gray-400">
+            <div className="bg-surface-2 rounded-lg px-3 py-2">
+              <div className="text-xs text-muted">
                 {t('game.aoeTemplateModal.affectedCells')}{' '}
                 <span className="text-white font-semibold">{affectedCells.length}</span>
               </div>

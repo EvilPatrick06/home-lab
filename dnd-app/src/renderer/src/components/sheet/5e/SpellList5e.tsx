@@ -80,7 +80,7 @@ const SpellRow = memo(function SpellRow({
             }}
             disabled={readonly}
             className={`flex-shrink-0 w-4 h-4 ml-2 rounded border transition-colors ${
-              isPrepared ? 'bg-amber-500 border-amber-400' : 'border-gray-600 bg-gray-800'
+              isPrepared ? 'bg-accent-strong border-accent' : 'border-gray-600 bg-surface-2'
             } ${readonly ? 'opacity-50 cursor-default' : 'cursor-pointer hover:border-amber-500'}`}
             title={isPrepared ? t('sheet.spellList.unprepareSpell') : t('sheet.spellList.prepareSpell')}
           >
@@ -93,7 +93,7 @@ const SpellRow = memo(function SpellRow({
         )}
         <button
           onClick={() => setExpanded(!expanded)}
-          className="flex-1 flex items-center justify-between px-2 py-1.5 hover:bg-gray-800/50 transition-colors text-left text-sm"
+          className="flex-1 flex items-center justify-between px-2 py-1.5 hover:bg-surface-2/50 transition-colors text-left text-sm"
         >
           <div className="flex items-center gap-2">
             <span className="text-gray-200">{spell.name}</span>
@@ -159,7 +159,7 @@ const SpellRow = memo(function SpellRow({
                       }}
                       disabled={readonly}
                       className={`w-3 h-3 rounded-full border transition-colors ${
-                        isFilled ? 'bg-purple-500 border-purple-400' : 'border-gray-600 bg-gray-800'
+                        isFilled ? 'bg-purple-500 border-purple-400' : 'border-gray-600 bg-surface-2'
                       } ${readonly ? 'cursor-default' : 'cursor-pointer hover:border-purple-400'}`}
                       title={isFilled ? t('sheet.spellList.useInnate') : t('sheet.spellList.restoreInnate')}
                     />
@@ -175,7 +175,7 @@ const SpellRow = memo(function SpellRow({
         </button>
       </div>
       {expanded && (
-        <div className="px-3 pb-2 text-xs text-gray-400 space-y-1">
+        <div className="px-3 pb-2 text-xs text-muted space-y-1">
           <div className="flex gap-3 text-gray-500">
             <span>{t('sheet.spellList.duration', { duration: spell.duration })}</span>
             <span>{t('sheet.spellList.components', { components: spell.components })}</span>
@@ -230,7 +230,7 @@ const SpellRow = memo(function SpellRow({
                             }}
                             className={`w-6 h-6 rounded text-xs font-bold transition-colors cursor-pointer ${
                               lvl === spell.level
-                                ? 'bg-amber-600 text-white hover:bg-amber-500'
+                                ? 'bg-amber-600 text-white hover:bg-accent-strong'
                                 : 'bg-indigo-700/60 text-indigo-200 hover:bg-indigo-600/60'
                             }`}
                             title={t('sheet.spellList.castAtLevelTitle', {

@@ -211,7 +211,7 @@ export default function SkillRollButton({ character, onRoll }: SkillRollButtonPr
         className={`px-2 py-1.5 text-xs rounded-lg transition-colors cursor-pointer ${
           open
             ? 'bg-amber-600/30 text-amber-300 border border-amber-500/50'
-            : 'bg-gray-800 border border-gray-700 text-gray-400 hover:text-gray-200'
+            : 'bg-surface-2 border border-border text-muted hover:text-gray-200'
         }`}
         title={t('game.skillRollButton.buttonTitle', { count: toolInteractionCount })}
       >
@@ -225,13 +225,13 @@ export default function SkillRollButton({ character, onRoll }: SkillRollButtonPr
       </button>
 
       {open && (
-        <div className="absolute bottom-full right-0 mb-1 w-64 bg-gray-900 border border-gray-700 rounded-xl shadow-2xl z-30 overflow-hidden">
+        <div className="absolute bottom-full right-0 mb-1 w-64 bg-surface border border-border rounded-xl shadow-2xl z-30 overflow-hidden">
           {/* Tabs */}
-          <div className="flex border-b border-gray-700">
+          <div className="flex border-b border-border">
             <button
               onClick={() => setTab('skills')}
               className={`flex-1 px-3 py-2 text-xs font-semibold cursor-pointer ${
-                tab === 'skills' ? 'text-amber-400 border-b-2 border-amber-500' : 'text-gray-400 hover:text-gray-200'
+                tab === 'skills' ? 'text-accent border-b-2 border-amber-500' : 'text-muted hover:text-gray-200'
               }`}
             >
               {t('game.skillRollButton.skills')}
@@ -239,7 +239,7 @@ export default function SkillRollButton({ character, onRoll }: SkillRollButtonPr
             <button
               onClick={() => setTab('saves')}
               className={`flex-1 px-3 py-2 text-xs font-semibold cursor-pointer ${
-                tab === 'saves' ? 'text-amber-400 border-b-2 border-amber-500' : 'text-gray-400 hover:text-gray-200'
+                tab === 'saves' ? 'text-accent border-b-2 border-amber-500' : 'text-muted hover:text-gray-200'
               }`}
             >
               {t('game.skillRollButton.saves')}
@@ -260,7 +260,7 @@ export default function SkillRollButton({ character, onRoll }: SkillRollButtonPr
                         : mode === 'disadvantage'
                           ? 'bg-red-600 text-white'
                           : 'bg-amber-600 text-white'
-                      : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                      : 'bg-surface-2 text-muted hover:bg-gray-700'
                   }`}
               >
                 {mode === 'normal'
@@ -285,11 +285,11 @@ export default function SkillRollButton({ character, onRoll }: SkillRollButtonPr
                   <button
                     key={skill.name}
                     onClick={() => doRoll(skill.name, mod, true, skill.name)}
-                    className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-gray-800 cursor-pointer text-left"
+                    className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-surface-2 cursor-pointer text-left"
                   >
                     <div className="flex items-center gap-1.5">
                       <span
-                        className={`w-1.5 h-1.5 rounded-full ${isExpert ? 'bg-amber-400' : isProficient ? 'bg-green-400' : 'bg-gray-600'}`}
+                        className={`w-1.5 h-1.5 rounded-full ${isExpert ? 'bg-accent' : isProficient ? 'bg-green-400' : 'bg-gray-600'}`}
                       />
                       <span className="text-xs text-gray-200">{skill.name}</span>
                       <span className="text-xs text-gray-500">({skill.ability})</span>
@@ -323,7 +323,7 @@ export default function SkillRollButton({ character, onRoll }: SkillRollButtonPr
                     onClick={() =>
                       doRoll(t('game.skillRollButton.saveLabel', { ability: ABILITY_LABELS[ability] }), mod)
                     }
-                    className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-gray-800 cursor-pointer text-left"
+                    className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-surface-2 cursor-pointer text-left"
                   >
                     <div className="flex items-center gap-1.5">
                       <span className={`w-1.5 h-1.5 rounded-full ${isProficient ? 'bg-green-400' : 'bg-gray-600'}`} />

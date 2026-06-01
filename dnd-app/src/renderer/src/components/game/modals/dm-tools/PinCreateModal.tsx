@@ -54,7 +54,7 @@ export default function PinCreateModal({ gridX, gridY, onCreate, onClose }: PinC
   return (
     <div className="fixed inset-0 z-30 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
-      <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 w-[360px] shadow-2xl space-y-3">
+      <div className="relative bg-surface/95 backdrop-blur-sm border border-border/50 rounded-xl p-4 w-[360px] shadow-2xl space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-gray-200">
             {t('game.pinCreateModal.title')}{' '}
@@ -78,7 +78,7 @@ export default function PinCreateModal({ gridX, gridY, onCreate, onClose }: PinC
           onKeyDown={(e) => e.key === 'Enter' && submit()}
           placeholder={t('game.pinCreateModal.labelPlaceholder')}
           autoFocus
-          className="w-full px-2.5 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-amber-500/60"
+          className="w-full px-2.5 py-1.5 rounded-lg bg-surface-2 border border-border text-sm text-fg placeholder-gray-500 focus:outline-none focus:border-amber-500/60"
         />
 
         <div>
@@ -90,7 +90,7 @@ export default function PinCreateModal({ gridX, gridY, onCreate, onClose }: PinC
                 onClick={() => setIcon(i.id)}
                 title={t(`game.pinCreateModal.iconLabels.${i.id}`)}
                 className={`w-8 h-8 rounded flex items-center justify-center text-sm cursor-pointer transition-colors ${
-                  icon === i.id ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                  icon === i.id ? 'bg-amber-600 text-white' : 'bg-surface-2 text-gray-300 hover:bg-gray-700'
                 }`}
               >
                 {i.glyph}
@@ -119,7 +119,7 @@ export default function PinCreateModal({ gridX, gridY, onCreate, onClose }: PinC
           value={linkedJournalId}
           onChange={(e) => setLinkedJournalId(e.target.value)}
           placeholder={t('game.pinCreateModal.linkedJournalPlaceholder')}
-          className="w-full px-2.5 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-xs text-gray-300 placeholder-gray-600 focus:outline-none focus:border-amber-500/60"
+          className="w-full px-2.5 py-1.5 rounded-lg bg-surface-2 border border-border text-xs text-gray-300 placeholder-gray-600 focus:outline-none focus:border-amber-500/60"
         />
 
         <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer select-none">
@@ -142,7 +142,7 @@ export default function PinCreateModal({ gridX, gridY, onCreate, onClose }: PinC
           <button
             onClick={submit}
             disabled={!label.trim()}
-            className="px-3 py-1.5 text-sm font-medium rounded bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white cursor-pointer"
+            className="px-3 py-1.5 text-sm font-medium rounded bg-amber-600 hover:bg-accent-strong disabled:bg-gray-700 disabled:text-gray-500 text-white cursor-pointer"
           >
             {t('game.pinCreateModal.title')}
           </button>

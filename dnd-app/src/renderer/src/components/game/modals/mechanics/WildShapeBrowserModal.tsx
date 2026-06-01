@@ -49,10 +49,10 @@ export default function WildShapeBrowserModal({
       role="presentation"
     >
       <div
-        className="bg-gray-900 border border-gray-700 rounded-xl w-[750px] max-h-[80vh] flex flex-col shadow-2xl"
+        className="bg-surface border border-border rounded-xl w-[750px] max-h-[80vh] flex flex-col shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="px-4 py-3 border-b border-gray-700 flex items-center justify-between">
+        <div className="px-4 py-3 border-b border-border flex items-center justify-between">
           <div>
             <h2 className="text-lg font-bold text-green-400">{t('game.wildShapeBrowserModal.title')}</h2>
             <span className="text-xs text-gray-500">
@@ -74,7 +74,7 @@ export default function WildShapeBrowserModal({
         </div>
 
         {/* Uses bar */}
-        <div className="px-4 py-2 bg-gray-800/50 border-b border-gray-700/50 flex items-center justify-between">
+        <div className="px-4 py-2 bg-surface-2/50 border-b border-border/50 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span className="text-sm text-gray-300">{t('game.wildShapeBrowserModal.usesLabel')}</span>
             <div className="flex items-center gap-1.5">
@@ -107,19 +107,19 @@ export default function WildShapeBrowserModal({
           )}
         </div>
 
-        <div className="px-4 py-2 border-b border-gray-700/50">
+        <div className="px-4 py-2 border-b border-border/50">
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t('game.wildShapeBrowserModal.filterPlaceholder')}
-            className="w-full px-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-green-500"
+            className="w-full px-3 py-1.5 bg-surface-2 border border-border rounded-lg text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-green-500"
           />
         </div>
 
         <div className="flex-1 flex min-h-0 overflow-hidden">
           {/* Beast list */}
-          <div className="w-56 overflow-y-auto border-r border-gray-700/50">
+          <div className="w-56 overflow-y-auto border-r border-border/50">
             {filtered.map((m) => (
               <button
                 key={m.id}
@@ -127,7 +127,7 @@ export default function WildShapeBrowserModal({
                 className={`w-full px-3 py-2 text-left cursor-pointer transition-colors ${
                   selected?.id === m.id
                     ? 'bg-green-600/20 border-l-2 border-green-500'
-                    : 'hover:bg-gray-800 border-l-2 border-transparent'
+                    : 'hover:bg-surface-2 border-l-2 border-transparent'
                 }`}
               >
                 <div className="text-sm text-gray-200 font-medium">{m.name}</div>

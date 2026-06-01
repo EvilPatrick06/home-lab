@@ -42,7 +42,7 @@ export default function FloatingDMPanel({
       role="region"
       aria-label={t('game.floatingDMPanel.regionLabel')}
     >
-      <div className="pointer-events-auto flex flex-col gap-1 bg-gray-900/85 backdrop-blur-sm border border-amber-700/40 rounded-xl p-1.5 shadow-xl">
+      <div className="pointer-events-auto flex flex-col gap-1 bg-surface/85 backdrop-blur-sm border border-amber-700/40 rounded-xl p-1.5 shadow-xl">
         <button
           onClick={onSwitchToDM}
           title={t('game.floatingDMPanel.switchToDMTitle')}
@@ -55,7 +55,7 @@ export default function FloatingDMPanel({
           onClick={onOpenInitiative}
           title={t('game.floatingDMPanel.openInitiative')}
           aria-label={t('game.floatingDMPanel.openInitiative')}
-          className="w-9 h-9 rounded-lg flex items-center justify-center text-lg bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors cursor-pointer"
+          className="w-9 h-9 rounded-lg flex items-center justify-center text-lg bg-surface-2 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors cursor-pointer"
         >
           ⚔️
         </button>
@@ -64,7 +64,7 @@ export default function FloatingDMPanel({
             onClick={onNextTurn}
             title={t('game.floatingDMPanel.nextTurn')}
             aria-label={t('game.floatingDMPanel.nextTurnAria')}
-            className="w-9 h-9 rounded-lg flex items-center justify-center text-lg bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors cursor-pointer"
+            className="w-9 h-9 rounded-lg flex items-center justify-center text-lg bg-surface-2 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors cursor-pointer"
           >
             ➡️
           </button>
@@ -77,7 +77,7 @@ export default function FloatingDMPanel({
             className={`w-9 h-9 rounded-lg flex items-center justify-center text-lg transition-colors cursor-pointer ${
               aiPaused
                 ? 'bg-green-900/40 text-green-300 hover:bg-green-700/50 hover:text-white'
-                : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
+                : 'bg-surface-2 text-gray-300 hover:bg-gray-700 hover:text-white'
             }`}
           >
             {aiPaused ? '▶️' : '⏸️'}

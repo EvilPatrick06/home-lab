@@ -20,9 +20,9 @@ export default function WeatherBanner({ preset }: WeatherBannerProps): JSX.Eleme
   if (effects.speedModifier < 1) mechanics.push(t('game.weatherBanner.speedModifier', { value: effects.speedModifier }))
   if (effects.disadvantagePerception) mechanics.push(t('game.weatherBanner.disadvPerception'))
   return (
-    <div className="absolute top-12 left-1/2 -translate-x-1/2 z-[2] px-3 py-1.5 bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-lg shadow-lg pointer-events-none max-w-md text-center">
+    <div className="absolute top-12 left-1/2 -translate-x-1/2 z-[2] px-3 py-1.5 bg-surface/80 backdrop-blur-sm border border-border/50 rounded-lg shadow-lg pointer-events-none max-w-md text-center">
       <span className="text-xs font-semibold text-amber-300">{effects.description}</span>
-      {mechanics.length > 0 && <span className="text-xs text-gray-400 ml-2">{mechanics.join(' · ')}</span>}
+      {mechanics.length > 0 && <span className="text-xs text-muted ml-2">{mechanics.join(' · ')}</span>}
     </div>
   )
 }

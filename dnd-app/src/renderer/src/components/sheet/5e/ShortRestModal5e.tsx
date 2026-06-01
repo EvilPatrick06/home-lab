@@ -94,7 +94,7 @@ export default function ShortRestModal5e({ character, open, onClose }: ShortRest
   return (
     <Modal open={open} onClose={handleClose} title={t('sheet.shortRestModal.title')}>
       <div className="space-y-4">
-        <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-3 text-sm text-gray-400 space-y-1">
+        <div className="bg-surface-2/50 border border-border rounded-lg p-3 text-sm text-muted space-y-1">
           <div className="text-xs font-semibold text-gray-300 mb-1">{t('sheet.shortRestModal.takingShortRest')}</div>
           <ul className="list-disc list-inside space-y-0.5 text-xs">
             <li>{t('sheet.shortRestModal.spendDice', { hitDie, conMod: `${conMod >= 0 ? '+' : ''}${conMod}` })}</li>
@@ -116,15 +116,15 @@ export default function ShortRestModal5e({ character, open, onClose }: ShortRest
           </ul>
         </div>
 
-        <div className="text-sm text-gray-400">
+        <div className="text-sm text-muted">
           {t('sheet.shortRestModal.hitPointDice')}{' '}
           {isMulticlass ? (
-            <span className="text-amber-400 font-semibold">
+            <span className="text-accent font-semibold">
               {remaining}/{character.hitDice.reduce((s, h) => s + h.maximum, 0)} (
               {character.hitDice.map((h) => `${h.current}/${h.maximum}d${h.dieType}`).join(' + ')})
             </span>
           ) : (
-            <span className="text-amber-400 font-semibold">
+            <span className="text-accent font-semibold">
               {remaining}d{hitDie}
             </span>
           )}{' '}
@@ -149,7 +149,7 @@ export default function ShortRestModal5e({ character, open, onClose }: ShortRest
                       className={`px-3 py-1 text-sm rounded transition-colors ${
                         selectedDieSize === d
                           ? 'bg-amber-600 text-white'
-                          : 'border border-gray-600 text-gray-400 hover:text-amber-400 hover:border-amber-600'
+                          : 'border border-gray-600 text-muted hover:text-accent hover:border-amber-600'
                       }`}
                     >
                       d{d}
@@ -166,14 +166,14 @@ export default function ShortRestModal5e({ character, open, onClose }: ShortRest
                 max={maxSpend}
                 value={diceCount}
                 onChange={(e) => setDiceCount(Math.max(0, Math.min(maxSpend, parseInt(e.target.value, 10) || 0)))}
-                className="w-16 bg-gray-800 border border-gray-600 rounded px-2 py-1 text-center text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+                className="w-16 bg-surface-2 border border-gray-600 rounded px-2 py-1 text-center text-sm text-fg focus:outline-none focus:border-amber-500"
               />
               <span className="text-xs text-gray-500">{t('sheet.shortRestModal.maxN', { max: maxSpend })}</span>
             </div>
 
             {/* Arcane Recovery slot picker */}
             {preview.arcaneRecoveryEligible && (
-              <div className="border-t border-gray-700 pt-2">
+              <div className="border-t border-border pt-2">
                 <div className="text-xs text-purple-400 font-semibold mb-1">
                   {t('sheet.shortRestModal.arcaneRecoveryHeader', { count: preview.arcaneRecoverySlotsToRecover })}
                 </div>
@@ -197,7 +197,7 @@ export default function ShortRestModal5e({ character, open, onClose }: ShortRest
                               ? 'bg-purple-600 text-white'
                               : canAdd
                                 ? 'bg-gray-700 text-gray-300 hover:bg-purple-600/30 cursor-pointer'
-                                : 'bg-gray-800 text-gray-600 cursor-not-allowed'
+                                : 'bg-surface-2 text-gray-600 cursor-not-allowed'
                           }`}
                         >
                           L{level} ({slots.current}/{slots.max})
@@ -211,14 +211,14 @@ export default function ShortRestModal5e({ character, open, onClose }: ShortRest
             <div className="flex gap-2 justify-end">
               <button
                 onClick={handleClose}
-                className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-gray-800 transition-colors"
+                className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-surface-2 transition-colors"
               >
                 {t('common.actions.cancel')}
               </button>
               <button
                 onClick={roll}
                 disabled={diceCount === 0}
-                className="px-4 py-2 text-sm bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded font-semibold transition-colors"
+                className="px-4 py-2 text-sm bg-amber-600 hover:bg-accent-strong disabled:bg-gray-700 disabled:text-gray-500 text-white rounded font-semibold transition-colors"
               >
                 {t('sheet.shortRestModal.rollDice', { count: diceCount, die: isMulticlass ? selectedDieSize : hitDie })}
               </button>
@@ -240,7 +240,7 @@ export default function ShortRestModal5e({ character, open, onClose }: ShortRest
                   </span>
                 </div>
               ))}
-              <div className="border-t border-gray-700 pt-2 mt-2 text-sm font-semibold text-green-400">
+              <div className="border-t border-border pt-2 mt-2 text-sm font-semibold text-green-400">
                 {t('sheet.shortRestModal.totalHealing', { total: totalHealing })}
               </div>
               <div className="text-xs text-gray-500">

@@ -58,10 +58,10 @@ export default function SteedSelectorModal({
       role="presentation"
     >
       <div
-        className="bg-gray-900 border border-gray-700 rounded-xl w-[700px] max-h-[80vh] flex flex-col shadow-2xl"
+        className="bg-surface border border-border rounded-xl w-[700px] max-h-[80vh] flex flex-col shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="px-4 py-3 border-b border-gray-700 flex items-center justify-between">
+        <div className="px-4 py-3 border-b border-border flex items-center justify-between">
           <div>
             <h2 className="text-lg font-bold text-blue-400">{t('game.steedSelectorModal.title')}</h2>
             <span className="text-xs text-gray-500">{t('game.steedSelectorModal.subtitle')}</span>
@@ -84,7 +84,7 @@ export default function SteedSelectorModal({
 
         <div className="flex-1 flex min-h-0 overflow-hidden">
           {/* Steed list */}
-          <div className="w-48 overflow-y-auto border-r border-gray-700/50 p-2">
+          <div className="w-48 overflow-y-auto border-r border-border/50 p-2">
             <div className="text-xs text-gray-500 uppercase tracking-wider mb-2 px-1">
               {t('game.steedSelectorModal.availableSteeds')}
             </div>
@@ -96,7 +96,7 @@ export default function SteedSelectorModal({
                   className={`w-full p-2 rounded-lg text-left cursor-pointer transition-all ${
                     selected?.id === m.id
                       ? 'bg-blue-600/20 border border-blue-500/50'
-                      : 'bg-gray-800/60 border border-gray-700/50 hover:bg-gray-700/60'
+                      : 'bg-surface-2/60 border border-border/50 hover:bg-gray-700/60'
                   }`}
                 >
                   <div className="text-xs text-gray-200 font-medium">{m.name}</div>
@@ -113,7 +113,7 @@ export default function SteedSelectorModal({
             {selected ? (
               <div className="space-y-3">
                 <MonsterStatBlockView monster={selected} />
-                <div className="text-xs text-gray-500 bg-gray-800/50 rounded p-2">
+                <div className="text-xs text-gray-500 bg-surface-2/50 rounded p-2">
                   {t('game.steedSelectorModal.statNote')}
                 </div>
                 <button

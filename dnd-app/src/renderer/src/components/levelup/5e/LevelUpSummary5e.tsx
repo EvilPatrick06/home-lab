@@ -84,21 +84,21 @@ export function LevelUpSummaryBar5e({
   const { t } = useT()
   return (
     <div
-      className={`bg-gray-900 border rounded-lg p-4 sticky bottom-0 ${incompleteChoices.length > 0 ? 'border-amber-600/50' : 'border-gray-700'}`}
+      className={`bg-surface border rounded-lg p-4 sticky bottom-0 ${incompleteChoices.length > 0 ? 'border-amber-600/50' : 'border-border'}`}
     >
       <div className="flex items-center gap-6 flex-wrap text-sm">
-        <span className="text-gray-400">
-          {t('levelup.summaryBar.level')} <span className="text-amber-400 font-bold">{currentLevel}</span> &rarr;{' '}
-          <span className="text-amber-400 font-bold">{targetLevel}</span>
+        <span className="text-muted">
+          {t('levelup.summaryBar.level')} <span className="text-accent font-bold">{currentLevel}</span> &rarr;{' '}
+          <span className="text-accent font-bold">{targetLevel}</span>
         </span>
-        <span className="text-gray-400">
+        <span className="text-muted">
           {t('levelup.summaryBar.hp')}{' '}
           <span className="text-green-400 font-bold">
             {character.hitPoints.maximum} &rarr; {summary.newMaxHP}
           </span>
         </span>
         {summary.asiChanges.length > 0 && (
-          <span className="text-gray-400">
+          <span className="text-muted">
             {summary.asiChanges.map((c, i) => (
               <span key={i} className="text-purple-400">
                 {i > 0 ? ', ' : ''}
@@ -108,13 +108,13 @@ export function LevelUpSummaryBar5e({
           </span>
         )}
         {newSpellCount > 0 && (
-          <span className="text-gray-400">
+          <span className="text-muted">
             +<span className="text-blue-400 font-bold">{newSpellCount}</span>
             {t('levelup.summaryBar.spellSuffix', { count: newSpellCount })}
           </span>
         )}
         {incompleteChoices.length > 0 && (
-          <span className="text-amber-400 font-semibold ml-auto">
+          <span className="text-accent font-semibold ml-auto">
             {t('levelup.summaryBar.choicesRemaining', { count: incompleteChoices.length })}
           </span>
         )}

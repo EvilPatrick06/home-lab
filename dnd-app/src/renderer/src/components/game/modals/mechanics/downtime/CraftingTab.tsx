@@ -84,9 +84,9 @@ export default function CraftingTab({
       {/* Active crafting progress */}
       {craftingEntries.length > 0 && (
         <div className="space-y-2">
-          <h3 className="text-xs font-semibold text-gray-400">{t('game.craftingTab.activeCrafting')}</h3>
+          <h3 className="text-xs font-semibold text-muted">{t('game.craftingTab.activeCrafting')}</h3>
           {craftingEntries.map((entry) => (
-            <div key={entry.id} className="bg-gray-800/50 border border-gray-700 rounded-lg p-3">
+            <div key={entry.id} className="bg-surface-2/50 border border-border rounded-lg p-3">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs font-semibold text-amber-300">{entry.activityName}</span>
                 <span className="text-xs text-gray-500">
@@ -96,7 +96,7 @@ export default function CraftingTab({
               {entry.details && <p className="text-xs text-gray-500 mb-1">{entry.details}</p>}
               <div className="w-full bg-gray-700 rounded-full h-1.5 mb-2">
                 <div
-                  className="bg-amber-500 h-1.5 rounded-full transition-all"
+                  className="bg-accent-strong h-1.5 rounded-full transition-all"
                   style={{ width: `${Math.min(100, (entry.daysSpent / entry.daysRequired) * 100)}%` }}
                 />
               </div>

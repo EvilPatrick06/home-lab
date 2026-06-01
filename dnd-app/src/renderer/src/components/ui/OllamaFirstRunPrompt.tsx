@@ -65,11 +65,11 @@ export default function OllamaFirstRunPrompt(): JSX.Element | null {
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[100]">
-      <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-xl w-[420px] p-5 space-y-4">
-        <h2 className="text-lg font-semibold text-gray-100">{t('ui.ollamaFirstRun.title')}</h2>
+      <div className="bg-surface border border-border rounded-lg shadow-xl w-[420px] p-5 space-y-4">
+        <h2 className="text-lg font-semibold text-fg">{t('ui.ollamaFirstRun.title')}</h2>
         <p className="text-sm text-gray-300 leading-relaxed">
           {t('ui.ollamaFirstRun.descriptionLead')}{' '}
-          <span className="text-amber-400">{t('ui.ollamaFirstRun.settingsPath')}</span>.
+          <span className="text-accent">{t('ui.ollamaFirstRun.settingsPath')}</span>.
         </p>
         <div className="flex justify-end gap-2 pt-1">
           <button
@@ -82,7 +82,7 @@ export default function OllamaFirstRunPrompt(): JSX.Element | null {
           <button
             onClick={handleInstall}
             disabled={installing}
-            className="px-3 py-1.5 text-sm font-medium rounded bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white cursor-pointer"
+            className="px-3 py-1.5 text-sm font-medium rounded bg-amber-600 hover:bg-accent-strong disabled:bg-gray-700 disabled:text-gray-500 text-white cursor-pointer"
           >
             {installing ? t('ui.ollamaFirstRun.installing') : t('ui.ollamaFirstRun.install')}
           </button>

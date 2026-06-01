@@ -46,10 +46,10 @@ export function DamageResultStep({
     <div className="space-y-3">
       <div
         className={`text-center p-4 rounded-lg border ${
-          damageResult.isCrit ? 'border-green-500 bg-green-900/20' : 'border-gray-700 bg-gray-800'
+          damageResult.isCrit ? 'border-green-500 bg-green-900/20' : 'border-border bg-surface-2'
         }`}
       >
-        <div className="text-xs text-gray-400 mb-1">
+        <div className="text-xs text-muted mb-1">
           {t('game.damageResultStep.damageLabel', { damageType: selectedWeapon.damageType })}
           {isOffhandAttack && t('game.damageResultStep.offhandSuffix')}
         </div>
@@ -64,7 +64,7 @@ export function DamageResultStep({
             </span>
           ))}
           {damageResult.modifier !== 0 && (
-            <span className="text-xs text-gray-400 self-center ml-1">{formatMod(damageResult.modifier)}</span>
+            <span className="text-xs text-muted self-center ml-1">{formatMod(damageResult.modifier)}</span>
           )}
         </div>
         {damageResult.isCrit && (
@@ -90,7 +90,7 @@ export function DamageResultStep({
           <div className="flex gap-2">
             <button
               onClick={() => onApplyDamage(true)}
-              className="flex-1 px-3 py-1.5 text-xs font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded-lg cursor-pointer"
+              className="flex-1 px-3 py-1.5 text-xs font-semibold bg-amber-600 hover:bg-accent-strong text-white rounded-lg cursor-pointer"
             >
               {t('game.damageResultStep.knockOut')}
             </button>
@@ -134,7 +134,7 @@ export function DamageResultStep({
             )}
           <button
             onClick={() => onApplyDamage()}
-            className="w-full px-4 py-3 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-lg cursor-pointer text-sm"
+            className="w-full px-4 py-3 bg-amber-600 hover:bg-accent-strong text-white font-semibold rounded-lg cursor-pointer text-sm"
           >
             {t('game.damageResultStep.applyDamage', { total: damageResult.total, target: selectedTarget.label })}
             {masteryEffect ? t('game.damageResultStep.masterySuffix', { mastery: masteryEffect.mastery }) : ''}

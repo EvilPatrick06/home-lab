@@ -42,9 +42,9 @@ export function FeatPicker({ character, takenFeatIds, onSelect, onClose }: FeatP
   })
 
   return (
-    <div className="mt-2 border border-gray-700 rounded-lg p-3 bg-gray-900/80">
+    <div className="mt-2 border border-border rounded-lg p-3 bg-surface/80">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-xs text-gray-400 font-semibold">{t('sheet.featPicker.selectFeat')}</span>
+        <span className="text-xs text-muted font-semibold">{t('sheet.featPicker.selectFeat')}</span>
         <button onClick={onClose} className="text-xs text-gray-500 hover:text-gray-300 cursor-pointer">
           {t('common.actions.cancel')}
         </button>
@@ -59,7 +59,7 @@ export function FeatPicker({ character, takenFeatIds, onSelect, onClose }: FeatP
             className={`px-2 py-0.5 text-xs rounded cursor-pointer transition-colors ${
               categoryFilter === cat
                 ? 'bg-amber-600 text-white'
-                : 'border border-gray-600 text-gray-400 hover:text-gray-200'
+                : 'border border-gray-600 text-muted hover:text-gray-200'
             }`}
           >
             {cat === 'all' ? t('sheet.featPicker.all') : cat}
@@ -69,11 +69,12 @@ export function FeatPicker({ character, takenFeatIds, onSelect, onClose }: FeatP
 
       {/* Search */}
       <input
+        aria-label={t('sheet.featPicker.searchFeatsPlaceholder')}
         type="text"
         placeholder={t('sheet.featPicker.searchFeatsPlaceholder')}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="w-full px-2 py-1 text-sm bg-gray-800 border border-gray-700 rounded text-gray-200 placeholder-gray-500 mb-2"
+        className="w-full px-2 py-1 text-sm bg-surface-2 border border-border rounded text-gray-200 placeholder-gray-500 mb-2"
       />
 
       {/* Feat list */}
@@ -117,7 +118,7 @@ export function BonusFeatPicker({ character, bonusFeats, onSelect, onClose }: Bo
   const takenBonusIds = new Set(bonusFeats.map((bf) => bf.id))
 
   return (
-    <div className="mt-2 border border-amber-700/50 rounded-lg p-3 bg-gray-900/80">
+    <div className="mt-2 border border-amber-700/50 rounded-lg p-3 bg-surface/80">
       <div className="flex items-center justify-between mb-2">
         <span className="text-xs text-amber-300 font-semibold">{t('sheet.featPicker.selectBonusFeat')}</span>
         <button onClick={onClose} className="text-xs text-gray-500 hover:text-gray-300 cursor-pointer">
@@ -133,7 +134,7 @@ export function BonusFeatPicker({ character, bonusFeats, onSelect, onClose }: Bo
             className={`px-2 py-0.5 text-xs rounded cursor-pointer transition-colors ${
               bonusFeatCategory === cat
                 ? 'bg-amber-600 text-white'
-                : 'border border-gray-600 text-gray-400 hover:text-gray-200'
+                : 'border border-gray-600 text-muted hover:text-gray-200'
             }`}
           >
             {cat === 'all' ? t('sheet.featPicker.all') : cat}
@@ -142,11 +143,12 @@ export function BonusFeatPicker({ character, bonusFeats, onSelect, onClose }: Bo
       </div>
 
       <input
+        aria-label={t('sheet.featPicker.searchFeatsPlaceholder')}
         type="text"
         placeholder={t('sheet.featPicker.searchFeatsPlaceholder')}
         value={bonusFeatSearch}
         onChange={(e) => setBonusFeatSearch(e.target.value)}
-        className="w-full px-2 py-1 text-sm bg-gray-800 border border-gray-700 rounded text-gray-200 placeholder-gray-500 mb-2"
+        className="w-full px-2 py-1 text-sm bg-surface-2 border border-border rounded text-gray-200 placeholder-gray-500 mb-2"
       />
 
       <div className="max-h-48 overflow-y-auto space-y-1">

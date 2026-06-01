@@ -543,10 +543,10 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
 
   if (leaving)
     return (
-      <div className="h-screen w-screen flex items-center justify-center bg-gray-950 text-gray-100">
+      <div className="h-screen w-screen flex items-center justify-center bg-base text-fg">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-gray-400">Leaving game...</p>
+          <p className="text-sm text-muted">Leaving game...</p>
         </div>
       </div>
     )
@@ -555,7 +555,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
 
   return (
     <div
-      className="h-screen w-screen relative overflow-hidden bg-gray-950 text-gray-100"
+      className="h-screen w-screen relative overflow-hidden bg-base text-fg"
       role="application"
       aria-label={t('game.gameLayout.gameSession')}
     >
@@ -564,7 +564,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
         <button
           type="button"
           onClick={() => setViewAsTarget(null)}
-          className="absolute top-0 left-1/2 -translate-x-1/2 z-50 mt-2 px-3 py-1 rounded-full bg-amber-600/90 text-white text-xs font-semibold shadow-lg cursor-pointer hover:bg-amber-500"
+          className="absolute top-0 left-1/2 -translate-x-1/2 z-50 mt-2 px-3 py-1 rounded-full bg-amber-600/90 text-white text-xs font-semibold shadow-lg cursor-pointer hover:bg-accent-strong"
         >
           Viewing as {viewAs.label} — click to exit
         </button>
@@ -645,7 +645,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
           <div className="absolute inset-0 bg-amber-900/20 pointer-events-none z-[1]" />
         )}
         {gameStore.ambientLight === 'darkness' && (
-          <div className="absolute inset-0 bg-gray-950/60 pointer-events-none z-[1]" />
+          <div className="absolute inset-0 bg-base/60 pointer-events-none z-[1]" />
         )}
         {gameStore.underwaterCombat && <div className="absolute inset-0 bg-blue-900/15 pointer-events-none z-[1]" />}
         <WeatherBanner preset={gameStore.weatherOverride?.preset as WeatherType | undefined} />
@@ -782,7 +782,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
             onClick={() => window.dispatchEvent(new Event(RESET_MAP_VIEW_EVENT))}
             title={t('game.mapCanvas.resetViewTitle')}
             aria-label={t('game.mapCanvas.resetViewLabel')}
-            className="px-3 py-1.5 text-xs font-medium bg-gray-800/90 border border-gray-700 rounded-lg text-gray-400 hover:text-gray-200 hover:bg-gray-700 transition-colors cursor-pointer backdrop-blur-sm"
+            className="px-3 py-1.5 text-xs font-medium bg-surface-2/90 border border-border rounded-lg text-muted hover:text-gray-200 hover:bg-gray-700 transition-colors cursor-pointer backdrop-blur-sm"
           >
             {t('game.mapCanvas.resetView')}
           </button>

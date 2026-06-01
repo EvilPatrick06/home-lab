@@ -57,23 +57,23 @@ export function WeaponSelectionStep({
             }}
             className={`w-full text-left px-3 py-2 border rounded-lg cursor-pointer ${
               isUnarmedEntry || isImprovisedEntry
-                ? 'bg-gray-800/50 hover:bg-gray-700 border-gray-600 border-dashed'
-                : 'bg-gray-800 hover:bg-gray-700 border-gray-700'
+                ? 'bg-surface-2/50 hover:bg-gray-700 border-gray-600 border-dashed'
+                : 'bg-surface-2 hover:bg-gray-700 border-border'
             }`}
           >
             <div className="flex justify-between">
               <span className="text-sm font-semibold text-gray-200">{w.name}</span>
               {isUnarmedEntry ? (
-                <span className="text-xs text-amber-400 font-mono">{t('game.weaponSelectionStep.threeModes')}</span>
+                <span className="text-xs text-accent font-mono">{t('game.weaponSelectionStep.threeModes')}</span>
               ) : (
-                <span className="text-xs text-amber-400 font-mono">
+                <span className="text-xs text-accent font-mono">
                   {isImprovisedEntry
                     ? t('game.weaponSelectionStep.toHit', { mod: formatMod(strMod) })
                     : t('game.weaponSelectionStep.toHit', { mod: formatMod(getAttackMod()) })}
                 </span>
               )}
             </div>
-            <div className="text-xs text-gray-400 mt-0.5">
+            <div className="text-xs text-muted mt-0.5">
               {isUnarmedEntry ? (
                 t('game.weaponSelectionStep.unarmedDesc', { value: Math.max(1, 1 + strMod) })
               ) : isImprovisedEntry ? (
@@ -120,29 +120,29 @@ export function UnarmedModeStep({ strMod, unarmedStrikeDC, onSelectMode, onBack 
     <div className="space-y-2">
       <button
         onClick={() => onSelectMode('damage')}
-        className="w-full text-left px-3 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg cursor-pointer"
+        className="w-full text-left px-3 py-2 bg-surface-2 hover:bg-gray-700 border border-border rounded-lg cursor-pointer"
       >
         <div className="text-sm font-semibold text-gray-200">{t('game.unarmedModeStep.damage')}</div>
-        <div className="text-xs text-gray-400">
+        <div className="text-xs text-muted">
           {t('game.unarmedModeStep.damageDesc', { value: Math.max(1, 1 + strMod) })}
         </div>
       </button>
       <button
         onClick={() => onSelectMode('grapple')}
-        className="w-full text-left px-3 py-2 bg-gray-800 hover:bg-gray-700 border border-blue-700/50 rounded-lg cursor-pointer"
+        className="w-full text-left px-3 py-2 bg-surface-2 hover:bg-gray-700 border border-blue-700/50 rounded-lg cursor-pointer"
       >
         <div className="text-sm font-semibold text-blue-300">{t('game.unarmedModeStep.grapple')}</div>
-        <div className="text-xs text-gray-400">
+        <div className="text-xs text-muted">
           {t('game.unarmedModeStep.grappleDesc', { dc: unarmedStrikeDC })}
           <span className="text-yellow-400 ml-1">{t('game.unarmedModeStep.requiresFreeHand')}</span>
         </div>
       </button>
       <button
         onClick={() => onSelectMode('shove')}
-        className="w-full text-left px-3 py-2 bg-gray-800 hover:bg-gray-700 border border-orange-700/50 rounded-lg cursor-pointer"
+        className="w-full text-left px-3 py-2 bg-surface-2 hover:bg-gray-700 border border-orange-700/50 rounded-lg cursor-pointer"
       >
         <div className="text-sm font-semibold text-orange-300">{t('game.unarmedModeStep.shove')}</div>
-        <div className="text-xs text-gray-400">{t('game.unarmedModeStep.shoveDesc', { dc: unarmedStrikeDC })}</div>
+        <div className="text-xs text-muted">{t('game.unarmedModeStep.shoveDesc', { dc: unarmedStrikeDC })}</div>
       </button>
       <button onClick={onBack} className="text-xs text-gray-500 hover:text-gray-300 cursor-pointer">
         {t('game.unarmedModeStep.back')}

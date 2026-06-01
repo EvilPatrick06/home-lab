@@ -2,11 +2,11 @@ import { useT } from '../../i18n'
 import type { LibraryCategory } from '../../types/library'
 
 const RARITY_COLORS: Record<string, string> = {
-  common: 'text-gray-400',
+  common: 'text-muted',
   uncommon: 'text-green-400',
   rare: 'text-blue-400',
   'very rare': 'text-purple-400',
-  legendary: 'text-amber-400',
+  legendary: 'text-accent',
   artifact: 'text-red-400'
 }
 
@@ -19,7 +19,7 @@ function Stat({ label, value }: { label: string; value: unknown }): JSX.Element 
   if (value === null || value === undefined || value === '') return null
   return (
     <div className="flex gap-1">
-      <span className="text-amber-500 font-semibold">{label}</span>
+      <span className="text-accent-strong font-semibold">{label}</span>
       <span className="text-gray-300">{String(value)}</span>
     </div>
   )
@@ -37,7 +37,7 @@ function WeaponCard({ item }: { item: Record<string, unknown> }): JSX.Element {
       />
       {properties.length > 0 && (
         <div className="flex gap-1">
-          <span className="text-amber-500 font-semibold">{t('library.itemCardView.properties')}</span>
+          <span className="text-accent-strong font-semibold">{t('library.itemCardView.properties')}</span>
           <span className="text-gray-300">{properties.join(', ')}</span>
         </div>
       )}
@@ -65,7 +65,7 @@ function ArmorCard({ item }: { item: Record<string, unknown> }): JSX.Element {
       )}
       {!!item.stealthDisadvantage && (
         <div className="flex gap-1">
-          <span className="text-amber-500 font-semibold">{t('library.itemCardView.stealth')}</span>
+          <span className="text-accent-strong font-semibold">{t('library.itemCardView.stealth')}</span>
           <span className="text-red-400">{t('library.itemCardView.disadvantage')}</span>
         </div>
       )}
@@ -101,18 +101,18 @@ function GearCard({ item }: { item: Record<string, unknown> }): JSX.Element {
 function MagicItemCard({ item }: { item: Record<string, unknown> }): JSX.Element {
   const { t } = useT()
   const rarity = String(item.rarity ?? 'common').toLowerCase()
-  const rarityColor = RARITY_COLORS[rarity] ?? 'text-gray-400'
+  const rarityColor = RARITY_COLORS[rarity] ?? 'text-muted'
 
   return (
     <div className="space-y-0.5 text-sm">
       <div className="flex gap-1">
-        <span className="text-amber-500 font-semibold">{t('library.itemCardView.rarity')}</span>
+        <span className="text-accent-strong font-semibold">{t('library.itemCardView.rarity')}</span>
         <span className={`${rarityColor} capitalize`}>{rarity}</span>
       </div>
       <Stat label={t('library.itemCardView.type')} value={item.type} />
       {!!item.attunement && (
         <div className="flex gap-1">
-          <span className="text-amber-500 font-semibold">{t('library.itemCardView.attunement')}</span>
+          <span className="text-accent-strong font-semibold">{t('library.itemCardView.attunement')}</span>
           <span className="text-purple-400">{t('library.itemCardView.required')}</span>
         </div>
       )}
@@ -146,15 +146,15 @@ export default function ItemCardView({ item, category }: ItemCardViewProps): JSX
 
   const rarity = category === 'magic-items' ? String(item.rarity ?? '').toLowerCase() : ''
   const rarityColor = RARITY_COLORS[rarity] ?? ''
-  const headerColor = rarityColor || 'text-amber-400'
+  const headerColor = rarityColor || 'text-accent'
 
   return (
-    <div className="bg-gray-900 border border-amber-800/40 rounded-lg overflow-hidden">
+    <div className="bg-surface border border-amber-800/40 rounded-lg overflow-hidden">
       <div className="bg-amber-900/30 border-b border-amber-800/40 px-3 py-2">
         <h3 className={`text-base font-bold ${headerColor}`}>
           {item.name ? String(item.name) : t('library.itemCardView.unknownItem')}
         </h3>
-        <p className="text-xs text-gray-400 italic capitalize">{category.replace(/-/g, ' ')}</p>
+        <p className="text-xs text-muted italic capitalize">{category.replace(/-/g, ' ')}</p>
       </div>
       <div className="px-3 py-2">{content}</div>
     </div>

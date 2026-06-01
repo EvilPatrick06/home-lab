@@ -65,10 +65,10 @@ function CollapsibleSection({
     <div className="border border-gray-800 rounded-lg overflow-hidden">
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between p-3 bg-gray-900/60 hover:bg-gray-900/80 transition-colors cursor-pointer"
+        className="w-full flex items-center justify-between p-3 bg-surface/60 hover:bg-surface/80 transition-colors cursor-pointer"
       >
         <div className="flex items-center gap-2">
-          <span className="text-gray-400 text-sm">{open ? '\u25BC' : '\u25B6'}</span>
+          <span className="text-muted text-sm">{open ? '\u25BC' : '\u25B6'}</span>
           <span className="font-semibold text-sm">{title}</span>
           <span className="text-xs text-gray-500">({count})</span>
         </div>
@@ -90,13 +90,15 @@ function ToggleRow({
   return (
     <div
       className={`flex items-center gap-3 p-2 rounded-lg transition-colors ${
-        included ? 'bg-gray-800/40' : 'bg-gray-800/20 opacity-50'
+        included ? 'bg-surface-2/40' : 'bg-surface-2/20 opacity-50'
       }`}
     >
       <button
         onClick={onToggle}
         className={`w-5 h-5 rounded border flex-shrink-0 flex items-center justify-center transition-colors cursor-pointer ${
-          included ? 'bg-amber-500 border-amber-500 text-black' : 'border-gray-600 bg-gray-800 hover:border-gray-500'
+          included
+            ? 'bg-accent-strong border-amber-500 text-black'
+            : 'border-gray-600 bg-surface-2 hover:border-gray-500'
         }`}
       >
         {included && <span className="text-xs font-bold">{'\u2713'}</span>}
@@ -110,20 +112,20 @@ function ChapterDetail({ chapter, index }: { chapter: AdventureChapter; index: n
   const { t } = useT()
   const [expanded, setExpanded] = useState(false)
   return (
-    <div className="bg-gray-800/30 rounded-lg p-3">
+    <div className="bg-surface-2/30 rounded-lg p-3">
       <button
         onClick={() => setExpanded(!expanded)}
         className="w-full text-left flex items-center gap-2 cursor-pointer"
       >
         <span className="text-gray-500 text-xs">{expanded ? '\u25BC' : '\u25B6'}</span>
-        <span className="text-xs text-amber-400 font-mono">
+        <span className="text-xs text-accent font-mono">
           {t('campaign.adventureSelector.chapterShort', { num: index + 1 })}
         </span>
         <span className="text-sm font-semibold">{chapter.title}</span>
       </button>
       {expanded && (
         <div className="mt-2 ml-6 space-y-2">
-          <p className="text-sm text-gray-400">{chapter.description}</p>
+          <p className="text-sm text-muted">{chapter.description}</p>
           {chapter.maps.length > 0 && (
             <div className="text-xs text-gray-500">
               {t('campaign.adventureSelector.mapsList', { maps: chapter.maps.join(', ') })}
@@ -198,7 +200,7 @@ export default function AdventureSelector({
   return (
     <div>
       <h2 className="text-xl font-semibold mb-2">{t('campaign.adventureSelector.title')}</h2>
-      <p className="text-gray-400 text-sm mb-6">{t('campaign.adventureSelector.subtitle')}</p>
+      <p className="text-muted text-sm mb-6">{t('campaign.adventureSelector.subtitle')}</p>
 
       <div className="flex gap-4 max-w-2xl mb-6">
         <button
@@ -210,12 +212,12 @@ export default function AdventureSelector({
             ${
               campaignType === 'preset'
                 ? 'border-amber-500 bg-amber-900/20'
-                : 'border-gray-800 bg-gray-900/50 hover:border-gray-600'
+                : 'border-gray-800 bg-surface/50 hover:border-gray-600'
             }`}
         >
           <div className="text-2xl mb-2">{'\uD83D\uDCD6'}</div>
           <div className="font-semibold">{t('campaign.adventureSelector.startFromAdventure')}</div>
-          <div className="text-sm text-gray-400 mt-1">{t('campaign.adventureSelector.startFromAdventureDesc')}</div>
+          <div className="text-sm text-muted mt-1">{t('campaign.adventureSelector.startFromAdventureDesc')}</div>
         </button>
 
         <button
@@ -227,12 +229,12 @@ export default function AdventureSelector({
             ${
               campaignType === 'custom'
                 ? 'border-amber-500 bg-amber-900/20'
-                : 'border-gray-800 bg-gray-900/50 hover:border-gray-600'
+                : 'border-gray-800 bg-surface/50 hover:border-gray-600'
             }`}
         >
           <div className="text-2xl mb-2">{'\u2728'}</div>
           <div className="font-semibold">{t('campaign.adventureSelector.customCampaign')}</div>
-          <div className="text-sm text-gray-400 mt-1">{t('campaign.adventureSelector.customCampaignDesc')}</div>
+          <div className="text-sm text-muted mt-1">{t('campaign.adventureSelector.customCampaignDesc')}</div>
         </button>
       </div>
 
@@ -242,7 +244,7 @@ export default function AdventureSelector({
           {loadingAdventures ? (
             <div className="text-gray-500 py-4">{t('campaign.adventureSelector.loadingAdventures')}</div>
           ) : adventures.length === 0 ? (
-            <div className="border border-dashed border-gray-700 rounded-lg p-8 text-center text-gray-500">
+            <div className="border border-dashed border-border rounded-lg p-8 text-center text-gray-500">
               <p>{t('campaign.adventureSelector.noAdventures')}</p>
             </div>
           ) : (
@@ -264,7 +266,7 @@ export default function AdventureSelector({
                     >
                       <div className="text-2xl mb-2">{ADVENTURE_ICONS[adventure.icon] || '\uD83D\uDCDC'}</div>
                       <div className="font-semibold mb-1">{adventure.name}</div>
-                      <div className="text-sm text-gray-400 mb-3">{adventure.description}</div>
+                      <div className="text-sm text-muted mb-3">{adventure.description}</div>
                       <div className="text-xs text-gray-500 flex gap-3">
                         <span>
                           {t('campaign.adventureSelector.chapterCount', { count: adventure.chapters.length })}
@@ -280,13 +282,13 @@ export default function AdventureSelector({
 
               {/* Detail panel for selected adventure */}
               {selectedAdventure && (
-                <div className="max-w-2xl mt-6 border border-amber-500/30 rounded-lg bg-gray-900/60 p-5 space-y-4">
+                <div className="max-w-2xl mt-6 border border-amber-500/30 rounded-lg bg-surface/60 p-5 space-y-4">
                   <div className="flex items-center gap-3 mb-2">
                     <span className="text-2xl">{ADVENTURE_ICONS[selectedAdventure.icon] || '\uD83D\uDCDC'}</span>
                     <div>
                       <h3 className="text-lg font-bold">{selectedAdventure.name}</h3>
                       {selectedAdventure.levelRange && (
-                        <span className="text-xs text-gray-400">
+                        <span className="text-xs text-muted">
                           {t('campaign.adventureSelector.levels', {
                             min: selectedAdventure.levelRange.min,
                             max: selectedAdventure.levelRange.max

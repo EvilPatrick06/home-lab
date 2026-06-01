@@ -43,7 +43,7 @@ function getEntryColor(type: CombatLogEntry['type']): string {
     case 'death':
       return 'text-red-300'
     default:
-      return 'text-gray-400'
+      return 'text-muted'
   }
 }
 
@@ -213,7 +213,7 @@ function RoundDivider({ round }: { round: number }): JSX.Element {
   return (
     <div className="flex items-center gap-2 py-1.5">
       <div className="flex-1 h-px bg-gray-700/50" />
-      <span className="text-xs font-bold text-amber-500/80 uppercase tracking-wider shrink-0">
+      <span className="text-xs font-bold text-accent-strong/80 uppercase tracking-wider shrink-0">
         {t('game.combatLogPanel.round', { round })}
       </span>
       <div className="flex-1 h-px bg-gray-700/50" />
@@ -236,7 +236,7 @@ function SummaryBar({
   return (
     <div className="flex items-center gap-2">
       <span className="text-xs text-gray-500 w-16 shrink-0 text-right">{label}</span>
-      <div className="flex-1 h-2.5 bg-gray-800 rounded-full overflow-hidden">
+      <div className="flex-1 h-2.5 bg-surface-2 rounded-full overflow-hidden">
         <div className={`h-full rounded-full transition-all duration-300 ${color}`} style={{ width: `${pct}%` }} />
       </div>
       <span className="text-xs text-gray-300 w-10 shrink-0">{value}</span>
@@ -317,16 +317,16 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
 
   return (
     <div
-      className="w-80 h-full bg-gray-900/95 border-l border-gray-700 flex flex-col min-h-0"
+      className="w-80 h-full bg-surface/95 border-l border-border flex flex-col min-h-0"
       role="region"
       aria-label={t('game.combatLogPanel.regionLabel')}
     >
       {/* Header */}
-      <div className="shrink-0 flex items-center justify-between px-3 py-2 border-b border-gray-700">
+      <div className="shrink-0 flex items-center justify-between px-3 py-2 border-b border-border">
         <div className="flex items-center gap-2">
-          <h2 className="text-sm font-bold text-gray-100">{t('game.combatLogPanel.title')}</h2>
+          <h2 className="text-sm font-bold text-fg">{t('game.combatLogPanel.title')}</h2>
           {round > 0 && (
-            <span className="text-xs font-semibold text-amber-500 bg-amber-900/30 px-1.5 py-0.5 rounded">
+            <span className="text-xs font-semibold text-accent-strong bg-amber-900/30 px-1.5 py-0.5 rounded">
               {t('game.combatLogPanel.round', { round })}
             </span>
           )}
@@ -335,14 +335,14 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
           <button
             onClick={() => handleExport('csv')}
             title={t('game.combatLogPanel.exportCsv')}
-            className="px-1.5 py-0.5 text-[9px] font-bold text-gray-400 bg-gray-800 rounded hover:text-amber-400 hover:bg-gray-700 transition-colors uppercase cursor-pointer"
+            className="px-1.5 py-0.5 text-[9px] font-bold text-muted bg-surface-2 rounded hover:text-accent hover:bg-gray-700 transition-colors uppercase cursor-pointer"
           >
             {t('game.combatLogPanel.csv')}
           </button>
           <button
             onClick={() => handleExport('json')}
             title={t('game.combatLogPanel.exportJson')}
-            className="px-1.5 py-0.5 text-[9px] font-bold text-gray-400 bg-gray-800 rounded hover:text-amber-400 hover:bg-gray-700 transition-colors uppercase cursor-pointer mr-1"
+            className="px-1.5 py-0.5 text-[9px] font-bold text-muted bg-surface-2 rounded hover:text-accent hover:bg-gray-700 transition-colors uppercase cursor-pointer mr-1"
           >
             {t('game.combatLogPanel.json')}
           </button>
@@ -350,7 +350,7 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
             onClick={handleClear}
             title={t('game.combatLogPanel.clearLog')}
             aria-label={t('game.combatLogPanel.clearLogAria')}
-            className="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-red-400 rounded hover:bg-gray-800 cursor-pointer transition-colors"
+            className="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-red-400 rounded hover:bg-surface-2 cursor-pointer transition-colors"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
               <path
@@ -363,7 +363,7 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
           {onClose && (
             <button
               onClick={onClose}
-              className="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-gray-300 rounded hover:bg-gray-800 cursor-pointer transition-colors"
+              className="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-gray-300 rounded hover:bg-surface-2 cursor-pointer transition-colors"
               title={t('common.actions.close')}
               aria-label={t('game.combatLogPanel.closeAria')}
             >
@@ -376,13 +376,13 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
       </div>
 
       {/* Tabs */}
-      <div className="shrink-0 flex gap-1 px-3 py-2 border-b border-gray-700">
+      <div className="shrink-0 flex gap-1 px-3 py-2 border-b border-border">
         <button
           onClick={() => setActiveTab('log')}
           className={`px-3 py-1 text-xs font-semibold rounded cursor-pointer transition-colors ${
             activeTab === 'log'
               ? 'bg-amber-600 text-white'
-              : 'bg-gray-800 text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+              : 'bg-surface-2 text-muted hover:text-gray-200 hover:bg-gray-700'
           }`}
         >
           {t('game.combatLogPanel.liveLog')}
@@ -392,7 +392,7 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
           className={`px-3 py-1 text-xs font-semibold rounded cursor-pointer transition-colors ${
             activeTab === 'summary'
               ? 'bg-amber-600 text-white'
-              : 'bg-gray-800 text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+              : 'bg-surface-2 text-muted hover:text-gray-200 hover:bg-gray-700'
           }`}
         >
           {t('game.combatLogPanel.summary')}
@@ -431,13 +431,13 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
           ) : (
             <div className="space-y-4">
               {/* Totals banner */}
-              <div className="bg-gray-800/60 rounded-lg p-3 border border-gray-700/30">
+              <div className="bg-surface-2/60 rounded-lg p-3 border border-border/30">
                 <div className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-2">
                   {t('game.combatLogPanel.combatOverview')}
                 </div>
                 <div className="grid grid-cols-3 gap-3">
                   <div className="text-center">
-                    <div className="text-lg font-bold text-gray-100">{highestRound}</div>
+                    <div className="text-lg font-bold text-fg">{highestRound}</div>
                     <div className="text-xs text-gray-500">{t('game.combatLogPanel.rounds')}</div>
                   </div>
                   <div className="text-center">
@@ -454,7 +454,7 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
               {/* Per-entity breakdown */}
               <div className="space-y-3">
                 {summaries.map((summary) => (
-                  <div key={summary.entityId} className="bg-gray-800/40 rounded-lg p-2.5 border border-gray-700/30">
+                  <div key={summary.entityId} className="bg-surface-2/40 rounded-lg p-2.5 border border-border/30">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-xs font-semibold text-gray-200">{summary.entityName}</span>
                       {summary.kills > 0 && (
@@ -490,7 +490,7 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
               </div>
 
               {/* Event type breakdown */}
-              <div className="bg-gray-800/40 rounded-lg p-2.5 border border-gray-700/30">
+              <div className="bg-surface-2/40 rounded-lg p-2.5 border border-border/30">
                 <div className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-2">
                   {t('game.combatLogPanel.eventBreakdown')}
                 </div>
@@ -503,7 +503,7 @@ export default function CombatLogPanel({ onClose }: CombatLogPanelProps): JSX.El
                         <span className={`text-[11px] capitalize ${getEntryColor(type)}`}>
                           {getTypeIcon(type)} {type}
                         </span>
-                        <span className="text-[11px] text-gray-400 font-medium">{count}</span>
+                        <span className="text-[11px] text-muted font-medium">{count}</span>
                       </div>
                     )
                   })}

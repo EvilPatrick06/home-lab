@@ -52,14 +52,14 @@ export default function ShopInventoryTable({
     <>
       {/* Inventory table header: sort + filter */}
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+        <h3 className="text-xs font-semibold text-muted uppercase tracking-wide">
           {t('game.shopInventoryTable.inventory', { count: shopInventory.length })}
         </h3>
         <div className="flex items-center gap-2">
           <select
             value={filterCategory}
             onChange={(e) => setFilterCategory(e.target.value as ShopItemCategory | 'all')}
-            className="bg-gray-800 border border-gray-700 rounded px-2 py-0.5 text-xs text-gray-300 focus:outline-none focus:border-amber-500"
+            className="bg-surface-2 border border-border rounded px-2 py-0.5 text-xs text-gray-300 focus:outline-none focus:border-amber-500"
           >
             <option value="all">{t('game.shopInventoryTable.allCategories')}</option>
             {SHOP_CATEGORIES.map((c) => (
@@ -74,7 +74,7 @@ export default function ShopInventoryTable({
                 key={key}
                 onClick={() => setSortKey(key)}
                 className={`px-1.5 py-0.5 rounded cursor-pointer ${
-                  sortKey === key ? 'bg-amber-600/30 text-amber-400' : 'bg-gray-800 text-gray-500 hover:text-gray-300'
+                  sortKey === key ? 'bg-amber-600/30 text-accent' : 'bg-surface-2 text-gray-500 hover:text-gray-300'
                 }`}
               >
                 {key.charAt(0).toUpperCase() + key.slice(1)}
@@ -100,7 +100,7 @@ export default function ShopInventoryTable({
           return (
             <div
               key={item.id}
-              className={`rounded text-xs ${item.isHidden ? 'bg-gray-800/30 border border-dashed border-gray-700' : 'bg-gray-800/50'}`}
+              className={`rounded text-xs ${item.isHidden ? 'bg-surface-2/30 border border-dashed border-border' : 'bg-surface-2/50'}`}
             >
               <div className="flex items-center px-3 py-1.5 gap-2">
                 {/* Name */}
@@ -119,7 +119,7 @@ export default function ShopInventoryTable({
                   )}
                 </span>
                 {/* Price (with markup) */}
-                <span className="text-amber-400 shrink-0 w-20 text-right">{formatPrice(markedUpPrice)}</span>
+                <span className="text-accent shrink-0 w-20 text-right">{formatPrice(markedUpPrice)}</span>
                 {/* Weight */}
                 <span className="text-gray-500 shrink-0 w-10 text-right">{item.weight ? `${item.weight}lb` : '-'}</span>
                 {/* Category */}
@@ -131,12 +131,12 @@ export default function ShopInventoryTable({
                   {item.rarity ?? '-'}
                 </span>
                 {/* Stock */}
-                <span className="text-gray-400 shrink-0 w-12 text-right">{stock}</span>
+                <span className="text-muted shrink-0 w-12 text-right">{stock}</span>
                 {/* Actions */}
                 <div className="flex items-center gap-1 shrink-0">
                   <button
                     onClick={() => setEditingId(isEditing ? null : item.id)}
-                    className="text-gray-500 hover:text-amber-400 cursor-pointer"
+                    className="text-gray-500 hover:text-accent cursor-pointer"
                     title={t('game.shopInventoryTable.edit')}
                   >
                     {isEditing ? '\u2713' : '\u270E'}
@@ -164,7 +164,7 @@ export default function ShopInventoryTable({
 
               {/* Inline edit row */}
               {isEditing && (
-                <div className="px-3 pb-2 space-y-1.5 border-t border-gray-700/50 pt-1.5">
+                <div className="px-3 pb-2 space-y-1.5 border-t border-border/50 pt-1.5">
                   <div className="grid grid-cols-4 gap-2">
                     <div>
                       <label className="block text-xs text-gray-500 mb-0.5">{t('game.shopInventoryTable.price')}</label>
@@ -175,7 +175,7 @@ export default function ShopInventoryTable({
                           const gp = Number.parseFloat(e.target.value) || 0
                           onUpdate(item.id, { price: { ...item.price, gp } })
                         }}
-                        className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-0.5 text-[11px] text-gray-100 focus:outline-none focus:border-amber-500"
+                        className="w-full bg-surface-2 border border-border rounded px-2 py-0.5 text-[11px] text-fg focus:outline-none focus:border-amber-500"
                       />
                     </div>
                     <div>
@@ -183,6 +183,7 @@ export default function ShopInventoryTable({
                         {t('game.shopInventoryTable.stockLimit')}
                       </label>
                       <input
+                        aria-label={t('game.shopInventoryTable.unlimited')}
                         type="number"
                         defaultValue={item.stockLimit ?? ''}
                         placeholder={t('game.shopInventoryTable.unlimited')}
@@ -201,7 +202,7 @@ export default function ShopInventoryTable({
                             })
                           }
                         }}
-                        className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-0.5 text-[11px] text-gray-100 focus:outline-none focus:border-amber-500"
+                        className="w-full bg-surface-2 border border-border rounded px-2 py-0.5 text-[11px] text-fg focus:outline-none focus:border-amber-500"
                       />
                     </div>
                     <div>
@@ -215,7 +216,7 @@ export default function ShopInventoryTable({
                           const qty = Math.max(0, Number.parseInt(e.target.value, 10) || 0)
                           onUpdate(item.id, { quantity: qty })
                         }}
-                        className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-0.5 text-[11px] text-gray-100 focus:outline-none focus:border-amber-500"
+                        className="w-full bg-surface-2 border border-border rounded px-2 py-0.5 text-[11px] text-fg focus:outline-none focus:border-amber-500"
                       />
                     </div>
                     <div>
@@ -225,7 +226,7 @@ export default function ShopInventoryTable({
                       <select
                         defaultValue={item.rarity ?? 'common'}
                         onChange={(e) => onUpdate(item.id, { rarity: e.target.value as ShopItemRarity })}
-                        className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-0.5 text-[11px] text-gray-100 focus:outline-none focus:border-amber-500"
+                        className="w-full bg-surface-2 border border-border rounded px-2 py-0.5 text-[11px] text-fg focus:outline-none focus:border-amber-500"
                       >
                         {RARITY_OPTIONS.map((r) => (
                           <option key={r} value={r}>
@@ -238,11 +239,12 @@ export default function ShopInventoryTable({
                   <div>
                     <label className="block text-xs text-gray-500 mb-0.5">{t('game.shopInventoryTable.dmNotes')}</label>
                     <input
+                      aria-label={t('game.shopInventoryTable.dmNotesPlaceholder')}
                       type="text"
                       defaultValue={item.dmNotes ?? ''}
                       placeholder={t('game.shopInventoryTable.dmNotesPlaceholder')}
                       onBlur={(e) => onUpdate(item.id, { dmNotes: e.target.value.trim() || undefined })}
-                      className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-0.5 text-[11px] text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
+                      className="w-full bg-surface-2 border border-border rounded px-2 py-0.5 text-[11px] text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500"
                     />
                   </div>
                 </div>

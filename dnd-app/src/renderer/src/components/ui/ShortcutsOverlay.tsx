@@ -36,9 +36,7 @@ function ShortcutRow({ keys, descriptionKey }: ShortcutEntry): JSX.Element {
   return (
     <div className="flex items-center justify-between py-1.5">
       <span className="text-sm text-gray-300">{t(descriptionKey)}</span>
-      <kbd className="px-2 py-0.5 text-xs font-mono bg-gray-800 border border-gray-700 rounded text-gray-400">
-        {keys}
-      </kbd>
+      <kbd className="px-2 py-0.5 text-xs font-mono bg-surface-2 border border-border rounded text-muted">{keys}</kbd>
     </div>
   )
 }
@@ -60,7 +58,7 @@ export default function ShortcutsOverlay({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/70" onClick={onClose} role="presentation" />
-      <div className="relative bg-gray-900 border border-gray-700 rounded-lg p-6 max-w-md w-full mx-4 max-h-[80vh] overflow-y-auto">
+      <div className="relative bg-surface border border-border rounded-lg p-6 max-w-md w-full mx-4 max-h-[80vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold">{t('ui.shortcutsOverlay.title')}</h2>
           <button

@@ -188,11 +188,11 @@ export default function NPCManager({ campaign, saveCampaign }: NPCManagerProps):
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-lg font-semibold">{t('pages.npcManager.title', { count: campaign.npcs.length })}</h3>
           <div className="flex items-center gap-2">
-            <button onClick={handleImport} className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer">
+            <button onClick={handleImport} className="text-xs text-muted hover:text-accent cursor-pointer">
               {t('pages.npcManager.import')}
             </button>
             {campaign.npcs.length > 0 && (
-              <button onClick={handleExport} className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer">
+              <button onClick={handleExport} className="text-xs text-muted hover:text-accent cursor-pointer">
                 {t('pages.npcManager.exportAll')}
               </button>
             )}
@@ -207,31 +207,31 @@ export default function NPCManager({ campaign, saveCampaign }: NPCManagerProps):
               const npcBlock = npc.customStats ?? npcLinkedBlock
               const isStatExpanded = expandedNpcStatBlock === npc.id
               return (
-                <div key={npc.id} className="bg-gray-800/50 rounded-lg p-3">
+                <div key={npc.id} className="bg-surface-2/50 rounded-lg p-3">
                   <div className="flex items-center justify-between">
                     <div className="flex-1 min-w-0">
                       <span className="font-semibold text-sm">{npc.name}</span>
-                      {npc.role && <span className="text-xs text-gray-400 ml-2 capitalize">{npc.role}</span>}
+                      {npc.role && <span className="text-xs text-muted ml-2 capitalize">{npc.role}</span>}
                       {npc.location && <span className="text-gray-500 text-xs ml-2">{npc.location}</span>}
                       {npc.description && <p className="text-gray-500 text-xs mt-0.5 truncate">{npc.description}</p>}
                     </div>
                     <div className="flex items-center gap-2 ml-2">
                       <span
                         className={`text-xs px-2 py-0.5 rounded-full ${
-                          npc.isVisible ? 'bg-green-900/40 text-green-300' : 'bg-gray-800 text-gray-500'
+                          npc.isVisible ? 'bg-green-900/40 text-green-300' : 'bg-surface-2 text-gray-500'
                         }`}
                       >
                         {npc.isVisible ? t('pages.npcManager.visible') : t('pages.npcManager.hidden')}
                       </span>
                       <button
                         onClick={() => openEdit(npc)}
-                        className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer"
+                        className="text-xs text-muted hover:text-accent cursor-pointer"
                       >
                         {t('pages.npcManager.edit')}
                       </button>
                       <button
                         onClick={() => handleDelete(npc.id)}
-                        className="text-xs text-gray-400 hover:text-red-400 cursor-pointer"
+                        className="text-xs text-muted hover:text-red-400 cursor-pointer"
                       >
                         {t('common.actions.delete')}
                       </button>
@@ -242,7 +242,7 @@ export default function NPCManager({ campaign, saveCampaign }: NPCManagerProps):
                     <div className="mt-2">
                       <button
                         onClick={() => setExpandedNpcStatBlock(isStatExpanded ? null : npc.id)}
-                        className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer"
+                        className="text-xs text-accent hover:text-amber-300 cursor-pointer"
                       >
                         {isStatExpanded
                           ? t('pages.npcManager.hideStatBlock')
@@ -258,7 +258,7 @@ export default function NPCManager({ campaign, saveCampaign }: NPCManagerProps):
                     <div className="mt-1">
                       <button
                         onClick={() => openEdit(npc)}
-                        className="text-xs text-gray-500 hover:text-amber-400 cursor-pointer"
+                        className="text-xs text-gray-500 hover:text-accent cursor-pointer"
                       >
                         {t('pages.npcManager.noStatBlock')}
                       </button>
@@ -269,7 +269,7 @@ export default function NPCManager({ campaign, saveCampaign }: NPCManagerProps):
             })}
           </div>
         )}
-        <button onClick={openAdd} className="mt-3 text-xs text-amber-400 hover:text-amber-300 cursor-pointer">
+        <button onClick={openAdd} className="mt-3 text-xs text-accent hover:text-amber-300 cursor-pointer">
           {t('pages.npcManager.addNpc')}
         </button>
       </Card>
@@ -284,19 +284,19 @@ export default function NPCManager({ campaign, saveCampaign }: NPCManagerProps):
           {/* Quick Add from Bestiary */}
           <div className="border border-amber-800/30 rounded-lg overflow-hidden">
             <div className="px-3 py-2 bg-amber-900/20">
-              <label className="block text-amber-400 text-xs font-semibold uppercase tracking-wider mb-2">
+              <label className="block text-accent text-xs font-semibold uppercase tracking-wider mb-2">
                 {t('pages.npcManager.quickAddBestiary')}
               </label>
               <input
                 type="text"
                 value={monsterSearchQuery}
                 onChange={(e) => handleMonsterSearch(e.target.value)}
-                className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+                className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
                 placeholder={t('pages.npcManager.quickAddPlaceholder')}
               />
             </div>
             {monsterSearchResults.length > 0 && (
-              <div className="max-h-48 overflow-y-auto border-t border-gray-700">
+              <div className="max-h-48 overflow-y-auto border-t border-border">
                 {monsterSearchResults.map((m) => (
                   <button
                     key={m.id}
@@ -313,21 +313,21 @@ export default function NPCManager({ campaign, saveCampaign }: NPCManagerProps):
                       setMonsterSearchQuery(m.name)
                       setMonsterSearchResults([])
                     }}
-                    className="w-full text-left px-3 py-2 text-xs hover:bg-gray-700/50 cursor-pointer flex items-center justify-between border-b border-gray-700/30 last:border-b-0"
+                    className="w-full text-left px-3 py-2 text-xs hover:bg-gray-700/50 cursor-pointer flex items-center justify-between border-b border-border/30 last:border-b-0"
                   >
                     <span className="text-gray-200 font-medium">{m.name}</span>
                     <div className="flex items-center gap-3 text-xs">
                       <span className="text-gray-500">
                         {m.size} {m.type}
                       </span>
-                      <span className="text-amber-400 font-mono">{t('pages.npcManager.cr', { cr: m.cr })}</span>
+                      <span className="text-accent font-mono">{t('pages.npcManager.cr', { cr: m.cr })}</span>
                     </div>
                   </button>
                 ))}
               </div>
             )}
             {linkedMonsterPreview && form.statBlockMode === 'link' && monsterSearchResults.length === 0 && (
-              <div className="border-t border-gray-700/50 p-2">
+              <div className="border-t border-border/50 p-2">
                 <MonsterStatBlockView monster={linkedMonsterPreview} compact />
               </div>
             )}
@@ -335,23 +335,23 @@ export default function NPCManager({ campaign, saveCampaign }: NPCManagerProps):
 
           <div className="grid grid-cols-2 gap-3">
             <div className="col-span-2">
-              <label className="block text-gray-400 text-xs mb-1">{t('pages.npcManager.nameLabel')}</label>
+              <label className="block text-muted text-xs mb-1">{t('pages.npcManager.nameLabel')}</label>
               <input
                 type="text"
                 value={form.name}
                 onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+                className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
                 placeholder={t('pages.npcManager.namePlaceholder')}
               />
             </div>
             <div>
-              <label className="block text-gray-400 text-xs mb-1">{t('pages.npcManager.roleLabel')}</label>
+              <label className="block text-muted text-xs mb-1">{t('pages.npcManager.roleLabel')}</label>
               <select
                 value={form.role ?? ''}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, role: e.target.value ? (e.target.value as NPC['role']) : undefined }))
                 }
-                className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+                className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
               >
                 <option value="">{t('pages.npcManager.roleNone')}</option>
                 <option value="ally">{t('pages.npcManager.roleAlly')}</option>
@@ -362,53 +362,53 @@ export default function NPCManager({ campaign, saveCampaign }: NPCManagerProps):
               </select>
             </div>
             <div>
-              <label className="block text-gray-400 text-xs mb-1">{t('pages.npcManager.locationLabel')}</label>
+              <label className="block text-muted text-xs mb-1">{t('pages.npcManager.locationLabel')}</label>
               <input
                 type="text"
                 value={form.location}
                 onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))}
-                className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+                className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
                 placeholder={t('pages.npcManager.locationPlaceholder')}
               />
             </div>
           </div>
           <div>
-            <label className="block text-gray-400 text-xs mb-1">{t('pages.npcManager.descriptionLabel')}</label>
+            <label className="block text-muted text-xs mb-1">{t('pages.npcManager.descriptionLabel')}</label>
             <textarea
               value={form.description}
               onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500 h-16 resize-none"
+              className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500 h-16 resize-none"
               placeholder={t('pages.npcManager.descriptionPlaceholder')}
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-gray-400 text-xs mb-1">{t('pages.npcManager.personalityLabel')}</label>
+              <label className="block text-muted text-xs mb-1">{t('pages.npcManager.personalityLabel')}</label>
               <input
                 type="text"
                 value={form.personality}
                 onChange={(e) => setForm((f) => ({ ...f, personality: e.target.value }))}
-                className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+                className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
                 placeholder={t('pages.npcManager.personalityPlaceholder')}
               />
             </div>
             <div>
-              <label className="block text-gray-400 text-xs mb-1">{t('pages.npcManager.motivationLabel')}</label>
+              <label className="block text-muted text-xs mb-1">{t('pages.npcManager.motivationLabel')}</label>
               <input
                 type="text"
                 value={form.motivation}
                 onChange={(e) => setForm((f) => ({ ...f, motivation: e.target.value }))}
-                className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+                className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
                 placeholder={t('pages.npcManager.motivationPlaceholder')}
               />
             </div>
           </div>
           <div>
-            <label className="block text-gray-400 text-xs mb-1">{t('pages.npcManager.notesLabel')}</label>
+            <label className="block text-muted text-xs mb-1">{t('pages.npcManager.notesLabel')}</label>
             <textarea
               value={form.notes}
               onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500 h-16 resize-none"
+              className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500 h-16 resize-none"
               placeholder={t('pages.npcManager.notesPlaceholder')}
             />
           </div>
@@ -423,8 +423,8 @@ export default function NPCManager({ campaign, saveCampaign }: NPCManagerProps):
           </label>
 
           {/* Stat Block Section */}
-          <div className="border-t border-gray-700 pt-3">
-            <label className="block text-gray-400 text-xs mb-2 font-semibold uppercase tracking-wider">
+          <div className="border-t border-border pt-3">
+            <label className="block text-muted text-xs mb-2 font-semibold uppercase tracking-wider">
               {t('pages.npcManager.statBlock')}
             </label>
             <div className="flex gap-2 mb-2">
@@ -435,7 +435,7 @@ export default function NPCManager({ campaign, saveCampaign }: NPCManagerProps):
                   className={`px-3 py-1 text-xs rounded-lg cursor-pointer ${
                     form.statBlockMode === mode
                       ? 'bg-amber-600 text-white'
-                      : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                      : 'bg-surface-2 text-muted hover:bg-gray-700'
                   }`}
                 >
                   {mode === 'none'
@@ -453,11 +453,11 @@ export default function NPCManager({ campaign, saveCampaign }: NPCManagerProps):
                   type="text"
                   value={monsterSearchQuery}
                   onChange={(e) => handleMonsterSearch(e.target.value)}
-                  className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+                  className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
                   placeholder={t('pages.npcManager.searchMonstersPlaceholder')}
                 />
                 {monsterSearchResults.length > 0 && (
-                  <div className="bg-gray-800 border border-gray-700 rounded max-h-40 overflow-y-auto">
+                  <div className="bg-surface-2 border border-border rounded max-h-40 overflow-y-auto">
                     {monsterSearchResults.map((m) => (
                       <button
                         key={m.id}
@@ -468,7 +468,7 @@ export default function NPCManager({ campaign, saveCampaign }: NPCManagerProps):
                           setMonsterSearchResults([])
                         }}
                         className={`w-full text-left px-3 py-1.5 text-xs hover:bg-gray-700 cursor-pointer flex items-center justify-between ${
-                          form.statBlockId === m.id ? 'text-amber-400' : 'text-gray-300'
+                          form.statBlockId === m.id ? 'text-accent' : 'text-gray-300'
                         }`}
                       >
                         <span>{m.name}</span>

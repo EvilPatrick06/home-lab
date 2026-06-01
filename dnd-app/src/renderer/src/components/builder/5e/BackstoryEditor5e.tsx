@@ -35,9 +35,9 @@ function TrinketRoller(): JSX.Element {
     return (
       <div className="space-y-2">
         <p className="text-xs text-gray-500">{t('builder.backstoryEditor.trinketRolled')}</p>
-        <div className="bg-gray-800/60 border border-gray-700 rounded px-3 py-2">
+        <div className="bg-surface-2/60 border border-border rounded px-3 py-2">
           {rollNumber && (
-            <span className="text-xs text-amber-400 font-mono mr-2">
+            <span className="text-xs text-accent font-mono mr-2">
               {t('builder.backstoryEditor.d100', { rollNumber })}
             </span>
           )}
@@ -52,7 +52,7 @@ function TrinketRoller(): JSX.Element {
       <p className="text-xs text-gray-500">{t('builder.backstoryEditor.rollPrompt')}</p>
       <button
         onClick={handleRoll}
-        className="text-xs px-3 py-1.5 rounded bg-amber-600 hover:bg-amber-500 text-gray-900 font-semibold cursor-pointer"
+        className="text-xs px-3 py-1.5 rounded bg-amber-600 hover:bg-accent-strong text-gray-900 font-semibold cursor-pointer"
       >
         {t('builder.backstoryEditor.rollTrinket')}
       </button>
@@ -165,7 +165,7 @@ export function VariantChoicesSection({
                   <span className="text-sm text-gray-200 font-medium">{item.chosenVariant}</span>
                   <button
                     onClick={() => setRePickKey(`${item.key}-${item.eqIndex}`)}
-                    className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer underline decoration-dotted underline-offset-2 ml-2"
+                    className="text-xs text-accent hover:text-amber-300 cursor-pointer underline decoration-dotted underline-offset-2 ml-2"
                   >
                     {t('builder.backstoryEditor.chooseDifferent')}
                   </button>

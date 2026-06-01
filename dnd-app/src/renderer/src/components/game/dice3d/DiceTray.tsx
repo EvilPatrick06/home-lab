@@ -128,20 +128,20 @@ export default function DiceTray(): JSX.Element {
     >
       {/* Header — draggable */}
       <div
-        className={`flex items-center justify-between px-3 py-1.5 bg-gray-800/95 border border-gray-600 rounded-t-lg select-none ${
+        className={`flex items-center justify-between px-3 py-1.5 bg-surface-2/95 border border-gray-600 rounded-t-lg select-none ${
           isDragging ? 'cursor-grabbing' : 'cursor-grab'
         }`}
         onMouseDown={handleMouseDown}
       >
         <div className="flex items-center gap-2">
-          <span className="text-gray-400 text-xs">&#x2630;</span>
+          <span className="text-muted text-xs">&#x2630;</span>
           <span className="text-xs font-medium text-gray-300">{t('game.diceTray.title')}</span>
           <span className="text-xs text-gray-500">({entries.length})</span>
         </div>
         <div className="flex items-center gap-1">
           <button
             onClick={() => setCollapsed((c) => !c)}
-            className="text-gray-400 hover:text-gray-200 text-xs px-1"
+            className="text-muted hover:text-gray-200 text-xs px-1"
             title={collapsed ? t('game.diceTray.expand') : t('game.diceTray.collapse')}
             aria-label={collapsed ? t('game.diceTray.expandTray') : t('game.diceTray.collapseTray')}
           >
@@ -149,7 +149,7 @@ export default function DiceTray(): JSX.Element {
           </button>
           <button
             onClick={clearAll}
-            className="text-gray-400 hover:text-red-400 text-xs px-1"
+            className="text-muted hover:text-red-400 text-xs px-1"
             title={t('game.diceTray.clearAll')}
             aria-label={t('game.diceTray.clearAllResults')}
           >
@@ -160,17 +160,14 @@ export default function DiceTray(): JSX.Element {
 
       {/* Entries */}
       {!collapsed && (
-        <div
-          className="bg-gray-900/95 border border-t-0 border-gray-600 rounded-b-lg overflow-hidden"
-          style={{ width: 250 }}
-        >
+        <div className="bg-surface/95 border border-t-0 border-gray-600 rounded-b-lg overflow-hidden w-[250px]">
           {entries.map((entry) => (
             <div
               key={entry.id}
-              className="flex items-center justify-between px-3 py-2 border-b border-gray-700/50 last:border-b-0 hover:bg-gray-800/50 group"
+              className="flex items-center justify-between px-3 py-2 border-b border-border/50 last:border-b-0 hover:bg-surface-2/50 group"
             >
               <div className="flex items-center gap-2 min-w-0">
-                <span className="text-xs text-amber-400 font-mono shrink-0">[{getDieIcon(entry.formula)}]</span>
+                <span className="text-xs text-accent font-mono shrink-0">[{getDieIcon(entry.formula)}]</span>
                 <div className="min-w-0">
                   <div className="text-sm text-white font-medium truncate">{entry.formula}</div>
                   {entry.rollerName && <div className="text-xs text-gray-500 truncate">{entry.rollerName}</div>}

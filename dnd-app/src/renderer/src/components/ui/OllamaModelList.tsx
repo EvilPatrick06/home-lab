@@ -91,14 +91,14 @@ export function InstalledModelList({
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
-        <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+        <h4 className="text-xs font-semibold text-muted uppercase tracking-wider">
           {t('ui.ollamaModelList.installedModels')}
         </h4>
         {models.length > 0 && (
           <button
             onClick={onUpdateAll}
             disabled={isBusy}
-            className="text-xs text-amber-400 hover:text-amber-300 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="text-xs text-accent hover:text-amber-300 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {t('ui.ollamaModelList.updateAll')}
           </button>
@@ -116,7 +116,10 @@ export function InstalledModelList({
             const tier = vram > 0 && curated ? getPerformanceTier(vram, curated.vramMB) : null
             const tierStyle = tier ? TIER_STYLES[tier] : null
             return (
-              <div key={model.digest} className="flex items-center justify-between py-2 px-3 bg-gray-800/40 rounded-lg">
+              <div
+                key={model.digest}
+                className="flex items-center justify-between py-2 px-3 bg-surface-2/40 rounded-lg"
+              >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-sm text-gray-200 font-medium truncate">{model.name}</span>
@@ -150,11 +153,11 @@ export function InstalledModelList({
                   <div className="flex items-center gap-2 ml-3">
                     <div className="w-16 bg-gray-700 rounded-full h-1">
                       <div
-                        className="bg-amber-500 h-1 rounded-full transition-all duration-300"
+                        className="bg-accent-strong h-1 rounded-full transition-all duration-300"
                         style={{ width: `${activeOp.percent}%` }}
                       />
                     </div>
-                    <span className="text-xs text-gray-400 w-8 text-right">{activeOp.percent}%</span>
+                    <span className="text-xs text-muted w-8 text-right">{activeOp.percent}%</span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-1 ml-3">
@@ -162,7 +165,7 @@ export function InstalledModelList({
                       onClick={() => onPull(model.name)}
                       disabled={isBusy}
                       title={t('ui.ollamaModelList.updateModelTitle')}
-                      className="p-1.5 text-gray-500 hover:text-amber-400 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                      className="p-1.5 text-gray-500 hover:text-accent transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -225,7 +228,7 @@ export function AvailableModelList({ models, activeOp, isBusy, vram, onPull }: A
 
   return (
     <div>
-      <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+      <h4 className="text-xs font-semibold text-muted uppercase tracking-wider mb-3">
         {t('ui.ollamaModelList.availableModels')}
       </h4>
       <div className="space-y-1.5">
@@ -234,7 +237,7 @@ export function AvailableModelList({ models, activeOp, isBusy, vram, onPull }: A
           const tier = vram > 0 ? getPerformanceTier(vram, model.vramMB) : null
           const tierStyle = tier ? TIER_STYLES[tier] : null
           return (
-            <div key={model.id} className="flex items-center justify-between py-2 px-3 bg-gray-800/40 rounded-lg">
+            <div key={model.id} className="flex items-center justify-between py-2 px-3 bg-surface-2/40 rounded-lg">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-sm text-gray-300 font-medium">{model.name}</span>
@@ -252,17 +255,17 @@ export function AvailableModelList({ models, activeOp, isBusy, vram, onPull }: A
                 <div className="flex items-center gap-2 ml-3">
                   <div className="w-16 bg-gray-700 rounded-full h-1">
                     <div
-                      className="bg-amber-500 h-1 rounded-full transition-all duration-300"
+                      className="bg-accent-strong h-1 rounded-full transition-all duration-300"
                       style={{ width: `${activeOp.percent}%` }}
                     />
                   </div>
-                  <span className="text-xs text-gray-400 w-8 text-right">{activeOp.percent}%</span>
+                  <span className="text-xs text-muted w-8 text-right">{activeOp.percent}%</span>
                 </div>
               ) : (
                 <button
                   onClick={() => onPull(model.id)}
                   disabled={isBusy}
-                  className="ml-3 px-3 py-1 text-xs rounded-lg border border-gray-700 text-gray-400 hover:border-amber-600 hover:text-amber-400 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="ml-3 px-3 py-1 text-xs rounded-lg border border-border text-muted hover:border-amber-600 hover:text-accent transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                 >
                   {t('ui.ollamaModelList.install')}
                 </button>

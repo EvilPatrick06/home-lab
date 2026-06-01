@@ -84,7 +84,7 @@ export default function Tooltip({ text, children, delay = 300, position = 'top' 
               transform: `translateX(-50%)${actualPosition === 'top' ? ' translateY(-100%)' : ''}`
             }}
           >
-            <div className="px-2 py-1 text-[11px] font-medium text-gray-100 bg-gray-900 border border-gray-700 rounded shadow-lg whitespace-nowrap">
+            <div className="px-2 py-1 text-[11px] font-medium text-fg bg-surface border border-border rounded shadow-lg whitespace-nowrap">
               {text}
             </div>
           </div>,

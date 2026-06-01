@@ -28,7 +28,7 @@ const PACES = [
     perDay: '24 miles',
     milesPerHour: 3,
     effects: ['Disadvantage on Stealth checks'],
-    color: 'text-amber-400',
+    color: 'text-accent',
     borderColor: 'border-amber-500/40',
     bgColor: 'bg-amber-900/20'
   },
@@ -58,7 +58,7 @@ export default function TravelPaceModal({ onClose }: TravelPaceModalProps): JSX.
   return (
     <div className="fixed inset-0 z-30 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
-      <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-[480px] max-h-[80vh] overflow-y-auto shadow-2xl">
+      <div className="relative bg-surface border border-border rounded-xl p-5 w-[480px] max-h-[80vh] overflow-y-auto shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-gray-200">{t('game.travelPaceModal.title')}</h3>
@@ -78,7 +78,7 @@ export default function TravelPaceModal({ onClose }: TravelPaceModalProps): JSX.
             return (
               <div
                 key={pace.value}
-                className={`p-3 rounded-lg border ${isActive ? `${pace.borderColor} ${pace.bgColor}` : 'border-gray-700 bg-gray-800/50'}`}
+                className={`p-3 rounded-lg border ${isActive ? `${pace.borderColor} ${pace.bgColor}` : 'border-border bg-surface-2/50'}`}
               >
                 <div className="flex items-center justify-between mb-1.5">
                   <span className={`text-sm font-semibold ${pace.color}`}>
@@ -89,13 +89,13 @@ export default function TravelPaceModal({ onClose }: TravelPaceModalProps): JSX.
                     className={`px-2.5 py-1 text-xs font-semibold rounded cursor-pointer transition-colors ${
                       isActive
                         ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                        : 'bg-amber-600 text-white hover:bg-amber-500'
+                        : 'bg-amber-600 text-white hover:bg-accent-strong'
                     }`}
                   >
                     {isActive ? t('game.travelPaceModal.clear') : t('game.travelPaceModal.setActive')}
                   </button>
                 </div>
-                <div className="grid grid-cols-3 gap-2 text-xs text-gray-400 mb-1.5">
+                <div className="grid grid-cols-3 gap-2 text-xs text-muted mb-1.5">
                   <span>{t('game.travelPaceModal.perMinute', { value: pace.perMinute })}</span>
                   <span>{t('game.travelPaceModal.perHour', { value: pace.perHour })}</span>
                   <span>{t('game.travelPaceModal.perDay', { value: pace.perDay })}</span>
@@ -113,8 +113,8 @@ export default function TravelPaceModal({ onClose }: TravelPaceModalProps): JSX.
         </div>
 
         {/* Distance calculator */}
-        <div className="border-t border-gray-700 pt-3">
-          <div className="text-xs text-gray-400 mb-2">{t('game.travelPaceModal.distanceCalculator')}</div>
+        <div className="border-t border-border pt-3">
+          <div className="text-xs text-muted mb-2">{t('game.travelPaceModal.distanceCalculator')}</div>
           <div className="flex items-center gap-2 mb-2">
             <input
               type="number"
@@ -123,9 +123,9 @@ export default function TravelPaceModal({ onClose }: TravelPaceModalProps): JSX.
               placeholder={t('game.travelPaceModal.distancePlaceholder')}
               min="0"
               step="0.5"
-              className="w-24 px-2 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-200 focus:outline-none focus:border-amber-500"
+              className="w-24 px-2 py-1.5 bg-surface-2 border border-border rounded-lg text-sm text-gray-200 focus:outline-none focus:border-amber-500"
             />
-            <span className="text-xs text-gray-400">{t('game.travelPaceModal.miles')}</span>
+            <span className="text-xs text-muted">{t('game.travelPaceModal.miles')}</span>
           </div>
           {distNum > 0 && (
             <div className="space-y-1">

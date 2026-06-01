@@ -117,7 +117,7 @@ export default function TrapPlacerPanel({
               const trapData = trapById.get(placed.trapId)
               const isExpanded = expandedPlacedId === placed.id
               return (
-                <div key={placed.id} className="bg-gray-800/50 border border-gray-700 rounded px-3 py-2">
+                <div key={placed.id} className="bg-surface-2/50 border border-border rounded px-3 py-2">
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 min-w-0 flex-1">
                       <span
@@ -154,7 +154,7 @@ export default function TrapPlacerPanel({
                         type="button"
                         onClick={() => handleToggleArmed(placed)}
                         title={placed.armed ? t('game.trapPlacerPanel.disarm') : t('game.trapPlacerPanel.reArm')}
-                        className="px-2 py-0.5 text-xs text-gray-400 hover:text-white transition-colors cursor-pointer"
+                        className="px-2 py-0.5 text-xs text-muted hover:text-white transition-colors cursor-pointer"
                       >
                         {placed.armed ? t('game.trapPlacerPanel.disarm') : t('game.trapPlacerPanel.reArm')}
                       </button>
@@ -162,7 +162,7 @@ export default function TrapPlacerPanel({
                         type="button"
                         onClick={() => handleRemove(placed.id)}
                         title={t('game.trapPlacerPanel.removeTrap')}
-                        className="w-6 h-6 rounded flex items-center justify-center text-gray-400 hover:text-red-400 hover:bg-red-900/30 transition-colors cursor-pointer"
+                        className="w-6 h-6 rounded flex items-center justify-center text-muted hover:text-red-400 hover:bg-red-900/30 transition-colors cursor-pointer"
                       >
                         &#215;
                       </button>
@@ -171,12 +171,12 @@ export default function TrapPlacerPanel({
                   <button
                     type="button"
                     onClick={() => setExpandedPlacedId(isExpanded ? null : placed.id)}
-                    className="mt-1 text-xs text-gray-500 hover:text-gray-400 cursor-pointer"
+                    className="mt-1 text-xs text-gray-500 hover:text-muted cursor-pointer"
                   >
                     {isExpanded ? t('game.trapPlacerPanel.hideDetails') : t('game.trapPlacerPanel.showDetails')}
                   </button>
                   {isExpanded && trapData && (
-                    <div className="mt-2 space-y-1 text-xs text-gray-400">
+                    <div className="mt-2 space-y-1 text-xs text-muted">
                       <p>
                         <span className="text-gray-500">{t('game.trapPlacerPanel.detection')}</span>{' '}
                         {trapData.detection}
@@ -208,17 +208,18 @@ export default function TrapPlacerPanel({
       <div>
         <span className="text-xs text-gray-500 uppercase">{t('game.trapPlacerPanel.availableTraps')}</span>
         <input
+          aria-label={t('game.trapPlacerPanel.searchPlaceholder')}
           type="text"
           placeholder={t('game.trapPlacerPanel.searchPlaceholder')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="mt-1 w-full px-2 py-1.5 text-sm bg-gray-800 border border-gray-700 rounded text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50"
+          className="mt-1 w-full px-2 py-1.5 text-sm bg-surface-2 border border-border rounded text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50"
         />
         <div className="mt-1 space-y-1 max-h-48 overflow-y-auto">
           {filteredTraps.map((trap) => {
             const isExpanded = expandedTrapId === trap.id
             return (
-              <div key={trap.id} className="bg-gray-800/50 border border-gray-700 rounded px-3 py-2">
+              <div key={trap.id} className="bg-surface-2/50 border border-border rounded px-3 py-2">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0 flex-1">
                     <span
@@ -236,7 +237,7 @@ export default function TrapPlacerPanel({
                       type="button"
                       onClick={() => handleSelectForPlacement(trap)}
                       title={t('game.trapPlacerPanel.placeTitle', { name: trap.name })}
-                      className="shrink-0 px-2 py-0.5 text-xs rounded bg-amber-600/80 hover:bg-amber-500 text-white transition-colors cursor-pointer"
+                      className="shrink-0 px-2 py-0.5 text-xs rounded bg-amber-600/80 hover:bg-accent-strong text-white transition-colors cursor-pointer"
                     >
                       {t('game.trapPlacerPanel.place')}
                     </button>
@@ -245,12 +246,12 @@ export default function TrapPlacerPanel({
                 <button
                   type="button"
                   onClick={() => setExpandedTrapId(isExpanded ? null : trap.id)}
-                  className="mt-1 text-xs text-gray-500 hover:text-gray-400 cursor-pointer"
+                  className="mt-1 text-xs text-gray-500 hover:text-muted cursor-pointer"
                 >
                   {isExpanded ? t('game.trapPlacerPanel.hideDetails') : t('game.trapPlacerPanel.showDetails')}
                 </button>
                 {isExpanded && (
-                  <div className="mt-2 space-y-1 text-xs text-gray-400">
+                  <div className="mt-2 space-y-1 text-xs text-muted">
                     <p>
                       <span className="text-gray-500">{t('game.trapPlacerPanel.detection')}</span> {trap.detection}
                     </p>

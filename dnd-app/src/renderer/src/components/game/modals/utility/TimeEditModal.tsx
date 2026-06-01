@@ -97,17 +97,17 @@ export default function TimeEditModal({
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
-      <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-[420px] shadow-2xl max-h-[80vh] overflow-y-auto">
+      <div className="relative bg-surface border border-border rounded-xl p-5 w-[420px] shadow-2xl max-h-[80vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-amber-400">{t('game.timeEditModal.title')}</h3>
+          <h3 className="text-sm font-semibold text-accent">{t('game.timeEditModal.title')}</h3>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-300 text-xs cursor-pointer">
             x
           </button>
         </div>
 
         {/* Current time display */}
-        <div className="bg-gray-800/50 rounded-lg px-3 py-2 mb-4 text-xs">
-          <span className="text-gray-400">{t('game.timeEditModal.current')}</span>
+        <div className="bg-surface-2/50 rounded-lg px-3 py-2 mb-4 text-xs">
+          <span className="text-muted">{t('game.timeEditModal.current')}</span>
           <span className="text-amber-300">{formatInGameTime(inGameTime.totalSeconds, calendar)}</span>
         </div>
 
@@ -118,7 +118,7 @@ export default function TimeEditModal({
             className={`flex-1 px-3 py-1.5 text-xs rounded-lg cursor-pointer transition-colors ${
               mode === 'advance'
                 ? 'bg-amber-600/30 text-amber-300 border border-amber-500/50'
-                : 'bg-gray-800 text-gray-400 border border-gray-700/50'
+                : 'bg-surface-2 text-muted border border-border/50'
             }`}
           >
             {t('game.timeEditModal.advanceDaysTab')}
@@ -128,7 +128,7 @@ export default function TimeEditModal({
             className={`flex-1 px-3 py-1.5 text-xs rounded-lg cursor-pointer transition-colors ${
               mode === 'set'
                 ? 'bg-amber-600/30 text-amber-300 border border-amber-500/50'
-                : 'bg-gray-800 text-gray-400 border border-gray-700/50'
+                : 'bg-surface-2 text-muted border border-border/50'
             }`}
           >
             {t('game.timeEditModal.setExactTab')}
@@ -138,18 +138,18 @@ export default function TimeEditModal({
         {mode === 'advance' ? (
           <div className="space-y-3">
             <div>
-              <label className="text-xs text-gray-400 block mb-1">{t('game.timeEditModal.daysToAdvance')}</label>
+              <label className="text-xs text-muted block mb-1">{t('game.timeEditModal.daysToAdvance')}</label>
               <div className="flex gap-2 items-center">
                 <input
                   type="number"
                   value={daysToAdvance}
                   min={1}
                   onChange={(e) => setDaysToAdvance(Math.max(1, parseInt(e.target.value, 10) || 1))}
-                  className="w-24 bg-gray-800 border border-gray-700 rounded px-2 py-1.5 text-sm text-gray-200"
+                  className="w-24 bg-surface-2 border border-border rounded px-2 py-1.5 text-sm text-gray-200"
                 />
                 <button
                   onClick={handleAdvanceDays}
-                  className="px-4 py-1.5 text-xs font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded-lg cursor-pointer"
+                  className="px-4 py-1.5 text-xs font-semibold bg-amber-600 hover:bg-accent-strong text-white rounded-lg cursor-pointer"
                 >
                   {t('game.timeEditModal.advance')}
                 </button>
@@ -163,9 +163,7 @@ export default function TimeEditModal({
                   key={d}
                   onClick={() => setDaysToAdvance(d)}
                   className={`px-2 py-1 text-xs rounded cursor-pointer ${
-                    daysToAdvance === d
-                      ? 'bg-amber-600/30 text-amber-300'
-                      : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                    daysToAdvance === d ? 'bg-amber-600/30 text-amber-300' : 'bg-surface-2 text-muted hover:bg-gray-700'
                   }`}
                 >
                   {t('game.timeEditModal.dayPreset', { count: d })}
@@ -192,7 +190,7 @@ export default function TimeEditModal({
                     type="number"
                     value={setYear}
                     onChange={(e) => setSetYear(parseInt(e.target.value, 10) || 1)}
-                    className="w-20 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
+                    className="w-20 bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200"
                   />
                 </div>
               )}
@@ -202,7 +200,7 @@ export default function TimeEditModal({
                   <select
                     value={setMonthIndex}
                     onChange={(e) => setSetMonthIndex(parseInt(e.target.value, 10))}
-                    className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
+                    className="bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200"
                   >
                     {calendar.months.map((m, i) => (
                       <option key={i} value={i}>
@@ -220,7 +218,7 @@ export default function TimeEditModal({
                   min={1}
                   max={calendar.months[setMonthIndex]?.days ?? 365}
                   onChange={(e) => setSetDay(Math.max(1, parseInt(e.target.value, 10) || 1))}
-                  className="w-14 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
+                  className="w-14 bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200"
                 />
               </div>
               <div>
@@ -231,7 +229,7 @@ export default function TimeEditModal({
                   min={0}
                   max={23}
                   onChange={(e) => setSetHour(Math.max(0, Math.min(23, parseInt(e.target.value, 10) || 0)))}
-                  className="w-14 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
+                  className="w-14 bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200"
                 />
               </div>
               <div>
@@ -242,7 +240,7 @@ export default function TimeEditModal({
                   min={0}
                   max={59}
                   onChange={(e) => setSetMinute(Math.max(0, Math.min(59, parseInt(e.target.value, 10) || 0)))}
-                  className="w-14 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
+                  className="w-14 bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200"
                 />
               </div>
             </div>
@@ -259,7 +257,7 @@ export default function TimeEditModal({
                 calendar
               )
               return (
-                <div className="text-xs text-gray-400">
+                <div className="text-xs text-muted">
                   {t('game.timeEditModal.preview')}{' '}
                   <span className="text-amber-300">{formatInGameTime(previewSeconds, calendar)}</span>
                 </div>
@@ -302,7 +300,7 @@ export default function TimeEditModal({
             {!backwardWarning && (
               <button
                 onClick={handleSetTime}
-                className="px-4 py-1.5 text-xs font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded-lg cursor-pointer"
+                className="px-4 py-1.5 text-xs font-semibold bg-amber-600 hover:bg-accent-strong text-white rounded-lg cursor-pointer"
               >
                 {t('game.timeEditModal.setTime')}
               </button>

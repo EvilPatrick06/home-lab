@@ -53,16 +53,16 @@ export default function CommandAutocomplete({
   if (!visible || filtered.length === 0) return null
 
   return (
-    <div className="absolute bottom-full left-0 right-0 mb-1 bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-lg shadow-xl max-h-48 overflow-y-auto z-20">
+    <div className="absolute bottom-full left-0 right-0 mb-1 bg-surface/95 backdrop-blur-sm border border-border/50 rounded-lg shadow-xl max-h-48 overflow-y-auto z-20">
       {filtered.slice(0, 10).map((cmd, i) => (
         <button
           key={cmd.name}
           onClick={() => onSelect(`/${cmd.name} `)}
           className={`w-full text-left px-3 py-1.5 flex items-center gap-2 text-xs cursor-pointer transition-colors ${
-            i === selectedIndex ? 'bg-gray-800 text-gray-100' : 'text-gray-400 hover:bg-gray-800/50'
+            i === selectedIndex ? 'bg-surface-2 text-fg' : 'text-muted hover:bg-surface-2/50'
           }`}
         >
-          <span className="font-mono text-amber-400 font-semibold">/{cmd.name}</span>
+          <span className="font-mono text-accent font-semibold">/{cmd.name}</span>
           {cmd.aliases.length > 0 && (
             <span className="text-gray-600 text-xs">({cmd.aliases.map((a) => `/${a}`).join(', ')})</span>
           )}

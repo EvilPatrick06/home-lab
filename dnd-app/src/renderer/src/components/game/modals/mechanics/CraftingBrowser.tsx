@@ -149,11 +149,12 @@ export default function CraftingBrowser({ characterTools, onStartCrafting }: Cra
     <div className="space-y-3">
       {/* Search */}
       <input
+        aria-label={t('game.craftingBrowser.searchPlaceholder')}
         type="text"
         placeholder={t('game.craftingBrowser.searchPlaceholder')}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-1.5 text-xs text-gray-200 placeholder-gray-500"
+        className="w-full bg-surface-2 border border-gray-600 rounded-lg px-3 py-1.5 text-xs text-gray-200 placeholder-gray-500"
       />
 
       {/* Category tabs */}
@@ -163,7 +164,7 @@ export default function CraftingBrowser({ characterTools, onStartCrafting }: Cra
             key={c.id}
             onClick={() => setCategory(c.id)}
             className={`px-2 py-1 text-xs rounded cursor-pointer ${
-              category === c.id ? 'bg-amber-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+              category === c.id ? 'bg-amber-600 text-white' : 'bg-gray-700 text-muted hover:bg-gray-600'
             }`}
           >
             {t(`game.craftingBrowser.categories.${c.id}`)}
@@ -180,7 +181,7 @@ export default function CraftingBrowser({ characterTools, onStartCrafting }: Cra
           <div
             key={`${item.name}-${item.tool}-${i}`}
             className={`px-3 py-2 rounded-lg border text-xs ${
-              item.hasProficiency ? 'bg-gray-800/50 border-gray-700/50' : 'bg-gray-800/20 border-gray-800/30 opacity-50'
+              item.hasProficiency ? 'bg-surface-2/50 border-border/50' : 'bg-surface-2/20 border-gray-800/30 opacity-50'
             }`}
           >
             <div className="flex items-center justify-between">
@@ -207,7 +208,7 @@ export default function CraftingBrowser({ characterTools, onStartCrafting }: Cra
               <button
                 onClick={() => onStartCrafting(item.name, item.tool, item.days, item.cost, item.recipeId)}
                 disabled={!item.hasProficiency}
-                className="px-2 py-1 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed ml-2 shrink-0"
+                className="px-2 py-1 text-xs bg-amber-600 hover:bg-accent-strong text-white rounded cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed ml-2 shrink-0"
               >
                 {t('game.craftingBrowser.craft')}
               </button>

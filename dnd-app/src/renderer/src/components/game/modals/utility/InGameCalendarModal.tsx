@@ -80,8 +80,8 @@ export default function InGameCalendarModal({ calendar, onClose, isDM }: InGameC
     return (
       <div className="fixed inset-0 z-30 flex items-center justify-center">
         <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
-        <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-6 text-center">
-          <p className="text-gray-400 text-sm">{t('game.inGameCalendarModal.noTime')}</p>
+        <div className="relative bg-surface border border-border rounded-xl p-6 text-center">
+          <p className="text-muted text-sm">{t('game.inGameCalendarModal.noTime')}</p>
           <button onClick={onClose} className="mt-3 px-4 py-1 text-sm bg-gray-700 rounded cursor-pointer">
             {t('common.actions.close')}
           </button>
@@ -106,7 +106,7 @@ export default function InGameCalendarModal({ calendar, onClose, isDM }: InGameC
   return (
     <div className="fixed inset-0 z-30 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
-      <div className="relative bg-gray-900 border border-gray-700 rounded-xl w-[480px] max-h-[85vh] overflow-y-auto shadow-2xl">
+      <div className="relative bg-surface border border-border rounded-xl w-[480px] max-h-[85vh] overflow-y-auto shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
           <h3 className="text-sm font-semibold text-gray-200">{t('game.inGameCalendarModal.title')}</h3>
@@ -125,14 +125,14 @@ export default function InGameCalendarModal({ calendar, onClose, isDM }: InGameC
             <div className="text-2xl font-bold text-amber-300">
               {formatInGameTime(inGameTime.totalSeconds, calendar)}
             </div>
-            <div className="text-sm text-gray-400 mt-1">{formatInGameDate(inGameTime.totalSeconds, calendar)}</div>
+            <div className="text-sm text-muted mt-1">{formatInGameDate(inGameTime.totalSeconds, calendar)}</div>
             <div className="text-xs text-gray-500 capitalize mt-0.5">{phase}</div>
           </div>
 
           {/* Info Grid */}
           <div className="grid grid-cols-2 gap-3">
             {/* Season */}
-            <div className="bg-gray-800 rounded-lg p-3">
+            <div className="bg-surface-2 rounded-lg p-3">
               <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">
                 {t('game.inGameCalendarModal.season')}
               </div>
@@ -140,7 +140,7 @@ export default function InGameCalendarModal({ calendar, onClose, isDM }: InGameC
             </div>
 
             {/* Moon Phase */}
-            <div className="bg-gray-800 rounded-lg p-3">
+            <div className="bg-surface-2 rounded-lg p-3">
               <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">
                 {t('game.inGameCalendarModal.moon')}
                 {moonOverride ? t('game.inGameCalendarModal.overrideSuffix') : ''}
@@ -154,7 +154,7 @@ export default function InGameCalendarModal({ calendar, onClose, isDM }: InGameC
             </div>
 
             {/* Sunrise / Sunset */}
-            <div className="bg-gray-800 rounded-lg p-3">
+            <div className="bg-surface-2 rounded-lg p-3">
               <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">
                 {t('game.inGameCalendarModal.sun')}
               </div>
@@ -171,7 +171,7 @@ export default function InGameCalendarModal({ calendar, onClose, isDM }: InGameC
             </div>
 
             {/* Weather */}
-            <div className="bg-gray-800 rounded-lg p-3">
+            <div className="bg-surface-2 rounded-lg p-3">
               <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">
                 {t('game.inGameCalendarModal.weather')}
                 {weatherOverride ? t('game.inGameCalendarModal.overrideSuffix') : ''}
@@ -179,7 +179,7 @@ export default function InGameCalendarModal({ calendar, onClose, isDM }: InGameC
               <div className="text-sm font-semibold text-gray-200">
                 {WEATHER_ICONS[weather.condition] ?? ''} {weather.condition.replace('-', ' ')}
               </div>
-              <div className="text-xs text-gray-400">{weather.temperature}</div>
+              <div className="text-xs text-muted">{weather.temperature}</div>
               {weather.mechanicalEffects.length > 0 && (
                 <div className="text-xs text-gray-500">{weather.mechanicalEffects[0]}</div>
               )}
@@ -201,7 +201,7 @@ export default function InGameCalendarModal({ calendar, onClose, isDM }: InGameC
 
           {/* Quick Advance */}
           <div className="border-t border-gray-800 pt-3">
-            <div className="text-xs text-gray-400 mb-2">{t('game.inGameCalendarModal.advanceTime')}</div>
+            <div className="text-xs text-muted mb-2">{t('game.inGameCalendarModal.advanceTime')}</div>
             <div className="flex flex-wrap gap-1.5 mb-2">
               {[
                 { label: t('game.inGameCalendarModal.advance10Min'), seconds: 600 },
@@ -212,7 +212,7 @@ export default function InGameCalendarModal({ calendar, onClose, isDM }: InGameC
                 <button
                   key={btn.label}
                   onClick={() => advanceTimeSeconds(btn.seconds)}
-                  className="px-2.5 py-1.5 text-xs bg-gray-800 hover:bg-gray-700 rounded text-gray-300 cursor-pointer"
+                  className="px-2.5 py-1.5 text-xs bg-surface-2 hover:bg-gray-700 rounded text-gray-300 cursor-pointer"
                 >
                   {btn.label}
                 </button>
@@ -225,7 +225,7 @@ export default function InGameCalendarModal({ calendar, onClose, isDM }: InGameC
                 max={365}
                 value={advanceDays}
                 onChange={(e) => setAdvanceDays(Math.max(1, parseInt(e.target.value, 10) || 1))}
-                className="w-16 px-2 py-1 text-xs bg-gray-800 border border-gray-700 rounded text-gray-200"
+                className="w-16 px-2 py-1 text-xs bg-surface-2 border border-border rounded text-gray-200"
               />
               <button
                 onClick={() => advanceTimeSeconds(advanceDays * calendar.hoursPerDay * 3600)}

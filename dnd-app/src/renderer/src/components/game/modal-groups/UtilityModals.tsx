@@ -136,14 +136,14 @@ export default function UtilityModals({
 
       {activeModal === 'diceRoller' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-gray-900 border border-gray-700 rounded-lg p-4 w-96 max-h-[80vh] overflow-y-auto relative">
+          <div className="bg-surface border border-border rounded-lg p-4 w-96 max-h-[80vh] overflow-y-auto relative">
             <button
               onClick={close}
-              className="absolute top-2 right-2 text-gray-400 hover:text-gray-200 cursor-pointer text-sm"
+              className="absolute top-2 right-2 text-muted hover:text-gray-200 cursor-pointer text-sm"
             >
               Close
             </button>
-            <h2 className="text-lg font-bold text-amber-400 mb-3">Dice Roller</h2>
+            <h2 className="text-lg font-bold text-accent mb-3">Dice Roller</h2>
             <DiceRoller system="dnd5e" rollerName={playerName} />
           </div>
         </div>

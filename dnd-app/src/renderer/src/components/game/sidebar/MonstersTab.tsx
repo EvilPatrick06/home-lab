@@ -39,14 +39,14 @@ export default function MonstersTab(): JSX.Element {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         placeholder={t('game.monstersTab.searchPlaceholder')}
-        className="w-full px-2.5 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-xs text-gray-100 placeholder-gray-500 focus:outline-none focus:border-amber-500/60"
+        className="w-full px-2.5 py-1.5 rounded-lg bg-surface-2 border border-border text-xs text-fg placeholder-gray-500 focus:outline-none focus:border-amber-500/60"
       />
 
       <div className="flex flex-wrap gap-1">
         <button
           onClick={() => setCrFilter(null)}
           className={`px-1.5 py-0.5 text-xs rounded cursor-pointer transition-colors ${
-            crFilter === null ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400 hover:text-gray-200'
+            crFilter === null ? 'bg-amber-600 text-white' : 'bg-surface-2 text-muted hover:text-gray-200'
           }`}
         >
           {t('game.monstersTab.allCr')}
@@ -56,7 +56,7 @@ export default function MonstersTab(): JSX.Element {
             key={cr}
             onClick={() => setCrFilter(crFilter === cr ? null : cr)}
             className={`px-1.5 py-0.5 text-xs rounded cursor-pointer transition-colors ${
-              crFilter === cr ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400 hover:text-gray-200'
+              crFilter === cr ? 'bg-amber-600 text-white' : 'bg-surface-2 text-muted hover:text-gray-200'
             }`}
           >
             {cr}
@@ -86,19 +86,19 @@ function MonsterCard({ monster }: { monster: MonsterStatBlock }): JSX.Element {
 
   return (
     <div
-      className="bg-gray-800/50 rounded-lg px-3 py-2 border border-gray-700/30 cursor-pointer hover:border-gray-600/50 transition-colors"
+      className="bg-surface-2/50 rounded-lg px-3 py-2 border border-border/30 cursor-pointer hover:border-gray-600/50 transition-colors"
       onClick={() => setExpanded(!expanded)}
     >
       <div className="flex items-center justify-between gap-2">
-        <div className="text-xs font-semibold text-amber-400 truncate">{monster.name}</div>
+        <div className="text-xs font-semibold text-accent truncate">{monster.name}</div>
         <div className="text-xs text-gray-500 shrink-0">CR {monster.cr}</div>
       </div>
-      <div className="text-xs text-gray-400 mt-0.5">
+      <div className="text-xs text-muted mt-0.5">
         {monster.size} {monster.type}
         {monster.tags?.length ? ` (${monster.tags.join(', ')})` : ''}
       </div>
       {expanded && (
-        <div className="mt-2 pt-2 border-t border-gray-700/30 space-y-1">
+        <div className="mt-2 pt-2 border-t border-border/30 space-y-1">
           <div className="grid grid-cols-3 gap-x-2 gap-y-0.5 text-xs">
             <span className="text-gray-500">AC</span>
             <span className="text-gray-300 col-span-2">

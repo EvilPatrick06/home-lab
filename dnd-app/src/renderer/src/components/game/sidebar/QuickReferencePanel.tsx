@@ -311,8 +311,8 @@ function ReferenceList({ items }: { items: ReferenceItem[] }): JSX.Element {
   return (
     <div className="space-y-1.5">
       {items.map((item) => (
-        <div key={item.titleKey} className="bg-gray-800/50 rounded-lg px-3 py-2 border border-gray-700/30">
-          <div className="text-xs font-semibold text-amber-400">{t(item.titleKey)}</div>
+        <div key={item.titleKey} className="bg-surface-2/50 rounded-lg px-3 py-2 border border-border/30">
+          <div className="text-xs font-semibold text-accent">{t(item.titleKey)}</div>
           <p className="text-[11px] text-gray-300 mt-0.5 leading-relaxed">{t(item.descriptionKey)}</p>
         </div>
       ))}
@@ -352,14 +352,14 @@ export default function QuickReferencePanel({ onClose }: QuickReferencePanelProp
   }
 
   return (
-    <div className="w-80 h-full bg-gray-900/95 border-l border-gray-700 flex flex-col min-h-0">
+    <div className="w-80 h-full bg-surface/95 border-l border-border flex flex-col min-h-0">
       {/* Header */}
-      <div className="shrink-0 flex items-center justify-between px-3 py-2 border-b border-gray-700">
-        <h2 className="text-sm font-bold text-gray-100">{t('game.quickReferencePanel.title')}</h2>
+      <div className="shrink-0 flex items-center justify-between px-3 py-2 border-b border-border">
+        <h2 className="text-sm font-bold text-fg">{t('game.quickReferencePanel.title')}</h2>
         {onClose && (
           <button
             onClick={onClose}
-            className="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-gray-300 rounded hover:bg-gray-800 cursor-pointer transition-colors"
+            className="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-gray-300 rounded hover:bg-surface-2 cursor-pointer transition-colors"
             title={t('common.actions.close')}
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
@@ -370,7 +370,7 @@ export default function QuickReferencePanel({ onClose }: QuickReferencePanelProp
       </div>
 
       {/* Tabs */}
-      <div className="shrink-0 flex flex-wrap gap-1 px-3 py-2 border-b border-gray-700">
+      <div className="shrink-0 flex flex-wrap gap-1 px-3 py-2 border-b border-border">
         {TABS.map((tab) => (
           <button
             key={tab.id}
@@ -378,7 +378,7 @@ export default function QuickReferencePanel({ onClose }: QuickReferencePanelProp
             className={`px-2 py-1 text-xs font-semibold rounded cursor-pointer transition-colors ${
               activeTab === tab.id
                 ? 'bg-amber-600 text-white'
-                : 'bg-gray-800 text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+                : 'bg-surface-2 text-muted hover:text-gray-200 hover:bg-gray-700'
             }`}
           >
             {t(tab.labelKey)}

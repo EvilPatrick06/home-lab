@@ -59,7 +59,7 @@ export default function CoinBadge({
             if (e.key === 'Enter') commitEdit()
             if (e.key === 'Escape') setEditing(false)
           }}
-          className="w-10 h-10 rounded-full bg-gray-800 border-2 border-amber-500 text-center text-sm text-gray-100 focus:outline-none"
+          className="w-10 h-10 rounded-full bg-surface-2 border-2 border-amber-500 text-center text-sm text-fg focus:outline-none"
         />
         <span className="text-xs text-gray-500">{label}</span>
       </div>

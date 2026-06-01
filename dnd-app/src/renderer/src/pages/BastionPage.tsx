@@ -103,20 +103,20 @@ export default function BastionPage(): JSX.Element {
 
   if (loading) {
     return (
-      <div className="p-8 h-screen flex items-center justify-center bg-gray-950">
+      <div className="p-8 h-screen flex items-center justify-center bg-base">
         <div className="text-gray-500">{t('pages.bastionPage.loadingBastions')}</div>
       </div>
     )
   }
 
   return (
-    <div className="h-screen flex flex-col bg-gray-950">
+    <div className="h-screen flex flex-col bg-base">
       {/* Toolbar — pr-12 reserves space for the global settings gear icon overlay (top-right of app). */}
-      <div className="flex items-center justify-between px-4 py-2 pr-12 bg-gray-900 border-b border-gray-800 shrink-0">
+      <div className="flex items-center justify-between px-4 py-2 pr-12 bg-surface border-b border-gray-800 shrink-0">
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate('/')}
-            className="text-gray-400 hover:text-gray-200 text-sm flex items-center gap-1 transition-colors"
+            className="text-muted hover:text-gray-200 text-sm flex items-center gap-1 transition-colors"
           >
             {t('pages.bastionPage.mainMenu')}
           </button>
@@ -139,8 +139,8 @@ export default function BastionPage(): JSX.Element {
                 addToast(err instanceof Error ? err.message : t('pages.bastionPage.importFailed'), 'error')
               }
             }}
-            className="px-3 py-1.5 text-sm border border-gray-600 hover:border-amber-600 hover:bg-gray-800
-              text-gray-400 hover:text-amber-400 rounded font-semibold transition-colors cursor-pointer"
+            className="px-3 py-1.5 text-sm border border-gray-600 hover:border-amber-600 hover:bg-surface-2
+              text-muted hover:text-accent rounded font-semibold transition-colors cursor-pointer"
           >
             {t('pages.bastionPage.import')}
           </button>
@@ -156,15 +156,15 @@ export default function BastionPage(): JSX.Element {
                     addToast(t('pages.bastionPage.exportFailed'), 'error')
                   }
                 }}
-                className="px-3 py-1.5 text-sm border border-gray-600 hover:border-amber-600 hover:bg-gray-800
-                  text-gray-400 hover:text-amber-400 rounded font-semibold transition-colors cursor-pointer"
+                className="px-3 py-1.5 text-sm border border-gray-600 hover:border-amber-600 hover:bg-surface-2
+                  text-muted hover:text-accent rounded font-semibold transition-colors cursor-pointer"
               >
                 {selectedBastionId ? t('pages.bastionPage.exportSelected') : t('pages.bastionPage.exportAll')}
               </button>
               <button
                 onClick={() => setShowDeleteAllConfirm(true)}
-                className="px-3 py-1.5 text-sm border border-gray-600 hover:border-red-600 hover:bg-gray-800
-                  text-gray-400 hover:text-red-400 rounded font-semibold transition-colors cursor-pointer"
+                className="px-3 py-1.5 text-sm border border-gray-600 hover:border-red-600 hover:bg-surface-2
+                  text-muted hover:text-red-400 rounded font-semibold transition-colors cursor-pointer"
               >
                 {t('pages.bastionPage.deleteAll')}
               </button>
@@ -172,7 +172,7 @@ export default function BastionPage(): JSX.Element {
           )}
           <button
             onClick={() => setShowCreateModal(true)}
-            className="px-3 py-1.5 text-sm bg-amber-600 hover:bg-amber-500 text-white rounded font-semibold transition-colors cursor-pointer whitespace-nowrap shrink-0"
+            className="px-3 py-1.5 text-sm bg-amber-600 hover:bg-accent-strong text-white rounded font-semibold transition-colors cursor-pointer whitespace-nowrap shrink-0"
           >
             {t('pages.bastionPage.newBastion')}
           </button>
@@ -181,7 +181,7 @@ export default function BastionPage(): JSX.Element {
 
       <div className="flex-1 flex overflow-hidden">
         {/* Sidebar */}
-        <div className="w-64 border-r border-gray-800 overflow-y-auto bg-gray-900/50">
+        <div className="w-64 border-r border-gray-800 overflow-y-auto bg-surface/50">
           {bastions.length === 0 ? (
             <div className="p-4 text-center text-gray-500 text-sm">{t('pages.bastionPage.noBastionsYet')}</div>
           ) : (
@@ -196,11 +196,11 @@ export default function BastionPage(): JSX.Element {
                   }}
                   className={`w-full text-left px-4 py-3 border-b border-gray-800/50 transition-colors ${
                     selectedBastionId === bastion.id
-                      ? 'bg-gray-800 border-l-2 border-l-amber-500'
-                      : 'hover:bg-gray-800/50'
+                      ? 'bg-surface-2 border-l-2 border-l-amber-500'
+                      : 'hover:bg-surface-2/50'
                   }`}
                 >
-                  <div className="text-sm font-medium text-gray-100">{bastion.name}</div>
+                  <div className="text-sm font-medium text-fg">{bastion.name}</div>
                   <div className="text-xs text-gray-500 mt-0.5">
                     {t('pages.bastionPage.ownerLevel', {
                       name: owner?.name ?? t('pages.bastionPage.unknown'),
@@ -243,12 +243,12 @@ export default function BastionPage(): JSX.Element {
           ) : (
             <div className="flex flex-col h-full">
               {/* Header */}
-              <div className="px-6 pt-4 pb-3 border-b border-gray-800 bg-gray-900/30">
+              <div className="px-6 pt-4 pb-3 border-b border-gray-800 bg-surface/30">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h1 className="text-2xl font-bold text-gray-100">{selectedBastion.name}</h1>
+                    <h1 className="text-2xl font-bold text-fg">{selectedBastion.name}</h1>
                     <div className="flex items-center gap-3 mt-1">
-                      <span className="text-sm text-gray-400">
+                      <span className="text-sm text-muted">
                         {t('pages.bastionPage.ownerLevel', {
                           name: ownerCharacter?.name ?? t('pages.bastionPage.unknown'),
                           level: ownerLevel
@@ -263,7 +263,7 @@ export default function BastionPage(): JSX.Element {
                       <span className="text-xs px-2 py-0.5 rounded bg-purple-900/50 text-purple-300 border border-purple-700">
                         {t('pages.bastionPage.bastionPointsBp', { bp: selectedBastion.bastionPoints })}
                       </span>
-                      <span className="text-xs px-2 py-0.5 rounded bg-gray-800 text-gray-400 border border-gray-700">
+                      <span className="text-xs px-2 py-0.5 rounded bg-surface-2 text-muted border border-border">
                         {t('pages.bastionPage.specialCount', {
                           count:
                             selectedBastion.specialFacilities.length +
@@ -276,7 +276,7 @@ export default function BastionPage(): JSX.Element {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setShowAdvanceTime(true)}
-                      className="px-3 py-1.5 text-sm border border-gray-600 hover:border-amber-600 text-gray-300 hover:text-amber-400 rounded transition-colors"
+                      className="px-3 py-1.5 text-sm border border-gray-600 hover:border-amber-600 text-gray-300 hover:text-accent rounded transition-colors"
                     >
                       {t('pages.bastionPage.advanceTime')}
                     </button>
@@ -303,7 +303,7 @@ export default function BastionPage(): JSX.Element {
                       onClick={() => setActiveTab(tab.id)}
                       className={`px-3 py-1.5 text-sm rounded-t transition-colors ${
                         activeTab === tab.id
-                          ? 'bg-gray-800 text-amber-400 border border-gray-700 border-b-gray-800'
+                          ? 'bg-surface-2 text-accent border border-border border-b-gray-800'
                           : 'text-gray-500 hover:text-gray-300'
                       }`}
                     >

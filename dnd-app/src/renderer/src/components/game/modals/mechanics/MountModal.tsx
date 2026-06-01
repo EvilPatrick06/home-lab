@@ -33,8 +33,8 @@ export default function MountModal({
     return (
       <div className="fixed inset-0 z-30 flex items-center justify-center">
         <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
-        <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-6 text-center">
-          <p className="text-gray-400">{t('game.mountModal.noCharacter')}</p>
+        <div className="relative bg-surface border border-border rounded-xl p-6 text-center">
+          <p className="text-muted">{t('game.mountModal.noCharacter')}</p>
           <button onClick={onClose} className="mt-3 px-4 py-1 text-sm bg-gray-700 rounded cursor-pointer">
             {t('common.actions.close')}
           </button>
@@ -144,7 +144,7 @@ export default function MountModal({
   return (
     <div className="fixed inset-0 z-30 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
-      <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-[400px] max-h-[80vh] overflow-y-auto shadow-2xl">
+      <div className="relative bg-surface border border-border rounded-xl p-5 w-[400px] max-h-[80vh] overflow-y-auto shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-gray-200">
@@ -162,12 +162,12 @@ export default function MountModal({
         {isMounted && mountToken ? (
           /* Currently mounted */
           <div className="space-y-3">
-            <div className="p-3 bg-gray-800 rounded-lg border border-green-700/50">
-              <div className="text-xs text-gray-400 mb-1">{t('game.mountModal.currentlyMountedOn')}</div>
+            <div className="p-3 bg-surface-2 rounded-lg border border-green-700/50">
+              <div className="text-xs text-muted mb-1">{t('game.mountModal.currentlyMountedOn')}</div>
               <div className="text-sm font-semibold text-green-400">{mountToken.label}</div>
               <div className="text-xs text-gray-500 mt-1">
                 {t('game.mountModal.typeLabel')}{' '}
-                <span className="text-amber-400">
+                <span className="text-accent">
                   {ts.mountType === 'controlled' ? t('game.mountModal.controlled') : t('game.mountModal.independent')}
                 </span>
               </div>
@@ -204,7 +204,7 @@ export default function MountModal({
                   const sizeIdx = Math.min(getTokenSizeCategory(token) - 1, sizeNames.length - 1)
                   const mt = selectedMountType[token.id] ?? 'controlled'
                   return (
-                    <div key={token.id} className="p-3 bg-gray-800 rounded-lg border border-gray-700">
+                    <div key={token.id} className="p-3 bg-surface-2 rounded-lg border border-border">
                       <div className="flex items-center justify-between mb-2">
                         <div>
                           <span className="text-sm text-gray-200">{token.label}</span>
@@ -215,9 +215,7 @@ export default function MountModal({
                         <button
                           onClick={() => setSelectedMountType((s) => ({ ...s, [token.id]: 'controlled' }))}
                           className={`flex-1 px-2 py-1 text-xs rounded cursor-pointer ${
-                            mt === 'controlled'
-                              ? 'bg-amber-600 text-white'
-                              : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+                            mt === 'controlled' ? 'bg-amber-600 text-white' : 'bg-gray-700 text-muted hover:bg-gray-600'
                           }`}
                         >
                           {t('game.mountModal.controlled')}
@@ -225,9 +223,7 @@ export default function MountModal({
                         <button
                           onClick={() => setSelectedMountType((s) => ({ ...s, [token.id]: 'independent' }))}
                           className={`flex-1 px-2 py-1 text-xs rounded cursor-pointer ${
-                            mt === 'independent'
-                              ? 'bg-blue-600 text-white'
-                              : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+                            mt === 'independent' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-muted hover:bg-gray-600'
                           }`}
                         >
                           {t('game.mountModal.independent')}
@@ -254,7 +250,7 @@ export default function MountModal({
         )}
 
         {/* Rules summary */}
-        <div className="mt-4 border-t border-gray-700 pt-3 space-y-1">
+        <div className="mt-4 border-t border-border pt-3 space-y-1">
           <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">{t('game.mountModal.rulesTitle')}</div>
           <div className="text-xs text-gray-500">{t('game.mountModal.ruleCost')}</div>
           <div className="text-xs text-gray-500">{t('game.mountModal.ruleControlled')}</div>

@@ -48,8 +48,8 @@ function MagicItemCard5e({
   const i = index
   const isUnidentified = item.identified === false
   const colors = isUnidentified
-    ? 'border-gray-600 text-gray-400'
-    : (RARITY_COLOR[item.rarity] ?? 'border-gray-600 text-gray-400')
+    ? 'border-gray-600 text-muted'
+    : (RARITY_COLOR[item.rarity] ?? 'border-gray-600 text-muted')
   const hasEffects = !isUnidentified && !!getMagicItemEffects(item.name)
   const isWeaponType = item.type === 'weapon' || /weapon|\+\d.*weapon/i.test(item.name)
   const isArmorType = item.type === 'armor' || /armor|shield|\+\d.*armor/i.test(item.name)
@@ -170,7 +170,7 @@ function MagicItemCard5e({
             >
               -
             </button>
-            <span className="text-xs font-mono text-amber-400">
+            <span className="text-xs font-mono text-accent">
               {item.charges.current}/{item.charges.max}
             </span>
             <button
@@ -258,7 +258,7 @@ function MagicItemCard5e({
                 } as Character5e
                 saveAndBroadcast(updated)
               }}
-              className="bg-gray-800 border border-gray-700 rounded px-1.5 py-0.5 text-xs text-gray-300 focus:outline-none focus:border-purple-500"
+              className="bg-surface-2 border border-border rounded px-1.5 py-0.5 text-xs text-gray-300 focus:outline-none focus:border-purple-500"
             >
               <option value="">{t('sheet.magicItemCard.linkToWeapon')}</option>
               {weapons.map((w) => (
@@ -283,7 +283,7 @@ function MagicItemCard5e({
                 } as Character5e
                 saveAndBroadcast(updated)
               }}
-              className="bg-gray-800 border border-gray-700 rounded px-1.5 py-0.5 text-xs text-gray-300 focus:outline-none focus:border-purple-500"
+              className="bg-surface-2 border border-border rounded px-1.5 py-0.5 text-xs text-gray-300 focus:outline-none focus:border-purple-500"
             >
               <option value="">{t('sheet.magicItemCard.linkToArmor')}</option>
               {armors.map((a) => (

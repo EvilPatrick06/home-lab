@@ -413,7 +413,7 @@ export default function DMAudioPanel(): JSX.Element {
                 className={`flex items-center gap-1 px-2 py-1.5 text-xs font-medium rounded-lg transition-all cursor-pointer ${
                   isActive
                     ? 'bg-amber-600/30 border border-amber-500/50 text-amber-300 shadow-[0_0_6px_rgba(245,158,11,0.15)]'
-                    : 'bg-gray-800/60 border border-gray-700/50 text-gray-300 hover:bg-amber-600/20 hover:border-amber-500/40 hover:text-amber-300'
+                    : 'bg-surface-2/60 border border-border/50 text-gray-300 hover:bg-amber-600/20 hover:border-amber-500/40 hover:text-amber-300'
                 } ${isFading ? 'opacity-60' : ''}`}
                 title={
                   isActive
@@ -423,7 +423,7 @@ export default function DMAudioPanel(): JSX.Element {
               >
                 <span className="text-xs">{track.icon}</span>
                 <span className="truncate">{track.label}</span>
-                {isActive && <span className="ml-auto text-[8px] text-amber-400 animate-pulse">{'\u25B6'}</span>}
+                {isActive && <span className="ml-auto text-[8px] text-accent animate-pulse">{'\u25B6'}</span>}
               </button>
             )
           })}
@@ -431,14 +431,14 @@ export default function DMAudioPanel(): JSX.Element {
       </div>
 
       {/* Volume sliders */}
-      <div className="border-t border-gray-700/40 pt-1.5">
+      <div className="border-t border-border/40 pt-1.5">
         <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1 block">
           {t('game.dmAudioPanel.volume')}
         </span>
         <div className="space-y-1.5">
           {/* Ambient volume */}
           <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-400 w-14 shrink-0">{t('game.dmAudioPanel.ambient')}</span>
+            <span className="text-xs text-muted w-14 shrink-0">{t('game.dmAudioPanel.ambient')}</span>
             <input
               type="range"
               min={0}
@@ -451,7 +451,7 @@ export default function DMAudioPanel(): JSX.Element {
           </div>
           {/* Master volume */}
           <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-400 w-14 shrink-0">{t('game.dmAudioPanel.master')}</span>
+            <span className="text-xs text-muted w-14 shrink-0">{t('game.dmAudioPanel.master')}</span>
             <input
               type="range"
               min={0}
@@ -466,7 +466,7 @@ export default function DMAudioPanel(): JSX.Element {
       </div>
 
       {/* Quick SFX buttons */}
-      <div className="border-t border-gray-700/40 pt-1.5">
+      <div className="border-t border-border/40 pt-1.5">
         <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1 block">
           {t('game.dmAudioPanel.quickSfx')}
         </span>
@@ -475,7 +475,7 @@ export default function DMAudioPanel(): JSX.Element {
             <button
               key={sfx.event}
               onClick={() => handlePlaySfx(sfx.event)}
-              className="px-2 py-1 text-xs font-medium rounded bg-gray-800/60 border border-gray-700/50 text-gray-300 hover:bg-amber-600/20 hover:border-amber-500/40 hover:text-amber-300 transition-all cursor-pointer"
+              className="px-2 py-1 text-xs font-medium rounded bg-surface-2/60 border border-border/50 text-gray-300 hover:bg-amber-600/20 hover:border-amber-500/40 hover:text-amber-300 transition-all cursor-pointer"
             >
               {sfx.label}
             </button>
@@ -484,7 +484,7 @@ export default function DMAudioPanel(): JSX.Element {
       </div>
 
       {/* Custom Sounds */}
-      <div className="border-t border-gray-700/40 pt-1.5">
+      <div className="border-t border-border/40 pt-1.5">
         <div className="flex items-center justify-between mb-1">
           <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
             {t('game.dmAudioPanel.customSounds')}
@@ -507,7 +507,7 @@ export default function DMAudioPanel(): JSX.Element {
               className={`px-2 py-0.5 text-[9px] font-medium rounded transition-all cursor-pointer capitalize ${
                 customFilter === cat
                   ? 'bg-amber-600/30 text-amber-300 border border-amber-500/50'
-                  : 'bg-gray-800/40 text-gray-400 border border-gray-700/40 hover:text-gray-300'
+                  : 'bg-surface-2/40 text-muted border border-border/40 hover:text-gray-300'
               }`}
             >
               {cat}
@@ -525,14 +525,12 @@ export default function DMAudioPanel(): JSX.Element {
         ) : (
           <div className="space-y-1 max-h-40 overflow-y-auto">
             {filteredCustom.map((entry) => (
-              <div key={entry.fileName} className="flex items-center gap-1 bg-gray-800/40 rounded px-1.5 py-1">
+              <div key={entry.fileName} className="flex items-center gap-1 bg-surface-2/40 rounded px-1.5 py-1">
                 {/* Play/Stop toggle */}
                 <button
                   onClick={() => handleToggleCustomPlay(entry.fileName)}
                   className={`w-5 h-5 shrink-0 flex items-center justify-center rounded text-xs transition-all cursor-pointer ${
-                    entry.playing
-                      ? 'bg-amber-600/40 text-amber-300'
-                      : 'bg-gray-700/60 text-gray-400 hover:text-gray-200'
+                    entry.playing ? 'bg-amber-600/40 text-amber-300' : 'bg-gray-700/60 text-muted hover:text-gray-200'
                   }`}
                   title={entry.playing ? t('game.dmAudioPanel.stop') : t('game.dmAudioPanel.play')}
                 >
@@ -559,7 +557,7 @@ export default function DMAudioPanel(): JSX.Element {
                   className={`text-[9px] px-1 py-0.5 rounded transition-all cursor-pointer ${
                     entry.loop
                       ? 'bg-blue-600/30 text-blue-300 border border-blue-500/50'
-                      : 'bg-gray-700/40 text-gray-500 border border-gray-700/40 hover:text-gray-400'
+                      : 'bg-gray-700/40 text-gray-500 border border-border/40 hover:text-muted'
                   }`}
                   title={entry.loop ? t('game.dmAudioPanel.loopOn') : t('game.dmAudioPanel.loopOff')}
                 >
@@ -581,7 +579,7 @@ export default function DMAudioPanel(): JSX.Element {
       </div>
 
       {/* Playlists (Phase 27j) */}
-      <div className="border-t border-gray-700/40 pt-1.5">
+      <div className="border-t border-border/40 pt-1.5">
         <div className="flex items-center justify-between mb-1">
           <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
             {t('game.dmAudioPanel.playlists')}
@@ -594,7 +592,7 @@ export default function DMAudioPanel(): JSX.Element {
             onChange={(e) => setNewPlaylistName(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleCreatePlaylist()}
             placeholder={t('game.dmAudioPanel.newPlaylistPlaceholder')}
-            className="flex-1 min-w-0 px-2 py-0.5 text-xs bg-gray-800/60 border border-gray-700/50 rounded text-gray-200 placeholder-gray-600"
+            className="flex-1 min-w-0 px-2 py-0.5 text-xs bg-surface-2/60 border border-border/50 rounded text-gray-200 placeholder-gray-600"
           />
           <button
             onClick={handleCreatePlaylist}
@@ -612,15 +610,13 @@ export default function DMAudioPanel(): JSX.Element {
             {playlists.map((pl) => {
               const isPlaying = playingPlaylistId === pl.id
               return (
-                <div key={pl.id} className="bg-gray-800/40 rounded px-1.5 py-1">
+                <div key={pl.id} className="bg-surface-2/40 rounded px-1.5 py-1">
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => (isPlaying ? handleStopPlaylist() : handlePlayPlaylist(pl.id))}
                       disabled={pl.tracks.length === 0}
                       className={`w-5 h-5 shrink-0 flex items-center justify-center rounded text-xs cursor-pointer disabled:opacity-40 ${
-                        isPlaying
-                          ? 'bg-amber-600/40 text-amber-300'
-                          : 'bg-gray-700/60 text-gray-400 hover:text-gray-200'
+                        isPlaying ? 'bg-amber-600/40 text-amber-300' : 'bg-gray-700/60 text-muted hover:text-gray-200'
                       }`}
                       title={isPlaying ? t('game.dmAudioPanel.stop') : t('game.dmAudioPanel.play')}
                     >
@@ -669,7 +665,7 @@ export default function DMAudioPanel(): JSX.Element {
                   {pl.tracks.length > 0 && (
                     <div className="mt-1 pl-6 space-y-0.5">
                       {pl.tracks.map((t, i) => (
-                        <div key={i} className="flex items-center gap-1 text-[9px] text-gray-400">
+                        <div key={i} className="flex items-center gap-1 text-[9px] text-muted">
                           <span
                             className={`truncate flex-1 ${isPlaying && pl.currentIndex === i ? 'text-amber-300' : ''}`}
                           >
@@ -693,7 +689,7 @@ export default function DMAudioPanel(): JSX.Element {
                       onChange={(e) => {
                         if (e.target.value) handleAddTrack(pl.id, 'preset', e.target.value)
                       }}
-                      className="flex-1 min-w-0 px-1 py-0.5 text-[9px] bg-gray-800/60 border border-gray-700/50 rounded text-gray-300"
+                      className="flex-1 min-w-0 px-1 py-0.5 text-[9px] bg-surface-2/60 border border-border/50 rounded text-gray-300"
                     >
                       <option value="">{t('game.dmAudioPanel.addAmbient')}</option>
                       {AMBIENT_TRACKS.map((track) => (
@@ -708,7 +704,7 @@ export default function DMAudioPanel(): JSX.Element {
                         onChange={(e) => {
                           if (e.target.value) handleAddTrack(pl.id, 'custom', e.target.value)
                         }}
-                        className="flex-1 min-w-0 px-1 py-0.5 text-[9px] bg-gray-800/60 border border-gray-700/50 rounded text-gray-300"
+                        className="flex-1 min-w-0 px-1 py-0.5 text-[9px] bg-surface-2/60 border border-border/50 rounded text-gray-300"
                       >
                         <option value="">{t('game.dmAudioPanel.addCustom')}</option>
                         {customAudioEntries.map((entry) => (

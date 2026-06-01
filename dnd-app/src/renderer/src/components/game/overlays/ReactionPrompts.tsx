@@ -55,7 +55,7 @@ export function ShieldReactionPrompt({
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" />
-      <div className="relative bg-gray-900 border border-cyan-500 rounded-xl p-5 w-96 shadow-2xl">
+      <div className="relative bg-surface border border-cyan-500 rounded-xl p-5 w-96 shadow-2xl">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-sm font-semibold text-cyan-400">{t('game.shieldReactionPrompt.title')}</h3>
           <span className="text-xs text-gray-500">{t('game.shieldReactionPrompt.countdown', { remaining })}</span>
@@ -156,7 +156,7 @@ export function CounterspellReactionPrompt({
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" />
-      <div className="relative bg-gray-900 border border-violet-500 rounded-xl p-5 w-96 shadow-2xl">
+      <div className="relative bg-surface border border-violet-500 rounded-xl p-5 w-96 shadow-2xl">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-sm font-semibold text-violet-400">{t('game.counterspellReactionPrompt.title')}</h3>
           <span className="text-xs text-gray-500">{t('game.counterspellReactionPrompt.countdown', { remaining })}</span>
@@ -181,7 +181,7 @@ export function CounterspellReactionPrompt({
                   key={lvl}
                   onClick={() => setSelectedSlot(lvl)}
                   className={`w-7 h-7 text-xs font-bold rounded-lg cursor-pointer ${
-                    selectedSlot === lvl ? 'bg-violet-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                    selectedSlot === lvl ? 'bg-violet-600 text-white' : 'bg-surface-2 text-muted hover:bg-gray-700'
                   }`}
                 >
                   {lvl}

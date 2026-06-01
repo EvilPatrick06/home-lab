@@ -1,6 +1,52 @@
 /* biome-ignore-all lint/complexity/noImportantStyles: reduced-motion (.reduce-motion) must override animation/transition utilities */
 @import "tailwindcss";
 
+/* ---------------------------------------------------------------------------
+   Semantic color-token layer (Phase: semantic tokens)
+
+   These give meaning-named utilities (bg-surface, text-muted, border-border,
+   text-accent, …) on top of the raw Tailwind gray/amber scale. Each token's
+   DEFAULT value is the *exact* raw scale color it replaces, so the default
+   theme renders pixel-identical — the tokens just make those surfaces themeable.
+
+   `@theme inline` makes the generated utilities reference the var by NAME
+   (e.g. `color: var(--color-surface)`) instead of baking the resolved value.
+   Because the runtime theme system (services/theme-manager.ts) overrides the
+   underlying `--color-gray-*` / `--color-amber-*` vars on :root, and these
+   semantic tokens point at those same vars, theme switches flow through
+   automatically with zero extra wiring.
+   --------------------------------------------------------------------------- */
+@theme inline {
+  /* Surfaces — darkest to lightest in the default (dark) theme */
+  --color-base: var(--color-gray-950); /* app background        #030712 */
+  --color-surface: var(--color-gray-900); /* panels             #111827 */
+  --color-surface-2: var(--color-gray-800); /* raised/cards      #1f2937 */
+
+  /* Borders & dividers */
+  --color-border: var(--color-gray-700); /* default border      #374151 */
+
+  /* Text — canonical names from the token spec */
+  --color-text: var(--color-gray-100); /* primary text         #f3f4f6 */
+  --color-text-muted: var(--color-gray-400); /* secondary text  #9ca3af */
+
+  /* Text — short aliases so the generated utilities read naturally
+     (`text-fg`, `text-muted`) instead of `text-text` / `text-text-muted`.
+     Same underlying vars, so they stay theme-reactive and visually identical. */
+  --color-fg: var(--color-gray-100); /* primary text → text-fg    #f3f4f6 */
+  --color-muted: var(--color-gray-400); /* secondary → text-muted #9ca3af */
+
+  /* Accent (brand amber) */
+  --color-accent: var(--color-amber-400); /* primary accent      #fbbf24 */
+  --color-accent-strong: var(--color-amber-500); /* stronger      #f59e0b */
+
+  /* Status — semantic meaning colors. Reference the raw scale so themes still
+     flow through. Class usages of these (damage reds, status greens, …) are
+     intentionally NOT codemod-migrated; the tokens exist for new code + theming. */
+  --color-danger: var(--color-red-500); /* error / destructive   #ef4444 */
+  --color-success: var(--color-green-500); /* success / valid     #22c55e */
+  --color-warning: var(--color-yellow-500); /* caution            #eab308 */
+}
+
 /* Phase 18i — Cinzel (OFL) bundled locally rather than via the Google Fonts CDN:
    the app's CSP is `style-src 'self'` / `font-src 'self'`, which blocks the CDN
    @import, and a desktop app should render offline. Variable weight 400-700. */

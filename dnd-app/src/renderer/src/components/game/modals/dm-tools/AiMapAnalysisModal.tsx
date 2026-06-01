@@ -92,20 +92,20 @@ export default function AiMapAnalysisModal({ onClose }: AiMapAnalysisModalProps)
       role="presentation"
     >
       <div
-        className="bg-gray-900 border border-gray-700 rounded-lg shadow-xl w-[640px] max-h-[80vh] flex flex-col"
+        className="bg-surface border border-border rounded-lg shadow-xl w-[640px] max-h-[80vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-100">{t('game.aiMapAnalysisModal.title')}</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-white text-xl leading-none cursor-pointer">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+          <h2 className="text-lg font-semibold text-fg">{t('game.aiMapAnalysisModal.title')}</h2>
+          <button onClick={onClose} className="text-muted hover:text-white text-xl leading-none cursor-pointer">
             x
           </button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {/* Map info */}
-          <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-3">
+          <div className="bg-surface-2/50 border border-border/50 rounded-lg p-3">
             <div className="text-sm text-gray-300">
               {activeMap ? (
                 <>
@@ -120,7 +120,7 @@ export default function AiMapAnalysisModal({ onClose }: AiMapAnalysisModalProps)
                     {t('game.aiMapAnalysisModal.tokenCount', { count: tokenCount })}
                   </span>
                   {initiative && (
-                    <span className="text-amber-400 ml-2">
+                    <span className="text-accent ml-2">
                       {t('game.aiMapAnalysisModal.round', { round: initiative.round })}
                     </span>
                   )}
@@ -147,7 +147,7 @@ export default function AiMapAnalysisModal({ onClose }: AiMapAnalysisModalProps)
 
           {/* Analysis result */}
           {analysis && (
-            <div className="bg-gray-800/60 border border-gray-700/50 rounded-lg p-4">
+            <div className="bg-surface-2/60 border border-border/50 rounded-lg p-4">
               <h3 className="text-sm font-medium text-purple-300 mb-2">
                 {t('game.aiMapAnalysisModal.tacticalAnalysis')}
               </h3>
@@ -158,14 +158,14 @@ export default function AiMapAnalysisModal({ onClose }: AiMapAnalysisModalProps)
           {/* Token summary */}
           {activeMap && activeMap.tokens.length > 0 && (
             <div>
-              <h3 className="text-xs font-medium text-gray-400 mb-1.5">{t('game.aiMapAnalysisModal.currentTokens')}</h3>
+              <h3 className="text-xs font-medium text-muted mb-1.5">{t('game.aiMapAnalysisModal.currentTokens')}</h3>
               <div className="space-y-1">
                 {activeMap.tokens.map((token) => {
                   const maxHP = getTokenStats(token).maxHP
                   return (
                     <div
                       key={token.id}
-                      className="flex items-center justify-between text-[11px] px-2 py-1 bg-gray-800/40 rounded"
+                      className="flex items-center justify-between text-[11px] px-2 py-1 bg-surface-2/40 rounded"
                     >
                       <span className="text-gray-300">
                         {token.label}
@@ -179,7 +179,7 @@ export default function AiMapAnalysisModal({ onClose }: AiMapAnalysisModalProps)
                               token.currentHP <= 0
                                 ? 'text-red-400'
                                 : token.currentHP < maxHP / 2
-                                  ? 'text-amber-400'
+                                  ? 'text-accent'
                                   : 'text-green-400'
                             }`}
                           >
@@ -196,7 +196,7 @@ export default function AiMapAnalysisModal({ onClose }: AiMapAnalysisModalProps)
         </div>
 
         {/* Footer */}
-        <div className="px-4 py-3 border-t border-gray-700 flex justify-end">
+        <div className="px-4 py-3 border-t border-border flex justify-end">
           <button
             onClick={onClose}
             className="px-4 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 text-gray-300 rounded cursor-pointer"

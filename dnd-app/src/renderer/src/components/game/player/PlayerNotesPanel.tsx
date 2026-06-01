@@ -127,12 +127,12 @@ export default function PlayerNotesPanel({ characterId, onClose }: PlayerNotesPa
     return (
       <div className="fixed inset-0 z-20 flex items-end justify-center pb-20">
         <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
-        <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-md w-full mx-4">
+        <div className="relative bg-surface/95 backdrop-blur-sm border border-border/50 rounded-xl p-4 max-w-md w-full mx-4">
           <p className="text-sm text-gray-300">{t('game.playerNotesPanel.selectCharacterFirst')}</p>
           <button
             type="button"
             onClick={onClose}
-            className="mt-3 px-3 py-1.5 text-xs rounded bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
+            className="mt-3 px-3 py-1.5 text-xs rounded bg-surface-2 text-gray-300 hover:bg-gray-700 cursor-pointer"
           >
             {t('common.actions.close')}
           </button>
@@ -144,7 +144,7 @@ export default function PlayerNotesPanel({ characterId, onClose }: PlayerNotesPa
   return (
     <div className="fixed inset-0 z-20 flex items-end justify-center pb-20">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-3xl w-full mx-4 shadow-2xl max-h-[70vh] flex flex-col">
+      <div className="relative bg-surface/95 backdrop-blur-sm border border-border/50 rounded-xl p-4 max-w-3xl w-full mx-4 shadow-2xl max-h-[70vh] flex flex-col">
         <div className="flex items-center justify-between mb-3 shrink-0">
           <div>
             <h3 className="text-sm font-semibold text-gray-200">{t('game.playerNotesPanel.myNotes')}</h3>
@@ -168,7 +168,7 @@ export default function PlayerNotesPanel({ characterId, onClose }: PlayerNotesPa
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t('game.playerNotesPanel.searchPlaceholder')}
-              className="px-2 py-1 text-xs rounded bg-gray-800 border border-gray-700/50 text-gray-200"
+              className="px-2 py-1 text-xs rounded bg-surface-2 border border-border/50 text-gray-200"
             />
             <button
               type="button"
@@ -191,7 +191,7 @@ export default function PlayerNotesPanel({ characterId, onClose }: PlayerNotesPa
                     className={`w-full text-left px-2 py-1.5 rounded text-xs transition-colors cursor-pointer ${
                       activeId === n.id
                         ? 'bg-amber-900/40 border border-amber-600/40 text-amber-100'
-                        : 'bg-gray-800/40 hover:bg-gray-800 text-gray-300'
+                        : 'bg-surface-2/40 hover:bg-surface-2 text-gray-300'
                     }`}
                   >
                     <div className="font-medium truncate">{n.title || t('game.playerNotesPanel.untitled')}</div>
@@ -211,7 +211,7 @@ export default function PlayerNotesPanel({ characterId, onClose }: PlayerNotesPa
                   value={active.title}
                   onChange={(e) => handleUpdate({ title: e.target.value })}
                   placeholder={t('game.playerNotesPanel.titlePlaceholder')}
-                  className="px-2 py-1 text-sm rounded bg-gray-800 border border-gray-700/50 text-gray-100"
+                  className="px-2 py-1 text-sm rounded bg-surface-2 border border-border/50 text-fg"
                 />
                 <input
                   type="text"
@@ -225,13 +225,13 @@ export default function PlayerNotesPanel({ characterId, onClose }: PlayerNotesPa
                     })
                   }
                   placeholder={t('game.playerNotesPanel.tagsPlaceholder')}
-                  className="px-2 py-1 text-[11px] rounded bg-gray-800 border border-gray-700/50 text-gray-300"
+                  className="px-2 py-1 text-[11px] rounded bg-surface-2 border border-border/50 text-gray-300"
                 />
                 <textarea
                   value={active.content}
                   onChange={(e) => handleUpdate({ content: e.target.value })}
                   placeholder={t('game.playerNotesPanel.contentPlaceholder')}
-                  className="flex-1 min-h-[8rem] px-2 py-1.5 text-xs rounded bg-gray-800 border border-gray-700/50 text-gray-200 resize-none font-mono"
+                  className="flex-1 min-h-[8rem] px-2 py-1.5 text-xs rounded bg-surface-2 border border-border/50 text-gray-200 resize-none font-mono"
                 />
                 <div className="flex items-center justify-between text-xs text-gray-500">
                   <span>

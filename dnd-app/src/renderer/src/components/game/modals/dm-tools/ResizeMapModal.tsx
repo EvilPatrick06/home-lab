@@ -35,7 +35,7 @@ export default function ResizeMapModal({
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
-      <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-5 max-w-sm w-full mx-4 shadow-2xl">
+      <div className="relative bg-surface/95 backdrop-blur-sm border border-border/50 rounded-xl p-5 max-w-sm w-full mx-4 shadow-2xl">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-gray-200">{t('game.resizeMapModal.title')}</h3>
           <button
@@ -48,7 +48,7 @@ export default function ResizeMapModal({
         </div>
 
         <div className="space-y-4">
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-muted">
             {t('game.resizeMapModal.currentSize', {
               width: Math.round(currentWidthPixels / cellSize),
               height: Math.round(currentHeightPixels / cellSize)
@@ -57,25 +57,25 @@ export default function ResizeMapModal({
 
           <div className="flex gap-3">
             <div className="flex-1">
-              <label className="text-xs text-gray-400 block mb-1">{t('game.resizeMapModal.newWidth')}</label>
+              <label className="text-xs text-muted block mb-1">{t('game.resizeMapModal.newWidth')}</label>
               <input
                 type="number"
                 value={width}
                 onChange={(e) => setWidth(clamp(parseInt(e.target.value, 10) || 10, 10, 200))}
                 min={10}
                 max={200}
-                className="w-full px-2 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-100 text-sm focus:outline-none focus:border-amber-500"
+                className="w-full px-2 py-1.5 rounded-lg bg-surface-2 border border-border text-fg text-sm focus:outline-none focus:border-amber-500"
               />
             </div>
             <div className="flex-1">
-              <label className="text-xs text-gray-400 block mb-1">{t('game.resizeMapModal.newHeight')}</label>
+              <label className="text-xs text-muted block mb-1">{t('game.resizeMapModal.newHeight')}</label>
               <input
                 type="number"
                 value={height}
                 onChange={(e) => setHeight(clamp(parseInt(e.target.value, 10) || 10, 10, 200))}
                 min={10}
                 max={200}
-                className="w-full px-2 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-100 text-sm focus:outline-none focus:border-amber-500"
+                className="w-full px-2 py-1.5 rounded-lg bg-surface-2 border border-border text-fg text-sm focus:outline-none focus:border-amber-500"
               />
             </div>
           </div>
@@ -83,11 +83,11 @@ export default function ResizeMapModal({
           <p className="text-xs text-gray-500">
             {t('game.resizeMapModal.totalSize', { width: newPixelWidth, height: newPixelHeight })}
           </p>
-          <p className="text-xs text-amber-500/80">{t('game.resizeMapModal.note')}</p>
+          <p className="text-xs text-accent-strong/80">{t('game.resizeMapModal.note')}</p>
 
           <button
             onClick={handleResize}
-            className="w-full py-2 text-xs font-semibold rounded-lg bg-amber-600 hover:bg-amber-500 text-white transition-colors cursor-pointer"
+            className="w-full py-2 text-xs font-semibold rounded-lg bg-amber-600 hover:bg-accent-strong text-white transition-colors cursor-pointer"
           >
             {t('game.resizeMapModal.apply')}
           </button>

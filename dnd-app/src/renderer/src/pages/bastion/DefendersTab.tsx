@@ -36,13 +36,13 @@ export function DefendersTab({
           <h3 className="text-sm font-semibold text-gray-200">{t('pages.defendersTab.defenderRoster')}</h3>
           <button
             onClick={onRecruit}
-            className="px-3 py-1.5 text-sm bg-amber-600 hover:bg-amber-500 text-white rounded transition-colors"
+            className="px-3 py-1.5 text-sm bg-amber-600 hover:bg-accent-strong text-white rounded transition-colors"
           >
             {t('pages.defendersTab.recruit')}
           </button>
         </div>
         {barracks.length === 0 ? (
-          <div className="text-sm text-gray-500 bg-gray-900 rounded-lg p-4">
+          <div className="text-sm text-gray-500 bg-surface rounded-lg p-4">
             {t('pages.defendersTab.buildBarrackHint')}
           </div>
         ) : (
@@ -50,9 +50,9 @@ export function DefendersTab({
             const defenders = bastion.defenders.filter((d) => d.barrackId === barrack.id)
             const max = barrack.space === 'vast' ? 25 : 12
             return (
-              <div key={barrack.id} className="bg-gray-900 border border-gray-800 rounded-lg p-4">
+              <div key={barrack.id} className="bg-surface border border-gray-800 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="font-medium text-sm text-gray-100">
+                  <span className="font-medium text-sm text-fg">
                     {t('pages.defendersTab.barrackCount', {
                       name: barrack.name,
                       count: defenders.length,
@@ -67,7 +67,7 @@ export function DefendersTab({
                     {defenders.map((d) => (
                       <div
                         key={d.id}
-                        className="flex items-center gap-1 text-xs bg-gray-800 rounded px-2 py-1 border border-gray-700"
+                        className="flex items-center gap-1 text-xs bg-surface-2 rounded px-2 py-1 border border-border"
                       >
                         <span className="text-gray-200">{d.name}</span>
                         {d.isUndead && <span className="text-purple-400">{t('pages.defendersTab.undead')}</span>}
@@ -85,8 +85,8 @@ export function DefendersTab({
         )}
         {/* Unassigned defenders */}
         {bastion.defenders.filter((d) => !d.barrackId).length > 0 && (
-          <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
-            <span className="font-medium text-sm text-gray-100 mb-2 block">
+          <div className="bg-surface border border-gray-800 rounded-lg p-4">
+            <span className="font-medium text-sm text-fg mb-2 block">
               {t('pages.defendersTab.unassignedDefenders')}
             </span>
             <div className="flex flex-wrap gap-2">
@@ -95,7 +95,7 @@ export function DefendersTab({
                 .map((d) => (
                   <div
                     key={d.id}
-                    className="flex items-center gap-1 text-xs bg-gray-800 rounded px-2 py-1 border border-gray-700"
+                    className="flex items-center gap-1 text-xs bg-surface-2 rounded px-2 py-1 border border-border"
                   >
                     <span className="text-gray-200">{d.name}</span>
                     <button onClick={() => onRemove([d.id])} className="text-red-400 hover:text-red-300 ml-1">
@@ -116,7 +116,7 @@ export function DefendersTab({
         const lieutenants = bastion.defenders.filter((d) => d.isLieutenant)
         const nonLieutenants = bastion.defenders.filter((d) => !d.isLieutenant)
         return (
-          <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
+          <div className="bg-surface border border-gray-800 rounded-lg p-4">
             <h3 className="text-sm font-semibold text-gray-200 mb-3">
               {t('pages.defendersTab.lieutenants', {
                 count: lieutenants.length,
@@ -150,7 +150,7 @@ export function DefendersTab({
                     <button
                       key={d.id}
                       onClick={() => useBastionStore.getState().promoteLieutenant(bastion.id, d.id)}
-                      className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1 rounded border border-gray-700 transition-colors"
+                      className="text-xs bg-surface-2 hover:bg-gray-700 text-gray-300 px-2 py-1 rounded border border-border transition-colors"
                     >
                       {d.name}
                     </button>
@@ -166,18 +166,18 @@ export function DefendersTab({
       })()}
 
       {/* Defensive Walls */}
-      <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
+      <div className="bg-surface border border-gray-800 rounded-lg p-4">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-sm font-semibold text-gray-200">{t('pages.defendersTab.defensiveWalls')}</h3>
           <button
             onClick={onBuildWalls}
-            className="px-3 py-1.5 text-sm border border-gray-600 hover:border-amber-600 text-gray-300 hover:text-amber-400 rounded transition-colors"
+            className="px-3 py-1.5 text-sm border border-gray-600 hover:border-amber-600 text-gray-300 hover:text-accent rounded transition-colors"
           >
             {t('pages.defendersTab.buildWalls')}
           </button>
         </div>
         {bastion.defensiveWalls ? (
-          <div className="text-xs text-gray-400">
+          <div className="text-xs text-muted">
             {t('pages.defendersTab.squaresBuilt', { count: bastion.defensiveWalls.squaresBuilt })}
             {bastion.defensiveWalls.fullyEnclosed && (
               <span className="text-green-400 ml-2">{t('pages.defendersTab.fullyEnclosed')}</span>

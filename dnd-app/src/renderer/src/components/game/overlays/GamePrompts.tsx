@@ -48,8 +48,8 @@ export function OpportunityAttackPrompt({
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" />
-      <div className="relative bg-gray-900 border border-amber-500 rounded-xl p-5 w-80 shadow-2xl">
-        <h3 className="text-sm font-semibold text-amber-400 mb-2">{t('game.opportunityAttackPrompt.title')}</h3>
+      <div className="relative bg-surface border border-amber-500 rounded-xl p-5 w-80 shadow-2xl">
+        <h3 className="text-sm font-semibold text-accent mb-2">{t('game.opportunityAttackPrompt.title')}</h3>
         <p className="text-xs text-gray-300 mb-4">
           <span className="text-amber-300 font-semibold">{prompt.movingTokenLabel}</span>{' '}
           {t('game.opportunityAttackPrompt.movingOutOf')}
@@ -112,7 +112,7 @@ export function ConcentrationCheckPrompt({
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" />
-      <div className="relative bg-gray-900 border border-purple-500 rounded-xl p-5 w-96 shadow-2xl">
+      <div className="relative bg-surface border border-purple-500 rounded-xl p-5 w-96 shadow-2xl">
         <h3 className="text-sm font-semibold text-purple-400 mb-2">{t('game.concentrationCheckPrompt.title')}</h3>
         <p className="text-xs text-gray-300 mb-1">
           <span className="text-purple-300 font-semibold">{prompt.entityName}</span>{' '}
@@ -123,7 +123,7 @@ export function ConcentrationCheckPrompt({
           {t('game.concentrationCheckPrompt.whileConcentratingOn')}{' '}
           <span className="text-blue-300 font-semibold">{prompt.spellName}</span>.
         </p>
-        <p className="text-xs text-gray-400 mb-4">
+        <p className="text-xs text-muted mb-4">
           {t('game.concentrationCheckPrompt.saveRequired')}{' '}
           <span className="text-white font-bold">{t('game.concentrationCheckPrompt.dc', { dc: prompt.dc })}</span>{' '}
           {t('game.concentrationCheckPrompt.dcNote')}
@@ -232,7 +232,7 @@ export function StabilizeCheckPrompt({
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" />
-      <div className="relative bg-gray-900 border border-green-500 rounded-xl p-5 w-96 shadow-2xl">
+      <div className="relative bg-surface border border-green-500 rounded-xl p-5 w-96 shadow-2xl">
         <h3 className="text-sm font-semibold text-green-400 mb-2">{t('game.stabilizeCheckPrompt.title')}</h3>
         <p className="text-xs text-gray-300 mb-1">
           <span className="text-green-300 font-semibold">{prompt.healerName}</span>{' '}
@@ -240,7 +240,7 @@ export function StabilizeCheckPrompt({
           <span className="text-red-300 font-semibold">{prompt.entityName}</span>{' '}
           {t('game.stabilizeCheckPrompt.zeroHp')}
         </p>
-        <p className="text-xs text-gray-400 mb-4">
+        <p className="text-xs text-muted mb-4">
           {t('game.stabilizeCheckPrompt.medicineCheck')}{' '}
           <span className="text-white font-bold">{t('game.stabilizeCheckPrompt.dc10')}</span>
           <span className="text-gray-500 ml-1">

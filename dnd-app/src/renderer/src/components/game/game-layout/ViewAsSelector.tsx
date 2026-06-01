@@ -30,7 +30,7 @@ export default function ViewAsSelector({ campaign, viewAs, setViewAsTarget }: Vi
         const r = campaign.permissions?.roles.find((rr) => rr.id === rid)
         setViewAsTarget({ roleId: rid, label: r?.name ?? t('game.viewAsSelector.role') })
       }}
-      className="bg-gray-800/80 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
+      className="bg-surface-2/80 border border-border rounded px-2 py-1 text-xs text-gray-200"
       title={t('game.viewAsSelector.title')}
     >
       <option value="self">{t('game.viewAsSelector.viewSelf')}</option>

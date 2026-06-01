@@ -263,7 +263,7 @@ export default function DMRollerModal({ onClose, onMinimize, onRestore }: DMRoll
   return (
     <div className="fixed inset-0 z-20 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
-      <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-3xl w-full mx-4 shadow-2xl max-h-[85vh] flex flex-col">
+      <div className="relative bg-surface/95 backdrop-blur-sm border border-border/50 rounded-xl p-4 max-w-3xl w-full mx-4 shadow-2xl max-h-[85vh] flex flex-col">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold text-purple-300">{t('game.dmRollerModal.title')}</h3>
           <button
@@ -289,7 +289,7 @@ export default function DMRollerModal({ onClose, onMinimize, onRestore }: DMRoll
             <select
               value={selectedEntityId ?? ''}
               onChange={(e) => handleSelectEntity(e.target.value)}
-              className="w-full mb-3 px-2 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-100 text-xs focus:outline-none focus:border-purple-500"
+              className="w-full mb-3 px-2 py-1.5 rounded-lg bg-surface-2 border border-border text-fg text-xs focus:outline-none focus:border-purple-500"
             >
               <option value="">{t('game.dmRollerModal.selectEntity')}</option>
               {entities.filter((e) => e.type === 'pc').length > 0 && (
@@ -344,7 +344,7 @@ export default function DMRollerModal({ onClose, onMinimize, onRestore }: DMRoll
           </div>
 
           {/* Right: Roll results */}
-          <div className="w-64 shrink-0 flex flex-col min-h-0 border-l border-gray-700/50 pl-3">
+          <div className="w-64 shrink-0 flex flex-col min-h-0 border-l border-border/50 pl-3">
             <div className="text-[9px] text-gray-500 uppercase tracking-wider mb-2">
               {t('game.dmRollerModal.rollHistory')}
             </div>
@@ -353,7 +353,7 @@ export default function DMRollerModal({ onClose, onMinimize, onRestore }: DMRoll
                 <p className="text-xs text-gray-600 text-center py-4">{t('game.dmRollerModal.noRolls')}</p>
               ) : (
                 rollResults.map((r) => (
-                  <div key={r.id} className="bg-gray-800/50 rounded p-1.5">
+                  <div key={r.id} className="bg-surface-2/50 rounded p-1.5">
                     <div className="text-xs text-gray-300">
                       <span className="text-purple-300 font-semibold">{r.entityName}</span> {r.label}:{' '}
                       <span className="text-amber-300 font-bold">{r.total}</span>

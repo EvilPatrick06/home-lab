@@ -23,7 +23,7 @@ const CATEGORY_COLORS: Record<RuleCategory, string> = {
   exploration: 'bg-green-900/40 text-green-300',
   social: 'bg-blue-900/40 text-blue-300',
   rest: 'bg-purple-900/40 text-purple-300',
-  other: 'bg-gray-800 text-gray-300'
+  other: 'bg-surface-2 text-gray-300'
 }
 
 export default function RulesStep({ rules, onChange }: RulesStepProps): JSX.Element {
@@ -57,7 +57,7 @@ export default function RulesStep({ rules, onChange }: RulesStepProps): JSX.Elem
   return (
     <div>
       <h2 className="text-xl font-semibold mb-2">{t('campaign.rulesStep.title')}</h2>
-      <p className="text-gray-400 text-sm mb-6">{t('campaign.rulesStep.subtitle')}</p>
+      <p className="text-muted text-sm mb-6">{t('campaign.rulesStep.subtitle')}</p>
 
       <div className="max-w-2xl">
         {rules.length > 0 && (
@@ -65,7 +65,7 @@ export default function RulesStep({ rules, onChange }: RulesStepProps): JSX.Elem
             {rules.map((rule) => (
               <div
                 key={rule.id}
-                className="bg-gray-900/50 border border-gray-800 rounded-lg p-4 flex items-start justify-between gap-4"
+                className="bg-surface/50 border border-gray-800 rounded-lg p-4 flex items-start justify-between gap-4"
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
@@ -74,7 +74,7 @@ export default function RulesStep({ rules, onChange }: RulesStepProps): JSX.Elem
                       {rule.category}
                     </span>
                   </div>
-                  {rule.description && <p className="text-sm text-gray-400">{rule.description}</p>}
+                  {rule.description && <p className="text-sm text-muted">{rule.description}</p>}
                 </div>
                 <button
                   onClick={() => handleRemove(rule.id)}
@@ -89,7 +89,7 @@ export default function RulesStep({ rules, onChange }: RulesStepProps): JSX.Elem
         )}
 
         {showForm ? (
-          <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-5 space-y-4">
+          <div className="bg-surface/50 border border-gray-800 rounded-lg p-5 space-y-4">
             <Input
               label={t('campaign.rulesStep.ruleName')}
               placeholder={t('campaign.rulesStep.ruleNamePlaceholder')}
@@ -98,9 +98,10 @@ export default function RulesStep({ rules, onChange }: RulesStepProps): JSX.Elem
             />
 
             <div>
-              <label className="block text-gray-400 mb-2 text-sm">{t('campaign.rulesStep.description')}</label>
+              <label className="block text-muted mb-2 text-sm">{t('campaign.rulesStep.description')}</label>
               <textarea
-                className="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
+                aria-label={t('campaign.rulesStep.descriptionPlaceholder')}
+                className="w-full p-3 rounded-lg bg-surface-2 border border-border text-fg
                   placeholder-gray-600 focus:outline-none focus:border-amber-500 transition-colors resize-none"
                 rows={2}
                 placeholder={t('campaign.rulesStep.descriptionPlaceholder')}
@@ -110,9 +111,9 @@ export default function RulesStep({ rules, onChange }: RulesStepProps): JSX.Elem
             </div>
 
             <div>
-              <label className="block text-gray-400 mb-2 text-sm">{t('campaign.rulesStep.category')}</label>
+              <label className="block text-muted mb-2 text-sm">{t('campaign.rulesStep.category')}</label>
               <select
-                className="p-3 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
+                className="p-3 rounded-lg bg-surface-2 border border-border text-fg
                   focus:outline-none focus:border-amber-500 transition-colors cursor-pointer"
                 value={newCategory}
                 onChange={(e) => setNewCategory(e.target.value as RuleCategory)}

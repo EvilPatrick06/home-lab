@@ -119,7 +119,7 @@ export default function TraitEditor5e({
         {pets.length > 0 ? (
           <div className="space-y-1">
             {pets.map((pet, i) => (
-              <div key={i} className="flex items-center justify-between bg-gray-800/50 rounded px-2 py-1 text-sm">
+              <div key={i} className="flex items-center justify-between bg-surface-2/50 rounded px-2 py-1 text-sm">
                 <div>
                   <span className="text-gray-300 font-medium">{pet.name}</span>
                   {pet.type && <span className="text-gray-500 text-xs ml-1.5">({pet.type})</span>}
@@ -142,9 +142,10 @@ export default function TraitEditor5e({
         {!readonly && (
           <div className="mt-2">
             {showAddPet ? (
-              <div className="bg-gray-800/50 rounded p-3 space-y-2">
+              <div className="bg-surface-2/50 rounded p-3 space-y-2">
                 <div className="flex gap-2">
                   <input
+                    aria-label={t('sheet.traitEditor.petNamePlaceholder')}
                     type="text"
                     placeholder={t('sheet.traitEditor.petNamePlaceholder')}
                     value={petName}
@@ -152,9 +153,10 @@ export default function TraitEditor5e({
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') handleAddPet()
                     }}
-                    className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+                    className="flex-1 bg-surface-2 border border-border rounded px-2 py-1 text-sm text-fg focus:outline-none focus:border-amber-500"
                   />
                   <input
+                    aria-label={t('sheet.traitEditor.petTypePlaceholder')}
                     type="text"
                     placeholder={t('sheet.traitEditor.petTypePlaceholder')}
                     value={petType}
@@ -162,14 +164,14 @@ export default function TraitEditor5e({
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') handleAddPet()
                     }}
-                    className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+                    className="flex-1 bg-surface-2 border border-border rounded px-2 py-1 text-sm text-fg focus:outline-none focus:border-amber-500"
                   />
                 </div>
                 <div className="flex justify-end gap-2">
                   <button
                     onClick={handleAddPet}
                     disabled={!petName.trim()}
-                    className="px-3 py-1 text-xs bg-amber-600 hover:bg-amber-500 disabled:opacity-50 rounded text-white cursor-pointer"
+                    className="px-3 py-1 text-xs bg-amber-600 hover:bg-accent-strong disabled:opacity-50 rounded text-white cursor-pointer"
                   >
                     {t('sheet.traitEditor.add')}
                   </button>
@@ -188,7 +190,7 @@ export default function TraitEditor5e({
             ) : (
               <button
                 onClick={() => setShowAddPet(true)}
-                className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer"
+                className="text-xs text-accent hover:text-amber-300 cursor-pointer"
               >
                 {t('sheet.traitEditor.addPet')}
               </button>
@@ -229,7 +231,7 @@ export default function TraitEditor5e({
                     )}
                   </span>
                   {isLangExpanded && desc && (
-                    <div className="text-xs text-gray-500 bg-gray-800/50 rounded px-2 py-1 mt-1 max-w-xs">{desc}</div>
+                    <div className="text-xs text-gray-500 bg-surface-2/50 rounded px-2 py-1 mt-1 max-w-xs">{desc}</div>
                   )}
                 </div>
               )
@@ -242,14 +244,15 @@ export default function TraitEditor5e({
       {!readonly && (
         <div className="mb-3">
           {showAddLanguage === 'list' ? (
-            <div className="bg-gray-800/50 rounded p-3 space-y-2">
-              <div className="text-xs text-gray-400 font-medium mb-1">{t('sheet.traitEditor.standardLanguages')}</div>
+            <div className="bg-surface-2/50 rounded p-3 space-y-2">
+              <div className="text-xs text-muted font-medium mb-1">{t('sheet.traitEditor.standardLanguages')}</div>
               <input
+                aria-label={t('sheet.traitEditor.searchLanguagesPlaceholder')}
                 type="text"
                 placeholder={t('sheet.traitEditor.searchLanguagesPlaceholder')}
                 value={langSearch}
                 onChange={(e) => setLangSearch(e.target.value)}
-                className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+                className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-sm text-fg focus:outline-none focus:border-amber-500"
               />
               <div className="max-h-40 overflow-y-auto space-y-0.5">
                 {ALL_LANGUAGES_5E.filter((l) => !languages.includes(l))
@@ -258,7 +261,7 @@ export default function TraitEditor5e({
                     <button
                       key={lang}
                       onClick={() => handleAddLanguageFromList(lang)}
-                      className="w-full flex items-center justify-between text-xs py-1 px-2 hover:bg-gray-800/50 rounded text-left cursor-pointer"
+                      className="w-full flex items-center justify-between text-xs py-1 px-2 hover:bg-surface-2/50 rounded text-left cursor-pointer"
                     >
                       <span className="text-gray-300">{lang}</span>
                       {LANGUAGE_DESCRIPTIONS[lang] && (
@@ -282,16 +285,18 @@ export default function TraitEditor5e({
               </div>
             </div>
           ) : showAddLanguage === 'custom' ? (
-            <div className="bg-gray-800/50 rounded p-3 space-y-2">
-              <div className="text-xs text-gray-400 font-medium mb-1">{t('sheet.traitEditor.customLanguage')}</div>
+            <div className="bg-surface-2/50 rounded p-3 space-y-2">
+              <div className="text-xs text-muted font-medium mb-1">{t('sheet.traitEditor.customLanguage')}</div>
               <input
+                aria-label={t('sheet.traitEditor.languageNamePlaceholder')}
                 type="text"
                 placeholder={t('sheet.traitEditor.languageNamePlaceholder')}
                 value={newLanguage}
                 onChange={(e) => setNewLanguage(e.target.value)}
-                className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+                className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-sm text-fg focus:outline-none focus:border-amber-500"
               />
               <input
+                aria-label={t('sheet.traitEditor.descriptionPlaceholder')}
                 type="text"
                 placeholder={t('sheet.traitEditor.descriptionPlaceholder')}
                 value={newLangDesc}
@@ -299,13 +304,13 @@ export default function TraitEditor5e({
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') handleAddCustomLanguage()
                 }}
-                className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+                className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-sm text-fg focus:outline-none focus:border-amber-500"
               />
               <div className="flex justify-end gap-2">
                 <button
                   onClick={handleAddCustomLanguage}
                   disabled={!newLanguage.trim()}
-                  className="px-3 py-1 text-xs bg-amber-600 hover:bg-amber-500 disabled:opacity-50 rounded text-white cursor-pointer"
+                  className="px-3 py-1 text-xs bg-amber-600 hover:bg-accent-strong disabled:opacity-50 rounded text-white cursor-pointer"
                 >
                   {t('sheet.traitEditor.add')}
                 </button>
@@ -325,13 +330,13 @@ export default function TraitEditor5e({
             <div className="flex gap-2">
               <button
                 onClick={() => setShowAddLanguage('list')}
-                className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer"
+                className="text-xs text-accent hover:text-amber-300 cursor-pointer"
               >
                 {t('sheet.traitEditor.addStandardLanguage')}
               </button>
               <button
                 onClick={() => setShowAddLanguage('custom')}
-                className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer"
+                className="text-xs text-accent hover:text-amber-300 cursor-pointer"
               >
                 {t('sheet.traitEditor.addCustomLanguage')}
               </button>

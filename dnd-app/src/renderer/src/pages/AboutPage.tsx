@@ -143,11 +143,11 @@ export default function AboutPage(): JSX.Element {
   }
 
   return (
-    <div className="h-screen bg-gray-950 text-gray-100 overflow-y-auto">
+    <div className="h-screen bg-base text-fg overflow-y-auto">
       <div className="max-w-3xl mx-auto px-6 py-8">
         <button
           onClick={() => navigate('/')}
-          className="text-amber-400 hover:text-amber-300 hover:underline mb-8 block cursor-pointer text-sm"
+          className="text-accent hover:text-amber-300 hover:underline mb-8 block cursor-pointer text-sm"
         >
           {t('pages.aboutPage.backToMenu')}
         </button>
@@ -155,7 +155,7 @@ export default function AboutPage(): JSX.Element {
         {/* Hero */}
         <div className="text-center mb-10">
           <div className="text-6xl mb-3">&#9876;</div>
-          <h1 className="text-3xl font-bold text-amber-400 mb-1">{t('pages.aboutPage.appTitle')}</h1>
+          <h1 className="text-3xl font-bold text-accent mb-1">{t('pages.aboutPage.appTitle')}</h1>
           <p className="text-gray-500 text-sm mb-3">{t('pages.aboutPage.version', { appVersion })}</p>
           <div className="flex flex-col items-center gap-2">
             <button
@@ -185,7 +185,7 @@ export default function AboutPage(): JSX.Element {
                   })
               }}
               disabled={updateStatus === 'checking' || updateStatus === 'downloading'}
-              className="px-4 py-1.5 text-xs font-medium rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-1.5 text-xs font-medium rounded-lg bg-surface-2 hover:bg-gray-700 text-gray-300 border border-border cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {updateStatus === 'idle' && t('pages.aboutPage.checkForUpdates')}
               {updateStatus === 'checking' && t('pages.aboutPage.checking')}
@@ -209,7 +209,7 @@ export default function AboutPage(): JSX.Element {
                     setErrorMsg(e instanceof Error ? e.message : String(e))
                   })
                 }}
-                className="px-4 py-1.5 text-xs font-medium rounded-lg bg-amber-600 hover:bg-amber-500 text-white cursor-pointer"
+                className="px-4 py-1.5 text-xs font-medium rounded-lg bg-amber-600 hover:bg-accent-strong text-white cursor-pointer"
               >
                 {t('pages.aboutPage.downloadVersion', { updateVersion })}
               </button>
@@ -218,13 +218,13 @@ export default function AboutPage(): JSX.Element {
             {/* Download progress bar */}
             {updateStatus === 'downloading' && (
               <div className="w-48">
-                <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
+                <div className="w-full h-2 bg-surface-2 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-amber-500 rounded-full transition-all duration-300"
+                    className="h-full bg-accent-strong rounded-full transition-all duration-300"
                     style={{ width: `${downloadPercent}%` }}
                   />
                 </div>
-                <p className="text-xs text-gray-400 mt-1">{downloadPercent}%</p>
+                <p className="text-xs text-muted mt-1">{downloadPercent}%</p>
               </div>
             )}
 
@@ -248,8 +248,8 @@ export default function AboutPage(): JSX.Element {
         </p>
 
         {/* Data Management */}
-        <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-5 mb-6">
-          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
+        <div className="bg-surface/50 border border-gray-800 rounded-lg p-5 mb-6">
+          <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-4">
             {t('pages.aboutPage.dataManagement')}
           </h2>
           <p className="text-gray-500 text-sm mb-4">{t('pages.aboutPage.dataManagementDesc')}</p>
@@ -257,7 +257,7 @@ export default function AboutPage(): JSX.Element {
             <button
               onClick={handleExportAll}
               disabled={exporting}
-              className="px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg
+              className="px-5 py-2.5 bg-amber-600 hover:bg-accent-strong text-white rounded-lg
                 font-semibold text-sm transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {exporting ? t('pages.aboutPage.exporting') : t('pages.aboutPage.exportAllData')}
@@ -265,8 +265,8 @@ export default function AboutPage(): JSX.Element {
             <button
               onClick={() => setShowImportConfirm(true)}
               disabled={importing}
-              className="px-5 py-2.5 border border-gray-600 hover:border-amber-600 hover:bg-gray-800
-                text-gray-300 hover:text-amber-400 rounded-lg font-semibold text-sm
+              className="px-5 py-2.5 border border-gray-600 hover:border-amber-600 hover:bg-surface-2
+                text-gray-300 hover:text-accent rounded-lg font-semibold text-sm
                 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {importing ? t('pages.aboutPage.importing') : t('pages.aboutPage.importData')}
@@ -276,7 +276,7 @@ export default function AboutPage(): JSX.Element {
 
         {/* Supported Systems */}
         <div className="flex gap-4 mb-10 justify-center">
-          <div className="bg-gray-900/60 border border-gray-800 rounded-lg px-5 py-3 text-center">
+          <div className="bg-surface/60 border border-gray-800 rounded-lg px-5 py-3 text-center">
             <div className="text-2xl mb-1">&#9876;</div>
             <div className="text-sm font-semibold">{t('pages.aboutPage.dnd5e')}</div>
             <div className="text-xs text-green-400 mt-1">{t('pages.aboutPage.fullSupport')}</div>
@@ -284,8 +284,8 @@ export default function AboutPage(): JSX.Element {
         </div>
 
         {/* Features */}
-        <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-5 mb-6">
-          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
+        <div className="bg-surface/50 border border-gray-800 rounded-lg p-5 mb-6">
+          <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-4">
             {t('pages.aboutPage.features')}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5">
@@ -299,8 +299,8 @@ export default function AboutPage(): JSX.Element {
         </div>
 
         {/* Tech Stack */}
-        <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-5 mb-6">
-          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
+        <div className="bg-surface/50 border border-gray-800 rounded-lg p-5 mb-6">
+          <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-4">
             {t('pages.aboutPage.techStack')}
           </h2>
           <div className="grid grid-cols-2 gap-3">
@@ -314,8 +314,8 @@ export default function AboutPage(): JSX.Element {
         </div>
 
         {/* Credits */}
-        <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-5 mb-6">
-          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
+        <div className="bg-surface/50 border border-gray-800 rounded-lg p-5 mb-6">
+          <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-4">
             {t('pages.aboutPage.credits')}
           </h2>
           <div className="space-y-3">
@@ -331,8 +331,8 @@ export default function AboutPage(): JSX.Element {
         </div>
 
         {/* Legal & Licensing */}
-        <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-5 mb-10">
-          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
+        <div className="bg-surface/50 border border-gray-800 rounded-lg p-5 mb-10">
+          <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-4">
             {t('pages.aboutPage.legalLicensing')}
           </h2>
           <div className="space-y-4">
@@ -348,7 +348,7 @@ export default function AboutPage(): JSX.Element {
                   href="https://creativecommons.org/licenses/by/4.0/legalcode"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-amber-400 hover:text-amber-300 underline"
+                  className="text-accent hover:text-amber-300 underline"
                 >
                   https://creativecommons.org/licenses/by/4.0/legalcode
                 </a>
@@ -365,7 +365,7 @@ export default function AboutPage(): JSX.Element {
                   href="https://company.wizards.com/en/legal/fancontentpolicy"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-amber-400 hover:text-amber-300 underline"
+                  className="text-accent hover:text-amber-300 underline"
                 >
                   Fan Content Policy
                 </a>

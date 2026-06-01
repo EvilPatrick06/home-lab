@@ -13,7 +13,7 @@ export default function Input({ label, error, className = '', id: externalId, ..
   return (
     <div>
       {label && (
-        <label htmlFor={inputId} className="block text-gray-400 mb-2 text-sm">
+        <label htmlFor={inputId} className="block text-muted mb-2 text-sm">
           {label}
         </label>
       )}
@@ -21,9 +21,9 @@ export default function Input({ label, error, className = '', id: externalId, ..
         id={inputId}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? errorId : undefined}
-        className={`w-full p-3 rounded-lg bg-gray-800 border text-gray-100
+        className={`w-full p-3 rounded-lg bg-surface-2 border text-fg
           placeholder-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 focus-visible:ring-offset-gray-900 transition-colors
-          ${error ? 'border-red-500 focus:border-red-400' : 'border-gray-700 focus:border-amber-500'}
+          ${error ? 'border-red-500 focus:border-red-400' : 'border-border focus:border-amber-500'}
           ${className}`}
         {...props}
       />

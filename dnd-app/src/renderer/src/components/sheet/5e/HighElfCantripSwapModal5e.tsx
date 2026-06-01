@@ -123,7 +123,7 @@ export default function HighElfCantripSwapModal5e({
   return (
     <Modal open={open} onClose={onClose} title={t('sheet.highElfCantripSwap.title')}>
       <div className="space-y-4">
-        <p className="text-sm text-gray-400">{t('sheet.highElfCantripSwap.description')}</p>
+        <p className="text-sm text-muted">{t('sheet.highElfCantripSwap.description')}</p>
 
         {currentSpeciesCantrip && (
           <div className="text-sm">
@@ -133,11 +133,12 @@ export default function HighElfCantripSwapModal5e({
         )}
 
         <input
+          aria-label={t('sheet.highElfCantripSwap.searchCantripsPlaceholder')}
           type="text"
           placeholder={t('sheet.highElfCantripSwap.searchCantripsPlaceholder')}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full px-3 py-1.5 text-sm bg-gray-800 border border-gray-700 rounded text-gray-200 placeholder-gray-500 focus:border-purple-500 focus:outline-none"
+          className="w-full px-3 py-1.5 text-sm bg-surface-2 border border-border rounded text-gray-200 placeholder-gray-500 focus:border-purple-500 focus:outline-none"
         />
 
         <div className="max-h-60 overflow-y-auto space-y-1">
@@ -148,7 +149,7 @@ export default function HighElfCantripSwapModal5e({
               className={`w-full text-left px-3 py-2 text-sm rounded transition-colors ${
                 selectedCantripId === cantrip.id
                   ? 'bg-purple-600/30 border border-purple-500 text-purple-300'
-                  : 'hover:bg-gray-800 text-gray-300 border border-transparent'
+                  : 'hover:bg-surface-2 text-gray-300 border border-transparent'
               }`}
             >
               <div className="flex items-center justify-between">
@@ -170,7 +171,7 @@ export default function HighElfCantripSwapModal5e({
               setSearchQuery('')
               onClose()
             }}
-            className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-gray-800 transition-colors text-gray-300"
+            className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-surface-2 transition-colors text-gray-300"
           >
             {t('sheet.highElfCantripSwap.keepCurrent')}
           </button>

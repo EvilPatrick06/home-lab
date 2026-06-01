@@ -111,7 +111,7 @@ export default function RollerQuickDice({
   }, [quickExpression, quickCount, quickHiddenDefault, quickLabel, autoMinimize, sendMessage, onQuickRoll])
 
   return (
-    <div className="border-b border-gray-700/50 pb-3 mb-3 space-y-2">
+    <div className="border-b border-border/50 pb-3 mb-3 space-y-2">
       <div className="text-[9px] text-gray-500 uppercase tracking-wider">{t('game.rollerQuickDice.quickRoll')}</div>
       {/* Dice buttons row */}
       <div className="flex items-center gap-1 flex-wrap">
@@ -119,7 +119,7 @@ export default function RollerQuickDice({
           <button
             key={die}
             onClick={() => handleQuickDie(die)}
-            className="px-2 py-1 text-xs rounded bg-gray-800 text-gray-300 hover:bg-amber-600/40 hover:text-amber-300 transition-colors cursor-pointer border border-gray-700"
+            className="px-2 py-1 text-xs rounded bg-surface-2 text-gray-300 hover:bg-amber-600/40 hover:text-amber-300 transition-colors cursor-pointer border border-border"
           >
             {die}
           </button>
@@ -135,7 +135,7 @@ export default function RollerQuickDice({
             if (e.key === 'Enter') handleQuickExpression()
           }}
           placeholder={t('game.rollerQuickDice.expressionPlaceholder')}
-          className="flex-1 px-2 py-1 bg-gray-800 border border-gray-700 rounded text-xs text-gray-200 placeholder-gray-500 focus:outline-none focus:border-amber-500"
+          className="flex-1 px-2 py-1 bg-surface-2 border border-border rounded text-xs text-gray-200 placeholder-gray-500 focus:outline-none focus:border-amber-500"
         />
         <label className="flex items-center gap-1 text-xs text-gray-500 shrink-0">
           <span>{t('game.rollerQuickDice.times')}</span>
@@ -145,7 +145,7 @@ export default function RollerQuickDice({
             max={10}
             value={quickCount}
             onChange={(e) => setQuickCount(Math.max(1, Math.min(10, parseInt(e.target.value, 10) || 1)))}
-            className="w-10 px-1 py-1 bg-gray-800 border border-gray-700 rounded text-xs text-gray-200 text-center focus:outline-none focus:border-amber-500"
+            className="w-10 px-1 py-1 bg-surface-2 border border-border rounded text-xs text-gray-200 text-center focus:outline-none focus:border-amber-500"
           />
         </label>
         <input
@@ -153,19 +153,19 @@ export default function RollerQuickDice({
           value={quickLabel}
           onChange={(e) => setQuickLabel(e.target.value)}
           placeholder={t('game.rollerQuickDice.labelPlaceholder')}
-          className="w-20 px-2 py-1 bg-gray-800 border border-gray-700 rounded text-xs text-gray-200 placeholder-gray-500 focus:outline-none focus:border-amber-500"
+          className="w-20 px-2 py-1 bg-surface-2 border border-border rounded text-xs text-gray-200 placeholder-gray-500 focus:outline-none focus:border-amber-500"
         />
         <button
           onClick={handleQuickExpression}
           disabled={!quickExpression.trim()}
-          className="px-2 py-1 text-xs rounded bg-amber-600 hover:bg-amber-500 text-white font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          className="px-2 py-1 text-xs rounded bg-amber-600 hover:bg-accent-strong text-white font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           {t('game.rollerQuickDice.roll')}
         </button>
       </div>
       {/* Hidden toggle */}
       <div className="flex items-center gap-2">
-        <label className="flex items-center gap-1.5 text-xs text-gray-400 cursor-pointer">
+        <label className="flex items-center gap-1.5 text-xs text-muted cursor-pointer">
           <input
             type="checkbox"
             checked={quickHiddenDefault}
@@ -179,8 +179,8 @@ export default function RollerQuickDice({
       {quickResults.length > 0 && (
         <div className="space-y-1 max-h-32 overflow-y-auto">
           {quickResults.map((qr) => (
-            <div key={qr.id} className="flex items-center gap-2 bg-gray-800/50 rounded px-2 py-1">
-              <span className="text-xs text-gray-400">{qr.formula}:</span>
+            <div key={qr.id} className="flex items-center gap-2 bg-surface-2/50 rounded px-2 py-1">
+              <span className="text-xs text-muted">{qr.formula}:</span>
               <span className="text-xs text-gray-300">[{qr.rolls.join(', ')}]</span>
               <span className="text-xs text-amber-300 font-bold">= {qr.total}</span>
               {qr.label && qr.label !== qr.formula.replace(/ \(#\d+\)$/, '') && (

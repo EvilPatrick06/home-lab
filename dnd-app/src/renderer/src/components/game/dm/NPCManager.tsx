@@ -112,13 +112,13 @@ export default function NPCManager({
         {isDM && !showNewNpcForm && (
           <button
             onClick={() => setShowNewNpcForm(true)}
-            className="w-full py-2 text-xs text-gray-500 hover:text-amber-400 border border-dashed border-gray-700 hover:border-amber-600/50 rounded-lg transition-colors cursor-pointer"
+            className="w-full py-2 text-xs text-gray-500 hover:text-accent border border-dashed border-border hover:border-amber-600/50 rounded-lg transition-colors cursor-pointer"
           >
             {t('game.npcManager.newNpcButton')}
           </button>
         )}
         {isDM && showNewNpcForm && (
-          <div className="bg-gray-800/50 border border-gray-700/30 rounded-lg p-2.5 space-y-2">
+          <div className="bg-surface-2/50 border border-border/30 rounded-lg p-2.5 space-y-2">
             <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
               {t('game.npcManager.newNpc')}
             </span>
@@ -126,14 +126,14 @@ export default function NPCManager({
               type="text"
               value={newNpcName}
               onChange={(e) => setNewNpcName(e.target.value)}
-              className="w-full px-2 py-1 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full px-2 py-1 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
               placeholder={t('game.npcManager.namePlaceholder')}
               autoFocus
             />
             <select
               value={newNpcCategory}
               onChange={(e) => setNewNpcCategory(e.target.value as NewNpcCategory)}
-              className="w-full px-2 py-1 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full px-2 py-1 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
             >
               <option value="npc">{t('game.npcManager.optionNpc')}</option>
               <option value="ally">{t('game.npcManager.optionAlly')}</option>
@@ -144,7 +144,7 @@ export default function NPCManager({
                 type="number"
                 value={newNpcAC}
                 onChange={(e) => setNewNpcAC(e.target.value)}
-                className="w-1/2 px-2 py-1 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
+                className="w-1/2 px-2 py-1 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
                 placeholder={t('game.npcManager.acPlaceholder')}
                 min={0}
               />
@@ -152,7 +152,7 @@ export default function NPCManager({
                 type="number"
                 value={newNpcHP}
                 onChange={(e) => setNewNpcHP(e.target.value)}
-                className="w-1/2 px-2 py-1 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
+                className="w-1/2 px-2 py-1 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
                 placeholder={t('game.npcManager.hpPlaceholder')}
                 min={0}
               />
@@ -161,7 +161,7 @@ export default function NPCManager({
               <button
                 onClick={handleCreateNpc}
                 disabled={!newNpcName.trim()}
-                className="px-2 py-0.5 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer disabled:opacity-50"
+                className="px-2 py-0.5 text-xs bg-amber-600 hover:bg-accent-strong text-white rounded cursor-pointer disabled:opacity-50"
               >
                 {t('game.npcManager.create')}
               </button>
@@ -173,7 +173,7 @@ export default function NPCManager({
                   setNewNpcAC('')
                   setNewNpcHP('')
                 }}
-                className="px-2 py-0.5 text-xs text-gray-400 hover:text-gray-200 cursor-pointer"
+                className="px-2 py-0.5 text-xs text-muted hover:text-gray-200 cursor-pointer"
               >
                 {t('common.actions.cancel')}
               </button>
@@ -233,13 +233,13 @@ export default function NPCManager({
       {isDM && !showNewNpcForm && (
         <button
           onClick={() => setShowNewNpcForm(true)}
-          className="w-full py-2 text-xs text-gray-500 hover:text-amber-400 border border-dashed border-gray-700 hover:border-amber-600/50 rounded-lg transition-colors cursor-pointer"
+          className="w-full py-2 text-xs text-gray-500 hover:text-accent border border-dashed border-border hover:border-amber-600/50 rounded-lg transition-colors cursor-pointer"
         >
           {t('game.npcManager.newNpcButton')}
         </button>
       )}
       {isDM && showNewNpcForm && (
-        <div className="bg-gray-800/50 border border-gray-700/30 rounded-lg p-2.5 space-y-2">
+        <div className="bg-surface-2/50 border border-border/30 rounded-lg p-2.5 space-y-2">
           <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
             {t('game.npcManager.newNpc')}
           </span>
@@ -247,14 +247,14 @@ export default function NPCManager({
             type="text"
             value={newNpcName}
             onChange={(e) => setNewNpcName(e.target.value)}
-            className="w-full px-2 py-1 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
+            className="w-full px-2 py-1 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
             placeholder={t('game.npcManager.namePlaceholder')}
             autoFocus
           />
           <select
             value={newNpcCategory}
             onChange={(e) => setNewNpcCategory(e.target.value as NewNpcCategory)}
-            className="w-full px-2 py-1 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
+            className="w-full px-2 py-1 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
           >
             <option value="npc">{t('game.npcManager.optionNpc')}</option>
             <option value="ally">{t('game.npcManager.optionAlly')}</option>
@@ -265,7 +265,7 @@ export default function NPCManager({
               type="number"
               value={newNpcAC}
               onChange={(e) => setNewNpcAC(e.target.value)}
-              className="w-1/2 px-2 py-1 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-1/2 px-2 py-1 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
               placeholder={t('game.npcManager.acPlaceholder')}
               min={0}
             />
@@ -273,7 +273,7 @@ export default function NPCManager({
               type="number"
               value={newNpcHP}
               onChange={(e) => setNewNpcHP(e.target.value)}
-              className="w-1/2 px-2 py-1 rounded bg-gray-900 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-1/2 px-2 py-1 rounded bg-surface border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
               placeholder={t('game.npcManager.hpPlaceholder')}
               min={0}
             />
@@ -282,7 +282,7 @@ export default function NPCManager({
             <button
               onClick={handleCreateNpc}
               disabled={!newNpcName.trim()}
-              className="px-2 py-0.5 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded cursor-pointer disabled:opacity-50"
+              className="px-2 py-0.5 text-xs bg-amber-600 hover:bg-accent-strong text-white rounded cursor-pointer disabled:opacity-50"
             >
               {t('game.npcManager.create')}
             </button>
@@ -294,7 +294,7 @@ export default function NPCManager({
                 setNewNpcAC('')
                 setNewNpcHP('')
               }}
-              className="px-2 py-0.5 text-xs text-gray-400 hover:text-gray-200 cursor-pointer"
+              className="px-2 py-0.5 text-xs text-muted hover:text-gray-200 cursor-pointer"
             >
               {t('common.actions.cancel')}
             </button>
@@ -309,11 +309,11 @@ export default function NPCManager({
           const showingStats = showStatBlockId === npc.id
 
           return (
-            <div key={npc.id} className="bg-gray-800/50 rounded-lg overflow-hidden">
+            <div key={npc.id} className="bg-surface-2/50 rounded-lg overflow-hidden">
               <button
                 onClick={() => setExpandedId(isExpanded ? null : npc.id)}
                 className="w-full flex items-center gap-2 p-2 text-sm text-left
-                  hover:bg-gray-800 transition-colors cursor-pointer"
+                  hover:bg-surface-2 transition-colors cursor-pointer"
               >
                 <span className={`text-xs transition-transform ${isExpanded ? 'rotate-90' : ''}`}>&#9654;</span>
                 <span className="flex-1 text-gray-200 truncate">{npc.name}</span>
@@ -329,7 +329,7 @@ export default function NPCManager({
                             ? 'text-purple-400 bg-purple-400/10'
                             : npc.role === 'shopkeeper'
                               ? 'text-yellow-400 bg-yellow-400/10'
-                              : 'text-gray-400 bg-gray-400/10'
+                              : 'text-muted bg-gray-400/10'
                     }`}
                   >
                     {npc.role}
@@ -351,7 +351,7 @@ export default function NPCManager({
                 <div className="px-3 pb-3 space-y-2">
                   {/* DM: Reveal controls */}
                   {isDM && onUpdateNpc && (
-                    <div className="flex flex-wrap gap-1 pb-1 border-b border-gray-700/50">
+                    <div className="flex flex-wrap gap-1 pb-1 border-b border-border/50">
                       <span className="text-[9px] text-gray-500 uppercase mr-1 self-center">
                         {t('game.npcManager.reveal')}
                       </span>
@@ -409,25 +409,25 @@ export default function NPCManager({
 
                   {/* Description: DM always sees, players only if revealed */}
                   {npc.description && (isDM || isFieldRevealed(npc, 'description')) && (
-                    <p className="text-xs text-gray-400">{npc.description}</p>
+                    <p className="text-xs text-muted">{npc.description}</p>
                   )}
                   {/* Personality: DM always sees, players only if revealed */}
                   {npc.personality && (isDM || isFieldRevealed(npc, 'personality')) && (
                     <p className="text-xs text-gray-500">
-                      <span className="text-amber-500 font-semibold">{t('game.npcManager.personality')}</span>
+                      <span className="text-accent-strong font-semibold">{t('game.npcManager.personality')}</span>
                       {npc.personality}
                     </p>
                   )}
                   {/* Motivation: DM always sees, players only if revealed */}
                   {npc.motivation && (isDM || isFieldRevealed(npc, 'motivation')) && (
                     <p className="text-xs text-gray-500">
-                      <span className="text-amber-500 font-semibold">{t('game.npcManager.motivation')}</span>
+                      <span className="text-accent-strong font-semibold">{t('game.npcManager.motivation')}</span>
                       {npc.motivation}
                     </p>
                   )}
                   {npc.location && (isDM || isFieldRevealed(npc, 'description')) && (
                     <p className="text-xs text-gray-500">
-                      {t('game.npcManager.location')} <span className="text-gray-400">{npc.location}</span>
+                      {t('game.npcManager.location')} <span className="text-muted">{npc.location}</span>
                     </p>
                   )}
                   {isDM && npc.notes && <p className="text-xs text-gray-500 italic">{npc.notes}</p>}
@@ -438,7 +438,7 @@ export default function NPCManager({
                       <MonsterStatBlockView monster={statBlock} compact />
                       <button
                         onClick={() => setShowStatBlockId(showingStats ? null : npc.id)}
-                        className="text-xs text-amber-400 hover:text-amber-300 mt-1 cursor-pointer"
+                        className="text-xs text-accent hover:text-amber-300 mt-1 cursor-pointer"
                       >
                         {showingStats ? t('game.npcManager.hideStatBlock') : t('game.npcManager.showStatBlock')}
                       </button>
@@ -457,18 +457,18 @@ export default function NPCManager({
                     <div className="relative">
                       <button
                         onClick={() => setRoleMenuId(roleMenuId === npc.id ? null : npc.id)}
-                        className="text-xs text-gray-400 hover:text-gray-200 cursor-pointer bg-gray-700/50 px-2 py-0.5 rounded"
+                        className="text-xs text-muted hover:text-gray-200 cursor-pointer bg-gray-700/50 px-2 py-0.5 rounded"
                       >
                         {t('game.npcManager.changeRole')}
                       </button>
                       {roleMenuId === npc.id && (
-                        <div className="absolute z-10 mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-xl py-1 w-32">
+                        <div className="absolute z-10 mt-1 bg-surface-2 border border-border rounded-lg shadow-xl py-1 w-32">
                           {(['neutral', 'ally', 'enemy', 'patron', 'shopkeeper'] as const).map((r) => (
                             <button
                               key={r}
                               onClick={() => changeRole(npc.id, r)}
                               className={`w-full text-left px-3 py-1 text-xs hover:bg-gray-700 cursor-pointer capitalize ${
-                                npc.role === r ? 'text-amber-400' : 'text-gray-300'
+                                npc.role === r ? 'text-accent' : 'text-gray-300'
                               }`}
                             >
                               {r}

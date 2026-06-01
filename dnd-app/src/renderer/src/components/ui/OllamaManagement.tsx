@@ -242,7 +242,7 @@ export default function OllamaManagement(): JSX.Element {
     return (
       <div className="flex items-center gap-2 py-4">
         <div className="w-4 h-4 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
-        <span className="text-sm text-gray-400">{t('ui.ollamaManagement.detecting')}</span>
+        <span className="text-sm text-muted">{t('ui.ollamaManagement.detecting')}</span>
       </div>
     )
   }
@@ -250,11 +250,11 @@ export default function OllamaManagement(): JSX.Element {
   if (!ollamaStatus?.installed) {
     return (
       <div className="space-y-3">
-        <p className="text-sm text-gray-400">
+        <p className="text-sm text-muted">
           {t('ui.ollamaManagement.notInstalledLead')}{' '}
           <button
             onClick={() => window.open('https://ollama.com', '_blank')}
-            className="text-amber-400 hover:underline cursor-pointer"
+            className="text-accent hover:underline cursor-pointer"
           >
             {t('ui.ollamaManagement.ollamaComLink')}
           </button>
@@ -264,7 +264,7 @@ export default function OllamaManagement(): JSX.Element {
           <button
             onClick={handleInstall}
             disabled={installing}
-            className="px-3 py-1.5 text-sm font-medium rounded bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white cursor-pointer transition-colors"
+            className="px-3 py-1.5 text-sm font-medium rounded bg-amber-600 hover:bg-accent-strong disabled:bg-gray-700 disabled:text-gray-500 text-white cursor-pointer transition-colors"
           >
             {installing ? t('ui.ollamaManagement.installingOllama') : t('ui.ollamaManagement.installOllama')}
           </button>
@@ -298,7 +298,7 @@ export default function OllamaManagement(): JSX.Element {
         </div>
         <div className="flex items-center gap-2">
           {versionInfo?.updateAvailable && (
-            <span className="text-xs text-amber-400">
+            <span className="text-xs text-accent">
               {t('ui.ollamaManagement.versionAvailable', { version: versionInfo.latest })}
             </span>
           )}
@@ -306,7 +306,7 @@ export default function OllamaManagement(): JSX.Element {
             <button
               onClick={handleUpdateOllama}
               disabled={isBusy}
-              className="px-3 py-1 text-xs rounded-lg bg-amber-600 hover:bg-amber-500 text-white transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-1 text-xs rounded-lg bg-amber-600 hover:bg-accent-strong text-white transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {activeOp?.type === 'ollama-update'
                 ? t('ui.ollamaManagement.updating', { percent: activeOp.percent })
@@ -316,7 +316,7 @@ export default function OllamaManagement(): JSX.Element {
             <button
               onClick={checkForUpdate}
               disabled={checkingUpdate || isBusy}
-              className="px-3 py-1 text-xs rounded-lg border border-gray-700 text-gray-400 hover:border-gray-600 hover:text-gray-300 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-1 text-xs rounded-lg border border-border text-muted hover:border-gray-600 hover:text-gray-300 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {checkingUpdate ? t('ui.ollamaManagement.checking') : t('ui.ollamaManagement.checkForUpdates')}
             </button>
@@ -328,7 +328,7 @@ export default function OllamaManagement(): JSX.Element {
       {activeOp?.type === 'ollama-update' && (
         <div className="w-full bg-gray-700 rounded-full h-1.5">
           <div
-            className="bg-amber-500 h-1.5 rounded-full transition-all duration-300"
+            className="bg-accent-strong h-1.5 rounded-full transition-all duration-300"
             style={{ width: `${activeOp.percent}%` }}
           />
         </div>
@@ -336,16 +336,16 @@ export default function OllamaManagement(): JSX.Element {
 
       {/* VRAM Info */}
       {vram > 0 && (
-        <div className="flex items-center gap-3 px-3 py-2 bg-gray-800/40 rounded-lg">
-          <span className="text-xs text-gray-400">{t('ui.ollamaManagement.gpuVram')}</span>
+        <div className="flex items-center gap-3 px-3 py-2 bg-surface-2/40 rounded-lg">
+          <span className="text-xs text-muted">{t('ui.ollamaManagement.gpuVram')}</span>
           <div className="flex-1 bg-gray-700 rounded-full h-1.5">
-            <div className="bg-amber-500 h-1.5 rounded-full" style={{ width: '100%' }} />
+            <div className="bg-accent-strong h-1.5 rounded-full w-full" />
           </div>
           <span className="text-xs text-gray-300 font-mono">{(vram / 1000).toFixed(1)} GB</span>
         </div>
       )}
       {vram === 0 && ollamaStatus.running && (
-        <div className="text-xs text-gray-500 px-3 py-2 bg-gray-800/40 rounded-lg">
+        <div className="text-xs text-gray-500 px-3 py-2 bg-surface-2/40 rounded-lg">
           {t('ui.ollamaManagement.vramNotDetected')}
         </div>
       )}
@@ -389,7 +389,7 @@ export default function OllamaManagement(): JSX.Element {
                           key={m.id}
                           onClick={() => handlePullModel(m.id)}
                           disabled={isBusy}
-                          className="flex items-center gap-1.5 px-2.5 py-1 text-xs bg-gray-800/60 rounded-lg border border-gray-700 hover:border-green-600 hover:text-green-400 text-gray-300 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                          className="flex items-center gap-1.5 px-2.5 py-1 text-xs bg-surface-2/60 rounded-lg border border-border hover:border-green-600 hover:text-green-400 text-gray-300 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                         >
                           <span>{m.name}</span>
                           <span className={`text-xs px-1 py-0.5 rounded ${style.className}`}>{getTierLabel(tier)}</span>
@@ -427,7 +427,7 @@ export default function OllamaManagement(): JSX.Element {
 
           {/* Custom Model Pull */}
           <div>
-            <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+            <h4 className="text-xs font-semibold text-muted uppercase tracking-wider mb-2">
               {t('ui.ollamaManagement.pullCustomModel')}
             </h4>
             <div className="flex gap-2">
@@ -438,12 +438,12 @@ export default function OllamaManagement(): JSX.Element {
                 onKeyDown={(e) => e.key === 'Enter' && handleCustomPull()}
                 placeholder={t('ui.ollamaManagement.customModelPlaceholder')}
                 disabled={isBusy}
-                className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-gray-200 placeholder-gray-600 focus:outline-none focus:border-amber-500 disabled:opacity-50"
+                className="flex-1 bg-surface-2 border border-border rounded-lg px-3 py-1.5 text-sm text-gray-200 placeholder-gray-600 focus:outline-none focus:border-amber-500 disabled:opacity-50"
               />
               <button
                 onClick={handleCustomPull}
                 disabled={isBusy || !customModelName.trim()}
-                className="px-4 py-1.5 text-sm rounded-lg border border-gray-700 text-gray-400 hover:border-amber-600 hover:text-amber-400 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                className="px-4 py-1.5 text-sm rounded-lg border border-border text-muted hover:border-amber-600 hover:text-accent transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 {t('ui.ollamaManagement.pull')}
               </button>
@@ -452,7 +452,7 @@ export default function OllamaManagement(): JSX.Element {
               {t('ui.ollamaManagement.browseModelsAt')}{' '}
               <button
                 onClick={() => window.open('https://ollama.com/library', '_blank')}
-                className="text-gray-500 hover:text-amber-400 cursor-pointer"
+                className="text-gray-500 hover:text-accent cursor-pointer"
               >
                 {t('ui.ollamaManagement.ollamaLibraryLink')}
               </button>

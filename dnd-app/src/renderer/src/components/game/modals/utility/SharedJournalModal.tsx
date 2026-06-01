@@ -145,7 +145,7 @@ export default function SharedJournalModal({
   return (
     <div className="fixed inset-0 z-20 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
-      <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-2xl w-full mx-4 shadow-2xl max-h-[80vh] flex flex-col">
+      <div className="relative bg-surface/95 backdrop-blur-sm border border-border/50 rounded-xl p-4 max-w-2xl w-full mx-4 shadow-2xl max-h-[80vh] flex flex-col">
         <div className="flex items-center justify-between mb-3 shrink-0">
           <div className="flex items-center gap-3">
             <h3 className="text-sm font-semibold text-gray-200">{t('game.sharedJournalModal.title')}</h3>
@@ -169,20 +169,22 @@ export default function SharedJournalModal({
         </div>
 
         {/* Create / Edit form */}
-        <div className="border border-gray-700/50 rounded-lg p-3 mb-3 space-y-2 shrink-0">
+        <div className="border border-border/50 rounded-lg p-3 mb-3 space-y-2 shrink-0">
           <input
+            aria-label={t('game.sharedJournalModal.titlePlaceholder')}
             type="text"
             placeholder={t('game.sharedJournalModal.titlePlaceholder')}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200 outline-none focus:border-amber-500/50"
+            className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200 outline-none focus:border-amber-500/50"
           />
           <textarea
+            aria-label={t('game.sharedJournalModal.contentPlaceholder')}
             placeholder={t('game.sharedJournalModal.contentPlaceholder')}
             value={content}
             onChange={(e) => setContent(e.target.value)}
             rows={4}
-            className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200 outline-none focus:border-amber-500/50 resize-y"
+            className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200 outline-none focus:border-amber-500/50 resize-y"
           />
           <ModalFormFooter
             isEditing={!!editingId}
@@ -197,7 +199,7 @@ export default function SharedJournalModal({
                 <select
                   value={visibility}
                   onChange={(e) => setVisibility(e.target.value as 'public' | 'private')}
-                  className="bg-gray-800 border border-gray-700 rounded px-2 py-0.5 text-xs text-gray-300 outline-none cursor-pointer"
+                  className="bg-surface-2 border border-border rounded px-2 py-0.5 text-xs text-gray-300 outline-none cursor-pointer"
                 >
                   <option value="public">{t('game.sharedJournalModal.public')}</option>
                   <option value="private">{t('game.sharedJournalModal.private')}</option>
@@ -213,7 +215,7 @@ export default function SharedJournalModal({
             <p className="text-xs text-gray-500 text-center py-4">{t('game.sharedJournalModal.noEntries')}</p>
           ) : (
             visibleEntries.map((entry) => (
-              <div key={entry.id} className="bg-gray-800/60 border border-gray-700/40 rounded-lg p-3">
+              <div key={entry.id} className="bg-surface-2/60 border border-border/40 rounded-lg p-3">
                 <div className="flex items-start justify-between gap-2 mb-1">
                   <div className="min-w-0">
                     <h4 className="text-xs font-semibold text-gray-200 truncate">{entry.title}</h4>

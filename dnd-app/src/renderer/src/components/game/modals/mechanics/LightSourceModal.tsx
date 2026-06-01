@@ -47,16 +47,16 @@ export default function LightSourceModal({ onClose }: LightSourceModalProps): JS
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
-      <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-80 shadow-2xl">
-        <h3 className="text-sm font-semibold text-amber-400 mb-3">{t('game.lightSourceModal.title')}</h3>
+      <div className="relative bg-surface border border-border rounded-xl p-5 w-80 shadow-2xl">
+        <h3 className="text-sm font-semibold text-accent mb-3">{t('game.lightSourceModal.title')}</h3>
 
         <div className="space-y-3">
           <div>
-            <label className="text-xs text-gray-400 block mb-1">{t('game.lightSourceModal.characterToken')}</label>
+            <label className="text-xs text-muted block mb-1">{t('game.lightSourceModal.characterToken')}</label>
             <select
               value={entityName}
               onChange={(e) => setEntityName(e.target.value)}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-200"
+              className="w-full bg-surface-2 border border-border rounded px-2 py-1.5 text-xs text-gray-200"
             >
               <option value="">{t('game.lightSourceModal.selectPlaceholder')}</option>
               {tokens.map((tok) => (
@@ -68,11 +68,11 @@ export default function LightSourceModal({ onClose }: LightSourceModalProps): JS
           </div>
 
           <div>
-            <label className="text-xs text-gray-400 block mb-1">{t('game.lightSourceModal.sourceType')}</label>
+            <label className="text-xs text-muted block mb-1">{t('game.lightSourceModal.sourceType')}</label>
             <select
               value={selectedSource}
               onChange={(e) => setSelectedSource(e.target.value)}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-200"
+              className="w-full bg-surface-2 border border-border rounded px-2 py-1.5 text-xs text-gray-200"
             >
               {sourceKeys.map((key) => {
                 const def = LIGHT_SOURCES[key]
@@ -90,11 +90,11 @@ export default function LightSourceModal({ onClose }: LightSourceModalProps): JS
           </div>
 
           <div>
-            <label className="text-xs text-gray-400 block mb-1">{t('game.lightSourceModal.animation')}</label>
+            <label className="text-xs text-muted block mb-1">{t('game.lightSourceModal.animation')}</label>
             <select
               value={animationType}
               onChange={(e) => setAnimationType(e.target.value as LightAnimationType | 'none')}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-200"
+              className="w-full bg-surface-2 border border-border rounded px-2 py-1.5 text-xs text-gray-200"
             >
               <option value="none">{t('game.lightSourceModal.none')}</option>
               <option value="flicker">{t('game.lightSourceModal.flicker')}</option>
@@ -106,7 +106,7 @@ export default function LightSourceModal({ onClose }: LightSourceModalProps): JS
           {animationType !== 'none' && (
             <>
               <div>
-                <label className="text-xs text-gray-400 block mb-1">
+                <label className="text-xs text-muted block mb-1">
                   {t('game.lightSourceModal.intensity', { value: animationIntensity })}
                 </label>
                 <input
@@ -121,7 +121,7 @@ export default function LightSourceModal({ onClose }: LightSourceModalProps): JS
               </div>
 
               <div>
-                <label className="text-xs text-gray-400 block mb-1">
+                <label className="text-xs text-muted block mb-1">
                   {t('game.lightSourceModal.speed', { value: animationSpeed.toFixed(1) })}
                 </label>
                 <input
@@ -141,7 +141,7 @@ export default function LightSourceModal({ onClose }: LightSourceModalProps): JS
             <button
               onClick={handleLight}
               disabled={!entityName.trim()}
-              className="flex-1 px-3 py-2 text-xs font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded-lg cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              className="flex-1 px-3 py-2 text-xs font-semibold bg-amber-600 hover:bg-accent-strong text-white rounded-lg cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {t('game.lightSourceModal.lightIt')}
             </button>

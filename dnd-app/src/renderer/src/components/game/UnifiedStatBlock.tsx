@@ -15,7 +15,7 @@ function AbilityRow({ label, score }: { label: string; score: number }): JSX.Ele
     <div className="text-center">
       <div className="text-xs text-gray-500 uppercase font-semibold">{label}</div>
       <div className="text-sm font-semibold text-gray-200">{score}</div>
-      <div className="text-xs text-amber-400">{formatModifier(score)}</div>
+      <div className="text-xs text-accent">{formatModifier(score)}</div>
     </div>
   )
 }
@@ -36,10 +36,10 @@ function TraitBlock({
     <>
       <SectionDivider />
       <div className="space-y-1.5">
-        <h4 className="text-xs font-bold text-amber-500 uppercase tracking-wider">{heading}</h4>
+        <h4 className="text-xs font-bold text-accent-strong uppercase tracking-wider">{heading}</h4>
         {items.map((item, i) => (
           <div key={i} className="text-xs">
-            <span className="text-amber-400 font-semibold italic">{item.name}. </span>
+            <span className="text-accent font-semibold italic">{item.name}. </span>
             <span className="text-gray-300">{item.description}</span>
           </div>
         ))}
@@ -53,11 +53,11 @@ export default function UnifiedStatBlock({ statBlock }: UnifiedStatBlockProps): 
   const sb = statBlock
 
   return (
-    <div className="bg-gray-900 border border-amber-800/40 rounded-lg overflow-hidden">
+    <div className="bg-surface border border-amber-800/40 rounded-lg overflow-hidden">
       {/* Header */}
       <div className="bg-amber-900/30 border-b border-amber-800/40 px-3 py-2">
-        <h3 className="text-base font-bold text-amber-400">{sb.name}</h3>
-        <p className="text-xs text-gray-400">
+        <h3 className="text-base font-bold text-accent">{sb.name}</h3>
+        <p className="text-xs text-muted">
           {sb.size} {sb.type}, {sb.alignment}
         </p>
       </div>
@@ -66,21 +66,21 @@ export default function UnifiedStatBlock({ statBlock }: UnifiedStatBlockProps): 
         {/* AC, HP, Speed */}
         <div className="space-y-0.5 text-sm">
           <div className="flex gap-1">
-            <span className="text-amber-500 font-semibold">{t('game.unifiedStatBlock.ac')}</span>
+            <span className="text-accent-strong font-semibold">{t('game.unifiedStatBlock.ac')}</span>
             <span className="text-gray-300">
               {sb.ac}
               {sb.acSource ? ` (${sb.acSource})` : ''}
             </span>
           </div>
           <div className="flex gap-1">
-            <span className="text-amber-500 font-semibold">{t('game.unifiedStatBlock.hp')}</span>
+            <span className="text-accent-strong font-semibold">{t('game.unifiedStatBlock.hp')}</span>
             <span className="text-gray-300">
               {sb.hp}
               {sb.hpFormula ? ` (${sb.hpFormula})` : ''}
             </span>
           </div>
           <div className="flex gap-1">
-            <span className="text-amber-500 font-semibold">{t('game.unifiedStatBlock.speed')}</span>
+            <span className="text-accent-strong font-semibold">{t('game.unifiedStatBlock.speed')}</span>
             <span className="text-gray-300">{sb.speed}</span>
           </div>
         </div>
@@ -103,43 +103,43 @@ export default function UnifiedStatBlock({ statBlock }: UnifiedStatBlockProps): 
         <div className="space-y-0.5 text-xs">
           {sb.savingThrows && (
             <div>
-              <span className="text-amber-500 font-semibold">{t('game.unifiedStatBlock.savingThrows')}</span>
+              <span className="text-accent-strong font-semibold">{t('game.unifiedStatBlock.savingThrows')}</span>
               <span className="text-gray-300">{sb.savingThrows}</span>
             </div>
           )}
           {sb.skills && (
             <div>
-              <span className="text-amber-500 font-semibold">{t('game.unifiedStatBlock.skills')}</span>
+              <span className="text-accent-strong font-semibold">{t('game.unifiedStatBlock.skills')}</span>
               <span className="text-gray-300">{sb.skills}</span>
             </div>
           )}
           {sb.damageResistances && (
             <div>
-              <span className="text-amber-500 font-semibold">{t('game.unifiedStatBlock.damageResistances')}</span>
+              <span className="text-accent-strong font-semibold">{t('game.unifiedStatBlock.damageResistances')}</span>
               <span className="text-gray-300">{sb.damageResistances}</span>
             </div>
           )}
           {sb.damageImmunities && (
             <div>
-              <span className="text-amber-500 font-semibold">{t('game.unifiedStatBlock.damageImmunities')}</span>
+              <span className="text-accent-strong font-semibold">{t('game.unifiedStatBlock.damageImmunities')}</span>
               <span className="text-gray-300">{sb.damageImmunities}</span>
             </div>
           )}
           {sb.conditionImmunities && (
             <div>
-              <span className="text-amber-500 font-semibold">{t('game.unifiedStatBlock.conditionImmunities')}</span>
+              <span className="text-accent-strong font-semibold">{t('game.unifiedStatBlock.conditionImmunities')}</span>
               <span className="text-gray-300">{sb.conditionImmunities}</span>
             </div>
           )}
           {sb.senses && (
             <div>
-              <span className="text-amber-500 font-semibold">{t('game.unifiedStatBlock.senses')}</span>
+              <span className="text-accent-strong font-semibold">{t('game.unifiedStatBlock.senses')}</span>
               <span className="text-gray-300">{sb.senses}</span>
             </div>
           )}
           {sb.languages && (
             <div>
-              <span className="text-amber-500 font-semibold">{t('game.unifiedStatBlock.languages')}</span>
+              <span className="text-accent-strong font-semibold">{t('game.unifiedStatBlock.languages')}</span>
               <span className="text-gray-300">{sb.languages}</span>
             </div>
           )}
@@ -147,7 +147,7 @@ export default function UnifiedStatBlock({ statBlock }: UnifiedStatBlockProps): 
             <div className="flex gap-4">
               {sb.cr && (
                 <div>
-                  <span className="text-amber-500 font-semibold">{t('game.unifiedStatBlock.cr')}</span>
+                  <span className="text-accent-strong font-semibold">{t('game.unifiedStatBlock.cr')}</span>
                   <span className="text-gray-300">
                     {sb.cr}
                     {sb.xp !== undefined ? t('game.unifiedStatBlock.xp', { xp: sb.xp.toLocaleString() }) : ''}
@@ -156,7 +156,7 @@ export default function UnifiedStatBlock({ statBlock }: UnifiedStatBlockProps): 
               )}
               {sb.proficiencyBonus && (
                 <div>
-                  <span className="text-amber-500 font-semibold">{t('game.unifiedStatBlock.pb')}</span>
+                  <span className="text-accent-strong font-semibold">{t('game.unifiedStatBlock.pb')}</span>
                   <span className="text-gray-300">+{sb.proficiencyBonus}</span>
                 </div>
               )}
@@ -171,7 +171,7 @@ export default function UnifiedStatBlock({ statBlock }: UnifiedStatBlockProps): 
             <div className="space-y-1.5">
               {sb.traits.map((trait, i) => (
                 <div key={i} className="text-xs">
-                  <span className="text-amber-400 font-semibold italic">{trait.name}. </span>
+                  <span className="text-accent font-semibold italic">{trait.name}. </span>
                   <span className="text-gray-300">{trait.description}</span>
                 </div>
               ))}
@@ -184,7 +184,7 @@ export default function UnifiedStatBlock({ statBlock }: UnifiedStatBlockProps): 
           <>
             <SectionDivider />
             <div className="text-xs">
-              <span className="text-amber-400 font-semibold italic">{t('game.unifiedStatBlock.spellcasting')}</span>
+              <span className="text-accent font-semibold italic">{t('game.unifiedStatBlock.spellcasting')}</span>
               <span className="text-gray-300">
                 {sb.spellcasting.description ??
                   t('game.unifiedStatBlock.spellcastingFallback', {

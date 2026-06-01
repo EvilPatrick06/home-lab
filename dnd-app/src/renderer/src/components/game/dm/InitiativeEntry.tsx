@@ -70,7 +70,7 @@ export default function InitiativeEntry({
             ? 'bg-amber-600/20 border border-amber-500'
             : dragOverIndex === realIndex && draggedIndex !== null
               ? 'bg-gray-700/50 border border-amber-500/50'
-              : 'bg-gray-800/50 border border-transparent'
+              : 'bg-surface-2/50 border border-transparent'
       } ${isHost && !entry.isLairAction ? 'cursor-grab active:cursor-grabbing' : ''}`}
     >
       {/* Portrait avatar */}
@@ -131,7 +131,7 @@ export default function InitiativeEntry({
           className={`text-xs px-1.5 py-0.5 rounded cursor-pointer transition-colors ${
             entry.legendaryResistances.remaining > 0
               ? 'bg-orange-700/50 text-orange-300 hover:bg-orange-600/50'
-              : 'bg-gray-800 text-gray-600'
+              : 'bg-surface-2 text-gray-600'
           }`}
           title={t('game.initiativeEntry.legendaryResistanceTitle', {
             remaining: entry.legendaryResistances.remaining,
@@ -150,7 +150,7 @@ export default function InitiativeEntry({
         <button
           onClick={() => onUpdateEntry(entry.id, { inLair: !entry.inLair })}
           className={`text-xs px-1 py-0.5 rounded cursor-pointer transition-colors ${
-            entry.inLair ? 'bg-purple-700/50 text-purple-300' : 'bg-gray-800/50 text-gray-600 hover:text-gray-400'
+            entry.inLair ? 'bg-purple-700/50 text-purple-300' : 'bg-surface-2/50 text-gray-600 hover:text-muted'
           }`}
           title={entry.inLair ? t('game.initiativeEntry.inLairToggleOff') : t('game.initiativeEntry.inLairToggleOn')}
         >
@@ -162,7 +162,7 @@ export default function InitiativeEntry({
       {isHost && !entry.isLairAction && entry.isActive && (
         <button
           onClick={() => onDelayEntry(entry)}
-          className="text-xs px-1 py-0.5 rounded bg-gray-700 text-gray-400 hover:text-yellow-300 hover:bg-gray-600 cursor-pointer"
+          className="text-xs px-1 py-0.5 rounded bg-gray-700 text-muted hover:text-yellow-300 hover:bg-gray-600 cursor-pointer"
           title={t('game.initiativeEntry.delayTitle')}
         >
           {t('game.initiativeEntry.delay')}
@@ -181,11 +181,11 @@ export default function InitiativeEntry({
                 if (e.key === 'Enter') onEditSave(entry.id)
                 if (e.key === 'Escape') onEditCancel()
               }}
-              className="w-10 p-0.5 rounded bg-gray-700 border border-amber-500 text-center text-xs text-gray-100"
+              className="w-10 p-0.5 rounded bg-gray-700 border border-amber-500 text-center text-xs text-fg"
             />
           ) : (
             <span
-              className="text-xs font-mono font-semibold w-7 text-center cursor-pointer hover:text-amber-400 text-gray-300"
+              className="text-xs font-mono font-semibold w-7 text-center cursor-pointer hover:text-accent text-gray-300"
               onClick={() => onEditStart(entry.id, entry.total)}
               title={t('game.initiativeEntry.clickToEdit')}
             >

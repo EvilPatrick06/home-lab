@@ -73,7 +73,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
   return (
     <div>
       <h2 className="text-xl font-semibold mb-2">{t('campaign.calendarStep.title')}</h2>
-      <p className="text-gray-400 text-sm mb-6">{t('campaign.calendarStep.subtitle')}</p>
+      <p className="text-muted text-sm mb-6">{t('campaign.calendarStep.subtitle')}</p>
 
       <div className="max-w-2xl space-y-4">
         {/* Enable toggle */}
@@ -91,7 +91,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
           <>
             {/* Preset cards */}
             <div>
-              <label className="text-xs font-semibold text-gray-400 mb-2 block">
+              <label className="text-xs font-semibold text-muted mb-2 block">
                 {t('campaign.calendarStep.calendarSystem')}
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -102,7 +102,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                     className={`px-3 py-2.5 text-left text-sm rounded-lg border transition-colors cursor-pointer ${
                       preset === id
                         ? 'bg-amber-600/20 border-amber-500/50 text-amber-300'
-                        : 'bg-gray-800/60 border-gray-700/50 text-gray-300 hover:bg-gray-700/60'
+                        : 'bg-surface-2/60 border-border/50 text-gray-300 hover:bg-gray-700/60'
                     }`}
                   >
                     <div className="font-semibold">{PRESET_LABELS[id]}</div>
@@ -120,7 +120,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
             {/* Custom months editor */}
             {preset === 'custom' && (
               <div>
-                <label className="text-xs font-semibold text-gray-400 mb-2 block">
+                <label className="text-xs font-semibold text-muted mb-2 block">
                   {t('campaign.calendarStep.customMonths')}
                 </label>
                 <div className="space-y-1 max-h-48 overflow-y-auto">
@@ -134,7 +134,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                           setCustomMonths(updated)
                           emitChange(undefined, undefined, undefined, updated)
                         }}
-                        className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
+                        className="flex-1 bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200"
                         placeholder={t('campaign.calendarStep.monthNamePlaceholder')}
                       />
                       <input
@@ -147,7 +147,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                           setCustomMonths(updated)
                           emitChange(undefined, undefined, undefined, updated)
                         }}
-                        className="w-16 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
+                        className="w-16 bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200"
                       />
                       <span className="text-xs text-gray-500">{t('campaign.calendarStep.days')}</span>
                       {customMonths.length > 1 && (
@@ -171,7 +171,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                     setCustomMonths(updated)
                     emitChange(undefined, undefined, undefined, updated)
                   }}
-                  className="mt-1 text-xs text-amber-400 hover:text-amber-300 cursor-pointer"
+                  className="mt-1 text-xs text-accent hover:text-amber-300 cursor-pointer"
                 >
                   {t('campaign.calendarStep.addMonth')}
                 </button>
@@ -183,7 +183,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                       setCustomYearLabel(e.target.value)
                       emitChange(undefined, undefined, undefined, undefined, e.target.value)
                     }}
-                    className="w-24 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
+                    className="w-24 bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200"
                     placeholder={t('campaign.calendarStep.yearLabelPlaceholder')}
                   />
                 </div>
@@ -192,7 +192,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
 
             {/* Starting date/time */}
             <div>
-              <label className="text-xs font-semibold text-gray-400 mb-2 block">
+              <label className="text-xs font-semibold text-muted mb-2 block">
                 {t('campaign.calendarStep.startingDateTime')}
               </label>
               <div className="flex gap-3 items-end flex-wrap">
@@ -207,7 +207,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                         setStartingYear(yr)
                         emitChange(undefined, yr)
                       }}
-                      className="w-20 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
+                      className="w-20 bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200"
                     />
                   </div>
                 )}
@@ -220,7 +220,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                         setStartMonth(parseInt(e.target.value, 10))
                         setStartDay(1)
                       }}
-                      className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
+                      className="bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200"
                     >
                       {months.map((m, i) => (
                         <option key={i} value={i}>
@@ -242,7 +242,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                     min={1}
                     max={months[startMonth]?.days ?? 365}
                     onChange={(e) => setStartDay(Math.max(1, parseInt(e.target.value, 10) || 1))}
-                    className="w-16 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
+                    className="w-16 bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200"
                   />
                 </div>
                 <div>
@@ -250,7 +250,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                   <select
                     value={startHour}
                     onChange={(e) => setStartHour(parseInt(e.target.value, 10))}
-                    className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
+                    className="bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200"
                   >
                     {Array.from({ length: 24 }, (_, i) => {
                       const h12 = i === 0 ? 12 : i > 12 ? i - 12 : i
@@ -268,7 +268,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
 
             {/* Exact time mode */}
             <div>
-              <label className="text-xs font-semibold text-gray-400 mb-2 block">
+              <label className="text-xs font-semibold text-muted mb-2 block">
                 {t('campaign.calendarStep.timeDisplayMode')}
               </label>
               <select
@@ -278,7 +278,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
                   setExactTimeDefault(v)
                   emitChange(undefined, undefined, v)
                 }}
-                className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200"
+                className="bg-surface-2 border border-border rounded px-2 py-1 text-xs text-gray-200"
               >
                 <option value="always">{t('campaign.calendarStep.timeMode.always')}</option>
                 <option value="contextual">{t('campaign.calendarStep.timeMode.contextual')}</option>
@@ -289,7 +289,7 @@ export default function CalendarStep({ calendar, onChange }: CalendarStepProps):
 
             {/* Preview */}
             {previewTime && (
-              <div className="bg-gray-800/50 rounded-lg px-4 py-3 border border-gray-700/30">
+              <div className="bg-surface-2/50 rounded-lg px-4 py-3 border border-border/30">
                 <div className="text-xs text-gray-500 mb-1">{t('campaign.calendarStep.preview')}</div>
                 <div className="text-sm text-amber-300 font-medium">{previewTime}</div>
               </div>

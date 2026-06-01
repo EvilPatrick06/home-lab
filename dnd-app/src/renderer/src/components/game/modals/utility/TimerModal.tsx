@@ -33,7 +33,7 @@ export default function TimerModal({ onClose }: TimerModalProps): JSX.Element {
   return (
     <div className="fixed inset-0 z-20 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
-      <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-xs w-full mx-4 shadow-2xl">
+      <div className="relative bg-surface/95 backdrop-blur-sm border border-border/50 rounded-xl p-4 max-w-xs w-full mx-4 shadow-2xl">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold text-gray-200">{t('game.timerModal.title')}</h3>
           <button
@@ -47,18 +47,18 @@ export default function TimerModal({ onClose }: TimerModalProps): JSX.Element {
 
         <div className="space-y-3">
           <div>
-            <label className="text-xs text-gray-400 block mb-1">{t('game.timerModal.target')}</label>
+            <label className="text-xs text-muted block mb-1">{t('game.timerModal.target')}</label>
             <input
               type="text"
               value={targetName}
               onChange={(e) => setTargetName(e.target.value)}
               placeholder={t('game.timerModal.targetPlaceholder')}
-              className="w-full px-2 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-100 text-xs focus:outline-none focus:border-amber-500"
+              className="w-full px-2 py-1.5 rounded-lg bg-surface-2 border border-border text-fg text-xs focus:outline-none focus:border-amber-500"
             />
           </div>
 
           <div>
-            <label className="text-xs text-gray-400 block mb-1">{t('game.timerModal.duration')}</label>
+            <label className="text-xs text-muted block mb-1">{t('game.timerModal.duration')}</label>
             <div className="flex gap-1 mb-2">
               {PRESETS.map((p) => (
                 <button
@@ -67,7 +67,7 @@ export default function TimerModal({ onClose }: TimerModalProps): JSX.Element {
                   className={`flex-1 py-1 text-xs rounded transition-colors cursor-pointer ${
                     seconds === p.value
                       ? 'bg-amber-600/30 text-amber-300 border border-amber-500/50'
-                      : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                      : 'bg-surface-2 text-muted hover:bg-gray-700'
                   }`}
                 >
                   {p.label}
@@ -79,14 +79,14 @@ export default function TimerModal({ onClose }: TimerModalProps): JSX.Element {
               value={seconds}
               onChange={(e) => setSeconds(Math.max(1, parseInt(e.target.value, 10) || 0))}
               min={1}
-              className="w-full px-2 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-100 text-xs focus:outline-none focus:border-amber-500"
+              className="w-full px-2 py-1.5 rounded-lg bg-surface-2 border border-border text-fg text-xs focus:outline-none focus:border-amber-500"
             />
             <span className="text-xs text-gray-500">{t('game.timerModal.seconds')}</span>
           </div>
 
           <button
             onClick={handleStart}
-            className="w-full py-2 text-xs font-semibold rounded-lg bg-amber-600 hover:bg-amber-500 text-white
+            className="w-full py-2 text-xs font-semibold rounded-lg bg-amber-600 hover:bg-accent-strong text-white
               transition-colors cursor-pointer"
           >
             {t('game.timerModal.start')}

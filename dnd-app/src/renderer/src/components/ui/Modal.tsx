@@ -80,7 +80,7 @@ export default function Modal({
         aria-modal="true"
         aria-labelledby={title && !hideHeader ? titleId : undefined}
         aria-label={title && hideHeader ? title : undefined}
-        className={`relative bg-gray-900 border border-gray-700 rounded-lg w-full mx-4 max-h-[80vh] flex flex-col ${className}`}
+        className={`relative bg-surface border border-border rounded-lg w-full mx-4 max-h-[80vh] flex flex-col ${className}`}
       >
         {/* Phase 17e (GUI-9) — header is a non-scrolling sibling; only the body scrolls, so the
             title + close button stay pinned with long content. */}

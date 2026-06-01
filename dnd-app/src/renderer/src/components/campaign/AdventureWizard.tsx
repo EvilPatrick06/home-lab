@@ -71,7 +71,7 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
               value={data.title}
               onChange={(e) => update('title', e.target.value)}
               placeholder={t('campaign.adventureWizard.adventureTitlePlaceholder')}
-              className="w-full px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded text-gray-200"
+              className="w-full px-3 py-2 text-sm bg-surface-2 border border-border rounded text-gray-200"
             />
           </div>
           <div>
@@ -86,7 +86,7 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
                   className={`flex-1 py-1.5 text-xs rounded cursor-pointer border transition-colors ${
                     data.levelTier === tier
                       ? 'bg-amber-600/20 border-amber-500/40 text-amber-300'
-                      : 'bg-gray-800 border-gray-700 text-gray-400 hover:bg-gray-700'
+                      : 'bg-surface-2 border-border text-muted hover:bg-gray-700'
                   }`}
                 >
                   {t('campaign.adventureWizard.levelTierOption', { tier })}
@@ -108,7 +108,7 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
               onChange={(e) => update('premise', e.target.value)}
               placeholder={t('campaign.adventureWizard.premisePlaceholder')}
               rows={3}
-              className="w-full px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded text-gray-200 resize-none"
+              className="w-full px-3 py-2 text-sm bg-surface-2 border border-border rounded text-gray-200 resize-none"
             />
           </div>
           <div>
@@ -119,7 +119,7 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
               value={data.villain}
               onChange={(e) => update('villain', e.target.value)}
               placeholder={t('campaign.adventureWizard.villainPlaceholder')}
-              className="w-full px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded text-gray-200"
+              className="w-full px-3 py-2 text-sm bg-surface-2 border border-border rounded text-gray-200"
             />
           </div>
           <div>
@@ -130,7 +130,7 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
               value={data.setting}
               onChange={(e) => update('setting', e.target.value)}
               placeholder={t('campaign.adventureWizard.settingPlaceholder')}
-              className="w-full px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded text-gray-200"
+              className="w-full px-3 py-2 text-sm bg-surface-2 border border-border rounded text-gray-200"
             />
           </div>
         </div>
@@ -150,7 +150,7 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
               onChange={(e) => update('hook', e.target.value)}
               placeholder={t('campaign.adventureWizard.adventureHookPlaceholder')}
               rows={3}
-              className="w-full px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded text-gray-200 resize-none"
+              className="w-full px-3 py-2 text-sm bg-surface-2 border border-border rounded text-gray-200 resize-none"
             />
           </div>
           <div>
@@ -162,7 +162,7 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
               onChange={(e) => update('playerStakes', e.target.value)}
               placeholder={t('campaign.adventureWizard.personalStakesPlaceholder')}
               rows={3}
-              className="w-full px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded text-gray-200 resize-none"
+              className="w-full px-3 py-2 text-sm bg-surface-2 border border-border rounded text-gray-200 resize-none"
             />
           </div>
         </div>
@@ -182,10 +182,10 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
               onChange={(e) => update('encounters', e.target.value)}
               placeholder={t('campaign.adventureWizard.keyEncountersPlaceholder')}
               rows={6}
-              className="w-full px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded text-gray-200 resize-none"
+              className="w-full px-3 py-2 text-sm bg-surface-2 border border-border rounded text-gray-200 resize-none"
             />
           </div>
-          <div className="text-xs text-gray-500 bg-gray-800/50 rounded p-2">
+          <div className="text-xs text-gray-500 bg-surface-2/50 rounded p-2">
             {t('campaign.adventureWizard.encountersHint')}
           </div>
         </div>
@@ -205,7 +205,7 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
               onChange={(e) => update('climax', e.target.value)}
               placeholder={t('campaign.adventureWizard.climaxPlaceholder')}
               rows={3}
-              className="w-full px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded text-gray-200 resize-none"
+              className="w-full px-3 py-2 text-sm bg-surface-2 border border-border rounded text-gray-200 resize-none"
             />
           </div>
           <div>
@@ -217,7 +217,7 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
               onChange={(e) => update('resolution', e.target.value)}
               placeholder={t('campaign.adventureWizard.resolutionPlaceholder')}
               rows={3}
-              className="w-full px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded text-gray-200 resize-none"
+              className="w-full px-3 py-2 text-sm bg-surface-2 border border-border rounded text-gray-200 resize-none"
             />
           </div>
         </div>
@@ -240,7 +240,7 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
                 ? 'bg-amber-600/20 border-amber-500/40 text-amber-300'
                 : i < step
                   ? 'bg-green-900/20 border-green-500/30 text-green-400'
-                  : 'bg-gray-800 border-gray-700 text-gray-500'
+                  : 'bg-surface-2 border-border text-gray-500'
             }`}
           >
             {i + 1}
@@ -259,7 +259,7 @@ export default function AdventureWizard({ onSave, onCancel }: AdventureWizardPro
       <div className="flex items-center justify-between pt-2 border-t border-gray-800">
         <button
           onClick={step === 0 ? onCancel : () => setStep(step - 1)}
-          className="px-3 py-1.5 text-xs bg-gray-800 hover:bg-gray-700 rounded text-gray-300 cursor-pointer"
+          className="px-3 py-1.5 text-xs bg-surface-2 hover:bg-gray-700 rounded text-gray-300 cursor-pointer"
         >
           {step === 0 ? t('common.actions.cancel') : t('campaign.adventureWizard.back')}
         </button>

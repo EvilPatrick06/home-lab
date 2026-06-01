@@ -195,6 +195,7 @@ export default function TokenPlacer({
         <div className="relative" ref={dropdownRef}>
           <label className="block text-xs text-gray-500 mb-1">{t('game.tokenPlacer.searchMonsters')}</label>
           <input
+            aria-label={t('game.tokenPlacer.searchPlaceholder')}
             type="text"
             placeholder={t('game.tokenPlacer.searchPlaceholder')}
             value={searchQuery}
@@ -202,11 +203,11 @@ export default function TokenPlacer({
             onFocus={() => {
               if (searchResults.length > 0) setShowDropdown(true)
             }}
-            className="w-full p-2 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
+            className="w-full p-2 rounded-lg bg-surface-2 border border-border text-fg
               placeholder-gray-600 focus:outline-none focus:border-amber-500 text-sm"
           />
           {showDropdown && (
-            <div className="absolute z-50 w-full mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-xl max-h-60 overflow-y-auto">
+            <div className="absolute z-50 w-full mt-1 bg-surface-2 border border-border rounded-lg shadow-xl max-h-60 overflow-y-auto">
               {searchResults.map((m) => (
                 <button
                   key={m.id}
@@ -235,13 +236,13 @@ export default function TokenPlacer({
       {selectedMonster && (
         <div className="flex items-center justify-between bg-amber-900/20 border border-amber-800/40 rounded-lg px-2 py-1.5">
           <div className="flex items-center gap-2">
-            <span className="text-xs text-amber-400 font-semibold">{selectedMonster.name}</span>
+            <span className="text-xs text-accent font-semibold">{selectedMonster.name}</span>
             <span className="text-xs text-gray-500">{t('game.tokenPlacer.crValue', { cr: selectedMonster.cr })}</span>
           </div>
           <div className="flex gap-1">
             <button
               onClick={() => setShowStatBlock(!showStatBlock)}
-              className="text-xs text-gray-400 hover:text-amber-400 transition-colors cursor-pointer px-1"
+              className="text-xs text-muted hover:text-accent transition-colors cursor-pointer px-1"
               title={t('game.tokenPlacer.toggleStatBlock')}
             >
               {showStatBlock ? t('game.tokenPlacer.hide') : t('game.tokenPlacer.stats')}
@@ -273,11 +274,12 @@ export default function TokenPlacer({
 
       <div>
         <input
+          aria-label={t('game.tokenPlacer.tokenNamePlaceholder')}
           type="text"
           placeholder={t('game.tokenPlacer.tokenNamePlaceholder')}
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full p-2 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
+          className="w-full p-2 rounded-lg bg-surface-2 border border-border text-fg
             placeholder-gray-600 focus:outline-none focus:border-amber-500 text-sm"
         />
       </div>
@@ -289,7 +291,7 @@ export default function TokenPlacer({
             type="file"
             accept="image/png,image/jpeg,image/webp"
             onChange={handleImageUpload}
-            className="text-xs text-gray-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:bg-gray-800 file:text-gray-300 hover:file:bg-gray-700 w-full"
+            className="text-xs text-muted file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:bg-surface-2 file:text-gray-300 hover:file:bg-gray-700 w-full"
           />
           {imagePath && (
             <button
@@ -311,7 +313,7 @@ export default function TokenPlacer({
               key={type}
               onClick={() => setEntityType(type)}
               className={`flex-1 py-1.5 text-xs rounded-lg capitalize transition-colors cursor-pointer
-                ${entityType === type ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}
+                ${entityType === type ? 'bg-amber-600 text-white' : 'bg-surface-2 text-muted hover:bg-gray-700'}`}
             >
               {type}
             </button>
@@ -323,22 +325,24 @@ export default function TokenPlacer({
         <div className="flex-1">
           <label className="block text-xs text-gray-500 mb-1">{t('game.tokenPlacer.hp')}</label>
           <input
+            aria-label={t('game.tokenPlacer.currentPlaceholder')}
             type="number"
             placeholder={t('game.tokenPlacer.currentPlaceholder')}
             value={currentHP}
             onChange={(e) => setCurrentHP(e.target.value)}
-            className="w-full p-2 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
+            className="w-full p-2 rounded-lg bg-surface-2 border border-border text-fg
               placeholder-gray-600 focus:outline-none focus:border-amber-500 text-sm"
           />
         </div>
         <div className="flex-1">
           <label className="block text-xs text-gray-500 mb-1">&nbsp;</label>
           <input
+            aria-label={t('game.tokenPlacer.maxPlaceholder')}
             type="number"
             placeholder={t('game.tokenPlacer.maxPlaceholder')}
             value={maxHP}
             onChange={(e) => setMaxHP(e.target.value)}
-            className="w-full p-2 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
+            className="w-full p-2 rounded-lg bg-surface-2 border border-border text-fg
               placeholder-gray-600 focus:outline-none focus:border-amber-500 text-sm"
           />
         </div>
@@ -348,22 +352,24 @@ export default function TokenPlacer({
         <div className="flex-1">
           <label className="block text-xs text-gray-500 mb-1">{t('game.tokenPlacer.ac')}</label>
           <input
+            aria-label={t('game.tokenPlacer.acPlaceholder')}
             type="number"
             placeholder={t('game.tokenPlacer.acPlaceholder')}
             value={ac}
             onChange={(e) => setAc(e.target.value)}
-            className="w-full p-2 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
+            className="w-full p-2 rounded-lg bg-surface-2 border border-border text-fg
               placeholder-gray-600 focus:outline-none focus:border-amber-500 text-sm"
           />
         </div>
         <div className="flex-1">
           <label className="block text-xs text-gray-500 mb-1">{t('game.tokenPlacer.walkSpeed')}</label>
           <input
+            aria-label="30"
             type="number"
             placeholder="30"
             value={walkSpeed}
             onChange={(e) => setWalkSpeed(e.target.value)}
-            className="w-full p-2 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
+            className="w-full p-2 rounded-lg bg-surface-2 border border-border text-fg
               placeholder-gray-600 focus:outline-none focus:border-amber-500 text-sm"
           />
         </div>
@@ -383,7 +389,7 @@ export default function TokenPlacer({
               title={opt.desc}
               className={`py-1.5 text-xs rounded-lg transition-colors cursor-pointer
                 ${
-                  creatureSize === opt.label ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                  creatureSize === opt.label ? 'bg-amber-600 text-white' : 'bg-surface-2 text-muted hover:bg-gray-700'
                 }`}
             >
               {opt.labelText}
@@ -398,27 +404,30 @@ export default function TokenPlacer({
         <label className="block text-xs text-gray-500 mb-1">{t('game.tokenPlacer.speedsOptional')}</label>
         <div className="flex gap-2">
           <input
+            aria-label={t('game.tokenPlacer.flyPlaceholder')}
             type="number"
             placeholder={t('game.tokenPlacer.flyPlaceholder')}
             value={flySpeed}
             onChange={(e) => setFlySpeed(e.target.value)}
-            className="flex-1 p-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
+            className="flex-1 p-1.5 rounded-lg bg-surface-2 border border-border text-fg
               placeholder-gray-600 focus:outline-none focus:border-blue-500 text-xs"
           />
           <input
+            aria-label={t('game.tokenPlacer.swimPlaceholder')}
             type="number"
             placeholder={t('game.tokenPlacer.swimPlaceholder')}
             value={swimSpeed}
             onChange={(e) => setSwimSpeed(e.target.value)}
-            className="flex-1 p-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
+            className="flex-1 p-1.5 rounded-lg bg-surface-2 border border-border text-fg
               placeholder-gray-600 focus:outline-none focus:border-cyan-500 text-xs"
           />
           <input
+            aria-label={t('game.tokenPlacer.climbPlaceholder')}
             type="number"
             placeholder={t('game.tokenPlacer.climbPlaceholder')}
             value={climbSpeed}
             onChange={(e) => setClimbSpeed(e.target.value)}
-            className="flex-1 p-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
+            className="flex-1 p-1.5 rounded-lg bg-surface-2 border border-border text-fg
               placeholder-gray-600 focus:outline-none focus:border-green-500 text-xs"
           />
         </div>
@@ -427,15 +436,13 @@ export default function TokenPlacer({
       <button
         onClick={handlePlace}
         disabled={!name.trim()}
-        className="w-full py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-sm
+        className="w-full py-2 rounded-lg bg-amber-600 hover:bg-accent-strong text-white text-sm
           font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
       >
         {placingActive ? t('game.tokenPlacer.clickToPlace') : t('game.tokenPlacer.prepareToken')}
       </button>
 
-      {placingActive && (
-        <p className="text-xs text-amber-400 text-center">{t('game.tokenPlacer.clickMapInstruction')}</p>
-      )}
+      {placingActive && <p className="text-xs text-accent text-center">{t('game.tokenPlacer.clickMapInstruction')}</p>}
 
       {tokens.length > 0 && (
         <div className="mt-3 border-t border-gray-800 pt-3">
@@ -446,7 +453,10 @@ export default function TokenPlacer({
             {tokens.map((token) => {
               const stats = getTokenStats(token)
               return (
-                <div key={token.id} className="flex items-center justify-between p-2 rounded-lg bg-gray-800/50 text-sm">
+                <div
+                  key={token.id}
+                  className="flex items-center justify-between p-2 rounded-lg bg-surface-2/50 text-sm"
+                >
                   <div className="flex items-center gap-2 min-w-0">
                     <span
                       className={`w-3 h-3 rounded-full flex-shrink-0 ${
@@ -465,7 +475,7 @@ export default function TokenPlacer({
                     )}
                     {stats.specialSenses && stats.specialSenses.length > 0 && (
                       <span
-                        className="text-xs text-amber-400"
+                        className="text-xs text-accent"
                         title={stats.specialSenses.map((s) => `${s.type} ${s.range}ft`).join(', ')}
                       >
                         {stats.specialSenses.map((s) => s.type.charAt(0).toUpperCase()).join('')}

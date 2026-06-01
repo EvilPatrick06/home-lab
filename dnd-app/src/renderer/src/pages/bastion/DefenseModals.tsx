@@ -36,7 +36,7 @@ export function RecruitDefendersModal({
     <Modal open={open} onClose={onClose} title={t('pages.recruitDefendersModal.title')}>
       <div className="space-y-4">
         {barracks.length === 0 ? (
-          <p className="text-sm text-gray-400">{t('pages.recruitDefendersModal.needBarrack')}</p>
+          <p className="text-sm text-muted">{t('pages.recruitDefendersModal.needBarrack')}</p>
         ) : (
           <>
             <div className="flex flex-col gap-1">
@@ -44,7 +44,7 @@ export function RecruitDefendersModal({
               <select
                 value={recruitBarrackId}
                 onChange={(e) => setRecruitBarrackId(e.target.value)}
-                className="bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+                className="bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
               >
                 <option value="">{t('pages.recruitDefendersModal.selectBarrack')}</option>
                 {barracks.map((b) => {
@@ -65,7 +65,7 @@ export function RecruitDefendersModal({
                 value={recruitNames}
                 onChange={(e) => setRecruitNames(e.target.value)}
                 placeholder={t('pages.recruitDefendersModal.namesPlaceholder')}
-                className="bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
+                className="bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500"
               />
             </div>
             <p className="text-xs text-gray-500">{t('pages.recruitDefendersModal.cost')}</p>
@@ -74,14 +74,14 @@ export function RecruitDefendersModal({
         <div className="flex gap-2 justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-gray-800 transition-colors"
+            className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-surface-2 transition-colors"
           >
             {t('common.actions.cancel')}
           </button>
           <button
             onClick={handleRecruit}
             disabled={!recruitBarrackId || !recruitNames.trim()}
-            className="px-4 py-2 text-sm bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded font-semibold transition-colors"
+            className="px-4 py-2 text-sm bg-amber-600 hover:bg-accent-strong disabled:bg-gray-700 disabled:text-gray-500 text-white rounded font-semibold transition-colors"
           >
             {t('pages.recruitDefendersModal.recruit')}
           </button>
@@ -115,7 +115,7 @@ export function BuildWallsModal({
   return (
     <Modal open={open} onClose={onClose} title={t('pages.buildWallsModal.title')}>
       <div className="space-y-4">
-        <p className="text-sm text-gray-400">{t('pages.buildWallsModal.costHint')}</p>
+        <p className="text-sm text-muted">{t('pages.buildWallsModal.costHint')}</p>
         <div className="flex flex-col gap-1">
           <label className="text-xs text-gray-500">{t('pages.buildWallsModal.squaresToBuild')}</label>
           <input
@@ -124,10 +124,10 @@ export function BuildWallsModal({
             max={20}
             value={wallSquares}
             onChange={(e) => setWallSquares(Number(e.target.value))}
-            className="bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+            className="bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
           />
         </div>
-        <div className="text-xs text-gray-400">
+        <div className="text-xs text-muted">
           {t('pages.buildWallsModal.costTime', { cost: wallSquares * 250, days: wallSquares * 10 })}
           {selectedBastion?.defensiveWalls && (
             <> {t('pages.buildWallsModal.current', { squares: selectedBastion.defensiveWalls.squaresBuilt })}</>
@@ -136,13 +136,13 @@ export function BuildWallsModal({
         <div className="flex gap-2 justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-gray-800 transition-colors"
+            className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-surface-2 transition-colors"
           >
             {t('common.actions.cancel')}
           </button>
           <button
             onClick={handleBuildWalls}
-            className="px-4 py-2 text-sm bg-amber-600 hover:bg-amber-500 text-white rounded font-semibold transition-colors"
+            className="px-4 py-2 text-sm bg-amber-600 hover:bg-accent-strong text-white rounded font-semibold transition-colors"
           >
             {t('pages.buildWallsModal.build', { cost: wallSquares * 250 })}
           </button>

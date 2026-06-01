@@ -89,11 +89,11 @@ function SpellCardView({ spell }: SpellCardViewProps): JSX.Element {
   const classList = s.classes ?? s.spellList ?? []
 
   return (
-    <div className="bg-gray-900 border border-amber-800/40 rounded-lg overflow-hidden">
+    <div className="bg-surface border border-amber-800/40 rounded-lg overflow-hidden">
       {/* Header */}
       <div className="bg-amber-900/30 border-b border-amber-800/40 px-3 py-2">
-        <h3 className="text-base font-bold text-amber-400">{s.name ?? t('library.spellCardView.unknownSpell')}</h3>
-        <p className="text-xs text-gray-400 italic">
+        <h3 className="text-base font-bold text-accent">{s.name ?? t('library.spellCardView.unknownSpell')}</h3>
+        <p className="text-xs text-muted italic">
           {levelSchool}
           {s.ritual ? ' (ritual)' : ''}
         </p>
@@ -103,19 +103,19 @@ function SpellCardView({ spell }: SpellCardViewProps): JSX.Element {
         {/* Stats grid */}
         <div className="space-y-0.5 text-sm">
           <div className="flex gap-1">
-            <span className="text-amber-500 font-semibold">{t('library.spellCardView.castingTime')}</span>
+            <span className="text-accent-strong font-semibold">{t('library.spellCardView.castingTime')}</span>
             <span className="text-gray-300">{formatCastingTime(s.castingTime)}</span>
           </div>
           <div className="flex gap-1">
-            <span className="text-amber-500 font-semibold">{t('library.spellCardView.range')}</span>
+            <span className="text-accent-strong font-semibold">{t('library.spellCardView.range')}</span>
             <span className="text-gray-300">{formatRange(s.range)}</span>
           </div>
           <div className="flex gap-1">
-            <span className="text-amber-500 font-semibold">{t('library.spellCardView.components')}</span>
+            <span className="text-accent-strong font-semibold">{t('library.spellCardView.components')}</span>
             <span className="text-gray-300">{formatComponents(s.components)}</span>
           </div>
           <div className="flex gap-1 items-center">
-            <span className="text-amber-500 font-semibold">{t('library.spellCardView.duration')}</span>
+            <span className="text-accent-strong font-semibold">{t('library.spellCardView.duration')}</span>
             <span className="text-gray-300">{duration.text}</span>
             {isConcentration && (
               <span className="text-xs bg-blue-600/30 text-blue-300 px-1.5 py-0.5 rounded-full ml-1">
@@ -137,7 +137,7 @@ function SpellCardView({ spell }: SpellCardViewProps): JSX.Element {
           <>
             <div className="border-t border-amber-800/30" />
             <div className="text-xs">
-              <span className="text-amber-400 font-semibold italic">{t('library.spellCardView.atHigherLevels')}</span>
+              <span className="text-accent font-semibold italic">{t('library.spellCardView.atHigherLevels')}</span>
               <span className="text-gray-300">{renderInlineMarkdown(s.higherLevels)}</span>
             </div>
           </>
@@ -158,7 +158,7 @@ function SpellCardView({ spell }: SpellCardViewProps): JSX.Element {
         {s.tags && s.tags.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-1">
             {s.tags.map((tag) => (
-              <span key={tag} className="text-xs bg-gray-700/50 text-gray-400 px-1.5 py-0.5 rounded-full">
+              <span key={tag} className="text-xs bg-gray-700/50 text-muted px-1.5 py-0.5 rounded-full">
                 {tag}
               </span>
             ))}

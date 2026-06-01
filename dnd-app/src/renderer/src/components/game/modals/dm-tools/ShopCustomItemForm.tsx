@@ -44,10 +44,10 @@ export default function ShopCustomItemForm({ onAddItem }: ShopCustomItemFormProp
   }
 
   return (
-    <div className="mb-4 border border-gray-700 rounded">
+    <div className="mb-4 border border-border rounded">
       <button
         onClick={() => setCustomOpen((prev) => !prev)}
-        className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wide hover:text-gray-300 cursor-pointer"
+        className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-muted uppercase tracking-wide hover:text-gray-300 cursor-pointer"
       >
         <span>{t('game.shopCustomItemForm.addCustomItem')}</span>
         <span>{customOpen ? '\u25B2' : '\u25BC'}</span>
@@ -62,7 +62,7 @@ export default function ShopCustomItemForm({ onAddItem }: ShopCustomItemFormProp
                 value={customName}
                 onChange={(e) => setCustomName(e.target.value)}
                 placeholder={t('game.shopCustomItemForm.namePlaceholder')}
-                className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
+                className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500"
               />
             </div>
             <div>
@@ -72,7 +72,7 @@ export default function ShopCustomItemForm({ onAddItem }: ShopCustomItemFormProp
                 value={customPrice}
                 onChange={(e) => setCustomPrice(e.target.value)}
                 placeholder="0"
-                className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
+                className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500"
               />
             </div>
             <div>
@@ -82,7 +82,7 @@ export default function ShopCustomItemForm({ onAddItem }: ShopCustomItemFormProp
                 value={customWeight}
                 onChange={(e) => setCustomWeight(e.target.value)}
                 placeholder="0"
-                className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
+                className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500"
               />
             </div>
           </div>
@@ -92,7 +92,7 @@ export default function ShopCustomItemForm({ onAddItem }: ShopCustomItemFormProp
               <select
                 value={customCategory}
                 onChange={(e) => setCustomCategory(e.target.value as ShopItemCategory)}
-                className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
+                className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg focus:outline-none focus:border-amber-500"
               >
                 {SHOP_CATEGORIES.map((c) => (
                   <option key={c} value={c}>
@@ -106,7 +106,7 @@ export default function ShopCustomItemForm({ onAddItem }: ShopCustomItemFormProp
               <select
                 value={customRarity}
                 onChange={(e) => setCustomRarity(e.target.value as ShopItemRarity)}
-                className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
+                className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg focus:outline-none focus:border-amber-500"
               >
                 {RARITY_OPTIONS.map((r) => (
                   <option key={r} value={r}>
@@ -119,7 +119,7 @@ export default function ShopCustomItemForm({ onAddItem }: ShopCustomItemFormProp
               <button
                 onClick={handleAddCustomItem}
                 disabled={!customName.trim()}
-                className="w-full py-1 bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white text-xs font-medium rounded transition-colors cursor-pointer"
+                className="w-full py-1 bg-amber-600 hover:bg-accent-strong disabled:bg-gray-700 disabled:text-gray-500 text-white text-xs font-medium rounded transition-colors cursor-pointer"
               >
                 {t('game.shopCustomItemForm.addItem')}
               </button>
@@ -132,7 +132,7 @@ export default function ShopCustomItemForm({ onAddItem }: ShopCustomItemFormProp
               onChange={(e) => setCustomDescription(e.target.value)}
               placeholder={t('game.shopCustomItemForm.descriptionPlaceholder')}
               rows={2}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500 resize-none"
+              className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-xs text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500 resize-none"
             />
           </div>
         </div>

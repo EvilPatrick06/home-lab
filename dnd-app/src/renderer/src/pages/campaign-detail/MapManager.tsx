@@ -131,13 +131,13 @@ export default function MapManager({ campaign, saveCampaign }: MapManagerProps):
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-lg font-semibold">{t('pages.mapManager.maps', { count: campaign.maps.length })}</h3>
           <div className="flex items-center gap-2">
-            <button onClick={handleImportMaps} className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer">
+            <button onClick={handleImportMaps} className="text-xs text-muted hover:text-accent cursor-pointer">
               {t('pages.mapManager.import')}
             </button>
             {campaign.maps.length > 0 && (
               <button
                 onClick={() => handleExportMaps(campaign.maps)}
-                className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer"
+                className="text-xs text-muted hover:text-accent cursor-pointer"
               >
                 {t('pages.mapManager.exportAll')}
               </button>
@@ -161,7 +161,7 @@ export default function MapManager({ campaign, saveCampaign }: MapManagerProps):
                   displayName = `${map.name} (${nameIndex[map.name]})`
                 }
                 return (
-                  <div key={map.id} className="flex items-center justify-between bg-gray-800/50 rounded-lg p-3">
+                  <div key={map.id} className="flex items-center justify-between bg-surface-2/50 rounded-lg p-3">
                     <div>
                       <span className="font-semibold text-sm">{displayName}</span>
                       <span className="text-gray-500 text-xs ml-2">
@@ -174,19 +174,19 @@ export default function MapManager({ campaign, saveCampaign }: MapManagerProps):
                     </div>
                     <div className="flex items-center gap-2 ml-2">
                       {campaign.activeMapId === map.id && (
-                        <span className="text-xs text-amber-400 bg-amber-900/30 px-2 py-0.5 rounded-full">
+                        <span className="text-xs text-accent bg-amber-900/30 px-2 py-0.5 rounded-full">
                           {t('pages.mapManager.active')}
                         </span>
                       )}
                       <button
                         onClick={() => openEditMap(map)}
-                        className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer"
+                        className="text-xs text-muted hover:text-accent cursor-pointer"
                       >
                         {t('pages.mapManager.edit')}
                       </button>
                       <button
                         onClick={() => handleDeleteMap(map.id)}
-                        className="text-xs text-gray-400 hover:text-red-400 cursor-pointer"
+                        className="text-xs text-muted hover:text-red-400 cursor-pointer"
                       >
                         {t('common.actions.delete')}
                       </button>
@@ -199,7 +199,7 @@ export default function MapManager({ campaign, saveCampaign }: MapManagerProps):
         )}
         <button
           onClick={() => setShowMapModal(true)}
-          className="mt-3 text-xs text-amber-400 hover:text-amber-300 cursor-pointer"
+          className="mt-3 text-xs text-accent hover:text-amber-300 cursor-pointer"
         >
           {t('pages.mapManager.addMap')}
         </button>
@@ -209,21 +209,21 @@ export default function MapManager({ campaign, saveCampaign }: MapManagerProps):
       <Modal open={showMapModal} onClose={() => setShowMapModal(false)} title={t('pages.mapManager.addMapTitle')}>
         <div className="space-y-3">
           <div>
-            <label className="block text-gray-400 text-xs mb-1">{t('pages.mapManager.mapNameLabel')}</label>
+            <label className="block text-muted text-xs mb-1">{t('pages.mapManager.mapNameLabel')}</label>
             <input
               type="text"
               value={mapForm.name}
               onChange={(e) => setMapForm((f) => ({ ...f, name: e.target.value }))}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
               placeholder={t('pages.mapManager.mapNamePlaceholder')}
             />
           </div>
           <div>
-            <label className="block text-gray-400 text-xs mb-1">{t('pages.mapManager.gridType')}</label>
+            <label className="block text-muted text-xs mb-1">{t('pages.mapManager.gridType')}</label>
             <select
               value={mapForm.gridType}
               onChange={(e) => setMapForm((f) => ({ ...f, gridType: e.target.value as 'square' | 'hex' }))}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
             >
               <option value="square">{t('pages.mapManager.square')}</option>
               <option value="hex">{t('pages.mapManager.hex')}</option>
@@ -231,13 +231,13 @@ export default function MapManager({ campaign, saveCampaign }: MapManagerProps):
           </div>
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-gray-400 text-xs">{t('pages.mapManager.cellSize')}</label>
+              <label className="text-muted text-xs">{t('pages.mapManager.cellSize')}</label>
               <button
                 onClick={() => setMapForm((f) => ({ ...f, cellSize: 40 }))}
                 className={`px-2 py-0.5 text-xs rounded border transition-colors cursor-pointer ${
                   mapForm.cellSize === 40
                     ? 'border-amber-500/50 text-amber-300 bg-amber-900/10'
-                    : 'border-gray-700 bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-gray-200'
+                    : 'border-border bg-surface-2 text-muted hover:bg-gray-700 hover:text-gray-200'
                 }`}
               >
                 {t('pages.mapManager.resetToDefault')}
@@ -247,7 +247,7 @@ export default function MapManager({ campaign, saveCampaign }: MapManagerProps):
               type="number"
               value={mapForm.cellSize}
               onChange={(e) => setMapForm((f) => ({ ...f, cellSize: parseInt(e.target.value, 10) || 40 }))}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
               min={10}
               max={200}
             />
@@ -271,47 +271,47 @@ export default function MapManager({ campaign, saveCampaign }: MapManagerProps):
       >
         <div className="space-y-3">
           <div>
-            <label className="block text-gray-400 text-xs mb-1">{t('pages.mapManager.mapNameLabel')}</label>
+            <label className="block text-muted text-xs mb-1">{t('pages.mapManager.mapNameLabel')}</label>
             <input
               type="text"
               value={mapEditForm.name}
               onChange={(e) => setMapEditForm((f) => ({ ...f, name: e.target.value }))}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
             />
           </div>
           <div>
-            <label className="block text-gray-400 text-xs mb-1">{t('pages.mapManager.gridType')}</label>
+            <label className="block text-muted text-xs mb-1">{t('pages.mapManager.gridType')}</label>
             <select
               value={mapEditForm.gridType}
               onChange={(e) => setMapEditForm((f) => ({ ...f, gridType: e.target.value as 'square' | 'hex' }))}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
             >
               <option value="square">{t('pages.mapManager.square')}</option>
               <option value="hex">{t('pages.mapManager.hex')}</option>
             </select>
           </div>
           <div>
-            <label className="block text-gray-400 text-xs mb-1">{t('pages.mapManager.cellSize')}</label>
+            <label className="block text-muted text-xs mb-1">{t('pages.mapManager.cellSize')}</label>
             <input
               type="number"
               value={mapEditForm.cellSize}
               onChange={(e) => setMapEditForm((f) => ({ ...f, cellSize: parseInt(e.target.value, 10) || 40 }))}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
               min={10}
               max={200}
             />
           </div>
           <div>
-            <label className="block text-gray-400 text-xs mb-1">{t('pages.mapManager.gridColor')}</label>
+            <label className="block text-muted text-xs mb-1">{t('pages.mapManager.gridColor')}</label>
             <input
               type="color"
               value={mapEditForm.gridColor}
               onChange={(e) => setMapEditForm((f) => ({ ...f, gridColor: e.target.value }))}
-              className="w-12 h-8 bg-gray-800 border border-gray-700 rounded cursor-pointer"
+              className="w-12 h-8 bg-surface-2 border border-border rounded cursor-pointer"
             />
           </div>
           <div>
-            <label className="block text-gray-400 text-xs mb-1">{t('pages.mapManager.gridOpacity')}</label>
+            <label className="block text-muted text-xs mb-1">{t('pages.mapManager.gridOpacity')}</label>
             <input
               type="range"
               value={mapEditForm.gridOpacity}

@@ -59,7 +59,7 @@ export function AttackRollStep({
       {isUnarmed && (unarmedMode === 'grapple' || unarmedMode === 'shove') ? (
         /* Grapple / Shove: target makes a save */
         <>
-          <div className="text-xs text-gray-400 bg-gray-800 rounded-lg px-3 py-2">
+          <div className="text-xs text-muted bg-surface-2 rounded-lg px-3 py-2">
             <span
               className={unarmedMode === 'grapple' ? 'text-blue-400 font-semibold' : 'text-orange-400 font-semibold'}
             >
@@ -69,7 +69,7 @@ export function AttackRollStep({
             <span className="text-red-400 font-semibold">{selectedTarget.label}</span>
           </div>
 
-          <div className="px-3 py-2 bg-gray-800 rounded-lg">
+          <div className="px-3 py-2 bg-surface-2 rounded-lg">
             <div className="text-xs text-gray-300 mb-1">
               {t('game.attackRollStep.targetMustMake', { target: selectedTarget.label })}{' '}
               <span className="text-white font-semibold">{t('game.attackRollStep.strOrDexSave')}</span>
@@ -80,8 +80,8 @@ export function AttackRollStep({
           </div>
 
           {unarmedMode === 'shove' && !grappleResult && (
-            <div className="px-3 py-2 bg-gray-800 rounded-lg">
-              <div className="text-xs text-gray-400 mb-1">{t('game.attackRollStep.onFailureChoose')}</div>
+            <div className="px-3 py-2 bg-surface-2 rounded-lg">
+              <div className="text-xs text-muted mb-1">{t('game.attackRollStep.onFailureChoose')}</div>
               <div className="flex gap-2">
                 <button
                   onClick={() => setShoveChoice('push')}
@@ -130,7 +130,7 @@ export function AttackRollStep({
                 <div className={`text-sm font-bold ${grappleResult.success ? 'text-green-400' : 'text-red-400'}`}>
                   {grappleResult.success ? t('game.attackRollStep.saveSucceeded') : t('game.attackRollStep.saveFailed')}
                 </div>
-                <div className="text-xs text-gray-400 mt-1">{grappleResult.message}</div>
+                <div className="text-xs text-muted mt-1">{grappleResult.message}</div>
                 {!grappleResult.success && unarmedMode === 'grapple' && (
                   <div className="text-xs text-blue-400 mt-1">{t('game.attackRollStep.grappledApplied')}</div>
                 )}
@@ -144,7 +144,7 @@ export function AttackRollStep({
               </div>
               <button
                 onClick={onGrappleDone}
-                className="w-full px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-lg cursor-pointer text-sm"
+                className="w-full px-4 py-2 bg-amber-600 hover:bg-accent-strong text-white font-semibold rounded-lg cursor-pointer text-sm"
               >
                 {t('game.attackRollStep.done')}
               </button>
@@ -158,8 +158,8 @@ export function AttackRollStep({
       ) : (
         /* Normal attack roll (including Unarmed Strike damage mode) */
         <>
-          <div className="text-xs text-gray-400 bg-gray-800 rounded-lg px-3 py-2">
-            <span className="text-amber-400 font-semibold">
+          <div className="text-xs text-muted bg-surface-2 rounded-lg px-3 py-2">
+            <span className="text-accent font-semibold">
               {isUnarmed ? t('game.attackRollStep.unarmedStrike') : selectedWeapon.name}
               {isOffhandAttack && <span className="text-cyan-400 ml-1">{t('game.attackRollStep.offhand')}</span>}
             </span>
@@ -188,7 +188,7 @@ export function AttackRollStep({
                   <span className="text-[11px] text-green-300">{t('game.attackRollStep.adv', { source: src })}</span>
                   <button
                     onClick={() => setConditionOverrides((o) => ({ ...o, [`adv-${i}`]: !o[`adv-${i}`] }))}
-                    className={`text-xs px-1.5 py-0.5 rounded cursor-pointer ${conditionOverrides[`adv-${i}`] ? 'bg-gray-700 text-gray-400 line-through' : 'bg-green-800 text-green-200'}`}
+                    className={`text-xs px-1.5 py-0.5 rounded cursor-pointer ${conditionOverrides[`adv-${i}`] ? 'bg-gray-700 text-muted line-through' : 'bg-green-800 text-green-200'}`}
                   >
                     {conditionOverrides[`adv-${i}`]
                       ? t('game.attackRollStep.overridden')
@@ -204,7 +204,7 @@ export function AttackRollStep({
                   <span className="text-[11px] text-red-300">{t('game.attackRollStep.disadv', { source: src })}</span>
                   <button
                     onClick={() => setConditionOverrides((o) => ({ ...o, [`disadv-${i}`]: !o[`disadv-${i}`] }))}
-                    className={`text-xs px-1.5 py-0.5 rounded cursor-pointer ${conditionOverrides[`disadv-${i}`] ? 'bg-gray-700 text-gray-400 line-through' : 'bg-red-800 text-red-200'}`}
+                    className={`text-xs px-1.5 py-0.5 rounded cursor-pointer ${conditionOverrides[`disadv-${i}`] ? 'bg-gray-700 text-muted line-through' : 'bg-red-800 text-red-200'}`}
                   >
                     {conditionOverrides[`disadv-${i}`]
                       ? t('game.attackRollStep.overridden')
@@ -213,8 +213,8 @@ export function AttackRollStep({
                 </div>
               ))}
               {computedEffects.advantageSources.length > 0 && computedEffects.disadvantageSources.length > 0 && (
-                <div className="px-3 py-1 bg-gray-800/50 border border-gray-600 rounded-lg">
-                  <span className="text-[11px] text-gray-400">{t('game.attackRollStep.cancelOut')}</span>
+                <div className="px-3 py-1 bg-surface-2/50 border border-gray-600 rounded-lg">
+                  <span className="text-[11px] text-muted">{t('game.attackRollStep.cancelOut')}</span>
                 </div>
               )}
               {computedEffects.autoCrit && (
@@ -235,7 +235,7 @@ export function AttackRollStep({
           <button
             onClick={onRollAttack}
             disabled={computedEffects?.attackerCannotAct}
-            className="w-full px-4 py-3 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-lg cursor-pointer text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full px-4 py-3 bg-amber-600 hover:bg-accent-strong text-white font-semibold rounded-lg cursor-pointer text-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {t('game.attackRollStep.rollAttack', { mod: formatMod(attackMod) })}
             {computedEffects?.rollMode === 'advantage'

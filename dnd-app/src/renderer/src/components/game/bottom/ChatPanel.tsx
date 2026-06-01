@@ -59,12 +59,12 @@ const BottomChatMessage = memo(function BottomChatMessage({
     return (
       <div className="py-1 pl-2 border-l-2 border-amber-500/50 group">
         <div className="flex items-start justify-between">
-          <span className="text-xs font-semibold text-amber-400 block mb-0.5">{t('game.chatPanel.dungeonMaster')}</span>
+          <span className="text-xs font-semibold text-accent block mb-0.5">{t('game.chatPanel.dungeonMaster')}</span>
           <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
             {isDM && aiNarrationText && onSpeakNarration && (
               <button
                 onClick={() => onSpeakNarration(aiNarrationText)}
-                className="text-[9px] text-gray-600 hover:text-amber-400 cursor-pointer"
+                className="text-[9px] text-gray-600 hover:text-accent cursor-pointer"
                 title={t('game.chatPanel.speakTitle')}
               >
                 {t('game.chatPanel.speak')}
@@ -73,7 +73,7 @@ const BottomChatMessage = memo(function BottomChatMessage({
             {isDM && onDispute && (
               <button
                 onClick={() => onDispute(msg.content)}
-                className="text-[9px] text-gray-600 hover:text-amber-400 cursor-pointer"
+                className="text-[9px] text-gray-600 hover:text-accent cursor-pointer"
                 title={t('game.chatPanel.disputeTitle')}
               >
                 {t('game.chatPanel.dispute')}
@@ -81,13 +81,13 @@ const BottomChatMessage = memo(function BottomChatMessage({
             )}
           </div>
         </div>
-        <span className="text-sm text-gray-100 font-sans">{msg.content}</span>
+        <span className="text-sm text-fg font-sans">{msg.content}</span>
       </div>
     )
   }
   if (msg.isSystem) {
     return (
-      <div className="text-sm text-gray-400 text-center py-0.5 font-sans">
+      <div className="text-sm text-muted text-center py-0.5 font-sans">
         {renderChatContent(msg.content, onLinkClick, renderPreview)}
       </div>
     )
@@ -97,7 +97,7 @@ const BottomChatMessage = memo(function BottomChatMessage({
       <span className="text-xs font-medium font-sans" style={{ color: msg.senderColor || '#9CA3AF' }}>
         {msg.senderName}:
       </span>
-      <span className="text-sm text-gray-100 ml-1 font-sans">
+      <span className="text-sm text-fg ml-1 font-sans">
         {renderChatContent(msg.content, onLinkClick, renderPreview)}
       </span>
     </div>
@@ -258,10 +258,10 @@ export default function ChatPanel({
     return React.createElement(
       'div',
       {
-        className: 'bg-gray-900 border border-gray-700 rounded-lg p-3 text-xs'
+        className: 'bg-surface border border-border rounded-lg p-3 text-xs'
       },
-      React.createElement('div', { className: 'font-bold text-amber-400 mb-1' }, ref.name),
-      React.createElement('div', { className: 'text-gray-400 capitalize' }, ref.category.replace(/-/g, ' '))
+      React.createElement('div', { className: 'font-bold text-accent mb-1' }, ref.name),
+      React.createElement('div', { className: 'text-muted capitalize' }, ref.category.replace(/-/g, ' '))
     )
   }, [])
 
@@ -285,13 +285,13 @@ export default function ChatPanel({
             if (e.key === 'Enter') handleSend()
           }}
           placeholder={t('game.chatPanel.placeholder')}
-          className="flex-1 px-2 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
+          className="flex-1 px-2 py-1.5 rounded-lg bg-surface-2 border border-border text-fg
             placeholder-gray-600 focus:outline-none focus:border-amber-500 text-sm"
         />
         <button
           onClick={handleSend}
           disabled={!input.trim()}
-          className="px-2.5 py-1.5 text-xs rounded-lg bg-amber-600 hover:bg-amber-500 text-white
+          className="px-2.5 py-1.5 text-xs rounded-lg bg-amber-600 hover:bg-accent-strong text-white
             font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           {t('game.chatPanel.send')}
@@ -341,17 +341,11 @@ export default function ChatPanel({
         {/* AI typing indicator */}
         {aiEnabled && aiIsTyping && (
           <div className="py-1">
-            <div className="text-xs text-amber-400 italic flex items-center gap-1">
+            <div className="text-xs text-accent italic flex items-center gap-1">
               <span className="inline-flex gap-0.5">
-                <span className="w-1 h-1 bg-amber-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                <span
-                  className="w-1 h-1 bg-amber-400 rounded-full animate-bounce"
-                  style={{ animationDelay: '150ms' }}
-                />
-                <span
-                  className="w-1 h-1 bg-amber-400 rounded-full animate-bounce"
-                  style={{ animationDelay: '300ms' }}
-                />
+                <span className="w-1 h-1 bg-accent rounded-full animate-bounce [animation-delay:0ms]" />
+                <span className="w-1 h-1 bg-accent rounded-full animate-bounce [animation-delay:150ms]" />
+                <span className="w-1 h-1 bg-accent rounded-full animate-bounce [animation-delay:300ms]" />
               </span>
               {t('game.chatPanel.aiTyping')}
             </div>
@@ -372,7 +366,7 @@ export default function ChatPanel({
       {/* AI DM Status Bar (DM only) */}
       {isDM && aiEnabled && (
         <div className="border-t border-gray-800/50 px-2 py-1 shrink-0 flex items-center gap-2 text-xs">
-          <span className={`w-1.5 h-1.5 rounded-full ${aiIsTyping ? 'bg-amber-400 animate-pulse' : 'bg-green-500'}`} />
+          <span className={`w-1.5 h-1.5 rounded-full ${aiIsTyping ? 'bg-accent animate-pulse' : 'bg-green-500'}`} />
           <span className="text-gray-500">
             {aiIsTyping ? t('game.chatPanel.aiResponding') : t('game.chatPanel.aiReady')}
           </span>
@@ -400,13 +394,13 @@ export default function ChatPanel({
               if (e.key === 'Enter' && (!showAutocomplete || input.includes(' '))) handleSend()
             }}
             placeholder={t('game.chatPanel.placeholder')}
-            className="flex-1 px-2 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
+            className="flex-1 px-2 py-1.5 rounded-lg bg-surface-2 border border-border text-fg
               placeholder-gray-600 focus:outline-none focus:border-amber-500 text-sm"
           />
           <button
             onClick={handleSend}
             disabled={!input.trim()}
-            className="px-2.5 py-1.5 text-xs rounded-lg bg-amber-600 hover:bg-amber-500 text-white
+            className="px-2.5 py-1.5 text-xs rounded-lg bg-amber-600 hover:bg-accent-strong text-white
               font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             Send
@@ -414,8 +408,8 @@ export default function ChatPanel({
           {/* Help button */}
           <button
             onClick={() => onOpenModal?.('commandRef')}
-            className="px-1.5 py-1.5 text-xs rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-gray-200
-              transition-colors cursor-pointer border border-gray-700"
+            className="px-1.5 py-1.5 text-xs rounded-lg bg-surface-2 hover:bg-gray-700 text-muted hover:text-gray-200
+              transition-colors cursor-pointer border border-border"
             title={t('game.chatPanel.commandReference')}
           >
             ?

@@ -35,20 +35,20 @@ export function TreasuryModal({
   return (
     <Modal open={open} onClose={onClose} title={t('pages.treasuryModal.title')}>
       <div className="space-y-4">
-        <div className="text-sm text-gray-400">
+        <div className="text-sm text-muted">
           {t('pages.treasuryModal.currentTreasury')}{' '}
           <span className="text-yellow-400 font-medium">{selectedBastion?.treasury ?? 0} GP</span>
         </div>
         <div className="flex gap-2">
           <button
             onClick={() => setTreasuryMode('deposit')}
-            className={`px-3 py-1.5 text-sm rounded transition-colors ${treasuryMode === 'deposit' ? 'bg-green-700 text-white' : 'bg-gray-800 text-gray-400'}`}
+            className={`px-3 py-1.5 text-sm rounded transition-colors ${treasuryMode === 'deposit' ? 'bg-green-700 text-white' : 'bg-surface-2 text-muted'}`}
           >
             {t('pages.treasuryModal.deposit')}
           </button>
           <button
             onClick={() => setTreasuryMode('withdraw')}
-            className={`px-3 py-1.5 text-sm rounded transition-colors ${treasuryMode === 'withdraw' ? 'bg-red-700 text-white' : 'bg-gray-800 text-gray-400'}`}
+            className={`px-3 py-1.5 text-sm rounded transition-colors ${treasuryMode === 'withdraw' ? 'bg-red-700 text-white' : 'bg-surface-2 text-muted'}`}
           >
             {t('pages.treasuryModal.withdraw')}
           </button>
@@ -60,13 +60,13 @@ export function TreasuryModal({
             min={0}
             value={treasuryAmount}
             onChange={(e) => setTreasuryAmount(Number(e.target.value))}
-            className="bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+            className="bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
           />
         </div>
         <div className="flex gap-2 justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-gray-800 transition-colors"
+            className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-surface-2 transition-colors"
           >
             {t('common.actions.cancel')}
           </button>
@@ -108,9 +108,9 @@ export function AdvanceTimeModal({
   return (
     <Modal open={open} onClose={onClose} title={t('pages.advanceTimeModal.title')}>
       <div className="space-y-4">
-        <div className="text-sm text-gray-400">
+        <div className="text-sm text-muted">
           {t('pages.advanceTimeModal.currentDay')}{' '}
-          <span className="text-amber-400 font-medium">{selectedBastion?.inGameTime.currentDay ?? 1}</span>
+          <span className="text-accent font-medium">{selectedBastion?.inGameTime.currentDay ?? 1}</span>
           {t('pages.advanceTimeModal.lastNextTurn', {
             lastTurn: selectedBastion?.inGameTime.lastBastionTurnDay ?? 0,
             nextTurn: Math.max(
@@ -128,11 +128,11 @@ export function AdvanceTimeModal({
             max={365}
             value={advanceDays}
             onChange={(e) => setAdvanceDays(Number(e.target.value))}
-            className="bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+            className="bg-surface-2 border border-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-amber-500"
           />
         </div>
         {selectedBastion && selectedBastion.construction.length > 0 && (
-          <div className="text-xs text-gray-400">
+          <div className="text-xs text-muted">
             {t('pages.advanceTimeModal.constructionWillAdvance', {
               count: selectedBastion.construction.length,
               days: advanceDays
@@ -142,14 +142,14 @@ export function AdvanceTimeModal({
         <div className="flex gap-2 justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-gray-800 transition-colors"
+            className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-surface-2 transition-colors"
           >
             {t('common.actions.cancel')}
           </button>
           <button
             onClick={handleAdvanceTime}
             disabled={advanceDays <= 0}
-            className="px-4 py-2 text-sm bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded font-semibold transition-colors"
+            className="px-4 py-2 text-sm bg-amber-600 hover:bg-accent-strong disabled:bg-gray-700 disabled:text-gray-500 text-white rounded font-semibold transition-colors"
           >
             {t('pages.advanceTimeModal.advance', { days: advanceDays, plural: advanceDays !== 1 ? 's' : '' })}
           </button>
@@ -176,7 +176,7 @@ export function DeleteBastionModal({
   return (
     <Modal open={open} onClose={onClose} title={t('pages.deleteBastionModal.title')}>
       <div className="space-y-4">
-        <p className="text-sm text-gray-400">
+        <p className="text-sm text-muted">
           {t('pages.deleteBastionModal.confirmPrefix')}{' '}
           <span className="text-gray-200 font-medium">{selectedBastion?.name}</span>
           {t('pages.deleteBastionModal.confirmSuffix')}
@@ -184,7 +184,7 @@ export function DeleteBastionModal({
         <div className="flex gap-2 justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-gray-800 transition-colors"
+            className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-surface-2 transition-colors"
           >
             {t('common.actions.cancel')}
           </button>

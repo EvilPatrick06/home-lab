@@ -5,20 +5,20 @@ import { describe, expect, it } from 'vitest'
 
 describe('ItemCardView rarity colors', () => {
   const RARITY_COLORS: Record<string, string> = {
-    common: 'text-gray-400',
+    common: 'text-muted',
     uncommon: 'text-green-400',
     rare: 'text-blue-400',
     'very rare': 'text-purple-400',
-    legendary: 'text-amber-400',
+    legendary: 'text-accent',
     artifact: 'text-red-400'
   }
 
   it('maps each rarity to correct color class', () => {
-    expect(RARITY_COLORS.common).toBe('text-gray-400')
+    expect(RARITY_COLORS.common).toBe('text-muted')
     expect(RARITY_COLORS.uncommon).toBe('text-green-400')
     expect(RARITY_COLORS.rare).toBe('text-blue-400')
     expect(RARITY_COLORS['very rare']).toBe('text-purple-400')
-    expect(RARITY_COLORS.legendary).toBe('text-amber-400')
+    expect(RARITY_COLORS.legendary).toBe('text-accent')
     expect(RARITY_COLORS.artifact).toBe('text-red-400')
   })
 

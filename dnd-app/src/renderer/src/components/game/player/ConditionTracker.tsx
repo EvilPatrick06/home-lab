@@ -69,7 +69,7 @@ export default function ConditionTracker({
         return (
           <li
             key={cond.id}
-            className="flex items-center gap-2 p-1.5 rounded-lg bg-gray-800/50 text-xs"
+            className="flex items-center gap-2 p-1.5 rounded-lg bg-surface-2/50 text-xs"
             aria-label={t('game.conditionTracker.conditionAriaLabel', {
               name: cond.value !== undefined ? `${cond.condition} ${cond.value}` : cond.condition,
               duration: durationText
@@ -83,7 +83,7 @@ export default function ConditionTracker({
                 <span className={`font-medium capitalize ${isBuff ? 'text-green-300' : 'text-gray-200'}`}>
                   {cond.condition}
                 </span>
-                {cond.value !== undefined && <span className="text-amber-400 font-semibold">{cond.value}</span>}
+                {cond.value !== undefined && <span className="text-accent font-semibold">{cond.value}</span>}
               </div>
               <p className="text-xs text-gray-500 truncate">{durationText}</p>
             </div>

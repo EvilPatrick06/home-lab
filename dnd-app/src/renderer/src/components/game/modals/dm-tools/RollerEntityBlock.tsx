@@ -28,7 +28,7 @@ function PCBlock({
   const charWeapons = getEffectiveWeapons(char)
   return (
     <div className="space-y-3">
-      <div className="text-xs text-gray-400">
+      <div className="text-xs text-muted">
         {t('game.rollerEntityBlock.level', { level: char.level })}{' '}
         {getEffectiveClasses(char)
           .map((c) => c.name)
@@ -47,7 +47,7 @@ function PCBlock({
             const score = char.abilityScores[ab]
             const mod = charAbilityMod(score)
             return (
-              <div key={ab} className="bg-gray-800/50 rounded p-1">
+              <div key={ab} className="bg-surface-2/50 rounded p-1">
                 <div className="text-[9px] text-gray-500 uppercase">{ab.slice(0, 3)}</div>
                 <div className="text-xs text-gray-200 font-semibold">{score}</div>
                 <button
@@ -58,7 +58,7 @@ function PCBlock({
                       mod
                     )
                   }
-                  className="text-[9px] text-amber-400 hover:text-amber-300 cursor-pointer"
+                  className="text-[9px] text-accent hover:text-amber-300 cursor-pointer"
                 >
                   {formatMod(mod)}
                 </button>
@@ -90,7 +90,7 @@ function PCBlock({
                     )
                   }
                   className={`px-1.5 py-0.5 text-xs rounded cursor-pointer ${
-                    isProficient ? 'bg-amber-600/30 text-amber-300' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                    isProficient ? 'bg-amber-600/30 text-amber-300' : 'bg-surface-2 text-muted hover:bg-gray-700'
                   }`}
                 >
                   {ab.slice(0, 3).toUpperCase()} {formatMod(totalMod)}
@@ -136,7 +136,7 @@ function PCBlock({
           </div>
           <div className="space-y-1">
             {charWeapons.map((w) => (
-              <div key={w.id} className="flex items-center gap-2 bg-gray-800/30 rounded px-2 py-1">
+              <div key={w.id} className="flex items-center gap-2 bg-surface-2/30 rounded px-2 py-1">
                 <span className="text-xs text-gray-200 flex-1">
                   {w.name}:{' '}
                   {t('game.rollerEntityBlock.weaponLine', {
@@ -178,7 +178,7 @@ function MonsterBlock({
   const { t } = useT()
   return (
     <div className="space-y-3">
-      <div className="text-xs text-gray-400">
+      <div className="text-xs text-muted">
         {monster.size} {monster.type}
         {monster.subtype ? ` (${monster.subtype})` : ''}
         {t('game.rollerEntityBlock.monsterMeta', { cr: monster.cr, hp: monster.hp, ac: monster.ac })}
@@ -191,14 +191,14 @@ function MonsterBlock({
           const score = monster.abilityScores[ab]
           const mod = monsterAbilityMod(score)
           return (
-            <div key={ab} className="bg-gray-800/50 rounded p-1">
+            <div key={ab} className="bg-surface-2/50 rounded p-1">
               <div className="text-[9px] text-gray-500 uppercase">{ab}</div>
               <div className="text-xs text-gray-200 font-semibold">{score}</div>
               <button
                 onClick={() =>
                   onRoll(monster.name, t('game.rollerEntityBlock.checkLabel', { ability: ab.toUpperCase() }), mod)
                 }
-                className="text-[9px] text-amber-400 hover:text-amber-300 cursor-pointer"
+                className="text-[9px] text-accent hover:text-amber-300 cursor-pointer"
               >
                 {formatMod(mod)}
               </button>
@@ -260,7 +260,7 @@ function MonsterBlock({
             {t('game.rollerEntityBlock.traits')}
           </div>
           {monster.traits.map((t, i) => (
-            <div key={i} className="text-xs text-gray-400 mb-1">
+            <div key={i} className="text-xs text-muted mb-1">
               <span className="text-gray-200 font-semibold">{t.name}.</span> {t.description}
             </div>
           ))}
@@ -274,7 +274,7 @@ function MonsterBlock({
         </div>
         <div className="space-y-1">
           {monster.actions.map((action, i) => (
-            <div key={i} className="bg-gray-800/30 rounded px-2 py-1">
+            <div key={i} className="bg-surface-2/30 rounded px-2 py-1">
               <div className="flex items-center gap-2">
                 <span className="text-xs text-gray-200 font-semibold">{action.name}</span>
                 {action.toHit != null && (
@@ -305,7 +305,7 @@ function MonsterBlock({
                   </button>
                 )}
               </div>
-              <div className="text-xs text-gray-400 mt-0.5">
+              <div className="text-xs text-muted mt-0.5">
                 {action.damageDice && `${action.damageDice} ${action.damageType ?? ''}`}
                 {action.reach && t('game.rollerEntityBlock.reach', { reach: action.reach })}
                 {action.rangeNormal &&
@@ -325,7 +325,7 @@ function MonsterBlock({
             {t('game.rollerEntityBlock.bonusActions')}
           </div>
           {monster.bonusActions.map((ba, i) => (
-            <div key={i} className="text-xs text-gray-400 mb-1">
+            <div key={i} className="text-xs text-muted mb-1">
               <span className="text-gray-200 font-semibold">{ba.name}.</span> {ba.description}
             </div>
           ))}
@@ -339,7 +339,7 @@ function MonsterBlock({
             {t('game.rollerEntityBlock.reactions')}
           </div>
           {monster.reactions.map((r, i) => (
-            <div key={i} className="text-xs text-gray-400 mb-1">
+            <div key={i} className="text-xs text-muted mb-1">
               <span className="text-gray-200 font-semibold">{r.name}.</span> {r.description}
             </div>
           ))}

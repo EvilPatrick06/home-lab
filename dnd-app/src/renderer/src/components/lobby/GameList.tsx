@@ -52,14 +52,14 @@ export default function GameList({ games, registryConnected, onJoin, onSpectate 
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t('lobby.gameList.searchPlaceholder')}
-            className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-amber-500"
+            className="w-full px-3 py-2 bg-surface border border-border rounded-md text-sm text-fg placeholder-gray-500 focus:outline-none focus:border-amber-500"
           />
         </div>
         <div className="flex items-center gap-2">
           <select
             value={systemFilter}
             onChange={(e) => setSystemFilter(e.target.value)}
-            className="px-2 py-2 bg-gray-900 border border-gray-700 rounded-md text-sm text-gray-200"
+            className="px-2 py-2 bg-surface border border-border rounded-md text-sm text-gray-200"
           >
             {systems.map((s) => (
               <option key={s} value={s}>
@@ -70,13 +70,13 @@ export default function GameList({ games, registryConnected, onJoin, onSpectate 
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value as SortOption)}
-            className="px-2 py-2 bg-gray-900 border border-gray-700 rounded-md text-sm text-gray-200"
+            className="px-2 py-2 bg-surface border border-border rounded-md text-sm text-gray-200"
           >
             <option value="newest">{t('lobby.gameList.sortNewest')}</option>
             <option value="name-asc">{t('lobby.gameList.sortNameAsc')}</option>
             <option value="players-desc">{t('lobby.gameList.sortPlayersDesc')}</option>
           </select>
-          <label className="flex items-center gap-1 text-xs text-gray-400 select-none cursor-pointer">
+          <label className="flex items-center gap-1 text-xs text-muted select-none cursor-pointer">
             <input type="checkbox" checked={hideFull} onChange={(e) => setHideFull(e.target.checked)} />
             {t('lobby.gameList.hideFull')}
           </label>
@@ -90,7 +90,7 @@ export default function GameList({ games, registryConnected, onJoin, onSpectate 
       )}
 
       {filtered.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-gray-700 p-10 text-center">
+        <div className="rounded-lg border border-dashed border-border p-10 text-center">
           <p className="text-gray-500 text-sm">{t('lobby.gameList.noGames')}</p>
         </div>
       ) : (

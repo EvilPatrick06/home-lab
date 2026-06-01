@@ -56,16 +56,18 @@ export default function HpRollSection5e({ character, level, hitDieOverride }: Hp
     <div
       className={`flex items-center gap-3 flex-wrap rounded px-2 py-1 -mx-2 ${isIncomplete ? 'ring-1 ring-amber-600/50' : ''}`}
     >
-      <span className="text-sm text-gray-400">{t('levelup.hpRollSection.hp')}</span>
+      <span className="text-sm text-muted">{t('levelup.hpRollSection.hp')}</span>
       {isIncomplete && (
-        <span className="text-xs text-amber-500 font-semibold uppercase">{t('levelup.hpRollSection.required')}</span>
+        <span className="text-xs text-accent-strong font-semibold uppercase">
+          {t('levelup.hpRollSection.required')}
+        </span>
       )}
       <button
         onClick={() => setHpChoice(level, 'average')}
         className={`px-3 py-1 text-sm rounded transition-colors ${
           choice === 'average'
             ? 'bg-amber-600 text-white'
-            : 'border border-gray-600 text-gray-400 hover:text-amber-400 hover:border-amber-600'
+            : 'border border-gray-600 text-muted hover:text-accent hover:border-amber-600'
         }`}
       >
         {t('levelup.hpRollSection.average', { value: average })}
@@ -75,7 +77,7 @@ export default function HpRollSection5e({ character, level, hitDieOverride }: Hp
         className={`px-3 py-1 text-sm rounded transition-colors ${
           choice === 'roll'
             ? 'bg-amber-600 text-white'
-            : 'border border-gray-600 text-gray-400 hover:text-amber-400 hover:border-amber-600'
+            : 'border border-gray-600 text-muted hover:text-accent hover:border-amber-600'
         }`}
       >
         {t('levelup.hpRollSection.rollDie', { die: hitDie })}

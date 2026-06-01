@@ -26,17 +26,17 @@ export default memo(function DiceResult({
 
   return (
     <div
-      className={`bg-gray-800/50 rounded-lg p-2.5 border transition-all
+      className={`bg-surface-2/50 rounded-lg p-2.5 border transition-all
         ${
           isCritical || isCritDamage
             ? 'border-green-500 shadow-[0_0_12px_rgba(34,197,94,0.3)]'
             : isFumble
               ? 'border-red-500 shadow-[0_0_12px_rgba(239,68,68,0.3)]'
-              : 'border-gray-700'
+              : 'border-border'
         }`}
     >
       <div className="flex items-center justify-between mb-1">
-        <span className="text-xs text-gray-400">{rollerName}</span>
+        <span className="text-xs text-muted">{rollerName}</span>
         <span className="text-xs text-gray-500 font-mono">{formula}</span>
       </div>
 
@@ -71,7 +71,7 @@ export default memo(function DiceResult({
         {(() => {
           const base = rolls.reduce((s, r) => s + r, 0)
           const modifier = total - base
-          const totalColor = isCritical ? 'text-green-400' : isFumble ? 'text-red-400' : 'text-amber-400'
+          const totalColor = isCritical ? 'text-green-400' : isFumble ? 'text-red-400' : 'text-accent'
           return (
             <div className="ml-auto flex items-center gap-1.5 font-mono">
               {modifier !== 0 && (

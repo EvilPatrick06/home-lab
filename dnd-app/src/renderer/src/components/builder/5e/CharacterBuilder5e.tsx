@@ -403,13 +403,13 @@ export default function CharacterBuilder5e(): JSX.Element {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-gray-950">
+    <div className="h-screen flex flex-col bg-base">
       {/* Top bar */}
-      <div className="flex items-center justify-between gap-2 px-3 py-1.5 pr-12 bg-gray-900 border-b border-gray-800">
+      <div className="flex items-center justify-between gap-2 px-3 py-1.5 pr-12 bg-surface border-b border-gray-800">
         <div className="flex items-center gap-2">
           <button
             onClick={handleBack}
-            className="text-gray-400 hover:text-gray-200 text-sm flex items-center gap-1 transition-colors"
+            className="text-muted hover:text-gray-200 text-sm flex items-center gap-1 transition-colors"
           >
             &larr; {t('builder.characterBuilder.back')}
           </button>
@@ -419,7 +419,7 @@ export default function CharacterBuilder5e(): JSX.Element {
           <button
             type="button"
             onClick={() => navigate(`/library?from=${encodeURIComponent(location.pathname)}`)}
-            className="px-2.5 py-1 text-xs border border-gray-700 text-amber-300 hover:text-amber-200 hover:border-amber-600/50 rounded transition-colors cursor-pointer"
+            className="px-2.5 py-1 text-xs border border-border text-amber-300 hover:text-amber-200 hover:border-amber-600/50 rounded transition-colors cursor-pointer"
             title={t('pages.createCharacterPage.libraryTitle')}
           >
             {t('pages.createCharacterPage.library')}
@@ -431,7 +431,7 @@ export default function CharacterBuilder5e(): JSX.Element {
           {/* Guided toggle sits next to the title on the left so it stays
               vertically centered with the header row and never collides with the
               Save button (or its validation warning) on the right. */}
-          <label className="flex items-center gap-1.5 text-xs text-gray-400 select-none cursor-pointer">
+          <label className="flex items-center gap-1.5 text-xs text-muted select-none cursor-pointer">
             <input
               type="checkbox"
               checked={guidedMode}
@@ -493,17 +493,17 @@ export default function CharacterBuilder5e(): JSX.Element {
         title={t('builder.characterBuilder.incompleteTitle')}
       >
         <div className="space-y-4">
-          <p className="text-sm text-gray-400">{t('builder.characterBuilder.incompleteBlankFields')}</p>
-          <ul className="list-disc list-inside text-sm text-amber-400 space-y-1">
+          <p className="text-sm text-muted">{t('builder.characterBuilder.incompleteBlankFields')}</p>
+          <ul className="list-disc list-inside text-sm text-accent space-y-1">
             {blankDetailFields.map((field) => (
               <li key={field}>{field}</li>
             ))}
           </ul>
-          <p className="text-sm text-gray-400">{t('builder.characterBuilder.incompleteConfirm')}</p>
+          <p className="text-sm text-muted">{t('builder.characterBuilder.incompleteConfirm')}</p>
           <div className="flex gap-2 justify-end">
             <button
               onClick={() => setShowConfirmDialog(false)}
-              className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-gray-800 transition-colors"
+              className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-surface-2 transition-colors"
             >
               {t('builder.characterBuilder.goBack')}
             </button>
@@ -527,11 +527,11 @@ export default function CharacterBuilder5e(): JSX.Element {
         title={t('builder.characterBuilder.leaveTitle')}
       >
         <div className="space-y-4">
-          <p className="text-sm text-gray-400">{t('builder.characterBuilder.leaveBody')}</p>
+          <p className="text-sm text-muted">{t('builder.characterBuilder.leaveBody')}</p>
           <div className="flex gap-2 justify-end">
             <button
               onClick={() => setShowLeaveDialog(false)}
-              className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-gray-800 transition-colors"
+              className="px-4 py-2 text-sm border border-gray-600 rounded hover:bg-surface-2 transition-colors"
             >
               {t('builder.characterBuilder.stay')}
             </button>

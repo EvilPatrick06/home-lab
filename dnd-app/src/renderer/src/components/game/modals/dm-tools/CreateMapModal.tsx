@@ -154,7 +154,7 @@ export default function CreateMapModal({ onCreateMap, onClose }: CreateMapModalP
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
-      <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-5 max-w-md w-full mx-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div className="relative bg-surface/95 backdrop-blur-sm border border-border/50 rounded-xl p-5 max-w-md w-full mx-4 shadow-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-gray-200">{t('game.createMapModal.title')}</h3>
           <button
@@ -169,23 +169,23 @@ export default function CreateMapModal({ onCreateMap, onClose }: CreateMapModalP
         <div className="space-y-3">
           {/* Map Name */}
           <div>
-            <label className="text-xs text-gray-400 block mb-1">{t('game.createMapModal.mapName')}</label>
+            <label className="text-xs text-muted block mb-1">{t('game.createMapModal.mapName')}</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={t('game.createMapModal.mapNamePlaceholder')}
-              className="w-full px-2 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-100 text-sm focus:outline-none focus:border-amber-500"
+              className="w-full px-2 py-1.5 rounded-lg bg-surface-2 border border-border text-fg text-sm focus:outline-none focus:border-amber-500"
             />
           </div>
 
           {/* Upload Custom Image */}
           <div>
-            <label className="text-xs text-gray-400 block mb-1">{t('game.createMapModal.customImage')}</label>
+            <label className="text-xs text-muted block mb-1">{t('game.createMapModal.customImage')}</label>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="px-3 py-1.5 text-xs rounded-lg bg-gray-800 border border-gray-700 text-gray-300 hover:bg-gray-700 hover:text-gray-100 transition-colors cursor-pointer"
+                className="px-3 py-1.5 text-xs rounded-lg bg-surface-2 border border-border text-gray-300 hover:bg-gray-700 hover:text-fg transition-colors cursor-pointer"
               >
                 {t('game.createMapModal.chooseImage')}
               </button>
@@ -212,8 +212,8 @@ export default function CreateMapModal({ onCreateMap, onClose }: CreateMapModalP
 
           {/* Grid Alignment Preview */}
           <div>
-            <label className="text-xs text-gray-400 block mb-1">{t('game.createMapModal.gridPreview')}</label>
-            <div className="rounded-lg border border-gray-700 overflow-hidden">
+            <label className="text-xs text-muted block mb-1">{t('game.createMapModal.gridPreview')}</label>
+            <div className="rounded-lg border border-border overflow-hidden">
               <canvas ref={canvasRef} width={320} height={200} className="w-full h-auto block" />
             </div>
             <p className="text-xs text-gray-500 mt-1">{t('game.createMapModal.gridPreviewHint')}</p>
@@ -222,25 +222,25 @@ export default function CreateMapModal({ onCreateMap, onClose }: CreateMapModalP
           {/* Width and Height */}
           <div className="flex gap-3">
             <div className="flex-1">
-              <label className="text-xs text-gray-400 block mb-1">{t('game.createMapModal.width')}</label>
+              <label className="text-xs text-muted block mb-1">{t('game.createMapModal.width')}</label>
               <input
                 type="number"
                 value={width}
                 onChange={(e) => setWidth(clamp(parseInt(e.target.value, 10) || 10, 10, 100))}
                 min={10}
                 max={100}
-                className="w-full px-2 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-100 text-sm focus:outline-none focus:border-amber-500"
+                className="w-full px-2 py-1.5 rounded-lg bg-surface-2 border border-border text-fg text-sm focus:outline-none focus:border-amber-500"
               />
             </div>
             <div className="flex-1">
-              <label className="text-xs text-gray-400 block mb-1">{t('game.createMapModal.height')}</label>
+              <label className="text-xs text-muted block mb-1">{t('game.createMapModal.height')}</label>
               <input
                 type="number"
                 value={height}
                 onChange={(e) => setHeight(clamp(parseInt(e.target.value, 10) || 10, 10, 100))}
                 min={10}
                 max={100}
-                className="w-full px-2 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-100 text-sm focus:outline-none focus:border-amber-500"
+                className="w-full px-2 py-1.5 rounded-lg bg-surface-2 border border-border text-fg text-sm focus:outline-none focus:border-amber-500"
               />
             </div>
           </div>
@@ -248,13 +248,13 @@ export default function CreateMapModal({ onCreateMap, onClose }: CreateMapModalP
           {/* Cell Size — Slider + Number Input + Reset */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-xs text-gray-400">{t('game.createMapModal.cellSize', { size: cellSize })}</label>
+              <label className="text-xs text-muted">{t('game.createMapModal.cellSize', { size: cellSize })}</label>
               <button
                 onClick={() => setCellSize(DEFAULT_CELL_SIZE)}
-                className={`px-2 py-0.5 text-xs rounded bg-gray-800 border transition-colors cursor-pointer ${
+                className={`px-2 py-0.5 text-xs rounded bg-surface-2 border transition-colors cursor-pointer ${
                   cellSize === DEFAULT_CELL_SIZE
                     ? 'border-amber-500/50 text-amber-300'
-                    : 'border-gray-700 text-gray-400 hover:bg-gray-700 hover:text-gray-200'
+                    : 'border-border text-muted hover:bg-gray-700 hover:text-gray-200'
                 }`}
               >
                 {t('game.createMapModal.resetDefault')}
@@ -281,14 +281,14 @@ export default function CreateMapModal({ onCreateMap, onClose }: CreateMapModalP
 
           {/* Grid Type */}
           <div>
-            <label className="text-xs text-gray-400 block mb-1">{t('game.createMapModal.gridType')}</label>
+            <label className="text-xs text-muted block mb-1">{t('game.createMapModal.gridType')}</label>
             <div className="flex gap-2">
               <button
                 onClick={() => setGridType('square')}
                 className={`flex-1 py-1.5 text-xs rounded-lg transition-colors cursor-pointer ${
                   gridType === 'square'
                     ? 'bg-amber-600/30 text-amber-300 border border-amber-500/50'
-                    : 'bg-gray-800 text-gray-400 hover:bg-gray-700 border border-gray-700'
+                    : 'bg-surface-2 text-muted hover:bg-gray-700 border border-border'
                 }`}
               >
                 {t('game.createMapModal.square')}
@@ -298,7 +298,7 @@ export default function CreateMapModal({ onCreateMap, onClose }: CreateMapModalP
                 className={`flex-1 py-1.5 text-xs rounded-lg transition-colors cursor-pointer ${
                   gridType === 'hex'
                     ? 'bg-amber-600/30 text-amber-300 border border-amber-500/50'
-                    : 'bg-gray-800 text-gray-400 hover:bg-gray-700 border border-gray-700'
+                    : 'bg-surface-2 text-muted hover:bg-gray-700 border border-border'
                 }`}
               >
                 {t('game.createMapModal.hex')}
@@ -308,7 +308,7 @@ export default function CreateMapModal({ onCreateMap, onClose }: CreateMapModalP
                 className={`flex-1 py-1.5 text-xs rounded-lg transition-colors cursor-pointer ${
                   gridType === 'gridless'
                     ? 'bg-amber-600/30 text-amber-300 border border-amber-500/50'
-                    : 'bg-gray-800 text-gray-400 hover:bg-gray-700 border border-gray-700'
+                    : 'bg-surface-2 text-muted hover:bg-gray-700 border border-border'
                 }`}
               >
                 {t('game.createMapModal.gridless')}
@@ -318,26 +318,26 @@ export default function CreateMapModal({ onCreateMap, onClose }: CreateMapModalP
 
           {/* Background Color */}
           <div>
-            <label className="text-xs text-gray-400 block mb-1">{t('game.createMapModal.backgroundColor')}</label>
+            <label className="text-xs text-muted block mb-1">{t('game.createMapModal.backgroundColor')}</label>
             <div className="flex items-center gap-2">
               <input
                 type="color"
                 value={backgroundColor}
                 onChange={(e) => setBackgroundColor(e.target.value)}
-                className="w-8 h-8 rounded border border-gray-700 cursor-pointer bg-transparent"
+                className="w-8 h-8 rounded border border-border cursor-pointer bg-transparent"
               />
               <input
                 type="text"
                 value={backgroundColor}
                 onChange={(e) => setBackgroundColor(e.target.value)}
-                className="flex-1 px-2 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-100 text-sm focus:outline-none focus:border-amber-500 font-mono"
+                className="flex-1 px-2 py-1.5 rounded-lg bg-surface-2 border border-border text-fg text-sm focus:outline-none focus:border-amber-500 font-mono"
               />
             </div>
           </div>
 
           {/* Size Presets */}
           <div>
-            <label className="text-xs text-gray-400 block mb-1">{t('game.createMapModal.quickPresets')}</label>
+            <label className="text-xs text-muted block mb-1">{t('game.createMapModal.quickPresets')}</label>
             <div className="flex gap-1">
               {[
                 { label: t('game.createMapModal.presetSmall'), w: 20, h: 20 },
@@ -354,7 +354,7 @@ export default function CreateMapModal({ onCreateMap, onClose }: CreateMapModalP
                   className={`flex-1 py-1 text-xs rounded transition-colors cursor-pointer ${
                     width === preset.w && height === preset.h
                       ? 'bg-amber-600/30 text-amber-300 border border-amber-500/50'
-                      : 'bg-gray-800 text-gray-400 hover:bg-gray-700 border border-gray-700'
+                      : 'bg-surface-2 text-muted hover:bg-gray-700 border border-border'
                   }`}
                 >
                   {preset.label}
@@ -369,7 +369,7 @@ export default function CreateMapModal({ onCreateMap, onClose }: CreateMapModalP
           {/* Create Button */}
           <button
             onClick={handleCreate}
-            className="w-full py-2 text-xs font-semibold rounded-lg bg-amber-600 hover:bg-amber-500 text-white transition-colors cursor-pointer"
+            className="w-full py-2 text-xs font-semibold rounded-lg bg-amber-600 hover:bg-accent-strong text-white transition-colors cursor-pointer"
           >
             {t('game.createMapModal.createMap')}
           </button>

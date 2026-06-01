@@ -139,7 +139,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
     <div className="space-y-4 w-full">
       {/* Active Diseases */}
       <section>
-        <h3 className="text-sm font-semibold text-amber-400 flex items-center gap-2">
+        <h3 className="text-sm font-semibold text-accent flex items-center gap-2">
           {t('game.diseaseCurseTracker.activeDiseases')}
           <span className="px-1.5 py-0.5 text-xs rounded bg-gray-700/60 text-gray-300">{activeDiseases.length}</span>
         </h3>
@@ -149,7 +149,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
             const def = diseases.find((d) => d.id === ad.diseaseId)
             const isExpanded = expandedDisease === ad.id
             return (
-              <div key={ad.id} className="bg-gray-800 border border-gray-700 rounded-lg p-3">
+              <div key={ad.id} className="bg-surface-2 border border-border rounded-lg p-3">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
                     <button
@@ -221,7 +221,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
                     </div>
 
                     {isExpanded && def && (
-                      <div className="mt-2 pt-2 border-t border-gray-700 space-y-1 text-xs text-gray-400">
+                      <div className="mt-2 pt-2 border-t border-border space-y-1 text-xs text-muted">
                         <p>
                           <span className="text-gray-500">{t('game.diseaseCurseTracker.symptoms')}</span> {def.symptoms}
                         </p>
@@ -230,7 +230,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
                           {def.saveAbility}
                         </p>
                         <p className="text-amber-600/90">
-                          <span className="text-amber-500/80">{t('game.diseaseCurseTracker.cure')}</span> {def.cure}
+                          <span className="text-accent-strong/80">{t('game.diseaseCurseTracker.cure')}</span> {def.cure}
                         </p>
                         {ad.notes && (
                           <p>
@@ -238,11 +238,12 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
                           </p>
                         )}
                         <input
+                          aria-label={t('game.diseaseCurseTracker.addNotes')}
                           type="text"
                           placeholder={t('game.diseaseCurseTracker.addNotes')}
                           value={ad.notes ?? ''}
                           onChange={(e) => updateDisease(ad.id, { notes: e.target.value })}
-                          className="w-full mt-1 px-2 py-1 text-xs bg-gray-900/60 border border-gray-600 rounded text-gray-300 placeholder-gray-500"
+                          className="w-full mt-1 px-2 py-1 text-xs bg-surface/60 border border-gray-600 rounded text-gray-300 placeholder-gray-500"
                         />
                       </div>
                     )}
@@ -266,7 +267,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
           <select
             value={addDiseaseId}
             onChange={(e) => setAddDiseaseId(e.target.value)}
-            className="px-2 py-1 text-xs bg-gray-800 border border-gray-600 rounded text-gray-300"
+            className="px-2 py-1 text-xs bg-surface-2 border border-gray-600 rounded text-gray-300"
           >
             {diseases.map((d) => (
               <option key={d.id} value={d.id}>
@@ -275,6 +276,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
             ))}
           </select>
           <input
+            aria-label={t('game.diseaseCurseTracker.targetName')}
             type="text"
             placeholder={t('game.diseaseCurseTracker.targetName')}
             value={addDiseaseTarget}
@@ -285,7 +287,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
               if (diseaseTargetError) setDiseaseTargetError(false)
             }}
             onKeyDown={(e) => e.key === 'Enter' && handleAddDisease()}
-            className={`px-2 py-1 text-xs w-24 bg-gray-800 border rounded text-gray-300 placeholder-gray-500 ${
+            className={`px-2 py-1 text-xs w-24 bg-surface-2 border rounded text-gray-300 placeholder-gray-500 ${
               diseaseTargetError ? 'border-red-500' : 'border-gray-600'
             }`}
           />
@@ -306,7 +308,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
 
       {/* Active Curses */}
       <section>
-        <h3 className="text-sm font-semibold text-amber-400 flex items-center gap-2">
+        <h3 className="text-sm font-semibold text-accent flex items-center gap-2">
           {t('game.diseaseCurseTracker.activeCurses')}
           <span className="px-1.5 py-0.5 text-xs rounded bg-gray-700/60 text-gray-300">{activeCurses.length}</span>
         </h3>
@@ -316,7 +318,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
             const def = curses.find((c) => c.id === ac.curseId)
             const isExpanded = expandedCurse === ac.id
             return (
-              <div key={ac.id} className="bg-gray-800 border border-gray-700 rounded-lg p-3">
+              <div key={ac.id} className="bg-surface-2 border border-border rounded-lg p-3">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
                     <button
@@ -332,12 +334,12 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
                     </button>
 
                     {isExpanded && def && (
-                      <div className="mt-2 pt-2 border-t border-gray-700 space-y-1 text-xs text-gray-400">
+                      <div className="mt-2 pt-2 border-t border-border space-y-1 text-xs text-muted">
                         <p>
                           <span className="text-gray-500">{t('game.diseaseCurseTracker.effect')}</span> {def.effect}
                         </p>
                         <p className="text-amber-600/90">
-                          <span className="text-amber-500/80">{t('game.diseaseCurseTracker.removal')}</span>{' '}
+                          <span className="text-accent-strong/80">{t('game.diseaseCurseTracker.removal')}</span>{' '}
                           {def.removal}
                         </p>
                         {def.saveDC != null && (
@@ -352,11 +354,12 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
                           </p>
                         )}
                         <input
+                          aria-label={t('game.diseaseCurseTracker.addNotes')}
                           type="text"
                           placeholder={t('game.diseaseCurseTracker.addNotes')}
                           value={ac.notes ?? ''}
                           onChange={(e) => updateCurse(ac.id, { notes: e.target.value })}
-                          className="w-full mt-1 px-2 py-1 text-xs bg-gray-900/60 border border-gray-600 rounded text-gray-300 placeholder-gray-500"
+                          className="w-full mt-1 px-2 py-1 text-xs bg-surface/60 border border-gray-600 rounded text-gray-300 placeholder-gray-500"
                         />
                       </div>
                     )}
@@ -380,7 +383,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
           <select
             value={addCurseId}
             onChange={(e) => setAddCurseId(e.target.value)}
-            className="px-2 py-1 text-xs bg-gray-800 border border-gray-600 rounded text-gray-300"
+            className="px-2 py-1 text-xs bg-surface-2 border border-gray-600 rounded text-gray-300"
           >
             {curses.map((c) => (
               <option key={c.id} value={c.id}>
@@ -389,6 +392,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
             ))}
           </select>
           <input
+            aria-label={t('game.diseaseCurseTracker.targetName')}
             type="text"
             placeholder={t('game.diseaseCurseTracker.targetName')}
             value={addCurseTarget}
@@ -399,7 +403,7 @@ export default function DiseaseCurseTracker({ onBroadcastResult }: DiseaseCurseT
               if (curseTargetError) setCurseTargetError(false)
             }}
             onKeyDown={(e) => e.key === 'Enter' && handleAddCurse()}
-            className={`px-2 py-1 text-xs w-24 bg-gray-800 border rounded text-gray-300 placeholder-gray-500 ${
+            className={`px-2 py-1 text-xs w-24 bg-surface-2 border rounded text-gray-300 placeholder-gray-500 ${
               curseTargetError ? 'border-red-500' : 'border-gray-600'
             }`}
           />

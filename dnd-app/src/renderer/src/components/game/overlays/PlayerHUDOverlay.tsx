@@ -324,7 +324,7 @@ function PlayerHUDOverlay({ character, conditions }: PlayerHUDOverlayProps): JSX
       onMouseDown={handleMouseDown}
     >
       <div
-        className={`bg-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-xl select-none transition-all ${expanded ? 'w-[420px]' : ''}`}
+        className={`bg-surface/80 backdrop-blur-sm border border-border/50 rounded-xl select-none transition-all ${expanded ? 'w-[420px]' : ''}`}
       >
         {/* Collapsed view (always visible) */}
         <div className="px-3 py-2 flex items-center gap-3 flex-wrap">
@@ -364,7 +364,7 @@ function PlayerHUDOverlay({ character, conditions }: PlayerHUDOverlayProps): JSX
 
         {/* Expanded view */}
         {expanded && char5e && (
-          <div className="px-3 pb-3 space-y-2 border-t border-gray-700/50 pt-2">
+          <div className="px-3 pb-3 space-y-2 border-t border-border/50 pt-2">
             <PlayerHUDActions
               char5e={char5e}
               hp={hp}

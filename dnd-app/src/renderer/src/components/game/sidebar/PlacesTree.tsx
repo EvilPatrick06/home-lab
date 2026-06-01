@@ -179,7 +179,7 @@ function TreeNodeRow({
   return (
     <>
       <div
-        className={`flex items-center gap-1 py-1 px-1.5 rounded hover:bg-gray-800/50 group ${
+        className={`flex items-center gap-1 py-1 px-1.5 rounded hover:bg-surface-2/50 group ${
           !entry.visibleToPlayers && isDM ? 'opacity-60' : ''
         }`}
         style={{ paddingLeft: `${indentPx + 4}px` }}
@@ -188,7 +188,7 @@ function TreeNodeRow({
         <button
           onClick={() => setExpanded(!expanded)}
           className={`w-4 h-4 flex items-center justify-center shrink-0 cursor-pointer ${
-            hasChildren ? 'text-gray-400 hover:text-gray-200' : 'text-transparent'
+            hasChildren ? 'text-muted hover:text-gray-200' : 'text-transparent'
           }`}
           disabled={!hasChildren}
         >
@@ -238,21 +238,21 @@ function TreeNodeRow({
                 <button
                   onClick={() => setReadAloudMenuOpen(!readAloudMenuOpen)}
                   title={t('game.placesTree.readAloud')}
-                  className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-amber-400 cursor-pointer text-xs"
+                  className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-accent cursor-pointer text-xs"
                 >
                   &#x1F4D6;
                 </button>
                 {readAloudMenuOpen && (
                   <div
                     ref={readAloudMenuRef}
-                    className="absolute right-0 top-6 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50 py-1 min-w-[140px]"
+                    className="absolute right-0 top-6 bg-surface border border-border rounded-lg shadow-xl z-50 py-1 min-w-[140px]"
                   >
                     <button
                       onClick={() => {
                         onReadAloud(entry.description!, 'chat')
                         setReadAloudMenuOpen(false)
                       }}
-                      className="w-full px-3 py-1.5 text-left text-xs text-gray-300 hover:bg-gray-800 hover:text-gray-100 cursor-pointer"
+                      className="w-full px-3 py-1.5 text-left text-xs text-gray-300 hover:bg-surface-2 hover:text-fg cursor-pointer"
                     >
                       {t('game.placesTree.sendToChat')}
                     </button>
@@ -261,7 +261,7 @@ function TreeNodeRow({
                         onReadAloud(entry.description!, 'dramatic')
                         setReadAloudMenuOpen(false)
                       }}
-                      className="w-full px-3 py-1.5 text-left text-xs text-amber-400 hover:bg-gray-800 hover:text-amber-300 cursor-pointer"
+                      className="w-full px-3 py-1.5 text-left text-xs text-accent hover:bg-surface-2 hover:text-amber-300 cursor-pointer"
                     >
                       {t('game.placesTree.dramaticReveal')}
                     </button>
@@ -275,22 +275,22 @@ function TreeNodeRow({
               <button
                 onClick={() => setMoveMenuOpen(!moveMenuOpen)}
                 title={t('game.placesTree.moveTo')}
-                className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-amber-400 cursor-pointer text-xs"
+                className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-accent cursor-pointer text-xs"
               >
                 &#x21C5;
               </button>
               {moveMenuOpen && (
                 <div
                   ref={moveMenuRef}
-                  className="absolute right-0 top-6 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50 py-1 min-w-[140px] max-h-48 overflow-y-auto"
+                  className="absolute right-0 top-6 bg-surface border border-border rounded-lg shadow-xl z-50 py-1 min-w-[140px] max-h-48 overflow-y-auto"
                 >
                   <button
                     onClick={() => {
                       onReparent(entry.id, null)
                       setMoveMenuOpen(false)
                     }}
-                    className={`w-full px-3 py-1.5 text-left text-xs hover:bg-gray-800 cursor-pointer ${
-                      !entry.parentId ? 'text-amber-400 font-semibold' : 'text-gray-300 hover:text-gray-100'
+                    className={`w-full px-3 py-1.5 text-left text-xs hover:bg-surface-2 cursor-pointer ${
+                      !entry.parentId ? 'text-accent font-semibold' : 'text-gray-300 hover:text-fg'
                     }`}
                   >
                     {t('game.placesTree.rootLevel')}
@@ -302,10 +302,8 @@ function TreeNodeRow({
                         onReparent(entry.id, target.id)
                         setMoveMenuOpen(false)
                       }}
-                      className={`w-full px-3 py-1.5 text-left text-xs hover:bg-gray-800 cursor-pointer ${
-                        entry.parentId === target.id
-                          ? 'text-amber-400 font-semibold'
-                          : 'text-gray-300 hover:text-gray-100'
+                      className={`w-full px-3 py-1.5 text-left text-xs hover:bg-surface-2 cursor-pointer ${
+                        entry.parentId === target.id ? 'text-accent font-semibold' : 'text-gray-300 hover:text-fg'
                       }`}
                     >
                       {target.placeType && (
@@ -333,7 +331,7 @@ function TreeNodeRow({
             <button
               onClick={() => onEdit(entry)}
               title={t('game.placesTree.edit')}
-              className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-amber-400 cursor-pointer text-xs"
+              className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-accent cursor-pointer text-xs"
             >
               &#9998;
             </button>
@@ -361,7 +359,7 @@ function TreeNodeRow({
 
       {/* DM notes */}
       {isDM && entry.notes && (
-        <div className="text-[9px] text-amber-400/60 italic truncate" style={{ paddingLeft: `${indentPx + 24}px` }}>
+        <div className="text-[9px] text-accent/60 italic truncate" style={{ paddingLeft: `${indentPx + 24}px` }}>
           {entry.notes}
         </div>
       )}

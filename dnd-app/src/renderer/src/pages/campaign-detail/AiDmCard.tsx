@@ -62,17 +62,17 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
               <span className="text-xs px-2 py-0.5 rounded-full bg-green-900/40 text-green-300">
                 {t('pages.aiDmCard.enabled')}
               </span>
-              <span className="text-xs text-gray-400">{providerLabel}</span>
+              <span className="text-xs text-muted">{providerLabel}</span>
               <span className="text-xs text-gray-500">{displayModel}</span>
             </div>
-            <button onClick={openConfigure} className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer">
+            <button onClick={openConfigure} className="text-xs text-accent hover:text-amber-300 cursor-pointer">
               {t('pages.aiDmCard.configure')}
             </button>
           </div>
         ) : (
           <div>
             <p className="text-gray-500 text-sm mb-2">{t('pages.aiDmCard.notEnabled')}</p>
-            <button onClick={openEnable} className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer">
+            <button onClick={openEnable} className="text-xs text-accent hover:text-amber-300 cursor-pointer">
               {t('pages.aiDmCard.enableAiDm')}
             </button>
           </div>

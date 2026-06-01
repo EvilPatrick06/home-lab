@@ -245,12 +245,12 @@ export default function ShopView(): JSX.Element | null {
   const sellableItems = localChar && is5eCharacter(localChar) ? localChar.equipment.filter((e) => e.quantity > 0) : []
 
   return (
-    <div className="bg-gray-900 border border-gray-700 rounded-lg overflow-hidden">
+    <div className="bg-surface border border-border rounded-lg overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-3 py-2 border-b border-gray-700/50">
-        <h3 className="text-sm font-semibold text-amber-400">{shopName}</h3>
+      <div className="flex items-center justify-between px-3 py-2 border-b border-border/50">
+        <h3 className="text-sm font-semibold text-accent">{shopName}</h3>
         <div className="flex items-center gap-3">
-          <span className="text-xs text-gray-400">{t('game.shopView.purse', { amount: playerGold })}</span>
+          <span className="text-xs text-muted">{t('game.shopView.purse', { amount: playerGold })}</span>
           <button onClick={closeShop} className="text-xs text-gray-500 hover:text-gray-300 cursor-pointer">
             &#10005;
           </button>
@@ -258,13 +258,13 @@ export default function ShopView(): JSX.Element | null {
       </div>
 
       {/* Tab bar */}
-      <div className="flex border-b border-gray-700/50">
+      <div className="flex border-b border-border/50">
         {(['buy', 'sell', 'history'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={`flex-1 py-1.5 text-xs font-semibold transition-colors cursor-pointer capitalize ${
-              activeTab === tab ? 'text-amber-400 border-b-2 border-amber-400' : 'text-gray-500 hover:text-gray-300'
+              activeTab === tab ? 'text-accent border-b-2 border-accent' : 'text-gray-500 hover:text-gray-300'
             }`}
           >
             {t(`game.shopView.tab_${tab}`)}
@@ -282,12 +282,12 @@ export default function ShopView(): JSX.Element | null {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={t('game.shopView.searchPlaceholder')}
-              className="flex-1 px-2 py-1 rounded bg-gray-800 border border-gray-700 text-xs text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
+              className="flex-1 px-2 py-1 rounded bg-surface-2 border border-border text-xs text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500"
             />
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value as ShopItemCategory | 'all')}
-              className="px-2 py-1 rounded bg-gray-800 border border-gray-700 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
+              className="px-2 py-1 rounded bg-surface-2 border border-border text-xs text-fg focus:outline-none focus:border-amber-500"
             >
               <option value="all">{t('game.shopView.category.all')}</option>
               {Array.from(availableCategories).map((cat) => (
@@ -308,7 +308,7 @@ export default function ShopView(): JSX.Element | null {
                 const isOutOfStock = item.stockRemaining !== undefined && item.stockRemaining <= 0
                 const canHaggle = !haggleDisabledItems.has(item.id) && hagglePending !== item.id
                 return (
-                  <div key={item.id} className="bg-gray-800/50 rounded px-2 py-1.5">
+                  <div key={item.id} className="bg-surface-2/50 rounded px-2 py-1.5">
                     <div className="flex items-center justify-between">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5">
@@ -320,7 +320,7 @@ export default function ShopView(): JSX.Element | null {
                         {item.description && <p className="text-xs text-gray-500 truncate">{item.description}</p>}
                       </div>
                       <div className="flex items-center gap-1.5 ml-2 shrink-0">
-                        <span className="text-xs text-amber-400">{formatPrice(item.price)}</span>
+                        <span className="text-xs text-accent">{formatPrice(item.price)}</span>
                         {item.stockRemaining !== undefined && (
                           <span className="text-[9px] text-gray-500">({item.stockRemaining} left)</span>
                         )}
@@ -372,7 +372,7 @@ export default function ShopView(): JSX.Element | null {
               return (
                 <div
                   key={`${item.name}-${idx}`}
-                  className="flex items-center justify-between bg-gray-800/50 rounded px-2 py-1.5"
+                  className="flex items-center justify-between bg-surface-2/50 rounded px-2 py-1.5"
                 >
                   <div className="flex-1 min-w-0">
                     <span className="text-sm text-gray-200">{item.name}</span>
@@ -381,7 +381,7 @@ export default function ShopView(): JSX.Element | null {
                     </span>
                   </div>
                   <div className="flex items-center gap-2 ml-2 shrink-0">
-                    <span className="text-xs text-amber-400">{formatPrice(sellPrice)}</span>
+                    <span className="text-xs text-accent">{formatPrice(sellPrice)}</span>
                     <button
                       onClick={() => handleSell(item.name)}
                       className="text-xs px-2 py-0.5 rounded bg-amber-700 hover:bg-amber-600 text-white cursor-pointer"
@@ -403,14 +403,14 @@ export default function ShopView(): JSX.Element | null {
             <EmptyState compact title={t('game.shopView.noTransactions')} />
           ) : (
             transactions.map((tx) => (
-              <div key={tx.id} className="flex items-center justify-between bg-gray-800/50 rounded px-2 py-1">
+              <div key={tx.id} className="flex items-center justify-between bg-surface-2/50 rounded px-2 py-1">
                 <div className="flex items-center gap-1.5">
                   <span
                     className={`text-[9px] font-semibold uppercase px-1 py-0.5 rounded ${
                       tx.type === 'buy'
                         ? 'bg-green-900/40 text-green-400'
                         : tx.type === 'sell'
-                          ? 'bg-amber-900/40 text-amber-400'
+                          ? 'bg-amber-900/40 text-accent'
                           : 'bg-purple-900/40 text-purple-400'
                     }`}
                   >

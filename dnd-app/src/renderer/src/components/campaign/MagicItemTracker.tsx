@@ -93,14 +93,14 @@ export default function MagicItemTracker({ campaign }: MagicItemTrackerProps): J
   const statusLabel: Record<string, { text: string; color: string }> = {
     behind: { text: t('campaign.magicItemTracker.statusBehind'), color: 'text-red-400 bg-red-900/30' },
     'on-track': { text: t('campaign.magicItemTracker.statusOnTrack'), color: 'text-green-400 bg-green-900/30' },
-    ahead: { text: t('campaign.magicItemTracker.statusAhead'), color: 'text-amber-400 bg-amber-900/30' }
+    ahead: { text: t('campaign.magicItemTracker.statusAhead'), color: 'text-accent bg-amber-900/30' }
   }
 
   return (
     <div className="space-y-3">
       {/* Summary */}
       <div className="flex items-center justify-between">
-        <div className="text-xs text-gray-400">
+        <div className="text-xs text-muted">
           {t('campaign.magicItemTracker.avgPartyLevel')}{' '}
           <span className="text-gray-200 font-medium">{averageLevel}</span>
           <span className="text-gray-600 mx-1.5">|</span>
@@ -123,15 +123,15 @@ export default function MagicItemTracker({ campaign }: MagicItemTrackerProps): J
               <span className={`text-xs w-16 shrink-0 px-1.5 py-0.5 rounded text-center ${RARITY_COLORS[rarity]}`}>
                 {t(`campaign.magicItemTracker.rarity.${rarity}`)}
               </span>
-              <div className="flex-1 h-3 bg-gray-800 rounded-full overflow-hidden">
+              <div className="flex-1 h-3 bg-surface-2 rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all ${
-                    actual > expected ? 'bg-amber-500' : 'bg-green-500'
+                    actual > expected ? 'bg-accent-strong' : 'bg-green-500'
                   }`}
                   style={{ width: `${pct}%` }}
                 />
               </div>
-              <span className="text-xs text-gray-400 w-12 text-right shrink-0">
+              <span className="text-xs text-muted w-12 text-right shrink-0">
                 {actual}/{expected}
               </span>
             </div>

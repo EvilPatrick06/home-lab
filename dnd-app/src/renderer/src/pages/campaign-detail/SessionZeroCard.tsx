@@ -58,7 +58,7 @@ export default function SessionZeroCard({ campaign, saveCampaign }: SessionZeroC
       <Card>
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-lg font-semibold">{t('pages.sessionZeroCard.title')}</h3>
-          <button onClick={openSessionZeroEdit} className="text-xs text-gray-400 hover:text-amber-400 cursor-pointer">
+          <button onClick={openSessionZeroEdit} className="text-xs text-muted hover:text-accent cursor-pointer">
             {t('pages.sessionZeroCard.edit')}
           </button>
         </div>

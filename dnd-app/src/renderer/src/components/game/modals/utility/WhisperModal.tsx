@@ -58,7 +58,7 @@ export default function WhisperModal({ isDM = true, senderName, onClose }: Whisp
   return (
     <div className="fixed inset-0 z-20 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
-      <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-sm w-full mx-4 shadow-2xl">
+      <div className="relative bg-surface/95 backdrop-blur-sm border border-border/50 rounded-xl p-4 max-w-sm w-full mx-4 shadow-2xl">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold text-purple-300">{t('game.whisperModal.title')}</h3>
           <button
@@ -72,11 +72,11 @@ export default function WhisperModal({ isDM = true, senderName, onClose }: Whisp
 
         <div className="space-y-3">
           <div>
-            <label className="text-xs text-gray-400 block mb-1">{t('game.whisperModal.sendTo')}</label>
+            <label className="text-xs text-muted block mb-1">{t('game.whisperModal.sendTo')}</label>
             <select
               value={targetPeerId}
               onChange={(e) => setTargetPeerId(e.target.value)}
-              className="w-full px-2 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-200 text-xs focus:outline-none focus:border-purple-500"
+              className="w-full px-2 py-1.5 rounded-lg bg-surface-2 border border-border text-gray-200 text-xs focus:outline-none focus:border-purple-500"
             >
               <option value="">{t('game.whisperModal.chooseRecipient')}</option>
               {targets.map((p) => (
@@ -90,18 +90,18 @@ export default function WhisperModal({ isDM = true, senderName, onClose }: Whisp
           </div>
 
           <div>
-            <label className="text-xs text-gray-400 block mb-1">{t('game.whisperModal.message')}</label>
+            <label className="text-xs text-muted block mb-1">{t('game.whisperModal.message')}</label>
             <textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              className="w-full px-2 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-100 text-xs focus:outline-none focus:border-purple-500 resize-none"
+              className="w-full px-2 py-1.5 rounded-lg bg-surface-2 border border-border text-fg text-xs focus:outline-none focus:border-purple-500 resize-none"
               rows={3}
               placeholder={t('game.whisperModal.messagePlaceholder')}
             />
           </div>
 
           <div className="flex justify-end gap-2">
-            <button onClick={onClose} className="px-3 py-1.5 text-xs text-gray-400 hover:text-gray-200 cursor-pointer">
+            <button onClick={onClose} className="px-3 py-1.5 text-xs text-muted hover:text-gray-200 cursor-pointer">
               {t('common.actions.cancel')}
             </button>
             <button

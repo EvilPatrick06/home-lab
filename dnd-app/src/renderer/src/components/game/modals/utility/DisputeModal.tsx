@@ -30,9 +30,9 @@ export default function DisputeModal({
   return (
     <div className="fixed inset-0 z-30 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} role="presentation" />
-      <div className="relative bg-gray-900 border border-gray-700 rounded-xl p-5 w-[28rem] shadow-2xl">
+      <div className="relative bg-surface border border-border rounded-xl p-5 w-[28rem] shadow-2xl">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-amber-400">{t('game.disputeModal.title')}</h3>
+          <h3 className="text-sm font-semibold text-accent">{t('game.disputeModal.title')}</h3>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-300 text-lg cursor-pointer"
@@ -43,7 +43,7 @@ export default function DisputeModal({
         </div>
 
         {/* AI Ruling */}
-        <div className="bg-gray-800 rounded-lg p-3 mb-3 border border-gray-700">
+        <div className="bg-surface-2 rounded-lg p-3 mb-3 border border-border">
           <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">{t('game.disputeModal.aiRuling')}</div>
           <div className="text-sm text-gray-200">{ruling}</div>
         </div>
@@ -51,7 +51,7 @@ export default function DisputeModal({
         {/* Citation */}
         {citation && (
           <div className="bg-amber-900/20 rounded-lg p-3 mb-3 border border-amber-700/30">
-            <div className="text-xs text-amber-500 uppercase tracking-wider mb-1">
+            <div className="text-xs text-accent-strong uppercase tracking-wider mb-1">
               {t('game.disputeModal.rulesCitation')}
             </div>
             <div className="text-xs text-amber-200">{citation}</div>
@@ -60,12 +60,12 @@ export default function DisputeModal({
 
         {/* DM Override Note */}
         <div className="mb-4">
-          <label className="text-xs text-gray-400 block mb-1">{t('game.disputeModal.dmNoteLabel')}</label>
+          <label className="text-xs text-muted block mb-1">{t('game.disputeModal.dmNoteLabel')}</label>
           <textarea
             value={dmNote}
             onChange={(e) => setDmNote(e.target.value)}
             placeholder={t('game.disputeModal.dmNotePlaceholder')}
-            className="w-full px-3 py-2 rounded-lg bg-gray-800 border border-gray-700 text-gray-100 placeholder-gray-600 text-sm focus:outline-none focus:border-amber-500 resize-none"
+            className="w-full px-3 py-2 rounded-lg bg-surface-2 border border-border text-fg placeholder-gray-600 text-sm focus:outline-none focus:border-amber-500 resize-none"
             rows={3}
           />
         </div>

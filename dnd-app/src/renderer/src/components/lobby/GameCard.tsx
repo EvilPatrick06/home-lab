@@ -15,11 +15,11 @@ export default function GameCard({ game, onJoin, onSpectate }: GameCardProps): J
   const isBanned = game.banned_from_this_game
 
   return (
-    <div className="rounded-lg border border-gray-700 bg-gray-900/50 p-4 flex flex-col gap-3 hover:border-amber-600/50 transition-colors">
+    <div className="rounded-lg border border-border bg-surface/50 p-4 flex flex-col gap-3 hover:border-amber-600/50 transition-colors">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <h3 className="text-lg font-semibold text-gray-100 truncate">{game.name}</h3>
-          <p className="text-xs text-gray-400 truncate">{t('lobby.gameCard.host', { name: game.host_display_name })}</p>
+          <h3 className="text-lg font-semibold text-fg truncate">{game.name}</h3>
+          <p className="text-xs text-muted truncate">{t('lobby.gameCard.host', { name: game.host_display_name })}</p>
         </div>
         <div className="flex flex-col items-end gap-1 shrink-0">
           {game.is_private && (
@@ -30,13 +30,13 @@ export default function GameCard({ game, onJoin, onSpectate }: GameCardProps): J
               {t('lobby.gameCard.private')}
             </span>
           )}
-          <span className="text-xs uppercase tracking-wide bg-gray-800 text-gray-300 px-2 py-0.5 rounded-full">
+          <span className="text-xs uppercase tracking-wide bg-surface-2 text-gray-300 px-2 py-0.5 rounded-full">
             {game.game_system}
           </span>
         </div>
       </div>
 
-      <div className="flex items-center gap-3 text-xs text-gray-400">
+      <div className="flex items-center gap-3 text-xs text-muted">
         <span title={t('lobby.gameCard.playersTooltip')}>
           <span className={playersFull ? 'text-red-300' : 'text-gray-300'}>
             {game.current_players}/{game.max_players}

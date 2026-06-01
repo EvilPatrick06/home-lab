@@ -176,27 +176,27 @@ export default function InGamePage(): JSX.Element {
 
   if (!campaign && loading) {
     return (
-      <div className="h-screen flex flex-col items-center justify-center bg-gray-950 text-gray-100">
+      <div className="h-screen flex flex-col items-center justify-center bg-base text-fg">
         <Spinner size="lg" />
-        <p className="text-gray-400 mt-4">{t('pages.inGamePage.loadingCampaign')}</p>
+        <p className="text-muted mt-4">{t('pages.inGamePage.loadingCampaign')}</p>
       </div>
     )
   }
 
   if (!campaign) {
     return (
-      <div className="h-screen flex flex-col items-center justify-center bg-gray-950 text-gray-100">
+      <div className="h-screen flex flex-col items-center justify-center bg-base text-fg">
         <div className="text-center">
-          <Swords className="w-12 h-12 mx-auto mb-4 text-gray-400" aria-hidden="true" />
+          <Swords className="w-12 h-12 mx-auto mb-4 text-muted" aria-hidden="true" />
           <h1 className="text-2xl font-bold mb-2">{t('pages.inGamePage.noCampaignFound')}</h1>
-          <p className="text-gray-400 mb-6">
+          <p className="text-muted mb-6">
             {campaignId
               ? t('pages.inGamePage.campaignCouldNotLoad', { id: campaignId })
               : t('pages.inGamePage.noCampaignId')}
           </p>
           <button
             onClick={() => navigate('/')}
-            className="px-5 py-2.5 rounded-lg font-semibold bg-amber-600 hover:bg-amber-500
+            className="px-5 py-2.5 rounded-lg font-semibold bg-amber-600 hover:bg-accent-strong
               text-white transition-colors cursor-pointer"
           >
             {t('pages.inGamePage.backToMenu')}
@@ -218,10 +218,10 @@ export default function InGamePage(): JSX.Element {
           className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm"
           style={{ zIndex: Z.MODAL }}
         >
-          <div className="bg-gray-900 border border-red-500/50 rounded-xl p-6 max-w-sm w-full mx-4 text-center">
+          <div className="bg-surface border border-red-500/50 rounded-xl p-6 max-w-sm w-full mx-4 text-center">
             <div className="w-8 h-8 border-2 border-red-400 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
             <h2 className="text-lg font-bold text-red-400 mb-2">{t('pages.inGamePage.connectionLost')}</h2>
-            <p className="text-sm text-gray-400 mb-1">
+            <p className="text-sm text-muted mb-1">
               {reconnectAttempt > 0
                 ? t('pages.inGamePage.reconnectingAttempt', { attempt: reconnectAttempt })
                 : t('pages.inGamePage.attemptingReconnect')}
@@ -233,14 +233,14 @@ export default function InGamePage(): JSX.Element {
               <button
                 onClick={handleReconnect}
                 disabled={reconnectAttempt >= 3}
-                className="px-4 py-2 text-sm font-semibold bg-amber-600 hover:bg-amber-500 text-white
+                className="px-4 py-2 text-sm font-semibold bg-amber-600 hover:bg-accent-strong text-white
                   rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {t('pages.inGamePage.reconnect')}
               </button>
               <button
                 onClick={() => navigate('/')}
-                className="px-4 py-2 text-sm font-semibold border border-gray-600 hover:bg-gray-800
+                className="px-4 py-2 text-sm font-semibold border border-gray-600 hover:bg-surface-2
                   text-gray-300 rounded-lg transition-colors cursor-pointer"
               >
                 {t('pages.inGamePage.leaveGame')}

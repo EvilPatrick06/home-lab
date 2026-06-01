@@ -427,13 +427,13 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
   const renderTableCard = (table: RollTable, showControls: boolean): JSX.Element => {
     const isAnimating = animatingTableId === table.id
     return (
-      <div key={table.id} className="bg-gray-800 rounded-lg p-3">
+      <div key={table.id} className="bg-surface-2 rounded-lg p-3">
         <div className="flex items-center justify-between mb-2">
           <div>
             <span className="text-xs font-semibold text-gray-200">{table.name}</span>
             <span className="text-xs text-gray-500 ml-2">({table.diceFormula})</span>
             {table.builtIn && (
-              <span className="text-[9px] text-amber-500/70 ml-2 uppercase tracking-wider">
+              <span className="text-[9px] text-accent-strong/70 ml-2 uppercase tracking-wider">
                 {t('game.rollTableModal.builtIn')}
               </span>
             )}
@@ -442,7 +442,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
             <button
               onClick={() => handleRoll(table)}
               disabled={isAnimating}
-              className="px-2 py-1 text-xs font-semibold bg-amber-600 hover:bg-amber-500 disabled:bg-amber-800 disabled:cursor-wait text-white rounded cursor-pointer"
+              className="px-2 py-1 text-xs font-semibold bg-amber-600 hover:bg-accent-strong disabled:bg-amber-800 disabled:cursor-wait text-white rounded cursor-pointer"
             >
               {isAnimating ? t('game.rollTableModal.rolling') : t('game.rollTableModal.roll')}
             </button>
@@ -471,7 +471,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
               <div
                 key={i}
                 className={`text-xs px-1.5 py-0.5 rounded transition-all duration-150 ${
-                  isHighlighted ? 'bg-amber-500/30 text-amber-200 font-medium' : 'text-gray-400'
+                  isHighlighted ? 'bg-accent-strong/30 text-amber-200 font-medium' : 'text-muted'
                 }`}
               >
                 <span className="text-gray-500 font-mono">
@@ -495,13 +495,13 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/60" onClick={onClose} role="presentation" />
-      <div className="relative bg-gray-900 border border-gray-700 rounded-xl shadow-2xl w-[600px] max-h-[85vh] flex flex-col">
+      <div className="relative bg-surface border border-border rounded-xl shadow-2xl w-[600px] max-h-[85vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">
-          <h2 className="text-sm font-bold text-amber-400">{t('game.rollTableModal.title')}</h2>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+          <h2 className="text-sm font-bold text-accent">{t('game.rollTableModal.title')}</h2>
           <button
             onClick={onClose}
-            className="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-700 text-gray-400 hover:text-gray-200 cursor-pointer"
+            className="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-700 text-muted hover:text-gray-200 cursor-pointer"
             aria-label={t('common.actions.close')}
           >
             X
@@ -509,14 +509,14 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-gray-700">
+        <div className="flex border-b border-border">
           <button
             onClick={() => {
               setTab('builtin')
               setEditingTable(null)
             }}
             className={`flex-1 px-4 py-2 text-xs font-semibold cursor-pointer ${
-              tab === 'builtin' ? 'text-amber-400 border-b-2 border-amber-400' : 'text-gray-400 hover:text-gray-200'
+              tab === 'builtin' ? 'text-accent border-b-2 border-accent' : 'text-muted hover:text-gray-200'
             }`}
           >
             {t('game.rollTableModal.builtInTables')}
@@ -527,7 +527,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
               setEditingTable(null)
             }}
             className={`flex-1 px-4 py-2 text-xs font-semibold cursor-pointer ${
-              tab === 'custom' ? 'text-amber-400 border-b-2 border-amber-400' : 'text-gray-400 hover:text-gray-200'
+              tab === 'custom' ? 'text-accent border-b-2 border-accent' : 'text-muted hover:text-gray-200'
             }`}
           >
             {t('game.rollTableModal.myTables')}
@@ -535,7 +535,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
           <button
             onClick={() => setTab('create')}
             className={`flex-1 px-4 py-2 text-xs font-semibold cursor-pointer ${
-              tab === 'create' ? 'text-amber-400 border-b-2 border-amber-400' : 'text-gray-400 hover:text-gray-200'
+              tab === 'create' ? 'text-accent border-b-2 border-accent' : 'text-muted hover:text-gray-200'
             }`}
           >
             {editingTable ? t('game.rollTableModal.editTable') : t('game.rollTableModal.createTable')}
@@ -563,28 +563,28 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
           {tab === 'create' && (
             <div className="space-y-3">
               <div>
-                <label className="text-xs text-gray-400 block mb-1">{t('game.rollTableModal.tableName')}</label>
+                <label className="text-xs text-muted block mb-1">{t('game.rollTableModal.tableName')}</label>
                 <input
                   type="text"
                   value={tableName}
                   onChange={(e) => setTableName(e.target.value)}
                   placeholder={t('game.rollTableModal.tableNamePlaceholder')}
-                  className="w-full bg-gray-800 border border-gray-600 rounded px-2 py-1.5 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
+                  className="w-full bg-surface-2 border border-gray-600 rounded px-2 py-1.5 text-xs text-fg focus:outline-none focus:border-amber-500"
                 />
               </div>
               <div>
-                <label className="text-xs text-gray-400 block mb-1">{t('game.rollTableModal.diceFormula')}</label>
+                <label className="text-xs text-muted block mb-1">{t('game.rollTableModal.diceFormula')}</label>
                 <input
                   type="text"
                   value={diceFormula}
                   onChange={(e) => setDiceFormula(e.target.value)}
                   placeholder={t('game.rollTableModal.diceFormulaPlaceholder')}
-                  className="w-full bg-gray-800 border border-gray-600 rounded px-2 py-1.5 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
+                  className="w-full bg-surface-2 border border-gray-600 rounded px-2 py-1.5 text-xs text-fg focus:outline-none focus:border-amber-500"
                 />
               </div>
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="text-xs text-gray-400">{t('game.rollTableModal.entries')}</label>
+                  <label className="text-xs text-muted">{t('game.rollTableModal.entries')}</label>
                   <div className="flex gap-1">
                     <button
                       onClick={addEntry}
@@ -606,7 +606,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
                         type="number"
                         value={entry.min}
                         onChange={(e) => updateEntry(i, 'min', parseInt(e.target.value, 10) || 0)}
-                        className="w-12 bg-gray-800 border border-gray-600 rounded px-1.5 py-1 text-xs text-gray-100 text-center focus:outline-none focus:border-amber-500"
+                        className="w-12 bg-surface-2 border border-gray-600 rounded px-1.5 py-1 text-xs text-fg text-center focus:outline-none focus:border-amber-500"
                         title={t('game.rollTableModal.min')}
                       />
                       <span className="text-xs text-gray-500">-</span>
@@ -614,7 +614,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
                         type="number"
                         value={entry.max}
                         onChange={(e) => updateEntry(i, 'max', parseInt(e.target.value, 10) || 0)}
-                        className="w-12 bg-gray-800 border border-gray-600 rounded px-1.5 py-1 text-xs text-gray-100 text-center focus:outline-none focus:border-amber-500"
+                        className="w-12 bg-surface-2 border border-gray-600 rounded px-1.5 py-1 text-xs text-fg text-center focus:outline-none focus:border-amber-500"
                         title={t('game.rollTableModal.max')}
                       />
                       <input
@@ -622,7 +622,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
                         value={entry.text}
                         onChange={(e) => updateEntry(i, 'text', e.target.value)}
                         placeholder={t('game.rollTableModal.resultTextPlaceholder')}
-                        className="flex-1 bg-gray-800 border border-gray-600 rounded px-2 py-1 text-xs text-gray-100 focus:outline-none focus:border-amber-500"
+                        className="flex-1 bg-surface-2 border border-gray-600 rounded px-2 py-1 text-xs text-fg focus:outline-none focus:border-amber-500"
                       />
                       <input
                         type="number"
@@ -633,7 +633,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
                         }}
                         placeholder={t('game.rollTableModal.weightPlaceholder')}
                         title={t('game.rollTableModal.weightTitle')}
-                        className="w-10 bg-gray-800 border border-gray-600 rounded px-1 py-1 text-xs text-gray-100 text-center focus:outline-none focus:border-amber-500"
+                        className="w-10 bg-surface-2 border border-gray-600 rounded px-1 py-1 text-xs text-fg text-center focus:outline-none focus:border-amber-500"
                       />
                       <button
                         onClick={() => removeEntry(i)}
@@ -649,7 +649,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
               <button
                 onClick={handleSave}
                 disabled={!tableName.trim()}
-                className="w-full py-2 text-xs font-semibold bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-lg cursor-pointer disabled:cursor-not-allowed"
+                className="w-full py-2 text-xs font-semibold bg-amber-600 hover:bg-accent-strong disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-lg cursor-pointer disabled:cursor-not-allowed"
               >
                 {editingTable ? t('game.rollTableModal.updateTable') : t('game.rollTableModal.saveTable')}
               </button>
@@ -658,7 +658,7 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
 
           {/* Roll History */}
           {rollHistory.length > 0 && (
-            <div className="border-t border-gray-700 pt-3">
+            <div className="border-t border-border pt-3">
               <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1.5 block">
                 {t('game.rollTableModal.rollHistory', { count: MAX_HISTORY })}
               </span>
@@ -666,16 +666,16 @@ export default function RollTableModal({ onClose }: RollTableModalProps): JSX.El
                 {rollHistory.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-center justify-between bg-gray-800/60 rounded px-2 py-1 text-xs"
+                    className="flex items-center justify-between bg-surface-2/60 rounded px-2 py-1 text-xs"
                   >
                     <div className="flex-1 min-w-0">
-                      <span className="text-amber-400 font-semibold">[{item.tableName}]</span>{' '}
+                      <span className="text-accent font-semibold">[{item.tableName}]</span>{' '}
                       <span className="text-gray-500">{t('game.rollTableModal.rolled', { roll: item.roll })}</span>{' '}
                       <span className="text-gray-300 truncate">{item.result}</span>
                     </div>
                     <button
                       onClick={() => handleShareResult(item)}
-                      className="ml-2 px-1.5 py-0.5 text-[9px] bg-gray-700 hover:bg-gray-600 text-gray-400 hover:text-white rounded cursor-pointer whitespace-nowrap"
+                      className="ml-2 px-1.5 py-0.5 text-[9px] bg-gray-700 hover:bg-gray-600 text-muted hover:text-white rounded cursor-pointer whitespace-nowrap"
                       title={t('game.rollTableModal.shareToChat')}
                     >
                       {t('game.rollTableModal.share')}

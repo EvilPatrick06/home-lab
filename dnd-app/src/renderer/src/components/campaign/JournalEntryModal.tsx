@@ -46,7 +46,7 @@ export default function JournalEntryModal({ open, onClose, onSave, initialData }
             {t('campaign.journalEntryModal.content')}
           </label>
           <textarea
-            className="w-full h-48 bg-gray-900 border border-gray-700 rounded-md p-3 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-amber-500 transition-colors resize-y shadow-inner drop-shadow-sm"
+            className="w-full h-48 bg-surface border border-border rounded-md p-3 text-sm text-fg placeholder-gray-500 focus:outline-none focus:border-amber-500 transition-colors resize-y shadow-inner drop-shadow-sm"
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder={t('campaign.journalEntryModal.contentPlaceholder')}
@@ -57,7 +57,7 @@ export default function JournalEntryModal({ open, onClose, onSave, initialData }
             type="checkbox"
             checked={isPrivate}
             onChange={(e) => setIsPrivate(e.target.checked)}
-            className="w-4 h-4 accent-amber-500 rounded border-gray-700 bg-gray-900"
+            className="w-4 h-4 accent-amber-500 rounded border-border bg-surface"
           />
           <span className="text-sm text-gray-300">{t('campaign.journalEntryModal.dmOnly')}</span>
         </label>

@@ -74,7 +74,7 @@ export default function ConditionsSection5e({ character, readonly }: ConditionsS
           {!readonly && (
             <button
               onClick={() => setShowPicker(true)}
-              className="text-sm text-amber-400 hover:text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded px-3 py-1.5 cursor-pointer transition-colors"
+              className="text-sm text-accent hover:text-amber-300 bg-accent-strong/10 border border-amber-500/30 rounded px-3 py-1.5 cursor-pointer transition-colors"
             >
               {t('sheet.conditions.addConditionBuffCustom')}
             </button>
@@ -87,7 +87,7 @@ export default function ConditionsSection5e({ character, readonly }: ConditionsS
           {activeConditions.map((cond, i) => {
             const def = getConditionDef(cond.name)
             return (
-              <div key={i} className="bg-gray-800/50 rounded p-2">
+              <div key={i} className="bg-surface-2/50 rounded p-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className={`w-2 h-2 rounded-full ${cond.type === 'buff' ? 'bg-green-400' : 'bg-red-400'}`} />
@@ -132,9 +132,9 @@ export default function ConditionsSection5e({ character, readonly }: ConditionsS
                     </button>
                   )}
                 </div>
-                {def && <p className="text-xs text-gray-400 mt-1">{def.description}</p>}
+                {def && <p className="text-xs text-muted mt-1">{def.description}</p>}
                 {cond.name === 'Exhaustion' && cond.value != null && cond.value > 0 && (
-                  <div className="text-xs text-amber-400 mt-1 bg-amber-900/20 rounded px-2 py-1">
+                  <div className="text-xs text-accent mt-1 bg-amber-900/20 rounded px-2 py-1">
                     {t('sheet.conditions.exhaustionEffect', {
                       tests: cond.value * -2,
                       speed: cond.value * 5
@@ -151,7 +151,7 @@ export default function ConditionsSection5e({ character, readonly }: ConditionsS
           {!readonly && (
             <button
               onClick={() => setShowPicker(true)}
-              className="text-xs text-amber-400 hover:text-amber-300 cursor-pointer"
+              className="text-xs text-accent hover:text-amber-300 cursor-pointer"
             >
               {t('sheet.conditions.addCondition')}
             </button>
@@ -160,7 +160,7 @@ export default function ConditionsSection5e({ character, readonly }: ConditionsS
       )}
 
       {showPicker && (
-        <div className="mt-2 border border-gray-700 rounded-lg bg-gray-900 p-3">
+        <div className="mt-2 border border-border rounded-lg bg-surface p-3">
           <div className="flex items-center justify-between mb-2">
             <div className="flex gap-2">
               <button
@@ -203,7 +203,7 @@ export default function ConditionsSection5e({ character, readonly }: ConditionsS
                 value={customName}
                 onChange={(e) => setCustomName(e.target.value)}
                 placeholder={t('sheet.conditions.conditionNamePlaceholder')}
-                className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
+                className="w-full bg-surface-2 border border-border rounded px-2 py-1 text-sm text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500"
               />
               <div className="flex items-center gap-3">
                 <div className="flex gap-2">
@@ -229,12 +229,12 @@ export default function ConditionsSection5e({ character, readonly }: ConditionsS
                   value={customValue}
                   onChange={(e) => setCustomValue(e.target.value)}
                   placeholder={t('sheet.conditions.valuePlaceholder')}
-                  className="w-16 bg-gray-800 border border-gray-700 rounded px-2 py-0.5 text-xs text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500"
+                  className="w-16 bg-surface-2 border border-border rounded px-2 py-0.5 text-xs text-fg placeholder-gray-600 focus:outline-none focus:border-amber-500"
                 />
                 <button
                   onClick={handleAddCustomCondition}
                   disabled={!customName.trim()}
-                  className="text-xs px-3 py-1 bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-gray-900 disabled:cursor-not-allowed rounded cursor-pointer"
+                  className="text-xs px-3 py-1 bg-amber-600 hover:bg-accent-strong disabled:bg-gray-700 disabled:text-gray-500 text-gray-900 disabled:cursor-not-allowed rounded cursor-pointer"
                 >
                   {t('sheet.conditions.add')}
                 </button>
@@ -250,7 +250,7 @@ export default function ConditionsSection5e({ character, readonly }: ConditionsS
                     disabled={isActive}
                     onClick={() => handleAddCondition(def, pickerTab === 'buffs' ? 'buff' : 'condition')}
                     className={`w-full text-left p-2 rounded text-sm transition-colors cursor-pointer ${
-                      isActive ? 'bg-gray-800 text-gray-600 cursor-not-allowed' : 'hover:bg-gray-800 text-gray-300'
+                      isActive ? 'bg-surface-2 text-gray-600 cursor-not-allowed' : 'hover:bg-surface-2 text-gray-300'
                     }`}
                     title={def.description}
                   >

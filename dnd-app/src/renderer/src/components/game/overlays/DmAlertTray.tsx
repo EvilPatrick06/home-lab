@@ -91,7 +91,7 @@ export default function DmAlertTray(): JSX.Element {
         className={`relative px-2.5 py-1.5 rounded-lg text-xs font-medium border cursor-pointer transition-colors ${
           unreadCount > 0
             ? 'bg-red-900/80 border-red-700 text-red-200 hover:bg-red-800/80'
-            : 'bg-gray-800/80 border-gray-700 text-gray-400 hover:bg-gray-700/80'
+            : 'bg-surface-2/80 border-border text-muted hover:bg-gray-700/80'
         }`}
       >
         {t('game.dmAlertTray.alerts')}
@@ -104,8 +104,8 @@ export default function DmAlertTray(): JSX.Element {
 
       {/* Expanded tray */}
       {expanded && (
-        <div className="absolute top-9 right-0 w-80 max-h-96 bg-gray-900 border border-gray-700 rounded-lg shadow-2xl overflow-hidden">
-          <div className="flex items-center justify-between px-3 py-2 border-b border-gray-700">
+        <div className="absolute top-9 right-0 w-80 max-h-96 bg-surface border border-border rounded-lg shadow-2xl overflow-hidden">
+          <div className="flex items-center justify-between px-3 py-2 border-b border-border">
             <span className="text-xs font-semibold text-gray-300">{t('game.dmAlertTray.title')}</span>
             {items.length > 0 && (
               <button onClick={clearDmAlerts} className="text-xs text-gray-500 hover:text-gray-300 cursor-pointer">
@@ -141,7 +141,7 @@ export default function DmAlertTray(): JSX.Element {
                                 act.style === 'danger'
                                   ? 'bg-red-900/40 hover:bg-red-800/60 text-red-300 border border-red-700/50'
                                   : act.style === 'subtle'
-                                    ? 'bg-gray-800 hover:bg-gray-700 text-gray-400 border border-gray-700'
+                                    ? 'bg-surface-2 hover:bg-gray-700 text-muted border border-border'
                                     : 'bg-amber-900/40 hover:bg-amber-800/60 text-amber-300 border border-amber-700/50'
                               }`}
                             >

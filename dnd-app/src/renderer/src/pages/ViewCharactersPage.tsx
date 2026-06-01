@@ -143,7 +143,7 @@ export default function ViewCharactersPage(): JSX.Element {
     <div className="p-8 h-screen overflow-y-auto">
       <button
         onClick={() => navigate('/')}
-        className="text-amber-400 hover:text-amber-300 hover:underline mb-6 block cursor-pointer"
+        className="text-accent hover:text-amber-300 hover:underline mb-6 block cursor-pointer"
       >
         &larr; {t('pages.viewCharactersPage.backToMenu')}
       </button>
@@ -154,8 +154,8 @@ export default function ViewCharactersPage(): JSX.Element {
           {characters.length > 0 && (
             <button
               onClick={() => setShowDeleteAllConfirm(true)}
-              className="px-4 py-2 border border-gray-600 hover:border-red-600 hover:bg-gray-800
-                         text-gray-400 hover:text-red-400 rounded-lg font-semibold text-sm
+              className="px-4 py-2 border border-gray-600 hover:border-red-600 hover:bg-surface-2
+                         text-muted hover:text-red-400 rounded-lg font-semibold text-sm
                          transition-colors cursor-pointer"
             >
               {t('pages.viewCharactersPage.deleteAll')}
@@ -164,30 +164,30 @@ export default function ViewCharactersPage(): JSX.Element {
           <div className="relative" ref={importMenuRef}>
             <button
               onClick={() => setShowImportMenu(!showImportMenu)}
-              className="px-4 py-2 border border-gray-600 hover:border-amber-600 hover:bg-gray-800
-                         text-gray-300 hover:text-amber-400 rounded-lg font-semibold text-sm
+              className="px-4 py-2 border border-gray-600 hover:border-amber-600 hover:bg-surface-2
+                         text-gray-300 hover:text-accent rounded-lg font-semibold text-sm
                          transition-colors cursor-pointer flex items-center gap-1"
             >
               {t('pages.viewCharactersPage.import')}
               <span className="text-xs">{showImportMenu ? '\u25B2' : '\u25BC'}</span>
             </button>
             {showImportMenu && (
-              <div className="absolute right-0 top-full mt-1 w-52 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-20 py-1">
+              <div className="absolute right-0 top-full mt-1 w-52 bg-surface border border-border rounded-lg shadow-xl z-20 py-1">
                 <button
                   onClick={handleImport}
-                  className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-amber-400 cursor-pointer"
+                  className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-surface-2 hover:text-accent cursor-pointer"
                 >
                   {t('pages.viewCharactersPage.importFromFile')}
                 </button>
                 <button
                   onClick={handleImportDdb}
-                  className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-amber-400 cursor-pointer"
+                  className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-surface-2 hover:text-accent cursor-pointer"
                 >
                   {t('pages.viewCharactersPage.importDdb')}
                 </button>
                 <button
                   onClick={handleImportFoundry}
-                  className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-amber-400 cursor-pointer"
+                  className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-surface-2 hover:text-accent cursor-pointer"
                 >
                   {t('pages.viewCharactersPage.importFoundry')}
                 </button>
@@ -196,7 +196,7 @@ export default function ViewCharactersPage(): JSX.Element {
           </div>
           <button
             onClick={() => navigate('/characters/5e/create')}
-            className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg
+            className="px-4 py-2 bg-amber-600 hover:bg-accent-strong text-white rounded-lg
                        font-semibold text-sm transition-colors cursor-pointer"
           >
             {t('pages.viewCharactersPage.newCharacter')}
@@ -211,7 +211,7 @@ export default function ViewCharactersPage(): JSX.Element {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder={t('pages.viewCharactersPage.searchPlaceholder')}
-          className="w-full max-w-md px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 text-gray-100
+          className="w-full max-w-md px-4 py-2 rounded-lg bg-surface-2 border border-border text-fg
             placeholder-gray-500 focus:border-amber-500 focus:outline-none transition-colors text-sm"
         />
       </div>
@@ -224,7 +224,7 @@ export default function ViewCharactersPage(): JSX.Element {
             onClick={() => setStatusFilter(tab.key)}
             className={`px-4 py-2 text-sm font-medium transition-colors cursor-pointer border-b-2 -mb-px ${
               statusFilter === tab.key
-                ? 'border-amber-500 text-amber-400'
+                ? 'border-amber-500 text-accent'
                 : 'border-transparent text-gray-500 hover:text-gray-300'
             }`}
           >
@@ -245,22 +245,22 @@ export default function ViewCharactersPage(): JSX.Element {
           <span className="text-sm text-gray-500">{t('pages.viewCharactersPage.loadingCharacters')}</span>
         </div>
       ) : characters.length === 0 ? (
-        <div className="border border-dashed border-gray-700 rounded-lg p-12 text-center text-gray-500">
+        <div className="border border-dashed border-border rounded-lg p-12 text-center text-gray-500">
           <Swords className="w-10 h-10 mx-auto mb-4 text-gray-500" aria-hidden="true" />
           <p className="text-xl mb-2">{t('pages.viewCharactersPage.noCharactersYet')}</p>
           <p className="mb-4">{t('pages.viewCharactersPage.createFirstPrompt')}</p>
           <div className="flex justify-center gap-3">
             <button
               onClick={() => navigate('/characters/5e/create')}
-              className="px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg
+              className="px-5 py-2.5 bg-amber-600 hover:bg-accent-strong text-white rounded-lg
                          font-semibold transition-colors cursor-pointer"
             >
               {t('pages.viewCharactersPage.createCharacter')}
             </button>
             <button
               onClick={handleImport}
-              className="px-5 py-2.5 border border-gray-600 hover:border-amber-600 hover:bg-gray-800
-                         text-gray-300 hover:text-amber-400 rounded-lg font-semibold
+              className="px-5 py-2.5 border border-gray-600 hover:border-amber-600 hover:bg-surface-2
+                         text-gray-300 hover:text-accent rounded-lg font-semibold
                          transition-colors cursor-pointer"
             >
               {t('pages.viewCharactersPage.importCharacter')}

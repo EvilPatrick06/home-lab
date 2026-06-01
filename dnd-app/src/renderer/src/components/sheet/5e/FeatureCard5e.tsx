@@ -17,7 +17,7 @@ function FeatureRowImpl({ feature, onRemove }: FeatureRowProps): JSX.Element {
     <div className="border-b border-gray-800 last:border-0">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between px-2 py-1.5 hover:bg-gray-800/50 transition-colors text-left"
+        className="w-full flex items-center justify-between px-2 py-1.5 hover:bg-surface-2/50 transition-colors text-left"
       >
         <div className="flex items-center gap-2">
           <span className="text-sm text-gray-200 font-medium">{feature.name}</span>
@@ -52,7 +52,7 @@ function FeatureRowImpl({ feature, onRemove }: FeatureRowProps): JSX.Element {
         </div>
       </button>
       {expanded && feature.description && (
-        <p className="px-3 pb-2 text-xs text-gray-400 leading-relaxed whitespace-pre-wrap">{feature.description}</p>
+        <p className="px-3 pb-2 text-xs text-muted leading-relaxed whitespace-pre-wrap">{feature.description}</p>
       )}
     </div>
   )
@@ -70,7 +70,7 @@ function FeatPickerRowImpl({ feat, character, onSelect }: FeatPickerRowProps): J
   const meetsPrereqs = meetsFeatPrerequisites(character, feat.prerequisites)
   return (
     <div
-      className={`border rounded ${meetsPrereqs ? 'bg-gray-800/50 border-gray-700' : 'bg-gray-900/50 border-gray-800 opacity-50'}`}
+      className={`border rounded ${meetsPrereqs ? 'bg-surface-2/50 border-border' : 'bg-surface/50 border-gray-800 opacity-50'}`}
     >
       <div className="flex items-center justify-between px-2 py-1.5">
         <button onClick={() => setExpanded(!expanded)} className="flex-1 text-left cursor-pointer">
@@ -83,7 +83,7 @@ function FeatPickerRowImpl({ feat, character, onSelect }: FeatPickerRowProps): J
           disabled={!meetsPrereqs}
           className={`px-2 py-0.5 text-xs rounded transition-colors ml-2 ${
             meetsPrereqs
-              ? 'bg-amber-600 hover:bg-amber-500 text-white cursor-pointer'
+              ? 'bg-amber-600 hover:bg-accent-strong text-white cursor-pointer'
               : 'bg-gray-700 text-gray-500 cursor-not-allowed'
           }`}
         >
@@ -97,9 +97,7 @@ function FeatPickerRowImpl({ feat, character, onSelect }: FeatPickerRowProps): J
               {t('sheet.featureCard.requires', { prereqs: formatPrerequisites(feat.prerequisites).join(', ') })}
             </p>
           )}
-          <p className="text-xs text-gray-400 whitespace-pre-wrap">
-            {feat.benefits.map((b) => b.description).join(' ')}
-          </p>
+          <p className="text-xs text-muted whitespace-pre-wrap">{feat.benefits.map((b) => b.description).join(' ')}</p>
         </div>
       )}
     </div>

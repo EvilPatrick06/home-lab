@@ -104,9 +104,9 @@ export default function TrainingTab({
       {/* Active training */}
       {trainingEntries.length > 0 && (
         <div className="space-y-2">
-          <h3 className="text-xs font-semibold text-gray-400">{t('game.trainingTab.activeTraining')}</h3>
+          <h3 className="text-xs font-semibold text-muted">{t('game.trainingTab.activeTraining')}</h3>
           {trainingEntries.map((entry) => (
-            <div key={entry.id} className="bg-gray-800/50 border border-gray-700 rounded-lg p-3">
+            <div key={entry.id} className="bg-surface-2/50 border border-border rounded-lg p-3">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs font-semibold text-amber-300">{entry.activityName}</span>
                 <span className="text-xs text-gray-500">
@@ -182,8 +182,8 @@ export default function TrainingTab({
       )}
 
       {/* Start new training */}
-      <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-3 space-y-2">
-        <h3 className="text-xs font-semibold text-gray-400">{t('game.trainingTab.startNewTraining')}</h3>
+      <div className="bg-surface-2/50 border border-border rounded-lg p-3 space-y-2">
+        <h3 className="text-xs font-semibold text-muted">{t('game.trainingTab.startNewTraining')}</h3>
 
         {/* Type toggle */}
         <div className="flex gap-1">
@@ -193,7 +193,7 @@ export default function TrainingTab({
               setSelectedTarget('')
             }}
             className={`px-3 py-1 text-xs rounded cursor-pointer ${
-              trainingType === 'tool' ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+              trainingType === 'tool' ? 'bg-green-600 text-white' : 'bg-gray-700 text-muted hover:bg-gray-600'
             }`}
           >
             {t('game.trainingTab.toolProficiency')}
@@ -204,7 +204,7 @@ export default function TrainingTab({
               setSelectedTarget('')
             }}
             className={`px-3 py-1 text-xs rounded cursor-pointer ${
-              trainingType === 'language' ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+              trainingType === 'language' ? 'bg-green-600 text-white' : 'bg-gray-700 text-muted hover:bg-gray-600'
             }`}
           >
             {t('game.trainingTab.language')}
@@ -215,7 +215,7 @@ export default function TrainingTab({
         <select
           value={selectedTarget}
           onChange={(e) => setSelectedTarget(e.target.value)}
-          className="w-full bg-gray-800 border border-gray-600 rounded text-xs text-gray-200 px-2 py-1.5"
+          className="w-full bg-surface-2 border border-gray-600 rounded text-xs text-gray-200 px-2 py-1.5"
         >
           <option value="">
             {trainingType === 'tool' ? t('game.trainingTab.selectTool') : t('game.trainingTab.selectLanguage')}
@@ -228,14 +228,14 @@ export default function TrainingTab({
         </select>
 
         {selectedTarget && (
-          <div className="flex items-center gap-4 text-xs text-gray-400">
+          <div className="flex items-center gap-4 text-xs text-muted">
             <span>
               {t('game.trainingTab.duration')}{' '}
               <span className="text-white font-semibold">{t('game.trainingTab.days250')}</span>
             </span>
             <span>
               {t('game.trainingTab.cost')}{' '}
-              <span className="text-amber-400 font-semibold">{t('game.trainingTab.gp250')}</span>{' '}
+              <span className="text-accent font-semibold">{t('game.trainingTab.gp250')}</span>{' '}
               {t('game.trainingTab.perDay')}
             </span>
           </div>

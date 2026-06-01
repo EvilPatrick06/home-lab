@@ -25,7 +25,7 @@ function KeyCombo({ shortcut }: { shortcut: ShortcutDefinition }): JSX.Element {
       {parts.map((part, i) => (
         <span key={i} className="inline-flex items-center">
           {i > 0 && <span className="text-gray-600 text-xs mx-0.5">+</span>}
-          <kbd className="inline-flex items-center justify-center min-w-[1.75rem] px-2 py-1 text-xs font-mono font-semibold text-amber-400 bg-gray-800 border border-gray-600 rounded-md shadow-sm">
+          <kbd className="inline-flex items-center justify-center min-w-[1.75rem] px-2 py-1 text-xs font-mono font-semibold text-accent bg-surface-2 border border-gray-600 rounded-md shadow-sm">
             {part}
           </kbd>
         </span>
@@ -58,15 +58,15 @@ export default function ShortcutReferenceModal({ onClose }: ShortcutReferenceMod
       role="presentation"
     >
       <div
-        className="bg-gray-900 border border-gray-700 rounded-xl shadow-2xl w-full max-w-lg mx-4"
+        className="bg-surface border border-border rounded-xl shadow-2xl w-full max-w-lg mx-4"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-700">
-          <h2 className="text-lg font-bold text-amber-400">{t('game.shortcutReferenceModal.title')}</h2>
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+          <h2 className="text-lg font-bold text-accent">{t('game.shortcutReferenceModal.title')}</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white text-xl leading-none cursor-pointer"
+            className="text-muted hover:text-white text-xl leading-none cursor-pointer"
             aria-label={t('common.actions.close')}
           >
             &times;
@@ -80,7 +80,7 @@ export default function ShortcutReferenceModal({ onClose }: ShortcutReferenceMod
             if (!shortcuts || shortcuts.length === 0) return null
             return (
               <div key={categoryKey}>
-                <h3 className="text-sm font-semibold text-amber-400/80 uppercase tracking-wider mb-2">
+                <h3 className="text-sm font-semibold text-accent/80 uppercase tracking-wider mb-2">
                   {CATEGORY_LABELS[categoryKey]
                     ? t(`game.shortcutReferenceModal.categories.${categoryKey}`)
                     : categoryKey}
@@ -89,7 +89,7 @@ export default function ShortcutReferenceModal({ onClose }: ShortcutReferenceMod
                   {shortcuts.map((shortcut) => (
                     <div
                       key={shortcut.action}
-                      className="flex items-center justify-between py-1.5 px-3 rounded-lg hover:bg-gray-800/50 transition-colors"
+                      className="flex items-center justify-between py-1.5 px-3 rounded-lg hover:bg-surface-2/50 transition-colors"
                     >
                       <span className="text-sm text-gray-300">{shortcut.description}</span>
                       <KeyCombo shortcut={shortcut} />
@@ -102,10 +102,10 @@ export default function ShortcutReferenceModal({ onClose }: ShortcutReferenceMod
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3 border-t border-gray-700">
+        <div className="px-5 py-3 border-t border-border">
           <p className="text-xs text-gray-500 text-center">
             {t('game.shortcutReferenceModal.footerPress')}{' '}
-            <kbd className="px-1.5 py-0.5 text-xs font-mono text-amber-400 bg-gray-800 border border-gray-600 rounded">
+            <kbd className="px-1.5 py-0.5 text-xs font-mono text-accent bg-surface-2 border border-gray-600 rounded">
               /
             </kbd>{' '}
             {t('game.shortcutReferenceModal.footerToggle')}

@@ -33,7 +33,7 @@ export default function DMToolbar({
   const { t } = useT()
   const tools = toolMeta.map((tm) => ({ ...tm, label: t(tm.labelKey) }))
   return (
-    <div className="flex flex-col gap-1 bg-gray-900 border border-gray-700 rounded-lg p-2 shadow-xl">
+    <div className="flex flex-col gap-1 bg-surface border border-border rounded-lg p-2 shadow-xl">
       <p className="text-xs text-gray-500 uppercase tracking-wider text-center mb-1">{t('game.dmToolbar.dmTools')}</p>
       {tools.map((tool) => (
         <button
@@ -46,7 +46,7 @@ export default function DMToolbar({
           aria-current={activeTool === tool.id ? 'true' : undefined}
           className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg transition-colors cursor-pointer
             ${
-              activeTool === tool.id ? 'bg-amber-600 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-gray-200'
+              activeTool === tool.id ? 'bg-amber-600 text-white' : 'text-muted hover:bg-surface-2 hover:text-gray-200'
             }`}
         >
           {tool.icon}
@@ -56,13 +56,13 @@ export default function DMToolbar({
       {/* Undo/Redo buttons */}
       {(onUndo || onRedo) && (
         <>
-          <div className="border-t border-gray-700/50 my-1" />
+          <div className="border-t border-border/50 my-1" />
           <button
             onClick={onUndo}
             disabled={!canUndo}
             title={t('game.dmToolbar.undoTitle')}
             aria-label={t('game.dmToolbar.undo')}
-            className="w-10 h-8 rounded-lg flex items-center justify-center text-sm transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed text-gray-400 hover:bg-gray-800 hover:text-gray-200"
+            className="w-10 h-8 rounded-lg flex items-center justify-center text-sm transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed text-muted hover:bg-surface-2 hover:text-gray-200"
           >
             &#8630;
           </button>
@@ -71,7 +71,7 @@ export default function DMToolbar({
             disabled={!canRedo}
             title={t('game.dmToolbar.redoTitle')}
             aria-label={t('game.dmToolbar.redo')}
-            className="w-10 h-8 rounded-lg flex items-center justify-center text-sm transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed text-gray-400 hover:bg-gray-800 hover:text-gray-200"
+            className="w-10 h-8 rounded-lg flex items-center justify-center text-sm transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed text-muted hover:bg-surface-2 hover:text-gray-200"
           >
             &#8631;
           </button>

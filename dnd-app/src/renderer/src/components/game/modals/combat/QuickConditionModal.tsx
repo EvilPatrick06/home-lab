@@ -98,7 +98,7 @@ export default function QuickConditionModal({
   return (
     <div className="fixed inset-0 z-20 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
-      <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 max-w-md w-full mx-4 shadow-2xl">
+      <div className="relative bg-surface/95 backdrop-blur-sm border border-border/50 rounded-xl p-4 max-w-md w-full mx-4 shadow-2xl">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold text-gray-200">{t('game.quickConditionModal.title')}</h3>
           <button
@@ -116,7 +116,7 @@ export default function QuickConditionModal({
             {entities.map((entity) => (
               <label
                 key={entity.id}
-                className="flex items-center gap-2 cursor-pointer hover:bg-gray-800/50 px-2 py-1 rounded"
+                className="flex items-center gap-2 cursor-pointer hover:bg-surface-2/50 px-2 py-1 rounded"
               >
                 <input
                   type="checkbox"
@@ -128,7 +128,7 @@ export default function QuickConditionModal({
                       setSelectedEntities(selectedEntities.filter((id) => id !== entity.id))
                     }
                   }}
-                  className="w-3 h-3 text-amber-500 bg-gray-800 border-gray-600 rounded focus:ring-amber-500 focus:ring-2"
+                  className="w-3 h-3 text-accent-strong bg-surface-2 border-gray-600 rounded focus:ring-amber-500 focus:ring-2"
                 />
                 <span className="text-xs text-gray-200">{entity.name}</span>
               </label>
@@ -137,7 +137,7 @@ export default function QuickConditionModal({
           <select
             value={selectedCondition}
             onChange={(e) => setSelectedCondition(e.target.value)}
-            className="flex-1 px-2 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-200 text-xs focus:outline-none focus:border-amber-500"
+            className="flex-1 px-2 py-1.5 rounded-lg bg-surface-2 border border-border text-gray-200 text-xs focus:outline-none focus:border-amber-500"
           >
             <option value="">{t('game.quickConditionModal.conditionPlaceholder')}</option>
             {CONDITIONS_5E.map((c) => (
@@ -148,7 +148,7 @@ export default function QuickConditionModal({
           </select>
           {needsValue && (
             <div className="flex items-center gap-2">
-              <label className="text-xs text-gray-400 whitespace-nowrap">
+              <label className="text-xs text-muted whitespace-nowrap">
                 {t('game.quickConditionModal.exhaustionLevel')}
               </label>
               <input
@@ -157,7 +157,7 @@ export default function QuickConditionModal({
                 max={6}
                 value={exhaustionLevel}
                 onChange={(e) => setExhaustionLevel(Math.min(6, Math.max(1, parseInt(e.target.value, 10) || 1)))}
-                className="w-16 px-2 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-200 text-xs focus:outline-none focus:border-amber-500"
+                className="w-16 px-2 py-1.5 rounded-lg bg-surface-2 border border-border text-gray-200 text-xs focus:outline-none focus:border-amber-500"
               />
               {exhaustionLevel >= 6 && (
                 <span className="text-xs text-red-400 font-semibold">{t('game.quickConditionModal.fatal')}</span>
@@ -166,11 +166,11 @@ export default function QuickConditionModal({
           )}
           {needsSource && (
             <div className="flex items-center gap-2">
-              <label className="text-xs text-gray-400 whitespace-nowrap">{t('game.quickConditionModal.source')}</label>
+              <label className="text-xs text-muted whitespace-nowrap">{t('game.quickConditionModal.source')}</label>
               <select
                 value={sourceEntityId}
                 onChange={(e) => setSourceEntityId(e.target.value)}
-                className="flex-1 px-2 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-200 text-xs focus:outline-none focus:border-amber-500"
+                className="flex-1 px-2 py-1.5 rounded-lg bg-surface-2 border border-border text-gray-200 text-xs focus:outline-none focus:border-amber-500"
               >
                 <option value="">{t('game.quickConditionModal.noSource')}</option>
                 {entities
@@ -187,7 +187,7 @@ export default function QuickConditionModal({
             <select
               value={duration}
               onChange={(e) => setDuration(e.target.value)}
-              className="flex-1 px-2 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-200 text-xs focus:outline-none focus:border-amber-500"
+              className="flex-1 px-2 py-1.5 rounded-lg bg-surface-2 border border-border text-gray-200 text-xs focus:outline-none focus:border-amber-500"
             >
               <option value="1">{t('game.quickConditionModal.duration1')}</option>
               <option value="2">{t('game.quickConditionModal.duration2')}</option>
@@ -199,7 +199,7 @@ export default function QuickConditionModal({
             <button
               onClick={handleApply}
               disabled={selectedEntities.length === 0 || !selectedCondition}
-              className="px-4 py-1.5 text-xs font-semibold rounded-lg bg-amber-600 hover:bg-amber-500 text-white
+              className="px-4 py-1.5 text-xs font-semibold rounded-lg bg-amber-600 hover:bg-accent-strong text-white
                 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {t('game.quickConditionModal.applyTo', { count: selectedEntities.length })}
@@ -217,7 +217,7 @@ export default function QuickConditionModal({
               <p className="text-xs text-gray-500 text-center py-2">{t('game.quickConditionModal.none')}</p>
             ) : (
               conditions.map((c) => (
-                <div key={c.id} className="flex items-center justify-between px-2 py-1.5 bg-gray-800/50 rounded">
+                <div key={c.id} className="flex items-center justify-between px-2 py-1.5 bg-surface-2/50 rounded">
                   <div>
                     <span className="text-xs text-gray-200">{c.entityName}</span>
                     <span className="text-xs text-purple-400 ml-1.5">
@@ -225,7 +225,7 @@ export default function QuickConditionModal({
                       {c.condition === 'Exhaustion' && c.value ? ` (${c.value})` : ''}
                     </span>
                     {c.sourceEntityId && (
-                      <span className="text-[9px] text-amber-400 ml-1">
+                      <span className="text-[9px] text-accent ml-1">
                         {t('game.quickConditionModal.fromSource', {
                           name:
                             entities.find((e) => e.id === c.sourceEntityId)?.name ??
