@@ -362,7 +362,7 @@ interface AppSettingsData {
   autoDownloadUpdates?: boolean
   autoRestartAfterUpdate?: boolean
   autoInstallSilent?: boolean
-  /** Persisted UI language (e.g. 'en', 'en-XA'). */
+  /** Persisted UI language (e.g. 'en', 'es'). */
   language?: string
   /** ISO timestamp of the last successful cloud backup (drives the staleness nudge). */
   lastBackupTime?: string

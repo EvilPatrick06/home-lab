@@ -10,7 +10,7 @@
 // The file is GENERATED — never hand-edit it. Re-run after touching en.json:
 //   npm run i18n:gen-keys
 //
-// Generation rules mirror `check-keys.mjs` / `gen-pseudo-locale.mjs`:
+// Generation rules mirror `check-keys.mjs`:
 //   - Only LEAF paths become union members (objects are intermediate nodes).
 //   - i18next plural variants (`x.count_one` / `x.count_other`) are stored under
 //     the suffixed key but CALLED with the bare base (`t('x.count', {count})`),

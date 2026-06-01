@@ -1,6 +1,5 @@
 import { i18n, type SupportedLocale } from './config'
 import en from './locales/en.json'
-import enXA from './locales/en-XA.json'
 import es from './locales/es.json'
 
 /**
@@ -16,10 +15,9 @@ export async function initI18n(): Promise<void> {
   // NOT `defaultNS: 'common'` — that would make `t('actions.save')` resolve
   // but break every `t('common.*')` / `t('lobby.*')` call the sweeps add.
   await i18n.init({
-    // `en-XA` is the bundled accented-English pseudo-locale (opt-in via the
-    // picker). Default `lng` stays 'en' so first paint + the test suite are
-    // deterministic; App switches post-settings-load if a locale is persisted.
-    resources: { en: { translation: en }, es: { translation: es }, 'en-XA': { translation: enXA } },
+    // Default `lng` stays 'en' so first paint + the test suite are deterministic;
+    // App switches post-settings-load if a locale (es) is persisted.
+    resources: { en: { translation: en }, es: { translation: es } },
     lng: 'en',
     fallbackLng: 'en',
     defaultNS: 'translation',

@@ -30,7 +30,7 @@ export const AppSettingsSchema = z
       .optional(),
     /** BMO Pi HTTP base (main fetches, cloud sync, CSP). Empty/unset → BMO_PI_URL env or default. */
     bmoPiBaseUrl: z.string().optional(),
-    /** Persisted UI language (e.g. 'en', 'en-XA'). Default 'en'. */
+    /** Persisted UI language (e.g. 'en', 'es'). Default 'en'. */
     language: z.string().optional(),
     /** ISO timestamp of the last successful cloud backup — drives the staleness nudge. */
     lastBackupTime: z.string().optional(),
