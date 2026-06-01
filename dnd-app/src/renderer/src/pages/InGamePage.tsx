@@ -96,12 +96,14 @@ export default function InGamePage(): JSX.Element {
   }, [connectionState, networkRole])
 
   const handleReconnect = async (): Promise<void> => {
-    const { inviteCode } = useNetworkStore.getState()
+    const { inviteCode, connectionMode } = useNetworkStore.getState()
     if (!inviteCode || !displayName) return
 
     setReconnectAttempt((a) => a + 1)
     try {
-      await useNetworkStore.getState().joinGame(inviteCode, displayName)
+      // Reconnect on the SAME transport the session used (cloud relay vs P2P) —
+      // the host is still on that transport, so the mode must match to rejoin.
+      await useNetworkStore.getState().joinGame(inviteCode, displayName, connectionMode)
       setShowReconnect(false)
     } catch {
       // Error already set in store

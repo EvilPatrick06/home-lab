@@ -11,7 +11,13 @@ import {
 } from '../constants'
 import { useT } from '../i18n'
 import { type LanEvent, startLanScan, stopLanScan, subscribeToLan } from '../network/lan-discovery'
-import { listGames, type RegistryEvent, type RegistryGameEntry, subscribeToRegistry } from '../network/registry-client'
+import {
+  listGames,
+  type RegistryEvent,
+  type RegistryGameEntry,
+  resolveConnectionMode,
+  subscribeToRegistry
+} from '../network/registry-client'
 import { useNetworkStore } from '../stores/network-store'
 import { getOrCreateClientId } from '../utils/client-id'
 import { logger } from '../utils/logger'
@@ -160,7 +166,7 @@ export default function JoinGamePage(): JSX.Element {
         try {
           setError(null)
           localStorage.setItem(DISPLAY_NAME_KEY, session.displayName)
-          await joinGame(session.inviteCode, session.displayName)
+          await joinGame(session.inviteCode, session.displayName, resolveConnectionMode())
           setWaitingForCampaign(true)
         } catch (err) {
           logger.error('[JoinGame] Auto-rejoin failed:', err)
@@ -237,8 +243,14 @@ export default function JoinGamePage(): JSX.Element {
       setError(null)
       navigatedRef.current = false
       await persistDisplayName(name)
+      const normalized = code.trim().toUpperCase()
+      // Pick the transport by the on/off-LAN heuristic: on the Pi's LAN → direct
+      // P2P; off-LAN → the cloud relay (works behind any NAT — direct P2P
+      // signaling/ICE isn't reliably reachable off-LAN). The host applies the
+      // same rule, so both sides rendezvous on the matching transport.
+      const mode = resolveConnectionMode()
       try {
-        await joinGame(code.trim().toUpperCase(), name.trim())
+        await joinGame(normalized, name.trim(), mode)
         setWaitingForCampaign(true)
       } catch (err) {
         logger.error('[JoinGame] join failed:', err)

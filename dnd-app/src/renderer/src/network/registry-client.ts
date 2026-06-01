@@ -109,6 +109,30 @@ export async function resolveBmoBaseUrl(override?: string): Promise<string> {
   return getBaseUrl(override)
 }
 
+/**
+ * True when a Pi was discovered on the local network (mDNS resolved a LAN URL).
+ * Used to choose the multiplayer transport: on-LAN we can do direct WebRTC P2P;
+ * OFF-LAN, WebRTC NAT traversal is unreliable (STUN-only, no reachable TURN —
+ * the Pi's coturn can't traverse the HTTP-only tunnel), so we route through the
+ * Pi Socket.IO cloud relay instead (it only needs :5000, which the tunnel
+ * proxies). `discoveredBmoUrl` is set by the main process's reachability-probed
+ * mDNS discovery (it stays null off-LAN, or when the LAN Pi is unreachable).
+ */
+export function isOnPiLan(): boolean {
+  return discoveredBmoUrl !== null
+}
+
+/**
+ * Pick the connection transport for a join/host. An explicit hosting mode (e.g.
+ * from a registry entry the joiner is connecting to) always wins — both sides
+ * must agree on the transport to rendezvous. Otherwise: on-LAN → 'p2p' (direct,
+ * low-latency), off-LAN → 'cloud' (the relay, which works behind any NAT).
+ */
+export function resolveConnectionMode(explicit?: 'p2p' | 'cloud'): 'p2p' | 'cloud' {
+  if (explicit) return explicit
+  return isOnPiLan() ? 'p2p' : 'cloud'
+}
+
 async function getBaseUrl(override?: string): Promise<string> {
   if (override) return resolveBase(override)
   if (typeof window === 'undefined' || !window.api?.loadSettings) {

@@ -5,6 +5,7 @@ import { BackButton, Button, Card, ConfirmDialog } from '../components/ui'
 import { addToast } from '../hooks/use-toast'
 import { useT } from '../i18n'
 import { configureForCloud } from '../network'
+import { isOnPiLan } from '../network/registry-client'
 import { exportCampaignToFile } from '../services/io/campaign-io'
 import { exportEntities, importEntities, reIdItems } from '../services/io/entity-io'
 import { useNetworkStore } from '../stores/network-store'
@@ -99,8 +100,14 @@ export default function CampaignDetailPage(): JSX.Element {
         networkState.disconnect()
       }
       // Phase 32 — a campaign flagged for cloud hosting routes through the Pi
-      // relay; otherwise the P2P mesh (the default).
-      const mode = campaign.hostingMode === 'cloud' ? 'cloud' : 'p2p'
+      // relay; otherwise the P2P mesh. Also default to the relay when OFF-LAN:
+      // direct WebRTC P2P needs reachable STUN/TURN, and off-LAN the only TURN
+      // (the Pi's coturn) can't traverse the HTTP tunnel — so symmetric-NAT
+      // players can't connect P2P. The relay only needs :5000 (tunnel-proxied)
+      // and works behind any NAT. On the Pi's LAN, P2P stays the low-latency
+      // default.
+      const mode = campaign.hostingMode === 'cloud' || !isOnPiLan() ? 'cloud' : 'p2p'
+      if (mode === 'cloud') configureForCloud()
       await hostGame(hostName, campaign.inviteCode, mode)
       navigate(`/lobby/${campaign.id}`)
     } catch (error) {
