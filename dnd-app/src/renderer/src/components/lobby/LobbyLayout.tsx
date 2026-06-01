@@ -4,8 +4,12 @@ import { useNetworkStore } from '../../stores/network-store'
 import { useCampaignStore } from '../../stores/use-campaign-store'
 import { useCharacterStore } from '../../stores/use-character-store'
 import { useLobbyStore } from '../../stores/use-lobby-store'
-import { CharacterSelector, ChatPanel, ColorConfirmButton, PlayerList, ReadyButton } from '.'
+import CharacterSelector from './CharacterSelector'
+import ChatPanel from './ChatPanel'
+import ColorConfirmButton from './ColorConfirmButton'
 import DiscordLink from './DiscordLink'
+import PlayerList from './PlayerList'
+import ReadyButton from './ReadyButton'
 
 export default function LobbyLayout(): JSX.Element {
   const { campaignId } = useParams<{ campaignId: string }>()

@@ -8,11 +8,24 @@ import { getCustomBlockedWords, isModerationEnabled } from '../network/host-mana
 import { PLAYER_COLORS } from '../network/types'
 import { rollFormula } from '../services/dice/dice-engine'
 import type { Character } from '../types/character'
-import { useNetworkStore } from './network-store'
+import { getNetworkStoreState } from './network-store/network-store-ref'
 
 function getLocalPeerId(): string | null {
   try {
-    return useNetworkStore.getState().localPeerId
+    return getNetworkStoreState().localPeerId
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Safe network-store read for the chat helpers. Returns `null` when the network
+ * store has not registered (standalone lobby / tests) so `sendChat` treats the
+ * session as non-networked rather than throwing.
+ */
+function getNetworkStateSafe(): ReturnType<typeof getNetworkStoreState> | null {
+  try {
+    return getNetworkStoreState()
   } catch {
     return null
   }
@@ -315,10 +328,12 @@ export const useLobbyStore = create<LobbyState>((set, get) => ({
     const trimmed = content.trim().slice(0, MAX_CHAT_LENGTH)
     if (!trimmed) return
 
-    const { role, sendMessage } = useNetworkStore.getState()
+    const net = getNetworkStateSafe()
+    const role = net?.role ?? 'none'
+    const sendMessage = net?.sendMessage
     // Phase 29e — structural transport check (is there a connection at all),
     // not a permission gate. Phase 30 will revisit role-as-string.
-    const isNetworked = role === 'host' || role === 'client'
+    const isNetworked = (role === 'host' || role === 'client') && !!sendMessage
 
     // Handle /roll command (and /r alias). L-2 (v2.1.31 QA): lobby chat
     // was missing the /r short-form that the in-game ChatPanel supports.
@@ -342,7 +357,7 @@ export const useLobbyStore = create<LobbyState>((set, get) => ({
         get().addChatMessage(msg)
 
         if (isNetworked) {
-          sendMessage('chat:message', {
+          sendMessage?.('chat:message', {
             message: `rolled ${result.formula}`,
             isSystem: false,
             isDiceRoll: true,
@@ -399,10 +414,10 @@ export const useLobbyStore = create<LobbyState>((set, get) => ({
 
       if (isNetworked) {
         // Find the target peer by display name (case-insensitive)
-        const peers = useNetworkStore.getState().peers
+        const peers = net?.peers ?? []
         const target = peers.find((p) => p.displayName.toLowerCase() === targetName.toLowerCase())
         if (target) {
-          sendMessage('chat:whisper', {
+          sendMessage?.('chat:whisper', {
             message: whisperContent,
             targetPeerId: target.peerId,
             targetName: target.displayName
@@ -411,7 +426,7 @@ export const useLobbyStore = create<LobbyState>((set, get) => ({
           // Also try matching against lobby players
           const lobbyTarget = get().players.find((p) => p.displayName.toLowerCase() === targetName.toLowerCase())
           if (lobbyTarget) {
-            sendMessage('chat:whisper', {
+            sendMessage?.('chat:whisper', {
               message: whisperContent,
               targetPeerId: lobbyTarget.peerId,
               targetName: lobbyTarget.displayName
@@ -450,7 +465,7 @@ export const useLobbyStore = create<LobbyState>((set, get) => ({
     get().addChatMessage(msg)
 
     if (isNetworked) {
-      sendMessage('chat:message', { message: outgoing, isSystem: false })
+      sendMessage?.('chat:message', { message: outgoing, isSystem: false })
     }
   },
 

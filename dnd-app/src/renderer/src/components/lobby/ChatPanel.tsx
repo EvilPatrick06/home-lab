@@ -2,7 +2,7 @@ import { useVirtualizer } from '@tanstack/react-virtual'
 import { memo, useEffect, useRef } from 'react'
 import { useT } from '../../i18n'
 import { type ChatMessage, useLobbyStore } from '../../stores/use-lobby-store'
-import { ChatInput } from '.'
+import ChatInput from './ChatInput'
 
 function formatTime(timestamp: number): string {
   const date = new Date(timestamp)

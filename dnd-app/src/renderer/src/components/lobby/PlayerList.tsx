@@ -7,7 +7,7 @@ import { useNetworkStore } from '../../stores/network-store'
 import { useCampaignStore } from '../../stores/use-campaign-store'
 import { useLobbyStore } from '../../stores/use-lobby-store'
 import type { Permission } from '../../types/permissions'
-import { PlayerCard } from '.'
+import PlayerCard from './PlayerCard'
 
 export default function PlayerList(): JSX.Element {
   const { t } = useT()

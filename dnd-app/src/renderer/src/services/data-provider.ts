@@ -794,11 +794,6 @@ export async function load5ePlanes(): Promise<Record<string, unknown>[]> {
  * Called during app initialization to warm caches.
  */
 export async function preloadAllData(): Promise<void> {
-  // Import and call module-level cache-warming loaders so they are seen as used
-  const { loadClassResourceData } = await import('../data/class-resources')
-  const { loadModerationData } = await import('../data/moderation')
-  const { loadSpeciesResourceData } = await import('../data/species-resources')
-
   await Promise.allSettled([
     load5eSoundEvents(),
     load5eSpeciesSpells(),
@@ -829,10 +824,6 @@ export async function preloadAllData(): Promise<void> {
     load5eEffectDefinitions(),
     load5eWeaponMastery(),
     load5eXpThresholds(),
-    load5eSpellSlots(),
-    // Module-level cache loaders (includes homebrew/plugin data)
-    loadClassResourceData(),
-    loadModerationData(),
-    loadSpeciesResourceData()
+    load5eSpellSlots()
   ])
 }

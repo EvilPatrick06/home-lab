@@ -1,6 +1,7 @@
 import type { NetworkGameState } from '../../../network'
 import { hasPermission } from '../../../services/permissions/has-permission'
-import { filterGameStateForRole, useNetworkStore } from '../../../stores/network-store'
+import { getNetworkCampaignId } from '../../../stores/network-store/network-session-ref'
+import { filterGameStateForRole } from '../../../stores/network-store/network-state-filter'
 import { useCampaignStore } from '../../../stores/use-campaign-store'
 import { useGameStore } from '../../../stores/use-game-store'
 import type { TurnState } from '../../../types/game-state'
@@ -62,8 +63,8 @@ function recipientSeesAllTurnStates(recipientClientId: string): boolean {
     return false
   }
   if (peer.isHost || peer.isCoDM === true) return true
-  const net = useNetworkStore.getState()
-  const campaign = useCampaignStore.getState().campaigns.find((c) => c.id === net.campaignId) ?? null
+  const campaignId = getNetworkCampaignId()
+  const campaign = useCampaignStore.getState().campaigns.find((c) => c.id === campaignId) ?? null
   return hasPermission(peer, 'view_hidden_tokens', campaign) && hasPermission(peer, 'view_dm_only_stats', campaign)
 }
 

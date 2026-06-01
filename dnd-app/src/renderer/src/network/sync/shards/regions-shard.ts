@@ -1,5 +1,5 @@
 import { hasPermission } from '../../../services/permissions/has-permission'
-import { useNetworkStore } from '../../../stores/network-store'
+import { getNetworkCampaignId } from '../../../stores/network-store/network-session-ref'
 import { useCampaignStore } from '../../../stores/use-campaign-store'
 import { useGameStore } from '../../../stores/use-game-store'
 import type { SceneRegion } from '../../../types/map'
@@ -66,8 +66,8 @@ function recipientSeesDmRegions(recipientClientId: string): boolean {
   const peer = peers.find((p) => p.clientId === recipientClientId)
   if (!peer) return false
   if (peer.isHost || peer.isCoDM === true) return true
-  const net = useNetworkStore.getState()
-  const campaign = useCampaignStore.getState().campaigns.find((c) => c.id === net.campaignId) ?? null
+  const campaignId = getNetworkCampaignId()
+  const campaign = useCampaignStore.getState().campaigns.find((c) => c.id === campaignId) ?? null
   return hasPermission(peer, 'use_dm_tools', campaign)
 }
 

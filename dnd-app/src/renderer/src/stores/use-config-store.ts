@@ -1,19 +1,6 @@
 import { create } from 'zustand'
+import { getActiveCampaignId } from '../services/active-campaign-ref'
 import { logger } from '../utils/logger'
-import { useCampaignStore } from './use-campaign-store'
-
-/**
- * Phase 25c — read the active campaign id so {@link mergeHomebrew} can scope
- * campaign-only entries. Wrapped so a missing/unhydrated store (tests, main
- * process) falls back to "global only" rather than throwing.
- */
-function getActiveCampaignId(): string | null {
-  try {
-    return useCampaignStore.getState().activeCampaignId ?? null
-  } catch {
-    return null
-  }
-}
 
 /**
  * Imperative loader cache for `data-provider` (Phase 15h — renamed from `use-data-store`).

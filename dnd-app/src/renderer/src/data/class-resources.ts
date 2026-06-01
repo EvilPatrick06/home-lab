@@ -1,5 +1,4 @@
 import classResourcesJson from '@data/5e/game/mechanics/class-resources.json'
-import { load5eClassResources } from '../services/data-provider'
 import type { ClassResource } from '../types/character-common'
 import type { ResourceDefinition, ResourceScaling } from '../types/data'
 
@@ -77,11 +76,6 @@ export function getClassResources(classId: string, classLevel: number, wisdomMod
   const classData = data.classes[classId]
   if (!classData) return []
   return resolveResources(classData.resources, classLevel, wisdomModifier)
-}
-
-/** Load class resources from the data store (includes homebrew classes). */
-export async function loadClassResourceData(): Promise<unknown> {
-  return load5eClassResources()
 }
 
 /** Get resources from feats (e.g., Lucky). */

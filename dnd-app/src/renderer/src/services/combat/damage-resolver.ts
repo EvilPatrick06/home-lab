@@ -6,56 +6,6 @@
 
 import { PHYSICAL_DAMAGE_TYPES } from '../../constants'
 
-// Type imports wired from combat-resolver for knip type-usage tracking
-import type {
-  AttackRequest,
-  AttackType,
-  AttackResult as CombatAttackResult,
-  DeathSaveResult,
-  DeathSaveState,
-  GrappleRequest,
-  GrappleResult,
-  SavingThrowRequest,
-  SavingThrowResult,
-  ShoveRequest,
-  ShoveResult
-} from './combat-resolver'
-
-// Re-export attack-resolver utilities for barrel access through damage-resolver
-export {
-  applyDamageToToken,
-  buildAttackSummary,
-  doubleDiceInFormula,
-  resolveUnarmedStrike,
-  resolveUnarmedStrikeBase,
-  rollDamage
-} from './attack-resolver'
-// Re-export combat-resolver functions for barrel access through damage-resolver
-export {
-  resolveGrapple,
-  resolveSavingThrow,
-  resolveShove,
-  shouldTriggerLairAction,
-  spendLegendaryAction,
-  useLegendaryResistance
-} from './combat-resolver'
-// Re-export combat-rules utility for barrel access through damage-resolver
-export { getEffectiveSpeed } from './combat-rules'
-/** @internal Type aliases wired for knip — combat-resolver pipeline types */
-export type {
-  AttackRequest,
-  AttackType,
-  CombatAttackResult,
-  DeathSaveResult,
-  DeathSaveState,
-  GrappleRequest,
-  GrappleResult,
-  SavingThrowRequest,
-  SavingThrowResult,
-  ShoveRequest,
-  ShoveResult
-}
-
 // === Types ===
 
 export interface DamageApplication {

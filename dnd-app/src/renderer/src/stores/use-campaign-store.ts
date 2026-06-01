@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { dynamicKeys } from '../constants'
 import { BUILTIN_ROLES } from '../data/builtin-roles'
+import { setActiveCampaignIdRef } from '../services/active-campaign-ref'
 import type { Campaign, CampaignPermissions, PlayerOverride, Role } from '../types/campaign'
 import { generateInviteCode } from '../utils/invite-code'
 import { logger } from '../utils/logger'
@@ -30,8 +31,8 @@ function generateId(): string {
  * Phase 25c — cascade-delete homebrew scoped to a deleted campaign. Only entries
  * whose `campaignId` matches are removed; global homebrew (no `campaignId`) is
  * left untouched. The config store's homebrew cache is cleared afterward so the
- * next load reflects the deletion. Dynamic import avoids a static cycle with
- * `use-config-store` (which statically imports this store).
+ * next load reflects the deletion. Dynamic import keeps this store from
+ * statically pulling in `use-config-store`.
  */
 async function cascadeDeleteCampaignHomebrew(campaignId: string): Promise<void> {
   try {
@@ -282,6 +283,15 @@ export const useCampaignStore = create<CampaignState>((set, get) => ({
     })
   }
 }))
+
+// Keep the leaf `active-campaign-ref` mirror in sync with every `activeCampaignId`
+// change so `use-config-store` can read it synchronously without importing this
+// store (breaks the config/campaign store import cycle). Seed the initial value
+// and subscribe for subsequent changes.
+setActiveCampaignIdRef(useCampaignStore.getState().activeCampaignId)
+useCampaignStore.subscribe((state) => {
+  setActiveCampaignIdRef(state.activeCampaignId)
+})
 
 /** Phase 29c — apply a permissions mutation to a campaign and persist. */
 async function mutatePermissions(

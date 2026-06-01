@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useT } from '../../i18n'
 import type { RegistryGameEntry } from '../../network/registry-client'
-import { GameCard } from '.'
+import GameCard from './GameCard'
 
 export type SortOption = 'name-asc' | 'players-desc' | 'newest'
 

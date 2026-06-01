@@ -3,6 +3,12 @@ import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { useT } from '../../../../i18n'
 import { getEffectiveFeats, getEffectiveWeapons } from '../../../../services/character/effective-character-5e'
 import {
+  type GrappleRequest,
+  resolveGrapple,
+  resolveShove,
+  type ShoveRequest
+} from '../../../../services/combat/combat-resolver'
+import {
   type CoverType,
   canGrappleOrShove,
   checkRangedRange,
@@ -13,12 +19,6 @@ import {
   unarmedStrikeDC
 } from '../../../../services/combat/combat-rules'
 import { getCritThreshold } from '../../../../services/combat/crit-range'
-import {
-  type GrappleRequest,
-  resolveGrapple,
-  resolveShove,
-  type ShoveRequest
-} from '../../../../services/combat/damage-resolver'
 import { resolveEffects } from '../../../../services/combat/effect-resolver-5e'
 import { useGameStore } from '../../../../stores/use-game-store'
 import type { Character } from '../../../../types/character'
