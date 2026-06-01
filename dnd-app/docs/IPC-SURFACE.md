@@ -27,7 +27,7 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 
 ## Defined channels
 
-*Total: **158** channel strings (from `IPC_CHANNELS`).*
+*Total: **170** channel strings (from `IPC_CHANNELS`).*
 
 ### Storage: Characters
 
@@ -268,6 +268,13 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 | `AUDIO_GET_CUSTOM_PATH` | `audio:get-custom-path` |
 | `AUDIO_PICK_FILE` | `audio:pick-file` |
 
+### Sound Cache (thin installer — bundled MP3s dropped, fetched from Pi)
+
+| Constant | Channel string |
+|---|---|
+| `SOUND_CACHE_GET` | `sound-cache:get` |
+| `SOUND_CACHE_PREWARM` | `sound-cache:prewarm` |
+
 ### Storage: Character Versions
 
 | Constant | Channel string |
@@ -401,6 +408,26 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 | Constant | Channel string |
 |---|---|
 | `LOG_SECURITY_EVENT` | `security:log-event` |
+
+### Pi Game Registry (main-process proxy)
+
+| Constant | Channel string |
+|---|---|
+| `REGISTRY_ANNOUNCE` | `registry:announce` |
+| `REGISTRY_UPDATE` | `registry:update` |
+| `REGISTRY_HEARTBEAT` | `registry:heartbeat` |
+| `REGISTRY_DEREGISTER` | `registry:deregister` |
+| `REGISTRY_LIST` | `registry:list` |
+| `REGISTRY_SUBSCRIBE` | `registry:subscribe` |
+| `REGISTRY_UNSUBSCRIBE` | `registry:unsubscribe` |
+| `REGISTRY_EVENT` | `registry:event` |
+
+### Pi 5e Library (main-process proxy)
+
+| Constant | Channel string |
+|---|---|
+| `LIBRARY_MANIFEST` | `library:manifest` |
+| `LIBRARY_FILE` | `library:file` |
 
 
 
