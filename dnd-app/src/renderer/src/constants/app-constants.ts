@@ -29,6 +29,30 @@ export { MAX_READ_FILE_SIZE, MAX_WRITE_CONTENT_SIZE } from '../../../shared/cons
 export const LOADING_GRACE_PERIOD_MS = 4000
 export const LOBBY_COPY_TIMEOUT_MS = 2000
 
+// UI: desktop notifications (notification-service)
+export const NOTIFICATION_AUTO_CLOSE_MS = 5000
+
+// Lobby: how long a kicked peer stays visible (as 'disconnected') before removal
+export const KICK_PLAYER_REMOVE_DELAY_MS = 1500
+
+// AI DM store
+// Auto-reject queued mutations the DM never acted on.
+export const AI_MUTATIONS_AUTO_REJECT_MS = 60_000
+// Safety timeout that force-clears a stuck "typing" stream. The handler fires
+// at STREAM_SAFETY_TIMEOUT_MS and only acts if at least
+// STREAM_SAFETY_THRESHOLD_MS has actually elapsed (guards against early wakeups).
+export const STREAM_SAFETY_TIMEOUT_MS = 60_000
+export const STREAM_SAFETY_THRESHOLD_MS = 59_000
+
+// AI DM scene bootstrap (use-game-effects)
+// Brief wait for persisted messages to land before forcing a reload from disk.
+export const SCENE_MESSAGE_WAIT_MS = 500
+// Poll cadence + overall cap while a scene is still streaming in.
+export const SCENE_POLL_INTERVAL_MS = 1000
+export const SCENE_POLL_TIMEOUT_MS = 60_000
+// Fallback delay before kicking off scene generation when no prep happened.
+export const SCENE_FALLBACK_DELAY_MS = 1500
+
 // Peer: peer-manager
 export const PEER_CREATION_TIMEOUT_MS = 15000
 export const INVITE_CODE_LENGTH = 6
@@ -56,6 +80,15 @@ export const CLOUD_ICE_SERVERS: RTCIceServer[] = [
   { urls: 'stun:stun.cloudflare.com:3478' },
   { urls: 'stun:stun.l.google.com:19302' }
 ]
+
+// Game-state auto-save (io/game-auto-save)
+// Debounce window before a store change is persisted.
+export const GAME_AUTO_SAVE_DEBOUNCE_MS = 5000
+// Re-run delay when a save completes while another was queued.
+export const GAME_AUTO_SAVE_REQUEUE_MS = 250
+// flushAutoSave() spinlock: poll cadence + max retries while a save is in flight.
+export const GAME_AUTO_SAVE_FLUSH_POLL_MS = 100
+export const GAME_AUTO_SAVE_FLUSH_MAX_RETRIES = 20
 
 // AI / Ollama
 export const DEFAULT_OLLAMA_URL = 'http://localhost:11434'

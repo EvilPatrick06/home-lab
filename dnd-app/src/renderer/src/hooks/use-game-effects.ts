@@ -1,5 +1,11 @@
 import { type MutableRefObject, useCallback, useEffect } from 'react'
 import { pushDmAlert } from '../components/game/overlays/DmAlertTray'
+import {
+  SCENE_FALLBACK_DELAY_MS,
+  SCENE_MESSAGE_WAIT_MS,
+  SCENE_POLL_INTERVAL_MS,
+  SCENE_POLL_TIMEOUT_MS
+} from '../constants'
 import { i18n } from '../i18n'
 import type { MessageType, TypingPayload } from '../network'
 import { startGameSync, stopGameSync } from '../network'
@@ -219,7 +225,7 @@ export function useGameEffects({
         const waitForMessages = async (): Promise<void> => {
           let msgs = useAiDmStore.getState().messages
           if (msgs.length === 0) {
-            await new Promise<void>((resolve) => setTimeout(resolve, 500))
+            await new Promise<void>((resolve) => setTimeout(resolve, SCENE_MESSAGE_WAIT_MS))
             msgs = useAiDmStore.getState().messages
           }
           if (msgs.length === 0) {
@@ -267,14 +273,14 @@ export function useGameEffects({
               }
             }
           }
-        }, 1000)
+        }, SCENE_POLL_INTERVAL_MS)
         // Safety: stop polling after 60s
         pollTimeout = setTimeout(() => {
           if (pollInterval) {
             clearInterval(pollInterval)
             pollInterval = null
           }
-        }, 60000)
+        }, SCENE_POLL_TIMEOUT_MS)
         return
       }
 
@@ -285,7 +291,7 @@ export function useGameEffects({
       if (characterIds.length > 0) {
         sceneTimeout = setTimeout(() => {
           useAiDmStore.getState().setScene(campaign.id, characterIds)
-        }, 1500)
+        }, SCENE_FALLBACK_DELAY_MS)
       }
     }
 

@@ -1,4 +1,4 @@
-import { SETTINGS_KEYS } from '../constants'
+import { NOTIFICATION_AUTO_CLOSE_MS, SETTINGS_KEYS } from '../constants'
 // ---------------------------------------------------------------------------
 // notification-service.ts — Desktop notification wrapper for D&D VTT game events
 // Uses the Web Notification API (available in the Electron renderer process).
@@ -121,7 +121,7 @@ export function notify(event: NotificationEvent, title: string, body?: string): 
   // Auto-close after 5 seconds
   const timer = setTimeout(() => {
     notification.close()
-  }, 5000)
+  }, NOTIFICATION_AUTO_CLOSE_MS)
 
   // Clear the timer if the user closes or clicks the notification early
   notification.onclose = (): void => {

@@ -390,12 +390,7 @@ export function DrawingToolbar({
                     onChange={(e) => onColorChange(e.target.value)}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
-                  <span
-                    className="block w-full h-full"
-                    style={{
-                      background: 'conic-gradient(red, yellow, lime, aqua, blue, magenta, red)'
-                    }}
-                  />
+                  <span className="block w-full h-full bg-[conic-gradient(red,_yellow,_lime,_aqua,_blue,_magenta,_red)]" />
                 </label>
                 <input
                   type="text"

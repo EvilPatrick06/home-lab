@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { pushDmAlert } from '../components/game/overlays/DmAlertTray'
+import { AI_MUTATIONS_AUTO_REJECT_MS, STREAM_SAFETY_THRESHOLD_MS, STREAM_SAFETY_TIMEOUT_MS } from '../constants'
 import { i18n } from '../i18n'
 import { type AiRendererAction, parseRendererActions, stripActionTags } from '../services/ai-renderer-actions'
 import type { Campaign } from '../types/campaign'
@@ -193,7 +194,7 @@ export const useAiDmStore = create<AiDmState>((set, get) => ({
         set({ pendingMutations: state.pendingMutations.filter((m) => m.id !== mutationSet.id) })
         pushDmAlert('warning', i18n.t('notify.aiDmStore.mutationsAutoRejected'))
       }
-    }, 60_000)
+    }, AI_MUTATIONS_AUTO_REJECT_MS)
     set((state) => ({
       pendingMutations: [...state.pendingMutations, { ...mutationSet, timeoutId }]
     }))
@@ -324,7 +325,7 @@ export const useAiDmStore = create<AiDmState>((set, get) => ({
     const streamStartTime = Date.now()
     const timeoutId = setTimeout(async () => {
       const s = get()
-      if (s.isTyping && s.activeStreamId && Date.now() - streamStartTime >= 59000) {
+      if (s.isTyping && s.activeStreamId && Date.now() - streamStartTime >= STREAM_SAFETY_THRESHOLD_MS) {
         // Update UI state immediately to prevent race conditions
         set({
           isTyping: false,
@@ -336,7 +337,7 @@ export const useAiDmStore = create<AiDmState>((set, get) => ({
         // Then perform the async cancellation
         await window.api.ai.cancelStream(s.activeStreamId)
       }
-    }, 60000)
+    }, STREAM_SAFETY_TIMEOUT_MS)
 
     // Store timeout ID in state for cleanup when stream completes
     set({ safetyTimeoutId: timeoutId })

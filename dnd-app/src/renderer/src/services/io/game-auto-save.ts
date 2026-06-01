@@ -1,8 +1,12 @@
+import {
+  GAME_AUTO_SAVE_DEBOUNCE_MS,
+  GAME_AUTO_SAVE_FLUSH_MAX_RETRIES,
+  GAME_AUTO_SAVE_FLUSH_POLL_MS,
+  GAME_AUTO_SAVE_REQUEUE_MS
+} from '../../constants/app-constants'
 import { useGameStore } from '../../stores/use-game-store'
 import type { GameMap } from '../../types/map'
 import { logger } from '../../utils/logger'
-
-const AUTO_SAVE_DEBOUNCE_MS = 5000
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
 let unsubscribe: (() => void) | null = null
@@ -65,7 +69,7 @@ async function performSave() {
   } finally {
     isSaving = false
     if (saveQueued) {
-      setTimeout(performSave, 250)
+      setTimeout(performSave, GAME_AUTO_SAVE_REQUEUE_MS)
     }
   }
 }
@@ -75,7 +79,7 @@ function scheduleSave(): void {
   if (debounceTimer) clearTimeout(debounceTimer)
   debounceTimer = setTimeout(() => {
     performSave()
-  }, AUTO_SAVE_DEBOUNCE_MS)
+  }, GAME_AUTO_SAVE_DEBOUNCE_MS)
 }
 
 /**
@@ -135,9 +139,9 @@ export async function flushAutoSave(campaignId: string): Promise<void> {
   // If already saving, queue a save and spinlock briefly
   if (isSaving) {
     saveQueued = true
-    let retries = 20
+    let retries = GAME_AUTO_SAVE_FLUSH_MAX_RETRIES
     while (isSaving && retries > 0) {
-      await new Promise((r) => setTimeout(r, 100))
+      await new Promise((r) => setTimeout(r, GAME_AUTO_SAVE_FLUSH_POLL_MS))
       retries--
     }
     return

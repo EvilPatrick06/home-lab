@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { LAST_SESSION_KEY } from '../../constants'
+import { KICK_PLAYER_REMOVE_DELAY_MS, LAST_SESSION_KEY } from '../../constants'
 import type {
   ConnectionState,
   MessageType,
@@ -411,7 +411,7 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
     get().removePeer(peerId)
     setTimeout(() => {
       useLobbyStore.getState().removePlayer(peerId)
-    }, 1500)
+    }, KICK_PLAYER_REMOVE_DELAY_MS)
   },
 
   transferDm: (newDmPeerId: string) => {
