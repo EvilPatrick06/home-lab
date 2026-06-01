@@ -3,8 +3,11 @@ import { createWriteStream, existsSync } from 'node:fs'
 import { join, relative, resolve } from 'node:path'
 import { app } from 'electron'
 import { listOllamaModels } from './ollama-client'
+import { OLLAMA_BASE_URL } from './ollama-constants'
 
-export const OLLAMA_BASE_URL = 'http://localhost:11434'
+// Re-exported from the leaf so existing `import { OLLAMA_BASE_URL } from './ollama-manager'`
+// call sites (ai-service) keep working without re-introducing the ollama-client cycle.
+export { OLLAMA_BASE_URL }
 
 export interface OllamaStatus {
   installed: boolean

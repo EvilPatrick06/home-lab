@@ -1,5 +1,5 @@
 import type { LLMProvider } from './llm-provider'
-import { OLLAMA_BASE_URL } from './ollama-manager'
+import { OLLAMA_BASE_URL } from './ollama-constants'
 import type { ChatMessage, StreamCallbacks } from './types'
 
 let ollamaBaseUrl = OLLAMA_BASE_URL
