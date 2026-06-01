@@ -201,7 +201,16 @@ export default function LobbyPage(): JSX.Element {
   const campaignMaxPlayers = campaign?.settings?.maxPlayers ?? null
   const campaignMaxSpectators = campaign?.settings?.maxSpectators ?? null
   const campaignIsPrivate = campaign?.settings?.isPrivate ?? null
-  const campaignHostingMode = campaign?.hostingMode ?? 'p2p'
+  // Phase 32 fix — announce the transport the host is ACTUALLY on (the
+  // network store's resolved connectionMode), NOT the campaign's static
+  // hostingMode. A default-p2p campaign hosted off-LAN routes through the Pi
+  // cloud relay (CampaignDetailPage: hostingMode===cloud || !isOnPiLan) and so
+  // has NO PeerJS peer. Announcing the static p2p made joiners resolve to the
+  // PeerJS path and hit peer-unavailable (No game found with that invite code)
+  // even though the relay host showed Connected and the game listed. Announce
+  // connectionMode so the joiner (resolveConnectionMode(match.hosting_mode))
+  // rendezvous on the same wire.
+  const announceHostingMode = connectionMode
 
   useEffect(() => {
     if (!isHost || !campaignName || !inviteCode || !localPeerId || !displayName) return
@@ -218,7 +227,7 @@ export default function LobbyPage(): JSX.Element {
       game_system: campaignSystem || 'dnd5e',
       is_private: campaignIsPrivate ?? false,
       peer_id: localPeerId,
-      hosting_mode: campaignHostingMode
+      hosting_mode: announceHostingMode
     }).catch((err) => logger.warn('[Lobby] announce failed:', err))
     return () => {
       cancelled = true
@@ -232,7 +241,7 @@ export default function LobbyPage(): JSX.Element {
     campaignMaxPlayers,
     campaignMaxSpectators,
     campaignIsPrivate,
-    campaignHostingMode,
+    announceHostingMode,
     inviteCode,
     localPeerId,
     displayName

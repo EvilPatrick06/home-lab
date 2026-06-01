@@ -126,6 +126,7 @@ function seedHostLobby(): void {
     inviteCode: 'ABCD',
     localPeerId: 'host-peer',
     displayName: 'Dungeon Master Dave',
+    connectionMode: 'p2p',
     peers: [],
     latencyMs: null,
     error: null,
@@ -212,6 +213,19 @@ describe('LobbyPage (host lobby flow)', () => {
     // The leave control exists and the confirmation modal is NOT yet open.
     expect(screen.getByRole('button', { name: /Leave Lobby/i })).toBeTruthy()
     expect(screen.queryByRole('dialog')).toBeNull()
+  })
+
+  it('announces hosting_mode from the resolved connectionMode, not the campaign preference', async () => {
+    // Regression: a default-p2p campaign hosted off-LAN routes through the Pi
+    // cloud relay (connectionMode === 'cloud') but used to announce the static
+    // campaign.hostingMode ('p2p'), so joiners took the PeerJS path and hit
+    // peer-unavailable ("No game found"). The announce must reflect the actual
+    // transport so both sides rendezvous on the same wire.
+    const { startHostAnnounce } = await import('../network')
+    vi.mocked(startHostAnnounce).mockClear()
+    stores.network.connectionMode = 'cloud'
+    render(<LobbyPage />)
+    expect(startHostAnnounce).toHaveBeenCalledWith(expect.objectContaining({ hosting_mode: 'cloud' }))
   })
 
   it('opens the leave-confirmation modal when the Leave control is clicked', () => {
