@@ -75,7 +75,12 @@ if (!app.commandLine.hasSwitch('enable-unsafe-swiftshader')) {
   app.commandLine.appendSwitch('enable-unsafe-swiftshader')
 }
 
-const gotTheLock = app.requestSingleInstanceLock()
+// Single-instance lock — bypassed ONLY by the two-window local multiplayer test
+// launcher (`scripts/dev/two-windows-test.bat` sets DNDVTT_TEST_MULTI=1 and points
+// each instance at its own --user-data-dir, giving them distinct identities).
+// Without the flag (every normal launch) the lock is enforced: a 2nd copy just
+// focuses the existing window, so the app can never open two windows on its own.
+const gotTheLock = process.env.DNDVTT_TEST_MULTI === '1' || app.requestSingleInstanceLock()
 if (!gotTheLock) {
   // `app.quit()` is async — the rest of this module still loads, the
   // `app.whenReady().then(...)` handler below still runs, `createWindow()`
@@ -180,6 +185,17 @@ function createWindow(): void {
       }
     })
   })
+
+  // Two-window test (scripts/dev/two-windows-test.bat): tag the title with the
+  // role (DNDVTT_TEST_ROLE=DM/Player) so the two windows are distinguishable.
+  // No-op on a normal launch (env unset).
+  const testRole = process.env.DNDVTT_TEST_ROLE
+  if (testRole) {
+    mainWindow.on('page-title-updated', (e, title) => {
+      e.preventDefault()
+      mainWindow.setTitle(`${title}  —  TEST · ${testRole}`)
+    })
+  }
 
   // On ready-to-show, nudge the WM to draw + focus the window. Belt &
   // suspenders for X11/Wayland compositors that sometimes drop the
