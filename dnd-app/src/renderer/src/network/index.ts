@@ -41,6 +41,7 @@ export { createMessageRouter } from './message-handler'
 // Peer manager
 export {
   configureForCloud,
+  configureForP2P,
   createPeer,
   destroyPeer,
   generateInviteCode,

@@ -30,6 +30,28 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## Critical / High / Medium / Low
 
+### [2026-06-01] Signaling-status badge stays "not applicable" off-LAN
+
+- **Category:** UX, debt
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** Claude Code
+- **During:** MP-5 (off-LAN self-host P2P)
+
+**Description:**
+`probeSignalingServer()` (`src/main/lan-discovery.ts:237`) only probes the Pi
+PeerServer when the resolved base URL is `http:` (LAN); for an `https:` tunnel base
+it reports `reachable: null` → the badge shows a muted "not applicable". Now that
+the PeerServer is reachable off-LAN at `https://<host>/myapp/peerjs/id` (cloudflared
+route + Access bypass), the probe could verify the tunnel too and show an honest
+reachable/unreachable state off-LAN instead of "not applicable".
+
+**Proposed fix / improvement:**
+- [ ] In `probeSignalingServer`, for an `https:` base probe `https://<host>/myapp/peerjs/id` (port 443, no `:9000`); keep the `http:` LAN probe at `<host>:9000/myapp/peerjs/id`.
+- [ ] Update `MultiplayerStatusSection` copy so the off-LAN state reads reachable/unreachable rather than "only checked on LAN".
+
+**Related files:** `dnd-app/src/main/lan-discovery.ts:237`, `dnd-app/src/renderer/src/components/ui/MultiplayerStatusSection.tsx`
+
 ### [2026-06-01] Sound Pi-offload never warms on the normal startup path
 
 - **Category:** performance, debt

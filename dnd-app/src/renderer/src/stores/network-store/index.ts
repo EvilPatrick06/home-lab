@@ -4,6 +4,7 @@ import type { ConnectionState, MessageType, NetworkGameState, NetworkMessage, Pe
 import {
   broadcastMessage,
   disconnect as clientDisconnect,
+  configureForP2P,
   connectToHost,
   generateInviteCode,
   getConnectedPeers,
@@ -23,6 +24,7 @@ import {
 import { GameAuthority } from '../../network/authority/game-authority'
 import { setHostOutboundOverride } from '../../network/host-manager'
 import { setPeerIdOverride } from '../../network/peer-manager'
+import { resolveBmoBaseUrl } from '../../network/registry-client'
 import { createShardApplier } from '../../network/sync/applier'
 import { createShardBroadcaster } from '../../network/sync/broadcaster'
 // Phase 31e — importing the shard barrel runs each shard module's top-level
@@ -259,6 +261,10 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
     }
 
     try {
+      // MP-5 — self-host P2P signals through the Pi's OWN PeerServer (on-LAN
+      // :9000, off-LAN via the /myapp Cloudflare tunnel) instead of the flaky
+      // public PeerJS cloud. resolveBmoBaseUrl() picks settings -> mDNS -> default.
+      configureForP2P(await resolveBmoBaseUrl())
       const inviteCode = await startHosting(displayName, existingInviteCode)
 
       clearListenerCleanups()
@@ -575,6 +581,9 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
         })
       )
 
+      // MP-5 — match the host: P2P joiners signal through the Pi PeerServer too
+      // (on-LAN :9000, off-LAN via the /myapp tunnel), not the public PeerJS cloud.
+      configureForP2P(await resolveBmoBaseUrl())
       await connectToHost(inviteCode, displayName)
 
       set({

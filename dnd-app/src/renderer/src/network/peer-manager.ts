@@ -126,6 +126,32 @@ export function configureForCloud(): void {
 }
 
 /**
+ * Configure P2P (self-host) signaling to use the Pi's OWN PeerServer
+ * (bmo-peerjs) instead of the flaky public PeerJS cloud — works on AND off LAN:
+ *   - on-LAN  (http base)  → `<host>:9000/myapp` over ws (the PeerServer's port)
+ *   - off-LAN (https base) → `<host>:443/myapp` over wss (the Cloudflare tunnel,
+ *     which routes `/myapp` → :9000; requires an Access bypass on `/myapp`)
+ * Falls back to the public PeerJS cloud only when no Pi base URL is known, so a
+ * user with no Pi configured can still play. `piBaseUrl` is the resolved BMO base
+ * (settings → mDNS → default) from `resolveBmoBaseUrl()`.
+ */
+export function configureForP2P(piBaseUrl: string | null): void {
+  if (!piBaseUrl) {
+    resetSignalingServer() // customHost=null → public PeerJS cloud fallback
+    return
+  }
+  try {
+    const u = new URL(piBaseUrl)
+    const secure = u.protocol === 'https:'
+    // u.hostname is a bare host (no scheme) so setSignalingServer accepts it; the
+    // PeerServer is on :9000 on the LAN and reached via :443 through the tunnel.
+    setSignalingServer(u.hostname, secure ? 443 : 9000, '/myapp', secure)
+  } catch {
+    resetSignalingServer()
+  }
+}
+
+/**
  * Reset all networking config back to defaults.
  * Called when a session ends so the next session tries configured host or cloud fallback.
  */
