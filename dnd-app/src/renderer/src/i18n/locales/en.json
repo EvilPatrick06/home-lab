@@ -5074,7 +5074,8 @@
       "deleteFailed": "Failed to delete character"
     },
     "backup": {
-      "staleReminder": "Last cloud backup was {{days}} days ago — consider backing up."
+      "staleReminder": "Last cloud backup was {{days}} days ago — consider backing up.",
+      "autoDone": "Cloud backup updated automatically."
     }
   },
   "pages": {
@@ -6029,6 +6030,8 @@
       "checkStatus": "Check Status",
       "backingUp": "Backing up...",
       "backupNow": "Backup Now",
+      "autoBackupToggle": "Auto-backup on launch",
+      "autoBackupDesc": "When your last cloud backup is stale, back up automatically on launch (only if cloud backup is set up).",
       "listBackups": "List Backups",
       "backedUpCampaigns": "Backed-up Campaigns",
       "goBack": "Go back",

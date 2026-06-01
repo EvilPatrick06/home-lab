@@ -96,7 +96,8 @@ No pre-built download yet. The `mac` build config exists (`npm run build:mac` �
 - **BMO integration** (optional) — if you've also set up the [`bmo`](../bmo) Pi voice assistant, it's auto-discovered on the same LAN. Settings → BMO Connection lets you override the URL. The Pi unlocks Discord-bot relay, narration TTS, and a public game-discovery registry.
 
 **Settings:**
-- **Updates** — auto-check on launch is **on by default** (check-only, shows a prompt — never auto-downloads). Opt in separately to auto-download / auto-restart / silent install. Manual "Check for Updates" here + on the About page.
+- **Updates** — auto-check on launch is **on by default** (check-only, shows a prompt — never auto-downloads), and **re-checks every 6 h** so a long-running session still catches a new release. Opt in separately to auto-download / auto-restart / silent install. Manual "Check for Updates" here + on the About page.
+- **Cloud backup** — when your last backup is stale, the app **auto-backs-up on launch** (only if cloud backup is configured; toggle off in this section to get just the reminder instead).
 - **Audio** — mic/speaker pick + volume.
 - **Network** — invite code length, ICE/TURN behavior, BMO override URL.
 - **Accessibility** — reduced motion (skips 3D dice physics), high-contrast theme.

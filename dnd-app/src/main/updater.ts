@@ -294,6 +294,9 @@ export function registerUpdateHandlers(): void {
  * main/index.ts after `app.whenReady()`. Reads settings.json
  * directly — IPC isn't available yet at this point in startup.
  */
+/** Re-check cadence for a long-running session (6 h). */
+const RECHECK_INTERVAL_MS = 6 * 60 * 60 * 1000
+
 export async function maybeAutoCheckOnLaunch(): Promise<void> {
   const prefs = await loadAutoUpdatePrefs()
   if (!prefs.autoCheckUpdates) return
@@ -302,6 +305,16 @@ export async function maybeAutoCheckOnLaunch(): Promise<void> {
   setTimeout(() => {
     void runAutoUpdateFlow(prefs)
   }, 5_000)
+
+  // Re-check periodically so a session that stays open across a release pick up
+  // the new build without a relaunch. Skip while a check is in flight or an
+  // update is already surfaced (the user should act on that one first) — only
+  // re-check from a settled not-available/error state.
+  setInterval(() => {
+    const s = currentStatus.state
+    if (s === 'checking' || s === 'available' || s === 'downloading' || s === 'downloaded') return
+    void runAutoUpdateFlow(prefs)
+  }, RECHECK_INTERVAL_MS)
 }
 
 async function runAutoUpdateFlow(prefs: AutoUpdatePrefs): Promise<void> {

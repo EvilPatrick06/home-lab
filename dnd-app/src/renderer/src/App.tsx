@@ -79,16 +79,32 @@ function App(): JSX.Element {
         ) {
           i18n.changeLanguage(settings.language).catch((e) => logger.warn('Failed to apply saved language', e))
         }
-        // Once-per-launch nudge when the last cloud backup is stale AND there's
-        // campaign data worth backing up (never nag fresh/empty installs).
+        // On launch, when the last cloud backup is stale AND there's campaign
+        // data worth backing up (never nag fresh/empty installs): auto-run the
+        // backup (default on) if cloud/rclone is configured, else fall back to a
+        // one-time nudge. Auto-backup is a no-op when the Pi/cloud isn't set up.
         const backup = backupStaleness(settings.lastBackupTime)
         if (backup.stale) {
           window.api
             .loadCampaigns()
-            .then((campaigns) => {
-              if (campaigns.length > 0) {
-                addToast(i18n.t('notify.backup.staleReminder', { days: backup.daysSince ?? 0 }), 'warning', 8000)
+            .then(async (campaigns) => {
+              if (campaigns.length === 0) return
+              if (settings.autoBackupOnLaunch !== false) {
+                try {
+                  const status = await window.api.cloudSync.getStatus()
+                  if (!status.configured) return // cloud not set up → nothing to auto-back-up
+                  const c = campaigns[0] as { id: string; name: string }
+                  const res = await window.api.cloudSync.backupCampaign(c.id, c.name)
+                  if (res.success) {
+                    await window.api.saveSettings({ ...settings, lastBackupTime: new Date().toISOString() })
+                    addToast(i18n.t('notify.backup.autoDone'), 'success', 5000)
+                  }
+                } catch {
+                  /* best-effort — stay quiet on failure rather than double-notifying */
+                }
+                return
               }
+              addToast(i18n.t('notify.backup.staleReminder', { days: backup.daysSince ?? 0 }), 'warning', 8000)
             })
             .catch(() => {})
         }

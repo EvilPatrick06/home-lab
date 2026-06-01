@@ -33,7 +33,10 @@ export const AppSettingsSchema = z
     /** Persisted UI language (e.g. 'en', 'en-XA'). Default 'en'. */
     language: z.string().optional(),
     /** ISO timestamp of the last successful cloud backup — drives the staleness nudge. */
-    lastBackupTime: z.string().optional()
+    lastBackupTime: z.string().optional(),
+    /** Auto-run a cloud backup on launch when the last one is stale (default on;
+     * no-op unless cloud/rclone is configured). Set false to only get the nudge. */
+    autoBackupOnLaunch: z.boolean().optional()
   })
   .passthrough()
 

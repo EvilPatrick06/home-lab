@@ -706,6 +706,8 @@ function CloudBackupSection(): JSX.Element {
   })
   const [loading, setLoading] = useState<string | null>(null)
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null)
+  // Auto-backup on launch when stale (default on; no-op unless cloud configured).
+  const [autoBackup, setAutoBackup] = useState(true)
   // The Pi base URL is preset for everyone (the public tunnel default + LAN
   // mDNS auto-discovery) and BMO is reachable without an API key, so there's
   // nothing to configure here — just the backup actions below.
@@ -720,9 +722,20 @@ function CloudBackupSection(): JSX.Element {
       .then((s) => {
         // Seed the backup display from the persisted timestamp so it survives relaunch.
         if (s?.lastBackupTime) setSyncState((prev) => ({ ...prev, lastBackupTime: s.lastBackupTime }))
+        setAutoBackup(s?.autoBackupOnLaunch !== false)
       })
       .catch(() => {})
   }, [])
+
+  const handleToggleAutoBackup = async (checked: boolean): Promise<void> => {
+    setAutoBackup(checked)
+    try {
+      const s = await window.api.loadSettings()
+      await window.api.saveSettings({ ...s, autoBackupOnLaunch: checked })
+    } catch {
+      setAutoBackup(!checked) // revert on failure
+    }
+  }
 
   const handleCheckStatus = async (): Promise<void> => {
     setLoading('status')
@@ -864,6 +877,20 @@ function CloudBackupSection(): JSX.Element {
           {loading === 'list' ? t('common.states.loading') : t('pages.settingsPage.listBackups')}
         </button>
       </div>
+
+      {/* Auto-backup-on-launch toggle (opt out of the automatic stale backup) */}
+      <label className="flex items-start gap-2 text-sm text-gray-300">
+        <input
+          type="checkbox"
+          checked={autoBackup}
+          onChange={(e) => void handleToggleAutoBackup(e.target.checked)}
+          className="mt-0.5 cursor-pointer"
+        />
+        <span>
+          {t('pages.settingsPage.autoBackupToggle')}
+          <span className="block text-xs text-gray-500">{t('pages.settingsPage.autoBackupDesc')}</span>
+        </span>
+      </label>
 
       {/* Backed-up campaigns list */}
       {syncState.campaigns.length > 0 && (

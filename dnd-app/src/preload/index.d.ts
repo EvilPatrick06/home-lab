@@ -366,6 +366,8 @@ interface AppSettingsData {
   language?: string
   /** ISO timestamp of the last successful cloud backup (drives the staleness nudge). */
   lastBackupTime?: string
+  /** Auto-run a cloud backup on launch when stale (default on; no-op unless cloud configured). */
+  autoBackupOnLaunch?: boolean
 }
 
 interface SettingsAPI {
