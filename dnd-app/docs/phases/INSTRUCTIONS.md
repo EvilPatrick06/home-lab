@@ -2,19 +2,24 @@
 
 > How to work through the phase plans in this directory. Read this before starting any phase work.
 
-> **⚠️ STATUS (2026-05-29): there are no active `phase-N-plan.md` files.**
-> All phase plans (14–37) were audited, verified, and **consolidated into a single
-> backlog**: [`REVIEW-REPORT-2026-05-29.md`](./REVIEW-REPORT-2026-05-29.md). The
-> individual plan files were deleted. This folder now contains only that report
-> and this playbook.
+> **⚠️ STATUS (updated 2026-06-01): there are no active `phase-N-plan.md` files,
+> and the consolidated backlog report has been removed too.** This folder now
+> contains only this playbook.
 >
-> So **Rule 1 ("start with the earliest `phase-N-plan.md`") currently finds
-> nothing** — that's expected. When you pick up new phase work, read the open
-> backlog in the report, then either author a fresh plan file here (and the rules
-> below apply again) or work the item directly. The rules below remain the
-> authoritative reference for the **4-gate, release mechanics (`cut.mjs`), git
-> discipline, ISO dates, and STOP-and-ask escalation** even when no plan file is
-> in flight — only the "find/iterate the plan files" mechanics are dormant.
+> **These rules are NOT dormant just because no plan file exists. For ANY
+> extensive dnd-app work — a feature, a multi-file refactor, a QA-fix bundle, a
+> "do everything" sweep, anything beyond a one-line tweak — follow this playbook
+> in full, with or without a plan file:** the 4-gate (rule 5), one commit + one
+> release per logical unit of work via `cut.mjs` (rules 5/6/20), git discipline
+> (master only, rule 11), ISO dates (rule 18), STOP-and-ask escalation (rule 9),
+> and **especially rule 10/151/153 (NO mid-run status reports or turn-ending
+> prose — the last thing in every response is a tool call) and rule 27/159 (NO
+> deferral / "needs testing" / "out of scope" / scope-questions — implement it,
+> gate, commit, move on).** Only Rule 1's "find/iterate the earliest
+> `phase-N-plan.md`" mechanic is dormant (there are no plan files); everything
+> else applies. You MAY author a fresh `phase-N-plan.md` here to track a large
+> unit of work, but it's optional — work the item directly under these rules
+> either way.
 
 ## The 27 rules
 
