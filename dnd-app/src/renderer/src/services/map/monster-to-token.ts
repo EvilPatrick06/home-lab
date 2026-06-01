@@ -3,9 +3,9 @@ import type { MonsterStatBlock } from '../../types/monster'
 
 export function monsterToTokenData(monster: MonsterStatBlock): Omit<MapToken, 'id' | 'gridX' | 'gridY'> {
   const specialSenses = [
-    ...(monster.senses.blindsight ? [{ type: 'blindsight' as const, range: monster.senses.blindsight }] : []),
-    ...(monster.senses.tremorsense ? [{ type: 'tremorsense' as const, range: monster.senses.tremorsense }] : []),
-    ...(monster.senses.truesight ? [{ type: 'truesight' as const, range: monster.senses.truesight }] : [])
+    ...(monster.senses?.blindsight ? [{ type: 'blindsight' as const, range: monster.senses.blindsight }] : []),
+    ...(monster.senses?.tremorsense ? [{ type: 'tremorsense' as const, range: monster.senses.tremorsense }] : []),
+    ...(monster.senses?.truesight ? [{ type: 'truesight' as const, range: monster.senses.truesight }] : [])
   ]
 
   return {
@@ -22,8 +22,8 @@ export function monsterToTokenData(monster: MonsterStatBlock): Omit<MapToken, 'i
     walkSpeed: monster.speed.walk,
     monsterStatBlockId: monster.id,
     initiativeModifier: monster.initiative?.modifier,
-    darkvision: monster.senses.darkvision ? true : undefined,
-    darkvisionRange: monster.senses.darkvision || undefined,
+    darkvision: monster.senses?.darkvision ? true : undefined,
+    darkvisionRange: monster.senses?.darkvision || undefined,
     resistances: monster.resistances,
     vulnerabilities: monster.vulnerabilities,
     immunities: monster.damageImmunities,

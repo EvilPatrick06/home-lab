@@ -181,6 +181,7 @@
       "removeItem": "Remove item",
       "notEnoughFunds": "Not enough funds (need {{amount}} {{currency}} = {{costCp}} cp, have {{totalCp}} cp total)",
       "sectionCurrency": "CURRENCY",
+      "startingGoldFromBackground": "+ {{gold}} gp from your background choice (added to your gold when you finish)",
       "hideShop": "Hide Shop",
       "shop": "Shop",
       "sectionInventory": "INVENTORY",

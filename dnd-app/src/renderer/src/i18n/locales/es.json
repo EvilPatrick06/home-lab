@@ -181,6 +181,7 @@
       "removeItem": "Quitar objeto",
       "notEnoughFunds": "Fondos insuficientes (necesitas {{amount}} {{currency}} = {{costCp}} cp, tienes {{totalCp}} cp en total)",
       "sectionCurrency": "MONEDA",
+      "startingGoldFromBackground": "+ {{gold}} po de tu elección de trasfondo (se añade a tu oro al finalizar)",
       "hideShop": "Ocultar tienda",
       "shop": "Tienda",
       "sectionInventory": "INVENTARIO",

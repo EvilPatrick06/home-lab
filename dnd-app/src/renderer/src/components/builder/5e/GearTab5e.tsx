@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useT } from '../../../i18n'
+import { parseGoldItem, resolveBackgroundGear } from '../../../stores/builder/starting-gear'
 import { useBuilderStore } from '../../../stores/use-builder-store'
 import { deductWithConversion, parseCost, totalInCopper } from '../../../utils/currency'
 import SectionBanner from '../shared/SectionBanner'
@@ -179,7 +180,9 @@ function InventoryItem({
 }: {
   item: { name: string; quantity: number }
   equipDb: EquipmentDatabase | null
-  onRemove: () => void
+  // Optional: background starting gear is determined by the equipment choice on
+  // the Details tab, so it's shown read-only here (no remove button).
+  onRemove?: () => void
 }): JSX.Element {
   const { t } = useT()
   const [expanded, setExpanded] = useState(false)
@@ -209,17 +212,19 @@ function InventoryItem({
             </span>
           )}
         </div>
-        <button
-          onClick={(e) => {
-            e.stopPropagation()
-            onRemove()
-          }}
-          className="text-gray-600 hover:text-red-400 transition-colors ml-2 shrink-0 text-xs px-1"
-          title={t('builder.gearTab.removeItem')}
-          aria-label={t('builder.gearTab.removeItem')}
-        >
-          ✕
-        </button>
+        {onRemove && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onRemove()
+            }}
+            className="text-gray-600 hover:text-red-400 transition-colors ml-2 shrink-0 text-xs px-1"
+            title={t('builder.gearTab.removeItem')}
+            aria-label={t('builder.gearTab.removeItem')}
+          >
+            ✕
+          </button>
+        )}
       </div>
       {expanded && (
         <div className="ml-5 mb-1 bg-surface-2/40 rounded">
@@ -234,6 +239,7 @@ export default function GearTab5e(): JSX.Element {
   const { t } = useT()
   const classEquipment = useBuilderStore((s) => s.classEquipment)
   const bgEquipment = useBuilderStore((s) => s.bgEquipment)
+  const backgroundEquipmentChoice = useBuilderStore((s) => s.backgroundEquipmentChoice)
   const currency = useBuilderStore((s) => s.currency)
   const setCurrency = useBuilderStore((s) => s.setCurrency)
   const removeEquipmentItem = useBuilderStore((s) => s.removeEquipmentItem)
@@ -251,19 +257,31 @@ export default function GearTab5e(): JSX.Element {
     }
   }, [])
 
-  // Flat combined inventory list
-  const allItems = [
-    ...classEquipment.map((item, idx) => ({ ...item, srcType: 'class' as const, srcIdx: idx })),
-    ...bgEquipment.flatMap((group, gIdx) =>
-      group.items.map((item) => ({
-        name: item,
-        quantity: 1,
-        source: group.source,
-        srcType: 'bg' as const,
-        srcIdx: gIdx
-      }))
-    )
-  ]
+  // Inventory shown here must MATCH what the built character sheet gets, so it uses
+  // the same resolver as build-character-5e (stores/builder/starting-gear.ts).
+  // Class + shop items are the player's chosen/added gear (removable); strip any
+  // "<N> GP" pseudo-item so coin never shows as an inventory row.
+  const classItems = classEquipment
+    .map((item, idx) => ({ item, idx }))
+    .filter(({ item }) => parseGoldItem(item.name) === 0)
+    .map(({ item, idx }) => ({
+      name: item.name,
+      quantity: item.quantity,
+      key: `class-${idx}-${item.name}`,
+      onRemove: (): void => removeEquipmentItem('class', idx)
+    }))
+  // Background gear: resolve the CHOSEN option only (was flattening BOTH options +
+  // their gold pseudo-items). The bundled gold is split out to `resolvedBg.gold`
+  // and shown as currency below, not as an inventory item. Read-only (the choice is
+  // made on the Details tab).
+  const resolvedBg = resolveBackgroundGear(bgEquipment, backgroundEquipmentChoice === 'gold' ? 'gold' : 'equipment')
+  const bgItems = resolvedBg.items.map((it, i) => ({
+    name: it.name,
+    quantity: it.quantity,
+    key: `bg-${i}-${it.name}`,
+    onRemove: undefined as (() => void) | undefined
+  }))
+  const allItems = [...classItems, ...bgItems]
 
   const hasEquipment = allItems.length > 0
 
@@ -310,6 +328,11 @@ export default function GearTab5e(): JSX.Element {
           />
         ))}
       </div>
+      {resolvedBg.gold > 0 && (
+        <p className="text-center text-xs text-amber-400 px-4 py-2 border-b border-gray-800">
+          {t('builder.gearTab.startingGoldFromBackground', { gold: resolvedBg.gold })}
+        </p>
+      )}
 
       {/* Higher Level Starting Equipment */}
       <HigherLevelEquipment5e />
@@ -342,12 +365,7 @@ export default function GearTab5e(): JSX.Element {
         {hasEquipment ? (
           <div>
             {allItems.map((item) => (
-              <InventoryItem
-                key={`${item.srcType}-${item.srcIdx}-${item.name}`}
-                item={item}
-                equipDb={equipDb}
-                onRemove={() => removeEquipmentItem(item.srcType, item.srcIdx)}
-              />
+              <InventoryItem key={item.key} item={item} equipDb={equipDb} onRemove={item.onRemove} />
             ))}
           </div>
         ) : (

@@ -81,11 +81,13 @@ export function monsterToDisplay(m: MonsterStatBlock): DisplayStatBlock {
 
   // Format senses
   const sensesParts: string[] = []
-  if (m.senses.blindsight) sensesParts.push(`Blindsight ${m.senses.blindsight} ft.`)
-  if (m.senses.darkvision) sensesParts.push(`Darkvision ${m.senses.darkvision} ft.`)
-  if (m.senses.tremorsense) sensesParts.push(`Tremorsense ${m.senses.tremorsense} ft.`)
-  if (m.senses.truesight) sensesParts.push(`Truesight ${m.senses.truesight} ft.`)
-  sensesParts.push(`Passive Perception ${m.senses.passivePerception}`)
+  if (m.senses) {
+    if (m.senses.blindsight) sensesParts.push(`Blindsight ${m.senses.blindsight} ft.`)
+    if (m.senses.darkvision) sensesParts.push(`Darkvision ${m.senses.darkvision} ft.`)
+    if (m.senses.tremorsense) sensesParts.push(`Tremorsense ${m.senses.tremorsense} ft.`)
+    if (m.senses.truesight) sensesParts.push(`Truesight ${m.senses.truesight} ft.`)
+    sensesParts.push(`Passive Perception ${m.senses.passivePerception}`)
+  }
 
   // Spellcasting
   let spellcasting: DisplayStatBlock['spellcasting']
@@ -228,10 +230,12 @@ export function monsterToSidebar(m: MonsterStatBlock): SidebarEntryStatBlock {
 
   // Convert senses
   const senses: string[] = []
-  if (m.senses.blindsight) senses.push(`blindsight ${m.senses.blindsight} ft.`)
-  if (m.senses.darkvision) senses.push(`darkvision ${m.senses.darkvision} ft.`)
-  if (m.senses.tremorsense) senses.push(`tremorsense ${m.senses.tremorsense} ft.`)
-  if (m.senses.truesight) senses.push(`truesight ${m.senses.truesight} ft.`)
+  if (m.senses) {
+    if (m.senses.blindsight) senses.push(`blindsight ${m.senses.blindsight} ft.`)
+    if (m.senses.darkvision) senses.push(`darkvision ${m.senses.darkvision} ft.`)
+    if (m.senses.tremorsense) senses.push(`tremorsense ${m.senses.tremorsense} ft.`)
+    if (m.senses.truesight) senses.push(`truesight ${m.senses.truesight} ft.`)
+  }
 
   // Convert spellcasting
   let spellcasting: SidebarEntryStatBlock['spellcasting']
@@ -281,7 +285,7 @@ export function monsterToSidebar(m: MonsterStatBlock): SidebarEntryStatBlock {
     vulnerabilities: m.vulnerabilities,
     conditionImmunities: m.conditionImmunities,
     senses: senses.length > 0 ? senses : undefined,
-    passivePerception: m.senses.passivePerception,
+    passivePerception: m.senses?.passivePerception ?? 10,
     // boundary-allow: format converter — adapts text/JSON into library shape
     traits: m.traits,
     actions: m.actions.map((a) => ({ name: a.name, description: a.description })),

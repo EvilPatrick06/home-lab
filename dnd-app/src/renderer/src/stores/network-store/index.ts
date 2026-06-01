@@ -142,9 +142,19 @@ function attachCloudHostMachinery(
         senderName: displayName,
         sequence: 0
       }
+      // MP-7 — send game:state-FULL (not -update): the joiner only navigates into
+      // the game once it learns the campaignId, which ONLY arrives on a
+      // game:state-full payload (client-handlers). The relay has no P2P
+      // host-connection handshake, so the cloud host sends it directly here.
+      // Without this, cloud joiners hung "waiting for host to send campaign data".
       transport.send(peer.peerId, {
-        type: 'game:state-update' as const,
-        payload: buildFilteredStateForRole('player'),
+        type: 'game:state-full' as const,
+        payload: {
+          // host + current peers, minus the joiner (it isn't in its own list)
+          peers: [self, ...get().peers.filter((p) => p.peerId !== peer.peerId)],
+          campaignId: useLobbyStore.getState().campaignId ?? undefined,
+          gameState: buildFilteredStateForRole('player')
+        },
         timestamp: Date.now(),
         ...header
       })

@@ -91,8 +91,8 @@ export default function DmModals({
           resistances: monster.resistances,
           vulnerabilities: monster.vulnerabilities,
           immunities: monster.damageImmunities,
-          darkvision: !!(monster.senses.darkvision && monster.senses.darkvision > 0),
-          darkvisionRange: monster.senses.darkvision || undefined
+          darkvision: !!monster.senses?.darkvision,
+          darkvisionRange: monster.senses?.darkvision || undefined
         })
         close()
       }

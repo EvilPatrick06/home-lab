@@ -106,7 +106,10 @@ export interface MonsterStatBlock {
   vulnerabilities?: string[]
   damageImmunities?: string[]
   conditionImmunities?: string[]
-  senses: MonsterSenses
+  // Optional: some (homebrew / imported) monsters ship without a senses block.
+  // Readers must guard — an unguarded `monster.senses.blindsight` crashed the
+  // Library stat-block view (LIB-1).
+  senses?: MonsterSenses
   languages: string[]
   telepathy?: number
   cr: string // "0", "1/8", "1/4", "1/2", "1"-"30"

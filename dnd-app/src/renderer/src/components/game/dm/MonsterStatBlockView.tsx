@@ -184,20 +184,22 @@ function MonsterStatBlockView({ monster, compact = false }: MonsterStatBlockView
               <span className="text-gray-300">{monster.conditionImmunities.join(', ')}</span>
             </div>
           )}
-          <div>
-            <span className="text-accent-strong font-semibold">{t('game.monsterStatBlockView.senses')}</span>
-            <span className="text-gray-300">
-              {[
-                monster.senses.blindsight ? `Blindsight ${monster.senses.blindsight} ft` : null,
-                monster.senses.darkvision ? `Darkvision ${monster.senses.darkvision} ft` : null,
-                monster.senses.tremorsense ? `Tremorsense ${monster.senses.tremorsense} ft` : null,
-                monster.senses.truesight ? `Truesight ${monster.senses.truesight} ft` : null,
-                `Passive Perception ${monster.senses.passivePerception}`
-              ]
-                .filter(Boolean)
-                .join(', ')}
-            </span>
-          </div>
+          {monster.senses && (
+            <div>
+              <span className="text-accent-strong font-semibold">{t('game.monsterStatBlockView.senses')}</span>
+              <span className="text-gray-300">
+                {[
+                  monster.senses.blindsight ? `Blindsight ${monster.senses.blindsight} ft` : null,
+                  monster.senses.darkvision ? `Darkvision ${monster.senses.darkvision} ft` : null,
+                  monster.senses.tremorsense ? `Tremorsense ${monster.senses.tremorsense} ft` : null,
+                  monster.senses.truesight ? `Truesight ${monster.senses.truesight} ft` : null,
+                  `Passive Perception ${monster.senses.passivePerception}`
+                ]
+                  .filter(Boolean)
+                  .join(', ')}
+              </span>
+            </div>
+          )}
           <div>
             <span className="text-accent-strong font-semibold">{t('game.monsterStatBlockView.languages')}</span>
             <span className="text-gray-300">{monster.languages.length > 0 ? monster.languages.join(', ') : '—'}</span>

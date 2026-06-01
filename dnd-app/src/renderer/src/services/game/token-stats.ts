@@ -39,10 +39,12 @@ export interface EffectiveTokenStats {
 
 /** Build the token-shaped specialSenses array from a monster's senses block (excludes darkvision). */
 function monsterSpecialSenses(monster: MonsterStatBlock): EffectiveTokenStats['specialSenses'] {
+  const senses = monster.senses
+  if (!senses) return undefined
   const out: NonNullable<EffectiveTokenStats['specialSenses']> = []
-  if (monster.senses.blindsight) out.push({ type: 'blindsight', range: monster.senses.blindsight })
-  if (monster.senses.tremorsense) out.push({ type: 'tremorsense', range: monster.senses.tremorsense })
-  if (monster.senses.truesight) out.push({ type: 'truesight', range: monster.senses.truesight })
+  if (senses.blindsight) out.push({ type: 'blindsight', range: senses.blindsight })
+  if (senses.tremorsense) out.push({ type: 'tremorsense', range: senses.tremorsense })
+  if (senses.truesight) out.push({ type: 'truesight', range: senses.truesight })
   return out.length > 0 ? out : undefined
 }
 
@@ -62,8 +64,8 @@ export function resolveTokenStats(token: MapToken, monster?: MonsterStatBlock): 
     resistances: token.resistances ?? monster?.resistances,
     vulnerabilities: token.vulnerabilities ?? monster?.vulnerabilities,
     immunities: token.immunities ?? monster?.damageImmunities,
-    darkvision: token.darkvision ?? (monster?.senses.darkvision != null ? true : undefined),
-    darkvisionRange: token.darkvisionRange ?? monster?.senses.darkvision,
+    darkvision: token.darkvision ?? (monster?.senses?.darkvision != null ? true : undefined),
+    darkvisionRange: token.darkvisionRange ?? monster?.senses?.darkvision,
     specialSenses: token.specialSenses ?? (monster ? monsterSpecialSenses(monster) : undefined),
     cr: monster?.cr,
     libraryBacked

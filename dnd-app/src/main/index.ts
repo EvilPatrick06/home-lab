@@ -177,7 +177,15 @@ function createWindow(): void {
     // use dynamic inline styles. CSP style-src can't execute code, so inline
     // styles are a low-risk allowance (script-src stays strict — no inline/eval
     // in prod). Without it the Journal editor's CSS is blocked + renders broken.
-    const csp = `default-src 'self' plugin:; script-src 'self' plugin:${inlinePolicy}; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' plugin:; connect-src 'self' plugin: data: wss://0.peerjs.com https://0.peerjs.com${piConnect}${devConnect}; img-src 'self' data: blob: plugin:; media-src 'self' blob: data: file: http: plugin:; font-src 'self' plugin:`
+    // On-LAN P2P signals through the Pi's PeerServer (bmo-peerjs :9000) at the
+    // standard mDNS hostnames. The renderer resolves the LAN host (e.g. `bmo`)
+    // which can differ from / lag the per-response `piConnect` fragment (mDNS
+    // discovery races the document load, and the DOCUMENT's CSP is fixed at load
+    // time). Allow the mDNS PeerServer hosts statically so `ws://bmo:9000/myapp`
+    // (and its `/peerjs/id` fetch) isn't CSP-blocked. Tunnel/off-LAN P2P uses the
+    // `wss://<tunnel>:*` covered by `piConnect`.
+    const lanPeerServer = ' ws://bmo:* http://bmo:* ws://bmo.local:* http://bmo.local:*'
+    const csp = `default-src 'self' plugin:; script-src 'self' plugin:${inlinePolicy}; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' plugin:; connect-src 'self' plugin: data: wss://0.peerjs.com https://0.peerjs.com${lanPeerServer}${piConnect}${devConnect}; img-src 'self' data: blob: plugin:; media-src 'self' blob: data: file: http: plugin:; font-src 'self' plugin:`
     callback({
       responseHeaders: {
         ...details.responseHeaders,
