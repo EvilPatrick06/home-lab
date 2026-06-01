@@ -1,51 +1,40 @@
-# dnd-app — open backlog
+# dnd-app — open work
 
-Open/actionable items ONLY: problems, deferred, out-of-scope, future, suggestions, and standing design decisions — each with file evidence + an action. **Completed work is NOT logged here** (commit messages + the GitHub releases are the record). Scope: dnd-app + the dnd-app↔BMO protocol overlap; BMO-internal and Dungeon-Scholar items live in their own logs. Verified against code 2026-05-31.
-
----
-
-## 🚨 Problems / debt (open)
-
-- **Electron 42 + vite-8 GUI runtime smoke-test pending.** v2.3.0+ ship electron 40→42 (Chromium ~144→148) and 2.4.0 added the vite-8/Rolldown build. `release.yml` validates *packaging* on Win+Linux, but nothing covers *runtime* of a 2-major Chromium jump under the heavy WebGL surface (PixiJS 8.18 map, Three 0.184 dice). *Action: install a recent build and smoke-test map/dice render, AI streaming, P2P + cloud multiplayer, and NSIS auto-update before relying on it.*
-- **20 circular import cycles (dpdm, tolerated).** `circular` exits 0 (non-blocking; latent init-order / tree-shaking hazard only). Deliberately left: (a) the combat-resolver triad is a barrel re-export wired for knip; (b) lobby/campaign barrel cycles are pure import-churn to break; (c) the 5 `*-shard`→`network-store` cycles mirror the established `fog-shard` pattern (permissionFilters need campaign/peer state). *Action: chip away opportunistically when already editing these files — not worth a dedicated churn pass.*
-- **`TranslationKeys = string` (no literal union).** By decision — a ~5,900-member union bloats compile; the runtime `check-keys` + `locale-parity` CI gates catch missing keys instead (`i18n/README.md`). *Action: none unless compile-time key safety is later wanted.*
+What still needs doing. NOT here: completed work (see commits + GitHub releases), "needs testing / QA / visual pass / write-a-test" items (the whole app is being tested anyway), and info/architecture notes. Scope: dnd-app + the dnd-app↔BMO protocol overlap.
 
 ---
 
-## 🧩 Suggestions / improvements
+## Code / debt
 
-- **Renderer registry fetches force a broad `connect-src` (debt).** The renderer's `registry-client.ts` fetches `/api/games*` directly from the LAN Pi at whatever IP mDNS discovers. The document CSP is baked at page load (before discovery) and CSP host-sources can't wildcard arbitrary LAN IPs, so `connect-src` now includes the `http:`/`ws:` scheme-sources to let those LAN fetches through (safe-ish: the renderer runs only first-party bundled code, script-src locked, sandbox+contextIsolation on). *Cleaner fix: proxy the registry REST calls (announce/get/list/heartbeat/deregister) through the MAIN process via IPC like cloud-sync (no CSP, and main can use the discovered IP) — the SSE `/api/games/stream` is the only one that's awkward to proxy (keep it renderer-side or poll). That would let `connect-src` drop `http:`/`ws:` back to the specific Pi host.*
-- **Off-LAN Pi/cloud access — architecture (info / standing).** All Pi features must work on AND off LAN with zero per-user setup. On-LAN: mDNS → direct `http://pi:5000`. Off-LAN: the `https://bmo.mybmoai.work` Cloudflare Tunnel, which is gated by a Cloudflare Access app. Wiring: (a) `/api/library/*` has a **public Access Bypass** (read-only data; renderer fetches it directly — BMO sends `Access-Control-Allow-Origin: *`); (b) `/api/games*` is public (game registry); off-LAN multiplayer **uses the Pi Socket.IO cloud relay** (the `/game` namespace on :5000, tunnel-proxied) because direct WebRTC P2P signaling :9000 is NOT tunnel-proxied and TURN can't traverse the HTTP tunnel — see the off-LAN multiplayer item; (c) `/api/rclone/*` (cloud backup, sensitive; served by `bmo/pi/routes/rclone_api.py`) is reached with a **Cloudflare Access service token** baked into the MAIN bundle at build time (`electron.vite.config` `main.define` ← `CF_ACCESS_CLIENT_ID/SECRET` GitHub Actions secrets) and sent only from main-process fetches (cloud-sync, bmo-bridge) — never the renderer. Empty token in unconfigured builds → no headers (on-LAN unaffected). *Action: none — documented so future changes keep the token out of the renderer + only send it to the BMO base.*
-- **Inline style objects → CSS classes** (~60 files / ~116 occurrences; the print-sheet `fontSize` cluster is already converted). *Not a clean headless win — many are genuinely dynamic (PixiJS sizing, drag offsets, runtime colors) and correctness is **visual** (no static gate). Do opportunistically, one file at a time, behind a GUI smoke-test.*
-- **Rolldown config residual.** Migrate `build.rollupOptions.manualChunks` → `build.rolldownOptions.output.codeSplitting` (rolldown honors the compat shim; the build only warns). Cosmetic.
-- **~28 eager static-JSON imports → lazy `data-provider` loads.** Partly intentional (some pair an eager sync default WITH an async loader). Defer unless a bundle-size target is set. (`monsters.json` is already lazy via the data-provider.)
-- **Remaining knip findings (~187, non-blocking, `continue-on-error`).** The 87 safe-delete items were pruned; what remains is the 229 keep-intentional (public-API / barrels / `@internal` knip-wired re-exports) + 6 unsure. *Action (optional): add a `knip` ignore config for the intentional set so the dead-code check reads clean.*
-- **`DmAction` full discriminated union (typed-debt).** `action-validator.ts` casts are typed via an `ActionFields` registry, but the global `DmAction` union (retiring the boundary cast entirely) is a 22-file, protocol-shaped change — `DmAction` is parsed from AI/LLM + BMO output (producer boundary genuinely `unknown`). *Do only with BMO-side protocol coordination.*
-- **`useAsyncData<T>` adoption.** The hook exists + 3 sites migrated; ~39 other ad-hoc loaders can migrate incrementally (don't big-bang).
-- **Scattered magic numbers → `app-constants.ts`.** The file exists (~30 constants) but only 2 files import it. No objective oracle for "is this a magic number" (D&D rule constants/indices shouldn't be hoisted) — high-surface, opportunistic only.
-- **Semantic-token theme visual QA.** The semantic color-token layer is in (`styles/globals.css` `@theme inline`); default theme is pixel-identical by construction. *Open: a human visual pass across the 4 themes; off-scale grays + status colors were deliberately left literal — revisit only for a fuller token taxonomy.*
-- **Error-handling convention (documented + lint-guarded).** main/persistence → `StorageResult<T>`; renderer best-effort → return null/empty with a commented catch; user-facing → throw/surface. Lint guard 28e.8 bans bare empty `catch {}`. *A blanket migration across the ~294 intentional renderer catches is NOT warranted; escalate only if a specific surface needs different behavior.*
-- **Color-only state indicators** (`MainMenuPage`, `HigherLevelEquipment5e`, `RuleManager`, `TurnEventsTab`, `MacroBar`) → pair color with text/icon/aria.
-- **Form a11y residuals.** After the accessible-name sweep: (a) a real screen-reader/AT pass is still owed; (b) a few number inputs got `aria-label="30"`/`"0"` (the sweep mirrored a sample-value placeholder) — give those an explicit descriptive `aria-label`; (c) `StatBlockEditor`/`DiseaseCurseTracker` have no validation UI to expose.
-- **No cloud-relay live integration test.** `use-network-store` cloud tests + the host-migration tests stub the socket, so each side is faked; a real client↔Pi↔host test needs `game_relay.py` running on the Pi (needs-user / multi-machine). *Now more valuable: off-LAN multiplayer defaults to the relay, so it's on the critical path.*
-- **Cloud-backup residuals.** Backup/restore go through the Pi (`rclone_api.py`). *Open: (a) the client archives the WHOLE campaign incl. assets — works up to the `/backup` route's 512 MiB cap (`BMO_MAX_BACKUP_SIZE`), larger campaigns fail; chunk or cap-with-warning if that bites. (b) `listRemoteCampaigns` returns the campaign id as its name (no stored name in the backup), so restoring a campaign you don't have locally shows the id — write a small `meta.json` beside the archive if a friendly name is wanted.*
-- **`oxlint`/`jscpd`/`type-coverage` back the manual `tools/run-audit.js` harness (kept, not in CI).** Decision (2026-05-30): keep — deleting user-built audit tooling for a 3-devDep saving isn't worth it; wiring into CI would spam duplicates. Revisit only to remove the harness.
-- **Doc residuals.** TypeDoc is an optional headless add; Storybook needs a GUI (defer).
-- **Package `overrides` (9 entries)** documented in `docs/DEPENDENCIES.md`. *Action: recheck/prune on dep bumps.*
-- **`throttle` util is opt-in** — zero production call-sites (candidate for removal, or a first consumer).
-- **`userData` dir keyed on app name.** Defaults to `app.getName()` (`dnd-vtt` in dev, `D&D Virtual Tabletop` packaged). Renaming either orphans saves. *Standing advisory: never rename; if forced, add a dir-move migration.*
+- **Proxy renderer registry fetches through the main process.** `registry-client.ts` fetches `/api/games*` straight from the LAN Pi, which forces `http:`/`ws:` scheme-sources into the document `connect-src`. Move the REST calls (announce/get/list/heartbeat/deregister) to main-process IPC like cloud-sync; then `connect-src` can drop `http:`/`ws:`. (The SSE `/api/games/stream` is the only awkward one — keep it renderer-side or poll.)
+- **Inline style objects → Tailwind classes** (~60 files / ~116 occurrences). Many are genuinely dynamic (PixiJS sizing, drag offsets, runtime colors) and stay inline; convert the static ones.
+- **`DmAction` full discriminated union.** Retire the `action-validator.ts` boundary cast — a ~22-file, protocol-shaped change; do it WITH BMO-side protocol coordination (`DmAction` is parsed from AI/LLM + BMO output).
+- **~28 eager static-JSON imports → lazy `data-provider` loads.** Some intentionally pair an eager default with an async loader; do only if a bundle-size target is set.
+- **`useAsyncData<T>` adoption** — ~39 ad-hoc loaders left to migrate incrementally.
+- **Magic numbers → `app-constants.ts`** — file exists, only 2 importers; opportunistic (D&D rule constants shouldn't be hoisted).
+- **Rolldown config** — migrate `build.rollupOptions.manualChunks` → `build.rolldownOptions.output.codeSplitting` (build only warns on the compat shim).
+- **`throttle` util** — zero production call-sites; remove it or wire a first consumer.
+- **20 circular import cycles** (dpdm, non-blocking) — chip away when already editing those files.
+- **biome.json** — run `biome migrate` (schema pins 2.4.4 vs CLI 2.4.16) and drop the trailing `/**` on the `!!**/out/**`-style ignore globs (`useBiomeIgnoreFolder`).
+- **knip** — add an ignore config for the ~229 keep-intentional exports so the dead-code check reads clean.
 
----
+## a11y
 
-## 🔭 Future work / not-yet-decided
+- **Color-only state indicators** (`MainMenuPage`, `HigherLevelEquipment5e`, `RuleManager`, `TurnEventsTab`, `MacroBar`) — pair color with text/icon/aria.
+- **Number-input `aria-label`s** — the a11y sweep mirrored sample-value placeholders, so some number inputs read `aria-label="30"`/`"0"`; give those explicit descriptive labels.
 
-- **Additional UI languages (product call).** `en` + a full `es` locale + the `en-XA` pseudo ship today behind the picker + `locale-parity` gate. *Open: any further language is a product decision; a native-speaker QA pass on the machine-assisted `es` strings is advisable.*
-- **Off-LAN multiplayer residuals (both optional).** Off-LAN games route through the Pi cloud relay by default (`resolveConnectionMode`); on-LAN stays direct P2P. *Open: (1) **registry `hosting_mode` passthrough** — the join transport uses the joiner's own on/off-LAN heuristic, not the host's declared mode, because `game_registry._serialize` drops `hosting_mode` from list entries. Wiring it through (`_serialize` + announce payload + `RegistryGameEntry`) fixes the one residual mismatch: an on-LAN joiner browsing a cloud-hosted game. (2) a managed/baked TURN service would restore true serverless off-LAN P2P for symmetric NAT.*
+## Multiplayer
 
----
+- **Registry `hosting_mode` passthrough.** The join transport uses the joiner's own on/off-LAN heuristic, not the host's declared mode, because `game_registry._serialize` drops `hosting_mode`. Wire it through (`_serialize` + announce payload + `RegistryGameEntry`) to fix the one residual mismatch: an on-LAN joiner browsing a cloud-hosted game.
+- **Managed/baked TURN** (optional) — would restore true serverless off-LAN P2P for symmetric-NAT peers (currently off-LAN routes through the Pi relay instead).
 
-## 🚫 Out of scope (for dnd-app phase work)
+## Cloud backup
 
-- **Large public-dir asset offload (distribution decision).** The audio Pi-offload seam exists (`remote-sounds.ts`, bundled fallback); `monsters.json` is lazy. *Open: BMO must grow `GET /api/sounds/manifest` + `/api/sounds/file` (see the module + `docs/ASSET-OFFLOAD.md`) before any clip loads from the Pi; the JSON/image offload + a ship-thin/download-on-demand installer is still undecided.*
-- **Electron EOL — act on the reminder when it fires.** `check:electron-eol` (CI, non-blocking) warns as EOL nears (E42 supported ~through 2026-10-20). *Open: bump before EOL when it warns.*
-- **biome.json config warnings (trivial debt).** `biome check` emits non-failing warnings: `$schema` pins 2.4.4 vs the installed CLI 2.4.16, and the `!!**/out/**`-style ignore globs should drop the trailing `/**` (biome ≥2.2.0 / `useBiomeIgnoreFolder`). Pre-existing; doesn't fail `npm run lint`. *Action: `biome migrate` + trim the globs next time biome.json is touched.*
+- **Large-campaign cap.** The client archives the whole campaign incl. assets; works up to the `/backup` route's 512 MiB cap (`BMO_MAX_BACKUP_SIZE`), larger campaigns fail. Chunk the upload or cap-with-warning if it bites.
+- **Restore list shows the campaign id, not a name** (no name stored in the backup). Write a small `meta.json` beside the archive if a friendly name is wanted.
+
+## Bigger / undecided
+
+- **Additional UI languages** (product call) — `en` + `es` + the `en-XA` pseudo exist; more languages is a product decision.
+- **Large public-dir asset offload.** BMO needs `GET /api/sounds/manifest` + `/api/sounds/file` (the client seam + `docs/ASSET-OFFLOAD.md` are ready) before any clip loads from the Pi; a ship-thin / download-on-demand installer is still undecided.
+- **Electron EOL** — bump before E42's ~2026-10-20 EOL when `check:electron-eol` warns.
