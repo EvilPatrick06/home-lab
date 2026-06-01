@@ -154,6 +154,17 @@ The dnd-app can't hold Google Drive credentials, so campaign backups go through 
 
 Safety: rclone runs with a FIXED argv (no shell); `campaign_id` is slug-validated (rejects path traversal); the upload body cap is raised for `/backup` only (`BMO_MAX_BACKUP_SIZE`, default 512 MiB) via Werkzeug 3.1 per-request `max_content_length`, leaving the app-wide 32 MiB guard intact. ACAO + OPTIONS preflight wired like `/api/games`. LAN-open; off-LAN gated by the Cloudflare Access service token. Tests: `tests/test_rclone_api.py` (injected fake rclone runner).
 
+### Bundled sounds — D&D VTT audio offload (`routes/sounds_api.py`)
+
+The dnd-app prefers Pi-hosted copies of its ~130 bundled MP3s when reachable (bundled fallback otherwise), to keep the installer thin. Served read-only from the monorepo's `dnd-app/src/renderer/public/sounds/`.
+
+| Path | Method | Purpose |
+|---|---|---|
+| `/api/sounds/manifest` | GET | `{version, files:{"<rel>":{size}}}` — `<rel>` omits the leading `sounds/` (e.g. `dice/d20-1.mp3`), matching the client's `mapSoundPathToRel` |
+| `/api/sounds/file?path=<rel>` | GET | Raw audio bytes (path-jailed under the sound dir; `Content-Type: audio/mpeg`) |
+
+ACAO + OPTIONS preflight wired like `/api/games`. Tests: `tests/test_sounds_api.py` (fixture sound dir).
+
 The Pi also advertises `_bmo._tcp` (port 5000) via `/etc/avahi/services/bmo.service` — the dnd-app's main process browses it with `bonjour-service` and emits a `BMO_RESOLVED_URL` IPC event to the renderer so the user never has to type the Pi URL into Settings.
 
 ### IDE

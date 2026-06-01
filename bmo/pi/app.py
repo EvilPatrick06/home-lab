@@ -98,6 +98,13 @@ def _cache_policy(response):
             "Content-Type, Authorization, CF-Access-Client-Id, CF-Access-Client-Secret",
         )
         response.headers.setdefault("Access-Control-Max-Age", "600")
+    # Pi-hosted bundled sounds (/api/sounds*): renderer fetches from file:// —
+    # read-only audio, GET-only, `*` is correct.
+    if (request.path or "").startswith("/api/sounds"):
+        response.headers.setdefault("Access-Control-Allow-Origin", "*")
+        response.headers.setdefault("Access-Control-Allow-Methods", "GET, OPTIONS")
+        response.headers.setdefault("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        response.headers.setdefault("Access-Control-Max-Age", "86400")
     if "text/html" in response.content_type:
         # 'unsafe-eval' is REQUIRED: Alpine.js compiles its `x-data` / `@click`
         # / `x-show` expressions via `new AsyncFunction(expr)` at runtime, which
@@ -289,7 +296,7 @@ def _bmo_optional_api_key():
     # application/json, X-Registry-Key, etc.). Short-circuit those so
     # the actual route's method allowlist doesn't 405 them.
     if request.method == "OPTIONS" and (
-        p.startswith("/api/games") or p.startswith("/api/rclone")
+        p.startswith("/api/games") or p.startswith("/api/rclone") or p.startswith("/api/sounds")
     ):
         return ("", 204)
     # Default (no BMO_API_KEY env set): the app is OPEN — the VTT and any LAN
@@ -5403,6 +5410,7 @@ from routes.ide import register_ide, cleanup_client_session
 from routes.game_relay_ws import register_game_relay
 from routes.library_api import register_library
 from routes.rclone_api import register_rclone
+from routes.sounds_api import register_sounds
 
 # ── Main ─────────────────────────────────────────────────────────────
 
@@ -5418,6 +5426,8 @@ if __name__ == "__main__":
     # Cloud-backup API (/api/rclone) — receives a campaign archive from the
     # dnd-app and pushes it to gdrive:DND-VTT-Backups/ (restore streams it back).
     register_rclone(app)
+    # Pi-hosted bundled-sound serving (/api/sounds) — audio offload seam.
+    register_sounds(app)
     # Restore music playback from last session (if any)
     if music:
         try:
