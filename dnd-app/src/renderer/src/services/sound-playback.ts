@@ -3,6 +3,7 @@
  */
 
 import { logger } from '../utils/logger'
+import { resolveSoundUrl } from './library/remote-sounds'
 import type { AmbientSound } from './sound-manager'
 
 // --- Module-level state for ambient/custom playback ---
@@ -41,7 +42,10 @@ export function playAmbient(
   // bare (`tavern.mp3`) under public/sounds/ambient. The old
   // `assets/audio/ambient/<id>.ogg` path pointed at nonexistent files (silent no-op).
   const path = customPath ?? `./sounds/ambient/${ambient.replace('ambient-', '')}.mp3`
-  const audio = new Audio(path)
+  // resolveSoundUrl prefers a Pi-hosted copy when the sounds-manifest is warm
+  // (large-asset offload); a custom (absolute) override or a cold/offline Pi
+  // passes through unchanged. See library/remote-sounds.ts.
+  const audio = new Audio(resolveSoundUrl(path))
   audio.loop = opts?.loop ?? true
   audio.volume = muted ? 0 : ambientVolume
   if (opts?.onEnded) audio.addEventListener('ended', opts.onEnded, { once: true })

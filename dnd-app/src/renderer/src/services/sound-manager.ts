@@ -13,6 +13,7 @@ import { addToast } from '../hooks/use-toast'
 import { i18n } from '../i18n'
 import { logger } from '../utils/logger'
 import { load5eAmbientTracks, load5eSoundEvents } from './data-provider'
+import { prewarmRemoteSounds, resolveSoundUrl } from './library/remote-sounds'
 import { SOUND_INVENTORY } from './library/sound-inventory'
 import {
   customOverrides as playbackCustomOverrides,
@@ -305,7 +306,9 @@ export function init(): void {
       for (let i = 0; i < POOL_SIZE; i++) {
         // Cycle through the available sources to fill the overlap pool (so a
         // single base file still gives POOL_SIZE instances; variant sets rotate).
-        const audio = new Audio(sources[i % sources.length])
+        // resolveSoundUrl prefers a Pi-hosted copy when the sounds-manifest is
+        // warm (see remote-sounds.ts); otherwise returns the bundled path.
+        const audio = new Audio(resolveSoundUrl(sources[i % sources.length]))
         audio.preload = 'auto'
         audio.volume = muted ? 0 : volume
         pool.push(audio)
@@ -351,6 +354,10 @@ export function reinit(): void {
   pools.clear()
   poolIndex.clear()
   init()
+
+  // Warm the Pi sounds-manifest off the hot path so future Audio creations can
+  // prefer Pi-hosted clips (large-asset offload). Best-effort; never throws.
+  void prewarmRemoteSounds()
 
   // Warm the data-store cache for sound data so homebrew/plugin sounds are available
   load5eSoundEvents().catch((err) => {
