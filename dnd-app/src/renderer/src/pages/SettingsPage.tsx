@@ -821,6 +821,26 @@ function CloudBackupSection(): JSX.Element {
     }
   }
 
+  const handleRestore = async (id: string, name: string): Promise<void> => {
+    // Restore overwrites the local copy — confirm first (window.confirm is the
+    // page's established pattern for destructive actions).
+    if (!window.confirm(t('pages.settingsPage.restoreConfirm', { name }))) return
+    setLoading(`restore:${id}`)
+    setMessage(null)
+    try {
+      const result = await window.api.cloudSync.restoreCampaign(id)
+      if (result.success) {
+        setMessage({ text: result.message ?? t('pages.settingsPage.restored'), type: 'success' })
+      } else {
+        setMessage({ text: result.error ?? t('pages.settingsPage.restoreFailed'), type: 'error' })
+      }
+    } catch {
+      setMessage({ text: t('pages.settingsPage.restoreFailed'), type: 'error' })
+    } finally {
+      setLoading(null)
+    }
+  }
+
   return (
     <div className="space-y-3">
       <p className="text-xs text-muted">{t('pages.settingsPage.cloudBackupDesc')}</p>
@@ -900,7 +920,16 @@ function CloudBackupSection(): JSX.Element {
               className="flex items-center justify-between py-1.5 px-2 rounded bg-surface-2/30 border border-border/30"
             >
               <span className="text-sm text-gray-300">{c.name}</span>
-              <span className="text-xs text-gray-500 font-mono">{c.id.slice(0, 8)}...</span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-500 font-mono">{c.id.slice(0, 8)}...</span>
+                <button
+                  onClick={() => void handleRestore(c.id, c.name)}
+                  disabled={loading === `restore:${c.id}`}
+                  className="px-2.5 py-1 text-xs rounded border bg-surface-2 border-border text-gray-300 hover:border-amber-600 hover:text-accent transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  {loading === `restore:${c.id}` ? t('pages.settingsPage.restoring') : t('pages.settingsPage.restore')}
+                </button>
+              </div>
             </div>
           ))}
         </div>

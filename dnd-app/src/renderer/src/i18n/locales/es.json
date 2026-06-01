@@ -6034,6 +6034,11 @@
       "autoBackupDesc": "Cuando tu última copia de seguridad en la nube esté desactualizada, respalda automáticamente al iniciar (solo si la copia de seguridad en la nube está configurada).",
       "listBackups": "Listar copias de seguridad",
       "backedUpCampaigns": "Campañas respaldadas",
+      "restore": "Restaurar",
+      "restoring": "Restaurando...",
+      "restoreConfirm": "¿Restaurar \"{{name}}\" desde Google Drive? Esto sobrescribe la copia local de esta campaña.",
+      "restored": "Campaña restaurada desde Google Drive",
+      "restoreFailed": "Error al restaurar",
       "goBack": "Volver",
       "title": "Ajustes",
       "returnToGame": "Volver a la partida",
@@ -6127,7 +6132,7 @@
       "signalingTitle": "Servidor de señalización WebRTC",
       "signalingReachable": "Accesible en {{host}}:9000 — los jugadores pueden conectarse mediante punto a punto.",
       "signalingUnreachable": "No accesible en {{host}}:9000 — las partidas punto a punto pueden no conectarse. Comprueba que el contenedor bmo-peerjs de la Pi esté en ejecución.",
-      "signalingNotApplicable": "Solo se comprueba en una conexión LAN directa a la Pi.",
+      "signalingNotApplicable": "Solo se comprueba en una conexión LAN directa. Fuera de la LAN, las partidas usan el relé en la nube de la Pi: no se necesita servidor de señalización entre pares.",
       "signalingChecking": "Comprobando el servidor de señalización…"
     }
   },

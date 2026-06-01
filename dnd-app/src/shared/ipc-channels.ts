@@ -237,6 +237,7 @@ export const IPC_CHANNELS = {
   CLOUD_SYNC_BACKUP: 'cloud:sync-backup',
   CLOUD_SYNC_CHECK_STATUS: 'cloud:sync-check-campaign',
   CLOUD_SYNC_LIST_CAMPAIGNS: 'cloud:sync-list-campaigns',
+  CLOUD_SYNC_RESTORE: 'cloud:sync-restore',
 
   // === LAN Discovery (Phase 29g — mDNS / Bonjour) ===
   LAN_START_SCAN: 'lan:start-scan',

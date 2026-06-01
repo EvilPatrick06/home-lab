@@ -666,7 +666,10 @@ interface CloudSyncAPI {
   checkCampaignStatus: (
     campaignId: string
   ) => Promise<CloudSyncResult & { campaignId: string; hasRemoteData?: boolean; lastSync?: string }>
-  listRemoteCampaigns: () => Promise<CloudSyncResult & { campaigns?: Array<{ id: string; name: string }> }>
+  listRemoteCampaigns: () => Promise<
+    CloudSyncResult & { campaigns?: Array<{ id: string; name: string; modified?: string }> }
+  >
+  restoreCampaign: (campaignId: string) => Promise<CloudSyncResult & { campaignId: string }>
 }
 
 interface DiscordConfig {

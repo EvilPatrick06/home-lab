@@ -6034,6 +6034,11 @@
       "autoBackupDesc": "When your last cloud backup is stale, back up automatically on launch (only if cloud backup is set up).",
       "listBackups": "List Backups",
       "backedUpCampaigns": "Backed-up Campaigns",
+      "restore": "Restore",
+      "restoring": "Restoring...",
+      "restoreConfirm": "Restore \"{{name}}\" from Google Drive? This overwrites the local copy of this campaign.",
+      "restored": "Campaign restored from Google Drive",
+      "restoreFailed": "Restore failed",
       "goBack": "Go back",
       "title": "Settings",
       "returnToGame": "Return to game",
@@ -6127,7 +6132,7 @@
       "signalingTitle": "WebRTC signaling server",
       "signalingReachable": "Reachable at {{host}}:9000 — players can connect over peer-to-peer.",
       "signalingUnreachable": "Unreachable at {{host}}:9000 — peer-to-peer games may fail to connect. Check that the Pi's bmo-peerjs container is running.",
-      "signalingNotApplicable": "Only checked on a direct LAN connection to the Pi.",
+      "signalingNotApplicable": "Only checked on a direct LAN connection. Off-LAN, games run through the Pi cloud relay — no peer-to-peer signaling server is needed.",
       "signalingChecking": "Checking the signaling server…"
     }
   },

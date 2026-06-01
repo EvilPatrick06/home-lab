@@ -5,13 +5,15 @@ const {
   mockCheckRemoteStatus,
   mockSyncCampaignToDrive,
   mockCheckCampaignSyncStatus,
-  mockListRemoteCampaigns
+  mockListRemoteCampaigns,
+  mockRestoreCampaignFromDrive
 } = vi.hoisted(() => ({
   mockHandle: vi.fn(),
   mockCheckRemoteStatus: vi.fn(),
   mockSyncCampaignToDrive: vi.fn(),
   mockCheckCampaignSyncStatus: vi.fn(),
-  mockListRemoteCampaigns: vi.fn()
+  mockListRemoteCampaigns: vi.fn(),
+  mockRestoreCampaignFromDrive: vi.fn()
 }))
 
 vi.mock('electron', () => ({
@@ -24,7 +26,8 @@ vi.mock('../../shared/ipc-channels', () => ({
     CLOUD_SYNC_STATUS: 'cloud:sync-status',
     CLOUD_SYNC_BACKUP: 'cloud:sync-backup',
     CLOUD_SYNC_CHECK_STATUS: 'cloud:sync-check-campaign',
-    CLOUD_SYNC_LIST_CAMPAIGNS: 'cloud:sync-list-campaigns'
+    CLOUD_SYNC_LIST_CAMPAIGNS: 'cloud:sync-list-campaigns',
+    CLOUD_SYNC_RESTORE: 'cloud:sync-restore'
   }
 }))
 
@@ -32,7 +35,8 @@ vi.mock('../cloud-sync', () => ({
   checkRemoteStatus: mockCheckRemoteStatus,
   syncCampaignToDrive: mockSyncCampaignToDrive,
   checkCampaignSyncStatus: mockCheckCampaignSyncStatus,
-  listRemoteCampaigns: mockListRemoteCampaigns
+  listRemoteCampaigns: mockListRemoteCampaigns,
+  restoreCampaignFromDrive: mockRestoreCampaignFromDrive
 }))
 
 vi.mock('../../shared/utils/uuid', () => ({
@@ -177,6 +181,40 @@ describe('cloud-sync-handlers', () => {
 
       const handler = mockHandle.mock.calls.find((c) => c[0] === IPC_CHANNELS.CLOUD_SYNC_LIST_CAMPAIGNS)![1]
       const result = await handler()
+
+      expect(result.success).toBe(false)
+    })
+  })
+
+  describe('CLOUD_SYNC_RESTORE handler', () => {
+    it('delegates to restoreCampaignFromDrive for a valid id', async () => {
+      mockRestoreCampaignFromDrive.mockResolvedValueOnce({ success: true })
+      registerCloudSyncHandlers()
+
+      const handler = mockHandle.mock.calls.find((c) => c[0] === IPC_CHANNELS.CLOUD_SYNC_RESTORE)![1]
+      const result = await handler({}, VALID_UUID)
+
+      expect(mockRestoreCampaignFromDrive).toHaveBeenCalledWith(VALID_UUID)
+      expect(result.success).toBe(true)
+      expect(result.campaignId).toBe(VALID_UUID)
+    })
+
+    it('rejects an invalid campaign id without calling restore', async () => {
+      registerCloudSyncHandlers()
+
+      const handler = mockHandle.mock.calls.find((c) => c[0] === IPC_CHANNELS.CLOUD_SYNC_RESTORE)![1]
+      const result = await handler({}, 'not-a-uuid')
+
+      expect(mockRestoreCampaignFromDrive).not.toHaveBeenCalled()
+      expect(result.success).toBe(false)
+    })
+
+    it('returns error when restoreCampaignFromDrive throws', async () => {
+      mockRestoreCampaignFromDrive.mockRejectedValueOnce(new Error('stream broke'))
+      registerCloudSyncHandlers()
+
+      const handler = mockHandle.mock.calls.find((c) => c[0] === IPC_CHANNELS.CLOUD_SYNC_RESTORE)![1]
+      const result = await handler({}, VALID_UUID)
 
       expect(result.success).toBe(false)
     })

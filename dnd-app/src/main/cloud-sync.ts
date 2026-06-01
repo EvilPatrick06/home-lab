@@ -1,23 +1,40 @@
 /**
  * Cloud Sync Service — Google Drive backup via Rclone on BMO Pi
  *
- * This module provides secure cloud backup functionality by executing
- * rclone commands on the Raspberry Pi host via the BMO bridge.
- * No credentials are stored in the VTT; all rclone configuration
- * resides on the Pi in the patrick@bmo shell environment.
+ * Campaign data lives on THIS machine (under app userData), but the Google Drive
+ * credentials live only on the Pi. So a backup tars the campaign's files, uploads
+ * the archive to the Pi (`POST /api/rclone/backup`), and the Pi rclone-copies it
+ * to `gdrive:DND-VTT-Backups/<id>/campaign.tar.gz`. Restore is the reverse: the Pi
+ * streams the archive back (`GET /api/rclone/restore`) and we extract it into
+ * userData. No credentials are ever stored in the VTT.
+ *
+ * (Earlier this passed the client's LOCAL file paths to the Pi's rclone — which
+ * runs on the Pi and can't see this machine's filesystem — so backup never
+ * actually worked. The Pi also had no /api/rclone routes at all. Both fixed: the
+ * Pi grew the purpose-built routes and we now ship the bytes, not the paths.)
  */
 
+import { createWriteStream, existsSync } from 'node:fs'
+import { mkdtemp, readFile, rm, stat } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { Readable } from 'node:stream'
+import { pipeline } from 'node:stream/promises'
 import { app } from 'electron'
+import { create as tarCreate, extract as tarExtract } from 'tar'
 import { getBmoAccessHeaders, getBmoBaseUrl } from './bmo-config'
 import { logToFile } from './log'
 
-const TIMEOUT_MS = 60_000 // 60 second timeout for sync operations
 // A reachability/status probe must fail FAST. Without a short ceiling, the
 // "Check Status" button against an unreachable Pi (stale LAN IP, down tunnel)
 // hung for the full OS TCP timeout — tens of seconds of a spinning button that
 // read as a freeze. 8s covers tunnel + Cloudflare Access latency comfortably.
 const STATUS_TIMEOUT_MS = 8_000
+// Archive transfer (up/down) — generous; a campaign with map/audio assets over
+// the upstream link can take a while, but still bounded so a hung tunnel fails.
+const TRANSFER_TIMEOUT_MS = 180_000
+// A short ceiling for the campaign-list query (drives the restore picker).
+const LIST_TIMEOUT_MS = 15_000
 
 export interface CloudSyncResult {
   success: boolean
@@ -33,64 +50,19 @@ export interface RcloneStatus {
   error?: string
 }
 
-interface BridgeResponse {
-  ok?: boolean
-  error?: string
-  [key: string]: unknown
+/** A campaign's data files/dirs, RELATIVE to userData (the tar root). The Pi
+ * stores the archive opaquely, so this client owns the layout on both ends. */
+function campaignRelPaths(campaignId: string): string[] {
+  return [
+    join('campaigns', `${campaignId}.json`), // campaign config
+    join('game-states', `${campaignId}.json`), // world state
+    join('ai-conversations', `${campaignId}.json`), // AI chat history
+    join('campaigns', campaignId) // campaign assets subfolder
+  ]
 }
 
 /**
- * Execute rclone command via BMO Pi bridge
- * All rclone commands run on the Pi with the patrick@bmo user context
- */
-async function executeRcloneCommand(
-  command: 'sync' | 'copy' | 'check' | 'ls' | 'version',
-  args: string[]
-): Promise<BridgeResponse> {
-  const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS)
-
-  try {
-    const res = await fetch(`${getBmoBaseUrl()}/api/rclone/execute`, {
-      method: 'POST',
-      signal: controller.signal,
-      headers: {
-        'Content-Type': 'application/json',
-        ...getBmoAccessHeaders()
-      },
-      body: JSON.stringify({
-        command,
-        args,
-        timeout: TIMEOUT_MS
-      })
-    })
-
-    if (!res.ok) {
-      return {
-        ok: false,
-        error: `HTTP ${res.status}: ${res.statusText}`
-      }
-    }
-
-    return await res.json()
-  } catch (err) {
-    if (err instanceof Error && err.name === 'AbortError') {
-      return {
-        ok: false,
-        error: 'Rclone command timed out after 60 seconds'
-      }
-    }
-    return {
-      ok: false,
-      error: err instanceof Error ? err.message : String(err)
-    }
-  } finally {
-    clearTimeout(timer)
-  }
-}
-
-/**
- * Check if the Rclone remote is reachable and configured
+ * Check if the Rclone remote is reachable and configured (drives "Check Status").
  */
 export async function checkRemoteStatus(): Promise<RcloneStatus> {
   const controller = new AbortController()
@@ -136,209 +108,191 @@ export async function checkRemoteStatus(): Promise<RcloneStatus> {
 }
 
 /**
- * Get all campaign-related paths that need to be synced
- */
-function getCampaignSyncPaths(campaignId: string): {
-  sourcePaths: string[]
-  remoteFolder: string
-} {
-  const userData = app.getPath('userData')
-
-  // Primary campaign data files and folders
-  const sourcePaths = [
-    join(userData, 'campaigns', `${campaignId}.json`), // Campaign config
-    join(userData, 'game-states', `${campaignId}.json`), // World state
-    join(userData, 'ai-conversations', `${campaignId}.json`), // AI chat history
-    join(userData, 'campaigns', campaignId) // Campaign assets subfolder
-  ]
-
-  // Remote folder structure: DND-VTT-Backups/{campaignId}/
-  const remoteFolder = `DND-VTT-Backups/${campaignId}`
-
-  return { sourcePaths, remoteFolder }
-}
-
-/**
- * Sync a campaign to Google Drive using rclone sync
- * This is a one-way sync (local → remote) that backs up all campaign data
+ * Back up a campaign: tar its files → upload the archive to the Pi → the Pi
+ * rclone-copies it to Google Drive. One-way (local → remote).
  */
 export async function syncCampaignToDrive(campaignId: string, campaignName: string): Promise<CloudSyncResult> {
-  logToFile('INFO', `Starting cloud sync for campaign: ${campaignName} (${campaignId})`)
-
+  logToFile('INFO', `Starting cloud backup for campaign: ${campaignName} (${campaignId})`)
+  let tmpDir: string | null = null
   try {
-    // First check if remote is available
     const status = await checkRemoteStatus()
     if (!status.configured) {
-      return {
-        success: false,
-        error: `Rclone not configured on Pi: ${status.error || 'Unknown error'}`
-      }
+      return { success: false, error: `Cloud backup not configured on the Pi: ${status.error || 'unknown'}` }
     }
 
-    const { sourcePaths, remoteFolder } = getCampaignSyncPaths(campaignId)
-
-    // Use rclone copy (safer than sync - won't delete remote files)
-    // Target: gdrive:DND-VTT-Backups/{campaignId}/
-    const result = await executeRcloneCommand('copy', [
-      '--transfers',
-      '4',
-      '--checkers',
-      '8',
-      '--stats',
-      '1s',
-      '--stats-one-line',
-      '--include',
-      '*.json',
-      '--include',
-      '*.png',
-      '--include',
-      '*.jpg',
-      '--include',
-      '*.jpeg',
-      '--include',
-      '*.webp',
-      '--include',
-      '*.mp3',
-      '--include',
-      '*.wav',
-      '--include',
-      '*.ogg',
-      '--exclude',
-      '*.tmp',
-      '--exclude',
-      '.cache/**',
-      ...sourcePaths,
-      `gdrive:${remoteFolder}`
-    ])
-
-    if (!result.ok) {
-      logToFile('ERROR', 'Rclone sync failed:', result.error || 'Unknown error')
-      return {
-        success: false,
-        error: result.error || 'Rclone command failed',
-        details: result
-      }
+    const userData = app.getPath('userData')
+    // Only archive paths that actually exist (a fresh campaign may have no
+    // assets dir / no AI history yet — tar errors on missing entries).
+    const present = campaignRelPaths(campaignId).filter((rel) => existsSync(join(userData, rel)))
+    if (present.length === 0) {
+      return { success: false, error: 'Nothing to back up — this campaign has no saved data yet.' }
     }
 
-    logToFile('INFO', `Cloud sync completed for campaign: ${campaignName}`)
-    return {
-      success: true,
-      message: `Campaign "${campaignName}" backed up to Google Drive`,
-      details: result
+    tmpDir = await mkdtemp(join(tmpdir(), 'vtt-backup-'))
+    const archivePath = join(tmpDir, 'campaign.tar.gz')
+    await tarCreate({ gzip: true, file: archivePath, cwd: userData }, present)
+    const { size } = await stat(archivePath)
+
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), TRANSFER_TIMEOUT_MS)
+    try {
+      const buf = await readFile(archivePath)
+      const form = new FormData()
+      form.append('campaign_id', campaignId)
+      // A Blob from the buffer — fetch sets the multipart boundary itself, so we
+      // deliberately do NOT set Content-Type here.
+      form.append('archive', new Blob([buf], { type: 'application/gzip' }), 'campaign.tar.gz')
+      const res = await fetch(`${getBmoBaseUrl()}/api/rclone/backup`, {
+        method: 'POST',
+        signal: controller.signal,
+        headers: { ...getBmoAccessHeaders() },
+        body: form
+      })
+      if (!res.ok) {
+        const detail = await res.text().catch(() => '')
+        return { success: false, error: `Upload failed (HTTP ${res.status}): ${detail || res.statusText}` }
+      }
+      const body = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string; bytes?: number }
+      if (!body.ok) {
+        return { success: false, error: body.error || 'Pi rejected the backup' }
+      }
+      logToFile('INFO', `Cloud backup completed for ${campaignName} (${size} bytes)`)
+      return {
+        success: true,
+        message: `Campaign "${campaignName}" backed up to Google Drive`,
+        details: { bytes: body.bytes ?? size }
+      }
+    } finally {
+      clearTimeout(timer)
     }
   } catch (err) {
-    const errorMsg = err instanceof Error ? err.message : String(err)
-    logToFile('ERROR', 'Cloud sync error:', errorMsg)
-    return {
-      success: false,
-      error: errorMsg
-    }
+    const reason =
+      err instanceof Error && err.name === 'AbortError'
+        ? `Upload timed out after ${TRANSFER_TIMEOUT_MS / 1000}s`
+        : err instanceof Error
+          ? err.message
+          : String(err)
+    logToFile('ERROR', 'Cloud backup error:', reason)
+    return { success: false, error: reason }
+  } finally {
+    if (tmpDir) await rm(tmpDir, { recursive: true, force: true }).catch(() => undefined)
   }
 }
 
 /**
- * Check the sync status of a campaign
- * Compares local files with remote to show what's out of sync
+ * Restore a campaign FROM Google Drive: the Pi streams the archive back and we
+ * extract it into userData (overwrites the local campaign files). Destructive —
+ * callers should confirm with the user first.
+ */
+export async function restoreCampaignFromDrive(campaignId: string): Promise<CloudSyncResult> {
+  logToFile('INFO', `Starting cloud restore for campaign: ${campaignId}`)
+  let tmpDir: string | null = null
+  try {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), TRANSFER_TIMEOUT_MS)
+    try {
+      const res = await fetch(`${getBmoBaseUrl()}/api/rclone/restore?campaignId=${encodeURIComponent(campaignId)}`, {
+        method: 'GET',
+        signal: controller.signal,
+        headers: { ...getBmoAccessHeaders() }
+      })
+      if (res.status === 404) {
+        return { success: false, error: 'No backup found for this campaign on Google Drive.' }
+      }
+      if (!res.ok || !res.body) {
+        const detail = await res.text().catch(() => '')
+        return { success: false, error: `Restore failed (HTTP ${res.status}): ${detail || res.statusText}` }
+      }
+
+      const userData = app.getPath('userData')
+      tmpDir = await mkdtemp(join(tmpdir(), 'vtt-restore-'))
+      const archivePath = join(tmpDir, 'campaign.tar.gz')
+      // Stream the response to disk (bounded memory) before extracting.
+      await pipeline(
+        Readable.fromWeb(res.body as Parameters<typeof Readable.fromWeb>[0]),
+        createWriteStream(archivePath)
+      )
+      // tar defaults strip leading "/" and ".." segments, so extraction is
+      // jailed to userData even though the archive is our own.
+      await tarExtract({ file: archivePath, cwd: userData })
+      logToFile('INFO', `Cloud restore completed for ${campaignId}`)
+      return { success: true, message: 'Campaign restored from Google Drive', details: { campaignId } }
+    } finally {
+      clearTimeout(timer)
+    }
+  } catch (err) {
+    const reason =
+      err instanceof Error && err.name === 'AbortError'
+        ? `Restore timed out after ${TRANSFER_TIMEOUT_MS / 1000}s`
+        : err instanceof Error
+          ? err.message
+          : String(err)
+    logToFile('ERROR', 'Cloud restore error:', reason)
+    return { success: false, error: reason }
+  } finally {
+    if (tmpDir) await rm(tmpDir, { recursive: true, force: true }).catch(() => undefined)
+  }
+}
+
+/** Fetch the list of campaigns that have a backup on the remote. */
+async function fetchRemoteList(): Promise<Array<{ id: string; size: number; modified?: string }>> {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), LIST_TIMEOUT_MS)
+  try {
+    const res = await fetch(`${getBmoBaseUrl()}/api/rclone/list`, {
+      method: 'GET',
+      signal: controller.signal,
+      headers: { ...getBmoAccessHeaders() }
+    })
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const body = (await res.json()) as {
+      ok?: boolean
+      campaigns?: Array<{ id: string; size: number; modified?: string }>
+      error?: string
+    }
+    if (!body.ok) throw new Error(body.error || 'Pi returned an error')
+    return body.campaigns ?? []
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
+/**
+ * Check whether a campaign has a backup on Drive (drives the per-campaign
+ * "last backed up" hint).
  */
 export async function checkCampaignSyncStatus(
   campaignId: string
 ): Promise<CloudSyncResult & { hasRemoteData?: boolean; lastSync?: string }> {
   try {
-    const status = await checkRemoteStatus()
-    if (!status.configured) {
-      return {
-        success: false,
-        error: `Rclone not configured: ${status.error || 'Unknown error'}`
-      }
-    }
-
-    const { remoteFolder } = getCampaignSyncPaths(campaignId)
-
-    // List remote files to check if campaign exists
-    const listResult = await executeRcloneCommand('ls', [`gdrive:${remoteFolder}`])
-
-    if (!listResult.ok) {
-      // Campaign folder doesn't exist on remote yet
-      return {
-        success: true,
-        hasRemoteData: false,
-        message: 'No backup found on Google Drive'
-      }
-    }
-
-    // Parse the ls output to get file info
-    const files = (listResult.files as Array<{ name: string; size: number; modTime: string }>) || []
-
-    // Find the most recent modification time
-    let lastSync: string | undefined
-    if (files.length > 0) {
-      const sorted = files
-        .filter((f) => f.modTime)
-        .sort((a, b) => new Date(b.modTime).getTime() - new Date(a.modTime).getTime())
-      if (sorted[0]) {
-        lastSync = sorted[0].modTime
-      }
-    }
-
+    const campaigns = await fetchRemoteList()
+    const match = campaigns.find((c) => c.id === campaignId)
     return {
       success: true,
-      hasRemoteData: files.length > 0,
-      lastSync,
-      message: files.length > 0 ? `Backup found with ${files.length} files` : 'Empty backup folder exists'
+      hasRemoteData: Boolean(match),
+      lastSync: match?.modified,
+      message: match ? 'Backup found on Google Drive' : 'No backup found on Google Drive'
     }
   } catch (err) {
-    const errorMsg = err instanceof Error ? err.message : String(err)
-    return {
-      success: false,
-      error: errorMsg
-    }
+    return { success: false, error: err instanceof Error ? err.message : String(err) }
   }
 }
 
 /**
- * Get a list of all campaigns backed up to Google Drive
+ * List all campaigns backed up to Google Drive (for the restore picker).
  */
 export async function listRemoteCampaigns(): Promise<
-  CloudSyncResult & { campaigns?: Array<{ id: string; name: string }> }
+  CloudSyncResult & { campaigns?: Array<{ id: string; name: string; modified?: string }> }
 > {
   try {
-    const status = await checkRemoteStatus()
-    if (!status.configured) {
-      return {
-        success: false,
-        error: `Rclone not configured: ${status.error || 'Unknown error'}`
-      }
-    }
-
-    const listResult = await executeRcloneCommand('ls', ['gdrive:DND-VTT-Backups'])
-
-    if (!listResult.ok) {
-      // No backups folder yet
-      return {
-        success: true,
-        campaigns: [],
-        message: 'No backups folder found on Google Drive'
-      }
-    }
-
-    const items = (listResult.items as Array<{ name: string; isDir: boolean }>) || []
-    const campaignFolders = items
-      .filter((item) => item.isDir)
-      .map((item) => ({
-        id: item.name,
-        name: item.name // We could enhance this to read a metadata file
-      }))
-
+    const remote = await fetchRemoteList()
+    const campaigns = remote.map((c) => ({ id: c.id, name: c.id, modified: c.modified }))
     return {
       success: true,
-      campaigns: campaignFolders,
-      message: `Found ${campaignFolders.length} backed-up campaigns`
+      campaigns,
+      message: `Found ${campaigns.length} backed-up campaign${campaigns.length === 1 ? '' : 's'}`
     }
   } catch (err) {
-    const errorMsg = err instanceof Error ? err.message : String(err)
-    return {
-      success: false,
-      error: errorMsg
-    }
+    return { success: false, error: err instanceof Error ? err.message : String(err) }
   }
 }

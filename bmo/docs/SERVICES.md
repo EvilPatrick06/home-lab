@@ -141,6 +141,19 @@ Full map in source — use `grep "@app.route" bmo/pi/app.py` for current list.
 
 All `/api/games*` responses carry `Access-Control-Allow-Origin: *` + `Access-Control-Allow-Methods` + `Access-Control-Allow-Headers` so the Electron renderer's `file://` origin can fetch them. OPTIONS preflights are short-circuited with a 204 in `_bmo_optional_api_key`. Optional `BMO_REGISTRY_API_KEY` env enforces an `X-Registry-Key` header on announce / patch / delete / heartbeat (the GET + stream routes stay open).
 
+### Cloud backup — D&D VTT (`routes/rclone_api.py`)
+
+The dnd-app can't hold Google Drive credentials, so campaign backups go through the Pi's `gdrive:` rclone remote (separate `DND-VTT-Backups/` folder from BMO's own 3 AM backup).
+
+| Path | Method | Purpose |
+|---|---|---|
+| `/api/rclone/status` | GET | `{configured, remotes, version, error}` — drives the app's "Check Status" button |
+| `/api/rclone/list` | GET | `{ok, campaigns:[{id,size,modified}]}` from `rclone lsjson` of the backup folder |
+| `/api/rclone/backup` | POST (multipart) | Stage the uploaded `archive` (a campaign `.tar.gz`) → `rclone copyto gdrive:DND-VTT-Backups/<campaign_id>/campaign.tar.gz` |
+| `/api/rclone/restore` | GET `?campaignId=` | `rclone copyto` from the remote → stream the archive back to the app |
+
+Safety: rclone runs with a FIXED argv (no shell); `campaign_id` is slug-validated (rejects path traversal); the upload body cap is raised for `/backup` only (`BMO_MAX_BACKUP_SIZE`, default 512 MiB) via Werkzeug 3.1 per-request `max_content_length`, leaving the app-wide 32 MiB guard intact. ACAO + OPTIONS preflight wired like `/api/games`. LAN-open; off-LAN gated by the Cloudflare Access service token. Tests: `tests/test_rclone_api.py` (injected fake rclone runner).
+
 The Pi also advertises `_bmo._tcp` (port 5000) via `/etc/avahi/services/bmo.service` — the dnd-app's main process browses it with `bonjour-service` and emits a `BMO_RESOLVED_URL` IPC event to the renderer so the user never has to type the Pi URL into Settings.
 
 ### IDE

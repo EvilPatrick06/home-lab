@@ -510,7 +510,8 @@ const api = {
     backupCampaign: (campaignId: string, campaignName: string) =>
       ipcRenderer.invoke(IPC_CHANNELS.CLOUD_SYNC_BACKUP, campaignId, campaignName),
     checkCampaignStatus: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.CLOUD_SYNC_CHECK_STATUS, campaignId),
-    listRemoteCampaigns: () => ipcRenderer.invoke(IPC_CHANNELS.CLOUD_SYNC_LIST_CAMPAIGNS)
+    listRemoteCampaigns: () => ipcRenderer.invoke(IPC_CHANNELS.CLOUD_SYNC_LIST_CAMPAIGNS),
+    restoreCampaign: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.CLOUD_SYNC_RESTORE, campaignId)
   }
 }
 

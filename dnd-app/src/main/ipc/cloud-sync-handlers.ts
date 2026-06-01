@@ -12,6 +12,7 @@ import {
   checkCampaignSyncStatus,
   checkRemoteStatus,
   listRemoteCampaigns,
+  restoreCampaignFromDrive,
   syncCampaignToDrive
 } from '../cloud-sync'
 import { logToFile } from '../log'
@@ -156,6 +157,26 @@ export function registerCloudSyncHandlers(): void {
           success: false,
           error: errorMsg
         }
+      }
+    }
+  )
+
+  // Restore a campaign FROM remote (destructive — overwrites local files; the
+  // renderer confirms with the user before invoking).
+  handle(
+    IPC_CHANNELS.CLOUD_SYNC_RESTORE,
+    async (_event, campaignId: string): Promise<CloudSyncResult & { campaignId: string }> => {
+      if (!isValidUUID(campaignId)) {
+        return { success: false, error: 'Invalid campaign ID', campaignId }
+      }
+      try {
+        logToFile('INFO', `IPC: Starting cloud restore for campaign ${campaignId}`)
+        const result = await restoreCampaignFromDrive(campaignId)
+        return { ...result, campaignId }
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : String(err)
+        logToFile('ERROR', `Cloud restore failed for campaign ${campaignId}:`, errorMsg)
+        return { success: false, error: errorMsg, campaignId }
       }
     }
   )
