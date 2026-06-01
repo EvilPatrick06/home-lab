@@ -13,6 +13,7 @@ import { addToast } from '../hooks/use-toast'
 import { i18n } from '../i18n'
 import { logger } from '../utils/logger'
 import { load5eAmbientTracks, load5eSoundEvents } from './data-provider'
+import { SOUND_INVENTORY } from './library/sound-inventory'
 import {
   customOverrides as playbackCustomOverrides,
   fadeAmbient as playbackFadeAmbient,
@@ -200,6 +201,30 @@ function getDefaultPath(event: string): string {
   return `./sounds/${getSoundFolder(event)}/${getSoundFilename(event)}.mp3`
 }
 
+// Manifest of every bundled sound file that actually ships (single source of
+// truth — same catalogue the Library 'sounds' category lists). Used to pick
+// only-existing files per event so playback never requests a 404.
+const EXISTING_SOUND_PATHS = new Set<string>(SOUND_INVENTORY.map((s) => s.path))
+
+/**
+ * The real shipped file(s) for an event, or [] if none ship. Prefers the base
+ * file (`<name>.mp3` — combat/spells/conditions/weapons/creatures/ui), else
+ * numbered variants (`<name>-1.mp3`… — dice). Checked against the manifest so
+ * we never `new Audio()` a path that 404s.
+ */
+function resolveSoundSources(event: string): string[] {
+  const base = getDefaultPath(event)
+  if (EXISTING_SOUND_PATHS.has(base)) return [base]
+  const folder = getSoundFolder(event)
+  const name = getSoundFilename(event)
+  const variants: string[] = []
+  for (let i = 1; i <= POOL_SIZE; i++) {
+    const vp = `./sounds/${folder}/${name}-${i}.mp3`
+    if (EXISTING_SOUND_PATHS.has(vp)) variants.push(vp)
+  }
+  return variants
+}
+
 // --- Module-level state ---
 
 const AUDIO_STORAGE_KEY = SETTINGS_KEYS.AUDIO
@@ -264,24 +289,28 @@ export function init(): void {
   if (initialized) return
 
   for (const event of SOUND_EVENTS) {
+    // Resolve which REAL files back this event from the shipped-file manifest
+    // (SOUND_INVENTORY) so we never request a 404. Files ship inconsistently:
+    // combat/spells/conditions/weapons/creatures/ui have a single base file
+    // (`attack-hit.mp3`), while dice ship ONLY numbered variants
+    // (`d20-1.mp3`, `d20-2.mp3`, …) with no base. A DM custom override always
+    // wins. Events with no shipped file get an empty pool (silent, no fetch) —
+    // this replaces the earlier "always probe base"/"always probe variant"
+    // logic, both of which 404-spammed one half of the catalogue.
     const customPath = customOverrides.get(event)
-    const basePath = customPath ?? getDefaultPath(event)
+    const sources = customPath ? [customPath] : resolveSoundSources(event)
+
     const pool: HTMLAudioElement[] = []
-
-    for (let i = 0; i < POOL_SIZE; i++) {
-      // Pool of base-file instances for overlapping playback (round-robin).
-      // NOTE: per-event `<name>-N.mp3` variant files were never shipped — only
-      // the base file exists for every event — so the old "try variant, fall
-      // back to base" path produced ERR_FILE_NOT_FOUND for ~3×N events on every
-      // init (console spam, though sound still played via the fallback). Load
-      // the base file directly. Re-introduce variant probing only behind a
-      // manifest of files that actually exist.
-      const audio = new Audio(basePath)
-      audio.preload = 'auto'
-      audio.volume = muted ? 0 : volume
-      pool.push(audio)
+    if (sources.length > 0) {
+      for (let i = 0; i < POOL_SIZE; i++) {
+        // Cycle through the available sources to fill the overlap pool (so a
+        // single base file still gives POOL_SIZE instances; variant sets rotate).
+        const audio = new Audio(sources[i % sources.length])
+        audio.preload = 'auto'
+        audio.volume = muted ? 0 : volume
+        pool.push(audio)
+      }
     }
-
     pools.set(event, pool)
     poolIndex.set(event, 0)
   }
@@ -356,10 +385,11 @@ export function play(event: SoundEvent): void {
   if (!enabled || !initialized) return
 
   const pool = pools.get(event)
-  if (!pool) return
+  // Empty pool = no file ships for this event (manifest miss) — stay silent.
+  if (!pool || pool.length === 0) return
 
   const idx = poolIndex.get(event) ?? 0
-  const audio = pool[idx]
+  const audio = pool[idx % pool.length]
 
   // Reset to the start so it can replay even if still playing
   audio.currentTime = 0

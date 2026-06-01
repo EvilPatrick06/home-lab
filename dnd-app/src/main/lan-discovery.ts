@@ -163,10 +163,17 @@ export function startBmoDiscovery(): void {
   logToFile('INFO', '[lan-discovery] BMO discovery starting (browsing _bmo._tcp)')
   bmoBrowser = getBonjour().find({ type: BMO_SERVICE_TYPE })
   bmoBrowser.on('up', (service: Service) => {
-    // Prefer an IPv4 address — that's what Electron's fetch can use
-    // without depending on the host OS's mDNS resolver.
+    // Prefer a literal IPv4 — that's what Electron's fetch (main AND renderer)
+    // can reach without the host OS resolving `bmo.local`, which Windows can't
+    // do without Bonjour Print Services. `addresses` is sometimes empty or
+    // IPv6-only; bonjour-service still exposes the responder's source IPv4 on
+    // `referer.address`, so fall back to that before the (often unresolvable)
+    // mDNS hostname. Using the hostname is why Cloud Backup + the signaling
+    // probe reported "could not reach the Pi" on LAN.
     const ipv4 = (service.addresses ?? []).find((a) => /^\d+\.\d+\.\d+\.\d+$/.test(a))
-    const host = ipv4 ?? service.host ?? service.fqdn
+    const refererAddr = (service as { referer?: { address?: string } }).referer?.address
+    const refererIpv4 = refererAddr && /^\d+\.\d+\.\d+\.\d+$/.test(refererAddr) ? refererAddr : undefined
+    const host = ipv4 ?? refererIpv4 ?? service.host ?? service.fqdn
     if (!host) return
     const url = `http://${host}:${service.port ?? 5000}`
     knownBmoFqdns.add(service.fqdn)

@@ -48,6 +48,7 @@ import {
 } from './game-layout'
 import type { AoEConfig } from './map/aoe-overlay'
 import MapCanvas from './map/MapCanvas'
+import { RESET_MAP_VIEW_EVENT } from './map/map-canvas/map-canvas-hooks'
 import ActionEconomyBar from './overlays/ActionEconomyBar'
 import ClockOverlay from './overlays/ClockOverlay'
 import DmAlertTray from './overlays/DmAlertTray'
@@ -772,6 +773,20 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
         role="region"
         aria-label={t('game.gameLayout.gameControlsToolbar')}
       >
+        {/* Reset View — inline in this cluster (was a separate absolute button in
+            MapCanvas that sat behind the cluster + the settings gear). Fires the
+            event MapCanvas's reset hook listens for. */}
+        {gameStore.activeMapId && (
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new Event(RESET_MAP_VIEW_EVENT))}
+            title={t('game.mapCanvas.resetViewTitle')}
+            aria-label={t('game.mapCanvas.resetViewLabel')}
+            className="px-3 py-1.5 text-xs font-medium bg-gray-800/90 border border-gray-700 rounded-lg text-gray-400 hover:text-gray-200 hover:bg-gray-700 transition-colors cursor-pointer backdrop-blur-sm"
+          >
+            {t('game.mapCanvas.resetView')}
+          </button>
+        )}
         {isDM && <ViewModeToggle viewMode={viewMode} onToggle={handleViewModeToggle} characterName={character?.name} />}
         {/* Phase 29f — View-as-role debug selector (DM only). */}
         {isDM && <ViewAsSelector campaign={campaign} viewAs={viewAs} setViewAsTarget={setViewAsTarget} />}

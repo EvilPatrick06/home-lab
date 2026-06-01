@@ -101,17 +101,27 @@ export function usePingOnDoubleClick(refs: PanZoomRefs, map: GameMap | null, isH
   }, [map, isHost])
 }
 
-/** Reset map view on the Home key (delegates to the caller's reset handler). */
+/** Event the in-game toolbar's Reset View button dispatches (the button lives
+ * in GameLayout's top-right cluster; the reset logic lives here in MapCanvas). */
+export const RESET_MAP_VIEW_EVENT = 'dndapp:reset-map-view'
+
+/** Reset map view on the Home key OR a `RESET_MAP_VIEW_EVENT` window event
+ * (the toolbar button) — both delegate to the caller's reset handler. */
 export function useResetViewHotkey(handleResetView: () => void): void {
   useEffect(() => {
-    const handler = (e: KeyboardEvent): void => {
+    const onKey = (e: KeyboardEvent): void => {
       if (e.key === 'Home') {
         e.preventDefault()
         handleResetView()
       }
     }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
+    const onEvent = (): void => handleResetView()
+    window.addEventListener('keydown', onKey)
+    window.addEventListener(RESET_MAP_VIEW_EVENT, onEvent)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      window.removeEventListener(RESET_MAP_VIEW_EVENT, onEvent)
+    }
   }, [handleResetView])
 }
 

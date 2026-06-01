@@ -815,22 +815,11 @@ export default function MapCanvas({
       >
         A1
       </button>
-      {map && (
-        // Phase 17j — moved from bottom-3 to top-3 right-3 so the button no
-        // longer overlaps the chat Send button (which lives at the bottom
-        // of the layout). Pairs visually with the other map-view controls
-        // that cluster in the top-right.
-        <button
-          onClick={handleResetView}
-          title={t('game.mapCanvas.resetViewTitle')}
-          aria-label={t('game.mapCanvas.resetViewLabel')}
-          className="absolute top-3 right-3 z-20 px-3 py-1.5 text-xs font-medium
-            bg-gray-800/90 border border-gray-700 rounded-lg text-gray-400 hover:text-gray-200
-            hover:bg-gray-700 transition-colors cursor-pointer backdrop-blur-sm"
-        >
-          {t('game.mapCanvas.resetView')}
-        </button>
-      )}
+      {/* Reset View button lives in GameLayout's top-right control cluster now
+          (inline with the other map controls + the gear) instead of as a
+          separate `absolute top-3 right-3` element that sat BEHIND the cluster
+          and the settings gear. It fires RESET_MAP_VIEW_EVENT, which
+          useResetViewHotkey (above) handles via handleResetView. */}
       {isHost && hasMultipleFloors && map?.floors && (
         <Suspense fallback={null}>
           <FloorSelector floors={map.floors} currentFloor={currentFloor} onFloorChange={setCurrentFloor} />

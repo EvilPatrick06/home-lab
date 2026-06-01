@@ -150,12 +150,20 @@ function createWindow(): void {
   }
 
   // Content Security Policy — relax inline restrictions in dev for Vite HMR
-  // Rebuild CSP on each response so BMO `connect-src` updates after settings save
+  // Rebuild CSP on each response so BMO `connect-src` updates after settings save.
+  // `http: ws:` are allowed in connect-src so the renderer can reach the LAN Pi
+  // at whatever IP mDNS discovers — the CSP is baked at page load, BEFORE
+  // discovery resolves, and CSP host-sources can't wildcard arbitrary LAN IPs,
+  // so a scheme-source is the only way to permit it. Safe here: the renderer
+  // runs only first-party bundled code (script-src is locked to 'self' plugin:,
+  // sandbox + contextIsolation on), so there's no injected script to abuse it.
+  // https/wss stay pinned to the tunnel + PeerJS. (Cleaner long-term: proxy the
+  // registry fetches through the main process — see ISSUES log.)
   const inlinePolicy = is.dev ? " 'unsafe-inline' 'unsafe-eval'" : ''
   mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
     const devConnect = is.dev ? ' ws://localhost:5173 http://localhost:5173' : ''
     const piConnect = bmoCspConnectFragment()
-    const csp = `default-src 'self' plugin:; script-src 'self' plugin:${inlinePolicy}; worker-src 'self' blob:; style-src 'self' plugin:${inlinePolicy}; connect-src 'self' plugin: data: wss://0.peerjs.com https://0.peerjs.com${piConnect}${devConnect}; img-src 'self' data: blob: plugin:; media-src 'self' blob: plugin:; font-src 'self' plugin:`
+    const csp = `default-src 'self' plugin:; script-src 'self' plugin:${inlinePolicy}; worker-src 'self' blob:; style-src 'self' plugin:${inlinePolicy}; connect-src 'self' plugin: data: http: ws: wss://0.peerjs.com https://0.peerjs.com${piConnect}${devConnect}; img-src 'self' data: blob: plugin:; media-src 'self' blob: plugin:; font-src 'self' plugin:`
     callback({
       responseHeaders: {
         ...details.responseHeaders,
