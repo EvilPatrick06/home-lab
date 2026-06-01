@@ -71,3 +71,10 @@ jobs:
       - name: Dead code (knip)
         run: npm run dead-code
         continue-on-error: true
+      # Informational: surfaces the "bump Electron before EOL" reminder on every
+      # run. Non-blocking (continue-on-error) — a near-/past-EOL Electron warns
+      # but never fails the build. See docs/DEPENDENCIES.md → "Electron upgrade
+      # cadence" and scripts/maintenance/electron-eol-check.mjs.
+      - name: Electron EOL reminder
+        run: npm run check:electron-eol
+        continue-on-error: true

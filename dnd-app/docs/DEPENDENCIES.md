@@ -28,6 +28,7 @@ Electron ships a new major roughly every ~8 weeks and supports the **latest 3 ma
 - **Cadence:** bump to a current major **before the running one hits EOL**. Don't chase every major — landing on the newest of the 3 supported majors buys the longest runway (we skipped 41 and went 40→42).
 - **How:** `npm install electron@<latest>` → re-run `npm run postinstall` (so `@electron/rebuild`/`node-abi` pick up the new ABI) → 4-gate → **smoke-test the GUI** (map/dice WebGL render, AI streaming, P2P + cloud multiplayer, NSIS auto-update) since a Chromium major jump is runtime surface no static check covers → cut a release.
 - The matching `node-abi` must know the new Electron's ABI; a current `npm install` usually dedupes it, else bump `node-abi`.
+- **Automated reminder:** `npm run check:electron-eol` (`scripts/maintenance/electron-eol-check.mjs`) reads the installed Electron major (from `node_modules/electron`, falling back to `package.json`) and warns when it's within ~8 weeks of EOL or already past it, using a hardcoded EOL-date map (source: [endoflife.date/electron](https://endoflife.date/electron) + [releases.electronjs.org/schedule](https://releases.electronjs.org/schedule)). It runs as a **non-blocking** (`continue-on-error: true`) informational step in `dnd-app-ci.yml`, so the reminder surfaces on every CI run without failing the build (pass `--strict` for a non-zero exit). **When you bump Electron, extend `EOL_BY_MAJOR` in that script** with the new major's EOL row from the schedule above.
 
 ## Build tool: Vite 8 on the electron-vite 6 beta (Rolldown)
 

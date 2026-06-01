@@ -28,6 +28,7 @@
     "check:release": "npm run lint && tsc --noEmit -p tsconfig.web.json && tsc --noEmit -p tsconfig.node.json && npm test",
     "build:index": "node scripts/build/build-chunk-index.mjs",
     "verify:build": "node scripts/build/verify-build.mjs",
+    "check:electron-eol": "node scripts/maintenance/electron-eol-check.mjs",
     "validate:5e": "node scripts/audit/check-5e-cross-refs.mjs",
     "validate:content": "tsx scripts/audit/validate-content-vs-schemas.ts",
     "i18n:gen-pseudo": "node scripts/i18n/gen-pseudo-locale.mjs",
