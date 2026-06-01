@@ -234,6 +234,17 @@ jobs:
           fi
           echo "All 6 platform/installer assets present (source tarballs auto-attach via GitHub)."
 
+      # Publish the release ONLY after all assets are verified present. cut.mjs
+      # pre-creates it as a draft, which electron-updater ignores — so the prior
+      # fully-built release stays "latest" until this point. This closes the
+      # window where a pre-created, not-yet-built release became "latest" with no
+      # assets (breaking auto-update), and leaves a failed build as an unpublished
+      # draft so users stay on the last good version. Idempotent if already live.
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release edit "${{ github.ref_name }}" --draft=false --latest
+
       # On failure only, keep a short-retention copy of the built binaries for debugging (§B4).
       - name: Upload diagnostics on failure
         if: failure()

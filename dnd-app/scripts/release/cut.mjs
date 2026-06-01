@@ -188,14 +188,21 @@ sh('git push origin HEAD')
 // Pre-creating with custom notes prevents electron-builder from creating an
 // empty release. The tag push below then triggers the workflow which
 // uploads artifacts INTO the pre-existing release.
+//
+// Created as a DRAFT: electron-updater ignores draft releases, so the previous
+// fully-built release stays "latest" until the workflow uploads + verifies all
+// assets and then publishes it (`gh release edit --draft=false` in release.yml
+// → "Publish release" step). This closes the window where a pre-created but
+// not-yet-built release became "latest" with no assets, breaking auto-update
+// (and leaving it broken if the build failed).
 if (notesFile) {
-  console.log(`✓ Pre-creating GitHub release with notes from ${notesFile}`)
+  console.log(`✓ Pre-creating GitHub release (draft) with notes from ${notesFile}`)
   const fullSha = shCapture('git rev-parse HEAD')
-  sh(`gh release create ${tag} --target ${fullSha} --title "${version}" --notes-file "${notesFile}"`)
+  sh(`gh release create ${tag} --target ${fullSha} --title "${version}" --notes-file "${notesFile}" --draft`)
 }
 
 sh(`git push origin ${tag}`)
-console.log(`✓ Pushed ${tag} — Release workflow now running.`)
+console.log(`✓ Pushed ${tag} — Release workflow now running (release publishes once assets verify).`)
 console.log('')
 console.log(`Track CI:    https://github.com/EvilPatrick06/home-lab/actions`)
 console.log(`Release URL: https://github.com/EvilPatrick06/home-lab/releases/tag/${tag}`)
