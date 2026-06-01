@@ -96,6 +96,7 @@ bmo/pi/data/alarms.json
 bmo/pi/data/alert_history.json
 bmo/pi/data/ide_jobs.json
 bmo/pi/data/ide_state.json
+bmo/pi/data/lists.json
 bmo/pi/data/location_cache.json
 bmo/pi/data/monitor_state.json
 bmo/pi/data/monitor_alert_state.json
