@@ -40,8 +40,6 @@ export default function JoinGamePage(): JSX.Element {
       return ''
     }
   })
-  const [manualInviteCode, setManualInviteCode] = useState('')
-  const [showManualForm, setShowManualForm] = useState(false)
   const [waitingForCampaign, setWaitingForCampaign] = useState(false)
   const [registryGames, setRegistryGames] = useState<RegistryGameEntry[]>([])
   const [lanGames, setLanGames] = useState<RegistryGameEntry[]>([])
@@ -311,14 +309,6 @@ export default function JoinGamePage(): JSX.Element {
     [pwTarget, displayName, connectWithCode, setError]
   )
 
-  const manualValid =
-    manualInviteCode.trim().length === INVITE_CODE_LENGTH && /^[A-Z0-9]+$/.test(manualInviteCode.trim().toUpperCase())
-
-  const handleManualConnect = useCallback(() => {
-    if (!manualValid || !displayName.trim()) return
-    void connectWithCode(manualInviteCode.trim().toUpperCase(), displayName.trim())
-  }, [manualInviteCode, manualValid, displayName, connectWithCode])
-
   const isConnecting = connectionState === 'connecting' || waitingForCampaign
 
   return (
@@ -339,7 +329,7 @@ export default function JoinGamePage(): JSX.Element {
         </div>
       )}
 
-      <div className="flex items-center gap-3 mb-4">
+      <div className="mb-4">
         <Input
           label={t('pages.joinGamePage.displayNameLabel')}
           value={displayName}
@@ -348,49 +338,7 @@ export default function JoinGamePage(): JSX.Element {
           maxLength={30}
           className="max-w-xs"
         />
-        <div className="flex-1" />
-        <Button variant="secondary" onClick={() => setShowManualForm((v) => !v)} className="text-sm">
-          {showManualForm ? t('pages.joinGamePage.hideInviteCode') : t('pages.joinGamePage.haveInviteCode')}
-        </Button>
       </div>
-
-      {showManualForm && (
-        <div className="flex items-end gap-2 mb-6">
-          <div className="flex-1 max-w-sm">
-            <label className="block text-muted mb-1 text-xs uppercase tracking-wider">
-              {t('pages.joinGamePage.inviteCodeLabel')}
-            </label>
-            <input
-              type="text"
-              value={manualInviteCode}
-              onChange={(e) => setManualInviteCode(e.target.value.toUpperCase().replace(/\s+/g, ''))}
-              placeholder={t('pages.joinGamePage.inviteCodePlaceholder')}
-              maxLength={INVITE_CODE_LENGTH + 2}
-              className="w-full p-2 rounded-md bg-surface-2 border border-border text-fg font-mono tracking-[0.2em] uppercase focus:outline-none focus:border-amber-500"
-            />
-          </div>
-          <Button
-            onClick={handleManualConnect}
-            disabled={!manualValid || !displayName.trim() || isConnecting}
-            title={
-              !displayName.trim()
-                ? t('pages.joinGamePage.displayNameRequired')
-                : !manualValid
-                  ? t('pages.joinGamePage.inviteCodePlaceholder')
-                  : undefined
-            }
-          >
-            {isConnecting ? (
-              <span className="flex items-center gap-2">
-                <Spinner size="sm" />
-                {t('pages.joinGamePage.connecting')}
-              </span>
-            ) : (
-              t('pages.joinGamePage.connect')
-            )}
-          </Button>
-        </div>
-      )}
 
       {isConnecting && (
         <div className="flex items-center gap-3 p-3 rounded-lg bg-amber-900/20 border border-amber-700/30 mb-4">

@@ -53,11 +53,16 @@ interface RelayPeerRef {
 }
 
 function defaultSocketFactory(url: string, auth: Record<string, unknown>): RelaySocket {
-  // socket.io appends the namespace to the origin; `transports: ['websocket']`
-  // skips the long-poll upgrade dance (the Pi serves WS directly).
+  // socket.io appends the namespace to the origin. Allow BOTH transports: polling
+  // first (plain HTTP, which the Cloudflare tunnel always proxies) then upgrade to
+  // websocket when it's available. Forcing websocket-only broke the relay off-LAN —
+  // the tunnel doesn't complete the WS upgrade in every setup (the Cloudflare zone's
+  // WebSockets toggle must be on), so a WS-only client never connects ("cloud
+  // failed"). Polling keeps the relay working through the tunnel regardless, and
+  // socket.io transparently upgrades to WS once that path is healthy.
   return io(`${url}/game`, {
     auth,
-    transports: ['websocket'],
+    transports: ['polling', 'websocket'],
     forceNew: true,
     // Bound the initial connect so an unreachable relay (down tunnel, stale
     // LAN IP) raises `connect_error` in 8s instead of socket.io's 20s default —
