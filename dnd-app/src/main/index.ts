@@ -151,14 +151,18 @@ function createWindow(): void {
 
   // Content Security Policy — relax inline restrictions in dev for Vite HMR
   // Rebuild CSP on each response so BMO `connect-src` updates after settings save.
-  // `http: ws:` are allowed in connect-src so the renderer can reach the LAN Pi
-  // at whatever IP mDNS discovers — the CSP is baked at page load, BEFORE
-  // discovery resolves, and CSP host-sources can't wildcard arbitrary LAN IPs,
-  // so a scheme-source is the only way to permit it. Safe here: the renderer
-  // runs only first-party bundled code (script-src is locked to 'self' plugin:,
-  // sandbox + contextIsolation on), so there's no injected script to abuse it.
-  // https/wss stay pinned to the tunnel + PeerJS. (Cleaner long-term: proxy the
-  // registry fetches through the main process — see ISSUES log.)
+  // The renderer no longer makes ANY broad http/ws fetch to the Pi: the game
+  // registry + 5e-library run in the MAIN process (registry-bridge.ts /
+  // library-bridge.ts) and sounds are fetched + cached in main (sound-cache.ts),
+  // all via IPC. The only renderer→Pi socket is the cloud-session Socket.IO
+  // relay, which connects to the SPECIFIC discovered Pi host — already covered by
+  // `bmoCspConnectFragment()` (`ws://<host>:* wss://<host>:*`). So `connect-src`
+  // drops the broad `http:`/`ws:` scheme-sources and keeps only the tunnel
+  // https/wss + PeerJS + the per-host Pi fragment. (Safe regardless: renderer runs
+  // only first-party bundled code — script-src 'self' plugin:, sandbox +
+  // contextIsolation on.) `media-src` allows `file:` + `http:` so `new Audio()`
+  // can load the on-disk sound cache (`file://userData/sound-cache/...`) or stream
+  // a clip live from the Pi when the cache is cold (media-src can't execute code).
   const inlinePolicy = is.dev ? " 'unsafe-inline' 'unsafe-eval'" : ''
   mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
     const devConnect = is.dev ? ' ws://localhost:5173 http://localhost:5173' : ''
@@ -168,7 +172,7 @@ function createWindow(): void {
     // use dynamic inline styles. CSP style-src can't execute code, so inline
     // styles are a low-risk allowance (script-src stays strict — no inline/eval
     // in prod). Without it the Journal editor's CSS is blocked + renders broken.
-    const csp = `default-src 'self' plugin:; script-src 'self' plugin:${inlinePolicy}; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' plugin:; connect-src 'self' plugin: data: http: ws: wss://0.peerjs.com https://0.peerjs.com${piConnect}${devConnect}; img-src 'self' data: blob: plugin:; media-src 'self' blob: plugin:; font-src 'self' plugin:`
+    const csp = `default-src 'self' plugin:; script-src 'self' plugin:${inlinePolicy}; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' plugin:; connect-src 'self' plugin: data: wss://0.peerjs.com https://0.peerjs.com${piConnect}${devConnect}; img-src 'self' data: blob: plugin:; media-src 'self' blob: data: file: http: plugin:; font-src 'self' plugin:`
     callback({
       responseHeaders: {
         ...details.responseHeaders,

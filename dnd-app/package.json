@@ -92,7 +92,8 @@
       "!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}",
       "!{biome.json,knip.json,vitest.config.ts,package-lock.json,audit-prompt.md}",
       "!**/*.ps1",
-      "!CLAUDE.md"
+      "!CLAUDE.md",
+      "!out/renderer/sounds/**/*"
     ],
     "publish": {
       "provider": "github",

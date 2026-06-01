@@ -672,6 +672,16 @@ interface CloudSyncAPI {
   restoreCampaign: (campaignId: string) => Promise<CloudSyncResult & { campaignId: string }>
 }
 
+interface SoundsAPI {
+  /** Resolve a bundled-sound rel-path (`dice/d20-1.mp3`) to a cached on-disk
+   * path, downloading + caching it from the Pi first if absent. Null on failure
+   * (offline, no endpoint, malformed rel). */
+  cacheGet: (rel: string) => Promise<string | null>
+  /** Background-download every manifest clip into the disk cache (bounded
+   * concurrency). Fire-and-forget; resolves once kicked off. */
+  prewarm: () => Promise<{ ok: boolean }>
+}
+
 interface DiscordConfig {
   enabled: boolean
   botToken: string
@@ -724,6 +734,62 @@ interface LanAPI {
   probeSignaling: () => Promise<{ ok: boolean }>
 }
 
+// Raw Pi registry entry (no `source` tag — the renderer adds it). Mirrors
+// RegistryGameEntryRaw in src/main/registry-bridge.ts.
+interface RegistryGameEntryRaw {
+  invite_code: string
+  name: string
+  host_display_name: string
+  host_client_id: string
+  current_players: number
+  max_players: number
+  current_spectators: number
+  max_spectators: number
+  game_system: string
+  is_private: boolean
+  hosting_mode?: 'p2p' | 'cloud'
+  peer_id: string
+  created_at: number
+  banned_from_this_game: boolean
+}
+
+// Live-feed push event forwarded over REGISTRY_EVENT (matches RegistryPushEvent
+// in src/main/registry-bridge.ts).
+type RegistryPushEvent =
+  | { type: 'snapshot'; games: RegistryGameEntryRaw[] }
+  | { type: 'added'; game: RegistryGameEntryRaw }
+  | { type: 'updated'; game: RegistryGameEntryRaw }
+  | { type: 'removed'; inviteCode: string }
+  | { type: 'error'; error: string }
+
+interface RegistryAPI {
+  announce: (payload: Record<string, unknown>, baseOverride?: string) => Promise<{ ok: boolean; error?: string }>
+  update: (
+    inviteCode: string,
+    patch: Record<string, unknown>,
+    baseOverride?: string
+  ) => Promise<{ ok: boolean; error?: string }>
+  heartbeat: (inviteCode: string, baseOverride?: string) => Promise<{ ok: boolean }>
+  deregister: (inviteCode: string, baseOverride?: string) => Promise<{ ok: boolean }>
+  list: (
+    clientId: string | null,
+    baseOverride?: string
+  ) => Promise<{ ok: true; games: RegistryGameEntryRaw[] } | { ok: false; error: string }>
+  subscribe: (subscriptionId: string, clientId: string | null) => Promise<{ ok: boolean }>
+  unsubscribe: (subscriptionId: string) => Promise<{ ok: boolean }>
+  onEvent: (cb: (payload: { subscriptionId: string; event: RegistryPushEvent }) => void) => () => void
+}
+
+interface LibraryManifest {
+  version: string
+  files: Record<string, { sha256: string; size: number }>
+}
+
+interface LibraryAPI {
+  manifest: () => Promise<LibraryManifest | null>
+  file: (rel: string) => Promise<string | null>
+}
+
 declare global {
   interface Window {
     api: CharacterAPI &
@@ -749,6 +815,9 @@ declare global {
         cloudSync: CloudSyncAPI
         discord: DiscordAPI
         lan: LanAPI
+        registry: RegistryAPI
+        library: LibraryAPI
+        sounds: SoundsAPI
         getVersion: () => Promise<string>
         // Security audit (20g)
         logSecurityEvent: (event: string, details?: Record<string, unknown>) => Promise<void>

@@ -1,35 +1,31 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { __resetRemoteLibrary, __setRemoteLibraryDeps, loadRemoteLibrary, mapDataPathToRel } from './remote-library'
 
-function jsonResponse(body: unknown, ok = true): Response {
-  const text = JSON.stringify(body)
-  return {
-    ok,
-    json: async () => JSON.parse(text),
-    text: async () => text
-  } as unknown as Response
+interface LibraryManifest {
+  version: string
+  files: Record<string, { sha256: string; size: number }>
 }
 
+// The Pi HTTP fetches now run in the main process; the renderer reaches them via
+// injectable `fetchManifest` / `fetchFile` deps (IPC-backed in production). The
+// `fetchFn` mock counts manifest + file calls so the cache assertions still hold.
 function setup(opts: { manifest?: unknown; files?: Record<string, unknown>; store?: Map<string, string> }) {
   const store = opts.store ?? new Map<string, string>()
-  const fetchFn = vi.fn(async (url: string | URL) => {
-    const u = String(url)
-    if (u.endsWith('/api/library/manifest')) {
-      if (opts.manifest === undefined) return jsonResponse({}, false)
-      return jsonResponse(opts.manifest)
+  const fetchFn = vi.fn(async (kind: 'manifest' | 'file', rel?: string): Promise<string | LibraryManifest | null> => {
+    if (kind === 'manifest') {
+      if (opts.manifest === undefined) return null // 503 / unreachable
+      return opts.manifest as LibraryManifest
     }
-    const m = u.match(/path=([^&]+)$/)
-    const rel = m ? decodeURIComponent(m[1]) : ''
-    if (opts.files && rel in opts.files) return jsonResponse(opts.files[rel])
-    return jsonResponse({ error: 'not found' }, false)
+    if (opts.files && rel != null && rel in opts.files) return JSON.stringify(opts.files[rel])
+    return null // not found
   })
   __setRemoteLibraryDeps({
-    fetchFn: fetchFn as unknown as typeof fetch,
+    fetchManifest: () => fetchFn('manifest') as Promise<LibraryManifest | null>,
+    fetchFile: (rel: string) => fetchFn('file', rel) as Promise<string | null>,
     getItem: (k) => store.get(k) ?? null,
     setItem: (k, v) => {
       store.set(k, v)
-    },
-    resolveBaseUrl: async () => 'http://pi.test'
+    }
   })
   return { fetchFn, store }
 }

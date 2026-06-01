@@ -164,6 +164,14 @@ export const IPC_CHANNELS = {
   AUDIO_GET_CUSTOM_PATH: 'audio:get-custom-path',
   AUDIO_PICK_FILE: 'audio:pick-file',
 
+  // === Sound Cache (thin installer — bundled MP3s dropped, fetched from Pi) ===
+  // Renderer → main: get an absolute on-disk path for a bundled-sound rel-path,
+  // downloading + caching it from the Pi first if absent (null on failure).
+  SOUND_CACHE_GET: 'sound-cache:get',
+  // Renderer → main: download every manifest clip into the disk cache in the
+  // background (bounded concurrency). Fire-and-forget; resolves when warm.
+  SOUND_CACHE_PREWARM: 'sound-cache:prewarm',
+
   // === Storage: Character Versions ===
   CHARACTER_VERSIONS: 'storage:character-versions',
   CHARACTER_RESTORE_VERSION: 'storage:character-restore-version',
@@ -268,7 +276,30 @@ export const IPC_CHANNELS = {
   // Renderer → main: forward a renderer-side security event (kick/ban,
   // rejected network message) to the main-process audit log. The renderer
   // can't write the log file directly, so it routes through here.
-  LOG_SECURITY_EVENT: 'security:log-event'
+  LOG_SECURITY_EVENT: 'security:log-event',
+
+  // === Pi Game Registry (main-process proxy) ===
+  // All registry REST now runs in the MAIN process (registry-bridge.ts) so the
+  // renderer never opens a direct http(s) connection to the Pi for game
+  // discovery. The live feed is main-process POLLING (Node has no EventSource),
+  // pushed back to the renderer via REGISTRY_EVENT.
+  REGISTRY_ANNOUNCE: 'registry:announce',
+  REGISTRY_UPDATE: 'registry:update',
+  REGISTRY_HEARTBEAT: 'registry:heartbeat',
+  REGISTRY_DEREGISTER: 'registry:deregister',
+  REGISTRY_LIST: 'registry:list',
+  REGISTRY_SUBSCRIBE: 'registry:subscribe',
+  REGISTRY_UNSUBSCRIBE: 'registry:unsubscribe',
+  // Emitted by main on each registry poll (snapshot / added / updated / removed
+  // / error) for an active subscription.
+  REGISTRY_EVENT: 'registry:event',
+
+  // === Pi 5e Library (main-process proxy) ===
+  // The Pi `/api/library/manifest` + `/api/library/file` fetches now run in the
+  // MAIN process (library-bridge.ts). The renderer still owns the content-hash
+  // localStorage cache + bundled-data fallback.
+  LIBRARY_MANIFEST: 'library:manifest',
+  LIBRARY_FILE: 'library:file'
 } as const
 
 export type IpcChannel = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS]

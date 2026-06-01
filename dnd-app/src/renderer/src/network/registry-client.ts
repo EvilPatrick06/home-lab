@@ -1,50 +1,36 @@
 /**
- * Pi game-registry client. (Phase 29g)
+ * Pi game-registry client (renderer-side façade). (Phase 29g; main-process
+ * proxy refactor.)
  *
- * Wraps the BMO Pi REST + SSE surface implemented in 29f
- * (`/api/games`, `/api/games/stream`, etc). Knows how to:
+ * The registry REST surface (`/api/games*`) is no longer fetched directly from
+ * the renderer. Every call here delegates to `window.api.registry.*`, which the
+ * MAIN process performs against the resolved Pi base URL (registry-bridge.ts).
+ * This keeps the renderer free of any direct http(s) connection to the Pi for
+ * game discovery (better CSP posture + off-LAN Cloudflare-Access handling).
  *
+ * What this module still does:
  * - announce a hosted game on host-start (`announceGame`)
  * - keep it alive with a 30s heartbeat (`startHeartbeat`)
  * - PATCH the entry when player/spectator counts change (`updateGame`)
  * - DELETE on stop-hosting (`deregisterGame`)
- * - subscribe to live updates with auto-reconnect SSE (`subscribeToRegistry`)
- * - fetch a one-shot listing if SSE isn't reachable (`listGames`)
+ * - subscribe to live updates (`subscribeToRegistry`) — the main process POLLS
+ *   the registry every 4s (Node has no EventSource) and pushes added/updated/
+ *   removed deltas + an initial snapshot here via an IPC event
+ * - fetch a one-shot listing (`listGames`)
  *
- * The Pi base URL is read from `settings.bmoPiBaseUrl` (falls back to
- * the public Cloudflare Tunnel hostname so off-LAN players reach the
- * registry without any local network setup). Network errors are
- * surfaced to the caller — the UI distinguishes "no Pi reachable"
- * from "registry empty" via the `onError` callback.
+ * The exported signatures, the `RegistryGameEntry` / `RegistryEvent` types, and
+ * the `source: 'pi'` tagging are unchanged, so callers (host-announce.ts,
+ * JoinGamePage.tsx) need no edits. `resolveBmoBaseUrl` / `isOnPiLan` /
+ * `resolveConnectionMode` stay here because other modules depend on them.
  */
 
 const DEFAULT_BASE_URL = 'https://bmo.mybmoai.work'
 const HEARTBEAT_INTERVAL_MS = 30_000
-const BACKOFF_LADDER_MS = [1_000, 2_000, 4_000, 8_000, 16_000, 30_000]
 
-// Time-box every registry fetch. Without this, a request to an unreachable Pi
-// (a stale/adopted LAN IP, a down tunnel, client/AP isolation) hangs for the
-// full OS TCP timeout — tens of seconds on Windows. That made host-start stall
-// on the announce, the public-game browse freeze, and "Check Status" appear
-// hung. A short ceiling fails fast so the caller can fall back (host proceeds
-// without the public listing; the browse shows "no Pi" instead of spinning).
-const REGISTRY_TIMEOUT_MS = 5_000
-
-async function fetchWithTimeout(input: string, init: RequestInit = {}): Promise<Response> {
-  const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), REGISTRY_TIMEOUT_MS)
-  try {
-    return await fetch(input, { ...init, signal: controller.signal })
-  } finally {
-    clearTimeout(timer)
-  }
-}
-
-// Phase 29g+ auto-discovery: the main process publishes the BMO Pi
-// base URL it discovered via _bmo._tcp mDNS browse. We cache it here
-// so renderer fetches use the resolved IP without needing the OS to
-// resolve `bmo.local` (Windows requires Bonjour Print Services for
-// that, which most users don't have installed).
+// Phase 29g+ auto-discovery: the main process publishes the BMO Pi base URL it
+// discovered via _bmo._tcp mDNS browse. We cache it here so `resolveBmoBaseUrl`
+// (used by other modules) returns the resolved IP without the OS resolving
+// `bmo.local` (Windows requires Bonjour Print Services for that).
 let discoveredBmoUrl: string | null = null
 
 if (typeof window !== 'undefined' && window.api?.lan?.onBmoResolvedUrl) {
@@ -154,31 +140,26 @@ async function getBaseUrl(override?: string): Promise<string> {
   }
 }
 
-function withSourceTag(
-  entry: Omit<RegistryGameEntry, 'source'> & Partial<Pick<RegistryGameEntry, 'source'>>
-): RegistryGameEntry {
+function withSourceTag(entry: Omit<RegistryGameEntry, 'source'>): RegistryGameEntry {
   return { ...entry, source: 'pi' }
+}
+
+// The renderer used to forward `config.baseUrl` directly into the fetch URL.
+// Now main resolves the base from settings/mDNS itself; an explicit override
+// (e.g. the integration test pointing at a specific registry) is still honored
+// by passing it through as the IPC `baseOverride` arg.
+function overrideFrom(config: RegistryClientConfig): string | undefined {
+  return config.baseUrl
 }
 
 export async function announceGame(
   payload: RegistryAnnouncePayload,
   config: RegistryClientConfig = {}
 ): Promise<{ ok: boolean; error?: string }> {
-  const base = await getBaseUrl(config.baseUrl)
-  try {
-    const resp = await fetchWithTimeout(`${base}/api/games`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    })
-    if (!resp.ok) {
-      const detail = await resp.text().catch(() => '')
-      return { ok: false, error: `HTTP ${resp.status}: ${detail || resp.statusText}` }
-    }
-    return { ok: true }
-  } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : String(error) }
+  if (typeof window === 'undefined' || !window.api?.registry) {
+    return { ok: false, error: 'registry bridge unavailable' }
   }
+  return window.api.registry.announce(payload as unknown as Record<string, unknown>, overrideFrom(config))
 }
 
 export async function updateGame(
@@ -186,56 +167,32 @@ export async function updateGame(
   patch: Partial<RegistryAnnouncePayload>,
   config: RegistryClientConfig = {}
 ): Promise<{ ok: boolean; error?: string }> {
-  const base = await getBaseUrl(config.baseUrl)
-  try {
-    const resp = await fetchWithTimeout(`${base}/api/games/${encodeURIComponent(inviteCode)}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(patch)
-    })
-    if (!resp.ok) {
-      return { ok: false, error: `HTTP ${resp.status}` }
-    }
-    return { ok: true }
-  } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : String(error) }
+  if (typeof window === 'undefined' || !window.api?.registry) {
+    return { ok: false, error: 'registry bridge unavailable' }
   }
+  return window.api.registry.update(inviteCode, patch as Record<string, unknown>, overrideFrom(config))
 }
 
 async function heartbeatGame(inviteCode: string, config: RegistryClientConfig = {}): Promise<{ ok: boolean }> {
-  const base = await getBaseUrl(config.baseUrl)
-  try {
-    const resp = await fetchWithTimeout(`${base}/api/games/${encodeURIComponent(inviteCode)}/heartbeat`, {
-      method: 'POST'
-    })
-    return { ok: resp.ok }
-  } catch {
-    return { ok: false }
-  }
+  if (typeof window === 'undefined' || !window.api?.registry) return { ok: false }
+  return window.api.registry.heartbeat(inviteCode, overrideFrom(config))
 }
 
 export async function deregisterGame(inviteCode: string, config: RegistryClientConfig = {}): Promise<{ ok: boolean }> {
-  const base = await getBaseUrl(config.baseUrl)
-  try {
-    const resp = await fetchWithTimeout(`${base}/api/games/${encodeURIComponent(inviteCode)}`, {
-      method: 'DELETE'
-    })
-    return { ok: resp.ok }
-  } catch {
-    return { ok: false }
-  }
+  if (typeof window === 'undefined' || !window.api?.registry) return { ok: false }
+  return window.api.registry.deregister(inviteCode, overrideFrom(config))
 }
 
 export async function listGames(
   clientId: string | null,
   config: RegistryClientConfig = {}
 ): Promise<RegistryGameEntry[]> {
-  const base = await getBaseUrl(config.baseUrl)
-  const params = clientId ? `?client_id=${encodeURIComponent(clientId)}` : ''
-  const resp = await fetchWithTimeout(`${base}/api/games${params}`)
-  if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
-  const data = (await resp.json()) as { games?: Array<Omit<RegistryGameEntry, 'source'>> }
-  return (data.games ?? []).map(withSourceTag)
+  if (typeof window === 'undefined' || !window.api?.registry) {
+    throw new Error('registry bridge unavailable')
+  }
+  const result = await window.api.registry.list(clientId, overrideFrom(config))
+  if (!result.ok) throw new Error(result.error)
+  return result.games.map(withSourceTag)
 }
 
 export function startHeartbeat(inviteCode: string, config: RegistryClientConfig = {}): () => void {
@@ -245,95 +202,59 @@ export function startHeartbeat(inviteCode: string, config: RegistryClientConfig 
   return () => clearInterval(handle)
 }
 
+// Monotonic subscription ids so concurrent browse views never collide.
+let subscriptionSeq = 0
+
 /**
- * Subscribe to the Pi's `/api/games/stream` SSE feed. Reconnects with
- * an exponential backoff ladder (1s, 2s, 4s, 8s, 16s, 30s cap).
+ * Subscribe to the Pi registry's live feed. The main process POLLS the registry
+ * every 4s and pushes `snapshot` / `added` / `updated` / `removed` deltas here
+ * over IPC (Node has no EventSource, so polling replaces the old SSE stream).
  *
- * Returns an unsubscribe function that closes the EventSource and
- * stops further reconnect attempts.
+ * Returns an unsubscribe function that tells main to stop polling and removes
+ * the IPC listener.
  */
 export function subscribeToRegistry(
   clientId: string | null,
   onEvent: (event: RegistryEvent) => void,
   onError: (error: Error) => void,
-  config: RegistryClientConfig = {}
+  _config: RegistryClientConfig = {}
 ): () => void {
-  let source: EventSource | null = null
-  let attempt = 0
+  if (typeof window === 'undefined' || !window.api?.registry) {
+    onError(new Error('registry bridge unavailable'))
+    return () => undefined
+  }
+
+  const subscriptionId = `reg-${Date.now()}-${subscriptionSeq++}`
   let cancelled = false
-  let reconnectTimer: ReturnType<typeof setTimeout> | null = null
 
-  function scheduleReconnect(): void {
-    if (cancelled) return
-    const delay = BACKOFF_LADDER_MS[Math.min(attempt, BACKOFF_LADDER_MS.length - 1)]
-    attempt++
-    reconnectTimer = setTimeout(() => {
-      void connect()
-    }, delay)
-  }
-
-  async function connect(): Promise<void> {
-    if (cancelled) return
-    const base = await getBaseUrl(config.baseUrl)
-    const params = clientId ? `?client_id=${encodeURIComponent(clientId)}` : ''
-    const url = `${base}/api/games/stream${params}`
-    try {
-      source = new EventSource(url)
-    } catch (error) {
-      onError(error instanceof Error ? error : new Error(String(error)))
-      scheduleReconnect()
-      return
+  const removeListener = window.api.registry.onEvent(({ subscriptionId: id, event }) => {
+    if (cancelled || id !== subscriptionId) return
+    switch (event.type) {
+      case 'snapshot':
+        onEvent({ type: 'snapshot', games: event.games.map(withSourceTag) })
+        break
+      case 'added':
+        onEvent({ type: 'added', game: withSourceTag(event.game) })
+        break
+      case 'updated':
+        onEvent({ type: 'updated', game: withSourceTag(event.game) })
+        break
+      case 'removed':
+        onEvent({ type: 'removed', inviteCode: event.inviteCode })
+        break
+      case 'error':
+        onError(new Error(event.error))
+        break
     }
-    source.addEventListener('open', () => {
-      attempt = 0
-    })
-    source.addEventListener('games:full', (e: MessageEvent) => {
-      try {
-        const parsed = JSON.parse(e.data) as { games?: Array<Omit<RegistryGameEntry, 'source'>> }
-        onEvent({ type: 'snapshot', games: (parsed.games ?? []).map(withSourceTag) })
-      } catch (error) {
-        onError(error instanceof Error ? error : new Error(String(error)))
-      }
-    })
-    source.addEventListener('games:added', (e: MessageEvent) => {
-      try {
-        const parsed = JSON.parse(e.data) as Omit<RegistryGameEntry, 'source'>
-        onEvent({ type: 'added', game: withSourceTag(parsed) })
-      } catch (error) {
-        onError(error instanceof Error ? error : new Error(String(error)))
-      }
-    })
-    source.addEventListener('games:updated', (e: MessageEvent) => {
-      try {
-        const parsed = JSON.parse(e.data) as Omit<RegistryGameEntry, 'source'>
-        onEvent({ type: 'updated', game: withSourceTag(parsed) })
-      } catch (error) {
-        onError(error instanceof Error ? error : new Error(String(error)))
-      }
-    })
-    source.addEventListener('games:removed', (e: MessageEvent) => {
-      try {
-        const parsed = JSON.parse(e.data) as { invite_code: string }
-        onEvent({ type: 'removed', inviteCode: parsed.invite_code })
-      } catch (error) {
-        onError(error instanceof Error ? error : new Error(String(error)))
-      }
-    })
-    source.addEventListener('error', () => {
-      if (cancelled) return
-      onError(new Error('SSE connection error'))
-      source?.close()
-      source = null
-      scheduleReconnect()
-    })
-  }
+  })
 
-  void connect()
+  void window.api.registry.subscribe(subscriptionId, clientId).catch((err: unknown) => {
+    onError(err instanceof Error ? err : new Error(String(err)))
+  })
 
   return () => {
     cancelled = true
-    if (reconnectTimer) clearTimeout(reconnectTimer)
-    source?.close()
-    source = null
+    removeListener()
+    void window.api.registry.unsubscribe(subscriptionId).catch(() => undefined)
   }
 }

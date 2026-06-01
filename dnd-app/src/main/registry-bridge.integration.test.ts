@@ -1,13 +1,17 @@
 /**
  * Live cloud-relay integration test (Phase backlog-grind).
  *
- * Exercises the registry-client REST flow end-to-end against a REAL Pi
+ * Exercises the registry REST flow end-to-end against a REAL Pi
  * (`http://localhost:5000`, the BMO game registry from Phase 29f):
  *
  *   announce → list/get → heartbeat → update → deregister
  *
- * Each step asserts the Pi's observable response so a protocol regression
- * (renamed endpoint, changed payload shape, dropped field) fails the suite.
+ * The renderer registry-client now proxies these through `window.api.registry.*`
+ * (the main-process bridge), which doesn't exist in this node test environment.
+ * So the test drives the MAIN-PROCESS bridge (`src/main/registry-bridge.ts`)
+ * directly — it owns the exact same REST contract. Each step asserts the Pi's
+ * observable response so a protocol regression (renamed endpoint, changed
+ * payload shape, dropped field) fails the suite.
  *
  * CI has no Pi, so the suite must stay green there. A reachability precheck
  * with a short timeout runs once; if the Pi isn't up (CI, or a dev machine
@@ -17,7 +21,7 @@
  */
 
 import { afterAll, describe, expect, it } from 'vitest'
-import { announceGame, deregisterGame, listGames, type RegistryAnnouncePayload, updateGame } from './registry-client'
+import { announceGame, deregisterGame, listGames, type RegistryAnnouncePayload, updateGame } from './registry-bridge'
 
 const BASE_URL = process.env.REGISTRY_INTEGRATION_BASE_URL?.trim() || 'http://localhost:5000'
 const REACHABILITY_TIMEOUT_MS = 1500
@@ -75,28 +79,29 @@ function buildPayload(): RegistryAnnouncePayload {
   }
 }
 
-describeIfReachable('registry-client live cloud-relay flow', () => {
-  const config = { baseUrl: BASE_URL }
+describeIfReachable('registry bridge live cloud-relay flow', () => {
+  // The main-process bridge takes a base-URL override (string), not a config
+  // object — main resolves the base itself in production.
+  const base = BASE_URL
 
   // Best-effort cleanup: if any assertion throws mid-flow, still remove the
   // entry so the live registry doesn't accumulate orphaned test games.
   afterAll(async () => {
-    if (reachable) await deregisterGame(inviteCode, config).catch(() => undefined)
+    if (reachable) await deregisterGame(inviteCode, base).catch(() => undefined)
   })
 
   it('announces a game on the registry', async () => {
-    const result = await announceGame(buildPayload(), config)
+    const result = await announceGame(buildPayload(), base)
     expect(result.ok).toBe(true)
     expect(result.error).toBeUndefined()
   })
 
   it('lists/gets the announced game with all fields intact', async () => {
-    const games = await listGames(clientId, config)
+    const games = await listGames(clientId, base)
     const entry = games.find((g) => g.invite_code === inviteCode)
 
     expect(entry).toBeDefined()
     if (!entry) return // narrow for TS — the assertion above already failed
-    expect(entry.source).toBe('pi')
     expect(entry.name).toBe('Integration Test Table')
     expect(entry.host_client_id).toBe(clientId)
     expect(entry.host_display_name).toBe('Integration Tester')
@@ -120,10 +125,10 @@ describeIfReachable('registry-client live cloud-relay flow', () => {
   })
 
   it('patches the player count and reflects it on the next list', async () => {
-    const patch = await updateGame(inviteCode, { current_players: 3, current_spectators: 2 }, config)
+    const patch = await updateGame(inviteCode, { current_players: 3, current_spectators: 2 }, base)
     expect(patch.ok).toBe(true)
 
-    const games = await listGames(clientId, config)
+    const games = await listGames(clientId, base)
     const entry = games.find((g) => g.invite_code === inviteCode)
     expect(entry).toBeDefined()
     if (!entry) return
@@ -132,10 +137,10 @@ describeIfReachable('registry-client live cloud-relay flow', () => {
   })
 
   it('deregisters the game and removes it from the listing', async () => {
-    const result = await deregisterGame(inviteCode, config)
+    const result = await deregisterGame(inviteCode, base)
     expect(result.ok).toBe(true)
 
-    const games = await listGames(clientId, config)
+    const games = await listGames(clientId, base)
     expect(games.find((g) => g.invite_code === inviteCode)).toBeUndefined()
   })
 })

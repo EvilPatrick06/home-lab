@@ -27,6 +27,12 @@ export class BrowserWindow {
   isDestroyed(): boolean {
     return false
   }
+  // Static window registry — returns empty by default; tests that exercise
+  // main→renderer broadcasts (e.g. registry-bridge polling) spy on this to
+  // supply fake windows whose webContents.send records the push.
+  static getAllWindows(): BrowserWindow[] {
+    return []
+  }
 }
 
 export const ipcMain = {

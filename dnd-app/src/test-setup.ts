@@ -11,11 +11,11 @@ beforeAll(async () => {
 })
 
 // The Pi library loader (data-provider → remote-library) is Pi-first: any
-// component that loads 5e data would otherwise make a REAL network request to
-// the resolved BMO base (the off-LAN tunnel default) during tests — slow,
-// flaky, and dependent on the Pi being up. Stub base resolution to reject so
-// `loadRemoteLibrary` short-circuits to `null` (→ bundled data) without ever
-// hitting the network. The remote-library unit test re-injects working deps.
+// component that loads 5e data would otherwise reach the main-process library
+// bridge during tests — but `window.api.library` doesn't exist in jsdom/node, so
+// the manifest fetch would be `null` anyway. Stub the manifest fetch to resolve
+// `null` so `loadRemoteLibrary` short-circuits to `null` (→ bundled data)
+// deterministically. The remote-library unit test re-injects working deps.
 __setRemoteLibraryDeps({
-  resolveBaseUrl: () => Promise.reject(new Error('remote library disabled in tests'))
+  fetchManifest: () => Promise.resolve(null)
 })

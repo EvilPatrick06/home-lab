@@ -512,6 +512,44 @@ const api = {
     checkCampaignStatus: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.CLOUD_SYNC_CHECK_STATUS, campaignId),
     listRemoteCampaigns: () => ipcRenderer.invoke(IPC_CHANNELS.CLOUD_SYNC_LIST_CAMPAIGNS),
     restoreCampaign: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.CLOUD_SYNC_RESTORE, campaignId)
+  },
+
+  // Pi game registry — all REST runs in the main process; the live feed is
+  // main-process polling pushed via REGISTRY_EVENT.
+  registry: {
+    announce: (payload: Record<string, unknown>, baseOverride?: string) =>
+      ipcRenderer.invoke(IPC_CHANNELS.REGISTRY_ANNOUNCE, payload, baseOverride),
+    update: (inviteCode: string, patch: Record<string, unknown>, baseOverride?: string) =>
+      ipcRenderer.invoke(IPC_CHANNELS.REGISTRY_UPDATE, inviteCode, patch, baseOverride),
+    heartbeat: (inviteCode: string, baseOverride?: string) =>
+      ipcRenderer.invoke(IPC_CHANNELS.REGISTRY_HEARTBEAT, inviteCode, baseOverride),
+    deregister: (inviteCode: string, baseOverride?: string) =>
+      ipcRenderer.invoke(IPC_CHANNELS.REGISTRY_DEREGISTER, inviteCode, baseOverride),
+    list: (clientId: string | null, baseOverride?: string) =>
+      ipcRenderer.invoke(IPC_CHANNELS.REGISTRY_LIST, clientId, baseOverride),
+    subscribe: (subscriptionId: string, clientId: string | null) =>
+      ipcRenderer.invoke(IPC_CHANNELS.REGISTRY_SUBSCRIBE, subscriptionId, clientId),
+    unsubscribe: (subscriptionId: string) => ipcRenderer.invoke(IPC_CHANNELS.REGISTRY_UNSUBSCRIBE, subscriptionId),
+    onEvent: (cb: (payload: { subscriptionId: string; event: Record<string, unknown> }) => void) => {
+      const listener = (_e: IpcRendererEvent, payload: { subscriptionId: string; event: Record<string, unknown> }) =>
+        cb(payload)
+      ipcRenderer.on(IPC_CHANNELS.REGISTRY_EVENT, listener)
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.REGISTRY_EVENT, listener)
+    }
+  },
+
+  // Pi 5e library — manifest + file fetches run in the main process; the
+  // renderer keeps the content-hash cache + bundled fallback.
+  library: {
+    manifest: () => ipcRenderer.invoke(IPC_CHANNELS.LIBRARY_MANIFEST),
+    file: (rel: string) => ipcRenderer.invoke(IPC_CHANNELS.LIBRARY_FILE, rel)
+  },
+
+  // Sound cache (thin installer — bundled MP3s dropped, fetched from the Pi on
+  // demand and served from a disk cache under userData/sound-cache).
+  sounds: {
+    cacheGet: (rel: string): Promise<string | null> => ipcRenderer.invoke(IPC_CHANNELS.SOUND_CACHE_GET, rel),
+    prewarm: (): Promise<{ ok: boolean }> => ipcRenderer.invoke(IPC_CHANNELS.SOUND_CACHE_PREWARM)
   }
 }
 

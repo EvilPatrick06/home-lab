@@ -15,7 +15,10 @@ import { registerCloudSyncHandlers } from './cloud-sync-handlers'
 import { registerDiscordHandlers } from './discord-handlers'
 import { registerGameDataHandlers } from './game-data-handlers'
 import { registerLanHandlers } from './lan-handlers'
+import { registerLibraryHandlers } from './library-handlers'
 import { registerPluginHandlers } from './plugin-handlers'
+import { registerRegistryHandlers } from './registry-handlers'
+import { registerSoundCacheHandlers } from './sound-cache-handlers'
 import { registerStorageHandlers } from './storage-handlers'
 
 // Tracks paths returned by file dialogs so fs:read-file / fs:write-file
@@ -217,6 +220,9 @@ export function registerIpcHandlers(): void {
   // --- Audio handlers ---
   registerAudioHandlers()
 
+  // --- Sound cache handlers (thin installer — fetch bundled MP3s from Pi) ---
+  registerSoundCacheHandlers()
+
   // --- Discord integration handlers ---
   registerDiscordHandlers()
 
@@ -234,4 +240,10 @@ export function registerIpcHandlers(): void {
 
   // --- LAN discovery (mDNS / Bonjour) for multiplayer game browser ---
   registerLanHandlers()
+
+  // --- Pi game registry (main-process REST proxy + polling live feed) ---
+  registerRegistryHandlers()
+
+  // --- Pi 5e library (main-process manifest/file fetch proxy) ---
+  registerLibraryHandlers()
 }

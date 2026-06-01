@@ -1,40 +1,47 @@
 import { resolveBmoBaseUrl } from '../../network/registry-client'
 
 /**
- * Phase 47 / large-asset offload — Pi-hosted bundled-sound loader (the "CDN"
- * code path, audio side).
+ * Thin-installer sound resolver (renderer side).
  *
- * The app ships ~130 MP3s under `public/sounds/`. They balloon the installer.
- * This module is the seam that lets those bundled clips load from the Pi's
- * library API when the Pi is reachable, with the BUNDLED file as the automatic
- * fallback — mirroring `remote-library.ts` for JSON. No user setting gates it.
+ * The app NO LONGER ships the ~130 MP3s under `public/sounds/` — they're dropped
+ * from the package to shrink the installer (~12 MB). They're fetched from the Pi
+ * on first online use and cached on disk by the MAIN process
+ * (`src/main/sound-cache.ts`, IPC `sound-cache:get` / `sound-cache:prewarm`), so
+ * a clip plays from disk on every subsequent launch — online or offline.
  *
- * Why a manifest + a SYNCHRONOUS resolver (not an async per-file fetch like
- * `loadRemoteLibrary`): sounds are created with `new Audio(path)` at synchronous
- * call sites (`sound-manager.init`, `sound-playback.playAmbient`). Making those
- * async would ripple through pool construction and playback. Instead:
+ * Because there is no bundled fallback anymore, {@link resolveSoundUrl} resolves
+ * in this order:
+ *   1. CACHED on disk → `file://<userData>/sound-cache/<rel>` (works offline).
+ *   2. else → the live Pi HTTP URL `<base>/api/sounds/file?path=<rel>` so
+ *      `new Audio()` can stream it directly (governed by CSP `media-src`, which
+ *      permits `http:`/`file:`, not `connect-src`).
+ *   3. non-`./sounds/` paths (custom user tracks, absolute paths) pass through
+ *      unchanged.
  *
- *   1. {@link prewarmRemoteSounds} fetches the Pi sounds-manifest ONCE per
- *      session (time-boxed, best-effort) and caches the set of served rel-paths
- *      plus the resolved base URL. Call it off the hot path (e.g. from
- *      `sound-manager.reinit`).
- *   2. {@link resolveSoundUrl} is synchronous: given a bundled `./sounds/...`
- *      path it returns the Pi URL IFF the manifest is warm AND lists that file,
- *      else it returns the bundled path unchanged. So the first session (cold
- *      manifest) and every offline session use bundled files; once the manifest
- *      warms, subsequent `new Audio()` calls prefer the Pi copy.
+ * Why a SYNCHRONOUS resolver (not an async per-file fetch): sounds are created
+ * with `new Audio(path)` at synchronous call sites (`sound-manager.init`,
+ * `sound-playback.playAmbient`). Making those async would ripple through pool
+ * construction and playback. Instead:
  *
- * Pi-side contract (NOT yet implemented in BMO — `routes/library_api.py` serves
- * only `.json`). When BMO grows a sounds endpoint it MUST expose:
+ *   1. {@link prewarmRemoteSounds} (off the hot path, e.g. `sound-manager.reinit`)
+ *      asks main to download the whole manifest into the disk cache
+ *      (`window.api.sounds.prewarm()`), fetches the manifest to learn which clips
+ *      the Pi serves, and resolves each served clip's cached on-disk path via
+ *      `window.api.sounds.cacheGet(rel)` into a warm map + records the resolved
+ *      Pi base URL.
+ *   2. {@link resolveSoundUrl} is synchronous: it reads that warm map. A cached
+ *      clip → `file://` URL; a served-but-not-yet-cached clip → the Pi HTTP URL;
+ *      otherwise the path is returned unchanged.
+ *
+ * Pi-side contract (served by BMO `routes/library_api.py`):
  *   - `GET /api/sounds/manifest` → `{ version, files: { "<rel>": { size } } }`
- *     where `<rel>` is the path WITHOUT the leading `./sounds/`
- *     (e.g. `dice/d20-1.mp3`, `ambient/tavern.mp3`).
- *   - `GET /api/sounds/file?path=<rel>` → the raw audio bytes
- *     (`Content-Type: audio/mpeg`, `Access-Control-Allow-Origin: *`).
- * Until that lands, the manifest fetch 404s → empty set → every sound stays
- * bundled, so nothing breaks online or offline.
+ *     (`<rel>` WITHOUT the leading `./sounds/`, e.g. `dice/d20-1.mp3`).
+ *   - `GET /api/sounds/file?path=<rel>` → the raw audio bytes.
  *
- * Deps (fetch / base-URL) are injectable for tests.
+ * Tradeoff (intended ship-thin): offline + no Pi + cold cache = silence until the
+ * first online session warms the cache.
+ *
+ * Deps (fetch / base-URL / IPC bridge) are injectable for tests.
  */
 
 interface SoundsManifest {
@@ -42,27 +49,40 @@ interface SoundsManifest {
   files: Record<string, { size: number }>
 }
 
+interface SoundsBridge {
+  cacheGet: (rel: string) => Promise<string | null>
+  prewarm: () => Promise<{ ok: boolean }>
+}
+
 interface RemoteSoundDeps {
   fetchFn: typeof fetch
   resolveBaseUrl: (override?: string) => Promise<string>
+  /** The main-process IPC bridge. Null when unavailable (web/test default). */
+  getBridge: () => SoundsBridge | null
 }
 
-// Time-box the manifest fetch so an unreachable / hung Pi resolves to "bundled
-// only" quickly instead of stalling the prewarm.
+// Time-box the manifest fetch so an unreachable / hung Pi resolves quickly.
 const REMOTE_TIMEOUT_MS = 3_000
+
+function defaultBridge(): SoundsBridge | null {
+  const api = (globalThis as { window?: { api?: { sounds?: SoundsBridge } } }).window?.api
+  return api?.sounds ?? null
+}
 
 const deps: RemoteSoundDeps = {
   fetchFn: (input, init) => fetch(input, init),
-  resolveBaseUrl: resolveBmoBaseUrl
+  resolveBaseUrl: resolveBmoBaseUrl,
+  getBridge: defaultBridge
 }
 
 // Per-session state. `warmed` flips true after the first prewarm attempt
-// (success or failure) so `resolveSoundUrl` knows whether the empty set means
-// "not fetched yet" vs "fetched, nothing served". `servedRels` is the set of
-// rel-paths the Pi serves; `baseUrl` is the resolved Pi origin.
+// (success or failure). `servedRels` is the set of rel-paths the Pi serves;
+// `cachedPaths` maps a served rel → its absolute on-disk cache path (once main
+// has it cached); `baseUrl` is the resolved Pi origin for the live HTTP fallback.
 let warmed = false
 let inFlight: Promise<void> | null = null
 let servedRels: Set<string> = new Set()
+let cachedPaths: Map<string, string> = new Map()
 let baseUrl: string | null = null
 
 /** Test-only — inject fake deps. */
@@ -75,6 +95,7 @@ export function __resetRemoteSounds(): void {
   warmed = false
   inFlight = null
   servedRels = new Set()
+  cachedPaths = new Map()
   baseUrl = null
 }
 
@@ -94,27 +115,58 @@ async function fetchWithTimeout(url: string): Promise<Response> {
   }
 }
 
+/** Convert an absolute on-disk path to a `file://` URL `new Audio()` can load. */
+function toFileUrl(absPath: string): string {
+  // Normalize Windows backslashes + drive letters; encode each segment.
+  const normalized = absPath.replace(/\\/g, '/')
+  const withSlash = normalized.startsWith('/') ? normalized : `/${normalized}`
+  const encoded = withSlash
+    .split('/')
+    .map((seg) => encodeURIComponent(seg))
+    .join('/')
+  return `file://${encoded}`
+}
+
 /**
- * Fetch the Pi sounds-manifest once per session and cache which clips it serves.
- * Best-effort and idempotent: concurrent calls share one in-flight request, and
- * any error (unreachable Pi, no endpoint, timeout) just leaves the served set
- * empty so {@link resolveSoundUrl} keeps returning bundled paths. Safe to call
- * eagerly off the hot path.
+ * Warm the resolver once per session: kick off the main-process background
+ * prewarm (downloads the whole manifest into the disk cache), then fetch the Pi
+ * sounds-manifest and resolve each served clip's cached on-disk path into the
+ * warm map. Best-effort and idempotent: concurrent calls share one in-flight
+ * promise; any error (unreachable Pi, no endpoint, timeout, no IPC bridge) just
+ * leaves the maps empty so {@link resolveSoundUrl} falls back to the live Pi URL
+ * (or the path unchanged). Safe to call eagerly off the hot path.
  */
 export function prewarmRemoteSounds(): Promise<void> {
   if (warmed) return Promise.resolve()
   if (inFlight) return inFlight
   inFlight = (async () => {
     try {
+      const bridge = deps.getBridge()
+      // Tell main to download everything into the disk cache in the background.
+      void bridge?.prewarm()
+
       const base = await deps.resolveBaseUrl()
       const resp = await fetchWithTimeout(`${base}/api/sounds/manifest`)
       if (resp.ok) {
         const manifest = (await resp.json()) as SoundsManifest
         servedRels = new Set(Object.keys(manifest?.files ?? {}))
         baseUrl = base
+        // Resolve cached on-disk paths for served clips (best-effort, parallel).
+        if (bridge) {
+          await Promise.all(
+            [...servedRels].map(async (rel) => {
+              try {
+                const abs = await bridge.cacheGet(rel)
+                if (abs) cachedPaths.set(rel, abs)
+              } catch {
+                // leave uncached → live Pi URL fallback
+              }
+            })
+          )
+        }
       }
     } catch {
-      // Unreachable / no endpoint / timeout — bundled-only this session.
+      // Unreachable / no endpoint / timeout — empty maps → live URL / pass-through.
     } finally {
       warmed = true
       inFlight = null
@@ -125,13 +177,20 @@ export function prewarmRemoteSounds(): Promise<void> {
 
 /**
  * Resolve a bundled `./sounds/...` path to the URL an `Audio` element should
- * load. Returns the Pi-hosted URL when the manifest is warm AND lists the clip,
- * otherwise the bundled path unchanged. Synchronous so it drops into existing
- * `new Audio(resolveSoundUrl(path))` call sites without making them async.
+ * load. Synchronous so it drops into existing `new Audio(resolveSoundUrl(path))`
+ * call sites. Precedence: cached on-disk `file://` URL → live Pi HTTP URL (when
+ * the manifest is warm and lists the clip) → the path unchanged.
  */
 export function resolveSoundUrl(bundledPath: string): string {
-  if (!warmed || baseUrl === null) return bundledPath
   const rel = mapSoundPathToRel(bundledPath)
-  if (rel === null || !servedRels.has(rel)) return bundledPath
-  return `${baseUrl}/api/sounds/file?path=${encodeURIComponent(rel)}`
+  if (rel === null) return bundledPath
+  const cached = cachedPaths.get(rel)
+  if (cached) return toFileUrl(cached)
+  // No cached copy yet. If the manifest is warm and serves this clip, stream it
+  // live from the Pi (the bundled file no longer exists to fall back to).
+  if (warmed && baseUrl !== null && servedRels.has(rel)) {
+    return `${baseUrl}/api/sounds/file?path=${encodeURIComponent(rel)}`
+  }
+  // Cold manifest / not served — return the path unchanged (nothing else to do).
+  return bundledPath
 }
