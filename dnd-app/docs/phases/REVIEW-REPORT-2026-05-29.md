@@ -1,36 +1,14 @@
 # dnd-app — open work
 
-What still needs doing. NOT here: completed work (see commits + GitHub releases), "needs testing / QA / visual pass / write-a-test" items (the whole app is being tested anyway), and info/architecture notes. Scope: dnd-app + the dnd-app↔BMO protocol overlap.
+What still needs doing. NOT here: completed work (commits + GitHub releases), "needs testing/QA" items (the app is under test anyway), info/architecture notes, and things that are correct-by-design. Scope: dnd-app + the dnd-app↔BMO protocol overlap.
+
+Everything actionable + worthwhile has been worked through; what remains is genuinely optional / opportunistic / a product decision.
 
 ---
 
-## Code / debt
+- **Proxy renderer registry fetches through main IPC** (optional cleanup). `registry-client.ts` fetches `/api/games*` from the LAN Pi directly, which is why the document `connect-src` includes the `http:`/`ws:` scheme-sources. Moving the REST calls (announce/get/list/heartbeat/deregister) to main-process IPC (like cloud-sync) would let `connect-src` drop them. The current state is safe-ish (first-party bundled renderer, script-src locked, sandbox+contextIsolation on); this is a hardening nicety, and the SSE `/api/games/stream` is awkward to proxy. Left because it's a real integration change with multiplayer-discovery risk that isn't caught by the headless gates.
+- **20 circular import cycles** (dpdm, non-blocking) — chip away when already editing those files; not worth a dedicated churn pass.
+- **Managed/baked TURN server** (optional). Users can now add their own TURN via Settings → Multiplayer, and off-LAN routes through the Pi relay by default — so this only matters for someone who wants *serverless* off-LAN P2P behind symmetric NAT without configuring anything. Baking a managed TURN service carries cost + credential management.
+- **Ship-thin installer** (product decision). The Pi `/api/sounds` endpoint + client seam are live, so the app *can* load the ~130 sound clips from the Pi. Actually dropping them from the installer shrinks the download but breaks sound when offline with no Pi — needs a download-on-first-run cache first. Your call.
 
-- **Proxy renderer registry fetches through the main process.** `registry-client.ts` fetches `/api/games*` straight from the LAN Pi, which forces `http:`/`ws:` scheme-sources into the document `connect-src`. Move the REST calls (announce/get/list/heartbeat/deregister) to main-process IPC like cloud-sync; then `connect-src` can drop `http:`/`ws:`. (The SSE `/api/games/stream` is the only awkward one — keep it renderer-side or poll.)
-- **Inline style objects → Tailwind classes** (~60 files / ~116 occurrences). Many are genuinely dynamic (PixiJS sizing, drag offsets, runtime colors) and stay inline; convert the static ones.
-- **`DmAction` full discriminated union.** Retire the `action-validator.ts` boundary cast — a ~22-file, protocol-shaped change; do it WITH BMO-side protocol coordination (`DmAction` is parsed from AI/LLM + BMO output).
-- **~28 eager static-JSON imports → lazy `data-provider` loads.** Some intentionally pair an eager default with an async loader; do only if a bundle-size target is set.
-- **`useAsyncData<T>` adoption** — ~39 ad-hoc loaders left to migrate incrementally.
-- **Magic numbers → `app-constants.ts`** — file exists, only 2 importers; opportunistic (D&D rule constants shouldn't be hoisted).
-- **Rolldown config** — migrate `build.rollupOptions.manualChunks` → `build.rolldownOptions.output.codeSplitting` (build only warns on the compat shim).
-- **`throttle` util** — zero production call-sites; remove it or wire a first consumer.
-- **20 circular import cycles** (dpdm, non-blocking) — chip away when already editing those files.
-- **biome.json** — run `biome migrate` (schema pins 2.4.4 vs CLI 2.4.16) and drop the trailing `/**` on the `!!**/out/**`-style ignore globs (`useBiomeIgnoreFolder`).
-- **knip** — add an ignore config for the ~229 keep-intentional exports so the dead-code check reads clean.
-
-## a11y
-
-- **Number-input `aria-label`s** — the a11y sweep mirrored sample-value placeholders, so some number inputs read `aria-label="30"`/`"0"`; give those explicit descriptive labels.
-
-## Multiplayer
-
-- **Managed/baked TURN** (optional) — would restore true serverless off-LAN P2P for symmetric-NAT peers (currently off-LAN routes through the Pi relay instead).
-
-## Cloud backup
-
-- **Large-campaign cap.** The client archives the whole campaign incl. assets; works up to the `/backup` route's 512 MiB cap (`BMO_MAX_BACKUP_SIZE`), larger campaigns fail. Chunk the upload or cap-with-warning if it bites.
-- **Restore list shows the campaign id, not a name** (no name stored in the backup). Write a small `meta.json` beside the archive if a friendly name is wanted.
-
-## Bigger / undecided
-
-- **Ship-thin installer (decision).** The Pi `/api/sounds` endpoint + client seam are live, so the app *can* load sounds from the Pi. Actually dropping the ~130 bundled MP3s from the installer is the open call — it shrinks the download but means no sounds offline-with-no-Pi unless a download-on-first-run cache is added first.
+> Swept + found non-actionable (correct-by-design, not listed above): the remaining ~83 inline styles are dynamic (PixiJS/drag/runtime-color/z-index), the eager-JSON imports are intentional sync-default + async-loader pairs, `useAsyncData` has no clean 1:1 fits left, and `DmAction` is deliberately the open wire shape (LLM/BMO output is untrusted; it's narrowed at runtime via `ValidatedDmAction`). Magic-numbers, biome config, rolldown config, throttle, number-input labels, cloud-backup polish, and the a11y color check are done.
