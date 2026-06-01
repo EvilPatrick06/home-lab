@@ -163,7 +163,12 @@ function createWindow(): void {
   mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
     const devConnect = is.dev ? ' ws://localhost:5173 http://localhost:5173' : ''
     const piConnect = bmoCspConnectFragment()
-    const csp = `default-src 'self' plugin:; script-src 'self' plugin:${inlinePolicy}; worker-src 'self' blob:; style-src 'self' plugin:${inlinePolicy}; connect-src 'self' plugin: data: http: ws: wss://0.peerjs.com https://0.peerjs.com${piConnect}${devConnect}; img-src 'self' data: blob: plugin:; media-src 'self' blob: plugin:; font-src 'self' plugin:`
+    // style-src allows 'unsafe-inline' (always): tiptap (the Journal rich-text
+    // editor) injects a runtime <style> via ProseMirror, and various components
+    // use dynamic inline styles. CSP style-src can't execute code, so inline
+    // styles are a low-risk allowance (script-src stays strict — no inline/eval
+    // in prod). Without it the Journal editor's CSS is blocked + renders broken.
+    const csp = `default-src 'self' plugin:; script-src 'self' plugin:${inlinePolicy}; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' plugin:; connect-src 'self' plugin: data: http: ws: wss://0.peerjs.com https://0.peerjs.com${piConnect}${devConnect}; img-src 'self' data: blob: plugin:; media-src 'self' blob: plugin:; font-src 'self' plugin:`
     callback({
       responseHeaders: {
         ...details.responseHeaders,

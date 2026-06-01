@@ -176,14 +176,27 @@ export function startBmoDiscovery(): void {
     const host = ipv4 ?? refererIpv4 ?? service.host ?? service.fqdn
     if (!host) return
     const url = `http://${host}:${service.port ?? 5000}`
-    knownBmoFqdns.add(service.fqdn)
-    setDiscoveredBmoUrl(url)
-    broadcast(IPC_CHANNELS.BMO_RESOLVED_URL, { url })
-    logToFile('INFO', `[lan-discovery] BMO Pi discovered at ${url} (via _bmo._tcp)`)
-    // Now that we have a concrete LAN http target, re-probe signaling so the
-    // Multiplayer badge flips to reachable immediately instead of waiting for
-    // the next 30s tick.
-    probeSignalingServer().catch(() => {})
+    // VERIFY the advertised address is actually reachable from THIS machine
+    // before adopting it. mDNS can surface a Pi that direct TCP can't reach —
+    // client/AP isolation on the Wi-Fi, a different subnet, or a stale advert —
+    // and adopting an unreachable IP made Cloud Backup + the game registry hang
+    // on it (ERR_CONNECTION_TIMED_OUT) instead of falling back to the tunnel
+    // default. Only add to knownBmoFqdns + adopt on a successful /health probe;
+    // if it's not reachable, leave discoveredBmoUrl unset (→ tunnel default) and
+    // don't block the 3s fallback probes (which may find a reachable address).
+    void (async () => {
+      if (await probeUrl(url)) {
+        knownBmoFqdns.add(service.fqdn)
+        registerDiscoveredBmoUrl(url, 'mDNS _bmo._tcp')
+        // Re-probe signaling now that we have a reachable LAN target.
+        probeSignalingServer().catch(() => {})
+      } else {
+        logToFile(
+          'INFO',
+          `[lan-discovery] ${url} advertised via mDNS but not reachable from here — keeping tunnel default`
+        )
+      }
+    })()
   })
   bmoBrowser.on('down', (service: Service) => {
     knownBmoFqdns.delete(service.fqdn)
