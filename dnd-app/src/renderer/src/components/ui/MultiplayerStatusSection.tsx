@@ -36,10 +36,10 @@ export default function MultiplayerStatusSection(): JSX.Element {
     text = t('pages.settingsPage.signalingNotApplicable')
   } else if (reachable) {
     dotClass = 'bg-emerald-500'
-    text = t('pages.settingsPage.signalingReachable', { host: host || 'the Pi' })
+    text = t('pages.settingsPage.signalingReachable', { host: host || 'the cloud' })
   } else {
     dotClass = 'bg-red-500'
-    text = t('pages.settingsPage.signalingUnreachable', { host: host || 'the Pi' })
+    text = t('pages.settingsPage.signalingUnreachable', { host: host || 'the cloud' })
   }
 
   return (

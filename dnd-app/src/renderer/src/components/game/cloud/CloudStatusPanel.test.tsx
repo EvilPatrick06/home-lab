@@ -20,7 +20,7 @@ function peer(peerId: string, displayName: string, role: PeerInfo['role'] = 'pla
 describe('CloudStatusPanel', () => {
   it('renders the relay status + peer list for a cloud DM', () => {
     render(<CloudStatusPanel connectionMode="cloud" isDM connected peers={[peer('p1', 'Alice'), peer('p2', 'Bob')]} />)
-    expect(screen.getByText('Pi Cloud Relay')).toBeTruthy()
+    expect(screen.getByText('Cloud Relay')).toBeTruthy()
     expect(screen.getByText('Connected')).toBeTruthy()
     expect(screen.getByText('Alice')).toBeTruthy()
     expect(screen.getByText('Bob')).toBeTruthy()

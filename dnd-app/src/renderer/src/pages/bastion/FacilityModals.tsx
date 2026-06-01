@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import Modal from '../../components/ui/Modal'
+import { addToast } from '../../hooks/use-toast'
 import { useT } from '../../i18n'
 import type {
   BasicFacilityDef,
@@ -35,13 +36,27 @@ export function AddBasicFacilityModal({
   const handleAddBasic = (): void => {
     if (!selectedBastion) return
     const cost = BASIC_FACILITY_COSTS[basicSpace]
-    startConstruction(selectedBastion.id, {
+    // BAS-1 — the build used to close the modal with no feedback (and silently
+    // did nothing at 0 GP, since construction only shows on the Overview tab).
+    // Surface the outcome: error toast on insufficient funds (keep the modal
+    // open to adjust), success toast confirming the queued project otherwise.
+    const result = startConstruction(selectedBastion.id, {
       projectType: 'add-basic',
       facilityType: basicType,
       targetSpace: basicSpace,
       cost: cost.gp,
       daysRequired: cost.days
     })
+    if (result === 'insufficient-funds') {
+      addToast(
+        t('pages.addBasicFacilityModal.insufficientFunds', { need: cost.gp, have: selectedBastion.treasury }),
+        'error'
+      )
+      return
+    }
+    if (result === 'started') {
+      addToast(t('pages.addBasicFacilityModal.queued', { days: cost.days }), 'success')
+    }
     onClose()
   }
 

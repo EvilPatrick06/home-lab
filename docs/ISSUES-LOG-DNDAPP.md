@@ -30,7 +30,30 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## Critical / High / Medium / Low
 
-*(none tracked here — see the report)*
+### [2026-06-01] Sound Pi-offload never warms on the normal startup path
+
+- **Category:** performance, debt
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** Claude Code
+- **During:** SND-1 fix (re-bundling the sound MP3s)
+
+**Description:**
+`prewarmRemoteSounds()` — the only thing that warms the Pi sounds manifest and
+populates the main-process disk cache — is called ONLY from the Settings
+`reinit()` (`sound-manager.ts:360`). The normal startup path (`App.tsx:54`
+`init()` + `use-game-effects.ts:126` `init()`) never warms it, so the Pi
+sound-offload (the `cached file://` / `live Pi URL` precedence in
+`resolveSoundUrl`) is effectively dormant: clips always fall back to the bundled
+file unless the user happens to toggle a sound setting. Not user-facing after the
+SND-1 re-bundle (sounds play from the bundled files), but the bandwidth-saving
+offload + disk cache are unused on the normal path.
+
+**Proposed fix / improvement:**
+- [ ] Kick `prewarmRemoteSounds()` once at app start (App.tsx alongside `init()`, or inside `init()`).
+- [ ] Optionally rebuild the sound pools when prewarm resolves so warmed clips prefer the cached/Pi URL.
+
+**Related files:** `dnd-app/src/renderer/src/services/sound-manager.ts:289,352,360`, `dnd-app/src/renderer/src/App.tsx:54`, `dnd-app/src/renderer/src/services/library/remote-sounds.ts:139`, `dnd-app/src/renderer/src/hooks/use-game-effects.ts:126`
 
 ---
 

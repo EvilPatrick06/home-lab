@@ -775,6 +775,19 @@ export default function MapCanvas({
   // Reset map view on the Home key (extracted to useResetViewHotkey).
   useResetViewHotkey(handleResetView)
 
+  // GM-2 — auto-fit the map to the viewport on session start / map switch so the
+  // first frame is consistently framed (previously the initial view sometimes
+  // opened off-screen at zoom 1, needing a manual Reset View). Ref-guarded to fit
+  // once per map id — it frames on load/switch but never stomps the user's later
+  // pan/zoom (handleResetView identity changes don't re-fit the same map).
+  const lastFittedMapIdRef = useRef<string | undefined>(undefined)
+  useEffect(() => {
+    if (!initialized || !map?.id) return
+    if (lastFittedMapIdRef.current === map.id) return
+    lastFittedMapIdRef.current = map.id
+    handleResetView()
+  }, [initialized, map?.id, handleResetView])
+
   // Right-click on empty cell handler, DM only (extracted to useEmptyCellContextMenu).
   useEmptyCellContextMenu({ containerRef, worldRef, panRef, zoomRef }, isHost, onEmptyCellContextMenu, map)
 

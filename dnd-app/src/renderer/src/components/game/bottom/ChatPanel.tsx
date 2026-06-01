@@ -208,6 +208,11 @@ export default function ChatPanel({
         setInput('')
         return
       }
+      // GM-3 — slash-prefixed but matched no command: it's an unknown command,
+      // not chat. Surface a hint instead of broadcasting "/foobar" to everyone.
+      addSysMsg(t('game.chatPanel.unknownCommand', { command: trimmed.split(/\s+/)[0] }))
+      setInput('')
+      return
     }
 
     // Regular chat message

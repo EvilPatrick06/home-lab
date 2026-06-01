@@ -1,7 +1,15 @@
+import { io } from 'socket.io-client'
 import { describe, expect, it, vi } from 'vitest'
 import type { MessageType, NetworkMessage } from '../message-types'
 import type { PeerInfo } from '../state-types'
 import { createWebSocketTransport, type RelaySocket } from './websocket-transport'
+
+// Mock socket.io-client so the DEFAULT factory path is observable. Tests that
+// inject their own `socketFactory` never call `io`, so this only affects the
+// one test below that exercises `defaultSocketFactory`.
+vi.mock('socket.io-client', () => ({
+  io: vi.fn(() => ({ on: () => {}, emit: () => {}, disconnect: () => {} }))
+}))
 
 /** A fake RelaySocket that records emits and lets the test fire inbound events. */
 function makeFakeSocket() {
@@ -166,6 +174,18 @@ describe('WebSocketTransport', () => {
     off?.()
     fake.fire('host-migrated', { old_host_peer_id: 'host', new_host_peer_id: 'codm' })
     expect(migrated).not.toHaveBeenCalled()
+  })
+
+  it('bounds socket.io reconnection so a down relay does not flood the console (MP-2)', () => {
+    // No injected socketFactory → defaultSocketFactory calls the (mocked) `io`.
+    createWebSocketTransport({ url: 'wss://pi.test', code: 'ROOM', self: makePeer('host', true) })
+    const opts = (io as unknown as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[1] as {
+      reconnectionAttempts?: number
+      reconnectionDelayMax?: number
+    }
+    expect(opts?.reconnectionAttempts).toBeGreaterThan(0)
+    expect(Number.isFinite(opts?.reconnectionAttempts)).toBe(true)
+    expect(opts?.reconnectionDelayMax).toBeGreaterThan(0)
   })
 
   it('disconnect(peerId) → kick emit', () => {

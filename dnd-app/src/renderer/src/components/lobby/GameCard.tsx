@@ -1,3 +1,4 @@
+import { Lock } from 'lucide-react'
 import { useT } from '../../i18n'
 import type { RegistryGameEntry } from '../../network/registry-client'
 import { Button } from '../ui'
@@ -24,9 +25,11 @@ export default function GameCard({ game, onJoin, onSpectate }: GameCardProps): J
         <div className="flex flex-col items-end gap-1 shrink-0">
           {game.is_private && (
             <span
-              className="text-xs uppercase tracking-wide bg-amber-900/40 text-amber-300 px-2 py-0.5 rounded-full"
+              className="flex items-center gap-1 text-xs uppercase tracking-wide bg-amber-900/40 text-amber-300 px-2 py-0.5 rounded-full"
               title={t('lobby.gameCard.privateTooltip')}
             >
+              {/* MP-3 — lock icon makes the locked/private state obvious at a glance. */}
+              <Lock className="w-3 h-3" aria-hidden="true" />
               {t('lobby.gameCard.private')}
             </span>
           )}

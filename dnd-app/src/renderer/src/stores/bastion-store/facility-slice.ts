@@ -176,12 +176,12 @@ export const createFacilitySlice: StateCreator<BastionState, [], [], FacilitySli
 
   startConstruction: (bastionId, project) => {
     const bastion = getBastion(get().bastions, bastionId)
-    if (!bastion) return
+    if (!bastion) return 'not-found'
     if (bastion.treasury < project.cost) {
       logger.warn(
         `[Bastion] Not enough gold to start construction. Need ${project.cost} gp, have ${bastion.treasury} gp`
       )
-      return
+      return 'insufficient-funds'
     }
     const fullProject: ConstructionProject = {
       ...project,
@@ -196,6 +196,7 @@ export const createFacilitySlice: StateCreator<BastionState, [], [], FacilitySli
       updatedAt: new Date().toISOString()
     }
     get().saveBastion(updated)
+    return 'started'
   },
 
   completeConstruction: (bastionId, projectId) => {

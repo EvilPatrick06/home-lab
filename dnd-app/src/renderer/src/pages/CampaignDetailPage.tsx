@@ -5,7 +5,6 @@ import { BackButton, Button, Card, ConfirmDialog } from '../components/ui'
 import { addToast } from '../hooks/use-toast'
 import { useT } from '../i18n'
 import { configureForCloud } from '../network'
-import { isOnPiLan } from '../network/registry-client'
 import { exportCampaignToFile } from '../services/io/campaign-io'
 import { exportEntities, importEntities, reIdItems } from '../services/io/entity-io'
 import { useNetworkStore } from '../stores/network-store'
@@ -99,14 +98,13 @@ export default function CampaignDetailPage(): JSX.Element {
       if (networkState.role !== 'none') {
         networkState.disconnect()
       }
-      // Phase 32 — a campaign flagged for cloud hosting routes through the Pi
-      // relay; otherwise the P2P mesh. Also default to the relay when OFF-LAN:
-      // direct WebRTC P2P needs reachable STUN/TURN, and off-LAN the only TURN
-      // (the Pi's coturn) can't traverse the HTTP tunnel — so symmetric-NAT
-      // players can't connect P2P. The relay only needs :5000 (tunnel-proxied)
-      // and works behind any NAT. On the Pi's LAN, P2P stays the low-latency
-      // default.
-      const mode = campaign.hostingMode === 'cloud' || !isOnPiLan() ? 'cloud' : 'p2p'
+      // MP-4 — honor the host's explicit choice EXACTLY: "self-host" hosts the game
+      // ON THIS DEVICE via the P2P mesh; "cloud" hosts ONLY on the Pi relay. We no
+      // longer silently force cloud when off-LAN. (Off-LAN P2P relies on public
+      // PeerJS signaling + STUN/TURN; symmetric-NAT players may fail to connect P2P
+      // without reachable TURN — if hosting throws, the catch below offers the
+      // cloud fallback, so the choice is honored first and degrades gracefully.)
+      const mode = campaign.hostingMode === 'cloud' ? 'cloud' : 'p2p'
       if (mode === 'cloud') configureForCloud()
       await hostGame(hostName, campaign.inviteCode, mode)
       navigate(`/lobby/${campaign.id}`)

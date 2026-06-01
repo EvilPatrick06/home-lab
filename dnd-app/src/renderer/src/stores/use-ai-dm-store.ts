@@ -356,13 +356,19 @@ export const useAiDmStore = create<AiDmState>((set, get) => ({
       if (result.success && result.streamId) {
         set({ activeStreamId: result.streamId })
       } else {
-        set({ isTyping: false, lastError: result.error || 'Failed to start chat' })
+        // AI-2 — surface the failure instead of dying silently. A common cause is
+        // the campaign's model not being installed (Ollama 404); the user
+        // previously saw nothing (no toast, no "thinking" indicator, counter at 0).
+        clearTimeout(timeoutId)
+        const errorMsg = result.error || 'Failed to start chat'
+        set({ isTyping: false, lastError: errorMsg, safetyTimeoutId: null })
+        pushDmAlert('error', i18n.t('notify.aiDmStore.aiDmError', { error: errorMsg }))
       }
     } catch (error) {
-      set({
-        isTyping: false,
-        lastError: error instanceof Error ? error.message : 'Unknown error'
-      })
+      clearTimeout(timeoutId)
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error'
+      set({ isTyping: false, lastError: errorMsg, safetyTimeoutId: null })
+      pushDmAlert('error', i18n.t('notify.aiDmStore.aiDmError', { error: errorMsg }))
     }
   },
 

@@ -45,6 +45,26 @@ function hydrate<C extends string>(
   return out
 }
 
+/**
+ * Resolve a class entry's hit die to a number. Class data stores it as
+ * `coreTraits.hitPointDie` = a string like `"D12"` (see public/data/5e/classes),
+ * so it must be PARSED — the same `parseInt(...replace(/\D/g,''))` the builder and
+ * level-up use. The old `(coreTraits.hitPointDie as number)` cast was a compile-time
+ * no-op that left a string (or fell through to 10), which is what made the print
+ * sheet show the wrong die. Order: explicit numeric `hitDie` → parsed `hitPointDie`
+ * (number or string) → 10.
+ */
+function resolveClassHitDie(entry: Record<string, unknown> | undefined): number {
+  if (typeof entry?.hitDie === 'number' && entry.hitDie > 0) return entry.hitDie
+  const raw = (entry?.coreTraits as Record<string, unknown> | undefined)?.hitPointDie
+  if (typeof raw === 'number' && raw > 0) return raw
+  if (typeof raw === 'string') {
+    const n = Number.parseInt(raw.replace(/\D/g, ''), 10)
+    if (Number.isFinite(n) && n > 0) return n
+  }
+  return 10
+}
+
 export function getEffectiveClasses(character: Character5e): CharacterClass5e[] {
   if (!character.classRefs || character.classRefs.length === 0) return []
   const bucket = useLibraryStore.getState().entries.classes as Record<string, Record<string, unknown>> | undefined
@@ -56,9 +76,7 @@ export function getEffectiveClasses(character: Character5e): CharacterClass5e[] 
       name: ((entry?.name as string) ?? cr.ref.entryId) as string,
       level: cr.level,
       subclass: cr.subclassRef?.entryId,
-      hitDie: ((entry?.hitDie as number) ??
-        ((entry?.coreTraits as Record<string, unknown> | undefined)?.hitPointDie as number) ??
-        10) as number
+      hitDie: resolveClassHitDie(entry)
     }
   })
 }

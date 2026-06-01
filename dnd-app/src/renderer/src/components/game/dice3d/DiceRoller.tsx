@@ -259,6 +259,13 @@ export default function DiceRoller({
           {t('game.diceRoller.roll')}
         </button>
       </div>
+      {/* GM-4 — surface why a typed expression won't roll instead of silently doing
+          nothing (the Roll button is disabled + Enter is a no-op for bad input). */}
+      {customFormula.trim().length > 0 && !parseDiceFormula(customFormula) && (
+        <p className="text-xs text-red-400 -mt-1" role="alert">
+          {t('game.diceRoller.invalidFormula')}
+        </p>
+      )}
 
       {/* Results */}
       {results.length > 0 && (

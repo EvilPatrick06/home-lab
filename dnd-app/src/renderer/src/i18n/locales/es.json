@@ -450,8 +450,8 @@
       "hosting": "Alojamiento",
       "hostingThisDevice": "Este dispositivo",
       "hostingThisDeviceDesc": "Punto a punto: tu computadora aloja la partida. Debe permanecer en línea y accesible.",
-      "hostingCloud": "Relé en la nube de Pi",
-      "hostingCloudDesc": "Los jugadores se conectan a través del BMO Pi siempre activo — sin configuración de NAT/cortafuegos."
+      "hostingCloud": "Relé en la nube",
+      "hostingCloudDesc": "Los jugadores se conectan a través de BMO Cloud siempre activo — sin configuración de NAT/cortafuegos."
     },
     "hostNamePrompt": {
       "title": "Elige el nombre del anfitrión",
@@ -879,6 +879,7 @@
       "disputeTitle": "Disputar este dictamen",
       "systemSender": "Sistema",
       "errorPrefix": "Error: {{error}}",
+      "unknownCommand": "Comando desconocido {{command}}. Escribe /help para ver los comandos disponibles.",
       "rolled": "tiró {{formula}}",
       "narrationFailed": "No se pudo enviar la narración a BMO",
       "placeholder": "Escribe un mensaje o /comando...",
@@ -1085,10 +1086,10 @@
     },
     "cloudStatusPanel": {
       "ariaLabel": "Estado del relé en la nube",
-      "title": "Relé en la nube de la Pi",
+      "title": "Relé en la nube",
       "connected": "Conectado",
       "connecting": "Conectando…",
-      "description": "Los jugadores acceden a esta partida a través de la Pi de BMO siempre activa: sin configuración de NAT ni de cortafuegos.",
+      "description": "Los jugadores acceden a esta partida a través de BMO Cloud siempre activo: sin configuración de NAT ni de cortafuegos.",
       "noPlayers": "Todavía no hay jugadores conectados.",
       "player": "Jugador",
       "latency": "{{ms}} ms"
@@ -1133,6 +1134,7 @@
       "dismiss": "Descartar",
       "customPlaceholder": "2d6+3",
       "roll": "Tirar",
+      "invalidFormula": "Fórmula de dados no válida. Prueba NdM (p. ej. 2d6) o NdM+K (p. ej. 1d20+5).",
       "resultsLabel": "Resultados de la tirada de dados"
     },
     "diceTray": {
@@ -3425,6 +3427,8 @@
       "createCharacter": "Crear personaje",
       "returnToLobby": "Volver a la sala",
       "endSession": "Finalizar sesión",
+      "endSessionConfirmTitle": "¿Finalizar sesión?",
+      "endSessionConfirmMessage": "Esto finaliza la sesión para todos los jugadores. ¿Estás seguro?",
       "leaveGame": "Salir del juego"
     },
     "themeSelector": {
@@ -4963,7 +4967,7 @@
       "sortNameAsc": "Nombre A→Z",
       "sortPlayersDesc": "Más jugadores",
       "hideFull": "Ocultar llenas",
-      "noRegistry": "No hay registro de Pi conectado — mostrando solo partidas LAN. Configura la conexión BMO en Ajustes para ver partidas públicas.",
+      "noRegistry": "No hay registro en la nube conectado — mostrando solo partidas LAN. Configura la conexión BMO en Ajustes para ver partidas públicas.",
       "noGames": "No se encontraron partidas. Ajusta tus filtros o pide a tu DM un código de invitación."
     },
     "passwordPrompt": {
@@ -5265,7 +5269,9 @@
       "roomy": "Amplia ({{gp}} PO, {{days}} días)",
       "vast": "Vasta ({{gp}} PO, {{days}} días)",
       "costConstruction": "Coste: {{gp}} PO · Construcción: {{days}} días",
-      "build": "Construir ({{gp}} PO)"
+      "build": "Construir ({{gp}} PO)",
+      "queued": "Construcción iniciada — lista en {{days}} días (mira la pestaña Resumen).",
+      "insufficientFunds": "Oro insuficiente: necesitas {{need}} PO, tienes {{have}} PO."
     },
     "addSpecialFacilityModal": {
       "title": "Añadir instalación especial",
@@ -5303,6 +5309,7 @@
       "remove": "Eliminar",
       "specialFacilities": "Instalaciones especiales ({{count}}/{{max}})",
       "addSpecialFacility": "+ Añadir instalación especial",
+      "specialLockedLevel5": "Las instalaciones especiales se desbloquean cuando el dueño del bastión alcanza el nivel 5 (DMG 2024).",
       "noSpecialFacilities": "No hay instalaciones especiales. Añade una para empezar.",
       "enlargeTitleSuffix": " | Ampliar: {{gp}} PO, {{days}} días",
       "enlarged": "Ampliada",
@@ -6011,19 +6018,21 @@
       "autoRestartDesc": "No es necesario hacer clic en \"Instalar y reiniciar\". Se activa ~1,5 s después de que se complete la descarga.",
       "silentInstallLabel": "Instalación silenciosa (omitir la interfaz del instalador)",
       "silentInstallDesc": "Reutiliza la ubicación de instalación + ajustes anteriores mediante NSIS /S. El instalador visible es el valor predeterminado más seguro; actívalo para actualizaciones desatendidas.",
-      "cloudPiUnreachable": "No se pudo alcanzar la Pi. Comprueba que esté en línea.",
-      "cloudConnected": "Conectado a BMO Pi",
-      "cloudConnectFailed": "No se pudo conectar a BMO Pi. ¿Está en funcionamiento?",
+      "cloudPiUnreachable": "No se pudo alcanzar la nube. Comprueba que esté en línea.",
+      "cloudConnected": "Conectado a BMO Cloud",
+      "cloudConnectFailed": "No se pudo conectar a BMO Cloud. ¿Está en funcionamiento?",
       "noCampaignsToBackup": "No hay campañas para respaldar",
       "backupCompleted": "Copia de seguridad completada correctamente",
+      "backupCompletedAll": "Se respaldaron las {{count}} campañas.",
+      "backupPartial": "Se respaldaron {{succeeded}} campañas; {{failed}} fallaron.",
       "backupFailed": "La copia de seguridad falló",
-      "backupFailedReachable": "La copia de seguridad falló. ¿Es accesible BMO Pi?",
+      "backupFailedReachable": "La copia de seguridad falló. ¿Es accesible BMO Cloud?",
       "foundBackupsSingular": "Se encontró {{count}} campaña respaldada",
       "foundBackupsPlural": "Se encontraron {{count}} campañas respaldadas",
       "noBackupsFound": "No se encontraron copias de seguridad en Google Drive",
       "listBackupsFailed": "No se pudieron listar las copias de seguridad",
-      "listBackupsFailedReachable": "No se pudieron listar las copias de seguridad. ¿Es accesible BMO Pi?",
-      "cloudBackupDesc": "Respalda los datos de la campaña en Google Drive mediante rclone en BMO Pi. Las credenciales se almacenan en la Pi — nada se almacena localmente.",
+      "listBackupsFailedReachable": "No se pudieron listar las copias de seguridad. ¿Es accesible BMO Cloud?",
+      "cloudBackupDesc": "Respalda los datos de la campaña en Google Drive mediante rclone en BMO Cloud. Las credenciales se almacenan en la nube — nada se almacena localmente.",
       "configuredRemotes": "Remotos configurados: {{remotes}}",
       "rcloneVersion": "Versión de Rclone: {{version}}",
       "lastBackup": "Última copia de seguridad: {{time}}",
@@ -6124,16 +6133,16 @@
       "resetAllData": "Restablecer todos los datos",
       "resetAllDataDesc": " — destructivo. Borra TODOS los datos almacenados: ajustes, campañas, personajes, biblioteca, contenido casero, macros, borradores, historial de notificaciones, autoguardados. Esto no se puede deshacer.",
       "resetAllDataConfirm": "¿Restablecer todos los datos? Esto BORRARÁ campañas, personajes, entradas de la biblioteca, macros, borradores y todos los ajustes. Esto no se puede deshacer.",
-      "piLibraryToggle": "Cargar contenido de la biblioteca desde la Pi",
-      "piLibraryDesc": "Cuando está activado, el contenido de 5e se carga desde la API de la biblioteca de la Pi. Los datos incluidos siempre se usan como respaldo.",
+      "piLibraryToggle": "Cargar contenido de la biblioteca desde la nube",
+      "piLibraryDesc": "Cuando está activado, el contenido de 5e se carga desde la API de la biblioteca en la nube. Los datos incluidos siempre se usan como respaldo.",
       "language": "Idioma",
-      "languageDescription": "Elige el idioma de la interfaz. (Pseudo es una configuración regional de prueba en inglés con acentos.)",
+      "languageDescription": "Elige el idioma de la interfaz.",
       "multiplayer": "Multijugador",
       "signalingTitle": "Servidor de señalización WebRTC",
       "configureTurn": "Servidores de relé / TURN…",
       "signalingReachable": "Accesible en {{host}}:9000 — los jugadores pueden conectarse mediante punto a punto.",
-      "signalingUnreachable": "No accesible en {{host}}:9000 — las partidas punto a punto pueden no conectarse. Comprueba que el contenedor bmo-peerjs de la Pi esté en ejecución.",
-      "signalingNotApplicable": "Solo se comprueba en una conexión LAN directa. Fuera de la LAN, las partidas usan el relé en la nube de la Pi: no se necesita servidor de señalización entre pares.",
+      "signalingUnreachable": "No accesible en {{host}}:9000 — las partidas punto a punto pueden no conectarse. Comprueba que el contenedor bmo-peerjs de la nube esté en ejecución.",
+      "signalingNotApplicable": "Solo se comprueba en una conexión LAN directa. Fuera de la LAN, las partidas usan el relé en la nube: no se necesita servidor de señalización entre pares.",
       "signalingChecking": "Comprobando el servidor de señalización…"
     }
   },

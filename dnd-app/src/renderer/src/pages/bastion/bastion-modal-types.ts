@@ -53,7 +53,7 @@ export interface BastionModalsProps {
   startConstruction: (
     bastionId: string,
     project: Omit<ConstructionProject, 'id' | 'startedAt' | 'daysCompleted'>
-  ) => void
+  ) => 'started' | 'insufficient-funds' | 'not-found'
   startTurn: (bastionId: string) => ReturnType<(id: string) => { turnNumber: number } | null>
   issueOrder: (
     bastionId: string,

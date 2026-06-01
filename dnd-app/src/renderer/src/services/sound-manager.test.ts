@@ -82,3 +82,23 @@ describe('sound-manager', () => {
     expect(src).toContain('export type AmbientSound')
   })
 })
+
+describe('sound packaging (SND-1 regression)', () => {
+  // The `!out/renderer/sounds/**/*` electron-builder exclusion shipped installers
+  // WITHOUT the 130 bundled MP3s, so every sound effect 404'd
+  // (net::ERR_FILE_NOT_FOUND) whenever the Pi was cold/unreachable —
+  // resolveSoundUrl falls back to the bundled `./sounds/...` path, which then
+  // pointed at files that weren't in the package. Guard against re-introducing it.
+  it('does not exclude bundled sounds from the electron-builder package', () => {
+    const pkgPath = resolve(__dirname, '../../../../package.json')
+    const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8')) as { build?: { files?: string[] } }
+    const files = pkg.build?.files ?? []
+    const excludesSounds = files.some((f) => f.startsWith('!') && f.includes('out/renderer/sounds'))
+    expect(excludesSounds).toBe(false)
+  })
+
+  it('ships the bundled sound files in source', () => {
+    const soundsDir = resolve(__dirname, '../../public/sounds')
+    expect(existsSync(soundsDir)).toBe(true)
+  })
+})

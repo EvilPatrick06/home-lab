@@ -62,8 +62,17 @@ function defaultSocketFactory(url: string, auth: Record<string, unknown>): Relay
     // Bound the initial connect so an unreachable relay (down tunnel, stale
     // LAN IP) raises `connect_error` in 8s instead of socket.io's 20s default —
     // the cloud-host path can then surface the failure / offer the P2P fallback.
-    // Reconnection stays on (default) so a mid-session drop still recovers.
-    timeout: 8_000
+    timeout: 8_000,
+    // Bound reconnection. socket.io's default is reconnectionAttempts:Infinity,
+    // so a relay that stays down retries forever and floods the console with a
+    // `connect_error` every ~5s (the QA "WebSocket is closed before the
+    // connection is established" spam). A finite, generously-spaced cap still
+    // recovers brief mid-session drops but eventually gives up instead of
+    // looping silently. The relay being reachable at all is a separate fix
+    // (Cloudflare Access must allow the `/socket.io` path off-LAN).
+    reconnectionAttempts: 10,
+    reconnectionDelay: 1_000,
+    reconnectionDelayMax: 10_000
   }) as unknown as RelaySocket
 }
 

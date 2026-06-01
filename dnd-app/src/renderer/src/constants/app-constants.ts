@@ -93,7 +93,10 @@ export const GAME_AUTO_SAVE_FLUSH_MAX_RETRIES = 20
 // AI / Ollama
 export const DEFAULT_OLLAMA_URL = 'http://localhost:11434'
 export const DEFAULT_AI_PROVIDER = 'ollama' as const
-export const DEFAULT_AI_MODEL = 'llama3.1'
+// Must match a curated/installable model id (see main/ai/ollama-manager.ts). The
+// recommended lightweight default; bare 'llama3.1' was NOT installable (curated
+// has 'llama3.1:8b'/'llama3.1:70b'), so wizards saved a model that 404'd on use.
+export const DEFAULT_AI_MODEL = 'llama3.2:3b'
 
 export const AI_PROVIDER_LABELS: Record<string, string> = {
   ollama: 'Ollama (Local)',

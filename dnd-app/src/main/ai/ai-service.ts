@@ -203,7 +203,7 @@ let currentConfig: {
   geminiApiKey?: string
 } = {
   provider: 'ollama',
-  model: 'llama3.1',
+  model: 'llama3.2:3b',
   ollamaUrl: OLLAMA_BASE_URL
 }
 
@@ -263,7 +263,7 @@ export async function configure(config: AiConfig): Promise<void> {
 
   currentConfig = {
     provider: config.provider ?? 'ollama',
-    model: config.model || config.ollamaModel || 'llama3.1',
+    model: config.model || config.ollamaModel || 'llama3.2:3b',
     ollamaUrl: config.ollamaUrl || OLLAMA_BASE_URL,
     claudeApiKey: config.claudeApiKey,
     openaiApiKey: config.openaiApiKey,
@@ -302,7 +302,7 @@ export function getConfig(): AiConfig {
       const saved = JSON.parse(readFileSync(configPath, 'utf-8')) as Record<string, unknown>
       currentConfig = {
         provider: ((saved.provider as string) ?? 'ollama') as AiProviderType,
-        model: (saved.model as string) || (saved.ollamaModel as string) || 'llama3.1',
+        model: (saved.model as string) || (saved.ollamaModel as string) || 'llama3.2:3b',
         ollamaUrl: (saved.ollamaUrl as string) || OLLAMA_BASE_URL,
         claudeApiKey: decryptOptional(saved.claudeApiKey as string | undefined),
         openaiApiKey: decryptOptional(saved.openaiApiKey as string | undefined),

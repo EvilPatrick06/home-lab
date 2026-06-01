@@ -69,7 +69,21 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
             className="w-24 p-3 rounded-lg bg-surface-2 border border-border text-fg
               focus:outline-none focus:border-amber-500 transition-colors"
             value={maxPlayersDraft}
-            onChange={(e) => setMaxPlayersDraft(e.target.value)}
+            onChange={(e) => {
+              // WIZ-1 — clamp the upper bound on input so an out-of-range value
+              // (e.g. 999) never shows in the field; the label promises 2-8. The
+              // lower bound + empty field normalize on blur so the user can still
+              // clear and retype.
+              const next = e.target.value
+              const raw = parseInt(next, 10)
+              if (Number.isFinite(raw) && raw > 8) {
+                setMaxPlayersDraft('8')
+                update('maxPlayers', 8)
+              } else {
+                setMaxPlayersDraft(next)
+                if (Number.isFinite(raw) && raw >= 2) update('maxPlayers', raw)
+              }
+            }}
             onBlur={() => {
               const raw = parseInt(maxPlayersDraft, 10)
               const numeric = Number.isFinite(raw) ? raw : 2

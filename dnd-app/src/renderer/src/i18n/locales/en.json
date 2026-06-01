@@ -450,8 +450,8 @@
       "hosting": "Hosting",
       "hostingThisDevice": "This device",
       "hostingThisDeviceDesc": "Peer-to-peer: your computer hosts. Must stay online and reachable.",
-      "hostingCloud": "Pi cloud relay",
-      "hostingCloudDesc": "Players connect through the always-on BMO Pi — no NAT/firewall setup."
+      "hostingCloud": "Cloud relay",
+      "hostingCloudDesc": "Players connect through the always-on BMO Cloud — no NAT/firewall setup."
     },
     "hostNamePrompt": {
       "title": "Choose Host Name",
@@ -879,6 +879,7 @@
       "disputeTitle": "Dispute this ruling",
       "systemSender": "System",
       "errorPrefix": "Error: {{error}}",
+      "unknownCommand": "Unknown command {{command}}. Type /help to see available commands.",
       "rolled": "rolled {{formula}}",
       "narrationFailed": "Failed to send narration to BMO",
       "placeholder": "Type a message or /command...",
@@ -1085,10 +1086,10 @@
     },
     "cloudStatusPanel": {
       "ariaLabel": "Cloud relay status",
-      "title": "Pi Cloud Relay",
+      "title": "Cloud Relay",
       "connected": "Connected",
       "connecting": "Connecting…",
-      "description": "Players reach this game through the always-on BMO Pi — no NAT or firewall setup.",
+      "description": "Players reach this game through the always-on BMO Cloud — no NAT or firewall setup.",
       "noPlayers": "No players connected yet.",
       "player": "Player",
       "latency": "{{ms}} ms"
@@ -1133,6 +1134,7 @@
       "dismiss": "Dismiss",
       "customPlaceholder": "2d6+3",
       "roll": "Roll",
+      "invalidFormula": "Invalid dice formula. Try NdM (e.g. 2d6) or NdM+K (e.g. 1d20+5).",
       "resultsLabel": "Dice roll results"
     },
     "diceTray": {
@@ -3425,6 +3427,8 @@
       "createCharacter": "Create Character",
       "returnToLobby": "Return to Lobby",
       "endSession": "End Session",
+      "endSessionConfirmTitle": "End session?",
+      "endSessionConfirmMessage": "This ends the session for everyone in the game. Are you sure?",
       "leaveGame": "Leave Game"
     },
     "themeSelector": {
@@ -4963,7 +4967,7 @@
       "sortNameAsc": "Name A→Z",
       "sortPlayersDesc": "Most players",
       "hideFull": "Hide full",
-      "noRegistry": "No Pi registry connected — showing LAN games only. Configure BMO connection in Settings to see public games.",
+      "noRegistry": "No cloud registry connected — showing LAN games only. Configure BMO connection in Settings to see public games.",
       "noGames": "No games found. Adjust your filters, or ask your DM for an invite code."
     },
     "passwordPrompt": {
@@ -5265,7 +5269,9 @@
       "roomy": "Roomy ({{gp}} GP, {{days}} days)",
       "vast": "Vast ({{gp}} GP, {{days}} days)",
       "costConstruction": "Cost: {{gp}} GP · Construction: {{days}} days",
-      "build": "Build ({{gp}} GP)"
+      "build": "Build ({{gp}} GP)",
+      "queued": "Construction started — ready in {{days}} days (see the Overview tab).",
+      "insufficientFunds": "Not enough gold: need {{need}} GP, have {{have}} GP."
     },
     "addSpecialFacilityModal": {
       "title": "Add Special Facility",
@@ -5303,6 +5309,7 @@
       "remove": "Remove",
       "specialFacilities": "Special Facilities ({{count}}/{{max}})",
       "addSpecialFacility": "+ Add Special Facility",
+      "specialLockedLevel5": "Special facilities unlock when the bastion owner reaches level 5 (2024 DMG).",
       "noSpecialFacilities": "No special facilities. Add one to get started.",
       "enlargeTitleSuffix": " | Enlarge: {{gp}} GP, {{days}} days",
       "enlarged": "Enlarged",
@@ -6011,19 +6018,21 @@
       "autoRestartDesc": "No \"Install & Restart\" click needed. Triggers ~1.5 s after the download completes.",
       "silentInstallLabel": "Silent install (skip the installer UI)",
       "silentInstallDesc": "Re-uses your previous install location + settings via NSIS /S. Visible installer is the safer default; flip on for unattended updates.",
-      "cloudPiUnreachable": "Could not reach the Pi. Check that it is online.",
-      "cloudConnected": "Connected to BMO Pi",
-      "cloudConnectFailed": "Failed to connect to BMO Pi. Is it running?",
+      "cloudPiUnreachable": "Could not reach the cloud. Check that it is online.",
+      "cloudConnected": "Connected to BMO Cloud",
+      "cloudConnectFailed": "Failed to connect to BMO Cloud. Is it running?",
       "noCampaignsToBackup": "No campaigns to backup",
       "backupCompleted": "Backup completed successfully",
+      "backupCompletedAll": "Backed up all {{count}} campaigns.",
+      "backupPartial": "Backed up {{succeeded}} campaigns; {{failed}} failed.",
       "backupFailed": "Backup failed",
-      "backupFailedReachable": "Backup failed. Is BMO Pi reachable?",
+      "backupFailedReachable": "Backup failed. Is BMO Cloud reachable?",
       "foundBackupsSingular": "Found {{count}} backed-up campaign",
       "foundBackupsPlural": "Found {{count}} backed-up campaigns",
       "noBackupsFound": "No backups found on Google Drive",
       "listBackupsFailed": "Failed to list backups",
-      "listBackupsFailedReachable": "Failed to list backups. Is BMO Pi reachable?",
-      "cloudBackupDesc": "Back up campaign data to Google Drive via rclone on BMO Pi. Credentials are stored on the Pi — nothing is stored locally.",
+      "listBackupsFailedReachable": "Failed to list backups. Is BMO Cloud reachable?",
+      "cloudBackupDesc": "Back up campaign data to Google Drive via rclone on BMO Cloud. Credentials are stored on the cloud — nothing is stored locally.",
       "configuredRemotes": "Configured remotes: {{remotes}}",
       "rcloneVersion": "Rclone version: {{version}}",
       "lastBackup": "Last backup: {{time}}",
@@ -6124,16 +6133,16 @@
       "resetAllData": "Reset All Data",
       "resetAllDataDesc": " — destructive. Wipes ALL stored data: settings, campaigns, characters, library, homebrew, macros, drafts, notification history, autosaves. This cannot be undone.",
       "resetAllDataConfirm": "Reset all data? This will WIPE campaigns, characters, library entries, macros, drafts, and all settings. This cannot be undone.",
-      "piLibraryToggle": "Load library content from the Pi",
-      "piLibraryDesc": "When on, 5e content loads from the Pi library API. The bundled data is always used as a fallback.",
+      "piLibraryToggle": "Load library content from the cloud",
+      "piLibraryDesc": "When on, 5e content loads from the cloud library API. The bundled data is always used as a fallback.",
       "language": "Language",
-      "languageDescription": "Choose the interface language. (Pseudo is an accented-English testing locale.)",
+      "languageDescription": "Choose the interface language.",
       "multiplayer": "Multiplayer",
       "signalingTitle": "WebRTC signaling server",
       "configureTurn": "Relay / TURN servers…",
       "signalingReachable": "Reachable at {{host}}:9000 — players can connect over peer-to-peer.",
-      "signalingUnreachable": "Unreachable at {{host}}:9000 — peer-to-peer games may fail to connect. Check that the Pi's bmo-peerjs container is running.",
-      "signalingNotApplicable": "Only checked on a direct LAN connection. Off-LAN, games run through the Pi cloud relay — no peer-to-peer signaling server is needed.",
+      "signalingUnreachable": "Unreachable at {{host}}:9000 — peer-to-peer games may fail to connect. Check that the cloud's bmo-peerjs container is running.",
+      "signalingNotApplicable": "Only checked on a direct LAN connection. Off-LAN, games run through the cloud relay — no peer-to-peer signaling server is needed.",
       "signalingChecking": "Checking the signaling server…"
     }
   },

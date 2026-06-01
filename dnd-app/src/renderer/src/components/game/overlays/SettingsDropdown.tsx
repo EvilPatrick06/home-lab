@@ -21,7 +21,7 @@ import { useLobbyStore } from '../../../stores/use-lobby-store'
 import type { Campaign } from '../../../types/campaign'
 import { formatInGameTime } from '../../../utils/calendar-utils'
 import { logger } from '../../../utils/logger'
-import { Tooltip } from '../../ui'
+import { ConfirmDialog, Tooltip } from '../../ui'
 import type { DiceColors } from '../dice3d'
 import { clearDmAlerts } from './DmAlertTray'
 
@@ -301,6 +301,9 @@ export default function SettingsDropdown({
   const setTurnMode = useGameStore((s) => s.setTurnMode)
   const endInitiative = useGameStore((s) => s.endInitiative)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  // GM-1 — End Session ends the game for everyone; confirm first (the lobby's
+  // "Leave Lobby" already confirms, so a stray click here shouldn't be destructive).
+  const [showEndSessionConfirm, setShowEndSessionConfirm] = useState(false)
 
   const playerCount = campaign.players.filter((p) => p.isActive).length
 
@@ -440,10 +443,7 @@ export default function SettingsDropdown({
             </button>
             {isDM && onEndSession ? (
               <button
-                onClick={() => {
-                  clearDmAlerts()
-                  onEndSession()
-                }}
+                onClick={() => setShowEndSessionConfirm(true)}
                 className="w-full px-4 py-2 text-left text-xs text-red-400 hover:bg-red-900/30 hover:text-red-300 transition-colors cursor-pointer font-semibold"
               >
                 {t('game.settingsDropdown.endSession')}
@@ -463,6 +463,19 @@ export default function SettingsDropdown({
           </div>
         </div>
       )}
+      <ConfirmDialog
+        open={showEndSessionConfirm}
+        title={t('game.settingsDropdown.endSessionConfirmTitle')}
+        message={t('game.settingsDropdown.endSessionConfirmMessage')}
+        confirmLabel={t('game.settingsDropdown.endSession')}
+        variant="danger"
+        onConfirm={() => {
+          setShowEndSessionConfirm(false)
+          clearDmAlerts()
+          onEndSession?.()
+        }}
+        onCancel={() => setShowEndSessionConfirm(false)}
+      />
     </div>
   )
 }

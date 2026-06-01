@@ -33,8 +33,12 @@ const STATUS_TIMEOUT_MS = 8_000
 // Archive transfer (up/down) — generous; a campaign with map/audio assets over
 // the upstream link can take a while, but still bounded so a hung tunnel fails.
 const TRANSFER_TIMEOUT_MS = 180_000
-// A short ceiling for the campaign-list query (drives the restore picker).
-const LIST_TIMEOUT_MS = 15_000
+// Ceiling for the campaign-list query (drives the restore picker). CLD-1 — 15s
+// was too tight: the Pi's rclone list + Cloudflare-tunnel latency could exceed it
+// (especially when a concurrent backup is mid-flight), so the first "List Backups"
+// click intermittently failed "This operation was aborted" and only a retry
+// succeeded. 30s gives enough headroom while still bounding a genuinely hung tunnel.
+const LIST_TIMEOUT_MS = 30_000
 // The BMO `/backup` route caps the upload at 512 MiB (BMO_MAX_BACKUP_SIZE). Catch
 // it client-side with a clear message instead of a raw 413 after a long upload.
 const MAX_BACKUP_BYTES = 512 * 1024 * 1024

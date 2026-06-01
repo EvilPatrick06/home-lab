@@ -57,7 +57,7 @@ export interface FacilitySliceState {
   startConstruction: (
     bastionId: string,
     project: Omit<ConstructionProject, 'id' | 'startedAt' | 'daysCompleted'>
-  ) => void
+  ) => 'started' | 'insufficient-funds' | 'not-found'
   completeConstruction: (bastionId: string, projectId: string) => void
   buildDefensiveWalls: (bastionId: string, squares: number) => void
   depositGold: (bastionId: string, amount: number) => void

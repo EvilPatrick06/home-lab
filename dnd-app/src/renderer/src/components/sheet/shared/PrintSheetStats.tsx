@@ -25,9 +25,17 @@ interface PrintSheetStatsProps {
 
 export default function PrintSheetStats({ character, proficiencyBonus: pb }: PrintSheetStatsProps): JSX.Element {
   const { t } = useT()
-  const hitDiceStr = getEffectiveClasses(character)
-    .map((c: CharacterClass5e) => `${c.level}d${c.hitDie}`)
-    .join(' + ')
+  // CHR-1 — derive hit dice from the canonical character.hitDice[] (the parsed
+  // dieType the live sheet + short-rest read and show correctly), NOT
+  // getEffectiveClasses().hitDie, which mis-read the class entry's "D12" string
+  // and printed the wrong die (a Barbarian printed 1d10 instead of 1d12). Fall
+  // back to the class list only when a character has no hit-dice pool yet.
+  const hitDiceStr =
+    character.hitDice && character.hitDice.length > 0
+      ? character.hitDice.map((h) => `${h.maximum}d${h.dieType}`).join(' + ')
+      : getEffectiveClasses(character)
+          .map((c: CharacterClass5e) => `${c.level}d${c.hitDie}`)
+          .join(' + ')
   const weapons = getEffectiveWeapons(character)
 
   return (

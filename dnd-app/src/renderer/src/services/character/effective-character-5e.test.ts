@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from 'vitest'
 // getEffectivePreparedSpellIds itself reads only the character, not the library.
 vi.stubGlobal('window', { api: { storage: {}, game: {} } })
 
-import { getEffectivePreparedSpellIds } from './effective-character-5e'
+import { getEffectiveClasses, getEffectivePreparedSpellIds } from './effective-character-5e'
 
 type Char = Parameters<typeof getEffectivePreparedSpellIds>[0]
 
@@ -49,5 +49,26 @@ describe('getEffectivePreparedSpellIds', () => {
   it('skips prepared instanceIds that no longer resolve to a known spell', () => {
     const c = char([{ instanceId: 'i1', ref: { entryId: 'fireball' } }], { i1: true, ghost: true })
     expect(getEffectivePreparedSpellIds(c)).toEqual(['fireball'])
+  })
+})
+
+describe('getEffectiveClasses hit die (CHR-1)', () => {
+  // The library store has no classes loaded in the node test env, so
+  // getEffectiveClasses falls back to ref.overrides — exactly the shape class
+  // library entries use (coreTraits.hitPointDie is a STRING like "D12").
+  function classChar(overrides: unknown): Parameters<typeof getEffectiveClasses>[0] {
+    return { classRefs: [{ level: 1, ref: { entryId: 'barbarian', overrides } }] } as unknown as Parameters<
+      typeof getEffectiveClasses
+    >[0]
+  }
+
+  it('parses a "D12" hitPointDie string to 12 (was printing 1d10)', () => {
+    const c = classChar({ name: 'Barbarian', coreTraits: { hitPointDie: 'D12' } })
+    expect(getEffectiveClasses(c)[0].hitDie).toBe(12)
+  })
+
+  it('accepts a numeric hitDie and defaults to 10 when no die info is present', () => {
+    expect(getEffectiveClasses(classChar({ hitDie: 8 }))[0].hitDie).toBe(8)
+    expect(getEffectiveClasses(classChar({ name: 'Mystery' }))[0].hitDie).toBe(10)
   })
 })

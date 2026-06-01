@@ -3,7 +3,7 @@
  * Run `npm run i18n:gen-keys` (scripts/i18n/gen-key-union.mjs) to regenerate
  * after changing en.json. Source: src/renderer/src/i18n/locales/en.json.
  *
- * A literal union of every dotted leaf key in en.json (5994 keys),
+ * A literal union of every dotted leaf key in en.json (6003 keys),
  * so `t()` calls are checked at compile time instead of silently rendering a
  * raw key string when a key is typo'd or missing.
  */
@@ -1042,6 +1042,7 @@ export type TranslationKey =
   | 'game.chatPanel.systemSender'
   | 'game.chatPanel.tokens'
   | 'game.chatPanel.tokensTitle'
+  | 'game.chatPanel.unknownCommand'
   | 'game.clockOverlay.advance10min'
   | 'game.clockOverlay.advance1hr'
   | 'game.clockOverlay.advance1min'
@@ -1326,6 +1327,7 @@ export type TranslationKey =
   | 'game.diceRoller.hideHistory'
   | 'game.diceRoller.history'
   | 'game.diceRoller.increaseModifier'
+  | 'game.diceRoller.invalidFormula'
   | 'game.diceRoller.mod'
   | 'game.diceRoller.normal'
   | 'game.diceRoller.resultsLabel'
@@ -3063,6 +3065,8 @@ export type TranslationKey =
   | 'game.settingsDropdown.edit'
   | 'game.settingsDropdown.editCount'
   | 'game.settingsDropdown.endSession'
+  | 'game.settingsDropdown.endSessionConfirmMessage'
+  | 'game.settingsDropdown.endSessionConfirmTitle'
   | 'game.settingsDropdown.enterF11'
   | 'game.settingsDropdown.enterFullscreen'
   | 'game.settingsDropdown.exitF11'
@@ -4362,6 +4366,8 @@ export type TranslationKey =
   | 'pages.addBasicFacilityModal.build'
   | 'pages.addBasicFacilityModal.costConstruction'
   | 'pages.addBasicFacilityModal.cramped'
+  | 'pages.addBasicFacilityModal.insufficientFunds'
+  | 'pages.addBasicFacilityModal.queued'
   | 'pages.addBasicFacilityModal.roomy'
   | 'pages.addBasicFacilityModal.size'
   | 'pages.addBasicFacilityModal.title'
@@ -4684,6 +4690,7 @@ export type TranslationKey =
   | 'pages.facilityTabs.remove'
   | 'pages.facilityTabs.sampleGuilds'
   | 'pages.facilityTabs.specialFacilities'
+  | 'pages.facilityTabs.specialLockedLevel5'
   | 'pages.facilityTabs.squaresTitle'
   | 'pages.facilityTabs.trainer'
   | 'pages.facilityTabs.trainerBattle'
@@ -5015,9 +5022,11 @@ export type TranslationKey =
   | 'pages.settingsPage.backedUpCampaigns'
   | 'pages.settingsPage.backingUp'
   | 'pages.settingsPage.backupCompleted'
+  | 'pages.settingsPage.backupCompletedAll'
   | 'pages.settingsPage.backupFailed'
   | 'pages.settingsPage.backupFailedReachable'
   | 'pages.settingsPage.backupNow'
+  | 'pages.settingsPage.backupPartial'
   | 'pages.settingsPage.categoryCombat'
   | 'pages.settingsPage.categoryGeneral'
   | 'pages.settingsPage.categoryNavigation'

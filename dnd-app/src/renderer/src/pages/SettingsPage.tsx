@@ -763,15 +763,25 @@ function CloudBackupSection(): JSX.Element {
     setLoading('backup')
     setMessage(null)
     try {
-      // Load the current campaigns to pick the first one (or the most recently used)
-      const campaigns = await window.api.loadCampaigns()
+      const campaigns = (await window.api.loadCampaigns()) as { id: string; name: string }[] | null
       if (!campaigns || campaigns.length === 0) {
         setMessage({ text: t('pages.settingsPage.noCampaignsToBackup'), type: 'error' })
         return
       }
-      const campaign = campaigns[0] as { id: string; name: string }
-      const result = await window.api.cloudSync.backupCampaign(campaign.id, campaign.name)
-      if (result.success) {
+      // CLD-2 — back up EVERY campaign, not just campaigns[0]. "Backup Now" implies
+      // all data; backing up only the first silently left the rest unprotected.
+      let succeeded = 0
+      const failures: string[] = []
+      for (const campaign of campaigns) {
+        try {
+          const result = await window.api.cloudSync.backupCampaign(campaign.id, campaign.name)
+          if (result.success) succeeded++
+          else failures.push(campaign.name)
+        } catch {
+          failures.push(campaign.name)
+        }
+      }
+      if (succeeded > 0) {
         const now = new Date().toISOString()
         setSyncState((prev) => ({ ...prev, lastBackupTime: now }))
         // Persist so both the display and the on-launch staleness nudge survive a relaunch.
@@ -781,9 +791,16 @@ function CloudBackupSection(): JSX.Element {
         } catch {
           /* best-effort persist */
         }
-        setMessage({ text: result.message ?? t('pages.settingsPage.backupCompleted'), type: 'success' })
+      }
+      if (failures.length === 0) {
+        setMessage({ text: t('pages.settingsPage.backupCompletedAll', { count: succeeded }), type: 'success' })
+      } else if (succeeded > 0) {
+        setMessage({
+          text: t('pages.settingsPage.backupPartial', { succeeded, failed: failures.length }),
+          type: 'error'
+        })
       } else {
-        setMessage({ text: result.error ?? t('pages.settingsPage.backupFailed'), type: 'error' })
+        setMessage({ text: t('pages.settingsPage.backupFailed'), type: 'error' })
       }
     } catch {
       setMessage({ text: t('pages.settingsPage.backupFailedReachable'), type: 'error' })

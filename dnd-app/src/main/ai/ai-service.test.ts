@@ -236,12 +236,15 @@ describe('ai-service', () => {
       )
     })
 
-    it('defaults model to llama3.1 if not provided', async () => {
+    it('defaults model to the curated llama3.2:3b if not provided', async () => {
+      // AI-1 — the old default 'llama3.1' was not an installable curated model
+      // (curated has 'llama3.1:8b'/'llama3.1:70b'), so campaigns saved a model that
+      // 404'd on use. The default is now the recommended installable 'llama3.2:3b'.
       await configure({ provider: 'ollama', model: '', ollamaUrl: '' })
 
       const writtenJson = (writeFile as ReturnType<typeof vi.fn>).mock.calls[0][1]
       const parsed = JSON.parse(writtenJson)
-      expect(parsed.model).toBe('llama3.1')
+      expect(parsed.model).toBe('llama3.2:3b')
     })
   })
 

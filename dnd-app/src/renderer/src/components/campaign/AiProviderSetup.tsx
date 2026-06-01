@@ -147,6 +147,23 @@ export default function AiProviderSetup({
     }
   }, [enabled, provider, apiKey, detectOllamaStatus, onProviderReady])
 
+  // AI-3 — recognize an already-installed model as ready without re-pulling. When
+  // the Ollama provider is selected and the current model isn't installed but
+  // another model IS, switch the selection to an installed model (preferring a
+  // curated one). Changing `model` re-runs detectOllamaStatus, which then marks
+  // readiness + enables Next. Idempotent: once `model` is installed the guard
+  // returns early. Kept separate from detectOllamaStatus (which runs IPC) so it
+  // never re-triggers detection.
+  useEffect(() => {
+    if (provider !== 'ollama' || installedModels.length === 0) return
+    const isInstalled = (id: string): boolean => installedModels.some((m) => m.startsWith(id.split(':')[0]))
+    if (isInstalled(model)) return
+    const next = curatedModels.find((c) => isInstalled(c.id))?.id ?? installedModels[0]
+    if (next && next !== model) {
+      onChange({ enabled, provider, model: next, ollamaUrl, apiKey })
+    }
+  }, [installedModels, curatedModels, model, provider, enabled, ollamaUrl, apiKey, onChange])
+
   const handleAutoSetup = async (): Promise<void> => {
     setErrorMessage(null)
     try {
@@ -253,7 +270,7 @@ export default function AiProviderSetup({
                       setKeyValid(null)
                       // Set a sensible default model for each provider
                       const defaultModels: Record<string, string> = {
-                        ollama: 'llama3.1',
+                        ollama: 'llama3.2:3b',
                         claude: 'claude-sonnet-4-6',
                         openai: 'gpt-4o',
                         gemini: 'gemini-2.0-flash'

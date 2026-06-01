@@ -330,6 +330,9 @@ export function SpecialTab({
           {t('pages.facilityTabs.addSpecialFacility')}
         </button>
       </div>
+      {/* BAS-2 — at owner level < 5 there are 0 special-facility slots and Add is
+          disabled with no explanation; tell the user why it's locked. */}
+      {maxSpecial === 0 && <p className="text-xs text-amber-500">{t('pages.facilityTabs.specialLockedLevel5')}</p>}
       {bastion.specialFacilities.length === 0 ? (
         <div className="text-sm text-gray-500 bg-surface rounded-lg p-4">
           {t('pages.facilityTabs.noSpecialFacilities')}

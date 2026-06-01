@@ -136,10 +136,13 @@ export async function listCharacterVersions(id: string): Promise<StorageResult<C
       const fileStat = await stat(join(versionsDir, f))
       // Extract timestamp from filename: id_YYYY-MM-DDTHH-MM-SS-MMMZ.json
       const tsMatch = f.match(/_(\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2})/)
+      // CHR-2 — the filename timestamp is UTC (`new Date().toISOString()`), but the
+      // capture above drops the trailing `Z`. Without it, `new Date(timestamp)` in
+      // the renderer parses the string as LOCAL time, so version history shows
+      // ~hours off (a 1:03 PM edit rendered as 7:03 PM at UTC-6). Re-append `Z` so
+      // it parses as UTC and `toLocaleString()` converts to the viewer's local zone.
       const timestamp = tsMatch
-        ? tsMatch[1]
-            .replace(/-/g, (m, offset: number) => (offset > 9 ? ':' : m))
-            .replace(/T(\d{2}):(\d{2}):(\d{2})/, 'T$1:$2:$3')
+        ? `${tsMatch[1].replace(/-/g, (m, offset: number) => (offset > 9 ? ':' : m))}Z`
         : fileStat.mtime.toISOString()
       versions.push({ fileName: f, timestamp, sizeBytes: fileStat.size })
     }

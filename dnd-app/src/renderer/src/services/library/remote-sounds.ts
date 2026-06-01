@@ -1,21 +1,26 @@
 import { resolveBmoBaseUrl } from '../../network/registry-client'
 
 /**
- * Thin-installer sound resolver (renderer side).
+ * Sound URL resolver (renderer side).
  *
- * The app NO LONGER ships the ~130 MP3s under `public/sounds/` — they're dropped
- * from the package to shrink the installer (~12 MB). They're fetched from the Pi
- * on first online use and cached on disk by the MAIN process
- * (`src/main/sound-cache.ts`, IPC `sound-cache:get` / `sound-cache:prewarm`), so
- * a clip plays from disk on every subsequent launch — online or offline.
+ * The ~130 bundled MP3s under `public/sounds/` ship with the app (the
+ * `!out/renderer/sounds/**` package exclusion that dropped them was removed —
+ * it broke this resolver's own bundled-path fallback, so every clip 404'd
+ * (`net::ERR_FILE_NOT_FOUND`) whenever the Pi was cold/unreachable). The
+ * Pi-hosted copies remain a bandwidth optimization: the MAIN process can
+ * pre-download them into a disk cache (`src/main/sound-cache.ts`, IPC
+ * `sound-cache:get` / `sound-cache:prewarm`) so a warmed clip plays from the
+ * local cache (or streams from the Pi) instead of the bundled file. Because the
+ * bundled file is always present, a clip never 404s.
  *
- * Because there is no bundled fallback anymore, {@link resolveSoundUrl} resolves
- * in this order:
- *   1. CACHED on disk → `file://<userData>/sound-cache/<rel>` (works offline).
- *   2. else → the live Pi HTTP URL `<base>/api/sounds/file?path=<rel>` so
- *      `new Audio()` can stream it directly (governed by CSP `media-src`, which
- *      permits `http:`/`file:`, not `connect-src`).
- *   3. non-`./sounds/` paths (custom user tracks, absolute paths) pass through
+ * {@link resolveSoundUrl} resolves in this order:
+ *   1. CACHED on disk → `file://<userData>/sound-cache/<rel>` (Pi offload, warm).
+ *   2. else served-but-not-yet-cached → the live Pi HTTP URL
+ *      `<base>/api/sounds/file?path=<rel>` so `new Audio()` can stream it
+ *      directly (governed by CSP `media-src`, which permits `http:`/`file:`,
+ *      not `connect-src`).
+ *   3. else → the bundled `./sounds/<rel>` path (always shipped in the package).
+ *   4. non-`./sounds/` paths (custom user tracks, absolute paths) pass through
  *      unchanged.
  *
  * Why a SYNCHRONOUS resolver (not an async per-file fetch): sounds are created
@@ -38,8 +43,8 @@ import { resolveBmoBaseUrl } from '../../network/registry-client'
  *     (`<rel>` WITHOUT the leading `./sounds/`, e.g. `dice/d20-1.mp3`).
  *   - `GET /api/sounds/file?path=<rel>` → the raw audio bytes.
  *
- * Tradeoff (intended ship-thin): offline + no Pi + cold cache = silence until the
- * first online session warms the cache.
+ * Offline / no-Pi / cold cache: clips play from the bundled files (precedence
+ * step 3). The Pi cache only avoids re-loading the bundled copy when warm.
  *
  * Deps (fetch / base-URL / IPC bridge) are injectable for tests.
  */
@@ -179,7 +184,8 @@ export function prewarmRemoteSounds(): Promise<void> {
  * Resolve a bundled `./sounds/...` path to the URL an `Audio` element should
  * load. Synchronous so it drops into existing `new Audio(resolveSoundUrl(path))`
  * call sites. Precedence: cached on-disk `file://` URL → live Pi HTTP URL (when
- * the manifest is warm and lists the clip) → the path unchanged.
+ * the manifest is warm and lists the clip) → the bundled `./sounds/...` path
+ * (which ships in the package, so it always resolves).
  */
 export function resolveSoundUrl(bundledPath: string): string {
   const rel = mapSoundPathToRel(bundledPath)
@@ -187,10 +193,12 @@ export function resolveSoundUrl(bundledPath: string): string {
   const cached = cachedPaths.get(rel)
   if (cached) return toFileUrl(cached)
   // No cached copy yet. If the manifest is warm and serves this clip, stream it
-  // live from the Pi (the bundled file no longer exists to fall back to).
+  // live from the Pi (saves loading the bundled copy).
   if (warmed && baseUrl !== null && servedRels.has(rel)) {
     return `${baseUrl}/api/sounds/file?path=${encodeURIComponent(rel)}`
   }
-  // Cold manifest / not served — return the path unchanged (nothing else to do).
+  // Cold manifest / not served — fall back to the bundled file. It ships in the
+  // package (the `!out/renderer/sounds/**` exclusion was removed), so the
+  // `./sounds/<rel>` path resolves against the renderer base and plays.
   return bundledPath
 }
