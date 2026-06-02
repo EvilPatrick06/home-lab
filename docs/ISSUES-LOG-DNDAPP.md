@@ -30,6 +30,30 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## Critical / High / Medium / Low
 
+### [2026-06-01] LAN self-host P2P resolves to bare `bmo` which clients can't resolve
+
+- **Category:** bug
+- **Severity:** medium
+- **Domain:** dnd-app
+- **Discovered by:** Claude Code
+- **During:** two-window multiplayer test (user console)
+
+**Description:**
+On the two-window test the renderer resolved the Pi signaling host to bare `bmo`
+(`ws://bmo:9000/myapp/peerjs` + WebRTC `Failed to resolve address for bmo.`
+errorcode -105). The bare `bmo` hostname only resolves where the OS has a matching
+DNS suffix/NetBIOS — a typical Windows client resolves `bmo.local` (mDNS/Bonjour)
+or the LAN IP, NOT bare `bmo`. So on-LAN self-host P2P can't connect cross-machine
+even with the v2.4.18 CSP allowance. (The same console also showed public STUN
+`Failed to resolve` — that machine had broader DNS issues, separate.)
+
+**Proposed fix / improvement:**
+- [ ] `lan-discovery` should register/prefer a universally-resolvable Pi address (the mDNS A-record LAN IP, or `bmo.local`) over bare `bmo` for the signaling host (`src/main/lan-discovery.ts:280` hostname candidates).
+- [ ] Or have `configureForP2P` map a bare-hostname base to its `.local` form / discovered IP.
+- [ ] Cloud (tunnel) hosting is unaffected — it uses `bmo.mybmoai.work` (public DNS).
+
+**Related files:** `dnd-app/src/main/lan-discovery.ts:280`, `dnd-app/src/renderer/src/network/peer-manager.ts` (configureForP2P)
+
 ### [2026-06-01] Signaling-status badge stays "not applicable" off-LAN
 
 - **Category:** UX, debt
