@@ -452,7 +452,9 @@
       "hostingThisDevice": "Este dispositivo",
       "hostingThisDeviceDesc": "Punto a punto: tu computadora aloja la partida. Debe permanecer en línea y accesible.",
       "hostingCloud": "Relé en la nube",
-      "hostingCloudDesc": "Los jugadores se conectan a través de BMO Cloud siempre activo — sin configuración de NAT/cortafuegos."
+      "hostingCloudDesc": "Los jugadores se conectan a través de BMO Cloud siempre activo — sin configuración de NAT/cortafuegos.",
+      "hostingSolo": "Solo (individual)",
+      "hostingSoloDesc": "Un jugador. Sin alojamiento multijugador ni sala — solo tú, mediante Jugar en solitario."
     },
     "hostNamePrompt": {
       "title": "Elige el nombre del anfitrión",

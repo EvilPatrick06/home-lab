@@ -100,10 +100,11 @@ export interface Campaign {
   presetId?: string
   dmId: string
   inviteCode: string
-  /** Phase 32 — how this campaign is hosted: `'p2p'` (WebRTC mesh, this device)
-   * or `'cloud'` (Pi Socket.IO relay). Optional/undefined → treated as `'p2p'`
+  /** Phase 32 — how this campaign is hosted: `'p2p'` (WebRTC mesh, this device),
+   * `'cloud'` (Pi Socket.IO relay), or `'solo'` (single-player only — no hosting
+   * or lobby; entered via Solo Play). Optional/undefined → treated as `'p2p'`
    * so pre-32 campaigns keep their behavior. */
-  hostingMode?: 'p2p' | 'cloud'
+  hostingMode?: 'p2p' | 'cloud' | 'solo'
   turnMode: TurnMode
   maps: GameMap[]
   activeMapId?: string

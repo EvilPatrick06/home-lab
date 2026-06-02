@@ -452,7 +452,9 @@
       "hostingThisDevice": "This device",
       "hostingThisDeviceDesc": "Peer-to-peer: your computer hosts. Must stay online and reachable.",
       "hostingCloud": "Cloud relay",
-      "hostingCloudDesc": "Players connect through the always-on BMO Cloud — no NAT/firewall setup."
+      "hostingCloudDesc": "Players connect through the always-on BMO Cloud — no NAT/firewall setup.",
+      "hostingSolo": "Solo only",
+      "hostingSoloDesc": "Single-player. No multiplayer hosting or lobby — just you, via Solo Play."
     },
     "hostNamePrompt": {
       "title": "Choose Host Name",

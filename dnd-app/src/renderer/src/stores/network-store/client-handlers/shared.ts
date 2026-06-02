@@ -7,8 +7,13 @@ export const customAudioUrlCache = new Map<string, string>()
 /** Apply a partial game state update from the network */
 export function applyGameState(data: Record<string, unknown>): void {
   if (!data || typeof data !== 'object' || Array.isArray(data)) return
-  // Prototype pollution protection
-  if ('__proto__' in data || 'constructor' in data || 'prototype' in data) {
+  // Prototype-pollution protection — check OWN keys only. The old check used
+  // `'constructor' in data`, but `'constructor'`/`'__proto__'` are ALWAYS `in` any
+  // object (inherited from Object.prototype), so it blocked EVERY state update and
+  // broke ALL multiplayer sync (no client ever applied the host's game state).
+  // JSON.parse surfaces a malicious "__proto__"/"constructor"/"prototype" as an OWN
+  // key — that's the real pollution vector, and the only thing we reject.
+  if (Object.hasOwn(data, '__proto__') || Object.hasOwn(data, 'constructor') || Object.hasOwn(data, 'prototype')) {
     console.warn('[Network] Blocked state update with unsafe prototype keys')
     return
   }

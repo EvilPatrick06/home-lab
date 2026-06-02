@@ -300,9 +300,12 @@ export default function CampaignDetailPage(): JSX.Element {
           <Button variant="secondary" onClick={handleStartSolo}>
             {t('pages.campaignDetailPage.soloPlay')}
           </Button>
-          <Button onClick={handleStartGame} disabled={starting}>
-            {starting ? t('pages.campaignDetailPage.starting') : t('pages.campaignDetailPage.hostGame')}
-          </Button>
+          {/* CAMP-1 — a solo-only campaign has no multiplayer host path; only Solo Play applies. */}
+          {campaign.hostingMode !== 'solo' && (
+            <Button onClick={handleStartGame} disabled={starting}>
+              {starting ? t('pages.campaignDetailPage.starting') : t('pages.campaignDetailPage.hostGame')}
+            </Button>
+          )}
         </div>
       </div>
 

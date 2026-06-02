@@ -79,8 +79,8 @@ export default function CampaignWizard(): JSX.Element {
   const [turnMode, setTurnMode] = useState<TurnMode>('initiative')
   const [lobbyMessage, setLobbyMessage] = useState('')
   const [isPublic, setIsPublic] = useState(true)
-  // Phase 32 — 'p2p' (this device) vs 'cloud' (Pi relay). Default p2p.
-  const [hostingMode, setHostingMode] = useState<'p2p' | 'cloud'>('p2p')
+  // Phase 32 — 'p2p' (this device), 'cloud' (Pi relay), or 'solo' (single-player). Default p2p.
+  const [hostingMode, setHostingMode] = useState<'p2p' | 'cloud' | 'solo'>('p2p')
   const [campaignType, setCampaignType] = useState<CampaignType>('custom')
   const [selectedAdventureId, setSelectedAdventureId] = useState<string | null>(null)
   const [customRules, setCustomRules] = useState<CustomRule[]>([])

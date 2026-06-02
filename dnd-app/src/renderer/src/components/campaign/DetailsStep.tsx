@@ -11,8 +11,9 @@ interface DetailsData {
   lobbyMessage: string
   isPublic: boolean
   /** Phase 32 — 'p2p' = this device hosts the WebRTC mesh; 'cloud' = the
-   * always-on Pi relays the session. Default 'p2p'. */
-  hostingMode: 'p2p' | 'cloud'
+   * always-on Pi relays the session; 'solo' = single-player only (no hosting).
+   * Default 'p2p'. */
+  hostingMode: 'p2p' | 'cloud' | 'solo'
 }
 
 interface DetailsStepProps {
@@ -200,6 +201,19 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
             >
               <div className="font-semibold text-sm">{t('campaign.detailsStep.hostingCloud')}</div>
               <div className="text-xs text-muted mt-1">{t('campaign.detailsStep.hostingCloudDesc')}</div>
+            </button>
+            <button
+              type="button"
+              onClick={() => update('hostingMode', 'solo')}
+              className={`flex-1 p-3 rounded-lg border text-left transition-all cursor-pointer
+                ${
+                  data.hostingMode === 'solo'
+                    ? 'border-amber-500 bg-amber-900/20'
+                    : 'border-border bg-surface/50 hover:border-gray-600'
+                }`}
+            >
+              <div className="font-semibold text-sm">{t('campaign.detailsStep.hostingSolo')}</div>
+              <div className="text-xs text-muted mt-1">{t('campaign.detailsStep.hostingSoloDesc')}</div>
             </button>
           </div>
         </div>
