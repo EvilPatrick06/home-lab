@@ -147,7 +147,11 @@ export default function JoinGamePage(): JSX.Element {
 
       const raw = localStorage.getItem(LAST_SESSION_KEY)
       if (!raw) return
-      const session = JSON.parse(raw) as { inviteCode: string; displayName: string }
+      const session = JSON.parse(raw) as {
+        inviteCode: string
+        displayName: string
+        connectionMode?: 'p2p' | 'cloud'
+      }
       if (!session.inviteCode || !session.displayName) return
 
       autoRejoinTriggered.current = true
@@ -158,7 +162,11 @@ export default function JoinGamePage(): JSX.Element {
         try {
           setError(null)
           localStorage.setItem(DISPLAY_NAME_KEY, session.displayName)
-          await joinGame(session.inviteCode, session.displayName, resolveConnectionMode())
+          // Prefer the mode the session was actually joined with — an on-LAN
+          // rejoin of a CLOUD game must not fall back to p2p (resolveConnectionMode
+          // with no arg picks p2p on-LAN). Legacy sessions without the field fall
+          // back to the LAN/off-LAN default.
+          await joinGame(session.inviteCode, session.displayName, resolveConnectionMode(session.connectionMode))
           setWaitingForCampaign(true)
         } catch (err) {
           logger.error('[JoinGame] Auto-rejoin failed:', err)
@@ -184,6 +192,7 @@ export default function JoinGamePage(): JSX.Element {
           displayName: displayNameNow,
           campaignId,
           campaignName: '',
+          connectionMode: useNetworkStore.getState().connectionMode,
           timestamp: Date.now()
         }
         localStorage.setItem(LAST_SESSION_KEY, JSON.stringify(session))

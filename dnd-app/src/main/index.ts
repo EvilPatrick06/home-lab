@@ -199,19 +199,20 @@ function createWindow(): void {
     // use dynamic inline styles. CSP style-src can't execute code, so inline
     // styles are a low-risk allowance (script-src stays strict — no inline/eval
     // in prod). Without it the Journal editor's CSS is blocked + renders broken.
-    // On-LAN P2P signals through the Pi's PeerServer (bmo-peerjs :9000). The
-    // renderer dials whatever lan-discovery registered — now a numeric LAN IP (it
-    // resolves the mDNS hostname to its A-record before registering, since the
-    // sandboxed renderer can't resolve bare `bmo`), but possibly still a
-    // `bmo`/`bmo.local` name on a fallback. That host can differ from / lag the
-    // per-response `piConnect` fragment (discovery races the document load, and the
-    // DOCUMENT's CSP is fixed at load time). Allow the PeerServer port on ANY host
-    // statically — scoped to :9000, the only port the renderer dials for P2P
-    // signaling — so `ws://<ip-or-name>:9000/myapp` (+ its `/peerjs/id` fetch) isn't
-    // CSP-blocked regardless of which form discovery lands on. Tunnel/off-LAN P2P
-    // uses the `wss://<tunnel>:*` covered by `piConnect`.
-    const lanPeerServer = ' ws://*:9000 http://*:9000'
-    const csp = `default-src 'self' plugin:; script-src 'self' plugin:${inlinePolicy}; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' plugin:; connect-src 'self' plugin: data: wss://0.peerjs.com https://0.peerjs.com${lanPeerServer}${piConnect}${devConnect}; img-src 'self' data: blob: plugin:; media-src 'self' blob: data: file: http: plugin:; font-src 'self' plugin:`
+    // The renderer makes TWO kinds of direct LAN connection to the Pi: P2P
+    // signaling through the PeerServer (bmo-peerjs :9000) and the cloud-relay
+    // Socket.IO transport through Flask (:5000). On-LAN it dials whatever
+    // lan-discovery registered — now a numeric LAN IP (the mDNS hostname is
+    // resolved to its A-record before registering, since the sandboxed renderer
+    // can't resolve bare `bmo`). That host is discovered AFTER the window loads, so
+    // it can differ from / lag the per-response `piConnect` fragment, and the
+    // DOCUMENT's CSP is fixed at load time. Allow BOTH BMO LAN ports on ANY host
+    // statically — :9000 (P2P `ws://<host>:9000/myapp` + `/peerjs/id`) and :5000
+    // (cloud relay `http://<host>:5000/socket.io` + its `ws://` upgrade) — so
+    // neither is CSP-blocked regardless of which form/timing discovery lands on.
+    // Off-LAN both paths use the `wss://<tunnel>:*` covered by `piConnect`.
+    const lanBmoPorts = ' ws://*:9000 http://*:9000 ws://*:5000 http://*:5000'
+    const csp = `default-src 'self' plugin:; script-src 'self' plugin:${inlinePolicy}; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' plugin:; connect-src 'self' plugin: data: wss://0.peerjs.com https://0.peerjs.com${lanBmoPorts}${piConnect}${devConnect}; img-src 'self' data: blob: plugin:; media-src 'self' blob: data: file: http: plugin:; font-src 'self' plugin:`
     callback({
       responseHeaders: {
         ...details.responseHeaders,

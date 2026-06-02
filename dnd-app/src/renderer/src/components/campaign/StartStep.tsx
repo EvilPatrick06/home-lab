@@ -13,6 +13,9 @@ interface JoinedSession {
   displayName: string
   campaignId: string
   campaignName: string
+  // The transport this session was joined with, so an on-LAN auto-rejoin of a
+  // CLOUD game doesn't fall back to p2p. Optional for legacy stored sessions.
+  connectionMode?: 'p2p' | 'cloud'
   timestamp: number
 }
 
