@@ -15,6 +15,10 @@ REM  get the freshest build. (A release stays a DRAFT until its CI build finishe
 REM  ~8-10 min after a tag, and drafts are ignored here — you always get a fully
 REM  built, asset-complete release, never a half-built one.)
 REM
+REM  CLEAN SLATE: any already-running D&D VTT windows are closed FIRST — before
+REM  the update and before launching — so the updater can replace files and no
+REM  stray instance holds the single-window lock.
+REM
 REM  Gated: this is the ONLY way to get two windows. Normal use stays single-
 REM  window — the app only bypasses the single-instance lock when this script
 REM  sets DNDVTT_TEST_MULTI=1.
@@ -27,6 +31,14 @@ REM ===========================================================================
 setlocal
 
 set "APP=%LOCALAPPDATA%\Programs\dnd-vtt\dnd-vtt.exe"
+
+REM --- Close ALL running app instances first --------------------------------
+REM  Clean slate before updating + launching: a running instance would block the
+REM  silent installer from replacing files, and a stray default-profile window
+REM  would hold the single-instance lock. /T also kills child processes (helper
+REM  + GPU procs). Quiet + non-fatal if nothing is running.
+echo Closing any running D^&D VTT windows...
+taskkill /IM dnd-vtt.exe /F /T >nul 2>&1
 
 REM --- Self-update to the latest published release (best-effort) -------------
 REM  All PowerShell strings below are SINGLE-quoted so the outer double quotes
