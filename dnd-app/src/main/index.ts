@@ -177,14 +177,18 @@ function createWindow(): void {
     // use dynamic inline styles. CSP style-src can't execute code, so inline
     // styles are a low-risk allowance (script-src stays strict — no inline/eval
     // in prod). Without it the Journal editor's CSS is blocked + renders broken.
-    // On-LAN P2P signals through the Pi's PeerServer (bmo-peerjs :9000) at the
-    // standard mDNS hostnames. The renderer resolves the LAN host (e.g. `bmo`)
-    // which can differ from / lag the per-response `piConnect` fragment (mDNS
-    // discovery races the document load, and the DOCUMENT's CSP is fixed at load
-    // time). Allow the mDNS PeerServer hosts statically so `ws://bmo:9000/myapp`
-    // (and its `/peerjs/id` fetch) isn't CSP-blocked. Tunnel/off-LAN P2P uses the
-    // `wss://<tunnel>:*` covered by `piConnect`.
-    const lanPeerServer = ' ws://bmo:* http://bmo:* ws://bmo.local:* http://bmo.local:*'
+    // On-LAN P2P signals through the Pi's PeerServer (bmo-peerjs :9000). The
+    // renderer dials whatever lan-discovery registered — now a numeric LAN IP (it
+    // resolves the mDNS hostname to its A-record before registering, since the
+    // sandboxed renderer can't resolve bare `bmo`), but possibly still a
+    // `bmo`/`bmo.local` name on a fallback. That host can differ from / lag the
+    // per-response `piConnect` fragment (discovery races the document load, and the
+    // DOCUMENT's CSP is fixed at load time). Allow the PeerServer port on ANY host
+    // statically — scoped to :9000, the only port the renderer dials for P2P
+    // signaling — so `ws://<ip-or-name>:9000/myapp` (+ its `/peerjs/id` fetch) isn't
+    // CSP-blocked regardless of which form discovery lands on. Tunnel/off-LAN P2P
+    // uses the `wss://<tunnel>:*` covered by `piConnect`.
+    const lanPeerServer = ' ws://*:9000 http://*:9000'
     const csp = `default-src 'self' plugin:; script-src 'self' plugin:${inlinePolicy}; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' plugin:; connect-src 'self' plugin: data: wss://0.peerjs.com https://0.peerjs.com${lanPeerServer}${piConnect}${devConnect}; img-src 'self' data: blob: plugin:; media-src 'self' blob: data: file: http: plugin:; font-src 'self' plugin:`
     callback({
       responseHeaders: {

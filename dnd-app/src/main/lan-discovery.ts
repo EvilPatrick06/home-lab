@@ -11,6 +11,7 @@
  * both sources into one GameCard render path.
  */
 
+import { lookup } from 'node:dns/promises'
 import Bonjour from 'bonjour-service'
 import { BrowserWindow } from 'electron'
 import { IPC_CHANNELS } from '../shared/ipc-channels'
@@ -187,7 +188,7 @@ export function startBmoDiscovery(): void {
     void (async () => {
       if (await probeUrl(url)) {
         knownBmoFqdns.add(service.fqdn)
-        registerDiscoveredBmoUrl(url, 'mDNS _bmo._tcp')
+        await registerDiscoveredBmoUrl(url, 'mDNS _bmo._tcp')
         // Re-probe signaling now that we have a reachable LAN target.
         probeSignalingServer().catch(() => {})
       } else {
@@ -280,7 +281,7 @@ async function probeDefaultBmoLocal(): Promise<void> {
   const hostnameCandidates = ['http://bmo.local:5000', 'http://bmo:5000']
   for (const url of hostnameCandidates) {
     if (await probeUrl(url)) {
-      registerDiscoveredBmoUrl(url, 'hostname probe')
+      await registerDiscoveredBmoUrl(url, 'hostname probe')
       return
     }
   }
@@ -294,7 +295,7 @@ async function probeDefaultBmoLocal(): Promise<void> {
   if (ip) {
     const url = `http://${ip}:5000`
     if (await probeUrl(url)) {
-      registerDiscoveredBmoUrl(url, 'mDNS A-record')
+      await registerDiscoveredBmoUrl(url, 'mDNS A-record')
       return
     }
   }
@@ -306,12 +307,25 @@ async function probeDefaultBmoLocal(): Promise<void> {
   for (const ipCandidate of lanCandidates) {
     const url = `http://${ipCandidate}:5000`
     if (await probeUrl(url)) {
-      registerDiscoveredBmoUrl(url, `LAN sweep (${ipCandidate})`)
+      await registerDiscoveredBmoUrl(url, `LAN sweep (${ipCandidate})`)
       return
     }
   }
 
   logToFile('WARN', '[lan-discovery] BMO Pi not found via mDNS, hostname probe, or LAN sweep')
+}
+
+/** Resolve a hostname to a literal IPv4 so the renderer's network service can
+ * reach it without its own mDNS/NetBIOS resolver. Returns null if unresolvable;
+ * passes a literal IP straight through. */
+async function resolveHostToIpv4(host: string): Promise<string | null> {
+  if (/^\d+\.\d+\.\d+\.\d+$/.test(host)) return host
+  try {
+    const { address } = await lookup(host, { family: 4 })
+    return /^\d+\.\d+\.\d+\.\d+$/.test(address) ? address : null
+  } catch {
+    return null
+  }
 }
 
 async function probeUrl(url: string): Promise<boolean> {
@@ -326,10 +340,27 @@ async function probeUrl(url: string): Promise<boolean> {
   }
 }
 
-function registerDiscoveredBmoUrl(url: string, via: string): void {
-  logToFile('INFO', `[lan-discovery] BMO Pi reachable at ${url} (${via})`)
-  setDiscoveredBmoUrl(url)
-  broadcast(IPC_CHANNELS.BMO_RESOLVED_URL, { url })
+async function registerDiscoveredBmoUrl(url: string, via: string): Promise<void> {
+  // The renderer's sandboxed network service (PeerJS signaling WS + WebRTC ICE/
+  // STUN) can't resolve a bare hostname like `bmo` even when main's fetch can —
+  // the user's P2P games failed with "Failed to resolve address for bmo." (-105),
+  // both for the signaling WS (`ws://bmo:9000`) AND the derived `stun:bmo:3478`
+  // ICE entry. Register the RESOLVED numeric IPv4 so EVERY consumer of this base —
+  // registry/library fetches, Cloud Backup, AND the renderer's signaling/ICE host
+  // (configureForP2P derives both from this URL's hostname) — gets a literal IP.
+  // resolveHostToIpv4 passes an already-numeric host straight through, so the mDNS
+  // A-record / LAN-sweep branches (already IPs) are untouched; only the hostname
+  // branches (`bmo`/`bmo.local`) get rewritten.
+  const u = new URL(url)
+  const ip = await resolveHostToIpv4(u.hostname)
+  const finalUrl =
+    ip && ip !== u.hostname
+      ? `${u.protocol}//${ip}${u.port ? `:${u.port}` : ''}${u.pathname === '/' ? '' : u.pathname}`
+      : url
+  const suffix = finalUrl !== url ? ` → resolved ${u.hostname} → ${ip}` : ''
+  logToFile('INFO', `[lan-discovery] BMO Pi reachable at ${finalUrl} (${via}${suffix})`)
+  setDiscoveredBmoUrl(finalUrl)
+  broadcast(IPC_CHANNELS.BMO_RESOLVED_URL, { url: finalUrl })
 }
 
 /**

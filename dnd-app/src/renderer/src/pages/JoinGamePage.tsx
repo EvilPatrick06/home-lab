@@ -1,14 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { GameList, PasswordPrompt, UsernamePrompt } from '../components/lobby'
-import { BackButton, Button, Input, Spinner } from '../components/ui'
-import {
-  AUTO_REJOIN_KEY,
-  DISPLAY_NAME_KEY,
-  INVITE_CODE_LENGTH,
-  JOINED_SESSIONS_KEY,
-  LAST_SESSION_KEY
-} from '../constants'
+import { BackButton, Input, Spinner } from '../components/ui'
+import { AUTO_REJOIN_KEY, DISPLAY_NAME_KEY, JOINED_SESSIONS_KEY, LAST_SESSION_KEY } from '../constants'
 import { useT } from '../i18n'
 import { type LanEvent, startLanScan, stopLanScan, subscribeToLan } from '../network/lan-discovery'
 import {
