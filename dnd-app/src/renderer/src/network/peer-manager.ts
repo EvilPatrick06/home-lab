@@ -22,7 +22,16 @@ let customSignalingSecure: boolean = false
 // user-supplied at runtime via setIceConfig (Network Settings).
 const getDefaultIceServers = (): RTCIceServer[] => {
   if (customHost) {
-    return [{ urls: `stun:${customHost}:3478` }, ...CLOUD_ICE_SERVERS]
+    const piStun: RTCIceServer = { urls: `stun:${customHost}:3478` }
+    // LAN self-host (insecure http base): customHost is a literal LAN IP and the
+    // connection uses direct host candidates (+ the Pi's own STUN by IP). The
+    // public STUN servers are HOSTNAMES — on a machine whose WebRTC network service
+    // can't resolve them (e.g. behind a VPN that doesn't cover that process) they
+    // only spam "Failed to resolve address … -105" and delay ICE gathering before
+    // the host-candidate path settles, and they aren't needed on the LAN anyway.
+    // Off-LAN self-host (tunnel, secure) still needs public STUN for NAT traversal,
+    // so keep it there.
+    return customSignalingSecure ? [piStun, ...CLOUD_ICE_SERVERS] : [piStun]
   }
   return CLOUD_ICE_SERVERS
 }
