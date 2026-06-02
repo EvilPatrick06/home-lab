@@ -9,35 +9,6 @@ const AI_PROVIDER_LABELS: Record<AiProviderType, string> = {
   gemini: 'Gemini (Google)'
 }
 
-export interface CloudModelInfo {
-  id: string
-  name: string
-  desc: string
-}
-
-export const CLOUD_MODELS: Record<Exclude<AiProviderType, 'ollama'>, CloudModelInfo[]> = {
-  claude: [
-    // Phase 28b.1 — current Claude 4.x family first; older ids kept (deprecated)
-    // so campaigns pinned to them keep working.
-    { id: 'claude-opus-4-7', name: 'Claude Opus 4.7', desc: 'Most capable; best for long DM narration' },
-    { id: 'claude-sonnet-4-6', name: 'Claude Sonnet 4.6', desc: 'Best balance of speed and intelligence' },
-    { id: 'claude-haiku-4-5-20251001', name: 'Claude Haiku 4.5', desc: 'Fastest; good for quick responses' },
-    { id: 'claude-sonnet-4-20250514', name: 'Claude Sonnet 4', desc: '(deprecated) prior generation' },
-    { id: 'claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet', desc: '(deprecated) fast, intelligent' },
-    { id: 'claude-3-5-haiku-20241022', name: 'Claude 3.5 Haiku', desc: '(deprecated) fastest' }
-  ],
-  openai: [
-    { id: 'gpt-4o', name: 'GPT-4o', desc: 'Most capable OpenAI model' },
-    { id: 'gpt-4o-mini', name: 'GPT-4o Mini', desc: 'Fast and affordable' },
-    { id: 'o3-mini', name: 'o3-mini', desc: 'Reasoning model, slower but thorough' }
-  ],
-  gemini: [
-    { id: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash', desc: 'Fast multimodal model' },
-    { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', desc: 'Most capable Gemini model' },
-    { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', desc: 'Fast and efficient' }
-  ]
-}
-
 /**
  * Phase 28b.4 — model-aware max-tokens default. Opus gets a larger budget for
  * long narration; Sonnet/Haiku default lower. A caller-supplied value wins.

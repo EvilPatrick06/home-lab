@@ -375,6 +375,20 @@ function applyChange(char: Character5eV3, change: StatChange): void {
       }
       break
     }
+    case 'creature_damage':
+    case 'creature_heal':
+    case 'creature_add_condition':
+    case 'creature_remove_condition':
+    case 'creature_kill':
+      // Creature (non-character) mutations are applied renderer-side against token
+      // state — there is no Character to mutate here. Intentional pass-through.
+      break
+    default: {
+      // Exhaustiveness guard — a new StatChange member must add an arm above, or
+      // this stops compiling, keeping the union reconciled with the executor.
+      const _exhaustive: never = change
+      void _exhaustive
+    }
   }
 }
 
@@ -637,8 +651,14 @@ export function describeChange(change: StatChange): string {
       return `Feature granted: ${change.name} (${change.reason})`
     case 'revoke_feature':
       return `Feature revoked: ${change.name} (${change.reason})`
-    default:
-      return `${(change as { type: string }).type} change`
+    case 'reduce_exhaustion':
+      return `Exhaustion reduced (${change.reason})`
+    default: {
+      // Exhaustiveness guard — every StatChange member must have an arm above;
+      // the cast keeps a safe runtime fallback if one is ever missed.
+      const _exhaustive: never = change
+      return `${(_exhaustive as { type: string }).type} change`
+    }
   }
 }
 

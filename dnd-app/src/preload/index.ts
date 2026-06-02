@@ -99,7 +99,8 @@ const api = {
     loadConversation: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_LOAD_CONVERSATION, campaignId),
     deleteConversation: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_DELETE_CONVERSATION, campaignId),
     // Cloud provider models
-    listCloudModels: (providerType: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_LIST_CLOUD_MODELS, providerType),
+    listCloudModels: (providerType: string, apiKey?: string) =>
+      ipcRenderer.invoke(IPC_CHANNELS.AI_LIST_CLOUD_MODELS, providerType, apiKey),
     validateApiKey: (providerType: string, apiKey: string) =>
       ipcRenderer.invoke(IPC_CHANNELS.AI_VALIDATE_API_KEY, providerType, apiKey),
     // Ollama management

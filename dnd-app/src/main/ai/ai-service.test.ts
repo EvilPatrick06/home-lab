@@ -196,6 +196,8 @@ import {
   loadIndex,
   removeConversation,
   startChat,
+  streamChatRetryable,
+  streamWithRetry,
   wasContextTruncated
 } from './ai-service'
 import { loadChunkIndex } from './chunk-builder'
@@ -447,6 +449,130 @@ describe('ai-service', () => {
 
     it('is a no-op for an unknown campaign id (no throw)', () => {
       expect(() => removeConversation('never-existed')).not.toThrow()
+    })
+  })
+
+  // ── Stream retry lifecycle ──
+  // Providers report failures via callbacks.onError (they don't throw), which
+  // used to make streamWithRetry's retry loop dead code. streamChatRetryable
+  // bridges the gap: a pre-output failure rejects (→ retry), a mid-stream
+  // failure surfaces without retry (→ no duplicate text).
+  describe('streamChatRetryable + streamWithRetry', () => {
+    const cb = () => ({ onText: vi.fn(), onDone: vi.fn(), onError: vi.fn() })
+
+    it('REJECTS when the provider fails before any text (retryable)', async () => {
+      const callbacks = cb()
+      const run = streamChatRetryable(
+        async (_s, _m, c) => {
+          c.onError(new Error('boom'))
+        },
+        'sys',
+        [],
+        callbacks,
+        'm'
+      )
+      await expect(run(new AbortController().signal)).rejects.toThrow('boom')
+      // The rejection (not callbacks.onError) is what drives the retry loop.
+      expect(callbacks.onError).not.toHaveBeenCalled()
+    })
+
+    it('RESOLVES and surfaces the error when it fails AFTER text (no retry)', async () => {
+      const callbacks = cb()
+      const run = streamChatRetryable(
+        async (_s, _m, c) => {
+          c.onText('partial ')
+          c.onError(new Error('mid-stream'))
+        },
+        'sys',
+        [],
+        callbacks,
+        'm'
+      )
+      await expect(run(new AbortController().signal)).resolves.toBeUndefined()
+      expect(callbacks.onText).toHaveBeenCalledWith('partial ')
+      expect(callbacks.onError).toHaveBeenCalledWith(expect.objectContaining({ message: 'mid-stream' }))
+    })
+
+    it('RESOLVES on onDone and forwards the final text', async () => {
+      const callbacks = cb()
+      const run = streamChatRetryable(
+        async (_s, _m, c) => {
+          c.onText('hello')
+          c.onDone('hello')
+        },
+        'sys',
+        [],
+        callbacks,
+        'm'
+      )
+      await expect(run(new AbortController().signal)).resolves.toBeUndefined()
+      expect(callbacks.onDone).toHaveBeenCalledWith('hello')
+    })
+
+    it('RESOLVES on abort (provider returns without firing a callback)', async () => {
+      const callbacks = cb()
+      const run = streamChatRetryable(async () => {}, 'sys', [], callbacks, 'm')
+      await expect(run(new AbortController().signal)).resolves.toBeUndefined()
+      expect(callbacks.onError).not.toHaveBeenCalled()
+      expect(callbacks.onDone).not.toHaveBeenCalled()
+    })
+
+    it('RETRIES a pre-output failure then succeeds (loop was previously dead)', async () => {
+      vi.useFakeTimers()
+      try {
+        const callbacks = cb()
+        let attempts = 0
+        const run = streamChatRetryable(
+          async (_s, _m, c) => {
+            attempts++
+            if (attempts < 3) {
+              c.onError(new Error(`fail ${attempts}`))
+              return
+            }
+            c.onText('ok')
+            c.onDone('ok')
+          },
+          'sys',
+          [],
+          callbacks,
+          'm'
+        )
+        const terminalError = vi.fn()
+        const p = streamWithRetry(run, new AbortController(), terminalError)
+        await vi.runAllTimersAsync()
+        await p
+        expect(attempts).toBe(3) // 1 initial + 2 retries
+        expect(callbacks.onDone).toHaveBeenCalledWith('ok')
+        expect(terminalError).not.toHaveBeenCalled()
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('surfaces the error after exhausting all retries', async () => {
+      vi.useFakeTimers()
+      try {
+        const callbacks = cb()
+        let attempts = 0
+        const run = streamChatRetryable(
+          async (_s, _m, c) => {
+            attempts++
+            c.onError(new Error('always fails'))
+          },
+          'sys',
+          [],
+          callbacks,
+          'm'
+        )
+        const terminalError = vi.fn()
+        const p = streamWithRetry(run, new AbortController(), terminalError)
+        await vi.runAllTimersAsync()
+        await p
+        expect(attempts).toBe(3)
+        expect(terminalError).toHaveBeenCalledWith('always fails')
+      } finally {
+        vi.useRealTimers()
+      }
     })
   })
 })

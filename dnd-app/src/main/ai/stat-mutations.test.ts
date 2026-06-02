@@ -264,6 +264,12 @@ describe('describeChange', () => {
     ).toContain('lost')
     expect(describeChange({ type: 'creature_kill', targetLabel: 'Goblin 1', reason: 'final blow' })).toContain('killed')
   })
+
+  it('describes reduce_exhaustion with a friendly label (was falling to the generic default)', () => {
+    const result = describeChange({ type: 'reduce_exhaustion', reason: 'long rest' })
+    expect(result).toContain('Exhaustion reduced')
+    expect(result).toContain('long rest')
+  })
 })
 
 describe('isNegativeChange', () => {

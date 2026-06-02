@@ -23,7 +23,7 @@ import {
   readRequestedFile,
   stripFileRead
 } from './file-reader'
-import type { AiProviderType } from './llm-provider'
+import type { AiProviderType, LLMProvider } from './llm-provider'
 import { getMemoryManager } from './memory-manager'
 import { isOllamaRunning, listOllamaModels, setOllamaUrl } from './ollama-client'
 import { OLLAMA_BASE_URL } from './ollama-manager'
@@ -52,10 +52,12 @@ import type {
   AiStreamChunk,
   AiStreamDone,
   AiStreamError,
+  ChatMessage,
   DmActionData,
   ProviderStatus,
   RuleCitation,
-  StatChange
+  StatChange,
+  StreamCallbacks
 } from './types'
 import {
   formatSearchResults,
@@ -168,7 +170,7 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-async function streamWithRetry(
+export async function streamWithRetry(
   streamFn: (signal: AbortSignal) => Promise<void>,
   abortController: AbortController,
   onError: (error: string) => void
@@ -195,6 +197,54 @@ async function streamWithRetry(
       }
     }
   }
+}
+
+/**
+ * Adapt a provider's callback-style streamChat into a promise that REJECTS on
+ * failure so `streamWithRetry` can actually retry it. Providers swallow their
+ * errors into `callbacks.onError` and then resolve — which made the retry loop
+ * dead code (every attempt "succeeded"). Here:
+ *   - a failure BEFORE any text was emitted → reject (retryable; nothing was
+ *     shown to the user yet, so a clean re-stream won't duplicate output);
+ *   - a failure AFTER text has streamed → surface via the terminal onError and
+ *     resolve (retrying mid-stream would double already-emitted text);
+ *   - an abort (provider returns without firing any callback) → resolve, so the
+ *     `signal.aborted` guard in streamWithRetry stops the loop without a retry.
+ * onText/onDone are forwarded to the real callbacks unchanged.
+ */
+export function streamChatRetryable(
+  streamChat: LLMProvider['streamChat'],
+  systemPrompt: string,
+  messages: ChatMessage[],
+  callbacks: StreamCallbacks,
+  model: string
+): (signal: AbortSignal) => Promise<void> {
+  return (signal: AbortSignal) =>
+    new Promise<void>((resolve, reject) => {
+      let hadText = false
+      const wrapped: StreamCallbacks = {
+        onText: (text) => {
+          hadText = true
+          callbacks.onText(text)
+        },
+        onDone: (text) => {
+          callbacks.onDone(text)
+          resolve()
+        },
+        onError: (error) => {
+          if (hadText) {
+            callbacks.onError(error)
+            resolve()
+          } else {
+            reject(error)
+          }
+        }
+      }
+      // `.then(resolve)` covers the abort path (provider returns without firing a
+      // callback); `.catch(reject)` covers a thrown rejection. Both are no-ops if
+      // onDone/onError already settled the promise.
+      streamChat(systemPrompt, messages, wrapped, model, signal).then(resolve, reject)
+    })
 }
 
 // The single curated default model (recommended local model) used ONLY when no
@@ -576,9 +626,10 @@ export function startChat(
 
       const provider = getActiveProvider()
       await streamWithRetry(
-        (signal) => provider.streamChat(systemPrompt, messages, callbacks, currentConfig.model, signal),
+        streamChatRetryable(provider.streamChat.bind(provider), systemPrompt, messages, callbacks, currentConfig.model),
         abortController,
         (errMsg) => {
+          clearPendingWebSearchApproval(streamId, false)
           removeStream(streamId)
           onError(errMsg)
         }
@@ -657,7 +708,7 @@ async function handleStreamCompletion(
     }
 
     await deps.streamWithRetry(
-      (signal) => deps.streamChat(sp, msgs, nextCallbacks, deps.model, signal),
+      streamChatRetryable(deps.streamChat, sp, msgs, nextCallbacks, deps.model),
       abortController,
       (errMsg) => {
         clearPendingWebSearchApproval(streamId, false)

@@ -16,7 +16,7 @@ import { setClaudeApiKey } from '../ai/claude-client'
 import { buildContext, getLastTokenBreakdown } from '../ai/context-builder'
 import type { DmAction } from '../ai/dm-actions'
 import { setGeminiApiKey } from '../ai/gemini-client'
-import { type AiProviderType, CLOUD_MODELS } from '../ai/llm-provider'
+import type { AiProviderType } from '../ai/llm-provider'
 import { type CombatState, getMemoryManager, type WorldState } from '../ai/memory-manager'
 import {
   CURATED_MODELS,
@@ -125,11 +125,23 @@ export function registerAiHandlers(): void {
 
   // ── Cloud Provider Models ──
 
-  handle(IPC_CHANNELS.AI_LIST_CLOUD_MODELS, async (_event, providerType: string) => {
-    if (providerType === 'ollama' || !(providerType in CLOUD_MODELS)) {
-      return []
+  handle(IPC_CHANNELS.AI_LIST_CLOUD_MODELS, async (_event, providerType: string, apiKey?: string) => {
+    const cloudTypes: AiProviderType[] = ['claude', 'openai', 'gemini']
+    if (!cloudTypes.includes(providerType as AiProviderType)) return []
+
+    // Apply the key the user is currently entering (may be unsaved) so the live
+    // list reflects their account. validateApiKey/configure do the same; a save
+    // re-applies the persisted key. With no key, listModels returns [] — there's
+    // no hardcoded fallback snapshot, so the picker stays empty until a valid key
+    // is supplied (the renderer re-runs this when the key field changes).
+    if (apiKey) {
+      if (providerType === 'claude') setClaudeApiKey(apiKey)
+      else if (providerType === 'openai') setOpenAIApiKey(apiKey)
+      else if (providerType === 'gemini') setGeminiApiKey(apiKey)
     }
-    return CLOUD_MODELS[providerType as keyof typeof CLOUD_MODELS]
+
+    const ids = await getProvider(providerType as AiProviderType).listModels()
+    return ids.map((id) => ({ id, name: id }))
   })
 
   handle(IPC_CHANNELS.AI_VALIDATE_API_KEY, async (_event, providerType: string, apiKey: string) => {
