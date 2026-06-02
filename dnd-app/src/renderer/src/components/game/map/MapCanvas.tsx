@@ -59,6 +59,7 @@ import {
 } from './map-pixi-setup'
 import { clearMeasurement } from './measurement-tool'
 import { renderPins } from './pin-layer'
+import { safeDestroy } from './pixi-safe-destroy'
 
 // Re-export map-utils functions so they are available to map subsystem consumers
 export { calculateZoomToFit, getGridLabel }
@@ -124,6 +125,14 @@ export default function MapCanvas({
   // Phase 16g — hover grid-coordinate readout (toggleable, per-viewer via localStorage).
   const [showGridHud, setShowGridHud] = useState(() => localStorage.getItem(GRID_HUD_KEY) !== 'false')
   const [hoverCoord, setHoverCoord] = useState<string | null>(null)
+  // BUG-8 — in-app text input for the map Text tool (Electron disables window.prompt
+  // so the old prompt() never appeared). Positioned at the click (container-relative).
+  const [drawingTextInput, setDrawingTextInput] = useState<{
+    data: import('../../../types/map').DrawingData
+    x: number
+    y: number
+    value: string
+  } | null>(null)
   // Phase 16f — fade-to-black transition when the active map changes.
   const prevMapIdRef = useRef<string | undefined>(undefined)
   const [fading, setFading] = useState(false)
@@ -565,7 +574,7 @@ export default function MapCanvas({
     for (const [tokenId, entry] of cache) {
       if (!visibleTokenIds.has(tokenId)) {
         container.removeChild(entry.sprite)
-        entry.sprite.destroy({ children: true })
+        safeDestroy(entry.sprite, { children: true })
         cache.delete(tokenId)
       }
     }
@@ -591,7 +600,7 @@ export default function MapCanvas({
   useEffect(() => {
     const container = pinsContainerRef.current
     if (!initialized || !container || !map) {
-      container?.removeChildren().forEach((c) => c.destroy({ children: true }))
+      container?.removeChildren().forEach((c) => safeDestroy(c, { children: true }))
       return
     }
     const pins = (map.pins ?? []).filter((p) => {
@@ -664,7 +673,11 @@ export default function MapCanvas({
       renderTokens,
       drawingStrokeWidth,
       drawingColor,
-      fogBrushSize
+      fogBrushSize,
+      onRequestDrawingText: (data, clientX, clientY) => {
+        const rect = containerRef.current?.getBoundingClientRect()
+        setDrawingTextInput({ data, x: clientX - (rect?.left ?? 0), y: clientY - (rect?.top ?? 0), value: '' })
+      }
     })
   }, [
     map,
@@ -812,6 +825,32 @@ export default function MapCanvas({
         <div className="absolute bottom-2 right-2 z-20 bg-black/60 text-white text-xs px-2 py-1 rounded pointer-events-none font-mono">
           {hoverCoord}
         </div>
+      )}
+      {/* BUG-8 — in-app text entry for the Text drawing tool (window.prompt is a
+          no-op in Electron). Enter commits the label; Escape / blur cancels. */}
+      {drawingTextInput && map && (
+        <input
+          // Focus via ref (not autoFocus) so the transient at-cursor box is ready to
+          // type without tripping the a11y autofocus lint.
+          ref={(el) => el?.focus()}
+          type="text"
+          value={drawingTextInput.value}
+          onChange={(e) => setDrawingTextInput({ ...drawingTextInput, value: e.target.value })}
+          onKeyDown={(e) => {
+            e.stopPropagation()
+            if (e.key === 'Enter') {
+              const text = drawingTextInput.value.trim()
+              if (text) useGameStore.getState().addDrawing(map.id, { ...drawingTextInput.data, text })
+              setDrawingTextInput(null)
+            } else if (e.key === 'Escape') {
+              setDrawingTextInput(null)
+            }
+          }}
+          onBlur={() => setDrawingTextInput(null)}
+          placeholder={t('game.mapCanvas.enterText')}
+          className="absolute z-40 px-2 py-1 text-sm bg-surface border border-accent rounded text-white shadow-lg"
+          style={{ left: drawingTextInput.x, top: drawingTextInput.y }}
+        />
       )}
       <button
         onClick={() => {

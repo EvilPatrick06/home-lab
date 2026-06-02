@@ -50,6 +50,28 @@ describe('migrateCharacter5eToRefs (shared v3→v4 core)', () => {
     }
   })
 
+  it('BUG-2 — carries inline weapon/armor objects as ref overrides so hydrate can reconstruct builder weapons', () => {
+    // Builder/import weapons have a random-UUID id (no library entry). The ref MUST
+    // carry the object as overrides or hydrate drops it ("No weapons equipped").
+    const v3 = {
+      id: 'c1',
+      gameSystem: 'dnd5e',
+      weapons: [{ id: 'a1b2-uuid', name: 'Greataxe', damage: '1d12', damageType: 'slashing', properties: ['heavy'] }],
+      armor: [{ id: 'c3d4-uuid', name: 'Leather Armor', acBonus: 1, type: 'armor' }]
+    }
+    const v4 = migrateCharacter5eToRefs({ ...v3 }) as Record<string, unknown>
+
+    const wRef = (
+      v4.weaponRefs as Array<{ ref: { entryType: string; entryId: string; overrides?: Record<string, unknown> } }>
+    )[0]
+    expect(wRef.ref.entryType).toBe('weapons')
+    expect(wRef.ref.entryId).toBe('a1b2-uuid')
+    expect(wRef.ref.overrides).toMatchObject({ name: 'Greataxe', damage: '1d12', damageType: 'slashing' })
+
+    const aRef = (v4.armorRefs as Array<{ ref: { overrides?: Record<string, unknown> } }>)[0]
+    expect(aRef.ref.overrides).toMatchObject({ name: 'Leather Armor', acBonus: 1 })
+  })
+
   it('is idempotent — re-running on already-v4 data leaves refs untouched and has no v3 keys', () => {
     const v3: Record<string, unknown> = {
       id: 'c1',

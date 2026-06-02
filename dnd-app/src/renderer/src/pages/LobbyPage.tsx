@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import CloudStatusPanel from '../components/game/cloud/CloudStatusPanel'
 import { LobbyLayout } from '../components/lobby'
@@ -13,6 +13,7 @@ import {
   stopHostAnnounce,
   updateHostAnnounce
 } from '../network'
+import { configureAiFromCampaign } from '../services/ai-dm-routing'
 import { useNetworkStore } from '../stores/network-store'
 import { useAiDmStore } from '../stores/use-ai-dm-store'
 import { useCampaignStore } from '../stores/use-campaign-store'
@@ -51,14 +52,15 @@ export default function LobbyPage(): JSX.Element {
   // elsewhere. Phase 30 will revisit role-as-string.
   const isHost = role === 'host'
   const sceneStatus = useAiDmStore((s) => s.sceneStatus)
+  const sceneError = useAiDmStore((s) => s.sceneError)
+  const scenePrepIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  // AI DM: Pre-generate scene while players are in lobby (host only)
-  useEffect(() => {
+  // AI DM: Pre-generate scene while players are in lobby (host only). Extracted
+  // into a callback so the "Retry" button (S-2) can re-run it after a failure.
+  const startScenePrep = useCallback(() => {
     if (!isHost || !campaign?.aiDm?.enabled) return
 
     const aiDmStore = useAiDmStore.getState()
-
-    // Initialize store from campaign config
     aiDmStore.initFromCampaign(campaign)
 
     // Collect any available character IDs + names for richer AI context
@@ -68,19 +70,32 @@ export default function LobbyPage(): JSX.Element {
     const campaignCharNames = characters.filter((c) => characterIds.includes(c.id)).map((c) => c.name)
     logger.info('AI DM scene prep:', campaignCharNames.length, 'characters:', campaignCharNames.join(', '))
 
-    // Trigger scene preparation immediately
-    aiDmStore.prepareScene(campaign.id, characterIds)
+    // S-4 — apply the campaign's chosen model/provider before generating the
+    // scene so prep uses the model the user picked (not the stale global config).
+    void configureAiFromCampaign(campaign).finally(() => {
+      aiDmStore.prepareScene(campaign.id, characterIds)
+    })
 
-    // Poll for completion every 3 seconds (update status indicator)
-    const interval = setInterval(async () => {
+    // Poll for completion every 3s; stop on ready OR error (a failed prep waits
+    // for the user to hit Retry rather than spinning forever).
+    if (scenePrepIntervalRef.current) clearInterval(scenePrepIntervalRef.current)
+    scenePrepIntervalRef.current = setInterval(async () => {
       await aiDmStore.checkSceneStatus(campaign.id)
-      if (useAiDmStore.getState().sceneStatus === 'ready') {
-        clearInterval(interval)
+      const status = useAiDmStore.getState().sceneStatus
+      if (status === 'ready' || status === 'error') {
+        if (scenePrepIntervalRef.current) clearInterval(scenePrepIntervalRef.current)
+        scenePrepIntervalRef.current = null
       }
     }, 3000)
+  }, [isHost, campaign])
 
-    return () => clearInterval(interval)
-  }, [isHost, campaign?.id, campaign?.aiDm?.enabled, campaign])
+  useEffect(() => {
+    startScenePrep()
+    return () => {
+      if (scenePrepIntervalRef.current) clearInterval(scenePrepIntervalRef.current)
+      scenePrepIntervalRef.current = null
+    }
+  }, [startScenePrep])
 
   // Navigate away when kicked, banned, or disconnected with error
   const error = useNetworkStore((s) => s.error)
@@ -410,10 +425,20 @@ export default function LobbyPage(): JSX.Element {
                 </>
               )}
               {sceneStatus === 'error' && (
-                <>
-                  <div className="w-2 h-2 rounded-full bg-red-400" />
-                  <span className="text-xs text-red-400">{t('pages.lobbyPage.scenePrepFailed')}</span>
-                </>
+                <div className="flex flex-col gap-0.5">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-red-400" />
+                    <span className="text-xs text-red-400">{t('pages.lobbyPage.scenePrepFailed')}</span>
+                    <button
+                      type="button"
+                      onClick={startScenePrep}
+                      className="text-xs text-accent underline hover:no-underline"
+                    >
+                      {t('pages.lobbyPage.scenePrepRetry')}
+                    </button>
+                  </div>
+                  {sceneError && <span className="max-w-xs text-[11px] text-red-300/80">{sceneError}</span>}
+                </div>
               )}
             </div>
           )}

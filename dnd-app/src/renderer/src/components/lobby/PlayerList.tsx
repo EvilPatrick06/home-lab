@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
+import { DEFAULT_AI_MODEL } from '../../constants'
 import { useT } from '../../i18n'
 import { banPeer, chatMutePeer, kickPeer } from '../../network'
 import { localHasPermission } from '../../services/permissions/local-permission'
@@ -36,7 +37,10 @@ export default function PlayerList(): JSX.Element {
     localHasPermission(key, campaign, { networkRole: role, localPeerId, isDM: localIsDM, peers: players })
   const isHostView = can('use_dm_tools')
   const aiDmEnabled = campaign?.aiDm?.enabled ?? false
-  const aiDmOllamaModel = campaign?.aiDm?.ollamaModel ?? 'llama3.1'
+  // BUG-1/S-4 — campaigns persist the chosen model on `aiDm.model`; the old read
+  // looked only at the unset `aiDm.ollamaModel` and so always showed the hardcoded
+  // 'llama3.1' fallback instead of the model the user picked (e.g. llama3.2:3b).
+  const aiDmOllamaModel = campaign?.aiDm?.model ?? campaign?.aiDm?.ollamaModel ?? DEFAULT_AI_MODEL
 
   const sortedPlayers = useMemo(
     () =>

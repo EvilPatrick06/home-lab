@@ -926,7 +926,12 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
           screenY={emptyCellMenu.screenY}
           mapId={activeMap.id}
           onClose={() => setEmptyCellMenu(null)}
-          onPlaceToken={() => setActiveModal('creatures')}
+          onPlaceToken={(gridX, gridY) => {
+            // BUG-6 — remember the right-clicked cell so the creature browser places
+            // the picked creature there (it used to drop at the map origin 0,0).
+            gameStore.setPendingPlaceCell({ gridX, gridY })
+            setActiveModal('creatures')
+          }}
           // Phase 16b Step 4 — DM-only Add Pin opens the rich pin-create form (icon/color/
           // visibility/link), replacing the old label-only window.prompt.
           onAddPin={effectiveIsDM ? (gridX, gridY) => setPinDraftCell({ gridX, gridY }) : undefined}

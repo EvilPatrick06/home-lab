@@ -41,6 +41,9 @@ export default function SpellsTab5e(): JSX.Element {
   const className = classSlot?.selectedName ?? ''
   const speciesName = speciesSlot?.selectedName ?? ''
   const isDruid = classId === 'druid'
+  // S-14 — a Wizard's level-1 picks ARE the spellbook (known, not prepared); the
+  // sheet shows them as Known/unprepared, so label the builder step accordingly.
+  const usesSpellbook = classId === 'wizard'
   const isBlessedWarrior = fightingStyleSlot?.selectedId === 'fighting-style-blessed-warrior'
   const blessedWarriorCantrips = useBuilderStore((s) => s.blessedWarriorCantrips)
   const setBlessedWarriorCantrips = useBuilderStore((s) => s.setBlessedWarriorCantrips)
@@ -351,7 +354,7 @@ export default function SpellsTab5e(): JSX.Element {
 
         {preparedMax !== null && (
           <div className="text-xs text-gray-500 mb-1">
-            {t('builder.spellsTab.preparedSpells')}{' '}
+            {t(usesSpellbook ? 'builder.spellsTab.spellbookSpells' : 'builder.spellsTab.preparedSpells')}{' '}
             <span className={selectedLeveledCount >= preparedMax ? 'text-red-400' : 'text-accent'}>
               {selectedLeveledCount}
             </span>{' '}

@@ -77,7 +77,11 @@ export default function InitiativeSetupForm({
                     placeholder-gray-600 focus:outline-none focus:border-amber-500 text-xs"
                 />
                 <input
-                  aria-label={t('game.initiativeSetupForm.modPlaceholder')}
+                  aria-label={t('game.initiativeSetupForm.modTitle')}
+                  // S-11 — the placeholder ("Mod") vanishes once a number is typed, so
+                  // users entered a full initiative value (18) and were surprised when
+                  // Roll added a d20 (→ 32). A persistent tooltip clarifies it's a modifier.
+                  title={t('game.initiativeSetupForm.modTitle')}
                   type="number"
                   placeholder={t('game.initiativeSetupForm.modPlaceholder')}
                   value={entry.modifier}

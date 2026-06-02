@@ -187,6 +187,14 @@ interface MouseHandlerOptions {
   drawingStrokeWidth?: number
   drawingColor?: string
   fogBrushSize?: number
+  // BUG-8 — the Text tool can't use window.prompt (Electron disables it). The
+  // React layer supplies this to collect text via an in-app input, then adds the
+  // drawing itself. Given screen coords so the input can appear at the click.
+  onRequestDrawingText?: (
+    drawingData: import('../../../types/map').DrawingData,
+    clientX: number,
+    clientY: number
+  ) => void
 }
 
 export function setupMouseHandlers(el: HTMLElement, opts: MouseHandlerOptions): () => void {
@@ -202,7 +210,7 @@ export function setupMouseHandlers(el: HTMLElement, opts: MouseHandlerOptions): 
     drawingColor = '#ffffff',
     fogBrushSize = 1
   } = opts
-  const { onTokenMove, onTokenSelect, onCellClick, onWallPlace, onDoorToggle } = opts
+  const { onTokenMove, onTokenSelect, onCellClick, onWallPlace, onDoorToggle, onRequestDrawingText } = opts
 
   const onMouseDown = (e: MouseEvent): void => {
     // Middle button or space+left for panning
@@ -531,13 +539,12 @@ export function setupMouseHandlers(el: HTMLElement, opts: MouseHandlerOptions): 
       // drawings array read at flush time, so a coalesced burst ships ONE delta
       // containing every drawing — no intermediate is lost.)
 
-      // For text tool, prompt for text input
+      // BUG-8 — the Text tool used window.prompt, which Electron's renderer
+      // disables, so no input box ever appeared and no text was placed. Hand the
+      // drawing to the React layer, which collects text via an in-app input and
+      // adds the drawing itself. Other tools add immediately as before.
       if (activeTool === 'draw-text') {
-        const text = prompt('Enter text:')
-        if (text?.trim()) {
-          ;(drawingData as typeof drawingData & { text?: string }).text = text.trim()
-          useGameStore.getState().addDrawing(map!.id, drawingData)
-        }
+        onRequestDrawingText?.(drawingData as import('../../../types/map').DrawingData, e.clientX, e.clientY)
       } else {
         useGameStore.getState().addDrawing(map!.id, drawingData)
       }

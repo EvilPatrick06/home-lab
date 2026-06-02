@@ -43,8 +43,12 @@ export function deserializeCharacter(json: string): Character {
  * Returns true if saved successfully, false if the user cancelled.
  */
 export async function exportCharacterToFile(character: Character): Promise<boolean> {
+  // S-13 — pre-fill the dialog with the character's name so the user isn't forced
+  // to type a filename on every export. Strip path-unsafe characters + spaces.
+  const safeName = (character.name || 'character').replace(/[<>:"/\\|?* -]+/g, '').trim() || 'character'
   const filePath = await window.api.showSaveDialog({
     title: 'Export Character',
+    defaultPath: `${safeName}.dndchar`,
     filters: [{ name: 'D&D Character', extensions: ['dndchar'] }]
   })
 

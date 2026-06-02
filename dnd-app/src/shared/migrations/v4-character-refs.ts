@@ -91,12 +91,21 @@ export function migrateCharacter5eToRefs<T extends Rec>(character: T): T {
 
   const weapons = asArray(out.weapons)
   if (out.weaponRefs === undefined && weapons.length > 0) {
-    out.weaponRefs = weapons.map((w) => instanceRef('weapons', String(w.id)))
+    // BUG-2 — builder/import weapons carry a random-UUID `id` (not a library
+    // entryId), so the ref must carry the whole inline object as `overrides`.
+    // Without it, hydrate (effective-character) finds neither a library entry NOR
+    // overrides and DROPS the weapon: a freshly-built character's starting weapons
+    // (Greataxe, Daggers) and weapon-form foci ("Arcane Focus (Quarterstaff)")
+    // vanished from the sheet ("No weapons equipped"). Carrying overrides hydrates
+    // them via hydrate's orphan/custom-entry branch.
+    out.weaponRefs = weapons.map((w) => instanceRef('weapons', String(w.id), w))
   }
 
   const armor = asArray(out.armor)
   if (out.armorRefs === undefined && armor.length > 0) {
-    out.armorRefs = armor.map((a) => instanceRef('armor', String(a.id)))
+    // Same as weapons above — armor entries are inline objects with UUID ids, not
+    // library refs, so they must travel as overrides or hydrate drops them.
+    out.armorRefs = armor.map((a) => instanceRef('armor', String(a.id), a))
   }
 
   const magicItems = asArray(out.magicItems)

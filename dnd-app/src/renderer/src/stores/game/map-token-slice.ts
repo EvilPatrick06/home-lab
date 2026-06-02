@@ -290,6 +290,8 @@ export const createMapTokenSlice: StateCreator<GameStoreState, [], [], MapTokenS
 
   pendingPlacement: null,
   setPendingPlacement: (tokenData) => set({ pendingPlacement: tokenData ? { tokenData } : null }),
+  pendingPlaceCell: null,
+  setPendingPlaceCell: (cell) => set({ pendingPlaceCell: cell }),
   commitPlacement: (mapId, gridX, gridY) => {
     const { pendingPlacement, currentFloor } = get()
     if (!pendingPlacement) return

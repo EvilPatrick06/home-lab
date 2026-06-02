@@ -1,6 +1,7 @@
 import { type Container, type Graphics, Text } from 'pixi.js'
 import { generateGridLabels } from '../../../services/map/map-utils'
 import type { GridSettings } from '../../../types/map'
+import { safeDestroy } from './pixi-safe-destroy'
 
 /**
  * Draws grid lines onto a PixiJS Graphics object.
@@ -226,7 +227,7 @@ export function drawGridLabels(
   while (container.children.length > 0) {
     const child = container.children[0]
     container.removeChild(child)
-    child.destroy()
+    safeDestroy(child)
   }
 
   // Only show labels when zoomed in enough and grid is enabled

@@ -9,6 +9,7 @@ import { useVirtualizer } from '@tanstack/react-virtual'
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { addToast } from '../../../hooks/use-toast'
 import { useT } from '../../../i18n'
+import { routeSoloMessageToAiDm } from '../../../services/ai-dm-routing'
 import { speakNarrationThroughBmo } from '../../../services/bmo-narration'
 import { type CommandContext, executeCommand } from '../../../services/chat-commands'
 import { lookupContent } from '../../../services/library/content-index'
@@ -118,7 +119,7 @@ interface ChatPanelProps {
 export default function ChatPanel({
   isDM,
   playerName,
-  campaign: _campaign,
+  campaign,
   character,
   collapsed,
   onOpenModal,
@@ -135,7 +136,9 @@ export default function ChatPanel({
   const addChatMessage = useLobbyStore((s) => s.addChatMessage)
   const sendMessage = useNetworkStore((s) => s.sendMessage)
   const localPeerId = useNetworkStore((s) => s.localPeerId)
+  const networkRole = useNetworkStore((s) => s.role)
   const aiIsTyping = useAiDmStore((s) => s.isTyping)
+  const aiPaused = useAiDmStore((s) => s.paused)
   const aiStreamingText = useAiDmStore((s) => s.streamingText)
   const aiEnabled = useAiDmStore((s) => s.enabled)
   const aiLastError = useAiDmStore((s) => s.lastError)
@@ -222,6 +225,12 @@ export default function ChatPanel({
       isSystem: false,
       isDiceRoll: false
     })
+    // BUG-1 — solo play has no network host loop, so use-game-network never routes
+    // the message to the AI DM (it fires only for networkRole==='host'). Route it
+    // directly here when solo. Multiplayer host/client keep using the network path.
+    if (campaign && networkRole === 'none' && aiEnabled && !aiPaused) {
+      routeSoloMessageToAiDm(campaign, trimmed, playerName)
+    }
     setInput('')
   }
 

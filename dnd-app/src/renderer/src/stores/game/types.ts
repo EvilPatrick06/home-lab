@@ -130,6 +130,11 @@ export interface MapTokenSliceState {
   pendingPlacement: { tokenData: Omit<MapToken, 'id' | 'gridX' | 'gridY'> } | null
   setPendingPlacement: (tokenData: Omit<MapToken, 'id' | 'gridX' | 'gridY'> | null) => void
   commitPlacement: (mapId: string, gridX: number, gridY: number) => void
+  // BUG-6 — the cell a right-click "Place Token" originated from, so the creature
+  // browser places the picked creature AT that cell (not the map origin). Null when
+  // the browser was opened from a toolbar (no originating cell).
+  pendingPlaceCell: { gridX: number; gridY: number } | null
+  setPendingPlaceCell: (cell: { gridX: number; gridY: number } | null) => void
 }
 
 export interface PendingLairAction {

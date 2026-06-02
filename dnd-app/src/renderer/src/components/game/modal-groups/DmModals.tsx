@@ -68,13 +68,17 @@ export default function DmModals({
   const handlePlaceMonster = effectiveIsDM
     ? (monster: MonsterStatBlock): void => {
         if (!activeMap) return
+        // BUG-6 — place at the cell the right-click "Place Token" came from (was
+        // hardcoded to the map origin, dropping every token in the top-left corner).
+        // Falls back to 0,0 only when opened without an originating cell.
+        const cell = gameStore.pendingPlaceCell
         gameStore.addToken(activeMap.id, {
           id: crypto.randomUUID(),
           entityId: `npc-${crypto.randomUUID()}`,
           entityType: 'npc',
           label: monster.name,
-          gridX: 0,
-          gridY: 0,
+          gridX: cell?.gridX ?? 0,
+          gridY: cell?.gridY ?? 0,
           sizeX: monster.tokenSize?.x ?? 1,
           sizeY: monster.tokenSize?.y ?? 1,
           visibleToPlayers: false,
@@ -94,6 +98,9 @@ export default function DmModals({
           darkvision: !!monster.senses?.darkvision,
           darkvisionRange: monster.senses?.darkvision || undefined
         })
+        gameStore.setPendingPlaceCell(null)
+        // BUG-6 — log it like the sibling "Summon Monster" path does.
+        broadcast(`DM placed ${monster.name} on the map.`)
         close()
       }
     : undefined

@@ -13,7 +13,7 @@ interface EmptyCellContextMenuProps {
   screenY: number
   mapId: string
   onClose: () => void
-  onPlaceToken: () => void
+  onPlaceToken: (gridX: number, gridY: number) => void
   /** Phase 16B — DM-only "Add Pin" handler. Prompts for a pin label and
    *  saves a new pin at this cell. */
   onAddPin?: (gridX: number, gridY: number) => void
@@ -135,7 +135,7 @@ export default function EmptyCellContextMenu({
           </button>
           <button
             onClick={() => {
-              onPlaceToken()
+              onPlaceToken(gridX, gridY)
               onClose()
             }}
             className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-surface-2 transition-colors cursor-pointer"

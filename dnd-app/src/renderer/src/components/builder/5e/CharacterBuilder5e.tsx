@@ -171,10 +171,8 @@ export default function CharacterBuilder5e(): JSX.Element {
       if (issues[issues.length - 1] === equipmentVariantsMsg) break
     }
 
-    // 7. Trinket required (only for new characters; existing characters may pre-date the trinket system)
-    if (!editingCharacterId && !classEquipment.some((e) => e.source === 'trinket')) {
-      issues.push(t('builder.characterBuilder.validation.trinket'))
-    }
+    // 7. Trinket is OPTIONAL (S-3) — it's pure flavor, so it no longer gates Save.
+    //    (Players can still roll one on the gear tab; it's just not required.)
 
     // 8. Background ability bonuses complete (2024 5e: ASI from background)
     const backgroundSlot = buildSlots.find((s) => s.category === 'background')
@@ -446,15 +444,14 @@ export default function CharacterBuilder5e(): JSX.Element {
             the LEFT of the button (truncated) instead of stacked beneath it, so
             the Save button stays vertically aligned with the floating gear. */}
         <div className="flex items-center gap-2">
+          {/* S-3 — show the FULL checklist of what's still required (was a single
+              truncated line that appeared to "cycle" as each item was resolved). */}
           {!canSave && validation.length > 0 && (
-            <span
-              role="alert"
-              aria-live="polite"
-              className="text-xs text-red-400 max-w-60 text-right truncate"
-              title={validation.join(', ')}
-            >
-              {validation[0]}
-            </span>
+            <ul role="alert" aria-live="polite" className="text-xs text-red-400 max-w-60 text-right space-y-0.5">
+              {validation.map((issue) => (
+                <li key={issue}>{issue}</li>
+              ))}
+            </ul>
           )}
           <button
             onClick={handleSave}

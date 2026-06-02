@@ -5,6 +5,7 @@
 
 import { type Graphics, Text } from 'pixi.js'
 import type { DrawingData } from '../../../types/map'
+import { safeDestroy } from './pixi-safe-destroy'
 
 function parseColor(color: string): number {
   if (color.startsWith('#')) {
@@ -24,7 +25,7 @@ export function drawDrawings(graphics: Graphics, drawings: DrawingData[], isHost
   while (graphics.children.length > 0) {
     const child = graphics.children[0]
     graphics.removeChild(child)
-    child.destroy()
+    safeDestroy(child)
   }
 
   for (const drawing of drawings) {
@@ -106,6 +107,6 @@ export function clearDrawingLayer(graphics: Graphics): void {
   while (graphics.children.length > 0) {
     const child = graphics.children[0]
     graphics.removeChild(child)
-    child.destroy()
+    safeDestroy(child)
   }
 }

@@ -135,8 +135,12 @@ const WEB_SEARCH_APPROVAL_TIMEOUT_MS = 30_000
 const WEB_SEARCH_DENIED_MESSAGE =
   '[WEB SEARCH DENIED]\nThe requested web search was not approved. Continue responding using existing campaign and rulebook context only.\n[/WEB SEARCH DENIED]'
 
-// Scene preparation status per campaign
-const scenePrepStatus = new Map<string, { status: 'preparing' | 'ready' | 'error'; streamId: string | null }>()
+// Scene preparation status per campaign. `error` carries the failure reason so the
+// lobby can show it (S-2) instead of a bare "Scene prep failed".
+const scenePrepStatus = new Map<
+  string,
+  { status: 'preparing' | 'ready' | 'error'; streamId: string | null; error?: string }
+>()
 
 // ── AI Retry & Connection Status ──
 
@@ -756,8 +760,15 @@ export function prepareScene(campaignId: string, characterIds: string[]): string
   const existing = scenePrepStatus.get(campaignId)
   if (existing && (existing.status === 'preparing' || existing.status === 'ready')) return existing.streamId
 
-  // Also skip if conversation already has messages (returning game)
   const conv = getConversation(campaignId)
+  // S-2 retry — a failed prep leaves a dangling user message (the stream errored
+  // before any assistant reply); clear it so a retry re-narrates instead of
+  // short-circuiting to "ready" on the leftover message below.
+  if (existing?.status === 'error') {
+    conv.clear()
+  }
+
+  // Also skip if conversation already has messages (returning game)
   if (conv.getMessageCount() > 0) {
     scenePrepStatus.set(campaignId, { status: 'ready', streamId: null })
     return null
@@ -776,8 +787,9 @@ export function prepareScene(campaignId: string, characterIds: string[]): string
     (_fullText, _displayText, _statChanges, _dmActions, _ruleCitations) => {
       scenePrepStatus.set(campaignId, { status: 'ready', streamId: null })
     },
-    (_error) => {
-      scenePrepStatus.set(campaignId, { status: 'error', streamId: null })
+    (error) => {
+      // S-2 — keep the reason so the lobby can show it + offer a retry.
+      scenePrepStatus.set(campaignId, { status: 'error', streamId: null, error })
     }
   )
 
@@ -788,6 +800,7 @@ export function prepareScene(campaignId: string, characterIds: string[]): string
 export function getSceneStatus(campaignId: string): {
   status: 'idle' | 'preparing' | 'ready' | 'error'
   streamId: string | null
+  error?: string
 } {
   return scenePrepStatus.get(campaignId) ?? { status: 'idle', streamId: null }
 }

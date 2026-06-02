@@ -29,10 +29,16 @@ export default function SheetHeader5e({ character, onEdit, onClose, readonly }: 
   // Phase 15c.5 — derive class list (v3 shape) from v4 classRefs via the truth store.
   const effectiveClasses = getEffectiveClasses(character)
   const isMulticlass = effectiveClasses.length > 1
+  // S-1 — title-case the class (hydrated refs can carry a lowercase "barbarian"),
+  // and format lineage as "Aasimar (Heavenly Wings)" rather than jamming it in
+  // front ("Heavenly Wings Aasimar").
+  const titleCase = (s: string): string => s.replace(/\b\w/g, (m) => m.toUpperCase())
   const className = isMulticlass
-    ? effectiveClasses.map((c) => `${c.name} ${c.level}`).join(' / ')
-    : effectiveClasses.map((c) => c.name).join(' / ')
-  const speciesName = character.subspecies ? `${character.subspecies} ${character.species}` : character.species
+    ? effectiveClasses.map((c) => `${titleCase(c.name)} ${c.level}`).join(' / ')
+    : effectiveClasses.map((c) => titleCase(c.name)).join(' / ')
+  const speciesName = character.subspecies
+    ? `${titleCase(character.species)} (${titleCase(character.subspecies)})`
+    : titleCase(character.species)
   const subtitle = `${character.background} \u00B7 ${character.alignment || t('sheet.sheetHeader.noAlignment')}`
 
   const iconProps = getCharacterIconProps(character)

@@ -58,12 +58,14 @@ export function getAoECells(config: AoEConfig): Array<{ x: number; y: number }> 
     }
     case 'sphere':
     case 'cylinder': {
-      // Circle of cells within radius
+      // BUG-3 — a cell is in a spherical/cylindrical burst when its center is
+      // within the radius (Euclidean). The previous Chebyshev test (max of
+      // |dx|,|dy|) lit the whole square BOUNDING BOX — a 20ft sphere reported 81
+      // cells (9×9) instead of a circle. Euclidean masks it to an actual disc.
       const radius = sizeCells
       for (let dx = -radius; dx <= radius; dx++) {
         for (let dy = -radius; dy <= radius; dy++) {
-          // Chebyshev distance for grid-based D&D
-          if (Math.max(Math.abs(dx), Math.abs(dy)) <= radius) {
+          if (Math.hypot(dx, dy) <= radius) {
             add(config.originX + dx, config.originY + dy)
           }
         }
@@ -82,7 +84,8 @@ export function getAoECells(config: AoEConfig): Array<{ x: number; y: number }> 
             for (let ey = 0; ey < entitySize; ey++) {
               const cdx = dx - ex
               const cdy = dy - ey
-              if (Math.max(Math.abs(cdx), Math.abs(cdy)) <= dist) {
+              // BUG-3 — circular emanation (Euclidean), matching sphere/cylinder.
+              if (Math.hypot(cdx, cdy) <= dist) {
                 withinRange = true
                 break
               }

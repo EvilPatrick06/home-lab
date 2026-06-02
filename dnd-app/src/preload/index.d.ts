@@ -50,6 +50,8 @@ interface CustomCreatureAPI {
 interface FileDialogOptions {
   title: string
   filters: Array<{ name: string; extensions: string[] }>
+  /** Suggested filename / path the native dialog opens with (S-13). */
+  defaultPath?: string
 }
 
 interface DialogAPI {
@@ -197,7 +199,7 @@ interface AiAPI {
   prepareScene: (campaignId: string, characterIds: string[]) => Promise<{ success: boolean; streamId?: string | null }>
   getSceneStatus: (
     campaignId: string
-  ) => Promise<{ status: 'idle' | 'preparing' | 'ready' | 'error'; streamId: string | null }>
+  ) => Promise<{ status: 'idle' | 'preparing' | 'ready' | 'error'; streamId: string | null; error?: string }>
   chatStream: (request: {
     campaignId: string
     message: string

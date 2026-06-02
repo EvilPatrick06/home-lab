@@ -77,6 +77,9 @@ interface AiDmState {
 
   // Scene preparation
   sceneStatus: 'idle' | 'preparing' | 'ready' | 'error'
+  // S-2 — the reason scene prep failed (e.g. Ollama unreachable / model missing),
+  // so the lobby can show it + offer a Retry instead of a bare "Scene prep failed".
+  sceneError: string | null
 
   // File read / web search status
   fileReadStatus: { path: string; status: string } | null
@@ -140,6 +143,7 @@ export const useAiDmStore = create<AiDmState>((set, get) => ({
   safetyTimeoutId: null,
 
   sceneStatus: 'idle',
+  sceneError: null,
   lastStatChanges: [],
   lastDmActions: [],
   lastRuleCitations: [],
@@ -392,19 +396,24 @@ export const useAiDmStore = create<AiDmState>((set, get) => ({
 
   prepareScene: async (campaignId, characterIds) => {
     const state = get()
-    if (!state.enabled || state.sceneStatus !== 'idle') return
+    // Allow a retry from the 'error' state (S-2); only block while actively
+    // preparing or already ready.
+    if (!state.enabled || state.sceneStatus === 'preparing' || state.sceneStatus === 'ready') return
 
-    set({ sceneStatus: 'preparing' })
+    set({ sceneStatus: 'preparing', sceneError: null })
     try {
       await window.api.ai.prepareScene(campaignId, characterIds)
-    } catch {
-      set({ sceneStatus: 'error' })
+    } catch (err) {
+      set({ sceneStatus: 'error', sceneError: err instanceof Error ? err.message : String(err) })
     }
   },
 
   checkSceneStatus: async (campaignId) => {
     const result = await window.api.ai.getSceneStatus(campaignId)
-    set({ sceneStatus: result.status === 'idle' ? 'idle' : result.status })
+    set({
+      sceneStatus: result.status === 'idle' ? 'idle' : result.status,
+      sceneError: result.status === 'error' ? (result.error ?? 'Scene preparation failed.') : null
+    })
   },
 
   setScene: async (campaignId, characterIds, gameState?: string) => {
@@ -442,6 +451,7 @@ export const useAiDmStore = create<AiDmState>((set, get) => ({
       paused: false,
       messages: [],
       sceneStatus: 'idle',
+      sceneError: null,
       activeStreamId: null,
       streamingText: '',
       isTyping: false,

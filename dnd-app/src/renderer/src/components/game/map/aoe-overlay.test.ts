@@ -35,11 +35,20 @@ describe('getAoECells — cube', () => {
 })
 
 describe('getAoECells — sphere/cylinder', () => {
-  it('returns cells within Chebyshev radius', () => {
+  it('returns a circular (Euclidean) disc, not the square bounding box (BUG-3)', () => {
     const config: AoEConfig = { shape: 'sphere', sizeFeet: 5, originX: 0, originY: 0 } // radius=1 cell
     const cells = getAoECells(config)
-    // Chebyshev distance 1 = 3×3 = 9 cells
-    expect(cells).toHaveLength(9)
+    // Euclidean radius 1 = the plus of 5 cells (center + 4 cardinals); the diagonal
+    // corners (hypot 1.41 > 1) are excluded — a circle, not the old 3×3 square.
+    expect(cells).toHaveLength(5)
+    const keys = new Set(cells.map((c) => `${c.x},${c.y}`))
+    expect(keys.has('1,1')).toBe(false) // corner excluded
+    expect(keys.has('1,0')).toBe(true)
+
+    // A larger sphere must cover far fewer than its bounding box (the bug symptom:
+    // a 20ft / radius-4 sphere lit all 81 box cells instead of a ~circular ~49).
+    const big = getAoECells({ shape: 'sphere', sizeFeet: 20, originX: 0, originY: 0 })
+    expect(big.length).toBeLessThan(81)
   })
 
   it('cylinder produces same shape as sphere', () => {

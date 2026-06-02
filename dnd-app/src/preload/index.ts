@@ -39,8 +39,11 @@ const api = {
   deleteHomebrew: (category: string, id: string) => ipcRenderer.invoke(IPC_CHANNELS.DELETE_HOMEBREW, category, id),
 
   // File dialogs
-  showSaveDialog: (options: { title: string; filters: Array<{ name: string; extensions: string[] }> }) =>
-    ipcRenderer.invoke(IPC_CHANNELS.DIALOG_SAVE, options),
+  showSaveDialog: (options: {
+    title: string
+    filters: Array<{ name: string; extensions: string[] }>
+    defaultPath?: string
+  }) => ipcRenderer.invoke(IPC_CHANNELS.DIALOG_SAVE, options),
   showOpenDialog: (options: { title: string; filters: Array<{ name: string; extensions: string[] }> }) =>
     ipcRenderer.invoke(IPC_CHANNELS.DIALOG_OPEN, options),
 

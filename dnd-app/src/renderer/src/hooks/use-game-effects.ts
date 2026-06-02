@@ -9,6 +9,7 @@ import {
 import { i18n } from '../i18n'
 import type { MessageType, TypingPayload } from '../network'
 import { startGameSync, stopGameSync } from '../network'
+import { configureAiFromCampaign } from '../services/ai-dm-routing'
 import { speakNarrationThroughBmo } from '../services/bmo-narration'
 import { startAiMemorySync, stopAiMemorySync } from '../services/io/ai-memory-sync'
 import { loadPersistedGameState, startAutoSave, stopAutoSave } from '../services/io/game-auto-save'
@@ -179,6 +180,10 @@ export function useGameEffects({
 
     // Initialize AI DM (preserves sceneStatus if already set from lobby)
     aiDmStore.initFromCampaign(campaign)
+    // S-4 / BUG-1 — apply THIS campaign's chosen model/provider to the main
+    // process so solo + in-game turns use the picked model (the lobby host does
+    // the same before scene prep). Fire-and-forget; configure is idempotent.
+    void configureAiFromCampaign(campaign)
 
     /** Post the pre-generated opening narration to chat (scene was ready from lobby). */
     const postSceneNarration = (msgs: Array<{ role: string; content: string; timestamp: number }>): void => {
