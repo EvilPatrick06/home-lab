@@ -27,6 +27,11 @@ vi.mock('@anthropic-ai/sdk', () => {
           return { content: [{ type: 'text', text: 'one-shot' }], usage: {} }
         }
       }
+      models = {
+        list: async () => ({
+          data: [{ id: 'claude-opus-4-7' }, { id: 'claude-sonnet-4-6' }, { id: 'claude-haiku-4-5-20251001' }]
+        })
+      }
     }
   }
 })
@@ -47,10 +52,11 @@ describe('claudeProvider (Phase 28b)', () => {
     createArgs.length = 0
   })
 
-  it('lists the current 4.x models first', async () => {
-    const { claudeProvider } = await import('./claude-client')
+  it('lists models live from the API (no hardcoded snapshot list)', async () => {
+    const { claudeProvider, setClaudeApiKey } = await import('./claude-client')
+    setClaudeApiKey('test-key') // listModels now requires a key (then hits the live API)
     const models = await claudeProvider.listModels()
-    expect(models.slice(0, 3)).toEqual(['claude-opus-4-7', 'claude-sonnet-4-6', 'claude-haiku-4-5-20251001'])
+    expect(models).toEqual(['claude-opus-4-7', 'claude-sonnet-4-6', 'claude-haiku-4-5-20251001'])
   })
 
   it('streamChat sends system as a cacheable content block + model-aware max_tokens', async () => {

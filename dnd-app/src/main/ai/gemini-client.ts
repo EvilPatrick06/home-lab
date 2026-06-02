@@ -90,16 +90,30 @@ export const geminiProvider: LLMProvider = {
   async isAvailable(): Promise<boolean> {
     if (!apiKey) return false
     try {
-      const client = getClient()
-      const model = client.getGenerativeModel({ model: 'gemini-1.5-flash' })
-      await model.generateContent('hi')
-      return true
+      // Validate the key against the live models endpoint — no hardcoded probe
+      // model (the SDK has no list method, so use the REST endpoint directly).
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`)
+      return res.ok
     } catch {
       return false
     }
   },
 
   async listModels(): Promise<string[]> {
-    return ['gemini-2.0-flash', 'gemini-1.5-pro', 'gemini-1.5-flash']
+    if (!apiKey) return []
+    try {
+      // Real, current generateContent-capable models from the API — never a
+      // hardcoded snapshot list.
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`)
+      if (!res.ok) return []
+      const data = (await res.json()) as {
+        models?: Array<{ name: string; supportedGenerationMethods?: string[] }>
+      }
+      return (data.models ?? [])
+        .filter((m) => m.supportedGenerationMethods?.includes('generateContent'))
+        .map((m) => m.name.replace(/^models\//, ''))
+    } catch {
+      return []
+    }
   }
 }

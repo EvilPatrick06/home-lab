@@ -111,12 +111,9 @@ export const claudeProvider: LLMProvider = {
   async isAvailable(): Promise<boolean> {
     if (!apiKey) return false
     try {
-      const client = getClient()
-      await client.messages.create({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 1,
-        messages: [{ role: 'user', content: 'hi' }]
-      })
+      // Validate the key against the live models endpoint — no hardcoded probe
+      // model (a retired snapshot used to report the whole provider unavailable).
+      await getClient().models.list()
       return true
     } catch {
       return false
@@ -124,13 +121,14 @@ export const claudeProvider: LLMProvider = {
   },
 
   async listModels(): Promise<string[]> {
-    return [
-      'claude-opus-4-7',
-      'claude-sonnet-4-6',
-      'claude-haiku-4-5-20251001',
-      'claude-sonnet-4-20250514',
-      'claude-3-5-sonnet-20241022',
-      'claude-3-5-haiku-20241022'
-    ]
+    if (!apiKey) return []
+    try {
+      // Real, current models from the API — never a hardcoded snapshot list that
+      // drifts as models are added/retired.
+      const page = await getClient().models.list()
+      return page.data.map((m) => m.id)
+    } catch {
+      return []
+    }
   }
 }

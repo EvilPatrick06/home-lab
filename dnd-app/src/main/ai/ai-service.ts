@@ -197,6 +197,12 @@ async function streamWithRetry(
   }
 }
 
+// The single curated default model (recommended local model) used ONLY when no
+// model is configured yet. Every other "default model" hardcode was removed —
+// providers list real models live and callers pass the configured model — so this
+// is the one place a model id is named, and it's the user-facing default.
+export const DEFAULT_AI_MODEL = 'llama3.2:3b'
+
 // Current config
 let currentConfig: {
   provider: AiProviderType
@@ -207,7 +213,7 @@ let currentConfig: {
   geminiApiKey?: string
 } = {
   provider: 'ollama',
-  model: 'llama3.2:3b',
+  model: DEFAULT_AI_MODEL,
   ollamaUrl: OLLAMA_BASE_URL
 }
 
@@ -267,7 +273,7 @@ export async function configure(config: AiConfig): Promise<void> {
 
   currentConfig = {
     provider: config.provider ?? 'ollama',
-    model: config.model || config.ollamaModel || 'llama3.2:3b',
+    model: config.model || config.ollamaModel || DEFAULT_AI_MODEL,
     ollamaUrl: config.ollamaUrl || OLLAMA_BASE_URL,
     claudeApiKey: config.claudeApiKey,
     openaiApiKey: config.openaiApiKey,
@@ -306,7 +312,7 @@ export function getConfig(): AiConfig {
       const saved = JSON.parse(readFileSync(configPath, 'utf-8')) as Record<string, unknown>
       currentConfig = {
         provider: ((saved.provider as string) ?? 'ollama') as AiProviderType,
-        model: (saved.model as string) || (saved.ollamaModel as string) || 'llama3.2:3b',
+        model: (saved.model as string) || (saved.ollamaModel as string) || DEFAULT_AI_MODEL,
         ollamaUrl: (saved.ollamaUrl as string) || OLLAMA_BASE_URL,
         claudeApiKey: decryptOptional(saved.claudeApiKey as string | undefined),
         openaiApiKey: decryptOptional(saved.openaiApiKey as string | undefined),
@@ -541,10 +547,25 @@ export function startChat(
         onDone: (text: string) => {
           clearPendingWebSearchApproval(streamId, false)
           fullText = text
-          removeStream(streamId)
-
-          // Handle file read recursion
-          handleStreamCompletion(fullText, request, conv, streamId, abortController, onChunk, onDone, onError, 0)
+          // Keep the stream REGISTERED through any FILE_READ/WEB_SEARCH recursion so
+          // cancelChat still works mid-recursion (it previously removed the stream
+          // here, leaving Cancel a no-op during the read/approval window). Terminal
+          // paths (finalize + onError) remove it. `.catch` surfaces a rejection
+          // instead of leaving the renderer's spinner hanging until the TTL sweep.
+          void handleStreamCompletion(
+            fullText,
+            request,
+            conv,
+            streamId,
+            abortController,
+            onChunk,
+            onDone,
+            onError,
+            0
+          ).catch((e) => {
+            removeStream(streamId)
+            onError(e instanceof Error ? e.message : String(e))
+          })
         },
         onError: (error: Error) => {
           clearPendingWebSearchApproval(streamId, false)
@@ -597,6 +618,9 @@ async function handleStreamCompletion(
   const restreamConversation = async (): Promise<void> => {
     deps.activeStreams.set(streamId, abortController)
     activeStreamTimestamps.set(streamId, Date.now())
+    // Refresh the heartbeat too, so a legit long file-read→restream chain isn't
+    // force-aborted by the TTL sweep while it's actively streaming.
+    activeStreamLastHeartbeat.set(streamId, Date.now())
     let nextFullText = ''
     const { systemPrompt: sp, messages: msgs } = await conv.getMessagesForApi('')
 
@@ -607,8 +631,9 @@ async function handleStreamCompletion(
       },
       onDone: (text: string) => {
         nextFullText = text
-        removeStream(streamId)
-        handleStreamCompletion(
+        // Stay registered through the next recursion level (cancellable); terminal
+        // paths remove it. `.catch` so a deeper rejection surfaces, not hangs.
+        void handleStreamCompletion(
           nextFullText,
           request,
           conv,
@@ -619,7 +644,10 @@ async function handleStreamCompletion(
           onError,
           fileReadDepth + 1,
           deps
-        )
+        ).catch((e) => {
+          removeStream(streamId)
+          onError(e instanceof Error ? e.message : String(e))
+        })
       },
       onError: (error: Error) => {
         clearPendingWebSearchApproval(streamId, false)
@@ -697,7 +725,9 @@ async function handleStreamCompletion(
     }
   }
 
-  // No special tags — finalize response
+  // No special tags — finalize response. Terminal path: remove the stream here
+  // (it stayed registered through any recursion above so Cancel kept working).
+  removeStream(streamId)
   try {
     let cleaned = fullText
     if (hasViolations(cleaned)) {

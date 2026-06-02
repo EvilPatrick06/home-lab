@@ -207,9 +207,12 @@ export type MapStateForVisionAnalysis = Parameters<typeof analyzeMapState>[0]
 /**
  * Get the appropriate model string for the active provider.
  */
-function getModelForProvider(providerType: string): string {
-  // Import the config to get the currently selected model
-  const { getConfig } = require('./ai-service') as { getConfig: () => { model?: string } | null }
-  const config = getConfig()
-  return config?.model ?? (providerType === 'ollama' ? 'llama3.2' : 'gpt-4o')
+function getModelForProvider(_providerType: string): string {
+  // Use the model the user actually configured — never a per-provider hardcode.
+  // Falls back to the single central default only if nothing is configured.
+  const { getConfig, DEFAULT_AI_MODEL } = require('./ai-service') as {
+    getConfig: () => { model?: string } | null
+    DEFAULT_AI_MODEL: string
+  }
+  return getConfig()?.model || DEFAULT_AI_MODEL
 }

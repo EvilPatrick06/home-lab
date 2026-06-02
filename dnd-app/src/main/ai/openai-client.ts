@@ -99,6 +99,17 @@ export const openaiProvider: LLMProvider = {
   },
 
   async listModels(): Promise<string[]> {
-    return ['gpt-4o', 'gpt-4o-mini', 'o3-mini']
+    if (!apiKey) return []
+    try {
+      // Live model list (filtered to chat-capable GPT/o-series) instead of a
+      // hardcoded snapshot that drifts as models ship/retire.
+      const page = await getClient().models.list()
+      return page.data
+        .map((m) => m.id)
+        .filter((id) => /^(gpt-|o\d|chatgpt)/i.test(id))
+        .sort()
+    } catch {
+      return []
+    }
   }
 }

@@ -50,7 +50,7 @@ export async function ollamaStreamChat(
   systemPrompt: string,
   messages: ChatMessage[],
   callbacks: StreamCallbacks,
-  model: string = 'llama3.1',
+  model: string,
   abortSignal?: AbortSignal
 ): Promise<void> {
   const apiMessages = [
@@ -178,11 +178,7 @@ export async function ollamaStreamChat(
 }
 
 /** Non-streaming chat via Ollama. */
-export async function ollamaChatOnce(
-  systemPrompt: string,
-  messages: ChatMessage[],
-  model: string = 'llama3.1'
-): Promise<string> {
+export async function ollamaChatOnce(systemPrompt: string, messages: ChatMessage[], model: string): Promise<string> {
   const apiMessages = [
     { role: 'system' as const, content: systemPrompt },
     ...messages.map((m) => ({ role: m.role as string, content: m.content }))

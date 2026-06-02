@@ -305,7 +305,7 @@ describe('ollama-client', () => {
         json: async () => ({ choices: [{ message: {} }] })
       })
 
-      const result = await ollamaChatOnce('sys', [{ role: 'user', content: 'test' }])
+      const result = await ollamaChatOnce('sys', [{ role: 'user', content: 'test' }], 'test-model')
       expect(result).toBe('')
     })
 
@@ -316,7 +316,7 @@ describe('ollama-client', () => {
         text: async () => 'Model not found'
       })
 
-      await expect(ollamaChatOnce('sys', [{ role: 'user', content: 'test' }])).rejects.toThrow('404')
+      await expect(ollamaChatOnce('sys', [{ role: 'user', content: 'test' }], 'test-model')).rejects.toThrow('404')
     })
 
     it('sends system prompt and messages in correct order', async () => {
