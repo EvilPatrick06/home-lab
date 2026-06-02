@@ -75,6 +75,28 @@ if (!app.commandLine.hasSwitch('enable-unsafe-swiftshader')) {
   app.commandLine.appendSwitch('enable-unsafe-swiftshader')
 }
 
+// LAN P2P reliability: expose raw local IPs in WebRTC ICE *host* candidates.
+// Chromium hides them behind random `<uuid>.local` mDNS hostnames by default
+// (a privacy measure), but using such a candidate then requires the remote peer
+// to resolve that `.local` name via mDNS. On a machine whose WebRTC network
+// service has no working resolver — the user's two-window test logged EVERY host,
+// including the public STUN servers, failing with "Failed to resolve address …
+// errorcode: -105" — neither the `.local` host candidates nor STUN-derived srflx
+// candidates resolve, so ICE can't nominate a pair and same-machine / same-LAN
+// P2P never connects. With this feature disabled the host candidates carry raw
+// IPs (192.168.x.x / 127.0.0.1) that are dialed directly — no DNS, no STUN — so
+// on-LAN self-host games connect even on a box with a broken WebRTC resolver. The
+// privacy trade-off is negligible for a LAN VTT: the only peer that learns the IP
+// is one you deliberately invited into your game. (Off-LAN play routes through the
+// Cloudflare-tunnelled cloud relay, not raw P2P, so it's unaffected.)
+const disabledFeatures = app.commandLine.getSwitchValue('disable-features')
+if (!disabledFeatures.split(',').includes('WebRtcHideLocalIpsWithMdns')) {
+  app.commandLine.appendSwitch(
+    'disable-features',
+    disabledFeatures ? `${disabledFeatures},WebRtcHideLocalIpsWithMdns` : 'WebRtcHideLocalIpsWithMdns'
+  )
+}
+
 // Single-instance lock — bypassed ONLY by the two-window local multiplayer test
 // launcher (`scripts/dev/two-windows-test.bat` sets DNDVTT_TEST_MULTI=1 and points
 // each instance at its own --user-data-dir, giving them distinct identities).
