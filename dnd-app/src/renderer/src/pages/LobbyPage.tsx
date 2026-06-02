@@ -372,7 +372,11 @@ export default function LobbyPage(): JSX.Element {
     handledLeaveRef.current = true
     disconnect()
     resetLobby()
-    navigate('/')
+    // BUG-4 — a DM who just ended their session belongs back at their campaign hub
+    // (where Host/Solo live), not the join-a-game browser. Players (clients) may not
+    // have that campaign locally, so send them to the main menu. `replace` drops the
+    // dead lobby from history so Back doesn't return to it.
+    navigate(role === 'host' && campaignId ? `/campaign/${campaignId}` : '/', { replace: true })
   }
 
   return (

@@ -17,6 +17,9 @@ interface EmptyCellContextMenuProps {
   /** Phase 16B — DM-only "Add Pin" handler. Prompts for a pin label and
    *  saves a new pin at this cell. */
   onAddPin?: (gridX: number, gridY: number) => void
+  /** S-7 — DM-only "Place AoE here" handler: opens the AoE template modal with
+   *  its origin pre-set to this cell. */
+  onPlaceAoE?: (gridX: number, gridY: number) => void
 }
 
 export default function EmptyCellContextMenu({
@@ -27,7 +30,8 @@ export default function EmptyCellContextMenu({
   mapId,
   onClose,
   onPlaceToken,
-  onAddPin
+  onAddPin,
+  onPlaceAoE
 }: EmptyCellContextMenuProps): JSX.Element {
   const { t } = useT()
   const menuRef = useRef<HTMLDivElement>(null)
@@ -142,6 +146,19 @@ export default function EmptyCellContextMenu({
           >
             {t('game.emptyCellContextMenu.placeToken')}
           </button>
+          {/* S-7 — DM-only "Place AoE here": opens the AoE modal at this cell. */}
+          {onPlaceAoE && (
+            <button
+              type="button"
+              onClick={() => {
+                onPlaceAoE(gridX, gridY)
+                onClose()
+              }}
+              className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-surface-2 transition-colors cursor-pointer"
+            >
+              {t('game.emptyCellContextMenu.placeAoE')}
+            </button>
+          )}
           {/* Phase 16B — DM-only "Add Pin" entry. Spatial bookmark on the map. */}
           {onAddPin && (
             <button

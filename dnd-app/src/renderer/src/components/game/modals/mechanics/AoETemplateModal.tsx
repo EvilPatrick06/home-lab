@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useEscapeKey } from '../../../../hooks/use-escape-key'
 import { useT } from '../../../../i18n'
+import { useGameStore } from '../../../../stores/use-game-store'
 import type { MapToken } from '../../../../types/map'
 import type { AoEConfig, AoEShape, Direction8 } from '../../map/aoe-overlay'
 import { getAoECells } from '../../map/aoe-overlay'
@@ -52,8 +53,11 @@ export default function AoETemplateModal({
   const [shape, setShape] = useState<AoEShape>('sphere')
   const [sizeFeet, setSizeFeet] = useState(20)
   const [direction, setDirection] = useState<Direction8>('N')
-  const [originX, setOriginX] = useState(Math.floor(gridWidth / 2))
-  const [originY, setOriginY] = useState(Math.floor(gridHeight / 2))
+  // S-7 — when opened via the map's right-click "Place AoE here", origin defaults
+  // to that cell (set as pendingPlaceCell); otherwise the map center.
+  const placeCell = useGameStore.getState().pendingPlaceCell
+  const [originX, setOriginX] = useState(placeCell?.gridX ?? Math.floor(gridWidth / 2))
+  const [originY, setOriginY] = useState(placeCell?.gridY ?? Math.floor(gridHeight / 2))
   const [widthFeet, setWidthFeet] = useState(5)
   const [step, _setStep] = useState<'config' | 'preview'>('config')
 

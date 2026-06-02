@@ -335,7 +335,7 @@ export default function CampaignWizard(): JSX.Element {
   return (
     <div>
       {/* Step indicator */}
-      <div className="flex gap-2 mb-2 max-w-2xl">
+      <div className="flex gap-2 mb-2 max-w-4xl">
         {STEPS.map((_, i) => (
           <div
             key={i}
@@ -459,7 +459,7 @@ export default function CampaignWizard(): JSX.Element {
 
       {/* Navigation buttons (Review step has its own submit button) */}
       {step < STEPS.length - 1 && (
-        <div className="flex gap-4 mt-8 max-w-2xl">
+        <div className="flex gap-4 mt-8 max-w-4xl">
           {step > 0 && (
             <Button variant="secondary" onClick={handleBack}>
               {t('campaign.campaignWizard.back')}
@@ -471,7 +471,7 @@ export default function CampaignWizard(): JSX.Element {
         </div>
       )}
       {step === STEPS.length - 1 && step > 0 && (
-        <div className="flex gap-4 mt-4 max-w-2xl">
+        <div className="flex gap-4 mt-4 max-w-4xl">
           <Button variant="secondary" onClick={handleBack}>
             {t('campaign.campaignWizard.back')}
           </Button>

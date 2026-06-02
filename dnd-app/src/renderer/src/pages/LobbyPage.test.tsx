@@ -239,10 +239,11 @@ describe('LobbyPage (host lobby flow)', () => {
     expect(within(dialog).getByText(/Are you sure you want to disconnect/i)).toBeTruthy()
     expect(within(dialog).getByText(/leaving will end the session for all players/i)).toBeTruthy()
 
-    // Confirming leave disconnects + resets + navigates home.
+    // Confirming leave disconnects + resets + navigates the DM back to their
+    // campaign hub (BUG-4 — was the join-a-game browser / bare home).
     fireEvent.click(within(dialog).getByRole('button', { name: 'Leave' }))
     expect(stores.network.disconnect as ReturnType<typeof vi.fn>).toHaveBeenCalledTimes(1)
     expect(stores.lobby.reset as ReturnType<typeof vi.fn>).toHaveBeenCalledTimes(1)
-    expect(navigate).toHaveBeenCalledWith('/')
+    expect(navigate).toHaveBeenCalledWith('/campaign/camp-1', { replace: true })
   })
 })

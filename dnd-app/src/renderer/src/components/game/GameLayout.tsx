@@ -935,6 +935,16 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
           // Phase 16b Step 4 — DM-only Add Pin opens the rich pin-create form (icon/color/
           // visibility/link), replacing the old label-only window.prompt.
           onAddPin={effectiveIsDM ? (gridX, gridY) => setPinDraftCell({ gridX, gridY }) : undefined}
+          // S-7 — DM-only "Place AoE here": stash the cell as the AoE origin + open
+          // the AoE template modal (it reads pendingPlaceCell for its origin).
+          onPlaceAoE={
+            effectiveIsDM
+              ? (gridX, gridY) => {
+                  gameStore.setPendingPlaceCell({ gridX, gridY })
+                  setActiveModal('aoe')
+                }
+              : undefined
+          }
         />
       )}
       {pinDraftCell && activeMap && effectiveIsDM && (

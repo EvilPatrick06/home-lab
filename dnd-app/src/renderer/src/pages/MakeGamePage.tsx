@@ -36,7 +36,7 @@ export default function MakeGamePage(): JSX.Element {
     <div className="p-8 h-screen overflow-y-auto">
       <BackButton to="/" />
 
-      <div className="flex items-center justify-between mb-6 max-w-2xl">
+      <div className="flex items-center justify-between mb-6 max-w-4xl">
         <h1 className="text-3xl font-bold">{t('pages.makeGamePage.title')}</h1>
         <div className="flex items-center gap-2">
           <Button variant="secondary" onClick={() => navigate('/library?from=/make')}>
@@ -49,7 +49,7 @@ export default function MakeGamePage(): JSX.Element {
       </div>
 
       {importError && (
-        <div className="mb-4 p-3 rounded-lg bg-red-900/20 border border-red-700/30 text-sm text-red-300 max-w-2xl">
+        <div className="mb-4 p-3 rounded-lg bg-red-900/20 border border-red-700/30 text-sm text-red-300 max-w-4xl">
           {importError}
         </div>
       )}

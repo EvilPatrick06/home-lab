@@ -3100,6 +3100,7 @@
     "emptyCellContextMenu": {
       "summonMonster": "Invocar monstruo",
       "placeToken": "Colocar token",
+      "placeAoE": "Colocar AdE aquí",
       "addPin": "Añadir marcador",
       "searchPlaceholder": "Buscar monstruos...",
       "noMatches": "Sin coincidencias",
@@ -3823,7 +3824,7 @@
       "clickToPlace": "Haz clic en el mapa para colocar",
       "prepareToken": "Preparar token",
       "clickMapInstruction": "Haz clic en el mapa para colocar el token",
-      "existingTokens": "Tokens existentes ({{count}})",
+      "existingTokens": "Tokens en este mapa ({{count}})",
       "removeToken": "Quitar token"
     },
     "regionManager": {
@@ -4871,7 +4872,7 @@
   "settings": {
     "microphoneSettings": {
       "permissionDefault": "Permiso de micrófono denegado o no hay dispositivo de entrada disponible.",
-      "intro": "Elige el micrófono que vas a usar, observa los niveles de entrada en vivo, configura una tecla de pulsar para hablar y ajusta la ganancia de entrada. Los ajustes persisten entre sesiones y alimentarán una futura integración de chat de voz.",
+      "intro": "Elige el micrófono que vas a usar, observa los niveles de entrada en vivo, configura una tecla de pulsar para hablar y ajusta la ganancia de entrada. Los ajustes persisten entre sesiones.",
       "unavailable": "Micrófono no disponible",
       "inputDevice": "Dispositivo de entrada",
       "systemDefault": "Predeterminado del sistema",
@@ -5096,7 +5097,7 @@
       "featureCampaignManagement": "Gestión de campañas con módulos de aventura",
       "featureBattleMap": "Mapa de batalla interactivo (PixiJS) con cuadrícula, tokens y niebla de guerra",
       "featureInitiativeTracker": "Rastreador de iniciativa con reglas de sorpresa",
-      "featureDice": "Dados 3D con motor de físicas (Three.js + cannon-es)",
+      "featureDice": "Dados 3D con un motor de físicas real",
       "featureMultiplayer": "Multijugador P2P vía WebRTC",
       "featureAiDm": "Dungeon Master con IA (Claude, OpenAI, Gemini, Ollama)",
       "featureBastion": "Sistema de bastiones (reglas del DMG 2024)",

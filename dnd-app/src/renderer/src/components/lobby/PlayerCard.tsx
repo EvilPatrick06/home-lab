@@ -139,6 +139,9 @@ export default memo(function PlayerCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span
+              // BUG-5 — the name is truncated to fit the card; expose the full name on
+              // hover so a long DM name (e.g. "Dungeon Master") isn't lost as "Dungeon…".
+              title={player.displayName}
               className={`text-sm truncate ${player.isHost ? 'font-bold text-accent' : 'font-medium text-gray-200'}`}
             >
               {player.displayName}

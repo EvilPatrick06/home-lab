@@ -239,7 +239,9 @@ export function rollBastionEvent(): BastionEventResult {
       subRolls['2d4-refugees'] = refugeeCount
       subRolls['d6-refugee-income'] = refugeeIncomeRoll
       const refugeeIncome = refugeeIncomeRoll * 100
-      description = `Refugees! ${refugeeCount} refugees (2d4 [${refugeeRoll.join(', ')}]) arrive at the bastion seeking shelter. If you take them in, they contribute ${refugeeIncome} GP (${refugeeIncomeRoll} x 100) in labor and services over the next bastion turn. Some may be willing to stay on as hirelings.`
+      // S-9 — the income is applied automatically (there is no accept/decline step),
+      // so state it factually instead of the misleading "If you take them in…".
+      description = `Refugees! ${refugeeCount} refugees (2d4 [${refugeeRoll.join(', ')}]) arrive at the bastion seeking shelter and are taken in, contributing ${refugeeIncome} GP (${refugeeIncomeRoll} x 100) in labor and services. Some may be willing to stay on as hirelings.`
       break
     }
 

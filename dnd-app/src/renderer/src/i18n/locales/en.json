@@ -3100,6 +3100,7 @@
     "emptyCellContextMenu": {
       "summonMonster": "Summon Monster",
       "placeToken": "Place Token",
+      "placeAoE": "Place AoE here",
       "addPin": "Add Pin",
       "searchPlaceholder": "Search monsters...",
       "noMatches": "No matches",
@@ -3823,7 +3824,7 @@
       "clickToPlace": "Click map to place",
       "prepareToken": "Prepare Token",
       "clickMapInstruction": "Click on the map to place the token",
-      "existingTokens": "Existing Tokens ({{count}})",
+      "existingTokens": "Tokens on This Map ({{count}})",
       "removeToken": "Remove token"
     },
     "regionManager": {
@@ -4871,7 +4872,7 @@
   "settings": {
     "microphoneSettings": {
       "permissionDefault": "Microphone permission denied or no input device available.",
-      "intro": "Pick the mic to use, see live input levels, set a push-to-talk key, and tune input gain. Settings persist across sessions and will feed a future voice-chat integration.",
+      "intro": "Pick the mic to use, see live input levels, set a push-to-talk key, and tune input gain. Settings persist across sessions.",
       "unavailable": "Microphone unavailable",
       "inputDevice": "Input device",
       "systemDefault": "System default",
@@ -5096,7 +5097,7 @@
       "featureCampaignManagement": "Campaign Management with adventure modules",
       "featureBattleMap": "Interactive Battle Map (PixiJS) with grid, tokens, fog of war",
       "featureInitiativeTracker": "Initiative Tracker with surprise rules",
-      "featureDice": "3D Dice with physics engine (Three.js + cannon-es)",
+      "featureDice": "3D dice with a real physics engine",
       "featureMultiplayer": "P2P Multiplayer via WebRTC",
       "featureAiDm": "AI Dungeon Master (Claude, OpenAI, Gemini, Ollama)",
       "featureBastion": "Bastion System (2024 DMG rules)",

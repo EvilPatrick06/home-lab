@@ -1188,7 +1188,7 @@ export default function SettingsPage(): JSX.Element {
           while the settings content scrolls. z-40 sits just under the fixed
           GlobalSettingsButton gear (z-50). */}
       <div className="sticky top-0 z-40 border-b border-gray-800 bg-base">
-        <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate(-1)}
@@ -1217,7 +1217,7 @@ export default function SettingsPage(): JSX.Element {
       </div>
 
       {/* Content */}
-      <div className="max-w-3xl mx-auto px-6 py-6 space-y-6">
+      <div className="max-w-5xl mx-auto px-6 py-6 space-y-6">
         {/* Profile */}
         <Section title={t('pages.settingsPage.profile')}>
           <div className="flex items-center justify-between">
