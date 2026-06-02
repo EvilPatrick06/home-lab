@@ -4,8 +4,6 @@
 import { logToFile } from '../log'
 import { DmActionsBlockSchema, repairJson, type ValidationIssue, validateDmActions } from './ai-schemas'
 
-const DM_ACTIONS_RE = /\[DM_ACTIONS\]\s*([\s\S]*?)\s*\[\/DM_ACTIONS\]/
-
 // ── Discriminated union of all DM actions ──
 
 export type DmAction =
@@ -235,39 +233,42 @@ export function parseDmActions(response: string): DmAction[] {
  * Returns both valid actions and detailed validation issues for logging.
  */
 export function parseDmActionsDetailed(response: string): DmActionParseResult {
-  const match = response.match(DM_ACTIONS_RE)
-  if (!match) return { actions: [], issues: [] }
+  // Parse EVERY [DM_ACTIONS] block, not just the first — stripDmActions removes them
+  // all (global), so a second block's actions (e.g. an extra end_initiative) were
+  // dropped AND hidden from the player. Concatenate across blocks.
+  const blocks = [...response.matchAll(/\[DM_ACTIONS\]\s*([\s\S]*?)\s*\[\/DM_ACTIONS\]/g)]
+  if (blocks.length === 0) return { actions: [], issues: [] }
 
-  const repaired = repairJson(match[1])
+  const allValid: DmAction[] = []
+  const allIssues: DmActionParseResult['issues'] = []
+  let rawJsonError: string | undefined
 
-  let rawItems: unknown[]
-  try {
-    const parsed = JSON.parse(repaired)
-    const block = DmActionsBlockSchema.safeParse(parsed)
-    if (!block.success) {
-      const err = `[DM_ACTIONS] block missing "actions" array: ${block.error.issues.map((i) => i.message).join(', ')}`
-      logToFile('WARN', `[AI Schema] ${err}`)
-      return { actions: [], issues: [], rawJsonError: err }
+  for (const match of blocks) {
+    const repaired = repairJson(match[1])
+    try {
+      const parsed = JSON.parse(repaired)
+      const block = DmActionsBlockSchema.safeParse(parsed)
+      if (!block.success) {
+        rawJsonError = `[DM_ACTIONS] block missing "actions" array: ${block.error.issues.map((i) => i.message).join(', ')}`
+        logToFile('WARN', `[AI Schema] ${rawJsonError}`)
+        continue
+      }
+      const { valid, issues } = validateDmActions(block.data.actions)
+      for (const issue of issues) {
+        logToFile(
+          'WARN',
+          `[AI Schema] DM action [${issue.index}] rejected: ${issue.errors.join('; ')} — input: ${JSON.stringify(issue.input).slice(0, 200)}`
+        )
+      }
+      allValid.push(...(valid as DmAction[]))
+      allIssues.push(...issues)
+    } catch (e) {
+      rawJsonError = `[DM_ACTIONS] JSON parse failed: ${e instanceof Error ? e.message : String(e)}`
+      logToFile('WARN', `[AI Schema] ${rawJsonError}`)
     }
-    rawItems = block.data.actions
-  } catch (e) {
-    const err = `[DM_ACTIONS] JSON parse failed: ${e instanceof Error ? e.message : String(e)}`
-    logToFile('WARN', `[AI Schema] ${err}`)
-    return { actions: [], issues: [], rawJsonError: err }
   }
 
-  const { valid, issues } = validateDmActions(rawItems)
-
-  if (issues.length > 0) {
-    for (const issue of issues) {
-      logToFile(
-        'WARN',
-        `[AI Schema] DM action [${issue.index}] rejected: ${issue.errors.join('; ')} — input: ${JSON.stringify(issue.input).slice(0, 200)}`
-      )
-    }
-  }
-
-  return { actions: valid as DmAction[], issues }
+  return { actions: allValid, issues: allIssues, rawJsonError }
 }
 
 /** Remove the [DM_ACTIONS] block from response text for display. */

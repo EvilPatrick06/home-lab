@@ -17,11 +17,34 @@ export function repairJson(raw: string): string {
   // Strip markdown code fences (```json ... ``` or ``` ... ```)
   s = s.replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?\s*```\s*$/i, '')
 
-  // Remove single-line JS comments (// ...) that aren't inside strings.
-  // Heuristic: only strip lines that are *entirely* a comment or where the
-  // comment follows a comma/bracket (common LLM mistake).
-  s = s.replace(/,\s*\/\/[^\n]*/g, ',')
-  s = s.replace(/^\s*\/\/[^\n]*$/gm, '')
+  // Remove `//` line comments that are NOT inside a JSON string. The previous
+  // regexes weren't string-aware and corrupted legitimate values containing `//`
+  // (e.g. an item named "Scroll, // ancient" or a URL), truncating mid-string and
+  // dropping the whole block. Walk each line tracking string state.
+  s = s
+    .split('\n')
+    .map((line) => {
+      let inStr = false
+      let esc = false
+      for (let i = 0; i < line.length - 1; i++) {
+        const ch = line[i]
+        if (esc) {
+          esc = false
+          continue
+        }
+        if (ch === '\\') {
+          esc = true
+          continue
+        }
+        if (ch === '"') {
+          inStr = !inStr
+          continue
+        }
+        if (!inStr && ch === '/' && line[i + 1] === '/') return line.slice(0, i)
+      }
+      return line
+    })
+    .join('\n')
 
   // Trailing commas: ,] or ,}
   s = s.replace(/,\s*([\]}])/g, '$1')
@@ -642,6 +665,23 @@ const ShareHandoutSchema = z.object({
   contentType: z.enum(['text', 'image']).optional()
 })
 
+// Both prompts advertise these and the renderer fully implements them
+// (game-actions/visibility-actions.ts), but they were missing from the schema map
+// so validateDmAction silently dropped them — lighting a torch via the AI never worked.
+const LightSourceSchema = z.object({
+  action: z.literal('light_source'),
+  entityName: z.string(),
+  sourceName: z.string(),
+  reason: z.string().optional()
+})
+
+const ExtinguishSourceSchema = z.object({
+  action: z.literal('extinguish_source'),
+  entityName: z.string(),
+  sourceName: z.string().optional(),
+  reason: z.string().optional()
+})
+
 /**
  * All known DM action schemas keyed by action name.
  * Used for individual validation when discriminatedUnion can't match.
@@ -705,7 +745,9 @@ const DM_ACTION_SCHEMAS: Record<string, z.ZodType> = {
   set_npc_attitude: SetNpcAttitudeActionSchema,
   log_npc_interaction: LogNpcInteractionSchema,
   set_npc_relationship: SetNpcRelationshipSchema,
-  share_handout: ShareHandoutSchema
+  share_handout: ShareHandoutSchema,
+  light_source: LightSourceSchema,
+  extinguish_source: ExtinguishSourceSchema
 }
 
 export const DmActionsBlockSchema = z.object({

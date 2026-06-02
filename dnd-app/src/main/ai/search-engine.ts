@@ -38,7 +38,10 @@ export class SearchEngine {
     })
 
     for (const [term, df] of docFreq) {
-      this.idf.set(term, Math.log(docCount / (1 + df)))
+      // Clamp IDF ≥ 0: log(docCount/(1+df)) goes negative for terms in >half the
+      // chunks, which actively penalized relevant chunks (then most were filtered
+      // by score>0 anyway). A non-negative idf treats ubiquitous terms as neutral.
+      this.idf.set(term, Math.max(0, Math.log(docCount / (1 + df))))
     }
 
     this.headingTerms = this.chunks.map((chunk) => {

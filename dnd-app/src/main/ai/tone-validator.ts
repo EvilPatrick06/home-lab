@@ -24,6 +24,8 @@ export function detectToneViolations(text: string): ToneViolation[] {
     .replace(/\[DM_ACTIONS\][\s\S]*?\[\/DM_ACTIONS\]/g, '')
     .replace(/\[FILE_READ\][\s\S]*?\[\/FILE_READ\]/g, '')
     .replace(/\[WEB_SEARCH\][\s\S]*?\[\/WEB_SEARCH\]/g, '')
+    // Rulebook citations legitimately contain markdown/quotes; don't tone-scan them.
+    .replace(/\[RULE_CITATION[^\]]*\][\s\S]*?\[\/RULE_CITATION\]/g, '')
 
   const violations: ToneViolation[] = []
 
@@ -44,7 +46,7 @@ export function cleanNarrativeText(text: string): string {
   // Preserve JSON blocks
   const jsonBlocks: string[] = []
   let cleaned = text.replace(
-    /(\[STAT_CHANGES\][\s\S]*?\[\/STAT_CHANGES\]|\[DM_ACTIONS\][\s\S]*?\[\/DM_ACTIONS\]|\[FILE_READ\][\s\S]*?\[\/FILE_READ\]|\[WEB_SEARCH\][\s\S]*?\[\/WEB_SEARCH\])/g,
+    /(\[STAT_CHANGES\][\s\S]*?\[\/STAT_CHANGES\]|\[DM_ACTIONS\][\s\S]*?\[\/DM_ACTIONS\]|\[FILE_READ\][\s\S]*?\[\/FILE_READ\]|\[WEB_SEARCH\][\s\S]*?\[\/WEB_SEARCH\]|\[RULE_CITATION[^\]]*\][\s\S]*?\[\/RULE_CITATION\])/g,
     (match) => {
       jsonBlocks.push(match)
       return `__JSON_BLOCK_${jsonBlocks.length - 1}__`

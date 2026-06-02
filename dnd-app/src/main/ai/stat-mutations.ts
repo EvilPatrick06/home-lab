@@ -5,8 +5,6 @@ import { loadCharacter, saveCharacter } from '../storage/character-storage'
 import { repairJson, StatChangesBlockSchema, type ValidationIssue, validateStatChanges } from './ai-schemas'
 import type { MutationResult, StatChange } from './types'
 
-const STAT_CHANGES_RE = /\[STAT_CHANGES\]\s*([\s\S]*?)\s*\[\/STAT_CHANGES\]/
-
 export interface StatChangeParseResult {
   changes: StatChange[]
   issues: ValidationIssue[]
@@ -23,39 +21,41 @@ export function parseStatChanges(response: string): StatChange[] {
  * Returns both valid changes and detailed validation issues for logging.
  */
 export function parseStatChangesDetailed(response: string): StatChangeParseResult {
-  const match = response.match(STAT_CHANGES_RE)
-  if (!match) return { changes: [], issues: [] }
+  // Parse EVERY [STAT_CHANGES] block (the strip removes them all) so a second
+  // block's changes aren't silently dropped + hidden.
+  const blocks = [...response.matchAll(/\[STAT_CHANGES\]\s*([\s\S]*?)\s*\[\/STAT_CHANGES\]/g)]
+  if (blocks.length === 0) return { changes: [], issues: [] }
 
-  const repaired = repairJson(match[1])
+  const allValid: StatChange[] = []
+  const allIssues: ValidationIssue[] = []
+  let rawJsonError: string | undefined
 
-  let rawItems: unknown[]
-  try {
-    const parsed = JSON.parse(repaired)
-    const block = StatChangesBlockSchema.safeParse(parsed)
-    if (!block.success) {
-      const err = `[STAT_CHANGES] block missing "changes" array: ${block.error.issues.map((i) => i.message).join(', ')}`
-      logToFile('WARN', `[AI Schema] ${err}`)
-      return { changes: [], issues: [], rawJsonError: err }
+  for (const match of blocks) {
+    const repaired = repairJson(match[1])
+    try {
+      const parsed = JSON.parse(repaired)
+      const block = StatChangesBlockSchema.safeParse(parsed)
+      if (!block.success) {
+        rawJsonError = `[STAT_CHANGES] block missing "changes" array: ${block.error.issues.map((i) => i.message).join(', ')}`
+        logToFile('WARN', `[AI Schema] ${rawJsonError}`)
+        continue
+      }
+      const { valid, issues } = validateStatChanges(block.data.changes)
+      for (const issue of issues) {
+        logToFile(
+          'WARN',
+          `[AI Schema] Stat change [${issue.index}] rejected: ${issue.errors.join('; ')} — input: ${JSON.stringify(issue.input).slice(0, 200)}`
+        )
+      }
+      allValid.push(...(valid as StatChange[]))
+      allIssues.push(...issues)
+    } catch (e) {
+      rawJsonError = `[STAT_CHANGES] JSON parse failed: ${e instanceof Error ? e.message : String(e)}`
+      logToFile('WARN', `[AI Schema] ${rawJsonError}`)
     }
-    rawItems = block.data.changes
-  } catch (e) {
-    const err = `[STAT_CHANGES] JSON parse failed: ${e instanceof Error ? e.message : String(e)}`
-    logToFile('WARN', `[AI Schema] ${err}`)
-    return { changes: [], issues: [], rawJsonError: err }
   }
 
-  const { valid, issues } = validateStatChanges(rawItems)
-
-  if (issues.length > 0) {
-    for (const issue of issues) {
-      logToFile(
-        'WARN',
-        `[AI Schema] Stat change [${issue.index}] rejected: ${issue.errors.join('; ')} — input: ${JSON.stringify(issue.input).slice(0, 200)}`
-      )
-    }
-  }
-
-  return { changes: valid as StatChange[], issues }
+  return { changes: allValid, issues: allIssues, rawJsonError }
 }
 
 /** Remove the [STAT_CHANGES] block from response text for display. */
