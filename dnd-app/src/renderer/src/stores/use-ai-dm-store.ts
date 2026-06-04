@@ -457,11 +457,27 @@ export const useAiDmStore = create<AiDmState>((set, get) => ({
       }
     }
 
-    const handleStreamStatus = (data: { streamId: string; status: string }): void => {
+    const handleStreamStatus = (data: { streamId: string; status: string; from?: string; to?: string }): void => {
       const state = get()
-      if (data.streamId === state.activeStreamId && data.status === 'loading_model') {
+      if (data.streamId !== state.activeStreamId) return
+      if (data.status === 'loading_model') {
         // Advisory only — never touch isTyping or the safety timeout.
         set({ streamStatus: 'loading_model' })
+      } else if (data.status === 'model_switched' && data.to) {
+        // The configured model wasn't installed — tell the player WHICH model is now
+        // in use and WHY, both as a persistent chat note and an immediate alert.
+        const content = data.from
+          ? i18n.t('notify.aiDmStore.modelSwitched', { from: data.from, to: data.to })
+          : i18n.t('notify.aiDmStore.modelAutoSelected', { to: data.to })
+        useLobbyStore.getState().addChatMessage({
+          id: `ai-model-switch-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
+          senderId: 'system',
+          senderName: 'System',
+          content,
+          timestamp: Date.now(),
+          isSystem: true
+        })
+        pushDmAlert('warning', content)
       }
     }
 

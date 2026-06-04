@@ -197,7 +197,7 @@ const api = {
     onStreamWebSearch: (cb: (data: { streamId: string; query: string; status: string }) => void) => {
       ipcRenderer.on(IPC_CHANNELS.AI_STREAM_WEB_SEARCH, (_e, data) => cb(data))
     },
-    onStreamStatus: (cb: (data: { streamId: string; status: string }) => void) => {
+    onStreamStatus: (cb: (data: { streamId: string; status: string; from?: string; to?: string }) => void) => {
       ipcRenderer.on(IPC_CHANNELS.AI_STREAM_STATUS, (_e, data) => cb(data))
     },
     approveWebSearch: (streamId: string, approved: boolean) =>

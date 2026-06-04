@@ -322,7 +322,7 @@ interface AiAPI {
   onOllamaProgress: (cb: (data: OllamaProgressData) => void) => void
   onStreamFileRead: (cb: (data: { streamId: string; path: string; status: string }) => void) => void
   onStreamWebSearch: (cb: (data: { streamId: string; query: string; status: string }) => void) => void
-  onStreamStatus: (cb: (data: { streamId: string; status: string }) => void) => void
+  onStreamStatus: (cb: (data: { streamId: string; status: string; from?: string; to?: string }) => void) => void
   approveWebSearch: (streamId: string, approved: boolean) => Promise<{ success: boolean; error?: string }>
   removeAllAiListeners: () => void
 }

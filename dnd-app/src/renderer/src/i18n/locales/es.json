@@ -5062,6 +5062,8 @@
       "runApprovedFailed": "No se pudieron ejecutar las acciones de IA aprobadas",
       "mutationsAutoRejected": "Mutaciones de IA rechazadas automáticamente (tiempo de espera de 60s)",
       "mutationUnknownCharacter": "La IA intentó modificar un personaje desconocido \"{{name}}\" — cambio omitido",
+      "modelSwitched": "El modelo de IA \"{{from}}\" no está instalado — se cambió a \"{{to}}\". Para usar \"{{from}}\", ejecuta: ollama pull {{from}}",
+      "modelAutoSelected": "No se configuró ningún modelo de IA — usando el modelo instalado \"{{to}}\".",
       "aiDmError": "DM con IA: {{error}}"
     },
     "loadCharacter5e": {

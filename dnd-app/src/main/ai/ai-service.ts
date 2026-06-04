@@ -548,13 +548,18 @@ function sendWebSearchStatus(
   })
 }
 
-/** Informational stream status (e.g. the first-token watchdog telling the UI the
- * model is still loading) — purely advisory, never clears the renderer's typing
- * state or safety timeout. */
-function sendStreamStatus(streamId: string, status: 'loading_model'): void {
+/** Informational stream status — purely advisory, never clears the renderer's
+ * typing state or safety timeout. 'loading_model' = first-token watchdog;
+ * 'model_switched' = the configured Ollama model wasn't installed so we fell back
+ * to an installed one (carries from/to so the UI can tell the player which + why). */
+function sendStreamStatus(
+  streamId: string,
+  status: 'loading_model' | 'model_switched',
+  extra?: { from?: string; to?: string }
+): void {
   const win = BrowserWindow.getAllWindows()[0]
   if (!win) return
-  win.webContents.send(IPC_CHANNELS.AI_STREAM_STATUS, { streamId, status })
+  win.webContents.send(IPC_CHANNELS.AI_STREAM_STATUS, { streamId, status, ...extra })
 }
 
 // Time before the first token after which we tell the UI the model is likely
@@ -568,7 +573,7 @@ const FIRST_TOKEN_NOTICE_MS = 12_000
  * "don't hardcode models" directive — the hardcoded id is only a pull hint now).
  * No-op for cloud providers (they validate the model server-side on the request).
  */
-export async function resolveOllamaModel(configured: string): Promise<string> {
+export async function resolveOllamaModel(configured: string, streamId?: string): Promise<string> {
   if (getActiveProviderType() !== 'ollama') return configured
   const installed = await listOllamaModels()
   if (installed.length === 0) {
@@ -580,6 +585,10 @@ export async function resolveOllamaModel(configured: string): Promise<string> {
   const picked = installed[0]
   logToFile('warn', `[AI] configured Ollama model "${configured || '<none>'}" not installed; using "${picked}"`)
   currentConfig.model = picked
+  // Tell the player WHICH model we switched to and WHY (configured one missing, or
+  // none set) — a one-time notice, since currentConfig.model is now the installed
+  // one so the next message won't re-switch.
+  if (streamId) sendStreamStatus(streamId, 'model_switched', { from: configured, to: picked })
   return picked
 }
 
@@ -621,7 +630,7 @@ export function startChat(
     try {
       // Resolve the model against what Ollama actually has BEFORE building context
       // so a missing/empty model errors in ~ms instead of hanging the request.
-      const model = await resolveOllamaModel(currentConfig.model)
+      const model = await resolveOllamaModel(currentConfig.model, streamId)
 
       const context = await buildContext(
         request.message,

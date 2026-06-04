@@ -159,6 +159,26 @@ describe('useAiDmStore', () => {
       useAiDmStore.setState({ activeStreamId: null, isTyping: false, streamStatus: null })
     })
 
+    it('model_switched posts a persistent system chat note naming from→to model', async () => {
+      const { useLobbyStore } = await import('./use-lobby-store')
+      const cleanupListeners = useAiDmStore.getState().setupListeners()
+      useAiDmStore.setState({ activeStreamId: 'sid-1', isTyping: true })
+      const before = useLobbyStore.getState().chatMessages.length
+
+      aiHandlers.status?.({ streamId: 'sid-1', status: 'model_switched', from: 'llama3.2:3b', to: 'gemma3:4b' })
+
+      const msgs = useLobbyStore.getState().chatMessages
+      expect(msgs.length).toBe(before + 1)
+      const note = msgs[msgs.length - 1]
+      expect(note.isSystem).toBe(true)
+      expect(note.content).toContain('llama3.2:3b')
+      expect(note.content).toContain('gemma3:4b')
+      // Advisory — must not end the stream.
+      expect(useAiDmStore.getState().isTyping).toBe(true)
+      cleanupListeners()
+      useAiDmStore.setState({ activeStreamId: null, isTyping: false })
+    })
+
     it('a first chunk clears a pending loading_model notice', () => {
       const cleanupListeners = useAiDmStore.getState().setupListeners()
       useAiDmStore.setState({

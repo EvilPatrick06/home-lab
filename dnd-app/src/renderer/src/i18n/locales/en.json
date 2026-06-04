@@ -5062,6 +5062,8 @@
       "runApprovedFailed": "Failed to run approved AI actions",
       "mutationsAutoRejected": "AI mutations auto-rejected (60s timeout)",
       "mutationUnknownCharacter": "AI tried to modify unknown character \"{{name}}\" — change skipped",
+      "modelSwitched": "AI model \"{{from}}\" isn't installed — switched to \"{{to}}\". To use \"{{from}}\", run: ollama pull {{from}}",
+      "modelAutoSelected": "No AI model was set — using installed model \"{{to}}\".",
       "aiDmError": "AI DM: {{error}}"
     },
     "loadCharacter5e": {
