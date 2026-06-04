@@ -195,13 +195,15 @@ import {
   initFromSavedConfig,
   loadIndex,
   removeConversation,
+  resolveOllamaModel,
   startChat,
   streamChatRetryable,
   streamWithRetry,
   wasContextTruncated
 } from './ai-service'
 import { loadChunkIndex } from './chunk-builder'
-import { setOllamaUrl } from './ollama-client'
+import { getOllamaUrl, listOllamaModels, setOllamaUrl } from './ollama-client'
+import { getActiveProviderType } from './provider-registry'
 
 describe('ai-service', () => {
   beforeEach(() => {
@@ -238,15 +240,15 @@ describe('ai-service', () => {
       )
     })
 
-    it('defaults model to the curated llama3.2:3b if not provided', async () => {
-      // AI-1 — the old default 'llama3.1' was not an installable curated model
-      // (curated has 'llama3.1:8b'/'llama3.1:70b'), so campaigns saved a model that
-      // 404'd on use. The default is now the recommended installable 'llama3.2:3b'.
+    it('leaves the model EMPTY when not provided (resolved against installed models at stream time)', async () => {
+      // No hardcoded model fallback — pinning a specific id here would 404 on any
+      // setup lacking that exact model. An unset model stays '' and is resolved by
+      // resolveOllamaModel against the live installed list when a stream starts.
       await configure({ provider: 'ollama', model: '', ollamaUrl: '' })
 
       const writtenJson = (writeFile as ReturnType<typeof vi.fn>).mock.calls[0][1]
       const parsed = JSON.parse(writtenJson)
-      expect(parsed.model).toBe('llama3.2:3b')
+      expect(parsed.model).toBe('')
     })
   })
 
@@ -573,6 +575,42 @@ describe('ai-service', () => {
       } finally {
         vi.useRealTimers()
       }
+    })
+  })
+
+  // ── Ollama model preflight ──
+  // Resolve the configured model against what's actually installed so solo "just
+  // works" (and a missing/empty model fails fast + actionable instead of hanging).
+  describe('resolveOllamaModel', () => {
+    beforeEach(() => {
+      vi.mocked(getActiveProviderType).mockReturnValue('ollama')
+      vi.mocked(getOllamaUrl).mockReturnValue('http://localhost:11434')
+    })
+
+    it('returns the configured model unchanged when it IS installed', async () => {
+      vi.mocked(listOllamaModels).mockResolvedValueOnce(['llama3.1', 'mistral'])
+      expect(await resolveOllamaModel('mistral')).toBe('mistral')
+    })
+
+    it('falls back to the first installed model when the configured one is NOT installed', async () => {
+      vi.mocked(listOllamaModels).mockResolvedValueOnce(['gemma3:4b', 'mistral'])
+      expect(await resolveOllamaModel('llama3.2:3b')).toBe('gemma3:4b')
+    })
+
+    it('falls back to the first installed model when none is configured (empty)', async () => {
+      vi.mocked(listOllamaModels).mockResolvedValueOnce(['gemma3:4b'])
+      expect(await resolveOllamaModel('')).toBe('gemma3:4b')
+    })
+
+    it('throws an actionable "ollama pull" error when NO models are installed', async () => {
+      vi.mocked(listOllamaModels).mockResolvedValueOnce([])
+      await expect(resolveOllamaModel('')).rejects.toThrow('ollama pull')
+    })
+
+    it('leaves a cloud provider model untouched (no Ollama preflight)', async () => {
+      vi.mocked(getActiveProviderType).mockReturnValue('claude')
+      expect(await resolveOllamaModel('claude-opus-4-7')).toBe('claude-opus-4-7')
+      expect(listOllamaModels).not.toHaveBeenCalled()
     })
   })
 })

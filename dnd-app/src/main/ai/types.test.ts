@@ -47,6 +47,7 @@ describe('types', () => {
     const status: import('./types').ProviderStatus = {
       ollama: true,
       ollamaModels: ['llama3.1', 'mistral'],
+      ollamaHasUsableModel: true,
       claude: false,
       openai: false,
       gemini: false

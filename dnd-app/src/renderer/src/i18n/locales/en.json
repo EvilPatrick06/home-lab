@@ -890,9 +890,11 @@
       "send": "Send",
       "noMessages": "No messages yet",
       "aiTyping": "AI DM is typing...",
+      "aiLoadingModel": "Loading model… (first response can take a while)",
       "aiError": "AI DM error: {{error}}",
       "aiResponding": "AI responding",
       "aiReady": "AI ready",
+      "aiNoModel": "No model installed — pull one in AI settings",
       "tokensTitle": "Estimated conversation tokens",
       "tokens": "~{{used}} / 23,000 tokens",
       "commandReference": "Command reference"

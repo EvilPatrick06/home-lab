@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
-import { classifyProviderError, type LLMProvider } from './llm-provider'
+import { classifyProviderError, type LLMProvider, PROVIDER_REQUEST_TIMEOUT_MS } from './llm-provider'
 import type { ChatMessage, StreamCallbacks } from './types'
 
 let apiKey: string | undefined
@@ -31,7 +31,10 @@ export const geminiProvider: LLMProvider = {
       const client = getClient()
       // Phase 17d (NET-8) — enforce a 120s request timeout (this SDK's RequestOptions has no
       // `signal`; caller abort is handled by the `abortSignal?.aborted` checks in the stream loop).
-      const genModel = client.getGenerativeModel({ model, systemInstruction: systemPrompt }, { timeout: 120_000 })
+      const genModel = client.getGenerativeModel(
+        { model, systemInstruction: systemPrompt },
+        { timeout: PROVIDER_REQUEST_TIMEOUT_MS }
+      )
 
       const history = messages.slice(0, -1).map((m) => ({
         role: toGeminiRole(m.role),
@@ -68,7 +71,10 @@ export const geminiProvider: LLMProvider = {
   async chatOnce(systemPrompt: string, messages: ChatMessage[], model: string): Promise<string> {
     const client = getClient()
     // Phase 17d (NET-8) — 120s request timeout (cloud calls can't hang forever).
-    const genModel = client.getGenerativeModel({ model, systemInstruction: systemPrompt }, { timeout: 120_000 })
+    const genModel = client.getGenerativeModel(
+      { model, systemInstruction: systemPrompt },
+      { timeout: PROVIDER_REQUEST_TIMEOUT_MS }
+    )
 
     const history = messages.slice(0, -1).map((m) => ({
       role: toGeminiRole(m.role),

@@ -197,6 +197,9 @@ const api = {
     onStreamWebSearch: (cb: (data: { streamId: string; query: string; status: string }) => void) => {
       ipcRenderer.on(IPC_CHANNELS.AI_STREAM_WEB_SEARCH, (_e, data) => cb(data))
     },
+    onStreamStatus: (cb: (data: { streamId: string; status: string }) => void) => {
+      ipcRenderer.on(IPC_CHANNELS.AI_STREAM_STATUS, (_e, data) => cb(data))
+    },
     approveWebSearch: (streamId: string, approved: boolean) =>
       ipcRenderer.invoke(IPC_CHANNELS.AI_WEB_SEARCH_APPROVE, streamId, approved),
     removeAllAiListeners: () => {
@@ -207,6 +210,7 @@ const api = {
       ipcRenderer.removeAllListeners(IPC_CHANNELS.AI_OLLAMA_PROGRESS)
       ipcRenderer.removeAllListeners(IPC_CHANNELS.AI_STREAM_FILE_READ)
       ipcRenderer.removeAllListeners(IPC_CHANNELS.AI_STREAM_WEB_SEARCH)
+      ipcRenderer.removeAllListeners(IPC_CHANNELS.AI_STREAM_STATUS)
     }
   },
 

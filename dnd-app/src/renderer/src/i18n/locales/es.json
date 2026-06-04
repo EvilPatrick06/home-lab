@@ -890,9 +890,11 @@
       "send": "Enviar",
       "noMessages": "Aún no hay mensajes",
       "aiTyping": "El DM de IA está escribiendo...",
+      "aiLoadingModel": "Cargando modelo… (la primera respuesta puede tardar)",
       "aiError": "Error del DM de IA: {{error}}",
       "aiResponding": "La IA está respondiendo",
       "aiReady": "IA lista",
+      "aiNoModel": "Ningún modelo instalado: instala uno en ajustes de IA",
       "tokensTitle": "Tokens estimados de la conversación",
       "tokens": "~{{used}} / 23.000 tokens",
       "commandReference": "Referencia de comandos"

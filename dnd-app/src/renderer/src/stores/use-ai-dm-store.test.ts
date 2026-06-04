@@ -1,5 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 
+// Capture the listener callbacks setupListeners registers so tests can drive events.
+const aiHandlers: Record<string, (data: unknown) => void> = {}
+
 vi.stubGlobal('window', {
   dispatchEvent: vi.fn(),
   api: {
@@ -11,11 +14,16 @@ vi.stubGlobal('window', {
       loadConversation: vi.fn().mockResolvedValue({ success: false }),
       prepareScene: vi.fn().mockResolvedValue(undefined),
       getSceneStatus: vi.fn().mockResolvedValue({ status: 'idle' }),
-      onStreamChunk: vi.fn(),
+      onStreamChunk: vi.fn((cb: (d: unknown) => void) => {
+        aiHandlers.chunk = cb
+      }),
       onStreamDone: vi.fn(),
       onStreamError: vi.fn(),
       onStreamFileRead: vi.fn(),
       onStreamWebSearch: vi.fn(),
+      onStreamStatus: vi.fn((cb: (d: unknown) => void) => {
+        aiHandlers.status = cb
+      }),
       removeAllAiListeners: vi.fn()
     }
   }
@@ -123,6 +131,50 @@ describe('useAiDmStore', () => {
       expect(evt.detail.mutations).toEqual(mutations) // creature changes no longer dropped
       expect(useAiDmStore.getState().pendingMutations).toHaveLength(0)
       cleanup()
+    })
+  })
+
+  describe('stream status (loading_model watchdog)', () => {
+    it('sets streamStatus from an onStreamStatus event WITHOUT clearing isTyping', () => {
+      const cleanupListeners = useAiDmStore.getState().setupListeners()
+      useAiDmStore.setState({ activeStreamId: 'sid-1', isTyping: true, streamStatus: null })
+
+      aiHandlers.status?.({ streamId: 'sid-1', status: 'loading_model' })
+
+      const s = useAiDmStore.getState()
+      expect(s.streamStatus).toBe('loading_model')
+      expect(s.isTyping).toBe(true) // advisory only — must not end the stream
+      cleanupListeners()
+      useAiDmStore.setState({ activeStreamId: null, isTyping: false, streamStatus: null })
+    })
+
+    it('ignores a status event for a different streamId', () => {
+      const cleanupListeners = useAiDmStore.getState().setupListeners()
+      useAiDmStore.setState({ activeStreamId: 'sid-1', isTyping: true, streamStatus: null })
+
+      aiHandlers.status?.({ streamId: 'other', status: 'loading_model' })
+
+      expect(useAiDmStore.getState().streamStatus).toBeNull()
+      cleanupListeners()
+      useAiDmStore.setState({ activeStreamId: null, isTyping: false, streamStatus: null })
+    })
+
+    it('a first chunk clears a pending loading_model notice', () => {
+      const cleanupListeners = useAiDmStore.getState().setupListeners()
+      useAiDmStore.setState({
+        activeStreamId: 'sid-1',
+        isTyping: true,
+        streamStatus: 'loading_model',
+        streamingText: ''
+      })
+
+      aiHandlers.chunk?.({ streamId: 'sid-1', text: 'Once upon' })
+
+      const s = useAiDmStore.getState()
+      expect(s.streamStatus).toBeNull()
+      expect(s.streamingText).toBe('Once upon')
+      cleanupListeners()
+      useAiDmStore.setState({ activeStreamId: null, isTyping: false, streamStatus: null, streamingText: '' })
     })
   })
 })

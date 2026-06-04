@@ -75,10 +75,20 @@ class LLMProviderError extends Error {
 }
 
 /**
- * Phase 17d (NET-8) — combine the caller's abort signal (if any) with a hard request timeout so
- * cloud calls can't hang forever. Mirrors the Ollama client's 120s default.
+ * Hard per-request timeout for every provider (Ollama + cloud). Deliberately set
+ * BELOW the renderer's STREAM_SAFETY_TIMEOUT_MS (120s, app-constants.ts) so a real
+ * provider failure (connection refused, 404 model-not-found, a model that never
+ * yields a token) is classified and delivered to the UI via onStreamError BEFORE
+ * the renderer gives up — instead of the renderer winning the race and masking the
+ * cause with a generic "AI response timed out". INVARIANT: this < STREAM_SAFETY_TIMEOUT_MS.
  */
-export function withRequestTimeout(signal?: AbortSignal, ms = 120_000): AbortSignal {
+export const PROVIDER_REQUEST_TIMEOUT_MS = 90_000
+
+/**
+ * Phase 17d (NET-8) — combine the caller's abort signal (if any) with a hard request timeout so
+ * cloud calls can't hang forever.
+ */
+export function withRequestTimeout(signal?: AbortSignal, ms = PROVIDER_REQUEST_TIMEOUT_MS): AbortSignal {
   const timeout = AbortSignal.timeout(ms)
   return signal ? AbortSignal.any([signal, timeout]) : timeout
 }

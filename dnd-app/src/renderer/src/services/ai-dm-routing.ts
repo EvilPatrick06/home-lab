@@ -27,7 +27,9 @@ export async function configureAiFromCampaign(campaign: Campaign): Promise<void>
   const aiDm = campaign.aiDm
   if (!aiDm?.enabled) return
   try {
-    await window.api.ai.configure({
+    // Capture the result instead of discarding it — a campaign pinned to a model
+    // the provider no longer accepts would otherwise fail invisibly later.
+    const result = await window.api.ai.configure({
       provider: aiDm.provider ?? 'ollama',
       model: aiDm.model ?? aiDm.ollamaModel,
       ollamaUrl: aiDm.ollamaUrl,
@@ -35,6 +37,9 @@ export async function configureAiFromCampaign(campaign: Campaign): Promise<void>
       openaiApiKey: aiDm.openaiApiKey,
       geminiApiKey: aiDm.geminiApiKey
     })
+    if (result && !result.success) {
+      logger.warn('[ai] campaign AI config rejected', result.error)
+    }
   } catch (err) {
     logger.warn('[ai] configureAiFromCampaign failed', err)
   }

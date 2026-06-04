@@ -70,6 +70,10 @@ export interface AiIndexProgress {
 export interface ProviderStatus {
   ollama: boolean
   ollamaModels: string[]
+  // True only when Ollama is up AND at least one model is installed — i.e. it can
+  // actually answer. Lets the UI show an honest "ready" instead of green-on-a-server
+  // -with-no-models (which then silently fails on the first request).
+  ollamaHasUsableModel: boolean
   claude: boolean
   openai: boolean
   gemini: boolean

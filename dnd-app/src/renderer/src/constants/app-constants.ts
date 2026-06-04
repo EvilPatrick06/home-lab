@@ -41,8 +41,12 @@ export const AI_MUTATIONS_AUTO_REJECT_MS = 60_000
 // Safety timeout that force-clears a stuck "typing" stream. The handler fires
 // at STREAM_SAFETY_TIMEOUT_MS and only acts if at least
 // STREAM_SAFETY_THRESHOLD_MS has actually elapsed (guards against early wakeups).
-export const STREAM_SAFETY_TIMEOUT_MS = 60_000
-export const STREAM_SAFETY_THRESHOLD_MS = 59_000
+// MUST stay ABOVE the main process's PROVIDER_REQUEST_TIMEOUT_MS (90s, llm-provider.ts)
+// so a real provider error/timeout is delivered to the UI as a specific message
+// BEFORE this generic "AI response timed out" backstop fires. (Was 60s, which lost
+// the race to the 120s provider timeout and masked every real failure cause.)
+export const STREAM_SAFETY_TIMEOUT_MS = 120_000
+export const STREAM_SAFETY_THRESHOLD_MS = 118_000
 
 // AI DM scene bootstrap (use-game-effects)
 // Brief wait for persisted messages to land before forcing a reload from disk.

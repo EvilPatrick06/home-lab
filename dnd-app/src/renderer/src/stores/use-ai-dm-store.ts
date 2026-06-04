@@ -84,6 +84,9 @@ interface AiDmState {
   // File read / web search status
   fileReadStatus: { path: string; status: string } | null
   webSearchStatus: { query: string; status: string } | null
+  // Advisory stream status (e.g. 'loading_model' while a cold model loads). Purely
+  // informational — does NOT affect isTyping or the safety timeout.
+  streamStatus: 'loading_model' | null
 
   // Stat mutation approval
   pendingMutations: PendingMutationSet[]
@@ -149,6 +152,7 @@ export const useAiDmStore = create<AiDmState>((set, get) => ({
   lastRuleCitations: [],
   fileReadStatus: null,
   webSearchStatus: null,
+  streamStatus: null,
   pendingMutations: [],
   autoApproveAiMutations: false,
   lastError: null,
@@ -296,7 +300,14 @@ export const useAiDmStore = create<AiDmState>((set, get) => ({
       await get().cancelStream()
     }
 
-    set({ isTyping: true, streamingText: '', lastError: null, fileReadStatus: null, webSearchStatus: null })
+    set({
+      isTyping: true,
+      streamingText: '',
+      lastError: null,
+      fileReadStatus: null,
+      webSearchStatus: null,
+      streamStatus: null
+    })
 
     // Safety timeout: if still typing after 60s, auto-clear
     const streamStartTime = Date.now()
@@ -428,6 +439,7 @@ export const useAiDmStore = create<AiDmState>((set, get) => ({
       activeStreamId: null,
       streamingText: '',
       isTyping: false,
+      streamStatus: null,
       safetyTimeoutId: null,
       lastStatChanges: [],
       lastDmActions: [],
@@ -440,7 +452,16 @@ export const useAiDmStore = create<AiDmState>((set, get) => ({
     const handleChunk = (data: { streamId: string; text: string }): void => {
       const state = get()
       if (data.streamId === state.activeStreamId) {
-        set({ streamingText: state.streamingText + data.text })
+        // First real token clears any "loading model" notice.
+        set({ streamingText: state.streamingText + data.text, ...(state.streamStatus ? { streamStatus: null } : {}) })
+      }
+    }
+
+    const handleStreamStatus = (data: { streamId: string; status: string }): void => {
+      const state = get()
+      if (data.streamId === state.activeStreamId && data.status === 'loading_model') {
+        // Advisory only — never touch isTyping or the safety timeout.
+        set({ streamStatus: 'loading_model' })
       }
     }
 
@@ -479,6 +500,7 @@ export const useAiDmStore = create<AiDmState>((set, get) => ({
           activeStreamId: null,
           isTyping: false,
           streamingText: '',
+          streamStatus: null,
           safetyTimeoutId: null,
           lastStatChanges: data.statChanges,
           lastDmActions: dmActions,
@@ -500,6 +522,7 @@ export const useAiDmStore = create<AiDmState>((set, get) => ({
           activeStreamId: null,
           isTyping: false,
           streamingText: '',
+          streamStatus: null,
           safetyTimeoutId: null,
           lastError: data.error
         })
@@ -526,6 +549,7 @@ export const useAiDmStore = create<AiDmState>((set, get) => ({
     window.api.ai.onStreamError(handleError)
     window.api.ai.onStreamFileRead(handleFileRead)
     window.api.ai.onStreamWebSearch(handleWebSearch)
+    window.api.ai.onStreamStatus(handleStreamStatus)
 
     // Return cleanup function
     return () => {

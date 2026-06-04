@@ -140,9 +140,43 @@ export default function ChatPanel({
   const aiIsTyping = useAiDmStore((s) => s.isTyping)
   const aiPaused = useAiDmStore((s) => s.paused)
   const aiStreamingText = useAiDmStore((s) => s.streamingText)
+  const aiStreamStatus = useAiDmStore((s) => s.streamStatus)
   const aiEnabled = useAiDmStore((s) => s.enabled)
   const aiLastError = useAiDmStore((s) => s.lastError)
   const aiMessages = useAiDmStore((s) => s.messages)
+
+  // Honest readiness: the green "AI Ready" dot must reflect whether the active
+  // provider can actually answer — for Ollama that means a model is installed, not
+  // just that the server is up. null = unknown (still checking).
+  const [aiUsable, setAiUsable] = useState<boolean | null>(null)
+  useEffect(() => {
+    if (!isDM || !aiEnabled) {
+      setAiUsable(null)
+      return
+    }
+    let cancelled = false
+    void (async () => {
+      try {
+        const [cfg, status] = await Promise.all([window.api.ai.getConfig(), window.api.ai.checkProviders()])
+        if (cancelled) return
+        const provider = cfg?.provider ?? 'ollama'
+        const usable =
+          provider === 'claude'
+            ? status.claude
+            : provider === 'openai'
+              ? status.openai
+              : provider === 'gemini'
+                ? status.gemini
+                : status.ollamaHasUsableModel
+        setAiUsable(usable)
+      } catch {
+        if (!cancelled) setAiUsable(null)
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [isDM, aiEnabled])
 
   const aiNarrationByTimestamp = useMemo(() => {
     const narrationMap = new Map<number, string>()
@@ -361,7 +395,7 @@ export default function ChatPanel({
                 <span className="w-1 h-1 bg-accent rounded-full animate-bounce [animation-delay:150ms]" />
                 <span className="w-1 h-1 bg-accent rounded-full animate-bounce [animation-delay:300ms]" />
               </span>
-              {t('game.chatPanel.aiTyping')}
+              {aiStreamStatus === 'loading_model' ? t('game.chatPanel.aiLoadingModel') : t('game.chatPanel.aiTyping')}
             </div>
             {aiStreamingText && (
               <div className="text-sm text-gray-200 mt-0.5 max-h-20 overflow-hidden font-sans">
@@ -380,9 +414,17 @@ export default function ChatPanel({
       {/* AI DM Status Bar (DM only) */}
       {isDM && aiEnabled && (
         <div className="border-t border-gray-800/50 px-2 py-1 shrink-0 flex items-center gap-2 text-xs">
-          <span className={`w-1.5 h-1.5 rounded-full ${aiIsTyping ? 'bg-accent animate-pulse' : 'bg-green-500'}`} />
+          <span
+            className={`w-1.5 h-1.5 rounded-full ${
+              aiIsTyping ? 'bg-accent animate-pulse' : aiUsable === false ? 'bg-amber-500' : 'bg-green-500'
+            }`}
+          />
           <span className="text-gray-500">
-            {aiIsTyping ? t('game.chatPanel.aiResponding') : t('game.chatPanel.aiReady')}
+            {aiIsTyping
+              ? t('game.chatPanel.aiResponding')
+              : aiUsable === false
+                ? t('game.chatPanel.aiNoModel')
+                : t('game.chatPanel.aiReady')}
           </span>
           <span className="text-gray-600 ml-auto" title={t('game.chatPanel.tokensTitle')}>
             {t('game.chatPanel.tokens', {

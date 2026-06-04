@@ -25,7 +25,7 @@ import {
 } from './file-reader'
 import type { AiProviderType, LLMProvider } from './llm-provider'
 import { getMemoryManager } from './memory-manager'
-import { isOllamaRunning, listOllamaModels, setOllamaUrl } from './ollama-client'
+import { getOllamaUrl, isOllamaRunning, listOllamaModels, setOllamaUrl } from './ollama-client'
 import { OLLAMA_BASE_URL } from './ollama-manager'
 import {
   checkAllProviders,
@@ -323,7 +323,10 @@ export async function configure(config: AiConfig): Promise<void> {
 
   currentConfig = {
     provider: config.provider ?? 'ollama',
-    model: config.model || config.ollamaModel || DEFAULT_AI_MODEL,
+    // No hardcoded model fallback — an unset model stays empty and is resolved at
+    // stream time against the live installed list (resolveOllamaModel), so we never
+    // silently pin a model the user hasn't pulled.
+    model: config.model || config.ollamaModel || '',
     ollamaUrl: config.ollamaUrl || OLLAMA_BASE_URL,
     claudeApiKey: config.claudeApiKey,
     openaiApiKey: config.openaiApiKey,
@@ -362,7 +365,7 @@ export function getConfig(): AiConfig {
       const saved = JSON.parse(readFileSync(configPath, 'utf-8')) as Record<string, unknown>
       currentConfig = {
         provider: ((saved.provider as string) ?? 'ollama') as AiProviderType,
-        model: (saved.model as string) || (saved.ollamaModel as string) || DEFAULT_AI_MODEL,
+        model: (saved.model as string) || (saved.ollamaModel as string) || '',
         ollamaUrl: (saved.ollamaUrl as string) || OLLAMA_BASE_URL,
         claudeApiKey: decryptOptional(saved.claudeApiKey as string | undefined),
         openaiApiKey: decryptOptional(saved.openaiApiKey as string | undefined),
@@ -402,6 +405,7 @@ export async function checkProviders(): Promise<ProviderStatus> {
   return {
     ollama: ollamaOk,
     ollamaModels,
+    ollamaHasUsableModel: ollamaOk && ollamaModels.length > 0,
     claude: cloudStatus.claude,
     openai: cloudStatus.openai,
     gemini: cloudStatus.gemini
@@ -544,6 +548,41 @@ function sendWebSearchStatus(
   })
 }
 
+/** Informational stream status (e.g. the first-token watchdog telling the UI the
+ * model is still loading) — purely advisory, never clears the renderer's typing
+ * state or safety timeout. */
+function sendStreamStatus(streamId: string, status: 'loading_model'): void {
+  const win = BrowserWindow.getAllWindows()[0]
+  if (!win) return
+  win.webContents.send(IPC_CHANNELS.AI_STREAM_STATUS, { streamId, status })
+}
+
+// Time before the first token after which we tell the UI the model is likely
+// cold-loading (rather than leaving the user staring at silent "typing…").
+const FIRST_TOKEN_NOTICE_MS = 12_000
+
+/**
+ * Preflight the Ollama model so a wrong/empty/missing model fails FAST with an
+ * actionable message instead of a confusing silent timeout, and so solo play
+ * "just works" against whatever model the user actually pulled (honoring the
+ * "don't hardcode models" directive — the hardcoded id is only a pull hint now).
+ * No-op for cloud providers (they validate the model server-side on the request).
+ */
+export async function resolveOllamaModel(configured: string): Promise<string> {
+  if (getActiveProviderType() !== 'ollama') return configured
+  const installed = await listOllamaModels()
+  if (installed.length === 0) {
+    throw new Error(
+      `No Ollama models installed at ${getOllamaUrl()}. Install one, e.g.: ollama pull ${DEFAULT_AI_MODEL}`
+    )
+  }
+  if (configured && installed.includes(configured)) return configured
+  const picked = installed[0]
+  logToFile('warn', `[AI] configured Ollama model "${configured || '<none>'}" not installed; using "${picked}"`)
+  currentConfig.model = picked
+  return picked
+}
+
 export function startChat(
   request: AiChatRequest,
   onChunk: (text: string) => void,
@@ -572,7 +611,18 @@ export function startChat(
 
   // Run async
   ;(async () => {
+    // First-token watchdog: if no token arrives within FIRST_TOKEN_NOTICE_MS, tell
+    // the UI the model is likely cold-loading instead of leaving it silent. Armed
+    // here and cleared on first token / completion / error (and in the catch).
+    let gotFirstToken = false
+    const firstTokenTimer = setTimeout(() => {
+      if (!gotFirstToken) sendStreamStatus(streamId, 'loading_model')
+    }, FIRST_TOKEN_NOTICE_MS)
     try {
+      // Resolve the model against what Ollama actually has BEFORE building context
+      // so a missing/empty model errors in ~ms instead of hanging the request.
+      const model = await resolveOllamaModel(currentConfig.model)
+
       const context = await buildContext(
         request.message,
         request.characterIds,
@@ -589,6 +639,10 @@ export function startChat(
 
       const callbacks = {
         onText: (text: string) => {
+          if (!gotFirstToken) {
+            gotFirstToken = true
+            clearTimeout(firstTokenTimer)
+          }
           fullText += text
           // Update heartbeat on each chunk to extend TTL for active streams
           updateStreamHeartbeat(streamId)
@@ -626,7 +680,7 @@ export function startChat(
 
       const provider = getActiveProvider()
       await streamWithRetry(
-        streamChatRetryable(provider.streamChat.bind(provider), systemPrompt, messages, callbacks, currentConfig.model),
+        streamChatRetryable(provider.streamChat.bind(provider), systemPrompt, messages, callbacks, model),
         abortController,
         (errMsg) => {
           clearPendingWebSearchApproval(streamId, false)
@@ -634,7 +688,9 @@ export function startChat(
           onError(errMsg)
         }
       )
+      clearTimeout(firstTokenTimer)
     } catch (error) {
+      clearTimeout(firstTokenTimer)
       clearPendingWebSearchApproval(streamId, false)
       removeStream(streamId)
       onError(error instanceof Error ? error.message : String(error))

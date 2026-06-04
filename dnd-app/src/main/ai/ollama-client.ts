@@ -1,4 +1,4 @@
-import type { LLMProvider } from './llm-provider'
+import { type LLMProvider, PROVIDER_REQUEST_TIMEOUT_MS } from './llm-provider'
 import { OLLAMA_BASE_URL } from './ollama-constants'
 import type { ChatMessage, StreamCallbacks } from './types'
 
@@ -19,6 +19,15 @@ interface OllamaChatResponse {
     delta?: { content?: string }
     message?: { content?: string }
   }>
+}
+
+/** Turn an Ollama HTTP error into an actionable message. A 404 means the model
+ * isn't pulled — tell the user exactly how to fix it instead of a raw status. */
+function ollamaHttpError(status: number, body: string, model: string): Error {
+  if (status === 404) {
+    return new Error(`Model "${model}" is not installed on Ollama. Install it with: ollama pull ${model}`)
+  }
+  return new Error(`Ollama API error ${status}: ${body}`)
 }
 
 /** Check if Ollama is running (2s timeout). */
@@ -59,7 +68,7 @@ export async function ollamaStreamChat(
   ]
 
   try {
-    const timeoutSignal = AbortSignal.timeout(120_000)
+    const timeoutSignal = AbortSignal.timeout(PROVIDER_REQUEST_TIMEOUT_MS)
     const combinedSignal = abortSignal ? AbortSignal.any([abortSignal, timeoutSignal]) : timeoutSignal
 
     const res = await fetch(`${ollamaBaseUrl}/v1/chat/completions`, {
@@ -71,7 +80,7 @@ export async function ollamaStreamChat(
 
     if (!res.ok) {
       const body = await res.text()
-      callbacks.onError(new Error(`Ollama API error ${res.status}: ${body}`))
+      callbacks.onError(ollamaHttpError(res.status, body, model))
       return
     }
 
@@ -170,7 +179,9 @@ export async function ollamaStreamChat(
   } catch (error) {
     if (abortSignal?.aborted) return
     if (error instanceof Error && error.name === 'TimeoutError') {
-      callbacks.onError(new Error('Ollama request timed out (120s). Is the model loaded?'))
+      callbacks.onError(
+        new Error(`Ollama request timed out (${Math.round(PROVIDER_REQUEST_TIMEOUT_MS / 1000)}s). Is the model loaded?`)
+      )
       return
     }
     callbacks.onError(error instanceof Error ? error : new Error(String(error)))
@@ -188,12 +199,12 @@ export async function ollamaChatOnce(systemPrompt: string, messages: ChatMessage
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ model, messages: apiMessages, stream: false }),
-    signal: AbortSignal.timeout(120_000)
+    signal: AbortSignal.timeout(PROVIDER_REQUEST_TIMEOUT_MS)
   })
 
   if (!res.ok) {
     const body = await res.text()
-    throw new Error(`Ollama API error ${res.status}: ${body}`)
+    throw ollamaHttpError(res.status, body, model)
   }
 
   const data = (await res.json()) as OllamaChatResponse

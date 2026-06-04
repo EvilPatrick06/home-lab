@@ -128,6 +128,10 @@ interface AiIndexProgressData {
 interface AiProviderStatus {
   ollama: boolean
   ollamaModels: string[]
+  ollamaHasUsableModel: boolean
+  claude: boolean
+  openai: boolean
+  gemini: boolean
 }
 
 interface AiConfigData {
@@ -190,7 +194,7 @@ interface OllamaVersionInfo {
 }
 
 interface AiAPI {
-  configure: (config: AiConfigData) => Promise<{ success: boolean }>
+  configure: (config: AiConfigData) => Promise<{ success: boolean; error?: string }>
   getConfig: () => Promise<AiConfigData>
   checkProviders: () => Promise<AiProviderStatus>
   buildIndex: () => Promise<{ success: boolean; chunkCount?: number; error?: string }>
@@ -318,6 +322,7 @@ interface AiAPI {
   onOllamaProgress: (cb: (data: OllamaProgressData) => void) => void
   onStreamFileRead: (cb: (data: { streamId: string; path: string; status: string }) => void) => void
   onStreamWebSearch: (cb: (data: { streamId: string; query: string; status: string }) => void) => void
+  onStreamStatus: (cb: (data: { streamId: string; status: string }) => void) => void
   approveWebSearch: (streamId: string, approved: boolean) => Promise<{ success: boolean; error?: string }>
   removeAllAiListeners: () => void
 }

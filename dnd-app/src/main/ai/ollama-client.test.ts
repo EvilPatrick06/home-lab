@@ -171,6 +171,21 @@ describe('ollama-client', () => {
       )
     })
 
+    it('calls onError with an actionable "ollama pull" message on a 404 (model not installed)', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+        text: async () => '{"error":{"message":"model not found"}}'
+      })
+
+      const callbacks = { onText: vi.fn(), onDone: vi.fn(), onError: vi.fn() }
+      await ollamaStreamChat('sys', [], callbacks, 'llama3.2:3b')
+
+      expect(callbacks.onError).toHaveBeenCalledWith(
+        expect.objectContaining({ message: expect.stringContaining('ollama pull llama3.2:3b') })
+      )
+    })
+
     it('calls onError when response has no body', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
@@ -312,11 +327,23 @@ describe('ollama-client', () => {
     it('throws on non-OK response', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
-        status: 404,
-        text: async () => 'Model not found'
+        status: 500,
+        text: async () => 'Internal Server Error'
       })
 
-      await expect(ollamaChatOnce('sys', [{ role: 'user', content: 'test' }], 'test-model')).rejects.toThrow('404')
+      await expect(ollamaChatOnce('sys', [{ role: 'user', content: 'test' }], 'test-model')).rejects.toThrow('500')
+    })
+
+    it('turns a 404 into an actionable "ollama pull" message naming the model', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+        text: async () => '{"error":{"message":"model not found"}}'
+      })
+
+      await expect(ollamaChatOnce('sys', [{ role: 'user', content: 'test' }], 'llama3.2:3b')).rejects.toThrow(
+        'ollama pull llama3.2:3b'
+      )
     })
 
     it('sends system prompt and messages in correct order', async () => {
