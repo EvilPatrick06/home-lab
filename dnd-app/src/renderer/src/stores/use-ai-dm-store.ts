@@ -190,7 +190,10 @@ export const useAiDmStore = create<AiDmState>((set, get) => ({
   },
 
   queueMutations: (mutationSet: PendingMutationSet) => {
-    // Auto-reject after 60 seconds
+    // Dedup by source message — the AI-message effect can re-run (re-render /
+    // re-subscribe), and re-queuing the same set would double-apply on approval.
+    if (get().pendingMutations.some((m) => m.messageId === mutationSet.messageId)) return
+    // Auto-reject after AI_MUTATIONS_AUTO_REJECT_MS
     const timeoutId = setTimeout(() => {
       const state = get()
       const still = state.pendingMutations.find((m) => m.id === mutationSet.id)
@@ -210,44 +213,14 @@ export const useAiDmStore = create<AiDmState>((set, get) => ({
     if (!found) return
     if (found.timeoutId) clearTimeout(found.timeoutId)
 
-    // Apply via IPC
-    const players = useLobbyStore.getState().players
-    const playersWithChars = players.filter((p) => p.characterId)
-    if (playersWithChars.length > 0) {
-      const creatureChanges = found.mutations.filter((c) => c.type.startsWith('creature_'))
-      const characterChanges = found.mutations.filter((c) => !c.type.startsWith('creature_'))
-
-      if (characterChanges.length > 0) {
-        const changesByCharId = new Map<string, typeof characterChanges>()
-        for (const change of characterChanges) {
-          const named = change.characterName as string | undefined
-          let charId: string | undefined
-          if (named) {
-            const match = playersWithChars.find(
-              (p) =>
-                p.displayName?.toLowerCase() === named.toLowerCase() ||
-                p.characterName?.toLowerCase() === named.toLowerCase()
-            )
-            charId = match?.characterId ?? playersWithChars[0].characterId ?? undefined
-          } else {
-            charId = playersWithChars[0].characterId ?? undefined
-          }
-          if (charId) {
-            const existing = changesByCharId.get(charId) ?? []
-            existing.push(change)
-            changesByCharId.set(charId, existing)
-          }
-        }
-        for (const [charId, changes] of changesByCharId) {
-          window.api.ai.applyMutations(charId, changes)
-        }
-      }
-
-      // Creature changes are applied via game store event (emitted from use-game-effects)
-      if (creatureChanges.length > 0) {
-        // Emit a custom event so use-game-effects can pick it up
-        window.dispatchEvent(new CustomEvent('ai-mutations-approved', { detail: { mutations: creatureChanges } }))
-      }
+    // Funnel ALL approved mutations (character + creature) through the single
+    // apply path in use-game-effects via this event. That hook holds the active
+    // map needed for creature token mutations and shares the same name-matching
+    // as the auto-approve path — so manual approval no longer drops creature
+    // changes (the listener for this event used to be missing) and the
+    // character-routing logic isn't duplicated here.
+    if (found.mutations.length > 0) {
+      window.dispatchEvent(new CustomEvent('ai-mutations-approved', { detail: { mutations: found.mutations } }))
     }
 
     set({ pendingMutations: state.pendingMutations.filter((m) => m.id !== id) })

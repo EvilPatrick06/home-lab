@@ -1,4 +1,4 @@
-import { type MutableRefObject, useCallback, useEffect } from 'react'
+import { type MutableRefObject, useCallback, useEffect, useRef } from 'react'
 import { pushDmAlert } from '../components/game/overlays/DmAlertTray'
 import {
   SCENE_FALLBACK_DELAY_MS,
@@ -56,8 +56,16 @@ function applyStatChangesDirectly(
               p.displayName?.toLowerCase() === named.toLowerCase() ||
               p.characterName?.toLowerCase() === named.toLowerCase()
           )
-          charId = match?.characterId ?? playersWithChars[0].characterId ?? undefined
+          if (!match) {
+            // The AI named a character that isn't in the roster — surface it and
+            // skip, rather than silently applying the change to the first (wrong)
+            // character as the old `?? playersWithChars[0]` fallback did.
+            pushDmAlert('warning', i18n.t('notify.aiDmStore.mutationUnknownCharacter', { name: named }))
+            continue
+          }
+          charId = match.characterId ?? undefined
         } else {
+          // No name given — default to the sole/first character (typical solo play).
           charId = playersWithChars[0].characterId ?? undefined
         }
         if (charId) {
@@ -101,6 +109,11 @@ export function useGameEffects({
   const aiDmStore = useAiDmStore()
   const narrationTtsEnabled = useNarrationTtsStore((s) => s.enabled)
 
+  // Keep the latest active map available to the mount-time approval listener
+  // below without re-registering the listener on every map change.
+  const activeMapRef = useRef(activeMap)
+  activeMapRef.current = activeMap
+
   const narrateThroughBmo = useCallback(
     (text: string): void => {
       if (!narrationTtsEnabled || !text.trim()) return
@@ -126,6 +139,21 @@ export function useGameEffects({
     })
     initSounds()
   }, [addChatMessage, campaign.name])
+
+  // DM-approved mutations funnel here from use-ai-dm-store via a custom event, so
+  // manual approval applies through the SAME path as auto-approve — including
+  // creature token mutations (which need the active map and were previously
+  // dropped because this listener didn't exist).
+  useEffect(() => {
+    const handler = (e: Event): void => {
+      const detail = (e as CustomEvent<{ mutations?: Array<{ type: string; [key: string]: unknown }> }>).detail
+      if (detail?.mutations?.length) {
+        applyStatChangesDirectly(detail.mutations, activeMapRef.current)
+      }
+    }
+    window.addEventListener('ai-mutations-approved', handler)
+    return () => window.removeEventListener('ai-mutations-approved', handler)
+  }, [])
 
   // Host: broadcast game state changes to connected clients
   useEffect(() => {

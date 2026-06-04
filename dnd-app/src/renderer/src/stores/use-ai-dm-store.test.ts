@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 
 vi.stubGlobal('window', {
+  dispatchEvent: vi.fn(),
   api: {
     storage: {},
     game: {},
@@ -86,5 +87,42 @@ describe('useAiDmStore', () => {
     expect(typeof state.setPaused).toBe('function')
     expect(typeof state.reset).toBe('function')
     expect(typeof state.setupListeners).toBe('function')
+  })
+
+  describe('mutation approval flow', () => {
+    const cleanup = (): void => {
+      for (const m of useAiDmStore.getState().pendingMutations) if (m.timeoutId) clearTimeout(m.timeoutId)
+      useAiDmStore.setState({ pendingMutations: [] })
+    }
+
+    it('queueMutations dedups by source messageId', () => {
+      cleanup()
+      const base = { id: 'a', messageId: 111, mutations: [], source: 'ai-dm' as const, timestamp: 1 }
+      useAiDmStore.getState().queueMutations(base)
+      useAiDmStore.getState().queueMutations({ ...base, id: 'b' }) // same messageId → ignored
+      expect(useAiDmStore.getState().pendingMutations).toHaveLength(1)
+      cleanup()
+    })
+
+    it('approveMutations dispatches ONE ai-mutations-approved event with all mutations', () => {
+      cleanup()
+      const dispatch = window.dispatchEvent as unknown as ReturnType<typeof vi.fn>
+      dispatch.mockClear()
+      const mutations = [
+        { type: 'damage', characterName: 'Aria', value: 5, reason: 'trap' },
+        { type: 'creature_damage', targetLabel: 'Goblin', value: 3, reason: 'arrow' }
+      ]
+      useAiDmStore.setState({
+        pendingMutations: [{ id: 'x', messageId: 1, mutations: mutations as never, source: 'ai-dm', timestamp: 1 }]
+      })
+      useAiDmStore.getState().approveMutations('x')
+
+      expect(dispatch).toHaveBeenCalledTimes(1)
+      const evt = dispatch.mock.calls[0][0] as CustomEvent<{ mutations: unknown[] }>
+      expect(evt.type).toBe('ai-mutations-approved')
+      expect(evt.detail.mutations).toEqual(mutations) // creature changes no longer dropped
+      expect(useAiDmStore.getState().pendingMutations).toHaveLength(0)
+      cleanup()
+    })
   })
 })

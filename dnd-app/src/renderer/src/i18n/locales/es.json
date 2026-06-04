@@ -5059,6 +5059,7 @@
     "aiDmStore": {
       "runApprovedFailed": "No se pudieron ejecutar las acciones de IA aprobadas",
       "mutationsAutoRejected": "Mutaciones de IA rechazadas automáticamente (tiempo de espera de 60s)",
+      "mutationUnknownCharacter": "La IA intentó modificar un personaje desconocido \"{{name}}\" — cambio omitido",
       "aiDmError": "DM con IA: {{error}}"
     },
     "loadCharacter5e": {

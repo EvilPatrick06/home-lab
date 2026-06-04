@@ -5059,6 +5059,7 @@
     "aiDmStore": {
       "runApprovedFailed": "Failed to run approved AI actions",
       "mutationsAutoRejected": "AI mutations auto-rejected (60s timeout)",
+      "mutationUnknownCharacter": "AI tried to modify unknown character \"{{name}}\" — change skipped",
       "aiDmError": "AI DM: {{error}}"
     },
     "loadCharacter5e": {

@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react'
+import { AI_MUTATIONS_AUTO_REJECT_MS } from '../../../constants'
 import { i18n, useT } from '../../../i18n'
 import { type PendingMutationSet, useAiDmStore } from '../../../stores/use-ai-dm-store'
+
+/** Total countdown seconds — derived from the store's auto-reject timeout so the
+ * UI and the actual timer can't drift apart. */
+const AUTO_REJECT_SECONDS = Math.round(AI_MUTATIONS_AUTO_REJECT_MS / 1000)
 
 /** Human-readable label for a stat change type */
 function changeLabel(change: { type: string; [key: string]: unknown }): string {
@@ -108,12 +113,12 @@ function changeColor(type: string): string {
 
 function CountdownTimer({ timestamp }: { timestamp: number }): JSX.Element {
   const { t } = useT()
-  const [remaining, setRemaining] = useState(60)
+  const [remaining, setRemaining] = useState(AUTO_REJECT_SECONDS)
 
   useEffect(() => {
     const interval = setInterval(() => {
       const elapsed = (Date.now() - timestamp) / 1000
-      setRemaining(Math.max(0, Math.ceil(60 - elapsed)))
+      setRemaining(Math.max(0, Math.ceil(AUTO_REJECT_SECONDS - elapsed)))
     }, 1000)
     return () => clearInterval(interval)
   }, [timestamp])
