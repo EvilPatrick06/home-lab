@@ -27,7 +27,7 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 
 ## Defined channels
 
-*Total: **170** channel strings (from `IPC_CHANNELS`).*
+*Total: **171** channel strings (from `IPC_CHANNELS`).*
 
 ### Storage: Characters
 
@@ -222,6 +222,7 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 | `AI_OLLAMA_PROGRESS` | `ai:ollama-progress` |
 | `AI_STREAM_FILE_READ` | `ai:stream-file-read` |
 | `AI_STREAM_WEB_SEARCH` | `ai:stream-web-search` |
+| `AI_STREAM_STATUS` | `ai:stream-status` |
 | `AI_WEB_SEARCH_APPROVE` | `ai:web-search-approve` |
 
 ### App Updates
