@@ -94,6 +94,16 @@ describe('combat-rules', () => {
       expect(COMBAT_RULES_PROMPT).toContain('Advantage on DEX saving throws')
     })
 
+    // ── Reactions & Opportunity Attacks ──
+
+    it('contains reactions and opportunity attack rules referencing action economy', () => {
+      expect(COMBAT_RULES_PROMPT).toContain('Reactions & Opportunity Attacks')
+      expect(COMBAT_RULES_PROMPT).toContain('ONE Reaction per round')
+      expect(COMBAT_RULES_PROMPT).toContain('[ACTION ECONOMY]')
+      expect(COMBAT_RULES_PROMPT).toContain('Opportunity Attack')
+      expect(COMBAT_RULES_PROMPT).toContain('Counterspell')
+    })
+
     // ── Hazards ──
 
     it('contains hazard rules', () => {

@@ -360,6 +360,45 @@ describe('buildGameStateSnapshot', () => {
     expect(result).toContain('Aria is concentrating on Bless')
   })
 
+  it('shows action economy with reaction availability and stances', () => {
+    const result = buildGameStateSnapshot(
+      makeStores({
+        activeMapId: 'm',
+        maps: [
+          {
+            id: 'm',
+            name: 'M',
+            width: 100,
+            height: 100,
+            grid: { cellSize: 10 },
+            tokens: [
+              { id: 't1', entityId: 'e1', label: 'Aria', gridX: 0, gridY: 0, conditions: [] },
+              { id: 't2', entityId: 'e2', label: 'Goblin', gridX: 3, gridY: 4, conditions: [] }
+            ]
+          }
+        ],
+        initiative: {
+          round: 1,
+          currentIndex: 0,
+          entries: [
+            { entityId: 'e1', entityName: 'Aria', total: 15 },
+            { entityId: 'e2', entityName: 'Goblin', total: 10 }
+          ]
+        },
+        turnStates: {
+          e1: { entityId: 'e1', reactionUsed: false, movementRemaining: 30, movementMax: 30, isDodging: true },
+          e2: { entityId: 'e2', reactionUsed: true, actionUsed: true, movementRemaining: 0, movementMax: 30 }
+        }
+      })
+    )
+    expect(result).toContain('[ACTION ECONOMY]')
+    expect(result).toContain('Aria: reaction available')
+    expect(result).toContain('Dodging')
+    expect(result).toContain('move 30/30ft')
+    expect(result).toContain('Goblin: reaction USED')
+    expect(result).toContain('action used')
+  })
+
   it('shows distances from the active combatant (5ft Chebyshev)', () => {
     const result = buildGameStateSnapshot(
       makeStores({

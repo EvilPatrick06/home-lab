@@ -79,6 +79,34 @@ export function buildGameStateSnapshot(
     }
   }
 
+  // Action economy — reaction availability + stances per combatant. Reactions are
+  // mechanically enforced for player movement/spells (opportunity attacks, counterspell),
+  // but the AI runs monsters: it needs to know whose reaction is still up (so it can take
+  // opportunity attacks / counterspells) and who is Dodging/Disengaging/Dashing/Hidden.
+  if (gameStore.initiative) {
+    const econLines: string[] = []
+    for (const entry of gameStore.initiative.entries) {
+      const ts = gameStore.turnStates?.[entry.entityId]
+      if (!ts) continue
+      const label = activeMap?.tokens.find((t) => t.entityId === entry.entityId)?.label ?? entry.entityName
+      const parts: string[] = [`reaction ${ts.reactionUsed ? 'USED' : 'available'}`]
+      if (ts.actionUsed) parts.push('action used')
+      if (ts.bonusActionUsed) parts.push('bonus used')
+      if (typeof ts.movementRemaining === 'number' && typeof ts.movementMax === 'number') {
+        parts.push(`move ${ts.movementRemaining}/${ts.movementMax}ft`)
+      }
+      if (ts.isDodging) parts.push('Dodging')
+      if (ts.isDisengaging) parts.push('Disengaging')
+      if (ts.isDashing) parts.push('Dashing')
+      if (ts.isHidden) parts.push('Hidden')
+      econLines.push(`  - ${label}: ${parts.join(', ')}`)
+    }
+    if (econLines.length > 0) {
+      lines.push('\n[ACTION ECONOMY]')
+      lines.push(...econLines)
+    }
+  }
+
   // Distances from the active combatant to everyone else, so the AI doesn't have to
   // compute positioning mentally (5e: 5 ft per square, Chebyshev / king-move).
   if (gameStore.initiative && activeMap) {

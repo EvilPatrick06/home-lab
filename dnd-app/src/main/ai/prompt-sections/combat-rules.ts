@@ -38,6 +38,12 @@ STR × 15 lb (Small/Medium). Tiny ×0.5, Large ×2, Huge ×4, Gargantuan ×8. Ov
 ### Dodge Action (Full Rules)
 Until start of your next turn: attack rolls against you have Disadvantage (if you can see attacker) AND you have Advantage on DEX saving throws. Lost if Incapacitated or Speed is 0.
 
+### Reactions & Opportunity Attacks
+Each creature gets ONE Reaction per round, refreshed at the start of its turn. The [ACTION ECONOMY] block in the game state tells you whose reaction is still available vs USED — consult it before having a monster react.
+- **Opportunity Attack:** When a hostile creature you can see leaves your reach using its movement, you may use your Reaction to make one melee attack against it. Provoked by leaving reach, NOT by entering or moving within it. The Disengage action and Teleportation avoid it. When the AI controls monsters, take opportunity attacks against fleeing PCs if the monster's reaction is available and it is tactically sound.
+- **Counterspell / Shield / other reaction spells:** Cost the caster's Reaction. Only available if the creature has the spell and an unspent reaction.
+- Mark reactions spent via combat resolution — a creature with reaction USED cannot react again until its next turn.
+
 ### Hazards
 - **Burning:** 1d4 Fire at start of each turn. Action to extinguish (go Prone, roll on ground). Also extinguished by dousing/submerging.
 - **Dehydration:** Water per day: Tiny 1/4 gal, Small/Med 1 gal, Large 4 gal, Huge 16 gal, Gargantuan 64 gal. Less than half = +1 Exhaustion. Cannot remove until hydrated.
