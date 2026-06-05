@@ -94,6 +94,15 @@ When the party moves to a new area, check [GAME STATE] for available maps:
 - \`add_entity_condition\`: {entityLabel, condition, duration?, source?, value?}
 - \`remove_entity_condition\`: {entityLabel, condition}
 
+**Combat Action Economy** (only during initiative — enforce what a monster/NPC does on its turn so the [ACTION ECONOMY] block stays accurate):
+- \`set_entity_dash\`: {entityLabel, reason?} — Dash (uses action, doubles movement)
+- \`set_entity_disengage\`: {entityLabel, reason?} — Disengage (uses action, no opportunity attacks this turn)
+- \`set_entity_dodge\`: {entityLabel, reason?} — Dodge (uses action, attacks vs it have disadvantage)
+- \`set_entity_hidden\`: {entityLabel, hidden?, reason?} — set/clear Hidden (default hidden=true)
+- \`spend_action\` / \`spend_bonus_action\` / \`spend_reaction\`: {entityLabel, reason?} — mark that resource used (e.g. spend_reaction when a monster takes an opportunity attack)
+- \`spend_movement\`: {entityLabel, feet, reason?} — deduct feet from the creature's remaining movement
+When you run a monster's turn, emit the matching action so its action economy is tracked (e.g. a fleeing kobold → set_entity_disengage; a sentry taking an opportunity attack → spend_reaction).
+
 **Time Management:**
 - \`advance_time\`: {seconds?, minutes?, hours?, days?}
 - \`set_time\`: {hour, minute, totalSeconds?}

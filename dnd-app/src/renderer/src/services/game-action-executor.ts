@@ -14,6 +14,17 @@ export type { DmAction, ExecutionFailure, ExecutionResult, GameStoreSnapshot } f
 
 const stores: StoreAccessors = { getGameStore, getLobbyStore, getNetworkStore }
 
+// ── Combat Action Economy ──
+import {
+  executeSetEntityDash,
+  executeSetEntityDisengage,
+  executeSetEntityDodge,
+  executeSetEntityHidden,
+  executeSpendAction,
+  executeSpendBonusAction,
+  executeSpendMovement,
+  executeSpendReaction
+} from './game-actions/combat-economy-actions'
 // ── Creature / Combat Actions ──
 import {
   executeAwardXp,
@@ -270,6 +281,24 @@ function executeOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: A
       return executeAddEntityCondition(action, gameStore, activeMap, stores)
     case 'remove_entity_condition':
       return executeRemoveEntityCondition(action, gameStore, activeMap, stores)
+
+    // ── Combat Action Economy ──
+    case 'set_entity_dash':
+      return executeSetEntityDash(action, gameStore, activeMap, stores)
+    case 'set_entity_disengage':
+      return executeSetEntityDisengage(action, gameStore, activeMap, stores)
+    case 'set_entity_dodge':
+      return executeSetEntityDodge(action, gameStore, activeMap, stores)
+    case 'set_entity_hidden':
+      return executeSetEntityHidden(action, gameStore, activeMap, stores)
+    case 'spend_action':
+      return executeSpendAction(action, gameStore, activeMap, stores)
+    case 'spend_bonus_action':
+      return executeSpendBonusAction(action, gameStore, activeMap, stores)
+    case 'spend_reaction':
+      return executeSpendReaction(action, gameStore, activeMap, stores)
+    case 'spend_movement':
+      return executeSpendMovement(action, gameStore, activeMap, stores)
 
     // ── Time Management ──
     case 'advance_time':

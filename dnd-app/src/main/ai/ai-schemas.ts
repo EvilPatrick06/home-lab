@@ -529,6 +529,57 @@ const RemoveEntityConditionSchema = z.object({
   condition: z.string()
 })
 
+// ── Combat action economy (drive a creature's turn-state during initiative) ──
+const SetEntityDashSchema = z.object({
+  action: z.literal('set_entity_dash'),
+  entityLabel: z.string(),
+  reason: z.string().optional()
+})
+
+const SetEntityDisengageSchema = z.object({
+  action: z.literal('set_entity_disengage'),
+  entityLabel: z.string(),
+  reason: z.string().optional()
+})
+
+const SetEntityDodgeSchema = z.object({
+  action: z.literal('set_entity_dodge'),
+  entityLabel: z.string(),
+  reason: z.string().optional()
+})
+
+const SetEntityHiddenSchema = z.object({
+  action: z.literal('set_entity_hidden'),
+  entityLabel: z.string(),
+  hidden: z.boolean().optional(),
+  reason: z.string().optional()
+})
+
+const SpendActionSchema = z.object({
+  action: z.literal('spend_action'),
+  entityLabel: z.string(),
+  reason: z.string().optional()
+})
+
+const SpendBonusActionSchema = z.object({
+  action: z.literal('spend_bonus_action'),
+  entityLabel: z.string(),
+  reason: z.string().optional()
+})
+
+const SpendReactionSchema = z.object({
+  action: z.literal('spend_reaction'),
+  entityLabel: z.string(),
+  reason: z.string().optional()
+})
+
+const SpendMovementSchema = z.object({
+  action: z.literal('spend_movement'),
+  entityLabel: z.string(),
+  feet: z.number(),
+  reason: z.string().optional()
+})
+
 const ShortRestSchema = z.object({
   action: z.literal('short_rest'),
   characterNames: z.array(z.string())
@@ -770,6 +821,14 @@ export const DM_ACTION_SCHEMAS: Record<string, z.ZodType> = {
   request_roll: RequestRollSchema,
   add_entity_condition: AddEntityConditionSchema,
   remove_entity_condition: RemoveEntityConditionSchema,
+  set_entity_dash: SetEntityDashSchema,
+  set_entity_disengage: SetEntityDisengageSchema,
+  set_entity_dodge: SetEntityDodgeSchema,
+  set_entity_hidden: SetEntityHiddenSchema,
+  spend_action: SpendActionSchema,
+  spend_bonus_action: SpendBonusActionSchema,
+  spend_reaction: SpendReactionSchema,
+  spend_movement: SpendMovementSchema,
   short_rest: ShortRestSchema,
   long_rest: LongRestSchema,
   apply_area_effect: ApplyAreaEffectSchema,

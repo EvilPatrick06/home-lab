@@ -137,6 +137,16 @@ export type DmAction =
     }
   | { action: 'remove_entity_condition'; entityLabel: string; condition: string }
 
+  // Combat action economy (creature turn-state during initiative)
+  | { action: 'set_entity_dash'; entityLabel: string; reason?: string }
+  | { action: 'set_entity_disengage'; entityLabel: string; reason?: string }
+  | { action: 'set_entity_dodge'; entityLabel: string; reason?: string }
+  | { action: 'set_entity_hidden'; entityLabel: string; hidden?: boolean; reason?: string }
+  | { action: 'spend_action'; entityLabel: string; reason?: string }
+  | { action: 'spend_bonus_action'; entityLabel: string; reason?: string }
+  | { action: 'spend_reaction'; entityLabel: string; reason?: string }
+  | { action: 'spend_movement'; entityLabel: string; feet: number; reason?: string }
+
   // Resting
   | { action: 'short_rest'; characterNames: string[] }
   | { action: 'long_rest'; characterNames: string[] }
