@@ -6,6 +6,18 @@ import { Button, Card } from '../ui'
 
 type SetupPhase = 'idle' | 'detecting' | 'downloading' | 'installing' | 'starting' | 'pulling' | 'ready' | 'error'
 
+/**
+ * A curated model counts as installed only on an exact name:tag match. A bare name
+ * (no tag) also matches the family default `:latest`. This deliberately does NOT match
+ * a different SIZE tag of the same family — the old `startsWith(family)` check wrongly
+ * flagged e.g. `llama3.1:70b` as installed whenever `llama3.1:latest` (the 8B) existed.
+ */
+function isModelInstalled(id: string, installed: string[]): boolean {
+  if (installed.includes(id)) return true
+  if (!id.includes(':')) return installed.some((m) => m === `${id}:latest` || m.startsWith(`${id}:`))
+  return false
+}
+
 interface CuratedModel {
   id: string
   name: string
@@ -107,7 +119,7 @@ export default function AiProviderSetup({
       setCuratedModels(models)
       setInstalledModels(installed)
 
-      const isModelReady = installed.some((m: string) => m.startsWith(model.split(':')[0]))
+      const isModelReady = isModelInstalled(model, installed)
       setModelReady(isModelReady)
 
       if (status.installed && status.running && isModelReady) {
@@ -156,7 +168,7 @@ export default function AiProviderSetup({
   // never re-triggers detection.
   useEffect(() => {
     if (provider !== 'ollama' || installedModels.length === 0) return
-    const isInstalled = (id: string): boolean => installedModels.some((m) => m.startsWith(id.split(':')[0]))
+    const isInstalled = (id: string): boolean => isModelInstalled(id, installedModels)
     if (isInstalled(model)) return
     const next = curatedModels.find((c) => isInstalled(c.id))?.id ?? installedModels[0]
     if (next && next !== model) {
@@ -417,7 +429,7 @@ export default function AiProviderSetup({
                       value={model}
                       onChange={(e) => {
                         onChange({ enabled, provider, model: e.target.value, ollamaUrl, apiKey })
-                        const isReady = installedModels.some((m: string) => m.startsWith(e.target.value.split(':')[0]))
+                        const isReady = isModelInstalled(e.target.value, installedModels)
                         setModelReady(isReady)
                         if (!isReady) {
                           setSetupPhase('idle')
@@ -430,13 +442,11 @@ export default function AiProviderSetup({
                         <option key={m.id} value={m.id}>
                           {m.name} — {m.desc}
                           {!modelFitsGpu(m) ? t('campaign.aiProviderSetup.mayBeSlow') : ''}
-                          {installedModels.some((i: string) => i.startsWith(m.id.split(':')[0]))
-                            ? t('campaign.aiProviderSetup.installedSuffix')
-                            : ''}
+                          {isModelInstalled(m.id, installedModels) ? t('campaign.aiProviderSetup.installedSuffix') : ''}
                         </option>
                       ))}
                       {installedModels
-                        .filter((m: string) => !curatedModels.some((c) => m.startsWith(c.id.split(':')[0])))
+                        .filter((m: string) => !curatedModels.some((c) => isModelInstalled(c.id, [m])))
                         .map((m: string) => (
                           <option key={m} value={m}>
                             {t('campaign.aiProviderSetup.installedModelOption', { model: m })}

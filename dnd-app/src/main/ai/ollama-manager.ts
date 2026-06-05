@@ -359,10 +359,18 @@ export async function startOllama(): Promise<void> {
   }
 
   // Spawn detached process
+  // Force the app-managed Ollama server onto the dedicated GPU. Ollama's experimental
+  // Vulkan backend (enabled when OLLAMA_VULKAN is truthy in the user's environment)
+  // enumerates integrated GPUs — e.g. Intel Arc on hybrid laptops — as inference
+  // devices, even mislabeling them type=discrete, and can schedule the model onto the
+  // iGPU. There the runner crashes on large prefills ("connection forcibly closed by
+  // the remote host") and is far slower than the discrete CUDA/ROCm GPU. Disable Vulkan
+  // for our server so it uses the dedicated GPU; the rest of the environment is inherited.
   const child = spawn(ollamaPath, ['serve'], {
     detached: true,
     stdio: 'ignore',
-    windowsHide: true
+    windowsHide: true,
+    env: { ...process.env, OLLAMA_VULKAN: '0' }
   })
   child.unref()
 

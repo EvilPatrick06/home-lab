@@ -52,19 +52,25 @@ export default function ScenePrepPage(): JSX.Element {
     startPrep()
   }, [campaign, navigate, startPrep])
 
-  // Tick elapsed time + poll the scene status while preparing.
+  // Poll the scene status while a prep is enabled.
   useEffect(() => {
     if (!campaign?.aiDm?.enabled) return
-    const start = Date.now()
-    const tick = setInterval(() => setElapsed(Math.floor((Date.now() - start) / 1000)), 1000)
     const poll = setInterval(() => {
       void useAiDmStore.getState().checkSceneStatus(campaign.id)
     }, POLL_MS)
-    return () => {
-      clearInterval(tick)
-      clearInterval(poll)
-    }
+    return () => clearInterval(poll)
   }, [campaign])
+
+  // Tick elapsed time only while a prep is actively running. Keyed on sceneStatus so a
+  // Retry (status flips back to 'preparing') restarts the clock from zero instead of
+  // resuming the count from the original Play.
+  useEffect(() => {
+    if (sceneStatus !== 'preparing') return
+    setElapsed(0)
+    const start = Date.now()
+    const tick = setInterval(() => setElapsed(Math.floor((Date.now() - start) / 1000)), 1000)
+    return () => clearInterval(tick)
+  }, [sceneStatus])
 
   // Enter the game the moment the scene is ready.
   useEffect(() => {
