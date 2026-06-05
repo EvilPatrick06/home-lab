@@ -229,6 +229,38 @@ export type DmAction =
     }
   | { action: 'end_spell'; spellEffectId?: string; spellName?: string; caster?: string; reason?: string }
 
+  // Environment: darkness zones & terrain (P6.11)
+  | {
+      action: 'add_darkness_zone'
+      x: number
+      y: number
+      radius: number
+      magicLevel?: 'nonmagical' | 'darkness' | 'deeper-darkness'
+      floor?: number
+    }
+  | {
+      action: 'update_darkness_zone'
+      zoneId: string
+      x?: number
+      y?: number
+      radius?: number
+      magicLevel?: 'nonmagical' | 'darkness' | 'deeper-darkness'
+      floor?: number
+    }
+  | { action: 'remove_darkness_zone'; zoneId: string }
+  | {
+      action: 'place_terrain'
+      gridX: number
+      gridY: number
+      type: 'difficult' | 'hazard' | 'water' | 'climbing' | 'portal'
+      movementCost?: number
+      hazardType?: 'fire' | 'acid' | 'pit' | 'spikes'
+      hazardDamage?: number
+      portalTarget?: { mapId: string; gridX: number; gridY: number }
+      floor?: number
+    }
+  | { action: 'remove_terrain'; gridX: number; gridY: number; floor?: number }
+
   // Legendary actions & resistances
   | { action: 'use_legendary_action'; entityLabel: string; actionName: string; cost?: number }
   | { action: 'use_legendary_resistance'; entityLabel: string }

@@ -133,6 +133,52 @@ describe('buildGameStateSnapshot', () => {
     expect(result).toContain('[BLOODIED]')
   })
 
+  it('shows terrain cells with movement cost + hazard', () => {
+    const result = buildGameStateSnapshot(
+      makeStores({
+        activeMapId: 'map-1',
+        maps: [
+          {
+            id: 'map-1',
+            name: 'Cavern',
+            width: 400,
+            height: 400,
+            grid: { cellSize: 40 },
+            tokens: [],
+            terrain: [
+              { x: 2, y: 3, type: 'difficult', movementCost: 2 },
+              { x: 4, y: 4, type: 'hazard', movementCost: 1, hazardType: 'fire', hazardDamage: 6 }
+            ]
+          }
+        ]
+      })
+    )
+    expect(result).toContain('Terrain:')
+    expect(result).toContain('(2, 3): difficult (move x2)')
+    expect(result).toContain('fire hazard 6 dmg on entry')
+  })
+
+  it('shows darkness zones with magic level + radius', () => {
+    const result = buildGameStateSnapshot(
+      makeStores({
+        activeMapId: 'map-1',
+        maps: [
+          {
+            id: 'map-1',
+            name: 'Crypt',
+            width: 400,
+            height: 400,
+            grid: { cellSize: 40 },
+            tokens: [],
+            darknessZones: [{ id: 'dz1', x: 5, y: 5, radius: 30, magicLevel: 'deeper-darkness' }]
+          }
+        ]
+      })
+    )
+    expect(result).toContain('Darkness Zones:')
+    expect(result).toContain('deeper-darkness radius 30ft at (5, 5)')
+  })
+
   it('shows "Tokens: none" when map has no tokens', () => {
     const result = buildGameStateSnapshot(
       makeStores({

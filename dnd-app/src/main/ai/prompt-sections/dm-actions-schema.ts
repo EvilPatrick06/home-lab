@@ -135,6 +135,13 @@ When you run a monster's turn, emit the matching action so its action economy is
 - \`light_source\`: {entityName, sourceName}
 - \`extinguish_source\`: {entityName, sourceName?}
 
+**Environment — Darkness Zones & Terrain:**
+- \`add_darkness_zone\`: {x, y, radius, magicLevel?: 'nonmagical'|'darkness'|'deeper-darkness', floor?} — create a circular zone of darkness (e.g. the Darkness spell, a lightless cavern). Shows in the map's "Darkness Zones" list with its generated id.
+- \`update_darkness_zone\`: {zoneId, x?, y?, radius?, magicLevel?, floor?} — move/resize/retune a zone by its id.
+- \`remove_darkness_zone\`: {zoneId} — clear a zone (e.g. when dispelled or the party leaves).
+- \`place_terrain\`: {gridX, gridY, type: 'difficult'|'hazard'|'water'|'climbing'|'portal', movementCost?, hazardType?: 'fire'|'acid'|'pit'|'spikes', hazardDamage?, portalTarget?: {mapId, gridX, gridY}, floor?} — mark a square's terrain. movementCost defaults to 1 for hazards, 2 otherwise. Difficult/water/climbing cost extra movement; hazards deal hazardDamage on entry; portals teleport to portalTarget. Surfaces in the "Terrain" list.
+- \`remove_terrain\`: {gridX, gridY, floor?} — clear the terrain on a square.
+
 **File Reading:**
 [FILE_READ]{"path": "C:/path/to/file.txt"}[/FILE_READ]
 Rules: Only when user explicitly asks. One file per response. Text files only. Max 512 KB.

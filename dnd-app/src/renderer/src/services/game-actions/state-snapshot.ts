@@ -54,6 +54,31 @@ export function buildGameStateSnapshot(
     } else {
       lines.push('Tokens: none')
     }
+
+    // Terrain cells (difficult/hazard/water/climbing/portal) — so the AI knows the
+    // movement costs + on-entry hazards on the board it's running.
+    if (activeMap.terrain && activeMap.terrain.length > 0) {
+      lines.push('Terrain:')
+      for (const c of activeMap.terrain) {
+        let line = `- (${c.x}, ${c.y}): ${c.type} (move x${c.movementCost})`
+        if (c.type === 'hazard' && c.hazardType)
+          line += `, ${c.hazardType} hazard${c.hazardDamage ? ` ${c.hazardDamage} dmg on entry` : ''}`
+        if (c.type === 'portal' && c.portalTarget)
+          line += ` → map ${c.portalTarget.mapId} (${c.portalTarget.gridX}, ${c.portalTarget.gridY})`
+        if (c.floor != null) line += ` [floor ${c.floor}]`
+        lines.push(line)
+      }
+    }
+
+    // Darkness zones (magical darkness — affects vision/light).
+    if (activeMap.darknessZones && activeMap.darknessZones.length > 0) {
+      lines.push('Darkness Zones:')
+      for (const z of activeMap.darknessZones) {
+        lines.push(
+          `- ${z.id}: ${z.magicLevel ?? 'darkness'} radius ${z.radius}ft at (${z.x}, ${z.y})${z.floor != null ? ` [floor ${z.floor}]` : ''}`
+        )
+      }
+    }
   } else {
     lines.push('Active Map: none')
   }

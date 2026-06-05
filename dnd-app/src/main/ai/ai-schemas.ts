@@ -713,6 +713,56 @@ const EndSpellSchema = z.object({
   reason: z.string().optional()
 })
 
+// ── Environment: darkness zones & terrain (P6.11) ──
+
+const MagicLevelSchema = z.enum(['nonmagical', 'darkness', 'deeper-darkness'])
+
+const AddDarknessZoneSchema = z.object({
+  action: z.literal('add_darkness_zone'),
+  x: z.number(),
+  y: z.number(),
+  radius: z.number(),
+  magicLevel: MagicLevelSchema.optional(),
+  floor: z.number().optional()
+})
+
+const UpdateDarknessZoneSchema = z.object({
+  action: z.literal('update_darkness_zone'),
+  zoneId: z.string(),
+  x: z.number().optional(),
+  y: z.number().optional(),
+  radius: z.number().optional(),
+  magicLevel: MagicLevelSchema.optional(),
+  floor: z.number().optional()
+})
+
+const RemoveDarknessZoneSchema = z.object({
+  action: z.literal('remove_darkness_zone'),
+  zoneId: z.string()
+})
+
+const TerrainTypeSchema = z.enum(['difficult', 'hazard', 'water', 'climbing', 'portal'])
+const HazardTypeSchema = z.enum(['fire', 'acid', 'pit', 'spikes'])
+
+const PlaceTerrainSchema = z.object({
+  action: z.literal('place_terrain'),
+  gridX: z.number(),
+  gridY: z.number(),
+  type: TerrainTypeSchema,
+  movementCost: z.number().optional(),
+  hazardType: HazardTypeSchema.optional(),
+  hazardDamage: z.number().optional(),
+  portalTarget: z.object({ mapId: z.string(), gridX: z.number(), gridY: z.number() }).optional(),
+  floor: z.number().optional()
+})
+
+const RemoveTerrainSchema = z.object({
+  action: z.literal('remove_terrain'),
+  gridX: z.number(),
+  gridY: z.number(),
+  floor: z.number().optional()
+})
+
 const UseLegendaryActionSchema = z.object({
   action: z.literal('use_legendary_action'),
   entityLabel: z.string(),
@@ -948,6 +998,11 @@ export const DM_ACTION_SCHEMAS: Record<string, z.ZodType> = {
   query_aoe: QueryAoeSchema,
   cast_spell: CastSpellSchema,
   end_spell: EndSpellSchema,
+  add_darkness_zone: AddDarknessZoneSchema,
+  update_darkness_zone: UpdateDarknessZoneSchema,
+  remove_darkness_zone: RemoveDarknessZoneSchema,
+  place_terrain: PlaceTerrainSchema,
+  remove_terrain: RemoveTerrainSchema,
   use_legendary_action: UseLegendaryActionSchema,
   use_legendary_resistance: UseLegendaryResistanceSchema,
   recharge_roll: RechargeRollSchema,

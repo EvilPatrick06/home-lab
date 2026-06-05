@@ -86,6 +86,14 @@ import {
   executeSystemMessage,
   executeWhisperPlayer
 } from './game-actions/effect-actions'
+// ── Environment Zones (darkness + terrain) ──
+import {
+  executeAddDarknessZone,
+  executePlaceTerrain,
+  executeRemoveDarknessZone,
+  executeRemoveTerrain,
+  executeUpdateDarknessZone
+} from './game-actions/environment-zone-actions'
 // ── Mounted Combat ──
 import { executeDismountToken, executeMountToken } from './game-actions/mount-actions'
 // ── Spell Effects & AoE Preview ──
@@ -407,6 +415,18 @@ function executeOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: A
       return executeCastSpell(action, gameStore, activeMap, stores)
     case 'end_spell':
       return executeEndSpell(action, gameStore, activeMap, stores)
+
+    // ── Environment Zones (darkness + terrain) ──
+    case 'add_darkness_zone':
+      return executeAddDarknessZone(action, gameStore, activeMap, stores)
+    case 'update_darkness_zone':
+      return executeUpdateDarknessZone(action, gameStore, activeMap, stores)
+    case 'remove_darkness_zone':
+      return executeRemoveDarknessZone(action, gameStore, activeMap, stores)
+    case 'place_terrain':
+      return executePlaceTerrain(action, gameStore, activeMap, stores)
+    case 'remove_terrain':
+      return executeRemoveTerrain(action, gameStore, activeMap, stores)
 
     // ── Legendary Actions & Resistances ──
     case 'use_legendary_action':

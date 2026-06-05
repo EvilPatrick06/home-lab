@@ -37,7 +37,7 @@
 - **G9** (high) Engine calculates AoE templates (sphere, cone, line, cube, cylinder) and target selection
 - **G11** (high) The AI DM cannot trigger, perceive, or manage spell-based effects (Magic Circle, Entangle, Conjure Animals, etc.) with duration/caster/link tracking, despite the engine's architecture supporting entity tracking. Environmental effects (Extreme Cold, etc.) are visible and manageable; spell effects are not.
 
-### P6.11 — AI environment: darkness zones + terrain cells  `[ ] pending`
+### P6.11 — AI environment: darkness zones + terrain cells  `[x] shipped v2.4.57`
 - **G14** (high) Darkness zones: create/modify regional areas of magical darkness with 'nonmagical'|'darkness'|'deeper-darkness' intensity levels
 - **G15** (high) Terrain cells: place difficult terrain, hazardous terrain (fire/acid/pit/spikes), swimming/climbing zones, and portals at map locations
 

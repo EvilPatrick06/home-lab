@@ -345,6 +345,46 @@ describe('validateDmActions', () => {
     expect(issues).toHaveLength(0)
   })
 
+  it('validates darkness-zone actions', () => {
+    const { valid, issues } = validateDmActions([
+      { action: 'add_darkness_zone', x: 5, y: 6, radius: 20, magicLevel: 'deeper-darkness' },
+      { action: 'update_darkness_zone', zoneId: 'z1', radius: 40 },
+      { action: 'remove_darkness_zone', zoneId: 'z1' }
+    ])
+    expect(valid).toHaveLength(3)
+    expect(issues).toHaveLength(0)
+  })
+
+  it('rejects add_darkness_zone with invalid magicLevel', () => {
+    const { valid, issues } = validateDmActions([
+      { action: 'add_darkness_zone', x: 0, y: 0, radius: 5, magicLevel: 'pitch' }
+    ])
+    expect(valid).toHaveLength(0)
+    expect(issues).toHaveLength(1)
+  })
+
+  it('validates terrain actions', () => {
+    const { valid, issues } = validateDmActions([
+      { action: 'place_terrain', gridX: 3, gridY: 4, type: 'hazard', hazardType: 'fire', hazardDamage: 6 },
+      {
+        action: 'place_terrain',
+        gridX: 1,
+        gridY: 1,
+        type: 'portal',
+        portalTarget: { mapId: 'm2', gridX: 0, gridY: 0 }
+      },
+      { action: 'remove_terrain', gridX: 3, gridY: 4 }
+    ])
+    expect(valid).toHaveLength(3)
+    expect(issues).toHaveLength(0)
+  })
+
+  it('rejects place_terrain with invalid type', () => {
+    const { valid, issues } = validateDmActions([{ action: 'place_terrain', gridX: 0, gridY: 0, type: 'lava' }])
+    expect(valid).toHaveLength(0)
+    expect(issues).toHaveLength(1)
+  })
+
   it('validates advance_time action', () => {
     const { valid, issues } = validateDmActions([{ action: 'advance_time', hours: 8 }])
     expect(valid).toHaveLength(1)

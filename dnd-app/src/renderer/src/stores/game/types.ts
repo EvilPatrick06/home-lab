@@ -388,6 +388,18 @@ export interface DarknessZoneSliceState {
   updateDarknessZone: (mapId: string, zoneId: string, updates: Partial<import('../../types/map').DarknessZone>) => void
 }
 
+export interface TerrainSliceState {
+  addTerrainCell: (mapId: string, cell: import('../../types/map').TerrainCell) => void
+  removeTerrainCell: (mapId: string, x: number, y: number, floor?: number) => void
+  updateTerrainCell: (
+    mapId: string,
+    x: number,
+    y: number,
+    updates: Partial<import('../../types/map').TerrainCell>,
+    floor?: number
+  ) => void
+}
+
 export interface JournalSliceState {
   sharedJournal: SharedJournalEntry[]
   addJournalEntry: (entry: SharedJournalEntry) => void
@@ -494,6 +506,7 @@ export type GameStoreState = GameState &
   TriggerSliceState &
   OcclusionSliceState &
   DarknessZoneSliceState &
+  TerrainSliceState &
   SidebarSliceState &
   TimerSliceState &
   CombatLogSliceState &

@@ -16,6 +16,7 @@ import { createPartyInventorySlice } from './party-inventory-slice'
 import { createRegionSlice } from './region-slice'
 import { createShopSlice } from './shop-slice'
 import { createSidebarSlice } from './sidebar-slice'
+import { createTerrainSlice } from './terrain-slice'
 import { createTimeSlice } from './time-slice'
 import { createTimerSlice } from './timer-slice'
 import { createTriggerSlice } from './trigger-slice'
@@ -46,6 +47,7 @@ export const useGameStore = create<GameStoreState>()((...a) => {
     ...createTriggerSlice(...a),
     ...createOcclusionSlice(...a),
     ...createDarknessZoneSlice(...a),
+    ...createTerrainSlice(...a),
     ...createJournalSlice(...a),
     ...createPartyInventorySlice(...a),
 
