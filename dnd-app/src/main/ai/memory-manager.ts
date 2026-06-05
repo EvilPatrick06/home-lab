@@ -51,6 +51,13 @@ export interface NPCMemory {
  * world-state loss). The StatChange's 'indifferent' maps to 'neutral'; timestamps
  * are filled in by upsertNPC.
  */
+/** Parse an ISO timestamp to epoch ms, treating empty/invalid dates as 0 (oldest)
+ *  so a missing lastSeen/firstVisited can't poison a recency sort with NaN. */
+function recencyMs(iso: string): number {
+  const t = new Date(iso).getTime()
+  return Number.isNaN(t) ? 0 : t
+}
+
 export function npcMemoryFromAttitude(name: string, attitude: string, reason: string): NPCMemory {
   const mapped: NPCMemory['attitude'] =
     attitude === 'friendly' ? 'friendly' : attitude === 'hostile' ? 'hostile' : 'neutral'
@@ -422,7 +429,7 @@ export class MemoryManager {
 
   // --- Context Assembly for AI ---
   async assembleContext(currentScene?: string): Promise<string> {
-    const [worldState, combatState, npcs, places, campaignNotes, npcPersonalities, worldStateSummary] =
+    const [worldState, combatState, npcs, places, campaignNotes, npcPersonalities, worldStateSummary, rulings] =
       await Promise.all([
         this.getWorldState(),
         this.getCombatState(),
@@ -430,7 +437,8 @@ export class MemoryManager {
         this.getPlaces(),
         this.getCampaignNotes(),
         this.getNpcPersonalities(),
-        this.getWorldStateSummary()
+        this.getWorldStateSummary(),
+        this.getRulings()
       ])
 
     const sections: string[] = []
@@ -454,6 +462,16 @@ export class MemoryManager {
       sections.push(`[WORLD SUMMARY] ${wsParts.join('. ')}`)
     }
 
+    // DM rulings the table has established — surface them so the AI stays consistent
+    // with prior calls (skip any the DM later overrode). Most recent first.
+    const activeRulings = rulings.filter((r) => !r.overriddenByDM).slice(-8)
+    if (activeRulings.length > 0) {
+      const lines = activeRulings
+        .reverse()
+        .map((r) => `Q: ${r.question} A: ${r.ruling}${r.citation ? ` (${r.citation})` : ''}`)
+      sections.push(`[DM RULINGS]\n${lines.join('\n')}\n[/DM RULINGS]`)
+    }
+
     if (combatState?.inCombat) {
       const entries = combatState.entries
         .map(
@@ -464,10 +482,12 @@ export class MemoryManager {
       sections.push(`[COMBAT] Round ${combatState.round}, Turn: ${combatState.currentTurnEntity ?? 'N/A'}. ${entries}`)
     }
 
-    // Filter NPCs to current scene if provided
+    // Recency-ranked (most recently seen first) so the capped lists keep the NPCs
+    // the party most recently dealt with, not whatever happens to be first on disk.
+    const npcsByRecency = [...npcs].sort((a, b) => recencyMs(b.lastSeen) - recencyMs(a.lastSeen))
     const relevantNPCs = currentScene
-      ? npcs.filter((n) => n.location === currentScene || n.attitude !== 'unknown')
-      : npcs.slice(0, 20)
+      ? npcsByRecency.filter((n) => n.location === currentScene || n.attitude !== 'unknown')
+      : npcsByRecency.slice(0, 20)
     if (relevantNPCs.length > 0) {
       const npcList = relevantNPCs.map((n) => `${n.name} (${n.role}, ${n.attitude}, at ${n.location})`).join('; ')
       sections.push(`[NPCS] ${npcList}`)
@@ -506,8 +526,10 @@ export class MemoryManager {
       sections.push(`[NPC INTERACTION HISTORY]\n${logLines}\n[/NPC INTERACTION HISTORY]`)
     }
 
-    // Filter places to discovered only
-    const discoveredPlaces = places.filter((p) => p.discovered)
+    // Discovered places, most recently visited first.
+    const discoveredPlaces = places
+      .filter((p) => p.discovered)
+      .sort((a, b) => recencyMs(b.firstVisited) - recencyMs(a.firstVisited))
     if (discoveredPlaces.length > 0) {
       const placeList = discoveredPlaces.map((p) => `${p.name} (${p.type})`).join('; ')
       sections.push(`[PLACES] ${placeList}`)

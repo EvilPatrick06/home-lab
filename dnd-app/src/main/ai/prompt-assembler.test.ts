@@ -35,17 +35,19 @@ describe('assembleSystemPrompt', () => {
       expect(prompt).toContain(HDR_DM_ACTIONS)
     })
 
-    it('omits the exploration and social sections', () => {
-      expect(prompt).not.toContain(HDR_EXPLORATION)
-      expect(prompt).not.toContain(HDR_SOCIAL)
+    it('still includes exploration and social (combat keeps terrain + social rules)', () => {
+      expect(prompt).toContain(HDR_EXPLORATION)
+      expect(prompt).toContain(HDR_SOCIAL)
     })
 
-    it('is exactly narrative + character + combat + DM-actions + voice joined by blank lines', () => {
+    it('is exactly narrative + character + combat + exploration + social + DM-actions + voice', () => {
       expect(prompt).toBe(
         [
           NARRATIVE_RULES_PROMPT,
           CHARACTER_RULES_PROMPT,
           COMBAT_RULES_PROMPT,
+          EXPLORATION_RULES_PROMPT,
+          SOCIAL_RULES_PROMPT,
           DM_ACTIONS_SCHEMA_PROMPT,
           VOICE_NARRATION_PROMPT
         ].join('\n\n')
@@ -62,17 +64,22 @@ describe('assembleSystemPrompt', () => {
       expect(prompt).toContain(HDR_DM_ACTIONS)
     })
 
-    it('omits combat, character, and social sections', () => {
-      expect(prompt).not.toContain(HDR_COMBAT)
-      expect(prompt).not.toContain(HDR_CHARACTER)
+    it('includes character + combat rules (sheet enforcement is universal) but omits social', () => {
+      expect(prompt).toContain(HDR_CHARACTER)
+      expect(prompt).toContain(HDR_COMBAT)
       expect(prompt).not.toContain(HDR_SOCIAL)
     })
 
-    it('is exactly narrative + exploration + DM-actions + voice joined by blank lines', () => {
+    it('is exactly narrative + character + combat + exploration + DM-actions + voice', () => {
       expect(prompt).toBe(
-        [NARRATIVE_RULES_PROMPT, EXPLORATION_RULES_PROMPT, DM_ACTIONS_SCHEMA_PROMPT, VOICE_NARRATION_PROMPT].join(
-          '\n\n'
-        )
+        [
+          NARRATIVE_RULES_PROMPT,
+          CHARACTER_RULES_PROMPT,
+          COMBAT_RULES_PROMPT,
+          EXPLORATION_RULES_PROMPT,
+          DM_ACTIONS_SCHEMA_PROMPT,
+          VOICE_NARRATION_PROMPT
+        ].join('\n\n')
       )
     })
   })
@@ -86,15 +93,22 @@ describe('assembleSystemPrompt', () => {
       expect(prompt).toContain(HDR_DM_ACTIONS)
     })
 
-    it('omits combat, character, and exploration sections', () => {
-      expect(prompt).not.toContain(HDR_COMBAT)
-      expect(prompt).not.toContain(HDR_CHARACTER)
+    it('includes character + combat rules (sheet enforcement is universal) but omits exploration', () => {
+      expect(prompt).toContain(HDR_CHARACTER)
+      expect(prompt).toContain(HDR_COMBAT)
       expect(prompt).not.toContain(HDR_EXPLORATION)
     })
 
-    it('is exactly narrative + social + DM-actions + voice joined by blank lines', () => {
+    it('is exactly narrative + character + combat + social + DM-actions + voice', () => {
       expect(prompt).toBe(
-        [NARRATIVE_RULES_PROMPT, SOCIAL_RULES_PROMPT, DM_ACTIONS_SCHEMA_PROMPT, VOICE_NARRATION_PROMPT].join('\n\n')
+        [
+          NARRATIVE_RULES_PROMPT,
+          CHARACTER_RULES_PROMPT,
+          COMBAT_RULES_PROMPT,
+          SOCIAL_RULES_PROMPT,
+          DM_ACTIONS_SCHEMA_PROMPT,
+          VOICE_NARRATION_PROMPT
+        ].join('\n\n')
       )
     })
   })

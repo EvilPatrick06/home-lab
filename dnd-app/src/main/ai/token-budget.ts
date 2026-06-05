@@ -14,6 +14,8 @@ export interface ContextTokenBreakdown {
   gameState: number
   memory: number
   total: number
+  /** True if ANY section's content was actually trimmed to fit its budget. */
+  truncated?: boolean
 }
 
 import tokenBudgetsJson from '../data/token-budgets.json'

@@ -29,11 +29,22 @@ export function assembleSystemPrompt(gameMode: GameMode = 'general'): string {
     case 'combat':
       parts.push(CHARACTER_RULES_PROMPT)
       parts.push(COMBAT_RULES_PROMPT)
+      // Keep exploration + social rules in combat too — fights routinely involve
+      // terrain/movement and intimidation/persuasion; stripping them made the AI
+      // forget those mid-combat.
+      parts.push(EXPLORATION_RULES_PROMPT)
+      parts.push(SOCIAL_RULES_PROMPT)
       break
     case 'exploration':
+      // Character-sheet enforcement + combat rules belong in EVERY mode — combat can
+      // break out anytime, and the AI must always respect HP/slots/abilities.
+      parts.push(CHARACTER_RULES_PROMPT)
+      parts.push(COMBAT_RULES_PROMPT)
       parts.push(EXPLORATION_RULES_PROMPT)
       break
     case 'social':
+      parts.push(CHARACTER_RULES_PROMPT)
+      parts.push(COMBAT_RULES_PROMPT)
       parts.push(SOCIAL_RULES_PROMPT)
       break
     default:

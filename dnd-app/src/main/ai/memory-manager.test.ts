@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mockFs = vi.hoisted(() => ({
   mkdir: vi.fn(async () => {}),
-  readFile: vi.fn(async () => ''),
+  readFile: vi.fn(async (_path?: unknown) => ''),
   writeFile: vi.fn(async () => {}),
   appendFile: vi.fn(async () => {})
 }))
@@ -621,6 +621,71 @@ describe('MemoryManager', () => {
 
     it('passes through friendly', () => {
       expect(npcMemoryFromAttitude('Innkeeper', 'friendly', '').attitude).toBe('friendly')
+    })
+  })
+
+  describe('assembleContext (P3: rulings + recency)', () => {
+    it('includes a [DM RULINGS] section from non-overridden rulings only', async () => {
+      mockFs.readFile.mockImplementation(async (p: unknown) => {
+        if (String(p).includes('rulings-log.json')) {
+          return JSON.stringify([
+            {
+              id: 'r1',
+              timestamp: 't',
+              question: 'Can I dual-wield daggers?',
+              ruling: 'Yes',
+              citation: 'PHB p.150',
+              overriddenByDM: false
+            },
+            {
+              id: 'r2',
+              timestamp: 't',
+              question: 'A scrapped call',
+              ruling: 'ScrappedRuling',
+              citation: '',
+              overriddenByDM: true
+            }
+          ])
+        }
+        return ''
+      })
+      const ctx = await new MemoryManager('c1').assembleContext()
+      expect(ctx).toContain('[DM RULINGS]')
+      expect(ctx).toContain('Can I dual-wield daggers?')
+      expect(ctx).not.toContain('ScrappedRuling') // DM-overridden ruling excluded
+    })
+
+    it('lists NPCs most-recently-seen first', async () => {
+      mockFs.readFile.mockImplementation(async (p: unknown) => {
+        if (String(p).includes('npcs.json')) {
+          return JSON.stringify([
+            {
+              id: 'a',
+              name: 'OldFriend',
+              role: 'r',
+              attitude: 'friendly',
+              location: 'X',
+              notes: '',
+              firstEncountered: '',
+              lastSeen: '2026-01-01T00:00:00Z'
+            },
+            {
+              id: 'b',
+              name: 'RecentFoe',
+              role: 'r',
+              attitude: 'hostile',
+              location: 'Y',
+              notes: '',
+              firstEncountered: '',
+              lastSeen: '2026-06-01T00:00:00Z'
+            }
+          ])
+        }
+        return ''
+      })
+      const ctx = await new MemoryManager('c1').assembleContext()
+      const npcsLine = ctx.split('\n').find((l) => l.startsWith('[NPCS]')) ?? ''
+      expect(npcsLine.indexOf('RecentFoe')).toBeLessThan(npcsLine.indexOf('OldFriend'))
     })
   })
 })

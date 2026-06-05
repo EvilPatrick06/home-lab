@@ -1,4 +1,5 @@
 import { logToFile } from '../log'
+import { getLastTokenBreakdown } from './context-builder'
 import { DM_TOOLBOX_CONTEXT, PLANAR_RULES_CONTEXT } from './dm-system-prompt'
 import { assembleSystemPrompt, type GameMode } from './prompt-assembler'
 import { COMBAT_TACTICS_PROMPT } from './prompt-sections/combat-tactics'
@@ -139,7 +140,11 @@ export class ConversationManager {
     // Track token usage and truncation for DM alerting
     const totalTokens = estimateTokens(systemPrompt) + cleaned.reduce((sum, m) => sum + estimateTokens(m.content), 0)
     this._lastTokenEstimate = totalTokens
-    this._contextTruncated = tokenCount >= TOKEN_BUDGETS.conversationHistory
+    // True if the conversation history OR any context-builder section was trimmed —
+    // previously only the history budget was tracked, so context compression was
+    // silently invisible to the DM-alert.
+    this._contextTruncated =
+      tokenCount >= TOKEN_BUDGETS.conversationHistory || (getLastTokenBreakdown()?.truncated ?? false)
 
     return { systemPrompt, messages: cleaned }
   }

@@ -30,7 +30,14 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## Critical / High / Medium / Low
 
-### [2026-06-01] Signaling-status badge stays "not applicable" off-LAN
+### [2026-06-02] CharacterSheet5ePage.test.tsx flakes (15s timeout) under CPU load
+
+- **Category:** test, flake/debt
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** Claude Code
+- **During:** P3 (AI memory/context) — gate run
+- The two heavy render tests in `src/renderer/src/pages/CharacterSheet5ePage.test.tsx` ("renders the sheet for a saved character", "survives toolbar interactions without crashing or looping") intermittently hit the global `testTimeout: 15000` (vitest.config.ts) when the Pi is under concurrent load (multiple workflows/gates). Confirmed pre-existing + unrelated to the change under test (the page imports none of the AI files); a *different* one of the two fails across runs, and the failing duration is exactly 15038ms. They pass in isolation on an unloaded machine and in CI (faster, sharded — green for v2.4.29–v2.4.36). **Fix options:** split the "toolbar interactions" test, mock the heaviest child renders, or bump these two tests' per-test timeout. Not blocking releases (CI authoritative).
 
 - **Category:** UX, debt
 - **Severity:** low

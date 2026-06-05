@@ -6,8 +6,6 @@ import { formatCampaignForContext, loadCampaignById } from './campaign-context'
 import { formatCharacterAbbreviated, formatCharacterForContext, loadCharacterById } from './character-context'
 import type { FileReadRequest } from './file-reader'
 import { getMemoryManager } from './memory-manager'
-import { CHARACTER_RULES_PROMPT } from './prompt-sections/character-rules'
-import { COMBAT_RULES_PROMPT } from './prompt-sections/combat-rules'
 import type { SearchEngine } from './search-engine'
 import { detectAndLoadSrdData } from './srd-provider'
 import type { ContextTokenBreakdown } from './token-budget'
@@ -175,13 +173,22 @@ export async function buildContext(
     total: 0
   }
 
+  // Trim to a budget AND record whether anything was actually cut, so the
+  // breakdown's `truncated` flag reflects real context compression (not just the
+  // conversation-history budget).
+  const trimTracked = (text: string, budget: number): string => {
+    const out = trimToTokenBudget(text, budget)
+    if (estimateTokens(text) > estimateTokens(out)) breakdown.truncated = true
+    return out
+  }
+
   // 1. Search rulebook chunks
   if (searchEngine) {
     const results = searchEngine.search(query, 5)
 
     if (results.length > 0) {
       const chunkText = formatChunks(results)
-      const trimmed = trimToTokenBudget(`[CONTEXT: Rulebook Excerpts]\n${chunkText}`, TOKEN_BUDGETS.retrievedChunks)
+      const trimmed = trimTracked(`[CONTEXT: Rulebook Excerpts]\n${chunkText}`, TOKEN_BUDGETS.retrievedChunks)
       breakdown.rulebookChunks = estimateTokens(trimmed)
       parts.push(trimmed)
     }
@@ -191,7 +198,7 @@ export async function buildContext(
   try {
     const srdData = detectAndLoadSrdData(query)
     if (srdData) {
-      const trimmed = trimToTokenBudget(`[CONTEXT: SRD Data]\n${srdData}`, TOKEN_BUDGETS.srdData)
+      const trimmed = trimTracked(`[CONTEXT: SRD Data]\n${srdData}`, TOKEN_BUDGETS.srdData)
       breakdown.srdData = estimateTokens(trimmed)
       parts.push(trimmed)
     }
@@ -223,10 +230,9 @@ export async function buildContext(
       const charBlock = `[CHARACTER DATA]\n${charParts.join('\n\n')}`
       breakdown.characterData = estimateTokens(charBlock)
       parts.push(charBlock)
-
-      // Include character rules prompt alongside character data for enforcement
-      parts.push(`[CHARACTER RULES]\n${CHARACTER_RULES_PROMPT.trim()}`)
-      parts.push(`[COMBAT RULES]\n${COMBAT_RULES_PROMPT.trim()}`)
+      // (Character + combat rules are NOT re-added here — the modular system prompt
+      // assembler already includes them per game mode; duplicating them in the
+      // context just burned tokens and showed the AI the same rules twice.)
 
       // Party composition analysis for AI tactical decisions
       const partyComp = analyzePartyComposition(charParts)
@@ -238,7 +244,7 @@ export async function buildContext(
 
       const availableMonsters = formatAvailableMonstersContext(query)
       if (availableMonsters) {
-        const trimmed = trimToTokenBudget(availableMonsters, Math.floor(TOKEN_BUDGETS.srdData * 0.4))
+        const trimmed = trimTracked(availableMonsters, Math.floor(TOKEN_BUDGETS.srdData * 0.4))
         breakdown.srdData += estimateTokens(trimmed)
         parts.push(trimmed)
       }
@@ -259,7 +265,7 @@ export async function buildContext(
       const campaign = await loadCampaignById(campaignId)
       if (campaign) {
         const campaignText = formatCampaignForContext(campaign)
-        const trimmed = trimToTokenBudget(campaignText, TOKEN_BUDGETS.campaignData)
+        const trimmed = trimTracked(campaignText, TOKEN_BUDGETS.campaignData)
         breakdown.campaignData = estimateTokens(trimmed)
         parts.push(trimmed)
       }
@@ -271,16 +277,22 @@ export async function buildContext(
   // 5. Active map creatures (enriched with stat block data)
   if (activeCreatures?.length) {
     const creatureBlock = `[ACTIVE CREATURES ON MAP]\n${activeCreatures.map((c) => formatCreatureContext(c)).join('\n')}`
-    const trimmed = trimToTokenBudget(creatureBlock, TOKEN_BUDGETS.creatures)
+    const trimmed = trimTracked(creatureBlock, TOKEN_BUDGETS.creatures)
     breakdown.creatures = estimateTokens(trimmed)
     parts.push(trimmed)
   }
 
-  // 6. Game state snapshot (pre-formatted by renderer)
+  // 6. Game state snapshot (pre-formatted by renderer). The [PARTY ROSTER] block is
+  //    NEVER trimmed — dropping who's in the party (and their charIds) silently breaks
+  //    targeting and multiplayer narration. Extract it, trim the rest, re-append it.
   if (gameState) {
-    const trimmed = trimToTokenBudget(gameState, TOKEN_BUDGETS.gameState)
-    breakdown.gameState = estimateTokens(trimmed)
-    parts.push(trimmed)
+    const rosterRe = /\[PARTY ROSTER\][\s\S]*?\[\/PARTY ROSTER\]/g
+    const roster = gameState.match(rosterRe)?.[0]
+    const rest = roster ? gameState.replace(rosterRe, '').trim() : gameState
+    const trimmedRest = trimTracked(rest, TOKEN_BUDGETS.gameState)
+    const finalGameState = roster ? `${trimmedRest}\n\n${roster}`.trim() : trimmedRest
+    breakdown.gameState = estimateTokens(finalGameState)
+    parts.push(finalGameState)
   }
 
   // 7. Memory manager context (world state, combat, NPCs, places, notes)
@@ -289,7 +301,7 @@ export async function buildContext(
       const memoryManager = getMemoryManager(campaignId)
       const memoryContext = await memoryManager.assembleContext()
       if (memoryContext) {
-        const trimmed = trimToTokenBudget(memoryContext, TOKEN_BUDGETS.memory)
+        const trimmed = trimTracked(memoryContext, TOKEN_BUDGETS.memory)
         breakdown.memory = estimateTokens(trimmed)
         parts.push(trimmed)
       }

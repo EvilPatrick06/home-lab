@@ -373,6 +373,6 @@ function executeOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: A
 /**
  * Build a compact text snapshot of the current game state for AI context.
  */
-export function buildGameStateSnapshot(): string {
-  return _buildSnapshot(stores)
+export function buildGameStateSnapshot(exactTimeDefault?: 'always' | 'contextual' | 'never'): string {
+  return _buildSnapshot(stores, exactTimeDefault)
 }

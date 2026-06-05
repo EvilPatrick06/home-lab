@@ -260,7 +260,13 @@ export default function ChatPanel({
     // loop only ever sees PEER messages, so the host's own typed message would never
     // reach the AI otherwise. Clients don't route (only the host runs the AI).
     if (campaign && (networkRole === 'none' || networkRole === 'host') && aiEnabled && !aiPaused) {
-      routePlayerMessageToAiDm(campaign.id, trimmed, playerName, campaign.players ?? [])
+      routePlayerMessageToAiDm(
+        campaign.id,
+        trimmed,
+        playerName,
+        campaign.players ?? [],
+        campaign.calendar?.exactTimeDefault
+      )
     }
     setInput('')
   }

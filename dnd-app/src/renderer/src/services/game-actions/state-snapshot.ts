@@ -5,7 +5,10 @@
 import { getTokenStats } from '../game/token-stats'
 import type { StoreAccessors } from './types'
 
-export function buildGameStateSnapshot(stores: StoreAccessors): string {
+export function buildGameStateSnapshot(
+  stores: StoreAccessors,
+  exactTimeDefault: 'always' | 'contextual' | 'never' = 'contextual'
+): string {
   const gameStore = stores.getGameStore().getState()
   const activeMap = gameStore.maps.find((m) => m.id === gameStore.activeMapId)
 
@@ -108,6 +111,9 @@ export function buildGameStateSnapshot(stores: StoreAccessors): string {
     lines.push(`\n[GAME TIME]`)
     lines.push(`Day ${dayNum}, ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')} (${phase})`)
     lines.push(`Total seconds: ${totalSec}`)
+    // The exactTimeDefault preference the AI is told to honor (always state exact
+    // clock times / use judgment / avoid exact times). Now actually in the snapshot.
+    lines.push(`Exact-time preference: ${exactTimeDefault}`)
     if (gameStore.restTracking) {
       if (gameStore.restTracking.lastLongRestSeconds != null) {
         const sinceLR = totalSec - gameStore.restTracking.lastLongRestSeconds

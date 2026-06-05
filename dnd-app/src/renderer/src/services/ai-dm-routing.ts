@@ -120,7 +120,8 @@ export function routePlayerMessageToAiDm(
   campaignId: string,
   message: string,
   senderName: string,
-  campaignPlayers: CampaignPlayer[]
+  campaignPlayers: CampaignPlayer[],
+  exactTimeDefault?: 'always' | 'contextual' | 'never'
 ): void {
   const lobbyPlayers = useLobbyStore.getState().players
   const { charIds, rosterText } = buildPlayerRoster(lobbyPlayers, campaignPlayers)
@@ -129,7 +130,7 @@ export function routePlayerMessageToAiDm(
   // lazy-import to keep it off the chat-send hot path / avoid circular deps.
   import('./game-action-executor')
     .then(({ buildGameStateSnapshot }) => {
-      const base = buildGameStateSnapshot()
+      const base = buildGameStateSnapshot(exactTimeDefault)
       const gameState = rosterText ? `${base}\n\n${rosterText}` : base
       const activeCreatures = buildActiveCreatures()
       void useAiDmStore
