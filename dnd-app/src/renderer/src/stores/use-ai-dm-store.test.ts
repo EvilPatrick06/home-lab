@@ -20,7 +20,9 @@ vi.stubGlobal('window', {
       onStreamDone: vi.fn(),
       onStreamError: vi.fn(),
       onStreamFileRead: vi.fn(),
-      onStreamWebSearch: vi.fn(),
+      onStreamWebSearch: vi.fn((cb: (d: unknown) => void) => {
+        aiHandlers.webSearch = cb
+      }),
       onStreamStatus: vi.fn((cb: (d: unknown) => void) => {
         aiHandlers.status = cb
       }),
@@ -177,6 +179,18 @@ describe('useAiDmStore', () => {
       expect(useAiDmStore.getState().isTyping).toBe(true)
       cleanupListeners()
       useAiDmStore.setState({ activeStreamId: null, isTyping: false })
+    })
+
+    it('web-search status persists the streamId (needed by the approval UI)', () => {
+      const cleanupListeners = useAiDmStore.getState().setupListeners()
+      useAiDmStore.setState({ activeStreamId: 'sid-7', webSearchStatus: null })
+
+      aiHandlers.webSearch?.({ streamId: 'sid-7', query: 'lich phylactery rules', status: 'pending_approval' })
+
+      const ws = useAiDmStore.getState().webSearchStatus
+      expect(ws).toEqual({ streamId: 'sid-7', query: 'lich phylactery rules', status: 'pending_approval' })
+      cleanupListeners()
+      useAiDmStore.setState({ activeStreamId: null, webSearchStatus: null })
     })
 
     it('a first chunk clears a pending loading_model notice', () => {

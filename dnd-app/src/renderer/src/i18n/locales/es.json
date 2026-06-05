@@ -2894,6 +2894,12 @@
       "totalValue": "Valor total:",
       "goldValue": "{{value}} PO"
     },
+    "webSearchApproval": {
+      "title": "El DM de IA quiere buscar en la web",
+      "description": "El Dungeon Master de IA pide buscar algo en línea para responder. Aprueba la búsqueda, o recházala para mantenerlo sin conexión (seguirá usando solo el contexto de tu campaña y las reglas).",
+      "approve": "Aprobar búsqueda",
+      "reject": "Rechazar"
+    },
     "rulingApprovalModal": {
       "updateToken": "Actualizar {{label}}: {{hp}}{{ac}}{{conditions}}",
       "hpPart": "PG -> {{hp}}",

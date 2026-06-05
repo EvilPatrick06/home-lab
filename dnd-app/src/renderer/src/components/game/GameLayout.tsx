@@ -78,6 +78,7 @@ import TimerOverlay from './overlays/TimerOverlay'
 import TokenContextMenu from './overlays/TokenContextMenu'
 import TurnNotificationBanner from './overlays/TurnNotificationBanner'
 import ViewModeToggle from './overlays/ViewModeToggle'
+import WebSearchApprovalPrompt from './overlays/WebSearchApprovalPrompt'
 import { CharacterMiniSheet, ConditionTracker, PlayerHUD, ShopView, SpellSlotTracker } from './player'
 import PlayerNotesPanel from './player/PlayerNotesPanel'
 import SpellPrepModal from './player/SpellPrepModal'
@@ -832,6 +833,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
         )}
         {isDM && <DmAlertTray />}
         {isDM && <MutationApprovalPanel />}
+        {effectiveIsDM && <WebSearchApprovalPrompt />}
         <SettingsDropdown
           campaign={campaign}
           isDM={effectiveIsDM}

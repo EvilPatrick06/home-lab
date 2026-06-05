@@ -83,7 +83,8 @@ interface AiDmState {
 
   // File read / web search status
   fileReadStatus: { path: string; status: string } | null
-  webSearchStatus: { query: string; status: string } | null
+  // streamId is carried so the approval UI can call approveWebSearch(streamId, …).
+  webSearchStatus: { query: string; status: string; streamId: string } | null
   // Advisory stream status (e.g. 'loading_model' while a cold model loads). Purely
   // informational — does NOT affect isTyping or the safety timeout.
   streamStatus: 'loading_model' | null
@@ -556,7 +557,7 @@ export const useAiDmStore = create<AiDmState>((set, get) => ({
     const handleWebSearch = (data: { streamId: string; query: string; status: string }): void => {
       const state = get()
       if (data.streamId === state.activeStreamId) {
-        set({ webSearchStatus: { query: data.query, status: data.status } })
+        set({ webSearchStatus: { query: data.query, status: data.status, streamId: data.streamId } })
       }
     }
 

@@ -2894,6 +2894,12 @@
       "totalValue": "Total Value:",
       "goldValue": "{{value}} GP"
     },
+    "webSearchApproval": {
+      "title": "AI DM wants to search the web",
+      "description": "The AI Dungeon Master is asking to look something up online to answer. Approve the search, or reject it to keep it offline (it will continue using only your campaign and rulebook context).",
+      "approve": "Approve search",
+      "reject": "Reject"
+    },
     "rulingApprovalModal": {
       "updateToken": "Update {{label}}: {{hp}}{{ac}}{{conditions}}",
       "hpPart": "HP -> {{hp}}",
