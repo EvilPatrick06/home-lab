@@ -72,9 +72,28 @@ interface TriggerFireResult {
 
 // ── State ──
 
-const running = false
+// Enabled by default: this is safe because (1) only DM-created+ENABLED triggers
+// ever fire, (2) firing is edge-detected (a trigger fires once on the state
+// TRANSITION, never continuously), and (3) the renderer only pushes state when the
+// DM has at least one enabled trigger. So with no triggers, nothing happens.
+let running = true
 let previousState: GameStateSnapshot | null = null
 let combatWasActive = false
+
+/** Enable/disable the observer (e.g. to hard-stop all trigger processing). */
+export function setTriggerObserverEnabled(enabled: boolean): void {
+  running = enabled
+  if (!enabled) {
+    previousState = null
+    combatWasActive = false
+  }
+  logToFile('info', `[AI Trigger Observer] ${enabled ? 'enabled' : 'disabled'}`)
+}
+
+/** Whether the observer is currently processing state updates. */
+export function isTriggerObserverEnabled(): boolean {
+  return running
+}
 
 // ── Core Logic ──
 

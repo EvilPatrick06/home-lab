@@ -2,6 +2,7 @@ import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { SETTINGS_KEYS } from '../../constants'
 import { useAiMemorySync } from '../../hooks/use-ai-memory-sync'
+import { useDmTriggers } from '../../hooks/use-dm-triggers'
 import { useGameEffects } from '../../hooks/use-game-effects'
 import { useGameHandlers } from '../../hooks/use-game-handlers'
 import { useGameNetwork } from '../../hooks/use-game-network'
@@ -456,6 +457,9 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
 
   // AI memory sync — only runs when host with a valid campaign
   useAiMemorySync(isDM ? campaign.id : null)
+
+  // DM trigger system — push state to the observer + run fired triggers (DM only).
+  useDmTriggers(effectiveIsDM)
 
   useGameEffects({ campaign, isDM, addChatMessage, sendMessage, aiInitRef, activeMap, setIsFullscreen })
   useGameNetwork({
