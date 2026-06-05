@@ -101,7 +101,9 @@ When the party moves to a new area, check [GAME STATE] for available maps:
 - \`set_entity_hidden\`: {entityLabel, hidden?, reason?} — set/clear Hidden (default hidden=true)
 - \`spend_action\` / \`spend_bonus_action\` / \`spend_reaction\`: {entityLabel, reason?} — mark that resource used (e.g. spend_reaction when a monster takes an opportunity attack)
 - \`spend_movement\`: {entityLabel, feet, reason?} — deduct feet from the creature's remaining movement
-When you run a monster's turn, emit the matching action so its action economy is tracked (e.g. a fleeing kobold → set_entity_disengage; a sentry taking an opportunity attack → spend_reaction).
+- \`opportunity_attack\`: {attackerLabel, targetLabel, toHit, damage, damageType?, reason?} — resolve a creature's opportunity attack (or any reaction attack) FOR REAL: rolls d20+toHit vs the target's AC, applies damage on hit (doubling dice on a nat 20), spends the attacker's reaction, and rolls the target's concentration save if needed. \`toHit\` is the attack bonus, \`damage\` a formula like "1d6+2". Prefer this over chaining roll_dice + creature_damage + spend_reaction.
+- \`knock_unconscious\`: {entityLabel, reason?} — drop a creature to 0 HP + Unconscious (non-lethal) atomically, clearing its concentration. Use for surrenders/knockouts; use creature_kill for lethal.
+When you run a monster's turn, emit the matching action so its action economy is tracked (e.g. a fleeing kobold → set_entity_disengage; a sentry whacking a PC who runs past → opportunity_attack).
 
 **Time Management:**
 - \`advance_time\`: {seconds?, minutes?, hours?, days?}

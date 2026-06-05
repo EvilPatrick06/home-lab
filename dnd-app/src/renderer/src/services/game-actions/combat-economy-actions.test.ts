@@ -2,7 +2,17 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.stubGlobal('crypto', { randomUUID: () => 'test-uuid-econ' })
 
+vi.mock('./dice-helpers', () => ({ rollDiceFormula: vi.fn() }))
+vi.mock('../game/token-stats', () => ({
+  getTokenStats: vi.fn(() => ({ ac: 13 })),
+  getCreatureSaveMod: vi.fn(() => 1)
+}))
+vi.mock('../combat/concentration-manager', () => ({ checkConcentrationOnDamage: vi.fn(() => ({ needsCheck: false })) }))
+
+import { checkConcentrationOnDamage } from '../combat/concentration-manager'
 import {
+  executeKnockUnconscious,
+  executeOpportunityAttack,
   executeSetEntityDash,
   executeSetEntityDisengage,
   executeSetEntityDodge,
@@ -12,7 +22,11 @@ import {
   executeSpendMovement,
   executeSpendReaction
 } from './combat-economy-actions'
+import { rollDiceFormula } from './dice-helpers'
 import type { ActiveMap, DmAction, GameStoreSnapshot, StoreAccessors } from './types'
+
+const mockRoll = vi.mocked(rollDiceFormula)
+const mockConc = vi.mocked(checkConcentrationOnDamage)
 
 const gameMethods = () => ({
   setDashing: vi.fn(),
@@ -22,8 +36,23 @@ const gameMethods = () => ({
   useAction: vi.fn(),
   useBonusAction: vi.fn(),
   useReaction: vi.fn(),
-  useMovement: vi.fn()
+  useMovement: vi.fn(),
+  updateToken: vi.fn(),
+  addCondition: vi.fn(),
+  setConcentrating: vi.fn(),
+  round: 1,
+  turnStates: {}
 })
+
+function makeCombatMap(): ActiveMap {
+  return {
+    id: 'm',
+    tokens: [
+      { id: 't1', entityId: 'e1', label: 'Goblin 1', conditions: [] },
+      { id: 't2', entityId: 'e2', label: 'Aria', conditions: [], currentHP: 20, ac: 13 }
+    ]
+  } as unknown as ActiveMap
+}
 
 function makeGameStore(overrides: Record<string, unknown> = {}) {
   return {
@@ -137,5 +166,94 @@ describe('combat-economy-actions', () => {
     expect(() =>
       executeSetEntityDodge({ action: 'set_entity_dodge', entityLabel: 'Dragon' } as DmAction, gs, makeMap(), stores)
     ).toThrow('Token not found')
+  })
+
+  describe('opportunity_attack', () => {
+    const oa = (over: Record<string, unknown> = {}) =>
+      ({
+        action: 'opportunity_attack',
+        attackerLabel: 'Goblin 1',
+        targetLabel: 'Aria',
+        toHit: 4,
+        damage: '1d6+2',
+        ...over
+      }) as DmAction
+
+    it('on a hit: spends the attacker reaction and applies rolled damage', () => {
+      mockRoll.mockImplementation((f: string) =>
+        f === '1d20' ? { rolls: [15], total: 15 } : { rolls: [3, 1], total: 6 }
+      )
+      const gs = makeGameStore()
+      const ok = executeOpportunityAttack(oa(), gs, makeCombatMap(), stores)
+      expect(ok).toBe(true)
+      expect(gs.useReaction).toHaveBeenCalledWith('e1') // d20 15 + 4 = 19 vs AC 13 → hit
+      expect(gs.updateToken).toHaveBeenCalledWith('m', 't2', { currentHP: 14 }) // 20 - 6
+    })
+
+    it('on a miss: spends the reaction but applies no damage', () => {
+      mockRoll.mockImplementation((f: string) =>
+        f === '1d20' ? { rolls: [2], total: 2 } : { rolls: [3, 1], total: 6 }
+      )
+      const gs = makeGameStore()
+      executeOpportunityAttack(oa({ toHit: 0 }), gs, makeCombatMap(), stores) // 2 + 0 = 2 vs AC 13 → miss
+      expect(gs.useReaction).toHaveBeenCalledWith('e1')
+      expect(gs.updateToken).not.toHaveBeenCalled()
+    })
+
+    it('on a natural 20: hits regardless of AC and doubles the damage dice', () => {
+      mockRoll.mockImplementation((f: string) =>
+        f === '1d20' ? { rolls: [20], total: 20 } : { rolls: [4, 2], total: 8 }
+      )
+      const gs = makeGameStore()
+      executeOpportunityAttack(oa({ toHit: -5 }), gs, makeCombatMap(), stores)
+      // hit (crit). damage total 8 (dice sum 6 + mod 2); crit adds dice sum 6 → 14. 20 - 14 = 6
+      expect(gs.updateToken).toHaveBeenCalledWith('m', 't2', { currentHP: 6 })
+    })
+
+    it('rolls a concentration check when the target is concentrating and breaks it on failure', () => {
+      mockRoll.mockImplementation((f: string) =>
+        f === '1d20' ? { rolls: [15], total: 15 } : { rolls: [3, 1], total: 6 }
+      )
+      mockConc.mockReturnValueOnce({
+        needsCheck: true,
+        result: { dc: 10, roll: 4, maintained: false, spell: 'Bless', summary: 'Aria loses concentration on Bless' }
+      } as never)
+      const gs = makeGameStore({ turnStates: { e2: { entityId: 'e2', concentratingSpell: 'Bless' } } })
+      executeOpportunityAttack(oa(), gs, makeCombatMap(), stores)
+      expect(gs.setConcentrating).toHaveBeenCalledWith('e2', undefined)
+    })
+
+    it('throws when not in combat', () => {
+      const gs = makeGameStore({ initiative: null })
+      expect(() => executeOpportunityAttack(oa(), gs, makeCombatMap(), stores)).toThrow('No active combat')
+    })
+  })
+
+  describe('knock_unconscious', () => {
+    it('sets 0 HP, adds Unconscious, and clears concentration', () => {
+      const gs = makeGameStore({ turnStates: { e2: { entityId: 'e2', concentratingSpell: 'Bless' } } })
+      const ok = executeKnockUnconscious(
+        { action: 'knock_unconscious', entityLabel: 'Aria' } as DmAction,
+        gs,
+        makeCombatMap(),
+        stores
+      )
+      expect(ok).toBe(true)
+      expect(gs.updateToken).toHaveBeenCalledWith('m', 't2', { currentHP: 0 })
+      expect(gs.addCondition).toHaveBeenCalledWith(
+        expect.objectContaining({ condition: 'Unconscious', entityId: 'e2' })
+      )
+      expect(gs.setConcentrating).toHaveBeenCalledWith('e2', undefined)
+    })
+
+    it('does not duplicate an existing Unconscious condition', () => {
+      const gs = makeGameStore()
+      const map = {
+        id: 'm',
+        tokens: [{ id: 't2', entityId: 'e2', label: 'Aria', conditions: ['Unconscious'], currentHP: 5 }]
+      } as unknown as ActiveMap
+      executeKnockUnconscious({ action: 'knock_unconscious', entityLabel: 'Aria' } as DmAction, gs, map, stores)
+      expect(gs.addCondition).not.toHaveBeenCalled()
+    })
   })
 })

@@ -146,6 +146,16 @@ export type DmAction =
   | { action: 'spend_bonus_action'; entityLabel: string; reason?: string }
   | { action: 'spend_reaction'; entityLabel: string; reason?: string }
   | { action: 'spend_movement'; entityLabel: string; feet: number; reason?: string }
+  | {
+      action: 'opportunity_attack'
+      attackerLabel: string
+      targetLabel: string
+      toHit: number
+      damage: string
+      damageType?: string
+      reason?: string
+    }
+  | { action: 'knock_unconscious'; entityLabel: string; reason?: string }
 
   // Resting
   | { action: 'short_rest'; characterNames: string[] }

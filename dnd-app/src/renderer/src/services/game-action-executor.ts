@@ -16,6 +16,8 @@ const stores: StoreAccessors = { getGameStore, getLobbyStore, getNetworkStore }
 
 // ── Combat Action Economy ──
 import {
+  executeKnockUnconscious,
+  executeOpportunityAttack,
   executeSetEntityDash,
   executeSetEntityDisengage,
   executeSetEntityDodge,
@@ -299,6 +301,10 @@ function executeOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: A
       return executeSpendReaction(action, gameStore, activeMap, stores)
     case 'spend_movement':
       return executeSpendMovement(action, gameStore, activeMap, stores)
+    case 'opportunity_attack':
+      return executeOpportunityAttack(action, gameStore, activeMap, stores)
+    case 'knock_unconscious':
+      return executeKnockUnconscious(action, gameStore, activeMap, stores)
 
     // ── Time Management ──
     case 'advance_time':

@@ -11,12 +11,12 @@
 
 ## Phase plan
 
-### P6.5 — AI combat action-economy control (stances + spend + hidden)  `[ ] pending`
+### P6.5 — AI combat action-economy control (stances + spend + hidden)  `[x] shipped v2.4.46`
 - **G0** (high) AI DM cannot issue Dash/Disengage/Dodge stance actions on tokens
 - **G3** (high) AI cannot trigger action/bonus action/reaction/movement spending in combat turn state
 - **G2** (high) AI DM cannot set creatures to Hidden/Stealth state (combat-actions domain)
 
-### P6.6 — AI opportunity attacks + knock-unconscious  `[ ] pending`
+### P6.6 — AI opportunity attacks + knock-unconscious  `[x] shipped v2.4.47`
 - **G1** (high) AI DM cannot make creatures/NPCs take opportunity attacks
 - **G4** (high) AI cannot trigger opportunity attacks on enemy creatures despite full engine implementation
 - **G5** (medium) AI cannot directly set a creature to Unconscious/0 HP with initialized death saves (requires atomic action)

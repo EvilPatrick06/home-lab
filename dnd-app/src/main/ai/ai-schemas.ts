@@ -580,6 +580,22 @@ const SpendMovementSchema = z.object({
   reason: z.string().optional()
 })
 
+const OpportunityAttackSchema = z.object({
+  action: z.literal('opportunity_attack'),
+  attackerLabel: z.string(),
+  targetLabel: z.string(),
+  toHit: z.number(),
+  damage: z.string(),
+  damageType: z.string().optional(),
+  reason: z.string().optional()
+})
+
+const KnockUnconsciousSchema = z.object({
+  action: z.literal('knock_unconscious'),
+  entityLabel: z.string(),
+  reason: z.string().optional()
+})
+
 const ShortRestSchema = z.object({
   action: z.literal('short_rest'),
   characterNames: z.array(z.string())
@@ -829,6 +845,8 @@ export const DM_ACTION_SCHEMAS: Record<string, z.ZodType> = {
   spend_bonus_action: SpendBonusActionSchema,
   spend_reaction: SpendReactionSchema,
   spend_movement: SpendMovementSchema,
+  opportunity_attack: OpportunityAttackSchema,
+  knock_unconscious: KnockUnconsciousSchema,
   short_rest: ShortRestSchema,
   long_rest: LongRestSchema,
   apply_area_effect: ApplyAreaEffectSchema,
