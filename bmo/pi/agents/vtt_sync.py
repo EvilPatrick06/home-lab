@@ -88,7 +88,7 @@ def register_sync_routes(app):
     """Register Flask routes for receiving VTT sync data.
 
     Call this from your main Flask app setup:
-        from vtt_sync import register_sync_routes
+        from agents.vtt_sync import register_sync_routes
         register_sync_routes(app)
     """
     from flask import jsonify, request as flask_request

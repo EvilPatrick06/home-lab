@@ -843,6 +843,37 @@ class DMBot(commands.Bot):
         self.session.voice_client = None
         self.session.voice_channel_id = None
 
+    async def start_voice_listen(self) -> None:
+        """Ensure the bot is connected to the Dungeon voice channel.
+
+        Phase 1 is narration-only: BMO speaks D&D narration via TTS but does
+        NOT yet listen to / transcribe player speech. This coroutine guarantees
+        a live voice connection (joining the Dungeon channel if a session was
+        started without one, e.g. via the /api/discord/dm/start bridge) so that
+        subsequent _speak() calls have somewhere to play, then returns cleanly.
+
+        It never raises on a missing voice connection — if no Dungeon channel
+        can be found it logs and returns, leaving narration best-effort.
+        Voice listening (STT) is intentionally disabled in this phase.
+        """
+        vc = self.session.voice_client
+        if vc and vc.is_connected():
+            _log("start_voice_listen: already connected to voice (listen disabled — narrate-only)")
+            return
+
+        # No live connection yet — try to (re)join the Dungeon channel so
+        # narration has an output. Reuse the existing join primitives.
+        for guild in self.guilds:
+            channel = await self.find_dungeon_channel(guild)
+            if channel:
+                await self.join_voice(channel)
+                break
+        else:
+            _log("start_voice_listen: no Dungeon voice channel found — narration will be skipped until connected")
+            return
+
+        _log("start_voice_listen: connected (listen disabled — narrate-only mode)")
+
     async def _auto_leave_if_empty(self) -> None:
         """Wait 30s then leave voice + end session if still no humans."""
         await asyncio.sleep(30)

@@ -33,7 +33,7 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## Medium
 
-*(none currently logged)*
+- **2026-06-02 — `register_sync_routes(app)` is never called → VTT→Pi sync receivers un-wired.** `bmo/pi/agents/vtt_sync.py` defines `register_sync_routes(app)` (BMO-side receivers `/api/discord/dm/sync/initiative` and `/api/discord/dm/sync/state`), but `app.py` never invokes it — it only appears in a docstring example and in `scripts/apply_patch.py`. So any VTT→Pi push of initiative/state for DM-BMO hits unregistered routes (404). Out of scope for the DM-BMO voice-narration fix (which uses `/api/discord/dm/narrate`, correctly registered). **Fix:** call `register_sync_routes(app)` during app setup + add a smoke test that the two routes resolve. Domain: bmo. Found while wiring DM-BMO voice narration.
 
 ## Low
 
