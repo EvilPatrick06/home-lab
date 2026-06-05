@@ -22,7 +22,7 @@ vi.stubGlobal('crypto', {
   randomUUID: vi.fn(() => 'test-uuid-1234')
 })
 
-import { getMemoryManager, MemoryManager } from './memory-manager'
+import { getMemoryManager, MemoryManager, npcMemoryFromAttitude } from './memory-manager'
 
 describe('MemoryManager', () => {
   beforeEach(() => {
@@ -603,6 +603,24 @@ describe('MemoryManager', () => {
       const mgr1 = getMemoryManager('campaign-factory-a')
       const mgr2 = getMemoryManager('campaign-factory-b')
       expect(mgr1).not.toBe(mgr2)
+    })
+  })
+
+  describe('npcMemoryFromAttitude', () => {
+    it('slugifies the name into an id and keeps the display name', () => {
+      const npc = npcMemoryFromAttitude('Bardack the Grim', 'hostile', 'insulted the party')
+      expect(npc.id).toBe('bardack-the-grim')
+      expect(npc.name).toBe('Bardack the Grim')
+      expect(npc.attitude).toBe('hostile')
+      expect(npc.notes).toBe('insulted the party')
+    })
+
+    it("maps the StatChange 'indifferent' attitude to 'neutral'", () => {
+      expect(npcMemoryFromAttitude('Guard', 'indifferent', '').attitude).toBe('neutral')
+    })
+
+    it('passes through friendly', () => {
+      expect(npcMemoryFromAttitude('Innkeeper', 'friendly', '').attitude).toBe('friendly')
     })
   })
 })

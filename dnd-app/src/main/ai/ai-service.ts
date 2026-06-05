@@ -24,7 +24,7 @@ import {
   stripFileRead
 } from './file-reader'
 import type { AiProviderType, LLMProvider } from './llm-provider'
-import { getMemoryManager } from './memory-manager'
+import { getMemoryManager, npcMemoryFromAttitude } from './memory-manager'
 import { getOllamaUrl, isOllamaRunning, listOllamaModels, setOllamaUrl } from './ollama-client'
 import { OLLAMA_BASE_URL } from './ollama-manager'
 import {
@@ -869,6 +869,14 @@ async function handleStreamCompletion(
       const sessionId = new Date().toISOString().slice(0, 10)
       const logEntry = `[${request.senderName ?? 'Player'}]: ${request.message}\n[AI DM]: ${displayText.slice(0, 500)}`
       memMgr.appendSessionLog(sessionId, logEntry).catch(() => {})
+      // Persist NPC attitude shifts to world-state memory so an NPC the AI just
+      // characterized is remembered next session. These were parsed into
+      // statChanges but never saved — silent world-state loss until now.
+      for (const change of statChanges) {
+        if (change.type === 'npc_attitude') {
+          memMgr.upsertNPC(npcMemoryFromAttitude(change.name, change.attitude, change.reason)).catch(() => {})
+        }
+      }
     } catch {
       // Non-fatal
     }

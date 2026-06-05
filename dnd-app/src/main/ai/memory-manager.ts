@@ -34,7 +34,7 @@ export interface CombatState {
   updatedAt: string
 }
 
-interface NPCMemory {
+export interface NPCMemory {
   id: string
   name: string
   role: string
@@ -43,6 +43,31 @@ interface NPCMemory {
   notes: string
   firstEncountered: string
   lastSeen: string
+}
+
+/**
+ * Build an NPCMemory from a parsed `npc_attitude` stat-change so the AI's
+ * characterization of an NPC is persisted (it was parsed but never saved = silent
+ * world-state loss). The StatChange's 'indifferent' maps to 'neutral'; timestamps
+ * are filled in by upsertNPC.
+ */
+export function npcMemoryFromAttitude(name: string, attitude: string, reason: string): NPCMemory {
+  const mapped: NPCMemory['attitude'] =
+    attitude === 'friendly' ? 'friendly' : attitude === 'hostile' ? 'hostile' : 'neutral'
+  return {
+    id: name
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, ''),
+    name: name.trim(),
+    role: '',
+    attitude: mapped,
+    location: '',
+    notes: reason,
+    firstEncountered: '',
+    lastSeen: ''
+  }
 }
 
 interface PlaceMemory {
