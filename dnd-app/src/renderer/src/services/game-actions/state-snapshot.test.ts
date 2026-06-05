@@ -158,6 +158,31 @@ describe('buildGameStateSnapshot', () => {
     expect(result).toContain('fire hazard 6 dmg on entry')
   })
 
+  it('shows walls with type, endpoints, and door open/closed state (G40)', () => {
+    const result = buildGameStateSnapshot(
+      makeStores({
+        activeMapId: 'map-1',
+        maps: [
+          {
+            id: 'map-1',
+            name: 'Keep',
+            width: 400,
+            height: 400,
+            grid: { cellSize: 40 },
+            tokens: [],
+            wallSegments: [
+              { id: 'w1', x1: 0, y1: 0, x2: 5, y2: 0, type: 'solid' },
+              { id: 'w2', x1: 5, y1: 0, x2: 5, y2: 5, type: 'door', isOpen: false }
+            ]
+          }
+        ]
+      })
+    )
+    expect(result).toContain('Walls:')
+    expect(result).toContain('w1: solid (0,0)→(5,0)')
+    expect(result).toContain('w2: door (5,0)→(5,5) [CLOSED]')
+  })
+
   it('shows darkness zones with magic level + radius', () => {
     const result = buildGameStateSnapshot(
       makeStores({

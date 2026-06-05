@@ -79,6 +79,18 @@ export function buildGameStateSnapshot(
         )
       }
     }
+
+    // Walls (block movement / line-of-sight / give cover) — list them with ids so the
+    // AI can open doors, knock down walls, etc. (G40).
+    if (activeMap.wallSegments && activeMap.wallSegments.length > 0) {
+      lines.push('Walls:')
+      for (const w of activeMap.wallSegments) {
+        let line = `- ${w.id}: ${w.type} (${w.x1},${w.y1})→(${w.x2},${w.y2})`
+        if (w.type === 'door') line += w.isOpen ? ' [OPEN]' : ' [CLOSED]'
+        if (w.floor != null) line += ` [floor ${w.floor}]`
+        lines.push(line)
+      }
+    }
   } else {
     lines.push('Active Map: none')
   }

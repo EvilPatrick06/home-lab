@@ -806,6 +806,49 @@ const RemoveTerrainSchema = z.object({
   floor: z.number().optional()
 })
 
+const UpdateTerrainCellSchema = z.object({
+  action: z.literal('update_terrain_cell'),
+  gridX: z.number(),
+  gridY: z.number(),
+  type: TerrainTypeSchema.optional(),
+  movementCost: z.number().optional(),
+  hazardType: HazardTypeSchema.optional(),
+  hazardDamage: z.number().optional(),
+  floor: z.number().optional()
+})
+
+const WallTypeSchema = z.enum(['solid', 'door', 'window', 'one-way', 'transparent'])
+
+const AddWallSegmentSchema = z.object({
+  action: z.literal('add_wall_segment'),
+  x1: z.number(),
+  y1: z.number(),
+  x2: z.number(),
+  y2: z.number(),
+  type: WallTypeSchema,
+  isOpen: z.boolean().optional(),
+  oneWayDirection: z.number().optional(),
+  floor: z.number().optional()
+})
+
+const RemoveWallSegmentSchema = z.object({
+  action: z.literal('remove_wall_segment'),
+  wallId: z.string()
+})
+
+const UpdateWallSegmentSchema = z.object({
+  action: z.literal('update_wall_segment'),
+  wallId: z.string(),
+  type: WallTypeSchema.optional(),
+  isOpen: z.boolean().optional(),
+  oneWayDirection: z.number().optional(),
+  floor: z.number().optional(),
+  x1: z.number().optional(),
+  y1: z.number().optional(),
+  x2: z.number().optional(),
+  y2: z.number().optional()
+})
+
 // ── Environment effects, diseases/curses, traps (P6.12) ──
 
 const AddEnvironmentalEffectSchema = z.object({
@@ -1188,6 +1231,10 @@ export const DM_ACTION_SCHEMAS: Record<string, z.ZodType> = {
   remove_darkness_zone: RemoveDarknessZoneSchema,
   place_terrain: PlaceTerrainSchema,
   remove_terrain: RemoveTerrainSchema,
+  update_terrain_cell: UpdateTerrainCellSchema,
+  add_wall_segment: AddWallSegmentSchema,
+  remove_wall_segment: RemoveWallSegmentSchema,
+  update_wall_segment: UpdateWallSegmentSchema,
   add_environmental_effect: AddEnvironmentalEffectSchema,
   remove_environmental_effect: RemoveEnvironmentalEffectSchema,
   apply_disease: ApplyDiseaseSchema,

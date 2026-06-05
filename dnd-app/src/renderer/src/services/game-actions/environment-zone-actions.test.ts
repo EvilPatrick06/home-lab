@@ -119,4 +119,13 @@ describe('environment-zone-actions', () => {
       expect(gs.removeTerrainCell).toHaveBeenCalledWith('map-1', 2, 2, 1)
     })
   })
+
+  describe('executeUpdateTerrain', () => {
+    it('passes only the provided fields to updateTerrainCell', async () => {
+      const { executeUpdateTerrain } = await import('./environment-zone-actions')
+      const gs = makeGameStore({ updateTerrainCell: vi.fn() })
+      executeUpdateTerrain({ action: 'update_terrain_cell', gridX: 3, gridY: 4, hazardDamage: 12 }, gs, map, stores)
+      expect(gs.updateTerrainCell).toHaveBeenCalledWith('map-1', 3, 4, { hazardDamage: 12 }, undefined)
+    })
+  })
 })

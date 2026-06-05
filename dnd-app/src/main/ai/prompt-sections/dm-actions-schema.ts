@@ -141,6 +141,12 @@ When you run a monster's turn, emit the matching action so its action economy is
 - \`remove_darkness_zone\`: {zoneId} — clear a zone (e.g. when dispelled or the party leaves).
 - \`place_terrain\`: {gridX, gridY, type: 'difficult'|'hazard'|'water'|'climbing'|'portal', movementCost?, hazardType?: 'fire'|'acid'|'pit'|'spikes', hazardDamage?, portalTarget?: {mapId, gridX, gridY}, floor?} — mark a square's terrain. movementCost defaults to 1 for hazards, 2 otherwise. Difficult/water/climbing cost extra movement; hazards deal hazardDamage on entry; portals teleport to portalTarget. Surfaces in the "Terrain" list.
 - \`remove_terrain\`: {gridX, gridY, floor?} — clear the terrain on a square.
+- \`update_terrain_cell\`: {gridX, gridY, type?, movementCost?, hazardType?, hazardDamage?, floor?} — change just one aspect of an existing terrain cell.
+
+**Map Objects — Walls:**
+- \`add_wall_segment\`: {x1, y1, x2, y2, type: 'solid'|'door'|'window'|'one-way'|'transparent', isOpen?, oneWayDirection?, floor?} — draw a wall between two grid points. Walls block movement, line-of-sight, and grant cover. Use 'door' (with isOpen) for openable passages, 'window'/'transparent' for see-through-but-blocking, 'one-way' (with oneWayDirection in degrees) for arrow-slits/illusions.
+- \`update_wall_segment\`: {wallId, type?, isOpen?, oneWayDirection?, floor?, x1?, y1?, x2?, y2?} — modify a wall by its id (from the [Walls] list) — e.g. open/close a door (isOpen), or move/retype it.
+- \`remove_wall_segment\`: {wallId} — knock down / delete a wall (e.g. a Disintegrate or a battering ram).
 
 **Environment — Effects, Afflictions & Traps:**
 - \`add_environmental_effect\`: {name, mechanicalEffect?, saveDC?, category?: 'weather'|'terrain'|'magical'|'planar', effectId?} — apply an ongoing environmental hazard (Extreme Cold, choking smoke, a magical storm). Shows in [ACTIVE EFFECTS] with its mechanical detail.

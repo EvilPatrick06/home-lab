@@ -260,6 +260,40 @@ export type DmAction =
       floor?: number
     }
   | { action: 'remove_terrain'; gridX: number; gridY: number; floor?: number }
+  | {
+      action: 'update_terrain_cell'
+      gridX: number
+      gridY: number
+      type?: 'difficult' | 'hazard' | 'water' | 'climbing' | 'portal'
+      movementCost?: number
+      hazardType?: 'fire' | 'acid' | 'pit' | 'spikes'
+      hazardDamage?: number
+      floor?: number
+    }
+  | {
+      action: 'add_wall_segment'
+      x1: number
+      y1: number
+      x2: number
+      y2: number
+      type: 'solid' | 'door' | 'window' | 'one-way' | 'transparent'
+      isOpen?: boolean
+      oneWayDirection?: number
+      floor?: number
+    }
+  | { action: 'remove_wall_segment'; wallId: string }
+  | {
+      action: 'update_wall_segment'
+      wallId: string
+      type?: 'solid' | 'door' | 'window' | 'one-way' | 'transparent'
+      isOpen?: boolean
+      oneWayDirection?: number
+      floor?: number
+      x1?: number
+      y1?: number
+      x2?: number
+      y2?: number
+    }
 
   // Environment effects, diseases/curses, traps (P6.12)
   | {

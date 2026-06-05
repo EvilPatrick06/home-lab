@@ -116,7 +116,8 @@ import {
   executePlaceTerrain,
   executeRemoveDarknessZone,
   executeRemoveTerrain,
-  executeUpdateDarknessZone
+  executeUpdateDarknessZone,
+  executeUpdateTerrain
 } from './game-actions/environment-zone-actions'
 // ── Mounted Combat ──
 import { executeDismountToken, executeMountToken } from './game-actions/mount-actions'
@@ -148,6 +149,8 @@ import {
   executeSoundEffect,
   executeStopAmbient
 } from './game-actions/visibility-actions'
+// ── Walls ──
+import { executeAddWallSegment, executeRemoveWallSegment, executeUpdateWallSegment } from './game-actions/wall-actions'
 
 const MAX_ACTIONS_PER_BATCH = 50
 
@@ -473,6 +476,16 @@ function executeOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: A
       return executePlaceTerrain(action, gameStore, activeMap, stores)
     case 'remove_terrain':
       return executeRemoveTerrain(action, gameStore, activeMap, stores)
+    case 'update_terrain_cell':
+      return executeUpdateTerrain(action, gameStore, activeMap, stores)
+
+    // ── Walls ──
+    case 'add_wall_segment':
+      return executeAddWallSegment(action, gameStore, activeMap, stores)
+    case 'remove_wall_segment':
+      return executeRemoveWallSegment(action, gameStore, activeMap, stores)
+    case 'update_wall_segment':
+      return executeUpdateWallSegment(action, gameStore, activeMap, stores)
 
     // ── DM Toolbox (environmental effects, diseases/curses, traps) ──
     case 'add_environmental_effect':

@@ -106,3 +106,27 @@ export function executeRemoveTerrain(
   )
   return true
 }
+
+// Partial update of an existing terrain cell (G41) — change just the type, movement
+// cost, or hazard without re-specifying the whole cell.
+export function executeUpdateTerrain(
+  action: DmAction,
+  gameStore: GameStoreSnapshot,
+  activeMap: ActiveMap,
+  _stores: StoreAccessors
+): boolean {
+  if (!activeMap) throw new Error('No active map')
+  const updates: Partial<TerrainCell> = {}
+  if (action.type != null) updates.type = action.type as TerrainCell['type']
+  if (action.movementCost != null) updates.movementCost = action.movementCost as number
+  if (action.hazardType != null) updates.hazardType = action.hazardType as TerrainCell['hazardType']
+  if (action.hazardDamage != null) updates.hazardDamage = action.hazardDamage as number
+  gameStore.updateTerrainCell(
+    activeMap.id,
+    action.gridX as number,
+    action.gridY as number,
+    updates,
+    action.floor as number | undefined
+  )
+  return true
+}

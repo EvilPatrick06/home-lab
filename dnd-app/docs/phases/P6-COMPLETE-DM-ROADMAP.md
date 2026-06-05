@@ -81,7 +81,7 @@
 - **G37** (high) Armor/equipment proficiency mutations
 - **G39** (high) Skill and save proficiency mutations
 
-### P6.20 — AI map: walls + terrain-cell CRUD  `[ ] pending`
+### P6.20 — AI map: walls + terrain-cell CRUD  `[x] shipped v2.4.66`
 - **G40** (high) Wall segment creation, deletion, and modification (solid/door/window/one-way walls, isOpen state, oneWayDirection)
 - **G41** (high) Terrain cell creation, deletion, and configuration (terrain type: difficult/hazard/water/climbing/portal, movement cost, hazard damage, portal targets, floor index)
 

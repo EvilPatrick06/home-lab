@@ -572,6 +572,25 @@ describe('validateDmActions', () => {
     expect(issues).toHaveLength(1)
   })
 
+  it('validates wall-segment + terrain-update actions (G40/G41)', () => {
+    const { valid, issues } = validateDmActions([
+      { action: 'add_wall_segment', x1: 0, y1: 0, x2: 5, y2: 0, type: 'door', isOpen: false },
+      { action: 'update_wall_segment', wallId: 'w1', isOpen: true },
+      { action: 'remove_wall_segment', wallId: 'w1' },
+      { action: 'update_terrain_cell', gridX: 3, gridY: 4, hazardDamage: 12 }
+    ])
+    expect(valid).toHaveLength(4)
+    expect(issues).toHaveLength(0)
+  })
+
+  it('rejects add_wall_segment with an invalid wall type', () => {
+    const { valid, issues } = validateDmActions([
+      { action: 'add_wall_segment', x1: 0, y1: 0, x2: 1, y2: 1, type: 'forcefield' }
+    ])
+    expect(valid).toHaveLength(0)
+    expect(issues).toHaveLength(1)
+  })
+
   it('validates advance_time action', () => {
     const { valid, issues } = validateDmActions([{ action: 'advance_time', hours: 8 }])
     expect(valid).toHaveLength(1)
