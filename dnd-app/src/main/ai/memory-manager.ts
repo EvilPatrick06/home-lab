@@ -2,7 +2,7 @@ import { app } from 'electron'
 import { promises as fs } from 'fs'
 import path from 'path'
 import { logSecurityEvent } from '../security-log'
-import type { NPCPersonality, WorldStateSummary } from './types'
+import type { FactionReputation, NPCPersonality, WorldStateSummary } from './types'
 
 // Phase 20e — memory size budget.
 const MAX_MEMORY_FILE_SIZE = 1 * 1024 * 1024 // 1 MB per ai-context file
@@ -444,6 +444,70 @@ export class MemoryManager {
     })
   }
 
+  /**
+   * Structured quest-log mutation on the world-state summary's activeQuests (G32).
+   * add: append a quest; update: replace a matching quest's text; complete: drop it +
+   * log a "Completed quest" recent event; remove: drop it (abandoned/cancelled).
+   * Quests are matched by name prefix (case-insensitive). Creates a summary if absent.
+   */
+  async updateQuestLog(
+    operation: 'add' | 'update' | 'complete' | 'remove',
+    name: string,
+    description?: string
+  ): Promise<void> {
+    const summary: WorldStateSummary = (await this.getWorldStateSummary()) ?? {
+      currentLocation: 'Unknown',
+      timeOfDay: 'unknown',
+      activeQuests: [],
+      recentEvents: [],
+      lastUpdated: new Date().toISOString()
+    }
+    const entry = description ? `${name}: ${description}` : name
+    const matchesName = (q: string) => q.toLowerCase().startsWith(name.toLowerCase())
+    let quests = summary.activeQuests
+    let events = summary.recentEvents
+    switch (operation) {
+      case 'add':
+        if (!quests.some(matchesName)) quests = [...quests, entry]
+        break
+      case 'update':
+        quests = quests.some(matchesName) ? quests.map((q) => (matchesName(q) ? entry : q)) : [...quests, entry]
+        break
+      case 'complete':
+        quests = quests.filter((q) => !matchesName(q))
+        events = [...events, `Completed quest: ${name}`].slice(-20)
+        break
+      case 'remove':
+        quests = quests.filter((q) => !matchesName(q))
+        break
+    }
+    await this.setWorldStateSummary({ ...summary, activeQuests: quests, recentEvents: events })
+  }
+
+  // --- Faction Reputation (G33) ---
+
+  async getFactionReputations(): Promise<FactionReputation[]> {
+    return (await this.readJson<FactionReputation[]>('faction-reputation.json')) ?? []
+  }
+
+  /** Adjust the party's standing with a faction by a delta (creates the entry if new). */
+  async adjustFactionReputation(factionName: string, delta: number): Promise<void> {
+    await this.mutate<FactionReputation[]>(
+      'faction-reputation.json',
+      (reps) => {
+        const idx = reps.findIndex((r) => r.factionName.toLowerCase() === factionName.toLowerCase())
+        const now = new Date().toISOString()
+        if (idx >= 0) {
+          reps[idx] = { ...reps[idx], partyStanding: reps[idx].partyStanding + delta, lastModified: now }
+        } else {
+          reps.push({ factionName, partyStanding: delta, lastModified: now })
+        }
+        return reps
+      },
+      []
+    )
+  }
+
   // --- Context Assembly for AI ---
   async assembleContext(currentScene?: string): Promise<string> {
     const [worldState, combatState, npcs, places, campaignNotes, npcPersonalities, worldStateSummary, rulings] =
@@ -477,6 +541,15 @@ export class MemoryManager {
         wsParts.push(`Recent Events: ${worldStateSummary.recentEvents.join('; ')}`)
       }
       sections.push(`[WORLD SUMMARY] ${wsParts.join('. ')}`)
+    }
+
+    // Faction standings (G33) — the party's reputation with each organization.
+    const factionReps = await this.getFactionReputations()
+    if (factionReps.length > 0) {
+      const standings = factionReps
+        .map((r) => `${r.factionName}: ${r.partyStanding >= 0 ? '+' : ''}${r.partyStanding}`)
+        .join(', ')
+      sections.push(`[FACTION STANDINGS] ${standings}`)
     }
 
     // DM rulings the table has established — surface them so the AI stays consistent

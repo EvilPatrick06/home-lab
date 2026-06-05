@@ -34,7 +34,9 @@ vi.stubGlobal('window', {
     ai: {
       logNpcInteraction: vi.fn(),
       setNpcRelationship: vi.fn(),
-      setNpcFields: vi.fn()
+      setNpcFields: vi.fn(),
+      updateQuestLog: vi.fn(),
+      adjustFactionStanding: vi.fn()
     }
   }
 })
@@ -571,6 +573,47 @@ describe('effect-actions', () => {
       const { executeSetNpcFaction } = await import('./effect-actions')
       expect(() =>
         executeSetNpcFaction({ action: 'set_npc_faction', npcName: '', faction: '' }, makeGameStore())
+      ).toThrow('Missing params')
+    })
+  })
+
+  describe('quest log & faction reputation', () => {
+    it('updates the quest log via IPC', async () => {
+      const { executeUpdateQuestLog } = await import('./effect-actions')
+      expect(
+        executeUpdateQuestLog(
+          { action: 'update_quest_log', operation: 'add', name: 'Find the relic', description: 'in the crypt' },
+          makeGameStore()
+        )
+      ).toBe(true)
+      expect(window.api.ai.updateQuestLog).toHaveBeenCalledWith('camp-1', 'add', 'Find the relic', 'in the crypt')
+    })
+
+    it('throws when quest params are missing', async () => {
+      const { executeUpdateQuestLog } = await import('./effect-actions')
+      expect(() =>
+        executeUpdateQuestLog({ action: 'update_quest_log', operation: 'add', name: '' }, makeGameStore())
+      ).toThrow('Missing params')
+    })
+
+    it('adjusts faction standing via IPC', async () => {
+      const { executeAdjustFactionStanding } = await import('./effect-actions')
+      expect(
+        executeAdjustFactionStanding(
+          { action: 'adjust_faction_standing', factionName: 'Harpers', delta: 10, reason: 'saved them' },
+          makeGameStore()
+        )
+      ).toBe(true)
+      expect(window.api.ai.adjustFactionStanding).toHaveBeenCalledWith('camp-1', 'Harpers', 10)
+    })
+
+    it('throws when faction params are missing', async () => {
+      const { executeAdjustFactionStanding } = await import('./effect-actions')
+      expect(() =>
+        executeAdjustFactionStanding(
+          { action: 'adjust_faction_standing', factionName: '', delta: undefined },
+          makeGameStore()
+        )
       ).toThrow('Missing params')
     })
   })

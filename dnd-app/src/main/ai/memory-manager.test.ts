@@ -222,6 +222,61 @@ describe('MemoryManager', () => {
     })
   })
 
+  // -- Quest log (P6.17) --
+
+  describe('updateQuestLog', () => {
+    it('adds a quest to a fresh summary', async () => {
+      mockFs.readFile.mockRejectedValue(new Error('ENOENT'))
+      const mgr = new MemoryManager('c1')
+      await mgr.updateQuestLog('add', 'Rescue the Mayor', 'kidnapped by goblins')
+      const calls = mockFs.writeFile.mock.calls as unknown as Array<[string, string, string]>
+      const written = JSON.parse(calls.at(-1)?.[1] ?? '{}') as { activeQuests: string[] }
+      expect(written.activeQuests).toContain('Rescue the Mayor: kidnapped by goblins')
+    })
+
+    it('completes a quest (removes it + logs a recent event)', async () => {
+      mockFs.readFile.mockResolvedValue(
+        JSON.stringify({
+          currentLocation: 'Town',
+          timeOfDay: 'day',
+          activeQuests: ['Rescue the Mayor: kidnapped'],
+          recentEvents: [],
+          lastUpdated: ''
+        })
+      )
+      const mgr = new MemoryManager('c1')
+      await mgr.updateQuestLog('complete', 'Rescue the Mayor')
+      const calls = mockFs.writeFile.mock.calls as unknown as Array<[string, string, string]>
+      const written = JSON.parse(calls.at(-1)?.[1] ?? '{}') as { activeQuests: string[]; recentEvents: string[] }
+      expect(written.activeQuests).toHaveLength(0)
+      expect(written.recentEvents).toContain('Completed quest: Rescue the Mayor')
+    })
+  })
+
+  // -- Faction reputation (P6.17) --
+
+  describe('adjustFactionReputation', () => {
+    it('creates a new standing with the delta', async () => {
+      mockFs.readFile.mockRejectedValue(new Error('ENOENT'))
+      const mgr = new MemoryManager('c1')
+      await mgr.adjustFactionReputation('Harpers', 10)
+      const calls = mockFs.writeFile.mock.calls as unknown as Array<[string, string, string]>
+      const written = JSON.parse(calls.at(-1)?.[1] ?? '[]') as Array<{ factionName: string; partyStanding: number }>
+      expect(written[0]).toMatchObject({ factionName: 'Harpers', partyStanding: 10 })
+    })
+
+    it('accumulates onto an existing standing', async () => {
+      mockFs.readFile.mockResolvedValue(
+        JSON.stringify([{ factionName: 'Zhentarim', partyStanding: -5, lastModified: '' }])
+      )
+      const mgr = new MemoryManager('c1')
+      await mgr.adjustFactionReputation('zhentarim', -3)
+      const calls = mockFs.writeFile.mock.calls as unknown as Array<[string, string, string]>
+      const written = JSON.parse(calls.at(-1)?.[1] ?? '[]') as Array<{ partyStanding: number }>
+      expect(written[0].partyStanding).toBe(-8)
+    })
+  })
+
   // -- Places --
 
   describe('getPlaces / upsertPlace', () => {

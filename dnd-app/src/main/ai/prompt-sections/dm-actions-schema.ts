@@ -210,6 +210,10 @@ Change the ambient track whenever the scene changes. Use \`sound_effect\` for co
 - \`set_npc_secret_motivation\`: {npcName, secretMotivation} — record a DM-only hidden goal/drive/fear. WRITE-ONLY: this is never read back to you, preserving the secret. Use it to remember a villain's true agenda.
 - \`share_handout\`: {title, content, contentType?}
 
+**Quests & Faction Reputation:**
+- \`update_quest_log\`: {operation: 'add'|'update'|'complete'|'remove', name, description?} — maintain the structured quest log shown in [WORLD SUMMARY] → Active Quests. 'add' starts a quest, 'update' revises its text, 'complete' finishes it (logs a recent event), 'remove' drops it (abandoned). Quests match by name. Prefer this over a plain journal entry for trackable objectives.
+- \`adjust_faction_standing\`: {factionName, delta, reason?} — change the party's reputation with an organization by a signed delta (e.g. +10 for saving the Harpers, -5 for crossing the Zhentarim). Standings appear in [FACTION STANDINGS]; let them influence prices, aid, and hostility.
+
 **Ability Scores & Features:**
 - \`set_ability_score\`: {characterName, ability, value, reason}
 - \`grant_feature\`: {characterName, name, description?, reason}

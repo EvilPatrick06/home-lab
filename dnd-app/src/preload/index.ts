@@ -147,6 +147,14 @@ const api = {
       npcName: string,
       fields: { faction?: string; location?: string; secretMotivation?: string }
     ) => ipcRenderer.invoke(IPC_CHANNELS.AI_SET_NPC_FIELDS, campaignId, npcName, fields),
+    updateQuestLog: (
+      campaignId: string,
+      operation: 'add' | 'update' | 'complete' | 'remove',
+      name: string,
+      description?: string
+    ) => ipcRenderer.invoke(IPC_CHANNELS.AI_UPDATE_QUEST_LOG, campaignId, operation, name, description),
+    adjustFactionStanding: (campaignId: string, factionName: string, delta: number) =>
+      ipcRenderer.invoke(IPC_CHANNELS.AI_ADJUST_FACTION_STANDING, campaignId, factionName, delta),
     // Memory files
     listMemoryFiles: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_LIST_MEMORY_FILES, campaignId),
     readMemoryFile: (campaignId: string, fileName: string) =>

@@ -67,7 +67,7 @@
 - **G30** (high) Set NPC current location (persistent tracking separate from encounters)
 - **G31** (high) Set NPC secret motivation (DM-only hidden goals, drives, fears)
 
-### P6.17 — AI quest log + faction reputation  `[ ] pending`
+### P6.17 — AI quest log + faction reputation  `[x] shipped v2.4.63`
 - **G32** (high) Manage quest/objective log (add, update, complete, track active quests)
 - **G33** (high) Manage faction reputation/standing (track PC standing with organizations)
 

@@ -287,6 +287,13 @@ interface AiAPI {
     npcName: string,
     fields: { faction?: string; location?: string; secretMotivation?: string }
   ) => Promise<{ success: boolean }>
+  updateQuestLog: (
+    campaignId: string,
+    operation: 'add' | 'update' | 'complete' | 'remove',
+    name: string,
+    description?: string
+  ) => Promise<{ success: boolean; error?: string }>
+  adjustFactionStanding: (campaignId: string, factionName: string, delta: number) => Promise<{ success: boolean }>
   generateEndOfSessionRecap: (campaignId: string) => Promise<{ success: boolean; data?: string; error?: string }>
   // Memory files
   listMemoryFiles: (campaignId: string) => Promise<Array<{ name: string; size: number }>>

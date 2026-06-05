@@ -121,6 +121,13 @@ export interface WorldStateSummary {
   lastUpdated: string
 }
 
+/** Party standing with a faction/organization (positive = liked, negative = disliked). */
+export interface FactionReputation {
+  factionName: string
+  partyStanding: number
+  lastModified: string
+}
+
 // ── Chunk index types ──
 
 export interface ChunkIndex {

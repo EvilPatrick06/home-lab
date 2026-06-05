@@ -112,6 +112,8 @@ export const IPC_CHANNELS = {
   AI_LOG_NPC_INTERACTION: 'ai:log-npc-interaction',
   AI_SET_NPC_RELATIONSHIP: 'ai:set-npc-relationship',
   AI_SET_NPC_FIELDS: 'ai:set-npc-fields',
+  AI_UPDATE_QUEST_LOG: 'ai:update-quest-log',
+  AI_ADJUST_FACTION_STANDING: 'ai:adjust-faction-standing',
 
   // === AI DM: Connection Status ===
   AI_CONNECTION_STATUS: 'ai:connection-status',

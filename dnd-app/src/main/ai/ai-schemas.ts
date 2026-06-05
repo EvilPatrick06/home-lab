@@ -1022,6 +1022,20 @@ const SetNpcRelationshipSchema = z.object({
   disposition: NpcDispositionSchema
 })
 
+const UpdateQuestLogSchema = z.object({
+  action: z.literal('update_quest_log'),
+  operation: z.enum(['add', 'update', 'complete', 'remove']),
+  name: z.string(),
+  description: z.string().optional()
+})
+
+const AdjustFactionStandingSchema = z.object({
+  action: z.literal('adjust_faction_standing'),
+  factionName: z.string(),
+  delta: z.number(),
+  reason: z.string().optional()
+})
+
 const SetNpcFactionSchema = z.object({
   action: z.literal('set_npc_faction'),
   npcName: z.string(),
@@ -1168,6 +1182,8 @@ export const DM_ACTION_SCHEMAS: Record<string, z.ZodType> = {
   set_npc_faction: SetNpcFactionSchema,
   set_npc_location: SetNpcLocationSchema,
   set_npc_secret_motivation: SetNpcSecretMotivationSchema,
+  update_quest_log: UpdateQuestLogSchema,
+  adjust_faction_standing: AdjustFactionStandingSchema,
   share_handout: ShareHandoutSchema,
   light_source: LightSourceSchema,
   extinguish_source: ExtinguishSourceSchema

@@ -492,6 +492,30 @@ describe('validateDmActions', () => {
     expect(issues).toHaveLength(1)
   })
 
+  it('validates quest-log + faction-standing actions', () => {
+    const { valid, issues } = validateDmActions([
+      { action: 'update_quest_log', operation: 'add', name: 'Find the relic' },
+      { action: 'update_quest_log', operation: 'complete', name: 'Find the relic' },
+      { action: 'adjust_faction_standing', factionName: 'Harpers', delta: 10, reason: 'saved them' }
+    ])
+    expect(valid).toHaveLength(3)
+    expect(issues).toHaveLength(0)
+  })
+
+  it('rejects update_quest_log with an invalid operation', () => {
+    const { valid, issues } = validateDmActions([{ action: 'update_quest_log', operation: 'finish', name: 'X' }])
+    expect(valid).toHaveLength(0)
+    expect(issues).toHaveLength(1)
+  })
+
+  it('rejects adjust_faction_standing with a non-numeric delta', () => {
+    const { valid, issues } = validateDmActions([
+      { action: 'adjust_faction_standing', factionName: 'Harpers', delta: 'lots' }
+    ])
+    expect(valid).toHaveLength(0)
+    expect(issues).toHaveLength(1)
+  })
+
   it('validates advance_time action', () => {
     const { valid, issues } = validateDmActions([{ action: 'advance_time', hours: 8 }])
     expect(valid).toHaveLength(1)

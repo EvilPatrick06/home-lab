@@ -77,6 +77,7 @@ import {
   executeAddJournalEntry,
   executeAddShopItem,
   executeAddSidebarEntry,
+  executeAdjustFactionStanding,
   executeAdvanceTime,
   executeBastionAddCreature,
   executeBastionAdvanceTime,
@@ -104,6 +105,7 @@ import {
   executeStopTimer,
   executeSwitchMap,
   executeSystemMessage,
+  executeUpdateQuestLog,
   executeWhisperPlayer
 } from './game-actions/effect-actions'
 // ── Environment Zones (darkness + terrain) ──
@@ -431,6 +433,10 @@ function executeOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: A
       return executeSetNpcLocation(action, gameStore)
     case 'set_npc_secret_motivation':
       return executeSetNpcSecretMotivation(action, gameStore)
+    case 'update_quest_log':
+      return executeUpdateQuestLog(action, gameStore)
+    case 'adjust_faction_standing':
+      return executeAdjustFactionStanding(action, gameStore)
 
     // ── Resting ──
     case 'short_rest':

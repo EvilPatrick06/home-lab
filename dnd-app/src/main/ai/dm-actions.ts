@@ -368,6 +368,13 @@ export type DmAction =
   | { action: 'set_npc_faction'; npcName: string; faction: string }
   | { action: 'set_npc_location'; npcName: string; location: string }
   | { action: 'set_npc_secret_motivation'; npcName: string; secretMotivation: string }
+  | {
+      action: 'update_quest_log'
+      operation: 'add' | 'update' | 'complete' | 'remove'
+      name: string
+      description?: string
+    }
+  | { action: 'adjust_faction_standing'; factionName: string; delta: number; reason?: string }
 
   // Handouts
   | { action: 'share_handout'; title: string; content: string; contentType?: 'text' | 'image' }

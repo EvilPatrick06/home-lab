@@ -491,6 +491,32 @@ export function registerAiHandlers(): void {
     }
   )
 
+  handle(
+    IPC_CHANNELS.AI_UPDATE_QUEST_LOG,
+    async (
+      _event,
+      campaignId: string,
+      operation: 'add' | 'update' | 'complete' | 'remove',
+      name: string,
+      description?: string
+    ) => {
+      const validOps = ['add', 'update', 'complete', 'remove'] as const
+      if (!validOps.includes(operation)) return { success: false, error: `Invalid quest operation: ${operation}` }
+      const memMgr = getMemoryManager(campaignId)
+      await memMgr.updateQuestLog(operation, name, description)
+      return { success: true }
+    }
+  )
+
+  handle(
+    IPC_CHANNELS.AI_ADJUST_FACTION_STANDING,
+    async (_event, campaignId: string, factionName: string, delta: number) => {
+      const memMgr = getMemoryManager(campaignId)
+      await memMgr.adjustFactionReputation(factionName, delta)
+      return { success: true }
+    }
+  )
+
   // ── Ollama Management ──
 
   handle(IPC_CHANNELS.AI_DETECT_OLLAMA, async () => {

@@ -616,6 +616,27 @@ export function executeSetNpcSecretMotivation(action: DmAction, gameStore: GameS
   return true
 }
 
+// ── Quest log & faction reputation (P6.17) — persisted in campaign memory via IPC ──
+
+export function executeUpdateQuestLog(action: DmAction, gameStore: GameStoreSnapshot): boolean {
+  const operation = action.operation as 'add' | 'update' | 'complete' | 'remove'
+  const name = action.name as string
+  const description = action.description as string | undefined
+  if (!operation || !name) throw new Error('Missing params for update_quest_log')
+  const campaignId = gameStore.campaignId
+  if (campaignId) window.api.ai.updateQuestLog?.(campaignId, operation, name, description)
+  return true
+}
+
+export function executeAdjustFactionStanding(action: DmAction, gameStore: GameStoreSnapshot): boolean {
+  const factionName = action.factionName as string
+  const delta = action.delta as number
+  if (!factionName || typeof delta !== 'number') throw new Error('Missing params for adjust_faction_standing')
+  const campaignId = gameStore.campaignId
+  if (campaignId) window.api.ai.adjustFactionStanding?.(campaignId, factionName, delta)
+  return true
+}
+
 export function executeBastionAddCreature(
   action: DmAction,
   _gameStore: GameStoreSnapshot,
