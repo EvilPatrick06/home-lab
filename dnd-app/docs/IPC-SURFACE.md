@@ -27,7 +27,7 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 
 ## Defined channels
 
-*Total: **171** channel strings (from `IPC_CHANNELS`).*
+*Total: **172** channel strings (from `IPC_CHANNELS`).*
 
 ### Storage: Characters
 
@@ -188,6 +188,7 @@ Main may send one-way events to the renderer with `webContents.send(IPC_CHANNELS
 |---|---|
 | `AI_LOG_NPC_INTERACTION` | `ai:log-npc-interaction` |
 | `AI_SET_NPC_RELATIONSHIP` | `ai:set-npc-relationship` |
+| `AI_SET_NPC_FIELDS` | `ai:set-npc-fields` |
 
 ### AI DM: Connection Status
 
