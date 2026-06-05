@@ -2,7 +2,7 @@
 
 Electron desktop Virtual Tabletop (VTT) for running Dungeons & Dragons 5e games. Multiplayer via PeerJS WebRTC. Optional AI Dungeon Master (Ollama / Claude / Gemini), optional BMO Pi integration for game discovery + narration TTS.
 
-**Current version:** v2.4.33
+**Current version:** v2.4.34
 
 ## What's in it
 
