@@ -59,6 +59,7 @@ import {
   executeOpenShop,
   executeRemoveShopItem,
   executeRemoveSidebarEntry,
+  executeRollDice,
   executeSetNpcRelationship,
   executeSetTime,
   executeShareHandout,
@@ -258,6 +259,8 @@ function executeOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: A
       return executeWhisperPlayer(action, gameStore, activeMap, stores)
     case 'system_message':
       return executeSystemMessage(action, gameStore, activeMap, stores)
+    case 'roll_dice':
+      return executeRollDice(action, gameStore, activeMap, stores)
 
     // ── Entity Conditions ──
     case 'add_entity_condition':

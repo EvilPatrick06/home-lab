@@ -87,6 +87,7 @@ When the party moves to a new area, check [GAME STATE] for available maps:
 **Communication:**
 - \`whisper_player\`: {playerName, message}
 - \`system_message\`: {message}
+- \`roll_dice\`: {formula, reason?, visibility?} — roll dice FOR REAL instead of inventing a number. formula like "1d20+5" or "2d6"; reason like "Goblin attack vs Aria"; visibility "hidden" keeps it DM-only (e.g. a secret perception check), "public" (default) shows everyone. Use this for attack rolls, saves, checks, and damage so the result is genuine — then narrate the outcome the roll produced.
 
 **Entity Conditions:**
 - \`add_entity_condition\`: {entityLabel, condition, duration?, source?, value?}

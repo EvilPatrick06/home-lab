@@ -551,4 +551,61 @@ describe('effect-actions', () => {
       expect(executeBastionAddCreature(action, gs, undefined, stores)).toBe(true)
     })
   })
+
+  describe('executeRollDice', () => {
+    const chat = (): ReturnType<typeof vi.fn> =>
+      stores.getLobbyStore().getState().addChatMessage as unknown as ReturnType<typeof vi.fn>
+    const net = (): ReturnType<typeof vi.fn> =>
+      stores.getNetworkStore().getState().sendMessage as unknown as ReturnType<typeof vi.fn>
+
+    it('rolls a formula and posts the result (mocked total 8) + reason to chat', async () => {
+      const { executeRollDice } = await import('./effect-actions')
+      const ok = executeRollDice(
+        { action: 'roll_dice', formula: '1d8', reason: 'a check' } as DmAction,
+        makeGameStore(),
+        undefined as never,
+        stores
+      )
+      expect(ok).toBe(true)
+      expect(chat().mock.calls[0][0].content).toContain('8') // mocked rollDiceFormula total
+      expect(chat().mock.calls[0][0].content).toContain('a check')
+    })
+
+    it('returns false + posts an error when the roll yields no dice (invalid formula)', async () => {
+      const { rollDiceFormula } = await import('./dice-helpers')
+      vi.mocked(rollDiceFormula).mockReturnValueOnce({ rolls: [], total: 0 })
+      const { executeRollDice } = await import('./effect-actions')
+      const ok = executeRollDice(
+        { action: 'roll_dice', formula: 'garbage' } as DmAction,
+        makeGameStore(),
+        undefined as never,
+        stores
+      )
+      expect(ok).toBe(false)
+      expect(chat().mock.calls[0][0].content).toContain('Invalid')
+    })
+
+    it('does NOT broadcast a hidden roll to peers (but still posts locally)', async () => {
+      const { executeRollDice } = await import('./effect-actions')
+      executeRollDice(
+        { action: 'roll_dice', formula: '10', visibility: 'hidden' } as DmAction,
+        makeGameStore(),
+        undefined as never,
+        stores
+      )
+      expect(net()).not.toHaveBeenCalled()
+      expect(chat()).toHaveBeenCalledTimes(1)
+    })
+
+    it('broadcasts a public roll to peers', async () => {
+      const { executeRollDice } = await import('./effect-actions')
+      executeRollDice(
+        { action: 'roll_dice', formula: '10', visibility: 'public' } as DmAction,
+        makeGameStore(),
+        undefined as never,
+        stores
+      )
+      expect(net()).toHaveBeenCalledTimes(1)
+    })
+  })
 })

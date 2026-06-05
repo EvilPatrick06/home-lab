@@ -14,7 +14,8 @@ function postDmChatMessage(
   idPrefix: string,
   msg: string,
   senderId: 'ai-dm' | 'system' = 'ai-dm',
-  senderName = 'Dungeon Master'
+  senderName = 'Dungeon Master',
+  broadcast = true
 ): void {
   const addChat = stores.getLobbyStore().getState().addChatMessage
   const sendMsg = stores.getNetworkStore().getState().sendMessage
@@ -26,7 +27,32 @@ function postDmChatMessage(
     timestamp: Date.now(),
     isSystem: true
   })
-  sendMsg('chat:message', { message: msg, isSystem: true })
+  // broadcast=false keeps a roll DM-only (the players don't see a "hidden" roll).
+  if (broadcast) sendMsg('chat:message', { message: msg, isSystem: true })
+}
+
+/**
+ * Engine-side dice roll requested by the AI DM via [DM_ACTIONS]. Rolls the formula
+ * for real (so the AI reacts to genuine randomness instead of inventing a result),
+ * posts it to chat, and — for visibility:'hidden' — keeps it DM-only.
+ */
+export function executeRollDice(
+  action: DmAction,
+  _gameStore: GameStoreSnapshot,
+  _activeMap: ActiveMap,
+  stores: StoreAccessors
+): boolean {
+  const a = action as { formula?: string; reason?: string; visibility?: 'public' | 'hidden' }
+  const formula = (a.formula ?? '').trim()
+  const { rolls, total } = rollDiceFormula(formula)
+  if (rolls.length === 0) {
+    postDmChatMessage(stores, 'ai-roll', `\u{1F3B2} Invalid dice formula: "${formula}"`, 'system', 'System')
+    return false
+  }
+  const reason = a.reason ? ` (${a.reason})` : ''
+  const msg = `\u{1F3B2} ${formula}${reason}: ${total} [${rolls.join(', ')}]`
+  postDmChatMessage(stores, 'ai-roll', msg, 'ai-dm', 'Dungeon Master', a.visibility !== 'hidden')
+  return true
 }
 
 /**

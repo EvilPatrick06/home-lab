@@ -115,6 +115,7 @@ export type DmAction =
   // Communication
   | { action: 'whisper_player'; playerName: string; message: string }
   | { action: 'system_message'; message: string }
+  | { action: 'roll_dice'; formula: string; reason?: string; visibility?: 'public' | 'hidden' }
 
   // Conditions on entities (tokens)
   | {
