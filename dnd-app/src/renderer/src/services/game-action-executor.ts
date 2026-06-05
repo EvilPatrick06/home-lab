@@ -31,6 +31,7 @@ import {
 import { executeConcentrationCheck, executeSetConcentration } from './game-actions/concentration-actions'
 // ── Creature / Combat Actions ──
 import {
+  executeAwardTreasure,
   executeAwardXp,
   executeLoadEncounter,
   executeLongRest,
@@ -379,6 +380,8 @@ function executeOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: A
     // ── XP & Level-Up ──
     case 'award_xp':
       return executeAwardXp(action, gameStore, activeMap, stores)
+    case 'award_treasure':
+      return executeAwardTreasure(action, gameStore, activeMap, stores)
     case 'trigger_level_up':
       return executeTriggerLevelUp(action, gameStore, activeMap, stores)
 

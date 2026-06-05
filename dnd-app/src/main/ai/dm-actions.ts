@@ -315,6 +315,13 @@ export type DmAction =
 
   // XP & Leveling
   | { action: 'award_xp'; characterNames: string[]; amount: number; reason?: string }
+  | {
+      action: 'award_treasure'
+      characterNames: string[]
+      type: 'individual' | 'hoard'
+      crTier: '0-4' | '5-10' | '11-16' | '17+'
+      reason?: string
+    }
   | { action: 'trigger_level_up'; characterName: string }
 
   // Bastion Management

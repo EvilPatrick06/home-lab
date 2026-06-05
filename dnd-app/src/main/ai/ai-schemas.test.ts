@@ -423,6 +423,22 @@ describe('validateDmActions', () => {
     expect(issues).toHaveLength(0)
   })
 
+  it('validates award_treasure action', () => {
+    const { valid, issues } = validateDmActions([
+      { action: 'award_treasure', characterNames: ['Aria', 'Thorin'], type: 'hoard', crTier: '5-10' }
+    ])
+    expect(valid).toHaveLength(1)
+    expect(issues).toHaveLength(0)
+  })
+
+  it('rejects award_treasure with an invalid crTier', () => {
+    const { valid, issues } = validateDmActions([
+      { action: 'award_treasure', characterNames: ['Aria'], type: 'hoard', crTier: '99+' }
+    ])
+    expect(valid).toHaveLength(0)
+    expect(issues).toHaveLength(1)
+  })
+
   it('validates advance_time action', () => {
     const { valid, issues } = validateDmActions([{ action: 'advance_time', hours: 8 }])
     expect(valid).toHaveLength(1)

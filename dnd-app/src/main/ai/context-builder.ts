@@ -1,5 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
+import { getLevelBudget } from '../../shared/encounter-budgets'
 import { logToFile } from '../log'
 import { getDataDir } from '../paths'
 import { formatCampaignForContext, loadCampaignById } from './campaign-context'
@@ -350,32 +351,12 @@ function calculateEncounterBudget(characterParts: string[]): string | null {
   }
   if (levels.length === 0) return null
   const avgLevel = Math.round(levels.reduce((a, b) => a + b, 0) / levels.length)
-  // XP thresholds per character level (2024 DMG): [low, moderate, high]
-  const xpTable: Record<number, [number, number, number]> = {
-    1: [50, 75, 100],
-    2: [100, 150, 200],
-    3: [150, 225, 400],
-    4: [250, 375, 500],
-    5: [500, 750, 1100],
-    6: [600, 900, 1400],
-    7: [750, 1100, 1700],
-    8: [1000, 1400, 2100],
-    9: [1300, 1800, 2400],
-    10: [1600, 2100, 2800],
-    11: [1900, 2400, 3600],
-    12: [2200, 2800, 4500],
-    13: [2600, 3400, 5100],
-    14: [2900, 3800, 5700],
-    15: [3300, 4300, 6400],
-    16: [3800, 4800, 7200],
-    17: [4500, 5700, 8800],
-    18: [5000, 6300, 9500],
-    19: [5500, 6800, 10900],
-    20: [6800, 8500, 13500]
-  }
-  const thresholds = xpTable[Math.min(avgLevel, 20)] ?? xpTable[1]!
+  // XP thresholds per character level — shared single source of truth (2024 DMG),
+  // identical to the values the encounter-builder UI uses, so the AI balances
+  // against the same numbers the engine will report at game time.
+  const t = getLevelBudget(avgLevel)
   const partySize = levels.length
-  return `[ENCOUNTER BUDGET]\nParty: ${partySize} characters, avg level ${avgLevel}\nLow: ${thresholds[0] * partySize} XP | Moderate: ${thresholds[1] * partySize} XP | High: ${thresholds[2] * partySize} XP\n[/ENCOUNTER BUDGET]`
+  return `[ENCOUNTER BUDGET]\nParty: ${partySize} characters, avg level ${avgLevel}\nLow: ${t.low * partySize} XP | Moderate: ${t.moderate * partySize} XP | High: ${t.high * partySize} XP\n[/ENCOUNTER BUDGET]`
 }
 
 function formatChunks(chunks: ScoredChunk[]): string {

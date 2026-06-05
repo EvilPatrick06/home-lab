@@ -904,6 +904,14 @@ const SetWeatherSchema = z.object({
 const ClearWeatherSchema = z.object({ action: z.literal('clear_weather') })
 const SetMoonSchema = z.object({ action: z.literal('set_moon'), phase: z.string() })
 
+const AwardTreasureSchema = z.object({
+  action: z.literal('award_treasure'),
+  characterNames: z.array(z.string()),
+  type: z.enum(['individual', 'hoard']),
+  crTier: z.enum(['0-4', '5-10', '11-16', '17+']),
+  reason: z.string().optional()
+})
+
 const AwardXpSchema = z.object({
   action: z.literal('award_xp'),
   characterNames: z.array(z.string()),
@@ -1099,6 +1107,7 @@ export const DM_ACTION_SCHEMAS: Record<string, z.ZodType> = {
   clear_weather: ClearWeatherSchema,
   set_moon: SetMoonSchema,
   award_xp: AwardXpSchema,
+  award_treasure: AwardTreasureSchema,
   trigger_level_up: TriggerLevelUpSchema,
   bastion_advance_time: BastionAdvanceTimeSchema,
   bastion_issue_order: BastionIssueOrderSchema,

@@ -33,6 +33,7 @@ import {
   executeAddEntityCondition,
   executeAddToInitiative,
   executeApplyAreaEffect,
+  executeAwardTreasure,
   executeAwardXp,
   executeEndInitiative,
   executeLoadEncounter,
@@ -631,6 +632,29 @@ describe('executeAwardXp', () => {
         makeStores()
       )
     ).toThrow('Invalid XP amount')
+  })
+})
+
+describe('executeAwardTreasure', () => {
+  it('returns true and rolls/distributes (async, fire-and-forget)', () => {
+    const result = executeAwardTreasure(
+      { action: 'award_treasure', characterNames: ['Aria'], type: 'hoard', crTier: '5-10' },
+      makeGameStore(),
+      undefined,
+      makeStores()
+    )
+    expect(result).toBe(true)
+  })
+
+  it('throws for empty character names', () => {
+    expect(() =>
+      executeAwardTreasure(
+        { action: 'award_treasure', characterNames: [], type: 'individual', crTier: '0-4' },
+        makeGameStore(),
+        undefined,
+        makeStores()
+      )
+    ).toThrow('No character names')
   })
 })
 

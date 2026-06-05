@@ -46,7 +46,7 @@
 - **G17** (high) Diseases and curses: apply active diseases and curses to targets with save tracking and mechanical effects
 - **G18** (high) Trap placement and triggering: place armed traps on the map and reveal/trigger them during play
 
-### P6.13 — AI encounter loot + treasure tables + magic-item guidance + XP-budget fix  `[ ] pending`
+### P6.13 — AI encounter loot + treasure tables + magic-item guidance + XP-budget fix  `[x] shipped v2.4.59`
 - **G20** (high) Encounter preset loot distribution when using load_encounter action
 - **G19** (high) Treasure table data lookup by CR tier and treasure type (individual vs hoard)
 - **G22** (high) Magic item rarity and power level guidance for treasure rolls

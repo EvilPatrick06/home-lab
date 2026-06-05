@@ -502,6 +502,68 @@ export function executeAwardXp(
   return true
 }
 
+/**
+ * Roll DMG treasure (individual or hoard, by CR tier) from the real loot tables and
+ * distribute it to the party: coins split evenly across the named characters, and
+ * gems / art objects / magic items handed to the first character as the party stash.
+ * The roll uses the engine's rarity-balanced generator, so the AI never invents items.
+ */
+export function executeAwardTreasure(
+  action: DmAction,
+  _gameStore: GameStoreSnapshot,
+  _activeMap: ActiveMap,
+  stores: StoreAccessors
+): boolean {
+  const characterNames = action.characterNames as string[]
+  const type = action.type as 'individual' | 'hoard'
+  const crTier = action.crTier as '0-4' | '5-10' | '11-16' | '17+'
+  const reason = action.reason as string | undefined
+  if (!Array.isArray(characterNames) || characterNames.length === 0)
+    throw new Error('No character names for award_treasure')
+
+  ;(async () => {
+    const { generateIndividual, generateHoard, formatTreasureResult } = await import(
+      '../../components/game/modals/dm-tools/treasure-generator-utils'
+    )
+    const { load5eTreasureTables } = await import('../data-provider')
+    const tables = (await load5eTreasureTables().catch(() => null)) as Parameters<typeof generateIndividual>[1]
+    const result = type === 'hoard' ? generateHoard(crTier, tables) : generateIndividual(crTier, tables)
+
+    playSound('xp-gain')
+    postDmChatMessage(
+      stores,
+      'ai-treasure',
+      `💰 Treasure (${type}, CR ${crTier})${reason ? ` — ${reason}` : ''}:\n${formatTreasureResult(result)}`
+    )
+
+    const resolved = resolveCharacterIds(characterNames, stores)
+    const n = resolved.length
+    const reasonText = reason ?? `Treasure (${type}, CR ${crTier})`
+
+    // Coins: split each denomination evenly; the remainder goes to the first character.
+    const denominations = ['cp', 'sp', 'ep', 'gp', 'pp'] as const
+    resolved.forEach(({ charId }, idx) => {
+      if (!charId) return
+      const mutations: Array<{ type: string; [key: string]: unknown }> = []
+      for (const denom of denominations) {
+        const total = result.coins[denom]
+        if (total <= 0) continue
+        const base = Math.floor(total / n)
+        const share = base + (idx === 0 ? total - base * n : 0)
+        if (share > 0) mutations.push({ type: 'gold', value: share, denomination: denom, reason: reasonText })
+      }
+      // Valuables + magic items go to the first character as the party stash.
+      if (idx === 0) {
+        for (const name of [...result.gems, ...result.artObjects, ...result.magicItems]) {
+          mutations.push({ type: 'add_item', name, quantity: 1, reason: reasonText })
+        }
+      }
+      if (mutations.length > 0) window.api.ai.applyMutations(charId, mutations).catch(() => {})
+    })
+  })().catch(() => {})
+  return true
+}
+
 export function executeTriggerLevelUp(
   action: DmAction,
   _gameStore: GameStoreSnapshot,
@@ -721,6 +783,17 @@ export function executeLoadEncounter(
       )
     } else {
       postDmChatMessage(stores, 'ai-enc-err', `Encounter "${preset.name}" found but no monsters could be placed.`)
+    }
+
+    // G20 — surface the preset's treasure hint (previously ignored) so the AI knows
+    // what this encounter is worth and can hand it out (award_treasure / add_item / gold)
+    // when the party prevails, instead of inventing rewards or forgetting them.
+    if (preset.treasureHint?.trim()) {
+      postDmChatMessage(
+        stores,
+        'ai-enc-loot',
+        `[ENCOUNTER LOOT] "${preset.name}" treasure: ${preset.treasureHint.trim()}. Distribute it to the party when they prevail (award_treasure, or add_item / gold mutations).`
+      )
     }
   })().catch(() => {})
   return true
