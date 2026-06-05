@@ -94,6 +94,35 @@ function applyStatChangesDirectly(
         )
       })
       .catch((err) => logger.error('[game-effects] creature-mutations import failed', err))
+
+    // Concentration: any concentrating creature that took damage rolls a CON save;
+    // a failed save breaks its spell (auto-resolved + surfaced in the DM alert tray).
+    const turnStates = useGameStore.getState().turnStates ?? {}
+    const damaged = creatureChanges.filter((c) => c.type === 'creature_damage') as Array<{
+      targetLabel?: string
+      value?: number
+    }>
+    if (damaged.length > 0 && Object.values(turnStates).some((t) => t.concentratingSpell)) {
+      void Promise.all([import('../services/combat/concentration-manager'), import('../services/game/token-stats')])
+        .then(([{ checkConcentrationOnDamage }, { getCreatureSaveMod }]) => {
+          for (const change of damaged) {
+            const token = activeMap.tokens.find((t) => t.label === change.targetLabel)
+            if (!token?.entityId || !turnStates[token.entityId]?.concentratingSpell) continue
+            const res = checkConcentrationOnDamage(
+              token.entityId,
+              token.label,
+              change.value ?? 0,
+              turnStates,
+              getCreatureSaveMod(token, 'con')
+            )
+            if (res.needsCheck && res.result) {
+              pushDmAlert(res.result.maintained ? 'info' : 'warning', res.result.summary)
+              if (!res.result.maintained) useGameStore.getState().setConcentrating(token.entityId, undefined)
+            }
+          }
+        })
+        .catch((err) => logger.error('[game-effects] concentration check failed', err))
+    }
   }
 }
 

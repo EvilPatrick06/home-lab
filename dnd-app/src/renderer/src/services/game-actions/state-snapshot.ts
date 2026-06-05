@@ -68,6 +68,17 @@ export function buildGameStateSnapshot(
     }
   }
 
+  // Concentration — who is concentrating on what (so the AI can reason about /
+  // narrate concentration breaks and roll the save on damage).
+  const concentrating = Object.values(gameStore.turnStates ?? {}).filter((ts) => ts.concentratingSpell)
+  if (concentrating.length > 0) {
+    lines.push('\nConcentration:')
+    for (const ts of concentrating) {
+      const label = activeMap?.tokens.find((t) => t.entityId === ts.entityId)?.label ?? ts.entityId
+      lines.push(`  - ${label} is concentrating on ${ts.concentratingSpell}`)
+    }
+  }
+
   // Entity conditions
   if (gameStore.conditions.length > 0) {
     lines.push('\nConditions:')

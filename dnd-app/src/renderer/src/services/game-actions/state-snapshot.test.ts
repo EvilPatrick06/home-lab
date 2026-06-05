@@ -335,4 +335,28 @@ describe('buildGameStateSnapshot', () => {
     )
     expect(result).toContain('Time since last long rest:')
   })
+
+  it('lists who is concentrating (by token label) from turn states', () => {
+    const result = buildGameStateSnapshot(
+      makeStores({
+        activeMapId: 'm',
+        maps: [
+          {
+            id: 'm',
+            name: 'M',
+            width: 100,
+            height: 100,
+            grid: { cellSize: 10 },
+            tokens: [{ entityId: 'e1', label: 'Aria', gridX: 0, gridY: 0, conditions: [] }]
+          }
+        ],
+        turnStates: {
+          e1: { entityId: 'e1', concentratingSpell: 'Bless' },
+          e2: { entityId: 'e2' } // not concentrating — excluded
+        }
+      })
+    )
+    expect(result).toContain('Concentration:')
+    expect(result).toContain('Aria is concentrating on Bless')
+  })
 })
