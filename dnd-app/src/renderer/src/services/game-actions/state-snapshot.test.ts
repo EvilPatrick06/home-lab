@@ -323,6 +323,17 @@ describe('buildGameStateSnapshot', () => {
     expect(result).toContain('Toxic Fumes')
   })
 
+  it('shows environmental effect mechanical detail + save DC', () => {
+    const result = buildGameStateSnapshot(
+      makeStores({
+        activeEnvironmentalEffects: [
+          { name: 'Extreme Cold', mechanicalEffect: 'DC 10 CON / hour or 1 exhaustion', saveDC: 10 }
+        ]
+      })
+    )
+    expect(result).toContain('Extreme Cold: DC 10 CON / hour or 1 exhaustion (DC 10)')
+  })
+
   it('shows active spell effects with caster, duration, area + save', () => {
     const result = buildGameStateSnapshot(
       makeStores({

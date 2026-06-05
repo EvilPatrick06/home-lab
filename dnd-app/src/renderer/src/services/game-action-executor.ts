@@ -55,6 +55,20 @@ import {
   executeUseLegendaryAction,
   executeUseLegendaryResistance
 } from './game-actions/creature-initiative'
+// ── DM Toolbox (environmental effects, diseases/curses, traps) ──
+import {
+  executeAddEnvironmentalEffect,
+  executeApplyCurse,
+  executeApplyDisease,
+  executePlaceTrap,
+  executeRecordDiseaseSave,
+  executeRemoveCurse,
+  executeRemoveDisease,
+  executeRemoveEnvironmentalEffect,
+  executeRemoveTrap,
+  executeRevealTrap,
+  executeTriggerTrap
+} from './game-actions/dm-toolbox-actions'
 // ── Effect / State Actions ──
 import {
   executeAddJournalEntry,
@@ -427,6 +441,30 @@ function executeOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: A
       return executePlaceTerrain(action, gameStore, activeMap, stores)
     case 'remove_terrain':
       return executeRemoveTerrain(action, gameStore, activeMap, stores)
+
+    // ── DM Toolbox (environmental effects, diseases/curses, traps) ──
+    case 'add_environmental_effect':
+      return executeAddEnvironmentalEffect(action, gameStore, activeMap, stores)
+    case 'remove_environmental_effect':
+      return executeRemoveEnvironmentalEffect(action, gameStore, activeMap, stores)
+    case 'apply_disease':
+      return executeApplyDisease(action, gameStore, activeMap, stores)
+    case 'remove_disease':
+      return executeRemoveDisease(action, gameStore, activeMap, stores)
+    case 'record_disease_save':
+      return executeRecordDiseaseSave(action, gameStore, activeMap, stores)
+    case 'apply_curse':
+      return executeApplyCurse(action, gameStore, activeMap, stores)
+    case 'remove_curse':
+      return executeRemoveCurse(action, gameStore, activeMap, stores)
+    case 'place_trap':
+      return executePlaceTrap(action, gameStore, activeMap, stores)
+    case 'trigger_trap':
+      return executeTriggerTrap(action, gameStore, activeMap, stores)
+    case 'reveal_trap':
+      return executeRevealTrap(action, gameStore, activeMap, stores)
+    case 'remove_trap':
+      return executeRemoveTrap(action, gameStore, activeMap, stores)
 
     // ── Legendary Actions & Resistances ──
     case 'use_legendary_action':

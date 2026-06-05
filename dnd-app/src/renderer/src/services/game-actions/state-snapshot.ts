@@ -266,7 +266,10 @@ export function buildGameStateSnapshot(
   if (gameStore.activeEnvironmentalEffects.length > 0) {
     lines.push('\n[ACTIVE EFFECTS]')
     for (const e of gameStore.activeEnvironmentalEffects) {
-      lines.push(`- ${e.name}`)
+      let line = `- ${e.name}`
+      if (e.mechanicalEffect) line += `: ${e.mechanicalEffect}`
+      if (e.saveDC) line += ` (DC ${e.saveDC})`
+      lines.push(line)
     }
     lines.push('[/ACTIVE EFFECTS]')
   }

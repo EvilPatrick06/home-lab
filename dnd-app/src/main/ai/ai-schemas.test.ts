@@ -385,6 +385,44 @@ describe('validateDmActions', () => {
     expect(issues).toHaveLength(1)
   })
 
+  it('validates environmental-effect actions', () => {
+    const { valid, issues } = validateDmActions([
+      { action: 'add_environmental_effect', name: 'Extreme Cold', saveDC: 10, category: 'weather' },
+      { action: 'remove_environmental_effect', name: 'Extreme Cold' }
+    ])
+    expect(valid).toHaveLength(2)
+    expect(issues).toHaveLength(0)
+  })
+
+  it('validates disease + curse actions', () => {
+    const { valid, issues } = validateDmActions([
+      { action: 'apply_disease', targetLabel: 'Fighter', name: 'Sewer Plague' },
+      { action: 'record_disease_save', targetLabel: 'Fighter', success: true },
+      { action: 'remove_disease', targetLabel: 'Fighter' },
+      { action: 'apply_curse', targetLabel: 'Rogue', name: 'Bestow Curse', source: 'Hag' },
+      { action: 'remove_curse', targetLabel: 'Rogue' }
+    ])
+    expect(valid).toHaveLength(5)
+    expect(issues).toHaveLength(0)
+  })
+
+  it('rejects record_disease_save without success boolean', () => {
+    const { valid, issues } = validateDmActions([{ action: 'record_disease_save', targetLabel: 'Fighter' }])
+    expect(valid).toHaveLength(0)
+    expect(issues).toHaveLength(1)
+  })
+
+  it('validates trap actions', () => {
+    const { valid, issues } = validateDmActions([
+      { action: 'place_trap', name: 'Poison Dart', gridX: 4, gridY: 5 },
+      { action: 'reveal_trap', gridX: 4, gridY: 5 },
+      { action: 'trigger_trap', name: 'Poison Dart' },
+      { action: 'remove_trap', name: 'Poison Dart' }
+    ])
+    expect(valid).toHaveLength(4)
+    expect(issues).toHaveLength(0)
+  })
+
   it('validates advance_time action', () => {
     const { valid, issues } = validateDmActions([{ action: 'advance_time', hours: 8 }])
     expect(valid).toHaveLength(1)

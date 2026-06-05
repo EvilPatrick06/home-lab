@@ -261,6 +261,26 @@ export type DmAction =
     }
   | { action: 'remove_terrain'; gridX: number; gridY: number; floor?: number }
 
+  // Environment effects, diseases/curses, traps (P6.12)
+  | {
+      action: 'add_environmental_effect'
+      name: string
+      mechanicalEffect?: string
+      saveDC?: number
+      category?: 'weather' | 'terrain' | 'magical' | 'planar'
+      effectId?: string
+    }
+  | { action: 'remove_environmental_effect'; name?: string; effectId?: string }
+  | { action: 'apply_disease'; targetLabel: string; name: string; diseaseId?: string; notes?: string }
+  | { action: 'remove_disease'; targetLabel: string; name?: string }
+  | { action: 'record_disease_save'; targetLabel: string; name?: string; success: boolean }
+  | { action: 'apply_curse'; targetLabel: string; name: string; curseId?: string; source?: string; notes?: string }
+  | { action: 'remove_curse'; targetLabel: string; name?: string }
+  | { action: 'place_trap'; name: string; gridX: number; gridY: number; trapId?: string }
+  | { action: 'trigger_trap'; name?: string; gridX?: number; gridY?: number }
+  | { action: 'reveal_trap'; name?: string; gridX?: number; gridY?: number }
+  | { action: 'remove_trap'; name?: string; gridX?: number; gridY?: number }
+
   // Legendary actions & resistances
   | { action: 'use_legendary_action'; entityLabel: string; actionName: string; cost?: number }
   | { action: 'use_legendary_resistance'; entityLabel: string }

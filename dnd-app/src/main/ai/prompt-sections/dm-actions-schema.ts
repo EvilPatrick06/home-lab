@@ -142,6 +142,19 @@ When you run a monster's turn, emit the matching action so its action economy is
 - \`place_terrain\`: {gridX, gridY, type: 'difficult'|'hazard'|'water'|'climbing'|'portal', movementCost?, hazardType?: 'fire'|'acid'|'pit'|'spikes', hazardDamage?, portalTarget?: {mapId, gridX, gridY}, floor?} — mark a square's terrain. movementCost defaults to 1 for hazards, 2 otherwise. Difficult/water/climbing cost extra movement; hazards deal hazardDamage on entry; portals teleport to portalTarget. Surfaces in the "Terrain" list.
 - \`remove_terrain\`: {gridX, gridY, floor?} — clear the terrain on a square.
 
+**Environment — Effects, Afflictions & Traps:**
+- \`add_environmental_effect\`: {name, mechanicalEffect?, saveDC?, category?: 'weather'|'terrain'|'magical'|'planar', effectId?} — apply an ongoing environmental hazard (Extreme Cold, choking smoke, a magical storm). Shows in [ACTIVE EFFECTS] with its mechanical detail.
+- \`remove_environmental_effect\`: {name? | effectId?} — clear an active environmental effect.
+- \`apply_disease\`: {targetLabel, name, diseaseId?, notes?} — infect a creature/PC; tracked with success/fail save counts.
+- \`record_disease_save\`: {targetLabel, name?, success} — log a disease save result (3 successes cures, 3 failures worsen, per most diseases).
+- \`remove_disease\`: {targetLabel, name?} — cure a disease.
+- \`apply_curse\`: {targetLabel, name, curseId?, source?, notes?} — place a curse on a target.
+- \`remove_curse\`: {targetLabel, name?} — lift a curse (e.g. Remove Curse).
+- \`place_trap\`: {name, gridX, gridY, trapId?} — arm a HIDDEN trap at a square (players don't see it until revealed/triggered).
+- \`reveal_trap\`: {name? and/or gridX+gridY} — a character spots a trap (reveal it without springing it).
+- \`trigger_trap\`: {name? and/or gridX+gridY} — spring a trap (announce + resolve its effect with stat changes/saves).
+- \`remove_trap\`: {name? and/or gridX+gridY} — remove a trap (disarmed or no longer relevant).
+
 **File Reading:**
 [FILE_READ]{"path": "C:/path/to/file.txt"}[/FILE_READ]
 Rules: Only when user explicitly asks. One file per response. Text files only. Max 512 KB.

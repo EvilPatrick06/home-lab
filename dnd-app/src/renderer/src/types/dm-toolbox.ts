@@ -132,6 +132,12 @@ export interface ActiveEnvironmentalEffect {
   effectId: string
   name: string
   appliedAt: number
+  /** Optional mechanical detail (set by the AI DM): e.g. "DC 13 CON save / hour or 1 level of exhaustion". */
+  mechanicalEffect?: string
+  /** Save DC for the effect, when it forces a check. */
+  saveDC?: number
+  /** Effect category for context. */
+  category?: 'weather' | 'terrain' | 'magical' | 'planar'
 }
 
 /**

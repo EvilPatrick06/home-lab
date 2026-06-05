@@ -41,7 +41,7 @@
 - **G14** (high) Darkness zones: create/modify regional areas of magical darkness with 'nonmagical'|'darkness'|'deeper-darkness' intensity levels
 - **G15** (high) Terrain cells: place difficult terrain, hazardous terrain (fire/acid/pit/spikes), swimming/climbing zones, and portals at map locations
 
-### P6.12 — AI environment: effects + diseases/curses + traps  `[ ] pending`
+### P6.12 — AI environment: effects + diseases/curses + traps  `[x] shipped v2.4.58`
 - **G16** (high) Environmental effects: place active environmental effects (magical hazards, storms, etc.) on the map with mechanical consequences
 - **G17** (high) Diseases and curses: apply active diseases and curses to targets with save tracking and mechanical effects
 - **G18** (high) Trap placement and triggering: place armed traps on the map and reveal/trigger them during play

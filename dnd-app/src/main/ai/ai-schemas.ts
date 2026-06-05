@@ -763,6 +763,77 @@ const RemoveTerrainSchema = z.object({
   floor: z.number().optional()
 })
 
+// ── Environment effects, diseases/curses, traps (P6.12) ──
+
+const AddEnvironmentalEffectSchema = z.object({
+  action: z.literal('add_environmental_effect'),
+  name: z.string(),
+  mechanicalEffect: z.string().optional(),
+  saveDC: z.number().optional(),
+  category: z.enum(['weather', 'terrain', 'magical', 'planar']).optional(),
+  effectId: z.string().optional()
+})
+
+const RemoveEnvironmentalEffectSchema = z.object({
+  action: z.literal('remove_environmental_effect'),
+  name: z.string().optional(),
+  effectId: z.string().optional()
+})
+
+const ApplyDiseaseSchema = z.object({
+  action: z.literal('apply_disease'),
+  targetLabel: z.string(),
+  name: z.string(),
+  diseaseId: z.string().optional(),
+  notes: z.string().optional()
+})
+
+const RemoveDiseaseSchema = z.object({
+  action: z.literal('remove_disease'),
+  targetLabel: z.string(),
+  name: z.string().optional()
+})
+
+const RecordDiseaseSaveSchema = z.object({
+  action: z.literal('record_disease_save'),
+  targetLabel: z.string(),
+  name: z.string().optional(),
+  success: z.boolean()
+})
+
+const ApplyCurseSchema = z.object({
+  action: z.literal('apply_curse'),
+  targetLabel: z.string(),
+  name: z.string(),
+  curseId: z.string().optional(),
+  source: z.string().optional(),
+  notes: z.string().optional()
+})
+
+const RemoveCurseSchema = z.object({
+  action: z.literal('remove_curse'),
+  targetLabel: z.string(),
+  name: z.string().optional()
+})
+
+const PlaceTrapSchema = z.object({
+  action: z.literal('place_trap'),
+  name: z.string(),
+  gridX: z.number(),
+  gridY: z.number(),
+  trapId: z.string().optional()
+})
+
+const TrapRefSchema = {
+  name: z.string().optional(),
+  gridX: z.number().optional(),
+  gridY: z.number().optional()
+}
+
+const TriggerTrapSchema = z.object({ action: z.literal('trigger_trap'), ...TrapRefSchema })
+const RevealTrapSchema = z.object({ action: z.literal('reveal_trap'), ...TrapRefSchema })
+const RemoveTrapSchema = z.object({ action: z.literal('remove_trap'), ...TrapRefSchema })
+
 const UseLegendaryActionSchema = z.object({
   action: z.literal('use_legendary_action'),
   entityLabel: z.string(),
@@ -1003,6 +1074,17 @@ export const DM_ACTION_SCHEMAS: Record<string, z.ZodType> = {
   remove_darkness_zone: RemoveDarknessZoneSchema,
   place_terrain: PlaceTerrainSchema,
   remove_terrain: RemoveTerrainSchema,
+  add_environmental_effect: AddEnvironmentalEffectSchema,
+  remove_environmental_effect: RemoveEnvironmentalEffectSchema,
+  apply_disease: ApplyDiseaseSchema,
+  remove_disease: RemoveDiseaseSchema,
+  record_disease_save: RecordDiseaseSaveSchema,
+  apply_curse: ApplyCurseSchema,
+  remove_curse: RemoveCurseSchema,
+  place_trap: PlaceTrapSchema,
+  trigger_trap: TriggerTrapSchema,
+  reveal_trap: RevealTrapSchema,
+  remove_trap: RemoveTrapSchema,
   use_legendary_action: UseLegendaryActionSchema,
   use_legendary_resistance: UseLegendaryResistanceSchema,
   recharge_roll: RechargeRollSchema,
