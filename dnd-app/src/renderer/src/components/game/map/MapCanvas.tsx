@@ -48,12 +48,13 @@ import type { MapCanvasProps } from './map-canvas/types'
 import { useMapBackground } from './map-canvas/use-map-background'
 import { useMapCanvasHandlers } from './map-canvas/use-map-canvas-handlers'
 import type { MapEventRefs } from './map-event-handlers'
-import { clampPanAxis, createWheelHandler, setupKeyboardPan, setupMouseHandlers } from './map-event-handlers'
+import { createWheelHandler, setupKeyboardPan, setupMouseHandlers } from './map-event-handlers'
 import { useMapOverlayEffects } from './map-overlay-effects'
 import {
   checkWebGLSupport,
   createMapLayers,
   initPixiApp,
+  LAYER_Z,
   type MapLayers,
   waitForContainerDimensions
 } from './map-pixi-setup'
@@ -184,17 +185,7 @@ export default function MapCanvas({
 
   const applyTransform = useCallback(() => {
     if (!worldRef.current) return
-    const zoom = zoomRef.current
-    // Clamp the pan so the map can't be dragged off into the background (the reported
-    // WASD bug: holding a pan key slid the map away and let the grey canvas creep over
-    // it). Uses the loaded map image's dimensions; no-op until it's loaded.
-    const bg = bgSpriteRef.current
-    const container = containerRef.current
-    if (bg && container && bg.texture.width > 0 && bg.texture.height > 0) {
-      panRef.current.x = clampPanAxis(panRef.current.x, bg.texture.width * zoom, container.clientWidth)
-      panRef.current.y = clampPanAxis(panRef.current.y, bg.texture.height * zoom, container.clientHeight)
-    }
-    worldRef.current.scale.set(zoom)
+    worldRef.current.scale.set(zoomRef.current)
     worldRef.current.x = panRef.current.x
     worldRef.current.y = panRef.current.y
   }, [])
@@ -259,6 +250,7 @@ export default function MapCanvas({
       measureGraphicsRef.current = layers.measureGraphics
       weatherOverlayRef.current = layers.weatherOverlay
       const combatLayer = createCombatAnimationLayer(app)
+      combatLayer.container.zIndex = LAYER_Z.combat
       layers.world.addChild(combatLayer.container)
       combatAnimLayerRef.current = combatLayer
       const audioEmitterLayer = new AudioEmitterLayer()
@@ -269,7 +261,9 @@ export default function MapCanvas({
           state.toggleEmitterPlaying(activeMapId, emitterId)
         }
       })
-      layers.world.addChild(audioEmitterLayer.getContainer())
+      const audioContainer = audioEmitterLayer.getContainer()
+      audioContainer.zIndex = LAYER_Z.audioEmitter
+      layers.world.addChild(audioContainer)
       audioEmitterLayerRef.current = audioEmitterLayer
       setInitialized(true)
       setInitError(null)

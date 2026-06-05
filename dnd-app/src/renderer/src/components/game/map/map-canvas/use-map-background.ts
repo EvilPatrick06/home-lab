@@ -2,6 +2,7 @@ import { Assets, type Container, Sprite } from 'pixi.js'
 import { useEffect } from 'react'
 import type { GameMap } from '../../../../types/map'
 import { logger } from '../../../../utils/logger'
+import { LAYER_Z } from '../map-pixi-setup'
 
 /**
  * Load and display the map background sprite, extracted from MapCanvas.tsx.
@@ -43,6 +44,10 @@ export function useMapBackground(args: {
         if (texture.source) texture.source.scaleMode = 'nearest'
         const sprite = new Sprite(texture)
         sprite.label = 'bg'
+        // The map image is the MAP tier: above the background, below every add-on layer.
+        // sortableChildren on the world makes this zIndex authoritative (the addChildAt(0)
+        // is just a sensible default for the unsorted case).
+        sprite.zIndex = LAYER_Z.map
         worldRef.current?.addChildAt(sprite, 0)
         bgSpriteRef.current = sprite
         setBgLoadError(null)
@@ -52,7 +57,12 @@ export function useMapBackground(args: {
             ch = container.clientHeight
           const mw = sprite.texture.width,
             mh = sprite.texture.height
-          const scale = Math.min(cw / mw, ch / mh, 1)
+          // COVER-fit (max, not min): the map fills the whole viewport so the dark canvas
+          // background is never visible OVER/around the map on load — the map is always on
+          // top of the background. Panning past the map edge into the void is still allowed
+          // (no clamp); this just sets the initial framing so the background can't show
+          // across the map area. Centered so the cropped overflow is even on both sides.
+          const scale = Math.max(cw / mw, ch / mh)
           zoomRef.current = scale
           panRef.current = { x: (cw - mw * scale) / 2, y: (ch - mh * scale) / 2 }
           applyTransform()

@@ -9,28 +9,6 @@ import { pixelToHex } from './grid-layer'
 import { drawLineOfSight, drawMeasurement } from './measurement-tool'
 import { findNearbyWallEndpoint, hitTestDoorHandle } from './wall-layer'
 
-// ── Pan clamping ──────────────────────────────────────────────────────────────
-
-/**
- * Clamp the pan on one axis so the map always stays in view and the (greyish) canvas
- * background can never creep over it — the map and everything on it stay on top, the
- * background stays at the very back.
- *
- * On screen the map occupies `[pan, pan + mapSizePx]` within the viewport `[0, viewSizePx]`:
- * - Map SMALLER than the viewport on this axis → center it (no panning it off into the void).
- * - Map LARGER → keep its edges flush with the viewport edges, i.e. pan ∈ [view - map, 0],
- *   so you can pan within the map but never past its edge into the background.
- *
- * @param pan        current pan offset in screen pixels (world.x or world.y)
- * @param mapSizePx  map dimension in screen pixels (map texture size × zoom)
- * @param viewSizePx viewport (container) dimension in pixels
- */
-export function clampPanAxis(pan: number, mapSizePx: number, viewSizePx: number): number {
-  if (!(mapSizePx > 0) || !(viewSizePx > 0)) return pan
-  if (mapSizePx <= viewSizePx) return (viewSizePx - mapSizePx) / 2
-  return Math.min(0, Math.max(viewSizePx - mapSizePx, pan))
-}
-
 // ── Shared ref interfaces ─────────────────────────────────────────────────────
 
 export interface DragState {

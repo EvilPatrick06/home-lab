@@ -29,6 +29,7 @@ const JoinGamePage = lazy(() => import('./pages/JoinGamePage'))
 const MakeGamePage = lazy(() => import('./pages/MakeGamePage'))
 const AboutPage = lazy(() => import('./pages/AboutPage'))
 const LobbyPage = lazy(() => import('./pages/LobbyPage'))
+const ScenePrepPage = lazy(() => import('./pages/ScenePrepPage'))
 const InGamePage = lazy(() => import('./pages/InGamePage'))
 const CreateCharacterPage = lazy(() => import('./pages/CreateCharacterPage'))
 const CampaignDetailPage = lazy(() => import('./pages/CampaignDetailPage'))
@@ -289,6 +290,14 @@ function App(): JSX.Element {
                 element={
                   <ErrorBoundary>
                     <LobbyPage />
+                  </ErrorBoundary>
+                }
+              />
+              <Route
+                path="/prepare/:campaignId"
+                element={
+                  <ErrorBoundary>
+                    <ScenePrepPage />
                   </ErrorBoundary>
                 }
               />

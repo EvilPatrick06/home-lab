@@ -48,7 +48,40 @@ vi.mock('../../../utils/logger', () => ({
 }))
 
 import type { MapLayers } from './map-pixi-setup'
-import { checkWebGLSupport, createMapLayers, initPixiApp, waitForContainerDimensions } from './map-pixi-setup'
+import { checkWebGLSupport, createMapLayers, initPixiApp, LAYER_Z, waitForContainerDimensions } from './map-pixi-setup'
+
+describe('LAYER_Z (render layer order)', () => {
+  it('puts the MAP at the very bottom of the content (above background, below every add-on)', () => {
+    const addons = [
+      LAYER_Z.grid,
+      LAYER_Z.gridLabels,
+      LAYER_Z.terrain,
+      LAYER_Z.regions,
+      LAYER_Z.drawings,
+      LAYER_Z.movement,
+      LAYER_Z.aoe,
+      LAYER_Z.tokens,
+      LAYER_Z.occlusion,
+      LAYER_Z.pins,
+      LAYER_Z.selectionBox,
+      LAYER_Z.pings,
+      LAYER_Z.fog,
+      LAYER_Z.lighting,
+      LAYER_Z.walls,
+      LAYER_Z.measure,
+      LAYER_Z.combat,
+      LAYER_Z.audioEmitter
+    ]
+    for (const z of addons) expect(LAYER_Z.map).toBeLessThan(z)
+  })
+
+  it('keeps the core tiers strictly ordered: map < grid < tokens < fog < walls', () => {
+    expect(LAYER_Z.map).toBeLessThan(LAYER_Z.grid)
+    expect(LAYER_Z.grid).toBeLessThan(LAYER_Z.tokens)
+    expect(LAYER_Z.tokens).toBeLessThan(LAYER_Z.fog)
+    expect(LAYER_Z.fog).toBeLessThan(LAYER_Z.walls)
+  })
+})
 
 describe('checkWebGLSupport', () => {
   beforeEach(() => {

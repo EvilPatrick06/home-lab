@@ -65,17 +65,16 @@ export function useMapCanvasHandlers(args: {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: container/pan/zoom refs are stable (useRef); re-create only on applyTransform/map (preserves original MapCanvas deps)
   const handleResetView = useCallback((): void => {
-    // Phase 17j — fit-to-map instead of "zoom 1, pan 0". Compute the scale
-    // that makes the whole map fit inside the canvas viewport with a small
-    // (~5%) breathing margin, then center it. Falls back to the old
-    // (1.0, 0, 0) reset when the container or map dimensions aren't
-    // measurable yet.
+    // COVER-fit: scale the map so it FILLS the viewport (max ratio), then center it, so
+    // Reset View never leaves the dark background showing across the map. Panning past the
+    // edge into the void afterwards is still allowed. Falls back to (1.0, 0, 0) when the
+    // container or map dimensions aren't measurable yet.
     const el = containerRef.current
     if (el && map && map.width > 0 && map.height > 0) {
       const vw = el.clientWidth
       const vh = el.clientHeight
       if (vw > 0 && vh > 0) {
-        const scale = Math.min(vw / map.width, vh / map.height) * 0.95
+        const scale = Math.max(vw / map.width, vh / map.height)
         const newZoom = scale > 0 ? scale : 1
         zoomRef.current = newZoom
         panRef.current = {

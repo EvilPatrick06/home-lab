@@ -67,22 +67,22 @@ export async function ollamaStreamChat(
     ...messages.map((m) => ({ role: m.role as string, content: m.content }))
   ]
 
-  // Two-phase timeout (see OLLAMA_PREFILL_TIMEOUT_MS): a generous window for the model
-  // to evaluate the prompt and emit the FIRST token (cold load + prefill on CPU), then a
-  // shorter inactivity window between tokens. `timedOut` distinguishes our abort from a
-  // user cancel so the catch reports the right thing.
+  // NO hard time limit on prompt prefill (a local model on CPU can take minutes to read
+  // a large prompt before the first token, and killing it mid-prefill was the whole bug).
+  // Instead: leave prefill UNBOUNDED here (the caller's abort signal + the stale-stream
+  // sweep are the absolute backstop, and the renderer watches via a heartbeat/tracker and
+  // lets the user cancel). Once tokens are FLOWING, arm an inter-token inactivity guard so
+  // a genuinely stalled/hung generation is still detected. `timedOut` distinguishes our
+  // abort from a user cancel so the catch reports the right thing.
   const timeoutController = new AbortController()
   let timedOut = false
-  let activityTimer: ReturnType<typeof setTimeout> = setTimeout(() => {
-    timedOut = true
-    timeoutController.abort()
-  }, OLLAMA_PREFILL_TIMEOUT_MS)
-  const bumpActivity = (ms: number): void => {
-    clearTimeout(activityTimer)
-    activityTimer = setTimeout(() => {
+  let inactivityTimer: ReturnType<typeof setTimeout> | undefined
+  const armInactivity = (): void => {
+    clearTimeout(inactivityTimer)
+    inactivityTimer = setTimeout(() => {
       timedOut = true
       timeoutController.abort()
-    }, ms)
+    }, OLLAMA_INACTIVITY_TIMEOUT_MS)
   }
 
   try {
@@ -118,9 +118,9 @@ export async function ollamaStreamChat(
     while (true) {
       const { done, value } = await reader.read()
       if (done) break
-      // Data is flowing — switch from the generous prefill window to the shorter
-      // inter-token inactivity window.
-      bumpActivity(OLLAMA_INACTIVITY_TIMEOUT_MS)
+      // Tokens are flowing — (re)arm the inter-token inactivity guard. Until the first
+      // read, prefill runs with no deadline.
+      armInactivity()
 
       lineBuffer += decoder.decode(value, { stream: true })
       const lines = lineBuffer.split('\n')
@@ -197,17 +197,18 @@ export async function ollamaStreamChat(
       }
     }
 
-    clearTimeout(activityTimer)
+    clearTimeout(inactivityTimer)
     callbacks.onDone(fullText)
   } catch (error) {
-    clearTimeout(activityTimer)
+    clearTimeout(inactivityTimer)
     // User-initiated cancel — swallow (the caller already tore down the stream).
     if (abortSignal?.aborted) return
-    // Our two-phase timeout fired (or fetch's own TimeoutError). Report which phase.
+    // The inter-token inactivity guard fired (generation stalled), or fetch's own
+    // TimeoutError. Prefill itself is never timed out here.
     if (timedOut || (error instanceof Error && error.name === 'TimeoutError')) {
       callbacks.onError(
         new Error(
-          `Ollama timed out (no first token within ${Math.round(OLLAMA_PREFILL_TIMEOUT_MS / 1000)}s, or stream stalled ${Math.round(OLLAMA_INACTIVITY_TIMEOUT_MS / 1000)}s). The model may be too large for this machine — try a smaller model.`
+          `Ollama stopped responding (no output for ${Math.round(OLLAMA_INACTIVITY_TIMEOUT_MS / 1000)}s mid-generation). The model may have stalled — check Ollama, or try a smaller model.`
         )
       )
       return

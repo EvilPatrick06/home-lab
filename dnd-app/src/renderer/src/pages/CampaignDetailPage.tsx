@@ -143,7 +143,10 @@ export default function CampaignDetailPage(): JSX.Element {
     if (networkState.role !== 'none') {
       networkState.disconnect()
     }
-    navigate(`/game/${campaign.id}`)
+    // AI-DM solo campaigns go through the scene-prep screen first (load the model +
+    // set the opening scene, then enter the game with the scene in chat). A non-AI
+    // campaign has nothing to prepare, so go straight in.
+    navigate(campaign.aiDm?.enabled ? `/prepare/${campaign.id}` : `/game/${campaign.id}`)
   }
 
   const handleExport = async (): Promise<void> => {

@@ -85,17 +85,16 @@ class LLMProviderError extends Error {
 export const PROVIDER_REQUEST_TIMEOUT_MS = 90_000
 
 /**
- * Ollama needs a SEPARATE, two-phase timeout because a local model on a CPU laptop
- * can spend minutes in prompt-evaluation (prefill) of a large system prompt BEFORE it
- * emits the first token — a single hard 90s cap kills that mid-prefill, so the user
- * saw "AI is typing" for ~5 min (3 retries × 90s) then "timed out" with zero output.
+ * Ollama timeouts. A local model on a CPU laptop can spend minutes in prompt-evaluation
+ * (prefill) of a large system prompt BEFORE it emits the first token — killing that
+ * mid-prefill was the original "AI is typing for 5 min then timed out, no output" bug.
  *
- * - PREFILL: time-to-first-token budget (generous — covers cold model load + prefill).
- * - INACTIVITY: once tokens are flowing, abort only if the stream goes silent this long
- *   (catches a genuinely hung connection without killing a slow-but-alive generation).
- *
- * The renderer's STREAM_SAFETY_TIMEOUT_MS must stay ABOVE OLLAMA_PREFILL_TIMEOUT_MS so a
- * valid slow prefill isn't masked by the generic UI timeout.
+ * - INACTIVITY: the STREAMING path does NOT time out prefill at all (it runs until the
+ *   first token, bounded only by the caller's abort + the stale-stream sweep + the user's
+ *   Cancel). Once tokens are flowing, this inter-token guard aborts only if the stream
+ *   goes silent — catching a genuinely stalled generation without killing slow prefill.
+ * - PREFILL: used ONLY by the non-streaming path (ollamaChatOnce — background summaries),
+ *   which has no token stream to watch, so it still needs one generous overall ceiling.
  */
 export const OLLAMA_PREFILL_TIMEOUT_MS = 300_000
 export const OLLAMA_INACTIVITY_TIMEOUT_MS = 90_000
