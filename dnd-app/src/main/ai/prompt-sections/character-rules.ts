@@ -86,6 +86,9 @@ When creatures/monsters on the map take damage, gain/lose conditions, or are kil
   - **creature_add_condition**: {targetLabel, name, reason} — add condition to creature
   - **creature_remove_condition**: {targetLabel, name, reason} — remove condition from creature
   - **creature_kill**: {targetLabel, reason} — kill a creature (set HP to 0)
+  - **creature_set_resistance**: {targetLabel, damageTypes[], replace?, reason} — make a creature resistant to damage types (e.g. ["fire","cold"]); the engine then halves that damage automatically. replace:true wipes existing first; default merges.
+  - **creature_set_vulnerability**: {targetLabel, damageTypes[], replace?, reason} — vulnerable (double) to damage types
+  - **creature_set_immunity**: {targetLabel, damageTypes[], replace?, reason} — immune (zero) to damage types
   - **set_ability_score**: {characterName, ability, value, reason} — set an ability score (ability: str/dex/con/int/wis/cha, value 1-30)
   - **grant_feature**: {characterName, name, description?, reason} — grant a special feature or permanent effect
   - **revoke_feature**: {characterName, name, reason} — remove a feature or effect
@@ -151,7 +154,15 @@ export interface StatChangeEvent {
 }
 
 export interface CreatureMutationEvent {
-  type: 'creature_damage' | 'creature_heal' | 'creature_add_condition' | 'creature_remove_condition' | 'creature_kill'
+  type:
+    | 'creature_damage'
+    | 'creature_heal'
+    | 'creature_add_condition'
+    | 'creature_remove_condition'
+    | 'creature_kill'
+    | 'creature_set_resistance'
+    | 'creature_set_vulnerability'
+    | 'creature_set_immunity'
   targetLabel: string
   value: number
   damageType?: string

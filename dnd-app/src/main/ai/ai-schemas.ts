@@ -239,6 +239,30 @@ const CreatureKillSchema = z.object({
   reason: z.string()
 })
 
+const CreatureSetResistanceSchema = z.object({
+  type: z.literal('creature_set_resistance'),
+  targetLabel: z.string(),
+  damageTypes: z.array(z.string()),
+  replace: z.boolean().optional(),
+  reason: z.string()
+})
+
+const CreatureSetVulnerabilitySchema = z.object({
+  type: z.literal('creature_set_vulnerability'),
+  targetLabel: z.string(),
+  damageTypes: z.array(z.string()),
+  replace: z.boolean().optional(),
+  reason: z.string()
+})
+
+const CreatureSetImmunitySchema = z.object({
+  type: z.literal('creature_set_immunity'),
+  targetLabel: z.string(),
+  damageTypes: z.array(z.string()),
+  replace: z.boolean().optional(),
+  reason: z.string()
+})
+
 const ReduceExhaustionSchema = z.object({
   type: z.literal('reduce_exhaustion'),
   characterName: z.string().optional(),
@@ -272,6 +296,9 @@ export const StatChangeSchema = z.discriminatedUnion('type', [
   CreatureAddConditionSchema,
   CreatureRemoveConditionSchema,
   CreatureKillSchema,
+  CreatureSetResistanceSchema,
+  CreatureSetVulnerabilitySchema,
+  CreatureSetImmunitySchema,
   ReduceExhaustionSchema
 ])
 

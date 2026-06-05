@@ -8,6 +8,8 @@ interface CreatureStatChange {
   damageType?: string
   name?: string
   reason?: string
+  damageTypes?: string[]
+  replace?: boolean
 }
 
 /**
@@ -71,6 +73,22 @@ export function applyCreatureMutations(
       }
       case 'creature_kill': {
         updateToken(activeMap.id, token.id, { currentHP: 0 })
+        results.push({ change, applied: true })
+        break
+      }
+      case 'creature_set_resistance':
+      case 'creature_set_vulnerability':
+      case 'creature_set_immunity': {
+        const field =
+          change.type === 'creature_set_resistance'
+            ? 'resistances'
+            : change.type === 'creature_set_vulnerability'
+              ? 'vulnerabilities'
+              : 'immunities'
+        const existing = change.replace ? [] : (token[field] ?? [])
+        // Merge (dedup, lower-cased) so the damage-resolver picks them up; replace=true wipes first.
+        const merged = Array.from(new Set([...existing, ...(change.damageTypes ?? [])].map((d) => d.toLowerCase())))
+        updateToken(activeMap.id, token.id, { [field]: merged })
         results.push({ change, applied: true })
         break
       }

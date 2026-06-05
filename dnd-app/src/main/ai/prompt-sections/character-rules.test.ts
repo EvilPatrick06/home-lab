@@ -109,7 +109,10 @@ describe('character-rules', () => {
         'creature_heal',
         'creature_add_condition',
         'creature_remove_condition',
-        'creature_kill'
+        'creature_kill',
+        'creature_set_resistance',
+        'creature_set_vulnerability',
+        'creature_set_immunity'
       ]
       for (const t of creatureTypes) {
         expect(CHARACTER_RULES_PROMPT).toContain(`**${t}**`)

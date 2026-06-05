@@ -168,6 +168,9 @@ function validateChange(char: Character5eV3, change: StatChange): string | null 
     case 'creature_add_condition':
     case 'creature_remove_condition':
     case 'creature_kill':
+    case 'creature_set_resistance':
+    case 'creature_set_vulnerability':
+    case 'creature_set_immunity':
       return null // Creature mutations pass through to renderer — validated there
     case 'set_ability_score': {
       const valid = ['str', 'dex', 'con', 'int', 'wis', 'cha']
@@ -380,6 +383,9 @@ function applyChange(char: Character5eV3, change: StatChange): void {
     case 'creature_add_condition':
     case 'creature_remove_condition':
     case 'creature_kill':
+    case 'creature_set_resistance':
+    case 'creature_set_vulnerability':
+    case 'creature_set_immunity':
       // Creature (non-character) mutations are applied renderer-side against token
       // state — there is no Character to mutate here. Intentional pass-through.
       break
@@ -645,6 +651,12 @@ export function describeChange(change: StatChange): string {
       return `${change.targetLabel}: lost ${change.name} (${change.reason})`
     case 'creature_kill':
       return `${change.targetLabel}: killed (${change.reason})`
+    case 'creature_set_resistance':
+      return `${change.targetLabel}: ${change.replace ? 'resistances set to' : 'resistant to'} ${change.damageTypes.join(', ')} (${change.reason})`
+    case 'creature_set_vulnerability':
+      return `${change.targetLabel}: ${change.replace ? 'vulnerabilities set to' : 'vulnerable to'} ${change.damageTypes.join(', ')} (${change.reason})`
+    case 'creature_set_immunity':
+      return `${change.targetLabel}: ${change.replace ? 'immunities set to' : 'immune to'} ${change.damageTypes.join(', ')} (${change.reason})`
     case 'set_ability_score':
       return `${change.ability.toUpperCase()} set to ${change.value} (${change.reason})`
     case 'grant_feature':

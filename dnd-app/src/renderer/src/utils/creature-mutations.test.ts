@@ -293,4 +293,39 @@ describe('applyCreatureMutations', () => {
       expect(updateToken).toHaveBeenCalledTimes(3)
     })
   })
+
+  describe('creature_set_resistance / vulnerability / immunity', () => {
+    it('merges new resistances (lower-cased, deduped) with existing', () => {
+      const map = makeMap([makeToken({ resistances: ['fire'] })])
+      const updateToken = vi.fn()
+      applyCreatureMutations(
+        [{ type: 'creature_set_resistance', targetLabel: 'Goblin', damageTypes: ['Cold', 'fire'] } as never],
+        map,
+        updateToken
+      )
+      expect(updateToken).toHaveBeenCalledWith('map-1', 'tok-1', { resistances: ['fire', 'cold'] })
+    })
+
+    it('replace:true wipes existing first', () => {
+      const map = makeMap([makeToken({ vulnerabilities: ['radiant'] })])
+      const updateToken = vi.fn()
+      applyCreatureMutations(
+        [{ type: 'creature_set_vulnerability', targetLabel: 'Goblin', damageTypes: ['fire'], replace: true } as never],
+        map,
+        updateToken
+      )
+      expect(updateToken).toHaveBeenCalledWith('map-1', 'tok-1', { vulnerabilities: ['fire'] })
+    })
+
+    it('sets immunities on the right field', () => {
+      const map = makeMap([makeToken()])
+      const updateToken = vi.fn()
+      applyCreatureMutations(
+        [{ type: 'creature_set_immunity', targetLabel: 'Goblin', damageTypes: ['poison'] } as never],
+        map,
+        updateToken
+      )
+      expect(updateToken).toHaveBeenCalledWith('map-1', 'tok-1', { immunities: ['poison'] })
+    })
+  })
 })
