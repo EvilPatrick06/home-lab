@@ -13,7 +13,7 @@ import type {
   WhisperPlayerPayload
 } from '../network'
 import { onClientMessage, onHostMessage } from '../network'
-import { getTokenStats } from '../services/game/token-stats'
+import { buildPlayerRoster, routePlayerMessageToAiDm } from '../services/ai-dm-routing'
 import { useAiDmStore } from '../stores/use-ai-dm-store'
 import { useGameStore } from '../stores/use-game-store'
 import type { ChatMessage } from '../stores/use-lobby-store'
@@ -30,47 +30,6 @@ interface UseGameNetworkOptions {
   sendMessage: (type: MessageType, payload: unknown) => void
   setTimeRequestToast: (toast: { requesterId: string; requesterName: string } | null) => void
   setNarrationText: (text: string | null) => void
-}
-
-/** Build a player roster string for AI context.
- *  Uses lobby players if available (multiplayer), falls back to campaign players (solo). */
-function buildPlayerRoster(
-  lobbyPlayers: Array<{
-    displayName: string
-    characterId: string | null
-    characterName: string | null
-    peerId: string
-  }>,
-  campaignPlayers: CampaignPlayer[]
-): { charIds: string[]; rosterText: string } {
-  const resolved =
-    lobbyPlayers.length > 0
-      ? lobbyPlayers
-          .filter((p) => p.characterId)
-          .map((p) => ({ displayName: p.displayName, characterId: p.characterId!, characterName: p.characterName }))
-      : campaignPlayers
-          .filter((p) => p.characterId && p.isActive)
-          .map((p) => ({ displayName: p.displayName, characterId: p.characterId!, characterName: null }))
-
-  const charIds = resolved.map((p) => p.characterId)
-  const isSolo = lobbyPlayers.length <= 1
-
-  if (resolved.length === 0) return { charIds: [], rosterText: '' }
-
-  let rosterText: string
-  if (isSolo) {
-    const p = resolved[0]
-    const charLabel = p.characterName ? `${p.characterName} (charId: ${p.characterId})` : `(charId: ${p.characterId})`
-    rosterText = `[PARTY ROSTER]\nSolo play: ${p.displayName} controls ${charLabel}\n[/PARTY ROSTER]`
-  } else {
-    const lines = resolved.map((p) => {
-      const charLabel = p.characterName ? `${p.characterName} (charId: ${p.characterId})` : `(charId: ${p.characterId})`
-      return `- ${p.displayName} → ${charLabel}`
-    })
-    rosterText = `[PARTY ROSTER]\nParty roster (${resolved.length} players):\n${lines.join('\n')}\n[/PARTY ROSTER]`
-  }
-
-  return { charIds, rosterText }
 }
 
 export function useGameNetwork({
@@ -133,7 +92,9 @@ export function useGameNetwork({
           diceResult: payload.diceResult
         })
 
-        // Route player messages to AI DM (host only, non-system, non-host messages)
+        // Route a PEER's message to the AI DM (host only; non-system, non-AI, not a
+        // slash command). The host's OWN message is routed from ChatPanel — it never
+        // arrives here. The shared helper builds roster + game state + creatures.
         if (
           networkRole === 'host' &&
           aiDmEnabled &&
@@ -143,36 +104,7 @@ export function useGameNetwork({
           msg.senderId !== 'ai-dm' &&
           !payload.message.startsWith('/')
         ) {
-          const lobbyPlayers = useLobbyStore.getState().players
-          const { charIds, rosterText } = buildPlayerRoster(lobbyPlayers, campaignPlayers)
-          import('../services/game-action-executor').then(({ buildGameStateSnapshot }) => {
-            const baseGameState = buildGameStateSnapshot()
-            const gameState = rosterText ? `${baseGameState}\n\n${rosterText}` : baseGameState
-            const currentMap = useGameStore.getState().maps.find((m) => m.id === useGameStore.getState().activeMapId)
-            const activeCreatures =
-              currentMap?.tokens
-                .filter((t) => t.entityType === 'enemy' || t.entityType === 'npc')
-                .filter((t) => t.currentHP != null)
-                .map((t) => {
-                  const s = getTokenStats(t)
-                  return {
-                    label: t.label,
-                    currentHP: t.currentHP!,
-                    maxHP: s.maxHP ?? t.currentHP!,
-                    ac: s.ac ?? 10,
-                    conditions: t.conditions,
-                    monsterStatBlockId: t.monsterStatBlockId
-                  }
-                }) ?? []
-            aiDmStore.sendMessage(
-              campaignId,
-              payload.message,
-              charIds,
-              msg.senderName,
-              activeCreatures.length > 0 ? activeCreatures : undefined,
-              gameState
-            )
-          })
+          routePlayerMessageToAiDm(campaignId, payload.message, msg.senderName ?? 'Player', campaignPlayers)
         }
       }
       if (msg.type === 'dm:whisper-player') {

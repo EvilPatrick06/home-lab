@@ -1,18 +1,19 @@
 /**
- * Solo-play AI-DM message routing.
+ * AI-DM message routing.
  *
- * BUG-1 (2026-06-01 QA): in solo play `networkRole === 'none'`, so the host-side
- * AI trigger in `use-game-network` (which fires only for `networkRole === 'host'`
- * and early-returns on `'none'`) never routes the player's chat to the AI DM — the
- * solo player saw no narration, no "thinking" state, and no error. There is no
- * network loop in solo, so the local chat-send routes the message here directly.
- *
- * Multiplayer host/client are unchanged: they still route through the network
- * message path in `use-game-network`. This helper is called ONLY when solo.
+ * `routePlayerMessageToAiDm` builds the full AI context (party roster + game-state
+ * snapshot + active-map creatures) and sends a player message to the AI DM. It is
+ * the SINGLE path for all three cases, so they can't drift:
+ *  - solo (`networkRole === 'none'`) — routed from ChatPanel,
+ *  - the host's OWN message (`networkRole === 'host'`) — also routed from ChatPanel,
+ *    because the network receive loop in `use-game-network` only ever sees PEER
+ *    messages and so never observes the host's own typed message,
+ *  - a peer's message received by the host — routed from `use-game-network`.
  */
 import { useAiDmStore } from '../stores/use-ai-dm-store'
 import { useGameStore } from '../stores/use-game-store'
-import type { Campaign } from '../types/campaign'
+import { useLobbyStore } from '../stores/use-lobby-store'
+import type { Campaign, CampaignPlayer } from '../types/campaign'
 import { logger } from '../utils/logger'
 import { getTokenStats } from './game/token-stats'
 
@@ -45,46 +46,96 @@ export async function configureAiFromCampaign(campaign: Campaign): Promise<void>
   }
 }
 
-/** Route a solo player's chat message to the AI DM with the same context
- * enrichment (party roster + game-state snapshot + active map creatures) the
- * host path builds, so a solo session gets responses of the same quality. */
-export function routeSoloMessageToAiDm(campaign: Campaign, message: string, senderName: string): void {
-  const players = campaign.players ?? []
-  const withChar = players.filter((p) => p.characterId)
-  const charIds = withChar.map((p) => p.characterId as string)
-  const rosterText = withChar.length
-    ? `[PARTY ROSTER]\nSolo play:\n${withChar
-        .map((p) => `- ${p.displayName} (charId: ${p.characterId})`)
-        .join('\n')}\n[/PARTY ROSTER]`
-    : ''
+/** Build a `[PARTY ROSTER]` block for AI context. Lobby players (multiplayer) take
+ *  precedence; campaign players are the solo fallback. */
+export function buildPlayerRoster(
+  lobbyPlayers: Array<{
+    displayName: string
+    characterId: string | null
+    characterName: string | null
+    peerId: string
+  }>,
+  campaignPlayers: CampaignPlayer[]
+): { charIds: string[]; rosterText: string } {
+  const resolved =
+    lobbyPlayers.length > 0
+      ? lobbyPlayers
+          .filter((p) => p.characterId)
+          .map((p) => ({ displayName: p.displayName, characterId: p.characterId!, characterName: p.characterName }))
+      : campaignPlayers
+          .filter((p) => p.characterId && p.isActive)
+          .map((p) => ({ displayName: p.displayName, characterId: p.characterId!, characterName: null }))
+
+  const charIds = resolved.map((p) => p.characterId)
+  const isSolo = lobbyPlayers.length <= 1
+
+  if (resolved.length === 0) return { charIds: [], rosterText: '' }
+
+  let rosterText: string
+  if (isSolo) {
+    const p = resolved[0]
+    const charLabel = p.characterName ? `${p.characterName} (charId: ${p.characterId})` : `(charId: ${p.characterId})`
+    rosterText = `[PARTY ROSTER]\nSolo play: ${p.displayName} controls ${charLabel}\n[/PARTY ROSTER]`
+  } else {
+    const lines = resolved.map((p) => {
+      const charLabel = p.characterName ? `${p.characterName} (charId: ${p.characterId})` : `(charId: ${p.characterId})`
+      return `- ${p.displayName} → ${charLabel}`
+    })
+    rosterText = `[PARTY ROSTER]\nParty roster (${resolved.length} players):\n${lines.join('\n')}\n[/PARTY ROSTER]`
+  }
+
+  return { charIds, rosterText }
+}
+
+/** Active enemy/NPC creatures on the current map, for AI tactical context. */
+function buildActiveCreatures(): Array<{
+  label: string
+  currentHP: number
+  maxHP: number
+  ac: number
+  conditions: string[]
+  monsterStatBlockId?: string
+}> {
+  const gs = useGameStore.getState()
+  const currentMap = gs.maps.find((m) => m.id === gs.activeMapId)
+  return (currentMap?.tokens ?? [])
+    .filter((t) => (t.entityType === 'enemy' || t.entityType === 'npc') && t.currentHP != null)
+    .map((t) => {
+      const s = getTokenStats(t)
+      return {
+        label: t.label,
+        currentHP: t.currentHP as number,
+        maxHP: s.maxHP ?? (t.currentHP as number),
+        ac: s.ac ?? 10,
+        conditions: t.conditions,
+        monsterStatBlockId: t.monsterStatBlockId ?? undefined
+      }
+    })
+}
+
+/** Route a player's chat message to the AI DM with full context (party roster +
+ *  game-state snapshot + active-map creatures). Used for solo, the host's own
+ *  message, AND a peer's message — one path so they can't diverge. */
+export function routePlayerMessageToAiDm(
+  campaignId: string,
+  message: string,
+  senderName: string,
+  campaignPlayers: CampaignPlayer[]
+): void {
+  const lobbyPlayers = useLobbyStore.getState().players
+  const { charIds, rosterText } = buildPlayerRoster(lobbyPlayers, campaignPlayers)
 
   // buildGameStateSnapshot lives in game-action-executor (renderer-only, heavy);
-  // lazy-import to avoid pulling it into the chat-send hot path / circular deps.
+  // lazy-import to keep it off the chat-send hot path / avoid circular deps.
   import('./game-action-executor')
     .then(({ buildGameStateSnapshot }) => {
       const base = buildGameStateSnapshot()
       const gameState = rosterText ? `${base}\n\n${rosterText}` : base
-
-      const gs = useGameStore.getState()
-      const currentMap = gs.maps.find((m) => m.id === gs.activeMapId)
-      const activeCreatures = (currentMap?.tokens ?? [])
-        .filter((t) => (t.entityType === 'enemy' || t.entityType === 'npc') && t.currentHP != null)
-        .map((t) => {
-          const s = getTokenStats(t)
-          return {
-            label: t.label,
-            currentHP: t.currentHP as number,
-            maxHP: s.maxHP ?? (t.currentHP as number),
-            ac: s.ac ?? 10,
-            conditions: t.conditions,
-            monsterStatBlockId: t.monsterStatBlockId
-          }
-        })
-
+      const activeCreatures = buildActiveCreatures()
       void useAiDmStore
         .getState()
         .sendMessage(
-          campaign.id,
+          campaignId,
           message,
           charIds,
           senderName,
@@ -93,7 +144,12 @@ export function routeSoloMessageToAiDm(campaign: Campaign, message: string, send
         )
     })
     .catch(() => {
-      // Fall back to a context-free send so the AI still responds in solo.
-      void useAiDmStore.getState().sendMessage(campaign.id, message, charIds, senderName)
+      // Fall back to a context-free send so the AI still responds.
+      void useAiDmStore.getState().sendMessage(campaignId, message, charIds, senderName)
     })
+}
+
+/** @deprecated thin wrapper kept for call sites that hold a full Campaign. */
+export function routeSoloMessageToAiDm(campaign: Campaign, message: string, senderName: string): void {
+  routePlayerMessageToAiDm(campaign.id, message, senderName, campaign.players ?? [])
 }

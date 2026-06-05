@@ -9,7 +9,7 @@ import { useVirtualizer } from '@tanstack/react-virtual'
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { addToast } from '../../../hooks/use-toast'
 import { useT } from '../../../i18n'
-import { routeSoloMessageToAiDm } from '../../../services/ai-dm-routing'
+import { routePlayerMessageToAiDm } from '../../../services/ai-dm-routing'
 import { speakNarrationThroughBmo } from '../../../services/bmo-narration'
 import { type CommandContext, executeCommand } from '../../../services/chat-commands'
 import { lookupContent } from '../../../services/library/content-index'
@@ -252,18 +252,15 @@ export default function ChatPanel({
       return
     }
 
-    // Regular chat message
+    // Regular chat message. sendChat OWNS the network broadcast for multiplayer
+    // (use-lobby-store.sendChat already sends 'chat:message' when connected); the
+    // extra sendMessage that used to be here double-delivered every message to peers.
     sendChat(trimmed)
-    sendMessage('chat:message', {
-      message: trimmed,
-      isSystem: false,
-      isDiceRoll: false
-    })
-    // BUG-1 — solo play has no network host loop, so use-game-network never routes
-    // the message to the AI DM (it fires only for networkRole==='host'). Route it
-    // directly here when solo. Multiplayer host/client keep using the network path.
-    if (campaign && networkRole === 'none' && aiEnabled && !aiPaused) {
-      routeSoloMessageToAiDm(campaign, trimmed, playerName)
+    // Route to the AI DM for SOLO and the HOST's OWN message. The network receive
+    // loop only ever sees PEER messages, so the host's own typed message would never
+    // reach the AI otherwise. Clients don't route (only the host runs the AI).
+    if (campaign && (networkRole === 'none' || networkRole === 'host') && aiEnabled && !aiPaused) {
+      routePlayerMessageToAiDm(campaign.id, trimmed, playerName, campaign.players ?? [])
     }
     setInput('')
   }
