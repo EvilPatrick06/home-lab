@@ -6,6 +6,7 @@ import { DM_ACTIONS_SCHEMA_PROMPT } from './prompt-sections/dm-actions-schema'
 import { EXPLORATION_RULES_PROMPT } from './prompt-sections/exploration-rules'
 import { NARRATIVE_RULES_PROMPT } from './prompt-sections/narrative-rules'
 import { SOCIAL_RULES_PROMPT } from './prompt-sections/social-rules'
+import { VOICE_NARRATION_PROMPT } from './prompt-sections/voice-narration'
 
 // Phase 28i — coverage for the pure section-assembly logic. We assert which
 // modular sections are present/absent per game mode, that the narrative section
@@ -21,6 +22,7 @@ const HDR_CHARACTER = '## Character Sheet Enforcement'
 const HDR_EXPLORATION = '## Exploration & Travel (DMG 2024)'
 const HDR_SOCIAL = '## NPC Attitude Tracking'
 const HDR_DM_ACTIONS = '## Game Board Control'
+const HDR_VOICE = '## VOICE TAGS (optional — for spoken narration)'
 
 describe('assembleSystemPrompt', () => {
   describe('combat mode', () => {
@@ -38,9 +40,15 @@ describe('assembleSystemPrompt', () => {
       expect(prompt).not.toContain(HDR_SOCIAL)
     })
 
-    it('is exactly narrative + character + combat + DM-actions joined by blank lines', () => {
+    it('is exactly narrative + character + combat + DM-actions + voice joined by blank lines', () => {
       expect(prompt).toBe(
-        [NARRATIVE_RULES_PROMPT, CHARACTER_RULES_PROMPT, COMBAT_RULES_PROMPT, DM_ACTIONS_SCHEMA_PROMPT].join('\n\n')
+        [
+          NARRATIVE_RULES_PROMPT,
+          CHARACTER_RULES_PROMPT,
+          COMBAT_RULES_PROMPT,
+          DM_ACTIONS_SCHEMA_PROMPT,
+          VOICE_NARRATION_PROMPT
+        ].join('\n\n')
       )
     })
   })
@@ -60,8 +68,12 @@ describe('assembleSystemPrompt', () => {
       expect(prompt).not.toContain(HDR_SOCIAL)
     })
 
-    it('is exactly narrative + exploration + DM-actions joined by blank lines', () => {
-      expect(prompt).toBe([NARRATIVE_RULES_PROMPT, EXPLORATION_RULES_PROMPT, DM_ACTIONS_SCHEMA_PROMPT].join('\n\n'))
+    it('is exactly narrative + exploration + DM-actions + voice joined by blank lines', () => {
+      expect(prompt).toBe(
+        [NARRATIVE_RULES_PROMPT, EXPLORATION_RULES_PROMPT, DM_ACTIONS_SCHEMA_PROMPT, VOICE_NARRATION_PROMPT].join(
+          '\n\n'
+        )
+      )
     })
   })
 
@@ -80,8 +92,10 @@ describe('assembleSystemPrompt', () => {
       expect(prompt).not.toContain(HDR_EXPLORATION)
     })
 
-    it('is exactly narrative + social + DM-actions joined by blank lines', () => {
-      expect(prompt).toBe([NARRATIVE_RULES_PROMPT, SOCIAL_RULES_PROMPT, DM_ACTIONS_SCHEMA_PROMPT].join('\n\n'))
+    it('is exactly narrative + social + DM-actions + voice joined by blank lines', () => {
+      expect(prompt).toBe(
+        [NARRATIVE_RULES_PROMPT, SOCIAL_RULES_PROMPT, DM_ACTIONS_SCHEMA_PROMPT, VOICE_NARRATION_PROMPT].join('\n\n')
+      )
     })
   })
 
@@ -97,7 +111,7 @@ describe('assembleSystemPrompt', () => {
       expect(prompt).toContain(HDR_DM_ACTIONS)
     })
 
-    it('is exactly all sections joined in narrative→char→combat→explore→social→actions order', () => {
+    it('is exactly all sections joined in narrative→char→combat→explore→social→actions→voice order', () => {
       expect(prompt).toBe(
         [
           NARRATIVE_RULES_PROMPT,
@@ -105,9 +119,14 @@ describe('assembleSystemPrompt', () => {
           COMBAT_RULES_PROMPT,
           EXPLORATION_RULES_PROMPT,
           SOCIAL_RULES_PROMPT,
-          DM_ACTIONS_SCHEMA_PROMPT
+          DM_ACTIONS_SCHEMA_PROMPT,
+          VOICE_NARRATION_PROMPT
         ].join('\n\n')
       )
+    })
+
+    it('includes the optional voice-tags section', () => {
+      expect(prompt).toContain(HDR_VOICE)
     })
 
     it('matches the no-argument default (general)', () => {
@@ -131,9 +150,9 @@ describe('assembleSystemPrompt', () => {
       }
     })
 
-    it('always ends with the DM-actions schema section', () => {
+    it('always ends with the voice-tags section (the new trailer after DM-actions)', () => {
       for (const mode of modes) {
-        expect(assembleSystemPrompt(mode).endsWith(DM_ACTIONS_SCHEMA_PROMPT)).toBe(true)
+        expect(assembleSystemPrompt(mode).endsWith(VOICE_NARRATION_PROMPT)).toBe(true)
       }
     })
 

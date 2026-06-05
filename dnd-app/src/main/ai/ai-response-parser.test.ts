@@ -19,7 +19,13 @@ vi.mock('./tone-validator', () => ({
   cleanNarrativeText: vi.fn((t: string) => t)
 }))
 
-import { finalizeAiResponse, parseRuleCitations, stripRuleCitations } from './ai-response-parser'
+import {
+  finalizeAiResponse,
+  parseRuleCitations,
+  parseVoiceTags,
+  stripRuleCitations,
+  stripVoiceTags
+} from './ai-response-parser'
 import type { ConversationManager } from './conversation-manager'
 import { cleanNarrativeText, hasViolations } from './tone-validator'
 import type { AiChatRequest } from './types'
@@ -210,5 +216,28 @@ describe('finalizeAiResponse', () => {
 
     finalizeAiResponse('Hello!', request, conv)
     expect(conv.addMessage).toHaveBeenCalled()
+  })
+})
+
+// ── Voice tags (DM-BMO per-character tone/pitch; stripped from chat) ──
+describe('parseVoiceTags / stripVoiceTags', () => {
+  it('extracts the NPC archetype + emotion (case-insensitive, first match wins)', () => {
+    const r = parseVoiceTags('[NPC:Gruff_Dwarf][EMOTION:Angry] "Ye shall not pass!"')
+    expect(r).toEqual({ npc: 'gruff_dwarf', emotion: 'angry' })
+  })
+
+  it('returns undefined fields when no tags are present', () => {
+    expect(parseVoiceTags('Just plain narration.')).toEqual({ npc: undefined, emotion: undefined })
+  })
+
+  it('strips the tags from the chat text but keeps the prose + newlines', () => {
+    const out = stripVoiceTags('[NPC:mysterious_elf] The elf whispers.\n\nA second line.')
+    expect(out).not.toContain('[NPC:')
+    expect(out).toContain('The elf whispers.')
+    expect(out).toContain('\n\nA second line.') // paragraph break preserved
+  })
+
+  it('leaves text without tags unchanged (aside from trim)', () => {
+    expect(stripVoiceTags('No tags here.')).toBe('No tags here.')
   })
 })

@@ -26,6 +26,32 @@ export function stripRuleCitations(text: string): string {
   return text.replace(/\s*\[RULE_CITATION[^\]]*\][\s\S]*?\[\/RULE_CITATION\]\s*/g, '').trim()
 }
 
+const VOICE_NPC_RE = /\[NPC:\s*([a-z_]+)\s*\]/i
+const VOICE_EMOTION_RE = /\[EMOTION:\s*([a-z_]+)\s*\]/i
+
+/**
+ * Extract the optional voice tags the AI may emit so DM-BMO can modulate tone/pitch
+ * per character in the Discord voice channel: `[NPC:archetype]` (one of the DM-BMO
+ * prosody archetypes, e.g. gruff_dwarf, mysterious_elf, booming_dragon) and
+ * `[EMOTION:mood]`. First match wins (the dominant voice for the narration).
+ */
+export function parseVoiceTags(text: string): { npc?: string; emotion?: string } {
+  return {
+    npc: text.match(VOICE_NPC_RE)?.[1]?.toLowerCase(),
+    emotion: text.match(VOICE_EMOTION_RE)?.[1]?.toLowerCase()
+  }
+}
+
+/** Strip every voice tag so they never appear in the in-game chat text. Preserves
+ *  newlines; only collapses the horizontal whitespace a removed tag leaves behind. */
+export function stripVoiceTags(text: string): string {
+  return text
+    .replace(/\[NPC:\s*[a-z_]+\s*\]/gi, '')
+    .replace(/\[EMOTION:\s*[a-z_]+\s*\]/gi, '')
+    .replace(/[ \t]{2,}/g, ' ')
+    .trim()
+}
+
 export interface FinalizedResponse {
   fullText: string
   displayText: string

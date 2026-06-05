@@ -10,6 +10,7 @@ import { DM_ACTIONS_SCHEMA_PROMPT } from './prompt-sections/dm-actions-schema'
 import { EXPLORATION_RULES_PROMPT } from './prompt-sections/exploration-rules'
 import { NARRATIVE_RULES_PROMPT } from './prompt-sections/narrative-rules'
 import { SOCIAL_RULES_PROMPT } from './prompt-sections/social-rules'
+import { VOICE_NARRATION_PROMPT } from './prompt-sections/voice-narration'
 
 export type GameMode = 'combat' | 'exploration' | 'social' | 'general'
 
@@ -44,6 +45,7 @@ export function assembleSystemPrompt(gameMode: GameMode = 'general'): string {
   }
 
   parts.push(DM_ACTIONS_SCHEMA_PROMPT)
+  parts.push(VOICE_NARRATION_PROMPT)
 
   return parts.join('\n\n')
 }

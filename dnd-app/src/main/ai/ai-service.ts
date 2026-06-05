@@ -2,13 +2,13 @@ import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { app, BrowserWindow } from 'electron'
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
-import { sendNarrationToDiscord } from '../discord-integration'
+import { sendNarration } from '../bmo-bridge'
 import { logToFile } from '../log'
 import { logSecurityEvent } from '../security-log'
 import { saveConversation } from '../storage/ai-conversation-storage'
 import { atomicWriteFile } from '../storage/atomic-write'
 import { decryptOptional, encryptOptional } from '../storage/safe-secret-storage'
-import { parseRuleCitations, stripRuleCitations } from './ai-response-parser'
+import { parseRuleCitations, parseVoiceTags, stripRuleCitations, stripVoiceTags } from './ai-response-parser'
 import type { PendingWebSearchApproval, StreamHandlerDeps } from './ai-stream-handler'
 import { buildChunkIndex, loadChunkIndex } from './chunk-builder'
 import { buildContext, setSearchEngine } from './context-builder'
@@ -853,7 +853,10 @@ async function handleStreamCompletion(
     const statChanges = parseStatChanges(cleaned)
     const dmActions = parseDmActions(cleaned)
     const ruleCitations = parseRuleCitations(cleaned)
-    const displayText = stripRuleCitations(stripDmActions(stripStatChanges(cleaned)))
+    // Voice tags drive DM-BMO's per-character tone/pitch but must never reach the
+    // chat text — extract before stripping, strip before display.
+    const { npc, emotion } = parseVoiceTags(cleaned)
+    const displayText = stripVoiceTags(stripRuleCitations(stripDmActions(stripStatChanges(cleaned))))
 
     conv.addMessage('assistant', displayText)
 
@@ -870,9 +873,11 @@ async function handleStreamCompletion(
       // Non-fatal
     }
 
-    // Send to Discord if enabled (fire and forget - don't block on this)
-    sendNarrationToDiscord(displayText, request.campaignId).catch((err) => {
-      logToFile('ERROR', '[AI] Failed to send Discord notification:', String(err))
+    // Speak the narration through DM-BMO in the Discord VOICE channel (with the
+    // parsed NPC archetype + emotion for tone/pitch). NO Discord TEXT — the
+    // narration text stays only in the in-game chat. Fire-and-forget.
+    sendNarration(displayText, npc, emotion).catch((err) => {
+      logToFile('WARN', '[AI] Failed to send narration to DM-BMO voice:', String(err))
     })
 
     onDone(cleaned, displayText, statChanges, dmActions, ruleCitations)
