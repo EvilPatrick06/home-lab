@@ -36,11 +36,38 @@ vi.mock('pixi.js', () => ({
 }))
 
 import type { DragState, MapEventRefs } from './map-event-handlers'
-import { createWheelHandler, handleTokenRightClick } from './map-event-handlers'
+import { clampPanAxis, createWheelHandler, handleTokenRightClick } from './map-event-handlers'
 
 function makeRef<T>(current: T): React.MutableRefObject<T> {
   return { current }
 }
+
+describe('clampPanAxis', () => {
+  it('centers the map when it is smaller than the viewport (no panning into the void)', () => {
+    // map 100px in a 300px viewport → centered at (300-100)/2 = 100, regardless of pan
+    expect(clampPanAxis(0, 100, 300)).toBe(100)
+    expect(clampPanAxis(999, 100, 300)).toBe(100)
+    expect(clampPanAxis(-999, 100, 300)).toBe(100)
+  })
+
+  it('leaves an in-bounds pan unchanged when the map is larger than the viewport', () => {
+    // map 600px in 300px viewport → pan allowed in [300-600, 0] = [-300, 0]
+    expect(clampPanAxis(-50, 600, 300)).toBe(-50)
+    expect(clampPanAxis(0, 600, 300)).toBe(0)
+    expect(clampPanAxis(-300, 600, 300)).toBe(-300)
+  })
+
+  it('clamps a pan that would expose the background past the map edges', () => {
+    // too far right (positive) → 0 (left edge flush); too far left → view-map (right edge flush)
+    expect(clampPanAxis(50, 600, 300)).toBe(0)
+    expect(clampPanAxis(-500, 600, 300)).toBe(-300)
+  })
+
+  it('is a no-op for unloaded / zero-size maps', () => {
+    expect(clampPanAxis(42, 0, 300)).toBe(42)
+    expect(clampPanAxis(42, 600, 0)).toBe(42)
+  })
+})
 
 describe('createWheelHandler', () => {
   beforeEach(() => {
