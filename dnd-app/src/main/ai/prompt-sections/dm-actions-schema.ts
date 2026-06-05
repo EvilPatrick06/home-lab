@@ -148,6 +148,13 @@ When you run a monster's turn, emit the matching action so its action economy is
 - \`update_wall_segment\`: {wallId, type?, isOpen?, oneWayDirection?, floor?, x1?, y1?, x2?, y2?} — modify a wall by its id (from the [Walls] list) — e.g. open/close a door (isOpen), or move/retype it.
 - \`remove_wall_segment\`: {wallId} — knock down / delete a wall (e.g. a Disintegrate or a battering ram).
 
+**Map Objects — Drawings & Regions:**
+- \`add_drawing\`: {type: 'draw-free'|'draw-line'|'draw-rect'|'draw-circle'|'draw-text', points: [{x,y}], color, strokeWidth, text?, visibleToPlayers?, floor?} — annotate the map (mark a hazard zone, sketch a route, drop a text label). Points are PIXEL coords (line = 2 points; rect/circle = 2 points; free = many). Set visibleToPlayers:false for a DM-only note.
+- \`remove_drawing\`: {drawingId} / \`clear_drawings\`: {} — remove one drawing, or clear all on the active map.
+- \`add_region\`: {name, shape, trigger: 'enter'|'leave'|'start-turn'|'end-turn', regionAction, enabled?, visibleToPlayers?, oneShot?, color?, floor?} — create a trigger zone. shape is {type:'circle', centerX, centerY, radius} | {type:'polygon', points:[{x,y}]} | {type:'rectangle', x, y, width, height}. regionAction is {type:'alert-dm', message} | {type:'teleport', targetMapId, targetGridX, targetGridY} | {type:'apply-condition', condition, duration?}. Use for traps, ambush triggers, teleport circles, hazard auras.
+- \`update_region\`: {regionId, name?, enabled?, visibleToPlayers?, oneShot?, trigger?, regionAction?} — modify a region (e.g. disable a sprung trap with enabled:false).
+- \`remove_region\`: {regionId} — delete a region.
+
 **Environment — Effects, Afflictions & Traps:**
 - \`add_environmental_effect\`: {name, mechanicalEffect?, saveDC?, category?: 'weather'|'terrain'|'magical'|'planar', effectId?} — apply an ongoing environmental hazard (Extreme Cold, choking smoke, a magical storm). Shows in [ACTIVE EFFECTS] with its mechanical detail.
 - \`remove_environmental_effect\`: {name? | effectId?} — clear an active environmental effect.

@@ -283,6 +283,50 @@ export type DmAction =
     }
   | { action: 'remove_wall_segment'; wallId: string }
   | {
+      action: 'add_drawing'
+      type: 'draw-free' | 'draw-line' | 'draw-rect' | 'draw-circle' | 'draw-text'
+      points: Array<{ x: number; y: number }>
+      color: string
+      strokeWidth: number
+      text?: string
+      visibleToPlayers?: boolean
+      floor?: number
+    }
+  | { action: 'remove_drawing'; drawingId: string }
+  | { action: 'clear_drawings' }
+  | {
+      action: 'add_region'
+      name: string
+      shape:
+        | { type: 'circle'; centerX: number; centerY: number; radius: number }
+        | { type: 'polygon'; points: Array<{ x: number; y: number }> }
+        | { type: 'rectangle'; x: number; y: number; width: number; height: number }
+      trigger: 'enter' | 'leave' | 'start-turn' | 'end-turn'
+      regionAction:
+        | { type: 'alert-dm'; message: string }
+        | { type: 'teleport'; targetMapId: string; targetGridX: number; targetGridY: number }
+        | { type: 'apply-condition'; condition: string; duration?: number | 'permanent' }
+      enabled?: boolean
+      visibleToPlayers?: boolean
+      oneShot?: boolean
+      color?: string
+      floor?: number
+    }
+  | {
+      action: 'update_region'
+      regionId: string
+      name?: string
+      enabled?: boolean
+      visibleToPlayers?: boolean
+      oneShot?: boolean
+      trigger?: 'enter' | 'leave' | 'start-turn' | 'end-turn'
+      regionAction?:
+        | { type: 'alert-dm'; message: string }
+        | { type: 'teleport'; targetMapId: string; targetGridX: number; targetGridY: number }
+        | { type: 'apply-condition'; condition: string; duration?: number | 'permanent' }
+    }
+  | { action: 'remove_region'; regionId: string }
+  | {
       action: 'update_wall_segment'
       wallId: string
       type?: 'solid' | 'door' | 'window' | 'one-way' | 'transparent'

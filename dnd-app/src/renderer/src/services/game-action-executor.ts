@@ -119,6 +119,15 @@ import {
   executeUpdateDarknessZone,
   executeUpdateTerrain
 } from './game-actions/environment-zone-actions'
+// ── Map Annotations (drawings + scene regions) ──
+import {
+  executeAddDrawing,
+  executeAddRegion,
+  executeClearDrawings,
+  executeRemoveDrawing,
+  executeRemoveRegion,
+  executeUpdateRegion
+} from './game-actions/map-annotation-actions'
 // ── Mounted Combat ──
 import { executeDismountToken, executeMountToken } from './game-actions/mount-actions'
 // ── Spell Effects & AoE Preview ──
@@ -486,6 +495,20 @@ function executeOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: A
       return executeRemoveWallSegment(action, gameStore, activeMap, stores)
     case 'update_wall_segment':
       return executeUpdateWallSegment(action, gameStore, activeMap, stores)
+
+    // ── Map Annotations (drawings + scene regions) ──
+    case 'add_drawing':
+      return executeAddDrawing(action, gameStore, activeMap, stores)
+    case 'remove_drawing':
+      return executeRemoveDrawing(action, gameStore, activeMap, stores)
+    case 'clear_drawings':
+      return executeClearDrawings(action, gameStore, activeMap, stores)
+    case 'add_region':
+      return executeAddRegion(action, gameStore, activeMap, stores)
+    case 'update_region':
+      return executeUpdateRegion(action, gameStore, activeMap, stores)
+    case 'remove_region':
+      return executeRemoveRegion(action, gameStore, activeMap, stores)
 
     // ── DM Toolbox (environmental effects, diseases/curses, traps) ──
     case 'add_environmental_effect':

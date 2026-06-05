@@ -91,6 +91,23 @@ export function buildGameStateSnapshot(
         lines.push(line)
       }
     }
+
+    // Scene regions / trigger zones (G43) — list with ids so the AI can update/remove them.
+    if (activeMap.regions && activeMap.regions.length > 0) {
+      lines.push('Regions:')
+      for (const r of activeMap.regions) {
+        lines.push(
+          `- ${r.id}: "${r.name}" ${r.shape.type} on ${r.trigger} → ${r.action.type}${r.enabled ? '' : ' [disabled]'}${r.oneShot ? ' [one-shot]' : ''}`
+        )
+      }
+    }
+
+    // Drawings / annotations (G42) — a count + how many are DM-only, so the AI knows
+    // they exist and can clear/remove them (full point data is omitted to save tokens).
+    if (activeMap.drawings && activeMap.drawings.length > 0) {
+      const hidden = activeMap.drawings.filter((d) => d.visibleToPlayers === false).length
+      lines.push(`Drawings: ${activeMap.drawings.length} on map${hidden > 0 ? ` (${hidden} DM-only)` : ''}`)
+    }
   } else {
     lines.push('Active Map: none')
   }

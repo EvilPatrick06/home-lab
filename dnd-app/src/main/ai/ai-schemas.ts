@@ -817,6 +817,75 @@ const UpdateTerrainCellSchema = z.object({
   floor: z.number().optional()
 })
 
+// ── Drawings (P6.21 / G42) ──
+
+const PointSchema = z.object({ x: z.number(), y: z.number() })
+
+const AddDrawingSchema = z.object({
+  action: z.literal('add_drawing'),
+  type: z.enum(['draw-free', 'draw-line', 'draw-rect', 'draw-circle', 'draw-text']),
+  points: z.array(PointSchema),
+  color: z.string(),
+  strokeWidth: z.number(),
+  text: z.string().optional(),
+  visibleToPlayers: z.boolean().optional(),
+  floor: z.number().optional()
+})
+
+const RemoveDrawingSchema = z.object({ action: z.literal('remove_drawing'), drawingId: z.string() })
+const ClearDrawingsSchema = z.object({ action: z.literal('clear_drawings') })
+
+// ── Scene regions / trigger zones (P6.21 / G43) ──
+
+const RegionShapeSchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('circle'), centerX: z.number(), centerY: z.number(), radius: z.number() }),
+  z.object({ type: z.literal('polygon'), points: z.array(PointSchema) }),
+  z.object({ type: z.literal('rectangle'), x: z.number(), y: z.number(), width: z.number(), height: z.number() })
+])
+
+const RegionTriggerSchema = z.enum(['enter', 'leave', 'start-turn', 'end-turn'])
+
+const RegionActionSchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('alert-dm'), message: z.string() }),
+  z.object({
+    type: z.literal('teleport'),
+    targetMapId: z.string(),
+    targetGridX: z.number(),
+    targetGridY: z.number()
+  }),
+  z.object({
+    type: z.literal('apply-condition'),
+    condition: z.string(),
+    duration: z.union([z.number(), z.literal('permanent')]).optional()
+  })
+])
+
+const AddRegionSchema = z.object({
+  action: z.literal('add_region'),
+  name: z.string(),
+  shape: RegionShapeSchema,
+  trigger: RegionTriggerSchema,
+  regionAction: RegionActionSchema,
+  enabled: z.boolean().optional(),
+  visibleToPlayers: z.boolean().optional(),
+  oneShot: z.boolean().optional(),
+  color: z.string().optional(),
+  floor: z.number().optional()
+})
+
+const UpdateRegionSchema = z.object({
+  action: z.literal('update_region'),
+  regionId: z.string(),
+  name: z.string().optional(),
+  enabled: z.boolean().optional(),
+  visibleToPlayers: z.boolean().optional(),
+  oneShot: z.boolean().optional(),
+  trigger: RegionTriggerSchema.optional(),
+  regionAction: RegionActionSchema.optional()
+})
+
+const RemoveRegionSchema = z.object({ action: z.literal('remove_region'), regionId: z.string() })
+
 const WallTypeSchema = z.enum(['solid', 'door', 'window', 'one-way', 'transparent'])
 
 const AddWallSegmentSchema = z.object({
@@ -1235,6 +1304,12 @@ export const DM_ACTION_SCHEMAS: Record<string, z.ZodType> = {
   add_wall_segment: AddWallSegmentSchema,
   remove_wall_segment: RemoveWallSegmentSchema,
   update_wall_segment: UpdateWallSegmentSchema,
+  add_drawing: AddDrawingSchema,
+  remove_drawing: RemoveDrawingSchema,
+  clear_drawings: ClearDrawingsSchema,
+  add_region: AddRegionSchema,
+  update_region: UpdateRegionSchema,
+  remove_region: RemoveRegionSchema,
   add_environmental_effect: AddEnvironmentalEffectSchema,
   remove_environmental_effect: RemoveEnvironmentalEffectSchema,
   apply_disease: ApplyDiseaseSchema,

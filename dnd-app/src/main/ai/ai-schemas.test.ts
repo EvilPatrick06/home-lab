@@ -591,6 +591,45 @@ describe('validateDmActions', () => {
     expect(issues).toHaveLength(1)
   })
 
+  it('validates drawing + region actions (G42/G43)', () => {
+    const { valid, issues } = validateDmActions([
+      {
+        action: 'add_drawing',
+        type: 'draw-text',
+        points: [{ x: 10, y: 10 }],
+        color: '#fff',
+        strokeWidth: 1,
+        text: 'Here'
+      },
+      { action: 'clear_drawings' },
+      {
+        action: 'add_region',
+        name: 'Teleport Circle',
+        shape: { type: 'circle', centerX: 20, centerY: 20, radius: 10 },
+        trigger: 'enter',
+        regionAction: { type: 'teleport', targetMapId: 'm2', targetGridX: 0, targetGridY: 0 }
+      },
+      { action: 'update_region', regionId: 'r1', enabled: false },
+      { action: 'remove_region', regionId: 'r1' }
+    ])
+    expect(valid).toHaveLength(5)
+    expect(issues).toHaveLength(0)
+  })
+
+  it('rejects add_region with an invalid shape type', () => {
+    const { valid, issues } = validateDmActions([
+      {
+        action: 'add_region',
+        name: 'X',
+        shape: { type: 'hexagon', centerX: 0, centerY: 0, radius: 5 },
+        trigger: 'enter',
+        regionAction: { type: 'alert-dm', message: 'x' }
+      }
+    ])
+    expect(valid).toHaveLength(0)
+    expect(issues).toHaveLength(1)
+  })
+
   it('validates advance_time action', () => {
     const { valid, issues } = validateDmActions([{ action: 'advance_time', hours: 8 }])
     expect(valid).toHaveLength(1)

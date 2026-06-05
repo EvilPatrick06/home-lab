@@ -85,7 +85,7 @@
 - **G40** (high) Wall segment creation, deletion, and modification (solid/door/window/one-way walls, isOpen state, oneWayDirection)
 - **G41** (high) Terrain cell creation, deletion, and configuration (terrain type: difficult/hazard/water/climbing/portal, movement cost, hazard damage, portal targets, floor index)
 
-### P6.21 — AI map: drawings + scene regions/triggers  `[ ] pending`
+### P6.21 — AI map: drawings + scene regions/triggers  `[x] shipped v2.4.67`
 - **G42** (high) Drawing/annotation placement on maps (freehand lines, rectangles, circles, text labels with color, stroke width, visibility control, floor layer support)
 - **G43** (high) Scene region/trigger zone creation with spatial shapes (circle/polygon/rectangle), triggers (enter/leave/start-turn/end-turn), and actions (alert-dm, teleport, apply-condition)
 

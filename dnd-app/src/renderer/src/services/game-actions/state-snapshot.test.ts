@@ -183,6 +183,41 @@ describe('buildGameStateSnapshot', () => {
     expect(result).toContain('w2: door (5,0)→(5,5) [CLOSED]')
   })
 
+  it('shows scene regions + drawings count (G42/G43)', () => {
+    const result = buildGameStateSnapshot(
+      makeStores({
+        activeMapId: 'map-1',
+        maps: [
+          {
+            id: 'map-1',
+            name: 'Hall',
+            width: 400,
+            height: 400,
+            grid: { cellSize: 40 },
+            tokens: [],
+            regions: [
+              {
+                id: 'r1',
+                name: 'Pit Trap',
+                shape: { type: 'rectangle', x: 0, y: 0, width: 50, height: 50 },
+                trigger: 'enter',
+                action: { type: 'alert-dm', message: 'x' },
+                enabled: true,
+                oneShot: true
+              }
+            ],
+            drawings: [
+              { id: 'd1', type: 'draw-rect', points: [], color: '#f00', strokeWidth: 2, visibleToPlayers: false }
+            ]
+          }
+        ]
+      })
+    )
+    expect(result).toContain('Regions:')
+    expect(result).toContain('r1: "Pit Trap" rectangle on enter → alert-dm [one-shot]')
+    expect(result).toContain('Drawings: 1 on map (1 DM-only)')
+  })
+
   it('shows darkness zones with magic level + radius', () => {
     const result = buildGameStateSnapshot(
       makeStores({
