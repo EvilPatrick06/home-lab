@@ -11,6 +11,16 @@ export interface StatChangeParseResult {
   rawJsonError?: string
 }
 
+/** Map the AI's abbreviated ability keys to the full names used in proficiencies.savingThrows. */
+const ABILITY_FULL_NAME: Record<'str' | 'dex' | 'con' | 'int' | 'wis' | 'cha', AbilityName> = {
+  str: 'strength',
+  dex: 'dexterity',
+  con: 'constitution',
+  int: 'intelligence',
+  wis: 'wisdom',
+  cha: 'charisma'
+}
+
 /** Extract and validate stat changes JSON from AI response text. */
 export function parseStatChanges(response: string): StatChange[] {
   return parseStatChangesDetailed(response).changes
@@ -189,6 +199,20 @@ function validateChange(char: Character5eV3, change: StatChange): string | null 
     }
     case 'add_exhaustion':
       return change.levels > 0 ? null : 'Exhaustion levels must be positive'
+    case 'set_equipped': {
+      const lower = change.name.toLowerCase()
+      const inArray = (arr?: Array<{ name: string }>) => (arr ?? []).some((i) => i.name.toLowerCase() === lower)
+      return inArray(char.equipment) || inArray(char.armor) || inArray(char.weapons)
+        ? null
+        : `No item named "${change.name}" to equip/unequip`
+    }
+    case 'set_skill_proficiency':
+      return (char.skills ?? []).some((s) => s.name.toLowerCase() === change.skill.toLowerCase())
+        ? null
+        : `Skill "${change.skill}" not found on this character`
+    case 'set_proficiency':
+    case 'set_save_proficiency':
+      return null
     default:
       return `Unknown change type: ${(change as { type: string }).type}`
   }
@@ -397,6 +421,46 @@ function applyChange(char: Character5eV3, change: StatChange): void {
       } else {
         conditions.push({ name: 'Exhaustion', type: 'condition', isCustom: false, value: Math.min(6, change.levels) })
       }
+      break
+    }
+    case 'set_equipped': {
+      const lower = change.name.toLowerCase()
+      // The same name can appear in equipment/armor/weapons; toggle every match.
+      for (const arr of [char.equipment, char.armor, char.weapons]) {
+        for (const item of arr ?? []) {
+          if (item.name.toLowerCase() === lower) (item as { equipped?: boolean }).equipped = change.equipped
+        }
+      }
+      break
+    }
+    case 'set_proficiency': {
+      const field = ({ weapon: 'weapons', armor: 'armor', tool: 'tools', language: 'languages' } as const)[
+        change.category
+      ]
+      if (!char.proficiencies) break
+      const list = char.proficiencies[field] as string[]
+      const idx = list.findIndex((p) => p.toLowerCase() === change.name.toLowerCase())
+      if (change.proficient && idx < 0) list.push(change.name)
+      else if (!change.proficient && idx >= 0) list.splice(idx, 1)
+      break
+    }
+    case 'set_skill_proficiency': {
+      const skill = (char.skills ?? []).find((s) => s.name.toLowerCase() === change.skill.toLowerCase())
+      if (skill) {
+        skill.proficient = change.proficient
+        if (change.expertise !== undefined) skill.expertise = change.expertise
+        // Losing proficiency drops expertise too (you can't have expertise without proficiency).
+        if (!change.proficient) skill.expertise = false
+      }
+      break
+    }
+    case 'set_save_proficiency': {
+      const fullName = ABILITY_FULL_NAME[change.ability]
+      if (!char.proficiencies) break
+      const saves = char.proficiencies.savingThrows
+      const idx = saves.indexOf(fullName)
+      if (change.proficient && idx < 0) saves.push(fullName)
+      else if (!change.proficient && idx >= 0) saves.splice(idx, 1)
       break
     }
     case 'creature_damage':
@@ -694,6 +758,14 @@ export function describeChange(change: StatChange): string {
       return `Exhaustion reduced (${change.reason})`
     case 'add_exhaustion':
       return `Exhaustion +${change.levels} (${change.reason})`
+    case 'set_equipped':
+      return `${change.name} ${change.equipped ? 'equipped' : 'unequipped'} (${change.reason})`
+    case 'set_proficiency':
+      return `${change.category} proficiency in ${change.name} ${change.proficient ? 'granted' : 'removed'} (${change.reason})`
+    case 'set_skill_proficiency':
+      return `${change.skill}: ${change.proficient ? (change.expertise ? 'expertise' : 'proficient') : 'not proficient'} (${change.reason})`
+    case 'set_save_proficiency':
+      return `${change.ability.toUpperCase()} save proficiency ${change.proficient ? 'granted' : 'removed'} (${change.reason})`
     default: {
       // Exhaustiveness guard — every StatChange member must have an arm above;
       // the cast keeps a safe runtime fallback if one is ever missed.

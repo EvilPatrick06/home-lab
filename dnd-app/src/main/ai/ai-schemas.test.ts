@@ -169,6 +169,38 @@ describe('validateStatChanges', () => {
     expect(issues).toHaveLength(0)
   })
 
+  it('validates equipment + proficiency stat changes (G36/G37/G39)', () => {
+    const { valid, issues } = validateStatChanges([
+      { type: 'set_equipped', characterName: 'Aria', name: 'Shield', equipped: true, reason: 'readied' },
+      {
+        type: 'set_proficiency',
+        characterName: 'Aria',
+        category: 'weapon',
+        name: 'Longbow',
+        proficient: true,
+        reason: 'x'
+      },
+      {
+        type: 'set_skill_proficiency',
+        characterName: 'Aria',
+        skill: 'Stealth',
+        proficient: true,
+        expertise: true,
+        reason: 'x'
+      },
+      { type: 'set_save_proficiency', characterName: 'Aria', ability: 'con', proficient: true, reason: 'x' }
+    ])
+    expect(valid).toHaveLength(4)
+    expect(issues).toHaveLength(0)
+  })
+
+  it('rejects set_proficiency with an invalid category', () => {
+    const { issues } = validateStatChanges([
+      { type: 'set_proficiency', category: 'vehicle', name: 'Cart', proficient: true, reason: 'x' }
+    ])
+    expect(issues).toHaveLength(1)
+  })
+
   it('validates ability score enum', () => {
     const { valid } = validateStatChanges([{ type: 'set_ability_score', ability: 'cha', value: 20, reason: 'boon' }])
     expect(valid).toHaveLength(1)

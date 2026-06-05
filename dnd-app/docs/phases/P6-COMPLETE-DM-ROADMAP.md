@@ -76,7 +76,7 @@
 - **G38** (high) Condition duration perception in game snapshots
 - **G35** (high) Magic item attunement state mutations
 
-### P6.19 — AI character mutations: equipment equipped + proficiencies  `[ ] pending`
+### P6.19 — AI character mutations: equipment equipped + proficiencies  `[x] shipped v2.4.65`
 - **G36** (high) Equipment/armor equipped state mutations
 - **G37** (high) Armor/equipment proficiency mutations
 - **G39** (high) Skill and save proficiency mutations

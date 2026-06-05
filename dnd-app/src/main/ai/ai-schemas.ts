@@ -293,6 +293,36 @@ const AddExhaustionSchema = z.object({
   reason: z.string()
 })
 
+const SetEquippedSchema = z.object({
+  type: z.literal('set_equipped'),
+  ...BaseCharacterChange,
+  name: z.string(),
+  equipped: z.boolean()
+})
+
+const SetProficiencySchema = z.object({
+  type: z.literal('set_proficiency'),
+  ...BaseCharacterChange,
+  category: z.enum(['weapon', 'armor', 'tool', 'language']),
+  name: z.string(),
+  proficient: z.boolean()
+})
+
+const SetSkillProficiencySchema = z.object({
+  type: z.literal('set_skill_proficiency'),
+  ...BaseCharacterChange,
+  skill: z.string(),
+  proficient: z.boolean(),
+  expertise: z.boolean().optional()
+})
+
+const SetSaveProficiencySchema = z.object({
+  type: z.literal('set_save_proficiency'),
+  ...BaseCharacterChange,
+  ability: AbilitySchema,
+  proficient: z.boolean()
+})
+
 export const StatChangeSchema = z.discriminatedUnion('type', [
   DamageSchema,
   HealSchema,
@@ -326,7 +356,11 @@ export const StatChangeSchema = z.discriminatedUnion('type', [
   CreatureExpendSpellSlotSchema,
   CreatureRestoreSpellSlotSchema,
   ReduceExhaustionSchema,
-  AddExhaustionSchema
+  AddExhaustionSchema,
+  SetEquippedSchema,
+  SetProficiencySchema,
+  SetSkillProficiencySchema,
+  SetSaveProficiencySchema
 ])
 
 export const StatChangesBlockSchema = z.object({

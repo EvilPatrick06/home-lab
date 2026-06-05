@@ -170,12 +170,24 @@ function formatCharacter5e(c: Character5eV3): string {
   if (equippedArmor.length > 0) {
     lines.push(`Equipped Armor: ${equippedArmor.map((a) => `${a.name} (AC +${a.acBonus})`).join(', ')}`)
   }
+  // Unequipped armor the character carries — so the AI knows what it can set_equipped (G36).
+  const unequippedArmor = armor.filter((a) => !a.equipped)
+  if (unequippedArmor.length > 0) {
+    lines.push(`Carried Armor (unequipped): ${unequippedArmor.map((a) => a.name).join(', ')}`)
+  }
 
   const weapons = c.weapons || []
   if (weapons.length > 0) {
     lines.push(
       `Weapons: ${weapons.map((w) => `${w.name} (${w.damage} ${w.damageType}, ${formatMod(w.attackBonus)} to hit)`).join(', ')}`
     )
+  }
+
+  // Carried (unequipped) gear — what the AI can equip via set_equipped.
+  const equipment = (c.equipment as Array<{ name: string; equipped?: boolean }> | undefined) || []
+  const carried = equipment.filter((e) => !e.equipped).map((e) => e.name)
+  if (carried.length > 0) {
+    lines.push(`Carried Items: ${carried.slice(0, 20).join(', ')}`)
   }
 
   const treasure = c.treasure

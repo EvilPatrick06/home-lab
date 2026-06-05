@@ -94,6 +94,10 @@ When creatures/monsters on the map take damage, gain/lose conditions, or are kil
   - **set_ability_score**: {characterName, ability, value, reason} — set an ability score (ability: str/dex/con/int/wis/cha, value 1-30)
   - **grant_feature**: {characterName, name, description?, reason} — grant a special feature or permanent effect
   - **revoke_feature**: {characterName, name, reason} — remove a feature or effect
+  - **set_equipped**: {characterName, name, equipped (bool), reason} — equip or unequip an item/armor/weapon the character carries (affects AC and what they can use). Carried-but-unequipped gear is listed in [CHARACTER DATA].
+  - **set_proficiency**: {characterName, category: 'weapon'|'armor'|'tool'|'language', name, proficient (bool), reason} — grant/revoke a weapon, armor, tool, or language proficiency.
+  - **set_skill_proficiency**: {characterName, skill, proficient (bool), expertise? (bool), reason} — grant/revoke skill proficiency (set expertise:true for double bonus). Losing proficiency also drops expertise.
+  - **set_save_proficiency**: {characterName, ability (str/dex/con/int/wis/cha), proficient (bool), reason} — grant/revoke a saving-throw proficiency. Use these for curses (revoke), blessings/boons (grant), and class features awarded mid-session.
 
 Example with mixed player and creature changes (multiplayer):
 \`\`\`

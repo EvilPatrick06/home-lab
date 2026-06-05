@@ -475,6 +475,74 @@ describe('applyMutations', () => {
     expect(result.rejected[0].reason).toContain('must be positive')
   })
 
+  it('set_equipped toggles the equipped flag on a carried item (G36)', async () => {
+    const char = makeCharacter({ equipment: [{ name: 'Shield', quantity: 1, equipped: false }] })
+    mockLoadCharacter.mockResolvedValue({ success: true, data: char })
+    mockSaveCharacter.mockResolvedValue({ success: true })
+
+    await applyMutations('char1', [{ type: 'set_equipped', name: 'Shield', equipped: true, reason: 'readied' }])
+    expect((char.equipment as Array<{ name: string; equipped?: boolean }>)[0].equipped).toBe(true)
+  })
+
+  it('rejects set_equipped for an item the character does not carry', async () => {
+    const char = makeCharacter({ equipment: [] })
+    mockLoadCharacter.mockResolvedValue({ success: true, data: char })
+
+    const result = await applyMutations('char1', [{ type: 'set_equipped', name: 'Plate', equipped: true, reason: 'x' }])
+    expect(result.rejected).toHaveLength(1)
+    expect(result.rejected[0].reason).toContain('to equip/unequip')
+  })
+
+  it('set_proficiency grants and removes a weapon proficiency (G37)', async () => {
+    const char = makeCharacter({
+      proficiencies: { weapons: [], armor: [], tools: [], languages: [], savingThrows: [] }
+    })
+    mockLoadCharacter.mockResolvedValue({ success: true, data: char })
+    mockSaveCharacter.mockResolvedValue({ success: true })
+
+    await applyMutations('char1', [
+      { type: 'set_proficiency', category: 'weapon', name: 'Longbow', proficient: true, reason: 'training' }
+    ])
+    expect((char.proficiencies as { weapons: string[] }).weapons).toContain('Longbow')
+
+    await applyMutations('char1', [
+      { type: 'set_proficiency', category: 'weapon', name: 'Longbow', proficient: false, reason: 'curse' }
+    ])
+    expect((char.proficiencies as { weapons: string[] }).weapons).not.toContain('Longbow')
+  })
+
+  it('set_skill_proficiency sets proficiency + expertise (G39)', async () => {
+    const char = makeCharacter({
+      skills: [{ name: 'Stealth', ability: 'dexterity', proficient: false, expertise: false }]
+    })
+    mockLoadCharacter.mockResolvedValue({ success: true, data: char })
+    mockSaveCharacter.mockResolvedValue({ success: true })
+
+    await applyMutations('char1', [
+      { type: 'set_skill_proficiency', skill: 'stealth', proficient: true, expertise: true, reason: 'boon' }
+    ])
+    const skill = (char.skills as Array<{ name: string; proficient: boolean; expertise: boolean }>)[0]
+    expect(skill.proficient).toBe(true)
+    expect(skill.expertise).toBe(true)
+
+    // Losing proficiency drops expertise.
+    await applyMutations('char1', [
+      { type: 'set_skill_proficiency', skill: 'Stealth', proficient: false, reason: 'curse' }
+    ])
+    expect((char.skills as Array<{ expertise: boolean }>)[0].expertise).toBe(false)
+  })
+
+  it('set_save_proficiency maps the ability to its full name (G39)', async () => {
+    const char = makeCharacter({
+      proficiencies: { weapons: [], armor: [], tools: [], languages: [], savingThrows: [] }
+    })
+    mockLoadCharacter.mockResolvedValue({ success: true, data: char })
+    mockSaveCharacter.mockResolvedValue({ success: true })
+
+    await applyMutations('char1', [{ type: 'set_save_proficiency', ability: 'con', proficient: true, reason: 'feat' }])
+    expect((char.proficiencies as { savingThrows: string[] }).savingThrows).toContain('constitution')
+  })
+
   it('add_condition carries a duration when provided (G34)', async () => {
     const char = makeCharacter()
     mockLoadCharacter.mockResolvedValue({ success: true, data: char })

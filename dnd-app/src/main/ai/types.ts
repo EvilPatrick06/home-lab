@@ -246,3 +246,27 @@ export type StatChange =
   | { type: 'creature_restore_spell_slot'; targetLabel: string; level: number; count?: number; reason: string }
   | { type: 'reduce_exhaustion'; characterName?: string; reason: string }
   | { type: 'add_exhaustion'; characterName?: string; levels: number; reason: string }
+  | { type: 'set_equipped'; characterName?: string; name: string; equipped: boolean; reason: string }
+  | {
+      type: 'set_proficiency'
+      characterName?: string
+      category: 'weapon' | 'armor' | 'tool' | 'language'
+      name: string
+      proficient: boolean
+      reason: string
+    }
+  | {
+      type: 'set_skill_proficiency'
+      characterName?: string
+      skill: string
+      proficient: boolean
+      expertise?: boolean
+      reason: string
+    }
+  | {
+      type: 'set_save_proficiency'
+      characterName?: string
+      ability: 'str' | 'dex' | 'con' | 'int' | 'wis' | 'cha'
+      proficient: boolean
+      reason: string
+    }
