@@ -56,6 +56,68 @@ export function executeRollDice(
 }
 
 /**
+ * AI DM calls for a group ability/save/skill check (mid-turn DM prompt). Drives the
+ * existing GroupRollRequest infra: sets the local pending roll (so the DM's
+ * RollRequestOverlay appears and results are tracked) AND broadcasts a typed
+ * `dm:roll-request` so every player's overlay pops. `secret` keeps it DM-only.
+ */
+export function executeRequestRoll(
+  action: DmAction,
+  gameStore: GameStoreSnapshot,
+  _activeMap: ActiveMap,
+  stores: StoreAccessors
+): boolean {
+  const a = action as {
+    rollType?: 'ability' | 'save' | 'skill'
+    ability?: string
+    skill?: string
+    dc?: number
+    secret?: boolean
+    reason?: string
+  }
+  const type = a.rollType ?? 'ability'
+  const dc = typeof a.dc === 'number' && a.dc > 0 ? Math.round(a.dc) : 10
+  const isSecret = a.secret === true
+  const id = crypto.randomUUID()
+
+  // 1) Local pending — DM's RollRequestOverlay + result tracking.
+  gameStore.setPendingGroupRoll({ id, type, ability: a.ability, skill: a.skill, dc, scope: 'all', isSecret })
+
+  // 2) Broadcast so each player's overlay pops. requesterName is the local DM's
+  // display name (falls back to "Dungeon Master" for a standalone/solo session).
+  const net = stores.getNetworkStore().getState()
+  const localPeerId = net.localPeerId ?? ''
+  const requesterName =
+    stores
+      .getLobbyStore()
+      .getState()
+      .players.find((p) => p.peerId === localPeerId)?.displayName ?? 'Dungeon Master'
+  net.sendMessage('dm:roll-request', {
+    id,
+    type,
+    ability: a.ability,
+    skill: a.skill,
+    dc,
+    isSecret,
+    requesterId: localPeerId,
+    requesterName
+  })
+
+  // 3) Announce in chat (skip the broadcast for a secret check — DM-only).
+  const label = a.skill ? a.skill : a.ability ? `${a.ability} ${type}` : type
+  const reason = a.reason ? ` — ${a.reason}` : ''
+  postDmChatMessage(
+    stores,
+    'ai-rollreq',
+    `\u{1F3B2} Roll request: ${label} check (DC ${dc})${reason}`,
+    'ai-dm',
+    'Dungeon Master',
+    !isSecret
+  )
+  return true
+}
+
+/**
  * Broadcasts the current in-game time to all clients.
  */
 function broadcastTimeSync(stores: StoreAccessors): void {

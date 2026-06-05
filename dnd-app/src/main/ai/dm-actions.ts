@@ -116,6 +116,15 @@ export type DmAction =
   | { action: 'whisper_player'; playerName: string; message: string }
   | { action: 'system_message'; message: string }
   | { action: 'roll_dice'; formula: string; reason?: string; visibility?: 'public' | 'hidden' }
+  | {
+      action: 'request_roll'
+      rollType: 'ability' | 'save' | 'skill'
+      ability?: string
+      skill?: string
+      dc: number
+      secret?: boolean
+      reason?: string
+    }
 
   // Conditions on entities (tokens)
   | {

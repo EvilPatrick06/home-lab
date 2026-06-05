@@ -504,6 +504,16 @@ const RollDiceSchema = z.object({
   visibility: z.enum(['public', 'hidden']).optional()
 })
 
+const RequestRollSchema = z.object({
+  action: z.literal('request_roll'),
+  rollType: z.enum(['ability', 'save', 'skill']),
+  ability: z.string().optional(),
+  skill: z.string().optional(),
+  dc: z.number(),
+  secret: z.boolean().optional(),
+  reason: z.string().optional()
+})
+
 const AddEntityConditionSchema = z.object({
   action: z.literal('add_entity_condition'),
   entityLabel: z.string(),
@@ -757,6 +767,7 @@ export const DM_ACTION_SCHEMAS: Record<string, z.ZodType> = {
   whisper_player: WhisperPlayerSchema,
   system_message: SystemMessageSchema,
   roll_dice: RollDiceSchema,
+  request_roll: RequestRollSchema,
   add_entity_condition: AddEntityConditionSchema,
   remove_entity_condition: RemoveEntityConditionSchema,
   short_rest: ShortRestSchema,

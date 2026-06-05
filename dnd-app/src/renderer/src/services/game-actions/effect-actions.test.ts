@@ -608,4 +608,59 @@ describe('effect-actions', () => {
       expect(net()).toHaveBeenCalledTimes(1)
     })
   })
+
+  describe('executeRequestRoll', () => {
+    const net = (): ReturnType<typeof vi.fn> =>
+      stores.getNetworkStore().getState().sendMessage as unknown as ReturnType<typeof vi.fn>
+    const chat = (): ReturnType<typeof vi.fn> =>
+      stores.getLobbyStore().getState().addChatMessage as unknown as ReturnType<typeof vi.fn>
+
+    it('sets a local pending group roll and broadcasts dm:roll-request to peers', async () => {
+      const { executeRequestRoll } = await import('./effect-actions')
+      const setPendingGroupRoll = vi.fn()
+      const ok = executeRequestRoll(
+        { action: 'request_roll', rollType: 'skill', skill: 'Perception', dc: 15 } as DmAction,
+        makeGameStore({ setPendingGroupRoll }),
+        undefined as never,
+        stores
+      )
+      expect(ok).toBe(true)
+      expect(setPendingGroupRoll).toHaveBeenCalledWith(
+        expect.objectContaining({ type: 'skill', skill: 'Perception', dc: 15, scope: 'all', isSecret: false })
+      )
+      expect(net()).toHaveBeenCalledWith(
+        'dm:roll-request',
+        expect.objectContaining({ type: 'skill', skill: 'Perception', dc: 15 })
+      )
+      expect(chat().mock.calls[0][0].content).toContain('Perception')
+    })
+
+    it('keeps a secret roll DM-only (no chat broadcast) but still pends + sends the typed request', async () => {
+      const { executeRequestRoll } = await import('./effect-actions')
+      const setPendingGroupRoll = vi.fn()
+      executeRequestRoll(
+        { action: 'request_roll', rollType: 'save', ability: 'DEX', dc: 12, secret: true } as DmAction,
+        makeGameStore({ setPendingGroupRoll }),
+        undefined as never,
+        stores
+      )
+      expect(setPendingGroupRoll).toHaveBeenCalledWith(expect.objectContaining({ isSecret: true }))
+      // typed request still goes out, but the chat:message broadcast is suppressed
+      const sentChannels = net().mock.calls.map((c) => c[0])
+      expect(sentChannels).toContain('dm:roll-request')
+      expect(sentChannels).not.toContain('chat:message')
+    })
+
+    it('defaults an invalid DC to 10', async () => {
+      const { executeRequestRoll } = await import('./effect-actions')
+      const setPendingGroupRoll = vi.fn()
+      executeRequestRoll(
+        { action: 'request_roll', rollType: 'ability', ability: 'STR', dc: 0 } as DmAction,
+        makeGameStore({ setPendingGroupRoll }),
+        undefined as never,
+        stores
+      )
+      expect(setPendingGroupRoll).toHaveBeenCalledWith(expect.objectContaining({ dc: 10 }))
+    })
+  })
 })

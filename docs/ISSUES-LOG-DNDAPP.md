@@ -30,6 +30,15 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## Critical / High / Medium / Low
 
+### [2026-06-04] `ai-renderer-actions.ts` is dead — parsed-but-never-dispatched and undocumented in prompts
+
+- **Category:** debt
+- **Severity:** low
+- **Domain:** dnd-app
+- **Discovered by:** Claude Code
+- **During:** P6.3 (adding the canonical `request_roll` DM action)
+- `ai-renderer-actions.ts` defines a parallel `[ACTION:type ...]` tag syntax with 7 actions (roll-request, loot-award, xp-award, combat-start, narration, map-reveal, sound-effect) plus `processAiRendererActions()`. But (1) NO prompt section documents the `[ACTION:]` syntax, so the AI never emits these tags, and (2) `use-ai-dm-store.ts:504` calls `parseRendererActions()` only to decide whether to strip tags — `processAiRendererActions()` is never called, so nothing would fire even if a tag appeared. 5 of the 7 actions also duplicate canonical `[DM_ACTIONS]` JSON actions (award_xp, start_initiative/place_creature, reveal_fog, sound_effect, narration via voice tags), so reviving the module wholesale would create double-application paths. The one genuinely-missing capability (roll-request) was delivered properly via the canonical JSON path as `request_roll` (P6.3), leaving this module fully superseded. **Fix:** delete `ai-renderer-actions.ts` + its test and replace the line-504 parse/strip with a plain regex strip of stray `[ACTION:...]` tags; OR, if an inline loot/xp popup syntax is wanted, wire ONLY the non-redundant actions AND document them in a prompt section. **Related files:** `dnd-app/src/renderer/src/services/ai-renderer-actions.ts`, `dnd-app/src/renderer/src/stores/use-ai-dm-store.ts:504`.
+
 ### [2026-06-02] CharacterSheet5ePage.test.tsx flakes (15s timeout) under CPU load
 
 - **Category:** test, flake/debt
