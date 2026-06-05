@@ -429,4 +429,64 @@ describe('buildGameStateSnapshot', () => {
     expect(result).toContain('Distances from Aria (current turn)')
     expect(result).toContain('Goblin: 20 ft') // Chebyshev(3,4)=4 → 4*5=20
   })
+
+  it('reports cover from the attacker vantage (creature grants half cover)', () => {
+    const result = buildGameStateSnapshot(
+      makeStores({
+        activeMapId: 'm',
+        maps: [
+          {
+            id: 'm',
+            name: 'M',
+            width: 100,
+            height: 100,
+            grid: { cellSize: 10 },
+            tokens: [
+              {
+                id: 't1',
+                entityId: 'e1',
+                entityType: 'player',
+                label: 'Aria',
+                gridX: 0,
+                gridY: 0,
+                sizeX: 1,
+                sizeY: 1,
+                conditions: []
+              },
+              {
+                id: 't3',
+                entityId: 'e3',
+                entityType: 'enemy',
+                label: 'Ogre',
+                gridX: 3,
+                gridY: 0,
+                sizeX: 1,
+                sizeY: 1,
+                currentHP: 30,
+                conditions: []
+              },
+              {
+                id: 't2',
+                entityId: 'e2',
+                entityType: 'enemy',
+                label: 'Goblin',
+                gridX: 5,
+                gridY: 0,
+                sizeX: 1,
+                sizeY: 1,
+                conditions: []
+              }
+            ]
+          }
+        ],
+        initiative: {
+          round: 1,
+          currentIndex: 0,
+          entries: [{ entityId: 'e1', entityName: 'Aria', total: 15 }]
+        }
+      })
+    )
+    // Ogre sits between Aria and the Goblin → Goblin has half cover (+2 AC) from Aria's vantage.
+    expect(result).toMatch(/Goblin:.*half cover \(\+2 AC & DEX saves vs Aria\)/)
+  })
 })

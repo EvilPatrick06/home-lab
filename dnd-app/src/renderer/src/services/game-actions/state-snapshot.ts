@@ -2,6 +2,8 @@
  * Build a compact text snapshot of the current game state for AI context.
  */
 
+import { getCoverACBonus } from '../combat/combat-rules'
+import { calculateCover } from '../combat/cover-calculator'
 import { getTokenStats } from '../game/token-stats'
 import type { StoreAccessors } from './types'
 
@@ -114,10 +116,22 @@ export function buildGameStateSnapshot(
     const activeToken = activeMap.tokens.find((t) => t.entityId === activeEntry?.entityId)
     const others = activeMap.tokens.filter((t) => t.id !== activeToken?.id)
     if (activeToken && others.length > 0) {
+      // Cover is attacker-relative (PHB 2024 p.17), so compute it from the active
+      // combatant's vantage. Walls/closed doors escalate to total; creatures cap at
+      // half. The AI uses this to apply the right AC/DEX-save bonus when it attacks.
+      const walls = activeMap.wallSegments ?? []
+      const cellSize = activeMap.grid.cellSize || 40
       lines.push(`\nDistances from ${activeToken.label} (current turn):`)
       for (const t of others) {
         const feet = Math.max(Math.abs(t.gridX - activeToken.gridX), Math.abs(t.gridY - activeToken.gridY)) * 5
-        lines.push(`  - ${t.label}: ${feet} ft${feet <= 5 ? ' (adjacent)' : ''}`)
+        let line = `  - ${t.label}: ${feet} ft${feet <= 5 ? ' (adjacent)' : ''}`
+        const cover = calculateCover(activeToken, t, walls, cellSize, activeMap.tokens)
+        if (cover === 'total') {
+          line += ', TOTAL cover (cannot be targeted)'
+        } else if (cover !== 'none') {
+          line += `, ${cover} cover (+${getCoverACBonus(cover)} AC & DEX saves vs ${activeToken.label})`
+        }
+        lines.push(line)
       }
     }
   }

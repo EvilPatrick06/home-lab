@@ -104,6 +104,17 @@ describe('combat-rules', () => {
       expect(COMBAT_RULES_PROMPT).toContain('Counterspell')
     })
 
+    // ── Cover ──
+
+    it('contains cover rules referencing the distances block', () => {
+      expect(COMBAT_RULES_PROMPT).toContain('Cover (2024 PHB p.17)')
+      expect(COMBAT_RULES_PROMPT).toContain('Half cover')
+      expect(COMBAT_RULES_PROMPT).toContain('+2 AC')
+      expect(COMBAT_RULES_PROMPT).toContain('Three-quarters cover')
+      expect(COMBAT_RULES_PROMPT).toContain('+5 AC')
+      expect(COMBAT_RULES_PROMPT).toContain('Total cover')
+    })
+
     // ── Hazards ──
 
     it('contains hazard rules', () => {

@@ -44,6 +44,13 @@ Each creature gets ONE Reaction per round, refreshed at the start of its turn. T
 - **Counterspell / Shield / other reaction spells:** Cost the caster's Reaction. Only available if the creature has the spell and an unspent reaction.
 - Mark reactions spent via combat resolution — a creature with reaction USED cannot react again until its next turn.
 
+### Cover (2024 PHB p.17)
+Cover is relative to the attacker. The "Distances from …" block in the game state annotates the cover each target has from the current attacker's vantage — apply it directly:
+- **Half cover:** +2 AC and +2 to DEX saving throws. Granted by low walls, furniture, or another creature between attacker and target.
+- **Three-quarters cover:** +5 AC and +5 to DEX saving throws. Granted by a portcullis, arrow slit, or thick tree trunk.
+- **Total cover:** cannot be targeted directly by an attack or a spell that requires a clear path. Pick a different target or reposition.
+Creatures grant at most half cover, and only enemy creatures (your own side can be ignored). A downed creature stops granting cover.
+
 ### Hazards
 - **Burning:** 1d4 Fire at start of each turn. Action to extinguish (go Prone, roll on ground). Also extinguished by dousing/submerging.
 - **Dehydration:** Water per day: Tiny 1/4 gal, Small/Med 1 gal, Large 4 gal, Huge 16 gal, Gargantuan 64 gal. Less than half = +1 Exhaustion. Cannot remove until hydrated.
