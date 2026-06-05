@@ -359,4 +359,35 @@ describe('buildGameStateSnapshot', () => {
     expect(result).toContain('Concentration:')
     expect(result).toContain('Aria is concentrating on Bless')
   })
+
+  it('shows distances from the active combatant (5ft Chebyshev)', () => {
+    const result = buildGameStateSnapshot(
+      makeStores({
+        activeMapId: 'm',
+        maps: [
+          {
+            id: 'm',
+            name: 'M',
+            width: 100,
+            height: 100,
+            grid: { cellSize: 10 },
+            tokens: [
+              { id: 't1', entityId: 'e1', label: 'Aria', gridX: 0, gridY: 0, conditions: [] },
+              { id: 't2', entityId: 'e2', label: 'Goblin', gridX: 3, gridY: 4, conditions: [] }
+            ]
+          }
+        ],
+        initiative: {
+          round: 1,
+          currentIndex: 0,
+          entries: [
+            { entityId: 'e1', entityName: 'Aria', total: 15 },
+            { entityId: 'e2', entityName: 'Goblin', total: 10 }
+          ]
+        }
+      })
+    )
+    expect(result).toContain('Distances from Aria (current turn)')
+    expect(result).toContain('Goblin: 20 ft') // Chebyshev(3,4)=4 → 4*5=20
+  })
 })

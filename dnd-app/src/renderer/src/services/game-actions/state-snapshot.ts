@@ -79,6 +79,21 @@ export function buildGameStateSnapshot(
     }
   }
 
+  // Distances from the active combatant to everyone else, so the AI doesn't have to
+  // compute positioning mentally (5e: 5 ft per square, Chebyshev / king-move).
+  if (gameStore.initiative && activeMap) {
+    const activeEntry = gameStore.initiative.entries[gameStore.initiative.currentIndex]
+    const activeToken = activeMap.tokens.find((t) => t.entityId === activeEntry?.entityId)
+    const others = activeMap.tokens.filter((t) => t.id !== activeToken?.id)
+    if (activeToken && others.length > 0) {
+      lines.push(`\nDistances from ${activeToken.label} (current turn):`)
+      for (const t of others) {
+        const feet = Math.max(Math.abs(t.gridX - activeToken.gridX), Math.abs(t.gridY - activeToken.gridY)) * 5
+        lines.push(`  - ${t.label}: ${feet} ft${feet <= 5 ? ' (adjacent)' : ''}`)
+      }
+    }
+  }
+
   // Entity conditions
   if (gameStore.conditions.length > 0) {
     lines.push('\nConditions:')
