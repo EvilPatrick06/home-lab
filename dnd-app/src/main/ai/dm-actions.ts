@@ -195,6 +195,40 @@ export type DmAction =
       conditionDuration?: number | 'permanent'
     }
 
+  // Spell effects & AoE preview (P6.10)
+  | {
+      action: 'query_aoe'
+      shape: 'sphere' | 'cone' | 'line' | 'cube' | 'cylinder' | 'emanation'
+      originX: number
+      originY: number
+      radiusOrLength: number
+      widthOrHeight?: number
+      direction?: number
+      excludeLabel?: string
+      reason?: string
+    }
+  | {
+      action: 'cast_spell'
+      spellName: string
+      caster: string
+      targetX?: number
+      targetY?: number
+      shape?: 'sphere' | 'cone' | 'line' | 'cube' | 'cylinder' | 'emanation'
+      radiusOrLength?: number
+      direction?: number
+      saveDC?: number
+      saveType?: 'str' | 'dex' | 'con' | 'int' | 'wis' | 'cha'
+      conditionIfFail?: string
+      damageFormula?: string
+      damageType?: string
+      halfOnSave?: boolean
+      duration?: number | 'concentration' | 'permanent'
+      concentration?: boolean
+      summonLabels?: string[]
+      reason?: string
+    }
+  | { action: 'end_spell'; spellEffectId?: string; spellName?: string; caster?: string; reason?: string }
+
   // Legendary actions & resistances
   | { action: 'use_legendary_action'; entityLabel: string; actionName: string; cost?: number }
   | { action: 'use_legendary_resistance'; entityLabel: string }

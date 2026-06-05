@@ -44,6 +44,10 @@ export function buildGameStateSnapshot(
         }
         if (t.conditions.length > 0) desc += ` [${t.conditions.join(', ')}]`
         if (t.companionType) desc += ` {${t.companionType}}`
+        if (t.sourceSpell) {
+          const exp = t.summonExpiresRound != null ? `, expires round ${t.summonExpiresRound}` : ''
+          desc += ` (summoned via ${t.sourceSpell}${exp})`
+        }
         if (t.monsterStatBlockId) desc += ` creature:${t.monsterStatBlockId}`
         lines.push(desc)
       }
@@ -240,6 +244,28 @@ export function buildGameStateSnapshot(
       lines.push(`- ${e.name}`)
     }
     lines.push('[/ACTIVE EFFECTS]')
+  }
+
+  // Active spell effects — ongoing spells the AI DM has cast (caster, duration, area,
+  // save, summons), so it can perceive, sustain, and end them across turns.
+  if (gameStore.activeSpellEffects.length > 0) {
+    lines.push('\n[SPELL EFFECTS]')
+    for (const e of gameStore.activeSpellEffects) {
+      let line = `- ${e.name} by ${e.caster}`
+      if (e.duration === 'concentration') line += ' (concentration)'
+      else if (typeof e.duration === 'number') {
+        const remaining = e.duration - (gameStore.round - e.startedRound)
+        line += ` (${Math.max(0, remaining)} rounds left)`
+      }
+      if (e.shape && e.originX != null && e.originY != null) {
+        line += ` — ${e.shape} ${e.radiusFt ?? 0}ft at (${e.originX}, ${e.originY})`
+      }
+      if (e.saveDC && e.saveType) line += ` [DC ${e.saveDC} ${e.saveType.toUpperCase()}]`
+      if (e.conditionIfFail) line += ` → ${e.conditionIfFail} on fail`
+      if (e.summonedLabels && e.summonedLabels.length > 0) line += ` {summons: ${e.summonedLabels.join(', ')}}`
+      lines.push(line)
+    }
+    lines.push('[/SPELL EFFECTS]')
   }
 
   // Active diseases

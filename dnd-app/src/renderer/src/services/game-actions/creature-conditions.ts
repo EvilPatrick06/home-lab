@@ -1,6 +1,6 @@
 import { getCreatureSaveMod } from '../game/token-stats'
 import { pluginEventBus } from '../plugin-system/event-bus'
-import { broadcastConditionSync, broadcastTokenSync } from './broadcast-helpers'
+import { broadcastConditionSync, broadcastTokenSync, postDmMessage } from './broadcast-helpers'
 import { findTokensInArea, rollDiceFormula } from './dice-helpers'
 import { resolveTokenByLabel } from './name-resolver'
 import type { ActiveMap, DmAction, GameStoreSnapshot, StoreAccessors } from './types'
@@ -126,10 +126,14 @@ export function executeApplyAreaEffect(
   const saveType = action.saveType as string | undefined
   const saveDC = action.saveDC as number | undefined
   const damageFormula = action.damageFormula as string | undefined
+  const damageType = action.damageType as string | undefined
   const halfOnSave = action.halfOnSave as boolean | undefined
   const condition = action.condition as string | undefined
   const conditionDuration = action.conditionDuration as number | 'permanent' | undefined
 
+  // G9 — collect a per-target outcome summary and post it to chat, so the AI gets
+  // post-execution feedback (who saved, damage dealt, conditions applied) on its next turn.
+  const outcomes: string[] = []
   for (const token of affectedTokens) {
     let saved = false
     if (saveType && saveDC) {
@@ -138,6 +142,7 @@ export function executeApplyAreaEffect(
       saved = saveRoll.total + getCreatureSaveMod(token, saveType) >= saveDC
     }
 
+    const parts: string[] = []
     if (damageFormula) {
       const dmg = rollDiceFormula(damageFormula)
       let finalDamage = dmg.total
@@ -148,6 +153,7 @@ export function executeApplyAreaEffect(
         const newHP = Math.max(0, token.currentHP - finalDamage)
         gameStore.updateToken(activeMap.id, token.id, { currentHP: newHP })
       }
+      parts.push(`${finalDamage} ${damageType ?? ''} dmg`.trim())
     }
 
     if (condition && (!saved || !saveType)) {
@@ -160,10 +166,20 @@ export function executeApplyAreaEffect(
         source: 'Area Effect',
         appliedRound: gameStore.round
       })
+      parts.push(condition)
     }
+    const verdict = saveType ? (saved ? 'saved' : 'failed') : 'hit'
+    outcomes.push(`${token.label} (${verdict}${parts.length > 0 ? `: ${parts.join(', ')}` : ''})`)
   }
 
   broadcastTokenSync(activeMap.id, stores)
   broadcastConditionSync(stores)
+  if (outcomes.length > 0) {
+    postDmMessage(
+      stores,
+      'aoe-effect',
+      `💥 [Area Effect] ${shape} at (${originX}, ${originY}) → ${outcomes.join('; ')}`
+    )
+  }
   return true
 }

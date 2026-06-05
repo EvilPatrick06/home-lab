@@ -31,3 +31,26 @@ export function broadcastConditionSync(stores: StoreAccessors): void {
     sendMsg('dm:condition-update', { targetId: c.entityId, condition: c.condition, active: true })
   }
 }
+
+/**
+ * Post a Dungeon-Master chat message (system flavor) and optionally broadcast it.
+ * Shared by spell-effect / AoE executors so they can surface mechanical feedback
+ * (e.g. "[AoE] affects Goblin 1, Goblin 2") into chat history — which the AI then
+ * reads on its next turn. broadcast=false keeps it DM-only (preview/secret info).
+ */
+export function postDmMessage(stores: StoreAccessors, idPrefix: string, content: string, broadcast = true): void {
+  stores
+    .getLobbyStore()
+    .getState()
+    .addChatMessage({
+      id: `${idPrefix}-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
+      senderId: 'ai-dm',
+      senderName: 'Dungeon Master',
+      content,
+      timestamp: Date.now(),
+      isSystem: true
+    })
+  if (broadcast) {
+    stores.getNetworkStore().getState().sendMessage('chat:message', { message: content, isSystem: true })
+  }
+}

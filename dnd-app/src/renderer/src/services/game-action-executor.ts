@@ -88,6 +88,8 @@ import {
 } from './game-actions/effect-actions'
 // ── Mounted Combat ──
 import { executeDismountToken, executeMountToken } from './game-actions/mount-actions'
+// ── Spell Effects & AoE Preview ──
+import { executeCastSpell, executeEndSpell, executeQueryAoe } from './game-actions/spell-effect-actions'
 // ── State Snapshot ──
 import { buildGameStateSnapshot as _buildSnapshot } from './game-actions/state-snapshot'
 // ── Token Actions ──
@@ -397,6 +399,14 @@ function executeOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: A
     // ── Area Effects ──
     case 'apply_area_effect':
       return executeApplyAreaEffect(action, gameStore, activeMap, stores)
+
+    // ── Spell Effects & AoE Preview ──
+    case 'query_aoe':
+      return executeQueryAoe(action, gameStore, activeMap, stores)
+    case 'cast_spell':
+      return executeCastSpell(action, gameStore, activeMap, stores)
+    case 'end_spell':
+      return executeEndSpell(action, gameStore, activeMap, stores)
 
     // ── Legendary Actions & Resistances ──
     case 'use_legendary_action':

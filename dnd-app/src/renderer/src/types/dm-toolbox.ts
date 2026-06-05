@@ -134,6 +134,39 @@ export interface ActiveEnvironmentalEffect {
   appliedAt: number
 }
 
+/**
+ * A spell-based ongoing effect the AI DM has cast (Spirit Guardians, Entangle,
+ * Conjure Animals, Magic Circle, …). Tracks caster, duration, area + save data,
+ * and any summoned-creature ownership links so the engine can surface and expire it.
+ */
+export interface ActiveSpellEffect {
+  id: string
+  /** Spell name, e.g. "Spirit Guardians" */
+  name: string
+  /** Caster's display label (token label or character name) */
+  caster: string
+  /** Caster's entity id, when resolvable — links concentration + summons */
+  casterEntityId?: string
+  /** Remaining duration: 'concentration' = while caster concentrates; a number =
+   *  rounds remaining from startedRound; 'permanent'/undefined = until ended manually. */
+  duration?: number | 'concentration' | 'permanent'
+  /** Combat round the effect was created (for elapsed/expiry math) */
+  startedRound: number
+  /** Origin cell of the effect's area, if it covers one */
+  originX?: number
+  originY?: number
+  /** Area shape + size (feet) when the effect persists over an area */
+  shape?: 'sphere' | 'cone' | 'line' | 'cube' | 'cylinder' | 'emanation'
+  radiusFt?: number
+  /** Save DC + ability for creatures interacting with the effect */
+  saveDC?: number
+  saveType?: 'str' | 'dex' | 'con' | 'int' | 'wis' | 'cha'
+  /** Condition applied to creatures that fail the save / enter the area */
+  conditionIfFail?: string
+  /** Labels of creatures summoned by this spell (ownership link) */
+  summonedLabels?: string[]
+}
+
 export interface ActiveDisease {
   id: string
   diseaseId: string

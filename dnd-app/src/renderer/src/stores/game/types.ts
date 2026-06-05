@@ -1,6 +1,12 @@
 import type { ShopItem, TradeRequestPayload } from '../../network'
 import type { ActiveLightSource, CombatTimerConfig } from '../../types/campaign'
-import type { ActiveCurse, ActiveDisease, ActiveEnvironmentalEffect, PlacedTrap } from '../../types/dm-toolbox'
+import type {
+  ActiveCurse,
+  ActiveDisease,
+  ActiveEnvironmentalEffect,
+  ActiveSpellEffect,
+  PlacedTrap
+} from '../../types/dm-toolbox'
 import type { CustomEffect } from '../../types/effects'
 import type {
   CombatLogEntry,
@@ -313,6 +319,10 @@ export interface EffectsSliceState {
   activeEnvironmentalEffects: ActiveEnvironmentalEffect[]
   addEnvironmentalEffect: (effect: ActiveEnvironmentalEffect) => void
   removeEnvironmentalEffect: (id: string) => void
+  activeSpellEffects: ActiveSpellEffect[]
+  addSpellEffect: (effect: ActiveSpellEffect) => void
+  updateSpellEffect: (id: string, updates: Partial<ActiveSpellEffect>) => void
+  removeSpellEffect: (id: string) => void
   placedTraps: PlacedTrap[]
   addPlacedTrap: (trap: PlacedTrap) => void
   removeTrap: (id: string) => void

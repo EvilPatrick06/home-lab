@@ -18,6 +18,7 @@ function makeStores(gameStateOverrides?: Record<string, unknown>): StoreAccessor
     shopName: '',
     shopInventory: [],
     activeEnvironmentalEffects: [],
+    activeSpellEffects: [],
     activeDiseases: [],
     activeCurses: [],
     placedTraps: [],
@@ -274,6 +275,45 @@ describe('buildGameStateSnapshot', () => {
     )
     expect(result).toContain('[ACTIVE EFFECTS]')
     expect(result).toContain('Toxic Fumes')
+  })
+
+  it('shows active spell effects with caster, duration, area + save', () => {
+    const result = buildGameStateSnapshot(
+      makeStores({
+        round: 3,
+        activeSpellEffects: [
+          {
+            id: 's1',
+            name: 'Spirit Guardians',
+            caster: 'Cleric',
+            duration: 'concentration',
+            startedRound: 2,
+            shape: 'emanation',
+            originX: 8,
+            originY: 8,
+            radiusFt: 15,
+            saveDC: 14,
+            saveType: 'wis',
+            conditionIfFail: 'Restrained'
+          },
+          {
+            id: 's2',
+            name: 'Conjure Animals',
+            caster: 'Druid',
+            duration: 10,
+            startedRound: 1,
+            summonedLabels: ['Wolf']
+          }
+        ]
+      })
+    )
+    expect(result).toContain('[SPELL EFFECTS]')
+    expect(result).toContain('Spirit Guardians by Cleric (concentration)')
+    expect(result).toContain('DC 14 WIS')
+    expect(result).toContain('Restrained on fail')
+    // round 1 + 10 duration, now round 3 → 8 rounds left
+    expect(result).toContain('Conjure Animals by Druid (8 rounds left)')
+    expect(result).toContain('summons: Wolf')
   })
 
   it('shows active diseases', () => {

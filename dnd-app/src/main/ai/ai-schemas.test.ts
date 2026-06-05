@@ -309,6 +309,42 @@ describe('validateDmActions', () => {
     expect(issues).toHaveLength(0)
   })
 
+  it('validates query_aoe preview action', () => {
+    const { valid, issues } = validateDmActions([
+      { action: 'query_aoe', shape: 'cone', originX: 5, originY: 5, radiusOrLength: 15, direction: 90 }
+    ])
+    expect(valid).toHaveLength(1)
+    expect(issues).toHaveLength(0)
+  })
+
+  it('validates cast_spell action with area + duration', () => {
+    const { valid, issues } = validateDmActions([
+      {
+        action: 'cast_spell',
+        spellName: 'Spirit Guardians',
+        caster: 'Cleric',
+        targetX: 8,
+        targetY: 8,
+        shape: 'emanation',
+        radiusOrLength: 15,
+        saveType: 'wis',
+        saveDC: 14,
+        damageFormula: '3d8',
+        damageType: 'radiant',
+        halfOnSave: true,
+        duration: 'concentration'
+      }
+    ])
+    expect(valid).toHaveLength(1)
+    expect(issues).toHaveLength(0)
+  })
+
+  it('validates end_spell action', () => {
+    const { valid, issues } = validateDmActions([{ action: 'end_spell', spellName: 'Entangle', caster: 'Druid' }])
+    expect(valid).toHaveLength(1)
+    expect(issues).toHaveLength(0)
+  })
+
   it('validates advance_time action', () => {
     const { valid, issues } = validateDmActions([{ action: 'advance_time', hours: 8 }])
     expect(valid).toHaveLength(1)

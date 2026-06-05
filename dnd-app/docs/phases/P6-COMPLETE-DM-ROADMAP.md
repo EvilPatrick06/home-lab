@@ -33,7 +33,7 @@
 - **G8** (high) creature spell slot tracking in combat
 - **G13** (high) AI DM can see spell-level spell slots available on enemies in the snapshot
 
-### P6.10 — AI AoE preview/feedback + spell-effect tracking  `[ ] pending`
+### P6.10 — AI AoE preview/feedback + spell-effect tracking  `[x] shipped v2.4.56`
 - **G9** (high) Engine calculates AoE templates (sphere, cone, line, cube, cylinder) and target selection
 - **G11** (high) The AI DM cannot trigger, perceive, or manage spell-based effects (Magic Circle, Entangle, Conjure Animals, etc.) with duration/caster/link tracking, despite the engine's architecture supporting entity tracking. Environmental effects (Extreme Cold, etc.) are visible and manageable; spell effects are not.
 

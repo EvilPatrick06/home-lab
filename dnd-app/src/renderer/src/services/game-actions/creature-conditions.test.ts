@@ -11,7 +11,8 @@ vi.mock('../plugin-system/event-bus', () => ({
 // Mock broadcast helpers
 vi.mock('./broadcast-helpers', () => ({
   broadcastTokenSync: vi.fn(),
-  broadcastConditionSync: vi.fn()
+  broadcastConditionSync: vi.fn(),
+  postDmMessage: vi.fn()
 }))
 
 // Mock dice helpers

@@ -152,6 +152,8 @@ export interface MapToken {
   companionType?: 'familiar' | 'wildShape' | 'steed' | 'summoned'
   /** Spell that created this token */
   sourceSpell?: string
+  /** Combat round this summoned creature expires (set by cast_spell summon linking) */
+  summonExpiresRound?: number
 
   /** Save modifier for unarmed strike grapple/shove contests */
   saveMod?: number

@@ -1,5 +1,11 @@
 import type { StateCreator } from 'zustand'
-import type { ActiveCurse, ActiveDisease, ActiveEnvironmentalEffect, PlacedTrap } from '../../types/dm-toolbox'
+import type {
+  ActiveCurse,
+  ActiveDisease,
+  ActiveEnvironmentalEffect,
+  ActiveSpellEffect,
+  PlacedTrap
+} from '../../types/dm-toolbox'
 import type { CustomEffect } from '../../types/effects'
 import type { EffectsSliceState, GameStoreState } from './types'
 
@@ -85,6 +91,20 @@ export const createEffectsSlice: StateCreator<GameStoreState, [], [], EffectsSli
     set((s) => ({
       activeEnvironmentalEffects: s.activeEnvironmentalEffects.filter((e) => e.id !== id)
     }))
+  },
+
+  // --- Spell Effects (ongoing spell-based effects cast by the AI DM) ---
+  activeSpellEffects: [],
+  addSpellEffect: (effect: ActiveSpellEffect) => {
+    set((s) => ({ activeSpellEffects: [...s.activeSpellEffects, effect] }))
+  },
+  updateSpellEffect: (id: string, updates: Partial<ActiveSpellEffect>) => {
+    set((s) => ({
+      activeSpellEffects: s.activeSpellEffects.map((e) => (e.id === id ? { ...e, ...updates } : e))
+    }))
+  },
+  removeSpellEffect: (id: string) => {
+    set((s) => ({ activeSpellEffects: s.activeSpellEffects.filter((e) => e.id !== id) }))
   },
 
   // --- Placed Traps ---

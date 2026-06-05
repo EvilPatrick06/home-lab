@@ -670,6 +670,49 @@ const ApplyAreaEffectSchema = z.object({
   conditionDuration: z.union([z.number(), z.literal('permanent')]).optional()
 })
 
+// ── Spell effects & AoE preview (P6.10) ──
+
+const QueryAoeSchema = z.object({
+  action: z.literal('query_aoe'),
+  shape: AreaShapeSchema,
+  originX: z.number(),
+  originY: z.number(),
+  radiusOrLength: z.number(),
+  widthOrHeight: z.number().optional(),
+  direction: z.number().optional(),
+  excludeLabel: z.string().optional(),
+  reason: z.string().optional()
+})
+
+const CastSpellSchema = z.object({
+  action: z.literal('cast_spell'),
+  spellName: z.string(),
+  caster: z.string(),
+  targetX: z.number().optional(),
+  targetY: z.number().optional(),
+  shape: AreaShapeSchema.optional(),
+  radiusOrLength: z.number().optional(),
+  direction: z.number().optional(),
+  saveDC: z.number().optional(),
+  saveType: AbilitySchema.optional(),
+  conditionIfFail: z.string().optional(),
+  damageFormula: z.string().optional(),
+  damageType: z.string().optional(),
+  halfOnSave: z.boolean().optional(),
+  duration: z.union([z.number(), z.literal('concentration'), z.literal('permanent')]).optional(),
+  concentration: z.boolean().optional(),
+  summonLabels: z.array(z.string()).optional(),
+  reason: z.string().optional()
+})
+
+const EndSpellSchema = z.object({
+  action: z.literal('end_spell'),
+  spellEffectId: z.string().optional(),
+  spellName: z.string().optional(),
+  caster: z.string().optional(),
+  reason: z.string().optional()
+})
+
 const UseLegendaryActionSchema = z.object({
   action: z.literal('use_legendary_action'),
   entityLabel: z.string(),
@@ -902,6 +945,9 @@ export const DM_ACTION_SCHEMAS: Record<string, z.ZodType> = {
   short_rest: ShortRestSchema,
   long_rest: LongRestSchema,
   apply_area_effect: ApplyAreaEffectSchema,
+  query_aoe: QueryAoeSchema,
+  cast_spell: CastSpellSchema,
+  end_spell: EndSpellSchema,
   use_legendary_action: UseLegendaryActionSchema,
   use_legendary_resistance: UseLegendaryResistanceSchema,
   recharge_roll: RechargeRollSchema,

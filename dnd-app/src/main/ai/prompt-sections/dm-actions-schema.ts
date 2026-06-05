@@ -119,7 +119,12 @@ When you run a monster's turn, emit the matching action so its action economy is
 - \`long_rest\`: {characterNames: string[]}
 
 **Area Effects:**
-- \`apply_area_effect\`: {shape, originX, originY, radiusOrLength, widthOrHeight?, damageFormula?, damageType?, saveType?, saveDC?, halfOnSave?, condition?, conditionDuration?}
+- \`apply_area_effect\`: {shape, originX, originY, radiusOrLength, widthOrHeight?, damageFormula?, damageType?, saveType?, saveDC?, halfOnSave?, condition?, conditionDuration?} — rolls real saves + damage and posts a "[Area Effect] … → target (saved/failed: …)" summary you'll see next turn.
+- \`query_aoe\`: {shape, originX, originY, radiusOrLength, widthOrHeight?, direction?, excludeLabel?, reason?} — PREVIEW only: does NOT apply anything. Posts a DM-only "[AoE Preview] … would affect: …" list so you can check who a template catches BEFORE committing. Use this to aim spells/breath weapons, then follow up with apply_area_effect or cast_spell.
+
+**Spell Effects (ongoing spells):**
+- \`cast_spell\`: {spellName, caster, targetX?, targetY?, shape?, radiusOrLength?, direction?, saveDC?, saveType?, conditionIfFail?, damageFormula?, damageType?, halfOnSave?, duration?, concentration?, summonLabels?, reason?} — register an ongoing spell effect (Spirit Guardians, Entangle, Magic Circle, Conjure Animals, …). Tracked in [SPELL EFFECTS] with caster + remaining duration. \`duration\` is rounds (number), 'concentration', or 'permanent'. Set \`concentration:true\` (or duration:'concentration') to occupy the caster's concentration — it breaks automatically on damage/incapacitation. If you pass shape+target+damageFormula/conditionIfFail, the area mechanics are applied immediately (like apply_area_effect). \`summonLabels\` links already-placed creature tokens to this spell as summons (tag them \`place_creature\` first), so they show their source spell + expiry round.
+- \`end_spell\`: {spellEffectId? | spellName?, caster?, reason?} — end an active spell effect (by name+caster, or its id). Frees the caster's concentration if it was a concentration spell.
 
 **Legendary & Recharge:**
 - \`use_legendary_action\`: {entityLabel, actionName, cost?}
