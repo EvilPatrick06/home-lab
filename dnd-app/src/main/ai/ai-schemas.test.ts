@@ -147,6 +147,19 @@ describe('validateStatChanges', () => {
     expect(issues).toHaveLength(1)
   })
 
+  it('validates add_exhaustion stat change', () => {
+    const { valid, issues } = validateStatChanges([
+      { type: 'add_exhaustion', characterName: 'Aria', levels: 2, reason: 'forced march' }
+    ])
+    expect(valid).toHaveLength(1)
+    expect(issues).toHaveLength(0)
+  })
+
+  it('rejects add_exhaustion without levels', () => {
+    const { issues } = validateStatChanges([{ type: 'add_exhaustion', characterName: 'Aria', reason: 'x' }])
+    expect(issues).toHaveLength(1)
+  })
+
   it('validates ability score enum', () => {
     const { valid } = validateStatChanges([{ type: 'set_ability_score', ability: 'cha', value: 20, reason: 'boon' }])
     expect(valid).toHaveLength(1)

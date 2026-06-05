@@ -241,6 +241,16 @@ export function buildGameStateSnapshot(
       if (gameStore.restTracking.lastLongRestSeconds != null) {
         const sinceLR = totalSec - gameStore.restTracking.lastLongRestSeconds
         lines.push(`Time since last long rest: ${Math.floor(sinceLR / 3600)} hours`)
+        // Long rest is gated by a 24h cooldown (one benefit per day). Tell the AI whether a
+        // long rest will succeed now, so it can narrate the prereq instead of failing silently.
+        const untilLR = 86400 - sinceLR
+        lines.push(
+          untilLR <= 0
+            ? 'Long rest: available now (24h cooldown met; also needs 8h uninterrupted + each PC above 0 HP)'
+            : `Long rest: NOT yet available — ${Math.ceil(untilLR / 3600)} more hours until the 24h cooldown clears`
+        )
+      } else {
+        lines.push('Long rest: available now (no long rest taken yet)')
       }
     }
     // Active light sources

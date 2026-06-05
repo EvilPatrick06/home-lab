@@ -115,8 +115,8 @@ When you run a monster's turn, emit the matching action so its action economy is
 - \`share_time\`: {target: "all"|"requester", message?}
 
 **Resting:**
-- \`short_rest\`: {characterNames: string[]}
-- \`long_rest\`: {characterNames: string[]}
+- \`short_rest\`: {characterNames: string[]} — requires ~1 hour of relatively uninterrupted rest. Spend Hit Dice to heal.
+- \`long_rest\`: {characterNames: string[]} — requires 8 hours (≤2h of which can be light activity/watch) AND a 24-hour cooldown since the last long rest AND each character above 0 HP. The [GAME TIME] block reports whether a long rest is available now or how many hours remain; check it and narrate the prerequisite if a rest can't happen yet, rather than assuming it succeeds.
 
 **Area Effects:**
 - \`apply_area_effect\`: {shape, originX, originY, radiusOrLength, widthOrHeight?, damageFormula?, damageType?, saveType?, saveDC?, halfOnSave?, condition?, conditionDuration?} — rolls real saves + damage and posts a "[Area Effect] … → target (saved/failed: …)" summary you'll see next turn.

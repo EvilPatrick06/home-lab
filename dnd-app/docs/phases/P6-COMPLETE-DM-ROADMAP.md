@@ -56,7 +56,7 @@
 - **G23** (high) Start, progress, and complete downtime activities with resource tracking
 - **G26** (high) Perceive party downtime activity progress and active downtime entries
 
-### P6.15 — AI travel/rest: exhaustion + food/water + forced march + rest prereqs  `[ ] pending`
+### P6.15 — AI travel/rest: exhaustion + food/water + forced march + rest prereqs  `[x] shipped v2.4.61`
 - **G24** (high) Track exhaustion gained from travel, extreme environments, and chases
 - **G25** (high) Apply food and water consumption mechanics during travel
 - **G27** (high) Track forced march and overland travel exhaustion mechanics

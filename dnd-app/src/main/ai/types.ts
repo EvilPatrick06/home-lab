@@ -238,3 +238,4 @@ export type StatChange =
   | { type: 'creature_expend_spell_slot'; targetLabel: string; level: number; count?: number; reason: string }
   | { type: 'creature_restore_spell_slot'; targetLabel: string; level: number; count?: number; reason: string }
   | { type: 'reduce_exhaustion'; characterName?: string; reason: string }
+  | { type: 'add_exhaustion'; characterName?: string; levels: number; reason: string }

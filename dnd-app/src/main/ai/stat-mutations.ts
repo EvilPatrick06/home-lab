@@ -187,6 +187,8 @@ function validateChange(char: Character5eV3, change: StatChange): string | null 
       const conditions = char.conditions || []
       return !conditions.some((c) => c.name.toLowerCase() === 'exhaustion') ? 'No exhaustion to reduce' : null
     }
+    case 'add_exhaustion':
+      return change.levels > 0 ? null : 'Exhaustion levels must be positive'
     default:
       return `Unknown change type: ${(change as { type: string }).type}`
   }
@@ -377,6 +379,18 @@ function applyChange(char: Character5eV3, change: StatChange): void {
         } else {
           char.conditions = conditions!.filter((c) => c !== exh)
         }
+      }
+      break
+    }
+    case 'add_exhaustion': {
+      if (!char.conditions) char.conditions = []
+      const conditions = char.conditions
+      const exh = conditions.find((c) => c.name.toLowerCase() === 'exhaustion')
+      // Exhaustion is a single condition with a numeric level (PHB caps at 6 = death).
+      if (exh) {
+        exh.value = Math.min(6, (exh.value ?? 1) + change.levels)
+      } else {
+        conditions.push({ name: 'Exhaustion', type: 'condition', isCustom: false, value: Math.min(6, change.levels) })
       }
       break
     }
@@ -673,6 +687,8 @@ export function describeChange(change: StatChange): string {
       return `Feature revoked: ${change.name} (${change.reason})`
     case 'reduce_exhaustion':
       return `Exhaustion reduced (${change.reason})`
+    case 'add_exhaustion':
+      return `Exhaustion +${change.levels} (${change.reason})`
     default: {
       // Exhaustiveness guard — every StatChange member must have an arm above;
       // the cast keeps a safe runtime fallback if one is ever missed.

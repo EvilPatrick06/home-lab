@@ -19,6 +19,17 @@ Navigator makes DC 10 Wisdom (Survival) check. Failure = lost (DM determines how
 ### Foraging
 DC 10 Wisdom (Survival) while traveling at slow pace. Success = 1d6 + WIS modifier pounds of food and 1d6 + WIS modifier gallons of water.
 
+**Applying Exhaustion:** whenever a rule below says a character "gains N Exhaustion", actually emit an \`add_exhaustion\` stat change ({characterName, levels: N, reason}) in the [STAT_CHANGES] block — don't just narrate it. (Exhaustion is one condition with a level 1–6; level 6 is death. A long rest reduces it by 1, which the engine handles automatically.)
+
+### Forced March
+A party can travel up to 8 hours per day at no cost. For each **additional hour** beyond 8 in a single day, each traveler makes a DC 10 Constitution save (DC +1 per extra hour) or gains 1 Exhaustion. Track the day's travel with \`advance_time\`; the [GAME TIME] block shows the clock so you can tell when the 8-hour threshold is passed.
+
+### Food & Water (DMG 2024 malnutrition)
+A character needs 1 lb of food and 1 gallon of water (2 in heat) per day. Track supplies with \`add_item\` / \`remove_item\` (e.g. "Rations", "Waterskin") and deduct per day of travel.
+- **No food:** a character can go without food for 3 + CON modifier days, then gains 1 Exhaustion per further day; eating a half-ration day counts as half a day.
+- **No water:** a character who drinks under half their daily need makes a DC 15 CON save or gains 1 Exhaustion (2 if they already have 1+). Going a full day with no water gains 1 Exhaustion automatically.
+Enforce these with \`add_exhaustion\` when supplies run out.
+
 ### Extreme Environments
 - **Extreme Cold (below 0°F):** DC 10 CON save each hour or gain 1 Exhaustion. Resistance to cold damage or cold weather gear = auto-success.
 - **Extreme Heat (above 100°F):** DC 5 CON save each hour (DC +1 per subsequent hour). Failure = 1 Exhaustion.

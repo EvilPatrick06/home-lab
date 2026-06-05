@@ -270,6 +270,12 @@ describe('describeChange', () => {
     expect(result).toContain('Exhaustion reduced')
     expect(result).toContain('long rest')
   })
+
+  it('describes add_exhaustion with level + reason', () => {
+    const result = describeChange({ type: 'add_exhaustion', levels: 2, reason: 'forced march' })
+    expect(result).toContain('Exhaustion +2')
+    expect(result).toContain('forced march')
+  })
 })
 
 describe('isNegativeChange', () => {
@@ -438,6 +444,35 @@ describe('applyMutations', () => {
     const result = await applyMutations('char1', [{ type: 'add_condition', name: 'Poisoned', reason: 'again' }])
     expect(result.rejected).toHaveLength(1)
     expect(result.rejected[0].reason).toContain('Already has condition')
+  })
+
+  it('add_exhaustion creates an Exhaustion condition with a level', async () => {
+    const char = makeCharacter()
+    mockLoadCharacter.mockResolvedValue({ success: true, data: char })
+    mockSaveCharacter.mockResolvedValue({ success: true })
+
+    await applyMutations('char1', [{ type: 'add_exhaustion', levels: 2, reason: 'forced march' }])
+    const exh = (char.conditions as Array<{ name: string; value?: number }>).find((c) => c.name === 'Exhaustion')
+    expect(exh?.value).toBe(2)
+  })
+
+  it('add_exhaustion increments an existing level and clamps at 6', async () => {
+    const char = makeCharacter({ conditions: [{ name: 'Exhaustion', type: 'condition', isCustom: false, value: 5 }] })
+    mockLoadCharacter.mockResolvedValue({ success: true, data: char })
+    mockSaveCharacter.mockResolvedValue({ success: true })
+
+    await applyMutations('char1', [{ type: 'add_exhaustion', levels: 3, reason: 'no water' }])
+    const exh = (char.conditions as Array<{ name: string; value?: number }>).find((c) => c.name === 'Exhaustion')
+    expect(exh?.value).toBe(6)
+  })
+
+  it('rejects add_exhaustion with non-positive levels', async () => {
+    const char = makeCharacter()
+    mockLoadCharacter.mockResolvedValue({ success: true, data: char })
+
+    const result = await applyMutations('char1', [{ type: 'add_exhaustion', levels: 0, reason: 'noop' }])
+    expect(result.rejected).toHaveLength(1)
+    expect(result.rejected[0].reason).toContain('must be positive')
   })
 
   it('rejects removing a condition not present', async () => {

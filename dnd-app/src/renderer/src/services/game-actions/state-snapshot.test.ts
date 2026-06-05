@@ -289,6 +289,26 @@ describe('buildGameStateSnapshot', () => {
     expect(result).toContain('afternoon')
   })
 
+  it('shows long rest as available when the 24h cooldown has cleared', () => {
+    const result = buildGameStateSnapshot(
+      makeStores({
+        inGameTime: { totalSeconds: 200000 },
+        restTracking: { lastLongRestSeconds: 100000 } // 100000s ago = ~27.7h
+      })
+    )
+    expect(result).toContain('Long rest: available now')
+  })
+
+  it('shows hours remaining when the long-rest cooldown has not cleared', () => {
+    const result = buildGameStateSnapshot(
+      makeStores({
+        inGameTime: { totalSeconds: 110000 },
+        restTracking: { lastLongRestSeconds: 100000 } // 10000s ago = ~2.7h
+      })
+    )
+    expect(result).toContain('Long rest: NOT yet available')
+  })
+
   it('shows active light sources in game time block', () => {
     const result = buildGameStateSnapshot(
       makeStores({
