@@ -93,6 +93,38 @@ describe('formatCharacterForContext', () => {
     expect(result).toContain('**Thorin** — Level 5 Dwarf (Mountain Dwarf) Fighter (Champion) 5 (5e 2024)')
   })
 
+  it('derives class name from classRefs when inline classes is absent (canonical v4 shape)', () => {
+    const result = formatCharacterForContext(
+      makeCharacter({
+        classes: undefined,
+        classRefs: [{ instanceId: 'i1', ref: { entryType: 'classes', entryId: 'barbarian' }, level: 5, levelTaken: 5 }]
+      })
+    )
+    expect(result).toContain('Barbarian 5 (5e 2024)')
+  })
+
+  it('uses classRefs override name + subclass when present', () => {
+    const result = formatCharacterForContext(
+      makeCharacter({
+        classes: undefined,
+        classRefs: [
+          {
+            instanceId: 'i1',
+            ref: { entryType: 'classes', entryId: 'fighter', overrides: { name: 'Fighter' } },
+            level: 5,
+            levelTaken: 5,
+            subclassRef: { entryType: 'subclasses', entryId: 'champion' }
+          }
+        ]
+      })
+    )
+    expect(result).toContain('Fighter (Champion) 5 (5e 2024)')
+  })
+
+  it('does not throw when neither classes nor classRefs exist', () => {
+    expect(() => formatCharacterForContext(makeCharacter({ classes: undefined, classRefs: undefined }))).not.toThrow()
+  })
+
   it('formats HP and AC', () => {
     const result = formatCharacterForContext(makeCharacter())
     expect(result).toContain('HP: 40/50')

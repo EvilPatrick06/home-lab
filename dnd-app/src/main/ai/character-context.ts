@@ -9,6 +9,11 @@ function formatMod(mod: number): string {
   return mod >= 0 ? `+${mod}` : `${mod}`
 }
 
+/** Title-case a library slug/id ("half-orc" -> "Half-Orc") for a display fallback. */
+function titleCase(value: string): string {
+  return value.replace(/(^|[\s_-])([a-z])/g, (_m, sep: string, ch: string) => sep + ch.toUpperCase())
+}
+
 /**
  * Load a character by ID from storage and return the raw object.
  */
@@ -44,8 +49,23 @@ export function formatCharacterAbbreviated(char: Record<string, unknown>): strin
 
 function formatCharacter5e(c: Character5eV3): string {
   const lines: string[] = []
-  const classes = c.classes!
-  const className = classes.map((cl) => `${cl.name}${cl.subclass ? ` (${cl.subclass})` : ''} ${cl.level}`).join(' / ')
+  // Persisted characters use the canonical v4 shape (class data in `classRefs`);
+  // the migration shim strips the inline v3 `classes` array before save, so it is
+  // absent for everything loaded here. Prefer inline `classes` when present
+  // (writer-side/legacy input), else derive from `classRefs`. Never assume either
+  // exists -- a missing array previously threw "reading 'map'" and the AI DM
+  // could not set the opening scene.
+  const inlineClasses = c.classes ?? []
+  const className =
+    inlineClasses.length > 0
+      ? inlineClasses.map((cl) => `${cl.name}${cl.subclass ? ` (${cl.subclass})` : ''} ${cl.level}`).join(' / ')
+      : (c.classRefs ?? [])
+          .map((cr) => {
+            const name = cr.ref?.overrides?.name ?? titleCase(cr.ref?.entryId ?? 'unknown')
+            const subclass = cr.subclassRef?.overrides?.name ?? cr.subclassRef?.entryId
+            return `${name}${subclass ? ` (${titleCase(String(subclass))})` : ''} ${cr.level}`
+          })
+          .join(' / ')
   const subspecies = c.subspecies
   lines.push(
     `**${c.name}** — Level ${c.level} ${c.species}${subspecies ? ` (${subspecies})` : ''} ${className} (5e 2024)`
