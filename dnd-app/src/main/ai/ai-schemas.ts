@@ -817,6 +817,36 @@ const UpdateTerrainCellSchema = z.object({
   floor: z.number().optional()
 })
 
+// ── Token customization: elevation/floor/visuals/mobility/senses (P6.22) ──
+
+const SpecialSenseSchema = z.object({
+  type: z.enum(['blindsight', 'tremorsense', 'truesight']),
+  range: z.number()
+})
+
+const CustomizeTokenSchema = z.object({
+  action: z.literal('customize_token'),
+  label: z.string(),
+  elevation: z.number().optional(),
+  floor: z.number().optional(),
+  color: z.string().optional(),
+  borderColor: z.string().optional(),
+  borderStyle: z.enum(['solid', 'dashed', 'double']).optional(),
+  labelFontSize: z.number().optional(),
+  aura: z
+    .object({
+      radius: z.number(),
+      color: z.string(),
+      opacity: z.number(),
+      visibility: z.enum(['all', 'dm-only'])
+    })
+    .optional(),
+  swimSpeed: z.number().optional(),
+  climbSpeed: z.number().optional(),
+  flySpeed: z.number().optional(),
+  specialSenses: z.array(SpecialSenseSchema).optional()
+})
+
 // ── Drawings (P6.21 / G42) ──
 
 const PointSchema = z.object({ x: z.number(), y: z.number() })
@@ -1307,6 +1337,7 @@ export const DM_ACTION_SCHEMAS: Record<string, z.ZodType> = {
   add_drawing: AddDrawingSchema,
   remove_drawing: RemoveDrawingSchema,
   clear_drawings: ClearDrawingsSchema,
+  customize_token: CustomizeTokenSchema,
   add_region: AddRegionSchema,
   update_region: UpdateRegionSchema,
   remove_region: RemoveRegionSchema,

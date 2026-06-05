@@ -100,6 +100,48 @@ describe('buildGameStateSnapshot', () => {
     expect(result).toContain('AC:15')
   })
 
+  it('shows token elevation/floor, special movement+senses, and resist/vuln/immune (G44/G46/G47)', () => {
+    const result = buildGameStateSnapshot(
+      makeStores({
+        activeMapId: 'map-1',
+        maps: [
+          {
+            id: 'map-1',
+            name: 'Aerie',
+            width: 400,
+            height: 400,
+            grid: { cellSize: 40 },
+            tokens: [
+              {
+                id: 't1',
+                entityId: 'e1',
+                entityType: 'enemy',
+                label: 'Wyvern',
+                gridX: 2,
+                gridY: 2,
+                sizeX: 1,
+                sizeY: 1,
+                conditions: [],
+                elevation: 60,
+                floor: 1,
+                flySpeed: 80,
+                specialSenses: [{ type: 'blindsight', range: 30 }],
+                resistances: ['cold'],
+                immunities: ['poison']
+              }
+            ]
+          }
+        ]
+      })
+    )
+    expect(result).toContain('Elev:60ft')
+    expect(result).toContain('Floor:1')
+    expect(result).toContain('Move[fly 80]')
+    expect(result).toContain('Senses[blindsight 30]')
+    expect(result).toContain('Resist[cold]')
+    expect(result).toContain('Immune[poison]')
+  })
+
   it('shows [BLOODIED] when HP is at or below half', () => {
     const result = buildGameStateSnapshot(
       makeStores({

@@ -630,6 +630,29 @@ describe('validateDmActions', () => {
     expect(issues).toHaveLength(1)
   })
 
+  it('validates customize_token action (G44/G45/G46)', () => {
+    const { valid, issues } = validateDmActions([
+      {
+        action: 'customize_token',
+        label: 'Wyvern',
+        elevation: 60,
+        flySpeed: 80,
+        color: '#88f',
+        borderStyle: 'dashed',
+        aura: { radius: 10, color: '#0f0', opacity: 0.4, visibility: 'all' },
+        specialSenses: [{ type: 'blindsight', range: 30 }]
+      }
+    ])
+    expect(valid).toHaveLength(1)
+    expect(issues).toHaveLength(0)
+  })
+
+  it('rejects customize_token with an invalid borderStyle', () => {
+    const { valid, issues } = validateDmActions([{ action: 'customize_token', label: 'X', borderStyle: 'wavy' }])
+    expect(valid).toHaveLength(0)
+    expect(issues).toHaveLength(1)
+  })
+
   it('validates advance_time action', () => {
     const { valid, issues } = validateDmActions([{ action: 'advance_time', hours: 8 }])
     expect(valid).toHaveLength(1)

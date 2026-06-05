@@ -142,6 +142,8 @@ import {
   executeRemoveToken,
   executeUpdateToken
 } from './game-actions/token-actions'
+// ── Token Customization (elevation/floor/visuals/mobility/senses) ──
+import { executeCustomizeToken } from './game-actions/token-customize-actions'
 // ── Visibility / Environment Actions ──
 import {
   executeClearWeather,
@@ -509,6 +511,8 @@ function executeOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: A
       return executeUpdateRegion(action, gameStore, activeMap, stores)
     case 'remove_region':
       return executeRemoveRegion(action, gameStore, activeMap, stores)
+    case 'customize_token':
+      return executeCustomizeToken(action, gameStore, activeMap, stores)
 
     // ── DM Toolbox (environmental effects, diseases/curses, traps) ──
     case 'add_environmental_effect':

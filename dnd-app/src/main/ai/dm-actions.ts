@@ -327,6 +327,21 @@ export type DmAction =
     }
   | { action: 'remove_region'; regionId: string }
   | {
+      action: 'customize_token'
+      label: string
+      elevation?: number
+      floor?: number
+      color?: string
+      borderColor?: string
+      borderStyle?: 'solid' | 'dashed' | 'double'
+      labelFontSize?: number
+      aura?: { radius: number; color: string; opacity: number; visibility: 'all' | 'dm-only' }
+      swimSpeed?: number
+      climbSpeed?: number
+      flySpeed?: number
+      specialSenses?: Array<{ type: 'blindsight' | 'tremorsense' | 'truesight'; range: number }>
+    }
+  | {
       action: 'update_wall_segment'
       wallId: string
       type?: 'solid' | 'door' | 'window' | 'one-way' | 'transparent'

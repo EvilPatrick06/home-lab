@@ -89,7 +89,7 @@
 - **G42** (high) Drawing/annotation placement on maps (freehand lines, rectangles, circles, text labels with color, stroke width, visibility control, floor layer support)
 - **G43** (high) Scene region/trigger zone creation with spatial shapes (circle/polygon/rectangle), triggers (enter/leave/start-turn/end-turn), and actions (alert-dm, teleport, apply-condition)
 
-### P6.22 — AI map: token elevation/floor + visuals + movement/senses + resist/vuln/immune report  `[ ] pending`
+### P6.22 — AI map: token elevation/floor + visuals + movement/senses + resist/vuln/immune report  `[x] shipped v2.4.68`
 - **G44** (high) Token elevation and floor layer assignment (elevation in feet with falling damage rules, multi-floor map support)
 - **G45** (high) Token visual customization (color, border color, border style, label font size, aura with radius/color/opacity/visibility)
 - **G46** (high) Token mobility and special movement (swim speed, climb speed, fly speed configuration; special senses: blindsight, tremorsense, truesight with range)

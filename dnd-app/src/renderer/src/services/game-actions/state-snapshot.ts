@@ -34,6 +34,23 @@ export function buildGameStateSnapshot(
         }
         if (s.ac != null) desc += ` AC:${s.ac}`
         if (s.walkSpeed) desc += ` Speed:${s.walkSpeed}`
+        // Elevation / floor (G44) — so the AI reasons about height (flight, falling, ranged) + which floor.
+        if (t.elevation) desc += ` Elev:${t.elevation}ft`
+        if (t.floor) desc += ` Floor:${t.floor}`
+        // Special movement (G46) — non-walk speeds the AI should respect for terrain.
+        const moves: string[] = []
+        if (t.swimSpeed) moves.push(`swim ${t.swimSpeed}`)
+        if (t.climbSpeed) moves.push(`climb ${t.climbSpeed}`)
+        if (t.flySpeed) moves.push(`fly ${t.flySpeed}`)
+        if (moves.length > 0) desc += ` Move[${moves.join(', ')}]`
+        if (t.specialSenses && t.specialSenses.length > 0) {
+          desc += ` Senses[${t.specialSenses.map((sn) => `${sn.type} ${sn.range}`).join(', ')}]`
+        }
+        // Token-level resistances/vulnerabilities/immunities the AI itself set (G47) — so it
+        // can reason about damage mitigation it can't see from a stat block alone.
+        if (t.resistances && t.resistances.length > 0) desc += ` Resist[${t.resistances.join(', ')}]`
+        if (t.vulnerabilities && t.vulnerabilities.length > 0) desc += ` Vuln[${t.vulnerabilities.join(', ')}]`
+        if (t.immunities && t.immunities.length > 0) desc += ` Immune[${t.immunities.join(', ')}]`
         if (t.spellSlots) {
           const slots = Object.entries(t.spellSlots)
             .filter(([, v]) => v.max > 0)

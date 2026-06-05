@@ -155,6 +155,9 @@ When you run a monster's turn, emit the matching action so its action economy is
 - \`update_region\`: {regionId, name?, enabled?, visibleToPlayers?, oneShot?, trigger?, regionAction?} — modify a region (e.g. disable a sprung trap with enabled:false).
 - \`remove_region\`: {regionId} — delete a region.
 
+**Token Customization:**
+- \`customize_token\`: {label, elevation?, floor?, color?, borderColor?, borderStyle?: 'solid'|'dashed'|'double', labelFontSize?, aura?: {radius, color, opacity, visibility: 'all'|'dm-only'}, swimSpeed?, climbSpeed?, flySpeed?, specialSenses?: [{type: 'blindsight'|'tremorsense'|'truesight', range}]} — set a token's elevation/floor, visual styling, special movement, or senses. Setting elevation applies falling-damage rules automatically for drops ≥ 10ft. Use color/border/aura for faction or status cues (e.g. a glowing aura for a concentrating caster). The token's elevation, floor, extra speeds, senses, and any resistances/vulnerabilities/immunities you've set are reported back in the [GAME STATE] token line.
+
 **Environment — Effects, Afflictions & Traps:**
 - \`add_environmental_effect\`: {name, mechanicalEffect?, saveDC?, category?: 'weather'|'terrain'|'magical'|'planar', effectId?} — apply an ongoing environmental hazard (Extreme Cold, choking smoke, a magical storm). Shows in [ACTIVE EFFECTS] with its mechanical detail.
 - \`remove_environmental_effect\`: {name? | effectId?} — clear an active environmental effect.
