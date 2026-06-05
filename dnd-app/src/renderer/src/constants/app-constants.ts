@@ -41,19 +41,24 @@ export const AI_MUTATIONS_AUTO_REJECT_MS = 60_000
 // Safety timeout that force-clears a stuck "typing" stream. The handler fires
 // at STREAM_SAFETY_TIMEOUT_MS and only acts if at least
 // STREAM_SAFETY_THRESHOLD_MS has actually elapsed (guards against early wakeups).
-// MUST stay ABOVE the main process's PROVIDER_REQUEST_TIMEOUT_MS (90s, llm-provider.ts)
-// so a real provider error/timeout is delivered to the UI as a specific message
-// BEFORE this generic "AI response timed out" backstop fires. (Was 60s, which lost
-// the race to the 120s provider timeout and masked every real failure cause.)
-export const STREAM_SAFETY_TIMEOUT_MS = 120_000
-export const STREAM_SAFETY_THRESHOLD_MS = 118_000
+// MUST stay ABOVE the main process's longest provider timeout — for Ollama that is
+// OLLAMA_PREFILL_TIMEOUT_MS (300s, llm-provider.ts): a local model on CPU can spend
+// minutes in prompt prefill before the first token, and the main process emits a
+// 'loading_model' heartbeat throughout, so this backstop must NOT fire mid-prefill and
+// mask a valid slow response. The main process delivers a specific prefill/inactivity
+// timeout (and no longer retries it) at ~300s — before this generic backstop at 330s.
+export const STREAM_SAFETY_TIMEOUT_MS = 330_000
+export const STREAM_SAFETY_THRESHOLD_MS = 325_000
 
 // AI DM scene bootstrap (use-game-effects)
 // Brief wait for persisted messages to land before forcing a reload from disk.
 export const SCENE_MESSAGE_WAIT_MS = 500
-// Poll cadence + overall cap while a scene is still streaming in.
+// Poll cadence + overall cap while a scene is still streaming in. The cap must stay
+// ABOVE the main process's OLLAMA_PREFILL_TIMEOUT_MS (300s) — a local model on CPU can
+// take minutes to prefill the opening-scene prompt, and stopping the poll early would
+// leave the finished narration unloaded (chat stuck on "setting the scene…").
 export const SCENE_POLL_INTERVAL_MS = 1000
-export const SCENE_POLL_TIMEOUT_MS = 60_000
+export const SCENE_POLL_TIMEOUT_MS = 330_000
 // Fallback delay before kicking off scene generation when no prep happened.
 export const SCENE_FALLBACK_DELAY_MS = 1500
 

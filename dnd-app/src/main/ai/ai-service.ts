@@ -196,6 +196,14 @@ export async function streamWithRetry(
       // Don't retry on abort
       if (abortController.signal.aborted) return
 
+      // Don't retry a timeout: each attempt re-runs the model's prompt prefill from
+      // scratch, so retrying a prefill/inactivity timeout just multiplies the wait
+      // (3 × the window) without any chance of succeeding. Fail fast instead.
+      if (/tim(e|ed)\s*out/i.test(msg)) {
+        onError(msg)
+        return
+      }
+
       if (attempt < maxRetries) {
         const delay = getRetryDelay(attempt)
         await sleep(delay)
@@ -631,7 +639,11 @@ export function startChat(
     // the UI the model is likely cold-loading instead of leaving it silent. Armed
     // here and cleared on first token / completion / error (and in the catch).
     let gotFirstToken = false
-    const firstTokenTimer = setTimeout(() => {
+    // Heartbeat: a cold/large model can spend minutes in prefill before the first
+    // token, so re-emit 'loading_model' every FIRST_TOKEN_NOTICE_MS (not once) — this
+    // keeps the user informed AND keeps the renderer's safety timer from firing on a
+    // valid-but-slow prefill (the renderer re-arms its backstop on each status).
+    const firstTokenTimer = setInterval(() => {
       if (!gotFirstToken) sendStreamStatus(streamId, 'loading_model')
     }, FIRST_TOKEN_NOTICE_MS)
     try {
@@ -657,7 +669,7 @@ export function startChat(
         onText: (text: string) => {
           if (!gotFirstToken) {
             gotFirstToken = true
-            clearTimeout(firstTokenTimer)
+            clearInterval(firstTokenTimer)
           }
           fullText += text
           // Update heartbeat on each chunk to extend TTL for active streams
@@ -704,9 +716,9 @@ export function startChat(
           onError(errMsg)
         }
       )
-      clearTimeout(firstTokenTimer)
+      clearInterval(firstTokenTimer)
     } catch (error) {
-      clearTimeout(firstTokenTimer)
+      clearInterval(firstTokenTimer)
       clearPendingWebSearchApproval(streamId, false)
       removeStream(streamId)
       onError(error instanceof Error ? error.message : String(error))

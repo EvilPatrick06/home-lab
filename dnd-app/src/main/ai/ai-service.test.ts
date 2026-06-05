@@ -576,6 +576,33 @@ describe('ai-service', () => {
         vi.useRealTimers()
       }
     })
+
+    it('does NOT retry a timeout — fails fast on the first attempt', async () => {
+      vi.useFakeTimers()
+      try {
+        const callbacks = cb()
+        let attempts = 0
+        const run = streamChatRetryable(
+          async (_s, _m, c) => {
+            attempts++
+            c.onError(new Error('Ollama timed out (no first token within 300s)'))
+          },
+          'sys',
+          [],
+          callbacks,
+          'm'
+        )
+        const terminalError = vi.fn()
+        const p = streamWithRetry(run, new AbortController(), terminalError)
+        await vi.runAllTimersAsync()
+        await p
+        // Retrying a prefill timeout just re-runs prefill — wasteful and hopeless.
+        expect(attempts).toBe(1)
+        expect(terminalError).toHaveBeenCalledWith('Ollama timed out (no first token within 300s)')
+      } finally {
+        vi.useRealTimers()
+      }
+    })
   })
 
   // ── Ollama model preflight ──

@@ -313,6 +313,24 @@ export function useGameEffects({
       }
 
       if (status.status === 'preparing') {
+        // Tell the player the DM is working — a cold/large local model can spend a
+        // minute or two on the opening scene, and an empty chat read as "nothing
+        // happened". Show the typing indicator + a one-time chat note.
+        useAiDmStore.setState({ isTyping: true, sceneStatus: 'preparing' })
+        const alreadyNoted = useLobbyStore
+          .getState()
+          .chatMessages.some((cm) => cm.senderId === 'ai-dm' && cm.id === `ai-dm-scene-prep-${campaign.id}`)
+        if (!alreadyNoted) {
+          addChatMessage({
+            id: `ai-dm-scene-prep-${campaign.id}`,
+            senderId: 'ai-dm',
+            senderName: 'AI Dungeon Master',
+            content:
+              '🎬 *The Dungeon Master is setting the scene… (a local model may take a minute on the first response)*',
+            timestamp: Date.now(),
+            isSystem: true
+          })
+        }
         // Scene still streaming — poll until ready, then load conversation
         pollInterval = setInterval(async () => {
           const s = await window.api.ai.getSceneStatus(campaign.id)
@@ -334,6 +352,21 @@ export function useGameEffects({
                 postSceneNarration(loaded)
               }
             }
+          } else if (s.status === 'error') {
+            // Surface the failure instead of polling silently until the cap.
+            if (pollInterval) {
+              clearInterval(pollInterval)
+              pollInterval = null
+            }
+            useAiDmStore.setState({ sceneStatus: 'error', isTyping: false, lastError: s.error ?? 'Scene prep failed' })
+            addChatMessage({
+              id: `ai-dm-scene-err-${campaign.id}`,
+              senderId: 'ai-dm',
+              senderName: 'AI Dungeon Master',
+              content: `⚠️ The Dungeon Master couldn't set the scene: ${s.error ?? 'request failed'}`,
+              timestamp: Date.now(),
+              isSystem: true
+            })
           }
         }, SCENE_POLL_INTERVAL_MS)
         // Safety: stop polling after 60s

@@ -85,6 +85,22 @@ class LLMProviderError extends Error {
 export const PROVIDER_REQUEST_TIMEOUT_MS = 90_000
 
 /**
+ * Ollama needs a SEPARATE, two-phase timeout because a local model on a CPU laptop
+ * can spend minutes in prompt-evaluation (prefill) of a large system prompt BEFORE it
+ * emits the first token — a single hard 90s cap kills that mid-prefill, so the user
+ * saw "AI is typing" for ~5 min (3 retries × 90s) then "timed out" with zero output.
+ *
+ * - PREFILL: time-to-first-token budget (generous — covers cold model load + prefill).
+ * - INACTIVITY: once tokens are flowing, abort only if the stream goes silent this long
+ *   (catches a genuinely hung connection without killing a slow-but-alive generation).
+ *
+ * The renderer's STREAM_SAFETY_TIMEOUT_MS must stay ABOVE OLLAMA_PREFILL_TIMEOUT_MS so a
+ * valid slow prefill isn't masked by the generic UI timeout.
+ */
+export const OLLAMA_PREFILL_TIMEOUT_MS = 300_000
+export const OLLAMA_INACTIVITY_TIMEOUT_MS = 90_000
+
+/**
  * Phase 17d (NET-8) — combine the caller's abort signal (if any) with a hard request timeout so
  * cloud calls can't hang forever.
  */

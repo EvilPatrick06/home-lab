@@ -1,4 +1,4 @@
-import { type LLMProvider, PROVIDER_REQUEST_TIMEOUT_MS } from './llm-provider'
+import { type LLMProvider, OLLAMA_INACTIVITY_TIMEOUT_MS, OLLAMA_PREFILL_TIMEOUT_MS } from './llm-provider'
 import { OLLAMA_BASE_URL } from './ollama-constants'
 import type { ChatMessage, StreamCallbacks } from './types'
 
@@ -67,9 +67,28 @@ export async function ollamaStreamChat(
     ...messages.map((m) => ({ role: m.role as string, content: m.content }))
   ]
 
+  // Two-phase timeout (see OLLAMA_PREFILL_TIMEOUT_MS): a generous window for the model
+  // to evaluate the prompt and emit the FIRST token (cold load + prefill on CPU), then a
+  // shorter inactivity window between tokens. `timedOut` distinguishes our abort from a
+  // user cancel so the catch reports the right thing.
+  const timeoutController = new AbortController()
+  let timedOut = false
+  let activityTimer: ReturnType<typeof setTimeout> = setTimeout(() => {
+    timedOut = true
+    timeoutController.abort()
+  }, OLLAMA_PREFILL_TIMEOUT_MS)
+  const bumpActivity = (ms: number): void => {
+    clearTimeout(activityTimer)
+    activityTimer = setTimeout(() => {
+      timedOut = true
+      timeoutController.abort()
+    }, ms)
+  }
+
   try {
-    const timeoutSignal = AbortSignal.timeout(PROVIDER_REQUEST_TIMEOUT_MS)
-    const combinedSignal = abortSignal ? AbortSignal.any([abortSignal, timeoutSignal]) : timeoutSignal
+    const combinedSignal = abortSignal
+      ? AbortSignal.any([abortSignal, timeoutController.signal])
+      : timeoutController.signal
 
     const res = await fetch(`${ollamaBaseUrl}/v1/chat/completions`, {
       method: 'POST',
@@ -99,6 +118,9 @@ export async function ollamaStreamChat(
     while (true) {
       const { done, value } = await reader.read()
       if (done) break
+      // Data is flowing — switch from the generous prefill window to the shorter
+      // inter-token inactivity window.
+      bumpActivity(OLLAMA_INACTIVITY_TIMEOUT_MS)
 
       lineBuffer += decoder.decode(value, { stream: true })
       const lines = lineBuffer.split('\n')
@@ -175,12 +197,18 @@ export async function ollamaStreamChat(
       }
     }
 
+    clearTimeout(activityTimer)
     callbacks.onDone(fullText)
   } catch (error) {
+    clearTimeout(activityTimer)
+    // User-initiated cancel — swallow (the caller already tore down the stream).
     if (abortSignal?.aborted) return
-    if (error instanceof Error && error.name === 'TimeoutError') {
+    // Our two-phase timeout fired (or fetch's own TimeoutError). Report which phase.
+    if (timedOut || (error instanceof Error && error.name === 'TimeoutError')) {
       callbacks.onError(
-        new Error(`Ollama request timed out (${Math.round(PROVIDER_REQUEST_TIMEOUT_MS / 1000)}s). Is the model loaded?`)
+        new Error(
+          `Ollama timed out (no first token within ${Math.round(OLLAMA_PREFILL_TIMEOUT_MS / 1000)}s, or stream stalled ${Math.round(OLLAMA_INACTIVITY_TIMEOUT_MS / 1000)}s). The model may be too large for this machine — try a smaller model.`
+        )
       )
       return
     }
@@ -199,7 +227,9 @@ export async function ollamaChatOnce(systemPrompt: string, messages: ChatMessage
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ model, messages: apiMessages, stream: false }),
-    signal: AbortSignal.timeout(PROVIDER_REQUEST_TIMEOUT_MS)
+    // Non-streaming (summaries) — a large prompt on CPU can prefill for minutes, so use
+    // the same generous prefill budget rather than the 90s cap.
+    signal: AbortSignal.timeout(OLLAMA_PREFILL_TIMEOUT_MS)
   })
 
   if (!res.ok) {
