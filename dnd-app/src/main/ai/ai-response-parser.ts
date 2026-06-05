@@ -52,6 +52,41 @@ export function stripVoiceTags(text: string): string {
     .trim()
 }
 
+const RULING_RE = /\[RULING question="([^"]*)"(?:\s+citation="([^"]*)")?\]([\s\S]*?)\[\/RULING\]/g
+
+export interface ParsedRuling {
+  question: string
+  ruling: string
+  citation: string
+}
+
+/**
+ * Extract DM house-rulings the AI records for table consistency:
+ * `[RULING question="..." citation="PHB p.X"]the ruling[/RULING]` (citation optional).
+ * These persist to the campaign's rulings ledger (memory-manager) so future context
+ * surfaces them in the [DM RULINGS] block and the AI rules the same way next time.
+ * Entries with an empty question or body are skipped.
+ */
+export function parseRulings(text: string): ParsedRuling[] {
+  const out: ParsedRuling[] = []
+  const re = new RegExp(RULING_RE.source, 'g')
+  let match: RegExpExecArray | null
+  for (;;) {
+    match = re.exec(text)
+    if (match === null) break
+    const question = match[1].trim()
+    const ruling = match[3].trim()
+    if (!question || !ruling) continue
+    out.push({ question, ruling, citation: (match[2] ?? '').trim() })
+  }
+  return out
+}
+
+/** Strip every [RULING]…[/RULING] block so the bookkeeping never reaches chat. */
+export function stripRulings(text: string): string {
+  return text.replace(/\s*\[RULING[^\]]*\][\s\S]*?\[\/RULING\]\s*/g, '').trim()
+}
+
 export interface FinalizedResponse {
   fullText: string
   displayText: string
@@ -81,7 +116,8 @@ export function finalizeAiResponse(
     const statResult = parseStatChangesDetailed(cleaned)
     const dmResult = parseDmActionsDetailed(cleaned)
     const ruleCitations = parseRuleCitations(cleaned)
-    const displayText = stripRuleCitations(stripDmActions(stripStatChanges(cleaned)))
+    const rulings = parseRulings(cleaned)
+    const displayText = stripRulings(stripRuleCitations(stripDmActions(stripStatChanges(cleaned))))
 
     const allIssues = [...statResult.issues, ...dmResult.issues]
     if (statResult.rawJsonError) {
@@ -109,6 +145,14 @@ export function finalizeAiResponse(
       const sessionId = new Date().toISOString().slice(0, 10)
       const logEntry = `[${request.senderName ?? 'Player'}]: ${request.message}\n[AI DM]: ${displayText.slice(0, 500)}`
       memMgr.appendSessionLog(sessionId, logEntry).catch(() => {})
+      // Persist any house-rulings the AI just recorded so they surface in future
+      // context's [DM RULINGS] block (the read side already exists; this is the
+      // missing write side).
+      for (const r of rulings) {
+        memMgr
+          .addRuling({ question: r.question, ruling: r.ruling, citation: r.citation, overriddenByDM: false })
+          .catch(() => {})
+      }
     } catch {
       // Non-fatal
     }

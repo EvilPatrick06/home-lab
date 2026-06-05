@@ -8,10 +8,14 @@ vi.mock('../storage/ai-conversation-storage', () => ({
   saveConversation: vi.fn().mockResolvedValue({ success: true })
 }))
 
+const { mockMemMgr } = vi.hoisted(() => ({
+  mockMemMgr: {
+    appendSessionLog: vi.fn(() => Promise.resolve()),
+    addRuling: vi.fn(() => Promise.resolve())
+  }
+}))
 vi.mock('./memory-manager', () => ({
-  getMemoryManager: vi.fn(() => ({
-    appendSessionLog: vi.fn().mockResolvedValue(undefined)
-  }))
+  getMemoryManager: vi.fn(() => mockMemMgr)
 }))
 
 vi.mock('./tone-validator', () => ({
@@ -22,8 +26,10 @@ vi.mock('./tone-validator', () => ({
 import {
   finalizeAiResponse,
   parseRuleCitations,
+  parseRulings,
   parseVoiceTags,
   stripRuleCitations,
+  stripRulings,
   stripVoiceTags
 } from './ai-response-parser'
 import type { ConversationManager } from './conversation-manager'
@@ -134,6 +140,18 @@ describe('finalizeAiResponse', () => {
     expect(result.displayText).not.toContain('RULE_CITATION')
   })
 
+  it('persists [RULING] tags to the ledger and strips them from chat', () => {
+    mockMemMgr.addRuling.mockClear()
+    const fullText =
+      'You manage it. [RULING question="Shove off a ledge?" citation="DMG"]Yes, then falling damage.[/RULING]'
+    const result = finalizeAiResponse(fullText, makeRequest(), makeConvManager())
+    expect(result.displayText).toBe('You manage it.')
+    expect(result.displayText).not.toContain('[RULING')
+    expect(mockMemMgr.addRuling).toHaveBeenCalledWith(
+      expect.objectContaining({ question: 'Shove off a ledge?', ruling: 'Yes, then falling damage.', citation: 'DMG' })
+    )
+  })
+
   it('adds display text to conversation history', () => {
     const conv = makeConvManager()
     const request = makeRequest()
@@ -239,5 +257,41 @@ describe('parseVoiceTags / stripVoiceTags', () => {
 
   it('leaves text without tags unchanged (aside from trim)', () => {
     expect(stripVoiceTags('No tags here.')).toBe('No tags here.')
+  })
+})
+
+// ── House-rulings (persist to the rulings ledger; stripped from chat) ──
+describe('parseRulings / stripRulings', () => {
+  it('extracts question, ruling body, and optional citation', () => {
+    const text =
+      'You can do that.\n[RULING question="Shove off a ledge?" citation="DMG p.272"]Yes — treat as a Shove, then falling damage.[/RULING]'
+    expect(parseRulings(text)).toEqual([
+      { question: 'Shove off a ledge?', ruling: 'Yes — treat as a Shove, then falling damage.', citation: 'DMG p.272' }
+    ])
+  })
+
+  it('treats citation as empty string when omitted', () => {
+    const r = parseRulings('[RULING question="Crit on a natural 19?"]No, only natural 20 crits here.[/RULING]')
+    expect(r).toHaveLength(1)
+    expect(r[0].citation).toBe('')
+    expect(r[0].ruling).toBe('No, only natural 20 crits here.')
+  })
+
+  it('parses multiple rulings and skips ones with an empty question or body', () => {
+    const text =
+      '[RULING question="A?"]first[/RULING] mid [RULING question=""]no question[/RULING] [RULING question="B?"]   [/RULING] [RULING question="C?"]third[/RULING]'
+    const r = parseRulings(text)
+    expect(r.map((x) => x.question)).toEqual(['A?', 'C?'])
+  })
+
+  it('returns [] when there are no ruling tags', () => {
+    expect(parseRulings('Just narrative.')).toEqual([])
+  })
+
+  it('strips ruling blocks from chat text but keeps surrounding prose', () => {
+    const out = stripRulings('Before. [RULING question="Q?"]A ruling.[/RULING] After.')
+    expect(out).not.toContain('[RULING')
+    expect(out).toContain('Before.')
+    expect(out).toContain('After.')
   })
 })

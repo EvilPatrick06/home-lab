@@ -8,7 +8,14 @@ import { logSecurityEvent } from '../security-log'
 import { saveConversation } from '../storage/ai-conversation-storage'
 import { atomicWriteFile } from '../storage/atomic-write'
 import { decryptOptional, encryptOptional } from '../storage/safe-secret-storage'
-import { parseRuleCitations, parseVoiceTags, stripRuleCitations, stripVoiceTags } from './ai-response-parser'
+import {
+  parseRuleCitations,
+  parseRulings,
+  parseVoiceTags,
+  stripRuleCitations,
+  stripRulings,
+  stripVoiceTags
+} from './ai-response-parser'
 import type { PendingWebSearchApproval, StreamHandlerDeps } from './ai-stream-handler'
 import { buildChunkIndex, loadChunkIndex } from './chunk-builder'
 import { buildContext, setSearchEngine } from './context-builder'
@@ -856,7 +863,8 @@ async function handleStreamCompletion(
     // Voice tags drive DM-BMO's per-character tone/pitch but must never reach the
     // chat text — extract before stripping, strip before display.
     const { npc, emotion } = parseVoiceTags(cleaned)
-    const displayText = stripVoiceTags(stripRuleCitations(stripDmActions(stripStatChanges(cleaned))))
+    const rulings = parseRulings(cleaned)
+    const displayText = stripVoiceTags(stripRulings(stripRuleCitations(stripDmActions(stripStatChanges(cleaned)))))
 
     conv.addMessage('assistant', displayText)
 
@@ -876,6 +884,12 @@ async function handleStreamCompletion(
         if (change.type === 'npc_attitude') {
           memMgr.upsertNPC(npcMemoryFromAttitude(change.name, change.attitude, change.reason)).catch(() => {})
         }
+      }
+      // Persist house-rulings the AI recorded this turn → future [DM RULINGS] context.
+      for (const r of rulings) {
+        memMgr
+          .addRuling({ question: r.question, ruling: r.ruling, citation: r.citation, overriddenByDM: false })
+          .catch(() => {})
       }
     } catch {
       // Non-fatal

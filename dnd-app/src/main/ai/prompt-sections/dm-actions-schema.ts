@@ -187,6 +187,13 @@ A creature provokes an Opportunity Attack when it moves out of an enemy's reach 
 [/RULE_CITATION]
 \`\`\`
 
+## House Rulings
+The [DM RULINGS] block in your context lists judgment calls already established at this table — always rule consistently with them. When you make a NEW on-the-spot ruling on something the rules don't cover (or cover ambiguously), record it so you and future sessions stay consistent:
+\`\`\`
+[RULING question="Can you shove a creature off a 10ft ledge?" citation="DMG p.272 (improvised)"]Yes — treat it as a Shove (STR Athletics vs the target's STR/DEX save). On a success the target is pushed off and takes falling damage.[/RULING]
+\`\`\`
+The \`citation\` is optional. Only record genuine rulings (not every dice roll); these persist to the table's rulings ledger and are never shown to players in chat.
+
 ### Few-Shot Examples
 
 **Example 1: Combat**
