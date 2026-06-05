@@ -1,5 +1,9 @@
 # P6 Complete-DM Roadmap — AI-DM capability gaps
 
+> **STATUS: COMPLETE ✅ — all phases P6.2a–P6.22 shipped (through v2.4.68, 2026-06-05).**
+> Every confirmed gap (G0–G47) is closed: the AI DM can now drive AND perceive every
+> engine capability the audit flagged. No phases remain.
+>
 > Generated 2026-06-04 from a parallel gap-audit workflow (58 agents, adversarially verified).
 > 48 confirmed gaps = engine capabilities that EXIST in code but the AI DM cannot drive or perceive.
 > Grind one phase = one commit + one release (4-gate at phase end). Mark phases done as shipped.
