@@ -318,16 +318,24 @@ const UpdateTokenSchema = z.object({
   label_new: z.string().optional()
 })
 
-const PlaceCreatureSchema = z.object({
-  action: z.literal('place_creature'),
-  creatureName: z.string().optional(),
-  creatureId: z.string().optional(),
-  label: z.string().optional(),
-  entityType: EntityTypeSchema.optional(),
-  gridX: z.number(),
-  gridY: z.number(),
-  visibleToPlayers: z.boolean().optional()
-})
+const PlaceCreatureSchema = z
+  .object({
+    action: z.literal('place_creature'),
+    creatureName: z.string().optional(),
+    creatureId: z.string().optional(),
+    label: z.string().optional(),
+    entityType: EntityTypeSchema.optional(),
+    gridX: z.number(),
+    gridY: z.number(),
+    visibleToPlayers: z.boolean().optional()
+  })
+  // The executor can't place a creature it can't identify — require at least one of
+  // a name (library lookup) or an id. Without this both were optional, so a creature
+  // with neither silently validated and then no-op'd at execution.
+  .refine((v) => Boolean(v.creatureName || v.creatureId), {
+    message: 'place_creature requires creatureName or creatureId',
+    path: ['creatureName']
+  })
 
 const InitiativeEntrySchema = z.object({
   label: z.string(),
@@ -686,7 +694,7 @@ const ExtinguishSourceSchema = z.object({
  * All known DM action schemas keyed by action name.
  * Used for individual validation when discriminatedUnion can't match.
  */
-const DM_ACTION_SCHEMAS: Record<string, z.ZodType> = {
+export const DM_ACTION_SCHEMAS: Record<string, z.ZodType> = {
   place_token: PlaceTokenSchema,
   move_token: MoveTokenSchema,
   remove_token: RemoveTokenSchema,

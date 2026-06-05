@@ -1,5 +1,14 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { repairJson, StatChangeSchema, validateDmAction, validateDmActions, validateStatChanges } from './ai-schemas'
+import {
+  DM_ACTION_SCHEMAS,
+  repairJson,
+  StatChangeSchema,
+  validateDmAction,
+  validateDmActions,
+  validateStatChanges
+} from './ai-schemas'
 
 // ── repairJson ──
 
@@ -358,5 +367,50 @@ describe('StatChangeSchema', () => {
       reason: 'sword'
     })
     expect(result.success).toBe(false)
+  })
+})
+
+// ── DM action schema ↔ executor contract ──
+// CI guardrail: every validated DM action MUST have an executor case and vice
+// versa, so a new schema can't ship without an implementation (and an executor
+// case can't exist without validation). Reads the renderer executor by path +
+// regex; a sanity assertion guards against a broken read silently passing.
+describe('DM action schema ↔ executor contract', () => {
+  const executorCases = (() => {
+    const path = resolve(__dirname, '../../renderer/src/services/game-action-executor.ts')
+    const code = readFileSync(path, 'utf-8')
+    return new Set([...code.matchAll(/case '([a-z_]+)':/g)].map((m) => m[1]))
+  })()
+  const schemaKeys = Object.keys(DM_ACTION_SCHEMAS)
+
+  it('sanity: extracted a plausible set of executor cases (read not broken)', () => {
+    expect(executorCases.size).toBeGreaterThan(40)
+    expect(executorCases.has('place_creature')).toBe(true)
+  })
+
+  it('every DM_ACTION_SCHEMAS action has an executor case', () => {
+    const missing = schemaKeys.filter((k) => !executorCases.has(k))
+    expect(missing).toEqual([])
+  })
+
+  it('every executor case has a DM_ACTION_SCHEMAS schema', () => {
+    const missing = [...executorCases].filter((c) => !schemaKeys.includes(c))
+    expect(missing).toEqual([])
+  })
+})
+
+describe('place_creature requires a name or id (Phase contract)', () => {
+  const base = { action: 'place_creature' as const, gridX: 1, gridY: 2 }
+
+  it('rejects when neither creatureName nor creatureId is given', () => {
+    expect(validateDmAction({ ...base }).success).toBe(false)
+  })
+
+  it('accepts with creatureName alone', () => {
+    expect(validateDmAction({ ...base, creatureName: 'Goblin' }).success).toBe(true)
+  })
+
+  it('accepts with creatureId alone', () => {
+    expect(validateDmAction({ ...base, creatureId: 'mon-123' }).success).toBe(true)
   })
 })
