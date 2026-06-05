@@ -53,6 +53,32 @@ describe('formatCampaignForContext', () => {
     expect(result).toContain('Description: An epic quest')
   })
 
+  it('formats in-progress downtime activities (G26)', () => {
+    const result = formatCampaignForContext({
+      downtimeProgress: [
+        {
+          characterName: 'Aria',
+          activityName: 'Crafting a Longsword',
+          daysSpent: 3,
+          daysRequired: 7,
+          goldSpent: 7,
+          goldRequired: 15,
+          status: 'in-progress'
+        },
+        { characterName: 'Thorin', activityName: 'Old Job', daysSpent: 2, daysRequired: 2, status: 'abandoned' }
+      ]
+    })
+    expect(result).toContain('[DOWNTIME ACTIVITIES]')
+    expect(result).toContain('Aria: Crafting a Longsword (3/7 days, 7/15 gp, in-progress)')
+    // abandoned entries are filtered out
+    expect(result).not.toContain('Old Job')
+  })
+
+  it('omits the downtime block when there are no activities', () => {
+    const result = formatCampaignForContext({ downtimeProgress: [] })
+    expect(result).not.toContain('[DOWNTIME ACTIVITIES]')
+  })
+
   it('formats custom rules', () => {
     const result = formatCampaignForContext({
       customRules: [{ name: 'Flanking', description: 'Grants advantage' }]

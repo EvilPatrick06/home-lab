@@ -185,6 +185,10 @@ Change the ambient track whenever the scene changes. Use \`sound_effect\` for co
 
 **Treasure:**
 - \`award_treasure\`: {characterNames, type: 'individual'|'hoard', crTier: '0-4'|'5-10'|'11-16'|'17+', reason?} — roll real DMG 2024 treasure (coins, gems, art, magic items) and distribute it: coins split evenly across the named characters, valuables + magic items to the first. Use 'individual' for a single creature's pocket loot, 'hoard' for a dragon's lair / boss cache. The generator picks magic-item rarity to MATCH the CR tier automatically — do NOT invent items; call this action instead.
+**Downtime:**
+- \`start_downtime\`: {characterName, activityId, activityName, daysRequired, goldRequired?, details?} — begin a downtime activity for a character (crafting, training, research, carousing, …). Tracked on the campaign and shown in [DOWNTIME ACTIVITIES].
+- \`advance_downtime\`: {characterName, activityName?, days} — spend days on a character's in-progress activity; auto-completes when it reaches its day requirement. Omit activityName to advance their only/first active one.
+
 - **Magic-item rarity by CR tier** (the roll enforces this; stated so you set the right tier): CR 0–4 → mostly Common/Uncommon; CR 5–10 → Uncommon/Rare; CR 11–16 → Rare/Very Rare; CR 17+ → Very Rare/Legendary (Artifacts only for momentous hoards). When an encounter was loaded with preset loot ([ENCOUNTER LOOT] in chat), hand that out instead of (or in addition to) a fresh roll.
 
 **Bastion Management:**

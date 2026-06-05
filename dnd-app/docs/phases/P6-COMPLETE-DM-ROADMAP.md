@@ -52,7 +52,7 @@
 - **G22** (high) Magic item rarity and power level guidance for treasure rolls
 - **G21** (high) Encounter difficulty rating and XP budget context — data inconsistency in tables
 
-### P6.14 — AI downtime activities + perception  `[ ] pending`
+### P6.14 — AI downtime activities + perception  `[x] shipped v2.4.60`
 - **G23** (high) Start, progress, and complete downtime activities with resource tracking
 - **G26** (high) Perceive party downtime activity progress and active downtime entries
 

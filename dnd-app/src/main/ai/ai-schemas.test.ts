@@ -439,6 +439,30 @@ describe('validateDmActions', () => {
     expect(issues).toHaveLength(1)
   })
 
+  it('validates downtime actions', () => {
+    const { valid, issues } = validateDmActions([
+      {
+        action: 'start_downtime',
+        characterName: 'Aria',
+        activityId: 'crafting',
+        activityName: 'Crafting',
+        daysRequired: 7,
+        goldRequired: 15
+      },
+      { action: 'advance_downtime', characterName: 'Aria', days: 3 }
+    ])
+    expect(valid).toHaveLength(2)
+    expect(issues).toHaveLength(0)
+  })
+
+  it('rejects start_downtime without daysRequired', () => {
+    const { valid, issues } = validateDmActions([
+      { action: 'start_downtime', characterName: 'Aria', activityId: 'x', activityName: 'X' }
+    ])
+    expect(valid).toHaveLength(0)
+    expect(issues).toHaveLength(1)
+  })
+
   it('validates advance_time action', () => {
     const { valid, issues } = validateDmActions([{ action: 'advance_time', hours: 8 }])
     expect(valid).toHaveLength(1)

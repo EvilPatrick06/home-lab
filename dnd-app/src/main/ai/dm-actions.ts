@@ -324,6 +324,18 @@ export type DmAction =
     }
   | { action: 'trigger_level_up'; characterName: string }
 
+  // Downtime (P6.14)
+  | {
+      action: 'start_downtime'
+      characterName: string
+      activityId: string
+      activityName: string
+      daysRequired: number
+      goldRequired?: number
+      details?: string
+    }
+  | { action: 'advance_downtime'; characterName: string; activityName?: string; days: number }
+
   // Bastion Management
   | { action: 'bastion_advance_time'; bastionOwner: string; days: number }
   | { action: 'bastion_issue_order'; bastionOwner: string; facilityName: string; orderType: string; details?: string }

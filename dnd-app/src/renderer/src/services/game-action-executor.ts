@@ -70,6 +70,8 @@ import {
   executeRevealTrap,
   executeTriggerTrap
 } from './game-actions/dm-toolbox-actions'
+// ── Downtime ──
+import { executeAdvanceDowntime, executeStartDowntime } from './game-actions/downtime-actions'
 // ── Effect / State Actions ──
 import {
   executeAddJournalEntry,
@@ -382,6 +384,12 @@ function executeOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: A
       return executeAwardXp(action, gameStore, activeMap, stores)
     case 'award_treasure':
       return executeAwardTreasure(action, gameStore, activeMap, stores)
+
+    // ── Downtime ──
+    case 'start_downtime':
+      return executeStartDowntime(action, gameStore, activeMap, stores)
+    case 'advance_downtime':
+      return executeAdvanceDowntime(action, gameStore, activeMap, stores)
     case 'trigger_level_up':
       return executeTriggerLevelUp(action, gameStore, activeMap, stores)
 

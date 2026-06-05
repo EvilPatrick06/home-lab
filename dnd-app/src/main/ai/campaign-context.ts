@@ -164,6 +164,34 @@ export function formatCampaignForContext(campaign: Record<string, unknown>): str
     if (calendar.startingYear) parts.push(`- Starting Year: ${calendar.startingYear}`)
   }
 
+  // Downtime activities in progress (G26) — so the AI can narrate milestones and
+  // prompt players to advance / complete them between adventuring days.
+  const downtime = campaign.downtimeProgress as
+    | Array<{
+        characterName?: string
+        activityName?: string
+        daysSpent?: number
+        daysRequired?: number
+        goldSpent?: number
+        goldRequired?: number
+        status?: string
+      }>
+    | undefined
+  if (downtime && downtime.length > 0) {
+    const active = downtime.filter((d) => d.status !== 'abandoned')
+    if (active.length > 0) {
+      parts.push('')
+      parts.push('[DOWNTIME ACTIVITIES]')
+      for (const d of active) {
+        const gold = d.goldRequired ? `, ${d.goldSpent ?? 0}/${d.goldRequired} gp` : ''
+        parts.push(
+          `- ${d.characterName ?? 'Someone'}: ${d.activityName ?? 'Activity'} (${d.daysSpent ?? 0}/${d.daysRequired ?? 0} days${gold}, ${d.status ?? 'in-progress'})`
+        )
+      }
+      parts.push('[/DOWNTIME ACTIVITIES]')
+    }
+  }
+
   // Encounters
   const encounters = campaign.encounters as
     | Array<{ name?: string; monsters?: Array<{ name: string; count?: number }> }>
