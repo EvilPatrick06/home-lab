@@ -160,6 +160,15 @@ describe('validateStatChanges', () => {
     expect(issues).toHaveLength(1)
   })
 
+  it('validates add_condition with a duration (G34)', () => {
+    const { valid, issues } = validateStatChanges([
+      { type: 'add_condition', characterName: 'Aria', name: 'Stunned', duration: 3, reason: 'monk strike' },
+      { type: 'add_condition', characterName: 'Aria', name: 'Cursed', duration: 'permanent', reason: 'hag' }
+    ])
+    expect(valid).toHaveLength(2)
+    expect(issues).toHaveLength(0)
+  })
+
   it('validates ability score enum', () => {
     const { valid } = validateStatChanges([{ type: 'set_ability_score', ability: 'cha', value: 20, reason: 'boon' }])
     expect(valid).toHaveLength(1)
@@ -512,6 +521,21 @@ describe('validateDmActions', () => {
     const { valid, issues } = validateDmActions([
       { action: 'adjust_faction_standing', factionName: 'Harpers', delta: 'lots' }
     ])
+    expect(valid).toHaveLength(0)
+    expect(issues).toHaveLength(1)
+  })
+
+  it('validates attune_item + unattune_item actions', () => {
+    const { valid, issues } = validateDmActions([
+      { action: 'attune_item', characterName: 'Aria', itemName: 'Flame Tongue' },
+      { action: 'unattune_item', characterName: 'Aria', itemName: 'Flame Tongue' }
+    ])
+    expect(valid).toHaveLength(2)
+    expect(issues).toHaveLength(0)
+  })
+
+  it('rejects attune_item without an itemName', () => {
+    const { valid, issues } = validateDmActions([{ action: 'attune_item', characterName: 'Aria' }])
     expect(valid).toHaveLength(0)
     expect(issues).toHaveLength(1)
   })

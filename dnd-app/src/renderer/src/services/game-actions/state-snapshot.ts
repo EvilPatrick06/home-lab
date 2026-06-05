@@ -191,11 +191,24 @@ export function buildGameStateSnapshot(
     }
   }
 
-  // Entity conditions
+  // Entity conditions — include remaining duration (G38) so the AI knows whether a
+  // condition is timed (and how long is left) vs permanent, instead of guessing.
   if (gameStore.conditions.length > 0) {
     lines.push('\nConditions:')
+    const round = gameStore.initiative?.round
     for (const c of gameStore.conditions) {
-      lines.push(`- ${c.entityName}: ${c.condition}${c.value ? ` ${c.value}` : ''} (${c.source})`)
+      let dur = ''
+      if (c.duration === 'permanent') {
+        dur = ', permanent'
+      } else if (typeof c.duration === 'number') {
+        // In combat, show rounds remaining from when it was applied; else the raw count.
+        const remaining =
+          typeof round === 'number' && typeof c.appliedRound === 'number'
+            ? c.duration - (round - c.appliedRound)
+            : c.duration
+        dur = `, ${Math.max(0, remaining)} rounds left`
+      }
+      lines.push(`- ${c.entityName}: ${c.condition}${c.value ? ` ${c.value}` : ''}${dur} (${c.source})`)
     }
   }
 

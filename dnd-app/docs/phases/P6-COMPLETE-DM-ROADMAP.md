@@ -71,7 +71,7 @@
 - **G32** (high) Manage quest/objective log (add, update, complete, track active quests)
 - **G33** (high) Manage faction reputation/standing (track PC standing with organizations)
 
-### P6.18 — AI character mutations: condition durations (+perception) + attunement  `[ ] pending`
+### P6.18 — AI character mutations: condition durations (+perception) + attunement  `[x] shipped v2.4.64`
 - **G34** (high) Condition durations on persisted characters
 - **G38** (high) Condition duration perception in game snapshots
 - **G35** (high) Magic item attunement state mutations

@@ -14,6 +14,8 @@ export type { DmAction, ExecutionFailure, ExecutionResult, GameStoreSnapshot } f
 
 const stores: StoreAccessors = { getGameStore, getLobbyStore, getNetworkStore }
 
+// ── Magic-item Attunement ──
+import { executeAttuneItem, executeUnattuneItem } from './game-actions/attunement-actions'
 // ── Combat Action Economy ──
 import {
   executeKnockUnconscious,
@@ -437,6 +439,10 @@ function executeOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: A
       return executeUpdateQuestLog(action, gameStore)
     case 'adjust_faction_standing':
       return executeAdjustFactionStanding(action, gameStore)
+    case 'attune_item':
+      return executeAttuneItem(action, gameStore, activeMap, stores)
+    case 'unattune_item':
+      return executeUnattuneItem(action, gameStore, activeMap, stores)
 
     // ── Resting ──
     case 'short_rest':

@@ -214,6 +214,10 @@ Change the ambient track whenever the scene changes. Use \`sound_effect\` for co
 - \`update_quest_log\`: {operation: 'add'|'update'|'complete'|'remove', name, description?} — maintain the structured quest log shown in [WORLD SUMMARY] → Active Quests. 'add' starts a quest, 'update' revises its text, 'complete' finishes it (logs a recent event), 'remove' drops it (abandoned). Quests match by name. Prefer this over a plain journal entry for trackable objectives.
 - \`adjust_faction_standing\`: {factionName, delta, reason?} — change the party's reputation with an organization by a signed delta (e.g. +10 for saving the Harpers, -5 for crossing the Zhentarim). Standings appear in [FACTION STANDINGS]; let them influence prices, aid, and hostility.
 
+**Magic Item Attunement:**
+- \`attune_item\`: {characterName, itemName, reason?} — attune a PC to one of their magic items (5e: max 3 attuned at once; the item must require attunement). The character's [CHARACTER DATA] shows "Attunement: X/3 slots used".
+- \`unattune_item\`: {characterName, itemName, reason?} — end attunement, freeing a slot.
+
 **Ability Scores & Features:**
 - \`set_ability_score\`: {characterName, ability, value, reason}
 - \`grant_feature\`: {characterName, name, description?, reason}

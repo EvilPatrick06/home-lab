@@ -475,6 +475,16 @@ describe('applyMutations', () => {
     expect(result.rejected[0].reason).toContain('must be positive')
   })
 
+  it('add_condition carries a duration when provided (G34)', async () => {
+    const char = makeCharacter()
+    mockLoadCharacter.mockResolvedValue({ success: true, data: char })
+    mockSaveCharacter.mockResolvedValue({ success: true })
+
+    await applyMutations('char1', [{ type: 'add_condition', name: 'Stunned', duration: 3, reason: 'monk strike' }])
+    const cond = (char.conditions as Array<{ name: string; duration?: number }>).find((c) => c.name === 'Stunned')
+    expect(cond?.duration).toBe(3)
+  })
+
   it('rejects removing a condition not present', async () => {
     const char = makeCharacter()
     mockLoadCharacter.mockResolvedValue({ success: true, data: char })

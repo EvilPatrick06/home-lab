@@ -224,8 +224,23 @@ function formatCharacter5e(c: Character5eV3): string {
   const conditions = c.conditions || []
   if (conditions.length > 0) {
     lines.push(
-      `Active Conditions: ${conditions.map((cond) => (cond.value ? `${cond.name} ${cond.value}` : cond.name)).join(', ')}`
+      `Active Conditions: ${conditions
+        .map((cond) => {
+          let s = cond.value ? `${cond.name} ${cond.value}` : cond.name
+          if (cond.duration === 'permanent') s += ' (permanent)'
+          else if (typeof cond.duration === 'number') s += ` (${cond.duration} rounds)`
+          return s
+        })
+        .join(', ')}`
     )
+  }
+
+  // Attunement slots (G35) — magic items are library refs (names live UI-side), but the
+  // attuned map is on the character, so surface how many of the 3 slots are in use.
+  const attunedMap = c.state?.magicItemAttuned
+  if (attunedMap) {
+    const used = Object.values(attunedMap).filter(Boolean).length
+    if (used > 0) lines.push(`Attunement: ${used}/3 slots used`)
   }
 
   if (hp.current === 0) {

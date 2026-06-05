@@ -375,6 +375,8 @@ export type DmAction =
       description?: string
     }
   | { action: 'adjust_faction_standing'; factionName: string; delta: number; reason?: string }
+  | { action: 'attune_item'; characterName: string; itemName: string; reason?: string }
+  | { action: 'unattune_item'; characterName: string; itemName: string; reason?: string }
 
   // Handouts
   | { action: 'share_handout'; title: string; content: string; contentType?: 'text' | 'image' }

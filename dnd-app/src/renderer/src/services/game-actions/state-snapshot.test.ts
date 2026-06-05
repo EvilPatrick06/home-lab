@@ -271,6 +271,19 @@ describe('buildGameStateSnapshot', () => {
     expect(result).toContain('Goblin: poisoned')
   })
 
+  it('shows condition duration (permanent + timed) (G38)', () => {
+    const result = buildGameStateSnapshot(
+      makeStores({
+        conditions: [
+          { entityId: 'e1', entityName: 'Orc', condition: 'restrained', duration: 3, source: 'Entangle' },
+          { entityId: 'e2', entityName: 'Wolf', condition: 'cursed', duration: 'permanent', source: 'Hag' }
+        ]
+      })
+    )
+    expect(result).toContain('Orc: restrained, 3 rounds left')
+    expect(result).toContain('Wolf: cursed, permanent')
+  })
+
   it('shows environment when non-default', () => {
     const result = buildGameStateSnapshot(makeStores({ ambientLight: 'dim', underwaterCombat: true }))
     expect(result).toContain('Light: dim')

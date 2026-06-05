@@ -224,7 +224,12 @@ function applyChange(char: Character5eV3, change: StatChange): void {
     }
     case 'add_condition': {
       const conditions = char.conditions!
-      conditions.push({ name: change.name, type: 'condition', isCustom: false })
+      conditions.push({
+        name: change.name,
+        type: 'condition',
+        isCustom: false,
+        ...(change.duration !== undefined ? { duration: change.duration } : {})
+      })
       break
     }
     case 'remove_condition': {

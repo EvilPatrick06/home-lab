@@ -198,7 +198,7 @@ export type StatChange =
   | { type: 'damage'; characterName?: string; value: number; damageType?: string; reason: string }
   | { type: 'heal'; characterName?: string; value: number; reason: string }
   | { type: 'temp_hp'; characterName?: string; value: number; reason: string }
-  | { type: 'add_condition'; characterName?: string; name: string; reason: string }
+  | { type: 'add_condition'; characterName?: string; name: string; duration?: number | 'permanent'; reason: string }
   | { type: 'remove_condition'; characterName?: string; name: string; reason: string }
   | { type: 'death_save'; characterName?: string; success: boolean; reason: string }
   | { type: 'reset_death_saves'; characterName?: string; reason: string }

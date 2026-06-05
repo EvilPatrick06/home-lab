@@ -117,6 +117,8 @@ export interface ActiveCondition {
   type: 'condition' | 'buff'
   isCustom: boolean
   value?: number
+  /** Remaining duration in rounds, or 'permanent' (until removed). Omitted = untracked. */
+  duration?: number | 'permanent'
 }
 
 export interface ClassResource {

@@ -90,7 +90,8 @@ const TempHpSchema = z.object({
 const AddConditionSchema = z.object({
   type: z.literal('add_condition'),
   ...BaseCharacterChange,
-  name: z.string()
+  name: z.string(),
+  duration: z.union([z.number(), z.literal('permanent')]).optional()
 })
 
 const RemoveConditionSchema = z.object({
@@ -1036,6 +1037,20 @@ const AdjustFactionStandingSchema = z.object({
   reason: z.string().optional()
 })
 
+const AttuneItemSchema = z.object({
+  action: z.literal('attune_item'),
+  characterName: z.string(),
+  itemName: z.string(),
+  reason: z.string().optional()
+})
+
+const UnattuneItemSchema = z.object({
+  action: z.literal('unattune_item'),
+  characterName: z.string(),
+  itemName: z.string(),
+  reason: z.string().optional()
+})
+
 const SetNpcFactionSchema = z.object({
   action: z.literal('set_npc_faction'),
   npcName: z.string(),
@@ -1184,6 +1199,8 @@ export const DM_ACTION_SCHEMAS: Record<string, z.ZodType> = {
   set_npc_secret_motivation: SetNpcSecretMotivationSchema,
   update_quest_log: UpdateQuestLogSchema,
   adjust_faction_standing: AdjustFactionStandingSchema,
+  attune_item: AttuneItemSchema,
+  unattune_item: UnattuneItemSchema,
   share_handout: ShareHandoutSchema,
   light_source: LightSourceSchema,
   extinguish_source: ExtinguishSourceSchema

@@ -64,7 +64,7 @@ When a campaign is active with a loaded character, and your response involves me
   - **damage**: {characterName, value, damageType?, reason} — HP reduction
   - **heal**: {characterName, value, reason} — HP restoration
   - **temp_hp**: {characterName, value, reason} — temporary hit points
-  - **add_condition**: {characterName, name, reason} — gain a condition
+  - **add_condition**: {characterName, name, duration?, reason} — gain a condition. duration is rounds (number) or 'permanent'; omit for an untracked/until-removed condition. The game snapshot shows remaining rounds so you can expire it.
   - **remove_condition**: {characterName, name, reason} — lose a condition
   - **death_save**: {characterName, success: bool, reason} — death saving throw result
   - **reset_death_saves**: {characterName, reason} — clear death save tallies
