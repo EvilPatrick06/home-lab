@@ -195,6 +195,33 @@ describe('MemoryManager', () => {
     })
   })
 
+  // -- NPC world-state fields (P6.16) --
+
+  describe('updateNpcFields', () => {
+    it('persists faction + location on a new NPC personality', async () => {
+      mockFs.readFile.mockRejectedValue(new Error('ENOENT'))
+      const mgr = new MemoryManager('c1')
+      await mgr.updateNpcFields('Volo', { faction: 'Thieves Guild', location: 'Waterdeep' })
+      expect(mockFs.writeFile).toHaveBeenCalledWith(
+        expect.stringContaining('npc-personalities.json'),
+        expect.stringContaining('Thieves Guild'),
+        'utf-8'
+      )
+    })
+
+    it('merges fields onto an existing personality without dropping others', async () => {
+      mockFs.readFile.mockResolvedValue(
+        JSON.stringify([{ npcId: 'n1', name: 'Volo', personality: 'boastful', faction: 'Writers Guild' }])
+      )
+      const mgr = new MemoryManager('c1')
+      await mgr.updateNpcFields('Volo', { secretMotivation: 'wants fame' })
+      const calls = mockFs.writeFile.mock.calls as unknown as Array<[string, string, string]>
+      const written = JSON.parse(calls[calls.length - 1][1]) as Array<Record<string, unknown>>
+      expect(written[0].secretMotivation).toBe('wants fame')
+      expect(written[0].personality).toBe('boastful')
+    })
+  })
+
   // -- Places --
 
   describe('getPlaces / upsertPlace', () => {

@@ -93,7 +93,10 @@ import {
   executeRemoveSidebarEntry,
   executeRequestRoll,
   executeRollDice,
+  executeSetNpcFaction,
+  executeSetNpcLocation,
   executeSetNpcRelationship,
+  executeSetNpcSecretMotivation,
   executeSetTime,
   executeShareHandout,
   executeShareTime,
@@ -422,6 +425,12 @@ function executeOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: A
       return executeLogNpcInteraction(action, gameStore)
     case 'set_npc_relationship':
       return executeSetNpcRelationship(action, gameStore)
+    case 'set_npc_faction':
+      return executeSetNpcFaction(action, gameStore)
+    case 'set_npc_location':
+      return executeSetNpcLocation(action, gameStore)
+    case 'set_npc_secret_motivation':
+      return executeSetNpcSecretMotivation(action, gameStore)
 
     // ── Resting ──
     case 'short_rest':

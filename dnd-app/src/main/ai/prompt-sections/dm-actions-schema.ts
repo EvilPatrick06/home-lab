@@ -205,6 +205,9 @@ Change the ambient track whenever the scene changes. Use \`sound_effect\` for co
 
 **NPC Tracking:**
 - \`set_npc_attitude\`: {npcName, attitude, reason?}
+- \`set_npc_faction\`: {npcName, faction} — record which organization/group an NPC belongs to (e.g. "Thieves Guild"). Persists in NPC memory and shows in [NPC PERSONALITIES].
+- \`set_npc_location\`: {npcName, location} — set an NPC's current known location (persistent, separate from map tokens). Update it as NPCs travel so you remember where they are.
+- \`set_npc_secret_motivation\`: {npcName, secretMotivation} — record a DM-only hidden goal/drive/fear. WRITE-ONLY: this is never read back to you, preserving the secret. Use it to remember a villain's true agenda.
 - \`share_handout\`: {title, content, contentType?}
 
 **Ability Scores & Features:**

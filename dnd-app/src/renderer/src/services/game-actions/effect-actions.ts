@@ -586,6 +586,36 @@ export function executeSetNpcRelationship(action: DmAction, gameStore: GameStore
   return true
 }
 
+// ── NPC world-state writes (P6.16): faction / location / secret motivation ──
+// All three persist to the campaign's NPC personality memory via one IPC channel.
+
+export function executeSetNpcFaction(action: DmAction, gameStore: GameStoreSnapshot): boolean {
+  const npcName = action.npcName as string
+  const faction = action.faction as string
+  if (!npcName || !faction) throw new Error('Missing params for set_npc_faction')
+  const campaignId = gameStore.campaignId
+  if (campaignId) window.api.ai.setNpcFields?.(campaignId, npcName, { faction })
+  return true
+}
+
+export function executeSetNpcLocation(action: DmAction, gameStore: GameStoreSnapshot): boolean {
+  const npcName = action.npcName as string
+  const location = action.location as string
+  if (!npcName || !location) throw new Error('Missing params for set_npc_location')
+  const campaignId = gameStore.campaignId
+  if (campaignId) window.api.ai.setNpcFields?.(campaignId, npcName, { location })
+  return true
+}
+
+export function executeSetNpcSecretMotivation(action: DmAction, gameStore: GameStoreSnapshot): boolean {
+  const npcName = action.npcName as string
+  const secretMotivation = action.secretMotivation as string
+  if (!npcName || !secretMotivation) throw new Error('Missing params for set_npc_secret_motivation')
+  const campaignId = gameStore.campaignId
+  if (campaignId) window.api.ai.setNpcFields?.(campaignId, npcName, { secretMotivation })
+  return true
+}
+
 export function executeBastionAddCreature(
   action: DmAction,
   _gameStore: GameStoreSnapshot,

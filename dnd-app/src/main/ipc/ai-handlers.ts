@@ -477,6 +477,20 @@ export function registerAiHandlers(): void {
     }
   )
 
+  handle(
+    IPC_CHANNELS.AI_SET_NPC_FIELDS,
+    async (
+      _event,
+      campaignId: string,
+      npcName: string,
+      fields: { faction?: string; location?: string; secretMotivation?: string }
+    ) => {
+      const memMgr = getMemoryManager(campaignId)
+      await memMgr.updateNpcFields(npcName, fields)
+      return { success: true }
+    }
+  )
+
   // ── Ollama Management ──
 
   handle(IPC_CHANNELS.AI_DETECT_OLLAMA, async () => {

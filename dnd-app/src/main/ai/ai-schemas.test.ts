@@ -476,6 +476,22 @@ describe('validateDmActions', () => {
     expect(issues).toHaveLength(1)
   })
 
+  it('validates NPC world-state write actions', () => {
+    const { valid, issues } = validateDmActions([
+      { action: 'set_npc_faction', npcName: 'Volo', faction: 'Thieves Guild' },
+      { action: 'set_npc_location', npcName: 'Volo', location: 'Waterdeep' },
+      { action: 'set_npc_secret_motivation', npcName: 'Volo', secretMotivation: 'wants the crown' }
+    ])
+    expect(valid).toHaveLength(3)
+    expect(issues).toHaveLength(0)
+  })
+
+  it('rejects set_npc_faction without a faction', () => {
+    const { valid, issues } = validateDmActions([{ action: 'set_npc_faction', npcName: 'Volo' }])
+    expect(valid).toHaveLength(0)
+    expect(issues).toHaveLength(1)
+  })
+
   it('validates advance_time action', () => {
     const { valid, issues } = validateDmActions([{ action: 'advance_time', hours: 8 }])
     expect(valid).toHaveLength(1)

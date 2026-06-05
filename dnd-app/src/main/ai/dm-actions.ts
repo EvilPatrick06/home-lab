@@ -365,6 +365,9 @@ export type DmAction =
       relationship: string
       disposition: 'friendly' | 'neutral' | 'hostile'
     }
+  | { action: 'set_npc_faction'; npcName: string; faction: string }
+  | { action: 'set_npc_location'; npcName: string; location: string }
+  | { action: 'set_npc_secret_motivation'; npcName: string; secretMotivation: string }
 
   // Handouts
   | { action: 'share_handout'; title: string; content: string; contentType?: 'text' | 'image' }

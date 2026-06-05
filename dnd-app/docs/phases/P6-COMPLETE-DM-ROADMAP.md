@@ -62,7 +62,7 @@
 - **G27** (high) Track forced march and overland travel exhaustion mechanics
 - **G28** (high) Perceive and respect short/long rest prerequisites and completion state
 
-### P6.16 — AI NPC world-state writes: faction/location/secret-motivation  `[ ] pending`
+### P6.16 — AI NPC world-state writes: faction/location/secret-motivation  `[x] shipped v2.4.62`
 - **G29** (high) Set NPC faction/organization membership
 - **G30** (high) Set NPC current location (persistent tracking separate from encounters)
 - **G31** (high) Set NPC secret motivation (DM-only hidden goals, drives, fears)

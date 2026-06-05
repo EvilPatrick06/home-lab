@@ -1022,6 +1022,24 @@ const SetNpcRelationshipSchema = z.object({
   disposition: NpcDispositionSchema
 })
 
+const SetNpcFactionSchema = z.object({
+  action: z.literal('set_npc_faction'),
+  npcName: z.string(),
+  faction: z.string()
+})
+
+const SetNpcLocationSchema = z.object({
+  action: z.literal('set_npc_location'),
+  npcName: z.string(),
+  location: z.string()
+})
+
+const SetNpcSecretMotivationSchema = z.object({
+  action: z.literal('set_npc_secret_motivation'),
+  npcName: z.string(),
+  secretMotivation: z.string()
+})
+
 const ShareHandoutSchema = z.object({
   action: z.literal('share_handout'),
   title: z.string(),
@@ -1147,6 +1165,9 @@ export const DM_ACTION_SCHEMAS: Record<string, z.ZodType> = {
   set_npc_attitude: SetNpcAttitudeActionSchema,
   log_npc_interaction: LogNpcInteractionSchema,
   set_npc_relationship: SetNpcRelationshipSchema,
+  set_npc_faction: SetNpcFactionSchema,
+  set_npc_location: SetNpcLocationSchema,
+  set_npc_secret_motivation: SetNpcSecretMotivationSchema,
   share_handout: ShareHandoutSchema,
   light_source: LightSourceSchema,
   extinguish_source: ExtinguishSourceSchema

@@ -142,6 +142,11 @@ const api = {
         relationship,
         disposition
       ),
+    setNpcFields: (
+      campaignId: string,
+      npcName: string,
+      fields: { faction?: string; location?: string; secretMotivation?: string }
+    ) => ipcRenderer.invoke(IPC_CHANNELS.AI_SET_NPC_FIELDS, campaignId, npcName, fields),
     // Memory files
     listMemoryFiles: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_LIST_MEMORY_FILES, campaignId),
     readMemoryFile: (campaignId: string, fileName: string) =>

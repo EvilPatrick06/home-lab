@@ -282,6 +282,11 @@ interface AiAPI {
     relationship: string,
     disposition: string
   ) => Promise<{ success: boolean }>
+  setNpcFields: (
+    campaignId: string,
+    npcName: string,
+    fields: { faction?: string; location?: string; secretMotivation?: string }
+  ) => Promise<{ success: boolean }>
   generateEndOfSessionRecap: (campaignId: string) => Promise<{ success: boolean; data?: string; error?: string }>
   // Memory files
   listMemoryFiles: (campaignId: string) => Promise<Array<{ name: string; size: number }>>

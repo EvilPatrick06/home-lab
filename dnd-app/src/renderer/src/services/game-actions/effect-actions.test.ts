@@ -33,7 +33,8 @@ vi.stubGlobal('window', {
   api: {
     ai: {
       logNpcInteraction: vi.fn(),
-      setNpcRelationship: vi.fn()
+      setNpcRelationship: vi.fn(),
+      setNpcFields: vi.fn()
     }
   }
 })
@@ -535,6 +536,42 @@ describe('effect-actions', () => {
         disposition: ''
       }
       expect(() => executeSetNpcRelationship(action, gs)).toThrow('Missing params')
+    })
+  })
+
+  describe('NPC world-state writes (faction / location / secret motivation)', () => {
+    it('sets NPC faction via IPC', async () => {
+      const { executeSetNpcFaction } = await import('./effect-actions')
+      expect(
+        executeSetNpcFaction({ action: 'set_npc_faction', npcName: 'Volo', faction: 'Thieves Guild' }, makeGameStore())
+      ).toBe(true)
+      expect(window.api.ai.setNpcFields).toHaveBeenCalledWith('camp-1', 'Volo', { faction: 'Thieves Guild' })
+    })
+
+    it('sets NPC location via IPC', async () => {
+      const { executeSetNpcLocation } = await import('./effect-actions')
+      expect(
+        executeSetNpcLocation({ action: 'set_npc_location', npcName: 'Volo', location: 'Waterdeep' }, makeGameStore())
+      ).toBe(true)
+      expect(window.api.ai.setNpcFields).toHaveBeenCalledWith('camp-1', 'Volo', { location: 'Waterdeep' })
+    })
+
+    it('sets NPC secret motivation via IPC', async () => {
+      const { executeSetNpcSecretMotivation } = await import('./effect-actions')
+      expect(
+        executeSetNpcSecretMotivation(
+          { action: 'set_npc_secret_motivation', npcName: 'Volo', secretMotivation: 'Wants the crown' },
+          makeGameStore()
+        )
+      ).toBe(true)
+      expect(window.api.ai.setNpcFields).toHaveBeenCalledWith('camp-1', 'Volo', { secretMotivation: 'Wants the crown' })
+    })
+
+    it('throws when params are missing', async () => {
+      const { executeSetNpcFaction } = await import('./effect-actions')
+      expect(() =>
+        executeSetNpcFaction({ action: 'set_npc_faction', npcName: '', faction: '' }, makeGameStore())
+      ).toThrow('Missing params')
     })
   })
 

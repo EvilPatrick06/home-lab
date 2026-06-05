@@ -376,6 +376,23 @@ export class MemoryManager {
     })
   }
 
+  /**
+   * Set persistent NPC world-state fields (faction, current location, and the
+   * DM-only secret motivation). Creates a stub personality if the NPC is new.
+   * secretMotivation is intentionally never surfaced back to the AI in reads.
+   */
+  async updateNpcFields(
+    npcName: string,
+    fields: Partial<Pick<NPCPersonality, 'faction' | 'location' | 'secretMotivation'>>
+  ): Promise<void> {
+    let personality = await this.getNpcByName(npcName)
+    if (!personality) {
+      personality = { npcId: crypto.randomUUID(), name: npcName, personality: '' }
+      await this.setNpcPersonality(personality)
+    }
+    await this.setNpcPersonality({ ...personality, ...fields })
+  }
+
   /** Add a relationship between two NPCs */
   async addNpcRelationship(
     npcName: string,
@@ -499,8 +516,11 @@ export class MemoryManager {
         .slice(0, 15) // Cap to save context tokens
         .map((p) => {
           let entry = `${p.name}: ${p.personality}`
+          if (p.faction) entry += ` {Faction: ${p.faction}}`
+          if (p.location) entry += ` @${p.location}`
           if (p.voiceNotes) entry += ` (Voice: ${p.voiceNotes})`
           if (p.lastInteractionSummary) entry += ` [Last: ${p.lastInteractionSummary}]`
+          // NOTE: secretMotivation is deliberately NOT exposed — it's DM-only.
           return entry
         })
         .join('; ')
