@@ -34,6 +34,14 @@ export function buildGameStateSnapshot(
         }
         if (s.ac != null) desc += ` AC:${s.ac}`
         if (s.walkSpeed) desc += ` Speed:${s.walkSpeed}`
+        if (t.spellSlots) {
+          const slots = Object.entries(t.spellSlots)
+            .filter(([, v]) => v.max > 0)
+            .sort(([a], [b]) => Number(a) - Number(b))
+            .map(([lvl, v]) => `L${lvl} ${v.current}/${v.max}`)
+            .join(', ')
+          if (slots) desc += ` Slots[${slots}]`
+        }
         if (t.conditions.length > 0) desc += ` [${t.conditions.join(', ')}]`
         if (t.companionType) desc += ` {${t.companionType}}`
         if (t.monsterStatBlockId) desc += ` creature:${t.monsterStatBlockId}`

@@ -89,6 +89,8 @@ When creatures/monsters on the map take damage, gain/lose conditions, or are kil
   - **creature_set_resistance**: {targetLabel, damageTypes[], replace?, reason} — make a creature resistant to damage types (e.g. ["fire","cold"]); the engine then halves that damage automatically. replace:true wipes existing first; default merges.
   - **creature_set_vulnerability**: {targetLabel, damageTypes[], replace?, reason} — vulnerable (double) to damage types
   - **creature_set_immunity**: {targetLabel, damageTypes[], replace?, reason} — immune (zero) to damage types
+  - **creature_expend_spell_slot**: {targetLabel, level, count?, reason} — a spellcasting creature uses a spell slot of that level (default count 1). The slot pool comes from its stat block (shown in its context); track usage so it can't over-cast.
+  - **creature_restore_spell_slot**: {targetLabel, level, count?, reason} — give a creature a spell slot back (e.g. on a rest).
   - **set_ability_score**: {characterName, ability, value, reason} — set an ability score (ability: str/dex/con/int/wis/cha, value 1-30)
   - **grant_feature**: {characterName, name, description?, reason} — grant a special feature or permanent effect
   - **revoke_feature**: {characterName, name, reason} — remove a feature or effect
@@ -163,6 +165,8 @@ export interface CreatureMutationEvent {
     | 'creature_set_resistance'
     | 'creature_set_vulnerability'
     | 'creature_set_immunity'
+    | 'creature_expend_spell_slot'
+    | 'creature_restore_spell_slot'
   targetLabel: string
   value: number
   damageType?: string

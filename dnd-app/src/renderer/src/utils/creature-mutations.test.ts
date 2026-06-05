@@ -328,4 +328,41 @@ describe('applyCreatureMutations', () => {
       expect(updateToken).toHaveBeenCalledWith('map-1', 'tok-1', { immunities: ['poison'] })
     })
   })
+
+  describe('creature_expend_spell_slot / creature_restore_spell_slot', () => {
+    it('expends a slot from the tracked pool (clamped at 0)', () => {
+      const map = makeMap([makeToken({ spellSlots: { 1: { current: 3, max: 4 } } })])
+      const updateToken = vi.fn()
+      applyCreatureMutations(
+        [{ type: 'creature_expend_spell_slot', targetLabel: 'Goblin', level: 1 } as never],
+        map,
+        updateToken
+      )
+      expect(updateToken).toHaveBeenCalledWith('map-1', 'tok-1', { spellSlots: { 1: { current: 2, max: 4 } } })
+    })
+
+    it('restores a slot but never above max', () => {
+      const map = makeMap([makeToken({ spellSlots: { 2: { current: 3, max: 4 } } })])
+      const updateToken = vi.fn()
+      applyCreatureMutations(
+        [{ type: 'creature_restore_spell_slot', targetLabel: 'Goblin', level: 2, count: 5 } as never],
+        map,
+        updateToken
+      )
+      expect(updateToken).toHaveBeenCalledWith('map-1', 'tok-1', { spellSlots: { 2: { current: 4, max: 4 } } })
+    })
+
+    it('expends count > 1 and merges with other tracked levels', () => {
+      const map = makeMap([makeToken({ spellSlots: { 1: { current: 4, max: 4 }, 2: { current: 2, max: 2 } } })])
+      const updateToken = vi.fn()
+      applyCreatureMutations(
+        [{ type: 'creature_expend_spell_slot', targetLabel: 'Goblin', level: 1, count: 2 } as never],
+        map,
+        updateToken
+      )
+      expect(updateToken).toHaveBeenCalledWith('map-1', 'tok-1', {
+        spellSlots: { 1: { current: 2, max: 4 }, 2: { current: 2, max: 2 } }
+      })
+    })
+  })
 })

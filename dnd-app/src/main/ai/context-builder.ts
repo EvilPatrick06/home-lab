@@ -88,10 +88,17 @@ function formatCreatureContext(creature: ActiveCreatureInfo): string {
         parts.push(`${legendary.uses} legendary actions/turn`)
       }
 
-      // Spellcasting
+      // Spellcasting — include the slot pool per level so the AI can ration the
+      // creature's spells (and track usage via creature_expend_spell_slot).
       const spellcasting = statBlock.spellcasting as Record<string, unknown> | undefined
       if (spellcasting) {
-        parts.push(`Spellcaster (DC ${spellcasting.saveDC || '?'})`)
+        const slots = spellcasting.slots as Record<string, { slots?: number }> | undefined
+        const slotStr = slots
+          ? Object.entries(slots)
+              .map(([lvl, v]) => `${lvl}:${v?.slots ?? '?'}`)
+              .join(' ')
+          : ''
+        parts.push(`Spellcaster (DC ${spellcasting.saveDC || '?'}${slotStr ? `; slots ${slotStr}` : ''})`)
       }
 
       if (parts.length) {

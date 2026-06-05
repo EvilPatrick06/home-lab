@@ -1,4 +1,4 @@
-import { getTokenStats } from '../services/game/token-stats'
+import { getTokenStats, lookupTokenStatBlock } from '../services/game/token-stats'
 import type { GameMap, MapToken } from '../types/map'
 
 interface CreatureStatChange {
@@ -10,6 +10,20 @@ interface CreatureStatChange {
   reason?: string
   damageTypes?: string[]
   replace?: boolean
+  level?: number
+  count?: number
+}
+
+const SLOT_ORDINAL = ['', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th']
+
+/** Resolve a creature's max slots for a spell level: existing tracked max, else the
+ *  source stat block's spellcasting slots, else the count being changed (best-effort). */
+function resolveSlotMax(token: MapToken, level: number, fallback: number): number {
+  const existing = token.spellSlots?.[level]?.max
+  if (typeof existing === 'number') return existing
+  const sb = lookupTokenStatBlock(token.monsterStatBlockId)
+  const fromBlock = sb?.spellcasting?.slots?.[SLOT_ORDINAL[level] ?? '']?.slots
+  return typeof fromBlock === 'number' ? fromBlock : fallback
 }
 
 /**
@@ -73,6 +87,22 @@ export function applyCreatureMutations(
       }
       case 'creature_kill': {
         updateToken(activeMap.id, token.id, { currentHP: 0 })
+        results.push({ change, applied: true })
+        break
+      }
+      case 'creature_expend_spell_slot':
+      case 'creature_restore_spell_slot': {
+        const level = Math.max(1, Math.min(9, Math.round(change.level ?? 1)))
+        const count = Math.max(1, Math.round(change.count ?? 1))
+        const max = resolveSlotMax(token, level, count)
+        const existingCurrent = token.spellSlots?.[level]?.current ?? max
+        const current =
+          change.type === 'creature_expend_spell_slot'
+            ? Math.max(0, existingCurrent - count)
+            : Math.min(max, existingCurrent + count)
+        updateToken(activeMap.id, token.id, {
+          spellSlots: { ...(token.spellSlots ?? {}), [level]: { current, max } }
+        })
         results.push({ change, applied: true })
         break
       }

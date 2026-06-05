@@ -235,4 +235,6 @@ export type StatChange =
       reason: string
     }
   | { type: 'creature_set_immunity'; targetLabel: string; damageTypes: string[]; replace?: boolean; reason: string }
+  | { type: 'creature_expend_spell_slot'; targetLabel: string; level: number; count?: number; reason: string }
+  | { type: 'creature_restore_spell_slot'; targetLabel: string; level: number; count?: number; reason: string }
   | { type: 'reduce_exhaustion'; characterName?: string; reason: string }

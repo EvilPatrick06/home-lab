@@ -263,6 +263,22 @@ const CreatureSetImmunitySchema = z.object({
   reason: z.string()
 })
 
+const CreatureExpendSpellSlotSchema = z.object({
+  type: z.literal('creature_expend_spell_slot'),
+  targetLabel: z.string(),
+  level: z.number(),
+  count: z.number().optional(),
+  reason: z.string()
+})
+
+const CreatureRestoreSpellSlotSchema = z.object({
+  type: z.literal('creature_restore_spell_slot'),
+  targetLabel: z.string(),
+  level: z.number(),
+  count: z.number().optional(),
+  reason: z.string()
+})
+
 const ReduceExhaustionSchema = z.object({
   type: z.literal('reduce_exhaustion'),
   characterName: z.string().optional(),
@@ -299,6 +315,8 @@ export const StatChangeSchema = z.discriminatedUnion('type', [
   CreatureSetResistanceSchema,
   CreatureSetVulnerabilitySchema,
   CreatureSetImmunitySchema,
+  CreatureExpendSpellSlotSchema,
+  CreatureRestoreSpellSlotSchema,
   ReduceExhaustionSchema
 ])
 

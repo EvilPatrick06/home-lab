@@ -171,6 +171,8 @@ function validateChange(char: Character5eV3, change: StatChange): string | null 
     case 'creature_set_resistance':
     case 'creature_set_vulnerability':
     case 'creature_set_immunity':
+    case 'creature_expend_spell_slot':
+    case 'creature_restore_spell_slot':
       return null // Creature mutations pass through to renderer — validated there
     case 'set_ability_score': {
       const valid = ['str', 'dex', 'con', 'int', 'wis', 'cha']
@@ -386,6 +388,8 @@ function applyChange(char: Character5eV3, change: StatChange): void {
     case 'creature_set_resistance':
     case 'creature_set_vulnerability':
     case 'creature_set_immunity':
+    case 'creature_expend_spell_slot':
+    case 'creature_restore_spell_slot':
       // Creature (non-character) mutations are applied renderer-side against token
       // state — there is no Character to mutate here. Intentional pass-through.
       break
@@ -657,6 +661,10 @@ export function describeChange(change: StatChange): string {
       return `${change.targetLabel}: ${change.replace ? 'vulnerabilities set to' : 'vulnerable to'} ${change.damageTypes.join(', ')} (${change.reason})`
     case 'creature_set_immunity':
       return `${change.targetLabel}: ${change.replace ? 'immunities set to' : 'immune to'} ${change.damageTypes.join(', ')} (${change.reason})`
+    case 'creature_expend_spell_slot':
+      return `${change.targetLabel}: expends ${change.count ?? 1} level-${change.level} spell slot(s) (${change.reason})`
+    case 'creature_restore_spell_slot':
+      return `${change.targetLabel}: restores ${change.count ?? 1} level-${change.level} spell slot(s) (${change.reason})`
     case 'set_ability_score':
       return `${change.ability.toUpperCase()} set to ${change.value} (${change.reason})`
     case 'grant_feature':

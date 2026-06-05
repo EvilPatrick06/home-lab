@@ -143,6 +143,9 @@ export interface MapToken {
   specialSenses?: Array<{ type: 'blindsight' | 'tremorsense' | 'truesight'; range: number }>
   /** Entity ID of the rider on this mount (Phase 4 - mounted combat) */
   riderId?: string
+  /** Per-spell-level slot tracking for spellcasting creatures (keyed by level: 1..9).
+   *  Max is hydrated from the source stat block; current is tracked as the AI expends/restores. */
+  spellSlots?: Record<number, { current: number; max: number }>
   /** Character ID of the companion's owner */
   ownerEntityId?: string
   /** Companion type for visual/behavioral differentiation */

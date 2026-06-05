@@ -29,7 +29,7 @@
 - **G10** (high) Engine applies concentration checks and break logic on damage
 - **G12** (high) Concentration breaks on incapacitation/death (automatic triggering when conditions applied or creatures killed)
 
-### P6.9 — AI creature spell-slot tracking + snapshot  `[ ] pending`
+### P6.9 — AI creature spell-slot tracking + snapshot  `[x] shipped v2.4.55`
 - **G8** (high) creature spell slot tracking in combat
 - **G13** (high) AI DM can see spell-level spell slots available on enemies in the snapshot
 
