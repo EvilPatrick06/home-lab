@@ -138,3 +138,6 @@ test-results*.txt
 **/.coverage
 **/.coverage.*
 **/coverage.xml
+
+# Local AI-DM debug screenshots (user-dropped, not repo content)
+dnd-app/docs/Screenshot*.png
