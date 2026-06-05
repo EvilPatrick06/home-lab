@@ -21,10 +21,10 @@
 - **G4** (high) AI cannot trigger opportunity attacks on enemy creatures despite full engine implementation
 - **G5** (medium) AI cannot directly set a creature to Unconscious/0 HP with initialized death saves (requires atomic action)
 
-### P6.7 — AI mounted-combat control + perception  `[ ] pending`
+### P6.7 — AI mounted-combat control + perception  `[x] shipped v2.4.53`
 - **G6** (high) AI cannot set or perceive mounted combat state (rider/mount relationship)
 
-### P6.8 — AI creature concentration set/break + auto-break on incap/death  `[ ] pending`
+### P6.8 — AI creature concentration set/break + auto-break on incap/death  `[x] shipped v2.4.54`
 - **G7** (high) AI DM can establish or modify concentration state on creatures in combat
 - **G10** (high) Engine applies concentration checks and break logic on damage
 - **G12** (high) Concentration breaks on incapacitation/death (automatic triggering when conditions applied or creatures killed)

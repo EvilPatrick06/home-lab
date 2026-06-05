@@ -33,6 +33,26 @@ export function executeAddEntityCondition(
     active: true
   })
 
+  // A condition that makes the creature Incapacitated automatically breaks its
+  // concentration (PHB) — mirror the damage-path auto-break for the condition path.
+  const cond = (action.condition as string).toLowerCase()
+  const breaksConcentration = ['incapacitated', 'paralyzed', 'stunned', 'petrified', 'unconscious'].includes(cond)
+  if (breaksConcentration && gameStore.turnStates?.[token.entityId]?.concentratingSpell) {
+    const spell = gameStore.turnStates[token.entityId].concentratingSpell
+    gameStore.setConcentrating(token.entityId, undefined)
+    stores
+      .getLobbyStore()
+      .getState()
+      .addChatMessage({
+        id: `ai-conc-break-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
+        senderId: 'ai-dm',
+        senderName: 'Dungeon Master',
+        content: `🧠 ${token.label} loses concentration on ${spell} (${action.condition})`,
+        timestamp: Date.now(),
+        isSystem: true
+      })
+  }
+
   if (pluginEventBus.hasSubscribers('entity:condition-added')) {
     pluginEventBus.emit('entity:condition-added', {
       entityId: token.entityId,

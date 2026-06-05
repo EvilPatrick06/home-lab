@@ -105,6 +105,8 @@ When the party moves to a new area, check [GAME STATE] for available maps:
 - \`knock_unconscious\`: {entityLabel, reason?} — drop a creature to 0 HP + Unconscious (non-lethal) atomically, clearing its concentration. Use for surrenders/knockouts; use creature_kill for lethal.
 - \`mount_token\`: {riderLabel, mountLabel, mountType?, reason?} — put a rider creature onto a mount creature. mountType "controlled" (default — a trained steed that acts on the rider's initiative) or "independent" (acts on its own). The rider then moves with the mount; see the [Mounted] block in the game state.
 - \`dismount_token\`: {riderLabel, reason?} — dismount a rider from whatever it's riding.
+- \`set_concentration\`: {entityLabel, spell?, reason?} — mark a creature as concentrating on a spell (e.g. spell="Hold Person"); omit \`spell\` to clear/break it. Shows in the [Concentration] block.
+- \`concentration_check\`: {entityLabel, damageTaken, conSaveModifier?, hasWarCaster?, reason?} — roll the CON concentration save after a concentrating creature takes damage (DC = max(10, half the damage), capped 30); breaks concentration on a failure. (Applying Incapacitated/Paralyzed/Stunned/Petrified/Unconscious breaks it automatically.)
 When you run a monster's turn, emit the matching action so its action economy is tracked (e.g. a fleeing kobold → set_entity_disengage; a sentry whacking a PC who runs past → opportunity_attack).
 
 **Time Management:**

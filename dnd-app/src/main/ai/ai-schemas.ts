@@ -610,6 +610,22 @@ const DismountTokenSchema = z.object({
   reason: z.string().optional()
 })
 
+const SetConcentrationSchema = z.object({
+  action: z.literal('set_concentration'),
+  entityLabel: z.string(),
+  spell: z.string().optional(), // omit/empty to clear (break) concentration
+  reason: z.string().optional()
+})
+
+const ConcentrationCheckSchema = z.object({
+  action: z.literal('concentration_check'),
+  entityLabel: z.string(),
+  damageTaken: z.number(),
+  conSaveModifier: z.number().optional(),
+  hasWarCaster: z.boolean().optional(),
+  reason: z.string().optional()
+})
+
 const ShortRestSchema = z.object({
   action: z.literal('short_rest'),
   characterNames: z.array(z.string())
@@ -863,6 +879,8 @@ export const DM_ACTION_SCHEMAS: Record<string, z.ZodType> = {
   knock_unconscious: KnockUnconsciousSchema,
   mount_token: MountTokenSchema,
   dismount_token: DismountTokenSchema,
+  set_concentration: SetConcentrationSchema,
+  concentration_check: ConcentrationCheckSchema,
   short_rest: ShortRestSchema,
   long_rest: LongRestSchema,
   apply_area_effect: ApplyAreaEffectSchema,

@@ -164,6 +164,15 @@ export type DmAction =
       reason?: string
     }
   | { action: 'dismount_token'; riderLabel: string; reason?: string }
+  | { action: 'set_concentration'; entityLabel: string; spell?: string; reason?: string }
+  | {
+      action: 'concentration_check'
+      entityLabel: string
+      damageTaken: number
+      conSaveModifier?: number
+      hasWarCaster?: boolean
+      reason?: string
+    }
 
   // Resting
   | { action: 'short_rest'; characterNames: string[] }

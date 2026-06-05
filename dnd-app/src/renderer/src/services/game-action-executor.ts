@@ -27,6 +27,8 @@ import {
   executeSpendMovement,
   executeSpendReaction
 } from './game-actions/combat-economy-actions'
+// ── Concentration ──
+import { executeConcentrationCheck, executeSetConcentration } from './game-actions/concentration-actions'
 // ── Creature / Combat Actions ──
 import {
   executeAwardXp,
@@ -311,6 +313,10 @@ function executeOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: A
       return executeMountToken(action, gameStore, activeMap, stores)
     case 'dismount_token':
       return executeDismountToken(action, gameStore, activeMap, stores)
+    case 'set_concentration':
+      return executeSetConcentration(action, gameStore, activeMap, stores)
+    case 'concentration_check':
+      return executeConcentrationCheck(action, gameStore, activeMap, stores)
 
     // ── Time Management ──
     case 'advance_time':
