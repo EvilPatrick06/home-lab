@@ -156,6 +156,14 @@ export type DmAction =
       reason?: string
     }
   | { action: 'knock_unconscious'; entityLabel: string; reason?: string }
+  | {
+      action: 'mount_token'
+      riderLabel: string
+      mountLabel: string
+      mountType?: 'controlled' | 'independent'
+      reason?: string
+    }
+  | { action: 'dismount_token'; riderLabel: string; reason?: string }
 
   // Resting
   | { action: 'short_rest'; characterNames: string[] }

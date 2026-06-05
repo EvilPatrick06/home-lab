@@ -109,6 +109,24 @@ export function buildGameStateSnapshot(
     }
   }
 
+  // Mounted combat — who is riding what (from turn-states), so the AI can reason about
+  // mounted movement/attacks and dismounts. mountedOn holds the mount token's id.
+  if (activeMap) {
+    const mountedLines: string[] = []
+    for (const ts of Object.values(gameStore.turnStates ?? {})) {
+      if (!ts.mountedOn) continue
+      const rider = activeMap.tokens.find((t) => t.entityId === ts.entityId)
+      const mount = activeMap.tokens.find((t) => t.id === ts.mountedOn)
+      if (rider && mount) {
+        mountedLines.push(`  - ${rider.label} riding ${mount.label} (${ts.mountType ?? 'controlled'} mount)`)
+      }
+    }
+    if (mountedLines.length > 0) {
+      lines.push('\nMounted:')
+      lines.push(...mountedLines)
+    }
+  }
+
   // Distances from the active combatant to everyone else, so the AI doesn't have to
   // compute positioning mentally (5e: 5 ft per square, Chebyshev / king-move).
   if (gameStore.initiative && activeMap) {

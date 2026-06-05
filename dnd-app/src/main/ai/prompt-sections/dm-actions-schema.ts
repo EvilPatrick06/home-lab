@@ -103,6 +103,8 @@ When the party moves to a new area, check [GAME STATE] for available maps:
 - \`spend_movement\`: {entityLabel, feet, reason?} — deduct feet from the creature's remaining movement
 - \`opportunity_attack\`: {attackerLabel, targetLabel, toHit, damage, damageType?, reason?} — resolve a creature's opportunity attack (or any reaction attack) FOR REAL: rolls d20+toHit vs the target's AC, applies damage on hit (doubling dice on a nat 20), spends the attacker's reaction, and rolls the target's concentration save if needed. \`toHit\` is the attack bonus, \`damage\` a formula like "1d6+2". Prefer this over chaining roll_dice + creature_damage + spend_reaction.
 - \`knock_unconscious\`: {entityLabel, reason?} — drop a creature to 0 HP + Unconscious (non-lethal) atomically, clearing its concentration. Use for surrenders/knockouts; use creature_kill for lethal.
+- \`mount_token\`: {riderLabel, mountLabel, mountType?, reason?} — put a rider creature onto a mount creature. mountType "controlled" (default — a trained steed that acts on the rider's initiative) or "independent" (acts on its own). The rider then moves with the mount; see the [Mounted] block in the game state.
+- \`dismount_token\`: {riderLabel, reason?} — dismount a rider from whatever it's riding.
 When you run a monster's turn, emit the matching action so its action economy is tracked (e.g. a fleeing kobold → set_entity_disengage; a sentry whacking a PC who runs past → opportunity_attack).
 
 **Time Management:**

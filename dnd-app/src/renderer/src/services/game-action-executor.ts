@@ -84,6 +84,8 @@ import {
   executeSystemMessage,
   executeWhisperPlayer
 } from './game-actions/effect-actions'
+// ── Mounted Combat ──
+import { executeDismountToken, executeMountToken } from './game-actions/mount-actions'
 // ── State Snapshot ──
 import { buildGameStateSnapshot as _buildSnapshot } from './game-actions/state-snapshot'
 // ── Token Actions ──
@@ -305,6 +307,10 @@ function executeOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: A
       return executeOpportunityAttack(action, gameStore, activeMap, stores)
     case 'knock_unconscious':
       return executeKnockUnconscious(action, gameStore, activeMap, stores)
+    case 'mount_token':
+      return executeMountToken(action, gameStore, activeMap, stores)
+    case 'dismount_token':
+      return executeDismountToken(action, gameStore, activeMap, stores)
 
     // ── Time Management ──
     case 'advance_time':

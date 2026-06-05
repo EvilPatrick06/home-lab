@@ -610,6 +610,32 @@ export const createInitiativeSlice: StateCreator<GameStoreState, [], [], Initiat
     })
   },
 
+  setMounted: (entityId: string, mountTokenId: string, mountType: 'controlled' | 'independent') => {
+    set((state) => ({
+      turnStates: {
+        ...state.turnStates,
+        [entityId]: {
+          ...(state.turnStates[entityId] ?? createTurnState(entityId, 30)),
+          mountedOn: mountTokenId,
+          mountType
+        }
+      }
+    }))
+  },
+
+  dismountRider: (entityId: string) => {
+    set((state) => {
+      const ts = state.turnStates[entityId]
+      if (!ts) return state
+      return {
+        turnStates: {
+          ...state.turnStates,
+          [entityId]: { ...ts, mountedOn: undefined, mountType: undefined }
+        }
+      }
+    })
+  },
+
   resetTurnState: (entityId: string, speed: number) => {
     set((state) => ({
       turnStates: {

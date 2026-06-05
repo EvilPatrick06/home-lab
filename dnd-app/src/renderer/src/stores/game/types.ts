@@ -180,6 +180,10 @@ export interface InitiativeSliceState {
   setDodging: (entityId: string) => void
   setHidden: (entityId: string, hidden: boolean) => void
   setConcentrating: (entityId: string, spell: string | undefined) => void
+  /** Mount a rider on a mount token: sets the rider's turn-state mountedOn (mount token id) + mountType. */
+  setMounted: (entityId: string, mountTokenId: string, mountType: 'controlled' | 'independent') => void
+  /** Clear a rider's mounted state (dismount). */
+  dismountRider: (entityId: string) => void
   resetTurnState: (entityId: string, speed: number) => void
   getTurnState: (entityId: string) => TurnState | undefined
 }

@@ -596,6 +596,20 @@ const KnockUnconsciousSchema = z.object({
   reason: z.string().optional()
 })
 
+const MountTokenSchema = z.object({
+  action: z.literal('mount_token'),
+  riderLabel: z.string(),
+  mountLabel: z.string(),
+  mountType: z.enum(['controlled', 'independent']).optional(),
+  reason: z.string().optional()
+})
+
+const DismountTokenSchema = z.object({
+  action: z.literal('dismount_token'),
+  riderLabel: z.string(),
+  reason: z.string().optional()
+})
+
 const ShortRestSchema = z.object({
   action: z.literal('short_rest'),
   characterNames: z.array(z.string())
@@ -847,6 +861,8 @@ export const DM_ACTION_SCHEMAS: Record<string, z.ZodType> = {
   spend_movement: SpendMovementSchema,
   opportunity_attack: OpportunityAttackSchema,
   knock_unconscious: KnockUnconsciousSchema,
+  mount_token: MountTokenSchema,
+  dismount_token: DismountTokenSchema,
   short_rest: ShortRestSchema,
   long_rest: LongRestSchema,
   apply_area_effect: ApplyAreaEffectSchema,
