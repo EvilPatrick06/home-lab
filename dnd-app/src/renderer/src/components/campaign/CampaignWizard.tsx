@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { DEFAULT_AI_MODEL, DEFAULT_AI_PROVIDER, DEFAULT_OLLAMA_URL } from '../../constants'
 import { addToast } from '../../hooks/use-toast'
 import { useT } from '../../i18n'
 import { type Adventure, loadAdventures } from '../../services/adventure-loader'
+import { clearWizardDraft, loadWizardDraft, saveWizardDraft } from '../../services/campaign-wizard-draft'
 import { useCampaignStore } from '../../stores/use-campaign-store'
+import { useCharacterStore } from '../../stores/use-character-store'
 import {
   type AiProviderType,
   type CalendarConfig,
@@ -23,6 +25,7 @@ import AiProviderSetup from './AiProviderSetup'
 import type { CustomAudioEntry } from './AudioStep'
 import AudioStep from './AudioStep'
 import CalendarStep from './CalendarStep'
+import CharacterStep from './CharacterStep'
 import DetailsStep from './DetailsStep'
 import MapConfigStep from './MapConfigStep'
 import ReviewStep from './ReviewStep'
@@ -31,38 +34,27 @@ import SessionZeroStep, { DEFAULT_SESSION_ZERO, type SessionZeroData } from './S
 import StartStep from './StartStep'
 import SystemStep from './SystemStep'
 
-const STEPS = [
-  'System',
-  'Details',
-  'AI DM',
-  'Adventure',
-  'Session Zero',
-  'Rules',
-  'Calendar',
-  'Maps',
-  'Audio',
-  'Review'
-]
-
-// Phase 34 — i18n leaf keys parallel to STEPS (used for the step-name display).
-const STEP_KEYS = [
-  'system',
-  'details',
-  'aiDm',
-  'adventure',
-  'sessionZero',
-  'rules',
-  'calendar',
-  'maps',
-  'audio',
-  'review'
-]
+// Step keys. 'character' is inserted after 'details' ONLY for solo campaigns (see `flow`).
+type StepKey =
+  | 'system'
+  | 'details'
+  | 'character'
+  | 'aiDm'
+  | 'adventure'
+  | 'sessionZero'
+  | 'rules'
+  | 'calendar'
+  | 'maps'
+  | 'audio'
+  | 'review'
 
 export default function CampaignWizard(): JSX.Element {
   const { t } = useT()
   const navigate = useNavigate()
   const createCampaign = useCampaignStore((s) => s.createCampaign)
   const saveCampaign = useCampaignStore((s) => s.saveCampaign)
+  const characters = useCharacterStore((s) => s.characters)
+  const loadCharacters = useCharacterStore((s) => s.loadCharacters)
 
   // Start mode: show campaign browser first, then wizard
   const [startMode, setStartMode] = useState<'start' | 'wizard'>('start')
@@ -83,6 +75,7 @@ export default function CampaignWizard(): JSX.Element {
   const [hostingMode, setHostingMode] = useState<'p2p' | 'cloud' | 'solo'>('p2p')
   const [campaignType, setCampaignType] = useState<CampaignType>('custom')
   const [selectedAdventureId, setSelectedAdventureId] = useState<string | null>(null)
+  const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null)
   const [customRules, setCustomRules] = useState<CustomRule[]>([])
   const [calendar, setCalendar] = useState<CalendarConfig | null>(null)
   const [maps, setMaps] = useState<GameMap[]>([])
@@ -102,6 +95,119 @@ export default function CampaignWizard(): JSX.Element {
   const [aiOllamaUrl, setAiOllamaUrl] = useState(DEFAULT_OLLAMA_URL)
   const [aiApiKey, setAiApiKey] = useState('')
   const [ollamaReady, setOllamaReady] = useState(false)
+
+  // Load the player's characters (for the solo PC selector).
+  useEffect(() => {
+    void loadCharacters()
+  }, [loadCharacters])
+
+  // Resume an in-progress setup if the player navigated away (to create/edit a PC, or to
+  // Global Settings) and came back. Runs once on mount BEFORE the save effect below.
+  const restoredRef = useRef(false)
+  useEffect(() => {
+    if (restoredRef.current) return
+    restoredRef.current = true
+    const d = loadWizardDraft()
+    if (!d) return
+    setStartMode('wizard')
+    setStep(typeof d.step === 'number' ? d.step : 0)
+    if ('system' in d) setSystem((d.system as GameSystem | null) ?? null)
+    setName((d.name as string) ?? '')
+    setDescription((d.description as string) ?? '')
+    setMaxPlayers((d.maxPlayers as number) ?? 4)
+    setTurnMode((d.turnMode as TurnMode) ?? 'initiative')
+    setLobbyMessage((d.lobbyMessage as string) ?? '')
+    setIsPublic((d.isPublic as boolean) ?? true)
+    setHostingMode((d.hostingMode as 'p2p' | 'cloud' | 'solo') ?? 'p2p')
+    setCampaignType((d.campaignType as CampaignType) ?? 'custom')
+    setSelectedAdventureId((d.selectedAdventureId as string | null) ?? null)
+    setSelectedCharacterId((d.selectedCharacterId as string | null) ?? null)
+    setCustomRules((d.customRules as CustomRule[]) ?? [])
+    setCalendar((d.calendar as CalendarConfig | null) ?? null)
+    setMaps((d.maps as GameMap[]) ?? [])
+    setCustomAudio((d.customAudio as CustomAudioEntry[]) ?? [])
+    setSessionZero((d.sessionZero as SessionZeroData) ?? { ...DEFAULT_SESSION_ZERO })
+    setExcludedNpcIds((d.excludedNpcIds as string[]) ?? [])
+    setExcludedLoreIds((d.excludedLoreIds as string[]) ?? [])
+    setExcludedEncounterIds((d.excludedEncounterIds as string[]) ?? [])
+    setExcludedMapIds((d.excludedMapIds as string[]) ?? [])
+    setAiEnabled((d.aiEnabled as boolean) ?? false)
+    setAiProvider((d.aiProvider as AiProviderType) ?? DEFAULT_AI_PROVIDER)
+    setAiModel((d.aiModel as string) ?? DEFAULT_AI_MODEL)
+    setAiOllamaUrl((d.aiOllamaUrl as string) ?? DEFAULT_OLLAMA_URL)
+    setAiApiKey((d.aiApiKey as string) ?? '')
+  }, [])
+
+  // Steps. The Character (PC selector) step exists ONLY for solo campaigns.
+  const flow = useMemo<StepKey[]>(() => {
+    const f: StepKey[] = ['system', 'details']
+    if (hostingMode === 'solo') f.push('character')
+    f.push('aiDm', 'adventure', 'sessionZero', 'rules', 'calendar', 'maps', 'audio', 'review')
+    return f
+  }, [hostingMode])
+  const stepKey: StepKey = flow[Math.min(step, flow.length - 1)] ?? 'system'
+
+  // Persist setup progress on every change so leaving (to a PC builder / Global Settings)
+  // and coming back resumes the exact step instead of dropping to the campaign list.
+  useEffect(() => {
+    if (startMode !== 'wizard' || !restoredRef.current) return
+    saveWizardDraft({
+      step,
+      system,
+      name,
+      description,
+      maxPlayers,
+      turnMode,
+      lobbyMessage,
+      isPublic,
+      hostingMode,
+      campaignType,
+      selectedAdventureId,
+      selectedCharacterId,
+      customRules,
+      calendar,
+      maps,
+      customAudio,
+      sessionZero,
+      excludedNpcIds,
+      excludedLoreIds,
+      excludedEncounterIds,
+      excludedMapIds,
+      aiEnabled,
+      aiProvider,
+      aiModel,
+      aiOllamaUrl,
+      aiApiKey
+    })
+  }, [
+    startMode,
+    step,
+    system,
+    name,
+    description,
+    maxPlayers,
+    turnMode,
+    lobbyMessage,
+    isPublic,
+    hostingMode,
+    campaignType,
+    selectedAdventureId,
+    selectedCharacterId,
+    customRules,
+    calendar,
+    maps,
+    customAudio,
+    sessionZero,
+    excludedNpcIds,
+    excludedLoreIds,
+    excludedEncounterIds,
+    excludedMapIds,
+    aiEnabled,
+    aiProvider,
+    aiModel,
+    aiOllamaUrl,
+    aiApiKey
+  ])
 
   // For review step: resolve adventure name
   const [adventures, setAdventures] = useState<Adventure[]>([])
@@ -124,43 +230,44 @@ export default function CampaignWizard(): JSX.Element {
   }
 
   const canAdvance = (): boolean => {
-    switch (step) {
-      case 0:
+    switch (stepKey) {
+      case 'system':
         return system !== null
-      case 1:
+      case 'details':
         return name.trim().length > 0
-      case 2:
-        if (!aiEnabled) return true
-        return ollamaReady
-      case 3:
+      case 'character':
+        return selectedCharacterId !== null // solo must pick (or create) a PC
+      case 'aiDm':
+        return !aiEnabled || ollamaReady
+      case 'adventure':
         return campaignType === 'custom' || selectedAdventureId !== null
-      case 4:
-        return true // Session Zero is optional
-      case 5:
-        return true // Rules are optional
-      case 6:
-        return true // Calendar is optional
-      case 7:
-        return true // Maps are optional
-      case 8:
-        return true // Audio is optional
-      case 9:
-        return true // Review — create button is inline
       default:
-        return false
+        return true // Session Zero / Rules / Calendar / Maps / Audio / Review are optional
     }
   }
 
   const handleNext = (): void => {
-    if (step < STEPS.length - 1) {
-      setStep((s) => s + 1)
-    }
+    if (step < flow.length - 1) setStep((s) => s + 1)
   }
 
   const handleBack = (): void => {
-    if (step > 0) {
-      setStep((s) => s - 1)
-    }
+    if (step > 0) setStep((s) => s - 1)
+  }
+
+  const startFresh = (): void => {
+    clearWizardDraft()
+    setStartMode('wizard')
+    setStep(0)
+  }
+
+  // Leave to create/edit a PC. Setup progress is already persisted (save effect), so the
+  // builder returns here (returnTo=/make via navigation state — the builder reads
+  // location.state.returnTo) and the wizard resumes on the Character step.
+  const goCreatePc = (): void => {
+    navigate('/characters/5e/create', { state: { returnTo: '/make' } })
+  }
+  const goEditPc = (id: string): void => {
+    navigate(`/characters/5e/edit/${id}`, { state: { returnTo: '/make' } })
   }
 
   const handleCreate = async (): Promise<void> => {
@@ -287,13 +394,25 @@ export default function CampaignWizard(): JSX.Element {
         campaignId: map.campaignId === 'pending' ? campaign.id : map.campaignId
       }))
 
-      // If maps were updated, save the campaign again with resolved IDs
-      if (resolvedMaps.some((map, index) => map.campaignId !== campaign.maps[index].campaignId)) {
-        const updatedCampaign = {
-          ...campaign,
-          maps: resolvedMaps
-        }
-        await saveCampaign(updatedCampaign)
+      // Seed the solo player's chosen PC so the game has a character from the start.
+      const soloChar = hostingMode === 'solo' ? characters.find((c) => c.id === selectedCharacterId) : undefined
+      const players =
+        hostingMode === 'solo' && selectedCharacterId
+          ? [
+              {
+                userId: 'local-solo',
+                displayName: soloChar?.name ?? 'Player',
+                characterId: selectedCharacterId,
+                joinedAt: new Date().toISOString(),
+                isActive: true,
+                isReady: true
+              }
+            ]
+          : campaign.players
+
+      const mapsChanged = resolvedMaps.some((map, index) => map.campaignId !== campaign.maps[index].campaignId)
+      if (mapsChanged || players !== campaign.players) {
+        await saveCampaign({ ...campaign, maps: resolvedMaps, players })
       }
 
       if (aiEnabled) {
@@ -312,6 +431,7 @@ export default function CampaignWizard(): JSX.Element {
         }
       }
 
+      clearWizardDraft()
       navigate(`/campaign/${campaign.id}`)
     } catch (error) {
       logger.error('Failed to create campaign:', error)
@@ -327,7 +447,7 @@ export default function CampaignWizard(): JSX.Element {
   if (startMode === 'start') {
     return (
       <div>
-        <StartStep onNewCampaign={() => setStartMode('wizard')} />
+        <StartStep onNewCampaign={startFresh} />
       </div>
     )
   }
@@ -336,25 +456,27 @@ export default function CampaignWizard(): JSX.Element {
     <div>
       {/* Step indicator */}
       <div className="flex gap-2 mb-2 max-w-4xl">
-        {STEPS.map((_, i) => (
+        {flow.map((k) => (
           <div
-            key={i}
-            className={`flex-1 h-2 rounded-full transition-colors ${i <= step ? 'bg-accent-strong' : 'bg-gray-700'}`}
+            key={k}
+            className={`flex-1 h-2 rounded-full transition-colors ${
+              flow.indexOf(stepKey) >= flow.indexOf(k) ? 'bg-accent-strong' : 'bg-gray-700'
+            }`}
           />
         ))}
       </div>
       <p className="text-muted text-sm mb-8">
         {t('campaign.campaignWizard.stepIndicator', {
           current: step + 1,
-          total: STEPS.length,
-          name: t(`campaign.campaignWizard.steps.${STEP_KEYS[step]}`)
+          total: flow.length,
+          name: t(`campaign.campaignWizard.steps.${stepKey}`)
         })}
       </p>
 
       {/* Step content */}
-      {step === 0 && <SystemStep selected={system} onSelect={setSystem} />}
+      {stepKey === 'system' && <SystemStep selected={system} onSelect={setSystem} />}
 
-      {step === 1 && (
+      {stepKey === 'details' && (
         <DetailsStep
           data={{ name, description, maxPlayers, turnMode, lobbyMessage, isPublic, hostingMode }}
           onChange={(data) => {
@@ -369,7 +491,17 @@ export default function CampaignWizard(): JSX.Element {
         />
       )}
 
-      {step === 2 && (
+      {stepKey === 'character' && (
+        <CharacterStep
+          characters={characters.map((c) => ({ id: c.id, name: c.name }))}
+          selectedId={selectedCharacterId}
+          onSelect={setSelectedCharacterId}
+          onCreateNew={goCreatePc}
+          onEdit={goEditPc}
+        />
+      )}
+
+      {stepKey === 'aiDm' && (
         <AiProviderSetup
           enabled={aiEnabled}
           provider={aiProvider}
@@ -387,7 +519,7 @@ export default function CampaignWizard(): JSX.Element {
         />
       )}
 
-      {step === 3 && system && (
+      {stepKey === 'adventure' && system && (
         <AdventureSelector
           system={system}
           campaignType={campaignType}
@@ -405,7 +537,7 @@ export default function CampaignWizard(): JSX.Element {
         />
       )}
 
-      {step === 4 && (
+      {stepKey === 'sessionZero' && (
         <SessionZeroStep
           data={sessionZero}
           onChange={setSessionZero}
@@ -414,11 +546,11 @@ export default function CampaignWizard(): JSX.Element {
         />
       )}
 
-      {step === 5 && <RulesStep rules={customRules} onChange={setCustomRules} />}
+      {stepKey === 'rules' && <RulesStep rules={customRules} onChange={setCustomRules} />}
 
-      {step === 6 && <CalendarStep calendar={calendar} onChange={setCalendar} />}
+      {stepKey === 'calendar' && <CalendarStep calendar={calendar} onChange={setCalendar} />}
 
-      {step === 7 && (
+      {stepKey === 'maps' && (
         <MapConfigStep
           maps={maps}
           campaignId={tempCampaignId}
@@ -434,9 +566,9 @@ export default function CampaignWizard(): JSX.Element {
         />
       )}
 
-      {step === 8 && <AudioStep audioEntries={customAudio} onChange={setCustomAudio} />}
+      {stepKey === 'audio' && <AudioStep audioEntries={customAudio} onChange={setCustomAudio} />}
 
-      {step === 9 && system && (
+      {stepKey === 'review' && system && (
         <ReviewStep
           system={system}
           name={name}
@@ -458,7 +590,7 @@ export default function CampaignWizard(): JSX.Element {
       )}
 
       {/* Navigation buttons (Review step has its own submit button) */}
-      {step < STEPS.length - 1 && (
+      {stepKey !== 'review' && (
         <div className="flex gap-4 mt-8 max-w-4xl">
           {step > 0 && (
             <Button variant="secondary" onClick={handleBack}>
@@ -470,7 +602,7 @@ export default function CampaignWizard(): JSX.Element {
           </Button>
         </div>
       )}
-      {step === STEPS.length - 1 && step > 0 && (
+      {stepKey === 'review' && step > 0 && (
         <div className="flex gap-4 mt-4 max-w-4xl">
           <Button variant="secondary" onClick={handleBack}>
             {t('campaign.campaignWizard.back')}

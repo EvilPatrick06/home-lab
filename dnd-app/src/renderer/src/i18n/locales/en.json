@@ -5,7 +5,8 @@
       "cancel": "Cancel",
       "close": "Close",
       "delete": "Delete",
-      "confirm": "Confirm"
+      "confirm": "Confirm",
+      "edit": "Edit"
     },
     "states": {
       "loading": "Loading...",
@@ -799,6 +800,7 @@
       "steps": {
         "system": "System",
         "details": "Details",
+        "character": "Character",
         "aiDm": "AI DM",
         "adventure": "Adventure",
         "sessionZero": "Session Zero",
@@ -807,6 +809,12 @@
         "maps": "Maps",
         "audio": "Audio",
         "review": "Review"
+      },
+      "characterStep": {
+        "title": "Choose your character",
+        "subtitle": "Pick the player character you'll play in this solo campaign.",
+        "noCharacters": "You don't have any characters yet. Create one first, then come back.",
+        "createOne": "Create a character"
       },
       "back": "Back",
       "next": "Next"
@@ -5866,7 +5874,7 @@
       "toastArchived": "Campaign archived",
       "unarchive": "Unarchive",
       "archive": "Archive",
-      "soloPlay": "Solo Play",
+      "soloPlay": "Play",
       "starting": "Starting...",
       "hostGame": "Host Game",
       "previousPlayersTitle": "Previous Players ({{count}})",

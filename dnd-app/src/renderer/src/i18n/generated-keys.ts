@@ -3,7 +3,7 @@
  * Run `npm run i18n:gen-keys` (scripts/i18n/gen-key-union.mjs) to regenerate
  * after changing en.json. Source: src/renderer/src/i18n/locales/en.json.
  *
- * A literal union of every dotted leaf key in en.json (6027 keys),
+ * A literal union of every dotted leaf key in en.json (6033 keys),
  * so `t()` calls are checked at compile time instead of silently rendering a
  * raw key string when a key is typo'd or missing.
  */
@@ -515,6 +515,10 @@ export type TranslationKey =
   | 'campaign.calendarStep.yearLabelPlaceholder'
   | 'campaign.campaignWizard.aiConfigFailed'
   | 'campaign.campaignWizard.back'
+  | 'campaign.campaignWizard.characterStep.createOne'
+  | 'campaign.campaignWizard.characterStep.noCharacters'
+  | 'campaign.campaignWizard.characterStep.subtitle'
+  | 'campaign.campaignWizard.characterStep.title'
   | 'campaign.campaignWizard.createFailed'
   | 'campaign.campaignWizard.next'
   | 'campaign.campaignWizard.stepIndicator'
@@ -522,6 +526,7 @@ export type TranslationKey =
   | 'campaign.campaignWizard.steps.aiDm'
   | 'campaign.campaignWizard.steps.audio'
   | 'campaign.campaignWizard.steps.calendar'
+  | 'campaign.campaignWizard.steps.character'
   | 'campaign.campaignWizard.steps.details'
   | 'campaign.campaignWizard.steps.maps'
   | 'campaign.campaignWizard.steps.review'
@@ -751,6 +756,7 @@ export type TranslationKey =
   | 'common.actions.close'
   | 'common.actions.confirm'
   | 'common.actions.delete'
+  | 'common.actions.edit'
   | 'common.actions.save'
   | 'common.states.empty'
   | 'common.states.error'

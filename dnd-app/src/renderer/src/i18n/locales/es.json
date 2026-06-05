@@ -5,7 +5,8 @@
       "cancel": "Cancelar",
       "close": "Cerrar",
       "delete": "Eliminar",
-      "confirm": "Confirmar"
+      "confirm": "Confirmar",
+      "edit": "Editar"
     },
     "states": {
       "loading": "Cargando...",
@@ -799,6 +800,7 @@
       "steps": {
         "system": "Sistema",
         "details": "Detalles",
+        "character": "Personaje",
         "aiDm": "DM de IA",
         "adventure": "Aventura",
         "sessionZero": "Sesión cero",
@@ -807,6 +809,12 @@
         "maps": "Mapas",
         "audio": "Audio",
         "review": "Revisar"
+      },
+      "characterStep": {
+        "title": "Elige tu personaje",
+        "subtitle": "Elige el personaje que jugarás en esta campaña en solitario.",
+        "noCharacters": "Aún no tienes personajes. Crea uno primero y vuelve.",
+        "createOne": "Crear un personaje"
       },
       "back": "Atrás",
       "next": "Siguiente"
@@ -5866,7 +5874,7 @@
       "toastArchived": "Campaña archivada",
       "unarchive": "Desarchivar",
       "archive": "Archivar",
-      "soloPlay": "Juego en solitario",
+      "soloPlay": "Jugar",
       "starting": "Iniciando...",
       "hostGame": "Hospedar partida",
       "previousPlayersTitle": "Jugadores anteriores ({{count}})",

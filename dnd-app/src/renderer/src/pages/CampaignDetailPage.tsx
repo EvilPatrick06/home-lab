@@ -300,11 +300,11 @@ export default function CampaignDetailPage(): JSX.Element {
           <Button variant="danger" onClick={() => setShowDeleteConfirm(true)}>
             {t('common.actions.delete')}
           </Button>
-          <Button variant="secondary" onClick={handleStartSolo}>
-            {t('pages.campaignDetailPage.soloPlay')}
-          </Button>
-          {/* CAMP-1 — a solo-only campaign has no multiplayer host path; only Solo Play applies. */}
-          {campaign.hostingMode !== 'solo' && (
+          {/* Solo "Play" only on a solo campaign; multiplayer "Host Game" only otherwise —
+              the two are mutually exclusive based on the campaign's chosen hosting mode. */}
+          {campaign.hostingMode === 'solo' ? (
+            <Button onClick={handleStartSolo}>{t('pages.campaignDetailPage.soloPlay')}</Button>
+          ) : (
             <Button onClick={handleStartGame} disabled={starting}>
               {starting ? t('pages.campaignDetailPage.starting') : t('pages.campaignDetailPage.hostGame')}
             </Button>

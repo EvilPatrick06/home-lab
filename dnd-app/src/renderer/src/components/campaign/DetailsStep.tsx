@@ -23,6 +23,8 @@ interface DetailsStepProps {
 
 export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.Element {
   const { t } = useT()
+  // Solo is single-player: max-players and visibility don't apply, so they're hidden.
+  const isSolo = data.hostingMode === 'solo'
   const update = <K extends keyof DetailsData>(key: K, value: DetailsData[K]): void => {
     onChange({ ...data, [key]: value })
   }
@@ -61,40 +63,90 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
           />
         </div>
 
+        {/* Hosting comes BEFORE max players: it determines whether max-players / visibility
+            even apply (Solo hides both). */}
         <div>
-          <label className="block text-muted mb-2 text-sm">{t('campaign.detailsStep.maxPlayers')}</label>
-          <input
-            type="number"
-            min={2}
-            max={8}
-            className="w-24 p-3 rounded-lg bg-surface-2 border border-border text-fg
-              focus:outline-none focus:border-amber-500 transition-colors"
-            value={maxPlayersDraft}
-            onChange={(e) => {
-              // WIZ-1 — clamp the upper bound on input so an out-of-range value
-              // (e.g. 999) never shows in the field; the label promises 2-8. The
-              // lower bound + empty field normalize on blur so the user can still
-              // clear and retype.
-              const next = e.target.value
-              const raw = parseInt(next, 10)
-              if (Number.isFinite(raw) && raw > 8) {
-                setMaxPlayersDraft('8')
-                update('maxPlayers', 8)
-              } else {
-                setMaxPlayersDraft(next)
-                if (Number.isFinite(raw) && raw >= 2) update('maxPlayers', raw)
-              }
-            }}
-            onBlur={() => {
-              const raw = parseInt(maxPlayersDraft, 10)
-              const numeric = Number.isFinite(raw) ? raw : 2
-              const val = numeric < 2 ? 2 : numeric > 8 ? 8 : numeric
-              setMaxPlayersDraft(String(val))
-              update('maxPlayers', val)
-            }}
-          />
-          <span className="text-gray-500 text-sm ml-3">{t('campaign.detailsStep.maxPlayersRange')}</span>
+          <label className="block text-muted mb-2 text-sm">{t('campaign.detailsStep.hosting')}</label>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => update('hostingMode', 'p2p')}
+              className={`flex-1 p-3 rounded-lg border text-left transition-all cursor-pointer
+                ${
+                  data.hostingMode === 'p2p'
+                    ? 'border-amber-500 bg-amber-900/20'
+                    : 'border-border bg-surface/50 hover:border-gray-600'
+                }`}
+            >
+              <div className="font-semibold text-sm">{t('campaign.detailsStep.hostingThisDevice')}</div>
+              <div className="text-xs text-muted mt-1">{t('campaign.detailsStep.hostingThisDeviceDesc')}</div>
+            </button>
+            <button
+              type="button"
+              onClick={() => update('hostingMode', 'cloud')}
+              className={`flex-1 p-3 rounded-lg border text-left transition-all cursor-pointer
+                ${
+                  data.hostingMode === 'cloud'
+                    ? 'border-amber-500 bg-amber-900/20'
+                    : 'border-border bg-surface/50 hover:border-gray-600'
+                }`}
+            >
+              <div className="font-semibold text-sm">{t('campaign.detailsStep.hostingCloud')}</div>
+              <div className="text-xs text-muted mt-1">{t('campaign.detailsStep.hostingCloudDesc')}</div>
+            </button>
+            <button
+              type="button"
+              onClick={() => update('hostingMode', 'solo')}
+              className={`flex-1 p-3 rounded-lg border text-left transition-all cursor-pointer
+                ${
+                  data.hostingMode === 'solo'
+                    ? 'border-amber-500 bg-amber-900/20'
+                    : 'border-border bg-surface/50 hover:border-gray-600'
+                }`}
+            >
+              <div className="font-semibold text-sm">{t('campaign.detailsStep.hostingSolo')}</div>
+              <div className="text-xs text-muted mt-1">{t('campaign.detailsStep.hostingSoloDesc')}</div>
+            </button>
+          </div>
         </div>
+
+        {/* Max players only applies to multiplayer — hidden for Solo. */}
+        {!isSolo && (
+          <div>
+            <label className="block text-muted mb-2 text-sm">{t('campaign.detailsStep.maxPlayers')}</label>
+            <input
+              type="number"
+              min={2}
+              max={8}
+              className="w-24 p-3 rounded-lg bg-surface-2 border border-border text-fg
+                focus:outline-none focus:border-amber-500 transition-colors"
+              value={maxPlayersDraft}
+              onChange={(e) => {
+                // WIZ-1 — clamp the upper bound on input so an out-of-range value
+                // (e.g. 999) never shows in the field; the label promises 2-8. The
+                // lower bound + empty field normalize on blur so the user can still
+                // clear and retype.
+                const next = e.target.value
+                const raw = parseInt(next, 10)
+                if (Number.isFinite(raw) && raw > 8) {
+                  setMaxPlayersDraft('8')
+                  update('maxPlayers', 8)
+                } else {
+                  setMaxPlayersDraft(next)
+                  if (Number.isFinite(raw) && raw >= 2) update('maxPlayers', raw)
+                }
+              }}
+              onBlur={() => {
+                const raw = parseInt(maxPlayersDraft, 10)
+                const numeric = Number.isFinite(raw) ? raw : 2
+                const val = numeric < 2 ? 2 : numeric > 8 ? 8 : numeric
+                setMaxPlayersDraft(String(val))
+                update('maxPlayers', val)
+              }}
+            />
+            <span className="text-gray-500 text-sm ml-3">{t('campaign.detailsStep.maxPlayersRange')}</span>
+          </div>
+        )}
 
         <div>
           <label className="block text-muted mb-2 text-sm">{t('campaign.detailsStep.turnMode')}</label>
@@ -141,82 +193,40 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
           />
         </div>
 
-        <div>
-          <label className="block text-muted mb-2 text-sm">{t('campaign.detailsStep.visibility')}</label>
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={() => update('isPublic', true)}
-              className={`flex-1 p-3 rounded-lg border text-left transition-all cursor-pointer
-                ${
-                  data.isPublic
-                    ? 'border-amber-500 bg-amber-900/20'
-                    : 'border-border bg-surface/50 hover:border-gray-600'
-                }`}
-            >
-              <div className="font-semibold text-sm">{t('campaign.detailsStep.public')}</div>
-              <div className="text-xs text-muted mt-1">{t('campaign.detailsStep.publicDesc')}</div>
-            </button>
-            <button
-              type="button"
-              onClick={() => update('isPublic', false)}
-              className={`flex-1 p-3 rounded-lg border text-left transition-all cursor-pointer
-                ${
-                  !data.isPublic
-                    ? 'border-amber-500 bg-amber-900/20'
-                    : 'border-border bg-surface/50 hover:border-gray-600'
-                }`}
-            >
-              <div className="font-semibold text-sm">{t('campaign.detailsStep.private')}</div>
-              <div className="text-xs text-muted mt-1">{t('campaign.detailsStep.privateDesc')}</div>
-            </button>
+        {/* Visibility (public/private lobby listing) only applies to multiplayer. */}
+        {!isSolo && (
+          <div>
+            <label className="block text-muted mb-2 text-sm">{t('campaign.detailsStep.visibility')}</label>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => update('isPublic', true)}
+                className={`flex-1 p-3 rounded-lg border text-left transition-all cursor-pointer
+                  ${
+                    data.isPublic
+                      ? 'border-amber-500 bg-amber-900/20'
+                      : 'border-border bg-surface/50 hover:border-gray-600'
+                  }`}
+              >
+                <div className="font-semibold text-sm">{t('campaign.detailsStep.public')}</div>
+                <div className="text-xs text-muted mt-1">{t('campaign.detailsStep.publicDesc')}</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => update('isPublic', false)}
+                className={`flex-1 p-3 rounded-lg border text-left transition-all cursor-pointer
+                  ${
+                    !data.isPublic
+                      ? 'border-amber-500 bg-amber-900/20'
+                      : 'border-border bg-surface/50 hover:border-gray-600'
+                  }`}
+              >
+                <div className="font-semibold text-sm">{t('campaign.detailsStep.private')}</div>
+                <div className="text-xs text-muted mt-1">{t('campaign.detailsStep.privateDesc')}</div>
+              </button>
+            </div>
           </div>
-        </div>
-
-        <div>
-          <label className="block text-muted mb-2 text-sm">{t('campaign.detailsStep.hosting')}</label>
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={() => update('hostingMode', 'p2p')}
-              className={`flex-1 p-3 rounded-lg border text-left transition-all cursor-pointer
-                ${
-                  data.hostingMode === 'p2p'
-                    ? 'border-amber-500 bg-amber-900/20'
-                    : 'border-border bg-surface/50 hover:border-gray-600'
-                }`}
-            >
-              <div className="font-semibold text-sm">{t('campaign.detailsStep.hostingThisDevice')}</div>
-              <div className="text-xs text-muted mt-1">{t('campaign.detailsStep.hostingThisDeviceDesc')}</div>
-            </button>
-            <button
-              type="button"
-              onClick={() => update('hostingMode', 'cloud')}
-              className={`flex-1 p-3 rounded-lg border text-left transition-all cursor-pointer
-                ${
-                  data.hostingMode === 'cloud'
-                    ? 'border-amber-500 bg-amber-900/20'
-                    : 'border-border bg-surface/50 hover:border-gray-600'
-                }`}
-            >
-              <div className="font-semibold text-sm">{t('campaign.detailsStep.hostingCloud')}</div>
-              <div className="text-xs text-muted mt-1">{t('campaign.detailsStep.hostingCloudDesc')}</div>
-            </button>
-            <button
-              type="button"
-              onClick={() => update('hostingMode', 'solo')}
-              className={`flex-1 p-3 rounded-lg border text-left transition-all cursor-pointer
-                ${
-                  data.hostingMode === 'solo'
-                    ? 'border-amber-500 bg-amber-900/20'
-                    : 'border-border bg-surface/50 hover:border-gray-600'
-                }`}
-            >
-              <div className="font-semibold text-sm">{t('campaign.detailsStep.hostingSolo')}</div>
-              <div className="text-xs text-muted mt-1">{t('campaign.detailsStep.hostingSoloDesc')}</div>
-            </button>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   )
