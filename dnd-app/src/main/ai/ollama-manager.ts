@@ -358,19 +358,19 @@ export async function startOllama(): Promise<void> {
     throw new Error('Ollama executable not found')
   }
 
-  // Spawn detached process
-  // Force the app-managed Ollama server onto the dedicated GPU. Ollama's experimental
-  // Vulkan backend (enabled when OLLAMA_VULKAN is truthy in the user's environment)
-  // enumerates integrated GPUs — e.g. Intel Arc on hybrid laptops — as inference
-  // devices, even mislabeling them type=discrete, and can schedule the model onto the
-  // iGPU. There the runner crashes on large prefills ("connection forcibly closed by
-  // the remote host") and is far slower than the discrete CUDA/ROCm GPU. Disable Vulkan
-  // for our server so it uses the dedicated GPU; the rest of the environment is inherited.
+  // Spawn detached process. On a machine with a dedicated NVIDIA GPU, force Ollama's
+  // Vulkan backend off so it uses the discrete CUDA GPU. Vulkan (enabled via
+  // OLLAMA_VULKAN in the user's environment) can enumerate an integrated GPU — e.g.
+  // Intel Arc on hybrid laptops, even mislabeled type=discrete — and run the model
+  // there, where the runner crashes on large prefills ("connection forcibly closed by
+  // the remote host") and is far slower. Only override when an NVIDIA GPU is present so
+  // AMD/Apple/Vulkan-only setups keep their working backend.
+  const nvidiaPresent = (await getSystemVram()).totalMB > 0
   const child = spawn(ollamaPath, ['serve'], {
     detached: true,
     stdio: 'ignore',
     windowsHide: true,
-    env: { ...process.env, OLLAMA_VULKAN: '0' }
+    env: nvidiaPresent ? { ...process.env, OLLAMA_VULKAN: '0' } : process.env
   })
   child.unref()
 
@@ -390,6 +390,65 @@ export async function startOllama(): Promise<void> {
   }
 
   throw new Error('Ollama server failed to start within 15 seconds')
+}
+
+/** True when the environment will push Ollama onto its Vulkan backend, which on hybrid
+ * laptops can select the integrated GPU instead of the discrete one. */
+function envPrefersVulkan(): boolean {
+  const v = (process.env.OLLAMA_VULKAN ?? '').trim().toLowerCase()
+  return v !== '' && v !== '0' && v !== 'false' && v !== 'no' && v !== 'off'
+}
+
+let dedicatedGpuRestartAttempted = false
+
+/**
+ * Stop any running Ollama server (and, on Windows, the tray supervisor that may respawn
+ * it). Best-effort: ignores "not running" errors and waits for the port to free up.
+ */
+export async function stopOllama(): Promise<void> {
+  try {
+    if (process.platform === 'win32') {
+      execSync('taskkill /F /T /IM "ollama app.exe"', { timeout: 8000, stdio: 'ignore' })
+    }
+  } catch {
+    // tray not running
+  }
+  try {
+    if (process.platform === 'win32') {
+      execSync('taskkill /F /IM ollama.exe', { timeout: 8000, stdio: 'ignore' })
+    } else {
+      execSync('pkill -f "ollama serve"', { timeout: 8000, stdio: 'ignore' })
+    }
+  } catch {
+    // server already down
+  }
+  for (let i = 0; i < 20; i++) {
+    try {
+      await fetch(`${OLLAMA_BASE_URL}/api/tags`, { signal: AbortSignal.timeout(1000) })
+      await new Promise((r) => setTimeout(r, 300))
+    } catch {
+      return
+    }
+  }
+}
+
+/**
+ * On a machine with a dedicated NVIDIA GPU, make sure Ollama actually uses it. When the
+ * environment prefers Vulkan AND a discrete NVIDIA GPU is present, restart Ollama once
+ * with Vulkan disabled (startOllama forces it off) so the model runs on the dedicated
+ * GPU instead of the integrated one (where the runner crashes on large prefills and is
+ * far slower). No-ops when there is no NVIDIA GPU (don't disturb iGPU-only or AMD/Apple
+ * setups), when Ollama isn't installed, or once already handled this run.
+ */
+export async function ensureOllamaUsesDedicatedGpu(): Promise<boolean> {
+  if (dedicatedGpuRestartAttempted) return false
+  if (!envPrefersVulkan()) return false
+  if ((await getSystemVram()).totalMB <= 0) return false
+  if (!(await detectOllama()).installed) return false
+  dedicatedGpuRestartAttempted = true
+  await stopOllama()
+  await startOllama()
+  return true
 }
 
 /**

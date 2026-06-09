@@ -25,6 +25,7 @@ import {
   deleteModel,
   detectOllama,
   downloadOllama,
+  ensureOllamaUsesDedicatedGpu,
   getSystemVram,
   type InstalledModelInfo,
   installOllama,
@@ -112,6 +113,11 @@ export function registerAiHandlers(): void {
     // Phase 17f (TYP-3) — use the Zod-narrowed value, not the raw input.
     // Phase 17d (NET-10) — configure is now async (non-blocking atomic write).
     await aiService.configure(parsed.data)
+    // When the local provider is selected, make sure Ollama is on the dedicated GPU
+    // (restart it off the integrated/Vulkan device once if needed) before the AI runs.
+    if (parsed.data.provider === 'ollama') {
+      await ensureOllamaUsesDedicatedGpu().catch(() => {})
+    }
     return { success: true }
   })
 

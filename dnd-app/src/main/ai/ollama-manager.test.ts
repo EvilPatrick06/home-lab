@@ -46,6 +46,7 @@ import {
   checkOllamaUpdate,
   deleteModel,
   detectOllama,
+  ensureOllamaUsesDedicatedGpu,
   getOllamaVersion,
   getPerformanceTier,
   getSystemVram,
@@ -412,6 +413,27 @@ describe('ollama-manager', () => {
       })
 
       await expect(deleteModel('nonexistent')).rejects.toThrow('Failed to delete model')
+    })
+  })
+
+  describe('ensureOllamaUsesDedicatedGpu', () => {
+    const prev = process.env.OLLAMA_VULKAN
+    afterEach(() => {
+      if (prev === undefined) delete process.env.OLLAMA_VULKAN
+      else process.env.OLLAMA_VULKAN = prev
+    })
+
+    it('no-ops when the environment does not prefer Vulkan', async () => {
+      delete process.env.OLLAMA_VULKAN
+      expect(await ensureOllamaUsesDedicatedGpu()).toBe(false)
+    })
+
+    it('no-ops when no NVIDIA GPU is detected even with Vulkan enabled', async () => {
+      process.env.OLLAMA_VULKAN = '1'
+      vi.mocked(execSync).mockImplementation(() => {
+        throw new Error('nvidia-smi not found')
+      })
+      expect(await ensureOllamaUsesDedicatedGpu()).toBe(false)
     })
   })
 })
