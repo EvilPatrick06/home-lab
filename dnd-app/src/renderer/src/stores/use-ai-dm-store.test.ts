@@ -1,4 +1,5 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { STREAM_SAFETY_TIMEOUT_MS } from '../constants'
 
 // Capture the listener callbacks setupListeners registers so tests can drive events.
 const aiHandlers: Record<string, (data: unknown) => void> = {}
@@ -191,6 +192,50 @@ describe('useAiDmStore', () => {
       expect(ws).toEqual({ streamId: 'sid-7', query: 'lich phylactery rules', status: 'pending_approval' })
       cleanupListeners()
       useAiDmStore.setState({ activeStreamId: null, webSearchStatus: null })
+    })
+
+    // Bug fix: the renderer safety timeout is an INACTIVITY backstop — each prefill
+    // heartbeat / token resets it — so a valid-but-slow large-context follow-up prefill
+    // isn't wrongly cancelled, while a genuinely dead stream still surfaces a timeout.
+    describe('safety timeout is reset by heartbeats (inactivity backstop)', () => {
+      afterEach(() => {
+        vi.useRealTimers()
+        const { safetyTimeoutId } = useAiDmStore.getState()
+        if (safetyTimeoutId) clearTimeout(safetyTimeoutId)
+        useAiDmStore.setState({ activeStreamId: null, isTyping: false, streamStatus: null, safetyTimeoutId: null })
+      })
+
+      it('keeps the stream alive past the total window when heartbeats keep arriving', () => {
+        vi.useFakeTimers()
+        const cleanupListeners = useAiDmStore.getState().setupListeners()
+        useAiDmStore.setState({ activeStreamId: 'sid-1', isTyping: true, safetyTimeoutId: null })
+
+        // Arm via the first heartbeat, then keep heartbeating just under the window.
+        for (let i = 0; i < 4; i++) {
+          aiHandlers.status?.({ streamId: 'sid-1', status: 'loading_model' })
+          vi.advanceTimersByTime(STREAM_SAFETY_TIMEOUT_MS - 10_000)
+        }
+        // Total elapsed (~4×320s) far exceeds the single window, but each heartbeat reset
+        // the deadline — so the stream must NOT have been cancelled.
+        expect(useAiDmStore.getState().isTyping).toBe(true)
+        expect(useAiDmStore.getState().lastError).toBeNull()
+
+        cleanupListeners()
+      })
+
+      it('still times out when no heartbeat/token arrives for the full window', () => {
+        vi.useFakeTimers()
+        const cleanupListeners = useAiDmStore.getState().setupListeners()
+        useAiDmStore.setState({ activeStreamId: 'sid-1', isTyping: true, lastError: null, safetyTimeoutId: null })
+
+        aiHandlers.status?.({ streamId: 'sid-1', status: 'loading_model' }) // arms the backstop
+        vi.advanceTimersByTime(STREAM_SAFETY_TIMEOUT_MS + 1000) // ...then silence past the window
+
+        const s = useAiDmStore.getState()
+        expect(s.isTyping).toBe(false)
+        expect(s.lastError).toBe('AI response timed out')
+        cleanupListeners()
+      })
     })
 
     it('a first chunk clears a pending loading_model notice', () => {

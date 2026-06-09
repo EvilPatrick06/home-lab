@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { pushDmAlert } from '../components/game/overlays/DmAlertTray'
-import { AI_MUTATIONS_AUTO_REJECT_MS, STREAM_SAFETY_THRESHOLD_MS, STREAM_SAFETY_TIMEOUT_MS } from '../constants'
+import { AI_MUTATIONS_AUTO_REJECT_MS, STREAM_SAFETY_TIMEOUT_MS } from '../constants'
 import { i18n } from '../i18n'
 import { type AiRendererAction, parseRendererActions, stripActionTags } from '../services/ai-renderer-actions'
 import type { Campaign } from '../types/campaign'
@@ -85,8 +85,9 @@ interface AiDmState {
   fileReadStatus: { path: string; status: string } | null
   // streamId is carried so the approval UI can call approveWebSearch(streamId, …).
   webSearchStatus: { query: string; status: string; streamId: string } | null
-  // Advisory stream status (e.g. 'loading_model' while a cold model loads). Purely
-  // informational — does NOT affect isTyping or the safety timeout.
+  // Advisory stream status (e.g. 'loading_model' while a cold model prefills). Doesn't
+  // touch isTyping, but each 'loading_model' heartbeat DOES reset the inactivity safety
+  // backstop (rearmSafetyTimeout) so a valid-but-slow prefill isn't wrongly cancelled.
   streamStatus: 'loading_model' | null
 
   // Stat mutation approval
@@ -133,189 +134,20 @@ interface AiDmState {
   setupListeners: () => () => void
 }
 
-export const useAiDmStore = create<AiDmState>((set, get) => ({
-  enabled: false,
-  paused: false,
-  dmApprovalRequired: false,
-  pendingActions: null,
-
-  messages: [],
-
-  activeStreamId: null,
-  streamingText: '',
-  isTyping: false,
-  safetyTimeoutId: null,
-
-  sceneStatus: 'idle',
-  sceneError: null,
-  lastStatChanges: [],
-  lastDmActions: [],
-  lastRuleCitations: [],
-  fileReadStatus: null,
-  webSearchStatus: null,
-  streamStatus: null,
-  pendingMutations: [],
-  autoApproveAiMutations: false,
-  lastError: null,
-
-  setDmApprovalRequired: (required: boolean) => set({ dmApprovalRequired: required }),
-
-  setPendingActions: (pending: PendingActionSet | null) => set({ pendingActions: pending }),
-
-  approvePendingActions: () => {
-    const { pendingActions } = get()
-    if (!pendingActions) return
-    // Execute the pending actions via game-action-executor with bypassApproval.
-    // Phase 17d (RUN-3/4) — surface a failed dynamic import instead of silently dropping the
-    // approved actions (the DM would otherwise get no feedback that nothing ran).
-    import('../services/game-action-executor')
-      .then(({ executeDmActions }) => {
-        executeDmActions(pendingActions.actions, true)
-      })
-      .catch((err) => {
-        pushDmAlert('error', i18n.t('notify.aiDmStore.runApprovedFailed'))
-        logger.error('[ai-dm] game-action-executor import failed', err)
-      })
-    set({ pendingActions: null })
-  },
-
-  rejectPendingActions: (dmNote: string) => {
-    const { pendingActions } = get()
-    if (!pendingActions) return
-    // Log the override to chat
-    useLobbyStore.getState().addChatMessage({
-      id: `dm-override-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
-      senderId: 'dm',
-      senderName: 'DM',
-      content: `[DM Override] AI ruling rejected${dmNote ? `: ${dmNote}` : ''}`,
-      timestamp: Date.now(),
-      isSystem: true
-    })
-    set({ pendingActions: null })
-  },
-
-  queueMutations: (mutationSet: PendingMutationSet) => {
-    // Dedup by source message — the AI-message effect can re-run (re-render /
-    // re-subscribe), and re-queuing the same set would double-apply on approval.
-    if (get().pendingMutations.some((m) => m.messageId === mutationSet.messageId)) return
-    // Auto-reject after AI_MUTATIONS_AUTO_REJECT_MS
-    const timeoutId = setTimeout(() => {
-      const state = get()
-      const still = state.pendingMutations.find((m) => m.id === mutationSet.id)
-      if (still) {
-        set({ pendingMutations: state.pendingMutations.filter((m) => m.id !== mutationSet.id) })
-        pushDmAlert('warning', i18n.t('notify.aiDmStore.mutationsAutoRejected'))
-      }
-    }, AI_MUTATIONS_AUTO_REJECT_MS)
-    set((state) => ({
-      pendingMutations: [...state.pendingMutations, { ...mutationSet, timeoutId }]
-    }))
-  },
-
-  approveMutations: (id: string) => {
-    const state = get()
-    const found = state.pendingMutations.find((m) => m.id === id)
-    if (!found) return
-    if (found.timeoutId) clearTimeout(found.timeoutId)
-
-    // Funnel ALL approved mutations (character + creature) through the single
-    // apply path in use-game-effects via this event. That hook holds the active
-    // map needed for creature token mutations and shares the same name-matching
-    // as the auto-approve path — so manual approval no longer drops creature
-    // changes (the listener for this event used to be missing) and the
-    // character-routing logic isn't duplicated here.
-    if (found.mutations.length > 0) {
-      window.dispatchEvent(new CustomEvent('ai-mutations-approved', { detail: { mutations: found.mutations } }))
-    }
-
-    set({ pendingMutations: state.pendingMutations.filter((m) => m.id !== id) })
-  },
-
-  rejectMutations: (id: string) => {
-    const state = get()
-    const found = state.pendingMutations.find((m) => m.id === id)
-    if (found?.timeoutId) clearTimeout(found.timeoutId)
-    set({ pendingMutations: state.pendingMutations.filter((m) => m.id !== id) })
-  },
-
-  approveAllMutations: () => {
-    const state = get()
-    for (const m of state.pendingMutations) {
-      state.approveMutations(m.id)
-    }
-  },
-
-  setAutoApproveAiMutations: (auto: boolean) => set({ autoApproveAiMutations: auto }),
-
-  initFromCampaign: (campaign) => {
-    const aiDm = campaign.aiDm
-    if (!aiDm?.enabled) {
-      set({ enabled: false })
-      return
-    }
-
-    const currentSceneStatus = get().sceneStatus
-
-    set({
-      enabled: true,
-      paused: false,
-      messages: [],
-      // Preserve stream state if scene prep is active
-      activeStreamId: currentSceneStatus === 'preparing' ? get().activeStreamId : null,
-      streamingText: currentSceneStatus === 'preparing' ? get().streamingText : '',
-      isTyping: currentSceneStatus === 'preparing',
-      lastStatChanges: [],
-      lastDmActions: [],
-      lastRuleCitations: [],
-      lastError: null
-      // sceneStatus NOT reset — preserved from lobby
-    })
-
-    // Load saved conversation
-    window.api.ai
-      .loadConversation(campaign.id)
-      .then((result) => {
-        if (result.success && result.data) {
-          const data = result.data as { messages?: Array<{ role: string; content: string; timestamp?: string }> }
-          if (data.messages && Array.isArray(data.messages) && data.messages.length > 0) {
-            set({
-              messages: data.messages.map((m) => ({
-                role: m.role as 'user' | 'assistant',
-                content: m.content,
-                timestamp: m.timestamp ? new Date(m.timestamp).getTime() : Date.now()
-              })),
-              sceneStatus: 'ready'
-            })
-          }
-        }
-      })
-      .catch((err) => logger.error('[ai-dm] loadConversation failed', err))
-  },
-
-  sendMessage: async (campaignId, content, characterIds, senderName, activeCreatures, gameState, actingCharacterId) => {
-    const state = get()
-    if (!state.enabled || state.paused) return
-
-    // Cancel any active stream first
-    if (state.activeStreamId) {
-      await get().cancelStream()
-    }
-
-    set({
-      isTyping: true,
-      streamingText: '',
-      lastError: null,
-      fileReadStatus: null,
-      webSearchStatus: null,
-      streamStatus: null
-    })
-
-    // Safety timeout: if still typing after 60s, auto-clear
-    const streamStartTime = Date.now()
-    const timeoutId = setTimeout(async () => {
+export const useAiDmStore = create<AiDmState>((set, get) => {
+  // Stream safety backstop, armed as an INACTIVITY timeout: each call RESETS the
+  // deadline. The main process heartbeats 'loading_model' every 12s all through a slow
+  // prefill (ai-service.ts firstTokenTimer) and tokens flow during streaming, so
+  // re-arming on every heartbeat/token means we only surface "timed out" when the
+  // stream is GENUINELY dead (no signal for the whole window) — NOT when a large-context
+  // follow-up (system prompt + the just-generated scene + game state) is merely slow to
+  // prefill on CPU. (The old fixed total-duration timeout wrongly cancelled those.)
+  const rearmSafetyTimeout = (): void => {
+    const existing = get().safetyTimeoutId
+    if (existing) clearTimeout(existing)
+    const id = setTimeout(async () => {
       const s = get()
-      if (s.isTyping && s.activeStreamId && Date.now() - streamStartTime >= STREAM_SAFETY_THRESHOLD_MS) {
-        // Update UI state immediately to prevent race conditions
+      if (s.isTyping && s.activeStreamId) {
         set({
           isTyping: false,
           lastError: 'AI response timed out',
@@ -323,254 +155,449 @@ export const useAiDmStore = create<AiDmState>((set, get) => ({
           streamingText: '',
           safetyTimeoutId: null
         })
-        // Then perform the async cancellation
         await window.api.ai.cancelStream(s.activeStreamId)
       }
     }, STREAM_SAFETY_TIMEOUT_MS)
+    set({ safetyTimeoutId: id })
+  }
 
-    // Store timeout ID in state for cleanup when stream completes
-    set({ safetyTimeoutId: timeoutId })
+  return {
+    enabled: false,
+    paused: false,
+    dmApprovalRequired: false,
+    pendingActions: null,
 
-    try {
-      const result = await window.api.ai.chatStream({
-        campaignId,
-        message: content,
-        characterIds,
-        actingCharacterId,
-        senderName,
-        activeCreatures,
-        gameState
+    messages: [],
+
+    activeStreamId: null,
+    streamingText: '',
+    isTyping: false,
+    safetyTimeoutId: null,
+
+    sceneStatus: 'idle',
+    sceneError: null,
+    lastStatChanges: [],
+    lastDmActions: [],
+    lastRuleCitations: [],
+    fileReadStatus: null,
+    webSearchStatus: null,
+    streamStatus: null,
+    pendingMutations: [],
+    autoApproveAiMutations: false,
+    lastError: null,
+
+    setDmApprovalRequired: (required: boolean) => set({ dmApprovalRequired: required }),
+
+    setPendingActions: (pending: PendingActionSet | null) => set({ pendingActions: pending }),
+
+    approvePendingActions: () => {
+      const { pendingActions } = get()
+      if (!pendingActions) return
+      // Execute the pending actions via game-action-executor with bypassApproval.
+      // Phase 17d (RUN-3/4) — surface a failed dynamic import instead of silently dropping the
+      // approved actions (the DM would otherwise get no feedback that nothing ran).
+      import('../services/game-action-executor')
+        .then(({ executeDmActions }) => {
+          executeDmActions(pendingActions.actions, true)
+        })
+        .catch((err) => {
+          pushDmAlert('error', i18n.t('notify.aiDmStore.runApprovedFailed'))
+          logger.error('[ai-dm] game-action-executor import failed', err)
+        })
+      set({ pendingActions: null })
+    },
+
+    rejectPendingActions: (dmNote: string) => {
+      const { pendingActions } = get()
+      if (!pendingActions) return
+      // Log the override to chat
+      useLobbyStore.getState().addChatMessage({
+        id: `dm-override-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
+        senderId: 'dm',
+        senderName: 'DM',
+        content: `[DM Override] AI ruling rejected${dmNote ? `: ${dmNote}` : ''}`,
+        timestamp: Date.now(),
+        isSystem: true
+      })
+      set({ pendingActions: null })
+    },
+
+    queueMutations: (mutationSet: PendingMutationSet) => {
+      // Dedup by source message — the AI-message effect can re-run (re-render /
+      // re-subscribe), and re-queuing the same set would double-apply on approval.
+      if (get().pendingMutations.some((m) => m.messageId === mutationSet.messageId)) return
+      // Auto-reject after AI_MUTATIONS_AUTO_REJECT_MS
+      const timeoutId = setTimeout(() => {
+        const state = get()
+        const still = state.pendingMutations.find((m) => m.id === mutationSet.id)
+        if (still) {
+          set({ pendingMutations: state.pendingMutations.filter((m) => m.id !== mutationSet.id) })
+          pushDmAlert('warning', i18n.t('notify.aiDmStore.mutationsAutoRejected'))
+        }
+      }, AI_MUTATIONS_AUTO_REJECT_MS)
+      set((state) => ({
+        pendingMutations: [...state.pendingMutations, { ...mutationSet, timeoutId }]
+      }))
+    },
+
+    approveMutations: (id: string) => {
+      const state = get()
+      const found = state.pendingMutations.find((m) => m.id === id)
+      if (!found) return
+      if (found.timeoutId) clearTimeout(found.timeoutId)
+
+      // Funnel ALL approved mutations (character + creature) through the single
+      // apply path in use-game-effects via this event. That hook holds the active
+      // map needed for creature token mutations and shares the same name-matching
+      // as the auto-approve path — so manual approval no longer drops creature
+      // changes (the listener for this event used to be missing) and the
+      // character-routing logic isn't duplicated here.
+      if (found.mutations.length > 0) {
+        window.dispatchEvent(new CustomEvent('ai-mutations-approved', { detail: { mutations: found.mutations } }))
+      }
+
+      set({ pendingMutations: state.pendingMutations.filter((m) => m.id !== id) })
+    },
+
+    rejectMutations: (id: string) => {
+      const state = get()
+      const found = state.pendingMutations.find((m) => m.id === id)
+      if (found?.timeoutId) clearTimeout(found.timeoutId)
+      set({ pendingMutations: state.pendingMutations.filter((m) => m.id !== id) })
+    },
+
+    approveAllMutations: () => {
+      const state = get()
+      for (const m of state.pendingMutations) {
+        state.approveMutations(m.id)
+      }
+    },
+
+    setAutoApproveAiMutations: (auto: boolean) => set({ autoApproveAiMutations: auto }),
+
+    initFromCampaign: (campaign) => {
+      const aiDm = campaign.aiDm
+      if (!aiDm?.enabled) {
+        set({ enabled: false })
+        return
+      }
+
+      const currentSceneStatus = get().sceneStatus
+
+      set({
+        enabled: true,
+        paused: false,
+        messages: [],
+        // Preserve stream state if scene prep is active
+        activeStreamId: currentSceneStatus === 'preparing' ? get().activeStreamId : null,
+        streamingText: currentSceneStatus === 'preparing' ? get().streamingText : '',
+        isTyping: currentSceneStatus === 'preparing',
+        lastStatChanges: [],
+        lastDmActions: [],
+        lastRuleCitations: [],
+        lastError: null
+        // sceneStatus NOT reset — preserved from lobby
       })
 
-      if (result.success && result.streamId) {
-        set({ activeStreamId: result.streamId })
-      } else {
-        // AI-2 — surface the failure instead of dying silently. A common cause is
-        // the campaign's model not being installed (Ollama 404); the user
-        // previously saw nothing (no toast, no "thinking" indicator, counter at 0).
-        clearTimeout(timeoutId)
-        const errorMsg = result.error || 'Failed to start chat'
+      // Load saved conversation
+      window.api.ai
+        .loadConversation(campaign.id)
+        .then((result) => {
+          if (result.success && result.data) {
+            const data = result.data as { messages?: Array<{ role: string; content: string; timestamp?: string }> }
+            if (data.messages && Array.isArray(data.messages) && data.messages.length > 0) {
+              set({
+                messages: data.messages.map((m) => ({
+                  role: m.role as 'user' | 'assistant',
+                  content: m.content,
+                  timestamp: m.timestamp ? new Date(m.timestamp).getTime() : Date.now()
+                })),
+                sceneStatus: 'ready'
+              })
+            }
+          }
+        })
+        .catch((err) => logger.error('[ai-dm] loadConversation failed', err))
+    },
+
+    sendMessage: async (
+      campaignId,
+      content,
+      characterIds,
+      senderName,
+      activeCreatures,
+      gameState,
+      actingCharacterId
+    ) => {
+      const state = get()
+      if (!state.enabled || state.paused) return
+
+      // Cancel any active stream first
+      if (state.activeStreamId) {
+        await get().cancelStream()
+      }
+
+      set({
+        isTyping: true,
+        streamingText: '',
+        lastError: null,
+        fileReadStatus: null,
+        webSearchStatus: null,
+        streamStatus: null
+      })
+
+      // Inactivity safety backstop — reset on each heartbeat/token (see rearmSafetyTimeout).
+      rearmSafetyTimeout()
+
+      try {
+        const result = await window.api.ai.chatStream({
+          campaignId,
+          message: content,
+          characterIds,
+          actingCharacterId,
+          senderName,
+          activeCreatures,
+          gameState
+        })
+
+        if (result.success && result.streamId) {
+          set({ activeStreamId: result.streamId })
+        } else {
+          // AI-2 — surface the failure instead of dying silently. A common cause is
+          // the campaign's model not being installed (Ollama 404); the user
+          // previously saw nothing (no toast, no "thinking" indicator, counter at 0).
+          const t = get().safetyTimeoutId
+          if (t) clearTimeout(t)
+          const errorMsg = result.error || 'Failed to start chat'
+          set({ isTyping: false, lastError: errorMsg, safetyTimeoutId: null })
+          pushDmAlert('error', i18n.t('notify.aiDmStore.aiDmError', { error: errorMsg }))
+        }
+      } catch (error) {
+        const t = get().safetyTimeoutId
+        if (t) clearTimeout(t)
+        const errorMsg = error instanceof Error ? error.message : 'Unknown error'
         set({ isTyping: false, lastError: errorMsg, safetyTimeoutId: null })
         pushDmAlert('error', i18n.t('notify.aiDmStore.aiDmError', { error: errorMsg }))
       }
-    } catch (error) {
-      clearTimeout(timeoutId)
-      const errorMsg = error instanceof Error ? error.message : 'Unknown error'
-      set({ isTyping: false, lastError: errorMsg, safetyTimeoutId: null })
-      pushDmAlert('error', i18n.t('notify.aiDmStore.aiDmError', { error: errorMsg }))
-    }
-  },
+    },
 
-  cancelStream: async () => {
-    const { activeStreamId, safetyTimeoutId } = get()
-    if (safetyTimeoutId) {
-      clearTimeout(safetyTimeoutId)
-    }
-    if (activeStreamId) {
-      // Update UI state immediately to prevent race conditions
+    cancelStream: async () => {
+      const { activeStreamId, safetyTimeoutId } = get()
+      if (safetyTimeoutId) {
+        clearTimeout(safetyTimeoutId)
+      }
+      if (activeStreamId) {
+        // Update UI state immediately to prevent race conditions
+        set({
+          activeStreamId: null,
+          isTyping: false,
+          streamingText: '',
+          safetyTimeoutId: null
+        })
+        // Then perform the async cancellation
+        await window.api.ai.cancelStream(activeStreamId)
+      }
+    },
+
+    prepareScene: async (campaignId, characterIds) => {
+      const state = get()
+      // Allow a retry from the 'error' state (S-2); only block while actively
+      // preparing or already ready.
+      if (!state.enabled || state.sceneStatus === 'preparing' || state.sceneStatus === 'ready') return
+
+      set({ sceneStatus: 'preparing', sceneError: null })
+      try {
+        await window.api.ai.prepareScene(campaignId, characterIds)
+      } catch (err) {
+        set({ sceneStatus: 'error', sceneError: err instanceof Error ? err.message : String(err) })
+      }
+    },
+
+    checkSceneStatus: async (campaignId) => {
+      const result = await window.api.ai.getSceneStatus(campaignId)
       set({
-        activeStreamId: null,
-        isTyping: false,
-        streamingText: '',
-        safetyTimeoutId: null
+        sceneStatus: result.status === 'idle' ? 'idle' : result.status,
+        sceneError: result.status === 'error' ? (result.error ?? 'Scene preparation failed.') : null
       })
-      // Then perform the async cancellation
-      await window.api.ai.cancelStream(activeStreamId)
-    }
-  },
+    },
 
-  prepareScene: async (campaignId, characterIds) => {
-    const state = get()
-    // Allow a retry from the 'error' state (S-2); only block while actively
-    // preparing or already ready.
-    if (!state.enabled || state.sceneStatus === 'preparing' || state.sceneStatus === 'ready') return
-
-    set({ sceneStatus: 'preparing', sceneError: null })
-    try {
-      await window.api.ai.prepareScene(campaignId, characterIds)
-    } catch (err) {
-      set({ sceneStatus: 'error', sceneError: err instanceof Error ? err.message : String(err) })
-    }
-  },
-
-  checkSceneStatus: async (campaignId) => {
-    const result = await window.api.ai.getSceneStatus(campaignId)
-    set({
-      sceneStatus: result.status === 'idle' ? 'idle' : result.status,
-      sceneError: result.status === 'error' ? (result.error ?? 'Scene preparation failed.') : null
-    })
-  },
-
-  setScene: async (campaignId, characterIds, gameState?: string) => {
-    const state = get()
-    if (!state.enabled) return
-
-    await state.sendMessage(
-      campaignId,
-      'The adventure begins. Set the scene for the party. Describe the opening location and atmosphere.',
-      characterIds,
-      undefined,
-      undefined,
-      gameState
-    )
-  },
-
-  clearMessages: () => {
-    set({ messages: [] })
-  },
-
-  setPaused: (paused) => {
-    set({ paused })
-  },
-
-  reset: () => {
-    const { activeStreamId, safetyTimeoutId } = get()
-    if (safetyTimeoutId) {
-      clearTimeout(safetyTimeoutId)
-    }
-    if (activeStreamId) {
-      window.api.ai.cancelStream(activeStreamId)
-    }
-    set({
-      enabled: false,
-      paused: false,
-      messages: [],
-      sceneStatus: 'idle',
-      sceneError: null,
-      activeStreamId: null,
-      streamingText: '',
-      isTyping: false,
-      streamStatus: null,
-      safetyTimeoutId: null,
-      lastStatChanges: [],
-      lastDmActions: [],
-      lastRuleCitations: [],
-      lastError: null
-    })
-  },
-
-  setupListeners: () => {
-    const handleChunk = (data: { streamId: string; text: string }): void => {
+    setScene: async (campaignId, characterIds, gameState?: string) => {
       const state = get()
-      if (data.streamId === state.activeStreamId) {
-        // First real token clears any "loading model" notice.
-        set({ streamingText: state.streamingText + data.text, ...(state.streamStatus ? { streamStatus: null } : {}) })
+      if (!state.enabled) return
+
+      await state.sendMessage(
+        campaignId,
+        'The adventure begins. Set the scene for the party. Describe the opening location and atmosphere.',
+        characterIds,
+        undefined,
+        undefined,
+        gameState
+      )
+    },
+
+    clearMessages: () => {
+      set({ messages: [] })
+    },
+
+    setPaused: (paused) => {
+      set({ paused })
+    },
+
+    reset: () => {
+      const { activeStreamId, safetyTimeoutId } = get()
+      if (safetyTimeoutId) {
+        clearTimeout(safetyTimeoutId)
       }
-    }
-
-    const handleStreamStatus = (data: { streamId: string; status: string; from?: string; to?: string }): void => {
-      const state = get()
-      if (data.streamId !== state.activeStreamId) return
-      if (data.status === 'loading_model') {
-        // Advisory only — never touch isTyping or the safety timeout.
-        set({ streamStatus: 'loading_model' })
-      } else if (data.status === 'model_switched' && data.to) {
-        // The configured model wasn't installed — tell the player WHICH model is now
-        // in use and WHY, both as a persistent chat note and an immediate alert.
-        const content = data.from
-          ? i18n.t('notify.aiDmStore.modelSwitched', { from: data.from, to: data.to })
-          : i18n.t('notify.aiDmStore.modelAutoSelected', { to: data.to })
-        useLobbyStore.getState().addChatMessage({
-          id: `ai-model-switch-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
-          senderId: 'system',
-          senderName: 'System',
-          content,
-          timestamp: Date.now(),
-          isSystem: true
-        })
-        pushDmAlert('warning', content)
+      if (activeStreamId) {
+        window.api.ai.cancelStream(activeStreamId)
       }
-    }
+      set({
+        enabled: false,
+        paused: false,
+        messages: [],
+        sceneStatus: 'idle',
+        sceneError: null,
+        activeStreamId: null,
+        streamingText: '',
+        isTyping: false,
+        streamStatus: null,
+        safetyTimeoutId: null,
+        lastStatChanges: [],
+        lastDmActions: [],
+        lastRuleCitations: [],
+        lastError: null
+      })
+    },
 
-    const handleDone = (data: {
-      streamId: string
-      fullText: string
-      displayText: string
-      statChanges: AiStatChange[]
-      dmActions: AiDmAction[]
-      ruleCitations?: AiRuleCitation[]
-    }): void => {
-      const state = get()
-      if (data.streamId === state.activeStreamId) {
-        // Clear the safety timeout since stream completed successfully
-        if (state.safetyTimeoutId) {
-          clearTimeout(state.safetyTimeoutId)
+    setupListeners: () => {
+      const handleChunk = (data: { streamId: string; text: string }): void => {
+        const state = get()
+        if (data.streamId === state.activeStreamId) {
+          // First real token clears any "loading model" notice.
+          set({ streamingText: state.streamingText + data.text, ...(state.streamStatus ? { streamStatus: null } : {}) })
+          // A token means the stream is alive — reset the inactivity backstop.
+          rearmSafetyTimeout()
         }
+      }
 
-        const dmActions = data.dmActions ?? []
-        const ruleCitations = data.ruleCitations ?? []
-
-        // Parse and strip renderer action tags from display text
-        const rendererActions: AiRendererAction[] = parseRendererActions(data.displayText)
-        const cleanDisplayText = rendererActions.length > 0 ? stripActionTags(data.displayText) : data.displayText
-
-        const newMessage: AiMessage = {
-          role: 'assistant',
-          content: cleanDisplayText,
-          timestamp: Date.now(),
-          statChanges: data.statChanges.length > 0 ? data.statChanges : undefined,
-          dmActions: dmActions.length > 0 ? dmActions : undefined,
-          ruleCitations: ruleCitations.length > 0 ? ruleCitations : undefined
+      const handleStreamStatus = (data: { streamId: string; status: string; from?: string; to?: string }): void => {
+        const state = get()
+        if (data.streamId !== state.activeStreamId) return
+        if (data.status === 'loading_model') {
+          // Prefill heartbeat: the model is alive and cold-loading/prefilling. Show the
+          // notice AND reset the inactivity backstop so a valid-but-slow prefill (large
+          // follow-up context on CPU) is never wrongly cancelled. This completes the
+          // contract the main process assumes (ai-service.ts firstTokenTimer comment).
+          set({ streamStatus: 'loading_model' })
+          rearmSafetyTimeout()
+        } else if (data.status === 'model_switched' && data.to) {
+          // The configured model wasn't installed — tell the player WHICH model is now
+          // in use and WHY, both as a persistent chat note and an immediate alert.
+          const content = data.from
+            ? i18n.t('notify.aiDmStore.modelSwitched', { from: data.from, to: data.to })
+            : i18n.t('notify.aiDmStore.modelAutoSelected', { to: data.to })
+          useLobbyStore.getState().addChatMessage({
+            id: `ai-model-switch-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
+            senderId: 'system',
+            senderName: 'System',
+            content,
+            timestamp: Date.now(),
+            isSystem: true
+          })
+          pushDmAlert('warning', content)
         }
-
-        set({
-          activeStreamId: null,
-          isTyping: false,
-          streamingText: '',
-          streamStatus: null,
-          safetyTimeoutId: null,
-          lastStatChanges: data.statChanges,
-          lastDmActions: dmActions,
-          lastRuleCitations: ruleCitations,
-          messages: [...state.messages, newMessage]
-        })
       }
-    }
 
-    const handleError = (data: { streamId: string; error: string }): void => {
-      const state = get()
-      if (data.streamId === state.activeStreamId) {
-        // Clear the safety timeout since stream ended with error
-        if (state.safetyTimeoutId) {
-          clearTimeout(state.safetyTimeoutId)
+      const handleDone = (data: {
+        streamId: string
+        fullText: string
+        displayText: string
+        statChanges: AiStatChange[]
+        dmActions: AiDmAction[]
+        ruleCitations?: AiRuleCitation[]
+      }): void => {
+        const state = get()
+        if (data.streamId === state.activeStreamId) {
+          // Clear the safety timeout since stream completed successfully
+          if (state.safetyTimeoutId) {
+            clearTimeout(state.safetyTimeoutId)
+          }
+
+          const dmActions = data.dmActions ?? []
+          const ruleCitations = data.ruleCitations ?? []
+
+          // Parse and strip renderer action tags from display text
+          const rendererActions: AiRendererAction[] = parseRendererActions(data.displayText)
+          const cleanDisplayText = rendererActions.length > 0 ? stripActionTags(data.displayText) : data.displayText
+
+          const newMessage: AiMessage = {
+            role: 'assistant',
+            content: cleanDisplayText,
+            timestamp: Date.now(),
+            statChanges: data.statChanges.length > 0 ? data.statChanges : undefined,
+            dmActions: dmActions.length > 0 ? dmActions : undefined,
+            ruleCitations: ruleCitations.length > 0 ? ruleCitations : undefined
+          }
+
+          set({
+            activeStreamId: null,
+            isTyping: false,
+            streamingText: '',
+            streamStatus: null,
+            safetyTimeoutId: null,
+            lastStatChanges: data.statChanges,
+            lastDmActions: dmActions,
+            lastRuleCitations: ruleCitations,
+            messages: [...state.messages, newMessage]
+          })
         }
-
-        set({
-          activeStreamId: null,
-          isTyping: false,
-          streamingText: '',
-          streamStatus: null,
-          safetyTimeoutId: null,
-          lastError: data.error
-        })
-        pushDmAlert('error', i18n.t('notify.aiDmStore.aiDmError', { error: data.error }))
       }
-    }
 
-    const handleFileRead = (data: { streamId: string; path: string; status: string }): void => {
-      const state = get()
-      if (data.streamId === state.activeStreamId) {
-        set({ fileReadStatus: { path: data.path, status: data.status } })
+      const handleError = (data: { streamId: string; error: string }): void => {
+        const state = get()
+        if (data.streamId === state.activeStreamId) {
+          // Clear the safety timeout since stream ended with error
+          if (state.safetyTimeoutId) {
+            clearTimeout(state.safetyTimeoutId)
+          }
+
+          set({
+            activeStreamId: null,
+            isTyping: false,
+            streamingText: '',
+            streamStatus: null,
+            safetyTimeoutId: null,
+            lastError: data.error
+          })
+          pushDmAlert('error', i18n.t('notify.aiDmStore.aiDmError', { error: data.error }))
+        }
       }
-    }
 
-    const handleWebSearch = (data: { streamId: string; query: string; status: string }): void => {
-      const state = get()
-      if (data.streamId === state.activeStreamId) {
-        set({ webSearchStatus: { query: data.query, status: data.status, streamId: data.streamId } })
+      const handleFileRead = (data: { streamId: string; path: string; status: string }): void => {
+        const state = get()
+        if (data.streamId === state.activeStreamId) {
+          set({ fileReadStatus: { path: data.path, status: data.status } })
+        }
       }
-    }
 
-    window.api.ai.onStreamChunk(handleChunk)
-    window.api.ai.onStreamDone(handleDone)
-    window.api.ai.onStreamError(handleError)
-    window.api.ai.onStreamFileRead(handleFileRead)
-    window.api.ai.onStreamWebSearch(handleWebSearch)
-    window.api.ai.onStreamStatus(handleStreamStatus)
+      const handleWebSearch = (data: { streamId: string; query: string; status: string }): void => {
+        const state = get()
+        if (data.streamId === state.activeStreamId) {
+          set({ webSearchStatus: { query: data.query, status: data.status, streamId: data.streamId } })
+        }
+      }
 
-    // Return cleanup function
-    return () => {
-      window.api.ai.removeAllAiListeners()
+      window.api.ai.onStreamChunk(handleChunk)
+      window.api.ai.onStreamDone(handleDone)
+      window.api.ai.onStreamError(handleError)
+      window.api.ai.onStreamFileRead(handleFileRead)
+      window.api.ai.onStreamWebSearch(handleWebSearch)
+      window.api.ai.onStreamStatus(handleStreamStatus)
+
+      // Return cleanup function
+      return () => {
+        window.api.ai.removeAllAiListeners()
+      }
     }
   }
-}))
+})
