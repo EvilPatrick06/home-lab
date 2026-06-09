@@ -12,6 +12,8 @@ import type { PortalEntryInfo } from '../../hooks/use-token-movement'
 import { useTokenMovement } from '../../hooks/use-token-movement'
 import { useT } from '../../i18n'
 import { useChatBridge } from '../../pages/lobby/use-lobby-bridges'
+import { buildTokenStubFromCharacter } from '../../services/game-actions/character-token'
+import { type PlaceableToken, smartPlaceTokens } from '../../services/game-actions/token-placement'
 import { buildContentIndex } from '../../services/library/content-index'
 import { loadCategoryItems } from '../../services/library-service'
 import { executeMacro } from '../../services/macro-engine'
@@ -393,6 +395,43 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
       setActiveModal('falling')
     }
   }, [pendingFallDamage, effectiveIsDM])
+
+  // Auto-place a map token for each party PC that doesn't have one yet, on game load.
+  // The engine had a token factory (buildTokenStubFromCharacter) but nothing ever called
+  // it, so PCs entered the game with no token on the map. Only the authoritative side
+  // (host, or solo where there's no network) writes to the map — clients receive tokens
+  // via host sync, so a 'client' must NOT place (that would desync / duplicate). The
+  // local player in a solo AI game is a player (not the DM — the AI is), so this is
+  // deliberately NOT gated on isDM. The token-existence check keeps re-runs idempotent.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: keyed on map id; the existence check makes re-runs idempotent
+  useEffect(() => {
+    if (!activeMap || networkRole === 'client') return
+    // Party character ids: connected lobby players, else the solo campaign's active players.
+    const lobbyIds = useLobbyStore
+      .getState()
+      .players.filter((p) => p.characterId)
+      .map((p) => p.characterId as string)
+    const ids =
+      lobbyIds.length > 0
+        ? lobbyIds
+        : campaign.players.filter((p) => p.isActive && p.characterId).map((p) => p.characterId as string)
+    if (character) ids.push(character.id) // always cover the local PC (solo lists may lag)
+
+    const seen = new Set<string>()
+    const toPlace: PlaceableToken[] = []
+    for (const id of ids) {
+      if (seen.has(id)) continue
+      seen.add(id)
+      if (activeMap.tokens.some((tok) => tok.entityId === id)) continue // already on the map
+      const char = id === character?.id ? character : (allCharacters.find((c) => c.id === id) ?? null)
+      if (!char || !is5eCharacter(char)) continue // can't resolve the sheet → skip (e.g. remote PC not synced)
+      toPlace.push({ ...buildTokenStubFromCharacter(char), id: crypto.randomUUID() })
+    }
+    if (toPlace.length === 0) return
+    for (const tok of smartPlaceTokens(activeMap, toPlace)) {
+      gameStore.addToken(activeMap.id, tok as MapToken)
+    }
+  }, [activeMap?.id, character, networkRole, allCharacters, campaign.players, gameStore])
 
   // Sync darkvision from character species onto the player's own token whenever the map loads.
   // hasDarkvision(speciesId) is the source of truth for which species have darkvision.
