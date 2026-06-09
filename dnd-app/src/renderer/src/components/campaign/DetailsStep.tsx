@@ -180,18 +180,21 @@ export default function DetailsStep({ data, onChange }: DetailsStepProps): JSX.E
           </div>
         </div>
 
-        <div>
-          <label className="block text-muted mb-2 text-sm">{t('campaign.detailsStep.lobbyMessage')}</label>
-          <textarea
-            aria-label={t('campaign.detailsStep.lobbyMessagePlaceholder')}
-            className="w-full p-3 rounded-lg bg-surface-2 border border-border text-fg
-              placeholder-gray-600 focus:outline-none focus:border-amber-500 transition-colors resize-none"
-            rows={2}
-            placeholder={t('campaign.detailsStep.lobbyMessagePlaceholder')}
-            value={data.lobbyMessage}
-            onChange={(e) => update('lobbyMessage', e.target.value)}
-          />
-        </div>
+        {/* Lobby message greets players when they join — no lobby exists in solo. */}
+        {!isSolo && (
+          <div>
+            <label className="block text-muted mb-2 text-sm">{t('campaign.detailsStep.lobbyMessage')}</label>
+            <textarea
+              aria-label={t('campaign.detailsStep.lobbyMessagePlaceholder')}
+              className="w-full p-3 rounded-lg bg-surface-2 border border-border text-fg
+                placeholder-gray-600 focus:outline-none focus:border-amber-500 transition-colors resize-none"
+              rows={2}
+              placeholder={t('campaign.detailsStep.lobbyMessagePlaceholder')}
+              value={data.lobbyMessage}
+              onChange={(e) => update('lobbyMessage', e.target.value)}
+            />
+          </div>
+        )}
 
         {/* Visibility (public/private lobby listing) only applies to multiplayer. */}
         {!isSolo && (
