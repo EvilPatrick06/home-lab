@@ -430,17 +430,21 @@ def init_services():
     except Exception as e:
         log.exception(f"[bmo]   LED controller: SKIPPED")
 
-    # OLED face display
+    # OLED face display (BMO_DISABLE_OLED=1 skips init — e.g. while display
+    # hardware is broken/disconnected; every consumer None-guards oled_face)
     oled_face = None
-    try:
-        from hardware.oled_face import OledFace
-        oled_face = OledFace(socketio=socketio)
-        oled_face.start()
-        service_map["oled_face"] = oled_face
-        oled_face.set_expression("warmup")
-        log.info("[bmo]   OLED face: OK (warmup)")
-    except Exception as e:
-        log.exception(f"[bmo]   OLED face: SKIPPED")
+    if os.environ.get("BMO_DISABLE_OLED", "").lower() in ("1", "true", "yes"):
+        log.info("[bmo]   OLED face: DISABLED (BMO_DISABLE_OLED)")
+    else:
+        try:
+            from hardware.oled_face import OledFace
+            oled_face = OledFace(socketio=socketio)
+            oled_face.start()
+            service_map["oled_face"] = oled_face
+            oled_face.set_expression("warmup")
+            log.info("[bmo]   OLED face: OK (warmup)")
+        except Exception as e:
+            log.exception(f"[bmo]   OLED face: SKIPPED")
 
     # Voice pipeline (requires pyaudio/mic hardware)
     try:
@@ -454,14 +458,18 @@ def init_services():
     except Exception as e:
         log.exception(f"[bmo]   Voice pipeline: SKIPPED")
 
-    # Camera (requires picamera2)
-    try:
-        from hardware.camera_service import CameraService
-        camera = CameraService(socketio=socketio)
-        service_map["camera"] = camera
-        log.info("[bmo]   Camera: OK")
-    except Exception as e:
-        log.exception(f"[bmo]   Camera: SKIPPED")
+    # Camera (requires picamera2; BMO_DISABLE_CAMERA=1 skips init — camera
+    # API routes already 503 when the service is absent)
+    if os.environ.get("BMO_DISABLE_CAMERA", "").lower() in ("1", "true", "yes"):
+        log.info("[bmo]   Camera: DISABLED (BMO_DISABLE_CAMERA)")
+    else:
+        try:
+            from hardware.camera_service import CameraService
+            camera = CameraService(socketio=socketio)
+            service_map["camera"] = camera
+            log.info("[bmo]   Camera: OK")
+        except Exception as e:
+            log.exception(f"[bmo]   Camera: SKIPPED")
 
     # Smart home / Chromecast
     try:
@@ -2393,6 +2401,8 @@ def api_calendar_auth_callback():
 
 @app.route("/api/camera/stream")
 def api_camera_stream():
+    if not camera:
+        return jsonify({"error": "Camera service not available"}), 503
     return Response(
         camera.generate_mjpeg(),
         mimetype="multipart/x-mixed-replace; boundary=frame",
