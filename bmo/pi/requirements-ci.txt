@@ -11,7 +11,7 @@ aiofiles==25.1.0
     # via androidtvremote2
 aiohappyeyeballs==2.6.2
     # via aiohttp
-aiohttp==3.13.5
+aiohttp==3.14.0
     # via
     #   discord-py
     #   edge-tts
