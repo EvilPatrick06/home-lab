@@ -40,7 +40,7 @@ Service modules in `bmo/pi/services/` — business logic used by agents + Flask 
 | `alert_service.py` | User-facing alerts. Persists to `data/alert_history.json`. |
 | `monitoring.py` | Service + hardware health checker. Alerts via Discord webhook. |
 
-### Scenes + routines (2)
+### Scenes + routines (3)
 
 | Module | Purpose |
 |---|---|
@@ -48,15 +48,16 @@ Service modules in `bmo/pi/services/` — business logic used by agents + Flask 
 | `routine_service.py` | Cron-like scheduled tasks (daily briefing, etc.). |
 | `list_service.py` | Generic list management (shopping, TODO). |
 
-### D&D (3)
+### D&D (4)
 
 | Module | Purpose |
 |---|---|
 | `dnd_engine.py` | Dice roller, rules lookups, encounter-building helpers for `dnd_dm` agent. |
 | `campaign_memory.py` | SQLite-backed long-term campaign memory. `data/campaign_memory.db`. |
 | `game_registry.py` | In-memory directory of active multiplayer games (Phase 29f). Per-clientId banned-from-this-game flags, SSE subscriber queues, 30s GC tick / 60s TTL. Powers `/api/games*`. |
+| `game_relay.py` | Socket.IO star-topology relay for dnd-app multiplayer (Phase 32) — opt-in alternative to the WebRTC mesh; the always-on Pi relays between DM/host and players. |
 
-### AI / RAG (3)
+### AI / RAG (4)
 
 | Module | Purpose |
 |---|---|
@@ -64,6 +65,13 @@ Service modules in `bmo/pi/services/` — business logic used by agents + Flask 
 | `rag_search.py` | Retrieval over pre-built chunk indexes in `data/rag_data/`. |
 | `build_rag_indexes.py` | Offline script to rebuild RAG indexes. |
 | `personality_engine.py` | Injects personality from `data/personality/{quips,adventure_time_quotes}.json`. |
+
+### Infrastructure (2)
+
+| Module | Purpose |
+|---|---|
+| `bmo_logging.py` | Structured logging shim over stdlib `logging` — BMO defaults via `get_logger()`. |
+| `face_state.py` | Unified BMO face state machine — single source of truth for the expression the OLED + web ambient face both render. |
 
 ## Ports
 
@@ -123,10 +131,16 @@ Full map in source — use `grep "@app.route" bmo/pi/app.py` for current list.
 
 | Path | Method | Purpose |
 |---|---|---|
-| `/api/discord/start-session` | POST | Start D&D Discord session |
-| `/api/discord/end-session` | POST | End session |
-| `/api/discord/initiative` | POST | Push initiative order to Discord channel |
-| `/api/discord/narrate` | POST | Narrate text to current session channel |
+| `/api/discord/dm/start` | POST | Start the D&D Discord DM session (also at `/api/v1/discord/dm/start`) |
+| `/api/discord/dm/stop` | POST | End the session (also `/api/v1/…`) |
+| `/api/discord/dm/status` | GET | Session/bot status (also `/api/v1/…`) |
+| `/api/discord/dm/narrate` | POST | Speak narration in the session VC (also `/api/v1/…`) |
+
+> The VTT additionally calls `/api/discord/dm/sync/initiative` and
+> `/api/discord/dm/sync/state` (`dnd-app/src/main/bmo-bridge.ts`), but those
+> routes are **not registered** — `services/vtt_sync.py register_sync_routes()`
+> is never invoked from `app.py`. Tracked in
+> `dnd-app/docs/AI-DM-AUDIT.md` § Discord.
 
 ### Game registry (Phase 29f — public LAN game discovery)
 

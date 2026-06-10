@@ -101,7 +101,7 @@ The renderer's `connect-src` allows the `http:`/`ws:` scheme-sources so renderer
 
 **Server:** `dnd-app/src/main/ipc/bmo-sync-handlers.ts` (starts at `SYNC_RECEIVER_PORT = process.env.BMO_SYNC_PORT || 5001`)
 
-**Client:** `bmo/pi/agents/vtt_sync.py` (env: `VTT_SYNC_URL`, default `http://10.10.20.100:5001`)
+**Client:** `bmo/pi/agents/vtt_sync.py` (env: `VTT_SYNC_URL`, default `http://vtt.local:5001`)
 
 **Event types BMO pushes to VTT:**
 
@@ -118,6 +118,11 @@ Examples:
 - Player sends message in Discord → BMO forwards to VTT chat panel
 - Player rolls dice via Discord slash command → BMO relays roll result to VTT
 - DM starts combat on VTT → pushes initiative order to BMO → BMO posts it to Discord
+
+> **Status (2026-06-10):** parts of this plane are scaffolded but not end-to-end wired —
+> the renderer never exposes/consumes `BMO_SYNC_EVENT` or the initiative/state push
+> channels, and the Pi never registers `register_sync_routes(app)`. Narration
+> (`/api/discord/dm/narrate`) IS live. Full finding: `dnd-app/docs/AI-DM-AUDIT.md` → Discord.
 
 ### 3. VTT ↔ VTT (multiplayer)
 

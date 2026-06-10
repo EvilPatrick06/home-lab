@@ -2,7 +2,7 @@
 
 BMO — Raspberry Pi 5 voice assistant + Discord bot + D&D Dungeon Master brain + smart-home hub + game-discovery registry for the [`dnd-app`](../dnd-app) VTT.
 
-Named after the Adventure Time character. Lives in a 3D-printed BMO case on a Pi 5 with 16 GB RAM, microphone array, HDMI touchscreen, speakers, OLED face display, case fan, LED strip, and Chromecast / TV control.
+Named after the Adventure Time character. Lives in a 3D-printed BMO case on a Pi 5 with 8 GB RAM, microphone array, HDMI touchscreen, speakers, OLED face display, case fan, LED strip, and Chromecast / TV control.
 
 **Stack:** Python 3.11 · Flask + SocketIO (gevent) · Google APIs (calendar, vision) · Anthropic Claude · Google Gemini · Groq Whisper STT · Fish Audio TTS · `discord.py` · `openwakeword` · `piper` · `vlc` (music) · `picamera2` · `pytest` · avahi-daemon.
 

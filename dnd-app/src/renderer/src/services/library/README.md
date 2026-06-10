@@ -107,8 +107,7 @@ Rollback: quit, locate `<save>.pre-phase-15.bak`, rename back over the original,
 
 ## See also
 
-- `docs/phases/phase-15-plan.md` — full phase plan + sub-phase mapping
-- `docs/phases/bastion-data-rule.md` — Bastion contributor rules
+- **Bastion data rule** — the Bastion-domain expression of this invariant: facility *instances* hold a reference (`SpecialFacility.type`) + runtime state (`enlarged`, `currentOrder`, `hirelingNames`, …) and hydrate their definition from `useBastionStore.facilityDefs` (loaded once via `load5eBastionFacilities()`) — never embedded copies of definition fields.
 - `schemas/registry.ts` — `SCHEMA_REGISTRY` + `validateEntry` / `safeValidateEntry`
 - `merge.ts` — `deepMergeObjects` (override merge semantics)
 - `library-boundary.test.ts` — the build-guard spec that enforces this contract

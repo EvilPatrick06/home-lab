@@ -10,7 +10,7 @@ pi/
 ├── agent.py                     Agent router entry (used by CLI + app)
 ├── cli.py                       REPL/CLI — `./venv/bin/python cli.py`
 │
-├── agents/                      41 AI agents — each owns one capability
+├── agents/                      28 AI agents — each owns one capability
 │   ├── __init__.py, _registry.py
 │   ├── base_agent.py            base class + interface
 │   ├── orchestrator.py          top-level director

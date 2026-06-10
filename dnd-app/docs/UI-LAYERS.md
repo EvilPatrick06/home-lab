@@ -28,6 +28,9 @@ There are currently **zero** `z-[9999]` magic z-indexes in `src/`.
 1. **Never** introduce a raw `z-[<n>]` / inline `zIndex: <n>`. Add a tier to `Z`
    (or reuse an existing one) and reference it.
 2. This governs **DOM overlays only**. PixiJS owns its own internal canvas layer
-   ordering (the map's 16 render layers) — do not route those through `Z`.
+   ordering — the map's named `LAYER_Z` scale in
+   [`src/renderer/src/components/game/map/map-pixi-setup.ts`](../src/renderer/src/components/game/map/map-pixi-setup.ts)
+   (`map: 0` → `audioEmitter: 95`, applied via `world.sortableChildren` +
+   per-layer `zIndex`, added v2.4.50) — do not route those through `Z`.
 3. When two layers genuinely need to coexist at the same tier, that's a signal to
    add a new named tier rather than nudging a magic `+1`.

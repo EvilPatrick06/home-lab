@@ -6,13 +6,14 @@
 ## Monorepo Layout
 
 ```
-dnd-app/   Electron VTT (TypeScript, React 19, Vite, biome)
-bmo/       Raspberry Pi voice assistant (Python 3.11, Flask, pytest)
-_archive/  Quarantined dead code
-docs/      Monorepo-wide documentation
+dnd-app/          Electron VTT (TypeScript, React 19, Vite, biome)
+bmo/              Raspberry Pi voice assistant (Python 3.11, Flask, pytest)
+dungeon-scholar/  Web study app (Vite, React, Vitest) — GitHub Pages
+_archive/         Quarantined dead code
+docs/             Monorepo-wide documentation
 ```
 
-Two domains. **They never import each other.** They communicate via HTTP (BMO on port 5000, VTT sync receiver on 5001) and Electron IPC (within dnd-app).
+Three domains. **They never import each other.** `dnd-app` and `bmo` communicate via HTTP (BMO on port 5000, VTT sync receiver on 5001) and Electron IPC (within dnd-app); `dungeon-scholar` is fully independent.
 
 ## When Completing Code
 

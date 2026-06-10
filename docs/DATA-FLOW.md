@@ -159,28 +159,39 @@ Backup: whatever password manager you use. Never commit.
 
 ### DM rolls initiative → BMO announces in Discord
 
+> **Status (2026-06-10): designed but NOT live end-to-end.** The VTT sends
+> `POST /api/discord/dm/sync/initiative` (`bmo-bridge.ts`), but BMO never
+> registers that route (`services/vtt_sync.py register_sync_routes()` is not
+> called from `app.py`), so the request 404s. Tracked in
+> `dnd-app/docs/AI-DM-AUDIT.md` § Discord.
+
 ```
 DM clicks "Start Combat" in VTT
   └─► renderer: combat-resolver.ts updates game state (zustand)
        └─► peerjs broadcasts to players
-       └─► main: bmo-bridge.ts POST /api/discord/initiative
+       └─► main: bmo-bridge.ts POST /api/discord/dm/sync/initiative
             └─► HTTP :5000 → BMO
-                 └─► bmo/pi/agents/vtt_sync.py receives
-                      └─► formats initiative order
-                      └─► bots/discord_dm_bot.py posts to #session channel
-                           └─► Discord API
+                 └─► [DEAD END — route unregistered; intended receiver:
+                      services/vtt_sync.py → bots/discord_dm_bot.py → Discord]
 ```
 
 ### Discord player rolls d20 → VTT chat panel updates
+
+> **Status (2026-06-10): partially live.** The Pi→VTT push
+> (`vtt_sync.py push_discord_message` → `:5001` → `bmo-sync-handlers.ts`)
+> works, but the renderer has no listener for the forwarded `BMO_SYNC_EVENT`
+> IPC, so nothing reaches the chat panel. Tracked in
+> `dnd-app/docs/AI-DM-AUDIT.md` § Discord.
 
 ```
 Player in Discord: /roll d20
   └─► Discord → bots/discord_dm_bot.py slash command handler
        └─► rolls dice, formats result
-       └─► POST VTT_SYNC_URL (e.g., http://10.10.20.100:5001/sync)
+       └─► POST VTT_SYNC_URL (default http://vtt.local:5001)
             └─► dnd-app: main/ipc/bmo-sync-handlers.ts receives
                  └─► type: "discord_roll" → IPC to renderer
-                      └─► renderer: ChatPanel.tsx adds roll message
+                      └─► [DEAD END — no renderer listener for BMO_SYNC_EVENT;
+                           intended: ChatPanel.tsx adds roll message]
 ```
 
 ### Agent writes to per-project memory

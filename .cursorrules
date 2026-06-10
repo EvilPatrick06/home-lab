@@ -23,7 +23,7 @@
 │   │   │   ├── src/stores/           zustand state stores
 │   │   │   ├── src/pages/            route-level page components
 │   │   │   ├── src/network/          peerjs multiplayer
-│   │   │   └── public/data/5e/       D&D content as JSON (3000+ files)
+│   │   │   └── public/data/5e/       D&D content as JSON (3,037 files)
 │   │   └── shared/                   cross-process types/schemas
 │   ├── scripts/                      CLI tooling, grouped by purpose
 │   │   ├── build/                    runs via package.json (chunk-index, prerelease-clean)
@@ -35,7 +35,7 @@
 │   │   ├── fix/                      one-off data migrations
 │   │   └── schemas/                  zod schemas (shared by extract/)
 │   ├── tools/                        dev utilities (run-audit.js, rename-to-kebab.js, etc.)
-│   ├── docs/phases/                  INSTRUCTIONS.md + REVIEW-REPORT-2026-05-29.md (phase plans consolidated into the report)
+│   ├── docs/                         dnd-app docs — AI-DM-AUDIT.md (consolidated audit + backlog, all domains), phases/INSTRUCTIONS.md (phase workflow rules)
 │   ├── resources/                    app icons, installer
 │   └── {package,tsconfig*,biome,vitest.config.ts,electron.vite.config.ts}  configs
 │
@@ -44,7 +44,7 @@
 │   │   ├── app.py                    main Flask entry (port 5000)
 │   │   ├── agent.py                  main agent router entry
 │   │   ├── cli.py                    CLI entry
-│   │   ├── agents/                   41 specialized AI agents (base_agent, orchestrator, router, {alert,calendar,code,docs,...}_agent)
+│   │   ├── agents/                   28 specialized AI agents (base_agent, orchestrator, router, {alert,calendar,code,docs,...}_agent)
 │   │   ├── services/                 service modules (calendar, weather, music, voice_pipeline, monitoring, etc.)
 │   │   ├── hardware/                 Pi hardware drivers (fan_control, led_controller, oled_face, camera)
 │   │   ├── bots/                     Discord bots — NAMED bots/ NOT discord/ (avoids discord.py shadow)
@@ -130,7 +130,7 @@
 
 ## Cross-domain (dnd-app ↔ bmo)
 
-- dnd-app talks to BMO via HTTP on `http://bmo.local:5000` (configurable via `BMO_PI_URL` env)
+- dnd-app talks to BMO via HTTPS through the Cloudflare tunnel `https://bmo.mybmoai.work` by default (`BMO_PI_URL_DEFAULT` in `dnd-app/src/main/bmo-config.ts`; override via `BMO_PI_URL` env). LAN discovery probes `http://bmo.local:5000` as a fallback.
 - BMO Discord bots push events back to dnd-app via HTTP on port 5001 (dnd-app listens)
 - Protocol docs: `docs/ARCHITECTURE.md`
 - IPC channel reference: `dnd-app/docs/IPC-SURFACE.md`
@@ -158,7 +158,7 @@ All are for **unfixed or deferred** work that crosses session boundaries.
 
 - Never commit `.env`, `credentials.json`, `token.json`, `*.pem`
 - `.gitignore` has broad glob patterns catching these across the tree
-- Pre-push secret-scanning hooks are a future improvement (see ISSUES-LOG)
+- The husky pre-commit hook (`.husky/pre-commit`) runs gitleaks on staged files when gitleaks is installed; CI is the authoritative gate
 
 ## Git Conventions
 

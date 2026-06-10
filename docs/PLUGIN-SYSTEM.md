@@ -8,8 +8,12 @@ added by implementing one interface and registering it.
 > character sheet, builder, and combat UI are shared React components. A plugin
 > supplies the system-specific **data + rules functions** those components call —
 > spell-slot progression, spell/equipment lists, starting gold, class features,
-> skill definitions, and a `SheetConfig` of display toggles. There is no dynamic
-> plugin *installer*: systems are registered in code at startup (see below).
+> skill definitions, and a `SheetConfig` of display toggles. Built-in systems are
+> registered in code at startup (see below); there IS a user-plugin installer in
+> `dnd-app/src/main/plugins/` (`plugin-installer.ts` + scanner/config/storage) for
+> zip-packaged plugins — content packs work today, full system logic is
+> trust-on-install and not sandboxed (see the trust model in
+> [`dnd-app/docs/PLUGIN-SYSTEM.md`](../dnd-app/docs/PLUGIN-SYSTEM.md)).
 
 ## The interface — `GameSystemPlugin`
 
@@ -64,10 +68,14 @@ export function initGameSystems(): void {
 }
 ```
 
-A campaign carries a `systemId`; consumers call `getSystem(systemId)` and use the
-plugin's methods. The optional `getConfig()` path mirrors the plugin into the
-separate `GAME_SYSTEMS` config registry (`types/game-system.ts`) used for UI
-listing/metadata — distinct from the plugin `Map`.
+> **Reality check (2026-06-10):** campaigns do NOT yet carry a `systemId` —
+> the field appears nowhere in `dnd-app/src/`. The registry is consumed only by
+> the Settings page's "Registered Game Systems" list and
+> `data-provider.resolveDataPath`, so a registered non-5e system can't be played
+> end-to-end yet (tracked in `dnd-app/docs/AI-DM-AUDIT.md`). The optional
+> `getConfig()` path mirrors the plugin into the separate `GAME_SYSTEMS` config
+> registry (`types/game-system.ts`) used for UI listing/metadata — distinct from
+> the plugin `Map`.
 
 ## Reference implementation — D&D 5e
 

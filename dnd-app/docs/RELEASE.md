@@ -11,9 +11,11 @@ node dnd-app/scripts/release/cut.mjs X.Y.Z --notes-file /tmp/vX.Y.Z-notes.md
 git stash pop
 ```
 
-`cut.mjs` bumps `package.json`, commits, tags, pushes, and pre-creates the GitHub
-Release with notes **as a draft**. The tag push triggers
-`.github/workflows/release.yml`.
+`cut.mjs` bumps `package.json`, refreshes the generated docs
+(`scripts/build/sync-doc-counts.mjs` rewrites the version/date/count claims across
+the READMEs + structure docs; `gen:ipc-surface` regenerates `docs/IPC-SURFACE.md`),
+commits, tags, pushes, and pre-creates the GitHub Release with notes **as a
+draft**. The tag push triggers `.github/workflows/release.yml`.
 
 ## Draft-until-verified (do not regress)
 

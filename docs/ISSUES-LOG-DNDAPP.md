@@ -18,80 +18,26 @@ New entries go at the TOP of their severity section (newest first within each se
 
 # Active Issues
 
-> **Single source of truth: the consolidated report.** All open dnd-app items
-> (problems, debt, suggestions, security, future work, out-of-scope) now live in
-> **`dnd-app/docs/phases/REVIEW-REPORT-2026-05-29.md`** — verified against the
-> code on 2026-05-29. Do not re-log dnd-app items here; add them to that report.
->
-> Quick map of what's open (full detail + file:line in the report):
-> - Knip unused exports/types, accessibility polish, error-handling convention, CI dedupe, the cloud-relay live integration gap — see the report's open sections.
->
-> **Verified RESOLVED (do not re-fix):** **20g** (renderer security events now route via the `LOG_SECURITY_EVENT` IPC channel — `ipc-channels.ts:257` + handler `main/ipc/index.ts:208` + call-site `network/security-audit.ts`); **LOG-11** (Tiny-creature cover now uses `MapToken.sizeCategory` — `types/map.ts:113` + `cover-calculator.ts` + tests); Phase 23f attunement (single-source via `state.magicItemAttuned` + `getEffectiveMagicItems`); multi-floor visibility (`currentFloor` wired); positional audio emitters (`updateEmitters` is called).
+> **2026-06-10 — Backlog consolidated.** All previously-open entries were MOVED to
+> **[`../dnd-app/docs/AI-DM-AUDIT.md`](../dnd-app/docs/AI-DM-AUDIT.md)** (the
+> single consolidated audit + backlog for the whole repo). Add new dnd-app issues
+> below as they appear.
 
-## Critical / High / Medium / Low
+## Critical
 
-### [2026-06-04] `ai-renderer-actions.ts` is dead — parsed-but-never-dispatched and undocumented in prompts
+*(none currently logged)*
 
-- **Category:** debt
-- **Severity:** low
-- **Domain:** dnd-app
-- **Discovered by:** Claude Code
-- **During:** P6.3 (adding the canonical `request_roll` DM action)
-- `ai-renderer-actions.ts` defines a parallel `[ACTION:type ...]` tag syntax with 7 actions (roll-request, loot-award, xp-award, combat-start, narration, map-reveal, sound-effect) plus `processAiRendererActions()`. But (1) NO prompt section documents the `[ACTION:]` syntax, so the AI never emits these tags, and (2) `use-ai-dm-store.ts:504` calls `parseRendererActions()` only to decide whether to strip tags — `processAiRendererActions()` is never called, so nothing would fire even if a tag appeared. 5 of the 7 actions also duplicate canonical `[DM_ACTIONS]` JSON actions (award_xp, start_initiative/place_creature, reveal_fog, sound_effect, narration via voice tags), so reviving the module wholesale would create double-application paths. The one genuinely-missing capability (roll-request) was delivered properly via the canonical JSON path as `request_roll` (P6.3), leaving this module fully superseded. **Fix:** delete `ai-renderer-actions.ts` + its test and replace the line-504 parse/strip with a plain regex strip of stray `[ACTION:...]` tags; OR, if an inline loot/xp popup syntax is wanted, wire ONLY the non-redundant actions AND document them in a prompt section. **Related files:** `dnd-app/src/renderer/src/services/ai-renderer-actions.ts`, `dnd-app/src/renderer/src/stores/use-ai-dm-store.ts:504`.
+## High
 
-### [2026-06-02] CharacterSheet5ePage.test.tsx flakes (15s timeout) under CPU load
+*(none currently logged)*
 
-- **Category:** test, flake/debt
-- **Severity:** low
-- **Domain:** dnd-app
-- **Discovered by:** Claude Code
-- **During:** P3 (AI memory/context) — gate run
-- The two heavy render tests in `src/renderer/src/pages/CharacterSheet5ePage.test.tsx` ("renders the sheet for a saved character", "survives toolbar interactions without crashing or looping") intermittently hit the global `testTimeout: 15000` (vitest.config.ts) when the Pi is under concurrent load (multiple workflows/gates). Confirmed pre-existing + unrelated to the change under test (the page imports none of the AI files); a *different* one of the two fails across runs, and the failing duration is exactly 15038ms. They pass in isolation on an unloaded machine and in CI (faster, sharded — green for v2.4.29–v2.4.36). **Fix options:** split the "toolbar interactions" test, mock the heaviest child renders, or bump these two tests' per-test timeout. Not blocking releases (CI authoritative).
+## Medium
 
-- **Category:** UX, debt
-- **Severity:** low
-- **Domain:** dnd-app
-- **Discovered by:** Claude Code
-- **During:** MP-5 (off-LAN self-host P2P)
+*(none currently logged)*
 
-**Description:**
-`probeSignalingServer()` (`src/main/lan-discovery.ts:237`) only probes the Pi
-PeerServer when the resolved base URL is `http:` (LAN); for an `https:` tunnel base
-it reports `reachable: null` → the badge shows a muted "not applicable". Now that
-the PeerServer is reachable off-LAN at `https://<host>/myapp/peerjs/id` (cloudflared
-route + Access bypass), the probe could verify the tunnel too and show an honest
-reachable/unreachable state off-LAN instead of "not applicable".
+## Low
 
-**Proposed fix / improvement:**
-- [ ] In `probeSignalingServer`, for an `https:` base probe `https://<host>/myapp/peerjs/id` (port 443, no `:9000`); keep the `http:` LAN probe at `<host>:9000/myapp/peerjs/id`.
-- [ ] Update `MultiplayerStatusSection` copy so the off-LAN state reads reachable/unreachable rather than "only checked on LAN".
-
-**Related files:** `dnd-app/src/main/lan-discovery.ts:237`, `dnd-app/src/renderer/src/components/ui/MultiplayerStatusSection.tsx`
-
-### [2026-06-01] Sound Pi-offload never warms on the normal startup path
-
-- **Category:** performance, debt
-- **Severity:** low
-- **Domain:** dnd-app
-- **Discovered by:** Claude Code
-- **During:** SND-1 fix (re-bundling the sound MP3s)
-
-**Description:**
-`prewarmRemoteSounds()` — the only thing that warms the Pi sounds manifest and
-populates the main-process disk cache — is called ONLY from the Settings
-`reinit()` (`sound-manager.ts:360`). The normal startup path (`App.tsx:54`
-`init()` + `use-game-effects.ts:126` `init()`) never warms it, so the Pi
-sound-offload (the `cached file://` / `live Pi URL` precedence in
-`resolveSoundUrl`) is effectively dormant: clips always fall back to the bundled
-file unless the user happens to toggle a sound setting. Not user-facing after the
-SND-1 re-bundle (sounds play from the bundled files), but the bandwidth-saving
-offload + disk cache are unused on the normal path.
-
-**Proposed fix / improvement:**
-- [ ] Kick `prewarmRemoteSounds()` once at app start (App.tsx alongside `init()`, or inside `init()`).
-- [ ] Optionally rebuild the sound pools when prewarm resolves so warmed clips prefer the cached/Pi URL.
-
-**Related files:** `dnd-app/src/renderer/src/services/sound-manager.ts:289,352,360`, `dnd-app/src/renderer/src/App.tsx:54`, `dnd-app/src/renderer/src/services/library/remote-sounds.ts:139`, `dnd-app/src/renderer/src/hooks/use-game-effects.ts:126`
+*(none currently logged)*
 
 ---
 

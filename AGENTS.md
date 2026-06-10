@@ -58,7 +58,7 @@ cd dungeon-scholar && npm test && npm run build
 | Data | game content JSON in `src/renderer/public/data/5e/`. TS-exported data in `src/renderer/src/data/`. |
 | Storage writes | New storage modules MUST persist via `atomicWriteFile` (`src/main/storage/atomic-write.ts`, temp-write+rename so a crash never truncates the file). A bare `writeFile` import from `node:fs`/`node:fs/promises` inside `src/main/storage/` is forbidden and fails `npm run lint:forbidden` (28e.4); `atomic-write.ts` itself is the only allowed importer. |
 | Randomness | Game-outcome RNG (dice, shuffles, picks) MUST use `cryptoRandom`/`cryptoRollDie` (`src/renderer/src/utils/crypto-random.ts`), never `Math.random` — `npm run lint:forbidden` (28e.3) enforces it. Cosmetic-only randomness (3D jitter, id suffixes) may opt out with an inline `// crypto-ok: <reason>`. |
-| Data layer (single source of truth) | All D&D content lives in the library truth store (`stores/use-library-store.ts`). Consumers reference entries by `EntryRef` and hydrate via the hooks in `services/library/use-library-entry.ts` — no inline duplication of library data. The boundary test (`services/library/library-boundary.test.ts`) fails CI on raw `public/data` imports/fetches outside the allowlist. See `src/renderer/src/services/library/README.md`; Bastion-domain specifics are in the "Bastion data rule" section of `dnd-app/docs/phases/REVIEW-REPORT-2026-05-29.md` (the old `bastion-data-rule.md` was consolidated there). |
+| Data layer (single source of truth) | All D&D content lives in the library truth store (`stores/use-library-store.ts`). Consumers reference entries by `EntryRef` and hydrate via the hooks in `services/library/use-library-entry.ts` — no inline duplication of library data. The boundary test (`services/library/library-boundary.test.ts`) fails CI on raw `public/data` imports/fetches outside the allowlist. See `src/renderer/src/services/library/README.md` (includes the Bastion data rule: facility instances hold references + runtime state, never embedded definition fields). |
 | Game systems | pluggable via `src/renderer/src/systems/registry.ts`. Currently only `dnd5e/`. |
 | Network (multiplayer) | peerjs in `src/renderer/src/network/`. DM hosts, players join via invite code. |
 | BMO integration | HTTP client in `src/main/bmo-bridge.ts`. Receives callbacks on port 5001 via sync receiver. |
@@ -75,7 +75,7 @@ cd dungeon-scholar && npm test && npm run build
 | Runtime | Python 3.11 in venv at `bmo/pi/venv/`. System packages for hardware (smbus, RPi.GPIO). |
 | Entry points | `app.py` (Flask), `agent.py` (CLI agent), `cli.py` (repl). |
 | Subpackages | Always import via prefix: `from services.calendar_service import X`. Never bare. |
-| Agents | 41 modular AI agents in `agents/`. Each owns one capability. Router picks which to invoke. |
+| Agents | 28 registered AI agents in `agents/`. Each owns one capability. Router picks which to invoke. |
 | Services | Business logic in `services/` (calendar, music, weather, voice_pipeline, monitoring, etc.) |
 | Hardware | Pi-specific drivers in `hardware/` (fan, LED, OLED, camera). |
 | Discord bots | In `bots/` — package is NAMED `bots` not `discord` to avoid shadowing `discord.py` library. |
@@ -100,7 +100,7 @@ cd dungeon-scholar && npm test && npm run build
       │                                       ├── Discord social bot
       │                                       ├── Voice (wake-word + STT/TTS)
       └── peerjs multiplayer                  ├── Smart home (Chromecast, TV, lights)
-                                              ├── 41 AI agents (routed)
+                                              ├── 28 AI agents (routed)
                                               └── Calendar/weather/music/timers
 ```
 

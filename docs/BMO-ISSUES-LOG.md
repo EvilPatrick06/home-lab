@@ -21,7 +21,9 @@ New entries go at the TOP of their severity section (newest first within each se
 
 # Active BMO Issues
 
-> **2026-04-25 (final)** — Active backlog cleared. The deep-scan fixpack + the per-job lock follow-up + the security-log batch 2 cleanup all landed end-to-end and were verified (`pytest` 746 passed, all live attack-payload curls rejected, services hardened + restarted active). Details: `[BMO-RESOLVED-ISSUES.md](./BMO-RESOLVED-ISSUES.md)` → **"BMO deep-scan fixpack"** + **"BMO `_ide_jobs` per-key write race — full fix"**. Add new items below as they appear.
+> **2026-06-10 — Backlog consolidated.** All previously-open entries were MOVED to
+> **`dnd-app/docs/AI-DM-AUDIT.md`** (the single consolidated audit + backlog for
+> the whole repo). Add new BMO items below as they appear.
 
 ## Critical
 
@@ -33,7 +35,7 @@ New entries go at the TOP of their severity section (newest first within each se
 
 ## Medium
 
-- **2026-06-02 — `register_sync_routes(app)` is never called → VTT→Pi sync receivers un-wired.** `bmo/pi/agents/vtt_sync.py` defines `register_sync_routes(app)` (BMO-side receivers `/api/discord/dm/sync/initiative` and `/api/discord/dm/sync/state`), but `app.py` never invokes it — it only appears in a docstring example and in `scripts/apply_patch.py`. So any VTT→Pi push of initiative/state for DM-BMO hits unregistered routes (404). Out of scope for the DM-BMO voice-narration fix (which uses `/api/discord/dm/narrate`, correctly registered). **Fix:** call `register_sync_routes(app)` during app setup + add a smoke test that the two routes resolve. Domain: bmo. Found while wiring DM-BMO voice narration.
+*(none currently logged)*
 
 ## Low
 

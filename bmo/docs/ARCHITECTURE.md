@@ -25,7 +25,7 @@
 │  ┌──── Bare Metal (systemd: bmo.service) ────────────────┐   │
 │  │  Flask/SocketIO app  (app.py)                          │   │
 │  │   ├── Voice Pipeline  (wake word → STT → LLM → TTS)   │   │
-│  │   ├── Agent System    (orchestrator + 20 specialists)  │   │
+│  │   ├── Agent System    (orchestrator + 28 agents)       │   │
 │  │   ├── Camera Service  (picamera2 object detection)     │   │
 │  │   ├── Smart Home      (Home Assistant API)             │   │
 │  │   ├── Music Service   (MPD/Spotify)                    │   │
@@ -316,7 +316,9 @@ Microphone → Wake Word ("hey BMO") → Groq Whisper (STT) → Agent Router
 ## Agent System
 
 The orchestrator (`agents/orchestrator.py`) routes user queries to specialist agents based on
-intent classification by the router agent.
+intent classification by the router agent. The 28 registered agents (the
+`create_*_agent()` calls in `agent.py` + `agents/_registry.py`; full descriptions in
+[`AGENTS.md`](./AGENTS.md)):
 
 | Agent | Handles |
 |-------|---------|
@@ -326,7 +328,16 @@ intent classification by the router agent.
 | `calendar_agent` | Events, scheduling, reminders |
 | `weather_agent` | Forecasts, current conditions |
 | `timer_agent` | Timers, alarms, countdowns |
-| `dnd_dm` | D&D campaigns, combat, NPCs (Claude Opus 4.6) |
+| `alert_agent` | Proactive alerts + notifications |
+| `routine_agent` | Scheduled routines (daily briefing, etc.) |
+| `list_agent` | Lists (shopping, TODO) |
+| `dnd_dm` | D&D campaigns, combat, NPCs |
+| `encounter_agent` | D&D encounter building |
+| `treasure_agent` | D&D loot + treasure generation |
+| `lore_agent` | D&D world lore + campaign history |
+| `rules_agent` | D&D rules lookups |
+| `npc_dialogue_agent` | D&D NPC voices + dialogue |
+| `session_recap_agent` | D&D session recaps |
 | `code_agent` | Code help, debugging |
 | `deploy_agent` | Deployment assistance |
 | `research_agent` | Web research, information lookup |
@@ -339,7 +350,6 @@ intent classification by the router agent.
 | `security_agent` | Security analysis |
 | `test_agent` | Testing assistance |
 | `cleanup_agent` | System maintenance |
-| `custom_commands` | User-defined custom commands |
 
 ---
 

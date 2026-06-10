@@ -12,68 +12,58 @@ A **game system plugin** provides:
 4. **UI components** — character sheet, level-up wizard, spell picker, etc.
 5. **Schema** — zod validation for the content
 
+> **Scope check.** A plugin does **not** swap the whole UI. The character sheet,
+> builder, and combat UI are shared React components; a plugin supplies the
+> system-specific **data + rules functions** those components call. The full
+> interface walkthrough lives in the root [`docs/PLUGIN-SYSTEM.md`](../../docs/PLUGIN-SYSTEM.md)
+> — that copy is authoritative for the API.
+
 ## Registry
 
-All game systems register in `src/renderer/src/systems/registry.ts`:
+All game systems register in `src/renderer/src/systems/registry.ts` — a `Map` keyed by system id:
 
 ```typescript
-import { DnD5eSystem } from './dnd5e'
-import type { GameSystem } from './types'
+import type { GameSystemPlugin } from './types'
 
-export const SYSTEMS: Record<string, GameSystem> = {
-  dnd5e: DnD5eSystem,
-  // future: 'pathfinder2e': Pathfinder2eSystem,
-}
+const registry = new Map<string, GameSystemPlugin>()
 
-export function getSystem(id: string): GameSystem | undefined {
-  return SYSTEMS[id]
-}
-
-export function getAllSystems(): GameSystem[] {
-  return Object.values(SYSTEMS)
-}
+export function registerSystem(plugin: GameSystemPlugin): void { /* … */ }
+export function unregisterSystem(id: string): void { /* … */ }
+export function getSystem(id: string): GameSystemPlugin { /* throws if unregistered */ }
 ```
 
-A campaign has a `systemId` field → renderer looks up the system and hands off to its components.
+> **Reality check (2026-06-10):** there is currently NO campaign-level `systemId`
+> field anywhere in `src/` — the registry is consumed only by the Settings page's
+> "Registered Game Systems" list and `data-provider.resolveDataPath`. Campaign-level
+> game-system selection (playing a registered non-5e system end-to-end) is
+> unimplemented; tracked in `AI-DM-AUDIT.md` § Future/Stubbed/Unfinished.
 
-## GameSystem interface
+## GameSystemPlugin interface
 
-`src/renderer/src/systems/types.ts`:
+`src/renderer/src/systems/types.ts` (data + rules only — no UI components):
 
 ```typescript
-export interface GameSystem {
-  id: string                                // 'dnd5e', 'pathfinder2e', ...
-  name: string                              // 'D&D 5e (2024)'
-  version: string                           // '2024-10'
-  description: string
+export interface GameSystemPlugin {
+  id: string
+  name: string
 
-  // Character creation
-  characterSheetComponent: ComponentType<CharacterSheetProps>
-  characterBuilderComponent: ComponentType<CharacterBuilderProps>
-  levelUpComponent: ComponentType<LevelUpProps>
+  getSpellSlotProgression(className: string, level: number): Record<number, number>
+  getSpellList(className: string): Promise<SpellEntry[]>
+  isSpellcaster(className: string): boolean
+  getStartingGold(classId: string, backgroundId: string): Promise<Currency>
+  getClassFeatures(classId: string, level: number): Promise<ClassFeatureEntry[]>
+  loadEquipment(): Promise<{ weapons: unknown[]; armor: unknown[]; shields: unknown[]; gear: unknown[] }>
+  getSkillDefinitions(): Array<{ name: string; ability: AbilityName }>
+  getSheetConfig(): SheetConfig
 
-  // Game loop
-  combatResolver: CombatResolver            // attack rolls, damage, saves
-  initiativeRoller: InitiativeRoller
-  conditionManager: ConditionManager
-
-  // Content
-  contentLoaders: {
-    spells(): Promise<Spell[]>
-    monsters(): Promise<Monster[]>
-    equipment(): Promise<Equipment[]>
-    classes(): Promise<Class[]>
-    origins(): Promise<Origin[]>
-    // ...
-  }
-
-  // Validation
-  schemas: {
-    character: ZodSchema
-    spell: ZodSchema
-    monster: ZodSchema
-    // ...
-  }
+  // Optional extension points for plugin-provided game systems
+  getConfig?(): GameSystemConfig
+  getAbilityScores?(): AbilityScoreConfig
+  getBuilderSteps?(): BuilderStepDef[]
+  getDataPaths?(): Partial<Record<string, string>>
+  calculateHP?(classId: string, level: number, conMod: number): number
+  calculateAC?(equipment: unknown[], dexMod: number): number
+  getProficiencyBonus?(level: number): number
 }
 ```
 
@@ -172,9 +162,11 @@ Each phase uses zod schemas to validate. Regeneration is idempotent.
 
 - `plugin-installer.ts` — unpack + validate plugin zip
 - `plugin-scanner.ts` — discover plugins in user dir
-- `plugin-runner.ts` — (planned) previously mentioned `isolated-vm`; **plugins are not sandboxed**. Renderer plugins run as normal JS in the renderer with full app access (trust-on-install).
 - `plugin-protocol.ts` — protocol for plugins to communicate with main
 - `plugin-config.ts` — per-plugin settings
+- `plugin-storage.ts` / `content-pack-loader.ts` — plugin persistence + content-pack ingestion
+
+There is no `plugin-runner.ts` / sandbox module — **plugins are not sandboxed**; renderer plugins run as normal JS with full app access (trust-on-install; see the trust model below).
 
 Currently partially implemented. User-installed plugins work for content packs (spells/monsters/equipment JSON) but not for full system logic (which needs trusted code).
 
@@ -192,8 +184,4 @@ Consequences for the install pipeline:
 
 ## Future improvements
 
-- Fully encapsulate D&D 5e into `systems/dnd5e/` (currently sprawled across `components/`, `services/`, etc.)
-- Extract more of the renderer into system-specific modules
-- Plugin marketplace / downloader UI
-- Schema versioning (breaking changes in content format)
-- Community plugin submissions (would need vetting)
+Tracked in the consolidated backlog — `dnd-app/docs/AI-DM-AUDIT.md` § Future/Stubbed/Unfinished → dnd-app ("Plugin-system future work"): 5e encapsulation into `systems/dnd5e/`, system-specific renderer modules, marketplace/downloader UI, content-schema versioning, community submission vetting.

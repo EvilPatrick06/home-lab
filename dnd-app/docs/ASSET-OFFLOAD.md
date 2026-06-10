@@ -35,10 +35,10 @@ first plays are always bundled; once the manifest warms, subsequent Audio
 creations prefer the Pi copy. **Nothing breaks offline** — a failed/empty
 manifest just keeps everything bundled.
 
-## Pi-side contract (NOT yet implemented in BMO)
+## Pi-side contract (implemented — `bmo/pi/routes/sounds_api.py`)
 
-`bmo/pi/routes/library_api.py` serves only `.json`. To activate the offload,
-BMO must add a sounds endpoint (read-only, `Access-Control-Allow-Origin: *`):
+BMO serves the sounds endpoint (read-only, registered via `register_sounds(app)`
+in `bmo/pi/app.py`):
 
 - `GET /api/sounds/manifest` →
   `{ "version": "<hash>", "files": { "<rel>": { "size": <bytes> } } }`
@@ -47,6 +47,5 @@ BMO must add a sounds endpoint (read-only, `Access-Control-Allow-Origin: *`):
 - `GET /api/sounds/file?path=<rel>` → the raw audio bytes
   (`Content-Type: audio/mpeg`), path-jailed under the served sounds dir.
 
-Until that lands, the manifest fetch 404s → empty served-set → every clip stays
-bundled. The dnd-app side requires no further change when BMO adds the endpoint;
-extend `remote-sounds.ts` if the manifest shape evolves.
+When the Pi is unreachable the manifest fetch fails → empty served-set → every
+clip stays bundled. Extend `remote-sounds.ts` if the manifest shape evolves.

@@ -2,9 +2,16 @@
 
 All notable changes to this project.
 
+> **The living changelog is the [GitHub Releases page](https://github.com/EvilPatrick06/home-lab/releases)** —
+> every release since v2.1.16 ships with full notes there (written by `cut.mjs
+> --notes-file` at cut time), so this file is no longer hand-extended per release.
+> Entries below v2.1.16 are the preserved historical archive.
+
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Dates in ISO 8601.
 
 > Releases are cut per dnd-app; bmo + dungeon-scholar changes ride along under whichever cut shipped them. See the v2.0.0 reorg section at the bottom for the pre-release history.
+
+## Archive (≤ v2.1.16 — newer releases live on GitHub Releases)
 
 ## dnd-app v2.1.16 — 2026-05-17
 

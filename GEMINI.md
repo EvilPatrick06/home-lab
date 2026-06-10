@@ -7,10 +7,11 @@
 
 Monorepo containing:
 
-- **`dnd-app/`** — Electron VTT for D&D 5e games (TypeScript + React 19 + Vite).
-- **`bmo/`** — Raspberry Pi voice assistant (Python 3.11 Flask, 41 modular AI agents, Discord bots, smart home).
+- **`dnd-app/`** — Electron VTT for D&D 5e games (TypeScript + React 19 + Vite). Runs on player/DM laptops.
+- **`bmo/`** — Raspberry Pi voice assistant (Python 3.11 Flask, 28 AI agents, Discord bots, smart home). Runs 24/7 on the Pi 5.
+- **`dungeon-scholar/`** — Web study app (Vite + React + Vitest), deployed to GitHub Pages. Independent of the other two.
 
-Both run on the same Pi 5 currently, communicate via HTTP (`bmo:5000`, `vtt:5001`).
+`dnd-app` and `bmo` communicate via HTTP (`bmo:5000`, `vtt:5001`).
 
 ## Gemini-Specific Notes
 
@@ -19,7 +20,7 @@ Both run on the same Pi 5 currently, communicate via HTTP (`bmo:5000`, `vtt:5001
 Gemini has a large context window. Use it:
 - Read `.cursorrules` + `AGENTS.md` + relevant domain READMEs in one batch at start
 - Pull in up to 10 related files when investigating a change
-- Keep the active logs in context for multi-step work — `docs/BMO-ISSUES-LOG.md` (bmo), `docs/ISSUES-LOG-DNDAPP.md` (dnd-app), `docs/BMO-SUGGESTIONS-LOG.md`, `docs/SUGGESTIONS-LOG-DNDAPP.md`, `docs/SECURITY-LOG.md` (global, gitignored)
+- Keep the consolidated backlog + active logs in context for multi-step work — `dnd-app/docs/AI-DM-AUDIT.md` (consolidated audit + backlog, all domains, 2026-06-10), `docs/BMO-ISSUES-LOG.md` (bmo), `docs/ISSUES-LOG-DNDAPP.md` (dnd-app), `docs/BMO-SUGGESTIONS-LOG.md`, `docs/SUGGESTIONS-LOG-DNDAPP.md`, `docs/SECURITY-LOG.md` (global, gitignored)
 
 ### When generating code
 
@@ -89,6 +90,7 @@ Read `docs/LOG-INSTRUCTIONS.md` before your first log append for the template + 
 | When working on... | Read first |
 |---|---|
 | Repo structure | `.cursorrules` |
+| Open backlog (all domains) | `dnd-app/docs/AI-DM-AUDIT.md` |
 | Cross-domain protocol | `docs/ARCHITECTURE.md` |
 | IPC channels | `dnd-app/docs/IPC-SURFACE.md` |
 | BMO services | `bmo/docs/SERVICES.md` |

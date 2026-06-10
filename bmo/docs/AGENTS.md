@@ -2,6 +2,8 @@
 
 28 specialized AI agents, each owning one capability. The orchestrator picks which one(s) to invoke based on user intent.
 
+The registered/routable count is 28 (the `create_*_agent()` calls in `agent.py` + `agents/_registry.py`); the tables below also list the infrastructure classes (base class, orchestrator, router, helpers) that live in `agents/` but are not routed agents themselves.
+
 ## Agent list
 
 ### Core infrastructure (12)
@@ -21,7 +23,7 @@
 | **MCP Client** | `mcp_client.py` | Connects to MCP servers for external tool use. |
 | **MCP Manager** | `mcp_manager.py` | Manages MCP server lifecycle + discovery. |
 
-### D&D + gaming (5)
+### D&D + gaming (8)
 
 | Agent | File | Role |
 |---|---|---|
@@ -47,7 +49,7 @@
 | **List** | `list_agent.py` | Shopping lists, todos. |
 | **Smart Home** | `smart_home_agent.py` | Chromecast, TV, Hue lights via HA. |
 
-### Dev / ops (10)
+### Dev / ops (12)
 
 | Agent | File | Role |
 |---|---|---|

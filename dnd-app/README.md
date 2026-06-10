@@ -1,6 +1,6 @@
 # dnd-app
 
-Electron desktop Virtual Tabletop (VTT) for running Dungeons & Dragons 5e games. Multiplayer via PeerJS WebRTC. Optional AI Dungeon Master (Ollama / Claude / Gemini), optional BMO Pi integration for game discovery + narration TTS.
+Electron desktop Virtual Tabletop (VTT) for running Dungeons & Dragons 5e games. Multiplayer via PeerJS WebRTC. Optional AI Dungeon Master (Ollama / Claude / OpenAI / Gemini) with full solo play, optional BMO Pi integration for game discovery + Discord voice narration.
 
 **Current version:** v2.4.70
 
@@ -10,8 +10,8 @@ Electron desktop Virtual Tabletop (VTT) for running Dungeons & Dragons 5e games.
 - **Multiplayer** (PeerJS WebRTC): host + up to 8 players + 5 spectators per session; persistent client UUIDs for ban survival; public/private game toggle; LAN + Pi-registry game browser; resume-on-reconnect via per-client message replay buffer; msgpack ± gzip wire codec with capability handshake.
 - **Character sheets** (D&D 2024): full 5e builder, level-up flow, spell management, class resources, condition tracker, downtime activities.
 - **Combat**: initiative tracker, AoE templates, group rolls, conditions, opportunity attacks, mounted combat, concentration tracking, dice (3D Three.js renderer with Reduced-Motion fallback).
-- **AI DM**: Ollama (local), Claude, Gemini, OpenAI. Scene preparation, NPC interaction logging, end-of-session recaps, token-budget tracking, proactive triggers.
-- **Library**: 3000+ JSON files of D&D 2024 content (monsters, spells, items, equipment, traps, hazards, environments). Recently-viewed list with Clear button. Homebrew per category.
+- **AI DM**: Ollama (local), Claude, Gemini, OpenAI. Full game control via 117 DM actions + 37 stat-change types (tokens, initiative, spells/effects, environment, traps/diseases/curses, treasure, downtime, quests/factions, NPC memory, walls/terrain/drawings/regions, attunement, proficiencies). Solo play with a scene-prep screen, RAG over the 5e rulebooks, campaign memory with summarization, NPC interaction logging, end-of-session recaps, token-budget tracking, proactive triggers, Discord VC narration via BMO.
+- **Library**: 3,037 JSON files of D&D 2024 content (monsters, spells, items, equipment, traps, hazards, environments). Recently-viewed list with Clear button. Homebrew per category.
 - **Bastions** (2024 PHB): facilities, hirelings, events.
 - **BMO Pi integration** (optional): narration TTS, Discord bot relay, AI memory sync, calendar lookups.
 
@@ -91,8 +91,8 @@ No pre-built download yet. The `mac` build config exists (`npm run build:mac` �
 
 **Other things to try:**
 - **Character sheets** — Main Menu → **Characters** → **New Character**. Full 5e 2024 builder with level-up flow.
-- **Library** — browse 3000+ monsters / spells / items / feats. Recently-viewed list at the top.
-- **AI DM** (optional) — Settings → AI. Plug in a Claude / Gemini / OpenAI key, or point at a local Ollama server. The AI DM generates scenes, NPC reactions, and end-of-session recaps.
+- **Library** — browse 3,037 JSON files of monsters / spells / items / feats. Recently-viewed list at the top.
+- **AI DM** (optional) — configured per campaign in the setup wizard (or Settings → AI). Plug in a Claude / Gemini / OpenAI key, or point at a local Ollama server. Solo campaigns route through a scene-prep screen, then the AI runs the whole game — narration, combat, maps, loot, downtime — through its DM-action system.
 - **BMO integration** (optional) — if you've also set up the [`bmo`](../bmo) Pi voice assistant, it's auto-discovered on the same LAN. Settings → BMO Connection lets you override the URL. The Pi unlocks Discord-bot relay, narration TTS, and a public game-discovery registry.
 
 **Settings:**
@@ -212,7 +212,7 @@ dnd-app/
 │   │   │   ├── data/             TS-exported game content
 │   │   │   ├── network/          peerjs multiplayer — host/client managers, message handlers, game sync, registry client, msgpack codec, replay buffer, host-announce lifecycle
 │   │   │   └── utils/, types/, hooks/, systems/, constants/, events/, styles/
-│   │   └── public/data/5e/       D&D 2024 content (3000+ JSON files)
+│   │   └── public/data/5e/       D&D 2024 content (3,037 JSON files)
 │   ├── shared/                   cross-process types + IPC channels + zod schemas
 │   └── __mocks__/                vitest mocks
 │
@@ -267,6 +267,6 @@ Spec: [`docs/PLUGIN-SYSTEM.md`](./docs/PLUGIN-SYSTEM.md).
 
 - Run `npm run circular` before any structural refactor.
 - `npm run dead-code` finds unused exports.
-- 3000+ JSON files in `public/data/5e/` make the renderer bundle big — lazy load via the `@data` alias + dynamic `import()`.
+- 3,037 JSON files in `public/data/5e/` make the renderer bundle big — lazy load via the `@data` alias + dynamic `import()`.
 - Ollama is **no longer bundled** (unbundled in Phase 14a — the old ~2 GB Windows bundle dropped the installer from 1.65 GiB to ~230 MB). The app prompts to install Ollama on first run and exposes Install / Start / Check / Update buttons in Settings → Ollama AI. `scripts/build/fetch-ollama.mjs` is retained for optional local bundling but is not wired into CI.
 - Use `cut.mjs` for releases — never `git tag` manually. Version drift between `package.json` and the tag silently broke v2.0.1 / v2.0.2 / v2.1.0 / v2.1.1 / v2.1.2.

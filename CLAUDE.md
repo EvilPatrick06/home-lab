@@ -22,7 +22,9 @@ Full protocol: `docs/ARCHITECTURE.md`
 Read in order:
 1. `.cursorrules` — structure map with every directory explained
 2. `AGENTS.md` — standard AI rules (framework, conventions, tests)
-3. Active logs (preexisting items so you don't "re-discover" them):
+3. `dnd-app/docs/AI-DM-AUDIT.md` — the consolidated audit + open backlog for ALL
+   three domains (2026-06-10 — every previously-open log entry was moved there)
+4. Active logs (new items since the consolidation land here first):
    - `docs/BMO-ISSUES-LOG.md` — BMO-domain bugs + debt
    - `docs/ISSUES-LOG-DNDAPP.md` — dnd-app-domain bugs + debt
    - `docs/ISSUES-LOG-DUNGEON-SCHOLAR.md` — dungeon-scholar-domain bugs + debt
@@ -30,7 +32,7 @@ Read in order:
    - `docs/SUGGESTIONS-LOG-DNDAPP.md` — dnd-app-domain ideas + design gotchas + info
    - `docs/SUGGESTIONS-LOG-DUNGEON-SCHOLAR.md` — dungeon-scholar-domain ideas + design gotchas + info
    - `docs/SECURITY-LOG.md` — security (global, gitignored)
-4. Domain doc: `dnd-app/README.md`, `bmo/README.md`, or `dungeon-scholar/README.md`
+5. Domain doc: `dnd-app/README.md`, `bmo/README.md`, or `dungeon-scholar/README.md`
 
 ### Tool preferences (Claude Code)
 

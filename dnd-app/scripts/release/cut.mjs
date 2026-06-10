@@ -174,7 +174,8 @@ try {
 // Stage the version bump + every doc the sync steps may have touched.
 sh(
   'git add dnd-app/package.json dnd-app/package-lock.json dnd-app/README.md README.md ' +
-    'bmo/README.md docs/ARCHITECTURE.md bmo/docs/AGENTS.md ' +
+    'bmo/README.md bmo/pi/README.md docs/ARCHITECTURE.md bmo/docs/AGENTS.md ' +
+    'AGENTS.md GEMINI.md .cursorrules docs/GLOSSARY.md docs/SECURITY.md bmo/docs/ARCHITECTURE.md ' +
     'dnd-app/docs/IPC-SURFACE.md dnd-app/docs/PLUGIN-SYSTEM.md'
 )
 sh(`git commit -m "chore(release): bump dnd-app to ${tag}"`)
