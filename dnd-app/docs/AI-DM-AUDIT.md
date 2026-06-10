@@ -231,7 +231,6 @@
 
 ## dnd-app
 
-- **Managed/baked TURN server (optional product decision).** Users can add their own TURN via Settings → Multiplayer; off-LAN routes through the Pi relay by default — a baked managed TURN only matters for serverless off-LAN P2P behind symmetric NAT with zero config. Carries cost + credential management. *(migrated: deleted REVIEW-REPORT-2026-05-29, final open item)*
 - **Phase 33a — backup format migration framework.** No `migrateBackup`/format-version scaffolding found in `dnd-app/src/main` or `src/shared` (grep-verified 2026-06-10). *(migrated: SUGGESTIONS-LOG-DNDAPP absorption record 2026-05-18)*
 - **Phase 33c — `<ModalScaffold>` extraction.** Not present in `dnd-app/src/renderer/src/components/ui/` (verified 2026-06-10). *(migrated: SUGGESTIONS-LOG-DNDAPP absorption record)*
 - **Phase 33d — bundle-size CI guard.** No size-limit/bundlesize gate in `.github/workflows/*` or `dnd-app/package.json` (verified 2026-06-10). *(migrated: SUGGESTIONS-LOG-DNDAPP absorption record)*
