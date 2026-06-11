@@ -20,7 +20,7 @@ Monorepo containing:
 Gemini has a large context window. Use it:
 - Read `.cursorrules` + `AGENTS.md` + relevant domain READMEs in one batch at start
 - Pull in up to 10 related files when investigating a change
-- Keep the consolidated backlog + active logs in context for multi-step work — `dnd-app/docs/AI-DM-AUDIT.md` (consolidated audit + backlog, all domains, 2026-06-10), `docs/BMO-ISSUES-LOG.md` (bmo), `docs/ISSUES-LOG-DNDAPP.md` (dnd-app), `docs/BMO-SUGGESTIONS-LOG.md`, `docs/SUGGESTIONS-LOG-DNDAPP.md`, `docs/SECURITY-LOG.md` (global, gitignored)
+- Keep the consolidated backlog + active logs in context for multi-step work — `dnd-app/docs/phases/PHASE-INDEX.md` (backlog phase set, all domains, 2026-06-11), `docs/BMO-ISSUES-LOG.md` (bmo), `docs/ISSUES-LOG-DNDAPP.md` (dnd-app), `docs/BMO-SUGGESTIONS-LOG.md`, `docs/SUGGESTIONS-LOG-DNDAPP.md`, `docs/SECURITY-LOG.md` (global, gitignored)
 
 ### When generating code
 
@@ -90,7 +90,7 @@ Read `docs/LOG-INSTRUCTIONS.md` before your first log append for the template + 
 | When working on... | Read first |
 |---|---|
 | Repo structure | `.cursorrules` |
-| Open backlog (all domains) | `dnd-app/docs/AI-DM-AUDIT.md` |
+| Open backlog (all domains) | `dnd-app/docs/phases/PHASE-INDEX.md` |
 | Cross-domain protocol | `docs/ARCHITECTURE.md` |
 | IPC channels | `dnd-app/docs/IPC-SURFACE.md` |
 | BMO services | `bmo/docs/SERVICES.md` |

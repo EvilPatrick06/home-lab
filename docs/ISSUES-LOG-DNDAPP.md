@@ -18,9 +18,8 @@ New entries go at the TOP of their severity section (newest first within each se
 
 # Active Issues
 
-> **2026-06-10 — Backlog consolidated.** All previously-open entries were MOVED to
-> **[`../dnd-app/docs/AI-DM-AUDIT.md`](../dnd-app/docs/AI-DM-AUDIT.md)** (the
-> single consolidated audit + backlog for the whole repo). Add new dnd-app issues
+> **2026-06-10 — Backlog consolidated.** All previously-open entries became
+> the numbered phase plans under [`../dnd-app/docs/phases/`](../dnd-app/docs/phases/) (start at [`PHASE-INDEX.md`](../dnd-app/docs/phases/PHASE-INDEX.md)); the consolidating audit was deleted once the phase set was authored (2026-06-11). Add new dnd-app issues
 > below as they appear.
 
 ## Critical

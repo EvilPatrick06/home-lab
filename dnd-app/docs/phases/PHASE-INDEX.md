@@ -1,0 +1,107 @@
+# PHASE-INDEX — 2026-06-10 backlog phase set
+
+> Meta-file (never moves to `completed/`, never deleted — see INSTRUCTIONS.md Notes).
+> The dependency manifest + execution order for the `PHASE-NN-<slug>.md` plans in
+> this folder. Authored 2026-06-10 from the consolidated audit; each plan is fully
+> self-contained (the audit file no longer exists — plans carry everything).
+>
+> **Execution:** per `INSTRUCTIONS.md` — phases run in numeric order; 4-gate + one
+> commit + one push at each phase end; finished plans move to `completed/`; ONE
+> release after PHASE-42 (or an explicit user ask). Update the Status column here
+> as phases complete.
+>
+> **Ordering rule:** Phases 1–19 have NO dependencies (independent — front of the
+> set, per owner directive). Later phases list their prerequisites; phases marked
+> *(no deps)* there may be freely reordered if priorities change.
+
+| # | Plan file | Domain | Depends on | Status |
+|---|---|---|---|---|
+| 01 | PHASE-01-ollama-context-window.md | dnd-app | — | pending |
+| 02 | PHASE-02-stat-mutation-correctness.md | dnd-app | — | pending |
+| 03 | PHASE-03-provider-stream-reliability.md | dnd-app | — | pending |
+| 04 | PHASE-04-ai-store-approval-hygiene.md | dnd-app | — | pending |
+| 05 | PHASE-05-stream-listener-lifecycle.md | dnd-app | — | pending |
+| 06 | PHASE-06-scene-prep-pipeline.md | dnd-app | — | pending |
+| 07 | PHASE-07-conversation-persistence.md | dnd-app | — | pending |
+| 08 | PHASE-08-executor-batch-correctness.md | dnd-app | — | pending |
+| 09 | PHASE-09-chat-commands-cleanup.md | dnd-app | — | pending |
+| 10 | PHASE-10-ai-dm-ui-truth.md | dnd-app | — | pending |
+| 11 | PHASE-11-prompt-schema-contract.md | dnd-app | — | pending |
+| 12 | PHASE-12-i18n-wording-sweep.md | dnd-app | — | pending |
+| 13 | PHASE-13-dnd-platform-debt.md | dnd-app | — | pending |
+| 14 | PHASE-14-ai-observability.md | dnd-app | 07 | pending |
+| 15 | PHASE-15-bmo-hygiene.md | bmo | — | pending |
+| 16 | PHASE-16-bmo-blueprint-refactor.md | bmo | 15 | pending |
+| 17 | PHASE-17-ds-bug-round.md | dungeon-scholar | — | pending |
+| 18 | PHASE-18-ds-security-round.md | dungeon-scholar | — | pending |
+| 19 | PHASE-19-ds-a11y-ux-round.md | dungeon-scholar | — | pending |
+| 20 | PHASE-20-discord-bridge-foundation.md | cross | — | pending |
+| 21 | PHASE-21-discord-voice-quality.md | cross | 20 | pending |
+| 22 | PHASE-22-discord-sync-plane.md | cross | 20 | pending |
+| 23 | PHASE-23-structured-outputs.md | dnd-app | 03 | pending |
+| 24 | PHASE-24-rules-rag-hybrid.md | cross | 01 | pending |
+| 25 | PHASE-25-entity-memory-lore.md | dnd-app | 24 | pending |
+| 26 | PHASE-26-scene-summarization.md | dnd-app | 01, 07 | pending |
+| 27 | PHASE-27-world-state-store.md | dnd-app | 23, 25 | pending |
+| 28 | PHASE-28-director-quests-oracle.md | dnd-app | 27 | pending |
+| 29 | PHASE-29-model-routing.md | dnd-app | 23 | pending |
+| 30 | PHASE-30-combat-automation.md | dnd-app | 08 | pending |
+| 31 | PHASE-31-recaps-qa-assistant.md | cross | 25 | pending |
+| 32 | PHASE-32-safety-tools.md | dnd-app | *(no deps)* | pending |
+| 33 | PHASE-33-image-generation.md | dnd-app | *(no deps)* | pending |
+| 34 | PHASE-34-battlemap-generation.md | dnd-app | 08 | pending |
+| 35 | PHASE-35-scene-mode.md | dnd-app | *(no deps)* | pending |
+| 36 | PHASE-36-async-play-by-post.md | cross | 20 | pending |
+| 37 | PHASE-37-seed-packs.md | dnd-app | 25 | pending |
+| 38 | PHASE-38-plugin-platform.md | dnd-app | *(no deps)* | pending |
+| 39 | PHASE-39-ds-architecture.md | dungeon-scholar | 17–19 recommended | pending |
+| 40 | PHASE-40-ds-pwa-cloud.md | dungeon-scholar | 39 | pending |
+| 41 | PHASE-41-ds-sealed-tomes-theme.md | dungeon-scholar | 39 | pending |
+| 42 | PHASE-42-bmo-deploy-automation.md | bmo | *(no deps)* | pending |
+| 43 | PHASE-43-codeql-hardening.md | cross | 15, 16 recommended | pending |
+
+## Scope allocation (what each phase absorbed from the 2026-06-10 audit)
+
+- **01** Ollama `num_ctx`/`keep_alive` never set (CRITICAL — silent prompt truncation), options-block stability, token-budgets.json reconciliation vs window, curated `contextSize` wiring, prefix-cache prompt ordering (static-first, volatile last), flash-attention + q8_0 KV-cache guidance.
+- **02** `add_condition` always-throws (v4 stripped `conditions`), `remove_condition`/`reduce_exhaustion` always-reject, unvalidated numeric mutations → NaN/null HP, long-rest temp-HP clear lost, pact-magic vs regular slot aliasing.
+- **03** Cloud 90s whole-stream timeout → inactivity-based, stale timeout comments, openai `max_tokens`/o-series/maxTokens-ignored, `listOllamaModels` no timeout (preflight hang), ollama-manager localhost hardcode vs configured URL, `getConfig()` disk-clobber of in-memory model auto-switch.
+- **04** webSearchStatus deadlock (modal wedges app), `reset()`/`initFromCampaign()` not clearing approval queues/timers, second response overwriting undecided pendingActions, `approvePendingActions` discarding ExecutionResult, RulingApprovalModal Dismiss-logs-override, approval overlays isDM vs effectiveIsDM, WebSearchApprovalPrompt Escape/countdown/result-surfacing, MutationApprovalPanel (12 unlabeled types, creature-heal red, 120px reason truncation, no Reject All, no aria-live), DmAlertTray close behavior.
+- **05** AI stream listeners killed by campaign object identity change, preload per-listener unsubscribe (root cause), AiProviderSetup + OllamaManagement listener leaks, FILE_READ cancel re-registration leak + post-cancel conversation pollution, new player message cancelling in-flight stream (queueing).
+- **06** Scene-prep Cancel (streamId captured renderer-side + AI_CANCEL_SCENE IPC), poll-cap isTyping wedge, error-retry `conv.clear()` history wipe, campaign-not-found dead-end page, post-FILE_READ/WEB_SEARCH restream losing the context block.
+- **07** AI_RESTORE_CONVERSATION not refreshing in-memory manager, AI_LOAD restore-on-read race hardening, history-truncation flag false-negative, `lastTokenBreakdown` module-global cross-talk, `contextChunkIds` wire-or-drop.
+- **08** Executor pre-batch snapshot staleness (prompted place+start_initiative combo), legendary/recharge enrichment (AI + DM paths), 11 dead duplicate executors + dead `ai-stream-handler.ts`/`finalizeAiResponse` pipeline removal, creature stat-mutation silent failures + prefix fallback, shop open/add/remove broadcast bugs, downtime peerId-as-characterId, drawings unusable (no ids in snapshot), line/cone AoE direction, cast_spell caster-exclusion case bug, bastion no-op verbs.
+- **09** 40 duplicate command registrations + triple `/attack`, `/stabilize` shadowing, registry collision test, placeholder commands (clear/log/latency/export/import/ping) honest-or-implemented, undo/redo dead feature decision.
+- **10** Hardcoded "Ollama" labels, status bar unknown-as-ready/no-recheck/no-paused, token meter `{{max}}` interpolation, provider-default model IDs from main, AiDmCard wrong-provider prefill + ungated Save, AiProviderSetup silent detect failure + dropdown states + wizard gating, inline AI error affordances, AiContextPanel error states, stream preview tag-stripping + auto-scroll, NarrationOverlay max-height/dialog.
+- **11** [DM_ACTIONS]-vs-[STAT_CHANGES] misdocumented trio, `light_source`/`extinguish_source` union gap, GameMode exploration/social collapse-or-implement, bold contradiction, 2024 travel-pace alignment, voice-narration emotion vocabulary ↔ Pi prosody map, `actingCharacterId` end-to-end wiring, AI Vision wire-images-or-strip decision, character-context v4-stripped fields (conditions/weapons/armor/knownSpells/feats invisible to the AI — flagged by PHASE-02 verification; conditions half lands in 02, the context-read side belongs here).
+- **12** Hardcoded store strings, full-view Send, "(Phase 16a)" tooltip, "bounds boundaries", spell-end phrasing, "to backup" grammar, AI/AI-DM naming consistency, es.json AI-DM translation consistency.
+- **13** BOOK_IMPORT dialog-allowlist, trigger spawn placement, library official counts, underscore type aliases, mic-settings consumer decision, AudioStep preview, group-roll P2P round-trip, container weight recursion, co-DM filter support, compendium + map-pin deep-links, config-store content decoupling, 3D dice polish, orphaned-comment pointer updates, backup-migration framework (33a), ModalScaffold (33c), bundle-size CI guard (33d), trigger-observer kill-switch wiring, **TEN unsanitized-campaignId AI IPC handlers (path-traversal — extend NET-1 `sanitizeCampaignId` to the world-state/NPC/quest/faction/scene handlers)**, dead `AttackRequest` interface in combat-resolver (flagged by PHASE-30), `@google/generative-ai` → `@google/genai` SDK migration decision (upstream-deprecated; flagged by PHASE-03).
+- **14** Context-inspector panel (token breakdown surfacing), truncation alert wiring (`wasContextTruncated`), connection-status badge, fileReadStatus indicator + clearing.
+- **15** Agent-registry ImportError silent-drop, DM rest gamestate persistence, fish_audio key-on-cmdline + `--fail` (security), DndDmAgent inert tools decision, IDE "under construction" marker, flask-talisman headers, venv pip-tools note.
+- **16** app.py Flask-blueprint refactor (calendar/music/tv/chat/system/realtime) + AppState consolidation.
+- **17** ds H5/M5 setState side-effects, H3 deploy branches, H2/H1 fork-hostile config, M13 daily-reward clocks, M10 silent localStorage failures, M6 oracle JSON regex, M4 stale-closure progress clobber, M3 vault dedup guard, M2 AbortController, Foresight Scroll + Tinker's Oil no-op effects.
+- **18** ds H6 prod error logging, M11 RLS runtime check, M9 oracle endpoint env, M8 CSP/referrer, L13 redirect diagnostics, L9 channel UUID, L7 logger module, L10 answer-key README flag.
+- **19** ds H7 color-only feedback, H4 modal a11y wrapper, M12 hover-only warning, M7 reduced-motion, L17 empty-state CTAs, L16 audio unmute prompt, L5/L4 aria-live, L3 icon aria-hidden, L1 tap targets, bestiary difficulty/Bloom badges.
+- **20** Discord process split (control endpoint or in-process bot), honest + idempotent narrate (spoken/queued/dropped + eventId), single narration sender + toggle actually gating, in-app session start/stop/status UI, 4xx-as-unreachable fix, bridge-start initiative/text-channel parity, guild/channel config, `_log` kwargs crash, start-endpoint error truthfulness, VC reconnect handling, auto-leave VTT callback, `/initiative` promise fix.
+- **21** Sentence-chunked streaming TTS (stream2sentence/RealtimeTTS; Kokoro-FastAPI + Piper split) replacing `text[:500]`, barge-in cancellation through the pipeline, per-NPC voice casting, emotion-prosody map completion.
+- **22** VTT↔Discord sync plane finish-or-delete decision: preload channels + renderer listeners, `register_sync_routes`, bot push-helper wiring, bind + bearer auth, `vtt_state` consumption, apply_patch.py removal, push-to-Discord text narration wiring.
+- **23** Two-call structured extraction (`format` = JSON schema, stream:false constraints), flat small-model schema redesign, value validation vs game state, repairJson retirement path.
+- **24** Hybrid BM25+vector rules retrieval, markdown-header chunking + contextual chunk headers, campaign-content (journals/handouts/lore) indexing.
+- **25** Entity records (NPC/location/item/faction) auto-extraction, player-editable lore pages joining AI context as labeled blocks, keyword/state-triggered world-info injection.
+- **26** Scene-boundary layered summarization (scene→session→campaign) replacing token-threshold compaction; KV-cache synergy.
+- **27** Durable world-state store (engine owns truth, LLM emits deltas), per-NPC opinion persistence, spatial consistency.
+- **28** Director/narrator agent split, structured quest objectives with auto-checked completion + chapter advancement, dice-driven oracle/GME randomness injection.
+- **29** Per-task model routing (small model for mechanics/extraction/summaries), mid-campaign model swap UI, llama-server speculative-decoding option.
+- **30** Automated monster turns (heuristic action engine + LLM flavor only), suggest-tactical-action assistant.
+- **31** "Previously on" session recaps + private campaign Q&A side-channel assistant (BMO session_recap tie-in).
+- **32** Lines/veils as hard prompt constraints (session-zero panel) + X-card halt/regenerate/ban-list command.
+- **33** Inline image generation (NPC portraits, scene art, items) — local SD endpoint + cloud fallback, token/handout attachment.
+- **34** Text-to-battlemap structured spec (rooms/walls/doors/lights/spawns) rendered by a procedural tile engine.
+- **35** Cinematic scene-mode toggle (full-bleed art + ambient + particles ↔ tactical grid).
+- **36** Async play-by-post mode: persistent per-scene turn queue on the Pi + Discord turn pings.
+- **37** Scenario/world seed-pack format (export/import) + curated starter packs.
+- **38** Campaign-level `systemId` game-system selection end-to-end, plugin sandbox decision + docs truth, TypeDoc/Storybook decision, `systems/dnd5e/` encapsulation start.
+- **39** ds App.jsx (9,278 lines) feature-module split + study-mode code-splitting + browser router/deep links (F2/F4 + chunk-size).
+- **40** ds PWA offline-first (F6), encrypted per-tome notes (F5), cloudSync conflict tests (L18), defensive copies (L15), import size cap (L14), AudioContext close (L8).
+- **41** ds sealed/proctored tomes (F3), full light theme (QA16), Phase-30 QA coverage gaps list.
+- **42** bmo deploy automation: GitHub-Actions SSH deploy, blue/green on :5002, Docker deploy option.
+- **43** CodeQL alert triage + hardening (552 open alerts from the first default-setup "extended" scan, 2026-06-10). **Mandatory first sub-phase — refresh the data before acting on ANY 2026-06-10 numbers:** (a) pull the CURRENT alert sets (`gh api repos/EvilPatrick06/home-lab/code-scanning/alerts?state=open --paginate` and `…/dependabot/alerts?state=open`) and diff against the 2026-06-10 baseline for new/modified/auto-closed entries — many phases land between now and then and will have fixed or moved alerts; (b) trigger a FRESH CodeQL scan (default setup scans on push to master — push a trivial commit or re-run the latest CodeQL workflow run via `gh api -X POST repos/…/actions/runs/<id>/rerun`, or convert to advanced setup first and dispatch it) and a fresh Dependabot check (`gh api -X POST repos/…/dependabot/alerts` is not a thing — instead bump-check via the Insights → Dependency graph refresh or push a manifest-touching commit), and wait for both to complete before triage; (c) re-derive ALL counts from the fresh scan. Then: scan-scope noise exclusion — **VERIFY the ~164 "noise" candidates individually before excluding** (each alert in `_archive/`, dev scratch, `*.test.*`, build scripts must be confirmed non-production: archived = quarantined dead code, dev/ai-temp = scratch, tests = no prod surface, scripts = local-run only; any alert that actually reaches production behavior gets PROMOTED to the triage list, not excluded) — then convert to advanced setup with `paths-ignore` config or UI filtering. **Triage philosophy (owner directive 2026-06-10): "not currently used" is NEVER a reason to dismiss a dangerous sink — judge by whether the sink is REACHABLE/plantable by an attacker, not by current usage.** A code path that does something unsafe with attacker-controllable input is an attack surface even if no caller/file exercises it today (a future bug, a restored backup, a path-traversal write, or a compromised data dir can reach it); the fix is to remove the unsafe capability, not to dismiss-as-unused. Apply this to the whole sweep: bmo Flask hardening sweep (2026-06-10 baseline: 162 `py/stack-trace-exposure`, 115 `py/path-injection`, 81 `py/log-injection`, 19 clear-text-logging); **DELETE the two `pickle.load` legacy-migration shims (`voice_pipeline.py:284`, `camera_service.py:235`) — `pickle.load` on a file path is an arbitrary-code-execution sink; remove the capability entirely (drop the pickle branch + the migration, or replace with a safe loader). The absence of `.pkl` files on the Pi 2026-06-10 is NOT the safety argument — a planted file would execute code, so the sink itself must go**; dnd-app's 60 production alerts (request-forgery family — judge each by reachability: a fetch to a URL the LOCAL user configures in Settings is low-risk by design and may be dismissed-with-reason, but any URL influenced by remote/peer/AI input is real and gets fixed — do not blanket-dismiss the family); 5 `actions/missing-workflow-permissions`; torch CVE-2025-3000 Dependabot pair (re-check for a patched release at execution time; if still none, dismiss-with-reason or monitor). Cross-refs: `cloud_providers.py` command-injection criticals are ALREADY owned by PHASE-15 (curl config-file helper); campaignId path-injection in dnd-app owned by PHASE-13 — both should be CLOSED by the fresh scan if those phases ran first; verify rather than re-fix.

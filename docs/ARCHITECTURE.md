@@ -122,7 +122,7 @@ Examples:
 > **Status (2026-06-10):** parts of this plane are scaffolded but not end-to-end wired —
 > the renderer never exposes/consumes `BMO_SYNC_EVENT` or the initiative/state push
 > channels, and the Pi never registers `register_sync_routes(app)`. Narration
-> (`/api/discord/dm/narrate`) IS live. Full finding: `dnd-app/docs/AI-DM-AUDIT.md` → Discord.
+> (`/api/discord/dm/narrate`) IS live. Full finding: `dnd-app/docs/phases/PHASE-20-discord-bridge-foundation.md` and `PHASE-22-discord-sync-plane.md`.
 
 ### 3. VTT ↔ VTT (multiplayer)
 

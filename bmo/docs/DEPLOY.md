@@ -146,4 +146,4 @@ For near-zero-downtime deploys, use `systemctl reload` where supported (not curr
 
 ## Future improvements
 
-Tracked in the consolidated backlog — `dnd-app/docs/AI-DM-AUDIT.md` § Future/Stubbed/Unfinished → bmo ("BMO deploy automation ideas"): CI/CD GitHub-Actions SSH-deploy on merge, blue/green on `:5002`, Docker-based deploy.
+Tracked in `dnd-app/docs/phases/PHASE-42-bmo-deploy-automation.md`: CI/CD GitHub-Actions SSH-deploy on merge, blue/green on `:5002`, Docker-based deploy.

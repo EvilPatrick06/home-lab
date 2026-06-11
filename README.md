@@ -53,9 +53,9 @@ Full protocol spec: [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md)
 
 ## Current state (2026-06-10)
 
-- **`dnd-app`** at **v2.4.70**. Multiplayer (Phase 29), Token System (Phase 13), DM View (Phase 14), and the complete AI Dungeon Master (P6 roadmap — solo play, 117 DM actions, 37 stat-change types, Discord VC narration) shipped. 735 test files. Ships as Windows NSIS installer + Linux AppImage. Open backlog + deferred work: [`dnd-app/docs/AI-DM-AUDIT.md`](./dnd-app/docs/AI-DM-AUDIT.md) (the consolidated audit + backlog for the whole repo).
+- **`dnd-app`** at **v2.4.70**. Multiplayer (Phase 29), Token System (Phase 13), DM View (Phase 14), and the complete AI Dungeon Master (P6 roadmap — solo play, 117 DM actions, 37 stat-change types, Discord VC narration) shipped. 735 test files. Ships as Windows NSIS installer + Linux AppImage. Open backlog + deferred work: [`dnd-app/docs/phases/PHASE-INDEX.md`](./dnd-app/docs/phases/PHASE-INDEX.md) (the backlog phase set for the whole repo).
 - **`bmo`** runs 5 systemd services live on the Pi: `bmo`, `bmo-fan`, `bmo-kiosk`, `bmo-dm-bot`, `bmo-social-bot`. 29 pytest files. Game-discovery registry at `/api/games*` advertises via avahi for Windows-zero-config.
-- **`dungeon-scholar`** at Phase 34b (theme toggle); the Phase 27 audit remainder is consolidated into [`dnd-app/docs/AI-DM-AUDIT.md`](./dnd-app/docs/AI-DM-AUDIT.md). Deployed via GitHub Pages workflow.
+- **`dungeon-scholar`** at Phase 34b (theme toggle); the Phase 27 audit remainder is now part of the backlog phase set ([`dnd-app/docs/phases/PHASE-INDEX.md`](./dnd-app/docs/phases/PHASE-INDEX.md), phases 17–19/39–41). Deployed via GitHub Pages workflow.
 
 ## Quick start
 
@@ -74,7 +74,7 @@ Read in order:
 1. [`.cursorrules`](./.cursorrules) — full directory map
 2. [`AGENTS.md`](./AGENTS.md) — cross-tool conventions
 3. [`docs/LOG-INSTRUCTIONS.md`](./docs/LOG-INSTRUCTIONS.md) — which log to write to + when not to
-4. [`dnd-app/docs/AI-DM-AUDIT.md`](./dnd-app/docs/AI-DM-AUDIT.md) — the consolidated audit + open backlog (2026-06-10) for all three domains
+4. [`dnd-app/docs/phases/PHASE-INDEX.md`](./dnd-app/docs/phases/PHASE-INDEX.md) — the backlog phase set (2026-06-11) for all three domains
 5. The active issue / suggestion logs for the domain you're working in:
    - **dnd-app** → [`docs/ISSUES-LOG-DNDAPP.md`](./docs/ISSUES-LOG-DNDAPP.md) + [`docs/SUGGESTIONS-LOG-DNDAPP.md`](./docs/SUGGESTIONS-LOG-DNDAPP.md)
    - **bmo** → [`docs/BMO-ISSUES-LOG.md`](./docs/BMO-ISSUES-LOG.md) + [`docs/BMO-SUGGESTIONS-LOG.md`](./docs/BMO-SUGGESTIONS-LOG.md)

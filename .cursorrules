@@ -35,7 +35,7 @@
 │   │   ├── fix/                      one-off data migrations
 │   │   └── schemas/                  zod schemas (shared by extract/)
 │   ├── tools/                        dev utilities (run-audit.js, rename-to-kebab.js, etc.)
-│   ├── docs/                         dnd-app docs — AI-DM-AUDIT.md (consolidated audit + backlog, all domains), phases/INSTRUCTIONS.md (phase workflow rules)
+│   ├── docs/                         dnd-app docs — phases/PHASE-INDEX.md (backlog phase set, all domains) + phases/INSTRUCTIONS.md (phase workflow rules)
 │   ├── resources/                    app icons, installer
 │   └── {package,tsconfig*,biome,vitest.config.ts,electron.vite.config.ts}  configs
 │

@@ -23,9 +23,7 @@ New entries go at the TOP of their section (newest first).
 
 > **2026-06-10 — Backlog consolidated.** All previously-open entries (F2–F6,
 > code-splitting, QA16 full light theme, QA-Bestiary badges, the L1–L18 polish
-> set, and the Phase 30 QA coverage-gap list) were MOVED to
-> **`dnd-app/docs/AI-DM-AUDIT.md`** (the single consolidated audit + backlog for
-> the whole repo). Add new dungeon-scholar ideas below as they appear.
+> set, and the Phase 30 QA coverage-gap list) became the numbered phase plans under `dnd-app/docs/phases/` (start at `PHASE-INDEX.md`); the consolidating audit was deleted once the phase set was authored (2026-06-11). Add new dungeon-scholar ideas below as they appear.
 
 *(none active)*
 

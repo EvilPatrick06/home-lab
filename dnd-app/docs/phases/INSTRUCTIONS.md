@@ -2,29 +2,28 @@
 
 > How to work through the phase plans in this directory. Read this before starting any phase work.
 
-> **⚠️ STATUS (updated 2026-06-01): there are no active `phase-N-plan.md` files,
-> and the consolidated backlog report has been removed too.** This folder now
-> contains only this playbook.
+> **⚠️ STATUS (updated 2026-06-10): the folder holds the ACTIVE backlog phase
+> set** — `PHASE-NN-<slug>.md` plans authored from the (now-deleted)
+> AI-DM-AUDIT.md consolidation, ordered by `PHASE-INDEX.md` (dependency
+> manifest). Completed plans live permanently in `completed/` (rule 8).
 >
-> **These rules are NOT dormant just because no plan file exists. For ANY
-> extensive dnd-app work — a feature, a multi-file refactor, a QA-fix bundle, a
-> "do everything" sweep, anything beyond a one-line tweak — follow this playbook
-> in full, with or without a plan file:** the 4-gate (rule 5), one commit + one
-> release per logical unit of work via `cut.mjs` (rules 5/6/20), git discipline
-> (master only, rule 11), ISO dates (rule 18), STOP-and-ask escalation (rule 9),
-> and **especially rule 10/151/153 (NO mid-run status reports or turn-ending
-> prose — the last thing in every response is a tool call) and rule 27/159 (NO
-> deferral / "needs testing" / "out of scope" / scope-questions — implement it,
-> gate, commit, move on).** Only Rule 1's "find/iterate the earliest
-> `phase-N-plan.md`" mechanic is dormant (there are no plan files); everything
-> else applies. You MAY author a fresh `phase-N-plan.md` here to track a large
-> unit of work, but it's optional — work the item directly under these rules
-> either way.
+> **Key 2026-06-10 rule changes:** 4-gate + ONE commit + ONE push at the END of
+> each phase only (rule 5, unchanged); **NO per-phase release — one release
+> after the FINAL phase, or mid-run only on an explicit user ask (rule 6)**;
+> **plans are NEVER deleted — they move to `completed/` (rule 8)**.
+>
+> For any extensive dnd-app work outside a plan file, these rules still apply
+> in full: the 4-gate (rule 5), git discipline (master only, rule 11), ISO
+> dates (rule 18), STOP-and-ask escalation (rule 9), and **especially rule
+> 10/151/153 (NO mid-run status reports or turn-ending prose — the last thing
+> in every response is a tool call) and rule 27/159 (NO deferral / "needs
+> testing" / "out of scope" / scope-questions — implement it, gate, commit,
+> move on).**
 
 ## The 27 rules
 
 ### 1. Start with the earliest phase plan in folder
-Find the lowest-numbered `phase-N-plan.md` file in `dnd-app/docs/phases/` that still exists. Open it. That's the current phase. Do not skip ahead. Do not work on a later phase while an earlier one is unshipped.
+Find the lowest-numbered `PHASE-NN-<slug>.md` file at the top level of `dnd-app/docs/phases/` (NOT in `completed/`). Open it — that's the current phase. Consult `PHASE-INDEX.md` for the dependency map. Do not skip ahead. Do not work on a later phase while an earlier one is unfinished.
 
 ### 2. Review
 Read the full plan top to bottom before touching code. Pay attention to:
@@ -52,7 +51,7 @@ If a step turns out to be wrong or missing context, see rule 9.
 
 > **The full test suite runs ONCE, at the end of the phase — never per sub-phase (reaffirmed by the user 2026-05-29).** During sub-phase work, the only checks you run are CHEAP, TARGETED ones: `npx tsc --noEmit -p tsconfig.web.json` (or node) on the changed surface, and at most the single new/affected unit-test file (`npx vitest run path/to/that.test.ts`). The full `npm run lint` + both `tsc` configs + the **whole** `npx vitest run` (~70s, 6000+ tests) is reserved for the end of the phase. Running the full vitest sweep after every sub-phase is the exact anti-pattern this rule forbids — it wastes minutes per sub-phase. Accumulate sub-phase edits, then do ONE full 4-gate + ONE commit per phase.
 
-After the LAST sub-phase of a phase finishes, before cutting the release in rule 6:
+After the LAST sub-phase of a phase finishes, before the phase commit + push and moving the plan to `completed/` (rule 8):
 
 ```bash
 cd dnd-app
@@ -69,8 +68,8 @@ All four gates must be green. A red gate is a STOP-and-ask trigger:
    ~/.claude-tools/notify.sh "warn" "Phase N — 4-gate red at end-of-phase" \
      "<which gate(s) failed + cited file:line if any + suggested fix path>"
    ```
-2. Fix in place. Do NOT cut the release in rule 6. Do NOT advance to the next phase.
-3. Re-run the 4-gate. Repeat until green, then continue to rule 6.
+2. Fix in place. Do NOT commit. Do NOT advance to the next phase.
+3. Re-run the 4-gate. Repeat until green, then commit + push and continue to rule 8.
 
 For phases that touch the Pi side (32, 36, anything under `bmo/pi/`), also run `pytest bmo/pi/tests/` from `bmo/pi/`.
 
@@ -91,17 +90,20 @@ The exceptions exist because their audit-trail value is the separation. Phase wo
 
 If a contributor wants per-sub-phase commits + gating back, they can revert this rule edit — the playbook honors the user's current trade-off (speed > granular history > early detection inside a phase).
 
-### 6. Ship release
-When the last sub-phase of a phase is green and committed, cut the release per `dnd-app/docs/RELEASE.md` (or `CLAUDE.md` release flow):
+### 6. Ship release — ONLY after the FINAL phase, or on an explicit user ask (changed 2026-06-10)
+
+> **No per-phase releases.** Master accumulates one pushed commit per phase (rule 5). A release is cut exactly once — after the LAST phase plan in the folder completes — unless the user explicitly asks for a mid-run release. Do not cut a release on your own judgment mid-run.
+
+When the final phase is green, committed, and pushed (or the user explicitly asks mid-run), cut the release per `dnd-app/docs/RELEASE.md` (or `CLAUDE.md` release flow):
 
 ```bash
 # Stash uncommitted edits (cut.mjs requires clean tree)
 git stash push -u -m "wip-during-release"
 
-# Write release notes
+# Write release notes covering EVERY phase landed since the previous release
 cat > /tmp/vX.Y.Z-notes.md <<'EOF'
-**Phase N — <theme>.**
-... per-sub-phase summary, test plan, breaking-change notes ...
+**Phases N–M — <run theme>.**
+... per-phase summary, test plan, breaking-change notes ...
 EOF
 
 # Bump + commit + tag + push + pre-create release with notes
@@ -110,17 +112,21 @@ node dnd-app/scripts/release/cut.mjs X.Y.Z --notes-file /tmp/vX.Y.Z-notes.md
 git stash pop
 ```
 
-The Release workflow runs preflight (lint + tsc-web + tsc-node + vitest) and asset-verify. Both must be green for the release to publish.
-
-One release per phase. Not per sub-phase.
+The Release workflow runs preflight (lint + tsc-web + tsc-node + vitest) and asset-verify. Both must be green for the release to publish. Release notes must cover every phase included in the cut, since multiple phases ship in one release.
 
 ### 7. Repeat on the next phase
-After the release publishes successfully, return to rule 1 and find the next earliest phase plan still in the folder.
+After the phase commit is pushed and the plan is moved to `completed/` (rule 8), return to rule 1 and find the next earliest phase plan still in the folder. (No release between phases — rule 6.)
 
-### 8. Delete the phase file once the release has shipped
-After a release is live on GitHub and verified (all assets present, smoke-tested locally), delete the phase's plan file from `dnd-app/docs/phases/`. Commit the deletion with `chore(phases): phase N shipped as vX.Y.Z — remove plan`.
+### 8. Move the phase plan to `completed/` when the phase lands — NEVER delete plans (changed 2026-06-10)
+After the end-of-phase 4-gate is green and the phase commit is pushed, move the plan file into `dnd-app/docs/phases/completed/` keeping its original filename:
 
-This is how progress is visible: the folder shrinks as work lands. A plan that's still on disk is unfinished work.
+```bash
+git mv dnd-app/docs/phases/PHASE-NN-<slug>.md dnd-app/docs/phases/completed/
+```
+
+Include the move in the phase commit (or a tiny follow-up `chore(phases): phase NN complete — move plan to completed/`). Phase plan files are **never deleted — not at phase end, not when the whole run finishes**. `dnd-app/docs/phases/completed/` is the permanent historical record.
+
+Progress is visible the same way: the top-level `phases/` folder shrinks as work lands; a plan still at top level is unfinished work; `completed/` holds everything that shipped.
 
 ### 9. If something is confusing or seems conflicting, STOP and ask
 If you encounter any of the following, do NOT improvise. Stop and ask the user:
@@ -211,10 +217,10 @@ Use the entry template + severity / category fields from `docs/LOG-INSTRUCTIONS.
 
 Logs grow during phase work and are emptied when a future phase plan absorbs each entry. That's normal — the log files are entry points for triage, not permanent backlogs.
 
-### 13. After the LAST phase, wait for every release to fully publish
-After deleting the final phase plan file (rule 8 applied to the last plan), the work is NOT done yet. Wait for every release cut during the run to fully publish and verify.
+### 13. After the LAST phase, cut the run's release and wait for it to fully publish
+After the final phase plan moves to `completed/` (rule 8 applied to the last plan), cut the single end-of-run release per rule 6. The work is NOT done until that release (plus any mid-run releases the user explicitly requested) fully publishes and verifies.
 
-For each release shipped during the run:
+For each release shipped during the run (normally exactly one):
 
 ```bash
 # Watch the most recent release workflow run
@@ -540,22 +546,20 @@ while plans remain in dnd-app/docs/phases/ (excluding INSTRUCTIONS.md):
   run 4-gate (lint + tsc-web + tsc-node + vitest; pytest if Pi-side)
   if 4-gate red:
     STOP_AND_ASK("warn", "phase N — 4-gate red at end-of-phase", <which gate + cited line + fix path>) (rule 5)
-    fix in place + re-run until green; do NOT cut release, do NOT advance phase
+    fix in place + re-run until green; do NOT commit, do NOT advance phase
   git add <every file touched during the phase>
+  git mv dnd-app/docs/phases/PHASE-NN-<slug>.md dnd-app/docs/phases/completed/   (rule 8 — never delete)
   git commit -m "feat(<scope>): phase N — <one-line theme>" -m "<body listing each sub-phase>"
   git push origin master
   touch ~/.claude-tools/heartbeat                                         (rule 24)
+  # NO release here (rule 6, user 2026-06-10) — releases happen once, after the LAST phase,
+  # or mid-run ONLY on an explicit user ask.
 
-  cut release (NOT a force-push, NOT a tag rewrite — rule 20)
-  verify release workflow + assets
-  delete plan file
-  commit deletion to master + push
-  touch ~/.claude-tools/heartbeat                                      (rule 24)
-
-# After the last plan is gone:
+# After the last plan has moved to completed/:
+cut the single end-of-run release (rule 6; NOT a force-push, NOT a tag rewrite — rule 20)
 precheck `gh auth status` (rule 19)
   -> not authenticated: STOP_AND_ASK("error", "gh not authenticated", "run `gh auth login`")
-watch every release cut during the run (rule 13)
+watch every release cut during the run — normally exactly one (rule 13)
   -> touch heartbeat between each `gh run watch` to prevent watchdog false alert
 if any release failed:
   STOP_AND_ASK("error", "release vX.Y.Z failed", <which job + last 30 lines + suggested next>)
@@ -577,7 +581,8 @@ stop
 
 ## Notes
 
-- This file (`INSTRUCTIONS.md`) is NOT a phase plan and is NOT deleted by rule 8.
+- This file (`INSTRUCTIONS.md`) is NOT a phase plan and never moves to `completed/`.
+- `PHASE-INDEX.md` (the run's ordering/dependency manifest) is likewise a meta-file: keep it at top level, update its status column as phases complete, never move or delete it.
 - This file overrides any conflicting general guidance in `CLAUDE.md`, `AGENTS.md`, or session prompts when working on phase execution. Anything else in those files stands.
 - If the user updates these rules mid-flight, follow the new rules immediately and treat the old version as void.
 - Rule 9 (STOP-and-ask) is the umbrella for every escalation in this file. Rules 11 (foreign branch) and 13 (release failure) explicitly cite it; any other "should I…?" judgment call also falls under rule 9.

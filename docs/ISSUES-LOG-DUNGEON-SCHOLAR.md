@@ -22,8 +22,7 @@ New entries go at the TOP of their severity section (newest first within each se
 
 > **2026-06-10 — Backlog consolidated.** All previously-open entries (the Phase 27
 > remainder: H1–H5/H7, M2–M7/M10/M12/M13, plus the L/F entries from the suggestions
-> log) were MOVED to **`dnd-app/docs/AI-DM-AUDIT.md`** (the single consolidated
-> audit + backlog for the whole repo). Add new dungeon-scholar issues below as they
+> log) became the numbered phase plans under `dnd-app/docs/phases/` (start at `PHASE-INDEX.md`); the consolidating audit was deleted once the phase set was authored (2026-06-11). Add new dungeon-scholar issues below as they
 > appear.
 
 ## Critical

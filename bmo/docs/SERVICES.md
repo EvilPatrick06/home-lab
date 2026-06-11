@@ -140,7 +140,7 @@ Full map in source — use `grep "@app.route" bmo/pi/app.py` for current list.
 > `/api/discord/dm/sync/state` (`dnd-app/src/main/bmo-bridge.ts`), but those
 > routes are **not registered** — `services/vtt_sync.py register_sync_routes()`
 > is never invoked from `app.py`. Tracked in
-> `dnd-app/docs/AI-DM-AUDIT.md` § Discord.
+> `dnd-app/docs/phases/PHASE-20-discord-bridge-foundation.md` / `PHASE-22-discord-sync-plane.md`.
 
 ### Game registry (Phase 29f — public LAN game discovery)
 

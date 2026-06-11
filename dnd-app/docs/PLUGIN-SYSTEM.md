@@ -36,7 +36,7 @@ export function getSystem(id: string): GameSystemPlugin { /* throws if unregiste
 > field anywhere in `src/` — the registry is consumed only by the Settings page's
 > "Registered Game Systems" list and `data-provider.resolveDataPath`. Campaign-level
 > game-system selection (playing a registered non-5e system end-to-end) is
-> unimplemented; tracked in `AI-DM-AUDIT.md` § Future/Stubbed/Unfinished.
+> unimplemented; tracked in `dnd-app/docs/phases/PHASE-38-plugin-platform.md`.
 
 ## GameSystemPlugin interface
 
@@ -184,4 +184,4 @@ Consequences for the install pipeline:
 
 ## Future improvements
 
-Tracked in the consolidated backlog — `dnd-app/docs/AI-DM-AUDIT.md` § Future/Stubbed/Unfinished → dnd-app ("Plugin-system future work"): 5e encapsulation into `systems/dnd5e/`, system-specific renderer modules, marketplace/downloader UI, content-schema versioning, community submission vetting.
+Tracked in `dnd-app/docs/phases/PHASE-38-plugin-platform.md`: campaign-level game-system selection, 5e encapsulation into `systems/dnd5e/`, plugin sandbox/trust model, marketplace/downloader UI, content-schema versioning.

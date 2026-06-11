@@ -22,8 +22,8 @@ New entries go at the TOP of their section (newest first).
 
 > **2026-06-10 — Backlog consolidated.** All previously-open entries (the app.py
 > blueprint-refactor remainder, flask-talisman, the gevent ThreadPoolExecutor /
-> requests-vs-httpx gotchas, and the venv/threading observations) were MOVED to
-> **`dnd-app/docs/AI-DM-AUDIT.md`**. Add new BMO items below as they appear.
+> requests-vs-httpx gotchas, and the venv/threading observations) became
+> the numbered phase plans under `dnd-app/docs/phases/` (start at `PHASE-INDEX.md`); the consolidating audit was deleted once the phase set was authored (2026-06-11). Add new BMO items below as they appear.
 
 *(none active)*
 
@@ -31,7 +31,7 @@ New entries go at the TOP of their section (newest first).
 
 # Design gotchas (warnings for future agents)
 
-*(none active — standing warnings live in `dnd-app/docs/AI-DM-AUDIT.md` → Recommendations, and `bmo/docs/DESIGN-CONSTRAINTS.md`)*
+*(none active — standing warnings live in the phase plans' Research notes under `dnd-app/docs/phases/` and in `bmo/docs/DESIGN-CONSTRAINTS.md`)*
 
 ---
 

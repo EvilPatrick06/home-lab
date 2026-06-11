@@ -163,7 +163,7 @@ Backup: whatever password manager you use. Never commit.
 > `POST /api/discord/dm/sync/initiative` (`bmo-bridge.ts`), but BMO never
 > registers that route (`services/vtt_sync.py register_sync_routes()` is not
 > called from `app.py`), so the request 404s. Tracked in
-> `dnd-app/docs/AI-DM-AUDIT.md` § Discord.
+> `dnd-app/docs/phases/PHASE-20-discord-bridge-foundation.md`.
 
 ```
 DM clicks "Start Combat" in VTT
@@ -181,7 +181,7 @@ DM clicks "Start Combat" in VTT
 > (`vtt_sync.py push_discord_message` → `:5001` → `bmo-sync-handlers.ts`)
 > works, but the renderer has no listener for the forwarded `BMO_SYNC_EVENT`
 > IPC, so nothing reaches the chat panel. Tracked in
-> `dnd-app/docs/AI-DM-AUDIT.md` § Discord.
+> `dnd-app/docs/phases/PHASE-20-discord-bridge-foundation.md`.
 
 ```
 Player in Discord: /roll d20

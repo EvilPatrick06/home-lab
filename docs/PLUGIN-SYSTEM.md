@@ -72,7 +72,7 @@ export function initGameSystems(): void {
 > the field appears nowhere in `dnd-app/src/`. The registry is consumed only by
 > the Settings page's "Registered Game Systems" list and
 > `data-provider.resolveDataPath`, so a registered non-5e system can't be played
-> end-to-end yet (tracked in `dnd-app/docs/AI-DM-AUDIT.md`). The optional
+> end-to-end yet (tracked in `dnd-app/docs/phases/PHASE-38-plugin-platform.md`). The optional
 > `getConfig()` path mirrors the plugin into the separate `GAME_SYSTEMS` config
 > registry (`types/game-system.ts`) used for UI listing/metadata — distinct from
 > the plugin `Map`.

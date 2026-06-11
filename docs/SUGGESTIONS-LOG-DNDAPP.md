@@ -22,8 +22,7 @@ New entries go at the TOP of their section (newest first).
 > **2026-06-10 — Backlog consolidated.** All previously-open entries (incl. the
 > still-open residuals of the 2026-05-18 phase-plan absorption: Phase 33a backup
 > migration framework, 33c ModalScaffold, 33d bundle-size CI guard — and the
-> Phase 15 library-invariant observation) were MOVED to
-> **[`../dnd-app/docs/AI-DM-AUDIT.md`](../dnd-app/docs/AI-DM-AUDIT.md)**. Add new
+> Phase 15 library-invariant observation) became the numbered phase plans under [`../dnd-app/docs/phases/`](../dnd-app/docs/phases/) (start at [`PHASE-INDEX.md`](../dnd-app/docs/phases/PHASE-INDEX.md)); the consolidating audit was deleted once the phase set was authored (2026-06-11). Add new
 > dnd-app ideas below as they appear.
 
 *(none active)*

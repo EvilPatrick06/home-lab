@@ -22,8 +22,9 @@ Full protocol: `docs/ARCHITECTURE.md`
 Read in order:
 1. `.cursorrules` — structure map with every directory explained
 2. `AGENTS.md` — standard AI rules (framework, conventions, tests)
-3. `dnd-app/docs/AI-DM-AUDIT.md` — the consolidated audit + open backlog for ALL
-   three domains (2026-06-10 — every previously-open log entry was moved there)
+3. `dnd-app/docs/phases/PHASE-INDEX.md` — the backlog phase set for ALL three
+   domains (2026-06-11 — every open log entry became a numbered phase plan; the
+   consolidating audit was deleted once the set was authored)
 4. Active logs (new items since the consolidation land here first):
    - `docs/BMO-ISSUES-LOG.md` — BMO-domain bugs + debt
    - `docs/ISSUES-LOG-DNDAPP.md` — dnd-app-domain bugs + debt
