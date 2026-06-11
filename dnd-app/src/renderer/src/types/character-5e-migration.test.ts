@@ -74,6 +74,23 @@ describe('migrateCharacter5eFromV3ToV4', () => {
     expect(out.backgroundRef).toEqual({ entryType: 'backgrounds', entryId: 'sage' })
   })
 
+  it('carries condition name/value/duration into ref overrides (PHASE-02 02A)', () => {
+    const out = migrateCharacter5eFromV3ToV4(
+      v3Character({
+        conditions: [
+          { name: 'Exhaustion', type: 'condition', isCustom: false, value: 2 },
+          { name: 'Cursed by the Witch', type: 'condition', isCustom: true, duration: 3 }
+        ]
+      } as never)
+    )
+    expect(out.conditionRefs).toHaveLength(2)
+    const exhaustion = out.conditionRefs?.find((r) => r.ref.entryId === 'exhaustion')
+    expect(exhaustion?.ref.overrides).toMatchObject({ name: 'Exhaustion', value: 2, isCustom: false })
+    const custom = out.conditionRefs?.find((r) => r.ref.entryId === 'cursed-by-the-witch')
+    // A custom condition with no library entry round-trips purely via overrides.
+    expect(custom?.ref.overrides).toMatchObject({ name: 'Cursed by the Witch', isCustom: true, duration: 3 })
+  })
+
   it('produces classRefs with instanceId, level, levelTaken, and subclassRef', () => {
     const out = migrateCharacter5eFromV3ToV4(
       v3Character({ classes: [{ name: 'Fighter', level: 3, subclass: 'champion', hitDie: 10 }] })

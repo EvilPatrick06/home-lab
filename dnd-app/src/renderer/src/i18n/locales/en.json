@@ -5075,6 +5075,8 @@
     "aiDmStore": {
       "runApprovedFailed": "Failed to run approved AI actions",
       "mutationsAutoRejected": "AI mutations auto-rejected (60s timeout)",
+      "mutationApplyFailed": "AI mutation failed to apply: {{reason}}",
+      "mutationRejected": "{{count}} AI change(s) were rejected: {{reasons}}",
       "mutationUnknownCharacter": "AI tried to modify unknown character \"{{name}}\" — change skipped",
       "modelSwitched": "AI model \"{{from}}\" isn't installed — switched to \"{{to}}\". To use \"{{from}}\", run: ollama pull {{from}}",
       "modelAutoSelected": "No AI model was set — using installed model \"{{to}}\".",

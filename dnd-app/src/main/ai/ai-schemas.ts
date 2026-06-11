@@ -114,14 +114,16 @@ const ResetDeathSavesSchema = z.object({
 const ExpendSpellSlotSchema = z.object({
   type: z.literal('expend_spell_slot'),
   ...BaseCharacterChange,
-  level: z.number()
+  level: z.number(),
+  pool: z.enum(['regular', 'pact']).optional()
 })
 
 const RestoreSpellSlotSchema = z.object({
   type: z.literal('restore_spell_slot'),
   ...BaseCharacterChange,
   level: z.number(),
-  count: z.number().optional()
+  count: z.number().optional(),
+  pool: z.enum(['regular', 'pact']).optional()
 })
 
 const AddItemSchema = z.object({

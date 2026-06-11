@@ -75,7 +75,30 @@ function applyStatChangesDirectly(
         }
       }
       for (const [charId, changes] of changesByCharId) {
-        window.api.ai.applyMutations(charId, changes)
+        // PHASE-02 02F — consume the result so rejected/failed mutations aren't
+        // silent: surface a DM alert for a thrown handler (error envelope) or a
+        // MutationResult with rejects. Alert-tray only (chat feedback is PHASE-04).
+        window.api.ai
+          .applyMutations(charId, changes)
+          .then((result) => {
+            const r = result as
+              | { success?: false; error?: string }
+              | { applied: unknown[]; rejected: Array<{ reason: string }> }
+            if (r && 'success' in r && r.success === false) {
+              pushDmAlert('warning', i18n.t('notify.aiDmStore.mutationApplyFailed', { reason: r.error ?? 'unknown' }))
+              return
+            }
+            if (r && 'rejected' in r && r.rejected.length > 0) {
+              const reasons = r.rejected
+                .slice(0, 3)
+                .map((x) => x.reason)
+                .join('; ')
+              pushDmAlert('warning', i18n.t('notify.aiDmStore.mutationRejected', { count: r.rejected.length, reasons }))
+            }
+          })
+          .catch((err) => {
+            pushDmAlert('warning', i18n.t('notify.aiDmStore.mutationApplyFailed', { reason: String(err) }))
+          })
       }
     }
   }

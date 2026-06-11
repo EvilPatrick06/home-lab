@@ -8,6 +8,8 @@ import {
   type ValidatedAiChatRequest,
   type ValidatedAiConfig
 } from '../../shared/ipc-schemas'
+import { isValidUUID } from '../../shared/utils/uuid'
+import { validateStatChanges } from '../ai/ai-schemas'
 import type { AiConnectionStatus, StreamResult } from '../ai/ai-service'
 import * as aiService from '../ai/ai-service'
 import { type GameStateSnapshot, processStateUpdate } from '../ai/ai-trigger-observer'
@@ -49,6 +51,7 @@ import type {
   AiStreamDone,
   AiStreamError,
   ConversationData,
+  MutationResult,
   StatChange
 } from '../ai/types'
 import { getDmStatus, sendNarration, startDiscordDm, stopDiscordDm } from '../bmo-bridge'
@@ -257,8 +260,26 @@ export function registerAiHandlers(): void {
   // ── Stat Mutations ──
 
   handle(IPC_CHANNELS.AI_APPLY_MUTATIONS, async (_event, characterId: string, changes: StatChange[]) => {
-    // Log human-readable descriptions of each mutation
-    for (const change of changes) {
+    // PHASE-02 02C — validate the IPC boundary (any renderer frame can reach
+    // ipcMain). Reject a non-UUID id and zod-validate every change so a malformed
+    // payload (NaN/Infinity/wrong type) can't poison character numerics on disk.
+    if (typeof characterId !== 'string' || !isValidUUID(characterId)) {
+      return { applied: [], rejected: [] } satisfies MutationResult
+    }
+    const input = Array.isArray(changes) ? changes : []
+    if (input.length > 100) {
+      // Cheap DoS hygiene — a legitimate batch is never this large.
+      return { applied: [], rejected: [] } satisfies MutationResult
+    }
+    const { valid, issues } = validateStatChanges(input)
+    const schemaRejects: MutationResult['rejected'] = issues.map((iss) => ({
+      // boundary: schema-invalid raw input echoed back for the DM alert; never applied.
+      change: iss.input as StatChange,
+      reason: `schema: ${iss.errors.join('; ')}`
+    }))
+
+    // Log human-readable descriptions of each VALID mutation
+    for (const change of valid) {
       const desc = aiService.describeChange(change)
       const isNeg = aiService.isNegativeChange(change)
       if (isNeg) {
@@ -267,7 +288,8 @@ export function registerAiHandlers(): void {
         logToFile('info', `[AI Mutation] ${characterId}: ${desc}`)
       }
     }
-    return await aiService.applyMutations(characterId, changes)
+    const result = await aiService.applyMutations(characterId, valid as StatChange[])
+    return { applied: result.applied, rejected: [...result.rejected, ...schemaRejects] } satisfies MutationResult
   })
 
   handle(IPC_CHANNELS.AI_LONG_REST, async (_event, characterId: string) => {

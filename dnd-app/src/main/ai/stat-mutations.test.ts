@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { listConditions } from './character-conditions'
 
 vi.mock('../storage/character-storage', () => ({
   loadCharacter: vi.fn(),
@@ -381,7 +382,7 @@ describe('applyMutations', () => {
 
     const result = await applyMutations('char1', [{ type: 'damage', value: 0, reason: 'miss' }])
     expect(result.rejected).toHaveLength(1)
-    expect(result.rejected[0].reason).toContain('Damage must be positive')
+    expect(result.rejected[0].reason).toContain('Damage must be a positive number')
   })
 
   it('applies healing (caps at max HP)', async () => {
@@ -431,10 +432,12 @@ describe('applyMutations', () => {
     mockSaveCharacter.mockResolvedValue({ success: true })
 
     await applyMutations('char1', [{ type: 'add_condition', name: 'Poisoned', reason: 'failed save' }])
-    expect((char.conditions as Array<{ name: string }>).some((c) => c.name === 'Poisoned')).toBe(true)
+    expect(listConditions(char as never).some((c) => c.name === 'Poisoned')).toBe(true)
+    // v4: mutations write conditionRefs, never the stripped inline array.
+    expect((char as { conditions?: unknown }).conditions).toBeUndefined()
 
     await applyMutations('char1', [{ type: 'remove_condition', name: 'Poisoned', reason: 'saved' }])
-    expect((char.conditions as Array<{ name: string }>).some((c) => c.name === 'Poisoned')).toBe(false)
+    expect(listConditions(char as never).some((c) => c.name === 'Poisoned')).toBe(false)
   })
 
   it('rejects duplicate condition', async () => {
@@ -452,8 +455,9 @@ describe('applyMutations', () => {
     mockSaveCharacter.mockResolvedValue({ success: true })
 
     await applyMutations('char1', [{ type: 'add_exhaustion', levels: 2, reason: 'forced march' }])
-    const exh = (char.conditions as Array<{ name: string; value?: number }>).find((c) => c.name === 'Exhaustion')
+    const exh = listConditions(char as never).find((c) => c.name === 'Exhaustion')
     expect(exh?.value).toBe(2)
+    expect((char as { conditions?: unknown }).conditions).toBeUndefined()
   })
 
   it('add_exhaustion increments an existing level and clamps at 6', async () => {
@@ -462,7 +466,7 @@ describe('applyMutations', () => {
     mockSaveCharacter.mockResolvedValue({ success: true })
 
     await applyMutations('char1', [{ type: 'add_exhaustion', levels: 3, reason: 'no water' }])
-    const exh = (char.conditions as Array<{ name: string; value?: number }>).find((c) => c.name === 'Exhaustion')
+    const exh = listConditions(char as never).find((c) => c.name === 'Exhaustion')
     expect(exh?.value).toBe(6)
   })
 
@@ -472,7 +476,7 @@ describe('applyMutations', () => {
 
     const result = await applyMutations('char1', [{ type: 'add_exhaustion', levels: 0, reason: 'noop' }])
     expect(result.rejected).toHaveLength(1)
-    expect(result.rejected[0].reason).toContain('must be positive')
+    expect(result.rejected[0].reason).toContain('must be a positive integer')
   })
 
   it('set_equipped toggles the equipped flag on a carried item (G36)', async () => {
@@ -482,6 +486,147 @@ describe('applyMutations', () => {
 
     await applyMutations('char1', [{ type: 'set_equipped', name: 'Shield', equipped: true, reason: 'readied' }])
     expect((char.equipment as Array<{ name: string; equipped?: boolean }>)[0].equipped).toBe(true)
+  })
+
+  it('PHASE-02 02E: long rest on a full character still clears temp HP and reports it', async () => {
+    const char = makeCharacter({
+      hitPoints: { current: 30, maximum: 30, temporary: 8 },
+      hitDice: [{ current: 5, maximum: 5, dieType: 8 }]
+    })
+    mockLoadCharacter.mockResolvedValue({ success: true, data: char })
+    mockSaveCharacter.mockResolvedValue({ success: true })
+    const { applyLongRestMutations } = await import('./stat-mutations')
+    const result = await applyLongRestMutations('char1')
+    expect(result.applied.some((c) => c.type === 'clear_temp_hp')).toBe(true)
+    expect((char.hitPoints as { temporary: number }).temporary).toBe(0)
+    expect(mockSaveCharacter).toHaveBeenCalled()
+  })
+
+  it('PHASE-02 02E: long rest restores ALL spent hit dice (PHB 2024)', async () => {
+    const char = makeCharacter({
+      hitPoints: { current: 30, maximum: 30, temporary: 0 },
+      hitDice: [{ current: 1, maximum: 6, dieType: 8 }]
+    })
+    mockLoadCharacter.mockResolvedValue({ success: true, data: char })
+    mockSaveCharacter.mockResolvedValue({ success: true })
+    const { applyLongRestMutations } = await import('./stat-mutations')
+    await applyLongRestMutations('char1')
+    const total = (char.hitDice as Array<{ current: number }>).reduce((s, h) => s + h.current, 0)
+    expect(total).toBe(6) // all 5 spent dice restored
+  })
+
+  it('PHASE-02 02E: long rest reduces exhaustion by one level', async () => {
+    const cond = { name: 'Exhaustion', type: 'condition', isCustom: false, value: 3 }
+    const char = makeCharacter({
+      hitPoints: { current: 30, maximum: 30, temporary: 0 },
+      conditionRefs: [{ instanceId: 'e', ref: { entryType: 'conditions', entryId: 'exhaustion', overrides: cond } }]
+    })
+    mockLoadCharacter.mockResolvedValue({ success: true, data: char })
+    mockSaveCharacter.mockResolvedValue({ success: true })
+    const { applyLongRestMutations } = await import('./stat-mutations')
+    const result = await applyLongRestMutations('char1')
+    expect(result.applied.some((c) => c.type === 'reduce_exhaustion')).toBe(true)
+    expect(listConditions(char as never).find((c) => c.name === 'Exhaustion')?.value).toBe(2)
+  })
+
+  it('PHASE-02 02D: multiclass short rest restores ONLY the pact pool at a shared level', async () => {
+    const char = makeCharacter({
+      spellSlotLevels: { 3: { current: 0, max: 2 } },
+      pactMagicSlotLevels: { 3: { current: 0, max: 2 } }
+    })
+    mockLoadCharacter.mockResolvedValue({ success: true, data: char })
+    mockSaveCharacter.mockResolvedValue({ success: true })
+    const { applyShortRestMutations } = await import('./stat-mutations')
+    await applyShortRestMutations('char1')
+    expect((char.pactMagicSlotLevels as Record<number, { current: number }>)[3].current).toBe(2)
+    expect((char.spellSlotLevels as Record<number, { current: number }>)[3].current).toBe(0) // regular untouched
+  })
+
+  it('PHASE-02 02D: explicit pool targets the right pool; long rest fills both', async () => {
+    const char = makeCharacter({
+      spellSlotLevels: { 3: { current: 2, max: 2 } },
+      pactMagicSlotLevels: { 3: { current: 0, max: 2 } }
+    })
+    mockLoadCharacter.mockResolvedValue({ success: true, data: char })
+    mockSaveCharacter.mockResolvedValue({ success: true })
+    // Explicit pact expend decrements pact, leaves regular full.
+    await applyMutations('char1', [{ type: 'expend_spell_slot', level: 3, pool: 'pact', reason: 'eldritch' } as never])
+    expect((char.spellSlotLevels as Record<number, { current: number }>)[3].current).toBe(2)
+    const { applyLongRestMutations } = await import('./stat-mutations')
+    // Drain regular too, then long rest restores both pools.
+    ;(char.spellSlotLevels as Record<number, { current: number }>)[3].current = 0
+    await applyLongRestMutations('char1')
+    expect((char.spellSlotLevels as Record<number, { current: number }>)[3].current).toBe(2)
+    expect((char.pactMagicSlotLevels as Record<number, { current: number }>)[3].current).toBe(2)
+  })
+
+  it('PHASE-02 02C: rejects a value-less damage and leaves HP numeric', async () => {
+    const char = makeCharacter({ hitPoints: { current: 30, maximum: 30, temporary: 0 } })
+    mockLoadCharacter.mockResolvedValue({ success: true, data: char })
+    mockSaveCharacter.mockResolvedValue({ success: true })
+    // Simulates a malformed internal/renderer payload (TS type bypassed).
+    const result = await applyMutations('char1', [{ type: 'damage', reason: 'trap' } as never])
+    expect(result.rejected).toHaveLength(1)
+    expect(result.applied).toHaveLength(0)
+    expect((char.hitPoints as { current: number }).current).toBe(30)
+    expect(Number.isFinite((char.hitPoints as { current: number }).current)).toBe(true)
+  })
+
+  it('PHASE-02 02C: rejects Infinity heal, non-integer slot level, NaN ability; applies the valid sibling', async () => {
+    const char = makeCharacter({
+      hitPoints: { current: 10, maximum: 30, temporary: 0 },
+      spellSlotLevels: { 3: { current: 0, max: 2 } }
+    })
+    mockLoadCharacter.mockResolvedValue({ success: true, data: char })
+    mockSaveCharacter.mockResolvedValue({ success: true })
+    const result = await applyMutations('char1', [
+      { type: 'heal', value: Number.POSITIVE_INFINITY, reason: 'bad' } as never,
+      { type: 'restore_spell_slot', level: 2.5, reason: 'bad' } as never,
+      { type: 'set_ability_score', ability: 'str', value: Number.NaN, reason: 'bad' } as never,
+      { type: 'heal', value: 5, reason: 'cure' }
+    ])
+    expect(result.rejected).toHaveLength(3)
+    expect(result.applied).toHaveLength(1)
+    expect((char.hitPoints as { current: number }).current).toBe(15) // only the valid heal applied
+  })
+
+  it('PHASE-02 F1: add_condition on a v4 character applies AND the rest of the batch persists', async () => {
+    // v4 shape: NO inline conditions; conditionRefs present. Pre-fix this threw a
+    // TypeError on char.conditions! and discarded every change in the batch.
+    const char = makeCharacter({
+      conditions: undefined,
+      conditionRefs: [],
+      hitPoints: { current: 30, maximum: 30, temporary: 0 }
+    })
+    mockLoadCharacter.mockResolvedValue({ success: true, data: char })
+    mockSaveCharacter.mockResolvedValue({ success: true })
+
+    const result = await applyMutations('char1', [
+      { type: 'add_condition', name: 'Poisoned', reason: 'trap' },
+      { type: 'damage', value: 5, reason: 'trap' }
+    ])
+    expect(result.rejected).toHaveLength(0)
+    expect(listConditions(char as never).some((c) => c.name === 'Poisoned')).toBe(true)
+    expect((char.hitPoints as { current: number }).current).toBe(25) // batch sibling survived
+    expect(mockSaveCharacter).toHaveBeenCalled()
+  })
+
+  it('PHASE-02 F1: set_equipped toggles a v4 weapon via state.weaponEquipped', async () => {
+    const char = makeCharacter({
+      weapons: undefined,
+      weaponRefs: [
+        { instanceId: 'w1', ref: { entryType: 'weapons', entryId: 'longsword', overrides: { name: 'Longsword' } } }
+      ],
+      state: { weaponEquipped: { w1: false } }
+    })
+    mockLoadCharacter.mockResolvedValue({ success: true, data: char })
+    mockSaveCharacter.mockResolvedValue({ success: true })
+
+    const result = await applyMutations('char1', [
+      { type: 'set_equipped', name: 'Longsword', equipped: true, reason: 'draws' }
+    ])
+    expect(result.rejected).toHaveLength(0)
+    expect((char as { state: { weaponEquipped: Record<string, boolean> } }).state.weaponEquipped.w1).toBe(true)
   })
 
   it('rejects set_equipped for an item the character does not carry', async () => {
@@ -549,7 +694,7 @@ describe('applyMutations', () => {
     mockSaveCharacter.mockResolvedValue({ success: true })
 
     await applyMutations('char1', [{ type: 'add_condition', name: 'Stunned', duration: 3, reason: 'monk strike' }])
-    const cond = (char.conditions as Array<{ name: string; duration?: number }>).find((c) => c.name === 'Stunned')
+    const cond = listConditions(char as never).find((c) => c.name === 'Stunned')
     expect(cond?.duration).toBe(3)
   })
 
@@ -700,7 +845,7 @@ describe('applyMutations', () => {
 
     const result = await applyMutations('char1', [{ type: 'xp', value: 0, reason: 'nothing' }])
     expect(result.rejected).toHaveLength(1)
-    expect(result.rejected[0].reason).toContain('XP must be positive')
+    expect(result.rejected[0].reason).toContain('XP must be a positive number')
   })
 
   it('applies XP gain', async () => {

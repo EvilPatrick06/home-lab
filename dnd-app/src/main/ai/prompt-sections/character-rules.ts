@@ -68,8 +68,8 @@ When a campaign is active with a loaded character, and your response involves me
   - **remove_condition**: {characterName, name, reason} — lose a condition
   - **death_save**: {characterName, success: bool, reason} — death saving throw result
   - **reset_death_saves**: {characterName, reason} — clear death save tallies
-  - **expend_spell_slot**: {characterName, level, reason} — use a spell slot
-  - **restore_spell_slot**: {characterName, level, count?, reason} — regain a slot
+  - **expend_spell_slot**: {characterName, level, pool?, reason} — use a spell slot. pool: 'pact' for Warlock Pact Magic, 'regular' for standard slots; omit if the character has only one pool
+  - **restore_spell_slot**: {characterName, level, count?, pool?, reason} — regain a slot (pool same as above)
   - **add_item**: {characterName, name, quantity?, description?, reason} — gain equipment
   - **remove_item**: {characterName, name, quantity?, reason} — lose equipment
   - **gold**: {characterName, value (+/-), denomination? (cp/sp/gp/pp), reason} — currency change

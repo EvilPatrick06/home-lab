@@ -1,5 +1,6 @@
 import type { Character5eV3 } from '../../shared/types/character-5e'
 import { loadCharacter as loadCharacterFromStorage } from '../storage/character-storage'
+import { listConditions } from './character-conditions'
 
 function abilityModifier(score: number): number {
   return Math.floor((score - 10) / 2)
@@ -39,7 +40,7 @@ export function formatCharacterForContext(char: Record<string, unknown>): string
  */
 export function formatCharacterAbbreviated(char: Record<string, unknown>): string {
   const hp = char.hitPoints as { current: number; maximum: number; temporary: number }
-  const conditions = (char.conditions as Array<{ name: string; value?: number }>) || []
+  const conditions = listConditions(char as unknown as Character5eV3)
   const condStr =
     conditions.length > 0
       ? ` | Conditions: ${conditions.map((c) => (c.value ? `${c.name} ${c.value}` : c.name)).join(', ')}`
@@ -233,7 +234,7 @@ function formatCharacter5e(c: Character5eV3): string {
     lines.push(`Species Resources: ${resParts.join(' | ')}`)
   }
 
-  const conditions = c.conditions || []
+  const conditions = listConditions(c as unknown as Character5eV3)
   if (conditions.length > 0) {
     lines.push(
       `Active Conditions: ${conditions

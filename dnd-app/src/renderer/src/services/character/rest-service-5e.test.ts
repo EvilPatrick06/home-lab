@@ -191,18 +191,18 @@ describe('getLongRestPreview', () => {
     expect(preview.maxHD).toBe(5)
   })
 
-  it('does not report exhaustion level from v4 conditions (value dropped in 15c.5)', () => {
+  it('reports exhaustion level from v4 condition overrides (PHASE-02 02A — value now carried)', () => {
     const cond = { name: 'Exhaustion', type: 'condition', isCustom: false, value: 2 }
     const char = makeCharacter({
       conditionRefs: [
         { instanceId: cond.name, ref: { entryType: 'conditions', entryId: 'exhaustion', overrides: cond } }
       ]
     })
-    // Phase 15c.5 — getEffectiveConditions strips numeric `value`, so the preview
-    // can no longer surface exhaustion level / reduction.
+    // PHASE-02 02A — condition value rides in ref.overrides, so getEffectiveConditions
+    // surfaces the exhaustion level and the long-rest preview reports the reduction.
     const preview = getLongRestPreview(char)
-    expect(preview.exhaustionReduction).toBe(false)
-    expect(preview.currentExhaustionLevel).toBe(0)
+    expect(preview.exhaustionReduction).toBe(true)
+    expect(preview.currentExhaustionLevel).toBe(2)
   })
 
   it('reports heroic inspiration for humans', () => {
@@ -233,12 +233,12 @@ describe('applyLongRest', () => {
     expect(result.hpRestored).toBe(34)
   })
 
-  it('restores up to half total hit dice (2024 PHB rule)', () => {
+  it('restores ALL spent hit dice (PHB 2024 — was half; PHASE-02 02E)', () => {
     const char = makeCharacter({ hitDice: [{ current: 2, maximum: 5, dieType: 10 }] })
     const result = applyLongRest(char)
-    // floor(5/2) = 2 HD budget; 3 spent, so restores 2
-    expect(result.character.hitDice[0].current).toBe(4)
-    expect(result.hdRestored).toBe(2)
+    // 2024: all 3 spent dice come back.
+    expect(result.character.hitDice[0].current).toBe(5)
+    expect(result.hdRestored).toBe(3)
   })
 
   it('restores all spell slots to max', () => {
@@ -265,7 +265,7 @@ describe('applyLongRest', () => {
     expect(result.resourcesRestored).toContain('Superiority Dice')
   })
 
-  it('reduces exhaustion by 1', () => {
+  it('reduces exhaustion by 1 (PHASE-02 02E — value now lives in ref overrides)', () => {
     const cond = { name: 'Exhaustion', type: 'condition', isCustom: false, value: 3 }
     const char = makeCharacter({
       conditionRefs: [
@@ -273,8 +273,28 @@ describe('applyLongRest', () => {
       ]
     })
     const result = applyLongRest(char)
-    // Phase 15c.5 — exhaustion reduction dropped (conditions are v4 refs, no value).
-    expect(result.exhaustionReduced).toBe(false)
+    expect(result.exhaustionReduced).toBe(true)
+    // The returned character carries the reduced level (3 → 2) as an inline condition
+    // for the save-time shim to re-derive into refs.
+    const exh = (result.character as { conditions?: Array<{ name: string; value?: number }> }).conditions?.find(
+      (c) => c.name === 'Exhaustion'
+    )
+    expect(exh?.value).toBe(2)
+  })
+
+  it('removes exhaustion entirely when reducing from level 1 (PHASE-02 02E)', () => {
+    const cond = { name: 'Exhaustion', type: 'condition', isCustom: false, value: 1 }
+    const char = makeCharacter({
+      conditionRefs: [
+        { instanceId: cond.name, ref: { entryType: 'conditions', entryId: 'exhaustion', overrides: cond } }
+      ]
+    })
+    const result = applyLongRest(char)
+    expect(result.exhaustionReduced).toBe(true)
+    const exh = (result.character as { conditions?: Array<{ name: string }> }).conditions?.find(
+      (c) => c.name === 'Exhaustion'
+    )
+    expect(exh).toBeUndefined()
   })
 
   it('resets death saves', () => {

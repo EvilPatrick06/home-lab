@@ -168,10 +168,22 @@ export function getEffectiveFeats(character: Character5e): Array<{
 
 export function getEffectiveConditions(character: Character5e): ActiveCondition[] {
   const entries = useLibraryStore.getState().entries as LibraryEntries
-  // boundary cast: untyped library hydration → concrete entry shape
+  // boundary cast: untyped library hydration → concrete entry shape. The instance's
+  // own metadata rides in ref.overrides (PHASE-02 02A), so value/duration/custom
+  // conditions survive even when the library has no matching entry (hydrate's
+  // overrides-merge + orphan branch).
   const hydrated = hydrate(character.conditionRefs, entries.conditions) as unknown as Array<{
     name: string
-    description?: string
+    type?: string
+    isCustom?: boolean
+    value?: number
+    duration?: number
   }>
-  return hydrated.map((c) => ({ name: c.name, type: 'condition' as const, isCustom: false }))
+  return hydrated.map((c) => ({
+    name: c.name,
+    type: (c.type ?? 'condition') as ActiveCondition['type'],
+    isCustom: c.isCustom ?? false,
+    ...(c.value !== undefined ? { value: c.value } : {}),
+    ...(c.duration !== undefined ? { duration: c.duration } : {})
+  }))
 }

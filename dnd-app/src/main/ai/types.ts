@@ -208,8 +208,19 @@ export type StatChange =
   | { type: 'remove_condition'; characterName?: string; name: string; reason: string }
   | { type: 'death_save'; characterName?: string; success: boolean; reason: string }
   | { type: 'reset_death_saves'; characterName?: string; reason: string }
-  | { type: 'expend_spell_slot'; characterName?: string; level: number; reason: string }
-  | { type: 'restore_spell_slot'; characterName?: string; level: number; count?: number; reason: string }
+  | { type: 'expend_spell_slot'; characterName?: string; level: number; pool?: 'regular' | 'pact'; reason: string }
+  | {
+      type: 'restore_spell_slot'
+      characterName?: string
+      level: number
+      count?: number
+      pool?: 'regular' | 'pact'
+      reason: string
+    }
+  // PHASE-02 02E — INTERNAL only: the AI cannot emit this (not in StatChangeSchema/prompt;
+  // zod filters it on the parse path), the renderer never sends it. It exists so the
+  // long-rest temp-HP clear flows through validate→apply→applied[]→save like any change.
+  | { type: 'clear_temp_hp'; characterName?: string; reason: string }
   | { type: 'add_item'; characterName?: string; name: string; quantity?: number; description?: string; reason: string }
   | { type: 'remove_item'; characterName?: string; name: string; quantity?: number; reason: string }
   | {

@@ -118,14 +118,22 @@ export function migrateCharacter5eToRefs<T extends Rec>(character: T): T {
 
   const conditions = asArray(out.conditions)
   if (out.conditionRefs === undefined && conditions.length > 0) {
-    out.conditionRefs = conditions.map((c) =>
-      instanceRef(
-        'conditions',
-        String(c.name ?? '')
-          .toLowerCase()
-          .replace(/\s+/g, '-')
-      )
-    )
+    out.conditionRefs = conditions.map((c) => {
+      const slug = String(c.name ?? '')
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+      // Carry the condition's metadata as ref overrides so it survives migration,
+      // hydration (incl. the orphan branch when no library entry exists), and the
+      // renderer's rebuild-from-scratch condition edits — value/duration have no
+      // other v4 home (PHASE-02 02A).
+      return instanceRef('conditions', slug, {
+        name: String(c.name ?? ''),
+        type: c.type ?? 'condition',
+        isCustom: c.isCustom ?? false,
+        ...(c.value !== undefined ? { value: c.value } : {}),
+        ...(c.duration !== undefined ? { duration: c.duration } : {})
+      })
+    })
   }
 
   const state: Rec = out.state ? { ...(out.state as Rec) } : {}

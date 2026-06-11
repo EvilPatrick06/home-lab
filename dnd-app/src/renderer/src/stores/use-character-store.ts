@@ -247,8 +247,9 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     if (!char) return
 
     const existing = getEffectiveConditions(char)
-    // Phase 15c.5 — condition `value` (e.g. exhaustion level) has no v4 home;
-    // the value is dropped on the shim. Presence is still tracked via conditionRefs.
+    // PHASE-02 02A — condition `value`/`duration` now ride in each ref's overrides,
+    // so the rebuild-via-shim below persists the value (the migration writes it into
+    // conditionRefs[].ref.overrides; getEffectiveConditions reads it back).
     const conditions =
       newValue <= 0
         ? existing.filter((c) => c.name !== conditionName)

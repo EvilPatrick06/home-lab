@@ -93,6 +93,19 @@ describe('validateStatChanges', () => {
     expect(issues).toHaveLength(1)
   })
 
+  it('accepts a spell-slot pool and rejects an invalid pool (PHASE-02 02D)', () => {
+    const ok = validateStatChanges([
+      { type: 'expend_spell_slot', level: 3, pool: 'pact', reason: 'eldritch' },
+      { type: 'restore_spell_slot', level: 1, pool: 'regular', reason: 'recovery' },
+      { type: 'expend_spell_slot', level: 2, reason: 'no pool is fine' }
+    ])
+    expect(ok.valid).toHaveLength(3)
+    expect(ok.issues).toHaveLength(0)
+    const bad = validateStatChanges([{ type: 'expend_spell_slot', level: 3, pool: 'psionic', reason: 'x' }])
+    expect(bad.valid).toHaveLength(0)
+    expect(bad.issues).toHaveLength(1)
+  })
+
   it('validates mixed valid and invalid changes', () => {
     const { valid, issues } = validateStatChanges([
       { type: 'damage', value: 7, reason: 'hit' },

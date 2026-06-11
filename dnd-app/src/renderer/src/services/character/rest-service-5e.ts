@@ -359,17 +359,11 @@ export function applyLongRest(character: Character5e): LongRestResult {
     temporary: 0
   }
 
-  // PHB 2024: restore up to half your total Hit Dice (minimum of one die)
+  // PHB 2024: a long rest restores ALL spent Hit Point Dice (2014 restored half).
   const totalMax = totalHitDiceMaximum(character.hitDice)
-  const hdToRestore = Math.max(1, Math.floor(totalMax / 2))
-  let hdBudget = hdToRestore
-  const newHitDice: HitDiceEntry[] = character.hitDice.map((hd) => {
-    const spent = hd.maximum - hd.current
-    const restore = Math.min(spent, hdBudget)
-    hdBudget -= restore
-    return { ...hd, current: hd.current + restore }
-  })
-  const hdRestored = hdToRestore - hdBudget
+  const totalCurrent = totalHitDiceRemaining(character.hitDice)
+  const newHitDice: HitDiceEntry[] = character.hitDice.map((hd) => ({ ...hd, current: hd.maximum }))
+  const hdRestored = totalMax - totalCurrent
 
   // All spell slots
   const restoredSpellSlots: Record<number, { current: number; max: number }> = {}
@@ -401,8 +395,21 @@ export function applyLongRest(character: Character5e): LongRestResult {
     ? { ...character.wildShapeUses, current: character.wildShapeUses.max }
     : undefined
 
-  // Phase 15c.5 — exhaustion reduction dropped (conditions are v4 refs, no value).
-  const exhaustionReduced = false
+  // PHB 2024: a long rest reduces Exhaustion by 1 level. Condition value rides in
+  // v4 ref overrides now (PHASE-02 02A), so it's readable and writable again. We
+  // rebuild the inline conditions array + clear conditionRefs so the save-time shim
+  // re-derives refs (with overrides) — the same mechanism use-character-store uses.
+  const allConditions = getEffectiveConditions(character)
+  const exh = allConditions.find((c) => c.name === 'Exhaustion')
+  const exhaustionReduced = !!exh
+  let reducedConditions: typeof allConditions | undefined
+  if (exh) {
+    const newLevel = (exh.value ?? 1) - 1
+    reducedConditions =
+      newLevel <= 0
+        ? allConditions.filter((c) => c.name !== 'Exhaustion')
+        : allConditions.map((c) => (c.name === 'Exhaustion' ? { ...c, value: newLevel } : c))
+  }
 
   // Death saves reset
   const newDeathSaves = { successes: 0, failures: 0 }
@@ -451,6 +458,9 @@ export function applyLongRest(character: Character5e): LongRestResult {
     wildShapeUses: newWildShape,
     state: { ...character.state, magicItemCharges: newMagicItemCharges },
     ...(heroicInspirationGranted ? { heroicInspiration: true } : {}),
+    // Exhaustion reduction: hand the save-time v3→v4 shim an inline conditions array
+    // (with conditionRefs cleared) so it re-derives refs carrying the new value.
+    ...(reducedConditions ? { conditions: reducedConditions, conditionRefs: undefined } : {}),
     updatedAt: new Date().toISOString()
   }
 
