@@ -432,4 +432,40 @@ describe('ConversationManager', () => {
       expect(mgr.getMessageCount()).toBe(1)
     })
   })
+
+  // 07B — contextWasTruncated must flip exactly when history messages were dropped (the old
+  // `tokenCount >= budget` check was a false negative) or the caller reports a context trim.
+  describe('contextWasTruncated (07B / F3)', () => {
+    // estimateTokens mock = len/4; getEffectiveBudgets().conversationHistory = 2000 (mock above).
+    const bigMsg = 'x'.repeat(4000) // ~1000 tokens each
+
+    it('flips true when history messages are dropped (regression for the false negative)', async () => {
+      const mgr = new ConversationManager()
+      for (let i = 0; i < 6; i++) mgr.addMessage(i % 2 === 0 ? 'user' : 'assistant', bigMsg) // ~6000 tokens > 2000
+      await mgr.getMessagesForApi('')
+      expect(mgr.contextWasTruncated).toBe(true)
+    })
+
+    it('stays false when all messages fit the history budget', async () => {
+      const mgr = new ConversationManager()
+      mgr.addMessage('user', 'hi')
+      mgr.addMessage('assistant', 'hello')
+      await mgr.getMessagesForApi('')
+      expect(mgr.contextWasTruncated).toBe(false)
+    })
+
+    it('flips true when the caller reports a context-section trim', async () => {
+      const mgr = new ConversationManager()
+      mgr.addMessage('user', 'hi')
+      await mgr.getMessagesForApi('ctx', true)
+      expect(mgr.contextWasTruncated).toBe(true)
+    })
+
+    it('stays false for a single oversized message (admitted unconditionally, nothing dropped)', async () => {
+      const mgr = new ConversationManager()
+      mgr.addMessage('user', bigMsg.repeat(3)) // one message far over budget
+      await mgr.getMessagesForApi('')
+      expect(mgr.contextWasTruncated).toBe(false)
+    })
+  })
 })

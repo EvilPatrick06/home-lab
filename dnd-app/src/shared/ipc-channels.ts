@@ -80,6 +80,7 @@ export const IPC_CHANNELS = {
   AI_SAVE_CONVERSATION: 'ai:save-conversation',
   AI_RESTORE_CONVERSATION: 'ai:restore-conversation',
   AI_LOAD_CONVERSATION: 'ai:load-conversation',
+  AI_PEEK_CONVERSATION: 'ai:peek-conversation',
   AI_DELETE_CONVERSATION: 'ai:delete-conversation',
 
   // === AI DM: Cloud Provider Models ===

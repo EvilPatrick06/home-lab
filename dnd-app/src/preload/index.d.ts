@@ -230,6 +230,7 @@ interface AiAPI {
   saveConversation: (campaignId: string) => Promise<{ success: boolean; summary?: string | null }>
   restoreConversation: (campaignId: string, data: Record<string, unknown>) => Promise<{ success: boolean }>
   loadConversation: (campaignId: string) => Promise<{ success: boolean; data?: unknown }>
+  peekConversation: (campaignId: string) => Promise<{ success: boolean; data?: unknown }>
   deleteConversation: (campaignId: string) => Promise<{ success: boolean }>
   // Ollama management
   detectOllama: () => Promise<OllamaStatus>
@@ -248,7 +249,7 @@ interface AiAPI {
   listCloudModels: (provider: string, apiKey?: string) => Promise<Array<{ id: string; name: string; desc?: string }>>
   syncWorldState: (campaignId: string, worldState: unknown) => Promise<{ success: boolean; error?: string }>
   syncCombatState: (campaignId: string, combatState: unknown) => Promise<{ success: boolean; error?: string }>
-  getTokenBudget: () => Promise<{
+  getTokenBudget: (campaignId?: string) => Promise<{
     rulebookChunks: number
     srdData: number
     characterData: number

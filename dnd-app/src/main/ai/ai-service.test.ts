@@ -4,7 +4,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Stable, per-test-configurable provider streamChat so 06C can drive a prep stream to
 // 'error' (and then hang a retry) deterministically. Defaults to a clean resolve.
-const hoisted = vi.hoisted(() => ({ providerStreamChat: vi.fn(async () => {}) }))
+const hoisted = vi.hoisted(() => ({
+  providerStreamChat: vi.fn(async () => {}),
+  addMessageCalls: [] as Array<[string, string, string[] | undefined]>
+}))
 
 vi.mock('electron', () => ({
   app: {
@@ -40,7 +43,22 @@ vi.mock('./chunk-builder', () => ({
 }))
 
 vi.mock('./context-builder', () => ({
-  buildContext: vi.fn(async () => ''),
+  buildContext: vi.fn(async () => ({
+    text: '',
+    breakdown: {
+      rulebookChunks: 0,
+      srdData: 0,
+      characterData: 0,
+      campaignData: 0,
+      creatures: 0,
+      gameState: 0,
+      memory: 0,
+      total: 0
+    },
+    chunkIds: []
+  })),
+  recordTokenBreakdown: vi.fn(),
+  clearTokenBreakdown: vi.fn(),
   setSearchEngine: vi.fn()
 }))
 
@@ -52,8 +70,9 @@ vi.mock('./conversation-manager', () => ({
 
     setSummarizeCallback(): void {}
     setActiveCharacterIds(): void {}
-    addMessage(role: string, content: string): void {
+    addMessage(role: string, content: string, chunkIds?: string[]): void {
       this.messages.push({ role, content })
+      hoisted.addMessageCalls.push([role, content, chunkIds])
     }
     async getMessagesForApi(): Promise<{
       systemPrompt: string
@@ -209,6 +228,7 @@ import { rename, writeFile } from 'node:fs/promises'
 import {
   cancelChat,
   cancelScenePrep,
+  cancelStreamsForCampaign,
   checkProviders,
   configure,
   getChunkCount,
@@ -218,6 +238,7 @@ import {
   getConversationManager,
   getLastTokenEstimate,
   getSceneStatus,
+  hasActiveStreamForCampaign,
   initFromSavedConfig,
   loadConfigFromDisk,
   loadIndex,
@@ -230,6 +251,7 @@ import {
   wasContextTruncated
 } from './ai-service'
 import { loadChunkIndex } from './chunk-builder'
+import { buildContext } from './context-builder'
 import { fetchOllamaModels, getOllamaUrl, setOllamaUrl } from './ollama-client'
 import { getActiveProviderType } from './provider-registry'
 
@@ -443,6 +465,74 @@ describe('ai-service', () => {
         () => {}
       )
       expect(id1).not.toBe(id2)
+    })
+
+    it('attaches retrieval chunk ids to the finalized assistant message (07C)', async () => {
+      hoisted.addMessageCalls.length = 0
+      vi.mocked(buildContext).mockResolvedValueOnce({
+        text: '',
+        breakdown: {
+          rulebookChunks: 0,
+          srdData: 0,
+          characterData: 0,
+          campaignData: 0,
+          creatures: 0,
+          gameState: 0,
+          memory: 0,
+          total: 0
+        },
+        chunkIds: ['phb-1', 'dmg-2']
+      })
+      hoisted.providerStreamChat.mockImplementation(((
+        _sp: unknown,
+        _msgs: unknown,
+        cb: { onDone: (t: string) => void }
+      ) => {
+        cb.onDone('reply')
+        return Promise.resolve()
+      }) as never)
+
+      startChat(
+        { campaignId: 'c-prov', message: 'grapple rules', characterIds: [] },
+        () => {},
+        () => {},
+        () => {}
+      )
+
+      await vi.waitFor(() => {
+        const assistant = hoisted.addMessageCalls.find(([role]) => role === 'assistant')
+        expect(assistant?.[2]).toEqual(['phb-1', 'dmg-2'])
+      })
+      hoisted.providerStreamChat.mockImplementation((() => Promise.resolve()) as never)
+    })
+  })
+
+  // 07D — campaign-scoped stream tracking.
+  describe('campaign stream tracking', () => {
+    it('hasActiveStreamForCampaign tracks the lifecycle and cancelStreamsForCampaign aborts', () => {
+      expect(hasActiveStreamForCampaign('track-A')).toBe(false)
+      const sid = startChat(
+        { campaignId: 'track-A', message: 'hi', characterIds: [] },
+        () => {},
+        () => {},
+        () => {}
+      )
+      expect(hasActiveStreamForCampaign('track-A')).toBe(true)
+      expect(hasActiveStreamForCampaign('track-B')).toBe(false) // another campaign unaffected
+
+      cancelChat(sid)
+      expect(hasActiveStreamForCampaign('track-A')).toBe(false) // removeStream cleared it
+
+      // cancelStreamsForCampaign aborts every stream for the campaign and counts them.
+      startChat(
+        { campaignId: 'track-C', message: 'hi', characterIds: [] },
+        () => {},
+        () => {},
+        () => {}
+      )
+      expect(cancelStreamsForCampaign('track-C')).toBe(1)
+      expect(hasActiveStreamForCampaign('track-C')).toBe(false)
+      expect(cancelStreamsForCampaign('track-C')).toBe(0) // idempotent
     })
   })
 

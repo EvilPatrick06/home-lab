@@ -1,5 +1,4 @@
 import { logToFile } from '../log'
-import { getLastTokenBreakdown } from './context-builder'
 import { DM_TOOLBOX_CONTEXT, PLANAR_RULES_CONTEXT } from './dm-system-prompt'
 import { assembleSystemPrompt, type GameMode } from './prompt-assembler'
 import { COMBAT_TACTICS_PROMPT } from './prompt-sections/combat-tactics'
@@ -95,7 +94,10 @@ export class ConversationManager {
    * Build the messages array for the API call,
    * including summary prefix and recent messages within token budget.
    */
-  async getMessagesForApi(contextBlock: string): Promise<{
+  async getMessagesForApi(
+    contextBlock: string,
+    contextTruncated = false
+  ): Promise<{
     systemPrompt: string
     messages: ChatMessage[]
   }> {
@@ -168,13 +170,16 @@ export class ConversationManager {
     // Track token usage and truncation for DM alerting
     const totalTokens = estimateTokens(systemPrompt) + cleaned.reduce((sum, m) => sum + estimateTokens(m.content), 0)
     this._lastTokenEstimate = totalTokens
-    // True if the conversation history OR any context-builder section was trimmed —
-    // previously only the history budget was tracked, so context compression was
-    // silently invisible to the DM-alert.
+    // True when history messages were actually DROPPED (withinBudget shorter than the
+    // candidate set), OR the assembled prompt overflows the context window, OR the caller
+    // reported a context-section trim (contextTruncated, from buildContext's breakdown).
+    // The old `tokenCount >= conversationHistory` check was a false negative: the budget loop
+    // breaks BEFORE adding the message that would exceed the budget, so tokenCount is always
+    // strictly below budget exactly when messages were dropped (07B / F3).
     this._contextTruncated =
-      tokenCount >= getEffectiveBudgets().conversationHistory ||
+      withinBudget.length < recentMessages.length ||
       totalTokens > getActiveContextWindow() - OUTPUT_RESERVE ||
-      (getLastTokenBreakdown()?.truncated ?? false)
+      contextTruncated
 
     return { systemPrompt, messages: cleaned }
   }

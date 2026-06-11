@@ -98,6 +98,7 @@ const api = {
     restoreConversation: (campaignId: string, data: Record<string, unknown>) =>
       ipcRenderer.invoke(IPC_CHANNELS.AI_RESTORE_CONVERSATION, campaignId, data),
     loadConversation: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_LOAD_CONVERSATION, campaignId),
+    peekConversation: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_PEEK_CONVERSATION, campaignId),
     deleteConversation: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_DELETE_CONVERSATION, campaignId),
     // Cloud provider models
     listCloudModels: (providerType: string, apiKey?: string) =>
@@ -117,7 +118,7 @@ const api = {
     checkOllamaUpdate: () => ipcRenderer.invoke(IPC_CHANNELS.AI_OLLAMA_CHECK_UPDATE),
     updateOllama: () => ipcRenderer.invoke(IPC_CHANNELS.AI_OLLAMA_UPDATE),
     deleteModel: (model: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_DELETE_MODEL, model),
-    getTokenBudget: () => ipcRenderer.invoke(IPC_CHANNELS.AI_TOKEN_BUDGET),
+    getTokenBudget: (campaignId?: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_TOKEN_BUDGET, campaignId),
     previewTokenBudget: (campaignId: string, characterIds: string[]) =>
       ipcRenderer.invoke(IPC_CHANNELS.AI_TOKEN_BUDGET_PREVIEW, campaignId, characterIds),
     // Live state sync

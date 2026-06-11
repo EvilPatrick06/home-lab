@@ -35,6 +35,23 @@ export const AiChatRequestSchema = z.object({
 export type ValidatedAiConfig = z.infer<typeof AiConfigSchema>
 export type ValidatedAiChatRequest = z.infer<typeof AiChatRequestSchema>
 
+// ── Conversation import payload (PHASE-07 07E) ─────────────────────
+// Validated at the AI_RESTORE_CONVERSATION boundary so a crafted .dndbackup can't write
+// arbitrary JSON into ai-conversations/<id>.json. Lenient defaults: older backups may omit
+// fields; '' timestamp is falsy so the renderer's `m.timestamp ? … : Date.now()` fallback applies.
+export const ConversationMessageSchema = z.object({
+  role: z.enum(['user', 'assistant']),
+  content: z.string(),
+  timestamp: z.string().default(''),
+  contextChunkIds: z.array(z.string()).optional()
+})
+export const ConversationDataSchema = z.object({
+  messages: z.array(ConversationMessageSchema).default([]),
+  summaries: z.array(z.object({ content: z.string(), coversUpTo: z.number() })).default([]),
+  activeCharacterIds: z.array(z.string()).default([])
+})
+export type ValidatedConversationData = z.infer<typeof ConversationDataSchema>
+
 // ── Security Audit (20g) ───────────────────────────────────────────
 // Payload the renderer sends to record a security event in the main-process
 // audit log. `event` is a short dotted name (e.g. "host.kick"); `details` is

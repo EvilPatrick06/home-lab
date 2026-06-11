@@ -142,7 +142,6 @@ function formatAvailableMonstersContext(query: string, limit = 24): string | nul
 }
 
 let searchEngine: SearchEngine | null = null
-let lastTokenBreakdown: ContextTokenBreakdown | null = null
 
 export function setSearchEngine(engine: SearchEngine | null): void {
   searchEngine = engine
@@ -152,8 +151,33 @@ export function getSearchEngine(): SearchEngine | null {
   return searchEngine
 }
 
-export function getLastTokenBreakdown(): ContextTokenBreakdown | null {
-  return lastTokenBreakdown
+/** Result of a context build — pure, no module-global side effects. (PHASE-07 07A) */
+export interface BuiltContext {
+  text: string
+  breakdown: ContextTokenBreakdown
+  /** Ids of rulebook chunks retrieved for this build (provenance; may be empty). */
+  chunkIds: string[]
+}
+
+// Per-campaign breakdown recording. A LIVE chat build records here; throwaway PREVIEW builds
+// (DMTabPanel token meter) record nothing, so a preview can no longer clobber a live stream's
+// truncation state. (PHASE-07 07A / F4)
+const lastTokenBreakdownByCampaign = new Map<string, ContextTokenBreakdown>()
+let lastLiveBreakdown: ContextTokenBreakdown | null = null
+
+/** Record the breakdown of a LIVE chat build (never previews). */
+export function recordTokenBreakdown(campaignId: string | undefined, breakdown: ContextTokenBreakdown): void {
+  lastLiveBreakdown = breakdown
+  if (campaignId) lastTokenBreakdownByCampaign.set(campaignId, breakdown)
+}
+
+export function getLastTokenBreakdown(campaignId?: string): ContextTokenBreakdown | null {
+  if (campaignId) return lastTokenBreakdownByCampaign.get(campaignId) ?? null
+  return lastLiveBreakdown
+}
+
+export function clearTokenBreakdown(campaignId: string): void {
+  lastTokenBreakdownByCampaign.delete(campaignId)
 }
 
 /**
@@ -168,8 +192,9 @@ export async function buildContext(
   activeCreatures?: ActiveCreatureInfo[],
   gameState?: string,
   actingCharacterId?: string
-): Promise<string> {
+): Promise<BuiltContext> {
   const parts: string[] = []
+  const chunkIds: string[] = []
   // PHASE-01 01D — prefix-cache ordering contract. Ollama reuses prefill (its KV
   // cache) only for a byte-identical prompt prefix and invalidates at the first
   // differing byte, so sections are emitted static-first / volatile-last to
@@ -215,6 +240,7 @@ export async function buildContext(
     const results = searchEngine.search(query, 5)
 
     if (results.length > 0) {
+      for (const c of results) chunkIds.push(c.id) // retrieval provenance (07C wires onto the reply)
       const chunkText = formatChunks(results)
       const trimmed = trimTracked(`[CONTEXT: Rulebook Excerpts]\n${chunkText}`, budgets.retrievedChunks)
       breakdown.rulebookChunks = estimateTokens(trimmed)
@@ -343,9 +369,9 @@ export async function buildContext(
 
   const result = parts.join('\n\n')
   breakdown.total = estimateTokens(result)
-  lastTokenBreakdown = breakdown
 
-  return result
+  // Pure: callers record the breakdown explicitly (live builds only) via recordTokenBreakdown.
+  return { text: result, breakdown, chunkIds }
 }
 
 function analyzePartyComposition(characterParts: string[]): string | null {

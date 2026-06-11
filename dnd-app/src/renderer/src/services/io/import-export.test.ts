@@ -47,7 +47,7 @@ vi.stubGlobal('window', {
     books: { list: vi.fn(), loadConfig: vi.fn() },
     loadGameState: vi.fn(),
     saveGameState: vi.fn(),
-    ai: { restoreConversation: vi.fn(), loadConversation: vi.fn() },
+    ai: { restoreConversation: vi.fn(), loadConversation: vi.fn(), peekConversation: vi.fn() },
     readFileBinary: vi.fn()
   }
 })
@@ -250,7 +250,7 @@ describe('import-export', () => {
       window.api.imageLibrary.list = vi.fn().mockResolvedValue([])
       window.api.books.loadConfig = vi.fn().mockResolvedValue([])
       window.api.books.list = vi.fn().mockResolvedValue([])
-      window.api.ai.loadConversation = vi.fn().mockResolvedValue({ success: true, data: null })
+      window.api.ai.peekConversation = vi.fn().mockResolvedValue({ success: true, data: null })
       window.api.loadGameState = vi.fn().mockResolvedValue(null)
       mockShowSaveDialog.mockResolvedValue('/tmp/backup.dndbackup')
       mockWriteFile.mockResolvedValue(undefined)
@@ -310,7 +310,7 @@ describe('import-export', () => {
       window.api.imageLibrary.list = vi.fn().mockRejectedValue(new Error('fail'))
       window.api.books.loadConfig = vi.fn().mockRejectedValue(new Error('fail'))
       window.api.books.list = vi.fn().mockRejectedValue(new Error('fail'))
-      window.api.ai.loadConversation = vi.fn().mockRejectedValue(new Error('fail'))
+      window.api.ai.peekConversation = vi.fn().mockRejectedValue(new Error('fail'))
       window.api.loadGameState = vi.fn().mockRejectedValue(new Error('fail'))
       mockShowSaveDialog.mockResolvedValue('/tmp/backup.dndbackup')
       mockWriteFile.mockResolvedValue(undefined)

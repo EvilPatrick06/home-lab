@@ -5,6 +5,7 @@ import { IPC_CHANNELS } from '../../shared/ipc-channels'
 import {
   AiChatRequestSchema,
   AiConfigSchema,
+  ConversationDataSchema,
   type ValidatedAiChatRequest,
   type ValidatedAiConfig
 } from '../../shared/ipc-schemas'
@@ -50,7 +51,6 @@ import type {
   AiStreamChunk,
   AiStreamDone,
   AiStreamError,
-  ConversationData,
   MutationResult,
   StatChange
 } from '../ai/types'
@@ -326,15 +326,16 @@ export function registerAiHandlers(): void {
   // Phase 17d (NET-17) — AI_CONNECTION_STATUS handler removed: no preload/renderer caller exists.
   // Re-add with a preload entry if a consumer is ever introduced.
 
-  handle(IPC_CHANNELS.AI_TOKEN_BUDGET, async () => {
-    return getLastTokenBreakdown()
+  handle(IPC_CHANNELS.AI_TOKEN_BUDGET, async (_event, campaignId?: string) => {
+    return getLastTokenBreakdown(typeof campaignId === 'string' ? campaignId : undefined)
   })
 
   handle(IPC_CHANNELS.AI_TOKEN_BUDGET_PREVIEW, async (_event, campaignId: string, characterIds: string[]) => {
-    // Build context without sending a message — just to populate the token breakdown
+    // Build context without sending a message — return THIS build's breakdown without recording
+    // it, so a preview can't clobber a live stream's per-campaign breakdown. (07A / F4)
     try {
-      await buildContext('preview query for token budget', characterIds, campaignId)
-      return getLastTokenBreakdown()
+      const built = await buildContext('preview query for token budget', characterIds, campaignId)
+      return built.breakdown
     } catch {
       return null
     }
@@ -369,9 +370,18 @@ export function registerAiHandlers(): void {
 
   handle(IPC_CHANNELS.AI_RESTORE_CONVERSATION, async (_event, campaignId: string, data: Record<string, unknown>) => {
     sanitizeCampaignId(campaignId)
-    // IPC boundary: renderer hands back type-erased JSON typed as Record; assert the domain shape.
-    const result = await saveConversation(campaignId, data as unknown as ConversationData)
+    // Validate at the IPC boundary — a crafted .dndbackup must not write arbitrary JSON. (07E)
+    const parsed = ConversationDataSchema.safeParse(data)
+    if (!parsed.success) {
+      return { success: false, error: `Invalid conversation data: ${parsed.error.issues[0]?.message}` }
+    }
+    // A stream completing after this write would auto-save the stale in-memory manager over the
+    // imported file (ai-service stream-completion auto-save) — cancel any in-flight stream first.
+    aiService.cancelStreamsForCampaign(campaignId)
+    const result = await saveConversation(campaignId, parsed.data)
     if (!result.success) return { success: false, error: result.error }
+    // Write-through: refresh the cached manager so memory and disk agree immediately. (07E / F1)
+    aiService.getConversationManager(campaignId).restore(parsed.data)
     return { success: true }
   })
 
@@ -379,11 +389,26 @@ export function registerAiHandlers(): void {
     sanitizeCampaignId(campaignId)
     const result = await loadConversation(campaignId)
     if (result.success && result.data) {
-      const conv = aiService.getConversationManager(campaignId)
-      conv.restore(result.data)
+      // Don't clobber an in-flight stream's in-memory conversation with disk state (the stream
+      // holds the live pending user/assistant turn). Still return the disk data either way. (07D)
+      if (aiService.hasActiveStreamForCampaign(campaignId)) {
+        logToFile(
+          'warn',
+          `[AI] AI_LOAD_CONVERSATION: stream in flight for ${campaignId}; returning disk data without in-memory restore`
+        )
+      } else {
+        aiService.getConversationManager(campaignId).restore(result.data)
+      }
       return { success: true, data: result.data }
     }
     return { success: false, error: result.error }
+  })
+
+  // Read-only load for export: disk only — never instantiates or restores a ConversationManager
+  // (CQS — a query must not mutate state). (07D)
+  handle(IPC_CHANNELS.AI_PEEK_CONVERSATION, async (_event, campaignId: string) => {
+    sanitizeCampaignId(campaignId)
+    return await loadConversation(campaignId)
   })
 
   handle(IPC_CHANNELS.AI_DELETE_CONVERSATION, async (_event, campaignId: string) => {

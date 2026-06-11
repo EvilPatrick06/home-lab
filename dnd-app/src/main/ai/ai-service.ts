@@ -19,7 +19,7 @@ import {
 } from './ai-response-parser'
 import type { PendingWebSearchApproval, StreamHandlerDeps } from './ai-stream-handler'
 import { buildChunkIndex, loadChunkIndex } from './chunk-builder'
-import { buildContext, setSearchEngine } from './context-builder'
+import { buildContext, clearTokenBreakdown, recordTokenBreakdown, setSearchEngine } from './context-builder'
 import { ConversationManager } from './conversation-manager'
 import { parseDmActions, stripDmActions } from './dm-actions'
 import {
@@ -92,6 +92,9 @@ const conversations = new Map<string, ConversationManager>()
 const activeStreams = new Map<string, AbortController>()
 const activeStreamTimestamps = new Map<string, number>()
 const activeStreamLastHeartbeat = new Map<string, number>()
+// streamId → campaignId, so the persistence layer can ask "is a stream running for campaign X"
+// (the maps above are streamId-keyed only). (PHASE-07 07D)
+const activeStreamCampaigns = new Map<string, string>()
 const STREAM_TTL_MS = 10 * 60 * 1000 // 10 minutes base TTL
 const STREAM_MAX_TTL_MS = 30 * 60 * 1000 // 30 minutes max TTL (hard ceiling)
 const HEARTBEAT_WINDOW_MS = 5 * 60 * 1000 // Extend TTL when activity within last 5 minutes
@@ -100,11 +103,30 @@ function removeStream(streamId: string): void {
   activeStreams.delete(streamId)
   activeStreamTimestamps.delete(streamId)
   activeStreamLastHeartbeat.delete(streamId)
+  activeStreamCampaigns.delete(streamId)
 }
 
 /** Number of currently registered streams (test/observability hook — PHASE-05 05E). */
 export function getActiveStreamCount(): number {
   return activeStreams.size
+}
+
+/** True if any active stream belongs to the given campaign. (PHASE-07 07D) */
+export function hasActiveStreamForCampaign(campaignId: string): boolean {
+  for (const cid of activeStreamCampaigns.values()) if (cid === campaignId) return true
+  return false
+}
+
+/** Abort every active stream for a campaign. Returns how many were cancelled. (PHASE-07 07D) */
+export function cancelStreamsForCampaign(campaignId: string): number {
+  let n = 0
+  for (const [streamId, cid] of activeStreamCampaigns) {
+    if (cid === campaignId) {
+      cancelChat(streamId)
+      n++
+    }
+  }
+  return n
 }
 
 /** Update the heartbeat for an active stream to extend its TTL */
@@ -516,6 +538,7 @@ export function getConversationManager(campaignId: string): ConversationManager 
 export function removeConversation(campaignId: string): void {
   conversations.delete(campaignId)
   scenePrepStatus.delete(campaignId)
+  clearTokenBreakdown(campaignId)
 }
 
 /**
@@ -664,6 +687,7 @@ export function startChat(
   const streamId = `stream-${++streamCounter}`
   const abortController = new AbortController()
   activeStreams.set(streamId, abortController)
+  activeStreamCampaigns.set(streamId, request.campaignId)
   const now = Date.now()
   activeStreamTimestamps.set(streamId, now)
   activeStreamLastHeartbeat.set(streamId, now)
@@ -702,7 +726,7 @@ export function startChat(
         setActiveContextWindow(CLOUD_CONTEXT_WINDOW)
       }
 
-      const context = await buildContext(
+      const built = await buildContext(
         request.message,
         request.characterIds,
         request.campaignId,
@@ -710,6 +734,11 @@ export function startChat(
         request.gameState,
         request.actingCharacterId
       )
+      // Record this LIVE build's breakdown per campaign (previews record nothing). (07A)
+      recordTokenBreakdown(request.campaignId, built.breakdown)
+      // Provenance: the rulebook chunks that informed this turn, attached to the reply at
+      // finalize (07C). undefined when nothing was retrieved.
+      const contextChunkIds = built.chunkIds.length > 0 ? built.chunkIds : undefined
       // PHASE-01 01D — the provider blurb is STATIC (changes only when the provider
       // changes), so it leads the context block to extend the cache-stable prefix;
       // it used to trail the every-message-volatile game-state snapshot and was thus
@@ -718,8 +747,8 @@ export function startChat(
       // Capture the assembled context block so FILE_READ/WEB_SEARCH continuations replay the
       // SAME game-state/character/rules context instead of rebuilding it empty (which also
       // silently downgraded combat continuations to 'general' mode). (PHASE-06 06D / F-5)
-      const contextBlock = providerContext + context
-      const { systemPrompt, messages } = await conv.getMessagesForApi(contextBlock)
+      const contextBlock = providerContext + built.text
+      const { systemPrompt, messages } = await conv.getMessagesForApi(contextBlock, built.breakdown.truncated ?? false)
 
       // Stream response
       let fullText = ''
@@ -753,7 +782,8 @@ export function startChat(
             onDone,
             onError,
             contextBlock,
-            0
+            0,
+            contextChunkIds
           ).catch((e) => {
             removeStream(streamId)
             onError(e instanceof Error ? e.message : String(e))
@@ -809,6 +839,7 @@ async function handleStreamCompletion(
   onError: (error: string) => void,
   contextBlock: string,
   fileReadDepth: number,
+  contextChunkIds?: string[],
   deps: StreamHandlerDeps = getStreamDeps()
 ): Promise<void> {
   const restreamConversation = async (): Promise<void> => {
@@ -846,6 +877,7 @@ async function handleStreamCompletion(
           onError,
           contextBlock,
           fileReadDepth + 1,
+          contextChunkIds,
           deps
         ).catch((e) => {
           removeStream(streamId)
@@ -954,7 +986,8 @@ async function handleStreamCompletion(
     const rulings = parseRulings(cleaned)
     const displayText = stripVoiceTags(stripRulings(stripRuleCitations(stripDmActions(stripStatChanges(cleaned)))))
 
-    conv.addMessage('assistant', displayText)
+    // Attach retrieval provenance (the rulebook chunks that grounded this reply). (07C)
+    conv.addMessage('assistant', displayText, contextChunkIds)
 
     saveConversation(request.campaignId, conv.serialize()).catch((err) =>
       logToFile('ERROR', '[AI] Failed to auto-save conversation:', String(err))
@@ -993,7 +1026,7 @@ async function handleStreamCompletion(
     onDone(cleaned, displayText, statChanges, dmActions, ruleCitations)
   } catch (err) {
     logToFile('ERROR', '[AI] Error parsing AI response, delivering raw text:', String(err))
-    conv.addMessage('assistant', fullText)
+    conv.addMessage('assistant', fullText, contextChunkIds)
     onDone(fullText, fullText, [], [], [])
   }
 }

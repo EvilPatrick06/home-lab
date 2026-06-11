@@ -71,8 +71,8 @@ export default function DMTabPanel({ onOpenModal, campaign, onDispute, onEditMap
 
   const refreshTokenBudget = useCallback(async () => {
     try {
-      // First try to get the cached breakdown from the last context build
-      const data = await window.api.ai.getTokenBudget()
+      // First try to get the cached breakdown from THIS campaign's last live build (07A)
+      const data = await window.api.ai.getTokenBudget(campaign.id)
       if (data && data.total > 0) {
         setTokenBudget(data)
         return

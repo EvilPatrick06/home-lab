@@ -291,7 +291,9 @@ export async function exportAllData(): Promise<BackupStats | null> {
     const state = await window.api.loadGameState(campaign.id).catch(() => null)
     if (state) gameStates.push({ ...state, campaignId: campaign.id })
 
-    const convoResult = (await window.api.ai.loadConversation(campaign.id).catch(() => ({ success: false }))) as {
+    // Read-only peek: export must NOT instantiate/restore a ConversationManager or clobber an
+    // in-flight stream's in-memory state (07D).
+    const convoResult = (await window.api.ai.peekConversation(campaign.id).catch(() => ({ success: false }))) as {
       success?: boolean
       data?: unknown
     }

@@ -15,7 +15,22 @@ vi.mock('electron', () => ({
 
 // buildContext returns the sentinel game-state block; the continuation must re-send it.
 vi.mock('./context-builder', () => ({
-  buildContext: vi.fn(async () => SENTINEL),
+  buildContext: vi.fn(async () => ({
+    text: SENTINEL,
+    breakdown: {
+      rulebookChunks: 0,
+      srdData: 0,
+      characterData: 0,
+      campaignData: 0,
+      creatures: 0,
+      gameState: 0,
+      memory: 0,
+      total: 0
+    },
+    chunkIds: []
+  })),
+  recordTokenBreakdown: vi.fn(),
+  clearTokenBreakdown: vi.fn(),
   setSearchEngine: vi.fn(),
   getLastTokenBreakdown: vi.fn(() => null)
 }))
