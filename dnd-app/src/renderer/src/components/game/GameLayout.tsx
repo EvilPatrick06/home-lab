@@ -876,7 +876,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
         )}
         {isDM && <DmAlertTray />}
         {isDM && <MutationApprovalPanel />}
-        {effectiveIsDM && <WebSearchApprovalPrompt />}
+        {isDM && <WebSearchApprovalPrompt />}
         <SettingsDropdown
           campaign={campaign}
           isDM={effectiveIsDM}
@@ -1227,7 +1227,7 @@ export default function GameLayout({ campaign, isDM, character, playerName }: Ga
           </Suspense>
         </ErrorBoundary>
       )}
-      {effectiveIsDM && aiDmStore.pendingActions && (
+      {isDM && aiDmStore.pendingActionSets.length > 0 && (
         <ErrorBoundary fallback={null}>
           <Suspense fallback={null}>
             <RulingApprovalModal />

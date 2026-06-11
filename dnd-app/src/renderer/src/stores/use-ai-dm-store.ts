@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { pushDmAlert } from '../components/game/overlays/DmAlertTray'
+import { announce } from '../components/ui/ScreenReaderAnnouncer'
 import { AI_MUTATIONS_AUTO_REJECT_MS, STREAM_SAFETY_TIMEOUT_MS } from '../constants'
 import { i18n } from '../i18n'
 import { type AiRendererAction, parseRendererActions, stripActionTags } from '../services/ai-renderer-actions'
@@ -55,7 +56,9 @@ interface AiDmState {
 
   // DM approval gating
   dmApprovalRequired: boolean
-  pendingActions: PendingActionSet | null
+  // FIFO queue of undecided AI ruling sets — a second AI response no longer overwrites an
+  // undecided ruling; the modal renders the head and the rest wait behind it (F3).
+  pendingActionSets: PendingActionSet[]
 
   // Conversation
   messages: AiMessage[]
@@ -84,7 +87,12 @@ interface AiDmState {
   // File read / web search status
   fileReadStatus: { path: string; status: string } | null
   // streamId is carried so the approval UI can call approveWebSearch(streamId, …).
-  webSearchStatus: { query: string; status: string; streamId: string } | null
+  // receivedAt stamps when the pending request arrived so the prompt can render an
+  // accurate auto-reject countdown (deadline = receivedAt + WEB_SEARCH_APPROVAL_TIMEOUT_MS).
+  webSearchStatus: { query: string; status: string; streamId: string; receivedAt: number } | null
+  // True once the DM explicitly decided the current request, so the silent-auto-reject alert
+  // (fired when main's 30s timeout flips pending_approval→rejected) doesn't double-fire.
+  webSearchDecided: boolean
   // Advisory stream status (e.g. 'loading_model' while a cold model prefills). Doesn't
   // touch isTyping, but each 'loading_model' heartbeat DOES reset the inactivity safety
   // backstop (rearmSafetyTimeout) so a valid-but-slow prefill isn't wrongly cancelled.
@@ -99,13 +107,17 @@ interface AiDmState {
 
   // Actions
   setDmApprovalRequired: (required: boolean) => void
-  setPendingActions: (pending: PendingActionSet | null) => void
+  clearWebSearchStatus: () => void
+  markWebSearchDecided: () => void
+  enqueuePendingActions: (setToAdd: PendingActionSet) => void
   approvePendingActions: () => void
   rejectPendingActions: (dmNote: string) => void
+  dismissPendingActions: () => void
   queueMutations: (set: PendingMutationSet) => void
   approveMutations: (id: string) => void
   rejectMutations: (id: string) => void
   approveAllMutations: () => void
+  rejectAllMutations: () => void
   setAutoApproveAiMutations: (auto: boolean) => void
   initFromCampaign: (campaign: Campaign) => void
   sendMessage: (
@@ -153,7 +165,10 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
           lastError: 'AI response timed out',
           activeStreamId: null,
           streamingText: '',
-          safetyTimeoutId: null
+          safetyTimeoutId: null,
+          webSearchStatus: null,
+          fileReadStatus: null,
+          streamStatus: null
         })
         await window.api.ai.cancelStream(s.activeStreamId)
       }
@@ -161,11 +176,20 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
     set({ safetyTimeoutId: id })
   }
 
+  // Dispose every live auto-reject timer held in pendingMutations and return empty approval
+  // queues. Called on reset()/initFromCampaign() so a queued set's 60s timer can't fire a
+  // stale `mutationsAutoRejected` alert in the NEXT campaign, and no campaign-A approval UI
+  // survives into campaign B (F2).
+  const clearApprovalState = (): { pendingActionSets: never[]; pendingMutations: never[] } => {
+    for (const m of get().pendingMutations) if (m.timeoutId) clearTimeout(m.timeoutId)
+    return { pendingActionSets: [], pendingMutations: [] }
+  }
+
   return {
     enabled: false,
     paused: false,
     dmApprovalRequired: false,
-    pendingActions: null,
+    pendingActionSets: [],
 
     messages: [],
 
@@ -181,6 +205,7 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
     lastRuleCitations: [],
     fileReadStatus: null,
     webSearchStatus: null,
+    webSearchDecided: false,
     streamStatus: null,
     pendingMutations: [],
     autoApproveAiMutations: false,
@@ -188,28 +213,63 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
 
     setDmApprovalRequired: (required: boolean) => set({ dmApprovalRequired: required }),
 
-    setPendingActions: (pending: PendingActionSet | null) => set({ pendingActions: pending }),
+    // Used by the web-search prompt when approveWebSearch returns success:false (the
+    // request already timed out / was cancelled) so the modal unmounts instead of wedging.
+    clearWebSearchStatus: () => set({ webSearchStatus: null }),
+
+    // The DM clicked Approve/Reject — suppress the silent-auto-reject alert that would
+    // otherwise fire when main's pending_approval→rejected transition arrives.
+    markWebSearchDecided: () => set({ webSearchDecided: true }),
+
+    enqueuePendingActions: (setToAdd: PendingActionSet) => {
+      const queued = get().pendingActionSets
+      // A second AI ruling lands BEHIND the first instead of clobbering it. Tell the DM
+      // another ruling is waiting so it isn't silently buried (the other half of F3).
+      if (queued.length >= 1) {
+        pushDmAlert('info', i18n.t('notify.aiDmStore.rulingQueued', { count: queued.length + 1 }))
+      }
+      set({ pendingActionSets: [...queued, setToAdd] })
+    },
 
     approvePendingActions: () => {
-      const { pendingActions } = get()
-      if (!pendingActions) return
-      // Execute the pending actions via game-action-executor with bypassApproval.
+      const head = get().pendingActionSets[0]
+      if (!head) return
+      // Execute the head set via game-action-executor with bypassApproval.
       // Phase 17d (RUN-3/4) — surface a failed dynamic import instead of silently dropping the
       // approved actions (the DM would otherwise get no feedback that nothing ran).
       import('../services/game-action-executor')
         .then(({ executeDmActions }) => {
-          executeDmActions(pendingActions.actions, true)
+          // F4 — surface post-approval failures the same way the auto-execute path does
+          // (use-game-effects.ts), so the DM (and the AI's chat history) learn what didn't run.
+          const result = executeDmActions(head.actions, true)
+          for (const f of result.failed) {
+            useLobbyStore.getState().addChatMessage({
+              id: `ai-approve-fail-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
+              senderId: 'system',
+              senderName: 'System',
+              content: i18n.t('notify.aiDmStore.approvedActionFailed', { action: f.action.action, reason: f.reason }),
+              timestamp: Date.now(),
+              isSystem: true
+            })
+          }
+          if (result.failed.length > 0) {
+            const first = result.failed[0]
+            pushDmAlert(
+              'warning',
+              i18n.t('notify.aiDmStore.approvedActionFailed', { action: first.action.action, reason: first.reason })
+            )
+          }
         })
         .catch((err) => {
           pushDmAlert('error', i18n.t('notify.aiDmStore.runApprovedFailed'))
           logger.error('[ai-dm] game-action-executor import failed', err)
         })
-      set({ pendingActions: null })
+      set({ pendingActionSets: get().pendingActionSets.slice(1) })
     },
 
     rejectPendingActions: (dmNote: string) => {
-      const { pendingActions } = get()
-      if (!pendingActions) return
+      const head = get().pendingActionSets[0]
+      if (!head) return
       // Log the override to chat
       useLobbyStore.getState().addChatMessage({
         id: `dm-override-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
@@ -219,7 +279,15 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
         timestamp: Date.now(),
         isSystem: true
       })
-      set({ pendingActions: null })
+      set({ pendingActionSets: get().pendingActionSets.slice(1) })
+    },
+
+    // Drop the head set WITHOUT logging an override — matches the Dismiss button's
+    // "dismiss without applying or logging an override" tooltip (F5).
+    dismissPendingActions: () => {
+      const queued = get().pendingActionSets
+      if (queued.length === 0) return
+      set({ pendingActionSets: queued.slice(1) })
     },
 
     queueMutations: (mutationSet: PendingMutationSet) => {
@@ -233,6 +301,8 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
         if (still) {
           set({ pendingMutations: state.pendingMutations.filter((m) => m.id !== mutationSet.id) })
           pushDmAlert('warning', i18n.t('notify.aiDmStore.mutationsAutoRejected'))
+          // Make the silent 60s auto-reject audible to a non-sighted DM (F12).
+          announce(i18n.t('notify.aiDmStore.mutationsAutoRejected'))
         }
       }, AI_MUTATIONS_AUTO_REJECT_MS)
       set((state) => ({
@@ -273,18 +343,31 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
       }
     },
 
+    // One-shot mass reject: dispose every auto-reject timer then clear the queue in a single
+    // set (unlike approveAll's per-id loop, so the timers can't race a partially-cleared list).
+    rejectAllMutations: () => {
+      for (const m of get().pendingMutations) if (m.timeoutId) clearTimeout(m.timeoutId)
+      set({ pendingMutations: [] })
+    },
+
     setAutoApproveAiMutations: (auto: boolean) => set({ autoApproveAiMutations: auto }),
 
     initFromCampaign: (campaign) => {
       const aiDm = campaign.aiDm
       if (!aiDm?.enabled) {
-        set({ enabled: false })
+        // Clear any stale campaign-A approval UI/timers so they don't survive into an
+        // AI-disabled campaign B (RulingApprovalModal/MutationApprovalPanel mount on queue
+        // contents, not on `enabled`). (F2)
+        set({ ...clearApprovalState(), enabled: false, webSearchStatus: null, fileReadStatus: null })
         return
       }
 
       const currentSceneStatus = get().sceneStatus
 
       set({
+        ...clearApprovalState(),
+        webSearchStatus: null,
+        fileReadStatus: null,
         enabled: true,
         paused: false,
         messages: [],
@@ -386,14 +469,19 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
       if (safetyTimeoutId) {
         clearTimeout(safetyTimeoutId)
       }
+      // Clear UI + stale approval/status state UNCONDITIONALLY (even when activeStreamId is
+      // already null) so a dead stream can never leave webSearchStatus pinning the
+      // full-screen approval modal open with no way to dismiss it (F1).
+      set({
+        activeStreamId: null,
+        isTyping: false,
+        streamingText: '',
+        safetyTimeoutId: null,
+        webSearchStatus: null,
+        fileReadStatus: null,
+        streamStatus: null
+      })
       if (activeStreamId) {
-        // Update UI state immediately to prevent race conditions
-        set({
-          activeStreamId: null,
-          isTyping: false,
-          streamingText: '',
-          safetyTimeoutId: null
-        })
         // Then perform the async cancellation
         await window.api.ai.cancelStream(activeStreamId)
       }
@@ -452,6 +540,7 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
         window.api.ai.cancelStream(activeStreamId)
       }
       set({
+        ...clearApprovalState(),
         enabled: false,
         paused: false,
         messages: [],
@@ -461,6 +550,8 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
         streamingText: '',
         isTyping: false,
         streamStatus: null,
+        webSearchStatus: null,
+        fileReadStatus: null,
         safetyTimeoutId: null,
         lastStatChanges: [],
         lastDmActions: [],
@@ -544,6 +635,8 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
             isTyping: false,
             streamingText: '',
             streamStatus: null,
+            webSearchStatus: null,
+            fileReadStatus: null,
             safetyTimeoutId: null,
             lastStatChanges: data.statChanges,
             lastDmActions: dmActions,
@@ -566,6 +659,8 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
             isTyping: false,
             streamingText: '',
             streamStatus: null,
+            webSearchStatus: null,
+            fileReadStatus: null,
             safetyTimeoutId: null,
             lastError: data.error
           })
@@ -582,9 +677,22 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
 
       const handleWebSearch = (data: { streamId: string; query: string; status: string }): void => {
         const state = get()
-        if (data.streamId === state.activeStreamId) {
-          set({ webSearchStatus: { query: data.query, status: data.status, streamId: data.streamId } })
+        if (data.streamId !== state.activeStreamId) return
+        // A fresh request resets the decided flag so a later auto-reject can be announced.
+        if (data.status === 'pending_approval') {
+          set({ webSearchDecided: false })
+        } else if (
+          data.status === 'rejected' &&
+          state.webSearchStatus?.status === 'pending_approval' &&
+          !state.webSearchDecided
+        ) {
+          // Main's 30s timeout flipped pending→rejected and the DM never clicked — tell them
+          // WHY the modal vanished instead of letting it disappear silently (F7).
+          pushDmAlert('info', i18n.t('notify.aiDmStore.webSearchAutoRejected', { query: data.query }))
         }
+        set({
+          webSearchStatus: { query: data.query, status: data.status, streamId: data.streamId, receivedAt: Date.now() }
+        })
       }
 
       window.api.ai.onStreamChunk(handleChunk)

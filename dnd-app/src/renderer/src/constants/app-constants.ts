@@ -22,8 +22,8 @@ export const MAX_GLOBAL_MESSAGES_PER_SECOND = 200
 // Chat
 export const MAX_CHAT_LENGTH = 2000
 
-// IPC file size limits (canonical source: shared/constants.ts)
-export { MAX_READ_FILE_SIZE, MAX_WRITE_CONTENT_SIZE } from '../../../shared/constants'
+// IPC file size limits + AI web-search approval timeout (canonical source: shared/constants.ts)
+export { MAX_READ_FILE_SIZE, MAX_WRITE_CONTENT_SIZE, WEB_SEARCH_APPROVAL_TIMEOUT_MS } from '../../../shared/constants'
 
 // UI: pages
 export const LOADING_GRACE_PERIOD_MS = 4000

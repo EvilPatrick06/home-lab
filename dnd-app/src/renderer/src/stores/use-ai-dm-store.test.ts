@@ -18,9 +18,15 @@ vi.stubGlobal('window', {
       onStreamChunk: vi.fn((cb: (d: unknown) => void) => {
         aiHandlers.chunk = cb
       }),
-      onStreamDone: vi.fn(),
-      onStreamError: vi.fn(),
-      onStreamFileRead: vi.fn(),
+      onStreamDone: vi.fn((cb: (d: unknown) => void) => {
+        aiHandlers.done = cb
+      }),
+      onStreamError: vi.fn((cb: (d: unknown) => void) => {
+        aiHandlers.error = cb
+      }),
+      onStreamFileRead: vi.fn((cb: (d: unknown) => void) => {
+        aiHandlers.fileRead = cb
+      }),
       onStreamWebSearch: vi.fn((cb: (d: unknown) => void) => {
         aiHandlers.webSearch = cb
       }),
@@ -32,6 +38,13 @@ vi.stubGlobal('window', {
   }
 })
 
+// 04B — approvePendingActions dynamically imports the executor; mock it so we can drive
+// the post-approval failure-surfacing path. Default: no failures.
+vi.mock('../services/game-action-executor', () => ({
+  executeDmActions: vi.fn(() => ({ executed: [], failed: [] }))
+}))
+
+import { executeDmActions } from '../services/game-action-executor'
 import { useAiDmStore } from './use-ai-dm-store'
 
 describe('useAiDmStore', () => {
@@ -49,7 +62,7 @@ describe('useAiDmStore', () => {
     expect(state).toHaveProperty('enabled')
     expect(state).toHaveProperty('paused')
     expect(state).toHaveProperty('dmApprovalRequired')
-    expect(state).toHaveProperty('pendingActions')
+    expect(state).toHaveProperty('pendingActionSets')
     expect(state).toHaveProperty('messages')
     expect(state).toHaveProperty('activeStreamId')
     expect(state).toHaveProperty('streamingText')
@@ -68,7 +81,7 @@ describe('useAiDmStore', () => {
     expect(state.enabled).toBe(false)
     expect(state.paused).toBe(false)
     expect(state.dmApprovalRequired).toBe(false)
-    expect(state.pendingActions).toBeNull()
+    expect(state.pendingActionSets).toEqual([])
     expect(state.messages).toEqual([])
     expect(state.activeStreamId).toBeNull()
     expect(state.streamingText).toBe('')
@@ -85,9 +98,10 @@ describe('useAiDmStore', () => {
   it('has expected actions', () => {
     const state = useAiDmStore.getState()
     expect(typeof state.setDmApprovalRequired).toBe('function')
-    expect(typeof state.setPendingActions).toBe('function')
+    expect(typeof state.enqueuePendingActions).toBe('function')
     expect(typeof state.approvePendingActions).toBe('function')
     expect(typeof state.rejectPendingActions).toBe('function')
+    expect(typeof state.dismissPendingActions).toBe('function')
     expect(typeof state.initFromCampaign).toBe('function')
     expect(typeof state.sendMessage).toBe('function')
     expect(typeof state.cancelStream).toBe('function')
@@ -134,6 +148,27 @@ describe('useAiDmStore', () => {
       expect(evt.detail.mutations).toEqual(mutations) // creature changes no longer dropped
       expect(useAiDmStore.getState().pendingMutations).toHaveLength(0)
       cleanup()
+    })
+
+    it('rejectAllMutations clears every set and disposes all auto-reject timers (04E)', () => {
+      vi.useFakeTimers()
+      try {
+        useAiDmStore.setState({ pendingMutations: [] })
+        const baseline = vi.getTimerCount()
+        useAiDmStore
+          .getState()
+          .queueMutations({ id: 'r1', messageId: 91, mutations: [], source: 'ai-dm', timestamp: 1 })
+        useAiDmStore
+          .getState()
+          .queueMutations({ id: 'r2', messageId: 92, mutations: [], source: 'ai-dm', timestamp: 1 })
+        expect(vi.getTimerCount()).toBe(baseline + 2)
+
+        useAiDmStore.getState().rejectAllMutations()
+        expect(useAiDmStore.getState().pendingMutations).toHaveLength(0)
+        expect(vi.getTimerCount()).toBe(baseline)
+      } finally {
+        vi.useRealTimers()
+      }
     })
   })
 
@@ -182,14 +217,17 @@ describe('useAiDmStore', () => {
       useAiDmStore.setState({ activeStreamId: null, isTyping: false })
     })
 
-    it('web-search status persists the streamId (needed by the approval UI)', () => {
+    it('web-search status persists the streamId + stamps receivedAt (needed by the approval UI)', () => {
       const cleanupListeners = useAiDmStore.getState().setupListeners()
       useAiDmStore.setState({ activeStreamId: 'sid-7', webSearchStatus: null })
 
       aiHandlers.webSearch?.({ streamId: 'sid-7', query: 'lich phylactery rules', status: 'pending_approval' })
 
       const ws = useAiDmStore.getState().webSearchStatus
-      expect(ws).toEqual({ streamId: 'sid-7', query: 'lich phylactery rules', status: 'pending_approval' })
+      expect(ws).toEqual(
+        expect.objectContaining({ streamId: 'sid-7', query: 'lich phylactery rules', status: 'pending_approval' })
+      )
+      expect(typeof ws?.receivedAt).toBe('number')
       cleanupListeners()
       useAiDmStore.setState({ activeStreamId: null, webSearchStatus: null })
     })
@@ -254,6 +292,266 @@ describe('useAiDmStore', () => {
       expect(s.streamingText).toBe('Once upon')
       cleanupListeners()
       useAiDmStore.setState({ activeStreamId: null, isTyping: false, streamStatus: null, streamingText: '' })
+    })
+  })
+
+  // 04A — a dead/finished stream must never leave webSearchStatus/fileReadStatus/streamStatus
+  // pinning the full-screen approval modal open (F1).
+  describe('stream-status lifecycle clearing (F1)', () => {
+    const seedStatuses = (streamId: string | null): void =>
+      useAiDmStore.setState({
+        activeStreamId: streamId,
+        webSearchStatus: { query: 'q', status: 'pending_approval', streamId: streamId ?? 'x', receivedAt: 1 },
+        fileReadStatus: { path: 'p', status: 'reading' },
+        streamStatus: 'loading_model'
+      })
+
+    const expectCleared = (): void => {
+      const s = useAiDmStore.getState()
+      expect(s.webSearchStatus).toBeNull()
+      expect(s.fileReadStatus).toBeNull()
+      expect(s.streamStatus).toBeNull()
+    }
+
+    afterEach(() => {
+      useAiDmStore.setState({
+        activeStreamId: null,
+        isTyping: false,
+        webSearchStatus: null,
+        fileReadStatus: null,
+        streamStatus: null
+      })
+    })
+
+    it('cancelStream clears all three statuses (with an active stream)', async () => {
+      seedStatuses('sid-c')
+      await useAiDmStore.getState().cancelStream()
+      expectCleared()
+    })
+
+    it('cancelStream clears statuses even when activeStreamId is already null (the old skipped branch)', async () => {
+      seedStatuses(null)
+      await useAiDmStore.getState().cancelStream()
+      expectCleared()
+    })
+
+    it('the inactivity safety backstop clears statuses on timeout', () => {
+      vi.useFakeTimers()
+      try {
+        const cleanupListeners = useAiDmStore.getState().setupListeners()
+        useAiDmStore.setState({ activeStreamId: 'sid-t', isTyping: true, safetyTimeoutId: null })
+        aiHandlers.status?.({ streamId: 'sid-t', status: 'loading_model' }) // arms + seeds streamStatus
+        useAiDmStore.setState({
+          webSearchStatus: { query: 'q', status: 'pending_approval', streamId: 'sid-t', receivedAt: 1 },
+          fileReadStatus: { path: 'p', status: 'reading' }
+        })
+        vi.advanceTimersByTime(STREAM_SAFETY_TIMEOUT_MS + 1000)
+        expectCleared()
+        cleanupListeners()
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('handleDone clears webSearchStatus + fileReadStatus', () => {
+      const cleanupListeners = useAiDmStore.getState().setupListeners()
+      seedStatuses('sid-d')
+      useAiDmStore.setState({ isTyping: true })
+      aiHandlers.done?.({
+        streamId: 'sid-d',
+        fullText: 'x',
+        displayText: 'x',
+        statChanges: [],
+        dmActions: [],
+        ruleCitations: []
+      })
+      expectCleared()
+      cleanupListeners()
+    })
+
+    it('handleError clears webSearchStatus + fileReadStatus', () => {
+      const cleanupListeners = useAiDmStore.getState().setupListeners()
+      seedStatuses('sid-e')
+      useAiDmStore.setState({ isTyping: true })
+      aiHandlers.error?.({ streamId: 'sid-e', error: 'boom' })
+      expectCleared()
+      cleanupListeners()
+    })
+
+    it('reset clears webSearchStatus + fileReadStatus', () => {
+      seedStatuses('sid-r')
+      useAiDmStore.getState().reset()
+      expectCleared()
+    })
+
+    it('clearWebSearchStatus nulls just the web-search status', () => {
+      useAiDmStore.setState({
+        webSearchStatus: { query: 'q', status: 'pending_approval', streamId: 'x', receivedAt: 1 }
+      })
+      useAiDmStore.getState().clearWebSearchStatus()
+      expect(useAiDmStore.getState().webSearchStatus).toBeNull()
+    })
+  })
+
+  // 04B — undecided rulings queue (FIFO) instead of overwriting; approve surfaces failures;
+  // dismiss is silent; override still logs (F3/F4/F5).
+  describe('pending-actions queue (F3/F4/F5)', () => {
+    const makeSet = (id: string, action = 'move_token') => ({
+      id,
+      text: id,
+      actions: [{ action }],
+      statChanges: []
+    })
+
+    afterEach(() => {
+      useAiDmStore.setState({ pendingActionSets: [] })
+      vi.mocked(executeDmActions).mockReset()
+      vi.mocked(executeDmActions).mockReturnValue({ executed: [], failed: [] })
+    })
+
+    it('enqueue keeps both sets in FIFO order', () => {
+      useAiDmStore.setState({ pendingActionSets: [] })
+      useAiDmStore.getState().enqueuePendingActions(makeSet('first'))
+      useAiDmStore.getState().enqueuePendingActions(makeSet('second'))
+      const q = useAiDmStore.getState().pendingActionSets
+      expect(q.map((s) => s.id)).toEqual(['first', 'second'])
+    })
+
+    it('approvePendingActions removes only the head', () => {
+      useAiDmStore.setState({ pendingActionSets: [makeSet('a'), makeSet('b')] })
+      useAiDmStore.getState().approvePendingActions()
+      expect(useAiDmStore.getState().pendingActionSets.map((s) => s.id)).toEqual(['b'])
+    })
+
+    it('dismissPendingActions drops the head and writes NO chat message', async () => {
+      const { useLobbyStore } = await import('./use-lobby-store')
+      useAiDmStore.setState({ pendingActionSets: [makeSet('a'), makeSet('b')] })
+      const before = useLobbyStore.getState().chatMessages.length
+      useAiDmStore.getState().dismissPendingActions()
+      expect(useAiDmStore.getState().pendingActionSets.map((s) => s.id)).toEqual(['b'])
+      expect(useLobbyStore.getState().chatMessages.length).toBe(before)
+    })
+
+    it('rejectPendingActions logs a [DM Override] chat line and drops the head', async () => {
+      const { useLobbyStore } = await import('./use-lobby-store')
+      useAiDmStore.setState({ pendingActionSets: [makeSet('a')] })
+      const before = useLobbyStore.getState().chatMessages.length
+      useAiDmStore.getState().rejectPendingActions('bad call')
+      const msgs = useLobbyStore.getState().chatMessages
+      expect(msgs.length).toBe(before + 1)
+      expect(msgs[msgs.length - 1].content).toContain('[DM Override]')
+      expect(useAiDmStore.getState().pendingActionSets).toHaveLength(0)
+    })
+
+    it('approve surfaces each failed action as a system chat line (F4)', async () => {
+      const { useLobbyStore } = await import('./use-lobby-store')
+      vi.mocked(executeDmActions).mockReturnValueOnce({
+        executed: [],
+        failed: [{ action: { action: 'move_token' }, reason: 'not found' }]
+      })
+      useAiDmStore.setState({ pendingActionSets: [makeSet('a')] })
+      useAiDmStore.getState().approvePendingActions()
+      await vi.waitFor(() => {
+        const msgs = useLobbyStore.getState().chatMessages
+        const last = msgs[msgs.length - 1]
+        expect(last?.content).toContain('move_token')
+        expect(last?.content).toContain('not found')
+      })
+    })
+  })
+
+  // 04C — no approval state or live auto-reject timer survives a campaign switch / leave (F2).
+  describe('approval-queue + timer hygiene on reset / initFromCampaign (F2)', () => {
+    const mutationSet = (id: string, messageId: number) => ({
+      id,
+      messageId,
+      mutations: [],
+      source: 'ai-dm' as const,
+      timestamp: 1
+    })
+    const actionSet = (id: string) => ({ id, text: id, actions: [{ action: 'move_token' }], statChanges: [] })
+
+    afterEach(() => {
+      vi.useRealTimers()
+      for (const m of useAiDmStore.getState().pendingMutations) if (m.timeoutId) clearTimeout(m.timeoutId)
+      useAiDmStore.setState({
+        pendingMutations: [],
+        pendingActionSets: [],
+        activeStreamId: null,
+        safetyTimeoutId: null
+      })
+    })
+
+    it('reset() clears both queues and disposes the auto-reject timer', () => {
+      vi.useFakeTimers()
+      useAiDmStore.setState({ pendingMutations: [], pendingActionSets: [actionSet('a')] })
+      const baseline = vi.getTimerCount()
+      useAiDmStore.getState().queueMutations(mutationSet('m1', 1))
+      expect(vi.getTimerCount()).toBe(baseline + 1)
+
+      useAiDmStore.getState().reset()
+      expect(useAiDmStore.getState().pendingMutations).toHaveLength(0)
+      expect(useAiDmStore.getState().pendingActionSets).toHaveLength(0)
+      expect(vi.getTimerCount()).toBe(baseline) // timer actually cleared — no cross-campaign alert
+    })
+
+    it('initFromCampaign (AI-enabled) clears both queues and disposes the timer', () => {
+      vi.useFakeTimers()
+      useAiDmStore.setState({ pendingMutations: [], pendingActionSets: [actionSet('a')] })
+      const baseline = vi.getTimerCount()
+      useAiDmStore.getState().queueMutations(mutationSet('m2', 2))
+      expect(vi.getTimerCount()).toBe(baseline + 1)
+
+      useAiDmStore.getState().initFromCampaign({ id: 'c-on', aiDm: { enabled: true } } as never)
+      expect(useAiDmStore.getState().pendingMutations).toHaveLength(0)
+      expect(useAiDmStore.getState().pendingActionSets).toHaveLength(0)
+      expect(vi.getTimerCount()).toBe(baseline)
+    })
+
+    it('initFromCampaign (AI-disabled) also clears both queues and disposes the timer', () => {
+      vi.useFakeTimers()
+      useAiDmStore.setState({ pendingMutations: [], pendingActionSets: [actionSet('a')] })
+      const baseline = vi.getTimerCount()
+      useAiDmStore.getState().queueMutations(mutationSet('m3', 3))
+      expect(vi.getTimerCount()).toBe(baseline + 1)
+
+      useAiDmStore.getState().initFromCampaign({ id: 'c-off', aiDm: { enabled: false } } as never)
+      expect(useAiDmStore.getState().pendingMutations).toHaveLength(0)
+      expect(useAiDmStore.getState().pendingActionSets).toHaveLength(0)
+      expect(useAiDmStore.getState().enabled).toBe(false)
+      expect(vi.getTimerCount()).toBe(baseline)
+    })
+  })
+
+  // 04D — webSearchDecided suppresses the silent-auto-reject alert when the DM actually clicked.
+  describe('web-search decided flag (04D)', () => {
+    afterEach(() => {
+      useAiDmStore.setState({ activeStreamId: null, webSearchStatus: null, webSearchDecided: false })
+    })
+
+    it('a pending_approval event resets webSearchDecided to false', () => {
+      const cleanupListeners = useAiDmStore.getState().setupListeners()
+      useAiDmStore.setState({ activeStreamId: 'sid-9', webSearchDecided: true, webSearchStatus: null })
+      aiHandlers.webSearch?.({ streamId: 'sid-9', query: 'q', status: 'pending_approval' })
+      expect(useAiDmStore.getState().webSearchDecided).toBe(false)
+      expect(useAiDmStore.getState().webSearchStatus?.status).toBe('pending_approval')
+      cleanupListeners()
+    })
+
+    it('pending → rejected transitions status (auto-reject path) without the decided flag', () => {
+      const cleanupListeners = useAiDmStore.getState().setupListeners()
+      useAiDmStore.setState({ activeStreamId: 'sid-9', webSearchStatus: null, webSearchDecided: false })
+      aiHandlers.webSearch?.({ streamId: 'sid-9', query: 'q', status: 'pending_approval' })
+      aiHandlers.webSearch?.({ streamId: 'sid-9', query: 'q', status: 'rejected' })
+      expect(useAiDmStore.getState().webSearchStatus?.status).toBe('rejected')
+      expect(useAiDmStore.getState().webSearchDecided).toBe(false)
+      cleanupListeners()
+    })
+
+    it('markWebSearchDecided sets the flag (the DM-clicked path)', () => {
+      useAiDmStore.setState({ webSearchDecided: false })
+      useAiDmStore.getState().markWebSearchDecided()
+      expect(useAiDmStore.getState().webSearchDecided).toBe(true)
     })
   })
 })

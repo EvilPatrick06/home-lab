@@ -9,15 +9,18 @@ import { useAiDmStore } from '../../../../stores/use-ai-dm-store'
  */
 export default function RulingApprovalModal(): JSX.Element | null {
   const { t } = useT()
-  const pendingActions = useAiDmStore((s) => s.pendingActions)
+  const pendingActionSets = useAiDmStore((s) => s.pendingActionSets)
   const approvePendingActions = useAiDmStore((s) => s.approvePendingActions)
   const rejectPendingActions = useAiDmStore((s) => s.rejectPendingActions)
+  const dismissPendingActions = useAiDmStore((s) => s.dismissPendingActions)
   const [dmNote, setDmNote] = useState('')
+  const pendingActions = pendingActionSets[0]
 
-  // Phase 17e (GUI-7) — dismiss (clear pending actions WITHOUT applying them). Escape + backdrop
-  // click both dismiss; previously the modal had only Approve/Override and no escape hatch.
-  const dismiss = (): void => rejectPendingActions('')
-  // biome-ignore lint/correctness/useExhaustiveDependencies: re-bind the Escape handler only when pendingActions toggles; rejectPendingActions is a stable store action
+  // Phase 17e (GUI-7) — dismiss (drop the head ruling WITHOUT applying or logging it). Escape +
+  // backdrop click both dismiss. 04B (F5) — dismiss is now honest (no [DM Override] chat line);
+  // Override is the only path that logs.
+  const dismiss = (): void => dismissPendingActions()
+  // biome-ignore lint/correctness/useExhaustiveDependencies: re-bind the Escape handler only when the queue head toggles; dismissPendingActions is a stable store action
   useEffect(() => {
     if (!pendingActions) return
     const onKey = (e: KeyboardEvent): void => {
@@ -96,6 +99,11 @@ export default function RulingApprovalModal(): JSX.Element | null {
         {/* Header */}
         <div className="flex items-center gap-2 px-5 py-3 border-b border-border bg-amber-600/10">
           <span className="text-accent font-bold text-lg">{t('game.rulingApprovalModal.title')}</span>
+          {pendingActionSets.length > 1 && (
+            <span className="text-xs text-amber-300">
+              {t('game.rulingApprovalModal.queueCount', { count: pendingActionSets.length })}
+            </span>
+          )}
           <span className="text-xs text-muted ml-auto">
             {t('game.rulingApprovalModal.actionCount', { count: pendingActions.actions.length })}
           </span>

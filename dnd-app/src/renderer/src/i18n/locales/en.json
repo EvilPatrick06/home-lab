@@ -2906,7 +2906,9 @@
       "title": "AI DM wants to search the web",
       "description": "The AI Dungeon Master is asking to look something up online to answer. Approve the search, or reject it to keep it offline (it will continue using only your campaign and rulebook context).",
       "approve": "Approve search",
-      "reject": "Reject"
+      "reject": "Reject",
+      "countdown": "Auto-rejects in {{remaining}}s",
+      "staleRequest": "This web-search request already expired or was cancelled."
     },
     "rulingApprovalModal": {
       "updateToken": "Update {{label}}: {{hp}}{{ac}}{{conditions}}",
@@ -2930,6 +2932,7 @@
       "defaultAction": "{{action}}: {{json}}",
       "title": "AI DM Ruling",
       "actionCount": "{{count}} action(s)",
+      "queueCount": "{{count}} rulings pending — showing oldest first",
       "intro": "The AI DM wants to execute the following actions. Review and approve or override:",
       "dmNoteLabel": "DM Note (optional, for override)",
       "dmNotePlaceholder": "Reason for override...",
@@ -3291,7 +3294,27 @@
       "unknown": "Unknown",
       "approve": "✓ Approve",
       "reject": "✗ Reject",
-      "approveAll": "✓ Approve All ({{count}})"
+      "approveAll": "✓ Approve All ({{count}})",
+      "rejectAll": "✗ Reject All ({{count}})",
+      "panelLabel": "AI stat changes awaiting approval",
+      "announceQueued": "{{count}} AI stat change set(s) awaiting DM approval",
+      "npcAttitude": "NPC {{name}}: attitude → {{attitude}}",
+      "reduceExhaustion": "Exhaustion −1",
+      "addExhaustion": "Exhaustion +{{levels}}",
+      "equipItem": "Equip {{name}}",
+      "unequipItem": "Unequip {{name}}",
+      "proficiencyOn": "Add {{category}} proficiency: {{name}}",
+      "proficiencyOff": "Remove {{category}} proficiency: {{name}}",
+      "skillExpertise": "Expertise: {{skill}}",
+      "skillProficiencyOn": "Proficiency: {{skill}}",
+      "skillProficiencyOff": "Remove proficiency: {{skill}}",
+      "saveProficiencyOn": "Add {{ability}} save proficiency",
+      "saveProficiencyOff": "Remove {{ability}} save proficiency",
+      "creatureSetResistance": "{{target}}: resistance to {{types}}",
+      "creatureSetVulnerability": "{{target}}: vulnerability to {{types}}",
+      "creatureSetImmunity": "{{target}}: immunity to {{types}}",
+      "creatureExpendSpellSlot": "{{target}}: expend level {{level}} slot{{count}}",
+      "creatureRestoreSpellSlot": "{{target}}: restore level {{level}} slot{{count}}"
     },
     "narrationOverlay": {
       "countdown": "{{remaining}}s",
@@ -5080,7 +5103,10 @@
       "mutationUnknownCharacter": "AI tried to modify unknown character \"{{name}}\" — change skipped",
       "modelSwitched": "AI model \"{{from}}\" isn't installed — switched to \"{{to}}\". To use \"{{from}}\", run: ollama pull {{from}}",
       "modelAutoSelected": "No AI model was set — using installed model \"{{to}}\".",
-      "aiDmError": "AI DM: {{error}}"
+      "aiDmError": "AI DM: {{error}}",
+      "approvedActionFailed": "Approved AI action failed: {{action}} — {{reason}}",
+      "rulingQueued": "New AI ruling queued — {{count}} awaiting review",
+      "webSearchAutoRejected": "Web search \"{{query}}\" was auto-rejected (no decision within 30s)."
     },
     "loadCharacter5e": {
       "partialLoadFailed": "Some character data failed to load — the builder may be incomplete."

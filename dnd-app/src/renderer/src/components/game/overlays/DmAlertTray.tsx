@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { useT } from '../../../i18n'
 
 /**
@@ -69,6 +69,26 @@ export default function DmAlertTray(): JSX.Element {
   const { t } = useT()
   const items = useAlerts()
   const [expanded, setExpanded] = useState(false)
+  const rootRef = useRef<HTMLDivElement>(null)
+  const panelId = useId()
+
+  // While open, behave like a disclosure: Escape and outside-click both close it. Clicking
+  // inside the tray (root subtree) is ignored. Both listeners are torn down on collapse (F13).
+  useEffect(() => {
+    if (!expanded) return
+    const onKey = (e: KeyboardEvent): void => {
+      if (e.key === 'Escape') setExpanded(false)
+    }
+    const onPointerDown = (e: PointerEvent): void => {
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) setExpanded(false)
+    }
+    window.addEventListener('keydown', onKey)
+    document.addEventListener('pointerdown', onPointerDown)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      document.removeEventListener('pointerdown', onPointerDown)
+    }
+  }, [expanded])
 
   const unreadCount = items.length
   const levelColor = (level: DmAlert['level']): string => {
@@ -84,10 +104,13 @@ export default function DmAlertTray(): JSX.Element {
   }
 
   return (
-    <div className="relative">
+    <div className="relative" ref={rootRef}>
       {/* Badge button */}
       <button
         onClick={() => setExpanded(!expanded)}
+        aria-expanded={expanded}
+        aria-haspopup="true"
+        aria-controls={panelId}
         className={`relative px-2.5 py-1.5 rounded-lg text-xs font-medium border cursor-pointer transition-colors ${
           unreadCount > 0
             ? 'bg-red-900/80 border-red-700 text-red-200 hover:bg-red-800/80'
@@ -104,7 +127,10 @@ export default function DmAlertTray(): JSX.Element {
 
       {/* Expanded tray */}
       {expanded && (
-        <div className="absolute top-9 right-0 w-80 max-h-96 bg-surface border border-border rounded-lg shadow-2xl overflow-hidden">
+        <div
+          id={panelId}
+          className="absolute top-9 right-0 w-80 max-h-96 bg-surface border border-border rounded-lg shadow-2xl overflow-hidden"
+        >
           <div className="flex items-center justify-between px-3 py-2 border-b border-border">
             <span className="text-xs font-semibold text-gray-300">{t('game.dmAlertTray.title')}</span>
             {items.length > 0 && (

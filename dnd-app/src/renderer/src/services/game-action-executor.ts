@@ -185,7 +185,7 @@ export function unregisterPluginDmAction(actionType: string): void {
 
 /**
  * Execute DM actions. If DM approval is required (useAiDmStore.dmApprovalRequired),
- * actions are queued as pendingActions instead of executing immediately.
+ * actions are enqueued onto pendingActionSets instead of executing immediately.
  * Pass `bypassApproval: true` to force execution (used when DM approves pending actions).
  */
 import { getAiDmStore } from '../stores/store-accessors'
@@ -195,7 +195,7 @@ export function executeDmActions(actions: DmAction[], bypassApproval = false): E
   if (!bypassApproval) {
     const aiStore = getAiDmStore().getState()
     if (aiStore.dmApprovalRequired && actions.length > 0) {
-      aiStore.setPendingActions({
+      aiStore.enqueuePendingActions({
         id: crypto.randomUUID(),
         text: actions.map((a) => `${a.action}: ${JSON.stringify(a)}`).join('\n'),
         actions,

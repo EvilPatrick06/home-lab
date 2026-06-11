@@ -2906,7 +2906,9 @@
       "title": "El DM de IA quiere buscar en la web",
       "description": "El Dungeon Master de IA pide buscar algo en línea para responder. Aprueba la búsqueda, o recházala para mantenerlo sin conexión (seguirá usando solo el contexto de tu campaña y las reglas).",
       "approve": "Aprobar búsqueda",
-      "reject": "Rechazar"
+      "reject": "Rechazar",
+      "countdown": "Se rechazará automáticamente en {{remaining}} s",
+      "staleRequest": "Esta solicitud de búsqueda web ya expiró o fue cancelada."
     },
     "rulingApprovalModal": {
       "updateToken": "Actualizar {{label}}: {{hp}}{{ac}}{{conditions}}",
@@ -2930,6 +2932,7 @@
       "defaultAction": "{{action}}: {{json}}",
       "title": "Dictamen del DM IA",
       "actionCount": "{{count}} acción(es)",
+      "queueCount": "{{count}} decisiones pendientes — se muestra la más antigua primero",
       "intro": "El DM IA quiere ejecutar las siguientes acciones. Revisa y aprueba o anula:",
       "dmNoteLabel": "Nota del DM (opcional, para anulación)",
       "dmNotePlaceholder": "Motivo de la anulación...",
@@ -3291,7 +3294,27 @@
       "unknown": "Desconocido",
       "approve": "✓ Aprobar",
       "reject": "✗ Rechazar",
-      "approveAll": "✓ Aprobar todo ({{count}})"
+      "approveAll": "✓ Aprobar todo ({{count}})",
+      "rejectAll": "✗ Rechazar todo ({{count}})",
+      "panelLabel": "Cambios de estadísticas de la IA pendientes de aprobación",
+      "announceQueued": "{{count}} conjunto(s) de cambios de la IA esperando aprobación del DM",
+      "npcAttitude": "PNJ {{name}}: actitud → {{attitude}}",
+      "reduceExhaustion": "Agotamiento −1",
+      "addExhaustion": "Agotamiento +{{levels}}",
+      "equipItem": "Equipar {{name}}",
+      "unequipItem": "Desequipar {{name}}",
+      "proficiencyOn": "Añadir competencia de {{category}}: {{name}}",
+      "proficiencyOff": "Quitar competencia de {{category}}: {{name}}",
+      "skillExpertise": "Pericia: {{skill}}",
+      "skillProficiencyOn": "Competencia: {{skill}}",
+      "skillProficiencyOff": "Quitar competencia: {{skill}}",
+      "saveProficiencyOn": "Añadir competencia en salvación de {{ability}}",
+      "saveProficiencyOff": "Quitar competencia en salvación de {{ability}}",
+      "creatureSetResistance": "{{target}}: resistencia a {{types}}",
+      "creatureSetVulnerability": "{{target}}: vulnerabilidad a {{types}}",
+      "creatureSetImmunity": "{{target}}: inmunidad a {{types}}",
+      "creatureExpendSpellSlot": "{{target}}: gastar espacio de nivel {{level}}{{count}}",
+      "creatureRestoreSpellSlot": "{{target}}: restaurar espacio de nivel {{level}}{{count}}"
     },
     "narrationOverlay": {
       "countdown": "{{remaining}}s",
@@ -5080,7 +5103,10 @@
       "mutationUnknownCharacter": "La IA intentó modificar un personaje desconocido \"{{name}}\" — cambio omitido",
       "modelSwitched": "El modelo de IA \"{{from}}\" no está instalado — se cambió a \"{{to}}\". Para usar \"{{from}}\", ejecuta: ollama pull {{from}}",
       "modelAutoSelected": "No se configuró ningún modelo de IA — usando el modelo instalado \"{{to}}\".",
-      "aiDmError": "DM con IA: {{error}}"
+      "aiDmError": "DM con IA: {{error}}",
+      "approvedActionFailed": "La acción de IA aprobada falló: {{action}} — {{reason}}",
+      "rulingQueued": "Nueva decisión de la IA en cola — {{count}} pendientes de revisión",
+      "webSearchAutoRejected": "La búsqueda web \"{{query}}\" se rechazó automáticamente (sin decisión en 30 s)."
     },
     "loadCharacter5e": {
       "partialLoadFailed": "Algunos datos del personaje no se pudieron cargar — el creador puede estar incompleto."

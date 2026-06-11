@@ -6,3 +6,8 @@
 // IPC file size limits
 export const MAX_READ_FILE_SIZE = 50 * 1024 * 1024 // 50 MB (maps)
 export const MAX_WRITE_CONTENT_SIZE = 10 * 1024 * 1024 // 10 MB (data files)
+
+// How long the main process waits for the DM to approve an AI web-search request
+// before hard auto-rejecting it (ai-service.ts waitForWebSearchApproval). Shared so
+// the renderer approval prompt can render an accurate countdown.
+export const WEB_SEARCH_APPROVAL_TIMEOUT_MS = 30_000

@@ -33,4 +33,10 @@ describe('game-action-executor', () => {
   it('defines MAX_ACTIONS_PER_BATCH constant', () => {
     expect(src).toContain('MAX_ACTIONS_PER_BATCH')
   })
+
+  // 04B — DM-approval queueing enqueues onto the FIFO pendingActionSets, not the old single slot.
+  it('enqueues pending actions via enqueuePendingActions (not the removed setPendingActions)', () => {
+    expect(src).toContain('enqueuePendingActions')
+    expect(src).not.toContain('setPendingActions(')
+  })
 })

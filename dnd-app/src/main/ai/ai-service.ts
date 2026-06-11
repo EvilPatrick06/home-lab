@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { app, BrowserWindow } from 'electron'
+import { WEB_SEARCH_APPROVAL_TIMEOUT_MS } from '../../shared/constants'
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
 import { sendNarration } from '../bmo-bridge'
 import { logToFile } from '../log'
@@ -142,7 +143,6 @@ const staleStreamSweep = setInterval(() => {
 }, 60_000)
 
 const pendingWebSearchApprovals = new Map<string, PendingWebSearchApproval>()
-const WEB_SEARCH_APPROVAL_TIMEOUT_MS = 30_000
 const WEB_SEARCH_DENIED_MESSAGE =
   '[WEB SEARCH DENIED]\nThe requested web search was not approved. Continue responding using existing campaign and rulebook context only.\n[/WEB SEARCH DENIED]'
 

@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { AI_MUTATIONS_AUTO_REJECT_MS } from '../../../constants'
 import { i18n, useT } from '../../../i18n'
 import { type PendingMutationSet, useAiDmStore } from '../../../stores/use-ai-dm-store'
+import { announce } from '../../ui/ScreenReaderAnnouncer'
 
 /** Total countdown seconds — derived from the store's auto-reject timeout so the
  * UI and the actual timer can't drift apart. */
@@ -89,25 +90,100 @@ function changeLabel(change: { type: string; [key: string]: unknown }): string {
       return i18n.t('game.mutationApprovalPanel.grantFeature', { name: change.name })
     case 'revoke_feature':
       return i18n.t('game.mutationApprovalPanel.revokeFeature', { name: change.name })
+    case 'npc_attitude':
+      return i18n.t('game.mutationApprovalPanel.npcAttitude', { name: change.name, attitude: change.attitude })
+    case 'reduce_exhaustion':
+      return i18n.t('game.mutationApprovalPanel.reduceExhaustion')
+    case 'add_exhaustion':
+      return i18n.t('game.mutationApprovalPanel.addExhaustion', { levels: change.levels })
+    case 'set_equipped':
+      return change.equipped
+        ? i18n.t('game.mutationApprovalPanel.equipItem', { name: change.name })
+        : i18n.t('game.mutationApprovalPanel.unequipItem', { name: change.name })
+    case 'set_proficiency':
+      return change.proficient
+        ? i18n.t('game.mutationApprovalPanel.proficiencyOn', { category: change.category, name: change.name })
+        : i18n.t('game.mutationApprovalPanel.proficiencyOff', { category: change.category, name: change.name })
+    case 'set_skill_proficiency':
+      if (change.expertise) return i18n.t('game.mutationApprovalPanel.skillExpertise', { skill: change.skill })
+      return change.proficient
+        ? i18n.t('game.mutationApprovalPanel.skillProficiencyOn', { skill: change.skill })
+        : i18n.t('game.mutationApprovalPanel.skillProficiencyOff', { skill: change.skill })
+    case 'set_save_proficiency':
+      return change.proficient
+        ? i18n.t('game.mutationApprovalPanel.saveProficiencyOn', { ability: (change.ability as string).toUpperCase() })
+        : i18n.t('game.mutationApprovalPanel.saveProficiencyOff', { ability: (change.ability as string).toUpperCase() })
+    case 'creature_set_resistance':
+      return i18n.t('game.mutationApprovalPanel.creatureSetResistance', {
+        target: change.targetLabel,
+        types: (change.damageTypes as string[]).join(', ')
+      })
+    case 'creature_set_vulnerability':
+      return i18n.t('game.mutationApprovalPanel.creatureSetVulnerability', {
+        target: change.targetLabel,
+        types: (change.damageTypes as string[]).join(', ')
+      })
+    case 'creature_set_immunity':
+      return i18n.t('game.mutationApprovalPanel.creatureSetImmunity', {
+        target: change.targetLabel,
+        types: (change.damageTypes as string[]).join(', ')
+      })
+    case 'creature_expend_spell_slot':
+      return i18n.t('game.mutationApprovalPanel.creatureExpendSpellSlot', {
+        target: change.targetLabel,
+        level: change.level,
+        count: (change.count as number) > 1 ? ` ×${change.count}` : ''
+      })
+    case 'creature_restore_spell_slot':
+      return i18n.t('game.mutationApprovalPanel.creatureRestoreSpellSlot', {
+        target: change.targetLabel,
+        level: change.level,
+        count: (change.count as number) > 1 ? ` ×${change.count}` : ''
+      })
     default:
       return type
   }
 }
 
+// Explicit harmful/beneficial sets, checked BEFORE any prefix rule — the old
+// `type.startsWith('creature_')`-first logic wrongly painted creature_heal /
+// creature_restore_spell_slot / creature_remove_condition red (F9).
+const HARMFUL = new Set([
+  'damage',
+  'add_condition',
+  'remove_item',
+  'add_exhaustion',
+  'expend_spell_slot',
+  'use_class_resource',
+  'revoke_feature',
+  'creature_damage',
+  'creature_add_condition',
+  'creature_kill',
+  'creature_expend_spell_slot',
+  'creature_set_vulnerability'
+])
+const BENEFICIAL = new Set([
+  'heal',
+  'temp_hp',
+  'remove_condition',
+  'restore_spell_slot',
+  'add_item',
+  'xp',
+  'grant_feature',
+  'restore_class_resource',
+  'reduce_exhaustion',
+  'creature_heal',
+  'creature_remove_condition',
+  'creature_restore_spell_slot',
+  'creature_set_resistance',
+  'creature_set_immunity'
+])
+
 /** Color class for mutation type */
 function changeColor(type: string): string {
-  if (type.startsWith('creature_') || type === 'damage' || type === 'add_condition' || type === 'remove_item') {
-    return 'text-red-400'
-  }
-  if (
-    type === 'heal' ||
-    type === 'restore_spell_slot' ||
-    type === 'add_item' ||
-    type === 'xp' ||
-    type === 'grant_feature'
-  ) {
-    return 'text-emerald-400'
-  }
+  if (HARMFUL.has(type)) return 'text-red-400'
+  if (BENEFICIAL.has(type)) return 'text-emerald-400'
+  // Neutral (gold/death_save/npc_attitude/proficiency/equip/set_ability_score/...).
   return 'text-amber-300'
 }
 
@@ -153,13 +229,17 @@ function MutationCard({
         <CountdownTimer timestamp={set.timestamp} />
       </div>
 
-      <div className="space-y-0.5">
+      <div className="space-y-1">
         {set.mutations.map((m, i) => (
-          <div key={i} className={`text-[11px] ${changeColor(m.type)} flex items-start gap-1.5`}>
-            <span className="opacity-50 mt-px">•</span>
-            <span>{changeLabel(m)}</span>
+          <div key={i} className="space-y-0.5">
+            <div className={`text-[11px] ${changeColor(m.type)} flex items-start gap-1.5`}>
+              <span className="opacity-50 mt-px">•</span>
+              <span>{changeLabel(m)}</span>
+            </div>
             {m.reason ? (
-              <span className="text-gray-500 ml-auto truncate max-w-[120px]">({String(m.reason)})</span>
+              <div className="text-[10px] text-gray-500 break-words pl-3" title={String(m.reason)}>
+                ({String(m.reason)})
+              </div>
             ) : null}
           </div>
         ))}
@@ -189,14 +269,36 @@ export default function MutationApprovalPanel(): JSX.Element | null {
   const approveMutations = useAiDmStore((s) => s.approveMutations)
   const rejectMutations = useAiDmStore((s) => s.rejectMutations)
   const approveAllMutations = useAiDmStore((s) => s.approveAllMutations)
+  const rejectAllMutations = useAiDmStore((s) => s.rejectAllMutations)
+
+  // Announce newly-queued sets through the persistent global live region — slapping
+  // aria-live on this panel's root is unreliable because it mounts WITH its content
+  // (it returns null when empty), so the first set would not be announced (F12).
+  const prevCount = useRef(0)
+  useEffect(() => {
+    if (pendingMutations.length > prevCount.current) {
+      announce(t('game.mutationApprovalPanel.announceQueued', { count: pendingMutations.length }))
+    }
+    prevCount.current = pendingMutations.length
+  }, [pendingMutations.length, t])
 
   if (pendingMutations.length === 0) return null
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 w-72 space-y-2">
-      {/* Header with Approve All */}
+    <div
+      className="fixed bottom-4 right-4 z-50 w-72 space-y-2"
+      role="status"
+      aria-label={t('game.mutationApprovalPanel.panelLabel')}
+    >
+      {/* Header with Approve All / Reject All */}
       {pendingMutations.length > 1 && (
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-1.5">
+          <button
+            onClick={rejectAllMutations}
+            className="px-2.5 py-1 text-xs font-semibold bg-red-900/70 hover:bg-red-800/90 text-red-300 border border-red-700/50 rounded-lg cursor-pointer transition-colors"
+          >
+            {t('game.mutationApprovalPanel.rejectAll', { count: pendingMutations.length })}
+          </button>
           <button
             onClick={approveAllMutations}
             className="px-2.5 py-1 text-xs font-semibold bg-emerald-700/70 hover:bg-emerald-600/90 text-emerald-200 border border-emerald-600/50 rounded-lg cursor-pointer transition-colors"
