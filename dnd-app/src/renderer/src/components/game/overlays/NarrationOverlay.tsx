@@ -12,6 +12,10 @@ export default function NarrationOverlay({ text, onDismiss, autoDismissSeconds }
   const [visible, setVisible] = useState(false)
   const [remaining, setRemaining] = useState(autoDismissSeconds ?? 0)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  // PHASE-10 10I — move focus inside the dialog on open (WAI-ARIA modal pattern). The close
+  // button is the only tabbable control + a focusable scroll region; a full focus trap is
+  // overkill for a single-button transient overlay (Escape-to-close already exists).
+  const closeRef = useRef<HTMLButtonElement>(null)
 
   const handleDismiss = useCallback(() => {
     if (timerRef.current) {
@@ -23,9 +27,10 @@ export default function NarrationOverlay({ text, onDismiss, autoDismissSeconds }
     setTimeout(onDismiss, 300)
   }, [onDismiss])
 
-  // Fade in on mount
+  // Fade in on mount + move focus into the dialog
   useEffect(() => {
     const rafId = requestAnimationFrame(() => setVisible(true))
+    closeRef.current?.focus()
     return () => cancelAnimationFrame(rafId)
   }, [])
 
@@ -73,6 +78,9 @@ export default function NarrationOverlay({ text, onDismiss, autoDismissSeconds }
 
       {/* Parchment text box */}
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={t('game.narrationOverlay.ariaLabel')}
         className="relative max-w-2xl mx-8 bg-amber-50 border-2 border-amber-700/60 rounded-lg shadow-2xl px-10 py-8"
         onClick={(e) => e.stopPropagation()}
       >
@@ -80,7 +88,11 @@ export default function NarrationOverlay({ text, onDismiss, autoDismissSeconds }
         <div className="absolute top-0 left-4 right-4 h-0.5 bg-amber-700/30" />
         <div className="absolute bottom-0 left-4 right-4 h-0.5 bg-amber-700/30" />
 
-        <p className="text-amber-950 font-serif text-lg leading-relaxed whitespace-pre-wrap text-center">{text}</p>
+        {/* Scrollable narration — a long scene scrolls here so countdown/hint/close stay visible.
+            tabIndex makes the region keyboard-scrollable (arrow keys). */}
+        <div className="max-h-[60vh] overflow-y-auto" tabIndex={0} aria-label={t('game.narrationOverlay.ariaLabel')}>
+          <p className="text-amber-950 font-serif text-lg leading-relaxed whitespace-pre-wrap text-center">{text}</p>
+        </div>
 
         {/* Auto-dismiss countdown */}
         {autoDismissSeconds && autoDismissSeconds > 0 && remaining > 0 && (
@@ -104,6 +116,7 @@ export default function NarrationOverlay({ text, onDismiss, autoDismissSeconds }
 
         {/* Close button */}
         <button
+          ref={closeRef}
           onClick={handleDismiss}
           className="absolute top-2 right-3 text-amber-700/40 hover:text-amber-700 text-lg cursor-pointer transition-colors"
           title={t('game.narrationOverlay.dismiss')}

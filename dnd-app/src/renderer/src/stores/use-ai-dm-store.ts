@@ -170,6 +170,7 @@ interface AiDmState {
   checkSceneStatus: (campaignId: string) => Promise<void>
   clearMessages: () => void
   setPaused: (paused: boolean) => void
+  clearLastError: () => void
   reset: () => void
   setupListeners: () => () => void
 }
@@ -622,6 +623,11 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
 
     setPaused: (paused) => {
       set({ paused })
+    },
+
+    // PHASE-10 10E — clear the inline error without sending anything (dismiss affordance).
+    clearLastError: () => {
+      set({ lastError: null })
     },
 
     reset: () => {

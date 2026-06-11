@@ -119,6 +119,7 @@ const api = {
     updateOllama: () => ipcRenderer.invoke(IPC_CHANNELS.AI_OLLAMA_UPDATE),
     deleteModel: (model: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_DELETE_MODEL, model),
     getTokenBudget: (campaignId?: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_TOKEN_BUDGET, campaignId),
+    getTokenMeter: () => ipcRenderer.invoke(IPC_CHANNELS.AI_GET_TOKEN_METER),
     previewTokenBudget: (campaignId: string, characterIds: string[]) =>
       ipcRenderer.invoke(IPC_CHANNELS.AI_TOKEN_BUDGET_PREVIEW, campaignId, characterIds),
     // Live state sync

@@ -760,6 +760,11 @@
       "errorPull": "No se pudo descargar el modelo",
       "errorKeyValidation": "Error al validar la clave de API",
       "errorKeyValidationFailed": "No se pudo validar la clave de API",
+      "errorDetect": "No se pudo comprobar la instalación local de IA: la app no pudo conectar con su integración de Ollama. Reintenta o comprueba la URL de Ollama abajo.",
+      "retryDetect": "Reintentar detección",
+      "modelsLoading": "Cargando modelos...",
+      "modelsError": "No se pudo cargar la lista de modelos: comprueba la clave de API y la red.",
+      "modelsEmpty": "Introduce una clave de API válida para cargar la lista de modelos.",
       "gpuDetected": "GPU NVIDIA detectada ({{gb}} GB de VRAM)",
       "gpuNotDetected": "No se detectó ninguna GPU NVIDIA (modo CPU)",
       "enable": "Activar el Dungeon Master de IA",
@@ -879,6 +884,8 @@
       "clearing": "Borrando...",
       "clearMemory": "Borrar memoria",
       "noFiles": "Aún no hay archivos de memoria.",
+      "loadFailed": "No se pudieron cargar los archivos de memoria de la IA: comprueba el almacenamiento de la campaña y reintenta.",
+      "clearFailed": "No se pudo borrar la memoria de la IA: puede que los archivos sigan presentes.",
       "hide": "Ocultar",
       "view": "Ver",
       "empty": "(vacío)"
@@ -902,9 +909,16 @@
       "aiError": "Error del DM de IA: {{error}}",
       "aiResponding": "La IA está respondiendo",
       "aiReady": "IA lista",
+      "aiPaused": "IA en pausa",
+      "aiChecking": "Comprobando estado de la IA...",
       "aiNoModel": "Ningún modelo instalado: instala uno en ajustes de IA",
-      "tokensTitle": "Tokens estimados de la conversación",
-      "tokens": "~{{used}} / 23.000 tokens",
+      "aiProviderUnavailable": "Proveedor de IA inaccesible: comprueba la clave de API en los ajustes de IA",
+      "aiRecheckTitle": "Haz clic para volver a comprobar el estado de la IA",
+      "aiErrorDismiss": "Descartar error de IA",
+      "aiErrorRetry": "Reintentar",
+      "tokensTitle": "Tokens estimados de la conversación frente al presupuesto de historial de la IA: los mensajes antiguos que excedan el presupuesto no se envían al modelo",
+      "tokens": "~{{used}} / {{max}} tokens",
+      "tokensUsedOnly": "~{{used}} tokens",
       "commandReference": "Referencia de comandos"
     },
     "commandAutocomplete": {
@@ -3319,7 +3333,8 @@
     "narrationOverlay": {
       "countdown": "{{remaining}}s",
       "dismissHint": "Haz clic en cualquier lugar o pulsa Escape para descartar",
-      "dismiss": "Descartar"
+      "dismiss": "Descartar",
+      "ariaLabel": "Narración del DM"
     },
     "playerHUDActions": {
       "tempHp": "PG temp.:",
@@ -5506,7 +5521,10 @@
       "configure": "Configurar",
       "notEnabled": "El DM con IA no está activado para esta campaña.",
       "enableAiDm": "Activar DM con IA",
-      "configureTitle": "Configurar DM con IA"
+      "configureTitle": "Configurar DM con IA",
+      "saving": "Guardando...",
+      "saveFailed": "No se pudieron aplicar los ajustes de IA: {{error}}",
+      "notReadyWarning": "Este proveedor aún no está listo: es posible que el DM con IA no responda hasta completar la configuración."
     },
     "audioManager": {
       "customAudio": "Audio personalizado ({{count}})",

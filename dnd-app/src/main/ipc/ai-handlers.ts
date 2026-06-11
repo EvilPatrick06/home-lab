@@ -44,6 +44,7 @@ import {
 } from '../ai/ollama-manager'
 import { setOpenAIApiKey } from '../ai/openai-client'
 import { getProvider } from '../ai/provider-registry'
+import { getActiveContextWindow, getEffectiveBudgets } from '../ai/token-budget'
 import type {
   AiChatRequest,
   AiConfig,
@@ -328,6 +329,18 @@ export function registerAiHandlers(): void {
 
   handle(IPC_CHANNELS.AI_TOKEN_BUDGET, async (_event, campaignId?: string) => {
     return getLastTokenBreakdown(typeof campaignId === 'string' ? campaignId : undefined)
+  })
+
+  // PHASE-10 10C — the chat token meter's max. `conversationBudget` is the slice of the
+  // window the conversation actually competes for (getEffectiveBudgets().conversationHistory);
+  // `contextWindow` is the active window. NOTE: before the first Ollama stream of a session
+  // the window is the cloud default, so this is the raw/unscaled budget — it tightens to the
+  // scaled value after the first stream sets the window. That is honest "best current knowledge".
+  handle(IPC_CHANNELS.AI_GET_TOKEN_METER, async () => {
+    return {
+      conversationBudget: getEffectiveBudgets().conversationHistory,
+      contextWindow: getActiveContextWindow()
+    }
   })
 
   handle(IPC_CHANNELS.AI_TOKEN_BUDGET_PREVIEW, async (_event, campaignId: string, characterIds: string[]) => {

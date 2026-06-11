@@ -239,3 +239,23 @@ describe('registerAiHandlers AI_RESTORE_CONVERSATION (07E)', () => {
     expect(savedArg.activeCharacterIds).toEqual([])
   })
 })
+
+describe('registerAiHandlers AI_GET_TOKEN_METER channel (PHASE-10 10C)', () => {
+  beforeEach(() => mocked.ipcHandleMock.mockClear())
+
+  it('returns the conversation budget and active context window as numbers', async () => {
+    registerAiHandlers()
+    const registration = mocked.ipcHandleMock.mock.calls.find(
+      ([channel]) => channel === IPC_CHANNELS.AI_GET_TOKEN_METER
+    )
+    expect(registration).toBeDefined()
+    const handler = registration?.[1] as (
+      _event: unknown
+    ) => Promise<{ conversationBudget: number; contextWindow: number }>
+    const res = await handler({})
+    expect(typeof res.conversationBudget).toBe('number')
+    expect(res.conversationBudget).toBeGreaterThan(0)
+    expect(typeof res.contextWindow).toBe('number')
+    expect(res.contextWindow).toBeGreaterThan(0)
+  })
+})

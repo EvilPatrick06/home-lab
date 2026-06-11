@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { app, BrowserWindow } from 'electron'
+import { DEFAULT_AI_MODEL } from '../../shared/ai-defaults'
 import { SCENE_PREP_PROMPT, WEB_SEARCH_APPROVAL_TIMEOUT_MS } from '../../shared/constants'
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
 import { sendNarration } from '../bmo-bridge'
@@ -317,10 +318,10 @@ export function streamChatRetryable(
 }
 
 // The single curated default model (recommended local model) used ONLY when no
-// model is configured yet. Every other "default model" hardcode was removed —
-// providers list real models live and callers pass the configured model — so this
-// is the one place a model id is named, and it's the user-facing default.
-export const DEFAULT_AI_MODEL = 'llama3.2:3b'
+// model is configured yet. Sourced from the shared ai-defaults module (PHASE-10
+// 10A) so renderer + main agree; re-exported here to keep ai-vision.ts's
+// `require('./ai-service').DEFAULT_AI_MODEL` and other importers stable.
+export { DEFAULT_AI_MODEL }
 
 // Current config
 let currentConfig: {

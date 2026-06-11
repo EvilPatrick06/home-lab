@@ -117,8 +117,21 @@ describe('useAiDmStore', () => {
     expect(typeof state.checkSceneStatus).toBe('function')
     expect(typeof state.clearMessages).toBe('function')
     expect(typeof state.setPaused).toBe('function')
+    expect(typeof state.clearLastError).toBe('function')
     expect(typeof state.reset).toBe('function')
     expect(typeof state.setupListeners).toBe('function')
+  })
+
+  describe('clearLastError (PHASE-10 10E)', () => {
+    it('nulls lastError and touches nothing else', () => {
+      useAiDmStore.setState({ lastError: 'boom', paused: true, isTyping: true })
+      useAiDmStore.getState().clearLastError()
+      const s = useAiDmStore.getState()
+      expect(s.lastError).toBeNull()
+      // unrelated state untouched
+      expect(s.paused).toBe(true)
+      expect(s.isTyping).toBe(true)
+    })
   })
 
   describe('mutation approval flow', () => {

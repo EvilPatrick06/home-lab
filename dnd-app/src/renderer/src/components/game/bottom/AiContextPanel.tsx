@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { addToast } from '../../../hooks/use-toast'
 import { useT } from '../../../i18n'
 
 interface MemoryFileInfo {
@@ -24,14 +25,18 @@ export default function AiContextPanel({ campaignId }: AiContextPanelProps): JSX
   const [fileContent, setFileContent] = useState<string>('')
   const [loadingContent, setLoadingContent] = useState(false)
   const [clearing, setClearing] = useState(false)
+  // PHASE-10 10F — distinguish a genuine list failure from an empty memory dir.
+  const [listError, setListError] = useState(false)
 
   const refresh = useCallback(async () => {
     setLoading(true)
+    setListError(false)
     try {
       const result = await window.api.ai.listMemoryFiles(campaignId)
       setFiles(result)
     } catch {
       setFiles([])
+      setListError(true)
     } finally {
       setLoading(false)
     }
@@ -67,15 +72,16 @@ export default function AiContextPanel({ campaignId }: AiContextPanelProps): JSX
     setClearing(true)
     try {
       await window.api.ai.clearMemory(campaignId)
-      setFiles([])
       setViewingFile(null)
       setFileContent('')
+      // Truth from disk beats an optimistic empty — re-list after clearing.
+      await refresh()
     } catch {
-      // Non-fatal
+      addToast(t('game.aiContextPanel.clearFailed'), 'error')
     } finally {
       setClearing(false)
     }
-  }, [campaignId, t])
+  }, [campaignId, t, refresh])
 
   const totalSize = files.reduce((sum, f) => sum + f.size, 0)
 
@@ -106,7 +112,9 @@ export default function AiContextPanel({ campaignId }: AiContextPanelProps): JSX
         </div>
       </div>
 
-      {files.length === 0 && !loading ? (
+      {listError && !loading ? (
+        <div className="text-xs text-red-400 py-1">{t('game.aiContextPanel.loadFailed')}</div>
+      ) : files.length === 0 && !loading ? (
         <div className="text-xs text-gray-600 py-1">{t('game.aiContextPanel.noFiles')}</div>
       ) : (
         <div className="space-y-0.5">

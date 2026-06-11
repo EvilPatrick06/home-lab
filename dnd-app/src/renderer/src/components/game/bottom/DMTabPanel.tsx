@@ -1,5 +1,6 @@
 import dmTabsJson from '@data/ui/dm-tabs.json'
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import { AI_PROVIDER_LABELS } from '../../../constants'
 import { useT } from '../../../i18n'
 import { load5eDmTabs } from '../../../services/data-provider'
 import { useAiDmStore } from '../../../stores/use-ai-dm-store'
@@ -48,7 +49,9 @@ export default function DMTabPanel({ onOpenModal, campaign, onDispute, onEditMap
   const aiEnabled = useAiDmStore((s) => s.enabled)
   const aiPaused = useAiDmStore((s) => s.paused)
   const aiIsTyping = useAiDmStore((s) => s.isTyping)
-  const aiModel = 'Ollama'
+  // PHASE-10 10A — show the configured provider's model (or provider label), not a hardcoded "Ollama".
+  const aiDm = campaign.aiDm
+  const aiModel = aiDm?.model ?? aiDm?.ollamaModel ?? AI_PROVIDER_LABELS[aiDm?.provider ?? 'ollama'] ?? 'AI'
   const setPaused = useAiDmStore((s) => s.setPaused)
   const cancelStream = useAiDmStore((s) => s.cancelStream)
   const dmApprovalRequired = useAiDmStore((s) => s.dmApprovalRequired)

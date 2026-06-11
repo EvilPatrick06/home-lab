@@ -7,6 +7,7 @@
 // an anchor href.
 import { useVirtualizer } from '@tanstack/react-virtual'
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useAiReadiness } from '../../../hooks/use-ai-readiness'
 import { addToast } from '../../../hooks/use-toast'
 import { useT } from '../../../i18n'
 import { routePlayerMessageToAiDm } from '../../../services/ai-dm-routing'
@@ -23,9 +24,11 @@ import { is5eCharacter } from '../../../types/character'
 import type { Character5e } from '../../../types/character-5e'
 import type { LibraryCategory } from '../../../types/library'
 import { renderChatContent } from '../../../utils/chat-links'
+import { sanitizeStreamPreview } from '../../../utils/stream-preview'
 import { trigger3dDice } from '../dice3d'
 import DiceResult from '../dice3d/DiceResult'
 import SkillRollButton from '../player/SkillRollButton'
+import { AiDmStatusBar } from './AiDmStatusBar'
 import CommandAutocomplete from './CommandAutocomplete'
 
 const BottomChatMessage = memo(function BottomChatMessage({
@@ -143,40 +146,24 @@ export default function ChatPanel({
   const aiStreamStatus = useAiDmStore((s) => s.streamStatus)
   const aiEnabled = useAiDmStore((s) => s.enabled)
   const aiLastError = useAiDmStore((s) => s.lastError)
+  const aiClearLastError = useAiDmStore((s) => s.clearLastError)
   const aiMessages = useAiDmStore((s) => s.messages)
+  // PHASE-10 10E — remember the last message routed to the AI so the error line can retry it.
+  const lastAiRouteRef = useRef<{ message: string; senderName: string } | null>(null)
 
-  // Honest readiness: the green "AI Ready" dot must reflect whether the active
-  // provider can actually answer — for Ollama that means a model is installed, not
-  // just that the server is up. null = unknown (still checking).
-  const [aiUsable, setAiUsable] = useState<boolean | null>(null)
+  // Honest readiness probe (PHASE-10 10B): distinguishes checking / failed / not-ready /
+  // ready, re-checks every 30s while visible, and exposes a manual recheck.
+  const {
+    usable: aiUsable,
+    provider: aiProvider,
+    probeFailed: aiProbeFailed,
+    conversationBudget: aiConversationBudget,
+    recheck: aiRecheck
+  } = useAiReadiness(isDM && aiEnabled)
+  // A stream error is the strongest readiness signal — re-probe immediately when one lands.
   useEffect(() => {
-    if (!isDM || !aiEnabled) {
-      setAiUsable(null)
-      return
-    }
-    let cancelled = false
-    void (async () => {
-      try {
-        const [cfg, status] = await Promise.all([window.api.ai.getConfig(), window.api.ai.checkProviders()])
-        if (cancelled) return
-        const provider = cfg?.provider ?? 'ollama'
-        const usable =
-          provider === 'claude'
-            ? status.claude
-            : provider === 'openai'
-              ? status.openai
-              : provider === 'gemini'
-                ? status.gemini
-                : status.ollamaHasUsableModel
-        setAiUsable(usable)
-      } catch {
-        if (!cancelled) setAiUsable(null)
-      }
-    })()
-    return () => {
-      cancelled = true
-    }
-  }, [isDM, aiEnabled])
+    if (aiLastError) aiRecheck()
+  }, [aiLastError, aiRecheck])
 
   const aiNarrationByTimestamp = useMemo(() => {
     const narrationMap = new Map<number, string>()
@@ -202,6 +189,20 @@ export default function ChatPanel({
       virtualizer.scrollToIndex(chatMessages.length - 1, { align: 'end' })
     }
   }, [chatMessages.length, virtualizer])
+
+  // PHASE-10 10D — stick-to-bottom for the streaming preview/indicator (which live OUTSIDE
+  // the virtualizer, so scrollToIndex can't reach them). Only auto-scroll if the user was
+  // already near the bottom; a user scrolled up is not yanked.
+  const stickToBottomRef = useRef(true)
+  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget
+    stickToBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 48
+  }, [])
+  useEffect(() => {
+    if (stickToBottomRef.current && scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+    }
+  }, [aiIsTyping, aiStreamingText])
 
   const addSysMsg = (content: string): void => {
     addChatMessage({
@@ -260,6 +261,7 @@ export default function ChatPanel({
     // loop only ever sees PEER messages, so the host's own typed message would never
     // reach the AI otherwise. Clients don't route (only the host runs the AI).
     if (campaign && (networkRole === 'none' || networkRole === 'host') && aiEnabled && !aiPaused) {
+      lastAiRouteRef.current = { message: trimmed, senderName: playerName }
       routePlayerMessageToAiDm(
         campaign.id,
         trimmed,
@@ -270,6 +272,29 @@ export default function ChatPanel({
     }
     setInput('')
   }
+
+  // PHASE-10 10E — retry the last failed AI turn through the real routing path (fresh context
+  // is rebuilt by routePlayerMessageToAiDm). Known minor wart: the failed turn's user message
+  // may already sit in main's conversation history, so a retry can duplicate the user line —
+  // accepted (turn transactionality is a main-side concern, out of scope here).
+  const handleRetryAi = (): void => {
+    const ref = lastAiRouteRef.current
+    if (!ref || !campaign) return
+    aiClearLastError()
+    routePlayerMessageToAiDm(
+      campaign.id,
+      ref.message,
+      ref.senderName,
+      campaign.players ?? [],
+      campaign.calendar?.exactTimeDefault
+    )
+  }
+  const canRetryAi =
+    lastAiRouteRef.current != null &&
+    campaign != null &&
+    (networkRole === 'none' || networkRole === 'host') &&
+    aiEnabled &&
+    !aiPaused
 
   const handleDiceRoll = (result: { formula: string; total: number; rolls: number[] }): void => {
     const msg = {
@@ -354,7 +379,12 @@ export default function ChatPanel({
   return (
     <div className="flex-1 flex flex-col min-w-0 min-h-0">
       {/* Messages */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-2 min-h-0" aria-live="polite">
+      <div
+        ref={scrollRef}
+        onScroll={handleScroll}
+        className="flex-1 overflow-y-auto px-3 py-2 min-h-0"
+        aria-live="polite"
+      >
         {chatMessages.length === 0 ? (
           <p className="text-sm text-gray-500 text-center py-4">{t('game.chatPanel.noMessages')}</p>
         ) : (
@@ -402,39 +432,49 @@ export default function ChatPanel({
             </div>
             {aiStreamingText && (
               <div className="text-sm text-gray-200 mt-0.5 max-h-20 overflow-hidden font-sans">
-                {aiStreamingText.slice(-200)}
+                {sanitizeStreamPreview(aiStreamingText).slice(-200)}
               </div>
             )}
           </div>
         )}
 
-        {/* AI error display */}
+        {/* AI error display (dismiss + retry — PHASE-10 10E) */}
         {aiEnabled && aiLastError && !aiIsTyping && (
-          <div className="py-1 text-xs text-red-400 italic">{t('game.chatPanel.aiError', { error: aiLastError })}</div>
+          <div className="py-1 text-xs text-red-400 italic flex items-center gap-2">
+            <span className="flex-1">{t('game.chatPanel.aiError', { error: aiLastError })}</span>
+            {canRetryAi && (
+              <button
+                type="button"
+                onClick={handleRetryAi}
+                className="not-italic text-red-300 hover:text-red-100 underline cursor-pointer"
+              >
+                {t('game.chatPanel.aiErrorRetry')}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={aiClearLastError}
+              aria-label={t('game.chatPanel.aiErrorDismiss')}
+              className="not-italic text-red-300 hover:text-red-100 cursor-pointer"
+            >
+              ×
+            </button>
+          </div>
         )}
       </div>
 
       {/* AI DM Status Bar (DM only) */}
       {isDM && aiEnabled && (
-        <div className="border-t border-gray-800/50 px-2 py-1 shrink-0 flex items-center gap-2 text-xs">
-          <span
-            className={`w-1.5 h-1.5 rounded-full ${
-              aiIsTyping ? 'bg-accent animate-pulse' : aiUsable === false ? 'bg-amber-500' : 'bg-green-500'
-            }`}
-          />
-          <span className="text-gray-500">
-            {aiIsTyping
-              ? t('game.chatPanel.aiResponding')
-              : aiUsable === false
-                ? t('game.chatPanel.aiNoModel')
-                : t('game.chatPanel.aiReady')}
-          </span>
-          <span className="text-gray-600 ml-auto" title={t('game.chatPanel.tokensTitle')}>
-            {t('game.chatPanel.tokens', {
-              used: Math.ceil(aiMessages.reduce((sum, m) => sum + m.content.length, 0) / 4).toLocaleString()
-            })}
-          </span>
-        </div>
+        <AiDmStatusBar
+          isTyping={aiIsTyping}
+          paused={aiPaused}
+          usable={aiUsable}
+          probeFailed={aiProbeFailed}
+          provider={aiProvider}
+          usedTokens={Math.ceil(aiMessages.reduce((sum, m) => sum + m.content.length, 0) / 4)}
+          maxTokens={aiConversationBudget}
+          onRecheck={aiRecheck}
+        />
       )}
 
       {/* Input */}

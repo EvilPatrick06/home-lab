@@ -121,6 +121,7 @@ export const IPC_CHANNELS = {
   AI_CONNECTION_STATUS: 'ai:connection-status',
   AI_TOKEN_BUDGET: 'ai:token-budget',
   AI_TOKEN_BUDGET_PREVIEW: 'ai:token-budget-preview',
+  AI_GET_TOKEN_METER: 'ai:get-token-meter',
   AI_GENERATE_END_OF_SESSION_RECAP: 'ai:generate-end-of-session-recap',
 
   // === AI DM: Vision / Map Analysis ===

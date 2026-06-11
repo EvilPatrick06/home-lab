@@ -2,17 +2,28 @@ import { useState } from 'react'
 import AiProviderSetup from '../../components/campaign/AiProviderSetup'
 import { Button, Card, Modal } from '../../components/ui'
 import { AI_PROVIDER_LABELS, DEFAULT_AI_MODEL, DEFAULT_AI_PROVIDER, DEFAULT_OLLAMA_URL } from '../../constants'
+import { addToast } from '../../hooks/use-toast'
 import { useT } from '../../i18n'
-import type { AiProviderType, Campaign } from '../../types/campaign'
+import type { AiDmConfig, AiProviderType, Campaign } from '../../types/campaign'
 
 interface AiDmCardProps {
   campaign: Campaign
   saveCampaign: (c: Campaign) => Promise<void>
 }
 
+// PHASE-10 10H — prefill the key for the CONFIGURED provider, not the first non-null one.
+function keyForProvider(dm: AiDmConfig | undefined, p: AiProviderType): string {
+  return (
+    (p === 'claude' ? dm?.claudeApiKey : p === 'openai' ? dm?.openaiApiKey : p === 'gemini' ? dm?.geminiApiKey : '') ??
+    ''
+  )
+}
+
 export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX.Element {
   const { t } = useT()
   const [showAiDmModal, setShowAiDmModal] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [providerReady, setProviderReady] = useState(false)
   const [aiDmConfig, setAiDmConfig] = useState<{
     enabled: boolean
     provider: AiProviderType
@@ -29,12 +40,13 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
 
   const openConfigure = (): void => {
     const dm = campaign.aiDm
+    const provider = dm?.provider ?? DEFAULT_AI_PROVIDER
     setAiDmConfig({
       enabled: dm?.enabled ?? false,
-      provider: dm?.provider ?? DEFAULT_AI_PROVIDER,
+      provider,
       model: dm?.model ?? dm?.ollamaModel ?? DEFAULT_AI_MODEL,
       ollamaUrl: dm?.ollamaUrl ?? DEFAULT_OLLAMA_URL,
-      apiKey: dm?.claudeApiKey ?? dm?.openaiApiKey ?? dm?.geminiApiKey ?? ''
+      apiKey: keyForProvider(dm, provider)
     })
     setShowAiDmModal(true)
   }
@@ -87,29 +99,41 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
             model={aiDmConfig.model}
             ollamaUrl={aiDmConfig.ollamaUrl}
             apiKey={aiDmConfig.apiKey}
-            onProviderReady={() => {}}
+            onProviderReady={setProviderReady}
             onChange={(data) => setAiDmConfig(data)}
           />
         </div>
+        {/* PHASE-10 10H — informative, not obstructive: detection probes the SAVED main-side URL,
+            so hard-gating Save would trap a not-yet-reachable remote-Ollama setup. */}
+        {aiDmConfig.enabled && !providerReady && (
+          <p className="text-amber-400 text-xs mt-2">{t('pages.aiDmCard.notReadyWarning')}</p>
+        )}
         <div className="flex gap-3 justify-end mt-4">
           <Button variant="secondary" onClick={() => setShowAiDmModal(false)}>
             {t('common.actions.cancel')}
           </Button>
           <Button
+            disabled={saving}
             onClick={async () => {
+              setSaving(true)
+              // Preserve the OTHER providers' stored keys; only the selected provider's field
+              // is written (|| undefined so an intentionally-cleared field erases that key).
               const aiDm = {
                 enabled: aiDmConfig.enabled,
                 provider: aiDmConfig.provider,
                 model: aiDmConfig.model,
                 ollamaUrl: aiDmConfig.ollamaUrl,
-                claudeApiKey: aiDmConfig.provider === 'claude' ? aiDmConfig.apiKey : undefined,
-                openaiApiKey: aiDmConfig.provider === 'openai' ? aiDmConfig.apiKey : undefined,
-                geminiApiKey: aiDmConfig.provider === 'gemini' ? aiDmConfig.apiKey : undefined
+                claudeApiKey:
+                  aiDmConfig.provider === 'claude' ? aiDmConfig.apiKey || undefined : campaign.aiDm?.claudeApiKey,
+                openaiApiKey:
+                  aiDmConfig.provider === 'openai' ? aiDmConfig.apiKey || undefined : campaign.aiDm?.openaiApiKey,
+                geminiApiKey:
+                  aiDmConfig.provider === 'gemini' ? aiDmConfig.apiKey || undefined : campaign.aiDm?.geminiApiKey
               }
-              await saveCampaign({ ...campaign, aiDm, updatedAt: new Date().toISOString() })
-              if (aiDmConfig.enabled) {
-                try {
-                  await window.api.ai.configure({
+              try {
+                await saveCampaign({ ...campaign, aiDm, updatedAt: new Date().toISOString() })
+                if (aiDmConfig.enabled) {
+                  const res = await window.api.ai.configure({
                     provider: aiDmConfig.provider,
                     model: aiDmConfig.model,
                     ollamaUrl: aiDmConfig.ollamaUrl,
@@ -117,14 +141,21 @@ export default function AiDmCard({ campaign, saveCampaign }: AiDmCardProps): JSX
                     openaiApiKey: aiDm.openaiApiKey,
                     geminiApiKey: aiDm.geminiApiKey
                   })
-                } catch {
-                  /* ignore configure errors */
+                  if (!res.success) throw new Error(res.error ?? 'configure failed')
                 }
+                setShowAiDmModal(false)
+              } catch (err) {
+                addToast(
+                  t('pages.aiDmCard.saveFailed', { error: err instanceof Error ? err.message : String(err) }),
+                  'error'
+                )
+                // keep the modal open so the user can fix it
+              } finally {
+                setSaving(false)
               }
-              setShowAiDmModal(false)
             }}
           >
-            {t('common.actions.save')}
+            {saving ? t('pages.aiDmCard.saving') : t('common.actions.save')}
           </Button>
         </div>
       </Modal>

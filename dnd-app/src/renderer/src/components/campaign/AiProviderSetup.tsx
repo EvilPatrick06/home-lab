@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { DEFAULT_PROVIDER_MODELS } from '../../../../shared/ai-defaults'
 import { AI_PROVIDER_LABELS, AI_PROVIDERS, DEFAULT_OLLAMA_URL } from '../../constants'
 import { useT } from '../../i18n'
 import type { AiProviderType } from '../../types/campaign'
@@ -68,8 +69,12 @@ export default function AiProviderSetup({
   const [curatedModels, setCuratedModels] = useState<CuratedModel[]>([])
   const [installedModels, setInstalledModels] = useState<string[]>([])
   const [cloudModels, setCloudModels] = useState<CloudModel[]>([])
+  // PHASE-10 10G — make the model dropdown communicate loading / error / empty.
+  const [cloudModelsState, setCloudModelsState] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle')
   const [validatingKey, setValidatingKey] = useState(false)
   const [keyValid, setKeyValid] = useState<boolean | null>(null)
+  // PHASE-10 10G — surface a local-AI detection failure instead of leaving gray circles.
+  const [detectError, setDetectError] = useState(false)
 
   const isCloud = provider !== 'ollama'
 
@@ -82,29 +87,33 @@ export default function AiProviderSetup({
     }
   }, [])
 
-  // Load cloud models when provider changes
-  useEffect(() => {
+  // Load cloud models when provider changes (extracted so the dropdown's error state has a retry).
+  const loadCloudModels = useCallback(async () => {
     if (!enabled || !isCloud) return
-    window.api.ai
-      .listCloudModels(provider, apiKey)
-      .then((models) => {
-        const normalized: CloudModel[] = models.map((m) => ({
-          id: m.id,
-          name: m.name,
-          desc: m.desc ?? ''
-        }))
-        setCloudModels(normalized)
-        if (normalized.length > 0 && !normalized.some((m) => m.id === model)) {
-          onChange({ enabled, provider, model: normalized[0].id, ollamaUrl, apiKey })
-        }
-      })
-      .catch(() => setCloudModels([]))
+    setCloudModelsState('loading')
+    try {
+      const models = await window.api.ai.listCloudModels(provider, apiKey)
+      const normalized: CloudModel[] = models.map((m) => ({ id: m.id, name: m.name, desc: m.desc ?? '' }))
+      setCloudModels(normalized)
+      setCloudModelsState('ready')
+      if (normalized.length > 0 && !normalized.some((m) => m.id === model)) {
+        onChange({ enabled, provider, model: normalized[0].id, ollamaUrl, apiKey })
+      }
+    } catch {
+      setCloudModels([])
+      setCloudModelsState('error')
+    }
   }, [enabled, provider, isCloud, model, ollamaUrl, apiKey, onChange])
+
+  useEffect(() => {
+    void loadCloudModels()
+  }, [loadCloudModels])
 
   // Detect Ollama status
   const detectOllamaStatus = useCallback(async () => {
     setSetupPhase('detecting')
     setErrorMessage(null)
+    setDetectError(false)
     try {
       const [status, vram, models, installed] = await Promise.all([
         window.api.ai.detectOllama(),
@@ -129,7 +138,10 @@ export default function AiProviderSetup({
         onProviderReady(false)
       }
     } catch {
+      // The dedicated detect-error block (below) renders the message + retry; don't also
+      // set errorMessage (the generic setup-error line would duplicate it).
       setSetupPhase('idle')
+      setDetectError(true)
       onProviderReady(false)
     }
   }, [model, onProviderReady])
@@ -140,16 +152,18 @@ export default function AiProviderSetup({
     if (provider === 'ollama') {
       detectOllamaStatus()
     } else {
-      // Cloud providers are "ready" if they have an API key
-      if (apiKey) {
-        setSetupPhase('ready')
-        onProviderReady(true)
-      } else {
+      // PHASE-10 10G — cloud readiness means the key is VALIDATED, not just non-empty.
+      // A garbage key no longer passes the wizard's Next gate (CampaignWizard reads
+      // onProviderReady). The debounced auto-validate effect below flips keyValid.
+      if (!apiKey) {
         setSetupPhase('idle')
         onProviderReady(false)
+      } else {
+        onProviderReady(keyValid === true)
+        setSetupPhase(keyValid === true ? 'ready' : 'idle')
       }
     }
-  }, [enabled, provider, apiKey, detectOllamaStatus, onProviderReady])
+  }, [enabled, provider, apiKey, keyValid, detectOllamaStatus, onProviderReady])
 
   // Ollama download/pull progress — dedicated effect with a per-listener unsubscribe (05A/05D),
   // so each wizard mount registers exactly one listener and detaches it on unmount.
@@ -215,7 +229,7 @@ export default function AiProviderSetup({
     }
   }
 
-  const handleValidateKey = async (): Promise<void> => {
+  const handleValidateKey = useCallback(async (): Promise<void> => {
     if (!apiKey.trim()) return
     setValidatingKey(true)
     setKeyValid(null)
@@ -236,7 +250,18 @@ export default function AiProviderSetup({
     } finally {
       setValidatingKey(false)
     }
-  }
+  }, [apiKey, provider, onProviderReady, t])
+
+  // PHASE-10 10G — debounced auto-validation: each key edit resets keyValid to null
+  // (the field's onChange), re-arming exactly one validation 600ms later. The manual
+  // Validate button stays for explicit re-checks.
+  useEffect(() => {
+    if (!enabled || !isCloud || !apiKey.trim() || keyValid !== null || validatingKey) return
+    const id = setTimeout(() => {
+      void handleValidateKey()
+    }, 600)
+    return () => clearTimeout(id)
+  }, [enabled, isCloud, apiKey, keyValid, validatingKey, handleValidateKey])
 
   const gpuDesc =
     vramMB > 0
@@ -282,17 +307,11 @@ export default function AiProviderSetup({
                       setSetupPhase('idle')
                       setErrorMessage(null)
                       setKeyValid(null)
-                      // Set a sensible default model for each provider
-                      const defaultModels: Record<string, string> = {
-                        ollama: 'llama3.2:3b',
-                        claude: 'claude-sonnet-4-6',
-                        openai: 'gpt-4o',
-                        gemini: 'gemini-2.0-flash'
-                      }
+                      // Sensible default model per provider — single source of truth (PHASE-10 10A)
                       onChange({
                         enabled,
                         provider: p,
-                        model: defaultModels[p] ?? '',
+                        model: DEFAULT_PROVIDER_MODELS[p as keyof typeof DEFAULT_PROVIDER_MODELS] ?? '',
                         ollamaUrl: p === 'ollama' ? ollamaUrl : DEFAULT_OLLAMA_URL,
                         apiKey: p === provider ? apiKey : ''
                       })
@@ -351,17 +370,41 @@ export default function AiProviderSetup({
 
                   <div>
                     <label className="block text-sm text-muted mb-1">{t('campaign.aiProviderSetup.model')}</label>
-                    <select
-                      value={model}
-                      onChange={(e) => onChange({ enabled, provider, model: e.target.value, ollamaUrl, apiKey })}
-                      className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-amber-500"
-                    >
-                      {cloudModels.map((m) => (
-                        <option key={m.id} value={m.id}>
-                          {m.name} — {m.desc}
-                        </option>
-                      ))}
-                    </select>
+                    {cloudModelsState === 'loading' ? (
+                      <select
+                        disabled
+                        className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm opacity-60"
+                      >
+                        <option>{t('campaign.aiProviderSetup.modelsLoading')}</option>
+                      </select>
+                    ) : (
+                      <select
+                        value={model}
+                        onChange={(e) => onChange({ enabled, provider, model: e.target.value, ollamaUrl, apiKey })}
+                        className="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-amber-500"
+                      >
+                        {cloudModels.map((m) => (
+                          <option key={m.id} value={m.id}>
+                            {m.desc ? `${m.name} — ${m.desc}` : m.name}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                    {cloudModelsState === 'error' && (
+                      <div className="flex items-center gap-2 mt-1">
+                        <p className="text-red-400 text-xs">{t('campaign.aiProviderSetup.modelsError')}</p>
+                        <button
+                          type="button"
+                          onClick={() => void loadCloudModels()}
+                          className="text-xs text-amber-400 hover:text-amber-300 underline cursor-pointer"
+                        >
+                          {t('campaign.aiProviderSetup.retryDetect')}
+                        </button>
+                      </div>
+                    )}
+                    {cloudModelsState === 'ready' && cloudModels.length === 0 && (
+                      <p className="text-muted text-xs mt-1">{t('campaign.aiProviderSetup.modelsEmpty')}</p>
+                    )}
                   </div>
                 </div>
               )}
@@ -401,6 +444,16 @@ export default function AiProviderSetup({
                       }
                     />
                   </div>
+
+                  {/* PHASE-10 10G — visible, retryable detection failure (distinct from "nothing installed yet"). */}
+                  {detectError && (
+                    <div className="mb-4 rounded border border-red-700/40 bg-red-900/20 p-3">
+                      <p className="text-red-400 text-sm mb-2">{t('campaign.aiProviderSetup.errorDetect')}</p>
+                      <Button onClick={() => void detectOllamaStatus()} disabled={setupPhase === 'detecting'}>
+                        {t('campaign.aiProviderSetup.retryDetect')}
+                      </Button>
+                    </div>
+                  )}
 
                   {setupPhase !== 'ready' && (
                     <div className="mb-4">

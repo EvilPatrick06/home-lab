@@ -259,6 +259,7 @@ interface AiAPI {
     memory: number
     total: number
   } | null>
+  getTokenMeter: () => Promise<{ conversationBudget: number; contextWindow: number }>
   previewTokenBudget: (
     campaignId: string,
     characterIds: string[]

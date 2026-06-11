@@ -1,6 +1,7 @@
 import { Settings } from 'lucide-react'
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
+import { AI_PROVIDER_LABELS } from '../../../constants'
 import { PRESET_LABELS } from '../../../data/calendar-presets'
 import { addToast } from '../../../hooks/use-toast'
 import { useT } from '../../../i18n'
@@ -18,7 +19,7 @@ import { useNetworkStore } from '../../../stores/network-store'
 import { useAiDmStore } from '../../../stores/use-ai-dm-store'
 import { useGameStore } from '../../../stores/use-game-store'
 import { useLobbyStore } from '../../../stores/use-lobby-store'
-import type { Campaign } from '../../../types/campaign'
+import type { AiDmConfig, Campaign } from '../../../types/campaign'
 import { formatInGameTime } from '../../../utils/calendar-utils'
 import { logger } from '../../../utils/logger'
 import { ConfirmDialog, Tooltip } from '../../ui'
@@ -93,10 +94,11 @@ function CalendarSettingsSection({
   )
 }
 
-function AiDmSettingsSection(): JSX.Element {
+function AiDmSettingsSection({ aiDm }: { aiDm: AiDmConfig | undefined }): JSX.Element {
   const { t } = useT()
   const aiPaused = useAiDmStore((s) => s.paused)
-  const aiModel = 'Ollama'
+  // PHASE-10 10A — show the configured provider's model (or provider label), not "Ollama".
+  const aiModel = aiDm?.model ?? aiDm?.ollamaModel ?? AI_PROVIDER_LABELS[aiDm?.provider ?? 'ollama'] ?? 'AI'
   const aiIsTyping = useAiDmStore((s) => s.isTyping)
   const setPaused = useAiDmStore((s) => s.setPaused)
 
@@ -104,7 +106,7 @@ function AiDmSettingsSection(): JSX.Element {
     <div className="px-4 py-2 border-b border-gray-800">
       <div className="flex items-center justify-between mb-1">
         <span className="text-xs text-muted">{t('game.settingsDropdown.aiDm')}</span>
-        <span className="text-xs text-purple-400 capitalize">{aiModel}</span>
+        <span className="text-xs text-purple-400">{aiModel}</span>
       </div>
       <div className="flex items-center justify-between">
         <span className="text-xs text-gray-500">
@@ -389,7 +391,7 @@ export default function SettingsDropdown({
           <SoundCustomizationSection />
 
           {/* AI DM (when enabled) */}
-          {campaign.aiDm?.enabled && isDM && <AiDmSettingsSection />}
+          {campaign.aiDm?.enabled && isDM && <AiDmSettingsSection aiDm={campaign.aiDm} />}
 
           {/* Calendar info (DM only) */}
           {isDM && campaign.calendar && <CalendarSettingsSection calendar={campaign.calendar} />}

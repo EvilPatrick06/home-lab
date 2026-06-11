@@ -109,7 +109,9 @@ export const DEFAULT_AI_PROVIDER = 'ollama' as const
 // Must match a curated/installable model id (see main/ai/ollama-manager.ts). The
 // recommended lightweight default; bare 'llama3.1' was NOT installable (curated
 // has 'llama3.1:8b'/'llama3.1:70b'), so wizards saved a model that 404'd on use.
-export const DEFAULT_AI_MODEL = 'llama3.2:3b'
+// Sourced from the shared ai-defaults module (PHASE-10 10A) — single source of
+// truth across renderer + main; re-exported so existing importers stay stable.
+export { DEFAULT_AI_MODEL } from '../../../shared/ai-defaults'
 
 export const AI_PROVIDER_LABELS: Record<string, string> = {
   ollama: 'Ollama (Local)',

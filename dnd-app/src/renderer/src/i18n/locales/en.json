@@ -760,6 +760,11 @@
       "errorPull": "Failed to pull model",
       "errorKeyValidation": "API key validation failed",
       "errorKeyValidationFailed": "Failed to validate API key",
+      "errorDetect": "Couldn't check the local AI install — the app couldn't reach its Ollama integration. Retry, or check the Ollama URL below.",
+      "retryDetect": "Retry detection",
+      "modelsLoading": "Loading models...",
+      "modelsError": "Couldn't load the model list — check the API key and network.",
+      "modelsEmpty": "Enter a valid API key to load the model list.",
       "gpuDetected": "NVIDIA GPU detected ({{gb}} GB VRAM)",
       "gpuNotDetected": "No NVIDIA GPU detected (CPU mode)",
       "enable": "Enable AI Dungeon Master",
@@ -879,6 +884,8 @@
       "clearing": "Clearing...",
       "clearMemory": "Clear Memory",
       "noFiles": "No memory files yet.",
+      "loadFailed": "Couldn't load AI memory files — check the campaign storage and retry.",
+      "clearFailed": "Couldn't clear AI memory — files may still be present.",
       "hide": "Hide",
       "view": "View",
       "empty": "(empty)"
@@ -902,9 +909,16 @@
       "aiError": "AI DM error: {{error}}",
       "aiResponding": "AI responding",
       "aiReady": "AI ready",
+      "aiPaused": "AI paused",
+      "aiChecking": "Checking AI status...",
       "aiNoModel": "No model installed — pull one in AI settings",
-      "tokensTitle": "Estimated conversation tokens",
-      "tokens": "~{{used}} / 23,000 tokens",
+      "aiProviderUnavailable": "AI provider unreachable — check the API key in AI settings",
+      "aiRecheckTitle": "Click to re-check AI status",
+      "aiErrorDismiss": "Dismiss AI error",
+      "aiErrorRetry": "Retry",
+      "tokensTitle": "Estimated conversation tokens vs. the AI's conversation-history budget — older messages beyond the budget are not sent to the model",
+      "tokens": "~{{used}} / {{max}} tokens",
+      "tokensUsedOnly": "~{{used}} tokens",
       "commandReference": "Command reference"
     },
     "commandAutocomplete": {
@@ -3319,7 +3333,8 @@
     "narrationOverlay": {
       "countdown": "{{remaining}}s",
       "dismissHint": "Click anywhere or press Escape to dismiss",
-      "dismiss": "Dismiss"
+      "dismiss": "Dismiss",
+      "ariaLabel": "DM narration"
     },
     "playerHUDActions": {
       "tempHp": "Temp HP:",
@@ -5506,7 +5521,10 @@
       "configure": "Configure",
       "notEnabled": "AI DM is not enabled for this campaign.",
       "enableAiDm": "Enable AI DM",
-      "configureTitle": "Configure AI Dungeon Master"
+      "configureTitle": "Configure AI Dungeon Master",
+      "saving": "Saving...",
+      "saveFailed": "Couldn't apply the AI settings: {{error}}",
+      "notReadyWarning": "This provider isn't ready yet — the AI DM may not respond until setup completes."
     },
     "audioManager": {
       "customAudio": "Custom Audio ({{count}})",
