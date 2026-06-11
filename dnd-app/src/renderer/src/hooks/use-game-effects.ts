@@ -229,14 +229,27 @@ export function useGameEffects({
     return () => stopAiMemorySync()
   }, [isDM, campaign.id, campaign.aiDm?.enabled])
 
-  // AI DM initialization (host only)
-  // biome-ignore lint/correctness/useExhaustiveDependencies: one-shot init hook — aiInitRef/addChatMessage/sendMessage are stable
-  useEffect(() => {
-    if (!isDM || !campaign.aiDm?.enabled || aiInitRef.current) return
-    aiInitRef.current = true
+  // Latest-campaign ref so the one-shot init effect below can read fresh campaign data from
+  // its nested closures WITHOUT keying on the campaign object's identity (any saveCampaign
+  // swaps the object) — mirrors the activeMapRef pattern above. (PHASE-05 05C / F1)
+  const campaignRef = useRef(campaign)
+  campaignRef.current = campaign
+  const aiDmEnabled = campaign.aiDm?.enabled ?? false
 
-    // Set up stream listeners
-    const cleanupListeners = aiDmStore.setupListeners()
+  // AI DM stream listeners (host only). Separate from the one-shot init below so a
+  // campaign-object identity change (any saveCampaign) re-registers instead of killing them —
+  // cleanup is per-listener (05B), so re-running is safe. (F1)
+  useEffect(() => {
+    if (!isDM || !aiDmEnabled) return undefined
+    return aiDmStore.setupListeners()
+  }, [isDM, aiDmEnabled, aiDmStore.setupListeners])
+
+  // AI DM initialization (host only)
+  // biome-ignore lint/correctness/useExhaustiveDependencies: one-shot init hook — aiInitRef/addChatMessage/sendMessage are stable; campaign read via campaignRef
+  useEffect(() => {
+    if (!isDM || !aiDmEnabled || aiInitRef.current) return
+    aiInitRef.current = true
+    const currentCampaign = campaignRef.current
 
     // Track timers for cleanup
     let pollInterval: ReturnType<typeof setInterval> | null = null
@@ -259,11 +272,11 @@ export function useGameEffects({
     }
 
     // Initialize AI DM (preserves sceneStatus if already set from lobby)
-    aiDmStore.initFromCampaign(campaign)
+    aiDmStore.initFromCampaign(currentCampaign)
     // S-4 / BUG-1 — apply THIS campaign's chosen model/provider to the main
     // process so solo + in-game turns use the picked model (the lobby host does
     // the same before scene prep). Fire-and-forget; configure is idempotent.
-    void configureAiFromCampaign(campaign)
+    void configureAiFromCampaign(currentCampaign)
 
     /** Post the pre-generated opening narration to chat (scene was ready from lobby). */
     const postSceneNarration = (msgs: Array<{ role: string; content: string; timestamp: number }>): void => {
@@ -296,8 +309,8 @@ export function useGameEffects({
       if (lobbyPlayers.length > 0) {
         return lobbyPlayers.filter((p) => p.characterId).map((p) => p.characterId!)
       }
-      // Solo mode: derive from campaign players
-      return campaign.players.filter((p) => p.isActive && p.characterId).map((p) => p.characterId!)
+      // Solo mode: derive from campaign players (read fresh via the latest-campaign ref).
+      return campaignRef.current.players.filter((p) => p.isActive && p.characterId).map((p) => p.characterId!)
     }
 
     // Check if scene was already pre-generated in lobby
@@ -417,14 +430,13 @@ export function useGameEffects({
 
     return (): void => {
       cleanupTimers()
-      cleanupListeners()
     }
   }, [
     isDM,
     campaign.id, // Initialize AI DM (preserves sceneStatus if already set from lobby)
+    aiDmEnabled,
     aiDmStore.initFromCampaign,
-    aiDmStore.setupListeners,
-    campaign
+    aiDmStore.setupListeners
   ])
 
   // When AI DM finishes streaming, add the message to chat and broadcast

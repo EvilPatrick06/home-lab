@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { addToast } from '../../hooks/use-toast'
 import { useT } from '../../i18n'
 import {
@@ -39,7 +39,6 @@ export default function OllamaManagement(): JSX.Element {
   // Linux (install.sh has no parseable progress), percentage on Windows.
   const [installing, setInstalling] = useState(false)
   const [starting, setStarting] = useState(false)
-  const progressListenerSet = useRef(false)
 
   const refreshModels = useCallback(async () => {
     try {
@@ -76,11 +75,11 @@ export default function OllamaManagement(): JSX.Element {
     refreshAll()
   }, [refreshAll])
 
+  // Register the progress listener with a proper per-listener unsubscribe (05A/05D). The old
+  // ref-guard + "cleanup handled by removeAllAiListeners" was false — nothing on the Settings
+  // unmount path called that, so every visit leaked a listener (MaxListenersExceededWarning).
   useEffect(() => {
-    if (progressListenerSet.current) return
-    progressListenerSet.current = true
-
-    window.api.ai.onOllamaProgress((data) => {
+    return window.api.ai.onOllamaProgress((data) => {
       setActiveOp((prev) => {
         if (!prev) return prev
         if (data.type === 'pull' && prev.type === 'pull') {
@@ -92,10 +91,6 @@ export default function OllamaManagement(): JSX.Element {
         return prev
       })
     })
-
-    return () => {
-      // Listener cleanup handled by removeAllAiListeners when page unmounts
-    }
   }, [])
 
   const handleInstall = useCallback(async () => {

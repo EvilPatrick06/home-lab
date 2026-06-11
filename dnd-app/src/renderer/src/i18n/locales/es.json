@@ -5106,7 +5106,10 @@
       "aiDmError": "DM con IA: {{error}}",
       "approvedActionFailed": "La acción de IA aprobada falló: {{action}} — {{reason}}",
       "rulingQueued": "Nueva decisión de la IA en cola — {{count}} pendientes de revisión",
-      "webSearchAutoRejected": "La búsqueda web \"{{query}}\" se rechazó automáticamente (sin decisión en 30 s)."
+      "webSearchAutoRejected": "La búsqueda web \"{{query}}\" se rechazó automáticamente (sin decisión en 30 s).",
+      "messageQueued": "Mensaje en cola — el DM aún está respondiendo al mensaje anterior.",
+      "messageQueueFull": "La cola de mensajes de IA está llena ({{count}} en espera) — mensaje descartado.",
+      "queuedMessagesDiscarded": "{{count}} mensaje(s) en cola descartado(s) al cancelar."
     },
     "loadCharacter5e": {
       "partialLoadFailed": "Algunos datos del personaje no se pudieron cargar — el creador puede estar incompleto."

@@ -5106,7 +5106,10 @@
       "aiDmError": "AI DM: {{error}}",
       "approvedActionFailed": "Approved AI action failed: {{action}} — {{reason}}",
       "rulingQueued": "New AI ruling queued — {{count}} awaiting review",
-      "webSearchAutoRejected": "Web search \"{{query}}\" was auto-rejected (no decision within 30s)."
+      "webSearchAutoRejected": "Web search \"{{query}}\" was auto-rejected (no decision within 30s).",
+      "messageQueued": "Message queued — the DM is still answering the previous message.",
+      "messageQueueFull": "AI message queue is full ({{count}} waiting) — message dropped.",
+      "queuedMessagesDiscarded": "{{count}} queued message(s) discarded by cancel."
     },
     "loadCharacter5e": {
       "partialLoadFailed": "Some character data failed to load — the builder may be incomplete."

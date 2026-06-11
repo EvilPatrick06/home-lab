@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { STREAM_SAFETY_TIMEOUT_MS } from '../constants'
 
 // Capture the listener callbacks setupListeners registers so tests can drive events.
@@ -17,21 +17,27 @@ vi.stubGlobal('window', {
       getSceneStatus: vi.fn().mockResolvedValue({ status: 'idle' }),
       onStreamChunk: vi.fn((cb: (d: unknown) => void) => {
         aiHandlers.chunk = cb
+        return vi.fn()
       }),
       onStreamDone: vi.fn((cb: (d: unknown) => void) => {
         aiHandlers.done = cb
+        return vi.fn()
       }),
       onStreamError: vi.fn((cb: (d: unknown) => void) => {
         aiHandlers.error = cb
+        return vi.fn()
       }),
       onStreamFileRead: vi.fn((cb: (d: unknown) => void) => {
         aiHandlers.fileRead = cb
+        return vi.fn()
       }),
       onStreamWebSearch: vi.fn((cb: (d: unknown) => void) => {
         aiHandlers.webSearch = cb
+        return vi.fn()
       }),
       onStreamStatus: vi.fn((cb: (d: unknown) => void) => {
         aiHandlers.status = cb
+        return vi.fn()
       }),
       removeAllAiListeners: vi.fn()
     }
@@ -552,6 +558,150 @@ describe('useAiDmStore', () => {
       useAiDmStore.setState({ webSearchDecided: false })
       useAiDmStore.getState().markWebSearchDecided()
       expect(useAiDmStore.getState().webSearchDecided).toBe(true)
+    })
+  })
+
+  // 05B — setupListeners cleans up per-listener (the six it registered), never the global nuke.
+  describe('setupListeners per-listener cleanup (05B)', () => {
+    afterEach(() => {
+      useAiDmStore.setState({ activeStreamId: null, isTyping: false, streamingText: '' })
+    })
+
+    it('cleanup calls each returned unsubscribe once and never removeAllAiListeners', () => {
+      const onChunk = window.api.ai.onStreamChunk as unknown as ReturnType<typeof vi.fn>
+      const removeAll = window.api.ai.removeAllAiListeners as unknown as ReturnType<typeof vi.fn>
+      onChunk.mockClear()
+      removeAll.mockClear()
+
+      const cleanup = useAiDmStore.getState().setupListeners()
+      // Each onX returned a vi.fn() unsubscribe; grab chunk's to assert it fires on cleanup.
+      const chunkUnsub = onChunk.mock.results.at(-1)?.value as ReturnType<typeof vi.fn>
+      expect(chunkUnsub).not.toHaveBeenCalled()
+
+      cleanup()
+      expect(chunkUnsub).toHaveBeenCalledTimes(1)
+      expect(removeAll).not.toHaveBeenCalled()
+    })
+
+    it('cleaning up the FIRST registration does not detach the SECOND (re-registration safe)', () => {
+      const cleanup1 = useAiDmStore.getState().setupListeners()
+      const cleanup2 = useAiDmStore.getState().setupListeners()
+      useAiDmStore.setState({ activeStreamId: 'sid-2', isTyping: true, streamingText: '' })
+
+      cleanup1() // tears down only the first registration's listeners
+
+      // The second registration's chunk handler is still live → events still update state.
+      aiHandlers.chunk?.({ streamId: 'sid-2', text: 'alive' })
+      expect(useAiDmStore.getState().streamingText).toBe('alive')
+      cleanup2()
+    })
+  })
+
+  // 05F — a player message arriving during an in-flight stream queues (bounded FIFO) instead of
+  // cancelling the current reply; the queue drains on done/error; deliberate stops clear it (F6).
+  describe('message queue during in-flight stream (05F)', () => {
+    const chatStream = window.api.ai.chatStream as unknown as ReturnType<typeof vi.fn>
+    const cancelStreamApi = window.api.ai.cancelStream as unknown as ReturnType<typeof vi.fn>
+
+    beforeEach(() => {
+      chatStream.mockClear()
+      cancelStreamApi.mockClear()
+      useAiDmStore.setState({ queuedMessages: [], activeStreamId: null, isTyping: false })
+    })
+
+    afterEach(() => {
+      useAiDmStore.setState({
+        enabled: false,
+        paused: false,
+        activeStreamId: null,
+        isTyping: false,
+        queuedMessages: []
+      })
+      chatStream.mockClear()
+      cancelStreamApi.mockClear()
+    })
+
+    it('a message during an active stream is queued — no re-send, no cancel', async () => {
+      useAiDmStore.setState({ enabled: true, paused: false, activeStreamId: 'sid-1', isTyping: true })
+      chatStream.mockClear()
+      await useAiDmStore.getState().sendMessage('camp', 'hello', ['c1'], 'Alice')
+      expect(chatStream).not.toHaveBeenCalled()
+      expect(cancelStreamApi).not.toHaveBeenCalled()
+      expect(useAiDmStore.getState().queuedMessages).toHaveLength(1)
+      expect(useAiDmStore.getState().queuedMessages[0].content).toBe('hello')
+    })
+
+    it('handleDone drains the queue FIFO, preserving the queued args', async () => {
+      const cleanup = useAiDmStore.getState().setupListeners()
+      useAiDmStore.setState({ enabled: true, paused: false, activeStreamId: 'sid-1', isTyping: true })
+      await useAiDmStore.getState().sendMessage('camp', 'second', ['c1'], 'Bob', undefined, 'GS')
+      expect(useAiDmStore.getState().queuedMessages).toHaveLength(1)
+      chatStream.mockClear()
+
+      aiHandlers.done?.({
+        streamId: 'sid-1',
+        fullText: 'x',
+        displayText: 'x',
+        statChanges: [],
+        dmActions: [],
+        ruleCitations: []
+      })
+      await vi.waitFor(() => expect(chatStream).toHaveBeenCalledTimes(1))
+      const sent = chatStream.mock.calls[0][0] as { message: string; senderName?: string; gameState?: string }
+      expect(sent.message).toBe('second')
+      expect(sent.senderName).toBe('Bob')
+      expect(sent.gameState).toBe('GS')
+      expect(useAiDmStore.getState().queuedMessages).toHaveLength(0)
+      cleanup()
+    })
+
+    it('handleError also drains the queue', async () => {
+      const cleanup = useAiDmStore.getState().setupListeners()
+      useAiDmStore.setState({ enabled: true, paused: false, activeStreamId: 'sid-1', isTyping: true })
+      await useAiDmStore.getState().sendMessage('camp', 'after-error', ['c1'], 'Cara')
+      chatStream.mockClear()
+
+      aiHandlers.error?.({ streamId: 'sid-1', error: 'boom' })
+      await vi.waitFor(() => expect(chatStream).toHaveBeenCalledTimes(1))
+      expect((chatStream.mock.calls[0][0] as { message: string }).message).toBe('after-error')
+      cleanup()
+    })
+
+    it('caps the queue — the 6th enqueue is dropped', async () => {
+      useAiDmStore.setState({
+        enabled: true,
+        paused: false,
+        activeStreamId: 'sid-1',
+        isTyping: true,
+        queuedMessages: [1, 2, 3, 4, 5].map((n) => ({ campaignId: 'c', content: `m${n}`, characterIds: [] }))
+      })
+      await useAiDmStore.getState().sendMessage('camp', 'overflow', ['c1'])
+      expect(useAiDmStore.getState().queuedMessages).toHaveLength(5) // dropped, not appended
+      expect(useAiDmStore.getState().queuedMessages.some((m) => m.content === 'overflow')).toBe(false)
+    })
+
+    it('cancelStream clears the queue', async () => {
+      useAiDmStore.setState({
+        enabled: true,
+        activeStreamId: 'sid-1',
+        queuedMessages: [{ campaignId: 'c', content: 'x', characterIds: [] }]
+      })
+      await useAiDmStore.getState().cancelStream()
+      expect(useAiDmStore.getState().queuedMessages).toHaveLength(0)
+    })
+
+    it('reset clears the queue', () => {
+      useAiDmStore.setState({ queuedMessages: [{ campaignId: 'c', content: 'x', characterIds: [] }] })
+      useAiDmStore.getState().reset()
+      expect(useAiDmStore.getState().queuedMessages).toHaveLength(0)
+    })
+
+    it('solo regression: no active stream → sends immediately (not queued)', async () => {
+      useAiDmStore.setState({ enabled: true, paused: false, activeStreamId: null, isTyping: false })
+      chatStream.mockClear()
+      await useAiDmStore.getState().sendMessage('camp', 'solo', ['c1'])
+      expect(chatStream).toHaveBeenCalledTimes(1)
+      expect(useAiDmStore.getState().queuedMessages).toHaveLength(0)
     })
   })
 })

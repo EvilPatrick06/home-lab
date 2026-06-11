@@ -179,9 +179,13 @@ const api = {
     removeTriggerListener: () => {
       ipcRenderer.removeAllListeners('ai:trigger-fired')
     },
-    // Event listeners (main → renderer)
+    // Event listeners (main → renderer). Each returns a per-listener unsubscribe (mirrors
+    // update.onStatus) so consumers can detach exactly their own handler instead of nuking
+    // every AI listener in the window. (PHASE-05 05A)
     onStreamChunk: (cb: (data: { streamId: string; text: string }) => void) => {
-      ipcRenderer.on(IPC_CHANNELS.AI_STREAM_CHUNK, (_e, data) => cb(data))
+      const listener = (_e: IpcRendererEvent, data: { streamId: string; text: string }): void => cb(data)
+      ipcRenderer.on(IPC_CHANNELS.AI_STREAM_CHUNK, listener)
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.AI_STREAM_CHUNK, listener)
     },
     onStreamDone: (
       cb: (data: {
@@ -193,25 +197,54 @@ const api = {
         ruleCitations?: Array<{ source: string; rule: string; text: string }>
       }) => void
     ) => {
-      ipcRenderer.on(IPC_CHANNELS.AI_STREAM_DONE, (_e, data) => cb(data))
+      const listener = (
+        _e: IpcRendererEvent,
+        data: {
+          streamId: string
+          fullText: string
+          displayText: string
+          statChanges: unknown[]
+          dmActions: unknown[]
+          ruleCitations?: Array<{ source: string; rule: string; text: string }>
+        }
+      ): void => cb(data)
+      ipcRenderer.on(IPC_CHANNELS.AI_STREAM_DONE, listener)
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.AI_STREAM_DONE, listener)
     },
     onStreamError: (cb: (data: { streamId: string; error: string }) => void) => {
-      ipcRenderer.on(IPC_CHANNELS.AI_STREAM_ERROR, (_e, data) => cb(data))
+      const listener = (_e: IpcRendererEvent, data: { streamId: string; error: string }): void => cb(data)
+      ipcRenderer.on(IPC_CHANNELS.AI_STREAM_ERROR, listener)
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.AI_STREAM_ERROR, listener)
     },
     onIndexProgress: (cb: (data: { percent: number; stage: string }) => void) => {
-      ipcRenderer.on(IPC_CHANNELS.AI_INDEX_PROGRESS, (_e, data) => cb(data))
+      const listener = (_e: IpcRendererEvent, data: { percent: number; stage: string }): void => cb(data)
+      ipcRenderer.on(IPC_CHANNELS.AI_INDEX_PROGRESS, listener)
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.AI_INDEX_PROGRESS, listener)
     },
     onOllamaProgress: (cb: (data: { type: string; percent: number }) => void) => {
-      ipcRenderer.on(IPC_CHANNELS.AI_OLLAMA_PROGRESS, (_e, data) => cb(data))
+      const listener = (_e: IpcRendererEvent, data: { type: string; percent: number }): void => cb(data)
+      ipcRenderer.on(IPC_CHANNELS.AI_OLLAMA_PROGRESS, listener)
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.AI_OLLAMA_PROGRESS, listener)
     },
     onStreamFileRead: (cb: (data: { streamId: string; path: string; status: string }) => void) => {
-      ipcRenderer.on(IPC_CHANNELS.AI_STREAM_FILE_READ, (_e, data) => cb(data))
+      const listener = (_e: IpcRendererEvent, data: { streamId: string; path: string; status: string }): void =>
+        cb(data)
+      ipcRenderer.on(IPC_CHANNELS.AI_STREAM_FILE_READ, listener)
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.AI_STREAM_FILE_READ, listener)
     },
     onStreamWebSearch: (cb: (data: { streamId: string; query: string; status: string }) => void) => {
-      ipcRenderer.on(IPC_CHANNELS.AI_STREAM_WEB_SEARCH, (_e, data) => cb(data))
+      const listener = (_e: IpcRendererEvent, data: { streamId: string; query: string; status: string }): void =>
+        cb(data)
+      ipcRenderer.on(IPC_CHANNELS.AI_STREAM_WEB_SEARCH, listener)
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.AI_STREAM_WEB_SEARCH, listener)
     },
     onStreamStatus: (cb: (data: { streamId: string; status: string; from?: string; to?: string }) => void) => {
-      ipcRenderer.on(IPC_CHANNELS.AI_STREAM_STATUS, (_e, data) => cb(data))
+      const listener = (
+        _e: IpcRendererEvent,
+        data: { streamId: string; status: string; from?: string; to?: string }
+      ): void => cb(data)
+      ipcRenderer.on(IPC_CHANNELS.AI_STREAM_STATUS, listener)
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.AI_STREAM_STATUS, listener)
     },
     approveWebSearch: (streamId: string, approved: boolean) =>
       ipcRenderer.invoke(IPC_CHANNELS.AI_WEB_SEARCH_APPROVE, streamId, approved),

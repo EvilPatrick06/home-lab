@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { AI_PROVIDER_LABELS, AI_PROVIDERS, DEFAULT_OLLAMA_URL } from '../../constants'
 import { useT } from '../../i18n'
 import type { AiProviderType } from '../../types/campaign'
@@ -70,7 +70,6 @@ export default function AiProviderSetup({
   const [cloudModels, setCloudModels] = useState<CloudModel[]>([])
   const [validatingKey, setValidatingKey] = useState(false)
   const [keyValid, setKeyValid] = useState<boolean | null>(null)
-  const progressListenerRegistered = useRef(false)
 
   const isCloud = provider !== 'ollama'
 
@@ -140,13 +139,6 @@ export default function AiProviderSetup({
 
     if (provider === 'ollama') {
       detectOllamaStatus()
-      if (!progressListenerRegistered.current) {
-        progressListenerRegistered.current = true
-        window.api.ai.onOllamaProgress((data) => {
-          if (data.type === 'download') setDownloadProgress(data.percent)
-          if (data.type === 'pull') setPullProgress(data.percent)
-        })
-      }
     } else {
       // Cloud providers are "ready" if they have an API key
       if (apiKey) {
@@ -158,6 +150,16 @@ export default function AiProviderSetup({
       }
     }
   }, [enabled, provider, apiKey, detectOllamaStatus, onProviderReady])
+
+  // Ollama download/pull progress — dedicated effect with a per-listener unsubscribe (05A/05D),
+  // so each wizard mount registers exactly one listener and detaches it on unmount.
+  useEffect(() => {
+    if (!enabled || provider !== 'ollama') return undefined
+    return window.api.ai.onOllamaProgress((data) => {
+      if (data.type === 'download') setDownloadProgress(data.percent)
+      if (data.type === 'pull') setPullProgress(data.percent)
+    })
+  }, [enabled, provider])
 
   // AI-3 — recognize an already-installed model as ready without re-pulling. When
   // the Ollama provider is selected and the current model isn't installed but

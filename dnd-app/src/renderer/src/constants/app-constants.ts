@@ -38,6 +38,10 @@ export const KICK_PLAYER_REMOVE_DELAY_MS = 1500
 // AI DM store
 // Auto-reject queued mutations the DM never acted on.
 export const AI_MUTATIONS_AUTO_REJECT_MS = 60_000
+// Cap on player messages queued behind an in-flight AI reply (multiplayer: player B chatting
+// while the AI answers player A). Overflow is dropped with a DM alert rather than unbounded
+// pileup on a slow local model. (PHASE-05 05F)
+export const AI_MESSAGE_QUEUE_MAX = 5
 // Safety timeout that force-clears a stuck "typing" stream. The handler fires
 // at STREAM_SAFETY_TIMEOUT_MS and only acts if at least
 // STREAM_SAFETY_THRESHOLD_MS has actually elapsed (guards against early wakeups).

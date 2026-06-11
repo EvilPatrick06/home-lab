@@ -102,6 +102,11 @@ function removeStream(streamId: string): void {
   activeStreamLastHeartbeat.delete(streamId)
 }
 
+/** Number of currently registered streams (test/observability hook — PHASE-05 05E). */
+export function getActiveStreamCount(): number {
+  return activeStreams.size
+}
+
 /** Update the heartbeat for an active stream to extend its TTL */
 function updateStreamHeartbeat(streamId: string): void {
   if (activeStreamLastHeartbeat.has(streamId)) {
@@ -801,6 +806,10 @@ async function handleStreamCompletion(
   deps: StreamHandlerDeps = getStreamDeps()
 ): Promise<void> {
   const restreamConversation = async (): Promise<void> => {
+    // The stream may have been cancelled (cancelChat aborted + removed it). Never re-register
+    // an aborted controller into activeStreams — that orphan would sit until the TTL sweep
+    // (~10-11 min) finds it. (PHASE-05 05E / F5)
+    if (abortController.signal.aborted) return
     deps.activeStreams.set(streamId, abortController)
     activeStreamTimestamps.set(streamId, Date.now())
     // Refresh the heartbeat too, so a legit long file-read→restream chain isn't
@@ -867,6 +876,10 @@ async function handleStreamCompletion(
       }
 
       const result = await readRequestedFile(fileReq.path)
+      // A cancel can land while the disk read is in flight; if so, append NOTHING to the
+      // conversation (post-cancel writes pollute the next turn's payload) and do not restream.
+      // (PHASE-05 05E / F5)
+      if (abortController.signal.aborted) return
       const fileContent = formatFileContent(result)
 
       // Strip the FILE_READ tag from display text
@@ -889,11 +902,14 @@ async function handleStreamCompletion(
       const approved = await waitForWebSearchApproval(streamId, abortController.signal)
       if (abortController.signal.aborted) return
 
+      // Strip the WEB_SEARCH tag now, but only COMMIT the assistant turn on a path that
+      // actually continues — appending it before the search runs left a dangling assistant
+      // message in history if the stream was cancelled mid-search. (PHASE-05 05E / F5)
       const strippedText = stripWebSearch(fullText)
-      conv.addMessage('assistant', strippedText)
 
       if (!approved) {
         sendWebSearchStatus(streamId, searchReq.query, 'rejected')
+        conv.addMessage('assistant', strippedText)
         conv.addMessage('user', WEB_SEARCH_DENIED_MESSAGE)
         await restreamConversation()
         return
@@ -903,6 +919,7 @@ async function handleStreamCompletion(
       const results: WebSearchResult[] = await performWebSearch(searchReq.query)
       if (abortController.signal.aborted) return
       const searchContent = formatSearchResults(searchReq.query, results)
+      conv.addMessage('assistant', strippedText)
       conv.addMessage('user', searchContent)
 
       await restreamConversation()

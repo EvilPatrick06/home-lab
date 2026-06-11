@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { pushDmAlert } from '../components/game/overlays/DmAlertTray'
 import { announce } from '../components/ui/ScreenReaderAnnouncer'
-import { AI_MUTATIONS_AUTO_REJECT_MS, STREAM_SAFETY_TIMEOUT_MS } from '../constants'
+import { AI_MESSAGE_QUEUE_MAX, AI_MUTATIONS_AUTO_REJECT_MS, STREAM_SAFETY_TIMEOUT_MS } from '../constants'
 import { i18n } from '../i18n'
 import { type AiRendererAction, parseRendererActions, stripActionTags } from '../services/ai-renderer-actions'
 import type { Campaign } from '../types/campaign'
@@ -47,6 +47,26 @@ export interface PendingMutationSet {
   source: 'ai-dm' | 'discord'
   timestamp: number
   timeoutId?: ReturnType<typeof setTimeout>
+}
+
+/** A player message that arrived while a stream was in flight, snapshotted at ENQUEUE time —
+ *  the world (gameState/activeCreatures) as it was when the player spoke is the narratively
+ *  correct context to answer with. Drained FIFO when the current reply finishes. (05F) */
+interface QueuedAiMessage {
+  campaignId: string
+  content: string
+  characterIds: string[]
+  senderName?: string
+  activeCreatures?: Array<{
+    label: string
+    currentHP: number
+    maxHP: number
+    ac: number
+    conditions: string[]
+    monsterStatBlockId?: string
+  }>
+  gameState?: string
+  actingCharacterId?: string
 }
 
 interface AiDmState {
@@ -101,6 +121,10 @@ interface AiDmState {
   // Stat mutation approval
   pendingMutations: PendingMutationSet[]
   autoApproveAiMutations: boolean
+
+  // Player messages that arrived while a stream was in flight (bounded FIFO, drained on
+  // done/error). Replaces the old "cancel the in-flight reply on every new message" (F6).
+  queuedMessages: QueuedAiMessage[]
 
   // Errors
   lastError: string | null
@@ -160,6 +184,9 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
     const id = setTimeout(async () => {
       const s = get()
       if (s.isTyping && s.activeStreamId) {
+        if (s.queuedMessages.length > 0) {
+          pushDmAlert('warning', i18n.t('notify.aiDmStore.queuedMessagesDiscarded', { count: s.queuedMessages.length }))
+        }
         set({
           isTyping: false,
           lastError: 'AI response timed out',
@@ -168,7 +195,8 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
           safetyTimeoutId: null,
           webSearchStatus: null,
           fileReadStatus: null,
-          streamStatus: null
+          streamStatus: null,
+          queuedMessages: []
         })
         await window.api.ai.cancelStream(s.activeStreamId)
       }
@@ -183,6 +211,23 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
   const clearApprovalState = (): { pendingActionSets: never[]; pendingMutations: never[] } => {
     for (const m of get().pendingMutations) if (m.timeoutId) clearTimeout(m.timeoutId)
     return { pendingActionSets: [], pendingMutations: [] }
+  }
+
+  // Pop the oldest queued player message and send it. Called when the current reply finishes
+  // (done/error) or a send fails synchronously, so the queue can never strand. (05F / F6)
+  const drainQueue = (): void => {
+    const next = get().queuedMessages[0]
+    if (!next) return
+    set({ queuedMessages: get().queuedMessages.slice(1) })
+    void get().sendMessage(
+      next.campaignId,
+      next.content,
+      next.characterIds,
+      next.senderName,
+      next.activeCreatures,
+      next.gameState,
+      next.actingCharacterId
+    )
   }
 
   return {
@@ -209,6 +254,7 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
     streamStatus: null,
     pendingMutations: [],
     autoApproveAiMutations: false,
+    queuedMessages: [],
     lastError: null,
 
     setDmApprovalRequired: (required: boolean) => set({ dmApprovalRequired: required }),
@@ -358,7 +404,13 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
         // Clear any stale campaign-A approval UI/timers so they don't survive into an
         // AI-disabled campaign B (RulingApprovalModal/MutationApprovalPanel mount on queue
         // contents, not on `enabled`). (F2)
-        set({ ...clearApprovalState(), enabled: false, webSearchStatus: null, fileReadStatus: null })
+        set({
+          ...clearApprovalState(),
+          queuedMessages: [],
+          enabled: false,
+          webSearchStatus: null,
+          fileReadStatus: null
+        })
         return
       }
 
@@ -366,6 +418,7 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
 
       set({
         ...clearApprovalState(),
+        queuedMessages: [],
         webSearchStatus: null,
         fileReadStatus: null,
         enabled: true,
@@ -415,9 +468,22 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
       const state = get()
       if (!state.enabled || state.paused) return
 
-      // Cancel any active stream first
-      if (state.activeStreamId) {
-        await get().cancelStream()
+      // A stream is in flight (or about to be — isTyping covers the pre-streamId window between
+      // chatStream invoke and activeStreamId set). Queue this message instead of cancelling the
+      // current reply, which used to silently destroy another player's in-progress answer (F6).
+      if (state.activeStreamId || state.isTyping) {
+        if (state.queuedMessages.length >= AI_MESSAGE_QUEUE_MAX) {
+          pushDmAlert('warning', i18n.t('notify.aiDmStore.messageQueueFull', { count: AI_MESSAGE_QUEUE_MAX }))
+          return
+        }
+        set({
+          queuedMessages: [
+            ...state.queuedMessages,
+            { campaignId, content, characterIds, senderName, activeCreatures, gameState, actingCharacterId }
+          ]
+        })
+        pushDmAlert('info', i18n.t('notify.aiDmStore.messageQueued', { sender: senderName ?? '' }))
+        return
       }
 
       set({
@@ -454,6 +520,7 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
           const errorMsg = result.error || 'Failed to start chat'
           set({ isTyping: false, lastError: errorMsg, safetyTimeoutId: null })
           pushDmAlert('error', i18n.t('notify.aiDmStore.aiDmError', { error: errorMsg }))
+          drainQueue() // a failed send must not strand a queued message
         }
       } catch (error) {
         const t = get().safetyTimeoutId
@@ -461,13 +528,19 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
         const errorMsg = error instanceof Error ? error.message : 'Unknown error'
         set({ isTyping: false, lastError: errorMsg, safetyTimeoutId: null })
         pushDmAlert('error', i18n.t('notify.aiDmStore.aiDmError', { error: errorMsg }))
+        drainQueue()
       }
     },
 
     cancelStream: async () => {
-      const { activeStreamId, safetyTimeoutId } = get()
+      const { activeStreamId, safetyTimeoutId, queuedMessages } = get()
       if (safetyTimeoutId) {
         clearTimeout(safetyTimeoutId)
+      }
+      // An explicit cancel means "stop the AI" — discarding any queued sends (auto-firing them
+      // right after a cancel would be surprising). Tell the DM if anything was waiting. (05F)
+      if (queuedMessages.length > 0) {
+        pushDmAlert('warning', i18n.t('notify.aiDmStore.queuedMessagesDiscarded', { count: queuedMessages.length }))
       }
       // Clear UI + stale approval/status state UNCONDITIONALLY (even when activeStreamId is
       // already null) so a dead stream can never leave webSearchStatus pinning the
@@ -479,7 +552,8 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
         safetyTimeoutId: null,
         webSearchStatus: null,
         fileReadStatus: null,
-        streamStatus: null
+        streamStatus: null,
+        queuedMessages: []
       })
       if (activeStreamId) {
         // Then perform the async cancellation
@@ -541,6 +615,7 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
       }
       set({
         ...clearApprovalState(),
+        queuedMessages: [],
         enabled: false,
         paused: false,
         messages: [],
@@ -643,6 +718,8 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
             lastRuleCitations: ruleCitations,
             messages: [...state.messages, newMessage]
           })
+          // The current reply finished — answer the next queued player message (FIFO). (05F)
+          drainQueue()
         }
       }
 
@@ -665,6 +742,8 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
             lastError: data.error
           })
           pushDmAlert('error', i18n.t('notify.aiDmStore.aiDmError', { error: data.error }))
+          // Even on error, drain the queue so a later message still gets answered. (05F)
+          drainQueue()
         }
       }
 
@@ -695,16 +774,21 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
         })
       }
 
-      window.api.ai.onStreamChunk(handleChunk)
-      window.api.ai.onStreamDone(handleDone)
-      window.api.ai.onStreamError(handleError)
-      window.api.ai.onStreamFileRead(handleFileRead)
-      window.api.ai.onStreamWebSearch(handleWebSearch)
-      window.api.ai.onStreamStatus(handleStreamStatus)
+      // Collect per-listener unsubscribes (05A) so cleanup removes ONLY the six listeners
+      // this call registered — never the global nuke, which would deafen any other consumer
+      // and (because the old effect ran cleanup on every campaign-identity change) leave the
+      // renderer permanently deaf (F1). Per-listener removal makes re-registration safe (05C).
+      const unsubscribes = [
+        window.api.ai.onStreamChunk(handleChunk),
+        window.api.ai.onStreamDone(handleDone),
+        window.api.ai.onStreamError(handleError),
+        window.api.ai.onStreamFileRead(handleFileRead),
+        window.api.ai.onStreamWebSearch(handleWebSearch),
+        window.api.ai.onStreamStatus(handleStreamStatus)
+      ]
 
-      // Return cleanup function
       return () => {
-        window.api.ai.removeAllAiListeners()
+        for (const unsubscribe of unsubscribes) unsubscribe()
       }
     }
   }

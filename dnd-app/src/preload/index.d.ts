@@ -328,15 +328,15 @@ interface AiAPI {
     }) => void
   ) => void
   removeTriggerListener: () => void
-  // Event listeners
-  onStreamChunk: (cb: (data: AiStreamChunkData) => void) => void
-  onStreamDone: (cb: (data: AiStreamDoneData) => void) => void
-  onStreamError: (cb: (data: AiStreamErrorData) => void) => void
-  onIndexProgress: (cb: (data: AiIndexProgressData) => void) => void
-  onOllamaProgress: (cb: (data: OllamaProgressData) => void) => void
-  onStreamFileRead: (cb: (data: { streamId: string; path: string; status: string }) => void) => void
-  onStreamWebSearch: (cb: (data: { streamId: string; query: string; status: string }) => void) => void
-  onStreamStatus: (cb: (data: { streamId: string; status: string; from?: string; to?: string }) => void) => void
+  // Event listeners — each returns a per-listener unsubscribe (PHASE-05 05A)
+  onStreamChunk: (cb: (data: AiStreamChunkData) => void) => () => void
+  onStreamDone: (cb: (data: AiStreamDoneData) => void) => () => void
+  onStreamError: (cb: (data: AiStreamErrorData) => void) => () => void
+  onIndexProgress: (cb: (data: AiIndexProgressData) => void) => () => void
+  onOllamaProgress: (cb: (data: OllamaProgressData) => void) => () => void
+  onStreamFileRead: (cb: (data: { streamId: string; path: string; status: string }) => void) => () => void
+  onStreamWebSearch: (cb: (data: { streamId: string; query: string; status: string }) => void) => () => void
+  onStreamStatus: (cb: (data: { streamId: string; status: string; from?: string; to?: string }) => void) => () => void
   approveWebSearch: (streamId: string, approved: boolean) => Promise<{ success: boolean; error?: string }>
   removeAllAiListeners: () => void
 }
