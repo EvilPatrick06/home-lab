@@ -1,5 +1,12 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
-import { classifyProviderError, type LLMProvider, PROVIDER_REQUEST_TIMEOUT_MS } from './llm-provider'
+import {
+  CLOUD_INACTIVITY_TIMEOUT_MS,
+  classifyProviderError,
+  createStreamInactivityGuard,
+  type LLMProvider,
+  PROVIDER_REQUEST_TIMEOUT_MS,
+  type StreamInactivityGuard
+} from './llm-provider'
 import type { ChatMessage, StreamCallbacks } from './types'
 
 let apiKey: string | undefined
@@ -27,14 +34,14 @@ export const geminiProvider: LLMProvider = {
     model: string,
     abortSignal?: AbortSignal
   ): Promise<void> {
+    let streamGuard: StreamInactivityGuard | undefined
     try {
       const client = getClient()
-      // Phase 17d (NET-8) — enforce a 120s request timeout (this SDK's RequestOptions has no
-      // `signal`; caller abort is handled by the `abortSignal?.aborted` checks in the stream loop).
-      const genModel = client.getGenerativeModel(
-        { model, systemInstruction: systemPrompt },
-        { timeout: PROVIDER_REQUEST_TIMEOUT_MS }
-      )
+      // PHASE-03 — NO model-level `timeout` for streaming (it would wall-clock-kill
+      // a long narration). @google/generative-ai@0.24.1 accepts a per-request
+      // SingleRequestOptions.signal, wired into the fetch's AbortController; pass the
+      // inactivity-guard signal so only inter-token silence (or caller abort) aborts.
+      const genModel = client.getGenerativeModel({ model, systemInstruction: systemPrompt })
 
       const history = messages.slice(0, -1).map((m) => ({
         role: toGeminiRole(m.role),
@@ -47,12 +54,15 @@ export const geminiProvider: LLMProvider = {
         return
       }
 
+      const guard = createStreamInactivityGuard({ signal: abortSignal })
+      streamGuard = guard
       const chat = genModel.startChat({ history })
-      const result = await chat.sendMessageStream(lastMessage.content)
+      const result = await chat.sendMessageStream(lastMessage.content, { signal: guard.signal })
 
       let fullText = ''
 
       for await (const chunk of result.stream) {
+        guard.bump()
         if (abortSignal?.aborted) return
         const text = chunk.text()
         if (text) {
@@ -61,16 +71,27 @@ export const geminiProvider: LLMProvider = {
         }
       }
 
+      guard.clear()
       callbacks.onDone(fullText)
     } catch (error) {
+      streamGuard?.clear()
       if (abortSignal?.aborted) return
+      if (streamGuard?.timedOut()) {
+        callbacks.onError(
+          new Error(
+            `Gemini stream timed out (no output for ${Math.round(CLOUD_INACTIVITY_TIMEOUT_MS / 1000)}s). The provider may be unresponsive — try again.`
+          )
+        )
+        return
+      }
       callbacks.onError(classifyProviderError('gemini', error))
     }
   },
 
   async chatOnce(systemPrompt: string, messages: ChatMessage[], model: string): Promise<string> {
     const client = getClient()
-    // Phase 17d (NET-8) — 120s request timeout (cloud calls can't hang forever).
+    // Non-streaming: keep one overall request ceiling (PROVIDER_REQUEST_TIMEOUT_MS)
+    // since there's no token stream to watch.
     const genModel = client.getGenerativeModel(
       { model, systemInstruction: systemPrompt },
       { timeout: PROVIDER_REQUEST_TIMEOUT_MS }

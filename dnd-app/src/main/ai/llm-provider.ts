@@ -75,14 +75,64 @@ class LLMProviderError extends Error {
 }
 
 /**
- * Hard per-request timeout for every provider (Ollama + cloud). Deliberately set
- * BELOW the renderer's STREAM_SAFETY_TIMEOUT_MS (120s, app-constants.ts) so a real
- * provider failure (connection refused, 404 model-not-found, a model that never
- * yields a token) is classified and delivered to the UI via onStreamError BEFORE
- * the renderer gives up — instead of the renderer winning the race and masking the
- * cause with a generic "AI response timed out". INVARIANT: this < STREAM_SAFETY_TIMEOUT_MS.
+ * Whole-request ceiling for NON-streaming cloud calls (`chatOnce` background
+ * summaries) and provider availability probes only. Streaming no longer uses this
+ * — it uses `createStreamInactivityGuard` below, so a long narration is never
+ * killed on total duration (PHASE-03). Kept below the renderer's
+ * STREAM_SAFETY_TIMEOUT_MS (330s, an inactivity timer re-armed per token/heartbeat
+ * in use-ai-dm-store `rearmSafetyTimeout`) so a dead provider is classified and
+ * surfaced before the renderer's backstop. INVARIANT: this < STREAM_SAFETY_TIMEOUT_MS.
  */
 export const PROVIDER_REQUEST_TIMEOUT_MS = 90_000
+
+/**
+ * Cloud STREAMING timeouts. Cloud providers prefill server-side in seconds, so the
+ * time-to-first-token IS bounded (a connect/hang failure is classified before the
+ * renderer's 330s backstop). Once tokens flow, only inter-token SILENCE aborts the
+ * stream; total stream duration is UNBOUNDED (long narrations were previously killed
+ * at 90s wall-clock). INVARIANT: both < STREAM_SAFETY_TIMEOUT_MS (330s).
+ */
+export const CLOUD_FIRST_TOKEN_TIMEOUT_MS = 90_000
+export const CLOUD_INACTIVITY_TIMEOUT_MS = 90_000
+
+/** Reusable first-token + inter-token inactivity guard for cloud streaming —
+ *  mirrors the proven Ollama pattern (ollama-client armInactivity). */
+export interface StreamInactivityGuard {
+  /** Combined caller-abort + guard signal — pass to the SDK request. */
+  signal: AbortSignal
+  /** Re-arm the inactivity window; call on every token/SSE event. */
+  bump: () => void
+  /** Stop the timer; call on done and in every catch/finally. */
+  clear: () => void
+  /** True iff the GUARD aborted (vs the caller's signal). */
+  timedOut: () => boolean
+}
+
+export function createStreamInactivityGuard(options?: {
+  firstTokenMs?: number
+  inactivityMs?: number
+  signal?: AbortSignal
+}): StreamInactivityGuard {
+  const controller = new AbortController()
+  const firstTokenMs = options?.firstTokenMs ?? CLOUD_FIRST_TOKEN_TIMEOUT_MS
+  const inactivityMs = options?.inactivityMs ?? CLOUD_INACTIVITY_TIMEOUT_MS
+  let timer: ReturnType<typeof setTimeout> | undefined
+  let didTimeOut = false
+  const arm = (ms: number): void => {
+    clearTimeout(timer)
+    timer = setTimeout(() => {
+      didTimeOut = true
+      controller.abort()
+    }, ms)
+  }
+  arm(firstTokenMs)
+  return {
+    signal: options?.signal ? AbortSignal.any([options.signal, controller.signal]) : controller.signal,
+    bump: () => arm(inactivityMs),
+    clear: () => clearTimeout(timer),
+    timedOut: () => didTimeOut
+  }
+}
 
 /**
  * Ollama timeouts. A local model on a CPU laptop can spend minutes in prompt-evaluation

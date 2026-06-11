@@ -69,6 +69,7 @@ vi.mock('./ollama-client', () => ({
   getOllamaUrl: vi.fn(() => 'http://localhost:11434'),
   isOllamaRunning: vi.fn(async () => true),
   listOllamaModels: vi.fn(async () => ['llama3.1']),
+  fetchOllamaModels: vi.fn(async () => ['llama3.1']),
   ollamaChatOnce: vi.fn(async () => 'summary'),
   ollamaStreamChat: mocked.ollamaStreamChatMock,
   setOllamaUrl: vi.fn(),

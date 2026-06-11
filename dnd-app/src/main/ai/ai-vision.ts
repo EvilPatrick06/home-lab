@@ -188,7 +188,7 @@ export async function analyzeMapState(gameState: {
 
     // Get the current model from the provider config
     // Use chatOnce for a single analysis request
-    const model = getModelForProvider(providerType)
+    const model = await getModelForProvider(providerType)
     const analysis = await provider.chatOnce(systemPrompt, [{ role: 'user', content: userMessage }], model)
 
     logToFile('info', `[AI Vision] Analysis complete: ${analysis.length} chars`)
@@ -207,12 +207,15 @@ export type MapStateForVisionAnalysis = Parameters<typeof analyzeMapState>[0]
 /**
  * Get the appropriate model string for the active provider.
  */
-function getModelForProvider(_providerType: string): string {
+async function getModelForProvider(_providerType: string): Promise<string> {
   // Use the model the user actually configured — never a per-provider hardcode.
   // Falls back to the single central default only if nothing is configured.
-  const { getConfig, DEFAULT_AI_MODEL } = require('./ai-service') as {
+  // Resolve through the AI service so a missing/stale Ollama model auto-switches to an
+  // installed one (no streamId → no renderer notice; no-op for cloud providers). (03G)
+  const { getConfig, DEFAULT_AI_MODEL, resolveOllamaModel } = require('./ai-service') as {
     getConfig: () => { model?: string } | null
     DEFAULT_AI_MODEL: string
+    resolveOllamaModel: (configured: string, streamId?: string) => Promise<string>
   }
-  return getConfig()?.model || DEFAULT_AI_MODEL
+  return await resolveOllamaModel(getConfig()?.model || DEFAULT_AI_MODEL)
 }

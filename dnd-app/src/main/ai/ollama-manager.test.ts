@@ -33,7 +33,8 @@ vi.mock('node:fs', () => ({
 }))
 
 vi.mock('./ollama-client', () => ({
-  listOllamaModels: vi.fn(async () => ['llama3.1'])
+  listOllamaModels: vi.fn(async () => ['llama3.1']),
+  getOllamaUrl: vi.fn(() => 'http://remote-gpu:11434')
 }))
 
 const mockFetch = vi.fn()
@@ -267,6 +268,25 @@ describe('ollama-manager', () => {
       expect(models[0].family).toBe('llama')
     })
 
+    it('PHASE-03 03F: registry ops target the configured URL; binary-lifecycle stays localhost', async () => {
+      // listInstalledModelsDetailed → configured URL
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => ({ models: [] }) })
+      await listInstalledModelsDetailed()
+      expect(mockFetch).toHaveBeenLastCalledWith('http://remote-gpu:11434/api/tags', expect.anything())
+      // pullModel → configured URL
+      mockFetch.mockResolvedValueOnce({ ok: true, body: null })
+      await pullModel('mistral:7b', () => {}).catch(() => {})
+      expect((mockFetch.mock.calls.at(-1) as unknown[])[0]).toBe('http://remote-gpu:11434/api/pull')
+      // deleteModel → configured URL
+      mockFetch.mockResolvedValueOnce({ ok: true })
+      await deleteModel('mistral:7b').catch(() => {})
+      expect((mockFetch.mock.calls.at(-1) as unknown[])[0]).toBe('http://remote-gpu:11434/api/delete')
+      // getOllamaVersion (binary lifecycle) → still localhost
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => ({ version: '0.5.0' }) })
+      await getOllamaVersion().catch(() => {})
+      expect((mockFetch.mock.calls.at(-1) as unknown[])[0]).toContain('localhost:11434')
+    })
+
     it('returns empty array on API error', async () => {
       mockFetch.mockResolvedValueOnce({ ok: false })
       expect(await listInstalledModelsDetailed()).toEqual([])
@@ -400,12 +420,13 @@ describe('ollama-manager', () => {
   // ── deleteModel ──
 
   describe('deleteModel', () => {
-    it('sends DELETE request to Ollama API', async () => {
+    it('sends DELETE request to the configured Ollama URL', async () => {
+      // 03F: registry ops (delete) target the configured URL, not hardcoded localhost.
       mockFetch.mockResolvedValueOnce({ ok: true })
       await deleteModel('llama3.1')
 
       expect(mockFetch).toHaveBeenCalledWith(
-        `${OLLAMA_BASE_URL}/api/delete`,
+        'http://remote-gpu:11434/api/delete',
         expect.objectContaining({
           method: 'DELETE',
           body: JSON.stringify({ name: 'llama3.1' })

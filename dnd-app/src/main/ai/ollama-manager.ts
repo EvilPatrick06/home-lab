@@ -2,7 +2,7 @@ import { execFile, execSync, spawn } from 'node:child_process'
 import { createWriteStream, existsSync } from 'node:fs'
 import { join, relative, resolve } from 'node:path'
 import { app } from 'electron'
-import { listOllamaModels } from './ollama-client'
+import { getOllamaUrl, listOllamaModels } from './ollama-client'
 import { OLLAMA_BASE_URL } from './ollama-constants'
 import { getOllamaKvCacheType } from './ollama-context'
 
@@ -98,6 +98,9 @@ function getPlatformInstallCandidates(): string[] {
  * Ollama is installed via the in-app flow (`downloadOllama`/`installOllama`) and
  * detected here from system paths.
  */
+// PHASE-03 — registry operations (pull/delete/list-details) follow the CONFIGURED
+// server URL (getOllamaUrl); binary-lifecycle operations (detect/start/stop/version/
+// update) always target localhost because they manage the locally installed binary.
 export async function detectOllama(): Promise<OllamaStatus> {
   let installed = false
   let path: string | undefined
@@ -421,7 +424,7 @@ export async function ensureOllamaUsesDedicatedGpu(): Promise<boolean> {
  * Pull a model via Ollama's API with streaming progress.
  */
 export async function pullModel(model: string, onProgress?: (percent: number) => void): Promise<void> {
-  const res = await fetch(`${OLLAMA_BASE_URL}/api/pull`, {
+  const res = await fetch(`${getOllamaUrl()}/api/pull`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name: model, stream: true })
@@ -482,7 +485,7 @@ export async function listInstalledModels(): Promise<string[]> {
  */
 export async function listInstalledModelsDetailed(): Promise<InstalledModelInfo[]> {
   try {
-    const res = await fetch(`${OLLAMA_BASE_URL}/api/tags`, {
+    const res = await fetch(`${getOllamaUrl()}/api/tags`, {
       signal: AbortSignal.timeout(5000)
     })
     if (!res.ok) return []
@@ -585,7 +588,7 @@ export async function updateOllama(onProgress?: (percent: number) => void): Prom
  * Delete a model via the Ollama API.
  */
 export async function deleteModel(model: string): Promise<void> {
-  const res = await fetch(`${OLLAMA_BASE_URL}/api/delete`, {
+  const res = await fetch(`${getOllamaUrl()}/api/delete`, {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name: model })

@@ -74,6 +74,7 @@ vi.mock('./ollama-client', () => ({
   getOllamaUrl: vi.fn(() => 'http://localhost:11434'),
   isOllamaRunning: vi.fn(async () => true),
   listOllamaModels: vi.fn(async () => ['llama3.1', 'mistral']),
+  fetchOllamaModels: vi.fn(async () => ['llama3.1', 'mistral']),
   ollamaChatOnce: vi.fn(async () => 'summary result'),
   ollamaStreamChat: vi.fn(),
   setOllamaUrl: vi.fn(),
@@ -193,6 +194,7 @@ import {
   getLastTokenEstimate,
   getSceneStatus,
   initFromSavedConfig,
+  loadConfigFromDisk,
   loadIndex,
   removeConversation,
   resolveOllamaModel,
@@ -202,7 +204,7 @@ import {
   wasContextTruncated
 } from './ai-service'
 import { loadChunkIndex } from './chunk-builder'
-import { getOllamaUrl, listOllamaModels, setOllamaUrl } from './ollama-client'
+import { fetchOllamaModels, getOllamaUrl, setOllamaUrl } from './ollama-client'
 import { getActiveProviderType } from './provider-registry'
 
 describe('ai-service', () => {
@@ -252,13 +254,16 @@ describe('ai-service', () => {
     })
   })
 
-  describe('getConfig', () => {
+  // 03G: disk reads moved out of getConfig() into loadConfigFromDisk() (the single
+  // startup load point). getConfig() is now a pure in-memory snapshot.
+  describe('loadConfigFromDisk', () => {
     it('loads config from disk if file exists', () => {
       vi.mocked(existsSync).mockReturnValueOnce(true)
       vi.mocked(readFileSync).mockReturnValueOnce(
         JSON.stringify({ provider: 'ollama', model: 'phi3', ollamaUrl: 'http://remote:11434' })
       )
 
+      loadConfigFromDisk()
       const config = getConfig()
       expect(config.model).toBe('phi3')
       expect(config.ollamaUrl).toBe('http://remote:11434')
@@ -271,26 +276,55 @@ describe('ai-service', () => {
         JSON.stringify({ ollamaModel: 'phi3', ollamaUrl: 'http://remote:11434' })
       )
 
+      loadConfigFromDisk()
       const config = getConfig()
       expect(config.model).toBe('phi3')
       expect(config.provider).toBe('ollama')
     })
 
-    it('returns defaults if config file does not exist', () => {
+    it('keeps current config if file does not exist', () => {
       vi.mocked(existsSync).mockReturnValueOnce(false)
 
+      loadConfigFromDisk()
       const config = getConfig()
       expect(config.model).toBeDefined()
       expect(config.ollamaUrl).toBeDefined()
       expect(config.provider).toBe('ollama')
     })
 
-    it('returns defaults if config file has invalid JSON', () => {
+    it('keeps current config if file has invalid JSON', () => {
       vi.mocked(existsSync).mockReturnValueOnce(true)
       vi.mocked(readFileSync).mockReturnValueOnce('not json')
 
+      loadConfigFromDisk()
       const config = getConfig()
       expect(config.model).toBeDefined()
+    })
+  })
+
+  describe('getConfig', () => {
+    it('does NOT touch disk (pure in-memory snapshot) — 03G', () => {
+      vi.mocked(existsSync).mockClear()
+      vi.mocked(readFileSync).mockClear()
+
+      getConfig()
+      expect(existsSync).not.toHaveBeenCalled()
+      expect(readFileSync).not.toHaveBeenCalled()
+    })
+
+    it('survives an auto-switch — a later getConfig() does not revert the model (03G)', async () => {
+      // Configure a model that is NOT installed; the installed list offers a real one.
+      vi.mocked(getActiveProviderType).mockReturnValue('ollama')
+      await configure({ provider: 'ollama', model: 'ghost-model', ollamaUrl: '' })
+      vi.mocked(fetchOllamaModels).mockResolvedValueOnce(['real-model'])
+
+      const picked = await resolveOllamaModel('ghost-model')
+      expect(picked).toBe('real-model')
+
+      // Even with a stale disk file primed, getConfig() must return the in-memory switch.
+      vi.mocked(existsSync).mockReturnValue(true)
+      vi.mocked(readFileSync).mockReturnValue(JSON.stringify({ provider: 'ollama', model: 'ghost-model' }))
+      expect(getConfig().model).toBe('real-model')
     })
   })
 
@@ -615,29 +649,34 @@ describe('ai-service', () => {
     })
 
     it('returns the configured model unchanged when it IS installed', async () => {
-      vi.mocked(listOllamaModels).mockResolvedValueOnce(['llama3.1', 'mistral'])
+      vi.mocked(fetchOllamaModels).mockResolvedValueOnce(['llama3.1', 'mistral'])
       expect(await resolveOllamaModel('mistral')).toBe('mistral')
     })
 
     it('falls back to the first installed model when the configured one is NOT installed', async () => {
-      vi.mocked(listOllamaModels).mockResolvedValueOnce(['gemma3:4b', 'mistral'])
+      vi.mocked(fetchOllamaModels).mockResolvedValueOnce(['gemma3:4b', 'mistral'])
       expect(await resolveOllamaModel('llama3.2:3b')).toBe('gemma3:4b')
     })
 
     it('falls back to the first installed model when none is configured (empty)', async () => {
-      vi.mocked(listOllamaModels).mockResolvedValueOnce(['gemma3:4b'])
+      vi.mocked(fetchOllamaModels).mockResolvedValueOnce(['gemma3:4b'])
       expect(await resolveOllamaModel('')).toBe('gemma3:4b')
     })
 
     it('throws an actionable "ollama pull" error when NO models are installed', async () => {
-      vi.mocked(listOllamaModels).mockResolvedValueOnce([])
+      vi.mocked(fetchOllamaModels).mockResolvedValueOnce([])
       await expect(resolveOllamaModel('')).rejects.toThrow('ollama pull')
+    })
+
+    it('PHASE-03 03E: unreachable host throws "Cannot reach Ollama" (not "no models")', async () => {
+      vi.mocked(fetchOllamaModels).mockRejectedValueOnce(new Error('fetch failed'))
+      await expect(resolveOllamaModel('mistral')).rejects.toThrow('Cannot reach Ollama at')
     })
 
     it('leaves a cloud provider model untouched (no Ollama preflight)', async () => {
       vi.mocked(getActiveProviderType).mockReturnValue('claude')
       expect(await resolveOllamaModel('claude-opus-4-7')).toBe('claude-opus-4-7')
-      expect(listOllamaModels).not.toHaveBeenCalled()
+      expect(fetchOllamaModels).not.toHaveBeenCalled()
     })
   })
 })

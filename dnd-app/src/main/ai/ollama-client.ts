@@ -61,13 +61,22 @@ export async function isOllamaRunning(): Promise<boolean> {
   }
 }
 
-/** List installed Ollama models. */
+/** Bound the model-list fetch (matches listInstalledModelsDetailed's 5s). */
+const OLLAMA_LIST_TIMEOUT_MS = 5000
+
+/** List installed models — THROWS on network failure/timeout/non-OK status so
+ *  callers can distinguish "unreachable host" from "no models installed". 5s bound. */
+export async function fetchOllamaModels(): Promise<string[]> {
+  const res = await fetch(`${ollamaBaseUrl}/api/tags`, { signal: AbortSignal.timeout(OLLAMA_LIST_TIMEOUT_MS) })
+  if (!res.ok) throw new Error(`Ollama /api/tags returned HTTP ${res.status}`)
+  const data = (await res.json()) as { models?: Array<{ name: string }> }
+  return (data.models || []).map((m) => m.name)
+}
+
+/** Lenient list — [] on any failure (UI list paths). Bounded via fetchOllamaModels. */
 export async function listOllamaModels(): Promise<string[]> {
   try {
-    const res = await fetch(`${ollamaBaseUrl}/api/tags`)
-    if (!res.ok) return []
-    const data = (await res.json()) as { models?: Array<{ name: string }> }
-    return (data.models || []).map((m) => m.name)
+    return await fetchOllamaModels()
   } catch {
     return []
   }

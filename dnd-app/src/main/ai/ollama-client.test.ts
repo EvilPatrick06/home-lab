@@ -12,6 +12,7 @@ vi.mock('./ollama-context', async (orig) => ({
 }))
 
 import {
+  fetchOllamaModels,
   getLastOllamaStats,
   getOllamaUrl,
   isOllamaRunning,
@@ -127,6 +128,30 @@ describe('ollama-client', () => {
         json: async () => ({})
       })
       expect(await listOllamaModels()).toEqual([])
+    })
+
+    it('PHASE-03 03E: the list fetch carries a bounding AbortSignal', async () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => ({ models: [] }) })
+      await listOllamaModels()
+      expect(mockFetch).toHaveBeenCalledWith(
+        'http://localhost:11434/api/tags',
+        expect.objectContaining({ signal: expect.anything() })
+      )
+    })
+  })
+
+  describe('fetchOllamaModels (strict — PHASE-03 03E)', () => {
+    it('returns names on success', async () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => ({ models: [{ name: 'mistral:7b' }] }) })
+      expect(await fetchOllamaModels()).toEqual(['mistral:7b'])
+    })
+    it('THROWS on a network rejection (so callers can tell unreachable from empty)', async () => {
+      mockFetch.mockRejectedValueOnce(new Error('ECONNREFUSED'))
+      await expect(fetchOllamaModels()).rejects.toThrow()
+    })
+    it('THROWS HTTP <status> on a non-OK response', async () => {
+      mockFetch.mockResolvedValueOnce({ ok: false, status: 500 })
+      await expect(fetchOllamaModels()).rejects.toThrow('HTTP 500')
     })
   })
 

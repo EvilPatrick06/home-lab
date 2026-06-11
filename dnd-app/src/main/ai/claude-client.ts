@@ -1,5 +1,13 @@
 import Anthropic from '@anthropic-ai/sdk'
-import { classifyProviderError, defaultMaxTokensForModel, type LLMProvider, withRequestTimeout } from './llm-provider'
+import {
+  CLOUD_INACTIVITY_TIMEOUT_MS,
+  classifyProviderError,
+  createStreamInactivityGuard,
+  defaultMaxTokensForModel,
+  type LLMProvider,
+  type StreamInactivityGuard,
+  withRequestTimeout
+} from './llm-provider'
 import type { ChatMessage, StreamCallbacks } from './types'
 
 let apiKey: string | undefined
@@ -34,6 +42,7 @@ export const claudeProvider: LLMProvider = {
     abortSignal?: AbortSignal,
     maxTokens?: number
   ): Promise<void> {
+    let streamGuard: StreamInactivityGuard | undefined
     try {
       const client = getClient()
       const apiMessages = messages.map((m) => ({
@@ -41,6 +50,11 @@ export const claudeProvider: LLMProvider = {
         content: m.content
       }))
 
+      // PHASE-03 — first-token + inter-token inactivity guard (replaces the 90s
+      // whole-stream wall-clock kill that truncated long narrations). streamEvent
+      // fires for every SSE event so the guard re-arms during non-text deltas too.
+      const guard = createStreamInactivityGuard({ signal: abortSignal })
+      streamGuard = guard
       const stream = client.messages.stream(
         {
           model,
@@ -48,8 +62,9 @@ export const claudeProvider: LLMProvider = {
           system: buildSystemBlocks(systemPrompt),
           messages: apiMessages
         },
-        { signal: withRequestTimeout(abortSignal) }
+        { signal: guard.signal }
       )
+      stream.on('streamEvent', () => guard.bump())
 
       let fullText = ''
 
@@ -59,6 +74,7 @@ export const claudeProvider: LLMProvider = {
       })
 
       const finalMessage = await stream.finalMessage()
+      guard.clear()
       fullText = finalMessage.content
         .filter((block): block is Anthropic.TextBlock => block.type === 'text')
         .map((block) => block.text)
@@ -76,7 +92,16 @@ export const claudeProvider: LLMProvider = {
 
       callbacks.onDone(fullText)
     } catch (error) {
+      streamGuard?.clear()
       if (abortSignal?.aborted) return
+      if (streamGuard?.timedOut()) {
+        callbacks.onError(
+          new Error(
+            `Claude stream timed out (no output for ${Math.round(CLOUD_INACTIVITY_TIMEOUT_MS / 1000)}s). The provider may be unresponsive — try again.`
+          )
+        )
+        return
+      }
       callbacks.onError(classifyProviderError('claude', error))
     }
   },

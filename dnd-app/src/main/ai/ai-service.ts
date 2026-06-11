@@ -32,7 +32,7 @@ import {
 } from './file-reader'
 import type { AiProviderType, LLMProvider } from './llm-provider'
 import { getMemoryManager, npcMemoryFromAttitude } from './memory-manager'
-import { getOllamaUrl, isOllamaRunning, listOllamaModels, setOllamaUrl } from './ollama-client'
+import { fetchOllamaModels, getOllamaUrl, isOllamaRunning, listOllamaModels, setOllamaUrl } from './ollama-client'
 import { resolveNumCtx, setConfiguredContextLength, setOllamaKvCacheType } from './ollama-context'
 import { OLLAMA_BASE_URL } from './ollama-manager'
 import {
@@ -383,26 +383,35 @@ export async function configure(config: AiConfig): Promise<void> {
   )
 }
 
-export function getConfig(): AiConfig {
+/** Load `ai-config.json` from disk into the module-level `currentConfig`. The SINGLE
+ *  load point — called once at startup by `initFromSavedConfig`. `ai-config.json` has
+ *  exactly one writer (`configure`'s atomic write), so after this initial load the
+ *  in-memory `currentConfig` is authoritative. (03F/03G) */
+export function loadConfigFromDisk(): void {
   const configPath = getConfigPath()
-  if (existsSync(configPath)) {
-    try {
-      const saved = JSON.parse(readFileSync(configPath, 'utf-8')) as Record<string, unknown>
-      currentConfig = {
-        provider: ((saved.provider as string) ?? 'ollama') as AiProviderType,
-        model: (saved.model as string) || (saved.ollamaModel as string) || '',
-        ollamaUrl: (saved.ollamaUrl as string) || OLLAMA_BASE_URL,
-        claudeApiKey: decryptOptional(saved.claudeApiKey as string | undefined),
-        openaiApiKey: decryptOptional(saved.openaiApiKey as string | undefined),
-        geminiApiKey: decryptOptional(saved.geminiApiKey as string | undefined),
-        contextLength: saved.contextLength as number | undefined,
-        ollamaKvCacheType: saved.ollamaKvCacheType as 'q8_0' | 'q4_0' | undefined
-      }
-    } catch {
-      // Use defaults
+  if (!existsSync(configPath)) return
+  try {
+    const saved = JSON.parse(readFileSync(configPath, 'utf-8')) as Record<string, unknown>
+    currentConfig = {
+      provider: ((saved.provider as string) ?? 'ollama') as AiProviderType,
+      model: (saved.model as string) || (saved.ollamaModel as string) || '',
+      ollamaUrl: (saved.ollamaUrl as string) || OLLAMA_BASE_URL,
+      claudeApiKey: decryptOptional(saved.claudeApiKey as string | undefined),
+      openaiApiKey: decryptOptional(saved.openaiApiKey as string | undefined),
+      geminiApiKey: decryptOptional(saved.geminiApiKey as string | undefined),
+      contextLength: saved.contextLength as number | undefined,
+      ollamaKvCacheType: saved.ollamaKvCacheType as 'q8_0' | 'q4_0' | undefined
     }
+  } catch {
+    // Malformed config — keep current in-memory defaults.
   }
+}
 
+/** Return a snapshot of the in-memory config — NO disk I/O. `loadConfigFromDisk` (startup)
+ *  is the only loader; reading disk here would clobber `resolveOllamaModel`'s in-memory model
+ *  auto-switch (`currentConfig.model = picked`) with the stale on-disk value on every ChatPanel
+ *  mount / AI-settings open / map analysis. (03G fix) */
+export function getConfig(): AiConfig {
   return {
     provider: currentConfig.provider,
     model: currentConfig.model,
@@ -417,6 +426,7 @@ export function getConfig(): AiConfig {
 
 /** Initialize from saved config and auto-load chunk index. */
 export function initFromSavedConfig(): void {
+  loadConfigFromDisk()
   const config = getConfig()
   setConfiguredContextLength(currentConfig.contextLength)
   setOllamaKvCacheType(currentConfig.ollamaKvCacheType)
@@ -606,7 +616,18 @@ const FIRST_TOKEN_NOTICE_MS = 12_000
  */
 export async function resolveOllamaModel(configured: string, streamId?: string): Promise<string> {
   if (getActiveProviderType() !== 'ollama') return configured
-  const installed = await listOllamaModels()
+  // PHASE-03 — use the strict fetch so an unreachable host fails fast with the
+  // RIGHT error instead of masquerading as "no models installed" (and never hangs
+  // for minutes: fetchOllamaModels is 5s-bounded).
+  let installed: string[]
+  try {
+    installed = await fetchOllamaModels()
+  } catch (err) {
+    const detail = err instanceof Error ? err.message : String(err)
+    throw new Error(
+      `Cannot reach Ollama at ${getOllamaUrl()} (${detail}). Check that Ollama is running and the server URL in AI Settings is correct.`
+    )
+  }
   if (installed.length === 0) {
     throw new Error(
       `No Ollama models installed at ${getOllamaUrl()}. Install one, e.g.: ollama pull ${DEFAULT_AI_MODEL}`
@@ -964,7 +985,11 @@ export function cancelChat(streamId: string): void {
 async function chatOnce(systemPrompt: string, userMessage: string): Promise<string> {
   const provider = getActiveProvider()
   const messages = [{ role: 'user' as const, content: userMessage }]
-  return await provider.chatOnce(systemPrompt, messages, currentConfig.model)
+  // Resolve the model first (no streamId → no renderer notice; no-ops for cloud). Without
+  // this, summaries 404 against Ollama on a missing/stale configured model until the first
+  // interactive stream auto-switches. (03G)
+  const model = await resolveOllamaModel(currentConfig.model)
+  return await provider.chatOnce(systemPrompt, messages, model)
 }
 
 // ── Scene Preparation ──
