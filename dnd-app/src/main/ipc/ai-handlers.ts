@@ -313,6 +313,16 @@ export function registerAiHandlers(): void {
     return aiService.getSceneStatus(campaignId)
   })
 
+  handle(IPC_CHANNELS.AI_CANCEL_SCENE, async (_event, campaignId: string) => {
+    try {
+      // cancelScenePrep can write the conversation file — validate the id like the
+      // conversation/memory handlers do.
+      return aiService.cancelScenePrep(sanitizeCampaignId(campaignId))
+    } catch (error) {
+      return { success: false, error: (error as Error).message }
+    }
+  })
+
   // Phase 17d (NET-17) — AI_CONNECTION_STATUS handler removed: no preload/renderer caller exists.
   // Re-add with a preload entry if a consumer is ever introduced.
 

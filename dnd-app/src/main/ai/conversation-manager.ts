@@ -63,6 +63,34 @@ export class ConversationManager {
     this.summaries = []
   }
 
+  /** Remove the last message iff it is a user message with exactly this content. */
+  removeTrailingUserMessage(content: string): boolean {
+    const last = this.messages[this.messages.length - 1]
+    if (last && last.role === 'user' && last.content === content) {
+      this.messages.pop()
+      return true
+    }
+    return false
+  }
+
+  /**
+   * Clear the conversation iff it consists solely of the scene-prep exchange:
+   * [user: prompt] or [user: prompt, assistant: anything]. Never touches a
+   * conversation with real history.
+   */
+  clearScenePrepExchange(prompt: string): boolean {
+    const onlyPrep =
+      this.messages.length >= 1 &&
+      this.messages.length <= 2 &&
+      this.messages[0].role === 'user' &&
+      this.messages[0].content === prompt
+    if (onlyPrep) {
+      this.clear()
+      return true
+    }
+    return false
+  }
+
   /**
    * Build the messages array for the API call,
    * including summary prefix and recent messages within token budget.

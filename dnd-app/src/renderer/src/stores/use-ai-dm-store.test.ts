@@ -13,8 +13,9 @@ vi.stubGlobal('window', {
       chatStream: vi.fn().mockResolvedValue({ success: true, streamId: 'test' }),
       cancelStream: vi.fn(),
       loadConversation: vi.fn().mockResolvedValue({ success: false }),
-      prepareScene: vi.fn().mockResolvedValue(undefined),
+      prepareScene: vi.fn().mockResolvedValue({ success: true, streamId: 'scene-1' }),
       getSceneStatus: vi.fn().mockResolvedValue({ status: 'idle' }),
+      cancelScene: vi.fn().mockResolvedValue({ success: true }),
       onStreamChunk: vi.fn((cb: (d: unknown) => void) => {
         aiHandlers.chunk = cb
         return vi.fn()
@@ -702,6 +703,37 @@ describe('useAiDmStore', () => {
       await useAiDmStore.getState().sendMessage('camp', 'solo', ['c1'])
       expect(chatStream).toHaveBeenCalledTimes(1)
       expect(useAiDmStore.getState().queuedMessages).toHaveLength(0)
+    })
+  })
+
+  // 06B — scene-prep cancel wiring: capture the prep stream id, real cancel, reset clears it.
+  describe('scene-prep cancel wiring (06B)', () => {
+    afterEach(() => {
+      useAiDmStore.setState({ enabled: false, sceneStatus: 'idle', sceneError: null, sceneStreamId: null })
+    })
+
+    it('prepareScene stores the returned sceneStreamId', async () => {
+      useAiDmStore.setState({ enabled: true, sceneStatus: 'idle' })
+      await useAiDmStore.getState().prepareScene('camp', ['c1'])
+      expect(useAiDmStore.getState().sceneStreamId).toBe('scene-1')
+    })
+
+    it('cancelScenePrep invokes ai.cancelScene and resets scene state', async () => {
+      const cancelScene = window.api.ai.cancelScene as unknown as ReturnType<typeof vi.fn>
+      cancelScene.mockClear()
+      useAiDmStore.setState({ sceneStatus: 'preparing', sceneError: 'x', sceneStreamId: 'scene-1' })
+      await useAiDmStore.getState().cancelScenePrep('camp')
+      expect(cancelScene).toHaveBeenCalledWith('camp')
+      const s = useAiDmStore.getState()
+      expect(s.sceneStatus).toBe('idle')
+      expect(s.sceneError).toBeNull()
+      expect(s.sceneStreamId).toBeNull()
+    })
+
+    it('reset clears sceneStreamId', () => {
+      useAiDmStore.setState({ sceneStreamId: 'scene-1' })
+      useAiDmStore.getState().reset()
+      expect(useAiDmStore.getState().sceneStreamId).toBeNull()
     })
   })
 })

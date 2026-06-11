@@ -24,6 +24,7 @@ export default function ScenePrepPage(): JSX.Element {
   const { campaignId } = useParams<{ campaignId: string }>()
   const navigate = useNavigate()
   const campaign = useCampaignStore((s) => s.campaigns.find((c) => c.id === campaignId))
+  const campaignsLoading = useCampaignStore((s) => s.loading)
   const sceneStatus = useAiDmStore((s) => s.sceneStatus)
   const sceneError = useAiDmStore((s) => s.sceneError)
   const [elapsed, setElapsed] = useState(0)
@@ -39,6 +40,12 @@ export default function ScenePrepPage(): JSX.Element {
       void store.prepareScene(campaign.id, characterIds)
     })
   }, [campaign])
+
+  // Self-heal a direct deep link: a freshly-opened window may not have loaded campaigns yet,
+  // so the not-found branch would flash. Mirror the sibling pages (LobbyPage/InGamePage). (06F)
+  useEffect(() => {
+    void useCampaignStore.getState().loadCampaigns()
+  }, [])
 
   // Kick off prep once. A non-AI campaign has no scene to prepare — go straight in.
   useEffect(() => {
@@ -80,8 +87,9 @@ export default function ScenePrepPage(): JSX.Element {
   }, [sceneStatus, campaign, navigate])
 
   const handleCancel = useCallback(() => {
-    void useAiDmStore.getState().cancelStream()
-    useAiDmStore.setState({ sceneStatus: 'idle', sceneError: null })
+    // 06B — actually abort the main-process prep stream (the store action resets
+    // sceneStatus/sceneError/sceneStreamId, so no separate setState is needed).
+    void useAiDmStore.getState().cancelScenePrep(campaignId as string)
     navigate(`/campaign/${campaignId}`, { replace: true })
   }, [campaignId, navigate])
 
@@ -93,9 +101,23 @@ export default function ScenePrepPage(): JSX.Element {
   }, [startPrep])
 
   if (!campaign) {
+    // Distinguish "still loading the campaign store" from "genuinely not found" (06F).
+    if (campaignsLoading) {
+      return (
+        <div className="flex h-full w-full items-center justify-center bg-surface p-8">
+          <div
+            className="h-10 w-10 animate-spin rounded-full border-4 border-accent/30 border-t-accent"
+            aria-hidden="true"
+          />
+        </div>
+      )
+    }
     return (
-      <div className="flex h-full w-full items-center justify-center bg-surface p-8 text-center text-muted">
-        {t('pages.lobbyPage.scenePrepFailed')}
+      <div className="flex h-full w-full flex-col items-center justify-center gap-5 bg-surface p-8 text-center">
+        <p className="text-muted">{t('pages.lobbyPage.prepCampaignNotFound')}</p>
+        <Button variant="secondary" onClick={() => navigate('/', { replace: true })}>
+          {t('pages.lobbyPage.prepBackToMenu')}
+        </Button>
       </div>
     )
   }

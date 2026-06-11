@@ -5648,6 +5648,8 @@
       "scenePreparing": "AI DM preparing scene...",
       "sceneReady": "Scene ready",
       "scenePrepFailed": "Scene prep failed",
+      "prepCampaignNotFound": "Campaign not found. It may have been deleted.",
+      "prepBackToMenu": "Back to main menu",
       "scenePrepRetry": "Retry",
       "soloPrepTitle": "Preparing your adventure",
       "soloPrepSubtitle": "The Dungeon Master is setting the scene for \"{{name}}\".",

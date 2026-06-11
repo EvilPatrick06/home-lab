@@ -5648,6 +5648,8 @@
       "scenePreparing": "El DM con IA está preparando la escena...",
       "sceneReady": "Escena lista",
       "scenePrepFailed": "Falló la preparación de la escena",
+      "prepCampaignNotFound": "No se encontró la campaña. Puede que haya sido eliminada.",
+      "prepBackToMenu": "Volver al menú principal",
       "scenePrepRetry": "Reintentar",
       "soloPrepTitle": "Preparando tu aventura",
       "soloPrepSubtitle": "El Dungeon Master está preparando la escena para \"{{name}}\".",

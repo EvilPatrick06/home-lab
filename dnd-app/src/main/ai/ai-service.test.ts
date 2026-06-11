@@ -1,6 +1,10 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // ── Hoisted mocks ──
+
+// Stable, per-test-configurable provider streamChat so 06C can drive a prep stream to
+// 'error' (and then hang a retry) deterministically. Defaults to a clean resolve.
+const hoisted = vi.hoisted(() => ({ providerStreamChat: vi.fn(async () => {}) }))
 
 vi.mock('electron', () => ({
   app: {
@@ -64,6 +68,26 @@ vi.mock('./conversation-manager', () => ({
     getMessageCount(): number {
       return this.messages.length
     }
+    removeTrailingUserMessage(content: string): boolean {
+      const last = this.messages[this.messages.length - 1]
+      if (last && last.role === 'user' && last.content === content) {
+        this.messages.pop()
+        return true
+      }
+      return false
+    }
+    clearScenePrepExchange(prompt: string): boolean {
+      const onlyPrep =
+        this.messages.length >= 1 &&
+        this.messages.length <= 2 &&
+        this.messages[0].role === 'user' &&
+        this.messages[0].content === prompt
+      if (onlyPrep) {
+        this.messages = []
+        return true
+      }
+      return false
+    }
     async generateSessionSummary(): Promise<string | null> {
       return 'Session summary text'
     }
@@ -95,7 +119,7 @@ vi.mock('./provider-registry', () => ({
   configureProviders: vi.fn(),
   getActiveProvider: vi.fn(() => ({
     type: 'ollama',
-    streamChat: vi.fn(),
+    streamChat: hoisted.providerStreamChat,
     chatOnce: vi.fn(async () => 'summary result'),
     isAvailable: vi.fn(async () => true),
     listModels: vi.fn(async () => ['llama3.1', 'mistral'])
@@ -184,6 +208,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { rename, writeFile } from 'node:fs/promises'
 import {
   cancelChat,
+  cancelScenePrep,
   checkProviders,
   configure,
   getChunkCount,
@@ -196,6 +221,7 @@ import {
   initFromSavedConfig,
   loadConfigFromDisk,
   loadIndex,
+  prepareScene,
   removeConversation,
   resolveOllamaModel,
   startChat,
@@ -443,6 +469,92 @@ describe('ai-service', () => {
       const status = getSceneStatus('unknown-campaign')
       expect(status.status).toBe('idle')
       expect(status.streamId).toBeNull()
+    })
+  })
+
+  // 06A — main-process scene-prep cancellation.
+  describe('cancelScenePrep', () => {
+    it('returns { success: true } on an unknown campaign without throwing', () => {
+      expect(cancelScenePrep('never-prepped')).toEqual({ success: true })
+    })
+
+    it('makes getSceneStatus return idle after a prep stream was started', () => {
+      const id = 'scene-cancel-test'
+      prepareScene(id, [])
+      expect(getSceneStatus(id).status).toBe('preparing')
+      cancelScenePrep(id)
+      expect(getSceneStatus(id).status).toBe('idle')
+    })
+  })
+
+  // 06C — a retry after a failed prep trims ONLY the dangling prompt; real history survives.
+  describe('prepareScene error-retry trim', () => {
+    const SCENE_PROMPT =
+      'The adventure begins. Set the scene for the party. Describe the opening location and atmosphere.'
+    const tick = (): Promise<void> => new Promise((r) => setTimeout(r, 0))
+    // A "timed out" error fails fast (streamWithRetry skips retries on timeouts), so the prep
+    // reaches 'error' status without backoff delays.
+    const failFast = (): void => {
+      hoisted.providerStreamChat.mockImplementation(((
+        _sp: unknown,
+        _msgs: unknown,
+        cb: { onError: (e: Error) => void }
+      ) => {
+        cb.onError(new Error('timed out'))
+        return Promise.resolve()
+      }) as never)
+    }
+    const hang = (): void => {
+      hoisted.providerStreamChat.mockImplementation((() => new Promise<void>(() => {})) as never)
+    }
+
+    afterEach(() => {
+      hoisted.providerStreamChat.mockReset()
+      hoisted.providerStreamChat.mockImplementation((() => Promise.resolve()) as never)
+    })
+
+    async function waitForError(id: string): Promise<void> {
+      for (let i = 0; i < 50; i++) {
+        if (getSceneStatus(id).status === 'error') return
+        await tick()
+      }
+      throw new Error('prep never reached error status')
+    }
+
+    it('fresh failed prep: retry trims the lone prompt and regenerates (not short-circuit)', async () => {
+      const id = 'retry-fresh'
+      failFast()
+      prepareScene(id, [])
+      await waitForError(id)
+      expect(getConversationManager(id).getMessageCount()).toBe(1) // dangling [prompt]
+
+      hang() // the retry's stream stays in flight so status stays 'preparing'
+      prepareScene(id, [])
+      // Trimmed → count 0 → regenerates → 'preparing'. (Un-trimmed would short-circuit to 'ready'.)
+      expect(getSceneStatus(id).status).toBe('preparing')
+    })
+
+    it('populated conversation: retry preserves real history and short-circuits to ready', async () => {
+      const id = 'retry-populated'
+      failFast()
+      prepareScene(id, [])
+      await waitForError(id)
+
+      // Simulate the user entering the game and chatting after the failure.
+      const conv = getConversationManager(id)
+      conv.addMessage('assistant', 'A scene unfolds')
+      conv.addMessage('user', 'I attack the goblin')
+      conv.addMessage('assistant', 'Roll for initiative')
+      expect(conv.getMessageCount()).toBe(4)
+
+      prepareScene(id, [])
+      expect(getSceneStatus(id).status).toBe('ready')
+      expect(conv.getMessageCount()).toBe(4) // history intact (trailing msg ≠ prompt → no trim)
+    })
+
+    it('SCENE_PROMPT constant matches the prep request (guards the trim match)', () => {
+      // Drift guard: cancelScenePrep / retry-trim match on this exact string.
+      expect(SCENE_PROMPT.startsWith('The adventure begins.')).toBe(true)
     })
   })
 

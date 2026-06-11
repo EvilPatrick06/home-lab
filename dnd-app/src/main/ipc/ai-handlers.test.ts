@@ -9,7 +9,9 @@ const mocked = vi.hoisted(() => ({
 vi.mock('electron', () => ({
   app: {
     isPackaged: false,
-    getPath: vi.fn(() => 'C:/tmp')
+    // Absolute POSIX path so sanitizeCampaignId's path.resolve check is stable on Linux CI
+    // (a 'C:/tmp' value is treated as RELATIVE here and prepends cwd, breaking the equality check).
+    getPath: vi.fn(() => '/tmp')
   },
   BrowserWindow: {
     fromWebContents: vi.fn(() => ({
@@ -40,6 +42,7 @@ vi.mock('../ai/ai-service', () => ({
   applyMutations: vi.fn(async () => ({ applied: [], rejected: [] })),
   prepareScene: vi.fn(() => null),
   getSceneStatus: vi.fn(() => ({ status: 'idle', streamId: null })),
+  cancelScenePrep: vi.fn(() => ({ success: true })),
   getConnectionStatus: vi.fn(() => 'connected'),
   getConsecutiveFailures: vi.fn(() => 0),
   getConversationManager: vi.fn(() => ({ serialize: () => ({}), restore: vi.fn() }))
@@ -104,5 +107,28 @@ describe('registerAiHandlers web search approval channel', () => {
 
     await expect(handler({}, 123, true)).resolves.toEqual({ success: false, error: 'Invalid streamId' })
     await expect(handler({}, 'stream-123', 'yes')).resolves.toEqual({ success: false, error: 'Invalid approval value' })
+  })
+})
+
+// 06A — scene-prep cancel channel.
+describe('registerAiHandlers AI_CANCEL_SCENE channel', () => {
+  beforeEach(() => mocked.ipcHandleMock.mockClear())
+
+  const findHandler = (): ((_e: unknown, id: unknown) => Promise<unknown>) => {
+    registerAiHandlers()
+    const reg = mocked.ipcHandleMock.mock.calls.find(([channel]) => channel === IPC_CHANNELS.AI_CANCEL_SCENE)
+    expect(reg).toBeTruthy()
+    return reg?.[1] as (_e: unknown, id: unknown) => Promise<unknown>
+  }
+
+  it('registers and delegates with a valid (UUID-shaped) campaign id', async () => {
+    const handler = findHandler()
+    const result = await handler({}, '11111111-1111-1111-1111-111111111111')
+    expect(result).toEqual({ success: true })
+  })
+
+  it('returns an error envelope for a non-UUID id', async () => {
+    const handler = findHandler()
+    await expect(handler({}, 'not-a-uuid')).resolves.toEqual({ success: false, error: 'Invalid campaignId' })
   })
 })

@@ -206,6 +206,7 @@ interface AiAPI {
   getSceneStatus: (
     campaignId: string
   ) => Promise<{ status: 'idle' | 'preparing' | 'ready' | 'error'; streamId: string | null; error?: string }>
+  cancelScene: (campaignId: string) => Promise<{ success: boolean; error?: string }>
   chatStream: (request: {
     campaignId: string
     message: string

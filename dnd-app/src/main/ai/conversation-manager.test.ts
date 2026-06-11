@@ -369,4 +369,67 @@ describe('ConversationManager', () => {
       expect(await mgr.generateSessionSummary()).toBeNull()
     })
   })
+
+  // 06A — scene-prep cleanup helpers used by cancelScenePrep / prepareScene retry.
+  const PROMPT = 'The adventure begins. Set the scene for the party.'
+  describe('removeTrailingUserMessage', () => {
+    it('removes an exact trailing user match', () => {
+      const mgr = new ConversationManager()
+      mgr.addMessage('user', PROMPT)
+      expect(mgr.removeTrailingUserMessage(PROMPT)).toBe(true)
+      expect(mgr.getMessageCount()).toBe(0)
+    })
+
+    it('does not remove when the trailing message is an assistant', () => {
+      const mgr = new ConversationManager()
+      mgr.addMessage('user', PROMPT)
+      mgr.addMessage('assistant', 'A scene')
+      expect(mgr.removeTrailingUserMessage(PROMPT)).toBe(false)
+      expect(mgr.getMessageCount()).toBe(2)
+    })
+
+    it('does not remove when the content differs', () => {
+      const mgr = new ConversationManager()
+      mgr.addMessage('user', 'something else')
+      expect(mgr.removeTrailingUserMessage(PROMPT)).toBe(false)
+      expect(mgr.getMessageCount()).toBe(1)
+    })
+
+    it('returns false on an empty conversation', () => {
+      expect(new ConversationManager().removeTrailingUserMessage(PROMPT)).toBe(false)
+    })
+  })
+
+  describe('clearScenePrepExchange', () => {
+    it('clears a lone prep prompt', () => {
+      const mgr = new ConversationManager()
+      mgr.addMessage('user', PROMPT)
+      expect(mgr.clearScenePrepExchange(PROMPT)).toBe(true)
+      expect(mgr.getMessageCount()).toBe(0)
+    })
+
+    it('clears a [prompt, assistant] exchange', () => {
+      const mgr = new ConversationManager()
+      mgr.addMessage('user', PROMPT)
+      mgr.addMessage('assistant', 'A scene')
+      expect(mgr.clearScenePrepExchange(PROMPT)).toBe(true)
+      expect(mgr.getMessageCount()).toBe(0)
+    })
+
+    it('refuses a 3-message conversation (real history)', () => {
+      const mgr = new ConversationManager()
+      mgr.addMessage('user', PROMPT)
+      mgr.addMessage('assistant', 'A scene')
+      mgr.addMessage('user', 'I attack')
+      expect(mgr.clearScenePrepExchange(PROMPT)).toBe(false)
+      expect(mgr.getMessageCount()).toBe(3)
+    })
+
+    it('refuses when the first message is not the prep prompt', () => {
+      const mgr = new ConversationManager()
+      mgr.addMessage('user', 'a different opener')
+      expect(mgr.clearScenePrepExchange(PROMPT)).toBe(false)
+      expect(mgr.getMessageCount()).toBe(1)
+    })
+  })
 })

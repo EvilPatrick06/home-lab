@@ -103,6 +103,9 @@ interface AiDmState {
   // S-2 — the reason scene prep failed (e.g. Ollama unreachable / model missing),
   // so the lobby can show it + offer a Retry instead of a bare "Scene prep failed".
   sceneError: string | null
+  // The main-process scene-prep stream id (kept SEPARATE from activeStreamId — scene prep
+  // has no renderer listeners). Carried so cancel can abort the real stream. (PHASE-06 06B)
+  sceneStreamId: string | null
 
   // File read / web search status
   fileReadStatus: { path: string; status: string } | null
@@ -163,6 +166,7 @@ interface AiDmState {
   cancelStream: () => Promise<void>
   setScene: (campaignId: string, characterIds: string[], gameState?: string) => Promise<void>
   prepareScene: (campaignId: string, characterIds: string[]) => Promise<void>
+  cancelScenePrep: (campaignId: string) => Promise<void>
   checkSceneStatus: (campaignId: string) => Promise<void>
   clearMessages: () => void
   setPaused: (paused: boolean) => void
@@ -245,6 +249,7 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
 
     sceneStatus: 'idle',
     sceneError: null,
+    sceneStreamId: null,
     lastStatChanges: [],
     lastDmActions: [],
     lastRuleCitations: [],
@@ -569,9 +574,21 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
 
       set({ sceneStatus: 'preparing', sceneError: null })
       try {
-        await window.api.ai.prepareScene(campaignId, characterIds)
+        // Capture the prep stream id so Cancel can abort the real main-process stream (06B).
+        const result = await window.api.ai.prepareScene(campaignId, characterIds)
+        set({ sceneStreamId: result?.streamId ?? null })
       } catch (err) {
         set({ sceneStatus: 'error', sceneError: err instanceof Error ? err.message : String(err) })
+      }
+    },
+
+    cancelScenePrep: async (campaignId) => {
+      // Reset renderer state first so the UI never blocks on the IPC.
+      set({ sceneStatus: 'idle', sceneError: null, sceneStreamId: null })
+      try {
+        await window.api.ai.cancelScene(campaignId)
+      } catch (err) {
+        logger.error('[ai-dm] cancelScene failed', err)
       }
     },
 
@@ -579,7 +596,9 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
       const result = await window.api.ai.getSceneStatus(campaignId)
       set({
         sceneStatus: result.status === 'idle' ? 'idle' : result.status,
-        sceneError: result.status === 'error' ? (result.error ?? 'Scene preparation failed.') : null
+        sceneError: result.status === 'error' ? (result.error ?? 'Scene preparation failed.') : null,
+        // Keep the id fresh if the page mounted after prep started.
+        sceneStreamId: result.streamId ?? null
       })
     },
 
@@ -621,6 +640,7 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
         messages: [],
         sceneStatus: 'idle',
         sceneError: null,
+        sceneStreamId: null,
         activeStreamId: null,
         streamingText: '',
         isTyping: false,

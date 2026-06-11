@@ -65,6 +65,8 @@ vi.mock('../services/io/game-auto-save', () => ({
 vi.mock('../services/sound-manager', () => ({ init: vi.fn() }))
 vi.mock('../utils/logger', () => ({ logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() } }))
 
+import { SCENE_POLL_SLOW_NOTICE_MS } from '../constants'
+import { useAiDmStore } from '../stores/use-ai-dm-store'
 import { useGameEffects } from './use-game-effects'
 
 type CampaignLike = { id: string; aiDm: { enabled: boolean }; players: unknown[] }
@@ -133,5 +135,74 @@ describe('useGameEffects — AI stream listener lifecycle (05C)', () => {
     expect(setupListeners).toHaveBeenCalledTimes(1)
     unmount()
     expect(unsubscribes[0]).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('useGameEffects — scene-status poll (06E)', () => {
+  const addChatMessage = vi.fn()
+  const setApi = (getStatus: () => string): void => {
+    ;(window as unknown as { api: { ai: Record<string, unknown> } }).api = {
+      isFullscreen: vi.fn().mockResolvedValue(false),
+      toggleFullscreen: vi.fn().mockResolvedValue(undefined),
+      ai: {
+        getSceneStatus: vi.fn(async () => ({ status: getStatus(), streamId: null })),
+        loadConversation: vi.fn(async () => ({
+          success: true,
+          data: { messages: [{ role: 'assistant', content: 'A scene', timestamp: undefined }] }
+        })),
+        saveConversation: vi.fn().mockResolvedValue(undefined)
+      }
+    } as never
+  }
+
+  const render = (): void => {
+    renderHook((p) => useGameEffects(p), { initialProps: { ...baseProps(makeCampaign(true)), addChatMessage } })
+  }
+
+  it('posts a one-time slow-notice and keeps polling until ready (no silent abandon)', async () => {
+    vi.useFakeTimers()
+    try {
+      let scene = 'preparing'
+      setApi(() => scene)
+      render()
+      await vi.advanceTimersByTimeAsync(0) // flush init effect → enters the 'preparing' poll branch
+      await vi.advanceTimersByTimeAsync(SCENE_POLL_SLOW_NOTICE_MS + 1000) // past the notice, still preparing
+
+      const slow = addChatMessage.mock.calls.find(([m]) => String((m as { id: string }).id).includes('scene-slow'))
+      expect(slow).toBeTruthy()
+      expect(
+        addChatMessage.mock.calls.filter(([m]) => String((m as { id: string }).id).includes('scene-slow'))
+      ).toHaveLength(1)
+
+      scene = 'ready'
+      await vi.advanceTimersByTimeAsync(2000) // poll still running → loads the finished scene
+      expect(
+        (window as unknown as { api: { ai: { loadConversation: ReturnType<typeof vi.fn> } } }).api.ai.loadConversation
+      ).toHaveBeenCalled()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('stops polling and clears isTyping when status goes idle (cancelled elsewhere)', async () => {
+    vi.useFakeTimers()
+    try {
+      let scene = 'preparing'
+      setApi(() => scene)
+      render()
+      await vi.advanceTimersByTimeAsync(0)
+      scene = 'idle'
+      await vi.advanceTimersByTimeAsync(2000)
+
+      const setState = vi.mocked(useAiDmStore.setState)
+      const idleCall = setState.mock.calls.find(
+        ([s]) =>
+          (s as { sceneStatus?: string; isTyping?: boolean })?.sceneStatus === 'idle' &&
+          (s as { isTyping?: boolean })?.isTyping === false
+      )
+      expect(idleCall).toBeTruthy()
+    } finally {
+      vi.useRealTimers()
+    }
   })
 })

@@ -74,6 +74,7 @@ export const IPC_CHANNELS = {
   // === AI DM: Scene ===
   AI_PREPARE_SCENE: 'ai:prepare-scene',
   AI_GET_SCENE_STATUS: 'ai:get-scene-status',
+  AI_CANCEL_SCENE: 'ai:cancel-scene',
 
   // === AI DM: Conversation Persistence ===
   AI_SAVE_CONVERSATION: 'ai:save-conversation',

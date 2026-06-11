@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { app, BrowserWindow } from 'electron'
-import { WEB_SEARCH_APPROVAL_TIMEOUT_MS } from '../../shared/constants'
+import { SCENE_PREP_PROMPT, WEB_SEARCH_APPROVAL_TIMEOUT_MS } from '../../shared/constants'
 import { IPC_CHANNELS } from '../../shared/ipc-channels'
 import { sendNarration } from '../bmo-bridge'
 import { logToFile } from '../log'
@@ -715,7 +715,11 @@ export function startChat(
       // it used to trail the every-message-volatile game-state snapshot and was thus
       // re-prefilled every turn.
       const providerContext = `[PROVIDER CONTEXT]\n${getProviderContextBlurb(getActiveProviderType())}\n[/PROVIDER CONTEXT]\n\n`
-      const { systemPrompt, messages } = await conv.getMessagesForApi(providerContext + context)
+      // Capture the assembled context block so FILE_READ/WEB_SEARCH continuations replay the
+      // SAME game-state/character/rules context instead of rebuilding it empty (which also
+      // silently downgraded combat continuations to 'general' mode). (PHASE-06 06D / F-5)
+      const contextBlock = providerContext + context
+      const { systemPrompt, messages } = await conv.getMessagesForApi(contextBlock)
 
       // Stream response
       let fullText = ''
@@ -748,6 +752,7 @@ export function startChat(
             onChunk,
             onDone,
             onError,
+            contextBlock,
             0
           ).catch((e) => {
             removeStream(streamId)
@@ -802,6 +807,7 @@ async function handleStreamCompletion(
     ruleCitations: RuleCitation[]
   ) => void,
   onError: (error: string) => void,
+  contextBlock: string,
   fileReadDepth: number,
   deps: StreamHandlerDeps = getStreamDeps()
 ): Promise<void> {
@@ -816,7 +822,9 @@ async function handleStreamCompletion(
     // force-aborted by the TTL sweep while it's actively streaming.
     activeStreamLastHeartbeat.set(streamId, Date.now())
     let nextFullText = ''
-    const { systemPrompt: sp, messages: msgs } = await conv.getMessagesForApi('')
+    // Replay the ORIGINAL turn's context block (game state / character data / retrieved rules)
+    // so the continuation isn't blind and keeps its combat-mode gate. (06D / F-5)
+    const { systemPrompt: sp, messages: msgs } = await conv.getMessagesForApi(contextBlock)
 
     const nextCallbacks = {
       onText: (text: string) => {
@@ -836,6 +844,7 @@ async function handleStreamCompletion(
           onChunk,
           onDone,
           onError,
+          contextBlock,
           fileReadDepth + 1,
           deps
         ).catch((e) => {
@@ -1017,11 +1026,12 @@ export function prepareScene(campaignId: string, characterIds: string[]): string
   if (existing && (existing.status === 'preparing' || existing.status === 'ready')) return existing.streamId
 
   const conv = getConversation(campaignId)
-  // S-2 retry — a failed prep leaves a dangling user message (the stream errored
-  // before any assistant reply); clear it so a retry re-narrates instead of
-  // short-circuiting to "ready" on the leftover message below.
+  // S-2 retry — a failed prep leaves a dangling user prompt (the stream errored
+  // before any assistant reply); remove ONLY that prompt so a retry re-narrates.
+  // A populated conversation (user entered the game and chatted after the
+  // failure) is left intact and short-circuits to 'ready' below. (PHASE-06 06C)
   if (existing?.status === 'error') {
-    conv.clear()
+    conv.removeTrailingUserMessage(SCENE_PREP_PROMPT)
   }
 
   // Also skip if conversation already has messages (returning game)
@@ -1033,7 +1043,7 @@ export function prepareScene(campaignId: string, characterIds: string[]): string
   // Use existing startChat with scene prompt
   const request: AiChatRequest = {
     campaignId,
-    message: 'The adventure begins. Set the scene for the party. Describe the opening location and atmosphere.',
+    message: SCENE_PREP_PROMPT,
     characterIds
   }
 
@@ -1059,6 +1069,35 @@ export function getSceneStatus(campaignId: string): {
   error?: string
 } {
   return scenePrepStatus.get(campaignId) ?? { status: 'idle', streamId: null }
+}
+
+/**
+ * Cancel an in-flight scene preparation (or discard a finished one that the
+ * user cancelled before entering the game). Aborts the stream, drops the
+ * status entry so the next Play regenerates, and removes the prep exchange
+ * from the conversation — real history is never touched. Idempotent.
+ */
+export function cancelScenePrep(campaignId: string): { success: true } {
+  const entry = scenePrepStatus.get(campaignId)
+  if (entry?.streamId) cancelChat(entry.streamId)
+  scenePrepStatus.delete(campaignId)
+  // Use conversations.get (NOT getConversation) so cancelling a campaign with no
+  // manager doesn't instantiate one.
+  const conv = conversations.get(campaignId)
+  if (conv) {
+    // In-flight cancel: drop the dangling user prompt. Cancel-after-complete:
+    // drop the whole [prompt, scene] exchange so the next Play regenerates
+    // (the user typically cancelled to change model/provider).
+    const trimmed = conv.removeTrailingUserMessage(SCENE_PREP_PROMPT)
+    const cleared = conv.clearScenePrepExchange(SCENE_PREP_PROMPT)
+    if (trimmed || cleared) {
+      // Keep disk consistent — a completed prep already auto-saved.
+      saveConversation(campaignId, conv.serialize()).catch((err) =>
+        logToFile('warn', '[AI] Failed to save conversation after scene cancel:', String(err))
+      )
+    }
+  }
+  return { success: true }
 }
 
 // ── Session Summary ──

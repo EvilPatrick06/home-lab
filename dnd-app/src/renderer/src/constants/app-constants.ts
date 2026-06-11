@@ -57,12 +57,12 @@ export const STREAM_SAFETY_THRESHOLD_MS = 325_000
 // AI DM scene bootstrap (use-game-effects)
 // Brief wait for persisted messages to land before forcing a reload from disk.
 export const SCENE_MESSAGE_WAIT_MS = 500
-// Poll cadence + overall cap while a scene is still streaming in. The cap must stay
-// ABOVE the main process's OLLAMA_PREFILL_TIMEOUT_MS (300s) — a local model on CPU can
-// take minutes to prefill the opening-scene prompt, and stopping the poll early would
-// leave the finished narration unloaded (chat stuck on "setting the scene…").
+// Poll cadence while a scene is still streaming in.
 export const SCENE_POLL_INTERVAL_MS = 1000
-export const SCENE_POLL_TIMEOUT_MS = 330_000
+// Threshold for a one-time "still working" chat notice — NOT a poll kill switch (06E). The
+// poll keeps running until ready/error/idle/unmount. Stays ABOVE the main process's
+// OLLAMA_PREFILL_TIMEOUT_MS (300s) so the notice doesn't fire during a normal cold prefill.
+export const SCENE_POLL_SLOW_NOTICE_MS = 330_000
 // Fallback delay before kicking off scene generation when no prep happened.
 export const SCENE_FALLBACK_DELAY_MS = 1500
 

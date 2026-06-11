@@ -87,6 +87,7 @@ const api = {
     prepareScene: (campaignId: string, characterIds: string[]) =>
       ipcRenderer.invoke(IPC_CHANNELS.AI_PREPARE_SCENE, campaignId, characterIds),
     getSceneStatus: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_GET_SCENE_STATUS, campaignId),
+    cancelScene: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_CANCEL_SCENE, campaignId),
     chatStream: (request: Record<string, unknown>) => ipcRenderer.invoke(IPC_CHANNELS.AI_CHAT_STREAM, request),
     cancelStream: (streamId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_CANCEL_STREAM, streamId),
     applyMutations: (characterId: string, changes: unknown[]) =>

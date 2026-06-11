@@ -4,7 +4,7 @@ import {
   SCENE_FALLBACK_DELAY_MS,
   SCENE_MESSAGE_WAIT_MS,
   SCENE_POLL_INTERVAL_MS,
-  SCENE_POLL_TIMEOUT_MS
+  SCENE_POLL_SLOW_NOTICE_MS
 } from '../constants'
 import { i18n } from '../i18n'
 import type { MessageType, TypingPayload } from '../network'
@@ -367,51 +367,76 @@ export function useGameEffects({
             isSystem: true
           })
         }
-        // Scene still streaming — poll until ready, then load conversation
+        // Scene still streaming — poll until ready/error/idle, then load conversation.
         pollInterval = setInterval(async () => {
-          const s = await window.api.ai.getSceneStatus(campaign.id)
-          if (s.status === 'ready') {
-            if (pollInterval) {
-              clearInterval(pollInterval)
-              pollInterval = null
-            }
-            const result = await window.api.ai.loadConversation(campaign.id)
-            if (result.success && result.data) {
-              const data = result.data as { messages?: Array<{ role: string; content: string; timestamp?: string }> }
-              if (data.messages?.length) {
-                const loaded = data.messages.map((m) => ({
-                  role: m.role as 'user' | 'assistant',
-                  content: m.content,
-                  timestamp: m.timestamp ? new Date(m.timestamp).getTime() : Date.now()
-                }))
-                useAiDmStore.setState({ messages: loaded, sceneStatus: 'ready', isTyping: false })
-                postSceneNarration(loaded)
+          try {
+            const s = await window.api.ai.getSceneStatus(campaign.id)
+            if (s.status === 'ready') {
+              if (pollInterval) {
+                clearInterval(pollInterval)
+                pollInterval = null
               }
+              const result = await window.api.ai.loadConversation(campaign.id)
+              if (result.success && result.data) {
+                const data = result.data as {
+                  messages?: Array<{ role: string; content: string; timestamp?: string }>
+                }
+                if (data.messages?.length) {
+                  const loaded = data.messages.map((m) => ({
+                    role: m.role as 'user' | 'assistant',
+                    content: m.content,
+                    timestamp: m.timestamp ? new Date(m.timestamp).getTime() : Date.now()
+                  }))
+                  useAiDmStore.setState({ messages: loaded, sceneStatus: 'ready', isTyping: false })
+                  postSceneNarration(loaded)
+                }
+              }
+            } else if (s.status === 'error') {
+              // Surface the failure instead of polling silently.
+              if (pollInterval) {
+                clearInterval(pollInterval)
+                pollInterval = null
+              }
+              useAiDmStore.setState({
+                sceneStatus: 'error',
+                isTyping: false,
+                lastError: s.error ?? 'Scene prep failed'
+              })
+              addChatMessage({
+                id: `ai-dm-scene-err-${campaign.id}`,
+                senderId: 'ai-dm',
+                senderName: 'AI Dungeon Master',
+                content: `⚠️ The Dungeon Master couldn't set the scene: ${s.error ?? 'request failed'}`,
+                timestamp: Date.now(),
+                isSystem: true
+              })
+            } else if (s.status === 'idle') {
+              // Prep was cancelled elsewhere (06A/06B) — stop indicating work that isn't
+              // happening. No chat note (the user already saw the cancel).
+              if (pollInterval) {
+                clearInterval(pollInterval)
+                pollInterval = null
+              }
+              useAiDmStore.setState({ isTyping: false, sceneStatus: 'idle' })
             }
-          } else if (s.status === 'error') {
-            // Surface the failure instead of polling silently until the cap.
-            if (pollInterval) {
-              clearInterval(pollInterval)
-              pollInterval = null
-            }
-            useAiDmStore.setState({ sceneStatus: 'error', isTyping: false, lastError: s.error ?? 'Scene prep failed' })
-            addChatMessage({
-              id: `ai-dm-scene-err-${campaign.id}`,
-              senderId: 'ai-dm',
-              senderName: 'AI Dungeon Master',
-              content: `⚠️ The Dungeon Master couldn't set the scene: ${s.error ?? 'request failed'}`,
-              timestamp: Date.now(),
-              isSystem: true
-            })
+          } catch {
+            // Keep polling; a transient getSceneStatus IPC failure must not kill the poll.
           }
         }, SCENE_POLL_INTERVAL_MS)
-        // Safety: stop polling after 60s
+        // Soft notice only — polling CONTINUES until ready/error/idle or unmount. (Previously
+        // this cap silently killed the poll: isTyping stayed wedged on and a scene finishing
+        // after the cap never posted.)
         pollTimeout = setTimeout(() => {
-          if (pollInterval) {
-            clearInterval(pollInterval)
-            pollInterval = null
-          }
-        }, SCENE_POLL_TIMEOUT_MS)
+          addChatMessage({
+            id: `ai-dm-scene-slow-${campaign.id}`,
+            senderId: 'ai-dm',
+            senderName: 'AI Dungeon Master',
+            content:
+              '⏳ *Still setting the scene — a large local model can take several minutes on the first response.*',
+            timestamp: Date.now(),
+            isSystem: true
+          })
+        }, SCENE_POLL_SLOW_NOTICE_MS)
         return
       }
 
