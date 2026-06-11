@@ -1,5 +1,6 @@
 import { type LLMProvider, OLLAMA_INACTIVITY_TIMEOUT_MS, OLLAMA_PREFILL_TIMEOUT_MS } from './llm-provider'
 import { OLLAMA_BASE_URL } from './ollama-constants'
+import { OLLAMA_KEEP_ALIVE, resolveNumCtx } from './ollama-context'
 import type { ChatMessage, StreamCallbacks } from './types'
 
 let ollamaBaseUrl = OLLAMA_BASE_URL
@@ -14,11 +15,29 @@ export function getOllamaUrl(): string {
   return ollamaBaseUrl
 }
 
+/** Native `/api/chat` response object (one per NDJSON line when streaming, or the
+ *  whole body when not). `message.thinking` carries thinking-model reasoning on
+ *  newer servers — intentionally ignored so it never leaks into narration. */
 interface OllamaChatResponse {
-  choices?: Array<{
-    delta?: { content?: string }
-    message?: { content?: string }
-  }>
+  message?: { role?: string; content?: string; thinking?: string }
+  done?: boolean
+  done_reason?: string
+  prompt_eval_count?: number
+  eval_count?: number
+  error?: string
+}
+
+/** Token counts from the last completed Ollama call's final chunk. Observability
+ *  only (PHASE-14 consumes it); never fed into budget math. */
+export interface OllamaLastStats {
+  model: string
+  promptEvalCount: number
+  evalCount: number
+  at: string
+}
+let lastStats: OllamaLastStats | null = null
+export function getLastOllamaStats(): OllamaLastStats | null {
+  return lastStats
 }
 
 /** Turn an Ollama HTTP error into an actionable message. A 404 means the model
@@ -54,7 +73,7 @@ export async function listOllamaModels(): Promise<string[]> {
   }
 }
 
-/** Streaming chat via Ollama's OpenAI-compatible endpoint. */
+/** Streaming chat via Ollama's native `/api/chat` endpoint (NDJSON). */
 export async function ollamaStreamChat(
   systemPrompt: string,
   messages: ChatMessage[],
@@ -90,10 +109,17 @@ export async function ollamaStreamChat(
       ? AbortSignal.any([abortSignal, timeoutController.signal])
       : timeoutController.signal
 
-    const res = await fetch(`${ollamaBaseUrl}/v1/chat/completions`, {
+    const numCtx = await resolveNumCtx(model, ollamaBaseUrl)
+    const res = await fetch(`${ollamaBaseUrl}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model, messages: apiMessages, stream: true }),
+      body: JSON.stringify({
+        model,
+        messages: apiMessages,
+        stream: true,
+        keep_alive: OLLAMA_KEEP_ALIVE,
+        options: { num_ctx: numCtx }
+      }),
       signal: combinedSignal
     })
 
@@ -112,9 +138,11 @@ export async function ollamaStreamChat(
     const decoder = new TextDecoder()
     let fullText = ''
     let lineBuffer = ''
-    let jsonBuffer = ''
-    const MAX_JSON_BUFFER_SIZE = 64 * 1024 // 64KB limit for partial JSON buffering
+    let streamErr: Error | undefined
 
+    // Native /api/chat streams NDJSON: one complete JSON object per line. The
+    // lineBuffer accumulates across network chunks so a line split mid-object is
+    // only parsed once `\n` arrives.
     while (true) {
       const { done, value } = await reader.read()
       if (done) break
@@ -128,76 +156,67 @@ export async function ollamaStreamChat(
 
       for (const line of lines) {
         const trimmed = line.trim()
-        if (!trimmed?.startsWith('data: ')) continue
-        const payload = trimmed.slice(6)
-        if (payload === '[DONE]') continue
-
-        // Try to parse the payload - may be complete or partial JSON
-        let parsed: OllamaChatResponse | undefined
-
-        // First: try direct parse of this chunk
+        if (!trimmed) continue
+        let parsed: OllamaChatResponse
         try {
-          parsed = JSON.parse(payload) as OllamaChatResponse
-          jsonBuffer = '' // Clear buffer on successful parse
+          parsed = JSON.parse(trimmed) as OllamaChatResponse
         } catch {
-          // Direct parse failed - will try combining with buffer below
+          // A genuinely malformed NDJSON line — skip it rather than abort the stream.
+          continue
         }
-
-        // Second: if direct parse failed, try combining with buffered partial JSON
-        if (!parsed && jsonBuffer) {
-          try {
-            const combined = jsonBuffer + payload
-            parsed = JSON.parse(combined) as OllamaChatResponse
-            jsonBuffer = '' // Clear buffer on successful combined parse
-          } catch {
-            // Combined parse also failed - will buffer below
-          }
+        if (parsed.error) {
+          streamErr = new Error(parsed.error)
+          break
         }
-
-        // Third: buffer this chunk if it looks like partial JSON and we have no successful parse
-        if (!parsed) {
-          // Check if payload looks like the start/middle of a JSON object
-          const looksLikePartialJson =
-            payload.includes('{') ||
-            payload.includes('}') ||
-            payload.includes('"') ||
-            payload.includes(':') ||
-            payload.includes('[')
-
-          if (looksLikePartialJson && jsonBuffer.length + payload.length <= MAX_JSON_BUFFER_SIZE) {
-            jsonBuffer += payload
-            continue // Skip to next line - don't process yet
-          }
-          // Payload doesn't look like JSON or buffer would overflow - truly malformed, skip
-        }
-
-        // Process successfully parsed chunk
-        if (parsed) {
-          const content = parsed.choices?.[0]?.delta?.content
-          if (content) {
-            fullText += content
-            callbacks.onText(content)
-          }
-        }
-      }
-    }
-
-    // Process any remaining buffered partial JSON at stream end
-    if (jsonBuffer) {
-      try {
-        const parsed = JSON.parse(jsonBuffer) as OllamaChatResponse
-        const content = parsed.choices?.[0]?.delta?.content
+        const content = parsed.message?.content // may be '' on keep-alive/heartbeat lines
         if (content) {
           fullText += content
           callbacks.onText(content)
         }
+        if (parsed.done) {
+          lastStats = {
+            model,
+            promptEvalCount: parsed.prompt_eval_count ?? 0,
+            evalCount: parsed.eval_count ?? 0,
+            at: new Date().toISOString()
+          }
+        }
+      }
+      if (streamErr) break
+    }
+
+    // A trailing complete line with no terminating newline (rare for /api/chat,
+    // which newline-terminates the done object, but handle it for safety).
+    const tail = lineBuffer.trim()
+    if (!streamErr && tail) {
+      try {
+        const parsed = JSON.parse(tail) as OllamaChatResponse
+        if (parsed.error) streamErr = new Error(parsed.error)
+        else {
+          const content = parsed.message?.content
+          if (content) {
+            fullText += content
+            callbacks.onText(content)
+          }
+          if (parsed.done) {
+            lastStats = {
+              model,
+              promptEvalCount: parsed.prompt_eval_count ?? 0,
+              evalCount: parsed.eval_count ?? 0,
+              at: new Date().toISOString()
+            }
+          }
+        }
       } catch {
-        // Final buffered content is truly malformed - log but don't throw
-        // This prevents data loss from edge cases while maintaining stability
+        // Truly malformed trailing content — drop it (matches prior stability stance).
       }
     }
 
     clearTimeout(inactivityTimer)
+    if (streamErr) {
+      callbacks.onError(streamErr)
+      return
+    }
     callbacks.onDone(fullText)
   } catch (error) {
     clearTimeout(inactivityTimer)
@@ -224,10 +243,17 @@ export async function ollamaChatOnce(systemPrompt: string, messages: ChatMessage
     ...messages.map((m) => ({ role: m.role as string, content: m.content }))
   ]
 
-  const res = await fetch(`${ollamaBaseUrl}/v1/chat/completions`, {
+  const numCtx = await resolveNumCtx(model, ollamaBaseUrl)
+  const res = await fetch(`${ollamaBaseUrl}/api/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model, messages: apiMessages, stream: false }),
+    body: JSON.stringify({
+      model,
+      messages: apiMessages,
+      stream: false,
+      keep_alive: OLLAMA_KEEP_ALIVE,
+      options: { num_ctx: numCtx }
+    }),
     // Non-streaming (summaries) — a large prompt on CPU can prefill for minutes, so use
     // the same generous prefill budget rather than the 90s cap.
     signal: AbortSignal.timeout(OLLAMA_PREFILL_TIMEOUT_MS)
@@ -239,7 +265,14 @@ export async function ollamaChatOnce(systemPrompt: string, messages: ChatMessage
   }
 
   const data = (await res.json()) as OllamaChatResponse
-  return data.choices?.[0]?.message?.content || ''
+  if (data.error) throw new Error(data.error)
+  lastStats = {
+    model,
+    promptEvalCount: data.prompt_eval_count ?? 0,
+    evalCount: data.eval_count ?? 0,
+    at: new Date().toISOString()
+  }
+  return data.message?.content || ''
 }
 
 /** LLMProvider implementation wrapping the module-level Ollama functions. */

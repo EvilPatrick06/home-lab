@@ -68,6 +68,10 @@ export interface AiDmConfig {
   claudeApiKey?: string
   openaiApiKey?: string
   geminiApiKey?: string
+  /** Ollama context window override in tokens; unset = auto. */
+  contextLength?: number
+  /** Opt-in Ollama KV-cache quantization; unset = off. */
+  ollamaKvCacheType?: 'q8_0' | 'q4_0'
   discordBridge?: boolean
   /** @deprecated Use `model` instead */
   ollamaModel?: string

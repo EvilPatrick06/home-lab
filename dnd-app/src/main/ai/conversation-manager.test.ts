@@ -12,8 +12,20 @@ vi.mock('./prompt-sections/narrative-rules', () => ({
   NARRATIVE_RULES_PROMPT: 'Base system prompt.'
 }))
 
+let mockWindow = 100_000
 vi.mock('./token-budget', () => ({
   estimateTokens: vi.fn((text: string) => Math.ceil(text.length / 4)),
+  OUTPUT_RESERVE: 2000,
+  getActiveContextWindow: vi.fn(() => mockWindow),
+  getEffectiveBudgets: vi.fn(() => ({
+    retrievedChunks: 2000,
+    srdData: 2000,
+    campaignData: 1000,
+    creatures: 500,
+    gameState: 500,
+    memory: 500,
+    conversationHistory: 2000
+  })),
   TOKEN_BUDGETS: {
     systemPrompt: 4000,
     retrievedChunks: 2000,
@@ -263,6 +275,24 @@ describe('ConversationManager', () => {
 
       await mgr.getMessagesForApi('')
       expect(mgr.lastTokenEstimate).toBeGreaterThan(0)
+    })
+
+    it('flags contextTruncated when the estimate exceeds the active window (PHASE-01 01C)', async () => {
+      mockWindow = 4096 // tiny Ollama default window
+      const mgr = new ConversationManager()
+      // A system prompt well over the window with no section trims still flags truncated.
+      const huge = 'x'.repeat(4096 * 4 + 8000)
+      await mgr.getMessagesForApi(huge)
+      expect(mgr.contextWasTruncated).toBe(true)
+      mockWindow = 100_000
+    })
+
+    it('does not flag contextTruncated for a small prompt within a large window', async () => {
+      mockWindow = 100_000
+      const mgr = new ConversationManager()
+      mgr.addMessage('user', 'hi')
+      await mgr.getMessagesForApi('small system prompt')
+      expect(mgr.contextWasTruncated).toBe(false)
     })
 
     it('triggers summarization when many messages exist', async () => {

@@ -97,6 +97,14 @@ describe('ollama-manager', () => {
       expect(llama).toBeDefined()
       expect(llama!.vramMB).toBeLessThan(3000)
     })
+
+    it('re-exports the array from ollama-context with every contextSize ≥ the num_ctx floor (PHASE-01)', () => {
+      // CURATED_MODELS now lives in ollama-context and is re-exported here; the
+      // contextSize values double as the per-model num_ctx, so none may be below 4096.
+      for (const model of CURATED_MODELS) {
+        expect(model.contextSize).toBeGreaterThanOrEqual(4096)
+      }
+    })
   })
 
   // ── getPerformanceTier ──

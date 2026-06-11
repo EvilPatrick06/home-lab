@@ -10,7 +10,7 @@ import { getMemoryManager } from './memory-manager'
 import type { SearchEngine } from './search-engine'
 import { detectAndLoadSrdData } from './srd-provider'
 import type { ContextTokenBreakdown } from './token-budget'
-import { estimateTokens, TOKEN_BUDGETS, trimToTokenBudget } from './token-budget'
+import { estimateTokens, getEffectiveBudgets, trimToTokenBudget } from './token-budget'
 import type { ActiveCreatureInfo, ScoredChunk } from './types'
 import type { WebSearchRequest, WebSearchResult } from './web-search'
 
@@ -170,6 +170,22 @@ export async function buildContext(
   actingCharacterId?: string
 ): Promise<string> {
   const parts: string[] = []
+  // PHASE-01 01D — prefix-cache ordering contract. Ollama reuses prefill (its KV
+  // cache) only for a byte-identical prompt prefix and invalidates at the first
+  // differing byte, so sections are emitted static-first / volatile-last to
+  // maximize the stable prefix across consecutive turns:
+  //   campaign (semi-static) → character/party/encounter (semi-static) →
+  //   rulebook chunks (query-volatile) → SRD + available monsters (query-volatile) →
+  //   active creatures → memory → game-state snapshot (changes every message — LAST).
+  // Each section computes where it always has (side-effects, breakdown updates
+  // unchanged); only the final emission order moves, via these buckets.
+  const sCampaign: string[] = []
+  const sCharacter: string[] = []
+  const sRulebook: string[] = []
+  const sSrd: string[] = []
+  const sCreatures: string[] = []
+  const sMemory: string[] = []
+  const sGameState: string[] = []
   const breakdown: ContextTokenBreakdown = {
     rulebookChunks: 0,
     srdData: 0,
@@ -190,15 +206,19 @@ export async function buildContext(
     return out
   }
 
+  // Section budgets scaled to the active context window (PHASE-01 01C) so trims
+  // happen visibly here instead of silently in Ollama's runner.
+  const budgets = getEffectiveBudgets()
+
   // 1. Search rulebook chunks
   if (searchEngine) {
     const results = searchEngine.search(query, 5)
 
     if (results.length > 0) {
       const chunkText = formatChunks(results)
-      const trimmed = trimTracked(`[CONTEXT: Rulebook Excerpts]\n${chunkText}`, TOKEN_BUDGETS.retrievedChunks)
+      const trimmed = trimTracked(`[CONTEXT: Rulebook Excerpts]\n${chunkText}`, budgets.retrievedChunks)
       breakdown.rulebookChunks = estimateTokens(trimmed)
-      parts.push(trimmed)
+      sRulebook.push(trimmed)
     }
   }
 
@@ -206,9 +226,9 @@ export async function buildContext(
   try {
     const srdData = detectAndLoadSrdData(query)
     if (srdData) {
-      const trimmed = trimTracked(`[CONTEXT: SRD Data]\n${srdData}`, TOKEN_BUDGETS.srdData)
+      const trimmed = trimTracked(`[CONTEXT: SRD Data]\n${srdData}`, budgets.srdData)
       breakdown.srdData = estimateTokens(trimmed)
-      parts.push(trimmed)
+      sSrd.push(trimmed)
     }
   } catch (err) {
     logToFile('WARN', `[context-builder] Failed to load SRD data: ${err}`)
@@ -237,24 +257,24 @@ export async function buildContext(
     if (charParts.length > 0) {
       const charBlock = `[CHARACTER DATA]\n${charParts.join('\n\n')}`
       breakdown.characterData = estimateTokens(charBlock)
-      parts.push(charBlock)
+      sCharacter.push(charBlock)
       // (Character + combat rules are NOT re-added here — the modular system prompt
       // assembler already includes them per game mode; duplicating them in the
       // context just burned tokens and showed the AI the same rules twice.)
 
       // Party composition analysis for AI tactical decisions
       const partyComp = analyzePartyComposition(charParts)
-      if (partyComp) parts.push(partyComp)
+      if (partyComp) sCharacter.push(partyComp)
 
       // Encounter budget for dynamic encounter generation
       const encounterBudget = calculateEncounterBudget(charParts)
-      if (encounterBudget) parts.push(encounterBudget)
+      if (encounterBudget) sCharacter.push(encounterBudget)
 
       const availableMonsters = formatAvailableMonstersContext(query)
       if (availableMonsters) {
-        const trimmed = trimTracked(availableMonsters, Math.floor(TOKEN_BUDGETS.srdData * 0.4))
+        const trimmed = trimTracked(availableMonsters, Math.floor(budgets.srdData * 0.4))
         breakdown.srdData += estimateTokens(trimmed)
-        parts.push(trimmed)
+        sSrd.push(trimmed)
       }
 
       // Cache character context for persistence (fire-and-forget; non-critical)
@@ -273,9 +293,9 @@ export async function buildContext(
       const campaign = await loadCampaignById(campaignId)
       if (campaign) {
         const campaignText = formatCampaignForContext(campaign)
-        const trimmed = trimTracked(campaignText, TOKEN_BUDGETS.campaignData)
+        const trimmed = trimTracked(campaignText, budgets.campaignData)
         breakdown.campaignData = estimateTokens(trimmed)
-        parts.push(trimmed)
+        sCampaign.push(trimmed)
       }
     } catch (err) {
       logToFile('WARN', `[context-builder] Failed to load campaign data: ${err}`)
@@ -285,9 +305,9 @@ export async function buildContext(
   // 5. Active map creatures (enriched with stat block data)
   if (activeCreatures?.length) {
     const creatureBlock = `[ACTIVE CREATURES ON MAP]\n${activeCreatures.map((c) => formatCreatureContext(c)).join('\n')}`
-    const trimmed = trimTracked(creatureBlock, TOKEN_BUDGETS.creatures)
+    const trimmed = trimTracked(creatureBlock, budgets.creatures)
     breakdown.creatures = estimateTokens(trimmed)
-    parts.push(trimmed)
+    sCreatures.push(trimmed)
   }
 
   // 6. Game state snapshot (pre-formatted by renderer). The [PARTY ROSTER] block is
@@ -297,10 +317,10 @@ export async function buildContext(
     const rosterRe = /\[PARTY ROSTER\][\s\S]*?\[\/PARTY ROSTER\]/g
     const roster = gameState.match(rosterRe)?.[0]
     const rest = roster ? gameState.replace(rosterRe, '').trim() : gameState
-    const trimmedRest = trimTracked(rest, TOKEN_BUDGETS.gameState)
+    const trimmedRest = trimTracked(rest, budgets.gameState)
     const finalGameState = roster ? `${trimmedRest}\n\n${roster}`.trim() : trimmedRest
     breakdown.gameState = estimateTokens(finalGameState)
-    parts.push(finalGameState)
+    sGameState.push(finalGameState)
   }
 
   // 7. Memory manager context (world state, combat, NPCs, places, notes)
@@ -309,14 +329,17 @@ export async function buildContext(
       const memoryManager = getMemoryManager(campaignId)
       const memoryContext = await memoryManager.assembleContext()
       if (memoryContext) {
-        const trimmed = trimTracked(memoryContext, TOKEN_BUDGETS.memory)
+        const trimmed = trimTracked(memoryContext, budgets.memory)
         breakdown.memory = estimateTokens(trimmed)
-        parts.push(trimmed)
+        sMemory.push(trimmed)
       }
     } catch (err) {
       logToFile('WARN', `[context-builder] Failed to load memory data: ${err}`)
     }
   }
+
+  // Emit static-first → volatile-last (see the ordering contract above).
+  parts.push(...sCampaign, ...sCharacter, ...sRulebook, ...sSrd, ...sCreatures, ...sMemory, ...sGameState)
 
   const result = parts.join('\n\n')
   breakdown.total = estimateTokens(result)

@@ -1,5 +1,5 @@
 {
-  "systemPrompt": 1500,
+  "systemPrompt": 12500,
   "retrievedChunks": 8000,
   "srdData": 2000,
   "campaignData": 2000,
@@ -10,5 +10,5 @@
   "responseBuffer": 4000,
   "fileReadContent": 4000,
   "webSearchResults": 2000,
-  "total": 25000
+  "total": 21500
 }

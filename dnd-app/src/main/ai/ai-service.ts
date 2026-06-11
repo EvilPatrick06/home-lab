@@ -33,6 +33,7 @@ import {
 import type { AiProviderType, LLMProvider } from './llm-provider'
 import { getMemoryManager, npcMemoryFromAttitude } from './memory-manager'
 import { getOllamaUrl, isOllamaRunning, listOllamaModels, setOllamaUrl } from './ollama-client'
+import { resolveNumCtx, setConfiguredContextLength, setOllamaKvCacheType } from './ollama-context'
 import { OLLAMA_BASE_URL } from './ollama-manager'
 import {
   checkAllProviders,
@@ -51,6 +52,7 @@ import {
   parseStatChanges,
   stripStatChanges
 } from './stat-mutations'
+import { CLOUD_CONTEXT_WINDOW, setActiveContextWindow } from './token-budget'
 import { cleanNarrativeText, hasViolations } from './tone-validator'
 import type {
   AiChatRequest,
@@ -276,6 +278,8 @@ let currentConfig: {
   claudeApiKey?: string
   openaiApiKey?: string
   geminiApiKey?: string
+  contextLength?: number
+  ollamaKvCacheType?: 'q8_0' | 'q4_0'
 } = {
   provider: 'ollama',
   model: DEFAULT_AI_MODEL,
@@ -345,9 +349,13 @@ export async function configure(config: AiConfig): Promise<void> {
     ollamaUrl: config.ollamaUrl || OLLAMA_BASE_URL,
     claudeApiKey: config.claudeApiKey,
     openaiApiKey: config.openaiApiKey,
-    geminiApiKey: config.geminiApiKey
+    geminiApiKey: config.geminiApiKey,
+    contextLength: config.contextLength,
+    ollamaKvCacheType: config.ollamaKvCacheType
   }
 
+  setConfiguredContextLength(currentConfig.contextLength)
+  setOllamaKvCacheType(currentConfig.ollamaKvCacheType)
   setOllamaUrl(currentConfig.ollamaUrl)
   configureProviders({
     provider: currentConfig.provider,
@@ -368,7 +376,9 @@ export async function configure(config: AiConfig): Promise<void> {
       ollamaUrl: currentConfig.ollamaUrl,
       claudeApiKey: encryptOptional(currentConfig.claudeApiKey),
       openaiApiKey: encryptOptional(currentConfig.openaiApiKey),
-      geminiApiKey: encryptOptional(currentConfig.geminiApiKey)
+      geminiApiKey: encryptOptional(currentConfig.geminiApiKey),
+      contextLength: currentConfig.contextLength,
+      ollamaKvCacheType: currentConfig.ollamaKvCacheType
     })
   )
 }
@@ -384,7 +394,9 @@ export function getConfig(): AiConfig {
         ollamaUrl: (saved.ollamaUrl as string) || OLLAMA_BASE_URL,
         claudeApiKey: decryptOptional(saved.claudeApiKey as string | undefined),
         openaiApiKey: decryptOptional(saved.openaiApiKey as string | undefined),
-        geminiApiKey: decryptOptional(saved.geminiApiKey as string | undefined)
+        geminiApiKey: decryptOptional(saved.geminiApiKey as string | undefined),
+        contextLength: saved.contextLength as number | undefined,
+        ollamaKvCacheType: saved.ollamaKvCacheType as 'q8_0' | 'q4_0' | undefined
       }
     } catch {
       // Use defaults
@@ -397,13 +409,17 @@ export function getConfig(): AiConfig {
     ollamaUrl: currentConfig.ollamaUrl,
     claudeApiKey: currentConfig.claudeApiKey,
     openaiApiKey: currentConfig.openaiApiKey,
-    geminiApiKey: currentConfig.geminiApiKey
+    geminiApiKey: currentConfig.geminiApiKey,
+    contextLength: currentConfig.contextLength,
+    ollamaKvCacheType: currentConfig.ollamaKvCacheType
   }
 }
 
 /** Initialize from saved config and auto-load chunk index. */
 export function initFromSavedConfig(): void {
   const config = getConfig()
+  setConfiguredContextLength(currentConfig.contextLength)
+  setOllamaKvCacheType(currentConfig.ollamaKvCacheType)
   setOllamaUrl(currentConfig.ollamaUrl)
   configureProviders(config)
 
@@ -651,6 +667,15 @@ export function startChat(
       // so a missing/empty model errors in ~ms instead of hanging the request.
       const model = await resolveOllamaModel(currentConfig.model, streamId)
 
+      // Set the budget window BEFORE buildContext/getMessagesForApi run so section
+      // budgets (and the truncation flag) scale to the real Ollama num_ctx — cloud
+      // providers get the large window so budgets stay unscaled (PHASE-01 01C).
+      if (getActiveProviderType() === 'ollama') {
+        setActiveContextWindow(await resolveNumCtx(model, getOllamaUrl()))
+      } else {
+        setActiveContextWindow(CLOUD_CONTEXT_WINDOW)
+      }
+
       const context = await buildContext(
         request.message,
         request.characterIds,
@@ -659,8 +684,12 @@ export function startChat(
         request.gameState,
         request.actingCharacterId
       )
-      const providerContext = `\n\n[PROVIDER CONTEXT]\n${getProviderContextBlurb(getActiveProviderType())}\n[/PROVIDER CONTEXT]`
-      const { systemPrompt, messages } = await conv.getMessagesForApi(context + providerContext)
+      // PHASE-01 01D — the provider blurb is STATIC (changes only when the provider
+      // changes), so it leads the context block to extend the cache-stable prefix;
+      // it used to trail the every-message-volatile game-state snapshot and was thus
+      // re-prefilled every turn.
+      const providerContext = `[PROVIDER CONTEXT]\n${getProviderContextBlurb(getActiveProviderType())}\n[/PROVIDER CONTEXT]\n\n`
+      const { systemPrompt, messages } = await conv.getMessagesForApi(providerContext + context)
 
       // Stream response
       let fullText = ''

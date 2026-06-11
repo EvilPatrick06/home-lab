@@ -4,7 +4,13 @@ import { join, relative, resolve } from 'node:path'
 import { app } from 'electron'
 import { listOllamaModels } from './ollama-client'
 import { OLLAMA_BASE_URL } from './ollama-constants'
+import { getOllamaKvCacheType } from './ollama-context'
 
+// CURATED_MODELS + CuratedModel moved to ./ollama-context (leaf) in PHASE-01 so
+// the num_ctx resolver can read them without an import cycle. Re-exported here so
+// existing `import { CURATED_MODELS, type CuratedModel } from './ollama-manager'`
+// call sites (ai-handlers) keep working.
+export { CURATED_MODELS, type CuratedModel } from './ollama-context'
 // Re-exported from the leaf so existing `import { OLLAMA_BASE_URL } from './ollama-manager'`
 // call sites (ai-service) keep working without re-introducing the ollama-client cycle.
 export { OLLAMA_BASE_URL }
@@ -17,14 +23,6 @@ export interface OllamaStatus {
 
 export interface VramInfo {
   totalMB: number
-}
-
-export interface CuratedModel {
-  id: string
-  name: string
-  vramMB: number
-  contextSize: number
-  desc: string
 }
 
 export type PerformanceTier = 'optimal' | 'good' | 'limited' | 'insufficient'
@@ -52,43 +50,6 @@ export interface OllamaVersionInfo {
   latest?: string
   updateAvailable: boolean
 }
-
-export const CURATED_MODELS: CuratedModel[] = [
-  {
-    id: 'llama3.2:3b',
-    name: 'Llama 3.2 3B',
-    vramMB: 2500,
-    contextSize: 8192,
-    desc: 'Lightweight, great for weaker GPUs'
-  },
-  { id: 'llama3.1:8b', name: 'Llama 3.1 8B', vramMB: 5000, contextSize: 8192, desc: 'Good quality, runs on most GPUs' },
-  { id: 'mistral:7b', name: 'Mistral 7B', vramMB: 4500, contextSize: 8192, desc: 'Fast and capable' },
-  { id: 'gemma2:9b', name: 'Gemma 2 9B', vramMB: 6000, contextSize: 8192, desc: 'High quality from Google' },
-  { id: 'phi3:14b', name: 'Phi-3 14B', vramMB: 8000, contextSize: 4096, desc: 'Strong reasoning from Microsoft' },
-  { id: 'qwen2.5:7b', name: 'Qwen 2.5 7B', vramMB: 5000, contextSize: 8192, desc: 'Versatile and capable' },
-  { id: 'deepseek-r1:8b', name: 'DeepSeek R1 8B', vramMB: 5000, contextSize: 8192, desc: 'Excellent reasoning skills' },
-  {
-    id: 'mixtral:8x7b',
-    name: 'Mixtral 8x7B',
-    vramMB: 26000,
-    contextSize: 4096,
-    desc: 'Mixture of experts, great quality'
-  },
-  {
-    id: 'command-r:35b',
-    name: 'Command R 35B',
-    vramMB: 20000,
-    contextSize: 4096,
-    desc: 'RAG-optimized, great for DM context'
-  },
-  {
-    id: 'llama3.1:70b',
-    name: 'Llama 3.1 70B',
-    vramMB: 40000,
-    contextSize: 4096,
-    desc: 'Best quality, needs powerful GPU'
-  }
-]
 
 /**
  * Per-platform standard install locations for Ollama.
@@ -366,11 +327,16 @@ export async function startOllama(): Promise<void> {
   // the remote host") and is far slower. Only override when an NVIDIA GPU is present so
   // AMD/Apple/Vulkan-only setups keep their working backend.
   const nvidiaPresent = (await getSystemVram()).totalMB > 0
+  // Opt-in KV-cache quantization (PHASE-01 01E): flash attention is its prerequisite,
+  // so both are set together — only when a type is configured, and only for a server
+  // THIS app spawns (an already-running/system Ollama is unaffected until restarted here).
+  const kv = getOllamaKvCacheType()
+  const tuningEnv = kv ? { OLLAMA_FLASH_ATTENTION: '1', OLLAMA_KV_CACHE_TYPE: kv } : {}
   const child = spawn(ollamaPath, ['serve'], {
     detached: true,
     stdio: 'ignore',
     windowsHide: true,
-    env: nvidiaPresent ? { ...process.env, OLLAMA_VULKAN: '0' } : process.env
+    env: { ...process.env, ...(nvidiaPresent ? { OLLAMA_VULKAN: '0' } : {}), ...tuningEnv }
   })
   child.unref()
 

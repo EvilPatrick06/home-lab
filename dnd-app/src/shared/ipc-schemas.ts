@@ -9,6 +9,8 @@ export const AiConfigSchema = z.object({
   claudeApiKey: z.string().optional(),
   openaiApiKey: z.string().optional(),
   geminiApiKey: z.string().optional(),
+  contextLength: z.number().int().min(2048).max(131072).optional(),
+  ollamaKvCacheType: z.enum(['q8_0', 'q4_0']).optional(),
   ollamaModel: z.string().optional()
 })
 

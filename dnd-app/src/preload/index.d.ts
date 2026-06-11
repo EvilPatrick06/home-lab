@@ -142,6 +142,8 @@ interface AiConfigData {
   claudeApiKey?: string
   openaiApiKey?: string
   geminiApiKey?: string
+  contextLength?: number
+  ollamaKvCacheType?: 'q8_0' | 'q4_0'
 }
 
 interface AiStatChange {

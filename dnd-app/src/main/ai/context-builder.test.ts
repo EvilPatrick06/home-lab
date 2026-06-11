@@ -20,6 +20,14 @@ vi.mock('./campaign-context', () => ({
   formatCampaignForContext: vi.fn(() => '')
 }))
 
+vi.mock('./memory-manager', () => ({
+  getMemoryManager: vi.fn(() => ({
+    saveCharacterContext: vi.fn(async () => {}),
+    assembleContext: vi.fn(async () => '[MEMORY] none')
+  }))
+}))
+
+import { loadCampaignById } from './campaign-context'
 import { loadCharacterById } from './character-context'
 import { buildContext, getLastTokenBreakdown, setSearchEngine } from './context-builder'
 
@@ -32,6 +40,31 @@ describe('buildContext', () => {
   it('returns empty string with no data', async () => {
     const result = await buildContext('test query', [])
     expect(result).toBe('')
+  })
+
+  it('emits sections static-first → volatile-last (PHASE-01 01D prefix-cache order)', async () => {
+    vi.mocked(loadCharacterById).mockResolvedValueOnce({ name: 'Aragorn' } as Record<string, unknown>)
+    vi.mocked(loadCampaignById).mockResolvedValueOnce({ id: 'c1' } as never)
+    const { formatCampaignForContext } = await import('./campaign-context')
+    vi.mocked(formatCampaignForContext).mockReturnValueOnce('[CAMPAIGN] The Sunless Citadel')
+
+    const result = await buildContext(
+      'goblin ambush',
+      ['char-1'],
+      'c1',
+      [{ label: 'Goblin', currentHP: 7, maxHP: 7, ac: 15, conditions: [] }] as never,
+      '[GAME STATE]\nRound 1\nTotal seconds: 42'
+    )
+
+    const iCampaign = result.indexOf('[CAMPAIGN]')
+    const iCharacter = result.indexOf('FULL:Aragorn')
+    const iCreatures = result.indexOf('[ACTIVE CREATURES ON MAP]')
+    const iGameState = result.indexOf('[GAME STATE]')
+    // All present, and in static→volatile order (campaign < character < creatures < game state).
+    expect(iCampaign).toBeGreaterThanOrEqual(0)
+    expect(iCharacter).toBeGreaterThan(iCampaign)
+    expect(iCreatures).toBeGreaterThan(iCharacter)
+    expect(iGameState).toBeGreaterThan(iCreatures) // volatile snapshot is LAST
   })
 
   it('includes full character data when no acting character specified', async () => {

@@ -9,6 +9,12 @@ export interface AiConfig {
   claudeApiKey?: string
   openaiApiKey?: string
   geminiApiKey?: string
+  /** Ollama context window override in tokens; unset = auto (curated/default
+   *  clamped to the model's reported maximum). Ignored by cloud providers. */
+  contextLength?: number
+  /** Opt-in Ollama KV-cache quantization (`q8_0` halves, `q4_0` quarters KV
+   *  memory); unset = off. Only applied to servers this app spawns. */
+  ollamaKvCacheType?: 'q8_0' | 'q4_0'
   /** @deprecated Use `model` instead. Kept for backward-compatible config loading. */
   ollamaModel?: string
 }

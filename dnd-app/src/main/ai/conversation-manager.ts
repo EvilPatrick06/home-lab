@@ -3,7 +3,7 @@ import { getLastTokenBreakdown } from './context-builder'
 import { DM_TOOLBOX_CONTEXT, PLANAR_RULES_CONTEXT } from './dm-system-prompt'
 import { assembleSystemPrompt, type GameMode } from './prompt-assembler'
 import { COMBAT_TACTICS_PROMPT } from './prompt-sections/combat-tactics'
-import { estimateTokens, TOKEN_BUDGETS } from './token-budget'
+import { estimateTokens, getActiveContextWindow, getEffectiveBudgets, OUTPUT_RESERVE } from './token-budget'
 import type { ChatMessage, ConversationData, ConversationMessage, ConversationSummary } from './types'
 
 const MAX_RECENT_MESSAGES = 10
@@ -108,7 +108,7 @@ export class ConversationManager {
     const withinBudget: ConversationMessage[] = []
     for (let i = recentMessages.length - 1; i >= 0; i--) {
       const msgTokens = estimateTokens(recentMessages[i].content)
-      if (tokenCount + msgTokens > TOKEN_BUDGETS.conversationHistory && withinBudget.length > 0) break
+      if (tokenCount + msgTokens > getEffectiveBudgets().conversationHistory && withinBudget.length > 0) break
       tokenCount += msgTokens
       withinBudget.unshift(recentMessages[i])
     }
@@ -144,7 +144,9 @@ export class ConversationManager {
     // previously only the history budget was tracked, so context compression was
     // silently invisible to the DM-alert.
     this._contextTruncated =
-      tokenCount >= TOKEN_BUDGETS.conversationHistory || (getLastTokenBreakdown()?.truncated ?? false)
+      tokenCount >= getEffectiveBudgets().conversationHistory ||
+      totalTokens > getActiveContextWindow() - OUTPUT_RESERVE ||
+      (getLastTokenBreakdown()?.truncated ?? false)
 
     return { systemPrompt, messages: cleaned }
   }
