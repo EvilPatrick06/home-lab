@@ -249,6 +249,10 @@ export type DmAction =
       floor?: number
     }
   | { action: 'remove_darkness_zone'; zoneId: string }
+
+  // Lighting (personal light sources on tokens)
+  | { action: 'light_source'; entityName: string; sourceName: string; reason?: string }
+  | { action: 'extinguish_source'; entityName: string; sourceName?: string; reason?: string }
   | {
       action: 'place_terrain'
       gridX: number

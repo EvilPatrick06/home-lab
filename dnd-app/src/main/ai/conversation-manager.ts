@@ -1,6 +1,6 @@
 import { logToFile } from '../log'
 import { DM_TOOLBOX_CONTEXT, PLANAR_RULES_CONTEXT } from './dm-system-prompt'
-import { assembleSystemPrompt, type GameMode } from './prompt-assembler'
+import { assembleSystemPrompt } from './prompt-assembler'
 import { COMBAT_TACTICS_PROMPT } from './prompt-sections/combat-tactics'
 import { estimateTokens, getActiveContextWindow, getEffectiveBudgets, OUTPUT_RESERVE } from './token-budget'
 import type { ChatMessage, ConversationData, ConversationMessage, ConversationSummary } from './types'
@@ -120,9 +120,8 @@ export class ConversationManager {
       contextBlock?.includes('placed_trap') ||
       contextBlock?.includes('chase')
     const hasCombat = contextBlock?.includes('Initiative:')
-    const gameMode: GameMode = hasCombat ? 'combat' : 'general'
     const systemPrompt =
-      assembleSystemPrompt(gameMode) +
+      assembleSystemPrompt() +
       (hasCombat ? COMBAT_TACTICS_PROMPT : '') +
       (includesPlanarContent ? PLANAR_RULES_CONTEXT : '') +
       (includesToolboxContent ? DM_TOOLBOX_CONTEXT : '') +

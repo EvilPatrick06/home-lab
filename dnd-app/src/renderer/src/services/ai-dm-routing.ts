@@ -115,6 +115,31 @@ function buildActiveCreatures(): Array<{
     })
 }
 
+/** Resolve the acting character for an AI message: the sender's OWN character.
+ *  Lobby players (multiplayer) take precedence; active campaign players are the
+ *  solo fallback; a single-member resolved roster is the actor regardless of name
+ *  match (solo, where playerName may differ from the campaign-player display name).
+ *  PHASE-11 11F — activates the per-actor full/abbreviated context split. */
+export function resolveActingCharacterId(
+  senderName: string,
+  lobbyPlayers: Array<{ displayName: string; characterId: string | null }>,
+  campaignPlayers: CampaignPlayer[]
+): string | undefined {
+  const byLobby = lobbyPlayers.find((p) => p.displayName === senderName && p.characterId)?.characterId
+  if (byLobby) return byLobby
+  const byCampaign = campaignPlayers.find(
+    (p) => p.displayName === senderName && p.isActive && p.characterId
+  )?.characterId
+  if (byCampaign) return byCampaign
+  // Single-member roster (the buildPlayerRoster resolution set): that member is the actor.
+  const resolved =
+    lobbyPlayers.length > 0
+      ? lobbyPlayers.filter((p) => p.characterId)
+      : campaignPlayers.filter((p) => p.characterId && p.isActive)
+  if (resolved.length === 1) return resolved[0].characterId ?? undefined
+  return undefined
+}
+
 /** Route a player's chat message to the AI DM with full context (party roster +
  *  game-state snapshot + active-map creatures). Used for solo, the host's own
  *  message, AND a peer's message — one path so they can't diverge. */
@@ -127,6 +152,7 @@ export function routePlayerMessageToAiDm(
 ): void {
   const lobbyPlayers = useLobbyStore.getState().players
   const { charIds, rosterText } = buildPlayerRoster(lobbyPlayers, campaignPlayers)
+  const actingCharacterId = resolveActingCharacterId(senderName, lobbyPlayers, campaignPlayers)
 
   // buildGameStateSnapshot lives in game-action-executor (renderer-only, heavy);
   // lazy-import to keep it off the chat-send hot path / avoid circular deps.
@@ -143,12 +169,15 @@ export function routePlayerMessageToAiDm(
           charIds,
           senderName,
           activeCreatures.length > 0 ? activeCreatures : undefined,
-          gameState
+          gameState,
+          actingCharacterId
         )
     })
     .catch(() => {
       // Fall back to a context-free send so the AI still responds.
-      void useAiDmStore.getState().sendMessage(campaignId, message, charIds, senderName)
+      void useAiDmStore
+        .getState()
+        .sendMessage(campaignId, message, charIds, senderName, undefined, undefined, actingCharacterId)
     })
 }
 

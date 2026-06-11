@@ -74,7 +74,7 @@ export function getActiveContextWindow(): number {
 let staticPromptMemo: number | null = null
 /** Lazy, cached estimate of the static system-prompt cost (the rules base). */
 export function getStaticSystemPromptTokens(): number {
-  if (staticPromptMemo === null) staticPromptMemo = estimateTokens(assembleSystemPrompt('general'))
+  if (staticPromptMemo === null) staticPromptMemo = estimateTokens(assembleSystemPrompt())
   return staticPromptMemo
 }
 

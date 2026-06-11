@@ -1,15 +1,15 @@
 /**
  * Exploration, travel, navigation, foraging, extreme environments, and chases.
- * Included when gameMode is 'exploration' or 'general'.
+ * Always included in every prompt assembly.
  */
 
 export const EXPLORATION_RULES_PROMPT = `
 ## Exploration & Travel (DMG 2024)
 
 ### Travel Pace
-- **Fast:** 400 ft/min, 4 mi/hour, 30 mi/day. -5 penalty to passive Perception. Cannot use Stealth.
-- **Normal:** 300 ft/min, 3 mi/hour, 24 mi/day.
-- **Slow:** 200 ft/min, 2 mi/hour, 18 mi/day. Can use Stealth.
+- **Fast:** 400 ft/min, 4 mi/hour, 30 mi/day. Disadvantage on Wisdom (Perception or Survival) checks and Dexterity (Stealth) checks.
+- **Normal:** 300 ft/min, 3 mi/hour, 24 mi/day. Disadvantage on Dexterity (Stealth) checks.
+- **Slow:** 200 ft/min, 2 mi/hour, 18 mi/day. Advantage on Wisdom (Perception or Survival) checks.
 
 When travel pace changes, emit a \`set_travel_pace\` DM action. Use \`advance_time\` to track travel duration.
 

@@ -1,7 +1,13 @@
+import { join } from 'node:path'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('../storage/character-storage', () => ({
   loadCharacter: vi.fn()
+}))
+
+// PHASE-11 11G — point the v4 name resolver at the repo's bundled 5e data.
+vi.mock('../paths', () => ({
+  getDataDir: () => join(process.cwd(), 'src/renderer/public/data/5e')
 }))
 
 import { loadCharacter } from '../storage/character-storage'
@@ -311,5 +317,89 @@ describe('formatCharacterAbbreviated', () => {
   it('omits conditions section when empty', () => {
     const result = formatCharacterAbbreviated(makeCharacter())
     expect(result).not.toContain('Conditions')
+  })
+})
+
+describe('formatCharacterForContext — v4 refs (PHASE-11 11G)', () => {
+  // A v4 character: NO inline weapons/armor/knownSpells/feats/magicItems; only refs + state.
+  function makeV4(): Record<string, unknown> {
+    return {
+      name: 'Lyra',
+      level: 5,
+      species: 'Elf',
+      classes: [{ name: 'Wizard', subclass: 'Evoker', level: 5 }],
+      hitPoints: { current: 30, maximum: 30, temporary: 0 },
+      armorClass: 13,
+      abilityScores: { strength: 8, dexterity: 16, constitution: 12, intelligence: 18, wisdom: 12, charisma: 10 },
+      spellcasting: { ability: 'intelligence' },
+      knownSpellRefs: [
+        { instanceId: 'sp1', ref: { entryId: 'acid-splash', entryType: 'spells' } },
+        { instanceId: 'sp2', ref: { entryId: 'fireball', entryType: 'spells' } }
+      ],
+      weaponRefs: [
+        {
+          instanceId: 'w1',
+          ref: {
+            entryId: 'longsword',
+            entryType: 'weapons',
+            overrides: { name: 'Longsword', damage: '1d8', damageType: 'slashing', attackBonus: 5 }
+          }
+        }
+      ],
+      armorRefs: [
+        { instanceId: 'a1', ref: { entryId: 'plate', entryType: 'armor', overrides: { name: 'Plate', acBonus: 8 } } },
+        { instanceId: 'a2', ref: { entryId: 'shield', entryType: 'armor', overrides: { name: 'Shield' } } }
+      ],
+      featRefs: [{ instanceId: 'f1', ref: { entryId: 'alert', entryType: 'feats' } }],
+      magicItemRefs: [{ instanceId: 'm1', ref: { entryId: 'adamantine-armor', entryType: 'magic-items' } }],
+      state: {
+        preparedSpellIds: { sp1: true },
+        weaponEquipped: { w1: true },
+        armorEquipped: { a1: true },
+        magicItemAttuned: { m1: true }
+      }
+    }
+  }
+
+  it('renders prepared spells with library-resolved names', () => {
+    const out = formatCharacterForContext(makeV4())
+    expect(out).toContain('Prepared Spells: Acid Splash')
+  })
+
+  it('renders weapons with detail + equipped marker', () => {
+    const out = formatCharacterForContext(makeV4())
+    expect(out).toContain('Weapons: Longsword (1d8 slashing, +5 to hit) (equipped)')
+  })
+
+  it('renders equipped + carried armor', () => {
+    const out = formatCharacterForContext(makeV4())
+    expect(out).toContain('Equipped Armor: Plate (AC +8)')
+    expect(out).toContain('Carried Armor (unequipped): Shield')
+  })
+
+  it('renders feats from refs', () => {
+    const out = formatCharacterForContext(makeV4())
+    expect(out).toMatch(/Feats: Alert/)
+  })
+
+  it('renders magic items with attuned marker', () => {
+    const out = formatCharacterForContext(makeV4())
+    expect(out).toContain('Magic Items: Adamantine Armor (attuned)')
+  })
+
+  it('falls back to a title-cased slug when neither overrides nor library match', () => {
+    const c = makeV4()
+    c.featRefs = [{ instanceId: 'f9', ref: { entryId: 'homebrew-feat', entryType: 'feats' } }]
+    const out = formatCharacterForContext(c)
+    expect(out).toContain('Feats: Homebrew-Feat')
+  })
+
+  it('leaves inline-v3 output unchanged (regression)', () => {
+    // a v3 fixture with inline weapons keeps the previous exact line
+    const out = formatCharacterForContext(
+      makeCharacter({ weapons: [{ name: 'Battleaxe', damage: '1d8', damageType: 'slashing', attackBonus: 5 }] })
+    )
+    expect(out).toContain('Weapons: Battleaxe (1d8 slashing, +5 to hit)')
+    expect(out).not.toContain('(equipped)')
   })
 })

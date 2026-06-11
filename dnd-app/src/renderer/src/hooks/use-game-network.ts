@@ -13,7 +13,7 @@ import type {
   WhisperPlayerPayload
 } from '../network'
 import { onClientMessage, onHostMessage } from '../network'
-import { buildPlayerRoster, routePlayerMessageToAiDm } from '../services/ai-dm-routing'
+import { buildPlayerRoster, resolveActingCharacterId, routePlayerMessageToAiDm } from '../services/ai-dm-routing'
 import { useAiDmStore } from '../stores/use-ai-dm-store'
 import { useGameStore } from '../stores/use-game-store'
 import type { ChatMessage } from '../stores/use-lobby-store'
@@ -124,13 +124,15 @@ export function useGameNetwork({
           if (aiDmEnabled && !useAiDmStore.getState().paused) {
             const lobbyPlayers = useLobbyStore.getState().players
             const { charIds, rosterText } = buildPlayerRoster(lobbyPlayers, campaignPlayers)
+            const actingCharacterId = resolveActingCharacterId(payload.requesterName, lobbyPlayers, campaignPlayers)
             aiDmStore.sendMessage(
               campaignId,
               `${payload.requesterName} asks: What time is it?`,
               charIds,
               payload.requesterName,
               undefined,
-              rosterText || undefined
+              rosterText || undefined,
+              actingCharacterId
             )
           } else {
             setTimeRequestToast({ requesterId: payload.requesterId, requesterName: payload.requesterName })

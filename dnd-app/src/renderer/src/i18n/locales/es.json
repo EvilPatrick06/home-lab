@@ -3034,17 +3034,15 @@
       "paces": {
         "fast": {
           "name": "Rápido",
-          "effect0": "-5 a la Percepción pasiva",
-          "effect1": "Desventaja en las pruebas de Percepción, Supervivencia y Sigilo"
+          "effect0": "Desventaja en las pruebas de Sabiduría (Percepción o Supervivencia) y Destreza (Sigilo)"
         },
         "normal": {
           "name": "Normal",
-          "effect0": "Desventaja en las pruebas de Sigilo"
+          "effect0": "Desventaja en las pruebas de Destreza (Sigilo)"
         },
         "slow": {
           "name": "Lento",
-          "effect0": "Ventaja en las pruebas de Percepción y Supervivencia",
-          "effect1": "Puede usar Sigilo"
+          "effect0": "Ventaja en las pruebas de Sabiduría (Percepción o Supervivencia)"
         }
       }
     },

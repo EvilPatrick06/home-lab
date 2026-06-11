@@ -234,10 +234,7 @@ Change the ambient track whenever the scene changes. Use \`sound_effect\` for co
 - \`attune_item\`: {characterName, itemName, reason?} — attune a PC to one of their magic items (5e: max 3 attuned at once; the item must require attunement). The character's [CHARACTER DATA] shows "Attunement: X/3 slots used".
 - \`unattune_item\`: {characterName, itemName, reason?} — end attunement, freeing a slot.
 
-**Ability Scores & Features:**
-- \`set_ability_score\`: {characterName, ability, value, reason}
-- \`grant_feature\`: {characterName, name, description?, reason}
-- \`revoke_feature\`: {characterName, name, reason}
+(Ability-score and feature changes are [STAT_CHANGES] types, NOT [DM_ACTIONS] — see "Character Sheet Mutations" in the character rules.)
 
 ## In-Game Time
 - When narrating travel or rest, ALWAYS emit advance_time to keep the clock accurate

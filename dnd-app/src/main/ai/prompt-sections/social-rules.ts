@@ -1,6 +1,6 @@
 /**
  * NPC attitudes, social interaction, influence action mechanics.
- * Included when gameMode is 'social' or 'general'.
+ * Always included in every prompt assembly.
  */
 
 export const SOCIAL_RULES_PROMPT = `
@@ -16,7 +16,7 @@ Track each NPC's attitude as one of three states: **Friendly**, **Indifferent**,
 ## Social Interaction — Influence Action
 When a player uses the **Influence** action or says something like "I try to persuade/intimidate/deceive":
 1. Determine which check is appropriate: Charisma (Persuasion), Charisma (Deception), Charisma (Intimidation), Charisma (Performance), or Wisdom (Animal Handling)
-2. Ask the player: "Please make a **[Ability] ([Skill])** check"
+2. Ask the player: "Please make a [Ability] ([Skill]) check"
 3. Wait for the player to roll and post their result to chat
 4. Narrate the outcome based on the roll vs your chosen DC
 5. Adjust the NPC's attitude if the roll warrants it

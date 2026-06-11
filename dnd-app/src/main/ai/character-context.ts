@@ -1,6 +1,7 @@
 import type { Character5eV3 } from '../../shared/types/character-5e'
 import { loadCharacter as loadCharacterFromStorage } from '../storage/character-storage'
 import { listConditions } from './character-conditions'
+import { type NameCategory, resolveEntryName } from './library-name-resolver'
 
 function abilityModifier(score: number): number {
   return Math.floor((score - 10) / 2)
@@ -13,6 +14,23 @@ function formatMod(mod: number): string {
 /** Title-case a library slug/id ("half-orc" -> "Half-Orc") for a display fallback. */
 function titleCase(value: string): string {
   return value.replace(/(^|[\s_-])([a-z])/g, (_m, sep: string, ch: string) => sep + ch.toUpperCase())
+}
+
+// PHASE-11 11G — v4 character refs are id-only; resolve a display name for context.
+// Weapons/armor carry their full inline object as overrides (BUG-2), so they need
+// no library lookup; spells/feats/magic-items are id-only and resolve from the
+// bundled data files.
+const SLUG_RE = /^[a-z0-9][a-z0-9-]*$/
+function refDisplayName(
+  category: NameCategory | 'weapons' | 'armor',
+  ref: { entryId?: string; overrides?: { name?: string } } | undefined
+): string {
+  if (ref?.overrides?.name) return ref.overrides.name
+  const id = ref?.entryId
+  if (!id) return 'Unknown'
+  const fromLibrary =
+    category === 'spells' || category === 'feats' || category === 'magic-items' ? resolveEntryName(category, id) : null
+  return fromLibrary ?? (SLUG_RE.test(id) ? titleCase(id) : id)
 }
 
 /**
@@ -142,6 +160,15 @@ function formatCharacter5e(c: Character5eV3): string {
       if (preparedNames.length > 0) lines.push(`Prepared Spells: ${preparedNames.join(', ')}`)
     } else if (knownSpells.length > 0) {
       lines.push(`Known Spells: ${knownSpells.map((s) => s.name).join(', ')}`)
+    } else if (c.knownSpellRefs?.length) {
+      // v4: spells are id-only refs; prepared state is keyed by instanceId.
+      const prepared = c.state?.preparedSpellIds
+      const preparedRefs = prepared ? c.knownSpellRefs.filter((r) => prepared[r.instanceId]) : []
+      if (preparedRefs.length > 0) {
+        lines.push(`Prepared Spells: ${preparedRefs.map((r) => refDisplayName('spells', r.ref)).join(', ')}`)
+      } else {
+        lines.push(`Known Spells: ${c.knownSpellRefs.map((r) => refDisplayName('spells', r.ref)).join(', ')}`)
+      }
     }
   }
 
@@ -175,6 +202,20 @@ function formatCharacter5e(c: Character5eV3): string {
   const unequippedArmor = armor.filter((a) => !a.equipped)
   if (unequippedArmor.length > 0) {
     lines.push(`Carried Armor (unequipped): ${unequippedArmor.map((a) => a.name).join(', ')}`)
+  } else if (armor.length === 0 && c.armorRefs?.length) {
+    // v4: armor refs + equipped state keyed by instanceId.
+    const equippedMap = c.state?.armorEquipped
+    const named = (r: (typeof c.armorRefs)[number]): string => {
+      const name = refDisplayName('armor', r.ref)
+      const acBonus = (r.ref.overrides as { acBonus?: number } | undefined)?.acBonus
+      return typeof acBonus === 'number' ? `${name} (AC +${acBonus})` : name
+    }
+    const equippedRefs = equippedMap ? c.armorRefs.filter((r) => equippedMap[r.instanceId]) : []
+    const carriedRefs = c.armorRefs.filter((r) => !equippedMap?.[r.instanceId])
+    if (equippedRefs.length > 0) lines.push(`Equipped Armor: ${equippedRefs.map(named).join(', ')}`)
+    if (carriedRefs.length > 0) {
+      lines.push(`Carried Armor (unequipped): ${carriedRefs.map((r) => refDisplayName('armor', r.ref)).join(', ')}`)
+    }
   }
 
   const weapons = c.weapons || []
@@ -182,6 +223,20 @@ function formatCharacter5e(c: Character5eV3): string {
     lines.push(
       `Weapons: ${weapons.map((w) => `${w.name} (${w.damage} ${w.damageType}, ${formatMod(w.attackBonus)} to hit)`).join(', ')}`
     )
+  } else if (c.weaponRefs?.length) {
+    // v4: weapon refs usually carry the full inline object as overrides (BUG-2).
+    const equippedMap = c.state?.weaponEquipped
+    const weaponLine = (r: (typeof c.weaponRefs)[number]): string => {
+      const name = refDisplayName('weapons', r.ref)
+      const ov = r.ref.overrides as { damage?: string; damageType?: string; attackBonus?: number } | undefined
+      const detail =
+        ov?.damage && ov?.damageType && typeof ov.attackBonus === 'number'
+          ? ` (${ov.damage} ${ov.damageType}, ${formatMod(ov.attackBonus)} to hit)`
+          : ''
+      const equipped = equippedMap?.[r.instanceId] ? ' (equipped)' : ''
+      return `${name}${detail}${equipped}`
+    }
+    lines.push(`Weapons: ${c.weaponRefs.map(weaponLine).join(', ')}`)
   }
 
   // Carried (unequipped) gear — what the AI can equip via set_equipped.
@@ -226,6 +281,8 @@ function formatCharacter5e(c: Character5eV3): string {
   const feats = c.feats
   if (feats && feats.length > 0) {
     lines.push(`Feats: ${feats.map((f) => f.name).join(', ')}`)
+  } else if (c.featRefs?.length) {
+    lines.push(`Feats: ${c.featRefs.map((r) => refDisplayName('feats', r.ref)).join(', ')}`)
   }
 
   const speciesResources = c.speciesResources
@@ -246,6 +303,17 @@ function formatCharacter5e(c: Character5eV3): string {
         })
         .join(', ')}`
     )
+  }
+
+  // Magic items by name (PHASE-11 11G) — the attune_item/unattune_item DM actions need
+  // the AI to name an item; previously only the slot count was surfaced.
+  if (c.magicItemRefs?.length) {
+    const attuned = c.state?.magicItemAttuned
+    const itemLine = (r: (typeof c.magicItemRefs)[number]): string => {
+      const name = refDisplayName('magic-items', r.ref)
+      return attuned?.[r.instanceId] ? `${name} (attuned)` : name
+    }
+    lines.push(`Magic Items: ${c.magicItemRefs.map(itemLine).join(', ')}`)
   }
 
   // Attunement slots (G35) — magic items are library refs (names live UI-side), but the

@@ -79,7 +79,7 @@ You can communicate with the whole party (public) OR a single player privately (
 
 ## Requesting Ability Checks
 When a situation calls for an ability check:
-- Use the explicit format: "Please make a **[Ability] ([Skill])** check"
+- Use the explicit format: "Please make a [Ability] ([Skill]) check" (plain text — no bold or other markdown)
 - The player will roll using the Skill Roll button and post the result
 - Wait for the result before narrating the outcome
 

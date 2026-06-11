@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { assembleSystemPrompt, type GameMode } from './prompt-assembler'
+import { assembleSystemPrompt } from './prompt-assembler'
 import { CHARACTER_RULES_PROMPT } from './prompt-sections/character-rules'
 import { COMBAT_RULES_PROMPT } from './prompt-sections/combat-rules'
 import { DM_ACTIONS_SCHEMA_PROMPT } from './prompt-sections/dm-actions-schema'
@@ -8,14 +8,10 @@ import { NARRATIVE_RULES_PROMPT } from './prompt-sections/narrative-rules'
 import { SOCIAL_RULES_PROMPT } from './prompt-sections/social-rules'
 import { VOICE_NARRATION_PROMPT } from './prompt-sections/voice-narration'
 
-// Phase 28i — coverage for the pure section-assembly logic. We assert which
-// modular sections are present/absent per game mode, that the narrative section
-// always leads and the DM-actions schema always trails, and that the assembled
-// string is the join of exactly the expected parts (no extra glue). Distinctive
-// `##` headers from each section act as presence markers so the tests stay
-// robust to wording changes inside the sections.
+// PHASE-11 11B — the assembler is now mode-independent: one static, cache-stable
+// section join (byte-identical to the old 'general' output). Distinctive `##`
+// headers from each section act as presence markers.
 
-// Distinctive header substrings, one per section module.
 const HDR_NARRATIVE = '## NARRATIVE VOICE (MANDATORY)'
 const HDR_COMBAT = '## Combat Reference (2024 PHB Rules Glossary)'
 const HDR_CHARACTER = '## Character Sheet Enforcement'
@@ -25,156 +21,45 @@ const HDR_DM_ACTIONS = '## Game Board Control'
 const HDR_VOICE = '## VOICE TAGS (optional — for spoken narration)'
 
 describe('assembleSystemPrompt', () => {
-  describe('combat mode', () => {
-    const prompt = assembleSystemPrompt('combat')
+  const prompt = assembleSystemPrompt()
 
-    it('includes narrative, character, combat, and DM-actions sections', () => {
-      expect(prompt).toContain(HDR_NARRATIVE)
-      expect(prompt).toContain(HDR_CHARACTER)
-      expect(prompt).toContain(HDR_COMBAT)
-      expect(prompt).toContain(HDR_DM_ACTIONS)
-    })
-
-    it('still includes exploration and social (combat keeps terrain + social rules)', () => {
-      expect(prompt).toContain(HDR_EXPLORATION)
-      expect(prompt).toContain(HDR_SOCIAL)
-    })
-
-    it('is exactly narrative + character + combat + exploration + social + DM-actions + voice', () => {
-      expect(prompt).toBe(
-        [
-          NARRATIVE_RULES_PROMPT,
-          CHARACTER_RULES_PROMPT,
-          COMBAT_RULES_PROMPT,
-          EXPLORATION_RULES_PROMPT,
-          SOCIAL_RULES_PROMPT,
-          DM_ACTIONS_SCHEMA_PROMPT,
-          VOICE_NARRATION_PROMPT
-        ].join('\n\n')
-      )
-    })
+  it('includes every section marker', () => {
+    expect(prompt).toContain(HDR_NARRATIVE)
+    expect(prompt).toContain(HDR_CHARACTER)
+    expect(prompt).toContain(HDR_COMBAT)
+    expect(prompt).toContain(HDR_EXPLORATION)
+    expect(prompt).toContain(HDR_SOCIAL)
+    expect(prompt).toContain(HDR_DM_ACTIONS)
+    expect(prompt).toContain(HDR_VOICE)
   })
 
-  describe('exploration mode', () => {
-    const prompt = assembleSystemPrompt('exploration')
-
-    it('includes narrative, exploration, and DM-actions sections', () => {
-      expect(prompt).toContain(HDR_NARRATIVE)
-      expect(prompt).toContain(HDR_EXPLORATION)
-      expect(prompt).toContain(HDR_DM_ACTIONS)
-    })
-
-    it('includes character + combat rules (sheet enforcement is universal) but omits social', () => {
-      expect(prompt).toContain(HDR_CHARACTER)
-      expect(prompt).toContain(HDR_COMBAT)
-      expect(prompt).not.toContain(HDR_SOCIAL)
-    })
-
-    it('is exactly narrative + character + combat + exploration + DM-actions + voice', () => {
-      expect(prompt).toBe(
-        [
-          NARRATIVE_RULES_PROMPT,
-          CHARACTER_RULES_PROMPT,
-          COMBAT_RULES_PROMPT,
-          EXPLORATION_RULES_PROMPT,
-          DM_ACTIONS_SCHEMA_PROMPT,
-          VOICE_NARRATION_PROMPT
-        ].join('\n\n')
-      )
-    })
+  it('is exactly the seven-section join in narrative→char→combat→explore→social→actions→voice order', () => {
+    expect(prompt).toBe(
+      [
+        NARRATIVE_RULES_PROMPT,
+        CHARACTER_RULES_PROMPT,
+        COMBAT_RULES_PROMPT,
+        EXPLORATION_RULES_PROMPT,
+        SOCIAL_RULES_PROMPT,
+        DM_ACTIONS_SCHEMA_PROMPT,
+        VOICE_NARRATION_PROMPT
+      ].join('\n\n')
+    )
   })
 
-  describe('social mode', () => {
-    const prompt = assembleSystemPrompt('social')
-
-    it('includes narrative, social, and DM-actions sections', () => {
-      expect(prompt).toContain(HDR_NARRATIVE)
-      expect(prompt).toContain(HDR_SOCIAL)
-      expect(prompt).toContain(HDR_DM_ACTIONS)
-    })
-
-    it('includes character + combat rules (sheet enforcement is universal) but omits exploration', () => {
-      expect(prompt).toContain(HDR_CHARACTER)
-      expect(prompt).toContain(HDR_COMBAT)
-      expect(prompt).not.toContain(HDR_EXPLORATION)
-    })
-
-    it('is exactly narrative + character + combat + social + DM-actions + voice', () => {
-      expect(prompt).toBe(
-        [
-          NARRATIVE_RULES_PROMPT,
-          CHARACTER_RULES_PROMPT,
-          COMBAT_RULES_PROMPT,
-          SOCIAL_RULES_PROMPT,
-          DM_ACTIONS_SCHEMA_PROMPT,
-          VOICE_NARRATION_PROMPT
-        ].join('\n\n')
-      )
-    })
+  it('starts with the narrative section', () => {
+    expect(prompt.startsWith(NARRATIVE_RULES_PROMPT)).toBe(true)
   })
 
-  describe('general mode', () => {
-    const prompt = assembleSystemPrompt('general')
-
-    it('includes every section', () => {
-      expect(prompt).toContain(HDR_NARRATIVE)
-      expect(prompt).toContain(HDR_CHARACTER)
-      expect(prompt).toContain(HDR_COMBAT)
-      expect(prompt).toContain(HDR_EXPLORATION)
-      expect(prompt).toContain(HDR_SOCIAL)
-      expect(prompt).toContain(HDR_DM_ACTIONS)
-    })
-
-    it('is exactly all sections joined in narrative→char→combat→explore→social→actions→voice order', () => {
-      expect(prompt).toBe(
-        [
-          NARRATIVE_RULES_PROMPT,
-          CHARACTER_RULES_PROMPT,
-          COMBAT_RULES_PROMPT,
-          EXPLORATION_RULES_PROMPT,
-          SOCIAL_RULES_PROMPT,
-          DM_ACTIONS_SCHEMA_PROMPT,
-          VOICE_NARRATION_PROMPT
-        ].join('\n\n')
-      )
-    })
-
-    it('includes the optional voice-tags section', () => {
-      expect(prompt).toContain(HDR_VOICE)
-    })
-
-    it('matches the no-argument default (general)', () => {
-      expect(assembleSystemPrompt()).toBe(prompt)
-    })
-
-    it('matches the default branch for an unknown mode value', () => {
-      // Defensive: an out-of-band mode string must fall through to the default
-      // (all-sections) branch rather than producing only the narrative prefix.
-      const unknown = assembleSystemPrompt('mystery' as unknown as GameMode)
-      expect(unknown).toBe(prompt)
-    })
+  it('ends with the voice-tags section', () => {
+    expect(prompt.endsWith(VOICE_NARRATION_PROMPT)).toBe(true)
   })
 
-  describe('ordering invariants (all modes)', () => {
-    const modes: GameMode[] = ['combat', 'exploration', 'social', 'general']
+  it('places DM-actions before the voice-tags trailer', () => {
+    expect(prompt.indexOf(HDR_DM_ACTIONS)).toBeLessThan(prompt.indexOf(HDR_VOICE))
+  })
 
-    it('always leads with the narrative section', () => {
-      for (const mode of modes) {
-        expect(assembleSystemPrompt(mode).startsWith(NARRATIVE_RULES_PROMPT)).toBe(true)
-      }
-    })
-
-    it('always ends with the voice-tags section (the new trailer after DM-actions)', () => {
-      for (const mode of modes) {
-        expect(assembleSystemPrompt(mode).endsWith(VOICE_NARRATION_PROMPT)).toBe(true)
-      }
-    })
-
-    it('places narrative before DM-actions in every mode', () => {
-      for (const mode of modes) {
-        const prompt = assembleSystemPrompt(mode)
-        expect(prompt.indexOf(HDR_NARRATIVE)).toBeLessThan(prompt.indexOf(HDR_DM_ACTIONS))
-      }
-    })
+  it('is deterministic (same output every call — a stable cacheable prefix)', () => {
+    expect(assembleSystemPrompt()).toBe(prompt)
   })
 })

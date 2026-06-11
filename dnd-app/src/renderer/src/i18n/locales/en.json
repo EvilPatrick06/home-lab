@@ -3034,17 +3034,15 @@
       "paces": {
         "fast": {
           "name": "Fast",
-          "effect0": "-5 to passive Perception",
-          "effect1": "Disadvantage on Perception, Survival, and Stealth checks"
+          "effect0": "Disadvantage on Wisdom (Perception or Survival) and Dexterity (Stealth) checks"
         },
         "normal": {
           "name": "Normal",
-          "effect0": "Disadvantage on Stealth checks"
+          "effect0": "Disadvantage on Dexterity (Stealth) checks"
         },
         "slow": {
           "name": "Slow",
-          "effect0": "Advantage on Perception and Survival checks",
-          "effect1": "Can use Stealth"
+          "effect0": "Advantage on Wisdom (Perception or Survival) checks"
         }
       }
     },

@@ -14,7 +14,7 @@ import { validateStatChanges } from '../ai/ai-schemas'
 import type { AiConnectionStatus, StreamResult } from '../ai/ai-service'
 import * as aiService from '../ai/ai-service'
 import { type GameStateSnapshot, processStateUpdate } from '../ai/ai-trigger-observer'
-import { analyzeMapState, captureMapScreenshot, type MapStateForVisionAnalysis } from '../ai/ai-vision'
+import { analyzeMapState, type MapStateForVisionAnalysis } from '../ai/ai-vision'
 import { setClaudeApiKey } from '../ai/claude-client'
 import { buildContext, getLastTokenBreakdown } from '../ai/context-builder'
 import type { DmAction } from '../ai/dm-actions'
@@ -689,17 +689,7 @@ export function registerAiHandlers(): void {
     }
   })
 
-  // ── AI Vision / Map Analysis ──
-
-  handle(IPC_CHANNELS.AI_CAPTURE_MAP, async () => {
-    try {
-      const buffer = await captureMapScreenshot()
-      if (!buffer) return { success: false, error: 'No window available' }
-      return { success: true, data: buffer.toString('base64') }
-    } catch (error) {
-      return { success: false, error: (error as Error).message }
-    }
-  })
+  // ── AI Vision / Map Analysis (text-only — PHASE-11 11H) ──
 
   handle(IPC_CHANNELS.AI_ANALYZE_MAP, async (_event, gameState: Record<string, unknown>) => {
     try {

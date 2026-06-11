@@ -15,7 +15,7 @@ const PACES = [
     perHour: '4 miles',
     perDay: '30 miles',
     milesPerHour: 4,
-    effects: ['-5 to passive Perception', 'Disadvantage on Perception, Survival, and Stealth checks'],
+    effects: ['Disadvantage on Wisdom (Perception or Survival) and Dexterity (Stealth) checks'],
     color: 'text-red-400',
     borderColor: 'border-red-500/40',
     bgColor: 'bg-red-900/20'
@@ -27,7 +27,7 @@ const PACES = [
     perHour: '3 miles',
     perDay: '24 miles',
     milesPerHour: 3,
-    effects: ['Disadvantage on Stealth checks'],
+    effects: ['Disadvantage on Dexterity (Stealth) checks'],
     color: 'text-accent',
     borderColor: 'border-amber-500/40',
     bgColor: 'bg-amber-900/20'
@@ -39,7 +39,7 @@ const PACES = [
     perHour: '2 miles',
     perDay: '18 miles',
     milesPerHour: 2,
-    effects: ['Advantage on Perception and Survival checks', 'Can use Stealth'],
+    effects: ['Advantage on Wisdom (Perception or Survival) checks'],
     color: 'text-green-400',
     borderColor: 'border-green-500/40',
     bgColor: 'bg-green-900/20'

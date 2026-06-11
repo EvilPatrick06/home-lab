@@ -3,7 +3,7 @@
  * Run `npm run i18n:gen-keys` (scripts/i18n/gen-key-union.mjs) to regenerate
  * after changing en.json. Source: src/renderer/src/i18n/locales/en.json.
  *
- * A literal union of every dotted leaf key in en.json (6086 keys),
+ * A literal union of every dotted leaf key in en.json (6084 keys),
  * so `t()` calls are checked at compile time instead of silently rendering a
  * raw key string when a key is typo'd or missing.
  */
@@ -3706,12 +3706,10 @@ export type TranslationKey =
   | 'game.travelPaceModal.miles'
   | 'game.travelPaceModal.paceLabel'
   | 'game.travelPaceModal.paces.fast.effect0'
-  | 'game.travelPaceModal.paces.fast.effect1'
   | 'game.travelPaceModal.paces.fast.name'
   | 'game.travelPaceModal.paces.normal.effect0'
   | 'game.travelPaceModal.paces.normal.name'
   | 'game.travelPaceModal.paces.slow.effect0'
-  | 'game.travelPaceModal.paces.slow.effect1'
   | 'game.travelPaceModal.paces.slow.name'
   | 'game.travelPaceModal.perDay'
   | 'game.travelPaceModal.perHour'

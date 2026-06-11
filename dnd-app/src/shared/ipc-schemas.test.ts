@@ -129,6 +129,28 @@ describe('ipc-schemas', () => {
       expect(result.success).toBe(true)
     })
 
+    it('round-trips actingCharacterId (PHASE-11 11F)', () => {
+      const result = AiChatRequestSchema.safeParse({
+        campaignId: 'id',
+        message: 'Hi',
+        characterIds: ['c1'],
+        actingCharacterId: 'c1'
+      })
+      expect(result.success).toBe(true)
+      expect(result.success && result.data.actingCharacterId).toBe('c1')
+    })
+
+    it('still strips genuinely unknown keys', () => {
+      const result = AiChatRequestSchema.safeParse({
+        campaignId: 'id',
+        message: 'Hi',
+        characterIds: ['c1'],
+        bogusField: 'nope'
+      })
+      expect(result.success).toBe(true)
+      expect(result.success && 'bogusField' in result.data).toBe(false)
+    })
+
     it('should reject missing campaignId', () => {
       const result = AiChatRequestSchema.safeParse({
         message: 'Hello',

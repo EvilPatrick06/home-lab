@@ -764,6 +764,41 @@ describe('DM action schema ↔ executor contract', () => {
   })
 })
 
+// ── DM action schema ↔ main-process DmAction union contract (PHASE-11 11A) ──
+// Sync point #4: the hand-written `DmAction` discriminated union in dm-actions.ts must
+// stay in lockstep with DM_ACTION_SCHEMAS so a schema-validated action always has a
+// compile-time variant (and vice versa). `light_source`/`extinguish_source` were the
+// gap that motivated this gate.
+describe('DM action schema ↔ DmAction union contract', () => {
+  const unionActions = (() => {
+    const code = readFileSync(resolve(__dirname, 'dm-actions.ts'), 'utf-8')
+    const start = code.indexOf('export type DmAction =')
+    const end = code.indexOf('export interface DmActionParseResult')
+    return new Set([...code.slice(start, end).matchAll(/action: '([a-z_]+)'/g)].map((m) => m[1]))
+  })()
+  const schemaKeys = Object.keys(DM_ACTION_SCHEMAS)
+
+  it('sanity: extracted a plausible union (read not broken)', () => {
+    expect(unionActions.size).toBeGreaterThan(100)
+    expect(unionActions.has('place_creature')).toBe(true)
+  })
+
+  it('every DM_ACTION_SCHEMAS action has a DmAction union variant', () => {
+    const missing = schemaKeys.filter((k) => !unionActions.has(k))
+    expect(missing).toEqual([])
+  })
+
+  it('every DmAction union variant has a schema', () => {
+    const missing = [...unionActions].filter((a) => !schemaKeys.includes(a))
+    expect(missing).toEqual([])
+  })
+
+  it('includes the lighting actions (the gap this gate closes)', () => {
+    expect(unionActions.has('light_source')).toBe(true)
+    expect(unionActions.has('extinguish_source')).toBe(true)
+  })
+})
+
 describe('place_creature requires a name or id (Phase contract)', () => {
   const base = { action: 'place_creature' as const, gridX: 1, gridY: 2 }
 

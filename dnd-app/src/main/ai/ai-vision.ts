@@ -1,6 +1,11 @@
-import { BrowserWindow } from 'electron'
 import { logToFile } from '../log'
 import { getActiveProvider, getActiveProviderType } from './provider-registry'
+
+// PHASE-11 11H — map analysis is deliberately TEXT-ONLY. The structured token-position
+// description below carries exact grid/HP/AC/condition data no screenshot can; real image
+// wiring would require multimodal-trained models + per-provider image-content support
+// (the app's defaults are text-only). The old code captured + base64-encoded a screenshot
+// it never sent, then told the model an image existed — that misleading sentence is gone.
 
 // ── Types ──
 
@@ -27,29 +32,6 @@ interface VisionAnalysisResult {
   success: boolean
   analysis?: string
   error?: string
-}
-
-// ── Screenshot Capture ──
-
-/**
- * Capture the current map view as a PNG buffer using Electron's capturePage API.
- */
-export async function captureMapScreenshot(): Promise<Buffer | null> {
-  const win = BrowserWindow.getAllWindows()[0]
-  if (!win) {
-    logToFile('warn', '[AI Vision] No window available for screenshot capture')
-    return null
-  }
-
-  try {
-    const image = await win.webContents.capturePage()
-    const pngBuffer = image.toPNG()
-    logToFile('info', `[AI Vision] Captured screenshot: ${pngBuffer.length} bytes`)
-    return Buffer.from(pngBuffer)
-  } catch (error) {
-    logToFile('error', `[AI Vision] Screenshot capture failed: ${(error as Error).message}`)
-    return null
-  }
 }
 
 /**
@@ -97,15 +79,9 @@ function captureTokenPositions(gameState: {
 }
 
 /**
- * Encode a screenshot as base64 and pair with structured token position data
- * for sending to a vision-capable LLM.
+ * Build the structured text description of the map state sent to the LLM.
  */
-function encodeForVision(
-  screenshot: Buffer | null,
-  tokenData: MapStateData | null
-): { imageBase64: string | null; textDescription: string } {
-  const imageBase64 = screenshot ? screenshot.toString('base64') : null
-
+function buildMapStateDescription(tokenData: MapStateData | null): string {
   let textDescription = 'Current map state:\n'
 
   if (tokenData) {
@@ -127,7 +103,7 @@ function encodeForVision(
     textDescription += '  (no active map)\n'
   }
 
-  return { imageBase64, textDescription }
+  return textDescription
 }
 
 /**
@@ -155,9 +131,8 @@ export async function analyzeMapState(gameState: {
   activeMapId: string | null
 }): Promise<VisionAnalysisResult> {
   try {
-    const screenshot = await captureMapScreenshot()
     const tokenData = captureTokenPositions(gameState)
-    const { imageBase64, textDescription } = encodeForVision(screenshot, tokenData)
+    const textDescription = buildMapStateDescription(tokenData)
 
     const provider = getActiveProvider()
     const providerType = getActiveProviderType()
@@ -174,15 +149,7 @@ export async function analyzeMapState(gameState: {
       'Keep the analysis concise and actionable. Use D&D terminology.'
     ].join('\n')
 
-    // Build the user message with the text description
-    // Note: vision (image) support varies by provider. We always send the text description.
-    // If the provider supports vision, the image would be included in the message.
-    let userMessage = `Analyze this battle map:\n\n${textDescription}`
-
-    if (imageBase64) {
-      // For providers that support vision, include image reference
-      userMessage += '\n(A screenshot of the map has been captured for reference.)'
-    }
+    const userMessage = `Analyze this battle map:\n\n${textDescription}`
 
     logToFile('info', `[AI Vision] Analyzing map state with ${providerType}`)
 

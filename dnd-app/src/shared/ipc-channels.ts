@@ -125,7 +125,6 @@ export const IPC_CHANNELS = {
   AI_GENERATE_END_OF_SESSION_RECAP: 'ai:generate-end-of-session-recap',
 
   // === AI DM: Vision / Map Analysis ===
-  AI_CAPTURE_MAP: 'ai:capture-map',
   AI_ANALYZE_MAP: 'ai:analyze-map',
 
   // === AI DM: Proactive Triggers ===

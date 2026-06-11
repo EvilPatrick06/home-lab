@@ -305,7 +305,6 @@ interface AiAPI {
   readMemoryFile: (campaignId: string, fileName: string) => Promise<string>
   clearMemory: (campaignId: string) => Promise<void>
   // Vision / Map Analysis
-  captureMap: () => Promise<{ success: boolean; data?: string; error?: string }>
   analyzeMap: (gameState: Record<string, unknown>) => Promise<{
     success: boolean
     analysis?: string

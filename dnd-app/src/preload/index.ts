@@ -164,7 +164,6 @@ const api = {
       ipcRenderer.invoke(IPC_CHANNELS.AI_READ_MEMORY_FILE, campaignId, fileName),
     clearMemory: (campaignId: string) => ipcRenderer.invoke(IPC_CHANNELS.AI_CLEAR_MEMORY, campaignId),
     // Vision / Map Analysis
-    captureMap: () => ipcRenderer.invoke(IPC_CHANNELS.AI_CAPTURE_MAP),
     analyzeMap: (gameState: Record<string, unknown>) => ipcRenderer.invoke(IPC_CHANNELS.AI_ANALYZE_MAP, gameState),
     // Proactive Triggers
     triggerStateUpdate: (state: Record<string, unknown>) =>

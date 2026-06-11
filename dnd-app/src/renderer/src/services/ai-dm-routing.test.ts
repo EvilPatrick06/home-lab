@@ -23,7 +23,7 @@ vi.mock('./game/token-stats', () => ({ getTokenStats: () => ({}) }))
 vi.mock('../utils/logger', () => ({ logger: { warn: vi.fn() } }))
 vi.mock('./game-action-executor', () => ({ buildGameStateSnapshot: () => 'SNAPSHOT' }))
 
-import { buildPlayerRoster, routePlayerMessageToAiDm } from './ai-dm-routing'
+import { buildPlayerRoster, resolveActingCharacterId, routePlayerMessageToAiDm } from './ai-dm-routing'
 
 const cp = (p: Partial<CampaignPlayer>): CampaignPlayer => p as CampaignPlayer
 
@@ -74,18 +74,68 @@ describe('routePlayerMessageToAiDm', () => {
   })
   afterEach(() => vi.restoreAllMocks())
 
-  it('sends the message to the AI DM with roster + game-state appended', async () => {
+  it('sends the message to the AI DM with roster + game-state + acting char appended', async () => {
     routePlayerMessageToAiDm('camp-1', 'I open the door', 'Pat', [
       cp({ displayName: 'Pat', characterId: 'c1', isActive: true })
     ])
     // The async dynamic-import chain resolves on a microtask.
     await vi.waitFor(() => expect(sendMessage).toHaveBeenCalledTimes(1))
-    const [campaignId, message, charIds, senderName, _creatures, gameState] = sendMessage.mock.calls[0]
+    const [campaignId, message, charIds, senderName, _creatures, gameState, actingCharacterId] =
+      sendMessage.mock.calls[0]
     expect(campaignId).toBe('camp-1')
     expect(message).toBe('I open the door')
     expect(charIds).toEqual(['c1'])
     expect(senderName).toBe('Pat')
     expect(gameState).toContain('SNAPSHOT')
     expect(gameState).toContain('[PARTY ROSTER]')
+    // PHASE-11 11F — the sender's own character is the actor (7th arg).
+    expect(actingCharacterId).toBe('c1')
+  })
+})
+
+describe('resolveActingCharacterId (PHASE-11 11F)', () => {
+  it('prefers a lobby player whose displayName matches the sender', () => {
+    const id = resolveActingCharacterId(
+      'Pat',
+      [
+        { displayName: 'Pat', characterId: 'c1' },
+        { displayName: 'Sam', characterId: 'c2' }
+      ],
+      []
+    )
+    expect(id).toBe('c1')
+  })
+
+  it('falls back to an active campaign player by name when no lobby', () => {
+    const id = resolveActingCharacterId(
+      'Sam',
+      [],
+      [
+        cp({ displayName: 'Sam', characterId: 'c2', isActive: true }),
+        cp({ displayName: 'Pat', characterId: 'c1', isActive: true })
+      ]
+    )
+    expect(id).toBe('c2')
+  })
+
+  it('returns the single roster member even when the name does not match (solo)', () => {
+    const id = resolveActingCharacterId(
+      'SomeOtherName',
+      [],
+      [cp({ displayName: 'Hero', characterId: 'solo-1', isActive: true })]
+    )
+    expect(id).toBe('solo-1')
+  })
+
+  it('returns undefined for an unknown sender in a 2+ roster', () => {
+    const id = resolveActingCharacterId(
+      'Ghost',
+      [
+        { displayName: 'Pat', characterId: 'c1' },
+        { displayName: 'Sam', characterId: 'c2' }
+      ],
+      []
+    )
+    expect(id).toBeUndefined()
   })
 })

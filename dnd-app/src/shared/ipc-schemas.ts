@@ -27,6 +27,9 @@ export const AiChatRequestSchema = z.object({
   campaignId: z.string(),
   message: z.string(),
   characterIds: z.array(z.string()),
+  // PHASE-11 11F — the acting character (sender's own) gets a full sheet; others get
+  // an abbreviated one-liner. Was being stripped here (zod drops unknown keys).
+  actingCharacterId: z.string().optional(),
   senderName: z.string().optional(),
   activeCreatures: z.array(ActiveCreatureSchema).optional(),
   gameState: z.string().optional()
