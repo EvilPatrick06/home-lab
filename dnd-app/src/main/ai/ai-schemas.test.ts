@@ -376,6 +376,14 @@ describe('validateDmActions', () => {
     expect(issues).toHaveLength(0)
   })
 
+  it('preserves the apply_area_effect direction through parse (08I — was zod-stripped)', () => {
+    const { valid } = validateDmActions([
+      { action: 'apply_area_effect', shape: 'line', originX: 0, originY: 0, radiusOrLength: 6, direction: 90 }
+    ])
+    expect(valid).toHaveLength(1)
+    expect((valid[0] as { direction?: number }).direction).toBe(90)
+  })
+
   it('validates query_aoe preview action', () => {
     const { valid, issues } = validateDmActions([
       { action: 'query_aoe', shape: 'cone', originX: 5, originY: 5, radiusOrLength: 15, direction: 90 }

@@ -1,4 +1,5 @@
 import { getTokenStats, lookupTokenStatBlock } from '../services/game/token-stats'
+import { resolveTokenByLabel } from '../services/game-actions/name-resolver'
 import type { GameMap, MapToken } from '../types/map'
 
 interface CreatureStatChange {
@@ -46,7 +47,8 @@ export function applyCreatureMutations(
       continue
     }
 
-    const token = activeMap.tokens.find((t) => t.label.toLowerCase() === label.toLowerCase())
+    // 08E — same exact-then-prefix resolution as DM actions ("Goblin" matches "Goblin 1").
+    const token = resolveTokenByLabel(activeMap.tokens, label)
 
     if (!token) {
       results.push({ change, applied: false, reason: `Token not found: ${label}` })

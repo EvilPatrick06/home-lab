@@ -5101,6 +5101,8 @@
       "mutationApplyFailed": "No se pudo aplicar la mutación de la IA: {{reason}}",
       "mutationRejected": "Se rechazaron {{count}} cambio(s) de la IA: {{reasons}}",
       "mutationUnknownCharacter": "La IA intentó modificar un personaje desconocido \"{{name}}\" — cambio omitido",
+      "creatureMutationFailed": "Cambio de criatura de la IA {{type}} en \"{{target}}\" no aplicado — {{reason}}",
+      "creatureMutationsNoMap": "{{count}} cambio(s) de criatura de la IA omitido(s) — no hay mapa activo",
       "modelSwitched": "El modelo de IA \"{{from}}\" no está instalado — se cambió a \"{{to}}\". Para usar \"{{from}}\", ejecuta: ollama pull {{from}}",
       "modelAutoSelected": "No se configuró ningún modelo de IA — usando el modelo instalado \"{{to}}\".",
       "aiDmError": "DM con IA: {{error}}",

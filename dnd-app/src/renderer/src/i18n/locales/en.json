@@ -5101,6 +5101,8 @@
       "mutationApplyFailed": "AI mutation failed to apply: {{reason}}",
       "mutationRejected": "{{count}} AI change(s) were rejected: {{reasons}}",
       "mutationUnknownCharacter": "AI tried to modify unknown character \"{{name}}\" — change skipped",
+      "creatureMutationFailed": "AI creature change {{type}} on \"{{target}}\" not applied — {{reason}}",
+      "creatureMutationsNoMap": "{{count}} AI creature change(s) skipped — no active map",
       "modelSwitched": "AI model \"{{from}}\" isn't installed — switched to \"{{to}}\". To use \"{{from}}\", run: ollama pull {{from}}",
       "modelAutoSelected": "No AI model was set — using installed model \"{{to}}\".",
       "aiDmError": "AI DM: {{error}}",

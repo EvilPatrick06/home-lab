@@ -15,17 +15,19 @@ vi.mock('./name-resolver', () => ({
 }))
 
 // Mock bastion store dynamic import
+const bastionStoreState = {
+  bastions: [] as unknown[],
+  advanceTime: vi.fn(),
+  issueOrder: vi.fn(),
+  depositGold: vi.fn(),
+  withdrawGold: vi.fn(),
+  recruitDefenders: vi.fn(),
+  addCreature: vi.fn(),
+  startTurn: vi.fn(),
+  rollAndResolveEvent: vi.fn()
+}
 vi.mock('../../stores/use-bastion-store', () => ({
-  useBastionStore: {
-    getState: vi.fn(() => ({
-      bastions: [],
-      advanceTime: vi.fn(),
-      issueOrder: vi.fn(),
-      depositGold: vi.fn(),
-      withdrawGold: vi.fn(),
-      recruitDefenders: vi.fn()
-    }))
-  }
+  useBastionStore: { getState: vi.fn(() => bastionStoreState) }
 }))
 
 // Mock window.api
@@ -44,6 +46,7 @@ vi.stubGlobal('window', {
 // Provide crypto.randomUUID
 vi.stubGlobal('crypto', { randomUUID: () => 'test-uuid-effect' })
 
+import * as nameResolver from './name-resolver'
 import type { DmAction, StoreAccessors } from './types'
 
 function makeStores(): StoreAccessors {
@@ -203,7 +206,7 @@ describe('effect-actions', () => {
       const { executeAddShopItem } = await import('./effect-actions')
       const gs = makeGameStore()
       const action: DmAction = { action: 'add_shop_item', name: 'Sword', price: { gp: 15 }, quantity: 1 }
-      expect(executeAddShopItem(action, gs)).toBe(true)
+      expect(executeAddShopItem(action, gs, undefined, stores)).toBe(true)
       expect(gs.addShopItem).toHaveBeenCalledWith(expect.objectContaining({ name: 'Sword', category: 'General' }))
     })
   })
@@ -241,6 +244,80 @@ describe('effect-actions', () => {
       const gs = makeGameStore()
       const action: DmAction = { action: 'remove_shop_item', name: 'Nonexistent' }
       expect(() => executeRemoveShopItem(action, gs, undefined, storesNoItem)).toThrow('Shop item not found')
+    })
+  })
+
+  // 08F — shop verbs broadcast the POST-mutation inventory (read fresh, not the snapshot).
+  describe('shop broadcasts fresh inventory (08F)', () => {
+    function makeShopFixture() {
+      const state = {
+        shopInventory: [] as Array<{ id: string; name: string }>,
+        shopName: '',
+        openShop: (name: string) => {
+          state.shopName = name
+        },
+        setShopInventory: (items: Array<{ id: string; name: string }>) => {
+          state.shopInventory = items
+        },
+        addShopItem: (item: { id: string; name: string }) => {
+          state.shopInventory.push(item)
+        },
+        removeShopItem: (id: string) => {
+          state.shopInventory = state.shopInventory.filter((i) => i.id !== id)
+        }
+      }
+      const sendMessage = vi.fn()
+      const s = {
+        getGameStore: () => ({ getState: () => state }),
+        getNetworkStore: () => ({ getState: () => ({ sendMessage }) }),
+        getLobbyStore: () => ({ getState: () => ({ addChatMessage: vi.fn(), players: [] }) })
+      } as unknown as StoreAccessors
+      return { state, sendMessage, stores: s }
+    }
+    const shopUpdates = (sendMessage: ReturnType<typeof vi.fn>) =>
+      sendMessage.mock.calls.filter(([ch]) => ch === 'dm:shop-update')
+
+    it('open_shop broadcasts the JUST-SET inventory (not the stale snapshot)', async () => {
+      const { executeOpenShop } = await import('./effect-actions')
+      const { state, sendMessage, stores: s } = makeShopFixture()
+      executeOpenShop(
+        {
+          action: 'open_shop',
+          name: 'Emporium',
+          items: [{ name: 'Potion', category: 'Potion', price: { gp: 50 }, quantity: 1 }]
+        } as DmAction,
+        state as never,
+        undefined,
+        s
+      )
+      const updates = shopUpdates(sendMessage)
+      expect(updates).toHaveLength(1)
+      expect(updates[0][1].shopInventory).toHaveLength(1)
+      expect(updates[0][1].shopInventory[0].name).toBe('Potion')
+    })
+
+    it('add_shop_item broadcasts exactly one update carrying the new item', async () => {
+      const { executeAddShopItem } = await import('./effect-actions')
+      const { state, sendMessage, stores: s } = makeShopFixture()
+      executeAddShopItem(
+        { action: 'add_shop_item', name: 'Sword', price: { gp: 15 } } as DmAction,
+        state as never,
+        undefined,
+        s
+      )
+      const updates = shopUpdates(sendMessage)
+      expect(updates).toHaveLength(1)
+      expect(updates[0][1].shopInventory.some((i: { name: string }) => i.name === 'Sword')).toBe(true)
+    })
+
+    it('remove_shop_item broadcasts exactly one update with the item gone', async () => {
+      const { executeRemoveShopItem } = await import('./effect-actions')
+      const { state, sendMessage, stores: s } = makeShopFixture()
+      state.shopInventory = [{ id: 'rope-1', name: 'Rope' }]
+      executeRemoveShopItem({ action: 'remove_shop_item', name: 'Rope' } as DmAction, state as never, undefined, s)
+      const updates = shopUpdates(sendMessage)
+      expect(updates).toHaveLength(1)
+      expect(updates[0][1].shopInventory).toHaveLength(0)
     })
   })
 
@@ -397,19 +474,19 @@ describe('effect-actions', () => {
     it('returns true and triggers bastion advance', async () => {
       const { executeBastionAdvanceTime } = await import('./effect-actions')
       const action: DmAction = { action: 'bastion_advance_time', days: 7, bastionOwner: 'Aria' }
-      expect(executeBastionAdvanceTime(action)).toBe(true)
+      expect(executeBastionAdvanceTime(action, makeGameStore(), undefined, stores)).toBe(true)
     })
 
     it('throws if days is invalid', async () => {
       const { executeBastionAdvanceTime } = await import('./effect-actions')
       const action: DmAction = { action: 'bastion_advance_time', days: -1, bastionOwner: 'Aria' }
-      expect(() => executeBastionAdvanceTime(action)).toThrow('Invalid days')
+      expect(() => executeBastionAdvanceTime(action, makeGameStore(), undefined, stores)).toThrow('Invalid days')
     })
 
     it('throws if days is not a number', async () => {
       const { executeBastionAdvanceTime } = await import('./effect-actions')
       const action: DmAction = { action: 'bastion_advance_time', days: 'many', bastionOwner: 'Aria' }
-      expect(() => executeBastionAdvanceTime(action)).toThrow('Invalid days')
+      expect(() => executeBastionAdvanceTime(action, makeGameStore(), undefined, stores)).toThrow('Invalid days')
     })
   })
 
@@ -422,13 +499,15 @@ describe('effect-actions', () => {
         facilityName: 'Workshop',
         orderType: 'craft'
       }
-      expect(executeBastionIssueOrder(action)).toBe(true)
+      expect(executeBastionIssueOrder(action, makeGameStore(), undefined, stores)).toBe(true)
     })
 
     it('throws if params missing', async () => {
       const { executeBastionIssueOrder } = await import('./effect-actions')
       const action: DmAction = { action: 'bastion_issue_order', bastionOwner: '', facilityName: '', orderType: '' }
-      expect(() => executeBastionIssueOrder(action)).toThrow('Missing bastion order params')
+      expect(() => executeBastionIssueOrder(action, makeGameStore(), undefined, stores)).toThrow(
+        'Missing bastion order params'
+      )
     })
   })
 
@@ -436,13 +515,15 @@ describe('effect-actions', () => {
     it('returns true with valid params', async () => {
       const { executeBastionDepositGold } = await import('./effect-actions')
       const action: DmAction = { action: 'bastion_deposit_gold', bastionOwner: 'Aria', amount: 100 }
-      expect(executeBastionDepositGold(action)).toBe(true)
+      expect(executeBastionDepositGold(action, makeGameStore(), undefined, stores)).toBe(true)
     })
 
     it('throws if params missing', async () => {
       const { executeBastionDepositGold } = await import('./effect-actions')
       const action: DmAction = { action: 'bastion_deposit_gold', bastionOwner: '', amount: 'lots' }
-      expect(() => executeBastionDepositGold(action)).toThrow('Missing bastion deposit params')
+      expect(() => executeBastionDepositGold(action, makeGameStore(), undefined, stores)).toThrow(
+        'Missing bastion deposit params'
+      )
     })
   })
 
@@ -450,22 +531,15 @@ describe('effect-actions', () => {
     it('returns true with valid params', async () => {
       const { executeBastionWithdrawGold } = await import('./effect-actions')
       const action: DmAction = { action: 'bastion_withdraw_gold', bastionOwner: 'Aria', amount: 50 }
-      expect(executeBastionWithdrawGold(action)).toBe(true)
+      expect(executeBastionWithdrawGold(action, makeGameStore(), undefined, stores)).toBe(true)
     })
 
     it('throws if params missing', async () => {
       const { executeBastionWithdrawGold } = await import('./effect-actions')
       const action: DmAction = { action: 'bastion_withdraw_gold', bastionOwner: '', amount: undefined }
-      expect(() => executeBastionWithdrawGold(action)).toThrow('Missing bastion withdraw params')
-    })
-  })
-
-  describe('executeBastionResolveEvent', () => {
-    it('posts a chat message about the event', async () => {
-      const { executeBastionResolveEvent } = await import('./effect-actions')
-      const gs = makeGameStore()
-      const action: DmAction = { action: 'bastion_resolve_event', eventType: 'attack', bastionOwner: 'Aria' }
-      expect(executeBastionResolveEvent(action, gs, undefined, stores)).toBe(true)
+      expect(() => executeBastionWithdrawGold(action, makeGameStore(), undefined, stores)).toThrow(
+        'Missing bastion withdraw params'
+      )
     })
   })
 
@@ -478,13 +552,86 @@ describe('effect-actions', () => {
         facilityName: 'Barracks',
         names: ['Guard 1', 'Guard 2']
       }
-      expect(executeBastionRecruit(action)).toBe(true)
+      expect(executeBastionRecruit(action, makeGameStore(), undefined, stores)).toBe(true)
     })
 
     it('throws if params missing', async () => {
       const { executeBastionRecruit } = await import('./effect-actions')
       const action: DmAction = { action: 'bastion_recruit', bastionOwner: '', facilityName: '', names: 'bad' }
-      expect(() => executeBastionRecruit(action)).toThrow('Missing bastion recruit params')
+      expect(() => executeBastionRecruit(action, makeGameStore(), undefined, stores)).toThrow(
+        'Missing bastion recruit params'
+      )
+    })
+  })
+
+  // 08J — implemented verbs do real store work; not-found posts a ⚠️ chat line.
+  describe('bastion add_creature + resolve_event (08J)', () => {
+    const tick = () => new Promise((r) => setTimeout(r, 0))
+    beforeEach(() => {
+      bastionStoreState.addCreature.mockClear()
+      bastionStoreState.startTurn.mockClear()
+      bastionStoreState.rollAndResolveEvent.mockClear()
+      bastionStoreState.bastions = []
+      vi.mocked(nameResolver.findBastionByOwnerName).mockReturnValue(undefined as never)
+    })
+
+    it('add_creature adds a MenagerieCreature with defaults to the named facility', async () => {
+      vi.mocked(nameResolver.findBastionByOwnerName).mockReturnValue({
+        id: 'b1',
+        basicFacilities: [{ id: 'f1', name: 'Menagerie' }],
+        specialFacilities: []
+      } as never)
+      const { executeBastionAddCreature } = await import('./effect-actions')
+      executeBastionAddCreature(
+        {
+          action: 'bastion_add_creature',
+          bastionOwner: 'Aria',
+          facilityName: 'Menagerie',
+          creatureName: 'Wolf'
+        } as DmAction,
+        makeGameStore(),
+        undefined,
+        stores
+      )
+      await tick()
+      expect(bastionStoreState.addCreature).toHaveBeenCalledWith(
+        'b1',
+        'f1',
+        expect.objectContaining({ name: 'Wolf', creatureType: 'beast', size: 'medium', isDefender: false })
+      )
+    })
+
+    it('resolve_event opens a turn when none and rolls + resolves a real event', async () => {
+      vi.mocked(nameResolver.findBastionByOwnerName).mockReturnValue({
+        id: 'b1',
+        turns: [],
+        basicFacilities: [],
+        specialFacilities: []
+      } as never)
+      const { executeBastionResolveEvent } = await import('./effect-actions')
+      executeBastionResolveEvent(
+        { action: 'bastion_resolve_event', bastionOwner: 'Aria' } as DmAction,
+        makeGameStore(),
+        undefined,
+        stores
+      )
+      await tick()
+      expect(bastionStoreState.startTurn).toHaveBeenCalledWith('b1')
+      expect(bastionStoreState.rollAndResolveEvent).toHaveBeenCalledWith('b1', 1)
+    })
+
+    it('add_creature on an unknown owner posts a ⚠️ chat line and mutates nothing', async () => {
+      const { executeBastionAddCreature } = await import('./effect-actions')
+      executeBastionAddCreature(
+        { action: 'bastion_add_creature', bastionOwner: 'Ghost', facilityName: 'x', creatureName: 'y' } as DmAction,
+        makeGameStore(),
+        undefined,
+        stores
+      )
+      await tick()
+      expect(bastionStoreState.addCreature).not.toHaveBeenCalled()
+      const sent = (stores.getLobbyStore().getState().addChatMessage as ReturnType<typeof vi.fn>).mock.calls
+      expect(sent.some(([m]) => String(m.content).includes('not found'))).toBe(true)
     })
   })
 

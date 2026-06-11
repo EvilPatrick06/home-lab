@@ -1,7 +1,13 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { Bastion } from '../../types/bastion'
 import type { MapToken } from '../../types/map'
-import { findBastionByOwnerName, resolveMapByName, resolvePlayerByName, resolveTokenByLabel } from './name-resolver'
+import {
+  findBastionByOwnerName,
+  resolveCharacterIdByName,
+  resolveMapByName,
+  resolvePlayerByName,
+  resolveTokenByLabel
+} from './name-resolver'
 import type { StoreAccessors } from './types'
 
 function makeToken(overrides: Partial<MapToken>): MapToken {
@@ -192,5 +198,40 @@ describe('resolvePlayerByName', () => {
     // The find() will return the first match, which is peer-1 (characterName)
     const result = resolvePlayerByName('Fighter', stores)
     expect(result).toBe('peer-1')
+  })
+})
+
+// 08G — resolves the real CHARACTER id (not the transport peerId).
+describe('resolveCharacterIdByName', () => {
+  function makeStores(
+    players: Array<{ peerId: string; displayName: string; characterName?: string | null; characterId?: string | null }>
+  ): StoreAccessors {
+    return {
+      getGameStore: () => ({ getState: vi.fn() }) as any,
+      getLobbyStore: () => ({ getState: () => ({ players }) }) as any,
+      getNetworkStore: () => ({ getState: vi.fn() }) as any
+    }
+  }
+
+  it('returns the characterId on a displayName match (not the peerId)', () => {
+    const stores = makeStores([{ peerId: 'peer-1', displayName: 'Alice', characterId: 'char-aria' }])
+    expect(resolveCharacterIdByName('alice', stores)).toBe('char-aria')
+  })
+
+  it('returns the characterId on a characterName match', () => {
+    const stores = makeStores([
+      { peerId: 'peer-1', displayName: 'Alice', characterName: 'Elara', characterId: 'char-elara' }
+    ])
+    expect(resolveCharacterIdByName('elara', stores)).toBe('char-elara')
+  })
+
+  it('returns undefined when the matched player has no characterId', () => {
+    const stores = makeStores([{ peerId: 'peer-1', displayName: 'Alice', characterId: null }])
+    expect(resolveCharacterIdByName('alice', stores)).toBeUndefined()
+  })
+
+  it('returns undefined when no player matches', () => {
+    const stores = makeStores([{ peerId: 'peer-1', displayName: 'Alice', characterId: 'char-1' }])
+    expect(resolveCharacterIdByName('Nobody', stores)).toBeUndefined()
   })
 })

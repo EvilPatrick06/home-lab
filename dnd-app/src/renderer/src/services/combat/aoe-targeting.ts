@@ -156,8 +156,9 @@ export function getConeCells(
 /**
  * Line: extends from origin in a direction with a width.
  * PHB 2024: A line extends from its origin in a straight path up to its length.
+ * Exported (08I) for dice-helpers' direction-aware line targeting — mirrors getConeCells (LOG-5).
  */
-function getLineCells(
+export function getLineCells(
   originX: number,
   originY: number,
   lengthFt: number,

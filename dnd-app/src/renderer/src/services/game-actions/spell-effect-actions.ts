@@ -49,7 +49,7 @@ export function executeQueryAoe(
     shape,
     widthCells,
     action.direction as number | undefined
-  ).filter((t) => t.label !== excludeLabel)
+  ).filter((t) => t.label.toLowerCase() !== excludeLabel?.toLowerCase()) // 08I — case-insensitive
 
   const where = `${shape} (${size}ft) at (${originX}, ${originY})`
   const list = affected.length > 0 ? affected.map((t) => t.label).join(', ') : 'no tokens'
@@ -125,7 +125,10 @@ export function executeCastSpell(
       shape,
       undefined,
       action.direction as number | undefined
-    ).filter((t) => t.label !== caster)
+    )
+      // 08I — exclude the caster case-insensitively (resolved token wins; the AI may write a
+      // different-case caster label, which previously let a caster nuke themselves).
+      .filter((t) => t.label.toLowerCase() !== (casterToken?.label ?? caster).toLowerCase())
 
     for (const token of affected) {
       let saved = false

@@ -108,13 +108,26 @@ function applyStatChangesDirectly(
     import('../utils/creature-mutations')
       .then(({ applyCreatureMutations }) => {
         const gameStore = useGameStore.getState()
-        applyCreatureMutations(
+        const results = applyCreatureMutations(
           creatureChanges,
           activeMap,
           (mapId: string, tokenId: string, updates: Partial<MapToken>) => {
             gameStore.updateToken(mapId, tokenId, updates)
           }
         )
+        // 08E — surface every creature change that didn't apply (was silently discarded).
+        for (const r of results) {
+          if (!r.applied) {
+            pushDmAlert(
+              'warning',
+              i18n.t('notify.aiDmStore.creatureMutationFailed', {
+                type: r.change.type,
+                target: (r.change as { targetLabel?: string }).targetLabel ?? '?',
+                reason: r.reason ?? 'unknown'
+              })
+            )
+          }
+        }
       })
       .catch((err) => logger.error('[game-effects] creature-mutations import failed', err))
 
@@ -146,6 +159,9 @@ function applyStatChangesDirectly(
         })
         .catch((err) => logger.error('[game-effects] concentration check failed', err))
     }
+  } else if (creatureChanges.length > 0) {
+    // 08E — no active map: don't silently drop creature changes; tell the DM.
+    pushDmAlert('warning', i18n.t('notify.aiDmStore.creatureMutationsNoMap', { count: creatureChanges.length }))
   }
 }
 

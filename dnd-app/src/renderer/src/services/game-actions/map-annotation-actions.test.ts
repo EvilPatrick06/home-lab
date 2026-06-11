@@ -46,13 +46,24 @@ describe('map-annotation-actions', () => {
       )
     })
 
-    it('removes + clears drawings', async () => {
+    it('removes an existing drawing + clears all', async () => {
       const { executeRemoveDrawing, executeClearDrawings } = await import('./map-annotation-actions')
       const gs = makeGameStore()
-      executeRemoveDrawing({ action: 'remove_drawing', drawingId: 'd1' }, gs, map, stores)
+      const mapWithDrawing = { id: 'map-1', name: 'Test', tokens: [], drawings: [{ id: 'd1' }] } as unknown as ActiveMap
+      executeRemoveDrawing({ action: 'remove_drawing', drawingId: 'd1' }, gs, mapWithDrawing, stores)
       expect(gs.removeDrawing).toHaveBeenCalledWith('map-1', 'd1')
       executeClearDrawings({ action: 'clear_drawings' }, gs, map, stores)
       expect(gs.clearDrawings).toHaveBeenCalledWith('map-1')
+    })
+
+    it('throws (and never calls the store) when remove_drawing targets a missing id (08H)', async () => {
+      const { executeRemoveDrawing } = await import('./map-annotation-actions')
+      const gs = makeGameStore()
+      const mapWithDrawing = { id: 'map-1', name: 'Test', tokens: [], drawings: [{ id: 'd1' }] } as unknown as ActiveMap
+      expect(() =>
+        executeRemoveDrawing({ action: 'remove_drawing', drawingId: 'ghost' }, gs, mapWithDrawing, stores)
+      ).toThrow(/Drawing not found/)
+      expect(gs.removeDrawing).not.toHaveBeenCalled()
     })
 
     it('throws without an active map', async () => {

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useT } from '../../../i18n'
+import { enrichInitiativeEntry } from '../../../services/game-actions/initiative-enrichment'
 import { getDragPayload, hasLibraryDrag } from '../../../services/library/drag-data'
 import { play as playSound } from '../../../services/sound-manager'
 import { useGameStore } from '../../../stores/use-game-store'
@@ -185,15 +186,10 @@ export default function InitiativeTracker({
         const lr = parseInt(e.legendaryResistances, 10)
 
         // Use the token's entityId if available, otherwise generate a new one
-        let entityId: string
-        if (e.tokenId) {
-          const token = tokens?.find((t) => t.id === e.tokenId)
-          entityId = token?.entityId || crypto.randomUUID()
-        } else {
-          entityId = crypto.randomUUID()
-        }
+        const token = e.tokenId ? tokens?.find((t) => t.id === e.tokenId) : undefined
+        const entityId = token?.entityId || crypto.randomUUID()
 
-        return {
+        const entry: InitiativeEntry = {
           id: crypto.randomUUID(),
           entityId,
           entityName: e.surprised ? t('game.initiativeTracker.surprisedName', { name: e.name.trim() }) : e.name.trim(),
@@ -205,6 +201,8 @@ export default function InitiativeTracker({
           ...(lr > 0 ? { legendaryResistances: { max: lr, remaining: lr } } : {}),
           ...(e.inLair ? { inLair: true } : {})
         }
+        // 08B — enrich from the token's library stat block (manual LR input above is preserved).
+        return enrichInitiativeEntry(entry, token)
       })
 
     if (entries.length > 0) {

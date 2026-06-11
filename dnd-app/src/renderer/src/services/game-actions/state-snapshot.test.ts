@@ -257,7 +257,29 @@ describe('buildGameStateSnapshot', () => {
     )
     expect(result).toContain('Regions:')
     expect(result).toContain('r1: "Pit Trap" rectangle on enter → alert-dm [one-shot]')
-    expect(result).toContain('Drawings: 1 on map (1 DM-only)')
+    // 08H — drawings now list ids so the AI can target remove_drawing.
+    expect(result).toContain('Drawings:')
+    expect(result).toContain('- d1: draw-rect [DM-only]')
+  })
+
+  it('caps the drawing id list at 20 and notes the remainder (08H)', () => {
+    const drawings = Array.from({ length: 23 }, (_, i) => ({
+      id: `dr-${i}`,
+      type: 'draw-line',
+      points: [],
+      color: '#fff',
+      strokeWidth: 1
+    }))
+    const result = buildGameStateSnapshot(
+      makeStores({
+        activeMapId: 'map-1',
+        maps: [{ id: 'map-1', name: 'Hall', width: 400, height: 400, grid: { cellSize: 40 }, tokens: [], drawings }]
+      })
+    )
+    expect(result).toContain('- dr-0: draw-line')
+    expect(result).toContain('- dr-19: draw-line')
+    expect(result).not.toContain('- dr-20:')
+    expect(result).toContain('…and 3 more (use clear_drawings to remove all)')
   })
 
   it('shows darkness zones with magic level + radius', () => {

@@ -212,16 +212,21 @@ export function executeDmActions(actions: DmAction[], bypassApproval = false): E
     actions = actions.slice(0, MAX_ACTIONS_PER_BATCH)
   }
 
-  const gameStore = getGameStore().getState()
-  const activeMap = gameStore.maps.find((m) => m.id === gameStore.activeMapId)
+  // PHASE-08 08A — validate AND execute each action against FRESH store state, so a same-batch
+  // sequence (place_creature → start_initiative → move_token/add_entity_condition on those
+  // tokens) links to the real tokens instead of validating/executing against a stale pre-batch
+  // snapshot (orphan-UUID initiative entries + "Token not found" rejections). Mirrors the
+  // executeNextTurn LOG-13 fix — zustand getState() returns a fresh snapshot each call.
+  for (const action of actions) {
+    const gameStore = getGameStore().getState()
+    const activeMap = gameStore.maps.find((m) => m.id === gameStore.activeMapId)
 
-  // Pre-execution validation: reject actions that are physically impossible
-  const { valid: validatedActions, rejected } = filterValidActions(actions, gameStore, activeMap)
-  for (const r of rejected) {
-    result.failed.push({ action: r.action, reason: r.reason ?? 'Failed game-state validation' })
-  }
+    const { rejected } = filterValidActions([action], gameStore, activeMap)
+    if (rejected.length > 0) {
+      result.failed.push({ action, reason: rejected[0].reason ?? 'Failed game-state validation' })
+      continue
+    }
 
-  for (const action of validatedActions) {
     try {
       // Emit before-action hook
       if (pluginEventBus.hasSubscribers('dm:before-action')) {
@@ -296,7 +301,7 @@ function executeOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: A
     case 'close_shop':
       return executeCloseShop(action, gameStore, activeMap, stores)
     case 'add_shop_item':
-      return executeAddShopItem(action, gameStore)
+      return executeAddShopItem(action, gameStore, activeMap, stores)
     case 'remove_shop_item':
       return executeRemoveShopItem(action, gameStore, activeMap, stores)
 
@@ -416,17 +421,17 @@ function executeOne(action: DmAction, gameStore: GameStoreSnapshot, activeMap: A
 
     // ── Bastion Management ──
     case 'bastion_advance_time':
-      return executeBastionAdvanceTime(action)
+      return executeBastionAdvanceTime(action, gameStore, activeMap, stores)
     case 'bastion_issue_order':
-      return executeBastionIssueOrder(action)
+      return executeBastionIssueOrder(action, gameStore, activeMap, stores)
     case 'bastion_deposit_gold':
-      return executeBastionDepositGold(action)
+      return executeBastionDepositGold(action, gameStore, activeMap, stores)
     case 'bastion_withdraw_gold':
-      return executeBastionWithdrawGold(action)
+      return executeBastionWithdrawGold(action, gameStore, activeMap, stores)
     case 'bastion_resolve_event':
       return executeBastionResolveEvent(action, gameStore, activeMap, stores)
     case 'bastion_recruit':
-      return executeBastionRecruit(action)
+      return executeBastionRecruit(action, gameStore, activeMap, stores)
     case 'bastion_add_creature':
       return executeBastionAddCreature(action, gameStore, activeMap, stores)
 

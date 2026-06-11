@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('./broadcast-helpers', () => ({ postDmMessage: vi.fn() }))
-vi.mock('./name-resolver', () => ({ resolvePlayerByName: vi.fn(() => 'char-1') }))
+vi.mock('./name-resolver', () => ({ resolveCharacterIdByName: vi.fn(() => 'char-1') }))
 
 // The campaign store is mocked to hold a single in-memory campaign.
 let campaign: { id: string; downtimeProgress?: unknown[] } | null = null

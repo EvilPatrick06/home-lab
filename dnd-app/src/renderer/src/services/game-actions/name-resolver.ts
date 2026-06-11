@@ -39,3 +39,18 @@ export function resolvePlayerByName(playerName: string, stores: StoreAccessors):
   )
   return match?.peerId
 }
+
+/**
+ * Resolve a player/character name to the real CHARACTER id (not the transport peerId that
+ * resolvePlayerByName returns). Used by downtime so AI-started entries surface in the
+ * per-character downtime UI, which filters by character id. (PHASE-08 08G)
+ */
+export function resolveCharacterIdByName(playerName: string, stores: StoreAccessors): string | undefined {
+  const players = stores.getLobbyStore().getState().players
+  const match = players.find(
+    (p) =>
+      p.displayName.toLowerCase() === playerName.toLowerCase() ||
+      (p.characterName && p.characterName.toLowerCase() === playerName.toLowerCase())
+  )
+  return match?.characterId ?? undefined
+}

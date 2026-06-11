@@ -132,6 +132,28 @@ describe('spell-effect-actions', () => {
       expect(content).toContain('Goblin')
     })
 
+    it('excludes the caster case-insensitively (08I — excludeLabel "wizard" vs token "Wizard")', async () => {
+      const { findTokensInArea } = await import('./dice-helpers')
+      vi.mocked(findTokensInArea).mockReturnValue([
+        { id: 't1', label: 'Wizard' } as never,
+        { id: 't2', label: 'Goblin' } as never
+      ])
+      const { postDmMessage } = await import('./broadcast-helpers')
+      const { executeQueryAoe } = await import('./spell-effect-actions')
+      const action: DmAction = {
+        action: 'query_aoe',
+        shape: 'sphere',
+        originX: 0,
+        originY: 0,
+        radiusOrLength: 15,
+        excludeLabel: 'wizard'
+      }
+      executeQueryAoe(action, makeGameStore(), makeActiveMap(), stores)
+      const content = vi.mocked(postDmMessage).mock.calls[0][2]
+      expect(content).not.toContain('Wizard')
+      expect(content).toContain('Goblin')
+    })
+
     it('throws without an active map', async () => {
       const { executeQueryAoe } = await import('./spell-effect-actions')
       const action: DmAction = { action: 'query_aoe', shape: 'sphere', originX: 0, originY: 0, radiusOrLength: 10 }

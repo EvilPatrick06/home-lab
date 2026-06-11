@@ -168,6 +168,17 @@ describe('findTokensInArea', () => {
       expect(labels).toContain('OnLine')
       expect(labels).not.toContain('Off')
     })
+
+    it('respects the line direction (08I — facing +y hits the down-grid token, misses +x)', () => {
+      const tokens = [
+        makeToken({ id: 't1', label: 'DownY', gridX: 0, gridY: 2 }),
+        makeToken({ id: 't2', label: 'AlongX', gridX: 2, gridY: 0 })
+      ]
+      const result = findTokensInArea(tokens, 0, 0, 5, 'line', 1, 90)
+      const labels = result.map((t) => t.label)
+      expect(labels).toContain('DownY')
+      expect(labels).not.toContain('AlongX')
+    })
   })
 
   describe('unknown shape', () => {

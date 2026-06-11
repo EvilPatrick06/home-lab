@@ -4,8 +4,10 @@
  */
 
 import type { InitiativeEntry } from '../../types/game-state'
+import type { MapToken } from '../../types/map'
 import { broadcastInitiativeSync } from './broadcast-helpers'
 import { rollDiceFormula } from './dice-helpers'
+import { enrichInitiativeEntry } from './initiative-enrichment'
 import { resolveTokenByLabel } from './name-resolver'
 import type { ActiveMap, DmAction, GameStoreSnapshot, StoreAccessors } from './types'
 
@@ -28,7 +30,7 @@ export function executeStartInitiative(
   const entries: InitiativeEntry[] = rawEntries.map((e) => {
     // Try to resolve entity ID from existing tokens
     const token = activeMap ? resolveTokenByLabel(activeMap.tokens, e.label) : undefined
-    return {
+    const entry: InitiativeEntry = {
       id: crypto.randomUUID(),
       entityId: token?.entityId || crypto.randomUUID(),
       entityName: e.label,
@@ -38,6 +40,9 @@ export function executeStartInitiative(
       total: e.roll + (e.modifier || 0),
       isActive: false
     }
+    // 08B — pull legendary/recharge/lair data from the token's library stat block so
+    // use_legendary_action/use_legendary_resistance and recharge auto-roll actually work.
+    return enrichInitiativeEntry(entry, token as MapToken | undefined)
   })
   gameStore.startInitiative(entries)
 
@@ -57,7 +62,7 @@ export function executeAddToInitiative(
   stores: StoreAccessors
 ): boolean {
   const token = activeMap ? resolveTokenByLabel(activeMap.tokens, action.label as string) : undefined
-  const entry: InitiativeEntry = {
+  const baseEntry: InitiativeEntry = {
     id: crypto.randomUUID(),
     entityId: token?.entityId || crypto.randomUUID(),
     entityName: action.label as string,
@@ -67,6 +72,7 @@ export function executeAddToInitiative(
     total: (action.roll as number) + ((action.modifier as number) || 0),
     isActive: false
   }
+  const entry = enrichInitiativeEntry(baseEntry, token as MapToken | undefined) // 08B
   gameStore.addToInitiative(entry)
   gameStore.initTurnState(entry.entityId, token?.walkSpeed ?? 30)
   broadcastInitiativeSync(stores)

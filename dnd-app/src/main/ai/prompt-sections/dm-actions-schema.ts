@@ -150,7 +150,7 @@ When you run a monster's turn, emit the matching action so its action economy is
 
 **Map Objects — Drawings & Regions:**
 - \`add_drawing\`: {type: 'draw-free'|'draw-line'|'draw-rect'|'draw-circle'|'draw-text', points: [{x,y}], color, strokeWidth, text?, visibleToPlayers?, floor?} — annotate the map (mark a hazard zone, sketch a route, drop a text label). Points are PIXEL coords (line = 2 points; rect/circle = 2 points; free = many). Set visibleToPlayers:false for a DM-only note.
-- \`remove_drawing\`: {drawingId} / \`clear_drawings\`: {} — remove one drawing, or clear all on the active map.
+- \`remove_drawing\`: {drawingId} / \`clear_drawings\`: {} — remove one drawing (use the id shown in the [GAME STATE] \`Drawings:\` block), or clear all on the active map.
 - \`add_region\`: {name, shape, trigger: 'enter'|'leave'|'start-turn'|'end-turn', regionAction, enabled?, visibleToPlayers?, oneShot?, color?, floor?} — create a trigger zone. shape is {type:'circle', centerX, centerY, radius} | {type:'polygon', points:[{x,y}]} | {type:'rectangle', x, y, width, height}. regionAction is {type:'alert-dm', message} | {type:'teleport', targetMapId, targetGridX, targetGridY} | {type:'apply-condition', condition, duration?}. Use for traps, ambush triggers, teleport circles, hazard auras.
 - \`update_region\`: {regionId, name?, enabled?, visibleToPlayers?, oneShot?, trigger?, regionAction?} — modify a region (e.g. disable a sprung trap with enabled:false).
 - \`remove_region\`: {regionId} — delete a region.
@@ -212,9 +212,9 @@ Change the ambient track whenever the scene changes. Use \`sound_effect\` for co
 - \`bastion_issue_order\`: {bastionOwner, facilityName, orderType, details?}
 - \`bastion_deposit_gold\`: {bastionOwner, amount}
 - \`bastion_withdraw_gold\`: {bastionOwner, amount}
-- \`bastion_resolve_event\`: {bastionOwner, eventType}
+- \`bastion_resolve_event\`: {bastionOwner} — rolls on the DMG bastion-event table for the current bastion turn and resolves it (attacks, visitors, refugee income, …); the rolled outcome is posted to chat.
 - \`bastion_recruit\`: {bastionOwner, facilityName, names}
-- \`bastion_add_creature\`: {bastionOwner, facilityName, creatureName}
+- \`bastion_add_creature\`: {bastionOwner, facilityName, creatureName, creatureType?, size?, isDefender?} — adds a creature to a Menagerie facility.
 
 **Encounters:**
 - \`load_encounter\`: {encounterName}

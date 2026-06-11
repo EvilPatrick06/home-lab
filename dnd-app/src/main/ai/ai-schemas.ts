@@ -706,6 +706,9 @@ const ApplyAreaEffectSchema = z.object({
   originY: z.number(),
   radiusOrLength: z.number(),
   widthOrHeight: z.number().optional(),
+  // 08I — degrees (0 = +x/east, 90 = down-grid/south). Without this field zod v4 strips it on
+  // parse, so cones AND lines via apply_area_effect always faced +x.
+  direction: z.number().optional(),
   damageFormula: z.string().optional(),
   damageType: z.string().optional(),
   saveType: AbilitySchema.optional(),
@@ -1157,7 +1160,8 @@ const BastionWithdrawGoldSchema = z.object({
 const BastionResolveEventSchema = z.object({
   action: z.literal('bastion_resolve_event'),
   bastionOwner: z.string(),
-  eventType: z.string()
+  // 08J — the engine rolls its own event on the DMG table; eventType is advisory only.
+  eventType: z.string().optional()
 })
 
 const BastionRecruitSchema = z.object({
@@ -1171,7 +1175,11 @@ const BastionAddCreatureSchema = z.object({
   action: z.literal('bastion_add_creature'),
   bastionOwner: z.string(),
   facilityName: z.string(),
-  creatureName: z.string()
+  creatureName: z.string(),
+  // 08J — optional MenagerieCreature fields (default beast/medium/non-defender).
+  creatureType: z.string().optional(),
+  size: z.enum(['tiny', 'small', 'medium', 'large', 'huge']).optional(),
+  isDefender: z.boolean().optional()
 })
 
 const LoadEncounterSchema = z.object({

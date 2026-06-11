@@ -43,7 +43,13 @@ export function executeRemoveDrawing(
   _stores: StoreAccessors
 ): boolean {
   if (!activeMap) throw new Error('No active map')
-  gameStore.removeDrawing(activeMap.id, action.drawingId as string)
+  const drawingId = action.drawingId as string
+  // 08H — store removal of a missing id is a silent no-op; fail honestly so the AI learns it
+  // (the auto-execute path posts the failure to chat). Ids are listed in [GAME STATE].
+  if (!activeMap.drawings?.some((d) => d.id === drawingId)) {
+    throw new Error(`Drawing not found: ${drawingId}`)
+  }
+  gameStore.removeDrawing(activeMap.id, drawingId)
   return true
 }
 

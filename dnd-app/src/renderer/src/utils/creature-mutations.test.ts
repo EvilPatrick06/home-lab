@@ -365,4 +365,32 @@ describe('applyCreatureMutations', () => {
       })
     })
   })
+
+  // 08E — same exact-then-prefix targeting as DM actions.
+  describe('label resolution (08E)', () => {
+    it('prefix-matches "Goblin" against a sole "Goblin 1" token', () => {
+      const map = makeMap([makeToken({ id: 'tok-g1', label: 'Goblin 1', currentHP: 10, maxHP: 10 })])
+      const updateToken = vi.fn()
+      const results = applyCreatureMutations(
+        [{ type: 'creature_damage', targetLabel: 'Goblin', value: 4 }],
+        map,
+        updateToken
+      )
+      expect(results[0].applied).toBe(true)
+      expect(updateToken).toHaveBeenCalledWith('map-1', 'tok-g1', { currentHP: 6 })
+    })
+
+    it('reports a not-applied result with a reason for a genuinely absent token', () => {
+      const map = makeMap([makeToken()])
+      const updateToken = vi.fn()
+      const results = applyCreatureMutations(
+        [{ type: 'creature_damage', targetLabel: 'Dragon', value: 4 }],
+        map,
+        updateToken
+      )
+      expect(results[0].applied).toBe(false)
+      expect(results[0].reason).toMatch(/not found/i)
+      expect(updateToken).not.toHaveBeenCalled()
+    })
+  })
 })

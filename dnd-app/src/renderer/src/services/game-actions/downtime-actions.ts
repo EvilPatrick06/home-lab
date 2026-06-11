@@ -14,7 +14,7 @@ import { useCampaignStore } from '../../stores/use-campaign-store'
 import type { DowntimeProgressEntry } from '../../types/campaign'
 import { addDowntimeProgress, advanceTrackedDowntime } from '../downtime-service'
 import { postDmMessage } from './broadcast-helpers'
-import { resolvePlayerByName } from './name-resolver'
+import { resolveCharacterIdByName } from './name-resolver'
 import type { ActiveMap, DmAction, GameStoreSnapshot, StoreAccessors } from './types'
 
 export function executeStartDowntime(
@@ -33,7 +33,9 @@ export function executeStartDowntime(
   const campaign = useCampaignStore.getState().getActiveCampaign()
   if (!campaign) throw new Error('No active campaign for downtime')
 
-  const characterId = resolvePlayerByName(characterName, stores) ?? characterName
+  // 08G — store the real character id (not a peerId) so the per-character downtime UI finds it;
+  // the name fallback keeps solo/offline flows (no lobby roster) working.
+  const characterId = resolveCharacterIdByName(characterName, stores) ?? characterName
   const entry: DowntimeProgressEntry = {
     id: crypto.randomUUID(),
     activityId,

@@ -186,6 +186,7 @@ export type DmAction =
       originY: number
       radiusOrLength: number
       widthOrHeight?: number
+      direction?: number // 08I — degrees (0 = +x); cones/lines face this way
       damageFormula?: string
       damageType?: string
       saveType?: 'str' | 'dex' | 'con' | 'int' | 'wis' | 'cha'
@@ -434,9 +435,17 @@ export type DmAction =
   | { action: 'bastion_issue_order'; bastionOwner: string; facilityName: string; orderType: string; details?: string }
   | { action: 'bastion_deposit_gold'; bastionOwner: string; amount: number }
   | { action: 'bastion_withdraw_gold'; bastionOwner: string; amount: number }
-  | { action: 'bastion_resolve_event'; bastionOwner: string; eventType: string }
+  | { action: 'bastion_resolve_event'; bastionOwner: string; eventType?: string }
   | { action: 'bastion_recruit'; bastionOwner: string; facilityName: string; names: string[] }
-  | { action: 'bastion_add_creature'; bastionOwner: string; facilityName: string; creatureName: string }
+  | {
+      action: 'bastion_add_creature'
+      bastionOwner: string
+      facilityName: string
+      creatureName: string
+      creatureType?: string
+      size?: 'tiny' | 'small' | 'medium' | 'large' | 'huge'
+      isDefender?: boolean
+    }
 
   // Encounters
   | { action: 'load_encounter'; encounterName: string }

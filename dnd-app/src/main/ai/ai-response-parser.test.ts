@@ -1,30 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-
-vi.mock('../log', () => ({
-  logToFile: vi.fn()
-}))
-
-vi.mock('../storage/ai-conversation-storage', () => ({
-  saveConversation: vi.fn().mockResolvedValue({ success: true })
-}))
-
-const { mockMemMgr } = vi.hoisted(() => ({
-  mockMemMgr: {
-    appendSessionLog: vi.fn(() => Promise.resolve()),
-    addRuling: vi.fn(() => Promise.resolve())
-  }
-}))
-vi.mock('./memory-manager', () => ({
-  getMemoryManager: vi.fn(() => mockMemMgr)
-}))
-
-vi.mock('./tone-validator', () => ({
-  hasViolations: vi.fn(() => false),
-  cleanNarrativeText: vi.fn((t: string) => t)
-}))
-
+import { describe, expect, it } from 'vitest'
 import {
-  finalizeAiResponse,
   parseRuleCitations,
   parseRulings,
   parseVoiceTags,
@@ -32,35 +7,6 @@ import {
   stripRulings,
   stripVoiceTags
 } from './ai-response-parser'
-import type { ConversationManager } from './conversation-manager'
-import { cleanNarrativeText, hasViolations } from './tone-validator'
-import type { AiChatRequest } from './types'
-
-const mockHasViolations = vi.mocked(hasViolations)
-const mockCleanNarrativeText = vi.mocked(cleanNarrativeText)
-
-beforeEach(() => {
-  vi.clearAllMocks()
-  mockHasViolations.mockReturnValue(false)
-  mockCleanNarrativeText.mockImplementation((t: string) => t)
-})
-
-function makeConvManager(): ConversationManager {
-  return {
-    addMessage: vi.fn(),
-    serialize: vi.fn().mockReturnValue({ messages: [], summaries: [], activeCharacterIds: [] })
-  } as unknown as ConversationManager
-}
-
-function makeRequest(overrides: Partial<AiChatRequest> = {}): AiChatRequest {
-  return {
-    campaignId: 'campaign1',
-    message: 'Hello DM',
-    characterIds: ['char1'],
-    senderName: 'Player1',
-    ...overrides
-  }
-}
 
 describe('parseRuleCitations', () => {
   it('returns empty array when no citations', () => {
@@ -113,127 +59,6 @@ describe('stripRuleCitations', () => {
       'A [RULE_CITATION source="PHB" rule="X"]x[/RULE_CITATION] B [RULE_CITATION source="DMG" rule="Y"]y[/RULE_CITATION] C'
     const result = stripRuleCitations(text)
     expect(result).not.toContain('RULE_CITATION')
-  })
-})
-
-describe('finalizeAiResponse', () => {
-  it('returns display text with stat changes and dm actions extracted', () => {
-    const fullText =
-      'The goblin attacks. [STAT_CHANGES]{"changes":[{"type":"damage","value":5,"reason":"goblin attack"}]}[/STAT_CHANGES]'
-    const conv = makeConvManager()
-    const request = makeRequest()
-
-    const result = finalizeAiResponse(fullText, request, conv)
-    expect(result.displayText).toBe('The goblin attacks.')
-    expect(result.statChanges).toHaveLength(1)
-    expect(result.statChanges[0].type).toBe('damage')
-  })
-
-  it('extracts rule citations', () => {
-    const fullText = 'Check this rule. [RULE_CITATION source="PHB" rule="Fireball"]3rd-level evocation.[/RULE_CITATION]'
-    const conv = makeConvManager()
-    const request = makeRequest()
-
-    const result = finalizeAiResponse(fullText, request, conv)
-    expect(result.ruleCitations).toHaveLength(1)
-    expect(result.ruleCitations[0].source).toBe('PHB')
-    expect(result.displayText).not.toContain('RULE_CITATION')
-  })
-
-  it('persists [RULING] tags to the ledger and strips them from chat', () => {
-    mockMemMgr.addRuling.mockClear()
-    const fullText =
-      'You manage it. [RULING question="Shove off a ledge?" citation="DMG"]Yes, then falling damage.[/RULING]'
-    const result = finalizeAiResponse(fullText, makeRequest(), makeConvManager())
-    expect(result.displayText).toBe('You manage it.')
-    expect(result.displayText).not.toContain('[RULING')
-    expect(mockMemMgr.addRuling).toHaveBeenCalledWith(
-      expect.objectContaining({ question: 'Shove off a ledge?', ruling: 'Yes, then falling damage.', citation: 'DMG' })
-    )
-  })
-
-  it('adds display text to conversation history', () => {
-    const conv = makeConvManager()
-    const request = makeRequest()
-
-    finalizeAiResponse('Simple response.', request, conv)
-    expect(conv.addMessage).toHaveBeenCalledWith('assistant', 'Simple response.')
-  })
-
-  it('cleans text when tone violations detected', () => {
-    mockHasViolations.mockReturnValue(true)
-    mockCleanNarrativeText.mockReturnValue('cleaned text')
-
-    const conv = makeConvManager()
-    const request = makeRequest()
-
-    const result = finalizeAiResponse('## Heading\n**Bold** text', request, conv)
-    expect(result.displayText).toBe('cleaned text')
-
-    mockHasViolations.mockReturnValue(false)
-    mockCleanNarrativeText.mockImplementation((t: string) => t)
-  })
-
-  it('falls back to raw text on parse error', () => {
-    // Force an error on first addMessage call to trigger the catch block,
-    // but allow the second addMessage (in catch) to succeed
-    let callCount = 0
-    const throwConv = {
-      addMessage: vi.fn().mockImplementation(() => {
-        callCount++
-        if (callCount === 1) {
-          throw new Error('test error')
-        }
-      }),
-      serialize: vi.fn()
-    } as unknown as ConversationManager
-
-    const request = makeRequest()
-    const result = finalizeAiResponse('raw text', request, throwConv)
-    expect(result.displayText).toBe('raw text')
-    expect(result.statChanges).toEqual([])
-    expect(result.dmActions).toEqual([])
-    expect(result.ruleCitations).toEqual([])
-  })
-
-  it('handles DM actions in response', () => {
-    const fullText =
-      'The battle begins! [DM_ACTIONS]{"actions":[{"action":"start_initiative","entries":[]}]}[/DM_ACTIONS]'
-    const conv = makeConvManager()
-    const request = makeRequest()
-
-    const result = finalizeAiResponse(fullText, request, conv)
-    expect(result.dmActions).toHaveLength(1)
-    expect(result.dmActions[0].action).toBe('start_initiative')
-    expect(result.displayText).not.toContain('DM_ACTIONS')
-  })
-
-  it('handles response with no special tags', () => {
-    const conv = makeConvManager()
-    const request = makeRequest()
-
-    const result = finalizeAiResponse('Just a narrative response.', request, conv)
-    expect(result.displayText).toBe('Just a narrative response.')
-    expect(result.statChanges).toEqual([])
-    expect(result.dmActions).toEqual([])
-    expect(result.ruleCitations).toEqual([])
-  })
-
-  it('uses sender name in memory log', () => {
-    const conv = makeConvManager()
-    const request = makeRequest({ senderName: 'Thorin' })
-
-    finalizeAiResponse('Hello!', request, conv)
-    // The function should not throw and should log with the sender name
-    expect(conv.addMessage).toHaveBeenCalled()
-  })
-
-  it('defaults sender name to Player when not provided', () => {
-    const conv = makeConvManager()
-    const request = makeRequest({ senderName: undefined })
-
-    finalizeAiResponse('Hello!', request, conv)
-    expect(conv.addMessage).toHaveBeenCalled()
   })
 })
 

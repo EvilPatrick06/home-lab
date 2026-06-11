@@ -132,11 +132,27 @@ function broadcastTimeSync(stores: StoreAccessors): void {
  * Loads the bastion store dynamically and calls the given callback with its state.
  */
 function withBastionStore(
-  callback: (bastionStore: ReturnType<typeof import('../../stores/use-bastion-store').useBastionStore.getState>) => void
+  callback: (
+    bastionStore: ReturnType<typeof import('../../stores/use-bastion-store').useBastionStore.getState>
+  ) => void,
+  onUnavailable?: (reason: string) => void
 ): void {
-  import('../../stores/use-bastion-store').then(({ useBastionStore }) => {
-    callback(useBastionStore.getState())
-  })
+  // 08J — `.catch` so a throw inside the async callback no longer becomes an unhandled rejection
+  // AFTER the executor already returned true.
+  import('../../stores/use-bastion-store')
+    .then(({ useBastionStore }) => callback(useBastionStore.getState()))
+    .catch((err) => onUnavailable?.(String(err)))
+}
+
+/** Post a not-found chat line so the AI learns a bastion verb did nothing (the model reads it
+ *  on its next turn — same feedback channel query_aoe uses). The executor still returned true
+ *  synchronously because the store work is async by construction. (08J) */
+function postBastionNotFound(stores: StoreAccessors, action: string, owner: string): void {
+  postDmChatMessage(
+    stores,
+    'ai-bastion-err',
+    `⚠️ Bastion action ${action} failed: bastion/facility not found for "${owner}"`
+  )
 }
 
 // ── Time Management ──
@@ -256,10 +272,11 @@ export function executeOpenShop(
     gameStore.setShopInventory(shopItems)
   }
 
-  // Broadcast to clients
+  // Broadcast to clients — read FRESH inventory (the snapshot's shopInventory is pre-batch,
+  // i.e. the PREVIOUS/empty inventory; setShopInventory above wrote through to the real store). (08F)
   const sendMessage = stores.getNetworkStore().getState().sendMessage
   sendMessage('dm:shop-update', {
-    shopInventory: gameStore.shopInventory,
+    shopInventory: stores.getGameStore().getState().shopInventory,
     shopName: name
   })
   return true
@@ -277,7 +294,12 @@ export function executeCloseShop(
   return true
 }
 
-export function executeAddShopItem(action: DmAction, gameStore: GameStoreSnapshot): boolean {
+export function executeAddShopItem(
+  action: DmAction,
+  gameStore: GameStoreSnapshot,
+  _activeMap: ActiveMap,
+  stores: StoreAccessors
+): boolean {
   gameStore.addShopItem({
     id: crypto.randomUUID(),
     name: action.name as string,
@@ -286,6 +308,8 @@ export function executeAddShopItem(action: DmAction, gameStore: GameStoreSnapsho
     quantity: (action.quantity as number) || 1,
     description: action.description as string | undefined
   })
+  // 08F — broadcast the post-mutation inventory (clients had no add/remove broadcast before).
+  broadcastShop(stores)
   return true
 }
 
@@ -299,7 +323,17 @@ export function executeRemoveShopItem(
   const item = shop.find((i) => i.name.toLowerCase() === (action.name as string).toLowerCase())
   if (!item) throw new Error(`Shop item not found: ${action.name}`)
   stores.getGameStore().getState().removeShopItem(item.id)
+  broadcastShop(stores) // 08F
   return true
+}
+
+/** Broadcast the current shop inventory + name (mirrors the host buy/sell payload). (08F) */
+function broadcastShop(stores: StoreAccessors): void {
+  const gs = stores.getGameStore().getState()
+  stores.getNetworkStore().getState().sendMessage('dm:shop-update', {
+    shopInventory: gs.shopInventory,
+    shopName: gs.shopName
+  })
 }
 
 // ── Map ──
@@ -471,19 +505,30 @@ export function executeAddJournalEntry(action: DmAction, _gameStore: GameStoreSn
 
 // ── Bastion Management ──
 
-export function executeBastionAdvanceTime(action: DmAction): boolean {
+export function executeBastionAdvanceTime(
+  action: DmAction,
+  _gameStore: GameStoreSnapshot,
+  _activeMap: ActiveMap,
+  stores: StoreAccessors
+): boolean {
   const days = action.days as number
   const ownerName = action.bastionOwner as string
   if (typeof days !== 'number' || days <= 0) throw new Error('Invalid days for bastion_advance_time')
 
   withBastionStore((bastionStore) => {
     const bastion = findBastionByOwnerName(bastionStore.bastions, ownerName)
-    if (bastion) bastionStore.advanceTime(bastion.id, days)
+    if (!bastion) return postBastionNotFound(stores, action.action, ownerName)
+    bastionStore.advanceTime(bastion.id, days)
   })
   return true
 }
 
-export function executeBastionIssueOrder(action: DmAction): boolean {
+export function executeBastionIssueOrder(
+  action: DmAction,
+  _gameStore: GameStoreSnapshot,
+  _activeMap: ActiveMap,
+  stores: StoreAccessors
+): boolean {
   const ownerName = action.bastionOwner as string
   const facilityName = action.facilityName as string
   const orderType = action.orderType as string
@@ -491,10 +536,10 @@ export function executeBastionIssueOrder(action: DmAction): boolean {
 
   withBastionStore((bastionStore) => {
     const bastion = findBastionByOwnerName(bastionStore.bastions, ownerName)
-    if (!bastion) return
+    if (!bastion) return postBastionNotFound(stores, action.action, ownerName)
     const allFacilities = [...bastion.basicFacilities, ...bastion.specialFacilities]
     const facility = allFacilities.find((f) => f.name.toLowerCase() === facilityName.toLowerCase())
-    if (!facility) return
+    if (!facility) return postBastionNotFound(stores, action.action, ownerName)
     bastionStore.issueOrder(
       bastion.id,
       bastion.turns.length > 0 ? bastion.turns[bastion.turns.length - 1].turnNumber : 1,
@@ -506,26 +551,38 @@ export function executeBastionIssueOrder(action: DmAction): boolean {
   return true
 }
 
-export function executeBastionDepositGold(action: DmAction): boolean {
+export function executeBastionDepositGold(
+  action: DmAction,
+  _gameStore: GameStoreSnapshot,
+  _activeMap: ActiveMap,
+  stores: StoreAccessors
+): boolean {
   const ownerName = action.bastionOwner as string
   const amount = action.amount as number
   if (!ownerName || typeof amount !== 'number') throw new Error('Missing bastion deposit params')
 
   withBastionStore((bastionStore) => {
     const bastion = findBastionByOwnerName(bastionStore.bastions, ownerName)
-    if (bastion) bastionStore.depositGold(bastion.id, amount)
+    if (!bastion) return postBastionNotFound(stores, action.action, ownerName)
+    bastionStore.depositGold(bastion.id, amount)
   })
   return true
 }
 
-export function executeBastionWithdrawGold(action: DmAction): boolean {
+export function executeBastionWithdrawGold(
+  action: DmAction,
+  _gameStore: GameStoreSnapshot,
+  _activeMap: ActiveMap,
+  stores: StoreAccessors
+): boolean {
   const ownerName = action.bastionOwner as string
   const amount = action.amount as number
   if (!ownerName || typeof amount !== 'number') throw new Error('Missing bastion withdraw params')
 
   withBastionStore((bastionStore) => {
     const bastion = findBastionByOwnerName(bastionStore.bastions, ownerName)
-    if (bastion) bastionStore.withdrawGold(bastion.id, amount)
+    if (!bastion) return postBastionNotFound(stores, action.action, ownerName)
+    bastionStore.withdrawGold(bastion.id, amount)
   })
   return true
 }
@@ -536,12 +593,40 @@ export function executeBastionResolveEvent(
   _activeMap: ActiveMap,
   stores: StoreAccessors
 ): boolean {
-  const msg = `Bastion event "${action.eventType}" resolved for ${action.bastionOwner}'s bastion.`
-  postDmChatMessage(stores, 'ai-bastion', msg)
+  const ownerName = action.bastionOwner as string
+  // 08J — the engine ROLLS its own bastion event (DMG table); resolve it and post the actual
+  // outcome. Own dynamic import so we can re-read fresh state after the mutations.
+  import('../../stores/use-bastion-store')
+    .then(({ useBastionStore }) => {
+      const bastion = findBastionByOwnerName(useBastionStore.getState().bastions, ownerName)
+      if (!bastion) return postBastionNotFound(stores, action.action, ownerName)
+      const openTurn = bastion.turns.find((t) => t.eventRoll === null)
+      let turnNumber: number
+      if (openTurn) {
+        turnNumber = openTurn.turnNumber
+      } else {
+        useBastionStore.getState().startTurn(bastion.id)
+        turnNumber = bastion.turns.length > 0 ? Math.max(...bastion.turns.map((t) => t.turnNumber)) + 1 : 1
+      }
+      useBastionStore.getState().rollAndResolveEvent(bastion.id, turnNumber)
+      const fresh = findBastionByOwnerName(useBastionStore.getState().bastions, ownerName)
+      const turn = fresh?.turns.find((t) => t.turnNumber === turnNumber)
+      postDmChatMessage(
+        stores,
+        'ai-bastion',
+        `🏰 Bastion event for ${ownerName}: ${turn?.eventType ?? 'resolved'}${turn?.eventOutcome ? ` — ${turn.eventOutcome}` : ''}`
+      )
+    })
+    .catch((err) => postDmChatMessage(stores, 'ai-bastion-err', `⚠️ Bastion event failed: ${String(err)}`))
   return true
 }
 
-export function executeBastionRecruit(action: DmAction): boolean {
+export function executeBastionRecruit(
+  action: DmAction,
+  _gameStore: GameStoreSnapshot,
+  _activeMap: ActiveMap,
+  stores: StoreAccessors
+): boolean {
   const ownerName = action.bastionOwner as string
   const facilityName = action.facilityName as string
   const names = action.names as string[]
@@ -549,10 +634,10 @@ export function executeBastionRecruit(action: DmAction): boolean {
 
   withBastionStore((bastionStore) => {
     const bastion = findBastionByOwnerName(bastionStore.bastions, ownerName)
-    if (!bastion) return
+    if (!bastion) return postBastionNotFound(stores, action.action, ownerName)
     const allFacilities = [...bastion.basicFacilities, ...bastion.specialFacilities]
     const facility = allFacilities.find((f) => f.name.toLowerCase() === facilityName.toLowerCase())
-    if (!facility) return
+    if (!facility) return postBastionNotFound(stores, action.action, ownerName)
     bastionStore.recruitDefenders(bastion.id, facility.id, names)
   })
   return true
@@ -643,8 +728,23 @@ export function executeBastionAddCreature(
   _activeMap: ActiveMap,
   stores: StoreAccessors
 ): boolean {
-  const msg = `${action.creatureName} added to ${action.bastionOwner}'s ${action.facilityName}.`
-  postDmChatMessage(stores, 'ai-bastion-cr', msg)
+  const ownerName = action.bastionOwner as string
+  const facilityName = action.facilityName as string
+  // 08J — actually add a MenagerieCreature to the named facility (was a chat-only no-op).
+  withBastionStore((bastionStore) => {
+    const bastion = findBastionByOwnerName(bastionStore.bastions, ownerName)
+    if (!bastion) return postBastionNotFound(stores, action.action, ownerName)
+    const allFacilities = [...bastion.basicFacilities, ...bastion.specialFacilities]
+    const facility = allFacilities.find((f) => f.name.toLowerCase() === facilityName.toLowerCase())
+    if (!facility) return postBastionNotFound(stores, action.action, ownerName)
+    bastionStore.addCreature(bastion.id, facility.id, {
+      name: action.creatureName as string,
+      creatureType: (action.creatureType as string) ?? 'beast',
+      size: (action.size as import('../../types/bastion').MenagerieCreature['size']) ?? 'medium',
+      isDefender: (action.isDefender as boolean) ?? false
+    })
+    postDmChatMessage(stores, 'ai-bastion-cr', `${action.creatureName} added to ${ownerName}'s ${facilityName}.`)
+  })
   return true
 }
 

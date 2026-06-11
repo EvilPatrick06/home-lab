@@ -182,13 +182,10 @@ vi.mock('./dm-actions', () => ({
 vi.mock('./ai-response-parser', () => ({
   parseRuleCitations: vi.fn(() => []),
   stripRuleCitations: vi.fn((t: string) => t),
-  finalizeAiResponse: vi.fn((fullText: string) => ({
-    fullText,
-    displayText: fullText,
-    statChanges: [],
-    dmActions: [],
-    ruleCitations: []
-  }))
+  parseVoiceTags: vi.fn(() => ({ npc: undefined, emotion: undefined })),
+  stripVoiceTags: vi.fn((t: string) => t),
+  parseRulings: vi.fn(() => []),
+  stripRulings: vi.fn((t: string) => t)
 }))
 
 vi.mock('./stat-mutations', () => ({

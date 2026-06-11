@@ -119,11 +119,19 @@ export function buildGameStateSnapshot(
       }
     }
 
-    // Drawings / annotations (G42) — a count + how many are DM-only, so the AI knows
-    // they exist and can clear/remove them (full point data is omitted to save tokens).
+    // Drawings / annotations (G42 / 08H) — list ids so the AI can target remove_drawing (point
+    // data is omitted to save tokens). Capped at 20; beyond that, suggest clear_drawings.
     if (activeMap.drawings && activeMap.drawings.length > 0) {
-      const hidden = activeMap.drawings.filter((d) => d.visibleToPlayers === false).length
-      lines.push(`Drawings: ${activeMap.drawings.length} on map${hidden > 0 ? ` (${hidden} DM-only)` : ''}`)
+      lines.push('Drawings:')
+      for (const d of activeMap.drawings.slice(0, 20)) {
+        const text = d.text ? ` "${d.text.length > 30 ? `${d.text.slice(0, 30)}…` : d.text}"` : ''
+        const dmOnly = d.visibleToPlayers === false ? ' [DM-only]' : ''
+        const floor = d.floor != null ? ` [floor ${d.floor}]` : ''
+        lines.push(`- ${d.id}: ${d.type}${text}${dmOnly}${floor}`)
+      }
+      if (activeMap.drawings.length > 20) {
+        lines.push(`- …and ${activeMap.drawings.length - 20} more (use clear_drawings to remove all)`)
+      }
     }
   } else {
     lines.push('Active Map: none')

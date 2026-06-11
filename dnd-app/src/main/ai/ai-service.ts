@@ -17,7 +17,32 @@ import {
   stripRulings,
   stripVoiceTags
 } from './ai-response-parser'
-import type { PendingWebSearchApproval, StreamHandlerDeps } from './ai-stream-handler'
+
+// PHASE-08 08D — these were the only live consumers of the now-deleted dead stream-handler
+// module, which carried a duplicate of the stream-completion pipeline. Defined locally.
+interface PendingWebSearchApproval {
+  resolve: (approved: boolean) => void
+  timeout: ReturnType<typeof setTimeout>
+  onAbort: () => void
+  signal: AbortSignal
+}
+interface StreamHandlerDeps {
+  activeStreams: Map<string, AbortController>
+  model: string
+  streamChat: (
+    systemPrompt: string,
+    messages: ChatMessage[],
+    callbacks: StreamCallbacks,
+    model: string,
+    abortSignal?: AbortSignal
+  ) => Promise<void>
+  streamWithRetry: (
+    streamFn: (signal: AbortSignal) => Promise<void>,
+    abortController: AbortController,
+    onError: (error: string) => void
+  ) => Promise<void>
+}
+
 import { buildChunkIndex, loadChunkIndex } from './chunk-builder'
 import { buildContext, clearTokenBreakdown, recordTokenBreakdown, setSearchEngine } from './context-builder'
 import { ConversationManager } from './conversation-manager'

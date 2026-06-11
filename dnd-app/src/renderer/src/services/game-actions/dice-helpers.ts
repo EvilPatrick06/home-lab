@@ -2,7 +2,7 @@
  * Dice rolling helpers for action execution.
  */
 
-import { getConeCells } from '../combat/aoe-targeting'
+import { getConeCells, getLineCells } from '../combat/aoe-targeting'
 import { rollMultiple } from '../dice/dice-service'
 
 export function rollDiceFormula(formula: string): { rolls: number[]; total: number } {
@@ -44,6 +44,13 @@ export function findTokensInArea(
     const cells = getConeCells(originX, originY, radiusCells * 5, directionDeg ?? 0)
     coneCellSet = new Set(cells.map((c) => `${c.x},${c.y}`))
   }
+  // 08I — lines now respect direction too (was hardcoded +x). `directionDeg ?? 0` keeps the old
+  // +x behavior when no direction is given.
+  let lineCellSet: Set<string> | null = null
+  if (shape === 'line') {
+    const cells = getLineCells(originX, originY, radiusCells * 5, directionDeg ?? 0, (widthCells ?? 1) * 5)
+    lineCellSet = new Set(cells.map((c) => `${c.x},${c.y}`))
+  }
   return tokens.filter((t) => {
     const dx = t.gridX - originX
     const dy = t.gridY - originY
@@ -58,10 +65,8 @@ export function findTokensInArea(
         const half = radiusCells
         return Math.abs(dx) <= half && Math.abs(dy) <= half
       }
-      case 'line': {
-        const w = widthCells ?? 1
-        return Math.abs(dy) <= Math.floor(w / 2) && dx >= 0 && dx <= radiusCells
-      }
+      case 'line':
+        return lineCellSet?.has(`${t.gridX},${t.gridY}`) ?? false
       default:
         return Math.sqrt(dx * dx + dy * dy) <= radiusCells
     }
