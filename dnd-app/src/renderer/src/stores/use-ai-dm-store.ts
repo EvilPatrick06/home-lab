@@ -194,7 +194,7 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
         }
         set({
           isTyping: false,
-          lastError: 'AI response timed out',
+          lastError: i18n.t('notify.aiDmStore.responseTimedOut'),
           activeStreamId: null,
           streamingText: '',
           safetyTimeoutId: null,
@@ -298,7 +298,7 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
             useLobbyStore.getState().addChatMessage({
               id: `ai-approve-fail-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
               senderId: 'system',
-              senderName: 'System',
+              senderName: i18n.t('game.chatPanel.systemSender'),
               content: i18n.t('notify.aiDmStore.approvedActionFailed', { action: f.action.action, reason: f.reason }),
               timestamp: Date.now(),
               isSystem: true
@@ -326,8 +326,10 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
       useLobbyStore.getState().addChatMessage({
         id: `dm-override-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
         senderId: 'dm',
-        senderName: 'DM',
-        content: `[DM Override] AI ruling rejected${dmNote ? `: ${dmNote}` : ''}`,
+        senderName: i18n.t('notify.aiDmStore.dmSender'),
+        content: dmNote
+          ? i18n.t('notify.aiDmStore.dmOverrideRejectedWithNote', { note: dmNote })
+          : i18n.t('notify.aiDmStore.dmOverrideRejected'),
         timestamp: Date.now(),
         isSystem: true
       })
@@ -597,7 +599,7 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
       const result = await window.api.ai.getSceneStatus(campaignId)
       set({
         sceneStatus: result.status === 'idle' ? 'idle' : result.status,
-        sceneError: result.status === 'error' ? (result.error ?? 'Scene preparation failed.') : null,
+        sceneError: result.status === 'error' ? (result.error ?? i18n.t('notify.aiDmStore.scenePrepFailed')) : null,
         // Keep the id fresh if the page mounted after prep started.
         sceneStreamId: result.streamId ?? null
       })
@@ -691,7 +693,7 @@ export const useAiDmStore = create<AiDmState>((set, get) => {
           useLobbyStore.getState().addChatMessage({
             id: `ai-model-switch-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
             senderId: 'system',
-            senderName: 'System',
+            senderName: i18n.t('game.chatPanel.systemSender'),
             content,
             timestamp: Date.now(),
             isSystem: true

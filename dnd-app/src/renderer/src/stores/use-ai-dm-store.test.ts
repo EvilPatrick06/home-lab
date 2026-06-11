@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { STREAM_SAFETY_TIMEOUT_MS } from '../constants'
+import { i18n } from '../i18n'
 
 // Capture the listener callbacks setupListeners registers so tests can drive events.
 const aiHandlers: Record<string, (data: unknown) => void> = {}
@@ -291,7 +292,7 @@ describe('useAiDmStore', () => {
 
         const s = useAiDmStore.getState()
         expect(s.isTyping).toBe(false)
-        expect(s.lastError).toBe('AI response timed out')
+        expect(s.lastError).toBe(i18n.t('notify.aiDmStore.responseTimedOut'))
         cleanupListeners()
       })
     })

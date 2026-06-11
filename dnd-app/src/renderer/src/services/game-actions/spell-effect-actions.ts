@@ -216,6 +216,6 @@ export function executeEndSpell(
       gameStore.setConcentrating(target.casterEntityId, undefined)
     }
   }
-  postDmMessage(stores, 'end-spell', `🛑 ${target.name} (${target.caster}) ends.`)
+  postDmMessage(stores, 'end-spell', `🛑 Spell ends: ${target.name} (cast by ${target.caster}).`)
   return true
 }

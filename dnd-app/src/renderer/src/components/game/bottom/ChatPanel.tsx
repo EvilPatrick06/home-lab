@@ -502,7 +502,7 @@ export default function ChatPanel({
             className="px-2.5 py-1.5 text-xs rounded-lg bg-amber-600 hover:bg-accent-strong text-white
               font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
-            Send
+            {t('game.chatPanel.send')}
           </button>
           {/* Help button */}
           <button

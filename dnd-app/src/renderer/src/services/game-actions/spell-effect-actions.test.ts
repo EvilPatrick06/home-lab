@@ -255,8 +255,9 @@ describe('spell-effect-actions', () => {
   // ── executeEndSpell (G11) ──
 
   describe('executeEndSpell', () => {
-    it('removes a spell effect by name + caster', async () => {
+    it('removes a spell effect by name + caster and posts a clear end-spell message', async () => {
       const { executeEndSpell } = await import('./spell-effect-actions')
+      const { postDmMessage } = await import('./broadcast-helpers')
       const gs = makeGameStore({
         activeSpellEffects: [{ id: 'sx', name: 'Entangle', caster: 'Druid', startedRound: 1 }]
       })
@@ -264,6 +265,10 @@ describe('spell-effect-actions', () => {
         executeEndSpell({ action: 'end_spell', spellName: 'Entangle', caster: 'Druid' }, gs, undefined, stores)
       ).toBe(true)
       expect(gs.removeSpellEffect).toHaveBeenCalledWith('sx')
+      // PHASE-12 12E — explicit event + caster attribution.
+      const [, idPrefix, content] = vi.mocked(postDmMessage).mock.calls.at(-1)!
+      expect(idPrefix).toBe('end-spell')
+      expect(content).toBe('🛑 Spell ends: Entangle (cast by Druid).')
     })
 
     it('clears caster concentration when ending a concentration spell', async () => {

@@ -21,18 +21,18 @@ function defaults(over: Partial<Props> = {}): Props {
 describe('AiDmStatusBar precedence (PHASE-10 10B)', () => {
   it('typing beats everything', () => {
     render(<AiDmStatusBar {...defaults({ isTyping: true, paused: true, usable: false })} />)
-    expect(screen.getByText('AI responding')).toBeTruthy()
+    expect(screen.getByText('AI DM responding')).toBeTruthy()
   })
 
   it('paused beats unknown', () => {
     render(<AiDmStatusBar {...defaults({ paused: true, usable: null })} />)
-    expect(screen.getByText('AI paused')).toBeTruthy()
+    expect(screen.getByText('AI DM paused')).toBeTruthy()
   })
 
   it('unknown (still checking) is not ready', () => {
     render(<AiDmStatusBar {...defaults({ usable: null, probeFailed: false })} />)
-    expect(screen.getByText('Checking AI status...')).toBeTruthy()
-    expect(screen.queryByText('AI ready')).toBeNull()
+    expect(screen.getByText('Checking AI DM status...')).toBeTruthy()
+    expect(screen.queryByText('AI DM ready')).toBeNull()
   })
 
   it('ollama not-ready shows the no-model copy', () => {
@@ -52,7 +52,7 @@ describe('AiDmStatusBar precedence (PHASE-10 10B)', () => {
 
   it('affirmative usable renders ready', () => {
     render(<AiDmStatusBar {...defaults({ usable: true })} />)
-    expect(screen.getByText('AI ready')).toBeTruthy()
+    expect(screen.getByText('AI DM ready')).toBeTruthy()
   })
 
   it('clicking the status row triggers a recheck', () => {

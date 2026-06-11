@@ -3,7 +3,7 @@
  * Run `npm run i18n:gen-keys` (scripts/i18n/gen-key-union.mjs) to regenerate
  * after changing en.json. Source: src/renderer/src/i18n/locales/en.json.
  *
- * A literal union of every dotted leaf key in en.json (6084 keys),
+ * A literal union of every dotted leaf key in en.json (6089 keys),
  * so `t()` calls are checked at compile time instead of silently rendering a
  * raw key string when a key is typo'd or missing.
  */
@@ -4329,6 +4329,9 @@ export type TranslationKey =
   | 'notify.aiDmStore.approvedActionFailed'
   | 'notify.aiDmStore.creatureMutationFailed'
   | 'notify.aiDmStore.creatureMutationsNoMap'
+  | 'notify.aiDmStore.dmOverrideRejected'
+  | 'notify.aiDmStore.dmOverrideRejectedWithNote'
+  | 'notify.aiDmStore.dmSender'
   | 'notify.aiDmStore.messageQueueFull'
   | 'notify.aiDmStore.messageQueued'
   | 'notify.aiDmStore.modelAutoSelected'
@@ -4338,8 +4341,10 @@ export type TranslationKey =
   | 'notify.aiDmStore.mutationUnknownCharacter'
   | 'notify.aiDmStore.mutationsAutoRejected'
   | 'notify.aiDmStore.queuedMessagesDiscarded'
+  | 'notify.aiDmStore.responseTimedOut'
   | 'notify.aiDmStore.rulingQueued'
   | 'notify.aiDmStore.runApprovedFailed'
+  | 'notify.aiDmStore.scenePrepFailed'
   | 'notify.aiDmStore.webSearchAutoRejected'
   | 'notify.autoSave.failed'
   | 'notify.backup.autoDone'
