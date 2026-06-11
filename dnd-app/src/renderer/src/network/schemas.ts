@@ -625,6 +625,7 @@ const PAYLOAD_SCHEMAS: Partial<Record<MessageTypeString, z.ZodType>> = {
   'chat:file': ChatFilePayloadSchema,
   'chat:whisper': WhisperPayloadSchema,
   'chat:announcement': AnnouncementPayloadSchema,
+  'chat:clear': z.object({}),
   'combat:reaction-prompt': ReactionPromptPayloadSchema,
   'combat:reaction-response': ReactionResponsePayloadSchema,
   'player:trade-request': TradeRequestPayloadSchema,

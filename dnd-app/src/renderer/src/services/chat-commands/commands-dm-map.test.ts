@@ -365,3 +365,133 @@ describe('commands-dm-map', () => {
     expect(center.dmOnly).toBe(false)
   })
 })
+
+// ── Behavioral coverage ported from the deleted map-token-commands.ts ──
+// (live token verbs live on commands-dm-map.ts; looked up via the registry array)
+function mapCtx() {
+  return {
+    isDM: true,
+    playerName: 'DM',
+    character: null,
+    localPeerId: 'local',
+    addSystemMessage: vi.fn(),
+    broadcastSystemMessage: vi.fn(),
+    addErrorMessage: vi.fn()
+  }
+}
+
+describe('summonCommand', () => {
+  it('shows usage when no args', async () => {
+    const summon = commands.find((c) => c.name === 'summon')!
+    const ctx = mapCtx()
+    await summon.execute('', ctx)
+    expect(ctx.addSystemMessage).toHaveBeenCalledWith(expect.stringContaining('Usage'))
+  })
+
+  it('summons a known monster and broadcasts its arrival', async () => {
+    const summon = commands.find((c) => c.name === 'summon')!
+    const ctx = mapCtx()
+    await summon.execute('Goblin 3 4', ctx)
+    expect(ctx.broadcastSystemMessage).toHaveBeenCalledWith(expect.stringContaining('Goblin'))
+    expect(ctx.broadcastSystemMessage).toHaveBeenCalledWith(expect.stringContaining('(3, 4)'))
+  })
+
+  it('reports when the monster is not found', async () => {
+    const summon = commands.find((c) => c.name === 'summon')!
+    const ctx = mapCtx()
+    await summon.execute('Tarrasque', ctx)
+    expect(ctx.addSystemMessage).toHaveBeenCalledWith(expect.stringContaining('Monster not found'))
+  })
+})
+
+describe('tokenCloneCommand', () => {
+  it('shows usage when no args', () => {
+    const clone = commands.find((c) => c.name === 'tokenclone')!
+    const ctx = mapCtx()
+    clone.execute('', ctx)
+    expect(ctx.addSystemMessage).toHaveBeenCalledWith(expect.stringContaining('Usage'))
+  })
+
+  it('clones a token once by default', () => {
+    const clone = commands.find((c) => c.name === 'tokenclone')!
+    const ctx = mapCtx()
+    clone.execute('Goblin', ctx)
+    expect(ctx.broadcastSystemMessage).toHaveBeenCalledWith(expect.stringContaining('Cloned Goblin x1'))
+  })
+
+  it('clones a token multiple times with count', () => {
+    const clone = commands.find((c) => c.name === 'tokenclone')!
+    const ctx = mapCtx()
+    clone.execute('Goblin 3', ctx)
+    expect(ctx.broadcastSystemMessage).toHaveBeenCalledWith(expect.stringContaining('Cloned Goblin x3'))
+  })
+
+  it('shows error when token not found', () => {
+    const clone = commands.find((c) => c.name === 'tokenclone')!
+    const ctx = mapCtx()
+    clone.execute('Beholder', ctx)
+    expect(ctx.addSystemMessage).toHaveBeenCalledWith(expect.stringContaining('Token not found'))
+  })
+})
+
+describe('tokenHideCommand', () => {
+  it('shows usage when no args', () => {
+    const hide = commands.find((c) => c.name === 'tokenhide')!
+    const ctx = mapCtx()
+    hide.execute('', ctx)
+    expect(ctx.addSystemMessage).toHaveBeenCalledWith(expect.stringContaining('Usage'))
+  })
+
+  it('hides a token from players', () => {
+    const hide = commands.find((c) => c.name === 'tokenhide')!
+    const ctx = mapCtx()
+    hide.execute('Goblin', ctx)
+    expect(ctx.addSystemMessage).toHaveBeenCalledWith(expect.stringContaining('hidden from players'))
+  })
+
+  it('shows error when token not found', () => {
+    const hide = commands.find((c) => c.name === 'tokenhide')!
+    const ctx = mapCtx()
+    hide.execute('Beholder', ctx)
+    expect(ctx.addSystemMessage).toHaveBeenCalledWith(expect.stringContaining('Token not found'))
+  })
+})
+
+describe('tokenShowCommand', () => {
+  it('reveals a hidden token to players', () => {
+    const show = commands.find((c) => c.name === 'tokenshow')!
+    const ctx = mapCtx()
+    show.execute('Goblin', ctx)
+    expect(ctx.broadcastSystemMessage).toHaveBeenCalledWith(expect.stringContaining('appears'))
+  })
+})
+
+describe('moveTokenCommand', () => {
+  it('shows usage when insufficient args', () => {
+    const move = commands.find((c) => c.name === 'tokenmove')!
+    const ctx = mapCtx()
+    move.execute('Goblin', ctx)
+    expect(ctx.addSystemMessage).toHaveBeenCalledWith(expect.stringContaining('Usage'))
+  })
+
+  it('shows error for non-numeric coordinates', () => {
+    const move = commands.find((c) => c.name === 'tokenmove')!
+    const ctx = mapCtx()
+    move.execute('Goblin a b', ctx)
+    expect(ctx.addSystemMessage).toHaveBeenCalledWith(expect.stringContaining('Coordinates must be numbers'))
+  })
+
+  it('moves a token to specified coordinates', () => {
+    const move = commands.find((c) => c.name === 'tokenmove')!
+    const ctx = mapCtx()
+    move.execute('Goblin 8 9', ctx)
+    expect(ctx.broadcastSystemMessage).toHaveBeenCalledWith(expect.stringContaining('moved to (8, 9)'))
+  })
+
+  it('shows error when token not found', () => {
+    const move = commands.find((c) => c.name === 'tokenmove')!
+    const ctx = mapCtx()
+    move.execute('Beholder 1 2', ctx)
+    expect(ctx.addSystemMessage).toHaveBeenCalledWith(expect.stringContaining('Token not found'))
+  })
+})

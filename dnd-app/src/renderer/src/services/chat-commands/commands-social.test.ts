@@ -12,6 +12,21 @@ vi.mock('../../stores/use-lobby-store', () => ({
   }
 }))
 
+// PHASE-09 09G — map-ping wiring. Game store carries one map with a token for char-1.
+const pingMocks = vi.hoisted(() => ({ createPing: vi.fn(), sendMessage: vi.fn() }))
+vi.mock('../map/map-utils', () => ({ createPing: pingMocks.createPing }))
+vi.mock('../../stores/network-store', () => ({
+  useNetworkStore: { getState: vi.fn(() => ({ sendMessage: pingMocks.sendMessage })) }
+}))
+vi.mock('../../stores/use-game-store', () => ({
+  useGameStore: {
+    getState: vi.fn(() => ({
+      activeMapId: 'map-1',
+      maps: [{ id: 'map-1', grid: { cellSize: 50 }, tokens: [{ entityId: 'char-1', gridX: 2, gridY: 3 }] }]
+    }))
+  }
+}))
+
 import {
   assertCommandNameFormat,
   assertCommandShape,
@@ -240,43 +255,41 @@ describe('commands-social', () => {
 
   describe('/ping command', () => {
     const pingCmd = commands.find((c) => c.name === 'ping')!
+    // biome-ignore lint/suspicious/noExplicitAny: minimal character ctx for the map-ping path
+    const withToken = () => makeCtx({ character: { id: 'char-1' } as any })
 
     it('exists', () => {
       expect(pingCmd).toBeDefined()
     })
 
-    it('pings the map when no target or "map" provided', () => {
-      const result = pingCmd.execute('', makeCtx())
-      expect(result).toHaveProperty('type', 'broadcast')
+    it('drops a map ping at the caller token and emits game:map-ping', () => {
+      const result = pingCmd.execute('', withToken())
+      // cellSize 50, token (2,3) → world (2*50+25, 3*50+25) = (125, 175)
+      expect(pingMocks.createPing).toHaveBeenCalledWith(125, 175, 'TestPlayer')
+      expect(pingMocks.sendMessage).toHaveBeenCalledWith('game:map-ping', { gridX: 2, gridY: 3 })
       expect((result as { content: string }).content).toContain('pings the map')
     })
 
-    it('pings a specific player by name', () => {
-      const result = pingCmd.execute('Alice', makeCtx())
+    it('handles the explicit "map" argument the same way', () => {
+      pingCmd.execute('map', withToken())
+      expect(pingMocks.createPing).toHaveBeenCalled()
+      expect(pingMocks.sendMessage).toHaveBeenCalledWith('game:map-ping', { gridX: 2, gridY: 3 })
+    })
+
+    it('errors honestly when the caller has no token to ping from', () => {
+      const result = pingCmd.execute('', makeCtx({ character: null }))
+      expect(result).toHaveProperty('type', 'error')
+      expect((result as { content: string }).content).toContain('No token to ping from')
+      expect(pingMocks.createPing).not.toHaveBeenCalled()
+      expect(pingMocks.sendMessage).not.toHaveBeenCalled()
+    })
+
+    it('pings a specific player by name without touching the map', () => {
+      const result = pingCmd.execute('Alice', withToken())
       expect(result).toHaveProperty('type', 'broadcast')
       expect((result as { content: string }).content).toContain('Alice')
-    })
-  })
-
-  describe('/whisper command', () => {
-    const whisperCmd = commands.find((c) => c.name === 'whisper')!
-
-    it('exists with w, tell, dm aliases', () => {
-      expect(whisperCmd).toBeDefined()
-      expect(whisperCmd.aliases).toContain('w')
-      expect(whisperCmd.aliases).toContain('tell')
-      expect(whisperCmd.aliases).toContain('dm')
-    })
-
-    it('returns error when no args or incomplete', () => {
-      const result = whisperCmd.execute('', makeCtx())
-      expect(result).toHaveProperty('type', 'error')
-    })
-
-    it('succeeds with target and message', () => {
-      const result = whisperCmd.execute('Alice hello there!', makeCtx())
-      expect(result).toHaveProperty('type', 'system')
-      expect((result as { content: string }).content).toContain('Whisper to Alice')
+      expect(pingMocks.createPing).not.toHaveBeenCalled()
+      expect(pingMocks.sendMessage).not.toHaveBeenCalled()
     })
   })
 
@@ -314,7 +327,6 @@ describe('commands-social', () => {
     expect(names).toContain('mute')
     expect(names).toContain('say')
     expect(names).toContain('ping')
-    expect(names).toContain('whisper')
     expect(names).toContain('playersping')
   })
 })

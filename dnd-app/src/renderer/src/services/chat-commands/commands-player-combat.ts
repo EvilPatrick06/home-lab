@@ -434,7 +434,7 @@ const attackCommand: ChatCommand = {
 
 const torchCommand: ChatCommand = {
   name: 'torch',
-  aliases: ['light', 'lantern', 'lamp'],
+  aliases: ['lantern', 'lamp'],
   description: 'Toggle a personal light source on your token',
   usage: '/torch [source|off]',
   examples: ['/torch', '/light lantern', '/light off', '/lamp'],

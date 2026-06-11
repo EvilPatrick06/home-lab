@@ -1,25 +1,4 @@
 import { getPluginCommandRegistry } from '../plugin-system/plugin-registry'
-import {
-  dashCommand,
-  delayactionCommand,
-  disengageCommand,
-  dodgeCommand,
-  grappleCommand,
-  hideCommand,
-  multiattackCommand,
-  reactionCommand,
-  readyactionCommand,
-  searchCommand,
-  shoveCommand,
-  useobjCommand
-} from './action-commands'
-import {
-  aoeDamageCommand,
-  attackCommand,
-  offhandAttackCommand,
-  torchCommand,
-  unarmedAttackCommand
-} from './attack-commands'
 import { commands as conditionShortcutCommands } from './commands-condition-shortcuts'
 import { commands as diceCommands } from './commands-dice'
 import { commands as dmAiCommands } from './commands-dm-ai'
@@ -46,30 +25,11 @@ import { commands as playerSpellCommands } from './commands-player-spells'
 import { commands as playerUtilityCommands } from './commands-player-utility'
 import { commands as socialCommands } from './commands-social'
 import { commands as utilityCommands } from './commands-utility'
-import {
-  centerCommand,
-  darknessCommand,
-  elevateCommand,
-  fogCommand,
-  gridCommand,
-  lightCommand,
-  sunmoonCommand,
-  weatherCommand2,
-  zoomCommand
-} from './map-environment-commands'
-import {
-  moveTokenCommand,
-  summonCommand,
-  tokenCloneCommand,
-  tokenCommand,
-  tokenHideCommand,
-  tokenShowCommand
-} from './map-token-commands'
 import type { ChatCommand, CommandContext, CommandResult, CommandReturn } from './types'
 
 // ─── Full command registry ───────────────────────────────────────
 
-const allCommands: ChatCommand[] = [
+export const allCommands: ChatCommand[] = [
   ...diceCommands,
   ...playerHpCommands,
   ...playerResourceCommands,
@@ -95,43 +55,7 @@ const allCommands: ChatCommand[] = [
   ...dmCampaignCommands,
   ...socialCommands,
   ...utilityCommands,
-  ...dmSoundCommands,
-  // Action commands (grapple, shove, dash, dodge, hide, etc.)
-  grappleCommand,
-  shoveCommand,
-  readyactionCommand,
-  delayactionCommand,
-  multiattackCommand,
-  reactionCommand,
-  useobjCommand,
-  dashCommand,
-  disengageCommand,
-  dodgeCommand,
-  hideCommand,
-  searchCommand,
-  // Attack commands (offhand, unarmed, AoE, full attack, torch)
-  offhandAttackCommand,
-  unarmedAttackCommand,
-  aoeDamageCommand,
-  attackCommand,
-  torchCommand,
-  // Map environment commands (fog, light, elevation, weather, grid, zoom)
-  fogCommand,
-  lightCommand,
-  elevateCommand,
-  darknessCommand,
-  weatherCommand2,
-  sunmoonCommand,
-  gridCommand,
-  zoomCommand,
-  centerCommand,
-  // Map token commands (add/remove, summon, clone, hide/show, move)
-  tokenCommand,
-  summonCommand,
-  tokenCloneCommand,
-  tokenHideCommand,
-  tokenShowCommand,
-  moveTokenCommand
+  ...dmSoundCommands
 ]
 
 // ─── Normalize command return ────────────────────────────────────

@@ -64,23 +64,12 @@ describe('commands-dm-monsters', () => {
     }
   })
 
-  it('contains all 10 expected commands', () => {
+  it('contains the expected commands', () => {
     const names = commands.map((c) => c.name)
     expect(names).toEqual(
-      expect.arrayContaining([
-        'statblock',
-        'cr',
-        'spawn',
-        'kill',
-        'legendary',
-        'lair',
-        'healall',
-        'npcmood',
-        'npcsay',
-        'revive'
-      ])
+      expect.arrayContaining(['statblock', 'cr', 'spawn', 'kill', 'legendary', 'lair', 'healall', 'npcsay', 'revive'])
     )
-    expect(commands).toHaveLength(10)
+    expect(commands).toHaveLength(9)
   })
 
   // ── /statblock ───────────────────────────────────────────────
@@ -278,46 +267,6 @@ describe('commands-dm-monsters', () => {
   })
 
   // ── /npcmood ─────────────────────────────────────────────────
-  describe('npcmood', () => {
-    const cmd = () => commands.find((c) => c.name === 'npcmood')!
-
-    it('has aliases mood and attitude', () => {
-      expect(cmd().aliases).toContain('mood')
-      expect(cmd().aliases).toContain('attitude')
-    })
-
-    it('rejects invalid mood', () => {
-      const result = cmd().execute('Guard angry', makeCtx())
-      expect(result).toEqual({ type: 'error', content: expect.stringContaining('Mood must be') })
-    })
-
-    it('returns error with only one arg', () => {
-      const result = cmd().execute('Guard', makeCtx())
-      expect(result).toEqual({ type: 'error', content: expect.stringContaining('Usage') })
-    })
-
-    it('accepts friendly mood', () => {
-      const result = cmd().execute('Guard friendly', makeCtx())
-      expect(result).toEqual({ type: 'broadcast', content: expect.stringContaining('Friendly') })
-      expect((result as { content: string }).content).toContain('Guard')
-    })
-
-    it('accepts hostile mood', () => {
-      const result = cmd().execute('Bartender hostile', makeCtx())
-      expect(result).toEqual({ type: 'broadcast', content: expect.stringContaining('Hostile') })
-    })
-
-    it('accepts indifferent mood', () => {
-      const result = cmd().execute('Merchant indifferent', makeCtx())
-      expect(result).toEqual({ type: 'broadcast', content: expect.stringContaining('Indifferent') })
-    })
-
-    it('handles multi-word NPC name', () => {
-      const result = cmd().execute('City Guard Captain friendly', makeCtx())
-      expect((result as { content: string }).content).toContain('City Guard Captain')
-    })
-  })
-
   // ── /npcsay ──────────────────────────────────────────────────
   describe('npcsay', () => {
     const cmd = () => commands.find((c) => c.name === 'npcsay')!
@@ -349,8 +298,8 @@ describe('commands-dm-monsters', () => {
   describe('revive', () => {
     const cmd = () => commands.find((c) => c.name === 'revive')!
 
-    it('has alias stabilize', () => {
-      expect(cmd().aliases).toContain('stabilize')
+    it('no longer shadows the player /stabilize (alias removed)', () => {
+      expect(cmd().aliases).not.toContain('stabilize')
     })
 
     it('returns error when no name given', () => {

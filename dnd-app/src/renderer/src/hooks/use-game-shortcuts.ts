@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { destroy, init, registerHandler } from '../services/keyboard-shortcuts'
+import * as UndoManager from '../services/undo-manager'
 import { useGameStore } from '../stores/use-game-store'
 
 export interface GameShortcutCallbacks {
@@ -96,11 +97,13 @@ export function useGameShortcuts(isDM: boolean, callbacks: GameShortcutCallbacks
           break
 
         case 'undo':
-          // Reserved for future undo system
+          // PHASE-09 09H — DM-only: every pushed action is a DM map mutation (see
+          // undo-manager scope note). A player Ctrl+Z stays a no-op.
+          if (isDM) UndoManager.undo()
           break
 
         case 'redo':
-          // Reserved for future redo system
+          if (isDM) UndoManager.redo()
           break
 
         // zoom-in, zoom-out, zoom-fit are handled natively by the map canvas

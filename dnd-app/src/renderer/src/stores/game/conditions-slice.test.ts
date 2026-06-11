@@ -12,4 +12,13 @@ describe('conditions-slice', () => {
     const mod = await import('./conditions-slice')
     expect(typeof mod.createConditionsSlice).toBe('function')
   })
+
+  it('clearAllConditions empties the conditions array (PHASE-09 09D)', async () => {
+    const { createConditionsSlice } = await import('./conditions-slice')
+    const set = vi.fn()
+    // biome-ignore lint/suspicious/noExplicitAny: minimal StateCreator harness for a unit test
+    const slice = createConditionsSlice(set as any, (() => ({})) as any, {} as any)
+    slice.clearAllConditions()
+    expect(set).toHaveBeenCalledWith({ conditions: [] })
+  })
 })

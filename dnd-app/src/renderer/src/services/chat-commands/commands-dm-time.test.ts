@@ -68,7 +68,6 @@ describe('commands-dm-time', () => {
     expect(names).toContain('downtime')
     expect(names).toContain('craft')
     expect(names).toContain('timeset')
-    expect(names).toContain('rest')
   })
 
   it('all commands are in the dm category', () => {

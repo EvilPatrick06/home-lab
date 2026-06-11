@@ -179,54 +179,6 @@ const sneakattackCommand: ChatCommand = {
   }
 }
 
-const concentrationCheckCommand: ChatCommand = {
-  name: 'conccheck',
-  aliases: ['concentrationcheck', 'concdc'],
-  description: 'Roll a Constitution save to maintain concentration (DC = max(10, damage/2))',
-  usage: '/conccheck <damage taken>',
-  dmOnly: false,
-  category: 'player',
-  execute: (args, ctx) => {
-    const damage = parseInt(args.trim(), 10)
-    if (Number.isNaN(damage) || damage < 0) {
-      return { type: 'error', content: 'Usage: /conccheck <damage taken>' }
-    }
-    const dc = Math.max(10, Math.floor(damage / 2))
-    const roll = rollSingle(20)
-    const tag = roll === 20 ? ' **Natural 20!**' : roll === 1 ? ' *Natural 1!*' : ''
-    const result = roll >= dc ? 'MAINTAINED' : 'BROKEN'
-    const color = roll >= dc ? '**' : '*'
-    trigger3dDice({ formula: '1d20', rolls: [roll], total: roll, rollerName: ctx.playerName })
-    return {
-      type: 'broadcast',
-      content: `**${ctx.playerName}** Concentration Check (DC ${dc}, ${damage} damage): d20 = **${roll}**${tag} — ${color}${result}${color}`
-    }
-  }
-}
-
-const wildshapeCommand: ChatCommand = {
-  name: 'wildshape',
-  aliases: ['ws'],
-  description: 'Announce Wild Shape transformation (Druid)',
-  usage: '/wildshape <creature name> [HP]',
-  dmOnly: false,
-  category: 'player',
-  execute: (args, ctx) => {
-    const parts = args.trim().split(/\s+/)
-    if (!parts[0]) {
-      return { type: 'error', content: 'Usage: /wildshape <creature name> [HP]' }
-    }
-    const lastPart = parts[parts.length - 1]
-    const hp = parseInt(lastPart, 10)
-    const hasHp = !Number.isNaN(hp) && parts.length > 1
-    const creature = hasHp ? parts.slice(0, -1).join(' ') : parts.join(' ')
-    return {
-      type: 'broadcast',
-      content: `**${ctx.playerName}** transforms into a **${creature}** (Wild Shape)${hasHp ? ` — ${hp} HP` : ''}!`
-    }
-  }
-}
-
 export const commands: ChatCommand[] = [
   castCommand,
   pactmagicCommand,
@@ -234,7 +186,5 @@ export const commands: ChatCommand[] = [
   dispelCommand,
   identifyCommand,
   smiteCommand,
-  sneakattackCommand,
-  concentrationCheckCommand,
-  wildshapeCommand
+  sneakattackCommand
 ]

@@ -173,34 +173,9 @@ const healallCommand: ChatCommand = {
   }
 }
 
-const npcMoodCommand: ChatCommand = {
-  name: 'npcmood',
-  aliases: ['mood', 'attitude'],
-  description: "Set an NPC's attitude/mood (Hostile, Indifferent, Friendly)",
-  usage: '/npcmood <npc name> <hostile|indifferent|friendly>',
-  dmOnly: true,
-  category: 'dm',
-  execute: (args) => {
-    const parts = args.trim().split(/\s+/)
-    if (parts.length < 2) {
-      return { type: 'error', content: 'Usage: /npcmood <npc name> <hostile|indifferent|friendly>' }
-    }
-    const mood = parts[parts.length - 1].toLowerCase()
-    const npcName = parts.slice(0, -1).join(' ')
-    const validMoods = ['hostile', 'indifferent', 'friendly']
-    if (!validMoods.includes(mood)) {
-      return { type: 'error', content: `Mood must be one of: ${validMoods.join(', ')}` }
-    }
-    return {
-      type: 'broadcast',
-      content: `**${npcName}**'s attitude is now **${mood.charAt(0).toUpperCase() + mood.slice(1)}**.`
-    }
-  }
-}
-
 const npcSpeakCommand: ChatCommand = {
   name: 'npcsay',
-  aliases: ['npcsay'],
+  aliases: [],
   description: 'Have an NPC speak with their name highlighted',
   usage: '/npcsay <npc name> <dialogue>',
   dmOnly: true,
@@ -220,7 +195,7 @@ const npcSpeakCommand: ChatCommand = {
 
 const reviveCommand: ChatCommand = {
   name: 'revive',
-  aliases: ['stabilize'],
+  aliases: [],
   description: 'Stabilize or revive a creature (set to 1 HP)',
   usage: '/revive <token name>',
   dmOnly: true,
@@ -259,7 +234,6 @@ export const commands: ChatCommand[] = [
   legendaryCommand,
   lairCommand,
   healallCommand,
-  npcMoodCommand,
   npcSpeakCommand,
   reviveCommand
 ]

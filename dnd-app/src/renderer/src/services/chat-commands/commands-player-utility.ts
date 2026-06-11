@@ -100,7 +100,7 @@ const REFERENCE_DATA: Record<string, string> = {
 export const commands: ChatCommand[] = [
   {
     name: 'save',
-    aliases: [],
+    aliases: ['savingthrow', 'st'],
     category: 'player',
     dmOnly: false,
     description: 'Roll a saving throw',
@@ -293,21 +293,6 @@ export const commands: ChatCommand[] = [
     }
   },
   {
-    name: 'attack',
-    aliases: [],
-    category: 'player',
-    dmOnly: false,
-    description: 'Open the attack modal',
-    usage: '/attack',
-    execute: (_args, _context) => {
-      return {
-        type: 'system',
-        content:
-          'Open the character sheet and use the Offense tab to make attacks with full weapon mastery and bonus tracking.'
-      }
-    }
-  },
-  {
     name: 'help',
     aliases: ['commands', '?'],
     category: 'player',
@@ -364,7 +349,7 @@ export const commands: ChatCommand[] = [
   },
   {
     name: 'w',
-    aliases: ['whisper', 'msg', 'pm'],
+    aliases: ['whisper', 'msg', 'pm', 'tell'],
     category: 'player',
     dmOnly: false,
     description: 'Send a whisper to another player',

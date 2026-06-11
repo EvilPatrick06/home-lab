@@ -173,7 +173,7 @@ const lootCommand: ChatCommand = {
 
 const encounterCommand: ChatCommand = {
   name: 'encounter',
-  aliases: ['enc'],
+  aliases: [],
   description: 'Open encounter builder',
   usage: '/encounter',
   dmOnly: true,
@@ -221,16 +221,16 @@ const shopRemoveCommand: ChatCommand = {
 }
 
 const identifyCommand: ChatCommand = {
-  name: 'identify',
-  aliases: [],
+  name: 'identifyitem',
+  aliases: ['iditem'],
   description: 'Identify a magic item on a character',
-  usage: '/identify <character> <item name>',
+  usage: '/identifyitem <character> <item name>',
   dmOnly: true,
   category: 'dm',
   execute: (args, ctx) => {
     const match = args.match(/^(\S+)\s+(.+)$/)
     if (!match) {
-      ctx.addSystemMessage('Usage: /identify <character> <item name>')
+      ctx.addSystemMessage('Usage: /identifyitem <character> <item name>')
       return
     }
     const [, charQuery, itemQuery] = match

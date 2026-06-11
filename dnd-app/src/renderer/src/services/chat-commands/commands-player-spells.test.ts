@@ -80,8 +80,6 @@ describe('commands-player-spells', () => {
     expect(names).toContain('identify')
     expect(names).toContain('smite')
     expect(names).toContain('sneakattack')
-    expect(names).toContain('conccheck')
-    expect(names).toContain('wildshape')
   })
 
   // ── /cast ──────────────────────────────────────────────────────────────
@@ -400,101 +398,6 @@ describe('commands-player-spells', () => {
       const result = saCmd.execute('20', makeCtx()) as CommandMessage
       expect(result.type).toBe('broadcast')
       expect(result.content).toContain('20d6')
-    })
-  })
-
-  // ── /conccheck ─────────────────────────────────────────────────────────
-
-  describe('/conccheck command', () => {
-    const ccCmd = commands.find((c) => c.name === 'conccheck')!
-
-    it('has concentrationcheck and concdc aliases', () => {
-      expect(ccCmd.aliases).toContain('concentrationcheck')
-      expect(ccCmd.aliases).toContain('concdc')
-    })
-
-    it('returns error when no args', () => {
-      const result = ccCmd.execute('', makeCtx()) as CommandMessage
-      expect(result.type).toBe('error')
-    })
-
-    it('returns error for non-numeric args', () => {
-      const result = ccCmd.execute('abc', makeCtx()) as CommandMessage
-      expect(result.type).toBe('error')
-    })
-
-    it('returns error for negative damage', () => {
-      const result = ccCmd.execute('-5', makeCtx()) as CommandMessage
-      expect(result.type).toBe('error')
-    })
-
-    it('calculates DC as max(10, damage/2) for low damage', () => {
-      // damage=10, DC=max(10,5)=10. rollSingle mock returns 10, so 10>=10 = MAINTAINED
-      const result = ccCmd.execute('10', makeCtx()) as CommandMessage
-      expect(result.type).toBe('broadcast')
-      expect(result.content).toContain('DC 10')
-      expect(result.content).toContain('MAINTAINED')
-    })
-
-    it('calculates DC for high damage', () => {
-      // damage=30, DC=max(10,15)=15. rollSingle returns 10, so 10<15 = BROKEN
-      const result = ccCmd.execute('30', makeCtx()) as CommandMessage
-      expect(result.type).toBe('broadcast')
-      expect(result.content).toContain('DC 15')
-      expect(result.content).toContain('BROKEN')
-    })
-
-    it('calculates DC for 0 damage', () => {
-      // damage=0, DC=max(10,0)=10
-      const result = ccCmd.execute('0', makeCtx()) as CommandMessage
-      expect(result.type).toBe('broadcast')
-      expect(result.content).toContain('DC 10')
-    })
-
-    it('includes Concentration Check label', () => {
-      const result = ccCmd.execute('10', makeCtx()) as CommandMessage
-      expect(result.content).toContain('Concentration Check')
-    })
-  })
-
-  // ── /wildshape ─────────────────────────────────────────────────────────
-
-  describe('/wildshape command', () => {
-    const wsCmd = commands.find((c) => c.name === 'wildshape')!
-
-    it('has ws alias', () => {
-      expect(wsCmd.aliases).toContain('ws')
-    })
-
-    it('returns error when no args', () => {
-      const result = wsCmd.execute('', makeCtx()) as CommandMessage
-      expect(result.type).toBe('error')
-    })
-
-    it('announces transformation with creature name', () => {
-      const result = wsCmd.execute('Brown Bear', makeCtx()) as CommandMessage
-      expect(result.type).toBe('broadcast')
-      expect(result.content).toContain('Brown Bear')
-      expect(result.content).toContain('Wild Shape')
-    })
-
-    it('includes HP when provided as last argument', () => {
-      const result = wsCmd.execute('Dire Wolf 37', makeCtx()) as CommandMessage
-      expect(result.type).toBe('broadcast')
-      expect(result.content).toContain('Dire Wolf')
-      expect(result.content).toContain('37 HP')
-    })
-
-    it('handles single-word creature without HP', () => {
-      const result = wsCmd.execute('Spider', makeCtx()) as CommandMessage
-      expect(result.type).toBe('broadcast')
-      expect(result.content).toContain('Spider')
-      expect(result.content).not.toContain('HP')
-    })
-
-    it('includes player name', () => {
-      const result = wsCmd.execute('Wolf', makeCtx({ playerName: 'Druid' })) as CommandMessage
-      expect(result.content).toContain('Druid')
     })
   })
 })

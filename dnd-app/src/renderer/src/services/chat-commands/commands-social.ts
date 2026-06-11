@@ -1,4 +1,7 @@
+import { useNetworkStore } from '../../stores/network-store'
+import { useGameStore } from '../../stores/use-game-store'
 import { useLobbyStore } from '../../stores/use-lobby-store'
+import { createPing } from '../map/map-utils'
 import type { ChatCommand } from './types'
 
 const meCommand: ChatCommand = {
@@ -178,6 +181,19 @@ const pingCommand: ChatCommand = {
   execute: (args, ctx) => {
     const target = args.trim()
     if (!target || target.toLowerCase() === 'map') {
+      // Map ping: drop an animated marker at the caller's token, locally and on every peer.
+      const game = useGameStore.getState()
+      const activeMap = game.maps.find((m) => m.id === game.activeMapId)
+      const token = activeMap?.tokens.find((t) => t.entityId === ctx.character?.id)
+      if (!activeMap || !token) {
+        return {
+          type: 'error',
+          content: 'No token to ping from — double-click the map to ping a location.'
+        }
+      }
+      const cellSize = activeMap.grid.cellSize
+      createPing(token.gridX * cellSize + cellSize / 2, token.gridY * cellSize + cellSize / 2, ctx.playerName)
+      useNetworkStore.getState().sendMessage('game:map-ping', { gridX: token.gridX, gridY: token.gridY })
       return {
         type: 'broadcast',
         content: `**${ctx.playerName}** pings the map! 📍`
@@ -194,26 +210,6 @@ const pingCommand: ChatCommand = {
     return {
       type: 'broadcast',
       content: `**${ctx.playerName}** pings **${target}**! 🔔`
-    }
-  }
-}
-
-const whisperCommand: ChatCommand = {
-  name: 'whisper',
-  aliases: ['w', 'tell', 'dm'],
-  description: 'Send a private message to the DM or a player',
-  usage: '/whisper <player> <message>',
-  dmOnly: false,
-  category: 'player',
-  execute: (args, ctx) => {
-    const match = args.match(/^(\S+)\s+(.+)$/s)
-    if (!match) {
-      return { type: 'error', content: 'Usage: /whisper <player> <message>' }
-    }
-    const [, target, message] = match
-    return {
-      type: 'system',
-      content: `[Whisper to ${target}] ${ctx.playerName}: ${message.trim()}`
     }
   }
 }
@@ -244,6 +240,5 @@ export const commands: ChatCommand[] = [
   muteCommand,
   sayCommand,
   pingCommand,
-  whisperCommand,
   playersPingCommand
 ]

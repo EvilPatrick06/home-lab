@@ -129,5 +129,18 @@ export const createEffectsSlice: StateCreator<GameStoreState, [], [], EffectsSli
     set((s) => ({
       placedTraps: s.placedTraps.map((t) => (t.id === id ? { ...t, ...updates } : t))
     }))
+  },
+
+  // Bulk clear — used by `/clear effects` (PHASE-09 09D). Wipes the active-effect
+  // collections but intentionally leaves placedTraps alone (traps are placement, not
+  // an "active effect").
+  clearAllEffects: () => {
+    set({
+      customEffects: [],
+      activeDiseases: [],
+      activeCurses: [],
+      activeEnvironmentalEffects: [],
+      activeSpellEffects: []
+    })
   }
 })

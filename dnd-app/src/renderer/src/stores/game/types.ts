@@ -198,6 +198,7 @@ export interface ConditionsSliceState {
   addCondition: (condition: EntityCondition) => void
   removeCondition: (conditionId: string) => void
   updateCondition: (conditionId: string, updates: Partial<EntityCondition>) => void
+  clearAllConditions: () => void
 }
 
 export interface FogSliceState {
@@ -329,6 +330,7 @@ export interface EffectsSliceState {
   triggerTrap: (id: string) => void
   revealTrap: (id: string) => void
   updatePlacedTrap: (id: string, updates: Partial<PlacedTrap>) => void
+  clearAllEffects: () => void
 }
 
 export interface FloorSliceState {

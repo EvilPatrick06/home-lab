@@ -178,52 +178,11 @@ describe('commands-player-checks', () => {
     })
   })
 
-  describe('/save command', () => {
-    const saveCmd = commands.find((c) => c.name === 'save')!
-
-    it('exists with savingthrow and st aliases', () => {
-      expect(saveCmd).toBeDefined()
-      expect(saveCmd.aliases).toContain('savingthrow')
-      expect(saveCmd.aliases).toContain('st')
-    })
-
-    it('returns error when ability not recognized', () => {
-      const result = saveCmd.execute('xyz', makeCtx())
-      expect(result).toHaveProperty('type', 'error')
-    })
-
-    it('returns broadcast with saving throw result for valid ability', () => {
-      const result = saveCmd.execute('str +2', makeCtx())
-      expect(result).toHaveProperty('type', 'broadcast')
-      expect((result as { content: string }).content).toContain('Saving Throw')
-      expect((result as { content: string }).content).toContain('Strength')
-    })
-
-    it('works with full ability name', () => {
-      const result = saveCmd.execute('dexterity', makeCtx())
-      expect(result).toHaveProperty('type', 'broadcast')
-      expect((result as { content: string }).content).toContain('Dexterity')
-    })
-
-    it('auto-detects modifier and proficiency from character', () => {
-      const char = {
-        abilityScores: { constitution: 16 },
-        level: 5,
-        proficiencies: { savingThrows: ['constitution'] }
-      }
-      const result = saveCmd.execute('con', makeCtx({ character: char as any }))
-      expect(result).toHaveProperty('type', 'broadcast')
-      // CON 16 = +3, level 5 prof = +3, total = +6
-      expect((result as { content: string }).content).toContain('+6')
-    })
-  })
-
   it('contains expected command names', () => {
     const names = commands.map((c) => c.name)
     expect(names).toContain('contest')
     expect(names).toContain('passive')
     expect(names).toContain('groupcheck')
     expect(names).toContain('ability')
-    expect(names).toContain('save')
   })
 })

@@ -34,5 +34,10 @@ export const createConditionsSlice: StateCreator<GameStoreState, [], [], Conditi
       conditions: state.conditions.map((c) => (c.id === conditionId ? { ...c, ...updates } : c))
     }))
     // Phase 17c (LOG-8) — no exhaustion-6 death trigger (2024 PHB; see addCondition).
+  },
+
+  // Bulk clear — used by `/clear combat` (PHASE-09 09D) to wipe all entity conditions at once.
+  clearAllConditions: () => {
+    set({ conditions: [] })
   }
 })

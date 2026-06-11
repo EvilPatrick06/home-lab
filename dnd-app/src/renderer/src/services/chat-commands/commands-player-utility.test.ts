@@ -123,8 +123,10 @@ describe('commands-player-utility', () => {
   describe('/save command', () => {
     const saveCmd = commands.find((c) => c.name === 'save')!
 
-    it('exists', () => {
+    it('exists with savingthrow and st aliases', () => {
       expect(saveCmd).toBeDefined()
+      expect(saveCmd.aliases).toContain('savingthrow')
+      expect(saveCmd.aliases).toContain('st')
     })
 
     it('returns error when no character', () => {
@@ -261,19 +263,6 @@ describe('commands-player-utility', () => {
     })
   })
 
-  describe('/attack command', () => {
-    const attackCmd = commands.find((c) => c.name === 'attack')!
-
-    it('exists', () => {
-      expect(attackCmd).toBeDefined()
-    })
-
-    it('returns system message directing to character sheet', () => {
-      const result = attackCmd.execute('', makeCtx())
-      expect(result).toHaveProperty('type', 'system')
-    })
-  })
-
   describe('/help command', () => {
     const helpCmd = commands.find((c) => c.name === 'help')!
 
@@ -361,7 +350,6 @@ describe('commands-player-utility', () => {
     expect(names).toContain('check')
     expect(names).toContain('rest')
     expect(names).toContain('longrest')
-    expect(names).toContain('attack')
     expect(names).toContain('help')
     expect(names).toContain('w')
     expect(names).toContain('ref')

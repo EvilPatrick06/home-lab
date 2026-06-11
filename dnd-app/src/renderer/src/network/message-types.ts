@@ -60,6 +60,7 @@ export const MESSAGE_TYPES = [
   'chat:whisper',
   'chat:whisper-received',
   'chat:announcement',
+  'chat:clear',
   'player:color-change',
   'player:color-confirm',
   'player:color-preview',

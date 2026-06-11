@@ -92,7 +92,7 @@ describe('commands-dm-economy', () => {
     expect(names).toContain('encounter')
     expect(names).toContain('shopadd')
     expect(names).toContain('shopremove')
-    expect(names).toContain('identify')
+    expect(names).toContain('identifyitem')
   })
 
   it('dmgold command shows usage with invalid args', async () => {
@@ -293,8 +293,8 @@ describe('commands-dm-economy', () => {
     expect(ctx.broadcastSystemMessage).toHaveBeenCalledWith(expect.stringContaining('Longsword'))
   })
 
-  it('identify command shows usage with no args', () => {
-    const identify = commands.find((c) => c.name === 'identify')!
+  it('identifyitem command shows usage with no args', () => {
+    const identify = commands.find((c) => c.name === 'identifyitem')!
     const ctx = {
       isDM: true,
       playerName: 'DM',

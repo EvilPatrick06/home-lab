@@ -337,32 +337,4 @@ const timeSetCommand: ChatCommand = {
   }
 }
 
-const restCommand: ChatCommand = {
-  name: 'rest',
-  aliases: [],
-  description: 'Announce a short or long rest',
-  usage: '/rest <short|long>',
-  dmOnly: true,
-  category: 'dm',
-  execute: (args, ctx) => {
-    const type = args.trim().toLowerCase()
-    if (type !== 'short' && type !== 'long') {
-      ctx.addSystemMessage('Usage: /rest <short|long>')
-      return
-    }
-    if (type === 'short') {
-      ctx.broadcastSystemMessage('The party takes a **Short Rest** (1 hour). Spend Hit Dice to recover HP.')
-    } else {
-      ctx.broadcastSystemMessage('The party takes a **Long Rest** (8 hours). HP, spell slots, and abilities restored.')
-    }
-  }
-}
-
-export const commands: ChatCommand[] = [
-  timeCommand,
-  shopCommand,
-  downtimeCommand,
-  craftCommand,
-  timeSetCommand,
-  restCommand
-]
+export const commands: ChatCommand[] = [timeCommand, shopCommand, downtimeCommand, craftCommand, timeSetCommand]

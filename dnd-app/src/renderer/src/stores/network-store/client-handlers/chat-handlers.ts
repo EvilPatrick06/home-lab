@@ -16,6 +16,8 @@ import type {
   WhisperPlayerPayload,
   XpAwardPayload
 } from '../../../network'
+import { createPing } from '../../../services/map/map-utils'
+import { useGameStore } from '../../use-game-store'
 import { useLobbyStore } from '../../use-lobby-store'
 import { useMacroStore } from '../../use-macro-store'
 
@@ -236,6 +238,15 @@ export function handleMapPing(message: NetworkMessage): void {
     timestamp: Date.now(),
     isSystem: true
   })
+
+  // PHASE-09 09G — render the animated ping on our own active map, converting the
+  // sender's grid coords with the local map's cell size. Chat line only if we have
+  // no matching active map loaded.
+  const game = useGameStore.getState()
+  const activeMap = game.maps.find((m) => m.id === game.activeMapId)
+  if (!activeMap) return
+  const cellSize = activeMap.grid.cellSize
+  createPing(payload.gridX * cellSize + cellSize / 2, payload.gridY * cellSize + cellSize / 2, message.senderName)
 }
 
 export function handleConcentrationCheck(message: NetworkMessage): void {

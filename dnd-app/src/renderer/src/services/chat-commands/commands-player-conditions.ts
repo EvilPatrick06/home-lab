@@ -182,7 +182,7 @@ export const commands: ChatCommand[] = [
   },
   {
     name: 'conccheck',
-    aliases: ['concentrationcheck', 'concave'],
+    aliases: ['concentrationcheck', 'concave', 'concdc'],
     category: 'player',
     dmOnly: false,
     description: 'Roll a concentration saving throw (CON save, DC = max of 10 or half damage taken)',

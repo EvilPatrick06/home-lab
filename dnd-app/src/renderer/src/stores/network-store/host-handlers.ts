@@ -35,6 +35,7 @@ import type { Permission } from '../../types/permissions'
 import { useCampaignStore } from '../use-campaign-store'
 import { useGameStore } from '../use-game-store'
 import { useLobbyStore } from '../use-lobby-store'
+import { handleMapPing } from './client-handlers/chat-handlers'
 import type { NetworkState } from './index'
 
 // In-memory trade tracking
@@ -79,7 +80,9 @@ const MESSAGE_PERMISSION: Partial<Record<MessageType, Permission>> = {
   'player:trade-request': 'edit_party_inventory',
   'player:journal-add': 'manage_journal',
   'player:journal-update': 'manage_journal',
-  'player:journal-delete': 'manage_journal'
+  'player:journal-delete': 'manage_journal',
+  // PHASE-09 09D — only a peer with chat_clear (DM / co-DM) may clear chat for everyone.
+  'chat:clear': 'chat_clear'
 }
 
 /**
@@ -156,6 +159,14 @@ export function handleHostMessage(
     }
 
     case 'chat:file': {
+      broadcastExcluding(message, fromPeerId)
+      break
+    }
+
+    case 'chat:clear': {
+      // PHASE-09 09D — a co-DM cleared chat: wipe the host's own history, then relay
+      // to every other peer so all panels match. (Permission-gated above by chat_clear.)
+      useLobbyStore.getState().clearChatHistory()
       broadcastExcluding(message, fromPeerId)
       break
     }
@@ -274,6 +285,15 @@ export function handleHostMessage(
     }
 
     case 'game:dice-roll': {
+      broadcastExcluding(message, fromPeerId)
+      break
+    }
+
+    case 'game:map-ping': {
+      // PHASE-09 09G — render the ping on the host's own map, then relay to the
+      // other peers (the default case does NOT relay). Presence-grade, so no
+      // MESSAGE_PERMISSION gate — parity with the double-click ping any client renders.
+      handleMapPing(message)
       broadcastExcluding(message, fromPeerId)
       break
     }

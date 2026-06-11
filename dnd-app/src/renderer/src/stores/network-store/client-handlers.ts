@@ -628,6 +628,12 @@ export function handleClientMessage(
       break
     }
 
+    case 'chat:clear': {
+      // PHASE-09 09D — DM (or co-DM) cleared chat; wipe our local history to match.
+      useLobbyStore.getState().clearChatHistory()
+      break
+    }
+
     case 'ping': {
       const payload = message.payload as { timestamp?: number }
       get().sendMessage('pong', { timestamp: payload.timestamp ?? Date.now() })

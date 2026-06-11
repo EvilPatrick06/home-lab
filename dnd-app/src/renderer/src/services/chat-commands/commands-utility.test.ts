@@ -8,8 +8,81 @@ vi.mock('../dice/dice-service', () => ({
   rollSingle: vi.fn(() => 14)
 }))
 
-// Stub window for undo/redo keyboard events
-vi.stubGlobal('window', { dispatchEvent: vi.fn() })
+// Store mocks for the real /clear and /log behavior (PHASE-09 09D). getState returns
+// a stable module-level object so assertions span calls.
+const gameStoreState = {
+  endInitiative: vi.fn(),
+  clearAllConditions: vi.fn(),
+  clearCombatLog: vi.fn(),
+  clearAllEffects: vi.fn(),
+  combatLog: [] as Array<{ round: number; description: string }>
+}
+vi.mock('../../stores/use-game-store', () => ({
+  useGameStore: { getState: vi.fn(() => gameStoreState) }
+}))
+const lobbyStoreState = { clearChatHistory: vi.fn() }
+vi.mock('../../stores/use-lobby-store', () => ({
+  useLobbyStore: { getState: vi.fn(() => lobbyStoreState) }
+}))
+const networkStoreState = {
+  sendMessage: vi.fn(),
+  role: 'none' as 'none' | 'host' | 'client',
+  connectionMode: 'p2p' as 'p2p' | 'cloud',
+  latencyMs: null as number | null,
+  peers: [] as Array<{ displayName: string; latencyMs?: number | null }>
+}
+vi.mock('../../stores/network-store', () => ({
+  useNetworkStore: { getState: vi.fn(() => networkStoreState) }
+}))
+
+// io + campaign/character stores for /export and /import (PHASE-09 09F).
+const ioMocks = vi.hoisted(() => ({
+  exportCharacterToFile: vi.fn(async () => true),
+  importCharacterFromFile: vi.fn(async () => null as { name: string; id: string } | null),
+  exportCampaignToFile: vi.fn(async () => true),
+  importCampaignFromFile: vi.fn(
+    async () => null as { campaign: { id: string; name: string }; gameState: Record<string, unknown> | null } | null
+  ),
+  getLatestCharacter: vi.fn(() => ({ id: 'char-1', name: 'Aria' }))
+}))
+vi.mock('../io/character-io', () => ({
+  exportCharacterToFile: ioMocks.exportCharacterToFile,
+  importCharacterFromFile: ioMocks.importCharacterFromFile
+}))
+vi.mock('../io/campaign-io', () => ({
+  exportCampaignToFile: ioMocks.exportCampaignToFile,
+  importCampaignFromFile: ioMocks.importCampaignFromFile
+}))
+vi.mock('./helpers', () => ({ getLatestCharacter: ioMocks.getLatestCharacter }))
+const campaignStoreState = {
+  activeCampaignId: 'camp-1',
+  campaigns: [{ id: 'camp-1', name: 'Lost Mine' }],
+  saveCampaign: vi.fn(async () => {})
+}
+vi.mock('../../stores/use-campaign-store', () => ({
+  useCampaignStore: { getState: vi.fn(() => campaignStoreState) }
+}))
+const characterStoreState = { saveCharacter: vi.fn(async () => {}) }
+vi.mock('../../stores/use-character-store', () => ({
+  useCharacterStore: { getState: vi.fn(() => characterStoreState) }
+}))
+
+// undo-manager for /undo and /redo (PHASE-09 09H).
+const undoMocks = vi.hoisted(() => ({
+  undo: vi.fn(),
+  redo: vi.fn(),
+  canUndo: vi.fn(() => true),
+  canRedo: vi.fn(() => true)
+}))
+vi.mock('../undo-manager', () => ({
+  undo: undoMocks.undo,
+  redo: undoMocks.redo,
+  canUndo: undoMocks.canUndo,
+  canRedo: undoMocks.canRedo
+}))
+
+// Stub window for undo/redo keyboard events + the campaign-import game-state save
+vi.stubGlobal('window', { dispatchEvent: vi.fn(), api: { saveGameState: vi.fn(async () => ({ success: true })) } })
 
 // Stub KeyboardEvent for node environment (used by undo/redo commands)
 vi.stubGlobal(
@@ -86,50 +159,66 @@ describe('commands-utility', () => {
   describe('/undo command', () => {
     const undoCmd = commands.find((c) => c.name === 'undo')!
 
-    it('exists with z alias', () => {
+    it('exists with z alias and is DM-only', () => {
       expect(undoCmd).toBeDefined()
       expect(undoCmd.aliases).toContain('z')
+      expect(undoCmd.dmOnly).toBe(true)
     })
 
-    it('returns system message on execute', () => {
-      const result = undoCmd.execute('', makeCtx())
-      expect(result).toHaveProperty('type', 'system')
-      expect((result as { content: string }).content).toContain('Undo triggered')
+    it('calls the undo-manager and confirms when there is history', () => {
+      undoMocks.canUndo.mockReturnValueOnce(true)
+      const result = undoCmd.execute('', makeCtx({ isDM: true }))
+      expect(undoMocks.undo).toHaveBeenCalled()
+      expect((result as { content: string }).content).toContain('Undid the last map action')
+    })
+
+    it('reports an empty stack honestly without calling undo', () => {
+      undoMocks.canUndo.mockReturnValueOnce(false)
+      const result = undoCmd.execute('', makeCtx({ isDM: true }))
+      expect(undoMocks.undo).not.toHaveBeenCalled()
+      expect((result as { content: string }).content).toContain('Nothing to undo')
+    })
+
+    it('refuses for a non-DM', () => {
+      const result = undoCmd.execute('', makeCtx({ isDM: false }))
+      expect(result).toHaveProperty('type', 'error')
+      expect(undoMocks.undo).not.toHaveBeenCalled()
+    })
+
+    it('never claims "Undo triggered." (the old dead-feature copy)', () => {
+      undoMocks.canUndo.mockReturnValueOnce(true)
+      const result = undoCmd.execute('', makeCtx({ isDM: true }))
+      expect((result as { content: string }).content).not.toContain('Undo triggered')
     })
   })
 
   describe('/redo command', () => {
     const redoCmd = commands.find((c) => c.name === 'redo')!
 
-    it('exists with y alias', () => {
+    it('exists with y alias and is DM-only', () => {
       expect(redoCmd).toBeDefined()
       expect(redoCmd.aliases).toContain('y')
+      expect(redoCmd.dmOnly).toBe(true)
     })
 
-    it('returns system message on execute', () => {
-      const result = redoCmd.execute('', makeCtx())
-      expect(result).toHaveProperty('type', 'system')
-      expect((result as { content: string }).content).toContain('Redo triggered')
-    })
-  })
-
-  describe('/ping command', () => {
-    const pingCmd = commands.find((c) => c.name === 'ping')!
-
-    it('exists', () => {
-      expect(pingCmd).toBeDefined()
+    it('calls the undo-manager and confirms when there is redo history', () => {
+      undoMocks.canRedo.mockReturnValueOnce(true)
+      const result = redoCmd.execute('', makeCtx({ isDM: true }))
+      expect(undoMocks.redo).toHaveBeenCalled()
+      expect((result as { content: string }).content).toContain('Redid the last map action')
     })
 
-    it('broadcasts ping message without extra text', () => {
-      const result = pingCmd.execute('', makeCtx())
-      expect(result).toHaveProperty('type', 'broadcast')
-      expect((result as { content: string }).content).toContain('pings the map')
+    it('reports an empty redo stack honestly without calling redo', () => {
+      undoMocks.canRedo.mockReturnValueOnce(false)
+      const result = redoCmd.execute('', makeCtx({ isDM: true }))
+      expect(undoMocks.redo).not.toHaveBeenCalled()
+      expect((result as { content: string }).content).toContain('Nothing to redo')
     })
 
-    it('broadcasts ping message with a message', () => {
-      const result = pingCmd.execute('look here', makeCtx())
-      expect(result).toHaveProperty('type', 'broadcast')
-      expect((result as { content: string }).content).toContain('look here')
+    it('refuses for a non-DM', () => {
+      const result = redoCmd.execute('', makeCtx({ isDM: false }))
+      expect(result).toHaveProperty('type', 'error')
+      expect(undoMocks.redo).not.toHaveBeenCalled()
     })
   })
 
@@ -141,10 +230,44 @@ describe('commands-utility', () => {
       expect(latCmd.aliases).toContain('lat')
     })
 
-    it('returns system message about network', () => {
+    it('reports an honest solo message when not connected', () => {
+      networkStoreState.role = 'none'
       const result = latCmd.execute('', makeCtx())
-      expect(result).toHaveProperty('type', 'system')
-      expect((result as { content: string }).content).toContain('WebRTC')
+      expect((result as { content: string }).content).toContain('Solo session')
+    })
+
+    it('reports the measured client RTT', () => {
+      networkStoreState.role = 'client'
+      networkStoreState.latencyMs = 42
+      networkStoreState.connectionMode = 'p2p'
+      const result = latCmd.execute('', makeCtx())
+      expect((result as { content: string }).content).toContain('42 ms')
+    })
+
+    it('says "measuring…" for a client before the first pong', () => {
+      networkStoreState.role = 'client'
+      networkStoreState.latencyMs = null
+      const result = latCmd.execute('', makeCtx())
+      expect((result as { content: string }).content).toContain('measuring')
+    })
+
+    it('reports per-peer RTT for the host', () => {
+      networkStoreState.role = 'host'
+      networkStoreState.peers = [
+        { displayName: 'Alice', latencyMs: 30 },
+        { displayName: 'Bob', latencyMs: null }
+      ]
+      const result = latCmd.execute('', makeCtx())
+      const content = (result as { content: string }).content
+      expect(content).toContain('Alice: 30 ms')
+      expect(content).toContain('Bob: measuring')
+    })
+
+    it('does not emit the old canned "depends on peer distance" string', () => {
+      networkStoreState.role = 'client'
+      networkStoreState.latencyMs = 10
+      const result = latCmd.execute('', makeCtx())
+      expect((result as { content: string }).content).not.toContain('depends on peer distance')
     })
   })
 
@@ -156,21 +279,26 @@ describe('commands-utility', () => {
       expect(clearCmd.dmOnly).toBe(true)
     })
 
-    it('clears chat', () => {
+    it('clears chat locally and broadcasts a chat:clear message', () => {
       const result = clearCmd.execute('chat', makeCtx({ isDM: true }))
-      expect(result).toHaveProperty('type', 'system')
+      expect(lobbyStoreState.clearChatHistory).toHaveBeenCalled()
+      expect(networkStoreState.sendMessage).toHaveBeenCalledWith('chat:clear', {})
       expect((result as { content: string }).content).toContain('Chat cleared')
     })
 
-    it('clears combat', () => {
+    it('clears combat state (initiative + conditions + combat log)', () => {
       const result = clearCmd.execute('combat', makeCtx({ isDM: true }))
-      expect(result).toHaveProperty('type', 'system')
+      expect(gameStoreState.endInitiative).toHaveBeenCalled()
+      expect(gameStoreState.clearAllConditions).toHaveBeenCalled()
+      expect(gameStoreState.clearCombatLog).toHaveBeenCalled()
+      expect(result).toHaveProperty('type', 'broadcast')
       expect((result as { content: string }).content).toContain('Combat state cleared')
     })
 
-    it('clears effects', () => {
+    it('clears active effects', () => {
       const result = clearCmd.execute('effects', makeCtx({ isDM: true }))
-      expect(result).toHaveProperty('type', 'system')
+      expect(gameStoreState.clearAllEffects).toHaveBeenCalled()
+      expect(result).toHaveProperty('type', 'broadcast')
       expect((result as { content: string }).content).toContain('effects cleared')
     })
 
@@ -188,20 +316,32 @@ describe('commands-utility', () => {
       expect(logCmd.aliases).toContain('combatlog')
     })
 
-    it('shows log with "show" arg', () => {
+    it('reports an empty log honestly', () => {
+      gameStoreState.combatLog = []
       const result = logCmd.execute('show', makeCtx())
-      expect(result).toHaveProperty('type', 'system')
+      expect((result as { content: string }).content).toContain('Combat log is empty')
     })
 
-    it('shows log with empty args (defaults to show)', () => {
+    it('prints the last entries with round + description', () => {
+      gameStoreState.combatLog = [
+        { round: 1, description: 'Goblin hits Fighter' },
+        { round: 2, description: 'Fighter downs Goblin' }
+      ]
       const result = logCmd.execute('', makeCtx())
-      expect(result).toHaveProperty('type', 'system')
+      const content = (result as { content: string }).content
+      expect(content).toContain('[R1] Goblin hits Fighter')
+      expect(content).toContain('[R2] Fighter downs Goblin')
     })
 
-    it('clears log', () => {
-      const result = logCmd.execute('clear', makeCtx())
-      expect(result).toHaveProperty('type', 'system')
+    it('clears the log for the DM', () => {
+      const result = logCmd.execute('clear', makeCtx({ isDM: true }))
+      expect(gameStoreState.clearCombatLog).toHaveBeenCalled()
       expect((result as { content: string }).content).toContain('cleared')
+    })
+
+    it('refuses to clear the log for a non-DM', () => {
+      const result = logCmd.execute('clear', makeCtx({ isDM: false }))
+      expect(result).toHaveProperty('type', 'error')
     })
 
     it('returns error for unknown subcommand', () => {
@@ -212,24 +352,48 @@ describe('commands-utility', () => {
 
   describe('/export command', () => {
     const exportCmd = commands.find((c) => c.name === 'export')!
+    // biome-ignore lint/suspicious/noExplicitAny: minimal character ctx for the export path
+    const withChar = makeCtx({ character: { id: 'char-1' } as any })
 
     it('exists', () => {
       expect(exportCmd).toBeDefined()
     })
 
-    it('returns system message for character export', () => {
-      const result = exportCmd.execute('character', makeCtx())
-      expect(result).toHaveProperty('type', 'system')
+    it('exports the active character via the io service', async () => {
+      ioMocks.exportCharacterToFile.mockResolvedValueOnce(true)
+      const result = await exportCmd.execute('character', withChar)
+      expect(ioMocks.getLatestCharacter).toHaveBeenCalledWith('char-1')
+      expect(ioMocks.exportCharacterToFile).toHaveBeenCalled()
+      expect((result as { content: string }).content).toContain('Exported character "Aria"')
     })
 
-    it('returns system message for campaign export', () => {
-      const result = exportCmd.execute('campaign', makeCtx())
+    it('reports cancellation calmly when the save dialog is dismissed', async () => {
+      ioMocks.exportCharacterToFile.mockResolvedValueOnce(false)
+      const result = await exportCmd.execute('character', withChar)
       expect(result).toHaveProperty('type', 'system')
+      expect((result as { content: string }).content).toContain('cancelled')
     })
 
-    it('returns error for unknown type', () => {
-      const result = exportCmd.execute('unknown', makeCtx())
+    it('errors when no character is active', async () => {
+      const result = await exportCmd.execute('character', makeCtx({ character: null }))
       expect(result).toHaveProperty('type', 'error')
+    })
+
+    it('exports the active campaign via the io service', async () => {
+      ioMocks.exportCampaignToFile.mockResolvedValueOnce(true)
+      const result = await exportCmd.execute('campaign', makeCtx())
+      expect(ioMocks.exportCampaignToFile).toHaveBeenCalled()
+      expect((result as { content: string }).content).toContain('Exported campaign "Lost Mine"')
+    })
+
+    it('returns error for unknown type', async () => {
+      const result = await exportCmd.execute('unknown', makeCtx())
+      expect(result).toHaveProperty('type', 'error')
+    })
+
+    it('has no "use the main menu" pointer left', () => {
+      // guard: the old false-pointer copy is gone
+      expect(exportCmd.description.toLowerCase()).not.toContain('main menu')
     })
   })
 
@@ -240,13 +404,33 @@ describe('commands-utility', () => {
       expect(importCmd).toBeDefined()
     })
 
-    it('returns system message for character import', () => {
-      const result = importCmd.execute('character', makeCtx())
-      expect(result).toHaveProperty('type', 'system')
+    it('imports a character and saves it', async () => {
+      ioMocks.importCharacterFromFile.mockResolvedValueOnce({ id: 'c9', name: 'Borin' })
+      const result = await importCmd.execute('character', makeCtx())
+      expect(characterStoreState.saveCharacter).toHaveBeenCalledWith({ id: 'c9', name: 'Borin' })
+      expect((result as { content: string }).content).toContain('Imported character "Borin"')
     })
 
-    it('returns error for unknown type', () => {
-      const result = importCmd.execute('spells', makeCtx())
+    it('reports cancellation when the open dialog is dismissed', async () => {
+      ioMocks.importCharacterFromFile.mockResolvedValueOnce(null)
+      const result = await importCmd.execute('character', makeCtx())
+      expect((result as { content: string }).content).toContain('cancelled')
+      expect(characterStoreState.saveCharacter).not.toHaveBeenCalled()
+    })
+
+    it('imports a campaign, saves it, and persists its game state', async () => {
+      ioMocks.importCampaignFromFile.mockResolvedValueOnce({
+        campaign: { id: 'camp-9', name: 'Curse of Strahd' },
+        gameState: { foo: 'bar' }
+      })
+      const result = await importCmd.execute('campaign', makeCtx())
+      expect(campaignStoreState.saveCampaign).toHaveBeenCalledWith({ id: 'camp-9', name: 'Curse of Strahd' })
+      expect(window.api.saveGameState).toHaveBeenCalledWith('camp-9', { foo: 'bar' })
+      expect((result as { content: string }).content).toContain('Curse of Strahd')
+    })
+
+    it('returns error for unknown type', async () => {
+      const result = await importCmd.execute('spells', makeCtx())
       expect(result).toHaveProperty('type', 'error')
     })
   })
@@ -359,27 +543,6 @@ describe('commands-utility', () => {
     })
   })
 
-  describe('/revive command', () => {
-    const reviveCmd = commands.find((c) => c.name === 'revive')!
-
-    it('exists and is DM-only', () => {
-      expect(reviveCmd).toBeDefined()
-      expect(reviveCmd.dmOnly).toBe(true)
-    })
-
-    it('returns error when no target', () => {
-      const result = reviveCmd.execute('', makeCtx({ isDM: true }))
-      expect(result).toHaveProperty('type', 'error')
-    })
-
-    it('returns broadcast for valid target', () => {
-      const result = reviveCmd.execute('Frodo', makeCtx({ isDM: true }))
-      expect(result).toHaveProperty('type', 'broadcast')
-      expect((result as { content: string }).content).toContain('Frodo')
-      expect((result as { content: string }).content).toContain('revived')
-    })
-  })
-
   describe('/massivedamage command', () => {
     const mdCmd = commands.find((c) => c.name === 'massivedamage')!
 
@@ -410,7 +573,6 @@ describe('commands-utility', () => {
     const names = commands.map((c) => c.name)
     expect(names).toContain('undo')
     expect(names).toContain('redo')
-    expect(names).toContain('ping')
     expect(names).toContain('latency')
     expect(names).toContain('clear')
     expect(names).toContain('log')
@@ -422,7 +584,6 @@ describe('commands-utility', () => {
     expect(names).toContain('coinflip')
     expect(names).toContain('percentile')
     expect(names).toContain('stabilize')
-    expect(names).toContain('revive')
     expect(names).toContain('massivedamage')
   })
 })
