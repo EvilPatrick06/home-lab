@@ -128,3 +128,66 @@ describe('gradeAnswer', () => {
     expect(result.source).toBe('oracle');
   });
 });
+
+// Helper: an OK Oracle response whose text content is supplied verbatim.
+const oracleText = (text) => ({
+  ok: true,
+  status: 200,
+  json: async () => ({ content: [{ type: 'text', text }] }),
+  text: async () => text,
+});
+
+describe('gradeAnswer — balanced JSON extraction + abort (PHASE-17 17A)', () => {
+  it('takes the LAST verdict when a prose example precedes the real one', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(oracleText(
+      'For example a pass looks like {"correct": true, "feedback": "example only"}. ' +
+      'My actual verdict: {"correct": false, "feedback": "Nay, scholar."}'
+    ));
+    const result = await gradeAnswer({ question: 'q', expectedAnswer: 'right', userAnswer: 'wrong', fetchImpl });
+    expect(result.source).toBe('oracle');
+    expect(result.correct).toBe(false); // the SECOND (real) verdict, not the example
+    expect(result.feedback).toBe('Nay, scholar.');
+  });
+
+  it('parses a verdict whose feedback string contains { and }', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(oracleText(
+      '{"correct": true, "feedback": "Use the {placeholder} braces correctly."}'
+    ));
+    const result = await gradeAnswer({ question: 'q', expectedAnswer: 'x', userAnswer: 'x', fetchImpl });
+    expect(result.source).toBe('oracle');
+    expect(result.correct).toBe(true);
+    expect(result.feedback).toBe('Use the {placeholder} braces correctly.');
+  });
+
+  it('parses a verdict inside a fenced ```json block', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(oracleText(
+      '```json\n{"correct": true, "feedback": "Aye, well reasoned."}\n```'
+    ));
+    const result = await gradeAnswer({ question: 'q', expectedAnswer: 'x', userAnswer: 'x', fetchImpl });
+    expect(result.source).toBe('oracle');
+    expect(result.correct).toBe(true);
+  });
+
+  it('falls back with reason "unparseable verdict" when no JSON object is present', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(oracleText('I cannot render a structured judgment here.'));
+    const result = await gradeAnswer({ question: 'q', acceptedAnswers: ['x'], userAnswer: 'x', fetchImpl });
+    expect(result.source).toBe('fallback');
+    expect(result.fallbackReason).toBe('unparseable verdict');
+  });
+
+  it('REJECTS with AbortError instead of degrading to a fallback verdict', async () => {
+    const controller = new AbortController();
+    controller.abort();
+    const fetchImpl = vi.fn().mockRejectedValue(new DOMException('Aborted', 'AbortError'));
+    await expect(
+      gradeAnswer({ question: 'q', acceptedAnswers: ['x'], userAnswer: 'x', signal: controller.signal, fetchImpl })
+    ).rejects.toThrow();
+  });
+
+  it('still resolves to a fallback on a non-abort network rejection (regression pin)', async () => {
+    const fetchImpl = vi.fn().mockRejectedValue(new Error('boom'));
+    const result = await gradeAnswer({ question: 'q', acceptedAnswers: ['phishing'], userAnswer: 'phishing', fetchImpl });
+    expect(result.source).toBe('fallback');
+    expect(result.fallbackReason).toBe('boom');
+  });
+});

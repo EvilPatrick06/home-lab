@@ -81,10 +81,11 @@ Supabase dashboard → Authentication → Providers → GitHub:
 ## 5. Set redirect URLs
 
 Supabase dashboard → Authentication → URL Configuration:
-- **Site URL:** `https://evilpatrick06.github.io/home-lab/`
+- **Site URL:** `https://<your-username>.github.io/<your-repo>/`
+  (e.g. `https://evilpatrick06.github.io/home-lab/`)
 - **Redirect URLs (one per line):**
   ```
-  https://evilpatrick06.github.io/home-lab/
+  https://<your-username>.github.io/<your-repo>/
   http://localhost:5173/
   ```
 - Save.

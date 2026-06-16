@@ -1,6 +1,6 @@
-// Oracle-graded free-text answers. Used by Lab, Quiz fillblanks, and Dungeon
-// fillblank challenges. Falls back to a tolerant string match against the
-// tome's canonical answers if the Oracle is unreachable.
+// Oracle-graded free-text answers. Used by Lab and Quiz fillblanks. Falls back
+// to a tolerant string match against the tome's canonical answers if the Oracle
+// is unreachable. (Dungeon battles are MC/TF and never call gradeAnswer.)
 
 const ORACLE_ENDPOINT = 'https://dungeon-scholar-oracle.patrick-home-lab.workers.dev';
 
@@ -46,21 +46,59 @@ Student's answer:
 ${userAnswer}`;
 };
 
+// Collect every balanced top-level {...} block in the text. String-aware so
+// braces inside JSON string values don't break the depth count.
+const collectBalancedJsonBlocks = (text) => {
+  const blocks = [];
+  let depth = 0;
+  let start = -1;
+  let inString = false;
+  let escaped = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (ch === '\\') escaped = true;
+      else if (ch === '"') inString = false;
+      continue;
+    }
+    if (ch === '"' && depth > 0) { inString = true; continue; }
+    if (ch === '{') { if (depth === 0) start = i; depth++; }
+    else if (ch === '}' && depth > 0) {
+      depth--;
+      if (depth === 0 && start >= 0) { blocks.push(text.slice(start, i + 1)); start = -1; }
+    }
+  }
+  return blocks;
+};
+
+// Normalize a parsed object into a verdict, or null if it isn't one.
+const asVerdict = (parsed) => {
+  if (!parsed || typeof parsed.correct !== 'boolean') return null;
+  return {
+    correct: !!parsed.correct,
+    feedback: typeof parsed.feedback === 'string' ? parsed.feedback : '',
+  };
+};
+
 const extractJsonVerdict = (text) => {
   if (!text) return null;
-  // Models sometimes wrap JSON in prose or fenced code; pull out the first {...}.
-  const match = text.match(/\{[\s\S]*\}/);
-  const candidate = match ? match[0] : text;
+  // Fast path: compliant single-object output (incl. feedback that mentions braces).
   try {
-    const parsed = JSON.parse(candidate);
-    if (typeof parsed.correct !== 'boolean') return null;
-    return {
-      correct: !!parsed.correct,
-      feedback: typeof parsed.feedback === 'string' ? parsed.feedback : '',
-    };
-  } catch {
-    return null;
+    const v = asVerdict(JSON.parse(text.trim()));
+    if (v) return v;
+  } catch { /* fall through to balanced-block extraction */ }
+  // Models sometimes wrap a prose example object before the real verdict, or
+  // fence the JSON. Scan every balanced {...} block and take the LAST valid
+  // verdict — the model appends its real answer after any worked example.
+  let last = null;
+  for (const block of collectBalancedJsonBlocks(text)) {
+    try {
+      const v = asVerdict(JSON.parse(block));
+      if (v) last = v;
+    } catch { /* skip non-JSON candidate */ }
   }
+  return last;
 };
 
 const fallbackResult = ({ userAnswer, expectedAnswer, acceptedAnswers, reason }) => {
@@ -86,6 +124,9 @@ const fallbackResult = ({ userAnswer, expectedAnswer, acceptedAnswers, reason })
  * @param {AbortSignal} [args.signal]         to cancel in-flight requests
  * @param {typeof fetch} [args.fetchImpl]     for tests
  * @returns {Promise<{ correct: boolean, feedback: string, source: 'oracle'|'fallback'|'local', fallbackReason?: string }>}
+ *
+ * Rejects with `AbortError` when `signal` aborts; all other failures resolve to
+ * a fallback verdict.
  */
 export async function gradeAnswer({
   question,
@@ -119,6 +160,7 @@ export async function gradeAnswer({
       signal,
     });
   } catch (err) {
+    if (signal?.aborted || err?.name === 'AbortError') throw err;
     return fallbackResult({ userAnswer, expectedAnswer, acceptedAnswers, reason: err?.message || 'network error' });
   }
 
@@ -130,14 +172,18 @@ export async function gradeAnswer({
       if (lower.includes('rate') || lower.includes('quota') || lower.includes('limit') || lower.includes('exceeded')) {
         reason = 'rate limit / quota';
       }
-    } catch { /* ignore */ }
+    } catch (err) {
+      if (signal?.aborted || err?.name === 'AbortError') throw err;
+      /* ignore other body-read errors */
+    }
     return fallbackResult({ userAnswer, expectedAnswer, acceptedAnswers, reason });
   }
 
   let data;
   try {
     data = await response.json();
-  } catch {
+  } catch (err) {
+    if (signal?.aborted || err?.name === 'AbortError') throw err;
     return fallbackResult({ userAnswer, expectedAnswer, acceptedAnswers, reason: 'malformed JSON' });
   }
   if (data?.error) {

@@ -10,6 +10,8 @@ import {
   SIZE_BY_DIFFICULTY,
   makeSeededRng,
   buildQuestionLogEntry,
+  POTION_EFFECTS,
+  takeForesightPreview,
 } from './DungeonExplore.jsx';
 
 // Seedable RNG so map-gen assertions are deterministic per test.
@@ -274,5 +276,53 @@ describe('BIOMES', () => {
       ['wallBase', 'wallTop', 'wallShade', 'floorBase', 'floorAlt', 'floorDetail', 'floorAccent']
         .forEach((k) => expect(typeof b.palette[k]).toBe('string'));
     });
+  });
+});
+
+describe('POTION_EFFECTS (17G — no consuming no-ops)', () => {
+  const IMPLEMENTED = ['heal', 'shield', 'revive', 'xp_buff', 'foresight', 'mana'];
+
+  it('has no entry with kind "noop"', () => {
+    for (const eff of Object.values(POTION_EFFECTS)) {
+      expect(eff.kind).not.toBe('noop');
+    }
+  });
+
+  it('every effect kind is in the implemented set', () => {
+    for (const eff of Object.values(POTION_EFFECTS)) {
+      expect(IMPLEMENTED).toContain(eff.kind);
+    }
+  });
+
+  it('re-specs Foresight Scroll and Tinker\'s Oil to real effects', () => {
+    expect(POTION_EFFECTS.foresight_scroll.kind).toBe('foresight');
+    expect(POTION_EFFECTS.tinkers_oil).toMatchObject({ kind: 'mana', amount: 2 });
+  });
+});
+
+describe('takeForesightPreview (17G)', () => {
+  it('returns null at 0 charges and does not go negative', () => {
+    const ref = { current: 0 };
+    expect(takeForesightPreview(ref, { domain: 'Networking' })).toBe(null);
+    expect(ref.current).toBe(0);
+  });
+
+  it('returns the question domain and decrements one charge', () => {
+    const ref = { current: 1 };
+    expect(takeForesightPreview(ref, { domain: 'Networking' })).toBe('Networking');
+    expect(ref.current).toBe(0);
+  });
+
+  it('returns "Uncharted" for a domain-less question', () => {
+    const ref = { current: 1 };
+    expect(takeForesightPreview(ref, {})).toBe('Uncharted');
+  });
+
+  it('drains charges one per call across consecutive previews', () => {
+    const ref = { current: 2 };
+    expect(takeForesightPreview(ref, { domain: 'A' })).toBe('A');
+    expect(takeForesightPreview(ref, { domain: 'B' })).toBe('B');
+    expect(takeForesightPreview(ref, { domain: 'C' })).toBe(null); // drained
+    expect(ref.current).toBe(0);
   });
 });

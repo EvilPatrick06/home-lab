@@ -1,10 +1,11 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import {
   loadFromLocalStorage,
   saveToLocalStorage,
   hasMeaningfulData,
   hashState,
   semanticHashState,
+  isQuotaExceededError,
   STORAGE_KEY,
   CURRENT_SCHEMA_VER,
   migrateIfNeeded,
@@ -196,6 +197,39 @@ describe('persistence', () => {
     it('returns empty string for null/undefined', () => {
       expect(semanticHashState(null)).toBe('');
       expect(semanticHashState(undefined)).toBe('');
+    });
+  });
+
+  describe('isQuotaExceededError (M10 / 17F)', () => {
+    it('is true for a named QuotaExceededError DOMException', () => {
+      expect(isQuotaExceededError(new DOMException('full', 'QuotaExceededError'))).toBe(true);
+    });
+    it('is true for a code-22 DOMException', () => {
+      // jsdom DOMException ignores a custom code, so synthesize the legacy shape.
+      const err = new DOMException('full');
+      Object.defineProperty(err, 'code', { value: 22 });
+      expect(isQuotaExceededError(err)).toBe(true);
+    });
+    it('is false for a plain Error', () => {
+      expect(isQuotaExceededError(new Error('nope'))).toBe(false);
+    });
+  });
+
+  describe('saveToLocalStorage result (M10 / 17F)', () => {
+    afterEach(() => vi.restoreAllMocks());
+
+    it('returns { ok: true } on a normal write', () => {
+      expect(saveToLocalStorage({ level: 2 })).toEqual({ ok: true });
+    });
+    it('returns { ok: false, quota: true } on a quota DOMException', () => {
+      vi.spyOn(localStorage, 'setItem').mockImplementation(() => {
+        throw new DOMException('full', 'QuotaExceededError');
+      });
+      expect(saveToLocalStorage({ level: 2 })).toEqual({ ok: false, quota: true });
+    });
+    it('returns { ok: false, quota: false } on a generic throw', () => {
+      vi.spyOn(localStorage, 'setItem').mockImplementation(() => { throw new Error('boom'); });
+      expect(saveToLocalStorage({ level: 2 })).toEqual({ ok: false, quota: false });
     });
   });
 });

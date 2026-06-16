@@ -20,15 +20,24 @@ const EQUIP_EFFECTS = {
 };
 
 // === Potion effects =====================================================
-// Quick-slotted potion behaviors when used inside the dungeon.
-const POTION_EFFECTS = {
+// Quick-slotted potion behaviors when used inside the dungeon. Exported for tests (17G).
+export const POTION_EFFECTS = {
   minor_heal_tonic:   { kind: 'heal',    amount: 1, label: 'Healing Tonic' },
   greater_heal_tonic: { kind: 'heal',    amount: 2, label: 'Greater Draught' },
   shield_draught:     { kind: 'shield',  amount: 1, label: 'Shield Draught' },
   phoenix_ember:      { kind: 'revive',             label: 'Phoenix Ember' },
   scholars_brew:      { kind: 'xp_buff', questions: 3, label: "Scholar's Brew" },
-  foresight_scroll:   { kind: 'noop',               label: 'Foresight Scroll' },
-  tinkers_oil:        { kind: 'noop',               label: "Tinker's Oil" },
+  // 17G: previously no-op (consumed the item, did nothing). Now real effects.
+  foresight_scroll:   { kind: 'foresight',          label: 'Foresight Scroll' },
+  tinkers_oil:        { kind: 'mana',    amount: 2, label: "Tinker's Oil" },
+};
+
+// Foresight Scroll (17G): consume one banked charge when a riddle is posed and
+// return the domain label to preview. `chargesRef` is a {current:number} ref.
+export const takeForesightPreview = (chargesRef, q) => {
+  if (!chargesRef || chargesRef.current <= 0) return null;
+  chargesRef.current -= 1;
+  return (q && q.domain) ? q.domain : 'Uncharted';
 };
 // === Spell info (Phase 19) ==============================================
 // In-dungeon mirror of the SPELLS catalog in App.jsx — kept here so the
@@ -2407,6 +2416,9 @@ function BattleModal({
               '#1e293b')}
           </div>
         </div>
+        {battle.previewDomain && (
+          <div className="text-xs italic text-sky-300 mb-1">🔮 Foresight: {battle.previewDomain}</div>
+        )}
         <div className="text-amber-100 italic mb-4 leading-relaxed">{q.question}</div>
         <div className={`grid gap-2 ${q.type === 'truefalse' ? 'grid-cols-2' : 'grid-cols-1'}`}>
           {options.map((opt, i) => {
@@ -2726,6 +2738,10 @@ export default function DungeonExplore({
   // +1 per correct answer. Cap = playerState.maxMana.
   const maxMana = playerState?.maxMana ?? 3;
   const [mana, setMana] = useState(maxMana);
+  // 17G: banked Foresight Scroll charges — each reveals the domain of the next
+  // posed riddle. A ref (not state) so consuming a charge at battle creation
+  // doesn't need a re-render cycle.
+  const foresightChargesRef = useRef(0);
   // Brief hint shown above the battle question when a Sigil of Clarity is
   // cast — clears on the next question cycle.
   const [revealedAnswer, setRevealedAnswer] = useState(null);
@@ -2784,6 +2800,7 @@ export default function DungeonExplore({
     setHp(effectiveMaxHp);
     setShields(effectiveMaxShield);
     setMana(maxMana);
+    foresightChargesRef.current = 0; // 17G: clear banked Foresight charges per delve
     setRevealedAnswer(null);
     setFirstWrongUsed(false);
     setBossKeyFound(false);
@@ -2925,7 +2942,7 @@ export default function DungeonExplore({
       }
       case 'auto_correct': {
         if (!battle) { setNotice({ tone: 'info', text: `${def.name} requires a foe to face.` }); return; }
-        const q = battle.questions[battle.questionIdx];
+        const q = battle.currentQuestion; // F10 (17G): battle has no questions[]/questionIdx — that threw mid-battle
         if (!q) return refund();
         pay();
         setNotice({ tone: 'good', text: `${def.name}: truth lances the question.` });
@@ -2935,7 +2952,7 @@ export default function DungeonExplore({
       }
       case 'reveal_answer': {
         if (!battle) { setNotice({ tone: 'info', text: `${def.name} requires a foe to face.` }); return; }
-        const q = battle.questions[battle.questionIdx];
+        const q = battle.currentQuestion; // F10 (17G): battle has no questions[]/questionIdx — that threw mid-battle
         if (!q) return refund();
         let answerLabel = '';
         if (q.type === 'multiplechoice' && typeof q.correctIndex === 'number') {
@@ -2985,6 +3002,7 @@ export default function DungeonExplore({
     if (!eff) return;
     let usedLabel = POTION_INFO[itemId]?.name || 'Potion';
     let acted = false;
+    let actedNotice = null; // 17G: per-effect success notice (defaults to "Drained: …")
     switch (eff.kind) {
       case 'heal': {
         if (hp >= effectiveMaxHp) {
@@ -3022,16 +3040,34 @@ export default function DungeonExplore({
         acted = true;
         break;
       }
-      case 'noop':
-      default: {
+      case 'foresight': {
+        // 17G: bank a charge — the next posed riddle previews its domain.
+        foresightChargesRef.current += 1;
+        actedNotice = { tone: 'good', text: 'Eyes Beyond: the next riddle\'s nature shall be revealed.' };
         acted = true;
         break;
+      }
+      case 'mana': {
+        // 17G: Tinker's Oil restores spell mana (the live analog of the old
+        // "spent power-up"). Not consumed when mana is already full.
+        if (mana >= maxMana) {
+          setNotice({ tone: 'info', text: `${usedLabel}: thy mana is already full.` });
+          return;
+        }
+        setMana((m) => Math.min(maxMana, m + (eff.amount || 1)));
+        acted = true;
+        break;
+      }
+      default: {
+        // 17G: unknown effect — never destroy the item (was a consuming no-op).
+        setNotice({ tone: 'info', text: `${usedLabel}: nothing happens.` });
+        return;
       }
     }
     if (acted && consumeItem) consumeItem(itemId);
     if (acted) {
       playSfx('pickup');
-      setNotice({ tone: 'good', text: `Drained: ${usedLabel}` });
+      setNotice(actedNotice || { tone: 'good', text: `Drained: ${usedLabel}` });
     }
   };
 
@@ -3263,7 +3299,7 @@ export default function DungeonExplore({
       }
       usedQuestionIdsRef.current.add(first.id);
       bumpAtRef.current = performance.now();
-      setBattle({ type: 'boss', currentQuestion: first, correctCount: 0, maxHp: 5 });
+      setBattle({ type: 'boss', currentQuestion: first, correctCount: 0, maxHp: 5, previewDomain: takeForesightPreview(foresightChargesRef, first) }); // 17G
       return;
     }
     // Mob collision — basic = 1 HP (one correct = dead), elite = 3 HP.
@@ -3279,7 +3315,7 @@ export default function DungeonExplore({
       }
       usedQuestionIdsRef.current.add(first.id);
       bumpAtRef.current = performance.now();
-      setBattle({ type: 'mob', mobIdx, mobTier: mob.tier, currentQuestion: first, correctCount: 0, maxHp: mobHp });
+      setBattle({ type: 'mob', mobIdx, mobTier: mob.tier, currentQuestion: first, correctCount: 0, maxHp: mobHp, previewDomain: takeForesightPreview(foresightChargesRef, first) }); // 17G
       return;
     }
     // Chest collision — pay out gold + maybe an item, mark as opened.
@@ -3407,7 +3443,7 @@ export default function DungeonExplore({
       // Foe still standing — pull a fresh question and continue.
       const next = pickOneQuestion(courseSet, usedQuestionIdsRef.current);
       if (next) usedQuestionIdsRef.current.add(next.id);
-      setBattle({ ...battle, currentQuestion: next || battle.currentQuestion, correctCount: nextCorrect });
+      setBattle({ ...battle, currentQuestion: next || battle.currentQuestion, correctCount: nextCorrect, previewDomain: takeForesightPreview(foresightChargesRef, next) }); // 17G
       return;
     }
 
@@ -3421,7 +3457,7 @@ export default function DungeonExplore({
       }
       const next = pickOneQuestion(courseSet, usedQuestionIdsRef.current);
       if (next) usedQuestionIdsRef.current.add(next.id);
-      setBattle({ ...battle, currentQuestion: next || battle.currentQuestion, correctCount: nextCorrect });
+      setBattle({ ...battle, currentQuestion: next || battle.currentQuestion, correctCount: nextCorrect, previewDomain: takeForesightPreview(foresightChargesRef, next) }); // 17G
     }
   };
 
@@ -3486,9 +3522,7 @@ export default function DungeonExplore({
       }
       if (diffConfig.rewardTitleId && unlockSpecialTitle) unlockSpecialTitle(diffConfig.rewardTitleId);
       if (updateTomeProgress) {
-        const newRunCount = (tomeProgress?.runsCompleted || 0) + 1;
-        const newBossCount = (tomeProgress?.bossesDefeated || 0) + 1;
-        updateTomeProgress({ runsCompleted: newRunCount, bossesDefeated: newBossCount });
+        updateTomeProgress((prev) => ({ runsCompleted: (prev.runsCompleted || 0) + 1, bossesDefeated: (prev.bossesDefeated || 0) + 1 })); // 17D functional form
       }
       if (updateProgress && playerState) {
         updateProgress({ longestStreak: Math.max(playerState.longestStreak || 0, maxStreak) });
@@ -3528,9 +3562,7 @@ export default function DungeonExplore({
       questionLog: [...runQuestionLogRef.current],
     };
     if (updateTomeProgress) {
-      const existing = tomeProgress?.runHistory || [];
-      const trimmed = [...existing, entry].slice(-100);
-      updateTomeProgress({ runHistory: trimmed });
+      updateTomeProgress((prev) => ({ runHistory: [...(prev.runHistory || []), entry].slice(-100) })); // 17D functional form
     }
 
     setEndSummary({

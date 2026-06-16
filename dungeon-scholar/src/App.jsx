@@ -23,10 +23,10 @@ const DungeonExplore = React.lazy(() => import('./components/DungeonExplore.jsx'
 import { Shield, Zap, Brain, FlaskConical, MessageSquare, Upload, Download, Trophy, Flame, Heart, Star, Target, BookOpen, ChevronRight, X, Check, RotateCcw, Sparkles, Lock, Award, TrendingUp, Clock, AlertTriangle, Skull, Crown, Eye, EyeOff, Play, Home, Settings, FileJson, Plus, Minus, ArrowLeft, Send, Loader2, HelpCircle, Calendar, Swords, Scroll, Wand2, Castle, Gem, Library, Trash2, Copy, Edit2, BookMarked, Share2, Tag, User, Hash, ChevronDown, ChevronUp, Compass, ScrollText, CheckCircle2, Gift, Coins, Package, ShoppingBag } from 'lucide-react';
 import { TUTORIAL_STEPS, snapshotBaselines, migrateTutorialIndex } from './tutorial';
 import { gradeAnswer } from './services/oracleGrader.js';
-import { getAudioSettings, setMuted, setBgmVolume, setSfxVolume, armOnFirstGesture, playSfx, getDefaultAudioSettings } from './audio/sound.js';
+import { getAudioSettings, setMuted, setBgmVolume, setSfxVolume, armOnFirstGesture, playSfx, getDefaultAudioSettings, setAudioPersistErrorHandler } from './audio/sound.js';
 import { PETS, PET_LEVEL_XP, PET_MAX_LEVEL, petLevelFromXp, findPet } from './services/pets.js';
 import { SPELLS, findSpell } from './services/spells.js';
-import { DAILY_REWARDS, todayDateStr, dayDiff } from './services/devotion.js';
+import { DAILY_REWARDS, todayDateStr, dayDiff, computeNextClaim, evaluateClaim } from './services/devotion.js';
 import { pickWeakestDomain, WEAK_DOMAIN_MIN_SAMPLE, WEAK_DOMAIN_ACCURACY_THRESHOLD } from './services/weakDomain.js';
 import { computeExamPace } from './services/examPace.js';
 import { computeExamPrediction, PREDICTION_HIGH_COVERAGE, PREDICTION_MEDIUM_COVERAGE } from './services/examPrediction.js';
@@ -506,7 +506,7 @@ const ITEMS = [
   { id: 'foresight_scroll',  name: 'Scroll of Foresight',     description: 'Reveal the category of the next riddle before it is posed.',           icon: '📜', category: 'apothecary', effect: 'preview_next',   price: 40 },
   { id: 'scholars_brew',     name: "Scholar's Brew",          description: 'A bracing tea — gain +25% XP for the next three riddles of a delve.',  icon: '☕', category: 'apothecary', effect: 'xp_buff_3',      price: 50 },
   { id: 'shield_draught',    name: 'Shield Draught',          description: 'Replenish a single dungeon shield (used in Phase 14 combat).',         icon: '🛡️', category: 'apothecary', effect: 'refill_shield',  price: 60 },
-  { id: 'tinkers_oil',       name: "Tinker's Oil",            description: 'Restore a spent power-up (50/50 or Hint) within a delve.',             icon: '🪔', category: 'apothecary', effect: 'refill_powerup', price: 45 },
+  { id: 'tinkers_oil',       name: "Tinker's Oil",            description: 'Restore 2 mana within a delve.',                                      icon: '🪔', category: 'apothecary', effect: 'restore_mana',   price: 45 },
   { id: 'phoenix_ember',     name: 'Phoenix Ember',           description: 'Revive once after defeat — consumed on use.',                          icon: '🔥', category: 'apothecary', effect: 'revive_once',    price: 200 },
 
   // === Wardrobe (cosmetics + equippable head/cloak items) ===
@@ -1277,6 +1277,7 @@ const DEFAULT_STATE = {
   // Devotion is a soft currency for the Devotion section of the shop.
   devotion: 0,
   lastClaimedDate: null,
+  lastClaimedAt: null, // M13 (17E): epoch-ms monotone fence; null for legacy saves (treated as no fence)
   loginStreak: 0,
   longestLoginStreak: 0,
   totalLogins: 0,
@@ -1459,6 +1460,12 @@ export default function DungeonScholarApp() {
 
   // Tutorial step advancement helpers
   const advanceTutorial = (currentId) => {
+    // PHASE-17 17C: compute the transition from current render state so the
+    // toasts fire from the handler, not inside the (pure) updater.
+    const curIdx = playerState.tutorialStepIndex;
+    const curStep = TUTORIAL_STEPS[curIdx];
+    const willAdvance = !playerState.tutorialCompleted && curStep && curStep.id === currentId;
+    const willComplete = willAdvance && (curIdx + 1) >= TUTORIAL_STEPS.length;
     setPlayerState(prev => {
       if (prev.tutorialCompleted) return prev;
       const currentIdx = prev.tutorialStepIndex;
@@ -1477,17 +1484,16 @@ export default function DungeonScholarApp() {
         // Snapshot baselines for the next step's auto-condition.
         tutorialBaselines: snapshotBaselines(prev),
       };
-      if (isComplete) {
-        if (!next.unlockedTitles.includes('initiated')) {
-          next.unlockedTitles = [...next.unlockedTitles, 'initiated'];
-          setTimeout(() => showNotif('Title Unlocked: The Initiated', 'achievement', () => setShowTitles(true)), 200);
-        }
-        setTimeout(() => showNotif('Tutorial Complete! Welcome, brave scholar.', 'levelup'), 400);
-      } else {
-        setTimeout(() => showNotif(`+${xp} XP — ${currentStep.title}`, 'xp'), 100);
+      if (isComplete && !next.unlockedTitles.includes('initiated')) {
+        next.unlockedTitles = [...next.unlockedTitles, 'initiated']; // toast via the central titles effect (17C)
       }
       return next;
     });
+    if (willComplete) {
+      setTimeout(() => showNotif('Tutorial Complete! Welcome, brave scholar.', 'levelup'), 400);
+    } else if (willAdvance) {
+      setTimeout(() => showNotif(`+${curStep.xp || 0} XP — ${curStep.title}`, 'xp'), 100);
+    }
   };
 
   const skipTutorial = () => {
@@ -1677,6 +1683,18 @@ export default function DungeonScholarApp() {
     }, timeoutMs);
   };
 
+  // M10 (17F): surface a silent local-save failure (quota / private mode) once
+  // per session. sync.localSaveFailed is sticky, so this effect fires exactly once.
+  useEffect(() => {
+    if (!sync.localSaveFailed) return;
+    showNotif('Thy progress cannot be saved on this device — sign in for cloud backup, or export thy journal.', 'error', null, 8000);
+  }, [sync.localSaveFailed]);
+
+  // M10 (17F): route audio-settings persistence failures through the same toast.
+  useEffect(() => {
+    setAudioPersistErrorHandler(() => showNotif('Audio settings cannot be saved on this device.', 'info'));
+  }, []);
+
   // Phase 45d: window-level Ctrl+Z / Cmd+Z global hotkey. Triggers the
   // active notification's onClick (Undo for vault vanquish) when one is
   // showing. Keyboard-only users get a reliable undo without having to
@@ -1727,8 +1745,6 @@ export default function DungeonScholarApp() {
         levelMilestones.forEach(m => {
           if (next.level >= m.lvl && !next.achievements.includes(m.id)) {
             next.achievements = [...next.achievements, m.id];
-            const ach = ACHIEVEMENTS.find(a => a.id === m.id);
-            if (ach) setTimeout(() => showNotif(`Achievement Unlocked: ${ach.name}`, 'achievement', () => setShowAchievements(true)), 200);
           }
         });
         const xpMilestones = [
@@ -1739,27 +1755,33 @@ export default function DungeonScholarApp() {
         xpMilestones.forEach(m => {
           if (next.totalXp >= m.amt && !next.achievements.includes(m.id)) {
             next.achievements = [...next.achievements, m.id];
-            const ach = ACHIEVEMENTS.find(a => a.id === m.id);
-            if (ach) setTimeout(() => showNotif(`Achievement Unlocked: ${ach.name}`, 'achievement', () => setShowAchievements(true)), 300);
           }
         });
-        setTimeout(() => showNotif(`Level Up! You are now Level ${next.level}`, 'levelup'), 100);
+        // PHASE-17 17C: level-up + milestone toasts now derive from state
+        // transitions in effects below (this updater must stay pure — StrictMode
+        // double-invokes it, and concurrent rendering may replay it).
       }
       return next;
     });
   };
 
-  // Update active tome's per-tome progress
+  // Update active tome's per-tome progress. `updates` is either a plain patch
+  // object OR a function of the previous progress (PHASE-17 17D / M4). Prefer the
+  // functional form for any read-modify-write (counters, array appends): it runs
+  // inside the setPlayerState updater against the live progress, so a concurrent
+  // Realtime/BroadcastChannel update applied mid-flow can't be clobbered by a
+  // patch derived from a stale render-time `tomeProgress` prop. The function MUST
+  // be pure (no side effects) — it may be replayed under StrictMode/concurrent rendering.
   const updateTomeProgress = (updates) => {
     setPlayerState(prev => {
       if (!prev.activeTomeId) return prev;
       return {
         ...prev,
-        library: prev.library.map(t =>
-          t.id === prev.activeTomeId
-            ? { ...t, progress: { ...t.progress, ...updates } }
-            : t
-        ),
+        library: prev.library.map(t => {
+          if (t.id !== prev.activeTomeId) return t;
+          const patch = typeof updates === 'function' ? updates(t.progress || {}) : updates;
+          return { ...t, progress: { ...t.progress, ...patch } };
+        }),
       };
     });
   };
@@ -1939,14 +1961,14 @@ export default function DungeonScholarApp() {
     if (!petId || !amount || amount <= 0) return;
     const pet = findPet(petId);
     if (!pet) return;
+    // PHASE-17 17C: compute the level transition from render state so the
+    // level-up toast fires from the handler, not inside the (pure) updater.
+    const curRender = (playerState.pets || {})[petId] || { xp: 0 };
+    const beforeLvlRender = petLevelFromXp(curRender.xp || 0);
+    const afterLvlRender = petLevelFromXp((curRender.xp || 0) + amount);
     setPlayerState(prev => {
       const cur = (prev.pets || {})[petId] || { hatchedAt: new Date().toISOString(), xp: 0 };
-      const beforeLvl = petLevelFromXp(cur.xp || 0);
       const nextXp = (cur.xp || 0) + amount;
-      const afterLvl = petLevelFromXp(nextXp);
-      if (afterLvl > beforeLvl) {
-        setTimeout(() => showNotif(`${pet.name} reached level ${afterLvl}!`, 'success'), 50);
-      }
       return {
         ...prev,
         pets: {
@@ -1955,6 +1977,9 @@ export default function DungeonScholarApp() {
         },
       };
     });
+    if (afterLvlRender > beforeLvlRender) {
+      setTimeout(() => showNotif(`${pet.name} reached level ${afterLvlRender}!`, 'success'), 50);
+    }
   };
 
   // Phase 20: claim today's daily devotion reward. Returns { ok, reason,
@@ -1962,15 +1987,20 @@ export default function DungeonScholarApp() {
   // resets the streak if more than one day was missed.
   const claimDailyReward = () => {
     const today = todayDateStr();
-    if (playerState.lastClaimedDate === today) {
-      return { ok: false, reason: 'Thou hast already claimed today\'s devotion.' };
-    }
-    const gap = playerState.lastClaimedDate ? dayDiff(playerState.lastClaimedDate, today) : null;
-    // gap === 1 → continue streak; gap > 1 or null → reset to 1
-    const newStreak = gap === 1 ? (playerState.loginStreak || 0) + 1 : 1;
-    const cycleDay = ((newStreak - 1) % 7) + 1;
+    // M13 (17E): delegate the claim decision (same-day guard + monotone
+    // clock-rollback fence + streak/cycle math) to the pure evaluator.
+    const res = evaluateClaim({
+      now: Date.now(),
+      today,
+      lastClaimedDate: playerState.lastClaimedDate,
+      lastClaimedAt: playerState.lastClaimedAt,
+      loginStreak: playerState.loginStreak,
+    });
+    if (!res.ok) return res;
+    const { newStreak, cycleDay } = res;
     const reward = DAILY_REWARDS[cycleDay - 1];
     if (!reward) return { ok: false, reason: 'Reward table missing.' };
+    const claimedAt = Date.now();
     setPlayerState(prev => {
       const inv = { ...(prev.inventory || {}) };
       (reward.items || []).forEach(({ id, n }) => {
@@ -1984,6 +2014,7 @@ export default function DungeonScholarApp() {
         devotion: (prev.devotion || 0) + (reward.devotion || 0),
         inventory: inv,
         lastClaimedDate: today,
+        lastClaimedAt: claimedAt, // M13: monotone fence stamp
         loginStreak: newStreak,
         longestLoginStreak: Math.max(prev.longestLoginStreak || 0, newStreak),
         totalLogins: (prev.totalLogins || 0) + 1,
@@ -2194,10 +2225,8 @@ export default function DungeonScholarApp() {
   const checkAchievement = (id) => {
     setPlayerState(prev => {
       if (prev.achievements.includes(id)) return prev;
-      const ach = ACHIEVEMENTS.find(a => a.id === id);
-      if (ach) {
-        setTimeout(() => showNotif(`Achievement Unlocked: ${ach.name} (+${ACHIEVEMENT_GOLD} gold)`, 'achievement', () => setShowAchievements(true)), 50);
-      }
+      // Pure updater (PHASE-17 17C): grant the id + gold; the toast derives from
+      // the achievements-transition effect below so StrictMode can't double-fire it.
       return {
         ...prev,
         achievements: [...prev.achievements, id],
@@ -2209,10 +2238,57 @@ export default function DungeonScholarApp() {
   const unlockSpecialTitle = (id) => {
     setPlayerState(prev => {
       if (prev.unlockedTitles.includes(id)) return prev;
-      setTimeout(() => showNotif(`Title Unlocked: ${SPECIAL_TITLES[id].name}`, 'achievement', () => setShowTitles(true)), 50);
+      // Pure updater (PHASE-17 17C): the toast derives from the titles-transition effect below.
       return { ...prev, unlockedTitles: [...prev.unlockedTitles, id] };
     });
   };
+
+  // PHASE-17 17C — achievement/title/level toasts derive from state transitions
+  // so the setState updaters above stay pure. StrictMode double-invokes updaters
+  // in dev (and concurrent rendering may replay them in prod); a toast fired
+  // inside an updater duplicates. Mount-initialized "seen" refs suppress toast
+  // spam for already-unlocked entries on a loaded save.
+  const seenAchievementsRef = useRef(null);
+  useEffect(() => {
+    const current = playerState.achievements || [];
+    if (seenAchievementsRef.current === null) {
+      seenAchievementsRef.current = new Set(current); // mount: no toast spam for loaded saves
+      return;
+    }
+    for (const id of current) {
+      if (seenAchievementsRef.current.has(id)) continue;
+      seenAchievementsRef.current.add(id);
+      const ach = ACHIEVEMENTS.find(a => a.id === id);
+      // No "(+gold)" suffix: only checkAchievement grants gold; the 14 other
+      // grant paths (recordAnswer/trackModeUse/addTomeToLibrary/updateProgress
+      // milestones) award none, so a fixed suffix would be a false claim. The
+      // gold that IS granted still updates the visible counter.
+      if (ach) showNotif(`Achievement Unlocked: ${ach.name}`, 'achievement', () => setShowAchievements(true));
+    }
+  }, [playerState.achievements]);
+
+  const seenTitlesRef = useRef(null);
+  useEffect(() => {
+    const current = playerState.unlockedTitles || [];
+    if (seenTitlesRef.current === null) {
+      seenTitlesRef.current = new Set(current);
+      return;
+    }
+    for (const id of current) {
+      if (seenTitlesRef.current.has(id)) continue;
+      seenTitlesRef.current.add(id);
+      const title = SPECIAL_TITLES[id];
+      if (title) showNotif(`Title Unlocked: ${title.name}`, 'achievement', () => setShowTitles(true));
+    }
+  }, [playerState.unlockedTitles]);
+
+  const prevLevelRef = useRef(playerState.level);
+  useEffect(() => {
+    if (playerState.level > prevLevelRef.current) {
+      showNotif(`Level Up! You are now Level ${playerState.level}`, 'levelup');
+    }
+    prevLevelRef.current = playerState.level;
+  }, [playerState.level]);
 
   // Records one answered question across all modes (Quiz, Lab, Dungeon).
   //
@@ -2292,6 +2368,7 @@ export default function DungeonScholarApp() {
           ...next,
           library: next.library.map(t => {
             if (t.id !== prev.activeTomeId) return t;
+            if (!item.id) return t; // M3 (17E): malformed tome item without an id — never vault it (id-less entries alias each other, and the vault UI/de-vault flow key on m.id so they could never be redeemed)
             const existing = (t.progress?.mistakeVault || []).find(m => m.id === item.id);
             if (existing) return t;
             return {
@@ -2331,9 +2408,7 @@ export default function DungeonScholarApp() {
       ];
       volumeMilestones.forEach(m => {
         if (newCorrect >= m.amt && !next.achievements.includes(m.id)) {
-          next.achievements = [...next.achievements, m.id];
-          const ach = ACHIEVEMENTS.find(a => a.id === m.id);
-          if (ach) setTimeout(() => showNotif(`Achievement Unlocked: ${ach.name}`, 'achievement', () => setShowAchievements(true)), 100);
+          next.achievements = [...next.achievements, m.id]; // toast via the central achievements effect (17C)
         }
       });
       const accuracy = newCorrect / newAnswered;
@@ -2344,9 +2419,7 @@ export default function DungeonScholarApp() {
       ];
       accChecks.forEach(c => {
         if (newAnswered >= c.count && accuracy >= c.acc && !next.achievements.includes(c.id)) {
-          next.achievements = [...next.achievements, c.id];
-          const ach = ACHIEVEMENTS.find(a => a.id === c.id);
-          if (ach) setTimeout(() => showNotif(`Achievement Unlocked: ${ach.name}`, 'achievement', () => setShowAchievements(true)), 150);
+          next.achievements = [...next.achievements, c.id]; // toast via the central achievements effect (17C)
         }
       });
       return next;
@@ -2371,9 +2444,7 @@ export default function DungeonScholarApp() {
         ),
       };
       if (newBanished >= 25 && !next.achievements.includes('vault_warrior')) {
-        next.achievements = [...next.achievements, 'vault_warrior'];
-        const ach = ACHIEVEMENTS.find(a => a.id === 'vault_warrior');
-        if (ach) setTimeout(() => showNotif(`Achievement Unlocked: ${ach.name}`, 'achievement', () => setShowAchievements(true)), 100);
+        next.achievements = [...next.achievements, 'vault_warrior']; // toast via the central achievements effect (17C)
       }
       return next;
     });
@@ -2691,9 +2762,7 @@ export default function DungeonScholarApp() {
       };
 
       if (isFinal && chain.rewardTitleId && !prev.unlockedTitles.includes(chain.rewardTitleId)) {
-        next.unlockedTitles = [...prev.unlockedTitles, chain.rewardTitleId];
-        const titleName = SPECIAL_TITLES[chain.rewardTitleId]?.name || chain.rewardTitleId;
-        setTimeout(() => showNotif(`Title Unlocked: ${titleName}`, 'achievement', () => setShowTitles(true)), 350);
+        next.unlockedTitles = [...prev.unlockedTitles, chain.rewardTitleId]; // toast via the central titles effect (17C)
       }
 
       return next;
@@ -2717,16 +2786,13 @@ export default function DungeonScholarApp() {
       const newModes = [...prev.modesUsed, mode];
       const next = { ...prev, modesUsed: newModes };
       if (newModes.length >= 5 && !next.achievements.includes('all_modes')) {
-        next.achievements = [...next.achievements, 'all_modes'];
-        setTimeout(() => showNotif(`Achievement Unlocked: Versatile Scholar`, 'achievement', () => setShowAchievements(true)), 100);
+        next.achievements = [...next.achievements, 'all_modes']; // toast via the central achievements effect (17C)
       }
       if (mode === 'flashcards' && !next.achievements.includes('first_card')) {
         next.achievements = [...next.achievements, 'first_card'];
-        setTimeout(() => showNotif(`Achievement Unlocked: Open the Tome`, 'achievement', () => setShowAchievements(true)), 200);
       }
       if (mode === 'chat' && !next.achievements.includes('first_oracle')) {
         next.achievements = [...next.achievements, 'first_oracle'];
-        setTimeout(() => showNotif(`Achievement Unlocked: Seeker of Wisdom`, 'achievement', () => setShowAchievements(true)), 200);
       }
       return next;
     });
@@ -2762,24 +2828,23 @@ export default function DungeonScholarApp() {
         library: [...prev.library, newEntry],
         activeTomeId: shouldActivate ? newEntry.id : prev.activeTomeId,
       };
-      if (!shouldActivate) {
-        const title = data?.metadata?.title || 'untitled';
-        setTimeout(() => showNotif(`Tome added: "${title}" — switch from the Library when ready.`, 'info'), 100);
-      }
       if (!next.achievements.includes('first_tome')) {
-        next.achievements = [...next.achievements, 'first_tome'];
-        setTimeout(() => showNotif(`Achievement Unlocked: Library Founded`, 'achievement', () => setShowAchievements(true)), 100);
+        next.achievements = [...next.achievements, 'first_tome']; // toast via the central achievements effect (17C)
       }
       if (next.library.length >= 3 && !next.achievements.includes('tome_collector')) {
         next.achievements = [...next.achievements, 'tome_collector'];
-        setTimeout(() => showNotif(`Achievement Unlocked: Tome Collector`, 'achievement', () => setShowAchievements(true)), 200);
       }
       if (next.library.length >= 10 && !next.achievements.includes('tome_archivist')) {
         next.achievements = [...next.achievements, 'tome_archivist'];
-        setTimeout(() => showNotif(`Achievement Unlocked: Grand Archivist`, 'achievement', () => setShowAchievements(true)), 300);
       }
       return next;
     });
+    // PHASE-17 17C: the "added, not auto-activated" info toast fires from the
+    // handler (computed from render state) rather than inside the updater.
+    if (playerState.activeTomeId) {
+      const title = data?.metadata?.title || 'untitled';
+      setTimeout(() => showNotif(`Tome added: "${title}" — switch from the Library when ready.`, 'info'), 100);
+    }
     return true;
   };
 
@@ -4942,8 +5007,7 @@ function FlashcardsMode({ courseSet, tomeId, cards: cardsProp, tomeProgress, awa
     const xp = rating === SRS_RATINGS.again ? 12 : rating === SRS_RATINGS.hard ? 10 : rating === SRS_RATINGS.good ? 8 : 5;
     awardXP(xp);
     setReviewed(r => r + 1);
-    const newCount = (tomeProgress?.cardsReviewed || 0) + 1;
-    updateTomeProgress({ cardsReviewed: newCount });
+    updateTomeProgress((prev) => ({ cardsReviewed: (prev.cardsReviewed || 0) + 1 })); // 17D functional form
     if (card && updateCardProgress) {
       const prev = (tomeProgress?.cardProgress || {})[card.id];
       updateCardProgress(card.id, scheduleCard(prev, rating));
@@ -5124,6 +5188,10 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
   const [textAnswer, setTextAnswer] = useState('');
   const [streak, setStreak] = useState(0);
   const [grading, setGrading] = useState(false);
+  // PHASE-17 17B (M2): abort an in-flight Oracle grade on unmount / resubmit so
+  // a verdict that lands after leaving the mode can't record progress.
+  const gradeAbortRef = useRef(null);
+  useEffect(() => () => { gradeAbortRef.current?.abort(); }, []);
   // 26a: confidence calibration. User rates 'low' / 'med' / 'high' before
   // they see the answer choices; the rating is passed through to
   // recordAnswer so the per-tome confidenceStats can track calibration.
@@ -5304,33 +5372,44 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
   const handleAnswer = (correct, extra = {}) => {
     setAnswered({ correct, confidence, ...extra });
     recordAnswer(correct, q, { confidence });
-    const newQuizCount = (tomeProgress?.quizAnswered || 0) + 1;
-    updateTomeProgress({ quizAnswered: newQuizCount });
+    updateTomeProgress((prev) => ({ quizAnswered: (prev.quizAnswered || 0) + 1 })); // 17D functional form
     const totalQuizAcrossLib = playerState.library.reduce((s, t) => s + (t.progress?.quizAnswered || 0), 0) + 1;
     if (totalQuizAcrossLib >= 100) checkAchievement('quiz_warrior');
     if (correct) {
       checkAchievement('first_quiz');
       awardXP(10 + streak);
-      setStreak(s => {
-        const ns = s + 1;
-        if (ns >= 10) checkAchievement('streak_10');
-        if (ns >= 25) checkAchievement('perfectionist');
-        if (ns >= 50) checkAchievement('streak_50');
-        if (ns >= 100) checkAchievement('streak_100');
-        return ns;
-      });
+      // PHASE-17 17C: streak math + achievement checks hoisted out of the
+      // setStreak updater (`streak` from the render closure is current in this
+      // event handler — awardXP above already relies on it).
+      const ns = streak + 1;
+      setStreak(ns);
+      if (ns >= 10) checkAchievement('streak_10');
+      if (ns >= 25) checkAchievement('perfectionist');
+      if (ns >= 50) checkAchievement('streak_50');
+      if (ns >= 100) checkAchievement('streak_100');
     } else setStreak(0);
   };
 
   const submitFillBlankWithOracle = async () => {
     if (!textAnswer.trim() || grading) return;
+    gradeAbortRef.current?.abort();
+    const controller = new AbortController();
+    gradeAbortRef.current = controller;
     setGrading(true);
-    const verdict = await gradeAnswer({
-      question: q.question,
-      expectedAnswer: q.correctAnswer,
-      acceptedAnswers: q.acceptedAnswers,
-      userAnswer: textAnswer,
-    });
+    let verdict;
+    try {
+      verdict = await gradeAnswer({
+        question: q.question,
+        expectedAnswer: q.correctAnswer,
+        acceptedAnswers: q.acceptedAnswers,
+        userAnswer: textAnswer,
+        signal: controller.signal,
+      });
+    } catch (err) {
+      if (controller.signal.aborted || err?.name === 'AbortError') return; // unmounted / superseded — record nothing
+      throw err;
+    }
+    if (controller.signal.aborted) return;
     setGrading(false);
     handleAnswer(verdict.correct, {
       oracleFeedback: verdict.feedback,
@@ -5342,21 +5421,20 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
   // Override the verdict from the Oracle. Adjusts streak and counters since
   // we already recorded the original verdict.
   const overrideVerdict = (newCorrect) => {
-    setAnswered(prev => {
-      if (!prev) return prev;
-      if (prev.correct === newCorrect) return prev;
-      // Re-record so totalCorrect / streak stay accurate.
-      recordAnswer(newCorrect, q);
-      if (newCorrect) {
-        // Going wrong → correct: refund some XP, restart streak at 1.
-        awardXP(10);
-        setStreak(1);
-      } else {
-        // correct → wrong: zero streak.
-        setStreak(0);
-      }
-      return { ...prev, correct: newCorrect, overridden: true };
-    });
+    // PHASE-17 17C: side effects hoisted out of the setAnswered updater (it must
+    // stay pure — StrictMode double-invokes it, double-recording the override).
+    if (!answered || answered.correct === newCorrect) return;
+    // Re-record so totalCorrect / streak stay accurate.
+    recordAnswer(newCorrect, q);
+    if (newCorrect) {
+      // Going wrong → correct: refund some XP, restart streak at 1.
+      awardXP(10);
+      setStreak(1);
+    } else {
+      // correct → wrong: zero streak.
+      setStreak(0);
+    }
+    setAnswered(prev => (prev ? { ...prev, correct: newCorrect, overridden: true } : prev));
   };
 
   const handleSkip = () => {
@@ -5364,8 +5442,7 @@ function QuizMode({ courseSet, tomeId, questions: questionsProp, tomeProgress, a
     // Skip is "I don't know" — record without a confidence bucket so it
     // doesn't muddy the calibration analysis.
     recordAnswer(false, q);
-    const newQuizCount = (tomeProgress?.quizAnswered || 0) + 1;
-    updateTomeProgress({ quizAnswered: newQuizCount });
+    updateTomeProgress((prev) => ({ quizAnswered: (prev.quizAnswered || 0) + 1 })); // 17D functional form
     setStreak(0);
   };
 
@@ -5677,6 +5754,13 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
   const labs = courseSet.labs || [];
   const labProgress = tomeProgress?.labProgress || {};
 
+  // PHASE-17 17B (M2): abort an in-flight Oracle grade when the player leaves
+  // the lab detail view (selectedLab changes) or unmounts, so a verdict can't
+  // record a step for a lab they walked away from. Declared above the early
+  // return alongside labKeyRef so hook order is stable (see the note below).
+  const gradeAbortRef = useRef(null);
+  useEffect(() => () => { gradeAbortRef.current?.abort(); }, [selectedLab]);
+
   // Phase 44a round-11 P1 CRITICAL FIX: ALL hooks must run on every render
   // regardless of `selectedLab` state. The Phase 43e version put this
   // useRef + useEffect AFTER the `if (!selectedLab) return ...` early
@@ -5759,9 +5843,9 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
   // tome's labProgress object so other entries are preserved.
   const writeLabProgress = (entry) => {
     if (!selectedLab?.id) return;
-    updateTomeProgress({
-      labProgress: { ...(tomeProgress?.labProgress || {}), [selectedLab.id]: entry },
-    });
+    updateTomeProgress((prev) => ({ // 17D functional form
+      labProgress: { ...(prev.labProgress || {}), [selectedLab.id]: entry },
+    }));
   };
 
   // Multiple-choice steps and Oracle-graded text steps both flow through here
@@ -5779,12 +5863,12 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
       awardXP(15);
       setTimeout(() => {
         if (step + 1 >= steps.length) {
-          const newCount = (tomeProgress?.labsCompleted || 0) + 1;
           // Phase 43e: mark completed in labProgress AND bump global count.
-          updateTomeProgress({
-            labsCompleted: newCount,
-            labProgress: { ...(tomeProgress?.labProgress || {}), [selectedLab.id]: { step: steps.length, completed: true, completedAt: Date.now() } },
-          });
+          const completedAt = Date.now(); // hoisted — Date.now() is impure inside the updater (17D)
+          updateTomeProgress((prev) => ({
+            labsCompleted: (prev.labsCompleted || 0) + 1,
+            labProgress: { ...(prev.labProgress || {}), [selectedLab.id]: { step: steps.length, completed: true, completedAt } },
+          }));
           checkAchievement('first_lab');
           const totalLabsAcrossLib = playerState.library.reduce((s, t) => s + (t.progress?.labsCompleted || 0), 0) + 1;
           if (totalLabsAcrossLib >= 10) checkAchievement('lab_master');
@@ -5810,12 +5894,12 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
     if (correct) {
       awardXP(15);
       if (step + 1 >= steps.length) {
-        const newCount = (tomeProgress?.labsCompleted || 0) + 1;
         // Phase 43e: same completion write as submitStep.
-        updateTomeProgress({
-          labsCompleted: newCount,
-          labProgress: { ...(tomeProgress?.labProgress || {}), [selectedLab.id]: { step: steps.length, completed: true, completedAt: Date.now() } },
-        });
+        const completedAt = Date.now(); // hoisted — Date.now() is impure inside the updater (17D)
+        updateTomeProgress((prev) => ({
+          labsCompleted: (prev.labsCompleted || 0) + 1,
+          labProgress: { ...(prev.labProgress || {}), [selectedLab.id]: { step: steps.length, completed: true, completedAt } },
+        }));
         checkAchievement('first_lab');
         const totalLabsAcrossLib = playerState.library.reduce((s, t) => s + (t.progress?.labsCompleted || 0), 0) + 1;
         if (totalLabsAcrossLib >= 10) checkAchievement('lab_master');
@@ -5832,13 +5916,24 @@ function LabMode({ courseSet, tomeProgress, awardXP, updateTomeProgress, playerS
 
   const submitTextWithOracle = async () => {
     if (!textAnswer.trim() || grading) return;
+    gradeAbortRef.current?.abort();
+    const controller = new AbortController();
+    gradeAbortRef.current = controller;
     setGrading(true);
-    const verdict = await gradeAnswer({
-      question: currentStep?.prompt || currentStep?.question,
-      expectedAnswer: currentStep?.answer,
-      acceptedAnswers: currentStep?.acceptedAnswers,
-      userAnswer: textAnswer,
-    });
+    let verdict;
+    try {
+      verdict = await gradeAnswer({
+        question: currentStep?.prompt || currentStep?.question,
+        expectedAnswer: currentStep?.answer,
+        acceptedAnswers: currentStep?.acceptedAnswers,
+        userAnswer: textAnswer,
+        signal: controller.signal,
+      });
+    } catch (err) {
+      if (controller.signal.aborted || err?.name === 'AbortError') return; // left the lab / superseded — record nothing
+      throw err;
+    }
+    if (controller.signal.aborted) return;
     setGrading(false);
     submitStep(verdict.correct, {
       awaitContinue: true,
@@ -6036,9 +6131,9 @@ function ChatMode({ courseSet, tomeProgress, updateTomeProgress, checkAchievemen
   // Chat history lives in tome progress so it persists across navigation, reloads, and journal restores
   const messages = tomeProgress?.chatHistory || [];
   const setMessages = (updater) => {
-    updateTomeProgress({
-      chatHistory: typeof updater === 'function' ? updater(messages) : updater,
-    });
+    updateTomeProgress((prev) => ({ // 17D functional form — base off live progress, not the stale render closure
+      chatHistory: typeof updater === 'function' ? updater(prev.chatHistory || []) : updater,
+    }));
   };
 
   const [input, setInput] = useState('');
@@ -6210,18 +6305,20 @@ ${fullKb}
     const query = input;
     setInput('');
 
-    // Update chat history + oracle counter together to avoid races
+    // Append the user turn to the LIVE history (not the stale render copy) and
+    // bump the oracle counter together (17D). newMessages/newOracleCount stay for
+    // the request payload + the oracle_friend threshold check below.
     const newOracleCount = (tomeProgress?.oracleMessages || 0) + 1;
-    updateTomeProgress({
-      chatHistory: newMessages,
-      oracleMessages: newOracleCount,
-    });
+    updateTomeProgress((prev) => ({
+      chatHistory: [...(prev.chatHistory || []), userMsg],
+      oracleMessages: (prev.oracleMessages || 0) + 1,
+    }));
     if (newOracleCount >= 25 && checkAchievement) checkAchievement('oracle_friend');
 
     // Search-only mode: no AI call
     if (mode === 'search') {
       const result = renderSearchResults(query);
-      updateTomeProgress({ chatHistory: [...newMessages, result] });
+      updateTomeProgress((prev) => ({ chatHistory: [...(prev.chatHistory || []), result] })); // 17D
       return;
     }
 
@@ -6262,7 +6359,7 @@ ${fullKb}
         } else if (!text) {
           fallbackReason = 'The Oracle was silent. Falling back to Tome Search.';
         } else {
-          updateTomeProgress({ chatHistory: [...newMessages, { role: 'assistant', content: text, sources: relevantSources }] });
+          updateTomeProgress((prev) => ({ chatHistory: [...(prev.chatHistory || []), { role: 'assistant', content: text, sources: relevantSources }] })); // 17D
           setLoading(false);
           return;
         }
@@ -6273,12 +6370,12 @@ ${fullKb}
 
     // Fallback path
     const fallback = renderSearchResults(query);
-    updateTomeProgress({
-      chatHistory: [...newMessages,
+    updateTomeProgress((prev) => ({ // 17D
+      chatHistory: [...(prev.chatHistory || []),
         { role: 'system_notice', content: fallbackReason },
         fallback,
       ],
-    });
+    }));
     setLoading(false);
   };
 
@@ -8922,11 +9019,11 @@ function CalendarScreen({ playerState, setScreen, onClaim }) {
   const longest = playerState.longestLoginStreak || 0;
   const totalLogins = playerState.totalLogins || 0;
   const devotion = playerState.devotion || 0;
-  // The day that *would* be claimed if the player presses claim now.
+  // The day that *would* be claimed if the player presses claim now. Shares
+  // computeNextClaim with the actual claim path (17E) so preview ↔ claim never
+  // diverge; gap is kept only for the streak-status message below.
   const gap = playerState.lastClaimedDate ? dayDiff(playerState.lastClaimedDate, today) : null;
-  const willStreak = gap === 1 ? streak + 1 : 1;
-  const previewDay = claimedToday ? streak : willStreak;
-  const cycleDayIdx = ((previewDay - 1) % 7) + 1;
+  const { cycleDay: cycleDayIdx } = computeNextClaim(today, playerState.lastClaimedDate, streak);
 
   const [feedback, setFeedback] = useState(null);
   const tryClaim = () => {

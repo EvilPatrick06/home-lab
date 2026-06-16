@@ -106,8 +106,9 @@ export default function ExamMode({ courseSet, tomeId, tomeProgress, updateTomePr
       byDomain: summary.byDomain,
       status: reason,
     };
-    const prior = Array.isArray(tomeProgress?.practiceExams) ? tomeProgress.practiceExams : [];
-    updateTomeProgress?.({ practiceExams: [...prior, record].slice(-20) });
+    // 17D functional form: append to the LIVE practiceExams, not the stale
+    // render-time copy — a Realtime update during the exam isn't clobbered on submit.
+    updateTomeProgress?.((prev) => ({ practiceExams: [...(Array.isArray(prev.practiceExams) ? prev.practiceExams : []), record].slice(-20) }));
     awardXP?.(10 + summary.correct, `Mock exam: ${summary.scorePct}%`);
     setResultsSummary({ ...summary, durationSec: elapsedSec, status: reason });
     setShowSubmitConfirm(false);

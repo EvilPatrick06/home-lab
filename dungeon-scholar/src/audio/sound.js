@@ -41,10 +41,19 @@ const loadSettings = () => {
   } catch { /* corrupted blob — keep defaults */ }
 };
 
+// M10 (17F): module-level error hook so audio-settings persistence failures
+// surface through the same App toast without importing React here. Fires at
+// most once per session (sticky `persistErrorFired`).
+let persistErrorHandler = null;
+let persistErrorFired = false;
+export const setAudioPersistErrorHandler = (fn) => { persistErrorHandler = fn; };
+
 const saveSettings = () => {
   if (typeof localStorage === 'undefined') return;
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(settings)); }
-  catch { /* quota / private mode — best effort */ }
+  catch {
+    if (!persistErrorFired && persistErrorHandler) { persistErrorFired = true; persistErrorHandler(); }
+  }
 };
 
 loadSettings();

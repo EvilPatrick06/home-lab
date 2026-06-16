@@ -25,12 +25,28 @@ export function loadFromLocalStorage() {
   }
 }
 
+// M10 (17F): browsers throw differing QuotaExceededError variants — match by
+// DOMException name OR legacy numeric code so we can tell "storage full /
+// unavailable" (private mode) from an ordinary error.
+export function isQuotaExceededError(err) {
+  return (
+    err instanceof DOMException &&
+    (err.code === 22 ||                       // most browsers
+     err.code === 1014 ||                     // legacy Firefox
+     err.name === 'QuotaExceededError' ||
+     err.name === 'NS_ERROR_DOM_QUOTA_REACHED')
+  );
+}
+
 export function saveToLocalStorage(state) {
   try {
     const payload = { ...(state || {}), __schemaVer: CURRENT_SCHEMA_VER };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-  } catch {
-    // Quota exceeded or unavailable — silent. Cloud / Export still work.
+    return { ok: true };
+  } catch (err) {
+    // Quota exceeded or storage unavailable (private mode). Cloud / Export
+    // still work — callers decide whether to surface this (M10 / 17F).
+    return { ok: false, quota: isQuotaExceededError(err) };
   }
 }
 

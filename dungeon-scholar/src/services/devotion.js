@@ -49,3 +49,22 @@ export const computeNextClaim = (today, lastClaimedDate, currentStreak) => {
   const cycleDay = ((willStreak - 1) % 7) + 1;
   return { claimedToday: false, willStreak, cycleDay };
 };
+
+// M13 (17E): monotone-fence claim decision. `now` is epoch ms; `lastClaimedAt`
+// is the epoch-ms stamp written at the previous claim (null for legacy saves).
+// A backward clock step within 48 h refuses the claim — this is what blocks the
+// rollback-across-midnight double claim. A fence further than 48 h in the future
+// is treated as a corrupt import and the claim self-heals (no hard lock).
+export const CLOCK_SKEW_LIMIT_MS = 48 * 60 * 60 * 1000;
+export const evaluateClaim = ({ now, today, lastClaimedDate, lastClaimedAt, loginStreak }) => {
+  if (lastClaimedDate === today) {
+    return { ok: false, reason: "Thou hast already claimed today's devotion." };
+  }
+  if (typeof lastClaimedAt === 'number'
+      && now < lastClaimedAt
+      && (lastClaimedAt - now) < CLOCK_SKEW_LIMIT_MS) {
+    return { ok: false, reason: 'The hourglass runs backward — devotion must wait for time to catch up.' };
+  }
+  const { willStreak, cycleDay } = computeNextClaim(today, lastClaimedDate, loginStreak || 0);
+  return { ok: true, newStreak: willStreak, cycleDay };
+};

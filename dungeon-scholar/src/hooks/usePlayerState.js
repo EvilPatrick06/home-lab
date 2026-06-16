@@ -67,6 +67,10 @@ export function usePlayerState(defaultState, user = null) {
   const [cloudPreview, setCloudPreview] = useState(null);
   const [status, setStatus] = useState('idle');
   const [lastSyncedAt, setLastSyncedAt] = useState(() => loadSyncMeta().lastSyncedAt);
+  // M10 (17F): sticky flag — set the first time a local save fails (quota /
+  // private mode). Stickiness IS the de-dupe: the App-level toast fires once.
+  const [localSaveFailed, setLocalSaveFailed] = useState(false);
+  const noteSaveResult = (res) => { if (res && res.ok === false) setLocalSaveFailed(true); };
 
   const latestRef = useRef(state);
   const localTimeoutRef = useRef(null);
@@ -111,7 +115,7 @@ export function usePlayerState(defaultState, user = null) {
       latestRef.current = nextState;
       setStateInternal(nextState);
       trackLocalHash(nextState);
-      saveToLocalStorage(nextState);
+      noteSaveResult(saveToLocalStorage(nextState));
       if (cloudUpdatedAt) {
         lastKnownCloudUpdatedAtRef.current = cloudUpdatedAt;
         writeSyncMeta({ lastSyncedAt: cloudUpdatedAt, dirty: false });
@@ -149,7 +153,7 @@ export function usePlayerState(defaultState, user = null) {
       clearTimeout(localTimeoutRef.current);
       localTimeoutRef.current = null;
     }
-    saveToLocalStorage(latestRef.current);
+    noteSaveResult(saveToLocalStorage(latestRef.current));
   }, []);
 
   const flushCloud = useCallback(() => {
@@ -168,7 +172,7 @@ export function usePlayerState(defaultState, user = null) {
 
       if (localTimeoutRef.current) clearTimeout(localTimeoutRef.current);
       localTimeoutRef.current = setTimeout(() => {
-        saveToLocalStorage(latestRef.current);
+        noteSaveResult(saveToLocalStorage(latestRef.current));
         localTimeoutRef.current = null;
       }, LOCAL_DEBOUNCE_MS);
 
@@ -409,6 +413,6 @@ export function usePlayerState(defaultState, user = null) {
     setCloudPreview(null);
   }, [user, cloudPreview, writeSyncMeta, applyRemoteState]);
 
-  const sync = { mergeRequired, localPreview, cloudPreview, resolveMerge, status, lastSyncedAt };
+  const sync = { mergeRequired, localPreview, cloudPreview, resolveMerge, status, lastSyncedAt, localSaveFailed };
   return [state, setState, sync];
 }
